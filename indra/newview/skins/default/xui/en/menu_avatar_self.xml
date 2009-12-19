@@ -187,8 +187,7 @@
      layout="topleft"
      name="Appearance...">
         <menu_item_call.on_click
-         function="ShowFloater"
-         parameter="appearance" />
+         function="CustomizeAvatar" />
         <menu_item_call.on_enable
          function="Edit.EnableCustomizeAvatar" />
     </menu_item_call>
@@ -200,14 +199,6 @@
          function="SideTray.PanelPeopleTab"
          parameter="friends_panel" />
     </menu_item_call>
-   <!--menu_item_call
-     label="My Gestures"
-     layout="topleft"
-     name="Gestures...">
-        <menu_item_call.on_click
-         function="ShowFloater"
-         parameter="gestures" />
-    </menu_item_call-->
     <menu_item_call
      label="My Groups"
      layout="topleft"

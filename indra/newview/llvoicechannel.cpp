@@ -316,8 +316,6 @@ void LLVoiceChannel::activate()
 		}
 	}
 
-	sCurrentVoiceChannelChangedSignal(this->mSessionID);
-
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
 		// responsible for setting status to active
@@ -327,6 +325,9 @@ void LLVoiceChannel::activate()
 	{
 		setState(STATE_CALL_STARTED);
 	}
+
+	//do not send earlier, channel should be initialized, should not be in STATE_NO_CHANNEL_INFO state
+	sCurrentVoiceChannelChangedSignal(this->mSessionID);
 }
 
 void LLVoiceChannel::getChannelInfo()

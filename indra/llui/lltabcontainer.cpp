@@ -120,6 +120,8 @@ LLTabContainer::Params::Params()
 	tab_min_width("tab_min_width"),
 	tab_max_width("tab_max_width"),
 	tab_height("tab_height"),
+	label_pad_bottom("label_pad_bottom"),
+	label_pad_left("label_pad_left"),
 	tab_position("tab_position"),
 	hide_tabs("hide_tabs", false),
 	tab_padding_right("tab_padding_right"),
@@ -145,6 +147,8 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mMinTabWidth(0),
 	mMaxTabWidth(p.tab_max_width),
 	mTabHeight(p.tab_height),
+	mLabelPadBottom(p.label_pad_bottom),
+	mLabelPadLeft(p.label_pad_left),
 	mPrevArrowBtn(NULL),
 	mNextArrowBtn(NULL),
 	mIsVertical( p.tab_position == LEFT ),
@@ -906,7 +910,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	
 	if (placeholder)
 	{
-		btn_rect.translate(0, -3); // *TODO: make configurable
+		btn_rect.translate(0, -6); // *TODO: make configurable
 		LLTextBox::Params params;
 		params.name(trimmed_label);
 		params.rect(btn_rect);
@@ -933,6 +937,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.image_selected(mMiddleTabParams.tab_left_image_selected);
 			p.scale_image(true);
 			p.font_halign = mFontHalign;
+			p.pad_bottom( mLabelPadBottom );
 			p.tab_stop(false);
 			p.label_shadow(false);
 			if (indent)
@@ -956,8 +961,9 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.tab_stop(false);
 			p.label_shadow(false);
 			// Try to squeeze in a bit more text
-			p.pad_left(4);
+			p.pad_left( mLabelPadLeft );
 			p.pad_right(2);
+			p.pad_bottom( mLabelPadBottom );
 			p.font_halign = mFontHalign;
 			p.follows.flags = FOLLOWS_LEFT;
 			p.follows.flags = FOLLOWS_LEFT;
@@ -1897,6 +1903,3 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 		}
 	}
 }
-
-
-

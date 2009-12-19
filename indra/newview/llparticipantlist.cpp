@@ -49,11 +49,14 @@
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
 
+static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
+
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
 ,	mParticipantListMenu(NULL)
+,	mExcludeAgent(true)
 {
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
@@ -97,6 +100,8 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 			mModeratorList.insert(speakerp->mID);
 		}
 	}
+	// we need to exclude agent id for non group chat
+	mExcludeAgent = !gAgent.isInGroup(mSpeakerMgr->getSessionID());
 	mAvatarList->setDirty(true);
 	sort();
 }
@@ -110,13 +115,16 @@ LLParticipantList::~LLParticipantList()
 	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
 	// See ticket EXT-3427
 	// hide menu before deleting it to stop enable and check handlers from triggering.
-	if(mParticipantListMenu)
+	if(mParticipantListMenu && !LLApp::isExiting())
 	{
 		mParticipantListMenu->hide();
 	}
 
-	delete mParticipantListMenu;
-	mParticipantListMenu = NULL;
+	if (mParticipantListMenu)
+	{
+		delete mParticipantListMenu;
+		mParticipantListMenu = NULL;
+	}
 }
 
 void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
@@ -307,7 +315,16 @@ void LLParticipantList::sort()
 	// TODO: Implement more sorting orders after specs updating (EM)
 	switch ( mSortOrder ) {
 	case E_SORT_BY_NAME :
-		mAvatarList->sortByName();
+		// if mExcludeAgent == true , then no need to keep agent on top of the list
+		if(mExcludeAgent)
+		{
+			mAvatarList->sortByName();
+		}
+		else
+		{
+			mAvatarList->setComparator(&AGENT_ON_TOP_NAME_COMPARATOR);
+			mAvatarList->sort();
+		}
 		break;
 	default :
 		llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
@@ -317,7 +334,7 @@ void LLParticipantList::sort()
 
 void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id)
 {
-	if (gAgent.getID() == avatar_id) return;
+	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
 
 	existing_list.push_back(avatar_id);
 	adjustParticipant(avatar_id);

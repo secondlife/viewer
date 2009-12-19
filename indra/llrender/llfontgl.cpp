@@ -761,6 +761,29 @@ U8 LLFontGL::getStyleFromString(const std::string &style)
 }
 
 // static
+std::string LLFontGL::getStringFromStyle(U8 style)
+{
+	std::string style_string;
+	if (style & NORMAL)
+	{
+		style_string += "|NORMAL";
+	}
+	if (style & BOLD)
+	{
+		style_string += "|BOLD";
+	}
+	if (style & ITALIC)
+	{
+		style_string += "|ITALIC";
+	}
+	if (style & UNDERLINE)
+	{
+		style_string += "|UNDERLINE";
+	}
+	return style_string;
+}
+
+// static
 std::string LLFontGL::nameFromFont(const LLFontGL* fontp)
 {
 	return fontp->mFontDescriptor.getName();

@@ -103,7 +103,7 @@
      name="buttons">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Teleport"
          layout="topleft"
          left="0"
@@ -112,7 +112,7 @@
          width="90" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Map"
          layout="topleft"
          left_pad="10"
@@ -121,7 +121,7 @@
          width="90" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Edit"
          layout="topleft"
          right="-1"

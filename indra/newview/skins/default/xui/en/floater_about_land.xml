@@ -1093,11 +1093,11 @@
                 <name_list.columns
                  label="Count"
                  name="count"
-                 width="70" />
+                 width="60" />
                 <name_list.columns
                  label="Most Recent"
                  name="mostrecent"
-                 width="160" />
+                 width="170" />
             </name_list>
         </panel>
         <panel

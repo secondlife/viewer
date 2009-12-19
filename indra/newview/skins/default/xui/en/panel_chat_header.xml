@@ -9,7 +9,7 @@
 	 layout="topleft"
      name="im_header"
      width="310">
-		<avatar_icon
+	<avatar_icon
          follows="left"
          height="18"
          image_name="Generic_Person"
@@ -20,7 +20,7 @@
          top="3"
          width="18" />
     <text_editor
-      allow_scroll="false" 
+      allow_scroll="false"
       v_pad = "0"
       read_only = "true"
       follows="left|right"

@@ -2,8 +2,9 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
+ can_close="true"
  follows="left|top"
- height="526"
+ height="516"
  layout="topleft"
  name="Snapshot"
  help_topic="snapshot"
@@ -14,94 +15,84 @@
      name="unknown">
         unknown
     </floater.string>
-    <text
-     type="string"
-     length="1"
-     follows="top|left"
-     height="15"
-     layout="topleft"
-     left="10"
-     name="type_label"
-     top="25"
-     width="195">
-        Snapshot destination
-    </text>
     <radio_group
-     height="60"
+     height="58"
      label="Snapshot type"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="snapshot_type_radio"
-     top_pad="5"
-     width="195">
+     top="25"
+     width="205">
         <radio_item
          bottom="19"
          height="16"
-         label="Send via email"
+         label="Email"
          layout="topleft"
          name="postcard" />
         <radio_item
          bottom="38"
          height="16"
-         label="Save to your inventory (L$[AMOUNT])"
+         label="My inventory (L$[AMOUNT])"
          layout="topleft"
          name="texture" />
         <radio_item
          bottom="57"
          height="16"
-         label="Save to your hard drive"
+         label="Save to my computer"
          layout="topleft"
          name="local" />
     </radio_group>
     <text
      type="string"
+     font="SansSerifSmall"
      length="1"
      follows="left|top"
-     height="25"
+     height="14"
      layout="topleft"
+     right="-5"
      left_delta="0"
+     halign="right"
      name="file_size_label"
      top_pad="106"
      width="195">
-        File size: [SIZE] KB
+        [SIZE] KB
     </text>
     <button
      follows="left|top"
-     height="20"
-     label="Refresh Snapshot"
+     height="22"
+     image_overlay="Refresh_Off"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="new_snapshot_btn"
-     top_delta="15"
-     width="195" />
+     width="23" />
     <button
      follows="left|top"
-     height="20"
+     height="23"
      label="Send"
      layout="topleft"
-     left_delta="0"
+     left_pad="5"
+     right="-5"
      name="send_btn"
-     top_pad="2"
-     width="105" />
+     width="100" />
     <button
      follows="left|top"
-     height="20"
+     height="23"
      label="Save (L$[AMOUNT])"
      layout="topleft"
-     left_delta="0"
+     right="-5"
      name="upload_btn"
      top_delta="0"
-     width="105" />
+     width="100" />
     <flyout_button
      follows="left|top"
-     height="20"
+     height="23"
      label="Save"
      layout="topleft"
-     left_delta="0"
+     right="-5"
      name="save_btn"
      tool_tip="Save image to a file"
      top_delta="0"
-     width="105">
+     width="100">
         <flyout_button.item
          label="Save"
          value="save" />
@@ -109,52 +100,51 @@
          label="Save As..."
          value="save as" />
     </flyout_button>
-    <button
+        <button
      follows="left|top"
-     height="20"
-     label="Cancel"
-     layout="topleft"
-     left_pad="5"
-     name="discard_btn"
-     top_delta="0"
-     width="85" />
-    <button
-     follows="left|top"
-     height="20"
-     label="More &gt;&gt;"
+     height="23"
+     label="More"
      layout="topleft"
      left="10"
      name="more_btn"
      tool_tip="Advanced options"
-     top="270"
      width="80" />
     <button
      follows="left|top"
-     height="20"
-     label="&lt;&lt; Less"
+     height="23"
+     label="Less"
      layout="topleft"
      left_delta="0"
      name="less_btn"
      tool_tip="Advanced options"
      top_delta="0"
      width="80" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     right="-5"
+     left_pad="5"
+     name="discard_btn"
+     width="100" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     height="15"
+     height="12"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="type_label2"
      top_pad="5"
-     width="115">
+     width="120">
         Size
     </text>
     <text
      type="string"
      length="1"
      follows="top|left"
-     height="15"
+     height="12"
      layout="topleft"
      left_pad="5"
      name="format_label"
@@ -163,13 +153,12 @@
         Format
     </text>
     <combo_box
-     height="20"
+     height="23"
      label="Resolution"
      layout="topleft"
      left="10"
      name="postcard_size_combo"
-     top="312"
-     width="115">
+     width="120">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
@@ -192,13 +181,13 @@
          value="[i-1,i-1]" />
     </combo_box>
     <combo_box
-     height="20"
+     height="23"
      label="Resolution"
      layout="topleft"
      left_delta="0"
      name="texture_size_combo"
      top_delta="0"
-     width="115">
+     width="120">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
@@ -221,13 +210,13 @@
          value="[i-1,i-1]" />
     </combo_box>
     <combo_box
-     height="20"
+     height="23"
      label="Resolution"
      layout="topleft"
      left_delta="0"
      name="local_size_combo"
      top_delta="0"
-     width="115">
+     width="120">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
@@ -262,12 +251,11 @@
          value="[i-1,i-1]" />
     </combo_box>
     <combo_box
-     height="20"
+     height="23"
      label="Format"
      layout="topleft"
      left_pad="5"
      name="local_format_combo"
-     top_delta="0"
      width="70">
         <combo_box.item
          label="PNG"
@@ -286,13 +274,13 @@
      height="20"
      increment="32"
      label="Width"
-     label_width="30"
+     label_width="40"
      layout="topleft"
      left="10"
      max_val="6016"
      min_val="32"
      name="snapshot_width"
-     top="337"
+     top_pad="10"
      width="95" />
     <spinner
      allow_text_entry="false"
@@ -301,7 +289,7 @@
      height="20"
      increment="32"
      label="Height"
-     label_width="35"
+     label_width="40"
      layout="topleft"
      left_pad="5"
      max_val="6016"
@@ -311,7 +299,7 @@
      width="95" />
     <check_box
      bottom_delta="20"
-     label="Constrain Proportions"
+     label="Constrain proportions"
      layout="topleft"
      left="10"
      name="keep_aspect_check" />
@@ -321,32 +309,32 @@
      height="15"
      increment="1"
      initial_value="75"
-     label="Image Quality"
+     label="Image quality"
+     label_width="100"
      layout="topleft"
      left_delta="0"
      max_val="100"
      name="image_quality_slider"
      top_pad="5"
-     width="210" />
+     width="205" />
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="20"
+     height="13"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="layer_type_label"
-     top_pad="8"
+     top_pad="5"
      width="50">
         Capture:
     </text>
     <combo_box
-     height="20"
+     height="23"
      label="Image Layers"
      layout="topleft"
-     left_delta="50"
+     left="30"
      name="layer_types"
-     top_delta="-3"
      width="145">
         <combo_box.item
          label="Colors"
@@ -362,33 +350,38 @@
          value="objects" />
     </combo_box>
     <check_box
-     bottom_delta="20"
-     label="Show interface in snapshot"
+     label="Interface"
      layout="topleft"
-     left="10"
+     left="30"
+     top_pad="10"
+     width="180"
      name="ui_check" />
     <check_box
-     bottom_delta="20"
-     label="Show HUD objects in snapshot"
+     label="HUDs"
      layout="topleft"
-     left="10"
+     left="30"
+     top_pad="10"
+     width="180"
      name="hud_check" />
     <check_box
-     bottom_delta="20"
      label="Keep open after saving"
      layout="topleft"
      left="10"
+     top_pad="8"
+     width="180"
      name="keep_open_check" />
     <check_box
-     bottom_delta="20"
-     label="Freeze frame (fullscreen preview)"
+     label="Freeze frame (fullscreen)"
      layout="topleft"
      left="10"
+     top_pad="8"
+     width="180"
      name="freeze_frame_check" />
     <check_box
-     bottom_delta="20"
      label="Auto-refresh"
      layout="topleft"
      left="10"
+     top_pad="8"
+     width="180"
      name="auto_snapshot_check" />
 </floater>

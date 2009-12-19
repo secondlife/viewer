@@ -79,7 +79,9 @@ public:
 		Optional<S32>						tab_width,
 											tab_min_width,
 											tab_max_width,
-											tab_height;
+											tab_height,
+											label_pad_bottom,
+											label_pad_left;
 
 		Optional<bool>						hide_tabs;
 		Optional<S32>						tab_padding_right;
@@ -260,6 +262,11 @@ private:
 	S32								mMaxTabWidth;
 	S32								mTotalTabWidth;
 	S32								mTabHeight;
+
+	// Padding under the text labels of tab buttons
+	S32								mLabelPadBottom;
+	// Padding to the left of text labels of tab buttons
+	S32								mLabelPadLeft;
 
 	LLFrameTimer					mDragAndDropDelayTimer;
 	

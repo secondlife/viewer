@@ -78,7 +78,6 @@ Maximum 200 per group daily
        image_unselected="AddItem_Off"
        image_disabled="AddItem_Disabled"
        layout="topleft"
-       label="Create a new notice"
        left="5"
        name="create_new_notice"
        tool_tip="Create a new notice"

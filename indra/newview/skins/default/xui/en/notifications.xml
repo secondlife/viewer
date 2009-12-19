@@ -370,6 +370,19 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="AttachmentDrop"
+   type="alertmodal">
+    You are about to drop your attachment.
+    Are you sure you want to continue?
+    <usetemplate
+     ignoretext="Confirm before dropping attachments"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
     icon="alertmodal.tga"
     name="ClickUnimplemented"
     type="alertmodal">
@@ -5758,6 +5771,17 @@ They will be blocked for a few seconds for your security.
     <form name="form">
       <button index="0" name="respondbutton" text="Respond"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ConfirmCloseAll"
+   type="alertmodal">
+Are you sure you want to close all IMs?
+    <usetemplate
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Ok"/>
   </notification>
 
   <notification icon="notifytip.tga"

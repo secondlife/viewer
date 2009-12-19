@@ -50,8 +50,10 @@ with the same filename but different name
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true" />
   <texture name="Arrow_Right_Press" file_name="navbar/Arrow_Right_Press.png" preload="true" />
 
+<!--
   <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
   <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
+-->
 
   <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
   <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
@@ -454,6 +456,7 @@ with the same filename but different name
   <texture name="SegmentedBtn_Left_Press" file_name="widgets/SegmentedBtn_Left_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Disabled" file_name="widgets/SegmentedBtn_Left_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Selected" file_name="widgets/SegmentedBtn_Left_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+  <texture name="SegmentedBtn_Left_Selected_Over" file_name="widgets/SegmentedBtn_Left_Selected_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Selected_Press" file_name="widgets/SegmentedBtn_Left_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Selected_Disabled" file_name="widgets/SegmentedBtn_Left_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
 

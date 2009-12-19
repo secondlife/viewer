@@ -129,7 +129,7 @@
        <button
          enabled="false"
          follows="bottom|left"
-         height="25"
+         height="23"
          label="Info"
          layout="topleft"
          left="5"
@@ -141,7 +141,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         height="25"
+         height="23"
          label="Teleport"
          layout="topleft"
          left_pad="5"
@@ -153,7 +153,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         height="25"
+         height="23"
          label="Map"
          layout="topleft"
          left_pad="5"

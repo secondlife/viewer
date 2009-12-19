@@ -1137,6 +1137,11 @@ void LLTextBase::reflow(S32 start_index)
 			// grow line height as necessary based on reported height of this segment
 			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
+			if (remaining_pixels < 0)
+			{
+				// getNumChars() and getDimensions() should return consistent results
+				remaining_pixels = 0;
+			}
 
 			seg_offset += character_count;
 
@@ -2463,6 +2468,12 @@ S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, 
 S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
 {
 	LLWString text = mEditor.getWText();
+
+	LLUIImagePtr image = mStyle->getImage();
+	if( image.notNull())
+	{
+		num_pixels -= image->getWidth();
+	}
 
 	// search for newline and if found, truncate there
 	S32 last_char = mStart + segment_offset;

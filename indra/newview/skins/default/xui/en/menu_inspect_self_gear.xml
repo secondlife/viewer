@@ -19,8 +19,7 @@
    label="My Appearance"
    name="my_appearance">
     <menu_item_call.on_click
-     function="ShowFloater"
-     parameter="appearance" />
+     function="CustomizeAvatar" />
     <menu_item_call.on_enable
      function="Edit.EnableCustomizeAvatar" />
   </menu_item_call>

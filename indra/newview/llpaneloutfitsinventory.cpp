@@ -80,6 +80,7 @@ BOOL LLPanelOutfitsInventory::postBuild()
 	sShowDebugEditor = gSavedSettings.getBOOL("ShowDebugAppearanceEditor");
 	initTabPanels();
 	initListCommandsHandlers();
+
 	return TRUE;
 }
 
@@ -430,6 +431,7 @@ void LLPanelOutfitsInventory::initTabPanels()
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	mTabPanels[0] = myoutfits_panel;
 	mActivePanel = myoutfits_panel;
+
 
 	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>("cof_accordionpanel");
 	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);

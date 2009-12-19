@@ -2,8 +2,8 @@
 <floater
  legacy_header_height="18"
  can_dock="true"
- can_close="true"
- can_minimize="false"
+ can_minimize="true"
+ can_close="false"
  center_horiz="true"
  follows="bottom"
  height="110"
@@ -38,12 +38,12 @@
         Fly Backwards (press Down Arrow or S)
     </string>
     <panel
-     border="false" 
+     border="false"
      height="83"
-     follows="left|top" 
+     follows="left|top"
      layout="topleft"
      left="0"
-     mouse_opaque="false" 
+     mouse_opaque="false"
      name="panel_actions"
      top="0"
      width="115">
@@ -130,7 +130,7 @@
     </panel>
 <!-- Width and height of this panel should be synchronized with panel_stand_stop_flying.xml -->
     <panel
-     border="false" 
+     border="false"
      height="27"
      layout="topleft"
      left="0"
@@ -141,7 +141,7 @@
          follows="left|bottom"
          height="23"
          image_overlay="Move_Walk_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
 	 label=""
          layout="topleft"
          name="mode_walk_btn"
@@ -151,10 +151,10 @@
          top="2"
          width="31" />
         <button
-         follows="left|bottom" 
+         follows="left|bottom"
          height="23"
          image_overlay="Move_Run_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
 	 label=""
          layout="topleft"
          left_pad="0"
@@ -168,7 +168,7 @@
          follows="left|bottom"
          height="23"
          image_overlay="Move_Fly_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
 	 label=""
          layout="topleft"
          left_pad="0"
@@ -179,7 +179,7 @@
          top="2"
          width="31" />
         <button
-         visible="false" 
+         visible="false"
          follows="left|bottom"
          height="20"
          label="Stop Flying"
