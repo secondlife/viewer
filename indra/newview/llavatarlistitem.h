@@ -136,11 +136,11 @@ private:
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
 
-	static bool	mStaticInitialized; // this variable is introduced to improve code readability
-	static S32	mIconWidth; // icon width + padding
-	static S32  mInfoBtnWidth; //info btn width + padding
-	static S32  mProfileBtnWidth; //profile btn width + padding
-	static S32  mSpeakingIndicatorWidth; //speaking indicator width + padding
+	static bool	sStaticInitialized; // this variable is introduced to improve code readability
+	static S32	sIconWidth; // icon width + padding
+	static S32  sInfoBtnWidth; //info btn width + padding
+	static S32  sProfileBtnWidth; //profile btn width + padding
+	static S32  sSpeakingIndicatorWidth; //speaking indicator width + padding
 };
 
 #endif //LL_LLAVATARLISTITEM_H
