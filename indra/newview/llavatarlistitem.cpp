@@ -43,6 +43,12 @@
 #include "lltextutil.h"
 #include "llbutton.h"
 
+bool LLAvatarListItem::mStaticInitialized = false;
+S32 LLAvatarListItem::mIconWidth = 0;
+S32 LLAvatarListItem::mInfoBtnWidth = 0;
+S32 LLAvatarListItem::mProfileBtnWidth = 0;
+S32 LLAvatarListItem::mSpeakingIndicatorWidth = 0;
+
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 :	LLPanel(),
 	mAvatarIcon(NULL),
@@ -88,10 +94,15 @@ BOOL  LLAvatarListItem::postBuild()
 
 	// Remember avatar icon width including its padding from the name text box,
 	// so that we can hide and show the icon again later.
-	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
-	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
-	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
-	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
+	if (!mStaticInitialized)
+	{
+		mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+		mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
+		mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
+		mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight;
+
+		mStaticInitialized = true;
+	}
 
 /*
 	if(!p.buttons.profile)
