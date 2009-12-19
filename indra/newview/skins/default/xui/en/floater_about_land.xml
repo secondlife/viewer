@@ -274,7 +274,7 @@
             <button
              enabled="false"
              follows="left|top"
-             height="23S"
+             height="23"
              label="Deed"
              layout="topleft"
              left_pad="2"
@@ -470,6 +470,16 @@
              left_delta="82"
              name="Buy Land..."
              top="328"
+             width="100" />
+            <button
+             enabled="true"
+             follows="left|top"
+             height="23"
+             label="Script Info"
+             layout="topleft"
+             left="10"
+             name="Scripts..."
+             top="352"
              width="100" />
             <button
              enabled="false"

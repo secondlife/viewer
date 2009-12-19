@@ -3381,6 +3381,16 @@ scratch and wear it.
     </scroll_container>
     <button
      bottom="598"
+     follows="right|left"
+     height="20"
+     label="Script Info"
+     label_selected="Script Info"
+     layout="topleft"
+     name="script_info"
+     left="2"
+     width="98" />
+    <button
+     bottom="598"
      follows="right|bottom"
      height="23"
      label="Make Outfit"
