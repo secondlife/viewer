@@ -411,5 +411,15 @@ background_visible="true"
          name="chat_btn"
          tool_tip="Open chat session"
          width="110" />
+        <button
+         follows="bottom|left"
+         top="4"
+         left_pad="2"
+         height="23"
+         label="Group Call"
+         layout="topleft"
+         name="group_call_btn"
+         tool_tip="Call this group"
+         width="110" />
     </panel>
 </panel>
