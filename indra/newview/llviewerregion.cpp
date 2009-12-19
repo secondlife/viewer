@@ -1421,6 +1421,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	setCapability("Seed", url);
 
 	LLSD capabilityNames = LLSD::emptyArray();
+	
+	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("DispatchRegionInfo");
@@ -1434,6 +1436,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("GetTexture");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");
+	capabilityNames.append("LandResources");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewFileAgentInventory");
