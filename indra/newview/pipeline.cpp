@@ -6352,7 +6352,8 @@ void LLPipeline::renderDeferredLighting()
 
 			mDeferredLight[0].flush();
 
-			if (gSavedSettings.getBOOL("RenderDeferredBlurLight"))
+			if (gSavedSettings.getBOOL("RenderDeferredBlurLight") &&
+			    gSavedSettings.getBOOL("RenderDeferredGI"))
 			{
 				LLFastTimer ftm(FTM_EDGE_DETECTION);
 				//get edge map

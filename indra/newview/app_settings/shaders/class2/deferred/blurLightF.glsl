@@ -10,7 +10,6 @@
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
-uniform sampler2DRect edgeMap;
 
 uniform float dist_factor;
 uniform float blur_size;
@@ -46,53 +45,36 @@ void main()
 	
 	dlt /= max(-pos.z*dist_factor, 1.0);
 	
-	vec2 defined_weight = kern[0].xy; // special case the kern[0] (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
+	vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
 	vec4 col = defined_weight.xyxx * ccol;
-
-	float center_e = 1.0 - (texture2DRect(edgeMap, vary_fragcoord.xy).a+
-		      texture2DRect(edgeMap, vary_fragcoord.xy+dlt*0.333).a+
-	              texture2DRect(edgeMap, vary_fragcoord.xy-dlt*0.333).a);
 	
-	float e = center_e;
 	for (int i = 1; i < 4; i++)
 	{
 		vec2 tc = vary_fragcoord.xy + kern[i].z*dlt;
-		
-		e = max(e, 0.0);
-		
-		vec2 wght = kern[i].xy*e;
-		
-		col += texture2DRect(lightMap, tc)*wght.xyxx;
-		defined_weight += wght;
-		
-		e *= e;
-		e -= texture2DRect(edgeMap, tc.xy).a+
-			texture2DRect(edgeMap, tc.xy+dlt*0.333).a+
-			texture2DRect(edgeMap, tc.xy-dlt*0.333).a;
+	        vec3 samppos = getPosition(tc).xyz; 
+		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
+		if (d*d <= 0.003)
+		{
+			col += texture2DRect(lightMap, tc)*kern[i].xyxx;
+			defined_weight += kern[i].xy;
+		}
 	}
-
-	e = center_e;
 	for (int i = 1; i < 4; i++)
 	{
 		vec2 tc = vary_fragcoord.xy - kern[i].z*dlt;
-		
-		e = max(e, 0.0);
-		
-		vec2 wght = kern[i].xy*e;
-		
-		col += texture2DRect(lightMap, tc)*wght.xyxx;
-		defined_weight += wght;
-		
-		e *= e;
-		e -= texture2DRect(edgeMap, tc.xy).a+
-			texture2DRect(edgeMap, tc.xy+dlt*0.333).a+
-			texture2DRect(edgeMap, tc.xy-dlt*0.333).a;
+	        vec3 samppos = getPosition(tc).xyz; 
+		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
+		if (d*d <= 0.003)
+		{
+			col += texture2DRect(lightMap, tc)*kern[i].xyxx;
+			defined_weight += kern[i].xy;
+		}
 	}
+
 
 
 	col /= defined_weight.xyxx;
 	
 	gl_FragColor = col;
-	
-	//gl_FragColor = ccol;
 }
+
