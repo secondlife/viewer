@@ -2085,7 +2085,7 @@ this texture in your inventory
 	<string name="ATTACH_BELLY">Belly</string>
 	<string name="ATTACH_RPEC">Right Pec</string>
 	<string name="ATTACH_LPEC">Left Pec</string>
-	<string name="ATTACH_HUD_CENTER_2"><HUD Center 2/string>
+	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">HUD Top Right</string>
 	<string name="ATTACH_HUD_TOP_CENTER">HUD Top Center</string>
 	<string name="ATTACH_HUD_TOP_LEFT">HUD Top Left</string>
