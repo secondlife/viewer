@@ -2929,4 +2929,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="close_on_no_ability">
     You no longer have the ability to be in the chat session.
   </string>
+  <string name="unread_chat_single">
+    [SOURCES] has said something new
+  </string>"
+  <string name="unread_chat_multiple">
+    [SOURCES] have said something new
+  </string>"
 </strings>
