@@ -75,8 +75,6 @@ public:
 	virtual void sessionRemoved(const LLUUID& session_id);
 	void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
-	void onNewIM(const LLSD& data);
-
 	S32 getTotalUnreadIMCount();
 
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent);
