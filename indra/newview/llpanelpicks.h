@@ -74,6 +74,8 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	/*virtual*/ void onClosePanel();
+
 	void processProperties(void* data, EAvatarProcessorType type);
 
 	void updateData();

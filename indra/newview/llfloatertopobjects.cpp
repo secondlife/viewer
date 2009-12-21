@@ -162,7 +162,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_ReportType, mCurrentMode);
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("objects_list");
-	
+
 	S32 block_count = msg->getNumberOfBlocks("ReportData");
 	for (S32 block = 0; block < block_count; ++block)
 	{
@@ -432,7 +432,6 @@ void LLFloaterTopObjects::onRefresh()
 	filter = mFilter;
 	clearList();
 
-
 	LLMessageSystem *msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LandStatRequest);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -465,7 +464,7 @@ void LLFloaterTopObjects::onGetByOwnerName()
 }
 
 void LLFloaterTopObjects::showBeacon()
-{	
+{
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("objects_list");
 	if (!list) return;
 

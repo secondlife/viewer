@@ -200,6 +200,7 @@ set(viewer_SOURCE_FILES
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
     llfloaterscriptdebug.cpp
+    llfloaterscriptlimits.cpp
     llfloatersearch.cpp
     llfloatersellland.cpp
     llfloatersettingsdebug.cpp
@@ -696,7 +697,7 @@ set(viewer_HEADER_FILES
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloaternamedesc.h
-        llfloaternearbymedia.h
+    llfloaternearbymedia.h
     llfloaternotificationsconsole.h
     llfloateropenobject.h
     llfloaterparcel.h
@@ -709,6 +710,7 @@ set(viewer_HEADER_FILES
     llfloaterregioninfo.h
     llfloaterreporter.h
     llfloaterscriptdebug.h
+    llfloaterscriptlimits.h
     llfloatersearch.h
     llfloatersellland.h
     llfloatersettingsdebug.h

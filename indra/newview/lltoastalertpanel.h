@@ -37,6 +37,7 @@
 #include "llfloater.h"
 #include "llui.h"
 #include "llnotificationptr.h"
+#include "llerror.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
@@ -53,6 +54,7 @@ class LLLineEditor;
 class LLToastAlertPanel
 	: public LLToastPanel
 {
+	LOG_CLASS(LLToastAlertPanel);
 public:
 	typedef bool (*display_callback_t)(S32 modal);
 
