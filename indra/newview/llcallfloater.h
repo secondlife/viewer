@@ -101,7 +101,7 @@ private:
 	void updateTitle();
 	void initAgentData();
 	void setModeratorMutedVoice(bool moderator_muted);
-	void updateModeratorState();
+	void updateAgentModeratorState();
 
 private:
 	LLSpeakerMgr* mSpeakerManager;
