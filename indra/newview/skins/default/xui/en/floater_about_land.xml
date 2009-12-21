@@ -4,6 +4,7 @@
  height="420"
  layout="topleft"
  name="floaterland"
+ help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
  width="490">
