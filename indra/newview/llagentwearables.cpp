@@ -875,9 +875,6 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 
-	const BOOL is_first_time_in_viewer2_0 = (gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) == LLUUID::null);
-
-
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if (avatar && (agent_id == avatar->getID()))
 	{
@@ -957,7 +954,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 			gInventory.addObserver(outfit);
 		}
 		
-		if (is_first_time_in_viewer2_0)
+		if (LLInventoryModel::getIsFirstTimeInViewer2())
 			gAgentWearables.populateMyOutfitsFolder();
 	}
 }

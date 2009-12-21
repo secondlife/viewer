@@ -2964,12 +2964,26 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="not_a_mod_error">
     You are not a session moderator.
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3562 issue 'muted' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="muted" with the same value as "muted_error" -->
+  <string name="muted">
+    A group moderator disabled your text chat.
+  </string>
   <string name="muted_error">
     A group moderator disabled your text chat.
   </string>
   <string name="add_session_event">
     Unable to add users to chat session with [RECIPIENT].
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3562 issue 'message' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="message" with the same value as "message_session_event" -->
+  <string name="message">
+    Unable to send your message to the chat session with [RECIPIENT].
+  </string>  
   <string name="message_session_event">
     Unable to send your message to the chat session with [RECIPIENT].
   </string>

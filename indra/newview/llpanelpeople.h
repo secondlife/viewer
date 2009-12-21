@@ -100,6 +100,7 @@ private:
 	void					onChatButtonClicked();
 	void					onImButtonClicked();
 	void					onCallButtonClicked();
+	void					onGroupCallButtonClicked();
 	void					onTeleportButtonClicked();
 	void					onShareButtonClicked();
 	void					onMoreButtonClicked();

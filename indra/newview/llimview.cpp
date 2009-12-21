@@ -1227,15 +1227,15 @@ LLIMMgr::showSessionEventError(
 	const std::string& error_string,
 	const LLUUID session_id)
 {
-	const LLFloater* floater = getFloaterBySessionID (session_id);
-	if (!floater) return;
-
 	LLSD args;
+	LLStringUtil::format_map_t event_args;
+
+	event_args["RECIPIENT"] = LLIMModel::getInstance()->getName(session_id);
+
 	args["REASON"] =
 		LLTrans::getString(error_string);
 	args["EVENT"] =
-		LLTrans::getString(event_string);
-	args["RECIPIENT"] = floater->getTitle();
+		LLTrans::getString(event_string, event_args);
 
 	LLNotificationsUtil::add(
 		"ChatterBoxSessionEventError",

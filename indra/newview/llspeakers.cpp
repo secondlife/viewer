@@ -630,8 +630,6 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 
 void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
 {
-	if (gAgentID == avatar_id) return; // do not process myself
-
 	LLPointer<LLSpeaker> speakerp = findSpeaker(avatar_id);
 	if (!speakerp) return;
 

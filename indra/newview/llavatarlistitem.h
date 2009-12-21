@@ -73,6 +73,7 @@ public:
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setHighlight(const std::string& highlight);
+	void setStyle(const LLStyle::Params& new_style);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
@@ -90,8 +91,6 @@ public:
 	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
 	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
 	void showLastInteractionTime(bool show);
-
-	void setContextMenu(ContextMenu* menu) { mContextMenu = menu; }
 
 	/**
 	 * This method was added to fix EXT-2364 (Items in group/ad-hoc IM participant list (avatar names) should be reshaped when adding/removing the "(Moderator)" label)
@@ -126,7 +125,6 @@ private:
 	
 	LLButton* mInfoBtn;
 	LLButton* mProfileBtn;
-	ContextMenu* mContextMenu;
 
 	LLUUID mAvatarId;
 	std::string mHighlihtSubstring; // substring to highlight
@@ -135,10 +133,12 @@ private:
 	//Speaker indicator and avatar name coords are translated accordingly
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
-	S32	 mIconWidth; // icon width + padding
-	S32  mInfoBtnWidth; //info btn width + padding
-	S32  mProfileBtnWidth; //profile btn width + padding
-	S32  mSpeakingIndicatorWidth; //speaking indicator width + padding
+
+	static bool	sStaticInitialized; // this variable is introduced to improve code readability
+	static S32	sIconWidth; // icon width + padding
+	static S32  sInfoBtnWidth; //info btn width + padding
+	static S32  sProfileBtnWidth; //profile btn width + padding
+	static S32  sSpeakingIndicatorWidth; //speaking indicator width + padding
 };
 
 #endif //LL_LLAVATARLISTITEM_H

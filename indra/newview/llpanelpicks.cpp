@@ -781,6 +781,11 @@ void LLPanelPicks::onPanelPickSave(LLPanel* panel)
 
 void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 {
+	if(!panel->canClose())
+	{
+		return;
+	}
+
 	if(panel->isNew())
 	{
 		LLClassifiedItem* c_item = new LLClassifiedItem(getAvatarId(), panel->getClassifiedId());
