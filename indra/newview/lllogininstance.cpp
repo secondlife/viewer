@@ -76,6 +76,7 @@ LLLoginInstance::LLLoginInstance() :
 	mDispatcher.add("fail.login", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
 	mDispatcher.add("connect",    boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
 	mDispatcher.add("disconnect", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
+	mDispatcher.add("indeterminate", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
 LLLoginInstance::~LLLoginInstance()
@@ -204,6 +205,8 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 		mTransferRate = event["transfer_rate"].asReal();
 	}
 
+	
+
 	// Call the method registered in constructor, if any, for more specific
 	// handling
 	LLEventDispatcher::Callable method(mDispatcher.get(event["change"]));
@@ -295,6 +298,22 @@ void LLLoginInstance::handleDisconnect(const LLSD& event)
     // placeholder
 }
 
+void LLLoginInstance::handleIndeterminate(const LLSD& event)
+{
+	// The indeterminate response means that the server
+	// gave the viewer a new url and params to try.
+	// The login module handles the retry, but it gives us the
+	// server response so that we may show
+	// the user some status.
+	LLSD message = event.get("data").get("message");
+	if(message.isDefined())
+	{
+		LLSD progress_update;
+		progress_update["desc"] = message;
+		LLEventPumps::getInstance()->obtain("LLProgressView").post(progress_update);
+	}
+}
+
 bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 {
 	if(accepted)
@@ -374,28 +393,6 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 		mNotifications->add(notification_name, args, payload, 
 			boost::bind(&LLLoginInstance::updateDialogCallback, this, _1, _2));
 	}
-
-	/* *NOTE:Mani Experiment with Event API interface.
-	if(!mUpdateAppResponse)
-	{
-		bool make_unique = true;
-		mUpdateAppResponse.reset(new LLEventStream("logininstance_updateapp", make_unique));
-		mUpdateAppResponse->listen("diaupdateDialogCallback", 
-								   boost::bind(&LLLoginInstance::updateDialogCallback,
-								 			   this, _1
-											   )
-								   );
-	}
-
-	LLSD event;
-	event["op"] = "requestAdd";
-	event["name"] = notification_name;
-	event["substitutions"] = args;
-	event["payload"] = payload;
-	event["reply"] = mUpdateAppResponse->getName();
-
-	LLEventPumps::getInstance()->obtain("LLNotifications").post(event);
-	*/
 }
 
 bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD& response)
