@@ -2518,6 +2518,10 @@ void LLInventoryModel::buildParentChildMap()
 		llwarns << "Found  " << lost << " lost categories." << llendl;
 	}
 
+	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) != LLUUID::null);
+	sFirstTimeInViewer2 = !COF_exists || gAgent.isFirstLogin();
+
+
 	// Now the items. We allocated in the last step, so now all we
 	// have to do is iterate over the items and put them in the right
 	// place.
@@ -2615,9 +2619,6 @@ void LLInventoryModel::buildParentChildMap()
 			notifyObservers();
 		}
 	}
-
-	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) != LLUUID::null);
-	sFirstTimeInViewer2 = !COF_exists;
 }
 
 struct LLUUIDAndName

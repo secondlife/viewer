@@ -871,6 +871,13 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (mInitialWearablesUpdateReceived)
 		return;
 	mInitialWearablesUpdateReceived = true;
+	
+	// If this is the very first time the user has logged into viewer2+ from a legacy viewer,
+	// then auto-populate outfits from the library into the My Outfits folder.
+	if (LLInventoryModel::getIsFirstTimeInViewer2())
+	{
+		gAgentWearables.populateMyOutfitsFolder();
+	}
 
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
@@ -880,12 +887,15 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	{
 		gMessageSystem->getU32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, gAgentQueryManager.mUpdateSerialNum);
 		
+		const S32 NUM_BODY_PARTS = 4;
 		S32 num_wearables = gMessageSystem->getNumberOfBlocksFast(_PREHASH_WearableData);
-		if (num_wearables < 4)
+		if (num_wearables < NUM_BODY_PARTS)
 		{
 			// Transitional state.  Avatars should always have at least their body parts (hair, eyes, shape and skin).
-			// The fact that they don't have any here (only a dummy is sent) implies that this account existed
-			// before we had wearables, or that the database has gotten messed up.
+			// The fact that they don't have any here (only a dummy is sent) implies that either:
+			// 1. This account existed before we had wearables
+			// 2. The database has gotten messed up
+			// 3. This is the account's first login (i.e. the wearables haven't been generated yet).
 			return;
 		}
 
@@ -954,8 +964,6 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 			gInventory.addObserver(outfit);
 		}
 		
-		if (LLInventoryModel::getIsFirstTimeInViewer2())
-			gAgentWearables.populateMyOutfitsFolder();
 	}
 }
 
