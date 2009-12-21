@@ -1021,6 +1021,11 @@ protected:
 	bool canScrollRight();
 
 	/**
+	 * Returns true if we need to show scroll buttons
+	 */
+	bool needShowScroll();
+
+	/**
 	 * Returns true if chiclets can be scrolled left.
 	 */
 	bool canScrollLeft();
