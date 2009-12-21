@@ -322,7 +322,6 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setAvatarId(id, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
-	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);
 	item->setAvatarIconVisible(mShowIcons);

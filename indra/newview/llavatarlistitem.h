@@ -92,8 +92,6 @@ public:
 	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
 	void showLastInteractionTime(bool show);
 
-	void setContextMenu(ContextMenu* menu) { mContextMenu = menu; }
-
 	/**
 	 * This method was added to fix EXT-2364 (Items in group/ad-hoc IM participant list (avatar names) should be reshaped when adding/removing the "(Moderator)" label)
 	 * But this is a *HACK. The real reason of it was in incorrect logic while hiding profile/info/speaker buttons
@@ -127,7 +125,6 @@ private:
 	
 	LLButton* mInfoBtn;
 	LLButton* mProfileBtn;
-	ContextMenu* mContextMenu;
 
 	LLUUID mAvatarId;
 	std::string mHighlihtSubstring; // substring to highlight

@@ -57,7 +57,6 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mSpeakingIndicator(NULL),
 	mInfoBtn(NULL),
 	mProfileBtn(NULL),
-	mContextMenu(NULL),
 	mOnlineStatus(E_UNKNOWN),
 	mShowInfoBtn(true),
 	mShowProfileBtn(true)
