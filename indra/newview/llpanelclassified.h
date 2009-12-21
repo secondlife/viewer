@@ -305,6 +305,8 @@ public:
 
 	bool isNew() { return mIsNew; }
 
+	bool canClose();
+
 protected:
 
 	LLPanelClassifiedEdit();
@@ -324,6 +326,10 @@ protected:
 	U8 getFlags();
 
 	std::string getLocationNotice();
+
+	bool isValidName();
+
+	void notifyInvalidName();
 
 	void onSetLocationClick();
 	void onChange();

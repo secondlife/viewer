@@ -247,6 +247,9 @@ void LLPanelGroupControlPanel::draw()
 	//Remove event does not raised until speakerp->mActivityTimer.hasExpired() is false, see LLSpeakerManager::update()
 	//so we need update it to raise needed event
 	mSpeakerManager->update(true);
+	// Need to resort the participant list if it's in sort by recent speaker order.
+	if (mParticipantList)
+		mParticipantList->updateRecentSpeakersOrder();
 	LLPanelChatControlPanel::draw();
 }
 
@@ -282,8 +285,9 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 
 	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
 
+	// for group and Ad-hoc chat we need to include agent into list 
 	if(!mParticipantList)
-		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"));
+		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"), true,false);
 }
 
 

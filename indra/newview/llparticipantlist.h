@@ -34,6 +34,7 @@
 #include "llevent.h"
 #include "llpanelpeoplemenus.h"
 #include "llimview.h"
+#include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
 
 class LLSpeakerMgr;
 class LLAvatarList;
@@ -43,24 +44,25 @@ class LLParticipantList
 {
 	LOG_CLASS(LLParticipantList);
 	public:
-		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true);
+		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
 
 		typedef enum e_participant_sort_oder {
 			E_SORT_BY_NAME = 0,
+			E_SORT_BY_RECENT_SPEAKERS = 1,
 		} EParticipantSortOrder;
 
 		/**
 		 * Set and sort Avatarlist by given order
 		 */
 		void setSortOrder(EParticipantSortOrder order = E_SORT_BY_NAME);
+		EParticipantSortOrder getSortOrder();
 
 		/**
-		 * Refreshes participants to display ones not in voice as disabled.
-		 * TODO: mantipov: probably should be moved into derived class for LLFloaterCall
+		 * Refreshes the participant list if it's in sort by recent speaker order.
 		 */
-		void refreshVoiceState();
+		void updateRecentSpeakersOrder();
 
 	protected:
 		/**
@@ -139,6 +141,7 @@ class LLParticipantList
 			bool enableContextMenuItem(const LLSD& userdata);
 			bool checkContextMenuItem(const LLSD& userdata);
 
+			void sortParticipantList(const LLSD& userdata);
 			void toggleAllowTextChat(const LLSD& userdata);
 			void toggleMute(const LLSD& userdata, U32 flags);
 			void toggleMuteText(const LLSD& userdata);
@@ -195,6 +198,21 @@ class LLParticipantList
 			void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
 		};
 
+		/**
+		 * Comparator for comparing avatar items by last spoken time
+		 */
+		class LLAvatarItemRecentSpeakerComparator : public LLAvatarItemNameComparator, public LLRefCount
+		{
+			LOG_CLASS(LLAvatarItemRecentSpeakerComparator);
+		  public:
+			LLAvatarItemRecentSpeakerComparator(LLParticipantList& parent):mParent(parent){};
+			virtual ~LLAvatarItemRecentSpeakerComparator() {};
+		  protected:
+			virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
+		  private:
+			LLParticipantList& mParent;
+		};
+
 	private:
 		void onAvatarListDoubleClicked(LLAvatarList* list);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
@@ -240,4 +258,6 @@ class LLParticipantList
 		boost::signals2::connection mAvatarListDoubleClickConnection;
 		boost::signals2::connection mAvatarListRefreshConnection;
 		boost::signals2::connection mAvatarListReturnConnection;
+
+		LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 };

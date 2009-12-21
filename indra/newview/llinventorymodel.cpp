@@ -67,6 +67,7 @@ F32  LLInventoryModel::sMaxTimeBetweenFetches = 10.f;
 BOOL LLInventoryModel::sTimelyFetchPending = FALSE;
 LLFrameTimer LLInventoryModel::sFetchTimer;
 S16 LLInventoryModel::sBulkFetchCount = 0;
+BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 
 // Increment this if the inventory contents change in a non-backwards-compatible way.
 // For viewer 2, the addition of link items makes a pre-viewer-2 cache incorrect.
@@ -2562,6 +2563,10 @@ void LLInventoryModel::buildParentChildMap()
 		llwarns << "Found  " << lost << " lost categories." << llendl;
 	}
 
+	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) != LLUUID::null);
+	sFirstTimeInViewer2 = !COF_exists || gAgent.isFirstLogin();
+
+
 	// Now the items. We allocated in the last step, so now all we
 	// have to do is iterate over the items and put them in the right
 	// place.
@@ -3573,6 +3578,19 @@ const LLUUID &LLInventoryModel::getLibraryOwnerID() const
 void LLInventoryModel::setLibraryOwnerID(const LLUUID& val)
 {
 	mLibraryOwnerID = val;
+}
+
+// static
+BOOL LLInventoryModel::getIsFirstTimeInViewer2()
+{
+	// Do not call this before parentchild map is built.
+	if (!gInventory.mIsAgentInvUsable)
+	{
+		llwarns << "Parent Child Map not yet built; guessing as first time in viewer2." << llendl;
+		return TRUE;
+	}
+
+	return sFirstTimeInViewer2;
 }
 
 //----------------------------------------------------------------------------

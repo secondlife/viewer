@@ -499,9 +499,9 @@ public:
 	// *NOTE: DEBUG functionality
 	void dumpInventory() const;
 
-	////////////////////////////////////////////////////////////////////////////////
-	// Bulk / Background Fetch
 
+	////////////////////////////////////////////////////////////////////////////////
+	// Bulk fetch
 public:
 	// Start and stop background breadth-first fetching of inventory contents.
 	// This gets triggered when performing a filter-search
@@ -534,6 +534,12 @@ private:
 	static BOOL sBackgroundFetchActive;
 	static S16 sBulkFetchCount;
 
+	////////////////////////////////////////////////////////////////////////////////
+	// Login status
+public:
+	static BOOL getIsFirstTimeInViewer2();
+private:
+	static BOOL sFirstTimeInViewer2;
 };
 
 // a special inventory model for the agent

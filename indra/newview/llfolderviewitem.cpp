@@ -136,7 +136,7 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mListener(p.listener),
 	mArrowImage(p.folder_arrow_image),
 	mBoxImage(p.selection_image),
-	mDontShowInHierarchy(false),
+	mHidden(false),
 	mShowLoadStatus(false)
 {
 	refresh();
@@ -201,7 +201,7 @@ LLFolderViewItem* LLFolderViewItem::getPreviousOpenNode(BOOL include_children)
 	LLFolderViewItem* itemp = mParentFolder->getPreviousFromChild( this, include_children );
 
 	// Skip over items that are invisible or are hidden from the UI.
-	while(itemp && (!itemp->getVisible() || itemp->getDontShowInHierarchy()))
+	while(itemp && (!itemp->getVisible() || itemp->getHidden()))
 	{
 		LLFolderViewItem* next_itemp = itemp->mParentFolder->getPreviousFromChild( itemp, include_children );
 		if (itemp == next_itemp) 
@@ -418,7 +418,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 
 S32 LLFolderViewItem::getItemHeight()
 {
-	if (mDontShowInHierarchy) return 0;
+	if (mHidden) return 0;
 
 	S32 icon_height = mIcon->getHeight();
 	S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight());
@@ -823,7 +823,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	if (mDontShowInHierarchy) return;
+	if (mHidden) return;
 
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
@@ -1272,7 +1272,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			// filter self only on first pass through
 			LLFolderViewItem::filter( filter );
 		}
-		if (mDontShowInHierarchy)
+		if (mHidden)
 		{
 			setOpen();
 		}

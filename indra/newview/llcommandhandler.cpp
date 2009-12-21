@@ -36,6 +36,7 @@
 #include "llcommandhandler.h"
 #include "llnotificationsutil.h"
 #include "llcommanddispatcherlistener.h"
+#include "stringize.h"
 
 // system includes
 #include <boost/tokenizer.hpp>
@@ -67,6 +68,7 @@ public:
 				  bool trusted_browser);
 
 private:
+	friend LLSD LLCommandDispatcher::enumerate();
 	std::map<std::string, LLCommandHandlerInfo> mMap;
 };
 
@@ -174,4 +176,57 @@ bool LLCommandDispatcher::dispatch(const std::string& cmd,
 {
 	return LLCommandHandlerRegistry::instance().dispatch(
 		cmd, params, query_map, web, trusted_browser);
+}
+
+static std::string lookup(LLCommandHandler::EUntrustedAccess value);
+
+LLSD LLCommandDispatcher::enumerate()
+{
+	LLSD response;
+	LLCommandHandlerRegistry& registry(LLCommandHandlerRegistry::instance());
+	for (std::map<std::string, LLCommandHandlerInfo>::const_iterator chi(registry.mMap.begin()),
+																	 chend(registry.mMap.end());
+		 chi != chend; ++chi)
+	{
+		LLSD info;
+		info["untrusted"] = chi->second.mUntrustedBrowserAccess;
+		info["untrusted_str"] = lookup(chi->second.mUntrustedBrowserAccess);
+		response[chi->first] = info;
+	}
+	return response;
+}
+
+/*------------------------------ lookup stuff ------------------------------*/
+struct symbol_info
+{
+	const char* name;
+	LLCommandHandler::EUntrustedAccess value;
+};
+
+#define ent(SYMBOL)										\
+	{													\
+		#SYMBOL + 28, /* skip "LLCommandHandler::UNTRUSTED_" prefix */	\
+		SYMBOL											\
+	}
+
+symbol_info symbols[] =
+{
+	ent(LLCommandHandler::UNTRUSTED_ALLOW),		  // allow commands from untrusted browsers
+	ent(LLCommandHandler::UNTRUSTED_BLOCK),		  // ignore commands from untrusted browsers
+	ent(LLCommandHandler::UNTRUSTED_THROTTLE)	  // allow untrusted, but only a few per min.
+};
+
+#undef ent
+
+static std::string lookup(LLCommandHandler::EUntrustedAccess value)
+{
+	for (symbol_info *sii(symbols), *siend(symbols + (sizeof(symbols)/sizeof(symbols[0])));
+		 sii != siend; ++sii)
+	{
+		if (sii->value == value)
+		{
+			return sii->name;
+		}
+	}
+	return STRINGIZE("UNTRUSTED_" << value);
 }

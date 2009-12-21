@@ -178,6 +178,8 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 	
 	if (!chat.mMuted)
 	{
+		tmp_chat.mFromName = chat.mFromID != gAgentID ? chat.mFromName : LLTrans::getString("You");
+
 		if (chat.mChatStyle == CHAT_STYLE_IRC)
 		{
 			LLColor4 txt_color = LLUIColorTable::instance().getColor("White");

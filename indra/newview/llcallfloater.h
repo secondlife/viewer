@@ -38,6 +38,7 @@
 #include "llvoiceclient.h"
 
 class LLAvatarList;
+class LLAvatarListItem;
 class LLNonAvatarCaller;
 class LLOutputMonitorCtrl;
 class LLParticipantList;
@@ -81,6 +82,16 @@ private:
 		VC_PEER_TO_PEER
 	}EVoiceControls;
 
+	typedef enum e_speaker_state
+	{
+		STATE_UNKNOWN,
+		STATE_INVITED,
+		STATE_JOINED,
+		STATE_LEFT,
+	} ESpeakerState;
+
+	typedef std::map<LLUUID, ESpeakerState> speaker_state_map_t;
+
 	void leaveCall();
 
 	/**
@@ -95,15 +106,32 @@ private:
 	 * Refreshes participant list according to current Voice Channel
 	 */
 	void refreshPartisipantList();
-
+	void onAvatarListRefreshed();
 
 	
 	void updateTitle();
 	void initAgentData();
 	void setModeratorMutedVoice(bool moderator_muted);
-	void updateModeratorState();
+	void updateAgentModeratorState();
 
+	void initParticipantsVoiceState();
+	void updateParticipantsVoiceState();
+
+	void setState(LLAvatarListItem* item, ESpeakerState state);
+	void setState(const LLUUID& speaker_id, ESpeakerState state)
+	{
+		lldebugs << "Storing state: " << speaker_id << ", " << state << llendl;
+		mSpeakerStateMap[speaker_id] = state;
+	}
+
+	ESpeakerState getState(const LLUUID& speaker_id)
+	{
+		lldebugs << "Getting state: " << speaker_id << ", " << mSpeakerStateMap[speaker_id] << llendl;
+
+		return mSpeakerStateMap[speaker_id];
+	}
 private:
+	speaker_state_map_t mSpeakerStateMap;
 	LLSpeakerMgr* mSpeakerManager;
 	LLParticipantList* mPaticipants;
 	LLAvatarList* mAvatarList;
@@ -112,6 +140,11 @@ private:
 	LLPanel* mAgentPanel;
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	bool mIsModeratorMutedVoice;
+
+	bool mInitParticipantsVoiceState;
+
+	boost::signals2::connection mAvatarListRefreshConnection;
+
 };
 
 

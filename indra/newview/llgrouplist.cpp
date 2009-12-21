@@ -37,6 +37,7 @@
 // libs
 #include "llbutton.h"
 #include "lliconctrl.h"
+#include "llmenugl.h"
 #include "lltextbox.h"
 #include "lltrans.h"
 
@@ -46,6 +47,7 @@
 #include "llfloaterreg.h"
 #include "lltextutil.h"
 #include "llviewercontrol.h"	// for gSavedSettings
+#include "llviewermenu.h"		// for gMenuHolder
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 S32 LLGroupListItem::sIconWidth = 0;
@@ -88,11 +90,24 @@ LLGroupList::LLGroupList(const Params& p)
 
 	// Set default sort order.
 	setComparator(&GROUP_COMPARATOR);
+
+	// Set up context menu.
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
+	registrar.add("People.Groups.Action",			boost::bind(&LLGroupList::onContextMenuItemClick,	this, _2));
+	enable_registrar.add("People.Groups.Enable",	boost::bind(&LLGroupList::onContextMenuItemEnable,	this, _2));
+
+	LLMenuGL* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_groups.xml",
+			gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(context_menu)
+		mContextMenuHandle = context_menu->getHandle();
 }
 
 LLGroupList::~LLGroupList()
 {
 	gAgent.removeListener(this);
+	LLView::deleteViewByHandle(mContextMenuHandle);
 }
 
 // virtual
@@ -102,6 +117,22 @@ void LLGroupList::draw()
 		refresh();
 
 	LLFlatListView::draw();
+}
+
+// virtual
+BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+
+	LLMenuGL* context_menu = (LLMenuGL*)mContextMenuHandle.get();
+	if (context_menu)
+	{
+		context_menu->buildDrawLabels();
+		context_menu->updateParent(LLMenuGL::sMenuContainer);
+		LLMenuGL::showPopup(this, context_menu, x, y);
+	}
+
+	return handled;
 }
 
 void LLGroupList::setNameFilter(const std::string& filter)
@@ -201,6 +232,46 @@ bool LLGroupList::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD&
 	}
 
 	return false;
+}
+
+bool LLGroupList::onContextMenuItemClick(const LLSD& userdata)
+{
+	std::string action = userdata.asString();
+	LLUUID selected_group = getSelectedUUID();
+
+	if (action == "view_info")
+	{
+		LLGroupActions::show(selected_group);
+	}
+	else if (action == "chat")
+	{
+		LLGroupActions::startIM(selected_group);
+	}
+	else if (action == "call")
+	{
+		LLGroupActions::startCall(selected_group);
+	}
+	else if (action == "activate")
+	{
+		LLGroupActions::activate(selected_group);
+	}
+	else if (action == "leave")
+	{
+		LLGroupActions::leave(selected_group);
+	}
+
+	return true;
+}
+
+bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
+{
+	LLUUID selected_group_id = getSelectedUUID();
+	bool real_group_selected = selected_group_id.notNull(); // a "real" (not "none") group is selected
+
+	if (userdata.asString() == "activate")
+		return real_group_selected && gAgent.getGroupID() != selected_group_id;
+
+	return real_group_selected;
 }
 
 /************************************************************************/

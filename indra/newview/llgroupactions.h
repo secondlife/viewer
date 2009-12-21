@@ -99,6 +99,11 @@ public:
 	static bool isInGroup(const LLUUID& group_id);
 
 	/**
+	 * Start a group voice call.
+	 */
+	static void startCall(const LLUUID& group_id);
+
+	/**
 	 * Returns true if avatar is in group.
 	 *
 	 * Note that data about group members is loaded from server.
