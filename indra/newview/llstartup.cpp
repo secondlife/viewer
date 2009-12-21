@@ -1170,12 +1170,16 @@ bool idle_startup()
 		}
 		else
 		{
-			// Still waiting for response.
-			// *TODO:Mani - Actually check for login progress.
 			// If we get here we have gotten past the potential stall
 			// in curl, so take "may appear frozen" out of progress bar. JC
-			auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
-			set_startup_status(progress, auth_desc, auth_message);
+			// *NOTE:Mani - Actual responses handled by LLLoginInstance::handleLoginEvent()
+			static bool has_set_unfrozen_msg = false;
+			if(!has_set_unfrozen_msg)
+			{
+				auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
+				set_startup_status(progress, auth_desc, auth_message);
+				has_set_unfrozen_msg = true;
+			}
 		}
 
 		return FALSE;
