@@ -516,6 +516,14 @@ public:
 	// Add categories to a list to be fetched in bulk.
 	static void bulkFetch(std::string url);
 
+	static bool libraryFetchStarted();
+	static bool libraryFetchCompleted();
+	static bool libraryFetchInProgress();
+	
+	static bool myInventoryFetchStarted();
+	static bool myInventoryFetchCompleted();
+	static bool myInventoryFetchInProgress();
+	
 private:
  	static BOOL sMyInventoryFetchStarted;
 	static BOOL sLibraryFetchStarted;
