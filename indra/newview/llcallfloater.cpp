@@ -280,7 +280,7 @@ void LLCallFloater::refreshPartisipantList()
 
 	if (!non_avatar_caller)
 	{
-		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
+		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT);
 
 		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{

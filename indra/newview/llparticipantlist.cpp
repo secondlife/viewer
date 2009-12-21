@@ -51,12 +51,13 @@
 
 static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
 
-LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
+LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/,
+		bool exclude_agent /*= true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
 ,	mParticipantListMenu(NULL)
-,	mExcludeAgent(true)
+,	mExcludeAgent(exclude_agent)
 {
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
@@ -101,7 +102,6 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 		}
 	}
 	// we need to exclude agent id for non group chat
-	mExcludeAgent = !gAgent.isInGroup(mSpeakerMgr->getSessionID());
 	mAvatarList->setDirty(true);
 	sort();
 }
@@ -555,7 +555,7 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	if (item == "can_mute_text")
+	if (item == "can_mute_text" || "can_block" == item)
 	{
 		return mUUIDs.front() != gAgentID;
 	}
