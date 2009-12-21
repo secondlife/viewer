@@ -187,9 +187,9 @@ void LLSysWellChiclet::setCounter(S32 counter)
 
 	mButton->setLabel(s_count);
 
-	setNewMessagesState(counter > 0);
+	setNewMessagesState(counter > mCounter);
 
-	// we have to flash to 'Lit' state each time new unread message is comming.
+	// we have to flash to 'Lit' state each time new unread message is coming.
 	if (counter > mCounter)
 	{
 		mFlashToLitTimer->flash();
