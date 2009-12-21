@@ -2975,14 +2975,6 @@
             <menu_item_call.on_click
              function="Advanced.SendTestIMs" />
           </menu_item_call>
-          <menu_item_call
-           label="Test Inspectors"
-           name="Test Inspectors"
-           shortcut="control|shift|I">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="test_inspectors" />
-          </menu_item_call>
         </menu>
         <menu
          create_jump_keys="true"
