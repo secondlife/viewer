@@ -19,4 +19,40 @@
         <menu_item_call.on_click
          function="Profile.Share" />
     </menu_item_call>
+  <menu_item_call
+   label="Kick"
+   layout="topleft"
+   name="kick">
+    <menu_item_call.on_click
+     function="Profile.Kick" />
+    <menu_item_call.on_visible
+     function="Profile.EnableGod" />
+  </menu_item_call>
+  <menu_item_call
+   label="Freeze"
+   layout="topleft"
+   name="freeze">
+    <menu_item_call.on_click
+     function="Profile.Freeze" />
+    <menu_item_call.on_visible
+     function="Profile.EnableGod" />
+  </menu_item_call>
+  <menu_item_call
+   label="Unfreeze"
+   layout="topleft"
+   name="unfreeze">
+    <menu_item_call.on_click
+     function="Profile.Unfreeze" />
+    <menu_item_call.on_visible
+     function="Profile.EnableGod" />
+  </menu_item_call>
+  <menu_item_call
+   label="CSR"
+   layout="topleft"
+   name="csr">
+    <menu_item_call.on_click
+     function="Profile.CSR" />
+    <menu_item_call.on_visible
+     function="Profile.EnableGod" />
+  </menu_item_call>
 </toggleable_menu>
