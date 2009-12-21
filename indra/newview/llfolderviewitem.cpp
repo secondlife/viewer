@@ -970,11 +970,26 @@ void LLFolderViewItem::draw()
 
 
 		font->renderUTF8( mLabel, 0, text_left, y, color,
-				   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-			S32_MAX, getRect().getWidth() - (S32) text_left, &right_x, TRUE);
+						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+						  S32_MAX, getRect().getWidth() - (S32) text_left, &right_x, TRUE);
 
+//		LLViewerInventoryCategory *item = 0;
+//		if (getListener())
+//			item = gInventory.getCategory(getListener()->getUUID());
+		bool root_is_loading = false;
+		if (getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(),gInventory.getRootFolderID()))
+		{
+			// Descendent of my inventory.
+			root_is_loading = gInventory.myInventoryFetchInProgress();
+		}
+		if (getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(),gInventory.getLibraryRootFolderID()))
+		{
+			// Descendent of library
+			root_is_loading = gInventory.libraryFetchInProgress();
+		}
+			
 		if ( (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			|| (LLInventoryModel::backgroundFetchActive() && mShowLoadStatus) )
+			|| (LLInventoryModel::backgroundFetchActive() && root_is_loading && mShowLoadStatus) )
 		{
 			std::string load_string = " ( " + LLTrans::getString("LoadingData") + " ) ";
 			font->renderUTF8(load_string, 0, right_x, y, sSearchStatusColor,

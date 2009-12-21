@@ -1339,8 +1339,7 @@ bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 //Initialize statics.
 bool LLInventoryModel::isBulkFetchProcessingComplete()
 {
-	return ( (sFetchQueue.empty() 
-			&& sBulkFetchCount<=0)  ?  TRUE : FALSE ) ;
+	return sFetchQueue.empty() && sBulkFetchCount<=0;
 }
 
 class LLInventoryModelFetchDescendentsResponder: public LLHTTPClient::Responder
@@ -1615,10 +1614,58 @@ void LLInventoryModel::bulkFetch(std::string url)
 	}	
 }
 
+bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id)
+{
+	for (std::deque<LLUUID>::iterator it = sFetchQueue.begin();
+		 it != sFetchQueue.end(); ++it)
+	{
+		const LLUUID& fetch_id = *it;
+		if (gInventory.isObjectDescendentOf(fetch_id, cat_id))
+			return false;
+	}
+	return true;
+}
+
+/* static */
+bool LLInventoryModel::libraryFetchStarted()
+{
+	return sLibraryFetchStarted;
+}
+
+/* static */
+bool LLInventoryModel::libraryFetchCompleted()
+{
+	return libraryFetchStarted() && fetchQueueContainsNoDescendentsOf(gInventory.getLibraryRootFolderID());
+}
+
+/* static */
+bool LLInventoryModel::libraryFetchInProgress()
+{
+	return libraryFetchStarted() && !libraryFetchCompleted();
+}
+	
+/* static */
+bool LLInventoryModel::myInventoryFetchStarted()
+{
+	return sMyInventoryFetchStarted;
+}
+
+/* static */
+bool LLInventoryModel::myInventoryFetchCompleted()
+{
+	return myInventoryFetchStarted() && fetchQueueContainsNoDescendentsOf(gInventory.getRootFolderID());
+}
+
+/* static */
+bool LLInventoryModel::myInventoryFetchInProgress()
+{
+	return myInventoryFetchStarted() && !myInventoryFetchCompleted();
+}
+
 // static
 bool LLInventoryModel::isEverythingFetched()
 {
-	return (sAllFoldersFetched ? true : false);
+	return sAllFoldersFetched;
 }
 
 //static
@@ -1637,7 +1684,6 @@ void LLInventoryModel::startBackgroundFetch(const LLUUID& cat_id)
 			if (!sMyInventoryFetchStarted)
 			{
 				sMyInventoryFetchStarted = TRUE;
-				sFetchQueue.push_back(gInventory.getLibraryRootFolderID());
 				sFetchQueue.push_back(gInventory.getRootFolderID());
 				gIdleCallbacks.addFunction(&LLInventoryModel::backgroundFetch, NULL);
 			}
@@ -1645,7 +1691,6 @@ void LLInventoryModel::startBackgroundFetch(const LLUUID& cat_id)
 			{
 				sLibraryFetchStarted = TRUE;
 				sFetchQueue.push_back(gInventory.getLibraryRootFolderID());
-				sFetchQueue.push_back(gInventory.getRootFolderID());
 				gIdleCallbacks.addFunction(&LLInventoryModel::backgroundFetch, NULL);
 			}
 		}
