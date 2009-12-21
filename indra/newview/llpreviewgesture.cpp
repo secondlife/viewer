@@ -494,6 +494,10 @@ BOOL LLPreviewGesture::postBuild()
 		childSetCommitCallback("desc", LLPreview::onText, this);
 		childSetText("desc", item->getDescription());
 		childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+		
+		childSetCommitCallback("name", LLPreview::onText, this);
+		childSetText("name", item->getName());
+		childSetPrevalidate("name", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	}
 
 	return LLPreview::postBuild();

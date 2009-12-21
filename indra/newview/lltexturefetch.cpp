@@ -158,7 +158,7 @@ public:
 
 	void callbackHttpGet(const LLChannelDescriptors& channels,
 						 const LLIOPipe::buffer_ptr_t& buffer,
-						 bool last_block, bool success);
+						 bool partial, bool success);
 	void callbackCacheRead(bool success, LLImageFormatted* image,
 						   S32 imagesize, BOOL islocal);
 	void callbackCacheWrite(bool success);
@@ -316,7 +316,7 @@ public:
 			if (HTTP_OK <= status &&  status < HTTP_MULTIPLE_CHOICES)
 			{
 				success = true;
-				if (HTTP_PARTIAL_CONTENT == status) // partial information (i.e. last block)
+				if (HTTP_PARTIAL_CONTENT == status) // partial information
 				{
 					partial = true;
 				}
@@ -882,8 +882,18 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				++mHTTPFailCount;
 				if (mHTTPFailCount >= max_attempts)
 				{
-					resetFormattedData();
-					return true; // failed
+					if (cur_size > 0)
+					{
+						// Use available data
+						mLoadedDiscard = mFormattedImage->getDiscardLevel();
+						mState = DECODE_IMAGE;
+						return false; 
+					}
+					else
+					{
+						resetFormattedData();
+						return true; // failed
+					}
 				}
 				else
 				{
@@ -1207,7 +1217,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 
 void LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 										   const LLIOPipe::buffer_ptr_t& buffer,
-										   bool last_block, bool success)
+										   bool partial, bool success)
 {
 	LLMutexLock lock(&mWorkMutex);
 
@@ -1236,7 +1246,7 @@ void LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 			mBuffer = new U8[data_size];
 			buffer->readAfter(channels.in(), NULL, mBuffer, data_size);
 			mBufferSize += data_size;
-			if (data_size < mRequestedSize || last_block == true)
+			if (data_size < mRequestedSize && mRequestedDiscard == 0)
 			{
 				mHaveAllData = TRUE;
 			}

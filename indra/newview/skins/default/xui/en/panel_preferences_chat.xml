@@ -16,13 +16,14 @@
 	 control_name="ChatFontSize"
      name="chat_font_size"
      top="10"
-     width="331">
+     width="440">
         <radio_item
          height="16"
          label="Small"
          layout="topleft"
          left="0"
          name="radio"
+         value="0" 
          top="10"
          width="125" />
         <radio_item
@@ -31,6 +32,7 @@
          layout="topleft"
          left_delta="145"
          name="radio2"
+         value="1"         
          top_delta="0"
          width="125" />
         <radio_item
@@ -39,11 +41,11 @@
          layout="topleft"
          left_delta="170"
          name="radio3"
+         value="2" 
          top_delta="0"
          width="125" />
     </radio_group>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      follows="left|top"
      height="47"
@@ -73,7 +75,6 @@
         Me
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      follows="left|top"
      height="47"
@@ -103,7 +104,6 @@
         Others
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.6 0.6 1 1"
      follows="left|top"
@@ -135,7 +135,6 @@
         IM
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.8 1 1 1"
      follows="left|top"
@@ -167,7 +166,6 @@
         System
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.82 0.82 0.99 1"
      follows="left|top"
@@ -198,7 +196,6 @@
         Errors
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.7 0.9 0.7 1"
      follows="left|top"
@@ -229,7 +226,6 @@
         Objects
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.7 0.9 0.7 1"
      follows="left|top"
@@ -260,7 +256,6 @@
         Owner
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.6 0.6 1 1"
      follows="left|top"
@@ -340,6 +335,7 @@
       layout="topleft"
       left="0"
       name="radio"
+      value="0"
       top="0"
       width="150" />
      <radio_item
@@ -348,6 +344,7 @@
       layout="topleft"
       left_delta="145"
       name="radio2"
+      value="1"
       top_delta="0"
       width="150" />
     </radio_group>

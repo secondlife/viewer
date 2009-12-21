@@ -71,7 +71,6 @@
      width="700">
         <panel
          border="true"
-         border_color="EmphasisColor"
          follows="all"
          height="180"
          label="Settings"

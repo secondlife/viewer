@@ -52,10 +52,19 @@ class LLChicletNotificationCounterCtrl : public LLTextBox
 {
 public:
 
+	static const S32 MAX_DISPLAYED_COUNT;
+
 	struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
 	{
-		Params()
-		{};
+		/**
+		* Contains maximum displayed count of unread messages. Default value is 9.
+		*
+		* If count is less than "max_unread_count" will be displayed as is.
+		* Otherwise 9+ will be shown (for default value).
+		*/
+		Optional<S32> max_displayed_count;
+
+		Params();
 	};
 
 	/**
@@ -93,6 +102,7 @@ private:
 
 	S32 mCounter;
 	S32 mInitialWidth;
+	S32 mMaxDisplayedCount;
 };
 
 /**
@@ -359,6 +369,32 @@ public:
 	virtual void toggleSpeakerControl();
 
 	/**
+	* Sets number of unread messages. Will update chiclet's width if number text 
+	* exceeds size of counter and notify it's parent about size change.
+	*/
+	virtual void setCounter(S32);
+
+	/**
+	* Enables/disables the counter control for a chiclet.
+	*/
+	virtual void enableCounterControl(bool enable);
+
+	/**
+	* Sets show counter state.
+	*/
+	virtual void setShowCounter(bool show);
+
+	/**
+	* Shows/Hides for counter control for a chiclet.
+	*/
+	virtual void toggleCounterControl();
+
+	/**
+	* Sets required width for a chiclet according to visible controls.
+	*/
+	virtual void setRequiredWidth();
+
+	/**
 	 * Shows/hides overlay icon concerning new unread messages.
 	 */
 	virtual void setShowNewMessagesIcon(bool show);
@@ -400,6 +436,7 @@ protected:
 protected:
 
 	bool mShowSpeaker;
+	bool mCounterEnabled;
 
 	LLIconCtrl* mNewMessagesIcon;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
@@ -451,12 +488,6 @@ public:
 	};
 
 	/* virtual */ void setOtherParticipantId(const LLUUID& other_participant_id);
-
-	/**
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	 */
-	/*virtual*/ void setCounter(S32);
 
 	/**
 	 * Init Speaker Control with speaker's ID
@@ -525,12 +556,6 @@ public:
 	 * Session ID for group chat is actually Group ID.
 	 */
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
-
-	/**
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	 */
-	/*virtual*/ void setCounter(S32);
 
 	/**
 	 * Keep Speaker Control with actual speaker's ID
@@ -695,12 +720,6 @@ public:
 	/*virtual*/ void changed(LLGroupChange gc);
 
 	/**
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	 */
-	/*virtual*/ void setCounter(S32);
-
-	/**
 	 * Init Speaker Control with speaker's ID
 	 */
 	/*virtual*/ void initSpeakerControl();
@@ -840,6 +859,16 @@ public:
 	~LLIMWellChiclet();
 protected:
 	LLIMWellChiclet(const Params& p);
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables chiclet menu items.
+	 */
+	bool enableMenuItem(const LLSD& user_data);
 
 	/**
 	 * Creates menu.

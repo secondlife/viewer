@@ -42,6 +42,8 @@
 #include "llagentdata.h" // for gAgentID
 #include "llavatarlist.h"
 #include "llbottomtray.h"
+#include "llimfloater.h"
+#include "llfloaterreg.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "lltransientfloatermgr.h"
@@ -95,7 +97,6 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 LLCallFloater::~LLCallFloater()
 {
-	mChannelChangedConnection.disconnect();
 	delete mPaticipants;
 	mPaticipants = NULL;
 
@@ -128,8 +129,6 @@ BOOL LLCallFloater::postBuild()
 	// update list for current session
 	updateSession();
 
-	// subscribe to to be notified Voice Channel is changed
-	mChannelChangedConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::onCurrentChannelChanged, this, _1));
 	return TRUE;
 }
 
@@ -245,6 +244,17 @@ void LLCallFloater::updateSession()
 	
 	refreshPartisipantList();
 	updateModeratorState();
+
+	//show floater for voice calls
+	if (!is_local_chat)
+	{
+		LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+		bool show_me = !(im_floater && im_floater->getVisible());
+		if (show_me) 
+		{
+			setVisible(true);
+		}
+	}
 }
 
 void LLCallFloater::refreshPartisipantList()
@@ -270,10 +280,9 @@ void LLCallFloater::refreshPartisipantList()
 
 	if (!non_avatar_caller)
 	{
-		bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
-		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
+		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
 
-		if (!do_not_use_context_menu_in_local_chat)
+		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
 		}
@@ -281,7 +290,7 @@ void LLCallFloater::refreshPartisipantList()
 	}
 }
 
-void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
+void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
 	// Don't update participant list if no channel info is available.
 	// Fix for ticket EXT-3427
@@ -291,9 +300,11 @@ void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 	{
 		return;
 	}
+	LLCallFloater* call_floater = LLFloaterReg::getTypedInstance<LLCallFloater>("voice_controls");
+
 	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
-	mSpeakerManager = NULL;
-	updateSession();
+	call_floater->mSpeakerManager = NULL;
+	call_floater->updateSession();
 }
 
 void LLCallFloater::updateTitle()

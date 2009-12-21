@@ -102,6 +102,9 @@ public:
 	
 	bool getDisableTimeout() { return mDisableTimeout; };
 	void setDisableTimeout(bool disable) { mDisableTimeout = disable; };
+	
+	void setLaunchTimeout(F32 timeout) { mPluginLaunchTimeout = timeout; };
+	void setLockupTimeout(F32 timeout) { mPluginLockupTimeout = timeout; };
 
 	F64 getCPUUsage() { return mCPUUsage; };
 
@@ -158,6 +161,10 @@ private:
 	bool mDebug;
 
 	LLProcessLauncher mDebugger;
+	
+	F32 mPluginLaunchTimeout;		// Somewhat longer timeout for initial launch.
+	F32 mPluginLockupTimeout;		// If we don't receive a heartbeat in this many seconds, we declare the plugin locked up.
+
 };
 
 #endif // LL_LLPLUGINPROCESSPARENT_H

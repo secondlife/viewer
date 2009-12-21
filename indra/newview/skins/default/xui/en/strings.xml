@@ -2041,6 +2041,59 @@ this texture in your inventory
 	<string name="RegionInfoAllowedResidents">Allowed residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
 	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
 
+	<!-- script limits floater -->
+	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
+	<string name="ScriptLimitsParcelsOwned">Parcels Listed: [PARCELS]</string>
+	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] kb out of [MAX] kb; [AVAILABLE] kb available</string>
+	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] kb</string>
+	<string name="ScriptLimitsParcelScriptURLs">Parcel Script URLs</string>
+	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
+	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
+	<string name="ScriptLimitsRequestError">Error requesting information</string>
+	<string name="ScriptLimitsRequestWrongRegion">Error: script information is only available in your current region</string>
+	<string name="ScriptLimitsRequestWaiting">Retrieving information...</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">You do not have permission to examine this parcel</string>
+	
+	<string name="SITTING_ON">Sitting On</string>
+	<string name="ATTACH_CHEST">Chest</string>
+	<string name="ATTACH_HEAD">Head</string>
+	<string name="ATTACH_LSHOULDER">Left Shoulder</string>
+	<string name="ATTACH_RSHOULDER">Right Shoulder</string>
+	<string name="ATTACH_LHAND">Left Hand</string>
+	<string name="ATTACH_RHAND">Right Hand</string>
+	<string name="ATTACH_LFOOT">Left Foot</string>
+	<string name="ATTACH_RFOOT">Right Foot</string>
+	<string name="ATTACH_BACK">Back</string>
+	<string name="ATTACH_PELVIS">Pelvis</string>
+	<string name="ATTACH_MOUTH">Mouth</string>
+	<string name="ATTACH_CHIN">Chin</string>
+	<string name="ATTACH_LEAR">Left Ear</string>
+	<string name="ATTACH_REAR">Right Ear</string>
+	<string name="ATTACH_LEYE">Left Eye</string>
+	<string name="ATTACH_REYE">Right Eye</string>
+	<string name="ATTACH_NOSE">Nose</string>
+	<string name="ATTACH_RUARM">Right Upper Arm</string>
+	<string name="ATTACH_RLARM">Right Lower Arm</string>
+	<string name="ATTACH_LUARM">Left Upper Arm</string>
+	<string name="ATTACH_LLARM">Left Lower Arm</string>
+	<string name="ATTACH_RHIP">Right Hip</string>
+	<string name="ATTACH_RULEG">Right Upper Leg</string>
+	<string name="ATTACH_RLLEG">Right Lower Leg</string>
+	<string name="ATTACH_LHIP">Left Hip</string>
+	<string name="ATTACH_LULEG">Left Upper Leg</string>
+	<string name="ATTACH_LLLEG">Left Lower Leg</string>
+	<string name="ATTACH_BELLY">Belly</string>
+	<string name="ATTACH_RPEC">Right Pec</string>
+	<string name="ATTACH_LPEC">Left Pec</string>
+	<string name="ATTACH_HUD_CENTER_2"><HUD Center 2/string>
+	<string name="ATTACH_HUD_TOP_RIGHT">HUD Top Right</string>
+	<string name="ATTACH_HUD_TOP_CENTER">HUD Top Center</string>
+	<string name="ATTACH_HUD_TOP_LEFT">HUD Top Left</string>
+	<string name="ATTACH_HUD_CENTER_1">HUD Center 1</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
+	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
+			
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
 

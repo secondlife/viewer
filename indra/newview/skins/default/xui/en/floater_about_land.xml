@@ -274,7 +274,7 @@
             <button
              enabled="false"
              follows="left|top"
-             height="23S"
+             height="23"
              label="Deed"
              layout="topleft"
              left_pad="2"
@@ -470,6 +470,16 @@
              left_delta="82"
              name="Buy Land..."
              top="328"
+             width="100" />
+            <button
+             enabled="true"
+             follows="left|top"
+             height="23"
+             label="Script Info"
+             layout="topleft"
+             left="10"
+             name="Scripts..."
+             top="352"
              width="100" />
             <button
              enabled="false"
@@ -1093,11 +1103,11 @@
                 <name_list.columns
                  label="Count"
                  name="count"
-                 width="70" />
+                 width="60" />
                 <name_list.columns
                  label="Most Recent"
                  name="mostrecent"
-                 width="160" />
+                 width="170" />
             </name_list>
         </panel>
         <panel
@@ -1672,9 +1682,7 @@ Only large parcels can be listed in search.
              name="replace_texture_help"
              width="300"
              word_wrap="true">
-             Objects using this texture will show the movie or web page after you click the play arrow.
-
-Select the thumbnail to choose a different texture.
+             Objects using this texture will show the movie or web page after you click the play arrow.  Select the thumbnail to choose a different texture.
             </text>
             <check_box
              height="16"

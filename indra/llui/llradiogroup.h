@@ -37,35 +37,6 @@
 #include "llcheckboxctrl.h"
 #include "llctrlselectioninterface.h"
 
-
-/*
- * An invisible view containing multiple mutually exclusive toggling 
- * buttons (usually radio buttons).  Automatically handles the mutex
- * condition by highlighting only one button at a time.
- */
-class LLRadioCtrl : public LLCheckBoxCtrl 
-{
-public:
-	struct Params : public LLInitParam::Block<Params, LLCheckBoxCtrl::Params>
-	{};
-
-	/*virtual*/ ~LLRadioCtrl();
-	/*virtual*/ void setValue(const LLSD& value);
-
-	/*virtual*/ BOOL postBuild();
-
-	// Ensure label is in an attribute, not the contents
-	static void setupParamsForExport(Params& p, LLView* parent);
-
-protected:
-	LLRadioCtrl(const Params& p);
-	friend class LLUICtrlFactory;
-};
-
-
-struct RadioGroupRegistry : public LLChildRegistry<RadioGroupRegistry>
-{};
-
 /*
  * An invisible view containing multiple mutually exclusive toggling 
  * buttons (usually radio buttons).  Automatically handles the mutex
@@ -76,25 +47,31 @@ class LLRadioGroup
 {
 public:
 
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	struct ItemParams : public LLInitParam::Block<ItemParams, LLCheckBoxCtrl::Params>
 	{
-		Optional<bool> has_border;
-		Params();
+		Optional<LLSD>	value;
+		ItemParams();
 	};
 
-	// my valid children are stored in this registry
-	typedef RadioGroupRegistry child_registry_t;
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<bool>						has_border;
+		Multiple<ItemParams, AtLeast<1> >	items;
+		Params();
+	};
 
 protected:
 	LLRadioGroup(const Params&);
 	friend class LLUICtrlFactory;
 
 public:
+
+	/*virtual*/ void initFromParams(const Params&);
+
 	virtual ~LLRadioGroup();
 	
 	virtual BOOL postBuild();
 	
-	virtual bool addChild(LLView* view, S32 tab_group = 0);
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
@@ -134,7 +111,7 @@ public:
 private:
 	const LLFontGL* mFont;
 	S32 mSelectedIndex;
-	typedef std::vector<LLRadioCtrl*> button_list_t;
+	typedef std::vector<class LLRadioCtrl*> button_list_t;
 	button_list_t mRadioButtons;
 
 	BOOL mHasBorder;

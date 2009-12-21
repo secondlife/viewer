@@ -3,7 +3,7 @@
  legacy_header_height="18"
  can_minimize="false"
  follows="left|top"
- height="540"
+ height="607"
  layout="topleft"
  left_delta="-3"
  name="floater customize"
@@ -11,30 +11,51 @@
  save_rect="true"
  title="APPEARANCE"
  top_delta="-185"
- width="494">
+ width="524">
+ <check_box
+             enabled="true"
+             height="23"
+             label="Show Attachments in Previews"
+             layout="topleft"
+             left="110"
+             name="show attachments"
+             tool_tip="Display attachments on your avatar in the preview panels below."
+             top="20"
+             width="146" />
     <tab_container
-     height="483"
+     height="517"
      layout="topleft"
-     left="0"
+     left="10"
      name="customize tab container"
      tab_min_width="96"
      tab_position="left"
-     top="24"
-     width="492">
-        <placeholder
-         label="Body Parts"
-         layout="topleft"
-         name="body_parts_placeholder" />
+     tab_height="50"
+     top="50"
+     width="506">
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="5"
+             name="body_parts_placeholder"
+	     font="SansSerifSmallBold"
+             top="10"
+             width="100">
+                Body Parts
+            </text>
+	    <placeholder />
         <panel
-         border="true"
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
          follows="left|top|right|bottom"
-         height="481"
+         height="508"
          label="Shape"
          layout="topleft"
-         left_delta="0"
          name="Shape"
-         top_delta="0"
-         width="389">
+         width="400">
             <icon
              follows="top|right"
              height="18"
@@ -47,134 +68,132 @@
              width="18" />
             <icon
              height="16"
+	     top="10"
+	     left="10"
              layout="topleft"
-             left_delta="-325"
              mouse_opaque="true"
-             top_delta="3"
              width="16" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             left="299"
+             right="390"
              name="Revert"
-             top="458"
+             top="477"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Body"
              label_selected="Body"
              layout="topleft"
-             left="8"
+             left="10"
              name="Body"
-             top="65"
+             top="63"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Head"
              label_selected="Head"
              layout="topleft"
              left_delta="0"
              name="Head"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Eyes"
              label_selected="Eyes"
              layout="topleft"
              left_delta="0"
              name="Eyes"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Ears"
              label_selected="Ears"
              layout="topleft"
              left_delta="0"
              name="Ears"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Nose"
              label_selected="Nose"
              layout="topleft"
              left_delta="0"
              name="Nose"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Mouth"
              label_selected="Mouth"
              layout="topleft"
              left_delta="0"
              name="Mouth"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Chin"
              label_selected="Chin"
              layout="topleft"
              left_delta="0"
              name="Chin"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Torso"
              label_selected="Torso"
              layout="topleft"
              left_delta="0"
              name="Torso"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Legs"
              label_selected="Legs"
              layout="topleft"
              left_delta="0"
              name="Legs"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <radio_group
              control_name="AvatarSex"
              height="34"
              layout="topleft"
-             left_delta="0"
              name="sex radio"
-             top_pad="16"
+	     top_pad="10"
              width="82">
                 <radio_item
                  height="16"
                  label="Female"
                  layout="topleft"
-                 left="1"
                  name="radio"
-                 top="1"
+                 value="0"
                  width="82" />
                 <radio_item
                  height="16"
                  label="Male"
                  layout="topleft"
-                 left_delta="0"
                  name="radio2"
-                 top_delta="16"
+                 value="1"
+		 top="32"
                  width="82" />
             </radio_group>
             <text
@@ -184,9 +203,9 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="8"
+             left="31"
              name="title"
-             top="8"
+             top="10"
              width="355">
                 [DESC]
             </text>
@@ -197,9 +216,9 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_no_modify"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: cannot modify
             </text>
@@ -210,9 +229,9 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_loading"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: loading...
             </text>
@@ -223,9 +242,9 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_not_worn"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: not worn
             </text>
@@ -233,11 +252,11 @@
              type="string"
              length="1"
              follows="left|top"
-             height="14"
+             height="16"
              layout="topleft"
-             left="8"
+             left="10"
              name="path"
-             top="24"
+             top="36"
              width="373">
                 Located in [PATH]
             </text>
@@ -247,9 +266,9 @@
              follows="left|top|right"
              height="28"
              layout="topleft"
-             left_delta="0"
+             left="10"
              name="not worn instructions"
-             top_pad="8"
+             top="31"
              width="373">
                 Put on a new shape by dragging one from your inventory
 to your avatar. Alternately, you create a new one from
@@ -270,58 +289,58 @@ scratch and wear it.
             <text
              type="string"
              length="1"
-             bottom="486"
+             top="488"
              follows="left|top|right"
              font="SansSerif"
              halign="right"
-             height="28"
+             height="23"
              layout="topleft"
              name="Item Action Label"
-             right="117"
+             right="132"
              width="100">
                 Shape:
             </text>
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Shape"
              label_selected="Create New Shape"
              layout="topleft"
-             left="8"
+             left="10"
              name="Create New"
              top="104"
              width="140" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             left="123"
              name="Save"
-             top="458"
+             right="218"
+             top="477"
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             left_pad="6"
              name="Save As"
-             top_delta="0"
+             top="477"
+             right="304"
              width="82" />
         </panel>
         <panel
-         border="true"
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
          follows="left|top|right|bottom"
-         height="481"
+         height="508"
          label="Skin"
          layout="topleft"
-         left_delta="0"
          name="Skin"
-         top_delta="0"
-         width="389">
+         width="400">
             <icon
              follows="top|right"
              height="18"
@@ -333,52 +352,51 @@ scratch and wear it.
              top="4"
              width="18" />
             <icon
-             follows="left|top"
              height="16"
+	     top="10"
+	     left="10"
              layout="topleft"
-             left="8"
              mouse_opaque="true"
-             top_delta="3"
              width="16" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Skin Color"
              label_selected="Skin Color"
              layout="topleft"
-             left_delta="0"
+             left="10"
              name="Skin Color"
-             top_pad="41"
+             top="63"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Face Detail"
              label_selected="Face Detail"
              layout="topleft"
              left_delta="0"
              name="Face Detail"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Makeup"
              label_selected="Makeup"
              layout="topleft"
              left_delta="0"
              name="Makeup"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Body Detail"
              label_selected="Body Detail"
              layout="topleft"
              left_delta="0"
              name="Body Detail"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <text
              type="string"
@@ -387,9 +405,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="8"
+             left="31"
              name="title"
-             top="8"
+             top="10"
              width="355">
                 [DESC]
             </text>
@@ -400,9 +418,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_no_modify"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: cannot modify
             </text>
@@ -413,9 +431,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_loading"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: loading...
             </text>
@@ -426,9 +444,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_not_worn"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: not worn
             </text>
@@ -438,9 +456,9 @@ scratch and wear it.
              follows="left|top|right"
              height="14"
              layout="topleft"
-             left="8"
+             left="10"
              name="path"
-             top="24"
+             top="36"
              width="373">
                 Located in [PATH]
             </text>
@@ -450,9 +468,9 @@ scratch and wear it.
              follows="left|top|right"
              height="28"
              layout="topleft"
-             left_delta="0"
+             left="10"
              name="not worn instructions"
-             top_pad="8"
+             top="31"
              width="373">
                 Put on a new skin by dragging one from your inventory
 to your avatar. Alternately, you create a new one from
@@ -473,14 +491,14 @@ scratch and wear it.
             <text
              type="string"
              length="1"
-             bottom="486"
+             top="488"
              follows="left|top|right"
              font="SansSerif"
              halign="right"
-             height="28"
+             height="23"
              layout="topleft"
              name="Item Action Label"
-             right="117"
+             right="132"
              width="100">
                 Skin:
             </text>
@@ -489,43 +507,43 @@ scratch and wear it.
              can_apply_immediately="true"
              default_image_name="Default"
              follows="left|top"
-             height="80"
+             height="108"
              label="Head Tattoos"
              layout="topleft"
-             left="8"
+             left="10"
              name="Head Tattoos"
              tool_tip="Click to choose a picture"
-             top="193"
-             width="74" />
+             top="176"
+             width="82" />
             <texture_picker
              allow_no_texture="true"
              can_apply_immediately="true"
              default_image_name="Default"
              follows="left|top"
-             height="80"
+             height="108"
              label="Upper Tattoos"
              layout="topleft"
              left_delta="0"
              name="Upper Tattoos"
              tool_tip="Click to choose a picture"
-             top_delta="80"
-             width="74" />
+             top_delta="102"
+             width="82" />
             <texture_picker
              allow_no_texture="true"
              can_apply_immediately="true"
              default_image_name="Default"
              follows="left|top"
-             height="80"
+             height="108"
              label="Lower Tattoos"
              layout="topleft"
              left_delta="0"
              name="Lower Tattoos"
              tool_tip="Click to choose a picture"
-             top_delta="80"
-             width="74" />
+             top_delta="102"
+             width="82" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Skin"
              label_selected="Create New Skin"
              layout="topleft"
@@ -535,45 +553,45 @@ scratch and wear it.
              width="120" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             left="123"
+             right="218"
              name="Save"
-             top="458"
+             top="477"
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             left_pad="6"
+             right="304"
              name="Save As"
-             top_delta="0"
+             top="477"
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             left_pad="6"
+             right="390"
              name="Revert"
-             top_delta="0"
+             top="477"
              width="82" />
         </panel>
         <panel
-         border="true"
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
          follows="left|top|right|bottom"
-         height="481"
+         height="508"
          label="Hair"
          layout="topleft"
-         left_delta="0"
          name="Hair"
-         top_delta="0"
-         width="389">
+         width="400">
             <icon
              follows="top|right"
              height="18"
@@ -586,50 +604,48 @@ scratch and wear it.
              width="18" />
             <icon
              height="16"
+	     top="10"
+	     left="10"
              layout="topleft"
-             left="8"
              mouse_opaque="true"
-             top_delta="3"
              width="16" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Color"
              label_selected="Color"
              layout="topleft"
-             left_delta="0"
+             left="10"
              name="Color"
-             top_pad="41"
+             top="63"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Style"
              label_selected="Style"
              layout="topleft"
              left_delta="0"
              name="Style"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Eyebrows"
              label_selected="Eyebrows"
              layout="topleft"
-             left_delta="0"
              name="Eyebrows"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Facial"
              label_selected="Facial"
              layout="topleft"
-             left_delta="0"
              name="Facial"
-             top_pad="16"
+             top_pad="4"
              width="82" />
             <text
              type="string"
@@ -638,9 +654,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="8"
+             left="31"
              name="title"
-             top="8"
+             top="10"
              width="355">
                 [DESC]
             </text>
@@ -651,9 +667,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_no_modify"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: cannot modify
             </text>
@@ -664,9 +680,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_loading"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: loading...
             </text>
@@ -677,9 +693,9 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="31"
              name="title_not_worn"
-             top_delta="0"
+             top="10"
              width="355">
                 [DESC]: not worn
             </text>
@@ -689,9 +705,9 @@ scratch and wear it.
              follows="left|top|right"
              height="14"
              layout="topleft"
-             left="8"
+             left="10"
              name="path"
-             top="24"
+             top="36"
              width="373">
                 Located in [PATH]
             </text>
@@ -701,9 +717,9 @@ scratch and wear it.
              follows="left|top|right"
              height="28"
              layout="topleft"
-             left_delta="0"
+             left="10"
              name="not worn instructions"
-             top_pad="8"
+             top="31"
              width="373">
                 Put on a new hair by dragging one from your inventory
 to your avatar. Alternately, you create a new one from
@@ -724,14 +740,14 @@ scratch and wear it.
             <text
              type="string"
              length="1"
-             bottom="486"
+             top="488"
              follows="left|top|right"
              font="SansSerif"
              halign="right"
-             height="28"
+             height="23"
              layout="topleft"
              name="Item Action Label"
-             right="117"
+             right="132"
              width="100">
                 Hair:
             </text>
@@ -739,17 +755,17 @@ scratch and wear it.
              can_apply_immediately="true"
              default_image_name="Default"
              follows="left|top"
-             height="80"
+             height="108"
              label="Texture"
              layout="topleft"
-             left="8"
+             left="10"
              name="Texture"
              tool_tip="Click to choose a picture"
-             top="193"
-             width="64" />
+             top="176"
+             width="82" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Hair"
              label_selected="Create New Hair"
              layout="topleft"
@@ -759,33 +775,33 @@ scratch and wear it.
              width="120" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             left="123"
+             right="218"
              name="Save"
-             top="458"
+             top="477"
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             left_pad="6"
+             right="304"
              name="Save As"
-             top_delta="0"
+             top="477"
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             left_pad="6"
+             right="390"
              name="Revert"
-             top_delta="0"
+             top="477"
              width="82" />
         </panel>
         <panel
@@ -933,7 +949,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Eyes"
              label_selected="Create New Eyes"
              layout="topleft"
@@ -943,7 +959,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -953,7 +969,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -963,7 +979,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -972,10 +988,20 @@ scratch and wear it.
              top_delta="0"
              width="82" />
         </panel>
-        <placeholder
-         label="Clothes"
-         layout="topleft"
-         name="clothes_placeholder" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="5"
+             name="clothes_placeholder"
+	     font="SansSerifSmallBold"
+             top="125"
+             width="100">
+                Clothes
+            </text>
+	    <placeholder />
         <panel
          border="true"
          follows="left|top|right|bottom"
@@ -1016,7 +1042,6 @@ scratch and wear it.
              top_pad="41"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1029,7 +1054,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Shirt"
              label_selected="Create New Shirt"
              layout="topleft"
@@ -1039,7 +1064,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -1049,7 +1074,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -1059,7 +1084,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -1069,7 +1094,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -1222,7 +1247,6 @@ scratch and wear it.
              top_pad="41"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1235,7 +1259,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Pants"
              label_selected="Create New Pants"
              layout="topleft"
@@ -1245,7 +1269,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -1255,7 +1279,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -1265,7 +1289,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -1275,7 +1299,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -1532,7 +1556,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1545,7 +1568,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Shoes"
              label_selected="Create New Shoes"
              layout="topleft"
@@ -1555,7 +1578,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -1565,7 +1588,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -1575,7 +1598,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -1585,7 +1608,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -1738,7 +1761,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1751,7 +1773,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Socks"
              label_selected="Create New Socks"
              layout="topleft"
@@ -1761,7 +1783,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -1771,7 +1793,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -1781,7 +1803,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -1791,7 +1813,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -1956,7 +1978,6 @@ scratch and wear it.
              top_delta="80"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1969,7 +1990,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Jacket"
              label_selected="Create New Jacket"
              layout="topleft"
@@ -1979,7 +2000,7 @@ scratch and wear it.
              width="140" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -1989,7 +2010,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -1999,7 +2020,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -2009,7 +2030,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -2162,7 +2183,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2175,7 +2195,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Gloves"
              label_selected="Create New Gloves"
              layout="topleft"
@@ -2185,7 +2205,7 @@ scratch and wear it.
              width="130" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -2195,7 +2215,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -2205,7 +2225,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -2215,7 +2235,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -2368,7 +2388,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2381,7 +2400,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Undershirt"
              label_selected="Create New Undershirt"
              layout="topleft"
@@ -2391,7 +2410,7 @@ scratch and wear it.
              width="160" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -2401,7 +2420,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -2411,7 +2430,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -2421,7 +2440,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -2574,7 +2593,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2587,7 +2605,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Underpants"
              label_selected="Create New Underpants"
              layout="topleft"
@@ -2597,7 +2615,7 @@ scratch and wear it.
              width="160" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -2607,7 +2625,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -2617,7 +2635,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -2627,7 +2645,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -2780,7 +2798,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2793,7 +2810,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Skirt"
              label_selected="Create New Skirt"
              layout="topleft"
@@ -2803,7 +2820,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -2813,7 +2830,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -2823,7 +2840,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -2833,7 +2850,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -3080,7 +3097,7 @@ scratch and wear it.
              width="16" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Alpha"
              label_selected="Create New Alpha"
              layout="topleft"
@@ -3090,7 +3107,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -3100,7 +3117,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -3110,7 +3127,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -3120,7 +3137,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -3298,7 +3315,7 @@ scratch and wear it.
              width="64" />
             <button
              follows="left|top"
-             height="24"
+             height="23"
              label="Create New Tattoo"
              label_selected="Create New Tattoo"
              layout="topleft"
@@ -3308,7 +3325,7 @@ scratch and wear it.
              width="120" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Take Off"
              label_selected="Take Off"
              layout="topleft"
@@ -3318,7 +3335,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
@@ -3328,7 +3345,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
@@ -3338,7 +3355,7 @@ scratch and wear it.
              width="82" />
             <button
              follows="right|bottom"
-             height="20"
+             height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
@@ -3350,12 +3367,12 @@ scratch and wear it.
     </tab_container>
     <scroll_container
      follows="left|top|right|bottom"
-     height="382"
+     height="409"
      layout="topleft"
-     left="197"
+     left="211"
      mouse_opaque="false"
      name="panel_container"
-     top="94"
+     top="116"
      width="292">
         <scrolling_panel_list
          follows="left|bottom"
@@ -3363,19 +3380,29 @@ scratch and wear it.
          name="panel_list" />
     </scroll_container>
     <button
-     bottom="536"
-     follows="right|bottom"
+     bottom="598"
+     follows="right|left"
      height="20"
+     label="Script Info"
+     label_selected="Script Info"
+     layout="topleft"
+     name="script_info"
+     left="2"
+     width="98" />
+    <button
+     bottom="598"
+     follows="right|bottom"
+     height="23"
      label="Make Outfit"
      label_selected="Make Outfit"
      layout="topleft"
      name="make_outfit_btn"
-     right="-216"
+     right="-218"
      width="100" />
     <button
-     bottom="536"
+     bottom="598"
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
@@ -3383,13 +3410,13 @@ scratch and wear it.
      right="-10"
      width="100" />
     <button
-     bottom="536"
+     bottom="598"
      follows="right|bottom"
-     height="20"
+     height="23"
      label="OK"
      label_selected="OK"
      layout="topleft"
      name="Ok"
-     right="-116"
+     right="-114"
      width="100" />
 </floater>

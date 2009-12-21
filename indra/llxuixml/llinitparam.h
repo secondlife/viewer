@@ -1,5 +1,5 @@
 /** 
- * @file llinitparam.h
+f * @file llinitparam.h
  * @brief parameter block abstraction for creating complex objects and 
  * parsing construction parameters from xml and LLSD
  *
@@ -405,6 +405,41 @@ namespace LLInitParam
 	class BaseBlock
 	{
 	public:
+		// "Multiple" constraint types
+		struct AnyAmount
+		{
+			static U32 minCount() { return 0; }
+			static U32 maxCount() { return U32_MAX; }
+		};
+
+		template<U32 MIN_AMOUNT>
+		struct AtLeast
+		{
+			static U32 minCount() { return MIN_AMOUNT; }
+			static U32 maxCount() { return U32_MAX; }
+		};
+
+		template<U32 MAX_AMOUNT>
+		struct AtMost
+		{
+			static U32 minCount() { return 0; }
+			static U32 maxCount() { return MAX_AMOUNT; }
+		};
+
+		template<U32 MIN_AMOUNT, U32 MAX_AMOUNT>
+		struct Between
+		{
+			static U32 minCount() { return MIN_AMOUNT; }
+			static U32 maxCount() { return MAX_AMOUNT; }
+		};
+
+		template<U32 EXACT_COUNT>
+		struct Exactly
+		{
+			static U32 minCount() { return EXACT_COUNT; }
+			static U32 maxCount() { return EXACT_COUNT; }
+		};
+
 		// this typedef identifies derived classes as being blocks
 		typedef void baseblock_base_class_t;
 		LOG_CLASS(BaseBlock);
@@ -1365,40 +1400,6 @@ namespace LLInitParam
 		}
 	};
 
-	struct AnyAmount
-	{
-		static U32 minCount() { return 0; }
-		static U32 maxCount() { return U32_MAX; }
-	};
-
-	template<U32 MIN_AMOUNT>
-	struct AtLeast
-	{
-		static U32 minCount() { return MIN_AMOUNT; }
-		static U32 maxCount() { return U32_MAX; }
-	};
-
-	template<U32 MAX_AMOUNT>
-	struct AtMost
-	{
-		static U32 minCount() { return 0; }
-		static U32 maxCount() { return MAX_AMOUNT; }
-	};
-
-	template<U32 MIN_AMOUNT, U32 MAX_AMOUNT>
-	struct Between
-	{
-		static U32 minCount() { return MIN_AMOUNT; }
-		static U32 maxCount() { return MAX_AMOUNT; }
-	};
-
-	template<U32 EXACT_COUNT>
-	struct Exactly
-	{
-		static U32 minCount() { return EXACT_COUNT; }
-		static U32 maxCount() { return EXACT_COUNT; }
-	};
-
 	template <typename DERIVED_BLOCK, typename BASE_BLOCK = BaseBlock>
 	class Block 
 	:	public BASE_BLOCK
@@ -1491,7 +1492,7 @@ namespace LLInitParam
 
 		};
 
-		template <typename T, typename RANGE = AnyAmount, typename NAME_VALUE_LOOKUP = TypeValues<T> >
+		template <typename T, typename RANGE = BaseBlock::AnyAmount, typename NAME_VALUE_LOOKUP = TypeValues<T> >
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 		public:
@@ -1711,7 +1712,7 @@ namespace LLInitParam
 			{
 				if (block_t::validateBlock(true))
 				{
-					mData.mValue = static_cast<const DERIVED*>(this)->getValueFromBlock();
+					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					// clear stale keyword associated with old value
 					mData.clearKey();
 					mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
@@ -1737,6 +1738,7 @@ namespace LLInitParam
 			mData.mValue = val;
 			mData.clearKey();
 			setProvided(flag_as_provided);
+			static_cast<DERIVED*>(this)->setBlockFromValue();
 		}
 
 		void setIfNotProvided(value_assignment_t val, bool flag_as_provided = true)
@@ -1768,7 +1770,7 @@ namespace LLInitParam
 				// go ahead and issue warnings at this point if any param is invalid
 				if(block_t::validateBlock(false))
 				{
-					mData.mValue = static_cast<const DERIVED*>(this)->getValueFromBlock();
+					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					mData.clearKey();
 					mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
 				}

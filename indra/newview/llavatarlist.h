@@ -155,4 +155,16 @@ protected:
 	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
 };
 
+class LLAvatarItemAgentOnTopComparator : public LLAvatarItemNameComparator
+{
+	LOG_CLASS(LLAvatarItemAgentOnTopComparator);
+
+public:
+	LLAvatarItemAgentOnTopComparator() {};
+	virtual ~LLAvatarItemAgentOnTopComparator() {};
+
+protected:
+	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
+};
+
 #endif // LL_LLAVATARLIST_H

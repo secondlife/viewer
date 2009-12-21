@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="570"
+ help_topic="scriptlimits"
+ layout="topleft"
+ name="scriptlimits"
+ save_rect="true"
+ title="SCRIPT INFORMATION"
+ width="480">
+    <tab_container
+     bottom="555"
+     follows="left|right|top|bottom"
+     layout="topleft"
+     left="1"
+     name="scriptlimits_panels"
+     right="-1"
+     tab_position="top"
+     top="20" />
+</floater>

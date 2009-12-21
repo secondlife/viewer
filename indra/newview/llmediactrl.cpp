@@ -95,7 +95,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mHidingInitialLoad (false),
 	mDecoupleTextureSize ( false ),
 	mTextureWidth ( 1024 ),
-	mTextureHeight ( 1024 )
+	mTextureHeight ( 1024 ),
+	mClearCache(false)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -491,6 +492,21 @@ void LLMediaCtrl::clr404RedirectUrl()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void LLMediaCtrl::clearCache()
+{
+	if(mMediaSource)
+	{
+		mMediaSource->clearCache();
+	}
+	else
+	{
+		mClearCache = true;
+	}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 {
 	// don't browse to anything that starts with secondlife:// or sl://
@@ -617,7 +633,12 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->setHomeURL(mHomePageUrl);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
-
+			if(mClearCache)
+			{
+				mMediaSource->clearCache();
+				mClearCache = false;
+			}
+			
 			if(mHideLoading)
 			{
 				mHidingInitialLoad = true;

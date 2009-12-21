@@ -657,17 +657,21 @@ void LLFavoritesBarCtrl::updateButtons()
 	int first_changed_item_index = 0;
 	int rightest_point = getRect().mRight - mChevronButton->getRect().getWidth();
 	//lets find first changed button
-	while (child_it != childs->end())
+	while (child_it != childs->end() && first_changed_item_index < mItems.count())
 	{
 		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
 		if (button)
 		{
-			// an child's order  and mItems  should be same   
-			if (button->getLandmarkId() != mItems[first_changed_item_index]->getUUID() // sort order has been changed
-					|| button->getLabelSelected() != mItems[first_changed_item_index]->getDisplayName() // favorite's name has been changed
-					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
+			const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
+			if (item)
 			{
-				break;
+				// an child's order  and mItems  should be same   
+				if (button->getLandmarkId() != item->getUUID() // sort order has been changed
+					|| button->getLabelSelected() != item->getDisplayName() // favorite's name has been changed
+					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
+				{
+					break;
+				}
 			}
 			first_changed_item_index++;
 		}
@@ -675,9 +679,8 @@ void LLFavoritesBarCtrl::updateButtons()
 	}
 	// now first_changed_item_index should contains a number of button that need to change
 
-	if (first_changed_item_index < mItems.count())
+	if (first_changed_item_index <= mItems.count())
 	{
-		mUpdateDropDownItems = true;
 		// Rebuild the buttons only
 		// child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
 
@@ -722,6 +725,10 @@ void LLFavoritesBarCtrl::updateButtons()
 		// Chevron button
 		if (mFirstDropDownItem < mItems.count())
 		{
+			// if updateButton had been called it means:
+			//or there are some new favorites, or width had been changed
+			// so if we need to display chevron button,  we must update dropdown items too. 
+			mUpdateDropDownItems = true;
 			S32 buttonHGap = 2; // default value
 			buttonXMLNode->getAttributeS32("left", buttonHGap);
 			LLRect rect;

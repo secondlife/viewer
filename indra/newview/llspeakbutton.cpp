@@ -119,6 +119,9 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	// never show "muted" because you can't mute yourself
 	mOutputMonitor->setIsMuted(false);
 	mOutputMonitor->setIsAgentControl(true);
+
+	//*TODO find a better place to do that
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1));
 }
 
 LLSpeakButton::~LLSpeakButton()

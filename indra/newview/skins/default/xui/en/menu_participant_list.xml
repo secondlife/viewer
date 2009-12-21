@@ -51,6 +51,8 @@
         <menu_item_call.on_click
          function="Avatar.Pay" />
     </menu_item_call>
+        <menu_item_separator
+         layout="topleft" />
     <menu_item_check
      label="Block Voice"
      layout="topleft"
@@ -64,8 +66,6 @@
          function="ParticipantList.EnableItem"
          parameter="can_block" />
     </menu_item_check>
-        <menu_item_separator
-         layout="topleft" />
     <menu_item_check
      label="Block Text"
      layout="topleft"
@@ -79,6 +79,8 @@
          function="ParticipantList.EnableItem"
          parameter="can_mute_text" />
     </menu_item_check>
+        <menu_item_separator
+         layout="topleft" />
     <context_menu
      label="Moderator Options &gt;"
      layout="topleft"

@@ -28,7 +28,7 @@
      follows="left|top"
      height="15"
      increment="0.025"
-     initial_valu="1"
+     initial_value="1"
      layout="topleft"
      left_delta="52"
      max_val="1.4"
@@ -656,6 +656,7 @@
             layout="topleft"
             left="3"
             name="SunMoon"
+            value="0"
             top="3"
             width="156" />
            <radio_item
@@ -664,6 +665,7 @@
             layout="topleft"
             left_delta="0"
             name="LocalLights"
+            value="1"
             top_delta="16"
             width="156" />
         </radio_group>

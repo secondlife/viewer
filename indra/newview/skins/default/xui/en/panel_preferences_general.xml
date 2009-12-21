@@ -13,7 +13,7 @@
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="15"
      layout="topleft"
      left="30"
      name="language_textbox"
@@ -23,14 +23,13 @@
     </text>
     <combo_box
      control_name="Language"
-     follows="left|bottom"
+     follows="left|top"
      height="23"
      layout="topleft"
-     left_delta="50"
+     left="50"
      max_chars="135"
      name="language_combobox"
-     top_pad="10"
-     width="170">
+     width="200">
         <combo_box.item
          enabled="true"
          label="System default"
@@ -66,7 +65,6 @@
          label="Italiano (Italian) - Beta"
          name="Italian"
          value="it" />
-
         <combo_box.item
          enabled="true"
          label="Nederlands (Dutch) - Beta"
@@ -82,62 +80,54 @@
          label="Portugués (Portuguese) - Beta"
          name="Portugese"
          value="pt" />
-
-
-
-
         <combo_box.item
          enabled="true"
          label="日本語 (Japanese) - Beta"
          name="(Japanese)"
          value="ja" />
-
-
     </combo_box>
     <text
+ font="SansSerifSmall"
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="18"
      layout="topleft"
-     left_delta="175"
+     left_pad="5"
      name="language_textbox2"
-     top_delta="1"
-     width="400">
+     width="200">
         (Requires restart)
     </text>
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="15"
      layout="topleft"
      left="30"
+     top_pad="15"
      name="maturity_desired_prompt"
-     top_pad="10"
-     width="400">
+     width="200">
         I want to access content rated:
     </text>
 	<text
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="15"
      layout="topleft"
-     left="90"
+     left_pad="5"
      name="maturity_desired_textbox"
-     top_pad="10"
-     width="400">
+     width="200">
     </text>
     <combo_box
      control_name="PreferredMaturity"
-     follows="left|bottom"
+     follows="left|top"
      height="23"
      layout="topleft"
-     left_delta="-10"
+     left="50"
      name="maturity_desired_combobox"
-     top_pad="-10"
-     width="170">
+     width="200">
         <combo_box.item
          label="General, Moderate, Adult"
          name="Desired_Adult"
@@ -155,23 +145,22 @@
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="15"
      layout="topleft"
      left="30"
      name="start_location_textbox"
-     top_delta="20"
+     top_pad="10"
      width="394">
         Start location:
     </text>
     <combo_box
      control_name="LoginLocation"
-     follows="left|bottom"
+     follows="left|top"
      height="23"
      layout="topleft"
-     left_delta="50"
      name="start_location_combo"
-     top_pad="10"
-     width="170">
+     left="50"
+     width="200">
         <combo_box.item
          label="My Last Location"
          name="MyLastLocation"
@@ -187,54 +176,48 @@
      initial_value="true"
      label="Show on login"
      layout="topleft"
-     left_delta="175"
+     left_pad="5"
      name="show_location_checkbox"
-     top_delta="1"
+     top_delta="5"
      width="256" />        
-        
    <text
     type="string"
     length="1"
     follows="left|top"
-    height="10"
+    height="15"
     layout="topleft"
     left="30"
     name="name_tags_textbox"
-    top_pad="10"
+    top_pad="15"
     width="400">
        Name tags:
    </text>
    <radio_group
      control_name="AvatarNameTagMode"
-     height="30"
+     height="20"
      layout="topleft"
-     left_delta="50"
-     name="Name_Tag_Preference"
-     top_pad="10">
+     left="50"
+     name="Name_Tag_Preference">
         <radio_item
-         height="16"
          label="Off"
          layout="topleft"
-         left="0"
          name="radio"
-         top_pad="0"
-         width="98" />
+         value="0"
+         width="100" />
         <radio_item
-         height="16"
          label="On"
          layout="topleft"
          left_pad="12"
          name="radio2"
-         top_delta="0"
-         width="98" />
+         value="1"
+         width="100" />
         <radio_item
-         height="16"
          label="Show briefly"
          layout="topleft"
          left_pad="12"
          name="radio3"
-         top_delta="0"
-         width="98" />
+         value="2" 
+         width="100" />
     </radio_group>
     <check_box
 	 enabled_control="AvatarNameTagMode"
@@ -242,9 +225,8 @@
      height="16"
      label="Show my name"
      layout="topleft"
-     left_delta="0"
+     left="50"
      name="show_my_name_checkbox1"
-     top_pad="-7"
      width="300" />
     <check_box
 	 enabled_control="AvatarNameTagMode"
@@ -255,7 +237,6 @@
      layout="topleft"
      left_delta="175"
      name="small_avatar_names_checkbox"
-     top_delta="0"
      width="200" />
    <check_box
 	 enabled_control="AvatarNameTagMode"
@@ -271,92 +252,95 @@
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="15"
      layout="topleft"
      left="30"
      name="effects_color_textbox"
-     top_pad="5"
-     width="400">
+     top_pad="15"
+     width="200">
         My effects:
     </text>
+  <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="13"
+      layout="topleft"
+      left_pad="5"
+      name="title_afk_text"
+      width="190">
+    Away timeout:
+  </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      control_name="EffectColor"
      follows="left|top"
-     height="48"
+     height="50"
      layout="topleft"
-     left_delta="50"
+     left="50"
      name="effect_color_swatch"
      tool_tip="Click to open Color Picker"
-     top_pad="5"
-     width="32" />
+     width="38" />
+  <combo_box
+            height="23"
+            layout="topleft"
+            control_name="AFKTimeout"
+            left_pad="160"
+            label="Away timeout:"
+            top_delta="0"
+            name="afk"
+            width="130">
+    <combo_box.item
+     label="2 minutes"
+     name="item0"
+     value="120" />
+    <combo_box.item
+     label="5 minutes"
+     name="item1"
+     value="300" />
+    <combo_box.item
+     label="10 minutes"
+     name="item2"
+     value="600" />
+    <combo_box.item
+     label="30 minutes"
+     name="item3"
+     value="1800" />
+    <combo_box.item
+     label="never"
+     name="item4"
+     value="0" />
+  </combo_box>
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="15"
-     layout="topleft"
-     left="30"
-     name="title_afk_text"
-     text_color="white"
-     top_pad="-5"
-     width="190">
-        Away timeout:
-    </text>
-    <spinner
-     control_name="AFKTimeout"
-     decimal_digits="0"
-     follows="left|top"
-     halign="right"
-     height="15"
-     increment="1"
-     initial_value="300"
-     label=""
-     label_width="0"
-     layout="topleft"
-     left_delta="50"
-     max_val="600"
-     min_val="30"
-     name="afk_timeout_spinner"
-     top_pad="5"
-     width="50" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     halign="left"
-     height="15"
-     layout="topleft"
-     left_pad="2"
-     name="seconds_textbox"
-     width="70">
-       seconds
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
+     height="13"
      layout="topleft"
      text_color="white"
      left="30"
      mouse_opaque="false"
      name="text_box3"
-     top_pad="10"
+     top_pad="15"
      width="240">
        Busy mode response:
     </text>
     <text_editor
      control_name="BusyModeResponse2"
+      text_readonly_color="LabelDisabledColor"
+      bg_writeable_color="LtGray"
+      use_ellipses="false"
+      bg_visible="false"
+      border_visible="false"
+      hover="false"
+      text_color="LabelTextColor"
      commit_on_focus_lost = "true"
      follows="left|top"
-     height="56"
+     height="50"
      layout="topleft"
-     left_delta="50"
+     left="50"
      name="busy_response"
      width="400"
-     word_wrap="true"
-     top_pad="5">
+     word_wrap="true">
        log_in_to_change
     </text_editor>
     

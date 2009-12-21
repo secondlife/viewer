@@ -518,7 +518,7 @@
                          width="60" />
                         <button
                          follows="bottom|right"
-                         height="19"
+                         height="23"
                          label="About Land"
                          layout="topleft"
                          name="about_land_btn"
@@ -527,7 +527,7 @@
                          top="138"
                          width="90">
                             <click_callback
-                             function="ShowFloater"
+                             function="Floater.Show"
                              parameter="about_land" />
                         </button>
                     </panel>
@@ -645,7 +645,7 @@
                         </text>
                         <button
                          follows="bottom|right"
-                         height="19"
+                         height="23"
                          label="Region/Estate"
                          layout="topleft"
                          name="region_info_btn"
@@ -653,7 +653,7 @@
                          tab_stop="false"
                          width="105">
                             <click_callback
-                             function="ShowFloater"
+                             function="Floater.Show"
                              parameter="region_info" />
                         </button>
                     </panel>

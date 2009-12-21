@@ -8,7 +8,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
+      <string>S32</string>
       <key>Value</key>
       <real>300.0</real>
     </map>
@@ -44,17 +44,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>AllowIdleAFK</key>
-    <map>
-      <key>Comment</key>
-      <string>Automatically set AFK (away from keyboard) mode when idle</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>AllowMultipleViewers</key>
     <map>
@@ -9297,7 +9286,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>5</integer>
     </map>
     <key>UIMaxComboWidth</key>
     <map>

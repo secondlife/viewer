@@ -97,7 +97,7 @@ const U32 SEPARATOR_HEIGHT_PIXELS = 8;
 const S32 TEAROFF_SEPARATOR_HEIGHT_PIXELS = 10;
 const S32 MENU_ITEM_PADDING = 4;
 
-const std::string BOOLEAN_TRUE_PREFIX( "X" );
+const std::string BOOLEAN_TRUE_PREFIX( "\xE2\x9C\x94" ); // U+2714 HEAVY CHECK MARK
 const std::string BRANCH_SUFFIX( ">" );
 const std::string ARROW_UP  ("^^^^^^^");
 const std::string ARROW_DOWN("vvvvvvv");
@@ -3905,7 +3905,7 @@ BOOL LLContextMenu::appendContextSubMenu(LLContextMenu *menu)
 	
 	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
 	LLMenuGL::sMenuContainer->addChild(item->getBranch());
-	item->setFont( LLFontGL::getFontSansSerifSmall() );
+	item->setFont( LLFontGL::getFontSansSerif() );
 
 	return append( item );
 }
