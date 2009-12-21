@@ -201,7 +201,7 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string)
 //
 LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 {
-	mPattern = boost::regex("(\\bwww\\.\\S+\\.\\S+|\\S+.com\\S*|\\S+.net\\S*|\\S+.edu\\S*|\\S+.org\\S*)",
+	mPattern = boost::regex("(\\bwww\\.\\S+\\.\\S+|\\b[^ \t\n\r\f\v:/]+.com\\S*|\\b[^ \t\n\r\f\v:/]+.net\\S*|\\b[^ \t\n\r\f\v:/]+.edu\\S*|\\b[^ \t\n\r\f\v:/]+.org\\S*)",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
