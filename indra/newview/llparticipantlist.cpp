@@ -39,7 +39,6 @@
 #include "llimview.h"
 
 #include "llparticipantlist.h"
-#include "llavatarlist.h"
 #include "llspeakers.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
@@ -204,6 +203,11 @@ void LLParticipantList::setSortOrder(EParticipantSortOrder order)
 	}
 }
 
+LLParticipantList::EParticipantSortOrder LLParticipantList::getSortOrder()
+{
+	return mSortOrder;
+}
+
 void LLParticipantList::refreshVoiceState()
 {
 	LLSpeakerMgr::speaker_list_t speakers;
@@ -222,6 +226,12 @@ void LLParticipantList::refreshVoiceState()
 				&& speakerp->mStatus != LLSpeaker::STATUS_MUTED;
 			item->setOnline(!is_in_voice);
 		}
+	}
+	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
+	{
+		// Resort avatar list
+		mAvatarList->setDirty(true);
+		sort();
 	}
 }
 
@@ -312,7 +322,6 @@ void LLParticipantList::sort()
 	if ( !mAvatarList )
 		return;
 
-	// TODO: Implement more sorting orders after specs updating (EM)
 	switch ( mSortOrder ) {
 	case E_SORT_BY_NAME :
 		// if mExcludeAgent == true , then no need to keep agent on top of the list
@@ -325,6 +334,12 @@ void LLParticipantList::sort()
 			mAvatarList->setComparator(&AGENT_ON_TOP_NAME_COMPARATOR);
 			mAvatarList->sort();
 		}
+		break;
+	case E_SORT_BY_RECENT_SPEAKERS:
+		if (mSortByRecentSpeakers.isNull())
+			mSortByRecentSpeakers = new LLAvatarItemRecentSpeakerComparator(*this);
+		mAvatarList->setComparator(mSortByRecentSpeakers.get());
+		mAvatarList->sort();
 		break;
 	default :
 		llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
@@ -402,6 +417,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
+	registrar.add("ParticipantList.Sort", boost::bind(&LLParticipantList::LLParticipantListMenu::sortParticipantList, this, _2));
 	registrar.add("ParticipantList.ToggleAllowTextChat", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleAllowTextChat, this, _2));
 	registrar.add("ParticipantList.ToggleMuteText", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteText, this, _2));
 
@@ -446,6 +462,24 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 	{
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteOthers", false);
+	}
+
+	// Don't show sort options for P2P chat
+	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
+	LLMenuGL::sMenuContainer->childSetVisible("SortByName", is_sort_visible);
+	LLMenuGL::sMenuContainer->childSetVisible("SortByRecentSpeakers", is_sort_visible);
+}
+
+void LLParticipantList::LLParticipantListMenu::sortParticipantList(const LLSD& userdata)
+{
+	std::string param = userdata.asString();
+	if ("sort_by_name" == param)
+	{
+		mParent.setSortOrder(E_SORT_BY_NAME);
+	}
+	else if ("sort_by_recent_speakers" == param)
+	{
+		mParent.setSortOrder(E_SORT_BY_RECENT_SPEAKERS);
 	}
 }
 
@@ -616,8 +650,45 @@ bool LLParticipantList::LLParticipantListMenu::checkContextMenuItem(const LLSD& 
 	{
 		return LLMuteList::getInstance()->isMuted(id, LLMute::flagVoiceChat);
 	}
+	else if(item == "is_sorted_by_name")
+	{
+		return E_SORT_BY_NAME == mParent.mSortOrder;
+	}
+	else if(item == "is_sorted_by_recent_speakers")
+	{
+		return E_SORT_BY_RECENT_SPEAKERS == mParent.mSortOrder;
+	}
 
 	return false;
+}
+
+bool LLParticipantList::LLAvatarItemRecentSpeakerComparator::doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const
+{
+	if (mParent.mSpeakerMgr)
+	{
+		LLPointer<LLSpeaker> lhs = mParent.mSpeakerMgr->findSpeaker(avatar_item1->getAvatarId());
+		LLPointer<LLSpeaker> rhs = mParent.mSpeakerMgr->findSpeaker(avatar_item2->getAvatarId());
+		if ( lhs.notNull() && rhs.notNull() )
+		{
+			// Compare by last speaking time
+			if( lhs->mLastSpokeTime != rhs->mLastSpokeTime )
+				return ( lhs->mLastSpokeTime > rhs->mLastSpokeTime );
+			else if ( lhs->mSortIndex != rhs->mSortIndex )
+				return ( lhs->mSortIndex < rhs->mSortIndex );
+		}
+		else if ( lhs.notNull() )
+		{
+			// True if only avatar_item1 speaker info available
+			return true;
+		}
+		else if ( rhs.notNull() )
+		{
+			// False if only avatar_item2 speaker info available
+			return false;
+		}
+	}
+	// By default compare by name.
+	return LLAvatarItemNameComparator::doCompare(avatar_item1, avatar_item2);
 }
 
 //EOF
