@@ -502,7 +502,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				// but still have the parent folder present for listener-related operations.
 				if (id == mStartFolderID)
 				{
-					folderp->setDontShowInHierarchy(TRUE);
+					folderp->setHidden(TRUE);
 				}
 			}
 		}
