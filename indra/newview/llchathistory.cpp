@@ -422,7 +422,7 @@ void LLChatHistory::clear()
 
 void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_chat_history, const LLStyle::Params& input_append_params)
 {
-	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID())
+	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
 		mMoreChatPanel->setVisible(TRUE);
