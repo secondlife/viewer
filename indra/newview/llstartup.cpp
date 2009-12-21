@@ -1082,6 +1082,17 @@ bool idle_startup()
 		credentials["passwd"] = gPassword;
 		login->connect(credentials);
 
+		LLStartUp::setStartupState( STATE_LOGIN_CURL_UNSTUCK );
+		return FALSE;
+	}
+
+	if(STATE_LOGIN_CURL_UNSTUCK == LLStartUp::getStartupState())
+	{
+		// If we get here we have gotten past the potential stall
+		// in curl, so take "may appear frozen" out of progress bar. JC
+		auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
+		set_startup_status(progress, auth_desc, auth_message);
+
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		return FALSE;
 	}
@@ -1168,20 +1179,6 @@ bool idle_startup()
 				show_connect_box = true;
 			}
 		}
-		else
-		{
-			// If we get here we have gotten past the potential stall
-			// in curl, so take "may appear frozen" out of progress bar. JC
-			// *NOTE:Mani - Actual responses handled by LLLoginInstance::handleLoginEvent()
-			static bool has_set_unfrozen_msg = false;
-			if(!has_set_unfrozen_msg)
-			{
-				auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
-				set_startup_status(progress, auth_desc, auth_message);
-				has_set_unfrozen_msg = true;
-			}
-		}
-
 		return FALSE;
 	}
 
@@ -2703,6 +2700,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_LOGIN_WAIT );
 		RTNENUM( STATE_LOGIN_CLEANUP );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
+		RTNENUM( STATE_LOGIN_CURL_UNSTUCK );
 		RTNENUM( STATE_LOGIN_PROCESS_RESPONSE );
 		RTNENUM( STATE_WORLD_INIT );
 		RTNENUM( STATE_MULTIMEDIA_INIT );

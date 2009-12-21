@@ -269,7 +269,7 @@ bool LLProgressView::handleUpdate(const LLSD& event_data)
 	LLSD desc = event_data.get("desc");
 	LLSD percent = event_data.get("percent");
 
-	if(message.isUndefined())
+	if(message.isDefined())
 	{
 		setMessage(message.asString());
 	}
