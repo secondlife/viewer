@@ -191,8 +191,6 @@ public:
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
-	void onNewIM(const LLSD& data);
-
 	void addObjectRow(const LLUUID& object_id, bool new_message = false);
 	void removeObjectRow(const LLUUID& object_id);
 
