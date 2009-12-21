@@ -62,7 +62,10 @@
 // 
 //----------------------------------------------------------------------------
 
+#if !LL_DARWIN
 U32 ll_thread_local sThreadID = 0;
+#endif 
+
 U32 LLThread::sIDIter = 0;
 
 //
@@ -75,7 +78,9 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// Set thread state to running
 	threadp->mStatus = RUNNING;
 
+#if !LL_DARWIN
 	sThreadID = threadp->mID;
+#endif
 
 	// Run the user supplied function
 	threadp->run();
@@ -312,12 +317,16 @@ LLMutex::~LLMutex()
 
 void LLMutex::lock()
 {
+#if LL_DARWIN
+	if (mLockingThread == LLThread::currentID())
+#else
 	if (mLockingThread == sThreadID)
+#endif
 	{ //redundant lock
 		mCount++;
 		return;
 	}
-
+	
 	apr_thread_mutex_lock(mAPRMutexp);
 	
 #if MUTEX_DEBUG
@@ -328,7 +337,11 @@ void LLMutex::lock()
 	mIsLocked[id] = TRUE;
 #endif
 
+#if LL_DARWIN
+	mLockingThread = LLThread::currentID();
+#else
 	mLockingThread = sThreadID;
+#endif
 }
 
 void LLMutex::unlock()
