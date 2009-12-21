@@ -2,23 +2,24 @@
 <panel
 background_visible="true"
 follows="all"
-height="635"
+height="570"
 label="Outfits"
 layout="topleft"
-min_height="460"
+min_height="350"
+min_width="240"
 name="appearance panel"
 top="0"
 left="0"
-   width="333">
+width="333">
    <string
    name="No Outfit"
    value="No Outfit" />
    <panel
    left="0"
    top="0"
-   follows="left|top|right"
+   follows="all"
    layout="topleft"
-   width="333"
+   width="330"
    height="33"
    name="panel_currentlook"
    >
@@ -85,9 +86,9 @@ left="0"
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
-   height="550"
-   min_height="510"
-   width="333"
+   height="515"
+   min_height="410"
+   width="320"
    top_pad="0"
    follows="all"
    />
