@@ -60,6 +60,7 @@ public:
 	virtual ~LLGroupList();
 
 	virtual void draw(); // from LLView
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask); // from LLView
 
 	void setNameFilter(const std::string& filter);
 	void toggleIcons();
@@ -70,6 +71,11 @@ private:
 	void refresh();
 	void addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, EAddPosition pos = ADD_BOTTOM);
 	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata); // called on agent group list changes
+
+	bool onContextMenuItemClick(const LLSD& userdata);
+	bool onContextMenuItemEnable(const LLSD& userdata);
+
+	LLHandle<LLView>	mContextMenuHandle;
 
 	bool mShowIcons;
 	bool mDirty;

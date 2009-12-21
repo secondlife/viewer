@@ -68,7 +68,8 @@ static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
 static const LLRect VOICE_INDICATOR_RECT(50, 25, 70, 0);
 static const LLRect COUNTER_RECT(25, 25, 50, 0);
-static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon for new massages in a chiclet
+static const S32 OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon for new massages in a chiclet
+static const S32 SCROLL_BUTTON_PAD = 5;
 
 // static
 const S32 LLChicletPanel::s_scroll_ratio = 10;
@@ -140,7 +141,7 @@ private:
 LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
-, max_displayed_count("max_displayed_count", 9)
+, max_displayed_count("max_displayed_count", 99)
 , flash_to_lit_count("flash_to_lit_count", 3)
 , flash_period("flash_period", 0.5F)
 {
@@ -186,9 +187,9 @@ void LLSysWellChiclet::setCounter(S32 counter)
 
 	mButton->setLabel(s_count);
 
-	setNewMessagesState(counter > 0);
+	setNewMessagesState(counter > mCounter);
 
-	// we have to flash to 'Lit' state each time new unread message is comming.
+	// we have to flash to 'Lit' state each time new unread message is coming.
 	if (counter > mCounter)
 	{
 		mFlashToLitTimer->flash();
@@ -1311,7 +1312,6 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 		chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
 
 		arrange();
-		showScrollButtonsIfNeeded();
 
 		return true;
 	}
@@ -1322,8 +1322,6 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 void LLChicletPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
 {
 	arrange();
-	trimChiclets();
-	showScrollButtonsIfNeeded();
 }
 
 void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
@@ -1340,8 +1338,6 @@ void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
 	mChicletList.erase(it);
 	
 	arrange();
-	trimChiclets();
-	showScrollButtonsIfNeeded();
 }
 
 void LLChicletPanel::removeChiclet(S32 index)
@@ -1434,8 +1430,6 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 {
 	LLPanel::reshape(width,height,called_from_parent);
 
-	static const S32 SCROLL_BUTTON_PAD = 5;
-
 	//Needed once- to avoid error at first call of reshape() before postBuild()
 	if(!mLeftScrollButton||!mRightScrollButton)
 		return;
@@ -1446,9 +1440,21 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 	scroll_button_rect = mRightScrollButton->getRect();
 	mRightScrollButton->setRect(LLRect(width - scroll_button_rect.getWidth(),scroll_button_rect.mTop,
 		width, scroll_button_rect.mBottom));
-	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
-		height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+	
+
+	bool need_show_scroll = needShowScroll();
+	if(need_show_scroll)
+	{
+		mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
+			height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+	}
+	else
+	{
+		mScrollArea->setRect(LLRect(0,height, width, 0));
+	}
+	
 	mShowControls = width >= mMinWidth;
+	
 	mScrollArea->setVisible(mShowControls);
 
 	trimChiclets();
@@ -1461,8 +1467,8 @@ void LLChicletPanel::arrange()
 	if(mChicletList.empty())
 		return;
 
+	//initial arrange of chicklets positions
 	S32 chiclet_left = getChiclet(0)->getRect().mLeft;
-
 	S32 size = getChicletCount();
 	for( int n = 0; n < size; ++n)
 	{
@@ -1476,6 +1482,24 @@ void LLChicletPanel::arrange()
 
 		chiclet_left += chiclet_width + getChicletPadding();
 	}
+
+	//reset size and pos on mScrollArea
+	LLRect rect = getRect();
+	LLRect scroll_button_rect = mLeftScrollButton->getRect();
+	
+	bool need_show_scroll = needShowScroll();
+	if(need_show_scroll)
+	{
+		mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
+			rect.getHeight(), rect.getWidth() - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+	}
+	else
+	{
+		mScrollArea->setRect(LLRect(0,rect.getHeight(), rect.getWidth(), 0));
+	}
+	
+	trimChiclets();
+	showScrollButtonsIfNeeded();
 }
 
 void LLChicletPanel::trimChiclets()
@@ -1492,6 +1516,17 @@ void LLChicletPanel::trimChiclets()
 		}
 	}
 }
+
+bool LLChicletPanel::needShowScroll()
+{
+	if(mChicletList.empty())
+		return false;
+	
+	S32 chicklet_width  = (*mChicletList.rbegin())->getRect().mRight - (*mChicletList.begin())->getRect().mLeft;
+
+	return chicklet_width>getRect().getWidth();
+}
+
 
 void LLChicletPanel::showScrollButtonsIfNeeded()
 {

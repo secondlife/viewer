@@ -564,6 +564,7 @@ BOOL LLPanelPeople::postBuild()
 	buttonSetAction("chat_btn",			boost::bind(&LLPanelPeople::onChatButtonClicked,		this));
 	buttonSetAction("im_btn",			boost::bind(&LLPanelPeople::onImButtonClicked,			this));
 	buttonSetAction("call_btn",			boost::bind(&LLPanelPeople::onCallButtonClicked,		this));
+	buttonSetAction("group_call_btn",	boost::bind(&LLPanelPeople::onGroupCallButtonClicked,	this));
 	buttonSetAction("teleport_btn",		boost::bind(&LLPanelPeople::onTeleportButtonClicked,	this));
 	buttonSetAction("share_btn",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 
@@ -733,6 +734,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetVisible("view_profile_btn",	!group_tab_active);
 	buttonSetVisible("im_btn",				!group_tab_active);
 	buttonSetVisible("call_btn",			!group_tab_active);
+	buttonSetVisible("group_call_btn",		group_tab_active);
 	buttonSetVisible("teleport_btn",		friends_tab_active);
 	buttonSetVisible("share_btn",			nearby_tab_active || friends_tab_active);
 
@@ -781,6 +783,7 @@ void LLPanelPeople::updateButtons()
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
+	buttonSetEnabled("group_call_btn", !none_group_selected);
 	buttonSetEnabled("chat_btn", !none_group_selected);
 }
 
@@ -1270,6 +1273,11 @@ void LLPanelPeople::onCallButtonClicked()
 		// initiate an ad-hoc voice chat with multiple users
 		LLAvatarActions::startAdhocCall(selected_uuids);
 	}
+}
+
+void LLPanelPeople::onGroupCallButtonClicked()
+{
+	LLGroupActions::startCall(getCurrentItemID());
 }
 
 void LLPanelPeople::onTeleportButtonClicked()

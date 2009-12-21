@@ -571,7 +571,7 @@ BOOL LLPanelStandStopFlying::postBuild()
 	mStandButton->setVisible(FALSE);
 	
 	mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
-	mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));
+	//mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));
 	mStopFlyingButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStopFlyingButtonClick, this));
 	mStopFlyingButton->setVisible(FALSE);
 	

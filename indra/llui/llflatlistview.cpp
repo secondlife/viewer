@@ -560,6 +560,8 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 
 	if ( ( key == KEY_UP || key == KEY_DOWN ) && mSelectedItemPairs.size() )
 	{
+		ensureSelectedVisible();
+		/*
 		LLRect visible_rc = getVisibleContentRect();
 		LLRect selected_rc = getLastSelectedItemRect();
 
@@ -572,7 +574,8 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 		// In case we are in accordion tab notify parent to show selected rectangle
 		LLRect screen_rc;
 		localRectToScreen(selected_rc, &screen_rc);
-		notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
+		notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));*/
+
 		handled = TRUE;
 	}
 
@@ -694,11 +697,30 @@ LLRect LLFlatListView::getSelectedItemsRect()
 void LLFlatListView::selectFirstItem	()
 {
 	selectItemPair(mItemPairs.front(), true);
+	ensureSelectedVisible();
 }
 
 void LLFlatListView::selectLastItem		()
 {
 	selectItemPair(mItemPairs.back(), true);
+	ensureSelectedVisible();
+}
+
+void LLFlatListView::ensureSelectedVisible()
+{
+	LLRect visible_rc = getVisibleContentRect();
+	LLRect selected_rc = getLastSelectedItemRect();
+
+	if ( !visible_rc.contains (selected_rc) )
+	{
+		// But scroll in Items panel coordinates
+		scrollToShowRect(selected_rc);
+	}
+
+	// In case we are in accordion tab notify parent to show selected rectangle
+	LLRect screen_rc;
+	localRectToScreen(selected_rc, &screen_rc);
+	notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 }
 
 

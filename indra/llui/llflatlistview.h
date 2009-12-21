@@ -359,6 +359,8 @@ protected:
 
 	LLRect getSelectedItemsRect();
 
+	void   ensureSelectedVisible();
+
 private:
 
 	void setItemsNoScrollWidth(S32 new_width) {mItemsNoScrollWidth = new_width - 2 * mBorderThickness;}
