@@ -232,6 +232,7 @@ with the same filename but different name
   <texture name="Inv_Gloves" file_name="icons/Inv_Gloves.png" preload="false" />
   <texture name="Inv_Hair" file_name="icons/Inv_Hair.png" preload="false" />
   <texture name="Inv_LinkItem" file_name="icons/Inv_LinkItem.png" preload="false" />
+  <texture name="Inv_LinkItem_Broken" file_name="icons/Inv_LinkItem_Broken.png" preload="false" />
   <texture name="Inv_LinkFolder" file_name="icons/Inv_LinkFolder.png" preload="false" />
   <texture name="Inv_Jacket" file_name="icons/Inv_Jacket.png" preload="false" />
   <texture name="Inv_LookFolderOpen" file_name="icons/Inv_LookFolderOpen.png" preload="false" />
