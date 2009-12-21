@@ -744,9 +744,6 @@ void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 {
 	if (mMessageList->getItemByValue(session_id)) return;
 
-	// For im sessions started as voice call chiclet gets created on the first incoming message
-	if (gIMMgr->isVoiceCall(session_id)) return;
-
 	if (!gIMMgr->hasSession(session_id)) return;
 
 	addIMRow(session_id, 0, name, other_participant_id);	
@@ -904,23 +901,6 @@ bool LLIMWellWindow::hasIMRow(const LLUUID& session_id)
 {
 	return mMessageList->getItemByValue(session_id);
 }
-
-void LLIMWellWindow::onNewIM(const LLSD& data)
-{
-	LLUUID from_id = data["from_id"];
-	if (from_id.isNull() || gAgentID == from_id) return;
-
-	LLUUID session_id = data["session_id"];
-	if (session_id.isNull()) return;
-
-	if (!gIMMgr->isVoiceCall(session_id)) return;
-
-	if (hasIMRow(session_id)) return;
-
-	//first real message, time to create chiclet
-	addIMRow(session_id);
-}
-
 
 void LLIMWellWindow::closeAll()
 {
