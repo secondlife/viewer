@@ -43,7 +43,7 @@ class LLParticipantList
 {
 	LOG_CLASS(LLParticipantList);
 	public:
-		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true);
+		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
 

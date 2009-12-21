@@ -162,6 +162,7 @@ void LLCallFloater::onChange()
 	if (NULL == mPaticipants) return;
 
 	mPaticipants->refreshVoiceState();
+
 }
 
 
@@ -243,7 +244,7 @@ void LLCallFloater::updateSession()
 	childSetVisible("leave_call_btn", !is_local_chat);
 	
 	refreshPartisipantList();
-	updateModeratorState();
+	updateAgentModeratorState();
 
 	//show floater for voice calls
 	if (!is_local_chat)
@@ -280,7 +281,7 @@ void LLCallFloater::refreshPartisipantList()
 
 	if (!non_avatar_caller)
 	{
-		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
+		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT);
 
 		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
@@ -366,7 +367,7 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 	mSpeakingIndicator->setIsMuted(moderator_muted);
 }
 
-void LLCallFloater::updateModeratorState()
+void LLCallFloater::updateAgentModeratorState()
 {
 	std::string name;
 	gCacheName->getFullName(gAgentID, name);

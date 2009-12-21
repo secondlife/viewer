@@ -282,8 +282,9 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 
 	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
 
+	// for group and Ad-hoc chat we need to include agent into list 
 	if(!mParticipantList)
-		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"));
+		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"), true,false);
 }
 
 

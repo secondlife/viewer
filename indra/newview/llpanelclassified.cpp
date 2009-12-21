@@ -1557,6 +1557,11 @@ void LLPanelClassifiedEdit::resetControls()
 	childSetValue("price_for_listing", MINIMUM_PRICE_FOR_LISTING);
 }
 
+bool LLPanelClassifiedEdit::canClose()
+{
+	return isValidName();
+}
+
 void LLPanelClassifiedEdit::sendUpdate()
 {
 	LLAvatarClassifiedInfo c_data;
@@ -1671,6 +1676,12 @@ void LLPanelClassifiedEdit::onChange()
 
 void LLPanelClassifiedEdit::onSaveClick()
 {
+	if(!isValidName())
+	{
+		notifyInvalidName();
+		return;
+	}
+
 	sendUpdate();
 	resetDirty();
 }
@@ -1679,6 +1690,34 @@ std::string LLPanelClassifiedEdit::getLocationNotice()
 {
 	static std::string location_notice = getString("location_notice");
 	return location_notice;
+}
+
+bool LLPanelClassifiedEdit::isValidName()
+{
+	std::string name = getClassifiedName();
+	if (name.empty())
+	{
+		return false;
+	}
+	if (!isalnum(name[0]))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void LLPanelClassifiedEdit::notifyInvalidName()
+{
+	std::string name = getClassifiedName();
+	if (name.empty())
+	{
+		LLNotificationsUtil::add("BlankClassifiedName");
+	}
+	else if (!isalnum(name[0]))
+	{
+		LLNotificationsUtil::add("ClassifiedMustBeAlphanumeric");
+	}
 }
 
 void LLPanelClassifiedEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)

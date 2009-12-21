@@ -33,7 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llavatarlist.h"
-#include "llagent.h" // for comparator
+#include "llagentdata.h" // for comparator
 
 // newview
 #include "llcallingcard.h" // for LLAvatarTracker
@@ -425,11 +425,11 @@ bool LLAvatarItemAgentOnTopComparator::doCompare(const LLAvatarListItem* avatar_
 {
 	//keep agent on top, if first is agent, 
 	//then we need to return true to elevate this id, otherwise false.
-	if(avatar_item1->getAvatarId() == gAgent.getID())
+	if(avatar_item1->getAvatarId() == gAgentID)
 	{
 		return true;
 	}
-	else if (avatar_item2->getAvatarId() == gAgent.getID())
+	else if (avatar_item2->getAvatarId() == gAgentID)
 	{
 		return false;
 	}
