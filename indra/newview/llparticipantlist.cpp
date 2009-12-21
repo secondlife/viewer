@@ -227,6 +227,10 @@ void LLParticipantList::refreshVoiceState()
 			item->setOnline(!is_in_voice);
 		}
 	}
+}
+
+void LLParticipantList::updateRecentSpeakersOrder()
+{
 	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
 	{
 		// Resort avatar list

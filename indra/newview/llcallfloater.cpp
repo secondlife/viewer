@@ -153,6 +153,10 @@ void LLCallFloater::draw()
 		setModeratorMutedVoice(is_moderator_muted);
 	}
 
+	// Need to resort the participant list if it's in sort by recent speaker order.
+	if (mPaticipants)
+		mPaticipants->updateRecentSpeakersOrder();
+
 	LLDockableFloater::draw();
 }
 

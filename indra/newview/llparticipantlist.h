@@ -65,6 +65,11 @@ class LLParticipantList
 		 */
 		void refreshVoiceState();
 
+		/**
+		 * Refreshes the participant list if it's in sort by recent speaker order.
+		 */
+		void updateRecentSpeakersOrder();
+
 	protected:
 		/**
 		 * LLSpeakerMgr event handlers
