@@ -162,7 +162,7 @@ protected:
 	LLUIImagePtr				mBoxImage;
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
-	bool						mDontShowInHierarchy;
+	bool						mHidden;
 	bool						mShowLoadStatus;
 
 	// helper function to change the selection from the root.
@@ -206,8 +206,11 @@ public:
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 	virtual S32 getItemHeight();
-	void setDontShowInHierarchy(bool dont_show) { mDontShowInHierarchy = dont_show; }
-	bool getDontShowInHierarchy() const { return mDontShowInHierarchy; }
+
+	// Hide the folder from the UI, such as if you want to hide the root
+	// folder in an inventory panel.
+	void setHidden(bool hidden) { mHidden = hidden; }
+	bool getHidden() const { return mHidden; }
 
 	// applies filters to control visibility of inventory items
 	virtual void filter( LLInventoryFilter& filter);
