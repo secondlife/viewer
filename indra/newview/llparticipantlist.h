@@ -60,12 +60,6 @@ class LLParticipantList
 		EParticipantSortOrder getSortOrder();
 
 		/**
-		 * Refreshes participants to display ones not in voice as disabled.
-		 * TODO: mantipov: probably should be moved into derived class for LLFloaterCall
-		 */
-		void refreshVoiceState();
-
-		/**
 		 * Refreshes the participant list if it's in sort by recent speaker order.
 		 */
 		void updateRecentSpeakersOrder();

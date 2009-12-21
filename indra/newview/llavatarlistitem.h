@@ -73,6 +73,7 @@ public:
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setHighlight(const std::string& highlight);
+	void setStyle(const LLStyle::Params& new_style);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly

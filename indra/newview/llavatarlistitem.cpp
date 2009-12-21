@@ -184,6 +184,28 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
+void LLAvatarListItem::setStyle(const LLStyle::Params& new_style)
+{
+//	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle = new_style);
+
+	// Active group should be bold.
+	LLFontDescriptor new_desc(mAvatarName->getDefaultFont()->getFontDesc());
+
+	new_desc.setStyle(new_style.font()->getFontDesc().getStyle());
+	// *NOTE dzaporozhan
+	// On Windows LLFontGL::NORMAL will not remove LLFontGL::BOLD if font 
+	// is predefined as bold (SansSerifSmallBold, for example)
+//	new_desc.setStyle(active ? LLFontGL::BOLD : LLFontGL::NORMAL);
+	LLFontGL* new_font = LLFontGL::getFont(new_desc);
+
+//	
+	mAvatarNameStyle.font = new_font;
+
+	// *NOTE: You cannot set the style on a text box anymore, you must
+	// rebuild the text.  This will cause problems if the text contains
+	// hyperlinks, as their styles will be wrong.
+	mAvatarName->setText(mAvatarName->getText(), mAvatarNameStyle/* = new_style*/);
+}
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 {
 	if (mAvatarId.notNull())
