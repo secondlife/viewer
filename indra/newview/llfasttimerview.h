@@ -91,6 +91,7 @@ private:
 	S32 mHoverBarIndex;
 	LLFrameTimer mHighlightTimer;
 	S32 mPrintStats;
+	S32 mAverageCyclesPerTimer;
 };
 
 #endif

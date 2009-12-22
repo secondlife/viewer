@@ -98,6 +98,7 @@ LLFastTimerView::LLFastTimerView(const LLRect& rect)
 	mHoverBarIndex = -1;
 	FTV_NUM_TIMERS = LLFastTimer::NamedTimer::instanceCount();
 	mPrintStats = -1;	
+	mAverageCyclesPerTimer = 0;
 }
 
 
@@ -306,8 +307,9 @@ void LLFastTimerView::draw()
 	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.75f);
 	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f);
 	
-	// HACK: casting away const. Should use setRect or some helper function instead.
-		const_cast<LLRect&>(getRect()).setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
+	LLRect new_rect;
+	new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
+	setRect(new_rect);
 
 	S32 left, top, right, bottom;
 	S32 x, y, barw, barh, dx, dy;
@@ -321,6 +323,10 @@ void LLFastTimerView::draw()
 	S32 xleft = margin;
 	S32 ytop = margin;
 	
+	mAverageCyclesPerTimer = llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
+	LLFastTimer::sTimerCycles = 0;
+	LLFastTimer::sTimerCalls = 0;
+
 	// Draw some help
 	{
 		
@@ -328,6 +334,10 @@ void LLFastTimerView::draw()
 		y = height - ytop;
 		texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
 
+#if TIME_FAST_TIMERS
+		tdesc = llformat("Cycles per timer call: %d", mAverageCyclesPerTimer);
+		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+#else
 		char modedesc[][32] = {
 			"2 x Average ",
 			"Max         ",
@@ -342,7 +352,6 @@ void LLFastTimerView::draw()
 
 		tdesc = llformat("Full bar = %s [Click to pause/reset] [SHIFT-Click to toggle]",modedesc[mDisplayMode]);
 		LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-
 		textw = LLFontGL::getFontMonospace()->getWidth(tdesc);
 
 		x = xleft, y -= (texth + 2);
@@ -352,6 +361,7 @@ void LLFastTimerView::draw()
 
 		LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]"),
 										 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+#endif
 		y -= (texth + 2);
 	}
 
