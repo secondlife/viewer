@@ -174,7 +174,11 @@ void LLCallFloater::draw()
 	// It should be done only when she joins or leaves voice chat.
 	// But seems that LLVoiceClientParticipantObserver is not enough to satisfy this requirement.
 	// *TODO: mantipov: remove from draw()
-	onChange();
+
+	// NOTE: it looks like calling onChange() here is not necessary,
+	// but sometime it is not called properly from the observable object.
+	// Seems this is a problem somewhere in Voice Client (LLVoiceClient::participantAddedEvent)
+//	onChange();
 
 	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
 
@@ -641,7 +645,13 @@ void LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 		mVoiceLeftTimersMap.erase(mVoiceLeftTimersMap.find(voice_speaker_id));
 	}
 
-	mAvatarList->removeItemByUUID(voice_speaker_id);
+	LLAvatarList::uuid_vector_t& speaker_uuids = mAvatarList->getIDs();
+	LLAvatarList::uuid_vector_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
+	if(pos != speaker_uuids.end())
+	{
+		speaker_uuids.erase(pos);
+		mAvatarList->setDirty();
+	}
 }
 
 
