@@ -2047,12 +2047,16 @@ namespace LLInitParam
 	
 	void TypedParam<LLRect>::setBlockFromValue()
 	{
-		left = mData.mValue.mLeft;
-		right = mData.mValue.mRight;
-		bottom = mData.mValue.mBottom;
-		top = mData.mValue.mTop;
-		width.setProvided(false);
-		height.setProvided(false);
+		// because of the ambiguity in specifying a rect by position and/or dimensions
+		// we clear the "provided" flag so that values from xui/etc have priority
+		// over those calculated from the rect object
+
+		left.set(mData.mValue.mLeft, false);
+		right.set(mData.mValue.mRight, false);
+		bottom.set(mData.mValue.mBottom, false);
+		top.set(mData.mValue.mTop, false);
+		width.set(mData.mValue.getWidth(), false);
+		height.set(mData.mValue.getHeight(), false);
 	}
 
 	TypedParam<LLCoordGL>::TypedParam(BlockDescriptor& descriptor, const char* name, LLCoordGL value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
