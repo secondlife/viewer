@@ -217,7 +217,10 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 
 	ToastElem new_toast_elem(p);
 
+	// reset HIDDEN flags for the Overflow Toast
 	mOverflowToastHidden = false;
+	if(mOverflowToastPanel)
+		mOverflowToastPanel->setIsHidden(false);
 	
 	new_toast_elem.toast->setOnFadeCallback(boost::bind(&LLScreenChannel::onToastFade, this, _1));
 	new_toast_elem.toast->setOnToastDestroyedCallback(boost::bind(&LLScreenChannel::onToastDestroyed, this, _1));
@@ -459,8 +462,6 @@ void LLScreenChannel::showToastsBottom()
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
 
-	closeOverflowToastPanel();
-
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
 	{
 		if(it != mToastList.rbegin())
@@ -513,7 +514,11 @@ void LLScreenChannel::showToastsBottom()
 			mHiddenToastsNum++;
 		}
 		createOverflowToast(bottom, gSavedSettings.getS32("NotificationTipToastLifeTime"));
-	}	
+	}
+	else
+	{
+		closeOverflowToastPanel();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -544,11 +549,14 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	LLRect toast_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
-	mOverflowToastPanel = new LLToast(p);
+
+	if(!mOverflowToastPanel)
+		mOverflowToastPanel = new LLToast(p);
 
 	if(!mOverflowToastPanel)
 		return;
 
+	mOverflowToastPanel->startFading();
 	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
 
 	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
@@ -606,8 +614,8 @@ void LLScreenChannel::closeOverflowToastPanel()
 {
 	if(mOverflowToastPanel != NULL)
 	{
-		mOverflowToastPanel->closeFloater();
-		mOverflowToastPanel = NULL;
+		mOverflowToastPanel->setVisible(FALSE);
+		mOverflowToastPanel->stopFading();
 	}
 }
 

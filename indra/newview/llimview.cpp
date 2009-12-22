@@ -1403,11 +1403,20 @@ void LLCallDialog::getAllowedRect(LLRect& rect)
 	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
-void LLCallDialog::onOpen(const LLSD& key)
+BOOL LLCallDialog::postBuild()
 {
+	if (!LLDockableFloater::postBuild())
+		return FALSE;
+
 	// dock the dialog to the Speak Button, where other sys messages appear
-	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getChild<LLPanel>("speak_panel"),
-		this, getDockTongue(), LLDockControl::TOP, boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
+	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
+
+	setDockControl(new LLDockControl(
+		anchor_panel, this,
+		getDockTongue(), LLDockControl::TOP,
+		boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
+
+	return TRUE;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1551,7 +1560,7 @@ void LLOutgoingCallDialog::onCancel(void* user_data)
 
 BOOL LLOutgoingCallDialog::postBuild()
 {
-	BOOL success = LLDockableFloater::postBuild();
+	BOOL success = LLCallDialog::postBuild();
 
 	childSetAction("Cancel", onCancel, this);
 
@@ -1570,7 +1579,7 @@ LLCallDialog(payload)
 
 BOOL LLIncomingCallDialog::postBuild()
 {
-	LLDockableFloater::postBuild();
+	LLCallDialog::postBuild();
 
 	LLUUID session_id = mPayload["session_id"].asUUID();
 	LLSD caller_id = mPayload["caller_id"];
