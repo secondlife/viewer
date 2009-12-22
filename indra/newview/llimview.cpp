@@ -243,6 +243,8 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 	std::string joined_call = LLTrans::getString("joined_call");
 	std::string other_avatar_name = "";
 
+	std::string message;
+
 	switch(mSessionType)
 	{
 	case AVALINE_SESSION:
@@ -255,10 +257,13 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, started_call);
+				message = other_avatar_name + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), joined_call);
+				message = you + " " + joined_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
 			}
@@ -268,10 +273,12 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), started_call);
+				message = you + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, joined_call);
+				message = other_avatar_name + " " + joined_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
 			}
@@ -295,10 +302,12 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, started_call);
+				message = other_avatar_name + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), joined_call);
+				message = you + " " + joined_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
 			}
@@ -308,7 +317,8 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), started_call);
+				message = you + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 				break;
 			default:
 				break;
