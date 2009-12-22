@@ -80,6 +80,7 @@ public:
 	S32 getNumPanels() { return mPanels.size(); }
 
 	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
+	void setPanelUserResize(const std::string& panel_name, BOOL user_resize);
 	
 	/**
 	 * Gets minimal width and/or height of the specified by name panel.
