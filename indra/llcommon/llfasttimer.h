@@ -36,6 +36,7 @@
 #include "llinstancetracker.h"
 
 #define FAST_TIMER_ON 1
+#define TIME_FAST_TIMERS 0
 
 #if LL_WINDOWS
 
@@ -56,7 +57,7 @@ inline U32 get_cpu_clock_count_32()
     return ret_val;
 }
 
-// return full timer value, still shifted by 8 bits
+// return full timer value, *not* shifted by 8 bits
 inline U64 get_cpu_clock_count_64()
 {
 	U64 ret_val;
@@ -69,7 +70,7 @@ inline U64 get_cpu_clock_count_64()
 		mov dword ptr [ret_val+4], edx
 		mov dword ptr [ret_val], eax
 	}
-    return ret_val >> 8;
+    return ret_val;
 }
 
 #endif // LL_WINDOWS
@@ -242,6 +243,9 @@ public:
 	LLFastTimer(NamedTimer::FrameState& timer)
 	:	mFrameState(&timer)
 	{
+#if TIME_FAST_TIMERS
+		U64 timer_start = get_cpu_clock_count_64();
+#endif
 #if FAST_TIMER_ON
 		NamedTimer::FrameState* frame_state = &timer;
 		U32 cur_time = get_cpu_clock_count_32();
@@ -256,10 +260,17 @@ public:
 		mLastTimer = sCurTimer;
 		sCurTimer = this;
 #endif
+#if TIME_FAST_TIMERS
+		U64 timer_end = get_cpu_clock_count_64();
+		sTimerCycles += timer_end - timer_start;
+#endif
 	}
 
 	~LLFastTimer()
 	{
+#if TIME_FAST_TIMERS
+		U64 timer_start = get_cpu_clock_count_64();
+#endif
 #if FAST_TIMER_ON
 		NamedTimer::FrameState* frame_state = mFrameState;
 		U32 cur_time = get_cpu_clock_count_32();
@@ -276,6 +287,11 @@ public:
 		U32 total_time = cur_time - mStartTotalTime;
 		last_timer->mStartSelfTime += total_time;
 #endif
+#if TIME_FAST_TIMERS
+		U64 timer_end = get_cpu_clock_count_64();
+		sTimerCycles += timer_end - timer_start;
+		sTimerCalls++;
+#endif	
 	}
 
 
@@ -297,11 +313,12 @@ public:
 	static const NamedTimer* getTimerByName(const std::string& name);
 
 public:
-	static bool 		sPauseHistory;
-	static bool 		sResetHistory;
+	static bool 			sPauseHistory;
+	static bool 			sResetHistory;
+	static U64				sTimerCycles;
+	static U32				sTimerCalls;
 	
 private:
-	typedef std::vector<LLFastTimer*> timer_stack_t;
 	static LLFastTimer*		sCurTimer;
 	static S32				sCurFrameIndex;
 	static S32				sLastFrameIndex;
