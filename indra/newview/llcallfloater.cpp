@@ -291,6 +291,15 @@ void LLCallFloater::updateSession()
 		if (show_me) 
 		{
 			setVisible(true);
+			// Workaround(EM): Set current call dialog to front most because
+			// connect/leaving popups should appear on top of VCP.
+			// See bug EXT-3628.
+			LLOutgoingCallDialog* instance =
+				LLFloaterReg::findTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
+			if(instance && instance->getVisible())
+			{
+				instance->setFrontmost();
+			}
 		}
 	}
 }
