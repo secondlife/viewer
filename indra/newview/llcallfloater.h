@@ -57,6 +57,15 @@ class LLSpeakerMgr;
 class LLCallFloater : public LLDockableFloater, LLVoiceClientParticipantObserver
 {
 public:
+	struct Params :	public LLInitParam::Block<Params, LLDockableFloater::Params>
+	{
+		Optional<S32>			voice_left_remove_delay;
+
+		Params();
+	};
+
+	LOG_CLASS(LLCallFloater);
+
 	LLCallFloater(const LLSD& key);
 	~LLCallFloater();
 
@@ -151,6 +160,34 @@ private:
 
 		return mSpeakerStateMap[speaker_id];
 	}
+
+	/**
+	 * Instantiates new LLAvatarListItemRemoveTimer and adds it into the map if it is not already created.
+	 *
+	 * @param voice_speaker_id LLUUID of Avatar List item to be removed from the list when timer expires.
+	 */
+	void setVoiceRemoveTimer(const LLUUID& voice_speaker_id);
+
+	/**
+	 * Removes specified by UUID Avatar List item.
+	 *
+	 * @param voice_speaker_id LLUUID of Avatar List item to be removed from the list.
+	 */
+	void removeVoiceLeftParticipant(const LLUUID& voice_speaker_id);
+
+	/**
+	 * Deletes all timers from the list to prevent started timers from ticking after destruction
+	 * and after switching on another voice channel.
+	 */
+	void resetVoiceRemoveTimers();
+
+	/**
+	 * Removes specified by UUID timer from the map.
+	 *
+	 * @param voice_speaker_id LLUUID of Avatar List item whose timer should be removed from the map.
+	 */
+	void removeVoiceRemoveTimer(const LLUUID& voice_speaker_id);
+
 private:
 	speaker_state_map_t mSpeakerStateMap;
 	LLSpeakerMgr* mSpeakerManager;
@@ -175,6 +212,32 @@ private:
 
 	boost::signals2::connection mAvatarListRefreshConnection;
 
+	/**
+	 * class LLAvatarListItemRemoveTimer
+	 * 
+	 * Implements a timer that removes avatar list item of a participant
+	 * who has left the call.
+	 */
+	class LLAvatarListItemRemoveTimer : public LLEventTimer
+	{
+	public:
+		typedef boost::function<void(const LLUUID&)> callback_t;
+
+		LLAvatarListItemRemoveTimer(callback_t remove_cb, F32 period, const LLUUID& speaker_id);
+		virtual ~LLAvatarListItemRemoveTimer() {};
+
+		virtual BOOL tick();
+
+	private:
+		callback_t		mRemoveCallback;
+		LLUUID			mSpeakerId;
+	};
+
+	typedef std::pair<LLUUID, LLAvatarListItemRemoveTimer*> timer_pair;
+	typedef std::map<LLUUID, LLAvatarListItemRemoveTimer*> timers_map;
+
+	timers_map		mVoiceLeftTimersMap;
+	S32				mVoiceLeftRemoveDelay;
 };
 
 
