@@ -4555,18 +4555,8 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	}
 	else if (isRemoveAction(action))
 	{
-		if (get_is_item_worn(mUUID))
-		{
-			LLViewerInventoryItem* item = getItem();
-			if (item)
-			{
-				LLWearableList::instance().getAsset(item->getAssetUUID(),
-													item->getName(),
-													item->getType(),
-													LLWearableBridge::onRemoveFromAvatarArrived,
-													new OnRemoveStruct(mUUID));
-			}
-		}
+		removeFromAvatar();
+		return;
 	}
 	else LLItemBridge::performAction(folder, model, action);
 }
@@ -4947,6 +4937,28 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	gInventory.notifyObservers();
 
 	delete on_remove_struct;
+}
+
+/* static */
+void LLWearableBridge::removeItemFromAvatar(LLViewerInventoryItem *item)
+{
+	if (item)
+	{
+		LLWearableList::instance().getAsset(item->getAssetUUID(),
+											item->getName(),
+											item->getType(),
+											LLWearableBridge::onRemoveFromAvatarArrived,
+											new OnRemoveStruct(item->getUUID()));
+	}
+}
+
+void LLWearableBridge::removeFromAvatar()
+{
+	if (get_is_item_worn(mUUID))
+	{
+		LLViewerInventoryItem* item = getItem();
+		removeItemFromAvatar(item);
+	}
 }
 
 LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,

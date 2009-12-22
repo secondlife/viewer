@@ -7428,7 +7428,12 @@ class LLEditTakeOff : public view_listener_t
 		{
 			EWearableType type = LLWearableDictionary::typeNameToType(clothing);
 			if (type >= WT_SHAPE && type < WT_COUNT)
-				LLAgentWearables::userRemoveWearable(type);
+			{
+				// MULTI-WEARABLES
+				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,0));
+				LLWearableBridge::removeItemFromAvatar(item);
+			}
+				
 		}
 		return true;
 	}

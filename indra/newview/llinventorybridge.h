@@ -572,7 +572,9 @@ public:
 
 	static BOOL		canRemoveFromAvatar( void* userdata );
 	static void		onRemoveFromAvatar( void* userdata );
-	static void		onRemoveFromAvatarArrived( LLWearable* wearable, void* userdata );
+	static void		onRemoveFromAvatarArrived( LLWearable* wearable, 	void* userdata );
+	static void 	removeItemFromAvatar(LLViewerInventoryItem *item);
+	void			removeFromAvatar();
 
 protected:
 	LLWearableBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLAssetType::EType asset_type, LLInventoryType::EType inv_type, EWearableType  wearable_type) :
