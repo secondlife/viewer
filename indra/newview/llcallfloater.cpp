@@ -297,7 +297,12 @@ void LLCallFloater::updateSession()
 
 void LLCallFloater::refreshPartisipantList()
 {
+	// lets forget states from the previous session
+	// for timers...
 	resetVoiceRemoveTimers();
+
+	// ...and for speaker state
+	mSpeakerStateMap.clear();
 
 	delete mPaticipants;
 	mPaticipants = NULL;
@@ -580,6 +585,19 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 {
+	// *HACK: mantipov: sometimes such situation is possible while switching to voice channel:
+/*
+	- voice channel is switched to the one user is joining
+	- participant list is initialized with voice states: agent is in voice
+	- than such log messages were found (with agent UUID)
+			- LLVivoxProtocolParser::process_impl: parsing: <Response requestId="22" action="Session.MediaDisconnect.1"><ReturnCode>0</ReturnCode><Results><StatusCode>0</StatusCode><StatusString /></Results><InputXml><Request requestId="22" action="Session.MediaDisconnect.1"><SessionGroupHandle>9</SessionGroupHandle><SessionHandle>12</SessionHandle><Media>Audio</Media></Request></InputXml></Response>
+			- LLVoiceClient::sessionState::removeParticipant: participant "sip:x2pwNkMbpR_mK4rtB_awASA==@bhr.vivox.com" (da9c0d90-c6e9-47f9-8ae2-bb41fdac0048) removed.
+	- and than while updating participants voice states agent is marked as HAS LEFT
+	- next updating of LLVoiceClient state makes agent JOINED
+	So, lets skip HAS LEFT state for agent's avatar
+*/
+	if (STATE_LEFT == state && item->getAvatarId() == gAgentID) return;
+
 	setState(item->getAvatarId(), state);
 
 	LLStyle::Params speaker_style;
