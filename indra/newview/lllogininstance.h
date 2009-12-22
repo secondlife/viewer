@@ -89,6 +89,7 @@ private:
 	void handleLoginFailure(const LLSD& event);
 	void handleLoginSuccess(const LLSD& event);
 	void handleDisconnect(const LLSD& event);
+	void handleIndeterminate(const LLSD& event);
 
 	bool handleTOSResponse(bool v, const std::string& key);
 
@@ -107,7 +108,6 @@ private:
 	std::string mSerialNumber;
 	int mLastExecEvent;
 	UpdaterLauncherCallback mUpdaterLauncher;
-	boost::scoped_ptr<LLEventStream> mUpdateAppResponse;
 	LLEventDispatcher mDispatcher;
 };
 

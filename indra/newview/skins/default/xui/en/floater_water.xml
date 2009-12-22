@@ -4,6 +4,7 @@
  height="240"
  layout="topleft"
  name="Water Floater"
+ help_topic="water_floater"
  save_rect="true"
  title="ADVANCED WATER EDITOR"
  width="700">

@@ -35,6 +35,7 @@
 
 #include "llpanel.h"
 #include "llframetimer.h"
+#include "llevents.h"
 
 class LLImageRaw;
 class LLButton;
@@ -75,7 +76,12 @@ protected:
 	LLRect mOutlineRect;
 	bool mMouseDownInActiveArea;
 
+	// The LLEventStream mUpdateEvents depends upon this class being a singleton
+	// to avoid pump name conflicts.
 	static LLProgressView* sInstance;
+	LLEventStream mUpdateEvents; 
+
+	bool handleUpdate(const LLSD& event_data);
 };
 
 #endif // LL_LLPROGRESSVIEW_H

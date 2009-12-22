@@ -23,6 +23,7 @@ public:
 
 private:
     void dispatch(const LLSD& params) const;
+    void enumerate(const LLSD& params) const;
 
     //LLCommandDispatcher* mDispatcher;
 };

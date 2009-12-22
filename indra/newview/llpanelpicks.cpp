@@ -485,6 +485,18 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	LLPanelProfileTab::onOpen(key);
 }
 
+void LLPanelPicks::onClosePanel()
+{
+	if (mPanelClassifiedInfo)
+	{
+		onPanelClassifiedClose(mPanelClassifiedInfo);
+	}
+	if (mPanelPickInfo)
+	{
+		onPanelPickClose(mPanelPickInfo);
+	}
+}
+
 void LLPanelPicks::onListCommit(const LLFlatListView* f_list)
 {
 	// Make sure only one of the lists has selection.

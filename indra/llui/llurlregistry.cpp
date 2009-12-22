@@ -223,3 +223,23 @@ bool LLUrlRegistry::hasUrl(const LLWString &text)
 	LLUrlMatch match;
 	return findUrl(text, match);
 }
+
+bool LLUrlRegistry::isUrl(const std::string &text)
+{
+	LLUrlMatch match;
+	if (findUrl(text, match))
+	{
+		return (match.getStart() == 0 && match.getEnd() >= text.size()-1);
+	}
+	return false;
+}
+
+bool LLUrlRegistry::isUrl(const LLWString &text)
+{
+	LLUrlMatch match;
+	if (findUrl(text, match))
+	{
+		return (match.getStart() == 0 && match.getEnd() >= text.size()-1);
+	}
+	return false;
+}

@@ -180,6 +180,8 @@ public:
 	void					changePage( S32 delta );
 	void					changeLine( S32 delta );
 
+	bool					scrolledToStart();
+	bool					scrolledToEnd();
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
 

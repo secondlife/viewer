@@ -1379,7 +1379,6 @@ void LLFloaterSnapshot::Impl::onClickDiscard(void* data)
 	
 	if (view)
 	{
-		view->getParent()->setMouseOpaque(FALSE);
 		view->closeFloater();
 	}
 }
@@ -2104,6 +2103,12 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
 }
+
+void LLFloaterSnapshot::onClose(bool app_quitting)
+{
+	getParent()->setMouseOpaque(FALSE);
+}
+
 
 //static 
 void LLFloaterSnapshot::update()

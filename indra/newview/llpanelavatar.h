@@ -181,6 +181,15 @@ protected:
 	 */
 	void share();
 
+	void kick();
+	void freeze();
+	void unfreeze();
+	void csr();
+	
+
+	bool enableGod();
+
+
 	void onUrlTextboxClicked(const std::string& url);
 	void onHomepageTextboxClicked();
 	void onAddFriendButtonClick();

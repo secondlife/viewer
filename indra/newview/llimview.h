@@ -484,7 +484,7 @@ public:
 	LLCallDialog(const LLSD& payload);
 	~LLCallDialog() {}
 
-	virtual void onOpen(const LLSD& key);
+	virtual BOOL postBuild();
 
 protected:
 	virtual void getAllowedRect(LLRect& rect);

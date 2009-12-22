@@ -332,6 +332,54 @@ void LLAvatarActions::pay(const LLUUID& id)
 	}
 }
 
+// static
+void LLAvatarActions::kick(const LLUUID& id)
+{
+	LLSD payload;
+	payload["avatar_id"] = id;
+	LLNotifications::instance().add("KickUser", LLSD(), payload, handleKick);
+}
+
+// static
+void LLAvatarActions::freeze(const LLUUID& id)
+{
+	LLSD payload;
+	payload["avatar_id"] = id;
+	LLNotifications::instance().add("FreezeUser", LLSD(), payload, handleFreeze);
+}
+
+// static
+void LLAvatarActions::unfreeze(const LLUUID& id)
+{
+	LLSD payload;
+	payload["avatar_id"] = id;
+	LLNotifications::instance().add("UnFreezeUser", LLSD(), payload, handleUnfreeze);
+}
+
+//static 
+void LLAvatarActions::csr(const LLUUID& id, std::string name)
+{
+	if (name.empty()) return;
+	
+	std::string url = "http://csr.lindenlab.com/agent/";
+	
+	// slow and stupid, but it's late
+	S32 len = name.length();
+	for (S32 i = 0; i < len; i++)
+	{
+		if (name[i] == ' ')
+		{
+			url += "%20";
+		}
+		else
+		{
+			url += name[i];
+		}
+	}
+	
+	LLWeb::loadURL(url);
+}
+
 //static 
 void LLAvatarActions::share(const LLUUID& id)
 {
@@ -455,6 +503,67 @@ bool LLAvatarActions::callbackAddFriendWithMessage(const LLSD& notification, con
 	return false;
 }
 
+// static
+bool LLAvatarActions::handleKick(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+		LLMessageSystem* msg = gMessageSystem;
+
+		msg->newMessageFast(_PREHASH_GodKickUser);
+		msg->nextBlockFast(_PREHASH_UserInfo);
+		msg->addUUIDFast(_PREHASH_GodID,		gAgent.getID() );
+		msg->addUUIDFast(_PREHASH_GodSessionID, gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_AgentID,   avatar_id );
+		msg->addU32("KickFlags", KICK_FLAGS_DEFAULT );
+		msg->addStringFast(_PREHASH_Reason,    response["message"].asString() );
+		gAgent.sendReliableMessage();
+	}
+	return false;
+}
+bool LLAvatarActions::handleFreeze(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+		LLMessageSystem* msg = gMessageSystem;
+
+		msg->newMessageFast(_PREHASH_GodKickUser);
+		msg->nextBlockFast(_PREHASH_UserInfo);
+		msg->addUUIDFast(_PREHASH_GodID,		gAgent.getID() );
+		msg->addUUIDFast(_PREHASH_GodSessionID, gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_AgentID,   avatar_id );
+		msg->addU32("KickFlags", KICK_FLAGS_FREEZE );
+		msg->addStringFast(_PREHASH_Reason, response["message"].asString() );
+		gAgent.sendReliableMessage();
+	}
+	return false;
+}
+bool LLAvatarActions::handleUnfreeze(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	std::string text = response["message"].asString();
+	if (option == 0)
+	{
+		LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
+		LLMessageSystem* msg = gMessageSystem;
+
+		msg->newMessageFast(_PREHASH_GodKickUser);
+		msg->nextBlockFast(_PREHASH_UserInfo);
+		msg->addUUIDFast(_PREHASH_GodID,		gAgent.getID() );
+		msg->addUUIDFast(_PREHASH_GodSessionID, gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_AgentID,   avatar_id );
+		msg->addU32("KickFlags", KICK_FLAGS_UNFREEZE );
+		msg->addStringFast(_PREHASH_Reason,    text );
+		gAgent.sendReliableMessage();
+	}
+	return false;
+}
 // static
 bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& response)
 {
