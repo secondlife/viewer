@@ -138,12 +138,7 @@ void LLGroupActions::startCall(const LLUUID& group_id)
 	}
 
 	// start the call
-	// *TODO: move this to LLIMMgr?
-	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
-	if (session && session->mSessionInitialized)
-		gIMMgr->startCall(session_id);
-	else
-		gIMMgr->autoStartCallOnStartup(session_id);
+	gIMMgr->autoStartCallOnStartup(session_id);
 
 	make_ui_sound("UISndStartIM");
 }

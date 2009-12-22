@@ -74,6 +74,8 @@ public:
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
+		bool isAdHoc();
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
@@ -132,6 +134,12 @@ public:
 	 * Returns NULL if the session does not exist
 	 */
 	LLIMSession* findIMSession(const LLUUID& session_id) const;
+
+	/** 
+	 * Find an Ad-Hoc IM Session with specified participants
+	 * @return first found Ad-Hoc session or NULL if the session does not exist
+	 */
+	LLIMSession* findAdHocIMSession(const std::vector<LLUUID>& ids);
 
 	/**
 	 * Rebind session data to a new session id.
