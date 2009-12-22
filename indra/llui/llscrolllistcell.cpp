@@ -353,7 +353,7 @@ LLScrollListCheck::LLScrollListCheck(const LLScrollListCell::Params& p)
 {
 	LLCheckBoxCtrl::Params checkbox_p;
 	checkbox_p.name("checkbox");
-	checkbox_p.rect.left(0).bottom(0).width(p.width).height(p.width);
+	checkbox_p.rect = LLRect(0, p.width, p.width, 0);
 	checkbox_p.enabled(p.enabled);
 	checkbox_p.initial_value(p.value());
 

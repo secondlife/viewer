@@ -75,10 +75,8 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	static LLUICachedControl<S32> spinctrl_spacing ("UISpinctrlSpacing", 0);
 	static LLUICachedControl<S32> spinctrl_btn_width ("UISpinctrlBtnWidth", 0);
 	static LLUICachedControl<S32> spinctrl_btn_height ("UISpinctrlBtnHeight", 0);
-	S32 top = getRect().getHeight();
-	S32 bottom = top - 2 * spinctrl_btn_height;
-	S32 centered_top = top;
-	S32 centered_bottom = bottom;
+	S32 centered_top = getRect().getHeight();
+	S32 centered_bottom = getRect().getHeight() - 2 * spinctrl_btn_height;
 	S32 btn_left = 0;
 	// reserve space for spinner
 	S32 label_width = llclamp(p.label_width(), 0, llmax(0, getRect().getWidth() - 40));
@@ -105,25 +103,15 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	
 	// Spin buttons
 	LLButton::Params up_button_params(p.up_button);
-	up_button_params.rect
-					.left(btn_left)
-					.top(top)
-					.right(btn_right)
-					.height(spinctrl_btn_height);
+	up_button_params.rect = LLRect(btn_left, getRect().getHeight(), btn_right, getRect().getHeight() - spinctrl_btn_height);
 	up_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
 	up_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
 
 	mUpBtn = LLUICtrlFactory::create<LLButton>(up_button_params);
 	addChild(mUpBtn);
 
-	LLRect down_rect( btn_left, top - spinctrl_btn_height, btn_right, bottom );
-
 	LLButton::Params down_button_params(p.down_button);
-	down_button_params.rect
-					.left(btn_left)
-					.right(btn_right)
-					.bottom(bottom)
-					.height(spinctrl_btn_height);
+	down_button_params.rect = LLRect(btn_left, getRect().getHeight() - spinctrl_btn_height, btn_right, getRect().getHeight() - 2 * spinctrl_btn_height);
 	down_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
 	down_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
 	mDownBtn = LLUICtrlFactory::create<LLButton>(down_button_params);

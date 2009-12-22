@@ -71,10 +71,14 @@
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
+  <!-- Make potentially unused colors show up bright purple.
+  Leave this here until all Unused? are removed below, otherwise
+  the viewer generates many warnings on startup. -->
+  <color
+	 name="Unused?"
+	 value="1 0 1 1" />
 
-
-
-	<!-- UI Definitions -->
+  <!-- UI Definitions -->
 
 	<color
      name="AgentChatColor"

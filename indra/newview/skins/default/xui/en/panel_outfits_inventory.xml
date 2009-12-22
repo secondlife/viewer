@@ -3,7 +3,7 @@
  <panel name="Outfits"
  background_visible="true"
   follows="all"
- height="550"
+ height="570"
  label="Things"
  layout="topleft"
  min_height="350"

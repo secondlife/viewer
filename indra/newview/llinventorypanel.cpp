@@ -402,9 +402,12 @@ void LLInventoryPanel::modelChanged(U32 mask)
 // static
 void LLInventoryPanel::onIdle(void *userdata)
 {
+	if (!gInventory.isInventoryUsable())
+		return;
+
 	LLInventoryPanel *self = (LLInventoryPanel*)userdata;
 	// Inventory just initialized, do complete build
-	if (!self->mViewsInitialized && gInventory.isInventoryUsable())
+	if (!self->mViewsInitialized)
 	{
 		self->initializeViews();
 	}

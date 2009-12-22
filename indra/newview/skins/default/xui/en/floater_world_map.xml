@@ -296,7 +296,7 @@
      layout="topleft"
      name="pg_label"
      width="60">
-        PG
+        General
     </text>
 
     <check_box
@@ -330,7 +330,7 @@
      layout="topleft"
      name="mature_label"
      width="66">
-        Mature
+        Moderate
     </text>
 
     <check_box
@@ -361,7 +361,7 @@
      top_delta="2"
      left_pad="3"
      layout="topleft"
-     name="pg_label"
+     name="adult_label"
      width="66">
         Adult
     </text>
