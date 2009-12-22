@@ -68,6 +68,7 @@
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
 #include "llmenugl.h"
+#include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
@@ -6124,10 +6125,32 @@ BOOL LLObjectSelection::isEmpty() const
 //-----------------------------------------------------------------------------
 // getObjectCount() - returns number of non null objects
 //-----------------------------------------------------------------------------
-S32 LLObjectSelection::getObjectCount()
+S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 {
 	cleanupNodes();
 	S32 count = mList.size();
+
+	if (mesh_adjust)
+	{
+		for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+		{
+			LLSelectNode* node = *iter;
+			LLViewerObject* object = node->getObject();
+			
+			if (object && object->getVolume())
+			{
+				LLVOVolume* vobj = (LLVOVolume*) object;
+				if (vobj->isMesh())
+				{
+					LLUUID mesh_id = vobj->getVolume()->getParams().getSculptID();
+					U32 cost = gMeshRepo.getResourceCost(mesh_id);
+					count += cost-1;
+				}
+			}
+
+		}
+	}
+
 	return count;
 }
 

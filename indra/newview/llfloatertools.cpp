@@ -423,7 +423,7 @@ void LLFloaterTools::refresh()
 	LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
 	childSetTextArg("obj_count",  "[COUNT]", obj_count_string);	
 	std::string prim_count_string;
-	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
+	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount(TRUE));
 	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
 
 	// calculate selection rendering cost

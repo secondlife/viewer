@@ -291,7 +291,7 @@ public:
 	LLSelectNode* findNode(LLViewerObject* objectp);
 
 	// count members
-	S32 getObjectCount();
+	S32 getObjectCount(BOOL mesh_adjust = FALSE);
 	S32 getTECount();
 	S32 getRootObjectCount();
 
