@@ -228,7 +228,6 @@
                  value="Title:"
                  width="290" />
                 <line_editor
-                 background_image_disabled="task_panel_background.png"
                  follows="left|top|right"
                  height="22"
                  layout="topleft"
