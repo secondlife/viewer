@@ -57,6 +57,7 @@
 #include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
+#include "llrootview.h"
 
 
 
@@ -444,6 +445,16 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectRaw();
+	static S32 right_padding = 0;
+	if (right_padding == 0)
+	{
+		LLPanel* side_bar_tabs =
+				gViewerWindow->getRootView()->getChild<LLPanel> (
+						"side_bar_tabs");
+		right_padding = side_bar_tabs->getRect().getWidth();
+		LLTransientFloaterMgr::getInstance()->addControlView(side_bar_tabs);
+	}
+	rect.mRight -= right_padding;
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
