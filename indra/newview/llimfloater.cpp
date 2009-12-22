@@ -45,6 +45,7 @@
 #include "llfloaterchat.h"
 #include "llfloaterreg.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
+#include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "lllogchat.h"
 #include "llpanelimcontrolpanel.h"
@@ -56,6 +57,7 @@
 #include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
+#include "llrootview.h"
 
 
 
@@ -220,6 +222,12 @@ LLIMFloater::~LLIMFloater()
 //virtual
 BOOL LLIMFloater::postBuild()
 {
+	// User-resizable control panels in P2P sessions look ugly (EXT-3470).
+	if (mDialog == IM_NOTHING_SPECIAL || mDialog == IM_SESSION_P2P_INVITE)
+	{
+		getChild<LLLayoutStack>("im_panels")->setPanelUserResize("panel_im_control_panel", FALSE);
+	}
+
 	const LLUUID& other_party_id = LLIMModel::getInstance()->getOtherParticipantID(mSessionID);
 	if (other_party_id.notNull())
 	{
@@ -437,6 +445,16 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectRaw();
+	static S32 right_padding = 0;
+	if (right_padding == 0)
+	{
+		LLPanel* side_bar_tabs =
+				gViewerWindow->getRootView()->getChild<LLPanel> (
+						"side_bar_tabs");
+		right_padding = side_bar_tabs->getRect().getWidth();
+		LLTransientFloaterMgr::getInstance()->addControlView(side_bar_tabs);
+	}
+	rect.mRight -= right_padding;
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)

@@ -2904,13 +2904,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="joined_call">Joined the voice call</string>
 
   <string name="ringing-im">
-    Joining Voice Chat...
+    Joining voice call...
   </string>
   <string name="connected-im">
     Connected, click End Call to hang up
   </string>
   <string name="hang_up-im">
-    Left Voice Chat
+    Left voice call
   </string>
   <string name="answering-im">
     Connecting...
