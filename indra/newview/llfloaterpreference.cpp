@@ -760,8 +760,9 @@ void LLFloaterPreference::onClickResetCache()
 	{
 		gSavedSettings.setString("NewCacheLocation", "");
 		gSavedSettings.setString("NewCacheLocationTopFolder", "");
-		LLNotificationsUtil::add("CacheWillBeMoved");
 	}
+	
+	LLNotificationsUtil::add("CacheWillBeMoved");
 	std::string cache_location = gDirUtilp->getCacheDir(true);
 	gSavedSettings.setString("CacheLocation", cache_location);
 	std::string top_folder(gDirUtilp->getBaseFileName(cache_location));

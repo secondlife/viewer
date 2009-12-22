@@ -403,6 +403,11 @@ void LLPanelProfileTab::updateButtons()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+bool enable_god()
+{
+	return gAgent.isGodlike();
+}
+
 LLPanelAvatarProfile::LLPanelAvatarProfile()
 : LLPanelProfileTab()
 {
@@ -423,6 +428,13 @@ BOOL LLPanelAvatarProfile::postBuild()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
 	registrar.add("Profile.Share", boost::bind(&LLPanelAvatarProfile::share, this));
+	registrar.add("Profile.Kick", boost::bind(&LLPanelAvatarProfile::kick, this));
+	registrar.add("Profile.Freeze", boost::bind(&LLPanelAvatarProfile::freeze, this));
+	registrar.add("Profile.Unfreeze", boost::bind(&LLPanelAvatarProfile::unfreeze, this));
+	registrar.add("Profile.CSR", boost::bind(&LLPanelAvatarProfile::csr, this));
+
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
+	enable.add("Profile.EnableGod", boost::bind(&enable_god));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -620,6 +632,28 @@ void LLPanelAvatarProfile::pay()
 void LLPanelAvatarProfile::share()
 {
 	LLAvatarActions::share(getAvatarId());
+}
+
+void LLPanelAvatarProfile::kick()
+{
+	LLAvatarActions::kick(getAvatarId());
+}
+
+void LLPanelAvatarProfile::freeze()
+{
+	LLAvatarActions::freeze(getAvatarId());
+}
+
+void LLPanelAvatarProfile::unfreeze()
+{
+	LLAvatarActions::unfreeze(getAvatarId());
+}
+
+void LLPanelAvatarProfile::csr()
+{
+	std::string name;
+	gCacheName->getFullName(getAvatarId(), name);
+	LLAvatarActions::csr(getAvatarId(), name);
 }
 
 void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
