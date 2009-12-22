@@ -106,6 +106,13 @@ private:
 	 * Refreshes participant list according to current Voice Channel
 	 */
 	void refreshPartisipantList();
+
+	/**
+	 * Handles event on avatar list is refreshed after it was marked dirty.
+	 *
+	 * It sets initial participants voice states (once after the first refreshing)
+	 * and updates voice states each time anybody is joined/left voice chat in session.
+	 */
 	void onAvatarListRefreshed();
 
 	
@@ -114,7 +121,21 @@ private:
 	void setModeratorMutedVoice(bool moderator_muted);
 	void updateAgentModeratorState();
 
+	/**
+	 * Sets initial participants voice states in avatar list (Invited, Joined, Has Left).
+	 *
+	 * @see refreshPartisipantList()
+	 * @see onAvatarListRefreshed()
+	 * @see mInitParticipantsVoiceState
+	 */
 	void initParticipantsVoiceState();
+
+	/**
+	 * Updates participants voice states in avatar list (Invited, Joined, Has Left).
+	 *
+	 * @see onAvatarListRefreshed()
+	 * @see onChanged()
+	 */
 	void updateParticipantsVoiceState();
 
 	void setState(LLAvatarListItem* item, ESpeakerState state);
@@ -141,6 +162,15 @@ private:
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	bool mIsModeratorMutedVoice;
 
+	/**
+	 * Flag indicated that participants voice states should be initialized.
+	 *
+	 * It is used due to Avatar List has delayed refreshing after it content is changed.
+	 * Real initializing is performed when Avatar List is first time refreshed.
+	 *
+	 * @see onAvatarListRefreshed()
+	 * @see initParticipantsVoiceState()
+	 */
 	bool mInitParticipantsVoiceState;
 
 	boost::signals2::connection mAvatarListRefreshConnection;

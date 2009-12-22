@@ -482,28 +482,10 @@ void LLCallFloater::updateParticipantsVoiceState()
 	std::vector<LLUUID> speakers_list;
 
 	// Get a list of participants from VoiceClient
-	LLVoiceClient::participantMap *map = gVoiceClient->getParticipantList();
-	if (!map) return;
+	std::vector<LLUUID> speakers_uuids;
+	get_voice_participants_uuids(speakers_uuids);
 
-	for (LLVoiceClient::participantMap::const_iterator iter = map->begin();
-		iter != map->end(); ++iter)
-	{
-		LLUUID id = (*iter).second->mAvatarID;
-//		if ( id != gAgent.getID() )
-		{
-			speakers_list.push_back(id);
-/*
-			LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*> (mAvatarList->getItemByValue(id));
-			if (item)
-			{
-				setState(item, STATE_JOINED);
-			}
-*/
-
-		}
-	}
-
-	// Updating the status for each participant.
+	// Updating the status for each participant already in list.
 	std::vector<LLPanel*> items;
 	mAvatarList->getItems(items);
 	std::vector<LLPanel*>::const_iterator
@@ -518,14 +500,14 @@ void LLCallFloater::updateParticipantsVoiceState()
 		const LLUUID participant_id = item->getAvatarId();
 		bool found = false;
 
-		std::vector<LLUUID>::iterator speakers_iter = std::find(speakers_list.begin(), speakers_list.end(), participant_id);
+		std::vector<LLUUID>::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
 		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
 		// of this avatarID.
-		if (speakers_iter != speakers_list.end())
+		if (speakers_iter != speakers_uuids.end())
 		{
 			setState(item, STATE_JOINED);
 
@@ -534,15 +516,15 @@ void LLCallFloater::updateParticipantsVoiceState()
 				continue;
 			speaker->mHasLeftCurrentCall = FALSE;
 
-			speakers_list.erase(speakers_iter);
+			speakers_uuids.erase(speakers_iter);
 			found = true;
 		}
 
-		// If an avatarID is not found in a speakers list from VoiceClient and
-		// a panel with this ID has a JOINED status this means that this person
-		// HAS LEFT the call.
 		if (!found)
 		{
+			// If an avatarID is not found in a speakers list from VoiceClient and
+			// a panel with this ID has a JOINED status this means that this person
+			// HAS LEFT the call.
 			if ((getState(participant_id) == STATE_JOINED))
 			{
 				setState(item, STATE_LEFT);
@@ -553,6 +535,9 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 				speaker->mHasLeftCurrentCall = TRUE;
 			}
+			// If an avatarID is not found in a speakers list from VoiceClient and
+			// a panel with this ID has a LEFT status this means that this person
+			// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
 			else if ((getState(participant_id) != STATE_LEFT))
 			{
 				setState(item, STATE_INVITED);
@@ -592,18 +577,14 @@ void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 	switch (state)
 	{
 	case STATE_INVITED:
-//		status_str = "INVITED";			// *TODO: localize
 		new_desc.setStyle(LLFontGL::NORMAL);
 		break;
 	case STATE_JOINED:
-//		status_str = "JOINED";			// *TODO: localize
 		new_desc.setStyle(LLFontGL::NORMAL);
 		break;
 	case STATE_LEFT:
 		{
-			//		status_str = "HAS LEFT CALL";	// *TODO: localize
 			new_desc.setStyle(LLFontGL::ITALIC);
-
 		}
 		break;
 	default:
