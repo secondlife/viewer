@@ -1397,12 +1397,29 @@ if (WINDOWS)
     # be met. I'm looking forward to a source-code split-up project next year that will address this kind of thing.
     # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
     # and have the build deps get tracked *please* tell me about it.
+
+    if(LLKDU_LIBRARY)
+      # Configure a var for llkdu which may not exist for all builds.
+      set(LLKDU_DLL_SOURCE ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llkdu.dll)
+    endif(LLKDU_LIBRARY)
+
+    if(USE_GOOGLE_PERFTOOLS)
+      # Configure a var for tcmalloc location, if used.
+      # Note the need to specify multiple names explicitly.
+      set(GOOGLE_PERF_TOOLS_SOURCE
+        ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
+	${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
+	${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
+	)
+    endif(USE_GOOGLE_PERFTOOLS)
+	  
+
     set(COPY_INPUT_DEPENDECIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
-      #llkdu.dll => llkdu.dll
       #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
+      ${LLKDU_DLL_SOURCE}
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapr-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libaprutil-1.dll
@@ -1426,6 +1443,7 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/zlib1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxplatform.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
+      ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
@@ -1501,7 +1519,7 @@ if (WINDOWS)
     
     if(LLKDU_LIBRARY)
       # kdu may not exist!
-      add_dependencies(${VIEWER_BINARY_NAME} llkdu)
+      add_dependencies(copy_w_viewer_manifest llkdu)
     endif(LLKDU_LIBRARY)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
