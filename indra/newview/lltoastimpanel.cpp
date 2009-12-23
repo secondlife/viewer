@@ -35,13 +35,14 @@
 
 #include "llnotifications.h"
 #include "llinstantmessage.h"
+#include "llviewerchat.h"
 
 const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 
 //--------------------------------------------------------------------------
 LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notification),
-															mAvatar(NULL), mUserName(NULL),
-															mTime(NULL), mMessage(NULL)
+								mAvatar(NULL), mUserName(NULL),
+								mTime(NULL), mMessage(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
 
@@ -52,8 +53,11 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mMessage = getChild<LLTextBox>("message");
 
 	LLStyle::Params style_params;
-	style_params.font.name(LLFontGL::nameFromFont(style_params.font));
-	style_params.font.size(LLFontGL::sizeFromFont(style_params.font));
+	LLFontGL* fontp = LLViewerChat::getChatFont();
+	std::string font_name = LLFontGL::nameFromFont(fontp);
+	std::string font_size = LLFontGL::sizeFromFont(fontp);
+	style_params.font.name(font_name);
+	style_params.font.size(font_size);
 	style_params.font.style = "UNDERLINE";
 	
 	//Handle IRC styled /me messages.
@@ -63,13 +67,16 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 		mMessage->clear();
 		
 		style_params.font.style ="ITALIC";
-		mMessage->appendText(p.from + " ", FALSE, style_params);
+		mMessage->appendText(p.from, FALSE, style_params);
 
 		style_params.font.style = "ITALIC";
 		mMessage->appendText(p.message.substr(3), FALSE, style_params);
 	}
 	else
+	{
 		mMessage->setValue(p.message);
+	}
+
 	mUserName->setValue(p.from);
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;

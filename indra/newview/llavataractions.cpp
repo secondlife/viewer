@@ -243,7 +243,6 @@ void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
 		return;
 	}
 
-	// start the call once the session has fully initialized
 	gIMMgr->autoStartCallOnStartup(session_id);
 
 	make_ui_sound("UISndStartIM");

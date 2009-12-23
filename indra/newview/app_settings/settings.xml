@@ -3585,7 +3585,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://int.searchwww-phx0.damballah.lindenlab.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]</string>
+      <string>http://int.searchwww-phx0.damballah.lindenlab.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>

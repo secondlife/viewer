@@ -414,6 +414,16 @@ void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL au
 	}
 }
 
+void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_resize)
+{
+	LayoutPanel* panel = findEmbeddedPanelByName(panel_name);
+
+	if (panel)
+	{
+		panel->mUserResize = user_resize;
+	}
+}
+
 bool LLLayoutStack::getPanelMinSize(const std::string& panel_name, S32* min_widthp, S32* min_heightp)
 {
 	LayoutPanel* panel = findEmbeddedPanelByName(panel_name);

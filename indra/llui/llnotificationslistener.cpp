@@ -188,9 +188,10 @@ public:
         LLNotificationChannelPtr channelptr(llnotifications.getChannel(channel));
         if (channelptr)
         {
-            // Try connecting at the front of the 'changed' signal. That way
-            // we shouldn't get starved by preceding listeners.
-            channelptr->connectAtFrontChanged(boost::bind(&Forwarder::handle, this, _1));
+            // Insert our processing as a "passed filter" listener. This way
+            // we get to run before all the "changed" listeners, and we get to
+            // swipe it (hide it from the other listeners) if desired.
+            channelptr->connectPassedFilter(boost::bind(&Forwarder::handle, this, _1));
         }
     }
 
@@ -251,6 +252,7 @@ bool LLNotificationsListener::Forwarder::handle(const LLSD& notification) const
     if (notification["sigtype"].asString() == "delete")
     {
         LL_INFOS("LLNotificationsListener") << "ignoring delete" << LL_ENDL;
+        // let other listeners see the "delete" operation
         return false;
     }
     LLNotificationPtr note(mNotifications.find(notification["id"]));
@@ -262,6 +264,8 @@ bool LLNotificationsListener::Forwarder::handle(const LLSD& notification) const
     if (! matchType(mTypes, note->getType()))
     {
         LL_INFOS("LLNotificationsListener") << "didn't match types " << mTypes << LL_ENDL;
+        // We're not supposed to intercept this particular notification. Let
+        // other listeners process it.
         return false;
     }
     LL_INFOS("LLNotificationsListener") << "sending via '" << mPumpName << "'" << LL_ENDL;
@@ -282,7 +286,11 @@ bool LLNotificationsListener::Forwarder::handle(const LLSD& notification) const
             mNotifications.cancel(note);
         }
     }
-    return false;                   // let other listeners get same notification
+    // If we've auto-responded to this notification, then it's going to be
+    // deleted. Other listeners would get the change operation, try to look it
+    // up and be baffled by lookup failure. So when we auto-respond, suppress
+    // this notification: don't pass it to other listeners.
+    return mRespond;
 }
 
 bool LLNotificationsListener::Forwarder::matchType(const LLSD& filter, const std::string& type) const
@@ -314,7 +322,7 @@ bool LLNotificationsListener::Forwarder::matchType(const LLSD& filter, const std
 LLSD LLNotificationsListener::asLLSD(LLNotificationPtr note)
 {
     LLSD notificationInfo(note->asLLSD());
-    // For some reason the following aren't included in asLLSD().
+    // For some reason the following aren't included in LLNotification::asLLSD().
     notificationInfo["summary"] = note->summarize();
     notificationInfo["id"]      = note->id();
     notificationInfo["type"]    = note->getType();

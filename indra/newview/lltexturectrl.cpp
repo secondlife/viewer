@@ -1237,6 +1237,7 @@ void LLTextureCtrl::draw()
 	// Using the discard level, do not show the string if the texture is almost but not 
 	// fully loaded.
 	if ( mTexturep.notNull() &&
+		 (!mTexturep->isFullyLoaded()) &&
 		 (mShowLoadingPlaceholder == TRUE) && 
 		 (mTexturep->getDiscardLevel() != 1) &&
 		 (mTexturep->getDiscardLevel() != 0))

@@ -139,6 +139,9 @@ public:
     /// Get information about a specific Callable
     LLSD getMetadata(const std::string& name) const;
 
+    /// Retrieve the LLSD key we use for one-arg <tt>operator()</tt> method
+    std::string getDispatchKey() const { return mKey; }
+
 private:
     template <class CLASS, typename METHOD>
     void addMethod(const std::string& name, const std::string& desc,
