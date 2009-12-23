@@ -243,7 +243,7 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
 	const std::string &hl)
 {
 	LLTeleportHistoryFlatItem* item = NULL;
-	if ( cur_item_index < mItems.size() )
+	if ( cur_item_index < (S32) mItems.size() )
 	{
 		item = mItems[cur_item_index].get();
 		if (item->getParent() == NULL)
