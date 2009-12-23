@@ -984,6 +984,8 @@ void LLPanelPeople::onTabSelected(const LLSD& param)
 	mNearbyListUpdater->setActive(tab_name == NEARBY_TAB_NAME);
 	updateButtons();
 
+	showFriendsAccordionsIfNeeded();
+
 	if (GROUP_TAB_NAME == tab_name)
 		mFilterEditor->setLabel(getString("groups_filter_label"));
 	else
