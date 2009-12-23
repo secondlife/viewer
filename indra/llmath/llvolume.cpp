@@ -3807,6 +3807,20 @@ S32 LLVolume::getNumTriangleIndices() const
 	return count;
 }
 
+
+S32 LLVolume::getNumTriangles() const
+{
+	U32 triangle_count = 0;
+
+	for (S32 i = 0; i < getNumVolumeFaces(); ++i)
+	{
+		triangle_count += getVolumeFace(i).mIndices.size()/3;
+	}
+
+	return triangle_count;
+}
+
+
 //-----------------------------------------------------------------------------
 // generateSilhouetteVertices()
 //-----------------------------------------------------------------------------

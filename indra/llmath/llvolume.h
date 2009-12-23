@@ -912,6 +912,8 @@ public:
 	// returns number of triangle indeces required for path/profile mesh
 	S32 getNumTriangleIndices() const;
 
+	S32 getNumTriangles() const;
+
 	void generateSilhouetteVertices(std::vector<LLVector3> &vertices, 
 									std::vector<LLVector3> &normals, 
 									std::vector<S32> &segments, 

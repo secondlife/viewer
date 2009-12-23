@@ -285,6 +285,7 @@ set(viewer_SOURCE_FILES
     llmemoryview.cpp
     llmenucommands.cpp
     llmeshrepository.cpp
+    llmeshreduction.cpp
     llmetricperformancetester.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -796,6 +797,7 @@ set(viewer_HEADER_FILES
     llmemoryview.h
     llmenucommands.h
     llmeshrepository.h
+    llmeshreduction.h
     llmetricperformancetester.h
     llmimetypes.h
     llmorphview.h
