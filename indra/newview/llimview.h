@@ -489,6 +489,14 @@ public:
 	virtual BOOL postBuild();
 
 protected:
+	// lifetime timer for a notification
+	LLTimer	mLifetimeTimer;
+	// notification's lifetime in seconds
+	S32		mLifetime;
+	static const S32 DEFAULT_LIFETIME = 5;
+	virtual bool lifetimeHasExpired() {return false;};
+	virtual void onLifetimeExpired() {};
+
 	virtual void getAllowedRect(LLRect& rect);
 	LLSD mPayload;
 };
@@ -501,11 +509,16 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	// check timer state
+	/*virtual*/ void draw();
+
 	static void onAccept(void* user_data);
 	static void onReject(void* user_data);
 	static void onStartIM(void* user_data);
 
 private:
+	/*virtual*/ bool lifetimeHasExpired();
+	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };
 
@@ -524,15 +537,10 @@ public:
 	/*virtual*/ void draw();
 
 private:
-
 	// hide all text boxes
 	void hideAllText();
-	// lifetime timer for NO_ANSWER notification
-	LLTimer	mLifetimeTimer;
-	// lifetime duration for NO_ANSWER notification
-	static const S32 LIFETIME = 5;
-	bool lifetimeHasExpired();
-	void onLifetimeExpired();
+	/*virtual*/ bool lifetimeHasExpired();
+	/*virtual*/ void onLifetimeExpired();
 };
 
 // Globals
