@@ -2514,14 +2514,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		std::string prefix = mesg.substr(0, 4);
 		if (prefix == "/me " || prefix == "/me'")
 		{
-//			chat.mText = from_name;
-//			chat.mText += mesg.substr(3);
 			ircstyle = TRUE;
 		}
-//		else
-//		{
-			chat.mText = mesg;
-//		}
+		chat.mText = mesg;
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
