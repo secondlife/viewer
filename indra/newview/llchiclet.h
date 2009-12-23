@@ -1021,6 +1021,8 @@ public:
 
 	S32 getTotalUnreadIMCount();
 
+	S32	notifyParent(const LLSD& info);
+
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;

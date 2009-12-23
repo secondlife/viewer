@@ -477,7 +477,6 @@ void LLIMChiclet::setShowSpeaker(bool show)
 	{		
 		mShowSpeaker = show;
 		toggleSpeakerControl();
-		onChicletSizeChanged();		
 	}
 }
 
@@ -502,7 +501,6 @@ void LLIMChiclet::setShowCounter(bool show)
 	{		
 		LLChiclet::setShowCounter(show);
 		toggleCounterControl();
-		onChicletSizeChanged();		
 	}
 }
 
@@ -527,6 +525,8 @@ void LLIMChiclet::setRequiredWidth()
 	} 
 
 	reshape(required_width, getRect().getHeight());
+
+	onChicletSizeChanged();
 }
 
 void LLIMChiclet::toggleSpeakerControl()
@@ -567,6 +567,7 @@ void LLIMChiclet::setShowNewMessagesIcon(bool show)
 	{
 		mNewMessagesIcon->setVisible(show);
 	}
+	setRequiredWidth();
 }
 
 bool LLIMChiclet::getShowNewMessagesIcon()
@@ -1460,6 +1461,20 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 	trimChiclets();
 	showScrollButtonsIfNeeded();
 
+}
+
+S32	LLChicletPanel::notifyParent(const LLSD& info)
+{
+	if(info.has("notification"))
+	{
+		std::string str_notification = info["notification"];
+		if(str_notification == "size_changes")
+		{
+			arrange();
+			return 1;
+		}
+	}
+	return LLPanel::notifyParent(info);
 }
 
 void LLChicletPanel::arrange()
