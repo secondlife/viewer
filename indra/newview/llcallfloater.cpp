@@ -95,12 +95,6 @@ BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
 	return TRUE;
 }
 
-
-LLCallFloater::Params::Params()
-: voice_left_remove_delay("voice_left_remove_delay", 10)
-{
-}
-
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
@@ -112,8 +106,11 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 , mInitParticipantsVoiceState(false)
-, mVoiceLeftRemoveDelay(10) // TODO: mantipov: make xml driven
+, mVoiceLeftRemoveDelay(10)
 {
+	static LLUICachedControl<S32> voice_left_remove_delay ("VoiceParticipantLeftRemoveDelay", 10);
+	mVoiceLeftRemoveDelay = voice_left_remove_delay;
+
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
