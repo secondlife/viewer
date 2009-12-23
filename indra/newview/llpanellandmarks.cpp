@@ -661,7 +661,12 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 	else if ("collapse_all" == command_name)
 	{
-		root_folder->closeAllFolders();
+		root_folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
+
+		// The top level folder is invisible, it must be open to
+		// display its sub-folders.
+		root_folder->openTopLevelFolders();
+		root_folder->arrangeAll();
 	}
 	else if ( "sort_by_date" == command_name)
 	{
