@@ -114,7 +114,7 @@ private:
 	/**
 	 * Refreshes participant list according to current Voice Channel
 	 */
-	void refreshPartisipantList();
+	void refreshParticipantList();
 
 	/**
 	 * Handles event on avatar list is refreshed after it was marked dirty.
@@ -133,7 +133,7 @@ private:
 	/**
 	 * Sets initial participants voice states in avatar list (Invited, Joined, Has Left).
 	 *
-	 * @see refreshPartisipantList()
+	 * @see refreshParticipantList()
 	 * @see onAvatarListRefreshed()
 	 * @see mInitParticipantsVoiceState
 	 */

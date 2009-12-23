@@ -353,7 +353,7 @@ bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::L
 {
 	/**
 	 * We need to filter speaking objects. These objects shouldn't appear in the list
-	 * @c LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
+	 * @see LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
 	 */
 	const LLUUID& speaker_id = event->getValue().asUUID();
 	LLPointer<LLSpeaker> speaker = mParent.mSpeakerMgr->findSpeaker(speaker_id);

@@ -280,7 +280,7 @@ void LLCallFloater::updateSession()
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
 	childSetVisible("leave_call_btn", !is_local_chat);
 	
-	refreshPartisipantList();
+	refreshParticipantList();
 	updateAgentModeratorState();
 
 	//show floater for voice calls
@@ -304,7 +304,7 @@ void LLCallFloater::updateSession()
 	}
 }
 
-void LLCallFloater::refreshPartisipantList()
+void LLCallFloater::refreshParticipantList()
 {
 	// lets forget states from the previous session
 	// for timers...
