@@ -480,7 +480,10 @@
      name="location"
      select_on_focus="true"
      tool_tip="Type the name of a region"
-     width="152" />
+     width="152">
+               <search_editor.commit_callback
+                function="WMap.Location" />
+  </search_editor>
    <button
      follows="top|right"
      height="23"
