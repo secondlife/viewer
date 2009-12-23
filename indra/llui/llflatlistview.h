@@ -133,7 +133,7 @@ public:
 	 * Adds and item and LLSD value associated with it to the list at specified position
 	 * @return true if the item was added, false otherwise 
 	 */
-	virtual bool addItem(LLPanel * item, const LLSD& value = LLUUID::null, EAddPosition pos = ADD_BOTTOM);
+	virtual bool addItem(LLPanel * item, const LLSD& value = LLUUID::null, EAddPosition pos = ADD_BOTTOM, bool rearrange = true);
 
 	/**
 	 * Insert item_to_add along with associated value to the list right after the after_item.
@@ -269,6 +269,15 @@ public:
 
 	/** Removes all items from the list */
 	virtual void clear();
+
+	/**
+	 * Removes all items that can be detached from the list but doesn't destroy
+	 * them, caller responsible to manage items after they are detached.
+	 * Detachable item should accept "detach" action via notify() method,
+	 * where it disconnect all callbacks, does other valuable routines and
+	 * return 1.
+	 */
+	void detachItems(std::vector<LLPanel*>& detached_items);
 
 	/**
 	 * Set comparator to use for future sorts.
