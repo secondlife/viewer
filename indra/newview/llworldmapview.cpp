@@ -334,7 +334,6 @@ void LLWorldMapView::draw()
 	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	gGL.setColorMask(true, true);
 
-#if 1
 	// Draw the image tiles
 	drawMipmap(width, height);
 	gGL.flush();
@@ -452,7 +451,7 @@ void LLWorldMapView::draw()
 		// Draw the region name in the lower left corner
 		if (sMapScale >= DRAW_TEXT_THRESHOLD)
 		{
-			LLFontGL* font = LLFontGL::getFontSansSerifSmall();
+			LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Small", LLFontGL::BOLD));
 			std::string mesg;
 			if (info->isDown())
 			{
@@ -468,14 +467,13 @@ void LLWorldMapView::draw()
 					mesg, 0,
 					llfloor(left + 3), llfloor(bottom + 2),
 					LLColor4::white,
-					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
+					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
 			}
 		}
 	}
-	#endif
 
 
-	#if 1
+
 	// Draw background rectangle
 	LLGLSUIDefault gls_ui;
 	{
@@ -566,7 +564,7 @@ void LLWorldMapView::draw()
 			drawTracking( LLWorldMap::getInstance()->getTrackedPositionGlobal(), loading_color, TRUE, getString("Loading"), "");
 		}
 	}
-	#endif
+
 
 	// turn off the scissor
 	LLGLDisable no_scissor(GL_SCISSOR_TEST);
