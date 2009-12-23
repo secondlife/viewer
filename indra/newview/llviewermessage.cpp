@@ -919,7 +919,6 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 				  LLFloaterReg::showInstance("preview_sound", LLSD(item_id), take_focus);
 				  break;
 			  default:
-				  LLFloaterReg::showInstance("properties", LLSD(item_id), take_focus);
 				break;
 			}
 		}
