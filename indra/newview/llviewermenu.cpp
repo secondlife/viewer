@@ -7423,12 +7423,17 @@ class LLEditTakeOff : public view_listener_t
 	{
 		std::string clothing = userdata.asString();
 		if (clothing == "all")
-			LLAgentWearables::userRemoveAllClothes();
+			LLWearableBridge::removeAllClothesFromAvatar();
 		else
 		{
 			EWearableType type = LLWearableDictionary::typeNameToType(clothing);
 			if (type >= WT_SHAPE && type < WT_COUNT)
-				LLAgentWearables::userRemoveWearable(type);
+			{
+				// MULTI-WEARABLES
+				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,0));
+				LLWearableBridge::removeItemFromAvatar(item);
+			}
+				
 		}
 		return true;
 	}
