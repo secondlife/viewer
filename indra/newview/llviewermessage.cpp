@@ -906,7 +906,20 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 				  LLFloaterReg::showInstance("preview_texture", LLSD(item_id), take_focus);
 				  break;
 			  }
+			  case LLAssetType::AT_ANIMATION:
+				  LLFloaterReg::showInstance("preview_anim", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_GESTURE:
+				  LLFloaterReg::showInstance("preview_gesture", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_SCRIPT:
+				  LLFloaterReg::showInstance("preview_script", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_SOUND:
+				  LLFloaterReg::showInstance("preview_sound", LLSD(item_id), take_focus);
+				  break;
 			  default:
+				  LLFloaterReg::showInstance("properties", LLSD(item_id), take_focus);
 				break;
 			}
 		}
