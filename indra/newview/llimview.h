@@ -75,6 +75,8 @@ public:
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		bool isAdHoc();
+		bool isP2P();
+		bool isOtherParticipantAvaline();
 
 		LLUUID mSessionID;
 		std::string mName;

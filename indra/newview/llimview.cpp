@@ -483,6 +483,17 @@ bool LLIMModel::LLIMSession::isAdHoc()
 	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
 }
 
+bool LLIMModel::LLIMSession::isP2P()
+{
+	return IM_NOTHING_SPECIAL == mType;
+}
+
+bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
+{
+	return !mOtherParticipantIsAvatar;
+}
+
+
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
 	LLIMSession* session = findIMSession(old_session_id);

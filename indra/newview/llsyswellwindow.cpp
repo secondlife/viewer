@@ -743,9 +743,13 @@ BOOL LLIMWellWindow::postBuild()
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 								   const std::string& name, const LLUUID& other_participant_id)
 {
-	if (mMessageList->getItemByValue(session_id)) return;
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!session) return;
 
-	if (!gIMMgr->hasSession(session_id)) return;
+	// no need to spawn chiclets for participants in P2P calls called through Avaline
+	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
+
+	if (mMessageList->getItemByValue(session_id)) return;
 
 	addIMRow(session_id, 0, name, other_participant_id);	
 	reshapeWindow();
