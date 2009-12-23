@@ -7423,7 +7423,7 @@ class LLEditTakeOff : public view_listener_t
 	{
 		std::string clothing = userdata.asString();
 		if (clothing == "all")
-			LLAgentWearables::userRemoveAllClothes();
+			LLWearableBridge::removeAllClothesFromAvatar();
 		else
 		{
 			EWearableType type = LLWearableDictionary::typeNameToType(clothing);
