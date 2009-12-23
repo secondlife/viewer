@@ -67,15 +67,12 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
-static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list);
 static bool category_has_descendents(LLInventorySubTreePanel* inventory_list);
 
 /**
- * Bridge to support knowing when the inventory has changed to update folder (open/close) state
- * for landmarks panels.
- *
- * Due to Inventory data are loaded in background we need to save folder state each time
- * next level is loaded. See EXT-3094.
+ * Bridge to support knowing when the inventory has changed to update Landmarks tab
+ * ShowFolderState filter setting to show all folders when the filter string is empty and
+ * empty folder message when Landmarks inventory category has no children.
  */
 class LLLandmarksPanelObserver : public LLInventoryObserver
 {
@@ -90,7 +87,6 @@ private:
 
 void LLLandmarksPanelObserver::changed(U32 mask)
 {
-	mLP->saveFolderStateIfNoFilter();
 	mLP->updateShowFolderState();
 }
 
@@ -248,14 +244,6 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
-}
-
-void LLLandmarksPanel::saveFolderStateIfNoFilter()
-{
-	save_folder_state_if_no_filter(mFavoritesInventoryPanel);
-	save_folder_state_if_no_filter(mLandmarksInventoryPanel);
-	save_folder_state_if_no_filter(mMyInventoryPanel);
-	save_folder_state_if_no_filter(mLibraryInventoryPanel);
 }
 
 void LLLandmarksPanel::updateShowFolderState()
@@ -1023,15 +1011,6 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 	// Set new filter string
 	inventory_list->setFilterSubString(string);
 
-}
-
-static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list)
-{
-	// save current folder open state if no filter currently applied
-	if (inventory_list->getRootFolder() && inventory_list->getRootFolder()->getFilterSubString().empty())
-	{
-		// inventory_list->saveFolderState(); // *TODO: commented out to fix build
-	}
 }
 
 static bool category_has_descendents(LLInventorySubTreePanel* inventory_list)

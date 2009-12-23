@@ -68,11 +68,6 @@ public:
 	}
 
 	/**
-	 * Saves folder state for all Inventory Panels if there are no applied filter.
-	 */
-	void saveFolderStateIfNoFilter();
-
-	/**
 	 * 	Update filter ShowFolderState setting to show empty folder message
 	 *  if Landmarks inventory folder is empty.
 	 */
