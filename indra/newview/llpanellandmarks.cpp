@@ -68,12 +68,13 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
 static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list);
+static bool category_has_descendents(LLInventorySubTreePanel* inventory_list);
 
 /**
- * Bridge to support knowing when the inventory has changed to update folder (open/close) state 
+ * Bridge to support knowing when the inventory has changed to update folder (open/close) state
  * for landmarks panels.
  *
- * Due to Inventory data are loaded in background we need to save folder state each time 
+ * Due to Inventory data are loaded in background we need to save folder state each time
  * next level is loaded. See EXT-3094.
  */
 class LLLandmarksPanelObserver : public LLInventoryObserver
@@ -90,6 +91,7 @@ private:
 void LLLandmarksPanelObserver::changed(U32 mask)
 {
 	mLP->saveFolderStateIfNoFilter();
+	mLP->updateShowFolderState();
 }
 
 LLLandmarksPanel::LLLandmarksPanel()
@@ -134,22 +136,12 @@ BOOL LLLandmarksPanel::postBuild()
 	getChild<LLAccordionCtrlTab>("tab_favorites")->setDisplayChildren(true);
 	getChild<LLAccordionCtrlTab>("tab_landmarks")->setDisplayChildren(true);
 
-	gIdleCallbacks.addFunction(LLLandmarksPanel::doIdle, this);
 	return TRUE;
 }
 
 // virtual
 void LLLandmarksPanel::onSearchEdit(const std::string& string)
 {
-	// show all folders in Landmarks Accordion for empty filter
-	if (mLandmarksInventoryPanel->getFilter())
-	{
-		mLandmarksInventoryPanel->setShowFolderState(string.empty() ?
-			LLInventoryFilter::SHOW_ALL_FOLDERS :
-			LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS
-			);
-	}
-
 	// give FolderView a chance to be refreshed. So, made all accordions visible
 	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
 	{
@@ -173,6 +165,10 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 
 	if (sFilterSubString != string)
 		sFilterSubString = string;
+
+	// show all folders in Landmarks Accordion for empty filter
+	// only if Landmarks inventory folder is not empty
+	updateShowFolderState();
 }
 
 // virtual
@@ -260,6 +256,23 @@ void LLLandmarksPanel::saveFolderStateIfNoFilter()
 	save_folder_state_if_no_filter(mLandmarksInventoryPanel);
 	save_folder_state_if_no_filter(mMyInventoryPanel);
 	save_folder_state_if_no_filter(mLibraryInventoryPanel);
+}
+
+void LLLandmarksPanel::updateShowFolderState()
+{
+	if (!mLandmarksInventoryPanel->getFilter())
+		return;
+
+	bool show_all_folders = mLandmarksInventoryPanel->getRootFolder()->getFilterSubString().empty();
+	if (show_all_folders)
+	{
+		show_all_folders = category_has_descendents(mLandmarksInventoryPanel);
+	}
+
+	mLandmarksInventoryPanel->setShowFolderState(show_all_folders ?
+		LLInventoryFilter::SHOW_ALL_FOLDERS :
+		LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS
+		);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -778,46 +791,6 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 }
 
-void LLLandmarksPanel::updateFilteredAccordions()
-{
-	LLInventoryPanel* inventory_list = NULL;
-	LLAccordionCtrlTab* accordion_tab = NULL;
-	bool needs_arrange = false;
-
-	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
-	{
-		accordion_tab = *iter;
-
-		accordion_tab->setVisible(TRUE);
-
-		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
-		if (NULL == inventory_list) continue;
-
-		// This doesn't seem to work correctly.  Disabling for now. -Seraph
-		// Enabled to show/hide accordions with/without landmarks. See EXT-2346. (Seth PE)
-		LLFolderView* fv = inventory_list->getRootFolder();
-
-		// arrange folder view contents to draw its descendants if it has any
-		fv->arrangeFromRoot();
-
-		bool has_descendants = fv->hasFilteredDescendants();
-		if (!has_descendants)
-			needs_arrange = true;
-
-		accordion_tab->setVisible(has_descendants);
-
-		//accordion_tab->setVisible(TRUE);
-	}
-
-	// we have to arrange accordion tabs for cases when filter string is less restrictive but
-	// all items are still filtered.
-	if (needs_arrange)
-	{
-		static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
-		accordion->arrange();
-	}
-}
-
 /*
 Processes such actions: cut/rename/delete/paste actions
 
@@ -924,13 +897,6 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 	}
 
 	return true;
-}
-
-// static
-void LLLandmarksPanel::doIdle(void* landmarks_panel)
-{
-	LLLandmarksPanel* panel = (LLLandmarksPanel* ) landmarks_panel;
-	panel->updateFilteredAccordions();
 }
 
 void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
@@ -1066,5 +1032,16 @@ static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_li
 	{
 		// inventory_list->saveFolderState(); // *TODO: commented out to fix build
 	}
+}
+
+static bool category_has_descendents(LLInventorySubTreePanel* inventory_list)
+{
+	LLViewerInventoryCategory* category = gInventory.getCategory(inventory_list->getStartFolderID());
+	if (category)
+	{
+		return category->getDescendentCount() > 0;
+	}
+
+	return false;
 }
 // EOF
