@@ -103,6 +103,7 @@
          top_pad="2"
          max_length="63"
          name="classified_name"
+         prevalidate_callback="ascii"
          text_color="black"
          width="290" />
         <text
