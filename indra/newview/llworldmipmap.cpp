@@ -186,9 +186,8 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
 LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32 grid_y, S32 level)
 {
 	// Get the grid coordinates
-//	std::string imageurl = llformat("http://map.secondlife.com.s3.amazonaws.com/%d/%05d/%05d/map-%d-%d-%d-objects.jpg",
 	std::string imageurl = llformat("http://map.secondlife.com.s3.amazonaws.com/map-%d-%d-%d-objects.jpg",
-									level, grid_x, grid_y, level, grid_x, grid_y);
+									level, grid_x, grid_y);
 
 	// DO NOT COMMIT!! DEBUG ONLY!!!
 	// Use a local jpeg for every tile to test map speed without S3 access
