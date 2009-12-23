@@ -183,28 +183,21 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setStyle(const LLStyle::Params& new_style)
+void LLAvatarListItem::setStyle(EItemStyle voice_state)
 {
-//	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle = new_style);
+	voice_state_map_t mVoiceStateMap = getItemStylesParams();
 
-	// Active group should be bold.
-	LLFontDescriptor new_desc(mAvatarName->getDefaultFont()->getFontDesc());
-
-	new_desc.setStyle(new_style.font()->getFontDesc().getStyle());
-	// *NOTE dzaporozhan
-	// On Windows LLFontGL::NORMAL will not remove LLFontGL::BOLD if font 
-	// is predefined as bold (SansSerifSmallBold, for example)
-//	new_desc.setStyle(active ? LLFontGL::BOLD : LLFontGL::NORMAL);
-	LLFontGL* new_font = LLFontGL::getFont(new_desc);
-
-//	
-	mAvatarNameStyle.font = new_font;
+	mAvatarNameStyle = mVoiceStateMap[voice_state];
 
 	// *NOTE: You cannot set the style on a text box anymore, you must
 	// rebuild the text.  This will cause problems if the text contains
 	// hyperlinks, as their styles will be wrong.
-	mAvatarName->setText(mAvatarName->getText(), mAvatarNameStyle/* = new_style*/);
+	mAvatarName->setText(mAvatarName->getText(), mAvatarNameStyle);
+
+	// *TODO: move icon colors into colors.xml
+	mAvatarIcon->setColor(voice_state == IS_VOICE_JOINED ? LLColor4::white : LLColor4::smoke);
 }
+
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 {
 	if (mAvatarId.notNull())
@@ -417,4 +410,46 @@ std::string LLAvatarListItem::formatSeconds(U32 secs)
 	LLStringUtil::format_map_t args;
 	args["[COUNT]"] = llformat("%u", count);
 	return getString(fmt, args);
+}
+
+// static
+LLAvatarListItem::voice_state_map_t LLAvatarListItem::getItemStylesParams()
+{
+	static voice_state_map_t item_styles_params_map;
+	if (!item_styles_params_map.empty()) return item_styles_params_map;
+
+	LLPanel::Params params = LLUICtrlFactory::getDefaultParams<LLPanel>();
+	LLPanel* params_panel = LLUICtrlFactory::create<LLPanel>(params);
+
+	BOOL sucsess = LLUICtrlFactory::instance().buildPanel(params_panel, "panel_avatar_list_item_params.xml");
+
+	if (sucsess)
+	{
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_DEFAULT,
+			params_panel->getChild<LLTextBox>("default_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_INVITED,
+			params_panel->getChild<LLTextBox>("voice_call_invited_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_JOINED,
+			params_panel->getChild<LLTextBox>("voice_call_joined_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_LEFT,
+			params_panel->getChild<LLTextBox>("voice_call_left_style")->getDefaultStyle()));
+	}
+	else
+	{
+		item_styles_params_map.insert(std::make_pair(IS_DEFAULT, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_INVITED, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_JOINED, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_LEFT, LLStyle::Params()));
+	}
+	if (params_panel) params_panel->die();
+
+	return item_styles_params_map;
 }
