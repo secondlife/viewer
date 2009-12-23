@@ -483,6 +483,17 @@ bool LLIMModel::LLIMSession::isAdHoc()
 	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
 }
 
+bool LLIMModel::LLIMSession::isP2P()
+{
+	return IM_NOTHING_SPECIAL == mType;
+}
+
+bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
+{
+	return !mOtherParticipantIsAvatar;
+}
+
+
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
 	LLIMSession* session = findIMSession(old_session_id);
@@ -1500,7 +1511,7 @@ bool LLOutgoingCallDialog::lifetimeHasExpired()
 	if (mLifetimeTimer.getStarted())
 	{
 		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
-		if (elapsed_time > LIFETIME) 
+		if (elapsed_time > mLifetime) 
 		{
 			return true;
 		}
@@ -1520,6 +1531,13 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 	// hide all text at first
 	hideAllText();
+
+	// init notification's lifetime
+	std::istringstream ss( getString("lifetime") );
+	if (!(ss >> mLifetime))
+	{
+		mLifetime = DEFAULT_LIFETIME;
+	}
 
 	// customize text strings
 	// tell the user which voice channel they are leaving
@@ -1630,6 +1648,43 @@ LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
 LLCallDialog(payload)
 {
 }
+void LLIncomingCallDialog::draw()
+{
+	if (lifetimeHasExpired())
+	{
+		onLifetimeExpired();
+	}
+	LLDockableFloater::draw();
+}
+
+bool LLIncomingCallDialog::lifetimeHasExpired()
+{
+	if (mLifetimeTimer.getStarted())
+	{
+		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
+		if (elapsed_time > mLifetime) 
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void LLIncomingCallDialog::onLifetimeExpired()
+{
+	// check whether a call is valid or not
+	if (LLVoiceClient::getInstance()->findSession(mPayload["caller_id"].asUUID()))
+	{
+		// restart notification's timer if call is still valid
+		mLifetimeTimer.start();
+	}
+	else
+	{
+		// close invitation if call is already not valid
+		mLifetimeTimer.stop();
+		closeFloater();
+	}
+}
 
 BOOL LLIncomingCallDialog::postBuild()
 {
@@ -1639,6 +1694,13 @@ BOOL LLIncomingCallDialog::postBuild()
 	LLSD caller_id = mPayload["caller_id"];
 	std::string caller_name = mPayload["caller_name"].asString();
 	
+	// init notification's lifetime
+	std::istringstream ss( getString("lifetime") );
+	if (!(ss >> mLifetime))
+	{
+		mLifetime = DEFAULT_LIFETIME;
+	}
+
 	std::string call_type;
 	if (gAgent.isInGroup(session_id))
 	{
@@ -1675,6 +1737,16 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetAction("Reject", onReject, this);
 	childSetAction("Start IM", onStartIM, this);
 	childSetFocus("Accept");
+
+	if(mPayload["notify_box_type"] != "VoiceInviteGroup" && mPayload["notify_box_type"] != "VoiceInviteAdHoc")
+	{
+		// starting notification's timer for P2P and AVALINE invitations
+		mLifetimeTimer.start();
+	}
+	else
+	{
+		mLifetimeTimer.stop();
+	}
 
 	return TRUE;
 }

@@ -2907,7 +2907,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Joining voice call...
   </string>
   <string name="connected-im">
-    Connected, click End Call to hang up
+    Connected, click Leave Call to hang up
   </string>
   <string name="hang_up-im">
     Left voice call
