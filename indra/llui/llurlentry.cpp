@@ -80,7 +80,7 @@ std::string LLUrlEntryBase::escapeUrl(const std::string &url) const
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			"abcdefghijklmnopqrstuvwxyz"
 			"0123456789"
-			"-._~!$?&()*+,@:;=/%";
+			"-._~!$?&()*+,@:;=/%#";
 
 		std::sort(no_escape_chars.begin(), no_escape_chars.end());
 		initialized = true;

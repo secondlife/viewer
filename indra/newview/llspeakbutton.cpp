@@ -61,7 +61,9 @@ void LLSpeakButton::draw()
 {
 	// gVoiceClient is the authoritative global source of info regarding our open-mic state, we merely reflect that state.
 	bool openmic = gVoiceClient->getUserPTTState();
-	mSpeakBtn->setToggleState(openmic);
+	bool voiceenabled = gVoiceClient->voiceEnabled();
+	mSpeakBtn->setToggleState(openmic && voiceenabled);
+	mOutputMonitor->setIsMuted(!voiceenabled);
 	LLUICtrl::draw();
 }
 

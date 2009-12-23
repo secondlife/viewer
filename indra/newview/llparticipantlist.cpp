@@ -213,7 +213,6 @@ void LLParticipantList::updateRecentSpeakersOrder()
 	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
 	{
 		// Resort avatar list
-		mAvatarList->setDirty(true);
 		sort();
 	}
 }

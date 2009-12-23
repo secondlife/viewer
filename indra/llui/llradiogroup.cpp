@@ -116,6 +116,10 @@ void LLRadioGroup::initFromParams(const Params& p)
 		item_params.font.setIfNotProvided(mFont); // apply radio group font by default
 		item_params.commit_callback.function = boost::bind(&LLRadioGroup::onClickButton, this, _1);
 		item_params.from_xui = p.from_xui;
+		if (p.from_xui)
+		{
+			applyXUILayout(item_params, this);
+		}
 
 		LLRadioCtrl* item = LLUICtrlFactory::create<LLRadioCtrl>(item_params, this);
 		mRadioButtons.push_back(item);

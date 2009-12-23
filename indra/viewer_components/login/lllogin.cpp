@@ -235,6 +235,8 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
                 break;
             }
 
+			sendProgressEvent("offline", "indeterminate", mAuthResponse["responses"]);
+
             // Here the login service at the current URI is redirecting us
             // to some other URI ("indeterminate" -- why not "redirect"?).
             // The response should contain another uri to try, with its
@@ -276,7 +278,14 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
     // Here we got through all the rewrittenURIs without succeeding. Tell
     // caller this didn't work out so well. Of course, the only failure data
     // we can reasonably show are from the last of the rewrittenURIs.
-    sendProgressEvent("offline", "fail.login", mAuthResponse["responses"]);
+
+	// *NOTE: The response from LLXMLRPCListener's Poller::poll method returns an
+	// llsd with no "responses" node. To make the output from an incomplete login symmetrical 
+	// to success, add a data/message and data/reason fields.
+	LLSD error_response;
+	error_response["reason"] = mAuthResponse["status"];
+	error_response["message"] = mAuthResponse["error"];
+	sendProgressEvent("offline", "fail.login", error_response);
 }
 
 void LLLogin::Impl::disconnect()

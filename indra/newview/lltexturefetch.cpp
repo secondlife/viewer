@@ -801,7 +801,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	if (mState == SEND_HTTP_REQ)
 	{
 		{
-			const S32 HTTP_QUEUE_MAX_SIZE = 32;
+			const S32 HTTP_QUEUE_MAX_SIZE = 8;
 			// *TODO: Integrate this with llviewerthrottle
 			// Note: LLViewerThrottle uses dynamic throttling which makes sense for UDP,
 			// but probably not for Textures.
@@ -874,12 +874,30 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			S32 cur_size = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 			if (mRequestedSize < 0)
 			{
-				const S32 HTTP_MAX_RETRY_COUNT = 3;
-				S32 max_attempts = (mGetStatus == HTTP_NOT_FOUND) ? 1 : HTTP_MAX_RETRY_COUNT + 1;
- 				llinfos << "HTTP GET failed for: " << mUrl
-						<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
-						<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
-				++mHTTPFailCount;
+				S32 max_attempts;
+				if (mGetStatus == HTTP_NOT_FOUND)
+				{
+					mHTTPFailCount = max_attempts = 1; // Don't retry
+					llinfos << "Texture missing from server (404): " << mUrl << llendl;
+				}
+				else if (mGetStatus == HTTP_SERVICE_UNAVAILABLE)
+				{
+					// *TODO: Should probably introduce a timer here to delay future HTTP requsts
+					// for a short time (~1s) to ease server load? Ideally the server would queue
+					// requests instead of returning 503... we already limit the number pending.
+					++mHTTPFailCount;
+					max_attempts = mHTTPFailCount+1; // Keep retrying
+					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
+				}
+				else
+				{
+					const S32 HTTP_MAX_RETRY_COUNT = 3;
+					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
+					++mHTTPFailCount;
+					llinfos << "HTTP GET failed for: " << mUrl
+							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
+							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
+				}
 				if (mHTTPFailCount >= max_attempts)
 				{
 					if (cur_size > 0)

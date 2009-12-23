@@ -168,6 +168,7 @@ namespace LLInitParam
 		if (name() == "none")
 		{
 			mData.mValue = NULL;
+			return;
 		}
 
 		LLUIImage* imagep =  LLUI::getUIImage(name());

@@ -41,6 +41,13 @@ class LLUICtrlFactory;
 class LLMultiSlider : public LLF32UICtrl
 {
 public:
+	struct SliderParams : public LLInitParam::Block<SliderParams>
+	{
+		Optional<std::string>	name;
+		Mandatory<F32>			value;
+		SliderParams();
+	};
+
 	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
 	{
 		Optional<S32>	max_sliders;
@@ -60,6 +67,7 @@ public:
 										mouse_up_callback;
 		Optional<S32>		thumb_width;
 
+		Multiple<SliderParams>	sliders;
 		Params();
 	};
 
@@ -68,13 +76,13 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual ~LLMultiSlider();
-	void			setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
-	F32				getSliderValue(const std::string& name) const;
+	void				setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
+	F32					getSliderValue(const std::string& name) const;
 
-	const std::string& getCurSlider() const					{ return mCurSlider; }
-	F32				getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
-	void			setCurSlider(const std::string& name);
-	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
+	const std::string&	getCurSlider() const					{ return mCurSlider; }
+	F32					getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
+	void				setCurSlider(const std::string& name);
+	void				setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
 	/*virtual*/ void	setValue(const LLSD& value);
 	/*virtual*/ LLSD	getValue() const		{ return mValue; }
@@ -82,12 +90,13 @@ public:
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb );
 
-	bool			findUnusedValue(F32& initVal);
+	bool				findUnusedValue(F32& initVal);
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);
-	void			deleteSlider(const std::string& name);
-	void			deleteCurSlider()			{ deleteSlider(mCurSlider); }
-	void			clear();
+	void				addSlider(F32 val, const std::string& name);
+	void				deleteSlider(const std::string& name);
+	void				deleteCurSlider()			{ deleteSlider(mCurSlider); }
+	void				clear();
 
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
@@ -109,7 +118,8 @@ protected:
 	LLRect			mDragStartThumbRect;
 	S32				mThumbWidth;
 
-	std::map<std::string, LLRect>	mThumbRects;
+	std::map<std::string, LLRect>	
+					mThumbRects;
 	LLUIColor		mTrackColor;
 	LLUIColor		mThumbOutlineColor;
 	LLUIColor		mThumbCenterColor;

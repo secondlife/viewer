@@ -11,9 +11,13 @@
 	top_header_pad="17"
 	bottom_header_pad="10"
 	max_length="2147483647"
-	enabled="false"
 	track_bottom="true"
 	name="chat_history"
 	type="string"
 	word_wrap="true"
-  font="SansSerif"/>
+  font="SansSerif">
+  <more_chat_text
+    mouse_opaque="true" 
+    word_wrap="true"
+    />
+</chat_history>

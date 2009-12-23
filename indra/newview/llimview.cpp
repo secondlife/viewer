@@ -439,6 +439,50 @@ LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 		(LLIMModel::LLIMSession*) NULL);
 }
 
+//*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
+LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const std::vector<LLUUID>& ids)
+{
+	S32 num = ids.size();
+	if (!num) return NULL;
+
+	if (mId2SessionMap.empty()) return NULL;
+
+	std::map<LLUUID, LLIMSession*>::const_iterator it = mId2SessionMap.begin();
+	for (; it != mId2SessionMap.end(); ++it)
+	{
+		LLIMSession* session = (*it).second;
+	
+		if (!session->isAdHoc()) continue;
+		if (session->mInitialTargetIDs.size() != num) continue;
+
+		std::list<LLUUID> tmp_list(session->mInitialTargetIDs.begin(), session->mInitialTargetIDs.end());
+
+		std::vector<LLUUID>::const_iterator iter = ids.begin();
+		while (iter != ids.end())
+		{
+			tmp_list.remove(*iter);
+			++iter;
+			
+			if (tmp_list.empty()) 
+			{
+				break;
+			}
+		}
+
+		if (tmp_list.empty() && iter == ids.end())
+		{
+			return session;
+		}
+	}
+
+	return NULL;
+}
+
+bool LLIMModel::LLIMSession::isAdHoc()
+{
+	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
+}
+
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
 	LLIMSession* session = findIMSession(old_session_id);
@@ -1413,11 +1457,20 @@ void LLCallDialog::getAllowedRect(LLRect& rect)
 	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
-void LLCallDialog::onOpen(const LLSD& key)
+BOOL LLCallDialog::postBuild()
 {
+	if (!LLDockableFloater::postBuild())
+		return FALSE;
+
 	// dock the dialog to the Speak Button, where other sys messages appear
-	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getChild<LLPanel>("speak_panel"),
-		this, getDockTongue(), LLDockControl::TOP, boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
+	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
+
+	setDockControl(new LLDockControl(
+		anchor_panel, this,
+		getDockTongue(), LLDockControl::TOP,
+		boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
+
+	return TRUE;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1561,7 +1614,7 @@ void LLOutgoingCallDialog::onCancel(void* user_data)
 
 BOOL LLOutgoingCallDialog::postBuild()
 {
-	BOOL success = LLDockableFloater::postBuild();
+	BOOL success = LLCallDialog::postBuild();
 
 	childSetAction("Cancel", onCancel, this);
 
@@ -1580,7 +1633,7 @@ LLCallDialog(payload)
 
 BOOL LLIncomingCallDialog::postBuild()
 {
-	LLDockableFloater::postBuild();
+	LLCallDialog::postBuild();
 
 	LLUUID session_id = mPayload["session_id"].asUUID();
 	LLSD caller_id = mPayload["caller_id"];
@@ -2107,7 +2160,13 @@ BOOL LLIMMgr::getIMReceived() const
 void LLIMMgr::autoStartCallOnStartup(const LLUUID& session_id)
 {
 	LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
-	if (session)
+	if (!session) return;
+	
+	if (session->mSessionInitialized)
+	{
+		startCall(session_id);
+	}
+	else
 	{
 		session->mStartCallOnInitialize = true;
 	}	
@@ -2169,11 +2228,21 @@ LLUUID LLIMMgr::addSession(
 
 	bool new_session = !LLIMModel::getInstance()->findIMSession(session_id);
 
+	//works only for outgoing ad-hoc sessions
+	if (new_session && IM_SESSION_CONFERENCE_START == dialog && ids.size())
+	{
+		LLIMModel::LLIMSession* ad_hoc_found = LLIMModel::getInstance()->findAdHocIMSession(ids);
+		if (ad_hoc_found)
+		{
+			new_session = false;
+			session_id = ad_hoc_found->mSessionID;
+		}
+	}
+
 	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids, voice);
 	}
-
 
 	//*TODO remove this "floater" thing when Communicate Floater's gone
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);

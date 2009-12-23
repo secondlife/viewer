@@ -72,10 +72,12 @@ const S32 ANIMATION_FRAMES = 1; //13;
 LLProgressView::LLProgressView(const LLRect &rect) 
 :	LLPanel(),
 	mPercentDone( 0.f ),
-	mMouseDownInActiveArea( false )
+	mMouseDownInActiveArea( false ),
+	mUpdateEvents("LLProgressView")
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_progress.xml");
 	reshape(rect.getWidth(), rect.getHeight());
+	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
 }
 
 BOOL LLProgressView::postBuild()
@@ -259,4 +261,27 @@ void LLProgressView::onClickMessage(void* data)
 			LLWeb::loadURLExternal( url_to_open );
 		}
 	}
+}
+
+bool LLProgressView::handleUpdate(const LLSD& event_data)
+{
+	LLSD message = event_data.get("message");
+	LLSD desc = event_data.get("desc");
+	LLSD percent = event_data.get("percent");
+
+	if(message.isDefined())
+	{
+		setMessage(message.asString());
+	}
+
+	if(desc.isDefined())
+	{
+		setText(desc.asString());
+	}
+	
+	if(percent.isDefined())
+	{
+		setPercent(percent.asReal());
+	}
+	return false;
 }

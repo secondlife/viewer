@@ -51,6 +51,8 @@
 #include "llsidetray.h"
 #include "llslurl.h"
 #include "llurlsimstring.h"
+#include "llurlregistry.h"
+#include "llurldispatcher.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
@@ -58,6 +60,7 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llfloatermediabrowser.h"
+#include "llweb.h"
 
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
@@ -543,7 +546,20 @@ void LLNavigationBar::onRegionNameResponse(
 	// Invalid location?
 	if (!region_handle)
 	{
-		invokeSearch(typed_location);
+		// handle any secondlife:// SLapps, or
+		// display http:// URLs in the media browser, or
+		// anything else is sent to the search floater
+		if (LLUrlRegistry::instance().isUrl(typed_location))
+		{
+			if (! LLURLDispatcher::dispatchFromTextEditor(typed_location))
+			{
+				LLWeb::loadURL(typed_location);
+			}
+		}
+		else
+		{
+			invokeSearch(typed_location);
+		}
 		return;
 	}
 

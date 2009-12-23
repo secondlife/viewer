@@ -184,8 +184,6 @@ public:
 	{
 		T* widget = NULL;
 
-		T::setupParams(params, parent);
-
 		if (!params.validateBlock())
 		{
 			llwarns << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << llendl;
@@ -310,6 +308,7 @@ fail:
 
 		// Apply layout transformations, usually munging rect
 		params.from_xui = true;
+		T::applyXUILayout(params, parent);
 		T* widget = createWidget<T>(params, parent);
 
 		typedef typename T::child_registry_t registry_t;

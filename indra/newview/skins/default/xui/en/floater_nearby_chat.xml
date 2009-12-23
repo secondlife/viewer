@@ -18,6 +18,7 @@
  height="300"
  layout="topleft"
  name="nearby_chat"
+ help_topic="nearby_chat"
  save_rect="true"
  title="NEARBY CHAT"
  save_dock_state="true"

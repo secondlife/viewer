@@ -33,10 +33,10 @@
      	 height="18"
      	 image_name="Lock"
 	     layout="topleft"
-		 right="-50"
+		 right="-15"
 	     mouse_opaque="true"
 	     name="IconLocked"
-	     top="4"
+	     top="8"
 	     width="18" />
     <button
      follows="top|right"
@@ -60,14 +60,23 @@
      use_ellipses="true"
      value="Object Profile"
      width="275" />
+    	    <text
+     follows="top|left"
+     height="13"
+     layout="topleft"
+     left="45"
+     name="where"
+     text_color="LtGray_50"
+     value="(Inventory)"
+     width="150" />
 	<panel
          follows="all"
-         height="500"
+         height="490"
          label=""
          layout="topleft"
          left="10"
          help_topic=""
-         top="30"
+         top="45"
          width="313"
    background_visible="true"
    bg_alpha_color="DkGray2">
@@ -125,7 +134,7 @@
 		     layout="topleft"
     		 left="5"
 		     name="LabelCreatorTitle"
-top_pad="10"
+		  top_pad="10"
 		     width="78">
 	        Creator:
     	</text>
@@ -135,7 +144,7 @@ top_pad="10"
      default_icon_name="Generic_Person"
      layout="topleft"
      left_pad="0"
-		     top_delta="-6"
+     top_delta="-6"
      mouse_opaque="true"
      width="20" />
 	    <text
@@ -165,28 +174,28 @@ top_pad="10"
 			 follows="left|top"
 			 height="23"
 			 layout="topleft"
-    		 left="5"
+			   left="5"
 			 name="LabelOwnerTitle"
-top_pad="5"
+			   top_pad="10"
 			 width="78">
 			    Owner:
 	     </text>
 	     <avatar_icon
-     follows="top|left"
-     height="20"
-     default_icon_name="Generic_Person"
-     layout="topleft"
-     left_pad="0"
-		     top_delta="-6"
-     mouse_opaque="true"
-     width="20" />
+			   follows="top|left"
+			   height="20"
+			   default_icon_name="Generic_Person"
+			   layout="topleft"
+			   left_pad="0"
+			   top_delta="-6"
+			   mouse_opaque="true"
+			   width="20" />
 	     <text
 			 type="string"
-     follows="left|right"
-     font="SansSerifSmall"
-     height="15"
-     layout="topleft"
-     left_pad="5"
+			   follows="left|right"
+			   font="SansSerifSmall"
+			   height="15"
+			   layout="topleft"
+			   left_pad="5"
 			 name="LabelOwnerName"
 			 top_delta="6"
 			 width="140">
@@ -224,7 +233,7 @@ top_pad="10"
 			 top_delta="0"
 			 width="222">
 			Wed May 24 12:50:46 2006
-	    </text>
+      </text>
 	 <panel
          border="false"
          follows="left|top"
@@ -350,7 +359,7 @@ top_pad="10"
 			 tool_tip="Next owner can give away or resell this object"
 			 width="106" />
 	    </panel>
-	    <check_box
+	<check_box
 			 height="18"
 			 label="For Sale"
 			 layout="topleft"
@@ -388,144 +397,21 @@ top_pad="10"
 			    height="23"
 			    max_val="999999999"
 			    top_pad="10"/>
-	    <!--line_editor
-			 border_style="line"
-			 border_thickness="1"
-			 follows="left|top|right"
-			 height="16"
-			 layout="topleft"
-			 left_pad="5"
-			 max_length="25"
-			 name="EditPrice"
-			 top_delta="0"
-			 width="242" /-->
-	    <!--text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="10"
-			 layout="topleft"
-			 left="10"
-			 name="BaseMaskDebug"
-			 top="155"
-			 width="330">
-			B:
-	    </text>
-	    <text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="10"
-			 layout="topleft"
-			 left_delta="60"
-			 name="OwnerMaskDebug"
-			 top_delta="0"
-			 width="270">
-			O:
-	    </text>
-	    <text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="10"
-			 layout="topleft"
-			 left_delta="60"
-			 name="GroupMaskDebug"
-			 top_delta="0"
-			 width="210">
-			G:
-	    </text>
-	    <text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="10"
-			 layout="topleft"
-			 left_delta="60"
-			 name="EveryoneMaskDebug"
-			 top_delta="0"
-			 width="150">
-			E:
-	    </text>
-	    <text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="10"
-			 layout="topleft"
-			 left_delta="60"
-			 name="NextMaskDebug"
-			 top_delta="0"
-			 width="90">
-			N:
-	    </text-->
-			    <!--text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="10"
-			 layout="topleft"
-			 left="10"
-			 name="SaleLabel"
-			 top_pad="5"
-			 width="330">
-			Mark Item:
-	    </text-->
-	    <!--radio_group
-			 draw_border="false"
-			 follows="left|top|right"
-			 height="16"
-			 layout="topleft"
-			 left_delta="78"
-			 name="RadioSaleType"
-			 top_delta="0"
-			 width="252">
-			    <radio_item
-			     height="16"
-			     label="Original"
-			     layout="topleft"
-			     left="0"
-			     name="radio"
-			     top="0"
-			     width="70" />
-			    <radio_item
-			     height="16"
-			     label="Copy"
-			     layout="topleft"
-			     left_delta="60"
-			     name="radio2"
-			     top_delta="0"
-			     width="70" />
-	    </radio_group-->
-	    <!--text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="16"
-			 layout="topleft"
-			 left="10"
-			 name="TextPrice"
-			 top_pad="5"
-			 width="78">
-			Price: L$
-	    </text-->
-	</panel>
+   </panel>
     <panel
-		 height="25"
+		 height="30"
 		 layout="bottomright"
 		 help_topic="button_tab"
 		 name="button_panel"
 		 left="5"
-		 bottom="5"
+		 bottom="2"
 		 width="313">
 	    <button
-		     follows="bottom|right"
-		     height="25"
+		     height="23"
 		     label="Cancel"
 		     layout="topleft"
 		     name="cancel_btn"
 		     right="-1"
-		     left_pad="10"
 		     width="100" />
+	    </panel>
 	</panel>
-</panel>

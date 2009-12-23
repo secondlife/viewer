@@ -428,7 +428,23 @@ if(WINDOWS)
     ${plugintest_debug_files}
     )
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-  
+
+  # Debug config runtime files required for the plugin test mule (Qt codec plugins)
+  set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug/codecs")
+  set(plugintest_debug_files
+    qcncodecsd4.dll
+    qjpcodecsd4.dll
+    qkrcodecsd4.dll
+    qtwcodecsd4.dll
+    )
+  copy_if_different(
+    ${plugintest_debug_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Debug/codecs"
+    out_targets
+    ${plugintest_debug_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+ 
   # Release & ReleaseDebInfo config runtime files required for the plugin test mule
   set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
   set(plugintest_release_files
@@ -482,6 +498,30 @@ if(WINDOWS)
   copy_if_different(
     ${plugintest_release_src_dir}
     "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/imageformats"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  # Release & ReleaseDebInfo config runtime files required for the plugin test mule (Qt codec plugins)
+  set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release/codecs")
+  set(plugintest_release_files
+    qcncodecs4.dll  
+    qjpcodecs4.dll  
+    qkrcodecs4.dll  
+    qtwcodecs4.dll  
+    )
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/codecs"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/codecs"
     out_targets
     ${plugintest_release_files}
     )

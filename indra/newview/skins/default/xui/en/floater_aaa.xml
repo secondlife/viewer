@@ -15,21 +15,21 @@
  title="TEST FLOATER"
  save_dock_state="true"
  save_visibility="true"
- single_instance="true"
+ single_instance="true" 
  width="320">
   <string name="nudge_parabuild">Nudge 1</string>
   <string name="test_the_vlt">This string is extracted.</string>
   <chat_history
    allow_html="true"
    bg_readonly_color="ChatHistoryBgColor"
-   bg_writeable_color="ChatHistoryBgColor"
-   border_visible="false" 
+   bg_writeable_color="ChatHistoryBgColor" 
+   border_visible="false"
    follows="all"
    font="SansSerif" 
-	    left="1"
+	 left="1"
    top="20"
    layout="topleft"
-	    height="260"
+	 height="260"
    name="chat_history"
    parse_highlights="true"
    text_color="ChatHistoryTextColor"

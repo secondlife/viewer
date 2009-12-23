@@ -34,6 +34,8 @@
 #ifndef LLCOMMANDHANDLER_H
 #define LLCOMMANDHANDLER_H
 
+#include "llsd.h"
+
 /* Example:  secondlife:///app/foo/<uuid>
    Command "foo" that takes one parameter, a UUID.
 
@@ -103,6 +105,9 @@ public:
 		// Execute a command registered via the above mechanism,
 		// passing string parameters.
 		// Returns true if command was found and executed correctly.
+	/// Return an LLSD::Map of registered LLCommandHandlers and associated
+	/// info (e.g. EUntrustedAccess).
+	static LLSD enumerate();
 };
 
 #endif
