@@ -985,7 +985,7 @@ void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string)
 {
 	// When search is cleared, restore the old folder state.
-	if (string == "")
+	if (!inventory_list->getRootFolder()->getFilterSubString().empty() && string == "")
 	{
 		inventory_list->setFilterSubString(LLStringUtil::null);
 		// Re-open folders that were open before
@@ -1010,7 +1010,6 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 
 	// Set new filter string
 	inventory_list->setFilterSubString(string);
-
 }
 
 static bool category_has_descendents(LLInventorySubTreePanel* inventory_list)
