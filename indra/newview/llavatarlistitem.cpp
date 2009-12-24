@@ -158,7 +158,6 @@ void LLAvatarListItem::changed(U32 mask)
 void LLAvatarListItem::setOnline(bool online)
 {
 	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
-	// *TODO: Make the colors configurable via XUI.
 
 	if (mOnlineStatus != E_UNKNOWN && (bool) mOnlineStatus == online)
 		return;
@@ -167,9 +166,6 @@ void LLAvatarListItem::setOnline(bool online)
 
 	// Change avatar name font style depending on the new online status.
 	setStyle(online ? IS_ONLINE : IS_OFFLINE);
-
-	// Make the icon fade if the avatar goes offline.
-	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
 }
 
 void LLAvatarListItem::setName(const std::string& name)
@@ -193,8 +189,8 @@ void LLAvatarListItem::setStyle(EItemStyle voice_state)
 	// hyperlinks, as their styles will be wrong.
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
-	// *TODO: move icon colors into colors.xml
-	mAvatarIcon->setColor(voice_state == IS_VOICE_JOINED ? LLColor4::white : LLColor4::smoke);
+	icon_color_map_t item_icon_color_map = getItemIconColorMap();
+	mAvatarIcon->setColor(item_icon_color_map[voice_state]);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
@@ -462,3 +458,38 @@ LLAvatarListItem::voice_state_map_t LLAvatarListItem::getItemStylesParams()
 
 	return item_styles_params_map;
 }
+
+// static
+LLAvatarListItem::icon_color_map_t LLAvatarListItem::getItemIconColorMap()
+{
+	static icon_color_map_t item_icon_color_map;
+	if (!item_icon_color_map.empty()) return item_icon_color_map;
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_DEFAULT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconDefaultColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_INVITED,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceInvitedColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_JOINED,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceJoinedColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_LEFT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceLeftColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_ONLINE,
+		LLUIColorTable::instance().getColor("AvatarListItemIconOnlineColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_OFFLINE,
+		LLUIColorTable::instance().getColor("AvatarListItemIconOfflineColor", LLColor4::white)));
+
+	return item_icon_color_map;
+}
+
+// EOF

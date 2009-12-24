@@ -130,6 +130,9 @@ private:
 	typedef std::map<EItemStyle, LLStyle::Params> voice_state_map_t;
 	static voice_state_map_t getItemStylesParams();
 
+	typedef std::map<EItemStyle, LLColor4> icon_color_map_t;
+	static icon_color_map_t getItemIconColorMap();
+
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;
 	LLTextBox* mLastInteractionTime;
