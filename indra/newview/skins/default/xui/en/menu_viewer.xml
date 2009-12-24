@@ -2555,7 +2555,7 @@
                  function="CheckControl"
                  parameter="RenderAttachedLights" />
                 <menu_item_check.on_click
-                 function="Advanced.HandleAttchedLightParticles"
+                 function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedLights" />
             </menu_item_check>
             <menu_item_check
@@ -2565,7 +2565,7 @@
                  function="CheckControl"
                  parameter="RenderAttachedParticles" />
                 <menu_item_check.on_click
-                 function="Advanced.HandleAttchedLightParticles"
+                 function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
