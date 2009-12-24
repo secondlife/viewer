@@ -173,6 +173,9 @@ LLSysWellChiclet::~LLSysWellChiclet()
 
 void LLSysWellChiclet::setCounter(S32 counter)
 {
+	// do nothing if the same counter is coming. EXT-3678.
+	if (counter == mCounter) return;
+
 	// note same code in LLChicletNotificationCounterCtrl::setCounter(S32 counter)
 	std::string s_count;
 	if(counter != 0)
