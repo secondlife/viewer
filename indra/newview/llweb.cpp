@@ -38,10 +38,12 @@
 // Library includes
 #include "llwindow.h"	// spawnWebBrowser()
 
+#include "llagent.h"
 #include "llappviewer.h"
 #include "llfloatermediabrowser.h"
 #include "llfloaterreg.h"
 #include "lllogininstance.h"
+#include "llparcel.h"
 #include "llsd.h"
 #include "lltoastalertpanel.h"
 #include "llui.h"
@@ -49,6 +51,8 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewerwindow.h"
 
 class URLLoader : public LLToastAlertPanel::URLLoader
@@ -144,7 +148,27 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["LANGUAGE"] = LLUI::getLanguage();
 	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+	substitution["SESSION_ID"] = gAgent.getSessionID();
 
+	// find the region ID
+	LLUUID region_id;
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region)
+	{
+		region_id = region->getRegionID();
+	}
+	substitution["REGION_ID"] = region_id;
+
+	// find the parcel ID
+	LLUUID parcel_id;
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (parcel)
+	{
+		parcel_id = parcel->getID();
+	}
+	substitution["PARCEL_ID"] = parcel_id;
+
+	// expand all of the substitution strings and escape the url
 	std::string expanded_url = url;
 	LLStringUtil::format(expanded_url, substitution);
 

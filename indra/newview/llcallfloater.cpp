@@ -95,12 +95,6 @@ BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
 	return TRUE;
 }
 
-
-LLCallFloater::Params::Params()
-: voice_left_remove_delay("voice_left_remove_delay", 10)
-{
-}
-
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
@@ -112,8 +106,11 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 , mInitParticipantsVoiceState(false)
-, mVoiceLeftRemoveDelay(10) // TODO: mantipov: make xml driven
+, mVoiceLeftRemoveDelay(10)
 {
+	static LLUICachedControl<S32> voice_left_remove_delay ("VoiceParticipantLeftRemoveDelay", 10);
+	mVoiceLeftRemoveDelay = voice_left_remove_delay;
+
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
@@ -600,37 +597,24 @@ void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 
 	setState(item->getAvatarId(), state);
 
-	LLStyle::Params speaker_style;
-	LLFontDescriptor new_desc(speaker_style.font()->getFontDesc());
-
 	switch (state)
 	{
 	case STATE_INVITED:
-		new_desc.setStyle(LLFontGL::NORMAL);
+		item->setStyle(LLAvatarListItem::IS_VOICE_INVITED);
 		break;
 	case STATE_JOINED:
 		removeVoiceRemoveTimer(item->getAvatarId());
-		new_desc.setStyle(LLFontGL::NORMAL);
+		item->setStyle(LLAvatarListItem::IS_VOICE_JOINED);
 		break;
 	case STATE_LEFT:
 		{
 			setVoiceRemoveTimer(item->getAvatarId());
-			new_desc.setStyle(LLFontGL::ITALIC);
+			item->setStyle(LLAvatarListItem::IS_VOICE_LEFT);
 		}
 		break;
 	default:
 		llwarns << "Unrecognized avatar panel state (" << state << ")" << llendl;
 		break;
-	}
-
-	LLFontGL* new_font = LLFontGL::getFont(new_desc);
-	speaker_style.font = new_font;
-	item->setStyle(speaker_style);
-
-//	if ()
-	{
-		// found speaker is in voice, mark him as online
-		item->setOnline(STATE_JOINED == state);
 	}
 }
 

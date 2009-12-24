@@ -227,16 +227,20 @@
             <button
 			 follows="left|right"
              height="23"
+             image_selected="PushButton_Selected_Press"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
              left="0"
              label=""
              layout="topleft"
              name="snapshots"
              width="36"
              top="4"
+             is_toggle="true"
              image_overlay="Snapshot_Off"
              tool_tip="Take snapshot">
-				<button.commit_callback
-				 function="Floater.Toggle"
+				<button.init_callback
+				 function="Button.SetFloaterToggle"
 				 parameter="snapshot" />
 			</button>
 		</layout_panel>

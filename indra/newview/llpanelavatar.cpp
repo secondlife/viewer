@@ -179,6 +179,10 @@ void LLPanelAvatarNotes::onOpen(const LLSD& key)
 
 void LLPanelAvatarNotes::fillRightsData()
 {
+	childSetValue("status_check", FALSE);
+	childSetValue("map_check", FALSE);
+	childSetValue("objects_check", FALSE);
+
 	const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 	// If true - we are viewing friend's profile, enable check boxes and set values.
 	if(relation)

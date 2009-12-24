@@ -46,6 +46,15 @@ class LLAvatarIconCtrl;
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
 public:
+	typedef enum e_item_style_type {
+		IS_DEFAULT,
+		IS_VOICE_INVITED,
+		IS_VOICE_JOINED,
+		IS_VOICE_LEFT,
+		IS_ONLINE,
+		IS_OFFLINE,
+	} EItemStyle;
+
 	class ContextMenu
 	{
 	public:
@@ -73,7 +82,7 @@ public:
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setHighlight(const std::string& highlight);
-	void setStyle(const LLStyle::Params& new_style);
+	void setStyle(EItemStyle item_style);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
@@ -117,6 +126,12 @@ private:
 	void onNameCache(const std::string& first_name, const std::string& last_name);
 
 	std::string formatSeconds(U32 secs);
+
+	typedef std::map<EItemStyle, LLStyle::Params> item_style_map_t;
+	static item_style_map_t& getItemStylesParams();
+
+	typedef std::map<EItemStyle, LLColor4> icon_color_map_t;
+	static icon_color_map_t& getItemIconColorMap();
 
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;

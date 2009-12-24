@@ -57,12 +57,6 @@ class LLSpeakerMgr;
 class LLCallFloater : public LLDockableFloater, LLVoiceClientParticipantObserver
 {
 public:
-	struct Params :	public LLInitParam::Block<Params, LLDockableFloater::Params>
-	{
-		Optional<S32>			voice_left_remove_delay;
-
-		Params();
-	};
 
 	LOG_CLASS(LLCallFloater);
 

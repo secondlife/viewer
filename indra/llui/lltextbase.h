@@ -184,6 +184,7 @@ public:
 	bool					scrolledToEnd();
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
+	LLStyle::Params			getDefaultStyle();
 
 public:
 	// Fired when a URL link is clicked
@@ -256,7 +257,6 @@ protected:
 	LLTextBase(const Params &p);
 	virtual ~LLTextBase();
 	void							initFromParams(const Params& p);
-	LLStyle::Params					getDefaultStyle();
 	virtual void					onValueChange(S32 start, S32 end);
 
 	// draw methods

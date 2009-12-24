@@ -158,7 +158,6 @@ void LLAvatarListItem::changed(U32 mask)
 void LLAvatarListItem::setOnline(bool online)
 {
 	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
-	// *TODO: Make the colors configurable via XUI.
 
 	if (mOnlineStatus != E_UNKNOWN && (bool) mOnlineStatus == online)
 		return;
@@ -166,11 +165,7 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	mAvatarNameStyle.color = online ? LLColor4::white : LLColor4::grey;
-	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
-
-	// Make the icon fade if the avatar goes offline.
-	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
+	setStyle(online ? IS_ONLINE : IS_OFFLINE);
 }
 
 void LLAvatarListItem::setName(const std::string& name)
@@ -183,28 +178,21 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setStyle(const LLStyle::Params& new_style)
+void LLAvatarListItem::setStyle(EItemStyle item_style)
 {
-//	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle = new_style);
+	item_style_map_t& item_styles_params_map = getItemStylesParams();
 
-	// Active group should be bold.
-	LLFontDescriptor new_desc(mAvatarName->getDefaultFont()->getFontDesc());
-
-	new_desc.setStyle(new_style.font()->getFontDesc().getStyle());
-	// *NOTE dzaporozhan
-	// On Windows LLFontGL::NORMAL will not remove LLFontGL::BOLD if font 
-	// is predefined as bold (SansSerifSmallBold, for example)
-//	new_desc.setStyle(active ? LLFontGL::BOLD : LLFontGL::NORMAL);
-	LLFontGL* new_font = LLFontGL::getFont(new_desc);
-
-//	
-	mAvatarNameStyle.font = new_font;
+	mAvatarNameStyle = item_styles_params_map[item_style];
 
 	// *NOTE: You cannot set the style on a text box anymore, you must
 	// rebuild the text.  This will cause problems if the text contains
 	// hyperlinks, as their styles will be wrong.
-	mAvatarName->setText(mAvatarName->getText(), mAvatarNameStyle/* = new_style*/);
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
+
+	icon_color_map_t& item_icon_color_map = getItemIconColorMap();
+	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
+
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 {
 	if (mAvatarId.notNull())
@@ -418,3 +406,90 @@ std::string LLAvatarListItem::formatSeconds(U32 secs)
 	args["[COUNT]"] = llformat("%u", count);
 	return getString(fmt, args);
 }
+
+// static
+LLAvatarListItem::item_style_map_t& LLAvatarListItem::getItemStylesParams()
+{
+	static item_style_map_t item_styles_params_map;
+	if (!item_styles_params_map.empty()) return item_styles_params_map;
+
+	LLPanel::Params params = LLUICtrlFactory::getDefaultParams<LLPanel>();
+	LLPanel* params_panel = LLUICtrlFactory::create<LLPanel>(params);
+
+	BOOL sucsess = LLUICtrlFactory::instance().buildPanel(params_panel, "panel_avatar_list_item_params.xml");
+
+	if (sucsess)
+	{
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_DEFAULT,
+			params_panel->getChild<LLTextBox>("default_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_INVITED,
+			params_panel->getChild<LLTextBox>("voice_call_invited_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_JOINED,
+			params_panel->getChild<LLTextBox>("voice_call_joined_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_LEFT,
+			params_panel->getChild<LLTextBox>("voice_call_left_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_ONLINE,
+			params_panel->getChild<LLTextBox>("online_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_OFFLINE,
+			params_panel->getChild<LLTextBox>("offline_style")->getDefaultStyle()));
+	}
+	else
+	{
+		item_styles_params_map.insert(std::make_pair(IS_DEFAULT, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_INVITED, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_JOINED, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_LEFT, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_ONLINE, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_OFFLINE, LLStyle::Params()));
+	}
+	if (params_panel) params_panel->die();
+
+	return item_styles_params_map;
+}
+
+// static
+LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
+{
+	static icon_color_map_t item_icon_color_map;
+	if (!item_icon_color_map.empty()) return item_icon_color_map;
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_DEFAULT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconDefaultColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_INVITED,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceInvitedColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_JOINED,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceJoinedColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_LEFT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceLeftColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_ONLINE,
+		LLUIColorTable::instance().getColor("AvatarListItemIconOnlineColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_OFFLINE,
+		LLUIColorTable::instance().getColor("AvatarListItemIconOfflineColor", LLColor4::white)));
+
+	return item_icon_color_map;
+}
+
+// EOF
