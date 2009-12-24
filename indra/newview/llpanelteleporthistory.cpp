@@ -662,6 +662,9 @@ void LLTeleportHistoryPanel::refresh()
 			// Expand all accordion tabs when filtering
 			if(!sFilterSubString.empty())
 			{
+				//store accordion tab state when filter is not empty
+				tab->notifyChildren(LLSD().with("action","store_state"));
+				
 				tab->setDisplayChildren(true);
 			}
 			// Restore each tab's expand state when not filtering
@@ -669,6 +672,9 @@ void LLTeleportHistoryPanel::refresh()
 			{
 				bool collapsed = isAccordionCollapsedByUser(tab);
 				tab->setDisplayChildren(!collapsed);
+				
+				//restore accordion state after all those accodrion tabmanipulations
+				tab->notifyChildren(LLSD().with("action","restore_state"));
 			}
 
 			curr_flat_view = getFlatListViewFromTab(tab);
