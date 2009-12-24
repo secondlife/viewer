@@ -212,6 +212,8 @@ void LLParticipantList::updateRecentSpeakersOrder()
 {
 	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
 	{
+		// Need to update speakers to sort list correctly
+		mSpeakerMgr->update(true);
 		// Resort avatar list
 		sort();
 	}
