@@ -2481,30 +2481,30 @@
              name="Debug Pipeline">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderDebugPipeline" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderDebugPipeline" />
             </menu_item_check>
             <menu_item_check
              label="Fast Alpha"
              name="Fast Alpha">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderFastAlpha" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderFastAlpha" />
             </menu_item_check>
             <menu_item_check
              label="Animation Textures"
              name="Animation Textures">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderDebugGL" />
+                 parameter="AnimateTextures" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderDebugGL" />
+                 parameter="AnimateTextures" />
             </menu_item_check>
             <menu_item_check
              label="Disable Textures"
@@ -2555,7 +2555,7 @@
                  function="CheckControl"
                  parameter="RenderAttachedLights" />
                 <menu_item_check.on_click
-                 function="Advanced.HandleAttchedLightParticles"
+                 function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedLights" />
             </menu_item_check>
             <menu_item_check
@@ -2565,7 +2565,7 @@
                  function="CheckControl"
                  parameter="RenderAttachedParticles" />
                 <menu_item_check.on_click
-                 function="Advanced.HandleAttchedLightParticles"
+                 function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
