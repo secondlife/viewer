@@ -6479,21 +6479,27 @@ void menu_toggle_attached_particles(void* user_data)
 	LLPipeline::sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 }
 
-class LLAdvancedHandleAttchedLightParticles: public view_listener_t
+class LLAdvancedHandleAttachedLightParticles: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string control_name = userdata.asString();
+
+		// toggle the control
+		gSavedSettings.setBOOL(control_name,
+				       !gSavedSettings.getBOOL(control_name));
+
+		// update internal flags
 		if (control_name == "RenderAttachedLights")
-{
+		{
 			menu_toggle_attached_lights(NULL);
-}
+		}
 		else if (control_name == "RenderAttachedParticles")
-{
+		{
 			menu_toggle_attached_particles(NULL);
-}
+		}
 		return true;
-}
+	}
 };
 
 class LLSomethingSelected : public view_listener_t
@@ -7763,7 +7769,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
-	view_listener_t::addMenu(new LLAdvancedHandleAttchedLightParticles(), "Advanced.HandleAttchedLightParticles");
+	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
 	
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
