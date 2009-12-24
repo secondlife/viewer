@@ -178,19 +178,19 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setStyle(EItemStyle voice_state)
+void LLAvatarListItem::setStyle(EItemStyle item_style)
 {
-	voice_state_map_t mVoiceStateMap = getItemStylesParams();
+	item_style_map_t& item_styles_params_map = getItemStylesParams();
 
-	mAvatarNameStyle = mVoiceStateMap[voice_state];
+	mAvatarNameStyle = item_styles_params_map[item_style];
 
 	// *NOTE: You cannot set the style on a text box anymore, you must
 	// rebuild the text.  This will cause problems if the text contains
 	// hyperlinks, as their styles will be wrong.
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
-	icon_color_map_t item_icon_color_map = getItemIconColorMap();
-	mAvatarIcon->setColor(item_icon_color_map[voice_state]);
+	icon_color_map_t& item_icon_color_map = getItemIconColorMap();
+	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
@@ -408,9 +408,9 @@ std::string LLAvatarListItem::formatSeconds(U32 secs)
 }
 
 // static
-LLAvatarListItem::voice_state_map_t LLAvatarListItem::getItemStylesParams()
+LLAvatarListItem::item_style_map_t& LLAvatarListItem::getItemStylesParams()
 {
-	static voice_state_map_t item_styles_params_map;
+	static item_style_map_t item_styles_params_map;
 	if (!item_styles_params_map.empty()) return item_styles_params_map;
 
 	LLPanel::Params params = LLUICtrlFactory::getDefaultParams<LLPanel>();
@@ -460,7 +460,7 @@ LLAvatarListItem::voice_state_map_t LLAvatarListItem::getItemStylesParams()
 }
 
 // static
-LLAvatarListItem::icon_color_map_t LLAvatarListItem::getItemIconColorMap()
+LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
 {
 	static icon_color_map_t item_icon_color_map;
 	if (!item_icon_color_map.empty()) return item_icon_color_map;

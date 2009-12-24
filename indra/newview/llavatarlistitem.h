@@ -82,7 +82,7 @@ public:
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setHighlight(const std::string& highlight);
-	void setStyle(EItemStyle voice_state);
+	void setStyle(EItemStyle item_style);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
@@ -127,11 +127,11 @@ private:
 
 	std::string formatSeconds(U32 secs);
 
-	typedef std::map<EItemStyle, LLStyle::Params> voice_state_map_t;
-	static voice_state_map_t getItemStylesParams();
+	typedef std::map<EItemStyle, LLStyle::Params> item_style_map_t;
+	static item_style_map_t& getItemStylesParams();
 
 	typedef std::map<EItemStyle, LLColor4> icon_color_map_t;
-	static icon_color_map_t getItemIconColorMap();
+	static icon_color_map_t& getItemIconColorMap();
 
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;
