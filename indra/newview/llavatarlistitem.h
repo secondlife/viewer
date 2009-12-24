@@ -51,6 +51,8 @@ public:
 		IS_VOICE_INVITED,
 		IS_VOICE_JOINED,
 		IS_VOICE_LEFT,
+		IS_ONLINE,
+		IS_OFFLINE,
 	} EItemStyle;
 
 	class ContextMenu

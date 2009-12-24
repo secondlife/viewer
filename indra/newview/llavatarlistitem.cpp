@@ -166,8 +166,7 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	mAvatarNameStyle.color = online ? LLColor4::white : LLColor4::grey;
-	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
+	setStyle(online ? IS_ONLINE : IS_OFFLINE);
 
 	// Make the icon fade if the avatar goes offline.
 	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
@@ -192,7 +191,7 @@ void LLAvatarListItem::setStyle(EItemStyle voice_state)
 	// *NOTE: You cannot set the style on a text box anymore, you must
 	// rebuild the text.  This will cause problems if the text contains
 	// hyperlinks, as their styles will be wrong.
-	mAvatarName->setText(mAvatarName->getText(), mAvatarNameStyle);
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
 	// *TODO: move icon colors into colors.xml
 	mAvatarIcon->setColor(voice_state == IS_VOICE_JOINED ? LLColor4::white : LLColor4::smoke);
@@ -441,6 +440,14 @@ LLAvatarListItem::voice_state_map_t LLAvatarListItem::getItemStylesParams()
 		item_styles_params_map.insert(
 			std::make_pair(IS_VOICE_LEFT,
 			params_panel->getChild<LLTextBox>("voice_call_left_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_ONLINE,
+			params_panel->getChild<LLTextBox>("online_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_OFFLINE,
+			params_panel->getChild<LLTextBox>("offline_style")->getDefaultStyle()));
 	}
 	else
 	{
@@ -448,6 +455,8 @@ LLAvatarListItem::voice_state_map_t LLAvatarListItem::getItemStylesParams()
 		item_styles_params_map.insert(std::make_pair(IS_VOICE_INVITED, LLStyle::Params()));
 		item_styles_params_map.insert(std::make_pair(IS_VOICE_JOINED, LLStyle::Params()));
 		item_styles_params_map.insert(std::make_pair(IS_VOICE_LEFT, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_ONLINE, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_OFFLINE, LLStyle::Params()));
 	}
 	if (params_panel) params_panel->die();
 
