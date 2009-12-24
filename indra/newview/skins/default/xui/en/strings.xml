@@ -2990,6 +2990,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="mute">
     Error while moderating.
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3459 issue 'removed' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="removed" with the same value as "removed_from_group" -->
+  <string name="removed">
+    You have been removed from the group.
+  </string>
   <string name="removed_from_group">
     You have been removed from the group.
   </string>
