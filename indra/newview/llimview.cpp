@@ -248,7 +248,8 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 	switch(mSessionType)
 	{
 	case AVALINE_SESSION:
-		// *TODO: test avaline calls (EXT-2211)
+		// no text notifications
+		break;
 	case P2P_SESSION:
 		gCacheName->getFullName(mOtherParticipantID, other_avatar_name);
 
@@ -283,28 +284,14 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 				break;
 			}
 		}
-
-		// Update speakers list when connected
-		if (LLVoiceChannel::STATE_CONNECTED == new_state)
-		{
-			mSpeakers->update(true);
-		}
-
 		break;
 
 	case GROUP_SESSION:
 	case ADHOC_SESSION:
-		// *TODO: determine call starter's name "other_avatar_name" (EXT-2211)
-		//        decide how to show notifications for a group/adhoc chat already opened
-		//		  for now there is no notification from voice channel for this case
 		if(direction == LLVoiceChannel::INCOMING_CALL)
 		{
 			switch(new_state)
 			{
-			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = other_avatar_name + " " + started_call;
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
-				break;
 			case LLVoiceChannel::STATE_CONNECTED :
 				message = you + " " + joined_call;
 				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
@@ -324,13 +311,11 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 				break;
 			}
 		}
-
-		// Update speakers list when connected
-		if (LLVoiceChannel::STATE_CONNECTED == new_state)
-		{
-			mSpeakers->update(true);
-		}
-		break;
+	}
+	// Update speakers list when connected
+	if (LLVoiceChannel::STATE_CONNECTED == new_state)
+	{
+		mSpeakers->update(true);
 	}
 }
 
@@ -1878,6 +1863,14 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 					new LLViewerChatterBoxInvitationAcceptResponder(
 						session_id,
 						inv_type));
+
+				// send notification message to the corresponding chat 
+				if (mPayload["notify_box_type"].asString() == "VoiceInviteGroup" || mPayload["notify_box_type"].asString() == "VoiceInviteAdHoc")
+				{
+					std::string started_call = LLTrans::getString("started_call");
+					std::string message = mPayload["caller_name"].asString() + " " + started_call;
+					LLIMModel::getInstance()->addMessageSilently(session_id, SYSTEM_FROM, LLUUID::null, message);
+				}
 			}
 		}
 		if (voice)
