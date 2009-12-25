@@ -462,6 +462,8 @@ void LLScreenChannel::showToastsBottom()
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
 
+	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
+
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
 	{
 		if(it != mToastList.rbegin())
@@ -473,6 +475,16 @@ void LLScreenChannel::showToastsBottom()
 		toast_rect = (*it).toast->getRect();
 		toast_rect.setOriginAndSize(getRect().mLeft, bottom + toast_margin, toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
+
+		// don't show toasts if there is not enough space
+		if(floater && floater->overlapsScreenChannel())
+		{
+			LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+			if(toast_rect.mTop + getOverflowToastHeight() + toast_margin > world_rect.mTop)
+			{
+				break;
+			}
+		}
 
 		bool stop_showing_toasts = (*it).toast->getRect().mTop > getRect().mTop;
 
@@ -575,6 +587,18 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
 	mOverflowToastPanel->setRect(toast_rect);
 
+	// don't show overflow toast if there is not enough space for it.
+	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
+	if(floater && floater->overlapsScreenChannel())
+	{
+		LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+		if(toast_rect.mTop > world_rect.mTop)
+		{
+			closeOverflowToastPanel();
+			return;
+		}
+	}
+
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
 
@@ -662,6 +686,24 @@ F32 LLScreenChannel::getHeightRatio()
 		ratio = 1.0f;
 	}
 	return ratio;
+}
+
+S32 LLScreenChannel::getOverflowToastHeight()
+{
+	if(mOverflowToastPanel)
+	{
+		return mOverflowToastPanel->getRect().getHeight();
+	}
+
+	static S32 height = 0;
+	if(0 == height)
+	{
+		LLToast::Params p;
+		LLToast* toast = new LLToast(p);
+		height = toast->getRect().getHeight();
+		delete toast;
+	}
+	return height;
 }
 
 //--------------------------------------------------------------------------
@@ -822,25 +864,22 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	// for Message Well floater showed in a docked state - adjust channel's height
-	if(dynamic_cast<LLSysWellWindow*>(floater) || dynamic_cast<LLIMFloater*>(floater)
-		|| dynamic_cast<LLScriptFloater*>(floater))
-	{
-		S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
-		LLRect this_rect = getRect();
-		if(floater->getVisible() && floater->isDocked())
-		{
-			channel_bottom += floater->getRect().getHeight();
-			if(floater->getDockControl())
-			{
-				channel_bottom += floater->getDockControl()->getTongueHeight();
-			}
-		}
+	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
+	LLRect this_rect = getRect();
 
-		if(channel_bottom != this_rect.mBottom)
+	// adjust channel's height
+	if(floater->overlapsScreenChannel())
+	{
+		channel_bottom += floater->getRect().getHeight();
+		if(floater->getDockControl())
 		{
-			setRect(LLRect(this_rect.mLeft, this_rect.mTop, this_rect.mRight, channel_bottom));
+			channel_bottom += floater->getDockControl()->getTongueHeight();
 		}
+	}
+
+	if(channel_bottom != this_rect.mBottom)
+	{
+		setRect(LLRect(this_rect.mLeft, this_rect.mTop, this_rect.mRight, channel_bottom));
 	}
 }
 

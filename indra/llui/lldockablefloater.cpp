@@ -54,6 +54,7 @@ void LLDockableFloater::init(LLDockableFloater* thiz)
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl,
 		const LLSD& key, const Params& params) :
 	LLFloater(key, params), mDockControl(dockControl), mUniqueDocking(true)
+	, mOverlapsScreenChannel(false)
 {
 	init(this);
 }

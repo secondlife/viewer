@@ -109,6 +109,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		default: break;
 		}
 	}
+	setOverlapsScreenChannel(true);
 }
 
 void LLIMFloater::onFocusLost()

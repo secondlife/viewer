@@ -63,6 +63,7 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key)
 {
 	mTypedItemsCount[IT_NOTIFICATION] = 0;
 	mTypedItemsCount[IT_INSTANT_MESSAGE] = 0;
+	setOverlapsScreenChannel(true);
 }
 
 //---------------------------------------------------------------------------------

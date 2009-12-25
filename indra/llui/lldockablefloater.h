@@ -85,6 +85,14 @@ public:
 
 	LLDockControl* getDockControl();
 
+	/**
+	 * Returns true if screen channel should consider floater's size when drawing toasts.
+	 *
+	 * By default returns false.
+	 */
+	virtual bool overlapsScreenChannel() { return mOverlapsScreenChannel && getVisible() && isDocked(); }
+	virtual void setOverlapsScreenChannel(bool overlaps) { mOverlapsScreenChannel = overlaps; }
+
 private:
 	/**
 	 * Provides unique of dockable floater.
@@ -105,6 +113,8 @@ private:
 	 *  non exclusively.
 	 */
 	bool mUniqueDocking;
+
+	bool mOverlapsScreenChannel;
 };
 
 #endif /* LL_DOCKABLEFLOATER_H */
