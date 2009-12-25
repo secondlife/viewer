@@ -191,7 +191,7 @@ private:
 private:
 	speaker_state_map_t mSpeakerStateMap;
 	LLSpeakerMgr* mSpeakerManager;
-	LLParticipantList* mPaticipants;
+	LLParticipantList* mParticipants;
 	LLAvatarList* mAvatarList;
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;

@@ -104,7 +104,7 @@ LLCallFloater::Params::Params()
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
-, mPaticipants(NULL)
+, mParticipants(NULL)
 , mAvatarList(NULL)
 , mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
@@ -123,8 +123,8 @@ LLCallFloater::~LLCallFloater()
 {
 	resetVoiceRemoveTimers();
 
-	delete mPaticipants;
-	mPaticipants = NULL;
+	delete mParticipants;
+	mParticipants = NULL;
 
 	mAvatarListRefreshConnection.disconnect();
 
@@ -188,8 +188,8 @@ void LLCallFloater::draw()
 	}
 
 	// Need to resort the participant list if it's in sort by recent speaker order.
-	if (mPaticipants)
-		mPaticipants->updateRecentSpeakersOrder();
+	if (mParticipants)
+		mParticipants->updateRecentSpeakersOrder();
 
 	LLDockableFloater::draw();
 }
@@ -197,7 +197,7 @@ void LLCallFloater::draw()
 // virtual
 void LLCallFloater::onChange()
 {
-	if (NULL == mPaticipants) return;
+	if (NULL == mParticipants) return;
 
 	updateParticipantsVoiceState();
 }
@@ -313,8 +313,8 @@ void LLCallFloater::refreshParticipantList()
 	// ...and for speaker state
 	mSpeakerStateMap.clear();
 
-	delete mPaticipants;
-	mPaticipants = NULL;
+	delete mParticipants;
+	mParticipants = NULL;
 	mAvatarList->clear();
 
 	bool non_avatar_caller = false;
@@ -334,7 +334,7 @@ void LLCallFloater::refreshParticipantList()
 
 	if (!non_avatar_caller)
 	{
-		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT);
+		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT);
 
 		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
