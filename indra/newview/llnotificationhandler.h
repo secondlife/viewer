@@ -298,6 +298,11 @@ public:
 	 * Writes notification message to nearby chat.
 	 */
 	static void logToNearbyChat(const LLNotificationPtr& notification, EChatSourceType type);
+
+	/**
+	 * Spawns IM session.
+	 */
+	static void spawnIMSession(const std::string& name, const LLUUID& from_id);
 };
 
 }

@@ -4498,7 +4498,7 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
-   type="offer">
+   type="notifytip">
 [NAME] received your inventory offer.
   </notification>
 
