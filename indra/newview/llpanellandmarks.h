@@ -46,7 +46,7 @@ class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
-class LLInventorySubTreePanel;
+class LLPlacesInventoryPanel;
 
 class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
 {
@@ -60,9 +60,9 @@ public:
 	/*virtual*/ void onTeleport();
 	/*virtual*/ void updateVerbs();
 
-	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
-	void setCurrentSelectedList(LLInventorySubTreePanel* inventory_list)
+	void setCurrentSelectedList(LLPlacesInventoryPanel* inventory_list)
 	{
 		mCurrentSelectedList = inventory_list;
 	}
@@ -93,10 +93,10 @@ private:
 	void initLandmarksInventoryPanel();
 	void initMyInventoryPanel();
 	void initLibraryInventoryPanel();
-	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list);
-	void initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list);
-	void onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list);
-	void deselectOtherThan(const LLInventorySubTreePanel* inventory_list);
+	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
+	void initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list);
+	void onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list);
+	void deselectOtherThan(const LLPlacesInventoryPanel* inventory_list);
 
 	// List Commands Handlers
 	void initListCommandsHandlers();
@@ -137,14 +137,14 @@ private:
 	void doCreatePick(LLLandmark* landmark);
 
 private:
-	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
-	LLInventorySubTreePanel*	mLandmarksInventoryPanel;
-	LLInventorySubTreePanel*	mMyInventoryPanel;
-	LLInventorySubTreePanel*	mLibraryInventoryPanel;
+	LLPlacesInventoryPanel*	mFavoritesInventoryPanel;
+	LLPlacesInventoryPanel*	mLandmarksInventoryPanel;
+	LLPlacesInventoryPanel*	mMyInventoryPanel;
+	LLPlacesInventoryPanel*	mLibraryInventoryPanel;
 	LLMenuGL*					mGearLandmarkMenu;
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
-	LLInventorySubTreePanel*	mCurrentSelectedList;
+	LLPlacesInventoryPanel*	mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;

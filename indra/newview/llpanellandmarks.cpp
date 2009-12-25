@@ -49,9 +49,9 @@
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
 #include "llinventorypanel.h"
-#include "llinventorysubtreepanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
+#include "llplacesinventorypanel.h"
 #include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
@@ -66,8 +66,8 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
 
 // helper functions
-static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
-static bool category_has_descendents(LLInventorySubTreePanel* inventory_list);
+static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::string& string);
+static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list);
 
 /**
  * Bridge to support knowing when the inventory has changed to update Landmarks tab
@@ -150,7 +150,7 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 			tab->changeOpenClose(false);
 		}
 
-		LLInventorySubTreePanel* inventory_list = dynamic_cast<LLInventorySubTreePanel*>(tab->getAccordionView());
+		LLPlacesInventoryPanel* inventory_list = dynamic_cast<LLPlacesInventoryPanel*>(tab->getAccordionView());
 		if (NULL == inventory_list) continue;
 
 		if (inventory_list->getFilter())
@@ -218,7 +218,7 @@ void LLLandmarksPanel::updateVerbs()
 	updateListCommands();
 }
 
-void LLLandmarksPanel::onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
+void LLLandmarksPanel::onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	if (user_action && (items.size() > 0))
 	{
@@ -362,7 +362,7 @@ void LLLandmarksPanel::setErrorStatus(U32 status, const std::string& reason)
 
 void LLLandmarksPanel::initFavoritesInventoryPanel()
 {
-	mFavoritesInventoryPanel = getChild<LLInventorySubTreePanel>("favorites_list");
+	mFavoritesInventoryPanel = getChild<LLPlacesInventoryPanel>("favorites_list");
 
 	initLandmarksPanel(mFavoritesInventoryPanel);
 	mFavoritesInventoryPanel->getFilter()->setEmptyLookupMessage("FavoritesNoMatchingItems");
@@ -372,7 +372,7 @@ void LLLandmarksPanel::initFavoritesInventoryPanel()
 
 void LLLandmarksPanel::initLandmarksInventoryPanel()
 {
-	mLandmarksInventoryPanel = getChild<LLInventorySubTreePanel>("landmarks_list");
+	mLandmarksInventoryPanel = getChild<LLPlacesInventoryPanel>("landmarks_list");
 
 	initLandmarksPanel(mLandmarksInventoryPanel);
 
@@ -391,7 +391,7 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
 
 void LLLandmarksPanel::initMyInventoryPanel()
 {
-	mMyInventoryPanel= getChild<LLInventorySubTreePanel>("my_inventory_list");
+	mMyInventoryPanel= getChild<LLPlacesInventoryPanel>("my_inventory_list");
 
 	initLandmarksPanel(mMyInventoryPanel);
 
@@ -400,14 +400,14 @@ void LLLandmarksPanel::initMyInventoryPanel()
 
 void LLLandmarksPanel::initLibraryInventoryPanel()
 {
-	mLibraryInventoryPanel = getChild<LLInventorySubTreePanel>("library_list");
+	mLibraryInventoryPanel = getChild<LLPlacesInventoryPanel>("library_list");
 
 	initLandmarksPanel(mLibraryInventoryPanel);
 
 	initAccordion("tab_library", mLibraryInventoryPanel);
 }
 
-void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_list)
+void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list)
 {
 	// In case of a dummy widget further we have no Folder View widget and no Filter,
 	// so further initialization leads to crash.
@@ -431,7 +431,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 	inventory_list->saveFolderState();
 }
 
-void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list)
+void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list)
 {
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>(accordion_tab_name);
 
@@ -441,7 +441,7 @@ void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLIn
 	accordion_tab->setDisplayChildren(false);
 }
 
-void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list)
+void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list)
 {
 	bool expanded = param.asBoolean();
 
@@ -467,7 +467,7 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLInvento
 	}
 }
 
-void LLLandmarksPanel::deselectOtherThan(const LLInventorySubTreePanel* inventory_list)
+void LLLandmarksPanel::deselectOtherThan(const LLPlacesInventoryPanel* inventory_list)
 {
 	if (inventory_list != mFavoritesInventoryPanel)
 	{
@@ -987,7 +987,7 @@ void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
 //////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
-static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string)
+static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::string& string)
 {
 	// When search is cleared, restore the old folder state.
 	if (!inventory_list->getRootFolder()->getFilterSubString().empty() && string == "")
@@ -1017,7 +1017,7 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 	inventory_list->setFilterSubString(string);
 }
 
-static bool category_has_descendents(LLInventorySubTreePanel* inventory_list)
+static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list)
 {
 	LLViewerInventoryCategory* category = gInventory.getCategory(inventory_list->getStartFolderID());
 	if (category)
