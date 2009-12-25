@@ -111,16 +111,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 				LLUUID from_id = notification->getPayload()["from_id"];
 
-				LLUUID session_id = LLIMMgr::computeSessionID(
-						IM_NOTHING_SPECIAL, from_id);
-
-				LLIMModel::LLIMSession* session =
-						LLIMModel::instance().findIMSession(session_id);
-				if (session == NULL)
-				{
-					LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL,
-							from_id);
-				}
+				LLHandlerUtil::spawnIMSession(name, from_id);
 			}
 
 			if (notification->getPayload().has("SUPPRES_TOST")
