@@ -105,7 +105,7 @@ private:
         void mouseUp( int x, int y );
         void mouseMove( int x, int y );
 
-        bool sizeChanged();
+        void sizeChanged();
 	
 	static bool mDoneInit;
 	
@@ -839,7 +839,7 @@ MediaPluginGStreamer010::startup()
 }
 
 
-bool
+void
 MediaPluginGStreamer010::sizeChanged()
 {
 	// the shared writing space has possibly changed size/location/whatever
@@ -854,8 +854,9 @@ MediaPluginGStreamer010::sizeChanged()
 			 mNaturalWidth, mNaturalHeight);
 	}
 
+	// if the size has changed then the shm has changed and the app needs telling
 	if (mCurrentWidth != mPreviousWidth ||
-	    mCurrentHeight != mPreviousHeight) // if the size has changed then the shm has changed and the app needs telling
+	    mCurrentHeight != mPreviousHeight)
 	{
 		mPreviousWidth = mCurrentWidth;
 		mPreviousHeight = mCurrentHeight;
@@ -867,8 +868,6 @@ MediaPluginGStreamer010::sizeChanged()
 		DEBUGMSG("<--- Sending size change request to application with name: '%s' - natural size is %d x %d", mTextureSegmentName.c_str(), mNaturalWidth, mNaturalHeight);
 		sendMessage(message);
 	}
-	
-	return true;
 }
 
 
