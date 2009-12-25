@@ -22,13 +22,12 @@ else
 fi
 
 # Register handler for KDE-aware apps
-if [ -z "$KDEHOME" ]; then
-    KDEHOME=~/.kde
-fi
-LLKDEPROTDIR=${KDEHOME}/share/services
-if [ -d "$LLKDEPROTDIR" ]; then
-    LLKDEPROTFILE=${LLKDEPROTDIR}/secondlife.protocol
-    cat > ${LLKDEPROTFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTFILE}
+for LLKDECONFIG in kde-config kde4-config; do
+    if [ `which $LLKDECONFIG` ]; then
+        LLKDEPROTODIR=`$LLKDECONFIG --path services | cut -d ':' -f 1`
+        if [ -d "$LLKDEPROTODIR" ]; then
+            LLKDEPROTOFILE=${LLKDEPROTODIR}/secondlife.protocol
+            cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE} 
 [Protocol]
 exec=${HANDLER} '%u'
 protocol=secondlife
@@ -41,6 +40,9 @@ writing=false
 makedir=false
 deleting=false
 EOF
-else
-    echo Warning: Did not register secondlife:// handler with KDE: Directory $LLKDEPROTDIR does not exist.
-fi
+        else
+            echo Warning: Did not register secondlife:// handler with KDE: Directory $LLKDEPROTODIR does not exist.
+        fi
+    fi
+done
+
