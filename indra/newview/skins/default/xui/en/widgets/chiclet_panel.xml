@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<chiclet_panel
+ name="chiclet_panel" 
+ chiclet_padding="3"
+ scrolling_offset="40"
+ min_width="180"
+ />
