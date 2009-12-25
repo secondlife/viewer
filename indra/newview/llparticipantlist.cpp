@@ -577,9 +577,22 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	{
 		return mUUIDs.front() != gAgentID;
 	}
-	else if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
+	else if (item == "can_allow_text_chat")
 	{
 		return isGroupModerator();
+	}
+	else if ("can_moderate_voice" == item)
+	{
+		if (isGroupModerator())
+		{
+			LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(mUUIDs.front());
+			if (speakerp.notNull())
+			{
+				// not in voice participants can not be moderated
+				return speakerp->mStatus != LLSpeaker::STATUS_TEXT_ONLY;
+			}
+		}
+		return false;
 	}
 	else if (item == std::string("can_add"))
 	{
