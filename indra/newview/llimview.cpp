@@ -1497,13 +1497,17 @@ LLCallDialog(payload)
 	}	
 }
 
-void LLOutgoingCallDialog::draw()
+void LLCallDialog::draw()
 {
 	if (lifetimeHasExpired())
 	{
 		onLifetimeExpired();
 	}
-	LLDockableFloater::draw();
+
+	if (getDockControl() != NULL)
+	{
+		LLDockableFloater::draw();
+	}
 }
 
 bool LLOutgoingCallDialog::lifetimeHasExpired()
@@ -1647,14 +1651,6 @@ BOOL LLOutgoingCallDialog::postBuild()
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
 LLCallDialog(payload)
 {
-}
-void LLIncomingCallDialog::draw()
-{
-	if (lifetimeHasExpired())
-	{
-		onLifetimeExpired();
-	}
-	LLDockableFloater::draw();
 }
 
 bool LLIncomingCallDialog::lifetimeHasExpired()
