@@ -488,6 +488,9 @@ public:
 
 	virtual BOOL postBuild();
 
+	// check timer state
+	/*virtual*/ void draw();
+
 protected:
 	// lifetime timer for a notification
 	LLTimer	mLifetimeTimer;
@@ -509,9 +512,6 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	// check timer state
-	/*virtual*/ void draw();
-
 	static void onAccept(void* user_data);
 	static void onReject(void* user_data);
 	static void onStartIM(void* user_data);
@@ -532,9 +532,6 @@ public:
 
 	static void onCancel(void* user_data);
 	static const LLUUID OCD_KEY;
-
-	// check timer state
-	/*virtual*/ void draw();
 
 private:
 	// hide all text boxes
