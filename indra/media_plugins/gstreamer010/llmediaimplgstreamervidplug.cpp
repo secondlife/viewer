@@ -108,7 +108,7 @@ gst_slvideo_show_frame (GstBaseSink * bsink, GstBuffer * buf)
 	
 	slvideo = GST_SLVIDEO(bsink);
 	
-	DEBUGMSG("\n\ntransferring a frame of %dx%d <- %p (%d)\n\n",
+	DEBUGMSG("transferring a frame of %dx%d <- %p (%d)",
 		 slvideo->width, slvideo->height, GST_BUFFER_DATA(buf),
 		 slvideo->format);
 
@@ -336,7 +336,7 @@ gst_slvideo_buffer_alloc (GstBaseSink * bsink, guint64 offset, guint size,
 #define MAXDEPTHHACK 4
 	
 	GST_OBJECT_LOCK(slvideo);
-	if (slvideo->resize_forced)
+	if (slvideo->resize_forced_always) // app is giving us a fixed size to work with
 	{
 		gint slwantwidth, slwantheight;
 		slwantwidth = slvideo->resize_try_width;
@@ -385,6 +385,8 @@ gst_slvideo_buffer_alloc (GstBaseSink * bsink, guint64 offset, guint size,
 		}
 	}
 
+	GST_OBJECT_UNLOCK(slvideo);
+
 	if (!made_bufferdata_ptr) // need to fallback to malloc at original size
 	{
 		GST_BUFFER_SIZE(newbuf) = width * height * MAXDEPTHHACK;
@@ -392,8 +394,6 @@ gst_slvideo_buffer_alloc (GstBaseSink * bsink, guint64 offset, guint size,
 		GST_BUFFER_DATA(newbuf) = GST_BUFFER_MALLOCDATA(newbuf);
 		llgst_buffer_set_caps (GST_BUFFER_CAST(newbuf), caps);
 	}
-
-	GST_OBJECT_UNLOCK(slvideo);
 
 	*buf = GST_BUFFER_CAST(newbuf);
 
@@ -458,7 +458,7 @@ gst_slvideo_init (GstSLVideo * filter,
 	filter->retained_frame_format = SLV_PF_UNKNOWN;
 	GstCaps *caps = llgst_caps_from_string (SLV_ALLCAPS);
 	llgst_caps_replace (&filter->caps, caps);
-	filter->resize_forced = false;
+	filter->resize_forced_always = false;
 	filter->resize_try_width = -1;
 	filter->resize_try_height = -1;
 	GST_OBJECT_UNLOCK(filter);
@@ -499,7 +499,7 @@ gst_slvideo_get_property (GObject * object, guint prop_id,
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-	DEBUGMSG("\n\n\nPLUGIN INIT\n\n\n");
+	DEBUGMSG("PLUGIN INIT");
 
 	GST_DEBUG_CATEGORY_INIT (gst_slvideo_debug, (gchar*)"private-slvideo-plugin",
 				 0, (gchar*)"Second Life Video Sink");
@@ -527,7 +527,7 @@ void gst_slvideo_init_class (void)
 				  "http://www.secondlife.com/");
 #undef PACKAGE
 	ll_gst_plugin_register_static (&gst_plugin_desc);
-	DEBUGMSG("\n\n\nCLASS INIT\n\n\n");
+	DEBUGMSG("CLASS INIT");
 }
 
 #endif // LL_GSTREAMER010_ENABLED
