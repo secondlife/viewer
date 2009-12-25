@@ -188,6 +188,16 @@ private:
 	 */
 	void removeVoiceRemoveTimer(const LLUUID& voice_speaker_id);
 
+	/**
+	 * Called by LLParticipantList before adding a speaker to the participant list.
+	 *
+	 * If false is returned, the speaker will not be added to the list.
+	 *
+	 * @param speaker_id Speaker to validate.
+	 * @return true if this is a valid speaker, false otherwise.
+	 */
+	bool validateSpeaker(const LLUUID& speaker_id);
+
 private:
 	speaker_state_map_t mSpeakerStateMap;
 	LLSpeakerMgr* mSpeakerManager;
