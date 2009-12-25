@@ -577,33 +577,32 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	{
 		return mUUIDs.front() != gAgentID;
 	}
-	else
-		if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
-		{
-			return isGroupModerator();
-		}
+	else if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
+	{
+		return isGroupModerator();
+	}
 	else if (item == std::string("can_add"))
+	{
+		// We can add friends if:
+		// - there are selected people
+		// - and there are no friends among selection yet.
+
+		bool result = (mUUIDs.size() > 0);
+
+		std::vector<LLUUID>::const_iterator
+			id = mUUIDs.begin(),
+			uuids_end = mUUIDs.end();
+
+		for (;id != uuids_end; ++id)
 		{
-			// We can add friends if:
-			// - there are selected people
-			// - and there are no friends among selection yet.
-
-			bool result = (mUUIDs.size() > 0);
-
-			std::vector<LLUUID>::const_iterator
-				id = mUUIDs.begin(),
-				uuids_end = mUUIDs.end();
-
-			for (;id != uuids_end; ++id)
+			if ( LLAvatarActions::isFriend(*id) )
 			{
-				if ( LLAvatarActions::isFriend(*id) )
-				{
-					result = false;
-					break;
-				}
+				result = false;
+				break;
 			}
-			return result;
 		}
+		return result;
+	}
 	else if (item == "can_call")
 	{
 		return LLVoiceClient::voiceEnabled();
