@@ -2534,6 +2534,11 @@ void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body
 	if (speaker_mgr)
 	{
 		speaker_mgr->updateSpeakers(body);
+
+		// also the same call is added into LLVoiceClient::participantUpdatedEvent because
+		// sometimes it is called AFTER LLViewerChatterBoxSessionAgentListUpdates::post()
+		// when moderation state changed too late. See EXT-3544.
+		speaker_mgr->update(true);
 	}
 	else
 	{
