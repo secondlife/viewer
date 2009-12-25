@@ -521,6 +521,7 @@ protected:
 
 	/** 
 	 * Enables/disables menus based on relationship with other participant.
+	 * Enables/disables "show session" menu item depending on visible IM floater existence.
 	 */
 	virtual void updateMenuItems();
 
@@ -750,6 +751,11 @@ protected:
 	 * Processes clicks on chiclet popup menu.
 	 */
 	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables/disables "show session" menu item depending on visible IM floater existence.
+	 */
+	virtual void updateMenuItems();
 
 	/**
 	 * Displays popup menu.

@@ -722,8 +722,11 @@ void LLIMP2PChiclet::updateMenuItems()
 	if(getSessionId().isNull())
 		return;
 
+	LLIMFloater* open_im_floater = LLIMFloater::findInstance(getSessionId());
+	bool open_window_exists = open_im_floater && open_im_floater->getVisible();
+	mPopupMenu->getChild<LLUICtrl>("Send IM")->setEnabled(!open_window_exists);
+	
 	bool is_friend = LLAvatarActions::isFriend(getOtherParticipantId());
-
 	mPopupMenu->getChild<LLUICtrl>("Add Friend")->setEnabled(!is_friend);
 }
 
@@ -1067,6 +1070,18 @@ void LLIMGroupChiclet::changed(LLGroupChange gc)
 	}
 }
 
+void LLIMGroupChiclet::updateMenuItems()
+{
+	if(!mPopupMenu)
+		return;
+	if(getSessionId().isNull())
+		return;
+
+	LLIMFloater* open_im_floater = LLIMFloater::findInstance(getSessionId());
+	bool open_window_exists = open_im_floater && open_im_floater->getVisible();
+	mPopupMenu->getChild<LLUICtrl>("Chat")->setEnabled(!open_window_exists);
+}
+
 BOOL LLIMGroupChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(!mPopupMenu)
@@ -1076,6 +1091,7 @@ BOOL LLIMGroupChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	if (mPopupMenu)
 	{
+		updateMenuItems();
 		mPopupMenu->arrangeAndClear();
 		LLMenuGL::showPopup(this, mPopupMenu, x, y);
 	}
