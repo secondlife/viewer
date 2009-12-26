@@ -997,7 +997,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	
 	if (action == "open")
 	{
-		teleport_via_landmark(item->getAssetUUID());
+		onButtonClick(item->getUUID());
 	}
 	else if (action == "about")
 	{
