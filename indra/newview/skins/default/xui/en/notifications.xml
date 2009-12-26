@@ -5022,9 +5022,9 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
 [ITEM_SLURL]
     <form name="form">
       <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
+       index="4"
+       name="Show"
+       text="Show"/>
       <button
        index="1"
        name="Discard"
