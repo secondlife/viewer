@@ -57,7 +57,6 @@
 #include "llfloaterreg.h"
 #include "lltexturectrl.h"
 #include "llscrolllistctrl.h"
-#include "llimview.h"
 #include "lldispatcher.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"

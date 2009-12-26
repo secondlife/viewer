@@ -50,7 +50,6 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
-#include "llimview.h"
 #include "llsd.h"
 #include "lltextbox.h"
 #include "llui.h"

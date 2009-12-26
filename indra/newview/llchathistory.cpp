@@ -31,12 +31,14 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#include "llinstantmessage.h"
+
 #include "llchathistory.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-#include "llimview.h"
 #include "llcallingcard.h" //for LLAvatarTracker
 #include "llagentdata.h"
 #include "llavataractions.h"
