@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<chiclet_im_p2p
+ font="SansSerif"
+ height="25"
+ name="im_p2p_chiclet"
+ show_speaker="false"
+ width="25">
+    <chiclet_im_p2p.speaker
+     auto_update="true"
+     draw_border="false"
+     height="25"
+     left="25"
+     name="speaker"
+     visible="false"
+     width="20"/>
+    <chiclet_im_p2p.avatar_icon
+     follows="left|top|bottom"
+     height="22"
+     mouse_opaque="true"
+     name="avatar_icon"
+     width="22"/>
+    <chiclet_im_p2p.unread_notifications
+     height="25"
+     font="SansSerif"
+     font_halign="center"
+     left="25"
+     mouse_opaque="false"
+     name="unread"
+     text_color="white"
+     v_pad="5"
+     visible="false"
+     width="20"/>
+    <chiclet_im_p2p.new_message_icon
+     bottom="12"
+     height="13"
+     image_name="Unread_IM"
+     left="12"
+     name="new_message_icon"
+     visible="false"
+     width="13" />
+</chiclet_im_p2p>

@@ -263,7 +263,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              height="23"
              layout="topleft"
              left="1"
-             min_width="100"
+             min_width="110"
              name="chiclet_list"
              top="6"
              chiclet_padding="4"

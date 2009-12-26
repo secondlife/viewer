@@ -3,5 +3,7 @@
  name="chiclet_panel" 
  chiclet_padding="3"
  scrolling_offset="40"
+ scroll_button_hpad="5"
+ scroll_ratio="10"
  min_width="180"
  />

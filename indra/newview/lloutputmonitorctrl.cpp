@@ -64,10 +64,6 @@ LLOutputMonitorCtrl::Params::Params()
 	auto_update("auto_update"),
 	speaker_id("speaker_id")
 {
-	draw_border = true;
-	name = "output_monitor";
-	follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP);
-	mouse_opaque = false;
 };
 
 LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
