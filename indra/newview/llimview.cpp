@@ -57,6 +57,7 @@
 #include "llhttpnode.h"
 #include "llimfloater.h"
 #include "llimpanel.h"
+#include "llgroupiconctrl.h"
 #include "llresizebar.h"
 #include "lltabcontainer.h"
 #include "llviewercontrol.h"
@@ -1495,6 +1496,27 @@ void LLCallDialog::draw()
 	}
 }
 
+void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
+{
+	bool is_group = gAgent.isInGroup(session_id);
+
+	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
+
+	avatar_icon->setVisible(!is_group);
+	group_icon->setVisible(is_group);
+
+	if (is_group)
+	{
+		group_icon->setValue(session_id);
+	}
+	else
+	{
+		avatar_icon->setValue(participant_id);
+	}
+
+}
+
 bool LLOutgoingCallDialog::lifetimeHasExpired()
 {
 	if (mLifetimeTimer.getStarted())
@@ -1556,8 +1578,9 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	LLSD callee_id = mPayload["other_user_id"];
 	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
 	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
-	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	icon->setValue(callee_id);
+
+	// for outgoing group calls callee_id == group id == session id
+	setIcon(callee_id, callee_id);
 
 	// stop timer by default
 	mLifetimeTimer.stop();
@@ -1711,13 +1734,13 @@ BOOL LLIncomingCallDialog::postBuild()
 
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
-	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	if (is_avatar)
 	{
-		icon->setValue(caller_id);
+		setIcon(session_id, caller_id);
 	}
 	else
 	{
+		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 		icon->setValue("Avaline_Icon");
 	}
 

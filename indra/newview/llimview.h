@@ -501,6 +501,14 @@ protected:
 	virtual void onLifetimeExpired() {};
 
 	virtual void getAllowedRect(LLRect& rect);
+
+	/**
+	 * Sets icon depend on session.
+	 *
+	 * If passed session_id is a group id group icon will be shown, otherwise avatar icon for participant_id
+	 */
+	void setIcon(const LLSD& session_id, const LLSD& participant_id);
+
 	LLSD mPayload;
 };
 
