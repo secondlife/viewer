@@ -28,7 +28,7 @@
       height="12"
       layout="topleft"
       left_pad="5"
-      right="-60"
+      right="-120"
       name="user_name"
       text_color="white"
       bg_readonly_color="black"
@@ -46,5 +46,5 @@
      right="-5"
      top="8"
          value="23:30"
-         width="50" />
+         width="110" />
 </panel>
