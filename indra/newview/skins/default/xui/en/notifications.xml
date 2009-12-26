@@ -5106,7 +5106,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="offer">
+   type="alertmodal">
 [NAME] is offering friendship.
 
 [MESSAGE]

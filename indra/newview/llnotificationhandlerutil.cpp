@@ -63,6 +63,7 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
 			|| PAYMENT_RECIVED == notification->getName()
+			|| OFFER_FRIENDSHIP == notification->getName()
 			|| FRIENDSHIP_OFFERED == notification->getName()
 			|| SERVER_OBJECT_MESSAGE == notification->getName()
 			|| INVENTORY_ACCEPTED == notification->getName()
@@ -82,12 +83,17 @@ bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
 // static
 bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 {
-	return ADD_FRIEND_WITH_MESSAGE == notification->getName()
-			|| OFFER_FRIENDSHIP == notification->getName()
+	return OFFER_FRIENDSHIP == notification->getName()
 			|| FRIENDSHIP_ACCEPTED == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
 			|| INVENTORY_ACCEPTED == notification->getName()
 			|| INVENTORY_DECLINED == notification->getName();
+}
+
+// static
+bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
+{
+	return canLogToIM(notification) && canSpawnIMSession(notification);
 }
 
 // static
@@ -124,10 +130,7 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 {
-	const std::string
-			name =
-					notification->getSubstitutions().has("NAME") ? notification->getSubstitutions()["NAME"]
-							: notification->getSubstitutions()["[NAME]"];
+	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
 	const std::string session_name = notification->getPayload().has(
 			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
@@ -193,3 +196,10 @@ void LLHandlerUtil::spawnIMSession(const std::string& name, const LLUUID& from_i
 	}
 }
 
+// static
+std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notification)
+{
+	return notification->getSubstitutions().has("NAME")
+		? notification->getSubstitutions()["NAME"]
+		: notification->getSubstitutions()["[NAME]"];
+}
