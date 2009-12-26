@@ -52,8 +52,6 @@ class LLChicletNotificationCounterCtrl : public LLTextBox
 {
 public:
 
-	static const S32 MAX_DISPLAYED_COUNT;
-
 	struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
 	{
 		/**
@@ -217,7 +215,8 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<bool> show_counter;
+		Optional<bool> show_counter,
+					   enable_counter;
 
 		Params();
 	};
@@ -323,10 +322,7 @@ public:
 	};
 	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
 	{
-		Optional<std::string> new_messages_icon_name;
-
-		Params() : new_messages_icon_name("new_messages_icon_name", "Unread_IM")
-		{}
+		Params(){}
 	};
 
 	
@@ -437,6 +433,8 @@ protected:
 
 	bool mShowSpeaker;
 	bool mCounterEnabled;
+	/* initial width of chiclet, should not include counter or speaker width */
+	S32 mDefaultWidth;
 
 	LLIconCtrl* mNewMessagesIcon;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
@@ -481,6 +479,8 @@ public:
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
 
 		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<LLIconCtrl::Params> new_message_icon;
 
 		Optional<bool>	show_speaker;
 
@@ -544,6 +544,8 @@ public:
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
 
 		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<LLIconCtrl::Params> new_message_icon;
 
 		Optional<bool>	show_speaker;
 
@@ -615,6 +617,8 @@ public:
 	{
 		Optional<LLIconCtrl::Params> icon;
 
+		Optional<LLIconCtrl::Params> new_message_icon;
+
 		Params();
 	};
 
@@ -654,6 +658,8 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
 		Optional<LLChicletInvOfferIconCtrl::Params> icon;
+
+		Optional<LLIconCtrl::Params> new_message_icon;
 
 		Params();
 	};
@@ -697,6 +703,8 @@ public:
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
 
 		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<LLIconCtrl::Params> new_message_icon;
 
 		Optional<bool>	show_speaker;
 

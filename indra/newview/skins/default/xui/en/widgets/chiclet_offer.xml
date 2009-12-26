@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<chiclet_script
+<chiclet_offer
  font="SansSerif"
  height="25"
- name="script_chiclet"
+ name="offer_chiclet"
  width="25">
- <chiclet_script.icon
+ <chiclet_offer.icon
+  default_icon="Generic_Object_Small" 
   follows="all"
   height="22"
-  image_name="Generic_Object_Small" 
   mouse_opaque="false"
   name="chiclet_icon"
   width="22"/>
- <chiclet_script.new_message_icon
+ <chiclet_offer.new_message_icon
   bottom="12"
   height="13"
   image_name="Unread_IM"
@@ -19,4 +19,4 @@
   name="new_message_icon"
   visible="false"
   width="13" />
-</chiclet_script>
+</chiclet_offer>
