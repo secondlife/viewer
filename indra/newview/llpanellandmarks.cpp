@@ -70,6 +70,47 @@ static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::strin
 static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list);
 
 /**
+ * Functor counting expanded and collapsed folders in folder view tree to know
+ * when to enable or disable "Expand all folders" and "Collapse all folders" commands.
+ */
+class LLCheckFolderState : public LLFolderViewFunctor
+{
+public:
+	LLCheckFolderState()
+	:	mCollapsedFolders(0),
+		mExpandedFolders(0)
+	{}
+	virtual ~LLCheckFolderState() {}
+	virtual void doFolder(LLFolderViewFolder* folder);
+	virtual void doItem(LLFolderViewItem* item) {}
+	S32 getCollapsedFolders() { return mCollapsedFolders; }
+	S32 getExpandedFolders() { return mExpandedFolders; }
+
+private:
+	S32 mCollapsedFolders;
+	S32 mExpandedFolders;
+};
+
+// virtual
+void LLCheckFolderState::doFolder(LLFolderViewFolder* folder)
+{
+	// Counting only folders that pass the filter.
+	// The listener check allow us to avoid counting the folder view
+	// object itself because it has no listener assigned.
+	if (folder->hasFilteredDescendants() && folder->getListener())
+	{
+		if (folder->isOpen())
+		{
+			++mExpandedFolders;
+		}
+		else
+		{
+			++mCollapsedFolders;
+		}
+	}
+}
+
+/**
  * Bridge to support knowing when the inventory has changed to update Landmarks tab
  * ShowFolderState filter setting to show all folders when the filter string is empty and
  * empty folder message when Landmarks inventory category has no children.
@@ -728,6 +769,20 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			return false;
 	}
 
+	LLCheckFolderState checker;
+	rootFolderView->applyFunctorRecursively(checker);
+
+	// We assume that the root folder is always expanded so we enable "collapse_all"
+	// command when we have at least one more expanded folder.
+	if (checker.getExpandedFolders() < 2 && "collapse_all" == command_name)
+	{
+		return false;
+	}
+
+	if (checker.getCollapsedFolders() < 1 && "expand_all" == command_name)
+	{
+		return false;
+	}
 
 	if("category" == command_name)
 	{
