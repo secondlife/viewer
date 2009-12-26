@@ -385,6 +385,12 @@ BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
 {
 	if( KEY_RETURN == key && mask == MASK_NONE )
 	{
+		LLButton* defaultBtn = getDefaultButton();
+		if(defaultBtn && defaultBtn->getVisible() && defaultBtn->getEnabled())
+		{
+			// If we have a default button, click it when return is pressed
+			defaultBtn->onCommit();
+		}
 		return TRUE;
 	}
 	else if (KEY_RIGHT == key)
