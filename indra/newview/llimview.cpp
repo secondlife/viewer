@@ -1712,7 +1712,14 @@ BOOL LLIncomingCallDialog::postBuild()
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	icon->setValue(caller_id);
+	if (is_avatar)
+	{
+		icon->setValue(caller_id);
+	}
+	else
+	{
+		icon->setValue("Avaline_Icon");
+	}
 
 	childSetAction("Accept", onAccept, this);
 	childSetAction("Reject", onReject, this);

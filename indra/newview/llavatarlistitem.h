@@ -114,6 +114,8 @@ protected:
 	 */
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 
+	LLAvatarIconCtrl* mAvatarIcon;
+
 private:
 
 	typedef enum e_online_status {
@@ -133,7 +135,6 @@ private:
 	typedef std::map<EItemStyle, LLColor4> icon_color_map_t;
 	static icon_color_map_t& getItemIconColorMap();
 
-	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;
 	LLTextBox* mLastInteractionTime;
 	LLStyle::Params mAvatarNameStyle;

@@ -40,6 +40,7 @@
 
 #include "llagent.h"
 #include "llagentdata.h" // for gAgentID
+#include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
 #include "llimfloater.h"
@@ -67,6 +68,8 @@ public:
 			showLastInteractionTime(false);
 			setShowProfileBtn(false);
 			setShowInfoBtn(false);
+			mAvatarIcon->setValue("Avaline_Icon");
+			mAvatarIcon->setToolTip(std::string(""));
 		}
 		return rv;
 	}

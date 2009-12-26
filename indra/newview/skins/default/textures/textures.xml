@@ -70,6 +70,8 @@ with the same filename but different name
   <texture name="Audio_Over" file_name="icons/Audio_Over.png" preload="false" />
   <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
 
+  <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
+  
   <texture name="BackArrow_Disabled" file_name="icons/BackArrow_Disabled.png" preload="false" />
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
