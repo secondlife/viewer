@@ -87,8 +87,7 @@ bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 			|| FRIENDSHIP_ACCEPTED == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
 			|| INVENTORY_ACCEPTED == notification->getName()
-			|| INVENTORY_DECLINED == notification->getName()
-			|| TELEPORT_OFFERED == notification->getName();
+			|| INVENTORY_DECLINED == notification->getName();
 }
 
 // static
