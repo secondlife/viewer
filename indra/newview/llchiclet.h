@@ -945,7 +945,9 @@ public:
 	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Optional<S32> chiclet_padding,
-					  scrolling_offset;
+					  scrolling_offset,
+					  scroll_button_hpad,
+					  scroll_ratio;
 
 		Optional<S32> min_width;
 
@@ -1164,6 +1166,8 @@ protected:
 
 	S32 mChicletPadding;
 	S32 mScrollingOffset;
+	S32 mScrollButtonHPad;
+	S32 mScrollRatio;
 	S32 mMinWidth;
 	bool mShowControls;
 	static const S32 s_scroll_ratio;

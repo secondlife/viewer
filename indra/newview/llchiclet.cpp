@@ -64,11 +64,6 @@ static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
 static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
 static LLDefaultChildRegistry::Register<LLInvOfferChiclet> t7("chiclet_offer");
 
-static const S32 SCROLL_BUTTON_PAD = 5;
-
-// static
-const S32 LLChicletPanel::s_scroll_ratio = 10;
-
 boost::signals2::signal<LLChiclet* (const LLUUID&),
 		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
 		LLIMChiclet::sFindChicletsSignal;
@@ -1057,6 +1052,8 @@ void LLIMGroupChiclet::onMenuItemClicked(const LLSD& user_data)
 LLChicletPanel::Params::Params()
 : chiclet_padding("chiclet_padding")
 , scrolling_offset("scrolling_offset")
+, scroll_button_hpad("scroll_button_hpad")
+, scroll_ratio("scroll_ratio")
 , min_width("min_width")
 {
 };
@@ -1068,12 +1065,11 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 , mRightScrollButton(NULL)
 , mChicletPadding(p.chiclet_padding)
 , mScrollingOffset(p.scrolling_offset)
+, mScrollButtonHPad(p.scroll_button_hpad)
+, mScrollRatio(p.scroll_ratio)
 , mMinWidth(p.min_width)
 , mShowControls(true)
 {
-	// min_width = 4 chiclets + 3 paddings
-	mMinWidth += 3 * mChicletPadding;
-
 	LLPanel::Params panel_params;
 	panel_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT);
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
@@ -1372,8 +1368,8 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 	bool need_show_scroll = needShowScroll();
 	if(need_show_scroll)
 	{
-		mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
-			height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+		mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + mScrollButtonHPad,
+			height, width - scroll_button_rect.getWidth() - mScrollButtonHPad, 0));
 	}
 	else
 	{
@@ -1431,8 +1427,8 @@ void LLChicletPanel::arrange()
 	bool need_show_scroll = needShowScroll();
 	if(need_show_scroll)
 	{
-		mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
-			rect.getHeight(), rect.getWidth() - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+		mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + mScrollButtonHPad,
+			rect.getHeight(), rect.getWidth() - scroll_button_rect.getWidth() - mScrollButtonHPad, 0));
 	}
 	else
 	{
@@ -1596,7 +1592,7 @@ void LLChicletPanel::onRightScrollClick()
 void LLChicletPanel::onLeftScrollHeldDown()
 {
 	S32 offset = mScrollingOffset;
-	mScrollingOffset = mScrollingOffset / s_scroll_ratio;
+	mScrollingOffset = mScrollingOffset / mScrollRatio;
 	scrollLeft();
 	mScrollingOffset = offset;
 }
@@ -1604,7 +1600,7 @@ void LLChicletPanel::onLeftScrollHeldDown()
 void LLChicletPanel::onRightScrollHeldDown()
 {
 	S32 offset = mScrollingOffset;
-	mScrollingOffset = mScrollingOffset / s_scroll_ratio;
+	mScrollingOffset = mScrollingOffset / mScrollRatio;
 	scrollRight();
 	mScrollingOffset = offset;
 }
