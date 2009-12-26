@@ -1158,9 +1158,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		default:
 			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
 			break;
-		}	// end switch (mIM)
-			
-		// Show falls through to accept.
+		}
+		break;
+		// end switch (mIM)
 			
 	case IOR_ACCEPT:
 		msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
@@ -1849,7 +1849,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// This is a block, modeless dialog.
 			//*TODO: Translate
 			args["MESSAGE"] = message;
-			LLNotificationsUtil::add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessageTip", args);
 		}
 		break;
 	case IM_GROUP_NOTICE:

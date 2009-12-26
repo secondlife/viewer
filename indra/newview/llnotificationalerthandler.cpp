@@ -93,6 +93,19 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 
 	if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
 	{
+		if (LLHandlerUtil::canSpawnSessionAndLogToIM(notification))
+		{
+			const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+
+			LLUUID from_id = notification->getPayload()["from_id"];
+
+			// firstly create session...
+			LLHandlerUtil::spawnIMSession(name, from_id);
+
+			// ...then log message to have IM Well notified about new message
+			LLHandlerUtil::logToIMP2P(notification);
+		}
+
 		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
 		LLToast::Params p;
 		p.notif_id = notification->getID();

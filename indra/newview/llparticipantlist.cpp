@@ -98,6 +98,10 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 		{
 			mModeratorList.insert(speakerp->mID);
 		}
+		else
+		{
+			mModeratorToRemoveList.insert(speakerp->mID);
+		}
 	}
 	// we need to exclude agent id for non group chat
 	sort();
@@ -159,7 +163,7 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 			{
 				std::string name = item->getAvatarName();
 				size_t found = name.find(moderator_indicator);
-				if (found == std::string::npos)
+				if (found != std::string::npos)
 				{
 					name.erase(found, moderator_indicator_len);
 					item->setName(name);
@@ -589,7 +593,8 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 			if (speakerp.notNull())
 			{
 				// not in voice participants can not be moderated
-				return speakerp->mStatus != LLSpeaker::STATUS_TEXT_ONLY;
+				return speakerp->mStatus == LLSpeaker::STATUS_VOICE_ACTIVE
+					|| speakerp->mStatus == LLSpeaker::STATUS_MUTED;
 			}
 		}
 		return false;

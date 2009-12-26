@@ -105,9 +105,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		{
 			if (LLHandlerUtil::canSpawnIMSession(notification))
 			{
-				const std::string name = notification->getSubstitutions().has(
-						"NAME") ? notification->getSubstitutions()["NAME"]
-						: notification->getSubstitutions()["[NAME]"];
+				const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
 				LLUUID from_id = notification->getPayload()["from_id"];
 
