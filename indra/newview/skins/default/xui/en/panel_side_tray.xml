@@ -42,6 +42,7 @@
   >
     <panel_container
       name="panel_container"
+      default_panel_name="panel_people"
       width="333"
     >
       <panel
