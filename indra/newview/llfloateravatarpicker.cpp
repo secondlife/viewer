@@ -51,8 +51,7 @@
 #include "lluictrlfactory.h"
 #include "message.h"
 
-LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback, 
-												   void* userdata,
+LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
 												   BOOL closeOnSelect)
 {
@@ -60,8 +59,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 	LLFloaterAvatarPicker* floater = 
 		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 	
-	floater->mCallback = callback;
-	floater->mCallbackUserdata = userdata;
+	floater->mSelectionCallback = callback;
 	floater->setAllowMultiple(allow_multiple);
 	floater->mNearMeListComplete = FALSE;
 	floater->mCloseOnSelect = closeOnSelect;
@@ -82,8 +80,6 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
   : LLFloater(key),
 	mNumResultsReturned(0),
-	mCallback(NULL),
-	mCallbackUserdata(NULL),
 	mNearMeListComplete(FALSE),
 	mCloseOnSelect(FALSE)
 {
@@ -93,29 +89,29 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
 
 BOOL LLFloaterAvatarPicker::postBuild()
 {
-	getChild<LLLineEditor>("Edit")->setKeystrokeCallback(editKeystroke, this);
+	getChild<LLLineEditor>("Edit")->setKeystrokeCallback( boost::bind(&LLFloaterAvatarPicker::editKeystroke, this, _1, _2),NULL);
 
-	childSetAction("Find", onBtnFind, this);
+	childSetAction("Find", boost::bind(&LLFloaterAvatarPicker::onBtnFind, this));
 	childDisable("Find");
-	childSetAction("Refresh", onBtnRefresh, this);
-	childSetCommitCallback("near_me_range", onRangeAdjust, this);
+	childSetAction("Refresh", boost::bind(&LLFloaterAvatarPicker::onBtnRefresh, this));
+	getChild<LLUICtrl>("near_me_range")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onRangeAdjust, this));
 	
 	LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>("SearchResults");
-	searchresults->setDoubleClickCallback(onBtnSelect, this);
-	childSetCommitCallback("SearchResults", onList, this);
+	searchresults->setDoubleClickCallback( boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	searchresults->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
 	childDisable("SearchResults");
 	
 	LLScrollListCtrl* nearme = getChild<LLScrollListCtrl>("NearMe");
-	nearme->setDoubleClickCallback(onBtnSelect, this);
-	childSetCommitCallback("NearMe", onList, this);
+	nearme->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	nearme->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
 
 	LLScrollListCtrl* friends = getChild<LLScrollListCtrl>("Friends");
-	friends->setDoubleClickCallback(onBtnSelect, this);
-	childSetCommitCallback("Friends", onList, this);
+	friends->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	getChild<LLUICtrl>("Friends")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
 
-	childSetAction("ok_btn", onBtnSelect, this);
+	childSetAction("ok_btn", boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
 	childDisable("ok_btn");
-	childSetAction("cancel_btn", onBtnClose, this);
+	childSetAction("cancel_btn", boost::bind(&LLFloaterAvatarPicker::onBtnClose, this));
 
 	childSetFocus("Edit");
 
@@ -156,10 +152,9 @@ LLFloaterAvatarPicker::~LLFloaterAvatarPicker()
 	gFocusMgr.releaseFocusIfNeeded( this );
 }
 
-void LLFloaterAvatarPicker::onBtnFind(void* userdata)
+void LLFloaterAvatarPicker::onBtnFind()
 {
-	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
-	if(self) self->find();
+	find();
 }
 
 static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, std::vector<LLUUID>& avatar_ids)
@@ -176,34 +171,33 @@ static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std:
 	}
 }
 
-void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
+void LLFloaterAvatarPicker::onBtnSelect()
 {
-	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
 
 	// If select btn not enabled then do not callback
-	if (!self || !self->isSelectBtnEnabled())
+	if (!isSelectBtnEnabled())
 		return;
 
-	if(self->mCallback)
+	if(mSelectionCallback)
 	{
 		std::string acvtive_panel_name;
 		LLScrollListCtrl* list =  NULL;
-		LLPanel* active_panel = self->childGetVisibleTab("ResidentChooserTabs");
+		LLPanel* active_panel = childGetVisibleTab("ResidentChooserTabs");
 		if(active_panel)
 		{
 			acvtive_panel_name = active_panel->getName();
 		}
 		if(acvtive_panel_name == "SearchPanel")
 		{
-			list = self->getChild<LLScrollListCtrl>("SearchResults");
+			list = getChild<LLScrollListCtrl>("SearchResults");
 		}
 		else if(acvtive_panel_name == "NearMePanel")
 		{
-			list =self->getChild<LLScrollListCtrl>("NearMe");
+			list = getChild<LLScrollListCtrl>("NearMe");
 		}
 		else if (acvtive_panel_name == "FriendsPanel")
 		{
-			list =self->getChild<LLScrollListCtrl>("Friends");
+			list = getChild<LLScrollListCtrl>("Friends");
 		}
 
 		if(list)
@@ -211,50 +205,39 @@ void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
 			std::vector<std::string>	avatar_names;
 			std::vector<LLUUID>			avatar_ids;
 			getSelectedAvatarData(list, avatar_names, avatar_ids);
-			self->mCallback(avatar_names, avatar_ids, self->mCallbackUserdata);
+			mSelectionCallback(avatar_names, avatar_ids);
 		}
 	}
-	self->getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
-	self->getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
-	self->getChild<LLScrollListCtrl>("Friends")->deselectAllItems(TRUE);
-	if(self->mCloseOnSelect)
+	getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
+	getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
+	getChild<LLScrollListCtrl>("Friends")->deselectAllItems(TRUE);
+	if(mCloseOnSelect)
 	{
-		self->mCloseOnSelect = FALSE;
-		self->closeFloater();		
+		mCloseOnSelect = FALSE;
+		closeFloater();		
 	}
 }
 
-void LLFloaterAvatarPicker::onBtnRefresh(void* userdata)
+void LLFloaterAvatarPicker::onBtnRefresh()
 {
-	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
-	if (!self)
-	{
-		return;
-	}
-	
-	self->getChild<LLScrollListCtrl>("NearMe")->deleteAllItems();
-	self->getChild<LLScrollListCtrl>("NearMe")->setCommentText(self->getString("searching"));
-	self->mNearMeListComplete = FALSE;
+	getChild<LLScrollListCtrl>("NearMe")->deleteAllItems();
+	getChild<LLScrollListCtrl>("NearMe")->setCommentText(getString("searching"));
+	mNearMeListComplete = FALSE;
 }
 
-void LLFloaterAvatarPicker::onBtnClose(void* userdata)
+void LLFloaterAvatarPicker::onBtnClose()
 {
-	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
-	if(self) self->closeFloater();
+	closeFloater();
 }
 
-void LLFloaterAvatarPicker::onRangeAdjust(LLUICtrl* source, void* data)
+void LLFloaterAvatarPicker::onRangeAdjust()
 {
-	LLFloaterAvatarPicker::onBtnRefresh(data);
+	onBtnRefresh();
 }
 
-void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
+void LLFloaterAvatarPicker::onList()
 {
-	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
-	if (self)
-	{
-		self->childSetEnabled("ok_btn", self->isSelectBtnEnabled());
-	}
+	childSetEnabled("ok_btn", isSelectBtnEnabled());
 }
 
 void LLFloaterAvatarPicker::populateNearMe()
@@ -297,7 +280,7 @@ void LLFloaterAvatarPicker::populateNearMe()
 		childEnable("NearMe");
 		childEnable("ok_btn");
 		near_me_scroller->selectFirstItem();
-		onList(near_me_scroller, this);
+		onList();
 		near_me_scroller->setFocus(TRUE);
 	}
 
@@ -451,7 +434,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	{
 		floater->childEnable("ok_btn");
 		search_results->selectFirstItem();
-		floater->onList(search_results, floater);
+		floater->onList();
 		search_results->setFocus(TRUE);
 	}
 }
@@ -459,8 +442,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 //static
 void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 {
-	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)user_data;
-	self->childSetEnabled("Find", caller->getText().size() >= 3);
+	childSetEnabled("Find", caller->getText().size() >= 3);
 }
 
 // virtual
@@ -470,11 +452,11 @@ BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 	{
 		if (childHasFocus("Edit"))
 		{
-			onBtnFind(this);
+			onBtnFind();
 		}
 		else
 		{
-			onBtnSelect(this);
+			onBtnSelect();
 		}
 		return TRUE;
 	}

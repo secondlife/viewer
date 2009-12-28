@@ -167,8 +167,8 @@ public:
 	
 protected:
 	virtual BOOL sendUpdate();
-	static void onClickKick(void* userdata);
-	static void onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
+	void onClickKick();
+	void onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 	static void onClickKickAll(void* userdata);
 	bool onKickAllCommit(const LLSD& notification, const LLSD& response);
 	static void onClickMessage(void* userdata);
@@ -192,8 +192,8 @@ public:
 protected:
 	virtual BOOL sendUpdate();
 
-	static void onClickChooseAvatar(void*);
-	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
+	void onClickChooseAvatar();
+	void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 	static void onClickReturn(void *);
 	bool callbackReturn(const LLSD& notification, const LLSD& response);
 	static void onClickTopColliders(void*);
@@ -275,7 +275,7 @@ public:
 	static void onClickRemoveBannedAgent(void* user_data);
 	static void onClickAddEstateManager(void* user_data);
 	static void onClickRemoveEstateManager(void* user_data);
-	static void onClickKickUser(void* userdata);
+	void onClickKickUser();
 
 	// Group picker callback is different, can't use core methods below
 	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
@@ -296,7 +296,7 @@ public:
 	// Send the actual EstateOwnerRequest "estateaccessdelta" message
 	static void sendEstateAccessDelta(U32 flags, const LLUUID& agent_id);
 
-	static void onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
+	void onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 	static void onClickMessageEstate(void* data);
 	bool onMessageCommit(const LLSD& notification, const LLSD& response);
 	

@@ -172,7 +172,7 @@ BOOL LLFloaterReporter::postBuild()
 						std::string("tool_face_active.tga") );
 	childSetAction("pick_btn", onClickObjPicker, this);
 
-	childSetAction("select_abuser", onClickSelectAbuser, this);
+	childSetAction("select_abuser", boost::bind(&LLFloaterReporter::onClickSelectAbuser, this));
 
 	childSetAction("send_btn", onClickSend, this);
 	childSetAction("cancel_btn", onClickCancel, this);
@@ -306,26 +306,20 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 }
 
 
-// static
-void LLFloaterReporter::onClickSelectAbuser(void *userdata)
+void LLFloaterReporter::onClickSelectAbuser()
 {
-	LLFloaterReporter *self = (LLFloaterReporter *)userdata;
-
-	gFloaterView->getParentFloater(self)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarID, userdata, FALSE, TRUE ));
+	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE ));
 }
 
-// static
-void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
+void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
-	LLFloaterReporter* self = (LLFloaterReporter*) data;
-
 	if (ids.empty() || names.empty()) return;
 
-	self->childSetText("abuser_name_edit", names[0] );
+	childSetText("abuser_name_edit", names[0] );
 
-	self->mAbuserID = ids[0];
+	mAbuserID = ids[0];
 
-	self->refresh();
+	refresh();
 
 }
 
