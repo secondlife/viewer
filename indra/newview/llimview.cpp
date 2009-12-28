@@ -1498,7 +1498,10 @@ void LLCallDialog::draw()
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 {
-	bool is_group = gAgent.isInGroup(session_id);
+	// *NOTE: 12/28/2009: check avaline calls: LLVoiceClient::isParticipantAvatar returns false for them
+	bool participant_is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+
+	bool is_group = participant_is_avatar && gAgent.isInGroup(session_id);
 
 	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
@@ -1510,11 +1513,15 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 	{
 		group_icon->setValue(session_id);
 	}
-	else
+	else if (participant_is_avatar)
 	{
 		avatar_icon->setValue(participant_id);
 	}
-
+	else
+	{
+		avatar_icon->setValue("Avaline_Icon");
+		avatar_icon->setToolTip(std::string(""));
+	}
 }
 
 bool LLOutgoingCallDialog::lifetimeHasExpired()
@@ -1734,15 +1741,7 @@ BOOL LLIncomingCallDialog::postBuild()
 
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
-	if (is_avatar)
-	{
-		setIcon(session_id, caller_id);
-	}
-	else
-	{
-		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-		icon->setValue("Avaline_Icon");
-	}
+	setIcon(session_id, caller_id);
 
 	childSetAction("Accept", onAccept, this);
 	childSetAction("Reject", onReject, this);

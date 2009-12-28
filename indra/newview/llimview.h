@@ -506,6 +506,9 @@ protected:
 	 * Sets icon depend on session.
 	 *
 	 * If passed session_id is a group id group icon will be shown, otherwise avatar icon for participant_id
+	 *
+	 * @param session_id - UUID of session
+	 * @param participant_id - UUID of other participant
 	 */
 	void setIcon(const LLSD& session_id, const LLSD& participant_id);
 
