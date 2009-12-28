@@ -48,6 +48,7 @@
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "lltransientfloatermgr.h"
+#include "llvoicechannel.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 
@@ -99,6 +100,8 @@ BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
 	return TRUE;
 }
 
+LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
+
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
@@ -128,6 +131,7 @@ LLCallFloater::~LLCallFloater()
 	mParticipants = NULL;
 
 	mAvatarListRefreshConnection.disconnect();
+	mVoiceChannelStateChangeConnection.disconnect();
 
 	// Don't use LLVoiceClient::getInstance() here 
 	// singleton MAY have already been destroyed.
@@ -148,6 +152,7 @@ BOOL LLCallFloater::postBuild()
 	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
 	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
+	mNonAvatarCaller->setVisible(FALSE);
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
 
@@ -157,8 +162,8 @@ BOOL LLCallFloater::postBuild()
 
 	initAgentData();
 
-	// update list for current session
-	updateSession();
+
+	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
 	return TRUE;
 }
@@ -306,17 +311,6 @@ void LLCallFloater::updateSession()
 
 void LLCallFloater::refreshParticipantList()
 {
-	// lets forget states from the previous session
-	// for timers...
-	resetVoiceRemoveTimers();
-
-	// ...and for speaker state
-	mSpeakerStateMap.clear();
-
-	delete mParticipants;
-	mParticipants = NULL;
-	mAvatarList->clear();
-
 	bool non_avatar_caller = false;
 	if (VC_PEER_TO_PEER == mVoiceType)
 	{
@@ -361,21 +355,19 @@ void LLCallFloater::onAvatarListRefreshed()
 	}
 }
 
+// static
 void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
-	// Don't update participant list if no channel info is available.
-	// Fix for ticket EXT-3427
-	// @see LLParticipantList::~LLParticipantList()
-	if(LLVoiceChannel::getCurrentVoiceChannel() && 
-		LLVoiceChannel::STATE_NO_CHANNEL_INFO == LLVoiceChannel::getCurrentVoiceChannel()->getState())
-	{
-		return;
-	}
+	LLVoiceChannel* channel = LLVoiceChannel::getCurrentVoiceChannel();
+
+	// *NOTE: if signal was sent for voice channel with LLVoiceChannel::STATE_NO_CHANNEL_INFO
+	// it sill be sent for the same channel again (when state is changed).
+	// So, lets ignore this call.
+	if (channel == sCurrentVoiceCanel) return;
+
 	LLCallFloater* call_floater = LLFloaterReg::getTypedInstance<LLCallFloater>("voice_controls");
 
-	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
-	call_floater->mSpeakerManager = NULL;
-	call_floater->updateSession();
+	call_floater->connectToChannel(channel);
 }
 
 void LLCallFloater::updateTitle()
@@ -719,6 +711,51 @@ bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 	std::vector<LLUUID> speakers;
 	get_voice_participants_uuids(speakers);
 	return std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+}
+
+void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
+{
+	mVoiceChannelStateChangeConnection.disconnect();
+
+	sCurrentVoiceCanel = channel;
+
+	mVoiceChannelStateChangeConnection = sCurrentVoiceCanel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
+
+	updateState(channel->getState());
+}
+
+void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
+{
+	updateState(new_state);
+}
+
+void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
+{
+	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceCanel->getSessionName() << LL_ENDL;
+	if (LLVoiceChannel::STATE_CONNECTED == new_state)
+	{
+		updateSession();
+	}
+	else
+	{
+		reset();
+	}
+}
+
+void LLCallFloater::reset()
+{
+	// lets forget states from the previous session
+	// for timers...
+	resetVoiceRemoveTimers();
+
+	// ...and for speaker state
+	mSpeakerStateMap.clear();
+
+	delete mParticipants;
+	mParticipants = NULL;
+	mAvatarList->clear();
+
+	mSpeakerManager = NULL;
 }
 
 //EOF

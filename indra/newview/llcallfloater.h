@@ -35,6 +35,7 @@
 #define LL_LLCALLFLOATER_H
 
 #include "lldockablefloater.h"
+#include "llvoicechannel.h"
 #include "llvoiceclient.h"
 
 class LLAvatarList;
@@ -192,6 +193,28 @@ private:
 	 */
 	bool validateSpeaker(const LLUUID& speaker_id);
 
+	/**
+	 * Connects to passed channel to be updated according to channel's voice states.
+	 */
+	void connectToChannel(LLVoiceChannel* channel);
+
+	/**
+	 * Callback to process changing of voice channel's states.
+	 */
+	void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
+
+	/**
+	 * Updates floater according to passed channel's voice state.
+	 */
+	void updateState(const LLVoiceChannel::EState& new_state);
+
+	/**
+	 * Resets floater to be ready to show voice participants.
+	 *
+	 * Clears all data from the latest voice session.
+	 */
+	void reset();
+
 private:
 	speaker_state_map_t mSpeakerStateMap;
 	LLSpeakerMgr* mSpeakerManager;
@@ -242,6 +265,16 @@ private:
 
 	timers_map		mVoiceLeftTimersMap;
 	S32				mVoiceLeftRemoveDelay;
+
+	/**
+	 * Stores reference to current voice channel.
+	 *
+	 * Is used to ignore voice channel changed callback for the same channel.
+	 *
+	 * @see sOnCurrentChannelChanged()
+	 */
+	static LLVoiceChannel* sCurrentVoiceCanel;
+	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
 
 
