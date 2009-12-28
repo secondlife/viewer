@@ -755,6 +755,11 @@ void LLCallFloater::reset()
 	mParticipants = NULL;
 	mAvatarList->clear();
 
+	// update floater to show Loading while waiting for data.
+	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	mAvatarList->setVisible(TRUE);
+	mNonAvatarCaller->setVisible(FALSE);
+
 	mSpeakerManager = NULL;
 }
 
