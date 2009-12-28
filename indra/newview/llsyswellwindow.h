@@ -35,7 +35,7 @@
 
 #include "llsyswellitem.h"
 
-#include "lldockablefloater.h"
+#include "lltransientdockablefloater.h"
 #include "llbutton.h"
 #include "llscreenchannel.h"
 #include "llscrollcontainer.h"
@@ -50,7 +50,7 @@ class LLScriptChiclet;
 class LLSysWellChiclet;
 
 
-class LLSysWellWindow : public LLDockableFloater
+class LLSysWellWindow : public LLTransientDockableFloater
 {
 public:
     LLSysWellWindow(const LLSD& key);
@@ -71,11 +71,6 @@ public:
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
-
-	/** 
-	 * Hides window when user clicks away from it (EXT-3084)
-	 */
-	/*virtual*/ void onFocusLost();
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
