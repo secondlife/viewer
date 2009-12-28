@@ -139,10 +139,16 @@ protected:
 	BOOL isActionEnabled(const LLSD& command_name);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+	/**
+	 * Set upload cost in "Upload" sub menu.
+	 */
+	void setUploadCostIfNeeded();
 private:
 	LLPanel*					mListCommands;
 	LLMenuGL*					mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
+
+	bool						mNeedUploadCost;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };
