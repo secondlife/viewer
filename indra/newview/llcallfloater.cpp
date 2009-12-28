@@ -618,16 +618,16 @@ void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 	switch (state)
 	{
 	case STATE_INVITED:
-		item->setStyle(LLAvatarListItem::IS_VOICE_INVITED);
+		item->setState(LLAvatarListItem::IS_VOICE_INVITED);
 		break;
 	case STATE_JOINED:
 		removeVoiceRemoveTimer(item->getAvatarId());
-		item->setStyle(LLAvatarListItem::IS_VOICE_JOINED);
+		item->setState(LLAvatarListItem::IS_VOICE_JOINED);
 		break;
 	case STATE_LEFT:
 		{
 			setVoiceRemoveTimer(item->getAvatarId());
-			item->setStyle(LLAvatarListItem::IS_VOICE_LEFT);
+			item->setState(LLAvatarListItem::IS_VOICE_LEFT);
 		}
 		break;
 	default:
