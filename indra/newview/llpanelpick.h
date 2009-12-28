@@ -140,6 +140,15 @@ protected:
 	virtual LLVector3d& getPosGlobal() { return mPosGlobal; }
 
 	/**
+	 * Reshapes content panel to fit all elements.
+	 *
+	 * Assume that description text-box is the last element of panel.
+	 * Reshape text-box to fit text height and then reshape content panel to fit 
+	 * text-box bottom. EXT-1326
+	 */
+	void updateContentPanelRect();
+
+	/**
 	 * Callback for "Map" button, opens Map
 	 */
 	void onClickMap();

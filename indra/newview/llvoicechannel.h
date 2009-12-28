@@ -64,7 +64,7 @@ public:
 	typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;
 	typedef boost::signals2::signal<void(const LLUUID& session_id)> channel_changed_signal_t;
 	static channel_changed_signal_t sCurrentVoiceChannelChangedSignal;
-	static boost::signals2::connection setCurrentVoiceChannelChangedCallback(channel_changed_callback_t cb) { return sCurrentVoiceChannelChangedSignal.connect(cb); }
+	static boost::signals2::connection setCurrentVoiceChannelChangedCallback(channel_changed_callback_t cb, bool at_front = false);
 
 
 	LLVoiceChannel(const LLUUID& session_id, const std::string& session_name);

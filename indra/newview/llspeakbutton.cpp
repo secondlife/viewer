@@ -123,7 +123,7 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	mOutputMonitor->setIsAgentControl(true);
 
 	//*TODO find a better place to do that
-	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1));
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
 }
 
 LLSpeakButton::~LLSpeakButton()

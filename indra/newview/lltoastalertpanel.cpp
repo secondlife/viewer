@@ -279,7 +279,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->reshape(leditor_rect.getWidth(), leditor_rect.getHeight());
 			mLineEditor->setRect(leditor_rect);
 			mLineEditor->setText(edit_text_contents);
-			mLineEditor->setMaxTextLength(STD_STRING_STR_LEN);
+			mLineEditor->setMaxTextLength(STD_STRING_STR_LEN - 1);
 
 			// make sure all edit keys get handled properly (DEV-22396)
 			mLineEditor->setHandleEditKeysDirectly(TRUE);
@@ -385,6 +385,12 @@ BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
 {
 	if( KEY_RETURN == key && mask == MASK_NONE )
 	{
+		LLButton* defaultBtn = getDefaultButton();
+		if(defaultBtn && defaultBtn->getVisible() && defaultBtn->getEnabled())
+		{
+			// If we have a default button, click it when return is pressed
+			defaultBtn->onCommit();
+		}
 		return TRUE;
 	}
 	else if (KEY_RIGHT == key)

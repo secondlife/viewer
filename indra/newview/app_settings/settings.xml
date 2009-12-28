@@ -10378,6 +10378,17 @@
       <key>Value</key>
       <string>Default</string>
     </map>
+    <key>VoiceParticipantLeftRemoveDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout to remove participants who has left Voice chat from the list in Voice Controls Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
     <key>VoicePort</key>
     <map>
       <key>Comment</key>

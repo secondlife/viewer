@@ -281,6 +281,8 @@ private:
 	 */
 	static F32 getHeightRatio();
 
+	S32 getOverflowToastHeight();
+
 	// Channel's flags
 	static bool	mWasStartUpToastShown;
 

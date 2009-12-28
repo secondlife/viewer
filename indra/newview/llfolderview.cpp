@@ -1822,6 +1822,13 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	BOOL handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
 											 accept, tooltip_msg);
 
+	// When there are no visible children drag and drop is handled
+	// by the folder which is the hierarchy root.
+	if (!handled && !hasVisibleChildren())
+	{
+		handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+	}
+
 	if (handled)
 	{
 		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderView" << llendl;

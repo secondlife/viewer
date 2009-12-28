@@ -2148,6 +2148,11 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 	if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
 	{
 		child->setFocus(TRUE);
+		// floater did not take focus, so relinquish focus to world
+		if (!child->hasFocus())
+		{
+			gFocusMgr.setKeyboardFocus(NULL);
+		}
 	}
 }
 

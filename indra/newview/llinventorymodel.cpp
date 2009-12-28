@@ -2654,6 +2654,33 @@ void LLInventoryModel::buildParentChildMap()
 		cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
 		if(catsp)
 		{
+			// *HACK - fix root inventory folder
+			// some accounts has pbroken inventory root folders
+			
+			std::string name = "My Inventory";
+			LLUUID prev_root_id = mRootFolderID;
+			for (parent_cat_map_t::const_iterator it = mParentChildCategoryTree.begin(),
+					 it_end = mParentChildCategoryTree.end(); it != it_end; ++it)
+			{
+				cat_array_t* cat_array = it->second;
+				for (cat_array_t::const_iterator cat_it = cat_array->begin(),
+						 cat_it_end = cat_array->end(); cat_it != cat_it_end; ++cat_it)
+					{
+					LLPointer<LLViewerInventoryCategory> category = *cat_it;
+
+					if(category && category->getPreferredType() != LLFolderType::FT_ROOT_INVENTORY)
+						continue;
+					if ( category && 0 == LLStringUtil::compareInsensitive(name, category->getName()) )
+					{
+						if(category->getUUID()!=mRootFolderID)
+						{
+							LLUUID& new_inv_root_folder_id = const_cast<LLUUID&>(mRootFolderID);
+							new_inv_root_folder_id = category->getUUID();
+						}
+					}
+				}
+			}
+
 			// 'My Inventory',
 			// root of the agent's inv found.
 			// The inv tree is built.

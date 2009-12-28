@@ -16,6 +16,7 @@
  can_dock="true"
  bevel_style="in"
  height="300"
+ min_width="150"
  layout="topleft"
  name="nearby_chat"
  help_topic="nearby_chat"

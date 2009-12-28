@@ -258,7 +258,6 @@ set(viewer_SOURCE_FILES
     llinventorymodel.cpp
     llinventoryobserver.cpp
     llinventorypanel.cpp
-    llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
     lllandmarkactions.cpp
     lllandmarklist.cpp
@@ -354,6 +353,7 @@ set(viewer_SOURCE_FILES
     llparticipantlist.cpp
     llpatchvertexarray.cpp
     llplacesinventorybridge.cpp
+    llplacesinventorypanel.cpp
     llpolymesh.cpp
     llpolymorph.cpp
     llpreview.cpp
@@ -766,7 +766,6 @@ set(viewer_HEADER_FILES
     llinventorymodel.h
     llinventoryobserver.h
     llinventorypanel.h
-    llinventorysubtreepanel.h
     lljoystickbutton.h
     lllandmarkactions.h
     lllandmarklist.h
@@ -858,6 +857,7 @@ set(viewer_HEADER_FILES
     llparticipantlist.h
     llpatchvertexarray.h
     llplacesinventorybridge.h
+    llplacesinventorypanel.h
     llpolymesh.h
     llpolymorph.h
     llpreview.h

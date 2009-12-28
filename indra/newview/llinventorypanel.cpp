@@ -628,8 +628,14 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg)
 {
-
 	BOOL handled = LLPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+
+	// If folder view is empty the (x, y) point won't be in its rect
+	// so the handler must be called explicitly.
+	if (!mFolders->hasVisibleChildren())
+	{
+		handled = mFolders->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	}
 
 	if (handled)
 	{

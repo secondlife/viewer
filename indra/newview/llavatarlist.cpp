@@ -51,6 +51,12 @@ static const F32 LIT_UPDATE_PERIOD = 5;
 // Used to limit time spent for avatar list update per frame.
 static const unsigned ADD_LIMIT = 50;
 
+bool LLAvatarList::contains(const LLUUID& id)
+{
+	const uuid_vector_t& ids = getIDs();
+	return std::find(ids.begin(), ids.end(), id) != ids.end();
+}
+
 void LLAvatarList::toggleIcons()
 {
 	// Save the new value for new items to use.

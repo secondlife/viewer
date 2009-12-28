@@ -102,6 +102,24 @@
      name="AvatarNameColor"
      reference="White" />
     <color
+     name="AvatarListItemIconDefaultColor"
+     reference="White" />
+    <color
+     name="AvatarListItemIconOnlineColor"
+     reference="White" />
+    <color
+     name="AvatarListItemIconOfflineColor"
+     value="0.5 0.5 0.5 0.5" />
+    <color
+     name="AvatarListItemIconVoiceInvitedColor"
+     reference="AvatarListItemIconOfflineColor" />
+    <color
+     name="AvatarListItemIconVoiceJoinedColor"
+     reference="AvatarListItemIconOnlineColor" />
+    <color
+     name="AvatarListItemIconVoiceLeftColor"
+     reference="AvatarListItemIconOfflineColor" />
+    <color
      name="BackgroundChatColor"
      reference="DkGray_66" />
     <color

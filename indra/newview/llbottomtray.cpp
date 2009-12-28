@@ -148,6 +148,12 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 {
 	if (!getChicletPanel()) return;
 
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!session) return;
+
+	// no need to spawn chiclets for participants in P2P calls called through Avaline
+	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
+
 	if (getChicletPanel()->findChiclet<LLChiclet>(session_id)) return;
 
 	LLIMChiclet* chiclet = createIMChiclet(session_id);

@@ -243,10 +243,13 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 	std::string joined_call = LLTrans::getString("joined_call");
 	std::string other_avatar_name = "";
 
+	std::string message;
+
 	switch(mSessionType)
 	{
 	case AVALINE_SESSION:
-		// *TODO: test avaline calls (EXT-2211)
+		// no text notifications
+		break;
 	case P2P_SESSION:
 		gCacheName->getFullName(mOtherParticipantID, other_avatar_name);
 
@@ -255,10 +258,13 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, started_call);
+				message = other_avatar_name + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), joined_call);
+				message = you + " " + joined_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
 			}
@@ -268,37 +274,27 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), started_call);
+				message = you + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, joined_call);
+				message = other_avatar_name + " " + joined_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
 			}
 		}
-
-		// Update speakers list when connected
-		if (LLVoiceChannel::STATE_CONNECTED == new_state)
-		{
-			mSpeakers->update(true);
-		}
-
 		break;
 
 	case GROUP_SESSION:
 	case ADHOC_SESSION:
-		// *TODO: determine call starter's name "other_avatar_name" (EXT-2211)
-		//        decide how to show notifications for a group/adhoc chat already opened
-		//		  for now there is no notification from voice channel for this case
 		if(direction == LLVoiceChannel::INCOMING_CALL)
 		{
 			switch(new_state)
 			{
-			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, started_call);
-				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), joined_call);
+				message = you + " " + joined_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
 			}
@@ -308,19 +304,18 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), started_call);
+				message = you + " " + started_call;
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 				break;
 			default:
 				break;
 			}
 		}
-
-		// Update speakers list when connected
-		if (LLVoiceChannel::STATE_CONNECTED == new_state)
-		{
-			mSpeakers->update(true);
-		}
-		break;
+	}
+	// Update speakers list when connected
+	if (LLVoiceChannel::STATE_CONNECTED == new_state)
+	{
+		mSpeakers->update(true);
 	}
 }
 
@@ -472,6 +467,17 @@ bool LLIMModel::LLIMSession::isAdHoc()
 {
 	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
 }
+
+bool LLIMModel::LLIMSession::isP2P()
+{
+	return IM_NOTHING_SPECIAL == mType;
+}
+
+bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
+{
+	return !mOtherParticipantIsAvatar;
+}
+
 
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
@@ -1476,13 +1482,17 @@ LLCallDialog(payload)
 	}	
 }
 
-void LLOutgoingCallDialog::draw()
+void LLCallDialog::draw()
 {
 	if (lifetimeHasExpired())
 	{
 		onLifetimeExpired();
 	}
-	LLDockableFloater::draw();
+
+	if (getDockControl() != NULL)
+	{
+		LLDockableFloater::draw();
+	}
 }
 
 bool LLOutgoingCallDialog::lifetimeHasExpired()
@@ -1490,7 +1500,7 @@ bool LLOutgoingCallDialog::lifetimeHasExpired()
 	if (mLifetimeTimer.getStarted())
 	{
 		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
-		if (elapsed_time > LIFETIME) 
+		if (elapsed_time > mLifetime) 
 		{
 			return true;
 		}
@@ -1510,6 +1520,13 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 	// hide all text at first
 	hideAllText();
+
+	// init notification's lifetime
+	std::istringstream ss( getString("lifetime") );
+	if (!(ss >> mLifetime))
+	{
+		mLifetime = DEFAULT_LIFETIME;
+	}
 
 	// customize text strings
 	// tell the user which voice channel they are leaving
@@ -1621,6 +1638,35 @@ LLCallDialog(payload)
 {
 }
 
+bool LLIncomingCallDialog::lifetimeHasExpired()
+{
+	if (mLifetimeTimer.getStarted())
+	{
+		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
+		if (elapsed_time > mLifetime) 
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void LLIncomingCallDialog::onLifetimeExpired()
+{
+	// check whether a call is valid or not
+	if (LLVoiceClient::getInstance()->findSession(mPayload["caller_id"].asUUID()))
+	{
+		// restart notification's timer if call is still valid
+		mLifetimeTimer.start();
+	}
+	else
+	{
+		// close invitation if call is already not valid
+		mLifetimeTimer.stop();
+		closeFloater();
+	}
+}
+
 BOOL LLIncomingCallDialog::postBuild()
 {
 	LLCallDialog::postBuild();
@@ -1629,6 +1675,13 @@ BOOL LLIncomingCallDialog::postBuild()
 	LLSD caller_id = mPayload["caller_id"];
 	std::string caller_name = mPayload["caller_name"].asString();
 	
+	// init notification's lifetime
+	std::istringstream ss( getString("lifetime") );
+	if (!(ss >> mLifetime))
+	{
+		mLifetime = DEFAULT_LIFETIME;
+	}
+
 	std::string call_type;
 	if (gAgent.isInGroup(session_id))
 	{
@@ -1659,12 +1712,29 @@ BOOL LLIncomingCallDialog::postBuild()
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	icon->setValue(caller_id);
+	if (is_avatar)
+	{
+		icon->setValue(caller_id);
+	}
+	else
+	{
+		icon->setValue("Avaline_Icon");
+	}
 
 	childSetAction("Accept", onAccept, this);
 	childSetAction("Reject", onReject, this);
 	childSetAction("Start IM", onStartIM, this);
 	childSetFocus("Accept");
+
+	if(mPayload["notify_box_type"] != "VoiceInviteGroup" && mPayload["notify_box_type"] != "VoiceInviteAdHoc")
+	{
+		// starting notification's timer for P2P and AVALINE invitations
+		mLifetimeTimer.start();
+	}
+	else
+	{
+		mLifetimeTimer.stop();
+	}
 
 	return TRUE;
 }
@@ -1796,6 +1866,14 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 					new LLViewerChatterBoxInvitationAcceptResponder(
 						session_id,
 						inv_type));
+
+				// send notification message to the corresponding chat 
+				if (mPayload["notify_box_type"].asString() == "VoiceInviteGroup" || mPayload["notify_box_type"].asString() == "VoiceInviteAdHoc")
+				{
+					std::string started_call = LLTrans::getString("started_call");
+					std::string message = mPayload["caller_name"].asString() + " " + started_call;
+					LLIMModel::getInstance()->addMessageSilently(session_id, SYSTEM_FROM, LLUUID::null, message);
+				}
 			}
 		}
 		if (voice)
@@ -2463,6 +2541,11 @@ void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body
 	if (speaker_mgr)
 	{
 		speaker_mgr->updateSpeakers(body);
+
+		// also the same call is added into LLVoiceClient::participantUpdatedEvent because
+		// sometimes it is called AFTER LLViewerChatterBoxSessionAgentListUpdates::post()
+		// when moderation state changed too late. See EXT-3544.
+		speaker_mgr->update(true);
 	}
 	else
 	{

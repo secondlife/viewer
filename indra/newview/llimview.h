@@ -75,6 +75,8 @@ public:
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		bool isAdHoc();
+		bool isP2P();
+		bool isOtherParticipantAvaline();
 
 		LLUUID mSessionID;
 		std::string mName;
@@ -486,7 +488,18 @@ public:
 
 	virtual BOOL postBuild();
 
+	// check timer state
+	/*virtual*/ void draw();
+
 protected:
+	// lifetime timer for a notification
+	LLTimer	mLifetimeTimer;
+	// notification's lifetime in seconds
+	S32		mLifetime;
+	static const S32 DEFAULT_LIFETIME = 5;
+	virtual bool lifetimeHasExpired() {return false;};
+	virtual void onLifetimeExpired() {};
+
 	virtual void getAllowedRect(LLRect& rect);
 	LLSD mPayload;
 };
@@ -504,6 +517,8 @@ public:
 	static void onStartIM(void* user_data);
 
 private:
+	/*virtual*/ bool lifetimeHasExpired();
+	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };
 
@@ -518,19 +533,11 @@ public:
 	static void onCancel(void* user_data);
 	static const LLUUID OCD_KEY;
 
-	// check timer state
-	/*virtual*/ void draw();
-
 private:
-
 	// hide all text boxes
 	void hideAllText();
-	// lifetime timer for NO_ANSWER notification
-	LLTimer	mLifetimeTimer;
-	// lifetime duration for NO_ANSWER notification
-	static const S32 LIFETIME = 5;
-	bool lifetimeHasExpired();
-	void onLifetimeExpired();
+	/*virtual*/ bool lifetimeHasExpired();
+	/*virtual*/ void onLifetimeExpired();
 };
 
 // Globals
