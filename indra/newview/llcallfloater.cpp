@@ -565,23 +565,15 @@ void LLCallFloater::updateParticipantsVoiceState()
 			// HAS LEFT the call.
 			if ((getState(participant_id) == STATE_JOINED))
 			{
-				if (mVoiceType == VC_LOCAL_CHAT)
-				{
-					// Don't display avatars that aren't in our nearby chat range anymore as "left". Remove them immediately.
-					removeVoiceLeftParticipant(participant_id);
-				}
-				else
-				{
-					setState(item, STATE_LEFT);
+				setState(item, STATE_LEFT);
 
-					LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
-					if (speaker.isNull())
-					{
-						continue;
-					}
-
-					speaker->mHasLeftCurrentCall = TRUE;
+				LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
+				if (speaker.isNull())
+				{
+					continue;
 				}
+
+				speaker->mHasLeftCurrentCall = TRUE;
 			}
 			// If an avatarID is not found in a speakers list from VoiceClient and
 			// a panel with this ID has a LEFT status this means that this person
