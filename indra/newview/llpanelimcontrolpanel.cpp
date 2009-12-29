@@ -184,6 +184,12 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 
 	// Disable "Add friend" button for friends.
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	
+	// Disable "Teleport" button if friend is offline
+	if(LLAvatarActions::isFriend(mAvatarID))
+	{
+		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+	}
 
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(mAvatarID);
 
@@ -214,6 +220,12 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 void LLPanelIMControlPanel::changed(U32 mask)
 {
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	
+	// Disable "Teleport" button if friend is offline
+	if(LLAvatarActions::isFriend(mAvatarID))
+	{
+		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+	}
 }
 
 void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
