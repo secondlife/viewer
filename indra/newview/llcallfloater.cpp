@@ -103,7 +103,7 @@ BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
 LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
-: LLDockableFloater(NULL, false, key)
+: LLTransientDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
 , mParticipants(NULL)
 , mAvatarList(NULL)
@@ -145,7 +145,7 @@ LLCallFloater::~LLCallFloater()
 // virtual
 BOOL LLCallFloater::postBuild()
 {
-	LLDockableFloater::postBuild();
+	LLTransientDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLCallFloater::onAvatarListRefreshed, this));
 
@@ -197,7 +197,7 @@ void LLCallFloater::draw()
 	if (mParticipants)
 		mParticipants->updateRecentSpeakersOrder();
 
-	LLDockableFloater::draw();
+	LLTransientDockableFloater::draw();
 }
 
 // virtual
