@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
 
+#include "llanimationstates.h"
 #include "llaudioengine.h" 
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
@@ -3940,6 +3941,16 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			LL_DEBUGS("Messaging") << "Anim sequence ID: " << anim_sequence_id << LL_ENDL;
 
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+
+			// *HACK: Disabling flying mode if it has been enabled shortly before the agent
+			// stand up animation is signaled. In this case we don't get a signal to start
+			// flying animation from server, the AGENT_CONTROL_FLY flag remains set but the
+			// avatar does not play flying animation, so we switch flying mode off.
+			// See LLAgent::setFlying(). This may cause "Stop Flying" button to blink.
+			if (animation_id == ANIM_AGENT_STANDUP && gAgent.getFlying())
+			{
+				gAgent.setFlying(FALSE);
+			}
 
 			if (i < num_source_blocks)
 			{

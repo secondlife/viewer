@@ -747,7 +747,11 @@ void LLAgent::setFlying(BOOL fly)
 {
 	if (mAvatarObject.notNull())
 	{
-		if(mAvatarObject->mSignaledAnimations.find(ANIM_AGENT_STANDUP) != mAvatarObject->mSignaledAnimations.end())
+		// *HACK: Don't allow to start the flying mode if we got ANIM_AGENT_STANDUP signal
+		// because in this case we won't get a signal to start avatar flying animation and
+		// it will be walking with flying mode "ON" indication. However we allow to switch
+		// the flying mode off if we get ANIM_AGENT_STANDUP signal. See process_avatar_animation().
+		if(fly && mAvatarObject->mSignaledAnimations.find(ANIM_AGENT_STANDUP) != mAvatarObject->mSignaledAnimations.end())
 		{
 			return;
 		}
