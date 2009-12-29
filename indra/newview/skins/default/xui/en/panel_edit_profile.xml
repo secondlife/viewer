@@ -293,7 +293,7 @@
          right="-10"
          name="partner_edit_link"
          value="[[URL] Edit]"
-         width="150" />
+         width="50" />
         <panel
          follows="left|top|right"
          height="15"
