@@ -105,7 +105,7 @@ private:
         void mouseUp( int x, int y );
         void mouseMove( int x, int y );
 
-        bool sizeChanged();
+        void sizeChanged();
 	
 	static bool mDoneInit;
 	
@@ -477,9 +477,8 @@ MediaPluginGStreamer010::update(int milliseconds)
 			    mCurrentWidth <= mWidth &&
 			    !mTextureSegmentName.empty())
 			{
-				
 				// we're gonna totally consume this frame - reset 'ready' flag
-				mVideoSink->retained_frame_ready = FALSE;				
+				mVideoSink->retained_frame_ready = FALSE;
 				int destination_rowbytes = mWidth * mDepth;
 				for (int row=0; row<mCurrentHeight; ++row)
 				{
@@ -840,7 +839,7 @@ MediaPluginGStreamer010::startup()
 }
 
 
-bool
+void
 MediaPluginGStreamer010::sizeChanged()
 {
 	// the shared writing space has possibly changed size/location/whatever
@@ -855,8 +854,9 @@ MediaPluginGStreamer010::sizeChanged()
 			 mNaturalWidth, mNaturalHeight);
 	}
 
+	// if the size has changed then the shm has changed and the app needs telling
 	if (mCurrentWidth != mPreviousWidth ||
-	    mCurrentHeight != mPreviousHeight) // if the size has changed then the shm has changed and the app needs telling
+	    mCurrentHeight != mPreviousHeight)
 	{
 		mPreviousWidth = mCurrentWidth;
 		mPreviousHeight = mCurrentHeight;
@@ -865,11 +865,9 @@ MediaPluginGStreamer010::sizeChanged()
 		message.setValue("name", mTextureSegmentName);
 		message.setValueS32("width", mNaturalWidth);
 		message.setValueS32("height", mNaturalHeight);
-		DEBUGMSG("<--- Sending size change request to application with name: '%s' - size is %d x %d", mTextureSegmentName.c_str(), mNaturalWidth, mNaturalHeight);
+		DEBUGMSG("<--- Sending size change request to application with name: '%s' - natural size is %d x %d", mTextureSegmentName.c_str(), mNaturalWidth, mNaturalHeight);
 		sendMessage(message);
 	}
-	
-	return true;
 }
 
 
@@ -1000,7 +998,6 @@ void MediaPluginGStreamer010::receiveMessage(const char *message_string)
 				INFOMSG("MediaPluginGStreamer010::receiveMessage: shared memory added, name: %s, size: %d, address: %p", name.c_str(), int(info.mSize), info.mAddress);
 
 				mSharedSegments.insert(SharedSegmentMap::value_type(name, info));
-
 			}
 			else if(message_name == "shm_remove")
 			{
@@ -1079,7 +1076,7 @@ void MediaPluginGStreamer010::receiveMessage(const char *message_string)
 							INFOMSG("**** = REAL RESIZE REQUEST FROM APP");
 							
 							GST_OBJECT_LOCK(mVideoSink);
-							mVideoSink->resize_forced = true;
+							mVideoSink->resize_forced_always = true;
 							mVideoSink->resize_try_width = texture_width;
 							mVideoSink->resize_try_height = texture_height;
 							GST_OBJECT_UNLOCK(mVideoSink);

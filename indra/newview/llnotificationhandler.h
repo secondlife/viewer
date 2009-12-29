@@ -277,6 +277,13 @@ public:
 	static bool canSpawnIMSession(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks if passed notification can create IM session and be written into it.
+	 *
+	 * This method uses canLogToIM() & canSpawnIMSession().
+	 */
+	static bool canSpawnSessionAndLogToIM(const LLNotificationPtr& notification);
+
+	/**
 	 * Writes notification message to IM session.
 	 */
 	static void logToIM(const EInstantMessage& session_type,
@@ -298,6 +305,20 @@ public:
 	 * Writes notification message to nearby chat.
 	 */
 	static void logToNearbyChat(const LLNotificationPtr& notification, EChatSourceType type);
+
+	/**
+	 * Spawns IM session.
+	 */
+	static void spawnIMSession(const std::string& name, const LLUUID& from_id);
+
+	/**
+	 * Returns name from the notification's substitution.
+	 *
+	 * Methods gets "NAME" or "[NAME]" from the substitution map.
+	 *
+	 * @param notification - Notification which substitution's name will be returned.
+	 */
+	static std::string getSubstitutionName(const LLNotificationPtr& notification);
 };
 
 }

@@ -57,6 +57,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSortOrder(E_SORT_BY_NAME)
 ,	mParticipantListMenu(NULL)
 ,	mExcludeAgent(exclude_agent)
+,	mValidateSpeakerCallback(NULL)
 {
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
@@ -86,22 +87,23 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	}
 
 	//Lets fill avatarList with existing speakers
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
-
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
 	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
 
-		addAvatarIDExceptAgent(group_members, speakerp->mID);
+		addAvatarIDExceptAgent(speakerp->mID);
 		if ( speakerp->mIsModerator )
 		{
 			mModeratorList.insert(speakerp->mID);
 		}
+		else
+		{
+			mModeratorToRemoveList.insert(speakerp->mID);
+		}
 	}
 	// we need to exclude agent id for non group chat
-	mAvatarList->setDirty(true);
 	sort();
 }
 
@@ -161,7 +163,7 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 			{
 				std::string name = item->getAvatarName();
 				size_t found = name.find(moderator_indicator);
-				if (found == std::string::npos)
+				if (found != std::string::npos)
 				{
 					name.erase(found, moderator_indicator_len);
 					item->setName(name);
@@ -208,31 +210,32 @@ LLParticipantList::EParticipantSortOrder LLParticipantList::getSortOrder()
 	return mSortOrder;
 }
 
+void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t cb)
+{
+	mValidateSpeakerCallback = cb;
+}
+
 void LLParticipantList::updateRecentSpeakersOrder()
 {
 	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
 	{
+		// Need to update speakers to sort list correctly
+		mSpeakerMgr->update(true);
 		// Resort avatar list
-		mAvatarList->setDirty(true);
 		sort();
 	}
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 	LLUUID uu_id = event->getValue().asUUID();
 
-	LLAvatarList::uuid_vector_t::iterator found = std::find(group_members.begin(), group_members.end(), uu_id);
-	if(found != group_members.end())
+	if (mValidateSpeakerCallback && mValidateSpeakerCallback(uu_id))
 	{
-		llinfos << "Already got a buddy" << llendl;
 		return true;
 	}
 
-	addAvatarIDExceptAgent(group_members, uu_id);
-	// Mark AvatarList as dirty one
-	mAvatarList->setDirty();
+	addAvatarIDExceptAgent(uu_id);
 	sort();
 	return true;
 }
@@ -330,11 +333,13 @@ void LLParticipantList::sort()
 	}
 }
 
-void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id)
+void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
 	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
+	if (mAvatarList->contains(avatar_id)) return;
 
-	existing_list.push_back(avatar_id);
+	mAvatarList->getIDs().push_back(avatar_id);
+	mAvatarList->setDirty();
 	adjustParticipant(avatar_id);
 }
 
@@ -354,7 +359,7 @@ bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::L
 {
 	/**
 	 * We need to filter speaking objects. These objects shouldn't appear in the list
-	 * @c LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
+	 * @see LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
 	 */
 	const LLUUID& speaker_id = event->getValue().asUUID();
 	LLPointer<LLSpeaker> speaker = mParent.mSpeakerMgr->findSpeaker(speaker_id);
@@ -576,33 +581,46 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	{
 		return mUUIDs.front() != gAgentID;
 	}
-	else
-		if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
+	else if (item == "can_allow_text_chat")
+	{
+		return isGroupModerator();
+	}
+	else if ("can_moderate_voice" == item)
+	{
+		if (isGroupModerator())
 		{
-			return isGroupModerator();
-		}
-	else if (item == std::string("can_add"))
-		{
-			// We can add friends if:
-			// - there are selected people
-			// - and there are no friends among selection yet.
-
-			bool result = (mUUIDs.size() > 0);
-
-			std::vector<LLUUID>::const_iterator
-				id = mUUIDs.begin(),
-				uuids_end = mUUIDs.end();
-
-			for (;id != uuids_end; ++id)
+			LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(mUUIDs.front());
+			if (speakerp.notNull())
 			{
-				if ( LLAvatarActions::isFriend(*id) )
-				{
-					result = false;
-					break;
-				}
+				// not in voice participants can not be moderated
+				return speakerp->mStatus == LLSpeaker::STATUS_VOICE_ACTIVE
+					|| speakerp->mStatus == LLSpeaker::STATUS_MUTED;
 			}
-			return result;
 		}
+		return false;
+	}
+	else if (item == std::string("can_add"))
+	{
+		// We can add friends if:
+		// - there are selected people
+		// - and there are no friends among selection yet.
+
+		bool result = (mUUIDs.size() > 0);
+
+		std::vector<LLUUID>::const_iterator
+			id = mUUIDs.begin(),
+			uuids_end = mUUIDs.end();
+
+		for (;id != uuids_end; ++id)
+		{
+			if ( LLAvatarActions::isFriend(*id) )
+			{
+				result = false;
+				break;
+			}
+		}
+		return result;
+	}
 	else if (item == "can_call")
 	{
 		return LLVoiceClient::voiceEnabled();

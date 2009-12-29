@@ -66,7 +66,7 @@ const LLRect& LLFlatListView::getItemsRect() const
 	return mItemsPanel->getRect(); 
 }
 
-bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*/, EAddPosition pos /*= ADD_BOTTOM*/)
+bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*/, EAddPosition pos /*= ADD_BOTTOM*/,bool rearrange /*= true*/)
 {
 	if (!item) return false;
 	if (value.isUndefined()) return false;
@@ -97,8 +97,11 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
 	// Children don't accept the focus
 	item->setTabStop(false);
 
-	rearrangeItems();
-	notifyParentItemsRectChanged();
+	if (rearrange)
+	{
+		rearrangeItems();
+		notifyParentItemsRectChanged();
+	}
 	return true;
 }
 
@@ -980,7 +983,86 @@ S32 LLFlatListView::notify(const LLSD& info)
 			return 1;
 		}
 	}
+	else if (info.has("rearrange"))
+	{
+		rearrangeItems();
+		notifyParentItemsRectChanged();
+		return 1;
+	}
 	return 0;
+}
+
+void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
+{
+	LLSD action;
+	action.with("detach", LLSD());
+	// Clear detached_items list
+	detached_items.clear();
+	// Go through items and detach valid items, remove them from items panel
+	// and add to detached_items.
+	for (pairs_iterator_t
+			 iter = mItemPairs.begin(),
+			 iter_end = mItemPairs.end();
+		 iter != iter_end; ++iter)
+	{
+		LLPanel* pItem = (*iter)->first;
+		if (1 == pItem->notify(action))
+		{
+			selectItemPair((*iter), false);
+			mItemsPanel->removeChild(pItem);
+			detached_items.push_back(pItem);
+		}
+	}
+	if (!detached_items.empty())
+	{
+		// Some items were detached, clean ourself from unusable memory
+		if (detached_items.size() == mItemPairs.size())
+		{
+			// This way will be faster if all items were disconnected
+			for (pairs_iterator_t
+					 iter = mItemPairs.begin(),
+					 iter_end = mItemPairs.end();
+				 iter != iter_end; ++iter)
+			{
+				(*iter)->first = NULL;
+				delete *iter;
+			}
+			mItemPairs.clear();
+			// Also set items panel height to zero.
+			// Reshape it to allow reshaping of non-item children.
+			LLRect rc = mItemsPanel->getRect();
+			rc.mBottom = rc.mTop;
+			mItemsPanel->reshape(rc.getWidth(), rc.getHeight());
+			mItemsPanel->setRect(rc);
+			setNoItemsCommentVisible(true);
+		}
+		else
+		{
+			for (std::vector<LLPanel*>::const_iterator
+					 detached_iter = detached_items.begin(),
+					 detached_iter_end = detached_items.end();
+				 detached_iter != detached_iter_end; ++detached_iter)
+			{
+				LLPanel* pDetachedItem = *detached_iter;
+				for (pairs_iterator_t
+						 iter = mItemPairs.begin(),
+						 iter_end = mItemPairs.end();
+					 iter != iter_end; ++iter)
+				{
+					item_pair_t* item_pair = *iter;
+					if (item_pair->first == pDetachedItem)
+					{
+						mItemPairs.erase(iter);
+						item_pair->first = NULL;
+						delete item_pair;
+						break;
+					}
+				}
+			}
+			rearrangeItems();
+		}
+		notifyParentItemsRectChanged();
+	}
 }
 
 //EOF

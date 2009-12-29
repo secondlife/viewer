@@ -90,7 +90,7 @@ struct _GstSLVideo
 	int retained_frame_width, retained_frame_height;
 	SLVPixelFormat retained_frame_format;
 	// sticky resize info
-	bool resize_forced;
+	bool resize_forced_always;
 	int resize_try_width;
 	int resize_try_height;
 };

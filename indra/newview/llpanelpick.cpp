@@ -284,11 +284,37 @@ void LLPanelPickInfo::setPickName(const std::string& name)
 void LLPanelPickInfo::setPickDesc(const std::string& desc)
 {
 	childSetValue(XML_DESC, desc);
+	updateContentPanelRect();
 }
 
 void LLPanelPickInfo::setPickLocation(const std::string& location)
 {
 	childSetValue(XML_LOCATION, location);
+}
+
+void LLPanelPickInfo::updateContentPanelRect()
+{
+	LLTextBox* desc = getChild<LLTextBox>(XML_DESC);
+
+	S32 text_height = desc->getTextPixelHeight();
+	LLRect text_rect = desc->getRect();
+
+	// let text-box height fit text height
+	text_rect.set(text_rect.mLeft, text_rect.mTop, text_rect.mRight, text_rect.mTop - text_height);
+	desc->setRect(text_rect);
+	desc->reshape(text_rect.getWidth(), text_rect.getHeight());
+	// force reflow
+	desc->setText(desc->getText());
+
+	// bottom of description text-box will be bottom of content panel
+	desc->localRectToOtherView(desc->getLocalRect(), &text_rect, getChild<LLView>("profile_scroll"));
+
+	LLPanel* content_panel = getChild<LLPanel>("scroll_content_panel");
+	LLRect content_rect = content_panel->getRect();
+	content_rect.set(content_rect.mLeft, content_rect.mTop, content_rect.mRight, text_rect.mBottom);
+	// Somehow setRect moves all elements down.
+	// Single reshape() updates rect and does not move anything.
+	content_panel->reshape(content_rect.getWidth(), content_rect.getHeight());
 }
 
 void LLPanelPickInfo::onClickMap()

@@ -11,6 +11,10 @@
  title="UNKNOWN PERSON IS CALLING"
  width="410">
     <floater.string
+     name="lifetime">
+        5
+    </floater.string>
+    <floater.string
      name="localchat">
         Nearby Voice Chat
     </floater.string>

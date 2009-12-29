@@ -3610,6 +3610,11 @@ public:
 
 	LLContextMenuBranch(const Params&);
 
+	virtual ~LLContextMenuBranch()
+	{
+		delete mBranch;
+	}
+
 	// called to rebuild the draw label
 	virtual void	buildDrawLabel( void );
 

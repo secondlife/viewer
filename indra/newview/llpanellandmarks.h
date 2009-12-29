@@ -46,7 +46,7 @@ class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
-class LLInventorySubTreePanel;
+class LLPlacesInventoryPanel;
 
 class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
 {
@@ -60,17 +60,18 @@ public:
 	/*virtual*/ void onTeleport();
 	/*virtual*/ void updateVerbs();
 
-	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
-	void setCurrentSelectedList(LLInventorySubTreePanel* inventory_list)
+	void setCurrentSelectedList(LLPlacesInventoryPanel* inventory_list)
 	{
 		mCurrentSelectedList = inventory_list;
 	}
 
 	/**
-	 * Saves folder state for all Inventory Panels if there are no applied filter.
+	 * 	Update filter ShowFolderState setting to show empty folder message
+	 *  if Landmarks inventory folder is empty.
 	 */
-	void saveFolderStateIfNoFilter();
+	void updateShowFolderState();
 
 protected:
 	/**
@@ -92,10 +93,10 @@ private:
 	void initLandmarksInventoryPanel();
 	void initMyInventoryPanel();
 	void initLibraryInventoryPanel();
-	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list);
-	void initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list);
-	void onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list);
-	void deselectOtherThan(const LLInventorySubTreePanel* inventory_list);
+	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
+	void initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list);
+	void onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list);
+	void deselectOtherThan(const LLPlacesInventoryPanel* inventory_list);
 
 	// List Commands Handlers
 	void initListCommandsHandlers();
@@ -112,13 +113,6 @@ private:
 	void onCustomAction(const LLSD& command_name);
 
 	/**
-	 * Updates accordions according to filtered items in lists.
-	 *
-	 * It hides accordion for empty lists
-	 */
-	void updateFilteredAccordions();
-
-	/**
 	 * Determines if selected item can be modified via context/gear menu.
 	 *
 	 * It validates Places Landmarks rules first. And then LLFolderView permissions.
@@ -133,11 +127,6 @@ private:
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 
 	/**
-	 * Static callback for gIdleCallbacks to perform actions out of drawing
-	 */
-	static void doIdle(void* landmarks_panel);
-
-	/**
 	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.
 	 */
 	void doShowOnMap(LLLandmark* landmark);
@@ -148,14 +137,14 @@ private:
 	void doCreatePick(LLLandmark* landmark);
 
 private:
-	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
-	LLInventorySubTreePanel*	mLandmarksInventoryPanel;
-	LLInventorySubTreePanel*	mMyInventoryPanel;
-	LLInventorySubTreePanel*	mLibraryInventoryPanel;
+	LLPlacesInventoryPanel*	mFavoritesInventoryPanel;
+	LLPlacesInventoryPanel*	mLandmarksInventoryPanel;
+	LLPlacesInventoryPanel*	mMyInventoryPanel;
+	LLPlacesInventoryPanel*	mLibraryInventoryPanel;
 	LLMenuGL*					mGearLandmarkMenu;
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
-	LLInventorySubTreePanel*	mCurrentSelectedList;
+	LLPlacesInventoryPanel*	mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;

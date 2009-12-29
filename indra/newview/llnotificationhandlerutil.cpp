@@ -47,11 +47,15 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 				"ObjectGiveItem"), OBJECT_GIVE_ITEM_UNKNOWN_USER(
 				"ObjectGiveItemUnknownUser"), PAYMENT_RECIVED("PaymentRecived"),
 						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
-						USER_GIVE_ITEM("UserGiveItem"), OFFER_FRIENDSHIP("OfferFriendship"),
+						USER_GIVE_ITEM("UserGiveItem"),
+						INVENTORY_ACCEPTED("InventoryAccepted"),
+						INVENTORY_DECLINED("InventoryDeclined"),
+						OFFER_FRIENDSHIP("OfferFriendship"),
 						FRIENDSHIP_ACCEPTED("FriendshipAccepted"),
 						FRIENDSHIP_OFFERED("FriendshipOffered"),
 						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline"),
-						SERVER_OBJECT_MESSAGE("ServerObjectMessage");
+						SERVER_OBJECT_MESSAGE("ServerObjectMessage"),
+						TELEPORT_OFFERED("TeleportOffered");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
@@ -59,8 +63,11 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
 			|| PAYMENT_RECIVED == notification->getName()
+			|| OFFER_FRIENDSHIP == notification->getName()
 			|| FRIENDSHIP_OFFERED == notification->getName()
-			|| SERVER_OBJECT_MESSAGE == notification->getName();
+			|| SERVER_OBJECT_MESSAGE == notification->getName()
+			|| INVENTORY_ACCEPTED == notification->getName()
+			|| INVENTORY_DECLINED == notification->getName();
 }
 
 // static
@@ -68,15 +75,25 @@ bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
 {
 	return notification->getType() == "notifytip"
 			&&  FRIEND_ONLINE != notification->getName()
-			&& FRIEND_OFFLINE != notification->getName();
+			&& FRIEND_OFFLINE != notification->getName()
+			&& INVENTORY_ACCEPTED != notification->getName()
+			&& INVENTORY_DECLINED != notification->getName();
 }
 
 // static
 bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 {
-	return ADD_FRIEND_WITH_MESSAGE == notification->getName()
-			|| OFFER_FRIENDSHIP == notification->getName()
-			|| FRIENDSHIP_ACCEPTED == notification->getName();
+	return OFFER_FRIENDSHIP == notification->getName()
+			|| FRIENDSHIP_ACCEPTED == notification->getName()
+			|| USER_GIVE_ITEM == notification->getName()
+			|| INVENTORY_ACCEPTED == notification->getName()
+			|| INVENTORY_DECLINED == notification->getName();
+}
+
+// static
+bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
+{
+	return canLogToIM(notification) && canSpawnIMSession(notification);
 }
 
 // static
@@ -113,10 +130,7 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 {
-	const std::string
-			name =
-					notification->getSubstitutions().has("NAME") ? notification->getSubstitutions()["NAME"]
-							: notification->getSubstitutions()["[NAME]"];
+	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
 	const std::string session_name = notification->getPayload().has(
 			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
@@ -169,3 +183,23 @@ void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChat
 	}
 }
 
+// static
+void LLHandlerUtil::spawnIMSession(const std::string& name, const LLUUID& from_id)
+{
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+			session_id);
+	if (session == NULL)
+	{
+		LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL, from_id);
+	}
+}
+
+// static
+std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notification)
+{
+	return notification->getSubstitutions().has("NAME")
+		? notification->getSubstitutions()["NAME"]
+		: notification->getSubstitutions()["[NAME]"];
+}

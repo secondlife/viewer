@@ -75,6 +75,7 @@ public:
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true)						{ mDirty = val; }
 	uuid_vector_t& getIDs() 							{ return mIDs; }
+	bool contains(const LLUUID& id);
 
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 

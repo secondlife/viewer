@@ -157,7 +157,7 @@ Intel Bear Lake					.*Intel.*Bear Lake.*				0		0
 Intel Broadwater 				.*Intel.*Broadwater.*				0		0
 Intel Brookdale					.*Intel.*Brookdale.*				0		0
 Intel Cantiga					.*Intel.*Cantiga.*					0		0
-Intel Eaglelake					.*Intel.*Eaglelake.*				0		0
+Intel Eaglelake					.*Intel.*Eaglelake.*				0		1
 Intel Montara					.*Intel.*Montara.*					0		0
 Intel Springdale				.*Intel.*Springdale.*				0		0
 Matrox							.*Matrox.*							0		0

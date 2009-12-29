@@ -166,8 +166,11 @@ public:
 		// 2xx status codes indicate success.
 		// Most 4xx status codes are successful enough for our purposes.
 		// 499 is the error code for host not found, timeout, etc.
+		// 500 means "Internal Server error" but we decided it's okay to 
+		//     accept this and go past it in the MIME type probe
 		if(	((status >= 200) && (status < 300))	||
-			((status >= 400) && (status < 499))	)
+			((status >= 400) && (status < 499))	|| 
+			(status == 500) )
 		{
 			// The probe was successful.
 			

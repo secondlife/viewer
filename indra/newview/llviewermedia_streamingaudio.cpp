@@ -1,7 +1,7 @@
 /** 
  * @file llviewermedia_streamingaudio.h
  * @author Tofu Linden, Sam Kolb
- * @brief LLStreamingAudio_MediaPlugins implementation - an implementation of the streaming audio interface which is implemented as a client of the media plugins API.
+ * @brief LLStreamingAudio_MediaPlugins implementation - an implementation of the streaming audio interface which is implemented as a client of the media plugin API.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
 #include "llpluginclassmedia.h"
+#include "llpluginclassmediaowner.h"
 #include "llviewermedia.h"
 
 #include "llviewermedia_streamingaudio.h"
@@ -61,18 +62,18 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 	if (!mMediaPlugin) // lazy-init the underlying media plugin
 	{
 		mMediaPlugin = initializeMedia("audio/mpeg"); // assumes that whatever media implementation supports mp3 also supports vorbis.
-		llinfos << "mMediaPlugin is now " << mMediaPlugin << llendl;
+		llinfos << "steaming audio mMediaPlugin is now " << mMediaPlugin << llendl;
 	}
 
 	if(!mMediaPlugin)
 		return;
-	
+
 	if (!url.empty()) {
 		llinfos << "Starting internet stream: " << url << llendl;
 		mURL = url;
 		mMediaPlugin->loadURI ( url );
 		mMediaPlugin->start();
-		llinfos << "Playing....." << llendl;		
+		llinfos << "Playing stream..." << llendl;		
 	} else {
 		llinfos << "setting stream to NULL"<< llendl;
 		mURL.clear();
@@ -82,6 +83,7 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 
 void LLStreamingAudio_MediaPlugins::stop()
 {
+	llinfos << "Stopping internet stream." << llendl;
 	if(mMediaPlugin)
 	{
 		mMediaPlugin->stop();
@@ -97,10 +99,12 @@ void LLStreamingAudio_MediaPlugins::pause(int pause)
 	
 	if(pause)
 	{
+		llinfos << "Pausing internet stream." << llendl;
 		mMediaPlugin->pause();
 	} 
 	else 
 	{
+		llinfos << "Unpausing internet stream." << llendl;
 		mMediaPlugin->start();
 	}
 }
@@ -114,20 +118,21 @@ void LLStreamingAudio_MediaPlugins::update()
 int LLStreamingAudio_MediaPlugins::isPlaying()
 {
 	if (!mMediaPlugin)
-		return 0;
+		return 0; // stopped
 	
-	// *TODO: can probably do better than this
-	if (mMediaPlugin->isPluginRunning())
-	{
-		return 1; // Active and playing
-	}	
+	LLPluginClassMediaOwner::EMediaStatus status =
+		mMediaPlugin->getStatus();
 
-	if (mMediaPlugin->isPluginExited())
+	switch (status)
 	{
+	case LLPluginClassMediaOwner::MEDIA_LOADING: // but not MEDIA_LOADED
+	case LLPluginClassMediaOwner::MEDIA_PLAYING:
+		return 1; // Active and playing
+	case LLPluginClassMediaOwner::MEDIA_PAUSED:
+		return 2; // paused
+	default:
 		return 0; // stopped
 	}
-
-	return 2; // paused
 }
 
 void LLStreamingAudio_MediaPlugins::setGain(F32 vol)

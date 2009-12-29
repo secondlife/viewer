@@ -80,16 +80,6 @@
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />
-    <panel
-     class="panel_volume_pulldown"
-     follows="all"
-     height="533"
-     layout="topleft"
-     left="0"
-     name="volume_pulldown"
-     top="5"
-     visible="false"
-     width="313" />
 
     <text
      enabled="true"

@@ -842,7 +842,7 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		// Did we just click on a link?
 		if (cur_segment->getStyle()
-			&& cur_segment->getStyle()->isLink())
+		    && cur_segment->getStyle()->isLink())
 		{
 			// *TODO: send URL here?
 			mURLClickSignal(this, LLSD() );
@@ -1477,7 +1477,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	}
 }
 
-void LLTextBase::setText(const LLStringExplicit &utf8str ,const LLStyle::Params& input_params)
+void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params)
 {
 	// clear out the existing text and segments
 	getViewModel()->setDisplay(LLWStringUtil::null);
@@ -2320,14 +2320,14 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = llmin( selection_start, seg_end );
 		S32 length =  end - start;
 		font->render(text, start, 
-					rect.mLeft, rect.mTop, 
-					color, 
-					LLFontGL::LEFT, LLFontGL::TOP, 
-					0, 
-					mStyle->getShadowType(), 
-					length, rect.getWidth(), 
-					&right_x, 
-					mEditor.getUseEllipses());
+			     rect.mLeft, rect.mTop, 
+			     color, 
+			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::NORMAL, 
+			     mStyle->getShadowType(), 
+			     length, rect.getWidth(), 
+			     &right_x, 
+			     mEditor.getUseEllipses());
 	}
 	rect.mLeft = (S32)ceil(right_x);
 	
@@ -2339,14 +2339,14 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 length = end - start;
 
 		font->render(text, start, 
-					rect.mLeft, rect.mTop,
-					LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-					LLFontGL::LEFT, LLFontGL::TOP, 
-					0, 
-					LLFontGL::NO_SHADOW, 
-					length, rect.getWidth(), 
-					&right_x, 
-					mEditor.getUseEllipses());
+			     rect.mLeft, rect.mTop,
+			     LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
+			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::NORMAL, 
+			     LLFontGL::NO_SHADOW, 
+			     length, rect.getWidth(), 
+			     &right_x, 
+			     mEditor.getUseEllipses());
 	}
 	rect.mLeft = (S32)ceil(right_x);
 	if( selection_end < seg_end )
@@ -2356,14 +2356,14 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = seg_end;
 		S32 length = end - start;
 		font->render(text, start, 
-					rect.mLeft, rect.mTop, 
-					color, 
-					LLFontGL::LEFT, LLFontGL::TOP, 
-					0, 
-					mStyle->getShadowType(), 
-					length, rect.getWidth(), 
-					&right_x, 
-					mEditor.getUseEllipses());
+			     rect.mLeft, rect.mTop, 
+			     color, 
+			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::NORMAL, 
+			     mStyle->getShadowType(), 
+			     length, rect.getWidth(), 
+			     &right_x, 
+			     mEditor.getUseEllipses());
 	}
 	return right_x;
 }

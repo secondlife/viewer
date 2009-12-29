@@ -906,6 +906,18 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 				  LLFloaterReg::showInstance("preview_texture", LLSD(item_id), take_focus);
 				  break;
 			  }
+			  case LLAssetType::AT_ANIMATION:
+				  LLFloaterReg::showInstance("preview_anim", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_GESTURE:
+				  LLFloaterReg::showInstance("preview_gesture", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_SCRIPT:
+				  LLFloaterReg::showInstance("preview_script", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_SOUND:
+				  LLFloaterReg::showInstance("preview_sound", LLSD(item_id), take_focus);
+				  break;
 			  default:
 				break;
 			}
@@ -1146,9 +1158,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		default:
 			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
 			break;
-		}	// end switch (mIM)
-			
-		// Show falls through to accept.
+		}
+		break;
+		// end switch (mIM)
 			
 	case IOR_ACCEPT:
 		msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
@@ -1837,7 +1849,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// This is a block, modeless dialog.
 			//*TODO: Translate
 			args["MESSAGE"] = message;
-			LLNotificationsUtil::add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessageTip", args);
 		}
 		break;
 	case IM_GROUP_NOTICE:
@@ -2514,14 +2526,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		std::string prefix = mesg.substr(0, 4);
 		if (prefix == "/me " || prefix == "/me'")
 		{
-//			chat.mText = from_name;
-//			chat.mText += mesg.substr(3);
 			ircstyle = TRUE;
 		}
-//		else
-//		{
-			chat.mText = mesg;
-//		}
+		chat.mText = mesg;
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)

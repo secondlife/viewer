@@ -4498,14 +4498,14 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
-   type="offer">
+   type="notifytip">
 [NAME] received your inventory offer.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="InventoryDeclined"
-   type="offer">
+   type="notifytip">
 [NAME] declined your inventory offer.
   </notification>
 
@@ -5022,9 +5022,9 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
 [ITEM_SLURL]
     <form name="form">
       <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
+       index="4"
+       name="Show"
+       text="Show"/>
       <button
        index="1"
        name="Discard"
@@ -5106,7 +5106,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="offer">
+   type="alertmodal">
 [NAME] is offering friendship.
 
 [MESSAGE]

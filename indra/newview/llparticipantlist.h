@@ -44,6 +44,9 @@ class LLParticipantList
 {
 	LOG_CLASS(LLParticipantList);
 	public:
+
+		typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
+
 		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
@@ -52,6 +55,13 @@ class LLParticipantList
 			E_SORT_BY_NAME = 0,
 			E_SORT_BY_RECENT_SPEAKERS = 1,
 		} EParticipantSortOrder;
+
+		/**
+		 * Adds specified avatar ID to the existing list if it is not Agent's ID
+		 *
+		 * @param[in] avatar_id - Avatar UUID to be added into the list
+		 */
+		void addAvatarIDExceptAgent(const LLUUID& avatar_id);
 
 		/**
 		 * Set and sort Avatarlist by given order
@@ -63,6 +73,15 @@ class LLParticipantList
 		 * Refreshes the participant list if it's in sort by recent speaker order.
 		 */
 		void updateRecentSpeakersOrder();
+
+		/**
+		 * Set a callback to be called before adding a speaker. Invalid speakers will not be added.
+		 *
+		 * If the callback is unset all speakers are considered as valid.
+		 *
+		 * @see onAddItemEvent()
+		 */
+		void setValidateSpeakerCallback(validate_speaker_callback_t cb);
 
 	protected:
 		/**
@@ -218,14 +237,6 @@ class LLParticipantList
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
 		/**
-		 * Adds specified avatar ID to the existing list if it is not Agent's ID
-		 *
-		 * @param[in, out] existing_list - vector with avatars' UUIDs already in the list
-		 * @param[in] avatar_id - Avatar UUID to be added into the list
-		 */
-		void addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id);
-
-		/**
 		 * Adjusts passed participant to work properly.
 		 *
 		 * Adds SpeakerMuteListener to process moderation actions.
@@ -260,4 +271,5 @@ class LLParticipantList
 		boost::signals2::connection mAvatarListReturnConnection;
 
 		LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
+		validate_speaker_callback_t mValidateSpeakerCallback;
 };

@@ -965,6 +965,13 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 
 	mFilterSubString = search_upper;
 
+	//store accordion tabs state before any manipulation with accordion tabs
+	if(!mFilterSubString.empty())
+	{
+		notifyChildren(LLSD().with("action","store_state"));
+	}
+
+
 	// Apply new filter.
 	mNearbyList->setNameFilter(mFilterSubString);
 	mOnlineFriendList->setNameFilter(mFilterSubString);
@@ -976,6 +983,12 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	setAccordionCollapsedByUser("tab_all", false);
 
 	showFriendsAccordionsIfNeeded();
+
+	//restore accordion tabs state _after_ all manipulations...
+	if(mFilterSubString.empty())
+	{
+		notifyChildren(LLSD().with("action","restore_state"));
+	}
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
@@ -983,6 +996,8 @@ void LLPanelPeople::onTabSelected(const LLSD& param)
 	std::string tab_name = getChild<LLPanel>(param.asString())->getName();
 	mNearbyListUpdater->setActive(tab_name == NEARBY_TAB_NAME);
 	updateButtons();
+
+	showFriendsAccordionsIfNeeded();
 
 	if (GROUP_TAB_NAME == tab_name)
 		mFilterEditor->setLabel(getString("groups_filter_label"));

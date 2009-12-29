@@ -228,6 +228,16 @@
                  top_pad="10"
                  value="Title:"
                  width="290" />
+                <text
+                 follows="left|top"
+                 height="22"
+                 layout="topleft"
+                 left="0"
+                 name="title_value"
+                 text_color="white"
+                 top_pad="5"
+                 use_ellipses="true"
+                 width="290" /> 
                 <line_editor
                  follows="left|top|right"
                  height="22"
@@ -237,7 +247,7 @@
                  name="title_editor"
                  prevalidate_callback="ascii"
                  text_readonly_color="white"
-                 top_pad="5"
+                 top_delta="0"
                  width="290" />
                 <text
                  follows="left|top"

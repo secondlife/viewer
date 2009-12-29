@@ -2904,13 +2904,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="joined_call">Joined the voice call</string>
 
   <string name="ringing-im">
-    Joining Voice Chat...
+    Joining voice call...
   </string>
   <string name="connected-im">
-    Connected, click End Call to hang up
+    Connected, click Leave Call to hang up
   </string>
   <string name="hang_up-im">
-    Left Voice Chat
+    Left voice call
   </string>
   <string name="answering-im">
     Connecting...
@@ -2989,6 +2989,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>
   <string name="mute">
     Error while moderating.
+  </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3459 issue 'removed' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="removed" with the same value as "removed_from_group" -->
+  <string name="removed">
+    You have been removed from the group.
   </string>
   <string name="removed_from_group">
     You have been removed from the group.

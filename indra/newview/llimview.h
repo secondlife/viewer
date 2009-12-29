@@ -74,6 +74,10 @@ public:
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
+		bool isAdHoc();
+		bool isP2P();
+		bool isOtherParticipantAvaline();
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
@@ -132,6 +136,12 @@ public:
 	 * Returns NULL if the session does not exist
 	 */
 	LLIMSession* findIMSession(const LLUUID& session_id) const;
+
+	/** 
+	 * Find an Ad-Hoc IM Session with specified participants
+	 * @return first found Ad-Hoc session or NULL if the session does not exist
+	 */
+	LLIMSession* findAdHocIMSession(const std::vector<LLUUID>& ids);
 
 	/**
 	 * Rebind session data to a new session id.
@@ -476,9 +486,20 @@ public:
 	LLCallDialog(const LLSD& payload);
 	~LLCallDialog() {}
 
-	virtual void onOpen(const LLSD& key);
+	virtual BOOL postBuild();
+
+	// check timer state
+	/*virtual*/ void draw();
 
 protected:
+	// lifetime timer for a notification
+	LLTimer	mLifetimeTimer;
+	// notification's lifetime in seconds
+	S32		mLifetime;
+	static const S32 DEFAULT_LIFETIME = 5;
+	virtual bool lifetimeHasExpired() {return false;};
+	virtual void onLifetimeExpired() {};
+
 	virtual void getAllowedRect(LLRect& rect);
 	LLSD mPayload;
 };
@@ -496,6 +517,8 @@ public:
 	static void onStartIM(void* user_data);
 
 private:
+	/*virtual*/ bool lifetimeHasExpired();
+	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };
 
@@ -510,19 +533,11 @@ public:
 	static void onCancel(void* user_data);
 	static const LLUUID OCD_KEY;
 
-	// check timer state
-	/*virtual*/ void draw();
-
 private:
-
 	// hide all text boxes
 	void hideAllText();
-	// lifetime timer for NO_ANSWER notification
-	LLTimer	mLifetimeTimer;
-	// lifetime duration for NO_ANSWER notification
-	static const S32 LIFETIME = 5;
-	bool lifetimeHasExpired();
-	void onLifetimeExpired();
+	/*virtual*/ bool lifetimeHasExpired();
+	/*virtual*/ void onLifetimeExpired();
 };
 
 // Globals

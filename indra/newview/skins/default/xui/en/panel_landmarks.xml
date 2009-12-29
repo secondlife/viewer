@@ -23,7 +23,7 @@
          layout="topleft"
          name="tab_favorites"
          title="Favorites bar">
-            <inventory_subtree_panel
+            <places_inventory_panel
              allow_multi_select="true"
              border="true"
              bottom="0"
@@ -39,7 +39,7 @@
          layout="topleft"
          name="tab_landmarks"
          title="Landmarks">
-            <inventory_subtree_panel
+            <places_inventory_panel
              allow_multi_select="true"
              border="true"
              bottom="0"
@@ -55,7 +55,7 @@
          layout="topleft"
          name="tab_inventory"
          title="My Inventory">
-            <inventory_subtree_panel
+            <places_inventory_panel
              allow_multi_select="true"
              border="true"
              bottom="0"
@@ -71,7 +71,7 @@
            layout="topleft"
            name="tab_library"
            title="Library">
-            <inventory_subtree_panel
+            <places_inventory_panel
              allow_multi_select="true"
              border="true"
              bottom="0"

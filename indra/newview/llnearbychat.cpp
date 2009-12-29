@@ -198,7 +198,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 		}
 		else
 		{
-			mChatHistory->appendMessage(chat,use_plain_text_chat_history);
+			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
 		}
 	}
 

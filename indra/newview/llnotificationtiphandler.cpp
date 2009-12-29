@@ -101,6 +101,19 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			}
 		}
 
+		const std::string name = notification->getSubstitutions()["NAME"];
+		LLUUID from_id = notification->getPayload()["from_id"];
+		if (LLHandlerUtil::canLogToIM(notification))
+		{
+			LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, name, name,
+					notification->getMessage(), from_id, from_id);
+		}
+
+		if (LLHandlerUtil::canSpawnIMSession(notification))
+		{
+			LLHandlerUtil::spawnIMSession(name, from_id);
+		}
+
 		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
 		LLToast::Params p;
