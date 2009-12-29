@@ -154,7 +154,7 @@ BOOL LLCallFloater::postBuild()
 	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
 
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("right");
+	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");
 
 	setDockControl(new LLDockControl(
 		anchor_panel, this,
