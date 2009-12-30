@@ -9,5 +9,6 @@
     header_image_over="Accordion_Over"
     header_image_pressed="Accordion_Press"
     header_image_expanded="Accordion_Selected"
-    header_text_color="LtGray" 
+    header_text_color="LtGray"
+    font="SansSerif"
     />
