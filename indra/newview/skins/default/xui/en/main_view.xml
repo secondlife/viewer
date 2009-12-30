@@ -10,22 +10,16 @@
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
-                height="768"
+                height="749"
                 name="menu_stack"
                 orientation="vertical"
-                top="0">
+                top="19">
     <layout_panel auto_resize="false"
-                  height="84"
+                  height="65"
                   mouse_opaque="false"
-                  name="nav_and_status_bar_region"
+                  name="nav_bar_container"
                   width="1024"
                   visible="false">
-      <panel follows="left|right|bottom"
-             left="0"
-             name="nav_bar_container"
-             right="1024"
-             top="19"
-             height="65"/>
     </layout_panel>
     <layout_panel auto_resize="true"
                   follows="all"
