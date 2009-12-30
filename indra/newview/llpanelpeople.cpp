@@ -574,7 +574,7 @@ BOOL LLPanelPeople::postBuild()
 	getChild<LLPanel>(GROUP_TAB_NAME)->childSetAction("groups_viewsort_btn",boost::bind(&LLPanelPeople::onGroupsViewSortButtonClicked,		this));
 
 	// Must go after setting commit callback and initializing all pointers to children.
-	mTabContainer->selectTabByName(FRIENDS_TAB_NAME);
+	mTabContainer->selectTabByName(NEARBY_TAB_NAME);
 
 	// Create menus.
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
