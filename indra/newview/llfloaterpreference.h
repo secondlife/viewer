@@ -130,15 +130,11 @@ public:
 	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
 	void onKeystrokeAspectRatio();
 //	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
-//	bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height);
 
 	void onCommitAutoDetectAspect();
 	void applyResolution();
-	void applyWindowSize();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);	
-	
-	static void initWindowSizeControls(LLPanel* panelp);
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);

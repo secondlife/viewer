@@ -233,6 +233,13 @@
                parameter="RegInClient" />
       </menu_item_check>
       <menu_item_separator />
+      <menu_item_call
+       label="Set Window Size..."
+       name="Set Window Size...">
+        <menu_item_call.on_click
+         function="Floater.Show"
+         parameter="window_size" />
+      </menu_item_call>
         <menu_item_call
          label="Show TOS"
          name="TOS">
