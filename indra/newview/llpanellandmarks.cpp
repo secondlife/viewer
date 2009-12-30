@@ -505,6 +505,10 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesI
 		{
 			gInventory.startBackgroundFetch(cat_id);
 		}
+
+		// Apply filter substring because it might have been changed
+		// while accordion was closed. See EXT-3714.
+		filter_list(inventory_list, sFilterSubString);
 	}
 }
 
