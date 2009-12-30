@@ -229,7 +229,7 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 {
 	LLUUID uu_id = event->getValue().asUUID();
 
-	if (mValidateSpeakerCallback && mValidateSpeakerCallback(uu_id))
+	if (mValidateSpeakerCallback && !mValidateSpeakerCallback(uu_id))
 	{
 		return true;
 	}
