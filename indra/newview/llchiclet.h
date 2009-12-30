@@ -41,7 +41,6 @@
 #include "llgroupmgr.h"
 #include "llimview.h"
 
-class LLVoiceControlPanel;
 class LLMenuGL;
 class LLIMFloater;
 

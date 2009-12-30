@@ -49,7 +49,6 @@
 #include "llscriptfloater.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
-#include "llvoicecontrolpanel.h"
 #include "llgroupmgr.h"
 #include "llnotificationmanager.h"
 #include "lltransientfloatermgr.h"

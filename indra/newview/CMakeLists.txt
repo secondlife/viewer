@@ -516,7 +516,6 @@ set(viewer_SOURCE_FILES
     llvoground.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
-    llvoicecontrolpanel.cpp
     llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
     llvoinventorylistener.cpp
@@ -1022,7 +1021,6 @@ set(viewer_HEADER_FILES
     llvoground.h
     llvoicechannel.h
     llvoiceclient.h
-    llvoicecontrolpanel.h
     llvoiceremotectrl.h
     llvoicevisualizer.h
     llvoinventorylistener.h
