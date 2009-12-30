@@ -8,6 +8,8 @@
          background_visible="true"
          background_opaque="false"
          header_height="25"
+         top="0"
+         left="0" 
   close_image="Icon_Close_Foreground"
   restore_image="Icon_Restore_Foreground"
   minimize_image="Icon_Minimize_Foreground"
