@@ -263,10 +263,12 @@
 		  width="38"
 		  right="-2"
 		  top="-1"
+     	mouse_opaque="false"
 		  orientation="horizontal">
 		<layout_panel
 			layout="topleft"
 			width="16"
+     	mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false">
 		  <icon
@@ -282,6 +284,7 @@
 		<layout_panel
 			layout="topleft"
 			width="16"
+     	mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false">
 		  <icon
