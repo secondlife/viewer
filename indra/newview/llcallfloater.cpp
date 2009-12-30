@@ -48,6 +48,8 @@
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "lltransientfloatermgr.h"
+#include "llviewerwindow.h"
+#include "llvoicechannel.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 
@@ -99,8 +101,10 @@ BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
 	return TRUE;
 }
 
+LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
+
 LLCallFloater::LLCallFloater(const LLSD& key)
-: LLDockableFloater(NULL, false, key)
+: LLTransientDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
 , mParticipants(NULL)
 , mAvatarList(NULL)
@@ -128,6 +132,7 @@ LLCallFloater::~LLCallFloater()
 	mParticipants = NULL;
 
 	mAvatarListRefreshConnection.disconnect();
+	mVoiceChannelStateChangeConnection.disconnect();
 
 	// Don't use LLVoiceClient::getInstance() here 
 	// singleton MAY have already been destroyed.
@@ -141,15 +146,16 @@ LLCallFloater::~LLCallFloater()
 // virtual
 BOOL LLCallFloater::postBuild()
 {
-	LLDockableFloater::postBuild();
+	LLTransientDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLCallFloater::onAvatarListRefreshed, this));
 
 	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
 	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
+	mNonAvatarCaller->setVisible(FALSE);
 
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
+	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");
 
 	setDockControl(new LLDockControl(
 		anchor_panel, this,
@@ -157,8 +163,8 @@ BOOL LLCallFloater::postBuild()
 
 	initAgentData();
 
-	// update list for current session
-	updateSession();
+
+	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
 	return TRUE;
 }
@@ -192,7 +198,7 @@ void LLCallFloater::draw()
 	if (mParticipants)
 		mParticipants->updateRecentSpeakersOrder();
 
-	LLDockableFloater::draw();
+	LLTransientDockableFloater::draw();
 }
 
 // virtual
@@ -211,6 +217,15 @@ void LLCallFloater::onChange()
 	}
 }
 
+S32 LLCallFloater::notifyParent(const LLSD& info)
+{
+	if("size_changes" == info["action"])
+	{
+		reshapeToFitContent();
+		return 1;
+	}
+	return LLDockableFloater::notifyParent(info);
+}
 
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
@@ -306,17 +321,6 @@ void LLCallFloater::updateSession()
 
 void LLCallFloater::refreshParticipantList()
 {
-	// lets forget states from the previous session
-	// for timers...
-	resetVoiceRemoveTimers();
-
-	// ...and for speaker state
-	mSpeakerStateMap.clear();
-
-	delete mParticipants;
-	mParticipants = NULL;
-	mAvatarList->clear();
-
 	bool non_avatar_caller = false;
 	if (VC_PEER_TO_PEER == mVoiceType)
 	{
@@ -361,21 +365,19 @@ void LLCallFloater::onAvatarListRefreshed()
 	}
 }
 
+// static
 void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
-	// Don't update participant list if no channel info is available.
-	// Fix for ticket EXT-3427
-	// @see LLParticipantList::~LLParticipantList()
-	if(LLVoiceChannel::getCurrentVoiceChannel() && 
-		LLVoiceChannel::STATE_NO_CHANNEL_INFO == LLVoiceChannel::getCurrentVoiceChannel()->getState())
-	{
-		return;
-	}
+	LLVoiceChannel* channel = LLVoiceChannel::getCurrentVoiceChannel();
+
+	// *NOTE: if signal was sent for voice channel with LLVoiceChannel::STATE_NO_CHANNEL_INFO
+	// it sill be sent for the same channel again (when state is changed).
+	// So, lets ignore this call.
+	if (channel == sCurrentVoiceCanel) return;
+
 	LLCallFloater* call_floater = LLFloaterReg::getTypedInstance<LLCallFloater>("voice_controls");
 
-	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
-	call_floater->mSpeakerManager = NULL;
-	call_floater->updateSession();
+	call_floater->connectToChannel(channel);
 }
 
 void LLCallFloater::updateTitle()
@@ -573,23 +575,15 @@ void LLCallFloater::updateParticipantsVoiceState()
 			// HAS LEFT the call.
 			if ((getState(participant_id) == STATE_JOINED))
 			{
-				if (mVoiceType == VC_LOCAL_CHAT)
-				{
-					// Don't display avatars that aren't in our nearby chat range anymore as "left". Remove them immediately.
-					removeVoiceLeftParticipant(participant_id);
-				}
-				else
-				{
-					setState(item, STATE_LEFT);
+				setState(item, STATE_LEFT);
 
-					LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
-					if (speaker.isNull())
-					{
-						continue;
-					}
-
-					speaker->mHasLeftCurrentCall = TRUE;
+				LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
+				if (speaker.isNull())
+				{
+					continue;
 				}
+
+				speaker->mHasLeftCurrentCall = TRUE;
 			}
 			// If an avatarID is not found in a speakers list from VoiceClient and
 			// a panel with this ID has a LEFT status this means that this person
@@ -626,16 +620,16 @@ void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 	switch (state)
 	{
 	case STATE_INVITED:
-		item->setStyle(LLAvatarListItem::IS_VOICE_INVITED);
+		item->setState(LLAvatarListItem::IS_VOICE_INVITED);
 		break;
 	case STATE_JOINED:
 		removeVoiceRemoveTimer(item->getAvatarId());
-		item->setStyle(LLAvatarListItem::IS_VOICE_JOINED);
+		item->setState(LLAvatarListItem::IS_VOICE_JOINED);
 		break;
 	case STATE_LEFT:
 		{
 			setVoiceRemoveTimer(item->getAvatarId());
-			item->setStyle(LLAvatarListItem::IS_VOICE_LEFT);
+			item->setState(LLAvatarListItem::IS_VOICE_LEFT);
 		}
 		break;
 	default:
@@ -719,6 +713,143 @@ bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 	std::vector<LLUUID> speakers;
 	get_voice_participants_uuids(speakers);
 	return std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+}
+
+void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
+{
+	mVoiceChannelStateChangeConnection.disconnect();
+
+	sCurrentVoiceCanel = channel;
+
+	mVoiceChannelStateChangeConnection = sCurrentVoiceCanel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
+
+	updateState(channel->getState());
+}
+
+void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
+{
+	updateState(new_state);
+}
+
+void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
+{
+	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceCanel->getSessionName() << LL_ENDL;
+	if (LLVoiceChannel::STATE_CONNECTED == new_state)
+	{
+		updateSession();
+	}
+	else
+	{
+		reset();
+	}
+}
+
+void LLCallFloater::reset()
+{
+	// lets forget states from the previous session
+	// for timers...
+	resetVoiceRemoveTimers();
+
+	// ...and for speaker state
+	mSpeakerStateMap.clear();
+
+	delete mParticipants;
+	mParticipants = NULL;
+	mAvatarList->clear();
+
+	// update floater to show Loading while waiting for data.
+	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	mAvatarList->setVisible(TRUE);
+	mNonAvatarCaller->setVisible(FALSE);
+
+	mSpeakerManager = NULL;
+}
+
+void reshape_floater(LLCallFloater* floater, S32 delta_height)
+{
+	// Try to update floater top side if it is docked(to bottom bar).
+	// Try to update floater bottom side or top side if it is un-docked.
+	// If world rect is too small, floater will not be reshaped at all.
+
+	LLRect floater_rect = floater->getRect();
+	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+
+	// floater is docked to bottom bar
+	if(floater->isDocked())
+	{
+		// can update floater top side
+		if(floater_rect.mTop + delta_height < world_rect.mTop)
+		{
+			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
+				floater_rect.mRight, floater_rect.mBottom);
+		}
+	}
+	// floater is un-docked
+	else
+	{
+		// can update floater bottom side
+		if( floater_rect.mBottom - delta_height >= world_rect.mBottom )
+		{
+			floater_rect.set(floater_rect.mLeft, floater_rect.mTop, 
+				floater_rect.mRight, floater_rect.mBottom - delta_height);
+		}
+		// could not update floater bottom side, check if we can update floater top side
+		else if( floater_rect.mTop + delta_height < world_rect.mTop )
+		{
+			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
+				floater_rect.mRight, floater_rect.mBottom);
+		}
+	}
+
+	floater->reshape(floater_rect.getWidth(), floater_rect.getHeight());
+	floater->setRect(floater_rect);
+}
+
+void LLCallFloater::reshapeToFitContent()
+{
+	const S32 ITEM_HEIGHT = getParticipantItemHeight();
+	static const S32 MAX_VISIBLE_ITEMS = getMaxVisibleItems();
+
+	static S32 items_pad = mAvatarList->getItemsPad();
+	S32 list_height = mAvatarList->getRect().getHeight();
+	S32 items_height = mAvatarList->getItemsRect().getHeight();
+	if(items_height <= 0)
+	{
+		// make "no one near" text visible
+		items_height = ITEM_HEIGHT + items_pad;
+	}
+	S32 max_list_height = MAX_VISIBLE_ITEMS * ITEM_HEIGHT + items_pad * (MAX_VISIBLE_ITEMS - 1);
+	max_list_height += 2* mAvatarList->getBorderWidth();
+
+	S32 delta = items_height - list_height;	
+	// too many items, don't reshape floater anymore, let scroll bar appear.
+	if(items_height >  max_list_height)
+	{
+		delta = max_list_height - list_height;
+	}
+
+	reshape_floater(this, delta);
+}
+
+S32 LLCallFloater::getParticipantItemHeight()
+{
+	std::vector<LLPanel*> items;
+	mAvatarList->getItems(items);
+	if(items.size() > 0)
+	{
+		return items[0]->getRect().getHeight();
+	}
+	else
+	{
+		return getChild<LLPanel>("non_avatar_caller")->getRect().getHeight();
+	}
+}
+
+S32 LLCallFloater::getMaxVisibleItems()
+{
+	S32 value = 5; // default value, in case convertToS32() fails.
+	LLStringUtil::convertToS32(getString("max_visible_items"), value);
+	return value;
 }
 
 //EOF

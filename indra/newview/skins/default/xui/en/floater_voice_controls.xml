@@ -5,7 +5,7 @@
  can_close="false"
  height="270"
  layout="topleft"
- min_height="146"
+ min_height="122"
  min_width="190"
  name="floater_voice_controls"
  title="Voice Controls"
@@ -31,6 +31,10 @@
     <string
      name="no_one_near">
         No one near
+    </string>
+    <string
+     name="max_visible_items">
+        5
     </string>
     <panel
      bevel_style="out"

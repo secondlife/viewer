@@ -36,7 +36,6 @@
 #include "lltrans.h"
 #include "llavataractions.h"
 #include "llagent.h"
-#include "llimview.h"
 
 #include "llparticipantlist.h"
 #include "llspeakers.h"

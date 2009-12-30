@@ -44,6 +44,7 @@
 #include "llviewercontrol.h"
 #include "llvoicechannel.h"
 #include "llimpanel.h"
+#include "llimview.h"
 
 //
 // LLFloaterMyFriends

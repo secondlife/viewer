@@ -50,7 +50,6 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
-#include "llimview.h"
 #include "llsd.h"
 #include "lltextbox.h"
 #include "llui.h"
@@ -226,14 +225,6 @@ LLStatusBar::~LLStatusBar()
 void LLStatusBar::draw()
 {
 	refresh();
-
-	if (isBackgroundVisible())
-	{
-		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
-		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
-		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
-			color_drop_shadow, drop_shadow_floater );
-	}
 	LLPanel::draw();
 }
 

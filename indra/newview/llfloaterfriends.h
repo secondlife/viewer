@@ -116,7 +116,7 @@ private:
 	static void onSelectName(LLUICtrl* ctrl, void* user_data);
 	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
-	static void onPickAvatar(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* user_data);
+	static void onPickAvatar(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 	static void onMaximumSelect();
 
 	static void onClickIM(void* user_data);

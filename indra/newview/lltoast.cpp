@@ -245,7 +245,7 @@ void LLToast::setVisible(BOOL show)
 	if(show)
 	{
 		setBackgroundOpaque(TRUE);
-		if(!mTimer.getStarted())
+		if(!mTimer.getStarted() && mCanFade)
 		{
 			mTimer.start();
 		}
@@ -265,8 +265,6 @@ void LLToast::setVisible(BOOL show)
 void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	mOnToastHoverSignal(this, MOUSE_ENTER);
-
-	setBackgroundOpaque(TRUE);
 
 	//toasts fading is management by Screen Channel
 	

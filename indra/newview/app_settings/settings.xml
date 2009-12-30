@@ -2344,6 +2344,17 @@
       <key>Value</key>
       <string>89556747-24cb-43ed-920b-47caed15465f</string>
     </map>
+    <key>DefaultUploadCost</key>
+    <map>
+      <key>Comment</key>
+      <string>Default sound/image/file upload cost(in case economy data is not available).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
     <key>DisableCameraConstraints</key>
     <map>
       <key>Comment</key>

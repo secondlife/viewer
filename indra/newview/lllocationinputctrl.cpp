@@ -634,6 +634,8 @@ void LLLocationInputCtrl::refreshLocation()
 	{
 		location_name = "???";
 	}
+	// store human-readable location to compare it in changeLocationPresentation()
+	mHumanReadableLocation = location_name;
 	setText(location_name);
 }
 
@@ -823,11 +825,11 @@ void LLLocationInputCtrl::updateWidgetlayout()
 
 void LLLocationInputCtrl::changeLocationPresentation()
 {
-	//change location presentation only if user does not  select anything and 
+	//change location presentation only if user does not  select/past anything and 
 	//human-readable region name  is being displayed
 	std::string text = mTextEntry->getText();
 	LLStringUtil::trim(text);
-	if(mTextEntry && !mTextEntry->hasSelection() && !LLSLURL::isSLURL(text))
+	if(mTextEntry && !mTextEntry->hasSelection() && text == mHumanReadableLocation )
 	{
 		//needs unescaped one
 		mTextEntry->setText(LLAgentUI::buildSLURL(false));

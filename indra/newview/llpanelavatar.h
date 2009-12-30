@@ -35,6 +35,7 @@
 
 #include "llpanel.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llcallingcard.h"
 
 class LLComboBox;
 class LLLineEditor;
@@ -120,11 +121,20 @@ private:
 */
 class LLPanelAvatarProfile
 	: public LLPanelProfileTab
+	, public LLFriendObserver
 {
 public:
 	LLPanelAvatarProfile();
+	/*virtual*/ ~LLPanelAvatarProfile();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+
+	/**
+	 * LLFriendObserver trigger
+	 */
+	virtual void changed(U32 mask);
+
+	/*virtual*/ void setAvatarId(const LLUUID& id);
 
 	/**
 	 * Processes data received from server.
@@ -246,9 +256,18 @@ private:
 */
 class LLPanelAvatarNotes 
 	: public LLPanelProfileTab
+	, public LLFriendObserver
 {
 public:
 	LLPanelAvatarNotes();
+	/*virtual*/ ~LLPanelAvatarNotes();
+
+	virtual void setAvatarId(const LLUUID& id);
+
+	/** 
+	 * LLFriendObserver trigger
+	 */
+	virtual void changed(U32 mask);
 
 	/*virtual*/ void onOpen(const LLSD& key);
 

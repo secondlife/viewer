@@ -97,7 +97,7 @@ public:
 	static void onClickSend			(void *userdata);
 	static void onClickCancel		(void *userdata);
 	static void onClickObjPicker	(void *userdata);
-	static void onClickSelectAbuser (void *userdata);
+	void onClickSelectAbuser ();
 	static void closePickTool	(void *userdata);
 	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
 	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
@@ -120,7 +120,7 @@ private:
 	void setPosBox(const LLVector3d &pos);
 	void enableControls(BOOL own_avatar);
 	void getObjectInfo(const LLUUID& object_id);
-	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
+	void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 
 private:
 	EReportType		mReportType;

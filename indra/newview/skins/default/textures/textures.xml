@@ -574,6 +574,8 @@ with the same filename but different name
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
   <texture name="Toast_Background" file_name="windows/Toast_Background.png" preload="true"
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
+  <texture name="Toast_Over" file_name="windows/Toast_Over.png" preload="true"
+           scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
 
   <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
   <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />

@@ -34,7 +34,8 @@
 #ifndef LL_LLCALLFLOATER_H
 #define LL_LLCALLFLOATER_H
 
-#include "lldockablefloater.h"
+#include "lltransientdockablefloater.h"
+#include "llvoicechannel.h"
 #include "llvoiceclient.h"
 
 class LLAvatarList;
@@ -54,7 +55,7 @@ class LLSpeakerMgr;
  * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel also provides an 
  * 'Leave Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLDockableFloater, LLVoiceClientParticipantObserver
+class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
 {
 public:
 
@@ -73,6 +74,11 @@ public:
 	 * Refreshes list to display participants not in voice as disabled.
 	 */
 	/*virtual*/ void onChange();
+
+	/**
+	* Will reshape floater when participant list size changes
+	*/
+	/*virtual*/ S32 notifyParent(const LLSD& info);
 
 	static void sOnCurrentChannelChanged(const LLUUID& session_id);
 
@@ -192,6 +198,43 @@ private:
 	 */
 	bool validateSpeaker(const LLUUID& speaker_id);
 
+	/**
+	 * Connects to passed channel to be updated according to channel's voice states.
+	 */
+	void connectToChannel(LLVoiceChannel* channel);
+
+	/**
+	 * Callback to process changing of voice channel's states.
+	 */
+	void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
+
+	/**
+	 * Updates floater according to passed channel's voice state.
+	 */
+	void updateState(const LLVoiceChannel::EState& new_state);
+
+	/**
+	 * Resets floater to be ready to show voice participants.
+	 *
+	 * Clears all data from the latest voice session.
+	 */
+	void reset();
+
+	/**
+	* Reshapes floater to fit participant list height
+	*/
+	void reshapeToFitContent();
+
+	/**
+	* Returns height of participant list item
+	*/
+	S32 getParticipantItemHeight();
+
+	/**
+	* Returns predefined max visible participants.
+	*/
+	S32 getMaxVisibleItems();
+
 private:
 	speaker_state_map_t mSpeakerStateMap;
 	LLSpeakerMgr* mSpeakerManager;
@@ -242,6 +285,16 @@ private:
 
 	timers_map		mVoiceLeftTimersMap;
 	S32				mVoiceLeftRemoveDelay;
+
+	/**
+	 * Stores reference to current voice channel.
+	 *
+	 * Is used to ignore voice channel changed callback for the same channel.
+	 *
+	 * @see sOnCurrentChannelChanged()
+	 */
+	static LLVoiceChannel* sCurrentVoiceCanel;
+	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
 
 

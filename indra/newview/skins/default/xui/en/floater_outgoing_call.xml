@@ -39,6 +39,13 @@
      left_delta="19"
      top="35"
      width="36" />
+    <group_icon
+     enabled="false"
+     follows="left|top"
+     height="36"
+     layout="topleft"
+     top="35"
+     width="36" />
     <text
      font="SansSerifLarge"
      height="20"

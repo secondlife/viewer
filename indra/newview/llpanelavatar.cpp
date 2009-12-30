@@ -331,6 +331,33 @@ void LLPanelAvatarNotes::onShareButtonClick()
 	//*TODO not implemented.
 }
 
+LLPanelAvatarNotes::~LLPanelAvatarNotes()
+{
+	if(getAvatarId().notNull())
+	{
+		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+	}
+}
+
+// virtual, called by LLAvatarTracker
+void LLPanelAvatarNotes::changed(U32 mask)
+{
+	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+}
+
+void LLPanelAvatarNotes::setAvatarId(const LLUUID& id)
+{
+	if(id.notNull())
+	{
+		if(getAvatarId().notNull())
+		{
+			LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+		}
+		LLPanelProfileTab::setAvatarId(id);
+		LLAvatarTracker::instance().addParticularFriendObserver(getAvatarId(), this);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -396,9 +423,18 @@ void LLPanelProfileTab::onMapButtonClick()
 
 void LLPanelProfileTab::updateButtons()
 {
-	bool enable_map_btn = LLAvatarTracker::instance().isBuddyOnline(getAvatarId())
-					&& gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+	bool is_avatar_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
+	
+	if(LLAvatarActions::isFriend(getAvatarId()))
+	{
+		childSetEnabled("teleport", is_avatar_online);
+	}
+	else
+	{
+		childSetEnabled("teleport", true);
+	}
 
+	bool enable_map_btn = is_avatar_online && gAgent.isGodlike() || is_agent_mappable(getAvatarId());
 	childSetEnabled("show_on_map_btn", enable_map_btn);
 	childSetEnabled("call", LLAvatarActions::canCall(getAvatarId()));
 }
@@ -714,6 +750,33 @@ void LLPanelAvatarProfile::onOverflowButtonClicked()
 
 	LLRect rect = btn->getRect();
 	LLMenuGL::showPopup(this, mProfileMenu, rect.mRight, rect.mTop);
+}
+
+LLPanelAvatarProfile::~LLPanelAvatarProfile()
+{
+	if(getAvatarId().notNull())
+	{
+		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+	}
+}
+
+// virtual, called by LLAvatarTracker
+void LLPanelAvatarProfile::changed(U32 mask)
+{
+	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+}
+
+void LLPanelAvatarProfile::setAvatarId(const LLUUID& id)
+{
+	if(id.notNull())
+	{
+		if(getAvatarId().notNull())
+		{
+			LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+		}
+		LLPanelProfileTab::setAvatarId(id);
+		LLAvatarTracker::instance().addParticularFriendObserver(getAvatarId(), this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

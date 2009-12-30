@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llevent.h"
 #include "llpanelpeoplemenus.h"
-#include "llimview.h"
 #include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
 
 class LLSpeakerMgr;

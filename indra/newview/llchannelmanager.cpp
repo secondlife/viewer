@@ -36,7 +36,6 @@
 
 #include "llappviewer.h"
 #include "llviewercontrol.h"
-#include "llimview.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
 #include "llsyswellwindow.h"

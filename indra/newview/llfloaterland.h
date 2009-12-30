@@ -367,14 +367,15 @@ public:
 
 	static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickAddAccess(void*);
-	static void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickRemoveAccess(void*);
-	static void onClickAddBanned(void*);
-	static void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickRemoveBanned(void*);
 
 	virtual BOOL postBuild();
+	
+	void onClickAddAccess();
+	void onClickAddBanned();
+	void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
+	void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 
 protected:
 	LLNameListCtrl*		mListAccess;

@@ -227,6 +227,7 @@ set(viewer_SOURCE_FILES
     llgesturemgr.cpp
     llglsandbox.cpp
     llgroupactions.cpp
+    llgroupiconctrl.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
     llhomelocationresponder.cpp
@@ -736,6 +737,7 @@ set(viewer_HEADER_FILES
     llfriendcard.h
     llgesturemgr.h
     llgroupactions.h
+    llgroupiconctrl.h
     llgrouplist.h
     llgroupmgr.h
     llhomelocationresponder.h

@@ -169,6 +169,8 @@ private:
 
 	std::string mAddLandmarkTooltip;
 	std::string mEditLandmarkTooltip;
+	// this field holds a human-readable form of the location string, it is needed to be able to compare copy-pated value and real location
+	std::string mHumanReadableLocation;
 };
 
 #endif

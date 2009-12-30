@@ -252,7 +252,7 @@
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="100"
+         min_width="110"
          user_resize="false"
          auto_resize="true">
 <!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same

@@ -57,13 +57,11 @@
 #include "llfloateractivespeakers.h"
 #include "llfloatercall.h"
 #include "llavataractions.h"
-#include "llimview.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llfloaterchat.h"
 #include "lliconctrl.h"
-#include "llimview.h"                  // for LLIMModel to get other avatar id in chat
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llpanelimcontrolpanel.h"
