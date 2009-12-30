@@ -54,7 +54,7 @@
      width="175"
      use_ellipses="true" />
      <text
-     follows="all"
+     follows="left|top|right"
      height="35"
      left="8"
      name="user_details"
