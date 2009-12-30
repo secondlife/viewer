@@ -3947,6 +3947,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			// flying animation from server, the AGENT_CONTROL_FLY flag remains set but the
 			// avatar does not play flying animation, so we switch flying mode off.
 			// See LLAgent::setFlying(). This may cause "Stop Flying" button to blink.
+			// See EXT-2781.
 			if (animation_id == ANIM_AGENT_STANDUP && gAgent.getFlying())
 			{
 				gAgent.setFlying(FALSE);
