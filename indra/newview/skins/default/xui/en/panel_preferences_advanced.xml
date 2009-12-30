@@ -10,10 +10,6 @@
  name="advanced"
  top="1"
  width="517">
-    <panel.string
-     name="resolution_format">
-        [RES_X] x [RES_Y]
-    </panel.string>
 	<panel.string
      name="aspect_ratio_text">
         [NUM]:[DEN]
