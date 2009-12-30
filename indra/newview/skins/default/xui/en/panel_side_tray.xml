@@ -31,6 +31,24 @@
   </sidetray_tab>
 
   <sidetray_tab
+    name="sidebar_me"
+    help_topic="sidebar_me"
+    tab_title="My Profile"
+    description="Edit your public profile and Picks."
+    image="TabIcon_Me_Off"
+    image_selected="TabIcon_Me_Selected"
+    mouse_opaque="false"
+    background_visible="true"
+  >
+      <panel
+        class="panel_me"
+        name="panel_me"
+        filename="panel_me.xml"
+        label="Me"
+      />
+  </sidetray_tab>
+
+  <sidetray_tab
     name="sidebar_people"
     help_topic="sidebar_people"
     tab_title="People"
@@ -94,20 +112,21 @@
   </sidetray_tab>
 
   <sidetray_tab
-    name="sidebar_me"
-    help_topic="sidebar_me"
-    tab_title="My Profile"
-    description="Edit your public profile and Picks."
-    image="TabIcon_Me_Off"
-    image_selected="TabIcon_Me_Selected"
+    name="sidebar_inventory"
+    help_topic="sidebar_inventory"
+    tab_title="My Inventory"
+    description="Browse your inventory."
+    image="TabIcon_Things_Off"
+    image_selected="TabIcon_Things_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
       <panel
-        class="panel_me"
-        name="panel_me"
-        filename="panel_me.xml"
-        label="Me"
+        class="sidepanel_inventory"
+        name="sidepanel_inventory"
+        filename="sidepanel_inventory.xml"
+        label="Edit Inventory"
+        font="SansSerifBold"
       />
   </sidetray_tab>
 
@@ -126,25 +145,6 @@
         name="sidepanel_appearance"
         filename="sidepanel_appearance.xml"
         label="Edit Appearance"
-        font="SansSerifBold"
-      />
-  </sidetray_tab>
-
-  <sidetray_tab
-    name="sidebar_inventory"
-    help_topic="sidebar_inventory"
-    tab_title="My Inventory"
-    description="Browse your inventory."
-    image="TabIcon_Things_Off"
-    image_selected="TabIcon_Things_Selected"
-    mouse_opaque="false"
-    background_visible="true"
-  >
-      <panel
-        class="sidepanel_inventory"
-        name="sidepanel_inventory"
-        filename="sidepanel_inventory.xml"
-        label="Edit Inventory"
         font="SansSerifBold"
       />
   </sidetray_tab>
