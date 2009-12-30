@@ -825,6 +825,8 @@ public:
 	void setToggleState(BOOL toggled);
 
 	void setNewMessagesState(bool new_messages);
+	//this method should change a widget according to state of the SysWellWindow 
+	virtual void updateWidget(bool is_window_empty);
 
 protected:
 
@@ -930,7 +932,7 @@ protected:
 	// methods for updating a number of unread System notifications
 	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
 	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
-
+	/*virtual*/ void setCounter(S32 counter);
 	S32 mUreadSystemNotifications;
 };
 

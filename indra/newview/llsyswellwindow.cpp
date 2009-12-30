@@ -106,15 +106,15 @@ void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
 	setVisible(TRUE);
 }
 
+void LLSysWellWindow::setSysWellChiclet(LLSysWellChiclet* chiclet) 
+{ 
+	mSysWellChiclet = chiclet;
+	if(mSysWellChiclet)
+		mSysWellChiclet->updateWidget(isWindowEmpty()); 
+}
 //---------------------------------------------------------------------------------
 LLSysWellWindow::~LLSysWellWindow()
 {
-}
-
-//---------------------------------------------------------------------------------
-void LLSysWellWindow::clear()
-{
-	mMessageList->clear();
 }
 
 //---------------------------------------------------------------------------------
@@ -281,6 +281,7 @@ void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
 
 		setResizeLimits(min_width,min_height);
 	}
+	mSysWellChiclet->updateWidget(isWindowEmpty());
 }
 
 void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
@@ -294,6 +295,7 @@ void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
 		// refresh list to recalculate mSeparator position
 		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
 	}
+	mSysWellChiclet->updateWidget(isWindowEmpty());
 }
 
 bool LLSysWellWindow::anotherTypeExists(EItemType item_type)
