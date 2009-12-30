@@ -35,6 +35,7 @@
 
 #include "llanimationstates.h"
 #include "llaudioengine.h" 
+#include "llavataractions.h"
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
 #include "llfloaterreg.h"
@@ -193,19 +194,25 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		msg->sendReliable(LLHost(payload["sender"].asString()));
 		break;
 	}
-	case 1:
-	{
-		// decline
-		// We no longer notify other viewers, but we DO still send
-		// the rejection to the simulator to delete the pending userop.
-		msg->newMessageFast(_PREHASH_DeclineFriendship);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_TransactionBlock);
-		msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
-		msg->sendReliable(LLHost(payload["sender"].asString()));
-		break;
+	case 1: // Decline
+	case 2: // Send IM - decline and start IM session
+		{
+			// decline
+			// We no longer notify other viewers, but we DO still send
+			// the rejection to the simulator to delete the pending userop.
+			msg->newMessageFast(_PREHASH_DeclineFriendship);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_TransactionBlock);
+			msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
+			msg->sendReliable(LLHost(payload["sender"].asString()));
+
+			// start IM session
+			if(2 == option)
+			{
+				LLAvatarActions::startIM(payload["from_id"].asUUID());
+			}
 	}
 	default:
 		// close button probably, possibly timed out
