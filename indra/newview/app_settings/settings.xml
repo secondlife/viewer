@@ -8727,6 +8727,17 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TextureDecodeDisabled</key>
+    <map>
+      <key>Comment</key>
+      <string>If TRUE, do not fetch and decode any textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureDisable</key>
     <map>
       <key>Comment</key>

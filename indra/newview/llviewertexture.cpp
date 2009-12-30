@@ -1591,6 +1591,12 @@ void LLViewerFetchedTexture::updateVirtualSize()
 
 bool LLViewerFetchedTexture::updateFetch()
 {
+	static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+	if(textures_decode_disabled)
+	{
+		return false ;
+	}
+
 	mFetchState = 0;
 	mFetchPriority = 0;
 	mFetchDeltaTime = 999999.f;

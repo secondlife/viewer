@@ -962,6 +962,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
+		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+		if(textures_decode_disabled)
+		{
+			// for debug use, don't decode
+			mState = DONE;
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			return true;
+		}
+
 		if (mDesiredDiscard < 0)
 		{
 			// We aborted, don't decode
