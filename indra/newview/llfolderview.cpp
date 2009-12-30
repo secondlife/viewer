@@ -206,7 +206,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenCandidate = NULL;
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
-	mIndentation = -LEFT_INDENTATION; // children start at indentation 0
+    static LLUICachedControl<S32> indentation("FolderIndentation", 0);
+	mIndentation = -indentation; // children start at indentation 0
 	gIdleCallbacks.addFunction(idle, this);
 
 	//clear label

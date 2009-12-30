@@ -3235,6 +3235,17 @@
       <key>Value</key>
       <real>0.75</real>
     </map>
+    <key>FolderIndentation</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels to indent subfolders in inventory</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>8</integer>
+    </map>
     <key>FolderLoadingMessageWaitTime</key>
     <map>
       <key>Comment</key>
