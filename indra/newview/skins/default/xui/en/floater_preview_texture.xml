@@ -64,7 +64,7 @@
      height="16"
      layout="topleft"
      left_delta="-110"
-     name="dimensions"
+     name="aspect_ratio"
      top_pad="5"
      width="200">
         Preview aspect ratio
@@ -112,7 +112,7 @@
      label="OK"
      layout="topleft"
      left="6"
-     name="keep"
+     name="Keep"
      top_pad="5"
      width="100" />
     <button
@@ -121,7 +121,7 @@
      label="Cancel"
      layout="topleft"
      left_pad="5"
-     name="discard"
+     name="Discard"
      top_delta="0"
      width="100" />
     <button
