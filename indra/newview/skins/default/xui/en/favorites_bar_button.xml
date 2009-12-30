@@ -18,6 +18,8 @@
  left="0"
  name="favorites_bar_btn"
  tab_stop="false"
+ pad_right="10"
+ pad_left="10" 
  top="0"
  use_ellipses="true"
  width="120" />
