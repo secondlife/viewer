@@ -157,7 +157,6 @@ set(viewer_SOURCE_FILES
     llfloaterbuycontents.cpp
     llfloaterbuycurrency.cpp
     llfloaterbuyland.cpp
-    llfloatercall.cpp
     llfloatercamera.cpp
     llfloaterchat.cpp
     llfloaterchatterbox.cpp
@@ -302,7 +301,6 @@ set(viewer_SOURCE_FILES
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
     llpanelavatar.cpp
-    llpanelavatarrow.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
     llpanelclassified.cpp
@@ -667,7 +665,6 @@ set(viewer_HEADER_FILES
     llfloaterbuycontents.h
     llfloaterbuycurrency.h
     llfloaterbuyland.h
-    llfloatercall.h
     llfloatercamera.h
     llfloaterchat.h
     llfloaterchatterbox.h
@@ -806,7 +803,6 @@ set(viewer_HEADER_FILES
     lloutputmonitorctrl.h
     lloverlaybar.h
     llpanelavatar.h
-    llpanelavatarrow.h
     llpanelavatartag.h
     llpanelblockedlist.h
     llpanelclassified.h
