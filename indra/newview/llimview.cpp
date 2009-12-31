@@ -1748,7 +1748,8 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetAction("Start IM", onStartIM, this);
 	childSetFocus("Accept");
 
-	if(mPayload["notify_box_type"] != "VoiceInviteGroup" && mPayload["notify_box_type"] != "VoiceInviteAdHoc")
+	std::string notify_box_type = mPayload["notify_box_type"].asString();
+	if(notify_box_type != "VoiceInviteGroup" && notify_box_type != "VoiceInviteAdHoc")
 	{
 		// starting notification's timer for P2P and AVALINE invitations
 		mLifetimeTimer.start();
