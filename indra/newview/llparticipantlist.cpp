@@ -36,7 +36,6 @@
 #include "lltrans.h"
 #include "llavataractions.h"
 #include "llagent.h"
-#include "llimview.h"
 
 #include "llparticipantlist.h"
 #include "llspeakers.h"
@@ -230,7 +229,7 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 {
 	LLUUID uu_id = event->getValue().asUUID();
 
-	if (mValidateSpeakerCallback && mValidateSpeakerCallback(uu_id))
+	if (mValidateSpeakerCallback && !mValidateSpeakerCallback(uu_id))
 	{
 		return true;
 	}

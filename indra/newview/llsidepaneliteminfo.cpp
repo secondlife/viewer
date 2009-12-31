@@ -168,11 +168,13 @@ void LLSidepanelItemInfo::refresh()
 		if (getIsEditing())
 		{
 			setIsEditing(FALSE);
-			return;
 		}
 	}
+	
+	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	bool is_editable = item && (item->getUUID() != trash_id) && !gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
 
-	if (!getIsEditing() || !item)
+	if (!getIsEditing() || !is_editable)
 	{
 		const std::string no_item_names[]={
 			"LabelItemName",
@@ -210,7 +212,7 @@ void LLSidepanelItemInfo::refresh()
 		}
 	}
 
-	if (!item)
+	if (!is_editable)
 	{
 		const std::string no_edit_mode_names[]={
 			"BtnCreator",

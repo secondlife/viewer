@@ -47,7 +47,7 @@
          min_height="23"
          width="310"
          top="4"
-         min_width="192"
+         min_width="188"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml" />
@@ -88,9 +88,9 @@
             layout="topleft"
             left="0"
             name="DUMMY"
-            min_width="4"
+            min_width="3"
             top="0"
-            width="4"/>
+            width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -126,10 +126,10 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4"
+         min_width="3"
          name="DUMMY"
          top="0"
-         width="4"/>
+         width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -168,10 +168,10 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4"
+         min_width="3"
          name="DUMMY"
          top="0"
-         width="4"/>
+         width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -211,10 +211,10 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4"
+         min_width="3"
          name="DUMMY"
          top="0"
-         width="4"/>
+         width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -252,7 +252,7 @@
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="100"
+         min_width="110"
          user_resize="false"
          auto_resize="true">
 <!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
@@ -341,7 +341,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              top="4"
              width="35">
              <!--
-Emulate 4 states of button by background images, see detains in EXT-3147. The same should be for notification_well button
+Emulate 4 states of button by background images, see details in EXT-3147. The same should be for notification_well button
 xml attribute           Description
 image_unselected        "Unlit" - there are no new messages
 image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
@@ -364,6 +364,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  name="Unread IM messages"
                  pad_left="0"
                  pad_right="0"
+                 tool_tip="Conversations"
                  width="35" >
                     <button.init_callback
                      function="Button.SetDockableFloaterToggle"
@@ -378,7 +379,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
          layout="topleft"
          min_height="28"
          top="0"
-         left_pad="4"
+         left_pad="3"
          name="notification_well_panel"
          width="35"
          min_width="35"
@@ -409,6 +410,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                image_overlay="Notices_Unread"
                image_overlay_alignment="center"
                pad_right="5"
+               tool_tip="Notifications"
                width="35" >
                   <button.init_callback
                    function="Button.SetDockableFloaterToggle"

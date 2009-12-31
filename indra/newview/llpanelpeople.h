@@ -129,8 +129,7 @@ private:
 	// misc callbacks
 	static void				onAvatarPicked(
 								const std::vector<std::string>& names,
-								const std::vector<LLUUID>& ids,
-								void*);
+								const std::vector<LLUUID>& ids);
 
 	void					onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 

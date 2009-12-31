@@ -165,6 +165,7 @@ void LLAvatarList::clear()
 {
 	getIDs().clear();
 	setDirty(true);
+	LLFlatListView::clear();
 }
 
 void LLAvatarList::setNameFilter(const std::string& filter)

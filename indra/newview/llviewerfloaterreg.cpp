@@ -53,7 +53,6 @@
 #include "llfloaterbuyland.h"
 #include "llfloaterbulkpermission.h"
 #include "llfloaterbump.h"
-#include "llfloatercall.h"
 #include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"

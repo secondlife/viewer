@@ -70,6 +70,7 @@
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llimview.h"
 #include "llinventorybridge.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"

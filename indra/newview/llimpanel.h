@@ -33,7 +33,6 @@
 #ifndef LL_IMPANEL_H
 #define LL_IMPANEL_H
 
-#include "llimview.h" //for LLIMModel
 #include "lldockablefloater.h"
 #include "lllogchat.h"
 #include "lluuid.h"

@@ -78,7 +78,7 @@ private:
 	void onPickBtnClick();
 	void onBlockByNameClick();
 
-	static void callbackBlockPicked(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* user_data);
+	void callbackBlockPicked(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 	static void callbackBlockByName(const std::string& text);
 
 private:

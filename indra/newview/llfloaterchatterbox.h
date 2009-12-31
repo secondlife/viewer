@@ -36,8 +36,8 @@
 #define LL_LLFLOATERCHATTERBOX_H
 
 #include "llfloater.h"
+#include "llmultifloater.h"
 #include "llstring.h"
-#include "llimview.h"
 #include "llimpanel.h"
 
 class LLTabContainer;

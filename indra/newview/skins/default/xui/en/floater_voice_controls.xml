@@ -5,7 +5,7 @@
  can_close="false"
  height="270"
  layout="topleft"
- min_height="146"
+ min_height="122"
  min_width="190"
  name="floater_voice_controls"
  title="Voice Controls"
@@ -31,6 +31,10 @@
     <string
      name="no_one_near">
         No one near
+    </string>
+    <string
+     name="max_visible_items">
+        5
     </string>
     <panel
      bevel_style="out"
@@ -83,14 +87,58 @@
              visible="true"
              width="20" />
         </panel>
-        <button
-         follows="left|right|top"
-         height="24"
-         label="Leave Call"
-         left="91" 
-         name="leave_call_btn"
-         top_pad="6" 
-         width="100" />
+        <layout_stack
+         border_size="0"
+         clip="false"
+         follows="all"
+         height="28"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="leave_call_stack"
+         orientation="horizontal"
+         top_pad="5"
+         width="263">
+         <layout_panel
+          auto_resize="true"
+          follows="left|right"
+          height="26"
+          layout="topleft"
+          min_height="23"
+          min_width="5"
+          mouse_opaque="false"
+          name="left_anchor"
+          width="80"/>
+         <layout_panel
+          auto_resize="false"
+          follows="left|right"
+          height="26"
+          layout="topleft"
+          mouse_opaque="false"
+          min_height="24"
+          min_width="100"
+          name="leave_call_btn_panel"
+          width="100">
+           <button
+            follows="left|right"
+            height="24"
+            label="Leave Call"
+            left="0"
+            name="leave_call_btn"
+            top="0"
+            width="100" />
+         </layout_panel>
+         <layout_panel
+         auto_resize="true"
+         follows="left|right"
+         height="26"
+         layout="topleft"
+         mouse_opaque="false"
+         min_height="24"
+         min_width="5"
+         name="right_anchor"
+         width="80"/>
+        </layout_stack>
     </panel>
     <avatar_list
      follows="all"

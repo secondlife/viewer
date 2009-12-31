@@ -62,7 +62,6 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
-#include "llimview.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

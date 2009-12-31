@@ -586,7 +586,7 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	initCtrl("restrict_pushobject");
 	initCtrl("block_parcel_search_check");
 
-	childSetAction("kick_btn", onClickKick, this);
+	childSetAction("kick_btn", boost::bind(&LLPanelRegionGeneralInfo::onClickKick, this));
 	childSetAction("kick_all_btn", onClickKickAll, this);
 	childSetAction("im_btn", onClickMessage, this);
 //	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
@@ -594,27 +594,22 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	return LLPanelRegionInfo::postBuild();
 }
 
-// static
-void LLPanelRegionGeneralInfo::onClickKick(void* userdata)
+void LLPanelRegionGeneralInfo::onClickKick()
 {
 	llinfos << "LLPanelRegionGeneralInfo::onClickKick" << llendl;
-	LLPanelRegionGeneralInfo* panelp = (LLPanelRegionGeneralInfo*)userdata;
 
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
-	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(onKickCommit, userdata, FALSE, TRUE);
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1,_2), FALSE, TRUE);
 	parent_floater->addDependentFloater(child_floater);
 }
 
-// static
-void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
+void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
 	if (names.empty() || ids.empty()) return;
 	if(ids[0].notNull())
 	{
-		LLPanelRegionGeneralInfo* self = (LLPanelRegionGeneralInfo*)userdata;
-		if(!self) return;
 		strings_t strings;
 		// [0] = our agent id
 		// [1] = target agent id
@@ -626,7 +621,7 @@ void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& name
 		strings.push_back(strings_t::value_type(buffer));
 
 		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-		self->sendEstateOwnerMessage(gMessageSystem, "teleporthomeuser", invoice, strings);
+		sendEstateOwnerMessage(gMessageSystem, "teleporthomeuser", invoice, strings);
 	}
 }
 
@@ -790,7 +785,7 @@ BOOL LLPanelRegionDebugInfo::postBuild()
 	initCtrl("disable_collisions_check");
 	initCtrl("disable_physics_check");
 
-	childSetAction("choose_avatar_btn", onClickChooseAvatar, this);
+	childSetAction("choose_avatar_btn", boost::bind(&LLPanelRegionDebugInfo::onClickChooseAvatar, this));
 	childSetAction("return_btn", onClickReturn, this);
 	childSetAction("top_colliders_btn", onClickTopColliders, this);
 	childSetAction("top_scripts_btn", onClickTopScripts, this);
@@ -842,19 +837,18 @@ BOOL LLPanelRegionDebugInfo::sendUpdate()
 	return TRUE;
 }
 
-void LLPanelRegionDebugInfo::onClickChooseAvatar(void* data)
+void LLPanelRegionDebugInfo::onClickChooseAvatar()
 {
-	LLFloaterAvatarPicker::show(callbackAvatarID, data, FALSE, TRUE);
+	LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionDebugInfo::callbackAvatarID, this, _1, _2), FALSE, TRUE);
 }
 
-// static
-void LLPanelRegionDebugInfo::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
+
+void LLPanelRegionDebugInfo::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
-	LLPanelRegionDebugInfo* self = (LLPanelRegionDebugInfo*) data;
 	if (ids.empty() || names.empty()) return;
-	self->mTargetAvatar = ids[0];
-	self->childSetValue("target_avatar_name", LLSD(names[0]));
-	self->refreshFromRegion( gAgent.getRegion() );
+	mTargetAvatar = ids[0];
+	childSetValue("target_avatar_name", LLSD(names[0]));
+	refreshFromRegion( gAgent.getRegion() );
 }
 
 // static
@@ -1528,18 +1522,16 @@ struct LLKickFromEstateInfo
 	LLUUID      mAgentID;
 };
 
-void LLPanelEstateInfo::onClickKickUser(void *user_data)
+void LLPanelEstateInfo::onClickKickUser()
 {
-	LLPanelEstateInfo* panelp = (LLPanelEstateInfo*)user_data;
-
 	// this depends on the grandparent view being a floater
 	// in order to set up floater dependency
-	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
-	LLFloater* child_floater = LLFloaterAvatarPicker::show(LLPanelEstateInfo::onKickUserCommit, user_data, FALSE, TRUE);
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1, _2), FALSE, TRUE);
 	parent_floater->addDependentFloater(child_floater);
 }
 
-void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
+void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
 	if (names.empty() || ids.empty()) return;
 	
@@ -1550,12 +1542,9 @@ void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, 
 		return;
 	}
 
-	LLPanelEstateInfo* self = (LLPanelEstateInfo*)userdata;
-	if(!self) return;
-
 	//keep track of what user they want to kick and other misc info
 	LLKickFromEstateInfo *kick_info = new LLKickFromEstateInfo();
-	kick_info->mEstatePanelp = self;
+	kick_info->mEstatePanelp = this;
 	kick_info->mAgentID     = ids[0];
 
 	//Bring up a confirmation dialog
@@ -1563,7 +1552,7 @@ void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, 
 	args["EVIL_USER"] = names[0];
 	LLSD payload;
 	payload["agent_id"] = ids[0];
-	LLNotificationsUtil::add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, self, _1, _2));
+	LLNotificationsUtil::add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, this, _1, _2));
 
 }
 
@@ -1727,7 +1716,7 @@ bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& res
 
 	LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo(notification["payload"]);
 	// avatar picker yes multi-select, yes close-on-select
-	LLFloaterAvatarPicker::show(accessAddCore3, (void*)change_info, TRUE, TRUE);
+	LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::accessAddCore3, _1, _2, (void*)change_info), TRUE, TRUE);
 	return false;
 }
 
@@ -2107,7 +2096,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	childSetAction("add_estate_manager_btn", onClickAddEstateManager, this);
 	childSetAction("remove_estate_manager_btn", onClickRemoveEstateManager, this);
 	childSetAction("message_estate_btn", onClickMessageEstate, this);
-	childSetAction("kick_user_from_estate_btn", onClickKickUser, this);
+	childSetAction("kick_user_from_estate_btn", boost::bind(&LLPanelEstateInfo::onClickKickUser, this));
 
 	childSetAction("WLEditSky", onClickEditSky, this);
 	childSetAction("WLEditDayCycle", onClickEditDayCycle, this);

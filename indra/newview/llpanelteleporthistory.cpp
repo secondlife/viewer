@@ -452,6 +452,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	registrar.add("TeleportHistory.ExpandAllFolders",  boost::bind(&LLTeleportHistoryPanel::onExpandAllFolders,  this));
 	registrar.add("TeleportHistory.CollapseAllFolders",  boost::bind(&LLTeleportHistoryPanel::onCollapseAllFolders,  this));
 	registrar.add("TeleportHistory.ClearTeleportHistory",  boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistory,  this));
+	mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
 
 	LLMenuGL* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(gear_menu)
@@ -977,6 +978,49 @@ void LLTeleportHistoryPanel::onGearButtonClicked()
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
+}
+
+bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
+{
+	S32 tabs_cnt = mItemContainers.size();
+
+	bool has_expanded_tabs = false;
+	bool has_collapsed_tabs = false;
+
+	for (S32 n = 0; n < tabs_cnt; n++)
+	{
+		LLAccordionCtrlTab* tab = mItemContainers.get(n);
+		if (!tab->getVisible())
+			continue;
+
+		if (tab->getDisplayChildren())
+		{
+			has_expanded_tabs = true;
+		}
+		else
+		{
+			has_collapsed_tabs = true;
+		}
+
+		if (has_expanded_tabs && has_collapsed_tabs)
+		{
+			break;
+		}
+	}
+
+	std::string command_name = userdata.asString();
+
+	if (has_expanded_tabs && command_name == "collapse_all")
+	{
+		return true;
+	}
+
+	if (has_collapsed_tabs && command_name ==  "expand_all")
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void LLTeleportHistoryPanel::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed)

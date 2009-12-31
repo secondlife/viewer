@@ -3,6 +3,7 @@
 <!-- All buttons in the Favorites bar will be created from this one -->
 <button
  follows="left|bottom"
+ font_halign="center"
  halign="center"
  height="15"
  image_disabled="transparent.j2c"
@@ -14,12 +15,16 @@
  image_pressed="Favorite_Link_Over"
  image_pressed_selected="Favorite_Link_Over"
  hover_glow_amount="0.15"
+ label_shadow="false"
  layout="topleft"
  left="0"
  name="favorites_bar_btn"
+ pad_bottom="-1"
+ pad_left="11"
+ pad_right="7"
  tab_stop="false"
  pad_right="10"
  pad_left="10" 
  top="0"
  use_ellipses="true"
- width="120" />
+ width="140" />
