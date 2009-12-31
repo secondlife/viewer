@@ -39,7 +39,6 @@
 
 #include "llagent.h"
 #include "llslurl.h"
-#include "llurlsimstring.h"
 #include "llviewercontrol.h"        // for gSavedSettings
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"

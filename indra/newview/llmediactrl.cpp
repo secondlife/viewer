@@ -39,7 +39,6 @@
 #include "llfloaterworldmap.h"
 #include "lluictrlfactory.h"
 #include "llurldispatcher.h"
-#include "llurlsimstring.h"
 #include "llviewborder.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
