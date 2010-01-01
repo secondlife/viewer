@@ -2128,6 +2128,7 @@ void LLLibraryOutfitsFetch::done()
 	}
 	if (mOutfitsPopulated)
 	{
+		gInventory.notifyObservers();
 		delete this;
 	}
 }
@@ -2162,6 +2163,11 @@ void LLLibraryOutfitsFetch::folderDone(void)
 		// everything is already here - call done.
 		outfitsDone();
 	}
+	else 
+	{
+		gInventory.removeObserver(this);
+		gInventory.addObserver(this);
+	}
 }
 
 void LLLibraryOutfitsFetch::outfitsDone(void)
@@ -2172,6 +2178,8 @@ void LLLibraryOutfitsFetch::outfitsDone(void)
 								  LLInventoryModel::EXCLUDE_TRASH);
 	
 	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	
+	llassert(cat_array.count() > 0);
 	for(S32 i = 0; i < cat_array.count(); ++i)
 	{
 		if (cat_array.get(i)->getName() != "More Outfits" && cat_array.get(i)->getName() != "Ruth"){
@@ -2186,6 +2194,11 @@ void LLLibraryOutfitsFetch::outfitsDone(void)
 		// everything is already here - call done.
 		contentsDone();
 	}
+	else
+	{
+		gInventory.removeObserver(this);
+		gInventory.addObserver(this);
+	}
 }
 
 void LLLibraryOutfitsFetch::contentsDone(void)
@@ -2199,7 +2212,6 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 														mOutfits[i].second);
 		
 		LLAppearanceManager::getInstance()->shallowCopyCategory(mOutfits[i].first, folder_id, NULL);
-		gInventory.notifyObservers();
 	}
 	mOutfitsPopulated = true;
 }
