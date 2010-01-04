@@ -62,6 +62,20 @@ public:
 	 */
 	LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
 			const LLSD& key, const Params& params = getDefaultParams());
+
+	/**
+	 * Constructor.
+	 * @param dockControl a pointer to the doc control instance
+	 * @param uniqueDocking - a flag defines is docking should work as tab(at one
+	 * moment only one docked floater can be shown).
+	 * @praram useTongue - a flag defines is dock tongue should be used.
+	 * @params key a floater key.
+ 	 * @params params a floater parameters
+	 */
+	LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
+			bool useTongue, const LLSD& key,
+			const Params& params = getDefaultParams());
+
 	virtual ~LLDockableFloater();
 
 	static LLHandle<LLFloater> getInstanceHandle() { return sInstanceHandle; }
@@ -104,6 +118,7 @@ public:
 	virtual void setOverlapsScreenChannel(bool overlaps) { mOverlapsScreenChannel = overlaps; }
 
 	bool getUniqueDocking() { return mUniqueDocking;	}
+	bool getUseTongue() { return mUseTongue; }
 private:
 	/**
 	 * Provides unique of dockable floater.
@@ -124,6 +139,8 @@ private:
 	 *  non exclusively.
 	 */
 	bool mUniqueDocking;
+
+	bool mUseTongue;
 
 	bool mOverlapsScreenChannel;
 };
