@@ -3017,6 +3017,26 @@ bool callback_eject(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
+void handle_avatar_teleport(const LLSD& avatar_id)
+{
+		// Use avatar_id if available, otherwise default to right-click avatar
+		LLVOAvatar* avatar = NULL;
+		if (avatar_id.asUUID().notNull())
+		{
+			avatar = find_avatar_from_object(avatar_id.asUUID());
+		}
+		else
+		{
+			avatar = find_avatar_from_object(
+				LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		}
+
+		if( avatar )
+		{
+			LLAvatarActions::offerTeleport(avatar->getID());
+		}
+}
+
 void handle_avatar_eject(const LLSD& avatar_id)
 {
 		// Use avatar_id if available, otherwise default to right-click avatar
@@ -7913,6 +7933,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
 	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
+	commit.add("Avatar.Teleport", boost::bind(&handle_avatar_teleport, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
@@ -7952,8 +7973,8 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
-
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
+	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
 	// Attachment pie menu
 	enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));

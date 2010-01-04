@@ -93,4 +93,10 @@
         <menu_item_call.on_enable
          function="EnablePayAvatar" />
     </menu_item_call>
+  <menu_item_call
+  label="Offer Teleport"
+  name="teleport">
+    <menu_item_call.on_click
+     function="Avatar.Teleport"/>
+  </menu_item_call>
 </context_menu>
