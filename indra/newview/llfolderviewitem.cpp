@@ -392,10 +392,11 @@ BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* roo
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 {
+    static LLUICachedControl<S32> indentation("FolderIndentation", 0);
 	mIndentation = (getParentFolder() 
 					&& getParentFolder()->getParentFolder() 
 					&& getParentFolder()->getParentFolder()->getParentFolder())
-		? mParentFolder->getIndentation() + LEFT_INDENTATION 
+		? mParentFolder->getIndentation() + indentation
 		: 0;
 	if (mLabelWidthDirty)
 	{

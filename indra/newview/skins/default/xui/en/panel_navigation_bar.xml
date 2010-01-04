@@ -149,7 +149,7 @@
 
     <favorites_bar
      follows="left|right|top"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="15"
      layout="topleft"
      left="0"

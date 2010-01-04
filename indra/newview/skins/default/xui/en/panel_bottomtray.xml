@@ -341,7 +341,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              top="4"
              width="35">
              <!--
-Emulate 4 states of button by background images, see detains in EXT-3147. The same should be for notification_well button
+Emulate 4 states of button by background images, see details in EXT-3147. The same should be for notification_well button
 xml attribute           Description
 image_unselected        "Unlit" - there are no new messages
 image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
@@ -364,6 +364,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  name="Unread IM messages"
                  pad_left="0"
                  pad_right="0"
+                 tool_tip="Conversations"
                  width="35" >
                     <button.init_callback
                      function="Button.SetDockableFloaterToggle"
@@ -409,6 +410,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                image_overlay="Notices_Unread"
                image_overlay_alignment="center"
                pad_right="5"
+               tool_tip="Notifications"
                width="35" >
                   <button.init_callback
                    function="Button.SetDockableFloaterToggle"

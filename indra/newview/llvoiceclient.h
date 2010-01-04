@@ -193,6 +193,7 @@ static	void updatePosition(void);
 		static bool voiceEnabled();
 		void setUsePTT(bool usePTT);
 		void setPTTIsToggle(bool PTTIsToggle);
+		bool getPTTIsToggle();
 		void setPTTKey(std::string &key);
 		void setEarLocation(S32 loc);
 		void setVoiceVolume(F32 volume);

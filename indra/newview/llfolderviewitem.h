@@ -93,7 +93,6 @@ public:
 	static void initClass();
 	static void cleanupClass();
 
-	// jamesdebug was LLUICtrl::Params
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<LLUIImage*>					icon;
@@ -111,7 +110,7 @@ public:
 
 	// layout constants
 	static const S32 LEFT_PAD = 5;
-	static const S32 LEFT_INDENTATION = 2;
+    // LEFT_INDENTATION is set via settings.xml FolderIndentation
 	static const S32 ICON_PAD = 2;
 	static const S32 ICON_WIDTH = 16;
 	static const S32 TEXT_PAD = 1;
