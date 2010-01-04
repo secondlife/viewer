@@ -1045,4 +1045,11 @@ void LLTeleportHistoryPanel::onAccordionExpand(LLUICtrl* ctrl, const LLSD& param
 	bool expanded = param.asBoolean();
 	// Save accordion tab state to restore it in refresh()
 	setAccordionCollapsedByUser(ctrl, !expanded);
+
+	// Reset selection upon accordion being collapsed
+	// to disable "Teleport" and "Map" buttons for hidden item.
+	if (!expanded && mLastSelectedFlatlList)
+	{
+		mLastSelectedFlatlList->resetSelection();
+	}
 }
