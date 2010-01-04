@@ -52,7 +52,7 @@
 #include "llspeakers.h"
 
 //---------------------------------------------------------------------------------
-LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
+LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
 													mChannel(NULL),
 													mMessageList(NULL),
 													mSysWellChiclet(NULL),
@@ -90,13 +90,13 @@ BOOL LLSysWellWindow::postBuild()
 	// mouse up callback is not called in this case.
 	setMouseDownCallback(boost::bind(&LLSysWellWindow::releaseNewMessagesState, this));
 
-	return LLDockableFloater::postBuild();
+	return LLTransientDockableFloater::postBuild();
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
-	LLDockableFloater::setMinimized(minimize);
+	LLTransientDockableFloater::setMinimized(minimize);
 }
 
 //---------------------------------------------------------------------------------
@@ -106,15 +106,15 @@ void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
 	setVisible(TRUE);
 }
 
+void LLSysWellWindow::setSysWellChiclet(LLSysWellChiclet* chiclet) 
+{ 
+	mSysWellChiclet = chiclet;
+	if(mSysWellChiclet)
+		mSysWellChiclet->updateWidget(isWindowEmpty()); 
+}
 //---------------------------------------------------------------------------------
 LLSysWellWindow::~LLSysWellWindow()
 {
-}
-
-//---------------------------------------------------------------------------------
-void LLSysWellWindow::clear()
-{
-	mMessageList->clear();
 }
 
 //---------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	// do not show empty window
 	if (NULL == mMessageList || isWindowEmpty()) visible = FALSE;
 
-	LLDockableFloater::setVisible(visible);
+	LLTransientDockableFloater::setVisible(visible);
 
 	// update notification channel state	
 	if(mChannel)
@@ -192,15 +192,9 @@ void LLSysWellWindow::setVisible(BOOL visible)
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::onFocusLost()
-{
-	setVisible(false);
-}
-
-//---------------------------------------------------------------------------------
 void LLSysWellWindow::setDocked(bool docked, bool pop_on_undock)
 {
-	LLDockableFloater::setDocked(docked, pop_on_undock);
+	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 
 	// update notification channel state
 	if(mChannel)
@@ -287,6 +281,7 @@ void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
 
 		setResizeLimits(min_width,min_height);
 	}
+	mSysWellChiclet->updateWidget(isWindowEmpty());
 }
 
 void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
@@ -300,6 +295,7 @@ void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
 		// refresh list to recalculate mSeparator position
 		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
 	}
+	mSysWellChiclet->updateWidget(isWindowEmpty());
 }
 
 bool LLSysWellWindow::anotherTypeExists(EItemType item_type)

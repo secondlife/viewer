@@ -5121,6 +5121,10 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
        index="1"
        name="Decline"
        text="Decline"/>
+      <button
+       index="2"
+       name="Send IM"
+       text="Send IM"/>
     </form>
   </notification>
   

@@ -134,7 +134,7 @@ public:
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
 
-	typedef std::list<LLFace*> ll_face_list_t ;
+	typedef std::vector<LLFace*> ll_face_list_t ;
 
 protected:
 	virtual ~LLViewerTexture();
@@ -175,7 +175,8 @@ public:
 
 	virtual void addFace(LLFace* facep) ;
 	virtual void removeFace(LLFace* facep) ; 
-	const ll_face_list_t* getFaceList() const {return &mFaceList ;}
+	S32 getNumFaces() const;
+	const ll_face_list_t* getFaceList() const {return &mFaceList;}
 
 	void generateGLTexture() ;
 	void destroyGLTexture() ;
@@ -239,13 +240,14 @@ public:
 	/*virtual*/ void updateBindStatsForTester() ;
 protected:
 	void cleanup() ;
-	void init(bool firstinit) ;		
+	void init(bool firstinit) ;	
+	void reorganizeFaceList() ;
 
 private:
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 	virtual void switchToCachedImage();
-
+	
 protected:
 	LLUUID mID;
 	S32 mBoostLevel;				// enum describing priority level
@@ -257,13 +259,15 @@ protected:
 	mutable S8  mNeedsGLTexture;
 	mutable BOOL mNeedsResetMaxVirtualSize ;
 	mutable F32 mAdditionalDecodePriority;  // priority add to mDecodePriority.
-	LLFrameTimer mLastReferencedTimer;
-
-	ll_face_list_t mFaceList ; //reverse pointer pointing to the faces using this image as texture
+	LLFrameTimer mLastReferencedTimer;	
 
 	//GL texture
 	LLPointer<LLImageGL> mGLTexturep ;
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
+
+	ll_face_list_t    mFaceList ; //reverse pointer pointing to the faces using this image as texture
+	U32               mNumFaces ;
+	LLFrameTimer      mLastFaceListUpdateTimer ;
 
 	//do not use LLPointer here.
 	LLViewerMediaTexture* mParcelMedia ;

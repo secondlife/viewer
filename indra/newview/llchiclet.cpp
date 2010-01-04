@@ -49,7 +49,6 @@
 #include "llscriptfloater.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
-#include "llvoicecontrolpanel.h"
 #include "llgroupmgr.h"
 #include "llnotificationmanager.h"
 #include "lltransientfloatermgr.h"
@@ -225,6 +224,10 @@ void LLSysWellChiclet::setNewMessagesState(bool new_messages)
 	mIsNewMessagesState = new_messages;
 }
 
+void LLSysWellChiclet::updateWidget(bool is_window_empty)
+{
+	mButton->setEnabled(!is_window_empty);
+}
 // virtual
 BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -374,6 +377,13 @@ void LLNotificationChiclet::createMenu()
 		 LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
+/*virtual*/
+void LLNotificationChiclet::setCounter(S32 counter)
+{
+	LLSysWellChiclet::setCounter(counter);
+	updateWidget(getCounter() == 0);
+	
+}
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

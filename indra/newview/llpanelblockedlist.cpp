@@ -171,7 +171,7 @@ void LLPanelBlockedList::onPickBtnClick()
 {
 	const BOOL allow_multiple = FALSE;
 	const BOOL close_on_select = TRUE;
-	/*LLFloaterAvatarPicker* picker = */LLFloaterAvatarPicker::show(callbackBlockPicked, this, allow_multiple, close_on_select);
+	/*LLFloaterAvatarPicker* picker = */LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2), allow_multiple, close_on_select);
 
 	// *TODO: mantipov: should LLFloaterAvatarPicker be closed when panel is closed?
 	// old Floater dependency is not enable in panel
@@ -183,8 +183,7 @@ void LLPanelBlockedList::onBlockByNameClick()
 	LLFloaterGetBlockedObjectName::show(&LLPanelBlockedList::callbackBlockByName);
 }
 
-//static
-void LLPanelBlockedList::callbackBlockPicked(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* user_data)
+void LLPanelBlockedList::callbackBlockPicked(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
 	if (names.empty() || ids.empty()) return;
 	LLMute mute(ids[0], names[0], LLMute::AGENT);

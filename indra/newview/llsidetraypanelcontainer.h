@@ -51,6 +51,7 @@ public:
 
 	struct Params :	public LLInitParam::Block<Params, LLTabContainer::Params>
 	{
+		Optional<std::string> default_panel_name;
 		Params();
 	};
 
@@ -90,6 +91,7 @@ protected:
 
 	// Navigation history
 	panel_navigation_history_t mPanelHistory;
+	std::string mDefaultPanelName;
 };
 
 #endif //LL_LLSIDETRAY_PANEL_CONTAINER_H

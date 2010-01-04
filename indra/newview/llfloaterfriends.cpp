@@ -572,8 +572,7 @@ void LLPanelFriends::onClickIM(void* user_data)
 
 // static
 void LLPanelFriends::onPickAvatar(const std::vector<std::string>& names,
-									const std::vector<LLUUID>& ids,
-									void* )
+									const std::vector<LLUUID>& ids)
 {
 	if (names.empty()) return;
 	if (ids.empty()) return;
@@ -585,7 +584,7 @@ void LLPanelFriends::onClickAddFriend(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 	LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(onPickAvatar, user_data, FALSE, TRUE);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelFriends::onPickAvatar, _1,_2), FALSE, TRUE);
 	if (root_floater)
 	{
 		root_floater->addDependentFloater(picker);

@@ -234,6 +234,11 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(show_toast)
 	{
 		mToastList.push_back(new_toast_elem);
+		if(p.can_be_stored)
+		{
+			// store toasts immediately - EXT-3762
+			storeToast(new_toast_elem);
+		}
 		updateShowToastsState();
 		redrawToasts();
 	}	
@@ -306,7 +311,6 @@ void LLScreenChannel::storeToast(ToastElem& toast_elem)
 	if( it != mStoredToastList.end() )
 		return;
 
-	toast_elem.toast->stopTimer();
 	mStoredToastList.push_back(toast_elem);
 	mOnStoreToast(toast_elem.toast->getPanel(), toast_elem.id);
 }
@@ -343,6 +347,13 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	mOverflowToastHidden = false;
 
 	LLToast* toast = (*it).toast;
+
+	if(toast->getVisible())
+	{
+		// toast is already in channel
+		return;
+	}
+
 	toast->setIsHidden(false);
 	toast->resetTimer();
 	mToastList.push_back((*it));

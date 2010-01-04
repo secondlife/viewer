@@ -29,12 +29,14 @@
 	  height="75"
 	  layout="topleft"
 	  left="0"
+	  mouse_opaque="false"
 	  orientation="horizontal"
 	  top="100">
 	<!-- outer layout_panels center the inner one -->
 	<layout_panel
 		name="left_bookend"
 		width="0"
+	  mouse_opaque="false"
 		layout="topleft"
 		user_resize="false" />
 	<layout_panel
@@ -42,6 +44,7 @@
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
+	  mouse_opaque="false"
 		min_width="22"
 		width="22"
 		top="4">
@@ -263,10 +266,12 @@
 		  width="38"
 		  right="-2"
 		  top="-1"
+     	mouse_opaque="false"
 		  orientation="horizontal">
 		<layout_panel
 			layout="topleft"
 			width="16"
+     	mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false">
 		  <icon
@@ -282,6 +287,7 @@
 		<layout_panel
 			layout="topleft"
 			width="16"
+     	mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false">
 		  <icon

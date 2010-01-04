@@ -105,6 +105,9 @@ public:
 	F32				getVirtualSize() const { return mVSize; }
 	F32				getPixelArea() const { return mPixelArea; }
 
+	S32             getIndexInTex() const {return mIndexInTex ;}
+	void            setIndexInTex(S32 index) { mIndexInTex = index ;}
+
 	void			renderSetColor() const;
 	S32				renderElements(const U16 *index_array) const;
 	S32				renderIndexed ();
@@ -236,6 +239,7 @@ private:
 	U16			mGeomIndex;			// index into draw pool
 	U32			mIndicesCount;
 	U32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
+	S32         mIndexInTex ;
 
 	//previous rebuild's geometry info
 	U16			mLastGeomCount;

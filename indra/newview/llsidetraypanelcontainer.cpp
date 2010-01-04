@@ -38,6 +38,7 @@ static LLDefaultChildRegistry::Register<LLSideTrayPanelContainer> r2("panel_cont
 std::string LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME = "sub_panel_name";
 
 LLSideTrayPanelContainer::Params::Params()
+ : default_panel_name("default_panel_name")
 {
 	// Always hide tabs.
 	hide_tabs(true);
@@ -45,6 +46,7 @@ LLSideTrayPanelContainer::Params::Params()
 
 LLSideTrayPanelContainer::LLSideTrayPanelContainer(const Params& p)
  : LLTabContainer(p)
+ , mDefaultPanelName(p.default_panel_name)
 {
 }
 
@@ -53,19 +55,14 @@ void LLSideTrayPanelContainer::onOpen(const LLSD& key)
 	// Select specified panel and save navigation history.
 	if(key.has(PARAM_SUB_PANEL_NAME))
 	{
+		//*NOTE dzaporozhan
+		// Navigation history is not used after fix for EXT-3186,
+		// openPreviousPanel() always opens default panel
+
 		// Save panel navigation history
 		std::string panel_name = key[PARAM_SUB_PANEL_NAME];
-		S32 old_index = getCurrentPanelIndex();
 
 		selectTabByName(panel_name);
-
-		S32 new_index = getCurrentPanelIndex();
-
-		// Don't update navigation history if we are opening same panel again.
-		if(old_index != new_index)
-		{
-			mPanelHistory[panel_name] = old_index;
-		}
 	}
 	// Will reopen current panel if no panel name was passed.
 	getCurrentPanel()->onOpen(key);
@@ -73,11 +70,13 @@ void LLSideTrayPanelContainer::onOpen(const LLSD& key)
 
 void LLSideTrayPanelContainer::openPreviousPanel()
 {
-	std::string current_panel_name = getCurrentPanel()->getName();
-	panel_navigation_history_t::const_iterator it = mPanelHistory.find(current_panel_name);
-	if(mPanelHistory.end() != it)
+	if(!mDefaultPanelName.empty())
 	{
-		selectTab(it->second);
+		selectTabByName(mDefaultPanelName);
+	}
+	else
+	{
+		selectTab(0);
 	}
 }
 

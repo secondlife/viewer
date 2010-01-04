@@ -211,19 +211,31 @@ void audio_update_wind(bool force_update)
 		//
 		if (force_update || (last_camera_water_height * camera_water_height) < 0.f)
 		{
+            static LLUICachedControl<F32> rolloff("AudioLevelRolloff", 1.0f);
 			if (camera_water_height < 0.f)
 			{
-				gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff") * LL_ROLLOFF_MULTIPLIER_UNDER_WATER);
+				gAudiop->setRolloffFactor(rolloff * LL_ROLLOFF_MULTIPLIER_UNDER_WATER);
 			}
 			else 
 			{
-				gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+				gAudiop->setRolloffFactor(rolloff);
 			}
 		}
-		// this line rotates the wind vector to be listener (agent) relative
-		// Only use the agent's motion to compute wind noise, otherwise the world
-		// feels desolate on login when you are standing still.
-		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( -gAgent.getVelocity() );
+        
+        // Scale down the contribution of weather-simulation wind to the
+        // ambient wind noise.  Wind velocity averages 3.5 m/s, with gusts to 7 m/s
+        // whereas steady-state avatar walk velocity is only 3.2 m/s.
+        // Without this the world feels desolate on first login when you are
+        // standing still.
+        static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
+        LLVector3 scaled_wind_vec = gWindVec * wind_level;
+        
+        // Mix in the avatar's motion, subtract because when you walk north,
+        // the apparent wind moves south.
+        LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
+        
+		// rotate the wind vector to be listener (agent) relative
+		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( final_wind_vec );
 
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain

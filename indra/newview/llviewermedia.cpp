@@ -168,12 +168,16 @@ public:
 		// 499 is the error code for host not found, timeout, etc.
 		// 500 means "Internal Server error" but we decided it's okay to 
 		//     accept this and go past it in the MIME type probe
+		// 302 means the resource can be found temporarily in a different place - added this for join.secondlife.com
+		// 499 is a code specifc to join.secondlife.com (????) apparently safe to ignore
 		if(	((status >= 200) && (status < 300))	||
 			((status >= 400) && (status < 499))	|| 
-			(status == 500) )
+			(status == 500) ||
+			(status == 302) ||
+			(status == 499) 
+			)
 		{
 			// The probe was successful.
-			
 			if(mime_type.empty())
 			{
 				// Some sites don't return any content-type header at all.

@@ -35,7 +35,7 @@
 
 #include "llsyswellitem.h"
 
-#include "lldockablefloater.h"
+#include "lltransientdockablefloater.h"
 #include "llbutton.h"
 #include "llscreenchannel.h"
 #include "llscrollcontainer.h"
@@ -50,7 +50,7 @@ class LLScriptChiclet;
 class LLSysWellChiclet;
 
 
-class LLSysWellWindow : public LLDockableFloater
+class LLSysWellWindow : public LLTransientDockableFloater
 {
 public:
     LLSysWellWindow(const LLSD& key);
@@ -62,7 +62,6 @@ public:
 	bool isWindowEmpty();
 
 	// Operating with items
-    void clear( void );
 	void removeItemByID(const LLUUID& id);
 
 	// Operating with outfit
@@ -72,14 +71,9 @@ public:
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
 
-	/** 
-	 * Hides window when user clicks away from it (EXT-3084)
-	 */
-	/*virtual*/ void onFocusLost();
-
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
-	void setSysWellChiclet(LLSysWellChiclet* chiclet) { mSysWellChiclet = chiclet; }
+	void setSysWellChiclet(LLSysWellChiclet* chiclet);
 
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;

@@ -2284,9 +2284,9 @@ BOOL LLPanelLandAccess::postBuild()
 	childSetCommitCallback("PriceSpin", onCommitAny, this);
 	childSetCommitCallback("HoursSpin", onCommitAny, this);
 
-	childSetAction("add_allowed", onClickAddAccess, this);
+	childSetAction("add_allowed", boost::bind(&LLPanelLandAccess::onClickAddAccess, this));
 	childSetAction("remove_allowed", onClickRemoveAccess, this);
-	childSetAction("add_banned", onClickAddBanned, this);
+	childSetAction("add_banned", boost::bind(&LLPanelLandAccess::onClickAddBanned, this));
 	childSetAction("remove_banned", onClickRemoveBanned, this);
 	
 	mListAccess = getChild<LLNameListCtrl>("AccessList");
@@ -2694,29 +2694,22 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	self->refresh();
 }
 
-// static
-void LLPanelLandAccess::onClickAddAccess(void* data)
+void LLPanelLandAccess::onClickAddAccess()
 {
-	LLPanelLandAccess* panelp = (LLPanelLandAccess*)data;
-	if (panelp)
-	{
-		gFloaterView->getParentFloater(panelp)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarCBAccess, data) );
-	}
+	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1,_2)) );
 }
 
-// static
-void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
+void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
-	LLPanelLandAccess* panelp = (LLPanelLandAccess*)userdata;
 	if (!names.empty() && !ids.empty())
 	{
 		LLUUID id = ids[0];
-		LLParcel* parcel = panelp->mParcel->getParcel();
+		LLParcel* parcel = mParcel->getParcel();
 		if (parcel)
 		{
 			parcel->addToAccessList(id, 0);
 			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_ACCESS);
-			panelp->refresh();
+			refresh();
 		}
 	}
 }
@@ -2745,25 +2738,23 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 }
 
 // static
-void LLPanelLandAccess::onClickAddBanned(void* data)
+void LLPanelLandAccess::onClickAddBanned()
 {
-	LLPanelLandAccess* panelp = (LLPanelLandAccess*)data;
-	gFloaterView->getParentFloater(panelp)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarCBBanned, data) );
+	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1,_2)));
 }
 
 // static
-void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
+void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
-	LLPanelLandAccess* panelp = (LLPanelLandAccess*)userdata;
 	if (!names.empty() && !ids.empty())
 	{
 		LLUUID id = ids[0];
-		LLParcel* parcel = panelp->mParcel->getParcel();
+		LLParcel* parcel = mParcel->getParcel();
 		if (parcel)
 		{
 			parcel->addToBanList(id, 0);
 			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_BAN);
-			panelp->refresh();
+			refresh();
 		}
 	}
 }

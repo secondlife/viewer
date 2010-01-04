@@ -89,14 +89,14 @@ private:
 	void setBadge(const char* id, Badge badge);
 
 	static void onChangeValue(LLUICtrl *ctrl, void *userdata);
-	static void doSelectAgent(void *userdata);
+	void doSelectAgent();
 	static void doCancel(void *userdata);
 	static void doSellLand(void *userdata);
 	bool onConfirmSale(const LLSD& notification, const LLSD& response);
 	static void doShowObjects(void *userdata);
 	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
 
-	static void callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
+	void callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 
 public:
 	virtual BOOL postBuild();
@@ -165,7 +165,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 	childSetCommitCallback("price", onChangeValue, this);
 	childSetPrevalidate("price", LLLineEditor::prevalidateNonNegativeS32);
 	childSetCommitCallback("sell_objects", onChangeValue, this);
-	childSetAction("sell_to_select_agent", doSelectAgent, this);
+	childSetAction("sell_to_select_agent", boost::bind( &LLFloaterSellLandUI::doSelectAgent, this));
 	childSetAction("cancel_btn", doCancel, this);
 	childSetAction("sell_btn", doSellLand, this);
 	childSetAction("show_objects", doShowObjects, this);
@@ -361,7 +361,7 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 		self->mSellToBuyer = true;
 		if (self->mAuthorizedBuyer.isNull())
 		{
-			doSelectAgent(self);
+			self->doSelectAgent();
 		}
 	}
 	else if (sell_to == "anyone")
@@ -384,30 +384,26 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 	self->refreshUI();
 }
 
-// static
-void LLFloaterSellLandUI::doSelectAgent(void *userdata)
+void LLFloaterSellLandUI::doSelectAgent()
 {
-	LLFloaterSellLandUI* floaterp = (LLFloaterSellLandUI*)userdata;
 	// grandparent is a floater, in order to set up dependency
-	floaterp->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarPick, floaterp, FALSE, TRUE));
+	addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE));
 }
 
-// static
-void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
+void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {	
-	LLFloaterSellLandUI* floaterp = (LLFloaterSellLandUI*)data;
-	LLParcel* parcel = floaterp->mParcelSelection->getParcel();
+	LLParcel* parcel = mParcelSelection->getParcel();
 
 	if (names.empty() || ids.empty()) return;
 	
 	LLUUID id = ids[0];
 	parcel->setAuthorizedBuyerID(id);
 
-	floaterp->mAuthorizedBuyer = ids[0];
+	mAuthorizedBuyer = ids[0];
 
-	floaterp->childSetText("sell_to_agent", names[0]);
+	childSetText("sell_to_agent", names[0]);
 
-	floaterp->refreshUI();
+	refreshUI();
 }
 
 // static

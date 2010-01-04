@@ -43,11 +43,10 @@ public:
 	typedef boost::signals2::signal<bool(const std::vector<LLUUID>&), boost_boolean_combiner> validate_signal_t;
 	typedef validate_signal_t::slot_type validate_callback_t;
 
-	// Call this to select an avatar.
 	// The callback function will be called with an avatar name and UUID.
-	typedef void(*callback_t)(const std::vector<std::string>&, const std::vector<LLUUID>&, void*);
-	static LLFloaterAvatarPicker* show(callback_t callback, 
-									   void* userdata,
+	typedef boost::function<void (const std::vector<std::string>&, const std::vector<LLUUID>&)> select_callback_t;
+	// Call this to select an avatar.	
+	static LLFloaterAvatarPicker* show(select_callback_t callback, 
 									   BOOL allow_multiple = FALSE,
 									   BOOL closeOnSelect = FALSE);
 
@@ -61,16 +60,16 @@ public:
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
 
 private:
-	static void editKeystroke(class LLLineEditor* caller, void* user_data);
+	void editKeystroke(class LLLineEditor* caller, void* user_data);
 
-	static void onBtnFind(void* userdata);
-	static void onBtnSelect(void* userdata);
-	static void onBtnRefresh(void* userdata);
-	static void onRangeAdjust(LLUICtrl* source, void* data);
-	static void onBtnClose(void* userdata);
-	static void onList(class LLUICtrl* ctrl, void* userdata);
-		   void onTabChanged();
-		   bool isSelectBtnEnabled();
+	void onBtnFind();
+	void onBtnSelect();
+	void onBtnRefresh();
+	void onRangeAdjust();
+	void onBtnClose();
+	void onList();
+	void onTabChanged();
+	bool isSelectBtnEnabled();
 
 	void populateNearMe();
 	void populateFriend();
@@ -87,9 +86,8 @@ private:
 	BOOL				mNearMeListComplete;
 	BOOL				mCloseOnSelect;
 
-	void (*mCallback)(const std::vector<std::string>& name, const std::vector<LLUUID>& id, void* userdata);
-	void* mCallbackUserdata;
 	validate_signal_t mOkButtonValidateSignal;
+	select_callback_t mSelectionCallback;
 };
 
 #endif

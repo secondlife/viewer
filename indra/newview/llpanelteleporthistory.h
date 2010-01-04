@@ -97,6 +97,7 @@ private:
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
 	void onGearButtonClicked();
+	bool isActionEnabled(const LLSD& userdata) const;
 
 	void setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
 	bool isAccordionCollapsedByUser(LLUICtrl* acc_tab);

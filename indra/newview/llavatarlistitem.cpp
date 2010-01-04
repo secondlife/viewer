@@ -165,7 +165,7 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	setStyle(online ? IS_ONLINE : IS_OFFLINE);
+	setState(online ? IS_ONLINE : IS_OFFLINE);
 }
 
 void LLAvatarListItem::setName(const std::string& name)
@@ -178,7 +178,7 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setStyle(EItemStyle item_style)
+void LLAvatarListItem::setState(EItemState item_style)
 {
 	item_style_map_t& item_styles_params_map = getItemStylesParams();
 

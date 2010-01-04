@@ -265,6 +265,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+    <key>AudioLevelWind</key>
+    <map>
+      <key>Comment</key>
+      <string>Audio level of wind noise when standing still</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
 	<key>AudioSteamingMedia</key>
     <map>
       <key>Comment</key>
@@ -2344,6 +2355,17 @@
       <key>Value</key>
       <string>89556747-24cb-43ed-920b-47caed15465f</string>
     </map>
+    <key>DefaultUploadCost</key>
+    <map>
+      <key>Comment</key>
+      <string>Default sound/image/file upload cost(in case economy data is not available).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
     <key>DisableCameraConstraints</key>
     <map>
       <key>Comment</key>
@@ -3223,6 +3245,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.75</real>
+    </map>
+    <key>FolderIndentation</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels to indent subfolders in inventory</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>8</integer>
     </map>
     <key>FolderLoadingMessageWaitTime</key>
     <map>
@@ -8726,6 +8759,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>20.0</real>
+    </map>
+    <key>TextureDecodeDisabled</key>
+    <map>
+      <key>Comment</key>
+      <string>If TRUE, do not fetch and decode any textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>TextureDisable</key>
     <map>
