@@ -68,6 +68,7 @@ public:
 	void	onMouseLeave	(S32 x, S32 y, MASK mask);
 	void	onMouseEnter	(S32 x, S32 y, MASK mask);
 	BOOL	handleMouseDown	(S32 x, S32 y, MASK mask);
+	BOOL	handleMouseUp	(S32 x, S32 y, MASK mask);
 
 	virtual BOOL postBuild();
 
