@@ -349,7 +349,6 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 	}
 
 	// Initialize chiclet.
-	mChiclet->setRect(LLRect(5, 28, 30, 3)); // *HACK: workaround for (EXT-3599)
 	mChiclet->setChicletSizeChangedCallback(boost::bind(&LLIMWellWindow::RowPanel::onChicletSizeChanged, this, mChiclet, _2));
 	mChiclet->enableCounterControl(true);
 	mChiclet->setCounter(chicletCounter);
