@@ -62,7 +62,6 @@
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
-#include "llurlsimstring.h"
 #include "lluictrlfactory.h"
 #include "llhttpclient.h"
 #include "llweb.h"
@@ -229,8 +228,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 
-	LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
 	std::string sim_string = LLURLSimString::sInstance.mSimString;
+	if(sim_string.empty())
+	{
+		LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
+	}
+
 	if (!sim_string.empty())
 	{
 		// Replace "<Type region name>" with this region name

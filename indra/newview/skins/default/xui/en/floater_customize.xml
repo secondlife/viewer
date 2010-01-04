@@ -12,16 +12,6 @@
  title="APPEARANCE"
  top_delta="-185"
  width="524">
- <check_box
-             enabled="true"
-             height="23"
-             label="Show Attachments in Previews"
-             layout="topleft"
-             left="110"
-             name="show attachments"
-             tool_tip="Display attachments on your avatar in the preview panels below."
-             top="20"
-             width="146" />
     <tab_container
      height="517"
      layout="topleft"

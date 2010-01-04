@@ -100,6 +100,7 @@ public:
 	LLLibraryOutfitsFetch() : mCurrFetchStep(LOFS_FOLDER), mOutfitsPopulated(false) {}
 	~LLLibraryOutfitsFetch() {}
 	virtual void done();	
+	void doneIdle();
 protected:
 	void folderDone(void);
 	void outfitsDone(void);
@@ -2084,51 +2085,50 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 {	
 	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch();
 	
-	// What we do here is get the complete information on the items in
-	// the inventory, and set up an observer that will wait for that to
-	// happen.
+	// Get the complete information on the items in the inventory and 
+	// setup an observer that will wait for that to happen.
 	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
 	const LLUUID my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
 	folders.push_back(my_outfits_id);
+	gInventory.addObserver(outfits);
 	outfits->fetchDescendents(folders);
-	if(outfits->isEverythingComplete())
-	{
-		// everything is already here - call done.
-		outfits->done();
-	}
-	else
-	{
-		// it's all on it's way - add an observer, and the inventory
-		// will call done for us when everything is here.
-		gInventory.addObserver(outfits);
-	}
 }
 
 void LLLibraryOutfitsFetch::done()
 {
-	switch (mCurrFetchStep){
+	// Delay this until idle() routine, since it's a heavy operation and
+	// we also can't have it run within notifyObservers.
+	doOnIdle(boost::bind(&LLLibraryOutfitsFetch::doneIdle,this));
+	gInventory.removeObserver(this); // Prevent doOnIdle from being added twice.
+}
+
+void LLLibraryOutfitsFetch::doneIdle()
+{
+	gInventory.addObserver(this); // Add this back in since it was taken out during ::done()
+	switch (mCurrFetchStep)
+	{
 		case LOFS_FOLDER:
-			mCurrFetchStep = LOFS_OUTFITS;
 			folderDone();
 			break;
 		case LOFS_OUTFITS:
-			mCurrFetchStep = LOFS_CONTENTS;
 			outfitsDone();
 			break;
 		case LOFS_CONTENTS:
-			// No longer need this observer hanging around.
-			gInventory.removeObserver(this);
 			contentsDone();
 			break;
 		default:
-			gInventory.removeObserver(this);
-			delete this;
-			return;
+			llwarns << "Got invalid state for outfit fetch: " << mCurrFetchStep << llendl;
+			mOutfitsPopulated = TRUE;
+			break;
 	}
+
+	// We're completely done.  Cleanup.
 	if (mOutfitsPopulated)
 	{
+		gInventory.removeObserver(this);
 		delete this;
+		return;
 	}
 }
 
@@ -2142,7 +2142,6 @@ void LLLibraryOutfitsFetch::folderDone(void)
 	if (cat_array.count() > 0 || wearable_array.count() > 0)
 	{
 		mOutfitsPopulated = true;
-		gInventory.removeObserver(this);
 		return;
 	}
 	
@@ -2151,17 +2150,11 @@ void LLLibraryOutfitsFetch::folderDone(void)
 	
 	mCompleteFolders.clear();
 	
-	// What we do here is get the complete information on the items in
-	// the inventory, and set up an observer that will wait for that to
-	// happen.
+	// Get the complete information on the items in the inventory.
 	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
 	folders.push_back(library_clothing_id);
+	mCurrFetchStep = LOFS_OUTFITS;
 	fetchDescendents(folders);
-	if(isEverythingComplete())
-	{
-		// everything is already here - call done.
-		outfitsDone();
-	}
 }
 
 void LLLibraryOutfitsFetch::outfitsDone(void)
@@ -2172,20 +2165,23 @@ void LLLibraryOutfitsFetch::outfitsDone(void)
 								  LLInventoryModel::EXCLUDE_TRASH);
 	
 	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
-	for(S32 i = 0; i < cat_array.count(); ++i)
+	
+	llassert(cat_array.count() > 0);
+	for (LLInventoryModel::cat_array_t::const_iterator iter = cat_array.begin();
+		 iter != cat_array.end();
+		 ++iter)
 	{
-		if (cat_array.get(i)->getName() != "More Outfits" && cat_array.get(i)->getName() != "Ruth"){
-			folders.push_back(cat_array.get(i)->getUUID());
-			mOutfits.push_back( std::make_pair(cat_array.get(i)->getUUID(), cat_array.get(i)->getName() ));
+		const LLViewerInventoryCategory *cat = iter->get();
+		if (cat->getName() != "More Outfits" && cat->getName() != "Ruth")
+		{
+			folders.push_back(cat->getUUID());
+			mOutfits.push_back(std::make_pair(cat->getUUID(), cat->getName()));
 		}
 	}
 	mCompleteFolders.clear();
+
+	mCurrFetchStep = LOFS_CONTENTS;
 	fetchDescendents(folders);
-	if(isEverythingComplete())
-	{
-		// everything is already here - call done.
-		contentsDone();
-	}
 }
 
 void LLLibraryOutfitsFetch::contentsDone(void)
@@ -2197,9 +2193,7 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 		LLUUID folder_id = gInventory.createNewCategory(parent_id,
 														LLFolderType::FT_OUTFIT,
 														mOutfits[i].second);
-		
 		LLAppearanceManager::getInstance()->shallowCopyCategory(mOutfits[i].first, folder_id, NULL);
-		gInventory.notifyObservers();
 	}
 	mOutfitsPopulated = true;
 }
