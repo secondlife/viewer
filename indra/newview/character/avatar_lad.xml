@@ -5608,9 +5608,7 @@
   <layer_set
     body_region="head"
     width="512"
-    height="512"
-  clear_alpha="false"
-    alpha_tga_file="head_alpha.tga">
+    height="512">
     <layer
        name="head bump base"
        fixed_color = "128,128,128,255"
@@ -6609,6 +6607,13 @@ render_pass="bump">
        local_texture="head_bodypaint" />
     </layer>
     <layer
+	name="eyelash alpha"
+	visibility_mask="TRUE">
+       <texture
+	   tga_file="head_alpha.tga"
+	   file_is_mask="TRUE" />
+    </layer>
+    <layer
        name="head alpha"
        visibility_mask="TRUE">
       <texture
@@ -6619,6 +6624,7 @@ render_pass="bump">
       <texture
          local_texture="head_tattoo" />
     </layer>
+
 
   </layer_set>
 
