@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  can_minimize="false" 
+  can_resize="false"
+  height="105"
+  layout="topleft"
+  name="window_size"
+  title="WINDOW SIZE"
+  width="205">
+  <string name="resolution_format">[RES_X] x [RES_Y]</string>
+    <text
+     follows="top|left"
+     font="SansSerif"
+     height="16"
+     left="15"
+     top="10" 
+     name="windowsize_text"
+     width="280">
+     Set window size:
+    </text>
+    <combo_box
+     allow_text_entry="true"
+     height="23"
+     follows="left|top"
+     left_delta="0"
+     max_chars="20"
+     name="window_size_combo"
+     tool_tip="width x height"
+     top_pad="5"
+     width="179">
+        <combo_box.item
+         label="1000 x 700 (default)"
+         name="item0"
+         value="1000 x 700" />
+        <combo_box.item
+         label="1024 x 768"
+         name="item1"
+         value="1024 x 768" />
+        <combo_box.item
+         label="1280 x 720 (720p)"
+         name="item2"
+         value="1280 x 720" />
+        <combo_box.item
+         label="1920 x 1080 (1080p)"
+         name="item3"
+         value="1920 x 1080" />
+    </combo_box>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Set"
+     left_delta="0"
+     name="set_btn"
+     top_pad="10"
+     width="85" />
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     left_pad="5"
+     name="cancel_btn"
+     top_delta="0"
+     width="85" />
+</floater>

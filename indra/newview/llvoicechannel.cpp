@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
-#include "llfloatercall.h"
 #include "llfloaterreg.h"
 #include "llimview.h"
 #include "llnotifications.h"

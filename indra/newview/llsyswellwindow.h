@@ -62,7 +62,6 @@ public:
 	bool isWindowEmpty();
 
 	// Operating with items
-    void clear( void );
 	void removeItemByID(const LLUUID& id);
 
 	// Operating with outfit
@@ -74,7 +73,7 @@ public:
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
-	void setSysWellChiclet(LLSysWellChiclet* chiclet) { mSysWellChiclet = chiclet; }
+	void setSysWellChiclet(LLSysWellChiclet* chiclet);
 
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;

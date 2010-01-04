@@ -23,7 +23,7 @@
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
  * and agree to abide by those obligations.
- * 
+  *
  * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
@@ -1208,22 +1208,41 @@ void LLMenuItemBranchGL::openMenu()
 
 		branch->arrange();
 
-		LLRect rect = branch->getRect();
+		LLRect branch_rect = branch->getRect();
 		// calculate root-view relative position for branch menu
 		S32 left = getRect().mRight;
 		S32 top = getRect().mTop - getRect().mBottom;
 
 		localPointToOtherView(left, top, &left, &top, branch->getParent());
 
-		rect.setLeftTopAndSize( left, top,
-								rect.getWidth(), rect.getHeight() );
+		branch_rect.setLeftTopAndSize( left, top,
+								branch_rect.getWidth(), branch_rect.getHeight() );
 
 		if (branch->getCanTearOff())
 		{
-			rect.translate(0, TEAROFF_SEPARATOR_HEIGHT_PIXELS);
+			branch_rect.translate(0, TEAROFF_SEPARATOR_HEIGHT_PIXELS);
 		}
-		branch->setRect( rect );
-		branch->translateIntoRectWithExclusion( menu_region_rect, getMenu()->getRect(), FALSE );
+		branch->setRect( branch_rect );
+		
+		// if branch extends outside of menu region change the direction it opens in
+		S32 x, y;
+		S32 delta_x = 0;
+		S32 delta_y = 0;
+		branch->localPointToOtherView( 0, 0, &x, &y, branch->getParent() ); 
+		if( y < menu_region_rect.mBottom )
+		{
+			// open upwards if menu extends past bottom
+			// adjust by the height of the menu item branch since it is a submenu
+			delta_y = branch_rect.getHeight() - getRect().getHeight();		
+		}
+
+		if( x + branch_rect.getWidth() > menu_region_rect.mRight )
+		{
+			// move sub-menu over to left side
+			delta_x = llmax(-x, ( -(branch_rect.getWidth() + getRect().getWidth())));
+		}
+		branch->translate( delta_x, delta_y );
+
 		branch->setVisible( TRUE );
 		branch->getParent()->sendChildToFront(branch);
 

@@ -157,7 +157,6 @@ set(viewer_SOURCE_FILES
     llfloaterbuycontents.cpp
     llfloaterbuycurrency.cpp
     llfloaterbuyland.cpp
-    llfloatercall.cpp
     llfloatercamera.cpp
     llfloaterchat.cpp
     llfloaterchatterbox.cpp
@@ -219,6 +218,7 @@ set(viewer_SOURCE_FILES
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
+    llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
     llfolderview.cpp
     llfolderviewitem.cpp
@@ -302,7 +302,6 @@ set(viewer_SOURCE_FILES
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
     llpanelavatar.cpp
-    llpanelavatarrow.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
     llpanelclassified.cpp
@@ -516,7 +515,6 @@ set(viewer_SOURCE_FILES
     llvoground.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
-    llvoicecontrolpanel.cpp
     llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
     llvoinventorylistener.cpp
@@ -668,7 +666,6 @@ set(viewer_HEADER_FILES
     llfloaterbuycontents.h
     llfloaterbuycurrency.h
     llfloaterbuyland.h
-    llfloatercall.h
     llfloatercamera.h
     llfloaterchat.h
     llfloaterchatterbox.h
@@ -729,6 +726,7 @@ set(viewer_HEADER_FILES
     llfloaterwater.h
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
+    llfloaterwindowsize.h
     llfloaterworldmap.h
     llfolderview.h
     llfoldervieweventlistener.h
@@ -807,7 +805,6 @@ set(viewer_HEADER_FILES
     lloutputmonitorctrl.h
     lloverlaybar.h
     llpanelavatar.h
-    llpanelavatarrow.h
     llpanelavatartag.h
     llpanelblockedlist.h
     llpanelclassified.h
@@ -1022,7 +1019,6 @@ set(viewer_HEADER_FILES
     llvoground.h
     llvoicechannel.h
     llvoiceclient.h
-    llvoicecontrolpanel.h
     llvoiceremotectrl.h
     llvoicevisualizer.h
     llvoinventorylistener.h

@@ -9,7 +9,7 @@
  width="1024">
   <layout_stack name="menu_stack" orientation="vertical" height="768" border_size="0">
     <panel auto_resize="false" width="1024" name="status_bar" filename="panel_status_bar.xml"/>
-    <panel auto_resize="false" width="1024" height="65" name="navigation bar" filename="panel_navigation_bar.xml"/>
+    <panel auto_resize="false" width="1024" height="60" name="navigation bar" filename="panel_navigation_bar.xml"/>
     <layout_stack name="hud_stack" orientation="horizontal" auto_resize="true" width="1024" height="500" follows="all">
       <panel auto_resize="true" name="floater_view" height="500"/>
       <panel auto_resize="false" filename="panel_side_tray.xml" height="500" width="333"/>

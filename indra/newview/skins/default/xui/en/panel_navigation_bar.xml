@@ -4,7 +4,7 @@
  background_visible="true"
  bg_opaque_color="MouseGray"
  follows="left|top|right"
- height="65"
+ height="60"
  layout="topleft"
  name="navigation_bar"
  chrome="true"
@@ -18,7 +18,7 @@
 	 visible="true"
 	 left="0"
 	 top="0"
-	 height="65"
+	 height="60"
 	 width="600"/>
 	<icon
 	 follows="all"
@@ -29,7 +29,7 @@
 	 visible="false"
 	 left="0"
 	 top="0"
-	 height="65"
+	 height="60"
 	 width="600"/>
 	<panel
 	 background_visible="false"
@@ -149,13 +149,13 @@
 
     <favorites_bar
      follows="left|right|top"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="15"
      layout="topleft"
      left="0"
      name="favorite"
      image_drag_indication="arrow_down.tga"
-   bottom="62"
+   bottom="57"
    width="590">
     <chevron_button name=">>"
                      image_unselected="TabIcon_Close_Off"

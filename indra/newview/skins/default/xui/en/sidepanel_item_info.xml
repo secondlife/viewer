@@ -149,7 +149,7 @@
      width="20" />
 	    <text
 		     type="string"
-     follows="left|right"
+     follows="left|right|top"
      font="SansSerifSmall"
      height="15"
      layout="topleft"
@@ -191,7 +191,7 @@
 			   width="20" />
 	     <text
 			 type="string"
-			   follows="left|right"
+			   follows="left|right|top"
 			   font="SansSerifSmall"
 			   height="15"
 			   layout="topleft"
