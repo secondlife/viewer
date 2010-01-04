@@ -121,16 +121,6 @@
                       tab_stop="false"
                       top="0"
                       width="1024"/>
-        <snapshot_floater_view enabled="false"
-                               follows="all"
-                               height="500"
-                               left="0"
-                               mouse_opaque="false"
-                               name="Snapshot Floater View"
-                               tab_stop="false"
-                               top="0"
-                               visible="false"
-                               width="1024"/>
       </panel>
       <debug_view follows="all"
                   left="0"
@@ -162,6 +152,16 @@
                mouse_opaque="false"
                name="Menu Holder"
                width="1024"/>
+  <snapshot_floater_view enabled="false"
+                         follows="all"
+                         height="768"
+                         left="0"
+                         mouse_opaque="false"
+                         name="Snapshot Floater View"
+                         tab_stop="false"
+                         top="0"
+                         visible="false"
+                         width="1024"/>
   <tooltip_view top="0"
                 follows="all"
                 height="768"
