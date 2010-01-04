@@ -5883,6 +5883,10 @@ void LLVoiceClient::setPTTIsToggle(bool PTTIsToggle)
 	mPTTIsToggle = PTTIsToggle;
 }
 
+bool LLVoiceClient::getPTTIsToggle()
+{
+	return mPTTIsToggle;
+}
 
 void LLVoiceClient::setPTTKey(std::string &key)
 {

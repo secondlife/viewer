@@ -279,10 +279,14 @@ void LLVoiceChannel::deactivate()
 	if (callStarted())
 	{
 		setState(STATE_HUNG_UP);
-		// mute the microphone if required when returning to the proximal channel
-		if (gSavedSettings.getBOOL("AutoDisengageMic") && sCurrentVoiceChannel == this)
+		
+		//Default mic is OFF when leaving voice calls
+		if (gSavedSettings.getBOOL("AutoDisengageMic") && 
+			sCurrentVoiceChannel == this &&
+			gVoiceClient->getUserPTTState())
 		{
 			gSavedSettings.setBOOL("PTTCurrentlyEnabled", true);
+			gVoiceClient->inputUserControlState(true);
 		}
 	}
 
@@ -499,6 +503,13 @@ void LLVoiceChannelGroup::activate()
 				LLRecentPeople::instance().add(buddy_id);
 		}
 #endif
+
+		//Mic default state is OFF on initiating/joining Ad-Hoc/Group calls
+		if (gVoiceClient->getUserPTTState() && gVoiceClient->getPTTIsToggle())
+		{
+			gVoiceClient->inputUserControlState(true);
+		}
+		
 	}
 }
 
@@ -812,6 +823,12 @@ void LLVoiceChannelP2P::activate()
 
 		// Add the party to the list of people with which we've recently interacted.
 		LLRecentPeople::instance().add(mOtherUserID);
+
+		//Default mic is ON on initiating/joining P2P calls
+		if (!gVoiceClient->getUserPTTState() && gVoiceClient->getPTTIsToggle())
+		{
+			gVoiceClient->inputUserControlState(true);
+		}
 	}
 }
 
