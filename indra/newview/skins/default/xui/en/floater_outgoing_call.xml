@@ -11,6 +11,10 @@
  title="CALLING"
  width="410">
     <floater.string
+     name="lifetime">
+        5
+    </floater.string>
+    <floater.string
      name="localchat">
         Nearby Voice Chat
     </floater.string>
@@ -33,6 +37,13 @@
      image_name="icon_avatar_online.tga"
      layout="topleft"
      left_delta="19"
+     top="35"
+     width="36" />
+    <group_icon
+     enabled="false"
+     follows="left|top"
+     height="36"
+     layout="topleft"
      top="35"
      width="36" />
     <text

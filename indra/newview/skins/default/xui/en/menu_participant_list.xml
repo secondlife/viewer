@@ -2,7 +2,29 @@
 <context_menu
  layout="topleft"
  name="Participant List Context Menu">
- <menu_item_call
+    <menu_item_check
+     label="Sort by Name"
+     layout="topleft"
+     name="SortByName">
+        <menu_item_check.on_click
+         function="ParticipantList.Sort"
+         parameter="sort_by_name" />
+        <menu_item_check.on_check
+         function="ParticipantList.CheckItem"
+         parameter="is_sorted_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort by Recent Speakers"
+     layout="topleft"
+     name="SortByRecentSpeakers">
+        <menu_item_check.on_click
+         function="ParticipantList.Sort"
+         parameter="sort_by_recent_speakers" />
+        <menu_item_check.on_check
+         function="ParticipantList.CheckItem"
+         parameter="is_sorted_by_recent_speakers" />
+    </menu_item_check>
+    <menu_item_call
      label="View Profile"
      layout="topleft"
      name="View Profile">
@@ -51,6 +73,8 @@
         <menu_item_call.on_click
          function="Avatar.Pay" />
     </menu_item_call>
+        <menu_item_separator
+         layout="topleft" />
     <menu_item_check
      label="Block Voice"
      layout="topleft"
@@ -64,8 +88,6 @@
          function="ParticipantList.EnableItem"
          parameter="can_block" />
     </menu_item_check>
-        <menu_item_separator
-         layout="topleft" />
     <menu_item_check
      label="Block Text"
      layout="topleft"
@@ -79,6 +101,8 @@
          function="ParticipantList.EnableItem"
          parameter="can_mute_text" />
     </menu_item_check>
+        <menu_item_separator
+         layout="topleft" />
     <context_menu
      label="Moderator Options &gt;"
      layout="topleft"

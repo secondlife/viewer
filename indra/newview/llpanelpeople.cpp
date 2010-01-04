@@ -564,6 +564,7 @@ BOOL LLPanelPeople::postBuild()
 	buttonSetAction("chat_btn",			boost::bind(&LLPanelPeople::onChatButtonClicked,		this));
 	buttonSetAction("im_btn",			boost::bind(&LLPanelPeople::onImButtonClicked,			this));
 	buttonSetAction("call_btn",			boost::bind(&LLPanelPeople::onCallButtonClicked,		this));
+	buttonSetAction("group_call_btn",	boost::bind(&LLPanelPeople::onGroupCallButtonClicked,	this));
 	buttonSetAction("teleport_btn",		boost::bind(&LLPanelPeople::onTeleportButtonClicked,	this));
 	buttonSetAction("share_btn",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 
@@ -573,7 +574,7 @@ BOOL LLPanelPeople::postBuild()
 	getChild<LLPanel>(GROUP_TAB_NAME)->childSetAction("groups_viewsort_btn",boost::bind(&LLPanelPeople::onGroupsViewSortButtonClicked,		this));
 
 	// Must go after setting commit callback and initializing all pointers to children.
-	mTabContainer->selectTabByName(FRIENDS_TAB_NAME);
+	mTabContainer->selectTabByName(NEARBY_TAB_NAME);
 
 	// Create menus.
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -733,6 +734,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetVisible("view_profile_btn",	!group_tab_active);
 	buttonSetVisible("im_btn",				!group_tab_active);
 	buttonSetVisible("call_btn",			!group_tab_active);
+	buttonSetVisible("group_call_btn",		group_tab_active);
 	buttonSetVisible("teleport_btn",		friends_tab_active);
 	buttonSetVisible("share_btn",			nearby_tab_active || friends_tab_active);
 
@@ -781,6 +783,7 @@ void LLPanelPeople::updateButtons()
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
+	buttonSetEnabled("group_call_btn", !none_group_selected);
 	buttonSetEnabled("chat_btn", !none_group_selected);
 }
 
@@ -962,6 +965,13 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 
 	mFilterSubString = search_upper;
 
+	//store accordion tabs state before any manipulation with accordion tabs
+	if(!mFilterSubString.empty())
+	{
+		notifyChildren(LLSD().with("action","store_state"));
+	}
+
+
 	// Apply new filter.
 	mNearbyList->setNameFilter(mFilterSubString);
 	mOnlineFriendList->setNameFilter(mFilterSubString);
@@ -973,6 +983,12 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	setAccordionCollapsedByUser("tab_all", false);
 
 	showFriendsAccordionsIfNeeded();
+
+	//restore accordion tabs state _after_ all manipulations...
+	if(mFilterSubString.empty())
+	{
+		notifyChildren(LLSD().with("action","restore_state"));
+	}
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
@@ -980,6 +996,8 @@ void LLPanelPeople::onTabSelected(const LLSD& param)
 	std::string tab_name = getChild<LLPanel>(param.asString())->getName();
 	mNearbyListUpdater->setActive(tab_name == NEARBY_TAB_NAME);
 	updateButtons();
+
+	showFriendsAccordionsIfNeeded();
 
 	if (GROUP_TAB_NAME == tab_name)
 		mFilterEditor->setLabel(getString("groups_filter_label"));
@@ -1051,7 +1069,7 @@ bool LLPanelPeople::isItemsFreeOfFriends(const std::vector<LLUUID>& uuids)
 void LLPanelPeople::onAddFriendWizButtonClicked()
 {
 	// Show add friend wizard.
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(onAvatarPicked, NULL, FALSE, TRUE);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), FALSE, TRUE);
 	// Need to disable 'ok' button when friend occurs in selection
 	if (picker)	picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
 	LLFloater* root_floater = gFloaterView->getParentFloater(this);
@@ -1112,8 +1130,7 @@ void LLPanelPeople::onActivateButtonClicked()
 // static
 void LLPanelPeople::onAvatarPicked(
 		const std::vector<std::string>& names,
-		const std::vector<LLUUID>& ids,
-		void*)
+		const std::vector<LLUUID>& ids)
 {
 	if (!names.empty() && !ids.empty())
 		LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
@@ -1270,6 +1287,11 @@ void LLPanelPeople::onCallButtonClicked()
 		// initiate an ad-hoc voice chat with multiple users
 		LLAvatarActions::startAdhocCall(selected_uuids);
 	}
+}
+
+void LLPanelPeople::onGroupCallButtonClicked()
+{
+	LLGroupActions::startCall(getCurrentItemID());
 }
 
 void LLPanelPeople::onTeleportButtonClicked()

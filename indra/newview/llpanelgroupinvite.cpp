@@ -292,8 +292,8 @@ void LLPanelGroupInvite::impl::callbackClickAdd(void* userdata)
 		LLFloater* parentp;
 
 		parentp = gFloaterView->getParentFloater(panelp);
-		parentp->addDependentFloater(LLFloaterAvatarPicker::show(callbackAddUsers,
-																 panelp->mImplementation,
+		parentp->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(impl::callbackAddUsers, _1, _2,
+																panelp->mImplementation),
 																 TRUE));
 	}
 }

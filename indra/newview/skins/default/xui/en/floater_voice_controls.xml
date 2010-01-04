@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
+ can_minimize="true"
+ can_close="false"
  height="270"
  layout="topleft"
- min_height="146"
- min_width="190"  
+ min_height="122"
+ min_width="190"
  name="floater_voice_controls"
  title="Voice Controls"
  save_visibility="true"
@@ -29,6 +31,10 @@
     <string
      name="no_one_near">
         No one near
+    </string>
+    <string
+     name="max_visible_items">
+        5
     </string>
     <panel
      bevel_style="out"
@@ -66,7 +72,7 @@
              name="user_text"
              text_color="white"
              top="4"
-             use_ellipses="true" 
+             use_ellipses="true"
              value="Mya Avatar:"
              width="210" />
             <output_monitor
@@ -77,18 +83,62 @@
              layout="topleft"
              name="speaking_indicator"
              right="-1"
-             top="2" 
+             top="2"
              visible="true"
              width="20" />
         </panel>
-        <button
-         follows="left|right|top"
-         height="24"
-         label="Leave Call"
-         left="91" 
-         name="leave_call_btn"
-         top_pad="6" 
-         width="100" />
+        <layout_stack
+         border_size="0"
+         clip="false"
+         follows="all"
+         height="28"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="leave_call_stack"
+         orientation="horizontal"
+         top_pad="5"
+         width="263">
+         <layout_panel
+          auto_resize="true"
+          follows="left|right"
+          height="26"
+          layout="topleft"
+          min_height="23"
+          min_width="5"
+          mouse_opaque="false"
+          name="left_anchor"
+          width="80"/>
+         <layout_panel
+          auto_resize="false"
+          follows="left|right"
+          height="26"
+          layout="topleft"
+          mouse_opaque="false"
+          min_height="24"
+          min_width="100"
+          name="leave_call_btn_panel"
+          width="100">
+           <button
+            follows="left|right"
+            height="24"
+            label="Leave Call"
+            left="0"
+            name="leave_call_btn"
+            top="0"
+            width="100" />
+         </layout_panel>
+         <layout_panel
+         auto_resize="true"
+         follows="left|right"
+         height="26"
+         layout="topleft"
+         mouse_opaque="false"
+         min_height="24"
+         min_width="5"
+         name="right_anchor"
+         width="80"/>
+        </layout_stack>
     </panel>
     <avatar_list
      follows="all"

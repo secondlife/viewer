@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llavatarlist.h"
+#include "llagentdata.h" // for comparator
 
 // newview
 #include "llcallingcard.h" // for LLAvatarTracker
@@ -49,6 +50,12 @@ static const F32 LIT_UPDATE_PERIOD = 5;
 // Maximum number of avatars that can be added to a list in one pass.
 // Used to limit time spent for avatar list update per frame.
 static const unsigned ADD_LIMIT = 50;
+
+bool LLAvatarList::contains(const LLUUID& id)
+{
+	const uuid_vector_t& ids = getIDs();
+	return std::find(ids.begin(), ids.end(), id) != ids.end();
+}
 
 void LLAvatarList::toggleIcons()
 {
@@ -158,6 +165,7 @@ void LLAvatarList::clear()
 {
 	getIDs().clear();
 	setDirty(true);
+	LLFlatListView::clear();
 }
 
 void LLAvatarList::setNameFilter(const std::string& filter)
@@ -321,7 +329,6 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setAvatarId(id, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
-	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);
 	item->setAvatarIconVisible(mShowIcons);
@@ -419,4 +426,18 @@ bool LLAvatarItemNameComparator::doCompare(const LLAvatarListItem* avatar_item1,
 	LLStringUtil::toUpper(name2);
 
 	return name1 < name2;
+}
+bool LLAvatarItemAgentOnTopComparator::doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const
+{
+	//keep agent on top, if first is agent, 
+	//then we need to return true to elevate this id, otherwise false.
+	if(avatar_item1->getAvatarId() == gAgentID)
+	{
+		return true;
+	}
+	else if (avatar_item2->getAvatarId() == gAgentID)
+	{
+		return false;
+	}
+	return LLAvatarItemNameComparator::doCompare(avatar_item1,avatar_item2);
 }

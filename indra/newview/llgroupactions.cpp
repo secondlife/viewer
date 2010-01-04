@@ -119,6 +119,31 @@ void LLGroupActions::search()
 }
 
 // static
+void LLGroupActions::startCall(const LLUUID& group_id)
+{
+	// create a new group voice session
+	LLGroupData gdata;
+
+	if (!gAgent.getGroupData(group_id, gdata))
+	{
+		llwarns << "Error getting group data" << llendl;
+		return;
+	}
+
+	LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, true);
+	if (session_id == LLUUID::null)
+	{
+		llwarns << "Error adding session" << llendl;
+		return;
+	}
+
+	// start the call
+	gIMMgr->autoStartCallOnStartup(session_id);
+
+	make_ui_sound("UISndStartIM");
+}
+
+// static
 void LLGroupActions::join(const LLUUID& group_id)
 {
 	LLGroupMgrGroupData* gdatap = 

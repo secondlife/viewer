@@ -126,7 +126,7 @@ LLView::LLView(const LLView::Params& p)
 :	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
-	mSaveToXML(p.from_xui),
+	mFromXUI(p.from_xui),
 	mIsFocusRoot(FALSE),
 	mLastVisible(FALSE),
 	mNextInsertionOrdinal(0),
@@ -2479,7 +2479,7 @@ static bool get_last_child_rect(LLView* parent, LLRect *rect)
 	for (;itor != parent->getChildList()->end(); ++itor)
 	{
 		LLView *last_view = (*itor);
-		if (last_view->getSaveToXML())
+		if (last_view->getFromXUI())
 		{
 			*rect = last_view->getRect();
 			return true;
@@ -2489,19 +2489,18 @@ static bool get_last_child_rect(LLView* parent, LLRect *rect)
 }
 
 //static
-void LLView::setupParams(LLView::Params& p, LLView* parent)
+void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 {
 	const S32 VPAD = 4;
 	const S32 MIN_WIDGET_HEIGHT = 10;
 	
-	p.from_xui(true);
-
 	// *NOTE:  This will confuse export of floater/panel coordinates unless
 	// the default is also "topleft".  JC
 	if (p.layout().empty() && parent)
 	{
 		p.layout = parent->getLayout();
 	}
+
 
 	if (parent)
 	{
@@ -2518,7 +2517,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 		}
 
 		// convert negative or centered coordinates to parent relative values
-		// Note: some of this logic matches the logic in TypedParam<LLRect>::getValueFromBlock()
+		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
 
 		if (p.center_horiz)
 		{
@@ -2538,8 +2537,8 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 		}
 		else
 		{
-			if (p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
-			if (p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
+			if (p.rect.left.isProvided() && p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
+			if (p.rect.right.isProvided() && p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
 		}
 		if (p.center_vert)
 		{
@@ -2559,13 +2558,13 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 		}
 		else
 		{
-			if (p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
-			if (p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
+			if (p.rect.bottom.isProvided() && p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
+			if (p.rect.top.isProvided() && p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
 		}
 
 
 		// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
-		if (!p.rect.height.isProvided() && !p.rect.top.isProvided())
+		if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)
 		{
 			p.rect.height = MIN_WIDGET_HEIGHT;
 		}
@@ -2664,7 +2663,7 @@ static void convert_to_relative_layout(LLView::Params& p, LLView* parent)
 	// Use setupParams to get the final widget rectangle
 	// according to our wacky layout rules.
 	LLView::Params final = p;
-	LLView::setupParams(final, parent);
+	LLView::applyXUILayout(final, parent);
 	// Must actually extract the rectangle to get consistent
 	// right = left+width, top = bottom+height
 	LLRect final_rect = final.rect;

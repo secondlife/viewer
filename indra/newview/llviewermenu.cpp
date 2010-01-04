@@ -70,6 +70,7 @@
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llimview.h"
 #include "llinventorybridge.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
@@ -438,6 +439,12 @@ void init_menus()
 	// menu holder appears on top of menu bar so you can see the menu title
 	// flash when an item is triggered (the flash occurs in the holder)
 	gViewerWindow->getRootView()->addChild(gMenuHolder);
+
+	// This removes tool tip view from main view and adds it
+	// to root view in front of menu holder.
+	// Otherwise tool tips for menu items would be overlapped by menu, since
+	// main view is behind of menu holder now.
+	gViewerWindow->getRootView()->addChild(gToolTipView);
    
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());
@@ -5535,47 +5542,27 @@ void handle_viewer_disable_message_log(void*)
 	gMessageSystem->stopLogging();
 }
 
-class LLShowFloater : public view_listener_t
+void handle_customize_avatar()
 {
-	bool handleEvent(const LLSD& userdata)
+	if (gAgentWearables.areWearablesLoaded())
 	{
-		std::string floater_name = userdata.asString();
-		if (floater_name == "appearance")
-		{
-			if (gAgentWearables.areWearablesLoaded())
-			{
-				gAgent.changeCameraToCustomizeAvatar();
-			}
-		}
-		else if (floater_name == "toolbar")
-		{
-			LLToolBar::toggle(NULL);
-		}
-		else if (floater_name == "buy land")
-		{
-			handle_buy_land();
-		}
-		else if (floater_name == "script errors")
-		{
-			LLFloaterScriptDebug::show(LLUUID::null);
-		}
-		else if (floater_name == "complaint reporter")
-		{
-			// Prevent menu from appearing in screen shot.
-			gMenuHolder->hideMenus();
-			LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
-		}
-		else if (floater_name == "buy currency")
-		{
-			LLFloaterBuyCurrency::buyCurrency();
-		}
-		else
-		{
-			LLFloaterReg::toggleInstance(floater_name);
-		}
-		return true;
+		gAgent.changeCameraToCustomizeAvatar();
 	}
-};
+}
+
+void handle_report_abuse()
+{
+	// Prevent menu from appearing in screen shot.
+	gMenuHolder->hideMenus();
+	LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
+}
+
+void handle_buy_currency()
+{
+	LLFloaterBuyCurrency::buyCurrency();
+}
+
+
 
 class LLFloaterVisible : public view_listener_t
 {
@@ -5583,11 +5570,6 @@ class LLFloaterVisible : public view_listener_t
 	{
 		std::string floater_name = userdata.asString();
 		bool new_value = false;
-		if (floater_name == "toolbar")
-		{
-			new_value = LLToolBar::visible(NULL);
-		}
-		else
 		{
 			new_value = LLFloaterReg::instanceVisible(floater_name);
 		}
@@ -5874,47 +5856,68 @@ void confirm_replace_attachment(S32 option, void* user_data)
 	}
 }
 
+bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
+{
+	// Called when the user clicked on an object attached to them
+	// and selected "Drop".
+	LLUUID object_id = notification["payload"]["object_id"].asUUID();
+	LLViewerObject *object = gObjectList.findObject(object_id);
+	
+	if (!object)
+	{
+		llwarns << "handle_drop_attachment() - no object to drop" << llendl;
+		return true;
+	}
+
+	LLViewerObject *parent = (LLViewerObject*)object->getParent();
+	while (parent)
+	{
+		if(parent->isAvatar())
+		{
+			break;
+		}
+		object = parent;
+		parent = (LLViewerObject*)parent->getParent();
+	}
+
+	if (!object)
+	{
+		llwarns << "handle_detach() - no object to detach" << llendl;
+		return true;
+	}
+
+	if (object->isAvatar())
+	{
+		llwarns << "Trying to detach avatar from avatar." << llendl;
+		return true;
+	}
+	
+	// reselect the object
+	LLSelectMgr::getInstance()->selectObjectAndFamily(object);
+
+	LLSelectMgr::getInstance()->sendDropAttachment();
+
+	return true;
+}
+
 class LLAttachmentDrop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		// Called when the user clicked on an object attached to them
-		// and selected "Drop".
+		LLSD payload;
 		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		if (!object)
+
+		if (object) 
 		{
-			llwarns << "handle_drop_attachment() - no object to drop" << llendl;
+			payload["object_id"] = object->getID();
+		}
+		else
+		{
+			llwarns << "Drop object not found" << llendl;
 			return true;
 		}
 
-		LLViewerObject *parent = (LLViewerObject*)object->getParent();
-		while (parent)
-		{
-			if(parent->isAvatar())
-			{
-				break;
-			}
-			object = parent;
-			parent = (LLViewerObject*)parent->getParent();
-		}
-
-		if (!object)
-		{
-			llwarns << "handle_detach() - no object to detach" << llendl;
-			return true;
-		}
-
-		if (object->isAvatar())
-		{
-			llwarns << "Trying to detach avatar from avatar." << llendl;
-			return true;
-		}
-
-		// The sendDropAttachment() method works on the list of selected
-		// objects.  Thus we need to clear the list, make sure it only
-		// contains the object the user clicked, send the message,
-		// then clear the list.
-		LLSelectMgr::getInstance()->sendDropAttachment();
+		LLNotificationsUtil::add("AttachmentDrop", LLSD(), payload, &callback_attachment_drop);
 		return true;
 	}
 };
@@ -6477,21 +6480,27 @@ void menu_toggle_attached_particles(void* user_data)
 	LLPipeline::sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 }
 
-class LLAdvancedHandleAttchedLightParticles: public view_listener_t
+class LLAdvancedHandleAttachedLightParticles: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string control_name = userdata.asString();
+
+		// toggle the control
+		gSavedSettings.setBOOL(control_name,
+				       !gSavedSettings.getBOOL(control_name));
+
+		// update internal flags
 		if (control_name == "RenderAttachedLights")
-{
+		{
 			menu_toggle_attached_lights(NULL);
-}
+		}
 		else if (control_name == "RenderAttachedParticles")
-{
+		{
 			menu_toggle_attached_particles(NULL);
-}
+		}
 		return true;
-}
+	}
 };
 
 class LLSomethingSelected : public view_listener_t
@@ -7421,12 +7430,17 @@ class LLEditTakeOff : public view_listener_t
 	{
 		std::string clothing = userdata.asString();
 		if (clothing == "all")
-			LLAgentWearables::userRemoveAllClothes();
+			LLWearableBridge::removeAllClothesFromAvatar();
 		else
 		{
 			EWearableType type = LLWearableDictionary::typeNameToType(clothing);
 			if (type >= WT_SHAPE && type < WT_COUNT)
-				LLAgentWearables::userRemoveWearable(type);
+			{
+				// MULTI-WEARABLES
+				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,0));
+				LLWearableBridge::removeItemFromAvatar(item);
+			}
+				
 		}
 		return true;
 	}
@@ -7630,6 +7644,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
+	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
 
 	// View menu
 	view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");
@@ -7755,7 +7770,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
-	view_listener_t::addMenu(new LLAdvancedHandleAttchedLightParticles(), "Advanced.HandleAttchedLightParticles");
+	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
 	
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
@@ -7957,9 +7972,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLLandEdit(), "Land.Edit");
 
 	view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
+	commit.add("Land.Buy", boost::bind(&handle_buy_land));
 
 	// Generic actions
-	view_listener_t::addMenu(new LLShowFloater(), "ShowFloater");
+	commit.add("ReportAbuse", boost::bind(&handle_report_abuse));
+	commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
 	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");

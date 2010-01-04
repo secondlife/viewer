@@ -67,6 +67,10 @@ LLBottomTray::LLBottomTray(const LLSD&)
 ,	mGesturePanel(NULL)
 ,	mCamButton(NULL)
 {
+	// Firstly add ourself to IMSession observers, so we catch session events
+	// before chiclets do that.
+	LLIMMgr::getInstance()->addSessionObserver(this);
+
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
@@ -76,10 +80,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraPresets, _2));
-	LLIMMgr::getInstance()->addSessionObserver(this);
-
-	//managing chiclets for voice calls
-	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLBottomTray::onNewIM, this, _1));
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
 	//and thus is deleted at the end of the viewers lifetime, but to be cleanly
@@ -148,10 +148,13 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 {
 	if (!getChicletPanel()) return;
 
-	if (getChicletPanel()->findChiclet<LLChiclet>(session_id)) return;
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!session) return;
 
-	// For im sessions started as voice call chiclet gets created on the first incoming message
-	if (gIMMgr->isVoiceCall(session_id)) return;
+	// no need to spawn chiclets for participants in P2P calls called through Avaline
+	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
+
+	if (getChicletPanel()->findChiclet<LLChiclet>(session_id)) return;
 
 	LLIMChiclet* chiclet = createIMChiclet(session_id);
 	if(chiclet)
@@ -191,27 +194,6 @@ void LLBottomTray::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& 
 		//it should be ad-hoc im chiclet or group im chiclet
 		LLChiclet* chiclet = chiclet_panel->findChiclet<LLChiclet>(old_session_id);
 		if (chiclet) chiclet->setSessionId(new_session_id);
-	}
-}
-
-void LLBottomTray::onNewIM(const LLSD& data)
-{
-	LLUUID from_id = data["from_id"];
-	if (from_id.isNull() || gAgentID == from_id) return;
-
-	LLUUID session_id = data["session_id"];
-	if (session_id.isNull()) return;
-
-	if (!gIMMgr->isVoiceCall(session_id)) return;
-
-	if (getChicletPanel()->findChiclet<LLChiclet>(session_id)) return;
-
-	//first real message, time to create chiclet
-	LLIMChiclet* chiclet = createIMChiclet(session_id);
-	if(chiclet)
-	{
-		chiclet->setIMSessionName(LLIMModel::getInstance()->getName(session_id));
-		chiclet->setOtherParticipantId(LLIMModel::getInstance()->getOtherParticipantID(session_id));
 	}
 }
 

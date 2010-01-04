@@ -9,7 +9,7 @@
  top="21"
  width="310">
     <string name="min_width">
-        192
+        188
     </string>
     <string name="max_width">
         320
@@ -21,14 +21,14 @@
      height="23"
      label="Click here to chat."
      layout="topleft"
-     left_delta="7"
+     left_delta="3"
      text_pad_right="25"
      left="0"
      max_length="512"
      name="chat_box"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
      top="1"
-     width="279" />
+     width="283" />
     <output_monitor
      auto_update="true"
      follows="right"

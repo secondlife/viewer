@@ -95,12 +95,11 @@
     follows="right|top"
     image_name="Parcel_ScriptsNo_Light"
     />
-  <!-- NOTE: Placeholder icon, there is no dark grayscale version -->
   <damage_icon
     name="damage_icon"
-    width="22"
-    height="18"
-    top="21"
+    width="20"
+    height="16"
+    top="20"
     follows="right|top"
     image_name="Parcel_Damage_Light"
     />

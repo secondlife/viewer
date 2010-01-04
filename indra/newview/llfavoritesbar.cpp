@@ -162,9 +162,22 @@ public:
 		if (!region_name.empty())
 		{
 			LLToolTip::Params params;
-			params.message = llformat("%s\n%s (%d, %d, %d)", getLabelSelected().c_str(), region_name.c_str(), 
+			std::string extra_message = llformat("%s (%d, %d, %d)", region_name.c_str(), 
 				mLandmarkInfoGetter.getPosX(), mLandmarkInfoGetter.getPosY(), mLandmarkInfoGetter.getPosZ());
-			params.sticky_rect = calcScreenRect();
+
+			params.message = llformat("%s\n%s", getLabelSelected().c_str(), extra_message.c_str());
+			
+			LLRect rect = calcScreenRect();
+			LLFontGL* standart_font = LLFontGL::getFontSansSerif();
+			if(standart_font)
+			{
+				S32 w = llmax((S32)(standart_font->getWidthF32(getLabelSelected())+0.5),(S32)(standart_font->getWidthF32(extra_message)+0.5));
+				rect.mRight = rect.mLeft + w;
+				params.max_width = w;
+			}
+			
+			params.sticky_rect = rect; 
+
 			LLToolTipMgr::instance().show(params);
 		}
 		return TRUE;
@@ -657,7 +670,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	int first_changed_item_index = 0;
 	int rightest_point = getRect().mRight - mChevronButton->getRect().getWidth();
 	//lets find first changed button
-	while (child_it != childs->end())
+	while (child_it != childs->end() && first_changed_item_index < mItems.count())
 	{
 		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
 		if (button)
@@ -679,9 +692,8 @@ void LLFavoritesBarCtrl::updateButtons()
 	}
 	// now first_changed_item_index should contains a number of button that need to change
 
-	if (first_changed_item_index < mItems.count())
+	if (first_changed_item_index <= mItems.count())
 	{
-		mUpdateDropDownItems = true;
 		// Rebuild the buttons only
 		// child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
 
@@ -726,6 +738,10 @@ void LLFavoritesBarCtrl::updateButtons()
 		// Chevron button
 		if (mFirstDropDownItem < mItems.count())
 		{
+			// if updateButton had been called it means:
+			//or there are some new favorites, or width had been changed
+			// so if we need to display chevron button,  we must update dropdown items too. 
+			mUpdateDropDownItems = true;
 			S32 buttonHGap = 2; // default value
 			buttonXMLNode->getAttributeS32("left", buttonHGap);
 			LLRect rect;
@@ -757,9 +773,9 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	 * WORKAROUND:
 	 * there are some problem with displaying of fonts in buttons. 
 	 * Empty space (or ...) is displaying instead of last symbols, even though the width of the button is enough.
-	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  10 pixels. 
+	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  20 pixels.
 	 */
-	int requred_width = mFont->getWidth(item->getDisplayName()) + 10; 
+	int requred_width = mFont->getWidth(item->getDisplayName()) + 20;
 	int width = requred_width > def_button_width? def_button_width : requred_width;
 	LLFavoriteLandmarkButton* fav_btn = NULL;
 
@@ -981,7 +997,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	
 	if (action == "open")
 	{
-		teleport_via_landmark(item->getAssetUUID());
+		onButtonClick(item->getUUID());
 	}
 	else if (action == "about")
 	{

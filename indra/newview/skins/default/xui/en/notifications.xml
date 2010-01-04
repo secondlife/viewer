@@ -370,6 +370,19 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="AttachmentDrop"
+   type="alertmodal">
+    You are about to drop your attachment.
+    Are you sure you want to continue?
+    <usetemplate
+     ignoretext="Confirm before dropping attachments"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
     icon="alertmodal.tga"
     name="ClickUnimplemented"
     type="alertmodal">
@@ -4328,7 +4341,6 @@ Hmm. Gesture [NAME] is missing from the database.
    name="UnableToLoadGesture"
    type="notifytip">
 Unable to load gesture [NAME].
-Please try again.
   </notification>
 
   <notification
@@ -4486,14 +4498,14 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
-   type="offer">
+   type="notifytip">
 [NAME] received your inventory offer.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="InventoryDeclined"
-   type="offer">
+   type="notifytip">
 [NAME] declined your inventory offer.
   </notification>
 
@@ -5010,9 +5022,9 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
 [ITEM_SLURL]
     <form name="form">
       <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
+       index="4"
+       name="Show"
+       text="Show"/>
       <button
        index="1"
        name="Discard"
@@ -5094,7 +5106,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="offer">
+   type="alertmodal">
 [NAME] is offering friendship.
 
 [MESSAGE]
@@ -5109,6 +5121,10 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
        index="1"
        name="Decline"
        text="Decline"/>
+      <button
+       index="2"
+       name="Send IM"
+       text="Send IM"/>
     </form>
   </notification>
   
@@ -5759,6 +5775,17 @@ They will be blocked for a few seconds for your security.
     <form name="form">
       <button index="0" name="respondbutton" text="Respond"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ConfirmCloseAll"
+   type="alertmodal">
+Are you sure you want to close all IMs?
+    <usetemplate
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Ok"/>
   </notification>
 
   <notification icon="notifytip.tga"

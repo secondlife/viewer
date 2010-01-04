@@ -70,6 +70,7 @@ class LLPanelLandAccess;
 class LLPanelLandBan;
 class LLPanelLandRenters;
 class LLPanelLandCovenant;
+class LLParcel;
 
 class LLFloaterLand
 :	public LLFloater
@@ -80,7 +81,9 @@ public:
 
 	static LLPanelLandObjects* getCurrentPanelLandObjects();
 	static LLPanelLandCovenant* getCurrentPanelLandCovenant();
-
+	
+	LLParcel* getCurrentSelectedParcel();
+	
 	virtual void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 
@@ -146,6 +149,7 @@ public:
 	static BOOL enableDeedToGroup(void*);
 	static void onClickDeed(void*);
 	static void onClickBuyLand(void* data);
+	static void onClickScriptLimits(void* data);
 	static void onClickRelease(void*);
 	static void onClickReclaim(void*);
 	static void onClickBuyPass(void* deselect_when_done);
@@ -215,6 +219,7 @@ protected:
 	LLTextBox*		mTextDwell;
 
 	LLButton*		mBtnBuyLand;
+	LLButton*		mBtnScriptLimits;
 	LLButton*		mBtnBuyGroupLand;
 
 	// these buttons share the same location, but
@@ -362,14 +367,15 @@ public:
 
 	static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickAddAccess(void*);
-	static void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickRemoveAccess(void*);
-	static void onClickAddBanned(void*);
-	static void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickRemoveBanned(void*);
 
 	virtual BOOL postBuild();
+	
+	void onClickAddAccess();
+	void onClickAddBanned();
+	void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
+	void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 
 protected:
 	LLNameListCtrl*		mListAccess;

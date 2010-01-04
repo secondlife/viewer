@@ -246,7 +246,8 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 			output_node, output_params, &default_params);
 	}
 
-	setupParams(p, parent);
+	p.from_xui = true;
+	applyXUILayout(p, parent);
 	LLLayoutStack* layout_stackp = LLUICtrlFactory::create<LLLayoutStack>(p);
 
 	if (parent && layout_stackp)
@@ -410,6 +411,16 @@ void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL au
 	if (panel)
 	{
 		panel->mAutoResize = auto_resize;
+	}
+}
+
+void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_resize)
+{
+	LayoutPanel* panel = findEmbeddedPanelByName(panel_name);
+
+	if (panel)
+	{
+		panel->mUserResize = user_resize;
 	}
 }
 

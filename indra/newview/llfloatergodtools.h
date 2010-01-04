@@ -234,7 +234,7 @@ public:
 	void onChangeAnything();
 	void onApplyChanges();
 	void onClickSet();
-	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
+	void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
 	void onClickDeletePublicOwnedBy();
 	void onClickDeleteAllScriptedOwnedBy();
 	void onClickDeleteAllOwnedBy();

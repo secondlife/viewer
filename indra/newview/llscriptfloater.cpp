@@ -67,6 +67,7 @@ LLScriptFloater::LLScriptFloater(const LLSD& key)
 , mScriptForm(NULL)
 {
 	setMouseDownCallback(boost::bind(&LLScriptFloater::onMouseDown, this));
+	setOverlapsScreenChannel(true);
 }
 
 bool LLScriptFloater::toggle(const LLUUID& object_id)

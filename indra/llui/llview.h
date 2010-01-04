@@ -395,8 +395,8 @@ public:
 	void parseFollowsFlags(const LLView::Params& params);
 
 	// Some widgets, like close box buttons, don't need to be saved
-	BOOL getSaveToXML() const { return mSaveToXML; }
-	void setSaveToXML(BOOL b) { mSaveToXML = b; }
+	BOOL getFromXUI() const { return mFromXUI; }
+	void setFromXUI(BOOL b) { mFromXUI = b; }
 
 	typedef enum e_hit_test_type
 	{
@@ -498,7 +498,7 @@ public:
 
 	// Set up params after XML load before calling new(),
 	// usually to adjust layout.
-	static void setupParams(Params& p, LLView* parent);
+	static void applyXUILayout(Params& p, LLView* parent);
 
 	// For re-export of floaters and panels, convert the coordinate system
 	// to be top-left based.
@@ -573,7 +573,7 @@ private:
 	LLUIString	mToolTipMsg;	// isNull() is true if none.
 
 	U8          mSoundFlags;
-	BOOL		mSaveToXML;
+	BOOL		mFromXUI;
 
 	BOOL		mIsFocusRoot;
 	BOOL		mUseBoundingRect; // hit test against bounding rectangle that includes all child elements

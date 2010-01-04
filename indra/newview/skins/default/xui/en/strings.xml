@@ -2042,6 +2042,59 @@ this texture in your inventory
 	<string name="RegionInfoAllowedResidents">Allowed residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
 	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
 
+	<!-- script limits floater -->
+	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
+	<string name="ScriptLimitsParcelsOwned">Parcels Listed: [PARCELS]</string>
+	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] kb out of [MAX] kb; [AVAILABLE] kb available</string>
+	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] kb</string>
+	<string name="ScriptLimitsParcelScriptURLs">Parcel Script URLs</string>
+	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
+	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
+	<string name="ScriptLimitsRequestError">Error requesting information</string>
+	<string name="ScriptLimitsRequestWrongRegion">Error: script information is only available in your current region</string>
+	<string name="ScriptLimitsRequestWaiting">Retrieving information...</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">You do not have permission to examine this parcel</string>
+	
+	<string name="SITTING_ON">Sitting On</string>
+	<string name="ATTACH_CHEST">Chest</string>
+	<string name="ATTACH_HEAD">Head</string>
+	<string name="ATTACH_LSHOULDER">Left Shoulder</string>
+	<string name="ATTACH_RSHOULDER">Right Shoulder</string>
+	<string name="ATTACH_LHAND">Left Hand</string>
+	<string name="ATTACH_RHAND">Right Hand</string>
+	<string name="ATTACH_LFOOT">Left Foot</string>
+	<string name="ATTACH_RFOOT">Right Foot</string>
+	<string name="ATTACH_BACK">Back</string>
+	<string name="ATTACH_PELVIS">Pelvis</string>
+	<string name="ATTACH_MOUTH">Mouth</string>
+	<string name="ATTACH_CHIN">Chin</string>
+	<string name="ATTACH_LEAR">Left Ear</string>
+	<string name="ATTACH_REAR">Right Ear</string>
+	<string name="ATTACH_LEYE">Left Eye</string>
+	<string name="ATTACH_REYE">Right Eye</string>
+	<string name="ATTACH_NOSE">Nose</string>
+	<string name="ATTACH_RUARM">Right Upper Arm</string>
+	<string name="ATTACH_RLARM">Right Lower Arm</string>
+	<string name="ATTACH_LUARM">Left Upper Arm</string>
+	<string name="ATTACH_LLARM">Left Lower Arm</string>
+	<string name="ATTACH_RHIP">Right Hip</string>
+	<string name="ATTACH_RULEG">Right Upper Leg</string>
+	<string name="ATTACH_RLLEG">Right Lower Leg</string>
+	<string name="ATTACH_LHIP">Left Hip</string>
+	<string name="ATTACH_LULEG">Left Upper Leg</string>
+	<string name="ATTACH_LLLEG">Left Lower Leg</string>
+	<string name="ATTACH_BELLY">Belly</string>
+	<string name="ATTACH_RPEC">Right Pec</string>
+	<string name="ATTACH_LPEC">Left Pec</string>
+	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">HUD Top Right</string>
+	<string name="ATTACH_HUD_TOP_CENTER">HUD Top Center</string>
+	<string name="ATTACH_HUD_TOP_LEFT">HUD Top Left</string>
+	<string name="ATTACH_HUD_CENTER_1">HUD Center 1</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
+	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
+			
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
 
@@ -2852,13 +2905,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="joined_call">Joined the voice call</string>
 
   <string name="ringing-im">
-    Joining Voice Chat...
+    Joining voice call...
   </string>
   <string name="connected-im">
-    Connected, click End Call to hang up
+    Connected, click Leave Call to hang up
   </string>
   <string name="hang_up-im">
-    Left Voice Chat
+    Left voice call
   </string>
   <string name="answering-im">
     Connecting...
@@ -2912,17 +2965,38 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="not_a_mod_error">
     You are not a session moderator.
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3562 issue 'muted' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="muted" with the same value as "muted_error" -->
+  <string name="muted">
+    A group moderator disabled your text chat.
+  </string>
   <string name="muted_error">
     A group moderator disabled your text chat.
   </string>
   <string name="add_session_event">
     Unable to add users to chat session with [RECIPIENT].
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3562 issue 'message' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="message" with the same value as "message_session_event" -->
+  <string name="message">
+    Unable to send your message to the chat session with [RECIPIENT].
+  </string>  
   <string name="message_session_event">
     Unable to send your message to the chat session with [RECIPIENT].
   </string>
   <string name="mute">
     Error while moderating.
+  </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3459 issue 'removed' is passed into the gIMMgr::showSessionStartError as a string name.
+  So, let add string with name="removed" with the same value as "removed_from_group" -->
+  <string name="removed">
+    You have been removed from the group.
   </string>
   <string name="removed_from_group">
     You have been removed from the group.
@@ -2930,4 +3004,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="close_on_no_ability">
     You no longer have the ability to be in the chat session.
   </string>
+  <string name="unread_chat_single">
+    [SOURCES] has said something new
+  </string>"
+  <string name="unread_chat_multiple">
+    [SOURCES] have said something new
+  </string>"
 </strings>

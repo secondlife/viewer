@@ -4,6 +4,7 @@
  height="420"
  layout="topleft"
  name="floaterland"
+ help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
  width="490">
@@ -274,7 +275,7 @@
             <button
              enabled="false"
              follows="left|top"
-             height="23S"
+             height="23"
              label="Deed"
              layout="topleft"
              left_pad="2"
@@ -470,6 +471,16 @@
              left_delta="82"
              name="Buy Land..."
              top="328"
+             width="100" />
+            <button
+             enabled="true"
+             follows="left|top"
+             height="23"
+             label="Script Info"
+             layout="topleft"
+             left="10"
+             name="Scripts..."
+             top="352"
              width="100" />
             <button
              enabled="false"
@@ -1093,11 +1104,11 @@
                 <name_list.columns
                  label="Count"
                  name="count"
-                 width="70" />
+                 width="60" />
                 <name_list.columns
                  label="Most Recent"
                  name="mostrecent"
-                 width="160" />
+                 width="170" />
             </name_list>
         </panel>
         <panel

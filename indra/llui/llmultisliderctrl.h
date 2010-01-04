@@ -69,6 +69,8 @@ public:
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
 
+		Multiple<LLMultiSlider::SliderParams>	sliders;
+
 		Params();
 	};
 

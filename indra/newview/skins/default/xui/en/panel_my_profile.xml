@@ -37,7 +37,7 @@
      height="485"
      layout="topleft"
      name="profile_scroll"
-     reserve_scroll_corner="true"
+     reserve_scroll_corner="false"
      opaque="true"
      top="0"
      width="313">
@@ -48,7 +48,7 @@
          layout="topleft"
          top="0"
          left="0"
-         width="313">
+         width="297">
 	  <panel
          follows="left|top"
          height="117"

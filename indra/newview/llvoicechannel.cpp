@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
-#include "llfloatercall.h"
 #include "llfloaterreg.h"
 #include "llimview.h"
 #include "llnotifications.h"
@@ -316,8 +315,6 @@ void LLVoiceChannel::activate()
 		}
 	}
 
-	sCurrentVoiceChannelChangedSignal(this->mSessionID);
-
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
 		// responsible for setting status to active
@@ -327,6 +324,9 @@ void LLVoiceChannel::activate()
 	{
 		setState(STATE_CALL_STARTED);
 	}
+
+	//do not send earlier, channel should be initialized, should not be in STATE_NO_CHANNEL_INFO state
+	sCurrentVoiceChannelChangedSignal(this->mSessionID);
 }
 
 void LLVoiceChannel::getChannelInfo()
@@ -445,6 +445,17 @@ void LLVoiceChannel::resume()
 	}
 }
 
+boost::signals2::connection LLVoiceChannel::setCurrentVoiceChannelChangedCallback(channel_changed_callback_t cb, bool at_front)
+{
+	if (at_front)
+	{
+		return sCurrentVoiceChannelChangedSignal.connect(cb,  boost::signals2::at_front);
+	}
+	else
+	{
+		return sCurrentVoiceChannelChangedSignal.connect(cb);
+	}
+}
 
 //
 // LLVoiceChannelGroup

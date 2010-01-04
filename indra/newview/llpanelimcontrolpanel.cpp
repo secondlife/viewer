@@ -65,7 +65,11 @@ void LLPanelChatControlPanel::onOpenVoiceControlsClicked()
 
 void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
-	bool is_call_started = ( new_state >= LLVoiceChannel::STATE_CALL_STARTED );
+	updateButtons(new_state >= LLVoiceChannel::STATE_CALL_STARTED);
+}
+
+void LLPanelChatControlPanel::updateButtons(bool is_call_started)
+{
 	childSetVisible("end_call_btn", is_call_started);
 	childSetVisible("voice_ctrls_btn", is_call_started);
 	childSetVisible("call_btn", ! is_call_started);
@@ -112,6 +116,9 @@ void LLPanelChatControlPanel::setSessionId(const LLUUID& session_id)
 	if(voice_channel)
 	{
 		mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(boost::bind(&LLPanelChatControlPanel::onVoiceChannelStateChanged, this, _1, _2));
+		
+		//call (either p2p, group or ad-hoc) can be already in started state
+		updateButtons(voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
 	}
 }
 
@@ -177,6 +184,12 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 
 	// Disable "Add friend" button for friends.
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	
+	// Disable "Teleport" button if friend is offline
+	if(LLAvatarActions::isFriend(mAvatarID))
+	{
+		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+	}
 
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(mAvatarID);
 
@@ -207,6 +220,12 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 void LLPanelIMControlPanel::changed(U32 mask)
 {
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	
+	// Disable "Teleport" button if friend is offline
+	if(LLAvatarActions::isFriend(mAvatarID))
+	{
+		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+	}
 }
 
 void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
@@ -247,6 +266,9 @@ void LLPanelGroupControlPanel::draw()
 	//Remove event does not raised until speakerp->mActivityTimer.hasExpired() is false, see LLSpeakerManager::update()
 	//so we need update it to raise needed event
 	mSpeakerManager->update(true);
+	// Need to resort the participant list if it's in sort by recent speaker order.
+	if (mParticipantList)
+		mParticipantList->updateRecentSpeakersOrder();
 	LLPanelChatControlPanel::draw();
 }
 
@@ -282,8 +304,9 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 
 	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
 
+	// for group and Ad-hoc chat we need to include agent into list 
 	if(!mParticipantList)
-		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"));
+		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"), true,false);
 }
 
 

@@ -57,6 +57,8 @@ public:
 
 	virtual void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 
+	void updateButtons(bool is_call_started);
+
 	virtual void setSessionId(const LLUUID& session_id);
 	const LLUUID& getSessionId() { return mSessionId; }
 

@@ -53,7 +53,6 @@
 #include "llfloaterbuyland.h"
 #include "llfloaterbulkpermission.h"
 #include "llfloaterbump.h"
-#include "llfloatercall.h"
 #include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
@@ -95,6 +94,7 @@
 #include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
+#include "llfloaterscriptlimits.h"
 #include "llfloatersellland.h"
 #include "llfloatersettingsdebug.h"
 #include "llfloatersnapshot.h"
@@ -111,6 +111,7 @@
 #include "llfloaterwater.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindlight.h"
+#include "llfloaterwindowsize.h"
 #include "llfloaterworldmap.h"
 #include "llimfloatercontainer.h"
 #include "llinspectavatar.h"
@@ -245,6 +246,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("script_debug", "floater_script_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebug>);
 	LLFloaterReg::add("script_debug_output", "floater_script_debug_panel.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebugOutput>);
 	LLFloaterReg::add("script_floater", "floater_script.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLScriptFloater>);
+	LLFloaterReg::add("script_limits", "floater_script_limits.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptLimits>);
 	LLFloaterReg::add("sell_land", "floater_sell_land.xml", &LLFloaterSellLand::buildFloater);
 	LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
 	LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
@@ -262,6 +264,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
 	
 	LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);	
+	LLFloaterWindowSizeUtil::registerFloater();
 	LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);	
 
 	// *NOTE: Please keep these alphabetized for easier merges

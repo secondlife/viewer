@@ -13,6 +13,10 @@
 #define LL_LLNOTIFICATIONSLISTENER_H
 
 #include "lleventapi.h"
+#include "llnotificationptr.h"
+#include <boost/shared_ptr.hpp>
+#include <map>
+#include <string>
 
 class LLNotifications;
 class LLSD;
@@ -21,13 +25,27 @@ class LLNotificationsListener : public LLEventAPI
 {
 public:
     LLNotificationsListener(LLNotifications & notifications);
-
-    void requestAdd(LLSD const & event_data) const;
+    ~LLNotificationsListener();
 
 private:
+    void requestAdd(LLSD const & event_data) const;
+
 	void NotificationResponder(const std::string& replypump, 
 							   const LLSD& notification, 
 							   const LLSD& response) const;
+
+    void listChannels(const LLSD& params) const;
+    void listChannelNotifications(const LLSD& params) const;
+    void respond(const LLSD& params) const;
+    void cancel(const LLSD& params) const;
+    void ignore(const LLSD& params) const;
+    void forward(const LLSD& params);
+
+    static LLSD asLLSD(LLNotificationPtr);
+
+    class Forwarder;
+    typedef std::map<std::string, boost::shared_ptr<Forwarder> > ForwarderMap;
+    ForwarderMap mForwarders;
 	LLNotifications & mNotifications;
 };
 

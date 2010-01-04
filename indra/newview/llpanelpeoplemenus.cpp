@@ -184,8 +184,6 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	else if (item == std::string("can_call"))
 	{
 		bool result = false;
-		int size = mUUIDs.size();
-		std::cout << size << std::endl;
 		std::vector<LLUUID>::const_iterator
 			id = mUUIDs.begin(),
 			uuids_end = mUUIDs.end();

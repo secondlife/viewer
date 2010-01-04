@@ -33,7 +33,9 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
 
+#include "llanimationstates.h"
 #include "llaudioengine.h" 
+#include "llavataractions.h"
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
 #include "llfloaterreg.h"
@@ -192,19 +194,25 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		msg->sendReliable(LLHost(payload["sender"].asString()));
 		break;
 	}
-	case 1:
-	{
-		// decline
-		// We no longer notify other viewers, but we DO still send
-		// the rejection to the simulator to delete the pending userop.
-		msg->newMessageFast(_PREHASH_DeclineFriendship);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_TransactionBlock);
-		msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
-		msg->sendReliable(LLHost(payload["sender"].asString()));
-		break;
+	case 1: // Decline
+	case 2: // Send IM - decline and start IM session
+		{
+			// decline
+			// We no longer notify other viewers, but we DO still send
+			// the rejection to the simulator to delete the pending userop.
+			msg->newMessageFast(_PREHASH_DeclineFriendship);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_TransactionBlock);
+			msg->addUUIDFast(_PREHASH_TransactionID, payload["session_id"]);
+			msg->sendReliable(LLHost(payload["sender"].asString()));
+
+			// start IM session
+			if(2 == option)
+			{
+				LLAvatarActions::startIM(payload["from_id"].asUUID());
+			}
 	}
 	default:
 		// close button probably, possibly timed out
@@ -906,6 +914,18 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 				  LLFloaterReg::showInstance("preview_texture", LLSD(item_id), take_focus);
 				  break;
 			  }
+			  case LLAssetType::AT_ANIMATION:
+				  LLFloaterReg::showInstance("preview_anim", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_GESTURE:
+				  LLFloaterReg::showInstance("preview_gesture", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_SCRIPT:
+				  LLFloaterReg::showInstance("preview_script", LLSD(item_id), take_focus);
+				  break;
+			  case LLAssetType::AT_SOUND:
+				  LLFloaterReg::showInstance("preview_sound", LLSD(item_id), take_focus);
+				  break;
 			  default:
 				break;
 			}
@@ -1078,6 +1098,28 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
 
+	// *NOTE dzaporozhan
+	// Restored from viewer-1-23 to fix EXT-3520
+	// Saves Group Notice Attachments to inventory.
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_MessageBlock);
+	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+	msg->addUUIDFast(_PREHASH_ToAgentID, mFromID);
+	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
+	msg->addUUIDFast(_PREHASH_ID, mTransactionID);
+	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
+	std::string name;
+	LLAgentUI::buildFullname(name);
+	msg->addStringFast(_PREHASH_FromAgentName, name);
+	msg->addStringFast(_PREHASH_Message, ""); 
+	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
+	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
+	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
+
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
 	
@@ -1124,11 +1166,15 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		default:
 			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
 			break;
-		}	// end switch (mIM)
-			
-		// Show falls through to accept.
+		}
+		break;
+		// end switch (mIM)
 			
 	case IOR_ACCEPT:
+		msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
+		msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData), sizeof(mFolderID.mData));
+		msg->sendReliable(mHost);
+
 		//don't spam them if they are getting flooded
 		if (check_offer_throttle(mFromName, true))
 		{
@@ -1811,7 +1857,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// This is a block, modeless dialog.
 			//*TODO: Translate
 			args["MESSAGE"] = message;
-			LLNotificationsUtil::add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessageTip", args);
 		}
 		break;
 	case IM_GROUP_NOTICE:
@@ -2488,14 +2534,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		std::string prefix = mesg.substr(0, 4);
 		if (prefix == "/me " || prefix == "/me'")
 		{
-//			chat.mText = from_name;
-//			chat.mText += mesg.substr(3);
 			ircstyle = TRUE;
 		}
-//		else
-//		{
-			chat.mText = mesg;
-//		}
+		chat.mText = mesg;
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
@@ -3909,6 +3950,17 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			LL_DEBUGS("Messaging") << "Anim sequence ID: " << anim_sequence_id << LL_ENDL;
 
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+
+			// *HACK: Disabling flying mode if it has been enabled shortly before the agent
+			// stand up animation is signaled. In this case we don't get a signal to start
+			// flying animation from server, the AGENT_CONTROL_FLY flag remains set but the
+			// avatar does not play flying animation, so we switch flying mode off.
+			// See LLAgent::setFlying(). This may cause "Stop Flying" button to blink.
+			// See EXT-2781.
+			if (animation_id == ANIM_AGENT_STANDUP && gAgent.getFlying())
+			{
+				gAgent.setFlying(FALSE);
+			}
 
 			if (i < num_source_blocks)
 			{

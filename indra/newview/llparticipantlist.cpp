@@ -36,10 +36,8 @@
 #include "lltrans.h"
 #include "llavataractions.h"
 #include "llagent.h"
-#include "llimview.h"
 
 #include "llparticipantlist.h"
-#include "llavatarlist.h"
 #include "llspeakers.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
@@ -49,11 +47,16 @@
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
 
-LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
+static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
+
+LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/,
+		bool exclude_agent /*= true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
 ,	mParticipantListMenu(NULL)
+,	mExcludeAgent(exclude_agent)
+,	mValidateSpeakerCallback(NULL)
 {
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
@@ -83,21 +86,23 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	}
 
 	//Lets fill avatarList with existing speakers
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
-
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
 	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
 
-		addAvatarIDExceptAgent(group_members, speakerp->mID);
+		addAvatarIDExceptAgent(speakerp->mID);
 		if ( speakerp->mIsModerator )
 		{
 			mModeratorList.insert(speakerp->mID);
 		}
+		else
+		{
+			mModeratorToRemoveList.insert(speakerp->mID);
+		}
 	}
-	mAvatarList->setDirty(true);
+	// we need to exclude agent id for non group chat
 	sort();
 }
 
@@ -110,13 +115,16 @@ LLParticipantList::~LLParticipantList()
 	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
 	// See ticket EXT-3427
 	// hide menu before deleting it to stop enable and check handlers from triggering.
-	if(mParticipantListMenu)
+	if(mParticipantListMenu && !LLApp::isExiting())
 	{
 		mParticipantListMenu->hide();
 	}
 
-	delete mParticipantListMenu;
-	mParticipantListMenu = NULL;
+	if (mParticipantListMenu)
+	{
+		delete mParticipantListMenu;
+		mParticipantListMenu = NULL;
+	}
 }
 
 void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
@@ -154,7 +162,7 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 			{
 				std::string name = item->getAvatarName();
 				size_t found = name.find(moderator_indicator);
-				if (found == std::string::npos)
+				if (found != std::string::npos)
 				{
 					name.erase(found, moderator_indicator_len);
 					item->setName(name);
@@ -196,42 +204,37 @@ void LLParticipantList::setSortOrder(EParticipantSortOrder order)
 	}
 }
 
-void LLParticipantList::refreshVoiceState()
+LLParticipantList::EParticipantSortOrder LLParticipantList::getSortOrder()
 {
-	LLSpeakerMgr::speaker_list_t speakers;
-	mSpeakerMgr->getSpeakerList(&speakers, TRUE);
+	return mSortOrder;
+}
 
-	for (LLSpeakerMgr::speaker_list_t::iterator iter = speakers.begin();
-		iter != speakers.end(); ++iter)
+void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t cb)
+{
+	mValidateSpeakerCallback = cb;
+}
+
+void LLParticipantList::updateRecentSpeakersOrder()
+{
+	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
 	{
-		LLSpeaker* speakerp = (*iter).get();
-		const LLUUID& speaker_id = speakerp->mID;
-		LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*> (mAvatarList->getItemByValue(speaker_id));
-		if ( item )
-		{
-			// if voice is disabled for this speaker show non voice speakers as disabled
-			bool is_in_voice = speakerp->mStatus > LLSpeaker::STATUS_VOICE_ACTIVE
-				&& speakerp->mStatus != LLSpeaker::STATUS_MUTED;
-			item->setOnline(!is_in_voice);
-		}
+		// Need to update speakers to sort list correctly
+		mSpeakerMgr->update(true);
+		// Resort avatar list
+		sort();
 	}
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 	LLUUID uu_id = event->getValue().asUUID();
 
-	LLAvatarList::uuid_vector_t::iterator found = std::find(group_members.begin(), group_members.end(), uu_id);
-	if(found != group_members.end())
+	if (mValidateSpeakerCallback && !mValidateSpeakerCallback(uu_id))
 	{
-		llinfos << "Already got a buddy" << llendl;
 		return true;
 	}
 
-	addAvatarIDExceptAgent(group_members, uu_id);
-	// Mark AvatarList as dirty one
-	mAvatarList->setDirty();
+	addAvatarIDExceptAgent(uu_id);
 	sort();
 	return true;
 }
@@ -304,10 +307,24 @@ void LLParticipantList::sort()
 	if ( !mAvatarList )
 		return;
 
-	// TODO: Implement more sorting orders after specs updating (EM)
 	switch ( mSortOrder ) {
 	case E_SORT_BY_NAME :
-		mAvatarList->sortByName();
+		// if mExcludeAgent == true , then no need to keep agent on top of the list
+		if(mExcludeAgent)
+		{
+			mAvatarList->sortByName();
+		}
+		else
+		{
+			mAvatarList->setComparator(&AGENT_ON_TOP_NAME_COMPARATOR);
+			mAvatarList->sort();
+		}
+		break;
+	case E_SORT_BY_RECENT_SPEAKERS:
+		if (mSortByRecentSpeakers.isNull())
+			mSortByRecentSpeakers = new LLAvatarItemRecentSpeakerComparator(*this);
+		mAvatarList->setComparator(mSortByRecentSpeakers.get());
+		mAvatarList->sort();
 		break;
 	default :
 		llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
@@ -315,11 +332,13 @@ void LLParticipantList::sort()
 	}
 }
 
-void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id)
+void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
-	if (gAgent.getID() == avatar_id) return;
+	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
+	if (mAvatarList->contains(avatar_id)) return;
 
-	existing_list.push_back(avatar_id);
+	mAvatarList->getIDs().push_back(avatar_id);
+	mAvatarList->setDirty();
 	adjustParticipant(avatar_id);
 }
 
@@ -339,7 +358,7 @@ bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::L
 {
 	/**
 	 * We need to filter speaking objects. These objects shouldn't appear in the list
-	 * @c LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
+	 * @see LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
 	 */
 	const LLUUID& speaker_id = event->getValue().asUUID();
 	LLPointer<LLSpeaker> speaker = mParent.mSpeakerMgr->findSpeaker(speaker_id);
@@ -385,6 +404,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
+	registrar.add("ParticipantList.Sort", boost::bind(&LLParticipantList::LLParticipantListMenu::sortParticipantList, this, _2));
 	registrar.add("ParticipantList.ToggleAllowTextChat", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleAllowTextChat, this, _2));
 	registrar.add("ParticipantList.ToggleMuteText", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteText, this, _2));
 
@@ -429,6 +449,24 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 	{
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteOthers", false);
+	}
+
+	// Don't show sort options for P2P chat
+	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
+	LLMenuGL::sMenuContainer->childSetVisible("SortByName", is_sort_visible);
+	LLMenuGL::sMenuContainer->childSetVisible("SortByRecentSpeakers", is_sort_visible);
+}
+
+void LLParticipantList::LLParticipantListMenu::sortParticipantList(const LLSD& userdata)
+{
+	std::string param = userdata.asString();
+	if ("sort_by_name" == param)
+	{
+		mParent.setSortOrder(E_SORT_BY_NAME);
+	}
+	else if ("sort_by_recent_speakers" == param)
+	{
+		mParent.setSortOrder(E_SORT_BY_RECENT_SPEAKERS);
 	}
 }
 
@@ -538,37 +576,50 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	if (item == "can_mute_text")
+	if (item == "can_mute_text" || "can_block" == item)
 	{
 		return mUUIDs.front() != gAgentID;
 	}
-	else
-		if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
+	else if (item == "can_allow_text_chat")
+	{
+		return isGroupModerator();
+	}
+	else if ("can_moderate_voice" == item)
+	{
+		if (isGroupModerator())
 		{
-			return isGroupModerator();
-		}
-	else if (item == std::string("can_add"))
-		{
-			// We can add friends if:
-			// - there are selected people
-			// - and there are no friends among selection yet.
-
-			bool result = (mUUIDs.size() > 0);
-
-			std::vector<LLUUID>::const_iterator
-				id = mUUIDs.begin(),
-				uuids_end = mUUIDs.end();
-
-			for (;id != uuids_end; ++id)
+			LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(mUUIDs.front());
+			if (speakerp.notNull())
 			{
-				if ( LLAvatarActions::isFriend(*id) )
-				{
-					result = false;
-					break;
-				}
+				// not in voice participants can not be moderated
+				return speakerp->mStatus == LLSpeaker::STATUS_VOICE_ACTIVE
+					|| speakerp->mStatus == LLSpeaker::STATUS_MUTED;
 			}
-			return result;
 		}
+		return false;
+	}
+	else if (item == std::string("can_add"))
+	{
+		// We can add friends if:
+		// - there are selected people
+		// - and there are no friends among selection yet.
+
+		bool result = (mUUIDs.size() > 0);
+
+		std::vector<LLUUID>::const_iterator
+			id = mUUIDs.begin(),
+			uuids_end = mUUIDs.end();
+
+		for (;id != uuids_end; ++id)
+		{
+			if ( LLAvatarActions::isFriend(*id) )
+			{
+				result = false;
+				break;
+			}
+		}
+		return result;
+	}
 	else if (item == "can_call")
 	{
 		return LLVoiceClient::voiceEnabled();
@@ -599,8 +650,45 @@ bool LLParticipantList::LLParticipantListMenu::checkContextMenuItem(const LLSD& 
 	{
 		return LLMuteList::getInstance()->isMuted(id, LLMute::flagVoiceChat);
 	}
+	else if(item == "is_sorted_by_name")
+	{
+		return E_SORT_BY_NAME == mParent.mSortOrder;
+	}
+	else if(item == "is_sorted_by_recent_speakers")
+	{
+		return E_SORT_BY_RECENT_SPEAKERS == mParent.mSortOrder;
+	}
 
 	return false;
+}
+
+bool LLParticipantList::LLAvatarItemRecentSpeakerComparator::doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const
+{
+	if (mParent.mSpeakerMgr)
+	{
+		LLPointer<LLSpeaker> lhs = mParent.mSpeakerMgr->findSpeaker(avatar_item1->getAvatarId());
+		LLPointer<LLSpeaker> rhs = mParent.mSpeakerMgr->findSpeaker(avatar_item2->getAvatarId());
+		if ( lhs.notNull() && rhs.notNull() )
+		{
+			// Compare by last speaking time
+			if( lhs->mLastSpokeTime != rhs->mLastSpokeTime )
+				return ( lhs->mLastSpokeTime > rhs->mLastSpokeTime );
+			else if ( lhs->mSortIndex != rhs->mSortIndex )
+				return ( lhs->mSortIndex < rhs->mSortIndex );
+		}
+		else if ( lhs.notNull() )
+		{
+			// True if only avatar_item1 speaker info available
+			return true;
+		}
+		else if ( rhs.notNull() )
+		{
+			// False if only avatar_item2 speaker info available
+			return false;
+		}
+	}
+	// By default compare by name.
+	return LLAvatarItemNameComparator::doCompare(avatar_item1, avatar_item2);
 }
 
 //EOF

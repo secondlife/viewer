@@ -4,6 +4,7 @@
  height="240"
  layout="topleft"
  name="Water Floater"
+ help_topic="water_floater"
  save_rect="true"
  title="ADVANCED WATER EDITOR"
  width="700">
@@ -71,7 +72,6 @@
      width="700">
         <panel
          border="true"
-         border_color="EmphasisColor"
          follows="all"
          height="180"
          label="Settings"

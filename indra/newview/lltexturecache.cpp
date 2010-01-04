@@ -934,6 +934,8 @@ void LLTextureCache::setDirNames(ELLPath location)
 
 void LLTextureCache::purgeCache(ELLPath location)
 {
+	LLMutexLock lock(&mHeaderMutex);
+
 	if (!mReadOnly)
 	{
 		setDirNames(location);

@@ -206,7 +206,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenCandidate = NULL;
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
-	mIndentation = -LEFT_INDENTATION; // children start at indentation 0
+    static LLUICachedControl<S32> indentation("FolderIndentation", 0);
+	mIndentation = -indentation; // children start at indentation 0
 	gIdleCallbacks.addFunction(idle, this);
 
 	//clear label
@@ -330,8 +331,8 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	else
 	{
 		mFolders.insert(mFolders.begin(), folder);
-		folder->setShowLoadStatus(true);
 	}
+	folder->setShowLoadStatus(true);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
 	folder->setVisible(FALSE);
@@ -751,7 +752,7 @@ void LLFolderView::sanitizeSelection()
 		}
 
 		// Don't allow invisible items (such as root folders) to be selected.
-		if (item->getDontShowInHierarchy())
+		if (item->getHidden())
 		{
 			items_to_remove.push_back(item);
 		}
@@ -774,7 +775,7 @@ void LLFolderView::sanitizeSelection()
 				parent_folder;
 				parent_folder = parent_folder->getParentFolder())
 			{
-				if (parent_folder->potentiallyVisible())
+				if (parent_folder->potentiallyVisible() && !parent_folder->getHidden())
 				{
 					// give initial selection to first ancestor folder that potentially passes the filter
 					if (!new_selection)
@@ -795,6 +796,11 @@ void LLFolderView::sanitizeSelection()
 		{
 			// nothing selected to start with, so pick "My Inventory" as best guess
 			new_selection = getItemByID(gInventory.getRootFolderID());
+			// ... except if it's hidden from the UI.
+			if (new_selection && new_selection->getHidden())
+			{
+				new_selection = NULL;
+			}
 		}
 
 		if (new_selection)
@@ -1816,6 +1822,13 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	mDragAndDropThisFrame = TRUE;
 	BOOL handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
 											 accept, tooltip_msg);
+
+	// When there are no visible children drag and drop is handled
+	// by the folder which is the hierarchy root.
+	if (!handled && !hasVisibleChildren())
+	{
+		handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+	}
 
 	if (handled)
 	{

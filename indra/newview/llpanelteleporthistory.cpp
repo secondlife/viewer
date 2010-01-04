@@ -60,13 +60,18 @@ class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
 	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name, const std::string &hl);
-	virtual ~LLTeleportHistoryFlatItem() {};
+	virtual ~LLTeleportHistoryFlatItem();
 
 	virtual BOOL postBuild();
+
+	/*virtual*/ S32 notify(const LLSD& info);
 
 	S32 getIndex() { return mIndex; }
 	void setIndex(S32 index) { mIndex = index; }
 	const std::string& getRegionName() { return mRegionName;}
+	void setRegionName(const std::string& name);
+	void setHighlightedText(const std::string& text);
+	void updateTitle();
 
 	/*virtual*/ void setValue(const LLSD& value);
 
@@ -75,17 +80,50 @@ public:
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	static void showPlaceInfoPanel(S32 index);
+
+	LLHandle<LLTeleportHistoryFlatItem> getItemHandle()	{ mItemHandle.bind(this); return mItemHandle; }
+
 private:
 	void onProfileBtnClick();
 
 	LLButton* mProfileBtn;
+	LLTextBox* mTitle;
 	
 	LLTeleportHistoryPanel::ContextMenu *mContextMenu;
 
 	S32 mIndex;
 	std::string mRegionName;
 	std::string mHighlight;
+	LLRootHandle<LLTeleportHistoryFlatItem> mItemHandle;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class LLTeleportHistoryFlatItemStorage: public LLSingleton<LLTeleportHistoryFlatItemStorage> {
+protected:
+	typedef std::vector< LLHandle<LLTeleportHistoryFlatItem> > flat_item_list_t;
+
+public:
+	LLTeleportHistoryFlatItem* getFlatItemForPersistentItem (
+		LLTeleportHistoryPanel::ContextMenu *context_menu,
+		const LLTeleportHistoryPersistentItem& persistent_item,
+		const S32 cur_item_index,
+		const std::string &hl);
+
+	void removeItem(LLTeleportHistoryFlatItem* item);
+
+	void purge();
+
+private:
+
+	flat_item_list_t mItems;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name, const std::string &hl)
 :	LLPanel(),
@@ -97,16 +135,35 @@ LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistor
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history_item.xml");
 }
 
+LLTeleportHistoryFlatItem::~LLTeleportHistoryFlatItem()
+{
+}
+
 //virtual
 BOOL LLTeleportHistoryFlatItem::postBuild()
 {
-	LLTextUtil::textboxSetHighlightedVal(getChild<LLTextBox>("region"), LLStyle::Params(), mRegionName, mHighlight);
+	mTitle = getChild<LLTextBox>("region");
 
 	mProfileBtn = getChild<LLButton>("profile_btn");
         
 	mProfileBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onProfileBtnClick, this));
 
+	updateTitle();
+
 	return true;
+}
+
+S32 LLTeleportHistoryFlatItem::notify(const LLSD& info)
+{
+	if(info.has("detach"))
+	{
+		delete mMouseDownSignal;
+		mMouseDownSignal = NULL;
+		delete mRightMouseDownSignal;
+		mRightMouseDownSignal = NULL;
+		return 1;
+	}
+	return 0;
 }
 
 void LLTeleportHistoryFlatItem::setValue(const LLSD& value)
@@ -114,6 +171,25 @@ void LLTeleportHistoryFlatItem::setValue(const LLSD& value)
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
 	childSetVisible("selected_icon", value["selected"]);
+}
+
+void LLTeleportHistoryFlatItem::setHighlightedText(const std::string& text)
+{
+	mHighlight = text;
+}
+
+void LLTeleportHistoryFlatItem::setRegionName(const std::string& name)
+{
+	mRegionName = name;
+}
+
+void LLTeleportHistoryFlatItem::updateTitle()
+{
+	LLTextUtil::textboxSetHighlightedVal(
+		mTitle,
+		LLStyle::Params(),
+		mRegionName,
+		mHighlight);
 }
 
 void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -154,6 +230,82 @@ void LLTeleportHistoryFlatItem::onProfileBtnClick()
 {
 	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+LLTeleportHistoryFlatItem*
+LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
+	LLTeleportHistoryPanel::ContextMenu *context_menu,
+	const LLTeleportHistoryPersistentItem& persistent_item,
+	const S32 cur_item_index,
+	const std::string &hl)
+{
+	LLTeleportHistoryFlatItem* item = NULL;
+	if ( cur_item_index < (S32) mItems.size() )
+	{
+		item = mItems[cur_item_index].get();
+		if (item->getParent() == NULL)
+		{
+			item->setIndex(cur_item_index);
+			item->setRegionName(persistent_item.mTitle);
+			item->setHighlightedText(hl);
+			item->setVisible(TRUE);
+			item->updateTitle();
+		}
+		else
+		{
+			// Item already added to parent
+			item = NULL;
+		}
+	}
+
+	if ( !item )
+	{
+		item = new LLTeleportHistoryFlatItem(cur_item_index,
+											 context_menu,
+											 persistent_item.mTitle,
+											 hl);
+		mItems.push_back(item->getItemHandle());
+	}
+
+	return item;
+}
+
+void LLTeleportHistoryFlatItemStorage::removeItem(LLTeleportHistoryFlatItem* item)
+{
+	if (item)
+	{
+		flat_item_list_t::iterator item_iter = std::find(mItems.begin(),
+														 mItems.end(),
+														 item->getItemHandle());
+		if (item_iter != mItems.end())
+		{
+			mItems.erase(item_iter);
+		}
+	}
+}
+
+void LLTeleportHistoryFlatItemStorage::purge()
+{
+	for ( flat_item_list_t::iterator
+			  it = mItems.begin(),
+			  it_end = mItems.end();
+		  it != it_end; ++it )
+	{
+		LLHandle <LLTeleportHistoryFlatItem> item_handle = *it;
+		if ( !item_handle.isDead() && item_handle.get()->getParent() == NULL )
+		{
+			item_handle.get()->die();
+		}
+	}
+	mItems.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 LLTeleportHistoryPanel::ContextMenu::ContextMenu() :
 	mMenu(NULL)
@@ -236,6 +388,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
+	LLTeleportHistoryFlatItemStorage::instance().purge();
 	LLView::deleteViewByHandle(mGearMenuHandle);
 }
 
@@ -299,6 +452,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	registrar.add("TeleportHistory.ExpandAllFolders",  boost::bind(&LLTeleportHistoryPanel::onExpandAllFolders,  this));
 	registrar.add("TeleportHistory.CollapseAllFolders",  boost::bind(&LLTeleportHistoryPanel::onCollapseAllFolders,  this));
 	registrar.add("TeleportHistory.ClearTeleportHistory",  boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistory,  this));
+	mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
 
 	LLMenuGL* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(gear_menu)
@@ -478,16 +632,15 @@ void LLTeleportHistoryPanel::refresh()
 	while (mCurrentItem >= 0)
 	{
 		// Filtering
-		std::string landmark_title = items[mCurrentItem].mTitle;
-		LLStringUtil::toUpper(landmark_title);
-
-		std::string::size_type match_offset = sFilterSubString.size() ? landmark_title.find(sFilterSubString) : std::string::npos;
-		bool passed = sFilterSubString.size() == 0 || match_offset != std::string::npos;
-
-		if (!passed)
+		if (!sFilterSubString.empty())
 		{
-			mCurrentItem--;
-			continue;
+			std::string landmark_title(items[mCurrentItem].mTitle);
+			LLStringUtil::toUpper(landmark_title);
+			if( std::string::npos == landmark_title.find(sFilterSubString) )
+			{
+				mCurrentItem--;
+				continue;
+			}
 		}
 
 		// Checking whether date of item is earlier, than tab_boundary_date.
@@ -507,6 +660,9 @@ void LLTeleportHistoryPanel::refresh()
 			// Expand all accordion tabs when filtering
 			if(!sFilterSubString.empty())
 			{
+				//store accordion tab state when filter is not empty
+				tab->notifyChildren(LLSD().with("action","store_state"));
+				
 				tab->setDisplayChildren(true);
 			}
 			// Restore each tab's expand state when not filtering
@@ -514,6 +670,9 @@ void LLTeleportHistoryPanel::refresh()
 			{
 				bool collapsed = isAccordionCollapsedByUser(tab);
 				tab->setDisplayChildren(!collapsed);
+				
+				//restore accordion state after all those accodrion tabmanipulations
+				tab->notifyChildren(LLSD().with("action","restore_state"));
 			}
 
 			curr_flat_view = getFlatListViewFromTab(tab);
@@ -521,9 +680,14 @@ void LLTeleportHistoryPanel::refresh()
 
 		if (curr_flat_view)
 		{
-			LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle, sFilterSubString);
-			curr_flat_view->addItem(item);
-
+			LLTeleportHistoryFlatItem* item =
+				LLTeleportHistoryFlatItemStorage::instance()
+				.getFlatItemForPersistentItem(&mContextMenu,
+											  items[mCurrentItem],
+											  mCurrentItem,
+											  sFilterSubString);
+			if ( !curr_flat_view->addItem(item, LLUUID::null, ADD_BOTTOM, false) )
+				llerrs << "Couldn't add flat item to teleport history." << llendl;
 			if (mLastSelectedItemIndex == mCurrentItem)
 				curr_flat_view->selectItem(item, true);
 		}
@@ -532,6 +696,16 @@ void LLTeleportHistoryPanel::refresh()
 
 		if (++added_items >= ADD_LIMIT)
 			break;
+	}
+
+	for (S32 n = mItemContainers.size() - 1; n >= 0; --n)
+	{
+		LLAccordionCtrlTab* tab = mItemContainers.get(n);
+		LLFlatListView* fv = getFlatListViewFromTab(tab);
+		if (fv)
+		{
+			fv->notify(LLSD().with("rearrange", LLSD()));
+		}
 	}
 
 	mHistoryAccordion->arrange();
@@ -566,11 +740,12 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 	}
 
 	const LLTeleportHistoryStorage::slurl_list_t& history_items = mTeleportHistory->getItems();
-	LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(history_items.size(), // index will be decremented inside loop below
-									&mContextMenu,
-									history_items[history_items.size() - 1].mTitle, // Most recent item, it was
-									sFilterSubString);
-															 // added instead of removed
+	LLTeleportHistoryFlatItem* item = LLTeleportHistoryFlatItemStorage::instance()
+		.getFlatItemForPersistentItem(&mContextMenu,
+									  history_items[history_items.size() - 1], // Most recent item, it was added instead of removed
+									  history_items.size(), // index will be decremented inside loop below
+									  sFilterSubString);
+
 	fv->addItem(item, LLUUID::null, ADD_TOP);
 
 	// Index of each item, from last to removed item should be decremented
@@ -598,6 +773,8 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 
 			if (item->getIndex() == removed_index)
 			{
+				LLTeleportHistoryFlatItemStorage::instance().removeItem(item);
+
 				fv->removeItem(item);
 
 				// If flat list becames empty, then accordion tab should be hidden
@@ -629,10 +806,12 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 
 		LLFlatListView* fv = getFlatListViewFromTab(tab);
 		if (fv)
-			fv->clear();
+		{
+			// Detached panels are managed by LLTeleportHistoryFlatItemStorage
+			std::vector<LLPanel*> detached_items;
+			fv->detachItems(detached_items);
+		}
 	}
-
-	refresh();
 }
 
 void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
@@ -799,6 +978,49 @@ void LLTeleportHistoryPanel::onGearButtonClicked()
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
+}
+
+bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
+{
+	S32 tabs_cnt = mItemContainers.size();
+
+	bool has_expanded_tabs = false;
+	bool has_collapsed_tabs = false;
+
+	for (S32 n = 0; n < tabs_cnt; n++)
+	{
+		LLAccordionCtrlTab* tab = mItemContainers.get(n);
+		if (!tab->getVisible())
+			continue;
+
+		if (tab->getDisplayChildren())
+		{
+			has_expanded_tabs = true;
+		}
+		else
+		{
+			has_collapsed_tabs = true;
+		}
+
+		if (has_expanded_tabs && has_collapsed_tabs)
+		{
+			break;
+		}
+	}
+
+	std::string command_name = userdata.asString();
+
+	if (has_expanded_tabs && command_name == "collapse_all")
+	{
+		return true;
+	}
+
+	if (has_collapsed_tabs && command_name ==  "expand_all")
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void LLTeleportHistoryPanel::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed)

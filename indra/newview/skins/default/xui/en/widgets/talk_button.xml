@@ -11,14 +11,14 @@
                  image_unselected="SegmentedBtn_Left_Off"
 		 image_pressed="SegmentedBtn_Left_Selected_Press"
 		 image_pressed_selected="SegmentedBtn_Left_Selected_Press"
-    name="left"
+    name="speak_btn"
     label="Speak"
     label_selected="Speak"
     tab_stop="false"
     />
   <show_button
     follows="right" 
-    name="right"
+    name="speak_flyout_btn"
     label=""
     left="0"
     top="0"

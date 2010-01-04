@@ -103,15 +103,10 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
-#include "llboost.h"
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
 
-#include <boost/regex.hpp>
-
-//RN temporary includes for resolution switching
-#include "llglheaders.h"
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
@@ -193,7 +188,6 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
 bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
 
-bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height);
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
 viewer_media_t get_web_media()
@@ -273,23 +267,6 @@ bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFl
 }
 
 
-// Extract from strings of the form "<width> x <height>", e.g. "640 x 480".
-bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height)
-{
-	using namespace boost;
-	cmatch what;
-	const regex expression("([0-9]+) x ([0-9]+)");
-	if (regex_match(instr.c_str(), what, expression))
-	{
-		width = atoi(what[1].first);
-		height = atoi(what[2].first);
-		return true;
-	}
-	
-	width = height = 0;
-	return false;
-}
-
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
 	numerator = 0;
@@ -313,8 +290,7 @@ F32 LLFloaterPreference::sAspectRatio = 0.0;
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
-	mOriginalIMViaEmail(false),
-	mCancelOnClose(true)
+	mOriginalIMViaEmail(false)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
@@ -500,13 +476,6 @@ void LLFloaterPreference::apply()
 	}
 
 	applyResolution();
-	
-	// Only set window size if we're not in fullscreen mode
-	if(!gSavedSettings.getBOOL("WindowFullScreen"))
-	{
-		applyWindowSize();
-	}
-	
 }
 
 void LLFloaterPreference::cancel()
@@ -588,9 +557,6 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// when the floater is opened.  That will make cancel do its
 	// job
 	saveSettings();
-
-	// This is a "fresh" floater, closing floater shoud cancel any changes
-	mCancelOnClose = true;
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -609,7 +575,7 @@ void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
-	if (mCancelOnClose) cancel();
+	cancel();
 }
 
 void LLFloaterPreference::onOpenHardwareSettings()
@@ -631,15 +597,9 @@ void LLFloaterPreference::onBtnOK()
 
 	if (canClose())
 	{
+		saveSettings();
 		apply();
-		// Here we do not want to cancel on close, so we do this funny thing
-		// that prevents cancel from undoing our changes when we hit OK
-		mCancelOnClose = false;
 		closeFloater(false);
-
-		// closeFloater() will be called when viewer is quitting, leaving mCancelOnClose = true;
-		// will cancel all changes we saved here, don't let this happen.
-		// Fix for EXT-3465
 
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
@@ -770,8 +730,9 @@ void LLFloaterPreference::onClickResetCache()
 	{
 		gSavedSettings.setString("NewCacheLocation", "");
 		gSavedSettings.setString("NewCacheLocationTopFolder", "");
-		LLNotificationsUtil::add("CacheWillBeMoved");
 	}
+	
+	LLNotificationsUtil::add("CacheWillBeMoved");
 	std::string cache_location = gDirUtilp->getCacheDir(true);
 	gSavedSettings.setString("CacheLocation", cache_location);
 	std::string top_folder(gDirUtilp->getBaseFileName(cache_location));
@@ -1273,20 +1234,6 @@ void LLFloaterPreference::onKeystrokeAspectRatio()
 	getChild<LLCheckBoxCtrl>("aspect_auto_detect")->set(FALSE);
 }
 
-void LLFloaterPreference::applyWindowSize()
-{
-	LLComboBox* ctrl_windowSize = getChild<LLComboBox>("windowsize combo");
-	if (ctrl_windowSize->getVisible() && (ctrl_windowSize->getCurrentIndex() != -1))
-	{
-		U32 width = 0;
-		U32 height = 0;
-		if (extractWindowSizeFromString(ctrl_windowSize->getValue().asString().c_str(), width,height))
-		{
-			LLViewerWindow::movieSize(width, height);
-		}
-	}
-}
-
 void LLFloaterPreference::applyResolution()
 {
 	LLComboBox* ctrl_aspect_ratio = getChild<LLComboBox>( "aspect_ratio");
@@ -1354,36 +1301,7 @@ void LLFloaterPreference::applyResolution()
 	refresh();
 }
 
-void LLFloaterPreference::initWindowSizeControls(LLPanel* panelp)
-{
-	// Window size
-	//	mWindowSizeLabel = getChild<LLTextBox>("WindowSizeLabel");
-	LLComboBox* ctrl_window_size = panelp->getChild<LLComboBox>("windowsize combo");
-	
-	// Look to see if current window size matches existing window sizes, if so then
-	// just set the selection value...
-	const U32 height = gViewerWindow->getWindowHeightRaw();
-	const U32 width = gViewerWindow->getWindowWidthRaw();
-	for (S32 i=0; i < ctrl_window_size->getItemCount(); i++)
-	{
-		U32 height_test = 0;
-		U32 width_test = 0;
-		ctrl_window_size->setCurrentByIndex(i);
-		if (extractWindowSizeFromString(ctrl_window_size->getValue().asString(), width_test, height_test))
-		{
-			if ((height_test == height) && (width_test == width))
-			{
-				return;
-			}
-		}
-	}
-	// ...otherwise, add a new entry with the current window height/width.
-	LLUIString resolution_label = panelp->getString("resolution_format");
-	resolution_label.setArg("[RES_X]", llformat("%d", width));
-	resolution_label.setArg("[RES_Y]", llformat("%d", height));
-	ctrl_window_size->add(resolution_label, ADD_TOP);
-	ctrl_window_size->setCurrentByIndex(0);
-}
+
 
 
 void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
@@ -1442,53 +1360,8 @@ BOOL LLPanelPreference::postBuild()
 
 	if(hasChild("aspect_ratio"))
 	{
-		//============================================================================
-		// Resolution
-/*
-		S32 num_resolutions = 0;
-		LLWindow::LLWindowResolution* supported_resolutions = gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
-		
-		S32 fullscreen_mode = num_resolutions - 1;
-		
-		LLComboBox*ctrl_full_screen = getChild<LLComboBox>( "fullscreen combo");
-		LLUIString resolution_label = getString("resolution_format");
-		
-		for (S32 i = 0; i < num_resolutions; i++)
-		{
-			resolution_label.setArg("[RES_X]", llformat("%d", supported_resolutions[i].mWidth));
-			resolution_label.setArg("[RES_Y]", llformat("%d", supported_resolutions[i].mHeight));
-			ctrl_full_screen->add( resolution_label, ADD_BOTTOM );
-		}
-		
-		{
-			BOOL targetFullscreen;
-			S32 targetWidth;
-			S32 targetHeight;
-			
-			gViewerWindow->getTargetWindow(targetFullscreen, targetWidth, targetHeight);
-			
-			if (targetFullscreen)
-			{
-				fullscreen_mode = 0; // default to 800x600
-				for (S32 i = 0; i < num_resolutions; i++)
-				{
-					if (targetWidth == supported_resolutions[i].mWidth
-						&&  targetHeight == supported_resolutions[i].mHeight)
-					{
-						fullscreen_mode = i;
-					}
-				}
-				ctrl_full_screen->setCurrentByIndex(fullscreen_mode);
-			}
-			else
-			{
-				// set to windowed mode
-				//fullscreen_mode = mCtrlFullScreen->getItemCount() - 1;
-				ctrl_full_screen->setCurrentByIndex(0);
-			}
-		}
-	*/	
-		LLFloaterPreference::initWindowSizeControls(this);
+		// We used to set up fullscreen resolution and window size
+		// controls here, see LLFloaterWindowSize::initWindowSizeControls()
 		
 		if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))
 		{

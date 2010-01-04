@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_script
+ font="SansSerif"
+ height="25"
  name="script_chiclet"
- font="SansSerif">
- <icon
-  name="chiclet_icon"
+ width="25">
+ <chiclet_script.icon
   follows="all"
+  height="22"
+  image_name="Generic_Object_Small" 
   mouse_opaque="false"
-  image_name="Generic_Object_Small" />
-</expandable_text>
+  name="chiclet_icon"
+  width="22"/>
+ <chiclet_script.new_message_icon
+  bottom="12"
+  height="13"
+  image_name="Unread_IM"
+  left="12"
+  name="new_message_icon"
+  visible="false"
+  width="13" />
+</chiclet_script>

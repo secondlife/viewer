@@ -158,7 +158,7 @@ public:
 
 	void callbackHttpGet(const LLChannelDescriptors& channels,
 						 const LLIOPipe::buffer_ptr_t& buffer,
-						 bool last_block, bool success);
+						 bool partial, bool success);
 	void callbackCacheRead(bool success, LLImageFormatted* image,
 						   S32 imagesize, BOOL islocal);
 	void callbackCacheWrite(bool success);
@@ -316,7 +316,7 @@ public:
 			if (HTTP_OK <= status &&  status < HTTP_MULTIPLE_CHOICES)
 			{
 				success = true;
-				if (HTTP_PARTIAL_CONTENT == status) // partial information (i.e. last block)
+				if (HTTP_PARTIAL_CONTENT == status) // partial information
 				{
 					partial = true;
 				}
@@ -801,7 +801,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	if (mState == SEND_HTTP_REQ)
 	{
 		{
-			const S32 HTTP_QUEUE_MAX_SIZE = 32;
+			const S32 HTTP_QUEUE_MAX_SIZE = 8;
 			// *TODO: Integrate this with llviewerthrottle
 			// Note: LLViewerThrottle uses dynamic throttling which makes sense for UDP,
 			// but probably not for Textures.
@@ -842,10 +842,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mLoaded = FALSE;
 				mGetStatus = 0;
 				mGetReason.clear();
-				lldebugs << "HTTP GET: " << mID << " Offset: " << offset
-						<< " Bytes: " << mRequestedSize
-						<< " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << max_bandwidth
-						<< llendl;
+				LL_DEBUGS("Texture") << "HTTP GET: " << mID << " Offset: " << offset
+									 << " Bytes: " << mRequestedSize
+									 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << max_bandwidth
+									 << LL_ENDL;
 				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 				mState = WAIT_HTTP_REQ;	
 
@@ -874,16 +874,44 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			S32 cur_size = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 			if (mRequestedSize < 0)
 			{
-				const S32 HTTP_MAX_RETRY_COUNT = 3;
-				S32 max_attempts = (mGetStatus == HTTP_NOT_FOUND) ? 1 : HTTP_MAX_RETRY_COUNT + 1;
- 				llinfos << "HTTP GET failed for: " << mUrl
-						<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
-						<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
-				++mHTTPFailCount;
+				S32 max_attempts;
+				if (mGetStatus == HTTP_NOT_FOUND)
+				{
+					mHTTPFailCount = max_attempts = 1; // Don't retry
+					llinfos << "Texture missing from server (404): " << mUrl << llendl;
+				}
+				else if (mGetStatus == HTTP_SERVICE_UNAVAILABLE)
+				{
+					// *TODO: Should probably introduce a timer here to delay future HTTP requsts
+					// for a short time (~1s) to ease server load? Ideally the server would queue
+					// requests instead of returning 503... we already limit the number pending.
+					++mHTTPFailCount;
+					max_attempts = mHTTPFailCount+1; // Keep retrying
+					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
+				}
+				else
+				{
+					const S32 HTTP_MAX_RETRY_COUNT = 3;
+					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
+					++mHTTPFailCount;
+					llinfos << "HTTP GET failed for: " << mUrl
+							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
+							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
+				}
 				if (mHTTPFailCount >= max_attempts)
 				{
-					resetFormattedData();
-					return true; // failed
+					if (cur_size > 0)
+					{
+						// Use available data
+						mLoadedDiscard = mFormattedImage->getDiscardLevel();
+						mState = DECODE_IMAGE;
+						return false; 
+					}
+					else
+					{
+						resetFormattedData();
+						return true; // failed
+					}
 				}
 				else
 				{
@@ -934,6 +962,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
+		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+		if(textures_decode_disabled)
+		{
+			// for debug use, don't decode
+			mState = DONE;
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			return true;
+		}
+
 		if (mDesiredDiscard < 0)
 		{
 			// We aborted, don't decode
@@ -1207,7 +1244,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 
 void LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 										   const LLIOPipe::buffer_ptr_t& buffer,
-										   bool last_block, bool success)
+										   bool partial, bool success)
 {
 	LLMutexLock lock(&mWorkMutex);
 
@@ -1229,14 +1266,14 @@ void LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 
 		gTextureList.sTextureBits += data_size * 8; // Approximate - does not include header bits
 	
-		//llinfos << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << llendl;
+		LL_DEBUGS("Texture") << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
 		if (data_size > 0)
 		{
 			// *TODO: set the formatted image data here directly to avoid the copy
 			mBuffer = new U8[data_size];
 			buffer->readAfter(channels.in(), NULL, mBuffer, data_size);
 			mBufferSize += data_size;
-			if (data_size < mRequestedSize || last_block == true)
+			if (data_size < mRequestedSize && mRequestedDiscard == 0)
 			{
 				mHaveAllData = TRUE;
 			}
@@ -1422,8 +1459,9 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 	if (!url.empty() && (!exten.empty() && LLImageBase::getCodecFromExtension(exten) != IMG_CODEC_J2C))
 	{
 		// Only do partial requests for J2C at the moment
-		//llinfos << "Merov : LLTextureFetch::createRequest(), blocking fetch on " << url << llendl; 
+		//llinfos << "Merov : LLTextureFetch::createRequest(), blocking fetch on " << url << llendl;
 		desired_size = MAX_IMAGE_DATA_SIZE;
+		desired_discard = 0;
 	}
 	else if (desired_discard == 0)
 	{

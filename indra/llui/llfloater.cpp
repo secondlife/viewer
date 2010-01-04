@@ -2148,6 +2148,11 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 	if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
 	{
 		child->setFocus(TRUE);
+		// floater did not take focus, so relinquish focus to world
+		if (!child->hasFocus())
+		{
+			gFocusMgr.setKeyboardFocus(NULL);
+		}
 	}
 }
 
@@ -2716,7 +2721,8 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 		params.rect.left.set(0);
 	}
 
-	setupParams(params, parent);
+	params.from_xui = true;
+	applyXUILayout(params, parent);
  	initFromParams(params);
 	
 	initFloater(params);

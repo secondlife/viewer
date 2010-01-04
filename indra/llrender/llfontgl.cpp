@@ -135,7 +135,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil((F32)max_pixels * sScaleX);
 
-	// determine which style flags need to be added programmatically by striping off the
+	// determine which style flags need to be added programmatically by stripping off the
 	// style bits that are drawn by the underlying Freetype font
 	U8 style_to_add = (style | mFontDescriptor.getStyle()) & ~mFontFreetype->getStyle();
 
@@ -758,6 +758,29 @@ U8 LLFontGL::getStyleFromString(const std::string &style)
 		ret |= UNDERLINE;
 	}
 	return ret;
+}
+
+// static
+std::string LLFontGL::getStringFromStyle(U8 style)
+{
+	std::string style_string;
+	if (style & NORMAL)
+	{
+		style_string += "|NORMAL";
+	}
+	if (style & BOLD)
+	{
+		style_string += "|BOLD";
+	}
+	if (style & ITALIC)
+	{
+		style_string += "|ITALIC";
+	}
+	if (style & UNDERLINE)
+	{
+		style_string += "|UNDERLINE";
+	}
+	return style_string;
 }
 
 // static

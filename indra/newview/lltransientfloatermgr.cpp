@@ -37,6 +37,7 @@
 #include "llrootview.h"
 #include "llviewerwindow.h"
 #include "lldockablefloater.h"
+#include "llmenugl.h"
 
 
 LLTransientFloaterMgr::LLTransientFloaterMgr()
@@ -87,6 +88,13 @@ void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
 	for (controls_set_t::iterator it = mControlsSet.begin(); it
 			!= mControlsSet.end(); it++)
 	{
+		// don't hide transient floater if any context menu opened
+		if (LLMenuGL::sMenuContainer->getVisibleMenu() != NULL)
+		{
+			hide = false;
+			break;
+		}
+
 		LLView* control_view = *it;
 		if (!control_view->getVisible())
 		{

@@ -1082,6 +1082,17 @@ bool idle_startup()
 		credentials["passwd"] = gPassword;
 		login->connect(credentials);
 
+		LLStartUp::setStartupState( STATE_LOGIN_CURL_UNSTUCK );
+		return FALSE;
+	}
+
+	if(STATE_LOGIN_CURL_UNSTUCK == LLStartUp::getStartupState())
+	{
+		// If we get here we have gotten past the potential stall
+		// in curl, so take "may appear frozen" out of progress bar. JC
+		auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
+		set_startup_status(progress, auth_desc, auth_message);
+
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		return FALSE;
 	}
@@ -1168,16 +1179,6 @@ bool idle_startup()
 				show_connect_box = true;
 			}
 		}
-		else
-		{
-			// Still waiting for response.
-			// *TODO:Mani - Actually check for login progress.
-			// If we get here we have gotten past the potential stall
-			// in curl, so take "may appear frozen" out of progress bar. JC
-			auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
-			set_startup_status(progress, auth_desc, auth_message);
-		}
-
 		return FALSE;
 	}
 
@@ -1308,6 +1309,7 @@ bool idle_startup()
 			// Move the progress view in front of the UI
 			gViewerWindow->moveProgressViewToFront();
 
+			// direct logging to the debug console's line buffer
 			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 			
 			// set initial visibility of debug console
@@ -1634,11 +1636,15 @@ bool idle_startup()
 					gSavedSettings.setString("TutorialURL", tutorial_url.asString());
 				}
 				
-				LLSD use_tutorial = (*it)["use_tutorial"];
-				if(use_tutorial.asString() == "true")
-				{
-					show_hud = true;
-				}
+				// For Viewer 2.0 we are not using the web-based tutorial
+				// If we reverse that decision, put this code back and use
+				// login.cgi to send a different URL with content that matches
+				// the Viewer 2.0 UI.
+				//LLSD use_tutorial = (*it)["use_tutorial"];
+				//if(use_tutorial.asString() == "true")
+				//{
+				//	show_hud = true;
+				//}
 			}
 		}
 		// Either we want to show tutorial because this is the first login
@@ -2699,6 +2705,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_LOGIN_WAIT );
 		RTNENUM( STATE_LOGIN_CLEANUP );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
+		RTNENUM( STATE_LOGIN_CURL_UNSTUCK );
 		RTNENUM( STATE_LOGIN_PROCESS_RESPONSE );
 		RTNENUM( STATE_WORLD_INIT );
 		RTNENUM( STATE_MULTIMEDIA_INIT );

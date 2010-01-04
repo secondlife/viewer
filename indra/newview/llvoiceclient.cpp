@@ -4443,6 +4443,33 @@ void LLVoiceClient::participantUpdatedEvent(
 				participant->mPower = 0.0f;
 			}
 			participant->mVolume = volume;
+
+			
+			// *HACH: mantipov: added while working on EXT-3544
+			/*
+			Sometimes LLVoiceClient::participantUpdatedEvent callback is called BEFORE 
+			LLViewerChatterBoxSessionAgentListUpdates::post() sometimes AFTER.
+			
+			participantUpdatedEvent updates voice participant state in particular participantState::mIsModeratorMuted
+			Originally we wanted to update session Speaker Manager to fire LLSpeakerVoiceModerationEvent to fix the EXT-3544 bug.
+			Calling of the LLSpeakerMgr::update() method was added into LLIMMgr::processAgentListUpdates.
+			
+			But in case participantUpdatedEvent() is called after LLViewerChatterBoxSessionAgentListUpdates::post()
+			voice participant mIsModeratorMuted is changed after speakers are updated in Speaker Manager
+			and event is not fired.
+
+			So, we have to call LLSpeakerMgr::update() here. In any case it is better than call it
+			in LLCallFloater::draw()
+			*/
+			LLVoiceChannel* voice_cnl = LLVoiceChannel::getCurrentVoiceChannel();
+			if (voice_cnl)
+			{
+				LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(voice_cnl->getSessionID());
+				if (speaker_manager)
+				{
+					speaker_manager->update(true);
+				}
+			}
 		}
 		else
 		{

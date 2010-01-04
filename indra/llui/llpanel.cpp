@@ -452,7 +452,7 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	parseFollowsFlags(p);
 
 	setToolTip(p.tool_tip());
-	setSaveToXML(p.from_xui);
+	setFromXUI(p.from_xui);
 	
 	mHoverCursor = getCursorFromString(p.hover_cursor);
 	
@@ -541,7 +541,8 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				output_node, output_params, &default_params);
 		}
 		
-		setupParams(params, parent);
+		params.from_xui = true;
+		applyXUILayout(params, parent);
 		{
 			LLFastTimer timer(FTM_PANEL_CONSTRUCTION);
 			initFromParams(params);

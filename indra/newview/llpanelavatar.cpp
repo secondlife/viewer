@@ -179,6 +179,10 @@ void LLPanelAvatarNotes::onOpen(const LLSD& key)
 
 void LLPanelAvatarNotes::fillRightsData()
 {
+	childSetValue("status_check", FALSE);
+	childSetValue("map_check", FALSE);
+	childSetValue("objects_check", FALSE);
+
 	const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 	// If true - we are viewing friend's profile, enable check boxes and set values.
 	if(relation)
@@ -327,6 +331,33 @@ void LLPanelAvatarNotes::onShareButtonClick()
 	//*TODO not implemented.
 }
 
+LLPanelAvatarNotes::~LLPanelAvatarNotes()
+{
+	if(getAvatarId().notNull())
+	{
+		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+	}
+}
+
+// virtual, called by LLAvatarTracker
+void LLPanelAvatarNotes::changed(U32 mask)
+{
+	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+}
+
+void LLPanelAvatarNotes::setAvatarId(const LLUUID& id)
+{
+	if(id.notNull())
+	{
+		if(getAvatarId().notNull())
+		{
+			LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+		}
+		LLPanelProfileTab::setAvatarId(id);
+		LLAvatarTracker::instance().addParticularFriendObserver(getAvatarId(), this);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -392,9 +423,18 @@ void LLPanelProfileTab::onMapButtonClick()
 
 void LLPanelProfileTab::updateButtons()
 {
-	bool enable_map_btn = LLAvatarTracker::instance().isBuddyOnline(getAvatarId())
-					&& gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+	bool is_avatar_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
+	
+	if(LLAvatarActions::isFriend(getAvatarId()))
+	{
+		childSetEnabled("teleport", is_avatar_online);
+	}
+	else
+	{
+		childSetEnabled("teleport", true);
+	}
 
+	bool enable_map_btn = is_avatar_online && gAgent.isGodlike() || is_agent_mappable(getAvatarId());
 	childSetEnabled("show_on_map_btn", enable_map_btn);
 	childSetEnabled("call", LLAvatarActions::canCall(getAvatarId()));
 }
@@ -402,6 +442,11 @@ void LLPanelProfileTab::updateButtons()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
+bool enable_god()
+{
+	return gAgent.isGodlike();
+}
 
 LLPanelAvatarProfile::LLPanelAvatarProfile()
 : LLPanelProfileTab()
@@ -423,6 +468,13 @@ BOOL LLPanelAvatarProfile::postBuild()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
 	registrar.add("Profile.Share", boost::bind(&LLPanelAvatarProfile::share, this));
+	registrar.add("Profile.Kick", boost::bind(&LLPanelAvatarProfile::kick, this));
+	registrar.add("Profile.Freeze", boost::bind(&LLPanelAvatarProfile::freeze, this));
+	registrar.add("Profile.Unfreeze", boost::bind(&LLPanelAvatarProfile::unfreeze, this));
+	registrar.add("Profile.CSR", boost::bind(&LLPanelAvatarProfile::csr, this));
+
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
+	enable.add("Profile.EnableGod", boost::bind(&enable_god));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -622,6 +674,28 @@ void LLPanelAvatarProfile::share()
 	LLAvatarActions::share(getAvatarId());
 }
 
+void LLPanelAvatarProfile::kick()
+{
+	LLAvatarActions::kick(getAvatarId());
+}
+
+void LLPanelAvatarProfile::freeze()
+{
+	LLAvatarActions::freeze(getAvatarId());
+}
+
+void LLPanelAvatarProfile::unfreeze()
+{
+	LLAvatarActions::unfreeze(getAvatarId());
+}
+
+void LLPanelAvatarProfile::csr()
+{
+	std::string name;
+	gCacheName->getFullName(getAvatarId(), name);
+	LLAvatarActions::csr(getAvatarId(), name);
+}
+
 void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
 {
 	LLWeb::loadURL(url);
@@ -676,6 +750,33 @@ void LLPanelAvatarProfile::onOverflowButtonClicked()
 
 	LLRect rect = btn->getRect();
 	LLMenuGL::showPopup(this, mProfileMenu, rect.mRight, rect.mTop);
+}
+
+LLPanelAvatarProfile::~LLPanelAvatarProfile()
+{
+	if(getAvatarId().notNull())
+	{
+		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+	}
+}
+
+// virtual, called by LLAvatarTracker
+void LLPanelAvatarProfile::changed(U32 mask)
+{
+	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+}
+
+void LLPanelAvatarProfile::setAvatarId(const LLUUID& id)
+{
+	if(id.notNull())
+	{
+		if(getAvatarId().notNull())
+		{
+			LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+		}
+		LLPanelProfileTab::setAvatarId(id);
+		LLAvatarTracker::instance().addParticularFriendObserver(getAvatarId(), this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

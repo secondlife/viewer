@@ -615,6 +615,9 @@ private:
 
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 {
+	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);
+	if (!speakerp) return;
+
 	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
 	LLSD data;
 	data["method"] = "mute update";
@@ -623,15 +626,13 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 	data["params"]["agent_id"] = speaker_id;
 	data["params"]["mute_info"] = LLSD::emptyMap();
 	//current value represents ability to type, so invert
-	data["params"]["mute_info"]["text"] = !findSpeaker(speaker_id)->mModeratorMutedText;
+	data["params"]["mute_info"]["text"] = !speakerp->mModeratorMutedText;
 
 	LLHTTPClient::post(url, data, new ModerationResponder(getSessionID()));
 }
 
 void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
 {
-	if (gAgentID == avatar_id) return; // do not process myself
-
 	LLPointer<LLSpeaker> speakerp = findSpeaker(avatar_id);
 	if (!speakerp) return;
 

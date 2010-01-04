@@ -43,6 +43,12 @@
 #include "lltextutil.h"
 #include "llbutton.h"
 
+bool LLAvatarListItem::sStaticInitialized = false;
+S32 LLAvatarListItem::sIconWidth = 0;
+S32 LLAvatarListItem::sInfoBtnWidth = 0;
+S32 LLAvatarListItem::sProfileBtnWidth = 0;
+S32 LLAvatarListItem::sSpeakingIndicatorWidth = 0;
+
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 :	LLPanel(),
 	mAvatarIcon(NULL),
@@ -51,7 +57,6 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mSpeakingIndicator(NULL),
 	mInfoBtn(NULL),
 	mProfileBtn(NULL),
-	mContextMenu(NULL),
 	mOnlineStatus(E_UNKNOWN),
 	mShowInfoBtn(true),
 	mShowProfileBtn(true)
@@ -88,10 +93,15 @@ BOOL  LLAvatarListItem::postBuild()
 
 	// Remember avatar icon width including its padding from the name text box,
 	// so that we can hide and show the icon again later.
-	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
-	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
-	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
-	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
+	if (!sStaticInitialized)
+	{
+		sIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+		sInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
+		sProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
+		sSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight;
+
+		sStaticInitialized = true;
+	}
 
 /*
 	if(!p.buttons.profile)
@@ -148,7 +158,6 @@ void LLAvatarListItem::changed(U32 mask)
 void LLAvatarListItem::setOnline(bool online)
 {
 	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
-	// *TODO: Make the colors configurable via XUI.
 
 	if (mOnlineStatus != E_UNKNOWN && (bool) mOnlineStatus == online)
 		return;
@@ -156,11 +165,7 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	mAvatarNameStyle.color = online ? LLColor4::white : LLColor4::grey;
-	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
-
-	// Make the icon fade if the avatar goes offline.
-	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
+	setState(online ? IS_ONLINE : IS_OFFLINE);
 }
 
 void LLAvatarListItem::setName(const std::string& name)
@@ -171,6 +176,21 @@ void LLAvatarListItem::setName(const std::string& name)
 void LLAvatarListItem::setHighlight(const std::string& highlight)
 {
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
+}
+
+void LLAvatarListItem::setState(EItemState item_style)
+{
+	item_style_map_t& item_styles_params_map = getItemStylesParams();
+
+	mAvatarNameStyle = item_styles_params_map[item_style];
+
+	// *NOTE: You cannot set the style on a text box anymore, you must
+	// rebuild the text.  This will cause problems if the text contains
+	// hyperlinks, as their styles will be wrong.
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
+
+	icon_color_map_t& item_icon_color_map = getItemIconColorMap();
+	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
@@ -214,7 +234,7 @@ void LLAvatarListItem::setShowInfoBtn(bool show)
 	if(mShowInfoBtn == show)
 		return;
 	mShowInfoBtn = show;
-	S32 width_delta = show ? - mInfoBtnWidth : mInfoBtnWidth;
+	S32 width_delta = show ? - sInfoBtnWidth : sInfoBtnWidth;
 
 	//Translating speaking indicator
 	mSpeakingIndicator->translate(width_delta, 0);
@@ -228,7 +248,7 @@ void LLAvatarListItem::setShowProfileBtn(bool show)
 	if(mShowProfileBtn == show)
 			return;
 	mShowProfileBtn = show;
-	S32 width_delta = show ? - mProfileBtnWidth : mProfileBtnWidth;
+	S32 width_delta = show ? - sProfileBtnWidth : sProfileBtnWidth;
 
 	//Translating speaking indicator
 	mSpeakingIndicator->translate(width_delta, 0);
@@ -242,7 +262,7 @@ void LLAvatarListItem::setSpeakingIndicatorVisible(bool visible)
 	if (mSpeakingIndicator->getVisible() == (BOOL)visible)
 		return;
 	mSpeakingIndicator->setVisible(visible);
-	S32 width_delta = visible ? - mSpeakingIndicatorWidth : mSpeakingIndicatorWidth;
+	S32 width_delta = visible ? - sSpeakingIndicatorWidth : sSpeakingIndicatorWidth;
 
 	//Reshaping avatar name
 	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
@@ -259,7 +279,7 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 
 	// Move the avatar name horizontally by icon size + its distance from the avatar name.
 	LLRect name_rect = mAvatarName->getRect();
-	name_rect.mLeft += visible ? mIconWidth : -mIconWidth;
+	name_rect.mLeft += visible ? sIconWidth : -sIconWidth;
 	mAvatarName->setRect(name_rect);
 }
 
@@ -327,10 +347,10 @@ void LLAvatarListItem::onNameCache(const std::string& first_name, const std::str
 void LLAvatarListItem::reshapeAvatarName()
 {
 	S32 width_delta = 0;
-	width_delta += mShowProfileBtn ? mProfileBtnWidth : 0;
-	width_delta += mSpeakingIndicator->getVisible() ? mSpeakingIndicatorWidth : 0;
-	width_delta += mAvatarIcon->getVisible() ? mIconWidth : 0;
-	width_delta += mShowInfoBtn ? mInfoBtnWidth : 0;
+	width_delta += mShowProfileBtn ? sProfileBtnWidth : 0;
+	width_delta += mSpeakingIndicator->getVisible() ? sSpeakingIndicatorWidth : 0;
+	width_delta += mAvatarIcon->getVisible() ? sIconWidth : 0;
+	width_delta += mShowInfoBtn ? sInfoBtnWidth : 0;
 	width_delta += mLastInteractionTime->getVisible() ? mLastInteractionTime->getRect().getWidth() : 0;
 
 	S32 height = mAvatarName->getRect().getHeight();
@@ -386,3 +406,90 @@ std::string LLAvatarListItem::formatSeconds(U32 secs)
 	args["[COUNT]"] = llformat("%u", count);
 	return getString(fmt, args);
 }
+
+// static
+LLAvatarListItem::item_style_map_t& LLAvatarListItem::getItemStylesParams()
+{
+	static item_style_map_t item_styles_params_map;
+	if (!item_styles_params_map.empty()) return item_styles_params_map;
+
+	LLPanel::Params params = LLUICtrlFactory::getDefaultParams<LLPanel>();
+	LLPanel* params_panel = LLUICtrlFactory::create<LLPanel>(params);
+
+	BOOL sucsess = LLUICtrlFactory::instance().buildPanel(params_panel, "panel_avatar_list_item_params.xml");
+
+	if (sucsess)
+	{
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_DEFAULT,
+			params_panel->getChild<LLTextBox>("default_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_INVITED,
+			params_panel->getChild<LLTextBox>("voice_call_invited_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_JOINED,
+			params_panel->getChild<LLTextBox>("voice_call_joined_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_VOICE_LEFT,
+			params_panel->getChild<LLTextBox>("voice_call_left_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_ONLINE,
+			params_panel->getChild<LLTextBox>("online_style")->getDefaultStyle()));
+
+		item_styles_params_map.insert(
+			std::make_pair(IS_OFFLINE,
+			params_panel->getChild<LLTextBox>("offline_style")->getDefaultStyle()));
+	}
+	else
+	{
+		item_styles_params_map.insert(std::make_pair(IS_DEFAULT, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_INVITED, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_JOINED, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_VOICE_LEFT, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_ONLINE, LLStyle::Params()));
+		item_styles_params_map.insert(std::make_pair(IS_OFFLINE, LLStyle::Params()));
+	}
+	if (params_panel) params_panel->die();
+
+	return item_styles_params_map;
+}
+
+// static
+LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
+{
+	static icon_color_map_t item_icon_color_map;
+	if (!item_icon_color_map.empty()) return item_icon_color_map;
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_DEFAULT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconDefaultColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_INVITED,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceInvitedColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_JOINED,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceJoinedColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_VOICE_LEFT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceLeftColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_ONLINE,
+		LLUIColorTable::instance().getColor("AvatarListItemIconOnlineColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
+		std::make_pair(IS_OFFLINE,
+		LLUIColorTable::instance().getColor("AvatarListItemIconOfflineColor", LLColor4::white)));
+
+	return item_icon_color_map;
+}
+
+// EOF

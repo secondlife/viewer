@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "lldndbutton.h"
+#include "lleconomy.h"
 #include "llfilepicker.h"
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
@@ -97,7 +98,8 @@ LLPanelMainInventory::LLPanelMainInventory()
 	  mSavedFolderState(NULL),
 	  mFilterText(""),
 	  mMenuGearDefault(NULL),
-	  mMenuAdd(NULL)
+	  mMenuAdd(NULL),
+	  mNeedUploadCost(true)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_VIEW_INIT);
 	// Menu Callbacks (non contex menus)
@@ -895,6 +897,8 @@ void LLPanelMainInventory::onGearButtonClick()
 
 void LLPanelMainInventory::onAddButtonClick()
 {
+	setUploadCostIfNeeded();
+
 	showActionMenu(mMenuAdd,"add_btn");
 }
 
@@ -1129,6 +1133,40 @@ bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType 
 		onClipboardAction("delete");
 	}
 	return true;
+}
+
+void LLPanelMainInventory::setUploadCostIfNeeded()
+{
+	// *NOTE dzaporozhan
+	// Upload cost is set in process_economy_data() (llviewermessage.cpp). But since we
+	// have two instances of Inventory panel at the moment(and two instances of context menu),
+	// call to gMenuHolder->childSetLabelArg() sets upload cost only for one of the instances.
+
+	if(mNeedUploadCost && mMenuAdd)
+	{
+		LLMenuItemBranchGL* upload_menu = mMenuAdd->findChild<LLMenuItemBranchGL>("upload");
+		if(upload_menu)
+		{
+			S32 upload_cost = -1;//LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			std::string cost_str;
+
+			// getPriceUpload() returns -1 if no data available yet.
+			if(upload_cost >= 0)
+			{
+				mNeedUploadCost = false;
+				cost_str = llformat("%d", upload_cost);
+			}
+			else
+			{
+				cost_str = llformat("%d", gSavedSettings.getU32("DefaultUploadCost"));
+			}
+
+			upload_menu->getChild<LLView>("Upload Image")->setLabelArg("[COST]", cost_str);
+			upload_menu->getChild<LLView>("Upload Sound")->setLabelArg("[COST]", cost_str);
+			upload_menu->getChild<LLView>("Upload Animation")->setLabelArg("[COST]", cost_str);
+			upload_menu->getChild<LLView>("Bulk Upload")->setLabelArg("[COST]", cost_str);
+		}
+	}
 }
 
 // List Commands                                                              //

@@ -10,10 +10,6 @@
  name="advanced"
  top="1"
  width="517">
-    <panel.string
-     name="resolution_format">
-        [RES_X] x [RES_Y]
-    </panel.string>
 	<panel.string
      name="aspect_ratio_text">
         [NUM]:[DEN]
@@ -29,7 +25,6 @@
      name="bubble_text_chat"
      width="150" />
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0 0 0 1"
      control_name="BackgroundChatColor"

@@ -34,10 +34,11 @@
 #define LLCHATHISTORY_H_
 
 #include "lltexteditor.h"
+#include "lltextbox.h"
 #include "llviewerchat.h"
 
 //Chat log widget allowing addition of a message as a widget 
-class LLChatHistory : public LLTextEditor
+class LLChatHistory : public LLUICtrl
 {
 	public:
 		struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
@@ -63,6 +64,8 @@ class LLChatHistory : public LLTextEditor
 			//Header bottom padding
 			Optional<S32>			bottom_header_pad;
 
+			Optional<LLTextBox::Params>	more_chat_text;
+
 			Params()
 			:	message_header("message_header"),
 				message_separator("message_separator"),
@@ -73,15 +76,16 @@ class LLChatHistory : public LLTextEditor
 				top_separator_pad("top_separator_pad"),
 				bottom_separator_pad("bottom_separator_pad"),
 				top_header_pad("top_header_pad"),
-				bottom_header_pad("bottom_header_pad")
-				{
-				}
+				bottom_header_pad("bottom_header_pad"),
+				more_chat_text("more_chat_text")
+			{}
 
 		};
 	protected:
 		LLChatHistory(const Params&);
 		friend class LLUICtrlFactory;
 
+		/*virtual*/ void draw();
 		/**
 		 * Redefinition of LLTextEditor::updateTextRect() to considerate text
 		 * left/right padding params.
@@ -98,8 +102,12 @@ class LLChatHistory : public LLTextEditor
 		 */
 		LLView* getHeader(const LLChat& chat,const LLStyle::Params& style_params);
 
+		void onClickMoreText();
+
 	public:
 		~LLChatHistory();
+
+		void initFromParams(const Params&);
 
 		/**
 		 * Appends a widget message.
@@ -129,5 +137,11 @@ class LLChatHistory : public LLTextEditor
 		S32 mBottomSeparatorPad;
 		S32 mTopHeaderPad;
 		S32 mBottomHeaderPad;
+
+		LLPanel*		mMoreChatPanel;
+		LLTextBox*		mMoreChatText;
+		LLTextEditor*	mEditor;
+		typedef std::set<std::string> unread_chat_source_t;
+		unread_chat_source_t mUnreadChatSources;
 };
 #endif /* LLCHATHISTORY_H_ */

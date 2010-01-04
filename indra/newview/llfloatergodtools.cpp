@@ -1165,7 +1165,7 @@ bool LLPanelObjectTools::callbackSimWideDeletes( const LLSD& notification, const
 void LLPanelObjectTools::onClickSet()
 {
 	// grandparent is a floater, which can have a dependent
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarID, this));
+	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelObjectTools::callbackAvatarID, this, _1,_2)));
 }
 
 void LLPanelObjectTools::onClickSetBySelection(void* data)
@@ -1189,14 +1189,12 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	panelp->childSetValue("target_avatar_name", name);
 }
 
-// static
-void LLPanelObjectTools::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
+void LLPanelObjectTools::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
 {
-	LLPanelObjectTools* object_tools = (LLPanelObjectTools*) data;
 	if (ids.empty() || names.empty()) return;
-	object_tools->mTargetAvatar = ids[0];
-	object_tools->childSetValue("target_avatar_name", names[0]);
-	object_tools->refresh();
+	mTargetAvatar = ids[0];
+	childSetValue("target_avatar_name", names[0]);
+	refresh();
 }
 
 void LLPanelObjectTools::onChangeAnything()

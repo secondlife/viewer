@@ -81,7 +81,8 @@ BOOL LLPanelLandmarkInfo::postBuild()
 	mCreator = getChild<LLTextBox>("creator");
 	mCreated = getChild<LLTextBox>("created");
 
-	mTitleEditor = getChild<LLLineEditor>("title_editor");
+	mLandmarkTitle = getChild<LLTextBox>("title_value");
+	mLandmarkTitleEditor = getChild<LLLineEditor>("title_editor");
 	mNotesEditor = getChild<LLTextEditor>("notes_editor");
 	mFolderCombo = getChild<LLComboBox>("folder_combo");
 
@@ -101,7 +102,8 @@ void LLPanelLandmarkInfo::resetLocation()
 	mCreator->setText(not_available);
 	mOwner->setText(not_available);
 	mCreated->setText(not_available);
-	mTitleEditor->setText(LLStringUtil::null);
+	mLandmarkTitle->setText(LLStringUtil::null);
+	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
 }
 
@@ -122,7 +124,8 @@ void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
 		case CREATE_LANDMARK:
 			mCurrentTitle = getString("title_create_landmark");
 
-			mTitleEditor->setEnabled(TRUE);
+			mLandmarkTitle->setVisible(FALSE);
+			mLandmarkTitleEditor->setVisible(TRUE);
 			mNotesEditor->setEnabled(TRUE);
 		break;
 
@@ -130,7 +133,8 @@ void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
 		default:
 			mCurrentTitle = getString("title_landmark");
 
-			mTitleEditor->setEnabled(FALSE);
+			mLandmarkTitle->setVisible(TRUE);
+			mLandmarkTitleEditor->setVisible(FALSE);
 			mNotesEditor->setEnabled(FALSE);
 		break;
 	}
@@ -185,12 +189,12 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 	{
 		if (parcel_data.name.empty())
 		{
-			mTitleEditor->setText(llformat("%s (%d, %d, %d)",
+			mLandmarkTitleEditor->setText(llformat("%s (%d, %d, %d)",
 								  parcel_data.sim_name.c_str(), region_x, region_y, region_z));
 		}
 		else
 		{
-			mTitleEditor->setText(parcel_data.name);
+			mLandmarkTitleEditor->setText(parcel_data.name);
 		}
 
 		std::string desc;
@@ -281,7 +285,8 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 		mCreated->setText(timeStr);
 	}
 
-	mTitleEditor->setText(pItem->getName());
+	mLandmarkTitle->setText(pItem->getName());
+	mLandmarkTitleEditor->setText(pItem->getName());
 	mNotesEditor->setText(pItem->getDescription());
 }
 
@@ -296,11 +301,14 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 	else
 	{
 		mTitle->setText(mCurrentTitle);
+
+		mLandmarkTitle->setText(mLandmarkTitleEditor->getText());
 	}
 
 	if (mNotesEditor->getReadOnly() ==  (enabled == TRUE))
 	{
-		mTitleEditor->setEnabled(enabled);
+		mLandmarkTitle->setVisible(!enabled);
+		mLandmarkTitleEditor->setVisible(enabled);
 		mNotesEditor->setReadOnly(!enabled);
 		mFolderCombo->setVisible(enabled);
 		getChild<LLTextBox>("folder_label")->setVisible(enabled);
@@ -313,7 +321,7 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 
 const std::string& LLPanelLandmarkInfo::getLandmarkTitle() const
 {
-	return mTitleEditor->getText();
+	return mLandmarkTitleEditor->getText();
 }
 
 const std::string LLPanelLandmarkInfo::getLandmarkNotes() const
@@ -333,7 +341,7 @@ BOOL LLPanelLandmarkInfo::setLandmarkFolder(const LLUUID& id)
 
 void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 {
-	std::string name = mTitleEditor->getText();
+	std::string name = mLandmarkTitleEditor->getText();
 	std::string desc = mNotesEditor->getText();
 
 	LLStringUtil::trim(name);

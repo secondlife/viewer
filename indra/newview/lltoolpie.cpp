@@ -731,14 +731,13 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				// *HACK: We may select this object, so pretend it was clicked
 				mPick = mHoverPick;
 				LLInspector::Params p;
+				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				p.message(avatar_name);
 				p.image(LLUI::getUIImage("Info"));
 				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
 				p.wrap(false);
-
-				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				
 				LLToolTipMgr::instance().show(p);
 			}
@@ -822,6 +821,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					// We may select this object, so pretend it was clicked
 					mPick = mHoverPick;
 					LLInspector::Params p;
+					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 					p.message(tooltip_msg);
 					p.image(LLUI::getUIImage("Info_Off"));
 					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
@@ -833,8 +833,6 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					p.visible_time_near(6.f);
 					p.visible_time_far(3.f);
 					p.wrap(false);
-
-					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 					
 					LLToolTipMgr::instance().show(p);
 				}

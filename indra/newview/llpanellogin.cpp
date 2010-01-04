@@ -62,7 +62,6 @@
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
-#include "llurlsimstring.h"
 #include "lluictrlfactory.h"
 #include "llhttpclient.h"
 #include "llweb.h"
@@ -229,8 +228,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 
-	LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
 	std::string sim_string = LLURLSimString::sInstance.mSimString;
+	if(sim_string.empty())
+	{
+		LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
+	}
+
 	if (!sim_string.empty())
 	{
 		// Replace "<Type region name>" with this region name
@@ -248,7 +251,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	childSetAction("connect_btn", onClickConnect, this);
 
-	getChild<LLPanel>("login_widgets")->setDefaultBtn("connect_btn");
+	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
 
 	std::string channel = gSavedSettings.getString("VersionChannelName");
 	std::string version = llformat("%s (%d)",
@@ -679,12 +682,8 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 	sInstance->childSetVisible("start_location_combo", show_start);
 	sInstance->childSetVisible("start_location_text", show_start);
 
-#if LL_RELEASE_FOR_DOWNLOAD
 	BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
 	sInstance->childSetVisible("server_combo", show_server);
-#else
-	sInstance->childSetVisible("server_combo", TRUE);
-#endif
 
 #endif
 }

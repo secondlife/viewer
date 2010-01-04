@@ -41,7 +41,6 @@
 #include "llgroupmgr.h"
 #include "llimview.h"
 
-class LLVoiceControlPanel;
 class LLMenuGL;
 class LLIMFloater;
 
@@ -54,8 +53,15 @@ public:
 
 	struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
 	{
-		Params()
-		{};
+		/**
+		* Contains maximum displayed count of unread messages. Default value is 9.
+		*
+		* If count is less than "max_unread_count" will be displayed as is.
+		* Otherwise 9+ will be shown (for default value).
+		*/
+		Optional<S32> max_displayed_count;
+
+		Params();
 	};
 
 	/**
@@ -93,6 +99,7 @@ private:
 
 	S32 mCounter;
 	S32 mInitialWidth;
+	S32 mMaxDisplayedCount;
 };
 
 /**
@@ -207,7 +214,8 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<bool> show_counter;
+		Optional<bool> show_counter,
+					   enable_counter;
 
 		Params();
 	};
@@ -313,10 +321,7 @@ public:
 	};
 	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
 	{
-		Optional<std::string> new_messages_icon_name;
-
-		Params() : new_messages_icon_name("new_messages_icon_name", "Unread_IM")
-		{}
+		Params(){}
 	};
 
 	
@@ -357,6 +362,32 @@ public:
 	 * Shows/Hides for voice control for a chiclet.
 	 */
 	virtual void toggleSpeakerControl();
+
+	/**
+	* Sets number of unread messages. Will update chiclet's width if number text 
+	* exceeds size of counter and notify it's parent about size change.
+	*/
+	virtual void setCounter(S32);
+
+	/**
+	* Enables/disables the counter control for a chiclet.
+	*/
+	virtual void enableCounterControl(bool enable);
+
+	/**
+	* Sets show counter state.
+	*/
+	virtual void setShowCounter(bool show);
+
+	/**
+	* Shows/Hides for counter control for a chiclet.
+	*/
+	virtual void toggleCounterControl();
+
+	/**
+	* Sets required width for a chiclet according to visible controls.
+	*/
+	virtual void setRequiredWidth();
 
 	/**
 	 * Shows/hides overlay icon concerning new unread messages.
@@ -400,6 +431,9 @@ protected:
 protected:
 
 	bool mShowSpeaker;
+	bool mCounterEnabled;
+	/* initial width of chiclet, should not include counter or speaker width */
+	S32 mDefaultWidth;
 
 	LLIconCtrl* mNewMessagesIcon;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
@@ -445,18 +479,14 @@ public:
 
 		Optional<LLChicletSpeakerCtrl::Params> speaker;
 
+		Optional<LLIconCtrl::Params> new_message_icon;
+
 		Optional<bool>	show_speaker;
 
 		Params();
 	};
 
 	/* virtual */ void setOtherParticipantId(const LLUUID& other_participant_id);
-
-	/**
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	 */
-	/*virtual*/ void setCounter(S32);
 
 	/**
 	 * Init Speaker Control with speaker's ID
@@ -490,6 +520,7 @@ protected:
 
 	/** 
 	 * Enables/disables menus based on relationship with other participant.
+	 * Enables/disables "show session" menu item depending on visible IM floater existence.
 	 */
 	virtual void updateMenuItems();
 
@@ -513,6 +544,8 @@ public:
 
 		Optional<LLChicletSpeakerCtrl::Params> speaker;
 
+		Optional<LLIconCtrl::Params> new_message_icon;
+
 		Optional<bool>	show_speaker;
 
 		Optional<LLColor4>	avatar_icon_color;
@@ -525,12 +558,6 @@ public:
 	 * Session ID for group chat is actually Group ID.
 	 */
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
-
-	/**
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	 */
-	/*virtual*/ void setCounter(S32);
 
 	/**
 	 * Keep Speaker Control with actual speaker's ID
@@ -589,6 +616,8 @@ public:
 	{
 		Optional<LLIconCtrl::Params> icon;
 
+		Optional<LLIconCtrl::Params> new_message_icon;
+
 		Params();
 	};
 
@@ -628,6 +657,8 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
 		Optional<LLChicletInvOfferIconCtrl::Params> icon;
+
+		Optional<LLIconCtrl::Params> new_message_icon;
 
 		Params();
 	};
@@ -672,6 +703,8 @@ public:
 
 		Optional<LLChicletSpeakerCtrl::Params> speaker;
 
+		Optional<LLIconCtrl::Params> new_message_icon;
+
 		Optional<bool>	show_speaker;
 
 		Params();
@@ -693,12 +726,6 @@ public:
 	 * Sets group icon.
 	 */
 	/*virtual*/ void changed(LLGroupChange gc);
-
-	/**
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	 */
-	/*virtual*/ void setCounter(S32);
 
 	/**
 	 * Init Speaker Control with speaker's ID
@@ -731,6 +758,11 @@ protected:
 	 * Processes clicks on chiclet popup menu.
 	 */
 	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables/disables "show session" menu item depending on visible IM floater existence.
+	 */
+	virtual void updateMenuItems();
 
 	/**
 	 * Displays popup menu.
@@ -792,6 +824,8 @@ public:
 	void setToggleState(BOOL toggled);
 
 	void setNewMessagesState(bool new_messages);
+	//this method should change a widget according to state of the SysWellWindow 
+	virtual void updateWidget(bool is_window_empty);
 
 protected:
 
@@ -806,6 +840,13 @@ protected:
 	 */
 	void changeLitState();
 
+	/**
+	 * Displays menu.
+	 */
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	virtual void createMenu() = 0;
+
 protected:
 	class FlashToLitTimer;
 	LLButton* mButton;
@@ -814,7 +855,7 @@ protected:
 	bool mIsNewMessagesState;
 
 	FlashToLitTimer* mFlashToLitTimer;
-
+	LLContextMenu* mContextMenu;
 };
 
 /**
@@ -833,6 +874,21 @@ public:
 	~LLIMWellChiclet();
 protected:
 	LLIMWellChiclet(const Params& p);
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables chiclet menu items.
+	 */
+	bool enableMenuItem(const LLSD& user_data);
+
+	/**
+	 * Creates menu.
+	 */
+	/*virtual*/ void createMenu();
 
 	/**
 	 * Handles changes in a session (message was added, messages were read, etc.)
@@ -854,13 +910,28 @@ class LLNotificationChiclet : public LLSysWellChiclet
 protected:
 	LLNotificationChiclet(const Params& p);
 
+	/**
+	 * Processes clicks on chiclet menu.
+	 */
+	void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables chiclet menu items.
+	 */
+	bool enableMenuItem(const LLSD& user_data);
+
+	/**
+	 * Creates menu.
+	 */
+	/*virtual*/ void createMenu();
+
 	// connect counter updaters to the corresponding signals
 	void connectCounterUpdatersToSignal(const std::string& notification_type);
 
 	// methods for updating a number of unread System notifications
 	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
 	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
-
+	/*virtual*/ void setCounter(S32 counter);
 	S32 mUreadSystemNotifications;
 };
 
@@ -875,7 +946,9 @@ public:
 	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Optional<S32> chiclet_padding,
-					  scrolling_offset;
+					  scrolling_offset,
+					  scroll_button_hpad,
+					  scroll_ratio;
 
 		Optional<S32> min_width;
 
@@ -965,6 +1038,8 @@ public:
 
 	S32 getTotalUnreadIMCount();
 
+	S32	notifyParent(const LLSD& info);
+
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;
@@ -992,6 +1067,11 @@ protected:
 	 * Returns true if chiclets can be scrolled right.
 	 */
 	bool canScrollRight();
+
+	/**
+	 * Returns true if we need to show scroll buttons
+	 */
+	bool needShowScroll();
 
 	/**
 	 * Returns true if chiclets can be scrolled left.
@@ -1087,6 +1167,8 @@ protected:
 
 	S32 mChicletPadding;
 	S32 mScrollingOffset;
+	S32 mScrollButtonHPad;
+	S32 mScrollRatio;
 	S32 mMinWidth;
 	bool mShowControls;
 	static const S32 s_scroll_ratio;

@@ -38,7 +38,6 @@
 #include "llavatarconstants.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
-#include "llimview.h"
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
 

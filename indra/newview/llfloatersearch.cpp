@@ -77,6 +77,15 @@ void LLFloaterSearch::onOpen(const LLSD& key)
 	search(key);
 }
 
+void LLFloaterSearch::onClose(bool app_quitting)
+{
+	if (! app_quitting)
+	{
+		// Show the blank home page ready for the next onOpen()
+		mBrowser->navigateHome();
+	}
+}
+
 void LLFloaterSearch::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
 {
 	switch (event) 
@@ -109,6 +118,11 @@ void LLFloaterSearch::search(const LLSD &key)
 	{
 		return;
 	}
+
+	// display the blank home page first, to clear the display of 
+	// any previous search results while the new results load.
+	// The home page is set in floater_search.xml as start_url.
+	mBrowser->navigateHome();
 
 	// reset the god level warning as we're sending the latest state
 	childHide("refresh_search");

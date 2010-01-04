@@ -48,9 +48,11 @@
 #include "llchiclet.h"
 #include "lltoastpanel.h"
 #include "llnotificationmanager.h"
+#include "llnotificationsutil.h"
+#include "llspeakers.h"
 
 //---------------------------------------------------------------------------------
-LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
+LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
 													mChannel(NULL),
 													mMessageList(NULL),
 													mSysWellChiclet(NULL),
@@ -61,6 +63,7 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key)
 {
 	mTypedItemsCount[IT_NOTIFICATION] = 0;
 	mTypedItemsCount[IT_INSTANT_MESSAGE] = 0;
+	setOverlapsScreenChannel(true);
 }
 
 //---------------------------------------------------------------------------------
@@ -87,13 +90,13 @@ BOOL LLSysWellWindow::postBuild()
 	// mouse up callback is not called in this case.
 	setMouseDownCallback(boost::bind(&LLSysWellWindow::releaseNewMessagesState, this));
 
-	return LLDockableFloater::postBuild();
+	return LLTransientDockableFloater::postBuild();
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
-	LLDockableFloater::setMinimized(minimize);
+	LLTransientDockableFloater::setMinimized(minimize);
 }
 
 //---------------------------------------------------------------------------------
@@ -103,15 +106,15 @@ void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
 	setVisible(TRUE);
 }
 
+void LLSysWellWindow::setSysWellChiclet(LLSysWellChiclet* chiclet) 
+{ 
+	mSysWellChiclet = chiclet;
+	if(mSysWellChiclet)
+		mSysWellChiclet->updateWidget(isWindowEmpty()); 
+}
 //---------------------------------------------------------------------------------
 LLSysWellWindow::~LLSysWellWindow()
 {
-}
-
-//---------------------------------------------------------------------------------
-void LLSysWellWindow::clear()
-{
-	mMessageList->clear();
 }
 
 //---------------------------------------------------------------------------------
@@ -173,7 +176,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	// do not show empty window
 	if (NULL == mMessageList || isWindowEmpty()) visible = FALSE;
 
-	LLDockableFloater::setVisible(visible);
+	LLTransientDockableFloater::setVisible(visible);
 
 	// update notification channel state	
 	if(mChannel)
@@ -189,15 +192,9 @@ void LLSysWellWindow::setVisible(BOOL visible)
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::onFocusLost()
-{
-	setVisible(false);
-}
-
-//---------------------------------------------------------------------------------
 void LLSysWellWindow::setDocked(bool docked, bool pop_on_undock)
 {
-	LLDockableFloater::setDocked(docked, pop_on_undock);
+	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 
 	// update notification channel state
 	if(mChannel)
@@ -284,6 +281,7 @@ void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
 
 		setResizeLimits(min_width,min_height);
 	}
+	mSysWellChiclet->updateWidget(isWindowEmpty());
 }
 
 void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
@@ -297,6 +295,7 @@ void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
 		// refresh list to recalculate mSeparator position
 		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
 	}
+	mSysWellChiclet->updateWidget(isWindowEmpty());
 }
 
 bool LLSysWellWindow::anotherTypeExists(EItemType item_type)
@@ -350,6 +349,9 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 	}
 
 	// Initialize chiclet.
+	mChiclet->setRect(LLRect(5, 28, 30, 3)); // *HACK: workaround for (EXT-3599)
+	mChiclet->setChicletSizeChangedCallback(boost::bind(&LLIMWellWindow::RowPanel::onChicletSizeChanged, this, mChiclet, _2));
+	mChiclet->enableCounterControl(true);
 	mChiclet->setCounter(chicletCounter);
 	mChiclet->setSessionId(sessionId);
 	mChiclet->setIMSessionName(name);
@@ -361,6 +363,16 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 
 	mCloseBtn = getChild<LLButton>("hide_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLIMWellWindow::RowPanel::onClosePanel, this));
+}
+
+//---------------------------------------------------------------------------------
+void LLIMWellWindow::RowPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
+{
+	LLTextBox* text = getChild<LLTextBox>("contact_name");
+	S32 new_text_left = mChiclet->getRect().mRight + CHICLET_HPAD;
+	LLRect text_rect = text->getRect(); 
+	text_rect.mLeft = new_text_left;
+	text->setRect(text_rect);
 }
 
 //---------------------------------------------------------------------------------
@@ -610,6 +622,23 @@ void LLNotificationWellWindow::addItem(LLSysWellItem::Params p)
 	}
 }
 
+void LLNotificationWellWindow::closeAll()
+{
+	// Need to clear notification channel, to add storable toasts into the list.
+	clearScreenChannels();
+	std::vector<LLPanel*> items;
+	mMessageList->getItems(items);
+	for (std::vector<LLPanel*>::iterator
+			 iter = items.begin(),
+			 iter_end = items.end();
+		 iter != iter_end; ++iter)
+	{
+		LLSysWellItem* sys_well_item = dynamic_cast<LLSysWellItem*>(*iter);
+		if (sys_well_item)
+			onItemClose(sys_well_item);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS
 void LLNotificationWellWindow::initChannel() 
@@ -711,12 +740,13 @@ BOOL LLIMWellWindow::postBuild()
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 								   const std::string& name, const LLUUID& other_participant_id)
 {
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!session) return;
+
+	// no need to spawn chiclets for participants in P2P calls called through Avaline
+	if (session->isP2P() && session->isOtherParticipantAvaline()) return;
+
 	if (mMessageList->getItemByValue(session_id)) return;
-
-	// For im sessions started as voice call chiclet gets created on the first incoming message
-	if (gIMMgr->isVoiceCall(session_id)) return;
-
-	if (!gIMMgr->hasSession(session_id)) return;
 
 	addIMRow(session_id, 0, name, other_participant_id);	
 	reshapeWindow();
@@ -874,21 +904,80 @@ bool LLIMWellWindow::hasIMRow(const LLUUID& session_id)
 	return mMessageList->getItemByValue(session_id);
 }
 
-void LLIMWellWindow::onNewIM(const LLSD& data)
+void LLIMWellWindow::closeAll()
 {
-	LLUUID from_id = data["from_id"];
-	if (from_id.isNull() || gAgentID == from_id) return;
-
-	LLUUID session_id = data["session_id"];
-	if (session_id.isNull()) return;
-
-	if (!gIMMgr->isVoiceCall(session_id)) return;
-
-	if (hasIMRow(session_id)) return;
-
-	//first real message, time to create chiclet
-	addIMRow(session_id);
+	// Generate an ignorable alert dialog if there is an active voice IM sesion
+	bool need_confirmation = false;
+	const LLIMModel& im_model = LLIMModel::instance();
+	std::vector<LLSD> values;
+	mMessageList->getValues(values);
+	for (std::vector<LLSD>::iterator
+			 iter = values.begin(),
+			 iter_end = values.end();
+		 iter != iter_end; ++iter)
+	{
+		LLIMSpeakerMgr* speaker_mgr =  im_model.getSpeakerManager(*iter);
+		if (speaker_mgr && speaker_mgr->isVoiceActive())
+		{
+			need_confirmation = true;
+			break;
+		}
+	}
+	if ( need_confirmation )
+	{
+		//Bring up a confirmation dialog
+		LLNotificationsUtil::add
+			("ConfirmCloseAll", LLSD(), LLSD(),
+			 boost::bind(&LLIMWellWindow::confirmCloseAll, this, _1, _2));
+	}
+	else
+	{
+		closeAllImpl();
+	}
 }
 
+void LLIMWellWindow::closeAllImpl()
+{
+	std::vector<LLSD> values;
+	mMessageList->getValues(values);
+
+	for (std::vector<LLSD>::iterator
+			 iter = values.begin(),
+			 iter_end = values.end();
+		 iter != iter_end; ++iter)
+	{
+		LLPanel* panel = mMessageList->getItemByValue(*iter);
+
+		RowPanel* im_panel = dynamic_cast <RowPanel*> (panel);
+		if (im_panel)
+		{
+			gIMMgr->leaveSession(*iter);
+			continue;
+		}
+
+		ObjectRowPanel* obj_panel = dynamic_cast <ObjectRowPanel*> (panel);
+		if (obj_panel)
+		{
+			LLScriptFloaterManager::instance()
+				.removeNotificationByObjectId(*iter);
+		}
+	}
+}
+
+bool LLIMWellWindow::confirmCloseAll(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch(option)
+	{
+	case 0:
+		{
+			closeAllImpl();
+			return  true;
+		}
+	default:
+		break;
+	}
+	return false;
+}
 
 // EOF

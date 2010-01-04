@@ -115,7 +115,7 @@ private:
 	void onClickTeleport();
 	void onClickInviteToGroup();
 	void onClickPay();
-	void onClickBlock();
+	void onToggleMute();
 	void onClickReport();
 	void onClickFreeze();
 	void onClickEject();
@@ -126,6 +126,8 @@ private:
 	bool onVisibleZoomIn();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
+	bool enableMute();
+	bool enableUnmute();
 
 	// Is used to determine if "Add friend" option should be enabled in gear menu
 	bool isNotFriend();
@@ -205,7 +207,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.Block",	boost::bind(&LLInspectAvatar::onClickBlock, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.ToggleMute",	boost::bind(&LLInspectAvatar::onToggleMute, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Freeze",
 		boost::bind(&LLInspectAvatar::onClickFreeze, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Eject",
@@ -221,6 +223,8 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mEnableCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
+	mEnableCallbackRegistrar.add("InspectAvatar.EnableMute", boost::bind(&LLInspectAvatar::enableMute, this));
+	mEnableCallbackRegistrar.add("InspectAvatar.EnableUnmute", boost::bind(&LLInspectAvatar::enableUnmute, this));
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -625,10 +629,19 @@ void LLInspectAvatar::onClickPay()
 	closeFloater();
 }
 
-void LLInspectAvatar::onClickBlock()
+void LLInspectAvatar::onToggleMute()
 {
 	LLMute mute(mAvatarID, mAvatarName, LLMute::AGENT);
-	LLMuteList::getInstance()->add(mute);
+
+	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
+	{
+		LLMuteList::getInstance()->remove(mute);
+	}
+	else
+	{
+		LLMuteList::getInstance()->add(mute);
+	}
+
 	LLPanelBlockedList::showPanelAndSelect(mute.mID);
 	closeFloater();
 }
@@ -661,6 +674,37 @@ void LLInspectAvatar::onClickFindOnMap()
 {
 	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName);
 	LLFloaterReg::showInstance("world_map");
+}
+
+
+bool LLInspectAvatar::enableMute()
+{
+		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+		bool is_self = mAvatarID == gAgent.getID();
+
+		if (!is_linden && !is_self && !LLMuteList::getInstance()->isMuted(mAvatarID, mAvatarName))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+}
+
+bool LLInspectAvatar::enableUnmute()
+{
+		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+		bool is_self = mAvatarID == gAgent.getID();
+
+		if (!is_linden && !is_self && LLMuteList::getInstance()->isMuted(mAvatarID, mAvatarName))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 }
 
 //////////////////////////////////////////////////////////////////////////////

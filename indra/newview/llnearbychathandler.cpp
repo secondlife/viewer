@@ -335,7 +335,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
 	{
 		if(!tmp_chat.mFromName.empty())
-			tmp_chat.mText = tmp_chat.mFromName + " " + tmp_chat.mText.substr(3);
+			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
 		else
 			tmp_chat.mText = tmp_chat.mText.substr(3);
 	}

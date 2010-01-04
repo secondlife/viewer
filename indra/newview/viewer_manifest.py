@@ -351,13 +351,21 @@ class WindowsManifest(ViewerManifest):
                 self.path("ssleay32.dll")
 
                 # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="llplugin/imageformats"):
+                if self.prefix(src="imageformats", dst="imageformats"):
                     self.path("qgifd4.dll")
                     self.path("qicod4.dll")
                     self.path("qjpegd4.dll")
                     self.path("qmngd4.dll")
                     self.path("qsvgd4.dll")
                     self.path("qtiffd4.dll")
+                    self.end_prefix()
+
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecsd4.dll")
+                    self.path("qjpcodecsd4.dll")
+                    self.path("qkrcodecsd4.dll")
+                    self.path("qtwcodecsd4.dll")
                     self.end_prefix()
 
                 self.end_prefix()
@@ -374,13 +382,21 @@ class WindowsManifest(ViewerManifest):
                 self.path("ssleay32.dll")
 
                 # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="llplugin/imageformats"):
+                if self.prefix(src="imageformats", dst="imageformats"):
                     self.path("qgif4.dll")
                     self.path("qico4.dll")
                     self.path("qjpeg4.dll")
                     self.path("qmng4.dll")
                     self.path("qsvg4.dll")
                     self.path("qtiff4.dll")
+                    self.end_prefix()
+
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecs4.dll")
+                    self.path("qjpcodecs4.dll")
+                    self.path("qkrcodecs4.dll")
+                    self.path("qtwcodecs4.dll")
                     self.end_prefix()
 
                 self.end_prefix()

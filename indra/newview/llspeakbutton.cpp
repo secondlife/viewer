@@ -61,7 +61,9 @@ void LLSpeakButton::draw()
 {
 	// gVoiceClient is the authoritative global source of info regarding our open-mic state, we merely reflect that state.
 	bool openmic = gVoiceClient->getUserPTTState();
-	mSpeakBtn->setToggleState(openmic);
+	bool voiceenabled = gVoiceClient->voiceEnabled();
+	mSpeakBtn->setToggleState(openmic && voiceenabled);
+	mOutputMonitor->setIsMuted(!voiceenabled);
 	LLUICtrl::draw();
 }
 
@@ -119,6 +121,9 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	// never show "muted" because you can't mute yourself
 	mOutputMonitor->setIsMuted(false);
 	mOutputMonitor->setIsAgentControl(true);
+
+	//*TODO find a better place to do that
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
 }
 
 LLSpeakButton::~LLSpeakButton()

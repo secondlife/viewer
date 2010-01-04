@@ -13,12 +13,18 @@
      name="Expand all folders">
         <menu_item_call.on_click
          function="TeleportHistory.ExpandAllFolders" />
+        <on_enable
+         function="TeleportHistory.GearMenu.Enable"
+         parameter="expand_all" />
     </menu_item_call>
     <menu_item_call
      label="Collapse all folders"
      name="Collapse all folders">
         <menu_item_call.on_click
          function="TeleportHistory.CollapseAllFolders" />
+        <on_enable
+         function="TeleportHistory.GearMenu.Enable"
+         parameter="collapse_all" />
     </menu_item_call>
     <menu_item_separator layout="topleft" />
     <menu_item_call
