@@ -88,7 +88,8 @@ private:
 		VC_LOCAL_CHAT,
 		VC_GROUP_CHAT,
 		VC_AD_HOC_CHAT,
-		VC_PEER_TO_PEER
+		VC_PEER_TO_PEER,
+		VC_PEER_TO_PEER_AVALINE
 	}EVoiceControls;
 
 	typedef enum e_speaker_state
