@@ -61,7 +61,7 @@ public:
 	/* callback for camera presets changing */
 	static void onClickCameraPresets(const LLSD& param);
 
-	static void toPrevModeIfInAvatarViewMode();
+	static void onLeavingMouseLook();
 
 	/** resets current camera mode to orbit mode */
 	static void resetCameraMode();
@@ -69,8 +69,6 @@ public:
 	/* determines actual mode and updates ui */
 	void update();
 	
-	static void updateIfNotInAvatarViewMode();
-
 	virtual void onOpen(const LLSD& key);
 	virtual void onClose(bool app_quitting);
 
