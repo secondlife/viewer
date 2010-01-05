@@ -409,6 +409,11 @@ BOOL LLIMWellWindow::RowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLPanel::handleMouseDown(x, y, mask);
 }
 
+// virtual
+BOOL LLIMWellWindow::RowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	return mChiclet->handleRightMouseDown(x, y, mask);
+}
 /************************************************************************/
 /*         ObjectRowPanel implementation                                */
 /************************************************************************/
@@ -550,6 +555,12 @@ BOOL LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 		mChiclet->onMouseDown();
 
 	return LLPanel::handleMouseDown(x, y, mask);
+}
+
+// virtual
+BOOL LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	return mChiclet->handleRightMouseDown(x, y, mask);
 }
 
 /************************************************************************/
