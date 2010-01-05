@@ -202,7 +202,7 @@
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="3"
+             left_pad="2"
              name="OwnerText"
              width="240">
                 Leyla Linden
@@ -232,6 +232,7 @@
              layout="topleft"
              left="10"
              name="Group:"
+             top_pad="7"
              width="100">
                 Group:
             </text>
@@ -240,10 +241,11 @@
              enabled="false"
              follows="left|top"
              height="16"
-             left_pad="5"
+             left_pad="2"
              layout="topleft"
              name="GroupText"
-             width="240" />
+             width="240">
+Leyla Linden               </text>
                  <button
      follows="right"
      height="16"
@@ -267,7 +269,7 @@
              height="23"
              label="Allow Deed to Group"
              layout="topleft"
-             left="96"
+             left="108"
              name="check deed"
              tool_tip="A group officer can deed this land to the group, so it will be supported by the group&apos;s land allocation."
              top_pad="3"
@@ -289,7 +291,7 @@
              height="16"
              label="Owner Makes Contribution With Deed"
              layout="topleft"
-             left="96"
+             left="108"
              name="check contrib"
              tool_tip="When the land is deeded to the group, the former owner contributes enough land allocation to support it."
              width="199" />
@@ -471,7 +473,7 @@
              layout="topleft"
              left_delta="82"
              name="Buy Land..."
-             top_pad="5"
+             top_pad="7"
              width="100" />
             <button
              enabled="true"
