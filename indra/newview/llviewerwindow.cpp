@@ -83,6 +83,7 @@
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
+#include "llurlsimstring.h"
 
 // newview includes
 #include "llagent.h"
