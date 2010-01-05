@@ -34,7 +34,7 @@
     <scroll_container
      color="DkGray2"
      follows="all"
-     height="485"
+     height="500"
      layout="topleft"
      name="profile_scroll"
      reserve_scroll_corner="false"
@@ -44,7 +44,7 @@
       <panel
          name="scroll_content_panel"
          follows="left|top|right"
-          height="485"
+          height="500"
          layout="topleft"
          top="0"
          left="0"
@@ -56,7 +56,7 @@
          left="10"
          name="second_life_image_panel"
          top="0"
-         width="280">
+         width="300">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -88,7 +88,7 @@
              text_color="white"
              top_delta="0"
              value="[SECOND_LIFE]:"
-             width="165" />
+             width="180" />
             <expandable_text
              follows="left|top|right"
              height="95"
@@ -97,7 +97,7 @@
              textbox.max_length="512"
              name="sl_description_edit"
              top_pad="-3"
-             width="173"
+             width="188"
              expanded_bg_visible="true"
              expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -110,7 +110,7 @@
 	     top_pad="10"
          left="10"
          name="first_life_image_panel"
-         width="280">
+         width="300">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -141,7 +141,7 @@
              text_color="white"
              top_delta="0"
              value="Real World:"
-             width="165" />
+             width="180" />
             <expandable_text
              follows="left|top|right"
              height="95"
@@ -150,90 +150,23 @@
              textbox.max_length="512"
              name="fl_description_edit"
              top_pad="-3"
-             width="173"
+             width="188"
              expanded_bg_visible="true"
              expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
             </expandable_text>
         </panel>
-
-
-	<!-- <panel
-       name="lifes_images_panel"
-         follows="left|top|right"
-         height="244"
-         layout="topleft"
-         top="0"
-         left="0"
-         width="285">
-	 <panel
-         follows="left|top"
-         height="117"
-         layout="topleft"
-         left="10"
-         name="second_life_image_panel"
-         top="0"
-         width="285">
-          <text
-             follows="left|top|right"
-	     font.style="BOLD"
-             height="15"
-             layout="topleft"
-             left="0"
-            name="second_life_photo_title_text"
-             text_color="white"
-             value="[SECOND_LIFE]:"
-             width="170" />
-            <texture_picker
-             allow_no_texture="true"
-             default_image_name="None"
-             enabled="false"
-             follows="top|left"
-             height="117"
-             layout="topleft"
-             left="0"
-             name="2nd_life_pic"
-             top_pad="0"
-             width="102" />
-          </panel>
-           <icon
-           height="18"
-           image_name="AddItem_Off"
-           layout="topleft"
-           name="2nd_life_edit_icon"
-           label=""
-           left="87"
-           tool_tip="Click to select an image"
-           top="25"
-           width="18" />
-      </panel> -->
-
-
-
-
-        <text
-         type="string"
-         follows="left|top"
-         font="SansSerifSmall"
-	     font.style="BOLD"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="me_homepage_text"
-         text_color="white"
-         top_pad="0"
-         width="280">
-             Homepage:
-        </text>
         <text
          follows="left|top"
          height="15"
+	 font.style="BOLD"
+	 font="SansSerifMedium"
          layout="topleft"
          left="10"
          name="homepage_edit"
          top_pad="0"
          value="http://librarianavengers.org"
-         width="280"
+         width="300"
          word_wrap="false"
          use_ellipses="true"
          />
@@ -246,8 +179,8 @@
          name="title_member_text"
          text_color="white"
          top_pad="10"
-         value="Member Since:"
-         width="280" />
+         value="Resident Since:"
+         width="300" />
         <text
          follows="left|top"
          height="15"
@@ -255,7 +188,7 @@
          left="10"
          name="register_date"
          value="05/31/2376"
-         width="280"
+         width="300"
          word_wrap="true" />
         <text
          follows="left|top"
@@ -265,9 +198,9 @@
          left="10"
          name="title_acc_status_text"
          text_color="white"
-         top_pad="10"
+         top_pad="5"
          value="Account Status:"
-         width="280" />
+         width="300" />
        <!-- <text
          type="string"
          follows="left|top"
@@ -287,7 +220,7 @@
          name="acc_status_text"
          top_pad="0"
          value="Resident. No payment info on file."
-         width="280"
+         width="300"
          word_wrap="true" />
         <text
          follows="left|top"
@@ -297,9 +230,9 @@
          left="10"
          name="title_partner_text"
          text_color="white"
-         top_pad="5"
+         top_pad="3"
          value="Partner:"
-         width="280" />
+         width="300" />
         <panel
          follows="left|top"
          height="15"
@@ -307,7 +240,7 @@
          left="10"
          name="partner_data_panel"
          top_pad="0"
-         width="280">
+         width="300">
             <text
              follows="left|top"
              height="10"
@@ -316,31 +249,31 @@
              name="partner_text"
              top="0"
              value="[FIRST] [LAST]"
-         width="280"
+         width="300"
              word_wrap="true" />
          </panel>
         <text
          follows="left|top"
 	 font.style="BOLD"
-         height="15"
+         height="13"
          layout="topleft"
          left="10"
          name="title_groups_text"
          text_color="white"
-         top_pad="8"
+         top_pad="3"
          value="Groups:"
-         width="280" />
-                     <expandable_text
+         width="300" />
+         <expandable_text
          follows="left|top|bottom"
-         height="60"
+         height="115"
          layout="topleft"
-         left="10"
-             name="sl_groups"
+         left="7"
+         name="sl_groups"
        top_pad="0"
-         width="280"
-             expanded_bg_visible="true"
-             expanded_bg_color="DkGray">
-            Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+         width="300"
+         expanded_bg_visible="true"
+         expanded_bg_color="DkGray">
+            Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
         </expandable_text>
       </panel>
  </scroll_container>
@@ -350,7 +283,6 @@
      left="0"
      name="profile_buttons_panel"
      top_pad="2"
-     bottom="10"
      height="23"
      width="303">
         <button
@@ -362,7 +294,7 @@
          mouse_opaque="false"
          name="add_friend"
          top="5"
-         width="75" />
+         width="80" />
         <button
          follows="bottom|left"
          height="23"
@@ -370,7 +302,7 @@
          layout="topleft"
          name="im"
          top="5"
-         left_pad="5"
+         left_pad="3"
          width="45" />
         <button
          follows="bottom|left"
@@ -378,7 +310,7 @@
          label="Call"
          layout="topleft"
          name="call"
-         left_pad="5"
+         left_pad="3"
          top="5"
          width="45" />
         <button
@@ -389,7 +321,7 @@
          layout="topleft"
          name="show_on_map_btn"
          top="5"
-         left_pad="5"
+         left_pad="3"
          width="45" />
         <button
          follows="bottom|left"
@@ -397,15 +329,15 @@
          label="Teleport"
          layout="topleft"
          name="teleport"
-         left_pad="5"
+         left_pad="3"
          top="5"
-         width="80" />
+         width="85" />
  </panel>
  <panel
      follows="bottom|left"
      layout="topleft"
      left="0"
-     top_pad="-17"
+     top_pad="-2"
      name="profile_me_buttons_panel"
      visible="false"
      height="23"
