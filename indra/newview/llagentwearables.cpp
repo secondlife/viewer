@@ -116,6 +116,39 @@ BOOL LLAgentWearables::mInitialWearablesUpdateReceived = FALSE;
 
 using namespace LLVOAvatarDefines;
 
+// HACK: For EXT-3923: Pants item shows in inventory with skin icon and messes with "current look"
+// Some db items are corrupted, have inventory flags = 0, implying wearable type = shape, even though
+// wearable type stored in asset is some other value.
+// Calling this function whenever a wearable is added to increase visibility if this problem
+// turns up in other inventories.
+void checkWearableAgainstInventory(LLWearable *wearable)
+{
+	if (wearable->getItemID().isNull())
+		return;
+	
+	// Check for wearable type consistent with inventory item wearable type.
+	LLViewerInventoryItem *item = gInventory.getItem(wearable->getItemID());
+	if (item)
+	{
+		if (!item->isWearableType())
+		{
+			llwarns << "wearable associated with non-wearable item" << llendl;
+		}
+		if (item->getWearableType() != wearable->getType())
+		{
+			llwarns << "type mismatch: wearable " << wearable->getName()
+					<< " has type " << wearable->getType()
+					<< " but inventory item " << item->getName()
+					<< " has type "  << item->getWearableType() << llendl;
+		}
+	}
+	else
+	{
+		llwarns << "wearable inventory item not found" << wearable->getName()
+				<< " itemID " << wearable->getItemID().asString() << llendl;
+	}
+}
+
 void LLAgentWearables::dump()
 {
 	llinfos << "LLAgentWearablesDump" << llendl;
@@ -657,6 +690,7 @@ LLWearable* LLAgentWearables::getWearable(const EWearableType type, U32 index)
 
 void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearable *wearable)
 {
+
 	LLWearable *old_wearable = getWearable(type,index);
 	if (!old_wearable)
 	{
@@ -680,6 +714,7 @@ void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearab
 		wearable_vec[index] = wearable;
 		old_wearable->setLabelUpdated();
 		wearableUpdated(wearable);
+		checkWearableAgainstInventory(wearable);
 	}
 }
 
@@ -695,6 +730,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	{
 		mWearableDatas[type].push_back(wearable);
 		wearableUpdated(wearable);
+		checkWearableAgainstInventory(wearable);
 		return mWearableDatas[type].size()-1;
 	}
 	return MAX_WEARABLES_PER_TYPE;
@@ -1705,6 +1741,7 @@ void LLAgentWearables::setWearableFinal(LLInventoryItem* new_item, LLWearable* n
 		mWearableDatas[type].push_back(new_wearable);
 		llinfos << "Added additional wearable for type " << type
 				<< " size is now " << mWearableDatas[type].size() << llendl;
+		checkWearableAgainstInventory(new_wearable);
 	}
 	else
 	{
