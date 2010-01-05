@@ -41,7 +41,7 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLButton;
-class LLInventoryItem;
+class LLViewerInventoryItem;
 class LLItemPropertiesObserver;
 class LLViewerObject;
 class LLPermissions;
@@ -63,10 +63,10 @@ protected:
 	/*virtual*/ void refresh();
 	/*virtual*/ void save();
 
-	LLInventoryItem* findItem() const;
+	LLViewerInventoryItem* findItem() const;
 	LLViewerObject*  findObject() const;
 	
-	void refreshFromItem(LLInventoryItem* item);
+	void refreshFromItem(LLViewerInventoryItem* item);
 
 private:
 	LLUUID mItemID; 	// inventory UUID for the inventory item.
