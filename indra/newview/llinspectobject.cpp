@@ -82,6 +82,10 @@ public:
 	// Release the selection and do other cleanup
 	/*virtual*/ void onClose(bool app_quitting);
 	
+	// override the inspector mouse leave so timer is only paused if 
+	// gear menu is not open
+	/* virtual */ void onMouseLeave(S32 x, S32 y, MASK mask);
+	
 private:
 	// Refresh displayed data with information from selection manager
 	void update();
@@ -180,7 +184,6 @@ BOOL LLInspectObject::postBuild(void)
 
 	return TRUE;
 }
-
 
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
 // LLSD for foo, which we will catch here.
@@ -562,6 +565,16 @@ void LLInspectObject::updateSecureBrowsing()
 	getChild<LLUICtrl>("secure_browsing")->setVisible(is_secure_browsing);
 }
 
+// For the object inspector, only unpause the fade timer 
+// if the gear menu is not open
+void LLInspectObject::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
+	if ( !(gear_menu && gear_menu->getVisible()))
+	{
+		mOpenTimer.unpause();
+	}
+}
 
 void LLInspectObject::onClickBuy()
 {
