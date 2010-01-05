@@ -1754,7 +1754,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 void optionally_start_music(const std::string& music_url)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic") && gSavedSettings.getBOOL("AudioSteamingMedia"))
+	if (gSavedSettings.getBOOL("AudioStreamingMusic") && gSavedSettings.getBOOL("AudioStreamingMedia"))
 	{
 		// Make the user click the start button on the overlay bar. JC
 		//		llinfos << "Starting parcel music " << music_url << llendl;

@@ -276,7 +276,7 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-	<key>AudioSteamingMedia</key>
+	<key>AudioStreamingMedia</key>
     <map>
       <key>Comment</key>
       <string>Enable streaming</string>
