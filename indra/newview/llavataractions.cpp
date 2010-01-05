@@ -595,7 +595,9 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 
 	LLSD args;
 	args["TO_NAME"] = target_name;
+
 	LLSD payload;
+	payload["from_id"] = target_id;
 	payload["SESSION_NAME"] = target_name;
 	payload["SUPPRES_TOST"] = true;
 	LLNotificationsUtil::add("FriendshipOffered", args, payload);
