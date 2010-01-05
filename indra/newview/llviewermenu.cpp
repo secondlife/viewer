@@ -5856,8 +5856,12 @@ void confirm_replace_attachment(S32 option, void* user_data)
 	}
 }
 
-bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
+void callback_attachment_drop(const LLSD& notification, const LLSD& response)
 {
+	// Ensure user confirmed the drop
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return;
+
 	// Called when the user clicked on an object attached to them
 	// and selected "Drop".
 	LLUUID object_id = notification["payload"]["object_id"].asUUID();
@@ -5866,7 +5870,7 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 	if (!object)
 	{
 		llwarns << "handle_drop_attachment() - no object to drop" << llendl;
-		return true;
+		return;
 	}
 
 	LLViewerObject *parent = (LLViewerObject*)object->getParent();
@@ -5883,13 +5887,13 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 	if (!object)
 	{
 		llwarns << "handle_detach() - no object to detach" << llendl;
-		return true;
+		return;
 	}
 
 	if (object->isAvatar())
 	{
 		llwarns << "Trying to detach avatar from avatar." << llendl;
-		return true;
+		return;
 	}
 	
 	// reselect the object
@@ -5897,7 +5901,7 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 
 	LLSelectMgr::getInstance()->sendDropAttachment();
 
-	return true;
+	return;
 }
 
 class LLAttachmentDrop : public view_listener_t
