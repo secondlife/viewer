@@ -157,11 +157,12 @@ void LLSidepanelItemInfo::reset()
 
 void LLSidepanelItemInfo::refresh()
 {
-	LLInventoryItem* item = findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(item)
 	{
 		refreshFromItem(item);
 		updateVerbs();
+		return;
 	}
 	else
 	{
@@ -170,11 +171,8 @@ void LLSidepanelItemInfo::refresh()
 			setIsEditing(FALSE);
 		}
 	}
-	
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	bool is_editable = item && (item->getUUID() != trash_id) && !gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
 
-	if (!getIsEditing() || !is_editable)
+	if (!getIsEditing())
 	{
 		const std::string no_item_names[]={
 			"LabelItemName",
@@ -212,7 +210,7 @@ void LLSidepanelItemInfo::refresh()
 		}
 	}
 
-	if (!is_editable)
+	if (!item)
 	{
 		const std::string no_edit_mode_names[]={
 			"BtnCreator",
@@ -227,24 +225,26 @@ void LLSidepanelItemInfo::refresh()
 	updateVerbs();
 }
 
-void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
+void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 {
 	////////////////////////
 	// PERMISSIONS LOOKUP //
 	////////////////////////
 
 	// do not enable the UI for incomplete items.
-	LLViewerInventoryItem* i = (LLViewerInventoryItem*)item;
-	BOOL is_complete = i->isComplete();
-	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(i->getInventoryType());
-	const BOOL is_calling_card = (i->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
+	BOOL is_complete = item->isComplete();
+	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(item->getInventoryType());
+	const BOOL is_calling_card = (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
 	const LLPermissions& perm = item->getPermissions();
 	const BOOL can_agent_manipulate = gAgent.allowOperation(PERM_OWNER, perm, 
 															GP_OBJECT_MANIPULATE);
 	const BOOL can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm, 
 													  GP_OBJECT_SET_SALE) &&
 		!cannot_restrict_permissions;
-	const BOOL is_link = i->getIsLinkType();
+	const BOOL is_link = item->getIsLinkType();
+	
+	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	bool not_in_trash = item && (item->getUUID() != trash_id) && !gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
 
 	// You need permission to modify the object to modify an inventory
 	// item in it.
@@ -261,7 +261,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
 	//////////////////////
 	BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
 											   GP_OBJECT_MANIPULATE)
-		&& is_obj_modify && is_complete;
+		&& is_obj_modify && is_complete && not_in_trash;
 
 	childSetEnabled("LabelItemNameTitle",TRUE);
 	childSetEnabled("LabelItemName",is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
@@ -337,6 +337,64 @@ void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
 		substitution["datetime"] = (S32) time_utc;
 		LLStringUtil::format (timeStr, substitution);
 		childSetText ("LabelAcquiredDate", timeStr);
+	}
+	
+	/////////////////////////////////////
+	// PERMISSIONS AND SALE ITEM HIDING
+	/////////////////////////////////////
+	
+	const std::string perm_and_sale_items[]={
+		"perms_inv",
+		"OwnerLabel",
+		"perm_modify",
+		"CheckOwnerModify",
+		"CheckOwnerCopy",
+		"CheckOwnerTransfer",
+		"GroupLabel",
+		"CheckShareWithGroup",
+		"AnyoneLabel",
+		"CheckEveryoneCopy",
+		"NextOwnerLabel",
+		"CheckNextOwnerModify",
+		"CheckNextOwnerCopy",
+		"CheckNextOwnerTransfer",
+		"CheckPurchase",
+		"SaleLabel",
+		"RadioSaleType",
+		"combobox sale copy",
+		"Edit Cost",
+		"TextPrice"
+	};
+	
+	const std::string debug_items[]={
+		"BaseMaskDebug",
+		"OwnerMaskDebug",
+		"GroupMaskDebug",
+		"EveryoneMaskDebug",
+		"NextMaskDebug"
+	};
+	
+	// Hide permissions checkboxes and labels and for sale info if in the trash
+	// or ui elements don't apply to these objects and return from function
+	if (!not_in_trash || cannot_restrict_permissions)
+	{
+		for(size_t t=0; t<LL_ARRAY_SIZE(perm_and_sale_items); ++t)
+		{
+			childSetVisible(perm_and_sale_items[t],false);
+		}
+		
+		for(size_t t=0; t<LL_ARRAY_SIZE(debug_items); ++t)
+		{
+			childSetVisible(debug_items[t],false);
+		}
+		return;
+	}
+	else // Make sure perms and sale ui elements are visible
+	{
+		for(size_t t=0; t<LL_ARRAY_SIZE(perm_and_sale_items); ++t)
+		{
+			childSetVisible(perm_and_sale_items[t],true);
+		}
 	}
 
 	///////////////////////
@@ -541,7 +599,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
 
 void LLSidepanelItemInfo::onClickCreator()
 {
-	LLInventoryItem* item = findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 	if(!item->getCreatorUUID().isNull())
 	{
@@ -552,7 +610,7 @@ void LLSidepanelItemInfo::onClickCreator()
 // static
 void LLSidepanelItemInfo::onClickOwner()
 {
-	LLInventoryItem* item = findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 	if(item->getPermissions().isGroupOwned())
 	{
@@ -568,7 +626,7 @@ void LLSidepanelItemInfo::onClickOwner()
 void LLSidepanelItemInfo::onCommitName()
 {
 	//llinfos << "LLSidepanelItemInfo::onCommitName()" << llendl;
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(!item)
 	{
 		return;
@@ -604,7 +662,7 @@ void LLSidepanelItemInfo::onCommitName()
 void LLSidepanelItemInfo::onCommitDescription()
 {
 	//llinfos << "LLSidepanelItemInfo::onCommitDescription()" << llendl;
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 
 	LLLineEditor* labelItemDesc = getChild<LLLineEditor>("LabelItemDesc");
@@ -642,7 +700,7 @@ void LLSidepanelItemInfo::onCommitDescription()
 void LLSidepanelItemInfo::onCommitPermissions()
 {
 	//llinfos << "LLSidepanelItemInfo::onCommitPermissions()" << llendl;
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 	LLPermissions perm(item->getPermissions());
 
@@ -751,7 +809,7 @@ void LLSidepanelItemInfo::onCommitSaleType()
 
 void LLSidepanelItemInfo::updateSaleInfo()
 {
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
+	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 	LLSaleInfo sale_info(item->getSaleInfo());
 	if(!gAgent.allowOperation(PERM_TRANSFER, item->getPermissions(), GP_OBJECT_SET_SALE))
@@ -851,9 +909,9 @@ void LLSidepanelItemInfo::updateSaleInfo()
 	}
 }
 
-LLInventoryItem* LLSidepanelItemInfo::findItem() const
+LLViewerInventoryItem* LLSidepanelItemInfo::findItem() const
 {
-	LLInventoryItem* item = NULL;
+	LLViewerInventoryItem* item = NULL;
 	if(mObjectID.isNull())
 	{
 		// it is in agent inventory
@@ -864,7 +922,7 @@ LLInventoryItem* LLSidepanelItemInfo::findItem() const
 		LLViewerObject* object = gObjectList.findObject(mObjectID);
 		if(object)
 		{
-			item = (LLInventoryItem*)object->getInventoryObject(mItemID);
+			item = static_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemID));
 		}
 	}
 	return item;
