@@ -198,7 +198,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 
 void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 {
-	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
+	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
 	if (!outfit_link)
 		return;
 	if (!outfit_link->getIsLinkType())
@@ -313,7 +313,7 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
 	if (name == "")
 	{
-		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
+		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
 		if (outfit_link)
 		{
 			const LLViewerInventoryCategory *cat = outfit_link->getLinkedCategory();
