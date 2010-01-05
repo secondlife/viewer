@@ -187,6 +187,7 @@ public:
 	std::string getMediaURL() const { return mMediaURL; }
 	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
+	std::string getMediaEntryURL() { return mMediaEntryURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	void clearCache();
 	std::string getMimeType() { return mMimeType; }
