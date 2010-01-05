@@ -202,8 +202,9 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string)
 LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 {
 	mPattern = boost::regex("("
-				"\\bwww\\.\\S+\\.\\S+" // www.FOO.BAR
-				"|\\b[^ \t\n\r\f\v:/]+.(?:com|net|edu|org)[^[:space:][:alnum:]]*$" // FOO.net
+				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
+				"|" // or
+				"\\b[^ \\t\\n\\r\\f\\v:/]+\\.(?:com|net|edu|org)[^[:space:][:alnum:]]*\\>" // i.e. FOO.net
 				")",
 				boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
