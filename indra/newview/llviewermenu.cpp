@@ -7953,8 +7953,8 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
-
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
+	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
 	// Attachment pie menu
 	enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));
