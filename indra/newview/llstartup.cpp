@@ -1309,6 +1309,7 @@ bool idle_startup()
 			// Move the progress view in front of the UI
 			gViewerWindow->moveProgressViewToFront();
 
+			// direct logging to the debug console's line buffer
 			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 			
 			// set initial visibility of debug console

@@ -182,7 +182,6 @@
 #include "llworldmapview.h"
 #include "pipeline.h"
 #include "llappviewer.h"
-#include "llurlsimstring.h"
 #include "llviewerdisplay.h"
 #include "llspatialpartition.h"
 #include "llviewerjoystick.h"
