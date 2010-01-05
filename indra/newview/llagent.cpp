@@ -2812,7 +2812,7 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
-		LLFloaterCamera::toPrevModeIfInAvatarViewMode();
+		LLFloaterCamera::onLeavingMouseLook();
 
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
@@ -2914,10 +2914,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		// JC - Added for always chat in third person option
 		gFocusMgr.setKeyboardFocus(NULL);
-
-		//Making sure Camera Controls floater is in the right state 
-		//when entering Mouse Look using wheel scrolling
-		LLFloaterCamera::updateIfNotInAvatarViewMode();
 
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
