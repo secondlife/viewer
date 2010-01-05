@@ -47,6 +47,7 @@
 #include "llfloaterreg.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
+#include "lltextutil.h"
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
@@ -74,6 +75,12 @@ public:
 			mAvatarIcon->setToolTip(std::string(""));
 		}
 		return rv;
+	}
+
+	void setName(const std::string& name)
+	{
+		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
+		LLAvatarListItem::setName(formatted_phone);
 	}
 
 	void setSpeakerId(const LLUUID& id) { mSpeakingIndicator->setSpeakerId(id); }
@@ -270,6 +277,11 @@ void LLCallFloater::updateSession()
 		case IM_NOTHING_SPECIAL:
 		case IM_SESSION_P2P_INVITE:
 			mVoiceType = VC_PEER_TO_PEER;
+
+			if (!im_session->mOtherParticipantIsAvatar)
+			{
+				mVoiceType = VC_PEER_TO_PEER_AVALINE;
+			}
 			break;
 		case IM_SESSION_CONFERENCE_START:
 		case IM_SESSION_GROUP_START:
@@ -321,16 +333,13 @@ void LLCallFloater::updateSession()
 
 void LLCallFloater::refreshParticipantList()
 {
-	bool non_avatar_caller = false;
-	if (VC_PEER_TO_PEER == mVoiceType)
+	bool non_avatar_caller = VC_PEER_TO_PEER_AVALINE == mVoiceType;
+
+	if (non_avatar_caller)
 	{
 		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSpeakerManager->getSessionID());
-		non_avatar_caller = !session->mOtherParticipantIsAvatar;
-		if (non_avatar_caller)
-		{
-			mNonAvatarCaller->setSpeakerId(session->mOtherParticipantID);
-			mNonAvatarCaller->setName(session->mName);
-		}
+		mNonAvatarCaller->setSpeakerId(session->mOtherParticipantID);
+		mNonAvatarCaller->setName(session->mName);
 	}
 
 	mNonAvatarCaller->setVisible(non_avatar_caller);
@@ -390,9 +399,17 @@ void LLCallFloater::updateTitle()
 		title = getString("title_nearby");
 		break;
 	case VC_PEER_TO_PEER:
+	case VC_PEER_TO_PEER_AVALINE:
 		{
+			title = voice_channel->getSessionName();
+
+			if (VC_PEER_TO_PEER_AVALINE == mVoiceType)
+			{
+				title = LLTextUtil::formatPhoneNumber(title);
+			}
+
 			LLStringUtil::format_map_t args;
-			args["[NAME]"] = voice_channel->getSessionName();
+			args["[NAME]"] = title;
 			title = getString("title_peer_2_peer", args);
 		}
 		break;

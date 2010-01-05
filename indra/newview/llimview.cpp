@@ -82,6 +82,7 @@
 
 #include "llfirstuse.h"
 #include "llagentui.h"
+#include "lltextutil.h"
 
 const static std::string IM_TIME("time");
 const static std::string IM_TEXT("message");
@@ -92,6 +93,7 @@ const static std::string NO_SESSION("(IM Session Doesn't Exist)");
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
 std::string LLCallDialogManager::sPreviousSessionlName = "";
+LLIMModel::LLIMSession::SType LLCallDialogManager::sPreviousSessionType = LLIMModel::LLIMSession::P2P_SESSION;
 std::string LLCallDialogManager::sCurrentSessionlName = "";
 LLIMModel::LLIMSession* LLCallDialogManager::sSession = NULL;
 LLVoiceChannel::EState LLCallDialogManager::sOldState = LLVoiceChannel::STATE_READY;
@@ -178,6 +180,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
 	{
 		mVoiceChannel  = new LLVoiceChannelP2P(session_id, name, other_participant_id);
+		mOtherParticipantIsAvatar = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
 
 		// check if it was AVALINE call
 		if (!mOtherParticipantIsAvatar)
@@ -208,7 +211,10 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 
 	// All participants will be added to the list of people we've recently interacted with.
-	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
+
+	// we need to add only _active_ speakers...so comment this. 
+	// may delete this later on cleanup
+	//mSpeakers->addListener(&LLRecentPeople::instance(), "add");
 
 	//we need to wait for session initialization for outgoing ad-hoc and group chat session
 	//correct session id for initiated ad-hoc chat will be received from the server
@@ -224,7 +230,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	{
 		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
 		mTextIMPossible = LLVoiceClient::getInstance()->isSessionTextIMPossible(mSessionID);
-		mOtherParticipantIsAvatar = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
 	}
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
@@ -1360,6 +1365,13 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 		sCurrentSessionlName = ""; // Empty string results in "Nearby Voice Chat" after substitution
 		return;
 	}
+	
+	if (sSession)
+	{
+		// store previous session type to process Avaline calls in dialogs
+		sPreviousSessionType = sSession->mSessionType;
+	}
+
 	sSession = session;
 	sSession->mVoiceChannel->setStateChangedCallback(LLCallDialogManager::onVoiceChannelStateChanged);
 	if(sCurrentSessionlName != session->mName)
@@ -1378,6 +1390,7 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 		mCallDialogPayload["session_name"] = sSession->mName;
 		mCallDialogPayload["other_user_id"] = sSession->mOtherParticipantID;
 		mCallDialogPayload["old_channel_name"] = sPreviousSessionlName;
+		mCallDialogPayload["old_session_type"] = sPreviousSessionType;
 		mCallDialogPayload["state"] = LLVoiceChannel::STATE_CALL_STARTED;
 		mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
 		mCallDialogPayload["session_type"] = sSession->mSessionType;
@@ -1407,6 +1420,7 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 	mCallDialogPayload["session_name"] = sSession->mName;
 	mCallDialogPayload["other_user_id"] = sSession->mOtherParticipantID;
 	mCallDialogPayload["old_channel_name"] = sPreviousSessionlName;
+	mCallDialogPayload["old_session_type"] = sPreviousSessionType;
 	mCallDialogPayload["state"] = new_state;
 	mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
 	mCallDialogPayload["session_type"] = sSession->mSessionType;
@@ -1419,6 +1433,11 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 		{
 			return;
 		}
+		break;
+
+	case LLVoiceChannel::STATE_HUNG_UP:
+		// this state is coming before session is changed, so, put it into payload map
+		mCallDialogPayload["old_session_type"] = sSession->mSessionType;
 		break;
 
 	case LLVoiceChannel::STATE_CONNECTED :
@@ -1561,7 +1580,15 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	// tell the user which voice channel they are leaving
 	if (!mPayload["old_channel_name"].asString().empty())
 	{
-		childSetTextArg("leaving", "[CURRENT_CHAT]", mPayload["old_channel_name"].asString());
+		bool was_avaline_call = LLIMModel::LLIMSession::AVALINE_SESSION == mPayload["old_session_type"].asInteger();
+
+		std::string old_caller_name = mPayload["old_channel_name"].asString();
+		if (was_avaline_call)
+		{
+			old_caller_name = LLTextUtil::formatPhoneNumber(old_caller_name);
+		}
+
+		childSetTextArg("leaving", "[CURRENT_CHAT]", old_caller_name);
 	}
 	else
 	{
@@ -1575,9 +1602,17 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	}
 
 	std::string callee_name = mPayload["session_name"].asString();
+
+	LLUUID session_id = mPayload["session_id"].asUUID();
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+
 	if (callee_name == "anonymous")
 	{
 		callee_name = getString("anonymous");
+	}
+	else if (!is_avatar)
+	{
+		callee_name = LLTextUtil::formatPhoneNumber(callee_name);
 	}
 	
 	setTitle(callee_name);
@@ -1728,16 +1763,21 @@ BOOL LLIncomingCallDialog::postBuild()
 		call_type = getString(mPayload["notify_box_type"]);
 	}
 		
+	
+	// check to see if this is an Avaline call
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+	childSetVisible("Start IM", is_avatar); // no IM for avaline
+
 	if (caller_name == "anonymous")
 	{
 		caller_name = getString("anonymous");
 	}
-	
-	setTitle(caller_name + " " + call_type);
+	else if (!is_avatar)
+	{
+		caller_name = LLTextUtil::formatPhoneNumber(caller_name);
+	}
 
-	// check to see if this is an Avaline call
-	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
-	childSetVisible("Start IM", is_avatar); // no IM for avaline
+	setTitle(caller_name + " " + call_type);
 
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
