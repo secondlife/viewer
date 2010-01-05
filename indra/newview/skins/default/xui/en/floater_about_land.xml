@@ -2022,7 +2022,7 @@ Only large parcels can be listed in search.
              multi_select="true"
              name="AccessList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             width="240" />
+             width="230" />
             <button
              follows="bottom"
              height="23"
@@ -2047,7 +2047,7 @@ Only large parcels can be listed in search.
             follows="top|right"
             height="170"
             width="240"
-            left_pad="8">
+            left_pad="2">
             <text
              type="string"
              length="1"
@@ -2071,7 +2071,7 @@ Only large parcels can be listed in search.
              multi_select="true"
              name="BannedList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             width="240" />
+             width="230" />
             <button
              follows="bottom"
              height="23"
