@@ -2767,7 +2767,7 @@ void LLViewerMediaTexture::updateClass()
 
 #if 0
 	//force to play media.
-	gSavedSettings.setBOOL("AudioSteamingMedia", true) ;
+	gSavedSettings.setBOOL("AudioStreamingMedia", true) ;
 	gSavedSettings.setBOOL("AudioStreamingVideo", true) ;
 #endif
 
