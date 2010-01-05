@@ -187,7 +187,7 @@ void LLAvatarActions::offerTeleport(const std::vector<LLUUID>& ids)
 		LLSD payload;
 		payload["from_id"] = target_id;
 		payload["SESSION_NAME"] = target_name;
-		payload["SUPPRES_TOST"] = true; // *TODO: spelling
+		payload["SUPPRESS_TOAST"] = true;
 		LLNotificationsUtil::add("TeleportOfferSent", args, payload);
 	}
 }
@@ -619,7 +619,7 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 	LLSD payload;
 	payload["from_id"] = target_id;
 	payload["SESSION_NAME"] = target_name;
-	payload["SUPPRES_TOST"] = true;
+	payload["SUPPRESS_TOAST"] = true;
 	LLNotificationsUtil::add("FriendshipOffered", args, payload);
 }
 
