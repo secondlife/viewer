@@ -629,8 +629,9 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 	// child on tab button's mouse up. This leads input field lost focus. See EXT-3852.
 	if (isChatMultiTab())
 	{
-		// So, let capture mouse tp prevent LLTabContainer set focus on the panel's first child.
-		gFocusMgr.setMouseCapture(self->mInputEditor);
+		// So, clear control captured mouse to prevent LLTabContainer set focus on the panel's first child.
+		// do not pass self->mInputEditor, this leads to have "Edit Text" mouse pointer wherever it is.
+		gFocusMgr.setMouseCapture(NULL);
 	}
 }
 
