@@ -100,8 +100,6 @@ enum EPanDirection
 // Values in pixels per region
 static const F32 ZOOM_MAX = 128.f;
 
-static const F32 SIM_COORD_DEFAULT = 128.f;
-
 //---------------------------------------------------------------------------
 // Globals
 //---------------------------------------------------------------------------
@@ -189,7 +187,8 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	mInventory(NULL),
 	mInventoryObserver(NULL),
 	mFriendObserver(NULL),
-	mCompletingRegionName(""),
+	mCompletingRegionName(),
+	mCompletingRegionPos(),
 	mWaitingForTracker(FALSE),
 	mIsClosing(FALSE),
 	mSetToUserPosition(TRUE),
@@ -205,7 +204,6 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	mCommitCallbackRegistrar.add("WMap.AvatarCombo",	boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
 	mCommitCallbackRegistrar.add("WMap.Landmark",		boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
 	mCommitCallbackRegistrar.add("WMap.SearchResult",	boost::bind(&LLFloaterWorldMap::onCommitSearchResult, this));
-	mCommitCallbackRegistrar.add("WMap.CommitLocation",	boost::bind(&LLFloaterWorldMap::onCommitLocation, this));
 	mCommitCallbackRegistrar.add("WMap.GoHome",			boost::bind(&LLFloaterWorldMap::onGoHome, this));	
 	mCommitCallbackRegistrar.add("WMap.Teleport",		boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));	
 	mCommitCallbackRegistrar.add("WMap.ShowTarget",		boost::bind(&LLFloaterWorldMap::onShowTargetBtn, this));	
@@ -664,10 +662,6 @@ void LLFloaterWorldMap::updateLocation()
 				S32 agent_y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
 				S32 agent_z = llround( (F32)agentPos.mdV[VZ] );
 
-				childSetValue("spin x", LLSD(agent_x) );
-				childSetValue("spin y", LLSD(agent_y) );
-				childSetValue("spin z", LLSD(agent_z) );
-
 				// Set the current SLURL
 				mSLURL = LLSLURL::buildSLURL(agent_sim_name, agent_x, agent_y, agent_z);
 			}
@@ -699,9 +693,6 @@ void LLFloaterWorldMap::updateLocation()
 		
 		F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
 		F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
-		childSetValue("spin x", LLSD(region_x) );
-		childSetValue("spin y", LLSD(region_y) );
-		childSetValue("spin z", LLSD((F32)pos_global.mdV[VZ]) );
 
 		// simNameFromPosGlobal can fail, so don't give the user an invalid SLURL
 		if ( gotSimName )
@@ -733,9 +724,11 @@ void LLFloaterWorldMap::trackURL(const std::string& region_name, S32 x_coord, S3
 	{
 		// fill in UI based on URL
 		gFloaterWorldMap->childSetValue("location", region_name);
-		childSetValue("spin x", LLSD((F32)x_coord));
-		childSetValue("spin y", LLSD((F32)y_coord));
-		childSetValue("spin z", LLSD((F32)z_coord));
+
+		// Save local coords to highlight position after region global
+		// position is returned.
+		gFloaterWorldMap->mCompletingRegionPos.set(
+			(F32)x_coord, (F32)y_coord, (F32)z_coord);
 
 		// pass sim name to combo box
 		gFloaterWorldMap->mCompletingRegionName = region_name;
@@ -898,18 +891,6 @@ void LLFloaterWorldMap::clearLocationSelection(BOOL clear_ui)
 	if (list)
 	{
 		list->operateOnAll(LLCtrlListInterface::OP_DELETE);
-	}
-	if (!childHasKeyboardFocus("spin x"))
-	{
-		childSetValue("spin x", SIM_COORD_DEFAULT);
-	}
-	if (!childHasKeyboardFocus("spin y"))
-	{
-		childSetValue("spin y", SIM_COORD_DEFAULT);
-	}
-	if (!childHasKeyboardFocus("spin z"))
-	{
-		childSetValue("spin z", 0);
 	}
 	LLWorldMap::getInstance()->cancelTracking();
 	mCompletingRegionName = "";
@@ -1466,21 +1447,6 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 	}
 }
 
-void LLFloaterWorldMap::onCommitLocation()
-{
-	LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
-	if ( LLTracker::TRACKING_LOCATION == tracking_status)
-	{
-		LLVector3d pos_global = LLTracker::getTrackedPositionGlobal();
-		F64 local_x = childGetValue("spin x");
-		F64 local_y = childGetValue("spin y");
-		F64 local_z = childGetValue("spin z");
-		pos_global.mdV[VX] += -fmod(pos_global.mdV[VX], 256.0) + local_x;
-		pos_global.mdV[VY] += -fmod(pos_global.mdV[VY], 256.0) + local_y;
-		pos_global.mdV[VZ] = local_z;
-		trackLocation(pos_global);
-	}
-}
 
 void LLFloaterWorldMap::onCommitSearchResult()
 {
@@ -1503,12 +1469,19 @@ void LLFloaterWorldMap::onCommitSearchResult()
 		if (info->isName(sim_name))
 		{
 			LLVector3d pos_global = info->getGlobalOrigin();
-			F64 local_x = childGetValue("spin x");
-			F64 local_y = childGetValue("spin y");
-			F64 local_z = childGetValue("spin z");
-			pos_global.mdV[VX] += local_x;
-			pos_global.mdV[VY] += local_y;
-			pos_global.mdV[VZ] = local_z;
+
+			const F64 SIM_COORD_DEFAULT = 128.0;
+			LLVector3 pos_local(SIM_COORD_DEFAULT, SIM_COORD_DEFAULT, 0.0f);
+
+			// Did this value come from a trackURL() request?
+			if (!mCompletingRegionPos.isExactlyZero())
+			{
+				pos_local = mCompletingRegionPos;
+				mCompletingRegionPos.clear();
+			}
+			pos_global.mdV[VX] += (F64)pos_local.mV[VX];
+			pos_global.mdV[VY] += (F64)pos_local.mV[VY];
+			pos_global.mdV[VZ] = (F64)pos_local.mV[VZ];
 
 			childSetValue("location", sim_name);
 			trackLocation(pos_global);
