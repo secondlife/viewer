@@ -43,7 +43,6 @@
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llworld.h"
-#include "llrecentpeople.h"
 
 const F32 SPEAKER_TIMEOUT = 10.f; // seconds of not being on voice channel before removed from list of active speakers
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
@@ -409,8 +408,6 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 	{
 		speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
 		speakerp->mHasSpoken = TRUE;
-
-		LLRecentPeople::instance().add(speaker_id);
 	}
 }
 
