@@ -21,19 +21,6 @@
      tab_position="top"
      halign="center"
      width="313">
-      <inventory_panel
-        label="MY OUTFITS"
-        help_topic="my_outfits_tab"
-	    allow_multi_select="true"
-	    follows="all"
-	    border="false"
-	    left="0"
-        top="0"
-        height="500"
-        width="290"
- 		mouse_opaque="true"
- 	    name="outfitslist_accordionpanel"
- 		start_folder="My Outfits" /> 
          <inventory_panel
         label="WEARING"
         help_topic="now_wearing_tab"
@@ -46,6 +33,19 @@
         mouse_opaque="true"
         name="cof_accordionpanel"
         start_folder="Current Outfit" />
+         <inventory_panel
+           label="MY OUTFITS"
+           help_topic="my_outfits_tab"
+           allow_multi_select="true"
+           follows="all"
+           border="false"
+           left="0"
+           top="0"
+           height="500"
+           width="290"
+           mouse_opaque="true"
+           name="outfitslist_accordionpanel"
+           start_folder="My Outfits" /> 
    </tab_container>
 	<panel
 	  background_visible="true"
