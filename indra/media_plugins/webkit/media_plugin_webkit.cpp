@@ -84,6 +84,7 @@ private:
 		INIT_STATE_NAVIGATING,			// Browser instance has been set up and initial navigate to about:blank has been issued
 		INIT_STATE_NAVIGATE_COMPLETE,	// initial navigate to about:blank has completed
 		INIT_STATE_WAIT_REDRAW,			// First real navigate begin has been received, waiting for page changed event to start handling redraws
+		INIT_STATE_WAIT_COMPLETE,		// Waiting for first real navigate complete event
 		INIT_STATE_RUNNING				// All initialization gymnastics are complete.
 	};
 	int mBrowserWindowId;
@@ -122,7 +123,7 @@ private:
 			}
 		}
 		
-		if ( (mInitState == INIT_STATE_RUNNING) && mNeedsUpdate )
+		if ( (mInitState > INIT_STATE_WAIT_REDRAW) && mNeedsUpdate )
 		{
 			const unsigned char* browser_pixels = LLQtWebKit::getInstance()->grabBrowserWindow( mBrowserWindowId );
 
@@ -295,7 +296,7 @@ private:
 	{
 		if(mInitState == INIT_STATE_WAIT_REDRAW)
 		{
-			setInitState(INIT_STATE_RUNNING);
+			setInitState(INIT_STATE_WAIT_COMPLETE);
 		}
 		
 		// flag that an update is required
@@ -328,6 +329,14 @@ private:
 	{
 		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
+			if(mInitState < INIT_STATE_RUNNING)
+			{
+				setInitState(INIT_STATE_RUNNING);
+				
+				// Clear the history, so the "back" button doesn't take you back to "about:blank".
+				LLQtWebKit::getInstance()->clearHistory(mBrowserWindowId);
+			}
+			
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
 			message.setValue("uri", event.getEventUri());
 			message.setValueS32("result_code", event.getIntValue());
