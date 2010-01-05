@@ -307,7 +307,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-             label="Buy Land"
+             label="Buy This Land"
              layout="topleft"
              name="Buy Land">
                 <menu_item_call.on_click

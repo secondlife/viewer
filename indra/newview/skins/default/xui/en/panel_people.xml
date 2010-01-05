@@ -400,7 +400,7 @@ background_visible="true"
          layout="topleft"
          name="group_info_btn"
          tool_tip="Show group information"
-         width="110" />
+         width="102" />
         <button
          follows="bottom|left"
          top="4"
@@ -410,7 +410,7 @@ background_visible="true"
          layout="topleft"
          name="chat_btn"
          tool_tip="Open chat session"
-         width="110" />
+         width="102" />
         <button
          follows="bottom|left"
          top="4"
@@ -420,6 +420,6 @@ background_visible="true"
          layout="topleft"
          name="group_call_btn"
          tool_tip="Call this group"
-         width="110" />
+         width="102" />
     </panel>
 </panel>
