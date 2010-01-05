@@ -11,15 +11,15 @@
  min_width="234"
  name="preview notecard"
  help_topic="preview_notecard"
- title="NOTE:"
+ title="NOTECARD:"
  width="400">
     <floater.string
      name="no_object">
-        Unable to find object containing this note.
+        Unable to find object containing this notecard.
     </floater.string>
     <floater.string
      name="not_allowed">
-        You do not have permission to view this note.
+        You do not have permission to view this notecard.
     </floater.string>
     <floater.string
      name="Title">
