@@ -266,6 +266,8 @@ void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	mOnToastHoverSignal(this, MOUSE_ENTER);
 
+	setBackgroundOpaque(TRUE);
+
 	//toasts fading is management by Screen Channel
 	
 	sendChildToFront(mHideBtn);

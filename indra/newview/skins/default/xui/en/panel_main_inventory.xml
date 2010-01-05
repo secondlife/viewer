@@ -208,7 +208,7 @@ halign="center"
              layout="topleft"
              name="Reset Current">
                 <menu_item_call.on_click
-                 function="Inventory.ResetFilter" />
+                 function="Inventory.ResetFilters" />
             </menu_item_call>
             <menu_item_call
              label="Close All Folders"
