@@ -97,6 +97,7 @@ private:
 	void onClickMap();
 
 	void onPlusMenuItemClicked(const LLSD& param);
+	bool isActionEnabled(const LLSD& userdata) const;
 
 	void onListCommit(const LLFlatListView* f_list);
 	void onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab);
