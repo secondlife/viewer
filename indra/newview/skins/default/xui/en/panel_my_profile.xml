@@ -43,14 +43,14 @@
      width="313">
       <panel
          name="scroll_content_panel"
-         follows="left|top|right"
+         follows="all"
           height="500"
          layout="topleft"
          top="0"
          left="0"
-         width="297">
-	  <panel
-         follows="left|top"
+         width="313">
+	 <panel
+         follows="left|top|right"
          height="117"
          layout="topleft"
          left="10"
@@ -80,7 +80,7 @@
            width="102" />
             <text
              follows="left|top|right"
-	         font.style="BOLD"
+	     font.style="BOLD"
              height="15"
              layout="topleft"
              left_pad="10"
@@ -104,10 +104,10 @@
             </expandable_text>
         </panel>
         <panel
-         follows="left|top"
+         follows="left|top|right"
          height="117"
          layout="topleft"
-	     top_pad="10"
+	 top_pad="10"
          left="10"
          name="first_life_image_panel"
          width="300">
@@ -133,7 +133,7 @@
            width="102" />
             <text
              follows="left|top|right"
-	         font.style="BOLD"
+	     font.style="BOLD"
              height="15"
              layout="topleft"
              left_pad="10"
@@ -264,7 +264,7 @@
          value="Groups:"
          width="300" />
          <expandable_text
-         follows="left|top|bottom"
+         follows="all"
          height="115"
          layout="topleft"
          left="7"
@@ -285,7 +285,7 @@
      top_pad="2"
      height="23"
      width="303">
-        <button
+         <button
          follows="bottom|left"
          height="23"
          label="Add Friend"
@@ -293,6 +293,7 @@
          left="0"
          mouse_opaque="false"
          name="add_friend"
+         tool_tip="Offer friendship to the resident"
          top="5"
          width="80" />
         <button
@@ -337,7 +338,7 @@
      follows="bottom|left"
      layout="topleft"
      left="0"
-     top_pad="-2"
+     top_pad="-22"
      name="profile_me_buttons_panel"
      visible="false"
      height="23"
