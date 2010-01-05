@@ -1360,6 +1360,7 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 
 	LLPointer<LLInventoryCallback> cb = new LLAutoRenameFolder(folder_id);
 	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, cb);
+	LLAppearanceManager::instance().createBaseOutfitLink(folder_id, NULL);
 	
 	return folder_id;
 }

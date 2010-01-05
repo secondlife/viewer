@@ -62,10 +62,12 @@ public:
 	LLUUID getCOF();
 
 	// Finds the folder link to the currently worn outfit
-	const LLViewerInventoryItem *getCurrentOutfitLink();
+	const LLViewerInventoryItem *getBaseOutfitLink();
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
+
+	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
@@ -114,6 +116,7 @@ private:
 								   bool follow_folder_links);
 
 	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
+	void purgeBaseOutfitLink(const LLUUID& category);
 
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
