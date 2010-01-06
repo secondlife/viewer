@@ -112,8 +112,8 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				LLHandlerUtil::spawnIMSession(name, from_id);
 			}
 
-			if (notification->getPayload().has("SUPPRES_TOST")
-						&& notification->getPayload()["SUPPRES_TOST"])
+			if (notification->getPayload().has("SUPPRESS_TOAST")
+						&& notification->getPayload()["SUPPRESS_TOAST"])
 			{
 				LLNotificationsUtil::cancel(notification);
 			}

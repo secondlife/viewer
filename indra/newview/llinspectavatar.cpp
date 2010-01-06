@@ -112,6 +112,7 @@ private:
 	void onClickAddFriend();
 	void onClickViewProfile();
 	void onClickIM();
+	void onClickCall();
 	void onClickTeleport();
 	void onClickInviteToGroup();
 	void onClickPay();
@@ -204,6 +205,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.AddFriend",	boost::bind(&LLInspectAvatar::onClickAddFriend, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.IM",
 		boost::bind(&LLInspectAvatar::onClickIM, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Call",		boost::bind(&LLInspectAvatar::onClickCall, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
@@ -400,6 +402,7 @@ void LLInspectAvatar::updateModeratorPanel()
 				LLPointer<LLSpeaker> selected_speakerp = speaker_mgr->findSpeaker(mAvatarID);
 				
 				if(speaker_mgr->isVoiceActive() && selected_speakerp && 
+					selected_speakerp->isInVoiceChannel() &&
 					((self_speakerp && self_speakerp->mIsModerator) || gAgent.isGodlike()))
 				{
 					getChild<LLUICtrl>("enable_voice")->setVisible(selected_speakerp->mModeratorMutedVoice);
@@ -608,6 +611,12 @@ bool LLInspectAvatar::onVisibleZoomIn()
 void LLInspectAvatar::onClickIM()
 { 
 	LLAvatarActions::startIM(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickCall()
+{ 
+	LLAvatarActions::startCall(mAvatarID);
 	closeFloater();
 }
 

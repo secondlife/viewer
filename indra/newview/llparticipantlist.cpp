@@ -592,8 +592,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 			if (speakerp.notNull())
 			{
 				// not in voice participants can not be moderated
-				return speakerp->mStatus == LLSpeaker::STATUS_VOICE_ACTIVE
-					|| speakerp->mStatus == LLSpeaker::STATUS_MUTED;
+				return speakerp->isInVoiceChannel();
 			}
 		}
 		return false;

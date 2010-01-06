@@ -111,6 +111,7 @@ private:
 	void onToggleMute();
 	void showVolumeSlider();
 	void hideVolumeSlider();
+	bool shouldVolumeSliderBeVisible();
 	
 	static void onScrollUp(void* user_data);
 	static void onScrollUpHeld(void* user_data);
@@ -171,6 +172,7 @@ private:
 	F32 mZoomNearPadding;
 	F32 mZoomMediumPadding;
 	F32 mZoomFarPadding;
+	S32 mTopWorldViewAvoidZone;
 	
 	LLUICtrl *mMediaPanelScroll;
 	LLButton *mScrollUpCtrl;
