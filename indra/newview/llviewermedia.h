@@ -324,6 +324,7 @@ public:
 	std::string mHomeURL;
 	std::string mMimeType;
 	std::string mCurrentMediaURL;	// The most current media url from the plugin (via the "location changed" or "navigate complete" events).
+	std::string mCurrentMimeType;	// The MIME type that caused the currently loaded plugin to be loaded.
 	S32 mLastMouseX;	// save the last mouse coord we get, so when we lose capture we can simulate a mouseup at that point.
 	S32 mLastMouseY;
 	S32 mMediaWidth;
