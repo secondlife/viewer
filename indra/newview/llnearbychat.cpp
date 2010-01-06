@@ -63,7 +63,7 @@
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLDockableFloater(NULL, false, key)
+	: LLDockableFloater(NULL, false, false, key)
 	,mChatHistory(NULL)
 {
 	
@@ -137,7 +137,7 @@ std::string appendTime()
 	time_t utc_time;
 	utc_time = time_corrected();
 	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"] ";
+		+LLTrans::getString("TimeMin")+"]";
 
 	LLSD substitution;
 

@@ -144,6 +144,11 @@ void  LLPanelCameraZoom::onSliderValueChanged()
 	mSavedSliderVal = val;
 }
 
+void activate_camera_tool()
+{
+	LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
+};
+
 //
 // Member functions
 //
@@ -151,7 +156,7 @@ void  LLPanelCameraZoom::onSliderValueChanged()
 /*static*/ bool LLFloaterCamera::inFreeCameraMode()
 {
 	LLFloaterCamera* floater_camera = LLFloaterCamera::findInstance();
-	if (floater_camera && floater_camera->mCurrMode == CAMERA_CTRL_MODE_FREE_CAMERA)
+	if (floater_camera && floater_camera->mCurrMode == CAMERA_CTRL_MODE_FREE_CAMERA && gAgent.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 	{
 		return true;
 	}
@@ -177,27 +182,17 @@ void LLFloaterCamera::update()
 }
 
 
-/*static*/ void LLFloaterCamera::updateIfNotInAvatarViewMode()
-{
-	LLFloaterCamera* floater_camera = LLFloaterCamera::findInstance();
-	if (floater_camera && !floater_camera->inAvatarViewMode()) 
-	{
-		floater_camera->update();
-	}
-}
-
-
 void LLFloaterCamera::toPrevMode()
 {
 	switchMode(mPrevMode);
 }
 
-/*static*/ void LLFloaterCamera::toPrevModeIfInAvatarViewMode()
+/*static*/ void LLFloaterCamera::onLeavingMouseLook()
 {
 	LLFloaterCamera* floater_camera = LLFloaterCamera::findInstance();
-	if (floater_camera && floater_camera->inAvatarViewMode())
+	if (floater_camera && floater_camera->inFreeCameraMode())
 	{
-		floater_camera->toPrevMode();
+		activate_camera_tool();
 	}
 }
 
@@ -325,7 +320,7 @@ void LLFloaterCamera::switchMode(ECameraControlMode mode)
 		break;
 
 	case CAMERA_CTRL_MODE_FREE_CAMERA:
-		LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
+		activate_camera_tool();
 		break;
 
 	case CAMERA_CTRL_MODE_AVATAR_VIEW:

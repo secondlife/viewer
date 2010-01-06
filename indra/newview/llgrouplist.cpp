@@ -210,7 +210,6 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 	item->setGroupID(id);
 	item->setName(name, mNameFilter);
 	item->setGroupIconID(icon_id);
-//	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);
 	item->childSetVisible("profile_btn", false);
@@ -268,8 +267,9 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 	LLUUID selected_group_id = getSelectedUUID();
 	bool real_group_selected = selected_group_id.notNull(); // a "real" (not "none") group is selected
 
+	// each group including "none" can be activated
 	if (userdata.asString() == "activate")
-		return real_group_selected && gAgent.getGroupID() != selected_group_id;
+		return gAgent.getGroupID() != selected_group_id;
 
 	return real_group_selected;
 }
@@ -283,7 +283,6 @@ LLGroupListItem::LLGroupListItem()
 mGroupIcon(NULL),
 mGroupNameBox(NULL),
 mInfoBtn(NULL),
-//mContextMenu(NULL), //TODO:
 mGroupID(LLUUID::null)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group_list_item.xml");
