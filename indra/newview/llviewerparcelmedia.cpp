@@ -34,6 +34,7 @@
 #include "llviewerparcelmedia.h"
 
 #include "llagent.h"
+#include "llaudioengine.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llviewerregion.h"
@@ -109,7 +110,9 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			std::string mediaCurrentUrl = std::string( parcel->getMediaCurrentURL());
 
 			// First use warning
-			if(	! mediaUrl.empty() && gWarningSettings.getBOOL("FirstStreamingVideo") )
+			if( (!mediaUrl.empty() ||
+			     !parcel->getMusicURL().empty())
+			    && gWarningSettings.getBOOL("FirstStreamingMedia") )
 			{
 				LLNotificationsUtil::add("ParcelCanPlayMedia", LLSD(), LLSD(),
 					boost::bind(callback_play_media, _1, _2, parcel));
@@ -593,16 +596,28 @@ bool callback_play_media(const LLSD& notification, const LLSD& response, LLParce
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
+		// user has elected to automatically play media.
+		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
 		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
 		if(!gSavedSettings.getBOOL("AudioStreamingMedia")) 
 			gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
+		// play media right now, if available
 		LLViewerParcelMedia::play(parcel);
+		// play music right now, if available
+		if (parcel)
+		{
+			std::string music_url = parcel->getMusicURL();
+			if (gAudiop && !music_url.empty())
+				gAudiop->startInternetStream(music_url);
+		}
 	}
 	else
 	{
 		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
 	}
-	gWarningSettings.setBOOL("FirstStreamingVideo", FALSE);
+	gWarningSettings.setBOOL("FirstStreamingMedia", FALSE);
 	return false;
 }
 

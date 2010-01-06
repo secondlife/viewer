@@ -1929,8 +1929,7 @@ bool LLAppViewer::initConfiguration()
 	LLFirstUse::addConfigVariable("FirstSandbox");
 	LLFirstUse::addConfigVariable("FirstFlexible");
 	LLFirstUse::addConfigVariable("FirstDebugMenus");
-	LLFirstUse::addConfigVariable("FirstStreamingMusic");
-	LLFirstUse::addConfigVariable("FirstStreamingVideo");
+	LLFirstUse::addConfigVariable("FirstStreamingMedia");
 	LLFirstUse::addConfigVariable("FirstSculptedPrim");
 	LLFirstUse::addConfigVariable("FirstVoice");
 	LLFirstUse::addConfigVariable("FirstMedia");

@@ -99,14 +99,10 @@ class LLViewerMedia
 		static void setVolume(F32 volume);
 
 		static void updateMedia(void* dummy_arg = NULL);
-		static bool isMusicPlaying();
 
 		static void initClass();
 		static void cleanupClass();
 
-		static void toggleMusicPlay(void*);
-		static void toggleMediaPlay(void*);
-		static void mediaStop(void*);
 		static F32 getVolume();	
 		static void muteListChanged();
 		static void setInWorldMediaDisabled(bool disabled);
