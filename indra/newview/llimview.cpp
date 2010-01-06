@@ -382,10 +382,6 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 		mSpeakers->speakerChatted(from_id);
 		mSpeakers->setSpeakerTyping(from_id, FALSE);
 	}
-
-	if( mSessionType == P2P_SESSION ||
-		mSessionType == ADHOC_SESSION)
-		LLRecentPeople::instance().add(from_id);
 }
 
 void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& history)
@@ -683,6 +679,12 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 
 	LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file);
 	if (!session) return false;
+
+	//good place to add some1 to recent list
+	//other places may be called from message history.
+	if( !from_id.isNull() &&
+		( session->isP2PSessionType() || session->isAdHocSessionType() ) )
+		LLRecentPeople::instance().add(from_id);
 
 	// notify listeners
 	LLSD arg;
