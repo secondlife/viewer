@@ -55,7 +55,7 @@ public:
 	/// Inspectors close themselves when they lose focus
 	/*virtual*/ void onFocusLost();
 	
-private:
+protected:
 	LLFrameTimer		mCloseTimer;
 	LLFrameTimer		mOpenTimer;
 };

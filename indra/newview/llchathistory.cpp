@@ -593,6 +593,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();
+
+	// automatically scroll to end when receiving chat from myself
+	if (chat.mFromID == gAgentID)
+	{
+		mEditor->setCursorAndScrollToEnd();
+	}
 }
 
 void LLChatHistory::draw()
