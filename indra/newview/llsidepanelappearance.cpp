@@ -166,6 +166,11 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	refreshCurrentOutfitName();
 	updateVerbs();
 
+	if (mPanelOutfitsInventory)
+	{
+		mPanelOutfitsInventory->onOpen(key);
+	}
+
 	if(key.size() == 0)
 		return;
 

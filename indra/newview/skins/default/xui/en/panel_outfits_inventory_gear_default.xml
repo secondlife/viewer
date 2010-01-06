@@ -18,17 +18,6 @@
 		 parameter="wear" />
     </menu_item_call>
     <menu_item_call
-     label="Add To Current Outfit"
-     layout="topleft"
-     name="add">
-        <on_click
-         function="panel_outfits_inventory_gear_default.Custom.Action"
-         parameter="add" />
-        <on_enable
-		 function="panel_outfits_inventory_gear_default.Enable"
-		 parameter="add" />
-    </menu_item_call>
-    <menu_item_call
      label="Remove From Current Outfit"
      layout="topleft"
      name="remove">

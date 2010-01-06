@@ -53,6 +53,7 @@ public:
 	virtual ~LLPanelOutfitsInventory();
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 	
 	void onSearchEdit(const std::string& string);
 	void onAdd();
