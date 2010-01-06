@@ -472,7 +472,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 }
 
 // Returns the max number of complete characters from text (up to max_chars) that can be drawn in max_pixels
-S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars, BOOL end_on_word_boundary) const
+S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars, EWordWrapStyle end_on_word_boundary) const
 {
 	if (!wchars || !wchars[0] || max_chars == 0)
 	{
@@ -562,9 +562,24 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		drawn_x = cur_x;
 	}
 
-	if( clip && end_on_word_boundary )
+	if( clip )
 	{
-		i = start_of_last_word;
+		switch (end_on_word_boundary)
+		{
+		case ONLY_WORD_BOUNDARIES:
+			i = start_of_last_word;
+			break;
+		case WORD_BOUNDARY_IF_POSSIBLE:
+			if (start_of_last_word != 0)
+			{
+				i = start_of_last_word;
+			}
+			break;
+		default:
+		case ANYWHERE:
+			// do nothing
+			break;
+		}
 	}
 	return i;
 }
