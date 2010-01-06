@@ -363,7 +363,7 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 {
 	const std::string command_name = userdata.asString();
-	if (command_name == "delete")
+	if (command_name == "delete" || command_name == "remove")
 	{
 		BOOL can_delete = FALSE;
 		LLFolderView *folder = getActivePanel()->getRootFolder();
@@ -423,7 +423,6 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	}
    
 	if (command_name == "edit" || 
-		command_name == "wear" ||
 		command_name == "add"
 		)
 	{
