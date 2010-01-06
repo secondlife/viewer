@@ -331,6 +331,11 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 		}
 
 		U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, TRUE);
+		if (drawable == 0)
+		{
+			// try again without wrapping on word boundaries
+			drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, FALSE);
+		}
 
 		if (drawable != 0)
 		{
