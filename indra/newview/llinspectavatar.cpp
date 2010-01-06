@@ -93,6 +93,10 @@ public:
 	// Update view based on information from avatar properties processor
 	void processAvatarData(LLAvatarData* data);
 	
+	// override the inspector mouse leave so timer is only paused if 
+	// gear menu is not open
+	/* virtual */ void onMouseLeave(S32 x, S32 y, MASK mask);
+	
 private:
 	// Make network requests for all the data to display in this view.
 	// Used on construction and if avatar id changes.
@@ -259,8 +263,6 @@ BOOL LLInspectAvatar::postBuild(void)
 }
 
 
-
-
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
 // LLSD for foo, which we will catch here.
 //virtual
@@ -382,6 +384,19 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	// Delete the request object as it has been satisfied
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
+}
+
+// For the avatar inspector, we only want to unpause the fade timer 
+// if neither the gear menu or self gear menu are open
+void LLInspectAvatar::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
+	LLMenuGL* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
+	if ( !(gear_menu && gear_menu->getVisible()) &&
+		 !(gear_menu_self && gear_menu_self->getVisible()))
+	{
+		mOpenTimer.unpause();
+	}
 }
 
 void LLInspectAvatar::updateModeratorPanel()

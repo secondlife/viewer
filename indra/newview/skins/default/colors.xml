@@ -64,7 +64,7 @@
 	 value="0 0 1 1" />
 	<color
 	 name="Yellow"
-	 value="0.114 0.65 0.1" />
+	 value="1 1 0 1" />
 	<color
 	 name="Green"
 	 value="0 .39 .10 1" />
@@ -167,6 +167,9 @@
     <color
      name="ChatHistoryTextColor"
      reference="LtGray" />
+    <color
+     name="ChicletFlashColor"
+     reference="0.114 0.65 0.1" />
     <color
      name="ColorDropShadow"
      reference="Black_50" />

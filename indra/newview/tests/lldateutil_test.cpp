@@ -179,4 +179,14 @@ namespace tut
 			LLDateUtil::ageFromDate("12/31/2009", mNow),
 			"Joined today" );
 	}
+
+	template<> template<>
+	void dateutil_object_t::test<5>()
+	{
+		set_test_name("2010 rollover");
+		LLDate now(std::string("2010-01-04T12:00:00Z"));
+		ensure_equals("days",
+			LLDateUtil::ageFromDate("12/13/2009", now),
+			"3 weeks old" );
+	}
 }
