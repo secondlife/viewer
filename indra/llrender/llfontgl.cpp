@@ -562,7 +562,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		drawn_x = cur_x;
 	}
 
-	if( clip && end_on_word_boundary && (start_of_last_word != 0) )
+	if( clip && end_on_word_boundary )
 	{
 		i = start_of_last_word;
 	}
