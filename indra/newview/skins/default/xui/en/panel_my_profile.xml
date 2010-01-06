@@ -31,24 +31,41 @@
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
-    <scroll_container
-     color="DkGray2"
+    <layout_stack
+     name="layout"
+     orientation="vertical"
      follows="all"
-     height="500"
      layout="topleft"
-     name="profile_scroll"
-     reserve_scroll_corner="false"
-     opaque="true"
+     left="0"
      top="0"
-     width="313">
+     height="535"
+     width="313"
+     border_size="0">
       <panel
-         name="scroll_content_panel"
+         name="profile_stack"
          follows="all"
-          height="500"
          layout="topleft"
          top="0"
          left="0"
+         height="505"
          width="313">
+            <scroll_container
+             color="DkGray2"
+             follows="all"
+             layout="topleft"
+             left="0"
+             name="profile_scroll"
+             opaque="true"
+             height="505"
+             width="313"
+             top="0">
+	       <panel
+               layout="topleft"
+	       follows="left|top|right"
+              name="scroll_content_panel"
+               top="0"
+               left="0"
+               width="303">
 	 <panel
          follows="left|top|right"
          height="117"
@@ -212,16 +229,18 @@
          top_delta="0"
 	 value="Go to Dashboard"
          width="100"/> -->
-        <text
+         <text
          follows="left|top"
-         height="20"
+         height="28"
          layout="topleft"
          left="10"
          name="acc_status_text"
          top_pad="0"
-         value="Resident. No payment info on file."
          width="300"
-         word_wrap="true" />
+         word_wrap="true">
+	 Resident. No payment info on file.
+Linden.
+	 </text>
         <text
          follows="left|top"
 	 font.style="BOLD"
@@ -265,26 +284,26 @@
          width="300" />
          <expandable_text
          follows="all"
-         height="115"
+         height="113"
          layout="topleft"
          left="7"
          name="sl_groups"
        top_pad="0"
-         width="300"
+         width="298"
          expanded_bg_visible="true"
          expanded_bg_color="DkGray">
             Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
         </expandable_text>
-      </panel>
+    </panel>
  </scroll_container>
- <panel
+      </panel>
+<!-- <panel
      follows="bottom|left"
      layout="topleft"
      left="0"
      name="profile_buttons_panel"
-     top_pad="2"
-     height="23"
-     width="303">
+     height="28"
+     width="313">
          <button
          follows="bottom|left"
          height="23"
@@ -333,20 +352,21 @@
          left_pad="3"
          top="5"
          width="85" />
- </panel>
+ </panel>-->
  <panel
      follows="bottom|left"
      layout="topleft"
      left="0"
-     top_pad="-22"
+     top_pad="0"
      name="profile_me_buttons_panel"
      visible="false"
-     height="23"
-     width="303">
+     height="28"
+     width="313">
         <button
          follows="bottom|right"
          height="23"
-         left="10"
+         left="20"
+	 top="0"
          label="Edit Profile"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
@@ -358,7 +378,7 @@
          left_pad="10"
          name="edit_appearance_btn"
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
-         right="-10"
          width="130" />
  </panel>
+</layout_stack>
 </panel>
