@@ -114,6 +114,7 @@ protected:
 	BOOL isActionEnabled(const LLSD& command_name);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+	bool hasItemsSelected();
 private:
 	LLPanel*					mListCommands;
 	LLMenuGL*					mMenuGearDefault;

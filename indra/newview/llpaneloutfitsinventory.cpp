@@ -303,6 +303,8 @@ void LLPanelOutfitsInventory::onClipboardAction(const LLSD& userdata)
 {
 	std::string command_name = userdata.asString();
 	getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+	updateListCommands();
+	updateVerbs();
 }
 
 void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
@@ -343,6 +345,8 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 	{
 		onClipboardAction("delete");
 	}
+	updateListCommands();
+	updateVerbs();
 }
 
 BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
@@ -354,9 +358,9 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		LLFolderView *folder = getActivePanel()->getRootFolder();
 		if (folder)
 		{
-			can_delete = TRUE;
 			std::set<LLUUID> selection_set;
 			folder->getSelectionList(selection_set);
+			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
@@ -375,9 +379,9 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		LLFolderView *folder = getActivePanel()->getRootFolder();
 		if (folder)
 		{
-			can_delete = TRUE;
 			std::set<LLUUID> selection_set;
 			folder->getSelectionList(selection_set);
+			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
@@ -391,15 +395,32 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
+	if (command_name == "rename" ||
+		command_name == "delete_outfit")
+	{
+		return (getCorrectListenerForAction() != NULL) && hasItemsSelected();
+	}
 	if (command_name == "edit" || 
 		command_name == "wear" ||
-		command_name == "add" ||
-		command_name == "remove"
+		command_name == "add"
 		)
 	{
 		return (getCorrectListenerForAction() != NULL);
 	}
 	return TRUE;
+}
+
+bool LLPanelOutfitsInventory::hasItemsSelected()
+{
+	bool has_items_selected = false;
+	LLFolderView *folder = getActivePanel()->getRootFolder();
+	if (folder)
+	{
+		std::set<LLUUID> selection_set;
+		folder->getSelectionList(selection_set);
+		has_items_selected = (selection_set.size() > 0);
+	}
+	return has_items_selected;
 }
 
 bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
