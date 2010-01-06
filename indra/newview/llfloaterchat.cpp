@@ -311,8 +311,10 @@ void LLFloaterChat::addChat(const LLChat& chat, BOOL from_instant_message, BOOL 
 	triggerAlerts(chat.mText);
 
 	// Add the sender to the list of people with which we've recently interacted.
-	if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
-		LLRecentPeople::instance().add(chat.mFromID);
+	// this is not the best place to add _all_ messages to recent list
+	// comment this for now, may remove later on code cleanup
+	//if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
+	//	LLRecentPeople::instance().add(chat.mFromID);
 	
 	bool add_chat = true;
 	bool log_chat = true;
