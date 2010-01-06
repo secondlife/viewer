@@ -215,14 +215,14 @@ namespace tut
     void llviewerlogin_object::test<1>()
     {
         DEBUG;
-		// Testing login with immediate repsonses from Ares and XMLPRC
+		// Testing login with immediate responses from Ares and XMLPRC
 		// The response from both requests will come before the post request exits.
 		// This tests an edge case of the login state handling.
 		LLEventStream llaresPump("LLAres"); // Dummy LLAres pump.
 		LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
 
 		bool respond_immediately = true;
-		// Have 'dummy ares' repsond immediately. 
+		// Have 'dummy ares' respond immediately. 
 		LLAresListener dummyLLAres("dummy_llares", respond_immediately);
 		dummyLLAres.listenTo(llaresPump);
 
@@ -251,7 +251,7 @@ namespace tut
         DEBUG;
 		// Tests a successful login in with delayed responses. 
 		// Also includes 'failure' that cause the login module
-		// To re-attempt connection, once from a basic failure
+		// to re-attempt connection, once from a basic failure
 		// and once from the 'indeterminate' response.
 
 		set_test_name("LLLogin multiple srv uris w/ success");
@@ -464,6 +464,12 @@ namespace tut
 		LLSD frame_event;
 		mainloop.post(frame_event);
 
-		ensure_equals("SRV Failure", listener.lastEvent()["change"].asString(), "fail.login"); 
+		// In this state we have NOT sent a reply from LLAresListener -- in
+		// fact there's no such object. Nonetheless, we expect the timeout to
+		// have stepped the login module forward to try to authenticate with
+		// the original URI.
+		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
+		ensure_equals("Attempt", listener.lastEvent()["data"]["attempt"].asInteger(), 1); 
+		ensure_equals("URI", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.bar.com"); 
 	}
 }
