@@ -31,7 +31,7 @@
         left="0"
         top="0"
         mouse_opaque="true"
-        name="cof_accordionpanel"
+        name="cof_tab"
         start_folder="Current Outfit" />
          <inventory_panel
            label="MY OUTFITS"
@@ -44,7 +44,7 @@
            height="500"
            width="290"
            mouse_opaque="true"
-           name="outfitslist_accordionpanel"
+           name="outfitslist_tab"
            start_folder="My Outfits" /> 
    </tab_container>
 	<panel

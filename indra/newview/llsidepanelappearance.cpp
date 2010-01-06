@@ -213,7 +213,7 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 	if (tab_outfits)
 	{
 		tab_outfits->changeOpenClose(FALSE);
-		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_accordionpanel");
+		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
 			LLFolderView *folder = inventory_panel->getRootFolder();
