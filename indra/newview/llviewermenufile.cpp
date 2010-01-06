@@ -272,7 +272,10 @@ class LLFileUploadScene : public view_listener_t
 		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_COLLADA);
 		if (!filename.empty())
 		{
-			LLImportCollada::getInstance()->importFile(filename);
+			LLFloaterReg::showInstance("import_collada");
+			LLFloaterImportCollada* floater = LLFloaterReg::findTypedInstance<LLFloaterImportCollada>("import_collada");
+			floater->enableOK(TRUE);
+			floater->importFile(filename);
 		}
 		return TRUE;
 	}
@@ -1080,7 +1083,8 @@ void upload_new_resource(
 			new LLNewAgentInventoryResponder(
 				body,
 				uuid,
-				asset_type));
+				asset_type,
+				(LLImportCollada*) userdata));
 	}
 	else
 	{
