@@ -62,6 +62,7 @@
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
+#include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llavataractions.h"
@@ -446,6 +447,8 @@ void init_menus()
 	// Otherwise tool tips for menu items would be overlapped by menu, since
 	// main view is behind of menu holder now.
 	gViewerWindow->getRootView()->addChild(gToolTipView);
+	
+	gViewerWindow->getRootView()->addChild(gSnapshotFloaterView);
    
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());

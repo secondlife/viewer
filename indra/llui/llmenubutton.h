@@ -55,6 +55,7 @@ public:
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
 	void hideMenu();
+	LLMenuGL* getMenu() { return mMenu; }
 
 protected:
 	friend class LLUICtrlFactory;
