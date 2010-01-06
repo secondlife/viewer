@@ -174,7 +174,7 @@ void LLStreamingAudio_FMOD::update()
 		break;
 	case -3:
 		// failed to open, file not found, perhaps
-		llwarns << "InternetSteam - failed to open" << llendl;
+		llwarns << "InternetStream - failed to open" << llendl;
 		stop();
 		return;
 	case -4:

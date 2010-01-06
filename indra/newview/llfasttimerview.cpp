@@ -323,7 +323,9 @@ void LLFastTimerView::draw()
 	S32 xleft = margin;
 	S32 ytop = margin;
 	
-	mAverageCyclesPerTimer = llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
+	mAverageCyclesPerTimer = LLFastTimer::sTimerCalls == 0 
+		? 0 
+		: llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
 	LLFastTimer::sTimerCycles = 0;
 	LLFastTimer::sTimerCalls = 0;
 

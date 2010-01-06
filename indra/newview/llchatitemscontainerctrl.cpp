@@ -253,10 +253,32 @@ void LLNearbyChatToastPanel::onMouseEnter				(S32 x, S32 y, MASK mask)
 
 BOOL	LLNearbyChatToastPanel::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
-	if(mSourceType != CHAT_SOURCE_AGENT)
-		return LLPanel::handleMouseDown(x,y,mask);
-	LLFloaterReg::showInstance("nearby_chat",LLSD());
 	return LLPanel::handleMouseDown(x,y,mask);
+}
+
+BOOL	LLNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
+{
+	if(mSourceType != CHAT_SOURCE_AGENT)
+		return LLPanel::handleMouseUp(x,y,mask);
+
+	LLChatMsgBox* text_box = getChild<LLChatMsgBox>("msg_text", false);
+	S32 local_x = x - text_box->getRect().mLeft;
+	S32 local_y = y - text_box->getRect().mBottom;
+	
+	//if text_box process mouse up (ussually this is click on url) - we didn't show nearby_chat.
+	if (text_box->pointInView(local_x, local_y) )
+	{
+		if (text_box->handleMouseUp(local_x,local_y,mask) == TRUE)
+			return TRUE;
+		else
+		{
+			LLFloaterReg::showInstance("nearby_chat",LLSD());
+			return FALSE;
+		}
+	}
+
+	LLFloaterReg::showInstance("nearby_chat",LLSD());
+	return LLPanel::handleMouseUp(x,y,mask);
 }
 
 void	LLNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)

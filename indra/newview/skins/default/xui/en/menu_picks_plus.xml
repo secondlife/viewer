@@ -11,6 +11,9 @@
         <menu_item_call.on_click 
          function="Picks.Plus.Action" 
          userdata="new_pick" />
+        <menu_item_call.on_enable
+         function="Picks.Plus.Enable"
+         userdata="new_pick" />
         </menu_item_call>
     <menu_item_call 
      name="create_classified" 

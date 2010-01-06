@@ -70,9 +70,9 @@ void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::E
 
 void LLPanelChatControlPanel::updateButtons(bool is_call_started)
 {
-	childSetVisible("end_call_btn", is_call_started);
-	childSetVisible("voice_ctrls_btn", is_call_started);
-	childSetVisible("call_btn", ! is_call_started);
+	childSetVisible("end_call_btn_panel", is_call_started);
+	childSetVisible("voice_ctrls_btn_panel", is_call_started);
+	childSetVisible("call_btn_panel", ! is_call_started);
 }
 
 LLPanelChatControlPanel::~LLPanelChatControlPanel()

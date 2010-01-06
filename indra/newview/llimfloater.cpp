@@ -120,6 +120,12 @@ void LLIMFloater::onFocusLost()
 void LLIMFloater::onFocusReceived()
 {
 	LLIMModel::getInstance()->setActiveSessionID(mSessionID);
+
+	// return focus to the input field when active tab in the multitab container is clicked.
+	if (isChatMultiTab() && mInputEditor)
+	{
+		mInputEditor->setFocus(TRUE);
+	}
 }
 
 // virtual
@@ -617,6 +623,15 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 	{
 		//in disconnected state IM input editor should be disabled
 		self->mInputEditor->setEnabled(!gDisconnected);
+	}
+
+	// when IM Floater is a part of the multitab container LLTabContainer set focus to the first
+	// child on tab button's mouse up. This leads input field lost focus. See EXT-3852.
+	if (isChatMultiTab())
+	{
+		// So, clear control captured mouse to prevent LLTabContainer set focus on the panel's first child.
+		// do not pass self->mInputEditor, this leads to have "Edit Text" mouse pointer wherever it is.
+		gFocusMgr.setMouseCapture(NULL);
 	}
 }
 
