@@ -906,7 +906,8 @@ void LLFlatListView::notifyParentItemsRectChanged()
 	params["width"] = req_rect.getWidth();
 	params["height"] = req_rect.getHeight();
 
-	getParent()->notifyParent(params);
+	if (getParent()) // dummy widgets don't have a parent
+		getParent()->notifyParent(params);
 }
 
 void LLFlatListView::setNoItemsCommentVisible(bool visible) const

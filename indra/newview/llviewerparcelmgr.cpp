@@ -44,6 +44,7 @@
 #include "llparcel.h"
 #include "llsecondlifeurls.h"
 #include "message.h"
+#include "llfloaterreg.h"
 
 // Viewer includes
 #include "llagent.h"
@@ -52,6 +53,7 @@
 #include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloatergroups.h"
+#include "llfloaternearbymedia.h"
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
 #include "llparcelselection.h"
@@ -1735,7 +1737,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 					}
 					else if (!gAudiop->getInternetStreamURL().empty())
 					{
-						llinfos << "Stopping parcel music" << llendl;
+						llinfos << "Stopping parcel music (parcel stream URL is empty)" << llendl;
 						gAudiop->startInternetStream(LLStringUtil::null);
 					}
 				}
@@ -1754,15 +1756,19 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 void optionally_start_music(const std::string& music_url)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic") && gSavedSettings.getBOOL("AudioSteamingMedia"))
+	if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+	    gSavedSettings.getBOOL("AudioStreamingMedia"))
 	{
-		// Make the user click the start button on the overlay bar. JC
-		//		llinfos << "Starting parcel music " << music_url << llendl;
-
-		// now only play music when you enter a new parcel if the control is in PLAY state
-		// changed as part of SL-4878
-		if ( gOverlayBar && gOverlayBar->musicPlaying())
+		// only play music when you enter a new parcel if the UI control for this
+		// was not *explicitly* stopped by the user. (part of SL-4878)
+		LLFloaterNearbyMedia *nearby_media_floater = LLFloaterReg::findTypedInstance<LLFloaterNearbyMedia>("nearby_media");
+		if ((nearby_media_floater &&
+		     nearby_media_floater->getParcelAudioAutoStart()) ||
+		    // or they have expressed no opinion in the UI, but have autoplay on...
+		    (!nearby_media_floater &&
+		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING)))
 		{
+			llinfos << "Starting parcel music " << music_url << llendl;
 			gAudiop->startInternetStream(music_url);
 		}
 	}

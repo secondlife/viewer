@@ -57,11 +57,20 @@ LLDockableFloater::LLDockableFloater(LLDockControl* dockControl,
 	, mOverlapsScreenChannel(false)
 {
 	init(this);
+	mUseTongue = true;
 }
 
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
 		const LLSD& key, const Params& params) :
 	LLFloater(key, params), mDockControl(dockControl), mUniqueDocking(uniqueDocking)
+{
+	init(this);
+	mUseTongue = true;
+}
+
+LLDockableFloater::LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
+		bool useTongue, const LLSD& key, const Params& params) :
+	LLFloater(key, params), mDockControl(dockControl), mUseTongue(useTongue), mUniqueDocking(uniqueDocking)
 {
 	init(this);
 }

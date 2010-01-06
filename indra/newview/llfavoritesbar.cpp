@@ -644,7 +644,7 @@ LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
 	bool success = LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", buttonXMLNode);
 	if (!success)
 	{
-		llwarns << "Unable to read xml file with button for Favorites Bar: favorites_bar_button.xml" << llendl;
+		llwarns << "Failed to create Favorites Bar button from favorites_bar_button.xml" << llendl;
 		buttonXMLNode = NULL;
 	}
 	return buttonXMLNode;

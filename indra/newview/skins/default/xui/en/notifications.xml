@@ -5087,6 +5087,14 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
 
   <notification
    icon="notify.tga"
+   name="TeleportOfferSent"
+   type="offer">
+	Teleport offer sent to [TO_NAME]
+  </notification>
+
+
+  <notification
+   icon="notify.tga"
    name="GotoURL"
    type="notify">
 [MESSAGE]

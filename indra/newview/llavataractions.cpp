@@ -168,8 +168,28 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 // static
 void LLAvatarActions::offerTeleport(const std::vector<LLUUID>& ids) 
 {
-	if (ids.size() > 0)
-		handle_lure(ids);
+	if (ids.size() == 0)
+		return;
+
+	handle_lure(ids);
+
+	// Record the offer.
+	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); it++)
+	{
+		LLUUID target_id = *it;
+		std::string target_name;
+
+		gCacheName->getFullName(target_id, target_name);
+
+		LLSD args;
+		args["TO_NAME"] = target_name;
+
+		LLSD payload;
+		payload["from_id"] = target_id;
+		payload["SESSION_NAME"] = target_name;
+		payload["SUPPRESS_TOAST"] = true;
+		LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+	}
 }
 
 // static
@@ -595,9 +615,11 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 
 	LLSD args;
 	args["TO_NAME"] = target_name;
+
 	LLSD payload;
+	payload["from_id"] = target_id;
 	payload["SESSION_NAME"] = target_name;
-	payload["SUPPRES_TOST"] = true;
+	payload["SUPPRESS_TOAST"] = true;
 	LLNotificationsUtil::add("FriendshipOffered", args, payload);
 }
 

@@ -2466,7 +2466,7 @@ class LLViewJoystickFlycam : public view_listener_t
 class LLViewCheckJoystickFlycam : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
-		{
+	{
 		bool new_value = LLViewerJoystick::getInstance()->getOverrideCamera();
 		return new_value;
 	}
@@ -3704,6 +3704,7 @@ void reset_view_final( BOOL proceed )
 	}
 
 	gAgent.resetView(TRUE, TRUE);
+	gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
 }
 
 class LLViewLookAtLastChatter : public view_listener_t

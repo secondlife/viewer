@@ -349,7 +349,6 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 	}
 
 	// Initialize chiclet.
-	mChiclet->setRect(LLRect(5, 28, 30, 3)); // *HACK: workaround for (EXT-3599)
 	mChiclet->setChicletSizeChangedCallback(boost::bind(&LLIMWellWindow::RowPanel::onChicletSizeChanged, this, mChiclet, _2));
 	mChiclet->enableCounterControl(true);
 	mChiclet->setCounter(chicletCounter);
@@ -410,6 +409,11 @@ BOOL LLIMWellWindow::RowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLPanel::handleMouseDown(x, y, mask);
 }
 
+// virtual
+BOOL LLIMWellWindow::RowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	return mChiclet->handleRightMouseDown(x, y, mask);
+}
 /************************************************************************/
 /*         ObjectRowPanel implementation                                */
 /************************************************************************/
@@ -551,6 +555,12 @@ BOOL LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 		mChiclet->onMouseDown();
 
 	return LLPanel::handleMouseDown(x, y, mask);
+}
+
+// virtual
+BOOL LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	return mChiclet->handleRightMouseDown(x, y, mask);
 }
 
 /************************************************************************/

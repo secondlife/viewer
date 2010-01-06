@@ -215,6 +215,10 @@ void LLSidepanelTaskInfo::disableAll()
 	childSetVisible("E:",								FALSE);
 	childSetVisible("N:",								FALSE);
 	childSetVisible("F:",								FALSE);
+	
+	mOpenBtn->setEnabled(FALSE);
+	mPayBtn->setEnabled(FALSE);
+	mBuyBtn->setEnabled(FALSE);
 }
 
 void LLSidepanelTaskInfo::refresh()
@@ -1119,6 +1123,8 @@ void LLSidepanelTaskInfo::updateVerbs()
 	*/
 
 	mOpenBtn->setEnabled(enable_object_open());
+	mPayBtn->setEnabled(enable_pay_object());
+	mBuyBtn->setEnabled(enable_buy_object());
 }
 
 void LLSidepanelTaskInfo::onOpenButtonClicked()

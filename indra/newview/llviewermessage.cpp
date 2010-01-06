@@ -2644,9 +2644,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			LLNotificationsUI::LLNotificationManager::instance().onChat(
 					chat, LLNotificationsUI::NT_NEARBYCHAT);
 
-            // adding temporarily so that communications window chat bar 
-            // works until the new chat window is ready
-			chat.mText = from_name + ": " + chat.mText;
 			LLFloaterChat::addChat(chat, FALSE, FALSE);
 		}
 		else

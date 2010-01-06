@@ -413,10 +413,13 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 			if(tab_land->getDisplayChildren())
 				tab_land->changeOpenClose(tab_land->getDisplayChildren());
 		}
+
+		LLGroupData agent_gdatap;
+		bool is_member = gAgent.getGroupData(mID,agent_gdatap);
 		
-		tab_roles->canOpenClose(true);
-		tab_notices->canOpenClose(true);
-		tab_land->canOpenClose(true);
+		tab_roles->canOpenClose(is_member);
+		tab_notices->canOpenClose(is_member);
+		tab_land->canOpenClose(is_member);
 
 		getChild<LLUICtrl>("group_name")->setVisible(true);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(false);

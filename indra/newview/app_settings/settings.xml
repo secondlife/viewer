@@ -276,7 +276,7 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-	<key>AudioSteamingMedia</key>
+	<key>AudioStreamingMedia</key>
     <map>
       <key>Comment</key>
       <string>Enable streaming</string>
@@ -407,6 +407,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>AvalinePhoneSeparator</key>
+    <map>
+      <key>Comment</key>
+      <string>Separator of phone parts to have Avaline numbers human readable in Voice Control Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>-</string>
     </map>
     <key>AvatarAxisDeadZone0</key>
     <map>

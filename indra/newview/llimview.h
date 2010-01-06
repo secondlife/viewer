@@ -475,6 +475,7 @@ public:
 
 protected:
 	static std::string sPreviousSessionlName;
+	static LLIMModel::LLIMSession::SType sPreviousSessionType;
 	static std::string sCurrentSessionlName;
 	static LLIMModel::LLIMSession* sSession;
 	static LLVoiceChannel::EState sOldState;

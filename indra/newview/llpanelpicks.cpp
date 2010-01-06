@@ -411,6 +411,7 @@ BOOL LLPanelPicks::postBuild()
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar plus_registar;
 	plus_registar.add("Picks.Plus.Action", boost::bind(&LLPanelPicks::onPlusMenuItemClicked, this, _2));
+	mEnableCallbackRegistrar.add("Picks.Plus.Enable", boost::bind(&LLPanelPicks::isActionEnabled, this, _2));
 	mPlusMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_picks_plus.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	
 	return TRUE;
@@ -428,6 +429,18 @@ void LLPanelPicks::onPlusMenuItemClicked(const LLSD& param)
 	{
 		createNewClassified();
 	}
+}
+
+bool LLPanelPicks::isActionEnabled(const LLSD& userdata) const
+{
+	std::string command_name = userdata.asString();
+
+	if (command_name == "new_pick" && LLAgentPicksInfo::getInstance()->isPickLimitReached())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void LLPanelPicks::onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab)
@@ -652,7 +665,6 @@ void LLPanelPicks::updateButtons()
 
 	if (getAvatarId() == gAgentID)
 	{
-		childSetEnabled(XML_BTN_NEW, !LLAgentPicksInfo::getInstance()->isPickLimitReached());
 		childSetEnabled(XML_BTN_DELETE, has_selected);
 	}
 
