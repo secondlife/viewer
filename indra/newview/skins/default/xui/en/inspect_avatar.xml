@@ -65,7 +65,7 @@
     <slider
      follows="top|left"
      height="23"
-     increment="0.05"
+     increment="0.01"
      left="1"
      max_val="0.95"
      min_val="0.05"

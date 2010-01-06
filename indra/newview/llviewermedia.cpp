@@ -987,7 +987,7 @@ void LLViewerMediaImpl::emitEvent(LLPluginClassMedia* plugin, LLViewerMediaObser
 bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 {
 	bool mimeTypeChanged = (mMimeType != mime_type);
-	bool pluginChanged = (LLMIMETypes::implType(mMimeType) != LLMIMETypes::implType(mime_type));
+	bool pluginChanged = (LLMIMETypes::implType(mCurrentMimeType) != LLMIMETypes::implType(mime_type));
 	
 	if(!mMediaSource || pluginChanged)
 	{
@@ -1126,6 +1126,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 
 	// If we got here, we want to ignore previous init failures.
 	mMediaSourceFailed = false;
+
+	// Save the MIME type that really caused the plugin to load
+	mCurrentMimeType = mMimeType;
 
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
@@ -1563,6 +1566,7 @@ void LLViewerMediaImpl::unload()
 	mMediaURL.clear();
 	mMimeType.clear();
 	mCurrentMediaURL.clear();
+	mCurrentMimeType.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2123,7 +2127,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			
 			// TODO: may want a different message for this case?
 			LLSD args;
-			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			args["PLUGIN"] = LLMIMETypes::implType(mCurrentMimeType);
 			LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
 		break;
@@ -2137,7 +2141,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			resetPreviousMediaState();
 
 			LLSD args;
-			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			args["PLUGIN"] = LLMIMETypes::implType(mCurrentMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
 			//LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
