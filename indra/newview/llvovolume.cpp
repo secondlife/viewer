@@ -2689,13 +2689,16 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
 
-		textures.insert(img->getID());
+		if (img)
+		{
+			textures.insert(img->getID());
+		}
 
 		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
 		{
 			alpha++;
 		}
-		else if (img->getPrimaryFormat() == GL_ALPHA)
+		else if (img && img->getPrimaryFormat() == GL_ALPHA)
 		{
 			invisi = 1;
 		}
