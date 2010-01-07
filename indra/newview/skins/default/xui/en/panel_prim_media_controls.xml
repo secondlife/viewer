@@ -14,7 +14,7 @@
   <string name="min_width">300</string>
   <string name="min_height">75</string>
   <string name="zoom_near_padding">1.0</string>
-  <string name="zoom_medium_padding">1.25</string>
+  <string name="zoom_medium_padding">1.1</string>
   <string name="zoom_far_padding">1.5</string>
   <string name="top_world_view_avoid_zone">50</string>
   <layout_stack
