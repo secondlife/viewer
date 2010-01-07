@@ -350,7 +350,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
              -->
                 <button
                  auto_resize="true"
-                 flash_color="Yellow"
+                 flash_color="ChicletFlashColor"
                  follows="right"
                  halign="center"
                  height="23"
@@ -403,7 +403,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                halign="center"
                height="23"
                follows="right"
-               flash_color="Yellow"
+               flash_color="ChicletFlashColor"
                 label_color="Black"
                left="5"
                name="Unread"

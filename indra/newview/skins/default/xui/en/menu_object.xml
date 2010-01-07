@@ -57,6 +57,12 @@
          <menu_item_call.on_enable
           function="Object.EnableInspect" />
    </menu_item_call>
+  <menu_item_call
+       label="Zoom In"
+       name="Zoom In">
+    <menu_item_call.on_click
+     function="Object.ZoomIn" />
+  </menu_item_call>
 <menu_item_separator layout="topleft" />
    <context_menu
          label="Put On &gt;"

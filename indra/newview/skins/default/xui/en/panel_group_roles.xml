@@ -258,7 +258,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          name="static"
          top_pad="5"
          width="300">
-            Assigned Members
+            Assigned Roles
         </text>
         <scroll_list
          draw_stripes="true"

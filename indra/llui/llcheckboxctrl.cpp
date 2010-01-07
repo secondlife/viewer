@@ -107,8 +107,8 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 	{
 		tbparams.font(p.font);
 	}
+	tbparams.text_color( p.enabled() ? p.text_enabled_color() : p.text_disabled_color() );
 	mLabel = LLUICtrlFactory::create<LLTextBox> (tbparams);
-
 	addChild(mLabel);
 
 	// Button

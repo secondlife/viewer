@@ -85,7 +85,7 @@
          parameter="lsl" />
     </menu_item_call>
     <menu_item_call
-     label="New Note"
+     label="New Notecard"
      layout="topleft"
      name="New Note">
         <menu_item_call.on_click
