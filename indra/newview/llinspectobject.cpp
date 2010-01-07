@@ -41,6 +41,7 @@
 #include "llslurl.h"
 #include "llviewermenu.h"		// handle_object_touch(), handle_buy()
 #include "llviewermedia.h"
+#include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"	// to select the requested object
 
 // Linden libraries
@@ -217,6 +218,10 @@ void LLInspectObject::onOpen(const LLSD& data)
 	LLViewerObject* obj = gObjectList.findObject( mObjectID );
 	if (obj)
 	{
+		// Media focus and this code fight over the select manager.  
+		// Make sure any media is unfocused before changing the selection here.
+		LLViewerMediaFocus::getInstance()->clearFocus();
+		
 		LLSelectMgr::instance().deselectAll();
 		mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj);
 

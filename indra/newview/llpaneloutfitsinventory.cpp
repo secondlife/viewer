@@ -84,6 +84,14 @@ BOOL LLPanelOutfitsInventory::postBuild()
 	return TRUE;
 }
 
+// virtual
+void LLPanelOutfitsInventory::onOpen(const LLSD& key)
+{
+	// Make sure we know which tab is selected, update the filter,
+	// and update verbs.
+	onTabChange();
+}
+
 void LLPanelOutfitsInventory::updateVerbs()
 {
 	if (mParent)
@@ -94,6 +102,7 @@ void LLPanelOutfitsInventory::updateVerbs()
 	if (mListCommands)
 	{
 		mListCommands->childSetVisible("look_edit_btn",sShowDebugEditor);
+		updateListCommands();
 	}
 }
 
@@ -176,7 +185,6 @@ void LLPanelOutfitsInventory::onNew()
 
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
-	updateListCommands();
 	updateVerbs();
 	if (getRootFolder()->needsAutoRename() && items.size())
 	{
@@ -264,9 +272,11 @@ void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
 	bool wear_enabled = isActionEnabled("wear");
+	bool make_outfit_enabled = isActionEnabled("make_outfit");
 
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
+	mListCommands->childSetEnabled("make_outfit_btn", make_outfit_enabled);
 }
 
 void LLPanelOutfitsInventory::onGearButtonClick()
@@ -303,6 +313,8 @@ void LLPanelOutfitsInventory::onClipboardAction(const LLSD& userdata)
 {
 	std::string command_name = userdata.asString();
 	getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+	updateListCommands();
+	updateVerbs();
 }
 
 void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
@@ -323,6 +335,7 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 	{
 		onWearButtonClick();
 	}
+	// Note: This option has been removed from the gear menu.
 	if (command_name == "add")
 	{
 		onAdd();
@@ -343,20 +356,22 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 	{
 		onClipboardAction("delete");
 	}
+	updateListCommands();
+	updateVerbs();
 }
 
 BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 {
 	const std::string command_name = userdata.asString();
-	if (command_name == "delete")
+	if (command_name == "delete" || command_name == "remove")
 	{
 		BOOL can_delete = FALSE;
 		LLFolderView *folder = getActivePanel()->getRootFolder();
 		if (folder)
 		{
-			can_delete = TRUE;
 			std::set<LLUUID> selection_set;
 			folder->getSelectionList(selection_set);
+			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
@@ -375,9 +390,9 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		LLFolderView *folder = getActivePanel()->getRootFolder();
 		if (folder)
 		{
-			can_delete = TRUE;
 			std::set<LLUUID> selection_set;
 			folder->getSelectionList(selection_set);
+			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
@@ -391,15 +406,42 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
+	if (command_name == "rename" ||
+		command_name == "delete_outfit")
+	{
+		return (getCorrectListenerForAction() != NULL) && hasItemsSelected();
+	}
+	
+	if (command_name == "wear" ||
+		command_name == "make_outfit")
+	{
+		const BOOL is_my_outfits = (mActivePanel->getName() == "outfitslist_accordionpanel");
+		if (!is_my_outfits)
+		{
+			return FALSE;
+		}
+	}
+   
 	if (command_name == "edit" || 
-		command_name == "wear" ||
-		command_name == "add" ||
-		command_name == "remove"
+		command_name == "add"
 		)
 	{
 		return (getCorrectListenerForAction() != NULL);
 	}
 	return TRUE;
+}
+
+bool LLPanelOutfitsInventory::hasItemsSelected()
+{
+	bool has_items_selected = false;
+	LLFolderView *folder = getActivePanel()->getRootFolder();
+	if (folder)
+	{
+		std::set<LLUUID> selection_set;
+		folder->getSelectionList(selection_set);
+		has_items_selected = (selection_set.size() > 0);
+	}
+	return has_items_selected;
 }
 
 bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
@@ -425,17 +467,17 @@ bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropTy
 void LLPanelOutfitsInventory::initTabPanels()
 {
 	mTabPanels.resize(2);
+
+	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>("cof_accordionpanel");
+	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	mTabPanels[0] = cof_panel;
 	
 	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>("outfitslist_accordionpanel");
 	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, LLInventoryFilter::FILTERTYPE_CATEGORY);
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mTabPanels[0] = myoutfits_panel;
-	mActivePanel = myoutfits_panel;
+	mTabPanels[1] = myoutfits_panel;
 
-
-	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>("cof_accordionpanel");
-	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mTabPanels[1] = cof_panel;
+	mActivePanel = mTabPanels[0];
 
 	for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
 		 iter != mTabPanels.end();
@@ -479,9 +521,7 @@ void LLPanelOutfitsInventory::onTabChange()
 		return;
 	}
 	mActivePanel->setFilterSubString(mFilterSubString);
-
-	bool is_my_outfits = (mActivePanel->getName() == "outfitslist_accordionpanel");
-	mListCommands->childSetEnabled("make_outfit_btn", is_my_outfits);
+	updateVerbs();
 }
 
 LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()

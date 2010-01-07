@@ -4445,7 +4445,7 @@ void LLVoiceClient::participantUpdatedEvent(
 			participant->mVolume = volume;
 
 			
-			// *HACH: mantipov: added while working on EXT-3544
+			// *HACK: mantipov: added while working on EXT-3544
 			/*
 			Sometimes LLVoiceClient::participantUpdatedEvent callback is called BEFORE 
 			LLViewerChatterBoxSessionAgentListUpdates::post() sometimes AFTER.
@@ -4462,7 +4462,9 @@ void LLVoiceClient::participantUpdatedEvent(
 			in LLCallFloater::draw()
 			*/
 			LLVoiceChannel* voice_cnl = LLVoiceChannel::getCurrentVoiceChannel();
-			if (voice_cnl)
+
+			// ignore session ID of local chat
+			if (voice_cnl && voice_cnl->getSessionID().notNull())
 			{
 				LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(voice_cnl->getSessionID());
 				if (speaker_manager)
@@ -5883,6 +5885,10 @@ void LLVoiceClient::setPTTIsToggle(bool PTTIsToggle)
 	mPTTIsToggle = PTTIsToggle;
 }
 
+bool LLVoiceClient::getPTTIsToggle()
+{
+	return mPTTIsToggle;
+}
 
 void LLVoiceClient::setPTTKey(std::string &key)
 {

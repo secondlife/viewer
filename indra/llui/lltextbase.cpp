@@ -2509,10 +2509,15 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	// set max characters to length of segment, or to first newline
 	max_chars = llmin(max_chars, last_char - (mStart + segment_offset));
 
+	// if no character yet displayed on this line, don't require word wrapping since
+	// we can just move to the next line, otherwise insist on it so we make forward progress
+	LLFontGL::EWordWrapStyle word_wrap_style = (line_offset == 0) 
+		? LLFontGL::WORD_BOUNDARY_IF_POSSIBLE 
+		: LLFontGL::ONLY_WORD_BOUNDARIES;
 	S32 num_chars = mStyle->getFont()->maxDrawableChars(text.c_str() + segment_offset + mStart, 
 												(F32)num_pixels,
 												max_chars, 
-												TRUE);
+												word_wrap_style);
 
 	if (num_chars == 0 
 		&& line_offset == 0 

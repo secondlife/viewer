@@ -182,12 +182,12 @@ void LLDockControl::moveDockable()
 	LLRect rootRect;
 	mGetAllowedRectCallback(rootRect);
 
-	bool unique_docking = false;
+	bool use_tongue = false;
 	LLDockableFloater* dockable_floater =
 			dynamic_cast<LLDockableFloater*> (mDockableFloater);
 	if (dockable_floater != NULL)
 	{
-		unique_docking = dockable_floater->getUniqueDocking();
+		use_tongue = dockable_floater->getUseTongue();
 	}
 
 	LLRect dockableRect = mDockableFloater->calcScreenRect();
@@ -218,7 +218,7 @@ void LLDockControl::moveDockable()
 		x = dockRect.getCenterX() - dockableRect.getWidth() / 2;
 		y = dockRect.mTop + dockableRect.getHeight();
 		// unique docking used with dock tongue, so add tongue height o the Y coordinate
-		if (unique_docking)
+		if (use_tongue)
 		{
 			y += mDockTongue->getHeight();
 		}
@@ -287,15 +287,15 @@ void LLDockControl::forceRecalculatePosition()
 
 void LLDockControl::drawToungue()
 {
-	bool unique_docking = false;
+	bool use_tongue = false;
 	LLDockableFloater* dockable_floater =
 			dynamic_cast<LLDockableFloater*> (mDockableFloater);
 	if (dockable_floater != NULL)
 	{
-		unique_docking = dockable_floater->getUniqueDocking();
+		use_tongue = dockable_floater->getUseTongue();
 	}
 
-	if (mEnabled && unique_docking)
+	if (mEnabled && use_tongue)
 	{
 		mDockTongue->draw(mDockTongueX, mDockTongueY);
 	}

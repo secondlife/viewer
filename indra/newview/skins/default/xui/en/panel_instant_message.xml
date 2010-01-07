@@ -21,6 +21,7 @@
      label="im_header"
      layout="topleft"
      left="5"
+     mouse_opaque="false"
      name="im_header"
      top="5"
      width="295">
@@ -30,7 +31,7 @@
          image_name="Generic_Person"
          layout="topleft"
          left="3"
-         mouse_opaque="true"
+         mouse_opaque="false"
          name="avatar_icon"
          top="3"
          width="18" />

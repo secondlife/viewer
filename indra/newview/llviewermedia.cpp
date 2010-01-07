@@ -170,12 +170,15 @@ public:
 		//     accept this and go past it in the MIME type probe
 		// 302 means the resource can be found temporarily in a different place - added this for join.secondlife.com
 		// 499 is a code specifc to join.secondlife.com (????) apparently safe to ignore
-		if(	((status >= 200) && (status < 300))	||
-			((status >= 400) && (status < 499))	|| 
-			(status == 500) ||
-			(status == 302) ||
-			(status == 499) 
-			)
+//		if(	((status >= 200) && (status < 300))	||
+//			((status >= 400) && (status < 499))	|| 
+//			(status == 500) ||
+//			(status == 302) ||
+//			(status == 499) 
+//			)
+		// We now no longer check the error code returned from the probe.
+		// If we have a mime type, use it.  If not, default to the web plugin and let it handle error reporting.
+		if(1)
 		{
 			// The probe was successful.
 			if(mime_type.empty())
@@ -987,7 +990,7 @@ void LLViewerMediaImpl::emitEvent(LLPluginClassMedia* plugin, LLViewerMediaObser
 bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 {
 	bool mimeTypeChanged = (mMimeType != mime_type);
-	bool pluginChanged = (LLMIMETypes::implType(mMimeType) != LLMIMETypes::implType(mime_type));
+	bool pluginChanged = (LLMIMETypes::implType(mCurrentMimeType) != LLMIMETypes::implType(mime_type));
 	
 	if(!mMediaSource || pluginChanged)
 	{
@@ -1126,6 +1129,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 
 	// If we got here, we want to ignore previous init failures.
 	mMediaSourceFailed = false;
+
+	// Save the MIME type that really caused the plugin to load
+	mCurrentMimeType = mMimeType;
 
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
@@ -1563,6 +1569,7 @@ void LLViewerMediaImpl::unload()
 	mMediaURL.clear();
 	mMimeType.clear();
 	mCurrentMediaURL.clear();
+	mCurrentMimeType.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2123,7 +2130,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			
 			// TODO: may want a different message for this case?
 			LLSD args;
-			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			args["PLUGIN"] = LLMIMETypes::implType(mCurrentMimeType);
 			LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
 		break;
@@ -2137,7 +2144,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			resetPreviousMediaState();
 
 			LLSD args;
-			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			args["PLUGIN"] = LLMIMETypes::implType(mCurrentMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
 			//LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
@@ -2537,76 +2544,3 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 	}
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static
-void LLViewerMedia::toggleMusicPlay(void*)
-{
-// FIXME: This probably doesn't belong here
-#if 0
-	if (mMusicState != PLAYING)
-	{
-		mMusicState = PLAYING; // desired state
-		if (gAudiop)
-		{
-			LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-			if ( parcel )
-			{
-				gAudiop->startInternetStream(parcel->getMusicURL());
-			}
-		}
-	}
-	else
-	{
-		mMusicState = STOPPED; // desired state
-		if (gAudiop)
-		{
-			gAudiop->stopInternetStream();
-		}
-	}
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static
-void LLViewerMedia::toggleMediaPlay(void*)
-{
-// FIXME: This probably doesn't belong here
-#if 0
-	if (LLViewerMedia::isMediaPaused())
-	{
-		LLViewerParcelMedia::start();
-	}
-	else if(LLViewerMedia::isMediaPlaying())
-	{
-		LLViewerParcelMedia::pause();
-	}
-	else
-	{
-		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-		if (parcel)
-		{
-			LLViewerParcelMedia::play(parcel);
-		}
-	}
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static
-void LLViewerMedia::mediaStop(void*)
-{
-// FIXME: This probably doesn't belong here
-#if 0
-	LLViewerParcelMedia::stop();
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static 
-bool LLViewerMedia::isMusicPlaying()
-{	
-// FIXME: This probably doesn't belong here
-// FIXME: make this work
-	return false;	
-}

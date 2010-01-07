@@ -1143,37 +1143,41 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 	if (!branch)
 		return LLMenuItemGL::handleKeyHere(key, mask);
 
-	if (getMenu()->getVisible() && branch->getVisible() && key == KEY_LEFT)
+	// an item is highlighted, my menu is open, and I have an active sub menu or we are in
+	// keyboard navigation mode
+	if (getHighlight() 
+		&& getMenu()->isOpen() 
+		&& (isActive() || LLMenuGL::getKeyboardMode()))
 	{
-		// switch to keyboard navigation mode
-		LLMenuGL::setKeyboardMode(TRUE);
+		if (branch->getVisible() && key == KEY_LEFT)
+		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
 
-		BOOL handled = branch->clearHoverItem();
-		if (branch->getTornOff())
-		{
-			((LLFloater*)branch->getParent())->setFocus(FALSE);
+			BOOL handled = branch->clearHoverItem();
+			if (branch->getTornOff())
+			{
+				((LLFloater*)branch->getParent())->setFocus(FALSE);
+			}
+			if (handled && getMenu()->getTornOff())
+			{
+				((LLFloater*)getMenu()->getParent())->setFocus(TRUE);
+			}
+			return handled;
 		}
-		if (handled && getMenu()->getTornOff())
+
+		if (key == KEY_RIGHT && !branch->getHighlightedItem())
 		{
-			((LLFloater*)getMenu()->getParent())->setFocus(TRUE);
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
+			LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
+			if (itemp)
+			{
+				return TRUE;
+			}
 		}
-		return handled;
 	}
-
-	if (getHighlight() && 
-		getMenu()->isOpen() && 
-		key == KEY_RIGHT && !branch->getHighlightedItem())
-	{
-		// switch to keyboard navigation mode
-		LLMenuGL::setKeyboardMode(TRUE);
-
-		LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
-		if (itemp)
-		{
-			return TRUE;
-		}
-	}
-
 	return LLMenuItemGL::handleKeyHere(key, mask);
 }
 
@@ -1431,7 +1435,7 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL menu_open = getBranch()->getVisible();
 	// don't do keyboard navigation of top-level menus unless in keyboard mode, or menu expanded
-	if (getHighlight() && getMenu()->getVisible() && (isActive() || LLMenuGL::getKeyboardMode()))
+	if (getHighlight() && getMenu()->isOpen() && (isActive() || LLMenuGL::getKeyboardMode()))
 	{
 		if (key == KEY_LEFT)
 		{
@@ -2835,6 +2839,7 @@ BOOL LLMenuGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
 
 	return TRUE;
 }
+
 
 void LLMenuGL::draw( void )
 {

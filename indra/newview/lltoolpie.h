@@ -71,9 +71,6 @@ public:
 	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }
 	void 				resetSelection();
 	
-	static void			leftMouseCallback(const LLPickInfo& pick_info);
-	static void			rightMouseCallback(const LLPickInfo& pick_info);
-
 	static void			selectionPropertiesReceived();
 
 	static void			showAvatarInspector(const LLUUID& avatar_id);
