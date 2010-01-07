@@ -61,24 +61,19 @@ protected:
 	std::string mFileName;
 };
 
-class LLImportCollada;
+
 // TODO*: Remove this once deprecated
 class LLNewAgentInventoryResponder : public LLAssetUploadResponder
 {
 public:
-	LLImportCollada* mImport;
-
 	LLNewAgentInventoryResponder(
 		const LLSD& post_data,
 		const LLUUID& vfile_id,
-		LLAssetType::EType asset_type,
-		LLImportCollada* import);
-
+		LLAssetType::EType asset_type);
 	LLNewAgentInventoryResponder(
 		const LLSD& post_data,
 		const std::string& file_name,
-		LLAssetType::EType asset_type,
-		LLImportCollada* import);
+		LLAssetType::EType asset_type);
     virtual void error(U32 statusNum, const std::string& reason);
 	virtual void uploadComplete(const LLSD& content);
 	virtual void uploadFailure(const LLSD& content);
