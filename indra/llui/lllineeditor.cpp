@@ -1583,7 +1583,6 @@ void LLLineEditor::draw()
 	F32 alpha = getDrawContext().mAlpha;
 	S32 text_len = mText.length();
 	static LLUICachedControl<S32> lineeditor_cursor_thickness ("UILineEditorCursorThickness", 0);
-	static LLUICachedControl<S32> lineeditor_v_pad ("UILineEditorVPad", 0);
 	static LLUICachedControl<F32> preedit_marker_brightness ("UIPreeditMarkerBrightness", 0);
 	static LLUICachedControl<S32> preedit_marker_gap ("UIPreeditMarkerGap", 0);
 	static LLUICachedControl<S32> preedit_marker_position ("UIPreeditMarkerPosition", 0);
@@ -1608,6 +1607,8 @@ void LLLineEditor::draw()
 	// draw rectangle for the background
 	LLRect background( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	background.stretch( -mBorderThickness );
+
+	S32 lineeditor_v_pad = llceil((background.getHeight() - mGLFont->getLineHeight())/2);
 
 	drawBackground();
 	
