@@ -167,7 +167,7 @@ public:
 	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
 
 protected:
-	void defaultOpenInventory(); // open the first level of inventory
+	void openStartFolderOrMyInventory(); // open the first level of inventory
 
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;

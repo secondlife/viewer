@@ -604,8 +604,9 @@ with the same filename but different name
   <texture name="TrashItem_Off" file_name="icons/TrashItem_Off.png" preload="false" />
   <texture name="TrashItem_Press" file_name="icons/TrashItem_Press.png" preload="false" />
 
-  <texture name="Unread_IM" file_name="bottomtray/Unread_IM.png" preload="false" />
+  <texture name="Unread_Chiclet" file_name="bottomtray/Unread_Chiclet.png" preload="false" />
   <texture name="Unread_Msg" file_name="bottomtray/Unread_Msg.png" preload="false" />
+  <texture name="Unread_IM" file_name="bottomtray/Unread_IM.png" preload="false" />
 
   <texture name="WellButton_Lit" file_name="bottomtray/WellButton_Lit.png"  preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="WellButton_Lit_Selected" file_name="bottomtray/WellButton_Lit_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />

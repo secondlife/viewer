@@ -123,6 +123,12 @@
    layout="topleft"
    tool_tip="checkbox"
    name="test_checkbox" />
+  <check_box
+   top_pad="5"
+   enabled="false" 
+   label="Checkbox Disabled"
+   tool_tip="checkbox disabled"
+   name="test_checkbox_disabled" />
   <!-- "combo_box" is a pop-menu of items.  Optionally the box itself can
        contain a general purpose line input editor, allowing the user to
        provide input that is not a list item. -->

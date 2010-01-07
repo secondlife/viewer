@@ -433,11 +433,10 @@ void LLInventoryPanel::initializeViews()
 	{
 		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
 	}
-	llinfos << this << " Generating views for start folder " << mStartFolderString << llendl;
 	rebuildViewsFor(mStartFolderID);
 
 	mViewsInitialized = true;
-	defaultOpenInventory();
+	openStartFolderOrMyInventory();
 }
 
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
@@ -575,7 +574,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 }
 
 // bit of a hack to make sure the inventory is open.
-void LLInventoryPanel::defaultOpenInventory()
+void LLInventoryPanel::openStartFolderOrMyInventory()
 {
 	if (mStartFolderString != "")
 	{
@@ -583,13 +582,17 @@ void LLInventoryPanel::defaultOpenInventory()
 	}
 	else
 	{
-		// Get the first child (it should be "My Inventory") and
-		// open it up by name (just to make sure the first child is actually a folder).
-		LLView* first_child = mFolders->getFirstChild();
-		if (first_child)
+		// Find My Inventory folder and open it up by name
+		for (LLView *child = mFolders->getFirstChild(); child; child = mFolders->findNextSibling(child))
 		{
-			const std::string& first_child_name = first_child->getName();
-			mFolders->openFolder(first_child_name);
+			LLFolderViewFolder *fchild = dynamic_cast<LLFolderViewFolder*>(child);
+			if (fchild && fchild->getListener() &&
+				(fchild->getListener()->getUUID() == gInventory.getRootFolderID()))
+			{
+				const std::string& child_name = child->getName();
+				mFolders->openFolder(child_name);
+				break;
+			}
 		}
 	}
 }

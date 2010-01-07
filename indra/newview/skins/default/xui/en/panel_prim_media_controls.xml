@@ -14,7 +14,7 @@
   <string name="min_width">300</string>
   <string name="min_height">75</string>
   <string name="zoom_near_padding">1.0</string>
-  <string name="zoom_medium_padding">1.25</string>
+  <string name="zoom_medium_padding">1.1</string>
   <string name="zoom_far_padding">1.5</string>
   <string name="top_world_view_avoid_zone">50</string>
   <layout_stack
@@ -113,6 +113,7 @@
 	</layout_panel>
 	<layout_panel
 		name="fwd"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -140,6 +141,7 @@
 	</layout_panel>
 	<layout_panel
 		name="home"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -167,6 +169,7 @@
 	</layout_panel>
 	<layout_panel
 		name="media_stop"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -194,6 +197,7 @@
 	</layout_panel>
 	<layout_panel
 		name="reload"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -221,6 +225,7 @@
 	</layout_panel>
 	<layout_panel
 		name="stop"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -248,6 +253,7 @@
 	</layout_panel>
 	<layout_panel
 		name="play"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -276,6 +282,7 @@
 	</layout_panel>
 	<layout_panel
 		name="pause"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -303,6 +310,7 @@
 	<!-- media URL entry  -->
 	<layout_panel
 		name="media_address"
+		mouse_opaque="false"
 		auto_resize="true"
 		user_resize="false"
 		height="24"
@@ -367,6 +375,7 @@
 	</layout_panel>
 	<layout_panel
 		name="media_play_position"
+		mouse_opaque="false"
 		auto_resize="true"
 		user_resize="false"
 		follows="left|right"
@@ -392,6 +401,7 @@
 	</layout_panel>
 	<layout_panel
 		name="skip_back"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -419,6 +429,7 @@
 	</layout_panel>
 	<layout_panel
 		name="skip_forward"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -445,6 +456,7 @@
 	</layout_panel>
 	<layout_panel
 		name="media_volume"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -501,6 +513,7 @@
 	</layout_panel>
 	<layout_panel
 		name="zoom_frame"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -528,6 +541,7 @@
 	</layout_panel>
 	<layout_panel
 		name="close"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -554,6 +568,7 @@
 	</layout_panel>
 	<layout_panel
 		name="new_window"
+		mouse_opaque="false"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
@@ -581,6 +596,7 @@
 	<!-- bookend panel -->
 	<layout_panel
 		name="right_bookend"
+		mouse_opaque="false"
 		top="0"
 		width="0"
 		layout="topleft"

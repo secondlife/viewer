@@ -723,14 +723,30 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 		LLDynamicArray<LLFoundData*> found_container;
 		for(S32 i = 0; i  < wear_items.count(); ++i)
 		{
-			found = new LLFoundData(wear_items.get(i)->getLinkedUUID(), // Wear the base item, not the link
-									wear_items.get(i)->getAssetUUID(),
-									wear_items.get(i)->getName(),
-									wear_items.get(i)->getType());
-			holder->mFoundList.push_front(found);
-			found_container.put(found);
+			LLViewerInventoryItem *item = wear_items.get(i);
+			LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+			if (item && linked_item)
+			{
+				found = new LLFoundData(linked_item->getUUID(),
+										linked_item->getAssetUUID(),
+										linked_item->getName(),
+										linked_item->getType());
+				holder->mFoundList.push_front(found);
+				found_container.put(found);
+			}
+			else
+			{
+				if (!item)
+				{
+					llwarns << "attempt to wear a null item " << llendl;
+				}
+				else if (!linked_item)
+				{
+					llwarns << "attempt to wear a broken link " << item->getName() << llendl;
+				}
+			}
 		}
-		for(S32 i = 0; i < wear_items.count(); ++i)
+		for(S32 i = 0; i < found_container.count(); ++i)
 		{
 			holder->append = false;
 			found = found_container.get(i);

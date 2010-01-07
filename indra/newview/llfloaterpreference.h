@@ -132,6 +132,7 @@ public:
 //	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
 	void onCommitAutoDetectAspect();
+	void onCommitParcelMediaAutoPlayEnable();
 	void applyResolution();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);	

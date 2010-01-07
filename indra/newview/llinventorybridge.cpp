@@ -2614,6 +2614,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			{
 				mItems.push_back(std::string("Rename"));
 				mItems.push_back(std::string("Delete"));
+
+				// EXT-4030: disallow deletion of currently worn outfit
+				const LLViewerInventoryItem *base_outfit_link = LLAppearanceManager::instance().getBaseOutfitLink();
+				if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
+				{
+					mDisabledItems.push_back(std::string("Delete"));
+				}
 			}
 		}
 

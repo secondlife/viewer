@@ -85,7 +85,10 @@
      left="30"
      name="autoplay_enabled"
      top_pad="10"
-     width="350" />
+     width="350">
+       <check_box.commit_callback
+          function="Pref.ParcelMediaAutoPlayEnable" />
+    </check_box>
    <text
       type="string"
     length="1"

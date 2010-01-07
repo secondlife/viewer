@@ -43,7 +43,7 @@
 		 parameter="rename" />
     </menu_item_call>
     <menu_item_call
-     label="Remove"
+     label="Remove Link"
      layout="topleft"
      name="remove_link">
         <on_click
@@ -54,7 +54,7 @@
 		 parameter="remove_link" />
     </menu_item_call>
     <menu_item_call
-     label="Delete"
+     label="Delete Outfit"
      layout="topleft"
      name="delete">
         <on_click
@@ -62,6 +62,6 @@
          parameter="delete" />
         <on_enable
 		 function="panel_outfits_inventory_gear_default.Enable"
-		 parameter="delete" />
+		 parameter="delete_outfit" />
     </menu_item_call>
 </menu>
