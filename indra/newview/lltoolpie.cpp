@@ -735,6 +735,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
+				p.delay_time(0.35f);
 				p.wrap(false);
 				
 				LLToolTipMgr::instance().show(p);
@@ -830,6 +831,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 					p.visible_time_near(6.f);
 					p.visible_time_far(3.f);
+					p.delay_time(0.35f);
 					p.wrap(false);
 					
 					LLToolTipMgr::instance().show(p);
