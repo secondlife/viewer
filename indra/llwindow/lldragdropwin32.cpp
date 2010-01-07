@@ -189,7 +189,7 @@ class LLDragDropWin32Target:
 					MASK mask = gKeyboard->currentMask(TRUE);
 
 					LLWindowCallbacks::DragNDropResult result = window_imp->completeDragNDropRequest( gl_coord, mask, 
-						LLWindowCallbacks::DNDA_TRACK, std::string( "" ) );
+						LLWindowCallbacks::DNDA_TRACK, mDropUrl );
 					
 					switch (result)
 					{

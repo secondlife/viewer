@@ -835,6 +835,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 			// Much of the handling for these two cases is the same.
 			case LLWindowCallbacks::DNDA_TRACK:
 			case LLWindowCallbacks::DNDA_DROPPED:
+			case LLWindowCallbacks::DNDA_START_TRACKING:
 			{
 				bool drop = (LLWindowCallbacks::DNDA_DROPPED == action);
 					
@@ -923,10 +924,6 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					}
 				}
 			}
-			break;
-			
-			case LLWindowCallbacks::DNDA_START_TRACKING:
-				// No special handling here yet -- we'll actually start tracking on the first DNDA_TRACK event.
 			break;
 			
 			case LLWindowCallbacks::DNDA_STOP_TRACKING:
