@@ -80,7 +80,7 @@ LLKeyboardWin32::LLKeyboardWin32()
 	mTranslateKeyMap[VK_OEM_COMMA]  = ',';
 	mTranslateKeyMap[VK_OEM_MINUS]  = '-';
 	mTranslateKeyMap[VK_OEM_PERIOD] = '.';
-	mTranslateKeyMap[VK_OEM_2] = KEY_PAD_DIVIDE;
+	mTranslateKeyMap[VK_OEM_2] = '/';//This used to be KEY_PAD_DIVIDE, but that breaks typing into text fields in media prims
 	mTranslateKeyMap[VK_OEM_3] = '`';
 	mTranslateKeyMap[VK_OEM_4] = '[';
 	mTranslateKeyMap[VK_OEM_5] = '\\';
