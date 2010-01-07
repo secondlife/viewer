@@ -62,6 +62,7 @@ public:
 	virtual PermissionMask getPermissionMask() const = 0;
 	virtual LLFolderType::EType getPreferredType() const = 0;
 	virtual LLPointer<LLUIImage> getIcon() const = 0;
+	virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
 	virtual std::string getLabelSuffix() const = 0;
 	virtual void openItem( void ) = 0;

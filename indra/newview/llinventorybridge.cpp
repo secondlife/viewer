@@ -2228,7 +2228,20 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
 	// we only have one folder image now
+	if (preferred_type == LLFolderType::FT_OUTFIT)
+	{
+		return LLUI::getUIImage("Inv_LookFolderClosed");
+	}
 	return LLUI::getUIImage("Inv_FolderClosed");
+}
+
+LLUIImagePtr LLFolderBridge::getOpenIcon() const
+{
+	if (getPreferredType() == LLFolderType::FT_OUTFIT)
+	{
+		return LLUI::getUIImage("Inv_LookFolderOpen");
+	}
+	return LLUI::getUIImage("Inv_FolderOpen");
 }
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
