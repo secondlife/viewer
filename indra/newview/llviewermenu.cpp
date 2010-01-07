@@ -437,19 +437,7 @@ void init_menus()
 	gMenuBarView->setBackgroundColor( color );
 
 	gMenuHolder->addChild(gMenuBarView);
-	
-	// menu holder appears on top of menu bar so you can see the menu title
-	// flash when an item is triggered (the flash occurs in the holder)
-	gViewerWindow->getRootView()->addChild(gMenuHolder);
-
-	// This removes tool tip view from main view and adds it
-	// to root view in front of menu holder.
-	// Otherwise tool tips for menu items would be overlapped by menu, since
-	// main view is behind of menu holder now.
-	gViewerWindow->getRootView()->addChild(gToolTipView);
-	
-	gViewerWindow->getRootView()->addChild(gSnapshotFloaterView);
-   
+  
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());
 
