@@ -2074,7 +2074,12 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 {
 	if ("open" == action)
 	{
-		openItem();
+		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder *>(folder->getItemByID(mUUID));
+		if (f)
+		{
+			f->setOpen(TRUE);
+		}
+		
 		return;
 	}
 	else if ("paste" == action)
