@@ -59,8 +59,7 @@ width="333">
       name="currentlook_name">
       MyOutfit With a really Long Name like MOOSE
       </text>
-      <!--MERGING PERSON! TAKE THIS BIT BELOW FROM THE AVATAR BRANCH! TY -ERICA -->
-  <!--     <text
+      <text
       font="SansSerifSmall"
       text_color="White_50"
       width="300"
@@ -70,8 +69,8 @@ width="333">
       top_pad="5"
       mouse_opaque="false"
       name="currentlook_title" >
-      (current outfit) OR (unsaved)
-       </text>-->
+      (unsaved)
+       </text>
    </panel>
    <filter_editor
    height="23"

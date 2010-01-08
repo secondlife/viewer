@@ -2274,6 +2274,8 @@ void LLInitialWearablesFetch::processContents()
 	}
 	else
 	{
+		// if we're constructing the COF from the wearables message, we don't have a proper outfit link
+		LLAppearanceManager::instance().setOutfitDirty(true);
 		processWearablesMessage();
 	}
 	delete this;
