@@ -520,7 +520,10 @@ void LLInspectAvatar::updateVolumeSlider()
 	bool voice_enabled = gVoiceClient->getVoiceEnabled(mAvatarID);
 
 	LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
-	mute_btn->setEnabled( voice_enabled );
+
+	bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+
+	mute_btn->setEnabled( voice_enabled && !is_linden);
 	mute_btn->setValue( is_muted );
 
 	LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
