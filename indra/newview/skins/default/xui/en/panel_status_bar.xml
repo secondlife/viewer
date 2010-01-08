@@ -3,7 +3,7 @@
  background_opaque="true"
  background_visible="true"
  bg_opaque_color="MouseGray"
- follows="all"
+ follows="top|right"
  height="19"
  layout="topleft"
  left="0"
@@ -44,15 +44,17 @@
      halign="right"
      follows="right|top"
      image_selected="BuyArrow_Over"
-     image_unselected="BuyArrow_Off"
+     image_unselected="BuyArrow_Over"
      image_pressed="BuyArrow_Press"
      height="16"
-     right="-120"
+     right="-128"
+     label_color="White"
+     label_shadow="false"
      name="buycurrency"
      pad_right="20px"
      tool_tip="My Balance: Click to buy more L$"
-     top="0"
-     width="90" />
+     top="3"
+     width="100" />
     <text
      type="string"
      font="SansSerifSmall"
@@ -62,25 +64,25 @@
      height="16"
      top="4"
      layout="topleft"
-     left_pad="-7"
+     left_pad="0"
      name="TimeText"
      text_color="TimeTextColor"
      tool_tip="Current time (Pacific)"
-     width="80">
+     width="85">
         12:00 AM
     </text>
     <button
      follows="right|bottom"
      height="16"
-     image_selected="Parcel_VoiceNo_Dark"
-     image_unselected="Parcel_Voice_Dark"
+     image_selected="AudioMute_Off"
+     image_pressed="Audio_Press"
+     image_unselected="Audio_Off"
      is_toggle="true"
      left_pad="18"
      top="1"
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />
-
     <text
      enabled="true"
      follows="right|bottom"
