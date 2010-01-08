@@ -71,7 +71,7 @@ with the same filename but different name
   <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
 
   <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
-  
+
   <texture name="BackArrow_Disabled" file_name="icons/BackArrow_Disabled.png" preload="false" />
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
@@ -222,7 +222,8 @@ with the same filename but different name
   <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false"
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
-
+  <texture name="Inspector_I" file_name="windows/Inspector_I.png" preload="false" />
+  
   <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
   <texture name="Inv_Alpha" file_name="icons/Inv_Alpha.png" preload="false" />
   <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
@@ -305,8 +306,8 @@ with the same filename but different name
   <texture name="Movement_Up_Off" file_name="bottomtray/Movement_Up_Off.png" preload="false" />
   <texture name="Movement_Up_On" file_name="bottomtray/Movement_Up_On.png" preload="false" />
 
-  <texture name="NavBar_BG_NoFav" file_name="navbar/NavBar_BG_NoFav.png" preload="false" />
-  <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="false" />
+  <texture name="NavBar_BG_NoFav" file_name="navbar/NavBar_BG_NoFav.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
+  <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
 
   <texture name="NearbyVoice_Lvl1" file_name="bottomtray/NearbyVoice_Lvl1.png" preload="false" />
   <texture name="NearbyVoice_Lvl2" file_name="bottomtray/NearbyVoice_Lvl2.png" preload="false" />
@@ -351,7 +352,7 @@ with the same filename but different name
 
  <texture name="Parcel_Build_Dark" file_name="icons/Parcel_Build_Dark.png" preload="false" />
  <texture name="Parcel_BuildNo_Dark" file_name="icons/Parcel_BuildNo_Dark.png" preload="false" />
- <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Damage_Dark.png" preload="false" />
+ <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Health_Dark.png" preload="false" />
  <texture name="Parcel_DamageNo_Dark" file_name="icons/Parcel_DamageNo_Dark.png" preload="false" />
  <texture name="Parcel_Evry_Dark" file_name="icons/Parcel_Evry_Dark.png" preload="false" />
  <texture name="Parcel_Exp_Dark" file_name="icons/Parcel_Exp_Dark.png" preload="false" />
@@ -552,9 +553,9 @@ with the same filename but different name
   <texture name="TabTop_Divider" file_name="containers/TabTop_Divider.png" preload="false" />
   <texture name="TabTop_Left_Press" file_name="containers/TabTop_Left_Press.png" preload="false" />
   <texture name="TabTop_Middle_Press" file_name="containers/TabTop_Middle_Press.png" preload="false" />
-  <texture name="TabTop_Right_Off" file_name="containers/TabTop_Right_Off.png" preload="false" />
+  <texture name="TabTop_Right_Off" file_name="containers/TabTop_Right_Off.png" preload="false"  scale.left="8" scale.top="8" scale.right="62" scale.bottom="9" />
   <texture name="TabTop_Right_Press" file_name="containers/TabTop_Right_Press.png" preload="false" />
-  <texture name="TabTop_Right_Selected" file_name="containers/TabTop_Right_Selected.png" preload="false" />
+  <texture name="TabTop_Right_Selected" file_name="containers/TabTop_Right_Selected.png" preload="false"  scale.left="8" scale.top="8" scale.right="62" scale.bottom="9" />
   <texture name="TabTop_Middle_Off" file_name="containers/TabTop_Middle_Off.png" preload="false" scale.left="8" scale.top="8" scale.right="120" scale.bottom="9" />
   <texture name="TabTop_Middle_Selected" file_name="containers/TabTop_Middle_Selected.png" preload="false" scale.left="8" scale.top="8" scale.right="96" scale.bottom="9" />
   <texture name="TabTop_Left_Off" file_name="containers/TabTop_Left_Off.png" preload="false" scale.left="8" scale.top="8" scale.right="120" scale.bottom="9" />
@@ -573,7 +574,6 @@ with the same filename but different name
   <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="TimeBasedMediaBackground" file_name="windows/TimeBasedMediaBackground.png" preload="false" />
-
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
   <texture name="Toast_Background" file_name="windows/Toast_Background.png" preload="true"

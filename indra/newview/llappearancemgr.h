@@ -96,6 +96,16 @@ public:
 	// Add COF link to ensemble folder.
 	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
 
+	//has the current outfit changed since it was loaded?
+	bool isOutfitDirty() { return mOutfitIsDirty; }
+
+	// set false if you just loaded the outfit, true otherwise
+	void setOutfitDirty(bool isDirty) { mOutfitIsDirty = isDirty; }
+	
+	// manually compare ouftit folder link to COF to see if outfit has changed.
+	// should only be necessary to do on initial login.
+	void updateIsDirty();
+
 protected:
 	LLAppearanceManager();
 	~LLAppearanceManager();
@@ -120,6 +130,7 @@ private:
 
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
+	bool mOutfitIsDirty;
 };
 
 #define SUPPORT_ENSEMBLES 0

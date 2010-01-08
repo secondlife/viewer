@@ -2184,7 +2184,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONUP");
 				LLFastTimer t2(FTM_MOUSEHANDLER);
-				// Because we move the cursor position in tllviewerhe app, we need to query
+				// Because we move the cursor position in the llviewer app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
@@ -2214,7 +2214,27 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEWHEEL");
 				static short z_delta = 0;
 
-				z_delta += HIWORD(w_param);
+				RECT	client_rect;
+
+				// eat scroll events that occur outside our window, since we use mouse position to direct scroll
+				// instead of keyboard focus
+				// NOTE: mouse_coord is in *window* coordinates for scroll events
+				POINT mouse_coord = {(S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param)};
+
+				if (ScreenToClient(window_imp->mWindowHandle, &mouse_coord)
+					&& GetClientRect(window_imp->mWindowHandle, &client_rect))
+				{
+					// we have a valid mouse point and client rect
+					if (mouse_coord.x < client_rect.left || client_rect.right < mouse_coord.x
+						|| mouse_coord.y < client_rect.top || client_rect.bottom < mouse_coord.y)
+					{
+						// mouse is outside of client rect, so don't do anything
+						return 0;
+					}
+				}
+
+				S16 incoming_z_delta = HIWORD(w_param);
+				z_delta += incoming_z_delta;
 				// cout << "z_delta " << z_delta << endl;
 
 				// current mouse wheels report changes in increments of zDelta (+120, -120)

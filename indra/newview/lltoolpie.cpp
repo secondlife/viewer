@@ -731,10 +731,11 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				p.message(avatar_name);
-				p.image(LLUI::getUIImage("Info"));
+				p.image.name("Inspector_I");
 				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
+				p.delay_time(0.35f);
 				p.wrap(false);
 				
 				LLToolTipMgr::instance().show(p);
@@ -821,7 +822,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					LLInspector::Params p;
 					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 					p.message(tooltip_msg);
-					p.image(LLUI::getUIImage("Info_Off"));
+					p.image.name("Inspector_I");
 					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
 					p.time_based_media(is_time_based_media);
 					p.web_based_media(is_web_based_media);
@@ -830,6 +831,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 					p.visible_time_near(6.f);
 					p.visible_time_far(3.f);
+					p.delay_time(0.35f);
 					p.wrap(false);
 					
 					LLToolTipMgr::instance().show(p);
