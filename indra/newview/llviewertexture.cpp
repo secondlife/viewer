@@ -3007,7 +3007,7 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 	LLViewerTexture::addFace(facep) ;
 
 	const LLTextureEntry* te = facep->getTextureEntry() ;
-	if(te)
+	if(te && te->getID().notNull())
 	{
 		LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
 		if(tex)
@@ -3024,7 +3024,10 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 		return ;
 	}
 	
-	llerrs << "The face does not have a valid texture before media texture." << llendl ;
+	if(te && te->getID().notNull()) //should have a texture
+	{
+		llerrs << "The face does not have a valid texture before media texture." << llendl ;
+	}
 }
 
 //virtual 
@@ -3033,7 +3036,7 @@ void LLViewerMediaTexture::removeFace(LLFace* facep)
 	LLViewerTexture::removeFace(facep) ;
 
 	const LLTextureEntry* te = facep->getTextureEntry() ;
-	if(te)
+	if(te && te->getID().notNull())
 	{
 		LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
 		if(tex)
@@ -3094,7 +3097,10 @@ void LLViewerMediaTexture::removeFace(LLFace* facep)
 		}
 	}
 
-	llerrs << "mTextureList texture reference number is corrupted." << llendl ;
+	if(te && te->getID().notNull()) //should have a texture
+	{
+		llerrs << "mTextureList texture reference number is corrupted." << llendl ;
+	}
 }
 
 void LLViewerMediaTexture::stopPlaying()
@@ -3130,10 +3136,14 @@ void LLViewerMediaTexture::switchTexture(LLFace* facep)
 			const LLTextureEntry* te = facep->getTextureEntry() ;
 			if(te)
 			{
-				LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
+				LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID()) : NULL ;
 				if(!tex && te->getID() != mID)//try parcel media.
 				{
 					tex = gTextureList.findImage(mID) ;
+				}
+				if(!tex)
+				{
+					tex = LLViewerFetchedTexture::sDefaultImagep ;
 				}
 				facep->switchTexture(tex) ;
 			}
