@@ -151,6 +151,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
+
+	mOutfitDirtyTag = getChild<LLTextBox>("currentlook_title");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
@@ -316,6 +318,7 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
+	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
 		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
