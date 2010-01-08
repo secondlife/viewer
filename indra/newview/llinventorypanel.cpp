@@ -490,13 +490,14 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			
 			if (new_listener)
 			{
-				LLFolderViewFolder::Params p;
-				p.name = new_listener->getDisplayName();
-				p.icon = new_listener->getIcon();
-				p.root = mFolders;
-				p.listener = new_listener;
-				p.tool_tip = p.name;
-				LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+				LLFolderViewFolder::Params params;
+				params.name = new_listener->getDisplayName();
+				params.icon = new_listener->getIcon();
+				params.icon_open = new_listener->getOpenIcon();
+				params.root = mFolders;
+				params.listener = new_listener;
+				params.tool_tip = params.name;
+				LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(params);
 				folderp->setItemSortOrder(mFolders->getSortOrder());
 				itemp = folderp;
 
@@ -522,12 +523,13 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			if (new_listener)
 			{
 				LLFolderViewItem::Params params;
-				params.name(new_listener->getDisplayName());
-				params.icon(new_listener->getIcon());
-				params.creation_date(new_listener->getCreationDate());
-				params.root(mFolders);
-				params.listener(new_listener);
-				params.rect(LLRect (0, 0, 0, 0));
+				params.name = new_listener->getDisplayName();
+				params.icon = new_listener->getIcon();
+				params.icon_open = new_listener->getOpenIcon();
+				params.creation_date = new_listener->getCreationDate();
+				params.root = mFolders;
+				params.listener = new_listener;
+				params.rect = LLRect (0, 0, 0, 0);
 				params.tool_tip = params.name;
 				itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}

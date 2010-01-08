@@ -71,7 +71,7 @@ with the same filename but different name
   <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
 
   <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
-  
+
   <texture name="BackArrow_Disabled" file_name="icons/BackArrow_Disabled.png" preload="false" />
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
@@ -305,8 +305,8 @@ with the same filename but different name
   <texture name="Movement_Up_Off" file_name="bottomtray/Movement_Up_Off.png" preload="false" />
   <texture name="Movement_Up_On" file_name="bottomtray/Movement_Up_On.png" preload="false" />
 
-  <texture name="NavBar_BG_NoFav" file_name="navbar/NavBar_BG_NoFav.png" preload="false" />
-  <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="false" />
+  <texture name="NavBar_BG_NoFav" file_name="navbar/NavBar_BG_NoFav.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
+  <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
 
   <texture name="NearbyVoice_Lvl1" file_name="bottomtray/NearbyVoice_Lvl1.png" preload="false" />
   <texture name="NearbyVoice_Lvl2" file_name="bottomtray/NearbyVoice_Lvl2.png" preload="false" />
@@ -351,7 +351,7 @@ with the same filename but different name
 
  <texture name="Parcel_Build_Dark" file_name="icons/Parcel_Build_Dark.png" preload="false" />
  <texture name="Parcel_BuildNo_Dark" file_name="icons/Parcel_BuildNo_Dark.png" preload="false" />
- <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Damage_Dark.png" preload="false" />
+ <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Health_Dark.png" preload="false" />
  <texture name="Parcel_DamageNo_Dark" file_name="icons/Parcel_DamageNo_Dark.png" preload="false" />
  <texture name="Parcel_Evry_Dark" file_name="icons/Parcel_Evry_Dark.png" preload="false" />
  <texture name="Parcel_Exp_Dark" file_name="icons/Parcel_Exp_Dark.png" preload="false" />
