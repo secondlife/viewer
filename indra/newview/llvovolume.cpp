@@ -1852,12 +1852,22 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
 	if (mep && impl)
 	{
         std::string url = mep->getCurrentURL();
-        if (url.empty())
+		// If the url we're trying to "bounce back" to is either empty or not
+		// allowed by the whitelist, try the home url.  If *that* doesn't work,
+		// go to about:blank
+        if (url.empty() || !mep->checkCandidateUrl(url))
         {
             url = mep->getHomeURL();
         }
-        if (! url.empty())
-        {
+        if (url.empty() || !mep->checkCandidateUrl(url))
+		{
+			// The url to navigate back to is not good, and we have nowhere else
+			// to go.
+			LL_WARNS("MediaOnAPrim") << "FAILED to bounce back URL \"" << url << "\" -- unloading impl" << LL_ENDL;
+			impl->setMediaFailed(true);
+		}
+		else {
+			// Okay, navigate now
             LL_INFOS("MediaOnAPrim") << "bouncing back to URL: " << url << LL_ENDL;
             impl->navigateTo(url, "", false, true);
         }

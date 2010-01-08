@@ -202,6 +202,7 @@ public:
 	bool isMediaPaused();
 	bool hasMedia() const;
 	bool isMediaFailed() const { return mMediaSourceFailed; };
+	void setMediaFailed(bool val) { mMediaSourceFailed = val; }
 	void resetPreviousMediaState();
 	
 	void setDisabled(bool disabled);
@@ -311,6 +312,7 @@ public:
 	void setNavState(EMediaNavState state);
 	
 	void cancelMimeTypeProbe();
+		
 public:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
