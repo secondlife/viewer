@@ -54,8 +54,14 @@ LLPluginProcessChild::~LLPluginProcessChild()
 	if(mInstance != NULL)
 	{
 		sendMessageToPlugin(LLPluginMessage("base", "cleanup"));
-		delete mInstance;
-		mInstance = NULL;
+
+		// IMPORTANT: under some (unknown) circumstances the apr_dso_unload() triggered when mInstance is deleted 
+		// appears to fail and lock up which means that a given instance of the slplugin process never exits. 
+		// This is bad, especially when users try to update their version of SL - it fails because the slplugin 
+		// process as well as a bunch of plugin specific files are locked and cannot be overwritten.
+		exit( 0 );
+		//delete mInstance;
+		//mInstance = NULL;
 	}
 }
 

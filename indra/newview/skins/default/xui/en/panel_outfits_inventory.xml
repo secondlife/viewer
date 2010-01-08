@@ -46,8 +46,8 @@
            top="0"
            width="314"
            mouse_opaque="true"
-           name="outfitslist_accordionpanel"
-           start_folder="My Outfits" />
+           name="outfitslist_tab"
+           start_folder="My Outfits" /> 
    </tab_container>
 	<panel
 	  background_visible="true"
@@ -82,10 +82,10 @@
 		  tool_tip="Remove selected item"
 		  top="6"
 		  width="18" />
-     <button
-      follows="bottom|left"
-      height="23"
-      label="Make Outfit"
+	 <button
+	  follows="bottom|left"
+		height="23" 
+      label="Make Outfit" 
       layout="topleft"
       name="make_outfit_btn"
       tool_tip="Save appearance as an outfit"
@@ -93,8 +93,8 @@
        left='10'
       width="120" />
      <button
-      follows="bottom|right"
-      height="23"
+      follows="bottom|right" 
+      height="23" 
       label="Wear"
       layout="topleft"
       name="wear_btn"

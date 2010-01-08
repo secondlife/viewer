@@ -325,6 +325,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::onUpdateSliderText,this, _1,_2));	
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
+	mCommitCallbackRegistrar.add("Pref.ParcelMediaAutoPlayEnable",       boost::bind(&LLFloaterPreference::onCommitParcelMediaAutoPlayEnable, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
@@ -983,6 +984,25 @@ void LLFloaterPreference::onCommitAutoDetectAspect()
 		
 		ratio = gViewerWindow->mWindow->getNativeAspectRatio();
 		gSavedSettings.setF32("FullScreenAspectRatio", ratio);
+	}
+}
+
+void LLFloaterPreference::onCommitParcelMediaAutoPlayEnable()
+{
+	BOOL autoplay = getChild<LLCheckBoxCtrl>("autoplay_enabled")->get();
+		
+	gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, autoplay);
+
+	lldebugs << "autoplay now = " << int(autoplay) << llendl;
+
+	if (autoplay)
+	{
+		// autoplay toggle has gone from FALSE to TRUE; ensure that
+		// the media system is thus actually turned on too.
+		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
+		llinfos << "autoplay turned on, turned all media subsystems on" << llendl;
 	}
 }
 
