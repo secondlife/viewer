@@ -30,6 +30,466 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+#include "llprocessor.h"
+
+//#include <memory>
+
+#if LL_WINDOWS
+#	define WIN32_LEAN_AND_MEAN
+#	include <winsock2.h>
+#	include <windows.h>
+#endif
+
+#include <boost/scoped_ptr.hpp>
+#include <intrin.h>
+
+#if LL_MSVC && _M_X64
+#      define LL_X86_64 1
+#      define LL_X86 1
+#elif LL_MSVC && _M_IX86
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__amd64__) || defined(__x86_64__) )
+#      define LL_X86_64 1
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__i386__) )
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__powerpc__) || defined(__ppc__) )
+#      define LL_PPC 1
+#endif
+
+// The base calss for implementations.
+// Each platform should override this class.
+class LLProcessorInfoImpl
+{
+public:
+	LLProcessorInfoImpl() {}
+	virtual ~LLProcessorInfoImpl() {}
+
+	virtual F64 getCPUFrequency() const { return 0; }
+	virtual bool hasSSE() const { return false; }
+	virtual bool hasSSE2() const { return false; }
+	virtual bool hasAltivec() const { return false; }
+	virtual std::string getCPUFamilyName() const { return "Unknown"; }
+	virtual std::string getCPUBrandName() const { return "Unknown"; }
+	virtual std::string getCPUFeatureDescription() const { return "Unknown"; }
+};
+
+namespace 
+{
+	// Pointer to the active impl.
+	boost::scoped_ptr<LLProcessorInfoImpl> gImpl;
+}
+
+#ifdef LL_MSVC
+// LL_MSVC and not LLWINDOWS because some of the following code 
+// uses the MSVC compiler intrinsics __cpuid() and __rdtsc().
+
+// Delays for the specified amount of milliseconds
+static void _Delay(unsigned int ms)
+{
+	LARGE_INTEGER freq, c1, c2;
+	__int64 x;
+
+	// Get High-Res Timer frequency
+	if (!QueryPerformanceFrequency(&freq))	
+		return;
+
+	// Convert ms to High-Res Timer value
+	x = freq.QuadPart/1000*ms;		
+
+	// Get first snapshot of High-Res Timer value
+	QueryPerformanceCounter(&c1);		
+	do
+	{
+		// Get second snapshot
+		QueryPerformanceCounter(&c2);	
+	}while(c2.QuadPart-c1.QuadPart < x);
+	// Loop while (second-first < x)	
+}
+
+static F64 calculate_cpu_frequency(U32 measure_msecs)
+{
+	if(measure_msecs == 0)
+	{
+		return 0;
+	}
+
+	// After that we declare some vars and check the frequency of the high
+	// resolution timer for the measure process.
+	// If there's no high-res timer, we exit.
+	unsigned __int64 starttime, endtime, timedif, freq, start, end, dif;
+	if (!QueryPerformanceFrequency((LARGE_INTEGER *) &freq))
+	{
+		return 0;
+	}
+
+	// Now we can init the measure process. We set the process and thread priority
+	// to the highest available level (Realtime priority). Also we focus the
+	// first processor in the multiprocessor system.
+	HANDLE hProcess = GetCurrentProcess();
+	HANDLE hThread = GetCurrentThread();
+	unsigned long dwCurPriorityClass = GetPriorityClass(hProcess);
+	int iCurThreadPriority = GetThreadPriority(hThread);
+	unsigned long dwProcessMask, dwSystemMask, dwNewMask = 1;
+	GetProcessAffinityMask(hProcess, &dwProcessMask, &dwSystemMask);
+
+	SetPriorityClass(hProcess, REALTIME_PRIORITY_CLASS);
+	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
+	SetProcessAffinityMask(hProcess, dwNewMask);
+
+	//// Now we call a CPUID to ensure, that all other prior called functions are
+	//// completed now (serialization)
+	//__asm cpuid
+	int cpu_info[4] = {-1};
+	__cpuid(cpu_info, 0);
+
+	// We ask the high-res timer for the start time
+	QueryPerformanceCounter((LARGE_INTEGER *) &starttime);
+
+	// Then we get the current cpu clock and store it
+	start = __rdtsc();
+
+	// Now we wart for some msecs
+	_Delay(measure_msecs);
+	//	Sleep(uiMeasureMSecs);
+
+	// We ask for the end time
+	QueryPerformanceCounter((LARGE_INTEGER *) &endtime);
+
+	// And also for the end cpu clock
+	end = __rdtsc();
+
+	// Now we can restore the default process and thread priorities
+	SetProcessAffinityMask(hProcess, dwProcessMask);
+	SetThreadPriority(hThread, iCurThreadPriority);
+	SetPriorityClass(hProcess, dwCurPriorityClass);
+
+	// Then we calculate the time and clock differences
+	dif = end - start;
+	timedif = endtime - starttime;
+
+	// And finally the frequency is the clock difference divided by the time
+	// difference. 
+	F64 frequency = (F64)dif / (((F64)timedif) / freq);
+
+	// At last we just return the frequency that is also stored in the call
+	// member var uqwFrequency
+	return frequency;
+}
+
+static const char* cpu_feature_names[] =
+{
+    "x87 FPU On Chip",
+    "Virtual-8086 Mode Enhancement",
+    "Debugging Extensions",
+    "Page Size Extensions",
+    "Time Stamp Counter",
+    "RDMSR and WRMSR Support",
+    "Physical Address Extensions",
+    "Machine Check Exception",
+    "CMPXCHG8B Instruction",
+    "APIC On Chip",
+    "Unknown1",
+    "SYSENTER and SYSEXIT",
+    "Memory Type Range Registers",
+    "PTE Global Bit",
+    "Machine Check Architecture",
+    "Conditional Move/Compare Instruction",
+    "Page Attribute Table",
+    "Page Size Extension",
+    "Processor Serial Number",
+    "CFLUSH Extension",
+    "Unknown2",
+    "Debug Store",
+    "Thermal Monitor and Clock Ctrl",
+    "MMX Technology",
+    "FXSAVE/FXRSTOR",
+    "SSE Extensions",
+    "SSE2 Extensions",
+    "Self Snoop",
+    "Hyper-threading Technology",
+    "Thermal Monitor",
+    "Unknown4",
+    "Pend. Brk. EN."
+};
+
+// Windows implementation
+class LLProcessorInfoWindowsImpl : public LLProcessorInfoImpl
+{
+public:
+	LLProcessorInfoWindowsImpl() :
+		mCPUFrequency(0),
+		mSteppingID(0),
+		mModel(0),
+		mFamily(0),
+		mProcessorType(0),
+		mExtendedModel(0),
+		mExtendedFamily(0),
+		mBrandIndex(0),
+		mCLFLUSHCacheLineSize(0),
+		mAPICPhysicalID(0),
+		mCacheLineSize(0),
+		mL2Associativity(0),
+		mCacheSizeK(0),
+
+		mFeatureInfo(0),
+		mSSE3NewInstructions(false),
+		mMONITOR_MWAIT(false),
+		mCPLQualifiedDebugStore(false),
+		mThermalMonitor2(false),
+
+		mIds(0),
+		mExtIds(0)
+
+	{
+		memset(&mCPUString, 0, 0x20);
+		memset(&mCPUBrandString, 0, 0x40);
+
+		getCPUIDInfo();
+		mCPUFrequency = calculate_cpu_frequency(50);
+	}
+	
+	F64 getCPUFrequency() const 
+	{ 
+		return mCPUFrequency;
+	}
+
+	bool hasSSE() const 
+	{
+		// constant comes from the msdn docs for __cpuid
+		const int sse_feature_index = 25;
+		return mFeatureInfo & (1 << sse_feature_index);
+	}
+
+	bool hasSSE2() const
+	{
+		// constant comes from the msdn docs for __cpuid
+		const int sse2_feature_index = 26;
+		return mFeatureInfo & (1 << sse2_feature_index);
+	}
+
+	std::string getCPUFamilyName() const 
+	{
+		const char* intel_string = "GenuineIntel";
+		const char* amd_string = "AuthenticAMD";
+		if(!strncmp(mCPUString, intel_string, strlen(intel_string)))
+		{
+			U32 composed_family = mFamily + mExtendedFamily;
+			switch(composed_family)
+			{
+			case 3: return "Intel i386";
+			case 4: return "Intel i486";
+			case 5: return "Intel Pentium";
+			case 6: return "Intel Pentium Pro/2/3, Core";
+			case 7: return "Intel Itanium (IA-64)";
+			case 0xF: return "Intel Pentium 4";
+			case 0x10: return "Intel Itanium 2 (IA-64)";
+			default: return "Unknown";
+			}
+		}
+		else if(!strncmp(mCPUString, amd_string, strlen(amd_string)))
+		{
+			U32 composed_family = (mFamily == 0xF) 
+				? mFamily + mExtendedFamily
+				: mFamily;
+			switch(composed_family)
+			{
+			case 4: return "AMD 80486/5x86";
+			case 5: return "AMD K5/K6";
+			case 6: return "AMD K7";
+			case 0xF: return "AMD K8";
+			case 0x10: return "AMD K8L";
+			default: return "Unknown";
+			}
+		}
+		return "Unknown";
+	}
+
+	std::string getCPUBrandName() const { return mCPUBrandString; }
+	std::string getCPUFeatureDescription() const 
+	{
+		std::ostringstream out;
+		out << std::endl << std::endl;
+		out << "// CPU General Information" << std::endl;
+		out << "//////////////////////////" << std::endl;
+		out << "Processor Name:   " << getCPUBrandName() << std::endl;
+		out << "Frequency:        " << mCPUFrequency / (F64)1000000 << " MHz" << std::endl;
+		out << "Vendor:			  " << mCPUString << std::endl;
+		out << "Family:           " << getCPUFamilyName() << " (" << mFamily << ")" << std::endl;
+		out << "Extended family:  " << mExtendedFamily << std::endl;
+		out << "Model:            " << mModel << std::endl;
+		out << "Extended model:   " << mExtendedModel << std::endl;
+		out << "Type:             " << mProcessorType << std::endl;
+		out << "Brand ID:         " << mBrandIndex << std::endl;
+		out << std::endl;
+		out << "// CPU Configuration" << std::endl;
+		out << "//////////////////////////" << std::endl;
+		out << "Max Supported CPUID level = " << mIds << std::endl;
+		out << "Max Supported Ext. CPUID level = " << std::hex << mExtIds << std::dec << std::endl;
+		out << "CLFLUSH cache line size = " << mCLFLUSHCacheLineSize << std::endl;
+		out << "APIC Physical ID = " << mAPICPhysicalID << std::endl;
+		out << "Cache Line Size = " << mCacheLineSize << std::endl;
+		out << "L2 Associativity = " << mL2Associativity << std::endl;
+		out << "Cache Size = "  <<  mCacheSizeK << "K" << std::endl;
+		out << std::endl;
+		out << "// CPU Extensions" << std::endl;
+		out << "//////////////////////////" << std::endl;
+		if(mSSE3NewInstructions)
+		{
+			out << "  SSE3 New Instructions" << std::endl;
+		}
+		if(mMONITOR_MWAIT)
+		{
+			out << "  MONITOR/MWAIT" << std::endl;
+		}
+		if(mCPLQualifiedDebugStore)
+		{
+			out << "  CPL Qualified Debug Store" << std::endl;
+		}
+		if(mThermalMonitor2)
+		{
+			out << "  Thermal Monitor 2" << std::endl;
+		}
+
+		U32 index = 0;
+        U32 bit = 1;
+        while(index < (sizeof(cpu_feature_names)/sizeof(const char*)))
+        {
+			if(mFeatureInfo & bit)
+			{
+				out << "  " << cpu_feature_names[index] << std::endl;
+			}
+			bit <<= 1;
+			++index;
+		}
+
+		return out.str(); 
+	}
+
+private:
+	F64 mCPUFrequency;
+	char mCPUString[0x20];
+    char mCPUBrandString[0x40];
+    int mSteppingID;
+    int mModel;
+    int mFamily;
+    int mProcessorType;
+    int mExtendedModel;
+    int mExtendedFamily;
+    int mBrandIndex;
+    int mCLFLUSHCacheLineSize;
+    int mAPICPhysicalID;
+    int mCacheLineSize;
+    int mL2Associativity;
+    int mCacheSizeK;
+
+	int mFeatureInfo;
+    bool mSSE3NewInstructions;
+    bool mMONITOR_MWAIT;
+    bool mCPLQualifiedDebugStore;
+    bool mThermalMonitor2;
+
+	unsigned int mIds;
+	unsigned int mExtIds;
+
+	void getCPUIDInfo()
+	{
+		// http://msdn.microsoft.com/en-us/library/hskdteyh(VS.80).aspx
+
+		// __cpuid with an InfoType argument of 0 returns the number of
+		// valid Ids in cpu_info[0] and the CPU identification string in
+		// the other three array elements. The CPU identification string is
+		// not in linear order. The code below arranges the information 
+		// in a human readable form.
+		int cpu_info[4] = {-1};
+		__cpuid(cpu_info, 0);
+		unsigned int mIds = (unsigned int)cpu_info[0];
+		*((int*)mCPUString) = cpu_info[1];
+		*((int*)(mCPUString+4)) = cpu_info[3];
+		*((int*)(mCPUString+8)) = cpu_info[2];
+
+		// Get the information associated with each valid Id
+		for(unsigned int i=0; i<=mIds; ++i)
+		{
+			__cpuid(cpu_info, i);
+
+			// Interpret CPU feature information.
+			if  (i == 1)
+			{
+				mSteppingID = cpu_info[0] & 0xf;
+				mModel = (cpu_info[0] >> 4) & 0xf;
+				mFamily = (cpu_info[0] >> 8) & 0xf;
+				mProcessorType = (cpu_info[0] >> 12) & 0x3;
+				mExtendedModel = (cpu_info[0] >> 16) & 0xf;
+				mExtendedFamily = (cpu_info[0] >> 20) & 0xff;
+				mBrandIndex = cpu_info[1] & 0xff;
+				mCLFLUSHCacheLineSize = ((cpu_info[1] >> 8) & 0xff) * 8;
+				mAPICPhysicalID = (cpu_info[1] >> 24) & 0xff;
+				mSSE3NewInstructions = (cpu_info[2] & 0x1) || false;
+				mMONITOR_MWAIT = (cpu_info[2] & 0x8) || false;
+				mCPLQualifiedDebugStore = (cpu_info[2] & 0x10) || false;
+				mThermalMonitor2 = (cpu_info[2] & 0x100) || false;
+				mFeatureInfo = cpu_info[3];
+			}
+		}
+
+		// Calling __cpuid with 0x80000000 as the InfoType argument
+		// gets the number of valid extended IDs.
+		__cpuid(cpu_info, 0x80000000);
+		mExtIds = cpu_info[0];
+		memset(mCPUBrandString, 0, sizeof(mCPUBrandString));
+
+		// Get the information associated with each extended ID.
+		for(unsigned int i=0x80000000; i<=mExtIds; ++i)
+		{
+			__cpuid(cpu_info, i);
+
+			// Interpret CPU brand string and cache information.
+			if  (i == 0x80000002)
+				memcpy(mCPUBrandString, cpu_info, sizeof(cpu_info));
+			else if  (i == 0x80000003)
+				memcpy(mCPUBrandString + 16, cpu_info, sizeof(cpu_info));
+			else if  (i == 0x80000004)
+				memcpy(mCPUBrandString + 32, cpu_info, sizeof(cpu_info));
+			else if  (i == 0x80000006)
+			{
+				mCacheLineSize = cpu_info[2] & 0xff;
+				mL2Associativity = (cpu_info[2] >> 12) & 0xf;
+				mCacheSizeK = (cpu_info[2] >> 16) & 0xffff;
+			}
+		}
+	}
+};
+
+#endif // LL_MSVC
+
+
+
+// Interface implementation
+LLProcessorInfo::LLProcessorInfo()
+{
+	// *NOTE:Mani - not thread safe.
+	if(gImpl == NULL)
+	{
+#ifdef LL_MSVC
+		gImpl.reset(new LLProcessorInfoWindowsImpl);
+#else 
+	#error "Unimplemented"
+#endif // LL_MSVC
+	}
+}
+
+LLProcessorInfo::~LLProcessorInfo() {}
+F64 LLProcessorInfo::getCPUFrequency() const { return gImpl->getCPUFrequency(); }
+bool LLProcessorInfo::hasSSE() const { return gImpl->hasSSE(); }
+bool LLProcessorInfo::hasSSE2() const { return gImpl->hasSSE2(); }
+bool LLProcessorInfo::hasAltivec() const { return gImpl->hasAltivec(); }
+std::string LLProcessorInfo::getCPUFamilyName() const { return gImpl->getCPUFamilyName(); }
+std::string LLProcessorInfo::getCPUBrandName() const { return gImpl->getCPUBrandName(); }
+std::string LLProcessorInfo::getCPUFeatureDescription() const { return gImpl->getCPUFeatureDescription(); }
+
+#if 0
 // Filename: Processor.cpp
 // =======================
 // Author: Benjamin Jurke
@@ -42,7 +502,7 @@
 //                             still need for CProcessor::GetCPUFrequency.
 //               06.03.2002  - My birthday (18th :-))
 //                           - Replaced the '\r\n' line endings in function 
-//                             CProcessor::CPUInfoToText by '\n'
+//                             CProcessor::cpu_infoToText by '\n'
 //                           - Replaced unsigned __int64 by signed __int64 for
 //                             solving some compiler conversion problems
 //                           - Fixed a bug at family=6, model=6 (Celeron -> P2)
@@ -107,7 +567,7 @@ CProcessor::CProcessor()
 {
 	uqwFrequency = 0;
 	strCPUName[0] = 0;
-	memset(&CPUInfo, 0, sizeof(CPUInfo));
+	memset(&cpu_info, 0, sizeof(cpu_info));
 }
 
 // unsigned __int64 CProcessor::GetCPUFrequency(unsigned int uiMeasureMSecs)
@@ -224,6 +684,8 @@ F64 CProcessor::GetCPUFrequency(unsigned int uiMeasureMSecs)
 //////////////////////////////////////////////////////////
 bool CProcessor::AnalyzeIntelProcessor()
 {
+	// *NOTE:Mani -	http://www.intel.com/Assets/PDF/appnote/241618.pdf
+	// According to the above doc, a lot of this what follows is wrong.
 #if LL_WINDOWS
 	unsigned long eaxreg, ebxreg, edxreg;
 
@@ -243,208 +705,247 @@ bool CProcessor::AnalyzeIntelProcessor()
     
 	// Then get the cpu model, family, type, stepping and brand id by masking
 	// the eax and ebx register
-	CPUInfo.uiStepping = eaxreg & 0xF;
-	CPUInfo.uiModel    = (eaxreg >> 4) & 0xF;
-	CPUInfo.uiFamily   = (eaxreg >> 8) & 0xF;
-	CPUInfo.uiType     = (eaxreg >> 12) & 0x3;
-	CPUInfo.uiBrandID  = ebxreg & 0xF;
+	cpu_info.uiStepping = eaxreg & 0xF;
+	cpu_info.uiModel    = (eaxreg >> 4) & 0xF;
+	cpu_info.uiFamily   = (eaxreg >> 8) & 0xF;
+	cpu_info.uiType     = (eaxreg >> 12) & 0x3;
+	cpu_info.uiBrandID  = ebxreg & 0xF;
 
-	static const char* INTEL_BRAND[] =
+	// *NOTE:Mani - see http://www.intel.com/assets/pdf/appnote/241618.pdf
+	// These values are composed according to section 2.1.2.2 of the above doc.
+	cpu_info.uiExtendedFamily = ((eaxreg >> 20) & 0xFF) + cpu_info.uiFamily;
+	cpu_info.uiExtendedModel = (((eaxreg >> 16) & 0xFF) << 4) + cpu_info.uiModel;
+
+	// Getting the Brand ID string if supported.
+	if (cpu_info.MaxSupportedExtendedLevel >= 0x80000004)
 	{
-		/* 0x00 */ "",
-		/* 0x01 */ "0.18 micron Intel Celeron",
-		/* 0x02 */ "0.18 micron Intel Pentium III",
-		/* 0x03 */ "0.13 micron Intel Celeron",
-		/* 0x04 */ "0.13 micron Intel Pentium III",
-		/* 0x05 */ "",
-		/* 0x06 */ "0.13 micron Intel Pentium III Mobile",
-		/* 0x07 */ "0.13 micron Intel Celeron Mobile",
-		/* 0x08 */ "0.18 micron Intel Pentium 4",
-		/* 0x09 */ "0.13 micron Intel Pentium 4",
-		/* 0x0A */ "0.13 micron Intel Celeron",
-		/* 0x0B */ "0.13 micron Intel Pentium 4 Xeon",
-		/* 0x0C */ "Intel Xeon MP",
-		/* 0x0D */ "",
-		/* 0x0E */ "0.18 micron Intel Pentium 4 Xeon",
-		/* 0x0F */ "Mobile Intel Celeron",
-		/* 0x10 */ "",
-		/* 0x11 */ "Mobile Genuine Intel",
-		/* 0x12 */ "Intel Celeron M",
-		/* 0x13 */ "Mobile Intel Celeron",
-		/* 0x14 */ "Intel Celeron",
-		/* 0x15 */ "Mobile Genuine Intel",
-		/* 0x16 */ "Intel Pentium M",
-		/* 0x17 */ "Mobile Intel Celeron",
-	};
-
-	// Only override the brand if we have it in the lookup table.  We should
-	// already have a string here from GetCPUInfo().  JC
-	if ( CPUInfo.uiBrandID < LL_ARRAY_SIZE(INTEL_BRAND) )
-	{
-		strcpy(CPUInfo.strBrandID, INTEL_BRAND[CPUInfo.uiBrandID]);
-
-		if (CPUInfo.uiBrandID == 3 && CPUInfo.uiModel == 6)
+		// If it supports the extended CPUID level 0x80000004 we read the data
+		char tmp[52];		/* Flawfinder: ignore */
+		memset(tmp, 0, sizeof(tmp));
+        __asm
 		{
-			strcpy(CPUInfo.strBrandID, "0.18 micron Intel Pentium III Xeon");
+			mov eax, 0x80000002
+			cpuid
+			mov dword ptr [tmp], eax
+			mov dword ptr [tmp+4], ebx
+			mov dword ptr [tmp+8], ecx
+			mov dword ptr [tmp+12], edx
+			mov eax, 0x80000003
+			cpuid
+			mov dword ptr [tmp+16], eax
+			mov dword ptr [tmp+20], ebx
+			mov dword ptr [tmp+24], ecx
+			mov dword ptr [tmp+28], edx
+			mov eax, 0x80000004
+			cpuid
+			mov dword ptr [tmp+32], eax
+			mov dword ptr [tmp+36], ebx
+			mov dword ptr [tmp+40], ecx
+			mov dword ptr [tmp+44], edx
+		}
+		// And copy it to the brand id string
+		strncpy(cpu_info.strBrandID, tmp,sizeof(cpu_info.strBrandID)-1);
+		cpu_info.strBrandID[sizeof(cpu_info.strBrandID)-1]='\0';
+	}
+	else
+	{
+		static const char* INTEL_BRAND[] =
+		{
+			/* 0x00 */ "",
+			/* 0x01 */ "0.18 micron Intel Celeron",
+			/* 0x02 */ "0.18 micron Intel Pentium III",
+			/* 0x03 */ "0.13 micron Intel Celeron",
+			/* 0x04 */ "0.13 micron Intel Pentium III",
+			/* 0x05 */ "",
+			/* 0x06 */ "0.13 micron Intel Pentium III Mobile",
+			/* 0x07 */ "0.13 micron Intel Celeron Mobile",
+			/* 0x08 */ "0.18 micron Intel Pentium 4",
+			/* 0x09 */ "0.13 micron Intel Pentium 4",
+			/* 0x0A */ "0.13 micron Intel Celeron",
+			/* 0x0B */ "0.13 micron Intel Pentium 4 Xeon",
+			/* 0x0C */ "Intel Xeon MP",
+			/* 0x0D */ "",
+			/* 0x0E */ "0.18 micron Intel Pentium 4 Xeon",
+			/* 0x0F */ "Mobile Intel Celeron",
+			/* 0x10 */ "",
+			/* 0x11 */ "Mobile Genuine Intel",
+			/* 0x12 */ "Intel Celeron M",
+			/* 0x13 */ "Mobile Intel Celeron",
+			/* 0x14 */ "Intel Celeron",
+			/* 0x15 */ "Mobile Genuine Intel",
+			/* 0x16 */ "Intel Pentium M",
+			/* 0x17 */ "Mobile Intel Celeron",
+		};
+
+		// Only override the brand if we have it in the lookup table.  We should
+		// already have a string here from Getcpu_info().  JC
+		if ( cpu_info.uiBrandID < LL_ARRAY_SIZE(INTEL_BRAND) )
+		{
+			strcpy(cpu_info.strBrandID, INTEL_BRAND[cpu_info.uiBrandID]);
+
+			if (cpu_info.uiBrandID == 3 && cpu_info.uiModel == 6)
+			{
+				strcpy(cpu_info.strBrandID, "0.18 micron Intel Pentium III Xeon");
+			}
 		}
 	}
 
 	// Then we translate the cpu family
-    switch (CPUInfo.uiFamily)
+    switch (cpu_info.uiFamily)
 	{
 		case 3:			// Family = 3:  i386 (80386) processor family
-			strcpy(CPUInfo.strFamily, "Intel i386");	/* Flawfinder: ignore */	
+			strcpy(cpu_info.strFamily, "Intel i386");	/* Flawfinder: ignore */	
 			break;
 		case 4:			// Family = 4:  i486 (80486) processor family
-			strcpy(CPUInfo.strFamily, "Intel i486");	/* Flawfinder: ignore */	
+			strcpy(cpu_info.strFamily, "Intel i486");	/* Flawfinder: ignore */	
 			break;
 		case 5:			// Family = 5:  Pentium (80586) processor family
-			strcpy(CPUInfo.strFamily, "Intel Pentium");	/* Flawfinder: ignore */	
+			strcpy(cpu_info.strFamily, "Intel Pentium");	/* Flawfinder: ignore */	
 			break;
 		case 6:			// Family = 6:  Pentium Pro (80686) processor family
-			strcpy(CPUInfo.strFamily, "Intel Pentium Pro/2/3, Core");	/* Flawfinder: ignore */	
+			strcpy(cpu_info.strFamily, "Intel Pentium Pro/2/3, Core");	/* Flawfinder: ignore */	
 			break;
 		case 15:		// Family = 15:  Extended family specific
 			// Masking the extended family
-			CPUInfo.uiExtendedFamily = (eaxreg >> 20) & 0xFF;
-			switch (CPUInfo.uiExtendedFamily)
+			cpu_info.uiExtendedFamily = (eaxreg >> 20) & 0xFF;
+			switch (cpu_info.uiExtendedFamily)
 			{
 				case 0:			// Family = 15, Ext. Family = 0:  Pentium 4 (80786 ??) processor family
-					strcpy(CPUInfo.strFamily, "Intel Pentium 4");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strFamily, "Intel Pentium 4");	/* Flawfinder: ignore */	
 					break;
 				case 1:			// Family = 15, Ext. Family = 1:  McKinley (64-bit) processor family
-					strcpy(CPUInfo.strFamily, "Intel McKinley (IA-64)");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strFamily, "Intel McKinley (IA-64)");	/* Flawfinder: ignore */	
 					break;
 				default:		// Sure is sure
-					strcpy(CPUInfo.strFamily, "Unknown Intel Pentium 4+");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strFamily, "Unknown Intel Pentium 4+");	/* Flawfinder: ignore */	
 					break;
 			}
 			break;
 		default:		// Failsave
-			strcpy(CPUInfo.strFamily, "Unknown");	/* Flawfinder: ignore */
+			strcpy(cpu_info.strFamily, "Unknown");	/* Flawfinder: ignore */
 			break;
     }
 
 	// Now we come to the big deal, the exact model name
-	switch (CPUInfo.uiFamily)
+	switch (cpu_info.uiFamily)
 	{
 		case 3:			// i386 (80386) processor family
-			strcpy(CPUInfo.strModel, "Unknown Intel i386");	/* Flawfinder: ignore */
+			strcpy(cpu_info.strModel, "Unknown Intel i386");	/* Flawfinder: ignore */
 			strncat(strCPUName, "Intel i386", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */		
 			break;
 		case 4:			// i486 (80486) processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 0:			// Model = 0:  i486 DX-25/33 processor model
-					strcpy(CPUInfo.strModel, "Intel i486 DX-25/33");	/* Flawfinder: ignore */			
+					strcpy(cpu_info.strModel, "Intel i486 DX-25/33");	/* Flawfinder: ignore */			
 					strncat(strCPUName, "Intel i486 DX-25/33", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */		
 					break;
 				case 1:			// Model = 1:  i486 DX-50 processor model
-					strcpy(CPUInfo.strModel, "Intel i486 DX-50");	/* Flawfinder: ignore */		
+					strcpy(cpu_info.strModel, "Intel i486 DX-50");	/* Flawfinder: ignore */		
 					strncat(strCPUName, "Intel i486 DX-50", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */		
 					break;
 				case 2:			// Model = 2:  i486 SX processor model
-					strcpy(CPUInfo.strModel, "Intel i486 SX");	/* Flawfinder: ignore */		
+					strcpy(cpu_info.strModel, "Intel i486 SX");	/* Flawfinder: ignore */		
 					strncat(strCPUName, "Intel i486 SX", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */		
 					break;
 				case 3:			// Model = 3:  i486 DX2 (with i487 numeric coprocessor) processor model
-					strcpy(CPUInfo.strModel, "Intel i486 487/DX2");	/* Flawfinder: ignore */		
+					strcpy(cpu_info.strModel, "Intel i486 487/DX2");	/* Flawfinder: ignore */		
 					strncat(strCPUName, "Intel i486 DX2 with i487 numeric coprocessor", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */		
 					break;
 				case 4:			// Model = 4:  i486 SL processor model (never heard ?!?)
-					strcpy(CPUInfo.strModel, "Intel i486 SL");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel i486 SL");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel i486 SL", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				case 5:			// Model = 5:  i486 SX2 processor model
-					strcpy(CPUInfo.strModel, "Intel i486 SX2");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel i486 SX2");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel i486 SX2", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				case 7:			// Model = 7:  i486 write-back enhanced DX2 processor model
-					strcpy(CPUInfo.strModel, "Intel i486 write-back enhanced DX2");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel i486 write-back enhanced DX2");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel i486 write-back enhanced DX2", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				case 8:			// Model = 8:  i486 DX4 processor model
-					strcpy(CPUInfo.strModel, "Intel i486 DX4");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel i486 DX4");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel i486 DX4", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				case 9:			// Model = 9:  i486 write-back enhanced DX4 processor model
-					strcpy(CPUInfo.strModel, "Intel i486 write-back enhanced DX4");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel i486 write-back enhanced DX4");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel i486 DX4", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				default:		// ...
-					strcpy(CPUInfo.strModel, "Unknown Intel i486");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Unknown Intel i486");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel i486 (Unknown model)", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 			}
 			break;
 		case 5:			// Pentium (80586) processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 0:			// Model = 0:  Pentium (P5 A-Step) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium (P5 A-Step)");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel Pentium (P5 A-Step)");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel Pentium (P5 A-Step core)", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;		// Famous for the DIV bug, as far as I know
 				case 1:			// Model = 1:  Pentium 60/66 processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium 60/66 (P5)");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel Pentium 60/66 (P5)");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel Pentium 60/66 (P5 core)", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				case 2:			// Model = 2:  Pentium 75-200 (P54C) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium 75-200 (P54C)");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel Pentium 75-200 (P54C)");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel Pentium 75-200 (P54C core)", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */	
 					break;
 				case 3:			// Model = 3:  Pentium overdrive for 486 systems processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium for 486 system (P24T Overdrive)");	/* Flawfinder: ignore */	
+					strcpy(cpu_info.strModel, "Intel Pentium for 486 system (P24T Overdrive)");	/* Flawfinder: ignore */	
 					strncat(strCPUName, "Intel Pentium for 486 (P24T overdrive core)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 4:			// Model = 4:  Pentium MMX processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium MMX (P55C)");	/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium MMX (P55C)");	/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium MMX (P55C core)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 7:			// Model = 7:  Pentium processor model (don't know difference to Model=2)
-					strcpy(CPUInfo.strModel, "Intel Pentium (P54C)");		/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium (P54C)");		/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium (P54C core)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 8:			// Model = 8:  Pentium MMX (0.25 micron) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium MMX (P55C), 0.25 micron");		/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium MMX (P55C), 0.25 micron");		/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium MMX (P55C core), 0.25 micron", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				default:		// ...
-					strcpy(CPUInfo.strModel, "Unknown Intel Pentium");	/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Unknown Intel Pentium");	/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium (Unknown P5-model)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 			}
 			break;
 		case 6:			// Pentium Pro (80686) processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 0:			// Model = 0:  Pentium Pro (P6 A-Step) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium Pro (P6 A-Step)");		/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium Pro (P6 A-Step)");		/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium Pro (P6 A-Step core)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 1:			// Model = 1:  Pentium Pro
-					strcpy(CPUInfo.strModel, "Intel Pentium Pro (P6)");		/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium Pro (P6)");		/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium Pro (P6 core)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 3:			// Model = 3:  Pentium II (66 MHz FSB, I think) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium II Model 3, 0.28 micron");		/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium II Model 3, 0.28 micron");		/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium II (Model 3 core, 0.28 micron process)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 5:			// Model = 5:  Pentium II/Xeon/Celeron (0.25 micron) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium II Model 5/Xeon/Celeron, 0.25 micron");		/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium II Model 5/Xeon/Celeron, 0.25 micron");		/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium II/Xeon/Celeron (Model 5 core, 0.25 micron process)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 6:			// Model = 6:  Pentium II with internal L2 cache
-					strcpy(CPUInfo.strModel, "Intel Pentium II - internal L2 cache");	/*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium II - internal L2 cache");	/*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium II with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 7:			// Model = 7:  Pentium III/Xeon (extern L2 cache) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium III/Pentium III Xeon - external L2 cache, 0.25 micron");		 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium III/Pentium III Xeon - external L2 cache, 0.25 micron");		 /*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium III/Pentium III Xeon (0.25 micron process) with external L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 8:			// Model = 8:  Pentium III/Xeon/Celeron (256 KB on-die L2 cache) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.18 micron");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.18 micron");	 /*Flawfinder: ignore*/
 					// We want to know it exactly:
-					switch (CPUInfo.uiBrandID)
+					switch (cpu_info.uiBrandID)
 					{
 						case 1:			// Model = 8, Brand id = 1:  Celeron (on-die L2 cache) processor model
 							strncat(strCPUName, "Intel Celeron (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
@@ -461,13 +962,13 @@ bool CProcessor::AnalyzeIntelProcessor()
 					}
 					break;
 				case 9:		// Model = 9:  Intel Pentium M processor, Intel Celeron M processor, model 9
-					strcpy(CPUInfo.strModel, "Intel Pentium M Series Processor");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium M Series Processor");	 /*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium M Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 0xA:		// Model = 0xA:  Pentium III/Xeon/Celeron (1 or 2 MB on-die L2 cache) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.18 micron");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.18 micron");	 /*Flawfinder: ignore*/
 					// Exact detection:
-					switch (CPUInfo.uiBrandID)
+					switch (cpu_info.uiBrandID)
 					{
 						case 1:			// Model = 0xA, Brand id = 1:  Celeron (1 or 2 MB on-die L2 cache (does it exist??)) processor model
 							strncat(strCPUName, "Intel Celeron (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
@@ -484,9 +985,9 @@ bool CProcessor::AnalyzeIntelProcessor()
 					}
 					break;
 				case 0xB:		// Model = 0xB: Pentium III/Xeon/Celeron (Tualatin core, on-die cache) processor model
-					strcpy(CPUInfo.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.13 micron");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.13 micron");	 /*Flawfinder: ignore*/
 					// Omniscient: ;-)
-					switch (CPUInfo.uiBrandID)
+					switch (cpu_info.uiBrandID)
 					{
 						case 3:			// Model = 0xB, Brand id = 3:  Celeron (Tualatin core) processor model
 							strncat(strCPUName, "Intel Celeron (Tualatin core, 0.13 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
@@ -503,72 +1004,72 @@ bool CProcessor::AnalyzeIntelProcessor()
 					}
 					break;
 				case 0xD:		// Model = 0xD:  Intel Pentium M processor, Intel Celeron M processor, model D
-					strcpy(CPUInfo.strModel, "Intel Pentium M Series Processor");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Pentium M Series Processor");	 /*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium M Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 0xE:		// Model = 0xE:  Intel Core Duo processor, Intel Core Solo processor, model E
-					strcpy(CPUInfo.strModel, "Intel Core Series Processor");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Core Series Processor");	 /*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Core Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;	
 				case 0xF:		// Model = 0xF:  Intel Core 2 Duo processor, model F
-					strcpy(CPUInfo.strModel, "Intel Core 2 Series Processor");	 /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Intel Core 2 Series Processor");	 /*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Core 2 Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;	
 				default:		// *more bored*
-					strcpy(CPUInfo.strModel, "Unknown Intel Pentium Pro/2/3, Core"); /*Flawfinder: ignore*/
+					strcpy(cpu_info.strModel, "Unknown Intel Pentium Pro/2/3, Core"); /*Flawfinder: ignore*/
 					strncat(strCPUName, "Intel Pentium Pro/2/3, Core (Unknown model)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 			}
 			break;
 		case 15:		// Extended processor family
 			// Masking the extended model
-			CPUInfo.uiExtendedModel = (eaxreg >> 16) & 0xFF;
-			switch (CPUInfo.uiModel)
+			cpu_info.uiExtendedModel = (eaxreg >> 16) & 0xFF;
+			switch (cpu_info.uiModel)
 			{
 				case 0:			// Model = 0:  Pentium 4 Willamette (A-Step) core
-					if ((CPUInfo.uiBrandID) == 8)	// Brand id = 8:  P4 Willamette
+					if ((cpu_info.uiBrandID) == 8)	// Brand id = 8:  P4 Willamette
 					{
-						strcpy(CPUInfo.strModel, "Intel Pentium 4 Willamette (A-Step)"); /*Flawfinder: ignore*/
+						strcpy(cpu_info.strModel, "Intel Pentium 4 Willamette (A-Step)"); /*Flawfinder: ignore*/
 						strncat(strCPUName, "Intel Pentium 4 Willamette (A-Step)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					}
 					else							// else Xeon
 					{
-						strcpy(CPUInfo.strModel, "Intel Pentium 4 Willamette Xeon (A-Step)");		/* Flawfinder: ignore */
+						strcpy(cpu_info.strModel, "Intel Pentium 4 Willamette Xeon (A-Step)");		/* Flawfinder: ignore */
 						strncat(strCPUName, "Intel Pentium 4 Willamette Xeon (A-Step)", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */	
 					}
 					break;
 				case 1:			// Model = 1:  Pentium 4 Willamette core
-					if ((CPUInfo.uiBrandID) == 8)	// Brand id = 8:  P4 Willamette
+					if ((cpu_info.uiBrandID) == 8)	// Brand id = 8:  P4 Willamette
 					{
-						strcpy(CPUInfo.strModel, "Intel Pentium 4 Willamette");		/* Flawfinder: ignore */
+						strcpy(cpu_info.strModel, "Intel Pentium 4 Willamette");		/* Flawfinder: ignore */
 						strncat(strCPUName, "Intel Pentium 4 Willamette", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */
 					}
 					else							// else Xeon
 					{
-						strcpy(CPUInfo.strModel, "Intel Pentium 4 Willamette Xeon");		/* Flawfinder: ignore */
+						strcpy(cpu_info.strModel, "Intel Pentium 4 Willamette Xeon");		/* Flawfinder: ignore */
 						strncat(strCPUName, "Intel Pentium 4 Willamette Xeon", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */
 					}
 					break;
 				case 2:			// Model = 2:  Pentium 4 Northwood core
-					if (((CPUInfo.uiBrandID) == 9) || ((CPUInfo.uiBrandID) == 0xA))		// P4 Willamette
+					if (((cpu_info.uiBrandID) == 9) || ((cpu_info.uiBrandID) == 0xA))		// P4 Willamette
 					{
-						strcpy(CPUInfo.strModel, "Intel Pentium 4 Northwood");		/* Flawfinder: ignore */
+						strcpy(cpu_info.strModel, "Intel Pentium 4 Northwood");		/* Flawfinder: ignore */
 						strncat(strCPUName, "Intel Pentium 4 Northwood", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */
 					}
 					else							// Xeon
 					{
-						strcpy(CPUInfo.strModel, "Intel Pentium 4 Northwood Xeon");		/* Flawfinder: ignore */
+						strcpy(cpu_info.strModel, "Intel Pentium 4 Northwood Xeon");		/* Flawfinder: ignore */
 						strncat(strCPUName, "Intel Pentium 4 Northwood Xeon", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */
 					}
 					break;
 				default:		// Silly stupid never used failsave option
-					strcpy(CPUInfo.strModel, "Unknown Intel Pentium 4");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "Unknown Intel Pentium 4");		/* Flawfinder: ignore */
 					strncat(strCPUName, "Intel Pentium 4 (Unknown model)", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */
 					break;
 			}
 			break;
 		default:		// *grmpf*
-			strcpy(CPUInfo.strModel, "Unknown Intel model");		/* Flawfinder: ignore */
+			strcpy(cpu_info.strModel, "Unknown Intel model");		/* Flawfinder: ignore */
 			strncat(strCPUName, "Intel (Unknown model)", sizeof(strCPUName) - strlen(strCPUName) - 1);		/* Flawfinder: ignore */
 			break;
     }
@@ -576,7 +1077,7 @@ bool CProcessor::AnalyzeIntelProcessor()
 	// After the long processor model block we now come to the processors serial
 	// number.
 	// First of all we check if the processor supports the serial number
-	if (CPUInfo.MaxSupportedLevel >= 3)
+	if (cpu_info.MaxSupportedLevel >= 3)
 	{
 		// If it supports the serial number CPUID level 0x00000003 we read the data
 		unsigned long sig1, sig2, sig3;
@@ -592,8 +1093,8 @@ bool CProcessor::AnalyzeIntelProcessor()
 		}
 		// Then we convert the data to a readable string
 		snprintf(	/* Flawfinder: ignore */
-			CPUInfo.strProcessorSerial,
-			sizeof(CPUInfo.strProcessorSerial),
+			cpu_info.strProcessorSerial,
+			sizeof(cpu_info.strProcessorSerial),
 			"%04lX-%04lX-%04lX-%04lX-%04lX-%04lX",
 			sig1 >> 16,
 			sig1 & 0xFFFF,
@@ -605,8 +1106,8 @@ bool CProcessor::AnalyzeIntelProcessor()
 	{
 		// If there's no serial number support we just put "No serial number"
 		snprintf(	/* Flawfinder: ignore */
-			CPUInfo.strProcessorSerial,
-			sizeof(CPUInfo.strProcessorSerial),
+			cpu_info.strProcessorSerial,
+			sizeof(cpu_info.strProcessorSerial),
 			"No Processor Serial Number");	
 	}
 
@@ -649,13 +1150,13 @@ bool CProcessor::AnalyzeAMDProcessor()
 	}
     
 	// Then we mask the model, family, stepping and type (AMD does not support brand id)
-	CPUInfo.uiStepping = eaxreg & 0xF;
-	CPUInfo.uiModel    = (eaxreg >> 4) & 0xF;
-	CPUInfo.uiFamily   = (eaxreg >> 8) & 0xF;
-	CPUInfo.uiType     = (eaxreg >> 12) & 0x3;
+	cpu_info.uiStepping = eaxreg & 0xF;
+	cpu_info.uiModel    = (eaxreg >> 4) & 0xF;
+	cpu_info.uiFamily   = (eaxreg >> 8) & 0xF;
+	cpu_info.uiType     = (eaxreg >> 12) & 0x3;
 
 	// Now we check if the processor supports the brand id string extended CPUID level
-	if (CPUInfo.MaxSupportedExtendedLevel >= 0x80000004)
+	if (cpu_info.MaxSupportedExtendedLevel >= 0x80000004)
 	{
 		// If it supports the extended CPUID level 0x80000004 we read the data
 		char tmp[52];		/* Flawfinder: ignore */
@@ -682,181 +1183,181 @@ bool CProcessor::AnalyzeAMDProcessor()
 			mov dword ptr [tmp+44], edx
 		}
 		// And copy it to the brand id string
-		strncpy(CPUInfo.strBrandID, tmp,sizeof(CPUInfo.strBrandID)-1);
-		CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID)-1]='\0';
+		strncpy(cpu_info.strBrandID, tmp,sizeof(cpu_info.strBrandID)-1);
+		cpu_info.strBrandID[sizeof(cpu_info.strBrandID)-1]='\0';
 	}
 	else
 	{
 		// Or just tell there is no brand id string support
-		strcpy(CPUInfo.strBrandID, "");		/* Flawfinder: ignore */
+		strcpy(cpu_info.strBrandID, "");		/* Flawfinder: ignore */
 	}
 
 	// After that we translate the processor family
-    switch(CPUInfo.uiFamily)
+    switch(cpu_info.uiFamily)
 	{
 		case 4:			// Family = 4:  486 (80486) or 5x86 (80486) processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 3:			// Thanks to AMD for this nice form of family
 				case 7:			// detection.... *grmpf*
 				case 8:
 				case 9:
-					strcpy(CPUInfo.strFamily, "AMD 80486");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strFamily, "AMD 80486");		/* Flawfinder: ignore */
 					break;
 				case 0xE:
 				case 0xF:
-					strcpy(CPUInfo.strFamily, "AMD 5x86");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strFamily, "AMD 5x86");		/* Flawfinder: ignore */
 					break;
 				default:
-					strcpy(CPUInfo.strFamily, "Unknown family");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strFamily, "Unknown family");		/* Flawfinder: ignore */
 					break;
 			}
 			break;
 		case 5:			// Family = 5:  K5 or K6 processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 0:
 				case 1:
 				case 2:
 				case 3:
-					strcpy(CPUInfo.strFamily, "AMD K5");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strFamily, "AMD K5");		/* Flawfinder: ignore */
 					break;
 				case 6:
 				case 7:
 				case 8:
 				case 9:
-					strcpy(CPUInfo.strFamily, "AMD K6");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strFamily, "AMD K6");		/* Flawfinder: ignore */
 					break;
 				default:
-					strcpy(CPUInfo.strFamily, "Unknown family");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strFamily, "Unknown family");		/* Flawfinder: ignore */
 					break;
 			}
 			break;
 		case 6:			// Family = 6:  K7 (Athlon, ...) processor family
-			strcpy(CPUInfo.strFamily, "AMD K7");		/* Flawfinder: ignore */
+			strcpy(cpu_info.strFamily, "AMD K7");		/* Flawfinder: ignore */
 			break;
 		default:		// For security
-			strcpy(CPUInfo.strFamily, "Unknown family");		/* Flawfinder: ignore */
+			strcpy(cpu_info.strFamily, "Unknown family");		/* Flawfinder: ignore */
 			break;
 	}
 
 	// After the family detection we come to the specific processor model
 	// detection
-	switch (CPUInfo.uiFamily)
+	switch (cpu_info.uiFamily)
 	{
 		case 4:			// Family = 4:  486 (80486) or 5x85 (80486) processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 3:			// Model = 3:  80486 DX2
-					strcpy(CPUInfo.strModel, "AMD 80486 DX2");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD 80486 DX2");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 80486 DX2", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 7:			// Model = 7:  80486 write-back enhanced DX2
-					strcpy(CPUInfo.strModel, "AMD 80486 write-back enhanced DX2");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD 80486 write-back enhanced DX2");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 80486 write-back enhanced DX2", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 8:			// Model = 8:  80486 DX4
-					strcpy(CPUInfo.strModel, "AMD 80486 DX4");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD 80486 DX4");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 80486 DX4", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 9:			// Model = 9:  80486 write-back enhanced DX4
-					strcpy(CPUInfo.strModel, "AMD 80486 write-back enhanced DX4");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD 80486 write-back enhanced DX4");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 80486 write-back enhanced DX4", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 0xE:		// Model = 0xE:  5x86
-					strcpy(CPUInfo.strModel, "AMD 5x86");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD 5x86");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 5x86", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 0xF:		// Model = 0xF:  5x86 write-back enhanced (oh my god.....)
-					strcpy(CPUInfo.strModel, "AMD 5x86 write-back enhanced");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD 5x86 write-back enhanced");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 5x86 write-back enhanced", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				default:		// ...
-					strcpy(CPUInfo.strModel, "Unknown AMD 80486 or 5x86 model");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "Unknown AMD 80486 or 5x86 model");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD 80486 or 5x86 (Unknown model)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 			}
 			break;
 		case 5:			// Family = 5:  K5 / K6 processor family
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 0:			// Model = 0:  K5 SSA 5 (Pentium Rating *ggg* 75, 90 and 100 Mhz)
-					strcpy(CPUInfo.strModel, "AMD K5 SSA5 (PR75, PR90, PR100)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K5 SSA5 (PR75, PR90, PR100)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K5 SSA5 (PR75, PR90, PR100)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 1:			// Model = 1:  K5 5k86 (PR 120 and 133 MHz)
-					strcpy(CPUInfo.strModel, "AMD K5 5k86 (PR120, PR133)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K5 5k86 (PR120, PR133)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K5 5k86 (PR120, PR133)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 2:			// Model = 2:  K5 5k86 (PR 166 MHz)
-					strcpy(CPUInfo.strModel, "AMD K5 5k86 (PR166)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K5 5k86 (PR166)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K5 5k86 (PR166)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 3:			// Model = 3:  K5 5k86 (PR 200 MHz)
-					strcpy(CPUInfo.strModel, "AMD K5 5k86 (PR200)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K5 5k86 (PR200)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K5 5k86 (PR200)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 6:			// Model = 6:  K6
-					strcpy(CPUInfo.strModel, "AMD K6 (0.30 micron)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K6 (0.30 micron)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K6 (0.30 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 7:			// Model = 7:  K6 (0.25 micron)
-					strcpy(CPUInfo.strModel, "AMD K6 (0.25 micron)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K6 (0.25 micron)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K6 (0.25 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 8:			// Model = 8:  K6-2
-					strcpy(CPUInfo.strModel, "AMD K6-2");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K6-2");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K6-2", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 9:			// Model = 9:  K6-III
-					strcpy(CPUInfo.strModel, "AMD K6-III");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K6-III");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K6-III", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 0xD:		// Model = 0xD:  K6-2+ / K6-III+
-					strcpy(CPUInfo.strModel, "AMD K6-2+ or K6-III+ (0.18 micron)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD K6-2+ or K6-III+ (0.18 micron)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K6-2+ or K6-III+ (0.18 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);	/* Flawfinder: ignore */
 					break;
 				default:		// ...
-					strcpy(CPUInfo.strModel, "Unknown AMD K5 or K6 model");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "Unknown AMD K5 or K6 model");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K5 or K6 (Unknown model)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 			}
 			break;
 		case 6:			// Family = 6:  K7 processor family (AMDs first good processors)
-			switch (CPUInfo.uiModel)
+			switch (cpu_info.uiModel)
 			{
 				case 1:			// Athlon
-					strcpy(CPUInfo.strModel, "AMD Athlon (0.25 micron)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD Athlon (0.25 micron)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD Athlon (0.25 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 2:			// Athlon (0.18 micron)
-					strcpy(CPUInfo.strModel, "AMD Athlon (0.18 micron)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD Athlon (0.18 micron)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD Athlon (0.18 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 3:			// Duron (Spitfire core)
-					strcpy(CPUInfo.strModel, "AMD Duron (Spitfire)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD Duron (Spitfire)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD Duron (Spitfire core)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 4:			// Athlon (Thunderbird core)
-					strcpy(CPUInfo.strModel, "AMD Athlon (Thunderbird)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD Athlon (Thunderbird)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD Athlon (Thunderbird core)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 6:			// Athlon MP / Mobile Athlon (Palomino core)
-					strcpy(CPUInfo.strModel, "AMD Athlon MP/Mobile Athlon (Palomino)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD Athlon MP/Mobile Athlon (Palomino)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD Athlon MP/Mobile Athlon (Palomino core)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				case 7:			// Mobile Duron (Morgan core)
-					strcpy(CPUInfo.strModel, "AMD Mobile Duron (Morgan)");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "AMD Mobile Duron (Morgan)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD Mobile Duron (Morgan core)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 				default:		// ...
-					strcpy(CPUInfo.strModel, "Unknown AMD K7 model");		/* Flawfinder: ignore */
+					strcpy(cpu_info.strModel, "Unknown AMD K7 model");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K7 (Unknown model)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;
 			}
 			break;
 		default:		// ...
-			strcpy(CPUInfo.strModel, "Unknown AMD model");		/* Flawfinder: ignore */
+			strcpy(cpu_info.strModel, "Unknown AMD model");		/* Flawfinder: ignore */
 			strncat(strCPUName, "AMD (Unknown model)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 			break;
     }
@@ -866,7 +1367,7 @@ bool CProcessor::AnalyzeAMDProcessor()
 	GetStandardProcessorExtensions();
 
 	// Then we check if theres an extended CPUID level support
-	if (CPUInfo.MaxSupportedExtendedLevel >= 0x80000001)
+	if (cpu_info.MaxSupportedExtendedLevel >= 0x80000001)
 	{
 		// If we can access the extended CPUID level 0x80000001 we get the
 		// edx register
@@ -878,15 +1379,15 @@ bool CProcessor::AnalyzeAMDProcessor()
 		}
 
 		// Now we can mask some AMD specific cpu extensions
-		CPUInfo._Ext.EMMX_MultimediaExtensions					= CheckBit(edxreg, 22);
-		CPUInfo._Ext.AA64_AMD64BitArchitecture					= CheckBit(edxreg, 29);
-		CPUInfo._Ext._E3DNOW_InstructionExtensions				= CheckBit(edxreg, 30);
-		CPUInfo._Ext._3DNOW_InstructionExtensions				= CheckBit(edxreg, 31);
+		cpu_info._Ext.EMMX_MultimediaExtensions					= CheckBit(edxreg, 22);
+		cpu_info._Ext.AA64_AMD64BitArchitecture					= CheckBit(edxreg, 29);
+		cpu_info._Ext._E3DNOW_InstructionExtensions				= CheckBit(edxreg, 30);
+		cpu_info._Ext._3DNOW_InstructionExtensions				= CheckBit(edxreg, 31);
 	}
 
 	// After that we check if the processor supports the ext. CPUID level
 	// 0x80000006
-	if (CPUInfo.MaxSupportedExtendedLevel >= 0x80000006)
+	if (cpu_info.MaxSupportedExtendedLevel >= 0x80000006)
 	{
 		// If it's present, we read it out
         __asm
@@ -902,68 +1403,68 @@ bool CProcessor::AnalyzeAMDProcessor()
 		// Then we mask the L1 Data TLB information
 		if ((ebxreg >> 16) && (eaxreg >> 16))
 		{
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 KB / 2 MB / 4MB"); 	/*Flawfinder: ignore*/
-			CPUInfo._Data.uiAssociativeWays = (eaxreg >> 24) & 0xFF;
-			CPUInfo._Data.uiEntries = (eaxreg >> 16) & 0xFF;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 KB / 2 MB / 4MB"); 	/*Flawfinder: ignore*/
+			cpu_info._Data.uiAssociativeWays = (eaxreg >> 24) & 0xFF;
+			cpu_info._Data.uiEntries = (eaxreg >> 16) & 0xFF;
 		}
 		else if (eaxreg >> 16)
 		{
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "2 MB / 4MB");		/*Flawfinder: ignore*/
-			CPUInfo._Data.uiAssociativeWays = (eaxreg >> 24) & 0xFF;
-			CPUInfo._Data.uiEntries = (eaxreg >> 16) & 0xFF;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "2 MB / 4MB");		/*Flawfinder: ignore*/
+			cpu_info._Data.uiAssociativeWays = (eaxreg >> 24) & 0xFF;
+			cpu_info._Data.uiEntries = (eaxreg >> 16) & 0xFF;
 		}
 		else if (ebxreg >> 16)
 		{
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 KB");		/*Flawfinder: ignore*/
-			CPUInfo._Data.uiAssociativeWays = (ebxreg >> 24) & 0xFF;
-			CPUInfo._Data.uiEntries = (ebxreg >> 16) & 0xFF;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 KB");		/*Flawfinder: ignore*/
+			cpu_info._Data.uiAssociativeWays = (ebxreg >> 24) & 0xFF;
+			cpu_info._Data.uiEntries = (ebxreg >> 16) & 0xFF;
 		}
-		if (CPUInfo._Data.uiAssociativeWays == 0xFF)
-			CPUInfo._Data.uiAssociativeWays = (unsigned int) -1;
+		if (cpu_info._Data.uiAssociativeWays == 0xFF)
+			cpu_info._Data.uiAssociativeWays = (unsigned int) -1;
 
 		// Now the L1 Instruction/Code TLB information
 		if ((ebxreg & 0xFFFF) && (eaxreg & 0xFFFF))
 		{
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 KB / 2 MB / 4MB");		/*Flawfinder: ignore*/
-			CPUInfo._Instruction.uiAssociativeWays = (eaxreg >> 8) & 0xFF;
-			CPUInfo._Instruction.uiEntries = eaxreg & 0xFF;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 KB / 2 MB / 4MB");		/*Flawfinder: ignore*/
+			cpu_info._Instruction.uiAssociativeWays = (eaxreg >> 8) & 0xFF;
+			cpu_info._Instruction.uiEntries = eaxreg & 0xFF;
 		}
 		else if (eaxreg & 0xFFFF)
 		{
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "2 MB / 4MB");		/*Flawfinder: ignore*/
-			CPUInfo._Instruction.uiAssociativeWays = (eaxreg >> 8) & 0xFF;
-			CPUInfo._Instruction.uiEntries = eaxreg & 0xFF;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "2 MB / 4MB");		/*Flawfinder: ignore*/
+			cpu_info._Instruction.uiAssociativeWays = (eaxreg >> 8) & 0xFF;
+			cpu_info._Instruction.uiEntries = eaxreg & 0xFF;
 		}
 		else if (ebxreg & 0xFFFF)
 		{
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 KB");	/*Flawfinder: ignore*/
-			CPUInfo._Instruction.uiAssociativeWays = (ebxreg >> 8) & 0xFF;
-			CPUInfo._Instruction.uiEntries = ebxreg & 0xFF;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 KB");	/*Flawfinder: ignore*/
+			cpu_info._Instruction.uiAssociativeWays = (ebxreg >> 8) & 0xFF;
+			cpu_info._Instruction.uiEntries = ebxreg & 0xFF;
 		}
-		if (CPUInfo._Instruction.uiAssociativeWays == 0xFF)
-			CPUInfo._Instruction.uiAssociativeWays = (unsigned int) -1;
+		if (cpu_info._Instruction.uiAssociativeWays == 0xFF)
+			cpu_info._Instruction.uiAssociativeWays = (unsigned int) -1;
 		
 		// Then we read the L1 data cache information
 		if ((ecxreg >> 24) > 0)
 		{
-			CPUInfo._L1.Data.bPresent = true;
-			snprintf(CPUInfo._L1.Data.strSize, sizeof(CPUInfo._L1.Data.strSize), "%d KB", ecxreg >> 24);		/* Flawfinder: ignore */
-			CPUInfo._L1.Data.uiAssociativeWays = (ecxreg >> 15) & 0xFF;
-			CPUInfo._L1.Data.uiLineSize = ecxreg & 0xFF;
+			cpu_info._L1.Data.bPresent = true;
+			snprintf(cpu_info._L1.Data.strSize, sizeof(cpu_info._L1.Data.strSize), "%d KB", ecxreg >> 24);		/* Flawfinder: ignore */
+			cpu_info._L1.Data.uiAssociativeWays = (ecxreg >> 15) & 0xFF;
+			cpu_info._L1.Data.uiLineSize = ecxreg & 0xFF;
 		}
 		// After that we read the L2 instruction/code cache information
 		if ((edxreg >> 24) > 0)
 		{
-			CPUInfo._L1.Instruction.bPresent = true;
-			snprintf(CPUInfo._L1.Instruction.strSize, sizeof(CPUInfo._L1.Instruction.strSize), "%d KB", edxreg >> 24); 	/* Flawfinder: ignore */
-			CPUInfo._L1.Instruction.uiAssociativeWays = (edxreg >> 15) & 0xFF;
-			CPUInfo._L1.Instruction.uiLineSize = edxreg & 0xFF;
+			cpu_info._L1.Instruction.bPresent = true;
+			snprintf(cpu_info._L1.Instruction.strSize, sizeof(cpu_info._L1.Instruction.strSize), "%d KB", edxreg >> 24); 	/* Flawfinder: ignore */
+			cpu_info._L1.Instruction.uiAssociativeWays = (edxreg >> 15) & 0xFF;
+			cpu_info._L1.Instruction.uiLineSize = edxreg & 0xFF;
 		}
 
 		// Note: I'm not absolutely sure that the L1 page size code (the
@@ -984,33 +1485,33 @@ bool CProcessor::AnalyzeAMDProcessor()
 		// L2 cache that is divided in data and code parts)
 		if (((ecxreg >> 12) & 0xF) > 0)
 		{
-			CPUInfo._L2.bPresent = true;
-			snprintf(CPUInfo._L2.strSize, sizeof(CPUInfo._L2.strSize), "%d KB", ecxreg >> 16);		/* Flawfinder: ignore */
+			cpu_info._L2.bPresent = true;
+			snprintf(cpu_info._L2.strSize, sizeof(cpu_info._L2.strSize), "%d KB", ecxreg >> 16);		/* Flawfinder: ignore */
 			switch ((ecxreg >> 12) & 0xF)
 			{
 				case 1:
-					CPUInfo._L2.uiAssociativeWays = 1;
+					cpu_info._L2.uiAssociativeWays = 1;
 					break;
 				case 2:
-					CPUInfo._L2.uiAssociativeWays = 2;
+					cpu_info._L2.uiAssociativeWays = 2;
 					break;
 				case 4:
-					CPUInfo._L2.uiAssociativeWays = 4;
+					cpu_info._L2.uiAssociativeWays = 4;
 					break;
 				case 6:
-					CPUInfo._L2.uiAssociativeWays = 8;
+					cpu_info._L2.uiAssociativeWays = 8;
 					break;
 				case 8:
-					CPUInfo._L2.uiAssociativeWays = 16;
+					cpu_info._L2.uiAssociativeWays = 16;
 					break;
 				case 0xF:
-					CPUInfo._L2.uiAssociativeWays = (unsigned int) -1;
+					cpu_info._L2.uiAssociativeWays = (unsigned int) -1;
 					break;
 				default:
-					CPUInfo._L2.uiAssociativeWays = 0;
+					cpu_info._L2.uiAssociativeWays = 0;
 					break;
 			}
-			CPUInfo._L2.uiLineSize = ecxreg & 0xFF;
+			cpu_info._L2.uiLineSize = ecxreg & 0xFF;
 		}
 	}
 	else
@@ -1052,13 +1553,13 @@ bool CProcessor::AnalyzeUnknownProcessor()
 		mov ebxreg, ebx
 	}
 	// Then we mask the processor model, family, type and stepping
-	CPUInfo.uiStepping = eaxreg & 0xF;
-	CPUInfo.uiModel    = (eaxreg >> 4) & 0xF;
-	CPUInfo.uiFamily   = (eaxreg >> 8) & 0xF;
-	CPUInfo.uiType     = (eaxreg >> 12) & 0x3;
+	cpu_info.uiStepping = eaxreg & 0xF;
+	cpu_info.uiModel    = (eaxreg >> 4) & 0xF;
+	cpu_info.uiFamily   = (eaxreg >> 8) & 0xF;
+	cpu_info.uiType     = (eaxreg >> 12) & 0x3;
 
 	// To have complete information we also mask the brand id
-	CPUInfo.uiBrandID  = ebxreg & 0xF;
+	cpu_info.uiBrandID  = ebxreg & 0xF;
 
 	// Then we get the standard processor extensions
 	GetStandardProcessorExtensions();
@@ -1066,21 +1567,21 @@ bool CProcessor::AnalyzeUnknownProcessor()
 	// Now we mark everything we do not know as unknown
 	strcpy(strCPUName, "Unknown");		/*Flawfinder: ignore*/
 
-	strcpy(CPUInfo._Data.strTLB, "Unknown");	/*Flawfinder: ignore*/
-	strcpy(CPUInfo._Instruction.strTLB, "Unknown");		/*Flawfinder: ignore*/
+	strcpy(cpu_info._Data.strTLB, "Unknown");	/*Flawfinder: ignore*/
+	strcpy(cpu_info._Instruction.strTLB, "Unknown");		/*Flawfinder: ignore*/
 	
-	strcpy(CPUInfo._Trace.strCache, "Unknown");		/*Flawfinder: ignore*/
-	strcpy(CPUInfo._L1.Data.strCache, "Unknown");		/*Flawfinder: ignore*/
-	strcpy(CPUInfo._L1.Instruction.strCache, "Unknown");	/*Flawfinder: ignore*/
-	strcpy(CPUInfo._L2.strCache, "Unknown");		/*Flawfinder: ignore*/
-	strcpy(CPUInfo._L3.strCache, "Unknown");		/*Flawfinder: ignore*/
+	strcpy(cpu_info._Trace.strCache, "Unknown");		/*Flawfinder: ignore*/
+	strcpy(cpu_info._L1.Data.strCache, "Unknown");		/*Flawfinder: ignore*/
+	strcpy(cpu_info._L1.Instruction.strCache, "Unknown");	/*Flawfinder: ignore*/
+	strcpy(cpu_info._L2.strCache, "Unknown");		/*Flawfinder: ignore*/
+	strcpy(cpu_info._L3.strCache, "Unknown");		/*Flawfinder: ignore*/
 
-	strcpy(CPUInfo.strProcessorSerial, "Unknown / Not supported");	/*Flawfinder: ignore*/
+	strcpy(cpu_info.strProcessorSerial, "Unknown / Not supported");	/*Flawfinder: ignore*/
 
 	// For the family, model and brand id we can only print the numeric value
-	snprintf(CPUInfo.strBrandID, sizeof(CPUInfo.strBrandID), "Brand-ID number %d", CPUInfo.uiBrandID);		/* Flawfinder: ignore */
-	snprintf(CPUInfo.strFamily, sizeof(CPUInfo.strFamily), "Family number %d", CPUInfo.uiFamily);		/* Flawfinder: ignore */
-	snprintf(CPUInfo.strModel, sizeof(CPUInfo.strModel), "Model number %d", CPUInfo.uiModel);		/* Flawfinder: ignore */
+	snprintf(cpu_info.strBrandID, sizeof(cpu_info.strBrandID), "Brand-ID number %d", cpu_info.uiBrandID);		/* Flawfinder: ignore */
+	snprintf(cpu_info.strFamily, sizeof(cpu_info.strFamily), "Family number %d", cpu_info.uiFamily);		/* Flawfinder: ignore */
+	snprintf(cpu_info.strModel, sizeof(cpu_info.strModel), "Model number %d", cpu_info.uiModel);		/* Flawfinder: ignore */
 
 	// And thats it
 	return true;
@@ -1137,239 +1638,239 @@ void CProcessor::DecodeProcessorConfiguration(unsigned int cfg)
 		case 0:			// cfg = 0:  Unused
 			break;
 		case 0x1:		// cfg = 0x1:  code TLB present, 4 KB pages, 4 ways, 32 entries
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 KB");	/*Flawfinder: ignore*/
-			CPUInfo._Instruction.uiAssociativeWays = 4;
-			CPUInfo._Instruction.uiEntries = 32;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 KB");	/*Flawfinder: ignore*/
+			cpu_info._Instruction.uiAssociativeWays = 4;
+			cpu_info._Instruction.uiEntries = 32;
 			break;
 		case 0x2:		// cfg = 0x2:  code TLB present, 4 MB pages, fully associative, 2 entries
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 MB");	/*Flawfinder: ignore*/
-			CPUInfo._Instruction.uiAssociativeWays = 4;
-			CPUInfo._Instruction.uiEntries = 2;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 MB");	/*Flawfinder: ignore*/
+			cpu_info._Instruction.uiAssociativeWays = 4;
+			cpu_info._Instruction.uiEntries = 2;
 			break;
 		case 0x3:		// cfg = 0x3:  data TLB present, 4 KB pages, 4 ways, 64 entries
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 KB");		/*Flawfinder: ignore*/
-			CPUInfo._Data.uiAssociativeWays = 4;
-			CPUInfo._Data.uiEntries = 64;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 KB");		/*Flawfinder: ignore*/
+			cpu_info._Data.uiAssociativeWays = 4;
+			cpu_info._Data.uiEntries = 64;
 			break;
 		case 0x4:		// cfg = 0x4:  data TLB present, 4 MB pages, 4 ways, 8 entries
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 MB");	/*Flawfinder: ignore*/
-			CPUInfo._Data.uiAssociativeWays = 4;
-			CPUInfo._Data.uiEntries = 8;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 MB");	/*Flawfinder: ignore*/
+			cpu_info._Data.uiAssociativeWays = 4;
+			cpu_info._Data.uiEntries = 8;
 			break;
 		case 0x6:		// cfg = 0x6:  code L1 cache present, 8 KB, 4 ways, 32 byte lines
-			CPUInfo._L1.Instruction.bPresent = true;
-			strcpy(CPUInfo._L1.Instruction.strSize, "8 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L1.Instruction.uiAssociativeWays = 4;
-			CPUInfo._L1.Instruction.uiLineSize = 32;
+			cpu_info._L1.Instruction.bPresent = true;
+			strcpy(cpu_info._L1.Instruction.strSize, "8 KB");	/*Flawfinder: ignore*/
+			cpu_info._L1.Instruction.uiAssociativeWays = 4;
+			cpu_info._L1.Instruction.uiLineSize = 32;
 			break;
 		case 0x8:		// cfg = 0x8:  code L1 cache present, 16 KB, 4 ways, 32 byte lines
-			CPUInfo._L1.Instruction.bPresent = true;
-			strcpy(CPUInfo._L1.Instruction.strSize, "16 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L1.Instruction.uiAssociativeWays = 4;
-			CPUInfo._L1.Instruction.uiLineSize = 32;
+			cpu_info._L1.Instruction.bPresent = true;
+			strcpy(cpu_info._L1.Instruction.strSize, "16 KB");	/*Flawfinder: ignore*/
+			cpu_info._L1.Instruction.uiAssociativeWays = 4;
+			cpu_info._L1.Instruction.uiLineSize = 32;
 			break;
 		case 0xA:		// cfg = 0xA:  data L1 cache present, 8 KB, 2 ways, 32 byte lines
-			CPUInfo._L1.Data.bPresent = true;
-			strcpy(CPUInfo._L1.Data.strSize, "8 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L1.Data.uiAssociativeWays = 2;
-			CPUInfo._L1.Data.uiLineSize = 32;
+			cpu_info._L1.Data.bPresent = true;
+			strcpy(cpu_info._L1.Data.strSize, "8 KB");	/*Flawfinder: ignore*/
+			cpu_info._L1.Data.uiAssociativeWays = 2;
+			cpu_info._L1.Data.uiLineSize = 32;
 			break;
 		case 0xC:		// cfg = 0xC:  data L1 cache present, 16 KB, 4 ways, 32 byte lines
-			CPUInfo._L1.Data.bPresent = true;
-			strcpy(CPUInfo._L1.Data.strSize, "16 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L1.Data.uiAssociativeWays = 4;
-			CPUInfo._L1.Data.uiLineSize = 32;
+			cpu_info._L1.Data.bPresent = true;
+			strcpy(cpu_info._L1.Data.strSize, "16 KB");	/*Flawfinder: ignore*/
+			cpu_info._L1.Data.uiAssociativeWays = 4;
+			cpu_info._L1.Data.uiLineSize = 32;
 			break;
 		case 0x22:		// cfg = 0x22:  code and data L3 cache present, 512 KB, 4 ways, 64 byte lines, sectored
-			CPUInfo._L3.bPresent = true;
-			strcpy(CPUInfo._L3.strSize, "512 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L3.uiAssociativeWays = 4;
-			CPUInfo._L3.uiLineSize = 64;
-			CPUInfo._L3.bSectored = true;
+			cpu_info._L3.bPresent = true;
+			strcpy(cpu_info._L3.strSize, "512 KB");	/*Flawfinder: ignore*/
+			cpu_info._L3.uiAssociativeWays = 4;
+			cpu_info._L3.uiLineSize = 64;
+			cpu_info._L3.bSectored = true;
 			break;
 		case 0x23:		// cfg = 0x23:  code and data L3 cache present, 1024 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L3.bPresent = true;
-			strcpy(CPUInfo._L3.strSize, "1024 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L3.uiAssociativeWays = 8;
-			CPUInfo._L3.uiLineSize = 64;
-			CPUInfo._L3.bSectored = true;
+			cpu_info._L3.bPresent = true;
+			strcpy(cpu_info._L3.strSize, "1024 KB");	/*Flawfinder: ignore*/
+			cpu_info._L3.uiAssociativeWays = 8;
+			cpu_info._L3.uiLineSize = 64;
+			cpu_info._L3.bSectored = true;
 			break;
 		case 0x25:		// cfg = 0x25:  code and data L3 cache present, 2048 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L3.bPresent = true;
-			strcpy(CPUInfo._L3.strSize, "2048 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L3.uiAssociativeWays = 8;
-			CPUInfo._L3.uiLineSize = 64;
-			CPUInfo._L3.bSectored = true;
+			cpu_info._L3.bPresent = true;
+			strcpy(cpu_info._L3.strSize, "2048 KB");	/*Flawfinder: ignore*/
+			cpu_info._L3.uiAssociativeWays = 8;
+			cpu_info._L3.uiLineSize = 64;
+			cpu_info._L3.bSectored = true;
 			break;
 		case 0x29:		// cfg = 0x29:  code and data L3 cache present, 4096 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L3.bPresent = true;
-			strcpy(CPUInfo._L3.strSize, "4096 KB");	/*Flawfinder: ignore*/
-			CPUInfo._L3.uiAssociativeWays = 8;
-			CPUInfo._L3.uiLineSize = 64;
-			CPUInfo._L3.bSectored = true;
+			cpu_info._L3.bPresent = true;
+			strcpy(cpu_info._L3.strSize, "4096 KB");	/*Flawfinder: ignore*/
+			cpu_info._L3.uiAssociativeWays = 8;
+			cpu_info._L3.uiLineSize = 64;
+			cpu_info._L3.bSectored = true;
 			break;
 		case 0x40:		// cfg = 0x40:  no integrated L2 cache (P6 core) or L3 cache (P4 core)
 			break;
 		case 0x41:		// cfg = 0x41:  code and data L2 cache present, 128 KB, 4 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "128 KB");		/*Flawfinder: ignore*/
-			CPUInfo._L2.uiAssociativeWays = 4;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "128 KB");		/*Flawfinder: ignore*/
+			cpu_info._L2.uiAssociativeWays = 4;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x42:		// cfg = 0x42:  code and data L2 cache present, 256 KB, 4 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "256 KB");		/*Flawfinder: ignore*/
-			CPUInfo._L2.uiAssociativeWays = 4;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "256 KB");		/*Flawfinder: ignore*/
+			cpu_info._L2.uiAssociativeWays = 4;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x43:		// cfg = 0x43:  code and data L2 cache present, 512 KB, 4 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "512 KB");		/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 4;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "512 KB");		/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 4;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x44:		// cfg = 0x44:  code and data L2 cache present, 1024 KB, 4 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "1 MB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 4;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "1 MB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 4;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x45:		// cfg = 0x45:  code and data L2 cache present, 2048 KB, 4 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "2 MB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 4;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "2 MB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 4;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x50:		// cfg = 0x50:  code TLB present, 4 KB / 4 MB / 2 MB pages, fully associative, 64 entries
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 KB / 2 MB / 4 MB");	/* Flawfinder: ignore */
-			CPUInfo._Instruction.uiAssociativeWays = (unsigned int) -1;
-			CPUInfo._Instruction.uiEntries = 64;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 KB / 2 MB / 4 MB");	/* Flawfinder: ignore */
+			cpu_info._Instruction.uiAssociativeWays = (unsigned int) -1;
+			cpu_info._Instruction.uiEntries = 64;
 			break;
 		case 0x51:		// cfg = 0x51:  code TLB present, 4 KB / 4 MB / 2 MB pages, fully associative, 128 entries
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 KB / 2 MB / 4 MB");	/* Flawfinder: ignore */
-			CPUInfo._Instruction.uiAssociativeWays = (unsigned int) -1;
-			CPUInfo._Instruction.uiEntries = 128;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 KB / 2 MB / 4 MB");	/* Flawfinder: ignore */
+			cpu_info._Instruction.uiAssociativeWays = (unsigned int) -1;
+			cpu_info._Instruction.uiEntries = 128;
 			break;
 		case 0x52:		// cfg = 0x52:  code TLB present, 4 KB / 4 MB / 2 MB pages, fully associative, 256 entries
-			CPUInfo._Instruction.bPresent = true;
-			strcpy(CPUInfo._Instruction.strPageSize, "4 KB / 2 MB / 4 MB");	/* Flawfinder: ignore */
-			CPUInfo._Instruction.uiAssociativeWays = (unsigned int) -1;
-			CPUInfo._Instruction.uiEntries = 256;
+			cpu_info._Instruction.bPresent = true;
+			strcpy(cpu_info._Instruction.strPageSize, "4 KB / 2 MB / 4 MB");	/* Flawfinder: ignore */
+			cpu_info._Instruction.uiAssociativeWays = (unsigned int) -1;
+			cpu_info._Instruction.uiEntries = 256;
 			break;
 		case 0x5B:		// cfg = 0x5B:  data TLB present, 4 KB / 4 MB pages, fully associative, 64 entries
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 KB / 4 MB");	/* Flawfinder: ignore */
-			CPUInfo._Data.uiAssociativeWays = (unsigned int) -1;
-			CPUInfo._Data.uiEntries = 64;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 KB / 4 MB");	/* Flawfinder: ignore */
+			cpu_info._Data.uiAssociativeWays = (unsigned int) -1;
+			cpu_info._Data.uiEntries = 64;
 			break;
 		case 0x5C:		// cfg = 0x5C:  data TLB present, 4 KB / 4 MB pages, fully associative, 128 entries
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 KB / 4 MB");	/* Flawfinder: ignore */
-			CPUInfo._Data.uiAssociativeWays = (unsigned int) -1;
-			CPUInfo._Data.uiEntries = 128;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 KB / 4 MB");	/* Flawfinder: ignore */
+			cpu_info._Data.uiAssociativeWays = (unsigned int) -1;
+			cpu_info._Data.uiEntries = 128;
 			break;
 		case 0x5d:		// cfg = 0x5D:  data TLB present, 4 KB / 4 MB pages, fully associative, 256 entries
-			CPUInfo._Data.bPresent = true;
-			strcpy(CPUInfo._Data.strPageSize, "4 KB / 4 MB");	/* Flawfinder: ignore */
-			CPUInfo._Data.uiAssociativeWays = (unsigned int) -1;
-			CPUInfo._Data.uiEntries = 256;
+			cpu_info._Data.bPresent = true;
+			strcpy(cpu_info._Data.strPageSize, "4 KB / 4 MB");	/* Flawfinder: ignore */
+			cpu_info._Data.uiAssociativeWays = (unsigned int) -1;
+			cpu_info._Data.uiEntries = 256;
 			break;
 		case 0x66:		// cfg = 0x66:  data L1 cache present, 8 KB, 4 ways, 64 byte lines, sectored
-			CPUInfo._L1.Data.bPresent = true;
-			strcpy(CPUInfo._L1.Data.strSize, "8 KB");	/* Flawfinder: ignore */
-			CPUInfo._L1.Data.uiAssociativeWays = 4;
-			CPUInfo._L1.Data.uiLineSize = 64;
+			cpu_info._L1.Data.bPresent = true;
+			strcpy(cpu_info._L1.Data.strSize, "8 KB");	/* Flawfinder: ignore */
+			cpu_info._L1.Data.uiAssociativeWays = 4;
+			cpu_info._L1.Data.uiLineSize = 64;
 			break;
 		case 0x67:		// cfg = 0x67:  data L1 cache present, 16 KB, 4 ways, 64 byte lines, sectored
-			CPUInfo._L1.Data.bPresent = true;
-			strcpy(CPUInfo._L1.Data.strSize, "16 KB");	/* Flawfinder: ignore */
-			CPUInfo._L1.Data.uiAssociativeWays = 4;
-			CPUInfo._L1.Data.uiLineSize = 64;
+			cpu_info._L1.Data.bPresent = true;
+			strcpy(cpu_info._L1.Data.strSize, "16 KB");	/* Flawfinder: ignore */
+			cpu_info._L1.Data.uiAssociativeWays = 4;
+			cpu_info._L1.Data.uiLineSize = 64;
 			break;
 		case 0x68:		// cfg = 0x68:  data L1 cache present, 32 KB, 4 ways, 64 byte lines, sectored
-			CPUInfo._L1.Data.bPresent = true;
-			strcpy(CPUInfo._L1.Data.strSize, "32 KB");	/* Flawfinder: ignore */
-			CPUInfo._L1.Data.uiAssociativeWays = 4;
-			CPUInfo._L1.Data.uiLineSize = 64;
+			cpu_info._L1.Data.bPresent = true;
+			strcpy(cpu_info._L1.Data.strSize, "32 KB");	/* Flawfinder: ignore */
+			cpu_info._L1.Data.uiAssociativeWays = 4;
+			cpu_info._L1.Data.uiLineSize = 64;
 			break;
 		case 0x70:		// cfg = 0x70:  trace L1 cache present, 12 KuOPs, 4 ways
-			CPUInfo._Trace.bPresent = true;
-			strcpy(CPUInfo._Trace.strSize, "12 K-micro-ops");	/* Flawfinder: ignore */
-			CPUInfo._Trace.uiAssociativeWays = 4;
+			cpu_info._Trace.bPresent = true;
+			strcpy(cpu_info._Trace.strSize, "12 K-micro-ops");	/* Flawfinder: ignore */
+			cpu_info._Trace.uiAssociativeWays = 4;
 			break;
 		case 0x71:		// cfg = 0x71:  trace L1 cache present, 16 KuOPs, 4 ways
-			CPUInfo._Trace.bPresent = true;
-			strcpy(CPUInfo._Trace.strSize, "16 K-micro-ops");	/* Flawfinder: ignore */
-			CPUInfo._Trace.uiAssociativeWays = 4;
+			cpu_info._Trace.bPresent = true;
+			strcpy(cpu_info._Trace.strSize, "16 K-micro-ops");	/* Flawfinder: ignore */
+			cpu_info._Trace.uiAssociativeWays = 4;
 			break;
 		case 0x72:		// cfg = 0x72:  trace L1 cache present, 32 KuOPs, 4 ways
-			CPUInfo._Trace.bPresent = true;
-			strcpy(CPUInfo._Trace.strSize, "32 K-micro-ops");	/* Flawfinder: ignore */
-			CPUInfo._Trace.uiAssociativeWays = 4;
+			cpu_info._Trace.bPresent = true;
+			strcpy(cpu_info._Trace.strSize, "32 K-micro-ops");	/* Flawfinder: ignore */
+			cpu_info._Trace.uiAssociativeWays = 4;
 			break;
 		case 0x79:		// cfg = 0x79:  code and data L2 cache present, 128 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "128 KB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 64;
-			CPUInfo._L2.bSectored = true;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "128 KB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 64;
+			cpu_info._L2.bSectored = true;
 			break;
 		case 0x7A:		// cfg = 0x7A:  code and data L2 cache present, 256 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "256 KB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 64;
-			CPUInfo._L2.bSectored = true;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "256 KB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 64;
+			cpu_info._L2.bSectored = true;
 			break;
 		case 0x7B:		// cfg = 0x7B:  code and data L2 cache present, 512 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "512 KB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 64;
-			CPUInfo._L2.bSectored = true;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "512 KB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 64;
+			cpu_info._L2.bSectored = true;
 			break;
 		case 0x7C:		// cfg = 0x7C:  code and data L2 cache present, 1024 KB, 8 ways, 64 byte lines, sectored
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "1 MB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 64;
-			CPUInfo._L2.bSectored = true;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "1 MB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 64;
+			cpu_info._L2.bSectored = true;
 			break;
 		case 0x81:		// cfg = 0x81:  code and data L2 cache present, 128 KB, 8 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "128 KB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "128 KB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x82:		// cfg = 0x82:  code and data L2 cache present, 256 KB, 8 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "256 KB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "256 KB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x83:		// cfg = 0x83:  code and data L2 cache present, 512 KB, 8 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "512 KB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "512 KB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x84:		// cfg = 0x84:  code and data L2 cache present, 1024 KB, 8 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "1 MB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "1 MB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 		case 0x85:		// cfg = 0x85:  code and data L2 cache present, 2048 KB, 8 ways, 32 byte lines
-			CPUInfo._L2.bPresent = true;
-			strcpy(CPUInfo._L2.strSize, "2 MB");	/* Flawfinder: ignore */
-			CPUInfo._L2.uiAssociativeWays = 8;
-			CPUInfo._L2.uiLineSize = 32;
+			cpu_info._L2.bPresent = true;
+			strcpy(cpu_info._L2.strSize, "2 MB");	/* Flawfinder: ignore */
+			cpu_info._L2.uiAssociativeWays = 8;
+			cpu_info._L2.uiLineSize = 32;
 			break;
 	}
 }
@@ -1428,15 +1929,15 @@ FORCEINLINE static void TranslateCache(ProcessorCache *cache)
 void CProcessor::TranslateProcessorConfiguration()
 {
 	// We just call the small functions defined above
-	TranslateTLB(&CPUInfo._Data);
-	TranslateTLB(&CPUInfo._Instruction);
+	TranslateTLB(&cpu_info._Data);
+	TranslateTLB(&cpu_info._Instruction);
 
-	TranslateCache(&CPUInfo._Trace);
+	TranslateCache(&cpu_info._Trace);
 
-	TranslateCache(&CPUInfo._L1.Instruction);
-	TranslateCache(&CPUInfo._L1.Data);
-	TranslateCache(&CPUInfo._L2);
-	TranslateCache(&CPUInfo._L3);
+	TranslateCache(&cpu_info._L1.Instruction);
+	TranslateCache(&cpu_info._L1.Data);
+	TranslateCache(&cpu_info._L2);
+	TranslateCache(&cpu_info._L3);
 }
 
 // void CProcessor::GetStandardProcessorConfiguration()
@@ -1454,7 +1955,7 @@ void CProcessor::GetStandardProcessorConfiguration()
 
 	// First we check if the processor supports the standard
 	// CPUID level 0x00000002
-	if (CPUInfo.MaxSupportedLevel >= 2)
+	if (cpu_info.MaxSupportedLevel >= 2)
 	{
 		// Now we go read the std. CPUID level 0x00000002 the first time
 		unsigned long count, num = 255;
@@ -1529,48 +2030,48 @@ void CProcessor::GetStandardProcessorExtensions()
 	}
     
 	// Then we mask some bits
-	CPUInfo._Ext.FPU_FloatingPointUnit							= CheckBit(edxreg, 0);
-	CPUInfo._Ext.VME_Virtual8086ModeEnhancements				= CheckBit(edxreg, 1);
-	CPUInfo._Ext.DE_DebuggingExtensions							= CheckBit(edxreg, 2);
-	CPUInfo._Ext.PSE_PageSizeExtensions							= CheckBit(edxreg, 3);
-	CPUInfo._Ext.TSC_TimeStampCounter							= CheckBit(edxreg, 4);
-	CPUInfo._Ext.MSR_ModelSpecificRegisters						= CheckBit(edxreg, 5);
-	CPUInfo._Ext.PAE_PhysicalAddressExtension					= CheckBit(edxreg, 6);
-	CPUInfo._Ext.MCE_MachineCheckException						= CheckBit(edxreg, 7);
-	CPUInfo._Ext.CX8_COMPXCHG8B_Instruction						= CheckBit(edxreg, 8);
-	CPUInfo._Ext.APIC_AdvancedProgrammableInterruptController	= CheckBit(edxreg, 9);
-	CPUInfo._Ext.APIC_ID = (ebxreg >> 24) & 0xFF;
-	CPUInfo._Ext.SEP_FastSystemCall								= CheckBit(edxreg, 11);
-	CPUInfo._Ext.MTRR_MemoryTypeRangeRegisters					= CheckBit(edxreg, 12);
-	CPUInfo._Ext.PGE_PTE_GlobalFlag								= CheckBit(edxreg, 13);
-	CPUInfo._Ext.MCA_MachineCheckArchitecture					= CheckBit(edxreg, 14);
-	CPUInfo._Ext.CMOV_ConditionalMoveAndCompareInstructions		= CheckBit(edxreg, 15);
-	CPUInfo._Ext.FGPAT_PageAttributeTable						= CheckBit(edxreg, 16);
-	CPUInfo._Ext.PSE36_36bitPageSizeExtension					= CheckBit(edxreg, 17);
-	CPUInfo._Ext.PN_ProcessorSerialNumber						= CheckBit(edxreg, 18);
-	CPUInfo._Ext.CLFSH_CFLUSH_Instruction						= CheckBit(edxreg, 19);
-	CPUInfo._Ext.CLFLUSH_InstructionCacheLineSize = (ebxreg >> 8) & 0xFF;
-	CPUInfo._Ext.DS_DebugStore									= CheckBit(edxreg, 21);
-	CPUInfo._Ext.ACPI_ThermalMonitorAndClockControl				= CheckBit(edxreg, 22);
-	CPUInfo._Ext.MMX_MultimediaExtensions						= CheckBit(edxreg, 23);
-	CPUInfo._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore	= CheckBit(edxreg, 24);
-	CPUInfo._Ext.SSE_StreamingSIMD_Extensions					= CheckBit(edxreg, 25);
-	CPUInfo._Ext.SSE2_StreamingSIMD2_Extensions					= CheckBit(edxreg, 26);
-	CPUInfo._Ext.Altivec_Extensions = false;
-	CPUInfo._Ext.SS_SelfSnoop									= CheckBit(edxreg, 27);
-	CPUInfo._Ext.HT_HyperThreading								= CheckBit(edxreg, 28);
-	CPUInfo._Ext.HT_HyterThreadingSiblings = (ebxreg >> 16) & 0xFF;
-	CPUInfo._Ext.TM_ThermalMonitor								= CheckBit(edxreg, 29);
-	CPUInfo._Ext.IA64_Intel64BitArchitecture					= CheckBit(edxreg, 30);
+	cpu_info._Ext.FPU_FloatingPointUnit							= CheckBit(edxreg, 0);
+	cpu_info._Ext.VME_Virtual8086ModeEnhancements				= CheckBit(edxreg, 1);
+	cpu_info._Ext.DE_DebuggingExtensions							= CheckBit(edxreg, 2);
+	cpu_info._Ext.PSE_PageSizeExtensions							= CheckBit(edxreg, 3);
+	cpu_info._Ext.TSC_TimeStampCounter							= CheckBit(edxreg, 4);
+	cpu_info._Ext.MSR_ModelSpecificRegisters						= CheckBit(edxreg, 5);
+	cpu_info._Ext.PAE_PhysicalAddressExtension					= CheckBit(edxreg, 6);
+	cpu_info._Ext.MCE_MachineCheckException						= CheckBit(edxreg, 7);
+	cpu_info._Ext.CX8_COMPXCHG8B_Instruction						= CheckBit(edxreg, 8);
+	cpu_info._Ext.APIC_AdvancedProgrammableInterruptController	= CheckBit(edxreg, 9);
+	cpu_info._Ext.APIC_ID = (ebxreg >> 24) & 0xFF;
+	cpu_info._Ext.SEP_FastSystemCall								= CheckBit(edxreg, 11);
+	cpu_info._Ext.MTRR_MemoryTypeRangeRegisters					= CheckBit(edxreg, 12);
+	cpu_info._Ext.PGE_PTE_GlobalFlag								= CheckBit(edxreg, 13);
+	cpu_info._Ext.MCA_MachineCheckArchitecture					= CheckBit(edxreg, 14);
+	cpu_info._Ext.CMOV_ConditionalMoveAndCompareInstructions		= CheckBit(edxreg, 15);
+	cpu_info._Ext.FGPAT_PageAttributeTable						= CheckBit(edxreg, 16);
+	cpu_info._Ext.PSE36_36bitPageSizeExtension					= CheckBit(edxreg, 17);
+	cpu_info._Ext.PN_ProcessorSerialNumber						= CheckBit(edxreg, 18);
+	cpu_info._Ext.CLFSH_CFLUSH_Instruction						= CheckBit(edxreg, 19);
+	cpu_info._Ext.CLFLUSH_InstructionCacheLineSize = (ebxreg >> 8) & 0xFF;
+	cpu_info._Ext.DS_DebugStore									= CheckBit(edxreg, 21);
+	cpu_info._Ext.ACPI_ThermalMonitorAndClockControl				= CheckBit(edxreg, 22);
+	cpu_info._Ext.MMX_MultimediaExtensions						= CheckBit(edxreg, 23);
+	cpu_info._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore	= CheckBit(edxreg, 24);
+	cpu_info._Ext.SSE_StreamingSIMD_Extensions					= CheckBit(edxreg, 25);
+	cpu_info._Ext.SSE2_StreamingSIMD2_Extensions					= CheckBit(edxreg, 26);
+	cpu_info._Ext.Altivec_Extensions = false;
+	cpu_info._Ext.SS_SelfSnoop									= CheckBit(edxreg, 27);
+	cpu_info._Ext.HT_HyperThreading								= CheckBit(edxreg, 28);
+	cpu_info._Ext.HT_HyterThreadingSiblings = (ebxreg >> 16) & 0xFF;
+	cpu_info._Ext.TM_ThermalMonitor								= CheckBit(edxreg, 29);
+	cpu_info._Ext.IA64_Intel64BitArchitecture					= CheckBit(edxreg, 30);
 #endif
 }
 
-// const ProcessorInfo *CProcessor::GetCPUInfo()
+// const ProcessorInfo *CProcessor::Getcpu_info()
 // =============================================
 // Calls all the other detection function to create an detailed
 // processor information
 ///////////////////////////////////////////////////////////////
-const ProcessorInfo *CProcessor::GetCPUInfo()
+const ProcessorInfo *CProcessor::Getcpu_info()
 {
 #if LL_WINDOWS
 	unsigned long eaxreg, ebxreg, ecxreg, edxreg;
@@ -1591,14 +2092,14 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 		mov ecxreg, ecx
 	}
 	// Then we connect the single register values to the vendor string
-	*((unsigned long *) CPUInfo.strVendor) = ebxreg;
-	*((unsigned long *) (CPUInfo.strVendor+4)) = edxreg;
-	*((unsigned long *) (CPUInfo.strVendor+8)) = ecxreg;
+	*((unsigned long *) cpu_info.strVendor) = ebxreg;
+	*((unsigned long *) (cpu_info.strVendor+4)) = edxreg;
+	*((unsigned long *) (cpu_info.strVendor+8)) = ecxreg;
 	// Null terminate for string comparisons below.
-	CPUInfo.strVendor[12] = 0;
+	cpu_info.strVendor[12] = 0;
 
 	// We can also read the max. supported standard CPUID level
-	CPUInfo.MaxSupportedLevel = eaxreg & 0xFFFF;
+	cpu_info.MaxSupportedLevel = eaxreg & 0xFFFF;
 
 	// Then we read the ext. CPUID level 0x80000000
 	__asm
@@ -1608,48 +2109,48 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 		mov eaxreg, eax
 	}
 	// ...to check the max. supportted extended CPUID level
-	CPUInfo.MaxSupportedExtendedLevel = eaxreg;
+	cpu_info.MaxSupportedExtendedLevel = eaxreg;
 
 	// Then we switch to the specific processor vendors
 	// See http://www.sandpile.org/ia32/cpuid.htm
-	if (!strcmp(CPUInfo.strVendor, "GenuineIntel"))
+	if (!strcmp(cpu_info.strVendor, "GenuineIntel"))
 	{
 		AnalyzeIntelProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "AuthenticAMD"))
+	else if (!strcmp(cpu_info.strVendor, "AuthenticAMD"))
 	{
 		AnalyzeAMDProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "UMC UMC UMC"))
+	else if (!strcmp(cpu_info.strVendor, "UMC UMC UMC"))
 	{
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "CyrixInstead"))
+	else if (!strcmp(cpu_info.strVendor, "CyrixInstead"))
 	{
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "NexGenDriven"))
+	else if (!strcmp(cpu_info.strVendor, "NexGenDriven"))
 	{
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "CentaurHauls"))
+	else if (!strcmp(cpu_info.strVendor, "CentaurHauls"))
 	{
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "RiseRiseRise"))
+	else if (!strcmp(cpu_info.strVendor, "RiseRiseRise"))
 	{
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "SiS SiS SiS"))
+	else if (!strcmp(cpu_info.strVendor, "SiS SiS SiS"))
 	{
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "GenuineTMx86"))
+	else if (!strcmp(cpu_info.strVendor, "GenuineTMx86"))
 	{
 		// Transmeta
 		AnalyzeUnknownProcessor();
 	}
-	else if (!strcmp(CPUInfo.strVendor, "Geode by NSC"))
+	else if (!strcmp(cpu_info.strVendor, "Geode by NSC"))
 	{
 		AnalyzeUnknownProcessor();
 	}
@@ -1658,8 +2159,8 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 		AnalyzeUnknownProcessor();
 	}
 #endif
-	// After all we return the class CPUInfo member var
-	return (&CPUInfo);
+	// After all we return the class cpu_info member var
+	return (&cpu_info);
 }
 
 #elif LL_SOLARIS
@@ -1676,7 +2177,7 @@ CProcessor::CProcessor()
 {
 	uqwFrequency = 0;
 	strCPUName[0] = 0;
-	memset(&CPUInfo, 0, sizeof(CPUInfo));
+	memset(&cpu_info, 0, sizeof(cpu_info));
 }
 
 // unsigned __int64 CProcessor::GetCPUFrequency(unsigned int uiMeasureMSecs)
@@ -1686,18 +2187,18 @@ CProcessor::CProcessor()
 F64 CProcessor::GetCPUFrequency(unsigned int /*uiMeasureMSecs*/)
 {
 	if(uqwFrequency == 0){
-		GetCPUInfo();
+		Getcpu_info();
 	}
 
 	return uqwFrequency;
 }
 
-// const ProcessorInfo *CProcessor::GetCPUInfo()
+// const ProcessorInfo *CProcessor::Getcpu_info()
 // =============================================
 // Calls all the other detection function to create an detailed
 // processor information
 ///////////////////////////////////////////////////////////////
-const ProcessorInfo *CProcessor::GetCPUInfo()
+const ProcessorInfo *CProcessor::Getcpu_info()
 {
 					// In Solaris the CPU info is in the kstats
 					// try "psrinfo" or "kstat cpu_info" to see all
@@ -1712,7 +2213,7 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 
 	if((int)kc == -1){
 		llwarns << "kstat_open(0 failed!" << llendl;
-		return (&CPUInfo);
+		return (&cpu_info);
 	}
 
 	for (ks = kc->kc_chain; ks != NULL; ks = ks->ks_next) {
@@ -1723,7 +2224,7 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 	
 	if(ncpus < 1){
 		llwarns << "No cpus found in kstats!" << llendl;
-		return (&CPUInfo);
+		return (&cpu_info);
 	}
 
 	for (ks = kc->kc_chain; ks; ks = ks->ks_next) {
@@ -1746,10 +2247,10 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 		if(!strcmp(ksi->name, "brand")){
 			strncat(strCPUName, (char *)KSTAT_NAMED_STR_PTR(ksi),
 				sizeof(strCPUName)-strlen(strCPUName)-1);
-			strncat(CPUInfo.strFamily, (char *)KSTAT_NAMED_STR_PTR(ksi),
-				sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);
-			strncpy(CPUInfo.strBrandID, strCPUName,sizeof(CPUInfo.strBrandID)-1);
-			CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID)-1]='\0';
+			strncat(cpu_info.strFamily, (char *)KSTAT_NAMED_STR_PTR(ksi),
+				sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);
+			strncpy(cpu_info.strBrandID, strCPUName,sizeof(cpu_info.strBrandID)-1);
+			cpu_info.strBrandID[sizeof(cpu_info.strBrandID)-1]='\0';
 			// DEBUG llinfos << "CPU brand: " << strCPUName << llendl;
 			continue;
 		}
@@ -1767,8 +2268,8 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 
 #if defined(__i386)
 		if(!strcmp(ksi->name, "vendor_id")){
-			strncpy(CPUInfo.strVendor, (char *)KSTAT_NAMED_STR_PTR(ksi), sizeof(CPUInfo.strVendor)-1);
-			// DEBUG llinfos << "CPU vendor: " << CPUInfo.strVendor << llendl;
+			strncpy(cpu_info.strVendor, (char *)KSTAT_NAMED_STR_PTR(ksi), sizeof(cpu_info.strVendor)-1);
+			// DEBUG llinfos << "CPU vendor: " << cpu_info.strVendor << llendl;
 			continue;
 		}
 #endif
@@ -1777,7 +2278,7 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 	kstat_close(kc);
 
 #if defined(__sparc)		// SPARC does not define a vendor string in kstat
-	strncpy(CPUInfo.strVendor, "Sun Microsystems, Inc.", sizeof(CPUInfo.strVendor)-1);
+	strncpy(cpu_info.strVendor, "Sun Microsystems, Inc.", sizeof(cpu_info.strVendor)-1);
 #endif
 
 	// DEBUG llinfo << "The system has " << ncpus << " CPUs with a clock rate of " <<  uqwFrequency << "MHz." << llendl;
@@ -1791,29 +2292,29 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 	(void) getisax(&ui, 1);
 	
 	if(ui & AV_386_FPU)
-		CPUInfo._Ext.FPU_FloatingPointUnit = true;
+		cpu_info._Ext.FPU_FloatingPointUnit = true;
 	if(ui & AV_386_CX8)
-		CPUInfo._Ext.CX8_COMPXCHG8B_Instruction = true;
+		cpu_info._Ext.CX8_COMPXCHG8B_Instruction = true;
 	if(ui & AV_386_MMX)
-		CPUInfo._Ext.MMX_MultimediaExtensions = true;
+		cpu_info._Ext.MMX_MultimediaExtensions = true;
 	if(ui & AV_386_AMD_MMX)
-		CPUInfo._Ext.MMX_MultimediaExtensions = true;
+		cpu_info._Ext.MMX_MultimediaExtensions = true;
 	if(ui & AV_386_FXSR)
-		CPUInfo._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore = true;
+		cpu_info._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore = true;
 	if(ui & AV_386_SSE)
-		 CPUInfo._Ext.SSE_StreamingSIMD_Extensions = true;
+		 cpu_info._Ext.SSE_StreamingSIMD_Extensions = true;
 	if(ui & AV_386_SSE2)
-		CPUInfo._Ext.SSE2_StreamingSIMD2_Extensions = true;
+		cpu_info._Ext.SSE2_StreamingSIMD2_Extensions = true;
 /* Left these here since they may get used later
 	if(ui & AV_386_SSE3)
-		CPUInfo._Ext.... = true;
+		cpu_info._Ext.... = true;
 	if(ui & AV_386_AMD_3DNow)
-		CPUInfo._Ext.... = true;
+		cpu_info._Ext.... = true;
 	if(ui & AV_386_AMD_3DNowx)
-		CPUInfo._Ext.... = true;
+		cpu_info._Ext.... = true;
 */
 #endif
-	return (&CPUInfo);
+	return (&cpu_info);
 }
 
 #else
@@ -1876,15 +2377,15 @@ static void TranslateCache(ProcessorCache *cache)
 void CProcessor::TranslateProcessorConfiguration()
 {
 	// We just call the small functions defined above
-	TranslateTLB(&CPUInfo._Data);
-	TranslateTLB(&CPUInfo._Instruction);
+	TranslateTLB(&cpu_info._Data);
+	TranslateTLB(&cpu_info._Instruction);
 
-	TranslateCache(&CPUInfo._Trace);
+	TranslateCache(&cpu_info._Trace);
 
-	TranslateCache(&CPUInfo._L1.Instruction);
-	TranslateCache(&CPUInfo._L1.Data);
-	TranslateCache(&CPUInfo._L2);
-	TranslateCache(&CPUInfo._L3);
+	TranslateCache(&cpu_info._L1.Instruction);
+	TranslateCache(&cpu_info._L1.Data);
+	TranslateCache(&cpu_info._L2);
+	TranslateCache(&cpu_info._L3);
 }
 
 // CProcessor::CProcessor
@@ -1895,7 +2396,7 @@ CProcessor::CProcessor()
 {
 	uqwFrequency = 0;
 	strCPUName[0] = 0;
-	memset(&CPUInfo, 0, sizeof(CPUInfo));
+	memset(&cpu_info, 0, sizeof(cpu_info));
 }
 
 // unsigned __int64 CProcessor::GetCPUFrequency(unsigned int uiMeasureMSecs)
@@ -1930,12 +2431,12 @@ static bool hasFeature(const char *name)
 	return result;
 }
 
-// const ProcessorInfo *CProcessor::GetCPUInfo()
+// const ProcessorInfo *CProcessor::Getcpu_info()
 // =============================================
 // Calls all the other detection function to create an detailed
 // processor information
 ///////////////////////////////////////////////////////////////
-const ProcessorInfo *CProcessor::GetCPUInfo()
+const ProcessorInfo *CProcessor::Getcpu_info()
 {
 	int pagesize = 0;
 	int cachelinesize = 0;
@@ -2011,52 +2512,52 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 	{
 		case CPU_SUBTYPE_POWERPC_601://         ((cpu_subtype_t) 1)
 			strncat(strCPUName, "PowerPC 601", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 			
 		break;
 		case CPU_SUBTYPE_POWERPC_602://         ((cpu_subtype_t) 2)
 			strncat(strCPUName, "PowerPC 602", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_603://         ((cpu_subtype_t) 3)
 			strncat(strCPUName, "PowerPC 603", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_603e://        ((cpu_subtype_t) 4)
 			strncat(strCPUName, "PowerPC 603e", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_603ev://       ((cpu_subtype_t) 5)
 			strncat(strCPUName, "PowerPC 603ev", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_604://         ((cpu_subtype_t) 6)
 			strncat(strCPUName, "PowerPC 604", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_604e://        ((cpu_subtype_t) 7)
 			strncat(strCPUName, "PowerPC 604e", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_620://			((cpu_subtype_t) 8)
 			strncat(strCPUName, "PowerPC 620", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_750://         ((cpu_subtype_t) 9)
 			strncat(strCPUName, "PowerPC 750", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC G3", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC G3", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_7400://        ((cpu_subtype_t) 10)
 			strncat(strCPUName, "PowerPC 7400", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC G4", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC G4", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_7450://        ((cpu_subtype_t) 11)
 			strncat(strCPUName, "PowerPC 7450", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC G4", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC G4", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 		case CPU_SUBTYPE_POWERPC_970://         ((cpu_subtype_t) 100)
 			strncat(strCPUName, "PowerPC 970", sizeof(strCPUName)-strlen(strCPUName)-1);	/* Flawfinder: ignore */
-			strncat(CPUInfo.strFamily, "PowerPC G5", sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);	/* Flawfinder: ignore */
+			strncat(cpu_info.strFamily, "PowerPC G5", sizeof(cpu_info.strFamily)-strlen(cpu_info.strFamily)-1);	/* Flawfinder: ignore */
 		break;
 
 		default:
@@ -2064,12 +2565,12 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 		break;
 	}
 
-	CPUInfo._Ext.EMMX_MultimediaExtensions = 
-	CPUInfo._Ext.MMX_MultimediaExtensions = 
-	CPUInfo._Ext.SSE_StreamingSIMD_Extensions =
-	CPUInfo._Ext.SSE2_StreamingSIMD2_Extensions = false;
+	cpu_info._Ext.EMMX_MultimediaExtensions = 
+	cpu_info._Ext.MMX_MultimediaExtensions = 
+	cpu_info._Ext.SSE_StreamingSIMD_Extensions =
+	cpu_info._Ext.SSE2_StreamingSIMD2_Extensions = false;
 
-	CPUInfo._Ext.Altivec_Extensions = hasFeature("hw.optional.altivec");
+	cpu_info._Ext.Altivec_Extensions = hasFeature("hw.optional.altivec");
 
 #endif
 
@@ -2082,54 +2583,54 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 		break;
 	}
 
-	CPUInfo._Ext.EMMX_MultimediaExtensions = hasFeature("hw.optional.mmx");  // MBW -- XXX -- this may be wrong...
-	CPUInfo._Ext.MMX_MultimediaExtensions = hasFeature("hw.optional.mmx");
-	CPUInfo._Ext.SSE_StreamingSIMD_Extensions = hasFeature("hw.optional.sse");
-	CPUInfo._Ext.SSE2_StreamingSIMD2_Extensions = hasFeature("hw.optional.sse2");
-	CPUInfo._Ext.Altivec_Extensions = false;
-	CPUInfo._Ext.AA64_AMD64BitArchitecture = hasFeature("hw.optional.x86_64");
+	cpu_info._Ext.EMMX_MultimediaExtensions = hasFeature("hw.optional.mmx");  // MBW -- XXX -- this may be wrong...
+	cpu_info._Ext.MMX_MultimediaExtensions = hasFeature("hw.optional.mmx");
+	cpu_info._Ext.SSE_StreamingSIMD_Extensions = hasFeature("hw.optional.sse");
+	cpu_info._Ext.SSE2_StreamingSIMD2_Extensions = hasFeature("hw.optional.sse2");
+	cpu_info._Ext.Altivec_Extensions = false;
+	cpu_info._Ext.AA64_AMD64BitArchitecture = hasFeature("hw.optional.x86_64");
 
 #endif
 
 	// Terse CPU info uses this string...
-	strncpy(CPUInfo.strBrandID, strCPUName,sizeof(CPUInfo.strBrandID)-1);	/* Flawfinder: ignore */	
-	CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID)-1]='\0';
+	strncpy(cpu_info.strBrandID, strCPUName,sizeof(cpu_info.strBrandID)-1);	/* Flawfinder: ignore */	
+	cpu_info.strBrandID[sizeof(cpu_info.strBrandID)-1]='\0';
 	
 	// Fun cache config stuff...
 	
 	if(l1dcachesize != 0)
 	{
-		CPUInfo._L1.Data.bPresent = true;
-		snprintf(CPUInfo._L1.Data.strSize, sizeof(CPUInfo._L1.Data.strSize), "%d KB", l1dcachesize / 1024);	/* Flawfinder: ignore */
-//		CPUInfo._L1.Data.uiAssociativeWays = ???;
-		CPUInfo._L1.Data.uiLineSize = cachelinesize;
+		cpu_info._L1.Data.bPresent = true;
+		snprintf(cpu_info._L1.Data.strSize, sizeof(cpu_info._L1.Data.strSize), "%d KB", l1dcachesize / 1024);	/* Flawfinder: ignore */
+//		cpu_info._L1.Data.uiAssociativeWays = ???;
+		cpu_info._L1.Data.uiLineSize = cachelinesize;
 	}
 
 	if(l1icachesize != 0)
 	{
-		CPUInfo._L1.Instruction.bPresent = true;
-		snprintf(CPUInfo._L1.Instruction.strSize, sizeof(CPUInfo._L1.Instruction.strSize), "%d KB", l1icachesize / 1024);	/* Flawfinder: ignore */
-//		CPUInfo._L1.Instruction.uiAssociativeWays = ???;
-		CPUInfo._L1.Instruction.uiLineSize = cachelinesize;
+		cpu_info._L1.Instruction.bPresent = true;
+		snprintf(cpu_info._L1.Instruction.strSize, sizeof(cpu_info._L1.Instruction.strSize), "%d KB", l1icachesize / 1024);	/* Flawfinder: ignore */
+//		cpu_info._L1.Instruction.uiAssociativeWays = ???;
+		cpu_info._L1.Instruction.uiLineSize = cachelinesize;
 	}
 
 	if(l2cachesize != 0)
 	{
-		CPUInfo._L2.bPresent = true;
-		snprintf(CPUInfo._L2.strSize, sizeof(CPUInfo._L2.strSize), "%d KB", l2cachesize / 1024);	/* Flawfinder: ignore */
-//		CPUInfo._L2.uiAssociativeWays = ???;
-		CPUInfo._L2.uiLineSize = cachelinesize;
+		cpu_info._L2.bPresent = true;
+		snprintf(cpu_info._L2.strSize, sizeof(cpu_info._L2.strSize), "%d KB", l2cachesize / 1024);	/* Flawfinder: ignore */
+//		cpu_info._L2.uiAssociativeWays = ???;
+		cpu_info._L2.uiLineSize = cachelinesize;
 	}
 
 	if(l3cachesize != 0)
 	{
-		CPUInfo._L2.bPresent = true;
-		snprintf(CPUInfo._L2.strSize, sizeof(CPUInfo._L2.strSize), "%d KB", l3cachesize / 1024);	/* Flawfinder: ignore */
-//		CPUInfo._L2.uiAssociativeWays = ???;
-		CPUInfo._L2.uiLineSize = cachelinesize;
+		cpu_info._L2.bPresent = true;
+		snprintf(cpu_info._L2.strSize, sizeof(cpu_info._L2.strSize), "%d KB", l3cachesize / 1024);	/* Flawfinder: ignore */
+//		cpu_info._L2.uiAssociativeWays = ???;
+		cpu_info._L2.uiLineSize = cachelinesize;
 	}
 	
-	CPUInfo._Ext.FPU_FloatingPointUnit = hasFeature("hw.optional.floatingpoint");
+	cpu_info._Ext.FPU_FloatingPointUnit = hasFeature("hw.optional.floatingpoint");
 
 //	printf("pagesize = 0x%x\n", pagesize);
 //	printf("cachelinesize = 0x%x\n", cachelinesize);
@@ -2143,17 +2644,17 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 	// After reading we translate the configuration to strings
 	TranslateProcessorConfiguration();
 
-	// After all we return the class CPUInfo member var
-	return (&CPUInfo);
+	// After all we return the class cpu_info member var
+	return (&cpu_info);
 }
 
 #endif // LL_DARWIN
 
-// bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
+// bool CProcessor::cpu_infoToText(char *strBuffer, unsigned int uiMaxLen)
 // ======================================================================
 // Gets the frequency and processor information and writes it to a string
 /////////////////////////////////////////////////////////////////////////
-bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
+bool CProcessor::cpu_infoToText(char *strBuffer, unsigned int uiMaxLen)
 {
 #define LENCHECK                len = (unsigned int) strlen(buf); if (len >= uiMaxLen) return false; strcpy(strBuffer, buf); strBuffer += len;     /*Flawfinder: ignore*/
 #define COPYADD(str)            strcpy(buf, str); LENCHECK;    /* Flawfinder: ignore */
@@ -2167,7 +2668,7 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
     GetCPUFrequency(50);
 
 	// Then we get the processor information
-	GetCPUInfo();
+	Getcpu_info();
 
     // Now we construct the string (see the macros at function beginning)
 	strBuffer[0] = 0;
@@ -2175,16 +2676,16 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
 	COPYADD("// CPU General Information\n//////////////////////////\n");
 	FORMATADD("Processor name:   %s\n", strCPUName);
 	FORMATADD("Frequency:        %.2f MHz\n\n", (float) uqwFrequency / 1000000.0f);
-	FORMATADD("Vendor:           %s\n", CPUInfo.strVendor);
-	FORMATADD("Family:           %s\n", CPUInfo.strFamily);
-	FORMATADD("Extended family:  %d\n", CPUInfo.uiExtendedFamily);
-	FORMATADD("Model:            %s\n", CPUInfo.strModel);
-	FORMATADD("Extended model:   %d\n", CPUInfo.uiExtendedModel);
-	FORMATADD("Type:             %s\n", CPUInfo.strType);
-	FORMATADD("Brand ID:         %s\n", CPUInfo.strBrandID);
-	if (CPUInfo._Ext.PN_ProcessorSerialNumber)
+	FORMATADD("Vendor:           %s\n", cpu_info.strVendor);
+	FORMATADD("Family:           %s\n", cpu_info.strFamily);
+	FORMATADD("Extended family:  %d\n", cpu_info.uiExtendedFamily);
+	FORMATADD("Model:            %s\n", cpu_info.strModel);
+	FORMATADD("Extended model:   %d\n", cpu_info.uiExtendedModel);
+	FORMATADD("Type:             %s\n", cpu_info.strType);
+	FORMATADD("Brand ID:         %s\n", cpu_info.strBrandID);
+	if (cpu_info._Ext.PN_ProcessorSerialNumber)
 	{
-		FORMATADD("Processor Serial: %s\n", CPUInfo.strProcessorSerial);
+		FORMATADD("Processor Serial: %s\n", cpu_info.strProcessorSerial);
 	}
 	else
 	{
@@ -2193,60 +2694,60 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
 #if !LL_SOLARIS		//  NOTE: Why bother printing all this when it's irrelavent
 
 	COPYADD("\n\n// CPU Configuration\n////////////////////\n");
-	FORMATADD("L1 instruction cache:           %s\n", CPUInfo._L1.Instruction.strCache);
-	FORMATADD("L1 data cache:                  %s\n", CPUInfo._L1.Data.strCache);
-	FORMATADD("L2 cache:                       %s\n", CPUInfo._L2.strCache);
-	FORMATADD("L3 cache:                       %s\n", CPUInfo._L3.strCache);
-	FORMATADD("Trace cache:                    %s\n", CPUInfo._Trace.strCache);
-	FORMATADD("Instruction TLB:                %s\n", CPUInfo._Instruction.strTLB);
-	FORMATADD("Data TLB:                       %s\n", CPUInfo._Data.strTLB);
-	FORMATADD("Max Supported CPUID-Level:      0x%08lX\n", CPUInfo.MaxSupportedLevel);
-	FORMATADD("Max Supported Ext. CPUID-Level: 0x%08lX\n", CPUInfo.MaxSupportedExtendedLevel);
+	FORMATADD("L1 instruction cache:           %s\n", cpu_info._L1.Instruction.strCache);
+	FORMATADD("L1 data cache:                  %s\n", cpu_info._L1.Data.strCache);
+	FORMATADD("L2 cache:                       %s\n", cpu_info._L2.strCache);
+	FORMATADD("L3 cache:                       %s\n", cpu_info._L3.strCache);
+	FORMATADD("Trace cache:                    %s\n", cpu_info._Trace.strCache);
+	FORMATADD("Instruction TLB:                %s\n", cpu_info._Instruction.strTLB);
+	FORMATADD("Data TLB:                       %s\n", cpu_info._Data.strTLB);
+	FORMATADD("Max Supported CPUID-Level:      0x%08lX\n", cpu_info.MaxSupportedLevel);
+	FORMATADD("Max Supported Ext. CPUID-Level: 0x%08lX\n", cpu_info.MaxSupportedExtendedLevel);
 
 	COPYADD("\n\n// CPU Extensions\n/////////////////\n");
-	BOOLADD("AA64   AMD 64-bit Architecture:                    ", CPUInfo._Ext.AA64_AMD64BitArchitecture);
-	BOOLADD("ACPI   Thermal Monitor And Clock Control:          ", CPUInfo._Ext.ACPI_ThermalMonitorAndClockControl);
-	BOOLADD("APIC   Advanced Programmable Interrupt Controller: ", CPUInfo._Ext.APIC_AdvancedProgrammableInterruptController);
-	FORMATADD("       APIC-ID:                                     %d\n", CPUInfo._Ext.APIC_ID);
-	BOOLADD("CLFSH  CLFLUSH Instruction Presence:               ", CPUInfo._Ext.CLFSH_CFLUSH_Instruction);
-	FORMATADD("       CLFLUSH Instruction Cache Line Size:         %d\n", CPUInfo._Ext.CLFLUSH_InstructionCacheLineSize);
-	BOOLADD("CMOV   Conditional Move And Compare Instructions:  ", CPUInfo._Ext.CMOV_ConditionalMoveAndCompareInstructions);
-	BOOLADD("CX8    COMPXCHG8B Instruction:                     ", CPUInfo._Ext.CX8_COMPXCHG8B_Instruction);
-	BOOLADD("DE     Debugging Extensions:                       ", CPUInfo._Ext.DE_DebuggingExtensions);
-	BOOLADD("DS     Debug Store:                                ", CPUInfo._Ext.DS_DebugStore);
-	BOOLADD("FGPAT  Page Attribute Table:                       ", CPUInfo._Ext.FGPAT_PageAttributeTable);
-	BOOLADD("FPU    Floating Point Unit:                        ", CPUInfo._Ext.FPU_FloatingPointUnit);
-	BOOLADD("FXSR   Fast Streaming SIMD Extensions Save/Restore:", CPUInfo._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore);
-	BOOLADD("HT     Hyper Threading:                            ", CPUInfo._Ext.HT_HyperThreading);
-	BOOLADD("IA64   Intel 64-Bit Architecture:                  ", CPUInfo._Ext.IA64_Intel64BitArchitecture);
-	BOOLADD("MCA    Machine Check Architecture:                 ", CPUInfo._Ext.MCA_MachineCheckArchitecture);
-	BOOLADD("MCE    Machine Check Exception:                    ", CPUInfo._Ext.MCE_MachineCheckException);
-	BOOLADD("MMX    Multimedia Extensions:                      ", CPUInfo._Ext.MMX_MultimediaExtensions);
-	BOOLADD("MMX+   Multimedia Extensions:                      ", CPUInfo._Ext.EMMX_MultimediaExtensions);
-	BOOLADD("MSR    Model Specific Registers:                   ", CPUInfo._Ext.MSR_ModelSpecificRegisters);
-	BOOLADD("MTRR   Memory Type Range Registers:                ", CPUInfo._Ext.MTRR_MemoryTypeRangeRegisters);
-	BOOLADD("PAE    Physical Address Extension:                 ", CPUInfo._Ext.PAE_PhysicalAddressExtension);
-	BOOLADD("PGE    PTE Global Flag:                            ", CPUInfo._Ext.PGE_PTE_GlobalFlag);
-	if (CPUInfo._Ext.PN_ProcessorSerialNumber)
+	BOOLADD("AA64   AMD 64-bit Architecture:                    ", cpu_info._Ext.AA64_AMD64BitArchitecture);
+	BOOLADD("ACPI   Thermal Monitor And Clock Control:          ", cpu_info._Ext.ACPI_ThermalMonitorAndClockControl);
+	BOOLADD("APIC   Advanced Programmable Interrupt Controller: ", cpu_info._Ext.APIC_AdvancedProgrammableInterruptController);
+	FORMATADD("       APIC-ID:                                     %d\n", cpu_info._Ext.APIC_ID);
+	BOOLADD("CLFSH  CLFLUSH Instruction Presence:               ", cpu_info._Ext.CLFSH_CFLUSH_Instruction);
+	FORMATADD("       CLFLUSH Instruction Cache Line Size:         %d\n", cpu_info._Ext.CLFLUSH_InstructionCacheLineSize);
+	BOOLADD("CMOV   Conditional Move And Compare Instructions:  ", cpu_info._Ext.CMOV_ConditionalMoveAndCompareInstructions);
+	BOOLADD("CX8    COMPXCHG8B Instruction:                     ", cpu_info._Ext.CX8_COMPXCHG8B_Instruction);
+	BOOLADD("DE     Debugging Extensions:                       ", cpu_info._Ext.DE_DebuggingExtensions);
+	BOOLADD("DS     Debug Store:                                ", cpu_info._Ext.DS_DebugStore);
+	BOOLADD("FGPAT  Page Attribute Table:                       ", cpu_info._Ext.FGPAT_PageAttributeTable);
+	BOOLADD("FPU    Floating Point Unit:                        ", cpu_info._Ext.FPU_FloatingPointUnit);
+	BOOLADD("FXSR   Fast Streaming SIMD Extensions Save/Restore:", cpu_info._Ext.FXSR_FastStreamingSIMD_ExtensionsSaveRestore);
+	BOOLADD("HT     Hyper Threading:                            ", cpu_info._Ext.HT_HyperThreading);
+	BOOLADD("IA64   Intel 64-Bit Architecture:                  ", cpu_info._Ext.IA64_Intel64BitArchitecture);
+	BOOLADD("MCA    Machine Check Architecture:                 ", cpu_info._Ext.MCA_MachineCheckArchitecture);
+	BOOLADD("MCE    Machine Check Exception:                    ", cpu_info._Ext.MCE_MachineCheckException);
+	BOOLADD("MMX    Multimedia Extensions:                      ", cpu_info._Ext.MMX_MultimediaExtensions);
+	BOOLADD("MMX+   Multimedia Extensions:                      ", cpu_info._Ext.EMMX_MultimediaExtensions);
+	BOOLADD("MSR    Model Specific Registers:                   ", cpu_info._Ext.MSR_ModelSpecificRegisters);
+	BOOLADD("MTRR   Memory Type Range Registers:                ", cpu_info._Ext.MTRR_MemoryTypeRangeRegisters);
+	BOOLADD("PAE    Physical Address Extension:                 ", cpu_info._Ext.PAE_PhysicalAddressExtension);
+	BOOLADD("PGE    PTE Global Flag:                            ", cpu_info._Ext.PGE_PTE_GlobalFlag);
+	if (cpu_info._Ext.PN_ProcessorSerialNumber)
 	{
-		FORMATADD("PN     Processor Serial Number:                     %s\n", CPUInfo.strProcessorSerial);
+		FORMATADD("PN     Processor Serial Number:                     %s\n", cpu_info.strProcessorSerial);
 	}
 	else
 	{
 		COPYADD("PN     Processor Serial Number:                     Disabled\n");
 	}
-	BOOLADD("PSE    Page Size Extensions:                       ", CPUInfo._Ext.PSE_PageSizeExtensions);
-	BOOLADD("PSE36  36-bit Page Size Extension:                 ", CPUInfo._Ext.PSE36_36bitPageSizeExtension);
-	BOOLADD("SEP    Fast System Call:                           ", CPUInfo._Ext.SEP_FastSystemCall);
-	BOOLADD("SS     Self Snoop:                                 ", CPUInfo._Ext.SS_SelfSnoop);
-	BOOLADD("SSE    Streaming SIMD Extensions:                  ", CPUInfo._Ext.SSE_StreamingSIMD_Extensions);
-	BOOLADD("SSE2   Streaming SIMD 2 Extensions:                ", CPUInfo._Ext.SSE2_StreamingSIMD2_Extensions);
-	BOOLADD("ALTVEC Altivec Extensions:                         ", CPUInfo._Ext.Altivec_Extensions);
-	BOOLADD("TM     Thermal Monitor:                            ", CPUInfo._Ext.TM_ThermalMonitor);
-	BOOLADD("TSC    Time Stamp Counter:                         ", CPUInfo._Ext.TSC_TimeStampCounter);
-	BOOLADD("VME    Virtual 8086 Mode Enhancements:             ", CPUInfo._Ext.VME_Virtual8086ModeEnhancements);
-	BOOLADD("3DNow! Instructions:                               ", CPUInfo._Ext._3DNOW_InstructionExtensions);
-	BOOLADD("Enhanced 3DNow! Instructions:                      ", CPUInfo._Ext._E3DNOW_InstructionExtensions);
+	BOOLADD("PSE    Page Size Extensions:                       ", cpu_info._Ext.PSE_PageSizeExtensions);
+	BOOLADD("PSE36  36-bit Page Size Extension:                 ", cpu_info._Ext.PSE36_36bitPageSizeExtension);
+	BOOLADD("SEP    Fast System Call:                           ", cpu_info._Ext.SEP_FastSystemCall);
+	BOOLADD("SS     Self Snoop:                                 ", cpu_info._Ext.SS_SelfSnoop);
+	BOOLADD("SSE    Streaming SIMD Extensions:                  ", cpu_info._Ext.SSE_StreamingSIMD_Extensions);
+	BOOLADD("SSE2   Streaming SIMD 2 Extensions:                ", cpu_info._Ext.SSE2_StreamingSIMD2_Extensions);
+	BOOLADD("ALTVEC Altivec Extensions:                         ", cpu_info._Ext.Altivec_Extensions);
+	BOOLADD("TM     Thermal Monitor:                            ", cpu_info._Ext.TM_ThermalMonitor);
+	BOOLADD("TSC    Time Stamp Counter:                         ", cpu_info._Ext.TSC_TimeStampCounter);
+	BOOLADD("VME    Virtual 8086 Mode Enhancements:             ", cpu_info._Ext.VME_Virtual8086ModeEnhancements);
+	BOOLADD("3DNow! Instructions:                               ", cpu_info._Ext._3DNOW_InstructionExtensions);
+	BOOLADD("Enhanced 3DNow! Instructions:                      ", cpu_info._Ext._E3DNOW_InstructionExtensions);
 #endif
 	// Yippie!!!
 	return true;
@@ -2254,7 +2755,7 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
 
 // bool CProcessor::WriteInfoTextFile(const std::string& strFilename)
 // ===========================================================
-// Takes use of CProcessor::CPUInfoToText and saves the string to a
+// Takes use of CProcessor::cpu_infoToText and saves the string to a
 // file
 ///////////////////////////////////////////////////////////////////
 bool CProcessor::WriteInfoTextFile(const std::string& strFilename)
@@ -2262,7 +2763,7 @@ bool CProcessor::WriteInfoTextFile(const std::string& strFilename)
 	char buf[16384];	/* Flawfinder: ignore */	
 
 	// First we get the string
-	if (!CPUInfoToText(buf, 16383))
+	if (!cpu_infoToText(buf, 16383))
 		return false;
 
 	// Then we create a new file (CREATE_ALWAYS)
@@ -2281,3 +2782,4 @@ bool CProcessor::WriteInfoTextFile(const std::string& strFilename)
 	// Done
 	return true;
 }
+#endif

@@ -30,13 +30,29 @@
  * $/LicenseInfo$
  */
 
-// Author: Benjamin Jurke
-// File history: 27.02.2002   File created.
-///////////////////////////////////////////
-
 
 #ifndef LLPROCESSOR_H
 #define LLPROCESSOR_H
+
+class LLProcessorInfo
+{
+public:
+	LLProcessorInfo(); 
+ 	~LLProcessorInfo();
+
+	F64 getCPUFrequency() const;
+	bool hasSSE() const;
+	bool hasSSE2() const;
+	bool hasAltivec() const;
+	std::string getCPUFamilyName() const;
+	std::string getCPUBrandName() const;
+	std::string getCPUFeatureDescription() const;
+};
+
+# if 0
+// Author: Benjamin Jurke
+// File history: 27.02.2002   File created.
+///////////////////////////////////////////
 
 // Options:
 ///////////
@@ -166,7 +182,7 @@ public:
 
 // Private vars:
 ////////////////
-public:
+private:
 	F64 uqwFrequency;
 	char strCPUName[128];	/* Flawfinder: ignore */	
 	ProcessorInfo CPUInfo;
@@ -192,5 +208,6 @@ public:
 	bool WriteInfoTextFile(const std::string& strFilename);
 };
 
+#endif // 0
 
-#endif
+#endif // LLPROCESSOR_H
