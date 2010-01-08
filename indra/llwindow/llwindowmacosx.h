@@ -161,10 +161,13 @@ protected:
 	void fixWindowSize(void);
 	void stopDockTileBounce();
 	static MASK modifiersToMask(SInt16 modifiers);
+	
+#if LL_OS_DRAGDROP_ENABLED
 	static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
 									 void * handlerRefCon, DragRef theDrag);
 	static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
 	OSErr handleDragNDrop(DragRef theDrag, LLWindowCallbacks::DragNDropAction action);
+#endif // LL_OS_DRAGDROP_ENABLED
 	
 	//
 	// Platform specific variables

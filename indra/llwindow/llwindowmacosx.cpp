@@ -500,8 +500,10 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		// Set up window event handlers (some window-related events ONLY go to window handlers.)
 		InstallStandardEventHandler(GetWindowEventTarget(mWindow));
 		InstallWindowEventHandler(mWindow, mEventHandlerUPP, GetEventTypeCount (WindowHandlerEventList), WindowHandlerEventList, (void*)this, &mWindowHandlerRef); // add event handler
+#if LL_OS_DRAGDROP_ENABLED
 		InstallTrackingHandler( dragTrackingHandler, mWindow, (void*)this );		
 		InstallReceiveHandler( dragReceiveHandler, mWindow, (void*)this );
+#endif // LL_OS_DRAGDROP_ENABLED
 	}
 
 	{
@@ -3387,6 +3389,8 @@ MASK LLWindowMacOSX::modifiersToMask(SInt16 modifiers)
 	return mask;
 }	
 
+#if LL_OS_DRAGDROP_ENABLED
+
 OSErr LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
 						  void * handlerRefCon, DragRef drag)
 {
@@ -3507,3 +3511,4 @@ OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, LLWindowCallbacks::DragNDrop
 	return result;
 }
 
+#endif // LL_OS_DRAGDROP_ENABLED
