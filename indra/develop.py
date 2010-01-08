@@ -41,6 +41,7 @@ import shutil
 import socket
 import sys
 import commands
+import subprocess
 
 class CommandError(Exception):
     pass
@@ -576,16 +577,20 @@ class WindowsSetup(PlatformSetup):
             return "buildconsole %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config}
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
-        return ('"%sdevenv.com" %s.sln /build %s' % 
-                (self.find_visual_studio(), self.project_name, self.build_type))
+        executable = '%sdevenv.com' % (self.find_visual_studio(),)
+        cmd = ('"%s" %s.sln /build %s' % 
+                (executable, self.project_name, self.build_type))
+        return (executable, cmd)
         #return ('devenv.com %s.sln /build %s' % 
         #        (self.project_name, self.build_type))
 
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
+        assert name is not None, 'On windows an executable path must be given in name.'
         while retries:
             retries = retries - 1
             print "develop.py tries to run:", command
+            ret = subprocess.call(command, executable=name)
             ret = os.system(command)
             print "got ret", ret, "from", command
             if ret:
@@ -617,18 +622,19 @@ class WindowsSetup(PlatformSetup):
             if prev_build == self.build_type:
                 # Only run vstool if the build type has changed.
                 continue
-            vstool_cmd = (os.path.join('tools','vstool','VSTool.exe') +
+            executable = os.path.join('tools','vstool','VSTool.exe')
+            vstool_cmd = (executable +
                           ' --solution ' +
                           os.path.join(build_dir,'SecondLife.sln') +
                           ' --config ' + self.build_type +
                           ' --startup secondlife-bin')
             print 'Running %r in %r' % (vstool_cmd, getcwd())
-            self.run(vstool_cmd)        
+            self.run(vstool_cmd, name=executable)        
             print >> open(stamp, 'w'), self.build_type
         
     def run_build(self, opts, targets):
         cwd = getcwd()
-        build_cmd = self.get_build_cmd()
+        executable, build_cmd = self.get_build_cmd()
 
         for d in self.build_dirs():
             try:
@@ -637,11 +643,11 @@ class WindowsSetup(PlatformSetup):
                     for t in targets:
                         cmd = '%s /project %s %s' % (build_cmd, t, ' '.join(opts))
                         print 'Running %r in %r' % (cmd, d)
-                        self.run(cmd, retry_on=4, retries=3)
+                        self.run(cmd, name=executable, retry_on=4, retries=3)
                 else:
                     cmd = '%s %s' % (build_cmd, ' '.join(opts))
                     print 'Running %r in %r' % (cmd, d)
-                    self.run(cmd, retry_on=4, retries=3)
+                    self.run(cmd, name=executable, retry_on=4, retries=3)
             finally:
                 os.chdir(cwd)
                 
