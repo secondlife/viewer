@@ -123,7 +123,10 @@ class LLViewerMediaImpl
 {
 	LOG_CLASS(LLViewerMediaImpl);
 public:
-
+	
+	friend class LLViewerMedia;
+	friend class LLMimeDiscoveryResponder;
+	
 	LLViewerMediaImpl(
 		const LLUUID& texture_id,
 		S32 media_width, 
@@ -207,7 +210,10 @@ public:
 	
 	void setDisabled(bool disabled);
 	bool isMediaDisabled() const { return mIsDisabled; };
-
+	
+	void setInNearbyMediaList(bool in_list) { mInNearbyMediaList = in_list; }
+	bool getInNearbyMediaList() { return mInNearbyMediaList; }
+	
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
 	bool isForcedUnloaded() const;
 	
@@ -312,8 +318,7 @@ public:
 	void setNavState(EMediaNavState state);
 	
 	void cancelMimeTypeProbe();
-		
-public:
+private:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
 	LLUUID mTextureId;
