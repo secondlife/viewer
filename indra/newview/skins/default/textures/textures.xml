@@ -552,9 +552,9 @@ with the same filename but different name
   <texture name="TabTop_Divider" file_name="containers/TabTop_Divider.png" preload="false" />
   <texture name="TabTop_Left_Press" file_name="containers/TabTop_Left_Press.png" preload="false" />
   <texture name="TabTop_Middle_Press" file_name="containers/TabTop_Middle_Press.png" preload="false" />
-  <texture name="TabTop_Right_Off" file_name="containers/TabTop_Right_Off.png" preload="false" />
+  <texture name="TabTop_Right_Off" file_name="containers/TabTop_Right_Off.png" preload="false"  scale.left="8" scale.top="8" scale.right="62" scale.bottom="9" />
   <texture name="TabTop_Right_Press" file_name="containers/TabTop_Right_Press.png" preload="false" />
-  <texture name="TabTop_Right_Selected" file_name="containers/TabTop_Right_Selected.png" preload="false" />
+  <texture name="TabTop_Right_Selected" file_name="containers/TabTop_Right_Selected.png" preload="false"  scale.left="8" scale.top="8" scale.right="62" scale.bottom="9" />
   <texture name="TabTop_Middle_Off" file_name="containers/TabTop_Middle_Off.png" preload="false" scale.left="8" scale.top="8" scale.right="120" scale.bottom="9" />
   <texture name="TabTop_Middle_Selected" file_name="containers/TabTop_Middle_Selected.png" preload="false" scale.left="8" scale.top="8" scale.right="96" scale.bottom="9" />
   <texture name="TabTop_Left_Off" file_name="containers/TabTop_Left_Off.png" preload="false" scale.left="8" scale.top="8" scale.right="120" scale.bottom="9" />
@@ -573,7 +573,6 @@ with the same filename but different name
   <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="TimeBasedMediaBackground" file_name="windows/TimeBasedMediaBackground.png" preload="false" />
-
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
   <texture name="Toast_Background" file_name="windows/Toast_Background.png" preload="true"

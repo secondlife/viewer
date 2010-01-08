@@ -52,25 +52,26 @@ width="333">
       text_color="white"
       top="3"
       use_ellipses="true"
-      width="290"
+      width="305"
       follows="top|left"
       word_wrap="true"
       mouse_opaque="false"
       name="currentlook_name">
       MyOutfit With a really Long Name like MOOSE
       </text>
-      <!-- <text
-      text_color="LtGray_50"
-      width="290"
-      left="40"
+      <!--MERGING PERSON! TAKE THIS BIT BELOW FROM THE AVATAR BRANCH! TY -ERICA -->
+  <!--     <text
+      font="SansSerifSmall"
+      text_color="White_50"
+      width="300"
       height="1"
       follows="top|left"
       layout="topleft"
-      top_pad="-2"
+      top_pad="5"
       mouse_opaque="false"
       name="currentlook_title" >
-      (current outfit)
-      </text>-->
+      (current outfit) OR (unsaved)
+       </text>-->
    </panel>
    <filter_editor
    height="23"
@@ -80,18 +81,18 @@ width="333">
    label="Filter Outfits"
    max_length="300"
    name="Filter"
-   top_pad="0"
+   top_pad="10"
    width="303" />
    <panel
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
-   height="515"
+   height="505"
    min_height="410"
    width="320"
+   left="0"
    top_pad="0"
-   follows="all"
-   />
+   follows="all" />
   <!--   <button
 	  follows="bottom|left"
 		height="23"
@@ -120,4 +121,3 @@ width="333">
    top="35"
    visible="false" />
 </panel>
-
