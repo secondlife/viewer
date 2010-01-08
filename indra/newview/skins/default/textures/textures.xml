@@ -222,7 +222,8 @@ with the same filename but different name
   <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false"
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
-
+  <texture name="Inspector_I" file_name="windows/Inspector_I.png" preload="false" />
+  
   <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
   <texture name="Inv_Alpha" file_name="icons/Inv_Alpha.png" preload="false" />
   <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
