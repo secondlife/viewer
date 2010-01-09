@@ -2291,15 +2291,16 @@ class LLLibraryOutfitsCopyDone: public LLInventoryCallback
 {
 public:
 	LLLibraryOutfitsCopyDone(LLLibraryOutfitsFetch * fetcher):
-	mFireCount(0), mLibraryOutftifsFetcher(fetcher)
+	mFireCount(0), mLibraryOutfitsFetcher(fetcher)
 	{
 	}
 	
 	virtual ~LLLibraryOutfitsCopyDone()
 	{
-		if (mLibraryOutftifsFetcher)
+		if (mLibraryOutfitsFetcher)
 		{
-			mLibraryOutftifsFetcher->importedFolderFetch();
+			gInventory.addObserver(mLibraryOutfitsFetcher);
+			mLibraryOutfitsFetcher->done();
 		}
 	}
 	
@@ -2309,17 +2310,16 @@ public:
 	}
 private:
 	U32 mFireCount;
-	LLLibraryOutfitsFetch * mLibraryOutftifsFetcher;
+	LLLibraryOutfitsFetch * mLibraryOutfitsFetcher;
 };
 
 void LLLibraryOutfitsFetch::libraryDone(void)
 {
-	gInventory.removeObserver(this);
 	// Copy the clothing folders from the library into the imported clothing folder if necessary.
-	LLPointer<LLInventoryCallback> copy_waiter = new LLLibraryOutfitsCopyDone(this);
-	
 	if (mImportedClothingID == LLUUID::null)
 	{
+		gInventory.removeObserver(this);
+		LLPointer<LLInventoryCallback> copy_waiter = new LLLibraryOutfitsCopyDone(this);
 		mImportedClothingID = gInventory.createNewCategory(mClothingID,
 														   LLFolderType::FT_NONE,
 														   mImportedClothingName);
@@ -2334,6 +2334,11 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 			LLAppearanceManager::getInstance()->shallowCopyCategory(iter->first, folder_id, copy_waiter);
 		}
 	}
+	else
+	{
+		// Skip straight to fetching the contents of the imported folder
+		importedFolderFetch();
+	}
 }
 
 void LLLibraryOutfitsFetch::importedFolderFetch(void)
@@ -2343,8 +2348,6 @@ void LLLibraryOutfitsFetch::importedFolderFetch(void)
 	folders.push_back(mImportedClothingID);
 	
 	mCompleteFolders.clear();
-	
-	gInventory.addObserver(this);
 	
 	fetchDescendents(folders);
 	if (isEverythingComplete())
