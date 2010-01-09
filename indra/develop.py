@@ -593,7 +593,6 @@ class WindowsSetup(PlatformSetup):
             retries = retries - 1
             print "develop.py tries to run:", command
             ret = subprocess.call(command, executable=name)
-            ret = os.system(command)
             print "got ret", ret, "from", command
             if ret:
                 if name is None:
