@@ -587,6 +587,8 @@ class WindowsSetup(PlatformSetup):
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
         assert name is not None, 'On windows an executable path must be given in name.'
+        if not os.path.isfile(name):
+            name = self.find_in_path(name)
         while retries:
             retries = retries - 1
             print "develop.py tries to run:", command
