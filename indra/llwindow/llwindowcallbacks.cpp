@@ -163,6 +163,11 @@ void LLWindowCallbacks::handleDataCopy(LLWindow *window, S32 data_type, void *da
 {
 }
 
+LLWindowCallbacks::DragNDropResult LLWindowCallbacks::handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, DragNDropAction action, std::string data )
+{
+	return LLWindowCallbacks::DND_NONE;
+}
+
 BOOL LLWindowCallbacks::handleTimerEvent(LLWindow *window)
 {
 	return FALSE;
