@@ -94,7 +94,7 @@ S32 normal_channel = -1;
 S32 specular_channel = -1;
 S32 diffuse_channel = -1;
 
-static LLFastTimer::DeclareTimer FTM_SHADOW_AVATAR("Avatar Shadow");
+static LLFastTimerUtil::DeclareTimer FTM_SHADOW_AVATAR("Avatar Shadow");
 
 LLDrawPoolAvatar::LLDrawPoolAvatar() : 
 	LLFacePool(POOL_AVATAR)	

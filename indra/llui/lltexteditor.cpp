@@ -2498,7 +2498,7 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 }
 
 
-static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+static LLFastTimerUtil::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 void LLTextEditor::loadKeywords(const std::string& filename,
 								const std::vector<std::string>& funcs,
 								const std::vector<std::string>& tooltips,

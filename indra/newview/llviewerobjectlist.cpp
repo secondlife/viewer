@@ -278,7 +278,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
+static LLFastTimerUtil::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
 
 void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
@@ -1357,7 +1357,7 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 }
 
 
-static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
+static LLFastTimerUtil::DeclareTimer FTM_CREATE_OBJECT("Create Object");
 
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)

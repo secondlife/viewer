@@ -1642,8 +1642,8 @@ void LLWindowWin32::gatherInput()
 	mMousePositionModified = FALSE;
 }
 
-static LLFastTimer::DeclareTimer FTM_KEYHANDLER("Handle Keyboard");
-static LLFastTimer::DeclareTimer FTM_MOUSEHANDLER("Handle Mouse");
+static LLFastTimerUtil::DeclareTimer FTM_KEYHANDLER("Handle Keyboard");
+static LLFastTimerUtil::DeclareTimer FTM_MOUSEHANDLER("Handle Mouse");
 
 LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {

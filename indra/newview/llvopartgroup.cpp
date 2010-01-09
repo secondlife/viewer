@@ -139,7 +139,7 @@ LLVector3 LLVOPartGroup::getCameraPosition() const
 	return gAgent.getCameraPositionAgent();
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_PARTICLES("Update Particles");
+static LLFastTimerUtil::DeclareTimer FTM_UPDATE_PARTICLES("Update Particles");
 BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(FTM_UPDATE_PARTICLES);
@@ -428,8 +428,8 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_GRASS_VB("Grass VB");
-static LLFastTimer::DeclareTimer FTM_REBUILD_PARTICLE_VB("Particle VB");
+static LLFastTimerUtil::DeclareTimer FTM_REBUILD_GRASS_VB("Grass VB");
+static LLFastTimerUtil::DeclareTimer FTM_REBUILD_PARTICLE_VB("Particle VB");
 
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {

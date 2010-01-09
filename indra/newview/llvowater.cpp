@@ -136,7 +136,7 @@ LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WATER("Update Water");
+static LLFastTimerUtil::DeclareTimer FTM_UPDATE_WATER("Update Water");
 
 BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 {

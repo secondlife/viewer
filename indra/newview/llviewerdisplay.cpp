@@ -212,11 +212,11 @@ void display_stats()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PICK("Picking");
-static LLFastTimer::DeclareTimer FTM_RENDER("Render", true);
-static LLFastTimer::DeclareTimer FTM_UPDATE_SKY("Update Sky");
-static LLFastTimer::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
+static LLFastTimerUtil::DeclareTimer FTM_PICK("Picking");
+static LLFastTimerUtil::DeclareTimer FTM_RENDER("Render", true);
+static LLFastTimerUtil::DeclareTimer FTM_UPDATE_SKY("Update Sky");
+static LLFastTimerUtil::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
+static LLFastTimerUtil::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
 
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
@@ -1098,7 +1098,7 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_SWAP("Swap");
+static LLFastTimerUtil::DeclareTimer FTM_SWAP("Swap");
 
 void render_ui(F32 zoom_factor, int subfield)
 {

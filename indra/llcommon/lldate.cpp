@@ -94,7 +94,7 @@ std::string LLDate::asRFC1123() const
 	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
-LLFastTimer::DeclareTimer FT_DATE_FORMAT("Date Format");
+LLFastTimerUtil::DeclareTimer FT_DATE_FORMAT("Date Format");
 
 std::string LLDate::toHTTPDateString (std::string fmt) const
 {

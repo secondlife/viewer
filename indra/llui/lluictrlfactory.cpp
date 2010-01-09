@@ -50,9 +50,9 @@
 // this library includes
 #include "llfloater.h"
 
-LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION("Widget Construction");
-LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
-LLFastTimer::DeclareTimer FTM_WIDGET_SETUP("Widget Setup");
+LLFastTimerUtil::DeclareTimer FTM_WIDGET_CONSTRUCTION("Widget Construction");
+LLFastTimerUtil::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
+LLFastTimerUtil::DeclareTimer FTM_WIDGET_SETUP("Widget Setup");
 
 //-----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_CREATE_CHILDREN("Create XUI Children");
+static LLFastTimerUtil::DeclareTimer FTM_CREATE_CHILDREN("Create XUI Children");
 
 //static 
 void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t& registry, LLXMLNodePtr output_node)
@@ -147,7 +147,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 
 }
 
-static LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
+static LLFastTimerUtil::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ bool LLUICtrlFactory::getLocalizedXMLNode(const std::string &xui_filename, LLXML
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
+static LLFastTimerUtil::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
 
 //-----------------------------------------------------------------------------
 // buildFloater()
@@ -247,7 +247,7 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 	return 0;
 }
 
-static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
+static LLFastTimerUtil::DeclareTimer FTM_BUILD_PANELS("Build Panels");
 
 //-----------------------------------------------------------------------------
 // buildPanel()
@@ -313,7 +313,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-static LLFastTimer::DeclareTimer FTM_CREATE_FROM_XML("Create child widget");
+static LLFastTimerUtil::DeclareTimer FTM_CREATE_FROM_XML("Create child widget");
 
 LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {

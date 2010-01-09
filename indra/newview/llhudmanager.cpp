@@ -62,7 +62,7 @@ LLHUDManager::~LLHUDManager()
 {
 }
 
-static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("Hud Effects");
+static LLFastTimerUtil::DeclareTimer FTM_HUD_EFFECTS("Hud Effects");
 
 void LLHUDManager::updateEffects()
 {

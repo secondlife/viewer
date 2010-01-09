@@ -480,11 +480,11 @@ public:
 
 	LLFastTimerLogThread() : LLThread("fast timer log")
 	{
-		if(LLFastTimer::sLog)
+		if(LLFastTimerUtil::sLog)
 		{
 			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp");
 		}
-		if(LLFastTimer::sMetricLog)
+		if(LLFastTimerUtil::sMetricLog)
 		{
 			mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp");
 		}
@@ -496,7 +496,7 @@ public:
 		
 		while (!LLAppViewer::instance()->isQuitting())
 		{
-			LLFastTimer::writeLog(os);
+			LLFastTimerUtil::writeLog(os);
 			os.flush();
 			ms_sleep(32);
 		}
@@ -606,7 +606,7 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-	LLFastTimer::reset();
+	LLFastTimerUtil::reset();
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
@@ -911,15 +911,15 @@ bool LLAppViewer::init()
 	return true;
 }
 
-static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
-static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
-static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
-static LLFastTimer::DeclareTimer FTM_DECODE("Image Decode");
-static LLFastTimer::DeclareTimer FTM_VFS("VFS Thread");
-static LLFastTimer::DeclareTimer FTM_LFS("LFS Thread");
-static LLFastTimer::DeclareTimer FTM_PAUSE_THREADS("Pause Threads");
-static LLFastTimer::DeclareTimer FTM_IDLE("Idle");
-static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
+static LLFastTimerUtil::DeclareTimer FTM_MESSAGES("System Messages");
+static LLFastTimerUtil::DeclareTimer FTM_SLEEP("Sleep");
+static LLFastTimerUtil::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
+static LLFastTimerUtil::DeclareTimer FTM_DECODE("Image Decode");
+static LLFastTimerUtil::DeclareTimer FTM_VFS("VFS Thread");
+static LLFastTimerUtil::DeclareTimer FTM_LFS("LFS Thread");
+static LLFastTimerUtil::DeclareTimer FTM_PAUSE_THREADS("Pause Threads");
+static LLFastTimerUtil::DeclareTimer FTM_IDLE("Idle");
+static LLFastTimerUtil::DeclareTimer FTM_PUMP("Pump");
 
 bool LLAppViewer::mainLoop()
 {
@@ -956,7 +956,7 @@ bool LLAppViewer::mainLoop()
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
-		LLFastTimer::nextFrame(); // Should be outside of any timer instances
+		LLFastTimerUtil::nextFrame(); // Should be outside of any timer instances
 
 		try
 		{
@@ -1551,14 +1551,14 @@ bool LLAppViewer::cleanup()
 	{
 		llinfos << "Analyzing performance" << llendl;
 		
-		if(LLFastTimer::sLog)
+		if(LLFastTimerUtil::sLog)
 		{
 			LLFastTimerView::doAnalysis(
 				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_baseline.slp"),
 				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp"),
 				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_report.csv"));
 		}
-		if(LLFastTimer::sMetricLog)
+		if(LLFastTimerUtil::sMetricLog)
 		{
 			LLFastTimerView::doAnalysis(
 				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_baseline.slp"),
@@ -1678,9 +1678,9 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && false);
 	LLImage::initClass();
 
-	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
+	if (LLFastTimerUtil::sLog || LLFastTimerUtil::sMetricLog)
 	{
-		LLFastTimer::sLogLock = new LLMutex(NULL);
+		LLFastTimerUtil::sLogLock = new LLMutex(NULL);
 		mFastTimerLogThread = new LLFastTimerLogThread();
 		mFastTimerLogThread->start();
 	}
@@ -2031,12 +2031,12 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("logperformance"))
 	{
-		LLFastTimer::sLog = TRUE;
+		LLFastTimerUtil::sLog = TRUE;
 	}
 	
 	if(clp.hasOption("logmetrics"))
 	{
-		LLFastTimer::sMetricLog = TRUE ;
+		LLFastTimerUtil::sMetricLog = TRUE ;
 	}
 
 	if (clp.hasOption("graphicslevel"))
@@ -3370,14 +3370,14 @@ public:
 		}
 };
 
-static LLFastTimer::DeclareTimer FTM_AUDIO_UPDATE("Update Audio");
-static LLFastTimer::DeclareTimer FTM_CLEANUP("Cleanup");
-static LLFastTimer::DeclareTimer FTM_IDLE_CB("Idle Callbacks");
-static LLFastTimer::DeclareTimer FTM_LOD_UPDATE("Update LOD");
-static LLFastTimer::DeclareTimer FTM_OBJECTLIST_UPDATE("Update Objectlist");
-static LLFastTimer::DeclareTimer FTM_REGION_UPDATE("Update Region");
-static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
-static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
+static LLFastTimerUtil::DeclareTimer FTM_AUDIO_UPDATE("Update Audio");
+static LLFastTimerUtil::DeclareTimer FTM_CLEANUP("Cleanup");
+static LLFastTimerUtil::DeclareTimer FTM_IDLE_CB("Idle Callbacks");
+static LLFastTimerUtil::DeclareTimer FTM_LOD_UPDATE("Update LOD");
+static LLFastTimerUtil::DeclareTimer FTM_OBJECTLIST_UPDATE("Update Objectlist");
+static LLFastTimerUtil::DeclareTimer FTM_REGION_UPDATE("Update Region");
+static LLFastTimerUtil::DeclareTimer FTM_WORLD_UPDATE("Update World");
+static LLFastTimerUtil::DeclareTimer FTM_NETWORK("Network");
 
 ///////////////////////////////////////////////////////
 // idle()
@@ -3882,7 +3882,7 @@ void LLAppViewer::sendLogoutRequest()
 static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 #endif
 
-static LLFastTimer::DeclareTimer FTM_IDLE_NETWORK("Network");
+static LLFastTimerUtil::DeclareTimer FTM_IDLE_NETWORK("Network");
 
 void LLAppViewer::idleNetwork()
 {

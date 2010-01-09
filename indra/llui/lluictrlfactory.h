@@ -104,9 +104,9 @@ class LLDefaultWidgetRegistry
 //:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
 //{};
 
-extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
-extern LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION;
-extern LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS;
+extern LLFastTimerUtil::DeclareTimer FTM_WIDGET_SETUP;
+extern LLFastTimerUtil::DeclareTimer FTM_WIDGET_CONSTRUCTION;
+extern LLFastTimerUtil::DeclareTimer FTM_INIT_FROM_PARAMS;
 
 // Build time optimization, generate this once in .cpp file
 #ifndef LLUICTRLFACTORY_CPP

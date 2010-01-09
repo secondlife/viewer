@@ -2692,7 +2692,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	}
 }
 
-LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
+LLFastTimerUtil::DeclareTimer POST_BUILD("Floater Post Build");
 
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {

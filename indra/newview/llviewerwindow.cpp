@@ -2844,7 +2844,7 @@ void LLViewerWindow::updateKeyboardFocus()
 		LLSideTray::getInstance()->highlightFocused();
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
+static LLFastTimerUtil::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
 void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 {
 	LLFastTimer ft(FTM_UPDATE_WORLD_VIEW);

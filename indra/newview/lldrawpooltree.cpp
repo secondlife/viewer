@@ -46,7 +46,7 @@
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
-static LLFastTimer::DeclareTimer FTM_SHADOW_TREE("Tree Shadow");
+static LLFastTimerUtil::DeclareTimer FTM_SHADOW_TREE("Tree Shadow");
 
 LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TREE),

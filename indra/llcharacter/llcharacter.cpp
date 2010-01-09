@@ -180,7 +180,7 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 //-----------------------------------------------------------------------------
 // updateMotions()
 //-----------------------------------------------------------------------------
-static LLFastTimer::DeclareTimer FTM_UPDATE_ANIMATION("Update Animation");
+static LLFastTimerUtil::DeclareTimer FTM_UPDATE_ANIMATION("Update Animation");
 
 void LLCharacter::updateMotions(e_update_t update_type)
 {

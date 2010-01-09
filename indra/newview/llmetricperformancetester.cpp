@@ -131,8 +131,8 @@ void LLMetricPerformanceTester::preOutputTestResults(LLSD* sd)
 }
 void LLMetricPerformanceTester::postOutputTestResults(LLSD* sd)
 {
-	LLMutexLock lock(LLFastTimer::sLogLock);
-	LLFastTimer::sLogQueue.push((*sd));
+	LLMutexLock lock(LLFastTimerUtil::sLogLock);
+	LLFastTimerUtil::sLogQueue.push((*sd));
 }
 
 void LLMetricPerformanceTester::outputTestResults() 

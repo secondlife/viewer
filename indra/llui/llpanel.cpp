@@ -369,7 +369,7 @@ void LLPanel::setBorderVisible(BOOL b)
 	}
 }
 
-LLFastTimer::DeclareTimer FTM_PANEL_CONSTRUCTION("Panel Construction");
+LLFastTimerUtil::DeclareTimer FTM_PANEL_CONSTRUCTION("Panel Construction");
 
 LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_node)
 {
@@ -476,9 +476,9 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	mBgAlphaImage = p.bg_alpha_image();
 }
 
-static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");
-static LLFastTimer::DeclareTimer FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
-static LLFastTimer::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
+static LLFastTimerUtil::DeclareTimer FTM_PANEL_SETUP("Panel Setup");
+static LLFastTimerUtil::DeclareTimer FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
+static LLFastTimerUtil::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {

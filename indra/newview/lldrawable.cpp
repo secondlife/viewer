@@ -60,7 +60,7 @@ const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
 const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
-static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+static LLFastTimerUtil::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
 
 ////////////////////////

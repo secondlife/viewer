@@ -117,7 +117,7 @@ S32			LLViewerObject::sAxisArrowLength(50);
 BOOL		LLViewerObject::sPulseEnabled(FALSE);
 BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
 
-static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
+static LLFastTimerUtil::DeclareTimer FTM_CREATE_OBJECT("Create Object");
 
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)

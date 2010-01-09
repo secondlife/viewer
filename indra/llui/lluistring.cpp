@@ -35,7 +35,7 @@
 #include "llsd.h"
 #include "lltrans.h"
 
-LLFastTimer::DeclareTimer FTM_UI_STRING("UI String");
+LLFastTimerUtil::DeclareTimer FTM_UI_STRING("UI String");
 
 
 LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)

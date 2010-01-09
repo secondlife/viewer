@@ -231,7 +231,7 @@ LLColor3 LLKeywords::readColor( const std::string& s )
 	return LLColor3( r, g, b );
 }
 
-LLFastTimer::DeclareTimer FTM_SYNTAX_COLORING("Syntax Coloring");
+LLFastTimerUtil::DeclareTimer FTM_SYNTAX_COLORING("Syntax Coloring");
 
 // Walk through a string, applying the rules specified by the keyword token list and
 // create a list of color segments.
