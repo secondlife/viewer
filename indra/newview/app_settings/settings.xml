@@ -4820,6 +4820,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>MyOutfitsAutofill</key>
+	<map>
+		<key>Comment</key>
+		<string>Always autofill My Outfits from library when empty (else happens just once).</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>NearMeRange</key>
     <map>
       <key>Comment</key>

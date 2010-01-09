@@ -569,6 +569,8 @@ LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 								BOOL take_keyboard_focus)
 {
+	mSignalSelectCallback = take_keyboard_focus ? SIGNAL_KEYBOARD_FOCUS : SIGNAL_NO_KEYBOARD_FOCUS;
+
 	if( selection == this )
 	{
 		return FALSE;
@@ -595,8 +597,6 @@ BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 	}
 
 	llassert(mSelectedItems.size() <= 1);
-
-	mSignalSelectCallback = take_keyboard_focus ? SIGNAL_KEYBOARD_FOCUS : SIGNAL_NO_KEYBOARD_FOCUS;
 
 	return rv;
 }

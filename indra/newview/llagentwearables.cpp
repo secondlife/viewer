@@ -911,7 +911,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	
 	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
 	// then auto-populate outfits from the library into the My Outfits folder.
-	if (LLInventoryModel::getIsFirstTimeInViewer2())
+	if (LLInventoryModel::getIsFirstTimeInViewer2() || gSavedSettings.getBOOL("MyOutfitsAutofill"))
 	{
 		gAgentWearables.populateMyOutfitsFolder();
 	}
@@ -2274,6 +2274,8 @@ void LLInitialWearablesFetch::processContents()
 	}
 	else
 	{
+		// if we're constructing the COF from the wearables message, we don't have a proper outfit link
+		LLAppearanceManager::instance().setOutfitDirty(true);
 		processWearablesMessage();
 	}
 	delete this;
