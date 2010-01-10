@@ -115,12 +115,6 @@ class LLViewerMedia
 		
 		// This is the comparitor used to sort the list.
 		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
-		
-		// For displaying the media first-run dialog.
-		static bool needsMediaFirstRun();
-		static void displayMediaFirstRun();
-		static bool firstRunCallback(const LLSD& notification, const LLSD& response);
-
 };
 
 // Implementation functions not exported into header file
