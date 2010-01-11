@@ -595,10 +595,7 @@ class WindowsSetup(PlatformSetup):
             ret = subprocess.call(command, executable=name)
             print "got ret", ret, "from", command
             if ret:
-                if name is None:
-                    name = command.split(None, 1)[0]
-                path = self.find_in_path(name)
-                if not path:
+                if not name:
                     error = 'was not found'
                 else:
                     error = 'exited with status %d' % ret
