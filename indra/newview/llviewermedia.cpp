@@ -48,6 +48,8 @@
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
 #include "llcallbacklist.h"
+#include "llparcel.h"
+#include "llaudioengine.h"  // for gAudiop
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -909,14 +911,14 @@ void LLViewerMedia::cleanupClass()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-bool LLViewerParcelMedia::needsMediaFirstRun()
+bool LLViewerMedia::needsMediaFirstRun()
 {
 	return gWarningSettings.getBOOL("FirstStreamingMedia");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerParcelMedia::displayMediaFirstRun()
+void LLViewerMedia::displayMediaFirstRun()
 {
 	gWarningSettings.setBOOL("FirstStreamingMedia", FALSE);
 
@@ -926,7 +928,7 @@ void LLViewerParcelMedia::displayMediaFirstRun()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-bool LLViewerParcelMedia::firstRunCallback(const LLSD& notification, const LLSD& response)
+bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
