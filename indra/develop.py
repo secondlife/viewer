@@ -574,7 +574,7 @@ class WindowsSetup(PlatformSetup):
             if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
                 config = '\"%s|Win32\"' % config
 
-            executable = self.find_in_path('buildconsole')[0]
+            executable = 'buildconsole'
             cmd = "%(bin)s %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config, 'bin': executable}
             return (executable, cmd)
 
@@ -587,18 +587,17 @@ class WindowsSetup(PlatformSetup):
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
         assert name is not None, 'On windows an executable path must be given in name.'
-        if not os.path.isfile(name):
-            name = self.find_in_path(name)[0]
+        if os.path.isfile(name):
+            path = name
+        else:
+            path = self.find_in_path(name)[0]
         while retries:
             retries = retries - 1
             print "develop.py tries to run:", command
-            ret = subprocess.call(command, executable=name)
+            ret = subprocess.call(command, executable=path)
             print "got ret", ret, "from", command
             if ret:
-                if not name:
-                    error = 'was not found'
-                else:
-                    error = 'exited with status %d' % ret
+                error = 'exited with status %d' % ret
                 if retry_on is not None and retry_on == ret:
                     print "Retrying... the command %r %s" % (name, error)
                 else:
