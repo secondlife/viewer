@@ -28,6 +28,9 @@
      name="no_partner_text"
      value="None" />
     <string
+     name="no_group_text"
+     value="None" />
+    <string
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
