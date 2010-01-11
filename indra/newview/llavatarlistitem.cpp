@@ -44,10 +44,6 @@
 #include "llbutton.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
-S32 LLAvatarListItem::sIconWidth = 0;
-S32 LLAvatarListItem::sInfoBtnWidth = 0;
-S32 LLAvatarListItem::sProfileBtnWidth = 0;
-S32 LLAvatarListItem::sSpeakingIndicatorWidth = 0;
 S32 LLAvatarListItem::sLeftPadding = 0;
 S32 LLAvatarListItem::sRightNamePadding = 0;
 S32 LLAvatarListItem::sChildrenWidths[LLAvatarListItem::ALIC_COUNT];
@@ -525,7 +521,7 @@ void LLAvatarListItem::updateChildren()
 		{
 			// assume that this is the last iteration,
 			// so it is not necessary to save "ctrl_new_left" value calculated on previous iterations
-			ctrl_new_left = sLeftPadding;//control_rect.mLeft;
+			ctrl_new_left = sLeftPadding;
 			name_new_left = ctrl_new_left + ctrl_width;
 		}
 		else

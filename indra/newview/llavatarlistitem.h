@@ -178,10 +178,6 @@ private:
 	bool mShowProfileBtn;
 
 	static bool	sStaticInitialized; // this variable is introduced to improve code readability
-	static S32	sIconWidth; // icon width + padding
-	static S32  sInfoBtnWidth; //info btn width + padding
-	static S32  sProfileBtnWidth; //profile btn width + padding
-	static S32  sSpeakingIndicatorWidth; //speaking indicator width + padding
 	static S32  sLeftPadding; // padding to first left visible child (icon or name)
 	static S32  sRightNamePadding; // right padding from name to next visible child
 
