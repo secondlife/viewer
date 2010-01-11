@@ -574,7 +574,7 @@ class WindowsSetup(PlatformSetup):
             if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
                 config = '\"%s|Win32\"' % config
 
-            executable = self.find_in_path('buildconsole')
+            executable = self.find_in_path('buildconsole')[0]
             cmd = "%(bin)s %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config, 'bin': executable}
             return (executable, cmd)
 
