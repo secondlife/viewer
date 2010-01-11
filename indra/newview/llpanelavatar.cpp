@@ -594,8 +594,8 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 		if (it != mGroups.begin())
 			groups += ", ";
 
-		
-		std::string group_url="[secondlife:///app/group/" + it->second.asString() + "/about " + it->first + "]";
+		std::string group_name = LLURI::escape(it->first);
+		std::string group_url="[secondlife:///app/group/" + it->second.asString() + "/about " + group_name + "]";
 		groups += group_url;
 	}
 
