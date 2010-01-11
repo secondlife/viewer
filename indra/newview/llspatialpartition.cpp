@@ -2460,7 +2460,6 @@ void renderOctree(LLSpatialGroup* group)
 	gGL.color4fv(col.mV);
 	drawBox(group->mObjectBounds[0], group->mObjectBounds[1]*1.01f+LLVector3(0.001f, 0.001f, 0.001f));
 	
-	glDepthMask(GL_TRUE);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	if (group->mBuilt <= 0.f)
