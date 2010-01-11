@@ -62,6 +62,7 @@
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
+#include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llavataractions.h"
@@ -436,17 +437,7 @@ void init_menus()
 	gMenuBarView->setBackgroundColor( color );
 
 	gMenuHolder->addChild(gMenuBarView);
-	
-	// menu holder appears on top of menu bar so you can see the menu title
-	// flash when an item is triggered (the flash occurs in the holder)
-	gViewerWindow->getRootView()->addChild(gMenuHolder);
-
-	// This removes tool tip view from main view and adds it
-	// to root view in front of menu holder.
-	// Otherwise tool tips for menu items would be overlapped by menu, since
-	// main view is behind of menu holder now.
-	gViewerWindow->getRootView()->addChild(gToolTipView);
-   
+  
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());
 
@@ -5857,8 +5848,12 @@ void confirm_replace_attachment(S32 option, void* user_data)
 	}
 }
 
-bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
+void callback_attachment_drop(const LLSD& notification, const LLSD& response)
 {
+	// Ensure user confirmed the drop
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return;
+
 	// Called when the user clicked on an object attached to them
 	// and selected "Drop".
 	LLUUID object_id = notification["payload"]["object_id"].asUUID();
@@ -5867,7 +5862,7 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 	if (!object)
 	{
 		llwarns << "handle_drop_attachment() - no object to drop" << llendl;
-		return true;
+		return;
 	}
 
 	LLViewerObject *parent = (LLViewerObject*)object->getParent();
@@ -5884,13 +5879,13 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 	if (!object)
 	{
 		llwarns << "handle_detach() - no object to detach" << llendl;
-		return true;
+		return;
 	}
 
 	if (object->isAvatar())
 	{
 		llwarns << "Trying to detach avatar from avatar." << llendl;
-		return true;
+		return;
 	}
 	
 	// reselect the object
@@ -5898,7 +5893,7 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 
 	LLSelectMgr::getInstance()->sendDropAttachment();
 
-	return true;
+	return;
 }
 
 class LLAttachmentDrop : public view_listener_t
@@ -7954,8 +7949,8 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
-
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
+	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
 	// Attachment pie menu
 	enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));

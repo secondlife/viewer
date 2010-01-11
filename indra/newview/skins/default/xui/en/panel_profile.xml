@@ -27,173 +27,181 @@
     <string
      name="no_partner_text"
      value="None" />
-    <string 
+    <string
+     name="no_group_text"
+     value="None" />
+    <string
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
-  <scroll_container
-     color="DkGray2"
+    <layout_stack
+     name="layout"
+     orientation="vertical"
      follows="all"
-     height="485"
      layout="topleft"
-     name="profile_scroll"
-     reserve_scroll_corner="true"
-     opaque="true"
+     left="0"
      top="0"
-     width="313">
-      <panel
-         name="scroll_content_panel"
-         follows="left|top|right"
-          height="485"
+     height="517"
+     width="313"
+     border_size="0">
+      <layout_panel
+         name="profile_stack"
+         follows="all"
          layout="topleft"
          top="0"
          left="0"
+         height="505"
          width="313">
-	 <panel
-         follows="left|top"
-         height="117"
+        <scroll_container
+         color="DkGray2"
+         follows="all"
          layout="topleft"
-         left="10"
-         name="second_life_image_panel"
-         top="0"
-         width="280">
-            <texture_picker
-             allow_no_texture="true"
-             default_image_name="None"
-             enabled="false"
-             follows="top|left"
-             height="102"
-             layout="topleft"
-             left="0"
-             name="2nd_life_pic"
-             top="10"
-             width="102" />
-            <text
-             follows="left|top|right"
-	     font.style="BOLD"
-             height="15"
-             layout="topleft"
-             left_pad="10"
-             name="title_sl_descr_text"
-             text_color="white"
-             top_delta="0"
-             value="[SECOND_LIFE]:"
-             width="165" />
-            <expandable_text
-             follows="left|top|right"
-             height="95"
-             layout="topleft"
-             left="107"
-             textbox.max_length="512"
-             name="sl_description_edit"
-             top_pad="-3"
-             width="173"
-             expanded_bg_visible="true"
-             expanded_bg_color="DkGray">
+         left="0"
+         name="profile_scroll"
+         opaque="true"
+         height="505"
+         width="313"
+         top="0">
+          <panel
+                layout="topleft"
+          follows="left|top|right"
+                name="profile_scroll_panel"
+                top="0"
+                left="0"
+                width="303">
+            <panel
+                  follows="left|top|right"
+                  height="117"
+                  layout="topleft"
+                  left="10"
+                  name="second_life_image_panel"
+                  top="0"
+                  width="303">
+              <texture_picker
+               allow_no_texture="true"
+               default_image_name="None"
+               enabled="false"
+               follows="top|left"
+               height="117"
+               layout="topleft"
+               left="0"
+               name="2nd_life_pic"
+               top="10"
+               width="102" />
+              <text
+               follows="left|top|right"
+         font.style="BOLD"
+               height="15"
+               layout="topleft"
+               left_pad="10"
+               name="title_sl_descr_text"
+               text_color="white"
+               top_delta="0"
+               value="[SECOND_LIFE]:"
+               width="180" />
+              <expandable_text
+               follows="left|top|right"
+               height="95"
+               layout="topleft"
+               left="107"
+               textbox.max_length="512"
+               name="sl_description_edit"
+               top_pad="-3"
+               width="185"
+               expanded_bg_visible="true"
+               expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </expandable_text>
-        </panel>
-        <panel
-         follows="left|top"
-         height="117"
-         layout="topleft"
-	 top_pad="10"
-         left="10"
-         name="first_life_image_panel"
-         width="280">
-            <texture_picker
-             allow_no_texture="true"
-             default_image_name="None"
-             enabled="false"
-             follows="top|left"
-             height="102"
-             layout="topleft"
-             left="0"
-             name="real_world_pic"
-             width="102" />
-            <text
+              </expandable_text>
+            </panel>
+            <panel
              follows="left|top|right"
-	     font.style="BOLD"
+             height="117"
+             layout="topleft"
+       top_pad="10"
+             left="10"
+             name="first_life_image_panel"
+             width="303">
+              <texture_picker
+               allow_no_texture="true"
+               default_image_name="None"
+               enabled="false"
+               follows="top|left"
+               height="117"
+               layout="topleft"
+               left="0"
+               name="real_world_pic"
+               width="102" />
+              <text
+               follows="left|top|right"
+         font.style="BOLD"
+               height="15"
+               layout="topleft"
+               left_pad="10"
+               name="title_rw_descr_text"
+               text_color="white"
+               top_delta="0"
+               value="Real World:"
+               width="180" />
+              <expandable_text
+               follows="left|top|right"
+               height="95"
+               layout="topleft"
+               left="107"
+               textbox.max_length="512"
+               name="fl_description_edit"
+               top_pad="-3"
+               width="185"
+               expanded_bg_visible="true"
+               expanded_bg_color="DkGray">
+                Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+              </expandable_text>
+            </panel>
+            <text
+              follows="left|top"
+              height="15"
+        font.style="BOLD"
+        font="SansSerifMedium"
+              layout="topleft"
+              left="10"
+              name="homepage_edit"
+              top_pad="0"
+              value="http://librarianavengers.org"
+              width="300"
+              word_wrap="false"
+              use_ellipses="true"
+         />
+            <text
+             follows="left|top"
+           font.style="BOLD"
+             height="10"
+             layout="topleft"
+             left="10"
+             name="title_member_text"
+             text_color="white"
+             top_pad="10"
+             value="Resident Since:"
+             width="300" />
+            <text
+             follows="left|top"
              height="15"
              layout="topleft"
-             left_pad="10"
-             name="title_rw_descr_text"
-             text_color="white"
-             top_delta="0"
-             value="Real World:"
-             width="165" />
-            <expandable_text
-             follows="left|top|right"
-             height="95"
+             left="10"
+             name="register_date"
+             value="05/31/2376"
+             width="300"
+             word_wrap="true" />
+            <text
+             follows="left|top"
+       font.style="BOLD"
+             height="15"
              layout="topleft"
-             left="107"
-             textbox.max_length="512"
-             name="fl_description_edit"
-             top_pad="-3"
-             width="173"
-             expanded_bg_visible="true"
-             expanded_bg_color="DkGray">
-                Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </expandable_text>
-        </panel>
-        <text
-         type="string"
-         follows="left|top"
-         font="SansSerifSmall"
-	 font.style="BOLD"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="me_homepage_text"
-         text_color="white"
-         top_pad="0"
-         width="280">
-             Homepage:
-        </text>
-        <text
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="homepage_edit"
-         top_pad="0"
-         value="http://librarianavengers.org"
-         width="280"
-         word_wrap="false"
-         use_ellipses="true"
-         />
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="10"
-         layout="topleft"
-         left="10"
-         name="title_member_text"
-         text_color="white"
-         top_pad="10"
-         value="Member Since:"
-         width="280" />
-        <text
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="register_date"
-         value="05/31/1976"
-         width="280"
-         word_wrap="true" />
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="title_acc_status_text"
-         text_color="white"
-         top_pad="10"
-         value="Account Status:"
-         width="280" />
-       <!-- <text
+             left="10"
+             name="title_acc_status_text"
+             text_color="white"
+             top_pad="5"
+             value="Account Status:"
+             width="300" />
+            <!-- <text
          type="string"
          follows="left|top"
          font="SansSerifSmall"
@@ -204,80 +212,81 @@
          top_delta="0"
 	 value="Go to Dashboard"
          width="100"/> -->
-        <text
-         follows="left|top"
-         height="20"
-         layout="topleft"
-         left="10"
-         name="acc_status_text"
-         top_pad="0"
-         value="Resident. No payment info on file."
-         width="280"
-         word_wrap="true" />
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="title_partner_text"
-         text_color="white"
-         top_pad="5"
-         value="Partner:"
-         width="280" />
-        <panel
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="partner_data_panel"
-         top_pad="0"
-         width="280">
             <text
              follows="left|top"
-             height="10"
+             height="28"
              layout="topleft"
-             left="0"
-             name="partner_text"
-             top="0"
-             value="[FIRST] [LAST]"
-         width="280"
-             word_wrap="true" />
-         </panel>
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="15"
+             left="10"
+             name="acc_status_text"
+             top_pad="0"
+             width="300"
+             word_wrap="true">
+              Resident. No payment info on file.
+              Linden.
+            </text>
+            <text
+             follows="left|top"
+       font.style="BOLD"
+             height="15"
+             layout="topleft"
+             left="10"
+             name="title_partner_text"
+             text_color="white"
+             top_pad="3"
+             value="Partner:"
+             width="300" />
+            <panel
+             follows="left|top"
+             height="15"
+             layout="topleft"
+             left="10"
+             name="partner_data_panel"
+             top_pad="0"
+             width="300">
+              <text
+               follows="left|top"
+               height="10"
+               layout="topleft"
+               left="0"
+               name="partner_text"
+               top="0"
+               value="[FIRST] [LAST]"
+           width="300"
+               word_wrap="true" />
+            </panel>
+            <text
+             follows="left|top"
+       font.style="BOLD"
+             height="13"
+             layout="topleft"
+             left="10"
+             name="title_groups_text"
+             text_color="white"
+             top_pad="3"
+             value="Groups:"
+             width="300" />
+            <expandable_text
+            follows="all"
+            height="113"
+            layout="topleft"
+            left="7"
+            name="sl_groups"
+            top_pad="0"
+            width="298"
+            expanded_bg_visible="true"
+            expanded_bg_color="DkGray">
+              Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
+            </expandable_text>
+          </panel>
+        </scroll_container>
+      </layout_panel>
+      <layout_panel
+              follows="bottom|left"
+         height="28"
          layout="topleft"
-         left="10"
-         name="title_groups_text"
-         text_color="white"
-         top_pad="8"
-         value="Groups:"
-         width="280" />
-                     <expandable_text
-         follows="left|top|bottom"
-         height="60"
-         layout="topleft"
-         left="10"
-             name="sl_groups"
-       top_pad="0"
-         width="280"
-             expanded_bg_visible="true"
-             expanded_bg_color="DkGray">
-            Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-        </expandable_text>
-      </panel>
- </scroll_container>
- <panel
-     follows="bottom|left"
-     layout="topleft"
-     left="0"
-     name="profile_buttons_panel"
-     top_pad="2"
-     bottom="0"
-     height="19"
-     width="303">
+         name="profile_buttons_panel"
+         auto_resize="false" 
+         width="313">
         <button
          follows="bottom|left"
          height="23"
@@ -288,7 +297,7 @@
          name="add_friend"
          tool_tip="Offer friendship to the resident"
          top="5"
-         width="77" />
+         width="80" />
         <button
          follows="bottom|left"
          height="23"
@@ -297,8 +306,8 @@
          name="im"
          tool_tip="Open instant message session"
          top="5"
-         left_pad="5"
-         width="33" />
+         left_pad="3"
+         width="45" />
         <button
          follows="bottom|left"
          height="23"
@@ -306,9 +315,9 @@
          layout="topleft"
          name="call"
          tool_tip="Call this resident"
-         left_pad="5"
+         left_pad="3"
          top="5"
-         width="40" />
+         width="45" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -318,8 +327,8 @@
          name="show_on_map_btn"
          tool_tip="Show the resident on the map"
          top="5"
-         left_pad="5"
-         width="44" />
+         left_pad="3"
+         width="45" />
         <button
          follows="bottom|left"
          height="23"
@@ -327,10 +336,10 @@
          layout="topleft"
          name="teleport"
          tool_tip="Offer teleport"
-         left_pad="5"
+         left_pad="3"
          top="5"
-         width="67" />
-        <button
+         width="85" />
+       <!-- <button
          follows="bottom|right"
          height="23"
          label="▼"
@@ -339,23 +348,24 @@
          tool_tip="Pay money to or share inventory with the resident"
          right="-1"
          top="5"
-         width="21" />
- </panel>
- <panel
-     follows="bottom|left"
-     layout="topleft"
-     left="0"
-     top_pad="-17"
-     name="profile_me_buttons_panel"
-     visible="false"
-     height="19"
-     width="303">
+	 left_pad="3"
+         width="23" />-->
+        </layout_panel>
+      <layout_panel
+         follows="bottom|left"
+         height="28"
+         layout="topleft"
+         name="profile_me_buttons_panel"
+         visible="false"
+	       width="313">
         <button
          follows="bottom|right"
          height="23"
-         left="10"
+         left="20"
+	 top="0"
          label="Edit Profile"
          name="edit_profile_btn"
+         tool_tip="Edit your personal information"
          width="130" />
         <button
          follows="bottom|right"
@@ -363,7 +373,9 @@
          label="Edit Appearance"
          left_pad="10"
          name="edit_appearance_btn"
-         right="-10"
+         tool_tip="Create/edit your appearance: physical data, clothes and etc."
          width="130" />
- </panel>
+        </layout_panel>
+    
+</layout_stack>
 </panel>

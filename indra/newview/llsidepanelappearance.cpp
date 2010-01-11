@@ -151,6 +151,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
+
+	mOutfitDirtyTag = getChild<LLTextBox>("currentlook_title");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
@@ -165,6 +167,11 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	fetchInventory();
 	refreshCurrentOutfitName();
 	updateVerbs();
+
+	if (mPanelOutfitsInventory)
+	{
+		mPanelOutfitsInventory->onOpen(key);
+	}
 
 	if(key.size() == 0)
 		return;
@@ -208,7 +215,7 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 	if (tab_outfits)
 	{
 		tab_outfits->changeOpenClose(FALSE);
-		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_accordionpanel");
+		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
 			LLFolderView *folder = inventory_panel->getRootFolder();
@@ -311,6 +318,7 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
+	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
 		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();

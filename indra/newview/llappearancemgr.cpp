@@ -674,6 +674,10 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 
 void LLAppearanceManager::updateAppearanceFromCOF()
 {
+	// update dirty flag to see if the state of the COF matches
+	// the saved outfit stored as a folder link
+	updateIsDirty();
+
 	dumpCat(getCOF(),"COF, start");
 
 	bool follow_folder_links = true;
@@ -723,14 +727,30 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 		LLDynamicArray<LLFoundData*> found_container;
 		for(S32 i = 0; i  < wear_items.count(); ++i)
 		{
-			found = new LLFoundData(wear_items.get(i)->getLinkedUUID(), // Wear the base item, not the link
-									wear_items.get(i)->getAssetUUID(),
-									wear_items.get(i)->getName(),
-									wear_items.get(i)->getType());
-			holder->mFoundList.push_front(found);
-			found_container.put(found);
+			LLViewerInventoryItem *item = wear_items.get(i);
+			LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+			if (item && linked_item)
+			{
+				found = new LLFoundData(linked_item->getUUID(),
+										linked_item->getAssetUUID(),
+										linked_item->getName(),
+										linked_item->getType());
+				holder->mFoundList.push_front(found);
+				found_container.put(found);
+			}
+			else
+			{
+				if (!item)
+				{
+					llwarns << "attempt to wear a null item " << llendl;
+				}
+				else if (!linked_item)
+				{
+					llwarns << "attempt to wear a broken link " << item->getName() << llendl;
+				}
+			}
 		}
-		for(S32 i = 0; i < wear_items.count(); ++i)
+		for(S32 i = 0; i < found_container.count(); ++i)
 		{
 			holder->append = false;
 			found = found_container.get(i);
@@ -989,7 +1009,9 @@ void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_up
 	if (linked_already)
 	{
 		if (do_update)
+		{	
 			LLAppearanceManager::updateAppearanceFromCOF();
+		}
 		return;
 	}
 	else
@@ -1043,6 +1065,75 @@ void LLAppearanceManager::removeCOFItemLinks(const LLUUID& item_id, bool do_upda
 	}
 }
 
+void LLAppearanceManager::updateIsDirty()
+{
+	LLUUID cof = getCOF();
+	LLUUID base_outfit;
+
+	// find base outfit link 
+	const LLViewerInventoryItem* base_outfit_item = getBaseOutfitLink();
+	LLViewerInventoryCategory* catp = NULL;
+	if (base_outfit_item && base_outfit_item->getIsLinkType())
+	{
+		catp = base_outfit_item->getLinkedCategory();
+	}
+	if(catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
+	{
+		base_outfit = catp->getUUID();
+	}
+
+	if(base_outfit.isNull())
+	{
+		// no outfit link found, display "unsaved outfit"
+		mOutfitIsDirty = true;
+	}
+	else
+	{
+		LLInventoryModel::cat_array_t cof_cats;
+		LLInventoryModel::item_array_t cof_items;
+		gInventory.collectDescendents(cof, cof_cats, cof_items,
+									  LLInventoryModel::EXCLUDE_TRASH);
+
+		LLInventoryModel::cat_array_t outfit_cats;
+		LLInventoryModel::item_array_t outfit_items;
+		gInventory.collectDescendents(base_outfit, outfit_cats, outfit_items,
+									  LLInventoryModel::EXCLUDE_TRASH);
+
+		if(outfit_items.count() != cof_items.count() -1)
+		{
+			// Current outfit folder should have one more item than the outfit folder.
+			// this one item is the link back to the outfit folder itself.
+			mOutfitIsDirty = true;
+		}
+		else
+		{
+			typedef std::set<LLUUID> item_set_t;
+			item_set_t cof_set;
+			item_set_t outfit_set;
+
+			// sort COF items by UUID
+			for (S32 i = 0; i < cof_items.count(); ++i)
+			{
+				LLViewerInventoryItem *item = cof_items.get(i);
+				// don't add the base outfit link to the list of objects we're comparing
+				if(item != base_outfit_item)
+				{
+					cof_set.insert(item->getLinkedUUID());
+				}
+			}
+
+			// sort outfit folder by UUID
+			for (S32 i = 0; i < outfit_items.count(); ++i)
+			{
+				LLViewerInventoryItem *item = outfit_items.get(i);
+				outfit_set.insert(item->getLinkedUUID());
+			}
+
+			mOutfitIsDirty = (outfit_set != cof_set);
+		}
+	}
+}
+
 //#define DUMP_CAT_VERBOSE
 
 void LLAppearanceManager::dumpCat(const LLUUID& cat_id, const std::string& msg)
@@ -1079,7 +1170,8 @@ void LLAppearanceManager::dumpItemArray(const LLInventoryModel::item_array_t& it
 }
 
 LLAppearanceManager::LLAppearanceManager():
-	mAttachmentInvLinkEnabled(false)
+	mAttachmentInvLinkEnabled(false),
+	mOutfitIsDirty(false)
 {
 }
 

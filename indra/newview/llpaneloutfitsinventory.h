@@ -53,6 +53,7 @@ public:
 	virtual ~LLPanelOutfitsInventory();
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 	
 	void onSearchEdit(const std::string& string);
 	void onAdd();
@@ -114,6 +115,7 @@ protected:
 	BOOL isActionEnabled(const LLSD& command_name);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+	bool hasItemsSelected();
 private:
 	LLPanel*					mListCommands;
 	LLMenuGL*					mMenuGearDefault;

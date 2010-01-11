@@ -357,7 +357,6 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	toast->setIsHidden(false);
 	toast->resetTimer();
 	mToastList.push_back((*it));
-	mStoredToastList.erase(it);
 
 	redrawToasts();
 }
@@ -776,6 +775,19 @@ void LLScreenChannel::hideToastsFromScreen()
 	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::hideToast(const LLUUID& notification_id)
+{
+	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), notification_id);
+	if(mToastList.end() != it)
+	{
+		ToastElem te = *it;
+		te.toast->setVisible(FALSE);
+		te.toast->stopTimer();
+		mToastList.erase(it);
+	}
 }
 
 //--------------------------------------------------------------------------

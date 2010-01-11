@@ -19,94 +19,94 @@
      height="517"
      width="313"
      border_size="0">
-        <panel
-         name="notes_stack"
+      <layout_panel
+       name="notes_stack"
+       follows="all"
+       layout="topleft"
+       top="0"
+       left="0"
+       height="475"
+       width="313">
+        <scroll_container
+         color="DkGray2"
          follows="all"
          layout="topleft"
-         top="0"
          left="0"
+         name="profile_scroll"
+         opaque="true"
          height="475"
-         width="313">
-            <scroll_container
-             color="DkGray2"
-             follows="all"
+         width="313"
+         top="0">
+          <panel
+           height="450"
+           layout="topleft"
+           name="profile_scroll_panel"
+           top="0"
+           left="0"
+           width="303">
+            <text
+             follows="left|top"
+             font="SansSerifBold"
+             height="16"
              layout="topleft"
-             left="0"
-             name="profile_scroll"
-             opaque="true"
-             height="475"
-             width="313"
-             top="0">
-              <panel
-               height="450"
-               layout="topleft"
-               name="profile_scroll_panel"
-               top="0"
-               left="0"
-               width="303">
-                <text
-                 follows="left|top"
-                 font="SansSerifBold"
-                 height="16"
-                 layout="topleft"
-                 left="10"
-                 name="status_message"
-                 text_color="white"
-                 top="20"
-                 value="My private notes:"
-                 width="293" />
-                <text_editor
-                 follows="left|top"
-                 height="120"
-                 layout="topleft"
-                 left="10"
-                 max_length="1000"
-                 name="notes_edit"
-                 text_color="DkGray"
-                 top_pad="10"
-                 width="280"
-                 word_wrap="true" />
-                <text
-                 follows="left|top"
-                 font="SansSerifBold"
-                 height="16"
-                 layout="topleft"
-                 left="10"
-                 name="status_message2"
-                 text_color="white"
-                 top_pad="30"
-                 value="Allow this person to:"
-                 width="293" />
-                <check_box
-                 enabled="false"
-                 height="16"
-                 label="See my online status"
-                 layout="topleft"
-                 left="20"
-                 name="status_check"
-                 width="293" />
-                <check_box
-                 enabled="false"
-                 height="16"
-                 label="See me on the map"
-                 layout="topleft"
-                 left="20"
-                 name="map_check"
-                 width="293" />
-                <check_box
-                 enabled="false"
-                 height="16"
-                 label="Edit, delete or take my objects"
-                 layout="topleft"
-                 left="20"
-                 name="objects_check"
-                 width="293" />
-              </panel>
-            </scroll_container>
-        </panel>
-        <panel
-         follows="bottom|left"
-         height="30"
+             left="10"
+             name="status_message"
+             text_color="white"
+             top="20"
+             value="My private notes:"
+             width="293" />
+            <text_editor
+             follows="left|top"
+             height="120"
+             layout="topleft"
+             left="10"
+             max_length="1000"
+             name="notes_edit"
+             text_color="DkGray"
+             top_pad="10"
+             width="280"
+             word_wrap="true" />
+            <text
+             follows="left|top"
+             font="SansSerifBold"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="status_message2"
+             text_color="white"
+             top_pad="30"
+             value="Allow this person to:"
+             width="293" />
+            <check_box
+             enabled="false"
+             height="16"
+             label="See my online status"
+             layout="topleft"
+             left="20"
+             name="status_check"
+             width="293" />
+            <check_box
+             enabled="false"
+             height="16"
+             label="See me on the map"
+             layout="topleft"
+             left="20"
+             name="map_check"
+             width="293" />
+            <check_box
+             enabled="false"
+             height="16"
+             label="Edit, delete or take my objects"
+             layout="topleft"
+             left="20"
+             name="objects_check"
+             width="293" />
+          </panel>
+        </scroll_container>
+      </layout_panel>
+      <layout_panel
+       follows="bottom|left"
+       height="30"
          layout="topleft"
          left="0"
          name="notes_buttons_panel"
@@ -115,14 +115,14 @@
        <button
          follows="bottom|left"
          height="23"
-         label="Add"
+         label="Add Friend"
          layout="topleft"
          left="0"
          mouse_opaque="false"
          name="add_friend"
          tool_tip="Offer friendship to the resident"
          top="5"
-         width="55" />
+         width="80" />
         <button
          follows="bottom|left"
          height="23"
@@ -131,8 +131,8 @@
          name="im"
          tool_tip="Open instant message session"
          top="5"
-         left_pad="5"
-         width="40" />
+         left_pad="3"
+         width="45" />
         <button
          follows="bottom|left"
          height="23"
@@ -140,9 +140,9 @@
          layout="topleft"
          name="call"
          tool_tip="Call this resident"
-         left_pad="5"
+         left_pad="3"
          top="5"
-         width="55" />
+         width="45" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -152,8 +152,8 @@
          name="show_on_map_btn"
          tool_tip="Show the resident on the map"
          top="5"
-         left_pad="5"
-         width="50" />
+         left_pad="3"
+         width="45" />
         <button
          follows="bottom|left"
          height="23"
@@ -161,9 +161,9 @@
          layout="topleft"
          name="teleport"
          tool_tip="Offer teleport"
-         left_pad="5"
+         left_pad="3"
          top="5"
-         width="90" />
-        </panel>
+         width="80" />
+        </layout_panel>
     </layout_stack>
 </panel>
