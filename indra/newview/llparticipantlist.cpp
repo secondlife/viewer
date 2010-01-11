@@ -166,7 +166,6 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 				{
 					name.erase(found, moderator_indicator_len);
 					item->setName(name);
-					item->reshapeAvatarName();
 				}
 			}
 		}
@@ -188,7 +187,6 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 					name += " ";
 					name += moderator_indicator;
 					item->setName(name);
-					item->reshapeAvatarName();
 				}
 			}
 		}
@@ -279,6 +277,9 @@ bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> e
 					mModeratorList.erase(id);
 				}
 			}
+
+			// apply changes immediately
+			onAvatarListRefreshed(mAvatarList, LLSD());
 		}
 	}
 	return true;

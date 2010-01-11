@@ -98,13 +98,6 @@ public:
 	void onInfoBtnClick();
 	void onProfileBtnClick();
 
-	/**
-	 * This method was added to fix EXT-2364 (Items in group/ad-hoc IM participant list (avatar names) should be reshaped when adding/removing the "(Moderator)" label)
-	 * But this is a *HACK. The real reason of it was in incorrect logic while hiding profile/info/speaker buttons
-	 * *TODO: new reshape method should be provided in lieu of this one to be called when visibility if those buttons is changed
-	 */
-	void reshapeAvatarName();
-
 protected:
 	/**
 	 * Contains indicator to show voice activity. 

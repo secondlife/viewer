@@ -326,23 +326,6 @@ void LLAvatarListItem::onNameCache(const std::string& first_name, const std::str
 	setName(name);
 }
 
-void LLAvatarListItem::reshapeAvatarName()
-{
-/*
-	S32 width_delta = 0;
-	width_delta += mShowProfileBtn ? sProfileBtnWidth : 0;
-	width_delta += mSpeakingIndicator->getVisible() ? sSpeakingIndicatorWidth : 0;
-	width_delta += mAvatarIcon->getVisible() ? sIconWidth : 0;
-	width_delta += mShowInfoBtn ? sInfoBtnWidth : 0;
-	width_delta += mLastInteractionTime->getVisible() ? mLastInteractionTime->getRect().getWidth() : 0;
-
-	S32 height = mAvatarName->getRect().getHeight();
-	S32 width  = getRect().getWidth() - width_delta;
-
-	mAvatarName->reshape(width, height);
-*/
-}
-
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",
 // taking i18n into account. The format string to use is taken from the panel XML.
 std::string LLAvatarListItem::formatSeconds(U32 secs)
