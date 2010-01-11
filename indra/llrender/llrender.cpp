@@ -162,6 +162,8 @@ void LLTexUnit::enable(eTextureType type)
 			disable(); // Force a disable of a previous texture type if it's enabled.
 		}
 		mCurrTexType = type;
+
+		gGL.flush();
 		glEnable(sGLTextureType[type]);
 	}
 }
