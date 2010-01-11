@@ -403,7 +403,8 @@ void LLInspectAvatar::updateModeratorPanel()
 {
 	bool enable_moderator_panel = false;
 
-    if (LLVoiceChannel::getCurrentVoiceChannel())
+    if (LLVoiceChannel::getCurrentVoiceChannel() &&
+		mAvatarID != gAgent.getID())
     {
 		LLUUID session_id = LLVoiceChannel::getCurrentVoiceChannel()->getSessionID();
 
@@ -514,46 +515,61 @@ void LLInspectAvatar::toggleSelectedVoice(bool enabled)
 
 void LLInspectAvatar::updateVolumeSlider()
 {
-	// By convention, we only display and toggle voice mutes, not all mutes
-	bool is_muted = LLMuteList::getInstance()->
-						isMuted(mAvatarID, LLMute::flagVoiceChat);
+
 	bool voice_enabled = gVoiceClient->getVoiceEnabled(mAvatarID);
+
+	// Do not display volume slider and mute button if it 
+	// is ourself or we are not in a voice channel together
+	if (!voice_enabled || (mAvatarID == gAgent.getID()))
+	{
+		getChild<LLUICtrl>("mute_btn")->setVisible(false);
+		getChild<LLUICtrl>("volume_slider")->setVisible(false);
+	}
+
+	else 
+	{
+		getChild<LLUICtrl>("mute_btn")->setVisible(true);
+		getChild<LLUICtrl>("volume_slider")->setVisible(true);
+
+		// By convention, we only display and toggle voice mutes, not all mutes
+		bool is_muted = LLMuteList::getInstance()->
+							isMuted(mAvatarID, LLMute::flagVoiceChat);
 	bool is_self = (mAvatarID == gAgent.getID());
 
-	LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
-	mute_btn->setEnabled( voice_enabled );
-	mute_btn->setValue( is_muted );
+		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
+
+		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+
+		mute_btn->setEnabled( !is_linden);
+		mute_btn->setValue( is_muted );
 	mute_btn->setVisible( voice_enabled && !is_self );
 
-	LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
-	volume_slider->setEnabled( voice_enabled && !is_muted );
+		LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
+		volume_slider->setEnabled( !is_muted );
 	volume_slider->setVisible( voice_enabled && !is_self );
 
-	const F32 DEFAULT_VOLUME = 0.5f;
-	F32 volume;
-	if (is_muted)
-	{
-		// it's clearer to display their volume as zero
-		volume = 0.f;
-	}
-	else if (!voice_enabled)
-	{
-		// use nominal value rather than 0
-		volume = DEFAULT_VOLUME;
-	}
-	else
-	{
-		// actual volume
-		volume = gVoiceClient->getUserVolume(mAvatarID);
-
-		// *HACK: Voice client doesn't have any data until user actually
-		// says something.
-		if (volume == 0.f)
+		const F32 DEFAULT_VOLUME = 0.5f;
+		F32 volume;
+		if (is_muted)
 		{
-			volume = DEFAULT_VOLUME;
+			// it's clearer to display their volume as zero
+			volume = 0.f;
 		}
+		else
+		{
+			// actual volume
+			volume = gVoiceClient->getUserVolume(mAvatarID);
+
+			// *HACK: Voice client doesn't have any data until user actually
+			// says something.
+			if (volume == 0.f)
+			{
+				volume = DEFAULT_VOLUME;
+			}
+		}
+		volume_slider->setValue( (F64)volume );
 	}
-	volume_slider->setValue( (F64)volume );
+
 }
 
 void LLInspectAvatar::onClickMuteVolume()
