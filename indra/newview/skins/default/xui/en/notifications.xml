@@ -157,7 +157,7 @@ No tutorial is currently available.
  An error occurred while updating [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
     <usetemplate
      name="okbutton"
-     yestext="Ok"/>
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -169,7 +169,7 @@ Could not connect to the [SECOND_LIFE_GRID].
 Make sure your Internet connection is working properly.
 	<usetemplate
      name="okbutton"
-     yestext="Ok"/>
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -179,7 +179,7 @@ Make sure your Internet connection is working properly.
 Message Template [PATH] not found.
 	<usetemplate
      name="okbutton"
-     yestext="Ok"/>
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -5793,7 +5793,7 @@ Are you sure you want to close all IMs?
     <usetemplate
      name="okcancelignore"
      notext="Cancel"
-     yestext="Ok"/>
+     yestext="OK"/>
   </notification>
 
   <notification icon="notifytip.tga"

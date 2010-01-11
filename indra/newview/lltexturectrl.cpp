@@ -1242,11 +1242,11 @@ void LLTextureCtrl::draw()
 		 (mTexturep->getDiscardLevel() != 1) &&
 		 (mTexturep->getDiscardLevel() != 0))
 	{
-		LLFontGL* font = LLFontGL::getFontSansSerifBig();
+		LLFontGL* font = LLFontGL::getFontSansSerif();
 		font->renderUTF8(
 			mLoadingPlaceholderString, 0,
-			llfloor(interior.mLeft+10), 
-			llfloor(interior.mTop-20),
+			llfloor(interior.mLeft+3), 
+			llfloor(interior.mTop-25),
 			LLColor4::white,
 			LLFontGL::LEFT,
 			LLFontGL::BASELINE,
