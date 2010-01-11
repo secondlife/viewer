@@ -88,7 +88,8 @@ public:
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
 	void setShowProfileBtn(bool show);
 	void setShowInfoBtn(bool show);
-	void setSpeakingIndicatorVisible(bool visible);
+	void showSpeakingIndicator(bool show);
+	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
@@ -96,9 +97,6 @@ public:
 
 	void onInfoBtnClick();
 	void onProfileBtnClick();
-
-	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
-	void showLastInteractionTime(bool show);
 
 	/**
 	 * This method was added to fix EXT-2364 (Items in group/ad-hoc IM participant list (avatar names) should be reshaped when adding/removing the "(Moderator)" label)

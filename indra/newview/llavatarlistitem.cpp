@@ -245,7 +245,7 @@ void LLAvatarListItem::setShowProfileBtn(bool show)
 	mShowProfileBtn = show;
 }
 
-void LLAvatarListItem::setSpeakingIndicatorVisible(bool visible)
+void LLAvatarListItem::showSpeakingIndicator(bool visible)
 {
 	// Already done? Then do nothing.
 	if (mSpeakingIndicator->getVisible() == (BOOL)visible)

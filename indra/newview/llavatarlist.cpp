@@ -82,7 +82,7 @@ void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
 	getItems(items);
 	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
-		static_cast<LLAvatarListItem*>(*it)->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
+		static_cast<LLAvatarListItem*>(*it)->showSpeakingIndicator(mShowSpeakingIndicator);
 	}
 }
 
@@ -323,7 +323,6 @@ boost::signals2::connection LLAvatarList::setRefreshCompleteCallback(const commi
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showSpeakingIndicator(true);
 	item->setName(name);
 	item->setAvatarId(id, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
@@ -332,7 +331,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setAvatarIconVisible(mShowIcons);
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
-	item->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
+	item->showSpeakingIndicator(mShowSpeakingIndicator);
 
 	addItem(item, id, pos);
 }
