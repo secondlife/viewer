@@ -235,7 +235,7 @@ public:
 	virtual void recursiveDeselect(BOOL deselect_self);
 
 	// gets multiple-element selection
-	virtual BOOL getSelectionList(std::set<LLUUID> &selection){return TRUE;}
+	virtual BOOL getSelectionList(std::set<LLUUID> &selection) const {return TRUE;}
 
 	// Returns true is this object and all of its children can be removed (deleted by user)
 	virtual BOOL isRemovable();
@@ -302,7 +302,7 @@ public:
 	// Show children (unfortunate that this is called "open")
 	virtual void setOpen(BOOL open = TRUE) {};
 
-	virtual BOOL isOpen() { return FALSE; }
+	virtual BOOL isOpen() const { return FALSE; }
 
 	virtual LLFolderView*	getRoot();
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
@@ -497,7 +497,7 @@ public:
 	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse = RECURSE_NO);
 
 	// Get the current state of the folder.
-	virtual BOOL isOpen() { return mIsOpen; }
+	virtual BOOL isOpen() const { return mIsOpen; }
 
 	// special case if an object is dropped on the child.
 	BOOL handleDragAndDropFromChild(MASK mask,

@@ -63,8 +63,6 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
-    llaccordionctrl.cpp
-    llaccordionctrltab.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentdata.cpp
@@ -569,8 +567,6 @@ endif (LINUX)
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-    llaccordionctrl.h
-    llaccordionctrltab.h
     llagent.h
     llagentaccess.h
     llagentdata.h

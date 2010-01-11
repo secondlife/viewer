@@ -115,6 +115,12 @@ class LLViewerMedia
 		
 		// This is the comparitor used to sort the list.
 		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
+		
+		// For displaying the media first-run dialog.
+		static bool needsMediaFirstRun();
+		static void displayMediaFirstRun();
+		static bool firstRunCallback(const LLSD& notification, const LLSD& response);
+
 };
 
 // Implementation functions not exported into header file
@@ -123,7 +129,10 @@ class LLViewerMediaImpl
 {
 	LOG_CLASS(LLViewerMediaImpl);
 public:
-
+	
+	friend class LLViewerMedia;
+	friend class LLMimeDiscoveryResponder;
+	
 	LLViewerMediaImpl(
 		const LLUUID& texture_id,
 		S32 media_width, 
@@ -202,11 +211,15 @@ public:
 	bool isMediaPaused();
 	bool hasMedia() const;
 	bool isMediaFailed() const { return mMediaSourceFailed; };
+	void setMediaFailed(bool val) { mMediaSourceFailed = val; }
 	void resetPreviousMediaState();
 	
 	void setDisabled(bool disabled);
 	bool isMediaDisabled() const { return mIsDisabled; };
-
+	
+	void setInNearbyMediaList(bool in_list) { mInNearbyMediaList = in_list; }
+	bool getInNearbyMediaList() { return mInNearbyMediaList; }
+	
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
 	bool isForcedUnloaded() const;
 	
@@ -311,7 +324,7 @@ public:
 	void setNavState(EMediaNavState state);
 	
 	void cancelMimeTypeProbe();
-public:
+private:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
 	LLUUID mTextureId;

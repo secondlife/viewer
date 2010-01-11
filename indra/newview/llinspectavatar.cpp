@@ -278,7 +278,7 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	
 	getChild<LLUICtrl>("gear_self_btn")->setVisible(self);
 	getChild<LLUICtrl>("gear_btn")->setVisible(!self);
-	
+
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip
@@ -534,6 +534,7 @@ void LLInspectAvatar::updateVolumeSlider()
 		// By convention, we only display and toggle voice mutes, not all mutes
 		bool is_muted = LLMuteList::getInstance()->
 							isMuted(mAvatarID, LLMute::flagVoiceChat);
+	bool is_self = (mAvatarID == gAgent.getID());
 
 		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
 
@@ -541,9 +542,12 @@ void LLInspectAvatar::updateVolumeSlider()
 
 		mute_btn->setEnabled( !is_linden);
 		mute_btn->setValue( is_muted );
+	mute_btn->setVisible( voice_enabled && !is_self );
 
 		LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
 		volume_slider->setEnabled( !is_muted );
+	volume_slider->setVisible( voice_enabled && !is_self );
+
 		const F32 DEFAULT_VOLUME = 0.5f;
 		F32 volume;
 		if (is_muted)

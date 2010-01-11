@@ -162,7 +162,7 @@ public:
 
 	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
 
-	virtual BOOL getSelectionList(std::set<LLUUID> &selection);
+	virtual BOOL getSelectionList(std::set<LLUUID> &selection) const;
 
 	// make sure if ancestor is selected, descendents are not
 	void sanitizeSelection();

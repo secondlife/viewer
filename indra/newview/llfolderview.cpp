@@ -822,10 +822,11 @@ void LLFolderView::clearSelection()
 	mSelectThisID.setNull();
 }
 
-BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection)
+BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
 {
-	selected_items_t::iterator item_it;
-	for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
+		 item_it != mSelectedItems.end(); 
+		 ++item_it)
 	{
 		selection.insert((*item_it)->getListener()->getUUID());
 	}

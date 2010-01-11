@@ -59,9 +59,6 @@ const static std::string NEW_LINE_SPACE_PREFIX("\n ");
 const static std::string TWO_SPACES("  ");
 const static std::string MULTI_LINE_PREFIX(" ");
 
-//viewer 1.23 may have used "You" for Agent's entries
-const static std::string YOU("You");
-
 /**
  *  Chat log lines - timestamp and name are optional but message text is mandatory.
  *
