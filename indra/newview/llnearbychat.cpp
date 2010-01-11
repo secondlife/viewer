@@ -178,7 +178,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 	
 	if (!chat.mMuted)
 	{
-		tmp_chat.mFromName = chat.mFromID != gAgentID ? chat.mFromName : LLTrans::getString("You");
+		tmp_chat.mFromName = chat.mFromName;
 
 		if (chat.mChatStyle == CHAT_STYLE_IRC)
 		{
