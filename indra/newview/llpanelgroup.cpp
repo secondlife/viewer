@@ -423,6 +423,9 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		getChild<LLUICtrl>("group_name")->setVisible(true);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(false);
+
+		if(button_apply)
+			button_apply->setVisible(is_member);
 	}
 
 	reposButtons();
@@ -471,12 +474,17 @@ void LLPanelGroup::draw()
 		childEnable("btn_refresh");
 	}
 
-	bool enable = false;
-	std::string mesg;
-	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
-		enable = enable || (*it)->needsApply(mesg);
+	LLButton* button_apply = findChild<LLButton>("btn_apply");
+	
+	if(button_apply && button_apply->getVisible())
+	{
+		bool enable = false;
+		std::string mesg;
+		for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+			enable = enable || (*it)->needsApply(mesg);
 
-	childSetEnabled("btn_apply", enable);
+		childSetEnabled("btn_apply", enable);
+	}
 }
 
 void LLPanelGroup::refreshData()
