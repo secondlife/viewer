@@ -134,20 +134,20 @@
 		 parameter="ChangeConnectionPort" />
     </check_box>
     <spinner
-     control_name="BrowserProxyPort"
-     enabled_control="BrowserProxyEnabled"
+     control_name="ConnectionPort"
+     enabled_control="ConnectionPortEnabled"
 	 decimal_digits="0"
      follows="left|top"
      height="23"
      increment="1"
-     initial_value="80"
+     initial_value="13000"
      label="Port number:"
      label_width="75"
      layout="topleft"
      left_delta="160"
-     max_val="12000"
-     min_val="10"
-     name="web_proxy_port"
+     max_val="13050"
+     min_val="13000"
+     name="connection_port"
      top_delta="-2"
      width="140" />
     <text
@@ -296,7 +296,8 @@
      follows="left|top"
      height="16"
      initial_value="false"
-     label="Web proxy"
+     control_name="BrowserProxyEnabled" 
+     label="Enable Web Proxy"
      left_delta="0"
      mouse_opaque="true"
      name="web_proxy_enabled"
@@ -314,30 +315,34 @@
      tool_tip="The name or IP address of the proxy you would like to use"
      top_pad="4"
      width="200" />
-    <button
-     follows="left|top"
-     height="23"
-     enabled="false"
-     label="Browse"
-     label_selected="Browse"
-     layout="topleft"
-     left_pad="5"
-     name="set_proxy"
-     top_pad="-21"
-     width="100">
-        <button.commit_callback
-         function="Pref.SetCache" />
-    </button>
     <text
      type="string"
      length="1"
      follows="left|top"
      height="10"
      layout="topleft"
-     left_delta="-203"
+     left_delta="0"
      name="Proxy location"
      top_delta="20"
      width="300"
      text_color="LtGray_50">
         Proxy location
-    </text></panel>
+    </text>
+  <spinner
+     control_name="BrowserProxyPort"
+     enabled_control="BrowserProxyEnabled"
+	 decimal_digits="0"
+     follows="left|top"
+     height="23"
+     increment="1"
+     initial_value="80"
+     label="Port number:"
+     label_width="75"
+     layout="topleft"
+     left_delta="230"
+     max_val="12000"
+     min_val="10"
+     name="web_proxy_port"
+     top_delta="-20"
+     width="140" />
+</panel>

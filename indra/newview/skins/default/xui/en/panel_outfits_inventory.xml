@@ -85,7 +85,7 @@
 	 <button
 	  follows="bottom|left"
 		height="23" 
-      label="Make Outfit" 
+      label="Save Outfit" 
       layout="topleft"
       name="make_outfit_btn"
       tool_tip="Save appearance as an outfit"

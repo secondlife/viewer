@@ -51,11 +51,10 @@
 /// Class LLFolderViewItem
 ///----------------------------------------------------------------------------
 
+static LLDefaultChildRegistry::Register<LLFolderViewItem> r("folder_view_item");
+
 // statics 
 std::map<U8, LLFontGL*> LLFolderViewItem::sFonts; // map of styles to fonts
-const LLFontGL* LLFolderViewItem::sSmallFont = NULL;
-LLUIImagePtr LLFolderViewItem::sArrowImage;
-LLUIImagePtr LLFolderViewItem::sBoxImage;
 
 // only integers can be initialized in header
 const F32 LLFolderViewItem::FOLDER_CLOSE_TIME_CONSTANT = 0.02f;
@@ -84,33 +83,34 @@ LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
 //static
 void LLFolderViewItem::initClass()
 {
-	sSmallFont = LLFontGL::getFontMonospace();
-	sArrowImage = LLUI::getUIImage("folder_arrow.tga"); 
-	sBoxImage = LLUI::getUIImage("rounded_square.tga");
 }
 
 //static
 void LLFolderViewItem::cleanupClass()
 {
 	sFonts.clear();
-	sArrowImage = NULL;
-	sBoxImage = NULL;
 }
 
 
 // NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::Params::Params()
-:	icon("icon"),
-	folder_arrow_image("folder_arrow_image", LLUI::getUIImage("folder_arrow.tga")),
-	selection_image("selection_image", LLUI::getUIImage("rounded_square.tga"))
+:	icon(),
+	icon_open(),
+	root(),
+	listener(),
+	folder_arrow_image("folder_arrow_image"),
+	folder_indentation("folder_indentation"),
+	selection_image("selection_image"),
+	item_height("item_height"),
+	item_top_pad("item_top_pad"),
+	creation_date()
 {
 	mouse_opaque(true);
 	follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_RIGHT);
-	// JAMESDEBUG tab_stop(false);
 }
 
 // Default constructor
-LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
+LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
@@ -121,6 +121,7 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mLabelStyle( LLFontGL::NORMAL ),
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
+	mItemHeight(p.item_height),
 	mNumDescendantsSelected(0),
 	mPassedFilter(FALSE),
 	mLastFilterGeneration(-1),
@@ -134,8 +135,6 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mIcon(p.icon),
 	mIconOpen(p.icon_open),
 	mListener(p.listener),
-	mArrowImage(p.folder_arrow_image),
-	mBoxImage(p.selection_image),
 	mHidden(false),
 	mShowLoadStatus(false)
 {
@@ -392,10 +391,11 @@ BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* roo
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 {
-    static LLUICachedControl<S32> indentation("FolderIndentation", 0);
+	const Params& p = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
+	S32 indentation = p.folder_indentation();
+	// Only indent deeper items in hierarchy
 	mIndentation = (getParentFolder() 
-					&& getParentFolder()->getParentFolder() 
-					&& getParentFolder()->getParentFolder()->getParentFolder())
+					&& getParentFolder()->getParentFolder() )
 		? mParentFolder->getIndentation() + indentation
 		: 0;
 	if (mLabelWidthDirty)
@@ -421,9 +421,10 @@ S32 LLFolderViewItem::getItemHeight()
 {
 	if (mHidden) return 0;
 
-	S32 icon_height = mIcon->getHeight();
-	S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight());
-	return llmax( icon_height, label_height ) + ICON_PAD;
+	//S32 icon_height = mIcon->getHeight();
+	//S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight());
+	//return llmax( icon_height, label_height ) + ICON_PAD;
+	return mItemHeight;
 }
 
 void LLFolderViewItem::filter( LLInventoryFilter& filter)
@@ -829,10 +830,15 @@ void LLFolderViewItem::draw()
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
 	static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+	static LLUIColor sFocusOutlineColor =
+		LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
 	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
 	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
 	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemSuffixColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+
+	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
+	const S32 TOP_PAD = default_params.item_top_pad;
 
 	bool possibly_has_children = false;
 	bool up_to_date = mListener && mListener->isUpToDate();
@@ -843,11 +849,10 @@ void LLFolderViewItem::draw()
 	}
 	if(/*mControlLabel[0] != '\0' && */possibly_has_children)
 	{
-		if (sArrowImage)
-		{
-			gl_draw_scaled_rotated_image(mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD,
-				ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, sArrowImage->getImage(), sFgColor);
-		}
+		LLUIImage* arrow_image = default_params.folder_arrow_image;
+		gl_draw_scaled_rotated_image(
+			mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD - TOP_PAD,
+			ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, arrow_image->getImage(), sFgColor);
 	}
 
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
@@ -857,6 +862,10 @@ void LLFolderViewItem::draw()
 	// If we have keyboard focus, draw selection filled
 	BOOL show_context = getRoot()->getShowSelectionContext();
 	BOOL filled = show_context || (getRoot()->getParentPanel()->hasFocus());
+	const S32 FOCUS_LEFT = 1;
+	S32 focus_top = getRect().getHeight();
+	S32 focus_bottom = getRect().getHeight() - mItemHeight;
+	bool folder_open = (getRect().getHeight() > mItemHeight + 4);
 
 	// always render "current" item, only render other selected items if
 	// mShowSingleSelection is FALSE
@@ -864,7 +873,6 @@ void LLFolderViewItem::draw()
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLColor4 bg_color = sHighlightBgColor;
-		//const S32 TRAILING_PAD = 5;  // It just looks better with this.
 		if (!mIsCurSelection)
 		{
 			// do time-based fade of extra objects
@@ -882,35 +890,35 @@ void LLFolderViewItem::draw()
 		}
 
 		gl_rect_2d(
-			0, 
-			getRect().getHeight(), 
+			FOCUS_LEFT,
+			focus_top, 
 			getRect().getWidth() - 2,
-			llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
+			focus_bottom,
 			bg_color, filled);
 		if (mIsCurSelection)
 		{
 			gl_rect_2d(
-				0, 
-				getRect().getHeight(), 
+				FOCUS_LEFT, 
+				focus_top, 
 				getRect().getWidth() - 2,
-				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
-				sHighlightFgColor, FALSE);
+				focus_bottom,
+				sFocusOutlineColor, FALSE);
 		}
-		if (getRect().getHeight() > llround(font->getLineHeight()) + ICON_PAD + 4)
+		if (folder_open)
 		{
 			gl_rect_2d(
-				0, 
-				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 4, 
+				FOCUS_LEFT,
+				focus_bottom + 1, // overlap with bottom edge of above rect
 				getRect().getWidth() - 2,
-				2,
-				sHighlightFgColor, FALSE);
+				0,
+				sFocusOutlineColor, FALSE);
 			if (show_context)
 			{
 				gl_rect_2d(
-					0, 
-					llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 4, 
+					FOCUS_LEFT,
+					focus_bottom + 1,
 					getRect().getWidth() - 2,
-					2,
+					0,
 					sHighlightBgColor, TRUE);
 			}
 		}
@@ -919,32 +927,32 @@ void LLFolderViewItem::draw()
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gl_rect_2d(
-			0, 
-			getRect().getHeight(), 
+			FOCUS_LEFT, 
+			focus_top, 
 			getRect().getWidth() - 2,
-			llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
+			focus_bottom,
 			sHighlightBgColor, FALSE);
-
-		if (getRect().getHeight() > llround(font->getLineHeight()) + ICON_PAD + 2)
+		if (folder_open)
 		{
 			gl_rect_2d(
-				0, 
-				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 2, 
+				FOCUS_LEFT,
+				focus_bottom + 1, // overlap with bottom edge of above rect
 				getRect().getWidth() - 2,
-				2,
+				0,
 				sHighlightBgColor, FALSE);
 		}
 		mDragAndDropTarget = FALSE;
 	}
 
+	S32 icon_x = mIndentation + ARROW_SIZE + TEXT_PAD;
 	// First case is used for open folders
 	if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80))
  	{
-		mIconOpen->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
+		mIconOpen->draw(icon_x, getRect().getHeight() - mIconOpen->getHeight() - TOP_PAD + 1);
 	}
 	else if(mIcon)
 	{
- 		mIcon->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
+ 		mIcon->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
  	}
 
 	if (!mLabel.empty())
@@ -953,7 +961,7 @@ void LLFolderViewItem::draw()
 		BOOL debug_filters = getRoot()->getDebugFilters();
 		LLColor4 color = ( (mIsSelected && filled) ? sHighlightFgColor : sFgColor );
 		F32 right_x;
-		F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD;
+		F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
 
 		if (debug_filters)
 		{
@@ -963,7 +971,8 @@ void LLFolderViewItem::draw()
 			}
 
 			LLColor4 filter_color = mLastFilterGeneration >= getRoot()->getFilter()->getCurrentGeneration() ? LLColor4(0.5f, 0.8f, 0.5f, 1.f) : LLColor4(0.8f, 0.5f, 0.5f, 1.f);
-			sSmallFont->renderUTF8(mStatusText, 0, text_left, y, filter_color,
+			LLFontGL::getFontMonospace()->renderUTF8(
+				mStatusText, 0, text_left, y, filter_color,
 				LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 				S32_MAX, S32_MAX, &right_x, FALSE );
 			text_left = right_x;
@@ -1004,7 +1013,7 @@ void LLFolderViewItem::draw()
 				S32_MAX, S32_MAX, &right_x, FALSE );
 		}
 
-		if (sBoxImage.notNull() && mStringMatchOffset != std::string::npos)
+		if (mStringMatchOffset != std::string::npos)
 		{
 			// don't draw backgrounds for zero-length strings
 			S32 filter_string_length = getRoot()->getFilterSubString().size();
@@ -1013,14 +1022,15 @@ void LLFolderViewItem::draw()
 				std::string combined_string = mLabel + mLabelSuffix;
 				S32 left = llround(text_left) + font->getWidth(combined_string, 0, mStringMatchOffset) - 1;
 				S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
-				S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3);
-				S32 top = getRect().getHeight();
-				
+				S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
+				S32 top = getRect().getHeight() - TOP_PAD;
+		
+				LLUIImage* box_image = default_params.selection_image;
 				LLRect box_rect(left, top, right, bottom);
-				sBoxImage->draw(box_rect, sFilterBGColor);
+				box_image->draw(box_rect, sFilterBGColor);
 				F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
-				F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD;
-				font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, y,
+				F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
+				font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, yy,
 								  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 								  filter_string_length, S32_MAX, &right_x, FALSE );
 			}

@@ -167,6 +167,7 @@ with the same filename but different name
 
   <texture name="Flag" file_name="navbar/Flag.png" preload="false" />
 
+  <texture name="Folder_Arrow" file_name="folder_arrow.tga" preload="false" />
   <texture name="ForSale_Badge" file_name="icons/ForSale_Badge.png" preload="false" />
   <texture name="ForwardArrow_Off" file_name="icons/ForwardArrow_Off.png" preload="false" />
   <texture name="ForwardArrow_Press" file_name="icons/ForwardArrow_Press.png" preload="false" />
@@ -222,7 +223,8 @@ with the same filename but different name
   <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false"
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
-
+  <texture name="Inspector_I" file_name="windows/Inspector_I.png" preload="false" />
+  
   <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
   <texture name="Inv_Alpha" file_name="icons/Inv_Alpha.png" preload="false" />
   <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
@@ -438,6 +440,7 @@ with the same filename but different name
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
+  <texture name="Rounded_Square"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
   <texture name="Row_Selection" file_name="navbar/Row_Selection.png" preload="false" />
 
   <texture name="ScrollArrow_Down" file_name="widgets/ScrollArrow_Down.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
@@ -675,7 +678,6 @@ with the same filename but different name
   <texture name="toggle_button_selected" file_name="toggle_button_selected.png" preload="true" />
 
   <texture name="sm_rounded_corners_simple.tga" scale.left="4" scale.top="4" scale.bottom="4" scale.right="4" />
-  <texture name="rounded_square.tga"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
   <texture name="color_swatch_alpha.tga" preload="true" />
 
   <texture name="button_anim_pause.tga" />

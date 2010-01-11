@@ -396,6 +396,9 @@
      name="InventoryBackgroundColor"
      reference="Unused?" />
     <color
+     name="InventoryFocusOutlineColor"
+     reference="EmphasisColor" />
+    <color
      name="InventoryItemSuffixColor"
      reference="White_25" />
     <color

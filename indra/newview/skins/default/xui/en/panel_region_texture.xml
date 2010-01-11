@@ -136,7 +136,7 @@
      layout="topleft"
      left="10"
      name="height_text_lbl5"
-     top="186"
+     top="170"
      width="300">
         Texture Elevation Ranges
     </text>
@@ -146,7 +146,7 @@
      layout="topleft"
      left="51"
      name="height_text_lbl6"
-     top="201"
+     top="185"
      width="100">
         Southwest
     </text>
@@ -171,7 +171,7 @@
     max_val="500"
     min_val="-500"
     name="height_start_spin_0"
-    top_delta="20"
+    top_delta="15"
     width="100" />
   <spinner
    follows="left|top"
@@ -216,9 +216,9 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_pad="10"
+     left="51"
      name="height_text_lbl8"
-     top_delta="0"
+     top_pad="10"
      width="100">
         Southeast
     </text>
@@ -243,7 +243,7 @@
        max_val="500"
        min_val="-500"
        name="height_start_spin_2"
-       top_delta="20"
+       top_delta="15"
        width="100" />
       <spinner
        follows="left|top"
@@ -291,9 +291,9 @@
        left="10"
        name="height_text_lbl10"
        top_delta="30"
-       width="270">
-        These values represent the blend range
-        for the textures above.
+       width="400"
+       wrap="true">
+        These values represent the blend range for the textures above.
       </text>
       <text
        follows="left|top"
@@ -302,11 +302,9 @@
        left_delta="0"
        name="height_text_lbl11"
        top_delta="32"
-       width="270">
-        Measured in meters, the LOW value
-        is the MAXIMUM height of Texture #1,
-        and the HIGH value is the MINIMUM
-        height of Texture #4.
+       width="400"
+       wrap="true">
+        Measured in meters, the LOW value is the MAXIMUM height of Texture #1, and the HIGH value is the MINIMUM height of Texture #4.
       </text>
     <button
      enabled="false"
