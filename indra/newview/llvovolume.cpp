@@ -86,8 +86,8 @@ S32 LLVOVolume::sNumLODChanges = 0;
 LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
-static LLFastTimerUtil::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
-static LLFastTimerUtil::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
+static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
+static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
@@ -1339,8 +1339,8 @@ void LLVOVolume::updateRelativeXform()
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_GEN_FLEX("Generate Flexies");
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_PRIMITIVES("Update Primitives");
+static LLFastTimer::DeclareTimer FTM_GEN_FLEX("Generate Flexies");
+static LLFastTimer::DeclareTimer FTM_UPDATE_PRIMITIVES("Update Primitives");
 
 BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 {
@@ -3190,8 +3190,8 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
-static LLFastTimerUtil::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
@@ -3423,7 +3423,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	mFaceList.clear();
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
+static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
 	llpushcallstacks ;

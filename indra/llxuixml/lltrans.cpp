@@ -137,7 +137,7 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 
 
 
-static LLFastTimerUtil::DeclareTimer FTM_GET_TRANS("Translate string");
+static LLFastTimer::DeclareTimer FTM_GET_TRANS("Translate string");
 
 //static 
 std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args)

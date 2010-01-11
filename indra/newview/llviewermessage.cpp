@@ -3485,7 +3485,7 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 	gObjectList.processCompressedObjectUpdate(mesgsys, user_data, OUT_TERSE_IMPROVED);
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
+static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
 
 
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)

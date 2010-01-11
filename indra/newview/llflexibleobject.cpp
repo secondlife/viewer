@@ -261,7 +261,7 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 // updated every time step. In the future, perhaps there could be an 
 // optimization similar to what Havok does for objects that are stationary. 
 //---------------------------------------------------------------------------------
-static LLFastTimerUtil::DeclareTimer FTM_FLEXIBLE_UPDATE("Update Flexies");
+static LLFastTimer::DeclareTimer FTM_FLEXIBLE_UPDATE("Update Flexies");
 BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	if (mVO->mDrawable.isNull())

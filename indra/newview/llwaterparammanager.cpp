@@ -261,7 +261,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
 
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {

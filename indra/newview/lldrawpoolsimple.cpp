@@ -47,8 +47,8 @@
 static LLGLSLShader* simple_shader = NULL;
 static LLGLSLShader* fullbright_shader = NULL;
 
-static LLFastTimerUtil::DeclareTimer FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
-static LLFastTimerUtil::DeclareTimer FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
+static LLFastTimer::DeclareTimer FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
+static LLFastTimer::DeclareTimer FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
 
 void LLDrawPoolGlow::render(S32 pass)
 {

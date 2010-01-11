@@ -80,7 +80,7 @@ LLStat LLViewerTextureList::sRawMemStat(32, TRUE);
 LLStat LLViewerTextureList::sFormattedMemStat(32, TRUE);
 
 LLViewerTextureList gTextureList;
-static LLFastTimerUtil::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
+static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -570,7 +570,7 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-static LLFastTimerUtil::DeclareTimer FTM_IMAGE_MARK_DIRTY("Dirty Images");
+static LLFastTimer::DeclareTimer FTM_IMAGE_MARK_DIRTY("Dirty Images");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
@@ -735,7 +735,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
  return type_from_host;
  }
  */
-static LLFastTimerUtil::DeclareTimer FTM_IMAGE_CREATE("Create Images");
+static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create Images");
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {

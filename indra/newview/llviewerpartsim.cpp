@@ -633,7 +633,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_SIMULATE_PARTICLES("Simulate Particles");
+static LLFastTimer::DeclareTimer FTM_SIMULATE_PARTICLES("Simulate Particles");
 
 void LLViewerPartSim::updateSimulation()
 {

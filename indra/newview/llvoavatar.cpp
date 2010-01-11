@@ -2110,8 +2110,8 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_AVATAR_UPDATE("Update Avatar");
-static LLFastTimerUtil::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
+static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Update Avatar");
+static LLFastTimer::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
 
 //------------------------------------------------------------------------
 // idleUpdate()
@@ -2304,7 +2304,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 	}//if ( voiceEnabled )
 }		
 
-static LLFastTimerUtil::DeclareTimer FTM_ATTACHMENT_UPDATE("Update Attachments");
+static LLFastTimer::DeclareTimer FTM_ATTACHMENT_UPDATE("Update Attachments");
 
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 {
@@ -4675,7 +4675,7 @@ void LLVOAvatar::requestStopMotion( LLMotion* motion )
 //-----------------------------------------------------------------------------
 // loadAvatar()
 //-----------------------------------------------------------------------------
-static LLFastTimerUtil::DeclareTimer FTM_LOAD_AVATAR("Load Avatar");
+static LLFastTimer::DeclareTimer FTM_LOAD_AVATAR("Load Avatar");
 
 BOOL LLVOAvatar::loadAvatar()
 {
@@ -5263,7 +5263,7 @@ void LLVOAvatar::updateGL()
 //-----------------------------------------------------------------------------
 // updateGeometry()
 //-----------------------------------------------------------------------------
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_AVATAR("Update Avatar");
+static LLFastTimer::DeclareTimer FTM_UPDATE_AVATAR("Update Avatar");
 BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(FTM_UPDATE_AVATAR);

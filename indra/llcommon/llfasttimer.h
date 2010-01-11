@@ -97,8 +97,7 @@ class LLMutex;
 #include <queue>
 #include "llsd.h"
 
-
-class LL_COMMON_API LLFastTimerUtil
+class LL_COMMON_API LLFastTimer
 {
 public:
 
@@ -153,9 +152,8 @@ public:
 
 		FrameState& getFrameState() const;
 
-
 	private: 
-		friend class LLFastTimerUtil;
+		friend class LLFastTimer;
 		friend class NamedTimerFactory;
 
 		//
@@ -172,7 +170,6 @@ public:
 		static void buildHierarchy();
 		static void resetFrame();
 		static void reset();
-
 	
 		//
 		// members
@@ -194,7 +191,6 @@ public:
 		std::vector<NamedTimer*>	mChildren;
 		bool						mCollapsed;				// don't show children
 		bool						mNeedsSorting;			// sort children whenever child added
-
 	};
 
 	// used to statically declare a new named timer
@@ -213,6 +209,63 @@ public:
 		FrameState*		mFrameState; 
 	};
 
+public:
+	LLFastTimer(LLFastTimer::FrameState* state);
+
+	LL_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
+	:	mFrameState(timer.mFrameState)
+	{
+#if TIME_FAST_TIMERS
+		U64 timer_start = get_cpu_clock_count_64();
+#endif
+#if FAST_TIMER_ON
+		LLFastTimer::FrameState* frame_state = mFrameState;
+		mStartTime = get_cpu_clock_count_32();
+
+		frame_state->mActiveCount++;
+		frame_state->mCalls++;
+		// keep current parent as long as it is active when we are
+		frame_state->mMoveUpTree |= (frame_state->mParent->mActiveCount == 0);
+	
+		LLFastTimer::CurTimerData* cur_timer_data = &LLFastTimer::sCurTimerData;
+		mLastTimerData = *cur_timer_data;
+		cur_timer_data->mCurTimer = this;
+		cur_timer_data->mFrameState = frame_state;
+		cur_timer_data->mChildTime = 0;
+#endif
+#if TIME_FAST_TIMERS
+		U64 timer_end = get_cpu_clock_count_64();
+		sTimerCycles += timer_end - timer_start;
+#endif
+	}
+
+	LL_INLINE ~LLFastTimer()
+	{
+#if TIME_FAST_TIMERS
+		U64 timer_start = get_cpu_clock_count_64();
+#endif
+#if FAST_TIMER_ON
+		LLFastTimer::FrameState* frame_state = mFrameState;
+		U32 total_time = get_cpu_clock_count_32() - mStartTime;
+
+		frame_state->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
+		frame_state->mActiveCount--;
+
+		// store last caller to bootstrap tree creation
+		// do this in the destructor in case of recursion to get topmost caller
+		frame_state->mLastCaller = mLastTimerData.mFrameState;
+
+		// we are only tracking self time, so subtract our total time delta from parents
+		mLastTimerData.mChildTime += total_time;
+
+		LLFastTimer::sCurTimerData = mLastTimerData;
+#endif
+#if TIME_FAST_TIMERS
+		U64 timer_end = get_cpu_clock_count_64();
+		sTimerCycles += timer_end - timer_start;
+		sTimerCalls++;
+#endif	
+	}
 
 public:
 	static LLMutex*			sLogLock;
@@ -258,82 +311,13 @@ private:
 	static S32				sLastFrameIndex;
 	static U64				sLastFrameTime;
 	static info_list_t*		sTimerInfos;
+
+	U32							mStartTime;
+	LLFastTimer::FrameState*	mFrameState;
+	LLFastTimer::CurTimerData	mLastTimerData;
+
 };
 
-class LLFastTimer
-{
-	friend LLFastTimerUtil::NamedTimer;
-public:
-	LLFastTimer(LLFastTimerUtil::FrameState* state)
-	:	mFrameState(state)
-	{
-		U32 start_time = get_cpu_clock_count_32();
-		mStartTime = start_time;
-		mFrameState->mActiveCount++;
-		LLFastTimerUtil::sCurTimerData.mCurTimer = this;
-		LLFastTimerUtil::sCurTimerData.mFrameState = mFrameState;
-		LLFastTimerUtil::sCurTimerData.mChildTime = 0;
-		mLastTimerData = LLFastTimerUtil::sCurTimerData;
-	}
-
-	LL_INLINE LLFastTimer(LLFastTimerUtil::DeclareTimer& timer)
-	:	mFrameState(timer.mFrameState)
-	{
-#if TIME_FAST_TIMERS
-		U64 timer_start = get_cpu_clock_count_64();
-#endif
-#if FAST_TIMER_ON
-		LLFastTimerUtil::FrameState* frame_state = mFrameState;
-		mStartTime = get_cpu_clock_count_32();
-
-		frame_state->mActiveCount++;
-		frame_state->mCalls++;
-		// keep current parent as long as it is active when we are
-		frame_state->mMoveUpTree |= (frame_state->mParent->mActiveCount == 0);
-	
-		LLFastTimerUtil::CurTimerData* cur_timer_data = &LLFastTimerUtil::sCurTimerData;
-		mLastTimerData = *cur_timer_data;
-		cur_timer_data->mCurTimer = this;
-		cur_timer_data->mFrameState = frame_state;
-		cur_timer_data->mChildTime = 0;
-#endif
-#if TIME_FAST_TIMERS
-		U64 timer_end = get_cpu_clock_count_64();
-		sTimerCycles += timer_end - timer_start;
-#endif
-	}
-
-	LL_INLINE ~LLFastTimer()
-	{
-#if TIME_FAST_TIMERS
-		U64 timer_start = get_cpu_clock_count_64();
-#endif
-#if FAST_TIMER_ON
-		LLFastTimerUtil::FrameState* frame_state = mFrameState;
-		U32 total_time = get_cpu_clock_count_32() - mStartTime;
-
-		frame_state->mSelfTimeCounter += total_time - LLFastTimerUtil::sCurTimerData.mChildTime;
-		frame_state->mActiveCount--;
-
-		// store last caller to bootstrap tree creation
-		// do this in the destructor in case of recursion to get topmost caller
-		frame_state->mLastCaller = mLastTimerData.mFrameState;
-
-		// we are only tracking self time, so subtract our total time delta from parents
-		mLastTimerData.mChildTime += total_time;
-
-		LLFastTimerUtil::sCurTimerData = mLastTimerData;
-#endif
-#if TIME_FAST_TIMERS
-		U64 timer_end = get_cpu_clock_count_64();
-		sTimerCycles += timer_end - timer_start;
-		sTimerCalls++;
-#endif	
-	}
-private:
-	U32								mStartTime;
-	LLFastTimerUtil::FrameState*	mFrameState;
-	LLFastTimerUtil::CurTimerData	mLastTimerData;
-};
+typedef class LLFastTimer LLFastTimer;
 
 #endif // LL_LLFASTTIMER_H

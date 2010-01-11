@@ -1707,7 +1707,7 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 	return child;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_FIND_VIEWS("Find Widgets");
+static LLFastTimer::DeclareTimer FTM_FIND_VIEWS("Find Widgets");
 
 LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 {

@@ -140,34 +140,34 @@ BOOL	gDebugPipeline = FALSE;
 LLPipeline gPipeline;
 const LLMatrix4* gGLLastMatrix = NULL;
 
-LLFastTimerUtil::DeclareTimer FTM_RENDER_GEOMETRY("Geometry");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_GRASS("Grass");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_INVISIBLE("Invisible");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_OCCLUSION("Occlusion");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_SHINY("Shiny");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_SIMPLE("Simple");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_TERRAIN("Terrain");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_TREES("Trees");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_UI("UI");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_WATER("Water");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_WL_SKY("Windlight Sky");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_ALPHA("Alpha Objects");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_CHARACTERS("Avatars");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_BUMP("Bump");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_FULLBRIGHT("Fullbright");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_GLOW("Glow");
-LLFastTimerUtil::DeclareTimer FTM_GEO_UPDATE("Geo Update");
-LLFastTimerUtil::DeclareTimer FTM_POOLRENDER("RenderPool");
-LLFastTimerUtil::DeclareTimer FTM_POOLS("Pools");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_BLOOM_FBO("First FBO");
-LLFastTimerUtil::DeclareTimer FTM_STATESORT("Sort Draw State");
-LLFastTimerUtil::DeclareTimer FTM_PIPELINE("Pipeline");
-LLFastTimerUtil::DeclareTimer FTM_CLIENT_COPY("Client Copy");
-LLFastTimerUtil::DeclareTimer FTM_RENDER_DEFERRED("Deferred Shading");
+LLFastTimer::DeclareTimer FTM_RENDER_GEOMETRY("Geometry");
+LLFastTimer::DeclareTimer FTM_RENDER_GRASS("Grass");
+LLFastTimer::DeclareTimer FTM_RENDER_INVISIBLE("Invisible");
+LLFastTimer::DeclareTimer FTM_RENDER_OCCLUSION("Occlusion");
+LLFastTimer::DeclareTimer FTM_RENDER_SHINY("Shiny");
+LLFastTimer::DeclareTimer FTM_RENDER_SIMPLE("Simple");
+LLFastTimer::DeclareTimer FTM_RENDER_TERRAIN("Terrain");
+LLFastTimer::DeclareTimer FTM_RENDER_TREES("Trees");
+LLFastTimer::DeclareTimer FTM_RENDER_UI("UI");
+LLFastTimer::DeclareTimer FTM_RENDER_WATER("Water");
+LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY("Windlight Sky");
+LLFastTimer::DeclareTimer FTM_RENDER_ALPHA("Alpha Objects");
+LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS("Avatars");
+LLFastTimer::DeclareTimer FTM_RENDER_BUMP("Bump");
+LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT("Fullbright");
+LLFastTimer::DeclareTimer FTM_RENDER_GLOW("Glow");
+LLFastTimer::DeclareTimer FTM_GEO_UPDATE("Geo Update");
+LLFastTimer::DeclareTimer FTM_POOLRENDER("RenderPool");
+LLFastTimer::DeclareTimer FTM_POOLS("Pools");
+LLFastTimer::DeclareTimer FTM_RENDER_BLOOM_FBO("First FBO");
+LLFastTimer::DeclareTimer FTM_STATESORT("Sort Draw State");
+LLFastTimer::DeclareTimer FTM_PIPELINE("Pipeline");
+LLFastTimer::DeclareTimer FTM_CLIENT_COPY("Client Copy");
+LLFastTimer::DeclareTimer FTM_RENDER_DEFERRED("Deferred Shading");
 
 
-static LLFastTimerUtil::DeclareTimer FTM_STATESORT_DRAWABLE("Sort Drawables");
-static LLFastTimerUtil::DeclareTimer FTM_STATESORT_POSTSORT("Post Sort");
+static LLFastTimer::DeclareTimer FTM_STATESORT_DRAWABLE("Sort Drawables");
+static LLFastTimer::DeclareTimer FTM_STATESORT_POSTSORT("Post Sort");
 
 //----------------------------------------
 std::string gPoolNames[] = 
@@ -508,7 +508,7 @@ void LLPipeline::destroyGL()
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
+static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
 void LLPipeline::resizeScreenTexture()
 {
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
@@ -1396,8 +1396,8 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_OCTREE_BALANCE("Balance Octree");
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_MOVE("Update Move");
+static LLFastTimer::DeclareTimer FTM_OCTREE_BALANCE("Balance Octree");
+static LLFastTimer::DeclareTimer FTM_UPDATE_MOVE("Update Move");
 
 void LLPipeline::updateMove()
 {
@@ -1557,7 +1557,7 @@ BOOL LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 	return res;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_CULL("Object Culling");
+static LLFastTimer::DeclareTimer FTM_CULL("Object Culling");
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip)
 {
@@ -2188,7 +2188,7 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_RESET_DRAWORDER("Reset Draw Order");
+static LLFastTimer::DeclareTimer FTM_RESET_DRAWORDER("Reset Draw Order");
 
 void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 {
@@ -5519,7 +5519,7 @@ void LLPipeline::bindScreenToTexture()
 	
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_RENDER_BLOOM("Bloom");
+static LLFastTimer::DeclareTimer FTM_RENDER_BLOOM("Bloom");
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
 	LLMemType mt_ru(LLMemType::MTYPE_PIPELINE_RENDER_BLOOM);
@@ -6227,16 +6227,16 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_GI_TRACE("Trace");
-static LLFastTimerUtil::DeclareTimer FTM_GI_GATHER("Gather");
-static LLFastTimerUtil::DeclareTimer FTM_SUN_SHADOW("Shadow Map");
-static LLFastTimerUtil::DeclareTimer FTM_SOFTEN_SHADOW("Shadow Soften");
-static LLFastTimerUtil::DeclareTimer FTM_EDGE_DETECTION("Find Edges");
-static LLFastTimerUtil::DeclareTimer FTM_LOCAL_LIGHTS("Local Lights");
-static LLFastTimerUtil::DeclareTimer FTM_ATMOSPHERICS("Atmospherics");
-static LLFastTimerUtil::DeclareTimer FTM_FULLSCREEN_LIGHTS("Fullscreen Lights");
-static LLFastTimerUtil::DeclareTimer FTM_PROJECTORS("Projectors");
-static LLFastTimerUtil::DeclareTimer FTM_POST("Post");
+static LLFastTimer::DeclareTimer FTM_GI_TRACE("Trace");
+static LLFastTimer::DeclareTimer FTM_GI_GATHER("Gather");
+static LLFastTimer::DeclareTimer FTM_SUN_SHADOW("Shadow Map");
+static LLFastTimer::DeclareTimer FTM_SOFTEN_SHADOW("Shadow Soften");
+static LLFastTimer::DeclareTimer FTM_EDGE_DETECTION("Find Edges");
+static LLFastTimer::DeclareTimer FTM_LOCAL_LIGHTS("Local Lights");
+static LLFastTimer::DeclareTimer FTM_ATMOSPHERICS("Atmospherics");
+static LLFastTimer::DeclareTimer FTM_FULLSCREEN_LIGHTS("Fullscreen Lights");
+static LLFastTimer::DeclareTimer FTM_PROJECTORS("Projectors");
+static LLFastTimer::DeclareTimer FTM_POST("Post");
 
 
 void LLPipeline::renderDeferredLighting()
@@ -7433,9 +7433,9 @@ glh::matrix4f scale_translate_to_fit(const LLVector3 min, const LLVector3 max)
 	return ret;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_SHADOW_RENDER("Render Shadows");
-static LLFastTimerUtil::DeclareTimer FTM_SHADOW_ALPHA("Alpha Shadow");
-static LLFastTimerUtil::DeclareTimer FTM_SHADOW_SIMPLE("Simple Shadow");
+static LLFastTimer::DeclareTimer FTM_SHADOW_RENDER("Render Shadows");
+static LLFastTimer::DeclareTimer FTM_SHADOW_ALPHA("Alpha Shadow");
+static LLFastTimer::DeclareTimer FTM_SHADOW_SIMPLE("Simple Shadow");
 
 void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion)
 {

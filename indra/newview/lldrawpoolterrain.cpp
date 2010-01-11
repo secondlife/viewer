@@ -61,7 +61,7 @@ int DebugDetailMap = 0;
 S32 LLDrawPoolTerrain::sDetailMode = 1;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
 static LLGLSLShader* sShader = NULL;
-static LLFastTimerUtil::DeclareTimer FTM_SHADOW_TERRAIN("Terrain Shadow");
+static LLFastTimer::DeclareTimer FTM_SHADOW_TERRAIN("Terrain Shadow");
 
 
 LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :

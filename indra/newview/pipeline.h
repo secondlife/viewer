@@ -78,25 +78,25 @@ glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top,
 glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
 glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_GEOMETRY;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_GRASS;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_INVISIBLE;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_OCCLUSION;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_SHINY;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_SIMPLE;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_TERRAIN;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_TREES;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_UI;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_WATER;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_WL_SKY;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_ALPHA;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_CHARACTERS;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_BUMP;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_FULLBRIGHT;
-extern LLFastTimerUtil::DeclareTimer FTM_RENDER_GLOW;
-extern LLFastTimerUtil::DeclareTimer FTM_STATESORT;
-extern LLFastTimerUtil::DeclareTimer FTM_PIPELINE;
-extern LLFastTimerUtil::DeclareTimer FTM_CLIENT_COPY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_GEOMETRY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_GRASS;
+extern LLFastTimer::DeclareTimer FTM_RENDER_INVISIBLE;
+extern LLFastTimer::DeclareTimer FTM_RENDER_OCCLUSION;
+extern LLFastTimer::DeclareTimer FTM_RENDER_SHINY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_SIMPLE;
+extern LLFastTimer::DeclareTimer FTM_RENDER_TERRAIN;
+extern LLFastTimer::DeclareTimer FTM_RENDER_TREES;
+extern LLFastTimer::DeclareTimer FTM_RENDER_UI;
+extern LLFastTimer::DeclareTimer FTM_RENDER_WATER;
+extern LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_ALPHA;
+extern LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS;
+extern LLFastTimer::DeclareTimer FTM_RENDER_BUMP;
+extern LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT;
+extern LLFastTimer::DeclareTimer FTM_RENDER_GLOW;
+extern LLFastTimer::DeclareTimer FTM_STATESORT;
+extern LLFastTimer::DeclareTimer FTM_PIPELINE;
+extern LLFastTimer::DeclareTimer FTM_CLIENT_COPY;
 
 
 class LLPipeline

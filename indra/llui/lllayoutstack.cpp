@@ -437,7 +437,7 @@ bool LLLayoutStack::getPanelMinSize(const std::string& panel_name, S32* min_widt
 	return NULL != panel;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
+static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
 void LLLayoutStack::updateLayout(BOOL force_resize)
 {
 	LLFastTimer ft(FTM_UPDATE_LAYOUT);

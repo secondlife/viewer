@@ -295,7 +295,7 @@ void LLFolderView::checkTreeResortForModelChanged()
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_SORT("Sort Inventory");
+static LLFastTimer::DeclareTimer FTM_SORT("Sort Inventory");
 
 void LLFolderView::setSortOrder(U32 order)
 {
@@ -377,7 +377,7 @@ void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse
 	mIsOpen = TRUE;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_ARRANGE("Arrange");
+static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 
 // This view grows and shinks to enclose all of its children items and folders.
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
@@ -477,7 +477,7 @@ const std::string LLFolderView::getFilterSubString(BOOL trim)
 	return mFilter->getFilterSubString(trim);
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_FILTER("Filter Inventory");
+static LLFastTimer::DeclareTimer FTM_FILTER("Filter Inventory");
 
 void LLFolderView::filter( LLInventoryFilter& filter )
 {
@@ -2056,8 +2056,8 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	return true;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_AUTO_SELECT("Open and Select");
-static LLFastTimerUtil::DeclareTimer FTM_INVENTORY("Inventory");
+static LLFastTimer::DeclareTimer FTM_AUTO_SELECT("Open and Select");
+static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
 
 // Main idle routine
 void LLFolderView::doIdle()

@@ -116,7 +116,7 @@ BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dp
 	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback);
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_RENDER_FONTS("Fonts");
+static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const

@@ -42,7 +42,7 @@
 #include <winnls.h> // for WideCharToMultiByte
 #endif
 
-LLFastTimerUtil::DeclareTimer FT_STRING_FORMAT("String Format");
+LLFastTimer::DeclareTimer FT_STRING_FORMAT("String Format");
 
 
 std::string ll_safe_string(const char* in)

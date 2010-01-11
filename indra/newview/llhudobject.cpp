@@ -254,7 +254,7 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 	return hud_objectp;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_HUD_UPDATE("Update Hud");
+static LLFastTimer::DeclareTimer FTM_HUD_UPDATE("Update Hud");
 
 // static
 void LLHUDObject::updateAll()

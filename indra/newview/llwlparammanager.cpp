@@ -58,7 +58,7 @@
 #include "curl/curl.h"
 
 LLWLParamManager * LLWLParamManager::sInstance = NULL;
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
 
 LLWLParamManager::LLWLParamManager() :
 

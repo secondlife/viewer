@@ -1065,7 +1065,7 @@ S32 LLTextBase::getLeftOffset(S32 width)
 }
 
 
-static LLFastTimerUtil::DeclareTimer FTM_TEXT_REFLOW ("Text Reflow");
+static LLFastTimer::DeclareTimer FTM_TEXT_REFLOW ("Text Reflow");
 void LLTextBase::reflow(S32 start_index)
 {
 	LLFastTimer ft(FTM_TEXT_REFLOW);
@@ -1377,7 +1377,7 @@ void LLTextBase::removeDocumentChild(LLView* view)
 }
 
 
-static LLFastTimerUtil::DeclareTimer FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
+static LLFastTimer::DeclareTimer FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 void LLTextBase::updateSegments()
 {
 	LLFastTimer ft(FTM_UPDATE_TEXT_SEGMENTS);

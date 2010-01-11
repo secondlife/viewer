@@ -444,7 +444,7 @@ void LLPumpIO::pump()
 	pump(DEFAULT_POLL_TIMEOUT);
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_PUMP("Pump");
+static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
 
 //timeout is in microseconds
 void LLPumpIO::pump(const S32& poll_timeout)

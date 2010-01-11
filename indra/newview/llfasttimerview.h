@@ -61,7 +61,7 @@ public:
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 
-	LLFastTimerUtil::NamedTimer* getLegendID(S32 y);
+	LLFastTimer::NamedTimer* getLegendID(S32 y);
 	F64 getTime(const std::string& name);
 	
 private:	
@@ -85,8 +85,8 @@ private:
 	U64 mMaxCountTotal;
 	LLRect mBarRect;
 	S32	mScrollIndex;
-	LLFastTimerUtil::NamedTimer* mHoverID;
-	LLFastTimerUtil::NamedTimer* mHoverTimer;
+	LLFastTimer::NamedTimer* mHoverID;
+	LLFastTimer::NamedTimer* mHoverTimer;
 	LLRect					mToolTipRect;
 	S32 mHoverBarIndex;
 	LLFrameTimer mHighlightTimer;

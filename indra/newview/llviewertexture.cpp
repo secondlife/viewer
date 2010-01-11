@@ -305,7 +305,7 @@ void LLViewerTextureManager::init()
 
 	LLViewerTexture::initClass() ;
 
-	if(LLFastTimerUtil::sMetricLog)
+	if(LLFastTimer::sMetricLog)
 	{
 		LLViewerTextureManager::sTesterp = new LLTexturePipelineTester() ;
 	}

@@ -49,8 +49,8 @@
 #include "llvoavatar.h"
 #include "lltextureatlas.h"
 
-static LLFastTimerUtil::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
-static LLFastTimerUtil::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
@@ -641,7 +641,7 @@ void LLSpatialGroup::rebuildMesh()
 	}
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
@@ -1508,7 +1508,7 @@ BOOL LLSpatialGroup::rebound()
 	return TRUE;
 }
 
-static LLFastTimerUtil::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
 void LLSpatialGroup::checkOcclusion()
 {
 	if (LLPipeline::sUseOcclusion > 1)
