@@ -134,18 +134,6 @@
      name="show_timestamps_check_im"
      top_pad="10"
      width="237" />
-    <line_editor
-     bottom="366"
-     control_name="InstantMessageLogFolder"
-     enabled="false"
-     follows="top|left|right"
-     halign="right"
-     height="19"
-     layout="topleft"
-     left_delta="0"
-     mouse_opaque="false"
-     name="log_path_string"
-     top_pad="5" />
     <text
      type="string"
      length="1"
@@ -155,11 +143,23 @@
      left_delta="0"
      mouse_opaque="false"
      name="log_path_desc"
-     top_pad="1"
-     width="128"
-     text_color="LtGray_50">
-        Location of logs
+     top_pad="5"
+     width="128">
+        Location of logs:
     </text>    
+    <line_editor
+     bottom="366"
+     control_name="InstantMessageLogFolder"
+     enabled="false"
+     follows="top|left|right"
+     halign="right"
+     height="23"
+     layout="topleft"
+     left_delta="0"
+     mouse_opaque="false"
+     name="log_path_string"
+     top_pad="5"
+     width="250"/>
     <button
 	 enabled="false"
      follows="right|bottom"
@@ -167,9 +167,9 @@
      label="Browse"
      label_selected="Browse"
      layout="topleft"
-     left_pad="115"
+     left_pad="5"
      name="log_path_button"
-     top_delta="-21"
+     top_delta="0"
      width="145">
         <button.commit_callback
          function="Pref.LogPath" />
