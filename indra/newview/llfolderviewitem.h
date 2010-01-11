@@ -103,8 +103,8 @@ public:
 		Optional<LLUIImage*>					folder_arrow_image;
 		Optional<S32>							folder_indentation; // pixels
 		Optional<LLUIImage*>					selection_image;
-		Optional<const LLFontGL*>				font;
 		Optional<S32>							item_height; // pixels
+		Optional<S32>							item_top_pad; // pixels
 
 		Optional<S32>							creation_date; //UTC seconds
 
