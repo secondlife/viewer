@@ -307,7 +307,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-             label="Buy Land"
+             label="Buy This Land"
              layout="topleft"
              name="Buy Land">
                 <menu_item_call.on_click
@@ -2816,8 +2816,7 @@
             <menu_item_call
              label="Dump Focus Holder"
              layout="topleft"
-             name="Dump Focus Holder"
-             shortcut="control|alt|F">
+             name="Dump Focus Holder">
                 <menu_item_call.on_click
                  function="Advanced.DumpFocusHolder" />
             </menu_item_call>

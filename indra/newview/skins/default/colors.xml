@@ -64,14 +64,14 @@
 	 value="0 0 1 1" />
 	<color
 	 name="Yellow"
-	 value="0.114 0.65 0.1" />
+	 value="1 1 0 1" />
 	<color
 	 name="Green"
-	 value="0 .39 .10 1" />
+	 value="0 1 0 1" />
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
-  <!-- Make potentially unused colors show up bright purple.
+  <!-- This color name makes potentially unused colors show up bright purple.
   Leave this here until all Unused? are removed below, otherwise
   the viewer generates many warnings on startup. -->
   <color
@@ -168,6 +168,9 @@
      name="ChatHistoryTextColor"
      reference="LtGray" />
     <color
+     name="ChicletFlashColor"
+     reference="0.114 0.65 0.1" />
+    <color
      name="ColorDropShadow"
      reference="Black_50" />
     <color
@@ -229,7 +232,7 @@
      value="1 0 0 1" />
     <color
      name="ColorPaletteEntry20"
-     reference="Unused?" />
+     reference=".5 .5 1 0" />
     <color
      name="ColorPaletteEntry21"
      value="0 1 0 1" />
@@ -367,7 +370,7 @@
      reference="Unused?" />
     <color
      name="HighlightChildColor"
-     reference="Unused?" />
+     reference="Yellow" />
     <color
      name="HighlightInspectColor"
      value="1 0.5 0 1" />
@@ -619,7 +622,7 @@
      value="0.13 0.42 0.77 1" />
     <color
      name="SilhouetteParentColor"
-     reference="Unused?" />
+     reference="Yellow" />
     <color
      name="SliderDisabledThumbColor"
      reference="White_25" />

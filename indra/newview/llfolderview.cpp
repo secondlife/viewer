@@ -569,6 +569,8 @@ LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 								BOOL take_keyboard_focus)
 {
+	mSignalSelectCallback = take_keyboard_focus ? SIGNAL_KEYBOARD_FOCUS : SIGNAL_NO_KEYBOARD_FOCUS;
+
 	if( selection == this )
 	{
 		return FALSE;
@@ -595,8 +597,6 @@ BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 	}
 
 	llassert(mSelectedItems.size() <= 1);
-
-	mSignalSelectCallback = take_keyboard_focus ? SIGNAL_KEYBOARD_FOCUS : SIGNAL_NO_KEYBOARD_FOCUS;
 
 	return rv;
 }
@@ -820,10 +820,11 @@ void LLFolderView::clearSelection()
 	mSelectThisID.setNull();
 }
 
-BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection)
+BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
 {
-	selected_items_t::iterator item_it;
-	for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
+		 item_it != mSelectedItems.end(); 
+		 ++item_it)
 	{
 		selection.insert((*item_it)->getListener()->getUUID());
 	}

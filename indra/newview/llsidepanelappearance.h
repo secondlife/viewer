@@ -86,6 +86,7 @@ private:
 	LLPanel*					mCurrOutfitPanel;
 
 	LLTextBox*					mCurrentLookName;
+	LLTextBox*					mOutfitDirtyTag;
 
 	// Used to make sure the user's inventory is in memory.
 	LLCurrentlyWornFetchObserver* mFetchWorn;

@@ -33,7 +33,7 @@
     <chiclet_im_p2p.new_message_icon
      bottom="12"
      height="13"
-     image_name="Unread_IM"
+     image_name="Unread_Chiclet"
      left="12"
      name="new_message_icon"
      visible="false"

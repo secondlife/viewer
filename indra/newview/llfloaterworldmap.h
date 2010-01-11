@@ -148,7 +148,6 @@ protected:
 	void			updateSearchEnabled();
 	void			onLocationFocusChanged( LLFocusableElement* ctrl );
 	void		    onLocationCommit();
-	void			onCommitLocation();
 	void		    onCommitSearchResult();
 
 	void			cacheLandmarkPosition();
@@ -170,6 +169,10 @@ private:
 	LLFriendObserver* mFriendObserver;
 
 	std::string				mCompletingRegionName;
+	// Local position from trackURL() request, used to select final
+	// position once region lookup complete.
+	LLVector3				mCompletingRegionPos;
+
 	std::string				mLastRegionName;
 	BOOL					mWaitingForTracker;
 

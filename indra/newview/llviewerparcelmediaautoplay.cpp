@@ -35,6 +35,7 @@
 #include "llviewerparcelmedia.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
+#include "llviewerregion.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "lluuid.h"
@@ -48,6 +49,8 @@ const F32 AUTOPLAY_SPEED = 0.1f;        // how slow should the agent be moving t
 
 LLViewerParcelMediaAutoPlay::LLViewerParcelMediaAutoPlay() :
 	LLEventTimer(1),
+	
+	mLastParcelID(-1),
 	mPlayed(FALSE),
 	mTimeInParcel(0)
 {
@@ -81,9 +84,18 @@ void LLViewerParcelMediaAutoPlay::playStarted()
 BOOL LLViewerParcelMediaAutoPlay::tick()
 {
 	LLParcel *this_parcel = NULL;
+	LLViewerRegion *this_region = NULL;
 	std::string this_media_url;
 	LLUUID this_media_texture_id;
 	S32 this_parcel_id = 0;
+	LLUUID this_region_id;
+
+	this_region = gAgent.getRegion();
+	
+	if (this_region)
+	{
+		this_region_id = this_region->getRegionID();
+	}
 
 	this_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 
@@ -96,12 +108,14 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 		this_parcel_id = this_parcel->getLocalID();
 	}
 
-	if (this_parcel_id != mLastParcelID)
+	if (this_parcel_id != mLastParcelID ||
+	    this_region_id != mLastRegionID)
 	{
 		// we've entered a new parcel
 		mPlayed    = FALSE;                   // we haven't autoplayed yet
 		mTimeInParcel = 0;                    // reset our timer
 		mLastParcelID = this_parcel_id;
+		mLastRegionID = this_region_id;
 	}
 
 	mTimeInParcel += mPeriod;                 // increase mTimeInParcel by the amount of time between ticks

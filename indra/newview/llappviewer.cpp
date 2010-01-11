@@ -313,6 +313,7 @@ void init_default_trans_args()
 {
 	default_trans_args.insert("SECOND_LIFE"); // World
 	default_trans_args.insert("APP_NAME");
+	default_trans_args.insert("CAPITALIZED_APP_NAME");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
 }
@@ -1929,8 +1930,7 @@ bool LLAppViewer::initConfiguration()
 	LLFirstUse::addConfigVariable("FirstSandbox");
 	LLFirstUse::addConfigVariable("FirstFlexible");
 	LLFirstUse::addConfigVariable("FirstDebugMenus");
-	LLFirstUse::addConfigVariable("FirstStreamingMusic");
-	LLFirstUse::addConfigVariable("FirstStreamingVideo");
+	LLFirstUse::addConfigVariable("FirstStreamingMedia");
 	LLFirstUse::addConfigVariable("FirstSculptedPrim");
 	LLFirstUse::addConfigVariable("FirstVoice");
 	LLFirstUse::addConfigVariable("FirstMedia");

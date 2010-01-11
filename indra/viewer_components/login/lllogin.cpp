@@ -160,8 +160,11 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
 			seconds_to_timeout = credentials["cfg_srv_timeout"].asReal();
 		}
 
-		filter.eventAfter(seconds_to_timeout, 
-			getProgressEventLLSD("offline", "fail.login"));
+        // If the SRV request times out (e.g. EXT-3934), simulate response: an
+        // array containing our original URI.
+        LLSD fakeResponse(LLSD::emptyArray());
+        fakeResponse.append(uri);
+		filter.eventAfter(seconds_to_timeout, fakeResponse);
 
 		std::string srv_pump_name = "LLAres";
 		if(credentials.has("cfg_srv_pump"))
