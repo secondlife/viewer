@@ -58,13 +58,13 @@
      top="6"
      use_ellipses="true"
      value="Unknown"
-     width="182" />
+     width="180" />
     <text
      follows="right"
      font="SansSerifSmall"
      height="15"
      layout="topleft"
-     left_pad="8"
+     left_pad="5"
      name="last_interaction"
      text_color="LtGray_50"
      value="0s"
@@ -75,7 +75,7 @@
      draw_border="false"
      height="16"
      layout="topleft"
-     left_pad="0"
+     left_pad="5"
      mouse_opaque="true"
      name="speaking_indicator"
      visible="true"

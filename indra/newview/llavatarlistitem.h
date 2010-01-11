@@ -98,7 +98,6 @@ public:
 	void onProfileBtnClick();
 
 	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
-	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
 	void showLastInteractionTime(bool show);
 
 	/**
@@ -124,6 +123,23 @@ private:
 		E_UNKNOWN,
 	} EOnlineStatus;
 
+	/**
+	 * Enumeration of item elements in order from right to left.
+	 * 
+	 * updateChildren() assumes that indexes are in the such order to process avatar icon easier.
+	 *
+	 * @see updateChildren()
+	 */
+	typedef enum e_avatar_item_child {
+		ALIC_PROFILE_BUTTON,
+		ALIC_INFO_BUTTON,
+		ALIC_SPEAKER_INDICATOR,
+		ALIC_INTERACTION_TIME,
+		ALIC_NAME,
+		ALIC_ICON,
+		ALIC_COUNT,
+	} EAvatarListItemChildIndex;
+
 	void setNameInternal(const std::string& name, const std::string& highlight);
 	void onNameCache(const std::string& first_name, const std::string& last_name);
 
@@ -134,6 +150,26 @@ private:
 
 	typedef std::map<EItemState, LLColor4> icon_color_map_t;
 	static icon_color_map_t& getItemIconColorMap();
+
+	/**
+	 * Initializes widths of all children to use them while changing visibility of any of them.
+	 *
+	 * @see updateChildren()
+	 */
+	static void initChildrenWidths(LLAvatarListItem* self);
+
+	/**
+	 * Updates position and rectangle of visible children to fit all available item's width.
+	 */
+	void updateChildren();
+
+	/**
+	 * Gets child view specified by index.
+	 *
+	 * This method implemented via switch by all EAvatarListItemChildIndex values.
+	 * It is used to not store children in array or vector to avoid of increasing memory usage.
+	 */
+	LLView* getItemChildView(EAvatarListItemChildIndex child_index);
 
 	LLTextBox* mAvatarName;
 	LLTextBox* mLastInteractionTime;
@@ -155,6 +191,17 @@ private:
 	static S32  sInfoBtnWidth; //info btn width + padding
 	static S32  sProfileBtnWidth; //profile btn width + padding
 	static S32  sSpeakingIndicatorWidth; //speaking indicator width + padding
+	static S32  sLeftPadding; // padding to first left visible child (icon or name)
+	static S32  sRightNamePadding; // right padding from name to next visible child
+
+	/**
+	 * Contains widths of each child specified by EAvatarListItemChildIndex
+	 * including padding to the next right one.
+	 *
+	 * @see initChildrenWidths()
+	 */
+	static S32 sChildrenWidths[ALIC_COUNT];
+
 };
 
 #endif //LL_LLAVATARLISTITEM_H

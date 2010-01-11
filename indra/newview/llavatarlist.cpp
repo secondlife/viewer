@@ -323,14 +323,12 @@ boost::signals2::connection LLAvatarList::setRefreshCompleteCallback(const commi
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showInfoBtn(true);
 	item->showSpeakingIndicator(true);
 	item->setName(name);
 	item->setAvatarId(id, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 
-	item->childSetVisible("info_btn", false);
 	item->setAvatarIconVisible(mShowIcons);
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
