@@ -176,6 +176,8 @@ public:
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);
 	// hide all toasts from screen, but not remove them from a channel
 	void		hideToastsFromScreen();
+	// hide toast by notification id
+	void		hideToast(const LLUUID& notification_id);
 	// removes all toasts from a channel
 	void		removeToastsFromChannel();
 	// show all toasts in a channel
