@@ -574,15 +574,15 @@ class WindowsSetup(PlatformSetup):
             if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
                 config = '\"%s|Win32\"' % config
 
-            return "buildconsole %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config}
+            executable = self.find_in_path('buildconsole')
+            cmd = "%(bin)s %(prj)s.sln /build /cfg=%(cfg)s" % {'prj': self.project_name, 'cfg': config, 'bin': executable}
+            return (executable, cmd)
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
         executable = '%sdevenv.com' % (self.find_visual_studio(),)
         cmd = ('"%s" %s.sln /build %s' % 
                 (executable, self.project_name, self.build_type))
         return (executable, cmd)
-        #return ('devenv.com %s.sln /build %s' % 
-        #        (self.project_name, self.build_type))
 
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
