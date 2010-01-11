@@ -181,6 +181,10 @@ void LLPanelOutfitsInventory::onNew()
 {
 	const std::string& outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
 	LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+	if (mAppearanceTabs)
+	{
+		mAppearanceTabs->selectTabByName("outfitslist_tab");
+	}
 }
 
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -412,14 +416,17 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		return (getCorrectListenerForAction() != NULL) && hasItemsSelected();
 	}
 	
-	if (command_name == "wear" ||
-		command_name == "make_outfit")
+	if (command_name == "wear")
 	{
 		const BOOL is_my_outfits = (mActivePanel->getName() == "outfitslist_tab");
 		if (!is_my_outfits)
 		{
 			return FALSE;
 		}
+	}
+	if (command_name == "make_outfit")
+	{
+		return TRUE;
 	}
    
 	if (command_name == "edit" || 
