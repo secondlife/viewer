@@ -912,14 +912,18 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 							
 						}
 						else {
-							if ( obj != mDragHoveredObject)
+							// Check the whitelist, if there's media (otherwise just show it)
+							if (te->getMediaData() == NULL || te->getMediaData()->checkCandidateUrl(url))
 							{
-								// Highlight the dragged object
-								LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
-								mDragHoveredObject = obj;
-								LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
+								if ( obj != mDragHoveredObject)
+								{
+									// Highlight the dragged object
+									LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+									mDragHoveredObject = obj;
+									LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
+								}
+								result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
 							}
-							result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
 						}
 					}
 				}
