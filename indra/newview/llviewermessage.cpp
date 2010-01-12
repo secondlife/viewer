@@ -904,7 +904,19 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						LLPanelPlaces *places_panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
 						if (places_panel)
 						{
-							places_panel->setItem(item);
+							// we are creating a landmark
+							if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
+							{
+								places_panel->setItem(item);
+							}
+							// we are opening a group notice attachment
+							else
+							{
+								LLSD args;
+								args["type"] = "landmark";
+								args["id"] = item_id;
+								LLSideTray::getInstance()->showPanel("panel_places", args);
+							}
 						}
 					}
 				}
