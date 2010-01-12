@@ -43,7 +43,6 @@
              left="0"
              name="browser"
              top="0"
-             start_url="data:text/html,%3Chtml%3E%3Cbody bgcolor=%22#2A2A2A%22%3E%3C/body%3E%3C/html%3E"
              width="590" />
         </layout_panel>
     </layout_stack>
