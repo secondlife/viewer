@@ -1759,10 +1759,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		else if (from_id.isNull())
 		{
-			// Messages from "Second Life" ID don't go to IM history
-			// messages which should be routed to IM window come from a user ID with name=SYSTEM_NAME
-			chat.mText = name + ": " + message;
-			LLFloaterChat::addChat(chat, FALSE, FALSE);
+			LLSD args;
+			args["MESSAGE"] = message;
+			LLNotificationsUtil::add("SystemMessage", args);
 		}
 		else if (to_id.isNull())
 		{
