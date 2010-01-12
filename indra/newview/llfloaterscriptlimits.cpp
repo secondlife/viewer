@@ -64,6 +64,8 @@
 // summary which only shows available & correct information
 #define USE_SIMPLE_SUMMARY
 
+const S32 SIZE_OF_ONE_KB = 1024;
+
 LLFloaterScriptLimits::LLFloaterScriptLimits(const LLSD& seed)
 	: LLFloater(seed)
 {
@@ -129,7 +131,6 @@ void LLFloaterScriptLimits::refresh()
 		(*iter)->refresh();
 	}
 }
-
 
 ///----------------------------------------------------------------------------
 // Base class for panels
@@ -331,6 +332,57 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(U32 status, const std::stri
 	llerrs << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
 }
 
+// callback from the name cache with an owner name to add to the list
+void LLPanelScriptLimitsRegionMemory::onNameCache(
+						 const LLUUID& id,
+						 const std::string& first_name,
+						 const std::string& last_name)
+{
+	std::string name = first_name + " " + last_name;
+
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");	
+	std::vector<LLSD>::iterator id_itor;
+	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
+	{
+		LLSD element = *id_itor;
+		if(element["owner_id"].asUUID() == id)
+		{
+			LLScrollListItem* item = list->getItem(element["id"].asUUID());
+
+			if(item)
+			{
+				item->getColumn(2)->setValue(LLSD(name));
+				element["columns"][2]["value"] = name;
+			}
+		}
+	}
+
+	// fill in the url's tab if needed, all urls must have memory so we can do it all here
+	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
+	if(instance)
+	{
+		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
+		LLPanelScriptLimitsRegionMemory* panel = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_urls_panel");
+
+		LLScrollListCtrl *list = panel->getChild<LLScrollListCtrl>("scripts_list");	
+		std::vector<LLSD>::iterator id_itor;
+		for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
+		{
+			LLSD element = *id_itor;
+			if(element["owner_id"].asUUID() == id)
+			{
+				LLScrollListItem* item = list->getItem(element["id"].asUUID());
+
+				if(item)
+				{
+					item->getColumn(2)->setValue(LLSD(name));
+					element["columns"][2]["value"] = name;
+				}
+			}
+		}
+	}
+}
+
 void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 {
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
@@ -345,22 +397,40 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	S32 total_objects = 0;
 	S32 total_size = 0;
 
+	std::vector<LLUUID> names_requested;
+
 	for(S32 i = 0; i < number_parcels; i++)
 	{
 		std::string parcel_name = content["parcels"][i]["name"].asString();
-		
+		LLUUID parcel_id = content["parcels"][i]["id"].asUUID();
 		S32 number_objects = content["parcels"][i]["objects"].size();
 		for(S32 j = 0; j < number_objects; j++)
 		{
-			S32 size = content["parcels"][i]["objects"][j]["resources"]["memory"].asInteger() / 1024;
+			S32 size = content["parcels"][i]["objects"][j]["resources"]["memory"].asInteger() / SIZE_OF_ONE_KB;
 			total_size += size;
 			
 			std::string name_buf = content["parcels"][i]["objects"][j]["name"].asString();
 			LLUUID task_id = content["parcels"][i]["objects"][j]["id"].asUUID();
+			LLUUID owner_id = content["parcels"][i]["objects"][j]["owner_id"].asUUID();
+			
+			std::string owner_buf;
+			
+			BOOL name_is_cached = gCacheName->getFullName(owner_id, owner_buf);
+			if(!name_is_cached)
+			{
+				if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
+				{
+					names_requested.push_back(owner_id);
+					gCacheName->get(owner_id, TRUE,
+					boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+						this, _1, _2, _3));
+				}
+			}
 
 			LLSD element;
 
 			element["id"] = task_id;
+			element["owner_id"] = owner_id;
 			element["columns"][0]["column"] = "size";
 			element["columns"][0]["value"] = llformat("%d", size);
 			element["columns"][0]["font"] = "SANSSERIF";
@@ -368,18 +438,18 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			element["columns"][1]["value"] = name_buf;
 			element["columns"][1]["font"] = "SANSSERIF";
 			element["columns"][2]["column"] = "owner";
-			element["columns"][2]["value"] = "";
+			element["columns"][2]["value"] = owner_buf;
 			element["columns"][2]["font"] = "SANSSERIF";
 			element["columns"][3]["column"] = "location";
 			element["columns"][3]["value"] = parcel_name;
 			element["columns"][3]["font"] = "SANSSERIF";
 
-			list->addElement(element);
-			mObjectListIDs.push_back(task_id);
+			list->addElement(element, ADD_SORTED);
+			mObjectListItems.push_back(element);
 			total_objects++;
 		}
 	}
-	
+
 	mParcelMemoryUsed =total_size;
 	mGotParcelMemoryUsed = TRUE;
 	populateParcelMemoryText();
@@ -556,7 +626,7 @@ void LLPanelScriptLimitsRegionMemory::clearList()
 	childSetValue("memory_used", LLSD(msg_empty_string));
 	childSetValue("parcels_listed", LLSD(msg_empty_string));
 
-	mObjectListIDs.clear();
+	mObjectListItems.clear();
 }
 
 // static
@@ -728,7 +798,7 @@ void LLPanelScriptLimitsRegionURLs::setRegionDetails(LLSD content)
 
 	S32 total_objects = 0;
 	S32 total_size = 0;
-
+	
 	for(S32 i = 0; i < number_parcels; i++)
 	{
 		std::string parcel_name = content["parcels"][i]["name"].asString();
@@ -744,6 +814,10 @@ void LLPanelScriptLimitsRegionURLs::setRegionDetails(LLSD content)
 				
 				std::string name_buf = content["parcels"][i]["objects"][j]["name"].asString();
 				LLUUID task_id = content["parcels"][i]["objects"][j]["id"].asUUID();
+				LLUUID owner_id = content["parcels"][i]["objects"][j]["owner_id"].asUUID();
+
+				std::string owner_buf;
+				gCacheName->getFullName(owner_id, owner_buf); //dont care if this fails as the memory tab will request and fill the field
 
 				LLSD element;
 
@@ -755,14 +829,14 @@ void LLPanelScriptLimitsRegionURLs::setRegionDetails(LLSD content)
 				element["columns"][1]["value"] = name_buf;
 				element["columns"][1]["font"] = "SANSSERIF";
 				element["columns"][2]["column"] = "owner";
-				element["columns"][2]["value"] = "";
+				element["columns"][2]["value"] = owner_buf;
 				element["columns"][2]["font"] = "SANSSERIF";
 				element["columns"][3]["column"] = "location";
 				element["columns"][3]["value"] = parcel_name;
 				element["columns"][3]["font"] = "SANSSERIF";
 
 				list->addElement(element);
-				mObjectListIDs.push_back(task_id);
+				mObjectListItems.push_back(element);
 				total_objects++;
 			}
 		}
@@ -868,7 +942,7 @@ void LLPanelScriptLimitsRegionURLs::clearList()
 	childSetValue("urls_used", LLSD(msg_empty_string));
 	childSetValue("parcels_listed", LLSD(msg_empty_string));
 
-	mObjectListIDs.clear();
+	mObjectListItems.clear();
 }
 
 // static
@@ -982,7 +1056,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			S32 size = 0;
 			if(content["attachments"][i]["objects"][j]["resources"].has("memory"))
 			{
-				size = content["attachments"][i]["objects"][j]["resources"]["memory"].asInteger();
+				size = content["attachments"][i]["objects"][j]["resources"]["memory"].asInteger() / SIZE_OF_ONE_KB;
 			}
 			S32 urls = 0;
 			if(content["attachments"][i]["objects"][j]["resources"].has("urls"))
@@ -1059,3 +1133,4 @@ void LLPanelScriptLimitsAttachment::onClickRefresh(void* userdata)
 		return;
 	}
 }
+

@@ -223,6 +223,7 @@
            parameter="test_inspectors" />
         </menu_item_call>
       </menu>
+<!--
       <menu_item_check
          label="Reg In Client Test (restart)"
          name="Reg In Client Test (restart)">
@@ -232,6 +233,7 @@
                function="ToggleControl"
                parameter="RegInClient" />
       </menu_item_check>
+-->
       <menu_item_separator />
       <menu_item_call
        label="Set Window Size..."
