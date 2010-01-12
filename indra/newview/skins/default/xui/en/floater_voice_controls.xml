@@ -3,9 +3,9 @@
  can_resize="true"
  can_minimize="true"
  can_close="false"
- height="270"
+ height="275"
  layout="topleft"
- min_height="280"
+ min_height="100"
  min_width="190"
  name="floater_voice_controls"
  help_topic="floater_voice_controls"
@@ -32,10 +32,6 @@
     <string
      name="no_one_near">
         No one near has voice enabled
-    </string>
-    <string
-     name="max_visible_items">
-        5
     </string>
       <layout_stack
          clip="false"
@@ -126,6 +122,7 @@
          follows="left|right|top"
          height="24"
          layout="topleft"
+         background_visible="false"
          left="0"
          name="non_avatar_caller"
          top="10"

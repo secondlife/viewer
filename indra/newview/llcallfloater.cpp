@@ -864,9 +864,8 @@ S32 LLCallFloater::getParticipantItemHeight()
 
 S32 LLCallFloater::getMaxVisibleItems()
 {
-	S32 value = 5; // default value, in case convertToS32() fails.
-	LLStringUtil::convertToS32(getString("max_visible_items"), value);
-	return value;
+	static LLCachedControl<S32> max_visible_items(*LLUI::sSettingGroups["config"],"CallFloaterMaxItems");
+	return max_visible_items;
 }
 
 //EOF
