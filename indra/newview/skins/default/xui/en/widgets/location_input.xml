@@ -96,7 +96,7 @@
     name="damage_icon"
     width="14"
     height="13"
-    top="22"
+    top="25"
     left="2"
     follows="right|top"
     image_name="Parcel_Damage_Dark"
@@ -112,11 +112,13 @@
 	font="SansSerifSmall"
 	text_color="TextFgColor"
 	/>
-
-  <combo_button name="Location History"
-                          label=""
-                          pad_right="0"/>
-  <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"
+  <combo_button
+		name="Location History"
+                label=""
+                pad_right="0"/>
+  <combo_list
+	      bg_writeable_color="MenuDefaultBgColor"
+	      page_lines="10"
               scroll_bar_bg_visible="true" />
   <combo_editor name="Combo Text Entry"
                 text_pad_left="22"
@@ -124,5 +126,5 @@
                 font="SansSerifSmall"
                 bevel_style="none"
                 border_style="line"
-                border.border_thickness="0"/>
+                border.border_thickness="0" />
 </location_input>
