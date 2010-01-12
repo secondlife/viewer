@@ -42,6 +42,7 @@
     <button
      auto_resize="true"
      halign="right"
+     font="SansSerifSmall"
      follows="right|top"
      image_selected="BuyArrow_Over"
      image_unselected="BuyArrow_Over"

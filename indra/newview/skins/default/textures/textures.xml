@@ -224,7 +224,7 @@ with the same filename but different name
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
   <texture name="Inspector_I" file_name="windows/Inspector_I.png" preload="false" />
-  
+
   <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
   <texture name="Inv_Alpha" file_name="icons/Inv_Alpha.png" preload="false" />
   <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
@@ -676,8 +676,6 @@ with the same filename but different name
 
   <texture name="toggle_button_off" file_name="toggle_button_off.png" preload="true" />
   <texture name="toggle_button_selected" file_name="toggle_button_selected.png" preload="true" />
-
-  <texture name="sm_rounded_corners_simple.tga" scale.left="4" scale.top="4" scale.bottom="4" scale.right="4" />
   <texture name="color_swatch_alpha.tga" preload="true" />
 
   <texture name="button_anim_pause.tga" />
@@ -715,10 +713,6 @@ with the same filename but different name
   <texture name="map_telehub.tga" />
   <texture name="map_track_16.tga" />
 
-  <texture name="media_icon.tga" file_name="icn_label_media.tga" />
-  <texture name="music_icon.tga" file_name="icn_label_music.tga" />
-
-  <texture name="notify_tip_icon.tga" />
   <texture name="notify_caution_icon.tga" />
   <texture name="notify_next.png" preload="true" />
   <texture name="notify_box_icon.tga" />
