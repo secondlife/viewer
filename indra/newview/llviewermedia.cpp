@@ -1005,6 +1005,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMediaAutoPlay(false),
 	mInNearbyMediaList(false),
 	mClearCache(false),
+	mBackgroundColor(LLColor4::white),
 	mIsUpdated(false)
 { 
 
@@ -1217,6 +1218,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
+		media_source->setBackgroundColor(mBackgroundColor);
 		
 		if(mClearCache)
 		{
@@ -1983,8 +1985,8 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		|| placeholder_image->getUseMipMaps()
 		|| (placeholder_image->getWidth() != mMediaSource->getTextureWidth())
 		|| (placeholder_image->getHeight() != mMediaSource->getTextureHeight())
-		|| (mTextureUsedWidth > mMediaSource->getWidth())
-		|| (mTextureUsedHeight > mMediaSource->getHeight())
+		|| (mTextureUsedWidth != mMediaSource->getWidth())
+		|| (mTextureUsedHeight != mMediaSource->getHeight())
 		)
 	{
 		LL_DEBUGS("Media") << "initializing media placeholder" << LL_ENDL;
@@ -2002,7 +2004,9 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x00, 0x00, 0x00, 0xff);
+		// Clear the texture to the background color, ignoring alpha.
+		// convert background color channels from [0.0, 1.0] to [0, 255];
+		raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
@@ -2470,6 +2474,16 @@ void LLViewerMediaImpl::setUsedInUI(bool used_in_ui)
 		}
 
 		createMediaSource();
+	}
+};
+
+void LLViewerMediaImpl::setBackgroundColor(LLColor4 color)
+{
+	mBackgroundColor = color; 
+
+	if(mMediaSource)
+	{
+		mMediaSource->setBackgroundColor(mBackgroundColor);
 	}
 };
 
