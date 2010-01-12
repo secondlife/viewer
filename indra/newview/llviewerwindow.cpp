@@ -840,7 +840,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 				bool drop = (LLWindowCallbacks::DNDA_DROPPED == action);
 					
 				// special case SLURLs
-				if (std::string::npos != data.find("slurl.com") )
+				if ( LLSLURL::isSLURL( data ) )
 				{
 					if (drop)
 					{
