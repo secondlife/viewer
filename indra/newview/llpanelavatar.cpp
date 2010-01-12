@@ -52,6 +52,7 @@
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llvoiceclient.h"
+#include "llnamebox.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLDropTarget
@@ -624,19 +625,15 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 
 void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
 {
+	LLNameBox* name_box = getChild<LLNameBox>("partner_text");
 	if (avatar_data->partner_id.notNull())
 	{
-		std::string first, last;
-		BOOL found = gCacheName->getName(avatar_data->partner_id, first, last);
-		if (found)
-		{
-			childSetTextArg("partner_text", "[FIRST]", first);
-			childSetTextArg("partner_text", "[LAST]", last);
-		}
+		name_box->setNameID(avatar_data->partner_id, FALSE);
 	}
 	else
 	{
-		childSetTextArg("partner_text", "[FIRST]", getString("no_partner_text"));
+		name_box->setNameID(LLUUID::null, FALSE);
+		name_box->setText(getString("no_partner_text"));
 	}
 }
 

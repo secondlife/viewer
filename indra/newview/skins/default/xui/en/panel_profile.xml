@@ -244,14 +244,13 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <text
+              <name_box
                follows="left|top"
                height="10"
                layout="topleft"
                left="0"
                name="partner_text"
                top="0"
-               value="[FIRST] [LAST]"
            width="300"
                word_wrap="true" />
             </panel>
