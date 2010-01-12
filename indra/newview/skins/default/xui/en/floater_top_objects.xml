@@ -190,7 +190,7 @@
           function="TopObjects.GetByOwnerName" />
     </button>
     <button
-     follows="top|left"
+     follows="bottom|right"
      height="22"
      image_overlay="Refresh_Off"
      layout="topleft"
