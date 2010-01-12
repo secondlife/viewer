@@ -1185,7 +1185,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				chat.mMuted = TRUE;
 			}
-			LLFloaterChat::addChatHistory(chat);
+
+			// *NOTE dzaporozhan
+			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
+			// LLFloaterChat::addChatHistory(chat);
 			
 			LLInventoryFetchComboObserver::folder_ref_t folders;
 			LLInventoryFetchComboObserver::item_ref_t items;
