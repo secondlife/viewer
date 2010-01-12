@@ -47,7 +47,7 @@
 	     left="10"
 	     name="back_btn"
 	     tool_tip="Go back to previous location"
-	     top="3"
+	     top="2"
 	     width="31" />
 	    <button
 	     follows="left|top"
@@ -92,7 +92,6 @@
 	         width="20" />
 	      -->
 	    </location_input>
-
 	<!--     <button -->
 	<!--      follows="right|top" -->
 	<!--      height="20" -->
@@ -108,7 +107,6 @@
 	<!--      name="search_bg" -->
 	<!--      top_delta="0" -->
 	<!--      width="168" /> -->
-
         <search_combo_box
 	     bevel_style="none"
 	     border_style="line"

@@ -648,6 +648,12 @@ with the same filename but different name
   <texture name="PowerOff_Over" file_name="icons/PowerOff_Over.png" preload="false" />
   <texture name="PowerOff_Press" file_name="icons/PowerOff_Press.png" preload="false" />
 
+  <texture name="pixiesmall.j2c" use_mips="true" />
+  <texture name="script_error.j2c" use_mips="true" />
+  <texture name="silhouette.j2c" use_mips="true" />
+  <texture name="foot_shadow.j2c" use_mips="true" />
+  <texture name="cloud-particle.j2c" use_mips="true" />
+
   <!--WARNING OLD ART BELOW *do not use*-->
   <texture name="icn_chatbar.tga" />
   <texture name="icn_media_web.tga" preload="true" />
@@ -694,7 +700,6 @@ with the same filename but different name
   <texture name="icon_event_mature.tga" />
   <texture name="icon_for_sale.tga" />
   <texture name="icon_place_for_sale.tga" />
-  <texture name="icon_popular.tga" />
   <texture name="icon_top_pick.tga" />
 
   <texture name="lag_status_critical.tga" />
@@ -716,19 +721,6 @@ with the same filename but different name
   <texture name="notify_caution_icon.tga" />
   <texture name="notify_next.png" preload="true" />
   <texture name="notify_box_icon.tga" />
-
-  <texture name="pixiesmall.j2c" use_mips="true" />
-  <texture name="script_error.j2c" use_mips="true" />
-  <texture name="silhouette.j2c" use_mips="true" />
-  <texture name="foot_shadow.j2c" use_mips="true" />
-  <texture name="cloud-particle.j2c" use_mips="true" />
-
-  <texture name="status_no_build.tga" />
-  <texture name="status_voice.tga" />
-  <texture name="status_no_fly.tga" />
-  <texture name="status_health.tga" />
-  <texture name="status_no_push.tga" />
-  <texture name="status_no_scripts.tga" />
 
   <texture name="icn_active-speakers-dot-lvl0.tga" />
   <texture name="icn_active-speakers-dot-lvl1.tga" />
