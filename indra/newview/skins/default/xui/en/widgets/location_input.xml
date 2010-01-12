@@ -121,7 +121,7 @@
 	      page_lines="10"
               scroll_bar_bg_visible="true" />
   <combo_editor name="Combo Text Entry"
-                text_pad_left="22"
+                text_pad_left="27"
                 select_on_focus="false"
                 font="SansSerifSmall"
                 bevel_style="none"
