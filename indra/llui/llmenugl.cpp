@@ -46,6 +46,7 @@
 
 #include "llmenugl.h"
 
+#include "llgl.h"
 #include "llmath.h"
 #include "llrender.h"
 #include "llfocusmgr.h"
@@ -477,6 +478,7 @@ void LLMenuItemGL::draw( void )
 		if (dynamic_cast<LLMenuItemCallGL*>(this))
 			debug_count++;
 		gGL.color4fv( mHighlightBackground.get().mV );
+
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	}
 

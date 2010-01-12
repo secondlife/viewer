@@ -39,7 +39,7 @@
 #include "llrect.h"
 #include "llpluginclassmediaowner.h"
 #include <queue>
-
+#include "v4color.h"
 
 class LLPluginClassMedia : public LLPluginProcessParentOwner
 {
@@ -85,6 +85,8 @@ public:
 
 	void setSize(int width, int height);
 	void setAutoScale(bool auto_scale);
+	
+	void setBackgroundColor(LLColor4 color) { mBackgroundColor = color; };
 	
 	// Returns true if all of the texture parameters (depth, format, size, and texture size) are set up and consistent.
 	// This will initially be false, and will also be false for some time after setSize while the resize is processed.
@@ -327,6 +329,8 @@ protected:
 	
 	std::string		mMediaName;
 	std::string		mMediaDescription;
+	
+	LLColor4		mBackgroundColor;
 	
 	/////////////////////////////////////////
 	// media_browser class
