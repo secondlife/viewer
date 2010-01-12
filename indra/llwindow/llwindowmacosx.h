@@ -201,6 +201,8 @@ protected:
 	U32			mFSAASamples;
 	BOOL		mForceRebuild;
 	
+	S32			mDragOverrideCursor;
+	
 	F32			mBounceTime;
 	NMRec		mBounceRec;
 	LLTimer		mBounceTimer;
