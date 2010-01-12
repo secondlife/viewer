@@ -42,6 +42,7 @@
 #include "llviewermediaobserver.h"
 
 #include "llpluginclassmedia.h"
+#include "v4color.h"
 
 class LLViewerMediaImpl;
 class LLUUID;
@@ -115,6 +116,12 @@ class LLViewerMedia
 		
 		// This is the comparitor used to sort the list.
 		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
+		
+		// For displaying the media first-run dialog.
+		static bool needsMediaFirstRun();
+		static void displayMediaFirstRun();
+		static bool firstRunCallback(const LLSD& notification, const LLSD& response);
+
 };
 
 // Implementation functions not exported into header file
@@ -289,6 +296,8 @@ public:
 	// This will be used as part of the interest sorting algorithm.
 	void setUsedInUI(bool used_in_ui);
 	bool getUsedInUI() const { return mUsedInUI; };
+
+	void setBackgroundColor(LLColor4 color);
 	
 	F64 getCPUUsage() const;
 	
@@ -362,6 +371,7 @@ private:
 	std::string mMediaEntryURL;
 	bool mInNearbyMediaList;	// used by LLFloaterNearbyMedia::refreshList() for performance reasons
 	bool mClearCache;
+	LLColor4 mBackgroundColor;
 	
 private:
 	BOOL mIsUpdated ;

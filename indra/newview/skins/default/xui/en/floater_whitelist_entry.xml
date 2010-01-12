@@ -5,6 +5,9 @@
  height="108"
  layout="topleft"
  name="whitelist_entry"
+ single_instance="true"
+ help_topic="whitelist_entry"
+ title="WHITELIST ENTRY"
  width="390">
 
   <text type="string" length="1" bottom="20" follows="top|left" height="15" layout="topleft"

@@ -101,7 +101,7 @@ std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url)
 	{
 		start++;
 	}
-	return url.substr(start, url.size()-start-1);
+	return unescapeUrl(url.substr(start, url.size()-start-1));
 }
 
 std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string)

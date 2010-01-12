@@ -47,7 +47,7 @@
     <button
      follows="bottom|left"
      height="23"
-     label="Ok"
+     label="OK"
      layout="topleft"
      left="155"
      name="OK"

@@ -48,12 +48,15 @@
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
 #include "llcallbacklist.h"
+#include "llparcel.h"
+#include "llaudioengine.h"  // for gAudiop
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
+#include "llfirstuse.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -708,6 +711,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	
 	std::vector<LLViewerMediaImpl*> proximity_order;
 	
+	bool inworld_media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
+	bool needs_first_run = LLViewerMedia::needsMediaFirstRun();
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -822,6 +827,21 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			new_priority = LLPluginClassMedia::PRIORITY_LOW;
 		}
 		
+		if(!inworld_media_enabled)
+		{
+			// If inworld media is locked out, force all inworld media to stay unloaded.
+			if(!pimpl->getUsedInUI())
+			{
+				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
+				if(needs_first_run)
+				{
+					// Don't do this more than once in this loop.
+					needs_first_run = false;
+					LLViewerMedia::displayMediaFirstRun();
+				}
+			}
+		}
+		
 		pimpl->setPriority(new_priority);
 		
 		if(pimpl->getUsedInUI())
@@ -888,6 +908,61 @@ void LLViewerMedia::cleanupClass()
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::needsMediaFirstRun()
+{
+	return gWarningSettings.getBOOL("FirstStreamingMedia");
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::displayMediaFirstRun()
+{
+	gWarningSettings.setBOOL("FirstStreamingMedia", FALSE);
+
+	LLNotificationsUtil::add("ParcelCanPlayMedia", LLSD(), LLSD(),
+		boost::bind(firstRunCallback, _1, _2));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		// user has elected to automatically play media.
+		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
+		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
+
+		LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+				
+		if (parcel)
+		{
+			// play media right now, if available
+			LLViewerParcelMedia::play(parcel);
+		
+			// play music right now, if available
+			std::string music_url = parcel->getMusicURL();
+			if (gAudiop && !music_url.empty())
+				gAudiop->startInternetStream(music_url);
+		}
+	}
+	else
+	{
+		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, FALSE);
+		gSavedSettings.setBOOL("AudioStreamingMedia", FALSE);
+		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
+	}
+	return false;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -930,6 +1005,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMediaAutoPlay(false),
 	mInNearbyMediaList(false),
 	mClearCache(false),
+	mBackgroundColor(LLColor4::white),
 	mIsUpdated(false)
 { 
 
@@ -1142,6 +1218,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
+		media_source->setBackgroundColor(mBackgroundColor);
 		
 		if(mClearCache)
 		{
@@ -1908,8 +1985,8 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		|| placeholder_image->getUseMipMaps()
 		|| (placeholder_image->getWidth() != mMediaSource->getTextureWidth())
 		|| (placeholder_image->getHeight() != mMediaSource->getTextureHeight())
-		|| (mTextureUsedWidth > mMediaSource->getWidth())
-		|| (mTextureUsedHeight > mMediaSource->getHeight())
+		|| (mTextureUsedWidth != mMediaSource->getWidth())
+		|| (mTextureUsedHeight != mMediaSource->getHeight())
 		)
 	{
 		LL_DEBUGS("Media") << "initializing media placeholder" << LL_ENDL;
@@ -1927,7 +2004,9 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x00, 0x00, 0x00, 0xff);
+		// Clear the texture to the background color, ignoring alpha.
+		// convert background color channels from [0.0, 1.0] to [0, 255];
+		raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
@@ -2395,6 +2474,16 @@ void LLViewerMediaImpl::setUsedInUI(bool used_in_ui)
 		}
 
 		createMediaSource();
+	}
+};
+
+void LLViewerMediaImpl::setBackgroundColor(LLColor4 color)
+{
+	mBackgroundColor = color; 
+
+	if(mMediaSource)
+	{
+		mMediaSource->setBackgroundColor(mBackgroundColor);
 	}
 };
 

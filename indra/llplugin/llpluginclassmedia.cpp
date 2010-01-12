@@ -124,7 +124,8 @@ void LLPluginClassMedia::reset()
 	mCanPaste = false;
 	mMediaName.clear();
 	mMediaDescription.clear();
-
+	mBackgroundColor = LLColor4::white;
+	
 	// media_browser class
 	mNavigateURI.clear();
 	mNavigateResultCode = -1;
@@ -234,6 +235,10 @@ void LLPluginClassMedia::idle(void)
 			message.setValueS32("height", mRequestedMediaHeight);
 			message.setValueS32("texture_width", mRequestedTextureWidth);
 			message.setValueS32("texture_height", mRequestedTextureHeight);
+			message.setValueReal("background_r", mBackgroundColor.mV[VX]);
+			message.setValueReal("background_g", mBackgroundColor.mV[VY]);
+			message.setValueReal("background_b", mBackgroundColor.mV[VZ]);
+			message.setValueReal("background_a", mBackgroundColor.mV[VW]);
 			mPlugin->sendMessage(message);	// DO NOT just use sendMessage() here -- we want this to jump ahead of the queue.
 			
 			LL_DEBUGS("Plugin") << "Sending size_change" << LL_ENDL;

@@ -101,7 +101,10 @@ public:
 		Optional<LLFolderViewEventListener*>	listener;
 
 		Optional<LLUIImage*>					folder_arrow_image;
+		Optional<S32>							folder_indentation; // pixels
 		Optional<LLUIImage*>					selection_image;
+		Optional<S32>							item_height; // pixels
+		Optional<S32>							item_top_pad; // pixels
 
 		Optional<S32>							creation_date; //UTC seconds
 
@@ -110,7 +113,7 @@ public:
 
 	// layout constants
 	static const S32 LEFT_PAD = 5;
-    // LEFT_INDENTATION is set via settings.xml FolderIndentation
+    // LEFT_INDENTATION is set via folder_indentation above
 	static const S32 ICON_PAD = 2;
 	static const S32 ICON_WIDTH = 16;
 	static const S32 TEXT_PAD = 1;
@@ -127,11 +130,7 @@ protected:
 	friend class LLUICtrlFactory;
 	friend class LLFolderViewEventListener;
 
-	LLFolderViewItem(Params p = LLFolderViewItem::Params());
-
-	static const LLFontGL*		sSmallFont;
-	static LLUIImagePtr			sArrowImage;
-	static LLUIImagePtr			sBoxImage;
+	LLFolderViewItem(const Params& p);
 
 	std::string					mLabel;
 	std::string					mSearchableLabel;
@@ -150,6 +149,7 @@ protected:
 	LLUIImagePtr				mIconOpen;
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
+	S32							mItemHeight;
 	S32							mNumDescendantsSelected;
 	BOOL						mPassedFilter;
 	S32							mLastFilterGeneration;
@@ -157,8 +157,6 @@ protected:
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
-	LLUIImagePtr				mArrowImage;
-	LLUIImagePtr				mBoxImage;
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
 	bool						mHidden;

@@ -46,6 +46,8 @@ public:
 	
 	~LLGLDepthTest();
 	
+	void checkState();
+
 	GLboolean mPrevDepthEnabled;
 	GLenum mPrevDepthFunc;
 	GLboolean mPrevWriteEnabled;

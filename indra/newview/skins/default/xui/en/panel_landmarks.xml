@@ -25,7 +25,7 @@
          title="Favorites bar">
             <places_inventory_panel
              allow_multi_select="true"
-             border="true"
+             border="false"
              bottom="0"
              follows="left|top|right|bottom"
              height="126"
@@ -41,7 +41,7 @@
          title="Landmarks">
             <places_inventory_panel
              allow_multi_select="true"
-             border="true"
+             border="false"
              bottom="0"
              follows="left|top|right|bottom"
              height="126"
@@ -57,7 +57,7 @@
          title="My Inventory">
             <places_inventory_panel
              allow_multi_select="true"
-             border="true"
+             border="false"
              bottom="0"
              follows="left|top|right|bottom"
              height="126"
@@ -73,7 +73,7 @@
            title="Library">
             <places_inventory_panel
              allow_multi_select="true"
-             border="true"
+             border="false"
              bottom="0"
              follows="left|top|right|bottom"
              height="120"
