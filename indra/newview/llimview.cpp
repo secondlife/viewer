@@ -1603,7 +1603,12 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 	if (!mPayload["disconnected_channel_name"].asString().empty())
 	{
-		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
+		std::string channel_name = mPayload["disconnected_channel_name"].asString();
+		if (LLIMModel::LLIMSession::AVALINE_SESSION == mPayload["session_type"].asInteger())
+		{
+			channel_name = LLTextUtil::formatPhoneNumber(channel_name);
+		}
+		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", channel_name);
 		childSetTextArg("nearby_P2P", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
 	}
 
