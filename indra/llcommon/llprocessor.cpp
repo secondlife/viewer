@@ -39,10 +39,11 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
+#   include <intrin.h>
 #endif
 
 #include <boost/scoped_ptr.hpp>
-#include <intrin.h>
+#include "llsd.h"
 
 #if LL_MSVC && _M_X64
 #      define LL_X86_64 1
@@ -58,7 +59,66 @@
 #      define LL_PPC 1
 #endif
 
-// The base calss for implementations.
+class LLProcessorInfoImpl; // foward declaration for the gImpl;
+
+namespace 
+{
+	static const char* cpu_feature_names[] =
+	{
+		"x87 FPU On Chip",
+		"Virtual-8086 Mode Enhancement",
+		"Debugging Extensions",
+		"Page Size Extensions",
+		"Time Stamp Counter",
+		"RDMSR and WRMSR Support",
+		"Physical Address Extensions",
+		"Machine Check Exception",
+		"CMPXCHG8B Instruction",
+		"APIC On Chip",
+		"Unknown1",
+		"SYSENTER and SYSEXIT",
+		"Memory Type Range Registers",
+		"PTE Global Bit",
+		"Machine Check Architecture",
+		"Conditional Move/Compare Instruction",
+		"Page Attribute Table",
+		"Page Size Extension",
+		"Processor Serial Number",
+		"CFLUSH Extension",
+		"Unknown2",
+		"Debug Store",
+		"Thermal Monitor and Clock Ctrl",
+		"MMX Technology",
+		"FXSAVE/FXRSTOR",
+		"SSE Extensions",
+		"SSE2 Extensions",
+		"Self Snoop",
+		"Hyper-threading Technology",
+		"Thermal Monitor",
+		"Unknown4",
+		"Pend. Brk. EN.", // End of FeatureInfo bits
+
+		"SSE3 New Instructions", // 32
+		"MONITOR/MWAIT", 
+		"CPL Qualified Debug Store",
+		"Thermal Monitor 2"
+	};
+
+	enum cpu_features 
+	{
+		eSSE_Ext=25,
+		eSSE2_Ext=26,
+		eSSE3_Features=32,
+		eMONTIOR_MWAIT=33,
+		eCPLDebugStore=34,
+		eThermalMonitor2=35
+	};
+
+	// Pointer to the active impl.
+	boost::scoped_ptr<LLProcessorInfoImpl> gImpl;
+}
+
+// The base class for implementations.
 // Each platform should override this class.
 class LLProcessorInfoImpl
 {
@@ -66,20 +126,90 @@ public:
 	LLProcessorInfoImpl() {}
 	virtual ~LLProcessorInfoImpl() {}
 
-	virtual F64 getCPUFrequency() const { return 0; }
-	virtual bool hasSSE() const { return false; }
-	virtual bool hasSSE2() const { return false; }
-	virtual bool hasAltivec() const { return false; }
-	virtual std::string getCPUFamilyName() const { return "Unknown"; }
-	virtual std::string getCPUBrandName() const { return "Unknown"; }
-	virtual std::string getCPUFeatureDescription() const { return "Unknown"; }
+	F64 getCPUFrequency() const 
+	{ 
+		return getInfo("Frequency", 0).asReal(); 
+	}
+
+	bool hasSSE() const 
+	{ 
+		return hasExtension(cpu_feature_names[eSSE_Ext]);
+	}
+
+	bool hasSSE2() const
+	{ 
+		return hasExtension(cpu_feature_names[eSSE2_Ext]);
+	}
+
+	bool hasAltivec() const 
+	{
+		return hasExtension("Altivec"); 
+	}
+
+	std::string getCPUFamilyName() const { return getInfo("FamilyName", "Unknown").asString(); }
+	std::string getCPUBrandName() const { return getInfo("BrandName", "Unknown").asString(); }
+	std::string getCPUFeatureDescription() const 
+	{
+		std::ostringstream out;
+		out << std::endl << std::endl;
+		out << "// CPU General Information" << std::endl;
+		out << "//////////////////////////" << std::endl;
+		out << "Processor Name:   " << getCPUBrandName() << std::endl;
+		out << "Frequency:        " << getCPUFrequency() / (F64)1000000 << " MHz" << std::endl;
+		out << "Vendor:			  " << getInfo("Vendor", "Unknown").asString() << std::endl;
+		out << "Family:           " << getCPUFamilyName() << " (" << getInfo("Family", 0) << ")" << std::endl;
+		out << "Extended family:  " << getInfo("ExtendedFamily", 0) << std::endl;
+		out << "Model:            " << getInfo("Model", 0) << std::endl;
+		out << "Extended model:   " << getInfo("ExtendedModel", 0) << std::endl;
+		out << "Type:             " << getInfo("Type", 0) << std::endl;
+		out << "Brand ID:         " << getInfo("BrandID", 0) << std::endl;
+		out << std::endl;
+		out << "// CPU Configuration" << std::endl;
+		out << "//////////////////////////" << std::endl;
+		out << "Max Supported CPUID level = " << getConfig("MaxID", 0) << std::endl;
+		out << "Max Supported Ext. CPUID level = " << std::hex << getConfig("MaxExtID", 0) << std::dec << std::endl;
+		out << "CLFLUSH cache line size = " <<  getConfig("CLFLUSHCacheLineSize", 0) << std::endl;
+		out << "APIC Physical ID = " << getConfig("APICPhysicalID", 0) << std::endl;
+		out << "Cache Line Size = " << getConfig("CacheLineSize", 0) << std::endl;
+		out << "L2 Associativity = " << getConfig("L2Associativity", 0) << std::endl;
+		out << "Cache Size = "  <<  getConfig("CacheSizeK", 0) << "K" << std::endl;
+		out << std::endl;
+		out << "// CPU Extensions" << std::endl;
+		out << "//////////////////////////" << std::endl;
+		
+		for(LLSD::map_const_iterator itr = mProcessorInfo.beginMap(); itr != mProcessorInfo.endMap(); ++itr)
+		{
+			out << "  " << itr->first << std::endl;			
+		}
+		return out.str(); 
+	}
+
+protected:
+	void setInfo(const std::string& name, const LLSD& value) { mProcessorInfo["info"][name]=value; }
+	void setConfig(const std::string& name, const LLSD& value) { mProcessorInfo["config"][name]=value; }
+	void setExtension(const std::string& name) { mProcessorInfo["extension"][name] = "true"; }
+
+	LLSD getInfo(const std::string& name, const LLSD& defaultVal) const
+	{ 
+		LLSD r = mProcessorInfo["info"].get(name); 
+		return r.isDefined() ? r : defaultVal;
+	}
+
+	LLSD getConfig(const std::string& name, const LLSD& defaultVal) const
+	{ 
+		LLSD r = mProcessorInfo["config"].get(name); 
+		return r.isDefined() ? r : defaultVal;
+	}
+
+	bool hasExtension(const std::string& name) const
+	{ 
+		return mProcessorInfo["extension"].has(name);
+	}
+
+private:
+	LLSD mProcessorInfo;
 };
 
-namespace 
-{
-	// Pointer to the active impl.
-	boost::scoped_ptr<LLProcessorInfoImpl> gImpl;
-}
 
 #ifdef LL_MSVC
 // LL_MSVC and not LLWINDOWS because some of the following code 
@@ -178,221 +308,17 @@ static F64 calculate_cpu_frequency(U32 measure_msecs)
 	return frequency;
 }
 
-static const char* cpu_feature_names[] =
-{
-    "x87 FPU On Chip",
-    "Virtual-8086 Mode Enhancement",
-    "Debugging Extensions",
-    "Page Size Extensions",
-    "Time Stamp Counter",
-    "RDMSR and WRMSR Support",
-    "Physical Address Extensions",
-    "Machine Check Exception",
-    "CMPXCHG8B Instruction",
-    "APIC On Chip",
-    "Unknown1",
-    "SYSENTER and SYSEXIT",
-    "Memory Type Range Registers",
-    "PTE Global Bit",
-    "Machine Check Architecture",
-    "Conditional Move/Compare Instruction",
-    "Page Attribute Table",
-    "Page Size Extension",
-    "Processor Serial Number",
-    "CFLUSH Extension",
-    "Unknown2",
-    "Debug Store",
-    "Thermal Monitor and Clock Ctrl",
-    "MMX Technology",
-    "FXSAVE/FXRSTOR",
-    "SSE Extensions",
-    "SSE2 Extensions",
-    "Self Snoop",
-    "Hyper-threading Technology",
-    "Thermal Monitor",
-    "Unknown4",
-    "Pend. Brk. EN."
-};
-
 // Windows implementation
 class LLProcessorInfoWindowsImpl : public LLProcessorInfoImpl
 {
 public:
 	LLProcessorInfoWindowsImpl() :
-		mCPUFrequency(0),
-		mSteppingID(0),
-		mModel(0),
-		mFamily(0),
-		mProcessorType(0),
-		mExtendedModel(0),
-		mExtendedFamily(0),
-		mBrandIndex(0),
-		mCLFLUSHCacheLineSize(0),
-		mAPICPhysicalID(0),
-		mCacheLineSize(0),
-		mL2Associativity(0),
-		mCacheSizeK(0),
-
-		mFeatureInfo(0),
-		mSSE3NewInstructions(false),
-		mMONITOR_MWAIT(false),
-		mCPLQualifiedDebugStore(false),
-		mThermalMonitor2(false),
-
-		mIds(0),
-		mExtIds(0)
-
 	{
-		memset(&mCPUString, 0, 0x20);
-		memset(&mCPUBrandString, 0, 0x40);
-
 		getCPUIDInfo();
-		mCPUFrequency = calculate_cpu_frequency(50);
-	}
-	
-	F64 getCPUFrequency() const 
-	{ 
-		return mCPUFrequency;
-	}
-
-	bool hasSSE() const 
-	{
-		// constant comes from the msdn docs for __cpuid
-		const int sse_feature_index = 25;
-		return mFeatureInfo & (1 << sse_feature_index);
-	}
-
-	bool hasSSE2() const
-	{
-		// constant comes from the msdn docs for __cpuid
-		const int sse2_feature_index = 26;
-		return mFeatureInfo & (1 << sse2_feature_index);
-	}
-
-	std::string getCPUFamilyName() const 
-	{
-		const char* intel_string = "GenuineIntel";
-		const char* amd_string = "AuthenticAMD";
-		if(!strncmp(mCPUString, intel_string, strlen(intel_string)))
-		{
-			U32 composed_family = mFamily + mExtendedFamily;
-			switch(composed_family)
-			{
-			case 3: return "Intel i386";
-			case 4: return "Intel i486";
-			case 5: return "Intel Pentium";
-			case 6: return "Intel Pentium Pro/2/3, Core";
-			case 7: return "Intel Itanium (IA-64)";
-			case 0xF: return "Intel Pentium 4";
-			case 0x10: return "Intel Itanium 2 (IA-64)";
-			default: return "Unknown";
-			}
-		}
-		else if(!strncmp(mCPUString, amd_string, strlen(amd_string)))
-		{
-			U32 composed_family = (mFamily == 0xF) 
-				? mFamily + mExtendedFamily
-				: mFamily;
-			switch(composed_family)
-			{
-			case 4: return "AMD 80486/5x86";
-			case 5: return "AMD K5/K6";
-			case 6: return "AMD K7";
-			case 0xF: return "AMD K8";
-			case 0x10: return "AMD K8L";
-			default: return "Unknown";
-			}
-		}
-		return "Unknown";
-	}
-
-	std::string getCPUBrandName() const { return mCPUBrandString; }
-	std::string getCPUFeatureDescription() const 
-	{
-		std::ostringstream out;
-		out << std::endl << std::endl;
-		out << "// CPU General Information" << std::endl;
-		out << "//////////////////////////" << std::endl;
-		out << "Processor Name:   " << getCPUBrandName() << std::endl;
-		out << "Frequency:        " << mCPUFrequency / (F64)1000000 << " MHz" << std::endl;
-		out << "Vendor:			  " << mCPUString << std::endl;
-		out << "Family:           " << getCPUFamilyName() << " (" << mFamily << ")" << std::endl;
-		out << "Extended family:  " << mExtendedFamily << std::endl;
-		out << "Model:            " << mModel << std::endl;
-		out << "Extended model:   " << mExtendedModel << std::endl;
-		out << "Type:             " << mProcessorType << std::endl;
-		out << "Brand ID:         " << mBrandIndex << std::endl;
-		out << std::endl;
-		out << "// CPU Configuration" << std::endl;
-		out << "//////////////////////////" << std::endl;
-		out << "Max Supported CPUID level = " << mIds << std::endl;
-		out << "Max Supported Ext. CPUID level = " << std::hex << mExtIds << std::dec << std::endl;
-		out << "CLFLUSH cache line size = " << mCLFLUSHCacheLineSize << std::endl;
-		out << "APIC Physical ID = " << mAPICPhysicalID << std::endl;
-		out << "Cache Line Size = " << mCacheLineSize << std::endl;
-		out << "L2 Associativity = " << mL2Associativity << std::endl;
-		out << "Cache Size = "  <<  mCacheSizeK << "K" << std::endl;
-		out << std::endl;
-		out << "// CPU Extensions" << std::endl;
-		out << "//////////////////////////" << std::endl;
-		if(mSSE3NewInstructions)
-		{
-			out << "  SSE3 New Instructions" << std::endl;
-		}
-		if(mMONITOR_MWAIT)
-		{
-			out << "  MONITOR/MWAIT" << std::endl;
-		}
-		if(mCPLQualifiedDebugStore)
-		{
-			out << "  CPL Qualified Debug Store" << std::endl;
-		}
-		if(mThermalMonitor2)
-		{
-			out << "  Thermal Monitor 2" << std::endl;
-		}
-
-		U32 index = 0;
-        U32 bit = 1;
-        while(index < (sizeof(cpu_feature_names)/sizeof(const char*)))
-        {
-			if(mFeatureInfo & bit)
-			{
-				out << "  " << cpu_feature_names[index] << std::endl;
-			}
-			bit <<= 1;
-			++index;
-		}
-
-		return out.str(); 
+		AddInfoItem("Frequency", calculate_cpu_frequency(50));
 	}
 
 private:
-	F64 mCPUFrequency;
-	char mCPUString[0x20];
-    char mCPUBrandString[0x40];
-    int mSteppingID;
-    int mModel;
-    int mFamily;
-    int mProcessorType;
-    int mExtendedModel;
-    int mExtendedFamily;
-    int mBrandIndex;
-    int mCLFLUSHCacheLineSize;
-    int mAPICPhysicalID;
-    int mCacheLineSize;
-    int mL2Associativity;
-    int mCacheSizeK;
-
-	int mFeatureInfo;
-    bool mSSE3NewInstructions;
-    bool mMONITOR_MWAIT;
-    bool mCPLQualifiedDebugStore;
-    bool mThermalMonitor2;
-
-	unsigned int mIds;
-	unsigned int mExtIds;
-
 	void getCPUIDInfo()
 	{
 		// http://msdn.microsoft.com/en-us/library/hskdteyh(VS.80).aspx
@@ -404,10 +330,14 @@ private:
 		// in a human readable form.
 		int cpu_info[4] = {-1};
 		__cpuid(cpu_info, 0);
-		unsigned int mIds = (unsigned int)cpu_info[0];
-		*((int*)mCPUString) = cpu_info[1];
-		*((int*)(mCPUString+4)) = cpu_info[3];
-		*((int*)(mCPUString+8)) = cpu_info[2];
+		unsigned int ids = (unsigned int)cpu_info[0];
+		setInfo("MaxIDs", ids);
+
+		char cpu_vendor[0x20];
+		memset(cpu_vendor, 0, sizeof(cpu_vendor));
+		*((int*)cpu_vendor) = cpu_info[1];
+		*((int*)(cpu_vendor+4)) = cpu_info[3];
+		*((int*)(cpu_vendor+8)) = cpu_info[2];
 
 		// Get the information associated with each valid Id
 		for(unsigned int i=0; i<=mIds; ++i)
@@ -460,6 +390,65 @@ private:
 			}
 		}
 	}
+
+	std::string computeCPUFamilyName() const 
+	{
+		const char* intel_string = "GenuineIntel";
+		const char* amd_string = "AuthenticAMD";
+		if(!strncmp(mCPUString, intel_string, strlen(intel_string)))
+		{
+			U32 composed_family = mFamily + mExtendedFamily;
+			switch(composed_family)
+			{
+			case 3: return "Intel i386";
+			case 4: return "Intel i486";
+			case 5: return "Intel Pentium";
+			case 6: return "Intel Pentium Pro/2/3, Core";
+			case 7: return "Intel Itanium (IA-64)";
+			case 0xF: return "Intel Pentium 4";
+			case 0x10: return "Intel Itanium 2 (IA-64)";
+			default: return "Unknown";
+			}
+		}
+		else if(!strncmp(mCPUString, amd_string, strlen(amd_string)))
+		{
+			U32 composed_family = (mFamily == 0xF) 
+				? mFamily + mExtendedFamily
+				: mFamily;
+			switch(composed_family)
+			{
+			case 4: return "AMD 80486/5x86";
+			case 5: return "AMD K5/K6";
+			case 6: return "AMD K7";
+			case 0xF: return "AMD K8";
+			case 0x10: return "AMD K8L";
+			default: return "Unknown";
+			}
+		}
+		return "Unknown";
+	}
+
+};
+
+#elif LL_DARWIN
+
+class LLProcessorInfoDarwinImpl
+{
+public:
+	LLProcessorInfoDarwinImpl() 
+	{
+		
+	}
+
+	virtual ~LLProcessorInfoDarwinImpl() {}
+
+	virtual F64 getCPUFrequency() const { return 0; }
+	virtual bool hasSSE() const { return false; }
+	virtual bool hasSSE2() const { return false; }
+	virtual bool hasAltivec() const { return false; }
+	virtual std::string getCPUFamilyName() const { return "Unknown"; }
+	virtual std::string getCPUBrandName() const { return "Unknown"; }
+	virtual std::string getCPUFeatureDescription() const { return "Unknown"; }
 };
 
 #endif // LL_MSVC
@@ -474,7 +463,9 @@ LLProcessorInfo::LLProcessorInfo()
 	{
 #ifdef LL_MSVC
 		gImpl.reset(new LLProcessorInfoWindowsImpl);
-#else 
+#elif LL_DARWIN
+		gImpl.reset(new LLProcessorInfoDarwinImpl);
+#else
 	#error "Unimplemented"
 #endif // LL_MSVC
 	}
