@@ -318,15 +318,15 @@
      height="20"
      width="300"
      top_pad="20">
-     Show IMs in:
+     Show IMs in: (Requires restart)
     </text>
     <radio_group
      height="30"
      layout="topleft"
-     left="30"
+     left_delta="30"
      control_name="ChatWindow"
      name="chat_window"
-     top_pad="10"
+     top_pad="0"
      tool_tip="Show your Instant Messages in separate windows, or in one window with many tabs (Requires restart)"
      width="331">
      <radio_item
@@ -342,10 +342,10 @@
       height="16"
       label="One window"
       layout="topleft"
-      left_delta="145"
+      left_delta="0"
       name="radio2"
       value="1"
-      top_delta="0"
+      top_pad="5"
       width="150" />
     </radio_group>
 </panel>

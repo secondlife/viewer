@@ -576,10 +576,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		style_params.font.style = "ITALIC";
 
 		if (chat.mFromName.size() > 0)
-			mEditor->appendText(chat.mFromName + " ", TRUE, style_params);
+			mEditor->appendText(chat.mFromName, TRUE, style_params);
 		// Ensure that message ends with NewLine, to avoid losing of new lines
 		// while copy/paste from text chat. See EXT-3263.
-		mEditor->appendText(chat.mText.substr(4) + NEW_LINE, FALSE, style_params);
+		mEditor->appendText(chat.mText.substr(3) + NEW_LINE, FALSE, style_params);
 	}
 	else
 	{

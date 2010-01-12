@@ -63,8 +63,6 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
-    llaccordionctrl.cpp
-    llaccordionctrltab.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentdata.cpp
@@ -214,7 +212,6 @@ set(viewer_SOURCE_FILES
     llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
-    llfloatervolumepulldown.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
@@ -349,6 +346,7 @@ set(viewer_SOURCE_FILES
     llpanelshower.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
+    llpanelvolumepulldown.cpp
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
@@ -569,8 +567,6 @@ endif (LINUX)
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-    llaccordionctrl.h
-    llaccordionctrltab.h
     llagent.h
     llagentaccess.h
     llagentdata.h
@@ -852,6 +848,7 @@ set(viewer_HEADER_FILES
     llpanelshower.h
     llpanelteleporthistory.h
     llpanelvolume.h
+    llpanelvolumepulldown.h
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h

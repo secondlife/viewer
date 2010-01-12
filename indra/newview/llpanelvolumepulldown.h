@@ -1,10 +1,11 @@
-/**
- * @file llviewerparcelmediaautoplay.h
- * @brief timer to automatically play media in a parcel
+/** 
+ * @file llpanelvolumepulldown.h
+ * @author Tofu Linden
+ * @brief A panel showing the master volume pull-down
  *
- * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2007-2009, Linden Research, Inc.
+ * Copyright (c) 2008-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,28 +31,34 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERPARCELMEDIAAUTOPLAY_H
-#define LLVIEWERPARCELMEDIAAUTOPLAY_H
+#ifndef LL_LLPANELVOLUMEPULLDOWN_H
+#define LL_LLPANELVOLUMEPULLDOWN_H
 
-#include "lltimer.h"
-#include "lluuid.h"
+#include "linden_common.h"
 
-// timer to automatically play media
-class LLViewerParcelMediaAutoPlay : LLEventTimer
+#include "llpanel.h"
+
+class LLFrameTimer;
+
+class LLPanelVolumePulldown : public LLPanel
 {
  public:
-	LLViewerParcelMediaAutoPlay();
-	virtual BOOL tick();
-	static void initClass();
-	static void cleanupClass();
-	static void playStarted();
-
+	LLPanelVolumePulldown();
+	/*virtual*/ void draw();
+	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void onTopLost();
+	/*virtual*/ BOOL postBuild();
+	
  private:
-	S32 mLastParcelID;
-	LLUUID mLastRegionID;
-	BOOL mPlayed;
-	F32 mTimeInParcel;
+	void setControlFalse(const LLSD& user_data);
+	void onAdvancedButtonClick(const LLSD& user_data);
+
+	LLFrameTimer mHoverTimer;
+	static const F32 sAutoCloseFadeStartTimeSec;
+	static const F32 sAutoCloseTotalTimeSec;
 };
 
 
-#endif // LLVIEWERPARCELMEDIAAUTOPLAY_H
+#endif // LL_LLPANELVOLUMEPULLDOWN_H

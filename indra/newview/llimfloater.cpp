@@ -595,7 +595,7 @@ void LLIMFloater::updateMessages()
 
 			std::string time = msg["time"].asString();
 			LLUUID from_id = msg["from_id"].asUUID();
-			std::string from = from_id != gAgentID ? msg["from"].asString() : LLTrans::getString("You");
+			std::string from = msg["from"].asString();
 			std::string message = msg["message"].asString();
 
 			LLChat chat;

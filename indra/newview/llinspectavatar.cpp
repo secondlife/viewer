@@ -278,7 +278,7 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	
 	getChild<LLUICtrl>("gear_self_btn")->setVisible(self);
 	getChild<LLUICtrl>("gear_btn")->setVisible(!self);
-	
+
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip
@@ -544,6 +544,7 @@ void LLInspectAvatar::updateVolumeSlider()
 
 		LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
 		volume_slider->setEnabled( !is_muted );
+
 		const F32 DEFAULT_VOLUME = 0.5f;
 		F32 volume;
 		if (is_muted)
