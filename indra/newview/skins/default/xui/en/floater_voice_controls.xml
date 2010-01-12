@@ -122,7 +122,6 @@
          follows="left|right|top"
          height="24"
          layout="topleft"
-         background_visible="false"
          left="0"
          name="non_avatar_caller"
          top="10"

@@ -51,6 +51,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
+#include "lllayoutstack.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 
@@ -818,8 +819,8 @@ void reshape_floater(LLCallFloater* floater, S32 delta_height)
 		}
 	}
 
-	floater->reshape(floater_rect.getWidth(), floater_rect.getHeight());
-	floater->setRect(floater_rect);
+	floater->setShape(floater_rect);
+	floater->getChild<LLLayoutStack>("my_call_stack")->updateLayout(FALSE);
 }
 
 void LLCallFloater::reshapeToFitContent()
