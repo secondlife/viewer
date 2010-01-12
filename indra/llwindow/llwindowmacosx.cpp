@@ -2797,8 +2797,14 @@ void LLWindowMacOSX::setCursor(ECursorType cursor)
 {
 	OSStatus result = noErr;
 
-	if (mDragOverrideCursor != -1) return;
-	
+	if (mDragOverrideCursor != -1) 
+	{
+		// A drag is in progress...remember the requested cursor and we'll
+		// restore it when it is done
+		mCurrentCursor = cursor;
+		return;
+	}
+		
 	if (cursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
@@ -3529,11 +3535,19 @@ OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, LLWindowCallbacks::DragNDrop
 							mDragOverrideCursor = -1;
 							break;
 					}
+					// This overrides the cursor being set by setCursor.
+					// This is a bit of a hack workaround because lots of areas
+					// within the viewer just blindly set the cursor.
 					if (mDragOverrideCursor == -1)
 					{
-						SetThemeCursor(kThemeArrowCursor);
+						// Restore the cursor
+						ECursorType temp_cursor = mCurrentCursor;
+						// get around the "setting the same cursor" code in setCursor()
+						mCurrentCursor = UI_CURSOR_COUNT; 
+ 						setCursor(temp_cursor);
 					}
 					else {
+						// Override the cursor
 						SetThemeCursor(mDragOverrideCursor);
 					}
 
