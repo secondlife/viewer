@@ -62,10 +62,11 @@
           <panel
                 layout="topleft"
           follows="left|top|right"
+                height="505"
                name="scroll_content_panel"
                 top="0"
                 left="0"
-                width="303">
+                width="297">
             <panel
                   follows="left|top|right"
                   height="117"
@@ -73,7 +74,7 @@
                   left="10"
                   name="second_life_image_panel"
                   top="0"
-                  width="300">
+                  width="297">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -114,7 +115,7 @@
                textbox.max_length="512"
                name="sl_description_edit"
                top_pad="-3"
-               width="188"
+               width="181"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -127,7 +128,7 @@
        top_pad="10"
              left="10"
              name="first_life_image_panel"
-             width="300">
+             width="297">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -167,7 +168,7 @@
                textbox.max_length="512"
                name="fl_description_edit"
                top_pad="-3"
-               width="188"
+               width="181"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
