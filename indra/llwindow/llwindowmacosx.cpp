@@ -278,6 +278,8 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	mMoveEventCampartorUPP = NewEventComparatorUPP(staticMoveEventComparator);
 	mGlobalHandlerRef = NULL;
 	mWindowHandlerRef = NULL;
+	
+	mDragOverrideCursor = -1;
 
 	// We're not clipping yet
 	SetRect( &mOldMouseClip, 0, 0, 0, 0 );
@@ -2795,6 +2797,8 @@ void LLWindowMacOSX::setCursor(ECursorType cursor)
 {
 	OSStatus result = noErr;
 
+	if (mDragOverrideCursor != -1) return;
+	
 	if (cursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
@@ -3499,10 +3503,40 @@ OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, LLWindowCallbacks::DragNDrop
 					LLWindowCallbacks::DragNDropResult res = 
 						mCallbacks->handleDragNDrop(this, gl_pos, mask, action, url);
 					
-					if (LLWindowCallbacks::DND_NONE != res)
-					{
-						result = noErr;
+					switch (res) {
+						case LLWindowCallbacks::DND_NONE:		// No drop allowed
+							if (action == LLWindowCallbacks::DNDA_TRACK)
+							{
+								mDragOverrideCursor = kThemeNotAllowedCursor;
+							}
+							else {
+								mDragOverrideCursor = -1;
+							}
+							break;
+						case LLWindowCallbacks::DND_MOVE:		// Drop accepted would result in a "move" operation
+							mDragOverrideCursor = kThemePointingHandCursor;
+							result = noErr;
+							break;
+						case LLWindowCallbacks::DND_COPY:		// Drop accepted would result in a "copy" operation
+							mDragOverrideCursor = kThemeCopyArrowCursor;
+							result = noErr;
+							break;
+						case LLWindowCallbacks::DND_LINK:		// Drop accepted would result in a "link" operation:
+							mDragOverrideCursor = kThemeAliasArrowCursor;
+							result = noErr;
+							break;
+						default:
+							mDragOverrideCursor = -1;
+							break;
 					}
+					if (mDragOverrideCursor == -1)
+					{
+						SetThemeCursor(kThemeArrowCursor);
+					}
+					else {
+						SetThemeCursor(mDragOverrideCursor);
+					}
+
 				}
 			}
 		}
