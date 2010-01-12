@@ -1808,7 +1808,7 @@ Clears (deletes) the media and all params from the given face.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
-  <string name="FavoritesNoMatchingItems">Drag and drop a landmark here to add to your favorites.</string>
+  <string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">
 		You do not have a copy of
 this texture in your inventory
