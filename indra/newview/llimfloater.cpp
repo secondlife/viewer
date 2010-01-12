@@ -484,16 +484,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
-void LLIMFloater::setTornOff(bool torn_off)
-{
-	// When IM Floater isn't torn off, "close" button should be hidden.
-	// This call will just disables it, since there is a hack in LLFloater::updateButton,
-	// which prevents hiding of close button in that case.
-	setCanClose(torn_off);
-
-	LLTransientDockableFloater::setTornOff(torn_off);
-}
-
 void LLIMFloater::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
