@@ -190,7 +190,14 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {	
 	if (log_to_file && (gSavedPerAccountSettings.getBOOL("LogChat"))) 
 	{
-		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		if (chat.mChatType != CHAT_TYPE_WHISPER && chat.mChatType != CHAT_TYPE_SHOUT)
+		{
+			LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		}
+		else
+		{
+			LLLogChat::saveHistory("chat", "", chat.mFromID, chat.mFromName + " " + chat.mText);
+		}
 	}
 	
 	LLColor4 color = get_text_color(chat);
