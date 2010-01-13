@@ -28,7 +28,7 @@
      name="help_text"
      top="24"
      width="200">
-        You can select multiple residents to 
+        You can select multiple Residents to 
 invite to your group. Click &apos;Open 
 Resident Chooser&apos; to start.
     </text>
@@ -48,7 +48,7 @@ Resident Chooser&apos; to start.
      left_delta="0"
      multi_select="true"
      name="invitee_list"
-     tool_tip="Hold the Ctrl key and click resident names to multi-select"
+     tool_tip="Hold the Ctrl key and click Resident names to multi-select"
      top_pad="4"
      width="200" />
     <button
@@ -57,7 +57,7 @@ Resident Chooser&apos; to start.
      layout="topleft"
      left_delta="0"
      name="remove_button"
-     tool_tip="Removes residents selected above from the invite list"
+     tool_tip="Removes the Residents selected above from the invite list"
      top_pad="4"
      width="200" />
     <text

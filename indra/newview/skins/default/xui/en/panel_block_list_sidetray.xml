@@ -37,7 +37,7 @@
      layout="topleft"
      left="5"
      name="blocked"
-     tool_tip="List of currently blocked residents"
+     tool_tip="List of currently blocked Residents"
      top="30"
      width="270" />
     <button
@@ -47,7 +47,7 @@
      layout="topleft"
      left_delta="0"
      name="Block resident..."
-     tool_tip="Pick a resident to block"
+     tool_tip="Pick a Resident to block"
      top_pad="4"
      width="210">
         <button.commit_callback
@@ -74,7 +74,7 @@
      layout="topleft"
      left_delta="0"
      name="Unblock"
-     tool_tip="Remove resident or object from blocked list"
+     tool_tip="Remove Resident or object from blocked list"
      top_pad="4"
      width="210" >
         <button.commit_callback

@@ -147,7 +147,7 @@ regions in the estate.
      layout="topleft"
      left_delta="0"
      name="limit_payment"
-     tool_tip="Ban unidentified residents"
+     tool_tip="Ban unidentified Residents"
      top_pad="2"
      width="278" />
     <check_box
@@ -157,7 +157,7 @@ regions in the estate.
      layout="topleft"
      left_delta="0"
      name="limit_age_verified"
-     tool_tip="Ban residents who have not verified their age. See the [SUPPORT_SITE] for more information."
+     tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."
      top_pad="2"
      width="278" />
     <check_box
