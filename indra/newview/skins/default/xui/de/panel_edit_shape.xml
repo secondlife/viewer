@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_shape_panel">
+	<panel name="avatar_sex_panel">
+		<text name="gender_text">
+			Geschlecht:
+		</text>
+		<radio_group name="sex_radio">
+			<radio_item label="weiblich" name="radio"/>
+			<radio_item label="Männlich" name="radio2"/>
+		</radio_group>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="shape_body_tab" title="Körper"/>
+		<accordion_tab name="shape_head_tab" title="Kopf"/>
+		<accordion_tab name="shape_eyes_tab" title="Augen"/>
+		<accordion_tab name="shape_ears_tab" title="Ohren"/>
+		<accordion_tab name="shape_nose_tab" title="Nase"/>
+		<accordion_tab name="shape_mouth_tab" title="Mund"/>
+		<accordion_tab name="shape_chin_tab" title="Kinn"/>
+		<accordion_tab name="shape_torso_tab" title="Oberkörper"/>
+		<accordion_tab name="shape_legs_tab" title="Beine"/>
+	</accordion>
+</panel>

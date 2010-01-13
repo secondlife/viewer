@@ -2,5 +2,5 @@
 <context_menu name="Url Popup">
 	<menu_item_call label="住人のプロフィールを表示" name="show_agent"/>
 	<menu_item_call label="名前をクリップボードにコピー" name="url_copy_label"/>
-	<menu_item_call label="SLurlをクリップボードにコピー" name="url_copy"/>
+	<menu_item_call label="SLurl をクリップボードにコピー" name="url_copy"/>
 </context_menu>

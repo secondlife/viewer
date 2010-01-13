@@ -12,7 +12,7 @@
 		<combo_box.item label="1024x768" name="1024x768"/>
 	</combo_box>
 	<text name="UI Size:">
-		UIサイズ：
+		UI サイズ：
 	</text>
 	<text name="QualitySpeed">
 		クオリティとスピード：
@@ -21,7 +21,7 @@
 		速い
 	</text>
 	<text name="BetterText">
-		速
+		遅い
 	</text>
 	<text name="ShadersPrefText">
 		低
@@ -35,12 +35,12 @@
 	<text name="ShadersPrefText4">
 		超高
 	</text>
-	<panel label="CustomGraphics" name="CustomGraphics Panel">
+	<panel label="カスタムグラフィック" name="CustomGraphics Panel">
 		<text name="ShadersText">
 			シェーダー：
 		</text>
-		<check_box initial_value="true" label="バンプ・マッピングと光沢" name="BumpShiny"/>
-		<check_box initial_value="true" label="基本シェーダー" name="BasicShaders" tool_tip="このオプションを無効にするとグラフィック・カード・ドライバの種類によってはクラッシュ防止になります。"/>
+		<check_box initial_value="true" label="バンプマッピングと光沢" name="BumpShiny"/>
+		<check_box initial_value="true" label="基本シェーダー" name="BasicShaders" tool_tip="このオプションを無効にすると、グラフィックカードのドライバの種類によっては、クラッシュするのを防ぎます。"/>
 		<check_box initial_value="true" label="周囲（大気）シェーダー" name="WindLightUseAtmosShaders"/>
 		<check_box initial_value="true" label="水の反射" name="Reflections"/>
 		<text name="ReflectionDetailText">
@@ -48,16 +48,16 @@
 		</text>
 		<radio_group name="ReflectionDetailRadio">
 			<radio_item label="地形と樹木" name="0"/>
-			<radio_item label="すべての静的オブジェクト" name="1"/>
+			<radio_item label="すべての静止オブジェクト" name="1"/>
 			<radio_item label="すべてのアバターとオブジェクト" name="2"/>
 			<radio_item label="すべて" name="3"/>
 		</radio_group>
 		<text name="AvatarRenderingText">
 			アバター表示：
 		</text>
-		<check_box initial_value="true" label="アバターの精度を下げる" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="ハードウェア・スキニング" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="アバターの服" name="AvatarCloth"/>
+		<check_box initial_value="true" label="アバターの精度を上げる" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="ハードウェアスキニング" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="アバターの布" name="AvatarCloth"/>
 		<slider label="描画距離：" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
@@ -99,7 +99,7 @@
 		</text>
 		<radio_group name="LightingDetailRadio">
 			<radio_item label="太陽と月のみ" name="SunMoon"/>
-			<radio_item label="近隣のローカル・ライト" name="LocalLights"/>
+			<radio_item label="近くのローカルサイト" name="LocalLights"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			地形詳細：

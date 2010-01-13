@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="advanced">
+	<panel.string name="resolution_format">
+		[RES_X] x [RES_Y]
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</panel.string>
+	<check_box label="吹き出しチャット" name="bubble_text_chat"/>
+	<color_swatch name="background" tool_tip="吹き出しチャットの色を選択します"/>
+	<slider label="透明度" name="bubble_chat_opacity"/>
 	<text name="AspectRatioLabel1" tool_tip="（幅/高さ）">
-		縦横比：
+		縦横比
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="（幅/高さ）">
 		<combo_box.item label="4：3（標準CRT）" name="item1"/>
@@ -9,4 +18,31 @@
 		<combo_box.item label="8：5（ワイドスクリ－ン）" name="item3"/>
 		<combo_box.item label="16：9（ワイドスクリ－ン）" name="item4"/>
 	</combo_box>
+	<check_box label="自動検出" name="aspect_auto_detect"/>
+	<text name="heading1">
+		カメラ：
+	</text>
+	<slider label="視界角" name="camera_fov"/>
+	<slider label="距離" name="camera_offset_scale"/>
+	<text name="heading2">
+		自動ポジション：
+	</text>
+	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
+	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
+	<text name="heading3">
+		アバター：
+	</text>
+	<check_box label="一人称視点で表示する" name="first_person_avatar_visible"/>
+	<check_box label="常にキー操作で動くようにする" name="arrow_keys_move_avatar_check"/>
+	<check_box label="上矢印キー2度押し+長押しで走る" name="tap_tap_hold_to_run"/>
+	<check_box label="話すときにアバターの口を動かす" name="enable_lip_sync"/>
+	<check_box label="スクリプトのエラーを表示する" name="show_script_errors"/>
+	<radio_group name="show_location">
+		<radio_item label="チャット" name="0"/>
+		<radio_item label="ウィンドウ" name="1"/>
+	</radio_group>
+	<check_box label="トリガーキーを押したときに、マイクを切り替える：" name="push_to_talk_toggle_check" tool_tip="トグルモードの時にトリガーキーを1度押して放すと、マイクのオン・オフ設定を切り替えます。 トグルモードではないときは、トリガーキーを押した状態の時のみあなたの声が相手に聞こえます。"/>
+	<line_editor label="プッシュ・トゥ・スピークのトリガー" name="modifier_combo"/>
+	<button label="キー設定" name="set_voice_hotkey_button"/>
+	<button label="マウスの中央ボタン" name="set_voice_middlemouse_button"/>
 </panel>

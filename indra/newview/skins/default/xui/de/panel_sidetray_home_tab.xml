@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Part of side tray, see that XML file for panel config -->
+<panel label="home_tab" name="home_tab">
+	<scroll_container name="profile_scroll">
+		<panel name="profile_scroll_panel">
+			<panel name="sidebar_people">
+				<text name="tab_name" value="Leute"/>
+				<text name="tab_description">
+					Freunde, Gruppen, Kontakte und Leute in Ihrer Nähe finden.
+				</text>
+			</panel>
+			<panel name="sidebar_places">
+				<text name="tab_name" value="Orte"/>
+				<text name="tab_description">
+					Hier finden Sie neue Orte und Orte, die Sie bereits besucht haben.
+				</text>
+			</panel>
+			<panel name="sidebar_me">
+				<text name="tab_name" value="Mein Profil"/>
+				<text name="tab_description">
+					Öffentliches Profil bearbeiten.
+				</text>
+			</panel>
+			<panel name="sidebar_appearance">
+				<text name="tab_name" value="Mein Aussehen"/>
+				<text name="tab_description">
+					Ändern Sie Ihr Aussehen und Ihren aktuellen Look.
+				</text>
+			</panel>
+			<panel name="sidebar_inventory">
+				<text name="tab_name" value="Mein Inventar"/>
+				<text name="tab_description">
+					Inventar durchsuchen.
+				</text>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

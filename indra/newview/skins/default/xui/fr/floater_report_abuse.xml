@@ -8,7 +8,7 @@
 		Déposant :
 	</text>
 	<text name="reporter_field">
-		Loremipsum Dolorsitamut
+		Loremipsum Dolorsitamut Longnamez
 	</text>
 	<text name="sim_title">
 		Région :
@@ -23,11 +23,11 @@
 		{128.1, 128.1, 15.4}
 	</text>
 	<text name="select_object_label">
-		Cliquez sur le bouton puis l&apos;objet responsable :
+		Cliquez sur le bouton puis l&apos;objet responsable :
 	</text>
 	<button label="" label_selected="" name="pick_btn" tool_tip="Le sélecteur d&apos;objet vous permet d&apos;identifier un objet comme sujet du rapport."/>
 	<text name="object_name_label">
-		Objet :
+		Objet :
 	</text>
 	<text left_delta="70" name="object_name" width="105">
 		Consetetur Sadipscing
@@ -36,7 +36,7 @@
 		Propriétaire :
 	</text>
 	<text left_delta="70" name="owner_name" width="105">
-		Hendrerit Vulputate
+		Hendrerit Vulputate Kamawashi Longname
 	</text>
 	<combo_box name="category_combo" tool_tip="Choisissez la catégorie qui décrit le mieux ce rapport">
 		<combo_box.item label="Sélectionnez une catégorie" name="Select_category"/>
@@ -96,8 +96,7 @@
 		Soyez aussi spécifique que possible
 	</text>
 	<text bottom_delta="-16" name="incomplete_title">
-		Remarque : les rapports incomplets ne feront pas l&apos;objet d&apos;une
-enquête.
+		* Les rapports incomplets ne feront pas l&apos;objet d&apos;une enquête
 	</text>
 	<button label="Signaler une infraction" label_selected="Signaler une infraction" name="send_btn"/>
 	<button label="Annuler" label_selected="Annuler" name="cancel_btn"/>

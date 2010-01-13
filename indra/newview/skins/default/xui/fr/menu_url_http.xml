@@ -3,5 +3,5 @@
 	<menu_item_call label="Ouvrir la page Web" name="url_open"/>
 	<menu_item_call label="Ouvrir dans un navigateur interne" name="url_open_internal"/>
 	<menu_item_call label="Ouvrir dans un navigateur externe" name="url_open_external"/>
-	<menu_item_call label="Copier l&apos;URL dans le presse-papier" name="url_copy"/>
+	<menu_item_call label="Copier l&apos;URL dans le presse-papiers" name="url_copy"/>
 </context_menu>

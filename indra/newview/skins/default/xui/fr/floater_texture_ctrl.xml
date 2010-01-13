@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="TEXTURE">
+<floater name="texture picker" title="CHOISIR : TEXTURE">
 	<string name="choose_picture">
 		Cliquez pour sélectionner une image
 	</string>
 	<text name="Multiple">
-		Multiple
+		Textures multiples
 	</text>
 	<text name="unknown">
-		Dimensions : [DIMENSIONS]
+		Taille : [DIMENSIONS]
 	</text>
-	<button label="Défaut" label_selected="Défaut" name="Default" width="60" />
-	<button label="Aucune" label_selected="Aucune" name="None" width="60" left="68" />
-	<button label="Vierge" label_selected="Vierge" name="Blank" width="60" />
+	<button label="Défaut" label_selected="Défaut" name="Default" width="60"/>
+	<button label="Aucune" label_selected="Aucune" left="68" name="None" width="60"/>
+	<button label="Vierge" label_selected="Vierge" name="Blank" width="60"/>
 	<check_box label="Afficher les dossiers" name="show_folders_check"/>
-	<search_editor label="Saisissez votre recherche ici" name="inventory search editor"/>
-	<check_box label="Appliquer immédiatement" name="apply_immediate_check" />
-	<button label="" label_selected="" name="Pipette" bottom="-240" />
+	<search_editor label="Filtrer les textures" name="inventory search editor"/>
+	<check_box label="Appliquer maintenant" name="apply_immediate_check"/>
+	<button bottom="-240" label="" label_selected="" name="Pipette"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
-	<button label="Sélectionner" label_selected="Sélectionner" name="Select"/>
+	<button label="Ok" label_selected="Ok" name="Select"/>
 	<string name="pick title">
 		Choisir :
 	</string>

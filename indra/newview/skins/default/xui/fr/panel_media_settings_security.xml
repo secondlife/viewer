@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sécurité" name="Media Settings Security">
+	<check_box initial_value="false" label="Autoriser l&apos;accès aux URL spécifiées uniquement (par préfixe)" name="whitelist_enable"/>
+	<button label="Ajouter" name="whitelist_add"/>
+	<button label="Supprimer" name="whitelist_del"/>
+</panel>
