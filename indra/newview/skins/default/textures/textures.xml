@@ -526,13 +526,14 @@ with the same filename but different name
   <texture name="TabIcon_Appearance_Selected" file_name="taskpanel/TabIcon_Appearance_Selected.png" preload="false" />
   <texture name="TabIcon_Close_Off" file_name="taskpanel/TabIcon_Close_Off.png" preload="false" />
   <texture name="TabIcon_Close_Over" file_name="taskpanel/TabIcon_Close_Over.png" preload="false" />
-  <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />
-  <texture name="TabIcon_Home_Over" file_name="taskpanel/TabIcon_Home_Over.png" preload="false" />
-  <texture name="TabIcon_Home_Selected" file_name="taskpanel/TabIcon_Home_Selected.png" preload="false" />
   <texture name="TabIcon_Inventory_Large" file_name="taskpanel/TabIcon_Inventory_Large.png" preload="false" />
   <texture name="TabIcon_Inventory_Off" file_name="taskpanel/TabIcon_Inventory_Off.png" preload="false" />
   <texture name="TabIcon_Inventory_Over" file_name="taskpanel/TabIcon_Inventory_Over.png" preload="false" />
   <texture name="TabIcon_Inventory_Selected" file_name="taskpanel/TabIcon_Inventory_Selected.png" preload="false" />
+  <texture name="TabIcon_Home_Large" file_name="taskpanel/TabIcon_Home_Large.png" preload="false" />
+  <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />
+  <texture name="TabIcon_Home_Over" file_name="taskpanel/TabIcon_Home_Over.png" preload="false" />
+  <texture name="TabIcon_Home_Selected" file_name="taskpanel/TabIcon_Home_Selected.png" preload="false" />
   <texture name="TabIcon_Me_Large" file_name="taskpanel/TabIcon_Me_Large.png" preload="false" />
   <texture name="TabIcon_Me_Off" file_name="taskpanel/TabIcon_Me_Off.png" preload="false" />
   <texture name="TabIcon_Me_Over" file_name="taskpanel/TabIcon_Me_Over.png" preload="false" />
