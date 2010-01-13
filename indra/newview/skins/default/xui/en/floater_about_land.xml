@@ -209,7 +209,7 @@
             </text>
              <button
      follows="right"
-     height="16"
+     height="23"
      image_pressed="Info_Press"
      image_unselected="Info_Over"
      left_pad="3"
@@ -218,7 +218,7 @@
      width="16" />
           <!--  <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Profile"
              layout="topleft"
              left_pad="4"
@@ -248,7 +248,7 @@
 Leyla Linden               </text>
                  <button
      follows="right"
-     height="16"
+     height="23"
      image_pressed="Info_Press"
      image_unselected="Info_Over"
      left_pad="3"
@@ -263,10 +263,11 @@ Leyla Linden               </text>
              left_pad="4"
              right="-10"
              name="Set..."
-             width="50" />
+             width="50"
+             top_delta="-2"/>
             <check_box
              enabled="false"
-             height="23"
+             height="16"
              label="Allow Deed to Group"
              layout="topleft"
              left="108"
@@ -284,7 +285,7 @@ Leyla Linden               </text>
              right="-10"
              name="Deed..."
              tool_tip="You may only deed land if you are an officer in the selected group."
-             top_delta="0"
+             top_delta="-2"
              width="90" />
             <check_box
              enabled="false"
@@ -294,7 +295,8 @@ Leyla Linden               </text>
              left="108"
              name="check contrib"
              tool_tip="When the land is deeded to the group, the former owner contributes enough land allocation to support it."
-             width="199" />
+             width="199"
+             top_pad="0"/>
             <text
              type="string"
              length="1"
@@ -335,7 +337,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="SalePending"
-             top_pad="6"
+             top_pad="5"
              width="324" />
             <button
              follows="left|top"
@@ -345,7 +347,8 @@ Leyla Linden               </text>
              left_pad="5"
              right="-10"
              name="Sell Land..."
-             width="145" />
+             width="145"
+             top_delta="-25"/>
             <text
              type="string"
              length="1"
@@ -354,7 +357,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="-199"
              name="For sale to"
-             top_delta="2"
+             top_delta="20"
              width="186">
                 For sale to: [BUYER]
             </text>
@@ -366,7 +369,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Sell with landowners objects in parcel."
-             top_pad="0"
+             top_pad="-3"
              width="186">
                 Objects included in sale
             </text>
@@ -391,7 +394,7 @@ Leyla Linden               </text>
              right="-10"
              name="Cancel Land Sale"
              left_pad="5"
-             top_pad="-10"
+             top_pad="-25"
              width="145" />
             <text
              type="string"
@@ -522,7 +525,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-48"
+             top_delta="-61"
              width="180" />
             <button
              enabled="false"
@@ -810,7 +813,7 @@ Leyla Linden               </text>
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="152"
+             left_delta="190"
              name="objects_available"
              top_delta="0"
              width="260">
@@ -834,7 +837,7 @@ Leyla Linden               </text>
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="200"
+             left_delta="190"
              name="object_contrib_text"
              top_delta="0"
              width="212">
@@ -858,7 +861,7 @@ Leyla Linden               </text>
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="200"
+             left_delta="190"
              name="total_objects_text"
              top_delta="0"
              width="48">
@@ -868,7 +871,7 @@ Leyla Linden               </text>
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="28"
              name="Owned by parcel owner:"
@@ -880,9 +883,9 @@ Leyla Linden               </text>
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
-             left_delta="176"
+             left_delta="172"
              name="owner_objects_text"
              top_delta="0"
              width="48">
@@ -892,33 +895,35 @@ Leyla Linden               </text>
              bottom="100"
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Show"
              label_selected="Show"
              layout="topleft"
              name="ShowOwner"
              right="-140"
-             width="60" />
+             width="60"
+             top_delta="-6"/>
             <button
              bottom="100"
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Return"
              layout="topleft"
              name="ReturnOwner..."
              right="-10"
              tool_tip="Return objects to their owners."
-             width="119" />
+             width="119"
+             top_delta="0"/>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="28"
              name="Set to group:"
-             top="104"
+             top_pad="5"
              width="176">
                 Set to group:
             </text>
@@ -926,9 +931,9 @@ Leyla Linden               </text>
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
-             left_delta="176"
+             left_delta="172"
              name="group_objects_text"
              top_delta="0"
              width="48">
@@ -939,32 +944,34 @@ Leyla Linden               </text>
              enabled="false"
              follows="left|top"
              label="Show"
-             height="20"
+             height="23"
              label_selected="Show"
              layout="topleft"
              name="ShowGroup"
              right="-140"
-             width="60" />
+             width="60"
+             top_delta="-6"/>
             <button
              bottom="120"
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Return"
              layout="topleft"
              name="ReturnGroup..."
              right="-10"
              tool_tip="Return objects to their owners."
-             width="119" />
+             width="119"
+             top_delta="0"/>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="28"
              name="Owned by others:"
-             top="124"
+             top_pad="5"
              width="176">
                 Owned by others:
             </text>
@@ -972,9 +979,9 @@ Leyla Linden               </text>
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
-             left_delta="176"
+             left_delta="172"
              name="other_objects_text"
              top_delta="0"
              width="48">
@@ -984,33 +991,35 @@ Leyla Linden               </text>
              bottom="140"
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Show"
              label_selected="Show"
              layout="topleft"
              name="ShowOther"
              right="-140"
-             width="60" />
+             width="60"
+             top_delta="-6"/>
             <button
              bottom="140"
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Return"
              layout="topleft"
              name="ReturnOther..."
              right="-10"
              tool_tip="Return objects to their owners."
-             width="119" />
+             width="119"
+             top_delta="0"/>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="28"
              name="Selected / sat upon:"
-             top="144"
+             top_pad="5"
              width="176">
                 Selected / sat upon:
             </text>
@@ -1018,9 +1027,9 @@ Leyla Linden               </text>
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
-             left_delta="176"
+             left_delta="172"
              name="selected_objects_text"
              top_delta="0"
              width="48">
@@ -1030,51 +1039,53 @@ Leyla Linden               </text>
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="10"
              name="Autoreturn"
-             top="164"
+             top_pad="0"
              width="294">
-                Autoreturn other residents&apos; objects (minutes, 0 for off):
+                Auto return other residents&apos; objects (minutes, 0 for off):
             </text>
             <line_editor
              border_style="line"
              border_thickness="1"
              bottom="180"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              max_length="6"
              name="clean other time"
-             right="-50"
-             width="56" />
+             right="-72"
+             width="56"
+             top_delta="-6"/>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="10"
              name="Object Owners:"
-             top="184"
+             top_pad="10"
              width="104">
                 Object Owners:
             </text>
              <button
      follows="top|right"
-     height="20"
+     height="23"
      image_overlay="Refresh_Off"
      layout="topleft"
      name="Refresh List"
      left_pad="5"
      right="-183"
      tool_tip="Refresh Object List"
-     width="20" />
+     width="20"
+  top_delta="-6"/>
             <button
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Return Objects"
              layout="topleft"
              left_pad="6"
@@ -1086,7 +1097,7 @@ Leyla Linden               </text>
              column_padding="0"
              draw_heading="true"
              follows="all"
-             height="190"
+             height="180"
              layout="topleft"
              left="10"
              name="owner list"
@@ -1313,7 +1324,7 @@ Only large parcels can be listed in search.
              width="430" />
             <combo_box
              enabled="false"
-             height="20"
+             height="23"
              layout="topleft"
              left="30"
              name="land category with adult"
@@ -1374,7 +1385,7 @@ Only large parcels can be listed in search.
             </combo_box>
             <combo_box
              enabled="false"
-             height="20"
+             height="23"
              layout="topleft"
              left="30"
              name="land category"
@@ -1463,7 +1474,7 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
-             height="30"
+             height="16"
              layout="topleft"
              left="220"
              top="180"
@@ -1553,12 +1564,13 @@ Only large parcels can be listed in search.
                 Type:
             </text>
             <combo_box
-             height="20"
+             height="23"
              layout="topleft"
              left_pad="0"
              name="media type"
              tool_tip="Specify if the URL is a movie, web page, or other media"
-             width="120" />
+             width="120"
+             top_delta="0"/>
             <text
              follows="left|top"
              height="16"
@@ -1574,27 +1586,29 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="at URL:"
-             width="100">
+             width="100"
+             top_pad="10">
                 Home Page:
             </text>
             <line_editor
              follows="left|top"
-             height="20"
+             height="23"
              layout="topleft"
              left_pad="0"
              max_length="255"
              name="media_url"
              select_on_focus="true"
-             width="300" />
+             width="300"
+             top_delta="0"/>
             <button
              follows="right|top"
-             height="22"
+             height="23"
              label="Set"
              layout="topleft"
              left_pad="5"
-             right="-10"
              name="set_media_url"
-             width="50" />
+             width="50"
+             top_delta="0"/>
             <text
              type="string"
              length="1"
@@ -1603,18 +1617,20 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="CurrentURL:"
-             width="100">
+             width="100"
+             top_pad="10">
                 Current Page:
             </text>
-             <button
-     follows="top|right"
-     height="20"
-     image_overlay="Refresh_Off"
-     layout="topleft"
+            <button
+             follows="top|right"
+             height="23"
+             image_overlay="Refresh_Off"
+             layout="topleft"
              name="reset_media_url"
-     left_pad="0"
-     tool_tip="Refresh URL"
-     width="20" />
+             left_pad="0"
+             tool_tip="Refresh URL"
+             width="23"
+             top_delta="0"/>
             <text
              follows="left|top"
              height="16"
@@ -1623,22 +1639,25 @@ Only large parcels can be listed in search.
              name="current_url"
              width="300" />
             <check_box
+             follows="top|left"
              height="16"
              label="Hide URL"
              layout="topleft"
-             left="110"
+             left_delta="-36"
              name="hide_media_url"
              tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             width="200" />
+             width="50"
+             top_pad="5"/>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="23"
              layout="topleft"
              left="10"
              name="Description:"
-             width="364">
+             width="364"
+             top_pad="10">
                 Description:
             </text>
             <line_editor
@@ -1650,7 +1669,7 @@ Only large parcels can be listed in search.
              name="url_description"
              select_on_focus="true"
              tool_tip="Text displayed next to play/load button"
-             top_delta="10"
+             top_delta="0"
              width="300" />
             <text
              type="string"
@@ -1674,7 +1693,7 @@ Only large parcels can be listed in search.
              left="110"
              name="media texture"
              tool_tip="Click to choose a picture"
-             top_delta="10"
+             top_delta="0"
              width="64" />
             <text
              type="string"
@@ -1685,16 +1704,17 @@ Only large parcels can be listed in search.
              left_pad="8"
              name="replace_texture_help"
              width="300"
-             word_wrap="true">
+             word_wrap="true"
+             top_delta="0">
              Objects using this texture will show the movie or web page after you click the play arrow.  Select the thumbnail to choose a different texture.
             </text>
             <check_box
              height="16"
              label="Auto scale"
              layout="topleft"
-             left="110"
+             left="107"
              name="media_auto_scale"
-             top_pad="0"
+             top_pad="-10"
              tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."
              width="200" />
             <text
@@ -1706,7 +1726,8 @@ Only large parcels can be listed in search.
              left="10"
              name="media_size"
              tool_tip="Size to render Web media, leave 0 for default."
-             width="100">
+             width="100"
+             top_pad="10">
                 Size:
             </text>
             <spinner
@@ -1714,7 +1735,7 @@ Only large parcels can be listed in search.
              enabled="false"
              follows="left|top"
              halign="right"
-             height="20"
+             height="23"
              increment="1"
              initial_value="0"
              layout="topleft"
@@ -1729,7 +1750,7 @@ Only large parcels can be listed in search.
              enabled="false"
              follows="left|top"
              halign="right"
-             height="20"
+             height="23"
              increment="1"
              initial_value="0"
              layout="topleft"
@@ -1759,7 +1780,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Options:"
-             top_pad="8"
+             top_pad="10"
              width="100">
                 Options:
             </text>
@@ -1767,10 +1788,10 @@ Only large parcels can be listed in search.
              height="16"
              label="Loop"
              layout="topleft"
-             left_pad="0"
+             left_pad="-3"
              name="media_loop"
              tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."
-             top_delta="0"
+             top_delta="-1"
              width="200" />
         </panel>
         <panel
@@ -1796,12 +1817,12 @@ Only large parcels can be listed in search.
             </text>
             <line_editor
              follows="left|top"
-             height="20"
+             height="23"
              layout="topleft"
              left="100"
              max_length="255"
              name="music_url"
-             top_pad="0"
+             top_delta="0"
              right="-15"
              select_on_focus="true" />
             <text
@@ -1941,7 +1962,7 @@ Only large parcels can be listed in search.
              width="278" />
             <check_box
              enabled="false"
-             height="22"
+             height="16"
              label="Sell passes to:"
              layout="topleft"
              left_delta="0"
@@ -1950,7 +1971,7 @@ Only large parcels can be listed in search.
              top_pad="4"
              width="120" />
             <combo_box
-             height="20"
+             height="23"
              layout="topleft"
              left_pad="22"
              name="pass_combo"
@@ -1968,7 +1989,7 @@ Only large parcels can be listed in search.
             <spinner
              enabled="false"
              follows="left|top"
-             height="22"
+             height="23"
              increment="1"
              initial_value="10"
              label="Price in L$:"
@@ -1983,7 +2004,7 @@ Only large parcels can be listed in search.
             <spinner
              enabled="false"
              follows="left|top"
-             height="22"
+             height="23"
              increment="0.25"
              initial_value="1"
              label="Hours of access:"
