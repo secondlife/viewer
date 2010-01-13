@@ -8,9 +8,9 @@
  min_height="271"
  min_width="350"
  name="script ed float"
- help_topic="script_ed_float"
+ help_topic="lsl_reference"
  save_rect="true"
- title="LSL WIKI"
+ title="LSL REFERENCE"
  width="370">
     <check_box
      follows="top|left"
