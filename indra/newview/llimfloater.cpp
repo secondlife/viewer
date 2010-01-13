@@ -361,35 +361,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
 	if (!gIMMgr->hasSession(session_id)) return NULL;
 
-	// we should make sure all related chiclets are in place when the session is a voice call
-	// chiclets come firts, then comes IM window
-	if (gIMMgr->isVoiceCall(session_id))
-	{
-		LLIMModel* im_model = LLIMModel::getInstance();
-		LLBottomTray* b_tray = LLBottomTray::getInstance();
-		
-		//*TODO hide that into Bottom tray
-		if (!b_tray->getChicletPanel()->findChiclet<LLChiclet>(session_id))
-		{
-			LLIMChiclet* chiclet = b_tray->createIMChiclet(session_id);
-			if(chiclet)
-			{
-				chiclet->setIMSessionName(im_model->getName(session_id));
-				chiclet->setOtherParticipantId(im_model->getOtherParticipantID(session_id));
-			}
-		}
-
-		LLIMWellWindow::getInstance()->addIMRow(session_id);
-	}
-		
-	bool not_existed = true;
-
-	if(isChatMultiTab())
-	{
-		LLIMFloater* target_floater = findInstance(session_id);
-		not_existed = NULL == target_floater;
-	}
-	else
+	if(!isChatMultiTab())
 	{
 		//hide all
 		LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
@@ -404,19 +376,33 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		}
 	}
 
-	LLIMFloater* floater = LLFloaterReg::showTypedInstance<LLIMFloater>("impanel", session_id);
+	bool exist = findInstance(session_id);
+
+	LLIMFloater* floater = getInstance(session_id);
+	if (!floater) return NULL;
 
 	if(isChatMultiTab())
 	{
+		LLIMFloaterContainer* floater_container = LLIMFloaterContainer::getInstance();
+
 		// do not add existed floaters to avoid adding torn off instances
-		if (not_existed)
+		if (!exist)
 		{
 			//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 			// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
 			LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
+			
+			if (floater_container)
+			{
+				floater_container->addFloater(floater, TRUE, i_pt);
+			}
+		}
 
-			LLIMFloaterContainer* floater_container = LLFloaterReg::showTypedInstance<LLIMFloaterContainer>("im_container");
-			floater_container->addFloater(floater, TRUE, i_pt);
+		if (floater_container)
+		{
+			//selecting the panel resets a chiclet's counter
+			floater_container->selectFloater(floater);
+			floater_container->setVisible(TRUE);
 		}
 	}
 	else
@@ -443,8 +429,8 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		}
 
 		// window is positioned, now we can show it.
-		floater->setVisible(true);
 	}
+	floater->setVisible(TRUE);
 
 	return floater;
 }
@@ -536,6 +522,11 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 LLIMFloater* LLIMFloater::findInstance(const LLUUID& session_id)
 {
 	return LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+}
+
+LLIMFloater* LLIMFloater::getInstance(const LLUUID& session_id)
+{
+	return LLFloaterReg::getTypedInstance<LLIMFloater>("impanel", session_id);
 }
 
 void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
@@ -1015,4 +1006,21 @@ void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 	if (IM_NOTHING_SPECIAL != floater->mDialog) return;
 
 	floater->removeTypingIndicator();
+}
+
+void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
+{
+
+	if (isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+		if (!im_box) return;
+
+		if (LLIMFloater::findInstance(session_id)) return;
+
+		LLIMFloater* new_tab = LLIMFloater::getInstance(session_id);
+
+		im_box->addFloater(new_tab, FALSE, LLTabContainer::END);
+	}
+
 }

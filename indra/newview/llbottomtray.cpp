@@ -161,6 +161,9 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 	{
 		chiclet->setIMSessionName(name);
 		chiclet->setOtherParticipantId(other_participant_id);
+		
+		LLIMFloater::onIMChicletCreated(session_id);
+
 	}
 	else
 	{
