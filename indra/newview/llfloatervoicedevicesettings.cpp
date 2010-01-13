@@ -122,12 +122,21 @@ void LLPanelVoiceDeviceSettings::draw()
 			LLView* bar_view = getChild<LLView>(view_name);
 			if (bar_view)
 			{
+				gl_rect_2d(bar_view->getRect(), LLColor4::grey, TRUE);
+
+				LLColor4 color;
 				if (power_bar_idx < discrete_power)
 				{
-					LLColor4 color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
-					gl_rect_2d(bar_view->getRect(), color, TRUE);
+					color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
 				}
-				gl_rect_2d(bar_view->getRect(), LLColor4::grey, FALSE);
+				else
+				{
+					color = LLUIColorTable::instance().getColor("PanelFocusBackgroundColor");
+				}
+
+				LLRect color_rect = bar_view->getRect();
+				color_rect.stretch(-1);
+				gl_rect_2d(color_rect, color, TRUE);
 			}
 		}
 	}
@@ -268,7 +277,10 @@ void LLPanelVoiceDeviceSettings::initialize()
 
 void LLPanelVoiceDeviceSettings::cleanup()
 {
-	gVoiceClient->tuningStop();
+	if (gVoiceClient)
+	{
+		gVoiceClient->tuningStop();
+	}
 	LLVoiceChannel::resume();
 }
 
