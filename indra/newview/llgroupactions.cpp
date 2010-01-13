@@ -232,7 +232,9 @@ void LLGroupActions::activate(const LLUUID& group_id)
 
 static bool isGroupUIVisible()
 {
-	LLPanel* panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
+	static LLPanel* panel = 0;
+	if(!panel)
+		panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
 	if(!panel)
 		return false;
 	return panel->isInVisibleChain();
