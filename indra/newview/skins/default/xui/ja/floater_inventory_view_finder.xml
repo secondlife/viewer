@@ -1,24 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Inventory Finder" title="INVENTORY_RECENT_ITEMS">
-	<check_box label="アニメーション" name="check_animation" />
-	<check_box label="コーリング・カード" name="check_calling_card" />
-	<check_box label="服" name="check_clothing" />
-	<check_box label="ジェスチャー" name="check_gesture" />
-	<check_box label="ランドマーク" name="check_landmark" />
-	<check_box label="ノートカード" name="check_notecard" />
-	<check_box label="オブジェクト" name="check_object" />
-	<check_box label="スクリプト" name="check_script" />
-	<check_box label="サウンド" name="check_sound" />
-	<check_box label="テクスチャー" name="check_texture" />
-	<check_box label="スナップショット" name="check_snapshot" />
-	<button label="すべて" label_selected="すべて" name="All" />
-	<button label="なし" label_selected="なし" name="None" />
-	<check_box label="常にフォルダを表示" name="check_show_empty" />
-	<check_box label="ログオフ以降" name="check_since_logoff" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Inventory Finder" title="最近取得した持ち物アイテム">
+	<check_box label="アニメーション" name="check_animation"/>
+	<check_box label="コーリング・カード" name="check_calling_card"/>
+	<check_box label="服" name="check_clothing"/>
+	<check_box label="ジェスチャー" name="check_gesture"/>
+	<check_box label="ランドマーク" name="check_landmark"/>
+	<check_box label="ノートカード" name="check_notecard"/>
+	<check_box label="オブジェクト" name="check_object"/>
+	<check_box label="スクリプト" name="check_script"/>
+	<check_box label="サウンド" name="check_sound"/>
+	<check_box label="テクスチャー" name="check_texture"/>
+	<check_box label="スナップショット" name="check_snapshot"/>
+	<button label="すべて" label_selected="すべて" name="All"/>
+	<button label="なし" label_selected="なし" name="None"/>
+	<check_box label="常にフォルダを表示" name="check_show_empty"/>
+	<check_box label="ログオフ以降" name="check_since_logoff"/>
 	<text name="- OR -">
 		－または－
 	</text>
-	<spinner label="経過時間" name="spin_hours_ago" />
-	<spinner label="経過日数" name="spin_days_ago" />
-	<button label="閉じる" label_selected="閉じる" name="Close" />
+	<spinner label="経過時間" name="spin_hours_ago"/>
+	<spinner label="経過日数" name="spin_days_ago"/>
+	<button label="閉じる" label_selected="閉じる" name="Close"/>
 </floater>

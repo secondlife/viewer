@@ -1,41 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Mitteilungen" name="notices_tab">
-	<text name="help_text">
-		Mitteilungen sind eine schnelle Möglichkeit, 
-Mitglieder auf dem Laufenden zu halten und 
-Objekte im Anhang zu versenden. Mitteilungen werden
-nur an Mitglieder mit einer entsprechenden Rolle 
-gesendet. Mitteilungen können unter 
-„Allgemein“ ausgeschaltet werden.
-	</text>
-	<text name="no_notices_text">
+	<panel.string name="help_text">
+		Mit Mitteilungen können Sie eine Nachricht und
+Objekte im Anhang versenden. Mitteilungen werden
+nur an Mitglieder mit einer entsprechenden Rolle
+gesendet. Mitteilungen können unter
+ &apos;Allgemein &apos; ausgeschaltet werden.
+	</panel.string>
+	<panel.string name="no_notices_text">
 		Keine älteren Mitteilungen.
-	</text>
-	<button label="?" label_selected="?" name="help_button"/>
-	<text name="lbl">
-		Gruppenmitteilungsarchiv
-	</text>
+	</panel.string>
 	<text name="lbl2">
-		Mitteilungen werden 14 Tage lang aufbewahrt. Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
+		Mitteilungen werden 14 Tage lang aufbewahrt.
+Maximal 200 pro Gruppe täglich
 	</text>
 	<scroll_list name="notice_list">
-		<column label="" name="icon"/>
-		<column label="Thema" name="subject"/>
-		<column label="Von" name="from"/>
-		<column label="Datum" name="date"/>
+		<scroll_list.columns label="" name="icon"/>
+		<scroll_list.columns label="Thema" name="subject"/>
+		<scroll_list.columns label="Von" name="from"/>
+		<scroll_list.columns label="Datum" name="date"/>
 	</scroll_list>
 	<text name="notice_list_none_found">
 		Nicht gefunden.
 	</text>
-	<button label="Neue Mitteilung" label_selected="Neue Mitteilung" name="create_new_notice"/>
+	<button label="Neue Mitteilung erstellen" label_selected="Neue Mitteilung" name="create_new_notice" tool_tip="Neue Mitteilung erstellen"/>
 	<button label="Aktualisieren" label_selected="Liste aktualisieren" name="refresh_notices"/>
 	<panel label="Neue Mitteilung" name="panel_create_new_notice">
 		<text name="lbl">
 			Mitteilung schreiben
 		</text>
-		<text name="lbl2">
-			Sie können ein Objekt zu einer Mitteilung hinzufügen, wenn Sie es aus Ihrem Inventar auf dieses Feld ziehen. Die angehängten Objekte müssen kopier- und übertragbar sein. Ordner können nicht verschickt werden.
-		</text>
 		<text name="lbl3">
 			Betreff:
 		</text>
@@ -45,16 +38,19 @@ gesendet. Mitteilungen können unter
 		<text name="lbl5">
 			Anhängen:
 		</text>
-		<button label="Anhang entfernen" label_selected="Anhang entfernen" name="remove_attachment"/>
+		<text name="string">
+			Hierhin ziehen, um etwas anzuhängen -- &gt;
+		</text>
+		<button label="Entfernen" label_selected="Anhang entfernen" name="remove_attachment"/>
 		<button label="Senden" label_selected="Senden" name="send_notice"/>
-		<panel name="drop_target" tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice."/>
+		<group_drop_target name="drop_target" tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice."/>
 	</panel>
 	<panel label="Ältere Notiz anzeigen" name="panel_view_past_notice">
 		<text name="lbl">
 			Archivierte Mitteilung
 		</text>
 		<text name="lbl2">
-			Klicken Sie zum Senden einer Mitteilung auf „Neue Mitteilung“.
+			Um eine neue Mitteilung zu senden, klicken Sie die Schaltfläche +
 		</text>
 		<text name="lbl3">
 			Betreff:
@@ -62,86 +58,6 @@ gesendet. Mitteilungen können unter
 		<text name="lbl4">
 			Nachricht:
 		</text>
-		<button label="Anlage öffnen" label_selected="Anlage öffnen" name="open_attachment"/>
+		<button label="Anhang öffnen" label_selected="Anlage öffnen" name="open_attachment"/>
 	</panel>
 </panel>
-<!-- original file
-
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Mitteilungen" name="notices_tab">
-	<text name="help_text">
-		Mitteilungen sind eine schnelle Möglichkeit, 
-Mitglieder auf dem Laufenden zu halten und 
-Objekte im Anhang zu versenden. Mitteilungen werden
-nur an Mitglieder mit einer entsprechenden Rolle 
-gesendet. Mitteilungen können unter 
-„Allgemein“ ausgeschaltet werden.
-	</text>
-	<text name="no_notices_text">
-		Keine älteren Mitteilungen.
-	</text>
-	<button label="?" label_selected="?" name="help_button" />
-	<text name="lbl">
-		Gruppenmitteilungsarchiv
-	</text>
-	<text name="lbl2">
-		Mitteilungen werden 14 Tage lang aufbewahrt. Klicken Sie auf eine Mitteilung,
-um sie anzuzeigen. Klicken Sie „Aktualisieren“, um neue Mitteilungen zu suchen.
-Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
-	</text>
-	<scroll_list name="notice_list">
-		<column label="" name="icon" />
-		<column label="Thema" name="subject" />
-		<column label="Von" name="from" />
-		<column label="Datum" name="date" />
-	</scroll_list>
-	<text name="notice_list_none_found">
-		Nicht gefunden.
-	</text>
-	<button label="Neue Mitteilung" label_selected="Neue Mitteilung"
-	     name="create_new_notice" />
-	<button label="Aktualisieren" label_selected="Liste aktualisieren"
-	     name="refresh_notices" />
-	<panel label="Neue Mitteilung" name="panel_create_new_notice">
-		<text name="lbl">
-			Mitteilung schreiben
-		</text>
-		<text name="lbl2">
-			Geben Sie einen Betreff für die Mitteilung ein. Sie können der
-Mitteilung ein Objekt anfügen, indem Sie es aus dem Inventar
-in dieses Feld ziehen. Angehängte Objekte müssen kopier-
-und transferierbar sein. Ordner können nicht gesendet werden.
-		</text>
-		<text name="lbl3">
-			Betreff:
-		</text>
-		<text name="lbl4">
-			Nachricht:
-		</text>
-		<text name="lbl5">
-			Anhängen:
-		</text>
-		<button label="Anhang entfernen" label_selected="Anhang entfernen"
-		     name="remove_attachment" />
-		<button label="Mitteilung senden" label_selected="Mitteilung senden" name="send_notice" />
-		<panel name="drop_target"
-		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
-	</panel>
-	<panel label="Ältere Notiz anzeigen" name="panel_view_past_notice">
-		<text name="lbl">
-			Archivierte Mitteilung
-		</text>
-		<text name="lbl2">
-			Klicken Sie zum Senden einer Mitteilung auf „Neue Mitteilung“.
-		</text>
-		<text name="lbl3">
-			Betreff:
-		</text>
-		<text name="lbl4">
-			Nachricht:
-		</text>
-		<button label="Anlage öffnen" label_selected="Anlage öffnen" name="open_attachment" />
-	</panel>
-</panel>
-
--->

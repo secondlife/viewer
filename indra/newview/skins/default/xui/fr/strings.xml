@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
-	<string name="create_account_url">http://join.secondlife.com/index.php?lang=fr-FR</string>
 	<string name="SECOND_LIFE">
 		Second Life
 	</string>
@@ -80,8 +79,14 @@
 	<string name="LoginDownloadingClothing">
 		Habits en cours de téléchargement...
 	</string>
+	<string name="Quit">
+		Quitter
+	</string>
+	<string name="create_account_url">
+		http://join.secondlife.com/index.php?lang=fr-FR
+	</string>
 	<string name="AgentLostConnection">
-		Il y a peut-être des problèmes techniques dans cette region. Veuillez vérifier votre connexion Internet.
+		Il y a peut-être des problèmes techniques dans cette région.  Veuillez vérifier votre connexion Internet.
 	</string>
 	<string name="TooltipPerson">
 		Personne
@@ -155,11 +160,21 @@
 	<string name="TooltipObjectIMUrl">
 		Cliquez pour afficher la description de cet objet
 	</string>
+	<string name="TooltipMapUrl">
+		Cliquez pour voir cet emplacement sur la carte
+	</string>
 	<string name="TooltipSLAPP">
 		Cliquez pour exécuter la commande secondlife:// command
 	</string>
+	<string name="CurrentURL" value="URL actuelle : [CurrentURL]"/>
+	<string name="SLurlLabelTeleport">
+		Me téléporter vers
+	</string>
+	<string name="SLurlLabelShowOnMap">
+		Afficher la carte pour
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Fermer (&#8984;W)
+		Fermer (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		Fermer (Ctrl+W)
@@ -182,6 +197,12 @@
 	<string name="BUTTON_HELP">
 		Afficher l&apos;aide
 	</string>
+	<string name="Searching">
+		Recherche...
+	</string>
+	<string name="NoneFound">
+		Aucun résultat.
+	</string>
 	<string name="RetrievingData">
 		En cours d&apos;extraction...
 	</string>
@@ -189,13 +210,16 @@
 		Notes de version
 	</string>
 	<string name="LoadingData">
-		Chargement..
+		Chargement...
 	</string>
 	<string name="AvatarNameNobody">
 		(personne)
 	</string>
 	<string name="AvatarNameWaiting">
 		(en attente)
+	</string>
+	<string name="AvatarNameMultiple">
+		(multiple)
 	</string>
 	<string name="AvatarNameHippos">
 		(hippos)
@@ -267,10 +291,10 @@
 		racine
 	</string>
 	<string name="lsl2 script">
-		script lsl2
+		script LSL2
 	</string>
 	<string name="lsl bytecode">
-		bytecode lsl
+		bytecode LSL
 	</string>
 	<string name="tga texture">
 		texture tga
@@ -282,13 +306,13 @@
 		photo
 	</string>
 	<string name="lost and found">
-		objets trouvés
+		Objets trouvés
 	</string>
 	<string name="targa image">
 		image targa
 	</string>
 	<string name="trash">
-		poubelle
+		Poubelle
 	</string>
 	<string name="jpeg image">
 		image jpeg
@@ -308,6 +332,9 @@
 	<string name="symbolic link">
 		lien
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Apparence en cours de modification)
+	</string>
 	<string name="AvatarAway">
 		Absent
 	</string>
@@ -315,7 +342,7 @@
 		Occupé
 	</string>
 	<string name="AvatarMuted">
-		Ignoré
+		Bloqué(e)
 	</string>
 	<string name="anim_express_afraid">
 		Effrayé
@@ -530,6 +557,9 @@
 	<string name="worldmap_offline">
 		Hors ligne
 	</string>
+	<string name="worldmap_results_none_found">
+		Aucun résultat.
+	</string>
 	<string name="Ok">
 		OK
 	</string>
@@ -660,16 +690,16 @@
 		Choisir le répertoire
 	</string>
 	<string name="AvatarSetNotAway">
-		Ne plus me mettre en mode absent
+		Présent
 	</string>
 	<string name="AvatarSetAway">
-		Me mettre en mode absent
+		Absent
 	</string>
 	<string name="AvatarSetNotBusy">
-		Ne plus me mettre en mode occupé
+		Pas occupé
 	</string>
 	<string name="AvatarSetBusy">
-		Me mettre en mode occupé
+		Occupé
 	</string>
 	<string name="shape">
 		Silhouette
@@ -710,8 +740,50 @@
 	<string name="skirt">
 		Jupe
 	</string>
+	<string name="alpha">
+		Alpha
+	</string>
+	<string name="tattoo">
+		Tatouage
+	</string>
 	<string name="invalid">
 		non valide
+	</string>
+	<string name="next">
+		Suivant
+	</string>
+	<string name="ok">
+		OK
+	</string>
+	<string name="GroupNotifyGroupNotice">
+		Note au groupe
+	</string>
+	<string name="GroupNotifyGroupNotices">
+		Notices au groupe
+	</string>
+	<string name="GroupNotifySentBy">
+		Envoyée par
+	</string>
+	<string name="GroupNotifyAttached">
+		Pièce(s) jointe(s) :
+	</string>
+	<string name="GroupNotifyViewPastNotices">
+		Consultez les notices précédentes ou choisissez de ne plus recevoir ces messages ici.
+	</string>
+	<string name="GroupNotifyOpenAttachment">
+		Ouvrir la pièce jointe
+	</string>
+	<string name="GroupNotifySaveAttachment">
+		Enregistrer la pièce jointe
+	</string>
+	<string name="TeleportOffer">
+		Offre de téléportation
+	</string>
+	<string name="StartUpNotifications">
+		De nouvelles notifications sont arrivées en votre absence.
+	</string>
+	<string name="OverflowInfoChannelString">
+		Vous avez %d notification(s) supplémentaire(s)
 	</string>
 	<string name="BodyPartsRightArm">
 		Bras droit
@@ -744,22 +816,56 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aucun objet correspondant ne se trouve dans l&apos;inventaire.
+		Aucun objet correspondant dans l&apos;inventaire.
 	</string>
 	<string name="InventoryNoTexture">
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
+	<string name="no_transfer" value="(pas de transfert)"/>
+	<string name="no_modify" value="(pas de modification)"/>
+	<string name="no_copy" value="(pas de copie)"/>
+	<string name="worn" value="(porté)"/>
+	<string name="link" value="(lien)"/>
+	<string name="broken_link" value="(broken_link)"/>
 	<string name="LoadingContents">
 		chargement des contenus en cours...
 	</string>
 	<string name="NoContents">
 		Aucun contenu
 	</string>
+	<string name="WornOnAttachmentPoint" value="(porté sur [ATTACHMENT_POINT])"/>
+	<string name="PermYes">
+		Oui
+	</string>
+	<string name="PermNo">
+		Non
+	</string>
+	<string name="Chat" value="Chat :"/>
+	<string name="Sound" value="Son :"/>
+	<string name="Wait" value="--- Attendre :"/>
+	<string name="AnimFlagStop" value="Arrêter l&apos;animation :"/>
+	<string name="AnimFlagStart" value="Démarrer l&apos;animation :"/>
+	<string name="Wave" value="Faire signe"/>
+	<string name="HelloAvatar" value="Bonjour, avatar !"/>
+	<string name="ViewAllGestures" value="Tout afficher &gt;&gt;"/>
+	<string name="Animations" value="Animations,"/>
+	<string name="Calling Cards" value="Cartes de visite,"/>
+	<string name="Clothing" value="Habits,"/>
+	<string name="Gestures" value="Gestes,"/>
+	<string name="Landmarks" value="Repères,"/>
+	<string name="Notecards" value="Notes,"/>
+	<string name="Objects" value="Objets,"/>
+	<string name="Scripts" value="Scripts,"/>
+	<string name="Sounds" value="Sons,"/>
+	<string name="Textures" value="Textures,"/>
+	<string name="Snapshots" value="Photos,"/>
+	<string name="No Filters" value="Non"/>
+	<string name="Since Logoff" value="- Depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
 	<string name="InvFolder My Favorites">
-		Mes favoris
+		Mes Favoris
 	</string>
 	<string name="InvFolder Library">
 		Bibliothèque
@@ -1013,6 +1119,15 @@
 	<string name="AgeDaysC">
 		[COUNT] jours
 	</string>
+	<string name="GroupMembersA">
+		[COUNT] membre
+	</string>
+	<string name="GroupMembersB">
+		[COUNT] membres
+	</string>
+	<string name="GroupMembersC">
+		[COUNT] membres
+	</string>
 	<string name="AcctTypeResident">
 		Résident
 	</string>
@@ -1032,13 +1147,13 @@
 		Infos de paiement enregistrées
 	</string>
 	<string name="NoPaymentInfoOnFile">
-		Aucune info de paiement
+		Aucune info de paiement enregistrée
 	</string>
 	<string name="AgeVerified">
-		Âge vérifié
+		Personne dont l&apos;âge a été vérifié
 	</string>
 	<string name="NotAgeVerified">
-		Âge non vérifié
+		Personne dont l&apos;âge n&apos;a pas été vérifié
 	</string>
 	<string name="Center 2">
 		Centrer 2
@@ -1107,7 +1222,7 @@
 		arrêter
 	</string>
 	<string name="CompileSuccessful">
-		Compilation réussie !
+		Compilation réussie !
 	</string>
 	<string name="CompileSuccessfulSaving">
 		Compilation réussie, enregistrement en cours...
@@ -1119,14 +1234,18 @@
 		Script (objet hors de portée)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
-		Objet [OBJECT] possédé par [OWNER]
+		Objet [OBJECT] appartenant à [OWNER]
 	</string>
 	<string name="GroupsNone">
 		aucun
 	</string>
+	<string name="Group" value="(groupe)"/>
 	<string name="Unknown">
 		(Inconnu)
 	</string>
+	<string name="SummaryForTheWeek" value="Récapitulatif de la semaine, début le"/>
+	<string name="NextStipendDay" value="Prochaine prime le"/>
+	<string name="GroupIndividualShare" value="Groupe 	 Part individuelle"/>
 	<string name="Balance">
 		Solde
 	</string>
@@ -1155,25 +1274,31 @@
 		erreur
 	</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		tous les domaines possédés par [OWNER]
+		tous les domaines appartenant à [OWNER]
 	</string>
 	<string name="RegionInfoAllEstatesYouOwn">
-		tous les domaines que vous possédez
+		tous les domaines vous appartenant
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		tous les domaines que vous gérez pour [owner]
+		tous les domaines que vous gérez pour [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Résidents autorisés : ([ALLOWEDAGENTS], max [MAXACCESS])
+		Résidents autorisés : ([ALLOWEDAGENTS], max. [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Groupes autorisés : ([ALLOWEDGROUPS], max [MAXACCESS])
+		Groupes autorisés : ([ALLOWEDGROUPS], max. [MAXACCESS])
 	</string>
 	<string name="CursorPos">
-		Ligne [LINE], Colonne [COLUMN]
+		Ligne [LINE], colonne [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] trouvé(s)
+	</string>
+	<string name="PanelDirTimeStr">
+		[hour12,datetime,slt]:[min,datetime,slt] [ampm,datetime,slt]
+	</string>
+	<string name="PanelDirEventsDateText">
+		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsNewScript">
 		Nouveau script
@@ -1197,8 +1322,10 @@
 		Il n&apos;y a aucun règlement pour ce domaine. Le terrain sur ce domaine est vendu par le propriétaire, non par Linden Lab.  Pour en savoir plus, veuillez contacter le propriétaire.
 	</string>
 	<string name="covenant_last_modified">
-		Dernière modification :
+		Dernière modification :
 	</string>
+	<string name="none_text" value="(aucun)"/>
+	<string name="never_text" value="(jamais)"/>
 	<string name="GroupOwned">
 		Propriété du groupe
 	</string>
@@ -1206,28 +1333,10 @@
 		Public
 	</string>
 	<string name="ClassifiedClicksTxt">
-		Clics : [TELEPORT] téléporter, [MAP] carte, [PROFILE] profile
+		Clics : [TELEPORT] téléportation, [MAP] carte, [PROFILE] profil
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(mise à jour après la publication)
-	</string>
-	<string name="GroupVoteYes">
-		Oui
-	</string>
-	<string name="GroupVoteNo">
-		Non
-	</string>
-	<string name="GroupVoteNoActiveProposals">
-		Il n&apos;y a aucune proposition active actuellement
-	</string>
-	<string name="GroupVoteNoArchivedProposals">
-		Il n&apos;y a aucune proposition archivée actuellement
-	</string>
-	<string name="GroupVoteRetrievingArchivedProposals">
-		Extraction des propositions archivées
-	</string>
-	<string name="GroupVoteRetrievingActiveProposals">
-		Extraction des propositions actives
 	</string>
 	<string name="MultiPreviewTitle">
 		Prévisualiser
@@ -1299,10 +1408,10 @@
 		Annuler
 	</string>
 	<string name="UploadingCosts">
-		Chargement de %s coûts
+		Charger %s coûte
 	</string>
 	<string name="UnknownFileExtension">
-		Extension de fichier inconnue. %s
+		Extension de fichier inconnue .%s
 .wav, .tga, .bmp, .jpg, .jpeg, ou .bvh acceptés
 	</string>
 	<string name="AddLandmarkNavBarMenu">
@@ -1339,10 +1448,10 @@
 		Réception
 	</string>
 	<string name="AM">
-		AM
+		Matin
 	</string>
 	<string name="PM">
-		PM
+		Après-midi
 	</string>
 	<string name="PST">
 		PST
@@ -1360,7 +1469,7 @@
 		Droite
 	</string>
 	<string name="Back">
-		Précédente
+		Arrière
 	</string>
 	<string name="North">
 		Nord
@@ -1375,10 +1484,10 @@
 		Est
 	</string>
 	<string name="Up">
-		Vers le haut
+		Haut
 	</string>
 	<string name="Down">
-		Vers le bas
+		Bas
 	</string>
 	<string name="Any Category">
 		Toutes catégories
@@ -1420,10 +1529,10 @@
 		Adult
 	</string>
 	<string name="Arts&amp;Culture">
-		Art et Culture
+		Arts et culture
 	</string>
 	<string name="Business">
-		Affaires
+		Business
 	</string>
 	<string name="Educational">
 		Éducation
@@ -1438,7 +1547,7 @@
 		Accueil pour les nouveaux
 	</string>
 	<string name="Parks&amp;Nature">
-		Parcs et Nature
+		Parcs et nature
 	</string>
 	<string name="Residential">
 		Résidentiel
@@ -1482,13 +1591,19 @@
 	<string name="---">
 		---
 	</string>
+	<string name="Multiple Media">
+		Médias multiples
+	</string>
+	<string name="Play Media">
+		Lire/pauser le média
+	</string>
 	<string name="MBCmdLineError">
 		Une erreur est survenue lors de la lecture de la ligne de commande.
-Merci de consulter : http://wiki.secondlife.com/wiki/Client_parameters
-Erreur :
+Merci de consulter : http://wiki.secondlife.com/wiki/Client_parameters
+Erreur :
 	</string>
 	<string name="MBCmdLineUsg">
-		[APP_NAME] Utilisation de la ligne de commande :
+		[APP_NAME] - Utilisation de la ligne de commande :
 	</string>
 	<string name="MBUnableToAccessFile">
 		[APP_NAME] ne peut accéder à un fichier requis.
@@ -1504,20 +1619,20 @@ Si le problème persiste, vous devrez peut-être complètement désinstaller pui
 		[APP_NAME] nécessite un microprocesseur AltiVec (version G4 ou antérieure).
 	</string>
 	<string name="MBAlreadyRunning">
-		[APP_NAME] est déjà lancé.
+		[APP_NAME] est déjà en cours d&apos;exécution.
 Vérifiez si une version minimisée du programme apparaît dans votre barre de tâches.
 Si ce message persiste, redémarrez votre ordinateur.
 	</string>
 	<string name="MBFrozenCrashed">
 		[APP_NAME] semble avoir crashé lors de l&apos;utilisation précédente.
-Voulez-vous envoyer un rapport de crash ?
+Voulez-vous envoyer un rapport de crash ?
 	</string>
 	<string name="MBAlert">
 		Alerte
 	</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] ne peut détecter DirectX 9.0b ou une version supérieure.
-[APP_NAME] utilise DirectX pour détecter les matériels et/ou les pilotes qui ne sont pas à jour et peuvent causer des problèmes de stabilité, de performance, ou des plantages.  Bien que vous puissiez utiliser [APP_NAME] sans DirectX, nous vous recommandons de l&apos;utiliser avec DirectX 9.0b.
+[APP_NAME] utilise DirectX pour détecter les matériels et/ou les pilotes qui ne sont pas à jour et peuvent causer des problèmes de stabilité, de performance ou des plantages.  Bien que vous puissiez utiliser [APP_NAME] sans DirectX, nous vous recommandons de l&apos;utiliser avec DirectX 9.0b.
 
 Voulez-vous continuer ?
 	</string>
@@ -1535,11 +1650,11 @@ Veuillez télécharger la dernière version sur www.secondlife.com.
 		Erreur
 	</string>
 	<string name="MBFullScreenErr">
-		Impossible d&apos;ouvrir le mode plein écran de [WIDTH] x [HEIGHT]
+		Impossible d&apos;ouvrir le mode plein écran à [WIDTH] x [HEIGHT].
 Utilisation du mode fenêtré.
 	</string>
 	<string name="MBDestroyWinFailed">
-		Erreur de fermeture lors de la destruction de la fenêtre (DestroyWindow() failed))
+		Erreur de fermeture lors de la destruction de la fenêtre (DestroyWindow() a échoué)
 	</string>
 	<string name="MBShutdownErr">
 		Erreur de fermeture
@@ -1554,14 +1669,13 @@ Utilisation du mode fenêtré.
 		Impossible de trouver la description du format pixel
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] nécessite que True Color (32-bit) soit exécuté dans une fenêtre.
-Veuillez allez sous Panneau de configuration &gt; Affichage &gt; Paramètres et régler la couleur de l&apos;écran sur 32-bit.
-Sinon, lorsque vous choisissez le mode plein écran,  [APP_NAME] ajustera automatiquement l&apos;écran à chaque utilisation.
+		[APP_NAME] nécessite True Color (32 bits) pour s&apos;exécuter.
+Accédez aux paramètres d&apos;affichage de votre ordinateur et réglez le mode couleur sur 32 bits.
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] ne peut pas être lancé car il n&apos;y pas de channel 8 bit accessible.  En général, ceci vient de problèmes avec le pilote de la carte vidéo.
+		[APP_NAME] ne peut pas s&apos;exécuter, car il n&apos;y pas de canal alpha 8 bits accessible.  En général, ceci vient de problèmes avec le pilote de la carte vidéo.
 Assurez-vous d&apos;avoir installé le pilote de carte vidéo le plus récent possible.
- Assurez-vous aussi que votre écran est réglé sur True Clor (22-bit) sous Panneau de configuration &gt; Affichage &gt; Paramètres.
+Assurez-vous aussi que votre écran est réglé sur True Color (32 bits) sous Panneau de configuration &gt; Affichage &gt; Paramètres.
 Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">
@@ -1574,12 +1688,12 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Impossible d&apos;activer le contexte de rendu GL
 	</string>
 	<string name="MBVideoDrvErr">
-		[APP_NAME] ne peut pas être exécuté car les pilotes de votre carte vidéo n&apos;ont pas été installés correctement, ne sont pas à jour, ou sont pour du matériel non pris en charge. Assurez-vous d&apos;avoir des pilotes de cartes vidéos récents, et même si vous avez les plus récents, réinstallez-les.
+		[APP_NAME] ne peut pas s&apos;exécuter car les pilotes de votre carte vidéo n&apos;ont pas été installés correctement, ne sont pas à jour, ou sont pour du matériel non pris en charge. Assurez-vous d&apos;avoir des pilotes de cartes vidéos récents, et même si vous avez les plus récents, réinstallez-les.
 
 Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="5 O&apos;Clock Shadow">
-		Barbe naissante
+		Peu
 	</string>
 	<string name="All White">
 		Tout blancs
@@ -1588,49 +1702,25 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Grand yeux
 	</string>
 	<string name="Arced">
-		Arquées
+		Arqués
 	</string>
 	<string name="Arm Length">
 		Longueur des bras
 	</string>
 	<string name="Attached">
-		Minces
+		Attachés
 	</string>
 	<string name="Attached Earlobes">
-		Largeur des lobes
-	</string>
-	<string name="Back Bangs">
-		Mèches de derrière
-	</string>
-	<string name="Back Bangs Down">
-		Mèches de derrière Bas
-	</string>
-	<string name="Back Bangs Up">
-		Mèches de derrière haut
+		Lobes
 	</string>
 	<string name="Back Fringe">
 		Mèches de derrière
-	</string>
-	<string name="Back Hair">
-		Cheveux de derrière
-	</string>
-	<string name="Back Hair Down">
-		Cheveux de derrière Bas
-	</string>
-	<string name="Back Hair Up">
-		Cheveux de derrière haut
 	</string>
 	<string name="Baggy">
 		Cernés
 	</string>
 	<string name="Bangs">
 		Frange
-	</string>
-	<string name="Bangs Down">
-		Frange Bas
-	</string>
-	<string name="Bangs Up">
-		Frange Haut
 	</string>
 	<string name="Beady Eyes">
 		Yeux perçants
@@ -1639,22 +1729,19 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Taille du ventre
 	</string>
 	<string name="Big">
-		Gros
+		Maxi
 	</string>
 	<string name="Big Butt">
 		Grosses fesses
 	</string>
-	<string name="Big Eyeball">
-		Gros globe oculaire
-	</string>
 	<string name="Big Hair Back">
-		Cheveux volumineux : Derrière
+		Volume : Derrière
 	</string>
 	<string name="Big Hair Front">
-		Cheveux volumineux : Devant
+		Volume : Devant
 	</string>
 	<string name="Big Hair Top">
-		Cheveux volumineux : En haut
+		Volume : Haut
 	</string>
 	<string name="Big Head">
 		Grosse tête
@@ -1720,7 +1807,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Large
 	</string>
 	<string name="Brow Size">
-		Taille des sourcils
+		Taille
 	</string>
 	<string name="Bug Eyes">
 		Yeux globuleux
@@ -1738,7 +1825,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Sourcils touffus
 	</string>
 	<string name="Bushy Hair">
-		Cheveux touffus
+		Beaucoup
 	</string>
 	<string name="Butt Size">
 		Taille des fesses
@@ -1753,7 +1840,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus gonflante
 	</string>
 	<string name="Chaplin">
-		Chaplin
+		Moins
 	</string>
 	<string name="Cheek Bones">
 		Pommettes
@@ -1765,7 +1852,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Angle du menton
 	</string>
 	<string name="Chin Cleft">
-		Fente labiale
+		Fente du menton
 	</string>
 	<string name="Chin Curtains">
 		Favoris
@@ -1789,7 +1876,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effacer
 	</string>
 	<string name="Cleft">
-		Fente
+		Fendu
 	</string>
 	<string name="Close Set Eyes">
 		Yeux rapprochés
@@ -1810,7 +1897,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fermé à droite
 	</string>
 	<string name="Coin Purse">
-		Bijoux de famille
+		Mini
 	</string>
 	<string name="Collar Back">
 		Col arrière
@@ -1821,20 +1908,14 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Corner Down">
 		Coin vers le bas
 	</string>
-	<string name="Corner Normal">
-		Coin normal
-	</string>
 	<string name="Corner Up">
 		Coin vers le haut
 	</string>
 	<string name="Creased">
-		Frippée
+		Fripée
 	</string>
 	<string name="Crooked Nose">
-		Nez en bec d&apos;aigle
-	</string>
-	<string name="Cropped Hair">
-		Garçonne
+		Déviation du nez
 	</string>
 	<string name="Cuff Flare">
 		Jambe
@@ -1854,14 +1935,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Default Heels">
 		Talons par défaut
 	</string>
-	<string name="Default Toe">
-		Orteil par défaut
-	</string>
 	<string name="Dense">
 		Dense
-	</string>
-	<string name="Dense hair">
-		Cheveux denses
 	</string>
 	<string name="Double Chin">
 		Double menton
@@ -1870,16 +1945,16 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Pointant vers le bas
 	</string>
 	<string name="Duffle Bag">
-		Membre viril
+		Maxi
 	</string>
 	<string name="Ear Angle">
 		Angle de l&apos;oreille
 	</string>
 	<string name="Ear Size">
-		Taille de l&apos;oreille
+		Taille
 	</string>
 	<string name="Ear Tips">
-		Pointes de l&apos;oreille
+		Extrémités
 	</string>
 	<string name="Egg Head">
 		Forme de la tête
@@ -1891,13 +1966,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Couleur des yeux
 	</string>
 	<string name="Eye Depth">
-		Profondeur des yeux
+		Profondeur
 	</string>
 	<string name="Eye Lightness">
-		Clarté des yeux
+		Clarté
 	</string>
 	<string name="Eye Opening">
-		Ouverture des yeux
+		Ouverture
 	</string>
 	<string name="Eye Pop">
 		Œil proéminent
@@ -1906,25 +1981,22 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Taille de l&apos;œil
 	</string>
 	<string name="Eye Spacing">
-		Espacement des yeux
-	</string>
-	<string name="Eyeball Size">
-		Taille du globe oculaire
+		Espacement
 	</string>
 	<string name="Eyebrow Arc">
-		Arc des sourcils
+		Arc
 	</string>
 	<string name="Eyebrow Density">
-		Épaisseur des sourcils
+		Épaisseur
 	</string>
 	<string name="Eyebrow Height">
-		Hauteur des sourcils
+		Hauteur
 	</string>
 	<string name="Eyebrow Points">
-		Direction des sourcils
+		Direction
 	</string>
 	<string name="Eyebrow Size">
-		Taille des sourcils
+		Taille
 	</string>
 	<string name="Eyelash Length">
 		Longueur des cils
@@ -1935,17 +2007,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Eyeliner Color">
 		Couleur de l&apos;eyeliner
 	</string>
-	<string name="Eyes Back">
-		Yeux noirs
-	</string>
 	<string name="Eyes Bugged">
 		Yeux globuleux
-	</string>
-	<string name="Eyes Forward">
-		Yeux vers l&apos;avant
-	</string>
-	<string name="Eyes Long Head">
-		Yeux longue tête
 	</string>
 	<string name="Eyes Shear Left Up">
 		Œil gauche vers le haut
@@ -1953,50 +2016,17 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Eyes Shear Right Up">
 		Œil droit vers le haut
 	</string>
-	<string name="Eyes Short Head">
-		Yeux petite tête
-	</string>
-	<string name="Eyes Spread">
-		Espacement des yeux
-	</string>
-	<string name="Eyes Sunken">
-		Yeux enfoncés
-	</string>
-	<string name="Eyes Together">
-		Yeux rapprochés
-	</string>
 	<string name="Face Shear">
 		Visage
 	</string>
 	<string name="Facial Definition">
-		Définition du visage
+		Définition
 	</string>
 	<string name="Far Set Eyes">
 		Yeux écartés
 	</string>
-	<string name="Fat">
-		Grosse
-	</string>
-	<string name="Fat Head">
-		Grosse tête
-	</string>
 	<string name="Fat Lips">
 		Lèvres épaisses
-	</string>
-	<string name="Fat Lower">
-		Inférieure plus épaisse
-	</string>
-	<string name="Fat Lower Lip">
-		Lèvre inférieure épaisse
-	</string>
-	<string name="Fat Torso">
-		Torse épais
-	</string>
-	<string name="Fat Upper">
-		Supérieure plus épaisse
-	</string>
-	<string name="Fat Upper Lip">
-		Lèvre supérieure épaisse
 	</string>
 	<string name="Female">
 		Femme
@@ -2011,7 +2041,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Jambes larges
 	</string>
 	<string name="Flat">
-		Plat
+		Plates
 	</string>
 	<string name="Flat Butt">
 		Fesses plates
@@ -2034,23 +2064,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Freckles">
 		Tâches de rousseur
 	</string>
-	<string name="Front Bangs Down">
-		Mèches de devant longues
-	</string>
-	<string name="Front Bangs Up">
-		Mèches de devant courtes
-	</string>
 	<string name="Front Fringe">
 		Mèches de devant
-	</string>
-	<string name="Front Hair">
-		Cheveux devant
-	</string>
-	<string name="Front Hair Down">
-		Cheveux de devant longs
-	</string>
-	<string name="Front Hair Up">
-		Cheveux de devant courts
 	</string>
 	<string name="Full Back">
 		Arrière touffu
@@ -2080,22 +2095,22 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Cheveux
 	</string>
 	<string name="Hair Back">
-		Cheveux : Derrière
+		Cheveux : Derrière
 	</string>
 	<string name="Hair Front">
-		Cheveux : Devant
+		Cheveux : Devant
 	</string>
 	<string name="Hair Sides">
-		Cheveux : Côtés
+		Cheveux : Côtés
 	</string>
 	<string name="Hair Sweep">
 		Sens de la coiffure
 	</string>
 	<string name="Hair Thickess">
-		Épaisseur des cheveux
+		Épaisseur
 	</string>
 	<string name="Hair Thickness">
-		Épaisseur des cheveux
+		Épaisseur
 	</string>
 	<string name="Hair Tilt">
 		Inclinaison des cheveux
@@ -2107,28 +2122,28 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Vers la droite
 	</string>
 	<string name="Hair Volume">
-		Cheveux : Volume
+		Cheveux : Volume
 	</string>
 	<string name="Hand Size">
 		Taille de la main
 	</string>
 	<string name="Handlebars">
-		Guidons
+		Plus
 	</string>
 	<string name="Head Length">
-		Longueur de la tête
+		Longueur
 	</string>
 	<string name="Head Shape">
-		Forme de la tête
+		Forme
 	</string>
 	<string name="Head Size">
-		Taille de la tête
+		Taille
 	</string>
 	<string name="Head Stretch">
-		Allongement de la tête
+		Allongement
 	</string>
 	<string name="Heel Height">
-		Hauteur des talons
+		Talons
 	</string>
 	<string name="Heel Shape">
 		Forme des talons
@@ -2143,10 +2158,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Talons hauts
 	</string>
 	<string name="High Jaw">
-		Mâchoire haute
+		Haut
 	</string>
 	<string name="High Platforms">
-		Plateformes hautes
+		Haute
 	</string>
 	<string name="High and Tight">
 		Haut et serré
@@ -2161,7 +2176,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Largeur hanche
 	</string>
 	<string name="In">
-		In
+		Rentré
 	</string>
 	<string name="In Shdw Color">
 		Couleur ombre interne
@@ -2170,7 +2185,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Opacité ombre interne
 	</string>
 	<string name="Inner Eye Corner">
-		Coin de l&apos;œil interne
+		Coin interne
 	</string>
 	<string name="Inner Eye Shadow">
 		Ombre de l&apos;œil interne
@@ -2188,7 +2203,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Angle de la mâchoire
 	</string>
 	<string name="Jaw Jut">
-		saillie de la mâchoire
+		Saillie de la mâchoire
 	</string>
 	<string name="Jaw Shape">
 		Forme de la mâchoire
@@ -2206,7 +2221,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Genoux rapprochés
 	</string>
 	<string name="Large">
-		Grande
+		Grand
 	</string>
 	<string name="Large Hands">
 		Grandes mains
@@ -2272,7 +2287,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fente labiale
 	</string>
 	<string name="Lip Cleft Depth">
-		Profondeur de la fente labiale
+		Profondeur fente labiale
 	</string>
 	<string name="Lip Fullness">
 		Volume des lèvres
@@ -2323,10 +2338,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Torse long
 	</string>
 	<string name="Long arms">
-		Longs bras
-	</string>
-	<string name="Longcuffs">
-		Manches longues
+		Bras longs
 	</string>
 	<string name="Loose Pants">
 		Pantalons amples
@@ -2347,10 +2359,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Talons bas
 	</string>
 	<string name="Low Jaw">
-		Mâchoire basse
+		Bas
 	</string>
 	<string name="Low Platforms">
-		Plateformes basses
+		Basse
 	</string>
 	<string name="Low and Loose">
 		Bas et ample
@@ -2362,7 +2374,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Arête plus basse
 	</string>
 	<string name="Lower Cheeks">
-		Joues plus basses
+		Joue inférieure
 	</string>
 	<string name="Male">
 		Homme
@@ -2443,7 +2455,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Coin de la bouche
 	</string>
 	<string name="Mouth Position">
-		Position de la bouche
+		Position
 	</string>
 	<string name="Mowhawk">
 		Mowhawk
@@ -2452,7 +2464,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Musclé
 	</string>
 	<string name="Mutton Chops">
-		Rouflaquettes
+		Longs
 	</string>
 	<string name="Nail Polish">
 		Vernis à ongles
@@ -2485,13 +2497,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Pas de blush
 	</string>
 	<string name="No Eyeliner">
-		Pas de eyeliner
+		Pas d&apos;eyeliner
 	</string>
 	<string name="No Eyeshadow">
 		Pas d&apos;ombre à paupières
-	</string>
-	<string name="No Heels">
-		Pas de talons
 	</string>
 	<string name="No Lipgloss">
 		Pas de brillant à lèvres
@@ -2539,7 +2548,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Angle du bout du nez
 	</string>
 	<string name="Nose Tip Shape">
-		Forme du bout du nez
+		Bout du nez
 	</string>
 	<string name="Nose Width">
 		Largeur du nez
@@ -2549,9 +2558,6 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="Nostril Width">
 		Largeur des narines
-	</string>
-	<string name="Old">
-		Vieux
 	</string>
 	<string name="Opaque">
 		Opaque
@@ -2575,7 +2581,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Orange
 	</string>
 	<string name="Out">
-		Dehors
+		Sorti
 	</string>
 	<string name="Out Shdw Color">
 		Couleur de l&apos;ombre externe
@@ -2584,7 +2590,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Opacité de l&apos;ombre externe
 	</string>
 	<string name="Outer Eye Corner">
-		Coin de l&apos;œil externe
+		Coin externe
 	</string>
 	<string name="Outer Eye Shadow">
 		Ombre de l&apos;œil externe
@@ -2593,7 +2599,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Ombre externe
 	</string>
 	<string name="Overbite">
-		Chevauchement
+		Rentrée
 	</string>
 	<string name="Package">
 		Parties
@@ -2641,19 +2647,16 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus rose
 	</string>
 	<string name="Platform Height">
-		Hauteur de la plateforme
+		Plateforme (hauteur)
 	</string>
 	<string name="Platform Width">
-		Largeur de la plateforme
+		Plateforme (largeur)
 	</string>
 	<string name="Pointy">
 		Pointu
 	</string>
 	<string name="Pointy Heels">
 		Talons pointus
-	</string>
-	<string name="Pointy Toe">
-		Orteil pointu
 	</string>
 	<string name="Ponytail">
 		Queue de cheval
@@ -2668,10 +2671,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Œil droit saillant
 	</string>
 	<string name="Puffy">
-		Gonflé
+		Gonflées
 	</string>
 	<string name="Puffy Eyelids">
-		Paupières gonflées
+		Paupières
 	</string>
 	<string name="Rainbow Color">
 		Couleur de l&apos;arc en ciel
@@ -2679,14 +2682,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Red Hair">
 		Cheveux roux
 	</string>
-	<string name="Red Skin">
-		Peau rouge
-	</string>
 	<string name="Regular">
 		Standard
-	</string>
-	<string name="Regular Muscles">
-		Muscles normaux
 	</string>
 	<string name="Right Part">
 		Raie à droite
@@ -2696,9 +2693,6 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="Round">
 		Rond
-	</string>
-	<string name="Round Forehead">
-		Front rond
 	</string>
 	<string name="Ruddiness">
 		Rougeur
@@ -2712,23 +2706,11 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Saddle Bags">
 		Culotte de cheval
 	</string>
-	<string name="Saddlebags">
-		Culotte de cheval
-	</string>
-	<string name="Scrawny">
-		Maigre
-	</string>
 	<string name="Scrawny Leg">
 		Jambes maigres
 	</string>
 	<string name="Separate">
 		Séparés
-	</string>
-	<string name="Shading">
-		Dégradé
-	</string>
-	<string name="Shadow hair">
-		Cheveux
 	</string>
 	<string name="Shallow">
 		Creux
@@ -2740,16 +2722,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Visage
 	</string>
 	<string name="Shear Front">
-		Devant dégagé
-	</string>
-	<string name="Shear Left">
-		Gauche dégagée
+		Front
 	</string>
 	<string name="Shear Left Up">
 		Haut gauche dégagé
-	</string>
-	<string name="Shear Right">
-		Droite dégagée
 	</string>
 	<string name="Shear Right Up">
 		Haut droit dégagé
@@ -2761,13 +2737,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Dégagé devant
 	</string>
 	<string name="Shift Left">
-		Déplacer vers la gauche
+		Vers la gauche
 	</string>
 	<string name="Shift Mouth">
 		Déplacer la bouche
 	</string>
 	<string name="Shift Right">
-		Déplacer vers la droite
+		Vers la droite
 	</string>
 	<string name="Shirt Bottom">
 		Chemise
@@ -2779,10 +2755,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plis
 	</string>
 	<string name="Shoe Height">
-		Hauteur de la chaussure
+		Hauteur
 	</string>
 	<string name="Short">
-		Court
+		Mini
 	</string>
 	<string name="Short Arms">
 		Bras courts
@@ -2800,7 +2776,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Queue de cheval courte
 	</string>
 	<string name="Short Sideburns">
-		Favoris courts
+		Court
 	</string>
 	<string name="Short Torso">
 		Torse court
@@ -2811,17 +2787,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Shoulders">
 		Épaules
 	</string>
-	<string name="Side Bangs">
-		Mèches sur le côté
-	</string>
-	<string name="Side Bangs Down">
-		Mèches sur le côté en bas
-	</string>
-	<string name="Side Bangs Up">
-		Mèches sur le côté en haut
-	</string>
 	<string name="Side Fringe">
-		Frange sur le côté
+		Mèches sur le côté
 	</string>
 	<string name="Sideburns">
 		Favoris
@@ -2835,41 +2802,38 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Sides Hair Up">
 		Cheveux sur le côté en haut
 	</string>
-	<string name="Skinny">
-		Maigre
-	</string>
 	<string name="Skinny Neck">
 		Cou maigre
 	</string>
 	<string name="Skirt Fit">
-		Taille de la jupe
+		Taille jupe
 	</string>
 	<string name="Skirt Length">
-		Longueur de la jupe
+		Longueur jupe
 	</string>
 	<string name="Slanted Forehead">
 		Front incliné
 	</string>
 	<string name="Sleeve Length">
-		Longueur de la manche
+		Longueur manche
 	</string>
 	<string name="Sleeve Looseness">
-		Ampleur de la manche
+		Ampleur manche
 	</string>
 	<string name="Slit Back">
-		Fente : Derrière
+		Fente : Derrière
 	</string>
 	<string name="Slit Front">
-		Fente : Devant
+		Fente : Devant
 	</string>
 	<string name="Slit Left">
-		Fente : Gauche
+		Fente : Gauche
 	</string>
 	<string name="Slit Right">
-		Fente : Droite
+		Fente : Droite
 	</string>
 	<string name="Small">
-		Petite
+		Mini
 	</string>
 	<string name="Small Hands">
 		Petites mains
@@ -2886,11 +2850,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Socks Length">
 		Longueur des chaussettes
 	</string>
-	<string name="Some">
-		Quelques un(e)s
-	</string>
 	<string name="Soulpatch">
-		Soulpatch
+		Barbichette
 	</string>
 	<string name="Sparse">
 		Rares
@@ -2907,14 +2868,11 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Squash Head">
 		Écraser la tête
 	</string>
-	<string name="Squash/Stretch Head">
-		Allonger/écraser la tête
-	</string>
 	<string name="Stretch Head">
 		Allonger la tête
 	</string>
 	<string name="Sunken">
-		Enfoncées
+		Saillante
 	</string>
 	<string name="Sunken Chest">
 		Poitrine enfoncée
@@ -2928,20 +2886,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Sweep Forward">
 		Vers l&apos;avant
 	</string>
-	<string name="Swept Back">
-		En arrière
-	</string>
-	<string name="Swept Back Hair">
-		Cheveux en arrière
-	</string>
-	<string name="Swept Forward">
-		Vers l&apos;avant
-	</string>
-	<string name="Swept Forward Hair">
-		Cheveux vers l&apos;&apos;avant
-	</string>
 	<string name="Tall">
-		Grand
+		Maxi
 	</string>
 	<string name="Taper Back">
 		Biseauter à l&apos;arrière
@@ -2958,11 +2904,8 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Thick Toe">
 		Orteil épais
 	</string>
-	<string name="Thickness">
-		Épaisseur
-	</string>
 	<string name="Thin">
-		Fins
+		Mince
 	</string>
 	<string name="Thin Eyebrows">
 		Sourcils fins
@@ -2991,12 +2934,6 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Tight Sleeves">
 		Manches serrées
 	</string>
-	<string name="Tilt Left">
-		Pencher sur la gauche
-	</string>
-	<string name="Tilt Right">
-		Pencher sur la droite
-	</string>
 	<string name="Toe Shape">
 		Forme de l&apos;orteil
 	</string>
@@ -3019,7 +2956,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Lisse
 	</string>
 	<string name="Underbite">
-		Rentré
+		Sortie
 	</string>
 	<string name="Unnatural">
 		Artificiel
@@ -3028,10 +2965,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Arête supérieure
 	</string>
 	<string name="Upper Cheeks">
-		Pommettes
+		Pommette
 	</string>
 	<string name="Upper Chin Cleft">
-		Fente du menton supérieure
+		Menton supérieur
 	</string>
 	<string name="Upper Eyelid Fold">
 		Paupière supérieure
@@ -3046,7 +2983,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Hauteur de la taille
 	</string>
 	<string name="Well-Fed">
-		Bien nourri
+		Ronde
 	</string>
 	<string name="White Hair">
 		Cheveux blancs
@@ -3055,7 +2992,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Large
 	</string>
 	<string name="Wide Back">
-		Dos large
+		Derrière large
 	</string>
 	<string name="Wide Front">
 		Devant large
@@ -3064,7 +3001,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Lèvres larges
 	</string>
 	<string name="Wild">
-		Revêche
+		Artificiel
 	</string>
 	<string name="Wrinkles">
 		Rides
@@ -3075,14 +3012,20 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="LocationCtrlEditLandmarkTooltip">
 		Modifier mes repères
 	</string>
+	<string name="LocationCtrlInfoBtnTooltip">
+		En savoir plus sur l&apos;emplacement actuel
+	</string>
+	<string name="LocationCtrlComboBtnTooltip">
+		Historique de mes emplacements
+	</string>
 	<string name="UpdaterWindowTitle">
-		[APP_NAME] Mettre à jour
+		[APP_NAME] - Mise à jour
 	</string>
 	<string name="UpdaterNowUpdating">
-		En train de charger [APP_NAME]...
+		Mise à jour de [APP_NAME]...
 	</string>
 	<string name="UpdaterNowInstalling">
-		En train d&apos;installer [APP_NAME]...
+		Installation de [APP_NAME]...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
 		Le client [APP_NAME] est en train d&apos;être mis à jour.  Cela peut prendre un certain temps, merci de votre patience.
@@ -3104,6 +3047,33 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="UpdaterFailStartTitle">
 		Impossible de lancer le client
+	</string>
+	<string name="IM_logging_string">
+		-- Archivage des IM activé --
+	</string>
+	<string name="IM_typing_start_string">
+		[NAME] est en train d&apos;écrire...
+	</string>
+	<string name="Unnamed">
+		(sans nom)
+	</string>
+	<string name="IM_moderated_chat_label">
+		(Modéré : Voix désactivées par défaut)
+	</string>
+	<string name="IM_unavailable_text_label">
+		Le chat écrit n&apos;est pas disponible pour cet appel.
+	</string>
+	<string name="IM_muted_text_label">
+		Votre chat écrit a été désactivé par un modérateur de groupe.
+	</string>
+	<string name="IM_default_text_label">
+		Cliquez ici pour envoyer un message instantané.
+	</string>
+	<string name="IM_to_label">
+		À
+	</string>
+	<string name="IM_moderator_label">
+		(Modérateur)
 	</string>
 	<string name="only_user_message">
 		Vous êtes le seul participant à cette session.

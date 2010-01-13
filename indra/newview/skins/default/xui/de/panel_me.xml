@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Ich" name="panel_me">
+<panel label="Mein Profil" name="panel_me">
 	<tab_container name="tabs">
-		<panel label="Mein Profil" name="panel_profile"/>
-		<panel label="Auswahl" name="panel_picks"/>
+		<panel label="PROFIL" name="panel_profile"/>
+		<panel label="AUSWAHL" name="panel_picks"/>
 	</tab_container>
 </panel>

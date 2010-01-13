@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Teleport History">
+	<accordion name="history_accordion">
+		<accordion_tab name="today" title="今日"/>
+		<accordion_tab name="yesterday" title="昨日"/>
+		<accordion_tab name="2_days_ago" title="2日前"/>
+		<accordion_tab name="3_days_ago" title="3日前"/>
+		<accordion_tab name="4_days_ago" title="4日前"/>
+		<accordion_tab name="5_days_ago" title="5日前"/>
+		<accordion_tab name="6_days_and_older" title="6日以上前"/>
+		<accordion_tab name="1_month_and_older" title="1ヶ月以上前"/>
+		<accordion_tab name="6_months_and_older" title="半年以上前"/>
+	</accordion>
+	<panel label="bottom_panel" name="bottom_panel"/>
+</panel>

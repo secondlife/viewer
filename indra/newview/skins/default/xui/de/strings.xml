@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
-	<string name="create_account_url">http://join.secondlife.com/index.php?lang=de-DE</string>
 	<string name="SECOND_LIFE">
 		Second Life
 	</string>
@@ -80,8 +79,14 @@
 	<string name="LoginDownloadingClothing">
 		Kleidung wird geladen...
 	</string>
+	<string name="Quit">
+		Beenden
+	</string>
+	<string name="create_account_url">
+		http://join.secondlife.com/index.php?lang=de-DE
+	</string>
 	<string name="AgentLostConnection">
-		In dieser Region kann es zu Problemen kommen. Bitte überprüfen Sie Ihre Internetverbindung.
+		In dieser Region kann es zu Problemen kommen.  Bitte überprüfen Sie Ihre Internetverbindung.
 	</string>
 	<string name="TooltipPerson">
 		Person
@@ -155,8 +160,18 @@
 	<string name="TooltipObjectIMUrl">
 		Anklicken, um Beschreibung des Objekts anzuzeigen
 	</string>
+	<string name="TooltipMapUrl">
+		Klicken, um diese Position auf der Karte anzuzeigen
+	</string>
 	<string name="TooltipSLAPP">
 		Anklicken, um Befehl secondlife:// auszuführen
+	</string>
+	<string name="CurrentURL" value="CurrentURL: [CurrentURL]"/>
+	<string name="SLurlLabelTeleport">
+		Teleportieren nach
+	</string>
+	<string name="SLurlLabelShowOnMap">
+		Karte anzeigen für
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Schließen (&#8984;W)
@@ -182,6 +197,12 @@
 	<string name="BUTTON_HELP">
 		Hilfe anzeigen
 	</string>
+	<string name="Searching">
+		Suchen...
+	</string>
+	<string name="NoneFound">
+		Nicht gefunden.
+	</string>
 	<string name="RetrievingData">
 		Laden...
 	</string>
@@ -196,6 +217,9 @@
 	</string>
 	<string name="AvatarNameWaiting">
 		(wartet)
+	</string>
+	<string name="AvatarNameMultiple">
+		(mehrere)
 	</string>
 	<string name="AvatarNameHippos">
 		(hippos)
@@ -308,6 +332,9 @@
 	<string name="symbolic link">
 		Link
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Aussehen wird bearbeitet)
+	</string>
 	<string name="AvatarAway">
 		Abwesend
 	</string>
@@ -315,7 +342,7 @@
 		Beschäftigt
 	</string>
 	<string name="AvatarMuted">
-		Stummgeschaltet
+		Ignoriert
 	</string>
 	<string name="anim_express_afraid">
 		Ängstlich
@@ -530,6 +557,9 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
+	<string name="worldmap_results_none_found">
+		Nicht gefunden.
+	</string>
 	<string name="Ok">
 		OK
 	</string>
@@ -660,16 +690,16 @@
 		Verzeichnis auswählen
 	</string>
 	<string name="AvatarSetNotAway">
-		Als anwesend anzeigen
+		Nicht abwesend
 	</string>
 	<string name="AvatarSetAway">
-		Als abwesend anzeigen
+		Abwesend
 	</string>
 	<string name="AvatarSetNotBusy">
-		Als nicht beschäftigt anzeigen
+		Nicht beschäftigt
 	</string>
 	<string name="AvatarSetBusy">
-		Als beschäftigt anzeigen
+		Beschäftigt
 	</string>
 	<string name="shape">
 		Form
@@ -710,8 +740,50 @@
 	<string name="skirt">
 		Rock
 	</string>
+	<string name="alpha">
+		Alpha
+	</string>
+	<string name="tattoo">
+		Tätowierung
+	</string>
 	<string name="invalid">
 		ungültig
+	</string>
+	<string name="next">
+		Weiter
+	</string>
+	<string name="ok">
+		OK
+	</string>
+	<string name="GroupNotifyGroupNotice">
+		Gruppenmitteilung
+	</string>
+	<string name="GroupNotifyGroupNotices">
+		Gruppenmitteilungen
+	</string>
+	<string name="GroupNotifySentBy">
+		Gesendet von
+	</string>
+	<string name="GroupNotifyAttached">
+		Im Anhang:
+	</string>
+	<string name="GroupNotifyViewPastNotices">
+		Alte Mitteilungen anzeigen oder hier Auswahl treffen, um keine Mitteilungen mehr zu erhalten.
+	</string>
+	<string name="GroupNotifyOpenAttachment">
+		Anlage öffnen
+	</string>
+	<string name="GroupNotifySaveAttachment">
+		Siehe Anhang
+	</string>
+	<string name="TeleportOffer">
+		Teleport-Angebot
+	</string>
+	<string name="StartUpNotifications">
+		Sie haben neue Benachrichtigungen erhalten, während Sie abwesend waren.
+	</string>
+	<string name="OverflowInfoChannelString">
+		Sie haben noch %d weitere Benachrichtigungen
 	</string>
 	<string name="BodyPartsRightArm">
 		Rechter Arm
@@ -749,12 +821,46 @@
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
+	<string name="no_transfer" value="(kein Transferieren)"/>
+	<string name="no_modify" value="(kein Bearbeiten)"/>
+	<string name="no_copy" value="(kein Kopieren)"/>
+	<string name="worn" value="(getragen)"/>
+	<string name="link" value="(Link)"/>
+	<string name="broken_link" value="(unvollständiger_Link)"/>
 	<string name="LoadingContents">
 		Inhalte werden geladen...
 	</string>
 	<string name="NoContents">
 		Keine Inhalte
 	</string>
+	<string name="WornOnAttachmentPoint" value="(getragen am [ATTACHMENT_POINT])"/>
+	<string name="PermYes">
+		Ja
+	</string>
+	<string name="PermNo">
+		Nein
+	</string>
+	<string name="Chat" value="Chat:"/>
+	<string name="Sound" value="Sound:"/>
+	<string name="Wait" value="--- Warten:"/>
+	<string name="AnimFlagStop" value="Animation stoppen:"/>
+	<string name="AnimFlagStart" value="Animation starten:"/>
+	<string name="Wave" value="Winken"/>
+	<string name="HelloAvatar" value="Hallo Avatar!"/>
+	<string name="ViewAllGestures" value="Alle anzeigen &gt;&gt;"/>
+	<string name="Animations" value="Animationen,"/>
+	<string name="Calling Cards" value="Visitenkarten,"/>
+	<string name="Clothing" value="Kleidung,"/>
+	<string name="Gestures" value="Gesten,"/>
+	<string name="Landmarks" value="Landmarken,"/>
+	<string name="Notecards" value="Notizkarten,"/>
+	<string name="Objects" value="Objekte,"/>
+	<string name="Scripts" value="Skripts,"/>
+	<string name="Sounds" value="Sounds,"/>
+	<string name="Textures" value="Texturen,"/>
+	<string name="Snapshots" value="Fotos,"/>
+	<string name="No Filters" value="Nein"/>
+	<string name="Since Logoff" value="- Seit Abmeldung"/>
 	<string name="InvFolder My Inventory">
 		Mein Inventar
 	</string>
@@ -1013,6 +1119,15 @@
 	<string name="AgeDaysC">
 		[COUNT] Tage
 	</string>
+	<string name="GroupMembersA">
+		[COUNT] Mitglied
+	</string>
+	<string name="GroupMembersB">
+		[COUNT] Mitglieder
+	</string>
+	<string name="GroupMembersC">
+		[COUNT] Mitglieder
+	</string>
 	<string name="AcctTypeResident">
 		Einwohner
 	</string>
@@ -1124,9 +1239,13 @@
 	<string name="GroupsNone">
 		keine
 	</string>
+	<string name="Group" value="(Gruppe)"/>
 	<string name="Unknown">
 		(unbekannt)
 	</string>
+	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am"/>
+	<string name="NextStipendDay" value="Der nächste Stipendium-Tag ist"/>
+	<string name="GroupIndividualShare" value="Gruppenanteil	Einzelanteil"/>
 	<string name="Balance">
 		Kontostand
 	</string>
@@ -1158,10 +1277,10 @@
 		alle Grundstücke gehören [OWNER]
 	</string>
 	<string name="RegionInfoAllEstatesYouOwn">
-		alle Grundstücke, die Ihnen gehört haben
+		alle Grundstücke, die Sie besitzen
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		alle Grundstücke, die Sie für [OWNER] verwaltet haben
+		alle Grundstücke, die Sie für [OWNER] verwalten
 	</string>
 	<string name="RegionInfoAllowedResidents">
 		Zulässige Einwohner: ([ALLOWEDAGENTS], max [MAXACCESS])
@@ -1174,6 +1293,12 @@
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] gefunden
+	</string>
+	<string name="PanelDirTimeStr">
+		[hour12,datetime,slt]:[min,datetime,slt] [ampm,datetime,slt]
+	</string>
+	<string name="PanelDirEventsDateText">
+		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsNewScript">
 		Neues Skript
@@ -1199,6 +1324,8 @@
 	<string name="covenant_last_modified">
 		Zuletzt geändert:
 	</string>
+	<string name="none_text" value="(keiner)"/>
+	<string name="never_text" value="(nie)"/>
 	<string name="GroupOwned">
 		In Gruppenbesitz
 	</string>
@@ -1210,24 +1337,6 @@
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(wird nach Veröffentlichung aktualisiert)
-	</string>
-	<string name="GroupVoteYes">
-		Ja
-	</string>
-	<string name="GroupVoteNo">
-		Nein
-	</string>
-	<string name="GroupVoteNoActiveProposals">
-		Zurzeit sind keine Umfragen aktiv
-	</string>
-	<string name="GroupVoteNoArchivedProposals">
-		Zurzeit sind keine Umfragen aktiv
-	</string>
-	<string name="GroupVoteRetrievingArchivedProposals">
-		Archivierte Umfragen werden geladen
-	</string>
-	<string name="GroupVoteRetrievingActiveProposals">
-		Aktive Umfragen werden geladen
 	</string>
 	<string name="MultiPreviewTitle">
 		Vorschau
@@ -1360,7 +1469,7 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 		Rechts
 	</string>
 	<string name="Back">
-		Zurück
+		Hinten
 	</string>
 	<string name="North">
 		Norden
@@ -1408,7 +1517,7 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 		Dienstleistungen
 	</string>
 	<string name="Personal">
-		Verschiedenes
+		Sonstiges
 	</string>
 	<string name="None">
 		Keiner
@@ -1423,7 +1532,7 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 		Kunst &amp; Kultur
 	</string>
 	<string name="Business">
-		Business
+		Firmen
 	</string>
 	<string name="Educational">
 		Bildung
@@ -1481,6 +1590,12 @@ Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 	</string>
 	<string name="---">
 		---
+	</string>
+	<string name="Multiple Media">
+		Mehrere Medien
+	</string>
+	<string name="Play Media">
+		Medien Abspielen/Pausieren
 	</string>
 	<string name="MBCmdLineError">
 		Beim Parsen der Befehlszeile wurde ein Fehler festgestellt.
@@ -1554,9 +1669,8 @@ Ausführung erfolgt in Fenster.
 		Beschreibung für Pixelformat nicht verfügbar
 	</string>
 	<string name="MBTrueColorWindow">
-		Um [APP_NAME] in einem Fenster auszuführen, ist True Color (32-bit) erforderlich.
-Klicken Sie auf Systemsteuerung &gt; Anzeige &gt; Einstellungen und stellen Sie den Bildschirm auf 32-bit Farbe ein.
-Wenn Sie die Anwendung im Modus Vollbildschirm ausführen möchten, dann wird [APP_NAME] den Bildschirm automatisch während der Ausführung anpassen.
+		Um [APP_NAME] auszuführen, ist True Color (32-bit) erforderlich.
+Klicken Sie öffnen Sie auf Ihrem Computer die Einstellungen für die Anzeige und stellen Sie den Bildschirm auf 32-bit Farbe ein.
 	</string>
 	<string name="MBAlpha">
 		[APP_NAME] kann nicht ausgeführt werden, da kein 8-Bit-Alpha-Kanal verfügbar ist.  Dies geschieht normalerweise bei Problemen mit dem Treiber der Video-Karte.
@@ -1599,38 +1713,14 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Attached Earlobes">
 		Angewachsene Ohrläppchen
 	</string>
-	<string name="Back Bangs">
-		Nackenhaar
-	</string>
-	<string name="Back Bangs Down">
-		Lang
-	</string>
-	<string name="Back Bangs Up">
-		Kurz
-	</string>
 	<string name="Back Fringe">
 		Nackenfransen
-	</string>
-	<string name="Back Hair">
-		Hinterkopfhaar
-	</string>
-	<string name="Back Hair Down">
-		lang
-	</string>
-	<string name="Back Hair Up">
-		kurz
 	</string>
 	<string name="Baggy">
 		Tränensäcke
 	</string>
 	<string name="Bangs">
 		Pony
-	</string>
-	<string name="Bangs Down">
-		Pony lang
-	</string>
-	<string name="Bangs Up">
-		Pony kurz
 	</string>
 	<string name="Beady Eyes">
 		Knopfaugen
@@ -1643,9 +1733,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Big Butt">
 		Großer Hintern
-	</string>
-	<string name="Big Eyeball">
-		Großer Augapfel
 	</string>
 	<string name="Big Hair Back">
 		Volumen: Hinten
@@ -1821,9 +1908,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Corner Down">
 		Nach unten
 	</string>
-	<string name="Corner Normal">
-		Normal
-	</string>
 	<string name="Corner Up">
 		Nach oben
 	</string>
@@ -1832,9 +1916,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Crooked Nose">
 		Krumme Nase
-	</string>
-	<string name="Cropped Hair">
-		Kurze Haare
 	</string>
 	<string name="Cuff Flare">
 		Hosenaufschlag
@@ -1854,14 +1935,8 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Default Heels">
 		Standardabsätze
 	</string>
-	<string name="Default Toe">
-		Standardspitze
-	</string>
 	<string name="Dense">
 		Dicht
-	</string>
-	<string name="Dense hair">
-		Dichtes Haar
 	</string>
 	<string name="Double Chin">
 		Doppelkinn
@@ -1908,9 +1983,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Eye Spacing">
 		Augenstand
 	</string>
-	<string name="Eyeball Size">
-		Größe des Augapfels
-	</string>
 	<string name="Eyebrow Arc">
 		Brauenbogen
 	</string>
@@ -1935,35 +2007,14 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Eyeliner Color">
 		Farbe des Eyeliners
 	</string>
-	<string name="Eyes Back">
-		Augen zurück
-	</string>
 	<string name="Eyes Bugged">
 		Glubschaugen
-	</string>
-	<string name="Eyes Forward">
-		Augen nach vorne
-	</string>
-	<string name="Eyes Long Head">
-		Augen langer Kopf
 	</string>
 	<string name="Eyes Shear Left Up">
 		Augen Verzerrung links hoch
 	</string>
 	<string name="Eyes Shear Right Up">
 		Augen Verzerrung rechts hoch
-	</string>
-	<string name="Eyes Short Head">
-		Augen kurzer Kopf
-	</string>
-	<string name="Eyes Spread">
-		Augen auseinander
-	</string>
-	<string name="Eyes Sunken">
-		eingesunkene Augen
-	</string>
-	<string name="Eyes Together">
-		Augen zusammen
 	</string>
 	<string name="Face Shear">
 		Gesichtsverzerrung
@@ -1974,29 +2025,8 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Far Set Eyes">
 		Weit auseinander
 	</string>
-	<string name="Fat">
-		Dick
-	</string>
-	<string name="Fat Head">
-		Dicker Kopf
-	</string>
 	<string name="Fat Lips">
 		Volle Lippen
-	</string>
-	<string name="Fat Lower">
-		Volle Unterlippe
-	</string>
-	<string name="Fat Lower Lip">
-		Volle Unterlippe
-	</string>
-	<string name="Fat Torso">
-		Dicker Körper
-	</string>
-	<string name="Fat Upper">
-		Volle Oberlippe
-	</string>
-	<string name="Fat Upper Lip">
-		Volle Oberlippe
 	</string>
 	<string name="Female">
 		weiblich
@@ -2034,23 +2064,8 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Freckles">
 		Sommersprossen
 	</string>
-	<string name="Front Bangs Down">
-		Langer Pony
-	</string>
-	<string name="Front Bangs Up">
-		Kurzer Pony
-	</string>
 	<string name="Front Fringe">
 		Fransen, vorne
-	</string>
-	<string name="Front Hair">
-		Vorderhaar
-	</string>
-	<string name="Front Hair Down">
-		langes Vorderhaar
-	</string>
-	<string name="Front Hair Up">
-		Kurzes Vorderhaar
 	</string>
 	<string name="Full Back">
 		Hinten volles Haar
@@ -2325,9 +2340,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Long arms">
 		Lange Arme
 	</string>
-	<string name="Longcuffs">
-		Manschetten
-	</string>
 	<string name="Loose Pants">
 		Weite Hosen
 	</string>
@@ -2490,9 +2502,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="No Eyeshadow">
 		Kein Lidschatten
 	</string>
-	<string name="No Heels">
-		Keine Absätze
-	</string>
 	<string name="No Lipgloss">
 		Kein Lipgloss
 	</string>
@@ -2549,9 +2558,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Nostril Width">
 		Größe
-	</string>
-	<string name="Old">
-		Alt
 	</string>
 	<string name="Opaque">
 		Deckend
@@ -2652,9 +2658,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Pointy Heels">
 		Pfennigabsätze
 	</string>
-	<string name="Pointy Toe">
-		Spitz
-	</string>
 	<string name="Ponytail">
 		Pferdeschwanz
 	</string>
@@ -2679,14 +2682,8 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Red Hair">
 		Rote Haare
 	</string>
-	<string name="Red Skin">
-		Rote Haut
-	</string>
 	<string name="Regular">
 		Normal
-	</string>
-	<string name="Regular Muscles">
-		Normal muskulös
 	</string>
 	<string name="Right Part">
 		Scheitel rechts
@@ -2696,9 +2693,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Round">
 		Rund
-	</string>
-	<string name="Round Forehead">
-		Runde Stirn
 	</string>
 	<string name="Ruddiness">
 		Röte
@@ -2712,23 +2706,11 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Saddle Bags">
 		Hüftspeck
 	</string>
-	<string name="Saddlebags">
-		Hüftspeck
-	</string>
-	<string name="Scrawny">
-		Dürr
-	</string>
 	<string name="Scrawny Leg">
 		Dürres Bein
 	</string>
 	<string name="Separate">
 		Auseinander
-	</string>
-	<string name="Shading">
-		Schattierung
-	</string>
-	<string name="Shadow hair">
-		Schattenhaar
 	</string>
 	<string name="Shallow">
 		Flach
@@ -2742,14 +2724,8 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Shear Front">
 		Vorne rasiert
 	</string>
-	<string name="Shear Left">
-		Links
-	</string>
 	<string name="Shear Left Up">
 		Links
-	</string>
-	<string name="Shear Right">
-		Rechts
 	</string>
 	<string name="Shear Right Up">
 		Rechts
@@ -2811,15 +2787,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Shoulders">
 		Schultern
 	</string>
-	<string name="Side Bangs">
-		Seitlicher Pony
-	</string>
-	<string name="Side Bangs Down">
-		Lang
-	</string>
-	<string name="Side Bangs Up">
-		Kurz
-	</string>
 	<string name="Side Fringe">
 		Seitliche Fransen
 	</string>
@@ -2834,9 +2801,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Sides Hair Up">
 		Kurz
-	</string>
-	<string name="Skinny">
-		Dünn
 	</string>
 	<string name="Skinny Neck">
 		Dünner Hals
@@ -2886,9 +2850,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Socks Length">
 		Strumpflänge
 	</string>
-	<string name="Some">
-		Etwas
-	</string>
 	<string name="Soulpatch">
 		Unterlippenbart
 	</string>
@@ -2906,9 +2867,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Squash Head">
 		Gestaucht
-	</string>
-	<string name="Squash/Stretch Head">
-		Gestretcht/Gestaucht
 	</string>
 	<string name="Stretch Head">
 		Gestreckt
@@ -2928,18 +2886,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="Sweep Forward">
 		Nach vorne
 	</string>
-	<string name="Swept Back">
-		Nach hinten
-	</string>
-	<string name="Swept Back Hair">
-		Haar nach hinten
-	</string>
-	<string name="Swept Forward">
-		Haare nach vorne
-	</string>
-	<string name="Swept Forward Hair">
-		Haare nach vorne
-	</string>
 	<string name="Tall">
 		Groß
 	</string>
@@ -2957,9 +2903,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Thick Toe">
 		Dick
-	</string>
-	<string name="Thickness">
-		Dicke
 	</string>
 	<string name="Thin">
 		Dünn
@@ -2990,12 +2933,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Tight Sleeves">
 		Enge Ärmel
-	</string>
-	<string name="Tilt Left">
-		Nach links
-	</string>
-	<string name="Tilt Right">
-		Nach rechts
 	</string>
 	<string name="Toe Shape">
 		Spitze
@@ -3075,6 +3012,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="LocationCtrlEditLandmarkTooltip">
 		Meine Landmarken bearbeiten
 	</string>
+	<string name="LocationCtrlInfoBtnTooltip">
+		Weitere Informationen über die aktuelle Position
+	</string>
+	<string name="LocationCtrlComboBtnTooltip">
+		Mein Reiseverlauf
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung
 	</string>
@@ -3104,6 +3047,33 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="UpdaterFailStartTitle">
 		Viewer konnte nicht gestartet werden
+	</string>
+	<string name="IM_logging_string">
+		-- Instant-Message-Protokoll aktiviert --
+	</string>
+	<string name="IM_typing_start_string">
+		[NAME] tippt...
+	</string>
+	<string name="Unnamed">
+		(Nicht benannt)
+	</string>
+	<string name="IM_moderated_chat_label">
+		(Moderiert: Stimmen in der Standardeinstellung stummgeschaltet)
+	</string>
+	<string name="IM_unavailable_text_label">
+		Für diese Verbindung ist kein Text-Chat verfügbar.
+	</string>
+	<string name="IM_muted_text_label">
+		Ihr Text-Chat wurde von einem Gruppenmoderator deaktiviert.
+	</string>
+	<string name="IM_default_text_label">
+		Für Instant Message hier klicken.
+	</string>
+	<string name="IM_to_label">
+		Bis
+	</string>
+	<string name="IM_moderator_label">
+		(Moderator)
 	</string>
 	<string name="only_user_message">
 		Sie sind der einzige Benutzer in dieser Sitzung.

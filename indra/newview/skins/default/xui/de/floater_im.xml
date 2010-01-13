@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Instant Message">
 	<string name="only_user_message">
 		Sie sind der einzige Benutzer in dieser Sitzung.
@@ -10,7 +10,7 @@
 		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
 	</string>
 	<string name="muted_message">
-		Sie haben diesen Einwohner stummgeschaltet.Wenn Sie ihm eine Nachricht senden, wird die Stummschaltung automatisch aufgehoben.
+		Sie haben diesen Einwohner ignoriert. Wenn Sie eine Nachricht senden, wird dieser freigeschaltet.
 	</string>
 	<string name="generic_request_error">
 		Fehler bei Anfrage, bitte versuchen Sie es später.

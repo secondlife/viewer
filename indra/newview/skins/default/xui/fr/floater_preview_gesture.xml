@@ -1,62 +1,66 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
-	<string name="stop_txt">
+	<floater.string name="step_anim">
+		Animation à jouer :
+	</floater.string>
+	<floater.string name="step_sound">
+		Son à lire :
+	</floater.string>
+	<floater.string name="step_chat">
+		Chatter pour dire :
+	</floater.string>
+	<floater.string name="step_wait">
+		Attendre :
+	</floater.string>
+	<floater.string name="stop_txt">
 		Stop
-	</string>
-	<string name="preview_txt">
+	</floater.string>
+	<floater.string name="preview_txt">
 		Prévisualiser
-	</string>
-	<string name="none_text">
+	</floater.string>
+	<floater.string name="none_text">
 		-- Aucune --
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Geste : [NAME]
+	</floater.string>
 	<text name="desc_label">
 		Description :
 	</text>
 	<text name="trigger_label">
 		Déclencheur :
 	</text>
-	<text name="replace_text"
-	     tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste.">
+	<text name="replace_text" tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste.">
 		Remplacer par :
 	</text>
-	<line_editor left="310" name="replace_editor"
-	     tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste"
-	     width="120" />
+	<line_editor left="310" name="replace_editor" tool_tip="Remplacer les raccourcis avec ces mots. Par exemple, remplacer le mot-clé « salut » par « bonjour » fera dire « je venais dire bonjour » au lieu de « je venais dire salut » dans le chat, et déclenchera le geste" width="120"/>
 	<text name="key_label">
 		Raccourci :
 	</text>
-	<combo_box label="Aucun" name="modifier_combo" width="55" />
-	<combo_box label="Aucun" name="key_combo" width="55" />
+	<combo_box label="Aucun" name="modifier_combo" width="55"/>
+	<combo_box label="Aucun" name="key_combo" width="55"/>
 	<text name="library_label">
 		Bibliothèque :
 	</text>
+	<scroll_list name="library_list"/>
+	<button label="Ajouter &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Étapes :
 	</text>
-	<scroll_list name="library_list">
-		Animation
-Son
-Chat
-Attendre
-	</scroll_list>
-	<button label="Ajouter &gt;&gt;" name="add_btn" />
-	<button label="Monter" name="up_btn" />
-	<button label="Descendre" name="down_btn" />
-	<button label="Supprimer" name="delete_btn" />
-	<text name="help_label">
-		Toutes les étapes ont lieu
-simultanément, sauf si vous
-ajoutez des pauses.
-	</text>
+	<button label="Vers le haut" name="up_btn"/>
+	<button label="Vers le bas" name="down_btn"/>
+	<button label="Supprimer" name="delete_btn"/>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start" label="Commencer" />
-		<radio_item name="stop" label="Stop" />
+		<radio_item label="Lancer" name="start"/>
+		<radio_item label="Arrêter" name="stop"/>
 	</radio_group>
-	<check_box label="jusqu&apos;à la fin des animations" name="wait_anim_check" />
-	<check_box label="temps en secondes" name="wait_time_check" />
-	<line_editor left_delta="130" name="wait_time_editor" />
-	<check_box label="Actifs" name="active_check"
-	     tool_tip="Les gestes actifs peuvent être déclenchés en saisissant leur raccourci dans le chat ou en appuyant sur les raccourcis. Les gestes deviennent généralement inactifs lorsqu&apos;il y a un conflit entre les raccourcis." />
-	<button label="Prévisualiser" name="preview_btn" width="86" />
-	<button label="Enregistrer" name="save_btn" width="86" left_delta="96"/>
+	<check_box label="jusqu&apos;à la fin des animations" name="wait_anim_check"/>
+	<check_box label="temps en secondes" name="wait_time_check"/>
+	<line_editor left_delta="130" name="wait_time_editor"/>
+	<text name="help_label">
+		Toutes les étapes ont lieu en même temps si vous n&apos;ajoutez pas d&apos;étapes d&apos;attente.
+	</text>
+	<check_box label="Actifs" name="active_check" tool_tip="Les gestes actifs peuvent être déclenchés en saisissant leur raccourci dans le chat ou en appuyant sur les raccourcis. Les gestes deviennent généralement inactifs lorsqu&apos;il y a un conflit entre les raccourcis."/>
+	<button label="Prévisualiser" name="preview_btn" width="86"/>
+	<button label="Enregistrer" left_delta="96" name="save_btn" width="86"/>
 </floater>

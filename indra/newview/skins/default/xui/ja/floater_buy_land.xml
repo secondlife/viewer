@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="土地を購入">
+<floater name="buy land" title="土地の購入">
 	<text name="region_name_label">
 		地域：
 	</text>
@@ -51,15 +51,15 @@
 		サイズ：
 	</text>
 	<text bottom_delta="-37" height="48" name="info_size">
-		1024平方メートル
+		1024 平方メートル
 	</text>
 	<text name="info_price_label">
 		価格：
 	</text>
 	<text name="info_price">
 		L$ 1500
-		(L$ 1.1/平方メートル)
-		オブジェクトも土地販売価格に含まれます
+(L$ 1.1/平方メートル)
+オブジェクトも土地販売価格に含まれます
 	</text>
 	<text name="info_action">
 		この土地を買うと：
@@ -75,16 +75,16 @@
 		土地を保有できるのはプレミアム・メンバーだけです
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="月額9.95米ドル、月払い" />
-		<combo_box.item name="US$7.50/month,billedquarterly" label="月額7.50米ドル、年4回払い" />
-		<combo_box.item name="US$6.00/month,billedannually" label="月額6.00米ドル、年払い" />
+		<combo_box.item label="月額 9.95米ドル、 月払い" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="月額 7.50米ドル、 年4回3ヶ月毎" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="月額 6.00米ドル、 年間一括払い" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		毎月の土地使用料をUS$40に引き上げます
 	</text>
 	<text name="land_use_reason">
-		あなたは1,309平方メートルの土地を所有しています。 
-この区画は512平方メートルです。
+		あなたは 1309 平方メートルの土地を所有しています。
+この区画の大きさは、512 平方メートルです。
 	</text>
 	<text name="purchase_action">
 		Joe ResidentにL$4000支払って土地を購入
@@ -99,12 +99,12 @@
 		1000
 	</line_editor>
 	<text name="currency_est">
-		約US$ [AMOUNT2]
+		約 [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		所持金は L$2,100です。
 	</text>
-	<check_box label="[AMOUNT]平方メートルの貢献面積をグループから取り除く" name="remove_contribution"/>
+	<check_box label="グループから [AMOUNT] 平方メートルの貢献を取り除きます。" name="remove_contribution"/>
 	<button label="購入" name="buy_btn"/>
 	<button label="取り消し" name="cancel_btn"/>
 	<string name="can_resell">
@@ -181,16 +181,16 @@
 		あなたのアカウントで土地を所有できます
 	</string>
 	<string name="land_holdings">
-		あなたは [BUYER] 平方メートルの土地を所有しています
+		あなたは、[BUYER] 平方メートルの土地を所有しています。
 	</string>
 	<string name="pay_to_for_land">
 		この土地の代金として、[SELLER]にL$[AMOUNT]を支払う
 	</string>
 	<string name="buy_for_US">
-		約US$ [AMOUNT2]でL$ [AMOUNT]を購入
+		L$ [AMOUNT] を、約 [LOCAL_AMOUNT] で購入します。
 	</string>
 	<string name="parcel_meters">
-		この区画は [AMOUNT] 平方メートルあります
+		この区画は [AMOUNT] 平方メートルです。
 	</string>
 	<string name="premium_land">
 		この土地は割り増し付です。 [AMOUNT] 平方メートルの料金がかかります。
@@ -199,9 +199,8 @@
 		この土地はディスカウントされています。 [AMOUNT] 平方メートルの料金がかかります。
 	</string>
 	<string name="meters_supports_object">
-		[AMOUNT]平方メートルであれば、
-[AMOUNT2]個のオブジェクトがサポ
-ートされます
+		[AMOUNT] 平方メートル
+オブジェクト [AMOUNT2] 個サポート
 	</string>
 	<string name="sold_with_objects">
 		オブジェクトと共に販売済み
@@ -211,7 +210,7 @@
 	</string>
 	<string name="info_price_string">
 		L$ [PRICE]
-（L$ [PRICE_PER_SQM]/平方メートル）
+（L$[PRICE_PER_SQM]/平方メートル）
 [SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">

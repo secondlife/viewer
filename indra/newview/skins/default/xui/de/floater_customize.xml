@@ -14,8 +14,8 @@
 			<button label="Oberkörper" label_selected="Oberkörper" name="Torso"/>
 			<button label="Beine" label_selected="Beine" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item name="radio" label="Weiblich"/>
-				<radio_item name="radio2" label="Männlich"/>
+				<radio_item label="Weiblich" name="radio"/>
+				<radio_item label="Männlich" name="radio2"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -156,7 +156,7 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
-		<panel label="Kleidung" name="clothes_placeholder"/>
+		<placeholder label="Kleidung" name="clothes_placeholder"/>
 		<panel label="Hemd" name="Shirt">
 			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
@@ -473,8 +473,80 @@ und diesen anziehen.
 			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[BESCHR]
+			</text>
+			<text name="title_no_modify">
+				[BESCHR]: bearbeiten nicht möglich
+			</text>
+			<text name="title_loading">
+				[BESCHR]: wird geladen...
+			</text>
+			<text name="title_not_worn">
+				[BESCHR]: nicht getragen
+			</text>
+			<text name="path">
+				Befindet sich in [PATH]
+			</text>
+			<text name="not worn instructions">
+				Sie können eine neue Alpha-Maske anlegen, indem Sie eine von Ihrem Inventar auf Ihren Avatar ziehen.
+Sie können aber auch eine neue erstellen und diese anlegen.
+			</text>
+			<text name="no modify instructions">
+				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Alpha: Unten" name="Lower Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<texture_picker label="Alpha: Oben" name="Upper Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<texture_picker label="Kopf: Alpha" name="Head Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<texture_picker label="Alpha: Augen" name="Eye Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<texture_picker label="Alpha: Haare" name="Hair Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<button label="Neue Alpha erstellen" label_selected="Neue Alpha erstellen" name="Create New"/>
+			<button label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button label="Speichern" label_selected="Speichern" name="Save"/>
+			<button label="Speichern unter..." label_selected="Speichern unter..." name="Save As"/>
+			<button label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
+		</panel>
+		<panel label="Tätowierung" name="Tattoo">
+			<text name="title">
+				[BESCHR]
+			</text>
+			<text name="title_no_modify">
+				[BESCHR]: bearbeiten nicht möglich
+			</text>
+			<text name="title_loading">
+				[BESCHR]: wird geladen...
+			</text>
+			<text name="title_not_worn">
+				[BESCHR]: nicht getragen
+			</text>
+			<text name="path">
+				Befindet sich in [PATH]
+			</text>
+			<text name="not worn instructions">
+				Ziehen Sie eine neue Tätowierung aus dem Inventar auf Ihren Avatar, um diese anzulegen.
+Sie können aber auch eine neue erstellen und diese anlegen.
+			</text>
+			<text name="no modify instructions">
+				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
+			</text>
+			<text name="Item Action Label">
+				Tätowierung:
+			</text>
+			<texture_picker label="Kopftattoo" name="Head Tattoo" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<texture_picker label="Obere Tattoos" name="Upper Tattoo" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<texture_picker label="Untere Tattoos" name="Lower Tattoo" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+			<button label="Neue Tätowierung erstellen" label_selected="Neue Tätowierung erstellen" name="Create New"/>
+			<button label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
+			<button label="Speichern" label_selected="Speichern" name="Save"/>
+			<button label="Speichern unter..." label_selected="Speichern unter..." name="Save As"/>
+			<button label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
+		</panel>
 	</tab_container>
+	<button label="Outfit erstellen" label_selected="Outfit erstellen" name="make_outfit_btn"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
-	<button label="Outfit erstellen..." label_selected="Outfit erstellen..." name="Make Outfit" width="115"/>
 </floater>

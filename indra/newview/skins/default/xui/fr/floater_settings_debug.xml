@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings_debug" title="PARAMÉTRAGES DU MODE DEBUG">
+<floater name="settings_debug" title="PARAMÈTRES DE DÉBOGAGE">
 	<combo_box name="boolean_combo">
-		<combo_box.item label="TRUE" name="TRUE"/>
-		<combo_box.item label="FALSE" name="FALSE"/>
+		<combo_box.item label="VRAI" name="TRUE"/>
+		<combo_box.item label="FAUX" name="FALSE"/>
 	</combo_box>
 	<color_swatch label="Couleur" name="val_color_swatch"/>
 	<spinner label="x" name="val_spinner_1"/>
