@@ -213,7 +213,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 
 #if !USE_VIEWER_AUTH
-	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
+	//childSetPrevalidate("login_id_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
 	childSetPrevalidate("last_name_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
 
 	childSetCommitCallback("password_edit", mungePassword, this);
@@ -498,7 +498,7 @@ void LLPanelLogin::giveFocus()
 	if( sInstance )
 	{
 		// Grab focus and move cursor to first blank input field
-		std::string first = sInstance->childGetText("first_name_edit");
+		std::string first = sInstance->childGetText("login_id_edit");
 		std::string pass = sInstance->childGetText("password_edit");
 
 		BOOL have_first = !first.empty();
@@ -514,7 +514,7 @@ void LLPanelLogin::giveFocus()
 		else
 		{
 			// User doesn't have a name, so start there.
-			edit = sInstance->getChild<LLLineEditor>("first_name_edit");
+			edit = sInstance->getChild<LLLineEditor>("login_id_edit");
 		}
 
 		if (edit)
@@ -536,8 +536,8 @@ void LLPanelLogin::showLoginWidgets()
 	// *TODO: Append all the usual login parameters, like first_login=Y etc.
 	std::string splash_screen_url = sInstance->getString("real_url");
 	web_browser->navigateTo( splash_screen_url, "text/html" );
-	LLUICtrl* first_name_edit = sInstance->getChild<LLUICtrl>("first_name_edit");
-	first_name_edit->setFocus(TRUE);
+	LLUICtrl* login_id_edit = sInstance->getChild<LLUICtrl>("login_id_edit");
+	login_id_edit->setFocus(TRUE);
 }
 
 // static
@@ -569,8 +569,15 @@ void LLPanelLogin::setFields(const std::string& firstname,
 		return;
 	}
 
-	sInstance->childSetText("first_name_edit", firstname);
-	sInstance->childSetText("last_name_edit", lastname);
+	std::string login_id = firstname;
+	if (!lastname.empty())
+	{
+		// support traditional First Last name slurls
+		login_id += " ";
+		login_id += lastname;
+	}
+	sInstance->childSetText("login_id_edit", login_id);
+	sInstance->childSetText("last_name_edit", std::string());
 
 	// Max "actual" password length is 16 characters.
 	// Hex digests are always 32 characters.
@@ -623,10 +630,24 @@ void LLPanelLogin::getFields(std::string *firstname,
 		return;
 	}
 
-	*firstname = sInstance->childGetText("first_name_edit");
-	LLStringUtil::trim(*firstname);
+	std::string login_id = sInstance->childGetText("login_id_edit");
+	LLStringUtil::trim(login_id);
 
-	*lastname = sInstance->childGetText("last_name_edit");
+	U32 pos = login_id.find(' ');
+	if (pos != std::string::npos)
+	{
+		// old-style Firstname Lastname
+		*firstname = login_id.substr(0, pos);
+		*lastname = login_id.substr(pos+1);
+	}
+	else
+	{
+		// new-style single SLID string
+		*firstname = login_id;
+		*lastname = "Resident";
+	}
+
+	LLStringUtil::trim(*firstname);
 	LLStringUtil::trim(*lastname);
 
 	*password = sInstance->mMungedPassword;
@@ -896,8 +917,10 @@ void LLPanelLogin::onClickConnect(void *)
 		// JC - Make sure the fields all get committed.
 		sInstance->setFocus(FALSE);
 
-		std::string first = sInstance->childGetText("first_name_edit");
-		std::string last  = sInstance->childGetText("last_name_edit");
+		// Do SLID "Resident" name mangling
+		std::string first, last, unused_password;
+		getFields(&first, &last, &unused_password);
+
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
 		std::string combo_text = combo->getSimple();
 		

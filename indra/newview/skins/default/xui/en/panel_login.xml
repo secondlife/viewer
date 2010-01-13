@@ -60,7 +60,7 @@ name="first_name_text"
 top="20"
 left="20"
 width="150">
-First name:
+  Second Life ID:
 </text>
 <line_editor
 follows="left|bottom"
@@ -69,20 +69,23 @@ height="22"
 label="First"
 left_delta="0"
 max_length="31"
-name="first_name_edit"
+name="login_id_edit"
+prevalidate_callback="ascii" 
 select_on_focus="true"
-tool_tip="[SECOND_LIFE] First Name"
+tool_tip="[SECOND_LIFE] ID"
 top_pad="0"
-   width="135" />
+   width="200" />
   <text
    follows="left|bottom"
    font="SansSerifSmall"
    height="16"
-   left_pad="8"
+   left="230"
    name="last_name_text"
    top="20"
+   visible="false" 
    width="150">
-    Last name:   </text>
+    Last name:
+  </text>
 <line_editor
 follows="left|bottom"
 handle_edit_keys_directly="true"
@@ -93,12 +96,13 @@ name="last_name_edit"
 select_on_focus="true"
 tool_tip="[SECOND_LIFE] Last Name"
   top_pad="0"
+  visible="false" 
   width="135" />
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 height="15"
-left_pad="8"
+left="230"
 name="password_text"
 top="20"
     width="150">
