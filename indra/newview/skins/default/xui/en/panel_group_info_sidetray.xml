@@ -216,12 +216,28 @@ background_visible="true"
      visible="false"
      width="65" />-->
      <button
+     follows="bottom|right"          
+     label="Group Chat"
+     name="btn_chat"
+     right="-184"
+     left_pad="2"     
+     height="22"          
+     width="85" />
+     <button
+     follows="bottom|right"          
+     label="Group Call"
+     name="btn_call"
+     right="-97"
+     left_pad="2"     
+     height="22"          
+     width="85" />
+     <button
      height="22"
      label="Save"
      label_selected="Save"
      name="btn_apply"
      left_pad="10"
      right="-10"
-     width="100" />
+     width="85" />
      </panel>
 </panel>

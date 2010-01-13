@@ -1,6 +1,6 @@
 /** 
- * @file llnamebox.h
- * @brief display and refresh a name from the name cache
+ * @file lltoast.h
+ * @brief This class implements a placeholder for any notification panel.
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
@@ -30,53 +30,12 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAMEBOX_H
-#define LL_LLNAMEBOX_H
+#ifndef LL_LLINSPECTTOAST_H
+#define LL_LLINSPECTTOAST_H
 
-#include <set>
-
-#include "llview.h"
-#include "llstring.h"
-#include "llfontgl.h"
-#include "lltextbox.h"
-
-class LLNameBox
-:	public LLTextBox
+namespace LLNotificationsUI
 {
-public:
-	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
-	{
-		Optional<bool>		is_group;
-		Optional<bool>		link;
-
-		Params()
-		:	is_group("is_group", false)
-		,	link("link", false)
-		{}
-	};
-
-	virtual ~LLNameBox();
-
-	void setNameID(const LLUUID& name_id, BOOL is_group);
-
-	void refresh(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
-
-	static void refreshAll(const LLUUID& id, const std::string& firstname,
-						   const std::string& lastname, BOOL is_group);
-
-protected:
-	LLNameBox (const Params&);
-
-	friend class LLUICtrlFactory;
-private:
-	void setName(const std::string& name, BOOL is_group);
-
-	static std::set<LLNameBox*> sInstances;
-
-private:
-	LLUUID mNameID;
-	BOOL mLink;
-
-};
+void registerFloater();
+}
 
 #endif

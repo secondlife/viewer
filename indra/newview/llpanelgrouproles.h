@@ -108,7 +108,7 @@ public:
 	virtual BOOL postBuild();
 
 	// This allows sub-tabs to collect child widgets from a higher level in the view hierarchy.
-	virtual BOOL postBuildSubTab(LLView* root) { return TRUE; }
+	virtual BOOL postBuildSubTab(LLView* root);
 
 	virtual void setSearchFilter( const std::string& filter );
 
@@ -117,10 +117,15 @@ public:
 
 	// Helper functions
 	bool matchesActionSearchFilter(std::string action);
+
+
+	void setFooterEnabled(BOOL enable);
+
+	virtual void setGroupID(const LLUUID& id);
+protected:
 	void buildActionsList(LLScrollListCtrl* ctrl,
 								 U64 allowed_by_some,
 								 U64 allowed_by_all,
-								 icon_map_t& icons,
 						  		 LLUICtrl::commit_callback_t commit_callback,
 								 BOOL show_all,
 								 BOOL filter,
@@ -129,15 +134,11 @@ public:
 									U64 allowed_by_some,
 									U64 allowed_by_all,
 									LLRoleActionSet* action_set,
-									icon_map_t& icons,
 									LLUICtrl::commit_callback_t commit_callback,
 									BOOL show_all,
 									BOOL filter,
 									BOOL is_owner_role);
 
-	void setFooterEnabled(BOOL enable);
-
-	virtual void setGroupID(const LLUUID& id);
 protected:
 	LLPanel* mHeader;
 	LLPanel* mFooter;

@@ -418,6 +418,7 @@ void LLInspectAvatar::updateModeratorPanel()
 				LLPointer<LLSpeaker> selected_speakerp = speaker_mgr->findSpeaker(mAvatarID);
 				
 				if(speaker_mgr->isVoiceActive() && selected_speakerp && 
+					selected_speakerp->isInVoiceChannel() &&
 					((self_speakerp && self_speakerp->mIsModerator) || gAgent.isGodlike()))
 				{
 					getChild<LLUICtrl>("enable_voice")->setVisible(selected_speakerp->mModeratorMutedVoice);

@@ -5157,6 +5157,11 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 	return FALSE;
 }
 
+BOOL LLAgent::canJoinGroups() const
+{
+	return mGroups.count() < MAX_AGENT_GROUPS;
+}
+
 LLQuaternion LLAgent::getHeadRotation()
 {
 	if (mAvatarObject.isNull() || !mAvatarObject->mPelvisp || !mAvatarObject->mHeadp)

@@ -35,6 +35,7 @@
 // libs
 #include "llfloaterreg.h"
 #include "llmenugl.h"
+#include "llnotificationsutil.h"
 #include "llfiltereditor.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
@@ -750,7 +751,6 @@ void LLPanelPeople::updateButtons()
 
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
 		groups_panel->childSetEnabled("activate_btn",	item_selected && !cur_group_active); // "none" or a non-active group selected
-		groups_panel->childSetEnabled("plus_btn",		item_selected);
 		groups_panel->childSetEnabled("minus_btn",		item_selected && selected_id.notNull());
 	}
 	else
@@ -1138,6 +1138,12 @@ void LLPanelPeople::onAvatarPicked(
 
 void LLPanelPeople::onGroupPlusButtonClicked()
 {
+	if (!gAgent.canJoinGroups())
+	{
+		LLNotificationsUtil::add("JoinedTooManyGroups");
+		return;
+	}
+
 	LLMenuGL* plus_menu = (LLMenuGL*)mGroupPlusMenuHandle.get();
 	if (!plus_menu)
 		return;

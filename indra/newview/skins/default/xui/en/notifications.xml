@@ -2917,6 +2917,16 @@ You have reached your maximum number of groups. Please leave another group befor
 
   <notification
    icon="alert.tga"
+   name="JoinedTooManyGroups"
+   type="alert">
+You have reached your maximum number of groups. Please leave some group before joining or creating a new one.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
    name="KickUser"
    type="alert">
 Kick this user with what message?

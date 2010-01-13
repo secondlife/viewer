@@ -28,6 +28,9 @@
      name="no_partner_text"
      value="None" />
     <string
+     name="no_group_text"
+     value="None" />
+    <string
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
@@ -62,10 +65,11 @@
           <panel
                 layout="topleft"
           follows="left|top|right"
+                height="505"
                 name="profile_scroll_panel"
                 top="0"
                 left="0"
-                width="303">
+                width="297">
             <panel
                   follows="left|top|right"
                   height="117"
@@ -73,7 +77,7 @@
                   left="10"
                   name="second_life_image_panel"
                   top="0"
-                  width="303">
+                  width="297">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -117,7 +121,7 @@
        top_pad="10"
              left="10"
              name="first_life_image_panel"
-             width="303">
+             width="297">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -240,14 +244,14 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <text
+              <name_box
                follows="left|top"
                height="10"
                layout="topleft"
                left="0"
+               link="true"
                name="partner_text"
                top="0"
-               value="[FIRST] [LAST]"
            width="300"
                word_wrap="true" />
             </panel>
@@ -269,7 +273,7 @@
             left="7"
             name="sl_groups"
             top_pad="0"
-            width="298"
+            width="290"
             expanded_bg_visible="true"
             expanded_bg_color="DkGray">
               Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
