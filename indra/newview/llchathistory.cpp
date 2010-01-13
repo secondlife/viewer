@@ -503,11 +503,20 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 	//whether to show colon after a name in header copy/past and in plain text mode
 	bool show_colon = chat.mChatType != CHAT_TYPE_SHOUT && chat.mChatType != CHAT_TYPE_WHISPER; 
 
+	//IRC styled /me messages.
+	bool irc_me = false;
+
+	std::string prefix = chat.mText.substr(0, 4);
+	if (prefix == "/me " || prefix == "/me'")
+	{
+		irc_me = true;
+	}
+
 	if (use_plain_text_chat_history)
 	{
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
 
-		if (utf8str_trim(chat.mFromName).size() != 0)
+		if (utf8str_trim(chat.mFromName).size() != 0 && !irc_me)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 			if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
@@ -572,14 +581,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
 	}
-	//Handle IRC styled /me messages.
-	std::string prefix = chat.mText.substr(0, 4);
-	if (prefix == "/me " || prefix == "/me'")
+	
+	if (irc_me)
 	{
 		style_params.font.style = "ITALIC";
 
 		if (chat.mFromName.size() > 0)
-			mEditor->appendText(chat.mFromName, TRUE, style_params);
+			mEditor->appendText(chat.mFromName, FALSE, style_params);
 		// Ensure that message ends with NewLine, to avoid losing of new lines
 		// while copy/paste from text chat. See EXT-3263.
 		mEditor->appendText(chat.mText.substr(3) + NEW_LINE, FALSE, style_params);
