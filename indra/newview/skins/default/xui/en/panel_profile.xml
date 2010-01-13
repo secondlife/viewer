@@ -249,6 +249,7 @@
                height="10"
                layout="topleft"
                left="0"
+               link="true"
                name="partner_text"
                top="0"
            width="300"
