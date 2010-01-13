@@ -2792,8 +2792,12 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 					line += firstname->getString();
 				}
 
-				line += " ";
-				line += lastname->getString();
+				// Suppress last name "Resident" as this is used for new SLID names
+				if (strcmp(lastname->getString(), "Resident"))
+				{
+					line += " ";
+					line += lastname->getString();
+				}
 				BOOL need_comma = FALSE;
 
 				if (is_away || is_muted || is_busy)
