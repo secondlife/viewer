@@ -3607,7 +3607,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs.viewer-sidebar.secondlife.com.s3.amazonaws.com/sidebar.html</string>
+      <string>http://lecs.viewer-sidebar.secondlife.com.s3.amazonaws.com/sidebar.html?p=[AUTH_TOKEN]&amp;lang=[LANGUAGE]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]</string>
     </map>
     <key>SearchURL</key>
     <map>
