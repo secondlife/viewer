@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_im_p2p
- font="SansSerif"
  height="25"
  name="im_p2p_chiclet"
  show_speaker="false"
@@ -18,10 +17,9 @@
      height="22"
      mouse_opaque="true"
      name="avatar_icon"
-     width="22"/>
+     width="22" />
     <chiclet_im_p2p.unread_notifications
      height="25"
-     font="SansSerif"
      font_halign="center"
      left="25"
      mouse_opaque="false"
@@ -31,11 +29,11 @@
      visible="false"
      width="20"/>
     <chiclet_im_p2p.new_message_icon
-     bottom="12"
-     height="13"
-     image_name="Unread_Chiclet"
-     left="12"
-     name="new_message_icon"
-     visible="false"
-     width="13" />
+  bottom="11"
+  height="14"
+  image_name="Unread_Chiclet"
+  left="12"
+  name="new_message_icon"
+  visible="false"
+  width="14" />
 </chiclet_im_p2p>
