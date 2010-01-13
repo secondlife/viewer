@@ -908,3 +908,13 @@ void LLScreenChannel::updateShowToastsState()
 
 //--------------------------------------------------------------------------
 
+LLToast* LLScreenChannel::getToastByNotificationID(LLUUID id)
+{
+	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(),
+			mStoredToastList.end(), id);
+
+	if (it == mStoredToastList.end())
+		return NULL;
+
+	return it->toast;
+}

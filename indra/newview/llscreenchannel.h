@@ -216,6 +216,8 @@ public:
 	// update number of notifications in the StartUp Toast
 	void	updateStartUpString(S32 num);
 
+	LLToast* getToastByNotificationID(LLUUID id);
+
 	// Channel's signals
 	// signal on storing of faded toasts event
 	typedef boost::function<void (LLPanel* info_panel, const LLUUID id)> store_tost_callback_t;
