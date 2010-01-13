@@ -161,6 +161,9 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 	{
 		chiclet->setIMSessionName(name);
 		chiclet->setOtherParticipantId(other_participant_id);
+		
+		LLIMFloater::onIMChicletCreated(session_id);
+
 	}
 	else
 	{
@@ -252,8 +255,8 @@ void LLBottomTray::setVisible(BOOL visible)
 			LLView* viewp = *child_it;
 			std::string name = viewp->getName();
 
-			// Chat bar is always shown. But the move, camera, gesture and snapshot buttons shouldn't be displayed when we are in mouselook mode. See EXT-3988.
-			if ("chat_bar" == name || (visibility && ("movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name || "gesture_panel" == name)))
+			// Chat bar and gesture button are shown even in mouselook mode. But the move, camera and snapshot buttons shouldn't be displayed. See EXT-3988.
+			if ("chat_bar" == name || "gesture_panel" == name || (visibility && ("movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)))
 				continue;
 			else 
 			{

@@ -644,12 +644,11 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 // This is just LLView::findChildView specialized to restrict the search to LLPanels.
 // Optimization for EXT-4068 to avoid searching down to the individual item level
 // when inventories are large.
-LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse, S32& count)
+LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse)
 {
 	for (LLView::child_list_const_iter_t child_it = panel->beginChild();
 		 child_it != panel->endChild(); ++child_it)
 	{
-		count++;
 		LLPanel *child_panel = dynamic_cast<LLPanel*>(*child_it);
 		if (!child_panel)
 			continue;
@@ -661,11 +660,10 @@ LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse, S
 		for (LLView::child_list_const_iter_t child_it = panel->beginChild();
 			 child_it != panel->endChild(); ++child_it)
 		{
-			count++;
 			LLPanel *child_panel = dynamic_cast<LLPanel*>(*child_it);
 			if (!child_panel)
 				continue;
-			LLPanel *found_panel = findChildPanel(child_panel,name,recurse,count);
+			LLPanel *found_panel = findChildPanel(child_panel,name,recurse);
 			if (found_panel)
 			{
 				return found_panel;
@@ -677,16 +675,9 @@ LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse, S
 
 LLPanel* LLSideTray::getPanel(const std::string& panel_name)
 {
-	static S32 max_count = 0;
-	S32 count = 0;
 	for ( child_vector_const_iter_t child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLPanel *panel = findChildPanel(*child_it,panel_name,true,count);
-		if (count > max_count)
-		{
-			max_count = count;
-			llwarns << "max_count " << max_count << llendl;
-		}
+		LLPanel *panel = findChildPanel(*child_it,panel_name,true);
 		if(panel)
 		{
 			return panel;

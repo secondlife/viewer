@@ -74,6 +74,8 @@ public:
 
 	static LLIMFloater* findInstance(const LLUUID& session_id);
 
+	static LLIMFloater* getInstance(const LLUUID& session_id);
+
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
 	// get new messages from LLIMModel
@@ -111,6 +113,8 @@ public:
 
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
+
+	static void onIMChicletCreated(const LLUUID& session_id);
 
 private:
 	// process focus events to set a currently active session

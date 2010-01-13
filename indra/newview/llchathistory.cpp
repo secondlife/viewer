@@ -500,6 +500,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 	style_params.font.size(font_size);	
 	style_params.font.style(input_append_params.font.style);
 	
+	//whether to show colon after a name in header copy/past and in plain text mode
+	bool show_colon = chat.mChatType != CHAT_TYPE_SHOUT && chat.mChatType != CHAT_TYPE_WHISPER; 
+
 	if (use_plain_text_chat_history)
 	{
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
@@ -512,11 +515,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 				LLStyle::Params link_params(style_params);
 				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				// Convert the name to a hotlink and add to message.
-				mEditor->appendText(chat.mFromName + ": ", false, link_params);
+				mEditor->appendText(chat.mFromName + (show_colon ? ": " : " "), false, link_params);
 			}
 			else
 			{
-				mEditor->appendText(chat.mFromName + ": ", false, style_params);
+				mEditor->appendText(chat.mFromName + (show_colon ? ": " : " "), false, style_params);
 			}
 		}
 	}
@@ -562,7 +565,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 
 		std::string header_text = "[" + chat.mTimeStr + "] ";
 		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
-			header_text += chat.mFromName + ": ";
+			header_text += chat.mFromName + (show_colon ? ": " : " ");
 
 		mEditor->appendWidget(p, header_text, false);
 		mLastFromName = chat.mFromName;

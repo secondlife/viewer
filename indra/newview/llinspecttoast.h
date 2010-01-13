@@ -1,10 +1,10 @@
 /** 
- * @file llimfloatercontainer.h
- * @brief Multifloater containing active IM sessions in separate tab container tabs
+ * @file lltoast.h
+ * @brief This class implements a placeholder for any notification panel.
  *
- * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
- * Copyright (c) 2009, Linden Research, Inc.
+ * Copyright (c) 2003-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,36 +30,12 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMFLOATERCONTAINER_H
-#define LL_LLIMFLOATERCONTAINER_H
+#ifndef LL_LLINSPECTTOAST_H
+#define LL_LLINSPECTTOAST_H
 
-#include "llfloater.h"
-#include "llmultifloater.h"
-
-class LLTabContainer;
-
-class LLIMFloaterContainer : public LLMultiFloater
+namespace LLNotificationsUI
 {
-public:
-	LLIMFloaterContainer(const LLSD& seed);
-	virtual ~LLIMFloaterContainer();
-	
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+void registerFloater();
+}
 
-	/*virtual*/ void addFloater(LLFloater* floaterp, 
-								BOOL select_added_floater, 
-								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-
-	static LLFloater* getCurrentVoiceFloater();
-
-	static LLIMFloaterContainer* findInstance();
-
-	static LLIMFloaterContainer* getInstance();
-
-protected:
-	
-	LLFloater* mActiveVoiceFloater;
-};
-
-#endif // LL_LLIMFLOATERCONTAINER_H
+#endif
