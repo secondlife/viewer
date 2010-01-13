@@ -62,6 +62,7 @@ public:
 	{
 		mPanel->inventoryFetched();
 		gInventory.removeObserver(this);
+		delete this;
 	}
 private:
 	LLSidepanelAppearance *mPanel;
@@ -94,14 +95,12 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mLookInfo(NULL),
 	mCurrOutfitPanel(NULL)
 {
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_appearance.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
-	mFetchWorn = new LLCurrentlyWornFetchObserver(this);
-	
-	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
 {
+	gInventory.removeObserver(mOutfitRenameWatcher);
+	delete mOutfitRenameWatcher;
 }
 
 // virtual
@@ -151,9 +150,12 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
+
+	mOutfitDirtyTag = getChild<LLTextBox>("currentlook_title");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
+	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 	gInventory.addObserver(mOutfitRenameWatcher);
 
 	return TRUE;
@@ -213,7 +215,7 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 	if (tab_outfits)
 	{
 		tab_outfits->changeOpenClose(FALSE);
-		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_accordionpanel");
+		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
 			LLFolderView *folder = inventory_panel->getRootFolder();
@@ -316,6 +318,7 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
+	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
 		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
@@ -386,16 +389,17 @@ void LLSidepanelAppearance::fetchInventory()
 		}
 	}
 
-	mFetchWorn->fetchItems(ids);
+	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
+	fetch_worn->fetchItems(ids);
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
-	if (mFetchWorn->isEverythingComplete())
+	if (fetch_worn->isEverythingComplete())
 	{
-		mFetchWorn->done();
+		fetch_worn->done();
 	}
 	else
 	{
-		gInventory.addObserver(mFetchWorn);
+		gInventory.addObserver(fetch_worn);
 	}
 }
 

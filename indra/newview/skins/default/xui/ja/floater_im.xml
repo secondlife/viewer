@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="インスタント・メッセージ">
 	<string name="only_user_message">
 		このセッションにいるユーザーはあなただけです。
@@ -10,7 +10,7 @@
 		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
 	</string>
 	<string name="muted_message">
-		あなたはこの住人を無視しています。 メッセージを送信すると、無視設定は自動的に解除されます。
+		この住人をブロックしています。 メッセージを送ると、ブロックが自動的に解除されます。
 	</string>
 	<string name="generic_request_error">
 		要求中にエラーが発生しました。後でもう一度試してください。

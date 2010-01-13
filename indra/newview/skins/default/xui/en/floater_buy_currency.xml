@@ -222,7 +222,7 @@
      width="300"
      height="30"
      name="currency_links">
-      [http://www.secondlife.com/ payment method] | [http://www.secondlife.com/ currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+      [http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
     </text>
     <text
      type="string"

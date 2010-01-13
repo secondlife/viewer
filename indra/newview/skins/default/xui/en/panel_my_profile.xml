@@ -41,7 +41,7 @@
      height="535"
      width="313"
      border_size="0">
-      <panel
+      <layout_panel
          name="profile_stack"
          follows="all"
          layout="topleft"
@@ -49,176 +49,176 @@
          left="0"
          height="505"
          width="313">
-            <scroll_container
-             color="DkGray2"
-             follows="all"
-             layout="topleft"
-             left="0"
-             name="profile_scroll"
-             opaque="true"
-             height="505"
-             width="313"
-             top="0">
-	       <panel
+        <scroll_container
+         color="DkGray2"
+         follows="all"
+         layout="topleft"
+         left="0"
+         name="profile_scroll"
+         opaque="true"
+         height="505"
+         width="313"
+         top="0">
+          <panel
+                layout="topleft"
+          follows="left|top|right"
+               name="scroll_content_panel"
+                top="0"
+                left="0"
+                width="303">
+            <panel
+                  follows="left|top|right"
+                  height="117"
+                  layout="topleft"
+                  left="10"
+                  name="second_life_image_panel"
+                  top="0"
+                  width="300">
+              <texture_picker
+               allow_no_texture="true"
+               default_image_name="None"
+               enabled="false"
+               follows="top|left"
+               height="117"
                layout="topleft"
-	       follows="left|top|right"
-              name="scroll_content_panel"
-               top="0"
                left="0"
-               width="303">
-	 <panel
-         follows="left|top|right"
-         height="117"
-         layout="topleft"
-         left="10"
-         name="second_life_image_panel"
-         top="0"
-         width="300">
-            <texture_picker
-             allow_no_texture="true"
-             default_image_name="None"
-             enabled="false"
-             follows="top|left"
-             height="117"
-             layout="topleft"
-             left="0"
-             name="2nd_life_pic"
-             top="10"
-             width="102" />
-           <icon
-           height="102"
-           image_name="Blank"
-           layout="topleft"
-           name="2nd_life_edit_icon"
-           label=""
-           left="0"
-           tool_tip="Click the Edit Profile button below to change image"
-           top="10"
-           width="102" />
-            <text
-             follows="left|top|right"
-	     font.style="BOLD"
-             height="15"
-             layout="topleft"
-             left_pad="10"
-             name="title_sl_descr_text"
-             text_color="white"
-             top_delta="0"
-             value="[SECOND_LIFE]:"
-             width="180" />
-            <expandable_text
-             follows="left|top|right"
-             height="95"
-             layout="topleft"
-             left="107"
-             textbox.max_length="512"
-             name="sl_description_edit"
-             top_pad="-3"
-             width="188"
-             expanded_bg_visible="true"
-             expanded_bg_color="DkGray">
+               name="2nd_life_pic"
+               top="10"
+               width="102" />
+              <icon
+              height="102"
+              image_name="Blank"
+              layout="topleft"
+              name="2nd_life_edit_icon"
+              label=""
+              left="0"
+              tool_tip="Click the Edit Profile button below to change image"
+              top="10"
+              width="102" />
+              <text
+               follows="left|top|right"
+         font.style="BOLD"
+               height="15"
+               layout="topleft"
+               left_pad="10"
+               name="title_sl_descr_text"
+               text_color="white"
+               top_delta="0"
+               value="[SECOND_LIFE]:"
+               width="180" />
+              <expandable_text
+               follows="left|top|right"
+               height="95"
+               layout="topleft"
+               left="107"
+               textbox.max_length="512"
+               name="sl_description_edit"
+               top_pad="-3"
+               width="188"
+               expanded_bg_visible="true"
+               expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </expandable_text>
-        </panel>
-        <panel
-         follows="left|top|right"
-         height="117"
-         layout="topleft"
-	 top_pad="10"
-         left="10"
-         name="first_life_image_panel"
-         width="300">
-            <texture_picker
-             allow_no_texture="true"
-             default_image_name="None"
-             enabled="false"
-             follows="top|left"
+              </expandable_text>
+            </panel>
+            <panel
+             follows="left|top|right"
              height="117"
              layout="topleft"
-             left="0"
-             name="real_world_pic"
-             width="102" />
-           <icon
-           height="102"
-           image_name="Blank"
-           layout="topleft"
-           name="real_world_edit_icon"
-           label=""
-           left="0"
-           tool_tip="Click the Edit Profile button below to change image"
-           top="4"
-           width="102" />
+       top_pad="10"
+             left="10"
+             name="first_life_image_panel"
+             width="300">
+              <texture_picker
+               allow_no_texture="true"
+               default_image_name="None"
+               enabled="false"
+               follows="top|left"
+               height="117"
+               layout="topleft"
+               left="0"
+               name="real_world_pic"
+               width="102" />
+              <icon
+              height="102"
+              image_name="Blank"
+              layout="topleft"
+              name="real_world_edit_icon"
+              label=""
+              left="0"
+              tool_tip="Click the Edit Profile button below to change image"
+              top="4"
+              width="102" />
+              <text
+               follows="left|top|right"
+         font.style="BOLD"
+               height="15"
+               layout="topleft"
+               left_pad="10"
+               name="title_rw_descr_text"
+               text_color="white"
+               top_delta="0"
+               value="Real World:"
+               width="180" />
+              <expandable_text
+               follows="left|top|right"
+               height="95"
+               layout="topleft"
+               left="107"
+               textbox.max_length="512"
+               name="fl_description_edit"
+               top_pad="-3"
+               width="188"
+               expanded_bg_visible="true"
+               expanded_bg_color="DkGray">
+                Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+              </expandable_text>
+            </panel>
             <text
-             follows="left|top|right"
-	     font.style="BOLD"
+             follows="left|top"
+             height="15"
+       font.style="BOLD"
+       font="SansSerifMedium"
+             layout="topleft"
+             left="10"
+             name="homepage_edit"
+             top_pad="0"
+             value="http://librarianavengers.org"
+             width="300"
+             word_wrap="false"
+             use_ellipses="true"
+         />
+            <text
+             follows="left|top"
+           font.style="BOLD"
+             height="10"
+             layout="topleft"
+             left="10"
+             name="title_member_text"
+             text_color="white"
+             top_pad="10"
+             value="Resident Since:"
+             width="300" />
+            <text
+             follows="left|top"
              height="15"
              layout="topleft"
-             left_pad="10"
-             name="title_rw_descr_text"
-             text_color="white"
-             top_delta="0"
-             value="Real World:"
-             width="180" />
-            <expandable_text
-             follows="left|top|right"
-             height="95"
+             left="10"
+             name="register_date"
+             value="05/31/2376"
+             width="300"
+             word_wrap="true" />
+            <text
+             follows="left|top"
+       font.style="BOLD"
+             height="15"
              layout="topleft"
-             left="107"
-             textbox.max_length="512"
-             name="fl_description_edit"
-             top_pad="-3"
-             width="188"
-             expanded_bg_visible="true"
-             expanded_bg_color="DkGray">
-                Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </expandable_text>
-        </panel>
-        <text
-         follows="left|top"
-         height="15"
-	 font.style="BOLD"
-	 font="SansSerifMedium"
-         layout="topleft"
-         left="10"
-         name="homepage_edit"
-         top_pad="0"
-         value="http://librarianavengers.org"
-         width="300"
-         word_wrap="false"
-         use_ellipses="true"
-         />
-        <text
-         follows="left|top"
-	     font.style="BOLD"
-         height="10"
-         layout="topleft"
-         left="10"
-         name="title_member_text"
-         text_color="white"
-         top_pad="10"
-         value="Resident Since:"
-         width="300" />
-        <text
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="register_date"
-         value="05/31/2376"
-         width="300"
-         word_wrap="true" />
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="title_acc_status_text"
-         text_color="white"
-         top_pad="5"
-         value="Account Status:"
-         width="300" />
-       <!-- <text
+             left="10"
+             name="title_acc_status_text"
+             text_color="white"
+             top_pad="5"
+             value="Account Status:"
+             width="300" />
+            <!-- <text
          type="string"
          follows="left|top"
          font="SansSerifSmall"
@@ -229,75 +229,75 @@
          top_delta="0"
 	 value="Go to Dashboard"
          width="100"/> -->
-         <text
-         follows="left|top"
-         height="28"
-         layout="topleft"
-         left="10"
-         name="acc_status_text"
-         top_pad="0"
-         width="300"
-         word_wrap="true">
-	 Resident. No payment info on file.
-Linden.
-	 </text>
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="title_partner_text"
-         text_color="white"
-         top_pad="3"
-         value="Partner:"
-         width="300" />
-        <panel
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="partner_data_panel"
-         top_pad="0"
-         width="300">
+            <text
+            follows="left|top"
+            height="28"
+            layout="topleft"
+            left="10"
+            name="acc_status_text"
+            top_pad="0"
+            width="300"
+            word_wrap="true">
+              Resident. No payment info on file.
+              Linden.
+            </text>
             <text
              follows="left|top"
-             height="10"
+       font.style="BOLD"
+             height="15"
              layout="topleft"
-             left="0"
-             name="partner_text"
-             top="0"
-             value="[FIRST] [LAST]"
-         width="300"
-             word_wrap="true" />
-         </panel>
-        <text
-         follows="left|top"
-	 font.style="BOLD"
-         height="13"
-         layout="topleft"
-         left="10"
-         name="title_groups_text"
-         text_color="white"
-         top_pad="3"
-         value="Groups:"
-         width="300" />
-         <expandable_text
-         follows="all"
-         height="113"
-         layout="topleft"
-         left="7"
-         name="sl_groups"
-       top_pad="0"
-         width="298"
-         expanded_bg_visible="true"
-         expanded_bg_color="DkGray">
-            Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
-        </expandable_text>
-    </panel>
- </scroll_container>
-      </panel>
-<!-- <panel
+             left="10"
+             name="title_partner_text"
+             text_color="white"
+             top_pad="3"
+             value="Partner:"
+             width="300" />
+            <panel
+             follows="left|top"
+             height="15"
+             layout="topleft"
+             left="10"
+             name="partner_data_panel"
+             top_pad="0"
+             width="300">
+              <text
+               follows="left|top"
+               height="10"
+               layout="topleft"
+               left="0"
+               name="partner_text"
+               top="0"
+               value="[FIRST] [LAST]"
+           width="300"
+               word_wrap="true" />
+            </panel>
+            <text
+             follows="left|top"
+       font.style="BOLD"
+             height="13"
+             layout="topleft"
+             left="10"
+             name="title_groups_text"
+             text_color="white"
+             top_pad="3"
+             value="Groups:"
+             width="300" />
+            <expandable_text
+            follows="all"
+            height="113"
+            layout="topleft"
+            left="7"
+            name="sl_groups"
+          top_pad="0"
+            width="298"
+            expanded_bg_visible="true"
+            expanded_bg_color="DkGray">
+              Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
+            </expandable_text>
+          </panel>
+        </scroll_container>
+      </layout_panel>
+      <!-- <layout_panel
      follows="bottom|left"
      layout="topleft"
      left="0"
@@ -353,13 +353,14 @@ Linden.
          top="5"
          width="85" />
  </panel>-->
- <panel
+ <layout_panel
      follows="bottom|left"
      layout="topleft"
      left="0"
      top_pad="0"
      name="profile_me_buttons_panel"
      visible="false"
+     auto_resize="false" 
      height="28"
      width="313">
         <button
@@ -379,6 +380,6 @@ Linden.
          name="edit_appearance_btn"
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
          width="130" />
- </panel>
+ </layout_panel>
 </layout_stack>
 </panel>

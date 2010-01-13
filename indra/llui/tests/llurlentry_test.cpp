@@ -545,4 +545,50 @@ namespace tut
 				  "XXX [secondlife:///app/teleport/Ahern/50/50/50/ Teleport to Ahern] YYY",
 				  "[secondlife:///app/teleport/Ahern/50/50/50/ Teleport to Ahern]");
 	}
+
+	template<> template<>
+	void object::test<11>()
+	{
+		//
+		// test LLUrlEntryHTTPNoProtocol - general URLs without a protocol
+		//
+		LLUrlEntryHTTPNoProtocol url;
+		boost::regex r = url.getPattern();
+
+		testRegex("naked .com URL", r,
+				  "see google.com",
+				  "google.com");
+
+		testRegex("naked .org URL", r,
+				  "see en.wikipedia.org for details",
+				  "en.wikipedia.org");
+
+		testRegex("naked .net URL", r,
+				  "example.net",
+				  "example.net");
+
+		testRegex("naked .edu URL (2 instances)", r,
+				  "MIT web site is at web.mit.edu and also www.mit.edu",
+				  "web.mit.edu");
+
+		testRegex("invalid .com URL [1]", r,
+				  "..com",
+				  "");
+
+		testRegex("invalid .com URL [2]", r,
+				  "you.come",
+				  "");
+
+		testRegex("invalid .com URL [3]", r,
+				  "recommended",
+				  "");
+
+		testRegex("invalid .edu URL", r,
+				  "hi there scheduled maitenance has begun",
+				  "");
+
+		testRegex("invalid .net URL", r,
+				  "foo.netty",
+				  "");
+	}
 }

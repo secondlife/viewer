@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Message instantané">
 	<text name="only_user_message">
 		Vous êtes le seul participant à cette session.

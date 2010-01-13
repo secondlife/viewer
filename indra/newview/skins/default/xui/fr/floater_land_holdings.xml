@@ -8,7 +8,7 @@
 		<column label="" name="hidden"/>
 	</scroll_list>
 	<button label="Téléporter" label_selected="Téléporter" name="Teleport" tool_tip="Téléportez-vous au milieu de ce terrain."/>
-	<button label="Carte" label_selected="Carte" name="Show on Map" tool_tip="Affichez ce terrain sur la carte du monde."/>
+	<button label="Carte" label_selected="Carte" name="Show on Map" tool_tip="Afficher ce terrain sur la carte du monde"/>
 	<text name="contrib_label">
 		Vos contributions :
 	</text>

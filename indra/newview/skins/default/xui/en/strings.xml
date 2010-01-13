@@ -8,6 +8,7 @@
 	<!-- Default Args - these arguments will be replaced in all strings -->
 	<string name="SECOND_LIFE">Second Life</string>
 	<string name="APP_NAME">Second Life</string>
+	<string name="CAPITALIZED_APP_NAME">SECOND LIFE</string>
 	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
 

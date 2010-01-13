@@ -1269,18 +1269,15 @@ void LLFloaterTools::getMediaState()
 // called when a user wants to add media to a prim or prim face
 void LLFloaterTools::onClickBtnAddMedia()
 {
-	// check for the edit tool and now many faces are selected
-	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
-	if((tool != LLToolFace::getInstance()) || LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
+	// check if multiple faces are selected
+	if(LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
 	{
-		LLNotificationsUtil::add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
-		
+		LLNotificationsUtil::add("MultipleFacesSelected", LLSD(), LLSD(), multipleFacesSelectedConfirm);
 	}
 	else
 	{
 		onClickBtnEditMedia();
 	}
-
 }
 
 // static

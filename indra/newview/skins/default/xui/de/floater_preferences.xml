@@ -1,8 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Preferences" title="EINSTELLUNGEN">
-	<button label="OK" label_selected="OK" name="OK" />
-	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel" />
-	<button label="Übernehmen" label_selected="Übernehmen" name="Apply" />
-	<button label="Info" label_selected="Info" name="About..." />
-	<button label="Hilfe" label_selected="Hilfe" name="Help" />
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<tab_container name="pref core">
+		<panel label="Allgemein" name="general"/>
+		<panel label="Grafik" name="display"/>
+		<panel label="Datenschutzbestimmungen (EN)" name="im"/>
+		<panel label="Sound" name="audio"/>
+		<panel label="Chat" name="chat"/>
+		<panel label="Warnhinweise" name="msgs"/>
+		<panel label="Hardware &amp; Web" name="input"/>
+		<panel label="Erweitert" name="advanced1"/>
+	</tab_container>
 </floater>

@@ -170,10 +170,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 	std::string str_sender;
 	
-	if(gAgentID != mFromID)
-		str_sender = fromName;
-	else
-		str_sender = LLTrans::getString("You");
+	str_sender = fromName;
 
 	str_sender+=" ";
 

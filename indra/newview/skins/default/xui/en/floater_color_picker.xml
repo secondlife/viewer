@@ -186,8 +186,8 @@
     <button
      follows="right|bottom"
      height="20"
-     label="Ok"
-     label_selected="Ok"
+     label="OK"
+     label_selected="OK"
      layout="topleft"
      right="-120"
      top_delta="9"

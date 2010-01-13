@@ -50,9 +50,18 @@ std::string LLViewerHome::getHomeURL()
 	LLSD substitution;
 	substitution["AUTH_TOKEN"] = LLURI::escape(getAuthKey());
 
-	// get the home URL and expand all of the substitutions
-	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
+	// get the home URL from the settings.xml file
 	std::string homeURL = gSavedSettings.getString("HomeSidePanelURL");
+
+	// support a grid-level override of the URL from login.cgi
+	LLSD grid_url = LLLoginInstance::getInstance()->getResponse("home_sidetray_url");
+	if (! grid_url.asString().empty())
+	{
+		homeURL = grid_url.asString();
+	}	
+
+	// expand all substitution strings in the URL and return it
+	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
 	return LLWeb::expandURLSubstitutions(homeURL, substitution);
 }
 

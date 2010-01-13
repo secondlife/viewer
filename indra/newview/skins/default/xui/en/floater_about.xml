@@ -6,7 +6,7 @@
  name="floater_about"
  help_topic="floater_about"
  save_rect="true"
- title="ABOUT [APP_NAME]"
+ title="ABOUT [CAPITALIZED_APP_NAME]"
  width="470">
   <floater.string
      name="AboutHeader">

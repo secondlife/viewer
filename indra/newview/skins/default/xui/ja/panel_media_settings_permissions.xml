@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="コントロール" name="Media settings for controls">
+	<check_box initial_value="false" label="ナビゲーションと相互作用力を無効にする" name="perms_owner_interact"/>
+	<check_box initial_value="false" label="コントロールバーを非表示にする" name="perms_owner_control"/>
+	<check_box initial_value="false" label="ナビゲーションと相互作用力を無効にする" name="perms_group_interact"/>
+	<check_box initial_value="false" label="コントロールバーを非表示にする" name="perms_group_control"/>
+	<check_box initial_value="false" label="ナビゲーションと相互作用力を無効にする" name="perms_anyone_interact"/>
+	<check_box initial_value="false" label="コントロールバーを非表示にする" name="perms_anyone_control"/>
+</panel>
