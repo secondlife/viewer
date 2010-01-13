@@ -151,6 +151,11 @@ BOOL LLPanelGroup::postBuild()
 	button->setVisible(true);
 	button->setEnabled(false);
 
+	button = getChild<LLButton>("btn_call");
+	button->setClickedCallback(onBtnGroupCallClicked, this);
+
+	button = getChild<LLButton>("btn_chat");
+	button->setClickedCallback(onBtnGroupChatClicked, this);
 
 	button = getChild<LLButton>("btn_join");
 	button->setVisible(false);
@@ -215,6 +220,8 @@ void LLPanelGroup::reposButtons()
 	reposButton("btn_create");
 	reposButton("btn_refresh");
 	reposButton("btn_cancel");
+	reposButton("btn_chat");
+	reposButton("btn_call");
 }
 
 void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
@@ -260,6 +267,18 @@ void LLPanelGroup::onBtnApply(void* user_data)
 {
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
 	self->apply();
+}
+
+void LLPanelGroup::onBtnGroupCallClicked(void* user_data)
+{
+	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
+	self->callGroup();
+}
+
+void LLPanelGroup::onBtnGroupChatClicked(void* user_data)
+{
+	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
+	self->chatGroup();
 }
 
 void LLPanelGroup::onBtnJoin()
@@ -349,6 +368,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	LLButton* button_create = findChild<LLButton>("btn_create");
 	LLButton* button_join = findChild<LLButton>("btn_join");
 	LLButton* button_cancel = findChild<LLButton>("btn_cancel");
+	LLButton* button_call = findChild<LLButton>("btn_call");
+	LLButton* button_chat = findChild<LLButton>("btn_chat");
 
 
 	bool is_null_group_id = group_id == LLUUID::null;
@@ -361,6 +382,11 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		button_create->setVisible(is_null_group_id);
 	if(button_cancel)
 		button_cancel->setVisible(!is_null_group_id);
+
+	if(button_call)
+			button_call->setVisible(!is_null_group_id);
+	if(button_chat)
+			button_chat->setVisible(!is_null_group_id);
 
 	getChild<LLUICtrl>("prepend_founded_by")->setVisible(!is_null_group_id);
 
@@ -431,7 +457,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	reposButtons();
 }
 
-bool	LLPanelGroup::apply(LLPanelGroupTab* tab)
+bool LLPanelGroup::apply(LLPanelGroupTab* tab)
 {
 	if(!tab)
 		return false;
@@ -499,6 +525,15 @@ void LLPanelGroup::refreshData()
 	mRefreshTimer.setTimerExpirySec(5);
 }
 
+void LLPanelGroup::callGroup()
+{
+	LLGroupActions::startCall(getID());
+}
+
+void LLPanelGroup::chatGroup()
+{
+	LLGroupActions::startIM(getID());
+}
 
 void LLPanelGroup::showNotice(const std::string& subject,
 							  const std::string& message,
