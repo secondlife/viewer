@@ -110,21 +110,13 @@ void LLPanelVoiceDeviceSettings::draw()
 
 	LLPanel::draw();
 
-	F32 voice_power = gVoiceClient->tuningGetEnergy();
-	S32 discrete_power = 0;
-
-	if (!is_in_tuning_mode)
-	{
-		discrete_power = 0;
-	}
-	else
-	{
-		discrete_power = llmin(4, llfloor((voice_power / LLVoiceClient::OVERDRIVEN_POWER_LEVEL) * 4.f));
-	}
-	
 	if (is_in_tuning_mode)
 	{
-		for(S32 power_bar_idx = 0; power_bar_idx < 5; power_bar_idx++)
+		const S32 num_bars = 5;
+		F32 voice_power = gVoiceClient->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
+		S32 discrete_power = llmin(num_bars, llfloor(voice_power * (F32)num_bars + 0.1f));
+
+		for(S32 power_bar_idx = 0; power_bar_idx < num_bars; power_bar_idx++)
 		{
 			std::string view_name = llformat("%s%d", "bar", power_bar_idx);
 			LLView* bar_view = getChild<LLView>(view_name);
