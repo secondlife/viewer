@@ -630,6 +630,8 @@ class WindowsSetup(PlatformSetup):
             print >> open(stamp, 'w'), self.build_type
         
     def run_build(self, opts, targets):
+        for t in targets:
+            assert t.strip(), 'Unexpected empty targets: ' + repr(targets)
         cwd = getcwd()
         executable, build_cmd = self.get_build_cmd()
 
