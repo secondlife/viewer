@@ -57,6 +57,9 @@
 	 name="Black_50"
 	 value="0 0 0 0.5" />
 	<color
+	name="FrogGreen"
+	value="0.26 0.345 0.263 1" />
+	<color
 	 name="Red"
 	 value="1 0 0 1" />
 	<color
@@ -460,7 +463,7 @@
      reference="DkGray" />
     <color
      name="MenuBarGodBgColor"
-     reference="Green" />
+     reference="FrogGreen" />
     <color
      name="MenuDefaultBgColor"
      reference="DkGray2" />
