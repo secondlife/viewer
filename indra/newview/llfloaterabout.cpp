@@ -269,7 +269,7 @@ LLSD LLFloaterAbout::getInfo()
 	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : LLTrans::getString("NotConnected");
 
 	// TODO: Implement media plugin version query
-	info["QT_WEBKIT_VERSION"] = "4.5.2 (version number hard-coded)";
+	info["QT_WEBKIT_VERSION"] = "4.6 (version number hard-coded)";
 
 	if (gPacketsIn > 0)
 	{

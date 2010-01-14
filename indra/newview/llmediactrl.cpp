@@ -84,7 +84,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mHomePageUrl( "" ),
 	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
-	mExternalUrl( "" ),
 	mMediaSource( 0 ),
 	mTakeFocusOnClick( true ),
 	mCurrentNavUrl( "" ),
@@ -877,9 +876,27 @@ bool LLMediaCtrl::onClickLinkExternalTarget(const LLSD& notification, const LLSD
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( 0 == option )
 	{
-		// open in external browser because we don't support 
-		// creation of our own secondary browser windows
-		LLWeb::loadURLExternal( notification["payload"]["external_url"].asString() );
+		LLSD payload = notification["payload"];
+		std::string url = payload["url"].asString();
+		S32 target_type = payload["target_type"].asInteger();
+
+		switch (target_type)
+		{
+		case LLPluginClassMedia::TARGET_EXTERNAL:
+			// load target in an external browser
+			LLWeb::loadURLExternal(url);
+			break;
+
+		case LLPluginClassMedia::TARGET_BLANK:
+			// load target in the user's preferred browser
+			LLWeb::loadURL(url);
+			break;
+
+		default:
+			// unsupported link target - shouldn't happen
+			LL_WARNS("LinkTarget") << "Unsupported link target type" << LL_ENDL;
+			break;
+		}
 	}
 	return false;
 }
@@ -993,20 +1010,18 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 {
 	// retrieve the event parameters
-	std::string target = self->getClickTarget();
 	std::string url = self->getClickURL();
+	U32 target_type = self->getClickTargetType();
 	
-	// if there is a value for the target
-	if ( !target.empty() )
+	// is there is a target specified for the link?
+	if (target_type == LLPluginClassMedia::TARGET_EXTERNAL ||
+		target_type == LLPluginClassMedia::TARGET_BLANK)
 	{
-		if ( target == "_external" )		
-		{
-			mExternalUrl = url;
-			LLSD payload;
-			payload["external_url"] = mExternalUrl;
-			LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
-			return;
-		}
+		LLSD payload;
+		payload["url"] = url;
+		payload["target_type"] = LLSD::Integer(target_type);
+		LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
+		return;
 	}
 
 	const std::string protocol1( "http://" );
