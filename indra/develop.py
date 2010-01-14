@@ -586,7 +586,7 @@ class WindowsSetup(PlatformSetup):
 
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
-        assert name is not None, 'On windows an executable path must be given in name.'
+        assert name is not None, 'On windows an executable path must be given in name. [DEV-44838]'
         if os.path.isfile(name):
             path = name
         else:
