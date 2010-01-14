@@ -811,6 +811,7 @@ Please select a proposal to view.
 Please select a history item to view.
   </notification>
 
+<!--   
   <notification
    icon="alertmodal.tga"
    name="ResetShowNextTimeDialogs"
@@ -832,6 +833,7 @@ Would you like to disable all popups which can be skipped?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+-->
 
   <notification
    icon="alertmodal.tga"
@@ -5358,6 +5360,7 @@ Grant this request?
     </form>
   </notification>
 
+<!--
   <notification
    icon="notify.tga"
    name="FirstBalanceIncrease"
@@ -5373,6 +5376,7 @@ Your L$ balance is shown in the upper-right.
 You just paid L$[AMOUNT].
 Your L$ balance is shown in the upper-right.
   </notification>
+-->
 
   <notification
    icon="notify.tga"
@@ -5384,6 +5388,8 @@ Your L$ balance will be updated when processing completes. If processing takes m
 
 The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
   </notification>
+  
+<!-- 
   <notification
    icon="notify.tga"
    name="FirstSit"
@@ -5408,8 +5414,9 @@ Use the controls on the right to find things and display different backgrounds.
    type="notify">
 You have opened the Build Tools. Every object you see around you was created using these tools.
   </notification>
+-->
 
-<!--
+<!--  
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
@@ -5418,13 +5425,15 @@ You have opened the Build Tools. Every object you see around you was created usi
     If the mouse pointer changes to a hand, you can interact with the object.
     Right-click always shows a menu of things you can do.
   </notification>
--->
+
   <notification
    icon="notify.tga"
    name="FirstTeleport"
    type="notify">
 You can only teleport to certain areas in this region. The arrow points to your specific destination. Click the arrow to dismiss it.
   </notification>
+
+-->
 
   <notification
    icon="notify.tga"
@@ -5436,6 +5445,7 @@ Some objects (like guns) require you to go into mouselook  to use them.
 Press &apos;M&apos; to do this.
   </notification>
 
+<!--
   <notification
    icon="notify.tga"
    name="FirstAppearance"
@@ -5455,6 +5465,7 @@ This is your Inventory, which contains items you own.
 * To rez something inworld, drag it onto the ground.
 * To read a notecard, double-click it.
   </notification>
+-->
 
   <notification
    icon="notify.tga"
@@ -5465,6 +5476,7 @@ This is a sandbox area, and is meant to help Residents learn how to build.
 Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;Take&apos; to move your creation to your Inventory.
   </notification>
 
+<!--
   <notification
    icon="notify.tga"
    name="FirstFlexible"
@@ -5490,13 +5502,16 @@ To toggle this menu,
    type="notify">
 You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
+-->  
 
-  <!--notification
+  <!--
+  <notification
    icon="notify.tga"
    name="FirstMedia"
    type="notify">
     You have begun playing media.  Media can set to play automatically in the preferences window under Audio / Video. Note that this can be a security risk for media sites you do not trust.
-  </notification-->
+  </notification>
+  -->
 
   <notification
    icon="notifytip.tga"
