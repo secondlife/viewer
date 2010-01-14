@@ -279,14 +279,20 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
+	// ensure indicator is visible in case it is not in visible chain
+	// to be called when parent became visible next time to notify parent that visibility is changed.
 	setVisible(TRUE);
 
+	// if parent is in visible chain apply switch_on state and notify it immediately
 	if (getParent() && getParent()->isInVisibleChain())
 	{
 		LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
 		setVisible((BOOL)switch_on);
 		notifyParentVisibilityChanged();
 	}
+
+	// otherwise remember necessary state and mark itself as dirty.
+	// State will be applied i next draw when parents chain became visible.
 	else
 	{
 		LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
