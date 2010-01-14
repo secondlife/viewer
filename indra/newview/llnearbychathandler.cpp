@@ -180,6 +180,11 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 
 		if(panel && panel->messageID() == fromID && panel->canAddText())
 		{
+			if (CHAT_STYLE_IRC == notification["chat_style"].asInteger())
+			{
+				notification["message"] = notification["from"].asString() + notification["message"].asString();
+			}
+
 			panel->addMessage(notification);
 			toast->reshapeToPanel();
 			toast->resetTimer();
@@ -302,7 +307,6 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 	channel->setCreatePanelCallback(callback);
 
 	mChannel = LLChannelManager::getInstance()->addChannel(channel);
-	mChannel->setOverflowFormatString("You have %d unread nearby chat messages");
 }
 
 LLNearbyChatHandler::~LLNearbyChatHandler()
@@ -332,25 +336,22 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 
 	LLChat& tmp_chat = const_cast<LLChat&>(chat_msg);
 
-	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
-	{
-		if(!tmp_chat.mFromName.empty())
-			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
-		else
-			tmp_chat.mText = tmp_chat.mText.substr(3);
-	}
-	
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	{
 		//sometimes its usefull to have no name at all...
 		//if(tmp_chat.mFromName.empty() && tmp_chat.mFromID!= LLUUID::null)
 		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
 	}
-	
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	nearby_chat->addMessage(chat_msg);
 	if(nearby_chat->getVisible())
 		return;//no need in toast if chat is visible
-	
+
+	// Handle irc styled messages for toast panel
+	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
+	{
+		tmp_chat.mText = tmp_chat.mText.substr(3);
+	}
+
 	// arrange a channel on a screen
 	if(!mChannel->getVisible())
 	{

@@ -166,7 +166,7 @@
 	<string name="TooltipSLAPP">
 		クリックして secondlife:// コマンドを出す
 	</string>
-	<string name="CurrentURL" value="現在のURL： [CurrentURL]"/>
+	<string name="CurrentURL" value=" 現在のURL： [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
 		テレポート
 	</string>
@@ -174,7 +174,7 @@
 		地図に表示
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		閉じる （⌘W）
+		閉じる （&#8984;W）
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		閉じる （Ctrl+W）
@@ -821,33 +821,33 @@
 	<string name="InventoryNoTexture">
 		持ち物内にこのテクスチャのコピーがありません
 	</string>
-	<string name="no_transfer" value="（再販/プレゼント不可）"/>
-	<string name="no_modify" value="（編集不可）"/>
-	<string name="no_copy" value="（コピー不可）"/>
-	<string name="worn" value="（着用中）"/>
-	<string name="link" value="（リンク）"/>
-	<string name="broken_link" value="（壊れたリンク）"/>
+	<string name="no_transfer" value=" （再販/プレゼント不可）"/>
+	<string name="no_modify" value=" （編集不可）"/>
+	<string name="no_copy" value=" （コピー不可）"/>
+	<string name="worn" value=" （着用中）"/>
+	<string name="link" value=" （リンク）"/>
+	<string name="broken_link" value=" （壊れたリンク）"/>
 	<string name="LoadingContents">
 		コンテンツをロード中です...
 	</string>
 	<string name="NoContents">
 		コンテンツなし
 	</string>
-	<string name="WornOnAttachmentPoint" value="（[ATTACHMENT_POINT] に装着中）"/>
+	<string name="WornOnAttachmentPoint" value=" （[ATTACHMENT_POINT] に装着中）"/>
 	<string name="PermYes">
 		はい
 	</string>
 	<string name="PermNo">
 		いいえ
 	</string>
-	<string name="Chat" value="チャット："/>
-	<string name="Sound" value="サウンド："/>
-	<string name="Wait" value="--- 待機：:"/>
-	<string name="AnimFlagStop" value="アニメーションを停止："/>
-	<string name="AnimFlagStart" value="アニメーションを開始："/>
-	<string name="Wave" value="手を振る"/>
-	<string name="HelloAvatar" value="やあ、アバター！"/>
-	<string name="ViewAllGestures" value="すべて表示 &gt;&gt;"/>
+	<string name="Chat" value=" チャット："/>
+	<string name="Sound" value=" サウンド："/>
+	<string name="Wait" value=" --- 待機：:"/>
+	<string name="AnimFlagStop" value=" アニメーションを停止："/>
+	<string name="AnimFlagStart" value=" アニメーションを開始："/>
+	<string name="Wave" value=" 手を振る"/>
+	<string name="HelloAvatar" value=" やあ、アバター！"/>
+	<string name="ViewAllGestures" value="  すべて表示 &gt;&gt;"/>
 	<string name="Animations" value="アニメーション、"/>
 	<string name="Calling Cards" value="コーリングカード、"/>
 	<string name="Clothing" value="衣類、"/>
@@ -859,8 +859,8 @@
 	<string name="Sounds" value="サウンド、"/>
 	<string name="Textures" value="テクスチャ、"/>
 	<string name="Snapshots" value="スナップショット、"/>
-	<string name="No Filters" value="いいえ"/>
-	<string name="Since Logoff" value="- ログオフ以来"/>
+	<string name="No Filters" value="いいえ "/>
+	<string name="Since Logoff" value=" - ログオフ以来"/>
 	<string name="InvFolder My Inventory">
 		マイ 持ち物
 	</string>
@@ -1239,13 +1239,13 @@
 	<string name="GroupsNone">
 		なし
 	</string>
-	<string name="Group" value="（グループ）"/>
+	<string name="Group" value=" （グループ）"/>
 	<string name="Unknown">
 		（不明）
 	</string>
 	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
 	<string name="NextStipendDay" value="次回のお小遣い支給日は"/>
-	<string name="GroupIndividualShare" value="グループ　　　個人の割り当て"/>
+	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
 	<string name="Balance">
 		残高
 	</string>
@@ -1324,8 +1324,8 @@
 	<string name="covenant_last_modified">
 		最終修正日：
 	</string>
-	<string name="none_text" value="（なし）"/>
-	<string name="never_text" value="（無）"/>
+	<string name="none_text" value=" （なし）"/>
+	<string name="never_text" value=" （無）"/>
 	<string name="GroupOwned">
 		グループ所有
 	</string>
@@ -1616,7 +1616,7 @@
 		致命的なエラー
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME] は、AltiVec搭載のプロセッサが必要です。（G4 以降）
+		 [APP_NAME] は、AltiVec搭載のプロセッサが必要です。（G4 以降）
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] はすでに実行中です。

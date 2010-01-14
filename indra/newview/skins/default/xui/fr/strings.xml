@@ -166,7 +166,7 @@
 	<string name="TooltipSLAPP">
 		Cliquez pour exécuter la commande secondlife:// command
 	</string>
-	<string name="CurrentURL" value="URL actuelle : [CurrentURL]"/>
+	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
 		Me téléporter vers
 	</string>
@@ -174,7 +174,7 @@
 		Afficher la carte pour
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Fermer (⌘W)
+		Fermer (&#8984;W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		Fermer (Ctrl+W)
@@ -821,46 +821,46 @@
 	<string name="InventoryNoTexture">
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
-	<string name="no_transfer" value="(pas de transfert)"/>
-	<string name="no_modify" value="(pas de modification)"/>
-	<string name="no_copy" value="(pas de copie)"/>
-	<string name="worn" value="(porté)"/>
-	<string name="link" value="(lien)"/>
-	<string name="broken_link" value="(broken_link)"/>
+	<string name="no_transfer" value=" (pas de transfert)"/>
+	<string name="no_modify" value=" (pas de modification)"/>
+	<string name="no_copy" value=" (pas de copie)"/>
+	<string name="worn" value=" (porté)"/>
+	<string name="link" value=" (lien)"/>
+	<string name="broken_link" value=" (broken_link)"/>
 	<string name="LoadingContents">
 		chargement des contenus en cours...
 	</string>
 	<string name="NoContents">
 		Aucun contenu
 	</string>
-	<string name="WornOnAttachmentPoint" value="(porté sur [ATTACHMENT_POINT])"/>
+	<string name="WornOnAttachmentPoint" value=" (porté sur [ATTACHMENT_POINT])"/>
 	<string name="PermYes">
 		Oui
 	</string>
 	<string name="PermNo">
 		Non
 	</string>
-	<string name="Chat" value="Chat :"/>
-	<string name="Sound" value="Son :"/>
-	<string name="Wait" value="--- Attendre :"/>
-	<string name="AnimFlagStop" value="Arrêter l&apos;animation :"/>
-	<string name="AnimFlagStart" value="Démarrer l&apos;animation :"/>
-	<string name="Wave" value="Faire signe"/>
-	<string name="HelloAvatar" value="Bonjour, avatar !"/>
-	<string name="ViewAllGestures" value="Tout afficher &gt;&gt;"/>
-	<string name="Animations" value="Animations,"/>
-	<string name="Calling Cards" value="Cartes de visite,"/>
-	<string name="Clothing" value="Habits,"/>
-	<string name="Gestures" value="Gestes,"/>
-	<string name="Landmarks" value="Repères,"/>
-	<string name="Notecards" value="Notes,"/>
-	<string name="Objects" value="Objets,"/>
-	<string name="Scripts" value="Scripts,"/>
-	<string name="Sounds" value="Sons,"/>
-	<string name="Textures" value="Textures,"/>
-	<string name="Snapshots" value="Photos,"/>
-	<string name="No Filters" value="Non"/>
-	<string name="Since Logoff" value="- Depuis la déconnexion"/>
+	<string name="Chat" value=" Chat :"/>
+	<string name="Sound" value=" Son :"/>
+	<string name="Wait" value=" --- Attendre :"/>
+	<string name="AnimFlagStop" value=" Arrêter l&apos;animation :"/>
+	<string name="AnimFlagStart" value=" Démarrer l&apos;animation :"/>
+	<string name="Wave" value=" Faire signe"/>
+	<string name="HelloAvatar" value=" Bonjour, avatar !"/>
+	<string name="ViewAllGestures" value="  Tout afficher &gt;&gt;"/>
+	<string name="Animations" value=" Animations,"/>
+	<string name="Calling Cards" value=" Cartes de visite,"/>
+	<string name="Clothing" value=" Habits,"/>
+	<string name="Gestures" value=" Gestes,"/>
+	<string name="Landmarks" value=" Repères,"/>
+	<string name="Notecards" value=" Notes,"/>
+	<string name="Objects" value=" Objets,"/>
+	<string name="Scripts" value=" Scripts,"/>
+	<string name="Sounds" value=" Sons,"/>
+	<string name="Textures" value=" Textures,"/>
+	<string name="Snapshots" value=" Photos,"/>
+	<string name="No Filters" value="Non "/>
+	<string name="Since Logoff" value=" - Depuis la déconnexion"/>
 	<string name="InvFolder My Inventory">
 		Mon inventaire
 	</string>
@@ -1239,13 +1239,13 @@
 	<string name="GroupsNone">
 		aucun
 	</string>
-	<string name="Group" value="(groupe)"/>
+	<string name="Group" value=" (groupe)"/>
 	<string name="Unknown">
 		(Inconnu)
 	</string>
-	<string name="SummaryForTheWeek" value="Récapitulatif de la semaine, début le"/>
-	<string name="NextStipendDay" value="Prochaine prime le"/>
-	<string name="GroupIndividualShare" value="Groupe 	 Part individuelle"/>
+	<string name="SummaryForTheWeek" value="Récapitulatif de la semaine, début le "/>
+	<string name="NextStipendDay" value="Prochaine prime le "/>
+	<string name="GroupIndividualShare" value="                      Groupe    Part individuelle"/>
 	<string name="Balance">
 		Solde
 	</string>
@@ -1324,8 +1324,8 @@
 	<string name="covenant_last_modified">
 		Dernière modification :
 	</string>
-	<string name="none_text" value="(aucun)"/>
-	<string name="never_text" value="(jamais)"/>
+	<string name="none_text" value=" (aucun)"/>
+	<string name="never_text" value=" (jamais)"/>
 	<string name="GroupOwned">
 		Propriété du groupe
 	</string>
@@ -1616,7 +1616,7 @@ Si le problème persiste, vous devrez peut-être complètement désinstaller pui
 		Erreur fatale
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME] nécessite un microprocesseur AltiVec (version G4 ou antérieure).
+		 [APP_NAME] nécessite un microprocesseur AltiVec (version G4 ou antérieure).
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] est déjà en cours d&apos;exécution.

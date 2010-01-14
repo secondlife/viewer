@@ -107,7 +107,7 @@
      height="16"
      layout="topleft"
      top_delta="0"
-     left="242"
+     left="217"
      name="currency_label"
      width="15">
       L$
@@ -123,7 +123,7 @@
      label="L$"
      left_pad="3"
      name="currency_amt"
-     width="60">
+     width="85">
         1234
     </line_editor>
     <text

@@ -77,10 +77,11 @@ void LLSysWellItem::onClickCloseBtn()
 //---------------------------------------------------------------------------------
 BOOL LLSysWellItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	BOOL res = LLPanel::handleMouseDown(x, y, mask);
 	if(!mCloseBtn->getRect().pointInRect(x, y))
 		mOnItemClick(this);
 
-	return LLPanel::handleMouseDown(x, y, mask);
+	return res;
 }
 
 //---------------------------------------------------------------------------------
