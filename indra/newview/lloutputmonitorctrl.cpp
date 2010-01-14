@@ -279,34 +279,19 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-	if (switch_on)
+	setVisible(TRUE);
+
+	if (getParent() && getParent()->isInVisibleChain())
 	{
+		LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
 		setVisible((BOOL)switch_on);
-		if (getParent() && getParent()->isInVisibleChain())
-		{
-			notifyParentVisibilityChanged();
-		}
-		else
-		{
-			LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
-			mIsSwitchDirty = true;
-			mShouldSwitchOn = true;
-		}
+		notifyParentVisibilityChanged();
 	}
 	else
 	{
-		if (getParent() && getParent()->isInVisibleChain())
-		{
-			LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
-			setVisible((BOOL)switch_on);
-			notifyParentVisibilityChanged();
-		}
-		else
-		{
-			LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
-			mIsSwitchDirty = true;
-			mShouldSwitchOn = false;
-		}
+		LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
+		mIsSwitchDirty = true;
+		mShouldSwitchOn = switch_on;
 	}
 }
 
