@@ -19,9 +19,9 @@
      left="10"
      name="estate_help_text"
      top="14"
-     width="313">
-        Changes to settings on this tab will affect all
-regions in the estate.
+     word_wrap="true"
+     width="275">
+        Changes to settings on this tab will affect all regions in the estate.
     </text>
     <text
      type="string"
@@ -138,7 +138,7 @@ regions in the estate.
      name="Only Allow"
      top="250"
      width="278">
-        Restrict Access to Accounts Verified by:
+        Restrict Access to accounts verified by:
     </text>
     <check_box
      follows="top|left"

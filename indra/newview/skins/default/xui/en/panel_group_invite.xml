@@ -17,7 +17,7 @@
     </panel.string>
     <panel.string
      name="already_in_group">
-        Some avatars are already in group and were not invited.
+        Some Residents you chose are already in the group, and so were not sent an invitation.
     </panel.string>
     <text
      type="string"
@@ -26,11 +26,10 @@
      layout="topleft"
      left="7"
      name="help_text"
-     top="24"
+     top="28"
+     word_wrap="true"
      width="200">
-        You can select multiple Residents to 
-invite to your group. Click &apos;Open 
-Resident Chooser&apos; to start.
+        You can select multiple Residents to invite to your group. Click &apos;Open Resident Chooser&apos; to start.
     </text>
     <button
      height="20"
@@ -68,6 +67,7 @@ Resident Chooser&apos; to start.
      left_delta="4"
      name="role_text"
      top_pad="5"
+     word_wrap="true"
      width="200">
         Choose what Role to assign them to:
     </text>
