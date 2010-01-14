@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="セキュリティ" name="Media Settings Security">
+	<check_box initial_value="false" label="指定した URL にのみアクセスを許可（接頭辞）" name="whitelist_enable"/>
+	<button label="追加" name="whitelist_add"/>
+	<button label="削除" name="whitelist_del"/>
+</panel>

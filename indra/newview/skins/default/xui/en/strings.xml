@@ -67,7 +67,7 @@
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
-	<string name="TooltipAgentUrl">Click to view this resident's profile</string>
+	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
 	<string name="TooltipGroupUrl">Click to view this group's description</string>
 	<string name="TooltipEventUrl">Click to view this event's description</string>
 	<string name="TooltipClassifiedUrl">Click to view this classified</string>
@@ -1609,11 +1609,11 @@ Sends an HTTP request to the specified url with the body of the request and para
 	</string>
 	<string name="LSLTipText_llResetLandBanList" translate="false">
 llResetLandBanList()
-Removes all residents from the land ban list
+Removes all Residents from the land ban list
 	</string>
 	<string name="LSLTipText_llResetLandPassList" translate="false">
 llResetLandPassList()
-Removes all residents from the land access/pass list
+Removes all Residents from the land access/pass list
 	</string>
 	<string name="LSLTipText_llGetObjectPrimCount" translate="false">
 integer llGetObjectPrimCount(key object_id)
@@ -1621,7 +1621,7 @@ Returns the total number of prims for an object in the region
 	</string>
 	<string name="LSLTipText_llGetParcelPrimOwners" translate="false">
 list llGetParcelPrimOwners(vector pos)
-Returns a list of all residents who own objects on the parcel at pos and with individual prim counts.
+Returns a list of all Residents who own objects on the parcel at pos and with individual prim counts.
 Requires owner-like permissions for the parcel.
 	</string>
 	<string name="LSLTipText_llGetParcelPrimCount" translate="false">
@@ -1808,7 +1808,7 @@ Clears (deletes) the media and all params from the given face.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
-  <string name="FavoritesNoMatchingItems">Drag and drop a landmark here to add to your favorites.</string>
+  <string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">
 		You do not have a copy of
 this texture in your inventory
@@ -2039,7 +2039,7 @@ this texture in your inventory
 	<string name="RegionInfoAllEstatesYouManage">
 		all estates that you manage for [OWNER]
 	</string>
-	<string name="RegionInfoAllowedResidents">Allowed residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
+	<string name="RegionInfoAllowedResidents">Allowed Residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
 	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
 
 	<!-- script limits floater -->
@@ -2110,7 +2110,7 @@ this texture in your inventory
 
 	<!-- Mute -->
 	<string name="MuteByName">(by name)</string>
-	<string name="MuteAgent">(resident)</string>
+	<string name="MuteAgent">(Resident)</string>
 	<string name="MuteObject">(object)</string>
 	<string name="MuteGroup">(group)</string>
 
@@ -2937,7 +2937,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Click the [BUTTON NAME] button to accept/connect to this voice chat.
   </string>
   <string name="muted_message">
-    You have blocked this resident. Sending a message will automatically unblock them.
+    You have blocked this Resident. Sending a message will automatically unblock them.
   </string>
   <!--Some times string name is getting from the body of server response.
   For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 

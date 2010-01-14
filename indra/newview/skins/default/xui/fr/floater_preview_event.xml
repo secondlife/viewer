@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="event_preview" title="INFORMATIONS SUR L&apos;ÉVÉNEMENT">
+<floater name="event_preview" title="INFORMATIONS SUR LES ÉVÉNEMENTS">
 	<floater.string name="Title">
-		Événement : [NAME]
+		Événement : [NAME]
 	</floater.string>
 </floater>

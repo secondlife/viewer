@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="item properties" title="INVENTAROBJEKT-EIGENSCHAFTEN">
+<floater name="item properties" title="EIGENSCHAFTEN: INVENTAROBJEKT">
 	<floater.string name="unknown">
 		(unbekannt)
 	</floater.string>
@@ -11,6 +11,9 @@
 	</floater.string>
 	<floater.string name="owner_can">
 		Eigentümer kann:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</floater.string>
 	<text name="LabelItemNameTitle">
 		Name:
@@ -63,5 +66,8 @@
 		<combo_box.item label="Kopieren" name="Copy"/>
 		<combo_box.item label="Original" name="Original"/>
 	</combo_box>
-	<spinner label="Preis: L$" name="Edit Cost"/>
+	<spinner label="Preis:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
 </floater>

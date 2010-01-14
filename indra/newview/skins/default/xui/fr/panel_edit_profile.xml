@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Profile Edit" name="edit_profile_panel">
+<panel label="Modification du profil" name="edit_profile_panel">
 	<string name="CaptionTextAcctInfo">
-		[ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
 	</string>
 	<string name="AcctTypeResident" value="Résident"/>
 	<string name="AcctTypeTrial" value="Essai"/>
@@ -9,9 +13,9 @@
 	<string name="AcctTypeEmployee" value="Employé(e) de Linden Lab"/>
 	<string name="PaymentInfoUsed" value="Infos de paiement utilisées"/>
 	<string name="PaymentInfoOnFile" value="Infos de paiement enregistrées"/>
-	<string name="NoPaymentInfoOnFile" value="Aucune info de paiement"/>
-	<string name="AgeVerified" value="Âge vérifié"/>
-	<string name="NotAgeVerified" value="Âge non vérifié"/>
+	<string name="NoPaymentInfoOnFile" value="Aucune info de paiement enregistrée"/>
+	<string name="AgeVerified" value="Personne dont l&apos;âge a été vérifié"/>
+	<string name="NotAgeVerified" value="Personne dont l&apos;âge n&apos;a pas été vérifié"/>
 	<string name="partner_edit_link_url">
 		http://www.secondlife.com/account/partners.php?lang=fr
 	</string>
@@ -20,14 +24,28 @@
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
 				<panel name="lifes_images_panel">
+					<panel name="second_life_image_panel">
+						<text name="second_life_photo_title_text" value="[SECOND_LIFE]:"/>
+					</panel>
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Cliquez pour sélectionner une image"/>
+				</panel>
+				<panel name="first_life_image_panel">
+					<text name="real_world_photo_title_text" value="Monde physique :"/>
 				</panel>
 				<icon label="" name="real_world_edit_icon" tool_tip="Cliquez pour sélectionner une image"/>
 				<text name="title_homepage_text">
-					Page d&apos;accueil :
+					Page d&apos;accueil :
 				</text>
+				<line_editor name="homepage_edit" value="http://"/>
 				<check_box label="Afficher dans les résultats de recherche" name="show_in_search_checkbox"/>
-				<text name="title_acc_status_text" value="Statut du compte :"/>
+				<text name="title_acc_status_text" value="Mon compte :"/>
+				<text name="my_account_link" value="Accéder à ma Page d&apos;accueil"/>
+				<text name="acc_status_text" value="Résident. Aucune info de paiement enregistrée."/>
+				<text name="title_partner_text" value="Mon partenaire :"/>
+				<text name="partner_edit_link" value="[Modifier [URL]]"/>
+				<panel name="partner_data_panel">
+					<text name="partner_text" value="[FIRST] [LAST]"/>
+				</panel>
 			</panel>
 		</panel>
 	</scroll_container>

@@ -8,7 +8,7 @@
 		報告者：
 	</text>
 	<text name="reporter_field">
-		Loremipsum Dolorsitamut
+		Loremipsum Dolorsitamut Longnamez
 	</text>
 	<text name="sim_title">
 		地域：
@@ -23,7 +23,7 @@
 		{128.1, 128.1, 15.4}
 	</text>
 	<text name="select_object_label">
-		ボタンをクリック。悪意のあるオブジェクト：
+		ボタンをクリックしてから、悪意のあるオブジェクトをクリック：
 	</text>
 	<button label="" label_selected="" name="pick_btn" tool_tip="オブジェクト・ピッカー - この報告の主題となるオブジェクトを特定"/>
 	<text name="object_name_label">
@@ -36,7 +36,7 @@
 		ｵｰﾅｰ：
 	</text>
 	<text name="owner_name">
-		Hendrerit Vulputate
+		Hendrerit Vulputate Kamawashi Longname
 	</text>
 	<combo_box name="category_combo" tool_tip="カテゴリー -- この報告に最も適したカテゴリーを選択してください">
 		<combo_box.item label="カテゴリーを選択" name="Select_category"/>
@@ -93,10 +93,10 @@
 		詳細：
 	</text>
 	<text name="bug_aviso">
-		できるだけ具体的にお願いします。
+		できるだけ具体的に詳しく記入してください。
 	</text>
 	<text name="incomplete_title">
-		注意：不完全なレポートは調査されません。
+		* 不完全な報告は調査対象になりません。
 	</text>
 	<button label="嫌がらせの報告" label_selected="嫌がらせの報告" name="send_btn"/>
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>

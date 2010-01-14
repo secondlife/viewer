@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil" name="panel_profile">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="no_partner_text" value="Aucun"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="second_life_image_panel">
+				<icon label="" name="2nd_life_edit_icon" tool_tip="Cliquez sur le bouton Modifier le profil ci-dessous pour changer d&apos;image"/>
+				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+				<expandable_text name="sl_description_edit">
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+				</expandable_text>
+			</panel>
+			<panel name="first_life_image_panel">
+				<icon label="" name="real_world_edit_icon" tool_tip="Cliquez sur le bouton Modifier le profil ci-dessous pour changer d&apos;image"/>
+				<text name="title_rw_descr_text" value="Monde physique :"/>
+				<expandable_text name="fl_description_edit">
+					Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+				</expandable_text>
+			</panel>
+			<text name="me_homepage_text">
+				Page d&apos;accueil :
+			</text>
+			<text name="title_member_text" value="Membre depuis :"/>
+			<text name="register_date" value="05/31/1976"/>
+			<text name="title_acc_status_text" value="Statut du compte :"/>
+			<text name="acc_status_text" value="Résident. Aucune info de paiement enregistrée."/>
+			<text name="title_partner_text" value="Partenaire :"/>
+			<panel name="partner_data_panel">
+				<text name="partner_text" value="[FIRST] [LAST]"/>
+			</panel>
+			<text name="title_groups_text" value="Groupes :"/>
+			<expandable_text name="sl_groups">
+				Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+			</expandable_text>
+		</panel>
+	</scroll_container>
+	<panel name="profile_buttons_panel">
+		<button label="Devenir amis" name="add_friend"/>
+		<button label="IM" name="im"/>
+		<button label="Appeler" name="call"/>
+		<button label="Carte" name="show_on_map_btn"/>
+		<button label="Téléporter" name="teleport"/>
+	</panel>
+	<panel name="profile_me_buttons_panel">
+		<button label="Modifier le profil" name="edit_profile_btn"/>
+		<button label="Changer d&apos;apparence" name="edit_appearance_btn"/>
+	</panel>
+</panel>

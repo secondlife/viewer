@@ -37,7 +37,7 @@
 		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Den integrierten Browser für Hilfe, Internetlinks, usw. verwenden. Der Browser wird als eigenständiges Fenster in [APP_NAME] geöffnet."/>
 		<radio_item label="Meinen Browser verwenden (IE, Firefox)" name="external" tool_tip="Standard-Browser für Hilfe, Weblinks usw. verwenden. Im Vollbildmodus nicht empfohlen."/>
 	</radio_group>
-	<check_box initial_value="false" label="Web-Proxy:" name="web_proxy_enabled"/>
+	<check_box initial_value="false" label="Web-Proxy" name="web_proxy_enabled"/>
 	<line_editor name="web_proxy_editor" tool_tip="Name oder IP-Adresse des Proxys"/>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_proxy"/>
 	<text name="Proxy location">

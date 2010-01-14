@@ -15,13 +15,12 @@
      follows="left|top"
      height="30"
      layout="topleft"
-     left="10"
+     left="30"
      name="Save item as:"
      top="25"
      word_wrap="true"
-     width="220">
-        Press a key to set your
-Speak button trigger.
+     width="180">
+        Press a key to set your Speak button trigger.
     </text>
     <button
      height="23"
@@ -30,5 +29,6 @@ Speak button trigger.
      layout="topleft"
      right="-10"
      name="Cancel"
+     top_pad="8"
      width="100" />
 </floater>
