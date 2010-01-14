@@ -80,7 +80,7 @@
 #include "llrecentpeople.h"
 #include "llsyswellwindow.h"
 
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llagentui.h"
 #include "lltextutil.h"
 

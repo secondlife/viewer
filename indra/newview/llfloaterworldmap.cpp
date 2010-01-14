@@ -47,7 +47,7 @@
 #include "llviewercontrol.h"
 #include "llcommandhandler.h"
 #include "lldraghandle.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
 #include "llinventorymodel.h"
@@ -314,7 +314,7 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 		adjustZoomSliderBounds();
 
 		// Could be first show
-		LLFirstUse::useMap();
+		//LLFirstUse::useMap();
 
 		// Start speculative download of landmarks
 		const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
