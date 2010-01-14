@@ -596,7 +596,9 @@ class WindowsSetup(PlatformSetup):
             print "develop.py tries to run:", command
             ret = subprocess.call(command, executable=path)
             print "got ret", ret, "from", command
-            if ret:
+            if ret == 0:
+                break
+            else:
                 error = 'exited with status %d' % ret
                 if retry_on is not None and retry_on == ret:
                     print "Retrying... the command %r %s" % (name, error)
