@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llscreenchannel.h"
 #include "llchannelmanager.h"
+#include "lltransientfloatermgr.h"
 
 using namespace LLNotificationsUI;
 
@@ -70,10 +71,12 @@ LLInspectToast::LLInspectToast(const LLSD& notification_id) :
 		llwarns << "Could not get requested screen channel." << llendl;
 		return;
 	}
+
+	LLTransientFloaterMgr::getInstance()->addControlView(this);
 }
 LLInspectToast::~LLInspectToast()
 {
-
+	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 void LLInspectToast::onOpen(const LLSD& notification_id)
