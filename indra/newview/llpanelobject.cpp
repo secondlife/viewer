@@ -73,7 +73,7 @@
 #include "pipeline.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 
 #include "lldrawpool.h"
 
@@ -682,7 +682,7 @@ void LLPanelObject::getState( )
 		if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
 		{
 			selected_item = MI_SCULPT;
-			LLFirstUse::useSculptedPrim();
+			//LLFirstUse::useSculptedPrim();
 		}
 
 		
