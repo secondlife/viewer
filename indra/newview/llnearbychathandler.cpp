@@ -302,7 +302,6 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 	channel->setCreatePanelCallback(callback);
 
 	mChannel = LLChannelManager::getInstance()->addChannel(channel);
-	mChannel->setOverflowFormatString("You have %d unread nearby chat messages");
 }
 
 LLNearbyChatHandler::~LLNearbyChatHandler()
