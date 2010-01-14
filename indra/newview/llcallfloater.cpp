@@ -51,6 +51,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
+#include "lllayoutstack.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 
@@ -314,7 +315,7 @@ void LLCallFloater::updateSession()
 	
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_call_btn", !is_local_chat);
+	childSetVisible("leave_call_btn_panel", !is_local_chat);
 	
 	refreshParticipantList();
 	updateAgentModeratorState();
@@ -818,8 +819,8 @@ void reshape_floater(LLCallFloater* floater, S32 delta_height)
 		}
 	}
 
-	floater->reshape(floater_rect.getWidth(), floater_rect.getHeight());
-	floater->setRect(floater_rect);
+	floater->setShape(floater_rect);
+	floater->getChild<LLLayoutStack>("my_call_stack")->updateLayout(FALSE);
 }
 
 void LLCallFloater::reshapeToFitContent()
@@ -864,9 +865,8 @@ S32 LLCallFloater::getParticipantItemHeight()
 
 S32 LLCallFloater::getMaxVisibleItems()
 {
-	S32 value = 5; // default value, in case convertToS32() fails.
-	LLStringUtil::convertToS32(getString("max_visible_items"), value);
-	return value;
+	static LLCachedControl<S32> max_visible_items(*LLUI::sSettingGroups["config"],"CallFloaterMaxItems");
+	return max_visible_items;
 }
 
 //EOF
