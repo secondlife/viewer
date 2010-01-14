@@ -39,9 +39,13 @@
 #define TIME_FAST_TIMERS 0
 
 #if LL_WINDOWS
-#define _interlockedbittestandset _dummy_func
+// because MS has different signatures for these functions in winnt.h
+// need to rename them to avoid conflicts
+#define _interlockedbittestandset _renamed_interlockedbittestandset
+#define _interlockedbittestandreset _renamed_interlockedbittestandreset
 #include <intrin.h>
 #undef _interlockedbittestandset
+#undef _interlockedbittestandreset
 
 #define LL_INLINE __forceinline
 // shift off lower 8 bits for lower resolution but longer term timing
