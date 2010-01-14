@@ -91,40 +91,25 @@ BOOL  LLAvatarListItem::postBuild()
 	mProfileBtn->setVisible(false);
 	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onProfileBtnClick, this));
 
-	// Remember avatar icon width including its padding from the name text box,
-	// so that we can hide and show the icon again later.
 	if (!sStaticInitialized)
 	{
+		// Remember children widths including their padding from the next sibling,
+		// so that we can hide and show them again later.
 		initChildrenWidths(this);
 
 		sStaticInitialized = true;
 	}
 
-/*
-	if(!p.buttons.profile)
-	{
-		delete mProfile;
-		mProfile = NULL;
-
-		LLRect rect;
-
-		rect.setLeftTopAndSize(mName->getRect().mLeft, mName->getRect().mTop, mName->getRect().getWidth() + 30, mName->getRect().getHeight());
-		mName->setRect(rect);
-
-		if(mLocator)
-		{
-			rect.setLeftTopAndSize(mLocator->getRect().mLeft + 30, mLocator->getRect().mTop, mLocator->getRect().getWidth(), mLocator->getRect().getHeight());
-			mLocator->setRect(rect);
-		}
-
-		if(mInfo)
-		{
-			rect.setLeftTopAndSize(mInfo->getRect().mLeft + 30, mInfo->getRect().mTop, mInfo->getRect().getWidth(), mInfo->getRect().getHeight());
-			mInfo->setRect(rect);
-		}
-	}
-*/
 	return TRUE;
+}
+
+S32 LLAvatarListItem::notifyParent(const LLSD& info)
+{
+	if (info.has("visibility_changed"))
+	{
+		updateChildren();
+	}
+	return 0;
 }
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -246,8 +231,10 @@ void LLAvatarListItem::showSpeakingIndicator(bool visible)
 	// Already done? Then do nothing.
 	if (mSpeakingIndicator->getVisible() == (BOOL)visible)
 		return;
-	mSpeakingIndicator->setVisible(visible);
-	updateChildren();
+// Disabled to not contradict with SpeakingIndicatorManager functionality. EXT-3976
+// probably this method should be totally removed.
+//	mSpeakingIndicator->setVisible(visible);
+//	updateChildren();
 }
 
 void LLAvatarListItem::setAvatarIconVisible(bool visible)
@@ -264,26 +251,6 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 void LLAvatarListItem::onInfoBtnClick()
 {
 	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarId));
-
-	/* TODO fix positioning of inspector
-	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);
-	
-	
-	LLRect rect;
-
-	// *TODO Vadim: rewrite this. "+= -" looks weird.
-	S32 delta = mYPos - inspector->getRect().getHeight();
-	if(delta < 0)
-	{
-		mYPos += -delta;
-	}
-	
-	rect.setLeftTopAndSize(mXPos, mYPos,
-	inspector->getRect().getWidth(), inspector->getRect().getHeight()); 
-	inspector->setRect(rect);
-	inspector->setFrontmost(true);
-	inspector->setVisible(true);
-	*/
 }
 
 void LLAvatarListItem::onProfileBtnClick()
