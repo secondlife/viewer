@@ -354,6 +354,7 @@ static	void updatePosition(void);
 
 		participantState *findParticipantByID(const LLUUID& id);
 		participantMap *getParticipantList(void);
+		void getParticipantsUUIDSet(std::set<LLUUID>& participant_uuids);
 		
 		typedef std::map<const std::string*, sessionState*, stringMapComparitor> sessionMap;
 		typedef std::set<sessionState*> sessionSet;
