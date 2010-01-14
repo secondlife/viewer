@@ -282,7 +282,7 @@ void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 	if (switch_on)
 	{
 		setVisible((BOOL)switch_on);
-		if (isInVisibleChain())
+		if (getParent() && getParent()->isInVisibleChain())
 		{
 			notifyParentVisibilityChanged();
 		}
@@ -295,7 +295,7 @@ void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 	}
 	else
 	{
-		if (isInVisibleChain())
+		if (getParent() && getParent()->isInVisibleChain())
 		{
 			LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
 			setVisible((BOOL)switch_on);
