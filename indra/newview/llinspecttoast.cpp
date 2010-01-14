@@ -1,6 +1,6 @@
 /** 
- * @file lltoast.h
- * @brief This class implements a placeholder for any notification panel.
+ * @file llinspecttoast.cpp
+ * @brief Toast inspector implementation.
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
