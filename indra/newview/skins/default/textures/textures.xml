@@ -591,15 +591,15 @@ with the same filename but different name
   <texture name="Tool_Zoom" file_name="build/Tool_Zoom.png" preload="false" />
 
   <texture name="Toolbar_Divider" file_name="containers/Toolbar_Divider.png" preload="false" />
-  <texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="false" />
-  <texture name="Toolbar_Left_Press" file_name="containers/Toolbar_Left_Press.png" preload="false" />
-  <texture name="Toolbar_Left_Selected" file_name="containers/Toolbar_Left_Selected.png" preload="false" />
-  <texture name="Toolbar_Middle_Off" file_name="containers/Toolbar_Middle_Off.png" preload="false" />
-  <texture name="Toolbar_Middle_Press" file_name="containers/Toolbar_Middle_Press.png" preload="false" />
-  <texture name="Toolbar_Middle_Selected" file_name="containers/Toolbar_Middle_Selected.png" preload="false" />
-  <texture name="Toolbar_Right_Off" file_name="containers/Toolbar_Right_Off.png" preload="false" />
-  <texture name="Toolbar_Right_Press" file_name="containers/Toolbar_Right_Press.png" preload="false" />
-  <texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="false" />
+  <texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="false" scale.left="5" scale.bottom="4" scale.top="24" scale.right="30" />
+  <texture name="Toolbar_Left_Press" file_name="containers/Toolbar_Left_Press.png" preload="false" scale.left="5" scale.bottom="4" scale.top="24" scale.right="30" />
+  <texture name="Toolbar_Left_Selected" file_name="containers/Toolbar_Left_Selected.png" preload="false" scale.left="5" scale.bottom="4" scale.top="24" scale.right="30" />
+  <texture name="Toolbar_Middle_Off" file_name="containers/Toolbar_Middle_Off.png" preload="false" scale.left="1" scale.bottom="2" scale.top="24" scale.right="30" />
+  <texture name="Toolbar_Middle_Press" file_name="containers/Toolbar_Middle_Press.png" preload="false" scale.left="1" scale.bottom="2" scale.top="24" scale.right="30" />
+  <texture name="Toolbar_Middle_Selected" file_name="containers/Toolbar_Middle_Selected.png" preload="false" scale.left="1" scale.bottom="2" scale.top="24" scale.right="30" />
+  <texture name="Toolbar_Right_Off" file_name="containers/Toolbar_Right_Off.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
+  <texture name="Toolbar_Right_Press" file_name="containers/Toolbar_Right_Press.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
+  <texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
 
   <texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="2" scale.top="16" scale.right="100" scale.bottom="3" />
 
@@ -665,10 +665,15 @@ with the same filename but different name
   <texture name="icn_voice-groupfocus.tga" />
   <texture name="icn_voice-pvtfocus.tga" />
 
-  <texture name="jump_left_out.tga" />
-  <texture name="jump_left_in.tga" />
-  <texture name="jump_right_out.tga" />
-  <texture name="jump_right_in.tga" />
+  <texture name="jump_left_out.tga" file_name="widgets/jump_left_out.png" />
+  <texture name="jump_left_in.tga" file_name="widgets/jump_left_in.png" />
+  <texture name="jump_right_out.tga" file_name="widgets/jump_right_out.png" />
+  <texture name="jump_right_in.tga" file_name="widgets/jump_right_in.png" />
+  
+  <texture name="scrollbutton_left_out_blue.tga" file_name="widgets/ScrollArrow_Left_Opaque.png" />
+  <texture name="scrollbutton_left_in_blue.tga" file_name="widgets/ScrollArrow_Left_Over_Opaque.png" />
+  <texture name="scrollbutton_right_out_blue.tga" file_name="widgets/ScrollArrow_Right_Opaque.png" />
+  <texture name="scrollbutton_right_in_blue.tga" file_name="widgets/ScrollArrow_Right_Over_Opaque.png" />
 
   <texture name="up_arrow.tga" file_name="up_arrow.png" />
   <texture name="down_arrow.tga" file_name="down_arrow.png" />
