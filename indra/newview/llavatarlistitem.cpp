@@ -127,6 +127,15 @@ BOOL  LLAvatarListItem::postBuild()
 	return TRUE;
 }
 
+S32 LLAvatarListItem::notifyParent(const LLSD& info)
+{
+	if (info.has("visibility_changed"))
+	{
+		updateChildren();
+	}
+	return 0;
+}
+
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
@@ -246,8 +255,10 @@ void LLAvatarListItem::showSpeakingIndicator(bool visible)
 	// Already done? Then do nothing.
 	if (mSpeakingIndicator->getVisible() == (BOOL)visible)
 		return;
-	mSpeakingIndicator->setVisible(visible);
-	updateChildren();
+// Disabled to not contradict with SpeakingIndicatorManager functionality. EXT-3976
+// probably this method should be totally removed.
+//	mSpeakingIndicator->setVisible(visible);
+//	updateChildren();
 }
 
 void LLAvatarListItem::setAvatarIconVisible(bool visible)

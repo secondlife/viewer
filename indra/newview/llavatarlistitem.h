@@ -74,6 +74,11 @@ public:
 	virtual ~LLAvatarListItem();
 
 	virtual BOOL postBuild();
+
+	/**
+	 * Processes notification from speaker indicator to update children when indicator's visibility is changed.
+	 */
+	virtual S32	notifyParent(const LLSD& info);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void setValue(const LLSD& value);
