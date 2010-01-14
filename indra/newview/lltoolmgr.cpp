@@ -38,7 +38,7 @@
 #include "llmenugl.h"
 #include "llfloaterreg.h"
 
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 // tools and manipulators
 #include "lltool.h"
 #include "llmanipscale.h"
@@ -301,7 +301,7 @@ void LLToolMgr::toggleBuildMode()
 		getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 
 		gAgent.resetView(false);
 

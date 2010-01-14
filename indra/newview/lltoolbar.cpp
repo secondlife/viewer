@@ -60,7 +60,7 @@
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llviewermenu.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llpanelblockedlist.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"

@@ -50,7 +50,7 @@
 // newview includes
 #include "llappearancemgr.h"
 #include "llappviewer.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfocusmgr.h"
