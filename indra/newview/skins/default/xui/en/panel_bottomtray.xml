@@ -103,7 +103,7 @@
          min_width="52"
          name="gesture_panel"
          user_resize="false">
-         <gesture_combo_box
+         <gesture_combo_list
           follows="left|right"
           height="23"
           label="Gesture"
@@ -113,10 +113,10 @@
           top="5"
           width="82"
           tool_tip="Shows/hides gestures">
-             <gesture_combo_box.drop_down_button
+             <gesture_combo_list.combo_button
               pad_right="10"
               use_ellipses="true" />
-         </gesture_combo_box>
+         </gesture_combo_list>
         </layout_panel>
 		 <icon
          auto_resize="false"
