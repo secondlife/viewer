@@ -39,7 +39,9 @@
 #define TIME_FAST_TIMERS 0
 
 #if LL_WINDOWS
+#define _interlockedbittestandset _dummy_func
 #include <intrin.h>
+#undef _interlockedbittestandset
 
 #define LL_INLINE __forceinline
 // shift off lower 8 bits for lower resolution but longer term timing
