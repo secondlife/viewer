@@ -103,6 +103,8 @@ public:
 	void onInfoBtnClick();
 	void onProfileBtnClick();
 
+	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
 protected:
 	/**
 	 * Contains indicator to show voice activity. 
