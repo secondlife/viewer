@@ -5360,8 +5360,24 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 			it != notification["payload"]["ids"].endArray();
 			++it)
 		{
+			LLUUID target_id = it->asUUID();
+
 			msg->nextBlockFast(_PREHASH_TargetData);
-			msg->addUUIDFast(_PREHASH_TargetID, it->asUUID());
+			msg->addUUIDFast(_PREHASH_TargetID, target_id);
+
+			// Record the offer.
+			{
+				std::string target_name;
+				gCacheName->getFullName(target_id, target_name);
+				LLSD args;
+				args["TO_NAME"] = target_name;
+	
+				LLSD payload;
+				payload["from_id"] = target_id;
+				payload["SESSION_NAME"] = target_name;
+				payload["SUPPRESS_TOAST"] = true;
+				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+			}
 		}
 		gAgent.sendReliableMessage();
 	}
