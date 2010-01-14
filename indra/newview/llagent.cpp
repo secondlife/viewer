@@ -514,8 +514,6 @@ void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 		}
 
 		setFocusOnAvatar(TRUE, ANIMATE);
-
-		mCameraFOVZoomFactor = 0.f;
 	}
 
 	mHUDTargetZoom = 1.f;
@@ -3586,7 +3584,7 @@ F32	LLAgent::calcCameraFOVZoomFactor()
 	{
 		return 0.f;
 	}
-	else if (mFocusObject.notNull() && !mFocusObject->isAvatar() && !mFocusOnAvatar)
+	else if (mFocusObject.notNull() && !mFocusObject->isAvatar())
 	{
 		// don't FOV zoom on mostly transparent objects
 		LLVector3 focus_offset = mFocusObjectOffset;
@@ -5157,11 +5155,6 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 		}
 	}
 	return FALSE;
-}
-
-BOOL LLAgent::canJoinGroups() const
-{
-	return mGroups.count() < MAX_AGENT_GROUPS;
 }
 
 LLQuaternion LLAgent::getHeadRotation()

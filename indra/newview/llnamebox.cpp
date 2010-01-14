@@ -52,7 +52,6 @@ LLNameBox::LLNameBox(const Params& p)
 :	LLTextBox(p)
 {
 	mNameID = LLUUID::null;
-	mLink = p.link;
 	LLNameBox::sInstances.insert(this);
 	setText(LLStringUtil::null);
 }
@@ -77,7 +76,7 @@ void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 		gCacheName->getGroupName(name_id, name);
 	}
 
-	setName(name, is_group);
+	setText(name);
 }
 
 void LLNameBox::refresh(const LLUUID& id, const std::string& firstname,
@@ -94,7 +93,7 @@ void LLNameBox::refresh(const LLUUID& id, const std::string& firstname,
 		{
 			name = firstname;
 		}
-		setName(name, is_group);
+		setText(name);
 	}
 }
 
@@ -108,24 +107,5 @@ void LLNameBox::refreshAll(const LLUUID& id, const std::string& firstname,
 	{
 		LLNameBox* box = *it;
 		box->refresh(id, firstname, lastname, is_group);
-	}
-}
-
-void LLNameBox::setName(const std::string& name, BOOL is_group)
-{
-	if (mLink)
-	{
-		std::string url;
-
-		if (is_group)
-			url = "[secondlife:///app/group/" + LLURI::escape(name) + "/about " + name + "]";
-		else
-			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
-
-		setText(url);
-	}
-	else
-	{
-		setText(name);
 	}
 }

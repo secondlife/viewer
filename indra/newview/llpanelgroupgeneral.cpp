@@ -580,6 +580,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 			}
 		}
 
+		mComboActiveTitle->resetDirty();
 	}
 
 	// If this was just a titles update, we are done.
@@ -594,6 +595,8 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	{
 		mCtrlShowInGroupList->set(gdatap->mShowInList);
 		mCtrlShowInGroupList->setEnabled(mAllowEdit && can_change_ident);
+		mCtrlShowInGroupList->resetDirty();
+
 	}
 	if (mComboMature)
 	{
@@ -607,16 +610,19 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		}
 		mComboMature->setEnabled(mAllowEdit && can_change_ident);
 		mComboMature->setVisible( !gAgent.isTeen() );
+		mComboMature->resetDirty();
 	}
 	if (mCtrlOpenEnrollment) 
 	{
 		mCtrlOpenEnrollment->set(gdatap->mOpenEnrollment);
 		mCtrlOpenEnrollment->setEnabled(mAllowEdit && can_change_member_opts);
+		mCtrlOpenEnrollment->resetDirty();
 	}
 	if (mCtrlEnrollmentFee) 
 	{	
 		mCtrlEnrollmentFee->set(gdatap->mMembershipFee > 0);
 		mCtrlEnrollmentFee->setEnabled(mAllowEdit && can_change_member_opts);
+		mCtrlEnrollmentFee->resetDirty();
 	}
 	
 	if (mSpinEnrollmentFee)
@@ -626,6 +632,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		mSpinEnrollmentFee->setEnabled( mAllowEdit &&
 						(fee > 0) &&
 						can_change_member_opts);
+		mSpinEnrollmentFee->resetDirty();
 	}
 	if (mCtrlReceiveNotices)
 	{
@@ -634,6 +641,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		{
 			mCtrlReceiveNotices->setEnabled(mAllowEdit);
 		}
+		mCtrlReceiveNotices->resetDirty();
 	}
 
 
@@ -657,6 +665,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	if (mEditCharter)
 	{
 		mEditCharter->setText(gdatap->mCharter);
+		mEditCharter->resetDirty();
 	}
 	
 	if (mListVisibleMembers)
@@ -684,8 +693,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 			mListVisibleMembers->addElement(row);
 		}
 	}
-
-	resetDirty();
 }
 
 void LLPanelGroupGeneral::updateMembers()

@@ -308,8 +308,7 @@ LLTextEditor::~LLTextEditor()
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 
-	// context menu is owned by menu holder, not us
-	//delete mContextMenu;
+	delete mContextMenu;
 }
 
 ////////////////////////////////////////////////////////////

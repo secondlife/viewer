@@ -406,11 +406,6 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 
 void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 {
-	if (!region)
-	{
-		return; 
-	}
-
 	// call refresh from region on all panels
 	std::for_each(
 		mInfoPanels.begin(),

@@ -44,10 +44,10 @@
 #include "llbutton.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
-S32 LLAvatarListItem::sLeftPadding = 0;
-S32 LLAvatarListItem::sRightNamePadding = 0;
-S32 LLAvatarListItem::sChildrenWidths[LLAvatarListItem::ALIC_COUNT];
-
+S32 LLAvatarListItem::sIconWidth = 0;
+S32 LLAvatarListItem::sInfoBtnWidth = 0;
+S32 LLAvatarListItem::sProfileBtnWidth = 0;
+S32 LLAvatarListItem::sSpeakingIndicatorWidth = 0;
 
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 :	LLPanel(),
@@ -91,25 +91,43 @@ BOOL  LLAvatarListItem::postBuild()
 	mProfileBtn->setVisible(false);
 	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onProfileBtnClick, this));
 
+	// Remember avatar icon width including its padding from the name text box,
+	// so that we can hide and show the icon again later.
 	if (!sStaticInitialized)
 	{
-		// Remember children widths including their padding from the next sibling,
-		// so that we can hide and show them again later.
-		initChildrenWidths(this);
+		sIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+		sInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
+		sProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
+		sSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight;
 
 		sStaticInitialized = true;
 	}
 
-	return TRUE;
-}
-
-S32 LLAvatarListItem::notifyParent(const LLSD& info)
-{
-	if (info.has("visibility_changed"))
+/*
+	if(!p.buttons.profile)
 	{
-		updateChildren();
+		delete mProfile;
+		mProfile = NULL;
+
+		LLRect rect;
+
+		rect.setLeftTopAndSize(mName->getRect().mLeft, mName->getRect().mTop, mName->getRect().getWidth() + 30, mName->getRect().getHeight());
+		mName->setRect(rect);
+
+		if(mLocator)
+		{
+			rect.setLeftTopAndSize(mLocator->getRect().mLeft + 30, mLocator->getRect().mTop, mLocator->getRect().getWidth(), mLocator->getRect().getHeight());
+			mLocator->setRect(rect);
+		}
+
+		if(mInfo)
+		{
+			rect.setLeftTopAndSize(mInfo->getRect().mLeft + 30, mInfo->getRect().mTop, mInfo->getRect().getWidth(), mInfo->getRect().getHeight());
+			mInfo->setRect(rect);
+		}
 	}
-	return 0;
+*/
+	return TRUE;
 }
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -119,8 +137,6 @@ void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 	mProfileBtn->setVisible(mShowProfileBtn);
 
 	LLPanel::onMouseEnter(x, y, mask);
-
-	updateChildren();
 }
 
 void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -130,8 +146,6 @@ void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
-
-	updateChildren();
 }
 
 // virtual, called by LLAvatarTracker
@@ -201,8 +215,12 @@ void LLAvatarListItem::showLastInteractionTime(bool show)
 	if (show)
 		return;
 
+	LLRect	name_rect	= mAvatarName->getRect();
+	LLRect	time_rect	= mLastInteractionTime->getRect();
+
 	mLastInteractionTime->setVisible(false);
-	updateChildren();
+	name_rect.mRight += (time_rect.mRight - name_rect.mRight);
+	mAvatarName->setRect(name_rect);
 }
 
 void LLAvatarListItem::setLastInteractionTime(U32 secs_since)
@@ -216,6 +234,12 @@ void LLAvatarListItem::setShowInfoBtn(bool show)
 	if(mShowInfoBtn == show)
 		return;
 	mShowInfoBtn = show;
+	S32 width_delta = show ? - sInfoBtnWidth : sInfoBtnWidth;
+
+	//Translating speaking indicator
+	mSpeakingIndicator->translate(width_delta, 0);
+	//Reshaping avatar name
+	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
 }
 
 void LLAvatarListItem::setShowProfileBtn(bool show)
@@ -224,17 +248,24 @@ void LLAvatarListItem::setShowProfileBtn(bool show)
 	if(mShowProfileBtn == show)
 			return;
 	mShowProfileBtn = show;
+	S32 width_delta = show ? - sProfileBtnWidth : sProfileBtnWidth;
+
+	//Translating speaking indicator
+	mSpeakingIndicator->translate(width_delta, 0);
+	//Reshaping avatar name
+	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
 }
 
-void LLAvatarListItem::showSpeakingIndicator(bool visible)
+void LLAvatarListItem::setSpeakingIndicatorVisible(bool visible)
 {
 	// Already done? Then do nothing.
 	if (mSpeakingIndicator->getVisible() == (BOOL)visible)
 		return;
-// Disabled to not contradict with SpeakingIndicatorManager functionality. EXT-3976
-// probably this method should be totally removed.
-//	mSpeakingIndicator->setVisible(visible);
-//	updateChildren();
+	mSpeakingIndicator->setVisible(visible);
+	S32 width_delta = visible ? - sSpeakingIndicatorWidth : sSpeakingIndicatorWidth;
+
+	//Reshaping avatar name
+	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
 }
 
 void LLAvatarListItem::setAvatarIconVisible(bool visible)
@@ -245,12 +276,36 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 
 	// Show/hide avatar icon.
 	mAvatarIcon->setVisible(visible);
-	updateChildren();
+
+	// Move the avatar name horizontally by icon size + its distance from the avatar name.
+	LLRect name_rect = mAvatarName->getRect();
+	name_rect.mLeft += visible ? sIconWidth : -sIconWidth;
+	mAvatarName->setRect(name_rect);
 }
 
 void LLAvatarListItem::onInfoBtnClick()
 {
 	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarId));
+
+	/* TODO fix positioning of inspector
+	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);
+	
+	
+	LLRect rect;
+
+	// *TODO Vadim: rewrite this. "+= -" looks weird.
+	S32 delta = mYPos - inspector->getRect().getHeight();
+	if(delta < 0)
+	{
+		mYPos += -delta;
+	}
+	
+	rect.setLeftTopAndSize(mXPos, mYPos,
+	inspector->getRect().getWidth(), inspector->getRect().getHeight()); 
+	inspector->setRect(rect);
+	inspector->setFrontmost(true);
+	inspector->setVisible(true);
+	*/
 }
 
 void LLAvatarListItem::onProfileBtnClick()
@@ -287,6 +342,21 @@ void LLAvatarListItem::onNameCache(const std::string& first_name, const std::str
 {
 	std::string name = first_name + " " + last_name;
 	setName(name);
+}
+
+void LLAvatarListItem::reshapeAvatarName()
+{
+	S32 width_delta = 0;
+	width_delta += mShowProfileBtn ? sProfileBtnWidth : 0;
+	width_delta += mSpeakingIndicator->getVisible() ? sSpeakingIndicatorWidth : 0;
+	width_delta += mAvatarIcon->getVisible() ? sIconWidth : 0;
+	width_delta += mShowInfoBtn ? sInfoBtnWidth : 0;
+	width_delta += mLastInteractionTime->getVisible() ? mLastInteractionTime->getRect().getWidth() : 0;
+
+	S32 height = mAvatarName->getRect().getHeight();
+	S32 width  = getRect().getWidth() - width_delta;
+
+	mAvatarName->reshape(width, height);
 }
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",
@@ -420,135 +490,6 @@ LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
 		LLUIColorTable::instance().getColor("AvatarListItemIconOfflineColor", LLColor4::white)));
 
 	return item_icon_color_map;
-}
-
-// static
-void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
-{
-	//profile btn width + padding
-	S32 profile_btn_width = avatar_item->getRect().getWidth() - avatar_item->mProfileBtn->getRect().mLeft;
-
-	//info btn width + padding
-	S32 info_btn_width = avatar_item->mProfileBtn->getRect().mLeft - avatar_item->mInfoBtn->getRect().mLeft;
-
-	//speaking indicator width + padding
-	S32 speaking_indicator_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mSpeakingIndicator->getRect().mLeft;
-
-	// last interaction time textbox width + padding
-	S32 last_interaction_time_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
-
-	// icon width + padding
-	S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
-
-	sLeftPadding = avatar_item->mAvatarIcon->getRect().mLeft;
-	sRightNamePadding = avatar_item->mLastInteractionTime->getRect().mLeft - avatar_item->mAvatarName->getRect().mRight;
-
-	S32 index = ALIC_COUNT;
-	sChildrenWidths[--index] = icon_width;
-	sChildrenWidths[--index] = 0; // for avatar name we don't need its width, it will be calculated as "left available space"
-	sChildrenWidths[--index] = last_interaction_time_width;
-	sChildrenWidths[--index] = speaking_indicator_width;
-	sChildrenWidths[--index] = info_btn_width;
-	sChildrenWidths[--index] = profile_btn_width;
-}
-
-void LLAvatarListItem::updateChildren()
-{
-	LL_DEBUGS("AvatarItemReshape") << LL_ENDL;
-	LL_DEBUGS("AvatarItemReshape") << "Updating for: " << getAvatarName() << LL_ENDL;
-
-	S32 name_new_width = getRect().getWidth();
-	S32 ctrl_new_left = name_new_width;
-	S32 name_new_left = sLeftPadding;
-
-	// iterate through all children and set them into correct position depend on each child visibility
-	// assume that child indexes are in back order: the first in Enum is the last (right) in the item
-	// iterate & set child views starting from right to left
-	for (S32 i = 0; i < ALIC_COUNT; ++i)
-	{
-		// skip "name" textbox, it will be processed out of loop later
-		if (ALIC_NAME == i) continue;
-
-		LLView* control = getItemChildView((EAvatarListItemChildIndex)i);
-
-		LL_DEBUGS("AvatarItemReshape") << "Processing control: " << control->getName() << LL_ENDL;
-		// skip invisible views
-		if (!control->getVisible()) continue;
-
-		S32 ctrl_width = sChildrenWidths[i]; // including space between current & left controls
-
-		// decrease available for 
-		name_new_width -= ctrl_width;
-		LL_DEBUGS("AvatarItemReshape") << "width: " << ctrl_width << ", name_new_width: " << name_new_width << LL_ENDL;
-
-		LLRect control_rect = control->getRect();
-		LL_DEBUGS("AvatarItemReshape") << "rect before: " << control_rect << LL_ENDL;
-
-		if (ALIC_ICON == i)
-		{
-			// assume that this is the last iteration,
-			// so it is not necessary to save "ctrl_new_left" value calculated on previous iterations
-			ctrl_new_left = sLeftPadding;
-			name_new_left = ctrl_new_left + ctrl_width;
-		}
-		else
-		{
-			ctrl_new_left -= ctrl_width;
-		}
-
-		LL_DEBUGS("AvatarItemReshape") << "ctrl_new_left: " << ctrl_new_left << LL_ENDL;
-
-		control_rect.setLeftTopAndSize(
-			ctrl_new_left,
-			control_rect.mTop,
-			control_rect.getWidth(),
-			control_rect.getHeight());
-
-		LL_DEBUGS("AvatarItemReshape") << "rect after: " << control_rect << LL_ENDL;
-		control->setShape(control_rect);
-	}
-
-	// set size and position of the "name" child
-	LLView* name_view = getItemChildView(ALIC_NAME);
-	LLRect name_view_rect = name_view->getRect();
-	LL_DEBUGS("AvatarItemReshape") << "name rect before: " << name_view_rect << LL_ENDL;
-
-	// apply paddings
-	name_new_width -= sLeftPadding;
-	name_new_width -= sRightNamePadding;
-
-	name_view_rect.setLeftTopAndSize(
-		name_new_left,
-		name_view_rect.mTop,
-		name_new_width,
-		name_view_rect.getHeight());
-
-	name_view->setShape(name_view_rect);
-
-	LL_DEBUGS("AvatarItemReshape") << "name rect after: " << name_view_rect << LL_ENDL;
-}
-
-LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_index)
-{
-	LLView* child_view = mAvatarName;
-	if (child_view_index < 0 || ALIC_COUNT <= child_view_index)
-	{
-		LL_WARNS("AvatarItemReshape") << "Child view index is out of range: " << child_view_index << LL_ENDL;
-		return child_view;
-	}
-	switch (child_view_index)
-	{
-	case ALIC_ICON:					child_view = mAvatarIcon; break;
-	case ALIC_NAME:					child_view = mAvatarName; break;
-	case ALIC_INTERACTION_TIME:		child_view = mLastInteractionTime; break;
-	case ALIC_SPEAKER_INDICATOR:	child_view = mSpeakingIndicator; break;
-	case ALIC_INFO_BUTTON:			child_view = mInfoBtn; break;
-	case ALIC_PROFILE_BUTTON:		child_view = mProfileBtn; break;
-	default:
-		LL_WARNS("AvatarItemReshape") << "Unexpected child view index is passed: " << child_view_index << LL_ENDL;
-	}
-	
-	return child_view;
 }
 
 // EOF

@@ -301,13 +301,14 @@
          left="10"
          name="partner_data_panel"
          width="285">
-            <name_box
+            <text
              follows="left|top|right"
              height="30"
              layout="topleft"
              left="0"
              name="partner_text"
              top="0"
+             value="[FIRST] [LAST]"
              width="285"
              word_wrap="true" />
          </panel>

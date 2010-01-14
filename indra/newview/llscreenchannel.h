@@ -72,7 +72,8 @@ public:
 	virtual void		setToastAlignment(EToastAlignment align) {mToastAlignment = align;}
 	
 	virtual void		setChannelAlignment(EChannelAlignment align) {mChannelAlignment = align;}
-
+	virtual void		setOverflowFormatString ( const std::string& str)  { mOverflowFormatString = str; }
+	
 	// kill or modify a toast by its ID
 	virtual void		killToastByNotificationID(LLUUID id) {};
 	virtual void		modifyToastNotificationByID(LLUUID id, LLSD data) {};
@@ -120,13 +121,17 @@ protected:
 	LLToast*		mHoveredToast;
 	bool		mCanStoreToasts;
 	bool		mDisplayToastsAlways;
+	bool		mOverflowToastHidden;
 	// controls whether a channel shows toasts or not
 	bool		mShowToasts;
 	// 
 	EToastAlignment		mToastAlignment;
 	EChannelAlignment	mChannelAlignment;
 
+	// attributes for the Overflow Toast
 	S32			mHiddenToastsNum;
+	LLToast*	mOverflowToastPanel;	
+	std::string mOverflowFormatString;
 
 	// channel's ID
 	LLUUID	mID;
@@ -171,8 +176,6 @@ public:
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);
 	// hide all toasts from screen, but not remove them from a channel
 	void		hideToastsFromScreen();
-	// hide toast by notification id
-	void		hideToast(const LLUUID& notification_id);
 	// removes all toasts from a channel
 	void		removeToastsFromChannel();
 	// show all toasts in a channel
@@ -187,6 +190,8 @@ public:
 	void		removeToastsBySessionID(LLUUID id);
 	// remove all storable toasts from screen and store them
 	void		removeAndStoreAllStorableToasts();
+	// close the Overflow Toast
+	void 		closeOverflowToastPanel();
 	// close the StartUp Toast
 	void		closeStartUpToast();
 
@@ -208,8 +213,6 @@ public:
 	// Channel's other interface functions functions
 	// update number of notifications in the StartUp Toast
 	void	updateStartUpString(S32 num);
-
-	LLToast* getToastByNotificationID(LLUUID id);
 
 	// Channel's signals
 	// signal on storing of faded toasts event
@@ -254,6 +257,7 @@ private:
 	void	onToastHover(LLToast* toast, bool mouse_enter);
 	void	onToastFade(LLToast* toast);
 	void	onToastDestroyed(LLToast* toast);
+	void	onOverflowToastHide();
 	void	onStartUpToastHide();
 
 	//
@@ -266,6 +270,9 @@ private:
 	void	showToastsCentre();
 	void	showToastsTop();
 	
+	// create the Overflow Toast
+	void	createOverflowToast(S32 bottom, F32 timer);
+
 	// create the StartUp Toast
 	void	createStartUpToast(S32 notif_num, F32 timer);
 
@@ -273,6 +280,8 @@ private:
 	 * Notification channel and World View ratio(0.0 - always show 1 notification, 1.0 - max ratio).
 	 */
 	static F32 getHeightRatio();
+
+	S32 getOverflowToastHeight();
 
 	// Channel's flags
 	static bool	mWasStartUpToastShown;

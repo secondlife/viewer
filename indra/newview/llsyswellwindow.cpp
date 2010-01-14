@@ -700,7 +700,8 @@ void LLNotificationWellWindow::connectListUpdaterToSignal(std::string notificati
 void LLNotificationWellWindow::onItemClick(LLSysWellItem* item)
 {
 	LLUUID id = item->getID();
-	LLFloaterReg::showInstance("inspect_toast", id);
+	if(mChannel)
+		mChannel->loadStoredToastByNotificationIDToChannel(id);
 }
 
 void LLNotificationWellWindow::onItemClose(LLSysWellItem* item)

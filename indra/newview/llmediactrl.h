@@ -182,6 +182,7 @@ public:
 		bool mOpenLinksInInternalBrowser;
 		bool mTrusted;
 		std::string mHomePageUrl;
+		std::string mExternalUrl;
 		std::string mCurrentNavUrl;
 		bool mIgnoreUIScale;
 		bool mAlwaysRefresh;

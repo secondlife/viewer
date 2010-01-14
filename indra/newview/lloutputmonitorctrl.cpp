@@ -77,9 +77,7 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mImageLevel3(p.image_level_3),
 	mAutoUpdate(p.auto_update),
 	mSpeakerId(p.speaker_id),
-	mIsAgentControl(false),
-	mIsSwitchDirty(false),
-	mShouldSwitchOn(false)
+	mIsAgentControl(false)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -110,7 +108,6 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 LLOutputMonitorCtrl::~LLOutputMonitorCtrl()
 {
 	LLMuteList::getInstance()->removeObserver(this);
-	LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
 }
 
 void LLOutputMonitorCtrl::setPower(F32 val)
@@ -120,26 +117,6 @@ void LLOutputMonitorCtrl::setPower(F32 val)
 
 void LLOutputMonitorCtrl::draw()
 {
-	// see also switchIndicator()
-	if (mIsSwitchDirty)
-	{
-		mIsSwitchDirty = false;
-		if (mShouldSwitchOn)
-		{
-			// just notify parent visibility may have changed
-			notifyParentVisibilityChanged();
-		}
-		else
-		{
-			// make itself invisible and notify parent about this
-			setVisible(FALSE);
-			notifyParentVisibilityChanged();
-
-			// no needs to render for invisible element
-			return;
-		}
-	}
-
 	// Copied from llmediaremotectrl.cpp
 	// *TODO: Give the LLOutputMonitorCtrl an agent-id to monitor, then
 	// call directly into gVoiceClient to ask if that agent-id is muted, is
@@ -252,7 +229,6 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)
 	if (speaker_id.isNull() || speaker_id == mSpeakerId) return;
 
 	mSpeakerId = speaker_id;
-	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this);
 
 	//mute management
 	if (mAutoUpdate)
@@ -275,42 +251,3 @@ void LLOutputMonitorCtrl::onChange()
 	// check only blocking on voice. EXT-3542
 	setIsMuted(LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat));
 }
-
-// virtual
-void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
-{
-	// ensure indicator is visible in case it is not in visible chain
-	// to be called when parent became visible next time to notify parent that visibility is changed.
-	setVisible(TRUE);
-
-	// if parent is in visible chain apply switch_on state and notify it immediately
-	if (getParent() && getParent()->isInVisibleChain())
-	{
-		LL_DEBUGS("SpeakingIndicator") << "Indicator is in visible chain, notifying parent: " << mSpeakerId << LL_ENDL;
-		setVisible((BOOL)switch_on);
-		notifyParentVisibilityChanged();
-	}
-
-	// otherwise remember necessary state and mark itself as dirty.
-	// State will be applied i next draw when parents chain became visible.
-	else
-	{
-		LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;
-		mIsSwitchDirty = true;
-		mShouldSwitchOn = switch_on;
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////
-// PRIVATE SECTION
-//////////////////////////////////////////////////////////////////////////
-void LLOutputMonitorCtrl::notifyParentVisibilityChanged()
-{
-	LL_DEBUGS("SpeakingIndicator") << "Notify parent that visibility was changed: " << mSpeakerId << " ,new_visibility: " << getVisible() << LL_ENDL;
-
-	LLSD params = LLSD().with("visibility_changed", getVisible());
-
-	notifyParent(params);
-}
-
-// EOF

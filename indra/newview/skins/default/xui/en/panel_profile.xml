@@ -28,9 +28,6 @@
      name="no_partner_text"
      value="None" />
     <string
-     name="no_group_text"
-     value="None" />
-    <string
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
@@ -65,11 +62,10 @@
           <panel
                 layout="topleft"
           follows="left|top|right"
-                height="505"
                 name="profile_scroll_panel"
                 top="0"
                 left="0"
-                width="297">
+                width="303">
             <panel
                   follows="left|top|right"
                   height="117"
@@ -77,7 +73,7 @@
                   left="10"
                   name="second_life_image_panel"
                   top="0"
-                  width="297">
+                  width="303">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -121,7 +117,7 @@
        top_pad="10"
              left="10"
              name="first_life_image_panel"
-             width="297">
+             width="303">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -244,14 +240,14 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                layout="topleft"
                left="0"
-               link="true"
                name="partner_text"
                top="0"
+               value="[FIRST] [LAST]"
            width="300"
                word_wrap="true" />
             </panel>
@@ -273,7 +269,7 @@
             left="7"
             name="sl_groups"
             top_pad="0"
-            width="290"
+            width="298"
             expanded_bg_visible="true"
             expanded_bg_color="DkGray">
               Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. Aenean viverra tulip moosetop. Slan de heelish marfnik tooplod. Sum sum to whop de wompam booster copm.
@@ -296,7 +292,7 @@
          left="0"
          mouse_opaque="false"
          name="add_friend"
-         tool_tip="Offer friendship to the Resident"
+         tool_tip="Offer friendship to the resident"
          top="5"
          width="80" />
         <button
@@ -315,7 +311,7 @@
          label="Call"
          layout="topleft"
          name="call"
-         tool_tip="Call this Resident"
+         tool_tip="Call this resident"
          left_pad="3"
          top="5"
          width="45" />
@@ -326,7 +322,7 @@
          label="Map"
          layout="topleft"
          name="show_on_map_btn"
-         tool_tip="Show the Resident on the map"
+         tool_tip="Show the resident on the map"
          top="5"
          left_pad="3"
          width="45" />
@@ -346,7 +342,7 @@
          label="▼"
          layout="topleft"
          name="overflow_btn"
-         tool_tip="Pay money to or share inventory with the Resident"
+         tool_tip="Pay money to or share inventory with the resident"
          right="-1"
          top="5"
 	 left_pad="3"

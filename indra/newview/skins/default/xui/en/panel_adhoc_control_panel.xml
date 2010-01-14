@@ -4,7 +4,7 @@
  follows="all"
  height="215"
  name="panel_im_control_panel"
- width="150">
+ width="180">
     <layout_stack
      mouse_opaque="false"
      border_size="0"
@@ -16,16 +16,15 @@
      name="vertical_stack"
      orientation="vertical"
      top="0"
-     width="147">
+     width="177">
         <layout_panel
          auto_resize="true"
          follows="top|left"
          height="130"
          layout="topleft"
-         left="0"
          min_height="0"
          mouse_opaque="false"
-         width="147"
+         width="180"
          top="0"
          name="speakers_list_panel"
          user_resize="false">
@@ -40,7 +39,7 @@
              show_info_btn="false"
              show_profile_btn="false"
              show_speaking_indicator="false"
-             width="147" />
+             width="180" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -48,7 +47,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="130"
+         width="160"
          name="call_btn_panel"
          user_resize="false"
          visible="false">
@@ -57,7 +56,7 @@
              height="20"
              label="Call"
              name="call_btn"
-             width="130"
+             width="160"
              top="5" />
         </layout_panel>
         <layout_panel
@@ -66,7 +65,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="130"
+         width="160"
          name="end_call_btn_panel"
          user_resize="false"
          visible="false">
@@ -83,7 +82,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="130"
+         width="160"
          name="voice_ctrls_btn_panel"
          user_resize="false"
          visible="false">

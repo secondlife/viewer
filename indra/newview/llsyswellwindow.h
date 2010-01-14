@@ -162,9 +162,6 @@ private:
 	void onItemClick(LLSysWellItem* item);
 	void onItemClose(LLSysWellItem* item);
 
-	// ID of a toast loaded by user (by clicking notification well item)
-	LLUUID mLoadedToastId;
-
 };
 
 /**

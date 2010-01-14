@@ -28,9 +28,6 @@
      name="no_partner_text"
      value="None" />
     <string
-     name="no_group_text"
-     value="None" />
-    <string
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
@@ -65,11 +62,10 @@
           <panel
                 layout="topleft"
           follows="left|top|right"
-                height="505"
                name="scroll_content_panel"
                 top="0"
                 left="0"
-                width="297">
+                width="303">
             <panel
                   follows="left|top|right"
                   height="117"
@@ -77,7 +73,7 @@
                   left="10"
                   name="second_life_image_panel"
                   top="0"
-                  width="297">
+                  width="300">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -118,7 +114,7 @@
                textbox.max_length="512"
                name="sl_description_edit"
                top_pad="-3"
-               width="181"
+               width="188"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -131,7 +127,7 @@
        top_pad="10"
              left="10"
              name="first_life_image_panel"
-             width="297">
+             width="300">
               <texture_picker
                allow_no_texture="true"
                default_image_name="None"
@@ -171,7 +167,7 @@
                textbox.max_length="512"
                name="fl_description_edit"
                top_pad="-3"
-               width="181"
+               width="188"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -264,14 +260,14 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                layout="topleft"
                left="0"
-               link="true"
                name="partner_text"
                top="0"
+               value="[FIRST] [LAST]"
            width="300"
                word_wrap="true" />
             </panel>
@@ -316,7 +312,7 @@
          left="0"
          mouse_opaque="false"
          name="add_friend"
-         tool_tip="Offer friendship to the Resident"
+         tool_tip="Offer friendship to the resident"
          top="5"
          width="80" />
         <button

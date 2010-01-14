@@ -218,6 +218,7 @@ set(viewer_SOURCE_FILES
     llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
+    llfloatervolumepulldown.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
@@ -255,7 +256,6 @@ set(viewer_SOURCE_FILES
     llinspectgroup.cpp
     llinspectobject.cpp
     llinspectremoteobject.cpp
-    llinspecttoast.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
@@ -355,7 +355,6 @@ set(viewer_SOURCE_FILES
     llpanelshower.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
-    llpanelvolumepulldown.cpp
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
@@ -394,7 +393,6 @@ set(viewer_SOURCE_FILES
     llspatialpartition.cpp
     llspeakbutton.cpp
     llspeakers.cpp
-    llspeakingindicatormanager.cpp
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
@@ -767,7 +765,6 @@ set(viewer_HEADER_FILES
     llinspectgroup.h
     llinspectobject.h
     llinspectremoteobject.h
-    llinspecttoast.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
@@ -863,7 +860,6 @@ set(viewer_HEADER_FILES
     llpanelshower.h
     llpanelteleporthistory.h
     llpanelvolume.h
-    llpanelvolumepulldown.h
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
@@ -904,7 +900,6 @@ set(viewer_HEADER_FILES
     llspatialpartition.h
     llspeakbutton.h
     llspeakers.h
-    llspeakingindicatormanager.h
     llsplitbutton.h
     llsprite.h
     llstartup.h
@@ -1775,7 +1770,6 @@ if (INSTALL)
 endif (INSTALL)
 
 if (LL_TESTS)
-else (LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
   include(LLAddBuildTest)

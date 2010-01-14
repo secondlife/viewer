@@ -2001,16 +2001,14 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 		}
 		if(!accounted)
 		{
-			// Error condition, this means that the category did not register that
-			// it got new descendents (perhaps because it is still being loaded)
-			// which means its descendent count will be wrong.
-			llwarns << "Accounting failed for '" << cat->getName() << "' version:"
+			lldebugs << "No accounting for: '" << cat->getName() << "' "
 					 << version << llendl;
 		}
 	}
 	else
 	{
-		llwarns << "No category found for update " << update.mCategoryID << llendl;
+		llwarns << "No category found for update " << update.mCategoryID
+				<< llendl;
 	}
 }
 

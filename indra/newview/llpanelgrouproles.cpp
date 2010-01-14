@@ -460,8 +460,17 @@ LLPanelGroupSubTab::~LLPanelGroupSubTab()
 {
 }
 
-BOOL LLPanelGroupSubTab::postBuildSubTab(LLView* root) 
-{ 
+BOOL LLPanelGroupSubTab::postBuild()
+{
+	// Hook up the search widgets.
+	bool recurse = true;
+	mSearchEditor = getChild<LLFilterEditor>("filter_input", recurse);
+
+	if (!mSearchEditor) 
+		return FALSE;
+
+	mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
+	
 	// Get icons for later use.
 	mActionIcons.clear();
 
@@ -479,19 +488,6 @@ BOOL LLPanelGroupSubTab::postBuildSubTab(LLView* root)
 	{
 		mActionIcons["partial"] = getString("power_partial_icon");
 	}
-	return TRUE; 
-}
-
-BOOL LLPanelGroupSubTab::postBuild()
-{
-	// Hook up the search widgets.
-	bool recurse = true;
-	mSearchEditor = getChild<LLFilterEditor>("filter_input", recurse);
-
-	if (!mSearchEditor) 
-		return FALSE;
-
-	mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
 
 	return LLPanelGroupTab::postBuild();
 }
@@ -571,6 +567,7 @@ bool LLPanelGroupSubTab::matchesActionSearchFilter(std::string action)
 void LLPanelGroupSubTab::buildActionsList(LLScrollListCtrl* ctrl, 
 										  U64 allowed_by_some, 
 										  U64 allowed_by_all,
+										  icon_map_t& icons,
 										  LLUICtrl::commit_callback_t commit_callback,
 										  BOOL show_all,
 										  BOOL filter,
@@ -591,6 +588,7 @@ void LLPanelGroupSubTab::buildActionsList(LLScrollListCtrl* ctrl,
 							allowed_by_some,
 							allowed_by_all,
 							(*ras_it),
+							icons, 
 							commit_callback,
 							show_all,
 							filter,
@@ -602,6 +600,7 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 											 U64 allowed_by_some,
 											 U64 allowed_by_all,
 											 LLRoleActionSet* action_set,
+											 icon_map_t& icons,
 											 LLUICtrl::commit_callback_t commit_callback,
 											 BOOL show_all,
 											 BOOL filter,
@@ -615,25 +614,25 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 		LLSD row;
 
 		row["columns"][0]["column"] = "icon";
-		row["columns"][0]["type"] = "icon";
-		
-		icon_map_t::iterator iter = mActionIcons.find("folder");
-		if (iter != mActionIcons.end())
+		icon_map_t::iterator iter = icons.find("folder");
+		if (iter != icons.end())
 		{
+			row["columns"][0]["type"] = "icon";
 			row["columns"][0]["value"] = (*iter).second;
 		}
 
 		row["columns"][1]["column"] = "action";
-		row["columns"][1]["type"] = "text";
 		row["columns"][1]["value"] = action_set->mActionSetData->mName;
 		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
-		
+		row["columns"][1]["font"]["style"] = "BOLD";
 
 		LLScrollListItem* title_row = ctrl->addElement(row, ADD_BOTTOM, action_set->mActionSetData);
 		
-		LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(title_row->getColumn(2)); //?? I have no idea fix getColumn(1) return column spacer...
+		LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(title_row->getColumn(1));
 		if (name_textp)
 			name_textp->setFontStyle(LLFontGL::BOLD);
+
+
 
 		bool category_matches_filter = (filter) ? matchesActionSearchFilter(action_set->mActionSetData->mName) : true;
 
@@ -687,8 +686,8 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 			{
 				if (show_full_strength)
 				{
-					icon_map_t::iterator iter = mActionIcons.find("full");
-					if (iter != mActionIcons.end())
+					icon_map_t::iterator iter = icons.find("full");
+					if (iter != icons.end())
 					{
 						row["columns"][column_index]["column"] = "checkbox";
 						row["columns"][column_index]["type"] = "icon";
@@ -698,8 +697,8 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 				}
 				else
 				{
-					icon_map_t::iterator iter = mActionIcons.find("partial");
-					if (iter != mActionIcons.end())
+					icon_map_t::iterator iter = icons.find("partial");
+					if (iter != icons.end())
 					{
 						row["columns"][column_index]["column"] = "checkbox";
 						row["columns"][column_index]["type"] = "icon";
@@ -793,8 +792,6 @@ LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 
 BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 {
-	LLPanelGroupSubTab::postBuildSubTab(root);
-	
 	// Upcast parent so we can ask it for sibling controls.
 	LLPanelGroupRoles* parent = (LLPanelGroupRoles*) root;
 
@@ -891,6 +888,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	buildActionsList(mAllowedActionsList,
 					 allowed_by_some,
 					 allowed_by_all,
+					 mActionIcons,
 					 NULL,
 					 FALSE,
 					 FALSE,
@@ -1213,6 +1211,7 @@ void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 	buildActionsList(mAllowedActionsList,
 					 powers_some_have,
 					 powers_all_have,
+					 mActionIcons,
 					 NULL,
 					 FALSE,
 					 FALSE,
@@ -1685,8 +1684,6 @@ LLPanelGroupRolesSubTab::~LLPanelGroupRolesSubTab()
 
 BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 {
-	LLPanelGroupSubTab::postBuildSubTab(root);
-
 	// Upcast parent so we can ask it for sibling controls.
 	LLPanelGroupRoles* parent = (LLPanelGroupRoles*) root;
 
@@ -1997,6 +1994,7 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
 		buildActionsList(mAllowedActionsList,
 						 rd.mRolePowers,
 						 0LL,
+						 mActionIcons,
 						 boost::bind(&LLPanelGroupRolesSubTab::handleActionCheck, this, _1, false),
 						 TRUE,
 						 FALSE,
@@ -2383,8 +2381,6 @@ LLPanelGroupActionsSubTab::~LLPanelGroupActionsSubTab()
 
 BOOL LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
 {
-	LLPanelGroupSubTab::postBuildSubTab(root);
-
 	// Upcast parent so we can ask it for sibling controls.
 	LLPanelGroupRoles* parent = (LLPanelGroupRoles*) root;
 
@@ -2452,6 +2448,7 @@ void LLPanelGroupActionsSubTab::update(LLGroupChange gc)
 	buildActionsList(mActionList,
 					 GP_ALL_POWERS,
 					 GP_ALL_POWERS,
+					 mActionIcons,
 					 NULL,
 					 FALSE,
 					 TRUE,

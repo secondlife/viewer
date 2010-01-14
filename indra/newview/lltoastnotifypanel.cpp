@@ -179,9 +179,7 @@ void LLToastNotifyPanel::adjustPanelForScriptNotice(const LLNotificationFormPtr 
 	//adjust layout
 	LLRect button_rect = mControlPanel->getRect();
 	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight() + button_panel_height);
-	button_rect.set(0, button_rect.mBottom + button_panel_height, button_rect.getWidth(), button_rect.mBottom);
 	mControlPanel->reshape(button_rect.getWidth(), button_panel_height);
-	mControlPanel->setRect(button_rect);
 }
 
 // static
@@ -219,7 +217,7 @@ LLButton* LLToastNotifyPanel::addButton(const std::string& name, const std::stri
 	S32 ignore_pad = 0;
 	S32 button_index = mNumButtons;
 	S32 index = button_index;
-	S32 x = HPAD * 2; // *2 - to make a nice offset
+	S32 x = (HPAD * 4) + 32;
 
 	if (mIsScriptDialog)
 	{

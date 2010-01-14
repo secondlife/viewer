@@ -37,8 +37,6 @@
 #include "llpluginclassmedia.h"
 #include "llpluginmessageclasses.h"
 
-#include "llqtwebkit.h"
-
 static int LOW_PRIORITY_TEXTURE_SIZE_DEFAULT = 256;
 
 static int nextPowerOf2( int value )
@@ -126,7 +124,7 @@ void LLPluginClassMedia::reset()
 	mCanPaste = false;
 	mMediaName.clear();
 	mMediaDescription.clear();
-	mBackgroundColor = LLColor4(1.0f, 1.0f, 1.0f, 1.0f);
+	mBackgroundColor = LLColor4::white;
 	
 	// media_browser class
 	mNavigateURI.clear();
@@ -136,9 +134,6 @@ void LLPluginClassMedia::reset()
 	mHistoryForwardAvailable = false;
 	mStatusText.clear();
 	mProgressPercent = 0;	
-	mClickURL.clear();
-	mClickTarget.clear();
-	mClickTargetType = TARGET_NONE;
 	
 	// media_time class
 	mCurrentTime = 0.0f;
@@ -674,26 +669,6 @@ void LLPluginClassMedia::paste()
 	sendMessage(message);
 }
 
-LLPluginClassMedia::ETargetType getTargetTypeFromLLQtWebkit(int target_type)
-{
-	// convert a LinkTargetType value from llqtwebkit to an ETargetType
-	// so that we don't expose the llqtwebkit header in viewer code
-	switch (target_type)
-	{
-	case LinkTargetType::LTT_TARGET_NONE:
-		return LLPluginClassMedia::TARGET_NONE;
-
-	case LinkTargetType::LTT_TARGET_BLANK:
-		return LLPluginClassMedia::TARGET_BLANK;
-
-	case LinkTargetType::LTT_TARGET_EXTERNAL:
-		return LLPluginClassMedia::TARGET_EXTERNAL;
-
-	default:
-		return LLPluginClassMedia::TARGET_OTHER;
-	}
-}
-
 /* virtual */ 
 void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 {
@@ -946,15 +921,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		{
 			mClickURL = message.getValue("uri");
 			mClickTarget = message.getValue("target");
-			U32 target_type = message.getValueU32("target_type");
-			mClickTargetType = ::getTargetTypeFromLLQtWebkit(target_type);
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_HREF);
 		}
 		else if(message_name == "click_nofollow")
 		{
 			mClickURL = message.getValue("uri");
 			mClickTarget.clear();
-			mClickTargetType = TARGET_NONE;
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
 		}
 		else

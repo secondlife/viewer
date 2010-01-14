@@ -74,8 +74,6 @@ public:
 
 	bool apply();
 	void refreshData();
-	void callGroup();
-	void chatGroup();
 
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
@@ -105,8 +103,6 @@ protected:
 
 	static void onBtnApply(void*);
 	static void onBtnRefresh(void*);
-	static void onBtnGroupCallClicked(void*);
-	static void onBtnGroupChatClicked(void*);
 
 	void reposButton(const std::string& name);
 	void reposButtons();

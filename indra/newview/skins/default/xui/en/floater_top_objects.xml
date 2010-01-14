@@ -9,7 +9,7 @@
  name="top_objects"
  help_topic="top_objects"
  title="Top Objects"
- width="800">
+ width="550">
     <floater.string
      name="top_scripts_title">
         Top Scripts
@@ -64,7 +64,7 @@
      multi_select="true"
      name="objects_list"
      top_delta="17"
-     width="780">
+     width="530">
         <scroll_list.columns
          label="Score"
          name="score"
@@ -84,15 +84,11 @@
         <scroll_list.columns
          label="Time"
          name="time"
-         width="150" />
+         width="100" />
         <scroll_list.columns
          label="Mono Time"
          name="mono_time"
-         width="100" />
-          <scroll_list.columns
-          	label="URLs"
-          	name="URLs"
-          	width="100" />
+         width="55" />
 		<scroll_list.commit_callback
           function="TopObjects.CommitObjectsList" />
     </scroll_list>
@@ -116,7 +112,7 @@
      left_pad="3"
      name="id_editor"
      top_delta="-3"
-     width="575" />
+     width="325" />
     <button
      follows="bottom|right"
      height="23"
@@ -148,7 +144,7 @@
      left_pad="3"
      name="object_name_editor"
      top_delta="-3"
-     width="575" />
+     width="325" />
     <button
      follows="bottom|right"
      height="23"
@@ -180,7 +176,7 @@
      left_pad="3"
      name="owner_name_editor"
      top_delta="-3"
-     width="575" />
+     width="325" />
     <button
      follows="bottom|right"
      height="23"
@@ -194,7 +190,7 @@
           function="TopObjects.GetByOwnerName" />
     </button>
     <button
-     follows="bottom|right"
+     follows="top|left"
      height="22"
      image_overlay="Refresh_Off"
      layout="topleft"

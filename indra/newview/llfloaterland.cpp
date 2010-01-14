@@ -276,7 +276,6 @@ void LLFloaterLand::refresh()
 	mPanelAudio->refresh();
 	mPanelMedia->refresh();
 	mPanelAccess->refresh();
-	mPanelCovenant->refresh();
 }
 
 
@@ -2794,6 +2793,12 @@ LLPanelLandCovenant::LLPanelLandCovenant(LLParcelSelectionHandle& parcel)
 
 LLPanelLandCovenant::~LLPanelLandCovenant()
 {
+}
+
+BOOL LLPanelLandCovenant::postBuild()
+{
+	refresh();
+	return TRUE;
 }
 
 // virtual

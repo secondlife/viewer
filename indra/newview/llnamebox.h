@@ -47,11 +47,9 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
 	{
 		Optional<bool>		is_group;
-		Optional<bool>		link;
 
 		Params()
 		:	is_group("is_group", false)
-		,	link("link", false)
 		{}
 	};
 
@@ -69,13 +67,10 @@ protected:
 
 	friend class LLUICtrlFactory;
 private:
-	void setName(const std::string& name, BOOL is_group);
-
 	static std::set<LLNameBox*> sInstances;
 
 private:
 	LLUUID mNameID;
-	BOOL mLink;
 
 };
 
