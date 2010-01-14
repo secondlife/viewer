@@ -78,7 +78,7 @@ public:
 	void unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator);
 
 private:
-	typedef std::vector<LLUUID> speaker_ids_t;
+	typedef std::set<LLUUID> speaker_ids_t;
 	typedef std::multimap<LLUUID, LLSpeakingIndicator*> speaking_indicators_mmap_t;
 	typedef speaking_indicators_mmap_t::value_type speaking_indicator_value_t;
 	typedef speaking_indicators_mmap_t::const_iterator indicator_const_iterator;
@@ -140,28 +140,10 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 	speaking_indicator_value_t value_type(speaker_id, speaking_indicator);
 	mSpeakingIndicators.insert(value_type);
 
-	BOOL is_in_same_voice = FALSE;
-
-	// search passed speaker id among a list of voice participants 
-	LLVoiceClient::participantMap *voice_map = LLVoiceClient::getInstance()->getParticipantList();
-	if (voice_map)
-	{
-		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
-			iter != voice_map->end(); ++iter)
-		{
-			const LLUUID id = (*iter).second->mAvatarID;
-
-			if (speaker_id == id)
-			{
-				is_in_same_voice = TRUE;
-				break;
-			}
-
-		}
-	}
-
 	speaker_ids_t speakers_uuids;
-	speakers_uuids.push_back(speaker_id);
+	BOOL is_in_same_voice = LLVoiceClient::getInstance()->findParticipantByID(speaker_id) != NULL;
+
+	speakers_uuids.insert(speaker_id);
 	switchSpeakerIndicators(speakers_uuids, is_in_same_voice);
 }
 
@@ -209,23 +191,9 @@ void SpeakingIndicatorManager::onChange()
 	LL_DEBUGS("SpeakingIndicator") << "Voice participant list was changed, updating indicators" << LL_ENDL;
 
 	speaker_ids_t speakers_uuids;
-	// Get a list of participants from VoiceClient
-	LLVoiceClient::participantMap *voice_map = gVoiceClient->getParticipantList();
-	if (voice_map)
-	{
-		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
-			iter != voice_map->end(); ++iter)
-		{
-			LLUUID id = (*iter).second->mAvatarID;
-
-			if (id == gAgentID) continue;
-
-			speakers_uuids.push_back(id);
-		}
-	}
+	LLVoiceClient::getInstance()->getParticipantsUUIDSet(speakers_uuids);
 
 	LL_DEBUGS("SpeakingIndicator") << "Switching all OFF, count: " << mSwitchedIndicatorsOn.size() << LL_ENDL;
-
 	// switch all indicators off
 	switchSpeakerIndicators(mSwitchedIndicatorsOn, FALSE);
 	mSwitchedIndicatorsOn.clear();
@@ -257,11 +225,8 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 
 			if (switch_on)
 			{
-				// TODO: probably std::set will be better
-				//		if (mSwitchedIndicatorsOn.find(*it_uuid) == mSwitchedIndicatorsOn.end())
-				{
-					mSwitchedIndicatorsOn.push_back(*it_uuid);
-				}
+				// store switched on indicator to be able switch it off
+				mSwitchedIndicatorsOn.insert(*it_uuid);
 			}
 		}
 		else
