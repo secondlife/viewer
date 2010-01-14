@@ -1141,7 +1141,18 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>CallFloaterMaxItems</key>
+    <map>
+      <key>Comment</key>
+      <string>Max number of visible participants in voice controls window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
       <key>Value</key>
       <integer>1</integer>
     </map>

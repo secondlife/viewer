@@ -136,6 +136,7 @@ Maximum 200 per group daily
          left_pad="3"
          max_length="63"
          name="create_subject"
+         prevalidate_callback="ascii"
          width="220" />
         <text
          follows="left|top"

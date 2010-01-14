@@ -166,7 +166,7 @@
 	<string name="TooltipSLAPP">
 		Anklicken, um Befehl secondlife:// auszuführen
 	</string>
-	<string name="CurrentURL" value="CurrentURL: [CurrentURL]"/>
+	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
 		Teleportieren nach
 	</string>
@@ -821,46 +821,46 @@
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
-	<string name="no_transfer" value="(kein Transferieren)"/>
-	<string name="no_modify" value="(kein Bearbeiten)"/>
-	<string name="no_copy" value="(kein Kopieren)"/>
-	<string name="worn" value="(getragen)"/>
-	<string name="link" value="(Link)"/>
-	<string name="broken_link" value="(unvollständiger_Link)"/>
+	<string name="no_transfer" value=" (kein Transferieren)"/>
+	<string name="no_modify" value=" (kein Bearbeiten)"/>
+	<string name="no_copy" value=" (kein Kopieren)"/>
+	<string name="worn" value=" (getragen)"/>
+	<string name="link" value=" (Link)"/>
+	<string name="broken_link" value=" (unvollständiger_Link)"/>
 	<string name="LoadingContents">
 		Inhalte werden geladen...
 	</string>
 	<string name="NoContents">
 		Keine Inhalte
 	</string>
-	<string name="WornOnAttachmentPoint" value="(getragen am [ATTACHMENT_POINT])"/>
+	<string name="WornOnAttachmentPoint" value=" (getragen am [ATTACHMENT_POINT])"/>
 	<string name="PermYes">
 		Ja
 	</string>
 	<string name="PermNo">
 		Nein
 	</string>
-	<string name="Chat" value="Chat:"/>
-	<string name="Sound" value="Sound:"/>
-	<string name="Wait" value="--- Warten:"/>
-	<string name="AnimFlagStop" value="Animation stoppen:"/>
-	<string name="AnimFlagStart" value="Animation starten:"/>
-	<string name="Wave" value="Winken"/>
-	<string name="HelloAvatar" value="Hallo Avatar!"/>
-	<string name="ViewAllGestures" value="Alle anzeigen &gt;&gt;"/>
-	<string name="Animations" value="Animationen,"/>
-	<string name="Calling Cards" value="Visitenkarten,"/>
-	<string name="Clothing" value="Kleidung,"/>
-	<string name="Gestures" value="Gesten,"/>
-	<string name="Landmarks" value="Landmarken,"/>
-	<string name="Notecards" value="Notizkarten,"/>
-	<string name="Objects" value="Objekte,"/>
-	<string name="Scripts" value="Skripts,"/>
-	<string name="Sounds" value="Sounds,"/>
-	<string name="Textures" value="Texturen,"/>
-	<string name="Snapshots" value="Fotos,"/>
-	<string name="No Filters" value="Nein"/>
-	<string name="Since Logoff" value="- Seit Abmeldung"/>
+	<string name="Chat" value=" Chat:"/>
+	<string name="Sound" value=" Sound:"/>
+	<string name="Wait" value=" --- Warten:"/>
+	<string name="AnimFlagStop" value=" Animation stoppen:"/>
+	<string name="AnimFlagStart" value=" Animation starten:"/>
+	<string name="Wave" value=" Winken"/>
+	<string name="HelloAvatar" value=" Hallo Avatar!"/>
+	<string name="ViewAllGestures" value="  Alle anzeigen &gt;&gt;"/>
+	<string name="Animations" value=" Animationen,"/>
+	<string name="Calling Cards" value=" Visitenkarten,"/>
+	<string name="Clothing" value=" Kleidung,"/>
+	<string name="Gestures" value=" Gesten,"/>
+	<string name="Landmarks" value=" Landmarken,"/>
+	<string name="Notecards" value=" Notizkarten,"/>
+	<string name="Objects" value=" Objekte,"/>
+	<string name="Scripts" value=" Skripts,"/>
+	<string name="Sounds" value=" Sounds,"/>
+	<string name="Textures" value=" Texturen,"/>
+	<string name="Snapshots" value=" Fotos,"/>
+	<string name="No Filters" value="Nein "/>
+	<string name="Since Logoff" value=" - Seit Abmeldung"/>
 	<string name="InvFolder My Inventory">
 		Mein Inventar
 	</string>
@@ -1239,13 +1239,13 @@
 	<string name="GroupsNone">
 		keine
 	</string>
-	<string name="Group" value="(Gruppe)"/>
+	<string name="Group" value=" (Gruppe)"/>
 	<string name="Unknown">
 		(unbekannt)
 	</string>
-	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am"/>
-	<string name="NextStipendDay" value="Der nächste Stipendium-Tag ist"/>
-	<string name="GroupIndividualShare" value="Gruppenanteil	Einzelanteil"/>
+	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
+	<string name="NextStipendDay" value="Der nächste Stipendium-Tag ist "/>
+	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
 	<string name="Balance">
 		Kontostand
 	</string>
@@ -1324,8 +1324,8 @@
 	<string name="covenant_last_modified">
 		Zuletzt geändert:
 	</string>
-	<string name="none_text" value="(keiner)"/>
-	<string name="never_text" value="(nie)"/>
+	<string name="none_text" value=" (keiner)"/>
+	<string name="never_text" value=" (nie)"/>
 	<string name="GroupOwned">
 		In Gruppenbesitz
 	</string>
@@ -1616,7 +1616,7 @@ Falls der Fehler dann weiterhin auftritt, müssen Sie [APP_NAME] von Ihrem Syste
 		Unbehebbarer Fehler
 	</string>
 	<string name="MBRequiresAltiVec">
-		[APP_NAME] erfordert einen Prozessor mit AltiVec (G4 oder später).
+		 [APP_NAME] erfordert einen Prozessor mit AltiVec (G4 oder später).
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] läuft bereits.

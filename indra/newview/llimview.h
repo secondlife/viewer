@@ -78,6 +78,11 @@ public:
 		bool isP2P();
 		bool isOtherParticipantAvaline();
 
+		bool isP2PSessionType() const { return mSessionType == P2P_SESSION;}
+		bool isAdHocSessionType() const { return mSessionType == ADHOC_SESSION;}
+		bool isGroupSessionType() const { return mSessionType == GROUP_SESSION;}
+		bool isAvalineSessionType() const { return mSessionType == AVALINE_SESSION;}
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
