@@ -122,6 +122,7 @@
 		height="22"
 		width="22">
 	  <button
+		  name="fwd_btn"
 		  follows="top"
 		  image_overlay="Arrow_Right_Off"
 		  image_disabled="PushButton_Disabled"
@@ -149,10 +150,11 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="home_btn"
 		  follows="top"
+		  image_overlay="Home_Off"
 		  image_disabled="PushButton_Disabled"
 		  image_disabled_selected="PushButton_Disabled"
-		  image_overlay="Home_Off"
 		  image_selected="PushButton_Selected"
 		  image_unselected="PushButton_Off"
 		  hover_glow_amount="0.15"
@@ -176,6 +178,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="media_stop_btn"
 		  follows="top"
 		  image_overlay="Stop_Off"
 		  image_disabled="PushButton_Disabled"
@@ -203,6 +206,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="reload_btn"
 		  follows="top"
 		  image_overlay="Refresh_Off"
 		  image_disabled="PushButton_Disabled"
@@ -230,6 +234,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="stop_btn"
 		  follows="top"
 		  image_overlay="StopReload_Off"
 		  image_disabled="PushButton_Disabled"
@@ -257,6 +262,7 @@
 		min_width="22"
 		width="24">
 	  <button
+		  name="play_btn"
 		  follows="top"
 		  image_overlay="Play_Off"
 		  image_disabled="PushButton_Disabled"
@@ -284,6 +290,7 @@
 		min_width="22"
 		width="24">
 	  <button
+		  name="pause_btn"
 		  follows="top"
 		  image_overlay="Pause_Off"
 		  image_disabled="PushButton_Disabled"
@@ -348,7 +355,6 @@
 			  image_name="Flag"
 			  layout="topleft"
 			  tool_tip="White List enabled"
-			  min_width="16"
 			  width="16" />
 		</layout_panel>
 		<layout_panel
@@ -363,7 +369,6 @@
 			  image_name="Lock2"
 			  layout="topleft"
 			  tool_tip="Secured Browsing"
-			  min_width="16"
 			  width="16" />
 		</layout_panel>
 	  </layout_stack>
@@ -388,7 +393,6 @@
 		  initial_value="0.5"
 		  layout="topleft"
 		  tool_tip="Movie play progress"
-		  min_width="100"
 		  width="200">
 		<slider_bar.commit_callback
 			function="MediaCtrl.JumpProgress" />
@@ -404,6 +408,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="skip_back_btn"
 		  follows="top"
 		  image_overlay="SkipBackward_Off"
 		  image_disabled="PushButton_Disabled"
@@ -432,6 +437,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="skip_forward_btn"
 		  follows="top"
 		  image_overlay="SkipForward_Off"
 		  image_disabled="PushButton_Disabled"
@@ -463,13 +469,13 @@
 	  <!-- two different images.  -->
 	  <!-- Note also: the button and the slider must overlap! -->
 	  <button
+		  name="media_mute_button"
 		  follows="top"
 		  image_disabled="PushButton_Disabled"
 		  image_disabled_selected="PushButton_Disabled"
 		  image_selected="AudioMute_Off"
 		  image_unselected="Audio_Off"
 		  hover_glow_amount="0.15"
-		  name="media_mute_button"
 		  is_toggle="true"
 		  layout="topleft"
 		  scale_image="false" 
@@ -515,6 +521,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="zoom_frame_btn"
 		  follows="top"
 		  image_overlay="Zoom_Off"
 		  image_disabled="PushButton_Disabled"
@@ -541,6 +548,7 @@
 		min_width="21"
 		width="21" >
 	  <button
+		  name="close_btn"
 		  follows="top"
 		  image_overlay="UnZoom_Off"
 		  image_disabled="PushButton_Disabled"
@@ -568,6 +576,7 @@
 		min_width="22"
 		width="22">
 	  <button
+		  name="new_window_btn"
 		  follows="top"
 		  image_overlay="ExternalBrowser_Off"
 		  image_disabled="PushButton_Disabled"
