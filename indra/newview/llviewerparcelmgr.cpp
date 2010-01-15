@@ -1320,13 +1320,36 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 
 void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 {
-	//FIXME: only request parcel info when tooltip is shown
-	return;
-	/*LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
+	static U32 last_west, last_south;
+
+
+	// only request parcel info when tooltip is shown
+	if (!gSavedSettings.getBOOL("ShowLandHoverTip"))
+	{
+		return;
+	}
+
+	// only request parcel info if position has changed outside of the
+	// last parcel grid step
+	U32 west_parcel_step = floor ( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
+	U32 south_parcel_step = floor ( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
+	
+	if ((west_parcel_step == last_west) && (south_parcel_step == last_south))
+	{
+		return;
+	}
+	else 
+	{
+		last_west = west_parcel_step;
+		last_south = south_parcel_step;
+	}
+
+	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
 	if (!region)
 	{
 		return;
 	}
+
 
 	// Send a rectangle around the point.
 	// This means the parcel sent back is at least a rectangle around the point,
@@ -1354,7 +1377,7 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 	msg->addBOOL("SnapSelection",			FALSE );
 	msg->sendReliable( region->getHost() );
 
-	mHoverRequestResult = PARCEL_RESULT_NO_DATA;*/
+	mHoverRequestResult = PARCEL_RESULT_NO_DATA;
 }
 
 
