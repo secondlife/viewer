@@ -131,7 +131,6 @@
 		  hover_glow_amount="0.15"
 		  top="0"
 		  height="22"
-		  min_width="22"
 		  width="22"
 		  layout="topleft"
 		  tool_tip="Navigate forward">
@@ -161,7 +160,6 @@
 		  tool_tip="Home page"
 		  top="0"
 		  height="22"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Home" />
@@ -189,7 +187,6 @@
 		  tool_tip="Stop media"
 		  top="0"
 		  height="22"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.MediaStop" />
@@ -217,7 +214,6 @@
 		  tool_tip="Reload"
 		  top="0"
 		  height="22"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Reload" />
@@ -245,7 +241,6 @@
 		  tool_tip = "Stop loading"
 		  top="0"
 		  height="22"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Stop" />
@@ -274,7 +269,6 @@
 		  left_delta="2"
 		  top="0"
 		  height="22"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Play" />
@@ -449,7 +443,6 @@
 		  layout="topleft"
 		  tool_tip="Step forward"
 		  top="0"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.SkipForward" />
@@ -483,7 +476,6 @@
 		  tool_tip="Mute This Media"
 		  top="0"
 		  height="20"
-		  min_width="22"
 		  width="22" >
 		<button.commit_callback
 			function="MediaCtrl.ToggleMute" />
@@ -534,7 +526,6 @@
 		  height="22"
 		  layout="topleft"
 		  tool_tip="Zoom into media"
-		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Zoom" />
@@ -588,7 +579,6 @@
 		  layout="topleft"
 		  tool_tip = "Open URL in browser"
 		  top="0"
-		  min_width="24"
 		  width="24" >
 		<button.commit_callback
 			function="MediaCtrl.Open" />
