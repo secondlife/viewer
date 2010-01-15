@@ -186,6 +186,7 @@ height="80">
    <text
 follows="right|bottom"
 font="SansSerifSmall"
+text_color="EmphasisColor"
 halign="right"
 height="16"
 top="12"

@@ -91,6 +91,7 @@ private:
 	// simple method to setup the part that holds the date
 	void setupDate();
 
+	void onClickBuyCurrency();
 	void onVolumeChanged(const LLSD& newvalue);
 
 	static void onMouseEnterVolume(LLUICtrl* ctrl);
@@ -103,7 +104,6 @@ private:
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 
-	LLButton	*mBtnBuyCurrency;
 	LLButton	*mBtnVolume;
 
 	S32				mBalance;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_help_browser" title="NAVIGATEUR D&apos;AIDE">
 	<floater.string name="home_page_url">
-		http://www.secondlife.com
+		http://fr.secondlife.com
 	</floater.string>
 	<floater.string name="support_page_url">
-		http://support.secondlife.com
+		http://fr.secondlife.com/support
 	</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="external_controls">

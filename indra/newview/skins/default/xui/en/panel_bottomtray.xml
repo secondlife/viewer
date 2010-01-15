@@ -103,7 +103,7 @@
          min_width="52"
          name="gesture_panel"
          user_resize="false">
-         <gesture_combo_box
+         <gesture_combo_list
           follows="left|right"
           height="23"
           label="Gesture"
@@ -113,10 +113,10 @@
           top="5"
           width="82"
           tool_tip="Shows/hides gestures">
-             <gesture_combo_box.drop_down_button
+             <gesture_combo_list.combo_button
               pad_right="10"
               use_ellipses="true" />
-         </gesture_combo_box>
+         </gesture_combo_list>
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -382,6 +382,17 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
          width="40"
          min_width="40"
          user_resize="false">
+         <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         min_width="4"
+         top="0"
+         width="5" />
             <chiclet_notification
              flash_period="0.25"
              follows="right"
@@ -414,6 +425,17 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                    function="Button.SetDockableFloaterToggle"
                    parameter="notification_well_window" />
               </button>
+                      <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         min_width="4"
+         top="0"
+         width="5" />
 	    </chiclet_notification>
         </layout_panel>
     </layout_stack>

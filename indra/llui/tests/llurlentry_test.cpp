@@ -571,6 +571,26 @@ namespace tut
 				  "MIT web site is at web.mit.edu and also www.mit.edu",
 				  "web.mit.edu");
 
+		testRegex("don't match e-mail addresses", r,
+				  "test@lindenlab.com",
+				  "");
+
+		testRegex(".com URL with path", r,
+				  "see secondlife.com/status for grid status",
+				  "secondlife.com/status");
+
+		testRegex(".com URL with port", r,
+				  "secondlife.com:80",
+				  "secondlife.com:80");
+
+		testRegex(".com URL with port and path", r,
+				  "see secondlife.com:80/status",
+				  "secondlife.com:80/status");
+
+		testRegex("www.*.com URL with port and path", r,
+				  "see www.secondlife.com:80/status",
+				  "www.secondlife.com:80/status");
+
 		testRegex("invalid .com URL [1]", r,
 				  "..com",
 				  "");

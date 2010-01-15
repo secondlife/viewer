@@ -8,7 +8,7 @@
 	</string>
 	<layout_stack name="media_controls">
 		<layout_panel name="media_address">
-			<line_editor name="media_address_url" tool_tip="Medien-URL"/>
+			<line_editor name="media_address_url" tool_tip="Medien URL"/>
 			<layout_stack name="media_address_url_icons">
 				<layout_panel>
 					<icon name="media_whitelist_flag" tool_tip="Whitelist aktiviert"/>
@@ -19,7 +19,7 @@
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="media_play_position">
-			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Fortschrittsbalken Filmwiedergabe"/>
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Fortschritt der Filmwiedergabe"/>
 		</layout_panel>
 		<layout_panel name="media_volume">
 			<button name="media_volume_button" tool_tip="Dieses Medium stummschalten"/>
