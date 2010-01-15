@@ -1006,6 +1006,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mInNearbyMediaList(false),
 	mClearCache(false),
 	mBackgroundColor(LLColor4::white),
+	mNavigateSuspended(false),
+	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false)
 { 
 
@@ -1696,6 +1698,13 @@ void LLViewerMediaImpl::navigateInternal()
 	// Helpful to have media urls in log file. Shouldn't be spammy.
 	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
 
+	if(mNavigateSuspended)
+	{
+		llwarns << "Deferring navigate." << llendl;
+		mNavigateSuspendedDeferred = true;
+		return;
+	}
+	
 	if(mMimeTypeProbe != NULL)
 	{
 		llwarns << "MIME type probe already in progress -- bailing out." << llendl;
@@ -1902,7 +1911,17 @@ void LLViewerMediaImpl::update()
 		return;
 	}
 	
+	// Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
+	setNavigateSuspended(true);
+	
 	mMediaSource->idle();
+
+	setNavigateSuspended(false);
+
+	if(mMediaSource == NULL)
+	{
+		return;
+	}
 	
 	if(mMediaSource->isPluginExited())
 	{
@@ -2556,6 +2575,23 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 		case MEDIANAVSTATE_SERVER_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED" << llendl; break;
 		case MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
+	}
+}
+
+void LLViewerMediaImpl::setNavigateSuspended(bool suspend)
+{
+	if(mNavigateSuspended != suspend)
+	{
+		mNavigateSuspended = suspend;
+		if(!suspend)
+		{
+			// We're coming out of suspend.  If someone tried to do a navigate while suspended, do one now instead.
+			if(mNavigateSuspendedDeferred)
+			{
+				mNavigateSuspendedDeferred = false;
+				navigateInternal();
+			}
+		}
 	}
 }
 

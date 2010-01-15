@@ -110,7 +110,7 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Gesture.Action.ToogleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
-	mCommitCallbackRegistrar.add("Gesture.Action.CopyPast", boost::bind(&LLFloaterGesture::onCopyPastAction, this, _2));
+	mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
 	mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));
 
 	mEnableCallbackRegistrar.add("Gesture.EnableAction", boost::bind(&LLFloaterGesture::isActionEnabled, this, _2));
@@ -245,6 +245,7 @@ void LLFloaterGesture::refreshAll()
 
 void LLFloaterGesture::buildGestureList()
 {
+	S32 scroll_pos = mGestureList->getScrollPos();
 	std::vector<LLUUID> selected_items;
 	getSelectedIds(selected_items);
 	LL_DEBUGS("Gesture")<< "Rebuilding gesture list "<< LL_ENDL;
@@ -274,13 +275,14 @@ void LLFloaterGesture::buildGestureList()
 			}
 		}
 	}
+
 	// attempt to preserve scroll position through re-builds
-	// since we do re-build any time anything dirties
+	// since we do re-build whenever something gets dirty
 	for(std::vector<LLUUID>::iterator it = selected_items.begin(); it != selected_items.end(); it++)
 	{
 		mGestureList->selectByID(*it);
 	}
-	mGestureList->scrollToShowSelected();
+	mGestureList->setScrollPos(scroll_pos);
 }
 
 void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gesture,LLCtrlListInterface * list )
@@ -415,7 +417,7 @@ void LLFloaterGesture::onClickPlay()
 	LL_DEBUGS("Gesture")<<" Trying to play gesture id: "<< item_id <<LL_ENDL;
 	if(!LLGestureManager::instance().isGestureActive(item_id))
 	{
-		// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboBox.
+		// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
 		BOOL inform_server = TRUE;
 		BOOL deactivate_similar = FALSE;
 		LLGestureManager::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));
@@ -475,7 +477,7 @@ void LLFloaterGesture::onActivateBtnClick()
 	}
 }
 
-void LLFloaterGesture::onCopyPastAction(const LLSD& command)
+void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 {
 	std::string command_name  = command.asString();
 	// since we select this comman inventory item had  already arrived .

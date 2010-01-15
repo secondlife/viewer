@@ -5004,6 +5004,17 @@ LLVoiceClient::participantMap *LLVoiceClient::getParticipantList(void)
 	return result;
 }
 
+void LLVoiceClient::getParticipantsUUIDSet(std::set<LLUUID>& participant_uuids)
+{
+	if (NULL == mAudioSession) return;
+
+	participantUUIDMap::const_iterator it = mAudioSession->mParticipantsByUUID.begin(),
+		it_end = mAudioSession->mParticipantsByUUID.end();
+	for (; it != it_end; ++it)
+	{
+		participant_uuids.insert((*(*it).first));
+	}
+}
 
 LLVoiceClient::participantState *LLVoiceClient::sessionState::findParticipant(const std::string &uri)
 {

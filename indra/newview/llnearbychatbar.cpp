@@ -48,13 +48,16 @@
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llnavigationbar.h"
+#include "llwindow.h"
+#include "llviewerwindow.h"
+#include "llrootview.h"
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
-static LLDefaultChildRegistry::Register<LLGestureComboBox> r("gesture_combo_box");
+static LLDefaultChildRegistry::Register<LLGestureComboList> r("gesture_combo_list");
 
 struct LLChatTypeTrigger {
 	std::string name;
@@ -66,13 +69,42 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 	{ "/shout"	, CHAT_TYPE_SHOUT}
 };
 
-LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
-	: LLComboBox(p)
-	, mGestureLabelTimer()
+LLGestureComboList::Params::Params()
+:	combo_button("combo_button"),
+	combo_list("combo_list")
+{
+}
+
+LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
+:	LLUICtrl(p)
 	, mLabel(p.label)
 	, mViewAllItemIndex(0)
 {
-	setCommitCallback(boost::bind(&LLGestureComboBox::onCommitGesture, this));
+	LLButton::Params button_params = p.combo_button;
+	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
+
+	mButton = LLUICtrlFactory::create<LLButton>(button_params);
+	mButton->reshape(getRect().getWidth(),getRect().getHeight());
+	mButton->setCommitCallback(boost::bind(&LLGestureComboList::onButtonCommit, this));
+
+	addChild(mButton);
+
+	LLScrollListCtrl::Params params = p.combo_list;
+	params.name("GestureComboList");
+	params.commit_callback.function(boost::bind(&LLGestureComboList::onItemSelected, this, _2));
+	params.visible(false);
+	params.commit_on_keyboard_movement(false);
+
+	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
+	
+	// *HACK: adding list as a child to NonSideTrayView to make it fully visible without
+	// making it top control (because it would cause problems).
+	gViewerWindow->getNonSideTrayView()->addChild(mList);
+	mList->setVisible(FALSE);
+
+	//****************************Gesture Part********************************/
+
+	setCommitCallback(boost::bind(&LLGestureComboList::onCommitGesture, this));
 
 	// now register us as observer since we have a place to put the results
 	LLGestureManager::instance().addObserver(this);
@@ -80,26 +112,139 @@ LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 	// refresh list from current active gestures
 	refreshGestures();
 
-	// This forces using of halign from xml, since LLComboBox
-	// sets it to LLFontGL::LEFT, if text entry is disabled
-	mButton->setHAlign(p.drop_down_button.font_halign);
-
-	// Pressing Gesture button by SPACE/ENTER key should open gestures list
-	mButton->setCommitCallback(boost::bind(&LLComboBox::onButtonMouseDown, this));
+	setFocusLostCallback(boost::bind(&LLGestureComboList::hideList, this));
 }
 
-LLGestureComboBox::~LLGestureComboBox()
+BOOL LLGestureComboList::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	LLGestureManager::instance().removeObserver(this);
+	BOOL handled = FALSE;
+	
+	if (key == KEY_ESCAPE && mask == MASK_NONE )
+	{
+		hideList();
+		handled = TRUE;
+	}
+	else
+	{
+		handled = mList->handleKey(key, mask, called_from_parent);
+	}
+
+	return handled; 		
 }
 
-void LLGestureComboBox::refreshGestures()
+void LLGestureComboList::showList()
+{
+	LLRect rect = mList->getRect();
+	LLRect screen;
+	mButton->localRectToScreen(getRect(), &screen);
+	
+	// Calculating amount of space between the navigation bar and gestures combo
+	LLNavigationBar* nb = LLNavigationBar::getInstance();
+
+	S32 x, nb_bottom;
+	nb->localPointToScreen(0, 0, &x, &nb_bottom);
+
+	S32 max_height = nb_bottom - screen.mTop;
+	mList->calcColumnWidths();
+	rect.setOriginAndSize(screen.mLeft, screen.mTop, llmax(mList->getMaxContentWidth(),mButton->getRect().getWidth()), max_height);
+
+	mList->setRect(rect);
+	mList->fitContents( llmax(mList->getMaxContentWidth(),mButton->getRect().getWidth()), max_height);
+
+	gFocusMgr.setKeyboardFocus(this);
+
+	// Show the list and push the button down
+	mButton->setToggleState(TRUE);
+	mList->setVisible(TRUE);
+}
+
+void LLGestureComboList::onButtonCommit()
+{
+	if (!mList->getVisible())
+	{
+		// highlight the last selected item from the original selection before potentially selecting a new item
+		// as visual cue to original value of combo box
+		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
+		if (last_selected_item)
+		{
+			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
+		}
+
+		if (mList->getItemCount() != 0)
+		{
+			showList();
+		}
+	}
+	else
+	{
+		hideList();
+	} 
+}
+
+void LLGestureComboList::hideList()
+{
+	if (mList->getVisible())
+	{
+		mButton->setToggleState(FALSE);
+		mList->setVisible(FALSE);
+		mList->mouseOverHighlightNthItem(-1);
+		gFocusMgr.setKeyboardFocus(NULL);
+	}
+}
+
+S32 LLGestureComboList::getCurrentIndex() const
+{
+	LLScrollListItem* item = mList->getFirstSelected();
+	if( item )
+	{
+		return mList->getItemIndex( item );
+	}
+	return -1;
+}
+
+void LLGestureComboList::onItemSelected(const LLSD& data)
+{
+	const std::string name = mList->getSelectedItemLabel();
+
+	S32 cur_id = getCurrentIndex();
+	mLastSelectedIndex = cur_id;
+	if (cur_id != mList->getItemCount()-1 && cur_id != -1)
+	{
+		mButton->setLabel(name);
+	}
+
+	// hiding the list reasserts the old value stored in the text editor/dropdown button
+	hideList();
+
+	// commit does the reverse, asserting the value in the list
+	onCommit();
+}
+
+void LLGestureComboList::sortByName(bool ascending)
+{
+	mList->sortOnce(0, ascending);
+}
+
+LLSD LLGestureComboList::getValue() const
+{
+	LLScrollListItem* item = mList->getFirstSelected();
+	if( item )
+	{
+		return item->getValue();
+	}
+	else
+	{
+		return LLSD();
+	}
+}
+
+void LLGestureComboList::refreshGestures()
 {
 	//store current selection so we can maintain it
 	LLSD cur_gesture = getValue();
-	selectFirstItem();
-	// clear
-	clearRows();
+	
+	mList->selectFirstItem();
+	mList->clearRows();
 	mGestures.clear();
 
 	LLGestureManager::item_map_t::const_iterator it;
@@ -110,7 +255,7 @@ void LLGestureComboBox::refreshGestures()
 		LLMultiGesture* gesture = (*it).second;
 		if (gesture)
 		{
-			addSimpleElement(gesture->mName, ADD_BOTTOM, LLSD(idx));
+			mList->addSimpleElement(gesture->mName, ADD_BOTTOM, LLSD(idx));
 			mGestures.push_back(gesture);
 			idx++;
 		}
@@ -120,23 +265,42 @@ void LLGestureComboBox::refreshGestures()
 
 	// store index followed by the last added Gesture and add View All item at bottom
 	mViewAllItemIndex = idx;
-	addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
+	
+	mList->addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
 
 	// Insert label after sorting, at top, with separator below it
-	addSeparator(ADD_TOP);		
-	addSimpleElement(mLabel, ADD_TOP);
+	mList->addSeparator(ADD_TOP);	
+	mList->addSimpleElement(mLabel, ADD_TOP);
 
 	if (cur_gesture.isDefined())
 	{ 
-		selectByValue(cur_gesture);
+		mList->selectByValue(cur_gesture);
+
 	}
 	else
 	{
-		selectFirstItem();
+		mList->selectFirstItem();
 	}
+
+	LLCtrlListInterface* gestures = getListInterface();
+	LLMultiGesture* gesture = NULL;
+	
+	if (gestures)
+	{
+		S32 index = gestures->getSelectedValue().asInteger();
+		if(index > 0)
+			gesture = mGestures.at(index);
+	}
+	
+	if(gesture && LLGestureManager::instance().isGesturePlaying(gesture))
+	{
+		return;
+	}
+	
+	mButton->setLabel(mLabel);
 }
 
-void LLGestureComboBox::onCommitGesture()
+void LLGestureComboList::onCommitGesture()
 {
 	LLCtrlListInterface* gestures = getListInterface();
 	if (gestures)
@@ -167,50 +331,11 @@ void LLGestureComboBox::onCommitGesture()
 			}
 		}
 	}
-
-	mGestureLabelTimer.start();
-	// free focus back to chat bar
-	setFocus(FALSE);
 }
 
-//virtual
-void LLGestureComboBox::draw()
+LLGestureComboList::~LLGestureComboList()
 {
-	// HACK: Leave the name of the gesture in place for a few seconds.
-	const F32 SHOW_GESTURE_NAME_TIME = 2.f;
-	if (mGestureLabelTimer.getStarted() && mGestureLabelTimer.getElapsedTimeF32() > SHOW_GESTURE_NAME_TIME)
-	{
-		LLCtrlListInterface* gestures = getListInterface();
-		if (gestures) gestures->selectFirstItem();
-		mGestureLabelTimer.stop();
-	}
-
-	LLComboBox::draw();
-}
-
-//virtual
-void LLGestureComboBox::showList()
-{
-	LLComboBox::showList();
-
-	// Calculating amount of space between the navigation bar and gestures combo
-	LLNavigationBar* nb = LLNavigationBar::getInstance();
-	S32 x, nb_bottom;
-	nb->localPointToScreen(0, 0, &x, &nb_bottom);
-	
-	S32 list_bottom;
-	mList->localPointToScreen(0, 0, &x, &list_bottom);
-
-	S32 max_height = nb_bottom - list_bottom;
-
-	LLRect rect = mList->getRect();
-	// List overlapped navigation bar, downsize it
-	if (rect.getHeight() > max_height) 
-	{
-		rect.setOriginAndSize(rect.mLeft, rect.mBottom, rect.getWidth(), max_height);
-		mList->setRect(rect);
-		mList->reshape(rect.getWidth(), rect.getHeight());
-	}
+	LLGestureManager::instance().removeObserver(this);
 }
 
 LLNearbyChatBar::LLNearbyChatBar() 

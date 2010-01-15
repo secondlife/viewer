@@ -204,7 +204,7 @@ LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 	mPattern = boost::regex("("
 				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
 				"|" // or
-				"\\b[^ \\t\\n\\r\\f\\v:/]+\\.(?:com|net|edu|org)[^[:space:][:alnum:]]*\\>" // i.e. FOO.net
+				"(?<!@)\\b[^[:space:]:@/]+\\.(?:com|net|edu|org)([/:]\\S*)?\\b" // i.e. FOO.net
 				")",
 				boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";

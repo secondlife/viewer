@@ -70,7 +70,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
 
 	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
-	mAvatarListDoubleClickConnection = mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+	mAvatarListDoubleClickConnection = mAvatarList->setItemDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, _1));
 	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
     // Set onAvatarListDoubleClicked as default on_return action.
 	mAvatarListReturnConnection = mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
@@ -132,10 +132,15 @@ void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
 	mAvatarList->setSpeakingIndicatorsVisible(visible);
 };
 
-void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
+void LLParticipantList::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 {
-	// NOTE(EM): Should we check if there is multiple selection and start conference if it is so?
-	LLUUID clicked_id = list->getSelectedUUID();
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(ctrl);
+	if(!item)
+	{
+		return;
+	}
+
+	LLUUID clicked_id = item->getAvatarId();
 
 	if (clicked_id.isNull() || clicked_id == gAgent.getID())
 		return;

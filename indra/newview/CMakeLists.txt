@@ -386,6 +386,7 @@ set(viewer_SOURCE_FILES
     llspatialpartition.cpp
     llspeakbutton.cpp
     llspeakers.cpp
+    llspeakingindicatormanager.cpp
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
@@ -891,6 +892,7 @@ set(viewer_HEADER_FILES
     llspatialpartition.h
     llspeakbutton.h
     llspeakers.h
+    llspeakingindicatormanager.h
     llsplitbutton.h
     llsprite.h
     llstartup.h
@@ -1766,9 +1768,10 @@ if (LL_TESTS)
     llagentaccess.cpp
     lldateutil.cpp
     llmediadataclient.cpp
-    llviewerhelputil.cpp
     lllogininstance.cpp
   )
+# DISABLED TEST: llviewerhelputil.cpp /* hard to mock LLAgent dependency */
+
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS 
   ##################################################

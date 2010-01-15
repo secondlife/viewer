@@ -103,6 +103,8 @@ public:
 
 	BOOL isGesturePlaying(const LLUUID& item_id);
 
+	BOOL isGesturePlaying(LLMultiGesture* gesture);
+
 	const item_map_t& getActiveGestures() const { return mActive; }
 	// Force a gesture to be played, for example, if it is being
 	// previewed.
