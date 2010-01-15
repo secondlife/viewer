@@ -3648,6 +3648,9 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 
 	LLViewerInventoryItem* src_item = *it_src;
 	items.erase(it_src);
+	
+	// target iterator can nt be valid due to container was changed, so update it.
+	it_dest = find_item_iter_by_uuid(items, dest_item_id);
 	items.insert(it_dest, src_item);
 }
 
@@ -3671,6 +3674,44 @@ void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& item
 	}
 
 	notifyObservers();
+}
+
+// See also LLInventorySort where landmarks in the Favorites folder are sorted.
+class LLViewerInventoryItemSort
+{
+public:
+	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
+	{
+		return a->getSortField() < b->getSortField();
+	}
+};
+
+/**
+ * Sorts passed items by LLViewerInventoryItem sort field.
+ *
+ * @param[in, out] items - array of items, not sorted.
+ */
+static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
+{
+	static LLViewerInventoryItemSort sort_functor;
+	std::sort(items.begin(), items.end(), sort_functor);
+}
+
+void LLInventoryModel::rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLIsType is_type(LLAssetType::AT_LANDMARK);
+	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+
+	// ensure items are sorted properly before changing order. EXT-3498
+	rearrange_item_order_by_sort_field(items);
+
+	// update order
+	updateItemsOrder(items, source_item_id, target_item_id);
+
+	saveItemsOrder(items);
 }
 
 //----------------------------------------------------------------------------
