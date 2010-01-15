@@ -31,7 +31,6 @@
      width="300" />
     <check_box
      control_name="ChatOnlineNotification"
-	 enabled="false"
      height="16"
      label="When my friends log out or in"
      layout="topleft"

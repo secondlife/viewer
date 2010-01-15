@@ -540,6 +540,11 @@ void LLIMChiclet::toggleSpeakerControl()
 
 void LLIMChiclet::setCounter(S32 counter)
 {
+	if (mCounterCtrl->getCounter() == counter)
+	{
+		return;
+	}
+
 	mCounterCtrl->setCounter(counter);
 	setShowCounter(counter);
 	setShowNewMessagesIcon(counter);

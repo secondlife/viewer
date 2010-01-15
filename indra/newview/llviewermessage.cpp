@@ -51,7 +51,7 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
@@ -711,6 +711,18 @@ protected:
 	}
  };
 
+class LLOpenTaskGroupOffer : public LLInventoryAddedObserver
+{
+protected:
+	/*virtual*/ void done()
+	{
+		open_inventory_offer(mAdded, "group_offer");
+		mAdded.clear();
+		gInventory.removeObserver(this);
+		delete this;
+	}
+};
+
 //one global instance to bind them
 LLOpenTaskOffer* gNewInventoryObserver=NULL;
 
@@ -929,9 +941,6 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 			  case LLAssetType::AT_ANIMATION:
 				  LLFloaterReg::showInstance("preview_anim", LLSD(item_id), take_focus);
 				  break;
-			  case LLAssetType::AT_GESTURE:
-				  LLFloaterReg::showInstance("preview_gesture", LLSD(item_id), take_focus);
-				  break;
 			  case LLAssetType::AT_SCRIPT:
 				  LLFloaterReg::showInstance("preview_script", LLSD(item_id), take_focus);
 				  break;
@@ -1146,6 +1155,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			}
 			break;
 		case IM_GROUP_NOTICE:
+			opener = new LLOpenTaskGroupOffer;
 			send_auto_receive_response();
 			break;
 		case IM_TASK_INVENTORY_OFFERED:
@@ -4335,10 +4345,10 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 
 	if (gStatusBar)
 	{
-		S32 old_balance = gStatusBar->getBalance();
+	//	S32 old_balance = gStatusBar->getBalance();
 
 		// This is an update, not the first transmission of balance
-		if (old_balance != 0)
+	/*	if (old_balance != 0)
 		{
 			// this is actually an update
 			if (balance > old_balance)
@@ -4350,7 +4360,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 				LLFirstUse::useBalanceDecrease(balance - old_balance);
 			}
 		}
-
+	 */
 		gStatusBar->setBalance(balance);
 		gStatusBar->setLandCredit(credit);
 		gStatusBar->setLandCommitted(committed);
@@ -5360,8 +5370,24 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 			it != notification["payload"]["ids"].endArray();
 			++it)
 		{
+			LLUUID target_id = it->asUUID();
+
 			msg->nextBlockFast(_PREHASH_TargetData);
-			msg->addUUIDFast(_PREHASH_TargetID, it->asUUID());
+			msg->addUUIDFast(_PREHASH_TargetID, target_id);
+
+			// Record the offer.
+			{
+				std::string target_name;
+				gCacheName->getFullName(target_id, target_name);
+				LLSD args;
+				args["TO_NAME"] = target_name;
+	
+				LLSD payload;
+				payload["from_id"] = target_id;
+				payload["SESSION_NAME"] = target_name;
+				payload["SUPPRESS_TOAST"] = true;
+				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
+			}
 		}
 		gAgent.sendReliableMessage();
 	}
