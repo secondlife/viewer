@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="chat_bar">
+	<string name="min_width">
+		192
+	</string>
+	<string name="max_width">
+		320
+	</string>
 	<line_editor label="Cliquer ici pour chatter." name="chat_box" tool_tip="Appuyer sur Entrée pour dire, Ctrl-Entrée pour crier"/>
+	<button name="show_nearby_chat" tool_tip="Affiche/Masque le journal de chats près de vous"/>
 </panel>

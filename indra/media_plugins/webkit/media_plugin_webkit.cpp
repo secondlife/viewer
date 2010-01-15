@@ -429,6 +429,7 @@ private:
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
 		message.setValue("uri", event.getStringValue());
 		message.setValue("target", event.getStringValue2());
+		message.setValueU32("target_type", event.getLinkType());
 		sendMessage(message);
 	}
 	

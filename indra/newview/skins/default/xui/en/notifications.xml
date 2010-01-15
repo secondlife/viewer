@@ -246,7 +246,7 @@ Save all changes to clothing/body parts?
    icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
-Granting modify rights to another resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
+Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
 Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
     <usetemplate
      name="okcancelbuttons"
@@ -258,7 +258,7 @@ Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
    icon="alertmodal.tga"
    name="GrantModifyRightsMultiple"
    type="alertmodal">
-Granting modify rights to another resident allows them to change ANY objects you may have in-world. Be VERY careful when handing out this permission.
+Granting modify rights to another Resident allows them to change ANY objects you may have in-world. Be VERY careful when handing out this permission.
 Do you want to grant modify rights for the selected Residents?
     <usetemplate
      name="okcancelbuttons"
@@ -1597,7 +1597,8 @@ Unable to force land ownership because selection spans multiple regions. Please 
    icon="alertmodal.tga"
    name="ForceOwnerAuctionWarning"
    type="alertmodal">
-This parcel is up for auction. Forcing ownership will cancel the auction and potentially make some residents unhappy if bidding has begun. Force ownership?
+This parcel is up for auction. Forcing ownership will cancel the auction and potentially make some Residents unhappy if bidding has begun.
+Force ownership?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -3563,7 +3564,7 @@ Type a short announcement which will be sent to everyone in this region.
 The maturity rating for this region has been updated.
 It may take some time for the change to be reflected on the map.
 
-To enter Adult regions, residents must be Account Verified, either by age-verification or payment-verification.
+To enter Adult regions, Residents must be Account Verified, either by age-verification or payment-verification.
   </notification>
 
   <notification
@@ -4553,8 +4554,8 @@ Click on any landmark to select it, then click &apos;Teleport&apos; at the botto
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-You can contact residents like &apos;[NAME]&apos; by opening the People panel on the right side of your screen.
-Select the resident from the list, then click &apos;IM&apos; at the bottom of the panel.
+You can contact Residents like &apos;[NAME]&apos; by opening the People panel on the right side of your screen.
+Select the Resident from the list, then click &apos;IM&apos; at the bottom of the panel.
 (You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
   </notification>
 
@@ -4703,7 +4704,7 @@ The objects on the selected parcel of land that is owned by [FIRST] [LAST] have 
    icon="notify.tga"
    name="OtherObjectsReturned2"
    type="notify">
-The objects on the selected parcel of land owned by the resident &apos;[NAME]&apos; have been returned to their owner.
+The objects on the selected parcel of land owned by the Resident &apos;[NAME]&apos; have been returned to their owner.
   </notification>
 
   <notification
@@ -4984,7 +4985,7 @@ No valid parcel could be found.
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you [OBJECTTYPE]:
+An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -5006,7 +5007,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you [OBJECTTYPE
    icon="notify.tga"
    name="ObjectGiveItemUnknownUser"
    type="offer">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [OBJECTTYPE]:
+An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -5028,7 +5029,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME_SLURL] has given you [OBJECTTYPE]:
+[NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -5191,7 +5192,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
    name="OfferCallingCard"
    type="notify">
 [FIRST] [LAST] is offering their calling card.
-This will add a bookmark in your inventory so you can quickly IM this resident.
+This will add a bookmark in your inventory so you can quickly IM this Resident.
     <form name="form">
       <button
        index="0"

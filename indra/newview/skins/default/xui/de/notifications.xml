@@ -56,12 +56,12 @@ Fehlerdetails: Der Warnhinweis &apos;[_NAME]&apos; wurde in notifications.xml ni
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Ja"/>
 	</notification>
 	<notification name="BadInstallation">
-		Beim Aktualisieren von [APP_NAME] ist ein Fehler aufgetreten.  Bitte laden Sie die aktuellste Version des Viewers herunter. http://get.secondlife.com
+		Beim Aktualisieren von [APP_NAME] ist ein Fehler aufgetreten.  Bitte [http://get.secondlife.com laden Sie die aktuellste Version des Viewers herunter].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		Eine Verbindung zum [SECOND_LIFE_GRID] konnte nicht hergestellt werden.
- &apos;[DIAGNOSTIC]&apos;
+&apos;[DIAGNOSTIC]&apos;
 Bitte vergewissern Sie sich, dass Ihre Internetverbindung funktioniert.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -156,6 +156,9 @@ Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
+	<notification name="ClickUnimplemented">
+		Leider ist diese Funktion noch nicht implementiert.
+	</notification>
 	<notification name="JoinGroupCanAfford">
 		Der Beitritt zu dieser Gruppe kostet [COST] L$.
 Fortfahren?
@@ -186,9 +189,9 @@ Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		ACHTUNG: Wenn Sie auf „An jeden verkaufen“ klicken, kann jeder in [SECOND_LIFE] Ihr Land kaufen, auch Einwohner in anderen Regionen.
+		ACHTUNG: Wenn Sie auf An jeden verkaufen klicken, kann jeder in [SECOND_LIFE] Ihr Land kaufen, auch Einwohner in anderen Regionen.
 
-Die ausgewählten [LAND_SIZE] qm Land werden zum Verkauf freigegeben.
+Die ausgewählten [LAND_SIZE] m² Land werden zum Verkauf freigegeben.
 Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
@@ -249,6 +252,16 @@ Objekte: [N]
 Für die gesamte Region ist Schaden aktiviert.
 Damit Waffen funktionieren, müssen Skripts erlaubt sein.
 	</notification>
+	<notification name="MultipleFacesSelected">
+		Momentan sind mehrere Seiten ausgewählt. Wenn Sie fortfahren, werden einzelne Medien auf mehreren Seiten des Objektes dargestellt. Um die Medien auf einer einzigen Seite darzustellen, wählen Sie Textur auswählen und klicken Sie auf die gewünschte Seite. Danach klicken Sie Hinzufügen.
+		<usetemplate ignoretext="Die Medien werden auf mehrere ausgewählte Seiten übertragen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="WhiteListInvalidatesHomeUrl">
+		Wenn Sie diesen Eintrag zur Whitelist hinzufügen, dann wird die URL, 
+die Sie für diese Medien-Instanz festgelegt haben, ungültig. Dies ist nicht zulässig.
+Der Eintrag kann nicht zur Whitelist hinzugefügt werden.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="MustBeInParcel">
 		Sie müssen auf einer Landparzelle stehen, um ihren Landepunkt festzulegen.
 	</notification>
@@ -284,6 +297,10 @@ Der Outfit-Ordner enthält keine Kleidung, Körperteile oder Anhänge.
 	<notification name="CannotWearTrash">
 		Kleider oder Körperteile im Papierkorb können nicht getragen werden
 	</notification>
+	<notification name="MaxAttachmentsOnOutfit">
+		Objekt konnte nicht angehängt werden.
+Überschreitet die maximale Anzahl an Objekten [MAX_ATTACHMENTS], die angehängt werden können. Bitte nehmen Sie zunächst ein anderes Objekt ab.
+	</notification>
 	<notification name="CannotWearInfoNotComplete">
 		Sie können das Objekt nicht anziehen, weil es noch nicht geladen wurde. Warten Sie kurz und versuchen Sie es dann noch einmal.
 	</notification>
@@ -298,13 +315,21 @@ Sie benötigen ein Benutzerkonto, um [SECOND_LIFE] betreten zu können. Möchten
 		<usetemplate name="okcancelbuttons" notext="Erneut versuchen" yestext="Neues Benutzerkonto anlegen"/>
 	</notification>
 	<notification name="AddClassified">
-		Anzeigen erscheinen für eine Woche unter „Anzeigen“ im Suchverzeichnis. Füllen Sie Ihre Anzeige aus und klicken Sie auf „Veröffentlichen...“, um sie zum Verzeichnis hinzuzufügen. Sie werden gebeten, einen Preis zu bezahlen, wenn Sie auf „Veröffentlichen“ klicken. Wenn Sie mehr bezahlen oder ein Benutzer nach Ihren Suchbegriffen sucht, erscheint Ihre Anzeige weiter oben in der Liste.
+		Anzeigen werden im Suchverzeichnis im Abschnitt „Anzeigen&quot; und auf [http://secondlife.com/community/classifieds secondlife.com] für eine Woche angezeigt.
+Füllen Sie Ihre Anzeige aus und klicken Sie auf &apos;Veröffentlichen...&apos;, um sie zum Verzeichnis hinzuzufügen.
+Sie werden gebeten, einen Preis zu bezahlen, wenn Sie auf &apos;Veröffentlichen&apos; klicken.
+Wenn Sie mehr bezahlen, erscheint Ihre Anzeige weiter oben in der Liste, ebenso wenn ein Benutzer nach Ihren Suchbegriffen sucht.
 		<usetemplate ignoretext="So wird eine neue Anzeige erstellt" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		Anzeige „[NAME]“ löschen?
 Gebühren werden nicht rückerstattet.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="DeleteMedia">
+		Sie haben sich entschieden, die Medien auf dieser Seite zu löschen.
+Sind Sie sicher, dass Sie fortfahren wollen?
+		<usetemplate ignoretext="Bestätigen, bevor ich Medien von einem Objekt entferne." name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="ClassifiedSave">
 		Änderung an Anzeige [NAME] speichern?
@@ -346,7 +371,7 @@ Hinweis: Der Cache wird dabei gelöscht/geleert.
 		Die Port-Einstellungen werden nach einem Neustart von [APP_NAME] wirksam.
 	</notification>
 	<notification name="ChangeSkin">
-		Die neue Benutzeroberfläche wird nach einem Neustart von [APP_NAME] angewendet.
+		Die neue Benutzeroberfläche wird nach einem Neustart von [APP_NAME] angezeigt.
 	</notification>
 	<notification name="GoToAuctionPage">
 		Zur [SECOND_LIFE]-Webseite, um Auktionen anzuzeigen oder ein Gebot abzugeben?
@@ -398,7 +423,7 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 		Ein kompiliertes Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
 	</notification>
 	<notification name="StartRegionEmpty">
-		Sie haben keine Start-Region festgelegt. 
+		Sie haben keine Start-Region festgelegt.
 Bitte geben Sie den Namen der Region im Feld „Startposition“ ein oder wählen Sie „Mein letzter Standort“ oder „Mein Heimatort“ als Startposition aus.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -425,17 +450,16 @@ Die Seite [_URL] für weitere Informationen öffnen?
 	<notification name="UnknownGPU">
 		Ihr System verwendet eine uns zurzeit unbekannte Grafikkarte.
 Dies passiert dann, wenn die neue Hardware noch nicht mit [APP_NAME] getestet wurde.  [APP_NAME] wird wahrscheinlich korrekt ausgeführt werden, jedoch sollten Sie Ihre Grafikeinstellungen anpassen, um eine bessere Darstellung zu erzielen.
-(Einstellungen &gt; Grafik).
+(Ich &gt; Einstellungen &gt; Grafik).
 		<form name="form">
 			<ignore name="ignore" text="Meine Grafikkarte konnte nicht identifiziert werden."/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
 		[APP_NAME] ist bei der Initialisierung der Grafiktreiber abgestürzt.
-Die Grafikqualität wird auf eine niedrige Stufe zurückgesetzt, um einige typische Treiberfehler zu vermeiden.
-Einige Grafikfunktionen werden ausgeschaltet.
+Die Grafikqualität wird auf Niedrig gesetzt, um einige typische Treiberfehler zu vermeiden. Einige Grafikfunktionen werden ausgeschaltet.
 Wir empfehlen die Aktualisierung Ihrer Grafikkartentreiber.
-Sie können die Grafikqualität unter „Einstellungen“ &gt; „Grafik“ wieder erhöhen.
+Sie können die Grafikqualität unter Einstellungen &gt; Grafik wieder erhöhen.
 	</notification>
 	<notification name="RegionNoTerraforming">
 		Die Region [REGION] erlaubt kein Terraforming.
@@ -485,6 +509,9 @@ Der Avatar wird außer Gefecht gesetzt und kann sich nicht mehr bewegen, chatten
 	<notification name="EjectAvatarFullnameNoBan">
 		[AVATAR_NAME] aus Ihrem Land werfen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Hinauswerfen"/>
+	</notification>
+	<notification name="EjectAvatarFromGroup">
+		Sie haben [AVATAR_NAME] aus der Gruppe [GROUP_NAME] geworfen.
 	</notification>
 	<notification name="AcquireErrorTooManyObjects">
 		FEHLER: Zu viele Objekte ausgewählt.
@@ -616,6 +643,9 @@ Wählen Sie Objekte mit Skripts.
 
 Wählen Sie Objekte mit Skripts, die Sie bearbeiten dürfen.
 	</notification>
+	<notification name="CannotOpenScriptObjectNoMod">
+		Das Skript im Objekt kann nicht geöffnet werden, da keine Änderungs-Berechtigungen vorliegen.
+	</notification>
 	<notification name="CannotSetRunningSelectObjectsNoScripts">
 		„Ausführen“ von Skripts nicht möglich.
 
@@ -648,7 +678,7 @@ Es wurde keine Suche durchgeführt.
 Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_SITE].
 	</notification>
 	<notification name="invalid_region_handoff">
-		Bei der Bearbeitung Ihres Regionswechsels ist ein Problem aufgetreten. Sie müssen sich zum Wechsel der Region eventuell neu anmelden.
+		Bei der Bearbeitung Ihres Regionswechsels ist ein Problem aufgetreten. Sie müssen eventuell neu anmelden, um die Region wechseln zu können.
 Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_SITE].
 	</notification>
 	<notification name="blocked_tport">
@@ -720,7 +750,7 @@ Keine Parzelle ausgewählt.
 Kann die Region nicht finden, in der sich dieses Land befindet.
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		Das Fenster „Land kaufen“ kann erst geschlossen werden, nachdem [APP_NAME] den Transaktionspreis geschätzt hat.
+		Das Fenster Land kaufen kann nicht geschlossen werden, bevor [APP_NAME] den Preis für diese Transaktion eingeschätzt hat.
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
 		Land kann nicht übertragen werden:
@@ -872,7 +902,7 @@ Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen
 	<notification name="YouHaveBeenLoggedOut">
 		Sie wurden von [SECOND_LIFE] abgemeldet:
             [MESSAGE]
-Klicken Sie auf „IM &amp; Chat anzeigen“, um vorhandene Nachrichten und Chat weiterhin anzuzeigen. Klicken Sie andernfalls auf „Beenden“, um [APP_NAME] sofort zu beenden.
+Klicken Sie auf „IM &amp; Chat anzeigen“, um vorhandene Nachrichten und Chat weiterhin anzuzeigen. Um [APP_NAME] zu schließen, auf „Beenden“ klicken.
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="IM &amp; Chat anzeigen"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1052,10 +1082,10 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		Die Installation von [APP_NAME] ist abgeschlossen.
+		Installation von [APP_NAME] vollständig abgeschlossen.
 
-Wenn Sie [SECOND_LIFE] das erste Mal verwenden, müssen Sie ein Konto anlegen, bevor Sie sich anmelden können.
-Möchten Sie auf [https://join.secondlife.com/index.php?lang=de-DE secondlife.com] ein Konto erstellen?
+Falls Sie [SECOND_LIFE] zum ersten Mal verwenden, müssen Sie zuerst ein Konto erstellen, bevor Sie sich anmelden können.
+Zurück zu [http://join.secondlife.com secondlife.com], um ein neues Konto zu erstellen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Neues Konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
@@ -1084,10 +1114,10 @@ Sie können sich später noch umentscheiden.
 		[NAME] [PRICE] L$  Sie haben nicht genügend L$, um diese Aktion auszuführen.
 	</notification>
 	<notification name="GrantedModifyRights">
-		[FIRST_NAME] [LAST_NAME] hat Ihnen die Erlaubnis erteilt, ihre/seine Objekte zu bearbeiten.
+		[NAME] hat Ihnen die Erlaubnis erteilt, ihre/seine Objekte zu bearbeiten.
 	</notification>
 	<notification name="RevokedModifyRights">
-		Ihnen wurden die Änderungsrechte für die Objekte von [FIRST_NAME] [LAST_NAME] entzogen.
+		Ihnen wurden die Änderungsrechte für die Objekte von [NAME] entzogen.
 	</notification>
 	<notification name="FlushMapVisibilityCaches">
 		Der Kartencache dieser Region wird geleert.
@@ -1165,19 +1195,19 @@ Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		Eine neue Version von [APP_NAME] ist verfügbar.
+		Eine neue Version von [SUPPORT_SITE] ist verfügbar.
 [MESSAGE]
 Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadWindows">
-		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
+		Eine neue Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
+		Eine neue Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
@@ -1201,7 +1231,7 @@ Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität soll
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		Eine neue Version von [APP_NAME] ist verfügbar.
+		Eine neue Version von [SUPPORT_SITE] ist verfügbar.
 [MESSAGE]
 Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
 
@@ -1209,7 +1239,7 @@ In Ihren Anwendungsordner herunterladen?
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadMac">
-		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
+		Eine neue Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 
@@ -1217,7 +1247,7 @@ In Ihren Anwendungsordner herunterladen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
+		Eine neue Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 
@@ -1234,7 +1264,7 @@ In Ihren Anwendungsordner herunterladen?
 		<usetemplate ignoretext="Meinen Browser starten, um eine Webseite anzuzeigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
-		de.secondlife.com öffnen, um Ihr Konto zu verwalten?
+		Möchten Sie Ihre [http://secondlife.com/account/ Startseite] aufrufen, um Ihr Konto zu verwalten?
 		<usetemplate ignoretext="Meinen Browser starten, um mein Konto zu verwalten" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
@@ -1277,14 +1307,14 @@ Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Benutzer hinauswerfen"/>
 	</notification>
 	<notification name="MuteLinden">
-		Lindens können nicht stummgeschaltet werden.
+		Lindens können nicht ignoriert werden.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotStartAuctionAlreadyForSale">
 		Eine Parzelle, die bereits zum Verkauf freigegeben ist, kann nicht versteigert werden.  Deaktivieren Sie den Landverkauf, wenn Sie das Land zur Versteigerung freigeben möchten.
 	</notification>
-	<notification label="Objekt nach Name stummschalten fehlgeschlagen" name="MuteByNameFailed">
-		Dieser Name ist bereits stummgeschaltet.
+	<notification label="Objekt nach Name ignorieren ist fehlgeschlagen" name="MuteByNameFailed">
+		Dieser Name wird bereits ignoriert.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RemoveItemWarn">
@@ -1378,6 +1408,10 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		Nach [PICK] teleportieren?
 		<usetemplate ignoretext="Bestätigen, dass ich zu einer Position in Auswahl teleportieren möchte" name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
 	</notification>
+	<notification name="TeleportToClassified">
+		Zu [CLASSIFIED] teleportieren?
+		<usetemplate ignoretext="Bestätigen, dass ich zu einer Position in Anzeigen teleportieren möchte." name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
+	</notification>
 	<notification label="Nachricht an alle auf diesem Grundstück" name="MessageEstate">
 		Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundstück gesendet wird.
 		<form name="form">
@@ -1462,7 +1496,7 @@ Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Alterein
 	<notification name="RegionEntryAccessBlocked_Change">
 		Sie dürfen diese Region aufgrund der Einstellung Ihrer Alterseinstufung nicht betreten.
 
-Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen... &gt; Allgemein.
+Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen &gt; Allgemein.
 		<form name="form">
 			<button name="OK" text="Einstellung ändern"/>
 			<button name="Cancel" text="Schließen"/>
@@ -1490,7 +1524,7 @@ Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Alterein
 	<notification name="LandClaimAccessBlocked_Change">
 		Sie haben aufgrund der Einstellung Ihrer Alterseinstufung keinen Anspruch auf dieses Land.
 
-Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen... &gt; Allgemein.
+Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen &gt; Allgemein.
 		<usetemplate ignoretext="Meine Alterseinstufung lässt nicht zu, dass ich auf Land Anspruch erhebe" name="okcancelignore" notext="Schließen" yestext="Einstellung ändern"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
@@ -1514,11 +1548,11 @@ Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Alterein
 	<notification name="LandBuyAccessBlocked_Change">
 		Sie können aufgrund Ihrer Einstellung für Alterseinstufung dieses Land nicht kaufen.
 
-Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen... &gt; Allgemein.
+Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen &gt; Allgemein.
 		<usetemplate ignoretext="Meine Alterseinstufung lässt nicht zu, dass ich Land kaufe" name="okcancelignore" notext="Schließen" yestext="Einstellung ändern"/>
 	</notification>
 	<notification name="TooManyPrimsSelected">
-		&quot;Zu viele Prims wurden ausgewählt.  Bitte wählen Sie höchstens [MAX_PRIM_COUNT] Prims aus und versuchen Sie es erneut.&quot;
+		Zu viele Prims wurden ausgewählt.  Bitte wählen Sie höchstens [MAX_PRIM_COUNT] Prims aus und versuchen Sie es erneut.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ProblemImportingEstateCovenant">
@@ -1574,7 +1608,7 @@ Anzeige für [AMOUNT] L$ veröffentlichen?
 Es kann eine Weile dauern, bis sich die Änderung auf die Karte auswirkt.
 	</notification>
 	<notification label="Falsche Voice-Version" name="VoiceVersionMismatch">
-		Diese Version von [APP_NAME] mit dem Voice-Chat-Feature in dieser Region nicht kompatibel. Damit Voice-Chat funktioniert, müssen Sie [APP_NAME] aktualisieren.
+		Diese Version von [APP_NAME] ist mit der Voice-Chat-Funktion in dieser Region nicht kompatibel. Damit Voice-Chat funktioniert, müssen Sie [APP_NAME] aktualisieren.
 	</notification>
 	<notification label="Objekte können nicht gekauft werden" name="BuyObjectOneOwner">
 		Objekte können nicht von mehreren Eigentümern gleichzeitig gekauft werden.
@@ -1682,7 +1716,7 @@ Inventarobjekt(e) verschieben?
 		Sie haben keine Berechtigung zum Kopieren von Elementen in diesem Objekt.
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		de.secondlife.com öffnen, um Ihre Konto-Statistik anzuzeigen?
+		Möchten Sie Ihre [http://secondlife.com/account/ Startseite] aufrufen, um Ihre Konto-Statistik anzuzeigen?
 		<usetemplate ignoretext="Meinen Browser starten, um meine Konto-Statistik anzuzeigen" name="okcancelignore" notext="Abbrechen" yestext="Gehe zu Seite"/>
 	</notification>
 	<notification name="ConfirmQuit">
@@ -1690,19 +1724,19 @@ Inventarobjekt(e) verschieben?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Verwenden Sie dieses Tool, um Verletzungen der [http://secondlife.com/corporate/tos.php?lang=de-DE Servicebedingungen] und [http://secondlife.com/corporate/cs.php?lang=de-DE Community-Standards] zu melden.
+		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] and [http://secondlife.com/corporate/cs.php Community-Standards] melden.
 
-Alle gemeldeten Verletzungen der Servicebedingungen und Community-Standards werden geprüft und geklärt Sie können den Prozess im Incident Report (Vorfallsbericht) verfolgen:
-
-http://secondlife.com/support/incidentreport.php
+Alle gemeldeten Verstöße werden bearbeitet. Sie können auf der Seite [http://secondlife.com/support/incidentreport.php Verstoßmeldungen] nachverfolgen, welche Verstoßmeldungen bearbeitet wurden.
 	</notification>
 	<notification name="HelpReportAbuseEmailEO">
 		WICHTIG: Diese Meldung wird an den Eigentümer der Region gesendet, in der Sie sich gerade befinden, nicht an Linden Lab.
--
-Als besonderen Service für Einwohner und Besucher übernimmt der Eigentümer dieser Region die Bearbeitung aller anfallenden Meldungen. Von diesem Standort aus eingereichte Meldungen werden nicht von Linden Lab bearbeitet. Der Eigentümer der Region bearbeitet Meldungen auf Grundlage der Richtlinien, die im für diese Region geltenden Grundstücksvertrag festgelegt sind.
-(Den Vertrag können Sie unter „Welt“ &gt; „Land-Info“ einsehen.)
--
-Das Resultat, das sich aus dieser Meldung ergibt, betrifft nur diese Region; der Einwohnerzugang zu anderen Bereichen von [SECOND_LIFE] ist davon nicht betroffen. Nur Linden Lab kann den Zugang zu [SECOND_LIFE] beschränken.
+
+Als besonderen Service für Einwohner und Besucher übernimmt der Eigentümer dieser Region die Bearbeitung aller anfallenden Meldungen. Von diesem Standort aus eingereichte Meldungen werden nicht von Linden Lab bearbeitet.
+
+Der Eigentümer der Region bearbeitet Meldungen auf Grundlage der Richtlinien, die im für diese Region geltenden Grundstücksvertrag festgelegt sind.
+(Den Vertrag können Sie unter  &apos;Welt &apos;  &gt;  &apos;Land-Info &apos; einsehen.)
+
+Die Klärung des gemeldeten Verstoßes bezieht sich nur auf diese Region. Der Zugang für Einwohner zu anderen Bereichen von [SECOND_LIFE] wird durch das Resultat dieser Meldung nicht beeinträchtigt. Nur Linden Lab kann den Zugang zu [SECOND_LIFE] beschränken.
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Wählen Sie eine Missbrauchskategorie aus.
@@ -1729,9 +1763,9 @@ Eine möglichst genaue Beschreibung mit Namen und Einzelheiten hilft uns, Fälle
 
 Sie melden eine Urheberrechtsverletzung. Sind Sie wirklich sicher, dass Sie eine Verletzung des Urheberrechts melden möchten?
 
-1. Missbrauch melden. Wenn Sie der Meinung sind, ein Einwohner nutzt das Berechtigungssystem von [SECOND_LIFE] auf unerlaubte Weise zu seinem Vorteil aus, indem er zum Beispiel einen CopyBot oder ähnliche Kopiertools verwendet und damit eine Urheberrechtsverletzung begeht, können Sie diesen Missbrauch melden. Das Missbrauchsteam untersucht etwaige Verstöße gegen die [SECOND_LIFE] Community Standards oder die Nutzungsbedingungen und verhängt entsprechende Strafen. Das Missbrauchsteam ist jedoch nicht dafür zuständig, Inhalte aus der [SECOND_LIFE]-Welt zu entfernen und reagiert auch nicht auf entsprechende Anfragen.
+1. Missbrauch melden. Wenn Sie der Meinung sind, ein Einwohner nutzt das Berechtigungssystem von [SECOND_LIFE] auf unerlaubte Weise zu seinem Vorteil aus, indem er zum Beispiel einen CopyBot oder ähnliche Kopiertools verwendet und damit eine Urheberrechtsverletzung begeht, können Sie diesen Missbrauch melden. Das Missbrauchsteam untersucht gemeldete Verstöße gegen die  [SECOND_LIFE] [http://secondlife.com/corporate/tos.php Servicebedingungen] oder [http://secondlife.com/corporate/cs.php Community-Standards] und verhängt entsprechende Maßnahmen. Das Missbrauchsteam ist jedoch nicht dafür zuständig, Inhalte aus der  [SECOND_LIFE]-Welt zu entfernen und reagiert auch nicht auf entsprechende Anfragen.
 
-2. Der DMCA oder das Entfernen von Inhalten. Sie können das Entfernen von Inhalten aus [SECOND_LIFE] beantragen. Dazu MÜSSEN Sie eine Urheberrechtsverletzung gemäß den in unserer DMCA-Richtlinie unter http://secondlife.com/corporate/dmca.php dargelegten Anweisungen einreichen.
+2. Der DMCA oder das Entfernen von Inhalten. Sie können das Entfernen von Inhalten aus  [SECOND_LIFE] beantragen. Dazu MÜSSEN Sie eine Urheberrechtsverletzung gemäß den in unserer DMCA-Richtlinie unter  [http://secondlife.com/corporate/dmca.php] dargelegten Anweisungen einreichen.
 
 Wenn Sie mit der Missbrauchmeldung jetzt fortfahren möchten, schließen Sie bitte dieses Fenster und senden Sie Ihren Bericht ein.  Möglicherweise müssen Sie Kategorie „CopyBot oder Berechtigungs-Exploit“ auswählen.
 
@@ -1762,13 +1796,17 @@ Möchten Sie den Bechäftigt-Modus verlassen, bevor Sie diese Transaktion abschl
 			<button ignore="Beschäftigt-Modus aktiviert lassen" name="No" text="Abbrechen"/>
 		</form>
 	</notification>
+	<notification name="ConfirmDeleteProtectedCategory">
+		Der Ordner „[FOLDERNAME]“ ist ein Systemordner. Das Löschen von Systemordnern kann zu instabiler Leistung führen.  Möchten Sie fortfahren?
+		<usetemplate ignoretext="Bestätigen, bevor ich einen Systemordner lösche." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmEmptyTrash">
 		Sind Sie sicher, dass Sie den Inhalt Ihres Papierkorbs löschen möchten?
 		<usetemplate ignoretext="Bestätigen, bevor der Ordner Papierkorb im Inventar geleert wird" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		Sind Sie sicher, dass Sie Ihren Reise-, Internet- und Suchverlauf löschen möchten?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Ja"/>
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearCookies">
 		Sind Sie sicher, dass Sie Ihre Cookies löschen möchten?
@@ -1929,7 +1967,7 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		Terrain.raw heruntergeladen
 	</notification>
 	<notification name="GestureMissing">
-		Geste [NAME] fehlt in Datenbank.
+		Hmm. Geste [NAME] fehlt in Datenbank.
 	</notification>
 	<notification name="UnableToLoadGesture">
 		Geste [NAME] konnte nicht geladen werden.
@@ -2003,7 +2041,7 @@ Wählen Sie ein einzelnes Objekt aus.
 		Ihnen fehlt die Berechtigung zum Kopieren.
 	</notification>
 	<notification name="InventoryAccepted">
-		[NAME] hat Ihr Inventarangebot akzeptiert.
+		[NAME] hat Ihr Inventarangebot erhalten.
 	</notification>
 	<notification name="InventoryDeclined">
 		[NAME] hat Ihr Inventarangebot abgelehnt.
@@ -2018,12 +2056,14 @@ Wählen Sie ein einzelnes Objekt aus.
 		Ihre Visitenkarte wurde abgelehnt.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Jetzt, nachdem Sie das Mainland erreicht haben, können Sie sich an Positionen wie „[NAME]“ teleportieren, indem Sie unten rechts im Fenster auf „Inventar“ klicken und den Ordner „Landmarken“ auswählen.
-Klicken Sie eine Landmarke doppelt an und wählen Sie „Teleportieren“, um an diesen Ort zu gelangen.
+		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Landmarken“ auswählen.
+Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf „Teleport“ unten in der Konsole.
+(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleport“ auswählen).
 	</notification>
 	<notification name="TeleportToPerson">
-		Jetzt, nachdem Sie das Mainland erreicht haben, können Sie mit Einwohnern wie „[NAME]“ Kontakt aufnehmen, indem Sie unten rechts im Fenster auf „Inventar“ klicken und den Ordner „Visitenkarten“ auswählen.
-Klicken Sie die Karte doppelt an, wählen Sie „Instant Message“ und geben Sie eine Nachricht ein.
+		Sie können Einwohner wie „[NAME]“ kontaktieren, wenn Sie die Tafel „Leute“ auf der rechten Seite Ihres Bildschirms öffnen.
+Wählen Sie den Einwohner aus der Liste aus und klicken Sie unten auf „IM“.
+(Sie können auch auf den Namen doppelt klicken oder mit rechts auf den Namen klicken und dann „IM“ auswählen).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Land kann nicht über Servergrenzen hinweg ausgewählt werden.
@@ -2070,8 +2110,8 @@ Wählen Sie eine kleinere Landfläche.
 [NAMES]
 	</notification>
 	<notification name="NoQuickTime">
-		Apple QuickTime ist auf Ihrem System anscheinend nicht installiert.
-Laden Sie QuickTime von der QuickTime-Webseite (http://www.apple.com/de/quicktime) herunter, um auf Parzellen, die diese Funktion unterstützen, Streaming-Inhalte wiederzugeben.
+		AppleQuickTime ist auf Ihrem System anscheinend nicht installiert.
+Laden Sie QuickTime von der [http://www.apple.com/quicktime QuickTime-Webseite]  herunter, um auf Parzellen, die diese Funktion unterstützen, Streaming-Inhalte wiederzugeben.
 	</notification>
 	<notification name="NoPlugin">
 		Es wurde kein Medien-Plugin gefunden, das &quot;[MIME_TYPE]&quot; ausführen kann.  Medien dieses Dateityps sind nicht verfügbar.
@@ -2103,6 +2143,11 @@ Nicht transferierbare an die Gruppe übertragene Objekte wurden gelöscht.
 	<notification name="UnOwnedObjectsReturned">
 		Alle Objekte auf der ausgewählten Parzelle, die NICHT Ihnen gehören, wurden ihren Eigentümern zurückgegeben.
 	</notification>
+	<notification name="ServerObjectMessage">
+		Nachricht von [NAME]:
+[MSG]
+		<usetemplate name="okcancelbuttons" notext="OK" yestext="Untersuchen"/>
+	</notification>
 	<notification name="NotSafe">
 		Auf diesem Land ist Schaden aktiviert.
 Verletzungen sind möglich. Wenn Sie sterben, werden Sie zu Ihrem Heimatstandort teleportiert.
@@ -2112,8 +2157,7 @@ Verletzungen sind möglich. Wenn Sie sterben, werden Sie zu Ihrem Heimatstandort
 Fliegen ist hier nicht möglich.
 	</notification>
 	<notification name="PushRestricted">
-		In diesem Bereich ist Stoßen nicht erlaubt.
-Sie können keine anderen Personen stoßen, außer Ihnen gehört das Land.
+		In diesem Bereich ist Stoßen nicht erlaubt. Sie können keine anderen Personen stoßen, außer Ihnen gehört das Land.
 	</notification>
 	<notification name="NoVoice">
 		In diesem Bereich ist Voice deaktiviert. Sie werden niemanden sprechen hören.
@@ -2148,6 +2192,9 @@ Bitte besuchen Sie unsere Knowledgebase, um mehr Details über Zugang zu Regione
 	</notification>
 	<notification name="ImproperPaymentStatus">
 		Die für den Zutritt zu dieser Region erforderlichen Zahlungsinformationen liegen nicht vor.
+	</notification>
+	<notification name="MustGetAgeRgion">
+		Sie müssen alterüberprüft sein, um diese Region betreten zu können.
 	</notification>
 	<notification name="MustGetAgeParcel">
 		Sie müssen alterüberprüft sein, um diese Parzelle betreten zu können.
@@ -2211,30 +2258,35 @@ Versuchen Sie es in einigen Minuten erneut.
 		Es konnte keine gültige Parzelle gefunden werden.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Das Objekt [OBJECTFROMNAME] von [FIRST] [LAST] hat Ihnen Folgendes übergeben: [OBJECTTYPE] ([OBJECTNAME]).
+		Ein Objekt namens [OBJECTFROMNAME] von [NAME_SLURL] hat Ihnen folgendes übergeben [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behalten"/>
 			<button name="Discard" text="Verwerfen"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		Das Objekt [OBJECTFROMNAME] von (unbekannt) hat Ihnen Folgendes übergeben: [OBJECTTYPE] ([OBJECTNAME]).
+		Ein Objekt namens [OBJECTFROMNAME] von (einem unbekannten Einwohner) hat Ihnen folgendes übergeben [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behalten"/>
 			<button name="Discard" text="Verwerfen"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME] hat Ihnen ein [OBJECTTYPE] namens „[OBJECTNAME]“ gegeben.
+		[NAME_SLURL] hat Ihnen folgendes [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behalten"/>
+			<button name="Show" text="Anzeigen"/>
 			<button name="Discard" text="Verwerfen"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
 		[NAME]
+
 [MESSAGE]
 	</notification>
 	<notification name="JoinGroup">
@@ -2246,7 +2298,7 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] hat angeboten, Sie zu ihrem/seinem Standort zu teleportieren:
+		[NAME] hat Ihnen einen Teleport an seine/ihre Position angeboten:
 
 [MESSAGE]
 		<form name="form">
@@ -2297,7 +2349,7 @@ Dies erstellt ein Lesezeichen in Ihrem Inventar, damit Sie diesen Einwohner jede
 		</form>
 	</notification>
 	<notification name="RegionRestartMinutes">
-		Region wird in [MINUTES] Minuten neu gestartet.
+		Diese Region wird in [Minuten] neu gestartet.
 Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
 	</notification>
 	<notification name="RegionRestartSeconds">
@@ -2322,7 +2374,7 @@ Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
 		[TYPE] namens [DESC] nicht in Datenbank.
 	</notification>
 	<notification name="InvalidWearable">
-		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von [APP_NAME], um diesen Artikel anziehen zu können.
+		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von [APP_NAME], um dieses Objekt anziehen zu können.
 	</notification>
 	<notification name="ScriptQuestion">
 		Das Objekt „[OBJECTNAME]“, Eigentum von „[NAME]“, möchte:
@@ -2332,7 +2384,7 @@ Ist das OK?
 		<form name="form">
 			<button name="Yes" text="Ja"/>
 			<button name="No" text="Nein"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -2362,6 +2414,14 @@ Anfrage gestatten?
 			<button name="Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
+	<notification name="ScriptToast">
+		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Benutzer an.
+		<form name="form">
+			<button name="Open" text="Dialog öffnen"/>
+			<button name="Ignore" text="Ignorieren"/>
+			<button name="Block" text="Ignorieren"/>
+		</form>
+	</notification>
 	<notification name="FirstBalanceIncrease">
 		Sie haben gerade [AMOUNT] L$ erhalten.
 Ihr Kontostand wird oben rechts angezeigt.
@@ -2370,6 +2430,13 @@ Ihr Kontostand wird oben rechts angezeigt.
 		Sie haben gerade [AMOUNT] L$ bezahlt.
 Ihr Kontostand wird oben rechts angezeigt.
 	</notification>
+	<notification name="BuyLindenDollarSuccess">
+		Vielen Dank für Ihre Zahlung.
+
+Ihr L$-Kontostand wird aktualisiert, sobald die Bearbeitung abgeschlossen ist. Falls die Bearbeitung länger als 20 min dauert, ist es möglich, dass Ihre Transaktion abgebrochen wird. In diesem Fall wird der Kaufbetrag in US$ auf Ihrem Konto gutgeschrieben.
+
+Der Zahlungsstatus kann auf Ihrer [http://secondlife.com/account/ Startseite] unter Transaktionsübersicht überprüft werden.
+	</notification>
 	<notification name="FirstSit">
 		Sie sitzen.
 Verwenden Sie die Pfeiltasten (oder AWSD-Tasten), um sich umzusehen.
@@ -2377,7 +2444,7 @@ Um aufzustehen, klicken Sie auf die Schaltfläche „Aufstehen“.
 	</notification>
 	<notification name="FirstMap">
 		Klicken Sie auf die Karte und bewegen Sie die Maus, um sich auf der Karte umzusehen.
-Mit Doppelklick können Sie teleportieren.
+Zum Teleportieren doppelklicken.
 Nutzen Sie die Optionen rechts, um Objekte, Einwohner oder Events anzuzeigen und einen anderen Hintergrund auszuwählen.
 	</notification>
 	<notification name="FirstBuild">
@@ -2416,8 +2483,8 @@ Objekte, die Sie hier bauen, werden gelöscht, nachdem Sie den Sandkasten verlas
 		Sie haben das Menü „Erweitert“ geöffnet.
 
 Um dieses Menü zu aktivieren bzw. deaktivieren:
-  Windows Strg-Alt-D
-  Mac ⌘-Opt-D
+  Windows Strg+Alt+D
+  Mac &#8997;&#8984;D
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Sie bearbeiten ein geformtes Primitiv. Geformte Primitive benötigen eine spezielle Textur, die ihre Form definiert.
@@ -2428,47 +2495,47 @@ von der Liste auswählen.
 	</notification>
 	<notification name="VoiceInviteP2P">
 		[NAME] lädt Sie zu einem Voice-Chat ein.
-Klicken Sie auf „Akzeptieren“, um dem Gespräch beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Anrufer stumm zu schalten.
+Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Gespräch beizutreten, oder auf  &apos;Ablehnen &apos;, um die Einladung auszuschlagen. Klicken Sie auf Ignorieren, um diesen Anrufer zu ignorieren.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST] hat eine Instant Message erhalten; die Stummschaltung wurde aufgehoben.
+		[FIRST] [LAST] hat eine Benachrichtigung erhalten und wird nicht länger ignoriert.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST] hat Geld erhalten; die Stummschaltung wurde aufgehoben.
+		[FIRST] [LAST] wurde bezahlt und wird nicht länger ignoriert.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST] wurde ein Inventarobjekt angeboten; die Stummschaltung wurde aufgehoben.
+		[FIRST] [LAST] wurde Inventar angeboten und wird nicht länger ignoriert.
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] ist einem Voice-Chat mit der Gruppe [GROUP] beigetreten.
-Klicken Sie auf „Akzeptieren“, um dem Gespräch beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Anrufer stumm zu schalten.
+Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Gespräch beizutreten, oder auf  &apos;Ablehnen &apos;, um die Einladung auszuschlagen. Klicken Sie auf Ignorieren, um diesen Anrufer zu ignorieren.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="VoiceInviteAdHoc">
-		[NAME] ist einem Voice-Konferenz-Chat beigetreten.
-Klicken Sie auf „Akzeptieren“, um dem Gespräch beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Benutzer stumm zu schalten.
+		[NAME] ist einem Voice-Chat mit Konferenzschaltung beigetreten.
+Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Gespräch beizutreten, oder auf  &apos;Ablehnen &apos;, um die Einladung auszuschlagen. Klicken Sie auf Ignorieren, um diesen Anrufer zu ignorieren.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="InviteAdHoc">
 		[NAME] lädt Sie zu einem Konferenz-Chat ein.
-Klicken Sie auf „Akzeptieren“, um dem Chat beizutreten, oder auf „Ablehnen“, um die Einladung auszuschlagen. Klicken Sie auf „Stummschalten“, um diesen Benutzer stumm zu schalten.
+Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &apos;Ablehnen &apos;, um die Einladung auszuschlagen. Klicken Sie auf Ignorieren, um diesen Anrufer zu ignorieren.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
-			<button name="Mute" text="Stummschalten"/>
+			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="VoiceChannelFull">
@@ -2478,19 +2545,19 @@ Klicken Sie auf „Akzeptieren“, um dem Chat beizutreten, oder auf „Ablehnen
 		Es tut uns Leid.  Dieses Gebiet hat seine maximale Kapazität für Voice-Gespräche erreicht.  Bitte versuchen Sie es in einem anderen Gebiet.
 	</notification>
 	<notification name="VoiceChannelDisconnected">
-		Sie haben [VOICE_CHANNEL_NAME] verlassen.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+		Die Verbindung zu [VOICE_CHANNEL_NAME] wurde abgebrochen.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="VoiceChannelDisconnectedP2P">
-		[VOICE_CHANNEL_NAME] hat das Gespräch beendet.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+		[VOICE_CHANNEL_NAME] hat den Anruf beendet.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="P2PCallDeclined">
-		[VOICE_CHANNEL_NAME] hat Ihren Anruf abgelehnt.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+		[VOICE_CHANNEL_NAME] hat ihren Anruf abgelehnt.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="P2PCallNoAnswer">
-		[VOICE_CHANNEL_NAME] ist zurzeit nicht erreichbar.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+		[VOICE_CHANNEL_NAME] kann Ihren Anruf nicht entgegennehmen.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="VoiceChannelJoinFailed">
-		Verbindung zu [VOICE_CHANNEL_NAME] nicht möglich. Bitte versuchen Sie es später.  Sie werden nun wieder mit dem Umgebungs-Voice-Chat verbunden.
+		Verbindung zu [VOICE_CHANNEL_NAME] nicht möglich. Bitte versuchen Sie es später.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="VoiceLoginRetry">
 		Wir erstellen einen Voice-Kanal für Sie. Bitte warten Sie einen Moment.
@@ -2511,12 +2578,13 @@ Klicken Sie auf „Akzeptieren“, um dem Chat beizutreten, oder auf „Ablehnen
 		Fehler beim Versuch, eine Voice-Chat-Verbindung zu [VOICE_CHANNEL_NAME] herzustellen.  Bitte versuchen Sie es erneut.
 	</notification>
 	<notification name="ServerVersionChanged">
-		Sie haben eine Region betreten, die eine andere Server-Version verwendet. Dies kann sich auf die Leistung auswirken. Klicken Sie hier, um die Versionshinweise anzuzeigen.
+		Sie haben eine Region betreten, die eine andere Server-Version verwendet. Dies kann sich auf die Leistung auswirken. [[URL] Versionshinweise anzeigen.]
 	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		Die SLurl, auf die Sie geklickt haben, wird nicht unterstützt.
 	</notification>
 	<notification name="IMToast">
+		[MESSAGE]
 		<form name="form">
 			<button name="respondbutton" text="Antworten"/>
 		</form>
@@ -2526,6 +2594,19 @@ Klicken Sie auf „Akzeptieren“, um dem Chat beizutreten, oder auf „Ablehnen
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Hilfethema für dieses Element wurde nicht gefunden.
+	</notification>
+	<notification name="ObjectMediaFailure">
+		Serverfehler: Medienaktualisierung oder Fehler
+&apos;[ERROR]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearTeleportHistory">
+		Möchten Sie Ihren Teleport-Verlauf löschen?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="BottomTrayButtonCanNotBeShown">
+		Die ausgewählte Schaltfläche kann zur Zeit nicht angezeigt werden.
+Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 	</notification>
 	<global name="UnsupportedCPU">
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.
@@ -2547,14 +2628,8 @@ Sollte das Problem fortbestehen, finden Sie weitere Hilfestellung unter [SUPPORT
 	<global name="UnsupportedRAM">
 		- Ihr Arbeitsspeicher entspricht nicht den Mindestanforderungen.
 	</global>
-	<global name="PermYes">
-		Ja
-	</global>
-	<global name="PermNo">
-		Nein
-	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
-		Wenn Sie ein Stück Land besitzen, können Sie dies als Ihren Heimatort festlegen. 
+		Wenn Sie ein Stück Land besitzen, können Sie dies als Ihren Heimatort festlegen.
 Ansonsten können Sie auf der Karte nachsehen und dort Ort suchen, die als „Infohub“ gekennzeichnet sind.
 	</global>
 </notifications>

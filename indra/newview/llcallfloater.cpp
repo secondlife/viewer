@@ -51,6 +51,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
+#include "lllayoutstack.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 
@@ -314,7 +315,7 @@ void LLCallFloater::updateSession()
 	
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_call_btn", !is_local_chat);
+	childSetVisible("leave_call_btn_panel", !is_local_chat);
 	
 	refreshParticipantList();
 	updateAgentModeratorState();
@@ -723,13 +724,28 @@ void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 {
-	if (mVoiceType != VC_LOCAL_CHAT)
-		return true;
+	bool is_valid = true;
+	switch (mVoiceType)
+	{
+	case  VC_LOCAL_CHAT:
+		{
+			// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
+			std::vector<LLUUID> speakers;
+			get_voice_participants_uuids(speakers);
+			is_valid = std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+		}
+		break;
+	case VC_GROUP_CHAT:
+		// if participant had left this call before do not allow add her again. See EXT-4216.
+		// but if she Join she will be added into the list from the LLCallFloater::onChange()
+		is_valid = STATE_LEFT != getState(speaker_id);
+		break;
+	default:
+		// do nothing. required for Linux build
+		break;
+	}
 
-	// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
-	std::vector<LLUUID> speakers;
-	get_voice_participants_uuids(speakers);
-	return std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+	return is_valid;
 }
 
 void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
@@ -818,8 +834,8 @@ void reshape_floater(LLCallFloater* floater, S32 delta_height)
 		}
 	}
 
-	floater->reshape(floater_rect.getWidth(), floater_rect.getHeight());
-	floater->setRect(floater_rect);
+	floater->setShape(floater_rect);
+	floater->getChild<LLLayoutStack>("my_call_stack")->updateLayout(FALSE);
 }
 
 void LLCallFloater::reshapeToFitContent()
@@ -864,9 +880,8 @@ S32 LLCallFloater::getParticipantItemHeight()
 
 S32 LLCallFloater::getMaxVisibleItems()
 {
-	S32 value = 5; // default value, in case convertToS32() fails.
-	LLStringUtil::convertToS32(getString("max_visible_items"), value);
-	return value;
+	static LLCachedControl<S32> max_visible_items(*LLUI::sSettingGroups["config"],"CallFloaterMaxItems");
+	return max_visible_items;
 }
 
 //EOF

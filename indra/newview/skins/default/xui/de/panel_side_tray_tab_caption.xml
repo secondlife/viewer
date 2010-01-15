@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="sidetray_tab_panel">
+	<text name="sidetray_tab_title" value="Klappmenü??"/>
+	<button name="show_help" tool_tip="Hilfe anzeigen"/>
+</panel>

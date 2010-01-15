@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Steuerung" name="Media settings for controls">
+	<check_box initial_value="false" label="Navigation &amp; Interaktivität deaktivieren" name="perms_owner_interact"/>
+	<check_box initial_value="false" label="Kontrollleiste verstecken" name="perms_owner_control"/>
+	<check_box initial_value="false" label="Navigation &amp; Interaktivität deaktivieren" name="perms_group_interact"/>
+	<check_box initial_value="false" label="Kontrollleiste verstecken" name="perms_group_control"/>
+	<check_box initial_value="false" label="Navigation &amp; Interaktivität deaktivieren" name="perms_anyone_interact"/>
+	<check_box initial_value="false" label="Kontrollleiste verstecken" name="perms_anyone_control"/>
+</panel>

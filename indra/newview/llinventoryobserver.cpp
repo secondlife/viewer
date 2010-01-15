@@ -311,10 +311,10 @@ bool LLInventoryFetchDescendentsObserver::isEverythingComplete() const
 
 bool LLInventoryFetchDescendentsObserver::isComplete(LLViewerInventoryCategory* cat)
 {
-	S32 version = cat->getVersion();
-	S32 descendents = cat->getDescendentCount();
-	if((LLViewerInventoryCategory::VERSION_UNKNOWN == version)
-	   || (LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN == descendents))
+	const S32 version = cat->getVersion();
+	const S32 expected_num_descendents = cat->getDescendentCount();
+	if ((version == LLViewerInventoryCategory::VERSION_UNKNOWN) ||
+		(expected_num_descendents == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN))
 	{
 		return false;
 	}
@@ -325,15 +325,28 @@ bool LLInventoryFetchDescendentsObserver::isComplete(LLViewerInventoryCategory* 
 	gInventory.getDirectDescendentsOf(cat->getUUID(), cats, items);
 	if(!cats || !items)
 	{
-		// bit of a hack - pretend we're done if they are gone or
-		// incomplete. should never know, but it would suck if this
-		// kept tight looping because of a corrupt memory state.
+		llwarns << "Category '" << cat->getName() << "' descendents corrupted, fetch failed." << llendl;
+		// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+		// that the cat just doesn't have any items or subfolders).
+		// Unrecoverable, so just return done so that this observer can be cleared
+		// from memory.
 		return true;
 	}
-	S32 known = cats->count() + items->count();
-	if(descendents == known)
+	const S32 current_num_known_descendents = cats->count() + items->count();
+	
+	// Got the number of descendents that we were expecting, so we're done.
+	if (current_num_known_descendents == expected_num_descendents)
 	{
-		// hey - we're done.
+		return true;
+	}
+
+	// Error condition, but recoverable.  This happens if something was added to the
+	// category before it was initialized, so accountForUpdate didn't update descendent
+	// count and thus the category thinks it has fewer descendents than it actually has.
+	if (current_num_known_descendents >= expected_num_descendents)
+	{
+		llwarns << "Category '" << cat->getName() << "' expected descendentcount:" << expected_num_descendents << " descendents but got descendentcount:" << current_num_known_descendents << llendl;
+		cat->setDescendentCount(current_num_known_descendents);
 		return true;
 	}
 	return false;
@@ -352,7 +365,7 @@ void LLInventoryFetchComboObserver::changed(U32 mask)
 				continue;
 			}
 			if(item->isComplete())
-			{
+		{	
 				mCompleteItems.push_back(*it);
 				it = mIncompleteItems.erase(it);
 				continue;

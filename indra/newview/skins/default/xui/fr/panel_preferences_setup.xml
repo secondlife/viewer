@@ -2,14 +2,14 @@
 <panel label="Contrôle et caméra" name="Input panel">
 	<button label="Autres accessoires" name="joystick_setup_button" width="175"/>
 	<text name="Mouselook:">
-		Vue subjective :
+		Vue subjective :
 	</text>
 	<text name=" Mouse Sensitivity">
 		Sensibilité de la souris
 	</text>
 	<check_box label="Inverser" name="invert_mouse"/>
 	<text name="Network:">
-		Réseau :
+		Réseau :
 	</text>
 	<text name="Maximum bandwidth">
 		Bande passante maximale
@@ -18,7 +18,7 @@
 		kbps
 	</text>
 	<check_box label="Port de connexion personnalisé" name="connection_port_enabled"/>
-	<spinner label="Numéro de port :" name="web_proxy_port"/>
+	<spinner label="Numéro de port :" name="web_proxy_port"/>
 	<text name="cache_size_label_l">
 		Taille de la mémoire
 	</text>
@@ -31,10 +31,10 @@
 		Emplacement du cache
 	</text>
 	<text name="Web:">
-		Web :
+		Web :
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Utiliser le navigateur intégré" name="internal" tool_tip="Utilisez le navigateur intégré pour obtenir de l&apos;aide, ouvrir des liens etc. Ce navigateur s&apos;ouvre dans [APP_NAME]."/>
+		<radio_item label="Utiliser le navigateur intégré" name="internal" tool_tip="Utilisez le navigateur intégré pour obtenir de l&apos;aide, ouvrir des liens, etc. Ce navigateur s&apos;ouvre dans [APP_NAME]."/>
 		<radio_item label="Utiliser mon navigateur (IE, Firefox etc.)" name="external" tool_tip="Utiliser le navigateur web système par défaut pour l&apos;aide, les liens etc. Non recommandé en mode plein écran."/>
 	</radio_group>
 	<check_box initial_value="false" label="Proxy web" name="web_proxy_enabled"/>

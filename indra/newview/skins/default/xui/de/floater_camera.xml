@@ -11,8 +11,16 @@
 	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Kamera nach oben, unten, links und rechts bewegen"/>
-		<joystick_zoom name="zoom" tool_tip="Kamera auf Fokus zoomen"/>
-		<joystick_rotate name="cam_rotate_stick" tool_tip="Kamera um Fokus herum kreisen"/>
+		<panel name="zoom" tool_tip="Kamera auf Fokus zoomen">
+			<slider_bar name="zoom_slider" tool_tip="Kamera auf Fokus zoomen"/>
+		</panel>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="Kamera um Fokus kreisen"/>
+		<panel name="camera_presets">
+			<button name="rear_view" tool_tip="Hinteransicht"/>
+			<button name="group_view" tool_tip="Gruppen-Ansicht"/>
+			<button name="front_view" tool_tip="Vorderansicht"/>
+			<button name="mouselook_view" tool_tip="Mouselook"/>
+		</panel>
 	</panel>
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Kamera kreisen"/>

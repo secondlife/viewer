@@ -55,7 +55,7 @@
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="はい"/>
 	</notification>
 	<notification name="BadInstallation">
-		[APP_NAME] をアップデート中にエラーが発生しました。  最新バージョンをダウンロードしてください。 http://get.secondlife.com
+		[APP_NAME] をアップデート中にエラーが発生しました。  ビューワの [http://get.secondlife.com 最新バージョンをダウンロード] してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -159,6 +159,9 @@
 この能力を[ROLE_NAME]に割り当てますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="ClickUnimplemented">
+		申し訳ありませんが、まだ未実装です。
+	</notification>
 	<notification name="JoinGroupCanAfford">
 		このグループに参加するには、L$[COST]かかります。
 続行しますか？
@@ -171,7 +174,7 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="CreateGroupCost">
 		このグループを作るには L$100 かかります。
 一人ではグループにならないので、永久に削除されてしまいます。
-48時間以内にメンバーを勧誘し入会してもらってください。
+48 時間以内にメンバーを勧誘し、入会してもらってください。
 		<usetemplate canceltext="キャンセル" name="okcancelbuttons" notext="キャンセル" yestext="L$100 でグループを作成"/>
 	</notification>
 	<notification name="LandBuyPass">
@@ -191,13 +194,10 @@ L$が不足しているのでこのグループに参加することができま
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		注：「誰にでも売却する」をクリックすると、
-あなたの土地は[SECOND_LIFE] のコミュニティのどこからでも
-（この地域にないコミュニティを含む）購入できるようになります。
+		注意： 「誰にでも販売」をクリックすることで、あなたの土地はこのリージョンにいる人に限らず [SECOND_LIFE] コミュニティ全体で利用可能となります。
 
-選択された[LAND_SIZE]平方メートルの土地は、
-売り出し中に設定されています。
-売却価格L$[SALE_PRICE]で、[NAME]に売却を認可します。
+選択した [LAND_SIZE] 平方メートルの土地は、販売対象に設定されました。
+販売価格 L$[SALE_PRICE] で、[NAME] が販売対象者となります。
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
@@ -265,6 +265,18 @@ L$が不足しているのでこのグループに参加することができま
 この地域全体が「ダメージ有効」に設定されています。
 武器を使用するにはスクリプトの実行を許可する必要があります。
 	</notification>
+	<notification name="MultipleFacesSelected">
+		現在複数の面が選択されています。
+このまま続けた場合、メディアの別々の段階がオブジェクトの複数の面に設定されます。
+メディアを 1 つの面だけに取り付けるには、「テクスチャを選択」を選び、オブジェクトの希望する面をクリック、それから「追加」をクリックしてください。
+		<usetemplate ignoretext="メディアは選択した複数の面にセットされます。" name="okcancelignore" notext="キャンセル" yestext="OK"/>
+	</notification>
+	<notification name="WhiteListInvalidatesHomeUrl">
+		この入力をホワイトリストに追加すると、このメディア向けに特定した
+ホーム URL を無効とします。 あなたにはこれを実行する許可がないので、
+入力はホワイトリストには追加されません。
+		<usetemplate name="okbutton" yestext="Ok"/>
+	</notification>
 	<notification name="MustBeInParcel">
 		着地点を設定するには、この区画の内側に
 立ってください。
@@ -301,6 +313,10 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="CannotWearTrash">
 		ゴミ箱にある服やボディーパーツの着用はできません。
 	</notification>
+	<notification name="MaxAttachmentsOnOutfit">
+		オブジェクトを付けられませんでした。
+最大数の [MAX_ATTACHMENTS] 個を越えています。 どれか取り外してからお試しください。
+	</notification>
 	<notification name="CannotWearInfoNotComplete">
 		まだ読み込まれていないため、そのアイテムを装着できません。後でやり直してください。
 	</notification>
@@ -315,19 +331,21 @@ L$が不足しているのでこのグループに参加することができま
 		<usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成"/>
 	</notification>
 	<notification name="AddClassified">
-		検索ディレクトリの「クラシファイド」セクションに、
-クラシファイド広告が1週間掲載されます。
-広告を記入後、「公開」をクリックし、ディレクトリに
-追加します。
-「公開」をクリックすると、支払金額を尋ねられます。
-多く払うほど、広告がクラシファイド・リストとキーワード検索
-の上位に表示されます。
+		クラシファイド広告は、検索ディレクトリと [http://secondlife.com/community/classifieds secondlife.com] の「クラシファイド広告」セクションに一週間掲載されます。
+広告を記入したら、「掲載...」をクリックしてディレクトリに追加してください。
+「掲載」をクリックすると、支払いたい金額を尋ねられます。
+支払金額が多いほどあなたの広告は一覧とキーワード検索で上位に表示されます。
 		<usetemplate ignoretext="新規クラシファイド広告作成方法" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="DeleteClassified">
 		クラシファイド広告[NAME]の削除をしますか？
 支払い済みの料金は返金されません。
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="DeleteMedia">
+		この面にあるメディアを削除する選択をしました。
+続けますか？
+		<usetemplate ignoretext="オブジェクトからメディアを削除する前に確認する" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="ClassifiedSave">
 		クラシファイド広告[NAME]への変更を保存しますか？
@@ -359,17 +377,17 @@ L$が不足しているのでこのグループに参加することができま
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		[APP_NAME]の再起動後にキャッシュがクリアされます。
+		[APP_NAME] を再起動後にキャッシュがクリアされます。
 	</notification>
 	<notification name="CacheWillBeMoved">
-		[APP_NAME]の再起動後にキャッシュが移動されます。
-注意：これによりキャッシュがクリアされます。
+		[APP_NAME] を再起動後にキャッシュが移動されます。
+ご注意： キャッシュがクリアされます。
 	</notification>
 	<notification name="ChangeConnectionPort">
-		ポートの設定は、[APP_NAME]の再起動後に有効になります。
+		ポートの設定は [APP_NAME] を再起動後に反映されます。
 	</notification>
 	<notification name="ChangeSkin">
-		新しいスキンは[APP_NAME]を再起動すると現れます
+		新しいスキンは [APP_NAME] を再起動後に表示されます。
 	</notification>
 	<notification name="GoToAuctionPage">
 		[SECOND_LIFE]ウェブ・ページに移動し、 入札あるいはオークションの詳細を確認しますか？
@@ -421,7 +439,7 @@ L$が不足しているのでこのグループに参加することができま
 		次の理由で、コンパイルしたスクリプトの保存時に問題が起こりました。 [REASON]。  後でもう一度試してください。
 	</notification>
 	<notification name="StartRegionEmpty">
-		ログイン位置が不明です。 
+		ログイン位置が指定されていません。
 ログイン位置の欄にリージョン名を入力するか、「最後にログアウトした場所」か「自宅（ホーム）」を選択してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -439,7 +457,7 @@ L$が不足しているのでこのグループに参加することができま
 		警告： お使いのシステムは [APP_NAME] の必要最低限の動作環境を満たしていません。 このまま [APP_NAME] を使用すると、パフォーマンスの低下を感じるかもしれません。 恐れ入りますが [SUPPORT_SITE] ではサポート対象外のシステムに関する技術的サポートは行っておりません。
 
 最低動作環境
-[_URL] で詳しい情報を確認しますか？
+[_URL] を開いて詳しい情報を確認しますか？
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=ja
 		</url>
@@ -448,18 +466,16 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="UnknownGPU">
 		お使いのシステムには、現在 [APP_NAME] が認識できないグラフィックカードが搭載されています。
 [APP_NAME] でまだテストされていない最新ハードウェアのためだと考えられます。  [APP_NAME] は正常に実行される可能性が高いですが、表示設定を調整する必要があるかもしれません。
-（環境設定 &gt; 表示）
+（ミー ＞ 環境設定 ＞ グラフィック）
 		<form name="form">
 			<ignore name="ignore" text="使用中のグラフックカードが認識されませんでした"/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
-		[APP_NAME] は、
-グラフィック・ドライバの初期化中にクラッシュしました。
-一般的なドライバ・エラーを回避するため、「品質およびパフォーマンス」は「低」に設定されます。
-これにより、いくつかのグラフィックス機能は無効になります。
-グラフィックカード・ドライバのアップデートをお勧めします。
-「グラフィックの品質」は「環境設定」＞「表示」から上げることができます。
+		グラフィックドライバを初期化中に [APP_NAME] がクラッシュしました。
+ドライバの一般的なエラーを防ぐために、グラフィックのクオリティが低に設定されます。 そのため、一部のグラフィック特性に制限が出ます。
+お使いのグラフィックカードのドライバをアップデートするようおすすめします。
+グラフィックのクオリティは、環境設定 ＞ グラフィック で設定できます。
 	</notification>
 	<notification name="RegionNoTerraforming">
 		この地域[REGION] は、テラフォーミングができません。
@@ -516,6 +532,9 @@ L$が不足しているのでこのグループに参加することができま
 		[AVATAR_NAME] をあなたの土地から追放しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放"/>
 	</notification>
+	<notification name="EjectAvatarFromGroup">
+		[GROUP_NAME] から [AVATAR_NAME] を追放しました
+	</notification>
 	<notification name="AcquireErrorTooManyObjects">
 		取得エラー：選択したオブジェクトの数が多すぎます。
 	</notification>
@@ -528,7 +547,7 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-[_URL] でリンデンドル購入に関する情報を確認しますか？
+[_URL] に移動してリンデンドル購入に関する情報を確認しますか？
 		<url name="url">
 			http://secondlife.com/app/currency/?lang=ja-JP
 		</url>
@@ -654,6 +673,9 @@ L$が不足しているのでこのグループに参加することができま
 変更修正権限のある
 スクリプト化されたオブジェクトを選択してください。
 	</notification>
+	<notification name="CannotOpenScriptObjectNoMod">
+		編集権限のないオブジェクトのスクリプトを開くことはできません。
+	</notification>
 	<notification name="CannotSetRunningSelectObjectsNoScripts">
 		スクリプトの「実行」の設定ができません。
 
@@ -681,11 +703,11 @@ L$が不足しているのでこのグループに参加することができま
 	</notification>
 	<notification name="invalid_tport">
 		テレポート処理中に問題が発生しました。 ログインし直す必要があるかもしれません。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
 	</notification>
 	<notification name="invalid_region_handoff">
 		リージョン間の移動中に問題が発生しました。 ログインし直す必要があるかもしれません。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
 	</notification>
 	<notification name="blocked_tport">
 		申し訳ございません。テレポートは現在、ブロックされています。もう少し後でやり直してください。
@@ -762,8 +784,7 @@ L$が不足しているのでこのグループに参加することができま
 この土地がある地域を見つけることができません
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		[APP_NAME]による、
-この取引の見積りが完了するまで「土地を購入」ウィンドウを閉じることはできません。
+		[APP_NAME] がこの取引価格を見積もるまでは、土地の購入ウィンドウを閉じることはできません。
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
 		土地を譲渡できません：
@@ -775,7 +796,7 @@ L$が不足しているのでこのグループに参加することができま
 	</notification>
 	<notification name="CannotDeedLandNoRegion">
 		土地を譲渡できません：
-この土地がある地域が見つかりません。
+この土地があるリージョンが見つかりません。
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		土地を譲渡できません：
@@ -819,8 +840,8 @@ L$が不足しているのでこのグループに参加することができま
 あなたの区画は緑色で表示されています。
 	</notification>
 	<notification name="CannotReleaseLandRegionNotFound">
-		土地を破棄できません：
-この土地がある地域が見つかりません。
+		土地を放棄できません：
+この土地があるリージョンが見つかりません。
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		土地を破棄できません：
@@ -860,11 +881,11 @@ L$は返金されません。
 	</notification>
 	<notification name="CannotDivideLandNoRegion">
 		土地を分割できません：
-この土地がある地域が見つかりません。
+この土地があるリージョンが見つかりません。
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		土地を統合できません：
-この土地がある地域が見つかりません。
+この土地があるリージョンが見つかりません。
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		土地を統合できませんでした：
@@ -913,17 +934,13 @@ L$は返金されません。
 保存してみてください。
 	</notification>
 	<notification name="CannotSaveToAssetStore">
-		[NAME]を中央資産格納庫に保存できません。
-これは一時的な不具合です。
-服飾品などをカスタマイズし、数分後にもう一度保存してください。
+		[NAME] を保存できません。
+通常これは一時的なエラーです。 数分後にもう一度着用物をカスタマイズ・保存してください。
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		あなたは[SECOND_LIFE]からログアウトされました。
+		[SECOND_LIFE] からログアウトしました：
             [MESSAGE]
-「IMとチャットを表示」をクリックすると、
-現在あるIMとチャットを確認できます。
-確認しない場合は「終了」をクリックし、
-すぐに[APP_NAME]を終了してください。
+「IMとチャットを見る」をクリックすると、引き続き既に開いている IM とチャットを見ることができます。 「終了」をクリックすると [APP_NAME] をすぐに終了します。
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="IMとチャットを表示"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1099,7 +1116,7 @@ L$は返金されません。
 	<notification name="AvatarMovedHome">
 		ホームロケーションは現在ご利用いただけません。
 近くのリージョンに移動しました。
-新たにホームを設定しなおすといいかもしれません。
+新たにホームを設定しなおしたほうがいいかもしれません。
 	</notification>
 	<notification name="ClothingLoading">
 		現在衣類をダウンロード中です。
@@ -1109,11 +1126,10 @@ L$は返金されません。
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		[APP_NAME]のインストールが完了しました。
+		[APP_NAME] のインストールが完了しました。
 
-[SECOND_LIFE] の使用が初めての方は、
-ログイン前にアカウントの作成が必要です。
-[https://join.secondlife.com/index.php?lang=ja-JP secondlife.com]に移動し、新規アカウントの作成を行いますか？
+[SECOND_LIFE] を使ったことがない場合は、ログインする前にアカウントの作成を行ってください。
+[http://join.secondlife.com/?lang=ja-JP] で新しいアカウントを作成しますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
@@ -1143,11 +1159,10 @@ F1キーを押してください。
 		[NAME] L$[PRICE] 残高不足のため実行不可です。
 	</notification>
 	<notification name="GrantedModifyRights">
-		[FIRST_NAME] [LAST_NAME] のオブジェクトの編集権限を得ました。
+		[NAME] は、あなたにオブジェクトの編集権限を与えました。
 	</notification>
 	<notification name="RevokedModifyRights">
-		[FIRST_NAME] [LAST_NAME]
-のオブジェクトを修正する権限が取り消されました。
+		[NAME] のオブジェクトを編集する権限は取り消されました
 	</notification>
 	<notification name="FlushMapVisibilityCaches">
 		この手順は、この地域の地図のキャッシュを消去します。
@@ -1229,22 +1244,21 @@ F1キーを押してください。
 [DOWNLOAD_PATH]。
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		[APP_NAME]の新しいバージョンが利用可能です。
+		[APP_NAME] の最新バージョンがご利用可能です。
 [MESSAGE]
-[APP_NAME]を使用するためには、
-このアップデートをダウンロードする必要があります。
+[APP_NAME] をご利用になるにはこのアップデートは必須です。
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadWindows">
-		[APP_NAME]のアップデート・バージョンが利用可能です。
+		[APP_NAME] のアップデートバージョンがご利用可能です。
 [MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
+このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		[APP_NAME]のアップデート・バージョンが利用可能です。
+		[APP_NAME] のアップデートバージョンがご利用可能です。
 [MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
+このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadLinuxMandatory">
@@ -1266,28 +1280,27 @@ F1キーを押してください。
 		<usetemplate name="okcancelbuttons" notext="続ける" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		[APP_NAME]の新しいバージョンが利用可能です。
+		[APP_NAME] の最新バージョンがご利用可能です。
 [MESSAGE]
-[APP_NAME]を使用するために、
-このアップデートをダウンロードする必要があります。
+[APP_NAME] をご利用になるにはこのアップデートは必須です。
 
-アプリケーションがあるフォルダにダウンロードしますか？
+あなたのアプリケーションフォルダにダウンロードしますか？
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadMac">
-		[APP_NAME]のアップデート・バージョンが利用可能です。
+		[APP_NAME] のアップデートバージョンがご利用可能です。
 [MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
+このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
 
-アプリケーションがあるフォルダにダウンロードしますか？
+あなたのアプリケーションフォルダにダウンロードしますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		[APP_NAME]のアップデート・バージョンが利用可能です。
+		[APP_NAME] のアップデートバージョンがご利用可能です。
 [MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
+このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
 
-アプリケーションがあるフォルダにダウンロードしますか？
+あなたのアプリケーションフォルダにダウンロードしますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1300,7 +1313,7 @@ F1キーを押してください。
 		<usetemplate ignoretext="ブラウザを起動して Web ページを見る" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
-		secondlife.com でアカウントの管理をしますか？
+		[http://jp.secondlife.com/account/ マイアカウント] ページに移動してアカウントを管理しますか？
 		<usetemplate ignoretext="ブラウザを起動してアカウントを管理する" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
@@ -1347,14 +1360,14 @@ F1キーを押してください。
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="全てのユーザを追い出す"/>
 	</notification>
 	<notification name="MuteLinden">
-		残念ながらLindenを無視設定に入れることはできません。
+		リンデンをブロックすることはできません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotStartAuctionAlreadyForSale">
 		既に売り出し中の区画なのでオークションにかけることはできません。  オークションにかけたい場合は売り出し設定を解除してから行ってください。
 	</notification>
-	<notification label="オブジェクトを名前でミュートできませんでした" name="MuteByNameFailed">
-		あなたはすでにこの名前をミュートしています。
+	<notification label="名前でのオブジェクトのブロックに失敗しました" name="MuteByNameFailed">
+		この名前は既にブロック済みです。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RemoveItemWarn">
@@ -1372,7 +1385,7 @@ F1キーを押してください。
 	</notification>
 	<notification name="BusyModeSet">
 		取り込み中モードになりました。
-チャットとインスタントメッセージは表示されません。 受信するインスタントメッセージには取り込み中返答メッセージが表示されます。 テレポートのオファーは受け取り拒否となります。 アイテムのオファーはすべてゴミ箱に入ります。
+チャットとインスタントメッセージは表示されません。 受信するインスタントメッセージには取り込み中返答メッセージが表示されます。 テレポートのオファーは受け取り拒否となります。 アイテムのオファーはすべてごみ箱に入ります。
 		<usetemplate ignoretext="ログイン状態を取り込み中モードに変更する" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
@@ -1448,6 +1461,10 @@ F1キーを押してください。
 	<notification name="TeleportToPick">
 		[PICK] にテレポートしますか？
 		<usetemplate ignoretext="ピックの場所にテレポートしたいか確認する" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
+	</notification>
+	<notification name="TeleportToClassified">
+		[CLASSIFIED] にテレポートしますか？
+		<usetemplate ignoretext="クラシファイド広告の場所にテレポートしたいか確認する" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
 	</notification>
 	<notification label="あなたの不動産内の全員にメッセージを送信" name="MessageEstate">
 		今あなたの不動産にいる人全員に送る
@@ -1534,10 +1551,9 @@ F1キーを押してください。
 	<notification name="RegionEntryAccessBlocked_Change">
 		あなたのレーティング区分設定により、その地域（リージョン）へは入ることができません。
 
-「設定を変更」をクリックするとあなたのレーティング区分が上がり、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。
-あとで設定を元に戻したい場合は、「編集」＞「環境設定」＞「一般」をご覧ください。
+「設定を変更」をクリックしてあなたのレーティング区分を上げると、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。 あとで設定を元に戻したい場合は、「編集」＞「環境設定」をご覧ください。
 		<form name="form">
-			<button name="OK" text="設定の変更"/>
+			<button name="OK" text="環境設定の変更"/>
 			<button default="true" name="Cancel" text="閉じる"/>
 			<ignore name="ignore" text="選択したレーティング区分が原因で、リージョンに入ることができません"/>
 		</form>
@@ -1563,8 +1579,7 @@ F1キーを押してください。
 	<notification name="LandClaimAccessBlocked_Change">
 		あなたのレーティング区分設定により、この土地を取得することはできません。
 
-「設定を変更」をクリックするとあなたのレーティング区分が上がり、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。
-あとで設定を元に戻したい場合は、「編集」＞「環境設定」＞「一般」をご覧ください。
+「設定を変更」をクリックしてあなたのレーティング区分を上げると、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。 あとで設定を元に戻したい場合は、「編集」＞「環境設定」をご覧ください。
 		<usetemplate ignoretext="選択したレーティング区分が原因で、土地を取得できません" name="okcancelignore" notext="閉じる" yestext="設定の変更"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
@@ -1588,14 +1603,11 @@ F1キーを押してください。
 	<notification name="LandBuyAccessBlocked_Change">
 		あなたのレーティング区分設定により、この土地を購入することができません。
 
-「設定を変更」をクリックするとあなたのレーティング区分が上がり、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。
-あとで設定を元に戻したい場合は、「編集」＞「環境設定」＞「一般」をご覧ください。
+「設定を変更」をクリックしてあなたのレーティング区分を上げると、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。 あとで設定を元に戻したい場合は、「編集」＞「環境設定」をご覧ください。
 		<usetemplate ignoretext="選択したレーティング区分が原因で、土地を購入できません" name="okcancelignore" notext="閉じる" yestext="設定の変更"/>
 	</notification>
 	<notification name="TooManyPrimsSelected">
-		選択したプリムが多すぎます。
-[MAX_PRIM_COUNT] を選択するか、
-プリム数を減らしてもう一度お試しください。
+		選択したプリムが多すぎます。  [MAX_PRIM_COUNT] 個選択するか、プリム数を減らしてもう一度お試しください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ProblemImportingEstateCovenant">
@@ -1612,6 +1624,7 @@ F1キーを押してください。
 	</notification>
 	<notification name="UnableToLoadNotecardAsset">
 		現在ノートカードの資産IDを読み込むことができません。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NotAllowedToViewNotecard">
 		要求された資産IDに関するノートカードを閲覧するには権限が不十分です。
@@ -1654,10 +1667,7 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 この変更が地図に反映されるまでにはしばらく時間がかかります。
 	</notification>
 	<notification label="ボイスバージョンの不一致" name="VoiceVersionMismatch">
-		このバージョンの [APP_NAME] は、
-この地域のボイスチャット機能に対応していません。
-ボイスチャットを正しく使用するには、
-[APP_NAME] のアップデートが必要です。
+		[APP_NAME] のこのバージョンは、このリージョンにおけるボイスチャットの互換性がありません。 ボイスチャットを正常に行うためには、[APP_NAME] のアップデートが必要です。
 	</notification>
 	<notification label="オブジェクトを購入できません" name="BuyObjectOneOwner">
 		複数のオーナーから同時にオブジェクトを購入することはできません。
@@ -1763,7 +1773,7 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 		このオブジェクトには、あなたがコピーできるアイテムはありません。
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		secondlife.com でアカウント履歴を確認しますか？
+		[http://jp.secondlife.com/account/ マイアカウント] ページに移動してアカウント履歴を確認しますか？
 		<usetemplate ignoretext="ブラウザを起動してアカウント履歴を見る" name="okcancelignore" notext="取り消し" yestext="ページに移動"/>
 	</notification>
 	<notification name="ConfirmQuit">
@@ -1771,32 +1781,19 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 		<usetemplate ignoretext="終了時に確認する" name="okcancelignore" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		利用規約違反とコミュニティースタンダード違反の報告にこのツールをご使用ください。 参照：
+		このツールを利用して [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] の違反を報告してください。
 
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
-
-利用規約違反とコミュニティースタンダード違反に関する全てのレポートは、調査され、解決されます。
-以下のリンク先の被害報告にてその確認をすることができます。
-
-http://secondlife.com/support/incidentreport.php
+報告された嫌がらせはすべて調査・解決されます。 解決されたものは [http://secondlife.com/support/incidentreport.php Incident Report] で見ることができます。
 	</notification>
 	<notification name="HelpReportAbuseEmailEO">
-		重要： このレポートはLinden Lab 社ではなく、
-あなたが現在いる地域のオーナーに送られます。
--
-あなたが今いる地域のオーナーは、
-住人と訪問者へのサービスの一環として、この地域からのレポートをすべて受け付け、解決することに同意しています。
-よってLinden Lab 社が、
-あなたがここから提出するレポートを調査することはありません。
-地域のオーナーは、不動産約款で指定している地元の規則を基に、報告された問題を解決します。
-（「世界」のメニューから「土地情報」を選ぶと、約款を閲覧できます）
--
-このレポートに関する解決策は、この地域にだけ当てはまります。
-住人が[SECOND_LIFE] の他の地域へアクセスする際、
-このレポートの結果に影響されることはありません。
-Linden Lab 社だけが[SECOND_LIFE] 全域における
-アクセス制限権を持っています。
+		重要： この報告は Linden Lab には送信されず、現在あなたがいるリージョンの所有者に送信されます。
+
+住人や訪問者へのサービスの一環として、現在いるリージョンの所有者は、このリージョン内のすべての報告を自ら受け取り、解決するよう設定しています。 Linden Lab はここから送信された報告の調査を行いません。
+
+リージョンの所有者は、このリージョンの不動産約款に記載されたローカルルールに則って報告に対応します。
+（「世界」メニューの「土地情報」で約款を確認できます。）
+
+この報告への解決策は、このリージョンでのみ適用されます。 [SECOND_LIFE] のその他のエリアにアクセスする住人には、この報告の結果には影響がありません。 [SECOND_LIFE] へのアクセスを制限できるのは、Linden Lab だけです。
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		嫌がらせ報告のカテゴリを選択してください。
@@ -1823,28 +1820,17 @@ Linden Lab 社だけが[SECOND_LIFE] 全域における
 嫌がらせ報告の処理や保管に大変役立ちます。
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
-		住人の皆様へ、
+		こんにちは、
 
-知的財産の侵害に関する報告を行う際には、以下の点に注意してください。
+知的財産権の侵害を報告しようとしています。 正確に報告するために、以下をご確認ください：
 
-(1) 嫌がらせの報告のプロセス
-[SECOND_LIFE] の権限システムを悪用している住人を見つけたら、
-嫌がらせの報告を行ってください。
-例えばコピーBotの使用、それに似たツールの使用による知的財産権の侵害があります。
-アビューズチームは調査に基づき、
-[SECOND_LIFE] のコミュニティースタンダードや
-利用規約に違反する行為と判断された場合には適切な処置を行っています。
-ただし、コンテンツを[SECOND_LIFE] から撤去してほしい、
-といった要望にはアビューズチームは応えることができません。
+(1) 嫌がらせの報告の手順 住人が [SECOND_LIFE] の権限システムを悪用しているのを見つけたら、嫌がらせの報告をすることができます。例えば、CopyBot や似たようなコピーツールを使用して知的財産権を侵害している場合です。 担当チームは調査を行い、[SECOND_LIFE] [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] に違反する行為に対する適切な処罰を下します。  ただし、担当チームは [SECOND_LIFE] の世界からコンテンツを削除して欲しいというリクエストには応じません。
 
-(2) DMCA（デジタルミレニアム著作権法）及びコンテンツ撤去プロセス
-[SECOND_LIFE] からのコンテンツの撤去をリクエストするには、
-著作権侵害通知の提出を行う必要があります。
-参照： http://secondlife.com/corporate/dmca.php
+(2) DMCA またはコンテンツの撤去の手順 コンテンツを [SECOND_LIFE] から削除して欲しいというリクエストをするには、弊社 [http://secondlife.com/corporate/dmca.php DMCA ポリシー] で提示されているとおり、有効な侵害の通知を提出しなければなりません。.
 
-この件に関する嫌がらせの報告を続ける際は、このウィンドウを閉じてください。選択すべきカテゴリは「知的財産の侵害＞コピーBot及び権限の悪用」のほうが適しているかもしれませんのでご確認ください。
+このまま嫌がらせの報告を続けたい場合は、このウィンドウを閉じて報告を送ってください。  「コピーBot及び権限の悪用」のカテゴリを選んだ方が適切の場合があります。
 
-よろしくお願いします。
+ご協力ありがとうございます。
 
 Linden Lab
 	</notification>
@@ -1873,13 +1859,17 @@ Linden Lab
 			<button ignore="取り込み中の設定にしない" name="No" text="キャンセル"/>
 		</form>
 	</notification>
+	<notification name="ConfirmDeleteProtectedCategory">
+		「 [FOLDERNAME] 」 は、システムフォルダです。 システムフォルダを削除すると不安定になることがあります。  続けますか？
+		<usetemplate ignoretext="システムフォルダを削除する前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmEmptyTrash">
-		ゴミ箱の項目をすべて削除しますか？
-		<usetemplate ignoretext="持ち物のゴミ箱フォルダを空にする前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK"/>
+		ごみ箱の項目をすべて削除しますか？
+		<usetemplate ignoretext="持ち物のごみ箱フォルダを空にする前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		トラベル、Web、検索の履歴をすべて削除しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearCookies">
 		本当にクッキーをクリアしますか？
@@ -1974,7 +1964,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 	</notification>
 	<notification name="AutoWearNewClothing">
 		作成しようとしている衣類を自動的に装着しますか？
-		<usetemplate ignoretext="容姿編集画面で作成する衣類を装着する" name="okcancelignore" notext="いいえ" yestext="はい"/>
+		<usetemplate ignoretext="「マイ 容姿」を編集中に、作成する衣類を装着する" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="NotAgeVerified">
 		年齢確認を済ませていないとこの区画を訪れることができません。  [SECOND_LIFE] サイトで年齢の確認を行いますか？
@@ -2022,7 +2012,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		[FIRST] [LAST] はオフラインです。
 	</notification>
 	<notification name="AddSelfFriend">
-		残念ながら自分自身をフレンドに追加することはできません。
+		残念ながら自分自身をフレンド登録することはできません。
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
 		インワールドとウェブ・サイトのスナップショットをアップロード中です...
@@ -2041,7 +2031,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		raw地形がダウンロードされました
 	</notification>
 	<notification name="GestureMissing">
-		ジェスチャー[NAME] がデータベースにありません。
+		ジェスチャーの [NAME] がデータベースに見つかりません。
 	</notification>
 	<notification name="UnableToLoadGesture">
 		ジェスチャー[NAME] を読み込むことができません。
@@ -2117,7 +2107,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		これをコピーする権限がありません。
 	</notification>
 	<notification name="InventoryAccepted">
-		[NAME]は、持ち物の提供を受け入れました。
+		[NAME] があなたが渡したアイテムを受け取りました。
 	</notification>
 	<notification name="InventoryDeclined">
 		[NAME]は、持ち物の提供を断りました。
@@ -2132,14 +2122,14 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		コーリング・カードが拒否されました。
 	</notification>
 	<notification name="TeleportToLandmark">
-		本土に到達しました。
-[NAME]などの場所にテレポートするには、画面右下にある「持ち物」ボタンをクリックし、ランドマーク（Landmarks）フォルダを選択してください。
-ランドマークをダブルクリックした後「テレポート」をクリックするとその場所へ移動します。
+		画面右の「場所」パネルを開いて、「ランドマーク」タブを選ぶと、[NAME] といった場所にテレポートできます。 
+好きなランドマークをクリックして選び、次にパネル下の「テレポート」をクリックします。
+（ランドマークをダブルクリック、または右クリックして「テレポート」を選んでも同じです。）
 	</notification>
 	<notification name="TeleportToPerson">
-		本土に到達しました。
-住人の[NAME]と接触するには、画面右下にある「持ち物」ボタンをクリックし、コーリングカード（Calling Cards）フォルダを選択してください。
-カードをダブルクリックし、「IMを送る」をクリックし、メッセージを送信してください。
+		画面右の「人」パネルを開いて、[NAME] といった住人に連絡を取ることができます。
+リストから住人を選択して、パネル下の「IM」をクリックします。
+（リストの名前をダブルクリック、または右クリックして「IM」を選んでも同じです。）
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		サーバーの境界を越えて土地を選択することできません。
@@ -2187,8 +2177,8 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 [NAMES]
 	</notification>
 	<notification name="NoQuickTime">
-		Apple社のQuickTimeがシステムにインストールされていないと思われます。
-ストリーミング・メディアの再生を行いたい場合は、QuickTimeのサイト（http：//www.apple.com/quicktime）にアクセスして、QuickTime Player をインストールしてください。
+		Apple の QuickTime ソフトウェアがお使いのシステムにインストールされていないようです。
+ストリーミングメディアをサポートする区画で見たい場合は、[http://www.apple.com/jp/quicktime QuickTime サイト] から QuickTime プレイヤーをインストールしてください。
 	</notification>
 	<notification name="NoPlugin">
 		「 [MIME_TYPE] 」の MIME タイプを扱うメディアプラグインが見つかりませんでした。  このタイプのメディアはご利用いただけません。
@@ -2222,6 +2212,11 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 	<notification name="UnOwnedObjectsReturned">
 		選択された土地の区画上にあり、あなたの所有で「なかった」オブジェクトは、本来のオーナーに返却されました。
 	</notification>
+	<notification name="ServerObjectMessage">
+		[NAME] からのメッセージ：
+[MSG]
+		<usetemplate name="okcancelbuttons" notext="OK" yestext="調べる"/>
+	</notification>
 	<notification name="NotSafe">
 		この土地ではダメージが有効です。
 ケガをするかもしれません。 死んでしまった場合はホームにテレポートされます。
@@ -2231,8 +2226,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 ここでは飛べません。
 	</notification>
 	<notification name="PushRestricted">
-		このエリアではプッシュが制限されています。
-土地所有者以外は他人をプッシュすることはできません。
+		このエリアではプッシュが制限されています。 土地所有者以外は他人をプッシュすることはできません。
 	</notification>
 	<notification name="NoVoice">
 		このエリアではボイスチャットが無効です。 誰かが話しているのを聞くことはできません。
@@ -2267,6 +2261,9 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 	</notification>
 	<notification name="ImproperPaymentStatus">
 		この地域（リージョン）に入るために適した支払いステータスがありません。
+	</notification>
+	<notification name="MustGetAgeRgion">
+		このリージョンに入るには年齢確認済みである必要があります。
 	</notification>
 	<notification name="MustGetAgeParcel">
 		この区画に入るには年齢確認済みである必要があります。
@@ -2330,33 +2327,35 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		有効な区画が見つかりませんでした。
 	</notification>
 	<notification name="ObjectGiveItem">
-		[FIRST] [LAST]所有の、
-[OBJECTFROMNAME]から、
-[OBJECTNAME]という[OBJECTTYPE]が送られてきました。
+		[NAME_SLURL] が所有する [OBJECTFROMNAME] が、あなたに [OBJECTTYPE] ：
+[ITEM_SLURL] を渡しました
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>
-			<button name="Mute" text="無視リストへ"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		（未知のユーザー） 所有の[OBJECTFROMNAME]から、
-あなたに[OBJECTNAME]という[OBJECTTYPE]が送られてきました。
+		（不明の住人）が所有する [OBJECTFROMNAME] が、あなたに [OBJECTTYPE] ：
+[ITEM_SLURL] を渡しました
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>
-			<button name="Mute" text="無視リストへ"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME]は、あなたに[OBJECTNAME]という名前の[OBJECTTYPE]を渡しました。
+		[NAME_SLURL] があなたに [OBJECTTYPE]：
+[ITEM_SLURL] を渡しました
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
+			<button name="Show" text="表示"/>
 			<button name="Discard" text="破棄"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
 		[NAME]
+
 [MESSAGE]
 	</notification>
 	<notification name="JoinGroup">
@@ -2368,7 +2367,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME]はあなたをテレポートで呼び寄せようとしています：
+		[NAME] はテレポートであなたを呼んでいます。
 
 [MESSAGE]
 		<form name="form">
@@ -2422,8 +2421,8 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		</form>
 	</notification>
 	<notification name="RegionRestartMinutes">
-		この地域は[MINUTES]分後に再起動されます。
-強制ログアウトとなりますので、この地域の外に出てください。
+		このリージョンは [SECONDS] 分後に再起動されます。
+このままここにいるとログアウトされます。
 	</notification>
 	<notification name="RegionRestartSeconds">
 		このリージョンは [SECONDS] 秒後に再起動されます。.
@@ -2447,7 +2446,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		データベースに[DESC]という名前の[TYPE]が見つかりませんでした。
 	</notification>
 	<notification name="InvalidWearable">
-		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME]ビューワを最新のものにアップグレードしてからこのアイテムを着用してください。
+		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME] のバージョンをアップグレードしてからこのアイテムを着用してください。
 	</notification>
 	<notification name="ScriptQuestion">
 		「[NAME]」が所有するオブジェクト「[OBJECTNAME]」を：
@@ -2457,11 +2456,11 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		<form name="form">
 			<button name="Yes" text="はい"/>
 			<button name="No" text="いいえ"/>
-			<button name="Mute" text="無視リストに追加"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		[NAME] 所有の「 [OBJECTNAME] 」 というオブジェクトが次のことをしようとしています：
+		[NAME] が所有する「 [OBJECTNAME] 」 というオブジェクトが、次のことをしようとしています：
 
 [QUESTIONS]
 このオブジェクトや制作者を信用できない場合は、このリクエストを拒否してください。
@@ -2487,13 +2486,28 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 			<button name="Ignore" text="無視する"/>
 		</form>
 	</notification>
+	<notification name="ScriptToast">
+		[FIRST] [LAST] の「 [TITLE] 」は、ユーザーインプットをリクエストしています。
+		<form name="form">
+			<button name="Open" text="ダイアログを開く"/>
+			<button name="Ignore" text="無視"/>
+			<button name="Block" text="ブロック"/>
+		</form>
+	</notification>
 	<notification name="FirstBalanceIncrease">
-		L$[AMOUNT] を受け取りました。
+		L$ [AMOUNT] を受け取りました。
 あなたの L$ 残高は画面右上に表示されています。
 	</notification>
 	<notification name="FirstBalanceDecrease">
-		L$[AMOUNT] を支払いました。
+		L$ [AMOUNT] を支払いました。
 あなたの L$ 残高は画面右上に表示されています。
+	</notification>
+	<notification name="BuyLindenDollarSuccess">
+		お支払ありがとうございます。
+
+あなたの L$ 残高は、処理が完了するとアップデートされます。 処理に 20 分以上かかった場合、お取り引きがキャンセルされることがあります。 その場合は、購入金額はあなたの US$ 残高に追加されます。
+
+[http://secondlife.com/account/ マイアカウント] の取引履歴ページで、支払状況を確認できます。
 	</notification>
 	<notification name="FirstSit">
 		着席中です。
@@ -2535,65 +2549,64 @@ Mキーを押して変更します。
 ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、持ち物に入れてお持ち帰りするのをお忘れなく。
 	</notification>
 	<notification name="FirstFlexible">
-		このオブジェクトはフレキシブルです。 フレキシブルオブジェクトは、「物理」ではなく「ファントム」でなければなりません。
+		このオブジェクトはフレキシブルです。 フレキシスは、「物理」ではなく「ファントム」でなければなりません。
 	</notification>
 	<notification name="FirstDebugMenus">
 		アドバンスメニューを開きました。
 
-このメニューの有効・無効設定：
+このメニューの有効・無効設定
   Windows： Ctrl+Alt+D
-  Mac： ⌘-Opt+D
+  Mac： &#8997;&#8984;D
 	</notification>
 	<notification name="FirstSculptedPrim">
-		スカルプトプリムを編集中です。 スカルプトプリムには形状の輪郭を指定するための特別なテクスチャが必要です。
+		スカルプトプリムを編集中です。 スカルプトには形状の輪郭を指定するための特別なテクスチャが必要です。
 	</notification>
 	<notification name="MaxListSelectMessage">
 		このリストから[MAX_SELECT]個までのアイテムを選択できます。
 	</notification>
 	<notification name="VoiceInviteP2P">
-		[NAME]が、あなたをボイスチャットコールに招待しています。
-コールに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。このコールをしている人をミュートにする場合は「ミュート」をクリックしてください。
+		[NAME] があなたをボイスチャットコールに招待しています。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="拒否"/>
-			<button name="Mute" text="ミュート"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST]に
-インスタント・メッセージが送信され、無視設定は自動的に解除されました。
+		[FIRST] [LAST] はインスタントメッセージを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST]にお金を渡したため、 無視設定が自動的に解除されました。
+		[FIRST] [LAST] はお金を受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST]に持ち物を渡したため、 無視設定が自動的に解除されました。
+		[FIRST] [LAST] はアイテムを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME]が、 グループ[GROUP]とのボイスチャットコールに参加しました。
-コールに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。このコールをしている人をミュートにする場合は「ミュート」をクリックしてください。
+		[NAME] は [GROUP]. のボイスチャットコールに参加しました。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="拒否"/>
-			<button name="Mute" text="ミュート"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="VoiceInviteAdHoc">
-		[NAME]が、 会議チャットでボイスチャットコールに参加しました。
-コールに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。 このユーザーをミュート（消声）する場合は「ミュート」をクリックしてください。
+		[NAME] は コンファレンスチャットののボイスチャットコールに参加しました。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="拒否"/>
-			<button name="Mute" text="ミュート"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="InviteAdHoc">
-		[NAME]が、 あなたを会議チャットに招待しています。
-チャットに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。このユーザーをミュート（消声）する場合は「ミュート」をクリックしてください。
+		[NAME] があなたをコンファレンスチャットに招待しています。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="拒否"/>
-			<button name="Mute" text="ミュート"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="VoiceChannelFull">
@@ -2603,19 +2616,19 @@ Mキーを押して変更します。
 		このエリアのボイスチャットは、混雑のため容量を超えてしまっています。申し訳ありませんが、他のエリアでボイスチャットをお試しください。
 	</notification>
 	<notification name="VoiceChannelDisconnected">
-		[VOICE_CHANNEL_NAME]への接続が切断されました。空間ボイスチャットに再接続されます。
+		[VOICE_CHANNEL_NAME] への接続が切れました。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="VoiceChannelDisconnectedP2P">
-		[VOICE_CHANNEL_NAME]は、コールを終了しました。空間ボイスチャットに再接続されます。
+		[VOICE_CHANNEL_NAME] がコールを終了しました。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="P2PCallDeclined">
-		[VOICE_CHANNEL_NAME]は、あなたのコールを拒否しました。空間ボイスチャットに再接続されます。
+		[VOICE_CHANNEL_NAME] があなたのコールを拒否しました。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="P2PCallNoAnswer">
-		[VOICE_CHANNEL_NAME]は、あなたのコールを受け取れません。空間ボイスチャットに再接続されます。
+		[VOICE_CHANNEL_NAME] はあなたのコールを受けることができません。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="VoiceChannelJoinFailed">
-		[VOICE_CHANNEL_NAME]への接続に失敗しました。時間をおいて、再度、試みてください。空間ボイスチャットに再接続されます。
+		[VOICE_CHANNEL_NAME] への接続に失敗しました。あとで再度お試しください。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="VoiceLoginRetry">
 		あなた用のボイスチャンネルを作成しています。1分ほどかかります。
@@ -2636,21 +2649,35 @@ Mキーを押して変更します。
 		[VOICE_CHANNEL_NAME]のボイス・チャットに接続中に、エラーが発生しました。後でもう一度お試しください。
 	</notification>
 	<notification name="ServerVersionChanged">
-		異なるサーバーバージョンのリージョンに来ました。パフォーマンスに影響があるかもしれません。 クリックしてリリースノートを確認してみてください。
+		異なるサーバーバージョンのリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
 	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		クリックした SLurl はサポートされていません。
 	</notification>
 	<notification name="IMToast">
+		[MESSAGE]
 		<form name="form">
 			<button name="respondbutton" text="返答"/>
 		</form>
 	</notification>
 	<notification name="AttachmentSaved">
-		付属物（アタッチメント）が保存されました。
+		アタッチメントが保存されました。
 	</notification>
 	<notification name="UnableToFindHelpTopic">
 		ヘルプトピックが見つかりませんでした。
+	</notification>
+	<notification name="ObjectMediaFailure">
+		サーバーエラー： メディアのアップデートまたは失敗。
+「[ERROR]」
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearTeleportHistory">
+		テレポート履歴を削除しますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
+	</notification>
+	<notification name="BottomTrayButtonCanNotBeShown">
+		選択したボタンを現在表示することができません。
+じゅうぶんなスペースができればボタンは表示されます。
 	</notification>
 	<global name="UnsupportedCPU">
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。
@@ -2658,7 +2685,7 @@ Mキーを押して変更します。
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] に必要なハードウェアがないようです。 [APP_NAME] にはマルチテクスチャをサポートする OpenGL グラフィックカードが必要です。 お使いのグラフィックカードの最新ドライバがインストールされているかどうか、オペレーティングシステムのサービスパックとパッチが入っているかをご確認ください。
 
-この問題が何度も起きる場合は、[SUPPORT_SITE] へご連絡ください。
+この問題が何度も起きる場合は、[SUPPORT_SITE] をご確認ください。
 	</global>
 	<global name="UnsupportedCPUAmount">
 		796
@@ -2672,14 +2699,8 @@ Mキーを押して変更します。
 	<global name="UnsupportedRAM">
 		- あなたのシステム・メモリは必須動作環境の条件を満たしていません。
 	</global>
-	<global name="PermYes">
-		はい
-	</global>
-	<global name="PermNo">
-		いいえ
-	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
-		自分の土地をお持ちの場合、ホームロケーションに設定できます。 
+		自分の土地をお持ちの場合、ホームロケーションに設定できます。
 お持ちでない場合は、地図で「インフォハブ」を探してください。
 	</global>
 </notifications>

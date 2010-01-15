@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Diesen Befehl ausführen" name="run_slapp"/>
+	<menu_item_call label="SLurl in die Zwischenablage kopieren" name="url_copy"/>
+</context_menu>

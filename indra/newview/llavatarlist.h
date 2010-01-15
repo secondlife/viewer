@@ -92,6 +92,8 @@ public:
 
 	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 
+	boost::signals2::connection setItemDoubleClickCallback(const mouse_signal_t::slot_type& cb);
+
 protected:
 	void refresh();
 
@@ -101,6 +103,7 @@ protected:
 		std::vector<LLUUID>& vadded,
 		std::vector<LLUUID>& vremoved);
 	void updateLastInteractionTimes();
+	void onItemDoucleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
 
 private:
 
@@ -120,6 +123,7 @@ private:
 	LLAvatarListItem::ContextMenu* mContextMenu;
 
 	commit_signal_t mRefreshCompleteSignal;
+	mouse_signal_t mItemDoubleClickSignal;
 };
 
 /** Abstract comparator for avatar items */

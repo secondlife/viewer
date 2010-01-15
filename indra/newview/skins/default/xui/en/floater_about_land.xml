@@ -1036,7 +1036,7 @@ Leyla Linden               </text>
              name="Autoreturn"
              top="164"
              width="294">
-                Autoreturn other residents&apos; objects (minutes, 0 for off):
+                Autoreturn other Residents&apos; objects (minutes, 0 for off):
             </text>
             <line_editor
              border_style="line"
@@ -1175,7 +1175,7 @@ Only large parcels can be listed in search.
              name="allow_label"
              top="10"
              width="278">
-                Allow other residents to:
+                Allow other Residents to:
             </text>
             <check_box
              height="16"
@@ -1917,7 +1917,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_delta="0"
              name="limit_payment"
-             tool_tip="Ban unidentified residents."
+             tool_tip="Ban unidentified Residents."
              top_pad="4"
              width="278" />
             <check_box
@@ -1927,7 +1927,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_delta="0"
              name="limit_age_verified"
-             tool_tip="Ban residents who have not verified their age. See the [SUPPORT_SITE] for more information."
+             tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."
              top_pad="4"
              width="278" />
             <check_box

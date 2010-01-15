@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatarpicker" title="EINWOHNER AUSWÄHLEN">
+	<floater.string name="not_found">
+		„[TEXT]“ nicht gefunden
+	</floater.string>
+	<floater.string name="no_one_near">
+		Keiner in der Nähe
+	</floater.string>
+	<floater.string name="no_results">
+		Keine Ergebnisse
+	</floater.string>
+	<floater.string name="searching">
+		Suchen...
+	</floater.string>
+	<string label="OK" label_selected="OK" name="Select">
+		Auswählen
+	</string>
+	<string name="Close">
+		Schließen
+	</string>
 	<tab_container name="ResidentChooserTabs">
 		<panel label="Suchen" name="SearchPanel">
 			<text name="InstructSearchResidentName">
@@ -9,35 +27,23 @@
 			<button label="Los" label_selected="Los" name="Find"/>
 			<scroll_list bottom_delta="-79" height="74" name="SearchResults"/>
 		</panel>
-		<panel label="Visitenkarten" name="CallingCardsPanel">
-			<text name="InstructSelectCallingCard">
-				Wählen Sie eine Visitenkarte:
+		<panel label="Freunde" name="FriendsPanel">
+			<text name="InstructSelectFriend">
+				Wählen Sie eine Person aus:
 			</text>
 		</panel>
 		<panel label="In meiner Nähe" name="NearMePanel">
 			<text name="InstructSelectResident">
 				Wählen Sie eine Person aus, die sich in der Nähe befindet:
 			</text>
-			<button font="SansSerifSmall" label="Liste aktualisieren" label_selected="Liste aktualisieren" left_delta="10" name="Refresh" width="105"/>
 			<slider bottom_delta="-36" label="Bereich" name="near_me_range"/>
 			<text name="meters">
 				Meter
 			</text>
+			<button font="SansSerifSmall" label="Liste aktualisieren" label_selected="Liste aktualisieren" left_delta="10" name="Refresh" width="105"/>
 			<scroll_list bottom_delta="-169" height="159" name="NearMe"/>
 		</panel>
 	</tab_container>
-	<button label="OK" label_selected="OK" name="Select"/>
-	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
-	<string name="not_found">
-		„[TEXT]“ nicht gefunden
-	</string>
-	<string name="no_one_near">
-		Niemand in der Nähe
-	</string>
-	<string name="no_results">
-		Keine Ergebnisse
-	</string>
-	<string name="searching">
-		Suchen...
-	</string>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>
 </floater>
