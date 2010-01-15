@@ -669,7 +669,7 @@ with the same filename but different name
   <texture name="jump_left_in.tga" file_name="widgets/jump_left_in.png" />
   <texture name="jump_right_out.tga" file_name="widgets/jump_right_out.png" />
   <texture name="jump_right_in.tga" file_name="widgets/jump_right_in.png" />
-  
+
   <texture name="scrollbutton_left_out_blue.tga" file_name="widgets/ScrollArrow_Left_Opaque.png" />
   <texture name="scrollbutton_left_in_blue.tga" file_name="widgets/ScrollArrow_Left_Over_Opaque.png" />
   <texture name="scrollbutton_right_out_blue.tga" file_name="widgets/ScrollArrow_Right_Opaque.png" />
@@ -695,7 +695,7 @@ with the same filename but different name
   <texture name="button_anim_play.tga" />
   <texture name="button_anim_play_selected.tga" />
   <texture name="crosshairs.tga" />
-  <texture name="direction_arrow.tga" />
+  <texture name="direction_arrow.tga" file_name="world/BeaconArrow.png" />
 
   <texture name="icon_auction.tga" />
   <texture name="icon_avatar_offline.tga" />
