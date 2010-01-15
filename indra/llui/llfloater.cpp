@@ -233,6 +233,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mAutoFocus(TRUE), // automatically take focus when opened
 	mCanDock(false),
 	mDocked(false),
+	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
 	mPreviousMinimizedLeft(0)
@@ -1067,10 +1068,6 @@ void LLFloater::setMinimized(BOOL minimize)
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
 	
-	// don't show the help button while minimized - it's
-	// not very useful when minimized and uses up space
-	mButtonsEnabled[BUTTON_HELP] = !minimize;
-
 	applyTitle ();
 
 	make_ui_sound("UISndWindowClose");
@@ -1460,6 +1457,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		}
 		self->setTornOff(false);
 	}
+	self->updateButtons();
 }
 
 // static
@@ -1743,14 +1741,32 @@ void LLFloater::updateButtons()
 	S32 button_count = 0;
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
-		if(!mButtons[i]) continue;
-		mButtons[i]->setEnabled(mButtonsEnabled[i]);
+		if (!mButtons[i])
+		{
+			continue;
+		}
 
-		if (mButtonsEnabled[i] 
-			//*HACK: always render close button for hosted floaters
-			// so that users don't accidentally hit the button when closing multiple windows
-			// in the chatterbox
-			|| (i == BUTTON_CLOSE && mButtonScale != 1.f))
+		bool enabled = mButtonsEnabled[i];
+		if (i == BUTTON_HELP)
+		{
+			// don't show the help button if the floater is minimized
+			// or if it is a docked tear-off floater
+			if (isMinimized() || (mButtonsEnabled[BUTTON_TEAR_OFF] && ! mTornOff))
+			{
+				enabled = false;
+			}
+		}
+		if (i == BUTTON_CLOSE && mButtonScale != 1.f)
+		{
+			//*HACK: always render close button for hosted floaters so
+			//that users don't accidentally hit the button when
+			//closing multiple windows in the chatterbox
+			enabled = true;
+		}
+
+		mButtons[i]->setEnabled(enabled);
+
+		if (enabled)
 		{
 			button_count++;
 
@@ -1777,7 +1793,7 @@ void LLFloater::updateButtons()
 			// the restore button should have a tab stop so that it takes action when you Ctrl-Tab to a minimized floater
 			mButtons[i]->setTabStop(i == BUTTON_RESTORE);
 		}
-		else if (mButtons[i])
+		else
 		{
 			mButtons[i]->setVisible(FALSE);
 		}

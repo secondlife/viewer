@@ -723,7 +723,10 @@ void LLTeleportHistoryPanel::onTeleportHistoryChange(S32 removed_index)
 	if (-1 == removed_index)
 		showTeleportHistory(); // recreate all items
 	else
+	{
 		replaceItem(removed_index); // replace removed item by most recent
+		updateVerbs();
+	}
 }
 
 void LLTeleportHistoryPanel::replaceItem(S32 removed_index)

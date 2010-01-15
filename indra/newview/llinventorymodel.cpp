@@ -1994,21 +1994,23 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 				descendents_actual += update.mDescendentDelta;
 				cat->setDescendentCount(descendents_actual);
 				cat->setVersion(++version);
-				llinfos << "accounted: '" << cat->getName() << "' "
-						<< version << " with " << descendents_actual
-						<< " descendents." << llendl;
+				lldebugs << "accounted: '" << cat->getName() << "' "
+						 << version << " with " << descendents_actual
+						 << " descendents." << llendl;
 			}
 		}
 		if(!accounted)
 		{
-			lldebugs << "No accounting for: '" << cat->getName() << "' "
+			// Error condition, this means that the category did not register that
+			// it got new descendents (perhaps because it is still being loaded)
+			// which means its descendent count will be wrong.
+			llwarns << "Accounting failed for '" << cat->getName() << "' version:"
 					 << version << llendl;
 		}
 	}
 	else
 	{
-		llwarns << "No category found for update " << update.mCategoryID
-				<< llendl;
+		llwarns << "No category found for update " << update.mCategoryID << llendl;
 	}
 }
 
@@ -3618,6 +3620,57 @@ BOOL LLInventoryModel::getIsFirstTimeInViewer2()
 	}
 
 	return sFirstTimeInViewer2;
+}
+
+static LLInventoryModel::item_array_t::iterator find_item_iter_by_uuid(LLInventoryModel::item_array_t& items, const LLUUID& id)
+{
+	LLInventoryModel::item_array_t::iterator result = items.end();
+
+	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	{
+		if ((*i)->getUUID() == id)
+		{
+			result = i;
+			break;
+		}
+	}
+
+	return result;
+}
+
+// static
+void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& src_item_id, const LLUUID& dest_item_id)
+{
+	LLInventoryModel::item_array_t::iterator it_src = find_item_iter_by_uuid(items, src_item_id);
+	LLInventoryModel::item_array_t::iterator it_dest = find_item_iter_by_uuid(items, dest_item_id);
+
+	if (it_src == items.end() || it_dest == items.end()) return;
+
+	LLViewerInventoryItem* src_item = *it_src;
+	items.erase(it_src);
+	items.insert(it_dest, src_item);
+}
+
+void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& items)
+{
+	int sortField = 0;
+
+	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
+	for (item_array_t::const_iterator i = items.begin(); i != items.end(); ++i)
+	{
+		LLViewerInventoryItem* item = *i;
+
+		item->setSortField(++sortField);
+		item->setComplete(TRUE);
+		item->updateServer(FALSE);
+
+		updateItem(item);
+
+		// Tell the parent folder to refresh its sort order.
+		addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
+	}
+
+	notifyObservers();
 }
 
 //----------------------------------------------------------------------------
