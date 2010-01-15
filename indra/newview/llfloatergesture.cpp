@@ -110,7 +110,7 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Gesture.Action.ToogleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
-	mCommitCallbackRegistrar.add("Gesture.Action.CopyPast", boost::bind(&LLFloaterGesture::onCopyPastAction, this, _2));
+	mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
 	mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));
 
 	mEnableCallbackRegistrar.add("Gesture.EnableAction", boost::bind(&LLFloaterGesture::isActionEnabled, this, _2));
@@ -475,7 +475,7 @@ void LLFloaterGesture::onActivateBtnClick()
 	}
 }
 
-void LLFloaterGesture::onCopyPastAction(const LLSD& command)
+void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 {
 	std::string command_name  = command.asString();
 	// since we select this comman inventory item had  already arrived .
