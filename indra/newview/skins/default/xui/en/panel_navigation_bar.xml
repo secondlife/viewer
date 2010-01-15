@@ -126,6 +126,8 @@
          <combo_editor
           label="Search [SECOND_LIFE]"
           name="search_combo_editor"/>
+         <combo_list
+          draw_border="true" />
         </search_combo_box>
 	</panel>
     <favorites_bar
