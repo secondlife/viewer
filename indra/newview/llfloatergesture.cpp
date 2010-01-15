@@ -245,6 +245,7 @@ void LLFloaterGesture::refreshAll()
 
 void LLFloaterGesture::buildGestureList()
 {
+	S32 scroll_pos = mGestureList->getScrollPos();
 	std::vector<LLUUID> selected_items;
 	getSelectedIds(selected_items);
 	LL_DEBUGS("Gesture")<< "Rebuilding gesture list "<< LL_ENDL;
@@ -274,13 +275,14 @@ void LLFloaterGesture::buildGestureList()
 			}
 		}
 	}
+
 	// attempt to preserve scroll position through re-builds
-	// since we do re-build any time anything dirties
+	// since we do re-build whenever something gets dirty
 	for(std::vector<LLUUID>::iterator it = selected_items.begin(); it != selected_items.end(); it++)
 	{
 		mGestureList->selectByID(*it);
 	}
-	mGestureList->scrollToShowSelected();
+	mGestureList->setScrollPos(scroll_pos);
 }
 
 void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gesture,LLCtrlListInterface * list )
