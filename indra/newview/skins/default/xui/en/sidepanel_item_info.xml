@@ -401,7 +401,6 @@ top_pad="10"
     <panel
 		 height="30"
 		 layout="bottomright"
-		 help_topic="button_tab"
 		 name="button_panel"
 		 left="5"
 		 bottom="2"
