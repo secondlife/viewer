@@ -9,6 +9,7 @@
  left="0"
  min_height="350"
  name="panel_edit_pick"
+ help_topic="profile_edit_pick"
  top="0"
  width="333">
   <button
