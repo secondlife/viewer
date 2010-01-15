@@ -2448,7 +2448,7 @@ void LLFolderBridge::folderOptionsMenu()
 
 	const LLInventoryCategory* category = model->getCategory(mUUID);
 	LLFolderType::EType type = category->getPreferredType();
-	const bool is_default_folder = category && LLFolderType::lookupIsProtectedType(type);
+	const bool is_system_folder = category && LLFolderType::lookupIsProtectedType(type);
 	// BAP change once we're no longer treating regular categories as ensembles.
 	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
 										  LLFolderType::lookupIsEnsembleType(type));
@@ -2462,8 +2462,8 @@ void LLFolderBridge::folderOptionsMenu()
 		mItems.push_back("Delete");
 	}
 
-	// Only enable calling-card related options for non-default folders.
-	if (!is_sidepanel && !is_default_folder)
+	// Only enable calling-card related options for non-system folders.
+	if (!is_sidepanel && !is_system_folder)
 	{
 		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
 		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
@@ -2497,10 +2497,14 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Folder Wearables Separator"));
 		}
 
-		// Only enable add/replace outfit for non-default folders.
-		if (!is_default_folder)
+		// Only enable add/replace outfit for non-system folders.
+		if (!is_system_folder)
 		{
-			mItems.push_back(std::string("Add To Outfit"));
+			// Adding an outfit onto another (versus replacing) doesn't make sense.
+			if (type != LLFolderType::FT_OUTFIT)
+			{
+				mItems.push_back(std::string("Add To Outfit"));
+			}
 			mItems.push_back(std::string("Replace Outfit"));
 		}
 		if (is_ensemble)
