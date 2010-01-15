@@ -483,6 +483,10 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 				if (drop)
 				{
+					if (mItems.empty())
+					{
+						setLandingTab(NULL);
+					}
 					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
 					showDragMarker(FALSE);
 				}
