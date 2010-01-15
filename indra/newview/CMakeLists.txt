@@ -1770,8 +1770,8 @@ else (LL_TESTS)
     lldateutil.cpp
     llmediadataclient.cpp
     lllogininstance.cpp
+    llviewerhelputil.cpp
   )
-  # DISABLED TEST: llviewerhelputil.cpp /* not testing anything useful and hard to mock LLAgent dependency */
 
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS 
