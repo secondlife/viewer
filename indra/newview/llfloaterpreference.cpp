@@ -51,7 +51,7 @@
 #include "lldirpicker.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
@@ -185,8 +185,8 @@ void handleNameTagOptionChanged(const LLSD& newvalue);
 viewer_media_t get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
-bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
-bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
+//bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
+//bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
 
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
@@ -236,7 +236,7 @@ void handleNameTagOptionChanged(const LLSD& newvalue)
 	}
 }
 
-bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
+/*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option && floater )
@@ -244,7 +244,7 @@ bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFlo
 		if ( floater )
 		{
 			floater->setAllIgnored();
-			LLFirstUse::disableFirstUse();
+		//	LLFirstUse::disableFirstUse();
 			floater->buildPopupLists();
 		}
 	}
@@ -259,13 +259,13 @@ bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFl
 		if ( floater )
 		{
 			floater->resetAllIgnored();
-			LLFirstUse::resetFirstUse();
+			//LLFirstUse::resetFirstUse();
 			floater->buildPopupLists();
 		}
 	}
 	return false;
 }
-
+*/
 
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
@@ -313,8 +313,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.SelectSkin",				boost::bind(&LLFloaterPreference::onSelectSkin, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetKey",			boost::bind(&LLFloaterPreference::onClickSetKey, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
-	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
-	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
+//	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
+//	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
@@ -1070,7 +1070,7 @@ void LLFloaterPreference::onClickSetMiddleMouse()
 	// update the control right away since we no longer wait for apply
 	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
-
+/*
 void LLFloaterPreference::onClickSkipDialogs()
 {
 	LLNotificationsUtil::add("SkipShowNextTimeDialogs", LLSD(), LLSD(), boost::bind(&callback_skip_dialogs, _1, _2, this));
@@ -1080,6 +1080,7 @@ void LLFloaterPreference::onClickResetDialogs()
 {
 	LLNotificationsUtil::add("ResetShowNextTimeDialogs", LLSD(), LLSD(), boost::bind(&callback_reset_dialogs, _1, _2, this));
 }
+ */
 
 void LLFloaterPreference::onClickEnablePopup()
 {	

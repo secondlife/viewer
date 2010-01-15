@@ -51,7 +51,7 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
@@ -4345,10 +4345,10 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 
 	if (gStatusBar)
 	{
-		S32 old_balance = gStatusBar->getBalance();
+	//	S32 old_balance = gStatusBar->getBalance();
 
 		// This is an update, not the first transmission of balance
-		if (old_balance != 0)
+	/*	if (old_balance != 0)
 		{
 			// this is actually an update
 			if (balance > old_balance)
@@ -4360,7 +4360,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 				LLFirstUse::useBalanceDecrease(balance - old_balance);
 			}
 		}
-
+	 */
 		gStatusBar->setBalance(balance);
 		gStatusBar->setLandCredit(credit);
 		gStatusBar->setLandCommitted(committed);
