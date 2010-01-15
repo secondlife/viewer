@@ -823,6 +823,13 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	gFloaterView->adjustToFitScreen(preview, FALSE);
 }
 
+void AddFavoriteLandmarkCallback::fire(const LLUUID& inv_item_id)
+{
+	if (mTargetLandmarkId.isNull()) return;
+
+	gInventory.rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);
+}
+
 LLInventoryCallbackManager gInventoryCallbacks;
 
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,

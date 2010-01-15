@@ -3024,13 +3024,23 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			else if (favorites_id == mUUID) // if target is the favorites folder we use copy
 			{
+				// use callback to rearrange favorite landmarks after adding
+				// to have new one placed before target (on which it was dropped). See EXT-4312.
+				LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
+				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+				LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
+				if (drag_over_item && drag_over_item->getListener())
+				{
+					cb.get()->setTargetLandmarkId(drag_over_item->getListener()->getUUID());
+				}
+
 				copy_inventory_item(
 					gAgent.getID(),
 					inv_item->getPermissions().getOwner(),
 					inv_item->getUUID(),
 					mUUID,
 					std::string(),
-					LLPointer<LLInventoryCallback>(NULL));
+					cb);
 			}
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{

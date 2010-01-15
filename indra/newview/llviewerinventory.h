@@ -279,6 +279,18 @@ public:
 	void fire(const LLUUID& inv_item);
 };
 
+class AddFavoriteLandmarkCallback : public LLInventoryCallback
+{
+public:
+	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
+	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
+
+private:
+	void fire(const LLUUID& inv_item);
+
+	LLUUID mTargetLandmarkId;
+};
+
 // misc functions
 //void inventory_reliable_callback(void**, S32 status);
 
