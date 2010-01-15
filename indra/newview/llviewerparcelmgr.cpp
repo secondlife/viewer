@@ -1331,8 +1331,8 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 
 	// only request parcel info if position has changed outside of the
 	// last parcel grid step
-	U32 west_parcel_step = floor ( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
-	U32 south_parcel_step = floor ( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
+	U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
+	U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
 	
 	if ((west_parcel_step == last_west) && (south_parcel_step == last_south))
 	{
