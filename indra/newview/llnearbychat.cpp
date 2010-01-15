@@ -179,27 +179,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 	if (!chat.mMuted)
 	{
 		tmp_chat.mFromName = chat.mFromName;
-
-		if (chat.mChatStyle == CHAT_STYLE_IRC)
-		{
-			LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-			LLViewerChat::getChatColor(chat,txt_color);
-			LLFontGL* fontp = LLViewerChat::getChatFont();
-			std::string font_name = LLFontGL::nameFromFont(fontp);
-			std::string font_size = LLFontGL::sizeFromFont(fontp);
-			LLStyle::Params append_style_params;
-			append_style_params.color(txt_color);
-			append_style_params.readonly_color(txt_color);
-			append_style_params.font.name(font_name);
-			append_style_params.font.size(font_size);
-			append_style_params.font.style = "ITALIC";
-
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history, append_style_params);
-		}
-		else
-		{
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
-		}
+		mChatHistory->appendMessage(chat, use_plain_text_chat_history);
 	}
 
 	if(archive)
