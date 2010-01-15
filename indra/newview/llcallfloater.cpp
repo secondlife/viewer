@@ -724,13 +724,28 @@ void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 {
-	if (mVoiceType != VC_LOCAL_CHAT)
-		return true;
+	bool is_valid = true;
+	switch (mVoiceType)
+	{
+	case  VC_LOCAL_CHAT:
+		{
+			// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
+			std::vector<LLUUID> speakers;
+			get_voice_participants_uuids(speakers);
+			is_valid = std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+		}
+		break;
+	case VC_GROUP_CHAT:
+		// if participant had left this call before do not allow add her again. See EXT-4216.
+		// but if she Join she will be added into the list from the LLCallFloater::onChange()
+		is_valid = STATE_LEFT != getState(speaker_id);
+		break;
+	default:
+		// do nothing. required for Linux build
+		break;
+	}
 
-	// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
-	std::vector<LLUUID> speakers;
-	get_voice_participants_uuids(speakers);
-	return std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+	return is_valid;
 }
 
 void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
