@@ -160,8 +160,6 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mSkipBackCtrl			= getChild<LLUICtrl>("skip_back");
 	mVolumeCtrl				= getChild<LLUICtrl>("media_volume");
 	mMuteBtn				= getChild<LLButton>("media_mute_button");
-	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up");
-	mVolumeDownCtrl			= getChild<LLUICtrl>("volume_down");
 	mVolumeSliderCtrl       = getChild<LLSliderCtrl>("volume_slider");
 	mWhitelistIcon			= getChild<LLIconCtrl>("media_whitelist_flag");
 	mSecureLockIcon			= getChild<LLIconCtrl>("media_secure_lock_flag");
@@ -339,8 +337,6 @@ void LLPanelPrimMediaControls::updateShape()
 		mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
 		mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
 		mVolumeCtrl->setVisible(false);
-		mVolumeUpCtrl->setVisible(false);
-		mVolumeDownCtrl->setVisible(false);
 		
 		mWhitelistIcon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
 		// Disable zoom if HUD
@@ -373,8 +369,6 @@ void LLPanelPrimMediaControls::updateShape()
 			mSkipBackCtrl->setEnabled(has_focus && !mini_controls);
 			
 			mVolumeCtrl->setVisible(has_focus);
-			mVolumeUpCtrl->setVisible(has_focus);
-			mVolumeDownCtrl->setVisible(has_focus);
 			mVolumeCtrl->setEnabled(has_focus);
 			mVolumeSliderCtrl->setEnabled(has_focus && shouldVolumeSliderBeVisible());
 			mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
@@ -417,21 +411,15 @@ void LLPanelPrimMediaControls::updateShape()
 			// video vloume
 			if(volume <= 0.0)
 			{
-				mVolumeUpCtrl->setEnabled(TRUE);
-				mVolumeDownCtrl->setEnabled(FALSE);
 				mMuteBtn->setToggleState(true);
 			}
 			else if (volume >= 1.0)
 			{
-				mVolumeUpCtrl->setEnabled(FALSE);
-				mVolumeDownCtrl->setEnabled(TRUE);
 				mMuteBtn->setToggleState(false);
 			}
 			else
 			{
 				mMuteBtn->setToggleState(false);
-				mVolumeUpCtrl->setEnabled(TRUE);
-				mVolumeDownCtrl->setEnabled(TRUE);
 			}
 			
 			switch(result)
@@ -476,12 +464,8 @@ void LLPanelPrimMediaControls::updateShape()
 			mSkipBackCtrl->setEnabled(FALSE);
 			
 			mVolumeCtrl->setVisible(FALSE);
-			mVolumeUpCtrl->setVisible(FALSE);
-			mVolumeDownCtrl->setVisible(FALSE);
 			mVolumeSliderCtrl->setVisible(FALSE);
 			mVolumeCtrl->setEnabled(FALSE);
-			mVolumeUpCtrl->setEnabled(FALSE);
-			mVolumeDownCtrl->setEnabled(FALSE);
 			mVolumeSliderCtrl->setEnabled(FALSE);
 			
 			if (mMediaPanelScroll)
