@@ -1513,16 +1513,20 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		{
 			desired_discard -= 2;
 		}
-		else if (!isJustBound() && mCachedRawImageReady && !mBoostLevel)
+		else if (!isJustBound() && mCachedRawImageReady)
 		{
-			// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
-			desired_discard = cur_discard;
+			if(mBoostLevel < BOOST_HIGH)
+			{
+				// We haven't rendered this in a while, de-prioritize it
+				desired_discard += 2;
+			}
+			//else
+			//{
+			//	// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
+			//	desired_discard = cur_discard;
+			//}
 		}
-		else if (mGLTexturep.notNull() && !mGLTexturep->getBoundRecently() && mBoostLevel == LLViewerTexture::BOOST_NONE)
-		{
-			// We haven't rendered this in a while, de-prioritize it
-			desired_discard += 2;
-		}
+
 		S32 ddiscard = cur_discard - desired_discard;
 		ddiscard = llclamp(ddiscard, 0, 4);
 		priority = (ddiscard+1)*100000.f;
@@ -1629,7 +1633,7 @@ bool LLViewerFetchedTexture::updateFetch()
 	S32 desired_discard = getDesiredDiscardLevel();
 	F32 decode_priority = getDecodePriority();
 	decode_priority = llmax(decode_priority, 0.0f);
-	
+
 	if (mIsFetching)
 	{
 		// Sets mRawDiscardLevel, mRawImage, mAuxRawImage
@@ -1772,10 +1776,10 @@ bool LLViewerFetchedTexture::updateFetch()
 	{
 		make_request = false;
 	}
-	else if (!isJustBound() && mCachedRawImageReady)
-	{
-		make_request = false;
-	}
+	//else if (!isJustBound() && mCachedRawImageReady)
+	//{
+	//	make_request = false;
+	//}
 	else
 	{
 		if (mIsFetching)
@@ -1847,12 +1851,12 @@ BOOL LLViewerFetchedTexture::forceFetch()
 	{
 		return false ;
 	}
-	if(mDesiredSavedRawDiscardLevel < getDiscardLevel())
+	//if(mDesiredSavedRawDiscardLevel < getDiscardLevel())
 	{
 		//no need to force fetching. normal fetching flow will do the work.
 		//return false ;
 	}
-	if (mNeedsCreateTexture)
+	//if (mNeedsCreateTexture)
 	{
 		// We may be fetching still (e.g. waiting on write)
 		// but don't check until we've processed the raw data we have
@@ -1888,7 +1892,8 @@ BOOL LLViewerFetchedTexture::forceFetch()
 		h = getHeight(0);
 		c = getComponents();
 	}
-	fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mUrl, getID(),getTargetHost(), maxDecodePriority(),
+	setDecodePriority(maxDecodePriority()) ;
+	fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mUrl, getID(),getTargetHost(), getDecodePriority(),
 																		  w, h, c, desired_discard, needsAux());
 
 	if (fetch_request_created)
