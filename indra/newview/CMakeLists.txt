@@ -1761,7 +1761,6 @@ if (INSTALL)
 endif (INSTALL)
 
 if (LL_TESTS)
-else (LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
   include(LLAddBuildTest)
@@ -1769,9 +1768,10 @@ else (LL_TESTS)
     llagentaccess.cpp
     lldateutil.cpp
     llmediadataclient.cpp
-    llviewerhelputil.cpp
     lllogininstance.cpp
+    llviewerhelputil.cpp
   )
+
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS 
   ##################################################

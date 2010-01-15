@@ -5,11 +5,11 @@
 	<tab_container name="pref core">
 		<panel label="Allgemein" name="general"/>
 		<panel label="Grafik" name="display"/>
-		<panel label="Datenschutzbestimmungen (EN)" name="im"/>
+		<panel label="Privatsphäre" name="im"/>
 		<panel label="Sound" name="audio"/>
 		<panel label="Chat" name="chat"/>
-		<panel label="Warnhinweise" name="msgs"/>
-		<panel label="Hardware &amp; Web" name="input"/>
+		<panel label="Benachrichtigungen" name="msgs"/>
+		<panel label="Setup" name="input"/>
 		<panel label="Erweitert" name="advanced1"/>
 	</tab_container>
 </floater>
