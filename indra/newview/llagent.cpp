@@ -43,7 +43,7 @@
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterreg.h"
@@ -5697,10 +5697,10 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 			}
 		
 			// Any control taken?  If so, might be first time.
-			if (total_count > 0)
-			{
-				LLFirstUse::useOverrideKeys();
-			}
+			//if (total_count > 0)
+			//{
+				//LLFirstUse::useOverrideKeys();
+			//}
 		}
 		else
 		{
