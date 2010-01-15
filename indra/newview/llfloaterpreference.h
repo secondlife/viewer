@@ -133,6 +133,7 @@ public:
 
 	void onCommitAutoDetectAspect();
 	void onCommitParcelMediaAutoPlayEnable();
+	void onCommitMediaEnabled();
 	void applyResolution();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);	
