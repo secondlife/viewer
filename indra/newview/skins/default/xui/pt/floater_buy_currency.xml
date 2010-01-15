@@ -52,6 +52,9 @@
 	<text name="total_amount">
 		L$ [AMT]
 	</text>
+	<text name="currency_links">
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=pt-BR payment method] | [http://www.secondlife.com/my/account/currency.php?lang=pt-BR currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=pt-BR exchange rate]
+	</text>
 	<text name="purchase_warning_repurchase">
 		Confirmando esta compra só compra a moeda.
 Você precisará tentar novamente a operação.

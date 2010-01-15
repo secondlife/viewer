@@ -3607,7 +3607,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC]</string>
+      <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC]/[DEBUG_MODE]</string>
     </map>
     <key>HomeSidePanelURL</key>
     <map>
