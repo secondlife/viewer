@@ -180,11 +180,6 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 
 		if(panel && panel->messageID() == fromID && panel->canAddText())
 		{
-			if (CHAT_STYLE_IRC == notification["chat_style"].asInteger())
-			{
-				notification["message"] = notification["from"].asString() + notification["message"].asString();
-			}
-
 			panel->addMessage(notification);
 			toast->reshapeToPanel();
 			toast->resetTimer();
@@ -349,7 +344,10 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	// Handle irc styled messages for toast panel
 	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
 	{
-		tmp_chat.mText = tmp_chat.mText.substr(3);
+		if(!tmp_chat.mFromName.empty())
+			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
+		else
+			tmp_chat.mText = tmp_chat.mText.substr(3);
 	}
 
 	// arrange a channel on a screen
