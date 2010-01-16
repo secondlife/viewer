@@ -96,6 +96,24 @@ inline U64 get_cpu_clock_count_64()
 	}
     return ret_val;
 }
+#else
+#define LL_INLINE
+#endif
+
+#if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
+inline U32 get_cpu_clock_count_32()
+{																	
+	U64 x;															
+	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));					
+	return (U32)x >> 8;													
+}
+
+inline U32 get_cpu_clock_count_64()
+{																	
+	U64 x;
+	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
+	return x >> 8;
+}
 #endif
 
 #if ( LL_DARWIN && !(defined(__i386__) || defined(__amd64__))) || (LL_SOLARIS && defined(__sparc__))
