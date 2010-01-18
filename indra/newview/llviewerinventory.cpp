@@ -44,6 +44,7 @@
 #include "llconsole.h"
 #include "llinventorymodel.h"
 #include "llgesturemgr.h"
+#include "llsidetray.h"
 
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"
@@ -72,7 +73,23 @@ public:
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		if (params.size() < 2) return false;
+		if (params.size() < 1)
+		{
+			return false;
+		}
+
+		// support secondlife:///app/inventory/show
+		if (params[0].asString() == "show")
+		{
+			LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD());
+			return true;
+		}
+
+		// otherwise, we need a UUID and a verb...
+		if (params.size() < 2) 
+		{
+			return false;
+		}
 		LLUUID inventory_id;
 		if (!inventory_id.set(params[0], FALSE))
 		{
