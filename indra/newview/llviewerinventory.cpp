@@ -1165,6 +1165,15 @@ const std::string& LLViewerInventoryItem::getDisplayName() const
 	return mDisplayName = hasSortField ? result : LLInventoryItem::getName();
 }
 
+// static
+std::string LLViewerInventoryItem::getDisplayName(const std::string& name)
+{
+	std::string result;
+	BOOL hasSortField = extractSortFieldAndDisplayName(name, 0, &result);
+
+	return hasSortField ? result : name;
+}
+
 S32 LLViewerInventoryItem::getSortField() const
 {
 	S32 result;
