@@ -51,7 +51,6 @@
 #include "llchat.h"
 #include "llchiclet.h"
 #include "llresmgr.h"
-#include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
 #include "llavataractions.h"
 #include "llhttpnode.h"
@@ -2236,7 +2235,6 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
-		LLFloaterChat::addChatHistory(chat);
 
 		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 		if(nearby_chat)
@@ -3135,9 +3133,6 @@ public:
 				message_params["region_id"].asUUID(),
 				ll_vector3_from_sd(message_params["position"]),
 				true);
-
-			chat.mText = std::string("IM: ") + name + separator_string + saved + message;
-			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 
 			//K now we want to accept the invitation
 			std::string url = gAgent.getRegion()->getCapability(

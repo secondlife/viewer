@@ -59,7 +59,6 @@
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
-#include "llfloaterchat.h"
 #include "lliconctrl.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"

@@ -42,7 +42,6 @@
 #include "llbottomtray.h"
 #include "llchannelmanager.h"
 #include "llchiclet.h"
-#include "llfloaterchat.h"
 #include "llfloaterreg.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"

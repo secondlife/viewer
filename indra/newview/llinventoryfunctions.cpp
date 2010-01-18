@@ -51,7 +51,6 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 #include "llfirstuse.h"
-#include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
