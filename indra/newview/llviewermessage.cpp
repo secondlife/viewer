@@ -2146,6 +2146,48 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Build a link to open the object IM info window.
 			std::string location = ll_safe_string((char*)binary_bucket, binary_bucket_size-1);
 
+			if (session_id.notNull())
+			{
+				chat.mFromID = session_id;
+			}
+			else
+			{
+				// This message originated on a region without the updated code for task id and slurl information.
+				// We just need a unique ID for this object that isn't the owner ID.
+				// If it is the owner ID it will overwrite the style that contains the link to that owner's profile.
+				// This isn't ideal - it will make 1 style for all objects owned by the the same person/group.
+				// This works because the only thing we can really do in this case is show the owner name and link to their profile.
+				chat.mFromID = from_id ^ gAgent.getSessionID();
+			}
+
+			LLSD query_string;
+			query_string["owner"] = from_id;
+			query_string["slurl"] = location;
+			query_string["name"] = name;
+			if (from_group)
+			{
+				query_string["groupowned"] = "true";
+			}	
+
+			std::ostringstream link;
+			link << "secondlife:///app/objectim/" << session_id << LLURI::mapToQueryString(query_string);
+
+			chat.mURL = link.str();
+			chat.mText = message;
+			chat.mSourceType = CHAT_SOURCE_OBJECT;
+
+			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
+			// IMs from obejcts don't open IM sessions.
+			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			if(nearby_chat)
+			{
+				nearby_chat->addMessage(chat);
+			}
+
+
+			//Object IMs send with from name: 'Second Life' need to be displayed also in notification toasts (EXT-1590)
+			if (SYSTEM_FROM != name) break;
+			
 			LLSD substitutions;
 			substitutions["NAME"] = name;
 			substitutions["MSG"] = message;
