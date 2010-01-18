@@ -7,6 +7,7 @@
  left="0"
  min_height="350"
  name="panel_pick_info"
+ help_topic="profile_pick_info"
  top="0"
  width="333">
     <button

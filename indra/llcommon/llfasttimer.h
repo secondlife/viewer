@@ -39,31 +39,66 @@
 #define TIME_FAST_TIMERS 0
 
 #if LL_WINDOWS
+#define LL_INLINE __forceinline
+
+//
+// NOTE: put back in when we aren't using platform sdk anymore
+//
 // because MS has different signatures for these functions in winnt.h
 // need to rename them to avoid conflicts
-#define _interlockedbittestandset _renamed_interlockedbittestandset
-#define _interlockedbittestandreset _renamed_interlockedbittestandreset
-#include <intrin.h>
-#undef _interlockedbittestandset
-#undef _interlockedbittestandreset
+//#define _interlockedbittestandset _renamed_interlockedbittestandset
+//#define _interlockedbittestandreset _renamed_interlockedbittestandreset
+//#include <intrin.h>
+//#undef _interlockedbittestandset
+//#undef _interlockedbittestandreset
 
-#define LL_INLINE __forceinline
+//inline U32 get_cpu_clock_count_32()
+//{
+//	U64 time_stamp = __rdtsc();
+//	return (U32)(time_stamp >> 8);
+//}
+//
+//// return full timer value, *not* shifted by 8 bits
+//inline U64 get_cpu_clock_count_64()
+//{
+//	return __rdtsc();
+//}
+
 // shift off lower 8 bits for lower resolution but longer term timing
 // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
 inline U32 get_cpu_clock_count_32()
 {
-	U64 time_stamp = __rdtsc();
-	return (U32)(time_stamp >> 8);
+	U32 ret_val;
+	__asm 
+	{
+        _emit   0x0f
+        _emit   0x31
+		shr eax,8
+		shl edx,24
+		or eax, edx
+		mov dword ptr [ret_val], eax
+	}
+    return ret_val;
 }
 
 // return full timer value, *not* shifted by 8 bits
 inline U64 get_cpu_clock_count_64()
 {
-	return __rdtsc();
+	U64 ret_val;
+	__asm 
+	{
+        _emit   0x0f
+        _emit   0x31
+		mov eax,eax
+		mov edx,edx
+		mov dword ptr [ret_val+4], edx
+		mov dword ptr [ret_val], eax
+	}
+    return ret_val;
 }
 #else
 #define LL_INLINE
-#endif // LL_WINDOWS
+#endif
 
 #if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
 inline U32 get_cpu_clock_count_32()

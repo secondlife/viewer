@@ -71,7 +71,7 @@
 #include "lluicolortable.h"
 #include "llurldispatcher.h"
 #include "llurlhistory.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llrender.h"
 #include "llteleporthistory.h"
 #include "lllocationhistory.h"
@@ -1676,7 +1676,7 @@ bool LLAppViewer::initThreads()
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && false);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
 	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
@@ -1915,25 +1915,25 @@ bool LLAppViewer::initConfiguration()
 	// These are warnings that appear on the first experience of that condition.
 	// They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
 	// for disable/reset ability
-	LLFirstUse::addConfigVariable("FirstBalanceIncrease");
-	LLFirstUse::addConfigVariable("FirstBalanceDecrease");
-	LLFirstUse::addConfigVariable("FirstSit");
-	LLFirstUse::addConfigVariable("FirstMap");
-	LLFirstUse::addConfigVariable("FirstGoTo");
-	LLFirstUse::addConfigVariable("FirstBuild");
+//	LLFirstUse::addConfigVariable("FirstBalanceIncrease");
+//	LLFirstUse::addConfigVariable("FirstBalanceDecrease");
+//	LLFirstUse::addConfigVariable("FirstSit");
+//	LLFirstUse::addConfigVariable("FirstMap");
+//	LLFirstUse::addConfigVariable("FirstGoTo");
+//	LLFirstUse::addConfigVariable("FirstBuild");
 //	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
-	LLFirstUse::addConfigVariable("FirstTeleport");
-	LLFirstUse::addConfigVariable("FirstOverrideKeys");
-	LLFirstUse::addConfigVariable("FirstAttach");
-	LLFirstUse::addConfigVariable("FirstAppearance");
-	LLFirstUse::addConfigVariable("FirstInventory");
-	LLFirstUse::addConfigVariable("FirstSandbox");
-	LLFirstUse::addConfigVariable("FirstFlexible");
-	LLFirstUse::addConfigVariable("FirstDebugMenus");
-	LLFirstUse::addConfigVariable("FirstStreamingMedia");
-	LLFirstUse::addConfigVariable("FirstSculptedPrim");
-	LLFirstUse::addConfigVariable("FirstVoice");
-	LLFirstUse::addConfigVariable("FirstMedia");
+//	LLFirstUse::addConfigVariable("FirstTeleport");
+//	LLFirstUse::addConfigVariable("FirstOverrideKeys");
+//	LLFirstUse::addConfigVariable("FirstAttach");
+//	LLFirstUse::addConfigVariable("FirstAppearance");
+//	LLFirstUse::addConfigVariable("FirstInventory");
+//	LLFirstUse::addConfigVariable("FirstSandbox");
+//	LLFirstUse::addConfigVariable("FirstFlexible");
+//	LLFirstUse::addConfigVariable("FirstDebugMenus");
+//	LLFirstUse::addConfigVariable("FirstStreamingMedia");
+//	LLFirstUse::addConfigVariable("FirstSculptedPrim");
+//	LLFirstUse::addConfigVariable("FirstVoice");
+//	LLFirstUse::addConfigVariable("FirstMedia");
 		
 	// - read command line settings.
 	LLControlGroupCLP clp;

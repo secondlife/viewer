@@ -56,7 +56,7 @@
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>

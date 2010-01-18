@@ -77,10 +77,23 @@
      name="cookies_enabled"
      top_pad="10"
      width="350" />
-    <check_box
+	<check_box
+     control_name="MediaEnabled"
+     height="16"
+     label="Media Enabled"
+     layout="topleft"
+     left="30"
+     name="media_enabled"
+     top_pad="10"
+     width="350">
+       <check_box.commit_callback
+          function="Pref.MediaEnabled" />
+    </check_box>
+	<check_box
+	 enabled_control="MediaEnabled"
      control_name="ParcelMediaAutoPlayEnable"
      height="16"
-     label="Allow Media Autoplay"
+     label="Allow Media to auto-play"
      layout="topleft"
      left="30"
      name="autoplay_enabled"

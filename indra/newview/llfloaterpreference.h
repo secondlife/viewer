@@ -110,8 +110,8 @@ public:
 	void onClickSetKey();
 	void setKey(KEY key);
 	void onClickSetMiddleMouse();
-	void onClickSkipDialogs();
-	void onClickResetDialogs();
+//	void onClickSkipDialogs();
+//	void onClickResetDialogs();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	
 	void resetAllIgnored();
@@ -133,6 +133,7 @@ public:
 
 	void onCommitAutoDetectAspect();
 	void onCommitParcelMediaAutoPlayEnable();
+	void onCommitMediaEnabled();
 	void applyResolution();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);	
