@@ -286,6 +286,11 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 //--------------------------------------------------------------------------
 void LLScreenChannel::deleteToast(LLToast* toast)
 {
+	if (toast->isDead())
+	{
+		return;
+	}
+
 	// send signal to observers about destroying of a toast
 	toast->mOnDeleteToastSignal(toast);
 	
