@@ -178,7 +178,7 @@ static std::string get_texture_list_name()
 
 void LLViewerTextureList::doPrefetchImages()
 {
-    if (LLAppViewer::instance()->getPurgeCache())
+	if (LLAppViewer::instance()->getPurgeCache())
 	{
 		// cache was purged, no point
 		return;
