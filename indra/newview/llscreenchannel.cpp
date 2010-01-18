@@ -250,6 +250,13 @@ void LLScreenChannel::onToastDestroyed(LLToast* toast)
 	{
 		mToastList.erase(it);
 	}
+
+	it = find(mStoredToastList.begin(), mStoredToastList.end(), static_cast<LLPanel*>(toast));
+
+	if(it != mStoredToastList.end())
+	{
+		mStoredToastList.erase(it);
+	}
 }
 
 
