@@ -48,6 +48,7 @@
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 #include "lltexteditor.h"
+#include "llnotifications.h"
 
 // Build time optimization, generate extern template once in .cpp file
 template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
@@ -1106,7 +1107,10 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 		// mark this button to show it while future bottom tray extending
 		mResizeState |= shown_object_type;
 		if ( raise_notification )
-			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown");
+			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
+									 LLSD(),
+									 LLSD(),
+									 LLNotificationFunctorRegistry::instance().DONOTHING);
 	}
 }
 
