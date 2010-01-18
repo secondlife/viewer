@@ -6,8 +6,8 @@
   right_text_pad="15"
   left_widget_pad="0"
   right_widget_pad="10"
-  top_separator_pad="2"
-  bottom_separator_pad="2"
+  top_separator_pad="1"
+  bottom_separator_pad="1"
   top_header_pad="12"
   bottom_header_pad="5"
 	max_length="2147483647"
@@ -22,4 +22,3 @@
     word_wrap="true"
     />
 </chat_history>
-enabledcontrol
