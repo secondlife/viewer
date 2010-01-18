@@ -5062,6 +5062,18 @@
       <key>Value</key>
       <integer>5</integer>
     </map>
+    <key>ToastButtonWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Default width of buttons in the toast. 
+      Note if required width will be less then this one, a button will be reshaped to default size , otherwise to required</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>90</integer>
+    </map>
     <key>ChannelBottomPanelMargin</key>
     <map>
       <key>Comment</key>
