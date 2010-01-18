@@ -738,6 +738,7 @@ void start_new_inventory_observer()
 
 class LLDiscardAgentOffer : public LLInventoryFetchComboObserver
 {
+	LOG_CLASS(LLDiscardAgentOffer);
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
 		mFolderID(folder_id),
@@ -1114,7 +1115,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * callback may be called immediately,
 	// * adding the mute sends a message,
 	// * we can't build two messages at once.
-	if (2 == button)
+	if (2 == button) // Block
 	{
 		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
@@ -2054,6 +2055,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			//if (((is_busy && !is_owned_by_me) || is_muted))
 			if ( is_muted || mute_im)
 			{
+				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
+				LLInventoryFetchObserver::item_ref_t items;
+				items.push_back(info->mObjectID);
+				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
+				fetch_item->fetchItems(items);
+				delete fetch_item;
+
 				// Same as closing window
 				info->forceResponse(IOR_DECLINE);
 			}

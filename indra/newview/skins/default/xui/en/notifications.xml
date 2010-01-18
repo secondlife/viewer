@@ -1402,6 +1402,16 @@ You have added "[LANDMARK_NAME]" to your [FOLDER_NAME] folder.
   </notification>
 
   <notification
+   icon="alert.tga"
+   name="LandmarkAlreadyExists"
+   type="alert">
+You already have a landmark for this location.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CannotCreateLandmarkNotOwner"
    type="alertmodal">
