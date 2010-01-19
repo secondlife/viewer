@@ -325,6 +325,11 @@ void LLBottomTray::setVisible(BOOL visible)
 			}
 		}
 	}
+
+	if(visible)
+		gFloaterView->setSnapOffsetBottom(getRect().getHeight());
+	else
+		gFloaterView->setSnapOffsetBottom(0);
 }
 
 void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
