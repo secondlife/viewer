@@ -35,7 +35,6 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "lllogchat.h"
-#include "llfloaterchat.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 

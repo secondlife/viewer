@@ -46,7 +46,6 @@
 #include "llcallingcard.h"
 #include "llviewercontrol.h"
 //#include "llfirstuse.h"
-#include "llfloaterchat.h"
 #include "llfloaterworldmap.h"
 #include "lllineeditor.h"
 #include "llstatusbar.h"

@@ -3,14 +3,22 @@
  height="25"
  name="offer_chiclet"
  width="25">
+ <chiclet_offer.chiclet_button 
+  height="25"
+  image_selected="PushButton_Selected"
+  image_unselected="PushButton_Off"
+  name="chiclet_button"
+  tab_stop="false"
+  width="25"/>
  <chiclet_offer.icon
+  bottom="3"
   default_icon="Generic_Object_Small"
   follows="all"
-  height="20"
+  height="19"
+  left="3"
   mouse_opaque="false"
   name="chiclet_icon"
-  bottom_pad="2"
-  width="20" />
+  width="19" />
  <chiclet_offer.new_message_icon
   bottom="11"
   height="14"

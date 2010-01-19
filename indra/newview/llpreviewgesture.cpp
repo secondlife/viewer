@@ -364,6 +364,12 @@ BOOL LLPreviewGesture::postBuild()
 	LLTextBox* text;
 	LLCheckBoxCtrl* check;
 
+	edit = getChild<LLLineEditor>("name");
+	edit->setKeystrokeCallback(onKeystrokeCommit, this);
+
+	edit = getChild<LLLineEditor>("desc");
+	edit->setKeystrokeCallback(onKeystrokeCommit, this);
+
 	edit = getChild<LLLineEditor>("trigger_editor");
 	edit->setKeystrokeCallback(onKeystrokeCommit, this);
 	edit->setCommitCallback(onCommitSetDirty, this);

@@ -76,6 +76,7 @@ private:
 private:
 	LLUUID mNameID;
 	BOOL mLink;
+	std::string mInitialValue;
 
 };
 
