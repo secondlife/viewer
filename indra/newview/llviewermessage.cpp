@@ -834,10 +834,11 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 				message << ", automatic preview disabled for "
 					<< OFFER_THROTTLE_TIME << " seconds.";
 				
-				//* TODO - cleanup or transfer to nearby chat
-				//chat.mText = message.str();
 				//this is kinda important, so actually put it on screen
-				//LLFloaterChat::addChat(chat, FALSE, FALSE);
+				LLSD args;
+				args["MESSAGE"] = message;
+				LLNotificationsUtil::add("SystemMessage", args);
+
 				throttle_logged=true;
 			}
 			return false;
@@ -1178,9 +1179,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		if (check_offer_throttle(mFromName, true))
 		{
 			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
-			//* TODO - cleanup or transfer to nearby chat
-			//chat.mText = log_message;
-			//LLFloaterChat::addChatHistory(chat);
+			LLSD args;
+			args["MESSAGE"] = log_message;
+			LLNotificationsUtil::add("SystemMessage", args);
 		}
 		break;
 
@@ -1352,10 +1353,11 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			//don't spam them if they are getting flooded
 			if (check_offer_throttle(mFromName, true))
 			{
-				//* TODO - cleanup or transfer to nearby chat
-				//log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
-				//chat.mText = log_message;
-				//LLFloaterChat::addChatHistory(chat);
+				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+				//TODO* should go to history only - how?
+				//LLSD args;
+				//args["MESSAGE"] = log_message;
+				//LLNotificationsUtil::add("SystemMessage", args);
 			}
 			
 			// we will want to open this item when it comes back.
@@ -1397,17 +1399,11 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			// send the message
 			msg->sendReliable(mHost);
 			
-			//* TODO - cleaup or transfer to nearby chat
-			/*
-			log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
-			chat.mText = log_message;
-			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
-			{
-				chat.mMuted = TRUE;
-			}
-			
-			LLFloaterChat::addChatHistory(chat);
-			*/
+			//TODO* should go to message history only...
+			//log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
+			//LLSD args;
+			//args["MESSAGE"] = log_message;
+			//LLNotificationsUtil::add("SystemMessage", args);
 			
 			if (busy &&	(!mFromGroup && !mFromObject))
 			{
@@ -1831,7 +1827,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// history.  Pretend the chat is from a local agent,
 				// so it will go into the history but not be shown on screen.
 
-				//* TODO - cleaup or transfer to nearby chat
+				//TODO* should go to message hisyory only
+				//and this is not system message...
+				//LLSD args;
+				//args["MESSAGE"] = buffer;
+				//LLNotificationsUtil::add("SystemMessage", args);
+
 				/*
 				chat.mText = buffer;
 				BOOL local_agent = TRUE;
@@ -3023,12 +3024,11 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		if (avatarp)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
-			//* TODO - cleaup or transfer to nearby chat
-			/*
-			LLChat chat("Teleport completed from " + gAgent.getTeleportSourceSLURL());
-			chat.mSourceType = CHAT_SOURCE_SYSTEM;
- 		    LLFloaterChat::addChatHistory(chat);
-			*/
+
+			//should go to history only so leave commented
+			//LLSD args;
+			//args["MESSAGE"] = message;
+			//LLNotificationsUtil::add("SystemMessage", args);
 
 			// Set the new position
 			avatarp->setPositionAgent(agent_pos);
