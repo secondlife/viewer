@@ -233,6 +233,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mAutoFocus(TRUE), // automatically take focus when opened
 	mCanDock(false),
 	mDocked(false),
+	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
 	mPreviousMinimizedLeft(0)
@@ -1456,6 +1457,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		}
 		self->setTornOff(false);
 	}
+	self->updateButtons();
 }
 
 // static
@@ -1748,8 +1750,8 @@ void LLFloater::updateButtons()
 		if (i == BUTTON_HELP)
 		{
 			// don't show the help button if the floater is minimized
-			// or if it is a tear-off hosted floater
-			if (isMinimized() || mButtonsEnabled[BUTTON_TEAR_OFF])
+			// or if it is a docked tear-off floater
+			if (isMinimized() || (mButtonsEnabled[BUTTON_TEAR_OFF] && ! mTornOff))
 			{
 				enabled = false;
 			}

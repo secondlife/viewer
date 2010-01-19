@@ -1364,15 +1364,15 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 	} 
 }
 
-class LLAutoRenameFolder: public LLInventoryCallback
+class LLShowCreatedOutfit: public LLInventoryCallback
 {
 public:
-	LLAutoRenameFolder(LLUUID& folder_id):
+	LLShowCreatedOutfit(LLUUID& folder_id):
 		mFolderID(folder_id)
 	{
 	}
 
-	virtual ~LLAutoRenameFolder()
+	virtual ~LLShowCreatedOutfit()
 	{
 		LLSD key;
 		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
@@ -1382,13 +1382,15 @@ public:
 		{
 			outfit_panel->getRootFolder()->clearSelection();
 			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-			outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
 		}
 		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
 		if (tab_outfits && !tab_outfits->getDisplayChildren())
 		{
 			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
 		}
+
+		LLAppearanceManager::instance().updateIsDirty();
+		LLAppearanceManager::instance().updatePanelOutfitName("");
 	}
 	
 	virtual void fire(const LLUUID&)
@@ -1413,10 +1415,10 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		LLFolderType::FT_OUTFIT,
 		new_folder_name);
 
-	LLPointer<LLInventoryCallback> cb = new LLAutoRenameFolder(folder_id);
+	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
 	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, cb);
-	LLAppearanceManager::instance().createBaseOutfitLink(folder_id, NULL);
-	
+	LLAppearanceManager::instance().createBaseOutfitLink(folder_id, cb);
+
 	return folder_id;
 }
 

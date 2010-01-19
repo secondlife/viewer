@@ -114,6 +114,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 void LLIMFloater::onFocusLost()
 {
 	LLIMModel::getInstance()->resetActiveSessionID();
+	
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
 }
 
 void LLIMFloater::onFocusReceived()
@@ -125,6 +127,8 @@ void LLIMFloater::onFocusReceived()
 	{
 		mInputEditor->setFocus(TRUE);
 	}
+
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
 }
 
 // virtual
@@ -488,6 +492,15 @@ void LLIMFloater::setVisible(BOOL visible)
 		//only if floater was construced and initialized from xml
 		updateMessages();
 		mInputEditor->setFocus(TRUE);
+	}
+
+	if(!visible)
+	{
+		LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
+		if(chiclet)
+		{
+			chiclet->setToggleState(false);
+		}
 	}
 }
 

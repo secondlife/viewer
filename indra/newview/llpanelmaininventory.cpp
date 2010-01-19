@@ -51,6 +51,8 @@
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 
+const std::string FILTERS_FILENAME("filters.xml");
+
 static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory");
 
 void on_file_loaded_for_save(BOOL success, 
@@ -160,7 +162,7 @@ BOOL LLPanelMainInventory::postBuild()
 
 	// Now load the stored settings from disk, if available.
 	std::ostringstream filterSaveName;
-	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "filters.xml");
+	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
 	llinfos << "LLPanelMainInventory::init: reading from " << filterSaveName << llendl;
 	llifstream file(filterSaveName.str());
 	LLSD savedFilterState;
@@ -230,7 +232,7 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 	}
 
 	std::ostringstream filterSaveName;
-	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "filters.xml");
+	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
 	llofstream filtersFile(filterSaveName.str());
 	if(!LLSDSerialize::toPrettyXML(filterRoot, filtersFile))
 	{

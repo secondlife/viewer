@@ -59,7 +59,9 @@ public:
 	void onAdd();
 	void onRemove();
 	void onEdit();
-	void onNew();
+	void onSave();
+	
+	void onSaveCommit(const std::string& item_name);
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();

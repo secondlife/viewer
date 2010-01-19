@@ -48,6 +48,7 @@
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 #include "lltexteditor.h"
+#include "llnotifications.h"
 
 // Build time optimization, generate extern template once in .cpp file
 template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
@@ -284,9 +285,13 @@ void LLBottomTray::onMouselookModeOut()
 	// and then restore children saved shapes. See EXT-4309.
 	BOOL saved_anim = mToolbarStack->getAnimate();
 	mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, FALSE);
+	// Disable animation to prevent layout updating in several frames.
 	mToolbarStack->setAnimate(FALSE);
+	// Force the updating of layout to reset panels collapse factor.
 	mToolbarStack->updateLayout();
+	// Restore animate state.
 	mToolbarStack->setAnimate(saved_anim);
+	// Restore saved shapes.
 	restorePanelsShape();
 }
 
@@ -1107,7 +1112,10 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 		// mark this button to show it while future bottom tray extending
 		mResizeState |= shown_object_type;
 		if ( raise_notification )
-			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown");
+			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
+									 LLSD(),
+									 LLSD(),
+									 LLNotificationFunctorRegistry::instance().DONOTHING);
 	}
 }
 

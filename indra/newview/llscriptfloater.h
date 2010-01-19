@@ -174,6 +174,10 @@ protected:
 	 */
 	void onMouseDown();
 
+	/*virtual*/ void onFocusLost();
+	
+	/*virtual*/ void onFocusReceived();
+
 private:
 	LLToastNotifyPanel* mScriptForm;
 	LLUUID mObjectId;

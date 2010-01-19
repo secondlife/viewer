@@ -47,7 +47,7 @@
 #include "llviewercontrol.h"
 #include "llcommandhandler.h"
 #include "lldraghandle.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
 #include "llinventorymodel.h"
@@ -116,9 +116,12 @@ public:
 	{
 		if (params.size() == 0)
 		{
-			return false;
+			// support the secondlife:///app/worldmap SLapp
+			LLFloaterReg::showInstance("world_map", "center");
+			return true;
 		}
 
+		// support the secondlife:///app/worldmap/{LOCATION}/{COORDS} SLapp
 		const std::string region_name = params[0].asString();
 		S32 x = (params.size() > 1) ? params[1].asInteger() : 128;
 		S32 y = (params.size() > 2) ? params[2].asInteger() : 128;
@@ -314,7 +317,7 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 		adjustZoomSliderBounds();
 
 		// Could be first show
-		LLFirstUse::useMap();
+		//LLFirstUse::useMap();
 
 		// Start speculative download of landmarks
 		const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);

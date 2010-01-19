@@ -257,7 +257,7 @@ LLMuteList::~LLMuteList()
 {
 	// If we quit from the login screen we will not have an SL account
 	// name.  Don't try to save, otherwise we'll dump a file in
-	// C:\Program Files\SecondLife\  JC
+	// C:\Program Files\SecondLife\ or similar. JC
 	std::string user_dir = gDirUtilp->getLindenUserDir();
 	if (!user_dir.empty())
 	{

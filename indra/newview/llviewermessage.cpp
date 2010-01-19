@@ -51,7 +51,7 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
@@ -737,6 +737,7 @@ void start_new_inventory_observer()
 
 class LLDiscardAgentOffer : public LLInventoryFetchComboObserver
 {
+	LOG_CLASS(LLDiscardAgentOffer);
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
 		mFolderID(folder_id),
@@ -1117,7 +1118,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * callback may be called immediately,
 	// * adding the mute sends a message,
 	// * we can't build two messages at once.
-	if (2 == button)
+	if (2 == button) // Block
 	{
 		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
@@ -2059,6 +2060,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			//if (((is_busy && !is_owned_by_me) || is_muted))
 			if ( is_muted || mute_im)
 			{
+				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
+				LLInventoryFetchObserver::item_ref_t items;
+				items.push_back(info->mObjectID);
+				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
+				fetch_item->fetchItems(items);
+				delete fetch_item;
+
 				// Same as closing window
 				info->forceResponse(IOR_DECLINE);
 			}
@@ -2148,6 +2156,48 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Build a link to open the object IM info window.
 			std::string location = ll_safe_string((char*)binary_bucket, binary_bucket_size-1);
 
+			if (session_id.notNull())
+			{
+				chat.mFromID = session_id;
+			}
+			else
+			{
+				// This message originated on a region without the updated code for task id and slurl information.
+				// We just need a unique ID for this object that isn't the owner ID.
+				// If it is the owner ID it will overwrite the style that contains the link to that owner's profile.
+				// This isn't ideal - it will make 1 style for all objects owned by the the same person/group.
+				// This works because the only thing we can really do in this case is show the owner name and link to their profile.
+				chat.mFromID = from_id ^ gAgent.getSessionID();
+			}
+
+			LLSD query_string;
+			query_string["owner"] = from_id;
+			query_string["slurl"] = location;
+			query_string["name"] = name;
+			if (from_group)
+			{
+				query_string["groupowned"] = "true";
+			}	
+
+			std::ostringstream link;
+			link << "secondlife:///app/objectim/" << session_id << LLURI::mapToQueryString(query_string);
+
+			chat.mURL = link.str();
+			chat.mText = message;
+			chat.mSourceType = CHAT_SOURCE_OBJECT;
+
+			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
+			// IMs from obejcts don't open IM sessions.
+			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			if(nearby_chat)
+			{
+				nearby_chat->addMessage(chat);
+			}
+
+
+			//Object IMs send with from name: 'Second Life' need to be displayed also in notification toasts (EXT-1590)
+			if (SYSTEM_FROM != name) break;
+			
 			LLSD substitutions;
 			substitutions["NAME"] = name;
 			substitutions["MSG"] = message;
@@ -4335,10 +4385,10 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 
 	if (gStatusBar)
 	{
-		S32 old_balance = gStatusBar->getBalance();
+	//	S32 old_balance = gStatusBar->getBalance();
 
 		// This is an update, not the first transmission of balance
-		if (old_balance != 0)
+	/*	if (old_balance != 0)
 		{
 			// this is actually an update
 			if (balance > old_balance)
@@ -4350,7 +4400,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 				LLFirstUse::useBalanceDecrease(balance - old_balance);
 			}
 		}
-
+	 */
 		gStatusBar->setBalance(balance);
 		gStatusBar->setLandCredit(credit);
 		gStatusBar->setLandCommitted(committed);

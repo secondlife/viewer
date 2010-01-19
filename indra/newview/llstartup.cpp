@@ -100,7 +100,7 @@
 #include "lleventnotifier.h"
 #include "llface.h"
 #include "llfeaturemanager.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterhud.h"
 #include "llfloaterland.h"
 #include "llfloaterpreference.h"
@@ -919,9 +919,9 @@ bool idle_startup()
 		// create necessary directories
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(gFirstname, gLastname);
-    	LLFile::mkdir(gDirUtilp->getLindenUserDir());
-
-        // Set PerAccountSettingsFile to the default value.
+		LLFile::mkdir(gDirUtilp->getLindenUserDir());
+		
+		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
 				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")));

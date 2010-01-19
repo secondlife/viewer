@@ -48,7 +48,7 @@
 #include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llfloaterbuycurrency.h"
@@ -2490,7 +2490,7 @@ class LLObjectBuild : public view_listener_t
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 		return true;
 	}
 };
@@ -2535,7 +2535,7 @@ void handle_object_edit()
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
 	
 	// Could be first use
-	LLFirstUse::useBuild();
+	//LLFirstUse::useBuild();
 	return;
 }
 
@@ -2586,7 +2586,7 @@ class LLLandBuild : public view_listener_t
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 		return true;
 	}
 };
@@ -2823,7 +2823,7 @@ bool handle_go_to()
 	}
 
 	// Could be first use
-	LLFirstUse::useGoTo();
+	//LLFirstUse::useGoTo();
 	return true;
 }
 
@@ -3364,13 +3364,13 @@ void handle_show_side_tray()
 	root->addChild(side_tray);
 }
 
-class LLShowPanelPeopleTab : public view_listener_t
+// Toggle one of "People" panel tabs in side tray.
+class LLTogglePanelPeopleTab : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
 
-		// Open tab of the "People" panel in side tray.
 		LLSD param;
 		param["people_panel_tab_name"] = panel_name;
 
@@ -3380,15 +3380,15 @@ class LLShowPanelPeopleTab : public view_listener_t
 
 		if (panel_name == "friends_panel")
 		{
-			return togglePanel(friends_panel, param);
+			return togglePeoplePanel(friends_panel, panel_name, param);
 		}
 		else if (panel_name == "groups_panel")
 		{
-			return togglePanel(groups_panel, param);
+			return togglePeoplePanel(groups_panel, panel_name, param);
 		}
 		else if (panel_name == "nearby_panel")
 		{
-			return togglePanel(nearby_panel, param);
+			return togglePeoplePanel(nearby_panel, panel_name, param);
 		}
 		else
 		{
@@ -3396,23 +3396,16 @@ class LLShowPanelPeopleTab : public view_listener_t
 		}
 	}
 
-	static bool togglePanel(LLPanel* &panel, const LLSD& param)
+	static bool togglePeoplePanel(LLPanel* &panel, const std::string& panel_name, const LLSD& param)
 	{
 		if(!panel)
 		{
-			panel = LLSideTray::getInstance()->findChild<LLPanel>(param["people_panel_tab_name"].asString());
+			panel = LLSideTray::getInstance()->getPanel(panel_name);
 			if(!panel)
 				return false;
 		}
 
-		if (panel->isInVisibleChain())
-		{
-			LLSideTray::getInstance()->collapseSideBar();
-		}
-		else
-		{
-			LLSideTray::getInstance()->showPanel("panel_people", param);
-		}
+		LLSideTray::getInstance()->togglePanel(panel, "panel_people", param);
 
 		return true;
 	}
@@ -3667,7 +3660,7 @@ void near_sit_down_point(BOOL success, void *)
 		gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 
 		// Might be first sit
-		LLFirstUse::useSit();
+		//LLFirstUse::useSit();
 	}
 }
 
@@ -5185,7 +5178,7 @@ void toggle_debug_menus(void*)
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
 	if(visible)
 	{
-		LLFirstUse::useDebugMenus();
+		//LLFirstUse::useDebugMenus();
 	}
 	show_debug_menus();
 }
@@ -7896,7 +7889,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	// we don't use boost::bind directly to delay side tray construction
-	view_listener_t::addMenu( new LLShowPanelPeopleTab(), "SideTray.PanelPeopleTab");
+	view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");

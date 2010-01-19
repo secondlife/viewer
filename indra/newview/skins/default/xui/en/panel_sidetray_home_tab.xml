@@ -4,7 +4,6 @@
  follows="all"
  height="570"
  min_height="350"
- label="home_tab"
  help_topic="sidetray_home"
  layout="topleft"
  top="0"

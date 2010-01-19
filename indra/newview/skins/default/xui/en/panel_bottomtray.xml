@@ -382,6 +382,17 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
          width="40"
          min_width="40"
          user_resize="false">
+         <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         min_width="4"
+         top="0"
+         width="5" />
             <chiclet_notification
              flash_period="0.25"
              follows="right"
@@ -414,6 +425,17 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                    function="Button.SetDockableFloaterToggle"
                    parameter="notification_well_window" />
               </button>
+                      <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         min_width="4"
+         top="0"
+         width="5" />
 	    </chiclet_notification>
         </layout_panel>
     </layout_stack>

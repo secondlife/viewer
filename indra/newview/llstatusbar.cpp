@@ -106,7 +106,6 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 const F32 ICON_FLASH_FREQUENCY	= 2.f;
 const S32 TEXT_HEIGHT = 18;
 
-static void onClickBuyCurrency(void*);
 static void onClickHealth(void*);
 static void onClickScriptDebug(void*);
 static void onClickVolume(void*);
@@ -121,7 +120,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mTextTime(NULL),
 	mSGBandwidth(NULL),
 	mSGPacketLoss(NULL),
-	mBtnBuyCurrency(NULL),
 	mBtnVolume(NULL),
 	mBalance(0),
 	mHealth(100),
@@ -152,8 +150,10 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mTextHealth = getChild<LLTextBox>("HealthText" );
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
-	mBtnBuyCurrency = getChild<LLButton>( "buycurrency" );
-	mBtnBuyCurrency->setClickedCallback( onClickBuyCurrency, this );
+	getChild<LLUICtrl>("buycurrency")->setCommitCallback( 
+		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+	getChild<LLUICtrl>("buyL")->setCommitCallback(
+		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
@@ -361,7 +361,8 @@ void LLStatusBar::refresh()
 void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
-	mBtnBuyCurrency->setVisible(visible);
+	getChild<LLUICtrl>("buycurrency")->setVisible(visible);
+	getChild<LLUICtrl>("buyL")->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
@@ -381,17 +382,18 @@ void LLStatusBar::setBalance(S32 balance)
 {
 	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 
+	LLButton* btn_buy_currency = getChild<LLButton>("buycurrency");
 	LLStringUtil::format_map_t string_args;
 	string_args["[AMT]"] = llformat("%s", money_str.c_str());
 	std::string labe_str = getString("buycurrencylabel", string_args);
-	mBtnBuyCurrency->setLabel(labe_str);
+	btn_buy_currency->setLabel(labe_str);
 
 	// Resize the balance button so that the label fits it, and the button expands to the left.
 	// *TODO: LLButton should have an option where to expand.
 	{
-		S32 saved_right = mBtnBuyCurrency->getRect().mRight;
-		mBtnBuyCurrency->autoResize();
-		mBtnBuyCurrency->translate(saved_right - mBtnBuyCurrency->getRect().mRight, 0);
+		S32 saved_right = btn_buy_currency->getRect().mRight;
+		btn_buy_currency->autoResize();
+		btn_buy_currency->translate(saved_right - btn_buy_currency->getRect().mRight, 0);
 	}
 
 	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
@@ -496,7 +498,7 @@ S32 LLStatusBar::getSquareMetersLeft() const
 	return mSquareMetersCredit - mSquareMetersCommitted;
 }
 
-static void onClickBuyCurrency(void* data)
+void LLStatusBar::onClickBuyCurrency()
 {
 	LLFloaterBuyCurrency::buyCurrency();
 }

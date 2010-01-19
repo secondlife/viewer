@@ -7,7 +7,6 @@
  layout="topleft"
  left="0"
  name="script_floater"
- help_topic="script_floater"
  top="0"
  can_dock="true"
  can_minimize="true"

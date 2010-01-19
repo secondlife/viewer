@@ -79,7 +79,7 @@
 #include "llrecentpeople.h"
 #include "llsyswellwindow.h"
 
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llagentui.h"
 #include "lltextutil.h"
 
@@ -2402,7 +2402,9 @@ LLUUID LLIMMgr::addSession(
 	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
 	if (!new_session) return session_id;
 	
-	noteOfflineUsers(session_id, floater, ids);
+	//Per Plan's suggestion commented "explicit offline status warning" out to make Dessie happier (see EXT-3609)
+	//*TODO After February 2010 remove this commented out line if no one will be missing that warning
+	//noteOfflineUsers(session_id, floater, ids);
 
 	// Only warn for regular IMs - not group IMs
 	if( dialog == IM_NOTHING_SPECIAL )
