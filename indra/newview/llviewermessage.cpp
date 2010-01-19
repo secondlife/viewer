@@ -835,8 +835,9 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 					<< OFFER_THROTTLE_TIME << " seconds.";
 				
 				//this is kinda important, so actually put it on screen
+				std::string log_msg = message.str();
 				LLSD args;
-				args["MESSAGE"] = message;
+				args["MESSAGE"] = log_msg;
 				LLNotificationsUtil::add("SystemMessage", args);
 
 				throttle_logged=true;
