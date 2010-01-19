@@ -119,6 +119,7 @@ class LLChatHistory : public LLUICtrl
 		 */
 		void appendMessage(const LLChat& chat, const bool use_plain_text_chat_history = false, const LLStyle::Params& input_append_params = LLStyle::Params());
 		/*virtual*/ void clear();
+		/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	private:
 		std::string mLastFromName;
