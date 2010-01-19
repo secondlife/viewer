@@ -94,7 +94,7 @@ public:
 	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM);
+	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, std::string& suffix = LLStringUtil::null);
 
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.
@@ -121,7 +121,8 @@ public:
 
 	/*virtual*/ void updateColumns();
 private:
-	void showAvatarInspector(const LLUUID& avatar_id);
+	void showInspector(const LLUUID& avatar_id, bool is_group);
+	static LLUUID getItemId(LLScrollListItem* item);
 
 private:
 	S32    			mNameColumnIndex;
