@@ -469,7 +469,7 @@ void LLPluginClassMedia::mouseEvent(EMouseEventType type, int button, int x, int
 	sendMessage(message);
 }
 
-bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifiers)
+bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data)
 {
 	bool result = true;
 	
@@ -526,6 +526,7 @@ bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifie
 		message.setValueS32("key", key_code);
 
 		message.setValue("modifiers", translateModifiers(modifiers));
+		message.setValueLLSD("native_key_data", native_key_data);
 		
 		sendMessage(message);
 	}
@@ -544,12 +545,13 @@ void LLPluginClassMedia::scrollEvent(int x, int y, MASK modifiers)
 	sendMessage(message);
 }
 	
-bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers)
+bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers, LLSD native_key_data)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "text_event");
 
 	message.setValue("text", text);
 	message.setValue("modifiers", translateModifiers(modifiers));
+	message.setValueLLSD("native_key_data", native_key_data);
 	
 	sendMessage(message);
 	

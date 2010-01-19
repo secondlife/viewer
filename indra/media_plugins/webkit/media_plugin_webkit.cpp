@@ -464,7 +464,7 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
-	void keyEvent(LLQtWebKit::EKeyEvent key_event, int key, LLQtWebKit::EKeyboardModifier modifiers)
+	void keyEvent(LLQtWebKit::EKeyEvent key_event, int key, LLQtWebKit::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 	{
 		int llqt_key;
 		
@@ -515,6 +515,8 @@ private:
 		}
 		
 //		std::cerr << "keypress, original code = 0x" << std::hex << key << ", converted code = 0x" << std::hex << llqt_key << std::dec << std::endl;
+
+		std::cerr << "key event " << (int)key_event << ", native_key_data = " << native_key_data << std::endl;
 		
 		if(llqt_key != 0)
 		{
@@ -526,9 +528,11 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
-	void unicodeInput( const std::string &utf8str, LLQtWebKit::EKeyboardModifier modifiers)
+	void unicodeInput( const std::string &utf8str, LLQtWebKit::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 	{
 		LLWString wstr = utf8str_to_wstring(utf8str);
+		
+		std::cerr << "unicode input, native_key_data = " << native_key_data << std::endl;
 		
 		unsigned int i;
 		for(i=0; i < wstr.size(); i++)
@@ -843,6 +847,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				std::string event = message_in.getValue("event");
 				S32 key = message_in.getValueS32("key");
 				std::string modifiers = message_in.getValue("modifiers");
+				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
 				
 				// Treat unknown events as key-up for safety.
 				LLQtWebKit::EKeyEvent key_event = LLQtWebKit::KE_KEY_UP;
@@ -855,14 +860,15 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 					key_event = LLQtWebKit::KE_KEY_REPEAT;
 				}
 				
-				keyEvent(key_event, key, decodeModifiers(modifiers));
+				keyEvent(key_event, key, decodeModifiers(modifiers), native_key_data);
 			}
 			else if(message_name == "text_event")
 			{
 				std::string text = message_in.getValue("text");
 				std::string modifiers = message_in.getValue("modifiers");
+				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
 				
-				unicodeInput(text, decodeModifiers(modifiers));
+				unicodeInput(text, decodeModifiers(modifiers), native_key_data);
 			}
 			if(message_name == "edit_cut")
 			{
