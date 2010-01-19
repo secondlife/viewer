@@ -21,22 +21,8 @@
      halign="center"
      width="313">
          <inventory_panel
-     follows="all"
- background_visible="true"
- background_opaque="true"
-        label="WEARING"
-        help_topic="now_wearing_tab"
-        allow_multi_select="true"
-        border="false"
-        left="0"
-        top="0"
-        mouse_opaque="true"
-        name="cof_accordionpanel"
-        start_folder="Current Outfit"
-     width="313" />
-         <inventory_panel
- background_visible="true"
- background_opaque="true"
+           background_visible="true"
+           background_opaque="true"
            label="MY OUTFITS"
            help_topic="my_outfits_tab"
            allow_multi_select="true"
@@ -48,6 +34,20 @@
            mouse_opaque="true"
            name="outfitslist_tab"
            start_folder="My Outfits" /> 
+         <inventory_panel
+           follows="all"
+           background_visible="true"
+           background_opaque="true"
+           label="WEARING"
+           help_topic="now_wearing_tab"
+          allow_multi_select="true"
+           border="false"
+           left="0"
+           top="0"
+           mouse_opaque="true"
+           name="cof_accordionpanel"
+           start_folder="Current Outfit"
+           width="313" />
    </tab_container>
 	<panel
 	  background_visible="true"
@@ -103,5 +103,15 @@
        top="26"
       tool_tip="Wear selected outfit"
       width="120" />
+	 <button
+	  follows="bottom|left"
+		height="23" 
+		label="M" 
+		layout="topleft"
+        right="-140"
+		name="look_edit_btn"
+        top="26"
+        visible="false" 
+		width="20" />
 	 </panel>
 </panel>
