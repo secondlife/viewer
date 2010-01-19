@@ -460,6 +460,8 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	mLandmarkInfo->displayParcelInfo(region_id, mPosGlobal);
 
 	mSaveBtn->setEnabled(TRUE);
+
+	updateVerbs();
 }
 
 void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_filter)
