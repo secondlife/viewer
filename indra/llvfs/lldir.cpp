@@ -200,6 +200,11 @@ const std::string &LLDir::getOSUserAppDir() const
 
 const std::string &LLDir::getLindenUserDir() const
 {
+	if (mLindenUserDir.empty())
+	{
+		lldebugs << "getLindenUserDir() called early, we don't have the user name yet - returning empty string to caller" << llendl;
+	}
+
 	return mLindenUserDir;
 }
 
@@ -337,7 +342,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 		
 	case LL_PATH_CACHE:
-	    prefix = getCacheDir();
+		prefix = getCacheDir();
 		break;
 		
 	case LL_PATH_USER_SETTINGS:
@@ -348,6 +353,11 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 
 	case LL_PATH_PER_SL_ACCOUNT:
 		prefix = getLindenUserDir();
+		if (prefix.empty())
+		{
+			// if we're asking for the per-SL-account directory but we haven't logged in yet (or otherwise don't know the account name from which to build this string), then intentionally return a blank string to the caller and skip the below warning about a blank prefix.
+			return std::string();
+		}
 		break;
 		
 	case LL_PATH_CHAT_LOGS:
@@ -557,7 +567,7 @@ std::string LLDir::getForbiddenFileChars()
 
 void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
 {
-	// if both first and last aren't set, assume we're grabbing the cached dir
+	// if both first and last aren't set, that's bad.
 	if (!first.empty() && !last.empty())
 	{
 		// some platforms have case-sensitive filesystems, so be
@@ -571,6 +581,7 @@ void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
 		mLindenUserDir += firstlower;
 		mLindenUserDir += "_";
 		mLindenUserDir += lastlower;
+		llinfos << "Got name for LLDir::setLindenUserDir(first='" << first << "', last='" << last << "')" << llendl;
 	}
 	else
 	{

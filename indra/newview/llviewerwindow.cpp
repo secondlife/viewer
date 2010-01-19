@@ -1638,7 +1638,7 @@ void LLViewerWindow::shutdownGL()
 	LLViewerTextureManager::cleanup() ;
 	LLImageGL::cleanupClass() ;
 
-	llinfos << "All texturs and llimagegl images are destroyed!" << llendl ;
+	llinfos << "All textures and llimagegl images are destroyed!" << llendl ;
 
 	llinfos << "Cleaning up select manager" << llendl;
 	LLSelectMgr::getInstance()->cleanup();

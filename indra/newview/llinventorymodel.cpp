@@ -3649,7 +3649,7 @@ void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, c
 	LLViewerInventoryItem* src_item = *it_src;
 	items.erase(it_src);
 	
-	// target iterator can nt be valid due to container was changed, so update it.
+	// target iterator can not be valid because the container was changed, so update it.
 	it_dest = find_item_iter_by_uuid(items, dest_item_id);
 	items.insert(it_dest, src_item);
 }

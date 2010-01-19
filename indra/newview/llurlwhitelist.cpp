@@ -121,6 +121,12 @@ bool LLUrlWhiteList::save ()
 	// build filename for each user
 	std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
 
+	if (resolvedFilename.empty())
+	{
+		llinfos << "No per-user dir for saving URL whitelist - presumably not logged in yet.  Skipping." << llendl;
+		return false;
+	}
+
 	// open a file for writing
 	llofstream file ( resolvedFilename );
 	if ( file.is_open () )
