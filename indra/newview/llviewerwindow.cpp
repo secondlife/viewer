@@ -824,8 +824,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 				{
 					if (drop)
 					{
-						LLURLDispatcher::dispatch( data, NULL, true );
-						LLURLSimString::setString( LLSLURL::stripProtocol( data ) );
+						LLURLSimString::setStringRaw( LLSLURL::stripProtocol( data ) );
 						LLPanelLogin::refreshLocation( true );
 						LLPanelLogin::updateLocationUI();
 					}
