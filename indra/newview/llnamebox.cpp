@@ -53,6 +53,7 @@ LLNameBox::LLNameBox(const Params& p)
 {
 	mNameID = LLUUID::null;
 	mLink = p.link;
+	mInitialValue = p.initial_value().asString();
 	LLNameBox::sInstances.insert(this);
 	setText(LLStringUtil::null);
 }
@@ -67,17 +68,23 @@ void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 	mNameID = name_id;
 
 	std::string name;
+	BOOL got_name = FALSE;
 
 	if (!is_group)
 	{
-		gCacheName->getFullName(name_id, name);
+		got_name = gCacheName->getFullName(name_id, name);
 	}
 	else
 	{
-		gCacheName->getGroupName(name_id, name);
+		got_name = gCacheName->getGroupName(name_id, name);
 	}
 
-	setName(name, is_group);
+	// Got the name already? Set it.
+	// Otherwise it will be set later in refresh().
+	if (got_name)
+		setName(name, is_group);
+	else
+		setText(mInitialValue);
 }
 
 void LLNameBox::refresh(const LLUUID& id, const std::string& firstname,
