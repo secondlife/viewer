@@ -1297,6 +1297,7 @@ void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
 	mChicletList.erase(it);
 	
 	arrange();
+	(*it)->die();
 }
 
 void LLChicletPanel::removeChiclet(S32 index)
