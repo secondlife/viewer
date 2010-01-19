@@ -961,6 +961,7 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		const BOOL auto_open = gSavedSettings.getBOOL("ShowInInventory") &&
 			(asset_type != LLAssetType::AT_CALLINGCARD) &&
 			(item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
+			(asset_type != LLAssetType::AT_LANDMARK) &&
 			!from_name.empty();
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)

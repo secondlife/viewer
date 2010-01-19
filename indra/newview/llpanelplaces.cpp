@@ -449,6 +449,22 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 	}
 }
 
+S32 LLPanelPlaces::notifyParent(const LLSD& info)
+{
+	if(info.has("update_verbs"))
+	{
+		if(mPosGlobal.isExactlyZero())
+		{
+			mPosGlobal.setVec(info["global_x"], info["global_y"], info["global_z"]);
+		}
+
+		updateVerbs();
+		
+		return 1;
+	}
+	return LLPanel::notifyParent(info);
+}
+
 void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 {
 	if (!mLandmarkInfo)
