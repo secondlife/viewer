@@ -448,7 +448,7 @@ BOOL LLPanelPickEdit::postBuild()
 {
 	LLPanelPickInfo::postBuild();
 
-	mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelPickEdit::onPickChanged, this, _1));
+	mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelPickEdit::onSnapshotChanged, this));
 
 	LLLineEditor* line_edit = getChild<LLLineEditor>("pick_name");
 	line_edit->setKeystrokeCallback(boost::bind(&LLPanelPickEdit::onPickChanged, this, _1), NULL);
@@ -537,16 +537,14 @@ void LLPanelPickEdit::sendUpdate()
 	}
 }
 
+void LLPanelPickEdit::onSnapshotChanged()
+{
+	enableSaveButton(true);
+}
+
 void LLPanelPickEdit::onPickChanged(LLUICtrl* ctrl)
 {
-	if(isDirty())
-	{
-		enableSaveButton(true);
-	}
-	else
-	{
-		enableSaveButton(false);
-	}
+	enableSaveButton(isDirty());
 }
 
 void LLPanelPickEdit::resetData()
@@ -612,10 +610,6 @@ void LLPanelPickEdit::initTexturePickerMouseEvents()
 	text_icon = getChild<LLIconCtrl>(XML_BTN_ON_TXTR);
 	mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseEnter, this, _1));
 	mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseLeave, this, _1));
-	
-	// *WORKAROUND: Needed for EXT-1625: enabling save button each time when picker is opened, even if 
-	// texture wasn't changed (see Steve's comment).
-	mSnapshotCtrl->setMouseDownCallback(boost::bind(&LLPanelPickEdit::enableSaveButton, this, true));
 	
 	text_icon->setVisible(FALSE);
 }

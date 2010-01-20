@@ -61,6 +61,7 @@
      height="197"
      width="280"
      layout="topleft"
+     no_commit_on_selection="true"
      top="20"
      left="10"
      name="pick_snapshot" />

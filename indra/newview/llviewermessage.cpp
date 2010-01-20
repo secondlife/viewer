@@ -908,6 +908,14 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						LLSideTray::getInstance()->showPanel("panel_places", 
 								LLSD().with("type", "landmark").with("id", item->getUUID()));
 					}
+					else if("group_offer" == from_name)
+					{
+						// do not open inventory when we open group notice attachment because 
+						// we already opened landmark info panel
+						// "group_offer" is passed by LLOpenTaskGroupOffer
+
+						continue;
+					}
 					else if(from_name.empty())
 					{
 						// we receive a message from LLOpenTaskOffer, it mean that new landmark has been added.
@@ -1356,7 +1364,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			if (check_offer_throttle(mFromName, true))
 			{
 				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
-				//TODO* should go to history only - how?
+				//TODO* CHAT: how to show this?
 				//LLSD args;
 				//args["MESSAGE"] = log_message;
 				//LLNotificationsUtil::add("SystemMessage", args);
@@ -1401,7 +1409,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			// send the message
 			msg->sendReliable(mHost);
 			
-			//TODO* should go to message history only...
+			//TODO* CHAT: how to show this?
 			//log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
 			//LLSD args;
 			//args["MESSAGE"] = log_message;
@@ -1829,17 +1837,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// history.  Pretend the chat is from a local agent,
 				// so it will go into the history but not be shown on screen.
 
-				//TODO* should go to message hisyory only
+				//TODO* CHAT: how to show this?
 				//and this is not system message...
 				//LLSD args;
 				//args["MESSAGE"] = buffer;
 				//LLNotificationsUtil::add("SystemMessage", args);
-
-				/*
-				chat.mText = buffer;
-				BOOL local_agent = TRUE;
-				LLFloaterChat::addChat( chat, TRUE, local_agent );
-				*/
 			}
 		}
 		break;
@@ -3076,7 +3078,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
-			//should go to history only so leave commented
+			//TODO* CHAT: how to show this?
 			//LLSD args;
 			//args["MESSAGE"] = message;
 			//LLNotificationsUtil::add("SystemMessage", args);
