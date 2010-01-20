@@ -6381,8 +6381,11 @@ void handle_selected_texture_info(void*)
    		std::string msg;
    		msg.assign("Texture info for: ");
    		msg.append(node->mName);
-   		LLChat chat(msg);
-   		LLFloaterChat::addChat(chat);
+
+		//TODO* CHAT: how to show this?
+		//LLSD args;
+		//args["MESSAGE"] = msg;
+		//LLNotificationsUtil::add("SystemMessage", args);
 	   
    		U8 te_count = node->getObject()->getNumTEs();
    		// map from texture ID to list of faces using it
