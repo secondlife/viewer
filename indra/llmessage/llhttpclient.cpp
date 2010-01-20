@@ -222,7 +222,7 @@ static void request(
 	LLPumpIO::chain_t chain;
 
 	LLURLRequest* req = new LLURLRequest(method, url);
-	req->checkRootCertificate(true);
+	req->checkRootCertificate(LLCurl::getSSLVerify());
 
 	
 	lldebugs << LLURLRequest::actionAsVerb(method) << " " << url << " "
