@@ -54,6 +54,7 @@
 #include "lllayoutstack.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
+void reshape_floater(LLCallFloater* floater, S32 delta_height);
 
 class LLNonAvatarCaller : public LLAvatarListItem
 {
@@ -315,8 +316,33 @@ void LLCallFloater::updateSession()
 	
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_call_btn_panel", !is_local_chat);
-	
+
+	LLPanel* leave_panel = findChild<LLPanel>("leave_call_btn_panel");
+	if (leave_panel)
+	{
+		S32 delta = 0;
+		bool visible = !is_local_chat;
+		if (leave_panel->getVisible() != visible)
+		{
+			delta = visible
+				? leave_panel->getRect().getHeight()
+				: -leave_panel->getRect().getHeight();
+		}
+		leave_panel->setVisible(visible);
+		if (delta)
+		{
+			LLLayoutStack* stack = getChild<LLLayoutStack>("my_call_stack");
+			BOOL animate = stack->getAnimate();
+			// Disable animation to prevent layout updating in several frames.
+			// We need this to get work reshapeToFitContent properly, otherwise
+			// the height of leave_call_btn_panel won't be completely included.
+			stack->setAnimate(FALSE);
+			reshape_floater(this, delta);
+			// Restore animate state.
+			stack->setAnimate(animate);
+		}
+	}
+
 	refreshParticipantList();
 	updateAgentModeratorState();
 
