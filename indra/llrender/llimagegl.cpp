@@ -428,49 +428,56 @@ LLImageGL::~LLImageGL()
 
 void LLImageGL::init(BOOL usemipmaps)
 {
-#ifdef DEBUG_MISS
-	mMissed				= FALSE;
-#endif
+	// keep these members in the same order as declared in llimagehl.h
+	// so that it is obvious by visual inspection if we forgot to
+	// init a field.
 
-	mPickMask		  = NULL;
-	mTextureMemory    = 0;
-	mLastBindTime     = 0.f;
+	mTextureMemory = 0;
+	mLastBindTime = 0.f;
+
+	mPickMask = NULL;
+	mUseMipMaps = usemipmaps;
+	mHasExplicitFormat = FALSE;
+	mAutoGenMips = FALSE;
+
+	mIsMask = FALSE;
+	mNeedsAlphaAndPickMask = TRUE ;
+	mAlphaStride = 0 ;
+	mAlphaOffset = 0 ;
+
+	mGLTextureCreated = FALSE ;
+	mTexName = 0;
+	mWidth = 0;
+	mHeight	= 0;
+	mCurrentDiscardLevel = -1;	
+
+	mDiscardLevelInAtlas = -1 ;
+	mTexelsInAtlas = 0 ;
+	mTexelsInGLTexture = 0 ;
 	
-	mTarget			  = GL_TEXTURE_2D;
-	mBindTarget		  = LLTexUnit::TT_TEXTURE;
-	mUseMipMaps		  = usemipmaps;
-	mHasMipMaps		  = false;
-	mAutoGenMips	  = FALSE;
-	mTexName          = 0;
-	mIsResident       = 0;
+	mTarget = GL_TEXTURE_2D;
+	mBindTarget = LLTexUnit::TT_TEXTURE;
+	mHasMipMaps = false;
+
+	mIsResident = 0;
+
+	mComponents = 0;
+	mMaxDiscardLevel = MAX_DISCARD_LEVEL;
 
 	mTexOptionsDirty = true;
 	mAddressMode = LLTexUnit::TAM_WRAP;
 	mFilterOption = LLTexUnit::TFO_ANISOTROPIC;
-	mWidth				= 0;
-	mHeight				= 0;
-	mComponents			= 0;
-	
-	mMaxDiscardLevel = MAX_DISCARD_LEVEL;
-	mCurrentDiscardLevel = -1;	
 	
 	mFormatInternal = -1;
 	mFormatPrimary = (LLGLenum) 0;
 	mFormatType = GL_UNSIGNED_BYTE;
 	mFormatSwapBytes = FALSE;
-	mHasExplicitFormat = FALSE;
 
-	mGLTextureCreated = FALSE ;
+#ifdef DEBUG_MISS
+	mMissed	= FALSE;
+#endif
 
-	mIsMask = FALSE;
-	mCategory = -1 ;
-	mAlphaStride = 0 ;
-	mAlphaOffset = 0 ;
-	mNeedsAlphaAndPickMask = TRUE ;
-
-	mDiscardLevelInAtlas = -1 ;
-	mTexelsInAtlas = 0 ;
-	mTexelsInGLTexture = 0 ;
+	mCategory = -1;
 }
 
 void LLImageGL::cleanup()
@@ -1669,7 +1676,7 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 	}
 
 	if (mFormatType != GL_UNSIGNED_BYTE ||
-		mFormatPrimary != GL_RGBA)
+	    mFormatPrimary != GL_RGBA)
 	{
 		//cannot generate a pick mask for this texture
 		delete [] mPickMask;

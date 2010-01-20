@@ -45,6 +45,7 @@
 #include "lluictrlfactory.h"
 
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llavatariconctrl.h"
 #include "llbottomtray.h"
 #include "llcallingcard.h"
@@ -1855,7 +1856,7 @@ void LLIncomingCallDialog::onStartIM(void* user_data)
 
 void LLIncomingCallDialog::processCallResponse(S32 response)
 {
-	if (!gIMMgr)
+	if (!gIMMgr || gDisconnected)
 		return;
 
 	LLUUID session_id = mPayload["session_id"].asUUID();

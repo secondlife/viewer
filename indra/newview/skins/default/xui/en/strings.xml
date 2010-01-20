@@ -2170,7 +2170,7 @@ this texture in your inventory
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
-  <string name="MuteObject">Block</string>
+  <string name="MuteObject2">Block</string>
   <string name="MuteAvatar">Block</string>
   <string name="UnmuteObject">Unblock</string>
   <string name="UnmuteAvatar">Unblock</string>

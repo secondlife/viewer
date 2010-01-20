@@ -247,6 +247,7 @@
               <name_box
                follows="left|top"
                height="10"
+               initial_value="(retrieving)"
                layout="topleft"
                left="0"
                link="true"

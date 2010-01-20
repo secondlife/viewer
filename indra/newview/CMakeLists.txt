@@ -1405,11 +1405,11 @@ if (WINDOWS)
       # Note the need to specify multiple names explicitly.
       set(GOOGLE_PERF_TOOLS_SOURCE
         ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
-	${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
-	${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
-	)
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
+        )
     endif(USE_GOOGLE_PERFTOOLS)
-	  
+  
 
     set(COPY_INPUT_DEPENDECIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
@@ -1503,11 +1503,11 @@ if (WINDOWS)
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
-	--touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
+        --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
       DEPENDS 
-	${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-	stage_third_party_libs
-	${COPY_INPUT_DEPENDECIES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        stage_third_party_libs
+        ${COPY_INPUT_DEPENDECIES}
       COMMENT "Performing viewer_manifest copy"
       )
     
