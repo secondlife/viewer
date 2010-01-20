@@ -59,7 +59,8 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 	LLLandmark* landmark = get_ptr_in_map(mList, asset_uuid);
 	if(landmark)
 	{
-		if(cb && !landmark->getGlobalPos(LLVector3d()))
+		LLVector3d dummy;
+		if(cb && !landmark->getGlobalPos(dummy))
 		{
 			// landmark is not completely loaded yet
 			loaded_callback_map_t::value_type vt(asset_uuid, cb);
