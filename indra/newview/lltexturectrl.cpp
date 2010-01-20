@@ -878,6 +878,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 {
 	setAllowNoTexture(p.allow_no_texture);
 	setCanApplyImmediately(p.can_apply_immediately);
+	mCommitOnSelection = !p.no_commit_on_selection;
 
 	LLTextBox::Params params(p.caption_text);
 	params.name(p.label);
@@ -1122,7 +1123,11 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 			}
 			else
 			{
-				onCommit();
+				// If the "no_commit_on_selection" parameter is set
+				// we commit only when user presses OK in the picker
+				// (i.e. op == TEXTURE_SELECT) or changes texture via DnD.
+				if (mCommitOnSelection || op == TEXTURE_SELECT)
+					onCommit();
 			}
 		}
 	}
