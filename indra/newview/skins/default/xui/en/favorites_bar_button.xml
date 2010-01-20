@@ -3,7 +3,6 @@
 <!-- All buttons in the Favorites bar will be created from this one -->
 <button
  follows="left|bottom"
- font_halign="center"
  halign="center"
  height="15"
  image_disabled="transparent.j2c"

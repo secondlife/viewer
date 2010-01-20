@@ -30,7 +30,7 @@
      width="19" />
     <chiclet_im_group.unread_notifications
      height="23"
-     font_halign="center"
+     halign="center"
      left="25"
      mouse_opaque="false"
      name="unread"
