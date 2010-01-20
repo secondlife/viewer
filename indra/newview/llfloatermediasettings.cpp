@@ -192,6 +192,9 @@ void LLFloaterMediaSettings::initValues( const LLSD& media_settings, bool editab
 	sInstance->mPanelMediaSettingsGeneral->getValues( sInstance->mInitialValues );
 	sInstance->mPanelMediaSettingsSecurity->getValues( sInstance->mInitialValues );
 	sInstance->mPanelMediaSettingsPermissions->getValues( sInstance->mInitialValues );
+	
+	sInstance->mApplyBtn->setEnabled(editable);
+	sInstance->mOKBtn->setEnabled(editable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,8 +269,11 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 // virtual 
 void LLFloaterMediaSettings::draw()
 {
-	// Set the enabled state of the "Apply" button if values changed
-	childSetEnabled( "Apply", haveValuesChanged() );
+	if (NULL != mApplyBtn)
+	{
+		// Set the enabled state of the "Apply" button if values changed
+		mApplyBtn->setEnabled( haveValuesChanged() );
+	}
 	
 	LLFloater::draw();
 }

@@ -453,6 +453,7 @@ LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 , mNewMessagesIcon(NULL)
 , mSpeakerCtrl(NULL)
 , mCounterCtrl(NULL)
+, mChicletButton(NULL)
 {
 	enableCounterControl(p.enable_counter);
 }
@@ -576,6 +577,11 @@ void LLIMChiclet::onMouseDown()
 	setCounter(0);
 }
 
+void LLIMChiclet::setToggleState(bool toggle)
+{
+	mChicletButton->setToggleState(toggle);
+}
+
 BOOL LLIMChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	onMouseDown();
@@ -634,6 +640,7 @@ LLIMChiclet::EType LLIMChiclet::getIMSessionType(const LLUUID& session_id)
 
 LLIMP2PChiclet::Params::Params()
 : avatar_icon("avatar_icon")
+, chiclet_button("chiclet_button")
 , unread_notifications("unread_notifications")
 , speaker("speaker")
 , new_message_icon("new_message_icon")
@@ -646,6 +653,10 @@ LLIMP2PChiclet::LLIMP2PChiclet(const Params& p)
 , mChicletIconCtrl(NULL)
 , mPopupMenu(NULL)
 {
+	LLButton::Params button_params = p.chiclet_button;
+	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);
+	addChild(mChicletButton);
+
 	LLIconCtrl::Params new_msg_params = p.new_message_icon;
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(new_msg_params);
 	addChild(mNewMessagesIcon);
@@ -760,6 +771,7 @@ void LLIMP2PChiclet::onMenuItemClicked(const LLSD& user_data)
 
 LLAdHocChiclet::Params::Params()
 : avatar_icon("avatar_icon")
+, chiclet_button("chiclet_button")
 , unread_notifications("unread_notifications")
 , speaker("speaker")
 , new_message_icon("new_message_icon")
@@ -773,6 +785,10 @@ LLAdHocChiclet::LLAdHocChiclet(const Params& p)
 , mChicletIconCtrl(NULL)
 , mPopupMenu(NULL)
 {
+	LLButton::Params button_params = p.chiclet_button;
+	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);
+	addChild(mChicletButton);
+
 	LLIconCtrl::Params new_msg_params = p.new_message_icon;
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(new_msg_params);
 	addChild(mNewMessagesIcon);
@@ -887,6 +903,7 @@ BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 LLIMGroupChiclet::Params::Params()
 : group_icon("group_icon")
+, chiclet_button("chiclet_button")
 , unread_notifications("unread_notifications")
 , speaker("speaker")
 , new_message_icon("new_message_icon")
@@ -900,6 +917,10 @@ LLIMGroupChiclet::LLIMGroupChiclet(const Params& p)
 , mChicletIconCtrl(NULL)
 , mPopupMenu(NULL)
 {
+	LLButton::Params button_params = p.chiclet_button;
+	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);
+	addChild(mChicletButton);
+
 	LLIconCtrl::Params new_msg_params = p.new_message_icon;
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(new_msg_params);
 	addChild(mNewMessagesIcon);
@@ -1272,10 +1293,12 @@ void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 
 void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
 {
-	mScrollArea->removeChild(*it);
+	LLChiclet* chiclet = *it;
+	mScrollArea->removeChild(chiclet);
 	mChicletList.erase(it);
 	
 	arrange();
+	chiclet->die();
 }
 
 void LLChicletPanel::removeChiclet(S32 index)
@@ -1412,6 +1435,32 @@ S32	LLChicletPanel::notifyParent(const LLSD& info)
 		}
 	}
 	return LLPanel::notifyParent(info);
+}
+
+void LLChicletPanel::setChicletToggleState(const LLUUID& session_id, bool toggle)
+{
+	if(session_id.isNull())
+	{
+		llwarns << "Null Session ID" << llendl;
+	}
+
+	// toggle off all chiclets, except specified
+	S32 size = getChicletCount();
+	for(int n = 0; n < size; ++n)
+	{
+		LLIMChiclet* chiclet = getChiclet<LLIMChiclet>(n);
+		if(chiclet && chiclet->getSessionId() != session_id)
+		{
+			chiclet->setToggleState(false);
+		}
+	}
+
+	// toggle specified chiclet
+	LLIMChiclet* chiclet = findChiclet<LLIMChiclet>(session_id);
+	if(chiclet)
+	{
+		chiclet->setToggleState(toggle);
+	}
 }
 
 void LLChicletPanel::arrange()
@@ -1806,6 +1855,7 @@ LLChicletSpeakerCtrl::LLChicletSpeakerCtrl(const Params&p)
 
 LLScriptChiclet::Params::Params()
  : icon("icon")
+ , chiclet_button("chiclet_button")
  , new_message_icon("new_message_icon")
 {
 }
@@ -1814,6 +1864,10 @@ LLScriptChiclet::LLScriptChiclet(const Params&p)
  : LLIMChiclet(p)
  , mChicletIconCtrl(NULL)
 {
+	LLButton::Params button_params = p.chiclet_button;
+	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);
+	addChild(mChicletButton);
+
 	LLIconCtrl::Params new_msg_params = p.new_message_icon;
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(new_msg_params);
 	addChild(mNewMessagesIcon);
@@ -1862,6 +1916,7 @@ static const std::string INVENTORY_USER_OFFER	("UserGiveItem");
 
 LLInvOfferChiclet::Params::Params()
  : icon("icon")
+ , chiclet_button("chiclet_button")
  , new_message_icon("new_message_icon")
 {
 }
@@ -1870,6 +1925,10 @@ LLInvOfferChiclet::LLInvOfferChiclet(const Params&p)
  : LLIMChiclet(p)
  , mChicletIconCtrl(NULL)
 {
+	LLButton::Params button_params = p.chiclet_button;
+	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);
+	addChild(mChicletButton);
+
 	LLIconCtrl::Params new_msg_params = p.new_message_icon;
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(new_msg_params);
 	addChild(mNewMessagesIcon);

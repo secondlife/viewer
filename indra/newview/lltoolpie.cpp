@@ -1515,7 +1515,7 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			}
 			else
 			{
-				mute_msg = LLTrans::getString("MuteObject");
+				mute_msg = LLTrans::getString("MuteObject2");
 			}
 			
 			gMenuHolder->childSetText("Object Mute", mute_msg);

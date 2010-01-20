@@ -40,7 +40,6 @@
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
-#include "llfloaterchat.h"
 #include "llfloaterlagmeter.h"
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
