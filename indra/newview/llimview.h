@@ -33,22 +33,19 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "lldarray.h"
-#include "lldockablefloater.h"
-#include "llspeakers.h" //for LLIMSpeakerMgr
-#include "llimpanel.h" //for voice channels
-#include "llmodaldialog.h"
 #include "lldockablefloater.h"
 #include "llinstantmessage.h"
-#include "lluuid.h"
-#include "llmultifloater.h"
+
 #include "lllogchat.h"
+#include "llspeakers.h" //for LLIMSpeakerMgr
+#include "llvoicechannel.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLCallDialogManager;	
+
 
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
