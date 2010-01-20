@@ -37,7 +37,6 @@
 #include "llinstantmessage.h"
 
 #include "lllogchat.h"
-#include "llspeakers.h" //for LLIMSpeakerMgr
 #include "llvoicechannel.h"
 
 class LLFloaterChatterBox;
@@ -45,6 +44,7 @@ class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLCallDialogManager;	
+class LLIMSpeakerMgr;
 
 
 class LLIMModel :  public LLSingleton<LLIMModel>

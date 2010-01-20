@@ -63,6 +63,7 @@
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 //#include "llfirstuse.h"
+#include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
