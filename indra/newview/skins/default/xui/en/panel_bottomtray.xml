@@ -265,7 +265,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              left="1"
              min_width="110"
              name="chiclet_list"
-             top="6"
+             top="8"
              chiclet_padding="4"
              scrolling_offset="40"
              width="189">
@@ -284,7 +284,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  name="chicklet_left_scroll_button"
         scale_image="true"
                  tab_stop="false"
-                 top="-2"
+                 top="-4"
                  right_pad="2"
                  visible="false"
                  width="7" />
@@ -303,7 +303,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  name="chicklet_right_scroll_button"
         scale_image="true"
                  tab_stop="false"
-                 top="-2"
+                 top="-4"
                  visible="false"
                  width="7" />
             </chiclet_panel>
@@ -334,11 +334,11 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              max_displayed_count="99"
              flash_period="0.3"
              follows="right"
-             height="23"
+             height="28"
              layout="topleft"
              left="0"
              name="im_well"
-             top="5"
+             top="0"
              width="35">
              <!--
 Emulate 4 states of button by background images, see details in EXT-3147. The same should be for notification_well button
@@ -350,7 +350,6 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
              -->
                 <button
                  auto_resize="true"
-                 flash_color="ChicletFlashColor"
                  follows="right"
                  halign="center"
                  height="23"
@@ -358,12 +357,12 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  image_overlay_alignment="center"
                  image_pressed="WellButton_Lit"
                  image_pressed_selected="WellButton_Lit_Selected"
-                 image_selected="PushButton_Selected_Press"
+                 image_selected="PushButton_Press"
                  label_color="Black"
                  left="0"
                  name="Unread IM messages"
                  tool_tip="Conversations"
-                 width="35" >
+                 width="34" >
                     <button.init_callback
                      function="Button.SetDockableFloaterToggle"
                      parameter="im_well_window" />
@@ -407,12 +406,11 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  bottom_pad="3"
                  image_pressed="WellButton_Lit"
                  image_pressed_selected="WellButton_Lit_Selected"
-                 image_selected="PushButton_Selected_Press"
+                 image_selected="PushButton_Press"
               auto_resize="true"
                halign="center"
                height="23"
                follows="right"
-               flash_color="ChicletFlashColor"
                 label_color="Black"
                left="0"
                name="Unread"
@@ -420,12 +418,12 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                image_overlay_alignment="center"
                pad_right="15"
                tool_tip="Notifications"
-               width="35" >
+               width="34" >
                   <button.init_callback
                    function="Button.SetDockableFloaterToggle"
                    parameter="notification_well_window" />
               </button>
-                      <icon
+         <icon
          auto_resize="false"
          color="0 0 0 0"
          follows="left|right"
