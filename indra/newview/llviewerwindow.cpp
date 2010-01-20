@@ -808,7 +808,10 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 {
 	LLWindowCallbacks::DragNDropResult result = LLWindowCallbacks::DND_NONE;
 
-	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
+	const bool prim_media_dnd_enabled = gSavedSettings.getBOOL("PrimMediaDragNDrop");
+	const bool slurl_dnd_enabled = gSavedSettings.getBOOL("SLURLDragNDrop");
+	
+	if ( prim_media_dnd_enabled || slurl_dnd_enabled )
 	{
 		switch(action)
 		{
@@ -819,89 +822,95 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 			{
 				bool drop = (LLWindowCallbacks::DNDA_DROPPED == action);
 					
-				// special case SLURLs
-				if ( LLSLURL::isSLURL( data ) )
+				if (slurl_dnd_enabled)
 				{
-					if (drop)
-					{
-						LLURLSimString::setStringRaw( LLSLURL::stripProtocol( data ) );
-						LLPanelLogin::refreshLocation( true );
-						LLPanelLogin::updateLocationUI();
-					}
-					return LLWindowCallbacks::DND_MOVE;
-				};
-
-				LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
-
-				LLUUID object_id = pick_info.getObjectID();
-				S32 object_face = pick_info.mObjectFace;
-				std::string url = data;
-
-				lldebugs << "Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
-
-				LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
-				
-				if (obj && obj->permModify() && !obj->getRegion()->getCapability("ObjectMedia").empty())
-				{
-					LLTextureEntry *te = obj->getTE(object_face);
-					if (te)
+					// special case SLURLs
+					if ( LLSLURL::isSLURL( data ) )
 					{
 						if (drop)
 						{
-							if (! te->hasMedia())
+						    LLURLSimString::setStringRaw( LLSLURL::stripProtocol( data ) );
+							LLPanelLogin::refreshLocation( true );
+							LLPanelLogin::updateLocationUI();
+						}
+						return LLWindowCallbacks::DND_MOVE;
+					};
+				}
+
+				if (prim_media_dnd_enabled)
+				{
+					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
+
+					LLUUID object_id = pick_info.getObjectID();
+					S32 object_face = pick_info.mObjectFace;
+					std::string url = data;
+
+					lldebugs << "Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
+
+					LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
+				
+					if (obj && obj->permModify() && !obj->getRegion()->getCapability("ObjectMedia").empty())
+					{
+						LLTextureEntry *te = obj->getTE(object_face);
+						if (te)
+						{
+							if (drop)
 							{
-								// Create new media entry
-								LLSD media_data;
-								// XXX Should we really do Home URL too?
-								media_data[LLMediaEntry::HOME_URL_KEY] = url;
-								media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-								media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
-								obj->syncMediaData(object_face, media_data, true, true);
-								// XXX This shouldn't be necessary, should it ?!?
-								if (obj->getMediaImpl(object_face))
-									obj->getMediaImpl(object_face)->navigateReload();
-								obj->sendMediaDataUpdate();
+								if (! te->hasMedia())
+								{
+									// Create new media entry
+									LLSD media_data;
+									// XXX Should we really do Home URL too?
+									media_data[LLMediaEntry::HOME_URL_KEY] = url;
+									media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+									media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+									obj->syncMediaData(object_face, media_data, true, true);
+									// XXX This shouldn't be necessary, should it ?!?
+									if (obj->getMediaImpl(object_face))
+										obj->getMediaImpl(object_face)->navigateReload();
+									obj->sendMediaDataUpdate();
 								
-								result = LLWindowCallbacks::DND_COPY;
+									result = LLWindowCallbacks::DND_COPY;
+								}
+								else {
+									// Check the whitelist
+									if (te->getMediaData()->checkCandidateUrl(url))
+									{
+										// just navigate to the URL
+										if (obj->getMediaImpl(object_face))
+										{
+											obj->getMediaImpl(object_face)->navigateTo(url);
+										}
+										else {
+											// This is very strange.  Navigation should
+											// happen via the Impl, but we don't have one.
+											// This sends it to the server, which /should/
+											// trigger us getting it.  Hopefully.
+											LLSD media_data;
+											media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+											obj->syncMediaData(object_face, media_data, true, true);
+											obj->sendMediaDataUpdate();
+										}
+										result = LLWindowCallbacks::DND_LINK;
+									}
+								}
+								LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+								mDragHoveredObject = NULL;
+							
 							}
 							else {
-								// Check the whitelist
-								if (te->getMediaData()->checkCandidateUrl(url))
+								// Check the whitelist, if there's media (otherwise just show it)
+								if (te->getMediaData() == NULL || te->getMediaData()->checkCandidateUrl(url))
 								{
-									// just navigate to the URL
-									if (obj->getMediaImpl(object_face))
+									if ( obj != mDragHoveredObject)
 									{
-										obj->getMediaImpl(object_face)->navigateTo(url);
+										// Highlight the dragged object
+										LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+										mDragHoveredObject = obj;
+										LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
 									}
-									else {
-										// This is very strange.  Navigation should
-										// happen via the Impl, but we don't have one.
-										// This sends it to the server, which /should/
-										// trigger us getting it.  Hopefully.
-										LLSD media_data;
-										media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-										obj->syncMediaData(object_face, media_data, true, true);
-										obj->sendMediaDataUpdate();
-									}
-									result = LLWindowCallbacks::DND_LINK;
+									result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
 								}
-							}
-							LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
-							mDragHoveredObject = NULL;
-							
-						}
-						else {
-							// Check the whitelist, if there's media (otherwise just show it)
-							if (te->getMediaData() == NULL || te->getMediaData()->checkCandidateUrl(url))
-							{
-								if ( obj != mDragHoveredObject)
-								{
-									// Highlight the dragged object
-									LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
-									mDragHoveredObject = obj;
-									LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
-								}
-								result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
 							}
 						}
 					}
@@ -914,7 +923,8 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 			break;
 		}
 
-		if (result == LLWindowCallbacks::DND_NONE && !mDragHoveredObject.isNull())
+		if (prim_media_dnd_enabled &&
+			result == LLWindowCallbacks::DND_NONE && !mDragHoveredObject.isNull())
 		{
 			LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 			mDragHoveredObject = NULL;
