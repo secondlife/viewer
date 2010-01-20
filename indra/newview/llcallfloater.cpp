@@ -322,7 +322,7 @@ void LLCallFloater::updateSession()
 	{
 		S32 delta = 0;
 		bool visible = !is_local_chat;
-		if (leave_panel->getVisible() != visible)
+		if ((bool)leave_panel->getVisible() != visible)
 		{
 			delta = visible
 				? leave_panel->getRect().getHeight()
