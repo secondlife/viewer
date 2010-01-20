@@ -682,13 +682,13 @@ LLPluginClassMedia::ETargetType getTargetTypeFromLLQtWebkit(int target_type)
 	// so that we don't expose the llqtwebkit header in viewer code
 	switch (target_type)
 	{
-	case LinkTargetType::LTT_TARGET_NONE:
+	case LLQtWebKit::LTT_TARGET_NONE:
 		return LLPluginClassMedia::TARGET_NONE;
 
-	case LinkTargetType::LTT_TARGET_BLANK:
+	case LLQtWebKit::LTT_TARGET_BLANK:
 		return LLPluginClassMedia::TARGET_BLANK;
 
-	case LinkTargetType::LTT_TARGET_EXTERNAL:
+	case LLQtWebKit::LTT_TARGET_EXTERNAL:
 		return LLPluginClassMedia::TARGET_EXTERNAL;
 
 	default:

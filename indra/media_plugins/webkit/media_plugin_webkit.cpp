@@ -466,62 +466,43 @@ private:
 	//
 	void keyEvent(LLQtWebKit::EKeyEvent key_event, int key, LLQtWebKit::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 	{
-		int llqt_key;
-		
 		// The incoming values for 'key' will be the ones from indra_constants.h
-		// the outgoing values are the ones from llqtwebkit.h
+		std::string utf8_text;
 		
+		if(key < KEY_SPECIAL)
+		{
+			// Low-ascii characters need to get passed through.
+			utf8_text = (char)key;
+		}
+		
+		// Any special-case handling we want to do for particular keys...
 		switch((KEY)key)
 		{
-			// This is the list that the llqtwebkit implementation actually maps into Qt keys.
-//			case KEY_XXX:			llqt_key = LL_DOM_VK_CANCEL;			break;
-//			case KEY_XXX:			llqt_key = LL_DOM_VK_HELP;			break;
-			case KEY_BACKSPACE:		llqt_key = LL_DOM_VK_BACK_SPACE;		break;
-			case KEY_TAB:			llqt_key = LL_DOM_VK_TAB;			break;
-//			case KEY_XXX:			llqt_key = LL_DOM_VK_CLEAR;			break;
-			case KEY_RETURN:		llqt_key = LL_DOM_VK_RETURN;			break;
-			case KEY_PAD_RETURN:	llqt_key = LL_DOM_VK_ENTER;			break;
-			case KEY_SHIFT:			llqt_key = LL_DOM_VK_SHIFT;			break;
-			case KEY_CONTROL:		llqt_key = LL_DOM_VK_CONTROL;		break;
-			case KEY_ALT:			llqt_key = LL_DOM_VK_ALT;			break;
-//			case KEY_XXX:			llqt_key = LL_DOM_VK_PAUSE;			break;
-			case KEY_CAPSLOCK:		llqt_key = LL_DOM_VK_CAPS_LOCK;		break;
-			case KEY_ESCAPE:		llqt_key = LL_DOM_VK_ESCAPE;			break;
-			case KEY_PAGE_UP:		llqt_key = LL_DOM_VK_PAGE_UP;		break;
-			case KEY_PAGE_DOWN:		llqt_key = LL_DOM_VK_PAGE_DOWN;		break;
-			case KEY_END:			llqt_key = LL_DOM_VK_END;			break;
-			case KEY_HOME:			llqt_key = LL_DOM_VK_HOME;			break;
-			case KEY_LEFT:			llqt_key = LL_DOM_VK_LEFT;			break;
-			case KEY_UP:			llqt_key = LL_DOM_VK_UP;				break;
-			case KEY_RIGHT:			llqt_key = LL_DOM_VK_RIGHT;			break;
-			case KEY_DOWN:			llqt_key = LL_DOM_VK_DOWN;			break;
-//			case KEY_XXX:			llqt_key = LL_DOM_VK_PRINTSCREEN;	break;
-			case KEY_INSERT:		llqt_key = LL_DOM_VK_INSERT;			break;
-			case KEY_DELETE:		llqt_key = LL_DOM_VK_DELETE;			break;
-//			case KEY_XXX:			llqt_key = LL_DOM_VK_CONTEXT_MENU;	break;
+			// ASCII codes for some standard keys
+			case LLQtWebKit::KEY_BACKSPACE:		utf8_text = (char)8;		break;
+			case LLQtWebKit::KEY_TAB:			utf8_text = (char)9;		break;
+			case LLQtWebKit::KEY_RETURN:		utf8_text = (char)13;		break;
+			case LLQtWebKit::KEY_PAD_RETURN:	utf8_text = (char)13;		break;
+			case LLQtWebKit::KEY_ESCAPE:		utf8_text = (char)27;		break;
 			
-			default:
-				if(key < KEY_SPECIAL)
-				{
-					// Pass the incoming key through -- it should be regular ASCII, which should be correct for webkit.
-					llqt_key = key;
-				}
-				else
-				{
-					// Don't pass through untranslated special keys -- they'll be all wrong.
-					llqt_key = 0;
-				}
+			default:  
 			break;
 		}
 		
-//		std::cerr << "keypress, original code = 0x" << std::hex << key << ", converted code = 0x" << std::hex << llqt_key << std::dec << std::endl;
-
-		std::cerr << "key event " << (int)key_event << ", native_key_data = " << native_key_data << std::endl;
+//		std::cerr << "key event " << (int)key_event << ", native_key_data = " << native_key_data << std::endl;
 		
-		if(llqt_key != 0)
+		uint32_t native_scan_code = 0;
+		uint32_t native_virtual_key = 0;
+		uint32_t native_modifiers = 0;
+		
+		if(native_key_data.isMap())
 		{
-			LLQtWebKit::getInstance()->keyEvent( mBrowserWindowId, key_event, llqt_key, modifiers);
+			native_scan_code = (uint32_t)(native_key_data["key_code"].asInteger());
+			native_virtual_key = (uint32_t)(native_key_data["char_code"].asInteger());
+			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
 		}
+		
+		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, key_event, (uint32_t)key, utf8_text.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 
 		checkEditState();
 	};
@@ -529,27 +510,31 @@ private:
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	void unicodeInput( const std::string &utf8str, LLQtWebKit::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
-	{
-		LLWString wstr = utf8str_to_wstring(utf8str);
+	{		
+		uint32_t key = LLQtWebKit::KEY_NONE;
 		
-		std::cerr << "unicode input, native_key_data = " << native_key_data << std::endl;
+//		std::cerr << "unicode input, native_key_data = " << native_key_data << std::endl;
 		
-		unsigned int i;
-		for(i=0; i < wstr.size(); i++)
+		if(utf8str.size() == 1)
 		{
-//			std::cerr << "unicode input, code = 0x" << std::hex << (unsigned long)(wstr[i]) << std::dec << std::endl;
-			
-			if(wstr[i] == 32)
-			{
-				// For some reason, the webkit plugin really wants the space bar to come in through the key-event path, not the unicode path.
-				LLQtWebKit::getInstance()->keyEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_DOWN, 32, modifiers);
-				LLQtWebKit::getInstance()->keyEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_UP, 32, modifiers);
-			}
-			else
-			{
-				LLQtWebKit::getInstance()->unicodeInput(mBrowserWindowId, wstr[i], modifiers);
-			}
+			// The only way a utf8 string can be one byte long is if it's actually a single 7-bit ascii character.
+			// In this case, use it as the key value.
+			key = utf8str[0];
 		}
+
+		uint32_t native_scan_code = 0;
+		uint32_t native_virtual_key = 0;
+		uint32_t native_modifiers = 0;
+		
+		if(native_key_data.isMap())
+		{
+			native_scan_code = (uint32_t)(native_key_data["key_code"].asInteger());
+			native_virtual_key = (uint32_t)(native_key_data["char_code"].asInteger());
+			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
+		}
+		
+		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_DOWN, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
+		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_UP, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 
 		checkEditState();
 	};
