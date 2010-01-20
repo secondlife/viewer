@@ -74,6 +74,7 @@ public:
 		Optional<std::string>	default_image_name;
 		Optional<bool>			allow_no_texture;
 		Optional<bool>			can_apply_immediately;
+		Optional<bool>			no_commit_on_selection; // don't commit unless it's DnD or OK button press
 		Optional<S32>			label_width;
 		Optional<LLUIColor>		border_color;
 		
@@ -88,6 +89,7 @@ public:
 			default_image_name("default_image_name"),
 			allow_no_texture("allow_no_texture"),
 			can_apply_immediately("can_apply_immediately"),
+			no_commit_on_selection("no_commit_on_selection", false),
 		    label_width("label_width", -1),
 			border_color("border_color"),
 			multiselect_text("multiselect_text"),
@@ -204,6 +206,7 @@ private:
 	PermissionMask			 mImmediateFilterPermMask;
 	PermissionMask			 mNonImmediateFilterPermMask;
 	BOOL					 mCanApplyImmediately;
+	BOOL					 mCommitOnSelection;
 	BOOL					 mNeedsRawImageData;
 	LLViewBorder*			 mBorder;
 	BOOL					 mValid;

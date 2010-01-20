@@ -3664,17 +3664,6 @@
       <key>Value</key>
       <string />
     </map>
-    <key>IMInChat</key>
-    <map>
-      <key>Comment</key>
-      <string>Copy IM into chat console</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>IMShowTimestamps</key>
     <map>
       <key>Comment</key>

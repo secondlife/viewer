@@ -51,6 +51,7 @@
 #include "lldate.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcolumn.h"
+#include "llviewborder.h"
 
 class LLScrollListCell;
 class LLTextBox;
@@ -109,6 +110,8 @@ public:
 							scroll_bar_bg_color;
 
 		Optional<Contents> contents;
+
+		Optional<LLViewBorder::Params> border;
 		
 		Params();
 	};

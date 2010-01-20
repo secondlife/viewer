@@ -311,7 +311,7 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 }
 
 // Put a line of chat in all the right places
-void LLFloaterChat::addChat(const LLChat& chat, BOOL from_instant_message, BOOL local_agent)
+void LLFloaterChat::addChat(const LLChat& chat, BOOL local_agent)
 {
 	triggerAlerts(chat.mText);
 
@@ -321,19 +321,7 @@ void LLFloaterChat::addChat(const LLChat& chat, BOOL from_instant_message, BOOL 
 	//if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
 	//	LLRecentPeople::instance().add(chat.mFromID);
 	
-	bool add_chat = true;
-	bool log_chat = true;
-	if(from_instant_message)
-	{
-		if (!gSavedSettings.getBOOL("IMInChat"))
-			add_chat = false;
-		//log_chat = false;
-}
-	
-	if (add_chat)
-	{
-		addChatHistory(chat, log_chat);
-	}
+	addChatHistory(chat, true);
 }
 
 // Moved from lltextparser.cpp to break llui/llaudio library dependency.

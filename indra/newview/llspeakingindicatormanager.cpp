@@ -36,7 +36,6 @@
 #include "llspeakingindicatormanager.h"
 
 
-#include "llagentdata.h"
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
 
@@ -134,7 +133,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator)
 {
-	if (speaker_id == gAgentID) return;
+	// do not exclude agent's indicators. They should be processed in the same way as others. See EXT-3889.
 
 	LL_DEBUGS("SpeakingIndicator") << "Registering indicator: " << speaker_id << LL_ENDL;
 	speaking_indicator_value_t value_type(speaker_id, speaking_indicator);

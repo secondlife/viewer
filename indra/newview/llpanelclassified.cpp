@@ -72,6 +72,7 @@
 #include "llviewerwindow.h"	// for window width, height
 #include "llappviewer.h"	// abortQuit()
 #include "lltrans.h"
+#include "llstatusbar.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 const S32 MATURE_UNDEFINED = -1;
@@ -1364,6 +1365,7 @@ static const S32 CB_ITEM_PG	   = 1;
 LLPanelClassifiedEdit::LLPanelClassifiedEdit()
  : LLPanelClassifiedInfo()
  , mIsNew(false)
+ , mCanClose(false)
 {
 }
 
@@ -1559,7 +1561,7 @@ void LLPanelClassifiedEdit::resetControls()
 
 bool LLPanelClassifiedEdit::canClose()
 {
-	return isValidName();
+	return mCanClose;
 }
 
 void LLPanelClassifiedEdit::sendUpdate()
@@ -1676,12 +1678,23 @@ void LLPanelClassifiedEdit::onChange()
 
 void LLPanelClassifiedEdit::onSaveClick()
 {
+	mCanClose = false;
+
 	if(!isValidName())
 	{
 		notifyInvalidName();
 		return;
 	}
+	if(isNew())
+	{
+		if(gStatusBar->getBalance() < getPriceForListing())
+		{
+			LLNotificationsUtil::add("ClassifiedInsufficientFunds");
+			return;
+		}
+	}
 
+	mCanClose = true;
 	sendUpdate();
 	resetDirty();
 }

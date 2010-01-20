@@ -6373,8 +6373,57 @@ class LLToolsSelectedScriptAction : public view_listener_t
 
 void handle_selected_texture_info(void*)
 {
-	//useless without LLFloaterChat
-	//as since we don't use LLFloaterChat...
+	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
+   		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+	   	
+   		std::string msg;
+   		msg.assign("Texture info for: ");
+   		msg.append(node->mName);
+
+		//TODO* CHAT: how to show this?
+		//LLSD args;
+		//args["MESSAGE"] = msg;
+		//LLNotificationsUtil::add("SystemMessage", args);
+	   
+   		U8 te_count = node->getObject()->getNumTEs();
+   		// map from texture ID to list of faces using it
+   		typedef std::map< LLUUID, std::vector<U8> > map_t;
+   		map_t faces_per_texture;
+   		for (U8 i = 0; i < te_count; i++)
+   		{
+   			if (!node->isTESelected(i)) continue;
+	   
+   			LLViewerTexture* img = node->getObject()->getTEImage(i);
+   			LLUUID image_id = img->getID();
+   			faces_per_texture[image_id].push_back(i);
+   		}
+   		// Per-texture, dump which faces are using it.
+   		map_t::iterator it;
+   		for (it = faces_per_texture.begin(); it != faces_per_texture.end(); ++it)
+   		{
+   			LLUUID image_id = it->first;
+   			U8 te = it->second[0];
+   			LLViewerTexture* img = node->getObject()->getTEImage(te);
+   			S32 height = img->getHeight();
+   			S32 width = img->getWidth();
+   			S32 components = img->getComponents();
+   			msg = llformat("%dx%d %s on face ",
+   								width,
+   								height,
+   								(components == 4 ? "alpha" : "opaque"));
+   			for (U8 i = 0; i < it->second.size(); ++i)
+   			{
+   				msg.append( llformat("%d ", (S32)(it->second[i])));
+   			}
+
+			//TODO* CHAT: how to show this?
+			//LLSD args;
+			//args["MESSAGE"] = msg;
+			//LLNotificationsUtil::add("SystemMessage", args);
+   		}
+	}
 }
 
 void handle_test_male(void*)

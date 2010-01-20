@@ -127,7 +127,11 @@
           label="Search [SECOND_LIFE]"
           name="search_combo_editor"/>
          <combo_list
-          draw_border="true" />
+          draw_border="true"
+          border.highlight_light_color="FocusColor"
+          border.highlight_dark_color="FocusColor"
+          border.shadow_light_color="FocusColor"
+          border.shadow_dark_color="FocusColor"/>
         </search_combo_box>
 	</panel>
     <favorites_bar

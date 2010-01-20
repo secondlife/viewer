@@ -770,6 +770,16 @@ Save changes to classified [NAME]?
      notext="Don&apos;t Save"
      yestext="Save"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ClassifiedInsufficientFunds"
+   type="alertmodal">
+Insufficient funds to create classified.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
