@@ -224,7 +224,7 @@ protected:
 	
 	bool	mTexOptionsDirty;
 	LLTexUnit::eTextureAddressMode		mAddressMode;	// Defaults to TAM_WRAP
-	LLTexUnit::eTextureFilterOptions	mFilterOption;	// Defaults to TFO_TRILINEAR
+	LLTexUnit::eTextureFilterOptions	mFilterOption;	// Defaults to TFO_ANISOTROPIC
 	
 	LLGLint  mFormatInternal; // = GL internalformat
 	LLGLenum mFormatPrimary;  // = GL format (pixel data format)

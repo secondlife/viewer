@@ -56,7 +56,7 @@
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -1006,6 +1006,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mInNearbyMediaList(false),
 	mClearCache(false),
 	mBackgroundColor(LLColor4::white),
+	mNavigateSuspended(false),
+	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false)
 { 
 
@@ -1244,7 +1246,24 @@ void LLViewerMediaImpl::loadURI()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->loadURI( mMediaURL );
+		// *HACK: we don't know if the URI coming in is properly escaped
+		// (the contract doesn't specify whether it is escaped or not.
+		// but LLQtWebKit expects it to be, so we do our best to encode
+		// special characters)
+		// The strings below were taken right from http://www.ietf.org/rfc/rfc1738.txt
+		// Note especially that '%' and '/' are there.
+		std::string uri = LLURI::escape(mMediaURL,
+										"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+										"0123456789"
+										"$-_.+"
+										"!*'(),"
+										"{}|\\^~[]`"
+										"<>#%"
+										";/?:@&=",
+										false);
+		llinfos << "Asking media source to load URI: " << uri << llendl;
+		
+		mMediaSource->loadURI( uri );
 
 		if(mPreviousMediaState == MEDIA_PLAYING)
 		{
@@ -1696,6 +1715,13 @@ void LLViewerMediaImpl::navigateInternal()
 	// Helpful to have media urls in log file. Shouldn't be spammy.
 	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
 
+	if(mNavigateSuspended)
+	{
+		llwarns << "Deferring navigate." << llendl;
+		mNavigateSuspendedDeferred = true;
+		return;
+	}
+	
 	if(mMimeTypeProbe != NULL)
 	{
 		llwarns << "MIME type probe already in progress -- bailing out." << llendl;
@@ -1902,7 +1928,17 @@ void LLViewerMediaImpl::update()
 		return;
 	}
 	
+	// Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
+	setNavigateSuspended(true);
+	
 	mMediaSource->idle();
+
+	setNavigateSuspended(false);
+
+	if(mMediaSource == NULL)
+	{
+		return;
+	}
 	
 	if(mMediaSource->isPluginExited())
 	{
@@ -2556,6 +2592,23 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 		case MEDIANAVSTATE_SERVER_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED" << llendl; break;
 		case MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
+	}
+}
+
+void LLViewerMediaImpl::setNavigateSuspended(bool suspend)
+{
+	if(mNavigateSuspended != suspend)
+	{
+		mNavigateSuspended = suspend;
+		if(!suspend)
+		{
+			// We're coming out of suspend.  If someone tried to do a navigate while suspended, do one now instead.
+			if(mNavigateSuspendedDeferred)
+			{
+				mNavigateSuspendedDeferred = false;
+				navigateInternal();
+			}
+		}
 	}
 }
 

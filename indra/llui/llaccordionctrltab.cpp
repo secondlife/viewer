@@ -157,7 +157,8 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 	// because the user's mental model of focus is that it goes away after
 	// the accordion is closed.
 	if (getParent()->hasFocus()
-		&& !(collapsible && !expanded))
+		/*&& !(collapsible && !expanded)*/ // WHY??
+		)
 	{
 		mImageHeaderFocused->draw(0,0,width,height);
 	}

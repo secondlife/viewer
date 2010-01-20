@@ -44,6 +44,7 @@
 #include "llconsole.h"
 #include "llinventorymodel.h"
 #include "llgesturemgr.h"
+#include "llsidetray.h"
 
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"
@@ -72,7 +73,23 @@ public:
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		if (params.size() < 2) return false;
+		if (params.size() < 1)
+		{
+			return false;
+		}
+
+		// support secondlife:///app/inventory/show
+		if (params[0].asString() == "show")
+		{
+			LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD());
+			return true;
+		}
+
+		// otherwise, we need a UUID and a verb...
+		if (params.size() < 2) 
+		{
+			return false;
+		}
 		LLUUID inventory_id;
 		if (!inventory_id.set(params[0], FALSE))
 		{
@@ -823,6 +840,13 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	gFloaterView->adjustToFitScreen(preview, FALSE);
 }
 
+void AddFavoriteLandmarkCallback::fire(const LLUUID& inv_item_id)
+{
+	if (mTargetLandmarkId.isNull()) return;
+
+	gInventory.rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);
+}
+
 LLInventoryCallbackManager gInventoryCallbacks;
 
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
@@ -1156,6 +1180,15 @@ const std::string& LLViewerInventoryItem::getDisplayName() const
 	BOOL hasSortField = extractSortFieldAndDisplayName(0, &result);
 
 	return mDisplayName = hasSortField ? result : LLInventoryItem::getName();
+}
+
+// static
+std::string LLViewerInventoryItem::getDisplayName(const std::string& name)
+{
+	std::string result;
+	BOOL hasSortField = extractSortFieldAndDisplayName(name, 0, &result);
+
+	return hasSortField ? result : name;
 }
 
 S32 LLViewerInventoryItem::getSortField() const

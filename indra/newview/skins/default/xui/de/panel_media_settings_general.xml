@@ -1,36 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Allgemein" name="Media Settings General">
 	<text name="home_label">
-		Start URL:
+		Home-URL:
 	</text>
-	<line_editor name="home_url" tool_tip="Die Start-URL für diese Medienquelle"/>
+	<text name="home_fails_whitelist_label">
+		(Diese URL befindet sich nicht auf der festgelegten Whitelist)
+	</text>
+	<line_editor name="home_url" tool_tip="Die Home-URL für diese Medienquelle"/>
 	<text name="preview_label">
 		Vorschau
 	</text>
 	<text name="current_url_label">
-		Aktuelle URL:
+		Derzeitige URL:
 	</text>
-	<line_editor name="current_url" tool_tip="Die aktuelle URL für diese Medienquelle" value=""/>
+	<text name="current_url" tool_tip="Die derzeitige URL für diese Medienquelle" value=""/>
 	<button label="Zurücksetzen" name="current_url_reset_btn"/>
-	<text name="controls_label">
-		Steuerung:
-	</text>
-	<combo_box name="controls">
-		<combo_item name="Standard">
-			Standard
-		</combo_item>
-		<combo_item name="Mini">
-			Mini
-		</combo_item>
-	</combo_box>
-	<check_box initial_value="false" label="Auto-Loop" name="auto_loop"/>
-	<check_box initial_value="false" label="Interaktion bei erstem Anklicken" name="first_click_interact"/>
-	<check_box initial_value="false" label="Auto-Zoom" name="auto_zoom"/>
-	<check_box initial_value="false" label="Medien automatisch wiedergeben" name="auto_play"/>
+	<check_box initial_value="false" label="Automatisch wiederholen" name="auto_loop"/>
+	<check_box initial_value="false" label="Interaktion beim ersten Anklicken" name="first_click_interact"/>
+	<check_box initial_value="false" label="Automatisch zoomen" name="auto_zoom"/>
+	<check_box initial_value="false" label="Medien automatisch abspielen" name="auto_play"/>
 	<text name="media_setting_note">
-		Hinweis: Einwohner können diese Einstellung ausschalten
+		Hinweis: Einwohner können diese Einstellung überschreiben
 	</text>
-	<check_box initial_value="false" label="Medien auf Objektoberfläche automatisch skalieren" name="auto_scale"/>
+	<check_box initial_value="false" label="Medien automatisch auf Objektflächen skalieren" name="auto_scale"/>
 	<text name="size_label">
 		Größe:
 	</text>

@@ -100,8 +100,7 @@
 #include "lleventnotifier.h"
 #include "llface.h"
 #include "llfeaturemanager.h"
-#include "llfirstuse.h"
-#include "llfloaterchat.h"
+//#include "llfirstuse.h"
 #include "llfloaterhud.h"
 #include "llfloaterland.h"
 #include "llfloaterpreference.h"
@@ -920,9 +919,9 @@ bool idle_startup()
 		// create necessary directories
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(gFirstname, gLastname);
-    	LLFile::mkdir(gDirUtilp->getLindenUserDir());
-
-        // Set PerAccountSettingsFile to the default value.
+		LLFile::mkdir(gDirUtilp->getLindenUserDir());
+		
+		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
 				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")));
@@ -958,13 +957,6 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		// chat history must be loaded AFTER chat directories are defined.
-		if (!gNoRender && gSavedPerAccountSettings.getBOOL("LogShowHistory"))
-		{
-			LLFloaterChat::loadHistory();
-		}
-		
-		
 		//good as place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
 		LLFile::mkdir(user_windlight_path_name.c_str());		

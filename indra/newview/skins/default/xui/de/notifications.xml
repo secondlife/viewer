@@ -253,10 +253,8 @@ Für die gesamte Region ist Schaden aktiviert.
 Damit Waffen funktionieren, müssen Skripts erlaubt sein.
 	</notification>
 	<notification name="MultipleFacesSelected">
-		Mehrere Flächen wurden ausgewählt.
-Wenn Sie fortfahren werden auf mehrere Flächen des Objekts unterschiedlichen Medien-Instanzen eingefügt.
-Um Medien nur auf einer Fläche einzufügen, wählen Sie &quot;Textur auswählen&quot; und klicken Sie auf die gewünschte Fläche des Objektes. Klicken Sie dann auf „Hinzufügen&quot;.
-		<usetemplate ignoretext="Medien werden auf mehreren ausgewählten Flächen eingefügt." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+		Momentan sind mehrere Seiten ausgewählt. Wenn Sie fortfahren, werden einzelne Medien auf mehreren Seiten des Objektes dargestellt. Um die Medien auf einer einzigen Seite darzustellen, wählen Sie Textur auswählen und klicken Sie auf die gewünschte Seite. Danach klicken Sie Hinzufügen.
+		<usetemplate ignoretext="Die Medien werden auf mehrere ausgewählte Seiten übertragen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="WhiteListInvalidatesHomeUrl">
 		Wenn Sie diesen Eintrag zur Whitelist hinzufügen, dann wird die URL, 
@@ -329,8 +327,8 @@ Gebühren werden nicht rückerstattet.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DeleteMedia">
-		Sie haben die mit dieser Fläche verknüpften Medien ausgewählt, um diese zu löschen.
-Möchten Sie fortfahren?
+		Sie haben sich entschieden, die Medien auf dieser Seite zu löschen.
+Sind Sie sicher, dass Sie fortfahren wollen?
 		<usetemplate ignoretext="Bestätigen, bevor ich Medien von einem Objekt entferne." name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="ClassifiedSave">

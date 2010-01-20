@@ -112,9 +112,10 @@ LLDir_Linux::LLDir_Linux()
 		// ...normal installation running
 		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
     }	
+
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
-	mLindenUserDir = tmp_str;
+	mLindenUserDir = "";
 
 	char path [32];	/* Flawfinder: ignore */ 
 

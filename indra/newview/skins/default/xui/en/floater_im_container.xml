@@ -19,6 +19,7 @@
      name="im_box_tab_container"
      tab_position="bottom"
      tab_width="80"
+     tab_height="16"
      top="0"
      width="390" />
     <icon

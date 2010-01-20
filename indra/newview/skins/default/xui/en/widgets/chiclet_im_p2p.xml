@@ -1,31 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_im_p2p
- height="25"
+ height="23"
  name="im_p2p_chiclet"
  show_speaker="false"
  width="25">
+    <chiclet_im_p2p.chiclet_button 
+     height="23"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     name="chiclet_button"
+     tab_stop="false"
+     width="25"/>
     <chiclet_im_p2p.speaker
      auto_update="true"
      draw_border="false"
-     height="25"
+     height="23"
      left="25"
      name="speaker"
      visible="false"
      width="20"/>
     <chiclet_im_p2p.avatar_icon
+     bottom="2"
      follows="left|top|bottom"
-     height="22"
-     mouse_opaque="true"
+     height="18"
+     left="3"
+     mouse_opaque="false"
      name="avatar_icon"
-     width="22" />
+     width="19" />
     <chiclet_im_p2p.unread_notifications
-     height="25"
+     height="23"
      font_halign="center"
      left="25"
      mouse_opaque="false"
      name="unread"
      text_color="white"
-     v_pad="5"
+     v_pad="3"
      visible="false"
      width="20"/>
     <chiclet_im_p2p.new_message_icon

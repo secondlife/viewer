@@ -233,6 +233,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mAutoFocus(TRUE), // automatically take focus when opened
 	mCanDock(false),
 	mDocked(false),
+	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
 	mPreviousMinimizedLeft(0)
@@ -1456,6 +1457,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		}
 		self->setTornOff(false);
 	}
+	self->updateButtons();
 }
 
 // static
@@ -1748,8 +1750,8 @@ void LLFloater::updateButtons()
 		if (i == BUTTON_HELP)
 		{
 			// don't show the help button if the floater is minimized
-			// or if it is a tear-off hosted floater
-			if (isMinimized() || mButtonsEnabled[BUTTON_TEAR_OFF])
+			// or if it is a docked tear-off floater
+			if (isMinimized() || (mButtonsEnabled[BUTTON_TEAR_OFF] && ! mTornOff))
 			{
 				enabled = false;
 			}
@@ -2360,7 +2362,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	LLRect::tCoordType screen_width = getSnapRect().getWidth();
 	LLRect::tCoordType screen_height = getSnapRect().getHeight();
 
-
+	
 	// only automatically resize non-minimized, resizable floaters
 	if( floater->isResizable() && !floater->isMinimized() )
 	{
@@ -2385,16 +2387,13 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			new_width = llmax(new_width, min_width);
 			new_height = llmax(new_height, min_height);
 
-			floater->reshape( new_width, new_height, TRUE );
-			if (floater->followsRight())
-			{
-				floater->translate(old_width - new_width, 0);
-			}
+			LLRect new_rect;
+			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
 
-			if (floater->followsTop())
-			{
-				floater->translate(0, old_height - new_height);
-			}
+			floater->reshape( new_width, new_height, TRUE );
+			floater->setRect(new_rect);
+
+			floater->translateIntoRect( getLocalRect(), false );
 		}
 	}
 

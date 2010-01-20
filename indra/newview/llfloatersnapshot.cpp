@@ -2078,8 +2078,10 @@ void LLFloaterSnapshot::draw()
 	{		
 		if(previewp->getThumbnailImage())
 		{
+			LLRect thumbnail_rect = getChild<LLUICtrl>("thumbnail_placeholder")->getRect();
+
 			S32 offset_x = (getRect().getWidth() - previewp->getThumbnailWidth()) / 2 ;
-			S32 offset_y = getRect().getHeight() - 205 + (90 - previewp->getThumbnailHeight()) / 2 ;
+			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
 
 			glMatrixMode(GL_MODELVIEW);
 			gl_draw_scaled_image(offset_x, offset_y, 

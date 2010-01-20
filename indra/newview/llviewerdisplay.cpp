@@ -45,7 +45,7 @@
 #include "lldynamictexture.h"
 #include "lldrawpoolalpha.h"
 #include "llfeaturemanager.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llhudmanager.h"
 #include "llimagebmp.h"
 #include "llmemory.h"
@@ -404,7 +404,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				if( arrival_fraction > 1.f )
 				{
 					arrival_fraction = 1.f;
-					LLFirstUse::useTeleport();
+					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));

@@ -59,7 +59,6 @@
 
 #include "llbutton.h"
 #include "lldir.h"
-#include "llfloaterchat.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
@@ -447,14 +446,20 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
-			LLChat chat(LLTrans::getString("CompileQueueScriptNotFound"));
-			LLFloaterChat::addChat(chat);
+			//TODO* CHAT: how to show this?
+			//LLSD args;
+			//args["MESSAGE"] = LLTrans::getString("CompileQueueScriptNotFound);
+			//LLNotificationsUtil::add("SystemMessage", args);
+			
 			buffer = LLTrans::getString("CompileQueueProblemDownloading") + (": ") + data->mScriptName;
 		}
 		else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 		{
-			LLChat chat(LLTrans::getString("CompileQueueInsufficientPermDownload"));
-			LLFloaterChat::addChat(chat);
+			//TODO* CHAT: how to show this?
+			//LLSD args;
+			//args["MESSAGE"] = LLTrans::getString("CompileQueueScriptNotFound);
+			//LLNotificationsUtil::add("SystemMessage", args);
+
 			buffer = LLTrans::getString("CompileQueueInsufficientPermFor") + (": ") + data->mScriptName;
 		}
 		else

@@ -41,7 +41,7 @@
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterland.h"
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
@@ -1515,7 +1515,7 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			}
 			else
 			{
-				mute_msg = LLTrans::getString("MuteObject");
+				mute_msg = LLTrans::getString("MuteObject2");
 			}
 			
 			gMenuHolder->childSetText("Object Mute", mute_msg);

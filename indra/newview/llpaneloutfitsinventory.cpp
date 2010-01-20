@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llappearancemgr.h"
 
 #include "llbutton.h"
 #include "llfloaterreg.h"
@@ -44,6 +45,8 @@
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
 #include "lllandmark.h"
+#include "lllineeditor.h"
+#include "llmodaldialog.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
@@ -61,12 +64,75 @@
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 bool LLPanelOutfitsInventory::sShowDebugEditor = false;
 
+class LLOutfitSaveAsDialog : public LLModalDialog
+{
+private:
+	std::string	mItemName;
+	std::string mTempItemName;
+	
+	boost::signals2::signal<void (const std::string&)> mSaveAsSignal;
+
+public:
+	LLOutfitSaveAsDialog( const LLSD& key )
+		: LLModalDialog( key ),
+		  mTempItemName(key.asString())
+	{
+	}
+		
+	BOOL postBuild()
+	{
+		getChild<LLUICtrl>("Save")->setCommitCallback(boost::bind(&LLOutfitSaveAsDialog::onSave, this ));
+		getChild<LLUICtrl>("Cancel")->setCommitCallback(boost::bind(&LLOutfitSaveAsDialog::onCancel, this ));
+		
+		childSetTextArg("name ed", "[DESC]", mTempItemName);
+		return TRUE;
+	}
+
+	void setSaveAsCommit( const boost::signals2::signal<void (const std::string&)>::slot_type& cb )
+	{
+		mSaveAsSignal.connect(cb);
+	}
+
+	virtual void onOpen(const LLSD& key)
+	{
+		LLLineEditor* edit = getChild<LLLineEditor>("name ed");
+		if (edit)
+		{
+			edit->setFocus(TRUE);
+			edit->selectAll();
+		}
+	}
+
+	void onSave()
+	{
+		mItemName = childGetValue("name ed").asString();
+		LLStringUtil::trim(mItemName);
+		if( !mItemName.empty() )
+		{
+			mSaveAsSignal(mItemName);
+			closeFloater(); // destroys this object
+		}
+	}
+
+	void onCancel()
+	{
+		closeFloater(); // destroys this object
+	}
+};
+	
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mActivePanel(NULL),
 	mParent(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
+
+	static bool registered_dialog = false;
+	if (!registered_dialog)
+	{
+		LLFloaterReg::add("outfit_save_as", "floater_outfit_save_as.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutfitSaveAsDialog>);
+		registered_dialog = true;
+	}
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -177,10 +243,28 @@ void LLPanelOutfitsInventory::onEdit()
 {
 }
 
-void LLPanelOutfitsInventory::onNew()
+void LLPanelOutfitsInventory::onSave()
 {
-	const std::string& outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
+	std::string outfit_name;
+
+	if (!LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
+	{
+		outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
+	}
+
+	LLOutfitSaveAsDialog* save_as_dialog = LLFloaterReg::showTypedInstance<LLOutfitSaveAsDialog>("outfit_save_as", LLSD(outfit_name), TRUE);
+	if (save_as_dialog)
+	{
+		save_as_dialog->setSaveAsCommit(boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1 ));
+	}
+}
+
+void LLPanelOutfitsInventory::onSaveCommit(const std::string& outfit_name)
+{
 	LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+	LLSD key;
+	LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+
 	if (mAppearanceTabs)
 	{
 		mAppearanceTabs->selectTabByName("outfitslist_tab");
@@ -280,6 +364,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
+	mListCommands->childSetVisible("wear_btn", wear_enabled);
 	mListCommands->childSetEnabled("make_outfit_btn", make_outfit_enabled);
 }
 
@@ -290,7 +375,7 @@ void LLPanelOutfitsInventory::onGearButtonClick()
 
 void LLPanelOutfitsInventory::onAddButtonClick()
 {
-	onNew();
+	onSave();
 }
 
 void LLPanelOutfitsInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -329,7 +414,7 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 	const std::string command_name = userdata.asString();
 	if (command_name == "new")
 	{
-		onNew();
+		onSave();
 	}
 	if (command_name == "edit")
 	{
@@ -484,8 +569,6 @@ void LLPanelOutfitsInventory::initTabPanels()
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	mTabPanels[1] = myoutfits_panel;
 
-	mActivePanel = mTabPanels[0];
-
 	for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
 		 iter != mTabPanels.end();
 		 ++iter)
@@ -496,6 +579,7 @@ void LLPanelOutfitsInventory::initTabPanels()
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
+	mActivePanel = (LLInventoryPanel*)mAppearanceTabs->getCurrentPanel();
 }
 
 void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)

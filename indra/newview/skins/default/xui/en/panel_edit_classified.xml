@@ -9,6 +9,7 @@
  left="0"
  min_height="350"
  name="panel_edit_classified"
+ help_topic="profile_edit_classified"
  top="0"
  width="333">
  <panel.string

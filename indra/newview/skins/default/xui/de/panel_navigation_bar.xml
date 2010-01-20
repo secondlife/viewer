@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
 	<panel name="navigation_panel">
-		<button name="back_btn" tool_tip="Zurück zu vorheriger Position"/>
-		<button name="forward_btn" tool_tip="Eine Position weiter"/>
-		<button name="home_btn" tool_tip="An meinen Heimatort teleportieren"/>
-		<location_input label="Ort" name="location_combo"/>
-		<search_combo_box label="Suchen" name="search_combo_box" tool_tip="Suchen">
+		<button name="back_btn" tool_tip="Zurück zum vorherigen Standort gehen"/>
+		<button name="forward_btn" tool_tip="Um einen Standort weiter gehen"/>
+		<button name="home_btn" tool_tip="Zu meinem Heimatort teleportieren"/>
+		<location_input label="Standort" name="location_combo"/>
+		<search_combo_box label="Suche" name="search_combo_box" tool_tip="Suche">
 			<combo_editor label="[SECOND_LIFE] durchsuchen" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
+	<favorites_bar name="favorite">
+		<chevron_button name="&gt;&gt;" tool_tip="Zeige weitere meiner Favoriten an"/>
+	</favorites_bar>
 </panel>
