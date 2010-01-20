@@ -301,6 +301,7 @@ public:
 
 	bool pollCompletion();
 	bool isDone();
+	bool isTimedOut();
 	
 	typedef std::list<LLFoundData> found_list_t;
 	found_list_t mFoundList;
@@ -313,12 +314,10 @@ public:
 LLWearableHoldingPattern::LLWearableHoldingPattern():
 	mResolved(0)
 {
-	llwarns << "constructor" << llendl;
 }
 
 LLWearableHoldingPattern::~LLWearableHoldingPattern()
 {
-	llwarns << "destructor" << llendl;
 }
 
 bool LLWearableHoldingPattern::isDone()
@@ -326,10 +325,16 @@ bool LLWearableHoldingPattern::isDone()
 	return (mResolved >= (S32)mFoundList.size());
 }
 
+bool LLWearableHoldingPattern::isTimedOut()
+{
+	static F32 max_wait_time = 5.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
+	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
+}
+
 bool LLWearableHoldingPattern::pollCompletion()
 {
 	bool done = isDone();
-	llwarns << "polling, done status: " << done << llendl;
+	llinfos << "polling, done status: " << done << llendl;
 	if (done)
 	{
 		// Activate all gestures in this folder
@@ -350,6 +355,10 @@ bool LLWearableHoldingPattern::pollCompletion()
 				gInventory.notifyObservers();
 			}
 		}
+
+		// Update wearables.
+		llinfos << "Updating agent wearables with " << mResolved << " wearable items " << llendl;
+		LLAppearanceManager::instance().updateAgentWearables(this, false);
 		
 		// Update attachments to match those requested.
 		LLVOAvatar* avatar = gAgent.getAvatarObject();
@@ -359,13 +368,17 @@ bool LLWearableHoldingPattern::pollCompletion()
 			LLAgentWearables::userUpdateAttachments(mObjItems);
 		}
 
-		// Update wearables.
-		llinfos << "Updating agent wearables with " << mResolved << " wearable items " << llendl;
-		LLAppearanceManager::instance().updateAgentWearables(this, false);
-
 		delete this;
+		return done;
 	}
-	return done;
+	else if (isTimedOut())
+	{
+		llwarns << "wearables taking too long to fetch for outfit, retrying updateAppearanceFromCOF()." << llendl;
+		delete this;
+		LLAppearanceManager::instance().updateAppearanceFromCOF();
+		return true;
+	}
+	return false;
 }
 
 static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
