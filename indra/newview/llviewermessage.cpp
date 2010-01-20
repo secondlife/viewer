@@ -908,6 +908,14 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						LLSideTray::getInstance()->showPanel("panel_places", 
 								LLSD().with("type", "landmark").with("id", item->getUUID()));
 					}
+					else if("group_offer" == from_name)
+					{
+						// do not open inventory when we open group notice attachment because 
+						// we already opened landmark info panel
+						// "group_offer" is passed by LLOpenTaskGroupOffer
+
+						continue;
+					}
 					else if(from_name.empty())
 					{
 						// we receive a message from LLOpenTaskOffer, it mean that new landmark has been added.
@@ -961,7 +969,6 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		const BOOL auto_open = gSavedSettings.getBOOL("ShowInInventory") &&
 			(asset_type != LLAssetType::AT_CALLINGCARD) &&
 			(item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
-			(asset_type != LLAssetType::AT_LANDMARK) &&
 			!from_name.empty();
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
