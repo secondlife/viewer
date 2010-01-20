@@ -237,6 +237,7 @@ public:
 
 	friend bool operator==(const LLMatrix4 &a, const LLMatrix4 &b);			// Return a == b
 	friend bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b);			// Return a != b
+	friend bool operator<(const LLMatrix4 &a, const LLMatrix4& b);			// Return a < b
 
 	friend const LLMatrix4& operator+=(LLMatrix4 &a, const LLMatrix4 &b);	// Return a + b
 	friend const LLMatrix4& operator-=(LLMatrix4 &a, const LLMatrix4 &b);	// Return a - b
