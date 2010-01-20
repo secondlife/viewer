@@ -293,7 +293,7 @@
            create_jump_keys="true"
            label="Show"
            layout="topleft"
-           name="Land"
+           name="LandShow"
            tear_off="true">
          <menu_item_check
          label="Move Controls"
