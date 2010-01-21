@@ -51,6 +51,7 @@
          top="0"
          left="0"
          height="505"
+         user_resize="false"
          width="313">
         <scroll_container
          color="DkGray2"
@@ -365,6 +366,7 @@
      top_pad="0"
      name="profile_me_buttons_panel"
      visible="false"
+     user_resize="false" 
      auto_resize="false" 
      height="28"
      width="313">
