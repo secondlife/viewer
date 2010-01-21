@@ -9,64 +9,64 @@
  name="Input panel"
  top="1"
  width="517">
-  <button
-   height="23"
-   label="Other Devices"
-   layout="topleft"
-   left="30"
-   name="joystick_setup_button"
-   top="10"
-   width="155">
-    <button.commit_callback
-     function="Floater.Show"
-     parameter="pref_joystick" />
-  </button>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left="30"
-   name="Mouselook:"
-   top_pad="10"
-   width="300">
-    Mouselook:
-  </text>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_delta="50"
-   name=" Mouse Sensitivity"
-   top_pad="10"
-   width="150">
-    Mouse sensitivity
-  </text>
-  <slider
-   control_name="MouseSensitivity"
-   follows="left|top"
-   height="15"
-   initial_value="2"
-   layout="topleft"
-   show_text="false"
-   left_delta="150"
-   max_val="15"
-   name="mouse_sensitivity"
-   top_delta="0"
-   width="145" />
-  <check_box
-   control_name="InvertMouse"
-   height="16"
-   label="Invert"
-   layout="topleft"
-   left_pad="2"
-   name="invert_mouse"
-   top_delta="0"
-   width="128" />
-  <text
+    <button
+     height="23"
+     label="Other Devices"
+     layout="topleft"
+     left="30"
+     name="joystick_setup_button"
+     top="10"
+     width="155">
+        <button.commit_callback
+         function="Floater.Show"
+         parameter="pref_joystick" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="Mouselook:"
+     top_pad="10"
+     width="300">
+        Mouselook:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="50"
+     name=" Mouse Sensitivity"
+     top_pad="10"
+     width="150">
+        Mouse sensitivity
+    </text>
+    <slider
+     control_name="MouseSensitivity"
+     follows="left|top"
+     height="15"
+     initial_value="2"
+     layout="topleft"
+     show_text="false"
+     left_delta="150"
+     max_val="15"
+     name="mouse_sensitivity"
+     top_delta="0"
+     width="145" />
+    <check_box
+     control_name="InvertMouse"
+     height="16"
+     label="Invert"
+     layout="topleft"
+     left_pad="2"
+     name="invert_mouse"
+     top_delta="0"
+     width="128" />
+        <text
      type="string"
      length="1"
      follows="left|top"
@@ -77,6 +77,537 @@
      mouse_opaque="false"
      top_pad="4"
      width="300">
+        Network:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="50"
+     name="Maximum bandwidth"
+     mouse_opaque="false"
+     top_pad="10"
+     width="200">
+        Maximum bandwidth
+    </text>
+    <slider
+     can_edit_text="true"
+     control_name="ThrottleBandwidthKBPS"
+     decimal_digits="0"
+     follows="left|top"
+     height="15"
+     increment="100"
+     initial_value="500"
+     layout="topleft"
+     left_delta="150"
+     max_val="10000"
+     min_val="100"
+     name="max_bandwidth"
+     top_delta="0"
+     width="180" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="6"
+     mouse_opaque="false"
+     name="text_box2"
+     top_delta="1"
+     width="200">
+        kbps
+    </text>
+    <check_box
+     control_name="ConnectionPortEnabled"
+	 height="16"
+     label="Custom port"
+     layout="topleft"
+     left="77"
+     name="connection_port_enabled"
+     top_pad="20"
+     width="256">
+        <check_box.commit_callback
+         function="Notification.Show" 
+		 parameter="ChangeConnectionPort" />
+    </check_box>
+    <spinner
+     control_name="BrowserProxyPort"
+     enabled_control="BrowserProxyEnabled"
+	 decimal_digits="0"
+     follows="left|top"
+     height="23"
+     increment="1"
+     initial_value="80"
+     label="Port number:"
+     label_width="75"
+     layout="topleft"
+     left_delta="160"
+     max_val="12000"
+     min_val="10"
+     name="web_proxy_port"
+     top_delta="-2"
+     width="140" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="80"
+     mouse_opaque="false"
+     name="cache_size_label_l"
+     top_pad="20"
+     width="200">
+        Cache size
+    </text>
+    <slider
+     can_edit_text="true"
+     control_name="CacheSize"
+     decimal_digits="0"
+     follows="left|top"
+     height="15"
+     increment="16"
+     initial_value="512"
+     layout="topleft"
+     left_delta="150"
+     max_val="1024"
+     min_val="32"
+     name="cache_size"
+     top_delta="-2"
+     width="180" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="6"
+     mouse_opaque="false"
+     name="text_box5"
+     top_delta="1"
+     width="40">
+        MB
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="80"
+     name="Cache location"
+     top_delta="20"
+     width="300">
+        Cache location:
+    </text>
+    <line_editor
+     control_name="CacheLocationTopFolder"
+     border_style="line"
+     border_thickness="1"
+     enabled="false"
+     follows="left|top"
+     font="SansSerif"
+     handle_edit_keys_directly="true"
+     height="23"
+     layout="topleft"
+     left="80"
+     max_length="4096"
+     name="cache_location"
+     top_pad="5"
+     width="205" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Browse"
+     label_selected="Browse"
+     layout="topleft"
+     left_pad="5"
+     name="set_cache"
+     top_delta="-1"
+     width="100">
+        <button.commit_callback
+         function="Pref.SetCache" />
+    </button>
+   <button
+     follows="left|top"
+     height="23"
+     label="Reset"
+     label_selected="Reset"
+     layout="topleft"
+     left_pad="3"
+     name="reset_cache"
+     top_delta="0"
+     width="100">
+        <button.commit_callback
+         function="Pref.ResetCache" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="Web:"
+     top_pad="5"
+     width="300">
+        Web:
+    </text>
+    <radio_group
+     control_name="UseExternalBrowser"
+     draw_border="false"
+     follows="top|left"
+     height="40"
+     layout="topleft"
+     left_delta="50"
+     name="use_external_browser"
+     top_pad="4"
+     width="480">
+      <radio_item
+        height="20"
+        label="Use built-in browser"
+        layout="topleft"
+        left="0"
+        name="internal"
+        value="0" 
+        tool_tip="Use the built-in web browser for help, web links, etc. This browser opens as a new window inside [APP_NAME]."
+        top="0"
+        width="480" />
+      <radio_item
+        height="20"
+        label="Use my browser (IE, Firefox)"
+        layout="topleft"
+        left_delta="0"
+        name="external"
+        value="1"
+        tool_tip="Use the default system web browser for help, web links, etc. Not recommended if running full screen."
+        top_delta="20"
+        width="480" />
+    </radio_group>
+    
+   <check_box
+     top_delta="4"
+     enabled="true"
+     follows="left|top"
+     height="16"
+     initial_value="false"
+     label="Web proxy"
+     left_delta="0"
+     mouse_opaque="true"
+     name="web_proxy_enabled"
+     radio_style="false"
+     width="400"
+     top_pad="5"/>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="1"
+     name="Proxy location"
+     top_delta="20"
+     width="300">
+        Proxy location:
+    </text>
+    <line_editor
+     control_name="BrowserProxyAddress"
+     enabled_control="BrowserProxyEnabled"
+	 follows="left|top"
+     font="SansSerif"
+     height="23"
+     layout="topleft"
+     left_delta="0"
+     name="web_proxy_editor"
+     tool_tip="The name or IP address of the proxy you would like to use"
+     top_pad="4"
+     width="200" />
+    <button
+     follows="left|top"
+     height="23"
+     enabled="false"
+     label="Browse"
+     label_selected="Browse"
+     layout="topleft"
+     left_pad="5"
+     name="set_proxy"
+     top_pad="-21"
+     width="100">
+        <button.commit_callback
+         function="Pref.SetCache" />
+    </button>
+  </panel>
+
+    Network:
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_delta="50"
+   name="Maximum bandwidth"
+   mouse_opaque="false"
+   top_pad="10"
+   width="200">
+    Maximum bandwidth
+  </text>
+  <slider
+   can_edit_text="true"
+   control_name="ThrottleBandwidthKBPS"
+   decimal_digits="0"
+   follows="left|top"
+   height="15"
+   increment="100"
+   initial_value="500"
+   layout="topleft"
+   left_delta="150"
+   max_val="10000"
+   min_val="100"
+   name="max_bandwidth"
+   top_delta="0"
+   width="180" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_pad="6"
+   mouse_opaque="false"
+   name="text_box2"
+   top_delta="1"
+   width="200">
+    kbps
+  </text>
+  <check_box
+   control_name="ConnectionPortEnabled"
+ height="16"
+   label="Custom port"
+   layout="topleft"
+   left="77"
+   name="connection_port_enabled"
+   top_pad="20"
+   width="256">
+    <check_box.commit_callback
+     function="Notification.Show"
+ parameter="ChangeConnectionPort" />
+  </check_box>
+  <spinner
+   control_name="ConnectionPort"
+   enabled_control="ConnectionPortEnabled"
+ decimal_digits="0"
+   follows="left|top"
+   height="23"
+   increment="1"
+   initial_value="13000"
+   label="Port number:"
+   label_width="75"
+   layout="topleft"
+   left_delta="160"
+   max_val="13050"
+   min_val="13000"
+   name="connection_port"
+   top_delta="-2"
+   width="140" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left="80"
+   mouse_opaque="false"
+   name="cache_size_label_l"
+   top_pad="20"
+   width="200">
+    Cache size
+  </text>
+  <slider
+   can_edit_text="true"
+   control_name="CacheSize"
+   decimal_digits="0"
+   follows="left|top"
+   height="15"
+   increment="16"
+   initial_value="512"
+   layout="topleft"
+   left_delta="150"
+   max_val="1024"
+   min_val="32"
+   name="cache_size"
+   top_delta="-2"
+   width="180" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_pad="6"
+   mouse_opaque="false"
+   name="text_box5"
+   top_delta="1"
+   width="40">
+    MB
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left="80"
+   name="Cache location"
+   top_delta="20"
+   width="300">
+    Cache location:
+  </text>
+  <line_editor
+   control_name="CacheLocationTopFolder"
+   border_style="line"
+   border_thickness="1"
+   enabled="false"
+   follows="left|top"
+   font="SansSerif"
+   handle_edit_keys_directly="true"
+   height="23"
+   layout="topleft"
+   left="80"
+   max_length="4096"
+   name="cache_location"
+   top_pad="5"
+   width="205" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Browse"
+   label_selected="Browse"
+   layout="topleft"
+   left_pad="5"
+   name="set_cache"
+   top_delta="-1"
+   width="100">
+    <button.commit_callback
+     function="Pref.SetCache" />
+  </button>
+  <button
+    follows="left|top"
+    height="23"
+    label="Reset"
+    label_selected="Reset"
+    layout="topleft"
+    left_pad="3"
+    name="reset_cache"
+    top_delta="0"
+    width="100">
+    <button.commit_callback
+     function="Pref.ResetCache" />
+  </button>
+
+<text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="10"
+       layout="topleft"
+       left="30"
+       name="Web:"
+       top_pad="5"
+       width="300">
+    Web:
+  </text>
+  <radio_group
+   control_name="UseExternalBrowser"
+   draw_border="false"
+   follows="top|left"
+   height="40"
+   layout="topleft"
+   left_delta="50"
+   name="use_external_browser"
+   top_pad="4"
+   width="480">
+    <radio_item
+      height="20"
+      label="Use built-in browser"
+      layout="topleft"
+      left="0"
+      name="internal"
+      value="0"
+      tool_tip="Use the built-in web browser for help, web links, etc. This browser opens as a new window inside [APP_NAME]."
+      top="0"
+      width="480" />
+    <radio_item
+      height="20"
+      label="Use my browser (IE, Firefox)"
+      layout="topleft"
+      left_delta="0"
+      name="external"
+      value="1"
+      tool_tip="Use the default system web browser for help, web links, etc. Not recommended if running full screen."
+      top_delta="20"
+      width="480" />
+  </radio_group>
+
+  <check_box
+    top_delta="4"
+    enabled="true"
+    follows="left|top"
+    height="16"
+    initial_value="false"
+    control_name="BrowserProxyEnabled"
+    label="Enable Web Proxy"
+    left_delta="0"
+    mouse_opaque="true"
+    name="web_proxy_enabled"
+    radio_style="false"
+    width="400"           top_pad="5"/>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_delta="1"
+   name="Proxy location"
+   top_delta="20"
+   width="300">
+    Proxy location:
+  </text>
+  <line_editor
+   control_name="BrowserProxyAddress"
+   enabled_control="BrowserProxyEnabled"
+ follows="left|top"
+   font="SansSerif"
+   height="23"
+   layout="topleft"
+   left_delta="0"
+   name="web_proxy_editor"
+   tool_tip="The name or IP address of the proxy you would like to use"
+   top_pad="4"
+   width="200" />
+  <spinner
+   control_name="BrowserProxyPort"
+   enabled_control="BrowserProxyEnabled"
+ decimal_digits="0"
+   follows="left|top"
+   height="23"
+   increment="1"
+   initial_value="80"
+   label="Port number:"
+   label_width="75"
+   layout="topleft"
+   left_delta="230"
+   max_val="12000"
+   min_val="10"
+   name="web_proxy_port"
+   top_delta="0"
+   width="140" />
+</panel>
     Network:
   </text>
   <text
