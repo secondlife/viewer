@@ -75,11 +75,6 @@ public:
 	 */
 	/*virtual*/ void onChange();
 
-	/**
-	* Will reshape floater when participant list size changes
-	*/
-	/*virtual*/ S32 notifyParent(const LLSD& info);
-
 	static void sOnCurrentChannelChanged(const LLUUID& session_id);
 
 private:

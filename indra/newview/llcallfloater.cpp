@@ -226,16 +226,6 @@ void LLCallFloater::onChange()
 	}
 }
 
-S32 LLCallFloater::notifyParent(const LLSD& info)
-{
-	if("size_changes" == info["action"])
-	{
-		reshapeToFitContent();
-		return 1;
-	}
-	return LLDockableFloater::notifyParent(info);
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
@@ -822,72 +812,6 @@ void LLCallFloater::reset()
 	mNonAvatarCaller->setVisible(FALSE);
 
 	mSpeakerManager = NULL;
-}
-
-void reshape_floater(LLCallFloater* floater, S32 delta_height)
-{
-	// Try to update floater top side if it is docked(to bottom bar).
-	// Try to update floater bottom side or top side if it is un-docked.
-	// If world rect is too small, floater will not be reshaped at all.
-
-	LLRect floater_rect = floater->getRect();
-	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
-
-	// floater is docked to bottom bar
-	if(floater->isDocked())
-	{
-		// can update floater top side
-		if(floater_rect.mTop + delta_height < world_rect.mTop)
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
-				floater_rect.mRight, floater_rect.mBottom);
-		}
-	}
-	// floater is un-docked
-	else
-	{
-		// can update floater bottom side
-		if( floater_rect.mBottom - delta_height >= world_rect.mBottom )
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop, 
-				floater_rect.mRight, floater_rect.mBottom - delta_height);
-		}
-		// could not update floater bottom side, check if we can update floater top side
-		else if( floater_rect.mTop + delta_height < world_rect.mTop )
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
-				floater_rect.mRight, floater_rect.mBottom);
-		}
-	}
-
-	floater->setShape(floater_rect);
-	floater->getChild<LLLayoutStack>("my_call_stack")->updateLayout(FALSE);
-}
-
-void LLCallFloater::reshapeToFitContent()
-{
-	const S32 ITEM_HEIGHT = getParticipantItemHeight();
-	static const S32 MAX_VISIBLE_ITEMS = getMaxVisibleItems();
-
-	static S32 items_pad = mAvatarList->getItemsPad();
-	S32 list_height = mAvatarList->getRect().getHeight();
-	S32 items_height = mAvatarList->getItemsRect().getHeight();
-	if(items_height <= 0)
-	{
-		// make "no one near" text visible
-		items_height = ITEM_HEIGHT + items_pad;
-	}
-	S32 max_list_height = MAX_VISIBLE_ITEMS * ITEM_HEIGHT + items_pad * (MAX_VISIBLE_ITEMS - 1);
-	max_list_height += 2* mAvatarList->getBorderWidth();
-
-	S32 delta = items_height - list_height;	
-	// too many items, don't reshape floater anymore, let scroll bar appear.
-	if(items_height >  max_list_height)
-	{
-		delta = max_list_height - list_height;
-	}
-
-	reshape_floater(this, delta);
 }
 
 S32 LLCallFloater::getParticipantItemHeight()
