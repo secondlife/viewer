@@ -873,5 +873,5 @@
    min_val="10"
    name="web_proxy_port"
    top_delta="0"
-   width="140" />
+   width="140"/>
 </panel>
