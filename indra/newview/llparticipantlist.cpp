@@ -431,6 +431,10 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	LLContextMenu* main_menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_participant_list.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 
+	// Don't show sort options for P2P chat
+	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
+	main_menu->setItemVisible("SortByName", is_sort_visible);
+	main_menu->setItemVisible("SortByRecentSpeakers", is_sort_visible);
 	main_menu->setItemVisible("Moderator Options", isGroupModerator());
 	main_menu->arrangeAndClear();
 
@@ -456,11 +460,6 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteOthers", false);
 	}
-
-	// Don't show sort options for P2P chat
-	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
-	LLMenuGL::sMenuContainer->childSetVisible("SortByName", is_sort_visible);
-	LLMenuGL::sMenuContainer->childSetVisible("SortByRecentSpeakers", is_sort_visible);
 }
 
 void LLParticipantList::LLParticipantListMenu::sortParticipantList(const LLSD& userdata)
