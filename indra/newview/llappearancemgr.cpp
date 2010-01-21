@@ -327,14 +327,14 @@ bool LLWearableHoldingPattern::isDone()
 
 bool LLWearableHoldingPattern::isTimedOut()
 {
-	static F32 max_wait_time = 5.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
+	static F32 max_wait_time = 15.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
 	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
 }
 
 bool LLWearableHoldingPattern::pollCompletion()
 {
 	bool done = isDone();
-	llinfos << "polling, done status: " << done << llendl;
+	llinfos << "polling, done status: " << done << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
 	if (done)
 	{
 		// Activate all gestures in this folder
@@ -829,7 +829,10 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 
 	}
 
-	doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollCompletion,holder));
+	if (!holder->pollCompletion())
+	{
+		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollCompletion,holder));
+	}
 
 }
 
