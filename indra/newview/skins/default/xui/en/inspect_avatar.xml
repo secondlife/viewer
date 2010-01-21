@@ -60,6 +60,7 @@
      name="user_details"
      word_wrap="true"
      top_pad="6"
+     use_ellipses="true"
      width="220">This is my second life description and I really think it is great.
     </text>
     <slider
