@@ -28,7 +28,7 @@
      name="adhoc_icon"
      width="18" />
     <chiclet_im_adhoc.unread_notifications
-     font_halign="center"
+     halign="center"
      height="23"
      left="25"
      mouse_opaque="false"

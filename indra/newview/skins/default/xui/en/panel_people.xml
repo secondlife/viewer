@@ -3,7 +3,7 @@
 <panel
 background_visible="true"
  follows="all"
- height="570"
+ height="575"
  label="People"
  layout="topleft"
  min_height="350"
@@ -337,7 +337,7 @@ background_visible="true"
     </tab_container>
     <panel
      follows="bottom|left"
-     height="25"
+     height="35"
      layout="topleft"
      left="10"
      name="button_bar"

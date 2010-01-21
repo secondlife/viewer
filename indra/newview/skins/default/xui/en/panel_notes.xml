@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="535"
+ height="540"
  label="Notes &amp; Privacy"
  layout="topleft"
  left="0"

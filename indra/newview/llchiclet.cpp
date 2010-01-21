@@ -47,6 +47,7 @@
 #include "llnotificationsutil.h"
 #include "lloutputmonitorctrl.h"
 #include "llscriptfloater.h"
+#include "llspeakers.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llgroupmgr.h"

@@ -58,6 +58,7 @@
 #include "llinventorymodel.h"
 #include "llrootview.h"
 
+#include "llspeakers.h"
 
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
@@ -350,13 +351,15 @@ void* LLIMFloater::createPanelAdHocControl(void* userdata)
 
 void LLIMFloater::onSlide()
 {
-	LLPanel* im_control_panel = getChild<LLPanel>("panel_im_control_panel");
-	im_control_panel->setVisible(!im_control_panel->getVisible());
+	mControlPanel->setVisible(!mControlPanel->getVisible());
 
-	gSavedSettings.setBOOL("IMShowControlPanel", im_control_panel->getVisible());
+	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getVisible());
 
-	getChild<LLButton>("slide_left_btn")->setVisible(im_control_panel->getVisible());
-	getChild<LLButton>("slide_right_btn")->setVisible(!im_control_panel->getVisible());
+	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getVisible());
+	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getVisible());
+
+	LLLayoutStack* stack = getChild<LLLayoutStack>("im_panels");
+	if (stack) stack->setAnimate(true);
 }
 
 //static
