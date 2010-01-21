@@ -89,6 +89,10 @@ S32 gCurlMultiCount = 0;
 std::vector<LLMutex*> LLCurl::sSSLMutex;
 std::string LLCurl::sCAPath;
 std::string LLCurl::sCAFile;
+// Verify SSL certificates by default (matches libcurl default). The ability
+// to alter this flag is only to allow us to suppress verification if it's
+// broken for some reason.
+bool LLCurl::sSSLVerify = true;
 
 //static
 void LLCurl::setCAPath(const std::string& path)
@@ -100,6 +104,18 @@ void LLCurl::setCAPath(const std::string& path)
 void LLCurl::setCAFile(const std::string& file)
 {
 	sCAFile = file;
+}
+
+//static
+void LLCurl::setSSLVerify(bool verify)
+{
+	sSSLVerify = verify;
+}
+
+//static
+bool LLCurl::getSSLVerify()
+{
+	return sSSLVerify;
 }
 
 //static
@@ -465,7 +481,8 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	setErrorBuffer();
 	setCA();
 
-	setopt(CURLOPT_SSL_VERIFYPEER, true);
+	setopt(CURLOPT_SSL_VERIFYPEER, LLCurl::getSSLVerify());
+	setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify()? 2 : 0);
 	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
 
 	setoptString(CURLOPT_URL, url);
@@ -1044,4 +1061,3 @@ void LLCurl::cleanupClass()
 #endif
 	curl_global_cleanup();
 }
-
