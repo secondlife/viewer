@@ -1145,17 +1145,6 @@
       <key>Value</key>
       <integer>5</integer>
     </map>
-    <key>CallFloaterMaxItems</key>
-    <map>
-      <key>Comment</key>
-      <string>Max number of visible participants in voice controls window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
-    </map>
     <key>CameraAngle</key>
     <map>
       <key>Comment</key>
@@ -3629,7 +3618,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://int.searchwww-phx0.damballah.lindenlab.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>

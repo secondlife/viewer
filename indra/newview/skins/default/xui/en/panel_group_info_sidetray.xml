@@ -151,7 +151,6 @@ background_visible="true"
              filename="panel_group_roles.xml"
              layout="topleft"
              left="0"
-             help_topic="group_roles_tab"
              name="group_roles_tab_panel"
              top="0" />
          </accordion_tab>
@@ -181,7 +180,6 @@ background_visible="true"
          filename="panel_group_land_money.xml"
          layout="topleft"
          left="0"
-         help_topic="group_land_money_tab"
          name="group_land_tab_panel"
          top="0" />
          </accordion_tab>
