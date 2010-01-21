@@ -322,7 +322,15 @@ LLWearableHoldingPattern::~LLWearableHoldingPattern()
 
 bool LLWearableHoldingPattern::isDone()
 {
-	return (mResolved >= (S32)mFoundList.size());
+	if (mResolved >= (S32)mFoundList.size())
+		return true; // have everything we were waiting for
+	else if (isTimedOut())
+	{
+		llwarns << "Exceeded max wait time, updating appearance based on what has arrived" << llendl;
+		return true;
+	}
+	return false;
+
 }
 
 bool LLWearableHoldingPattern::isTimedOut()
@@ -369,16 +377,8 @@ bool LLWearableHoldingPattern::pollCompletion()
 		}
 
 		delete this;
-		return done;
 	}
-	else if (isTimedOut())
-	{
-		llwarns << "wearables taking too long to fetch for outfit, retrying updateAppearanceFromCOF()." << llendl;
-		delete this;
-		LLAppearanceManager::instance().updateAppearanceFromCOF();
-		return true;
-	}
-	return false;
+	return done;
 }
 
 static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
