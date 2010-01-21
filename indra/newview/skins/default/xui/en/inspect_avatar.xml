@@ -58,6 +58,7 @@
      height="35"
      left="8"
      name="user_details"
+     right="-10"
      word_wrap="true"
      top_pad="6"
      use_ellipses="true"
