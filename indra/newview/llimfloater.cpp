@@ -58,6 +58,7 @@
 #include "llinventorymodel.h"
 #include "llrootview.h"
 
+#include "llspeakers.h"
 
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
