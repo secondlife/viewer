@@ -425,6 +425,11 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
+
+		if(button_call)
+			button_call->setVisible(false);
+		if(button_chat)
+			button_chat->setVisible(false);
 	}
 	else 
 	{
@@ -452,6 +457,10 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		if(button_apply)
 			button_apply->setVisible(is_member);
+		if(button_call)
+			button_call->setVisible(is_member);
+		if(button_chat)
+			button_chat->setVisible(is_member);
 	}
 
 	reposButtons();
