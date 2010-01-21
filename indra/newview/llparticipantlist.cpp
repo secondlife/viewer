@@ -125,6 +125,8 @@ LLParticipantList::~LLParticipantList()
 		delete mParticipantListMenu;
 		mParticipantListMenu = NULL;
 	}
+
+	mAvatarList->setContextMenu(NULL);
 }
 
 void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
