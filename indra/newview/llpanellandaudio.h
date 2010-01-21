@@ -52,7 +52,9 @@ private:
 
 private:
 	LLCheckBoxCtrl* mCheckSoundLocal;
-	LLRadioGroup*	mRadioVoiceChat;
+	LLCheckBoxCtrl* mCheckParcelEnableVoice;
+	LLCheckBoxCtrl* mCheckEstateDisabledVoice;
+	LLCheckBoxCtrl* mCheckParcelVoiceLocal;	
 	LLLineEditor*	mMusicURLEdit;
 	LLCheckBoxCtrl* mMusicUrlCheck;
 
