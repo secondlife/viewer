@@ -519,7 +519,10 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 		}
 		llerrs << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
 	}
-	llverify(mImageList.erase(image) == 1);
+	if (mImageList.erase(image) != 1)
+        {
+                llwarns << "BAD STUFF!  mImageList.erase(image) != 1" << llendl;
+        }
 	image->setInImageList(FALSE) ;
 }
 

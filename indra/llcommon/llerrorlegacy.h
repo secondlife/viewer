@@ -75,6 +75,10 @@ const int LL_ERR_PRICE_MISMATCH = -23018;
 #define SHOW_ASSERT
 #else // _DEBUG
 
+#ifdef LL_RELEASE_WITH_DEBUG_INFO
+#define SHOW_ASSERT
+#endif // LL_RELEASE_WITH_DEBUG_INFO
+
 #ifdef RELEASE_SHOW_DEBUG
 #define SHOW_DEBUG
 #endif
