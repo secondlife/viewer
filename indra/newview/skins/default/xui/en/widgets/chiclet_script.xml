@@ -3,14 +3,22 @@
  height="25"
  name="script_chiclet"
  width="25">
+ <chiclet_script.chiclet_button
+  height="25"
+  image_selected="PushButton_On"
+  image_unselected="PushButton_Off"
+  name="chiclet_button"
+  tab_stop="false"
+  width="25"/>
  <chiclet_script.icon
+  bottom="3"
   follows="all"
   height="20"
   image_name="Generic_Object_Small"
+  left="2"
   mouse_opaque="false"
   name="chiclet_icon"
-  width="20"
-  bottom_pad="2" />
+ width="21"/>
  <chiclet_script.new_message_icon
   bottom="11"
   height="14"

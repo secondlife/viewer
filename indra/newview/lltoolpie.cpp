@@ -661,78 +661,317 @@ static bool needs_tooltip(LLSelectNode* nodep)
 	return false;
 }
 
-BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
+
+BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 {
-	if (!LLUI::sSettingGroups["config"]->getBOOL("ShowHoverTips")) return TRUE;
-	if (!mHoverPick.isValid()) return TRUE;
-
-	LLViewerObject* hover_object = mHoverPick.getObject();
-
-	// update hover object and hover parcel
-	LLSelectMgr::getInstance()->setHoverObject(hover_object, mHoverPick.mObjectFace);
-
-	if (mHoverPick.mPickType == LLPickInfo::PICK_LAND)
+	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+	// 
+	//  Do not show hover for land unless prefs are set to allow it.
+	// 
+	
+	if (!gSavedSettings.getBOOL("ShowLandHoverTip")) return TRUE; 
+	
+	// Didn't hit an object, but since we have a land point we
+	// must be hovering over land.
+	
+	LLParcel* hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
+	LLUUID owner;
+	S32 width = 0;
+	S32 height = 0;
+	
+	if ( hover_parcel )
 	{
-		LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+		owner = hover_parcel->getOwnerID();
+		width = S32(LLViewerParcelMgr::getInstance()->getHoverParcelWidth());
+		height = S32(LLViewerParcelMgr::getInstance()->getHoverParcelHeight());
 	}
-
-	std::string tooltip_msg;
-	std::string line;
-
-	if ( hover_object )
+	
+	// Line: "Land"
+	line.clear();
+	line.append(LLTrans::getString("TooltipLand"));
+	if (hover_parcel)
 	{
-		if ( hover_object->isHUDAttachment() )
+		line.append(hover_parcel->getName());
+	}
+	tooltip_msg.append(line);
+	tooltip_msg.push_back('\n');
+	
+	// Line: "Owner: James Linden"
+	line.clear();
+	line.append(LLTrans::getString("TooltipOwner") + " ");
+	
+	if ( hover_parcel )
+	{
+		std::string name;
+		if (LLUUID::null == owner)
 		{
-			// no hover tips for HUD elements, since they can obscure
-			// what the HUD is displaying
+			line.append(LLTrans::getString("TooltipPublic"));
+		}
+		else if (hover_parcel->getIsGroupOwned())
+		{
+			if (gCacheName->getGroupName(owner, name))
+			{
+				line.append(name);
+				line.append(LLTrans::getString("TooltipIsGroup"));
+			}
+			else
+			{
+				line.append(LLTrans::getString("RetrievingData"));
+			}
+		}
+		else if(gCacheName->getFullName(owner, name))
+		{
+			line.append(name);
+		}
+		else
+		{
+			line.append(LLTrans::getString("RetrievingData"));
+		}
+	}
+	else
+	{
+		line.append(LLTrans::getString("RetrievingData"));
+	}
+	tooltip_msg.append(line);
+	tooltip_msg.push_back('\n');
+	
+	// Line: "no fly, not safe, no build"
+	
+	// Don't display properties for your land.  This is just
+	// confusing, because you can do anything on your own land.
+	if ( hover_parcel && owner != gAgent.getID() )
+	{
+		S32 words = 0;
+		
+		line.clear();
+		// JC - Keep this in the same order as the checkboxes
+		// on the land info panel
+		if ( !hover_parcel->getAllowModify() )
+		{
+			if ( hover_parcel->getAllowGroupModify() )
+			{
+				line.append(LLTrans::getString("TooltipFlagGroupBuild"));
+			}
+			else
+			{
+				line.append(LLTrans::getString("TooltipFlagNoBuild"));
+			}
+			words++;
+		}
+		
+		if ( !hover_parcel->getAllowTerraform() )
+		{
+			if (words) line.append(", ");
+			line.append(LLTrans::getString("TooltipFlagNoEdit"));
+			words++;
+		}
+		
+		if ( hover_parcel->getAllowDamage() )
+		{
+			if (words) line.append(", ");
+			line.append(LLTrans::getString("TooltipFlagNotSafe"));
+			words++;
+		}
+		
+		// Maybe we should reflect the estate's block fly bit here as well?  DK 12/1/04
+		if ( !hover_parcel->getAllowFly() )
+		{
+			if (words) line.append(", ");
+			line.append(LLTrans::getString("TooltipFlagNoFly"));
+			words++;
+		}
+		
+		if ( !hover_parcel->getAllowOtherScripts() )
+		{
+			if (words) line.append(", ");
+			if ( hover_parcel->getAllowGroupScripts() )
+			{
+				line.append(LLTrans::getString("TooltipFlagGroupScripts"));
+			}
+			else
+			{
+				line.append(LLTrans::getString("TooltipFlagNoScripts"));
+			}
+			
+			words++;
+		}
+		
+		if (words) 
+		{
+			tooltip_msg.append(line);
+			tooltip_msg.push_back('\n');
+		}
+	}
+	
+	if (hover_parcel && hover_parcel->getParcelFlag(PF_FOR_SALE))
+	{
+		LLStringUtil::format_map_t args;
+		args["[AMOUNT]"] = llformat("%d", hover_parcel->getSalePrice());
+		line = LLTrans::getString("TooltipForSaleL$", args);
+		tooltip_msg.append(line);
+		tooltip_msg.push_back('\n');
+	}
+	
+	// trim last newlines
+	if (!tooltip_msg.empty())
+	{
+		tooltip_msg.erase(tooltip_msg.size() - 1);
+		LLToolTipMgr::instance().show(tooltip_msg);
+	}
+	
+	return TRUE;
+}
+
+BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string line, std::string tooltip_msg)
+{
+	if ( hover_object->isHUDAttachment() )
+	{
+		// no hover tips for HUD elements, since they can obscure
+		// what the HUD is displaying
+		return TRUE;
+	}
+	
+	if ( hover_object->isAttachment() )
+	{
+		// get root of attachment then parent, which is avatar
+		LLViewerObject* root_edit = hover_object->getRootEdit();
+		if (!root_edit)
+		{
+			// Strange parenting issue, don't show any text
 			return TRUE;
 		}
-
-		if ( hover_object->isAttachment() )
+		hover_object = (LLViewerObject*)root_edit->getParent();
+		if (!hover_object)
 		{
-			// get root of attachment then parent, which is avatar
-			LLViewerObject* root_edit = hover_object->getRootEdit();
-			if (!root_edit)
-			{
-				// Strange parenting issue, don't show any text
-				return TRUE;
-			}
-			hover_object = (LLViewerObject*)root_edit->getParent();
-			if (!hover_object)
-			{
-				// another strange parenting issue, bail out
-				return TRUE;
-			}
+			// another strange parenting issue, bail out
+			return TRUE;
 		}
-
-		line.clear();
-		if (hover_object->isAvatar())
+	}
+	
+	line.clear();
+	if (hover_object->isAvatar())
+	{
+		// only show tooltip if same inspector not already open
+		LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
+		if (!existing_inspector 
+			|| !existing_inspector->getVisible()
+			|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 		{
-			// only show tooltip if same inspector not already open
-			LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
-			if (!existing_inspector 
-				|| !existing_inspector->getVisible()
-				|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
+			std::string avatar_name;
+			LLNameValue* firstname = hover_object->getNVPair("FirstName");
+			LLNameValue* lastname =  hover_object->getNVPair("LastName");
+			if (firstname && lastname)
 			{
-				std::string avatar_name;
-				LLNameValue* firstname = hover_object->getNVPair("FirstName");
-				LLNameValue* lastname =  hover_object->getNVPair("LastName");
-				if (firstname && lastname)
+				avatar_name = llformat("%s %s", firstname->getString(), lastname->getString());
+			}
+			else
+			{
+				avatar_name = LLTrans::getString("TooltipPerson");
+			}
+			
+			// *HACK: We may select this object, so pretend it was clicked
+			mPick = mHoverPick;
+			LLInspector::Params p;
+			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+			p.message(avatar_name);
+			p.image.name("Inspector_I");
+			p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
+			p.visible_time_near(6.f);
+			p.visible_time_far(3.f);
+			p.delay_time(0.35f);
+			p.wrap(false);
+			
+			LLToolTipMgr::instance().show(p);
+		}
+	}
+	else
+	{
+		//
+		//  We have hit a regular object (not an avatar or attachment)
+		// 
+		
+		//
+		//  Default prefs will suppress display unless the object is interactive
+		//
+		bool show_all_object_tips =
+		(bool)gSavedSettings.getBOOL("ShowAllObjectHoverTip");			
+		LLSelectNode *nodep = LLSelectMgr::getInstance()->getHoverNode();
+		
+		// only show tooltip if same inspector not already open
+		LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_object");
+		if (nodep &&
+			(!existing_inspector 
+			 || !existing_inspector->getVisible()
+			 || existing_inspector->getKey()["object_id"].asUUID() != hover_object->getID()))
+		{
+			if (nodep->mName.empty())
+			{
+				tooltip_msg.append(LLTrans::getString("TooltipNoName"));
+			}
+			else
+			{
+				tooltip_msg.append( nodep->mName );
+			}
+			
+			bool is_time_based_media = false;
+			bool is_web_based_media = false;
+			bool is_media_playing = false;
+			
+			// Does this face have media?
+			const LLTextureEntry* tep = hover_object->getTE(mHoverPick.mObjectFace);
+			
+			if(tep)
+			{
+				const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+				if (mep)
 				{
-					avatar_name = llformat("%s %s", firstname->getString(), lastname->getString());
+					viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
+					LLPluginClassMedia* media_plugin = NULL;
+					
+					if (media_impl.notNull() && (media_impl->hasMedia()))
+					{
+						LLStringUtil::format_map_t args;
+						
+						media_plugin = media_impl->getMediaPlugin();
+						if(media_plugin)
+						{	if(media_plugin->pluginSupportsMediaTime())
+						{
+							is_time_based_media = true;
+							is_web_based_media = false;
+							//args["[CurrentURL]"] =  media_impl->getMediaURL();
+							is_media_playing = media_impl->isMediaPlaying();
+						}
+						else
+						{
+							is_time_based_media = false;
+							is_web_based_media = true;
+							//args["[CurrentURL]"] =  media_plugin->getLocation();
+						}
+							//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
+						}
+					}
 				}
-				else
-				{
-					avatar_name = LLTrans::getString("TooltipPerson");
-				}
-
-				// *HACK: We may select this object, so pretend it was clicked
+			}
+			
+			// also check the primary node since sometimes it can have an action even though
+			// the root node doesn't
+			bool needs_tip = needs_tooltip(nodep) || 
+			needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode());
+			
+			if (show_all_object_tips || needs_tip)
+			{
+				// We may select this object, so pretend it was clicked
 				mPick = mHoverPick;
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-				p.message(avatar_name);
+				p.message(tooltip_msg);
 				p.image.name("Inspector_I");
-				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
+				p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
+				p.time_based_media(is_time_based_media);
+				p.web_based_media(is_web_based_media);
+				p.media_playing(is_media_playing);
+				p.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick));
+				p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
 				p.delay_time(0.35f);
@@ -741,261 +980,33 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				LLToolTipMgr::instance().show(p);
 			}
 		}
-		else
-		{
-			//
-			//  We have hit a regular object (not an avatar or attachment)
-			// 
-
-			//
-			//  Default prefs will suppress display unless the object is interactive
-			//
-			bool show_all_object_tips =
-				(bool)gSavedSettings.getBOOL("ShowAllObjectHoverTip");			
-			LLSelectNode *nodep = LLSelectMgr::getInstance()->getHoverNode();
-			
-			// only show tooltip if same inspector not already open
-			LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_object");
-			if (nodep &&
-				(!existing_inspector 
-					|| !existing_inspector->getVisible()
-					|| existing_inspector->getKey()["object_id"].asUUID() != hover_object->getID()))
-			{
-				if (nodep->mName.empty())
-				{
-					tooltip_msg.append(LLTrans::getString("TooltipNoName"));
-				}
-				else
-				{
-					tooltip_msg.append( nodep->mName );
-				}
-				
-				bool is_time_based_media = false;
-				bool is_web_based_media = false;
-				bool is_media_playing = false;
-				
-				// Does this face have media?
-				const LLTextureEntry* tep = hover_object->getTE(mHoverPick.mObjectFace);
-				
-				if(tep)
-				{
-					const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
-					if (mep)
-					{
-						viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
-						LLPluginClassMedia* media_plugin = NULL;
-				
-						if (media_impl.notNull() && (media_impl->hasMedia()))
-						{
-							LLStringUtil::format_map_t args;
-					
-							media_plugin = media_impl->getMediaPlugin();
-							if(media_plugin)
-							{	if(media_plugin->pluginSupportsMediaTime())
-								{
-									is_time_based_media = true;
-									is_web_based_media = false;
-									//args["[CurrentURL]"] =  media_impl->getMediaURL();
-									is_media_playing = media_impl->isMediaPlaying();
-								}
-								else
-								{
-									is_time_based_media = false;
-									is_web_based_media = true;
-									//args["[CurrentURL]"] =  media_plugin->getLocation();
-								}
-								//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
-							}
-						}
-					}
-				}
-				
-				// also check the primary node since sometimes it can have an action even though
-				// the root node doesn't
-				bool needs_tip = needs_tooltip(nodep) || 
-					             needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode());
-
-				if (show_all_object_tips || needs_tip)
-				{
-					// We may select this object, so pretend it was clicked
-					mPick = mHoverPick;
-					LLInspector::Params p;
-					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-					p.message(tooltip_msg);
-					p.image.name("Inspector_I");
-					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
-					p.time_based_media(is_time_based_media);
-					p.web_based_media(is_web_based_media);
-					p.media_playing(is_media_playing);
-					p.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick));
-					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
-					p.visible_time_near(6.f);
-					p.visible_time_far(3.f);
-					p.delay_time(0.35f);
-					p.wrap(false);
-					
-					LLToolTipMgr::instance().show(p);
-				}
-			}
-		}
 	}
-	else if ( mHoverPick.mPickType == LLPickInfo::PICK_LAND )
+	
+	return TRUE;
+}
+
+BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
+{
+	if (!LLUI::sSettingGroups["config"]->getBOOL("ShowHoverTips")) return TRUE;
+	if (!mHoverPick.isValid()) return TRUE;
+
+	LLViewerObject* hover_object = mHoverPick.getObject();
+	
+	// update hover object and hover parcel
+	LLSelectMgr::getInstance()->setHoverObject(hover_object, mHoverPick.mObjectFace);
+	
+	
+	std::string tooltip_msg;
+	std::string line;
+
+	if ( hover_object )
 	{
-		// 
-		//  Do not show hover for land unless prefs are set to allow it.
-		// 
-		
-		if (!gSavedSettings.getBOOL("ShowLandHoverTip")) return TRUE; 
-
-		// Didn't hit an object, but since we have a land point we
-		// must be hovering over land.
-
-		LLParcel* hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
-		LLUUID owner;
-		S32 width = 0;
-		S32 height = 0;
-
-		if ( hover_parcel )
-		{
-			owner = hover_parcel->getOwnerID();
-			width = S32(LLViewerParcelMgr::getInstance()->getHoverParcelWidth());
-			height = S32(LLViewerParcelMgr::getInstance()->getHoverParcelHeight());
-		}
-
-		// Line: "Land"
-		line.clear();
-		line.append(LLTrans::getString("TooltipLand"));
-		if (hover_parcel)
-		{
-			line.append(hover_parcel->getName());
-		}
-		tooltip_msg.append(line);
-		tooltip_msg.push_back('\n');
-
-		// Line: "Owner: James Linden"
-		line.clear();
-		line.append(LLTrans::getString("TooltipOwner") + " ");
-
-		if ( hover_parcel )
-		{
-			std::string name;
-			if (LLUUID::null == owner)
-			{
-				line.append(LLTrans::getString("TooltipPublic"));
-			}
-			else if (hover_parcel->getIsGroupOwned())
-			{
-				if (gCacheName->getGroupName(owner, name))
-				{
-					line.append(name);
-					line.append(LLTrans::getString("TooltipIsGroup"));
-				}
-				else
-				{
-					line.append(LLTrans::getString("RetrievingData"));
-				}
-			}
-			else if(gCacheName->getFullName(owner, name))
-			{
-				line.append(name);
-			}
-			else
-			{
-				line.append(LLTrans::getString("RetrievingData"));
-			}
-		}
-		else
-		{
-			line.append(LLTrans::getString("RetrievingData"));
-		}
-		tooltip_msg.append(line);
-		tooltip_msg.push_back('\n');
-
-		// Line: "no fly, not safe, no build"
-
-		// Don't display properties for your land.  This is just
-		// confusing, because you can do anything on your own land.
-		if ( hover_parcel && owner != gAgent.getID() )
-		{
-			S32 words = 0;
-			
-			line.clear();
-			// JC - Keep this in the same order as the checkboxes
-			// on the land info panel
-			if ( !hover_parcel->getAllowModify() )
-			{
-				if ( hover_parcel->getAllowGroupModify() )
-				{
-					line.append(LLTrans::getString("TooltipFlagGroupBuild"));
-				}
-				else
-				{
-					line.append(LLTrans::getString("TooltipFlagNoBuild"));
-				}
-				words++;
-			}
-
-			if ( !hover_parcel->getAllowTerraform() )
-			{
-				if (words) line.append(", ");
-				line.append(LLTrans::getString("TooltipFlagNoEdit"));
-				words++;
-			}
-
-			if ( hover_parcel->getAllowDamage() )
-			{
-				if (words) line.append(", ");
-				line.append(LLTrans::getString("TooltipFlagNotSafe"));
-				words++;
-			}
-
-			// Maybe we should reflect the estate's block fly bit here as well?  DK 12/1/04
-			if ( !hover_parcel->getAllowFly() )
-			{
-				if (words) line.append(", ");
-				line.append(LLTrans::getString("TooltipFlagNoFly"));
-				words++;
-			}
-
-			if ( !hover_parcel->getAllowOtherScripts() )
-			{
-				if (words) line.append(", ");
-				if ( hover_parcel->getAllowGroupScripts() )
-				{
-					line.append(LLTrans::getString("TooltipFlagGroupScripts"));
-				}
-				else
-				{
-					line.append(LLTrans::getString("TooltipFlagNoScripts"));
-				}
-				
-				words++;
-			}
-
-			if (words) 
-			{
-				tooltip_msg.append(line);
-				tooltip_msg.push_back('\n');
-			}
-		}
-
-		if (hover_parcel && hover_parcel->getParcelFlag(PF_FOR_SALE))
-		{
-			LLStringUtil::format_map_t args;
-			args["[AMOUNT]"] = llformat("%d", hover_parcel->getSalePrice());
-			line = LLTrans::getString("TooltipForSaleL$", args);
-			tooltip_msg.append(line);
-			tooltip_msg.push_back('\n');
-		}
-
-		// trim last newlines
-		if (!tooltip_msg.empty())
-		{
-			tooltip_msg.erase(tooltip_msg.size() - 1);
-			LLToolTipMgr::instance().show(tooltip_msg);
-		}
+		handleTooltipObject(hover_object, line, tooltip_msg  );
 	}
-
+	else if (mHoverPick.mPickType == LLPickInfo::PICK_LAND)
+	{
+		handleTooltipLand(line, tooltip_msg);
+	}
 
 	return TRUE;
 }
