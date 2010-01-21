@@ -163,6 +163,7 @@ void LLURLRequest::setBodyLimit(U32 size)
 void LLURLRequest::checkRootCertificate(bool check)
 {
 	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, (check? TRUE : FALSE));
+	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, (check? 2 : 0));
 	mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 }
 
