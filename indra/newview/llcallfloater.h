@@ -44,6 +44,8 @@ class LLNonAvatarCaller;
 class LLOutputMonitorCtrl;
 class LLParticipantList;
 class LLSpeakerMgr;
+class LLSpeakersDelayActionsStorage;
+
 /**
  * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron on the Speak button.
  * It can be torn-off and freely positioned onscreen.
@@ -169,7 +171,7 @@ private:
 	 *
 	 * @param voice_speaker_id LLUUID of Avatar List item to be removed from the list.
 	 */
-	void removeVoiceLeftParticipant(const LLUUID& voice_speaker_id);
+	bool removeVoiceLeftParticipant(const LLUUID& voice_speaker_id);
 
 	/**
 	 * Deletes all timers from the list to prevent started timers from ticking after destruction
@@ -240,32 +242,11 @@ private:
 
 	boost::signals2::connection mAvatarListRefreshConnection;
 
+
 	/**
-	 * class LLAvatarListItemRemoveTimer
-	 * 
-	 * Implements a timer that removes avatar list item of a participant
-	 * who has left the call.
+	 * time out speakers when they are not part of current session
 	 */
-	class LLAvatarListItemRemoveTimer : public LLEventTimer
-	{
-	public:
-		typedef boost::function<void(const LLUUID&)> callback_t;
-
-		LLAvatarListItemRemoveTimer(callback_t remove_cb, F32 period, const LLUUID& speaker_id);
-		virtual ~LLAvatarListItemRemoveTimer() {};
-
-		virtual BOOL tick();
-
-	private:
-		callback_t		mRemoveCallback;
-		LLUUID			mSpeakerId;
-	};
-
-	typedef std::pair<LLUUID, LLAvatarListItemRemoveTimer*> timer_pair;
-	typedef std::map<LLUUID, LLAvatarListItemRemoveTimer*> timers_map;
-
-	timers_map		mVoiceLeftTimersMap;
-	S32				mVoiceLeftRemoveDelay;
+	LLSpeakersDelayActionsStorage* mSpeakerDelayRemover;
 
 	/**
 	 * Stores reference to current voice channel.
