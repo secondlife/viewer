@@ -274,6 +274,7 @@ private:
 
 struct LLFoundData
 {
+	LLFoundData() {}
 	LLFoundData(const LLUUID& item_id,
 				const LLUUID& asset_id,
 				const std::string& name,
@@ -292,19 +293,93 @@ struct LLFoundData
 };
 
 	
-struct LLWearableHoldingPattern
+class LLWearableHoldingPattern
 {
-	LLWearableHoldingPattern() : mResolved(0) {}
-	~LLWearableHoldingPattern()
-	{
-		for_each(mFoundList.begin(), mFoundList.end(), DeletePointer());
-		mFoundList.clear();
-	}
-	typedef std::list<LLFoundData*> found_list_t;
+public:
+	LLWearableHoldingPattern();
+	~LLWearableHoldingPattern();
+
+	bool pollCompletion();
+	bool isDone();
+	bool isTimedOut();
+	
+	typedef std::list<LLFoundData> found_list_t;
 	found_list_t mFoundList;
+	LLInventoryModel::item_array_t mObjItems;
+	LLInventoryModel::item_array_t mGestItems;
 	S32 mResolved;
-	bool append;
+	LLTimer mWaitTime;
 };
+
+LLWearableHoldingPattern::LLWearableHoldingPattern():
+	mResolved(0)
+{
+}
+
+LLWearableHoldingPattern::~LLWearableHoldingPattern()
+{
+}
+
+bool LLWearableHoldingPattern::isDone()
+{
+	if (mResolved >= (S32)mFoundList.size())
+		return true; // have everything we were waiting for
+	else if (isTimedOut())
+	{
+		llwarns << "Exceeded max wait time, updating appearance based on what has arrived" << llendl;
+		return true;
+	}
+	return false;
+
+}
+
+bool LLWearableHoldingPattern::isTimedOut()
+{
+	static F32 max_wait_time = 15.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
+	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
+}
+
+bool LLWearableHoldingPattern::pollCompletion()
+{
+	bool done = isDone();
+	llinfos << "polling, done status: " << done << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+	if (done)
+	{
+		// Activate all gestures in this folder
+		if (mGestItems.count() > 0)
+		{
+			llinfos << "Activating " << mGestItems.count() << " gestures" << llendl;
+			
+			LLGestureManager::instance().activateGestures(mGestItems);
+			
+			// Update the inventory item labels to reflect the fact
+			// they are active.
+			LLViewerInventoryCategory* catp =
+				gInventory.getCategory(LLAppearanceManager::instance().getCOF());
+
+			if (catp)
+			{
+				gInventory.updateCategory(catp);
+				gInventory.notifyObservers();
+			}
+		}
+
+		// Update wearables.
+		llinfos << "Updating agent wearables with " << mResolved << " wearable items " << llendl;
+		LLAppearanceManager::instance().updateAgentWearables(this, false);
+		
+		// Update attachments to match those requested.
+		LLVOAvatar* avatar = gAgent.getAvatarObject();
+		if( avatar )
+		{
+			llinfos << "Updating " << mObjItems.count() << " attachments" << llendl;
+			LLAgentWearables::userUpdateAttachments(mObjItems);
+		}
+
+		delete this;
+	}
+	return done;
+}
 
 static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 {
@@ -336,26 +411,21 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 static void onWearableAssetFetch(LLWearable* wearable, void* data)
 {
 	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
-	bool append = holder->append;
 	
 	if(wearable)
 	{
 		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
 			 iter != holder->mFoundList.end(); ++iter)
 		{
-			LLFoundData* data = *iter;
-			if(wearable->getAssetID() == data->mAssetID)
+			LLFoundData& data = *iter;
+			if(wearable->getAssetID() == data.mAssetID)
 			{
-				data->mWearable = wearable;
+				data.mWearable = wearable;
 				break;
 			}
 		}
 	}
 	holder->mResolved += 1;
-	if(holder->mResolved >= (S32)holder->mFoundList.size())
-	{
-		LLAppearanceManager::instance().updateAgentWearables(holder, append);
-	}
 }
 
 const LLUUID LLAppearanceManager::getCOF() const
@@ -662,12 +732,12 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
 			 iter != holder->mFoundList.end(); ++iter)
 		{
-			LLFoundData* data = *iter;
-			LLWearable* wearable = data->mWearable;
+			LLFoundData& data = *iter;
+			LLWearable* wearable = data.mWearable;
 			if( wearable && ((S32)wearable->getType() == i) )
 			{
 				LLViewerInventoryItem* item;
-				item = (LLViewerInventoryItem*)gInventory.getItem(data->mItemID);
+				item = (LLViewerInventoryItem*)gInventory.getItem(data.mItemID);
 				if( item && (item->getAssetUUID() == wearable->getAssetID()) )
 				{
 					items.put(item);
@@ -682,8 +752,6 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 	{
 		gAgentWearables.setWearableOutfit(items, wearables, !append);
 	}
-
-	delete holder;
 
 //	dec_busy_count();
 }
@@ -706,86 +774,66 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	LLInventoryModel::item_array_t gest_items;
 	getUserDescendents(current_outfit_id, wear_items, obj_items, gest_items, follow_folder_links);
 	
-	if( !wear_items.count() && !obj_items.count() && !gest_items.count())
+	if(!wear_items.count())
 	{
 		LLNotificationsUtil::add("CouldNotPutOnOutfit");
 		return;
 	}
+
+	LLWearableHoldingPattern* holder = new LLWearableHoldingPattern;
+
+	holder->mObjItems = obj_items;
+	holder->mGestItems = gest_items;
 		
-	// Processes that take time should show the busy cursor
-	//inc_busy_count(); // BAP this is currently a no-op in llinventorybridge.cpp - do we need it?
-		
-	// Activate all gestures in this folder
-	if (gest_items.count() > 0)
+	// Note: can't do normal iteration, because if all the
+	// wearables can be resolved immediately, then the
+	// callback will be called (and this object deleted)
+	// before the final getNextData().
+	LLDynamicArray<LLFoundData> found_container;
+	for(S32 i = 0; i  < wear_items.count(); ++i)
 	{
-		llinfos << "Activating " << gest_items.count() << " gestures" << llendl;
-
-		LLGestureManager::instance().activateGestures(gest_items);
-
-		// Update the inventory item labels to reflect the fact
-		// they are active.
-		LLViewerInventoryCategory* catp = gInventory.getCategory(current_outfit_id);
-		if (catp)
+		LLViewerInventoryItem *item = wear_items.get(i);
+		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+		if (item && linked_item)
 		{
-			gInventory.updateCategory(catp);
-			gInventory.notifyObservers();
+			LLFoundData found(linked_item->getUUID(),
+							  linked_item->getAssetUUID(),
+							  linked_item->getName(),
+							  linked_item->getType());
+			holder->mFoundList.push_front(found);
+			found_container.put(found);
+		}
+		else
+		{
+			if (!item)
+			{
+				llwarns << "attempt to wear a null item " << llendl;
+			}
+			else if (!linked_item)
+			{
+				llwarns << "attempt to wear a broken link " << item->getName() << llendl;
+			}
 		}
 	}
 
-	if(wear_items.count() > 0)
+	for(S32 i = 0; i < found_container.count(); ++i)
 	{
-		// Note: can't do normal iteration, because if all the
-		// wearables can be resolved immediately, then the
-		// callback will be called (and this object deleted)
-		// before the final getNextData().
-		LLWearableHoldingPattern* holder = new LLWearableHoldingPattern;
-		LLFoundData* found;
-		LLDynamicArray<LLFoundData*> found_container;
-		for(S32 i = 0; i  < wear_items.count(); ++i)
-		{
-			LLViewerInventoryItem *item = wear_items.get(i);
-			LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
-			if (item && linked_item)
-			{
-				found = new LLFoundData(linked_item->getUUID(),
-										linked_item->getAssetUUID(),
-										linked_item->getName(),
-										linked_item->getType());
-				holder->mFoundList.push_front(found);
-				found_container.put(found);
-			}
-			else
-			{
-				if (!item)
-				{
-					llwarns << "attempt to wear a null item " << llendl;
-				}
-				else if (!linked_item)
-				{
-					llwarns << "attempt to wear a broken link " << item->getName() << llendl;
-				}
-			}
-		}
-		for(S32 i = 0; i < found_container.count(); ++i)
-		{
-			holder->append = false;
-			found = found_container.get(i);
+		LLFoundData& found = found_container.get(i);
 				
-			// Fetch the wearables about to be worn.
-			LLWearableList::instance().getAsset(found->mAssetID,
-												found->mName,
-												found->mAssetType,
-												onWearableAssetFetch,
-												(void*)holder);
-		}
+		// Fetch the wearables about to be worn.
+		LLWearableList::instance().getAsset(found.mAssetID,
+											found.mName,
+											found.mAssetType,
+											onWearableAssetFetch,
+											(void*)holder);
+
 	}
 
-	// Update attachments to match those requested.
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( avatar )
+	if (!holder->pollCompletion())
 	{
-		LLAgentWearables::userUpdateAttachments(obj_items);
+		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollCompletion,holder));
 	}
+
 }
 
 void LLAppearanceManager::getDescendentsOfAssetType(const LLUUID& category,

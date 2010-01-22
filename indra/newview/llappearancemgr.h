@@ -39,7 +39,7 @@
 #include "llcallbacklist.h"
 
 class LLWearable;
-struct LLWearableHoldingPattern;
+class LLWearableHoldingPattern;
 
 class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
 {
@@ -174,6 +174,42 @@ void doOnIdle(T callable)
 {
 	OnIdleCallback<T>* cb_functor = new OnIdleCallback<T>(callable);
 	gIdleCallbacks.addFunction(&OnIdleCallback<T>::onIdle,cb_functor);
+}
+
+// Shim class and template function to allow arbitrary boost::bind
+// expressions to be run as recurring idle callbacks.
+template <typename T>
+class OnIdleCallbackRepeating
+{
+public:
+	OnIdleCallbackRepeating(T callable):
+		mCallable(callable)
+	{
+	}
+	// Will keep getting called until the callable returns false.
+	static void onIdle(void *data)
+	{
+		OnIdleCallbackRepeating<T>* self = reinterpret_cast<OnIdleCallbackRepeating<T>*>(data);
+		bool done = self->call();
+		if (done)
+		{
+			gIdleCallbacks.deleteFunction(onIdle, data);
+			delete self;
+		}
+	}
+	bool call()
+	{
+		return mCallable();
+	}
+private:
+	T mCallable;
+};
+
+template <typename T>
+void doOnIdleRepeating(T callable)
+{
+	OnIdleCallbackRepeating<T>* cb_functor = new OnIdleCallbackRepeating<T>(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating<T>::onIdle,cb_functor);
 }
 
 #endif
