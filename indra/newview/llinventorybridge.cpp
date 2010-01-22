@@ -185,6 +185,11 @@ BOOL LLInvFVBridge::isItemRemovable()
 	{
 		return FALSE;
 	}
+	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
+	{
+		return FALSE;
+	}
+
 	const LLInventoryObject *obj = model->getItem(mUUID);
 	if (obj && obj->getIsLinkType())
 	{
@@ -712,14 +717,7 @@ BOOL LLInvFVBridge::isAgentInventory() const
 
 BOOL LLInvFVBridge::isCOFFolder() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if(!model) return TRUE;
-	const LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-	if (mUUID == cof_id || model->isObjectDescendentOf(mUUID, cof_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return LLAppearanceManager::instance().getIsInCOF(mUUID);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -4622,7 +4620,10 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
-		items.push_back(std::string("Wearable Separator"));
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Wearable Separator"));
+		}
 
 		items.push_back(std::string("Wearable Edit"));
 

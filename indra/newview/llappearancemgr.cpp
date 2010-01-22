@@ -358,7 +358,7 @@ static void onWearableAssetFetch(LLWearable* wearable, void* data)
 	}
 }
 
-LLUUID LLAppearanceManager::getCOF()
+const LLUUID LLAppearanceManager::getCOF() const
 {
 	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 }
@@ -1262,4 +1262,24 @@ void LLAppearanceManager::linkRegisteredAttachments()
 		addCOFItemLink(item_id, false);
 	}
 	mRegisteredAttachments.clear();
+}
+
+BOOL LLAppearanceManager::getIsInCOF(const LLUUID& obj_id) const
+{
+	return gInventory.isObjectDescendentOf(obj_id, getCOF());
+}
+
+BOOL LLAppearanceManager::getIsProtectedCOFItem(const LLUUID& obj_id) const
+{
+	if (!getIsInCOF(obj_id)) return FALSE;
+	const LLInventoryObject *obj = gInventory.getObject(obj_id);
+	if (!obj) return FALSE;
+
+	// Can't delete bodyparts, since this would be equivalent to removing the item.
+	if (obj->getType() == LLAssetType::AT_BODYPART) return TRUE;
+
+	// Can't delete the folder link, since this is saved for bookkeeping.
+	if (obj->getActualType() == LLAssetType::AT_LINK_FOLDER) return TRUE;
+
+	return FALSE;
 }
