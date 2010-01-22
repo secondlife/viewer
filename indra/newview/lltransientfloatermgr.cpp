@@ -139,3 +139,9 @@ void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
 	}
 }
 
+void LLTransientFloater::init(LLFloater* thiz)
+{
+	// used since LLTransientFloater(this) can't be used in descendant constructor parameter initialization.
+	mFloater = thiz;
+}
+

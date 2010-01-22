@@ -44,13 +44,16 @@ class LLTransientFloater;
  */
 class LLTransientFloaterMgr: public LLSingleton<LLTransientFloaterMgr>
 {
+protected:
+	LLTransientFloaterMgr();
+	friend class LLSingleton<LLTransientFloaterMgr>;
+
 public:
 	enum ETransientGroup
 	{
 		GLOBAL, IM
 	};
 
-	LLTransientFloaterMgr();
 	void registerTransientFloater(LLTransientFloater* floater);
 	void unregisterTransientFloater(LLTransientFloater* floater);
 	void addControlView(ETransientGroup group, LLView* view);
@@ -75,8 +78,13 @@ private:
  */
 class LLTransientFloater
 {
+protected:
+	/**
+	 * Class initialization method.
+	 * Should be called from descendant constructor.
+	 */
+	void init(LLFloater* thiz);
 public:
-	LLTransientFloater(LLFloater* floater) : mFloater(floater) {}
 	virtual LLTransientFloaterMgr::ETransientGroup getGroup() = 0;
 	bool isTransientDocked() { return mFloater->isDocked(); };
 	void setTransientVisible(BOOL visible) {mFloater->setVisible(visible); }

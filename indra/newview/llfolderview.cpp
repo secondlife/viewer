@@ -1391,6 +1391,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
 		mRenamer->setTopLostCallback(boost::bind(onRenamerLost, _1));
+		mRenamer->setFocusLostCallback(boost::bind(onRenamerLost, _1));
 		gFocusMgr.setTopCtrl( mRenamer );
 	}
 }

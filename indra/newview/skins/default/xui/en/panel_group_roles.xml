@@ -49,6 +49,18 @@
 Select multiple Members by holding the Ctrl key and
 clicking on their names.
             </panel.string>
+            <panel.string
+             name="power_folder_icon">
+                Inv_FolderClosed
+            </panel.string>
+            <panel.string
+             name="power_all_have_icon">
+                Checkbox_On
+            </panel.string>
+            <panel.string
+             name="power_partial_icon">
+                Checkbox_Off
+            </panel.string>
          <filter_editor
          layout="topleft"
          top="5"
@@ -310,7 +322,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          width="285">
             Allowed Abilities
         </text>
-         <scroll_list
+        <scroll_list
          draw_stripes="true"
          height="90"
          layout="topleft"
@@ -322,8 +334,16 @@ things in this group. There&apos;s a broad variety of Abilities.
          width="300">
             <scroll_list.columns
              label=""
+             name="icon"
+             width="2" />
+            <scroll_list.columns
+             label=""
+             name="checkbox"
+             width="20" />
+            <scroll_list.columns
+             label=""
              name="action"
-             width="300" />
+             width="270" />
         </scroll_list>
     </panel>
     <panel
