@@ -822,8 +822,8 @@ class LinuxManifest(ViewerManifest):
             'dst': self.get_dst_prefix(),
             'inst': self.build_path_of(installer_name)})
         try:
-            # only create tarball if it's not a debug build.
-            if self.args['buildtype'].lower() != 'debug':
+            # only create tarball if it's a release build.
+            if self.args['buildtype'].lower() == 'release':
                 # --numeric-owner hides the username of the builder for
                 # security etc.
                 self.run_command('tar -C %(dir)s --numeric-owner -cjf '
@@ -855,7 +855,7 @@ class Linux_i686Manifest(LinuxManifest):
                 pass
 
             
-        if(self.args['buildtype'].lower() != 'debug'):
+        if(self.args['buildtype'].lower() == 'release'):
             print "* packaging stripped viewer binary."
             self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         else:
