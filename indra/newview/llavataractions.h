@@ -129,10 +129,10 @@ public:
 	static bool isCalling(const LLUUID &id);
 
 	/**
-	 * @return true if call to the resident can be made (resident is online and voice is enabled)
+	 * @return true if call to the resident can be made
 	 */
 
-	static bool canCall(const LLUUID &id);
+	static bool canCall();
 	/**
 	 * Invite avatar to a group.
 	 */	

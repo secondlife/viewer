@@ -628,7 +628,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	}
 	else if (item == "can_call")
 	{
-		return LLVoiceClient::voiceEnabled();
+		return LLVoiceClient::voiceEnabled()&&gVoiceClient->voiceWorking();
 	}
 
 	return true;
