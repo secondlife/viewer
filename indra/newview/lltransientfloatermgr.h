@@ -44,13 +44,16 @@ class LLTransientFloater;
  */
 class LLTransientFloaterMgr: public LLSingleton<LLTransientFloaterMgr>
 {
+protected:
+	LLTransientFloaterMgr();
+	friend class LLSingleton<LLTransientFloaterMgr>;
+
 public:
 	enum ETransientGroup
 	{
 		GLOBAL, IM
 	};
 
-	LLTransientFloaterMgr();
 	void registerTransientFloater(LLTransientFloater* floater);
 	void unregisterTransientFloater(LLTransientFloater* floater);
 	void addControlView(ETransientGroup group, LLView* view);
