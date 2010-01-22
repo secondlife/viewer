@@ -324,7 +324,7 @@ void LLFloaterReporter::setFromAvatar(const LLUUID& avatar_id, const std::string
 
 	std::string avatar_link = LLSLURL::buildCommand("agent", mObjectID, "inspect");
 	childSetText("owner_name", avatar_link);
-	childSetText("object_name", avatar_name); // name
+	childSetText("object_name", avatar_name);
 	childSetText("abuser_name_edit", avatar_name);
 }
 
