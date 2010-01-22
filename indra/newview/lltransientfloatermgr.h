@@ -75,8 +75,13 @@ private:
  */
 class LLTransientFloater
 {
+protected:
+	/**
+	 * Class initialization method.
+	 * Should be called from descendant constructor.
+	 */
+	void init(LLFloater* thiz);
 public:
-	LLTransientFloater(LLFloater* floater) : mFloater(floater) {}
 	virtual LLTransientFloaterMgr::ETransientGroup getGroup() = 0;
 	bool isTransientDocked() { return mFloater->isDocked(); };
 	void setTransientVisible(BOOL visible) {mFloater->setVisible(visible); }
