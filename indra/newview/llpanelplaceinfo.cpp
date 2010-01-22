@@ -34,26 +34,20 @@
 
 #include "llpanelplaceinfo.h"
 
-#include "roles_constants.h"
 #include "llsdutil.h"
-#include "llsecondlifeurls.h"
 
 #include "llsdutil_math.h"
+
 #include "llregionhandle.h"
-#include "message.h"
 
 #include "lliconctrl.h"
 #include "lltextbox.h"
 
 #include "llagent.h"
-#include "llavatarpropertiesprocessor.h"
 #include "llexpandabletextbox.h"
 #include "llpanelpick.h"
 #include "lltexturectrl.h"
-#include "llviewerinventory.h"
-#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-#include "llviewertexteditor.h"
 
 LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),

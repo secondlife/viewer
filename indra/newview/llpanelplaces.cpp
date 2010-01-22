@@ -771,23 +771,23 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 		mPickPanel->reshape(rect.getWidth(), rect.getHeight());
 		mPickPanel->setRect(rect);
 	}
-    else if (item == "add_to_favbar")
-    {
-        if ( mItem.notNull() ) 
-        {
-            const LLUUID& favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-            if ( favorites_id.notNull() )
-            {
-                copy_inventory_item(gAgent.getID(),
-                                    mItem->getPermissions().getOwner(),
-                                    mItem->getUUID(),
-                                    favorites_id,
-                                    std::string(),
-                                    LLPointer<LLInventoryCallback>(NULL));
-                llinfos << "Copied inventory item #" << mItem->getUUID() << " to favorites." << llendl;
-            }
-        }
-    }
+	else if (item == "add_to_favbar")
+	{
+		if ( mItem.notNull() )
+		{
+			const LLUUID& favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+			if ( favorites_id.notNull() )
+			{
+				copy_inventory_item(gAgent.getID(),
+									mItem->getPermissions().getOwner(),
+									mItem->getUUID(),
+									favorites_id,
+									std::string(),
+									LLPointer<LLInventoryCallback>(NULL));
+				llinfos << "Copied inventory item #" << mItem->getUUID() << " to favorites." << llendl;
+			}
+		}
+	}
 }
 
 void LLPanelPlaces::onBackButtonClicked()
