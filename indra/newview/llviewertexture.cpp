@@ -1561,7 +1561,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 void LLViewerFetchedTexture::setDecodePriority(F32 priority)
 {
 	//llassert(!mInImageList); // firing a lot, figure out why
-        if (!mInImageList) // above llassert() softened to a warning
+        if (mInImageList) // above llassert() softened to a warning
         {
                 llwarns << "BAD STUFF!  mInImageList" << llendl;
         }
