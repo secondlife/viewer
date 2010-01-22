@@ -257,6 +257,25 @@ void LLPanelPlaceProfile::processParcelInfo(const LLParcelData& parcel_data)
 	}
 }
 
+// virtual
+void LLPanelPlaceProfile::handleVisibilityChange(BOOL new_visibility)
+{
+	LLPanel::handleVisibilityChange(new_visibility);
+
+	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+	if (!parcel_mgr)
+		return;
+
+	// Remove land selection when panel hides.
+	if (!new_visibility)
+	{
+		if (!parcel_mgr->selectionEmpty())
+		{
+			parcel_mgr->deselectUnused();
+		}
+	}
+}
+
 void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 													LLViewerRegion* region,
 													const LLVector3d& pos_global,

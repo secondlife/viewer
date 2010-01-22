@@ -265,25 +265,6 @@ void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 }
 
-// virtual
-void LLPanelPlaceInfo::handleVisibilityChange(BOOL new_visibility)
-{
-	LLPanel::handleVisibilityChange(new_visibility);
-
-	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
-	if (!parcel_mgr)
-		return;
-
-	// Remove land selection when panel hides.
-	if (!new_visibility)
-	{
-		if (!parcel_mgr->selectionEmpty())
-		{
-			parcel_mgr->deselectLand();
-		}
-	}
-}
-
 void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel)
 {
 	std::string region_name = mRegionName->getText();
