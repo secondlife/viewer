@@ -452,6 +452,7 @@ LLPanelGroupSubTab::LLPanelGroupSubTab()
 :	LLPanelGroupTab(),
 	mHeader(NULL),
 	mFooter(NULL),
+	mActivated(false),
 	mSearchEditor(NULL)
 {
 }
@@ -504,13 +505,14 @@ void LLPanelGroupSubTab::setGroupID(const LLUUID& id)
 		mSearchEditor->clear();
 		setSearchFilter("");
 	}
+
+	mActivated = false;
 }
 
 void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 {
 	if(mSearchFilter == filter)
 		return;
-	lldebugs << "LLPanelGroupSubTab::setSearchFilter() ==> '" << filter << "'" << llendl;
 	mSearchFilter = filter;
 	LLStringUtil::toLower(mSearchFilter);
 	update(GC_ALL);
@@ -518,13 +520,11 @@ void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 
 void LLPanelGroupSubTab::activate()
 {
-	lldebugs << "LLPanelGroupSubTab::activate()" << llendl;
 	setOthersVisible(TRUE);
 }
 
 void LLPanelGroupSubTab::deactivate()
 {
-	lldebugs << "LLPanelGroupSubTab::deactivate()" << llendl;
 	setOthersVisible(FALSE);
 }
 
@@ -534,18 +534,10 @@ void LLPanelGroupSubTab::setOthersVisible(BOOL b)
 	{
 		mHeader->setVisible( b );
 	}
-	else
-	{
-		llwarns << "LLPanelGroupSubTab missing header!" << llendl;
-	}
 
 	if (mFooter)
 	{
 		mFooter->setVisible( b );
-	}
-	else
-	{
-		llwarns << "LLPanelGroupSubTab missing footer!" << llendl;
 	}
 }
 
@@ -875,10 +867,12 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	for (itor = selection.begin();
 		 itor != selection.end(); ++itor)
 	{
-		selected_members.push_back( (*itor)->getUUID() );
+		LLUUID member_id = (*itor)->getValue()["uuid"];
+
+		selected_members.push_back( member_id );
 		// Get this member's power mask including any unsaved changes
 
-		U64 powers = getAgentPowersBasedOnRoleChanges((*itor)->getUUID());
+		U64 powers = getAgentPowersBasedOnRoleChanges( member_id );
 
 		allowed_by_all &= powers;
 		allowed_by_some |= powers;
@@ -1098,7 +1092,8 @@ void LLPanelGroupMembersSubTab::handleEjectMembers()
 	for (itor = selection.begin() ; 
 		 itor != selection.end(); ++itor)
 	{
-		selected_members.push_back((*itor)->getUUID());
+		LLUUID member_id = (*itor)->getValue()["uuid"];
+		selected_members.push_back( member_id );
 	}
 
 	mMembersList->deleteSelectedItems();
@@ -1154,7 +1149,8 @@ void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 	for (std::vector<LLScrollListItem*>::iterator itor = selection.begin() ; 
 		 itor != selection.end(); ++itor)
 	{
-		member_id = (*itor)->getUUID();
+
+		member_id = (*itor)->getValue()["uuid"];
 
 		//see if we requested a change for this member before
 		if ( mMemberRoleChangeData.find(member_id) == mMemberRoleChangeData.end() )
@@ -1245,15 +1241,19 @@ void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
 	LLScrollListItem* selected = mMembersList->getFirstSelected();
 	if (selected)
 	{
-		LLAvatarActions::showProfile(selected->getUUID());
+		LLUUID member_id = selected->getValue()["uuid"];
+		LLAvatarActions::showProfile( member_id );
 	}
 }
 
 void LLPanelGroupMembersSubTab::activate()
 {
 	LLPanelGroupSubTab::activate();
-
-	update(GC_ALL);
+	if(!mActivated)
+	{
+		update(GC_ALL);
+		mActivated = true;
+	}
 }
 
 void LLPanelGroupMembersSubTab::deactivate()
@@ -1629,7 +1629,9 @@ void LLPanelGroupMembersSubTab::updateMembers()
 			row["columns"][2]["value"] = mMemberProgress->second->getOnlineStatus();
 			row["columns"][2]["font"] = "SANSSERIF_SMALL";
 
-			mMembersList->addElement(row);//, ADD_SORTED);
+			LLScrollListItem* member = mMembersList->addElement(row);//, ADD_SORTED);
+
+			LLUUID id = member->getValue()["uuid"];
 			mHasMatch = TRUE;
 		}
 	}
