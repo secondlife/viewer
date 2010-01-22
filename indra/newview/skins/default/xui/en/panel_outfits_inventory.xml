@@ -45,7 +45,7 @@
            left="0"
            top="0"
            mouse_opaque="true"
-           name="cof_accordionpanel"
+           name="cof_tab"
            start_folder="Current Outfit"
            width="313" />
    </tab_container>

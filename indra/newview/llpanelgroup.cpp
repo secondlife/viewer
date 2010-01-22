@@ -356,13 +356,6 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
 		(*it)->setGroupID(group_id);
 
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
-	if(gdatap)
-	{
-		childSetValue("group_name", gdatap->mName);
-		childSetToolTip("group_name",gdatap->mName);
-	}
-
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
 	LLButton* button_refresh = findChild<LLButton>("btn_refresh");
 	LLButton* button_create = findChild<LLButton>("btn_create");
@@ -425,6 +418,11 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
+
+		if(button_call)
+			button_call->setVisible(false);
+		if(button_chat)
+			button_chat->setVisible(false);
 	}
 	else 
 	{
@@ -452,9 +450,24 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		if(button_apply)
 			button_apply->setVisible(is_member);
+		if(button_call)
+			button_call->setVisible(is_member);
+		if(button_chat)
+			button_chat->setVisible(is_member);
 	}
 
 	reposButtons();
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
+
+	if(gdatap)
+	{
+		childSetValue("group_name", gdatap->mName);
+		childSetToolTip("group_name",gdatap->mName);
+		
+		//group data is already present, call update manually
+		update(GC_ALL);
+	}
 }
 
 bool LLPanelGroup::apply(LLPanelGroupTab* tab)

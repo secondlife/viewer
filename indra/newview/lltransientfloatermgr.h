@@ -37,27 +37,60 @@
 #include "llsingleton.h"
 #include "llfloater.h"
 
+class LLTransientFloater;
 
 /**
  * Provides functionality to hide transient floaters.
  */
 class LLTransientFloaterMgr: public LLSingleton<LLTransientFloaterMgr>
 {
-public:
+protected:
 	LLTransientFloaterMgr();
-	void registerTransientFloater(LLFloater* floater);
-	void unregisterTransientFloater(LLFloater* floater);
+	friend class LLSingleton<LLTransientFloaterMgr>;
+
+public:
+	enum ETransientGroup
+	{
+		GLOBAL, IM
+	};
+
+	void registerTransientFloater(LLTransientFloater* floater);
+	void unregisterTransientFloater(LLTransientFloater* floater);
+	void addControlView(ETransientGroup group, LLView* view);
+	void removeControlView(ETransientGroup group, LLView* view);
 	void addControlView(LLView* view);
 	void removeControlView(LLView* view);
 
 private:
-	void hideTransientFloaters();
+	void hideTransientFloaters(S32 x, S32 y);
 	void leftMouseClickCallback(S32 x, S32 y, MASK mask);
+	bool isControlClicked(std::set<LLView*>& set, S32 x, S32 y);
+private:
+	std::set<LLTransientFloater*> mTransSet;
+
+	typedef std::set<LLView*> controls_set_t;
+	typedef std::map<ETransientGroup, std::set<LLView*> > group_controls_t;
+	group_controls_t mGroupControls;
+};
+
+/**
+ * An abstract class declares transient floater interfaces.
+ */
+class LLTransientFloater
+{
+protected:
+	/**
+	 * Class initialization method.
+	 * Should be called from descendant constructor.
+	 */
+	void init(LLFloater* thiz);
+public:
+	virtual LLTransientFloaterMgr::ETransientGroup getGroup() = 0;
+	bool isTransientDocked() { return mFloater->isDocked(); };
+	void setTransientVisible(BOOL visible) {mFloater->setVisible(visible); }
 
 private:
-	std::set<LLFloater*> mTransSet;
-	typedef std::set<LLView*> controls_set_t;
-	controls_set_t mControlsSet;
+	LLFloater* mFloater;
 };
 
 #endif  // LL_LLTRANSIENTFLOATERMGR_H

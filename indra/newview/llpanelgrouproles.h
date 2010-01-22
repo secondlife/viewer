@@ -149,6 +149,8 @@ protected:
 
 	icon_map_t	mActionIcons;
 
+	bool mActivated;
+
 	void setOthersVisible(BOOL b);
 };
 

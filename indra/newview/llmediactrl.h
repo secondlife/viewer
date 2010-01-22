@@ -172,6 +172,7 @@ public:
 	private:
 		void onVisibilityChange ( const LLSD& new_visibility );
 		static bool onClickLinkExternalTarget( const LLSD&, const LLSD& );
+		static void clickLinkWithTarget(const std::string& url, const S32& target_type );
 
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;

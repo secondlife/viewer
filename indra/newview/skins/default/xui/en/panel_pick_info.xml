@@ -39,7 +39,7 @@
      height="500"
      layout="topleft"
      left="10"
-     top_pad="10"
+     top_pad="5"
      name="profile_scroll"
      width="313">
     <panel
@@ -102,7 +102,7 @@
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="20"
+     height="35"
      layout="topleft"
      top_pad="8"
      left="10"

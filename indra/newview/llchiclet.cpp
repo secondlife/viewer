@@ -47,6 +47,7 @@
 #include "llnotificationsutil.h"
 #include "lloutputmonitorctrl.h"
 #include "llscriptfloater.h"
+#include "llspeakers.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llgroupmgr.h"
@@ -1271,6 +1272,7 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 		chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
 
 		arrange();
+		LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, chiclet);
 
 		return true;
 	}
@@ -1298,6 +1300,7 @@ void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
 	mChicletList.erase(it);
 	
 	arrange();
+	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, chiclet);
 	chiclet->die();
 }
 

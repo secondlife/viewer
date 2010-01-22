@@ -17,6 +17,7 @@
  min_width="250"
  min_height="190">
   <layout_stack
+   animate="false" 
   follows="all"
   height="320"
   width="360"
