@@ -575,34 +575,17 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	// Don't add a separator unless we have at least one entry beneath it,
-	// to avoid double separators.
-	BOOL separator_pasted = FALSE;
+	items.push_back(std::string("Paste Separator"));
 
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
-		if (!separator_pasted)
-		{
-			items.push_back(std::string("Paste Separator"));
-			separator_pasted = TRUE;
-		}
 		items.push_back(std::string("Remove Link"));
 	}
 
-	// Hide the delete button from the COF.  Detaching/removing/etc. an item in the COF
-	// will naturally delete it.  This prevents double delete crash possibilities.
-	if (!isCOFFolder())
+	items.push_back(std::string("Delete"));
+	if (!isItemRemovable())
 	{
-		if (!separator_pasted)
-		{
-			items.push_back(std::string("Paste Separator"));
-			separator_pasted = TRUE;
-		}
-		items.push_back(std::string("Delete"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Delete"));
-		}
+		disabled_items.push_back(std::string("Delete"));
 	}
 
 	// If multiple items are selected, disable properties (if it exists).
@@ -3827,8 +3810,25 @@ void LLGestureBridge::openItem()
 
 BOOL LLGestureBridge::removeItem()
 {
-	// Force close the preview window, if it exists
-	LLGestureManager::instance().deactivateGesture(mUUID);
+	// Grab class information locally since *this may be deleted
+	// within this function.  Not a great pattern...
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model)
+	{
+		return FALSE;
+	}
+	const LLUUID item_id = mUUID;
+	
+	// This will also force close the preview window, if it exists.
+	// This may actually delete *this, if mUUID is in the COF.
+	LLGestureManager::instance().deactivateGesture(item_id);
+	
+	// If deactivateGesture deleted *this, then return out immediately.
+	if (!model->getObject(item_id))
+	{
+		return TRUE;
+	}
+
 	return LLItemBridge::removeItem();
 }
 
