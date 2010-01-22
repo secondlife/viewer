@@ -416,7 +416,6 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                name="Unread"
                image_overlay="Notices_Unread"
                image_overlay_alignment="center"
-               pad_right="15"
                tool_tip="Notifications"
                width="34" >
                   <button.init_callback

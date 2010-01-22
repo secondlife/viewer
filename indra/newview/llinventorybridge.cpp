@@ -3687,18 +3687,6 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 	return rv;
 }
 
-BOOL LLCallingCardBridge::removeItem()
-{
-	if (LLFriendCardsManager::instance().isItemInAnyFriendsList(getItem()))
-	{
-		LLAvatarActions::removeFriendDialog(getItem()->getCreatorUUID());
-		return FALSE;
-	}
-	else
-	{
-		return LLItemBridge::removeItem();
-	}
-}
 // +=================================================+
 // |        LLNotecardBridge                         |
 // +=================================================+

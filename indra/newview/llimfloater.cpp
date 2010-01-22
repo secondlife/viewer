@@ -110,6 +110,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		}
 	}
 	setOverlapsScreenChannel(true);
+
+	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 }
 
 void LLIMFloater::onFocusLost()
@@ -228,6 +230,7 @@ void LLIMFloater::sendMsg()
 
 LLIMFloater::~LLIMFloater()
 {
+	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 }
 
 //virtual
@@ -513,14 +516,14 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	if(!isChatMultiTab())
 	{
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater && floater->getVisible())
+		if (floater && floater->getVisible() && floater->hasFocus())
 		{
 			// clicking on chiclet to close floater just hides it to maintain existing
 			// scroll/text entry state
 			floater->setVisible(false);
 			return false;
 		}
-		else if(floater && !floater->isDocked())
+		else if(floater && (!floater->isDocked() || floater->getVisible() && !floater->hasFocus()))
 		{
 			floater->setVisible(TRUE);
 			floater->setFocus(TRUE);

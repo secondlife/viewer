@@ -52,6 +52,8 @@ public:
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+
 	// Displays information about the currently selected parcel
 	// without sending a request to the server.
 	// If is_current_parcel true shows "You Are Here" banner.

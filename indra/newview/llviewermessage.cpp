@@ -1472,7 +1472,12 @@ void inventory_offer_handler(LLOfferInfo* info)
 	{
 		LLStringUtil::truncate(msg, indx);
 	}
-	
+
+	if(LLAssetType::AT_LANDMARK == info->mType)
+	{
+		msg = LLViewerInventoryItem::getDisplayName(msg);
+	}
+
 	LLSD args;
 	args["[OBJECTNAME]"] = msg;
 

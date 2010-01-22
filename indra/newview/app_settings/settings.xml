@@ -10070,6 +10070,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>SpeakerParticipantRemoveDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout to remove participants who is not in channel before removed from list of active speakers (text/voice chat)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
+
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
