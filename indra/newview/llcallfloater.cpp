@@ -93,22 +93,6 @@ static void* create_non_avatar_caller(void*)
 	return new LLNonAvatarCaller;
 }
 
-LLCallFloater::LLAvatarListItemRemoveTimer::LLAvatarListItemRemoveTimer(callback_t remove_cb, F32 period, const LLUUID& speaker_id)
-: LLEventTimer(period)
-, mRemoveCallback(remove_cb)
-, mSpeakerId(speaker_id)
-{
-}
-
-BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
-{
-	if (mRemoveCallback)
-	{
-		mRemoveCallback(mSpeakerId);
-	}
-	return TRUE;
-}
-
 LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
@@ -122,10 +106,9 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 , mInitParticipantsVoiceState(false)
-, mVoiceLeftRemoveDelay(10)
 {
 	static LLUICachedControl<S32> voice_left_remove_delay ("VoiceParticipantLeftRemoveDelay", 10);
-	mVoiceLeftRemoveDelay = voice_left_remove_delay;
+	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), voice_left_remove_delay);
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -135,6 +118,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 LLCallFloater::~LLCallFloater()
 {
 	resetVoiceRemoveTimers();
+	delete mSpeakerDelayRemover;
 
 	delete mParticipants;
 	mParticipants = NULL;
@@ -648,33 +632,11 @@ void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 
 void LLCallFloater::setVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-
-	// If there is already a started timer for the current panel don't do anything.
-	bool no_timer_for_current_panel = true;
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		timers_map::iterator found_it = mVoiceLeftTimersMap.find(voice_speaker_id);
-		if (found_it != mVoiceLeftTimersMap.end())
-		{
-			no_timer_for_current_panel = false;
-		}
-	}
-
-	if (no_timer_for_current_panel)
-	{
-		// Starting a timer to remove an avatar row panel after timeout
-		mVoiceLeftTimersMap.insert(timer_pair(voice_speaker_id,
-			new LLAvatarListItemRemoveTimer(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), mVoiceLeftRemoveDelay, voice_speaker_id)));
-	}
+	mSpeakerDelayRemover->setActionTimer(voice_speaker_id);
 }
 
-void LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
+bool LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 {
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		mVoiceLeftTimersMap.erase(mVoiceLeftTimersMap.find(voice_speaker_id));
-	}
-
 	LLAvatarList::uuid_vector_t& speaker_uuids = mAvatarList->getIDs();
 	LLAvatarList::uuid_vector_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
 	if(pos != speaker_uuids.end())
@@ -682,34 +644,19 @@ void LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 		speaker_uuids.erase(pos);
 		mAvatarList->setDirty();
 	}
+
+	return false;
 }
 
 
 void LLCallFloater::resetVoiceRemoveTimers()
 {
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		for (timers_map::iterator iter = mVoiceLeftTimersMap.begin();
-			iter != mVoiceLeftTimersMap.end(); ++iter)
-		{
-			delete iter->second;
-		}
-	}
-	mVoiceLeftTimersMap.clear();
+	mSpeakerDelayRemover->removeAllTimers();
 }
 
 void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-	// Remove the timer if it has been already started
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		timers_map::iterator found_it = mVoiceLeftTimersMap.find(voice_speaker_id);
-		if (found_it != mVoiceLeftTimersMap.end())
-		{
-			delete found_it->second;
-			mVoiceLeftTimersMap.erase(found_it);
-		}
-	}
+	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id);
 }
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
