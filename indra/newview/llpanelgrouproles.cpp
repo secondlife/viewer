@@ -1016,6 +1016,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 				//last owner.  We should check for this special case
 				// -jwolk
 				check->setEnabled(cb_enable);
+				item->setEnabled(cb_enable);
 			}
 		}
 		else
