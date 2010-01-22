@@ -37,8 +37,6 @@
 #include "llvoicechannel.h"
 #include "llcallingcard.h"
 
-class LLSpeakerMgr;
-class LLAvatarList;
 class LLParticipantList;
 
 class LLPanelChatControlPanel : public LLPanel
@@ -110,7 +108,6 @@ public:
 
 protected:
 	LLUUID mGroupID;
-	LLSpeakerMgr* mSpeakerManager;
 
 	LLParticipantList* mParticipantList;
 

@@ -245,7 +245,6 @@ void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::str
 LLPanelGroupControlPanel::LLPanelGroupControlPanel(const LLUUID& session_id):
 mParticipantList(NULL)
 {
-	mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
 }
 
 BOOL LLPanelGroupControlPanel::postBuild()
@@ -304,7 +303,10 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 
 	// for group and Ad-hoc chat we need to include agent into list 
 	if(!mParticipantList)
-		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"), true,false);
+	{
+		LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(session_id);
+		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true,false);
+	}
 }
 
 
