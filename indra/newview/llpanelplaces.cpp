@@ -842,6 +842,19 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 
 			mPlaceProfile->setVisible(FALSE);
 		}
+		else
+		{
+			LLLandmarksPanel* landmarks_panel =
+					dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName("Landmarks"));
+			if (landmarks_panel && mItem.notNull())
+			{
+				// If a landmark info is being closed we open the landmarks tab
+				// and set this landmark selected.
+				mTabContainer->selectTabPanel(landmarks_panel);
+
+				landmarks_panel->setItemSelected(mItem->getUUID(), TRUE);
+			}
+		}
 	}
 }
 

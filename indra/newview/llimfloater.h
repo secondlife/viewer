@@ -116,6 +116,8 @@ public:
 
 	static void onIMChicletCreated(const LLUUID& session_id);
 
+	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
+
 private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();

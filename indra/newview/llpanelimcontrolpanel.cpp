@@ -264,9 +264,6 @@ LLPanelGroupControlPanel::~LLPanelGroupControlPanel()
 // virtual
 void LLPanelGroupControlPanel::draw()
 {
-	//Remove event does not raised until speakerp->mActivityTimer.hasExpired() is false, see LLSpeakerManager::update()
-	//so we need update it to raise needed event
-	mSpeakerManager->update(true);
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipantList)
 		mParticipantList->updateRecentSpeakersOrder();
