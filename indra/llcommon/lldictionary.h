@@ -76,7 +76,7 @@ public:
 				return dictionary_iter->first;
 			}
 		}
-		llassert(false);
+		llwarns << "Lookup on " << name << " failed" << llendl;
 		return Index(-1);
 	}
 
