@@ -574,18 +574,35 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			disabled_items.push_back(std::string("Paste As Link"));
 		}
 	}
-	items.push_back(std::string("Paste Separator"));
 
+	// Don't add a separator unless we have at least one entry beneath it,
+	// to avoid double separators.
+	BOOL separator_pasted = FALSE;
 
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
+		if (!separator_pasted)
+		{
+			items.push_back(std::string("Paste Separator"));
+			separator_pasted = TRUE;
+		}
 		items.push_back(std::string("Remove Link"));
 	}
 
-	items.push_back(std::string("Delete"));
-	if (!isItemRemovable())
+	// Hide the delete button from the COF.  Detaching/removing/etc. an item in the COF
+	// will naturally delete it.  This prevents double delete crash possibilities.
+	if (!isCOFFolder())
 	{
-		disabled_items.push_back(std::string("Delete"));
+		if (!separator_pasted)
+		{
+			items.push_back(std::string("Paste Separator"));
+			separator_pasted = TRUE;
+		}
+		items.push_back(std::string("Delete"));
+		if (!isItemRemovable())
+		{
+			disabled_items.push_back(std::string("Delete"));
+		}
 	}
 
 	// If multiple items are selected, disable properties (if it exists).
