@@ -185,6 +185,11 @@ BOOL LLInvFVBridge::isItemRemovable()
 	{
 		return FALSE;
 	}
+	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
+	{
+		return FALSE;
+	}
+
 	const LLInventoryObject *obj = model->getItem(mUUID);
 	if (obj && obj->getIsLinkType())
 	{
@@ -574,8 +579,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			disabled_items.push_back(std::string("Paste As Link"));
 		}
 	}
-	items.push_back(std::string("Paste Separator"));
 
+	items.push_back(std::string("Paste Separator"));
 
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
@@ -712,14 +717,7 @@ BOOL LLInvFVBridge::isAgentInventory() const
 
 BOOL LLInvFVBridge::isCOFFolder() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if(!model) return TRUE;
-	const LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-	if (mUUID == cof_id || model->isObjectDescendentOf(mUUID, cof_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return LLAppearanceManager::instance().getIsInCOF(mUUID);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -3798,8 +3796,25 @@ void LLGestureBridge::openItem()
 
 BOOL LLGestureBridge::removeItem()
 {
-	// Force close the preview window, if it exists
-	LLGestureManager::instance().deactivateGesture(mUUID);
+	// Grab class information locally since *this may be deleted
+	// within this function.  Not a great pattern...
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model)
+	{
+		return FALSE;
+	}
+	const LLUUID item_id = mUUID;
+	
+	// This will also force close the preview window, if it exists.
+	// This may actually delete *this, if mUUID is in the COF.
+	LLGestureManager::instance().deactivateGesture(item_id);
+	
+	// If deactivateGesture deleted *this, then return out immediately.
+	if (!model->getObject(item_id))
+	{
+		return TRUE;
+	}
+
 	return LLItemBridge::removeItem();
 }
 
@@ -4593,7 +4608,10 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
-		items.push_back(std::string("Wearable Separator"));
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Wearable Separator"));
+		}
 
 		items.push_back(std::string("Wearable Edit"));
 
