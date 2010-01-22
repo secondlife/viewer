@@ -4,13 +4,13 @@
  name="im_adhoc_chiclet"
  show_speaker="false"
  width="25">
-    <chiclet_im_adhoc.chiclet_button 
-     height="23"
-     image_selected="PushButton_Selected"
+    <chiclet_im_adhoc.chiclet_button
+     height="25"
+     image_selected="PushButton_On"
      image_unselected="PushButton_Off"
      name="chiclet_button"
      tab_stop="false"
-     width="25"/>
+     width="25" />
     <chiclet_im_adhoc.speaker
      auto_update="true"
      draw_border="false"
@@ -20,13 +20,13 @@
      visible="false"
      width="20" />
     <chiclet_im_adhoc.avatar_icon
-     bottom="2"
+     bottom="3"
      follows="left|top|bottom"
-     height="19"
-     left="3"
+     height="20"
+     left="2"
      mouse_opaque="true"
      name="adhoc_icon"
-     width="18" />
+     width="21" />
     <chiclet_im_adhoc.unread_notifications
      halign="center"
      height="23"

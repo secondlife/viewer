@@ -98,6 +98,41 @@ void LLGestureManager::init()
 	// TODO
 }
 
+void LLGestureManager::changed(U32 mask) 
+{ 
+	LLInventoryFetchObserver::changed(mask);
+
+	if (mask & LLInventoryObserver::GESTURE)
+	{
+		// If there was a gesture label changed, update all the names in the 
+		// active gestures and then notify observers
+		if (mask & LLInventoryObserver::LABEL)
+		{
+			for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
+			{
+				if(it->second)
+				{
+					LLViewerInventoryItem* item = gInventory.getItem(it->first);
+					if(item)
+					{
+						it->second->mName = item->getName();
+					}
+				}
+			}
+			notifyObservers();
+		}
+		// If there was a gesture added or removed notify observers
+		// STRUCTURE denotes that the inventory item has been moved
+		// In the case of deleting gesture, it is moved to the trash
+		else if(mask & LLInventoryObserver::ADD ||
+				mask & LLInventoryObserver::REMOVE ||
+				mask & LLInventoryObserver::STRUCTURE)
+		{
+			notifyObservers();
+		}
+	}
+}
+
 
 // Use this version when you have the item_id but not the asset_id,
 // and you KNOW the inventory is loaded.

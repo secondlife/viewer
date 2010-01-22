@@ -5070,8 +5070,12 @@ void	LLLandmarkBridgeAction::doIt()
 		// Opening (double-clicking) a landmark immediately teleports,
 		// but warns you the first time.
 		LLSD payload;
-		payload["asset_id"] = item->getAssetUUID();
-		LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
+		payload["asset_id"] = item->getAssetUUID();		
+		
+		LLSD args; 
+		args["LOCATION"] = item->getDisplayName(); 
+		
+		LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
 	}
 
 	LLInvFVBridgeAction::doIt();

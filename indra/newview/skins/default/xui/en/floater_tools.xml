@@ -1687,6 +1687,7 @@ even though the user gets a free copy.
                 Taper
             </text>
             <text
+			 visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1769,6 +1770,7 @@ even though the user gets a free copy.
              top_delta="0"
              width="68" />
             <text
+			 visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1781,6 +1783,7 @@ even though the user gets a free copy.
                 Profile Cut (begin/end)
             </text>
             <text
+			 visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1831,6 +1834,7 @@ even though the user gets a free copy.
              top_delta="0"
              width="68" />
             <text
+			 visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1843,6 +1847,7 @@ even though the user gets a free copy.
                 Taper
             </text>
             <spinner
+			 visible="false"
              decimal_digits="2"
              follows="left|top"
              height="19"
@@ -1857,6 +1862,7 @@ even though the user gets a free copy.
              top_pad="3"
              width="68" />
             <spinner
+			 visible="false"
              decimal_digits="2"
              follows="left|top"
              height="19"
@@ -1871,6 +1877,7 @@ even though the user gets a free copy.
              top_delta="0"
              width="68" />
             <text
+			 visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1883,6 +1890,7 @@ even though the user gets a free copy.
                 Radius
             </text>
             <text
+			 visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1894,6 +1902,7 @@ even though the user gets a free copy.
                 Revolutions
             </text>
             <spinner
+			 visible="false"
              follows="left|top"
              height="19"
              increment="0.05"
@@ -1905,6 +1914,7 @@ even though the user gets a free copy.
              top_pad="4"
              width="68" />
             <spinner
+			 visible="false"
              decimal_digits="2"
              follows="left|top"
              height="19"
