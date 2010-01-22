@@ -65,6 +65,7 @@
 #include "llvovolume.h"
 #include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
+#include "llviewertexturelist.h"
 
 //
 // Methods
@@ -406,14 +407,40 @@ void LLPanelFace::getState()
 			LLUUID id;
 			struct f1 : public LLSelectedTEGetFunctor<LLUUID>
 			{
-				LLUUID get(LLViewerObject* object, S32 te)
+				LLUUID get(LLViewerObject* object, S32 te_index)
 				{
-					LLViewerTexture* image = object->getTEImage(te);
-					return image ? image->getID() : LLUUID::null;
+					LLUUID id;
+					
+					LLViewerTexture* image = object->getTEImage(te_index);
+					if (image) id = image->getID();
+					
+					if (!id.isNull() && LLViewerMedia::textureHasMedia(id))
+					{
+						LLTextureEntry *te = object->getTE(te_index);
+						if (te)
+						{
+							LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID()) : NULL ;
+							if(!tex)
+							{
+								tex = LLViewerFetchedTexture::sDefaultImagep;
+							}
+							if (tex)
+							{
+								id = tex->getID();
+							}
+						}
+					}
+					return id;
 				}
 			} func;
 			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
 
+			if(LLViewerMedia::textureHasMedia(id))
+			{
+				childSetEnabled("textbox autofix",editable);
+				childSetEnabled("button align",editable);
+			}
+			
 			if (identical)
 			{
 				// All selected have the same texture
@@ -444,13 +471,6 @@ void LLPanelFace::getState()
 					}
 				}
 			}
-
-			if(LLViewerMedia::textureHasMedia(id))
-			{
-				childSetEnabled("textbox autofix",editable);
-				childSetEnabled("button align",editable);
-			}
-
 		}
 
 		

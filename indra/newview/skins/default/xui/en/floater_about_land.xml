@@ -1871,13 +1871,14 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="110"
              name="parcel_enable_voice_channel_is_estate_disabled"
+             top_delta="0"
              width="300" />
             <check_box
              height="16"
              label="Restrict Voice to this parcel"
              layout="topleft"
              left="110"
-             name="parcel_enable_voice_channel_parcel"
+             name="parcel_enable_voice_channel_local"
              width="300" />
         </panel>
         <panel
