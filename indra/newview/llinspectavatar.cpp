@@ -689,7 +689,7 @@ void LLInspectAvatar::onToggleMute()
 
 void LLInspectAvatar::onClickReport()
 {
-	LLFloaterReporter::showFromObject(mAvatarID);
+	LLFloaterReporter::showFromAvatar(mAvatarID, mAvatarName);
 	closeFloater();
 }
 

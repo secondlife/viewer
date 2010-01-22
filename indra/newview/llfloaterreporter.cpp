@@ -277,13 +277,8 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 				{
 					object_owner.append("Unknown");
 				}
-				childSetText("object_name", object_owner);
-				std::string owner_link =
-					LLSLURL::buildCommand("agent", mObjectID, "inspect");
-				childSetText("owner_name", owner_link);
-				childSetText("abuser_name_edit", object_owner);
-				mAbuserID = object_id;
-				mOwnerName = object_owner;
+
+				setFromAvatar(object_id, object_owner);
 			}
 			else
 			{
@@ -305,7 +300,6 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 	}
 }
 
-
 void LLFloaterReporter::onClickSelectAbuser()
 {
 	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE ));
@@ -321,6 +315,17 @@ void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, 
 
 	refresh();
 
+}
+
+void LLFloaterReporter::setFromAvatar(const LLUUID& avatar_id, const std::string& avatar_name)
+{
+	mAbuserID = mObjectID = avatar_id;
+	mOwnerName = avatar_name;
+
+	std::string avatar_link = LLSLURL::buildCommand("agent", mObjectID, "inspect");
+	childSetText("owner_name", avatar_link);
+	childSetText("object_name", avatar_name); // name
+	childSetText("abuser_name_edit", avatar_name);
 }
 
 // static
@@ -458,9 +463,8 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 	}
 }
 
-
 // static
-void LLFloaterReporter::showFromObject(const LLUUID& object_id)
+void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_name)
 {
 	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
 
@@ -469,8 +473,11 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 	LLAgentUI::buildFullname(fullname);
 	f->childSetText("reporter_field", fullname);
 
-	// Request info for this object
-	f->getObjectInfo(object_id);
+	if (avatar_name.empty())
+		// Request info for this object
+		f->getObjectInfo(object_id);
+	else
+		f->setFromAvatar(object_id, avatar_name);
 
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;
@@ -478,6 +485,18 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 	f->openFloater();
 }
 
+
+// static
+void LLFloaterReporter::showFromObject(const LLUUID& object_id)
+{
+	show(object_id);
+}
+
+// static
+void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name)
+{
+	show(avatar_id, avatar_name);
+}
 
 void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
 {
