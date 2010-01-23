@@ -62,6 +62,7 @@
 #include "llimfloater.h"
 #include "lltrans.h"
 #include "llcallingcard.h"
+#include "llslurl.h"			// IDEVO
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -73,7 +74,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	}
 
 	LLSD args;
-	args["NAME"] = name;
+	args["NAME"] = LLSLURL::buildCommand("agent", id, "inspect");
 	LLSD payload;
 	payload["id"] = id;
 	payload["name"] = name;
@@ -102,7 +103,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id)
 	}
 
 	std::string full_name;
-	gCacheName->getFullName(id, full_name);
+	// IDEVO gCacheName->getFullName(id, full_name);
 	requestFriendshipDialog(id, full_name);
 }
 
