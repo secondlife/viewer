@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<avatar_list_item
+ height="0"
+ layout="topleft"
+ left="0"
+ name="avatar_list_item"
+ top="0"
+ width="0">
+  <!-- DEFAULT styles for avatar item -->
+  <default_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   text_color="DkGray"/>
+
+  <!-- styles for avatar item INVITED to voice call -->
+  <voice_call_invited_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   text_color="0.5 0.5 0.5 0.5"/>
+
+  <!-- styles for avatar item JOINED to voice call -->
+  <voice_call_joined_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   text_color="white"/>
+
+  <!-- styles for avatar item which HAS LEFT voice call -->
+  <voice_call_left_style
+   font="SansSerifSmall"
+   font.style="ITALIC"
+   text_color="LtGray_50"/>
+
+  <!-- styles for ONLINE avatar item -->
+  <online_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   text_color="white"/>
+
+  <!-- styles for OFFLINE avatar item -->
+  <offline_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   text_color="0.5 0.5 0.5 1.0"/>
+</avatar_list_item>

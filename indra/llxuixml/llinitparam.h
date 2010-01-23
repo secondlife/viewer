@@ -470,7 +470,6 @@ namespace LLInitParam
 		// Blocks can override this to do custom tracking of changes
 		virtual void setLastChangedParam(const Param& last_param, bool user_provided);
 
-		const Param* getLastChangedParam() const { return mLastChangedParam ? getParamFromHandle(mLastChangedParam) : NULL; }
 		S32 getLastChangeVersion() const { return mChangeVersion; }
 		bool isDefault() const { return mChangeVersion == 0; }
 
@@ -505,7 +504,6 @@ namespace LLInitParam
 		bool fillFromImpl(BlockDescriptor& block_data, const BaseBlock& other);
 
 		// can be updated in getters
-		mutable param_handle_t	mLastChangedParam;
 		mutable S32				mChangeVersion;
 
 		BlockDescriptor*		mBlockDescriptor;	// most derived block descriptor
@@ -1732,6 +1730,7 @@ namespace LLInitParam
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
+			
 			// set param version number to be up to date, so we ignore block contents
 			mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
 

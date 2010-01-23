@@ -169,8 +169,7 @@ void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 		std::pair<S32, S32> visible_lines = getVisibleLines(true);
 		S32 last_line = visible_lines.second - 1;
 
-		LLStyle::Params expander_style = getDefaultStyle();
-		expander_style.font.name(LLFontGL::nameFromFont(expander_style.font));
+		LLStyle::Params expander_style(getDefaultStyleParams());
 		expander_style.font.style = "UNDERLINE";
 		expander_style.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 		LLExpanderSegment* expanderp = new LLExpanderSegment(new LLStyle(expander_style), getLineStart(last_line), getLength() + 1, mExpanderLabel, *this);
@@ -186,8 +185,7 @@ void LLExpandableTextBox::LLTextBoxEx::hideExpandText()
 	if (mExpanderVisible)
 	{
 		// this will overwrite the expander segment and all text styling with a single style
-		LLNormalTextSegment* segmentp = new LLNormalTextSegment(
-											new LLStyle(getDefaultStyle()), 0, getLength() + 1, *this);
+		LLNormalTextSegment* segmentp = new LLNormalTextSegment(LLStyleConstSP(new LLStyle(getDefaultStyleParams())), 0, getLength() + 1, *this);
 		insertSegment(segmentp);
 		
 		mExpanderVisible = false;
