@@ -291,9 +291,13 @@ bool LLTextBase::truncate()
 	return did_truncate;
 }
 
-LLStyle::Params LLTextBase::getDefaultStyle()
+LLStyle::Params LLTextBase::getDefaultStyleParams()
 {
-	return LLStyle::Params().color(mFgColor.get()).readonly_color(mReadOnlyFgColor.get()).font(mDefaultFont).drop_shadow(mFontShadow);
+	return LLStyle::Params()
+		.color(LLUIColor(&mFgColor))
+		.readonly_color(LLUIColor(&mReadOnlyFgColor))
+		.font(mDefaultFont)
+		.drop_shadow(mFontShadow);
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -619,7 +623,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	else
 	{
 		// create default editable segment to hold new text
-		default_segment = new LLNormalTextSegment( new LLStyle(getDefaultStyle()), pos, pos + insert_len, *this);
+		default_segment = new LLNormalTextSegment( LLStyleConstSP(new LLStyle(getDefaultStyleParams())), pos, pos + insert_len, *this);
 	}
 
 	// shift remaining segments to right
@@ -743,7 +747,7 @@ void LLTextBase::createDefaultSegment()
 	// ensures that there is always at least one segment
 	if (mSegments.empty())
 	{
-		LLTextSegmentPtr default_segment = new LLNormalTextSegment( new LLStyle(getDefaultStyle()), 0, getLength() + 1, *this);
+		LLTextSegmentPtr default_segment = new LLNormalTextSegment( LLStyleConstSP(new LLStyle(getDefaultStyleParams())), 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
 		default_segment->linkToDocument(this);
 	}
@@ -1510,16 +1514,7 @@ std::string LLTextBase::getText() const
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
-	style_params.fillFrom(getDefaultStyle());
-
-	if (!style_params.font.isProvided())
-	{
-		style_params.font = mDefaultFont;
-	}
-	if (!style_params.drop_shadow.isProvided())
-	{
-		style_params.drop_shadow = mFontShadow;
-	}
+	style_params.fillFrom(getDefaultStyleParams());
 
 	S32 part = (S32)LLTextParser::WHOLE;
 	if(mParseHTML)
@@ -1536,13 +1531,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			LLStyle::Params link_params = style_params;
 			link_params.color = match.getColor();
 			link_params.readonly_color =  match.getColor();
-			// apply font name from requested style_params
-			std::string font_name = LLFontGL::nameFromFont(style_params.font());
-			std::string font_size = LLFontGL::sizeFromFont(style_params.font());
-			link_params.font.name(font_name);
-			link_params.font.size(font_size);
 			link_params.font.style("UNDERLINE");
-			
 			link_params.link_href = match.getUrl();
 
 			// output the text before the Url
@@ -1611,9 +1600,9 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 	}
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& stylep)
+void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
 {
-	if (new_text.empty()) return;
+	if (new_text.empty()) return;                                                                                 
 
 	// Save old state
 	S32 selection_start = mSelectionStart;
@@ -1631,7 +1620,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 	
 	if (mParseHighlights && highlight)
 	{
-		LLStyle::Params highlight_params = stylep;
+		LLStyle::Params highlight_params(style_params);
 
 		LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
 		for (S32 i = 0; i < pieces.size(); i++)
@@ -1651,7 +1640,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
 			}
 			S32 cur_length = getLength();
-			LLTextSegmentPtr segmentp = new LLNormalTextSegment(new LLStyle(highlight_params), cur_length, cur_length + wide_text.size(), *this);
+			LLTextSegmentPtr segmentp = new LLNormalTextSegment(LLStyleConstSP(new LLStyle(highlight_params)), cur_length, cur_length + wide_text.size(), *this);
 			segment_vec_t segments;
 			segments.push_back(segmentp);
 			insertStringNoUndo(cur_length, wide_text, &segments);
@@ -1675,7 +1664,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 		segment_vec_t segments;
 		S32 segment_start = old_length;
 		S32 segment_end = old_length + wide_text.size();
-		segments.push_back(new LLNormalTextSegment(new LLStyle(stylep), segment_start, segment_end, *this ));
+		segments.push_back(new LLNormalTextSegment(LLStyleConstSP(new LLStyle(style_params)), segment_start, segment_end, *this ));
 
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}
@@ -1719,7 +1708,7 @@ void LLTextBase::replaceUrlLabel(const std::string &url,
 	for (it = mSegments.begin(); it != mSegments.end(); ++it)
 	{
 		LLTextSegment *seg = *it;
-		const LLStyleSP style = seg->getStyle();
+		LLStyleConstSP style = seg->getStyle();
 
 		// update segment start/end length in case we replaced text earlier
 		S32 seg_length = seg->getEnd() - seg->getStart();
@@ -2212,9 +2201,9 @@ bool LLTextSegment::canEdit() const { return false; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
 const LLColor4& LLTextSegment::getColor() const { return LLColor4::white; }
-void LLTextSegment::setColor(const LLColor4 &color) {}
-const LLStyleSP LLTextSegment::getStyle() const {static LLStyleSP sp(new LLStyle()); return sp; }
-void LLTextSegment::setStyle(const LLStyleSP &style) {}
+//void LLTextSegment::setColor(const LLColor4 &color) {}
+LLStyleConstSP LLTextSegment::getStyle() const {static LLStyleConstSP sp(new LLStyle()); return sp; }
+void LLTextSegment::setStyle(LLStyleConstSP &style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
 LLKeywordToken*	LLTextSegment::getToken() const { return NULL; }
 void LLTextSegment::setToolTip( const std::string &msg ) {}
@@ -2239,7 +2228,7 @@ BOOL LLTextSegment::hasMouseCapture() { return FALSE; }
 // LLNormalTextSegment
 //
 
-LLNormalTextSegment::LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor ) 
+LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP& style, S32 start, S32 end, LLTextBase& editor ) 
 :	LLTextSegment(start, end),
 	mStyle( style ),
 	mToken(NULL),

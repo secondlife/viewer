@@ -2390,7 +2390,7 @@ void LLTextEditor::replaceUrlLabel(const std::string &url,
 	for (it = mSegments.begin(); it != mSegments.end(); ++it)
 	{
 		LLTextSegment *seg = *it;
-		const LLStyleSP style = seg->getStyle();
+		LLStyleConstSP style = seg->getStyle();
 
 		// update segment start/end length in case we replaced text earlier
 		S32 seg_length = seg->getEnd() - seg->getStart();
@@ -2559,13 +2559,15 @@ void LLTextEditor::updateLinkSegments()
 			// if the link's label (what the user can edit) is a valid Url,
 			// then update the link's HREF to be the same as the label text.
 			// This lets users edit Urls in-place.
-			LLStyleSP style = static_cast<LLStyleSP>(segment->getStyle());
+			LLStyleConstSP style = segment->getStyle();
+			LLStyle* new_style = new LLStyle(*style);
 			LLWString url_label = wtext.substr(segment->getStart(), segment->getEnd()-segment->getStart());
 			if (LLUrlRegistry::instance().hasUrl(url_label))
 			{
 				std::string new_url = wstring_to_utf8str(url_label);
 				LLStringUtil::trim(new_url);
-				style->setLinkHREF(new_url);
+				new_style->setLinkHREF(new_url);
+				segment->setStyle(LLStyleConstSP(new_style));
 			}
 		}
 	}

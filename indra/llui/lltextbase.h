@@ -184,7 +184,6 @@ public:
 	bool					scrolledToEnd();
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
-	LLStyle::Params			getDefaultStyle();
 
 public:
 	// Fired when a URL link is clicked
@@ -281,7 +280,8 @@ protected:
 	void							createDefaultSegment();
 	virtual void					updateSegments();
 	void							insertSegment(LLTextSegmentPtr segment_to_insert);
-	
+	LLStyle::Params					getDefaultStyleParams();
+
 	//  manage lines
 	S32								getLineStart( S32 line ) const;
 	S32								getLineEnd( S32 line ) const;
@@ -388,9 +388,9 @@ public:
 	virtual void				linkToDocument(class LLTextBase* editor);
 
 	virtual const LLColor4&		getColor() const;
-	virtual void 				setColor(const LLColor4 &color);
-	virtual const LLStyleSP		getStyle() const;
-	virtual void 				setStyle(const LLStyleSP &style);
+	//virtual void 				setColor(const LLColor4 &color);
+	virtual LLStyleConstSP		getStyle() const;
+	virtual void 				setStyle(LLStyleConstSP &style);
 	virtual void				setToken( LLKeywordToken* token );
 	virtual LLKeywordToken*		getToken() const;
 	virtual void				setToolTip(const std::string& tooltip);
@@ -426,7 +426,7 @@ protected:
 class LLNormalTextSegment : public LLTextSegment
 {
 public:
-	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor );
+	LLNormalTextSegment( LLStyleConstSP& style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
 	~LLNormalTextSegment();
 
@@ -436,9 +436,8 @@ public:
 	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
 	/*virtual*/ bool				canEdit() const { return true; }
 	/*virtual*/ const LLColor4&		getColor() const					{ return mStyle->getColor(); }
-	/*virtual*/ void 				setColor(const LLColor4 &color)		{ mStyle->setColor(color); }
-	/*virtual*/ const LLStyleSP		getStyle() const					{ return mStyle; }
-	/*virtual*/ void 				setStyle(const LLStyleSP &style)	{ mStyle = style; }
+	/*virtual*/ LLStyleConstSP		getStyle() const					{ return mStyle; }
+	/*virtual*/ void 				setStyle(LLStyleConstSP &style)	{ mStyle = style; }
 	/*virtual*/ void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	/*virtual*/ LLKeywordToken*		getToken() const					{ return mToken; }
 	/*virtual*/ BOOL				getToolTip( std::string& msg ) const;
@@ -456,7 +455,7 @@ protected:
 
 protected:
 	class LLTextBase&	mEditor;
-	LLStyleSP			mStyle;
+	LLStyleConstSP		mStyle;
 	S32					mFontHeight;
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;

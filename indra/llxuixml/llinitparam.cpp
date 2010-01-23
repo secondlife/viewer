@@ -84,8 +84,7 @@ namespace LLInitParam
 	// BaseBlock
 	//
 	BaseBlock::BaseBlock()
-	:	mLastChangedParam(0),
-		mChangeVersion(0)
+	:	mChangeVersion(0)
 	{}
 
 	BaseBlock::~BaseBlock()
@@ -347,7 +346,6 @@ namespace LLInitParam
 
 			if (deserialize_func && deserialize_func(*paramp, p, name_stack, name_stack.first == name_stack.second ? -1 : name_stack.first->second))
 			{
-				mLastChangedParam = (*it)->mParamHandle;
 				return true;
 			}
 		}
@@ -416,8 +414,10 @@ namespace LLInitParam
 
 	void BaseBlock::setLastChangedParam(const Param& last_param, bool user_provided)
 	{ 
-		mLastChangedParam = getHandleFromParam(&last_param); 
-		mChangeVersion++;
+		if (user_provided)
+		{
+			mChangeVersion++;
+		}
 	}
 
 	const std::string& BaseBlock::getParamName(const BlockDescriptor& block_data, const Param* paramp) const
@@ -471,7 +471,6 @@ namespace LLInitParam
 			{
 				Param* paramp = getParamFromHandle(it->mParamHandle);
 				param_changed |= merge_func(*paramp, *other_paramp, true);
-				mLastChangedParam = it->mParamHandle;
 			}
 		}
 		return param_changed;
@@ -492,7 +491,6 @@ namespace LLInitParam
 			{
 				Param* paramp = getParamFromHandle(it->mParamHandle);
 				param_changed |= merge_func(*paramp, *other_paramp, false);
-				mLastChangedParam = it->mParamHandle;
 			}
 		}
 		return param_changed;

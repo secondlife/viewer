@@ -1911,10 +1911,10 @@ namespace LLInitParam
 	void TypedParam<LLUIColor>::setBlockFromValue()
 	{
 		LLColor4 color = mData.mValue.get();
-		red = color.mV[VRED];
-		green = color.mV[VGREEN];
-		blue = color.mV[VBLUE];
-		alpha = color.mV[VALPHA];
+		red.set(color.mV[VRED], false);
+		green.set(color.mV[VGREEN], false);
+		blue.set(color.mV[VBLUE], false);
+		alpha.set(color.mV[VALPHA], false);
 		control.set("", false);
 	}
 
@@ -1965,9 +1965,9 @@ namespace LLInitParam
 	{
 		if (mData.mValue)
 		{
-			name = LLFontGL::nameFromFont(mData.mValue);
-			size = LLFontGL::sizeFromFont(mData.mValue);
-			style = LLFontGL::getStringFromStyle(mData.mValue->getFontDesc().getStyle());
+			name.set(LLFontGL::nameFromFont(mData.mValue), false);
+			size.set(LLFontGL::sizeFromFont(mData.mValue), false);
+			style.set(LLFontGL::getStringFromStyle(mData.mValue->getFontDesc().getStyle()), false);
 		}
 	}
 
@@ -2073,8 +2073,8 @@ namespace LLInitParam
 	
 	void TypedParam<LLCoordGL>::setBlockFromValue()
 	{
-		x = mData.mValue.mX;
-		y = mData.mValue.mY;
+		x.set(mData.mValue.mX, false);
+		y.set(mData.mValue.mY, false);
 	}
 
 
