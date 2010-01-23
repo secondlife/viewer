@@ -2,17 +2,17 @@
 <panel
 background_visible="true"
  follows="all"
- height="635"
- label="Group Info"
+ height="570"
+ label="Group Profile"
  layout="topleft"
- min_height="460"
+ min_height="350"
  left="0"
  top="20"
  name="GroupInfo"
- width="323">
+ width="313">
     <panel.string
      name="default_needs_apply_text">
-        There are unsaved changes to the current tab
+        There are unsaved changes
     </panel.string>
     <panel.string
      name="want_apply_text">
@@ -26,6 +26,14 @@ background_visible="true"
      name="group_join_free">
         Free
     </panel.string>
+    <panel
+      name="group_info_top"
+      follows="top|left"
+      top="0"
+      left="0"
+      height="129"
+      width="313"
+      layout="topleft">
     <button
      follows="top|right"
      height="23"
@@ -37,17 +45,19 @@ background_visible="true"
      top="2"
      width="23" />
     <text
-     follows="top|left|right"
-     font="SansSerifHugeBold"
-     height="26"
      layout="topleft"
-     left_pad="10"
      name="group_name"
-     text_color="white"
-     top="0"
      value="(Loading...)"
-     use_ellipses="true"
-     width="300" />
+      font="SansSerifHuge"
+      height="20"
+      left_pad="5"
+      text_color="white"
+      top="3"
+      use_ellipses="true"
+      width="270"
+      follows="top|left"
+      word_wrap="true"
+      mouse_opaque="false"/>
     <line_editor
      follows="left|top"
      font="SansSerif"
@@ -57,7 +67,7 @@ background_visible="true"
      max_length="35"
      name="group_name_editor"
      top_delta="5"
-     width="250"
+     width="270"
      height="20"
      visible="false" />
     <texture_picker
@@ -65,21 +75,24 @@ background_visible="true"
      height="113"
      label=""
      layout="topleft"
-     left="20"
+     left="10"
      name="insignia"
      tool_tip="Click to choose a picture"
      top_pad="5"
      width="100" />
-    <text
+      <text
+      font="SansSerifSmall"
+      text_color="White_50"
+      width="190"
+      follows="top|left"
+      layout="topleft"
+      mouse_opaque="false"
      type="string"
-     follows="left|top"
      height="16"
      length="1"
-     layout="topleft"
      left_pad="10"
      name="prepend_founded_by"
-     top_delta="0"
-     width="140">
+     top_delta="0">
       Founder:
     </text>
     <name_box
@@ -92,9 +105,9 @@ background_visible="true"
      name="founder_name"
      top_pad="2"
      use_ellipses="true"
-     width="140" />
+     width="190" />
     <text
-    font="SansSerifBig"
+    font="SansSerifMedium"
     text_color="EmphasisColor"
      type="string"
      follows="left|top"
@@ -104,7 +117,7 @@ background_visible="true"
      name="join_cost_text"
      top_pad="10"
      visible="true"
-     width="140">
+     width="190">
       Free
     </text>
     <button
@@ -116,17 +129,31 @@ background_visible="true"
      name="btn_join"
      visible="true"
      width="120" />
+    </panel>
+   <layout_stack
+     name="layout"
+     orientation="vertical"
+      follows="all"
+     left="0"
+     top_pad="0"
+     height="437"
+     width="313"
+     border_size="0">
+   <layout_panel
+      name="group_accordions"
+      follows="all"
+      layout="topleft"
+      auto_resize="true"
+      >
    <accordion
+     left="0"
+     top="0"
            single_expansion="true"
              follows="all"
-             height="478"
              layout="topleft"
-             left="0"
-             name="groups_accordion"
-             top_pad="10"
-             width="323">
-             <accordion_tab
-            expanded="false"
+             name="groups_accordion">
+         <accordion_tab
+            expanded="true"
             layout="topleft"
             name="group_general_tab"
             title="General">
@@ -136,12 +163,13 @@ background_visible="true"
              filename="panel_group_general.xml"
              layout="topleft"
              left="0"
+             follows="all"
              help_topic="group_general_tab"
              name="group_general_tab_panel"
              top="0" />
          </accordion_tab>
          <accordion_tab
-            expanded="true"
+            expanded="false"
             layout="topleft"
             name="group_roles_tab"
             title="Roles">
@@ -184,28 +212,37 @@ background_visible="true"
          top="0" />
          </accordion_tab>
          </accordion>
-   <panel
+   </layout_panel>
+   <layout_panel
+         height="25"
+         layout="topleft"
+         auto_resize="false"
+         left="0"
    name="button_row"
-   height="23"
    follows="bottom|left"
-   top_pad="-1"
-   width="323">
+   width="313">
    <button
-     follows="top|left"
-     height="22"
+    follows="bottom|left"
+     height="23"
      image_overlay="Refresh_Off"
      layout="topleft"
-     left="10"
+     left="5"
+     top="0"
      name="btn_refresh"
      width="23" />
-    <button
-     height="22"
-     label="Create"
-     label_selected="New group"
+   <button
+    follows="bottom|left"
+                 height="18"
+                 image_selected="AddItem_Press"
+                 image_unselected="AddItem_Off"
+                 image_disabled="AddItem_Disabled"
+                 layout="topleft"
+                 left_pad="2"
+                 top_delta="3"
      name="btn_create"
-     left_pad="10"
-     visible="false"
-     width="100" />
+               visible="true"
+                 tool_tip="Create a new Group"
+                 width="18" />
    <!-- <button
      left_pad="10"
      height="20"
@@ -215,28 +252,30 @@ background_visible="true"
      visible="false"
      width="65" />-->
      <button
-     follows="bottom|right"          
-     label="Group Chat"
+      follows="bottom|left"
+     label="Chat"
      name="btn_chat"
-     right="-184"
-     left_pad="2"     
-     height="22"          
-     width="85" />
-     <button
-     follows="bottom|right"          
-     label="Group Call"
+     left_pad="2"
+     height="23"
+     top_delta="-3"
+     width="60" />
+    <button
+         follows="bottom|left"
+         left_pad="2"
+         height="23"
      name="btn_call"
-     right="-97"
-     left_pad="2"     
-     height="22"          
-     width="85" />
+         label="Group Call"
+         layout="topleft"
+         tool_tip="Call this group"
+         width="95" />
      <button
-     height="22"
+     follows="bottom|left"
+     height="23"
      label="Save"
      label_selected="Save"
      name="btn_apply"
-     left_pad="10"
-     right="-10"
+     left_pad="2"
      width="85" />
-     </panel>
+     </layout_panel>
+  </layout_stack>
 </panel>
