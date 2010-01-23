@@ -21,7 +21,7 @@
 	<check_box label="Inclure les heures" name="show_timestamps_check_im"/>
 	<line_editor left="308" name="log_path_string" right="-20"/>
 	<text name="log_path_desc">
-		Emplacement des journaux
+		Emplacement
 	</text>
 	<button label="Parcourir" label_selected="Parcourir" name="log_path_button" width="150"/>
 	<button label="Liste des ignorés" name="block_list"/>
