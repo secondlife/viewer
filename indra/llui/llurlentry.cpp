@@ -310,13 +310,70 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
+// IDEVO demo code
+static std::string clean_name(const std::string& first, const std::string& last)
+{
+	std::string displayname;
+	if (first == "miyazaki23") // IDEVO demo code
+	{
+		// miyazaki
+		displayname += (char)(0xE5);
+		displayname += (char)(0xAE);
+		displayname += (char)(0xAE);
+		displayname += (char)(0xE5);
+		displayname += (char)(0xB4);
+		displayname += (char)(0x8E);
+		// hayao
+		displayname += (char)(0xE9);
+		displayname += (char)(0xA7);
+		displayname += (char)(0xBF);
+		// san
+		displayname += (char)(0xE3);
+		displayname += (char)(0x81);
+		displayname += (char)(0x95);
+		displayname += (char)(0xE3);
+		displayname += (char)(0x82);
+		displayname += (char)(0x93);
+	}
+	else if (first == "Jim")
+	{
+		displayname = "Jos";
+		displayname += (char)(0xC3);
+		displayname += (char)(0xA9);
+		displayname += " Sanchez";
+	}
+	else if (first == "James")
+	{
+		displayname = "James Cook";
+	}
+
+	std::string fullname = first;
+	if (!last.empty())
+	{
+		fullname += ' ';
+		fullname += last;
+	}
+
+	std::string final;
+	if (!displayname.empty())
+	{
+		final = displayname + " (" + fullname + ")";
+	}
+	else
+	{
+		final = fullname;
+	}
+	return final;
+}
+
 void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
 										  const std::string& first,
 										  const std::string& last,
 										  BOOL is_group)
 {
+	std::string final = clean_name(first, last);
 	// received the agent name from the server - tell our observers
-	callObservers(id.asString(), first + " " + last);
+	callObservers(id.asString(), final);
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -335,14 +392,14 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 
 	LLUUID agent_id(agent_id_string);
-	std::string full_name;
+	std::string first, last;
 	if (agent_id.isNull())
 	{
 		return LLTrans::getString("AvatarNameNobody");
 	}
-	else if (gCacheName->getFullName(agent_id, full_name))
+	else if (gCacheName->getName(agent_id, first, last))
 	{
-		return full_name;
+		return clean_name(first, last);
 	}
 	else
 	{

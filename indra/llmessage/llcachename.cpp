@@ -461,7 +461,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 		// store it
 		LLUUID id = iter->first;
 		std::string id_str = id.asString();
-		if(!entry->mFirstName.empty() && !entry->mLastName.empty())
+		if(!entry->mFirstName.empty() /* && !entry->mLastName.empty() */ )  // IDEVO save SLIDs
 		{
 			data[AGENTS][id_str][FIRST] = entry->mFirstName;
 			data[AGENTS][id_str][LAST] = entry->mLastName;
@@ -506,6 +506,7 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 	}
 
 }
+
 // static
 void LLCacheName::LocalizeCacheName(std::string key, std::string value)
 {
@@ -519,7 +520,13 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
 	std::string first_name, last_name;
 	BOOL res = getName(id, first_name, last_name);
-	fullname = first_name + " " + last_name;
+	fullname = first_name;
+	if (!last_name.empty())
+	{
+		// IDEVO legacy resident name, not SLID
+		fullname += " ";
+		fullname += last_name;
+	}
 	return res;
 }
 
@@ -916,6 +923,12 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		{
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  entry->mLastName, i);
+
+			// IDEVO HACK - blank out last name
+			if (entry->mLastName == "Resident")
+			{
+				entry->mLastName = "";
+			}
 		}
 		else
 		{	// is group

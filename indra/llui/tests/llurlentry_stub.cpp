@@ -36,6 +36,13 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 	return TRUE;
 }
 
+BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& last)
+{
+	first = "Lynx";
+	last = "Linden";
+	return TRUE;
+}
+
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
 	group = "My Group";
