@@ -49,6 +49,7 @@
 #include "llappviewer.h"
 #include "llcallbacklist.h"
 #include "llfloaterbuycurrency.h"
+#include "llslurl.h"		// IDEVO
 #include "llstatusbar.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
@@ -441,8 +442,12 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		else
 		{
 			// Figure out the owner's name
-			gCacheName->get(parcel->getOwnerID(), FALSE,
-							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mParcelOwner, _2, _3));
+			// IDEVO
+			//gCacheName->get(parcel->getOwnerID(), FALSE,
+			//				boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mParcelOwner, _2, _3));
+			std::string parcel_owner =
+				LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
+			mParcelOwner->setText(parcel_owner);
 			gCacheName->get(region->getOwner(), FALSE,
 							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mRegionOwnerText, _2, _3));
 		}
