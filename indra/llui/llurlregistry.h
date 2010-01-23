@@ -70,7 +70,9 @@ public:
 	~LLUrlRegistry();
 
 	/// add a new Url handler to the registry (will be freed on destruction)
-	void registerUrl(LLUrlEntryBase *url);
+	/// optionally force it to the front of the list, making it take
+	/// priority over other regular expression matches for URLs
+	void registerUrl(LLUrlEntryBase *url, bool force_front = false);
 
 	/// get the next Url in an input string, starting at a given character offset
 	/// your callback is invoked if the matched Url's label changes in the future

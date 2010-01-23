@@ -156,19 +156,7 @@ public:
 	/*virtual*/ std::string getLocation(const std::string &url) const;
 };
 
-///
-/// LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
-/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-///
-class LLUrlEntryAgent : public LLUrlEntryBase
-{
-public:
-	LLUrlEntryAgent();
-	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-private:
-	void onAgentNameReceived(const LLUUID& id, const std::string& first,
-							 const std::string& last, BOOL is_group);
-};
+/// IDEVO LLUrlEntryAgent temporarily moved to newview
 
 ///
 /// LLUrlEntryGroup Describes a Second Life group Url, e.g.,

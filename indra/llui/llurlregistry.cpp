@@ -43,11 +43,13 @@ void LLUrlRegistryNullCallback(const std::string &url, const std::string &label)
 
 LLUrlRegistry::LLUrlRegistry()
 {
+	mUrlEntry.reserve(16);
+
 	// Urls are matched in the order that they were registered
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
-	registerUrl(new LLUrlEntryAgent());
+	// IDEVO registerUrl(new LLUrlEntryAgent());
 	registerUrl(new LLUrlEntryGroup());
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
@@ -73,11 +75,14 @@ LLUrlRegistry::~LLUrlRegistry()
 	}
 }
 
-void LLUrlRegistry::registerUrl(LLUrlEntryBase *url)
+void LLUrlRegistry::registerUrl(LLUrlEntryBase *url, bool force_front)
 {
 	if (url)
 	{
-		mUrlEntry.push_back(url);
+		if (force_front)  // IDEVO
+			mUrlEntry.insert(mUrlEntry.begin(), url);
+		else
+			mUrlEntry.push_back(url);
 	}
 }
 
