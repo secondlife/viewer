@@ -18,7 +18,7 @@
  single_instance="true" 
  width="320">
   <string name="nudge_parabuild">Nudge 1</string>
-  <string name="test_the_vlt">This string CHANGE is extracted.</string>
+  <string name="test_the_vlt">This string CHANGE2 is extracted.</string>
   <string name="testing_eli">Just a test.</string>
   <chat_history
    allow_html="true"
