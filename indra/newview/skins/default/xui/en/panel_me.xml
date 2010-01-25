@@ -39,13 +39,13 @@
       <panel
          class="panel_my_profile"
          filename="panel_my_profile.xml"
-         label="PROFILE"
+         label="MY PROFILE"
          help_topic="panel_my_profile_tab"
          name="panel_profile" />
       <panel
          class="panel_picks"
          filename="panel_picks.xml"
-         label="PICKS"
+         label="MY PICKS"
          help_topic="panel_my_picks_tab"
          name="panel_picks" />
     </tab_container>
