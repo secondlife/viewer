@@ -470,7 +470,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 			chatters += *it;
 			if (++it != mUnreadChatSources.end())
 			{
-				chatters += ",";
+				chatters += ", ";
 			}
 		}
 		LLStringUtil::format_map_t args;
