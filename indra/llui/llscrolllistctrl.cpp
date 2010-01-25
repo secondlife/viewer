@@ -498,7 +498,7 @@ void LLScrollListCtrl::fitContents(S32 max_width, S32 max_height)
 {
 	S32 height = llmin( getRequiredRect().getHeight(), max_height );
 	if(mPageLines)
-		height = llmin( mPageLines * mLineHeight + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
+		height = llmin( mPageLines * mLineHeight + 2*mBorderThickness + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
 
 	S32 width = getRect().getWidth();
 
