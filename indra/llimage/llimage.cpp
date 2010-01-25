@@ -668,6 +668,12 @@ void LLImageRaw::fill( const LLColor4U& color )
 // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 void LLImageRaw::copy(LLImageRaw* src)
 {
+	if (!src)
+	{
+		llwarns << "LLImageRaw::copy called with a null src pointer" << llendl;
+		return;
+	}
+
 	LLImageRaw* dst = this;  // Just for clarity.
 
 	llassert( (3 == src->getComponents()) || (4 == src->getComponents()) );

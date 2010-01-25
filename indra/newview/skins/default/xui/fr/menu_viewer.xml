@@ -49,7 +49,7 @@
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
 		<menu_item_check label="Carte du monde" name="World Map"/>
 		<menu_item_call label="Photo" name="Take Snapshot"/>
-		<menu label="Soleil" name="Environment Settings">
+		<menu label="Luminosité" name="Environment Settings">
 			<menu_item_call label="Aube" name="Sunrise"/>
 			<menu_item_call label="Milieu de journée" name="Noon"/>
 			<menu_item_call label="Coucher de soleil" name="Sunset"/>
