@@ -57,14 +57,10 @@
 
 #include "llagent.h"
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
-#include "llviewerwindow.h"
 #include "llworld.h" //for particle system banning
-#include "llchat.h"
 #include "llimpanel.h"
 #include "llimview.h"
 #include "llnotifications.h"
-#include "lluistring.h"
-#include "llviewerobject.h" 
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
