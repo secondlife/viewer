@@ -37,7 +37,6 @@
 #include "llfasttimer_class.h"
 
 #if LL_WINDOWS
-#define LL_INLINE __forceinline
 //
 // Windows implementation of CPU clock
 //
@@ -53,21 +52,21 @@
 //#undef _interlockedbittestandset
 //#undef _interlockedbittestandreset
 
-//inline U32 get_cpu_clock_count_32()
+//inline U32 LLFastTimer::getCPUClockCount32()
 //{
 //	U64 time_stamp = __rdtsc();
 //	return (U32)(time_stamp >> 8);
 //}
 //
 //// return full timer value, *not* shifted by 8 bits
-//inline U64 get_cpu_clock_count_64()
+//inline U64 LLFastTimer::getCPUClockCount64()
 //{
 //	return __rdtsc();
 //}
 
 // shift off lower 8 bits for lower resolution but longer term timing
 // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
-inline U32 get_cpu_clock_count_32()
+inline U32 LLFastTimer::getCPUClockCount32()
 {
 	U32 ret_val;
 	__asm
@@ -83,7 +82,7 @@ inline U32 get_cpu_clock_count_32()
 }
 
 // return full timer value, *not* shifted by 8 bits
-inline U64 get_cpu_clock_count_64()
+inline U64 LLFastTimer::getCPUClockCount64()
 {
 	U64 ret_val;
 	__asm
@@ -97,8 +96,6 @@ inline U64 get_cpu_clock_count_64()
 	}
     return ret_val;
 }
-#else
-#define LL_INLINE
 #endif
 
 
@@ -111,7 +108,7 @@ inline U64 get_cpu_clock_count_64()
 // to synchronize this value between cores at kernel start. It should not be affected
 // by CPU frequency. If not available use the REALTIME clock, but this may be affected by
 // NTP adjustments or other user activity affecting the system time.
-inline U64 get_cpu_clock_count_64()
+inline U64 LLFastTimer::getCPUClockCount64()
 {
 	struct timespec tp;
 	
@@ -123,9 +120,9 @@ inline U64 get_cpu_clock_count_64()
 	return (tp.tv_sec*LLFastTimer::sClockResolution)+tp.tv_nsec;        
 }
 
-inline U32 get_cpu_clock_count_32()
+inline U32 LLFastTimer::getCPUClockCount32()
 {
-	return (U32)get_cpu_clock_count_64();
+	return (U32)LLFastTimer::getCPUClockCount64();
 }
 #endif // (LL_LINUX || LL_SOLARIS))
 
@@ -133,14 +130,14 @@ inline U32 get_cpu_clock_count_32()
 #if (LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
 //
 // Mac x86 implementation of CPU clock
-inline U32 get_cpu_clock_count_32()
+inline U32 LLFastTimer::getCPUClockCount32()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
 	return (U32)x >> 8;
 }
 
-inline U32 get_cpu_clock_count_64()
+inline U32 LLFastTimer::getCPUClockCount64()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
@@ -155,12 +152,12 @@ inline U32 get_cpu_clock_count_64()
 //
 // Just use gettimeofday implementation for now
 
-inline U32 get_cpu_clock_count_32()
+inline U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)get_clock_count();
 }
 
-inline U32 get_cpu_clock_count_64()
+inline U32 LLFastTimer::getCPUClockCount64()
 {
 	return get_clock_count();
 }

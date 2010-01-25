@@ -56,7 +56,7 @@
 
 S32 LLFastTimer::sCurFrameIndex = -1;
 S32 LLFastTimer::sLastFrameIndex = -1;
-U64 LLFastTimer::sLastFrameTime = get_cpu_clock_count_64();
+U64 LLFastTimer::sLastFrameTime = LLFastTimer::getCPUClockCount64();
 bool LLFastTimer::sPauseHistory = 0;
 bool LLFastTimer::sResetHistory = 0;
 LLFastTimer::CurTimerData LLFastTimer::sCurTimerData;
@@ -426,7 +426,7 @@ void LLFastTimer::NamedTimer::buildHierarchy()
 //static
 void LLFastTimer::NamedTimer::accumulateTimings()
 {
-	U32 cur_time = get_cpu_clock_count_32();
+	U32 cur_time = getCPUClockCount32();
 
 	// walk up stack of active timers and accumulate current time while leaving timing structures active
 	LLFastTimer* cur_timer = sCurTimerData.mCurTimer;
@@ -556,7 +556,7 @@ void LLFastTimer::NamedTimer::reset()
 
 	// walk up stack of active timers and reset start times to current time
 	// effectively zeroing out any accumulated time
-	U32 cur_time = get_cpu_clock_count_32();
+	U32 cur_time = getCPUClockCount32();
 
 	// root defined by parent pointing to self
 	CurTimerData* cur_data = &sCurTimerData;
@@ -649,7 +649,7 @@ std::vector<LLFastTimer::NamedTimer*>& LLFastTimer::NamedTimer::getChildren()
 void LLFastTimer::nextFrame()
 {
 	countsPerSecond(); // good place to calculate clock frequency
-	U64 frame_time = get_cpu_clock_count_64();
+	U64 frame_time = getCPUClockCount64();
 	if ((frame_time - sLastFrameTime) >> 8 > 0xffffffff)
 	{
 		llinfos << "Slow frame, fast timers inaccurate" << llendl;
@@ -738,7 +738,7 @@ const LLFastTimer::NamedTimer* LLFastTimer::getTimerByName(const std::string& na
 LLFastTimer::LLFastTimer(LLFastTimer::FrameState* state)
 :	mFrameState(state)
 {
-	U32 start_time = get_cpu_clock_count_32();
+	U32 start_time = getCPUClockCount32();
 	mStartTime = start_time;
 	mFrameState->mActiveCount++;
 	LLFastTimer::sCurTimerData.mCurTimer = this;
