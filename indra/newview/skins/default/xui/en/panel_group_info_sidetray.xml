@@ -67,6 +67,7 @@ background_visible="true"
      layout="topleft"
      left="20"
      name="insignia"
+     no_commit_on_selection="true"
      tool_tip="Click to choose a picture"
      top_pad="5"
      width="100" />

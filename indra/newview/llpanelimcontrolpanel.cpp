@@ -64,36 +64,25 @@ void LLPanelChatControlPanel::onOpenVoiceControlsClicked()
 	LLFloaterReg::showInstance("voice_controls");
 }
 
+void LLPanelChatControlPanel::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+
+	updateCallButton();
+}
+
 void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	updateButtons(new_state >= LLVoiceChannel::STATE_CALL_STARTED);
 }
 
-void LLPanelChatControlPanel::updateButtons(bool is_call_started)
+void LLPanelChatControlPanel::updateCallButton()
 {
-	childSetVisible("end_call_btn_panel", is_call_started);
-	childSetVisible("voice_ctrls_btn_panel", is_call_started);
-	childSetVisible("call_btn_panel", ! is_call_started);
-}
-
-LLPanelChatControlPanel::~LLPanelChatControlPanel()
-{
-	mVoiceChannelStateChangeConnection.disconnect();
-}
-
-BOOL LLPanelChatControlPanel::postBuild()
-{
-	childSetAction("call_btn", boost::bind(&LLPanelChatControlPanel::onCallButtonClicked, this));
-	childSetAction("end_call_btn", boost::bind(&LLPanelChatControlPanel::onEndCallButtonClicked, this));
-	childSetAction("voice_ctrls_btn", boost::bind(&LLPanelChatControlPanel::onOpenVoiceControlsClicked, this));
-
-	return TRUE;
-}
-
-void LLPanelChatControlPanel::draw()
-{
-	// hide/show start call and end call buttons
-	bool voice_enabled = LLVoiceClient::voiceEnabled();
+	// hide/show call button
+	bool voice_enabled = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
 	if (!session) return;
@@ -105,8 +94,33 @@ void LLPanelChatControlPanel::draw()
 		&& voice_enabled
 		&& callback_enabled;
 	childSetEnabled("call_btn", enable_connect);
+}
 
-	LLPanel::draw();
+void LLPanelChatControlPanel::updateButtons(bool is_call_started)
+{
+	childSetVisible("end_call_btn_panel", is_call_started);
+	childSetVisible("voice_ctrls_btn_panel", is_call_started);
+	childSetVisible("call_btn_panel", ! is_call_started);
+	updateCallButton();
+	
+}
+
+LLPanelChatControlPanel::~LLPanelChatControlPanel()
+{
+	mVoiceChannelStateChangeConnection.disconnect();
+	if(LLVoiceClient::getInstance())
+		LLVoiceClient::getInstance()->removeObserver(this);
+}
+
+BOOL LLPanelChatControlPanel::postBuild()
+{
+	childSetAction("call_btn", boost::bind(&LLPanelChatControlPanel::onCallButtonClicked, this));
+	childSetAction("end_call_btn", boost::bind(&LLPanelChatControlPanel::onEndCallButtonClicked, this));
+	childSetAction("voice_ctrls_btn", boost::bind(&LLPanelChatControlPanel::onOpenVoiceControlsClicked, this));
+
+	gVoiceClient->addObserver(this);
+
+	return TRUE;
 }
 
 void LLPanelChatControlPanel::setSessionId(const LLUUID& session_id)
@@ -245,7 +259,6 @@ void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::str
 LLPanelGroupControlPanel::LLPanelGroupControlPanel(const LLUUID& session_id):
 mParticipantList(NULL)
 {
-	mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
 }
 
 BOOL LLPanelGroupControlPanel::postBuild()
@@ -267,6 +280,8 @@ void LLPanelGroupControlPanel::draw()
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipantList)
 		mParticipantList->updateRecentSpeakersOrder();
+	//* TODO: find better way to properly enable call button for group and remove this call from draw()
+	updateCallButton();
 	LLPanelChatControlPanel::draw();
 }
 
@@ -304,7 +319,10 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 
 	// for group and Ad-hoc chat we need to include agent into list 
 	if(!mParticipantList)
-		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"), true,false);
+	{
+		LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(session_id);
+		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true,false);
+	}
 }
 
 

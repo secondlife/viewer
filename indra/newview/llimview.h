@@ -69,6 +69,8 @@ public:
 		void addMessagesFromHistory(const std::list<LLSD>& history);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
+		
+		/** @deprecated */
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		bool isAdHoc();
@@ -80,12 +82,20 @@ public:
 		bool isGroupSessionType() const { return mSessionType == GROUP_SESSION;}
 		bool isAvalineSessionType() const { return mSessionType == AVALINE_SESSION;}
 
+		//*TODO make private
+		/** ad-hoc sessions involve sophisticated chat history file naming schemes */
+		void buildHistoryFileName();
+
+		//*TODO make private
+		static std::string generateHash(const std::set<LLUUID>& sorted_uuids);
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
 		SType mSessionType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
+		std::string mHistoryFileName;
 
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
@@ -231,6 +241,8 @@ public:
 	*/
 	LLIMSpeakerMgr* getSpeakerManager(const LLUUID& session_id) const;
 
+	const std::string& getHistoryFileName(const LLUUID& session_id) const;
+
 	static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
 						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
@@ -243,7 +255,7 @@ public:
 	/**
 	 * Saves an IM message into a file
 	 */
-	bool logToFile(const std::string& session_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
+	bool logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
 
 private:
 	

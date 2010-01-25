@@ -263,18 +263,9 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 }
 
 //static
-bool LLAvatarActions::canCall(const LLUUID &id)
+bool LLAvatarActions::canCall()
 {
-	// For now we do not need to check whether passed UUID is ID of agent's friend.
-	// Use common check of Voice Client state.
-	{
-		// don't need to check online/offline status because "usual resident" (resident that is not a friend)
-		// can be only ONLINE. There is no way to see "usual resident" in OFFLINE status. If we see "usual
-		// resident" it automatically means that the resident is ONLINE. So to make a call to the "usual resident"
-		// we need to check only that "our" voice is enabled.
-		return LLVoiceClient::voiceEnabled();
-	}
-
+		return LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 }
 
 // static

@@ -5853,6 +5853,11 @@ bool LLVoiceClient::voiceEnabled()
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
+bool LLVoiceClient::voiceWorking()
+{
+	return (stateLoggedIn <= mState) && (mState <= stateLeavingSession);
+}
+
 void LLVoiceClient::setLipSyncEnabled(BOOL enabled)
 {
 	mLipSyncEnabled = enabled;
