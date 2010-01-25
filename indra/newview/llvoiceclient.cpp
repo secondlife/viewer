@@ -37,7 +37,9 @@
 
 // library includes
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
 #include "llsdutil.h"
+
 
 // project includes
 #include "llvoavatar.h"
@@ -1091,6 +1093,119 @@ static void killGateway()
 }
 
 #endif
+
+class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
+{
+	LOG_CLASS(LLSpeakerVolumeStorage);
+public:
+
+	/**
+	 * Sets internal voluem level for specified user.
+	 *
+	 * @param[in] speaker_id - LLUUID of user to store volume level for
+	 * @param[in] volume - internal volume level to be stored for user.
+	 */
+	void storeSpeakerVolume(const LLUUID& speaker_id, S32 volume);
+
+	/**
+	 * Gets stored internal volume level for specified speaker.
+	 *
+	 * If specified user is not found default level will be returned. It is equivalent of 
+	 * external level 0.5 from the 0.0..1.0 range.
+	 * Default internal level is calculated as: internal = 400 * external^2
+	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
+	 *
+	 * @param[in] speaker_id - LLUUID of user to get his volume level
+	 */
+	S32 getSpeakerVolume(const LLUUID& speaker_id);
+
+private:
+	friend class LLSingleton<LLSpeakerVolumeStorage>;
+	LLSpeakerVolumeStorage();
+	~LLSpeakerVolumeStorage();
+
+	const static std::string SETTINGS_FILE_NAME;
+
+	void load();
+	void save();
+
+	typedef std::map<LLUUID, S32> speaker_data_map_t;
+	speaker_data_map_t mSpeakersData;
+};
+
+const std::string LLSpeakerVolumeStorage::SETTINGS_FILE_NAME = "volume_settings.xml";
+
+LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
+{
+	load();
+}
+
+LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
+{
+	save();
+}
+
+void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, S32 volume)
+{
+	mSpeakersData[speaker_id] = volume;
+}
+
+S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
+{
+	// default internal level of user voice.
+	static const S32 DEFAULT_INTERNAL_VOLUME_LEVEL = 100;
+	S32 ret_val = DEFAULT_INTERNAL_VOLUME_LEVEL;
+	speaker_data_map_t::const_iterator it = mSpeakersData.find(speaker_id);
+	
+	if (it != mSpeakersData.end())
+	{
+		ret_val = it->second;
+	}
+	return ret_val;
+}
+
+void LLSpeakerVolumeStorage::load()
+{
+	// load per-resident voice volume information
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SETTINGS_FILE_NAME);
+
+	LLSD settings_llsd;
+	llifstream file;
+	file.open(filename);
+	if (file.is_open())
+	{
+		LLSDSerialize::fromXML(settings_llsd, file);
+	}
+
+	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
+		iter != settings_llsd.endMap(); ++iter)
+	{
+		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+	}
+}
+
+void LLSpeakerVolumeStorage::save()
+{
+	// If we quit from the login screen we will not have an SL account
+	// name.  Don't try to save, otherwise we'll dump a file in
+	// C:\Program Files\SecondLife\ or similar. JC
+	std::string user_dir = gDirUtilp->getLindenUserDir();
+	if (!user_dir.empty())
+	{
+		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SETTINGS_FILE_NAME);
+		LLSD settings_llsd;
+
+		for(speaker_data_map_t::const_iterator iter = mSpeakersData.begin(); iter != mSpeakersData.end(); ++iter)
+		{
+			settings_llsd[iter->first.asString()] = iter->second;
+		}
+
+		llofstream file;
+		file.open(filename);
+		LLSDSerialize::toPrettyXML(settings_llsd, file);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -4914,7 +5029,9 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 		}
 		
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(&(result->mAvatarID), result));
-		
+
+		result->mUserVolume = LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID);
+
 		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
 	
@@ -6163,6 +6280,9 @@ void LLVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 			participant->mUserVolume = llclamp(ivol, 0, 400);
 			participant->mVolumeDirty = TRUE;
 			mAudioSession->mVolumeDirty = TRUE;
+
+			// store this volume setting for future sessions
+			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, participant->mUserVolume);
 		}
 	}
 }
