@@ -1009,6 +1009,16 @@ void LLTextBase::draw()
 void LLTextBase::setColor( const LLColor4& c )
 {
 	mFgColor = c;
+	//textsegments have own style property , 
+	//so we have to update it also to apply changes, EXT-4433
+	for(segment_set_t::iterator it = mSegments.begin(); it != mSegments.end(); it++)
+	{
+		LLTextSegment* segment = it->get(); 
+		if(segment)
+		{
+			segment->setColor(mFgColor);
+		}
+	}
 }
 
 //virtual 

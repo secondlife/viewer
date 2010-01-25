@@ -4,9 +4,9 @@
  name="im_p2p_chiclet"
  show_speaker="false"
  width="25">
-    <chiclet_im_p2p.chiclet_button 
-     height="23"
-     image_selected="PushButton_Selected"
+    <chiclet_im_p2p.chiclet_button
+     height="25"
+     image_selected="PushButton_On"
      image_unselected="PushButton_Off"
      name="chiclet_button"
      tab_stop="false"
@@ -18,15 +18,15 @@
      left="25"
      name="speaker"
      visible="false"
-     width="20"/>
+     width="20" />
     <chiclet_im_p2p.avatar_icon
-     bottom="2"
+     bottom="3"
      follows="left|top|bottom"
-     height="18"
-     left="3"
+     height="20"
+     left="2"
      mouse_opaque="false"
      name="avatar_icon"
-     width="19" />
+     width="21" />
     <chiclet_im_p2p.unread_notifications
      height="23"
      halign="center"

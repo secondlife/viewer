@@ -59,7 +59,7 @@ public:
 							 LLPointer<LLInventoryCallback> cb);
 
 	// Find the Current Outfit folder.
-	LLUUID getCOF();
+	const LLUUID getCOF() const;
 
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
@@ -132,6 +132,14 @@ private:
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Item-specific convenience functions 
+public:
+	// Is this in the COF?
+	BOOL getIsInCOF(const LLUUID& obj_id) const;
+	// Is this in the COF and can the user delete it from the COF?
+	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
 };
 
 #define SUPPORT_ENSEMBLES 0

@@ -1729,7 +1729,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Taille du ventre
 	</string>
 	<string name="Big">
-		Maxi
+		Plus
 	</string>
 	<string name="Big Butt">
 		Grosses fesses
@@ -1858,7 +1858,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Favoris
 	</string>
 	<string name="Chin Depth">
-		Profondeur du menton
+		Profondeur
 	</string>
 	<string name="Chin Heavy">
 		Menton lourd
@@ -1873,7 +1873,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Menton-cou
 	</string>
 	<string name="Clear">
-		Effacer
+		Clair
 	</string>
 	<string name="Cleft">
 		Fendu
@@ -1987,7 +1987,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Arc
 	</string>
 	<string name="Eyebrow Density">
-		Épaisseur
+		Épaisseur sourcils
 	</string>
 	<string name="Eyebrow Height">
 		Hauteur
@@ -2041,7 +2041,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Jambes larges
 	</string>
 	<string name="Flat">
-		Plates
+		Plat
 	</string>
 	<string name="Flat Butt">
 		Fesses plates
@@ -2107,13 +2107,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Sens de la coiffure
 	</string>
 	<string name="Hair Thickess">
-		Épaisseur
+		Épaisseur cheveux
 	</string>
 	<string name="Hair Thickness">
-		Épaisseur
+		Épaisseur cheveux
 	</string>
 	<string name="Hair Tilt">
-		Inclinaison des cheveux
+		Inclinaison
 	</string>
 	<string name="Hair Tilted Left">
 		Vers la gauche
@@ -2200,7 +2200,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plis de la veste
 	</string>
 	<string name="Jaw Angle">
-		Angle de la mâchoire
+		Angle mâchoire
 	</string>
 	<string name="Jaw Jut">
 		Saillie de la mâchoire
@@ -2221,7 +2221,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Genoux rapprochés
 	</string>
 	<string name="Large">
-		Grand
+		Plus
 	</string>
 	<string name="Large Hands">
 		Grandes mains
@@ -2230,16 +2230,16 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Raie à gauche
 	</string>
 	<string name="Leg Length">
-		Longueur de la jambe
+		Longueur
 	</string>
 	<string name="Leg Muscles">
-		Muscles de la jambe
+		Muscles
 	</string>
 	<string name="Less">
 		Moins
 	</string>
 	<string name="Less Body Fat">
-		Moins de graisse
+		Moins
 	</string>
 	<string name="Less Curtains">
 		Moins
@@ -2266,13 +2266,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Moins
 	</string>
 	<string name="Less Round">
-		Moins
+		Moins ronde
 	</string>
 	<string name="Less Saddle">
 		Moins
 	</string>
 	<string name="Less Square">
-		Moins
+		Moins carrée
 	</string>
 	<string name="Less Volume">
 		Moins
@@ -2299,10 +2299,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Proportion des lèvres
 	</string>
 	<string name="Lip Thickness">
-		Épaisseur des lèvres
+		Épaisseur
 	</string>
 	<string name="Lip Width">
-		Largeur des lèvres
+		Largeur
 	</string>
 	<string name="Lipgloss">
 		Brillant à lèvres
@@ -2545,7 +2545,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Épaisseur du nez
 	</string>
 	<string name="Nose Tip Angle">
-		Angle du bout du nez
+		Bout du nez
 	</string>
 	<string name="Nose Tip Shape">
 		Bout du nez
@@ -2629,7 +2629,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Raie
 	</string>
 	<string name="Part Bangs">
-		Séparation de la frange
+		Séparation frange
 	</string>
 	<string name="Pectorals">
 		Pectoraux
@@ -2677,7 +2677,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Paupières
 	</string>
 	<string name="Rainbow Color">
-		Couleur de l&apos;arc en ciel
+		Couleur arc en ciel
 	</string>
 	<string name="Red Hair">
 		Cheveux roux
@@ -2725,10 +2725,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Front
 	</string>
 	<string name="Shear Left Up">
-		Haut gauche dégagé
+		Haut gauche décalé
 	</string>
 	<string name="Shear Right Up">
-		Haut droit dégagé
+		Haut droit décalé
 	</string>
 	<string name="Sheared Back">
 		Dégagé derrière
@@ -2758,7 +2758,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Hauteur
 	</string>
 	<string name="Short">
-		Mini
+		Moins
 	</string>
 	<string name="Short Arms">
 		Bras courts
@@ -2833,7 +2833,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fente : Droite
 	</string>
 	<string name="Small">
-		Mini
+		Moins
 	</string>
 	<string name="Small Hands">
 		Petites mains
@@ -2842,7 +2842,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Petite tête
 	</string>
 	<string name="Smooth">
-		Lisse
+		Lisses
 	</string>
 	<string name="Smooth Hair">
 		Cheveux lisses
@@ -2887,13 +2887,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Vers l&apos;avant
 	</string>
 	<string name="Tall">
-		Maxi
+		Plus
 	</string>
 	<string name="Taper Back">
-		Biseauter à l&apos;arrière
+		Arrière
 	</string>
 	<string name="Taper Front">
-		Biseauter à l&apos;avant
+		Avant
 	</string>
 	<string name="Thick Heels">
 		Talons épais
@@ -2980,7 +2980,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Très rouge
 	</string>
 	<string name="Waist Height">
-		Hauteur de la taille
+		Hauteur taille
 	</string>
 	<string name="Well-Fed">
 		Ronde
