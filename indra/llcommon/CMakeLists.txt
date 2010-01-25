@@ -50,7 +50,7 @@ set(llcommon_SOURCE_FILES
     lleventdispatcher.cpp
     lleventfilter.cpp
     llevents.cpp
-    llfasttimer.cpp
+    llfasttimer_class.cpp
     llfile.cpp
     llfindlocale.cpp
     llfixedbuffer.cpp

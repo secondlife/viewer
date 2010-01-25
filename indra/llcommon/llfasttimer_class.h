@@ -39,6 +39,12 @@
 #define TIME_FAST_TIMERS 0
 
 
+#if LL_WINDOWS
+#define LL_INLINE __forceinline
+#else
+#define LL_INLINE
+#endif // LL_WINDOWS
+
 class LLMutex;
 
 #include <queue>
@@ -47,7 +53,6 @@ class LLMutex;
 class LL_COMMON_API LLFastTimer
 {
 public:
-
 	class NamedTimer;
 
 	struct LL_COMMON_API FrameState
@@ -163,11 +168,11 @@ public:
 	:	mFrameState(timer.mFrameState)
 	{
 #if TIME_FAST_TIMERS
-		U64 timer_start = get_cpu_clock_count_64();
+		U64 timer_start = getCPUClockCount64();
 #endif
 #if FAST_TIMER_ON
 		LLFastTimer::FrameState* frame_state = mFrameState;
-		mStartTime = get_cpu_clock_count_32();
+		mStartTime = getCPUClockCount32();
 
 		frame_state->mActiveCount++;
 		frame_state->mCalls++;
@@ -181,7 +186,7 @@ public:
 		cur_timer_data->mChildTime = 0;
 #endif
 #if TIME_FAST_TIMERS
-		U64 timer_end = get_cpu_clock_count_64();
+		U64 timer_end = getCPUClockCount64();
 		sTimerCycles += timer_end - timer_start;
 #endif
 	}
@@ -189,11 +194,11 @@ public:
 	LL_INLINE ~LLFastTimer()
 	{
 #if TIME_FAST_TIMERS
-		U64 timer_start = get_cpu_clock_count_64();
+		U64 timer_start = getCPUClockCount64();
 #endif
 #if FAST_TIMER_ON
 		LLFastTimer::FrameState* frame_state = mFrameState;
-		U32 total_time = get_cpu_clock_count_32() - mStartTime;
+		U32 total_time = getCPUClockCount32() - mStartTime;
 
 		frame_state->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
 		frame_state->mActiveCount--;
@@ -208,7 +213,7 @@ public:
 		LLFastTimer::sCurTimerData = mLastTimerData;
 #endif
 #if TIME_FAST_TIMERS
-		U64 timer_end = get_cpu_clock_count_64();
+		U64 timer_end = getCPUClockCount64();
 		sTimerCycles += timer_end - timer_start;
 		sTimerCalls++;
 #endif
@@ -254,11 +259,14 @@ public:
 	static CurTimerData		sCurTimerData;
 
 private:
+	static U32 getCPUClockCount32();
+	static U64 getCPUClockCount64();
+	static U64 sClockResolution;
+
 	static S32				sCurFrameIndex;
 	static S32				sLastFrameIndex;
 	static U64				sLastFrameTime;
 	static info_list_t*		sTimerInfos;
-	static U64 sClockResolution;
 
 	U32							mStartTime;
 	LLFastTimer::FrameState*	mFrameState;
