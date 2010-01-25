@@ -137,7 +137,7 @@ inline U32 LLFastTimer::getCPUClockCount32()
 	return (U32)x >> 8;
 }
 
-inline U32 LLFastTimer::getCPUClockCount64()
+inline U64 LLFastTimer::getCPUClockCount64()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
@@ -157,7 +157,7 @@ inline U32 LLFastTimer::getCPUClockCount32()
 	return (U32)get_clock_count();
 }
 
-inline U32 LLFastTimer::getCPUClockCount64()
+inline U64 LLFastTimer::getCPUClockCount64()
 {
 	return get_clock_count();
 }
