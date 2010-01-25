@@ -584,8 +584,6 @@ void LLPanelAvatarProfile::processProfileProperties(const LLAvatarData* avatar_d
 
 	fillPartnerData(avatar_data);
 
-	fillOnlineStatus(avatar_data);
-
 	fillAccountStatus(avatar_data);
 }
 
@@ -651,21 +649,6 @@ void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
 		name_box->setNameID(LLUUID::null, FALSE);
 		name_box->setText(getString("no_partner_text"));
 	}
-}
-
-void LLPanelAvatarProfile::fillOnlineStatus(const LLAvatarData* avatar_data)
-{
-	bool online = avatar_data->flags & AVATAR_ONLINE;
-	if(LLAvatarActions::isFriend(avatar_data->avatar_id))
-	{
-		// Online status NO could be because they are hidden
-		// If they are a friend, we may know the truth!
-		online = LLAvatarTracker::instance().isBuddyOnline(avatar_data->avatar_id);
-	}
-	childSetValue("online_status", online ?
-		"Online" : "Offline");
-	childSetColor("online_status", online ? 
-		LLColor4::green : LLColor4::red);
 }
 
 void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)

@@ -198,8 +198,6 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 {
 	fillCommonData(avatar_data);
 
-	fillOnlineStatus(avatar_data);
-
 	fillPartnerData(avatar_data);
 
 	fillAccountStatus(avatar_data);

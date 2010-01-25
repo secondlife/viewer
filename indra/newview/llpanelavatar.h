@@ -178,11 +178,6 @@ protected:
 	virtual void fillPartnerData(const LLAvatarData* avatar_data);
 
 	/**
-	 * Fills Avatar's online status.
-	 */
-	virtual void fillOnlineStatus(const LLAvatarData* avatar_data);
-
-	/**
 	 * Fills account status.
 	 */
 	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
