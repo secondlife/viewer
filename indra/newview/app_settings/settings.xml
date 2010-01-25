@@ -5516,6 +5516,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>PrimMediaDragNDrop</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable drag and drop of URLs onto prim faces</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>1</integer>
+	</map>
     <key>PrimMediaMaxRetries</key>
     <map>
       <key>Comment</key>
@@ -10754,6 +10765,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>SLURLDragNDrop</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable drag and drop of SLURLs onto the viewer</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>1</integer>
+	</map>
     <key>soundsbeacon</key>
     <map>
       <key>Comment</key>
