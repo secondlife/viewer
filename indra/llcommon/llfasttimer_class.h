@@ -38,13 +38,6 @@
 #define FAST_TIMER_ON 1
 #define TIME_FAST_TIMERS 0
 
-
-#if LL_WINDOWS
-#define LL_INLINE __forceinline
-#else
-#define LL_INLINE
-#endif // LL_WINDOWS
-
 class LLMutex;
 
 #include <queue>
@@ -164,7 +157,7 @@ public:
 public:
 	LLFastTimer(LLFastTimer::FrameState* state);
 
-	LL_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
+	LL_FORCE_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
 	:	mFrameState(timer.mFrameState)
 	{
 #if TIME_FAST_TIMERS
@@ -191,7 +184,7 @@ public:
 #endif
 	}
 
-	LL_INLINE ~LLFastTimer()
+	LL_FORCE_INLINE ~LLFastTimer()
 	{
 #if TIME_FAST_TIMERS
 		U64 timer_start = getCPUClockCount64();
