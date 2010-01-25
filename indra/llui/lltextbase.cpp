@@ -623,7 +623,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	else
 	{
 		// create default editable segment to hold new text
-		default_segment = new LLNormalTextSegment( LLStyleConstSP(new LLStyle(getDefaultStyleParams())), pos, pos + insert_len, *this);
+		LLStyleConstSP sp(new LLStyle(getDefaultStyleParams()));
+		default_segment = new LLNormalTextSegment( sp, pos, pos + insert_len, *this);
 	}
 
 	// shift remaining segments to right
@@ -747,7 +748,8 @@ void LLTextBase::createDefaultSegment()
 	// ensures that there is always at least one segment
 	if (mSegments.empty())
 	{
-		LLTextSegmentPtr default_segment = new LLNormalTextSegment( LLStyleConstSP(new LLStyle(getDefaultStyleParams())), 0, getLength() + 1, *this);
+		LLStyleConstSP sp(new LLStyle(getDefaultStyleParams()));
+		LLTextSegmentPtr default_segment = new LLNormalTextSegment( sp, 0, getLength() + 1, *this);
 		mSegments.insert(default_segment);
 		default_segment->linkToDocument(this);
 	}
@@ -777,7 +779,8 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 			cur_segmentp->setEnd(segment_to_insert->getStart());
 			// advance to next segment
 			// insert remainder of old segment
-			LLTextSegmentPtr remainder_segment = new LLNormalTextSegment( cur_segmentp->getStyle(), segment_to_insert->getStart(), old_segment_end, *this);
+			LLStyleConstSP sp = cur_segmentp->getStyle();
+			LLTextSegmentPtr remainder_segment = new LLNormalTextSegment( sp, segment_to_insert->getStart(), old_segment_end, *this);
 			mSegments.insert(cur_seg_iter, remainder_segment);
 			remainder_segment->linkToDocument(this);
 			// insert new segment before remainder of old segment
@@ -1640,7 +1643,8 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
 			}
 			S32 cur_length = getLength();
-			LLTextSegmentPtr segmentp = new LLNormalTextSegment(LLStyleConstSP(new LLStyle(highlight_params)), cur_length, cur_length + wide_text.size(), *this);
+			LLStyleConstSP sp(new LLStyle(highlight_params));
+			LLTextSegmentPtr segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
 			segment_vec_t segments;
 			segments.push_back(segmentp);
 			insertStringNoUndo(cur_length, wide_text, &segments);
@@ -1664,7 +1668,8 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 		segment_vec_t segments;
 		S32 segment_start = old_length;
 		S32 segment_end = old_length + wide_text.size();
-		segments.push_back(new LLNormalTextSegment(LLStyleConstSP(new LLStyle(style_params)), segment_start, segment_end, *this ));
+		LLStyleConstSP sp(new LLStyle(style_params));
+		segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this ));
 
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}

@@ -2567,7 +2567,8 @@ void LLTextEditor::updateLinkSegments()
 				std::string new_url = wstring_to_utf8str(url_label);
 				LLStringUtil::trim(new_url);
 				new_style->setLinkHREF(new_url);
-				segment->setStyle(LLStyleConstSP(new_style));
+				LLStyleConstSP sp(new_style);
+				segment->setStyle(sp);
 			}
 		}
 	}
