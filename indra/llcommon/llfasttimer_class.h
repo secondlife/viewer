@@ -1,5 +1,5 @@
 /**
- * @file llfasttimer.h
+ * @file llfasttimer_class.h
  * @brief Declaration of a fast timer.
  *
  * $LicenseInfo:firstyear=2004&license=viewergpl$
@@ -30,108 +30,14 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FASTTIMER_H
-#define LL_FASTTIMER_H
+#ifndef LL_FASTTIMER_CLASS_H
+#define LL_FASTTIMER_CLASS_H
 
 #include "llinstancetracker.h"
 
 #define FAST_TIMER_ON 1
 #define TIME_FAST_TIMERS 0
 
-#if LL_WINDOWS
-#define LL_INLINE __forceinline
-
-//
-// NOTE: put back in when we aren't using platform sdk anymore
-//
-// because MS has different signatures for these functions in winnt.h
-// need to rename them to avoid conflicts
-//#define _interlockedbittestandset _renamed_interlockedbittestandset
-//#define _interlockedbittestandreset _renamed_interlockedbittestandreset
-//#include <intrin.h>
-//#undef _interlockedbittestandset
-//#undef _interlockedbittestandreset
-
-//inline U32 get_cpu_clock_count_32()
-//{
-//	U64 time_stamp = __rdtsc();
-//	return (U32)(time_stamp >> 8);
-//}
-//
-//// return full timer value, *not* shifted by 8 bits
-//inline U64 get_cpu_clock_count_64()
-//{
-//	return __rdtsc();
-//}
-
-// shift off lower 8 bits for lower resolution but longer term timing
-// on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
-inline U32 get_cpu_clock_count_32()
-{
-	U32 ret_val;
-	__asm
-	{
-        _emit   0x0f
-        _emit   0x31
-		shr eax,8
-		shl edx,24
-		or eax, edx
-		mov dword ptr [ret_val], eax
-	}
-    return ret_val;
-}
-
-// return full timer value, *not* shifted by 8 bits
-inline U64 get_cpu_clock_count_64()
-{
-	U64 ret_val;
-	__asm
-	{
-        _emit   0x0f
-        _emit   0x31
-		mov eax,eax
-		mov edx,edx
-		mov dword ptr [ret_val+4], edx
-		mov dword ptr [ret_val], eax
-	}
-    return ret_val;
-}
-#else
-#define LL_INLINE
-#endif
-
-#if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
-inline U32 get_cpu_clock_count_32()
-{
-	U64 x;
-	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
-	return (U32)x >> 8;
-}
-
-inline U32 get_cpu_clock_count_64()
-{
-	U64 x;
-	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
-	return x >> 8;
-}
-#endif
-
-#if ( LL_DARWIN && !(defined(__i386__) || defined(__amd64__))) || (LL_SOLARIS && defined(__sparc__))
-//
-// Mac PPC (deprecated) & Solaris SPARC implementation of CPU clock
-//
-// Just use gettimeofday implementation for now
-
-inline U32 get_cpu_clock_count_32()
-{
-	return (U32)get_clock_count();
-}
-
-inline U32 get_cpu_clock_count_64()
-{
-	return get_clock_count();
-}
-#endif
 
 class LLMutex;
 
@@ -352,6 +258,7 @@ private:
 	static S32				sLastFrameIndex;
 	static U64				sLastFrameTime;
 	static info_list_t*		sTimerInfos;
+	static U64 sClockResolution;
 
 	U32							mStartTime;
 	LLFastTimer::FrameState*	mFrameState;
@@ -361,4 +268,4 @@ private:
 
 typedef class LLFastTimer LLFastTimer;
 
-#endif // LL_LLFASTTIMER_H
+#endif // LL_LLFASTTIMER_CLASS_H
