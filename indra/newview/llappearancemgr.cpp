@@ -57,8 +57,8 @@ public:
 
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
-		// we currently don't support any commands after the "appearance"
-		// part of the SLapp - we just show the appearance side panel
+		// support secondlife:///app/appearance/show, but for now we just
+		// make all secondlife:///app/appearance SLapps behave this way
 		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD());
 		return true;
 	}
