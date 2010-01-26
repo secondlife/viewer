@@ -595,6 +595,10 @@ void LLPanelStandStopFlying::setVisible(BOOL visible)
 		//change visibility of parent layout_panel to animate in/out. EXT-2504
 		if (getParent()) getParent()->setVisible(visible);
 	}
+
+	// also change own visibility to avoid displaying the panel in mouselook (broken when EXT-2504 was implemented).
+	// See EXT-4718.
+	LLPanel::setVisible(visible);
 }
 
 BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
