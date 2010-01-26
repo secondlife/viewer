@@ -58,7 +58,6 @@ public:
 protected:
 	~LLViewerInventoryItem( void ); // ref counted
 	BOOL extractSortFieldAndDisplayName(S32* sortField, std::string* displayName) const { return extractSortFieldAndDisplayName(mName, sortField, displayName); }
-	static char getSeparator() { return '@'; }
 	mutable std::string mDisplayName;
 	
 public:
@@ -67,6 +66,7 @@ public:
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
 	static std::string getDisplayName(const std::string& name);
+	static char getSeparator() { return '@'; }
 	virtual S32 getSortField() const;
 	virtual void setSortField(S32 sortField);
 	virtual void rename(const std::string& new_name);
