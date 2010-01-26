@@ -65,17 +65,15 @@ void LLViewerHelp::showTopic(const std::string &topic)
 		help_topic = defaultTopic();
 	}
 
-	// f1 help topic means: if user not logged in yet, show the
-	// pre-login topic, otherwise show help for the focused item
+	// f1 help topic means: if the user is not logged in yet, show
+	// the pre-login topic instead of the default fallback topic,
+	// otherwise show help for the focused item
 	if (help_topic == f1HelpTopic())
 	{
-		if (! LLLoginInstance::getInstance()->authSuccess())
+		help_topic = getTopicFromFocus();
+		if (help_topic == defaultTopic() && ! LLLoginInstance::getInstance()->authSuccess())
 		{
 			help_topic = preLoginTopic();
-		}
-		else
-		{
-			help_topic = getTopicFromFocus();
 		}
 	}
 

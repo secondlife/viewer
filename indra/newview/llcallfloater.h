@@ -145,6 +145,10 @@ private:
 	 */
 	void updateParticipantsVoiceState();
 
+	/**
+	 * Updates voice state of participant not in current voice channel depend on its current state.
+	 */
+	void updateNotInVoiceParticipantState(LLAvatarListItem* item);
 	void setState(LLAvatarListItem* item, ESpeakerState state);
 	void setState(const LLUUID& speaker_id, ESpeakerState state)
 	{
