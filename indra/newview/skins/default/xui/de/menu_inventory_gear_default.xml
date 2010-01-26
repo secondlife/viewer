@@ -9,4 +9,6 @@
 	<menu_item_call label="Papierkorb ausleeren" name="empty_trash"/>
 	<menu_item_call label="Fundbüro ausleeren" name="empty_lostnfound"/>
 	<menu_item_call label="Textur speichern als" name="Save Texture As"/>
+	<menu_item_call label="Original suchen" name="Find Original"/>
+	<menu_item_call label="Alle Links suchen" name="Find All Links"/>
 </menu>

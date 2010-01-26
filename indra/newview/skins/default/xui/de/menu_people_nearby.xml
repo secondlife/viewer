@@ -7,4 +7,5 @@
 	<menu_item_call label="Teilen" name="Share"/>
 	<menu_item_call label="Zahlen" name="Pay"/>
 	<menu_item_check label="Ignorieren/Freischalten" name="Block/Unblock"/>
+	<menu_item_call label="Teleport anbieten" name="teleport"/>
 </context_menu>

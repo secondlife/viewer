@@ -10,6 +10,9 @@
 	<string name="APP_NAME">
 		Second Life
 	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SECOND_LIFE_GRID">
 		Second Life-Grid:
 	</string>
@@ -49,6 +52,9 @@
 	<string name="LoginInitializingMultimedia">
 		Multimedia wird initialisiert...
 	</string>
+	<string name="LoginInitializingFonts">
+		Schriftarten werden geladen...
+	</string>
 	<string name="LoginVerifyingCache">
 		Cache-Dateien werden überprüft (dauert 60-90 Sekunden)...
 	</string>
@@ -78,6 +84,9 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		Kleidung wird geladen...
+	</string>
+	<string name="LoginFailedNoNetwork">
+		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
 	<string name="Quit">
 		Beenden
@@ -174,7 +183,7 @@
 		Karte anzeigen für
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Schließen (&#8984;W)
+		Schließen (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		Schließen (Strg+W)
@@ -190,9 +199,6 @@
 	</string>
 	<string name="BUTTON_DOCK">
 		Andocken
-	</string>
-	<string name="BUTTON_UNDOCK">
-		Abkoppeln
 	</string>
 	<string name="BUTTON_HELP">
 		Hilfe anzeigen
@@ -626,11 +632,14 @@
 	<string name="ControlYourCamera">
 		Kamerasteuerung
 	</string>
+	<string name="NotConnected">
+		Nicht verbunden
+	</string>
 	<string name="SIM_ACCESS_PG">
-		PG
+		Allgemein
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Mature
+		Moderat
 	</string>
 	<string name="SIM_ACCESS_ADULT">
 		Adult
@@ -817,6 +826,9 @@
 	</string>
 	<string name="InventoryNoMatchingItems">
 		Im Inventar wurden keine passenden Artikel gefunden.
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Hier eine Landmarke hin ziehen, um diese zu Ihrem Favoriten hinzuzufügen.
 	</string>
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
@@ -1288,6 +1300,156 @@
 	<string name="RegionInfoAllowedGroups">
 		Zulässige Gruppen: ([ALLOWEDGROUPS], max [MAXACCESS])
 	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		Parzellenskript-Speicher
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		Aufgeführte Parzellen: [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		Verwendeter Speicher: [COUNT] KB von [MAX] KB; [AVAILABLE] KB verfügbar
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		Verwendeter Speicher: [COUNT] KB
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		Parzelleskript-URLs
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		Verwendete URLs: [COUNT] von [MAX]; [AVAILABLE] verfügbar
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		Verwendete URLs: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Fehler bei Informationsabruf
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Fehler: Skriptinformationen sind nur für Ihre aktuelle Region verfügbar
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Informationen werden abgerufen...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		Sie sind nicht berechtigt, diese Parzelle zu untersuchen.
+	</string>
+	<string name="SITTING_ON">
+		sitzt auf
+	</string>
+	<string name="ATTACH_CHEST">
+		Brust
+	</string>
+	<string name="ATTACH_HEAD">
+		Kopf
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		Linke Schulter
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		Rechte Schulter
+	</string>
+	<string name="ATTACH_LHAND">
+		Linke Hand
+	</string>
+	<string name="ATTACH_RHAND">
+		Rechte Hand
+	</string>
+	<string name="ATTACH_LFOOT">
+		Linker Fuß
+	</string>
+	<string name="ATTACH_RFOOT">
+		Rechter Fuß
+	</string>
+	<string name="ATTACH_BACK">
+		Hinten
+	</string>
+	<string name="ATTACH_PELVIS">
+		Becken
+	</string>
+	<string name="ATTACH_MOUTH">
+		Mund
+	</string>
+	<string name="ATTACH_CHIN">
+		Kinn
+	</string>
+	<string name="ATTACH_LEAR">
+		Linkes Ohr
+	</string>
+	<string name="ATTACH_REAR">
+		Rechtes Ohr
+	</string>
+	<string name="ATTACH_LEYE">
+		Linkes Auge
+	</string>
+	<string name="ATTACH_REYE">
+		Rechtes Auge
+	</string>
+	<string name="ATTACH_NOSE">
+		Nase
+	</string>
+	<string name="ATTACH_RUARM">
+		Rechter Oberarm
+	</string>
+	<string name="ATTACH_RLARM">
+		Rechter Unterarm
+	</string>
+	<string name="ATTACH_LUARM">
+		Linker Oberarm
+	</string>
+	<string name="ATTACH_LLARM">
+		Linker Unterarm
+	</string>
+	<string name="ATTACH_RHIP">
+		Rechte Hüfte
+	</string>
+	<string name="ATTACH_RULEG">
+		Rechter Oberschenkel
+	</string>
+	<string name="ATTACH_RLLEG">
+		Rechter Unterschenkel
+	</string>
+	<string name="ATTACH_LHIP">
+		Linke Hüfte
+	</string>
+	<string name="ATTACH_LULEG">
+		Linker Oberschenkel
+	</string>
+	<string name="ATTACH_LLLEG">
+		Linker Unterschenkel
+	</string>
+	<string name="ATTACH_BELLY">
+		Bauch
+	</string>
+	<string name="ATTACH_RPEC">
+		Rechts
+	</string>
+	<string name="ATTACH_LPEC">
+		Linke Brust
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD Mitte 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD oben rechts
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD oben Mitte
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD oben links
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD Mitte 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD unten links
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD unten
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD unten rechts
+	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
 	</string>
@@ -1337,6 +1499,12 @@
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(wird nach Veröffentlichung aktualisiert)
+	</string>
+	<string name="NoPicksClassifiedsText">
+		Es wurde keine Auswahl getroffen/keine Anzeigen ausgewählt
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		Wird geladen...
 	</string>
 	<string name="MultiPreviewTitle">
 		Vorschau
@@ -1414,23 +1582,35 @@
 		Unbekanntes Dateiformat .%s
 Gültige Formate: .wav, .tga, .bmp, .jpg, .jpeg oder .bvh
 	</string>
+	<string name="MuteObject2">
+		Ignorieren
+	</string>
+	<string name="MuteAvatar">
+		Ignorieren
+	</string>
+	<string name="UnmuteObject">
+		Freischalten
+	</string>
+	<string name="UnmuteAvatar">
+		Freischalten
+	</string>
 	<string name="AddLandmarkNavBarMenu">
-		Landmarke hinzufügen...
+		Zu meinen Landmarken hinzufügen...
 	</string>
 	<string name="EditLandmarkNavBarMenu">
-		Landmarke bearbeiten...
+		Meine Landmarken bearbeiten...
 	</string>
 	<string name="accel-mac-control">
-		&#8963;
+		⌃
 	</string>
 	<string name="accel-mac-command">
-		&#8984;
+		⌘
 	</string>
 	<string name="accel-mac-option">
-		&#8997;
+		⌥
 	</string>
 	<string name="accel-mac-shift">
-		&#8679;
+		⇧
 	</string>
 	<string name="accel-win-control">
 		Strg+
@@ -1616,7 +1796,7 @@ Falls der Fehler dann weiterhin auftritt, müssen Sie [APP_NAME] von Ihrem Syste
 		Unbehebbarer Fehler
 	</string>
 	<string name="MBRequiresAltiVec">
-		 [APP_NAME] erfordert einen Prozessor mit AltiVec (G4 oder später).
+		[APP_NAME] erfordert einen Prozessor mit AltiVec (G4 oder später).
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] läuft bereits.
@@ -1628,7 +1808,7 @@ Falls diese Nachricht erneut angezeigt wird, starten Sie Ihren Computer bitte ne
 Möchten Sie einen Absturz-Bericht einschicken?
 	</string>
 	<string name="MBAlert">
-		Alarm
+		Benachrichtigung
 	</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] kann DirectX 9.0b oder höher nicht feststellen.
@@ -2009,12 +2189,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Eyes Bugged">
 		Glubschaugen
-	</string>
-	<string name="Eyes Shear Left Up">
-		Augen Verzerrung links hoch
-	</string>
-	<string name="Eyes Shear Right Up">
-		Augen Verzerrung rechts hoch
 	</string>
 	<string name="Face Shear">
 		Gesichtsverzerrung
@@ -3018,6 +3192,27 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="LocationCtrlComboBtnTooltip">
 		Mein Reiseverlauf
 	</string>
+	<string name="LocationCtrlForSaleTooltip">
+		Dieses Land kaufen
+	</string>
+	<string name="LocationCtrlVoiceTooltip">
+		Voice hier nicht möglich
+	</string>
+	<string name="LocationCtrlFlyTooltip">
+		Fliegen ist unzulässig
+	</string>
+	<string name="LocationCtrlPushTooltip">
+		Kein Stoßen
+	</string>
+	<string name="LocationCtrlBuildTooltip">
+		Bauen/Fallen lassen von Objekten ist verboten
+	</string>
+	<string name="LocationCtrlScriptsTooltip">
+		Skripte sind unzulässig
+	</string>
+	<string name="LocationCtrlDamageTooltip">
+		Gesundheit
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung
 	</string>
@@ -3075,6 +3270,33 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="started_call">
+		haben/hat einen Anruf initiiert
+	</string>
+	<string name="joined_call">
+		ist dem Gespräch beigetreten
+	</string>
+	<string name="ringing-im">
+		Verbindung wird hergestellt...
+	</string>
+	<string name="connected-im">
+		Verbunden. Klicken Sie auf Anruf beenden, um die Verbindung zu trennen
+	</string>
+	<string name="hang_up-im">
+		Anruf wurde beendet
+	</string>
+	<string name="answering-im">
+		Wird verbunden...
+	</string>
+	<string name="conference-title">
+		Ad-hoc-Konferenz
+	</string>
+	<string name="inventory_item_offered-im">
+		Inventarobjekt angeboten
+	</string>
+	<string name="share_alert">
+		Objekte aus dem Inventar hier her ziehen
+	</string>
 	<string name="only_user_message">
 		Sie sind der einzige Benutzer in dieser Sitzung.
 	</string>
@@ -3083,6 +3305,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="invite_message">
 		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
+	</string>
+	<string name="muted_message">
+		Sie haben diesen Einwohner ignoriert. Wenn Sie eine Nachricht senden, wird dieser freigeschaltet.
+	</string>
+	<string name="generic">
+		Fehler bei Anfrage, bitte versuchen Sie es später.
 	</string>
 	<string name="generic_request_error">
 		Fehler bei Anfrage, bitte versuchen Sie es später.
@@ -3102,19 +3330,37 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="not_a_mod_error">
 		Sie sind kein Sitzungsmoderator.
 	</string>
+	<string name="muted">
+		Ein Gruppenmoderator hat Ihren Text-Chat deaktiviert.
+	</string>
 	<string name="muted_error">
 		Ein Gruppenmoderator hat Ihren Text-Chat deaktiviert.
 	</string>
 	<string name="add_session_event">
 		Es konnten keine Benutzer zur Chat-Sitzung mit [RECIPIENT] hinzugefügt werden.
 	</string>
+	<string name="message">
+		Ihre Nachricht konnte nicht an die Chat-Sitzung mit [RECIPIENT] gesendet werden.
+	</string>
 	<string name="message_session_event">
 		Ihre Nachricht konnte nicht an die Chat-Sitzung mit [RECIPIENT] gesendet werden.
+	</string>
+	<string name="mute">
+		Fehler während Moderation.
+	</string>
+	<string name="removed">
+		Sie wurden von der Gruppe ausgeschlossen.
 	</string>
 	<string name="removed_from_group">
 		Sie wurden von der Gruppe ausgeschlossen.
 	</string>
 	<string name="close_on_no_ability">
 		Sie haben nicht mehr die Berechtigung an der Chat-Sitzung teilzunehmen.
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] hat etwas Neues gesagt
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] haben etwas Neues gesagt
 	</string>
 </strings>

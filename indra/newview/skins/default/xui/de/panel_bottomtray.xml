@@ -8,7 +8,7 @@
 	</string>
 	<layout_stack name="toolbar_stack">
 		<layout_panel name="gesture_panel">
-			<gesture_combo_box label="Gesten" name="Gesture" tool_tip="Gesten anzeigen/ausblenden"/>
+			<gesture_combo_list label="Gesten" name="Gesture" tool_tip="Gesten anzeigen/ausblenden"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
 			<button label="Bewegen" name="movement_btn" tool_tip="Bewegungssteuerung anzeigen/ausblenden"/>
@@ -18,6 +18,16 @@
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
 			<button label="" name="snapshots" tool_tip="Foto machen"/>
+		</layout_panel>
+		<layout_panel name="im_well_panel">
+			<chiclet_im_well name="im_well">
+				<button name="Unread IM messages" tool_tip="IMs"/>
+			</chiclet_im_well>
+		</layout_panel>
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="Benachrichtigungen"/>
+			</chiclet_notification>
 		</layout_panel>
 	</layout_stack>
 </panel>

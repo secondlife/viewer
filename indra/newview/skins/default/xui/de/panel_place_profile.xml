@@ -56,6 +56,7 @@
 	<string name="icon_ScriptsNo" value="parcel_drk_ScriptsNo"/>
 	<string name="icon_Damage" value="parcel_drk_Damage"/>
 	<string name="icon_DamageNo" value="parcel_drk_DamageNo"/>
+	<button name="back_btn" tool_tip="Hinten"/>
 	<text name="title" value="Ortsprofil"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">

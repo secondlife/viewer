@@ -19,7 +19,7 @@
 			<button label="vorwärts" name="seek"/>
 		</layout_panel>
 		<layout_panel name="parcel_owner_controls">
-			<button label="Aktuelle URL an Parzelle senden" name="assign"/>
+			<button label="Aktuelle Seite an Parzelle senden" name="assign"/>
 		</layout_panel>
 		<layout_panel name="external_controls">
 			<button label="In meinem Browser öffnen" name="open_browser"/>

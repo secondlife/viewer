@@ -3,10 +3,10 @@
 	<panel.string name="Title">
 		Sonstiges
 	</panel.string>
-	<filter_editor label="Filter" name="inventory search editor"/>
+	<filter_editor label="Inventar filtern" name="inventory search editor"/>
 	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Alle Objekte" name="All Items"/>
-		<inventory_panel label="Letzte Objekte" name="Recent Items"/>
+		<inventory_panel label="MEIN INVENTAR" name="All Items"/>
+		<inventory_panel label="AKTUELL" name="Recent Items"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
@@ -32,7 +32,7 @@
 		<menu label="Bauen" name="Create">
 			<menu_item_call label="Neuer Ordner" name="New Folder"/>
 			<menu_item_call label="Neues Skript" name="New Script"/>
-			<menu_item_call label="Neue Notiz" name="New Note"/>
+			<menu_item_call label="Neue Notizkarte" name="New Note"/>
 			<menu_item_call label="Neue Geste" name="New Gesture"/>
 			<menu label="Neue Kleider" name="New Clothes">
 				<menu_item_call label="Neues Hemd" name="New Shirt"/>

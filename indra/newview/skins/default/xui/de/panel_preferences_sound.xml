@@ -7,7 +7,7 @@
 	<slider label="Medien" name="Media Volume"/>
 	<slider label="Soundeffekte" name="SFX Volume"/>
 	<slider label="Musik wird gestreamt" name="Music Volume"/>
-	<check_box label="Sprache" name="enable_voice_check"/>
+	<check_box label="Voice aktivieren" name="enable_voice_check"/>
 	<slider label="Sprache" name="Voice Volume"/>
 	<text name="Listen from">
 		Hören von:
