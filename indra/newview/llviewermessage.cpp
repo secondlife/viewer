@@ -1365,10 +1365,9 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			if (check_offer_throttle(mFromName, true))
 			{
 				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
-				//TODO* CHAT: how to show this?
-				//LLSD args;
-				//args["MESSAGE"] = log_message;
-				//LLNotificationsUtil::add("SystemMessage", args);
+				LLSD args;
+				args["MESSAGE"] = log_message;
+				LLNotificationsUtil::add("SystemMessage", args);
 			}
 			
 			// we will want to open this item when it comes back.
@@ -1410,11 +1409,10 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			// send the message
 			msg->sendReliable(mHost);
 			
-			//TODO* CHAT: how to show this?
-			//log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
-			//LLSD args;
-			//args["MESSAGE"] = log_message;
-			//LLNotificationsUtil::add("SystemMessage", args);
+			log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
+			LLSD args;
+			args["MESSAGE"] = log_message;
+			LLNotificationsUtil::add("SystemMessage", args);
 			
 			if (busy &&	(!mFromGroup && !mFromObject))
 			{
@@ -1434,6 +1432,31 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 
 	delete this;
 	return false;
+}
+
+std::string get_display_name(const std::string& name)
+{
+	// We receive landmark name as \'<n>@name\' where <n> is a number
+	// LLViewerInventoryItem::getDisplayName will remove \'<n>@ though we need the \'
+	// Lets save all chars preceding @ and insert them back after <n>@ was removed
+
+	std::string saved;
+
+	if(std::string::npos != name.find(LLViewerInventoryItem::getSeparator()))
+	{
+		int n = 0;
+		while(!isdigit(name[n]) && LLViewerInventoryItem::getSeparator() != name[n])
+		{
+			++n;
+		}
+		saved = name.substr(0, n);
+	}
+
+	std::string d_name = LLViewerInventoryItem::getDisplayName(name);
+	d_name.insert(0, saved);
+	LLStringUtil::trim(d_name);
+
+	return d_name;
 }
 
 void inventory_offer_handler(LLOfferInfo* info)
@@ -1475,7 +1498,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 
 	if(LLAssetType::AT_LANDMARK == info->mType)
 	{
-		msg = LLViewerInventoryItem::getDisplayName(msg);
+		msg = get_display_name(msg);
 	}
 
 	LLSD args;
@@ -1843,11 +1866,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// history.  Pretend the chat is from a local agent,
 				// so it will go into the history but not be shown on screen.
 
-				//TODO* CHAT: how to show this?
-				//and this is not system message...
-				//LLSD args;
-				//args["MESSAGE"] = buffer;
-				//LLNotificationsUtil::add("SystemMessage", args);
+				LLSD args;
+				args["MESSAGE"] = buffer;
+				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
 		}
 		break;
@@ -3078,10 +3099,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
-			//TODO* CHAT: how to show this?
-			//LLSD args;
-			//args["MESSAGE"] = message;
-			//LLNotificationsUtil::add("SystemMessage", args);
+			LLSD args;
+			args["MESSAGE"] = "Teleport completed from " + gAgent.getTeleportSourceSLURL();
+			LLNotificationsUtil::add("SystemMessageTip", args);
 
 			// Set the new position
 			avatarp->setPositionAgent(agent_pos);

@@ -498,7 +498,7 @@ void LLScrollListCtrl::fitContents(S32 max_width, S32 max_height)
 {
 	S32 height = llmin( getRequiredRect().getHeight(), max_height );
 	if(mPageLines)
-		height = llmin( mPageLines * mLineHeight + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
+		height = llmin( mPageLines * mLineHeight + 2*mBorderThickness + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
 
 	S32 width = getRect().getWidth();
 
@@ -2760,9 +2760,13 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition
 
 LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
-	if (!item_p.validateBlock()) return NULL;
-
 	LLScrollListItem *new_item = new LLScrollListItem(item_p);
+	return addRow(new_item, item_p, pos);
+}
+
+LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& item_p, EAddPosition pos)
+{
+	if (!item_p.validateBlock() || !new_item) return NULL;
 	new_item->setNumColumns(mColumns.size());
 
 	// Add any columns we don't already have

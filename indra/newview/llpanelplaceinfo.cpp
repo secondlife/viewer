@@ -43,6 +43,8 @@
 #include "lliconctrl.h"
 #include "lltextbox.h"
 
+#include "lltrans.h"
+
 #include "llagent.h"
 #include "llexpandabletextbox.h"
 #include "llpanelpick.h"
@@ -99,12 +101,12 @@ void LLPanelPlaceInfo::resetLocation()
 	mRequestedID.setNull();
 	mPosRegion.clearVec();
 
-	std::string not_available = getString("not_available");
-	mMaturityRatingIcon->setValue(not_available);
-	mMaturityRatingText->setValue(not_available);
-	mRegionName->setText(not_available);
-	mParcelName->setText(not_available);
-	mDescEditor->setText(not_available);
+	std::string loading = LLTrans::getString("LoadingData");
+	mMaturityRatingIcon->setValue(loading);
+	mMaturityRatingText->setValue(loading);
+	mRegionName->setText(loading);
+	mParcelName->setText(loading);
+	mDescEditor->setText(loading);
 
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
@@ -205,6 +207,10 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	if(!parcel_data.desc.empty())
 	{
 		mDescEditor->setText(parcel_data.desc);
+	}
+	else
+	{
+		mDescEditor->setText(getString("not_available"));
 	}
 
 	S32 region_x;
