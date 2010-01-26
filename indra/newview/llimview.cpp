@@ -1680,6 +1680,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	case LLVoiceChannel::STATE_ERROR :
 		getChild<LLTextBox>("noanswer")->setVisible(true);
 		getChild<LLButton>("Cancel")->setVisible(false);
+		setCanClose(true);
 		mLifetimeTimer.start();
 		break;
 	case LLVoiceChannel::STATE_HUNG_UP :
@@ -1692,6 +1693,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			getChild<LLTextBox>("nearby")->setVisible(true);
 		}
 		getChild<LLButton>("Cancel")->setVisible(false);
+		setCanClose(true);
 		mLifetimeTimer.start();
 	}
 
