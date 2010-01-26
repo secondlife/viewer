@@ -6389,10 +6389,9 @@ void handle_selected_texture_info(void*)
    		msg.assign("Texture info for: ");
    		msg.append(node->mName);
 
-		//TODO* CHAT: how to show this?
-		//LLSD args;
-		//args["MESSAGE"] = msg;
-		//LLNotificationsUtil::add("SystemMessage", args);
+		LLSD args;
+		args["MESSAGE"] = msg;
+		LLNotificationsUtil::add("SystemMessage", args);
 	   
    		U8 te_count = node->getObject()->getNumTEs();
    		// map from texture ID to list of faces using it
@@ -6425,10 +6424,9 @@ void handle_selected_texture_info(void*)
    				msg.append( llformat("%d ", (S32)(it->second[i])));
    			}
 
-			//TODO* CHAT: how to show this?
-			//LLSD args;
-			//args["MESSAGE"] = msg;
-			//LLNotificationsUtil::add("SystemMessage", args);
+			LLSD args;
+			args["MESSAGE"] = msg;
+			LLNotificationsUtil::add("SystemMessage", args);
    		}
 	}
 }
@@ -7959,6 +7957,7 @@ void initialize_menus()
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
+	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");

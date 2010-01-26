@@ -628,7 +628,9 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	}
 	else if (item == "can_call")
 	{
-		return LLVoiceClient::voiceEnabled()&&gVoiceClient->voiceWorking();
+		bool not_agent = mUUIDs.front() != gAgentID;
+		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		return can_call;
 	}
 
 	return true;

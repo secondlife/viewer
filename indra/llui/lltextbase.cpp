@@ -244,7 +244,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 
 LLTextBase::~LLTextBase()
 {
-	delete mPopupMenu;
+	// Menu, like any other LLUICtrl, is deleted by its parent - gMenuHolder
+
 	clearSegments();
 }
 

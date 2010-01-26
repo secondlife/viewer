@@ -512,8 +512,8 @@ protected:
 	// notification's lifetime in seconds
 	S32		mLifetime;
 	static const S32 DEFAULT_LIFETIME = 5;
-	virtual bool lifetimeHasExpired() {return false;};
-	virtual void onLifetimeExpired() {};
+	virtual bool lifetimeHasExpired();
+	virtual void onLifetimeExpired();
 
 	virtual void getAllowedRect(LLRect& rect);
 
@@ -543,7 +543,6 @@ public:
 	static void onStartIM(void* user_data);
 
 private:
-	/*virtual*/ bool lifetimeHasExpired();
 	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };
@@ -562,8 +561,16 @@ public:
 private:
 	// hide all text boxes
 	void hideAllText();
-	/*virtual*/ bool lifetimeHasExpired();
-	/*virtual*/ void onLifetimeExpired();
+};
+
+class LLCallInfoDialog : public LLCallDialog
+{
+public:
+	LLCallInfoDialog(const LLSD& payload);
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	static void show(const std::string& status_name, const LLSD& args);
 };
 
 // Globals

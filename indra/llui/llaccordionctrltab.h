@@ -115,6 +115,7 @@ public:
 	void changeOpenClose(bool is_open);
 
 	void canOpenClose(bool can_open_close) { mCanOpenClose = can_open_close;};
+	bool canOpenClose() const { return mCanOpenClose; };
 
 	virtual BOOL postBuild();
 

@@ -95,7 +95,8 @@ void toast_callback(const LLSD& msg){
 	}
 
 	// check whether incoming IM belongs to an active session or not
-	if (LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
+	if (LLIMModel::getInstance()->getActiveSessionID().notNull()
+			&& LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
 	{
 		return;
 	}
@@ -1577,7 +1578,7 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 	}
 }
 
-bool LLOutgoingCallDialog::lifetimeHasExpired()
+bool LLCallDialog::lifetimeHasExpired()
 {
 	if (mLifetimeTimer.getStarted())
 	{
@@ -1590,7 +1591,7 @@ bool LLOutgoingCallDialog::lifetimeHasExpired()
 	return false;
 }
 
-void LLOutgoingCallDialog::onLifetimeExpired()
+void LLCallDialog::onLifetimeExpired()
 {
 	mLifetimeTimer.stop();
 	closeFloater();
@@ -1742,19 +1743,6 @@ BOOL LLOutgoingCallDialog::postBuild()
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
 LLCallDialog(payload)
 {
-}
-
-bool LLIncomingCallDialog::lifetimeHasExpired()
-{
-	if (mLifetimeTimer.getStarted())
-	{
-		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
-		if (elapsed_time > mLifetime) 
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 void LLIncomingCallDialog::onLifetimeExpired()
@@ -3217,6 +3205,42 @@ public:
 		}
 	}
 };
+
+LLCallInfoDialog::LLCallInfoDialog(const LLSD& payload) : LLCallDialog(payload)
+{
+}
+
+BOOL LLCallInfoDialog::postBuild()
+{
+	// init notification's lifetime
+	std::istringstream ss( getString("lifetime") );
+	if (!(ss >> mLifetime))
+	{
+		mLifetime = DEFAULT_LIFETIME;
+	}
+	return LLCallDialog::postBuild();
+}
+
+void LLCallInfoDialog::onOpen(const LLSD& key)
+{
+	if(key.has("msg"))
+	{
+		std::string msg = key["msg"];
+		getChild<LLTextBox>("msg")->setValue(msg);
+	}
+
+	mLifetimeTimer.start();
+}
+
+void LLCallInfoDialog::show(const std::string& status_name, const LLSD& args)
+{
+	LLUIString message = LLTrans::getString(status_name);
+	message.setArgs(args);
+
+	LLSD payload;
+	payload["msg"] = message;
+	LLFloaterReg::showInstance("call_info", payload);
+}
 
 LLHTTPRegistration<LLViewerChatterBoxSessionStartReply>
    gHTTPRegistrationMessageChatterboxsessionstartreply(
