@@ -1579,9 +1579,9 @@ if (WINDOWS)
         )
 
       add_custom_target(package ALL DEPENDS 
-      	${CMAKE_CFG_INTDIR}/touched.bat
-      	windows-setup-build-all 
-	)
+        ${CMAKE_CFG_INTDIR}/touched.bat
+        windows-setup-build-all 
+        )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
