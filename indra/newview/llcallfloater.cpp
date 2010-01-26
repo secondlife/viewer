@@ -163,6 +163,8 @@ BOOL LLCallFloater::postBuild()
 	//chrome="true" hides floater caption 
 	if (mDragHandle)
 		mDragHandle->setTitleVisible(TRUE);
+	
+	updateSession();
 
 	return TRUE;
 }
@@ -246,7 +248,7 @@ void LLCallFloater::updateSession()
 		}
 	}
 
-	const LLUUID& session_id = voice_channel->getSessionID();
+	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
 	lldebugs << "Set speaker manager for session: " << session_id << llendl;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
