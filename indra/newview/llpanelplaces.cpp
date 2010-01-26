@@ -34,7 +34,7 @@
 #include "llpanelplaces.h"
 
 #include "llassettype.h"
-#include "llwindow.h"
+#include "lltimer.h"
 
 #include "llinventory.h"
 #include "lllandmark.h"
@@ -48,6 +48,8 @@
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+
+#include "llwindow.h"
 
 #include "llagent.h"
 #include "llagentpicksinfo.h"
@@ -73,6 +75,7 @@
 #include "llviewerwindow.h"
 
 static const S32 LANDMARK_FOLDERS_MENU_WIDTH = 250;
+static const F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
 static const std::string AGENT_INFO_TYPE			= "agent";
 static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
 static const std::string LANDMARK_INFO_TYPE			= "landmark";
@@ -830,6 +833,10 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		{
 			mPlaceProfile->resetLocation();
 
+			// Do not reset location info until mResetInfoTimer has expired
+			// to avoid text blinking.
+			mResetInfoTimer.setTimerExpirySec(PLACE_INFO_UPDATE_INTERVAL);
+
 			LLRect rect = getRect();
 			LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
 			mPlaceProfile->reshape(new_rect.getWidth(), new_rect.getHeight());
@@ -920,11 +927,12 @@ void LLPanelPlaces::changedParcelSelection()
 		}
 	}
 
-	// Reset location info only if global position is changed
-	// to reduce unnecessary text and icons updates.
-	if (prev_pos_global != mPosGlobal)
+	// Reset location info only if global position has changed
+	// and update timer has expired to reduce unnecessary text and icons updates.
+	if (prev_pos_global != mPosGlobal && mResetInfoTimer.hasExpired())
 	{
 		mPlaceProfile->resetLocation();
+		mResetInfoTimer.setTimerExpirySec(PLACE_INFO_UPDATE_INTERVAL);
 	}
 
 	mPlaceProfile->displaySelectedParcelInfo(parcel, region, mPosGlobal, is_current_parcel);
