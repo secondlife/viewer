@@ -63,6 +63,8 @@ static LLDefaultChildRegistry::Register<LLAccordionCtrl>	t2("accordion");
 
 LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mFitParent(params.fit_parent)
+ , mAutoScrolling( false )
+ , mAutoScrollRate( 0.f )
 {
   mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
@@ -72,6 +74,8 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
 }
 
 LLAccordionCtrl::LLAccordionCtrl() : LLPanel()
+ , mAutoScrolling( false )
+ , mAutoScrollRate( 0.f )
 {
 	mSingleExpansion = false;
 	mFitParent = false;
@@ -81,6 +85,19 @@ LLAccordionCtrl::LLAccordionCtrl() : LLPanel()
 //---------------------------------------------------------------------------------
 void LLAccordionCtrl::draw()
 {
+	if (mAutoScrolling)
+	{
+		// add acceleration to autoscroll
+		mAutoScrollRate = llmin(mAutoScrollRate + (LLFrameTimer::getFrameDeltaTimeF32() * AUTO_SCROLL_RATE_ACCEL), MAX_AUTO_SCROLL_RATE);
+	}
+	else
+	{
+		// reset to minimum for next time
+		mAutoScrollRate = MIN_AUTO_SCROLL_RATE;
+	}
+	// clear this flag to be set on next call to autoScroll
+	mAutoScrolling = false;
+
 	LLRect local_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	
 	LLLocalClipRect clip(local_rect);
@@ -418,6 +435,64 @@ BOOL LLAccordionCtrl::handleKeyHere			(KEY key, MASK mask)
 	if( mScrollbar->getVisible() && mScrollbar->handleKeyHere( key,mask ) )
 		return TRUE;
 	return LLPanel::handleKeyHere(key,mask);
+}
+
+BOOL LLAccordionCtrl::handleDragAndDrop		(S32 x, S32 y, MASK mask,
+											 BOOL drop,
+											 EDragAndDropType cargo_type,
+											 void* cargo_data,
+											 EAcceptance* accept,
+											 std::string& tooltip_msg)
+{
+	// Scroll folder view if needed.  Never accepts a drag or drop.
+	*accept = ACCEPT_NO;
+	BOOL handled = autoScroll(x, y);
+
+	if( !handled )
+	{
+		handled = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type,
+											cargo_data, accept, tooltip_msg) != NULL;
+	}
+	return TRUE;
+}
+
+BOOL LLAccordionCtrl::autoScroll		(S32 x, S32 y)
+{
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	bool scrolling = false;
+	if( mScrollbar->getVisible() )
+	{
+		LLRect rect_local( 0, getRect().getHeight(), getRect().getWidth() - scrollbar_size, 0 );
+		LLRect screen_local_extents;
+
+		// clip rect against root view
+		screenRectToLocal(getRootView()->getLocalRect(), &screen_local_extents);
+		rect_local.intersectWith(screen_local_extents);
+
+		// autoscroll region should take up no more than one third of visible scroller area
+		S32 auto_scroll_region_height = llmin(rect_local.getHeight() / 3, 10);
+		S32 auto_scroll_speed = llround(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
+
+		LLRect bottom_scroll_rect = screen_local_extents;
+		bottom_scroll_rect.mTop = rect_local.mBottom + auto_scroll_region_height;
+		if( bottom_scroll_rect.pointInRect( x, y ) && (mScrollbar->getDocPos() < mScrollbar->getDocPosMax()) )
+		{
+			mScrollbar->setDocPos( mScrollbar->getDocPos() + auto_scroll_speed );
+			mAutoScrolling = true;
+			scrolling = true;
+		}
+
+		LLRect top_scroll_rect = screen_local_extents;
+		top_scroll_rect.mBottom = rect_local.mTop - auto_scroll_region_height;
+		if( top_scroll_rect.pointInRect( x, y ) && (mScrollbar->getDocPos() > 0) )
+		{
+			mScrollbar->setDocPos( mScrollbar->getDocPos() - auto_scroll_speed );
+			mAutoScrolling = true;
+			scrolling = true;
+		}
+	}
+	return scrolling;
 }
 
 void	LLAccordionCtrl::updateLayout	(S32 width, S32 height)
