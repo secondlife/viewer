@@ -17,7 +17,7 @@
 	<check_box label="今すぐ適用" name="apply_immediate_check"/>
 	<button label="" label_selected="" name="Pipette"/>
 	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
-	<button label="Ok" label_selected="Ok" name="Select"/>
+	<button label="OK" label_selected="OK" name="Select"/>
 	<text name="pick title">
 		ピック:
 	</text>

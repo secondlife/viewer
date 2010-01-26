@@ -24,10 +24,10 @@
 			<button label="現在地に設定" name="set_to_curr_location_btn"/>
 			<combo_box name="content_type">
 				<combo_item name="mature_ci">
-					Matureコンテンツ
+					控えめコンテンツ
 				</combo_item>
 				<combo_item name="pg_ci">
-					PGコンテンツ
+					一般コンテンツ
 				</combo_item>
 			</combo_box>
 			<spinner label="L$" name="price_for_listing" tool_tip="掲載価格" value="50"/>

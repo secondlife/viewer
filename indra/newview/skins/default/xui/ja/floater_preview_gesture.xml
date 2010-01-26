@@ -24,6 +24,9 @@
 	<floater.string name="Title">
 		ジェスチャー： [NAME]
 	</floater.string>
+	<text name="name_text">
+		名前：
+	</text>
 	<text name="desc_label">
 		説明：
 	</text>

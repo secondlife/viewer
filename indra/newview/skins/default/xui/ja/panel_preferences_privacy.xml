@@ -11,8 +11,8 @@
 	<check_box label="フレンドとグループ以外からはコールとIMを受信しない" name="voice_call_friends_only_check"/>
 	<check_box label="コールが終了したらマイクのスイッチを切る" name="auto_disengage_mic_check"/>
 	<check_box label="Cookieを受け入れる" name="cookies_enabled"/>
-	<check_box label="メディアの自動再生を許可する" name="autoplay_enabled"/>
-	<check_box label="自動的に区画メディアを再生する" name="parcel_autoplay_enabled"/>
+	<check_box label="メディアが有効です" name="media_enabled"/>
+	<check_box label="メディアを自動再生する" name="autoplay_enabled"/>
 	<text name="Logs:">
 		ログ：
 	</text>
@@ -20,7 +20,7 @@
 	<check_box label="コンピューターに IM ログを保存する" name="log_instant_messages"/>
 	<check_box label="タイムスタンプを追加する" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
-		ログの保存場所
+		ログの保存場所：
 	</text>
 	<button label="参照" label_selected="参照" name="log_path_button"/>
 	<button label="ブロックリスト" name="block_list"/>
