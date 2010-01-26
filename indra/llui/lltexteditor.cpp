@@ -2049,7 +2049,8 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 	//    gEditMenuHandler = this;
 	// ....
 	// but this didn't work in all cases and just weird...
-    //why not hear?
+    //why not here? 
+	// (all this was done for EXT-4443)
 
 	gEditMenuHandler = this;
 
