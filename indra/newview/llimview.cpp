@@ -95,7 +95,8 @@ void toast_callback(const LLSD& msg){
 	}
 
 	// check whether incoming IM belongs to an active session or not
-	if (LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
+	if (LLIMModel::getInstance()->getActiveSessionID().notNull()
+			&& LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
 	{
 		return;
 	}
