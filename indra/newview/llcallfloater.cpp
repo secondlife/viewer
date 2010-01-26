@@ -568,33 +568,37 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		if (!found)
 		{
-			// If an avatarID is not found in a speakers list from VoiceClient and
-			// a panel with this ID has a JOINED status this means that this person
-			// HAS LEFT the call.
-			if ((getState(participant_id) == STATE_JOINED))
-			{
-				setState(item, STATE_LEFT);
-
-				LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
-				if (speaker.isNull())
-				{
-					continue;
-				}
-
-				speaker->mHasLeftCurrentCall = TRUE;
-			}
-			// If an avatarID is not found in a speakers list from VoiceClient and
-			// a panel with this ID has a LEFT status this means that this person
-			// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
-			else if ((getState(participant_id) != STATE_LEFT))
-			{
-				setState(item, STATE_INVITED);
-			}
-			else
-			{
-				llwarns << "Unsupported (" << getState(participant_id) << ") state: " << item->getAvatarName()  << llendl;
-			}
+			updateNotInVoiceParticipantState(item);
 		}
+	}
+}
+
+void LLCallFloater::updateNotInVoiceParticipantState(LLAvatarListItem* item)
+{
+	LLUUID participant_id = item->getAvatarId();
+	// If an avatarID is not found in a speakers list from VoiceClient and
+	// a panel with this ID has a JOINED status this means that this person
+	// HAS LEFT the call.
+	if ((getState(participant_id) == STATE_JOINED))
+	{
+		setState(item, STATE_LEFT);
+
+		LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(participant_id);
+		if (speaker.notNull())
+		{
+			speaker->mHasLeftCurrentCall = TRUE;
+		}
+	}
+	// If an avatarID is not found in a speakers list from VoiceClient and
+	// a panel with this ID has a LEFT status this means that this person
+	// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
+	else if ((getState(participant_id) != STATE_LEFT))
+	{
+		setState(item, STATE_INVITED);
+	}
+	else
+	{
+		llwarns << "Unsupported (" << getState(participant_id) << ") state for: " << item->getAvatarName()  << llendl;
 	}
 }
 
