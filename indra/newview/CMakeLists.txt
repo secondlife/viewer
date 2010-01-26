@@ -343,7 +343,6 @@ set(viewer_SOURCE_FILES
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
     llpanelprofileview.cpp
-    llpanelshower.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
@@ -846,7 +845,6 @@ set(viewer_HEADER_FILES
     llpanelprimmediacontrols.h
     llpanelprofile.h
     llpanelprofileview.h
-    llpanelshower.h
     llpanelteleporthistory.h
     llpanelvolume.h
     llpanelvolumepulldown.h
