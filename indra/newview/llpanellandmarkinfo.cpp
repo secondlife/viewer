@@ -98,10 +98,10 @@ void LLPanelLandmarkInfo::resetLocation()
 {
 	LLPanelPlaceInfo::resetLocation();
 
-	std::string not_available = getString("not_available");
-	mCreator->setText(not_available);
-	mOwner->setText(not_available);
-	mCreated->setText(not_available);
+	std::string loading = LLTrans::getString("LoadingData");
+	mCreator->setText(loading);
+	mOwner->setText(loading);
+	mCreated->setText(loading);
 	mLandmarkTitle->setText(LLStringUtil::null);
 	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
