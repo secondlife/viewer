@@ -57,9 +57,6 @@
      name="Call">
          <menu_item_call.on_click
          function="Avatar.Call" />
-        <menu_item_call.on_enable
-         function="ParticipantList.EnableItem"
-         parameter="can_call" />
     </menu_item_call>
     <menu_item_call
      enabled="true"
