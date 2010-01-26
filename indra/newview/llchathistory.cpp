@@ -550,8 +550,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		if (mLastFromName == chat.mFromName 
 			&& mLastFromID == chat.mFromID
 			&& mLastMessageTime.notNull() 
-			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0 
-			)
+			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
+			&& mLastMessageTimeStr.size() == chat.mTimeStr.size())  //*HACK to distinguish between current and previous chat session's histories
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -585,6 +585,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
+		mLastMessageTimeStr = chat.mTimeStr;
 	}
 
 	std::string message = irc_me ? chat.mText.substr(3) : chat.mText;

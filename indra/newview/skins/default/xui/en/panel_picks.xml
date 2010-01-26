@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="535"
+ height="540"
  label="Picks"
  layout="topleft"
  left="0"
@@ -121,7 +121,7 @@
         <panel
          layout="topleft"
          left="0"
-         height="25"
+         height="30"
          top_pad="10"
          name="buttons_cucks"
          width="313">

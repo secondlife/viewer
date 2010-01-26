@@ -6099,7 +6099,8 @@ class LLAttachmentEnableDrop : public view_listener_t
 		LLViewerJointAttachment*     attachment     = NULL;
 		LLInventoryItem*             item           = NULL;
 
-		if (object)
+		// Do not enable drop if all faces of object are not enabled
+		if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
 		{
     		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getState());
 			attachment = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
@@ -6141,8 +6142,14 @@ class LLAttachmentEnableDrop : public view_listener_t
 BOOL enable_detach(const LLSD&)
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if (!object) return FALSE;
-	if (!object->isAttachment()) return FALSE;
+	
+	// Only enable detach if all faces of object are selected
+	if (!object ||
+		!object->isAttachment() ||
+		!LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
+	{
+		return FALSE;
+	}
 
 	// Find the avatar who owns this attachment
 	LLViewerObject* avatar = object;
@@ -6382,10 +6389,9 @@ void handle_selected_texture_info(void*)
    		msg.assign("Texture info for: ");
    		msg.append(node->mName);
 
-		//TODO* CHAT: how to show this?
-		//LLSD args;
-		//args["MESSAGE"] = msg;
-		//LLNotificationsUtil::add("SystemMessage", args);
+		LLSD args;
+		args["MESSAGE"] = msg;
+		LLNotificationsUtil::add("SystemMessage", args);
 	   
    		U8 te_count = node->getObject()->getNumTEs();
    		// map from texture ID to list of faces using it
@@ -6418,10 +6424,9 @@ void handle_selected_texture_info(void*)
    				msg.append( llformat("%d ", (S32)(it->second[i])));
    			}
 
-			//TODO* CHAT: how to show this?
-			//LLSD args;
-			//args["MESSAGE"] = msg;
-			//LLNotificationsUtil::add("SystemMessage", args);
+			LLSD args;
+			args["MESSAGE"] = msg;
+			LLNotificationsUtil::add("SystemMessage", args);
    		}
 	}
 }
@@ -7952,6 +7957,7 @@ void initialize_menus()
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
+	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");

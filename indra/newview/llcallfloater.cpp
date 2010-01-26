@@ -43,6 +43,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
+#include "lldraghandle.h"
 #include "llimfloater.h"
 #include "llfloaterreg.h"
 #include "llparticipantlist.h"
@@ -51,9 +52,9 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
-#include "lllayoutstack.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
+void reshape_floater(LLCallFloater* floater, S32 delta_height);
 
 class LLNonAvatarCaller : public LLAvatarListItem
 {
@@ -93,22 +94,6 @@ static void* create_non_avatar_caller(void*)
 	return new LLNonAvatarCaller;
 }
 
-LLCallFloater::LLAvatarListItemRemoveTimer::LLAvatarListItemRemoveTimer(callback_t remove_cb, F32 period, const LLUUID& speaker_id)
-: LLEventTimer(period)
-, mRemoveCallback(remove_cb)
-, mSpeakerId(speaker_id)
-{
-}
-
-BOOL LLCallFloater::LLAvatarListItemRemoveTimer::tick()
-{
-	if (mRemoveCallback)
-	{
-		mRemoveCallback(mSpeakerId);
-	}
-	return TRUE;
-}
-
 LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
@@ -122,10 +107,9 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 , mInitParticipantsVoiceState(false)
-, mVoiceLeftRemoveDelay(10)
 {
 	static LLUICachedControl<S32> voice_left_remove_delay ("VoiceParticipantLeftRemoveDelay", 10);
-	mVoiceLeftRemoveDelay = voice_left_remove_delay;
+	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), voice_left_remove_delay);
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -135,6 +119,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 LLCallFloater::~LLCallFloater()
 {
 	resetVoiceRemoveTimers();
+	delete mSpeakerDelayRemover;
 
 	delete mParticipants;
 	mParticipants = NULL;
@@ -173,6 +158,13 @@ BOOL LLCallFloater::postBuild()
 
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
+
+	setIsChrome(true);
+	//chrome="true" hides floater caption 
+	if (mDragHandle)
+		mDragHandle->setTitleVisible(TRUE);
+	
+	updateSession();
 
 	return TRUE;
 }
@@ -225,16 +217,6 @@ void LLCallFloater::onChange()
 	}
 }
 
-S32 LLCallFloater::notifyParent(const LLSD& info)
-{
-	if("size_changes" == info["action"])
-	{
-		reshapeToFitContent();
-		return 1;
-	}
-	return LLDockableFloater::notifyParent(info);
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
@@ -266,7 +248,7 @@ void LLCallFloater::updateSession()
 		}
 	}
 
-	const LLUUID& session_id = voice_channel->getSessionID();
+	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
 	lldebugs << "Set speaker manager for session: " << session_id << llendl;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
@@ -316,7 +298,7 @@ void LLCallFloater::updateSession()
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
 	childSetVisible("leave_call_btn_panel", !is_local_chat);
-	
+
 	refreshParticipantList();
 	updateAgentModeratorState();
 
@@ -588,33 +570,46 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		if (!found)
 		{
-			// If an avatarID is not found in a speakers list from VoiceClient and
-			// a panel with this ID has a JOINED status this means that this person
-			// HAS LEFT the call.
-			if ((getState(participant_id) == STATE_JOINED))
+			updateNotInVoiceParticipantState(item);
+		}
+	}
+}
+
+void LLCallFloater::updateNotInVoiceParticipantState(LLAvatarListItem* item)
+{
+	LLUUID participant_id = item->getAvatarId();
+	ESpeakerState current_state = getState(participant_id);
+
+	switch (current_state)
+	{
+	case STATE_JOINED:
+		// If an avatarID is not found in a speakers list from VoiceClient and
+		// a panel with this ID has a JOINED status this means that this person
+		// HAS LEFT the call.
+		setState(item, STATE_LEFT);
+
+		{
+			LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(participant_id);
+			if (speaker.notNull())
 			{
-				setState(item, STATE_LEFT);
-
-				LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
-				if (speaker.isNull())
-				{
-					continue;
-				}
-
 				speaker->mHasLeftCurrentCall = TRUE;
 			}
-			// If an avatarID is not found in a speakers list from VoiceClient and
-			// a panel with this ID has a LEFT status this means that this person
-			// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
-			else if ((getState(participant_id) != STATE_LEFT))
-			{
-				setState(item, STATE_INVITED);
-			}
-			else
-			{
-				llwarns << "Unsupported (" << getState(participant_id) << ") state: " << item->getAvatarName()  << llendl;
-			}
 		}
+		break;
+	case STATE_INVITED:
+	case STATE_LEFT:
+		// nothing to do. These states should not be changed.
+		break;
+	case STATE_UNKNOWN:
+		// If an avatarID is not found in a speakers list from VoiceClient and
+		// a panel with this ID has an UNKNOWN status this means that this person
+		// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
+		setState(item, STATE_INVITED);
+		break;
+	default:
+		// for possible new future states.
+		llwarns << "Unsupported (" << getState(participant_id) << ") state for: " << item->getAvatarName()  << llendl;
+		break;
 	}
 }
 
@@ -658,33 +653,11 @@ void LLCallFloater::setState(LLAvatarListItem* item, ESpeakerState state)
 
 void LLCallFloater::setVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-
-	// If there is already a started timer for the current panel don't do anything.
-	bool no_timer_for_current_panel = true;
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		timers_map::iterator found_it = mVoiceLeftTimersMap.find(voice_speaker_id);
-		if (found_it != mVoiceLeftTimersMap.end())
-		{
-			no_timer_for_current_panel = false;
-		}
-	}
-
-	if (no_timer_for_current_panel)
-	{
-		// Starting a timer to remove an avatar row panel after timeout
-		mVoiceLeftTimersMap.insert(timer_pair(voice_speaker_id,
-			new LLAvatarListItemRemoveTimer(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), mVoiceLeftRemoveDelay, voice_speaker_id)));
-	}
+	mSpeakerDelayRemover->setActionTimer(voice_speaker_id);
 }
 
-void LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
+bool LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 {
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		mVoiceLeftTimersMap.erase(mVoiceLeftTimersMap.find(voice_speaker_id));
-	}
-
 	LLAvatarList::uuid_vector_t& speaker_uuids = mAvatarList->getIDs();
 	LLAvatarList::uuid_vector_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
 	if(pos != speaker_uuids.end())
@@ -692,34 +665,19 @@ void LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 		speaker_uuids.erase(pos);
 		mAvatarList->setDirty();
 	}
+
+	return false;
 }
 
 
 void LLCallFloater::resetVoiceRemoveTimers()
 {
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		for (timers_map::iterator iter = mVoiceLeftTimersMap.begin();
-			iter != mVoiceLeftTimersMap.end(); ++iter)
-		{
-			delete iter->second;
-		}
-	}
-	mVoiceLeftTimersMap.clear();
+	mSpeakerDelayRemover->removeAllTimers();
 }
 
 void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-	// Remove the timer if it has been already started
-	if (mVoiceLeftTimersMap.size() > 0)
-	{
-		timers_map::iterator found_it = mVoiceLeftTimersMap.find(voice_speaker_id);
-		if (found_it != mVoiceLeftTimersMap.end())
-		{
-			delete found_it->second;
-			mVoiceLeftTimersMap.erase(found_it);
-		}
-	}
+	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id);
 }
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
@@ -796,92 +754,6 @@ void LLCallFloater::reset()
 	mNonAvatarCaller->setVisible(FALSE);
 
 	mSpeakerManager = NULL;
-}
-
-void reshape_floater(LLCallFloater* floater, S32 delta_height)
-{
-	// Try to update floater top side if it is docked(to bottom bar).
-	// Try to update floater bottom side or top side if it is un-docked.
-	// If world rect is too small, floater will not be reshaped at all.
-
-	LLRect floater_rect = floater->getRect();
-	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
-
-	// floater is docked to bottom bar
-	if(floater->isDocked())
-	{
-		// can update floater top side
-		if(floater_rect.mTop + delta_height < world_rect.mTop)
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
-				floater_rect.mRight, floater_rect.mBottom);
-		}
-	}
-	// floater is un-docked
-	else
-	{
-		// can update floater bottom side
-		if( floater_rect.mBottom - delta_height >= world_rect.mBottom )
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop, 
-				floater_rect.mRight, floater_rect.mBottom - delta_height);
-		}
-		// could not update floater bottom side, check if we can update floater top side
-		else if( floater_rect.mTop + delta_height < world_rect.mTop )
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
-				floater_rect.mRight, floater_rect.mBottom);
-		}
-	}
-
-	floater->setShape(floater_rect);
-	floater->getChild<LLLayoutStack>("my_call_stack")->updateLayout(FALSE);
-}
-
-void LLCallFloater::reshapeToFitContent()
-{
-	const S32 ITEM_HEIGHT = getParticipantItemHeight();
-	static const S32 MAX_VISIBLE_ITEMS = getMaxVisibleItems();
-
-	static S32 items_pad = mAvatarList->getItemsPad();
-	S32 list_height = mAvatarList->getRect().getHeight();
-	S32 items_height = mAvatarList->getItemsRect().getHeight();
-	if(items_height <= 0)
-	{
-		// make "no one near" text visible
-		items_height = ITEM_HEIGHT + items_pad;
-	}
-	S32 max_list_height = MAX_VISIBLE_ITEMS * ITEM_HEIGHT + items_pad * (MAX_VISIBLE_ITEMS - 1);
-	max_list_height += 2* mAvatarList->getBorderWidth();
-
-	S32 delta = items_height - list_height;	
-	// too many items, don't reshape floater anymore, let scroll bar appear.
-	if(items_height >  max_list_height)
-	{
-		delta = max_list_height - list_height;
-	}
-
-	reshape_floater(this, delta);
-}
-
-S32 LLCallFloater::getParticipantItemHeight()
-{
-	std::vector<LLPanel*> items;
-	mAvatarList->getItems(items);
-	if(items.size() > 0)
-	{
-		return items[0]->getRect().getHeight();
-	}
-	else
-	{
-		return getChild<LLPanel>("non_avatar_caller")->getRect().getHeight();
-	}
-}
-
-S32 LLCallFloater::getMaxVisibleItems()
-{
-	static LLCachedControl<S32> max_visible_items(*LLUI::sSettingGroups["config"],"CallFloaterMaxItems");
-	return max_visible_items;
 }
 
 //EOF

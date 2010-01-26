@@ -12,7 +12,7 @@
 		<combo_box.item label="1024 x 768" name="1024x768"/>
 	</combo_box>
 	<text name="UI Size:">
-		Taille de l&apos;UI :
+		Taille de l&apos;interface :
 	</text>
 	<text name="QualitySpeed">
 		Qualité et vitesse :
@@ -21,7 +21,7 @@
 		Plus rapide
 	</text>
 	<text name="BetterText">
-		Mieux
+		Meilleur
 	</text>
 	<text name="ShadersPrefText">
 		Faible

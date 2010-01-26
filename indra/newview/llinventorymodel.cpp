@@ -755,6 +755,10 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			gCacheName->get(id, FALSE, boost::bind(&LLViewerInventoryItem::onCallingCardNameLookup, new_item.get(), _1, _2, _3));
 		}
 	}
+	else if (new_item->getType() == LLAssetType::AT_GESTURE)
+	{
+		mask |= LLInventoryObserver::GESTURE;
+	}
 	addChangedMask(mask, new_item->getUUID());
 	return mask;
 }

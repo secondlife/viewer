@@ -40,6 +40,7 @@
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
+#include "llmultifloater.h"
 #include "llstring.h"
 #include "message.h"
 #include "lltextbox.h"

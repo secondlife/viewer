@@ -42,47 +42,31 @@
 #include "llhttpclient.h"
 #include "llsdutil_math.h"
 #include "llstring.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 
 #include "llagent.h"
+#include "llagentui.h"
 #include "llappviewer.h"
 #include "llavatariconctrl.h"
 #include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
-#include "llchiclet.h"
-#include "llresmgr.h"
 #include "llfloaterchatterbox.h"
-#include "llavataractions.h"
-#include "llhttpnode.h"
 #include "llimfloater.h"
-#include "llimpanel.h"
 #include "llgroupiconctrl.h"
-#include "llresizebar.h"
-#include "lltabcontainer.h"
-#include "llviewercontrol.h"
-#include "llfloater.h"
+#include "llmd5.h"
 #include "llmutelist.h"
-#include "llresizehandle.h"
-#include "llkeyboard.h"
-#include "llui.h"
-#include "llviewermenu.h"
-#include "llcallingcard.h"
-#include "lltoolbar.h"
+#include "llrecentpeople.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnearbychat.h"
-#include "llviewerregion.h"
-#include "llvoicechannel.h"
-#include "lltrans.h"
-#include "llrecentpeople.h"
-#include "llsyswellwindow.h"
-
-//#include "llfirstuse.h"
-#include "llagentui.h"
+#include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextutil.h"
+#include "llviewercontrol.h"
+
 
 const static std::string IM_TIME("time");
 const static std::string IM_TEXT("message");
@@ -111,7 +95,8 @@ void toast_callback(const LLSD& msg){
 	}
 
 	// check whether incoming IM belongs to an active session or not
-	if (LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
+	if (LLIMModel::getInstance()->getActiveSessionID().notNull()
+			&& LLIMModel::getInstance()->getActiveSessionID() == msg["session_id"])
 	{
 		return;
 	}
@@ -232,12 +217,14 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		mTextIMPossible = LLVoiceClient::getInstance()->isSessionTextIMPossible(mSessionID);
 	}
 
+	buildHistoryFileName();
+
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 	{
 		std::list<LLSD> chat_history;
 
 		//involves parsing of a chat history
-		LLLogChat::loadAllHistory(mName, chat_history);
+		LLLogChat::loadAllHistory(mHistoryFileName, chat_history);
 		addMessagesFromHistory(chat_history);
 	}
 }
@@ -484,6 +471,44 @@ bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
 	return !mOtherParticipantIsAvatar;
 }
 
+void LLIMModel::LLIMSession::buildHistoryFileName()
+{
+	mHistoryFileName = mName;
+	
+	//ad-hoc requires sophisticated chat history saving schemes
+	if (isAdHoc())
+	{
+		//in case of outgoing ad-hoc sessions
+		if (mInitialTargetIDs.size())
+		{
+			std::set<LLUUID> sorted_uuids(mInitialTargetIDs.begin(), mInitialTargetIDs.end());
+			mHistoryFileName = mName + " hash" + generateHash(sorted_uuids);
+			return;
+		}
+		
+		//in case of incoming ad-hoc sessions
+		mHistoryFileName = mName + " " + LLLogChat::timestamp(true) + " " + mSessionID.asString().substr(0, 4);
+	}
+}
+
+//static
+std::string LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_uuids)
+{
+	LLMD5 md5_uuid;
+	
+	std::set<LLUUID>::const_iterator it = sorted_uuids.begin();
+	while (it != sorted_uuids.end())
+	{
+		md5_uuid.update((unsigned char*)(*it).mData, 16);
+		it++;
+	}
+	md5_uuid.finalize();
+
+	LLUUID participants_md5_hash;
+	md5_uuid.raw_digest((unsigned char*) participants_md5_hash.mData);
+	return participants_md5_hash.asString();
+}
+
 
 void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
@@ -631,11 +656,11 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 	return true;
 }
 
-bool LLIMModel::logToFile(const std::string& session_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
+bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 	{
-		LLLogChat::saveHistory(session_name, from, from_id, utf8_text);
+		LLLogChat::saveHistory(file_name, from, from_id, utf8_text);
 		return true;
 	}
 	else
@@ -646,15 +671,7 @@ bool LLIMModel::logToFile(const std::string& session_name, const std::string& fr
 
 bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
-	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
-	{
-		LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return logToFile(LLIMModel::getInstance()->getHistoryFileName(session_id), from, from_id, utf8_text);
 }
 
 bool LLIMModel::proccessOnlineOfflineNotification(
@@ -797,6 +814,18 @@ LLIMSpeakerMgr* LLIMModel::getSpeakerManager( const LLUUID& session_id ) const
 	}
 
 	return session->mSpeakers;
+}
+
+const std::string& LLIMModel::getHistoryFileName(const LLUUID& session_id) const
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << " does not exist " << llendl;
+		return LLStringUtil::null;
+	}
+
+	return session->mHistoryFileName;
 }
 
 
@@ -1549,7 +1578,7 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 	}
 }
 
-bool LLOutgoingCallDialog::lifetimeHasExpired()
+bool LLCallDialog::lifetimeHasExpired()
 {
 	if (mLifetimeTimer.getStarted())
 	{
@@ -1562,7 +1591,7 @@ bool LLOutgoingCallDialog::lifetimeHasExpired()
 	return false;
 }
 
-void LLOutgoingCallDialog::onLifetimeExpired()
+void LLCallDialog::onLifetimeExpired()
 {
 	mLifetimeTimer.stop();
 	closeFloater();
@@ -1652,6 +1681,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	case LLVoiceChannel::STATE_ERROR :
 		getChild<LLTextBox>("noanswer")->setVisible(true);
 		getChild<LLButton>("Cancel")->setVisible(false);
+		setCanClose(true);
 		mLifetimeTimer.start();
 		break;
 	case LLVoiceChannel::STATE_HUNG_UP :
@@ -1664,6 +1694,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			getChild<LLTextBox>("nearby")->setVisible(true);
 		}
 		getChild<LLButton>("Cancel")->setVisible(false);
+		setCanClose(true);
 		mLifetimeTimer.start();
 	}
 
@@ -1712,19 +1743,6 @@ BOOL LLOutgoingCallDialog::postBuild()
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
 LLCallDialog(payload)
 {
-}
-
-bool LLIncomingCallDialog::lifetimeHasExpired()
-{
-	if (mLifetimeTimer.getStarted())
-	{
-		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
-		if (elapsed_time > mLifetime) 
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 void LLIncomingCallDialog::onLifetimeExpired()
@@ -3187,6 +3205,42 @@ public:
 		}
 	}
 };
+
+LLCallInfoDialog::LLCallInfoDialog(const LLSD& payload) : LLCallDialog(payload)
+{
+}
+
+BOOL LLCallInfoDialog::postBuild()
+{
+	// init notification's lifetime
+	std::istringstream ss( getString("lifetime") );
+	if (!(ss >> mLifetime))
+	{
+		mLifetime = DEFAULT_LIFETIME;
+	}
+	return LLCallDialog::postBuild();
+}
+
+void LLCallInfoDialog::onOpen(const LLSD& key)
+{
+	if(key.has("msg"))
+	{
+		std::string msg = key["msg"];
+		getChild<LLTextBox>("msg")->setValue(msg);
+	}
+
+	mLifetimeTimer.start();
+}
+
+void LLCallInfoDialog::show(const std::string& status_name, const LLSD& args)
+{
+	LLUIString message = LLTrans::getString(status_name);
+	message.setArgs(args);
+
+	LLSD payload;
+	payload["msg"] = message;
+	LLFloaterReg::showInstance("call_info", payload);
+}
 
 LLHTTPRegistration<LLViewerChatterBoxSessionStartReply>
    gHTTPRegistrationMessageChatterboxsessionstartreply(

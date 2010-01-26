@@ -48,6 +48,7 @@
 #include "lltextutil.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "llviewermenu.h"		// for gMenuHolder
+#include "llvoiceclient.h"
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 S32 LLGroupListItem::sIconWidth = 0;
@@ -270,6 +271,9 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 	// each group including "none" can be activated
 	if (userdata.asString() == "activate")
 		return gAgent.getGroupID() != selected_group_id;
+
+	if (userdata.asString() == "call")
+		return LLVoiceClient::voiceEnabled()&&gVoiceClient->voiceWorking();
 
 	return real_group_selected;
 }

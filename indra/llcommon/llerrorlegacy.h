@@ -34,7 +34,7 @@
 #ifndef LL_LLERRORLEGACY_H
 #define LL_LLERRORLEGACY_H
 
-
+#include "llpreprocessor.h"
 
 /*
 	LEGACY -- DO NOT USE THIS STUFF ANYMORE
@@ -75,6 +75,10 @@ const int LL_ERR_PRICE_MISMATCH = -23018;
 #define SHOW_ASSERT
 #else // _DEBUG
 
+#ifdef LL_RELEASE_WITH_DEBUG_INFO
+#define SHOW_ASSERT
+#endif // LL_RELEASE_WITH_DEBUG_INFO
+
 #ifdef RELEASE_SHOW_DEBUG
 #define SHOW_DEBUG
 #endif
@@ -103,7 +107,7 @@ const int LL_ERR_PRICE_MISMATCH = -23018;
 
 #define llwarning(msg, num)		llwarns << "Warning # " << num << ": " << msg << llendl;
 
-#define llassert_always(func)	if (!(func)) llerrs << "ASSERT (" << #func << ")" << llendl;
+#define llassert_always(func)	if (LL_UNLIKELY(!(func))) llerrs << "ASSERT (" << #func << ")" << llendl;
 
 #ifdef SHOW_ASSERT
 #define llassert(func)			llassert_always(func)

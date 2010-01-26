@@ -11,12 +11,13 @@
  can_dock="false"
  can_minimize="true"
  can_close="true"
- visible="true"
+ visible="false"
  width="360"
  can_resize="true"
  min_width="250"
  min_height="190">
   <layout_stack
+   animate="false" 
   follows="all"
   height="320"
   width="360"

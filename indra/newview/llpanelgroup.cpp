@@ -101,6 +101,8 @@ LLPanelGroup::LLPanelGroup()
 LLPanelGroup::~LLPanelGroup()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
+	if(LLVoiceClient::getInstance())
+		LLVoiceClient::getInstance()->removeObserver(this);
 }
 
 void LLPanelGroup::onOpen(const LLSD& key)
@@ -188,6 +190,8 @@ BOOL LLPanelGroup::postBuild()
 
 	if(panel_general)
 		panel_general->setupCtrls(this);
+
+	gVoiceClient->addObserver(this);
 	
 	return TRUE;
 }
@@ -298,6 +302,17 @@ void LLPanelGroup::changed(LLGroupChange gc)
 	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
 		(*it)->update(gc);
 	update(gc);
+}
+
+// virtual
+void LLPanelGroup::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+
+	childSetEnabled("btn_call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelGroup::notifyObservers()
@@ -425,6 +440,11 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
+
+		if(button_call)
+			button_call->setVisible(false);
+		if(button_chat)
+			button_chat->setVisible(false);
 	}
 	else 
 	{
@@ -452,6 +472,10 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		if(button_apply)
 			button_apply->setVisible(is_member);
+		if(button_call)
+			button_call->setVisible(is_member);
+		if(button_chat)
+			button_chat->setVisible(is_member);
 	}
 
 	reposButtons();

@@ -36,6 +36,7 @@
 #include "llpanel.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
+#include "llvoiceclient.h"
 
 class LLComboBox;
 class LLLineEditor;
@@ -122,6 +123,7 @@ private:
 class LLPanelAvatarProfile
 	: public LLPanelProfileTab
 	, public LLFriendObserver
+	, public LLVoiceClientStatusObserver
 {
 public:
 	LLPanelAvatarProfile();
@@ -133,6 +135,10 @@ public:
 	 * LLFriendObserver trigger
 	 */
 	virtual void changed(U32 mask);
+
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 	/*virtual*/ void setAvatarId(const LLUUID& id);
 
@@ -170,11 +176,6 @@ protected:
 	 * Fills partner data.
 	 */
 	virtual void fillPartnerData(const LLAvatarData* avatar_data);
-
-	/**
-	 * Fills Avatar's online status.
-	 */
-	virtual void fillOnlineStatus(const LLAvatarData* avatar_data);
 
 	/**
 	 * Fills account status.
@@ -257,6 +258,7 @@ private:
 class LLPanelAvatarNotes 
 	: public LLPanelProfileTab
 	, public LLFriendObserver
+	, public LLVoiceClientStatusObserver
 {
 public:
 	LLPanelAvatarNotes();
@@ -268,6 +270,10 @@ public:
 	 * LLFriendObserver trigger
 	 */
 	virtual void changed(U32 mask);
+
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 	/*virtual*/ void onOpen(const LLSD& key);
 

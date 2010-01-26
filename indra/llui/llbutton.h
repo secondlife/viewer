@@ -200,6 +200,7 @@ public:
 	void			setDisabledSelectedLabelColor( const LLColor4& c )	{ mDisabledSelectedLabelColor = c; }
 
 	void			setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
+	void 			setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
 	LLPointer<LLUIImage> getImageOverlay() { return mImageOverlay; }
 
 	void            autoResize();	// resize with label of current btn state 

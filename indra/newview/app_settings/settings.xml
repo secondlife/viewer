@@ -298,17 +298,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>AudioStreamingVideo</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable streaming video</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
   <key>AuditTexture</key>
   <map>
     <key>Comment</key>
@@ -1144,17 +1133,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>5</integer>
-    </map>
-    <key>CallFloaterMaxItems</key>
-    <map>
-      <key>Comment</key>
-      <string>Max number of visible participants in voice controls window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>CameraAngle</key>
     <map>
@@ -3629,7 +3607,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://int.searchwww-phx0.damballah.lindenlab.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -10081,6 +10059,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>SpeakerParticipantRemoveDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout to remove participants who is not in channel before removed from list of active speakers (text/voice chat)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
+
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
@@ -10312,6 +10302,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>VoiceDefaultInternalLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Internal level of voice set by default. Is equivalent to 0.5 (from 0.0-1.0 range) external voice level (internal = 400 * external^2).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>100</integer>
     </map>
     <key>VoiceEarLocation</key>
     <map>

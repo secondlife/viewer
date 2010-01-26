@@ -15,7 +15,7 @@
 	</panel>
 	<menu_bar name="Inventory Menu">
 		<menu label="Fichier" name="File">
-			<menu_item_call label="Ouvert" name="Open"/>
+			<menu_item_call label="Ouvrir" name="Open"/>
 			<menu label="Charger" name="upload">
 				<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
 				<menu_item_call label="Son ([COST] L$)..." name="Upload Sound"/>

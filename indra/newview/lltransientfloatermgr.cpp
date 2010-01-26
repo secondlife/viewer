@@ -44,57 +44,69 @@ LLTransientFloaterMgr::LLTransientFloaterMgr()
 {
 	gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(
 			&LLTransientFloaterMgr::leftMouseClickCallback, this, _1, _2, _3));
+
+	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(GLOBAL, std::set<LLView*>()));
+	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(DOCKED, std::set<LLView*>()));
+	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(IM, std::set<LLView*>()));
 }
 
-void LLTransientFloaterMgr::registerTransientFloater(LLFloater* floater)
+void LLTransientFloaterMgr::registerTransientFloater(LLTransientFloater* floater)
 {
 	mTransSet.insert(floater);
 }
 
-void LLTransientFloaterMgr::unregisterTransientFloater(LLFloater* floater)
+void LLTransientFloaterMgr::unregisterTransientFloater(LLTransientFloater* floater)
 {
 	mTransSet.erase(floater);
 }
 
+void LLTransientFloaterMgr::addControlView(ETransientGroup group, LLView* view)
+{
+	mGroupControls.find(group)->second.insert(view);
+}
+
+void LLTransientFloaterMgr::removeControlView(ETransientGroup group, LLView* view)
+{
+	mGroupControls.find(group)->second.erase(view);
+}
+
 void LLTransientFloaterMgr::addControlView(LLView* view)
 {
-	mControlsSet.insert(view);
+	addControlView(GLOBAL, view);
 }
 
 void LLTransientFloaterMgr::removeControlView(LLView* view)
 {
 	// we will still get focus lost callbacks on this view, but that's ok
 	// since we run sanity checking logic every time
-	mControlsSet.erase(view);
+	removeControlView(GLOBAL, view);
 }
 
-void LLTransientFloaterMgr::hideTransientFloaters()
+void LLTransientFloaterMgr::hideTransientFloaters(S32 x, S32 y)
 {
-	for (std::set<LLFloater*>::iterator it = mTransSet.begin(); it
+	for (std::set<LLTransientFloater*>::iterator it = mTransSet.begin(); it
 			!= mTransSet.end(); it++)
 	{
-		LLFloater* floater = *it;
-		if (floater->isDocked())
+		LLTransientFloater* floater = *it;
+		if (floater->isTransientDocked())
 		{
-			floater->setVisible(FALSE);
+			ETransientGroup group = floater->getGroup();
+
+			bool hide = isControlClicked(mGroupControls.find(group)->second, x, y);
+			if (hide)
+			{
+				floater->setTransientVisible(FALSE);
+			}
 		}
 	}
 }
 
-void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
-		MASK mask)
+bool LLTransientFloaterMgr::isControlClicked(std::set<LLView*>& set, S32 x, S32 y)
 {
-	bool hide = true;
-	for (controls_set_t::iterator it = mControlsSet.begin(); it
-			!= mControlsSet.end(); it++)
+	bool res = true;
+	for (controls_set_t::iterator it = set.begin(); it
+			!= set.end(); it++)
 	{
-		// don't hide transient floater if any context menu opened
-		if (LLMenuGL::sMenuContainer->getVisibleMenu() != NULL)
-		{
-			hide = false;
-			break;
-		}
-
 		LLView* control_view = *it;
 		if (!control_view->getVisible())
 		{
@@ -105,14 +117,33 @@ void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
 		// if click inside view rect
 		if (rect.pointInRect(x, y))
 		{
-			hide = false;
+			res = false;
 			break;
 		}
 	}
+	return res;
+}
 
+void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
+		MASK mask)
+{
+	// don't hide transient floater if any context menu opened
+	if (LLMenuGL::sMenuContainer->getVisibleMenu() != NULL)
+	{
+		return;
+	}
+
+	bool hide = isControlClicked(mGroupControls.find(DOCKED)->second, x, y)
+			&& isControlClicked(mGroupControls.find(GLOBAL)->second, x, y);
 	if (hide)
 	{
-		hideTransientFloaters();
+		hideTransientFloaters(x, y);
 	}
+}
+
+void LLTransientFloater::init(LLFloater* thiz)
+{
+	// used since LLTransientFloater(this) can't be used in descendant constructor parameter initialization.
+	mFloater = thiz;
 }
 

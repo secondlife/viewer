@@ -33,22 +33,19 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "lldarray.h"
-#include "lldockablefloater.h"
-#include "llspeakers.h" //for LLIMSpeakerMgr
-#include "llimpanel.h" //for voice channels
-#include "llmodaldialog.h"
 #include "lldockablefloater.h"
 #include "llinstantmessage.h"
-#include "lluuid.h"
-#include "llmultifloater.h"
+
 #include "lllogchat.h"
+#include "llvoicechannel.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLCallDialogManager;	
+class LLIMSpeakerMgr;
+
 
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
@@ -72,6 +69,8 @@ public:
 		void addMessagesFromHistory(const std::list<LLSD>& history);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
+		
+		/** @deprecated */
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		bool isAdHoc();
@@ -83,12 +82,20 @@ public:
 		bool isGroupSessionType() const { return mSessionType == GROUP_SESSION;}
 		bool isAvalineSessionType() const { return mSessionType == AVALINE_SESSION;}
 
+		//*TODO make private
+		/** ad-hoc sessions involve sophisticated chat history file naming schemes */
+		void buildHistoryFileName();
+
+		//*TODO make private
+		static std::string generateHash(const std::set<LLUUID>& sorted_uuids);
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
 		SType mSessionType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
+		std::string mHistoryFileName;
 
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
@@ -234,6 +241,8 @@ public:
 	*/
 	LLIMSpeakerMgr* getSpeakerManager(const LLUUID& session_id) const;
 
+	const std::string& getHistoryFileName(const LLUUID& session_id) const;
+
 	static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
 						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
@@ -246,7 +255,7 @@ public:
 	/**
 	 * Saves an IM message into a file
 	 */
-	bool logToFile(const std::string& session_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
+	bool logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
 
 private:
 	
@@ -503,8 +512,8 @@ protected:
 	// notification's lifetime in seconds
 	S32		mLifetime;
 	static const S32 DEFAULT_LIFETIME = 5;
-	virtual bool lifetimeHasExpired() {return false;};
-	virtual void onLifetimeExpired() {};
+	virtual bool lifetimeHasExpired();
+	virtual void onLifetimeExpired();
 
 	virtual void getAllowedRect(LLRect& rect);
 
@@ -534,7 +543,6 @@ public:
 	static void onStartIM(void* user_data);
 
 private:
-	/*virtual*/ bool lifetimeHasExpired();
 	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };
@@ -553,8 +561,16 @@ public:
 private:
 	// hide all text boxes
 	void hideAllText();
-	/*virtual*/ bool lifetimeHasExpired();
-	/*virtual*/ void onLifetimeExpired();
+};
+
+class LLCallInfoDialog : public LLCallDialog
+{
+public:
+	LLCallInfoDialog(const LLSD& payload);
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	static void show(const std::string& status_name, const LLSD& args);
 };
 
 // Globals

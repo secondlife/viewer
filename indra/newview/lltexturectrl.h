@@ -74,7 +74,8 @@ public:
 		Optional<std::string>	default_image_name;
 		Optional<bool>			allow_no_texture;
 		Optional<bool>			can_apply_immediately;
-		Optional<bool>			no_commit_on_selection; // don't commit unless it's DnD or OK button press
+		Optional<bool>			no_commit_on_selection; // alternative mode: commit occurs and the widget gets dirty
+														// only on DnD or when OK is pressed in the picker
 		Optional<S32>			label_width;
 		Optional<LLUIColor>		border_color;
 		

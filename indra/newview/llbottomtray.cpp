@@ -322,7 +322,7 @@ void LLBottomTray::setVisible(BOOL visible)
 
 			// Chat bar and gesture button are shown even in mouselook mode.
 			// But the move, camera and snapshot buttons shouldn't be displayed. See EXT-3988.
-			if ("chat_bar" == name || "gesture_panel" == name)
+			if ("chat_bar" == name || "gesture_panel" == name || (visibility && ("movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)))
 				continue;
 			else 
 			{

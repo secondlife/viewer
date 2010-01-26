@@ -244,6 +244,16 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="FriendsAndGroupsOnly"
+   type="alertmodal">
+    Non-friends won't know that you've choosen to ignore their calls and instant messages.
+    <usetemplate
+     name="okbutton"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
@@ -3078,7 +3088,7 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="TeleportFromLandmark"
    type="alertmodal">
-Are you sure you want to teleport?
+Are you sure you want to teleport to [LOCATION]?
     <usetemplate
      ignoretext="Confirm that I want to teleport to a landmark"
      name="okcancelignore"

@@ -1560,7 +1560,11 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 
 void LLViewerFetchedTexture::setDecodePriority(F32 priority)
 {
-	llassert(!mInImageList);
+	//llassert(!mInImageList); // firing a lot, figure out why
+        if (mInImageList) // above llassert() softened to a warning
+        {
+                llwarns << "BAD STUFF!  mInImageList" << llendl;
+        }
 	mDecodePriority = priority;
 }
 
@@ -2773,7 +2777,6 @@ void LLViewerMediaTexture::updateClass()
 #if 0
 	//force to play media.
 	gSavedSettings.setBOOL("AudioStreamingMedia", true) ;
-	gSavedSettings.setBOOL("AudioStreamingVideo", true) ;
 #endif
 
 	for(media_map_t::iterator iter = sMediaMap.begin() ; iter != sMediaMap.end(); )

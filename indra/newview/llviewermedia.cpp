@@ -752,6 +752,11 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 			impl_count_interest_normal++;
 		}
+		else if(pimpl->isParcelMedia())
+		{
+			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+			impl_count_interest_normal++;
+		}
 		else
 		{
 			// Look at interest and CPU usage for instances that aren't in any of the above states.
@@ -935,7 +940,6 @@ bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& respo
 	{
 		// user has elected to automatically play media.
 		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
-		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
 		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
 		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
 
@@ -956,7 +960,6 @@ bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& respo
 	{
 		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, FALSE);
 		gSavedSettings.setBOOL("AudioStreamingMedia", FALSE);
-		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
 		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
 	}
 	return false;

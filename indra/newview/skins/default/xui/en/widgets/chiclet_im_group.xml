@@ -4,33 +4,33 @@
  name="im_group_chiclet"
  show_speaker="false"
  width="25">
-    <chiclet_im_group.chiclet_button 
-     height="23"
-     image_selected="PushButton_Selected"
+    <chiclet_im_group.chiclet_button
+     height="25"
+     image_selected="PushButton_On"
      image_unselected="PushButton_Off"
      name="chiclet_button"
      tab_stop="false"
-     width="25"/>
+     width="25" />
     <chiclet_im_group.speaker
      auto_update="true"
      draw_border="false"
-     height="23"
+     height="25"
      left="25"
      name="speaker"
      visible="false"
      width="20" />
     <chiclet_im_group.group_icon
-     bottom="2"
+     bottom="3"
      default_icon="Generic_Group"
      follows="left|top|bottom"
-     height="18"
-     left="3"
+     height="20"
+     left="2"
      mouse_opaque="false"
      name="group_icon"
-     width="19" />
+     width="21" />
     <chiclet_im_group.unread_notifications
      height="23"
-     font_halign="center"
+     halign="center"
      left="25"
      mouse_opaque="false"
      name="unread"

@@ -70,6 +70,8 @@ const S32   SCROLL_INCREMENT_DEL = 4;	// make space for baskspacing
 const F32   AUTO_SCROLL_TIME = 0.05f;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click. *TODO: make this equal to the double click interval?
 
+const std::string PASSWORD_ASTERISK( "\xE2\x97\x8F" ); // U+25CF BLACK CIRCLE
+
 static LLDefaultChildRegistry::Register<LLLineEditor> r1("line_editor");
 
 // Compiler optimization, generate extern template
@@ -401,7 +403,7 @@ void LLLineEditor::setCursorAtLocalPos( S32 local_mouse_x )
 	{
 		for (S32 i = 0; i < mText.length(); i++)
 		{
-			asterix_text += '*';
+			asterix_text += utf8str_to_wstring(PASSWORD_ASTERISK);
 		}
 		wtext = asterix_text.c_str();
 	}
@@ -1599,7 +1601,7 @@ void LLLineEditor::draw()
 		std::string text;
 		for (S32 i = 0; i < mText.length(); i++)
 		{
-			text += '*';
+			text += PASSWORD_ASTERISK;
 		}
 		mText = text;
 	}
