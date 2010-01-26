@@ -2040,6 +2040,19 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 																				LLMenuHolderGL::child_registry_t::instance());
 	}
 
+	// Route menu to this class
+	// previously this was done in ::handleRightMoseDown:
+	//if(hasTabStop())
+	// setFocus(TRUE)  - why? weird...
+	// and then inside setFocus
+	// ....
+	//    gEditMenuHandler = this;
+	// ....
+	// but this didn't work in all cases and just weird...
+    //why not hear?
+
+	gEditMenuHandler = this;
+
 	S32 screen_x, screen_y;
 	localPointToScreen(x, y, &screen_x, &screen_y);
 	mContextMenu->show(screen_x, screen_y);
