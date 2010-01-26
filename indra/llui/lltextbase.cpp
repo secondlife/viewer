@@ -2208,7 +2208,7 @@ void LLTextSegment::linkToDocument(LLTextBase*) {}
 const LLColor4& LLTextSegment::getColor() const { return LLColor4::white; }
 //void LLTextSegment::setColor(const LLColor4 &color) {}
 LLStyleConstSP LLTextSegment::getStyle() const {static LLStyleConstSP sp(new LLStyle()); return sp; }
-void LLTextSegment::setStyle(LLStyleConstSP &style) {}
+void LLTextSegment::setStyle(LLStyleConstSP style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
 LLKeywordToken*	LLTextSegment::getToken() const { return NULL; }
 void LLTextSegment::setToolTip( const std::string &msg ) {}
@@ -2233,7 +2233,7 @@ BOOL LLTextSegment::hasMouseCapture() { return FALSE; }
 // LLNormalTextSegment
 //
 
-LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP& style, S32 start, S32 end, LLTextBase& editor ) 
+LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor ) 
 :	LLTextSegment(start, end),
 	mStyle( style ),
 	mToken(NULL),

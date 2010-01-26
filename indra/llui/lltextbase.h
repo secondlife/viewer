@@ -390,7 +390,7 @@ public:
 	virtual const LLColor4&		getColor() const;
 	//virtual void 				setColor(const LLColor4 &color);
 	virtual LLStyleConstSP		getStyle() const;
-	virtual void 				setStyle(LLStyleConstSP &style);
+	virtual void 				setStyle(LLStyleConstSP style);
 	virtual void				setToken( LLKeywordToken* token );
 	virtual LLKeywordToken*		getToken() const;
 	virtual void				setToolTip(const std::string& tooltip);
@@ -426,7 +426,7 @@ protected:
 class LLNormalTextSegment : public LLTextSegment
 {
 public:
-	LLNormalTextSegment( LLStyleConstSP& style, S32 start, S32 end, LLTextBase& editor );
+	LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
 	~LLNormalTextSegment();
 
@@ -437,7 +437,7 @@ public:
 	/*virtual*/ bool				canEdit() const { return true; }
 	/*virtual*/ const LLColor4&		getColor() const					{ return mStyle->getColor(); }
 	/*virtual*/ LLStyleConstSP		getStyle() const					{ return mStyle; }
-	/*virtual*/ void 				setStyle(LLStyleConstSP &style)	{ mStyle = style; }
+	/*virtual*/ void 				setStyle(LLStyleConstSP style)	{ mStyle = style; }
 	/*virtual*/ void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	/*virtual*/ LLKeywordToken*		getToken() const					{ return mToken; }
 	/*virtual*/ BOOL				getToolTip( std::string& msg ) const;
