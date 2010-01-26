@@ -68,7 +68,6 @@
 #include "llviewermedia.h"
 #include "llvoavatarself.h"
 #include "llviewermediafocus.h"
-#include "llvovolume.h"
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
@@ -630,14 +629,12 @@ static bool needs_tooltip(LLSelectNode* nodep)
 		return false;
 
 	LLViewerObject* object = nodep->getObject();
-	LLVOVolume* vovolume = dynamic_cast<LLVOVolume*>(object);
 	LLViewerObject *parent = (LLViewerObject *)object->getParent();
 	if (object->flagHandleTouch()
 		|| (parent && parent->flagHandleTouch())
 		|| object->flagTakesMoney()
 		|| (parent && parent->flagTakesMoney())
 		|| object->flagAllowInventoryAdd()
-		|| (vovolume && vovolume->hasMedia())
 		)
 	{
 		return true;

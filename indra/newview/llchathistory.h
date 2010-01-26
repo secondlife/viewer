@@ -125,6 +125,8 @@ class LLChatHistory : public LLUICtrl
 		std::string mLastFromName;
 		LLUUID mLastFromID;
 		LLDate mLastMessageTime;
+		std::string mLastMessageTimeStr;
+
 		std::string mMessageHeaderFilename;
 		std::string mMessageSeparatorFilename;
 

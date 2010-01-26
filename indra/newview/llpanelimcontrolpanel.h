@@ -39,7 +39,9 @@
 
 class LLParticipantList;
 
-class LLPanelChatControlPanel : public LLPanel
+class LLPanelChatControlPanel 
+	: public LLPanel
+	, public LLVoiceClientStatusObserver
 {
 public:
 	LLPanelChatControlPanel() :
@@ -47,15 +49,21 @@ public:
 	~LLPanelChatControlPanel();
 
 	virtual BOOL postBuild();
-	virtual void draw();
 
 	void onCallButtonClicked();
 	void onEndCallButtonClicked();
 	void onOpenVoiceControlsClicked();
 
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+
 	virtual void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 
 	void updateButtons(bool is_call_started);
+	
+	// Enables/disables call button depending on voice availability
+	void updateCallButton();
 
 	virtual void setSessionId(const LLUUID& session_id);
 	const LLUUID& getSessionId() { return mSessionId; }

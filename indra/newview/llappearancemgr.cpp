@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llcommandhandler.h"
 #include "llfloatercustomize.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
@@ -46,6 +47,23 @@
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
 #include "llwearablelist.h"
+
+// support for secondlife:///app/appearance SLapps
+class LLAppearanceHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLAppearanceHandler() : LLCommandHandler("appearance", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		// support secondlife:///app/appearance/show, but for now we just
+		// make all secondlife:///app/appearance SLapps behave this way
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD());
+		return true;
+	}
+};
+LLAppearanceHandler gAppearanceHandler;
 
 class LLWearInventoryCategoryCallback : public LLInventoryCallback
 {

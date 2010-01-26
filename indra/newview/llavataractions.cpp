@@ -250,31 +250,25 @@ void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
 	make_ui_sound("UISndStartIM");
 }
 
+/* AD *TODO: Is this function needed any more?
+	I fixed it a bit(added check for canCall), but it appears that it is not used
+	anywhere. Maybe it should be removed?
 // static
 bool LLAvatarActions::isCalling(const LLUUID &id)
 {
-	if (id.isNull())
+	if (id.isNull() || !canCall())
 	{
 		return false;
 	}
 
 	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
 	return (LLIMModel::getInstance()->findIMSession(session_id) != NULL);
-}
+}*/
 
 //static
-bool LLAvatarActions::canCall(const LLUUID &id)
+bool LLAvatarActions::canCall()
 {
-	// For now we do not need to check whether passed UUID is ID of agent's friend.
-	// Use common check of Voice Client state.
-	{
-		// don't need to check online/offline status because "usual resident" (resident that is not a friend)
-		// can be only ONLINE. There is no way to see "usual resident" in OFFLINE status. If we see "usual
-		// resident" it automatically means that the resident is ONLINE. So to make a call to the "usual resident"
-		// we need to check only that "our" voice is enabled.
-		return LLVoiceClient::voiceEnabled();
-	}
-
+		return LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 }
 
 // static

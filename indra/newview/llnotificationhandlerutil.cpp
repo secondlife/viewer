@@ -123,7 +123,14 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 				message);
 
 		// restore active session id
-		LLIMModel::instance().setActiveSessionID(active_session_id);
+		if (active_session_id.isNull())
+		{
+			LLIMModel::instance().resetActiveSessionID();
+		}
+		else
+		{
+			LLIMModel::instance().setActiveSessionID(active_session_id);
+		}
 	}
 }
 

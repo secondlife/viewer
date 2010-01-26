@@ -34,6 +34,8 @@
 
 #include "llpanel.h"
 
+class LLTimer;
+
 class LLInventoryItem;
 class LLFilterEditor;
 class LLLandmark;
@@ -131,6 +133,10 @@ private:
 	// Absolute position of the location for teleport, may not
 	// be available (hence zero)
 	LLVector3d					mPosGlobal;
+
+	// Sets a period of time during which the requested place information
+	// is expected to be updated and doesn't need to be reset.
+	LLTimer						mResetInfoTimer;
 
 	// Information type currently shown in Place Information panel
 	std::string					mPlaceInfoType;

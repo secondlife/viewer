@@ -75,7 +75,7 @@ LLFloaterGroupPicker::~LLFloaterGroupPicker()
 void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
 {
 	mPowersMask = powers_mask;
-	postBuild();
+	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID(), mPowersMask);
 }
 
 
