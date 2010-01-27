@@ -2530,10 +2530,6 @@ void LLInitialWearablesFetch::processWearablesMessage()
 				delete wearable_data;
 			}
 		}
-		else
-		{
-			delete wearable_data;
-		}
 
 		// Add all current attachments to the requested items as well.
 		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
