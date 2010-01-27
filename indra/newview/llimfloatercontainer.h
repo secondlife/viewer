@@ -43,7 +43,7 @@
 
 class LLTabContainer;
 
-class LLIMFloaterContainer : public LLMultiFloater, public LLAvatarPropertiesObserver, public LLGroupMgrObserver
+class LLIMFloaterContainer : public LLMultiFloater, public LLAvatarPropertiesObserver, public LLParticularGroupMgrObserver
 {
 public:
 	LLIMFloaterContainer(const LLSD& seed);
@@ -57,7 +57,7 @@ public:
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
 	void processProperties(void* data, EAvatarProcessorType type);
-	void changed(LLGroupChange gc);
+	void changed(const LLUUID& group_id, LLGroupChange gc);
 
 	static LLFloater* getCurrentVoiceFloater();
 
@@ -68,9 +68,6 @@ public:
 private:
 	typedef std::map<LLUUID,LLPanel*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
-
-	typedef std::vector<LLUUID> groupIDs_t;
-	groupIDs_t mGroupID;
 
 	void onCloseFloater(LLUUID avatar_id);
 };
