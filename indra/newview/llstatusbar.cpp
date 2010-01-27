@@ -354,7 +354,7 @@ void LLStatusBar::refresh()
 	childSetEnabled("stat_btn", net_stats_visible);
 
 	// update the master volume button state
-	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
 }
 
@@ -523,8 +523,8 @@ void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
 static void onClickVolume(void* data)
 {
 	// toggle the master mute setting
-	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
-	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
+	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
+	LLAppViewer::instance()->setMasterSystemAudioMute(!mute_audio);	
 }
 
 // sets the static variables necessary for the date
