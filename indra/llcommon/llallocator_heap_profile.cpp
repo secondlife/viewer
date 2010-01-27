@@ -130,7 +130,7 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
 			}
 		}
 	}
-
+    }
     // *TODO - parse MAPPED_LIBRARIES section here if we're ever interested in it
 }
 
