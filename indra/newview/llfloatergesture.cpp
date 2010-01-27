@@ -367,7 +367,14 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 		element["columns"][3]["font"]["name"] = "SANSSERIF";
 		element["columns"][3]["font"]["style"] = font_style;
 	}
-	list->addElement(element, ADD_BOTTOM);
+
+	LLScrollListItem* sl_item = list->addElement(element, ADD_BOTTOM);
+	if(sl_item)
+	{
+		LLFontGL::StyleFlags style = LLGestureManager::getInstance()->isGestureActive(item_id) ? LLFontGL::BOLD : LLFontGL::NORMAL;
+		// *TODO find out why ["font"]["style"] does not affect font style
+		((LLScrollListText*)sl_item->getColumn(0))->setFontStyle(style);
+	}
 }
 
 void LLFloaterGesture::getSelectedIds(std::vector<LLUUID>& ids)
