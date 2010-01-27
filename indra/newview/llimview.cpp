@@ -66,6 +66,7 @@
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextutil.h"
 #include "llviewercontrol.h"
+#include "llviewerparcelmgr.h"
 
 
 const static std::string IM_TIME("time");
@@ -1601,6 +1602,9 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 {
 	mPayload = key;
 
+	//will be false only if voice in parcel is disabled and channel we leave is nearby(checked further)
+	bool show_oldchannel = LLViewerParcelMgr::getInstance()->allowAgentVoice();
+
 	// hide all text at first
 	hideAllText();
 
@@ -1624,10 +1628,11 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		}
 
 		childSetTextArg("leaving", "[CURRENT_CHAT]", old_caller_name);
+		show_oldchannel = true;
 	}
 	else
 	{
-		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));
+		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));		
 	}
 
 	if (!mPayload["disconnected_channel_name"].asString().empty())
@@ -1672,10 +1677,16 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	{
 	case LLVoiceChannel::STATE_CALL_STARTED :
 		getChild<LLTextBox>("calling")->setVisible(true);
-		getChild<LLTextBox>("leaving")->setVisible(true);
+		if(show_oldchannel)
+		{
+			getChild<LLTextBox>("leaving")->setVisible(true);
+		}
 		break;
 	case LLVoiceChannel::STATE_RINGING :
-		getChild<LLTextBox>("leaving")->setVisible(true);
+		if(show_oldchannel)
+		{
+			getChild<LLTextBox>("leaving")->setVisible(true);
+		}
 		getChild<LLTextBox>("connecting")->setVisible(true);
 		break;
 	case LLVoiceChannel::STATE_ERROR :
