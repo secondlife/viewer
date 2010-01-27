@@ -1130,8 +1130,9 @@ void LLAgentWearables::addLocalTextureObject(const EWearableType wearable_type, 
 	if (!wearable)
 	{
 		llerrs << "Tried to add local texture object to invalid wearable with type " << wearable_type << " and index " << wearable_index << llendl;
+		return;
 	}
-	LLLocalTextureObject* lto = new LLLocalTextureObject();
+	LLLocalTextureObject lto;
 	wearable->setLocalTextureObject(texture_type, lto);
 }
 
