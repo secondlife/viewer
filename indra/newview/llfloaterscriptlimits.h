@@ -207,7 +207,16 @@ class LLPanelScriptLimitsRegionURLs : public LLPanelScriptLimitsInfo
 	
 public:
 	LLPanelScriptLimitsRegionURLs()
-		:	LLPanelScriptLimitsInfo(), mParcelId(LLUUID()), mGotParcelURLsUsed(FALSE), mGotParcelURLsMax(FALSE) {};
+		: LLPanelScriptLimitsInfo(),
+
+		mParcelId(LLUUID()),
+		mGotParcelURLsUsed(FALSE),
+		mGotParcelURLsMax(FALSE),
+		mParcelURLsMax(0),
+		mParcelURLsUsed(0)
+		{
+		};
+
 	~LLPanelScriptLimitsRegionURLs()
 	{
 	};
