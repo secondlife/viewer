@@ -1875,7 +1875,7 @@ void LLMenuGL::scrollItemsDown()
 
 	item_list_t::iterator next_item_iter;
 
-	if (cur_item_iterator != mItems.end())
+	if (cur_item_iter != mItems.end())
 	{
 		for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
 		{
