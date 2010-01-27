@@ -1883,7 +1883,8 @@ void LLMenuGL::scrollItemsDown()
 		}
 	}
 
-	if ((*next_item_iter)->getVisible())
+	if (next_item_iter != mItems.end() &&
+	    (*next_item_iter)->getVisible())
 	{
 		mFirstVisibleItem = *next_item_iter;
 	}
