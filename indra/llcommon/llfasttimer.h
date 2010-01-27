@@ -113,7 +113,7 @@ inline U64 LLFastTimer::getCPUClockCount64()
 	struct timespec tp;
 	
 #ifdef CLOCK_MONOTONIC // MONOTONIC supported at build-time?
-	if (-1 == clock_gettime(CLOCK_MONOTONIC,&tp)) // if MONOTONIC isn't supported at runtime, try REALTIME
+	if (-1 == clock_gettime(CLOCK_MONOTONIC,&tp)) // if MONOTONIC isn't supported at runtime then ouch, try REALTIME
 #endif
 		clock_gettime(CLOCK_REALTIME,&tp);
 
@@ -122,7 +122,7 @@ inline U64 LLFastTimer::getCPUClockCount64()
 
 inline U32 LLFastTimer::getCPUClockCount32()
 {
-	return (U32)LLFastTimer::getCPUClockCount64();
+	return (U32)(LLFastTimer::getCPUClockCount64() >> 8);
 }
 #endif // (LL_LINUX || LL_SOLARIS))
 
@@ -134,14 +134,14 @@ inline U32 LLFastTimer::getCPUClockCount32()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
-	return (U32)x >> 8;
+	return (U32)(x >> 8);
 }
 
 inline U64 LLFastTimer::getCPUClockCount64()
 {
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
-	return x >> 8;
+	return x;
 }
 #endif
 
@@ -154,7 +154,7 @@ inline U64 LLFastTimer::getCPUClockCount64()
 
 inline U32 LLFastTimer::getCPUClockCount32()
 {
-	return (U32)get_clock_count();
+	return (U32)(get_clock_count()>>8);
 }
 
 inline U64 LLFastTimer::getCPUClockCount64()

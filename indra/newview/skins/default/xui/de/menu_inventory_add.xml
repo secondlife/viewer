@@ -8,7 +8,7 @@
 	</menu>
 	<menu_item_call label="Neuer Ordner" name="New Folder"/>
 	<menu_item_call label="Neues Skript" name="New Script"/>
-	<menu_item_call label="Neue Notiz" name="New Note"/>
+	<menu_item_call label="Neue Notizkarte" name="New Note"/>
 	<menu_item_call label="Neue Geste" name="New Gesture"/>
 	<menu label="Neue Kleider" name="New Clothes">
 		<menu_item_call label="Neues Hemd" name="New Shirt"/>

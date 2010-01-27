@@ -226,12 +226,12 @@ void LLFastTimer::DeclareTimer::updateCachedPointers()
 
 //static
 #if LL_LINUX || LL_SOLARIS || ( LL_DARWIN && !(defined(__i386__) || defined(__amd64__)) )
-U64 LLFastTimer::countsPerSecond()
+U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 {
-	return sClockResolution;
+	return sClockResolution >> 8;
 }
 #else // windows or x86-mac
-U64 LLFastTimer::countsPerSecond()
+U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 {
 	static U64 sCPUClockFrequency = U64(CProcessor().GetCPUFrequency(50));
 

@@ -36,10 +36,10 @@
 				(グループ所有)
 			</panel.string>
 			<panel.string name="profile_text">
-				プロフィール...
+				プロフィール
 			</panel.string>
 			<panel.string name="info_text">
-				情報...
+				情報
 			</panel.string>
 			<panel.string name="public_text">
 				(公共)
@@ -51,8 +51,7 @@
 				(購入審査中)
 			</panel.string>
 			<panel.string name="no_selection_text">
-				区画が選定されていません。
-「世界」メニュー＞「土地情報」に進むか、別の区画を選択して、詳細を表示します。
+				区画が選択されていません。
 			</panel.string>
 			<text name="Name:">
 				名前：
@@ -79,13 +78,15 @@
 			<text name="OwnerText">
 				Leyla Linden
 			</text>
-			<button label="プロフィール..." label_selected="プロフィール..." name="Profile..."/>
 			<text name="Group:">
 				グループ：
 			</text>
-			<button label="設定..." label_selected="設定..." name="Set..."/>
+			<text name="GroupText">
+				Leyla Linden
+			</text>
+			<button label="設定" label_selected="設定..." name="Set..."/>
 			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。そうするとグループの土地割り当てによってサポートされます。"/>
-			<button label="譲渡..." label_selected="譲渡..." name="Deed..." tool_tip="選択されたグループのオフィサーであるときのみ、土地を譲渡できます。"/>
+			<button label="譲渡" label_selected="譲渡..." name="Deed..." tool_tip="選択されたグループのオフィサーであるときのみ、土地を譲渡できます。"/>
 			<check_box label="オーナーが譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
 			<text name="For Sale:">
 				販売の有無：
@@ -96,15 +97,15 @@
 			<text name="For Sale: Price L$[PRICE].">
 				価格： L$[PRICE] （L$[PRICE_PER_SQM]/平方メートル）
 			</text>
-			<button label="土地を販売..." label_selected="土地を販売..." name="Sell Land..."/>
+			<button label="土地を売る" label_selected="土地を販売..." name="Sell Land..."/>
 			<text name="For sale to">
 				販売先：[BUYER]
 			</text>
 			<text name="Sell with landowners objects in parcel.">
-				オブジェクトも販売価格に含まれます
+				オブジェクトを一緒に販売
 			</text>
 			<text name="Selling with no objects in parcel.">
-				オブジェクトは販売対象外です
+				オブジェクトは販売しない
 			</text>
 			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"/>
 			<text name="Claimed:">
@@ -125,12 +126,13 @@
 			<text name="DwellText">
 				誤
 			</text>
-			<button label="土地を購入..." label_selected="土地を購入..." left="130" name="Buy Land..." width="125"/>
-			<button label="グループ用に購入..." label_selected="グループ用に購入..." name="Buy For Group..."/>
-			<button label="入場許可を購入..." label_selected="入場許可を購入..." left="130" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="125"/>
-			<button label="土地を放棄..." label_selected="土地を放棄..." name="Abandon Land..."/>
-			<button label="土地の返還を要求..." label_selected="土地の返還を要求..." name="Reclaim Land..."/>
-			<button label="Lindenセール..." label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
+			<button label="土地の購入" label_selected="土地を購入..." left="130" name="Buy Land..." width="125"/>
+			<button label="スクリプト情報" name="Scripts..."/>
+			<button label="グループに購入" label_selected="グループ用に購入..." name="Buy For Group..."/>
+			<button label="入場許可を購入" label_selected="入場許可を購入..." left="130" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="125"/>
+			<button label="土地の放棄" label_selected="土地を放棄..." name="Abandon Land..."/>
+			<button label="土地を取り戻す" label_selected="土地の返還を要求..." name="Reclaim Land..."/>
+			<button label="リンデンセール" label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -148,9 +150,6 @@
 			</panel.string>
 			<text font="SansSerifLarge" name="estate_section_lbl">
 				不動産：
-			</text>
-			<text name="estate_name_lbl">
-				名前：
 			</text>
 			<text name="estate_name_text">
 				メインランド
@@ -170,11 +169,8 @@
 			<text font="SansSerifLarge" name="region_section_lbl">
 				地域：
 			</text>
-			<text name="region_name_lbl">
-				名前：
-			</text>
 			<text name="region_name_text">
-				Leyla
+				EricaVille
 			</text>
 			<text name="region_landtype_lbl">
 				種類：
@@ -213,7 +209,7 @@
 				地域オブジェクトボーナス要因: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:" width="500">
-				地域全体のプリム使用状況：
+				プリム使用状況：
 			</text>
 			<text left="200" name="objects_available">
 				[MAX]の内[COUNT]（[AVAILABLE]利用可能）
@@ -237,7 +233,7 @@
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOwner" right="-145"/>
-			<button label="返却..." label_selected="返却..." name="ReturnOwner..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
+			<button label="返却" label_selected="返却..." name="ReturnOwner..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
 			<text name="Set to group:">
 				グループに設定：
 			</text>
@@ -245,7 +241,7 @@
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowGroup" right="-145"/>
-			<button label="返却..." label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
+			<button label="返却" label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
 			<text name="Owned by others:">
 				他人による所有：
 			</text>
@@ -253,7 +249,7 @@
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOther" right="-145"/>
-			<button label="返却..." label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
+			<button label="返却" label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
 			<text name="Selected / sat upon:">
 				選択済み／決定済み：
 			</text>
@@ -261,14 +257,14 @@
 				[COUNT]
 			</text>
 			<text name="Autoreturn" width="500">
-				他の住人のオブジェクトの自動返却(分、0で自動返却なし)
+				他人のオブジェクトを自動返却（分単位、0で自動返却なし）：
 			</text>
 			<line_editor left_delta="5" name="clean other time" right="-80"/>
 			<text name="Object Owners:" width="150">
 				オブジェクトのオーナー：
 			</text>
-			<button label="リスト更新" label_selected="リスト更新" left="146" name="Refresh List"/>
-			<button label="オブジェクトの返却..." label_selected="オブジェクトの返却..." left="256" name="Return objects..."/>
+			<button label="リスト更新" label_selected="リスト更新" left="146" name="Refresh List" tool_tip="オブジェクトのリストを更新"/>
+			<button label="オブジェクトを返却する" label_selected="オブジェクトの返却..." left="256" name="Return objects..."/>
 			<name_list label="カウント" name="owner list">
 				<name_list.columns label="タイプ" name="type"/>
 				<name_list.columns name="online_status"/>
@@ -289,13 +285,13 @@
 				あなたはこの区画の設定編集ができないため、このオプションは無効です。
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				Matureコンテンツ
+				控えめコンテンツ
 			</panel.string>
 			<panel.string name="mature_check_adult">
 				Adultコンテンツ
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				あなたの区画情報及びコンテンツはMatureとされています。
+				あなたの区画情報及びコンテンツは控えめとされています。
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
 				あなたの区画情報及びコンテンツはAdultとされています。
@@ -310,31 +306,31 @@
 				プッシングを制限 (地域優先)
 			</panel.string>
 			<text name="allow_label">
-				他の住人に以下を許可：
+				他の住人への許可：
 			</text>
 			<check_box label="地形を編集" name="edit land check" tool_tip="チェックを入れると、他人があなたの土地の地形編集を行うことが可能となります。このオプションのチェックを外しておくことをおすすめします。外した状態であなたの土地の地形編集が可能です。"/>
 			<check_box label="飛行" name="check fly" tool_tip="チェックを入れるとこの土地での飛行が可能となります。チェックを外すと土地に入る際と通り過ぎるときのみ飛行可能となります。"/>
 			<text left="138" name="allow_label2" width="144">
-				オブジェクトの作成：
+				制作：
 			</text>
-			<check_box label="すべての住人" left="280" name="edit objects check"/>
+			<check_box label="全員" left="280" name="edit objects check"/>
 			<check_box label="グループ" left="380" name="edit group objects check"/>
 			<text left="138" name="allow_label3" width="144">
 				オブジェクトの進入：
 			</text>
-			<check_box label="すべての住人" left="280" name="all object entry check"/>
+			<check_box label="全員" left="280" name="all object entry check"/>
 			<check_box label="グループ" left="380" name="group object entry check"/>
 			<text left="138" name="allow_label4" width="144">
 				スクリプトの実行：
 			</text>
-			<check_box label="すべての住人" left="280" name="check other scripts"/>
+			<check_box label="全員" left="280" name="check other scripts"/>
 			<check_box label="グループ" left="380" name="check group scripts"/>
 			<text name="land_options_label">
 				土地オプション：
 			</text>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシングを制限" name="PushRestrictCheck" tool_tip="スクリプトによるプッシングを制限します。 このオプションを選択することにより、あなたの土地での破壊的行動を妨げることができます。"/>
-			<check_box label="検索に表示＞（週L$30）以下の場所" name="ShowDirectoryCheck" tool_tip="検索結果でこの区画を表示させる"/>
+			<check_box label="検索に区画を表示（週 L$30）" name="ShowDirectoryCheck" tool_tip="検索結果でこの区画を表示させる"/>
 			<combo_box name="land category with adult">
 				<combo_box.item label="全カテゴリ" name="item0"/>
 				<combo_box.item label="Linden所在地" name="item1"/>
@@ -364,7 +360,7 @@
 				<combo_box.item label="ショッピング" name="item11"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
-			<check_box label="Matureコンテンツ" name="MatureCheck" tool_tip=""/>
+			<check_box label="控えめコンテンツ" name="MatureCheck" tool_tip=""/>
 			<text name="Snapshot:">
 				スナップショット：
 			</text>
@@ -389,27 +385,24 @@
 			</text>
 			<combo_box name="media type" tool_tip="URL が動画、ウェブ・ページ、その他のメディアの場合に指定します"/>
 			<text name="at URL:">
-				ホーム URL：
+				ホームページ：
 			</text>
-			<button label="設定..." label_selected="設定..." name="set_media_url"/>
+			<button label="設定" label_selected="設定..." name="set_media_url"/>
 			<text name="CurrentURL:">
-				現在の URL：
+				現在のページ：
 			</text>
-			<button label="リセット..." label_selected="リセット..." name="reset_media_url"/>
+			<button label="リセット..." label_selected="リセット..." name="reset_media_url" tool_tip="URLを更新"/>
 			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：
 			</text>
 			<line_editor name="url_description" tool_tip="［再生］/［ロード］ボタンの隣に表示されるテキスト"/>
 			<text name="Media texture:">
-				テクスチ
-ャ取替：
+				テクスチャの置き換え：
 			</text>
 			<texture_picker label="" name="media texture" tool_tip="写真をクリックして選択"/>
 			<text name="replace_texture_help" width="290">
-				このテクスチャを使用するオブジェクトのプレイをクリックすると、ムービーや Web ページを表示します。
-
-テクスチャを変更するにはサムネイルを選択してください。
+				このテクスチャを使用するオブジェクトのプレイをクリックすると、ムービーや Web ページを表示します。  テクスチャを変更するにはサムネイルを選択してください。
 			</text>
 			<check_box label="スケールを自動設定" name="media_auto_scale" tool_tip="このオプションをチェックすると、この区画のコンテンツのスケールが自動的に設定されます。 動作速度と画質が少し低下することがありますが、他のテクスチャーのスケーリングや整列が必要になることはありません。"/>
 			<text name="media_size" tool_tip="レンダリングするウェブ・メディアのサイズ。デフォルトの 0 のままにします。">
@@ -425,7 +418,7 @@
 			</text>
 			<check_box label="ループ" name="media_loop" tool_tip="メディアをループ再生します。  メディアの再生が終わったら、最初から再生し直します。"/>
 		</panel>
-		<panel label="オーディオ" name="land_audio_panel">
+		<panel label="サウンド" name="land_audio_panel">
 			<text name="MusicURL:">
 				音楽 URL：
 			</text>
@@ -441,18 +434,21 @@
 			<check_box label="この区画でのボイス使用を制限" name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="アクセス" name="land_access_panel">
+			<panel.string name="access_estate_defined">
+				（エステートに限定）
+			</panel.string>
 			<panel.string name="estate_override">
 				1つ以上のオプションが、不動産レベルで設定されています。
 			</panel.string>
 			<text name="Limit access to this parcel to:">
 				この区画にアクセス
 			</text>
-			<check_box label="パブリック・アクセスを許可" name="public_access"/>
+			<check_box label="パブリックアクセスを許可 [MATURITY]" name="public_access"/>
 			<text name="Only Allow">
-				次の住人のアクセスをブロック：
+				次の住人のアクセス禁止：
 			</text>
-			<check_box label="Linden Labに支払い情報を登録していない住人" name="limit_payment" tool_tip="支払い情報未確認の住人を排除する"/>
-			<check_box label="年齢確認を済ませていない成人の住人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を立入禁止にします。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
+			<check_box label="支払情報登録済 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="未確認の住人の立入を禁止します。"/>
+			<check_box label="年齢確認 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人の立入を禁止します。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
 			<check_box label="グループ・アクセスを許可：[GROUP]" name="GroupCheck" tool_tip="[一般]タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可"/>
 			<combo_box name="pass_combo">
@@ -461,18 +457,22 @@
 			</combo_box>
 			<spinner label="価格（L$）：" name="PriceSpin"/>
 			<spinner label="アクセス時間：" name="HoursSpin"/>
-			<text label="常に許可" name="AllowedText">
-				許可された住人
-			</text>
-			<name_list name="AccessList" tool_tip="([LISTED]リスト入り、[MAX]最大)"/>
-			<button label="追加..." label_selected="追加..." name="add_allowed"/>
-			<button label="削除" label_selected="削除" name="remove_allowed"/>
-			<text label="禁止" name="BanCheck">
-				禁止された住人
-			</text>
-			<name_list name="BannedList" tool_tip="([LISTED]リスト入り、[MAX]最大)"/>
-			<button label="追加..." label_selected="追加..." name="add_banned"/>
-			<button label="削除" label_selected="削除" name="remove_banned"/>
+			<panel name="Allowed_layout_panel">
+				<text label="常に許可" name="AllowedText">
+					立入を許可された住人
+				</text>
+				<name_list name="AccessList" tool_tip="(合計[LISTED] 人、最大 [MAX] 人）"/>
+				<button label="追加" name="add_allowed"/>
+				<button label="削除" label_selected="削除" name="remove_allowed"/>
+			</panel>
+			<panel name="Banned_layout_panel">
+				<text label="禁止" name="BanCheck">
+					立入禁止された住人
+				</text>
+				<name_list name="BannedList" tool_tip="(合計 [LISTED] 人、最大 [MAX] 人）"/>
+				<button label="追加" name="add_banned"/>
+				<button label="削除" label_selected="削除" name="remove_banned"/>
+			</panel>
 		</panel>
 	</tab_container>
 </floater>

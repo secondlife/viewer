@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grundstück" name="Estate">
 	<text name="estate_help_text">
-		Änderungen auf dieser Registerkarte wirken sich
-auf alle Regionen auf dem Grundstück aus.
+		Änderungen auf dieser Registerkarte wirken sich auf alle Regionen auf dem Grundstück aus.
 	</text>
 	<text name="estate_text">
 		Grundstück:
@@ -17,10 +16,10 @@ auf alle Regionen auf dem Grundstück aus.
 		(unbekannt)
 	</text>
 	<text name="Only Allow">
-		Zugang beschränken auf:
+		Zugang auf Einwohner beschränken, die überprüft wurden von:
 	</text>
-	<check_box label="Einwohner mit Zahlungsinformationen" name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen"/>
-	<check_box label="Altersgeprüfte Erwachsene" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung verbannen. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+	<check_box label="Zahlungsinformation gespeichert" name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen"/>
+	<check_box label="Altersüberprüfung" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung verbannen. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
 	<check_box label="Voice-Chat erlauben" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text" width="222">

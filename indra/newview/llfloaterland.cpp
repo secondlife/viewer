@@ -1029,7 +1029,30 @@ void LLPanelLandGeneral::onClickStopSellLand(void* data)
 //---------------------------------------------------------------------------
 LLPanelLandObjects::LLPanelLandObjects(LLParcelSelectionHandle& parcel)
 	:	LLPanel(),
-		mParcel(parcel)
+
+		mParcel(parcel),
+		mParcelObjectBonus(NULL),
+		mSWTotalObjects(NULL),
+		mObjectContribution(NULL),
+		mTotalObjects(NULL),
+		mOwnerObjects(NULL),
+		mBtnShowOwnerObjects(NULL),
+		mBtnReturnOwnerObjects(NULL),
+		mGroupObjects(NULL),
+		mBtnShowGroupObjects(NULL),
+		mBtnReturnGroupObjects(NULL),
+		mOtherObjects(NULL),
+		mBtnShowOtherObjects(NULL),
+		mBtnReturnOtherObjects(NULL),
+		mSelectedObjects(NULL),
+		mCleanOtherObjectsTime(NULL),
+		mOtherTime(0),
+		mBtnRefresh(NULL),
+		mBtnReturnOwnerList(NULL),
+		mOwnerList(NULL),
+		mFirstReply(TRUE),
+		mSelectedCount(0),
+		mSelectedIsGroup(FALSE)
 {
 }
 

@@ -171,7 +171,8 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 	</combo_box>
 	<spinner label="Eingang glätten (s)" label_width="105" name="ease_in_time" tool_tip="Einblendungsgeschwindigkeit von Animationen (in Sekunden)" width="175"/>
 	<spinner bottom_delta="-20" label="Ausgang glätten (s)" label_width="105" left="10" name="ease_out_time" tool_tip="Ausblendegeschwindigkeit von Animationen (in Sekunden)" width="175"/>
-	<button bottom_delta="-32" label="" name="play_btn" tool_tip="Animation stoppen/wiedergeben"/>
+	<button bottom_delta="-32" label="" name="play_btn" tool_tip="Ihre Animation abspielen"/>
+	<button name="pause_btn" tool_tip="Ihre Animation pausieren"/>
 	<button label="" name="stop_btn" tool_tip="Animation anhalten"/>
 	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">
@@ -179,6 +180,6 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 
 Wir empfehlen exportierte BVH-Dateien aus Poser 4.
 	</text>
-	<button label="Abbrechen" name="cancel_btn"/>
 	<button label="Hochladen ([AMOUNT] L$)" name="ok_btn"/>
+	<button label="Abbrechen" name="cancel_btn"/>
 </floater>

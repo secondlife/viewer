@@ -33,6 +33,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llcommandhandler.h"
 #include "llfloaterhelpbrowser.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -43,6 +44,33 @@
 #include "llviewerhelputil.h"
 #include "llviewerhelp.h"
 
+// support for secondlife:///app/help/{TOPIC} SLapps
+class LLHelpHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLHelpHandler() : LLCommandHandler("help", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		if (! vhelp)
+		{
+			return false;
+		}
+
+		// get the requested help topic name, or use the fallback if none
+		std::string help_topic = vhelp->defaultTopic();
+		if (params.size() >= 1)
+		{
+			help_topic = params[0].asString();
+		}
+
+		vhelp->showTopic(help_topic);
+		return true;
+	}
+};
+LLHelpHandler gHelpHandler;
 
 //////////////////////////////
 // implement LLHelp interface

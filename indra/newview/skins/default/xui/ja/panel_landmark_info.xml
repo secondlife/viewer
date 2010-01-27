@@ -21,6 +21,7 @@
 	<string name="icon_PG" value="parcel_drk_PG"/>
 	<string name="icon_M" value="parcel_drk_M"/>
 	<string name="icon_R" value="parcel_drk_R"/>
+	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">

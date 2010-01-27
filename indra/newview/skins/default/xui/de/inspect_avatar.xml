@@ -10,19 +10,17 @@
 	<string name="Details">
 		[SL_PROFILE]
 	</string>
-	<string name="Partner">
-		Partner: [PARTNER]
-	</string>
 	<text name="user_name" value="Grumpity ProductEngine"/>
 	<text name="user_subtitle" value="11 Monate und 3 Tage alt"/>
 	<text name="user_details">
 		Dies ist meine Beschreibung und ich finde sie wirklich gut!
 	</text>
-	<text name="user_partner">
-		Erica Linden
-	</text>
 	<slider name="volume_slider" tool_tip="Lautstärke" value="0.5"/>
 	<button label="Freund hinzufügen" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
 	<button label="Mehr" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="Voice deaktivieren" name="disable_voice"/>
+		<button label="Voice aktivieren" name="enable_voice"/>
+	</panel>
 </floater>

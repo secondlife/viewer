@@ -31,4 +31,5 @@ Hoch solln sie leben!  Elche forever!  Und auch Mungos!
 	</text>
 	<button label="Zusammen" name="join_btn"/>
 	<button label="Verlassen" name="leave_btn"/>
+	<button label="Profil anzeigen" name="view_profile_btn"/>
 </floater>
