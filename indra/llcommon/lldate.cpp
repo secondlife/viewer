@@ -153,7 +153,7 @@ void LLDate::toStream(std::ostream& s) const
 		  << (int)(exp_time.tm_usec / (LL_APR_USEC_PER_SEC / 100));
 	}
 	s << 'Z'
-	  << setfill(' ');
+	  << std::setfill(' ');
 }
 
 bool LLDate::split(S32 *year, S32 *month, S32 *day, S32 *hour, S32 *min, S32 *sec) const
