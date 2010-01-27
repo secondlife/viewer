@@ -1875,18 +1875,21 @@ void LLMenuGL::scrollItemsDown()
 
 	item_list_t::iterator next_item_iter;
 
-	for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
+	if (cur_item_iterator != mItems.end())
 	{
-		if( (*next_item_iter)->getVisible())
+		for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
 		{
-			break;
+			if( (*next_item_iter)->getVisible())
+			{
+				break;
+			}
 		}
-	}
-
-	if (next_item_iter != mItems.end() &&
-	    (*next_item_iter)->getVisible())
-	{
-		mFirstVisibleItem = *next_item_iter;
+		
+		if (next_item_iter != mItems.end() &&
+		    (*next_item_iter)->getVisible())
+		{
+			mFirstVisibleItem = *next_item_iter;
+		}
 	}
 	
 	mNeedsArrange = TRUE;
