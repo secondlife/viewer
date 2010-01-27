@@ -3239,7 +3239,13 @@ void LLCallInfoDialog::show(const std::string& status_name, const LLSD& args)
 
 	LLSD payload;
 	payload["msg"] = message;
-	LLFloaterReg::showInstance("call_info", payload);
+	LLFloater* inst = LLFloaterReg::findInstance("call_info");
+
+	// avoid recreate instance with the same message
+	if (inst == NULL || message.getString() != inst->getChild<LLTextBox>("msg")->getValue())
+	{
+		LLFloaterReg::showInstance("call_info", payload);
+	}
 }
 
 LLHTTPRegistration<LLViewerChatterBoxSessionStartReply>
