@@ -433,12 +433,6 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	LLContextMenu* main_menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_participant_list.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	// AD *TODO: This is workaround for EXT-4725- way to properly enable/disable "Call" menu item in
-	// enableContextMenuItem() should be found.
-	bool not_agent = mUUIDs.front() != gAgentID;
-	bool can_call = not_agent && LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
-	main_menu->setItemEnabled("Call", can_call);
-
 	// Don't show sort options for P2P chat
 	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
 	main_menu->setItemVisible("SortByName", is_sort_visible);
