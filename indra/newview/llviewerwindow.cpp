@@ -1659,6 +1659,9 @@ LLViewerWindow::~LLViewerWindow()
 {
 	llinfos << "Destroying Window" << llendl;
 	destroyWindow();
+
+	delete mDebugText;
+	mDebugText = NULL;
 }
 
 
