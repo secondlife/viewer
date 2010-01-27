@@ -145,7 +145,7 @@ class LLPanelScriptLimitsRegionMemory : public LLPanelScriptLimitsInfo, LLRemote
 	
 public:
 	LLPanelScriptLimitsRegionMemory()
-		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),,
+		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
 
 		mParcelId(LLUUID()),
 		mGotParcelMemoryUsed(FALSE),
