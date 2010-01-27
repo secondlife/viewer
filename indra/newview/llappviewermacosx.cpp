@@ -444,6 +444,20 @@ std::string LLAppViewerMacOSX::generateSerialNumber()
 	return serial_md5;
 }
 
+//virtual
+void LLAppViewerMacOSX::setMasterSystemAudioMute(bool mute)
+{
+	// XXX TODO: make this actually set the OS's audio mute state
+	gSavedSettings.setBOOL("MuteAudio", mute);
+}
+
+//virtual
+bool LLAppViewerMacOSX::getMasterSystemAudioMute()
+{
+	// XXX TODO: make this actually get the OS's audio mute state
+	return gSavedSettings.getBOOL("MuteAudio");
+}
+
 OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 {
 	OSErr result = noErr;
