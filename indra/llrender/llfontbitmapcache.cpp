@@ -64,7 +64,7 @@ void LLFontBitmapCache::init(S32 num_components,
 
 LLImageRaw *LLFontBitmapCache::getImageRaw(U32 bitmap_num) const
 {
-	if ((bitmap_num < 0) || (bitmap_num >= mImageRawVec.size()))
+	if (bitmap_num >= mImageRawVec.size())
 		return NULL;
 
 	return mImageRawVec[bitmap_num];
