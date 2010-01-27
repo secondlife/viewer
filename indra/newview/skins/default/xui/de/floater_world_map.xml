@@ -28,7 +28,7 @@
 		<text name="auction_label">
 			Land-Auktion
 		</text>
-		<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="An meinen Heimatort teleportieren"/>
+		<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
 		<text name="Home_label">
 			Startseite
 		</text>

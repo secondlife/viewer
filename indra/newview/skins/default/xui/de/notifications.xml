@@ -417,7 +417,7 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Sie haben keine Start-Region festgelegt.
-Bitte geben Sie den Namen der Region im Feld „Startposition“ ein oder wählen Sie „Mein letzter Standort“ oder „Mein Heimatort“ als Startposition aus.
+Bitte geben Sie den Namen der Region im Feld „Startposition“ ein oder wählen Sie „Mein letzter Standort“ oder „Mein Zuhause“ als Startposition aus.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -2572,7 +2572,7 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearTeleportHistory">
-		Möchten Sie Ihren Teleport-Verlauf löschen?
+		Möchten Sie Ihre Teleport-Liste löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="BottomTrayButtonCanNotBeShown">

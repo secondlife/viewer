@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Hardware &amp; Web" name="Input panel">
+<panel label="Hardware/Internet" name="Input panel">
 	<button label="Andere Geräte" name="joystick_setup_button"/>
 	<text name="Mouselook:">
 		Mouselook:

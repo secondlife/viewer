@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="notification_chiclet" title="BENACHRICHTIGUNGEN">
+<floater name="notification_chiclet" title="MELDUNGEN">
 	<string name="title_im_well_window">
 		IM-SITZUNGEN
 	</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Orte" name="places panel">
 	<string name="landmarks_tab_title" value="MEINE LANDMARKEN"/>
-	<string name="teleport_history_tab_title" value="TELEPORT-VERLAUF"/>
+	<string name="teleport_history_tab_title" value="TELEPORT-LISTE"/>
 	<filter_editor label="Orte filtern" name="Filter"/>
 	<panel name="button_panel">
 		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu ausgewähltem Standort teleportieren"/>

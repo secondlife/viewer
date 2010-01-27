@@ -825,7 +825,7 @@
 		ESC drücken, um zur Normalansicht zurückzukehren
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Im Inventar wurden keine passenden Artikel gefunden.
+		Im Inventar wurden keine passenden Objekte gefunden.
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Hier eine Landmarke hin ziehen, um diese zu Ihrem Favoriten hinzuzufügen.
@@ -1924,7 +1924,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Volumen: Oben
 	</string>
 	<string name="Big Head">
-		Großer Kopf
+		Groß
 	</string>
 	<string name="Big Pectorals">
 		Große Brustmuskeln
@@ -1960,13 +1960,13 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Sommersprossen
 	</string>
 	<string name="Body Thick">
-		Körper - breit
+		breit
 	</string>
 	<string name="Body Thickness">
 		Körperbreite
 	</string>
 	<string name="Body Thin">
-		Körper - schmal
+		schmal
 	</string>
 	<string name="Bow Legged">
 		o-beinig
@@ -2323,7 +2323,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Absatzform
 	</string>
 	<string name="Height">
-		Höhe
+		Größe
 	</string>
 	<string name="High">
 		Hoch
@@ -2605,16 +2605,16 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Mehr
 	</string>
 	<string name="More Sloped">
-		Mehr
+		Flach
 	</string>
 	<string name="More Square">
-		Mehr
+		Eckiger
 	</string>
 	<string name="More Upper Lip">
 		Mehr
 	</string>
 	<string name="More Vertical">
-		Mehr
+		Steil
 	</string>
 	<string name="More Volume">
 		Mehr
@@ -2929,10 +2929,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Falten
 	</string>
 	<string name="Shoe Height">
-		Höhe
+		Schuhart
 	</string>
 	<string name="Short">
-		Kurz
+		Sandale
 	</string>
 	<string name="Short Arms">
 		Kurze Arme
@@ -3013,7 +3013,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Kleine Hände
 	</string>
 	<string name="Small Head">
-		Kleiner Kopf
+		Klein
 	</string>
 	<string name="Smooth">
 		Glätten
@@ -3061,7 +3061,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Nach vorne
 	</string>
 	<string name="Tall">
-		Groß
+		Stiefel
 	</string>
 	<string name="Taper Back">
 		Ansatzbreite hinten

@@ -29,7 +29,7 @@
 			<menu_item_call label="Papierkorb ausleeren" name="Empty Trash"/>
 			<menu_item_call label="Fundstücke ausleeren" name="Empty Lost And Found"/>
 		</menu>
-		<menu label="Bauen" name="Create">
+		<menu label="Erstellen" name="Create">
 			<menu_item_call label="Neuer Ordner" name="New Folder"/>
 			<menu_item_call label="Neues Skript" name="New Script"/>
 			<menu_item_call label="Neue Notizkarte" name="New Note"/>
