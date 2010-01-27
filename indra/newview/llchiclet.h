@@ -328,6 +328,10 @@ public:
 	virtual ~LLIMChiclet() {};
 
 	/**
+	 * It is used for default setting up of chicklet:click handler, etc.  
+	 */
+	BOOL postBuild();
+	/**
 	 * Sets IM session name. This name will be displayed in chiclet tooltip.
 	 */
 	virtual void setIMSessionName(const std::string& name) { setToolTip(name); }
@@ -427,8 +431,6 @@ public:
 protected:
 
 	LLIMChiclet(const LLIMChiclet::Params& p);
-
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 
@@ -640,11 +642,6 @@ public:
 	 */
 	/*virtual*/ void onMouseDown();
 
-	/**
-	 * Override default handler
-	 */
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-
 protected:
 
 	LLScriptChiclet(const Params&);
@@ -683,12 +680,6 @@ public:
 	 * Toggle script floater
 	 */
 	/*virtual*/ void onMouseDown();
-
-	/**
-	 * Override default handler
-	 */
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-
 
 protected:
 	LLInvOfferChiclet(const Params&);
