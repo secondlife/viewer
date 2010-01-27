@@ -46,7 +46,6 @@
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
-#include "llviewerinventory.h"
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
 
