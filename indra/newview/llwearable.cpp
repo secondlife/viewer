@@ -824,10 +824,7 @@ void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)
 	{
 		mTEMap.erase(index);
 	}
-	if( lto )
-	{
-		mTEMap[index] = new LLLocalTextureObject(lto);
-	}
+	mTEMap[index] = new LLLocalTextureObject(lto);
 }
 
 
