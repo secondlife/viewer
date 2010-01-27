@@ -1860,7 +1860,7 @@ U32 LLTexLayerTemplate::updateWearableCache()
 }
 LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 {
-	if (mWearableCache.size() <= i || i < 0)
+	if (mWearableCache.size() <= i)
 	{
 		return NULL;
 	}
