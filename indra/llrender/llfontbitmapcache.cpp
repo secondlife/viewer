@@ -72,7 +72,7 @@ LLImageRaw *LLFontBitmapCache::getImageRaw(U32 bitmap_num) const
 
 LLImageGL *LLFontBitmapCache::getImageGL(U32 bitmap_num) const
 {
-	if ((bitmap_num < 0) || (bitmap_num >= mImageGLVec.size()))
+	if (bitmap_num >= mImageGLVec.size())
 		return NULL;
 
 	return mImageGLVec[bitmap_num];
