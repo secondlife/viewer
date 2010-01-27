@@ -34,6 +34,7 @@
 #include "llviewerinventory.h"
 
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
 #include "message.h"
 #include "indra_constants.h"
 
@@ -1174,17 +1175,125 @@ const std::string& LLViewerInventoryItem::getName() const
 	return getDisplayName();
 }
 
+/**
+ * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
+ * It replaced previously implemented solution to store sort index in landmark's name as a "<N>@" prefix.
+ */
+class LLFavoritesOrderStorage : public LLSingleton<LLFavoritesOrderStorage>
+{
+public:
+	/**
+	 * Sets sort index for specified with LLUUID favorite landmark
+	 */
+	void setSortIndex(const LLUUID& inv_item_id, S32 sort_index);
+
+	/**
+	 * Gets sort index for specified with LLUUID favorite landmark
+	 */
+	S32 getSortIndex(const LLUUID& inv_item_id);
+	void removeSortIndex(const LLUUID& inv_item_id);
+
+	const static S32 NO_INDEX;
+private:
+	friend class LLSingleton<LLFavoritesOrderStorage>;
+	LLFavoritesOrderStorage() { load(); }
+	~LLFavoritesOrderStorage() { save(); }
+
+	const static std::string SORTING_DATA_FILE_NAME;
+
+	void load();
+	void save();
+
+	typedef std::map<LLUUID, S32> sort_index_map_t;
+	sort_index_map_t mSortIndexes;
+};
+
+const std::string LLFavoritesOrderStorage::SORTING_DATA_FILE_NAME = "landmarks_sorting.xml";
+const S32 LLFavoritesOrderStorage::NO_INDEX = -1;
+
+void LLFavoritesOrderStorage::setSortIndex(const LLUUID& inv_item_id, S32 sort_index)
+{
+	mSortIndexes[inv_item_id] = sort_index;
+}
+
+S32 LLFavoritesOrderStorage::getSortIndex(const LLUUID& inv_item_id)
+{
+	sort_index_map_t::const_iterator it = mSortIndexes.find(inv_item_id);
+	if (it != mSortIndexes.end())
+	{
+		return it->second;
+	}
+	return NO_INDEX;
+}
+
+void LLFavoritesOrderStorage::removeSortIndex(const LLUUID& inv_item_id)
+{
+	mSortIndexes.erase(inv_item_id);
+}
+
+void LLFavoritesOrderStorage::load()
+{
+	// load per-resident sorting information
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
+
+	LLSD settings_llsd;
+	llifstream file;
+	file.open(filename);
+	if (file.is_open())
+	{
+		LLSDSerialize::fromXML(settings_llsd, file);
+	}
+
+	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
+		iter != settings_llsd.endMap(); ++iter)
+	{
+		mSortIndexes.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+	}
+}
+
+void LLFavoritesOrderStorage::save()
+{
+	// If we quit from the login screen we will not have an SL account
+	// name.  Don't try to save, otherwise we'll dump a file in
+	// C:\Program Files\SecondLife\ or similar. JC
+	std::string user_dir = gDirUtilp->getLindenUserDir();
+	if (!user_dir.empty())
+	{
+		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
+		LLSD settings_llsd;
+
+		for(sort_index_map_t::const_iterator iter = mSortIndexes.begin(); iter != mSortIndexes.end(); ++iter)
+		{
+			settings_llsd[iter->first.asString()] = iter->second;
+		}
+
+		llofstream file;
+		file.open(filename);
+		LLSDSerialize::toPrettyXML(settings_llsd, file);
+	}
+}
+
+
+
+// *TODO: mantipov: REMOVE, EXT-3985
 const std::string& LLViewerInventoryItem::getDisplayName() const
 {
+	return LLInventoryItem::getName();
+/*
 	std::string result;
 	BOOL hasSortField = extractSortFieldAndDisplayName(0, &result);
 
+	mDisplayName = LLInventoryItem::getName();
+
 	return mDisplayName = hasSortField ? result : LLInventoryItem::getName();
+*/
 }
 
+// *TODO: mantipov: REMOVE, EXT-3985
 // static
 std::string LLViewerInventoryItem::getDisplayName(const std::string& name)
 {
+	llassert(false);
 	std::string result;
 	BOOL hasSortField = extractSortFieldAndDisplayName(name, 0, &result);
 
@@ -1193,34 +1302,12 @@ std::string LLViewerInventoryItem::getDisplayName(const std::string& name)
 
 S32 LLViewerInventoryItem::getSortField() const
 {
-	S32 result;
-	BOOL hasSortField = extractSortFieldAndDisplayName(&result, 0);
-
-	return hasSortField ? result : -1;
+	return LLFavoritesOrderStorage::instance().getSortIndex(mUUID);
 }
 
 void LLViewerInventoryItem::setSortField(S32 sortField)
 {
-	using std::string;
-
-	std::stringstream ss;
-	ss << sortField;
-
-	string newSortField = ss.str();
-
-	const char separator = getSeparator();
-	const string::size_type separatorPos = mName.find(separator, 0);
-
-	if (separatorPos < string::npos)
-	{
-		// the name of the LLViewerInventoryItem already consists of sort field and display name.
-		mName = newSortField + separator + mName.substr(separatorPos + 1, string::npos);
-	}
-	else
-	{
-		// there is no sort field in the name of LLViewerInventoryItem, we should add it
-		mName = newSortField + separator + mName;
-	}
+	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
 }
 
 void LLViewerInventoryItem::rename(const std::string& n)
@@ -1334,6 +1421,7 @@ U32 LLViewerInventoryItem::getCRC32() const
 	return LLInventoryItem::getCRC32();	
 }
 
+// *TODO: mantipov: REMOVE, EXT-3985
 BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
 {
 	using std::string;
@@ -1368,12 +1456,6 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
 
 	return result;
 }
-
-void LLViewerInventoryItem::insertDefaultSortField(std::string& name)
-{
-	name.insert(0, std::string("1") + getSeparator());
-}
-
 
 // This returns true if the item that this item points to 
 // doesn't exist in memory (i.e. LLInventoryModel).  The baseitem
