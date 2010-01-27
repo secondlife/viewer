@@ -1617,7 +1617,8 @@ bool LLTextureCache::writeComplete(handle_t handle, bool abort)
 {
 	lockWorkers();
 	handle_map_t::iterator iter = mWriters.find(handle);
-	if (llverify(iter != mWriters.end()))
+	llassert(iter != mWriters.end());
+	if (iter != mWriters.end())
 	{
 		LLTextureCacheWorker* worker = iter->second;
 		if (worker->complete() || abort)
