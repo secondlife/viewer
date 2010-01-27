@@ -292,11 +292,11 @@ private:
 
 struct LLFoundData
 {
-	LLFoundData() {}
+	LLFoundData() : mAssetType(LLAssetType::AT_NONE), mWearable(NULL) {}
 	LLFoundData(const LLUUID& item_id,
-				const LLUUID& asset_id,
-				const std::string& name,
-				LLAssetType::EType asset_type) :
+		    const LLUUID& asset_id,
+		    const std::string& name,
+		    LLAssetType::EType asset_type) :
 		mItemID(item_id),
 		mAssetID(asset_id),
 		mName(name),
