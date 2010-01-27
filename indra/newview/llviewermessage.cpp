@@ -1987,6 +1987,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				
 				LLPanelGroup::showNotice(subj,mes,group_id,has_inventory,item_name,info);
 			}
+			else
+			{
+				delete info;
+			}
 		}
 		break;
 	case IM_GROUP_INVITATION:

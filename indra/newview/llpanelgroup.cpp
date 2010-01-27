@@ -560,10 +560,10 @@ void LLPanelGroup::chatGroup()
 }
 
 void LLPanelGroup::showNotice(const std::string& subject,
-							  const std::string& message,
-							  const bool& has_inventory,
-							  const std::string& inventory_name,
-							  LLOfferInfo* inventory_offer)
+			      const std::string& message,
+			      const bool& has_inventory,
+			      const std::string& inventory_name,
+			      LLOfferInfo* inventory_offer)
 {
 	LLPanelGroupNotices* panel_notices = findChild<LLPanelGroupNotices>("group_notices_tab_panel");
 	if(!panel_notices)
