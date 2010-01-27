@@ -2527,7 +2527,12 @@ void LLInitialWearablesFetch::processWearablesMessage()
 			{
 				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
 				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
+				delete wearable_data;
 			}
+		}
+		else
+		{
+			delete wearable_data;
 		}
 
 		// Add all current attachments to the requested items as well.
