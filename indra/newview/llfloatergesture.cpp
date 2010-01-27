@@ -401,8 +401,7 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 		}
 		return false;
 	}
-	else if("copy_uuid" == command_name || "edit_gesture" == command_name 
-			|| "inspect" == command_name)
+	else if("copy_uuid" == command_name || "edit_gesture" == command_name)
 	{
 		return	mGestureList->getAllSelected().size() == 1;
 	}
