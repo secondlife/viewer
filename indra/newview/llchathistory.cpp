@@ -35,6 +35,7 @@
 #include "llinstantmessage.h"
 
 #include "llchathistory.h"
+#include "llcommandhandler.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
@@ -46,6 +47,7 @@
 #include "llfloaterreg.h"
 #include "llmutelist.h"
 #include "llstylemap.h"
+#include "llslurl.h"
 #include "lllayoutstack.h"
 #include "llagent.h"
 
@@ -54,6 +56,38 @@
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
+
+// support for secondlife:///app/objectim/{UUID}/ SLapps
+class LLObjectIMHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLObjectIMHandler() : LLCommandHandler("objectim", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (params.size() < 1)
+		{
+			return false;
+		}
+
+		LLUUID object_id;
+		if (!object_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		LLSD payload;
+		payload["object_id"] = object_id;
+		payload["owner_id"] = query_map["owner"];
+		payload["name"] = query_map["name"];
+		payload["slurl"] = query_map["slurl"];
+		payload["group_owned"] = query_map["groupowned"];
+		LLFloaterReg::showInstance("inspect_remote_object", payload);
+		return true;
+	}
+};
+LLObjectIMHandler gObjectIMHandler;
 
 class LLChatHistoryHeader: public LLPanel
 {
@@ -524,7 +558,17 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-			if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			if ( chat.mSourceType == CHAT_SOURCE_OBJECT )
+			{
+				std::string url = LLSLURL::buildCommand("objectim", chat.mFromID, "");
+				url += "?name=" + chat.mFromName;
+
+				LLStyle::Params link_params(style_params);
+				link_params.color.control = "HTMLLinkColor";
+				link_params.link_href = url;
+				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
+			}
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
