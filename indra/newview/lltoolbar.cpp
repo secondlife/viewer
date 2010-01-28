@@ -100,7 +100,7 @@ LLToolBar::LLToolBar()
 	mInventoryAutoOpen(FALSE),
 	mNumUnreadIMs(0)	
 #if LL_DARWIN
-	, mResizeHandle(NULL),
+	, mResizeHandle(NULL)
 #endif // LL_DARWIN
 {
 	setIsChrome(TRUE);
