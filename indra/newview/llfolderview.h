@@ -266,6 +266,8 @@ public:
 	LLPanel* getParentPanel() { return mParentPanel; }
 	// DEBUG only
 	void dumpSelectionInformation();
+
+	virtual S32	notify(const LLSD& info) ;
 	
 private:
 	void updateRenamerPosition();
@@ -278,6 +280,9 @@ protected:
 
 	void finishRenamingItem( void );
 	void closeRenamer( void );
+
+	bool selectFirstItem();
+	bool selectLastItem();
 	
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
