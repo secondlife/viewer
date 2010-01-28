@@ -141,7 +141,9 @@ public:
 	std::vector<LLViewerJointMesh*> mMeshParts;
 	void setMeshID( S32 id ) {mMeshID = id;}
 
-protected:
+private:
+	void init();
+
 	BOOL		mValid;
 	U32			mComponents;
 	F32			mMinPixelArea;
