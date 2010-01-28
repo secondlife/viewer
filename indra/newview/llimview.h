@@ -41,7 +41,6 @@
 
 class LLFloaterChatterBox;
 class LLUUID;
-class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
@@ -386,11 +385,6 @@ public:
 
 	BOOL hasSession(const LLUUID& session_id);
 
-	// This method returns the im panel corresponding to the uuid
-	// provided. The uuid must be a session id. Returns NULL if there
-	// is no matching panel.
-	LLFloaterIMPanel* findFloaterBySession(const LLUUID& session_id);
-
 	static LLUUID computeSessionID(EInstantMessage dialog, const LLUUID& other_participant_id);
 
 	void clearPendingInvitation(const LLUUID& session_id);
@@ -401,10 +395,6 @@ public:
 		const LLUUID& sessioN_id,
 		const LLSD& updates);
 	void clearPendingAgentListUpdates(const LLUUID& session_id);
-
-	//HACK: need a better way of enumerating existing session, or listening to session create/destroy events
-	//@deprecated, is used only by LLToolBox, which is not used anywhere, right? (IB)
-	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
 
 	void addSessionObserver(LLIMSessionObserver *);
 	void removeSessionObserver(LLIMSessionObserver *);
@@ -436,23 +426,12 @@ private:
 	 */
 	void removeSession(const LLUUID& session_id);
 
-	// create a panel and update internal representation for
-	// consistency. Returns the pointer, caller (the class instance
-	// since it is a private method) is not responsible for deleting
-	// the pointer.
-	LLFloaterIMPanel* createFloater(const LLUUID& session_id,
-									const LLUUID& target_id,
-									const std::string& name,
-									EInstantMessage dialog,
-									BOOL user_initiated = FALSE, 
-									const LLDynamicArray<LLUUID>& ids = LLDynamicArray<LLUUID>());
-
 	// This simple method just iterates through all of the ids, and
 	// prints a simple message if they are not online. Used to help
 	// reduce 'hello' messages to the linden employees unlucky enough
 	// to have their calling card in the default inventory.
-	void noteOfflineUsers(const LLUUID& session_id, LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
-	void noteMutedUsers(const LLUUID& session_id, LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
+	void noteOfflineUsers(const LLUUID& session_id, const LLDynamicArray<LLUUID>& ids);
+	void noteMutedUsers(const LLUUID& session_id, const LLDynamicArray<LLUUID>& ids);
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
@@ -464,9 +443,6 @@ private:
 
 private:
 	
-	//*TODO should be deleted when Communicate Floater is being deleted
-	std::set<LLHandle<LLFloater> > mFloaters;
-
 	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
 	session_observers_list_t mSessionObservers;
 

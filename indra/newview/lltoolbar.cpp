@@ -290,7 +290,7 @@ void LLToolBar::updateCommunicateList()
 
 	std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
-	if (gIMMgr->getIMFloaterHandles().size() > 0)
+	/*if (gIMMgr->getIMFloaterHandles().size() > 0)
 	{
 		communicate_button->addSeparator(ADD_TOP);
 	}
@@ -316,7 +316,7 @@ void LLToolBar::updateCommunicateList()
 			}
 			itemp = communicate_button->addElement(im_sd, ADD_TOP);
 		}
-	}
+	}*/
 
 	communicate_button->setValue(selected);
 }
@@ -340,7 +340,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.asString() == "redock")
 	{
-		LLFloaterChatterBox* chatterbox_instance = LLFloaterChatterBox::getInstance();
+		/*LLFloaterChatterBox* chatterbox_instance = LLFloaterChatterBox::getInstance();
 		if(chatterbox_instance)
 		{
 			chatterbox_instance->addFloater(LLFloaterMyFriends::getInstance(), FALSE);
@@ -361,7 +361,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 				}
 			}
 			LLFloaterReg::showInstance("communicate", session_to_show);
-		}
+		}*/
 	}
 	else if (selected_option.asString() == "mute list")
 	{
@@ -369,11 +369,11 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.isUndefined()) // user just clicked the communicate button, treat as toggle
 	{
-		LLFloaterReg::toggleInstance("communicate");
+		/*LLFloaterReg::toggleInstance("communicate");*/
 		}
 	else // otherwise selection_option is undifined or a specific IM session id
 	{
-		LLFloaterReg::showInstance("communicate", selected_option);
+		/*LLFloaterReg::showInstance("communicate", selected_option);*/
 	}
 }
 
