@@ -58,11 +58,14 @@ public:
 	LLToastIMPanel(LLToastIMPanel::Params &p);
 	virtual ~LLToastIMPanel();
 	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 private:
+	void showInspector();
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
 	LLNotificationPtr	mNotification;
 	LLUUID				mSessionID;
+	LLUUID				mAvatarID;
 	LLAvatarIconCtrl*	mAvatarIcon;
 	LLTextBox*			mAvatarName;
 	LLTextBox*			mTime;
