@@ -855,6 +855,7 @@ void LLTransferSourceChannel::updateTransfers()
 			break;
 		case LLTS_ERROR:
 			llwarns << "Error in transfer dataCallback!" << llendl;
+			// fall through
 		case LLTS_DONE:
 			// We need to clean up this transfer source.
 			//llinfos << "LLTransferSourceChannel::updateTransfers() " << tsp->getID() << " done" << llendl;

@@ -178,8 +178,7 @@ private:
 
 	std::vector<std::string> mFiles;
 	S32 mCurrentFile;
-	BOOL mLocked;
-	BOOL mMultiFile;
+	bool mLocked;
 
 	static LLFilePicker sInstance;
 	

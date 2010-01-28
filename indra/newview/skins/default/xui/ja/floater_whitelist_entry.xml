@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
+<floater name="whitelist_entry" title="ホワイトリストの入力">
 	<text name="media_label">
 		URL か URL パターンを入力して、許可するドメインをリストに追加します。
 	</text>

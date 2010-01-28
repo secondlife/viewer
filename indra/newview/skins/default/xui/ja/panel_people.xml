@@ -49,5 +49,6 @@
 		<button label="テレポート" name="teleport_btn" tool_tip="テレポートを送る"/>
 		<button label="グループ情報" name="group_info_btn" tool_tip="グループ情報を表示"/>
 		<button label="グループチャット" name="chat_btn" tool_tip="チャットを開始"/>
+		<button label="グループにコールする" name="group_call_btn" tool_tip="このグループにコールする"/>
 	</panel>
 </panel>

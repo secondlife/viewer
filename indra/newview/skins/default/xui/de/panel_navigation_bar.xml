@@ -10,6 +10,6 @@
 		</search_combo_box>
 	</panel>
 	<favorites_bar name="favorite">
-		<chevron_button name="&gt;&gt;" tool_tip="Zeige weitere meiner Favoriten an"/>
+		<chevron_button name="&gt;&gt;" tool_tip="Mehr meiner Favoriten anzeigen"/>
 	</favorites_bar>
 </panel>

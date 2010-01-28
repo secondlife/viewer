@@ -207,7 +207,7 @@ void LLPanelPlaceProfile::resetLocation()
 }
 
 // virtual
-void LLPanelPlaceProfile::setInfoType(INFO_TYPE type)
+void LLPanelPlaceProfile::setInfoType(EInfoType type)
 {
 	bool is_info_type_agent = type == AGENT;
 

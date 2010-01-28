@@ -468,9 +468,6 @@ public:
 	void setSnapOffsetRight(S32 offset) { mSnapOffsetRight = offset; }
 
 private:
-	S32				mColumn;
-	S32				mNextLeft;
-	S32				mNextTop;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;

@@ -567,6 +567,7 @@ LLTexLayerSet::LLTexLayerSet(LLVOAvatarSelf* const avatar) :
 	mAvatar( avatar ),
 	mUpdatesEnabled( FALSE ),
 	mIsVisible( TRUE ),
+	mBakedTexIndex(LLVOAvatarDefines::BAKED_HEAD),
 	mInfo( NULL )
 {
 }
@@ -1860,7 +1861,7 @@ U32 LLTexLayerTemplate::updateWearableCache()
 }
 LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 {
-	if (mWearableCache.size() <= i || i < 0)
+	if (mWearableCache.size() <= i)
 	{
 		return NULL;
 	}

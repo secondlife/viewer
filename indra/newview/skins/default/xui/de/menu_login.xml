@@ -23,10 +23,8 @@
 		<menu_item_call label="Debug-Einstellungen anzeigen" name="Debug Settings"/>
 		<menu_item_call label="UI/Farb-Einstellungen" name="UI/Color Settings"/>
 		<menu_item_call label="XUI-Editor" name="UI Preview Tool"/>
-		<menu_item_call label="Seitenleiste anzeigen" name="Show Side Tray"/>
-		<menu_item_call label="Widget testen" name="Widget Test"/>
-		<menu_item_call label="Inspektor-Test" name="Inspectors Test"/>
-		<menu_item_check label="Reg In Client Test (Neustart)" name="Reg In Client Test (restart)"/>
+		<menu label="UI-Tests" name="UI Tests"/>
+		<menu_item_call label="Fenstergröße einstellen..." name="Set Window Size..."/>
 		<menu_item_call label="Servicebedingungen anzeigen" name="TOS"/>
 		<menu_item_call label="Wichtige Meldung anzeigen" name="Critical"/>
 		<menu_item_call label="Web-Browser-Test" name="Web Browser Test"/>

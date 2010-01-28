@@ -343,7 +343,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	cloud_pos_density1 = LLColor3();
 	cloud_pos_density2 = LLColor3();
 
-
 	mInitialized = FALSE;
 	mbCanSelect = FALSE;
 	mUpdateTimer.reset();
@@ -385,6 +384,10 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	mHeavenlyBodyUpdated = FALSE ;
+
+	mDrawRefl = 0;
+	mHazeConcentration = 0.f;
+	mInterpVal = 0.f;
 }
 
 
@@ -1072,10 +1075,10 @@ BOOL LLVOSky::updateSky()
 		++next_frame;
 		next_frame = next_frame % cycle_frame_no;
 
-		sInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
+		mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
 		// sInterpVal = (F32)next_frame / cycle_frame_no;
-		LLSkyTex::setInterpVal( sInterpVal );
-		LLHeavenBody::setInterpVal( sInterpVal );
+		LLSkyTex::setInterpVal( mInterpVal );
+		LLHeavenBody::setInterpVal( mInterpVal );
 		calcAtmospherics();
 
 		if (mForceUpdate || total_no_tiles == frame)

@@ -92,7 +92,8 @@ struct LLScriptQueueData
 // Default constructor
 LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
 	LLFloater(key),
-	mDone(FALSE)
+	mDone(false),
+	mMono(false)
 {
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_queue.xml", FALSE);
 }
@@ -216,7 +217,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 	} while((mObjectIDs.count() > 0) && !successful_start);
 	if(isDone() && !mDone)
 	{
-		mDone = TRUE;
+		mDone = true;
 		getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("Done"));
 		childSetEnabled("close",TRUE);
 	}

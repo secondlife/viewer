@@ -7,15 +7,13 @@
 		(wird geladen...)
 	</panel.string>
 	<panel.string name="already_in_group">
-		Einige Avatare sind bereits Mitglied und wurden nicht eingeladen.
+		Einige der ausgewählten Einwohner sind bereits Gruppenmitglieder und haben aus diesem Grund keine Einladung erhalten.
 	</panel.string>
 	<text name="help_text">
-		Sie können mehrere Einwohner in Ihre 
-Gruppe einladen. Klicken Sie hierzu
-auf „Einwohnerliste öffnen“.
+		Sie können mehrere Einwohner auswählen, um diese in Ihre Gruppe einzuladen. Klicken Sie hierzu auf „Einwohnerliste öffnen“.
 	</text>
 	<button label="Einwohnerliste öffnen" name="add_button" tool_tip=""/>
-	<name_list name="invitee_list" tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Einwohnernamen."/>
+	<name_list name="invitee_list" tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Namen."/>
 	<button label="Auswahl aus Liste löschen" name="remove_button" tool_tip="Die oben ausgewählten Einwohner von der Einladungsliste entfernen."/>
 	<text name="role_text">
 		Wählen Sie eine Rolle aus:
