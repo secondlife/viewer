@@ -1534,7 +1534,7 @@ LLRect LLScrollListCtrl::getCellRect(S32 row_index, S32 column_index)
 	S32 rect_bottom = getRowOffsetFromIndex(row_index);
 	LLScrollListColumn* columnp = getColumn(column_index);
 	cell_rect.setOriginAndSize(rect_left, rect_bottom,
-		rect_left + columnp->getWidth(), mLineHeight);
+		/*rect_left + */columnp->getWidth(), mLineHeight);
 	return cell_rect;
 }
 
