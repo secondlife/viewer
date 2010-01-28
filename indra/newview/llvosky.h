@@ -613,7 +613,7 @@ protected:
 	LLColor3			mLastTotalAmbient;
 	F32					mAmbientScale;
 	LLColor3			mNightColorShift;
-	F32					sInterpVal;
+	F32					mInterpVal;
 
 	LLColor4			mFogColor;
 	LLColor4			mGLFogCol;
@@ -636,8 +636,8 @@ protected:
 public:
 	//by bao
 	//fake vertex buffer updating
-	//to guaranttee at least updating one VBO buffer every frame
-	//to walk around the bug caused by ATI card --> DEV-3855
+	//to guarantee at least updating one VBO buffer every frame
+	//to work around the bug caused by ATI card --> DEV-3855
 	//
 	void createDummyVertexBuffer() ;
 	void updateDummyVertexBuffer() ;
