@@ -70,7 +70,6 @@
 #include "llviewerwindow.h"
 #include "lltoolgrab.h"
 #include "llcombobox.h"
-#include "llimpanel.h"
 #include "lllayoutstack.h"
 
 #if LL_DARWIN

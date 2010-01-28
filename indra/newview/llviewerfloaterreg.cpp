@@ -69,7 +69,6 @@
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
 #include "llimfloater.h"
-#include "llimpanel.h"
 #include "llfloaterinspect.h"
 #include "llfloaterinventory.h"
 #include "llfloaterjoystick.h"
