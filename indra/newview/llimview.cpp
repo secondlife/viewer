@@ -1498,9 +1498,11 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LLCallDialog::LLCallDialog(const LLSD& payload) :
-LLDockableFloater(NULL, false, payload),
-mPayload(payload)
+LLCallDialog::LLCallDialog(const LLSD& payload)
+	: LLDockableFloater(NULL, false, payload),
+
+	  mPayload(payload),
+	  mLifetime(DEFAULT_LIFETIME)
 {
 }
 
