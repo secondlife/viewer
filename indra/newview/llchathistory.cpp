@@ -34,6 +34,7 @@
 
 #include "llinstantmessage.h"
 
+#include "llimview.h"
 #include "llchathistory.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
@@ -183,6 +184,7 @@ public:
 	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
 	{
 		mAvatarID = chat.mFromID;
+		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
 		if(chat.mFromID.isNull())
@@ -305,6 +307,11 @@ protected:
 				menu->setItemEnabled("Remove Friend", false);
 			}
 
+			if (mSessionID == LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, mAvatarID))
+			{
+				menu->setItemVisible("Send IM", false);
+			}
+
 			menu->buildDrawLabels();
 			menu->updateParent(LLMenuGL::sMenuContainer);
 			LLMenuGL::showPopup(this, menu, x, y);
@@ -344,6 +351,7 @@ protected:
 	std::string			mFirstName;
 	std::string			mLastName;
 	std::string			mFrom;
+	LLUUID				mSessionID;
 
 	S32					mMinUserNameWidth;
 };
