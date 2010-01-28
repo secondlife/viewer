@@ -76,7 +76,7 @@ LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent)
 }
 
 
-LLViewerJoint::init()
+void LLViewerJoint::init()
 {
 	mValid = FALSE;
 	mComponents = SC_JOINT | SC_BONE | SC_AXES;
