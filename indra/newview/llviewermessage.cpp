@@ -1933,7 +1933,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			if (has_inventory)
 			{
-				info = new LLOfferInfo;
+				info = new LLOfferInfo();
 				
 				info->mIM = IM_GROUP_NOTICE;
 				info->mFromID = from_id;
@@ -1986,6 +1986,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				
 				LLPanelGroup::showNotice(subj,mes,group_id,has_inventory,item_name,info);
+			}
+			else
+			{
+				delete info;
 			}
 		}
 		break;
@@ -2047,6 +2051,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if (sizeof(offer_agent_bucket_t) != binary_bucket_size)
 				{
 					LL_WARNS("Messaging") << "Malformed inventory offer from agent" << LL_ENDL;
+					delete info;
 					break;
 				}
 				bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
@@ -2058,6 +2063,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if (sizeof(S8) != binary_bucket_size)
 				{
 					LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
+					delete info;
 					break;
 				}
 				info->mType = (LLAssetType::EType) binary_bucket[0];

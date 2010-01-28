@@ -50,18 +50,19 @@ void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
 
 	// check if this item doesn't duplicate any existing one
 	location_list_t::iterator item_iter = std::find(mItems.begin(), mItems.end(),item);
-	if(item_iter != mItems.end()){
+	if(item_iter != mItems.end()) // if it already exists, erase the old one
+	{
 		mItems.erase(item_iter);	
 	}
 
 	mItems.push_back(item);
 	
-	// If the vector size exceeds the maximum, purge the oldest items.
-	if ((S32)mItems.size() > max_items) {
-		for(location_list_t::iterator i = mItems.begin(); i != mItems.end()-max_items; ++i) {
-				mItems.erase(i);
-		}
+	// If the vector size exceeds the maximum, purge the oldest items (at the start of the mItems vector).
+	if ((S32)mItems.size() > max_items)
+	{
+		mItems.erase(mItems.begin(), mItems.end()-max_items);
 	}
+	llassert(mItems.size() <= max_items);
 }
 
 /*

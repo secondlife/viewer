@@ -1659,6 +1659,9 @@ LLViewerWindow::~LLViewerWindow()
 {
 	llinfos << "Destroying Window" << llendl;
 	destroyWindow();
+
+	delete mDebugText;
+	mDebugText = NULL;
 }
 
 
@@ -4846,10 +4849,10 @@ LLPickInfo::LLPickInfo()
 }
 
 LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos, 
-						MASK keyboard_mask, 
-						BOOL pick_transparent,
-						BOOL pick_uv_coords,
-						void (*pick_callback)(const LLPickInfo& pick_info))
+		       MASK keyboard_mask, 
+		       BOOL pick_transparent,
+		       BOOL pick_uv_coords,
+		       void (*pick_callback)(const LLPickInfo& pick_info))
 	: mMousePt(mouse_pos),
 	  mKeyMask(keyboard_mask),
 	  mPickCallback(pick_callback),

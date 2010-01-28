@@ -1716,10 +1716,7 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 			{
 				U32 pick_idx = pick_bit/8;
 				U32 pick_offset = pick_bit%8;
-				if (pick_idx >= size)
-				{
-					llerrs << "WTF?" << llendl;
-				}
+				llassert(pick_idx < size);
 
 				mPickMask[pick_idx] |= 1 << pick_offset;
 			}

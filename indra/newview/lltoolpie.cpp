@@ -922,7 +922,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
 				if (mep)
 				{
-					viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
+					viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 					LLPluginClassMedia* media_plugin = NULL;
 					
 					if (media_impl.notNull() && (media_impl->hasMedia()))

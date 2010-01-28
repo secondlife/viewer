@@ -1064,11 +1064,13 @@ if (DARWIN)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COCOA_LIBRARY Cocoa)
   find_library(IOKIT_LIBRARY IOKit)
+  find_library(COREAUDIO_LIBRARY CoreAudio)
 
   set(viewer_LIBRARIES
     ${COCOA_LIBRARY}
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
+    ${COREAUDIO_LIBRARY}
     )
 
   # Add resource files to the project.
