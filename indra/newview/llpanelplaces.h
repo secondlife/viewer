@@ -32,9 +32,9 @@
 #ifndef LL_LLPANELPLACES_H
 #define LL_LLPANELPLACES_H
 
-#include "llpanel.h"
+#include "lltimer.h"
 
-class LLTimer;
+#include "llpanel.h"
 
 class LLInventoryItem;
 class LLFilterEditor;
