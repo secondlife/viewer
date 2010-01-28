@@ -400,7 +400,8 @@ bool LLToolTip::hasClickCallback()
 //
 
 LLToolTipMgr::LLToolTipMgr()
-:	mToolTip(NULL),
+:       mToolTipsBlocked(false),
+	mToolTip(NULL),
 	mNeedsToolTip(false)
 {}
 
