@@ -156,7 +156,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("nearby_chat", "floater_nearby_chat.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChat>);
 	LLFloaterReg::add("communicate", "floater_chatterbox.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChatterBox>);
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
-	LLFloaterReg::add("contacts", "floater_my_friends.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyFriends>);	
 
 	LLFloaterReg::add("env_day_cycle", "floater_day_cycle_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDayCycle>);
 	LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);

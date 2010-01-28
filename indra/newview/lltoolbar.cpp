@@ -54,7 +54,6 @@
 #include "lltooldraganddrop.h"
 #include "llfloaterinventory.h"
 #include "llfloaterchatterbox.h"
-#include "llfloaterfriends.h"
 #include "llfloatersnapshot.h"
 #include "llinventorypanel.h"
 #include "lltoolmgr.h"
@@ -264,12 +263,12 @@ void LLToolBar::updateCommunicateList()
 
 	communicate_button->removeall();
 
-	LLFloater* frontmost_floater = LLFloaterChatterBox::getInstance()->getActiveFloater();
+	//LLFloater* frontmost_floater = LLFloaterChatterBox::getInstance()->getActiveFloater();
 	LLScrollListItem* itemp = NULL;
 
 	LLSD contact_sd;
 	contact_sd["value"] = "contacts";
-	contact_sd["columns"][0]["value"] = LLFloaterMyFriends::getInstance()->getShortTitle(); 
+	/*contact_sd["columns"][0]["value"] = LLFloaterMyFriends::getInstance()->getShortTitle(); 
 	if (LLFloaterMyFriends::getInstance() == frontmost_floater)
 	{
 		contact_sd["columns"][0]["font"]["name"] = "SANSSERIF_SMALL"; 
@@ -279,7 +278,7 @@ void LLToolBar::updateCommunicateList()
 		{
 			selected = "contacts";
 		}
-	}
+	}*/
 	itemp = communicate_button->addElement(contact_sd, ADD_TOP);
 
 	communicate_button->addSeparator(ADD_TOP);
