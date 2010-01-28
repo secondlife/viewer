@@ -308,7 +308,7 @@ void LLTeleportHistoryFlatItemStorage::purge()
 ////////////////////////////////////////////////////////////////////////////////
 
 LLTeleportHistoryPanel::ContextMenu::ContextMenu() :
-	mMenu(NULL)
+	mMenu(NULL), mIndex(0)
 {
 }
 
