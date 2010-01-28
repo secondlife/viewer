@@ -141,7 +141,7 @@ public:
 	std::vector<LLViewerJointMesh*> mMeshParts;
 	void setMeshID( S32 id ) {mMeshID = id;}
 
-private:
+protected:
 	void init();
 
 	BOOL		mValid;
