@@ -272,11 +272,11 @@ BOOL LLPanelPlaces::postBuild()
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return FALSE;
 
-	LLButton* back_btn = mPlaceProfile->getChild<LLButton>("back_btn");
-	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+	mPlaceProfileBackBtn = mPlaceProfile->getChild<LLButton>("back_btn");
+	mPlaceProfileBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-	back_btn = mLandmarkInfo->getChild<LLButton>("back_btn");
-	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+	mLandmarkInfoBackBtn = mLandmarkInfo->getChild<LLButton>("back_btn");
+	mLandmarkInfoBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
 	LLLineEditor* title_editor = mLandmarkInfo->getChild<LLLineEditor>("title_editor");
 	title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
@@ -327,9 +327,12 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 			mLandmarkInfo->displayParcelInfo(LLUUID(), mPosGlobal);
 
-			// Disable Save button because there is no item to save yet.
-			// The button will be enabled in onLandmarkLoaded callback.
+			// Disabling "Save", "Close" and "Back" buttons to prevent closing "Create Landmark"
+			// panel before created landmark is loaded.
+			// These buttons will be enabled when created landmark is added to inventory.
 			mSaveBtn->setEnabled(FALSE);
+			mCloseBtn->setEnabled(FALSE);
+			mLandmarkInfoBackBtn->setEnabled(FALSE);
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 		{
@@ -437,6 +440,8 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 
 	mEditBtn->setEnabled(is_landmark_editable);
 	mSaveBtn->setEnabled(is_landmark_editable);
+	mCloseBtn->setEnabled(TRUE);
+	mLandmarkInfoBackBtn->setEnabled(TRUE);
 
 	if (is_landmark_editable)
 	{
@@ -487,8 +492,6 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	landmark->getRegionID(region_id);
 	landmark->getGlobalPos(mPosGlobal);
 	mLandmarkInfo->displayParcelInfo(region_id, mPosGlobal);
-
-	mSaveBtn->setEnabled(TRUE);
 
 	updateVerbs();
 }
@@ -1029,6 +1032,13 @@ void LLPanelPlaces::updateVerbs()
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
 			mTeleportBtn->setEnabled(have_3d_pos);
+		}
+
+		// Do not enable landmark info Back button when we are waiting
+		// for newly created landmark to load.
+		if (!is_create_landmark_visible)
+		{
+			mLandmarkInfoBackBtn->setEnabled(TRUE);
 		}
 	}
 	else
