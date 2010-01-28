@@ -135,7 +135,7 @@ class LLChatHandler : public LLEventHandler
 public:
 	virtual ~LLChatHandler() {};
 
-	virtual void processChat(const LLChat& chat_msg)=0;
+	virtual void processChat(const LLChat& chat_msg, const LLSD &args)=0;
 };
 
 /**
