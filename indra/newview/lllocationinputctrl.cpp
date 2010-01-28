@@ -39,6 +39,7 @@
 #include "llbutton.h"
 #include "llfocusmgr.h"
 #include "llmenugl.h"
+#include "llparcel.h"
 #include "llstring.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
@@ -672,11 +673,12 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	if (show_properties)
 	{
 		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
-		bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
+		LLParcel* agent_parcel = vpm->getAgentParcel();
+		bool allow_buy      = vpm->canAgentBuyParcel( agent_parcel, false);
 		bool allow_voice	= vpm->allowAgentVoice();
 		bool allow_fly		= vpm->allowAgentFly();
 		bool allow_push		= vpm->allowAgentPush();
-		bool allow_build	= vpm->allowAgentBuild();
+		bool allow_build	= agent_parcel && agent_parcel->getAllowModify(); // true when anyone is allowed to build. See EXT-4610.
 		bool allow_scripts	= vpm->allowAgentScripts();
 		bool allow_damage	= vpm->allowAgentDamage();
 		
