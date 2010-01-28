@@ -37,6 +37,7 @@ background_visible="true"
      top="2"
      width="23" />
     <text
+     allow_html="false"
      follows="top|left|right"
      font="SansSerifHugeBold"
      height="26"

@@ -36,6 +36,7 @@
      top="2"
      width="20" />
    <text
+     allow_html="false"
      follows="left|right"
      font="SansSerifSmall"
      height="15"
