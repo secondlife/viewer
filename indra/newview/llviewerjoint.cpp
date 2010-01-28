@@ -66,6 +66,7 @@ LLViewerJoint::LLViewerJoint()
 	mMinPixelArea = DEFAULT_LOD;
 	mPickName = PN_DEFAULT;
 	mVisible = TRUE;
+	mMeshID = 0;
 }
 
 
