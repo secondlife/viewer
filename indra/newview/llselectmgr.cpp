@@ -5093,6 +5093,7 @@ LLSelectNode::LLSelectNode(const LLSelectNode& nodep)
 	mName = nodep.mName;
 	mDescription = nodep.mDescription;
 	mCategory = nodep.mCategory;
+	mInventorySerial = 0;
 	mSavedPositionLocal = nodep.mSavedPositionLocal;
 	mSavedPositionGlobal = nodep.mSavedPositionGlobal;
 	mSavedScale = nodep.mSavedScale;
