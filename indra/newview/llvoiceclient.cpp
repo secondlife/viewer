@@ -6414,6 +6414,7 @@ void LLVoiceClient::filePlaybackSetMode(bool vox, float speed)
 }
 
 LLVoiceClient::sessionState::sessionState() :
+	mErrorStatusCode(0),
 	mMediaStreamState(streamStateUnknown),
 	mTextStreamState(streamStateUnknown),
 	mCreateInProgress(false),
