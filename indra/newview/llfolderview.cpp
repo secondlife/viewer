@@ -1508,9 +1508,25 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 				{
 					if (next == last_selected)
 					{
+						//special case for LLAccordionCtrl
+						if(notifyParent(LLSD().with("action","select_next")) > 0 )//message was processed
+						{
+							clearSelection();
+							return TRUE;
+						}
 						return FALSE;
 					}
 					setSelection( next, FALSE, TRUE );
+				}
+				else
+				{
+					//special case for LLAccordionCtrl
+					if(notifyParent(LLSD().with("action","select_next")) > 0 )//message was processed
+					{
+						clearSelection();
+						return TRUE;
+					}
+					return FALSE;
 				}
 			}
 			scrollToShowSelection();
@@ -1556,6 +1572,13 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 				{
 					if (prev == this)
 					{
+						// If case we are in accordion tab notify parent to go to the previous accordion
+						if(notifyParent(LLSD().with("action","select_prev")) > 0 )//message was processed
+						{
+							clearSelection();
+							return TRUE;
+						}
+
 						return FALSE;
 					}
 					setSelection( prev, FALSE, TRUE );
@@ -2239,6 +2262,83 @@ void LLFolderView::updateRenamerPosition()
 		S32 height = mRenameItem->getItemHeight() - RENAME_HEIGHT_PAD;
 		mRenamer->reshape( width, height, TRUE );
 	}
+}
+
+bool LLFolderView::selectFirstItem()
+{
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();)
+	{
+		LLFolderViewFolder* folder = (*iter );
+		if (folder->getVisible())
+		{
+			LLFolderViewItem* itemp = folder->getNextFromChild(0,true);
+			if(itemp)
+				setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+		
+	}
+	for(items_t::iterator iit = mItems.begin();
+		iit != mItems.end(); ++iit)
+	{
+		LLFolderViewItem* itemp = (*iit);
+		if (itemp->getVisible())
+		{
+			setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+	}
+	return false;
+}
+bool LLFolderView::selectLastItem()
+{
+	for(items_t::reverse_iterator iit = mItems.rbegin();
+		iit != mItems.rend(); ++iit)
+	{
+		LLFolderViewItem* itemp = (*iit);
+		if (itemp->getVisible())
+		{
+			setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+	}
+	for (folders_t::reverse_iterator iter = mFolders.rbegin();
+		 iter != mFolders.rend();)
+	{
+		LLFolderViewFolder* folder = (*iter);
+		if (folder->getVisible())
+		{
+			LLFolderViewItem* itemp = folder->getPreviousFromChild(0,true);
+			if(itemp)
+				setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+	}
+	return false;
+}
+
+
+S32	LLFolderView::notify(const LLSD& info) 
+{
+	if(info.has("action"))
+	{
+		std::string str_action = info["action"];
+		if(str_action == "select_first")
+		{
+			setFocus(true);
+			selectFirstItem();
+			return 1;
+
+		}
+		else if(str_action == "select_last")
+		{
+			setFocus(true);
+			selectLastItem();
+			return 1;
+		}
+	}
+	return 0;
 }
 
 

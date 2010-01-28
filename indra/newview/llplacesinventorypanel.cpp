@@ -143,6 +143,23 @@ void LLPlacesInventoryPanel::restoreFolderState()
 	getRootFolder()->scrollToShowSelection();
 }
 
+S32	LLPlacesInventoryPanel::notify(const LLSD& info) 
+{
+	if(info.has("action"))
+	{
+		std::string str_action = info["action"];
+		if(str_action == "select_first")
+		{
+			return getRootFolder()->notify(info);
+		}
+		else if(str_action == "select_last")
+		{
+			return getRootFolder()->notify(info);
+		}
+	}
+	return 0;
+}
+
 /************************************************************************/
 /* PROTECTED METHODS                                                    */
 /************************************************************************/
