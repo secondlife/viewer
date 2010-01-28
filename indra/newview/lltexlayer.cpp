@@ -567,6 +567,7 @@ LLTexLayerSet::LLTexLayerSet(LLVOAvatarSelf* const avatar) :
 	mAvatar( avatar ),
 	mUpdatesEnabled( FALSE ),
 	mIsVisible( TRUE ),
+	mBakedTexIndex(LLVOAvatarDefines::BAKED_HEAD),
 	mInfo( NULL )
 {
 }
