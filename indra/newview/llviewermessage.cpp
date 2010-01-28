@@ -2236,7 +2236,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["SESSION_NAME"] = session_name;
 			if (from_group)
 			{
-				payload["groupowned"] = "true";
+				payload["group_owned"] = "true";
 			}
 			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
 		}
