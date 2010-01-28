@@ -1310,27 +1310,10 @@ void LLViewerInventoryItem::setSortField(S32 sortField)
 	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
 }
 
+// *TODO: mantipov: REMOVE, EXT-3985
 void LLViewerInventoryItem::rename(const std::string& n)
 {
-	using std::string;
-
-	string new_name(n);
-	LLStringUtil::replaceNonstandardASCII(new_name, ' ');
-	LLStringUtil::replaceChar(new_name, '|', ' ');
-	LLStringUtil::trim(new_name);
-	LLStringUtil::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
-
-	const char separator = getSeparator();
-	const string::size_type separatorPos = mName.find(separator, 0);
-
-	if (separatorPos < string::npos)
-	{
-		mName.replace(separatorPos + 1, string::npos, new_name);
-	}
-	else
-	{
-		mName = new_name;
-	}
+	LLInventoryItem::rename(n);
 }
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
