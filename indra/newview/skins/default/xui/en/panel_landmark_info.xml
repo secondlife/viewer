@@ -229,6 +229,7 @@
                  value="Title:"
                  width="290" />
                 <text
+                 allow_html="false"
                  follows="left|top"
                  height="22"
                  layout="topleft"
