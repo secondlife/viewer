@@ -63,8 +63,8 @@ private:
 
 	LLNotificationPtr	mNotification;
 	LLUUID				mSessionID;
-	LLAvatarIconCtrl*	mAvatar;
-	LLTextBox*			mUserName;
+	LLAvatarIconCtrl*	mAvatarIcon;
+	LLTextBox*			mAvatarName;
 	LLTextBox*			mTime;
 	LLTextBox*			mMessage;
 };

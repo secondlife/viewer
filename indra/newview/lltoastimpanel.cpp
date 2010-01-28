@@ -41,14 +41,14 @@ const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 
 //--------------------------------------------------------------------------
 LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notification),
-								mAvatar(NULL), mUserName(NULL),
+								mAvatarIcon(NULL), mAvatarName(NULL),
 								mTime(NULL), mMessage(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
 
 	LLIconCtrl* sys_msg_icon = getChild<LLIconCtrl>("sys_msg_icon");
-	mAvatar = getChild<LLAvatarIconCtrl>("avatar_icon");
-	mUserName = getChild<LLTextBox>("user_name");
+	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	mAvatarName = getChild<LLTextBox>("user_name");
 	mTime = getChild<LLTextBox>("time_box");
 	mMessage = getChild<LLTextBox>("message");
 
@@ -77,22 +77,22 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 		mMessage->setValue(p.message);
 	}
 
-	mUserName->setValue(p.from);
+	mAvatarName->setValue(p.from);
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;
 	mNotification = p.notification;
 
 	if(p.from == SYSTEM_FROM)
 	{
-		mAvatar->setVisible(FALSE);
+		mAvatarIcon->setVisible(FALSE);
 		sys_msg_icon->setVisible(TRUE);
 	}
 	else
 	{
-		mAvatar->setVisible(TRUE);
+		mAvatarIcon->setVisible(TRUE);
 		sys_msg_icon->setVisible(FALSE);
 
-		mAvatar->setValue(p.avatar_id);
+		mAvatarIcon->setValue(p.avatar_id);
 	}
 
 	S32 maxLinesCount;
