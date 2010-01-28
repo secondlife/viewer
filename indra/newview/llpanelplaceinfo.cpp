@@ -58,6 +58,7 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 	mPosRegion(),
 	mScrollingPanelMinHeight(0),
 	mScrollingPanelWidth(0),
+	mInfoType(UNKNOWN),
 	mScrollingPanel(NULL),
 	mScrollContainer(NULL)
 {}
@@ -120,7 +121,7 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 }
 
 //virtual
-void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
+void LLPanelPlaceInfo::setInfoType(EInfoType type)
 {
 	mTitle->setText(mCurrentTitle);
 

@@ -108,7 +108,7 @@ void LLPanelLandmarkInfo::resetLocation()
 }
 
 // virtual
-void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
+void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 {
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
