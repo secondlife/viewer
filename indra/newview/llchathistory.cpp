@@ -51,8 +51,11 @@
 #include "llslurl.h"
 #include "lllayoutstack.h"
 #include "llagent.h"
+#include "llnotificationsutil.h"
+#include "lltoastnotifypanel.h"
 #include "llviewerregion.h"
 #include "llworld.h"
+
 
 #include "llsidetray.h"//for blocked objects panel
 
@@ -310,7 +313,7 @@ protected:
 			showSystemContextMenu(x,y);
 		if(mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_OBJECT)
+		if(mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
 			showObjectContextMenu(x,y);
 	}
 
@@ -654,8 +657,36 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mLastMessageTimeStr = chat.mTimeStr;
 	}
 
-	std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
-	mEditor->appendText(message, FALSE, style_params);
+   if (chat.mNotifId.notNull())
+	{
+		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
+		if (notification != NULL)
+		{
+			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(
+					notification);
+			notify_box->setFollowsLeft();
+			notify_box->setFollowsRight();
+			//Prepare the rect for the view
+			LLRect target_rect = mEditor->getDocumentView()->getRect();
+			// squeeze down the widget by subtracting padding off left and right
+			target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
+			target_rect.mRight -= mRightWidgetPad;
+			notify_box->reshape(target_rect.getWidth(),
+					notify_box->getRect().getHeight());
+			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+
+			LLInlineViewSegment::Params params;
+			params.view = notify_box;
+			params.left_pad = mLeftWidgetPad;
+			params.right_pad = mRightWidgetPad;
+			mEditor->appendWidget(params, "\n", false);
+		}
+	}
+	else
+	{
+		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+		mEditor->appendText(message, FALSE, style_params);
+	}
 	mEditor->blockUndo();
 
 	// automatically scroll to end when receiving chat from myself

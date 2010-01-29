@@ -58,7 +58,6 @@
 #include "llagent.h"
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
 #include "llworld.h" //for particle system banning
-#include "llimpanel.h"
 #include "llimview.h"
 #include "llnotifications.h"
 #include "llviewerobjectlist.h"
@@ -472,12 +471,6 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 
 		if (reason == LLMuteList::AR_IM)
 		{
-			LLFloaterIMPanel *timp = gIMMgr->findFloaterBySession(agent_id);
-			if (timp)
-			{
-				timp->addHistoryLine(message);
-			}
-
 			LLIMModel::getInstance()->addMessage(agent_id, SYSTEM_FROM, LLUUID::null, message);
 		}
 	}

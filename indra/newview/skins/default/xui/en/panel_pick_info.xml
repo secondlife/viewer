@@ -88,6 +88,7 @@
          follows="all"
          height="100"
          width="280"
+         allow_html="true"	
          hide_scrollbar="false"
          layout="topleft"
          left="10"

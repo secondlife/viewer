@@ -87,7 +87,7 @@
             image_name="spacer24.tga"
             layout="topleft"
             left="0"
-            name="DUMMY"
+            name="after_speak_panel"
             min_width="3"
             top="0"
             width="3"/>
@@ -127,7 +127,7 @@
          layout="topleft"
          left="0"
          min_width="3"
-         name="DUMMY"
+         name="after_gesture_panel"
          top="0"
          width="3"/>
         <layout_panel
@@ -169,7 +169,7 @@
          layout="topleft"
          left="0"
          min_width="3"
-         name="DUMMY"
+         name="after_movement_panel"
          top="0"
          width="3"/>
         <layout_panel
@@ -212,7 +212,7 @@
          layout="topleft"
          left="0"
          min_width="3"
-         name="DUMMY"
+         name="after_cam_panel"
          top="0"
          width="3"/>
         <layout_panel
@@ -317,6 +317,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          layout="topleft"
          left="0"
          min_width="4"
+         name="DUMMY"
          top="0"
          width="5"/>
         <layout_panel
