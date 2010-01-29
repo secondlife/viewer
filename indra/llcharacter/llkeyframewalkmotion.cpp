@@ -65,7 +65,7 @@ LLKeyframeWalkMotion::LLKeyframeWalkMotion(const LLUUID &id)
     mCyclePhase(0.0f),
     mRealTimeLast(0.0f),
     mAdjTimeLast(0.0f),
-    mDownFoot(0.0f)
+    mDownFoot(0)
 {
 }
 
