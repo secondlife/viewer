@@ -160,13 +160,11 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrency.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
-    llfloaterchatterbox.cpp
     llfloatercolorpicker.cpp
     llfloatercustomize.cpp
     llfloaterdaycycle.cpp
     llfloaterenvsettings.cpp
     llfloaterfonttest.cpp
-    llfloaterfriends.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
     llfloatergroupinvite.cpp
@@ -247,7 +245,6 @@ set(viewer_SOURCE_FILES
     llimfloater.cpp
     llimfloatercontainer.cpp
     llimhandler.cpp
-    llimpanel.cpp
     llimview.cpp
     llinspect.cpp
     llinspectavatar.cpp
@@ -279,7 +276,6 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
     llmeshrepository.cpp
@@ -305,7 +301,6 @@ set(viewer_SOURCE_FILES
     llnotificationscripthandler.cpp
     llnotificationtiphandler.cpp
     lloutputmonitorctrl.cpp
-    lloverlaybar.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
@@ -426,7 +421,6 @@ set(viewer_SOURCE_FILES
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
     lltool.cpp
-    lltoolbar.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
     lltooldraganddrop.cpp
@@ -521,7 +515,6 @@ set(viewer_SOURCE_FILES
     llvoground.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
-    llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
@@ -671,13 +664,11 @@ set(viewer_HEADER_FILES
     llfloaterbuycurrency.h
     llfloaterbuyland.h
     llfloatercamera.h
-    llfloaterchatterbox.h
     llfloatercolorpicker.h
     llfloatercustomize.h
     llfloaterdaycycle.h
     llfloaterenvsettings.h
     llfloaterfonttest.h
-    llfloaterfriends.h
     llfloatergesture.h
     llfloatergodtools.h
     llfloatergroupinvite.h
@@ -757,7 +748,6 @@ set(viewer_HEADER_FILES
     llhudview.h
     llimfloater.h
     llimfloatercontainer.h
-    llimpanel.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -790,7 +780,6 @@ set(viewer_HEADER_FILES
     llmaniptranslate.h
     llmediactrl.h
     llmediadataclient.h
-    llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
     llmeshrepository.h
@@ -811,7 +800,6 @@ set(viewer_HEADER_FILES
     llnotificationhandler.h
     llnotificationmanager.h
     lloutputmonitorctrl.h
-    lloverlaybar.h
     llpanelavatar.h
     llpanelavatartag.h
     llpanelblockedlist.h
@@ -935,7 +923,6 @@ set(viewer_HEADER_FILES
     lltoastnotifypanel.h
     lltoastpanel.h
     lltool.h
-    lltoolbar.h
     lltoolbrush.h
     lltoolcomp.h
     lltooldraganddrop.h
@@ -1028,7 +1015,6 @@ set(viewer_HEADER_FILES
     llvoground.h
     llvoicechannel.h
     llvoiceclient.h
-    llvoiceremotectrl.h
     llvoicevisualizer.h
     llvoinventorylistener.h
     llvopartgroup.h

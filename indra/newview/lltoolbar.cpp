@@ -54,7 +54,6 @@
 #include "lltooldraganddrop.h"
 #include "llfloaterinventory.h"
 #include "llfloaterchatterbox.h"
-#include "llfloaterfriends.h"
 #include "llfloatersnapshot.h"
 #include "llinventorypanel.h"
 #include "lltoolmgr.h"
@@ -70,7 +69,6 @@
 #include "llviewerwindow.h"
 #include "lltoolgrab.h"
 #include "llcombobox.h"
-#include "llimpanel.h"
 #include "lllayoutstack.h"
 
 #if LL_DARWIN
@@ -265,12 +263,12 @@ void LLToolBar::updateCommunicateList()
 
 	communicate_button->removeall();
 
-	LLFloater* frontmost_floater = LLFloaterChatterBox::getInstance()->getActiveFloater();
+	//LLFloater* frontmost_floater = LLFloaterChatterBox::getInstance()->getActiveFloater();
 	LLScrollListItem* itemp = NULL;
 
 	LLSD contact_sd;
 	contact_sd["value"] = "contacts";
-	contact_sd["columns"][0]["value"] = LLFloaterMyFriends::getInstance()->getShortTitle(); 
+	/*contact_sd["columns"][0]["value"] = LLFloaterMyFriends::getInstance()->getShortTitle(); 
 	if (LLFloaterMyFriends::getInstance() == frontmost_floater)
 	{
 		contact_sd["columns"][0]["font"]["name"] = "SANSSERIF_SMALL"; 
@@ -280,7 +278,7 @@ void LLToolBar::updateCommunicateList()
 		{
 			selected = "contacts";
 		}
-	}
+	}*/
 	itemp = communicate_button->addElement(contact_sd, ADD_TOP);
 
 	communicate_button->addSeparator(ADD_TOP);
@@ -290,7 +288,7 @@ void LLToolBar::updateCommunicateList()
 
 	std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
-	if (gIMMgr->getIMFloaterHandles().size() > 0)
+	/*if (gIMMgr->getIMFloaterHandles().size() > 0)
 	{
 		communicate_button->addSeparator(ADD_TOP);
 	}
@@ -316,7 +314,7 @@ void LLToolBar::updateCommunicateList()
 			}
 			itemp = communicate_button->addElement(im_sd, ADD_TOP);
 		}
-	}
+	}*/
 
 	communicate_button->setValue(selected);
 }
@@ -340,7 +338,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.asString() == "redock")
 	{
-		LLFloaterChatterBox* chatterbox_instance = LLFloaterChatterBox::getInstance();
+		/*LLFloaterChatterBox* chatterbox_instance = LLFloaterChatterBox::getInstance();
 		if(chatterbox_instance)
 		{
 			chatterbox_instance->addFloater(LLFloaterMyFriends::getInstance(), FALSE);
@@ -361,7 +359,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 				}
 			}
 			LLFloaterReg::showInstance("communicate", session_to_show);
-		}
+		}*/
 	}
 	else if (selected_option.asString() == "mute list")
 	{
@@ -369,11 +367,11 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.isUndefined()) // user just clicked the communicate button, treat as toggle
 	{
-		LLFloaterReg::toggleInstance("communicate");
+		/*LLFloaterReg::toggleInstance("communicate");*/
 		}
 	else // otherwise selection_option is undifined or a specific IM session id
 	{
-		LLFloaterReg::showInstance("communicate", selected_option);
+		/*LLFloaterReg::showInstance("communicate", selected_option);*/
 	}
 }
 

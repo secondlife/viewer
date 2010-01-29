@@ -1207,7 +1207,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childEnable("log_nearby_chat");
 	childEnable("log_instant_messages");
 	childEnable("show_timestamps_check_im");
-	childEnable("log_path_string");
+	childDisable("log_path_string");// LineEditor becomes readonly in this case.
 	childEnable("log_path_button");
 	
 	std::string display_email(email);

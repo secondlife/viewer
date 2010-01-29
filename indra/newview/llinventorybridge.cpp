@@ -5159,7 +5159,7 @@ void	LLLandmarkBridgeAction::doIt()
 		payload["asset_id"] = item->getAssetUUID();		
 		
 		LLSD args; 
-		args["LOCATION"] = item->getDisplayName(); 
+		args["LOCATION"] = item->getName(); 
 		
 		LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
 	}
