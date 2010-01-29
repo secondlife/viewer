@@ -371,7 +371,7 @@ private:
 
 	// this is just for making it easy to look things up in a set organized by UUID -- DON'T USE IT
 	// for anything real!
-	LLNotification(LLUUID uuid) : mId(uuid) {}
+ LLNotification(LLUUID uuid) : mId(uuid), mCancelled(false), mRespondedTo(false), mIgnored(false), mTemporaryResponder(false) {}
 
 	void cancel();
 
