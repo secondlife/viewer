@@ -2941,7 +2941,6 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    type="alert">
 You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
-[INVITE]
     <usetemplate
      name="okcancelbuttons"
      notext="Decline"
@@ -5157,7 +5156,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="alertmodal">
+   type="offer">
 [NAME] is offering friendship.
 
 [MESSAGE]
@@ -5172,10 +5171,6 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
        index="1"
        name="Decline"
        text="Decline"/>
-      <button
-       index="2"
-       name="Send IM"
-       text="Send IM"/>
     </form>
   </notification>
   

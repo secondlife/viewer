@@ -2805,7 +2805,6 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
-		LLBottomTray::getInstance()->setVisible(TRUE);
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
 		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
@@ -2906,7 +2905,6 @@ void LLAgent::endAnimationUpdateUI()
 		gStatusBar->setVisibleForMouselook(false);
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
-		LLBottomTray::getInstance()->setVisible(FALSE);
 
 		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
 		LLSideTray::getInstance()->updateSidetrayVisibility();

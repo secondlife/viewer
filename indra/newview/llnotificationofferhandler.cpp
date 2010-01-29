@@ -93,7 +93,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		LLHandlerUtil::logToIMP2P(notification);
+
 
 		if( notification->getPayload().has("give_inventory_notification")
 			&& !notification->getPayload()["give_inventory_notification"] )
@@ -103,18 +103,25 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
+			LLUUID session_id;
 			if (LLHandlerUtil::canSpawnIMSession(notification))
 			{
 				const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
 				LLUUID from_id = notification->getPayload()["from_id"];
 
-				LLHandlerUtil::spawnIMSession(name, from_id);
+				session_id = LLHandlerUtil::spawnIMSession(name, from_id);
 			}
 
-			if (notification->getPayload().has("SUPPRESS_TOAST")
+			if (LLHandlerUtil::canAddNotifPanelToIM(notification))
+			{
+				LLHandlerUtil::addNotifPanelToIM(notification);
+				LLHandlerUtil::logToIMP2P(notification, true);
+			}
+			else if (notification->getPayload().has("SUPPRESS_TOAST")
 						&& notification->getPayload()["SUPPRESS_TOAST"])
 			{
+				LLHandlerUtil::logToIMP2P(notification);
 				LLNotificationsUtil::cancel(notification);
 			}
 			else
@@ -131,6 +138,8 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				if(channel)
 					channel->addToast(p);
 
+				LLHandlerUtil::logToIMP2P(notification);
+
 				// send a signal to the counter manager
 				mNewNotificationSignal();
 			}
@@ -146,6 +155,10 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
+			if (LLHandlerUtil::canAddNotifPanelToIM(notification))
+			{
+				LLHandlerUtil::reloadIMFloaterMessages(notification);
+			}
 			mChannel->killToastByNotificationID(notification->getID());
 		}
 	}

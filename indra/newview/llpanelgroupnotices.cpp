@@ -614,7 +614,7 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 		mViewInventoryIcon->setVisible(TRUE);
 
 		std::stringstream ss;
-		ss << "        " << LLViewerInventoryItem::getDisplayName(inventory_name);
+		ss << "        " << inventory_name;
 
 		mViewInventoryName->setText(ss.str());
 		mBtnOpenAttachment->setEnabled(TRUE);

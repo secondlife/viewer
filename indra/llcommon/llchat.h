@@ -79,6 +79,7 @@ public:
 	:	mText(text),
 		mFromName(),
 		mFromID(),
+		mNotifId(),
 		mSourceType(CHAT_SOURCE_AGENT),
 		mChatType(CHAT_TYPE_NORMAL),
 		mAudible(CHAT_AUDIBLE_FULLY),
@@ -94,6 +95,7 @@ public:
 	std::string		mText;		// UTF-8 line of text
 	std::string		mFromName;	// agent or object name
 	LLUUID			mFromID;	// agent id or object id
+	LLUUID			mNotifId;
 	EChatSourceType	mSourceType;
 	EChatType		mChatType;
 	EChatAudible	mAudible;
