@@ -704,7 +704,11 @@ bail:
 }
 
 LLSrvRecord::LLSrvRecord(const std::string &name, unsigned ttl)
-	: LLHostRecord(RES_SRV, name, ttl)
+	: LLHostRecord(RES_SRV, name, ttl),
+
+	  mPriority(0),
+	  mWeight(0),
+	  mPort(0)
 {
 }
 
