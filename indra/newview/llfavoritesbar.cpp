@@ -780,8 +780,8 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	 * Empty space (or ...) is displaying instead of last symbols, even though the width of the button is enough.
 	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  20 pixels.
 	 */
-	int requred_width = mFont->getWidth(item->getName()) + 20;
-	int width = requred_width > def_button_width? def_button_width : requred_width;
+	int required_width = mFont->getWidth(item->getName()) + 20;
+	int width = required_width > def_button_width? def_button_width : required_width;
 	LLFavoriteLandmarkButton* fav_btn = NULL;
 
 	// do we have a place for next button + double buttonHGap + mChevronButton ? 
