@@ -369,10 +369,6 @@ private:
 
 	LLNotification(const Params& p);
 
-	// this is just for making it easy to look things up in a set organized by UUID -- DON'T USE IT
-	// for anything real!
-	LLNotification(LLUUID uuid) : mId(uuid) {}
-
 	void cancel();
 
 	bool payloadContainsAll(const std::vector<std::string>& required_fields) const;
