@@ -175,7 +175,8 @@ void LLAres::rewriteURI(const std::string &uri, UriRewriteResponder *resp)
 
 LLQueryResponder::LLQueryResponder()
 	: LLAres::QueryResponder(),
-	  mResult(ARES_ENODATA)
+	  mResult(ARES_ENODATA),
+	  mType(RES_INVALID)
 {
 }
 
