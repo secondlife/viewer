@@ -4584,8 +4584,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				glLightf (gllight, GL_SPOT_CUTOFF,   180.0f);
 
 				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
-				const float specular = {0.f, 0.f, 0.f, 1.f},
-				glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
+				const float specular[] = {0.f, 0.f, 0.f, 1.f};
+				glLightfv(gllight, GL_SPECULAR, specular);
 			}
 			cur_light++;
 			if (cur_light >= 8)
