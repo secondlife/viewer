@@ -52,7 +52,6 @@
 #include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
-#include "llfloaterchatterbox.h"
 #include "llimfloater.h"
 #include "llgroupiconctrl.h"
 #include "llmd5.h"
@@ -64,6 +63,7 @@
 #include "llnotificationsutil.h"
 #include "llnearbychat.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
+#include "lltextbox.h"
 #include "lltextutil.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
@@ -2075,8 +2075,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 // Member Functions
 //
 
-LLIMMgr::LLIMMgr() :
-	mIMReceived(FALSE)
+LLIMMgr::LLIMMgr()
 {
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
@@ -2183,14 +2182,6 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 	}
 }
 
-void LLIMMgr::notifyNewIM()
-{
-	if(!LLFloaterReg::instanceVisible("communicate"))
-	{
-		mIMReceived = TRUE;
-	}
-}
-
 S32 LLIMMgr::getNumberOfUnreadIM()
 {
 	std::map<LLUUID, LLIMModel::LLIMSession*>::iterator it;
@@ -2215,16 +2206,6 @@ S32 LLIMMgr::getNumberOfUnreadParticipantMessages()
 	}
 
 	return num;
-}
-
-void LLIMMgr::clearNewIMNotification()
-{
-	mIMReceived = FALSE;
-}
-
-BOOL LLIMMgr::getIMReceived() const
-{
-	return mIMReceived;
 }
 
 void LLIMMgr::autoStartCallOnStartup(const LLUUID& session_id)

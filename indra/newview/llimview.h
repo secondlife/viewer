@@ -39,8 +39,8 @@
 #include "lllogchat.h"
 #include "llvoicechannel.h"
 
-class LLFloaterChatterBox;
-class LLUUID;
+
+
 class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
@@ -360,14 +360,8 @@ public:
 	void processIMTypingStart(const LLIMInfo* im_info);
 	void processIMTypingStop(const LLIMInfo* im_info);
 
-	void notifyNewIM();
-	void clearNewIMNotification();
-
 	// automatically start a call once the session has initialized
 	void autoStartCallOnStartup(const LLUUID& session_id);
-
-	// IM received that you haven't seen yet
-	BOOL getIMReceived() const;
 
 	// Calc number of all unread IMs
 	S32 getNumberOfUnreadIM();
@@ -445,9 +439,6 @@ private:
 	
 	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
 	session_observers_list_t mSessionObservers;
-
-	// An IM has been received that you haven't seen yet.
-	BOOL mIMReceived;
 
 	LLSD mPendingInvitations;
 	LLSD mPendingAgentListUpdates;
