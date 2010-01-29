@@ -74,7 +74,12 @@ class LLHTTPPipe : public LLIOPipe
 {
 public:
 	LLHTTPPipe(const LLHTTPNode& node)
-		: mNode(node), mResponse(NULL), mState(STATE_INVOKE), mChainLock(0), mStatusCode(0)
+		: mNode(node),
+		  mResponse(NULL),
+		  mState(STATE_INVOKE),
+		  mChainLock(0),
+		  mLockedPump(NULL),
+		  mStatusCode(0)
 		{ }
 	virtual ~LLHTTPPipe()
 	{
