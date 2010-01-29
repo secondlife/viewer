@@ -707,7 +707,8 @@
             top_delta="16"
             width="315" />
         </radio_group>
-	</panel>	
+	</panel>
+	
         <button
      follows="left|bottom"
      height="23"
@@ -717,7 +718,8 @@
      left="10"
      name="Apply"
      top="383"
-     width="115">
+     width="115"
+     visible="false">
         <button.commit_callback
          function="Pref.Apply" />
     </button>
