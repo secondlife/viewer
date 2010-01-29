@@ -35,6 +35,16 @@
          name="avatar_icon"
          top="3"
          width="18" />
+        <group_icon
+         follows="right"
+         height="18"
+         default_icon_name="Generic_Group"
+         layout="topleft"
+         left="3"
+         mouse_opaque="false"
+         name="group_icon"
+         top="3"
+         width="18" />
         <!--<icon
          follows="right"
          height="20"
