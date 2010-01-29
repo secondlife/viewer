@@ -41,7 +41,8 @@ void main()
 	calcAtmospherics(pos.xyz);
 
 	//vec4 color = calcLighting(pos.xyz, norm, gl_Color, vec4(0.));
-	vec4 col(0.0, 0.0, 0.0, gl_Color.a);
+
+	vec4 col = vec4(0.0, 0.0, 0.0, gl_Color.a);
 
 	// Collect normal lights (need to be divided by two, as we later multiply by 2)
 	col.rgb += gl_LightSource[2].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[2].position, gl_LightSource[2].spotDirection.xyz, gl_LightSource[2].linearAttenuation, gl_LightSource[2].specular.a);
