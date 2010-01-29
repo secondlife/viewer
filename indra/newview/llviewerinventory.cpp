@@ -1208,7 +1208,7 @@ public:
 	const static S32 NO_INDEX;
 private:
 	friend class LLSingleton<LLFavoritesOrderStorage>;
-	LLFavoritesOrderStorage() { load(); }
+	LLFavoritesOrderStorage() : mIsDirty(false) { load(); }
 	~LLFavoritesOrderStorage() { save(); }
 
 	/**
@@ -1223,6 +1223,8 @@ private:
 
 	typedef std::map<LLUUID, S32> sort_index_map_t;
 	sort_index_map_t mSortIndexes;
+
+	bool mIsDirty;
 
 	struct IsNotInFavorites
 	{
@@ -1257,6 +1259,7 @@ const S32 LLFavoritesOrderStorage::NO_INDEX = -1;
 void LLFavoritesOrderStorage::setSortIndex(const LLUUID& inv_item_id, S32 sort_index)
 {
 	mSortIndexes[inv_item_id] = sort_index;
+	mIsDirty = true;
 }
 
 S32 LLFavoritesOrderStorage::getSortIndex(const LLUUID& inv_item_id)
@@ -1272,6 +1275,7 @@ S32 LLFavoritesOrderStorage::getSortIndex(const LLUUID& inv_item_id)
 void LLFavoritesOrderStorage::removeSortIndex(const LLUUID& inv_item_id)
 {
 	mSortIndexes.erase(inv_item_id);
+	mIsDirty = true;
 }
 
 // static
@@ -1302,6 +1306,9 @@ void LLFavoritesOrderStorage::load()
 
 void LLFavoritesOrderStorage::save()
 {
+	// nothing to save if clean
+	if (!mIsDirty) return;
+
 	// If we quit from the login screen we will not have an SL account
 	// name.  Don't try to save, otherwise we'll dump a file in
 	// C:\Program Files\SecondLife\ or similar. JC
@@ -1324,6 +1331,9 @@ void LLFavoritesOrderStorage::save()
 
 void LLFavoritesOrderStorage::cleanup()
 {
+	// nothing to clean
+	if (!mIsDirty) return;
+
 	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
