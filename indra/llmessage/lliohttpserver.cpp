@@ -116,7 +116,7 @@ private:
 		void nullPipe();
 
 	private:
-		Response() {;} // Must be accessed through LLPointer.
+		Response() : mPipe(NULL) {} // Must be accessed through LLPointer.
 		LLHTTPPipe* mPipe;
 	};
 	friend class Response;
