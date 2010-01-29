@@ -313,7 +313,7 @@ protected:
 			showSystemContextMenu(x,y);
 		if(mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_OBJECT)
+		if(mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
 			showObjectContextMenu(x,y);
 	}
 
