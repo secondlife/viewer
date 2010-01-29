@@ -48,7 +48,7 @@ float calcPointLight2(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_omnid
 	float da = clamp(1.0/(la * d), 0.0, 1.0);
 	
 	//angular attenuation
-	da *= clamp(dot(-ln, lv)+is_omnidirectional, 0.0, 1.0) * calcDirectionalLight(n, lv);
+	da *= max(dot(-ln, lv),is_omnidirectional) * calcDirectionalLight(n, lv);
 
 	return da;	
 }
