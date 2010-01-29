@@ -372,7 +372,8 @@ namespace LLInitParam
 	public:
 		BlockDescriptor()
 		:	mMaxParamOffset(0),
-			mInitializationState(UNINITIALIZED)
+			mInitializationState(UNINITIALIZED),
+			mCurrentBlockPtr(NULL)
 		{}
 
 		typedef enum e_initialization_state
