@@ -4567,8 +4567,22 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
 			glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
 			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
-			glLightf (gllight, GL_SPOT_EXPONENT,          0.0f);
-			glLightf (gllight, GL_SPOT_CUTOFF,            180.0f);
+			if (light->getLightTexture()) // directional (spot-)light
+			{
+				LLVector3 spotparams = light->getSpotLightParams();
+				LLQuaternion quat = light->getRenderRotation();
+				LLVector3 at_axis(0,0,-1); // todo: verify against deferred
+				at_axis *= quat;
+				llinfos << "SPOT!!!!!!! fov: " << spotparams.mV[0] << " focus: " << spotparams.mV[1] << " dir: " << at_axis << llendl;
+				glLightfv(gllight, GL_SPOT_DIRECTION, at_axis.mV);
+				glLightf (gllight, GL_SPOT_EXPONENT,  0.0f); // fixme - focus
+				glLightf (gllight, GL_SPOT_CUTOFF,    22.0f); // fixme - fov
+			}
+			else // omnidirectional (point) light
+			{
+				glLightf (gllight, GL_SPOT_EXPONENT, 0.0f);
+				glLightf (gllight, GL_SPOT_CUTOFF,   180.0f);
+			}
 			cur_light++;
 			if (cur_light >= 8)
 			{
