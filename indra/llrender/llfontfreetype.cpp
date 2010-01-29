@@ -112,6 +112,7 @@ LLFontFreetype::LLFontFreetype()
 	mFTFace(NULL),
 	mRenderGlyphCount(0),
 	mAddGlyphCount(0),
+	mStyle(0),
 	mPointSize(0)
 {
 }
