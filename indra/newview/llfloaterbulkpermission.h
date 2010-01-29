@@ -44,8 +44,6 @@
 #include "llfloater.h"
 #include "llscrolllistctrl.h"
 
-#include "llviewerinventory.h"
-
 class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener
 {
 	friend class LLFloaterReg;
