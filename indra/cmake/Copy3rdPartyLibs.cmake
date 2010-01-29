@@ -38,6 +38,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        libcollada14dom21.dll
+        glod.dll
         )
 
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
@@ -48,6 +50,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        libcollada14dom21.dll
+        glod.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
