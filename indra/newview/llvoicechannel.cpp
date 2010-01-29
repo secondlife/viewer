@@ -698,7 +698,11 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 		// do not notify user when leaving proximal channel
 		return;
 	case STATUS_VOICE_DISABLED:
-		LLCallInfoDialog::show("unavailable", mNotifyArgs);
+		//skip showing "Voice not available at your current location" when agent voice is disabled (EXT-4749)
+		if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+		{
+			LLCallInfoDialog::show("unavailable", mNotifyArgs);
+		}
 		return;
 	default:
 		break;
