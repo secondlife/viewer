@@ -12,28 +12,8 @@ float calcDirectionalLight(vec3 n, vec3 l)
 	return a;
 }
 
-float calcPointLight(vec3 v, vec3 n, vec4 lp, float la)
-{
-	//get light vector
-	vec3 lv = lp.xyz-v;
-	
-	//get distance
-	float d = length(lv);
-	
-	//normalize light vector
-	lv *= 1.0/d;
-	
-	//distance attenuation
-	float da = clamp(1.0/(la * d), 0.0, 1.0);
-	
-	//angular attenuation
-	da *= calcDirectionalLight(n, lv);
 
-	return da;	
-}
-
-
-float calcPointLight2(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_omnidirectional)
+float calcPointlightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
