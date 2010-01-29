@@ -305,6 +305,7 @@ LLStateMachine::LLStateMachine()
 	// we haven't received a starting state yet
 	mCurrentState = NULL;
 	mLastState = NULL;
+	mLastTransition = NULL;
 	mStateDiagram = NULL;
 }
 
