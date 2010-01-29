@@ -1512,25 +1512,6 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
 	onValueChange(0, getLength());
 }
 
-void LLTextBase::addBlackListUrl(const std::string &url)
-{
-	mBlackListUrls.push_back(url);
-}
-
-bool LLTextBase::isBlackListUrl(const std::string &url) const
-{
-	std::vector<std::string>::const_iterator it;
-	for (it = mBlackListUrls.begin(); it != mBlackListUrls.end(); ++it)
-	{
-		const std::string &blacklist_url = *it;
-		if (url.find(blacklist_url) != std::string::npos)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 //virtual
 std::string LLTextBase::getText() const
 {
