@@ -1172,7 +1172,7 @@ const std::string& LLViewerInventoryItem::getName() const
 		return linked_category->getName();
 	}
 
-	return getDisplayName();
+	return  LLInventoryItem::getName();
 }
 
 /**
@@ -1352,31 +1352,6 @@ void LLFavoritesOrderStorage::cleanup()
 }
 
 
-// *TODO: mantipov: REMOVE, EXT-3985
-const std::string& LLViewerInventoryItem::getDisplayName() const
-{
-	return LLInventoryItem::getName();
-/*
-	std::string result;
-	BOOL hasSortField = extractSortFieldAndDisplayName(0, &result);
-
-	mDisplayName = LLInventoryItem::getName();
-
-	return mDisplayName = hasSortField ? result : LLInventoryItem::getName();
-*/
-}
-
-// *TODO: mantipov: REMOVE, EXT-3985
-// static
-std::string LLViewerInventoryItem::getDisplayName(const std::string& name)
-{
-	llassert(false);
-	std::string result;
-	BOOL hasSortField = extractSortFieldAndDisplayName(name, 0, &result);
-
-	return hasSortField ? result : name;
-}
-
 S32 LLViewerInventoryItem::getSortField() const
 {
 	return LLFavoritesOrderStorage::instance().getSortIndex(mUUID);
@@ -1385,12 +1360,6 @@ S32 LLViewerInventoryItem::getSortField() const
 void LLViewerInventoryItem::setSortField(S32 sortField)
 {
 	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
-}
-
-// *TODO: mantipov: REMOVE, EXT-3985
-void LLViewerInventoryItem::rename(const std::string& n)
-{
-	LLInventoryItem::rename(n);
 }
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
@@ -1481,7 +1450,8 @@ U32 LLViewerInventoryItem::getCRC32() const
 	return LLInventoryItem::getCRC32();	
 }
 
-// *TODO: mantipov: REMOVE, EXT-3985
+// *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985
+static char getSeparator() { return '@'; }
 BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
 {
 	using std::string;
