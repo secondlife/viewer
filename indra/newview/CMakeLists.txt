@@ -241,7 +241,6 @@ set(viewer_SOURCE_FILES
     llimfloater.cpp
     llimfloatercontainer.cpp
     llimhandler.cpp
-    llimpanel.cpp
     llimview.cpp
     llinspect.cpp
     llinspectavatar.cpp
@@ -297,7 +296,6 @@ set(viewer_SOURCE_FILES
     llnotificationscripthandler.cpp
     llnotificationtiphandler.cpp
     lloutputmonitorctrl.cpp
-    lloverlaybar.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
@@ -418,7 +416,6 @@ set(viewer_SOURCE_FILES
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
     lltool.cpp
-    lltoolbar.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
     lltooldraganddrop.cpp
@@ -747,7 +744,6 @@ set(viewer_HEADER_FILES
     llhudview.h
     llimfloater.h
     llimfloatercontainer.h
-    llimpanel.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -799,7 +795,6 @@ set(viewer_HEADER_FILES
     llnotificationhandler.h
     llnotificationmanager.h
     lloutputmonitorctrl.h
-    lloverlaybar.h
     llpanelavatar.h
     llpanelavatartag.h
     llpanelblockedlist.h
@@ -923,7 +918,6 @@ set(viewer_HEADER_FILES
     lltoastnotifypanel.h
     lltoastpanel.h
     lltool.h
-    lltoolbar.h
     lltoolbrush.h
     lltoolcomp.h
     lltooldraganddrop.h
