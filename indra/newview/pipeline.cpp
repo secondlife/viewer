@@ -4255,7 +4255,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		glLightf (GL_LIGHT1, GL_LINEAR_ATTENUATION, 	 0.0f);
 		glLightf (GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0f);
 		glLightf (GL_LIGHT1, GL_SPOT_EXPONENT, 		 0.0f);
-		glLightf (GL_LIGHT1, GL_SPOT_CUTOFF, 			 180.0f);
+		glLightf (GL_LIGHT1, GL_SPOT_CUTOFF,		 180.0f);
 	}
 	else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
 	{
@@ -4571,12 +4571,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			{
 				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
-				LLVector3 at_axis(0,0,-1); // todo: verify against deferred
+				LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
 				at_axis *= quat;
 				llinfos << "SPOT!!!!!!! fov: " << spotparams.mV[0] << " focus: " << spotparams.mV[1] << " dir: " << at_axis << llendl;
 				glLightfv(gllight, GL_SPOT_DIRECTION, at_axis.mV);
-				glLightf (gllight, GL_SPOT_EXPONENT,  0.0f); // fixme - focus
-				glLightf (gllight, GL_SPOT_CUTOFF,    22.0f); // fixme - fov
+				glLightf (gllight, GL_SPOT_EXPONENT,  1.0f); // 1.0 = good old dot product
+				glLightf (gllight, GL_SPOT_CUTOFF,    90.0f); // hemisphere
 			}
 			else // omnidirectional (point) light
 			{
