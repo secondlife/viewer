@@ -62,14 +62,4 @@
          function="Gesture.EnableAction"
          parameter="edit_gesture" />
     </menu_item_call>
-    <menu_item_call
-     label="Inspect"
-     layout="topleft"
-     name="inspect">
-        <on_click
-         function="Gesture.Action.ShowPreview" />
-        <on_enable
-         function="Gesture.EnableAction"
-         parameter="inspect" />
-    </menu_item_call>
 </menu>

@@ -630,7 +630,6 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 			delete_context_data = FALSE;
 			LLSD args;
 			args["NAME"] = name;
-			args["INVITE"] = message;
 			LLNotificationsUtil::add("JoinedTooManyGroupsMember", args, notification["payload"]);
 		}
 	}
@@ -1435,31 +1434,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	return false;
 }
 
-std::string get_display_name(const std::string& name)
-{
-	// We receive landmark name as \'<n>@name\' where <n> is a number
-	// LLViewerInventoryItem::getDisplayName will remove \'<n>@ though we need the \'
-	// Lets save all chars preceding @ and insert them back after <n>@ was removed
-
-	std::string saved;
-
-	if(std::string::npos != name.find(LLViewerInventoryItem::getSeparator()))
-	{
-		int n = 0;
-		while(!isdigit(name[n]) && LLViewerInventoryItem::getSeparator() != name[n])
-		{
-			++n;
-		}
-		saved = name.substr(0, n);
-	}
-
-	std::string d_name = LLViewerInventoryItem::getDisplayName(name);
-	d_name.insert(0, saved);
-	LLStringUtil::trim(d_name);
-
-	return d_name;
-}
-
 void inventory_offer_handler(LLOfferInfo* info)
 {
 	//Until throttling is implmented, busy mode should reject inventory instead of silently
@@ -1495,11 +1469,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 	if(indx >= 0)
 	{
 		LLStringUtil::truncate(msg, indx);
-	}
-
-	if(LLAssetType::AT_LANDMARK == info->mType)
-	{
-		msg = get_display_name(msg);
 	}
 
 	LLSD args;
@@ -1933,7 +1902,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			if (has_inventory)
 			{
-				info = new LLOfferInfo;
+				info = new LLOfferInfo();
 				
 				info->mIM = IM_GROUP_NOTICE;
 				info->mFromID = from_id;
@@ -1986,6 +1955,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				
 				LLPanelGroup::showNotice(subj,mes,group_id,has_inventory,item_name,info);
+			}
+			else
+			{
+				delete info;
 			}
 		}
 		break;
@@ -2047,6 +2020,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if (sizeof(offer_agent_bucket_t) != binary_bucket_size)
 				{
 					LL_WARNS("Messaging") << "Malformed inventory offer from agent" << LL_ENDL;
+					delete info;
 					break;
 				}
 				bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
@@ -2058,6 +2032,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if (sizeof(S8) != binary_bucket_size)
 				{
 					LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
+					delete info;
 					break;
 				}
 				info->mType = (LLAssetType::EType) binary_bucket[0];
@@ -2237,7 +2212,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["SESSION_NAME"] = session_name;
 			if (from_group)
 			{
-				payload["groupowned"] = "true";
+				payload["group_owned"] = "true";
 			}
 			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
 		}
@@ -2539,7 +2514,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	
 	// Object owner for objects
 	msg->getUUID("ChatData", "OwnerID", owner_id);
-	
+
 	msg->getU8Fast(_PREHASH_ChatData, _PREHASH_SourceType, source_temp);
 	chat.mSourceType = (EChatSourceType)source_temp;
 
@@ -2568,7 +2543,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	if (chatter)
 	{
 		chat.mPosAgent = chatter->getPositionAgent();
-		
+
 		// Make swirly things only for talking objects. (not script debug messages, though)
 		if (chat.mSourceType == CHAT_SOURCE_OBJECT 
 			&& chat.mChatType != CHAT_TYPE_DEBUG_MSG)
@@ -2713,8 +2688,13 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
 		chat.mMuted = is_muted && !is_linden;
 
-		LLNotificationsUI::LLNotificationManager::instance().onChat(
-					chat, LLNotificationsUI::NT_NEARBYCHAT);
+		// pass owner_id to chat so that we can display the remote
+		// object inspect for an object that is chatting with you
+		LLSD args;
+		args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
+		args["owner_id"] = owner_id;
+
+		LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 	}
 }
 

@@ -125,7 +125,7 @@ private:
 };
 
 ReplySender::ReplySender(LLMessageSystem* msg)
-	: mMsg(msg), mPending(false)
+	: mMsg(msg), mPending(false), mCurrIsGroup(false)
 { }
 
 ReplySender::~ReplySender()

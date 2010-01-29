@@ -163,7 +163,6 @@
 #include "llvotree.h"
 #include "llvoavatar.h"
 #include "llfolderview.h"
-#include "lltoolbar.h"
 #include "llagentpilot.h"
 #include "llvovolume.h"
 #include "llflexibleobject.h" 
@@ -414,7 +413,6 @@ static void settings_to_globals()
 	LLVOAvatar::sVisibleInFirstPerson	= gSavedSettings.getBOOL("FirstPersonAvatarVisible");
 	// clamp auto-open time to some minimum usable value
 	LLFolderView::sAutoOpenTime			= llmax(0.25f, gSavedSettings.getF32("FolderAutoOpenDelay"));
-	LLToolBar::sInventoryAutoOpenTime	= gSavedSettings.getF32("InventoryAutoOpenDelay");
 	LLSelectMgr::sRectSelectInclusive	= gSavedSettings.getBOOL("RectangleSelectInclusive");
 	LLSelectMgr::sRenderHiddenSelections = gSavedSettings.getBOOL("RenderHiddenSelections");
 	LLSelectMgr::sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
@@ -2685,7 +2683,7 @@ void LLAppViewer::handleViewerCrash()
 		gMessageSystem->stopLogging();
 	}
 
-	LLWorld::getInstance()->getInfo(gDebugInfo);
+	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo);
 
 	// Close the debug file
 	pApp->writeDebugInfo();
@@ -4405,3 +4403,15 @@ void LLAppViewer::launchUpdater()
 	// LLAppViewer::instance()->forceQuit();
 }
 
+
+//virtual
+void LLAppViewer::setMasterSystemAudioMute(bool mute)
+{
+	gSavedSettings.setBOOL("MuteAudio", mute);
+}
+
+//virtual
+bool LLAppViewer::getMasterSystemAudioMute()
+{
+	return gSavedSettings.getBOOL("MuteAudio");
+}

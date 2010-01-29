@@ -48,7 +48,7 @@ public:
 
 	/*virtual*/ void resetLocation();
 
-	/*virtual*/ void setInfoType(INFO_TYPE type);
+	/*virtual*/ void setInfoType(EInfoType type);
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 

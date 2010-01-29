@@ -1590,7 +1590,10 @@ void LLTabContainer::onTabBtn( const LLSD& data, LLPanel* panel )
 	LLTabTuple* tuple = getTabByPanel(panel);
 	selectTabPanel( panel );
 
-	tuple->mTabPanel->setFocus(TRUE);
+	if (tuple)
+	{
+		tuple->mTabPanel->setFocus(TRUE);
+	}
 }
 
 void LLTabContainer::onNextBtn( const LLSD& data )

@@ -46,7 +46,6 @@
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
-#include "llviewerinventory.h"
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
 
@@ -308,7 +307,7 @@ void LLTeleportHistoryFlatItemStorage::purge()
 ////////////////////////////////////////////////////////////////////////////////
 
 LLTeleportHistoryPanel::ContextMenu::ContextMenu() :
-	mMenu(NULL)
+	mMenu(NULL), mIndex(0)
 {
 }
 

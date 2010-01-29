@@ -47,7 +47,9 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mImage = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture* image, const LLUUID& id)
+LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture* image, const LLUUID& id) :
+	mIsBakedReady(FALSE),
+	mDiscard(MAX_DISCARD_LEVEL+1)
 {
 	mImage = image;
 	gGL.getTexUnit(0)->bind(mImage);

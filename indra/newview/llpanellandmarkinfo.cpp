@@ -108,7 +108,7 @@ void LLPanelLandmarkInfo::resetLocation()
 }
 
 // virtual
-void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
+void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 {
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
@@ -367,7 +367,6 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
-	LLViewerInventoryItem::insertDefaultSortField(name);
 
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc,

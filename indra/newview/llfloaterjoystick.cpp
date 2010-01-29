@@ -52,6 +52,7 @@ LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 {
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_joystick.xml");
 
+	initFromSettings();
 }
 
 void LLFloaterJoystick::draw()
@@ -123,10 +124,8 @@ void LLFloaterJoystick::apply()
 {
 }
 
-void LLFloaterJoystick::refresh()
+void LLFloaterJoystick::initFromSettings()
 {
-	LLFloater::refresh();
-
 	mJoystickEnabled = gSavedSettings.getBOOL("JoystickEnabled");
 
 	mJoystickAxis[0] = gSavedSettings.getS32("JoystickAxis0");
@@ -192,6 +191,12 @@ void LLFloaterJoystick::refresh()
 	mAvatarFeathering = gSavedSettings.getF32("AvatarFeathering");
 	mBuildFeathering = gSavedSettings.getF32("BuildFeathering");
 	mFlycamFeathering = gSavedSettings.getF32("FlycamFeathering");
+}
+
+void LLFloaterJoystick::refresh()
+{
+	LLFloater::refresh();
+	initFromSettings();
 }
 
 void LLFloaterJoystick::cancel()

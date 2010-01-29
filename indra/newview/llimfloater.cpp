@@ -599,14 +599,32 @@ void LLIMFloater::updateMessages()
 
 			LLChat chat;
 			chat.mFromID = from_id;
+			chat.mSessionID = mSessionID;
 			chat.mFromName = from;
-			chat.mText = message;
 			chat.mTimeStr = time;
+
+			// process offer notification
+			if (msg.has("notifiaction_id"))
+			{
+				chat.mNotifId = msg["notifiaction_id"].asUUID();
+			}
+			//process text message
+			else
+			{
+				chat.mText = message;
+			}
 			
 			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 	}
+}
+
+void LLIMFloater::reloadMessages()
+{
+	mChatHistory->clear();
+	mLastMessageIndex = -1;
+	updateMessages();
 }
 
 // static

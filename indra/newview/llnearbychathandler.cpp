@@ -319,7 +319,7 @@ void LLNearbyChatHandler::initChannel()
 
 
 
-void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
+void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 {
 	if(chat_msg.mMuted == TRUE)
 		return;
@@ -337,7 +337,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		//if(tmp_chat.mFromName.empty() && tmp_chat.mFromID!= LLUUID::null)
 		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
 	}
-	nearby_chat->addMessage(chat_msg);
+	nearby_chat->addMessage(chat_msg, true, args);
 	if(nearby_chat->getVisible())
 		return;//no need in toast if chat is visible
 

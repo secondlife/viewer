@@ -43,6 +43,7 @@
 #include "llviewerregion.h"
 #include "lscript_rt_interface.h"
 #include "llviewercontrol.h"
+#include "llviewerinventory.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llresmgr.h"

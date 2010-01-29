@@ -65,6 +65,8 @@ namespace LLNotificationsUtil
 	S32 getSelectedOption(const LLSD& notification, const LLSD& response);
 
 	void cancel(LLNotificationPtr pNotif);
+
+	LLNotificationPtr find(LLUUID uuid);
 }
 
 #endif

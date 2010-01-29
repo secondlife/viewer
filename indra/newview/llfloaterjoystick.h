@@ -55,6 +55,8 @@ private:
 
 	LLFloaterJoystick(const LLSD& data);
 	virtual ~LLFloaterJoystick();
+
+	void initFromSettings();
 	
 	static void onCommitJoystickEnabled(LLUICtrl*, void*);
 	static void onClickRestoreSNDefaults(void*);

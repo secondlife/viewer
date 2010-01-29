@@ -359,6 +359,7 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 					else
 					{
 						LL_WARNS("Plugin") << "Couldn't create a shared memory segment!" << LL_ENDL;
+						delete region;
 					}
 				}
 				
