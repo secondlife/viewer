@@ -7,7 +7,7 @@
 
 float calcDirectionalLight(vec3 n, vec3 l);
 float calcPointLight(vec3 v, vec3 n, vec4 lp, float la);
-float calcPointLight2(vec3 v, vec3 n, vec4 lp, vec3 ln, float la);
+float calcPointLight2(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_omnidirectional);
 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);

@@ -4543,40 +4543,30 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			LLVector4 light_pos_gl(light_pos, 1.0f);
 	
 			F32 light_radius = llmax(light->getLightRadius(), 0.001f);
-			F32 atten, quad;
 
-#if 0 //1.9.1
-			if (pool->getVertexShaderLevel() > 0)
-			{
-				atten = light_radius;
-				quad = llmax(light->getLightFalloff(), 0.0001f);
-			}
-			else
-#endif
-			{
-				F32 x = (3.f * (1.f + light->getLightFalloff()));
-				atten = x / (light_radius); // % of brightness at radius
-				quad = 0.0f;
-			}
+			F32 x = (3.f * (1.f + light->getLightFalloff()));
+			float linatten = x / (light_radius); // % of brightness at radius
+
 			mHWLightColors[cur_light] = light_color;
 			S32 gllight = GL_LIGHT0+cur_light;
 			glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
 			glLightfv(gllight, GL_DIFFUSE,  light_color.mV);
 			glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
-			glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
-			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
+			glLightf (gllight, GL_LINEAR_ATTENUATION,     linatten);
+			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  0.0f);
 			if (light->getLightTexture()) // directional (spot-)light
 			{
 				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
 				LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
 				at_axis *= quat;
-				llinfos << "SPOT!!!!!!! fov: " << spotparams.mV[0] << " focus: " << spotparams.mV[1] << " dir: " << at_axis << llendl;
+				//llinfos << "SPOT!!!!!!! fov: " << spotparams.mV[0] << " focus: " << spotparams.mV[1] << " dir: " << at_axis << llendl;
 				glLightfv(gllight, GL_SPOT_DIRECTION, at_axis.mV);
-				glLightf (gllight, GL_SPOT_EXPONENT,  1.0f); // 1.0 = good old dot product
+				glLightf (gllight, GL_SPOT_EXPONENT,  2.0f); // 2.0 = good old dot product ^ 2
 				glLightf (gllight, GL_SPOT_CUTOFF,    90.0f); // hemisphere
-				glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
+				const float specular[] = {0.f, 0.f, 0.f, 0.f};
+				glLightfv(gllight, GL_SPECULAR, specular);
 			}
 			else // omnidirectional (point) light
 			{
@@ -4586,6 +4576,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
 				const float specular[] = {0.f, 0.f, 0.f, 1.f};
 				glLightfv(gllight, GL_SPECULAR, specular);
+				//llinfos << "boring light" << llendl;
 			}
 			cur_light++;
 			if (cur_light >= 8)
@@ -4613,13 +4604,10 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		LLVector4 light_pos_gl(light_pos, 1.0f);
 
 		F32 light_radius = 16.f;
-		F32 atten, quad;
 
-		{
-			F32 x = 3.f;
-			atten = x / (light_radius); // % of brightness at radius
-			quad = 0.0f;
-		}
+		F32 x = 3.f;
+		float linatten = x / (light_radius); // % of brightness at radius
+
 		mHWLightColors[2] = light_color;
 		S32 gllight = GL_LIGHT2;
 		glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
@@ -4627,8 +4615,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
 		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 		glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
-		glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
-		glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
+		glLightf (gllight, GL_LINEAR_ATTENUATION,     linatten);
+		glLightf (gllight, GL_QUADRATIC_ATTENUATION,  0.0f);
 		glLightf (gllight, GL_SPOT_EXPONENT,          0.0f);
 		glLightf (gllight, GL_SPOT_CUTOFF,            180.0f);
 	}
