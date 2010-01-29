@@ -283,6 +283,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLXMLNodeP
 }
 
 LLNotificationForm::LLNotificationForm(const LLSD& sd)
+	: mIgnore(IGNORE_NO)
 {
 	if (sd.isArray())
 	{
