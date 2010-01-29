@@ -48,7 +48,7 @@ float calcPointLight2(vec3 v, vec3 n, vec4 lp, vec3 ln, float la)
 	float da = clamp(1.0/(la * d), 0.0, 1.0);
 	
 	//angular attenuation
-	da *= dot(lv, -ln) * calcDirectionalLight(n, lv);
+	da *= calcDirectionalLight(-ln, lv) * calcDirectionalLight(n, lv);
 
 	return da;	
 }
