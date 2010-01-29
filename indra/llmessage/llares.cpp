@@ -642,8 +642,10 @@ LLPtrRecord::LLPtrRecord(const std::string &name, unsigned ttl)
 }
 
 LLAddrRecord::LLAddrRecord(LLResType type, const std::string &name,
-						   unsigned ttl)
-	: LLDnsRecord(type, name, ttl)
+			   unsigned ttl)
+	: LLDnsRecord(type, name, ttl),
+
+	  mSize(0)
 {
 }
 
