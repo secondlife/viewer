@@ -719,7 +719,7 @@
      name="Apply"
      top="383"
      width="115"
-     visible="false">
+      >
         <button.commit_callback
          function="Pref.Apply" />
     </button>
