@@ -170,7 +170,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	params.tab_stop(false);
 	params.wrap(true);
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-	params.allow_html(false);
 
 	LLTextBox * msg_box = LLUICtrlFactory::create<LLTextBox> (params);
 	// Compute max allowable height for the dialog text, so we can allocate
