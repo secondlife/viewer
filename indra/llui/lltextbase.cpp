@@ -1606,11 +1606,10 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 				}
 			}
 
-			// output the styled Url (unless we've been asked to suppress it)
-			if (isBlackListUrl(match.getUrl()))
+			// output the styled Url (unless we've been asked to suppress hyperlinking)
+			if (match.isLinkDisabled())
 			{
-				std::string orig_url = text.substr(start, end-start);
-				appendAndHighlightText(orig_url, prepend_newline, part, style_params);
+				appendAndHighlightText(match.getLabel(), prepend_newline, part, style_params);
 			}
 			else
 			{
