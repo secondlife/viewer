@@ -15,7 +15,7 @@ vec3 scaleUpLight(vec3 light);
 
 vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 {
-	vec4 col(0.0, 0.0, 0.0, color.a);
+	vec4 col = vec4(0.0, 0.0, 0.0, color.a);
 	
 	// Collect normal lights (need to be divided by two, as we later multiply by 2)
 	col.rgb += gl_LightSource[2].diffuse.rgb*calcPointLightOrSpotLight(pos.xyz, norm, gl_LightSource[2].position, gl_LightSource[2].spotDirection.xyz, gl_LightSource[2].linearAttenuation, gl_LightSource[2].specular.a);

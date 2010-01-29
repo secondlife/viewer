@@ -13,7 +13,7 @@ float calcDirectionalLight(vec3 n, vec3 l)
 }
 
 
-float calcPointlightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight)
+float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
