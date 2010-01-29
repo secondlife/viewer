@@ -147,7 +147,6 @@
 #include "lltexturefetch.h"
 #include "lltextureview.h"
 #include "lltool.h"
-#include "lltoolbar.h"
 #include "lltoolcomp.h"
 #include "lltooldraganddrop.h"
 #include "lltoolface.h"

@@ -82,7 +82,6 @@
 #include "llsidetray.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
-#include "lltoolbar.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
