@@ -4563,7 +4563,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
 			glLightfv(gllight, GL_DIFFUSE,  light_color.mV);
 			glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
-			glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
 			glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
 			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
@@ -4577,11 +4576,16 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				glLightfv(gllight, GL_SPOT_DIRECTION, at_axis.mV);
 				glLightf (gllight, GL_SPOT_EXPONENT,  1.0f); // 1.0 = good old dot product
 				glLightf (gllight, GL_SPOT_CUTOFF,    90.0f); // hemisphere
+				glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 			}
 			else // omnidirectional (point) light
 			{
 				glLightf (gllight, GL_SPOT_EXPONENT, 0.0f);
 				glLightf (gllight, GL_SPOT_CUTOFF,   180.0f);
+
+				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
+				const float specular = {0.f, 0.f, 0.f, 1.f},
+				glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 			}
 			cur_light++;
 			if (cur_light >= 8)
