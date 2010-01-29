@@ -19,7 +19,7 @@ if(WINDOWS)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
     set(vivox_files
         SLVoice.exe
-	libsndfile-1.dll
+        libsndfile-1.dll
         vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
