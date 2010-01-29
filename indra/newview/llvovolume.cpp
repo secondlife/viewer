@@ -905,14 +905,13 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 		// if it's a mesh
 		if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 		{ //meshes might not have all LODs, get the force detail to best existing LOD
+
 			LLUUID mesh_id = params.getSculptID();
 
 			//profile and path params don't matter for meshes
-			volume_params = LLVolumeParams();
 			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-			volume_params.setSculptID(mesh_id, LL_SCULPT_TYPE_MESH);
 
-			lod = gMeshRepo.getActualMeshLOD(mesh_id, lod);
+			lod = gMeshRepo.getActualMeshLOD(volume_params, lod);
 		}
 	}
 
@@ -963,7 +962,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 				{ 
 					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					S32 available_lod = gMeshRepo.loadMesh(this, asset_id, lod);
+					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod);
 					if (available_lod != lod)
 					{
 						LLPrimitive::setVolume(volume_params, available_lod);
