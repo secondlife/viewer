@@ -47,8 +47,12 @@ float calcPointLight2(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_omnid
 	//distance attenuation
 	float da = clamp(1.0/(la * d), 0.0, 1.0);
 	
+	// spotlight coefficient.
+	float spot = max(dot(-ln, lv), is_omnidirectional);
+	da *= spot*spot; // GL_SPOT_EXPONENT=2
+
 	//angular attenuation
-	da *= max(dot(-ln, lv),is_omnidirectional) * calcDirectionalLight(n, lv);
+	da *= calcDirectionalLight(n, lv);
 
 	return da;	
 }
