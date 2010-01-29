@@ -403,7 +403,7 @@ void LLHTTPPipe::unlockChain()
 class LLHTTPResponseHeader : public LLIOPipe
 {
 public:
-	LLHTTPResponseHeader() {}
+	LLHTTPResponseHeader() : mCode(0) {}
 	virtual ~LLHTTPResponseHeader() {}
 
 protected:
