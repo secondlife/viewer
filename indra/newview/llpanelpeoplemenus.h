@@ -62,6 +62,7 @@ protected:
 
 	std::vector<LLUUID>	mUUIDs;
 	LLContextMenu*		mMenu;
+	LLHandle<LLView>	mMenuHandle;
 };
 
 /**
