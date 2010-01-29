@@ -218,7 +218,8 @@ LLSelectMgr::LLSelectMgr()
 	mHoverObjects = new LLObjectSelection();
 	mHighlightedObjects = new LLObjectSelection();
 
-
+	mForceSelection = FALSE;
+	mShowSelection = FALSE;
 }
 
 

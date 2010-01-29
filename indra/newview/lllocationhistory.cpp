@@ -62,7 +62,7 @@ void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
 	{
 		mItems.erase(mItems.begin(), mItems.end()-max_items);
 	}
-	llassert((S32) mItems.size() <= max_items);
+	llassert((S32)mItems.size() <= max_items);
 }
 
 /*

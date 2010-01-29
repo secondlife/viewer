@@ -225,7 +225,7 @@ namespace LMSortPrefix
 
 			// mark item completed to avoid error while copying and updating server
 			inv_item->setComplete(TRUE);
-			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
+			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item.get());
 			new_item->rename(display_name);
 			gInventory.updateItem(new_item);
 			new_item->updateServer(FALSE);

@@ -54,7 +54,7 @@ template <typename Type>
 class LLInterp
 {
 public:
-	LLInterp();
+        LLInterp();
 	virtual ~LLInterp() {}
 
 	virtual void start();
@@ -151,6 +151,7 @@ protected:
 
 template <typename Type>
 LLInterp<Type>::LLInterp()
+: mStartVal(Type()), mEndVal(Type()), mCurVal(Type())
 {
 	mStartTime = 0.f;
 	mEndTime = 1.f;

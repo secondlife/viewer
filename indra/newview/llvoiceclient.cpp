@@ -294,8 +294,14 @@ void LLVivoxProtocolParser::reset()
 	ignoringTags = false;
 	accumulateText = false;
 	energy = 0.f;
+	hasText = false;
+	hasAudio = false;
+	hasVideo = false;
+	terminated = false;
 	ignoreDepth = 0;
 	isChannel = false;
+	incoming = false;
+	enabled = false;
 	isEvent = false;
 	isLocallyMuted = false;
 	isModeratorMuted = false;
@@ -6406,6 +6412,7 @@ void LLVoiceClient::filePlaybackSetMode(bool vox, float speed)
 }
 
 LLVoiceClient::sessionState::sessionState() :
+	mErrorStatusCode(0),
 	mMediaStreamState(streamStateUnknown),
 	mTextStreamState(streamStateUnknown),
 	mCreateInProgress(false),

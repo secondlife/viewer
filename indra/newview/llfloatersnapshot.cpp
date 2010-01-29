@@ -1028,7 +1028,8 @@ class LLFloaterSnapshot::Impl
 public:
 	Impl()
 	:	mAvatarPauseHandles(),
-		mLastToolset(NULL)
+		mLastToolset(NULL),
+		mAspectRatioCheckOff(false)
 	{
 	}
 	~Impl()
@@ -1079,7 +1080,7 @@ public:
 
 	LLToolset*	mLastToolset;
 	LLHandle<LLView> mPreviewHandle;
-	BOOL mAspectRatioCheckOff ;
+	bool mAspectRatioCheckOff ;
 };
 
 // static
@@ -1606,7 +1607,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	
 	if(0 == index) //current window size
 	{
-		view->impl.mAspectRatioCheckOff = TRUE ;
+		view->impl.mAspectRatioCheckOff = true ;
 		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
@@ -1616,7 +1617,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 	else if(-1 == index) //custom
 	{
-		view->impl.mAspectRatioCheckOff = FALSE ;
+		view->impl.mAspectRatioCheckOff = false ;
 		//if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
 		{
 			view->childSetEnabled("keep_aspect_check", TRUE) ;
@@ -1629,7 +1630,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 	else
 	{
-		view->impl.mAspectRatioCheckOff = TRUE ;
+		view->impl.mAspectRatioCheckOff = true ;
 		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
