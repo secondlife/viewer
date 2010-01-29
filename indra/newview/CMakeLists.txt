@@ -272,7 +272,6 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
     llmetricperformancetester.cpp
@@ -510,7 +509,6 @@ set(viewer_SOURCE_FILES
     llvoground.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
-    llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
@@ -776,7 +774,6 @@ set(viewer_HEADER_FILES
     llmaniptranslate.h
     llmediactrl.h
     llmediadataclient.h
-    llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
     llmetricperformancetester.h
@@ -1010,7 +1007,6 @@ set(viewer_HEADER_FILES
     llvoground.h
     llvoicechannel.h
     llvoiceclient.h
-    llvoiceremotectrl.h
     llvoicevisualizer.h
     llvoinventorylistener.h
     llvopartgroup.h

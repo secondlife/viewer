@@ -69,7 +69,6 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llworld.h"
-#include "lloverlaybar.h"
 #include "roles_constants.h"
 #include "llweb.h"
 

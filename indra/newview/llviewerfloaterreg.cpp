@@ -115,7 +115,6 @@
 #include "llinspectobject.h"
 #include "llinspectremoteobject.h"
 #include "llinspecttoast.h"
-#include "llmediaremotectrl.h"
 #include "llmoveview.h"
 #include "llnearbychat.h"
 #include "llpanelblockedlist.h"
@@ -263,8 +262,5 @@ void LLViewerFloaterReg::registerFloaters()
 
 	// *NOTE: Please keep these alphabetized for easier merges
 	
-	// debug use only
-	LLFloaterReg::add("media_remote_ctrl", "floater_media_remote.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaRemoteCtrl>);
-
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }
