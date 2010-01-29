@@ -2269,15 +2269,18 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::moveCursorToCenter()
 {
-	S32 x = getWorldViewWidthScaled() / 2;
-	S32 y = getWorldViewHeightScaled() / 2;
+	if (! gSavedSettings.getBOOL("DisableMouseWarp"))
+	{
+		S32 x = getWorldViewWidthScaled() / 2;
+		S32 y = getWorldViewHeightScaled() / 2;
 	
-	//on a forced move, all deltas get zeroed out to prevent jumping
-	mCurrentMousePoint.set(x,y);
-	mLastMousePoint.set(x,y);
-	mCurrentMouseDelta.set(0,0);	
+		//on a forced move, all deltas get zeroed out to prevent jumping
+		mCurrentMousePoint.set(x,y);
+		mLastMousePoint.set(x,y);
+		mCurrentMouseDelta.set(0,0);	
 
-	LLUI::setMousePositionScreen(x, y);	
+		LLUI::setMousePositionScreen(x, y);	
+	}
 }
 
 
