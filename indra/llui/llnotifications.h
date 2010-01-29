@@ -617,7 +617,7 @@ namespace LLNotificationComparators
 	struct orderBy
 	{
 		typedef boost::function<T (LLNotificationPtr)> field_t;
-		orderBy(field_t field, EDirection = ORDER_INCREASING) : mField(field) {}
+        	orderBy(field_t field, EDirection direction = ORDER_INCREASING) : mField(field), mDirection(direction) {}
 		bool operator()(LLNotificationPtr lhs, LLNotificationPtr rhs)
 		{
 			if (mDirection == ORDER_DECREASING)
