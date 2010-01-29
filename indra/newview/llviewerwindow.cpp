@@ -101,7 +101,6 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
-#include "llfloaterchatterbox.h"
 #include "llfloatercustomize.h"
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
@@ -128,7 +127,6 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "lloverlaybar.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
@@ -147,7 +145,6 @@
 #include "lltexturefetch.h"
 #include "lltextureview.h"
 #include "lltool.h"
-#include "lltoolbar.h"
 #include "lltoolcomp.h"
 #include "lltooldraganddrop.h"
 #include "lltoolface.h"
@@ -1462,10 +1459,6 @@ void LLViewerWindow::initWorldUI()
 	bottom_tray->setFollowsAll();
 	bottom_tray_container->addChild(bottom_tray);
 	bottom_tray_container->setVisible(TRUE);
-
-	// Pre initialize instance communicate instance;
-	//  currently needs to happen before initializing chat or IM
-	LLFloaterReg::getInstance("communicate");
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );

@@ -759,7 +759,9 @@ bool LLInventoryPanel::beginIMSession()
 				S32 count = item_array.count();
 				if(count > 0)
 				{
-					LLFloaterReg::showInstance("communicate");
+					//*TODO by what to replace that?
+					//LLFloaterReg::showInstance("communicate");
+
 					// create the session
 					LLAvatarTracker& at = LLAvatarTracker::instance();
 					LLUUID id;

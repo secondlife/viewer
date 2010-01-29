@@ -72,8 +72,6 @@
 #include "llvoavatarself.h"
 #include "llvoicechannel.h"
 
-#include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
-
 // for base64 decoding
 #include "apr_base64.h"
 
