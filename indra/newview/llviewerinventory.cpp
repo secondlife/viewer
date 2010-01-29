@@ -1178,8 +1178,10 @@ const std::string& LLViewerInventoryItem::getName() const
 /**
  * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
  * It replaced previously implemented solution to store sort index in landmark's name as a "<N>@" prefix.
+ * Data are stored in user home directory.
  */
 class LLFavoritesOrderStorage : public LLSingleton<LLFavoritesOrderStorage>
+	, public LLDestroyClass<LLFavoritesOrderStorage>
 {
 public:
 	/**
@@ -1193,11 +1195,26 @@ public:
 	S32 getSortIndex(const LLUUID& inv_item_id);
 	void removeSortIndex(const LLUUID& inv_item_id);
 
+	/**
+	 * Implementation of LLDestroyClass. Calls cleanup() instance method.
+	 *
+	 * It is important this callback is called before gInventory is cleaned.
+	 * For now it is called from LLAppViewer::cleanup() -> LLAppViewer::disconnectViewer(),
+	 * Inventory is cleaned later from LLAppViewer::cleanup() after LLAppViewer::disconnectViewer() is called.
+	 * @see cleanup()
+	 */
+	static void destroyClass();
+
 	const static S32 NO_INDEX;
 private:
 	friend class LLSingleton<LLFavoritesOrderStorage>;
 	LLFavoritesOrderStorage() { load(); }
 	~LLFavoritesOrderStorage() { save(); }
+
+	/**
+	 * Removes sort indexes for items which are not in Favorites bar for now.
+	 */
+	void cleanup();
 
 	const static std::string SORTING_DATA_FILE_NAME;
 
@@ -1206,6 +1223,32 @@ private:
 
 	typedef std::map<LLUUID, S32> sort_index_map_t;
 	sort_index_map_t mSortIndexes;
+
+	struct IsNotInFavorites
+	{
+		IsNotInFavorites(const LLInventoryModel::item_array_t& items)
+			: mFavoriteItems(items)
+		{
+
+		}
+
+		/**
+		 * Returns true if specified item is not found among inventory items
+		 */
+		bool operator()(const sort_index_map_t::value_type& id_index_pair) const
+		{
+			LLPointer<LLViewerInventoryItem> item = gInventory.getItem(id_index_pair.first);
+			if (item.isNull()) return true;
+
+			LLInventoryModel::item_array_t::const_iterator found_it =
+				std::find(mFavoriteItems.begin(), mFavoriteItems.end(), item);
+
+			return found_it == mFavoriteItems.end();
+		}
+	private:
+		LLInventoryModel::item_array_t mFavoriteItems;
+	};
+
 };
 
 const std::string LLFavoritesOrderStorage::SORTING_DATA_FILE_NAME = "landmarks_sorting.xml";
@@ -1229,6 +1272,12 @@ S32 LLFavoritesOrderStorage::getSortIndex(const LLUUID& inv_item_id)
 void LLFavoritesOrderStorage::removeSortIndex(const LLUUID& inv_item_id)
 {
 	mSortIndexes.erase(inv_item_id);
+}
+
+// static
+void LLFavoritesOrderStorage::destroyClass()
+{
+	LLFavoritesOrderStorage::instance().cleanup();
 }
 
 void LLFavoritesOrderStorage::load()
@@ -1273,6 +1322,24 @@ void LLFavoritesOrderStorage::save()
 	}
 }
 
+void LLFavoritesOrderStorage::cleanup()
+{
+	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	gInventory.collectDescendents(fav_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
+
+	IsNotInFavorites is_not_in_fav(items);
+
+	sort_index_map_t  aTempMap;
+	//copy unremoved values from mSortIndexes to aTempMap
+	std::remove_copy_if(mSortIndexes.begin(), mSortIndexes.end(), 
+		inserter(aTempMap, aTempMap.begin()),
+		is_not_in_fav);
+
+	//Swap the contents of mSortIndexes and aTempMap
+	mSortIndexes.swap(aTempMap);
+}
 
 
 // *TODO: mantipov: REMOVE, EXT-3985
