@@ -54,6 +54,7 @@ bool	operator!=(const LLUniqueID &a, const LLUniqueID &b)
 //-----------------------------------------------------------------------------
 LLStateDiagram::LLStateDiagram()
 {
+	mDefaultState = NULL;
 	mUseDefaultState = FALSE;
 }
 
