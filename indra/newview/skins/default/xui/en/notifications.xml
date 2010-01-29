@@ -2941,7 +2941,6 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    type="alert">
 You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
-[INVITE]
     <usetemplate
      name="okcancelbuttons"
      notext="Decline"
