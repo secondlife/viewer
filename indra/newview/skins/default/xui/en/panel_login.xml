@@ -122,11 +122,23 @@ label="Remember"
   top_pad="3"
   name="remember_check"
  width="135" />
+<button
+  follows="left|bottom"
+  height="23"
+  image_unselected="PushButton_On"
+  image_selected="PushButton_On_Selected"
+  label="Log In"
+  label_color="White"
+  layout="topleft"
+  left_pad="10"
+  name="connect_btn"
+  top="35"
+  width="90" />
   <text
   follows="left|bottom"
   font="SansSerifSmall"
   height="15"
-  left_pad="8"
+  left_pad="18"
   name="start_location_text"
 top="20"
   width="130">
@@ -163,18 +175,6 @@ top_pad="2"
 name="server_combo"
 width="135"
   visible="false" />
-<button
-  follows="left|bottom"
-  height="23"
-  image_unselected="PushButton_On"
-  image_selected="PushButton_On_Selected"
-  label="Log In"
-  label_color="White"
-  layout="topleft"
-  left_pad="15"
-  name="connect_btn"
-  top="35"
-  width="90" />
 </layout_panel>
 <layout_panel
 follows="right|bottom"
