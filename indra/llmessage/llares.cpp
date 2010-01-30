@@ -175,7 +175,8 @@ void LLAres::rewriteURI(const std::string &uri, UriRewriteResponder *resp)
 
 LLQueryResponder::LLQueryResponder()
 	: LLAres::QueryResponder(),
-	  mResult(ARES_ENODATA)
+	  mResult(ARES_ENODATA),
+	  mType(RES_INVALID)
 {
 }
 
@@ -641,8 +642,10 @@ LLPtrRecord::LLPtrRecord(const std::string &name, unsigned ttl)
 }
 
 LLAddrRecord::LLAddrRecord(LLResType type, const std::string &name,
-						   unsigned ttl)
-	: LLDnsRecord(type, name, ttl)
+			   unsigned ttl)
+	: LLDnsRecord(type, name, ttl),
+
+	  mSize(0)
 {
 }
 
@@ -701,7 +704,11 @@ bail:
 }
 
 LLSrvRecord::LLSrvRecord(const std::string &name, unsigned ttl)
-	: LLHostRecord(RES_SRV, name, ttl)
+	: LLHostRecord(RES_SRV, name, ttl),
+
+	  mPriority(0),
+	  mWeight(0),
+	  mPort(0)
 {
 }
 

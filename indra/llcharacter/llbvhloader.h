@@ -166,6 +166,7 @@ public:
 	Translation()
 	{
 		mIgnore = FALSE;
+		mIgnorePositions = FALSE;
 		mRelativePositionKey = FALSE;
 		mRelativeRotationKey = FALSE;
 		mPriorityModifier = 0;
