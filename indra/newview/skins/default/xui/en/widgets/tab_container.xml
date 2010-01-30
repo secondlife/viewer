@@ -29,4 +29,3 @@ label_pad_left - padding to the left of tab button labels
                tab_left_image_unselected="SegmentedBtn_Left_Disabled"
                tab_left_image_selected="SegmentedBtn_Left_Off"/>
 </tab_container>
--->
