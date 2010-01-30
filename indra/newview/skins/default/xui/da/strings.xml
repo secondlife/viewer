@@ -815,7 +815,7 @@ tekstur i din beholdning.
 	<string name="no_copy" value=" (ikke kopiere)"/>
 	<string name="worn" value=" (båret)"/>
 	<string name="link" value=" (sammenkæde)"/>
-	<string name="broken_link" value=" (brudt_kæde)&quot;"/>
+	<string name="broken_link" value=" (brudt_kæde)"/>
 	<string name="LoadingContents">
 		Henter indhold...
 	</string>

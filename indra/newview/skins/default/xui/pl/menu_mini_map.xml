@@ -3,6 +3,7 @@
 	<menu_item_call label="Zoom Blisko" name="Zoom Close"/>
 	<menu_item_call label="Zoom Średnio" name="Zoom Medium"/>
 	<menu_item_call label="Zoom Daleko" name="Zoom Far"/>
+	<menu_item_check label="Obróć Mapę" name="Rotate Map"/>
 	<menu_item_call label="Zatrzymaj" name="Stop Tracking"/>
-	<menu_item_call label="Profil..." name="Profile"/>
+	<menu_item_call label="Mapa Świata" name="World Map"/>
 </menu>

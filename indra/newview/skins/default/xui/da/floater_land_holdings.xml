@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="land holdings floater" title="MIT LAND">
 	<scroll_list name="parcel list">
-		<column label="Navn" name="name"/>
+		<column label="Parcel" name="name"/>
 		<column label="Region" name="location"/>
 		<column label="Type" name="type"/>
 		<column label="Område" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
 	<button label="Teleport" label_selected="Teleport" name="Teleport" tool_tip="Teleport til centrum på dette land."/>
-	<button label="Vis på kort" label_selected="Vis på kort" name="Show on Map" tool_tip="Vis dette land på verdenskortet."/>
+	<button label="Kort" label_selected="Kort" name="Show on Map" tool_tip="Vis dette land i verdenskortet"/>
 	<text name="contrib_label">
 		Bidrag til dine grupper:
 	</text>

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="CONFIGURAZIONE JOYSTICK">
-	<check_box name="enable_joystick" label="Abilita Joystick:"/>
+	<check_box label="Abilita Joystick:" name="enable_joystick"/>
 	<text left="120" name="joystick_type" width="380"/>
-	<spinner label="Mapping: asse X" name="JoystickAxis1" label_width="140" width="180" left="12"/>
-	<spinner label="Mapping: asse Y" name="JoystickAxis2" label_width="134" width="174" left="205"/>
-	<spinner label="Mapping: asse Z" name="JoystickAxis0" label_width="94" width="134" left="390"/>
-	<spinner label="Mapping: direzione o Pitch" name="JoystickAxis4" label_width="140" width="180" left="12"/>
-	<spinner label="Mapping: altitudine o Yaw" name="JoystickAxis5" label_width="134" width="174" left="205"/>
-	<spinner label="Mapping del Roll" name="JoystickAxis3" label_width="94" width="134" left="390"/>
-	<spinner label="Mapping dello Zoom" name="JoystickAxis6" label_width="140" width="180" left="12"/>
-	<check_box label="Zoom diretto" name="ZoomDirect" left="205"/>
+	<spinner label="Mapping: asse X" label_width="140" left="12" name="JoystickAxis1" width="180"/>
+	<spinner label="Mapping: asse Y" label_width="134" left="205" name="JoystickAxis2" width="174"/>
+	<spinner label="Mapping: asse Z" label_width="94" left="390" name="JoystickAxis0" width="134"/>
+	<spinner label="Mapping: direzione o Pitch" label_width="140" left="12" name="JoystickAxis4" width="180"/>
+	<spinner label="Mapping: altitudine o Yaw" label_width="134" left="205" name="JoystickAxis5" width="174"/>
+	<spinner label="Mapping del Roll" label_width="94" left="390" name="JoystickAxis3" width="134"/>
+	<spinner label="Mapping dello Zoom" label_width="140" left="12" name="JoystickAxis6" width="180"/>
+	<check_box label="Zoom diretto" left="205" name="ZoomDirect"/>
 	<check_box label="Cursore 3D" name="Cursor3D"/>
 	<check_box label="Auto livellamento" name="AutoLeveling"/>
-	<text name="Control Modes:" left="3" width="113">
+	<text left="3" name="Control Modes:" width="113">
 		Modalità di controllo:
 	</text>
-	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
-	<check_box name="JoystickBuildEnabled" left="192" label="Costruire"/>
-	<check_box name="JoystickFlycamEnabled" label="Camera dall&apos;alto"/>
+	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
+	<check_box label="Costruire" left="192" name="JoystickBuildEnabled"/>
+	<check_box label="Camera dall&apos;alto" name="JoystickFlycamEnabled"/>
 	<text name="XScale">
 		Regolazione X
 	</text>
@@ -27,13 +27,13 @@
 	<text name="ZScale">
 		Regolazione Z
 	</text>
-	<text name="PitchScale" left="3" width="112">
+	<text left="3" name="PitchScale" width="112">
 		Regolazione: Pitch
 	</text>
-	<text name="YawScale" left="3" width="112">
+	<text left="3" name="YawScale" width="112">
 		Regolazione: Yaw
 	</text>
-	<text name="RollScale" left="3" width="112">
+	<text left="3" name="RollScale" width="112">
 		Regolazione: Roll
 	</text>
 	<text name="XDeadZone">
@@ -45,22 +45,22 @@
 	<text name="ZDeadZone">
 		Angolo morto Z
 	</text>
-	<text name="PitchDeadZone" left="3" width="112">
+	<text left="3" name="PitchDeadZone" width="112">
 		Angolo morto: Pitch
 	</text>
-	<text name="YawDeadZone" left="3" width="112">
+	<text left="3" name="YawDeadZone" width="112">
 		Angolo morto: Yaw
 	</text>
-	<text name="RollDeadZone" left="3" width="112">
+	<text left="3" name="RollDeadZone" width="112">
 		Angolo morto: Roll
 	</text>
 	<text name="Feathering">
 		Smussamento
 	</text>
-	<text name="ZoomScale2" width="135" left="6">
+	<text left="6" name="ZoomScale2" width="135">
 		Regolazione dello zoom
 	</text>
-	<text name="ZoomDeadZone" width="135" left="6">
+	<text left="6" name="ZoomDeadZone" width="135">
 		Angolo morto dello zoom
 	</text>
 	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults"/>
