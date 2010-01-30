@@ -19,7 +19,7 @@ if(WINDOWS)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
     set(vivox_files
         SLVoice.exe
-	libsndfile-1.dll
+        libsndfile-1.dll
         vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
@@ -38,6 +38,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        libcollada14dom21.dll
+        glod.dll
         )
 
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
@@ -48,6 +50,8 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
+        libcollada14dom21.dll
+        glod.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)

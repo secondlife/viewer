@@ -268,11 +268,16 @@ class WindowsManifest(ViewerManifest):
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
+                
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             self.disable_manifest_check()
+
+            # Mesh 3rd party libs needed for auto LOD and collada reading
+            self.path("libcollada14dom21.dll")
+            self.path("glod.dll")
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
@@ -320,12 +325,6 @@ class WindowsManifest(ViewerManifest):
         # For using FMOD for sound... DJS
         self.path("fmod.dll")
        
-        # For automatic level of detail generation in mesh importer
-        self.path("glod.dll")
-
-        # For reading collada files
-        self.path("libcollada14dom21.dll")
-
         self.enable_no_crt_manifest_check()
 
         # Media plugins - QuickTime
