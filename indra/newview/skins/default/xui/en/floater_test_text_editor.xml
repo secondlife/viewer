@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="600"
+ layout="topleft"
+ name="floater_test_text_editor"
+ translate="false"
+ width="800">
+  <text_editor
+   height="50"
+   follows="top|left|bottom"
+   left="10"
+   name="test_text_editor"
+   tool_tip="text editor"
+   top="25"
+   width="200">
+    Text Editor
+  </text_editor>
+  <text_editor
+   height="50"
+   follows="top|left|bottom"
+   font="SansSerif" 
+   left="10"
+   name="test_text_editor"
+   tool_tip="text editor"
+   top_pad="10"
+   width="200">
+    This contains long text and should scroll horizontally to the right
+  </text_editor>
+</floater>

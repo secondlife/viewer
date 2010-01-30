@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Sample "floater" window with examples of common widgets.
+
+    Notes:
+    XML UI (XUI) files use spaces for indentation, not tabs.
+    All position values are in pixels.
+    For now, each widget must contain attribute layout="topleft".
+    0,0 is the top-left corner of the floater.
+    Each widget must have a unique name attribute.
+    If a widget is aligned with the one before it, use relative positioning:
+      top_pad
+      top_delta
+      left_pad
+      left_delta
+    Otherwise specify location with left and top attributes.
+-->
+<floater
+ legacy_header_height="18"
+ can_dock="true"
+ can_resize="true"
+ title="TEST FLOATER"
+ height="500"
+ min_width="850"
+ min_height="500"
+ layout="topleft"
+ name="floater_test_widgets"
+ help_topic="floater_test_widgets"
+ translate="false"
+ width="850">
+
+  <!-- Strings are used by C++ code for localization.  They are not visible
+       unless the C++ code uses them to fill in another widget. -->
+  <floater.string
+   name="sample_string"
+   value="Sample String" />
+  <floater.string
+   name="other_string"
+   value="Other String" />
+
+  <!-- Floaters can contain drop-down menus.
+       The menu_bar widget contains the inividual menus.
+       The width is automatically computed to fit the labels. -->
+  <menu_bar
+   height="18"
+   layout="topleft"
+   follows="top|left"
+   tool_tip="menu"
+   left="2"
+   name="test_menu_bar"
+   top="16">
+    <menu
+     height="16"
+     label="Menu"
+     layout="topleft"
+     tear_off="true"
+     left="0"
+     name="Menu"
+     top="-32"
+     width="128">
+      <!-- menu_item_call will trigger a function call in the C++ code -->
+      <menu_item_call
+       label="Menu Item 1"
+       layout="topleft"
+       name="test_menu_item_1" />
+      <!-- menu_item_separator is a horizontal line used to separate sections
+           of a menu.  In general, menus should be divided into chunks of
+           no more than 7 items separated by menu_item_separators. -->
+      <menu_item_separator/>
+      <menu_item_call
+       label="Menu Item 2"
+       layout="topleft"
+       name="test_menu_item_2" />
+    </menu>
+  </menu_bar>
+
+  <!-- "text" is one or more read-only lines of text.
+       It can be made clickable but this requires C++ code
+       support.  URLs are not automatically underlined. -->
+  <text
+   bottom="55"
+   layout="topleft"
+   follows="top|left"
+   left="10"
+   height="16">
+    For widget list see https://wiki.lindenlab.com/wiki/Viewer:UI/Widgets
+  </text>
+
+  <!-- First column -->
+
+  <button
+   height="20"
+   follows="top|left"
+   label="Button"
+   layout="topleft"
+   left_delta="0"
+   name="test_button"
+   tool_tip="button"
+   top="80"
+   width="100" />
+  <!-- "flyout_button" is a button that can spawn a menu -->
+  <flyout_button
+   follows="top|left"
+   height="20"
+   label="Flyout"
+   layout="topleft"
+   left_delta="0"
+   name="fly_btn"
+   top_pad="15"
+   tool_tip="flyout button"
+   width="100">
+    <flyout_button.item
+     label="Item 1"
+     value="shout" />
+    <flyout_button.item
+     label="Item 2"
+     value="say" />
+    <flyout_button.item
+     label="Item 3"
+     value="whisper" />
+  </flyout_button>
+  <check_box
+   bottom_delta="35"
+   label="Checkbox"
+   layout="topleft"
+   tool_tip="checkbox"
+   name="test_checkbox" />
+  <check_box
+   top_pad="5"
+   enabled="false" 
+   label="Checkbox Disabled"
+   tool_tip="checkbox disabled"
+   name="test_checkbox_disabled" />
+  <!-- "combo_box" is a pop-menu of items.  Optionally the box itself can
+       contain a general purpose line input editor, allowing the user to
+       provide input that is not a list item. -->
+  <combo_box
+   bottom_delta="35"
+   follows="top|left"
+   height="16"
+   width="150"
+   label="Combobox"
+   layout="topleft"
+   tool_tip="combo box"
+   name="test_combo_box">
+    <combo_box.item
+     name="item1"
+     label="Combobox Item 1" />
+    <combo_box.item
+     name="item2"
+     label="Combobox Item 2" />
+  </combo_box>
+  <!-- "icon" is a read-only image.  The image_name must match an entry
+        in textures.xml.  We support TGA and PNG for UI images. -->
+  <icon
+   height="16"
+   image_name="icon_avatar_online.tga"
+   layout="topleft"
+   left_delta="0"
+   tool_tip="icon"
+   name="test_icon"
+   top_pad="40"
+   width="16" />
+  <!-- "line_editor" allows a single line of editable text input.
+        The contents of this XML node are used as the initial value for
+        the text. -->
+  <line_editor
+   height="20"
+   follows="top|left"
+   layout="topleft"
+   left_delta="0"
+   name="test_line_editor"
+   top_pad="20"
+   tool_tip="line editor"
+   width="200">
+    Line Editor Sample Text
+  </line_editor>
+  <!-- "filter_editor" is a specialized line_editor that shows read-only
+       help text until the user clicks in the widget. -->
+  <filter_editor
+   follows="left|top"
+   height="20"
+   label="Type here to search"
+   layout="topleft"
+   left_delta="0"
+   name="search editor"
+   tool_tip="search editor"
+   top_pad="30"
+   width="200" />
+  <!-- "progress_bar" percent completed gets set in C++ code -->
+  <progress_bar
+   height="16"
+   follows="top|left"
+   layout="topleft"
+   left_delta="0"
+   name="test_progress_bar"
+   top_pad="30"
+   tool_tip="progress bar"
+   width="200" />
+  <!-- "stat_view" is a container for statistics graphs.  It is only used
+       for debugging/diagnostic displays. -->
+  <stat_view
+   height="250"
+   label="Statistics View"
+   layout="topleft"
+   left_delta="0"
+   name="axis_view"
+   show_label="true"
+   top_pad="30"
+   tool_tip="stat view"
+   width="200">
+    <stat_bar
+     width="100"
+     bar_max="100"
+     bottom_delta="30"
+     label="Test Stat"
+     layout="topleft"
+     stat="stat"
+     bar_min="20"
+     name="test_stat_bar" />
+  </stat_view>
+
+  <!-- New column -->
+
+  <!-- "radio_group" is a set of mutually exclusive choices, like the buttons
+       on a car radio that allow a single radio station to be chosen. -->
+  <radio_group
+   height="40"
+   layout="topleft"
+   left_pad="90"
+   name="size_radio_group"
+   tool_tip="radio group"
+   top="80"
+   width="200">
+    <radio_item
+     bottom="20"
+     label="Radio 1"
+     layout="topleft"
+     name="small_radio_item" />
+    <radio_item
+     label="Radio 2"
+     layout="topleft"
+     name="large_radio_item" />
+  </radio_group>
+  <!-- "scroll_list" is a scrolling list of columnar data. -->
+  <scroll_list
+   bottom_delta="100"
+   follows="top|left"
+   height="80"
+   draw_heading="true"
+   tool_tip="scroll list"
+   layout="topleft">
+    <scroll_list.columns
+     dynamic_width="true"
+     name="first_column"
+     label="Column A"/>
+    <scroll_list.columns
+     dynamic_width="true"
+     name="second_column"
+     label="Column B"/>
+    <row>
+      <column column="first_column">short text</column>
+      <column column="second_column">more short text</column>
+    </row>
+    <row>
+      <column column="first_column">this is some longer text</column>
+      <column column="second_column">and here is some more long text</column>
+    </row>
+  </scroll_list>
+  <!-- "slider" is a horizontal input widget for numerical data. -->
+  <slider
+   bottom_delta="45"
+   follows="top|left"
+   layout="topleft"
+   min_val="0"
+   max_val="100"
+   initial_value="20"
+   label="Slider"
+   name="test_slider"
+   tool_tip="slider"
+   width="200" />
+  <!-- "spinner" is a numerical input widget with an up and down arrow to
+       change the value. -->
+  <spinner
+   bottom_delta="35"
+   follows="top|left"
+   label="Spinner"
+   layout="topleft"
+   label_width="45"
+   name="test_spinner"
+   tool_tip="spinner"/>
+  <text
+   bottom_delta="50"
+   follows="top|left"
+   font.name="SansSerifSmall"
+   font.style = "UNDERLINE"
+   layout="topleft"
+   name="test_text"
+   tool_tip="text">
+    Text (underlined)
+  </text>
+  <text
+   top_pad="10"
+   follows="top|left"
+   layout="topleft"
+   width="60"
+   use_ellipses="true"
+   name="test_text"
+   tool_tip="text">
+    Truncated text here
+  </text>
+  <!-- "text_editor" is a multi-line text input widget, similar to
+       textarea in HTML. -->
+  <text_editor
+   height="40"
+   follows="top|left|bottom"
+   layout="topleft"
+   left_delta="0"
+   name="test_text_editor"
+   tool_tip="text editor"
+   top_pad="25"
+   width="200">
+    Text Editor
+  </text_editor>
+  <text
+   height="40"
+   follows="top|left|bottom"
+   layout="topleft"
+   name="test_text_box"
+   tool_tip="text box"
+   top_pad="5"
+   width="200">
+      Text box
+with
+multiple lines
+and too
+many
+line to actually fit
+  </text>
+  <!-- And a third column -->
+
+  <!-- "tab_container" is a holder for multiple panels of UI widgets.
+       Tabs can appear at the top, bottom, or left of the container. -->
+  <tab_container
+   follows="all"
+   height="400"
+   halign="center"
+   layout="topleft"
+   left="525"
+   name="group_tab_container"
+   tab_position="top"
+   tab_height="20"
+   tool_tip="tab container"
+   top="80"
+   width="300">
+    <!-- "panel" is a container for widgets.  It is automatically resized to
+         fit the parent tab_container. -->
+    <panel
+	 border="true"
+     label="Tab 1 - Color"
+     layout="topleft"
+     name="panel2">
+      <!-- "color_swatch" displays a color and spawns a color picker when
+           clicked. -->
+      <color_swatch
+       can_apply_immediately="true"
+       color="0.3 0.6 0.9 1"
+       follows="left|top"
+       height="90"
+       layout="topleft"
+       left="10"
+       label="Color Swatch 1"
+       name="swatch1"
+       tool_tip="Color Swatch: Click to open Color Picker"
+       top="10"
+       width="80" />
+      <color_swatch
+       can_apply_immediately="true"
+       color="1 0 1 1"
+       follows="left|top"
+       height="90"
+       label="Color Swatch 2"
+       layout="topleft"
+       left_pad="10"
+       name="swatch2"
+       tool_tip="Color Swatch: Click to open Color Picker"
+       top_delta="0"
+       width="80" />
+      <text
+       top_pad="10"
+       left="10"
+       width="250" 
+       follows="top|left"
+       font.name="Monospace"
+       name="test_text10"
+       tool_tip="text">
+        Monospace Button Flyout Checkbox
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250" 
+       follows="top|left"
+       font.name="SansSerifSmall"
+       name="test_text10"
+       tool_tip="text">
+        SansSerifSmall.  Русский 中文 (简体)
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250"
+       follows="top|left"
+       font.name="SansSerif"
+       name="test_text11"
+       tool_tip="text">
+        SansSerif.  Русский 中文 (简体)
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250" 
+       follows="top|left"
+       font.name="SansSerifLarge"
+       name="test_text12"
+       tool_tip="text">
+        SansSerifLarge.  Русский 中文 (简体)
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250"
+       follows="top|left"
+       font.name="SansSerifHuge"
+       name="test_text13"
+       tool_tip="text">
+        SansSerifHuge.  Русский 中文 (简体)
+      </text>
+    </panel>
+    <!-- panels can also refer to other floaters or panels -->
+    <panel
+	  border="true"
+     filename="floater_test_checkbox.xml"
+     height="225"
+     label="Tab 2 - Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="tab2"
+     top_delta="159"
+     width="250" />
+  </tab_container>
+</floater>

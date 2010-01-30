@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_checkbox"
+ help_topic="floater_test_checkbox"
+ translate="false"
+ width="400">
+    <check_box
+     control_name="ShowStartLocation"
+     height="15"
+     initial_value="true"
+     label="Oh look it's a checkbox!"
+     layout="topleft"
+     left="10"
+     name="show_location_checkbox"
+     top="28"
+     width="256" />
+    <check_box
+     height="15"
+     label="Minimal Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="minimal_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     enabled="false"
+     height="15"
+     label="Disabled Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="disabled_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     height="15"
+     label="Text Enabled Color"
+     layout="topleft"
+     left_delta="0"
+     name="text_enabled_color_checkbox"
+     text_enabled_color="EmphasisColor"
+     top_pad="14"
+     width="150" />
+    <check_box
+     enabled="false"
+     height="15"
+     label="Text Disabled Color"
+     layout="topleft"
+     left_delta="0"
+     name="text_disabled_color_checkbox"
+     text_disabled_color="EmphasisColor_35"
+     top_pad="14"
+     width="150" />
+    <check_box
+     height="15"
+     initial_value="true"
+     label="Initial Value Checked"
+     layout="topleft"
+     left_delta="0"
+     name="initial_value_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     font="Monospace"
+     height="15"
+     label="Font Monospace"
+     layout="topleft"
+     left_delta="0"
+     name="font_checkbox"
+     top_pad="14"
+     width="150" />
+
+<chiclet_im_p2p
+ height="25"
+ name="im_p2p_chiclet"
+ show_speaker="false"
+ width="25">
+    <chiclet_im_p2p.chiclet_button
+     height="25"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     name="chiclet_button"
+     tab_stop="false"
+     width="25"/>
+    <chiclet_im_p2p.speaker
+     auto_update="true"
+     draw_border="false"
+     height="25"
+     left="25"
+     name="speaker"
+     visible="false"
+     width="20" />
+    <chiclet_im_p2p.avatar_icon
+     bottom="3"
+     follows="left|top|bottom"
+     height="20"
+     left="2"
+     mouse_opaque="false"
+     name="avatar_icon"
+     width="21" />
+    <chiclet_im_p2p.unread_notifications
+     height="25"
+     font_halign="center"
+     left="25"
+     mouse_opaque="false"
+     name="unread"
+     text_color="white"
+     v_pad="5"
+     visible="false"
+     width="20"/>
+    <chiclet_im_p2p.new_message_icon
+  bottom="11"
+  height="14"
+  image_name="Unread_Chiclet"
+  left="12"
+  name="new_message_icon"
+  visible="false"
+  width="14" />
+</chiclet_im_p2p>
+
+
+<chiclet_offer
+ height="25"
+ name="offer_chiclet"
+ width="25">
+ <chiclet_offer.chiclet_button
+  height="25"
+  image_selected="PushButton_Selected"
+  image_unselected="PushButton_Off"
+  name="chiclet_button"
+  tab_stop="false"
+  width="25"/>
+ <chiclet_offer.icon
+  bottom="3"
+  default_icon="Generic_Object_Small"
+  follows="all"
+  height="19"
+  left="3"
+  mouse_opaque="false"
+  name="chiclet_icon"
+  width="19" />
+ <chiclet_offer.new_message_icon
+  bottom="11"
+  height="14"
+  image_name="Unread_Chiclet"
+  left="12"
+  name="new_message_icon"
+  visible="false"
+  width="14" />
+</chiclet_offer>
+</floater>
