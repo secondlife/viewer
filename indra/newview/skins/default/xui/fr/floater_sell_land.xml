@@ -39,7 +39,7 @@
 				Vendez votre terrain à n&apos;importe qui ou uniquement à un acheteur spécifique.
 			</text>
 			<combo_box bottom_delta="-32" name="sell_to">
-				<combo_box.item label="-- Sélectionnez --" name="--selectone--"/>
+				<combo_box.item label="- Sélectionnez -" name="--selectone--"/>
 				<combo_box.item label="Tout le monde" name="Anyone"/>
 				<combo_box.item label="Personne spécifique :" name="Specificuser:"/>
 			</combo_box>

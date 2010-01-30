@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notes/Perso" name="panel_notes">
 	<layout_stack name="layout">
-		<panel name="notes_stack">
+		<layout_panel name="notes_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="profile_scroll_panel">
 					<text name="status_message" value="Mes notes perso :"/>
@@ -11,13 +11,13 @@
 					<check_box label="Modifier, supprimer ou prendre mes objets" name="objects_check"/>
 				</panel>
 			</scroll_container>
-		</panel>
-		<panel name="notes_buttons_panel">
-			<button label="Ajouter" name="add_friend"/>
-			<button label="IM" name="im"/>
-			<button label="Appeler" name="call"/>
-			<button label="Carte" name="show_on_map_btn"/>
-			<button label="Téléporter" name="teleport"/>
-		</panel>
+		</layout_panel>
+		<layout_panel name="notes_buttons_panel">
+			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à ce résident de devenir votre ami"/>
+			<button label="IM" name="im" tool_tip="Ouvrir une session IM"/>
+			<button label="Appeler" name="call" tool_tip="Appeler ce résident"/>
+			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
+			<button label="Téléporter" name="teleport" tool_tip="Proposez une téléportation"/>
+		</layout_panel>
 	</layout_stack>
 </panel>
