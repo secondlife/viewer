@@ -14,8 +14,8 @@ label_pad_left - padding to the left of tab button labels
                tab_top_image_selected="TabTop_Left_Selected"
                tab_bottom_image_unselected="Toolbar_Left_Off"
                tab_bottom_image_selected="Toolbar_Left_Selected"
-               tab_left_image_unselected="TabTop_Middle_Off"
-               tab_left_image_selected="TabTop_Middle_Selected"/>
+               tab_left_image_unselected="SegmentedBtn_Left_Disabled"
+               tab_left_image_selected="SegmentedBtn_Left_Off"/>
   <middle_tab tab_top_image_unselected="TabTop_Middle_Off"
                tab_top_image_selected="TabTop_Middle_Selected"
                tab_bottom_image_unselected="Toolbar_Middle_Off"
@@ -29,3 +29,4 @@ label_pad_left - padding to the left of tab button labels
                tab_left_image_unselected="SegmentedBtn_Left_Disabled"
                tab_left_image_selected="SegmentedBtn_Left_Off"/>
 </tab_container>
+-->
