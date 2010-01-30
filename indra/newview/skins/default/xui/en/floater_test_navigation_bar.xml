@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_navigation_bar"
  help_topic="floater_test_navigation_bar"
+ translate="false"
  width="900">
   <panel
     name="navigation_bar"

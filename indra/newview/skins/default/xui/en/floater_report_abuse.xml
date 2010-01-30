@@ -52,6 +52,7 @@
      left_pad="5"
      name="reporter_field"
      top_delta="0"
+     translate="false"
      use_ellipses="true"
      width="200">
         Loremipsum Dolorsitamut Longnamez
@@ -153,6 +154,7 @@
      left_pad="6"
      name="object_name"
      top_delta="0"
+     translate="false"
      use_ellipses="true"
      width="185">
         Consetetur Sadipscing
@@ -180,6 +182,7 @@
      left_pad="6"
      name="owner_name"
      top_delta="0"
+     translate="false"
      use_ellipses="true"
      width="185">
         Hendrerit Vulputate Kamawashi Longname
