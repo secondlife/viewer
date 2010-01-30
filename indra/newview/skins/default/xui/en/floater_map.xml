@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- can_minimize="false" 
+ can_minimize="true" 
  can_resize="true"
+ center_horiz="true"
+ center_vert="true"
  follows="top|right"
  height="225"
  layout="topleft"
  min_height="60"
  min_width="174"
  name="Map"
+ title="Mini Map"
  help_topic="map"
  save_rect="true"
  save_visibility="true"

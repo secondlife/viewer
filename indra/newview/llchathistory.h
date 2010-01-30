@@ -113,11 +113,14 @@ class LLChatHistory : public LLUICtrl
 		 * Appends a widget message.
 		 * If last user appended message, concurs with current user,
 		 * separator is added before the message, otherwise header is added.
+		 * The args LLSD contains:
+		 * - use_plain_text_chat_history (bool) - whether to add message as plain text.
+		 * - owner_id (LLUUID) - the owner ID for object chat
 		 * @param chat - base chat message.
-		 * @param use_plain_text_chat_history  - whether to add message as plain text.
+		 * @param args - additional arguments
 		 * @param input_append_params - font style.
 		 */
-		void appendMessage(const LLChat& chat, const bool use_plain_text_chat_history = false, const LLStyle::Params& input_append_params = LLStyle::Params());
+		void appendMessage(const LLChat& chat, const LLSD &args = LLSD(), const LLStyle::Params& input_append_params = LLStyle::Params());
 		/*virtual*/ void clear();
 		/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 

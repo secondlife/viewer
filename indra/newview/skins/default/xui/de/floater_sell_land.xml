@@ -39,7 +39,7 @@
 				Wählen Sie, ob der Verkauf offen oder auf eine bestimmte Person beschränkt ist.
 			</text>
 			<combo_box bottom_delta="-32" height="16" left="72" name="sell_to" width="140">
-				<combo_box.item label="-- Wählen --" name="--selectone--"/>
+				<combo_box.item label="-- Auswählen --" name="--selectone--"/>
 				<combo_box.item label="Jeder" name="Anyone"/>
 				<combo_box.item label="Bestimmte Person:" name="Specificuser:"/>
 			</combo_box>

@@ -1,54 +1,81 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="世界地図">
-	<text name="you_label">
-		あなた
-	</text>
-	<text name="home_label">
-		ホーム
-	</text>
-	<text name="auction_label">
-		オークション
-	</text>
-	<icon left="1123" name="square"/>
-	<text left_delta="20" name="land_for_sale_label">
-		売出し中の土地
-	</text>
-	<button label="ホームへ" label_selected="ホームへ" name="Go Home" tool_tip="自分のホームにテレポート"/>
-	<check_box label="住人" name="people_chk"/>
-	<check_box label="インフォハブ" name="infohub_chk"/>
-	<check_box label="テレハブ" name="telehub_chk"/>
-	<check_box label="売り地" name="land_for_sale_chk"/>
-	<text name="events_label">
-		イベント：
-	</text>
-	<check_box label="PG" name="event_chk"/>
-	<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
-	<check_box label="Adult" name="event_adult_chk"/>
-	<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="地図に表示するフレンド">
-		<combo_box.item label="オンラインのフレンド" name="item1"/>
-	</combo_box>
-	<combo_box label="ランドマーク" name="landmark combo" tool_tip="地図に表示するランドマーク">
-		<combo_box.item label="ランドマーク" name="item1"/>
-	</combo_box>
-	<line_editor label="地域名で検索" name="location" tool_tip="地域名を入力してください。"/>
-	<button label="検索" name="DoSearch" tool_tip="地域検索"/>
-	<text name="search_label">
-		検索結果：
-	</text>
-	<scroll_list name="search_results">
-		<scroll_list.columns label="" name="icon"/>
-		<scroll_list.columns label="" name="sim_name"/>
-	</scroll_list>
-	<text name="location_label">
-		位置：
-	</text>
-	<spinner name="spin x" tool_tip="地図上に表示される位置のX座標"/>
-	<spinner name="spin y" tool_tip="地図上に表示される位置のY座標"/>
-	<spinner name="spin z" tool_tip="地図上に表示される位置のZ座標"/>
-	<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="選択されたロケーションにテレポート"/>
-	<button label="目的地を表示" label_selected="目的地を表示" name="Show Destination" tool_tip="選択したロケーションを地図の中心にする"/>
-	<button label="クリア" label_selected="クリア" name="Clear" tool_tip="トラッキングを停止"/>
-	<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="あなたのアバターのロケーションを地図の中心にする"/>
-	<button label="SLurl をクリップボードにコピー" name="copy_slurl" tool_tip="現在地を SLurl としてコピーして、Webで使用します。"/>
-	<slider label="ズーム" name="zoom slider"/>
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			レジェンド
+		</text>
+	</panel>
+	<panel>
+		<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="マップを中央に表示する"/>
+		<text name="me_label">
+			ミー
+		</text>
+		<check_box label="住人" name="people_chk"/>
+		<text name="person_label">
+			住人
+		</text>
+		<check_box label="インフォハブ" name="infohub_chk"/>
+		<text name="infohub_label">
+			インフォハブ
+		</text>
+		<check_box label="売り地" name="land_for_sale_chk"/>
+		<text name="land_sale_label">
+			土地販売
+		</text>
+		<text name="by_owner_label">
+			by owner
+		</text>
+		<text name="auction_label">
+			土地オークション
+		</text>
+		<button label="ホームへ" label_selected="ホームへ" name="Go Home" tool_tip="「ホーム」にテレポート"/>
+		<text name="Home_label">
+			ホーム
+		</text>
+		<text name="events_label">
+			イベント：
+		</text>
+		<check_box label="PG" name="event_chk"/>
+		<text name="pg_label">
+			一般
+		</text>
+		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
+		<text name="mature_label">
+			控えめ
+		</text>
+		<check_box label="Adult" name="event_adult_chk"/>
+		<text name="adult_label">
+			アダルト
+		</text>
+	</panel>
+	<panel>
+		<text name="find_on_map_label">
+			地図で探す
+		</text>
+	</panel>
+	<panel>
+		<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="フレンドを地図に表示">
+			<combo_box.item label="オンラインのフレンド" name="item1"/>
+		</combo_box>
+		<combo_box label="マイ ランドマーク" name="landmark combo" tool_tip="地図に表示するランドマーク">
+			<combo_box.item label="マイ ランドマーク" name="item1"/>
+		</combo_box>
+		<search_editor label="リージョン名" name="location" tool_tip="地域名を入力してください。"/>
+		<button label="検索" name="DoSearch" tool_tip="地域検索"/>
+		<scroll_list name="search_results">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="sim_name"/>
+		</scroll_list>
+		<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="選択されたロケーションにテレポート"/>
+		<button label="SLurl をコピー" name="copy_slurl" tool_tip="現在地を SLurl としてコピーして、Webで使用します。"/>
+		<button label="選択したリージョンを表示する" label_selected="目的地を表示" name="Show Destination" tool_tip="選択したロケーションを地図の中心にする"/>
+	</panel>
+	<panel>
+		<text name="zoom_label">
+			ズーム
+		</text>
+	</panel>
+	<panel>
+		<slider label="ズーム" name="zoom slider"/>
+	</panel>
 </floater>

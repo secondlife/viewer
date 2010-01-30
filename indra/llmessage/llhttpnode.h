@@ -305,7 +305,7 @@ protected:
 	~LLSimpleResponse();
 
 private:
-	LLSimpleResponse() {;} // Must be accessed through LLPointer.
+        LLSimpleResponse() : mCode(0) {} // Must be accessed through LLPointer.
 };
 
 std::ostream& operator<<(std::ostream& out, const LLSimpleResponse& resp);

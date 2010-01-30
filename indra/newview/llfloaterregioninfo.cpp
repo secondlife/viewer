@@ -1521,11 +1521,6 @@ void LLPanelEstateInfo::onClickRemoveEstateManager(void* user_data)
 //---------------------------------------------------------------------------
 // Kick from estate methods
 //---------------------------------------------------------------------------
-struct LLKickFromEstateInfo
-{
-	LLPanelEstateInfo *mEstatePanelp;
-	LLUUID      mAgentID;
-};
 
 void LLPanelEstateInfo::onClickKickUser()
 {
@@ -1546,11 +1541,6 @@ void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, 
 	{
 		return;
 	}
-
-	//keep track of what user they want to kick and other misc info
-	LLKickFromEstateInfo *kick_info = new LLKickFromEstateInfo();
-	kick_info->mEstatePanelp = this;
-	kick_info->mAgentID     = ids[0];
 
 	//Bring up a confirmation dialog
 	LLSD args;
@@ -2544,7 +2534,9 @@ bool LLPanelEstateInfo::onMessageCommit(const LLSD& notification, const LLSD& re
 }
 
 LLPanelEstateCovenant::LLPanelEstateCovenant()
-: mCovenantID(LLUUID::null)
+	:
+	mCovenantID(LLUUID::null),
+	mAssetStatus(ASSET_ERROR)
 {
 }
 

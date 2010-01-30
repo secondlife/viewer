@@ -651,6 +651,9 @@ void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
 		// Detach from movement controls. 
 		parent->removeChild(this);
 		mOriginalParent.get()->addChild(this);
+		// update parent with self visibility (it is changed in setVisible()). EXT-4743
+		mOriginalParent.get()->setVisible(getVisible());
+
 		mAttached = false;
 		updatePosition(); // don't defer until next draw() to avoid flicker
 	}

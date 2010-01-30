@@ -127,7 +127,6 @@ protected:
 	LLRectf				mPreviewImageRect;
 	LLAssetID			mMotionID;
 	LLTransactionID		mTransactionID;
-	BOOL				mEnabled;
 	LLAnimPauseRequest	mPauseRequest;
 
 	std::map<std::string, LLUUID>	mIDList;

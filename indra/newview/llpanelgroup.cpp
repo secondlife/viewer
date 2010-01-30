@@ -89,8 +89,8 @@ BOOL LLPanelGroupTab::postBuild()
 LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),
-	mAllowEdit( TRUE )
-	,mShowingNotifyDialog(false)
+	mSkipRefresh(FALSE),
+	mShowingNotifyDialog(false)
 {
 	// Set up the factory callbacks.
 	// Roles sub tabs
@@ -168,7 +168,6 @@ BOOL LLPanelGroup::postBuild()
 
 	button = getChild<LLButton>("btn_refresh");
 	button->setClickedCallback(onBtnRefresh, this);
-	button->setVisible(mAllowEdit);
 
 	getChild<LLButton>("btn_create")->setVisible(false);
 
@@ -492,7 +491,12 @@ bool LLPanelGroup::apply(LLPanelGroupTab* tab)
 	
 	std::string apply_mesg;
 	if(tab->apply( apply_mesg ) )
+	{
+		//we skip refreshing group after ew manually apply changes since its very annoying
+		//for those who are editing group
+		mSkipRefresh = TRUE;
 		return true;
+	}
 		
 	if ( !apply_mesg.empty() )
 	{
@@ -539,6 +543,11 @@ void LLPanelGroup::draw()
 
 void LLPanelGroup::refreshData()
 {
+	if(mSkipRefresh)
+	{
+		mSkipRefresh = FALSE;
+		return;
+	}
 	LLGroupMgr::getInstance()->clearGroupData(getID());
 
 	setGroupID(getID());
@@ -560,10 +569,10 @@ void LLPanelGroup::chatGroup()
 }
 
 void LLPanelGroup::showNotice(const std::string& subject,
-							  const std::string& message,
-							  const bool& has_inventory,
-							  const std::string& inventory_name,
-							  LLOfferInfo* inventory_offer)
+			      const std::string& message,
+			      const bool& has_inventory,
+			      const std::string& inventory_name,
+			      LLOfferInfo* inventory_offer)
 {
 	LLPanelGroupNotices* panel_notices = findChild<LLPanelGroupNotices>("group_notices_tab_panel");
 	if(!panel_notices)

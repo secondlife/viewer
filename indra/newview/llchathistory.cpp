@@ -34,7 +34,9 @@
 
 #include "llinstantmessage.h"
 
+#include "llimview.h"
 #include "llchathistory.h"
+#include "llcommandhandler.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
@@ -46,14 +48,52 @@
 #include "llfloaterreg.h"
 #include "llmutelist.h"
 #include "llstylemap.h"
+#include "llslurl.h"
 #include "lllayoutstack.h"
 #include "llagent.h"
+#include "llnotificationsutil.h"
+#include "lltoastnotifypanel.h"
+#include "llviewerregion.h"
+#include "llworld.h"
+
 
 #include "llsidetray.h"//for blocked objects panel
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
+
+// support for secondlife:///app/objectim/{UUID}/ SLapps
+class LLObjectIMHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLObjectIMHandler() : LLCommandHandler("objectim", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (params.size() < 1)
+		{
+			return false;
+		}
+
+		LLUUID object_id;
+		if (!object_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		LLSD payload;
+		payload["object_id"] = object_id;
+		payload["owner_id"] = query_map["owner"];
+		payload["name"] = query_map["name"];
+		payload["slurl"] = query_map["slurl"];
+		payload["group_owned"] = query_map["groupowned"];
+		LLFloaterReg::showInstance("inspect_remote_object", payload);
+		return true;
+	}
+};
+LLObjectIMHandler gObjectIMHandler;
 
 class LLChatHistoryHeader: public LLPanel
 {
@@ -183,6 +223,7 @@ public:
 	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
 	{
 		mAvatarID = chat.mFromID;
+		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
 		if(chat.mFromID.isNull())
@@ -272,7 +313,7 @@ protected:
 			showSystemContextMenu(x,y);
 		if(mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_OBJECT)
+		if(mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
 			showObjectContextMenu(x,y);
 	}
 
@@ -303,6 +344,11 @@ protected:
 				menu->setItemEnabled("Add Friend", false);
 				menu->setItemEnabled("Send IM", false);
 				menu->setItemEnabled("Remove Friend", false);
+			}
+
+			if (mSessionID == LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, mAvatarID))
+			{
+				menu->setItemVisible("Send IM", false);
 			}
 
 			menu->buildDrawLabels();
@@ -344,6 +390,7 @@ protected:
 	std::string			mFirstName;
 	std::string			mLastName;
 	std::string			mFrom;
+	LLUUID				mSessionID;
 
 	S32					mMinUserNameWidth;
 };
@@ -457,8 +504,9 @@ void LLChatHistory::clear()
 	mLastFromID = LLUUID::null;
 }
 
-void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_chat_history, const LLStyle::Params& input_append_params)
+void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
+	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
@@ -524,7 +572,28 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-			if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			if ( chat.mSourceType == CHAT_SOURCE_OBJECT )
+			{
+				// for object IMs, create a secondlife:///app/objectim SLapp
+				std::string url = LLSLURL::buildCommand("objectim", chat.mFromID, "");
+				url += "?name=" + chat.mFromName;
+				url += "&owner=" + args["owner_id"].asString();
+
+				LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+				if (region)
+				{
+					S32 x, y, z;
+					LLSLURL::globalPosToXYZ(LLVector3d(chat.mPosAgent), x, y, z);
+					url += "&slurl=" + region->getName() + llformat("/%d/%d/%d", x, y, z);
+				}
+
+				// set the link for the object name to be the objectim SLapp
+				LLStyle::Params link_params(style_params);
+				link_params.color.control = "HTMLLinkColor";
+				link_params.link_href = url;
+				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
+			}
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
@@ -588,8 +657,36 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		mLastMessageTimeStr = chat.mTimeStr;
 	}
 
-	std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
-	mEditor->appendText(message, FALSE, style_params);
+   if (chat.mNotifId.notNull())
+	{
+		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
+		if (notification != NULL)
+		{
+			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(
+					notification);
+			notify_box->setFollowsLeft();
+			notify_box->setFollowsRight();
+			//Prepare the rect for the view
+			LLRect target_rect = mEditor->getDocumentView()->getRect();
+			// squeeze down the widget by subtracting padding off left and right
+			target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
+			target_rect.mRight -= mRightWidgetPad;
+			notify_box->reshape(target_rect.getWidth(),
+					notify_box->getRect().getHeight());
+			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+
+			LLInlineViewSegment::Params params;
+			params.view = notify_box;
+			params.left_pad = mLeftWidgetPad;
+			params.right_pad = mRightWidgetPad;
+			mEditor->appendWidget(params, "\n", false);
+		}
+	}
+	else
+	{
+		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+		mEditor->appendText(message, FALSE, style_params);
+	}
 	mEditor->blockUndo();
 
 	// automatically scroll to end when receiving chat from myself

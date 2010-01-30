@@ -145,7 +145,14 @@ class LLPanelScriptLimitsRegionMemory : public LLPanelScriptLimitsInfo, LLRemote
 	
 public:
 	LLPanelScriptLimitsRegionMemory()
-		:	LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(), mParcelId(LLUUID()), mGotParcelMemoryUsed(FALSE), mGotParcelMemoryMax(FALSE) {};
+		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
+
+		mParcelId(LLUUID()),
+		mGotParcelMemoryUsed(FALSE),
+		mGotParcelMemoryMax(FALSE),
+		mParcelMemoryMax(0),
+		mParcelMemoryUsed(0) {};
+
 	~LLPanelScriptLimitsRegionMemory()
 	{
 		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
@@ -167,9 +174,9 @@ public:
 
 private:
 
-	void onNameCache(	 const LLUUID& id,
-						 const std::string& first_name,
-						 const std::string& last_name);
+	void onNameCache(const LLUUID& id,
+			 const std::string& first_name,
+			 const std::string& last_name);
 
 	LLUUID mParcelId;
 	BOOL mGotParcelMemoryUsed;
@@ -200,7 +207,16 @@ class LLPanelScriptLimitsRegionURLs : public LLPanelScriptLimitsInfo
 	
 public:
 	LLPanelScriptLimitsRegionURLs()
-		:	LLPanelScriptLimitsInfo(), mParcelId(LLUUID()), mGotParcelURLsUsed(FALSE), mGotParcelURLsMax(FALSE) {};
+		: LLPanelScriptLimitsInfo(),
+
+		mParcelId(LLUUID()),
+		mGotParcelURLsUsed(FALSE),
+		mGotParcelURLsMax(FALSE),
+		mParcelURLsMax(0),
+		mParcelURLsUsed(0)
+		{
+		};
+
 	~LLPanelScriptLimitsRegionURLs()
 	{
 	};

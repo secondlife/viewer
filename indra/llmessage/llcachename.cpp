@@ -81,6 +81,8 @@ public:
 };
 
 LLCacheNameEntry::LLCacheNameEntry()
+	: mIsGroup(false),
+	  mCreateTime(0)
 {
 }
 
@@ -125,7 +127,7 @@ private:
 };
 
 ReplySender::ReplySender(LLMessageSystem* msg)
-	: mMsg(msg), mPending(false)
+	: mMsg(msg), mPending(false), mCurrIsGroup(false)
 { }
 
 ReplySender::~ReplySender()

@@ -321,13 +321,13 @@ namespace LLInitParam
 		typedef bool(*validation_func_t)(const Param*);
 
 		ParamDescriptor(param_handle_t p, 
-						merge_func_t merge_func, 
-						deserialize_func_t deserialize_func, 
-						serialize_func_t serialize_func,
-						validation_func_t validation_func,
-						inspect_func_t inspect_func,
-						S32 min_count,
-						S32 max_count)
+				merge_func_t merge_func, 
+				deserialize_func_t deserialize_func, 
+				serialize_func_t serialize_func,
+				validation_func_t validation_func,
+				inspect_func_t inspect_func,
+				S32 min_count,
+				S32 max_count)
 		:	mParamHandle(p),
 			mMergeFunc(merge_func),
 			mDeserializeFunc(deserialize_func),
@@ -336,6 +336,7 @@ namespace LLInitParam
 			mInspectFunc(inspect_func),
 			mMinCount(min_count),
 			mMaxCount(max_count),
+			mGeneration(0),
 			mNumRefs(0)
 		{}
 
@@ -371,7 +372,8 @@ namespace LLInitParam
 	public:
 		BlockDescriptor()
 		:	mMaxParamOffset(0),
-			mInitializationState(UNINITIALIZED)
+			mInitializationState(UNINITIALIZED),
+			mCurrentBlockPtr(NULL)
 		{}
 
 		typedef enum e_initialization_state

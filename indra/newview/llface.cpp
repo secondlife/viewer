@@ -157,6 +157,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mGeomIndex		= 0;
 	mIndicesCount	= 0;
 	mIndicesIndex	= 0;
+	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
 

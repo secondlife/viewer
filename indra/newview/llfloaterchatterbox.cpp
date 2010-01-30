@@ -216,11 +216,11 @@ void LLFloaterChatterBox::onOpen(const LLSD& key)
 	}
 	else if (key.isDefined())
 	{
-		LLFloaterIMPanel* impanel = gIMMgr->findFloaterBySession(key.asUUID());
+		/*LLFloaterIMPanel* impanel = gIMMgr->findFloaterBySession(key.asUUID());
 		if (impanel)
 		{
 			impanel->openFloater();
-		}
+		}*/
 	}
 }
 

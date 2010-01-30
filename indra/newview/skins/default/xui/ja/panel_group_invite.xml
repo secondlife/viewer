@@ -7,13 +7,10 @@
 		(ローディング．．．)
 	</panel.string>
 	<panel.string name="already_in_group">
-		何人かのアバターは既にグループ加入済みのため、招待されませんでした。
+		選択した住人のなかに、既にグループに所属している人がいるため、招待を送ることができませんでした。
 	</panel.string>
 	<text bottom_delta="-96" font="SansSerifSmall" height="72" name="help_text">
-		あなたのグループに一度に複数の
-住人を招待することができます。
-「リストから住人を選択」
-をクリックしてください。
+		グループには一度に複数の住人を招待することができます。 「リストから住人を選択」をクリックしてください。
 	</text>
 	<button bottom_delta="-10" label="リストから住人を選択" name="add_button" tool_tip=""/>
 	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>

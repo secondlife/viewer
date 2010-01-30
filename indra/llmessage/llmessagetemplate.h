@@ -82,7 +82,7 @@ protected:
 class LLMsgBlkData
 {
 public:
-	LLMsgBlkData(const char *name, S32 blocknum) : mOffset(-1), mBlockNumber(blocknum), mTotalSize(-1) 
+        LLMsgBlkData(const char *name, S32 blocknum) : mBlockNumber(blocknum), mTotalSize(-1) 
 	{ 
 		mName = (char *)name; 
 	}
@@ -108,7 +108,6 @@ public:
 		temp->addData(data, size, type, data_size);
 	}
 
-	S32									mOffset;
 	S32									mBlockNumber;
 	typedef LLDynamicArrayIndexed<LLMsgVarData, const char *, 8> msg_var_data_map_t;
 	msg_var_data_map_t					mMemberVarData;
@@ -136,7 +135,6 @@ public:
 	void addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1);
 
 public:
-	S32									mOffset;
 	typedef std::map<char*, LLMsgBlkData*> msg_blk_data_map_t;
 	msg_blk_data_map_t					mMemberBlocks;
 	char								*mName;

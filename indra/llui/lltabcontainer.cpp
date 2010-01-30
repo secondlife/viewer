@@ -1373,6 +1373,8 @@ BOOL LLTabContainer::setTab(S32 which)
 		{
 			LLTabTuple* tuple = *iter;
 			BOOL is_selected = ( tuple == selected_tuple );
+			tuple->mButton->setUseEllipses(TRUE);
+			tuple->mButton->setHAlign(LLFontGL::LEFT);
 			tuple->mTabPanel->setVisible( is_selected );
 // 			tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
 			tuple->mButton->setToggleState( is_selected );
@@ -1478,63 +1480,54 @@ void LLTabContainer::setTabPanelFlashing(LLPanel* child, BOOL state )
 
 void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const LLColor4& color)
 {
-	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
 	LLTabTuple* tuple = getTabByPanel(child);
 	if( tuple )
 	{
-		tuple->mButton->setImageOverlay(image_name, LLFontGL::RIGHT, color);
-
-		if (!mIsVertical)
-		{
-			// remove current width from total tab strip width
-			mTotalTabWidth -= tuple->mButton->getRect().getWidth();
-
-			S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ? 
-				tuple->mButton->getImageOverlay()->getImage()->getWidth(0) :
-				0;
-
-			tuple->mPadding = image_overlay_width;
-
-			tuple->mButton->setRightHPad(6);
-			tuple->mButton->reshape(llclamp(mFont->getWidth(tuple->mButton->getLabelSelected()) + tab_padding + tuple->mPadding, mMinTabWidth, mMaxTabWidth), 
-									tuple->mButton->getRect().getHeight());
-			// add back in button width to total tab strip width
-			mTotalTabWidth += tuple->mButton->getRect().getWidth();
-
-			// tabs have changed size, might need to scroll to see current tab
-			updateMaxScrollPos();
-		}
+		tuple->mButton->setImageOverlay(image_name, LLFontGL::LEFT, color);
+		reshape_tuple(tuple);
 	}
 }
 
 void LLTabContainer::setTabImage(LLPanel* child, const LLUUID& image_id, const LLColor4& color)
 {
-	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
 	LLTabTuple* tuple = getTabByPanel(child);
 	if( tuple )
 	{
-		tuple->mButton->setImageOverlay(image_id, LLFontGL::RIGHT, color);
+		tuple->mButton->setImageOverlay(image_id, LLFontGL::LEFT, color);
+		reshape_tuple(tuple);
+	}
+}
 
-		if (!mIsVertical)
-		{
-			// remove current width from total tab strip width
-			mTotalTabWidth -= tuple->mButton->getRect().getWidth();
+void LLTabContainer::reshape_tuple(LLTabTuple* tuple)
+{
+	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
+	static LLUICachedControl<S32> image_left_padding ("UIButtonImageLeftPadding", 4);
+	static LLUICachedControl<S32> image_right_padding ("UIButtonImageRightPadding", 4);
+	static LLUICachedControl<S32> image_top_padding ("UIButtonImageTopPadding", 2);
+	static LLUICachedControl<S32> image_bottom_padding ("UIButtonImageBottomPadding", 2);
 
-			S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ?
-				tuple->mButton->getImageOverlay()->getImage()->getWidth(0) :
-				0;
+	if (!mIsVertical)
+	{
+		tuple->mButton->setImageOverlayLeftPad(image_left_padding);
+		tuple->mButton->setImageOverlayRightPad(image_right_padding);
+		tuple->mButton->setImageOverlayTopPad(image_top_padding);
+		tuple->mButton->setImageOverlayBottomPad(image_bottom_padding);
 
-			tuple->mPadding = image_overlay_width;
+		// remove current width from total tab strip width
+		mTotalTabWidth -= tuple->mButton->getRect().getWidth();
 
-			tuple->mButton->setRightHPad(6);
-			tuple->mButton->reshape(llclamp(mFont->getWidth(tuple->mButton->getLabelSelected()) + tab_padding + tuple->mPadding, mMinTabWidth, mMaxTabWidth),
-									tuple->mButton->getRect().getHeight());
-			// add back in button width to total tab strip width
-			mTotalTabWidth += tuple->mButton->getRect().getWidth();
+		S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ?
+		tuple->mButton->getImageOverlay()->getImage()->getWidth(0) : 0;
 
-			// tabs have changed size, might need to scroll to see current tab
-			updateMaxScrollPos();
-		}
+		tuple->mPadding = image_overlay_width;
+
+		tuple->mButton->reshape(llclamp(mFont->getWidth(tuple->mButton->getLabelSelected()) + tab_padding + tuple->mPadding, mMinTabWidth, mMaxTabWidth),
+								tuple->mButton->getRect().getHeight());
+		// add back in button width to total tab strip width
+		mTotalTabWidth += tuple->mButton->getRect().getWidth();
+
+		// tabs have changed size, might need to scroll to see current tab
+		updateMaxScrollPos();
 	}
 }
 
@@ -1597,7 +1590,10 @@ void LLTabContainer::onTabBtn( const LLSD& data, LLPanel* panel )
 	LLTabTuple* tuple = getTabByPanel(panel);
 	selectTabPanel( panel );
 
-	tuple->mTabPanel->setFocus(TRUE);
+	if (tuple)
+	{
+		tuple->mTabPanel->setFocus(TRUE);
+	}
 }
 
 void LLTabContainer::onNextBtn( const LLSD& data )

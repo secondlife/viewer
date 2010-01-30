@@ -37,7 +37,11 @@
 
 LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 		const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
-		mDockWidget(dockWidget), mDockableFloater(dockableFloater), mDockTongue(dockTongue)
+		mDockWidget(dockWidget),
+		mDockableFloater(dockableFloater),
+		mDockTongue(dockTongue),
+		mDockTongueX(0),
+		mDockTongueY(0)
 {
 	mDockAt = dockAt;
 

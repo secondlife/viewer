@@ -85,9 +85,6 @@ public:
 
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	void setAllowEdit(BOOL v) { mAllowEdit = v; }
-
-	
 	static void refreshCreatedGroup(const LLUUID& group_id);
 
 	static void showNotice(const std::string& subject,
@@ -126,7 +123,7 @@ protected:
 
 	LLTimer mRefreshTimer;
 
-	BOOL mAllowEdit;
+	BOOL mSkipRefresh;
 
 	std::string mDefaultNeedsApplyMesg;
 	std::string mWantApplyMesg;
@@ -168,8 +165,6 @@ public:
 	virtual BOOL postBuild();
 
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
-
-	void setAllowEdit(BOOL v) { mAllowEdit = v; }
 
 	virtual void setGroupID(const LLUUID& id) {mGroupID = id;};
 

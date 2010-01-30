@@ -31,17 +31,16 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloaterreg.h"
 #include "llinspectremoteobject.h"
 #include "llinspect.h"
-#include "llslurl.h"
 #include "llmutelist.h"
-#include "llurlaction.h"
 #include "llpanelblockedlist.h"
-#include "llfloaterreg.h"
+#include "llslurl.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "lluictrl.h"
-
-class LLViewerObject;
+#include "llurlaction.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectRemoteObject
@@ -183,11 +182,25 @@ void LLInspectRemoteObject::update()
 			owner = LLSLURL::buildCommand("agent", mOwnerID, "about");
 		}
 	}
+	else
+	{
+		owner = LLTrans::getString("Unknown");
+	}
 	getChild<LLUICtrl>("object_owner")->setValue(owner);
 
 	// display the object's SLurl - click it to teleport
-	std::string url = "secondlife:///app/teleport/" + mSLurl;
+	std::string url;
+	if (! mSLurl.empty())
+	{
+		std::string url = "secondlife:///app/teleport/" + mSLurl;
+	}
 	getChild<LLUICtrl>("object_slurl")->setValue(url);
+
+	// disable the Map button if we don't have a SLurl
+	getChild<LLUICtrl>("map_btn")->setEnabled(! mSLurl.empty());
+
+	// disable the Block button if we don't have the owner ID
+	getChild<LLUICtrl>("block_btn")->setEnabled(! mOwnerID.isNull());
 }
 
 //////////////////////////////////////////////////////////////////////////////

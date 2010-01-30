@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="AUSSEHEN">
 	<tab_container name="customize tab container">
-		<placeholder label="Körperteile" name="body_parts_placeholder"/>
+		<text label="Körperteile" name="body_parts_placeholder">
+			Körperteile
+		</text>
 		<panel label="Form" name="Shape">
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 			<button label="Körper" label_selected="Körper" name="Body"/>
@@ -14,8 +16,8 @@
 			<button label="Oberkörper" label_selected="Oberkörper" name="Torso"/>
 			<button label="Beine" label_selected="Beine" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item label="Weiblich" name="radio"/>
-				<radio_item label="Männlich" name="radio2"/>
+				<radio_item label="Weiblich" name="radio" value="0"/>
+				<radio_item label="Männlich" name="radio2" value="1"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -33,9 +35,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine Körperform aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch eine neue Körperform erstellen
-und diese anziehen.
+				Ziehen Sie eine neue Form aus dem Inventar auf Ihren Avatar, um diese anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -68,9 +68,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine Haut aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch eine neue Haut erstellen
-und diese anziehen.
+				Ziehen Sie eine neue Skin (Haut) aus dem Inventar auf Ihren Avatar, um diese anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -107,9 +105,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie Haare aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch neue Haare erstellen
-und diese anziehen.
+				Ziehen Sie Haar aus dem Inventar auf Ihren Avatar, um dieses anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -140,9 +136,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie Augen aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch neue Augen erstellen
-und diese anziehen.
+				Ziehen Sie neue Augen aus dem Inventar auf Ihren Avatar, um diese anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -156,7 +150,9 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
-		<placeholder label="Kleidung" name="clothes_placeholder"/>
+		<text label="Kleidung" name="clothes_placeholder">
+			Kleidung
+		</text>
 		<panel label="Hemd" name="Shirt">
 			<texture_picker label="Stoff" name="Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
@@ -181,9 +177,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie ein Hemd aus dem Inventar auf Ihren Avatar,
-um es zu tragen. Sie können auch ein neues Hemd erstellen
-und dieses anziehen.
+				Ziehen Sie ein neues Hemd aus dem Inventar auf Ihren Avatar, um dieses anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -216,9 +210,7 @@ und dieses anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine Hose aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch eine neue Hose erstellen
-und diese anziehen.
+				Ziehen Sie eine neue Hose aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -244,9 +236,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie Schuhe aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch neue Schuhe erstellen
-und diese anziehen.
+				Ziehen Sie neue Schuhe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -279,9 +269,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie Socken aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch neue Socken erstellen
-und diese anziehen.
+				Ziehen Sie neue Strümpfe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -314,9 +302,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine Jacke aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch eine neue Jacke erstellen
-und diese anziehen.
+				Ziehen Sie eine neue Jacke aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -350,9 +336,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie Handschuhe aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch neue Handschuhe erstellen
-und diese anziehen.
+				Ziehen Sie neue Handschuhe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -385,9 +369,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie ein Unterhemd aus dem Inventar auf Ihren Avatar,
-um es zu tragen. Sie können auch ein neues Unterhemd erstellen
-und dieses anziehen.
+				Ziehen Sie ein neues Unterhemd aus dem Inventar auf Ihren Avatar, um dieses anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -420,9 +402,7 @@ und dieses anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine Unterhose aus dem Inventar auf Ihren Avatar,
-um sie zu tragen. Sie können auch eine neue Unterhose erstellen
-und diese anziehen.
+				Ziehen Sie eine neue Unterhose aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -455,9 +435,7 @@ und diese anziehen.
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie einen Rock aus dem Inventar auf Ihren Avatar,
-um ihn zu tragen. Sie können auch einen neuen Rock erstellen
-und diesen anziehen.
+				Ziehen Sie einen neuen Rock aus dem Inventar auf Ihren Avatar, um diesen anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -490,8 +468,7 @@ und diesen anziehen.
 				Befindet sich in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Sie können eine neue Alpha-Maske anlegen, indem Sie eine von Ihrem Inventar auf Ihren Avatar ziehen.
-Sie können aber auch eine neue erstellen und diese anlegen.
+				Sie können eine neue Alpha-Maske anlegen, indem Sie eine von Ihrem Inventar auf Ihren Avatar ziehen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -527,8 +504,7 @@ Sie können aber auch eine neue erstellen und diese anlegen.
 				Befindet sich in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine neue Tätowierung aus dem Inventar auf Ihren Avatar, um diese anzulegen.
-Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie eine neue Tätowierung aus dem Inventar auf Ihren Avatar, um diese anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -546,6 +522,7 @@ Sie können aber auch eine neue erstellen und diese anlegen.
 			<button label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 	</tab_container>
+	<button label="Skriptinfo" label_selected="Skriptinfo" name="script_info"/>
 	<button label="Outfit erstellen" label_selected="Outfit erstellen" name="make_outfit_btn"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

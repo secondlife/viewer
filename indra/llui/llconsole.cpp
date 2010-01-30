@@ -66,7 +66,9 @@ LLConsole::LLConsole(const LLConsole::Params& p)
 :	LLUICtrl(p),
 	LLFixedBuffer(p.max_lines),
 	mLinePersistTime(p.persist_time), // seconds
-	mFont(p.font)
+	mFont(p.font),
+	mConsoleWidth(0),
+	mConsoleHeight(0)
 {
 	if (p.font_size_index.isProvided())
 	{

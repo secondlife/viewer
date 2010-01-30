@@ -546,7 +546,7 @@ private:
 	LLHandle<LLView> mParentMenuItem;
 	LLUIString		mLabel;
 	BOOL mDropShadowed; 	//  Whether to drop shadow 
-	BOOL			mHasSelection;
+	bool			mHasSelection;
 	LLFrameTimer	mFadeTimer;
 	LLTimer			mScrollItemsTimer;
 	BOOL			mTornOff;

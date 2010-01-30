@@ -123,9 +123,13 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 	mAxisArrowLength(50),
 	mConeSize(0),
 	mArrowLengthMeters(0.f),
+	mGridSizeMeters(1.f),
 	mPlaneManipOffsetMeters(0.f),
 	mUpdateTimer(),
 	mSnapOffsetMeters(0.f),
+	mSubdivisions(10.f),
+	mInSnapRegime(FALSE),
+	mSnapped(FALSE),
 	mArrowScales(1.f, 1.f, 1.f),
 	mPlaneScales(1.f, 1.f, 1.f),
 	mPlaneManipPositions(1.f, 1.f, 1.f, 1.f)

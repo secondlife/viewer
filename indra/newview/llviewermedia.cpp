@@ -1811,11 +1811,6 @@ void LLViewerMediaImpl::navigateStop()
 bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
 	bool result = false;
-	// *NOTE:Mani - if this doesn't exist llmozlib goes crashy in the debug build.
-	// LLMozlib::init wants to write some files to <exe_dir>/components
-	std::string debug_init_component_dir( gDirUtilp->getExecutableDir() );
-	debug_init_component_dir += "/components";
-	LLAPRFile::makeDir(debug_init_component_dir.c_str()); 
 	
 	if (mMediaSource)
 	{

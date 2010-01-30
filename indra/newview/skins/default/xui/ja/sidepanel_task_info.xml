@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="object properties" title="オブジェクトのプロパティ">
+<panel name="object properties" title="オブジェクトのプロフィール">
 	<panel.string name="text deed continued">
 		譲渡
 	</panel.string>
@@ -36,6 +36,8 @@
 	<panel.string name="Sale Mixed">
 		Mixed Sale
 	</panel.string>
+	<text name="title" value="オブジェクトのプロフィール"/>
+	<text name="where" value="（ワールド内）"/>
 	<panel label="">
 		<text name="Name:">
 			名前：
@@ -43,11 +45,11 @@
 		<text name="Description:">
 			説明：
 		</text>
-		<text name="Creator:">
+		<text name="CreatorNameLabel">
 			制作者：
 		</text>
 		<text name="Creator Name">
-			Esbee Linden
+			Erica Linden
 		</text>
 		<text name="Owner:">
 			所有者：
@@ -55,13 +57,12 @@
 		<text name="Owner Name">
 			Erica Linden
 		</text>
-		<text name="Group:">
+		<text name="Group_label">
 			グループ：
 		</text>
 		<button name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択"/>
 		<name_box initial_value="ローディング..." name="Group Name Proxy"/>
 		<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
-		<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません。"/>
 		<text name="label click action">
 			クリックで：
 		</text>
@@ -72,7 +73,27 @@
 			<combo_box.item label="オブジェクトに支払う" name="Payobject"/>
 			<combo_box.item label="開く" name="Open"/>
 		</combo_box>
-		<check_box label="販売対象：" name="checkbox for sale"/>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				このオブジェクトを修正できます
+			</text>
+			<text name="Anyone can:">
+				全員：
+			</text>
+			<check_box label="コピー" name="checkbox allow everyone copy"/>
+			<check_box label="移動" name="checkbox allow everyone move"/>
+			<text name="GroupLabel">
+				グループ：
+			</text>
+			<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません。"/>
+			<text name="NextOwnerLabel">
+				次の所有者：
+			</text>
+			<check_box label="修正" name="checkbox next owner can modify"/>
+			<check_box label="コピー" name="checkbox next owner can copy"/>
+			<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+		</panel>
+		<check_box label="販売中" name="checkbox for sale"/>
 		<combo_box name="sale type">
 			<combo_box.item label="コピー" name="Copy"/>
 			<combo_box.item label="中身" name="Contents"/>
@@ -80,47 +101,28 @@
 		</combo_box>
 		<spinner label="価格： L$" name="Edit Cost"/>
 		<check_box label="検索に表示" name="search_check" tool_tip="このオブジェクトを検索結果に表示します"/>
-		<panel name="perms_build">
-			<text name="perm_modify">
-				あなたはこのオブジェクトを修正できます
-			</text>
-			<text name="Anyone can:">
-				全員：
-			</text>
-			<check_box label="移動" name="checkbox allow everyone move"/>
-			<check_box label="コピー" name="checkbox allow everyone copy"/>
-			<text name="Next owner can:">
-				次の所有者：
-			</text>
-			<check_box label="修正" name="checkbox next owner can modify"/>
-			<check_box label="コピー" name="checkbox next owner can copy"/>
-			<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
-			<text name="B:">
-				B.
-			</text>
-			<text name="O:">
-				O:
-			</text>
-			<text name="G:">
-				G:
-			</text>
-			<text name="E:">
-				E:
-			</text>
-			<text name="N:">
-				N:
-			</text>
-			<text name="F:">
-				F:
-			</text>
-		</panel>
+		<text name="B:">
+			B.
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			E:
+		</text>
+		<text name="N:">
+			N:
+		</text>
+		<text name="F:">
+			F:
+		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="編集" name="edit_btn"/>
 		<button label="開く" name="open_btn"/>
 		<button label="支払う" name="pay_btn"/>
 		<button label="買う" name="buy_btn"/>
-		<button label="キャンセル" name="cancel_btn"/>
-		<button label="保存" name="save_btn"/>
 	</panel>
 </panel>

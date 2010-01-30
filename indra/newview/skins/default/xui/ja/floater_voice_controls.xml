@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="ボイスコントロール">
-	<panel name="control_panel">
-		<panel name="my_panel">
-			<text name="user_text" value="Mya Avatar:"/>
-		</panel>
-		<layout_stack>
-			<layout_panel>
-				<slider_bar name="volume_slider_bar" tool_tip="音量"/>
-			</layout_panel>
-		</layout_stack>
-	</panel>
+	<string name="title_nearby">
+		近くのボイス
+	</string>
+	<string name="title_group">
+		[GROUP] とグループコール
+	</string>
+	<string name="title_adhoc">
+		コンファレンスコール
+	</string>
+	<string name="title_peer_2_peer">
+		[NAME] でコール
+	</string>
+	<string name="no_one_near">
+		近くにボイスを有効にしている人はいません。
+	</string>
+	<layout_stack name="my_call_stack">
+		<layout_panel name="leave_call_btn_panel">
+			<button label="コール終了" name="leave_call_btn"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

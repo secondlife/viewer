@@ -661,6 +661,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = SEND_HTTP_REQ;
+				delete responder;
+				responder = NULL;
 			}
 		}
 

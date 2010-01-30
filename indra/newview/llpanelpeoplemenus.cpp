@@ -55,6 +55,22 @@ ContextMenu::ContextMenu()
 {
 }
 
+ContextMenu::~ContextMenu()
+{
+	// do not forget delete LLContextMenu* mMenu.
+	// It can have registered Enable callbacks which are called from the LLMenuHolderGL::draw()
+	// via selected item (menu_item_call) by calling LLMenuItemCallGL::buildDrawLabel.
+	// we can have a crash via using callbacks of deleted instance of ContextMenu. EXT-4725
+
+	// menu holder deletes its menus on viewer exit, so we have no way to determine if instance 
+	// of mMenu has already been deleted except of using LLHandle. EXT-4762.
+	if (!mMenuHandle.isDead())
+	{
+		mMenu->die();
+		mMenu = NULL;
+	}
+}
+
 void ContextMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y)
 {
 	if (mMenu)
@@ -77,6 +93,7 @@ void ContextMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, 
 	std::copy(uuids.begin(), uuids.end(), mUUIDs.begin());
 
 	mMenu = createMenu();
+	mMenuHandle = mMenu->getHandle();
 	mMenu->show(x, y);
 	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
 }

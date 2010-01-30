@@ -114,6 +114,7 @@
     </text>
     <line_editor
      type="string"
+     max_length="10"
      halign="right"
      font="SansSerifMedium"
      select_on_focus="true"

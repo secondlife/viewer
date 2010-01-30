@@ -56,9 +56,9 @@ void LLLogin::disconnect()
 
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
-unsigned char gMACAddress[MAC_ADDRESS_BYTES] = {'1','2','3','4','5','6'};		/* Flawfinder: ignore */
+unsigned char gMACAddress[MAC_ADDRESS_BYTES] = {'1','2','3','4','5','6'};
 
-LLViewerLogin::LLViewerLogin() {}
+LLViewerLogin::LLViewerLogin() : mGridChoice(GRID_INFO_NONE) {}
 LLViewerLogin::~LLViewerLogin() {}
 void LLViewerLogin::getLoginURIs(std::vector<std::string>& uris) const 
 {
