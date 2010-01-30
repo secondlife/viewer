@@ -33,7 +33,7 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 	return LLUIColor();
 }
 
-LLUIColor::LLUIColor() {}
+LLUIColor::LLUIColor() : mColorPtr(NULL) {}
 
 namespace tut
 {

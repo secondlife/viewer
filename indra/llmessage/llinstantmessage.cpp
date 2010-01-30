@@ -68,9 +68,11 @@ const S32 IM_TTL = 1;
  * LLIMInfo
  */
 LLIMInfo::LLIMInfo() :
+	mFromGroup(FALSE),
 	mParentEstateID(0),
 	mOffline(0),
 	mViewerThinksToIsOnline(false),
+	mIMType(IM_NOTHING_SPECIAL),
 	mTimeStamp(0),
 	mSource(IM_FROM_SIM),
 	mTTL(IM_TTL)

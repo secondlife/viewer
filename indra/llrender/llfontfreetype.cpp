@@ -91,14 +91,15 @@ LLFontManager::~LLFontManager()
 
 LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 :	mGlyphIndex(index),
+	mWidth(0),			// In pixels
+	mHeight(0),			// In pixels
+	mXAdvance(0.f),		// In pixels
+	mYAdvance(0.f),		// In pixels
 	mXBitmapOffset(0), 	// Offset to the origin in the bitmap
 	mYBitmapOffset(0), 	// Offset to the origin in the bitmap
 	mXBearing(0),		// Distance from baseline to left in pixels
 	mYBearing(0),		// Distance from baseline to top in pixels
-	mWidth(0),			// In pixels
-	mHeight(0),			// In pixels
-	mXAdvance(0.f),		// In pixels
-	mYAdvance(0.f)		// In pixels
+	mBitmapNum(0) // Which bitmap in the bitmap cache contains this glyph
 {
 }
 
@@ -112,6 +113,7 @@ LLFontFreetype::LLFontFreetype()
 	mFTFace(NULL),
 	mRenderGlyphCount(0),
 	mAddGlyphCount(0),
+	mStyle(0),
 	mPointSize(0)
 {
 }

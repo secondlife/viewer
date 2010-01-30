@@ -25,6 +25,7 @@
 
 // link seam
 LLUIColor::LLUIColor()
+	: mColorPtr(NULL)
 {}
 
 namespace tut
