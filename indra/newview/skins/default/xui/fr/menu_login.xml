@@ -23,10 +23,8 @@
 		<menu_item_call label="Afficher les paramètres de débogage" name="Debug Settings"/>
 		<menu_item_call label="Paramètres de couleurs/interface" name="UI/Color Settings"/>
 		<menu_item_call label="Outil d&apos;aperçu XUI" name="UI Preview Tool"/>
-		<menu_item_call label="Afficher la barre latérale" name="Show Side Tray"/>
-		<menu_item_call label="Test widget" name="Widget Test"/>
-		<menu_item_call label="Tests inspecteurs" name="Inspectors Test"/>
-		<menu_item_check label="Reg In Client Test (restart)" name="Reg In Client Test (restart)"/>
+		<menu label="Tests de l&apos;interface" name="UI Tests"/>
+		<menu_item_call label="Définir la taille de la fenêtre..." name="Set Window Size..."/>
 		<menu_item_call label="Afficher les conditions d&apos;utilisation" name="TOS"/>
 		<menu_item_call label="Afficher le message critique" name="Critical"/>
 		<menu_item_call label="Test du navigateur Web" name="Web Browser Test"/>

@@ -5,6 +5,7 @@
  height="600"
  layout="topleft"
  name="floater_test_text_editor"
+ translate="false"
  width="800">
   <text_editor
    height="50"

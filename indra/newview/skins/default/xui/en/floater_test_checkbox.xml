@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_checkbox"
  help_topic="floater_test_checkbox"
+ translate="false"
  width="400">
     <check_box
      control_name="ShowStartLocation"

@@ -56,6 +56,7 @@
 	<string name="icon_ScriptsNo" value="parcel_drk_ScriptsNo"/>
 	<string name="icon_Damage" value="parcel_drk_Damage"/>
 	<string name="icon_DamageNo" value="parcel_drk_DamageNo"/>
+	<button name="back_btn" tool_tip="Précédent"/>
 	<text name="title" value="Profil du lieu"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
@@ -92,7 +93,7 @@
 						<text name="region_type_label" value="Type :"/>
 						<text name="region_type" value="Orignal"/>
 						<text name="region_rating_label" value="Catégorie :"/>
-						<text name="region_rating" value="Explicite"/>
+						<text name="region_rating" value="Adulte"/>
 						<text name="region_owner_label" value="Propriétaire :"/>
 						<text name="region_owner" value="orignal Van Orignal"/>
 						<text name="region_group_label" value="Groupe :"/>

@@ -4,12 +4,12 @@
 		Destination de la photo
 	</text>
 	<radio_group label="Type de photo" name="snapshot_type_radio" width="228">
-		<radio_item label="Envoyer par e-mail" name="postcard"/>
-		<radio_item label="Enregistrer dans votre inventaire ([AMOUNT] L$)" name="texture"/>
-		<radio_item label="Enregistrer sur votre disque dur" name="local"/>
+		<radio_item label="E-mail" name="postcard"/>
+		<radio_item label="Mon inventaire ([AMOUNT] L$)" name="texture"/>
+		<radio_item label="Enregistrer sur mon ordinateur" name="local"/>
 	</radio_group>
-	<button label="Plus &gt;&gt;" name="more_btn" tool_tip="Options avancées"/>
-	<button label="&lt;&lt; Moins" name="less_btn" tool_tip="Options avancées"/>
+	<button label="Plus" name="more_btn" tool_tip="Options avancées"/>
+	<button label="Moins" name="less_btn" tool_tip="Options avancées"/>
 	<text name="type_label2">
 		Taille
 	</text>
@@ -57,13 +57,13 @@
 		<combo_box.item label="Matte des objets" name="ObjectMattes"/>
 	</combo_box>
 	<text name="file_size_label">
-		Taille du fichier : [SIZE] Ko
+		[SIZE] Ko
 	</text>
-	<check_box label="Voir l&apos;interface sur la photo" name="ui_check"/>
-	<check_box label="Voir les éléments HUD sur la photo" name="hud_check"/>
+	<check_box label="Interface" name="ui_check"/>
+	<check_box label="HUD" name="hud_check"/>
 	<check_box label="Garder ouvert après enregistrement" name="keep_open_check"/>
-	<check_box label="Imposer les proportions" name="keep_aspect_check"/>
-	<check_box label="Prévisualisation plein écran (geler l&apos;écran)" name="freeze_frame_check"/>
+	<check_box label="Contraindre les proportions" name="keep_aspect_check"/>
+	<check_box label="Arrêt sur image (plein écran)" name="freeze_frame_check"/>
 	<button label="Rafraîchir" name="new_snapshot_btn"/>
 	<check_box label="Rafraîchissement automatique" name="auto_snapshot_check"/>
 	<button label="Enregistrer ([AMOUNT] L$)" name="upload_btn" width="118"/>

@@ -91,7 +91,7 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
         left="10"
         top_pad="5"
         height="25"
-        width="160" />
+        width="180" />
     </panel>
     <panel
       border="true" 
