@@ -630,7 +630,6 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 			delete_context_data = FALSE;
 			LLSD args;
 			args["NAME"] = name;
-			args["INVITE"] = message;
 			LLNotificationsUtil::add("JoinedTooManyGroupsMember", args, notification["payload"]);
 		}
 	}
@@ -1435,31 +1434,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	return false;
 }
 
-std::string get_display_name(const std::string& name)
-{
-	// We receive landmark name as \'<n>@name\' where <n> is a number
-	// LLViewerInventoryItem::getDisplayName will remove \'<n>@ though we need the \'
-	// Lets save all chars preceding @ and insert them back after <n>@ was removed
-
-	std::string saved;
-
-	if(std::string::npos != name.find(LLViewerInventoryItem::getSeparator()))
-	{
-		int n = 0;
-		while(!isdigit(name[n]) && LLViewerInventoryItem::getSeparator() != name[n])
-		{
-			++n;
-		}
-		saved = name.substr(0, n);
-	}
-
-	std::string d_name = LLViewerInventoryItem::getDisplayName(name);
-	d_name.insert(0, saved);
-	LLStringUtil::trim(d_name);
-
-	return d_name;
-}
-
 void inventory_offer_handler(LLOfferInfo* info)
 {
 	//Until throttling is implmented, busy mode should reject inventory instead of silently
@@ -1495,11 +1469,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 	if(indx >= 0)
 	{
 		LLStringUtil::truncate(msg, indx);
-	}
-
-	if(LLAssetType::AT_LANDMARK == info->mType)
-	{
-		msg = get_display_name(msg);
 	}
 
 	LLSD args;

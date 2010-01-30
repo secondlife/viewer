@@ -378,6 +378,7 @@ void LLSnapshotLivePreview::setSnapshotQuality(S32 quality)
 	{
 		mSnapshotQuality = quality;
 		gSavedSettings.setS32("SnapshotQuality", quality);
+		mSnapshotUpToDate = FALSE;
 	}
 }
 

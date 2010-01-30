@@ -368,8 +368,6 @@ protected:
 
 	LLRect getLastSelectedItemRect();
 
-	LLRect getSelectedItemsRect();
-
 	void   ensureSelectedVisible();
 
 private:

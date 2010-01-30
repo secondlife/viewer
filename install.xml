@@ -70,9 +70,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b97aa644a548310ca3c916518bb07b7e</string>
+            <string>39fae44d406aa56a0b3d00f5433bbf15</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GLOD-windows-20090915.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GLOD-1.0pre4-windows-20100129.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -280,9 +280,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>c239ce23ed3f0dbbe58a1ddba05aee0b</string>
+            <string>6c2267ba2735bb5bc6229bc4366fce86</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1.1-windows-20091103.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/colladadom-2.1.1-windows-20100129.tar.bz2</uri>
           </map>
         </map>
       </map>

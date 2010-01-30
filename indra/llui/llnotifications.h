@@ -371,7 +371,7 @@ private:
 
 	// this is just for making it easy to look things up in a set organized by UUID -- DON'T USE IT
 	// for anything real!
-	LLNotification(LLUUID uuid) : mId(uuid) {}
+ LLNotification(LLUUID uuid) : mId(uuid), mCancelled(false), mRespondedTo(false), mIgnored(false), mTemporaryResponder(false) {}
 
 	void cancel();
 
@@ -621,7 +621,7 @@ namespace LLNotificationComparators
 	struct orderBy
 	{
 		typedef boost::function<T (LLNotificationPtr)> field_t;
-		orderBy(field_t field, EDirection = ORDER_INCREASING) : mField(field) {}
+        	orderBy(field_t field, EDirection direction = ORDER_INCREASING) : mField(field), mDirection(direction) {}
 		bool operator()(LLNotificationPtr lhs, LLNotificationPtr rhs)
 		{
 			if (mDirection == ORDER_DECREASING)

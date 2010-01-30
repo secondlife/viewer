@@ -91,6 +91,9 @@ public:
 	/// Return the name of a SL location described by this Url, if any
 	virtual std::string getLocation(const std::string &url) const { return ""; }
 
+	/// is this a match for a URL that should not be hyperlinked?
+	bool isLinkDisabled() const { return mDisabledLink; }
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;
@@ -111,6 +114,7 @@ protected:
 	std::string                                    	mTooltip;
 	LLUIColor										mColor;
 	std::multimap<std::string, LLUrlEntryObserver>	mObservers;
+	bool                                            mDisabledLink;
 };
 
 ///
@@ -265,6 +269,16 @@ public:
 	LLUrlEntryWorldMap();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getLocation(const std::string &url) const;
+};
+
+///
+/// LLUrlEntryNoLink lets us turn of URL detection with <nolink>...</nolink> tags
+///
+class LLUrlEntryNoLink : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryNoLink();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 };
 
 #endif

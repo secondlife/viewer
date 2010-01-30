@@ -1512,25 +1512,6 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
 	onValueChange(0, getLength());
 }
 
-void LLTextBase::addBlackListUrl(const std::string &url)
-{
-	mBlackListUrls.push_back(url);
-}
-
-bool LLTextBase::isBlackListUrl(const std::string &url) const
-{
-	std::vector<std::string>::const_iterator it;
-	for (it = mBlackListUrls.begin(); it != mBlackListUrls.end(); ++it)
-	{
-		const std::string &blacklist_url = *it;
-		if (url.find(blacklist_url) != std::string::npos)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 //virtual
 std::string LLTextBase::getText() const
 {
@@ -1606,11 +1587,10 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 				}
 			}
 
-			// output the styled Url (unless we've been asked to suppress it)
-			if (isBlackListUrl(match.getUrl()))
+			// output the styled Url (unless we've been asked to suppress hyperlinking)
+			if (match.isLinkDisabled())
 			{
-				std::string orig_url = text.substr(start, end-start);
-				appendAndHighlightText(orig_url, prepend_newline, part, style_params);
+				appendAndHighlightText(match.getLabel(), prepend_newline, part, style_params);
 			}
 			else
 			{

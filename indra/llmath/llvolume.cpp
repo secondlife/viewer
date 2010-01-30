@@ -1694,7 +1694,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 
 	generate();
 	
-	if (mParams.getSculptID().isNull() && params.getSculptType() == LL_SCULPT_TYPE_NONE)
+	if (mParams.getSculptID().isNull() && mParams.getSculptType() == LL_SCULPT_TYPE_NONE)
 	{
 		createVolumeFaces();
 	}
@@ -2140,6 +2140,59 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				face.mVertices[j].mTexCoord.setVec(
 					(F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0],
 					(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1]);
+			}
+
+			
+			// modifier flags?
+			BOOL do_mirror = (mParams.getSculptType() & LL_SCULPT_FLAG_MIRROR);
+			BOOL do_invert = (mParams.getSculptType() &LL_SCULPT_FLAG_INVERT);
+			
+			
+			// translate to actions:
+			BOOL do_reflect_x = FALSE;
+			BOOL do_reverse_triangles = FALSE;
+			BOOL do_invert_normals = FALSE;
+			
+			if (do_mirror)
+			{
+				do_reflect_x = TRUE;
+				do_reverse_triangles = !do_reverse_triangles;
+			}
+			
+			if (do_invert)
+			{
+				do_invert_normals = TRUE;
+				do_reverse_triangles = !do_reverse_triangles;
+			}
+			
+			// now do the work
+
+			if (do_reflect_x)
+			{
+				for (S32 i = 0; i < face.mVertices.size(); i++)
+				{
+					face.mVertices[i].mPosition.mV[VX] *= -1.0f;
+					face.mVertices[i].mNormal.mV[VX] *= -1.0f;
+				}
+			}
+
+			if (do_invert_normals)
+			{
+				for (S32 i = 0; i < face.mVertices.size(); i++)
+				{
+					face.mVertices[i].mNormal *= -1.0f;
+				}
+			}
+
+			if (do_reverse_triangles)
+			{
+				for (U32 j = 0; j < face.mIndices.size(); j += 3)
+				{
+					// swap the 2nd and 3rd index
+					S32 swap = face.mIndices[j+1];
+					face.mIndices[j+1] = face.mIndices[j+2];
+					face.mIndices[j+2] = swap;
+				}
 			}
 
 		}
@@ -3838,7 +3891,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 	normals.clear();
 	segments.clear();
 
-	if (mParams.getSculptType() == LL_SCULPT_TYPE_MESH)
+	if ((mParams.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 	{
 		return;
 	}
@@ -5500,7 +5553,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	{
 		mIndices.resize(num_indices);
 
-		if (volume->getParams().getSculptType() != LL_SCULPT_TYPE_MESH)
+		if ((volume->getParams().getSculptType() & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
 		{
 			mEdge.resize(num_indices);
 		}

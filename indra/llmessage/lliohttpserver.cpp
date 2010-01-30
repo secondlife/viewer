@@ -74,7 +74,12 @@ class LLHTTPPipe : public LLIOPipe
 {
 public:
 	LLHTTPPipe(const LLHTTPNode& node)
-		: mNode(node), mResponse(NULL), mState(STATE_INVOKE), mChainLock(0), mStatusCode(0)
+		: mNode(node),
+		  mResponse(NULL),
+		  mState(STATE_INVOKE),
+		  mChainLock(0),
+		  mLockedPump(NULL),
+		  mStatusCode(0)
 		{ }
 	virtual ~LLHTTPPipe()
 	{
@@ -111,7 +116,7 @@ private:
 		void nullPipe();
 
 	private:
-		Response() {;} // Must be accessed through LLPointer.
+		Response() : mPipe(NULL) {} // Must be accessed through LLPointer.
 		LLHTTPPipe* mPipe;
 	};
 	friend class Response;
@@ -403,7 +408,7 @@ void LLHTTPPipe::unlockChain()
 class LLHTTPResponseHeader : public LLIOPipe
 {
 public:
-	LLHTTPResponseHeader() {}
+	LLHTTPResponseHeader() : mCode(0) {}
 	virtual ~LLHTTPResponseHeader() {}
 
 protected:

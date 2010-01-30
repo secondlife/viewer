@@ -92,6 +92,9 @@ F32 const LLMaterialTable::DEFAULT_FRICTION = 0.5f;
 F32 const LLMaterialTable::DEFAULT_RESTITUTION = 0.4f;
 
 LLMaterialTable::LLMaterialTable()
+	: mCollisionSoundMatrix(NULL),
+	  mSlidingSoundMatrix(NULL),
+	  mRollingSoundMatrix(NULL)
 {
 }
 

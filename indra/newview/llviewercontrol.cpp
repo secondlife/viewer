@@ -63,7 +63,6 @@
 #include "llviewerjoystick.h"
 #include "llviewerparcelmgr.h"
 #include "llparcel.h"
-#include "lloverlaybar.h"
 #include "llkeyboard.h"
 #include "llerrorcontrol.h"
 #include "llappviewer.h"
@@ -254,35 +253,6 @@ static void handleAudioVolumeChanged(const LLSD& newvalue)
 static bool handleJoystickChanged(const LLSD& newvalue)
 {
 	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(TRUE);
-	return true;
-}
-
-static bool handleAudioStreamMusicChanged(const LLSD& newvalue)
-{
-	if (gAudiop)
-	{
-		if ( newvalue.asBoolean() )
-		{
-			if (LLViewerParcelMgr::getInstance()->getAgentParcel()
-				&& !LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL().empty())
-			{
-				// if music isn't playing, start it
-				if (gOverlayBar && !gOverlayBar->musicPlaying())
-				{
-					LLOverlayBar::toggleMusicPlay(NULL);
-				}
-			}
-		}
-		else
-		{
-			// if music is playing, stop it.
-			if (gOverlayBar && gOverlayBar->musicPlaying())
-				{
-					LLOverlayBar::toggleMusicPlay(NULL);
-				}
-
-		}
-	}
 	return true;
 }
 
@@ -592,7 +562,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("AudioLevelVoice")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("AudioLevelDoppler")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("AudioLevelRolloff")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
-	gSavedSettings.getControl("AudioStreamingMusic")->getSignal()->connect(boost::bind(&handleAudioStreamMusicChanged, _2));
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteMusic")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteMedia")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
