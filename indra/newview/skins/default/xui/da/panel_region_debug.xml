@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Debug" name="Debug">
 	<text name="region_text_lbl">
 		Region:
@@ -6,16 +6,13 @@
 	<text name="region_text">
 		ukendt
 	</text>
-	<check_box label="Deaktivér scripts" name="disable_scripts_check"
-	     tool_tip="Deaktivér alle scripts i denne region" />
-	<button label="?" name="disable_scripts_help" />
-	<check_box label="Deaktivér kollisioner" name="disable_collisions_check"
-	     tool_tip="Deaktivér kollisioner mellem objekter i denne region" />
-	<button label="?" name="disable_collisions_help" />
-	<check_box label="Deaktivér fysik" name="disable_physics_check"
-	     tool_tip="Deaktivér alt fysik i denne region" />
-	<button label="?" name="disable_physics_help" />
-	<button label="Gem" name="apply_btn" />
+	<check_box label="Deaktivér scripts" name="disable_scripts_check" tool_tip="Deaktivér alle scripts i denne region"/>
+	<button label="?" name="disable_scripts_help"/>
+	<check_box label="Deaktivér kollisioner" name="disable_collisions_check" tool_tip="Deaktivér kollisioner mellem objekter i denne region"/>
+	<button label="?" name="disable_collisions_help"/>
+	<check_box label="Deaktivér fysik" name="disable_physics_check" tool_tip="Deaktivér alt fysik i denne region"/>
+	<button label="?" name="disable_physics_help"/>
+	<button label="Gem" name="apply_btn"/>
 	<text name="objret_text_lbl">
 		Returnér objekter
 	</text>
@@ -25,27 +22,19 @@
 	<line_editor name="target_avatar_name">
 		(ingen)
 	</line_editor>
-	<button label="Vælg..." name="choose_avatar_btn" />
+	<button label="Vælg" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		Valg:
 	</text>
-	<check_box label="Returnér kun objekter med script" name="return_scripts"
-	     tool_tip="Returnér kun objekter med scripts." />
-	<check_box label="Returnér kun objekter på andre brugeres land" name="return_other_land"
-	     tool_tip="returnér kun objekter på land som tilhører andre" />
-	<check_box label="Returnér objekter fra alle regioner i denne estate"
-	     name="return_estate_wide"
-	     tool_tip="Returnér objekter i alle regioner der tilhører denne estate" />
-	<button label="Returnér" name="return_btn" />
-	<button label="Mest kolliderende..." name="top_colliders_btn"
-	     tool_tip="Liste med de objekter der oplever flest kollissioner" />
-	<button label="?" name="top_colliders_help" />
-	<button label="Mest krævende scripts..." name="top_scripts_btn"
-	     tool_tip="Liste med de objekter der kræver mest script tid" />
-	<button label="?" name="top_scripts_help" />
-	<button label="Genstart region" name="restart_btn"
-	     tool_tip="Genstart region om 2 minutter (sender advarsel først)" />
-	<button label="?" name="restart_help" />
-	<button label="Udskyd genstart" name="cancel_restart_btn"
-	     tool_tip="Udsæt genstart med en time" />
+	<check_box label="Med scripts" name="return_scripts" tool_tip="Returnér kun objekter med scripts"/>
+	<check_box label="På en andens land" name="return_other_land" tool_tip="returnér kun objekter på land som tilhører andre"/>
+	<check_box label="I hver eneste region i denne estate" name="return_estate_wide" tool_tip="Returnér objekter i alle regioner der tilhører denne estate"/>
+	<button label="Returnér" name="return_btn"/>
+	<button label="Mest kolliderende..." name="top_colliders_btn" tool_tip="Liste med de objekter der oplever flest kollissioner"/>
+	<button label="?" name="top_colliders_help"/>
+	<button label="Mest krævende scripts..." name="top_scripts_btn" tool_tip="Liste med de objekter der kræver mest script tid"/>
+	<button label="?" name="top_scripts_help"/>
+	<button label="Genstart region" name="restart_btn" tool_tip="Genstart region om 2 minutter (sender advarsel først)"/>
+	<button label="?" name="restart_help"/>
+	<button label="Udskyd genstart" name="cancel_restart_btn" tool_tip="Udsæt genstart med en time"/>
 </panel>

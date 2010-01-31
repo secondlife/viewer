@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="contents" title="KØB KOPI AF OBJEKT">
 	<text name="contents_text">
-		og dets indhold:
+		Indeholder:
 	</text>
 	<text name="buy_text">
 		Køb for L$[AMOUNT] fra [NAME]?
 	</text>
-	<button label="Annullér" label_selected="Annullér" name="cancel_btn" />
-	<button label="Køb" label_selected="Køb" name="buy_btn" />
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
+	<button label="Køb" label_selected="Køb" name="buy_btn"/>
 	<string name="title_buy_text">
 		Køb
 	</string>

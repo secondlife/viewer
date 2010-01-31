@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_group">
+	<string name="PrivateGroup">
+		Privat gruppe
+	</string>
+	<string name="FreeToJoin">
+		Åben tilmelding
+	</string>
+	<string name="CostToJoin">
+		Tilmeldingsgebyr: L$[AMOUNT]
+	</string>
+	<string name="YouAreMember">
+		Du er meldlem
+	</string>
+	<button label="Tilmeld" name="join_btn"/>
+	<button label="Forlad" name="leave_btn"/>
+	<button label="Vis profil" name="view_profile_btn"/>
+</floater>

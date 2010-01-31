@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Postcard" title="INVIA LA FOTOGRAFIA VIA EMAIL">
+<floater name="Postcard" title="ISTANTANEA IN EMAIL">
 	<text name="to_label" width="135">
 		Email del destinatario:
 	</text>
-	<line_editor name="to_form" left="143" width="127" />
+	<line_editor left="143" name="to_form" width="127"/>
 	<text name="from_label">
 		La tua email:
 	</text>
-	<line_editor name="from_form" left="143" width="127" />
+	<line_editor left="143" name="from_form" width="127"/>
 	<text name="name_label">
 		Il tuo nome:
 	</text>
-	<line_editor name="name_form" left="143" width="127" />
+	<line_editor left="143" name="name_form" width="127"/>
 	<text name="subject_label">
 		Soggetto:
 	</text>
-	<line_editor name="subject_form" left="143" width="127" />
+	<line_editor left="143" name="subject_form" width="127"/>
 	<line_editor label="Scrivi il soggetto qui." name="subject_form"/>
 	<text name="msg_label">
 		Messaggio:
@@ -29,12 +29,12 @@
 	<button label="Annulla" name="cancel_btn"/>
 	<button label="Invia" name="send_btn"/>
 	<string name="default_subject">
-		Cartolina da [SECOND_LIFE]
+		Cartolina da [SECOND_LIFE].
 	</string>
 	<string name="default_message">
 		Vieni a vedere!
 	</string>
 	<string name="upload_message">
-		In spedizione...
+		Spedendo...
 	</string>
 </floater>

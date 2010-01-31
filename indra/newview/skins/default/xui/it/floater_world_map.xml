@@ -1,59 +1,70 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="worldmap" title="MAPPA">
-	<tab_container name="maptab">
-		<panel label="Oggetti" name="objects_mapview"/>
-		<panel label="Terreno" name="terrain_mapview"/>
-	</tab_container>
-	<text name="you_label">
-		Tu
-	</text>
-	<text name="home_label">
-		Casa
-	</text>
-	<text name="auction_label">
-		Asta
-	</text>
-	<text name="land_for_sale_label">
-		Terreno in vendita
-	</text>
-	<button label="Vai a Casa" label_selected="Vai a Casa" name="Go Home" tool_tip="Teletrasportati a casa"/>
-	<check_box label="Residenti" name="people_chk"/>
-	<check_box label="Punto informativo" name="infohub_chk"/>
-	<check_box label="Punto di snodo &#10;di teletrasporto" name="telehubchk"/>
-	<icon bottom="-170" name="landforsale" />
-	<check_box label="Terra in vendita" name="land_for_sale_chk" bottom="-170"/>
-	<text name="events_label">
-		Eventi:
-	</text>
-	<check_box label="PG" name="event_chk"/>
-	<check_box label="Mature" name="event_mature_chk"/>
-	<check_box label="Adult" name="event_adult_chk"/>
-	<icon bottom="-200" name="avatar_icon" />
-	<combo_box label="Amici Online" name="friend combo" tool_tip="Amici da mostrare sulla mappa">
-		<combo_box.item name="item1" label="Amici Online"/>
-	</combo_box>
-	<combo_box label="Landmark" name="landmark combo" tool_tip="Landmarks da mostrare sulla mappa">
-		<combo_box.item name="item1" label="Landmark"/>
-	</combo_box>
-	<line_editor label="Cerca per nome di regione" name="location" tool_tip="Scrivi il nome di una regione"/>
-	<button label="Cerca" name="DoSearch" tool_tip="Cerca regione"/>
-	<text name="search_label">
-		Cerca tra i risultati:
-	</text>
-	<scroll_list name="search_results" bottom_delta="-310" height="304" >
-		<column label="" name="icon"/>
-		<column label="" name="sim_name"/>
-	</scroll_list>
-	<text name="location_label">
-		Luogo:
-	</text>
-	<spinner name="spin x" tool_tip="Coordinata X del luogo da mostrare sulla mappa"/>
-	<spinner name="spin y" tool_tip="Coordinata Y del luogo da mostrare sulla mappa"/>
-	<spinner name="spin z" tool_tip="Coordinata Z del luogo da mostrare sulla mappa"/>
-	<button font="SansSerifSmall" label="Teletrasporto" label_selected="Teletrasporto" name="Teleport" tool_tip="Teletrasporto al luogo prescelto"/>
-	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra destinazione" label_selected="Mostra destinazione" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto"/>
-	<button font="SansSerifSmall" label="Pulisci" label_selected="Pulisci" name="Clear" tool_tip="Togli traccia"/>
-	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra la mia posizione" label_selected="Mostra la mia posizione" name="Show My Location" tool_tip="Centra la mappa alla posizione del tuo avatar"/>
-	<button font="SansSerifSmall" label="Copia lo SLurl negli appunti" name="copy_slurl" tool_tip="Copia l&apos;attuale posizione quale SLurl utilizzabile nel web."/>
-	<slider label="Zoom" name="zoom slider"/>
+<floater name="worldmap" title="MAPPA DEL MONDO">
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			Legenda
+		</text>
+	</panel>
+	<panel>
+		<button font="SansSerifSmall" label="Mostra la mia posizione" label_selected="Mostra la mia posizione" left_delta="91" name="Show My Location" tool_tip="Centra la mappa sul luogo dove si trova il mio avatar" width="135"/>
+		<text name="person_label">
+			Io
+		</text>
+		<check_box label="Residenti" name="people_chk"/>
+		<check_box label="Punto informativo" name="infohub_chk"/>
+		<text name="infohub_label">
+			Infohub
+		</text>
+		<check_box bottom="-170" label="Terra in vendita" name="land_for_sale_chk"/>
+		<icon bottom="-170" name="landforsale"/>
+		<text name="land_sale_label">
+			Vendita di terra
+		</text>
+		<text name="auction_label">
+			per conto del proprietario
+		</text>
+		<button label="Vai a Casa" label_selected="Vai a Casa" name="Go Home" tool_tip="Teleport a casa mia"/>
+		<text name="Home_label">
+			Casa
+		</text>
+		<text name="events_label">
+			Eventi:
+		</text>
+		<check_box label="PG" name="event_chk"/>
+		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
+		<text name="mature_label">
+			Mature
+		</text>
+		<check_box label="Adult" name="event_adult_chk"/>
+	</panel>
+	<panel>
+		<text name="find_on_map_label">
+			Trova sulla Mappa
+		</text>
+	</panel>
+	<panel>
+		<combo_box label="Amici Online" name="friend combo" tool_tip="Mostra amici sulla mappa">
+			<combo_box.item label="Miei Amici Online" name="item1"/>
+		</combo_box>
+		<combo_box label="Miei Landmarks" name="landmark combo" tool_tip="Landmark da mostrare sulla mappa">
+			<combo_box.item label="Miei Landmarks" name="item1"/>
+		</combo_box>
+		<search_editor label="Regione per nome" name="location" tool_tip="Scrivi il nome di una regione"/>
+		<button label="Trova" name="DoSearch" tool_tip="Cerca regione"/>
+		<scroll_list bottom_delta="-310" height="304" name="search_results">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="sim_name"/>
+		</scroll_list>
+		<button font="SansSerifSmall" label="Teletrasporto" label_selected="Teletrasporto" name="Teleport" tool_tip="Teletrasporto al luogo prescelto"/>
+		<button font="SansSerifSmall" label="Copia SLurl" name="copy_slurl" tool_tip="Copia il luogo attuale come SLurl per essere usato nel web."/>
+		<button font="SansSerifSmall" label="Mostra Selezione" label_selected="Mostra destinazione" left_delta="91" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto" width="135"/>
+	</panel>
+	<panel>
+		<text name="zoom_label">
+			Zoom
+		</text>
+	</panel>
+	<panel>
+		<slider label="Zoom" name="zoom slider"/>
+	</panel>
 </floater>

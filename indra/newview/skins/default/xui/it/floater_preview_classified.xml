@@ -1,2 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="classified_preview" title="INFORMAZIONE RISERVATA"/>
+<floater name="classified_preview" title="INFORMAZIONI RISERVATE">
+	<floater.string name="Title">
+		Riservato: [NAME]
+	</floater.string>
+</floater>
