@@ -7,7 +7,7 @@
  left="0"
  name="panel_profile"
  top="0"
- width="313">
+ width="315">
     <string
      name="CaptionTextAcctInfo">
         [ACCTTYPE]
@@ -41,8 +41,8 @@
      layout="topleft"
      left="0"
      top="0"
-     height="535"
-     width="313"
+     height="522"
+     width="315"
      border_size="0">
       <layout_panel
          name="profile_stack"
@@ -50,9 +50,9 @@
          layout="topleft"
          top="0"
          left="0"
-         height="505"
+         height="492"
          user_resize="false"
-         width="313">
+         width="315">
         <scroll_container
          color="DkGray2"
          follows="all"
@@ -60,13 +60,13 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="505"
-         width="313"
+         height="492"
+         width="315"
          top="0">
           <panel
                 layout="topleft"
           follows="left|top|right"
-                height="505"
+                height="492"
                name="scroll_content_panel"
                 top="0"
                 left="0"
@@ -84,9 +84,9 @@
                default_image_name="None"
                enabled="false"
                follows="top|left"
-               height="117"
+               height="124"
                layout="topleft"
-               left="0"
+               left="3"
                name="2nd_life_pic"
                top="10"
                width="102" />
@@ -96,7 +96,7 @@
               layout="topleft"
               name="2nd_life_edit_icon"
               label=""
-              left="0"
+              left="3"
               tool_tip="Click the Edit Profile button below to change image"
               top="10"
               width="102" />
@@ -129,7 +129,7 @@
              follows="left|top|right"
              height="117"
              layout="topleft"
-       top_pad="10"
+       top_pad="0"
              left="10"
              name="first_life_image_panel"
              width="297">
@@ -138,9 +138,9 @@
                default_image_name="None"
                enabled="false"
                follows="top|left"
-               height="117"
+               height="124"
                layout="topleft"
-               left="0"
+               left="3"
                name="real_world_pic"
                width="102" />
               <icon
@@ -149,7 +149,7 @@
               layout="topleft"
               name="real_world_edit_icon"
               label=""
-              left="0"
+              left="3"
               tool_tip="Click the Edit Profile button below to change image"
               top="4"
               width="102" />
@@ -373,20 +373,20 @@
         <button
          follows="bottom|right"
          height="23"
-         left="20"
-	 top="0"
+         left="4"
+	 top="5"
          label="Edit Profile"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
-         width="130" />
+         width="152" />
         <button
          follows="bottom|right"
          height="23"
          label="Edit Appearance"
-         left_pad="10"
+         left_pad="4"
          name="edit_appearance_btn"
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
-         width="130" />
+         width="152" />
  </layout_panel>
 </layout_stack>
 </panel>

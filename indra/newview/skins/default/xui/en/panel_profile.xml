@@ -7,7 +7,7 @@
  left="0"
  name="panel_profile"
  top="0"
- width="313">
+ width="317">
     <string
      name="CaptionTextAcctInfo">
         [ACCTTYPE]
@@ -41,8 +41,8 @@
      layout="topleft"
      left="0"
      top="0"
-     height="517"
-     width="313"
+     height="524"
+     width="317"
      border_size="0">
       <layout_panel
          name="profile_stack"
@@ -50,8 +50,8 @@
          layout="topleft"
          top="0"
          left="0"
-         height="505"
-         width="313">
+         height="524"
+         width="317">
         <scroll_container
          color="DkGray2"
          follows="all"
@@ -59,8 +59,8 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="505"
-         width="313"
+         height="524"
+         width="317"
          top="0">
           <panel
                 layout="topleft"
@@ -73,9 +73,9 @@
                 width="297">
             <panel
                   follows="left|top|right"
-                  height="117"
+                  height="124"
                   layout="topleft"
-                  left="10"
+                  left="13"
                   name="second_life_image_panel"
                   top="0"
                   width="297">
@@ -84,7 +84,7 @@
                default_image_name="None"
                enabled="false"
                follows="top|left"
-               height="117"
+               height="124"
                layout="topleft"
                left="0"
                name="2nd_life_pic"
@@ -103,7 +103,7 @@
                width="180" />
               <expandable_text
                follows="left|top|right"
-               height="95"
+               height="97"
                layout="topleft"
                left="107"
                textbox.max_length="512"
@@ -117,10 +117,10 @@
             </panel>
             <panel
              follows="left|top|right"
-             height="117"
+             height="124"
              layout="topleft"
-       top_pad="10"
-             left="10"
+       top_pad="0"
+             left="13"
              name="first_life_image_panel"
              width="297">
               <texture_picker
@@ -128,7 +128,7 @@
                default_image_name="None"
                enabled="false"
                follows="top|left"
-               height="117"
+               height="124"
                layout="topleft"
                left="0"
                name="real_world_pic"
@@ -146,7 +146,7 @@
                width="180" />
               <expandable_text
                follows="left|top|right"
-               height="95"
+               height="97"
                layout="topleft"
                left="107"
                textbox.max_length="512"
@@ -289,18 +289,18 @@
          layout="topleft"
          name="profile_buttons_panel"
          auto_resize="false"
-         width="313">
+         width="317">
         <button
          follows="bottom|left"
          height="23"
          label="Add Friend"
          layout="topleft"
-         left="0"
+         left="2"
          mouse_opaque="false"
          name="add_friend"
          tool_tip="Offer friendship to the Resident"
          top="5"
-         width="80" />
+         width="81" />
         <button
          follows="bottom|left"
          height="23"
@@ -320,7 +320,7 @@
          tool_tip="Call this Resident"
          left_pad="3"
          top="5"
-         width="45" />
+         width="46" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -331,7 +331,7 @@
          tool_tip="Show the Resident on the map"
          top="5"
          left_pad="3"
-         width="45" />
+         width="46" />
         <button
          follows="bottom|left"
          height="23"
@@ -341,7 +341,7 @@
          tool_tip="Offer teleport"
          left_pad="3"
          top="5"
-         width="85" />
+         width="78" />
        <!-- <button
          follows="bottom|right"
          height="23"

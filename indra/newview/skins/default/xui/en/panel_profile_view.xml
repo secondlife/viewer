@@ -54,14 +54,14 @@
      height="535"
      halign="center"
      layout="topleft"
-     left="10"
+     left="5"
      min_width="333"
      name="tabs"
      tab_min_width="80"
      tab_height="30"
      tab_position="top"
      top_pad="5"
-     width="313">
+     width="317">
         <panel
          class="panel_profile"
          filename="panel_profile.xml"

@@ -4,7 +4,7 @@
  border="false"
  follows="all"
  height="570"
- label="My Profile"
+ label="My Profile!!!!!"
  layout="topleft"
  left="0"
  name="panel_me"
@@ -29,13 +29,13 @@
      height="570"
      halign="center"
      layout="topleft"
-     left="10"
+     left="6"
      name="tabs"
      tab_min_width="95"
      tab_height="30"
      tab_position="top"
      top_pad="10"
-     width="313">
+     width="315">
       <panel
          class="panel_my_profile"
          filename="panel_my_profile.xml"
