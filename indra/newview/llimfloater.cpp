@@ -510,6 +510,20 @@ void LLIMFloater::setVisible(BOOL visible)
 	}
 }
 
+BOOL LLIMFloater::getVisible()
+{
+	if(isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
+		// Tabbed IM window is "visible" when we minimize it.
+		return !im_container->isMinimized() && im_container->getVisible();
+	}
+	else
+	{
+		return LLTransientDockableFloater::getVisible();
+	}
+}
+
 //static
 bool LLIMFloater::toggle(const LLUUID& session_id)
 {
@@ -585,6 +599,9 @@ void LLIMFloater::updateMessages()
 	{
 //		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
+		LLSD chat_args;
+		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
 		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
@@ -614,7 +631,7 @@ void LLIMFloater::updateMessages()
 				chat.mText = message;
 			}
 			
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
+			mChatHistory->appendMessage(chat, chat_args);
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 	}
