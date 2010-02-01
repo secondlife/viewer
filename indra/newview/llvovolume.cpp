@@ -2451,6 +2451,13 @@ void LLVOVolume::updateSpotLightPriority()
 }
 
 
+bool LLVOVolume::isLightSpotlight()
+{
+	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+	return params->isLightSpotlight();
+}
+
+
 LLViewerTexture* LLVOVolume::getLightTexture()
 {
 	LLUUID id = getLightTextureID();
