@@ -2512,7 +2512,7 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	LLUIImagePtr image = mStyle->getImage();
 	if( image.notNull())
 	{
-		num_pixels -= image->getWidth();
+		num_pixels = llmax(0, num_pixels - image->getWidth());
 	}
 
 	// search for newline and if found, truncate there
