@@ -340,8 +340,10 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	std::string on = getString("on");
 	std::string off = getString("off");
 
+	LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
+
 	// Processing parcel characteristics
-	if (region->isVoiceEnabled() && parcel->getParcelFlagAllowVoice())
+	if (vpm->allowAgentVoice(region, parcel))
 	{
 		mVoiceIcon->setValue(icon_voice);
 		mVoiceText->setText(on);
@@ -352,7 +354,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mVoiceText->setText(off);
 	}
 
-	if (!region->getBlockFly() && parcel->getAllowFly())
+	if (vpm->allowAgentFly(region, parcel))
 	{
 		mFlyIcon->setValue(icon_fly);
 		mFlyText->setText(on);
@@ -363,18 +365,18 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mFlyText->setText(off);
 	}
 
-	if (region->getRestrictPushObject() || parcel->getRestrictPushObject())
-	{
-		mPushIcon->setValue(icon_push_no);
-		mPushText->setText(off);
-	}
-	else
+	if (vpm->allowAgentPush(region, parcel))
 	{
 		mPushIcon->setValue(icon_push);
 		mPushText->setText(on);
 	}
+	else
+	{
+		mPushIcon->setValue(icon_push_no);
+		mPushText->setText(off);
+	}
 
-	if (parcel->getAllowModify())
+	if (vpm->allowAgentBuild(parcel))
 	{
 		mBuildIcon->setValue(icon_build);
 		mBuildText->setText(on);
@@ -385,20 +387,18 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mBuildText->setText(off);
 	}
 
-	if ((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) ||
-	    (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
-	    !parcel->getAllowOtherScripts())
-	{
-		mScriptsIcon->setValue(icon_scripts_no);
-		mScriptsText->setText(off);
-	}
-	else
+	if (vpm->allowAgentScripts(region, parcel))
 	{
 		mScriptsIcon->setValue(icon_scripts);
 		mScriptsText->setText(on);
 	}
+	else
+	{
+		mScriptsIcon->setValue(icon_scripts_no);
+		mScriptsText->setText(off);
+	}
 
-	if (region->getAllowDamage() || parcel->getAllowDamage())
+	if (vpm->allowAgentDamage(region, parcel))
 	{
 		mDamageIcon->setValue(icon_damage);
 		mDamageText->setText(on);
@@ -461,12 +461,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	S32 claim_price;
 	S32 rent_price;
 	F32 dwell;
-	BOOL for_sale = parcel->getForSale();
-	LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
-													 &claim_price,
-													 &rent_price,
-													 &for_sale,
-													 &dwell);
+	BOOL for_sale;
+	vpm->getDisplayInfo(&area, &claim_price, &rent_price, &for_sale, &dwell);
 	if (for_sale)
 	{
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
