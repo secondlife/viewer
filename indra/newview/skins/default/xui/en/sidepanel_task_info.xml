@@ -85,7 +85,7 @@
      left="45"
      name="where"
      text_color="LtGray_50"
-     value="(In World)"
+     value="(inworld)"
      width="150" />
 	<panel
          follows="all"
