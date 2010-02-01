@@ -97,7 +97,7 @@
      value="1 0.82 0.46 1" />
     <color
      name="AlertCautionTextColor"
-     reference="Black" />
+     reference="Yellow" />
     <color
      name="AgentLinkColor"
      reference="White" />
