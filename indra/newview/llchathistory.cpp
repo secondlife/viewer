@@ -518,7 +518,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			chatters += *it;
 			if (++it != mUnreadChatSources.end())
 			{
-				chatters += ",";
+				chatters += ", ";
 			}
 		}
 		LLStringUtil::format_map_t args;

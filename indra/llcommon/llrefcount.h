@@ -41,22 +41,20 @@
 
 class LL_COMMON_API LLRefCount
 {
-private:
-	LLRefCount(const LLRefCount& other); // no implementation
-private:
-	LLRefCount& operator=(const LLRefCount&); // no implementation
 protected:
+	LLRefCount(const LLRefCount& other);
+	LLRefCount& operator=(const LLRefCount&);
 	virtual ~LLRefCount(); // use unref()
 	
 public:
 	LLRefCount();
 
-	void ref()
+	void ref() const
 	{ 
 		mRef++; 
 	} 
 
-	S32 unref()
+	S32 unref() const
 	{
 		llassert(mRef >= 1);
 		if (0 == --mRef) 
@@ -67,13 +65,15 @@ public:
 		return mRef;
 	}	
 
+	//NOTE: when passing around a const LLRefCount object, this can return different results
+	// at different types, since mRef is mutable
 	S32 getNumRefs() const
 	{
 		return mRef;
 	}
 
 private: 
-	S32	mRef; 
+	mutable S32	mRef; 
 };
 
 #endif

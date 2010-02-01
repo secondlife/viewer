@@ -47,7 +47,7 @@
 	<color
 	 name="Black"
 	 value="0 0 0 1" />
-	<color
+	<colork
 	 name="Black_10"
 	 value="0 0 0 0.1" />
 	<color
@@ -77,6 +77,16 @@
 	<color
 	name="Purple"
 	value="1 0 1 1" />
+	<color
+	name="Lime"
+	value=".8 1 .73 1" />
+	<color
+	name="LtYellow"
+	value="1 1 .79 1" />
+	<color
+	name="LtOrange"
+	value="1 .85 .73 1" />
+
   <!-- This color name makes potentially unused colors show up bright purple.
   Leave this here until all Unused? are removed below, otherwise
   the viewer generates many warnings on startup. -->
@@ -97,7 +107,7 @@
      value="1 0.82 0.46 1" />
     <color
      name="AlertCautionTextColor"
-     reference="Yellow" />
+     reference="LtYellow" />
     <color
      name="AgentLinkColor"
      reference="White" />
@@ -226,10 +236,10 @@
      reference="White" />
     <color
      name="ColorPaletteEntry16"
-     reference="White" />
+     reference="LtYellow" />
     <color
      name="ColorPaletteEntry17"
-     reference="White" />
+     reference="LtGreen" />
     <color
      name="ColorPaletteEntry18"
      reference="LtGray" />
@@ -544,7 +554,7 @@
      reference="White" />
     <color
      name="ObjectChatColor"
-     reference="EmphasisColor" />
+     reference="EmphasisColor_35" />
     <color
      name="OverdrivenColor"
      reference="Red" />
@@ -592,7 +602,7 @@
      value="0.39 0.39 0.39 1" />
     <color
      name="ScriptErrorColor"
-     value="0.82 0.27 0.27 1" />
+     value="Red" />
     <color
      name="ScrollBGStripeColor"
      reference="Transparent" />
@@ -649,7 +659,7 @@
      reference="FrogGreen" />
     <color
      name="SystemChatColor"
-     reference="White" />
+     reference="LtGray" />
     <color
      name="TextBgFocusColor"
      reference="White" />
@@ -703,7 +713,7 @@
      reference="White" />
     <color
      name="llOwnerSayChatColor"
-     reference="LtGray" />
+     reference="LtYellow" />
 
     <!-- New Colors -->
     <color
