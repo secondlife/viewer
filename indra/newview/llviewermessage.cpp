@@ -1647,6 +1647,60 @@ bool inspect_remote_object_callback(const LLSD& notification, const LLSD& respon
 }
 static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("ServerObjectMessage", inspect_remote_object_callback);
 
+// Strip out "Resident" for display, but only if the message came from a user
+// (rather than a script)
+static std::string clean_name_from_im(const std::string& name, EInstantMessage type)
+{
+	U32 pos = 0;
+	switch(type)
+	{
+	case IM_NOTHING_SPECIAL:
+	case IM_MESSAGEBOX:
+	case IM_GROUP_INVITATION:
+	case IM_INVENTORY_OFFERED:
+	case IM_INVENTORY_ACCEPTED:
+	case IM_INVENTORY_DECLINED:
+	case IM_GROUP_VOTE:
+	case IM_GROUP_MESSAGE_DEPRECATED:
+	//IM_TASK_INVENTORY_OFFERED
+	//IM_TASK_INVENTORY_ACCEPTED
+	//IM_TASK_INVENTORY_DECLINED
+	case IM_NEW_USER_DEFAULT:
+	case IM_SESSION_INVITE:
+	case IM_SESSION_P2P_INVITE:
+	case IM_SESSION_GROUP_START:
+	case IM_SESSION_CONFERENCE_START:
+	case IM_SESSION_SEND:
+	case IM_SESSION_LEAVE:
+	//IM_FROM_TASK
+	case IM_BUSY_AUTO_RESPONSE:
+	case IM_CONSOLE_AND_CHAT_HISTORY:
+	case IM_LURE_USER:
+	case IM_LURE_ACCEPTED:
+	case IM_LURE_DECLINED:
+	case IM_GODLIKE_LURE_USER:
+	case IM_YET_TO_BE_USED:
+	case IM_GROUP_ELECTION_DEPRECATED:
+	//IM_GOTO_URL
+	//IM_FROM_TASK_AS_ALERT
+	case IM_GROUP_NOTICE:
+	case IM_GROUP_NOTICE_INVENTORY_ACCEPTED:
+	case IM_GROUP_NOTICE_INVENTORY_DECLINED:
+	case IM_GROUP_INVITATION_ACCEPT:
+	case IM_GROUP_INVITATION_DECLINE:
+	case IM_GROUP_NOTICE_REQUESTED:
+	case IM_FRIENDSHIP_OFFERED:
+	case IM_FRIENDSHIP_ACCEPTED:
+	case IM_FRIENDSHIP_DECLINED_DEPRECATED:
+	//IM_TYPING_START
+	//IM_TYPING_STOP
+		pos = name.find(" Resident");
+		return name.substr(0, pos);
+	default:
+		return name;
+	}
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -1694,6 +1748,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	{
         name = LLTrans::getString("Unnamed");
 	}
+	// IDEVO convert new-style "Resident" names for display
+	name = clean_name_from_im(name, dialog);
 
 	BOOL is_busy = gAgent.getBusy();
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);
@@ -2494,6 +2550,15 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 	LLNotificationsUtil::add("CallingCardDeclined");
 }
 
+static std::string clean_name_from_chat(const std::string& full_name, EChatSourceType type)
+{
+	if (type == CHAT_SOURCE_AGENT)
+	{
+		U32 pos = full_name.find(" Resident");
+		return full_name.substr(0, pos);
+	}
+	return full_name;
+}
 
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
@@ -2510,7 +2575,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	LLViewerObject*	chatter;
 
 	msg->getString("ChatData", "FromName", from_name);
-	chat.mFromName = from_name;
+	//chat.mFromName = from_name;
 	
 	msg->getUUID("ChatData", "SourceID", from_id);
 	chat.mFromID = from_id;
@@ -2529,6 +2594,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	
 	chat.mTime = LLFrameTimer::getElapsedSeconds();
 	
+	// IDEVO Correct for new-style "Resident" names
+	chat.mFromName = clean_name_from_chat(from_name, chat.mSourceType);
+
 	BOOL is_busy = gAgent.getBusy();
 
 	BOOL is_muted = FALSE;
