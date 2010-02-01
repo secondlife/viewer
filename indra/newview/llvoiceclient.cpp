@@ -1327,18 +1327,11 @@ void LLVoiceClient::connectorShutdown()
 	}
 }
 
-void LLVoiceClient::userAuthorized(const std::string& firstName, const std::string& lastName, const LLUUID &agentID)
+void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &agentID)
 {
-	mAccountFirstName = firstName;
-	mAccountLastName = lastName;
+	LL_INFOS("Voice") << "name \"" << user_id << "\" , ID " << agentID << LL_ENDL;
 
-	mAccountDisplayName = firstName;
-	mAccountDisplayName += " ";
-	mAccountDisplayName += lastName;
-
-	LL_INFOS("Voice") << "name \"" << mAccountDisplayName << "\" , ID " << agentID << LL_ENDL;
-
-	sConnectingToAgni = LLViewerLogin::getInstance()->isInProductionGrid();
+	sConnectingToAgni = LLGridManager::getInstance()->isInProductionGrid();
 
 	mAccountName = nameFromID(agentID);
 }

@@ -230,10 +230,9 @@ static bool gUseCircuitCallbackCalled = false;
 
 EStartupState LLStartUp::gStartupState = STATE_FIRST;
 
-// *NOTE:Mani - to reconcile with giab changes...
-static std::string gFirstname;
-static std::string gLastname;
-static std::string gPassword;
+static LLPointer<LLCredential> gUserCredential;
+static std::string gDisplayName;
+static BOOL gRememberPassword = TRUE;     
 
 static U64 gFirstSimHandle = 0;
 static LLHost gFirstSim;
@@ -250,7 +249,6 @@ boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener(
 
 void login_show();
 void login_callback(S32 option, void* userdata);
-bool is_hex_string(U8* str, S32 len);
 void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
@@ -716,69 +714,25 @@ bool idle_startup()
 		//
 		// Log on to system
 		//
-		if (!LLStartUp::sSLURLCommand.empty())
+		if (gUserCredential.isNull())
 		{
-			// this might be a secondlife:///app/login URL
-			gLoginHandler.parseDirectLogin(LLStartUp::sSLURLCommand);
+			gUserCredential = gLoginHandler.initializeLoginInfo(LLStartUp::sSLURLCommand);
 		}
-		if (!gLoginHandler.getFirstName().empty()
-			|| !gLoginHandler.getLastName().empty()
-			/*|| !gLoginHandler.getWebLoginKey().isNull()*/ )
+		if (gUserCredential.isNull())
 		{
-			// We have at least some login information on a SLURL
-			gFirstname = gLoginHandler.getFirstName();
-			gLastname = gLoginHandler.getLastName();
-			LL_DEBUGS("LLStartup") << "STATE_FIRST: setting gFirstname, gLastname from gLoginHandler: '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
-
-			// Show the login screen if we don't have everything
-			show_connect_box = 
-				gFirstname.empty() || gLastname.empty();
+			show_connect_box = TRUE;
 		}
-        else if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
-        {
-            LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
-			gFirstname = cmd_line_login[0].asString();
-			gLastname = cmd_line_login[1].asString();
-			LL_DEBUGS("LLStartup") << "Setting gFirstname, gLastname from gSavedSettings(\"UserLoginInfo\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
-
-			LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
-			char md5pass[33];               /* Flawfinder: ignore */
-			pass.hex_digest(md5pass);
-			gPassword = md5pass;
-			
-#ifdef USE_VIEWER_AUTH
-			show_connect_box = true;
-#else
-			show_connect_box = false;
-#endif
-			gSavedSettings.setBOOL("AutoLogin", TRUE);
-        }
-		else if (gSavedSettings.getBOOL("AutoLogin"))
+		else if (gSavedSettings.getBOOL("AutoLogin"))  
 		{
-			gFirstname = gSavedSettings.getString("FirstName");
-			gLastname = gSavedSettings.getString("LastName");
-			LL_DEBUGS("LLStartup") << "AutoLogin: setting gFirstname, gLastname from gSavedSettings(\"First|LastName\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
-			gPassword = LLStartUp::loadPasswordFromDisk();
-			gSavedSettings.setBOOL("RememberPassword", TRUE);
-			
-#ifdef USE_VIEWER_AUTH
-			show_connect_box = true;
-#else
-			show_connect_box = false;
-#endif
+			gRememberPassword = TRUE;
+			gSavedSettings.setBOOL("RememberPassword", TRUE);                                                      
+			show_connect_box = false;    			
 		}
-		else
+		else 
 		{
-			// if not automatically logging in, display login dialog
-			// a valid grid is selected
-			gFirstname = gSavedSettings.getString("FirstName");
-			gLastname = gSavedSettings.getString("LastName");
-			LL_DEBUGS("LLStartup") << "normal login: setting gFirstname, gLastname from gSavedSettings(\"First|LastName\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
-			gPassword = LLStartUp::loadPasswordFromDisk();
-			show_connect_box = true;
+			gRememberPassword = gSavedSettings.getBOOL("RememberPassword");
+			show_connect_box = TRUE;
 		}
-
-
 		// Go to the next startup state
 		LLStartUp::setStartupState( STATE_BROWSER_INIT );
 		return FALSE;
@@ -810,8 +764,10 @@ bool idle_startup()
 			// Load all the name information out of the login view
 			// NOTE: Hits "Attempted getFields with no login view shown" warning, since we don't
 			// show the login view until login_show() is called below.  
-			// LLPanelLogin::getFields(gFirstname, gLastname, gPassword);
-
+			if (gUserCredential.isNull())                                                                          
+			{                                                                                                      
+				gUserCredential = gLoginHandler.initializeLoginInfo(LLStartUp::sSLURLCommand);                 
+			}     
 			if (gNoRender)
 			{
 				LL_ERRS("AppInit") << "Need to autologin or use command line with norender!" << LL_ENDL;
@@ -822,8 +778,10 @@ bool idle_startup()
 			// Show the login dialog
 			login_show();
 			// connect dialog is already shown, so fill in the names
-			LLPanelLogin::setFields( gFirstname, gLastname, gPassword);
-
+			if (gUserCredential.notNull())                                                                         
+			{                                                                                                      
+				LLPanelLogin::setFields( gUserCredential, gRememberPassword);                                  
+			}     
 			LLPanelLogin::giveFocus();
 
 			gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
@@ -890,36 +848,32 @@ bool idle_startup()
 		// DEV-42215: Make sure they're not empty -- gFirstname and gLastname
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
-		if (! gLoginHandler.getFirstName().empty() && ! gLoginHandler.getLastName().empty())
-		{
-			gFirstname = gLoginHandler.getFirstName();
-			gLastname = gLoginHandler.getLastName();
-			LL_DEBUGS("LLStartup") << "STATE_LOGIN_CLEANUP: setting gFirstname, gLastname from gLoginHandler: '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
-		}
 
 		if (show_connect_box)
 		{
 			// TODO if not use viewer auth
 			// Load all the name information out of the login view
-			LLPanelLogin::getFields(&gFirstname, &gLastname, &gPassword);
+			LLPanelLogin::getFields(gUserCredential, gRememberPassword); 
 			// end TODO
 	 
 			// HACK: Try to make not jump on login
 			gKeyboard->resetKeys();
 		}
 
-		if (!gFirstname.empty() && !gLastname.empty())
-		{
-			gSavedSettings.setString("FirstName", gFirstname);
-			gSavedSettings.setString("LastName", gLastname);
-
-			LL_INFOS("AppInit") << "Attempting login as: " << gFirstname << " " << gLastname << LL_ENDL;
-			gDebugInfo["LoginName"] = gFirstname + " " + gLastname;	
+		// save the credentials                                                                                        
+		std::string userid = "unknown";                                                                                
+		if(gUserCredential.notNull())                                                                                  
+		{  
+			userid = gUserCredential->userID();                                                                    
+			gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);  
 		}
-
+		gSavedSettings.setBOOL("RememberPassword", gRememberPassword);                                                 
+		LL_INFOS("AppInit") << "Attempting login as: " << userid << LL_ENDL;                                           
+		gDebugInfo["LoginName"] = userid;                                                                              
+         
 		// create necessary directories
 		// *FIX: these mkdir's should error check
-		gDirUtilp->setLindenUserDir(gFirstname, gLastname);
+		gDirUtilp->setPerAccountChatLogsDir(userid);  
     	LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
         // Set PerAccountSettingsFile to the default value.
@@ -952,8 +906,6 @@ bool idle_startup()
 		{
 			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		}
-		
-		gDirUtilp->setPerAccountChatLogsDir(gFirstname, gLastname);
 
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
@@ -1052,7 +1004,7 @@ bool idle_startup()
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
-		gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
+		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridLabel();
 
 		// Update progress status and the display loop.
 		auth_desc = LLTrans::getString("LoginInProgress");
@@ -1076,11 +1028,7 @@ bool idle_startup()
 
 		// This call to LLLoginInstance::connect() starts the 
 		// authentication process.
-		LLSD credentials;
-		credentials["first"] = gFirstname;
-		credentials["last"] = gLastname;
-		credentials["passwd"] = gPassword;
-		login->connect(credentials);
+		login->connect(gUserCredential);
 
 		LLStartUp::setStartupState( STATE_LOGIN_CURL_UNSTUCK );
 		return FALSE;
@@ -1128,8 +1076,8 @@ bool idle_startup()
 			if(reason_response == "key")
 			{
 				// Couldn't login because user/password is wrong
-				// Clear the password
-				gPassword = "";
+				// Clear the credential
+				gUserCredential->clearAuthenticator();
 			}
 
 			if(reason_response == "update" 
@@ -1166,7 +1114,8 @@ bool idle_startup()
 			if(process_login_success_response())
 			{
 				// Pass the user information to the voice chat server interface.
-				gVoiceClient->userAuthorized(gFirstname, gLastname, gAgentID);
+				gVoiceClient->userAuthorized(gUserCredential->userID(), gAgentID);
+				LLGridManager::getInstance()->setFavorite(); 
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
 			else
@@ -2115,20 +2064,9 @@ void login_show()
 #endif
 
 	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
-						bUseDebugLogin,
+						bUseDebugLogin || gSavedSettings.getBOOL("SecondLifeEnterprise"),
 						login_callback, NULL );
 
-	// UI textures have been previously loaded in doPreloadImages()
-	
-	LL_DEBUGS("AppInit") << "Setting Servers" << LL_ENDL;
-
-	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel(), LLViewerLogin::getInstance()->getGridChoice());
-
-	LLViewerLogin* vl = LLViewerLogin::getInstance();
-	for(int grid_index = GRID_INFO_ADITI; grid_index < GRID_INFO_OTHER; ++grid_index)
-	{
-		LLPanelLogin::addServer(vl->getKnownGridLabel((EGridInfo)grid_index), grid_index);
-	}
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2144,9 +2082,6 @@ void login_callback(S32 option, void *userdata)
 	}
 	else if (QUIT_OPTION == option) // *TODO: THIS CODE SEEMS TO BE UNREACHABLE!!!!! login_callback is never called with option equal to QUIT_OPTION
 	{
-		// Make sure we don't save the password if the user is trying to clear it.
-		std::string first, last, password;
-		LLPanelLogin::getFields(&first, &last, &password);
 		if (!gSavedSettings.getBOOL("RememberPassword"))
 		{
 			// turn off the setting and write out to disk
@@ -2167,142 +2102,6 @@ void login_callback(S32 option, void *userdata)
 	{
 		LL_WARNS("AppInit") << "Unknown login button clicked" << LL_ENDL;
 	}
-}
-
-
-// static
-std::string LLStartUp::loadPasswordFromDisk()
-{
-	// Only load password if we also intend to save it (otherwise the user
-	// wonders what we're doing behind his back).  JC
-	BOOL remember_password = gSavedSettings.getBOOL("RememberPassword");
-	if (!remember_password)
-	{
-		return std::string("");
-	}
-
-	std::string hashed_password("");
-
-	// Look for legacy "marker" password from settings.ini
-	hashed_password = gSavedSettings.getString("Marker");
-	if (!hashed_password.empty())
-	{
-		// Stomp the Marker entry.
-		gSavedSettings.setString("Marker", "");
-
-		// Return that password.
-		return hashed_password;
-	}
-
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-													   "password.dat");
-	LLFILE* fp = LLFile::fopen(filepath, "rb");		/* Flawfinder: ignore */
-	if (!fp)
-	{
-		return hashed_password;
-	}
-
-	// UUID is 16 bytes, written into ASCII is 32 characters
-	// without trailing \0
-	const S32 HASHED_LENGTH = 32;
-	U8 buffer[HASHED_LENGTH+1];
-
-	if (1 != fread(buffer, HASHED_LENGTH, 1, fp))
-	{
-		return hashed_password;
-	}
-
-	fclose(fp);
-
-	// Decipher with MAC address
-	LLXORCipher cipher(gMACAddress, 6);
-	cipher.decrypt(buffer, HASHED_LENGTH);
-
-	buffer[HASHED_LENGTH] = '\0';
-
-	// Check to see if the mac address generated a bad hashed
-	// password. It should be a hex-string or else the mac adress has
-	// changed. This is a security feature to make sure that if you
-	// get someone's password.dat file, you cannot hack their account.
-	if(is_hex_string(buffer, HASHED_LENGTH))
-	{
-		hashed_password.assign((char*)buffer);
-	}
-
-	return hashed_password;
-}
-
-
-// static
-void LLStartUp::savePasswordToDisk(const std::string& hashed_password)
-{
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-													   "password.dat");
-	LLFILE* fp = LLFile::fopen(filepath, "wb");		/* Flawfinder: ignore */
-	if (!fp)
-	{
-		return;
-	}
-
-	// Encipher with MAC address
-	const S32 HASHED_LENGTH = 32;
-	U8 buffer[HASHED_LENGTH+1];
-
-	LLStringUtil::copy((char*)buffer, hashed_password.c_str(), HASHED_LENGTH+1);
-
-	LLXORCipher cipher(gMACAddress, 6);
-	cipher.encrypt(buffer, HASHED_LENGTH);
-
-	if (fwrite(buffer, HASHED_LENGTH, 1, fp) != 1)
-	{
-		LL_WARNS("AppInit") << "Short write" << LL_ENDL;
-	}
-
-	fclose(fp);
-}
-
-
-// static
-void LLStartUp::deletePasswordFromDisk()
-{
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-														  "password.dat");
-	LLFile::remove(filepath);
-}
-
-
-bool is_hex_string(U8* str, S32 len)
-{
-	bool rv = true;
-	U8* c = str;
-	while(rv && len--)
-	{
-		switch(*c)
-		{
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-			++c;
-			break;
-		default:
-			rv = false;
-			break;
-		}
-	}
-	return rv;
 }
 
 void show_first_run_dialog()
@@ -2881,33 +2680,45 @@ bool process_login_success_response()
 	text = response["secure_session_id"].asString();
 	if(!text.empty()) gAgent.mSecureSessionID.set(text);
 
-	text = response["first_name"].asString();
-	if(!text.empty()) 
-	{
-		// Remove quotes from string.  Login.cgi sends these to force
-		// names that look like numbers into strings.
-		gFirstname.assign(text);
-		LLStringUtil::replaceChar(gFirstname, '"', ' ');
-		LLStringUtil::trim(gFirstname);
-	}
-	text = response["last_name"].asString();
-	if(!text.empty()) 
-	{
-		gLastname.assign(text);
-	}
-	gSavedSettings.setString("FirstName", gFirstname);
-	gSavedSettings.setString("LastName", gLastname);
+	// if the response contains a display name, use that,
+	// otherwise if the response contains a first and/or last name,
+	// use those.  Otherwise use the credential identifier
 
-	if (gSavedSettings.getBOOL("RememberPassword"))
+	gDisplayName = "";
+	if (response.has("display_name"))
 	{
-		// Successful login means the password is valid, so save it.
-		LLStartUp::savePasswordToDisk(gPassword);
+		gDisplayName.assign(response["display_name"].asString());
+		if(!gDisplayName.empty())
+		{
+			// Remove quotes from string.  Login.cgi sends these to force
+			// names that look like numbers into strings.
+			LLStringUtil::replaceChar(gDisplayName, '"', ' ');
+			LLStringUtil::trim(gDisplayName);
+		}
 	}
-	else
+	if(gDisplayName.empty())
 	{
-		// Don't leave password from previous session sitting around
-		// during this login session.
-		LLStartUp::deletePasswordFromDisk();
+		if(response.has("first_name"))
+		{
+			gDisplayName.assign(response["first_name"].asString());
+			LLStringUtil::replaceChar(gDisplayName, '"', ' ');
+			LLStringUtil::trim(gDisplayName);
+		}
+		if(response.has("last_name"))
+		{
+			text.assign(response["last_name"].asString());
+			LLStringUtil::replaceChar(text, '"', ' ');
+			LLStringUtil::trim(text);
+			if(!gDisplayName.empty())
+			{
+				gDisplayName += " ";
+			}
+			gDisplayName += text;
+		}
+	}
+	if(gDisplayName.empty())
+	{
+		gDisplayName.assign(gUserCredential->asString());
 	}
 
 	// this is their actual ability to access content
@@ -3108,7 +2919,7 @@ bool process_login_success_response()
 
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
-	// in place.  Don't delete/clear user_credentials until then.
+	// in place.  Don't delete/clear gUserCredentials until then.
 	if(gAgentID.notNull()
 	   && gAgentSessionID.notNull()
 	   && gMessageSystem->mOurCircuitCode

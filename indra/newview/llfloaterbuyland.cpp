@@ -837,7 +837,7 @@ void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCVa
 	static std::string transaction_uri;
 	if (transaction_uri.empty())
 	{
-		transaction_uri = LLViewerLogin::getInstance()->getHelperURI() + "landtool.php";
+		transaction_uri = LLGridManager::getInstance()->getHelperURI() + "landtool.php";
 	}
 	
 	const char* method;

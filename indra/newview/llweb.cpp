@@ -146,7 +146,7 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["VERSION_BUILD"] = LLVersionInfo::getBuild();
 	substitution["CHANNEL"] = LLVersionInfo::getChannel();
 	substitution["LANGUAGE"] = LLUI::getLanguage();
-	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
+	substitution["GRID"] = LLGridManager::getInstance()->getGridLabel();
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	substitution["SESSION_ID"] = gAgent.getSessionID();
 

@@ -191,6 +191,9 @@
 #include "llparcel.h"
 #include "llavatariconctrl.h"
 
+// Include for security api initialization
+#include "llsecapi.h"
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -506,35 +509,6 @@ public:
 	}
 };
 
-void LLAppViewer::initGridChoice()
-{
-	// Load	up the initial grid	choice from:
-	//	- hard coded defaults...
-	//	- command line settings...
-	//	- if dev build,	persisted settings...
-
-	// Set the "grid choice", this is specified	by command line.
-	std::string	grid_choice	= gSavedSettings.getString("CmdLineGridChoice");
-	LLViewerLogin::getInstance()->setGridChoice(grid_choice);
-
-	// Load last server choice by default 
-	// ignored if the command line grid	choice has been	set
-	if(grid_choice.empty())
-	{
-		S32	server = gSavedSettings.getS32("ServerChoice");
-		server = llclamp(server, 0,	(S32)GRID_INFO_COUNT - 1);
-		if(server == GRID_INFO_OTHER)
-		{
-			std::string custom_server = gSavedSettings.getString("CustomServer");
-			LLViewerLogin::getInstance()->setGridChoice(custom_server);
-		}
-		else if(server != (S32)GRID_INFO_NONE)
-		{
-			LLViewerLogin::getInstance()->setGridChoice((EGridInfo)server);
-		}
-	}
-}
-
 //virtual
 bool LLAppViewer::initSLURLHandler()
 {
@@ -646,7 +620,7 @@ bool LLAppViewer::init()
     LLCurl::initClass();
 
     initThreads();
-
+    initializeSecHandler();
     writeSystemInfo();
 
 	// Build a string representing the current version number.
@@ -775,10 +749,6 @@ bool LLAppViewer::init()
 		// Early out from user choice.
 		return false;
 	}
-
-	// Always fetch the Ethernet MAC address, needed both for login
-	// and password load.
-	LLUUID::getNodeID(gMACAddress);
 
 	// Prepare for out-of-memory situations, during which we will crash on
 	// purpose and save a dump.
@@ -1462,13 +1432,6 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Saving Data" << llendflush;
 	
-	// Quitting with "Remember Password" turned off should always stomp your
-	// saved password, whether or not you successfully logged in.  JC
-	if (!gSavedSettings.getBOOL("RememberPassword"))
-	{
-		LLStartUp::deletePasswordFromDisk();
-	}
-	
 	// Store the time of our current logoff
 	gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
 
@@ -2022,7 +1985,6 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
-    initGridChoice();
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
 	if(clp.hasOption("crashonstartup"))
@@ -2511,7 +2473,7 @@ void LLAppViewer::writeSystemInfo()
 
 	// The user is not logged on yet, but record the current grid choice login url
 	// which may have been the intended grid. This can b
-	gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
+	gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridLabel();
 
 	// *FIX:Mani - move this ddown in llappviewerwin32
 #ifdef LL_WINDOWS
@@ -2678,10 +2640,10 @@ void LLAppViewer::handleViewerCrash()
 		gMessageSystem->stopLogging();
 	}
 
-	LLWorld::getInstance()->getInfo(gDebugInfo);
+	//LLWorld::getInstance()->getInfo(gDebugInfo);
 
 	// Close the debug file
-	pApp->writeDebugInfo();
+	//pApp->writeDebugInfo();
 
 	LLError::logToFile("");
 
@@ -4271,7 +4233,7 @@ void LLAppViewer::launchUpdater()
 #endif
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
-	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
+	query_map["userserver"] = LLGridManager::getInstance()->getGridLabel();
 	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp

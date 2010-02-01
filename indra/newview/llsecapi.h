@@ -34,6 +34,7 @@
 #define LLSECAPI_H
 #include <vector>
 #include <openssl/x509.h>
+#include <ostream>
 
 // All error handling is via exceptions.
 
@@ -156,7 +157,7 @@ public:
 	LLCertificateStore() {}
 	virtual ~LLCertificateStore() {}
 	
-	virtual X509_STORE getOpenSSLX509Store()=0;  // return an openssl X509_STORE  
+	virtual X509_STORE* getOpenSSLX509Store()=0;  // return an openssl X509_STORE  
 	// for this store
 	
 	// add a copy of a cert to the store
@@ -169,7 +170,8 @@ public:
 	virtual void remove(int index)=0;
 	
 	// return a certificate at the index
-	virtual LLPointer<LLCertificate>& operator[](int index)=0;
+	virtual LLPointer<LLCertificate> operator[](int index)=0;
+	
 	// return the number of certs in the store
 	virtual int len() const =0;
 	
@@ -185,6 +187,49 @@ public:
 	// validate a cert chain
 	virtual bool validate(const LLCertificateChain& cert_chain) const=0;
 };
+
+//
+// LLCredential - interface for credentials providing the following functionality:
+// * persistance of credential information based on grid (for saving username/password)
+// * serialization to an OGP identifier/authenticator pair
+// 
+class LLCredential  : public LLRefCount
+{
+public:
+	
+	LLCredential() {}
+	
+	LLCredential(const std::string& grid)
+	{
+		mGrid = grid;
+		mIdentifier = LLSD::emptyMap();
+		mAuthenticator = LLSD::emptyMap();
+	}
+	
+	virtual ~LLCredential() {}
+	
+	virtual void setCredentialData(const LLSD& identifier, const LLSD& authenticator) 
+	{ 
+		mIdentifier = identifier;
+		mAuthenticator = authenticator;
+	}
+	virtual LLSD getIdentifier() { return mIdentifier; }
+	virtual LLSD getAuthenticator() { return mAuthenticator; }
+	virtual LLSD getLoginParams();
+	virtual std::string getGrid() { return mGrid; }
+	
+
+	virtual void clearAuthenticator() { mAuthenticator = LLSD(); } 
+	virtual std::string userID() const { return std::string("unknown");}
+	virtual std::string asString() const { return std::string("unknown");}
+	operator std::string() const { return asString(); }
+protected:
+	LLSD mIdentifier;
+	LLSD mAuthenticator;
+	std::string mGrid;
+};
+
+std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
 
 
 // LLSecAPIHandler Class
@@ -219,14 +264,31 @@ public:
 	// retrieve protected data
 	virtual LLSD getProtectedData(const std::string& data_type,
 								  const std::string& data_id)=0;
+	
+	// delete a protected data item from the store
+	virtual void deleteProtectedData(const std::string& data_type,
+									 const std::string& data_id)=0;
+	
+	virtual LLPointer<LLCredential> createCredential(const std::string& grid,
+													 const LLSD& identifier, 
+													 const LLSD& authenticator)=0;
+	
+	virtual LLPointer<LLCredential> loadCredential(const std::string& grid)=0;
+	
+	virtual void saveCredential(LLPointer<LLCredential> cred, bool save_authenticator)=0;
+	
+	virtual void deleteCredential(LLPointer<LLCredential> cred)=0;
+	
 };
 
-void secHandlerInitialize();
+void initializeSecHandler();
 				
 // retrieve a security api depending on the api type
 LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type);
 
 void registerSecHandler(const std::string& handler_type, 
 						LLPointer<LLSecAPIHandler>& handler);
+
+extern LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 #endif // LL_SECAPI_H

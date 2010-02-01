@@ -55,6 +55,7 @@
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
 #endif
+#include "llsecapi.h"
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
@@ -83,14 +84,14 @@ LLLoginInstance::~LLLoginInstance()
 {
 }
 
-void LLLoginInstance::connect(const LLSD& credentials)
+void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
 {
 	std::vector<std::string> uris;
-	LLViewerLogin::getInstance()->getLoginURIs(uris);
+	LLGridManager::getInstance()->getLoginURIs(uris);
 	connect(uris.front(), credentials);
 }
 
-void LLLoginInstance::connect(const std::string& uri, const LLSD& credentials)
+void LLLoginInstance::connect(const std::string& uri, LLPointer<LLCredential> credentials)
 {
 	mAttemptComplete = false; // Reset attempt complete at this point!
 	constructAuthParams(credentials);
@@ -102,7 +103,7 @@ void LLLoginInstance::reconnect()
 	// Sort of like connect, only using the pre-existing
 	// request params.
 	std::vector<std::string> uris;
-	LLViewerLogin::getInstance()->getLoginURIs(uris);
+	LLGridManager::getInstance()->getLoginURIs(uris);
 	mLoginModule->connect(uris.front(), mRequestData);
 }
 
@@ -118,7 +119,7 @@ LLSD LLLoginInstance::getResponse()
 	return mResponseData; 
 }
 
-void LLLoginInstance::constructAuthParams(const LLSD& credentials)
+void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credential)
 {
 	// Set up auth request options.
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
@@ -155,20 +156,18 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 		requested_options.append("god-connect");
 	}
+	
+	// (re)initialize the request params with creds.
+	LLSD request_params = user_credential->getLoginParams();
 
 	char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
 	LLMD5 hashed_mac;
-	hashed_mac.update( gMACAddress, MAC_ADDRESS_BYTES );
+	unsigned char MACAddress[MAC_ADDRESS_BYTES];
+	LLUUID::getNodeID(MACAddress);	
+	hashed_mac.update( MACAddress, MAC_ADDRESS_BYTES );
 	hashed_mac.finalize();
 	hashed_mac.hex_digest(hashed_mac_string);
-
-	// prepend "$1$" to the password to indicate its the md5'd version.
-	std::string dpasswd("$1$");
-	dpasswd.append(credentials["passwd"].asString());
-
-	// (re)initialize the request params with creds.
-	LLSD request_params(credentials);
-	request_params["passwd"] = dpasswd;
+	
 	request_params["start"] = construct_start_string();
 	request_params["skipoptional"] = mSkipOptionalUpdate;
 	request_params["agree_to_tos"] = false; // Always false here. Set true in 

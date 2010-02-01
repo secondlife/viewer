@@ -555,26 +555,23 @@ std::string LLDir::getForbiddenFileChars()
 	return "\\/:*?\"<>|";
 }
 
-void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
+void LLDir::setLindenUserDir(const std::string &username)
 {
 	// if both first and last aren't set, assume we're grabbing the cached dir
-	if (!first.empty() && !last.empty())
+	if (!username.empty())
 	{
 		// some platforms have case-sensitive filesystems, so be
 		// utterly consistent with our firstname/lastname case.
-		std::string firstlower(first);
-		LLStringUtil::toLower(firstlower);
-		std::string lastlower(last);
-		LLStringUtil::toLower(lastlower);
+		std::string userlower(username);
+		LLStringUtil::toLower(userlower);
+		LLStringUtil::replaceChar(userlower, ' ', '_');
 		mLindenUserDir = getOSUserAppDir();
 		mLindenUserDir += mDirDelimiter;
-		mLindenUserDir += firstlower;
-		mLindenUserDir += "_";
-		mLindenUserDir += lastlower;
+		mLindenUserDir += userlower;
 	}
 	else
 	{
-		llerrs << "Invalid name for LLDir::setLindenUserDir(first='" << first << "', last='" << last << "')" << llendl;
+		llerrs << "NULL name for LLDir::setLindenUserDir" << llendl;
 	}
 
 	dumpCurrentDirectories();	
@@ -592,27 +589,25 @@ void LLDir::setChatLogsDir(const std::string &path)
 	}
 }
 
-void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string &last)
+void LLDir::setPerAccountChatLogsDir(const std::string &username)
 {
 	// if both first and last aren't set, assume we're grabbing the cached dir
-	if (!first.empty() && !last.empty())
+	if (!username.empty())
 	{
 		// some platforms have case-sensitive filesystems, so be
 		// utterly consistent with our firstname/lastname case.
-		std::string firstlower(first);
-		LLStringUtil::toLower(firstlower);
-		std::string lastlower(last);
-		LLStringUtil::toLower(lastlower);
-		mPerAccountChatLogsDir = getChatLogsDir();
-		mPerAccountChatLogsDir += mDirDelimiter;
-		mPerAccountChatLogsDir += firstlower;
-		mPerAccountChatLogsDir += "_";
-		mPerAccountChatLogsDir += lastlower;
+		std::string userlower(username);
+		LLStringUtil::toLower(userlower);
+		LLStringUtil::replaceChar(userlower, ' ', '_');
+		mLindenUserDir = getChatLogsDir();
+		mLindenUserDir += mDirDelimiter;
+		mLindenUserDir += userlower;
 	}
 	else
 	{
-		llwarns << "Invalid name for LLDir::setPerAccountChatLogsDir" << llendl;
+		llerrs << "NULL name for LLDir::setPerAccountChatLogsDir" << llendl;
 	}
+	
 }
 
 void LLDir::setSkinFolder(const std::string &skin_folder)

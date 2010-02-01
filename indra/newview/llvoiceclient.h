@@ -428,10 +428,8 @@ static	void updatePosition(void);
 		void connectorShutdown();
 
 		void requestVoiceAccountProvision(S32 retries = 3);
-		void userAuthorized(
-			const std::string& firstName,
-			const std::string& lastName,
-			const LLUUID &agentID);
+	void userAuthorized(const std::string& user_id,
+						const LLUUID &agentID);
 		void login(
 			const std::string& account_name,
 			const std::string& password,

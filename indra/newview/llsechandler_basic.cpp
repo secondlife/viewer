@@ -35,8 +35,11 @@
 #include "llsecapi.h"
 #include "llsechandler_basic.h"
 #include "llsdserialize.h"
+#include "llviewernetwork.h"
+#include "llxorcipher.h"
 #include "llfile.h"
 #include "lldir.h"
+#include "llviewercontrol.h"
 #include <vector>
 #include <ios>
 #include <openssl/x509.h>
@@ -276,22 +279,94 @@ std::string cert_get_digest(const std::string& digest_type, X509 *cert)
 }
 
 
+//
+// LLBasicCertificateStore
+// 
+LLBasicCertificateStore::LLBasicCertificateStore(const std::string& filename)
+{
+}
+LLBasicCertificateStore::LLBasicCertificateStore(const X509_STORE* store)
+{
+}
+
+LLBasicCertificateStore::~LLBasicCertificateStore()
+{
+}
+
+		
+X509_STORE* LLBasicCertificateStore::getOpenSSLX509Store()
+{
+	return NULL;
+}
+		
+		// add a copy of a cert to the store
+void  LLBasicCertificateStore::append(const LLCertificate& cert)
+{
+}
+		
+		// add a copy of a cert to the store
+void LLBasicCertificateStore::insert(const int index, const LLCertificate& cert)
+{
+}
+		
+		// remove a certificate from the store
+void LLBasicCertificateStore::remove(int index)
+{
+}
+		
+		// return a certificate at the index
+LLPointer<LLCertificate> LLBasicCertificateStore::operator[](int index)
+{
+	LLPointer<LLCertificate> result = NULL;
+	return result;
+}
+		// return the number of certs in the store
+int LLBasicCertificateStore::len() const
+{
+	return 0;
+}
+		
+		// load the store from a persisted location
+void LLBasicCertificateStore::load(const std::string& store_id)
+{
+}
+		
+		// persist the store
+void LLBasicCertificateStore::save()
+{
+}
+		
+		// return the store id
+std::string LLBasicCertificateStore::storeId()
+{
+	return std::string("");
+}
+		
+		// validate a cert chain
+bool LLBasicCertificateStore::validate(const LLCertificateChain& cert_chain) const
+{
+	return FALSE;
+}
+
 // LLSecAPIBasicHandler Class
 // Interface handler class for the various security storage handlers.
 
 // We read the file on construction, and write it on destruction.  This
 // means multiple processes cannot modify the datastore.
-LLSecAPIBasicHandler::LLSecAPIBasicHandler(const std::string& protected_data_file)
+LLSecAPIBasicHandler::LLSecAPIBasicHandler(const std::string& protected_data_file,
+										   const std::string& legacy_password_path)
 {
 	mProtectedDataFilename = protected_data_file;
 	mProtectedDataMap = LLSD::emptyMap();
+	mLegacyPasswordPath = legacy_password_path;
 	_readProtectedData();
 }
 
 LLSecAPIBasicHandler::LLSecAPIBasicHandler()
 {
-	std::string mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-														  "bin_conf.dat");
+	mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
+															"bin_conf.dat");
+	mLegacyPasswordPath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "password.dat");
 
 	mProtectedDataMap = LLSD::emptyMap();
 	_readProtectedData();
@@ -306,7 +381,6 @@ void LLSecAPIBasicHandler::_readProtectedData()
 {	
 	// attempt to load the file into our map
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
-	
 	llifstream protected_data_stream(mProtectedDataFilename.c_str(), 
 									llifstream::binary);
 	if (!protected_data_stream.fail()) {
@@ -314,21 +388,27 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		U8 salt[STORE_SALT_SIZE];
 		U8 buffer[BUFFER_READ_SIZE];
 		U8 decrypted_buffer[BUFFER_READ_SIZE];
-		int decrypted_length;		
-		
+		int decrypted_length;	
+		unsigned char MACAddress[MAC_ADDRESS_BYTES];
+		LLUUID::getNodeID(MACAddress);
+		LLXORCipher cipher(MACAddress, MAC_ADDRESS_BYTES);
 
 		// read in the salt and key
 		protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
 		offset = 0;
 		if (protected_data_stream.gcount() < STORE_SALT_SIZE)
 		{
-			throw LLProtectedDataException("Corrupt Protected Data Store");
+			throw LLProtectedDataException("Corrupt Protected Data Store1");
 		}
-		
+
+		cipher.decrypt(salt, STORE_SALT_SIZE);		
+
 		// totally lame.  As we're not using the OS level protected data, we need to
 		// at least obfuscate the data.  We do this by using a salt stored at the head of the file
 		// to encrypt the data, therefore obfuscating it from someone using simple existing tools.
-		// It would be better to use the password, but as this store
+		// We do include the MAC address as part of the obfuscation, which would require an
+		// attacker to get the MAC address as well as the protected store, which improves things
+		// somewhat.  It would be better to use the password, but as this store
 		// will be used to store the SL password when the user decides to have SL remember it, 
 		// so we can't use that.  OS-dependent store implementations will use the OS password/storage 
 		// mechanisms and are considered to be more secure.
@@ -369,6 +449,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	U8 salt[STORE_SALT_SIZE];
 	U8 buffer[BUFFER_READ_SIZE];
 	U8 encrypted_buffer[BUFFER_READ_SIZE];
+
 	
 	if(mProtectedDataMap.isUndefined())
 	{
@@ -377,10 +458,10 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	}
 	// create a string with the formatted data.
 	LLSDSerialize::toXML(mProtectedDataMap, formatted_data_ostream);
-	
 	std::istringstream formatted_data_istream(formatted_data_ostream.str());
 	// generate the seed
 	RAND_bytes(salt, STORE_SALT_SIZE);
+
 	
 	// write to a temp file so we don't clobber the initial file if there is
 	// an error.
@@ -394,7 +475,12 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		EVP_CIPHER_CTX ctx;
 		EVP_CIPHER_CTX_init(&ctx);
 		EVP_EncryptInit(&ctx, EVP_rc4(), salt, NULL);
-		protected_data_stream.write((const char *)salt, STORE_SALT_SIZE);	
+		unsigned char MACAddress[MAC_ADDRESS_BYTES];
+		LLUUID::getNodeID(MACAddress);
+		LLXORCipher cipher(MACAddress, MAC_ADDRESS_BYTES);
+		cipher.encrypt(salt, STORE_SALT_SIZE);
+		protected_data_stream.write((const char *)salt, STORE_SALT_SIZE);
+
 		while (formatted_data_istream.good())
 		{
 			formatted_data_istream.read((char *)buffer, BUFFER_READ_SIZE);
@@ -423,7 +509,8 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	}
 
 	// move the temporary file to the specified file location.
-	if((LLFile::remove(mProtectedDataFilename) != 0) || 
+	if((((LLFile::isfile(mProtectedDataFilename) != 0) && 
+		 (LLFile::remove(mProtectedDataFilename) != 0))) || 
 	   (LLFile::rename(tmp_filename, mProtectedDataFilename)))
 	{
 		LLFile::remove(tmp_filename);
@@ -477,10 +564,24 @@ LLSD LLSecAPIBasicHandler::getProtectedData(const std::string& data_type,
 	return LLSD();
 }
 
+void LLSecAPIBasicHandler::deleteProtectedData(const std::string& data_type,
+											   const std::string& data_id)
+{
+	if (mProtectedDataMap.has(data_type) &&
+		mProtectedDataMap[data_type].isMap() &&
+		mProtectedDataMap[data_type].has(data_id))
+		{
+			mProtectedDataMap[data_type].erase(data_id);
+		}
+}
+
+
+//
 // persist data in a protected store
+//
 void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type,
-									  const std::string& data_id,
-									  const LLSD& data)
+											const std::string& data_id,
+											const LLSD& data)
 {
 	if (!mProtectedDataMap.has(data_type) || !mProtectedDataMap[data_type].isMap()) {
 		mProtectedDataMap[data_type] = LLSD::emptyMap();
@@ -488,3 +589,156 @@ void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type,
 	
 	mProtectedDataMap[data_type][data_id] = data; 
 }
+
+//
+// Create a credential object from an identifier and authenticator.  credentials are
+// per grid.
+LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string& grid,
+															   const LLSD& identifier, 
+															   const LLSD& authenticator)
+{
+	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+	result->setCredentialData(identifier, authenticator);
+	return result;
+}
+
+// Load a credential from the credential store, given the grid
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid)
+{
+	LLSD credential = getProtectedData("credential", grid);
+	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+	if(credential.isMap() && 
+	   credential.has("identifier"))
+	{
+
+		LLSD identifier = credential["identifier"];
+		LLSD authenticator;
+		if (credential.has("authenticator"))
+		{
+			authenticator = credential["authenticator"];
+		}
+		result->setCredentialData(identifier, authenticator);
+	}
+	else
+	{
+		// credential was not in protected storage, so pull the credential
+		// from the legacy store.
+		std::string first_name = gSavedSettings.getString("FirstName");
+		std::string last_name = gSavedSettings.getString("LastName");
+		
+		if ((first_name != "") &&
+			(last_name != ""))
+		{
+			LLSD identifier = LLSD::emptyMap();
+			LLSD authenticator;
+			identifier["type"] = "agent";
+			identifier["first_name"] = first_name;
+			identifier["last_name"] = last_name;
+			
+			std::string legacy_password = _legacyLoadPassword();
+			if (legacy_password.length() > 0)
+			{
+				authenticator = LLSD::emptyMap();
+				authenticator["type"] = "hash";
+				authenticator["algorithm"] = "md5";
+				authenticator["secret"] = legacy_password;
+			}
+			result->setCredentialData(identifier, authenticator);
+		}		
+	}
+	return result;
+}
+
+// Save the credential to the credential store.  Save the authenticator also if requested.
+// That feature is used to implement the 'remember password' functionality.
+void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool save_authenticator)
+{
+	LLSD credential = LLSD::emptyMap();
+	credential["identifier"] = cred->getIdentifier(); 
+	if (save_authenticator) 
+	{
+		credential["authenticator"] = cred->getAuthenticator();
+	}
+	LL_INFOS("Credentials") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
+	setProtectedData("credential", cred->getGrid(), credential);
+	//*TODO: If we're saving Agni credentials, should we write the
+	// credentials to the legacy password.dat/etc?
+}
+
+// Remove a credential from the credential store.
+void LLSecAPIBasicHandler::deleteCredential(LLPointer<LLCredential> cred)
+{
+	LLSD undefVal;
+	deleteProtectedData("credential", cred->getGrid());
+	cred->setCredentialData(undefVal, undefVal);
+}
+
+// load the legacy hash for agni, and decrypt it given the 
+// mac address
+std::string LLSecAPIBasicHandler::_legacyLoadPassword()
+{
+	const S32 HASHED_LENGTH = 32;	
+	std::vector<U8> buffer(HASHED_LENGTH);
+	llifstream password_file(mLegacyPasswordPath, llifstream::binary);
+	
+	if(password_file.fail())
+	{
+		return std::string("");
+	}
+	
+	password_file.read((char*)&buffer[0], buffer.size());
+	if(password_file.gcount() != buffer.size())
+	{
+		return std::string("");
+	}
+	
+	// Decipher with MAC address
+	unsigned char MACAddress[MAC_ADDRESS_BYTES];
+	LLUUID::getNodeID(MACAddress);
+	LLXORCipher cipher(MACAddress, 6);
+	cipher.decrypt(&buffer[0], buffer.size());
+	
+	return std::string((const char*)&buffer[0], buffer.size());
+}
+
+
+// return an identifier for the user
+std::string LLSecAPIBasicCredential::userID() const
+{
+	if (!mIdentifier.isMap())
+	{
+		return mGrid + "(null)";
+	}
+	else if ((std::string)mIdentifier["type"] == "agent")
+	{
+		return  (std::string)mIdentifier["first_name"] + "_" + (std::string)mIdentifier["last_name"];
+	}
+	else if ((std::string)mIdentifier["type"] == "account")
+	{
+		return (std::string)mIdentifier["account_name"];
+	}
+
+	return "unknown";
+
+}
+
+// return a printable user identifier
+std::string LLSecAPIBasicCredential::asString() const
+{
+	if (!mIdentifier.isMap())
+	{
+		return mGrid + ":(null)";
+	}
+	else if ((std::string)mIdentifier["type"] == "agent")
+	{
+		return mGrid + ":" + (std::string)mIdentifier["first_name"] + " " + (std::string)mIdentifier["last_name"];
+	}
+	else if ((std::string)mIdentifier["type"] == "account")
+	{
+		return mGrid + ":" + (std::string)mIdentifier["account_name"];
+	}
+
+	return mGrid + ":(unknown type)";
+}
+
+

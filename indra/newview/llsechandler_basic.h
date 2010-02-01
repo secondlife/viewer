@@ -68,13 +68,69 @@ protected:
 	X509* mCert;
 };
 
+// class LLCertificateStore
+// represents a store of certificates, typically a store of root CA
+// certificates.  The store can be persisted, and can be used to validate
+// a cert chain
+//
+class LLBasicCertificateStore : public LLCertificateStore
+{
+public:
+	LLBasicCertificateStore(const std::string& filename);
+	LLBasicCertificateStore(const X509_STORE* store);
+	virtual ~LLBasicCertificateStore();
+	
+	virtual X509_STORE* getOpenSSLX509Store();  // return an openssl X509_STORE  
+	// for this store
+	
+	// add a copy of a cert to the store
+	virtual void  append(const LLCertificate& cert);
+	
+	// add a copy of a cert to the store
+	virtual void insert(const int index, const LLCertificate& cert);
+	
+	// remove a certificate from the store
+	virtual void remove(int index);
+	
+	// return a certificate at the index
+	virtual LLPointer<LLCertificate> operator[](int index);
+	// return the number of certs in the store
+	virtual int len() const;
+	
+	// load the store from a persisted location
+	virtual void load(const std::string& store_id);
+	
+	// persist the store
+	virtual void save();
+	
+	// return the store id
+	virtual std::string storeId();
+	
+	// validate a cert chain
+	virtual bool validate(const LLCertificateChain& cert_chain) const;
+};
+
+// LLSecAPIBasicCredential class
+class LLSecAPIBasicCredential : public LLCredential
+{
+public:
+	LLSecAPIBasicCredential(const std::string& grid) : LLCredential(grid) {} 
+	virtual ~LLSecAPIBasicCredential() {}
+	// return a value representing the user id, (could be guid, name, whatever)
+	virtual std::string userID() const;	
+	
+	// printible string identifying the credential.
+	virtual std::string asString() const;
+};
+
 // LLSecAPIBasicHandler Class
 // Interface handler class for the various security storage handlers.
 class LLSecAPIBasicHandler : public LLSecAPIHandler
 {
 public:
 	
-	LLSecAPIBasicHandler(const std::string& protected_data_filename);
+	LLSecAPIBasicHandler(const std::string& protected_data_filename,
+						 const std::string& legacy_password_path);
 	LLSecAPIBasicHandler();
 	
 	virtual ~LLSecAPIBasicHandler();
@@ -102,12 +158,32 @@ public:
 	// retrieve protected data
 	virtual LLSD getProtectedData(const std::string& data_type,
 								  const std::string& data_id);
+	
+	// delete a protected data item from the store
+	virtual void deleteProtectedData(const std::string& data_type,
+									 const std::string& data_id);
+	
+	// credential management routines
+	
+	virtual LLPointer<LLCredential> createCredential(const std::string& grid,
+													 const LLSD& identifier, 
+													 const LLSD& authenticator);
+	
+	virtual LLPointer<LLCredential> loadCredential(const std::string& grid);
+
+	virtual void saveCredential(LLPointer<LLCredential> cred, bool save_authenticator);
+	
+	virtual void deleteCredential(LLPointer<LLCredential> cred);
+	
 protected:
 	void _readProtectedData();
 	void _writeProtectedData();
-	
+	std::string _legacyLoadPassword();
+
 	std::string mProtectedDataFilename;
 	LLSD mProtectedDataMap;
+	
+	std::string mLegacyPasswordPath;
 };
 
 #endif // LLSECHANDLER_BASIC

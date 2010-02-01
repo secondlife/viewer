@@ -38,11 +38,17 @@
 
 
 std::map<std::string, LLPointer<LLSecAPIHandler> > gHandlerMap;
-
+LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 void initializeSecHandler()
 {
 	gHandlerMap[BASIC_SECHANDLER] = new LLSecAPIBasicHandler();
+	
+	// Currently, we only have the Basic handler, so we can point the main sechandler
+	// pointer to the basic handler.  Later, we'll create a wrapper handler that
+	// selects the appropriate sechandler as needed, for instance choosing the
+	// mac keyring handler, with fallback to the basic sechandler
+	gSecAPIHandler = gHandlerMap[BASIC_SECHANDLER];
 }
 // start using a given security api handler.  If the string is empty
 // the default is used
@@ -64,6 +70,28 @@ void registerSecHandler(const std::string& handler_type,
 	gHandlerMap[handler_type] = handler;
 }
 
+std::ostream& operator <<(std::ostream& s, const LLCredential& cred)
+{
+	return s << (std::string)cred;
+}
 
 
-
+LLSD LLCredential::getLoginParams()
+{
+	LLSD result = LLSD::emptyMap();
+	if (mIdentifier["type"].asString() == "agent")
+	{
+		// legacy credential
+		result["passwd"] = "$1$" + mAuthenticator["secret"].asString();
+		result["first"] = mIdentifier["first_name"];
+		result["last"] = mIdentifier["last_name"];
+	
+	}
+	else if (mIdentifier["type"].asString() == "account")
+	{
+		result["username"] = mIdentifier["username"];
+		result["passwd"] = mAuthenticator["secret"];
+                                    
+	}
+	return result;
+}
