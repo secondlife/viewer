@@ -4544,7 +4544,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	
 			F32 light_radius = llmax(light->getLightRadius(), 0.001f);
 
-			F32 x = (3.f * (1.f + light->getLightFalloff()));
+			F32 x = (3.f * (1.f + light->getLightFalloff())); // why this magic?  probably trying to match a historic behavior.
 			float linatten = x / (light_radius); // % of brightness at radius
 
 			mHWLightColors[cur_light] = light_color;
