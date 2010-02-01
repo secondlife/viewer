@@ -370,6 +370,19 @@ void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 	getChild<LLScrollListCtrl>("Friends")->setAllowMultipleSelection(allow_multiple);
 }
 
+// IDEVO
+static std::string clean_name_from_avatar_picker(const std::string& first, const std::string& last)
+{
+	if (last.empty() || last == "Resident")
+	{
+		return first;
+	}
+	else
+	{
+		return first + " " + last;
+	}
+}
+
 // static 
 void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void**)
 {
@@ -420,7 +433,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		}
 		else
 		{
-			avatar_name = first_name + " " + last_name;
+			avatar_name = clean_name_from_avatar_picker(first_name, last_name);
 			search_results->setEnabled(TRUE);
 			found_one = TRUE;
 		}
