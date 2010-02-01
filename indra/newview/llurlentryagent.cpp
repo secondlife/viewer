@@ -90,7 +90,8 @@ static std::string clean_name(const std::string& first, const std::string& last)
 	}
 
 	std::string fullname = first;
-	if (!last.empty())
+	if (!last.empty()
+		&& last != "Resident")
 	{
 		fullname += ' ';
 		fullname += last;
