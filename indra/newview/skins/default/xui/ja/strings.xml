@@ -1486,8 +1486,8 @@
 	<string name="covenant_last_modified">
 		最終修正日：
 	</string>
-	<string name="none_text" value=" （なし）"/>
-	<string name="never_text" value=" （無）"/>
+	<string name="none_text" value=" （なし） "/>
+	<string name="never_text" value=" （無） "/>
 	<string name="GroupOwned">
 		グループ所有
 	</string>

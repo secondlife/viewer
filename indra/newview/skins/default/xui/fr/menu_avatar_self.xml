@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Self Pie">
+	<menu_item_call label="Me lever" name="Stand Up"/>
+	<context_menu label="Enlever &gt;" name="Take Off &gt;">
+		<context_menu label="Habits &gt;" name="Clothes &gt;">
+			<menu_item_call label="Chemise" name="Shirt"/>
+			<menu_item_call label="Pantalon" name="Pants"/>
+			<menu_item_call label="Jupe" name="Skirt"/>
+			<menu_item_call label="Chaussures" name="Shoes"/>
+			<menu_item_call label="Chaussettes" name="Socks"/>
+			<menu_item_call label="Veste" name="Jacket"/>
+			<menu_item_call label="Gants" name="Gloves"/>
+			<menu_item_call label="Sous-vêtements (homme)" name="Self Undershirt"/>
+			<menu_item_call label="Sous-vêtements (femme)" name="Self Underpants"/>
+			<menu_item_call label="Tatouage" name="Self Tattoo"/>
+			<menu_item_call label="Alpha" name="Self Alpha"/>
+			<menu_item_call label="Tous les habits" name="All Clothes"/>
+		</context_menu>
+		<context_menu label="HUD &gt;" name="Object Detach HUD"/>
+		<context_menu label="Détacher &gt;" name="Object Detach"/>
+		<menu_item_call label="Tout détacher" name="Detach All"/>
+	</context_menu>
+	<menu_item_call label="Mon apparence" name="Appearance..."/>
+	<menu_item_call label="Mes amis" name="Friends..."/>
+	<menu_item_call label="Mes groupes" name="Groups..."/>
+	<menu_item_call label="Mon profil" name="Profile..."/>
+</context_menu>

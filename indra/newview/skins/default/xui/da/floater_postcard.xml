@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Postcard" title="E-MAIL BILLEDE">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Postcard" title="EMAIL FOTO">
 	<text name="to_label">
 		Send til:
 	</text>
@@ -12,7 +12,7 @@
 	<text name="subject_label">
 		Emne:
 	</text>
-	<line_editor label="Skriv dit emne her." name="subject_form" />
+	<line_editor label="Skriv dit emne her." name="subject_form"/>
 	<text name="msg_label">
 		Besked:
 	</text>
@@ -22,10 +22,10 @@
 	<text name="fine_print">
 		Hvis din modtager opretter en konto i SL, vil du få en henvisnings bonus.
 	</text>
-	<button label="Annullér" name="cancel_btn" />
-	<button label="Send" name="send_btn" />
+	<button label="Annullér" name="cancel_btn"/>
+	<button label="Send" name="send_btn"/>
 	<string name="default_subject">
-		Postkort fra [SECOND_LIFE]
+		Postkort fra [SECOND_LIFE].
 	</string>
 	<string name="default_message">
 		Tjek det her ud!

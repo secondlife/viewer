@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_gear_default">
+	<menu_item_call label="Nowe Okno Szafy" name="new_window"/>
+	<menu_item_call label="Porządkuj Według Nazwy" name="sort_by_name"/>
+	<menu_item_call label="Porządkuj Według Daty" name="sort_by_recent"/>
+	<menu_item_call label="Pokaż Filtry" name="show_filters"/>
+	<menu_item_call label="Zresetuj Filtry" name="reset_filters"/>
+	<menu_item_call label="Zamknij Wszystkie Foldery" name="close_folders"/>
+	<menu_item_call label="Opróżnij Kosz" name="empty_trash"/>
+	<menu_item_call label="Opróżnij Zagubione i Odnalezione" name="empty_lostnfound"/>
+	<menu_item_call label="Zapisz Teksturę Jako" name="Save Texture As"/>
+	<menu_item_call label="Znajdź Oryginał" name="Find Original"/>
+	<menu_item_call label="Znajdź Wszystkie Linki" name="Find All Links"/>
+</menu>

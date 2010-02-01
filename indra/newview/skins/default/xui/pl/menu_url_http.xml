@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Otwórz Przeglądarkę Internetową" name="url_open"/>
+	<menu_item_call label="Otwórz w Wewnętrzenej Przeglądarce" name="url_open_internal"/>
+	<menu_item_call label="Otwórz w Zewnętrznej Przeglądarce" name="url_open_external"/>
+	<menu_item_call label="Kopiuj URL do schowka" name="url_copy"/>
+</context_menu>

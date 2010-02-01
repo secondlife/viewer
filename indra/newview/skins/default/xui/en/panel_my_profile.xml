@@ -119,6 +119,7 @@
                textbox.max_length="512"
                name="sl_description_edit"
                top_pad="-3"
+               translate="false"
                width="181"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
@@ -172,6 +173,7 @@
                textbox.max_length="512"
                name="fl_description_edit"
                top_pad="-3"
+               translate="false"
                width="181"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
@@ -187,6 +189,7 @@
              left="10"
              name="homepage_edit"
              top_pad="0"
+             translate="false"
              value="http://librarianavengers.org"
              width="300"
              word_wrap="false"
@@ -209,6 +212,7 @@
              layout="topleft"
              left="10"
              name="register_date"
+             translate="false"
              value="05/31/2376"
              width="300"
              word_wrap="true" />
@@ -241,6 +245,7 @@
             left="10"
             name="acc_status_text"
             top_pad="0"
+            translate="false"
             width="300"
             word_wrap="true">
               Resident. No payment info on file.
@@ -294,7 +299,8 @@
             layout="topleft"
             left="7"
             name="sl_groups"
-          top_pad="0"
+            top_pad="0"
+            translate="false"
             width="298"
             expanded_bg_visible="true"
             expanded_bg_color="DkGray">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Contrôle et caméra" name="Input panel">
+<panel label="Configuration" name="Input panel">
 	<button label="Autres accessoires" name="joystick_setup_button" width="175"/>
 	<text name="Mouselook:">
 		Vue subjective :
@@ -26,9 +26,9 @@
 		Mo
 	</text>
 	<button label="Parcourir" label_selected="Parcourir" name="set_cache"/>
-	<button label="Réinitialiser" label_selected="Choisir" name="reset_cache"/>
+	<button label="Réinitialiser" label_selected="Réinitialiser" name="reset_cache"/>
 	<text name="Cache location">
-		Emplacement du cache
+		Emplacement du cache :
 	</text>
 	<text name="Web:">
 		Web :
@@ -41,6 +41,6 @@
 	<line_editor name="web_proxy_editor" tool_tip="Le nom ou adresse IP du proxy que vous souhaitez utiliser"/>
 	<button label="Parcourir" label_selected="Parcourir" name="set_proxy"/>
 	<text name="Proxy location">
-		Emplacement du proxy
+		Emplacement du proxy :
 	</text>
 </panel>

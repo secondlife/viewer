@@ -7,6 +7,7 @@
  name="floater_test_inspectors"
  help_topic="floater_test_inspectors"
  title="TEST INSPECTORS" 
+ translate="false"
  width="400">
   <text
    height="20"

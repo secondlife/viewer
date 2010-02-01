@@ -21,7 +21,7 @@ Built with [COMPILER] version [COMPILER_VERSION]
 </floater.string>
   <floater.string
      name="AboutPosition">
-You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at [HOSTNAME] ([HOSTIP])
+You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 
@@ -91,7 +91,7 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
         left="10"
         top_pad="5"
         height="25"
-        width="160" />
+        width="180" />
     </panel>
     <panel
       border="true" 

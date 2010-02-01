@@ -3,6 +3,7 @@
  height="100"
  layout="topleft"
  name="notifications_panel"
+ translate="false"
  width="100">
     <layout_stack
      follows="left|right|top|bottom"

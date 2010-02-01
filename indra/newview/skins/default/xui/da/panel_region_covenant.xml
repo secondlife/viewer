@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Covenant" name="Covenant">
 	<text name="estate_section_lbl">
-		Estate:
+		Estate
 	</text>
 	<text name="estate_name_lbl">
 		Navn:
@@ -27,10 +27,10 @@
 		Ændringer i regler vil blive vist i alle parceller til denne estate.
 	</text>
 	<text name="covenant_instructions">
-		Træk og slip et notecard her for at ændre regler for denne estate.
+		Træk og slip en note for at ændre regler for denne estate.
 	</text>
 	<text name="region_section_lbl">
-		Region:
+		Region
 	</text>
 	<text name="region_name_lbl">
 		Navn:
