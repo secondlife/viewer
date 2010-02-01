@@ -248,7 +248,7 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 	llassert_always(session != NULL);
 
 	LLSD offer;
-	offer["notifiaction_id"] = notification->getID();
+	offer["notification_id"] = notification->getID();
 	offer["from_id"] = notification->getPayload()["from_id"];
 	offer["from"] = name;
 	offer["time"] = LLLogChat::timestamp(true);

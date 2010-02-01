@@ -99,8 +99,14 @@ protected:
 class LLFeatureManager : public LLFeatureList, public LLSingleton<LLFeatureManager>
 {
 public:
-	LLFeatureManager() :
-		LLFeatureList("default"), mInited(FALSE), mTableVersion(0), mSafe(FALSE), mGPUClass(GPU_CLASS_UNKNOWN)
+	LLFeatureManager()
+	:	LLFeatureList("default"),
+
+		mInited(FALSE),
+		mTableVersion(0),
+		mSafe(FALSE),
+		mGPUClass(GPU_CLASS_UNKNOWN),
+		mGPUSupported(FALSE)
 	{
 	}
 	~LLFeatureManager() {cleanupFeatureTables();}

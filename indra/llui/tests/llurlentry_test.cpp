@@ -33,7 +33,7 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 	return LLUIColor();
 }
 
-LLUIColor::LLUIColor() {}
+LLUIColor::LLUIColor() : mColorPtr(NULL) {}
 
 namespace tut
 {
@@ -610,5 +610,13 @@ namespace tut
 		testRegex("invalid .net URL", r,
 				  "foo.netty",
 				  "");
+
+		testRegex("XML tags around URL [1]", r,
+				  "<foo>secondlife.com</foo>",
+				  "secondlife.com");
+
+		testRegex("XML tags around URL [2]", r,
+				  "<foo>secondlife.com/status?bar=1</foo>",
+				  "secondlife.com/status?bar=1");
 	}
 }

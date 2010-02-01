@@ -126,8 +126,9 @@ LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp,
 						const std::string& url, 
 						CURLM *curl_multi)
 	: LLAssetRequest(uuid, type),
-	mZInitialized(false)
+	  mZInitialized(false)
 {
+	memset(&mZStream, 0, sizeof(mZStream)); // we'll initialize this later, but for now zero the whole C-style struct to avoid debug/coverity noise
 	mAssetStoragep = asp;
 	mCurlHandle = NULL;
 	mCurlMultiHandle = curl_multi;

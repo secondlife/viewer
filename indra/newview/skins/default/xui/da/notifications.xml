@@ -9,74 +9,33 @@
 	<global name="implicitclosebutton">
 		Luk
 	</global>
-  <template name="okbutton">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-    </form>
-  </template>
+	<template name="okbutton">
+		<form>
+			<button name="OK" text="$yestext"/>
+		</form>
+	</template>
+	<template name="okignore"/>
+	<template name="okcancelbuttons">
+		<form>
+			<button name="Cancel" text="$notext"/>
+		</form>
+	</template>
+	<template name="okcancelignore"/>
+	<template name="okhelpbuttons">
+		<form>
+			<button name="Help" text="$helptext"/>
+		</form>
+	</template>
+	<template name="yesnocancelbuttons">
+		<form>
+			<button name="Yes" text="$yestext"/>
+			<button name="No" text="$notext"/>
+		</form>
+	</template>
+	<notification functor="GenericAcknowledge" label="Ukendt notificeringsbesked" name="MissingAlert">
+		Din version af [APP_NAME] kan ikke vise den besked den lige modtog.  Undersøg venligst at du har den nyester version af klienten installeret.
 
-  <template name="okignore">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <ignore text="$ignoretext"/>
-    </form>
-  </template>
-
-  <template name="okcancelbuttons">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <button
-       name="Cancel"
-       text="$notext"/>
-    </form>
-  </template>
-
-  <template name="okcancelignore">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <button
-       name="Cancel"
-       text="$notext"/>
-      <ignore text="$ignoretext"/>
-    </form>
-  </template>
-
-  <template name="okhelpbuttons">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <button
-       name="Help"
-       text="$helptext"/>
-    </form>
-  </template>
-
-  <template name="yesnocancelbuttons">
-    <form>
-      <button
-       name="Yes"
-       text="$yestext"/>
-      <button
-       name="No"
-       text="$notext"/>
-      <button
-       name="Cancel"
-       text="$canceltext"/>
-    </form>
-  </template>
-	<notification functor="GenericAcknowledge" label="Ukendt advarsels-besked" name="MissingAlert">
-		Din version af [APP_NAME] kan ikke vise den advarselsbesked den modtog.
-
-Fejl detaljer: Advarslen &apos;[_NAME]&apos; blev ikke fundet i notifications.xml.
+Fejl detaljer: Beskeden kaldet &apos;[_NAME]&apos; blev ikke fundet i notifications.xml.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="FloaterNotFound">
@@ -97,24 +56,18 @@ Fejl detaljer: Advarslen &apos;[_NAME]&apos; blev ikke fundet i notifications.xm
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Ja"/>
 	</notification>
 	<notification name="BadInstallation">
-		Der opstod en fejl ved opdatering af [APP_NAME]. Hent venligst den nyeste version fra secondlife.com.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		Der opstod en fejl ved opdatering af [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
-		Netværksfejl: Kunne ikke oprette forbindelse.
+		Kunne ikke oprette forbindelse til [SECOND_LIFE_GRID].
 &apos;[DIAGNOSTIC]&apos;
-Check venligst din netværksforbindelse.
-	<usetemplate
-     name="okbutton"
-     yestext="OK"/>
+Make sure your Internet connection is working properly.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
 		Besked template [PATH] kunne ikke findes.
-	<usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="WearableSave">
 		Gem ændringer til nuværende tøj/krops del?
@@ -177,7 +130,7 @@ Vælg kun en genstand, og prøv igen.
 Medlemmer ikke kan fjernes fra denne rolle.
 Medlemmerne skal fratræde sin rolle selv.
 Er du sikker på du vil fortsætte?
-		<usetemplate ignoretext="Når du tilføjer medlemmer til ejer rollen" name="okcancelignore" notext="Nej" yestext="Ja"/>
+		<usetemplate ignoretext="Bekræft, før jeg tilføjer en ny gruppe ejer" name="okcancelignore" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="AssignDangerousActionWarning">
 		Du er ved at tilføje muligheden for &apos;[ACTION_NAME]&apos; til
@@ -189,46 +142,30 @@ Ethvert medlem i en rolle med denne evne kan tildele sig selv -- og et andet med
 Add this Ability to &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
-	<notification name="ClickSoundHelpLand">
-		Media og musik kan kun ses og høres indenfor parcellen. Lyd og stemme valg muligheder kan begrænses til parcellen eller de kan høres af beboere udenfor parcellen, afhængigt af deres indholdsrating. Gå til &apos;Knowledge Base&apos; for at lære hvordan disse valg opsættes.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=5046
-		</url>
-    <usetemplate
-     name="okcancelbuttons"
-     yestext="Gå til &apos;Knowledge Base&apos;"
-	 notext="Luk" />
-	</notification>
-	<notification name="ClickSearchHelpAll">
-		Søgeresultater er organiseret baseret på den fane du står på, din indholdsrating, den valgte kategori og andre faktorer. for yderligere detaljer se i &apos;Knowledge Base&apos;.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=4722
-		</url>
-    <usetemplate
-     name="okcancelbuttons"
-     yestext="Gå til &apos;Knowledge Base&apos;"
-	 notext="Luk" />
-	</notification>
-	<notification name="ClickPublishHelpAvatar">
-		Hvis du vælger &quot;Vis i Søgning&quot; Vises:
-- Din profil i søgeresultater
-- Et link til din profile i de offentlige gruppe sider
-	</notification>
-	<notification name="ClickUploadHelpPermissions">
-		Dinne standard rettigheder virker muligvis ikke i ældre regioner.
-	</notification>
-	<notification name="ClickWebProfileHelpAvatar">
-		Hvis en beboer har en hjemmeside adresse kan du:
- * Klikke &apos;Load&apos; for at side deres side her.
- * Klikke Load &gt; &apos;I ekstern browser&apos; for at se siden i din standard browser.
- * Klikke Load &gt; &apos;Hjemme URL&apos; for at returnere til denne beboers side hvis du har navigeret væk.
-
-Når du ser din egen profil, kan du skrive hvilken som helst adresse og klikke ok for at få den vist i din egen profil.
-Andre beboere kan besøge den adresse du har sat, når de besøger din profil.
+	<notification name="ClickUnimplemented">
+		Beklager, ikke implementeret endnu.
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Tilmelding til denne gruppe koster L$[COST].
 Du har ikke nok L$ til denne tilmelding.
+	</notification>
+	<notification name="CreateGroupCost">
+		Oprettelse af denne gruppe vil koste L$100.
+Grupper skal have mindst 2 medlemmer, ellers slettes de for altid.
+Invitér venligst medlemmer indenfor 48 timer.
+		<usetemplate canceltext="Annullér" name="okcancelbuttons" notext="Annullér" yestext="Oprete en gruppe for L$100"/>
+	</notification>
+	<notification name="ConfirmLandSaleToAnyoneChange">
+		ADVARSEL: Ved at vælge &apos;sælg til enhver&apos; bliver til land tilgængeligt for alle i hele [SECOND_LIFE], også de som ikke er i denne region.
+
+Det valgte antal [LAND_SIZE] m² land bliver sat til salg.
+Salgprisen vil være [SALE_PRICE]L$ og vil være til salg til [NAME].
+	</notification>
+	<notification name="MultipleFacesSelected">
+		Flere overflader er valgt for øjeblikket.
+Hvis du fortsætter med denne aktion, vil flere instanser af media blive vist på overfladerne på objektet.
+Hvis media kun skal vises på en overflade, vælg &apos;Vælg overflade&apos; og klik på den relevante overflade  og klik på tilføj.
+		<usetemplate ignoretext="Media vil blive sat på flere valgte overflader" name="okcancelignore" notext="Annullér" yestext="OK"/>
 	</notification>
 	<notification name="PromptMissingSubjMsg">
 		E-mail dette billede med standard emne eller besked?
@@ -237,12 +174,28 @@ Du har ikke nok L$ til denne tilmelding.
 	<notification name="ErrorUploadingPostcard">
 		Der var et problem med at sende billedet på grund af følgende: [REASON]
 	</notification>
+	<notification name="MaxAttachmentsOnOutfit">
+		Kunne ikke vedhæfte objekt.
+Overskrider vedhæftnings begrænsning på [MAX_ATTACHMENTS] objekter. Tag venligst en anden vedhæftning af først.
+	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Ups! Noget var tomt.
 Du skal skrive både fornavn og efternavn på din figur.
 
 Du har brug for en konto for at logge ind i [SECOND_LIFE]. Vil du oprette en nu?
 		<usetemplate name="okcancelbuttons" notext="Prøv igen" yestext="Lav ny konto"/>
+	</notification>
+	<notification name="AddClassified">
+		Annoncer vil vises i &apos;Annoncer&apos; sektionen i søge biblioteket og på [http://secondlife.com/community/classifieds secondlife.com] i en uge.
+Udfyld din annonce og klik på &apos;Udgiv...&apos; for at tilf&apos;je den til biblioteket.				
+Du vil blive spurgt om en pris når du klikker på &apos;Udgiv&apos;.
+Jo mere du betaler, jo højere oppe på listen vises annoncen, og den vil også optræde højere oppe når personer søger.
+		<usetemplate ignoretext="Hvordan man opretter en annonce" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="DeleteMedia">
+		Du har valgt at slette media tilknyttet denne overflade.
+Er du sikker på at du vil fortsætte?
+		<usetemplate ignoretext="Bekræft før jeg slette media i et objekt" name="okcancelignore" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="ResetShowNextTimeDialogs">
 		Vil du gerne genaktivere alle disse popups, som du tidligere har bedt om ikke at få vist?
@@ -252,86 +205,144 @@ Du har brug for en konto for at logge ind i [SECOND_LIFE]. Vil du oprette en nu?
 		Vil du deaktivere alle popups som kan undværes?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
 	</notification>
-	<notification name="ChangeSkin">
-		Det nye udseende vil vises efter du har genstartet [APP_NAME].
+	<notification name="CacheWillClear">
+		Cache vil blive tømt ved næste genstart af [APP_NAME].
 	</notification>
-	<notification name="UnsupportedHardware"/>
+	<notification name="CacheWillBeMoved">
+		Cache vil blive flyttet ved næste genstart af [APP_NAME].
+Note: This will clear the cache.
+	</notification>
+	<notification name="ChangeConnectionPort">
+		Port ændringer vil blive effektueret ved næste genstart af [APP_NAME].
+	</notification>
+	<notification name="ChangeSkin">
+		Den nye hud vil blive vist ved næste genstart af [APP_NAME].
+	</notification>
+	<notification name="StartRegionEmpty">
+		Ups, din start region er ikke angivet.
+Indtast venligst navn på region i Start lokation feltet eller vælg &quot;Min sidste lokation&quot; eller &quot;Hjem&quot;.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UnsupportedHardware">
+		<usetemplate ignoretext="Din computer hardware understøttes ikke" name="okcancelignore" notext="No" yestext="Yes"/>
+	</notification>
 	<notification name="UnknownGPU">
+		Dit system har et grafikkort som er ukendt for [APP_NAME] lige nu.
+Dette er tilfældet med nyt hardware som endnu ikke er blevet testet med [APP_NAME].  [APP_NAME] vil sandsynligvis kunne køre normalt, men det kan være nødvendigt at justere opsætningen af grafik.
+(Mig &gt; Indstillinger &gt; Grafik).
 		<form name="form">
-			<ignore name="ignore" text="Ved opdagelse af et ukendt grafikkort"/>
+			<ignore name="ignore" text="Dit grafikkort kunne ikke identificeres"/>
 		</form>
 	</notification>
-
-  <notification name="invalid_tport">
-Der er problemer med at håndtere din teleport. Det kan være nødvendigt at logge ud og ind for at kunne skifte teleportere.
-Hvis du bliver ved med at have problemet kan du checke teknisk support på:
-www.secondlife.com/support
-  </notification>
-  <notification name="invalid_region_handoff">
-Problem registreret i forbindelse med skift til ny region. Det kan være nødvendigt at logge ud og ind for at kunne skifte regioner.
-Hvis du bliver ved med at have problemet kan du checke teknisk support på:
-www.secondlife.com/support
-  </notification>
-  <notification name="blocked_tport">
-Beklager, teleport er blokeret lige nu. Prøv igen senere.
-Hvis du stadig ikke kan teleporte, prøv venligst at logge ud og ligge ind for at løse dette problem.
-  </notification>
-  <notification name="nolandmark_tport">
-Beklager, systemet kunne ikke finde landmærke destinationen.
-  </notification>
-  <notification name="timeout_tport">
-Beklager, systemet kunne ikke fuldføre teleport forbindelse.
-Prøv igen om lidt.
-  </notification>
-  <notification name="noaccess_tport">
-Beklager, du har ikke adgang til denne teleport destination.
-  </notification>
-  <notification name="missing_attach_tport">
-Dine vedhæng er ikke ankommet endnu. Prøv at vente lidt endnu eller log ud og ind igen før du prøver at teleporte igen.
-  </notification>
-  <notification name="too_many_uploads_tport">
-Tekniske problemer hindrer at din teleport kan gennemføres.
-Prøv venligst igen om lidt eller vælg et mindre travlt område.
-  </notification>
-  <notification name="expired_tport">
-Beklager, men systemet kunne ikke fuldføre din teleport i rimelig tid. Prøv venligst igen om lidt.
-  </notification>
-  <notification name="expired_region_handoff">
-Beklager, men systemet kunne ikke fuldføre skift til anden region i rimelig tid. Prøv venligst igen om lidt.
-  </notification>
-  <notification name="no_host">
-Ikke muligt at fine teleport destination. Destinationen kan være midlertidig utilgængelig eller findes ikke mere. 
-Prøv evt. igen om lidt.
-  </notification>
-  <notification name="no_inventory_host">
-Beholdningssystemet er ikke tilgængelig lige nu.
-  </notification>
-
+	<notification name="DisplaySettingsNoShaders">
+		[APP_NAME] gik ned ved inititalisering af grafik drivere.
+Grafik kvaliteten sættes til &apos;lav&apos; for at undgå typiske problemer med drivere. Dette vil slå visse grafik funktioner fra.
+Vi anbefaler at opdatere driverne til dit grafikkort.
+Grafik kvaliteten kan forbedres i indstillinger &gt; Grafik.
+	</notification>
 	<notification name="CannotGiveCategory">
 		Du har ikke tilladelse til at videreføre den valgte mappe.
 	</notification>
+	<notification name="EjectAvatarFromGroup">
+		Du har smidt [AVATAR_NAME] ud af gruppen [GROUP_NAME]
+	</notification>
+	<notification name="PromptGoToCurrencyPage">
+		[EXTRA]
+
+Gå til [_URL] for information om køb af L$?
+	</notification>
 	<notification name="CannotEncodeFile">
 		Kunne ikke &apos;forstå&apos; filen: [FILE]
+	</notification>
+	<notification name="DoNotSupportBulkAnimationUpload">
+		[APP_NAME] understøtter p.t. ikke at send flere animationsfiler ad gangen.
+	</notification>
+	<notification name="LandmarkCreated">
+		Du har tilføjet &quot;[LANDMARK_NAME]&quot; til din [FOLDER_NAME] mappe.
+	</notification>
+	<notification name="CannotOpenScriptObjectNoMod">
+		Ikke muligt at åbne script i objekt uden &apos;Redigére&apos; rettigheder.
+	</notification>
+	<notification name="invalid_tport">
+		Der opstod et problem ved din teleport. Det kan være nødvendigt at logge ind igen, før du kan teleporte.
+Hvis du bliver ved med at få denne fejl, check venligst [SUPPORT_SITE].
+	</notification>
+	<notification name="invalid_region_handoff">
+		Der opstod et problem ved skift til ny region. Det kan være nødvendigt at logge ind igen, før du kan skifte til andre regioner.
+Hvis du bliver ved med at få denne fejl, check venligst [SUPPORT_SITE].
+	</notification>
+	<notification name="blocked_tport">
+		Beklager, teleport er blokeret lige nu. Prøv igen senere.
+Hvis du stadig ikke kan teleporte, prøv venligst at logge ud og ligge ind for at løse dette problem.
+	</notification>
+	<notification name="nolandmark_tport">
+		Beklager, systemet kunne ikke finde landmærke destinationen.
+	</notification>
+	<notification name="timeout_tport">
+		Beklager, systemet kunne ikke fuldføre teleport forbindelse.
+Prøv igen om lidt.
+	</notification>
+	<notification name="noaccess_tport">
+		Beklager, du har ikke adgang til denne teleport destination.
+	</notification>
+	<notification name="missing_attach_tport">
+		Dine vedhæng er ikke ankommet endnu. Prøv at vente lidt endnu eller log ud og ind igen før du prøver at teleporte igen.
+	</notification>
+	<notification name="too_many_uploads_tport">
+		Tekniske problemer hindrer at din teleport kan gennemføres.
+Prøv venligst igen om lidt eller vælg et mindre travlt område.
+	</notification>
+	<notification name="expired_tport">
+		Beklager, men systemet kunne ikke fuldføre din teleport i rimelig tid. Prøv venligst igen om lidt.
+	</notification>
+	<notification name="expired_region_handoff">
+		Beklager, men systemet kunne ikke fuldføre skift til anden region i rimelig tid. Prøv venligst igen om lidt.
+	</notification>
+	<notification name="no_host">
+		Ikke muligt at fine teleport destination. Destinationen kan være midlertidig utilgængelig eller findes ikke mere. 
+Prøv evt. igen om lidt.
+	</notification>
+	<notification name="no_inventory_host">
+		Beholdningssystemet er ikke tilgængelig lige nu.
 	</notification>
 	<notification name="CannotBuyLandNoRegion">
 		Ikke i stand til at købe land:
 Kan ikke finde region som dette land er i.
 	</notification>
-	<notification name="ShowOwnersHelp">
-		Vis ejere:
-Farver på parceller viser ejer-type.
+	<notification name="CannotCloseFloaterBuyLand">
+		Du kan ikke lukke &apos;Køb land&apos; vinduet før [APP_NAME] har vurderet en pris på denne transaktion.
+	</notification>
+	<notification name="CannotDeedLandNoRegion">
+		Land kunne ikke dedikeres:
+Kunne ikke finde den region land ligger i.
+	</notification>
+	<notification name="ParcelCanPlayMedia">
+		Dette sted kan afspille &apos;streaming media&apos;.
+&apos;Streaming media&apos; kræver en hurtig internet opkobling.
 
-Grøn = Dit land
-Turkis = Din gruppes land
-Rød = Ejet af andre
-Gul = Til salg
-Lilla = På auktion
-Grå = Offentligt ejet
+Afspil altid &apos;streaming media&apos; når det er tilgængeligt?
+(Du kan ændre dette valg senere under Indstillinger &gt; Privatliv.)
+	</notification>
+	<notification name="CannotReleaseLandRegionNotFound">
+		Kunne ikke efterlade land:
+Kan ikke finde den region landet ligger i.
+	</notification>
+	<notification name="CannotDivideLandNoRegion">
+		Kunne ikke opdele land:
+Kan ikke finde den region landet ligger i.
+	</notification>
+	<notification name="CannotJoinLandNoRegion">
+		Kunne ikke opdele land:
+Kan ikke finde den region landet ligger i.
+	</notification>
+	<notification name="CannotSaveToAssetStore">
+		Kunne ikke gemme [NAME] i den centrale database.
+Dette er typisk en midlertidig fejl. Venligst rediger og gem igen om et par minutter.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Du er blevet logget ud af [SECOND_LIFE]:
+		Du er blevet logget af [SECOND_LIFE]:
             [MESSAGE]
-Du kan stadig se eksiterende PB&apos;er og chat ved at klikke&apos;Se PB &amp; Chat&apos;. Ellers, klik &apos;Afslut&apos; for at afslutte [APP_NAME] nu.
+Du kan stadig se igangværende samtaler (IM) og chat ved at klikke på &apos;Se IM &amp; chat. Ellers klik på &apos;Afslut&apos; for at lukke [APP_NAME] med det samme.
 		<usetemplate name="okcancelbuttons" notext="Afslut" yestext="Se PB &amp; Chat"/>
 	</notification>
 	<notification label="Tilføj ven" name="AddFriend">
@@ -354,14 +365,155 @@ Tilbyd venskab til [NAME]?
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
+	<notification name="AvatarMovedDesired">
+		Den ønskede lokation er ikke tilgængelig lige nu.
+Du er blevet flyttet til en region in nærheden.
+	</notification>
+	<notification name="AvatarMovedLast">
+		Din sidste lokation er ikke tilgængelig for øjeblikket.
+Du er blevet flyttet til en region in nærheden.
+	</notification>
+	<notification name="AvatarMovedHome">
+		Din hjemme lokation er ikke tilgængelig for øjeblikket.
+Du er blevet flyttet til en region in nærheden.
+Du kan måske ønske at sætte en ny hjemme lokation.
+	</notification>
+	<notification name="ClothingLoading">
+		Dit tøj hentes stadig ned.
+Du kan bruge [SECOND_LIFE] normalt og andre personer vil se dig korrekt.
+		<form name="form">
+			<ignore name="ignore" text="Det tager lang tid at hente tøj"/>
+		</form>
+	</notification>
+	<notification name="FirstRun">
+		[APP_NAME] installationen er færdig.
+
+Hvis det er første gang du bruger [SECOND_LIFE], skal du først oprette en konto for at logge på.
+Vend tilbage til [http://join.secondlife.com secondlife.com] for at oprette en ny konto?
+	</notification>
+	<notification name="LoginPacketNeverReceived">
+		Der er problemer med at koble på.  Der kan være et problem med din Internet forbindelse eller [SECOND_LIFE_GRID].
+
+Du kan enten checke din Internet forbindelse og prøve igen om lidt, klikke på Hjælp for at se [SUPPORT_SITE] siden, eller klikke på Teleport for at forsøge at teleportere hjem.
+	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] L$ [PRICE] Du har ikke nok L$ til dette.
+	</notification>
+	<notification name="GrantedModifyRights">
+		[NAME] har givet dig rettighed til at redigere sine objekter.
+	</notification>
+	<notification name="RevokedModifyRights">
+		Dinne rettigheder til at redigere objekter ejet af [NAME] er fjernet
 	</notification>
 	<notification name="BuyOneObjectOnly">
 		Ikke muligt at købe mere end et objekt ad gangen. Vælg kun ét objekt og prøv igen.
 	</notification>
+	<notification name="DownloadWindowsMandatory">
+		En ny version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Du skal hente denne version for at bruge [APP_NAME].
+	</notification>
+	<notification name="DownloadWindows">
+		En opdateret version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
+	</notification>
+	<notification name="DownloadWindowsReleaseForDownload">
+		En opdateret version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
+	</notification>
+	<notification name="DownloadLinuxMandatory">
+		En ny version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Du skal hente denne version for at kunne benytte [APP_NAME].
+		<usetemplate name="okcancelbuttons" notext="Afslut" yestext="Hent"/>
+	</notification>
+	<notification name="DownloadLinux">
+		En opdateret version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
+		<usetemplate name="okcancelbuttons" notext="Fortsæt" yestext="Hent"/>
+	</notification>
+	<notification name="DownloadLinuxReleaseForDownload">
+		En opdateret version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
+		<usetemplate name="okcancelbuttons" notext="Fortsæt" yestext="Hent"/>
+	</notification>
+	<notification name="DownloadMacMandatory">
+		En ny version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Du skal hente denne opdatering for at bruge [APP_NAME].
+
+Download til dit Program bibliotek?
+	</notification>
+	<notification name="DownloadMac">
+		En opdateret version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
+
+Download til dit Program bibliotek?
+	</notification>
+	<notification name="DownloadMacReleaseForDownload">
+		En opdateret version af [APP_NAME] er tilgængelig.
+[MESSAGE]
+Denne opdatering er ikke påkrævet, men det anbefales at installere den for at opnå øget hastighed og forbedret stabilitet.
+
+Download til dit Program bibliotek?
+	</notification>
+	<notification name="DeedObjectToGroup">
+		<usetemplate ignoretext="Bekræft før jeg dedikerer et objekt til en gruppe" name="okcancelignore" notext="Cancel" yestext="Deed"/>
+	</notification>
+	<notification name="WebLaunchExternalTarget">
+		Ønsker du at åbne din web browser for at se dette indhold?
+		<usetemplate ignoretext="Start min browser for at se hjemmesider" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchJoinNow">
+		Gå til [http://secondlife.com/account/ Dashboard] for at administrere din konto?
+		<usetemplate ignoretext="Start min browser for at administrere min konto" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchSecurityIssues">
+		<usetemplate ignoretext="Start min browser for at lære hvordan man rapporterer sikkerhedsproblemer" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchQAWiki">
+		<usetemplate ignoretext="Start min browser for at se QA Wiki" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchPublicIssue">
+		<usetemplate ignoretext="Start min browser for at bruge det Linden Labs sagsstyring" name="okcancelignore" notext="Cancel" yestext="Go to page"/>
+	</notification>
+	<notification name="WebLaunchSupportWiki">
+		<usetemplate ignoretext="Start min browser for at se bloggen" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchLSLGuide">
+		Ønsker du at åbne &apos;Scripting Guide&apos; for hjælp til scripting?
+		<usetemplate ignoretext="Start min browser for at se Scripting Guide" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchLSLWiki">
+		Ønsker du at besøge LSL portalen for hjælp til scripting?
+		<usetemplate ignoretext="Start min browser for at besøge LSL Portalen" name="okcancelignore" notext="Cancel" yestext="Go to page"/>
+	</notification>
+	<notification name="ReturnToOwner">
+		<usetemplate ignoretext="Bekræft før objekter returneres til deres ejere" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="MuteLinden">
+		Beklager, men du kan ikke blokere en Linden.
+	</notification>
 	<notification name="CannotStartAuctionAlreadyForSale">
 		Du kan ikke starte en auktion på en parcel som allerede er sat til salg. Fjern &apos;til salg&apos; muligheden hvis du ønsker at starte en auktion.
+	</notification>
+	<notification label="Blokering af objekt via navn mislykkedes" name="MuteByNameFailed">
+		Du har allerede blokeret dette navn.
+	</notification>
+	<notification name="BusyModeSet">
+		Sat til &apos;optaget&apos;.
+Chat og personlige beskeder vil blive skjult. Personlige beskeder vil få din &apos;optaget&apos; besked. Alle teleport invitationer vil blive afvist. Alle objekter sendt til dig vil ende i papirkurven.
+		<usetemplate ignoretext="Jeg skrifter min status til &apos;optaget" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="JoinedTooManyGroupsMember">
+		Du har nået det maksimale antal grupper. Du skal forlade en anden gruppe for at kunne være med i denne - eller afvis tilbudet.
+[NAME] har inviteret dig til at være medlem af en gruppe.
+[INVITE]
 	</notification>
 	<notification name="OfferTeleport">
 		<form name="form">
@@ -372,13 +524,22 @@ Tilbyd venskab til [NAME]?
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
+	<notification name="TeleportFromLandmark">
+		<usetemplate ignoretext="Bekræft at jeg vil teleportere til et landemærke" name="okcancelignore" notext="Cancel" yestext="Teleport"/>
+	</notification>
+	<notification name="TeleportToPick">
+		Teleport til [PICK]?
+		<usetemplate ignoretext="Bekræft at jeg ønsker at teleportere til et sted i favoritter" name="okcancelignore" notext="Annullér" yestext="Teleport"/>
+	</notification>
+	<notification name="TeleportToClassified">
+		Teleport til [CLASSIFIED]?
+		<usetemplate ignoretext="Bekræft at du ønsker at teleportere til lokation in annoncer" name="okcancelignore" notext="Annullér" yestext="Teleport"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating. Dette kan skyldes manglende validering af din alder.
 
 Undersøg venligst om du har installeret den nyeste [APP_NAME] klient, og gå til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_KB">
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating.
@@ -387,36 +548,26 @@ Gå til &apos;Knowledge Base&apos; for mere information om indholdsratings.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Gå til &apos;Knowledge Base&apos;"
-	 notext="Luk"
-	 ignoretext="Når regionen er blokeret på grund af indholdsrating"/>
+		<usetemplate ignoretext="Ikke adgang til denne region på grund af begrænsninger i min indholdsrating" name="okcancelignore" notext="Luk" yestext="Gå til &apos;Knowledge Base&apos;"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Du har ikke adgang til denne region på grund af din nuværende indholdsrating opsætning.
+		Du har ikke adgang til denne region på grund af din indholdsrating præferencer.
 
-Du kan vælge &apos;Indstillinger&apos; for at hæve din indholdsrating nu og dermed få adgang. Du vil så få mulighed for at søge og få adgang til områder med indhold af typen [REGIONMATURITY]. Hvis du senere ønsker at skifte tilbage, kan du skifte tilbage i &apos;Indstillinger&apos;.
-	<form name="form">
-      <button
-       name="OK"
-       text="Ændre præferencer"/>
-      <button
-       name="Cancel"
-       text="Luk"/>
-       <ignore name="ignore" text="Når regionen er blokeret på grund af indholdsrating"/>
-    </form>
+Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsrating nu og dermed opnå adgang. Du vil så få mulighed for at søge og tilgå [REGIONMATURITY] fra da af. Hvis du senere ønsker at ændre denne opsætning tilbage, gå til Mig &gt; Indstillinger &gt; Generelt.
+		<form name="form">
+			<button name="OK" text="Ændre indstillinger"/>
+			<button name="Cancel" text="Luk"/>
+			<ignore name="ignore" text="Din valgte indholdsrating forhindrer dig i at kommer til en region"/>
+		</form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Du kan ikke kræve dette land på grund af din nuværende indholdsrating indstillinge . Dette kan skyldes manglende validering af din alder.
 
 Undersøg om du har den nyeste [APP_NAME] klient og gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_KB">
 		Du kan ikke kræve dette land på grund af din nuværende indholdsrating indstilling..
@@ -425,32 +576,22 @@ Gå venligst til &apos;Knowledge Base&apos; for yderligere information om indhol
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Gå til &apos;Knowledge Base&apos;"
-	 notext="Luk"
-	 ignoretext="Når land ikke kan kræves på grund af indholdsrating"/>
+		<usetemplate ignoretext="Du kan ikke kræve dette land, på grund af begrænsninger i indholdsrating" name="okcancelignore" notext="Luk" yestext="Gå til &apos;Knowledge Base&apos;"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
 		Du kan ikke kræve dette land på grund af din indholdsrating.
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
-		Du kan ikke kræve dette land på grund af din nuværende indholdsrating indstilling..
+		Du kan ikke kræve dette land, på grund af begrænsninger i din opsætning af indholdsrating.
 
-Du kan vælge &apos;Indstillinger&apos; for at hæve din indholdsrating nu og dermed få adgang. Du vil så få mulighed for at søge og få adgang til områder med indhold af typen [REGIONMATURITY]. Hvis du senere ønsker at skifte tilbage, kan du skifte tilbage i &apos;Indstillinger&apos;.
-    <usetemplate
-     name="okcancelignore"
-     yestext="Ændre præferencer"
-	 notext="Luk"
-	 ignoretext="Når land ikke kan kræves på grund af indholdsrating"/>
+Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsrating nu og dermed opnå adgang. Du vil så få mulighed for at søge og tilgå [REGIONMATURITY] fra da af. Hvis du senere ønsker at ændre denne opsætning tilbage, gå til Mig &gt; Indstillinger &gt; Generelt.
+		<usetemplate ignoretext="Din valgte indholdsrating forhindrer dig i at kræve land" name="okcancelignore" notext="Luk" yestext="Ændre præferencer"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
 		Du kan ikke købe dette land på grund af din nuværende indholdsrating indstillinge . Dette kan skyldes manglende validering af din alder.
 
 Undersøg om du har den nyeste [APP_NAME] klient og gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_KB">
 		Du kan ikke købe dette land på grund af din nuværende indholdsrating. 
@@ -459,24 +600,19 @@ Gå til &apos;Knowledge Base&apos; for yderligere detaljer om indholdsrating.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Gå til &apos;Knowledge Base&apos;"
-	 notext="Luk"
-	 ignoretext="Når land ikke kan købes på grund af indholdsrating"/>
+		<usetemplate ignoretext="Du kan ikke købe dette land, på grund af begrænsninger i indholdsrating" name="okcancelignore" notext="Luk" yestext="Gå til &apos;Knowledge Base&apos;"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
 		Du kan ikke købe dette land på grund af din nuværende indholdsrating indstilling.
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
-		Du kan ikke købe dette land på grund af din valgte inholdsrating.
+		Du kan ikke købe dette land, på grund af begrænsninger i din opsætning af indholdsrating.
 
-Du kan vælge &apos;Indstillinger&apos; for at hæve din indholdsrating nu og dermed få adgang. Du vil så få mulighed for at søge og få adgang til områder med indhold af typen [REGIONMATURITY]. Hvis du senere ønsker at skifte tilbage, kan du skifte tilbage i &apos;Indstillinger&apos;.
-    <usetemplate
-     name="okcancelignore"
-     yestext="Ændre præferencer"
-	 notext="Luk"
-	 ignoretext="Når land ikke kan købes på grund af indholdsrating"/>
+Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsrating nu og dermed opnå adgang. Du vil så få mulighed for at søge og tilgå [REGIONMATURITY] fra da af. Hvis du senere ønsker at ændre denne opsætning tilbage, gå til Mig &gt; Indstillinger &gt; Generelt.
+		<usetemplate ignoretext="Din valgte rating forhindrer dig i at købe land" name="okcancelignore" notext="Luk" yestext="Ændre præferencer"/>
+	</notification>
+	<notification name="TooManyPrimsSelected">
+		Der er valgt for mange prims. Vælg venligst [MAX_PRIM_COUNT] eller færre og prøv igen
 	</notification>
 	<notification name="UnableToLoadNotecardAsset">
 		Kunne ikke hente notecard indhold.
@@ -484,52 +620,91 @@ Du kan vælge &apos;Indstillinger&apos; for at hæve din indholdsrating nu og de
 	</notification>
 	<notification name="SetClassifiedMature">
 		Indeholder denne annonce &apos;Mature&apos; indhold?
-    <usetemplate
-     canceltext="Annullér"
-     name="yesnocancelbuttons"
-     notext="Nej"
-     yestext="Ja"/>
+		<usetemplate canceltext="Annullér" name="yesnocancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="SetGroupMature">
 		Indeholder denne gruppe &apos;Mature&apos; indhold?
-    <usetemplate
-     canceltext="Annullér"
-     name="yesnocancelbuttons"
-     notext="Nej"
-     yestext="Ja"/>
+		<usetemplate canceltext="Annullér" name="yesnocancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
-	<notification label="Indholdsrating" name="HelpRegionMaturity">
-		Sætter indholdsrating for regionen, som den vises øverst på menu-bjælken i beboernes klient, og i tooltips på verdenskortet når cursoren placeres over denne region. Denne indstilling har også betydning for adgangen til regionen og for søgeresultater. Andre beboere må kun få adgang til regionen eller se regionen i søgeresultater hvis de har valgt samme eller højere indholdsrating i deres opsætning.
-
-Det kan tage noget tid inden en ændring af indholdsrating er synligt på kortet.
+	<notification label="Voice Version Mismatch" name="VoiceVersionMismatch">
+		Denne version af [APP_NAME] er ikke kompatibel med stemme chat funktionen i denne region. For at kunne få stemme chat til at fungere skal du opdatere [APP_NAME].
+	</notification>
+	<notification name="MoveInventoryFromObject">
+		<usetemplate ignoretext="Advar mig før jeg flytter &apos;ikke-kopiérbare&apos; genstande fra et objekt" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="MoveInventoryFromScriptedObject">
+		<usetemplate ignoretext="Advar mig før jeg flytter &apos;ikke-kopiérbare&apos; genstande, hvor det kan medføre at ødelægge et scriptet objekt" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="ClickActionNotPayable">
+		Advarsel: &apos;Betal objekt&apos; klik-aktionen er blevet aktiveret, men det vil kun virke, hvis et script med et &apos;money()&apos; event er tilføjet.
+		<form name="form">
+			<ignore name="ignore" text="I set the action &apos;Pay object&apos; when building an object without a money() script"/>
+		</form>
+	</notification>
+	<notification name="WebLaunchAccountHistory">
+		Gå til [http://secondlife.com/account/ Dashboard] for at se konto-historik?
+		<usetemplate ignoretext="Start min browser for at se min konto historik" name="okcancelignore" notext="Cancel" yestext="Go to page"/>
+	</notification>
+	<notification name="ConfirmQuit">
+		<usetemplate ignoretext="Bekræft før jeg afslutter" name="okcancelignore" notext="Afslut ikke" yestext="Quit"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Brug dette værktøj for at rapportere brud på de almindelige bestemmelser og fællesskabs Standarder. Se:
+		Benyt dette værktøj til at rapportere Use this tool to report krænkelser af [http://secondlife.com/corporate/tos.php Terms of Service] og [http://secondlife.com/corporate/cs.php Community Standards].
 
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
-
-Alle rapporterede brud på almindelige bestemmelser og fællesskabs Standarder bliver undersøgt og løst. Du kan følge løsningen på din anmeldselse på:
-
-http://secondlife.com/support/incidentreport.php
+Alle indrapporterede krænkelser er undersøgt og and afgjort. Du kan se løsning ved at læse [http://secondlife.com/support/incidentreport.php Incident Report].
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
-		Dear Resident,
+		Kære beboer,
 
-Du ser ud til at være ved at rapportere noget vedr. krænkelse af intellektuelle ejendomsrettigheder. Sørg for, at du rapporterer dette korrekt:
+Det ser ud til at du indrapporterer krænkelse af ophavsret. Check venligst at du rapporterer korrekt:
 
-(1) Misbrugs processen. Du kan indsende en misbrugs rapport, hvis du mener, at en Beboer udnytter [SECOND_LIFE]&apos;s rettigheds system, for eksempel ved hjælp af en CopyBot eller lignende kopierings værktøjer, at de krænker intellektuelle ejendomsrettigheder. Det team vil undersøge og spørgsmål passende disciplinære sanktioner for adfærd, der overtræder [SECOND_LIFE] EF-standarderne eller Servicevilkår. Men det team vil ikke håndtere og vil ikke reagere på anmodninger om at fjerne indhold fra [SECOND_LIFE]&apos;s verden.
+(1) Krænkelsesproces. Du må sende en rapport, hvis du mener at en beboer udnytter [SECOND_LIFE] rettighedssystemet, for eksempel via CopyBot eller lignende værktøjer, til at overtræde ophavsretten til objekter.
 
-(2) DMCA eller Indholds fjernelses processen. For at anmode om fjernelse af indhold fra [SECOND_LIFE], skal du sende en gyldig anmeldelse af overtrædelsen som beskrevet i vores DMCA-politik på http://secondlife.com/corporate/dmca.php.
+(2) DCMA (”Digital Millennium Copyright Act”) eller fjernelsesproces. For at kræve at indhold fjernes fra [SECOND_LIFE], SKAL du sende en gyldig besked om overtrædelse som beskrevet i [http://secondlife.com/corporate/dmca.php DMCA Policy].
 
-Hvis du stadig ønsker at fortsætte med misbrugs processen, luk da venligst dette vindue og færdiggør indsendelsen af din rapport. Du kan være nødt til at vælge den særlige kategori »CopyBot eller Tilladelses Ydnyttelse.
+Hvis du stadig ønsker at fortsætte med rapportering om overtrædelse, luk venligst dette vindue og afslut afsendelse af rapporten. Du skal muligvis vælge en specifik kategori &apos;CopyBot or Permissions Exploit&apos;.
 
-Mange tak,
+Mange tak
 
 Linden Lab
 	</notification>
+	<notification label="Replace Existing Attachment" name="ReplaceAttachment">
+		<form name="form">
+			<ignore name="ignore" text="Erstat et eksisterende vedhæng med den valgte genstand"/>
+		</form>
+	</notification>
+	<notification label="Busy Mode Warning" name="BusyModePay">
+		<form name="form">
+			<ignore name="ignore" text="Jeg er ved at betale en person eller et objekt mens jeg er &apos;optaget&apos;"/>
+		</form>
+	</notification>
+	<notification name="ConfirmDeleteProtectedCategory">
+		Mappen &apos;[FOLDERNAME]&apos; er en system mappe. At slette denne mappe kan medføre ustabilitet. Er du sikker på at du vil slette den?
+		<usetemplate ignoretext="Bekræft, inden en system mappe slettes" name="okcancelignore" notext="Annullér" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmEmptyTrash">
+		Er du sikker på at du ønsker at tømme papirkurven?
+		<usetemplate ignoretext="Bekræft før papirkurv i beholdning tømmes" name="okcancelignore" notext="Cancel" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearBrowserCache">
+		Er du sikker på at du ønsker at slette din historik om besøg, web og søgninger?
+		<usetemplate name="okcancelbuttons" notext="Cancel" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmClearCookies">
 		Er du sikker på du vil slette alle cookies?
+	</notification>
+	<notification name="ConfirmEmptyLostAndFound">
+		Er du sikker på at du vil slette indholdet i din &apos;Fundne genstande&apos;?
+		<usetemplate ignoretext="Bekræft før sletning af &apos;Fundne genstande&apos; mappe i beholdning" name="okcancelignore" notext="No" yestext="Yes"/>
+	</notification>
+	<notification name="CopySLURL">
+		Følgende SLurl er blevet kopieret til din udklipsholder:
+ [SLURL]
+
+Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokation, eller prøv det selv ved at indsætte det i adresselinien i en web-browser.
+		<form name="form">
+			<ignore name="ignore" text="SLurl er kopieret til min udklipsholder"/>
+		</form>
 	</notification>
 	<notification name="NewSkyPreset">
 		<form name="form">
@@ -555,7 +730,23 @@ Linden Lab
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="Cannot_Purchase_an_Attachment">
-		Ting kan ikke købes imens de er en del af tilbehør.
+		Du kan ikke købe en genstand mens den er vedhæftet.
+	</notification>
+	<notification name="AutoWearNewClothing">
+		Vil du automatisk tage det tøj på du er ved at lave?
+		<usetemplate ignoretext="Tag det tøj på jeg laver, mens jeg ændrer udseende" name="okcancelignore" notext="No" yestext="Yes"/>
+	</notification>
+	<notification name="NotAgeVerified">
+		Du skal være alders-checket for at besøge dette område.  Ønsker du at gå til [SECOND_LIFE] hjemmesiden og bekræfte din alder?
+
+[_URL]
+		<usetemplate ignoretext="Jeg har ikke bekræftet min alder" name="okcancelignore" notext="No" yestext="Yes"/>
+	</notification>
+	<notification name="Cannot enter parcel: no payment info on file">
+		Du skal være betalende medlem for at besøge dette område.  Ønsker du at gå til [SECOND_LIFE] hjemmesiden for at blive dette?
+
+[_URL]
+		<usetemplate ignoretext="Du mangler at være betalende medlem" name="okcancelignore" notext="No" yestext="Yes"/>
 	</notification>
 	<notification name="SystemMessageTip">
 		[MESSAGE]
@@ -579,7 +770,7 @@ Linden Lab
 		[FIRST] [LAST] er Offline
 	</notification>
 	<notification name="AddSelfFriend">
-		Du kan ikke tilføje dig selv som ven.
+		Selvom du nok er meget sød, kan du ikke tilføje dig selv som ven.
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
 		Uploader billeder fra verdenen og www...
@@ -598,7 +789,7 @@ Linden Lab
 		Terrain.raw downloadet
 	</notification>
 	<notification name="GestureMissing">
-		Gestus [NAME] mangler i databasen.
+		Bevægelsen [NAME] mangler i databasen.
 	</notification>
 	<notification name="UnableToLoadGesture">
 		Ikke muligt at indlæse gestus [NAME].
@@ -611,14 +802,14 @@ Prøv venligst igen.
 		Ikke muligt at indlæse landmærke.  Prøv venligst igen.
 	</notification>
 	<notification name="CapsKeyOn">
-		Du har slået store bogstaver til.
-Da det vil have betydning når du indtaster kodeordet, vil du højest sandsynlig slå dem fra.
+		Din Caps Lock er aktiveret.
+Det kan påvirke din indtastning af password.
 	</notification>
 	<notification name="NotecardMissing">
 		Note mangler i databasen.
 	</notification>
 	<notification name="NotecardNoPermissions">
-		Utilstrækkelige tilladelser til at se note.
+		Du har ikke rettigheder til at se denne note.
 	</notification>
 	<notification name="RezItemNoPermissions">
 		Utilstrækkelige tilladelser til at danne genstanden.
@@ -657,11 +848,11 @@ Prøv venligst igen.
 Prøv venligst igen.
 	</notification>
 	<notification name="CannotBuyObjectsFromDifferentOwners">
-		Kan ikke købe genstande fra forskellige ejere på samme tid.
-Prøv venligst at vælge en enkelt genstand.
+		Du kan kun købe objekter fra én ejer ad gangen.
+Vælg venligst et enkelt objekt.
 	</notification>
 	<notification name="ObjectNotForSale">
-		Genstanden ser ikke ud til at være til salg.
+		Dette objekt er ikke til salg.
 	</notification>
 	<notification name="EnteringGodMode">
 		Starter gud-tilstand, niveau [LEVEL]
@@ -670,10 +861,10 @@ Prøv venligst at vælge en enkelt genstand.
 		Stopper gud-tilstand, niveau [LEVEL]
 	</notification>
 	<notification name="CopyFailed">
-		Kopiering lykkedes ikke fordi du ikke har nok tilladelser til at kopiere
+		Du har ikke rettigheder til at kopiere dette.
 	</notification>
 	<notification name="InventoryAccepted">
-		[NAME] accepterede det du tilbød fra din beholdning.
+		[NAME] modtog dit tilbud til hans/hendes beholdning.
 	</notification>
 	<notification name="InventoryDeclined">
 		[NAME] afviste det du tilbød fra din beholdning.
@@ -688,12 +879,16 @@ Prøv venligst at vælge en enkelt genstand.
 		Dit visitkort blev afvist.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Nu hvor du er nået frem til hovedlandet, kan du teleportere til steder som &apos;[NAME]&apos; ved at klikke på Beholdning-knappen i nederste højre side af skærmen hvorefter du vælger Landmærke-mappen.
-Dobbeltklik på landmærket og klik på Teleportér, for at rejse derhen.
+		Du kan teleportere til lokationer som &apos;[NAME]&apos; ved at åbne Steder panelet til højre på skærmen, og her vælge landemærker fanen.
+Klik på et landemærke og vælg den, derefter 
+Click on any landmark to select it, then click &apos;Teleport&apos; at the bottom of the panel.
+(You can also double-click on the landmark, or right-click it and choose &apos;Teleport&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Nu hvor du har nået frem til hovedlandet, kan du kontakte indbyggere som &apos;[NAME]&apos; ved at klikke på Beholdning-knappen i nederste højre side af skærmen, hvorefter du vælger Visitkort-mappen.
-Dobbeltklik på kortet, klik på IM og skriv beskeden.
+		Du kan kontakte beboere som f.eks. &apos;[NAME]&apos; ved at åbne &apos;Personer&apos; panelet til højre på skærmen.
+Vælg beboeren fra listen og klik så på &apos;IM&apos; i bunden af panelet.
+(Du kan også dobbelt-klikke på navnet i listen eller højreklikke og vælge &apos;IM&apos;)
+(You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Kan ikke vælge land på tværs af grænser.
@@ -714,6 +909,9 @@ Prøv at vælge mindre stykker land.
 		</form>
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentRecived">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -739,8 +937,20 @@ Prøv at vælge mindre stykker land.
 		Deaktiverede bevægelser med samme udløser: [NAMES]
 	</notification>
 	<notification name="NoQuickTime">
-		Apple&apos;s QuickTime ser ikke ud til at være installeret på computeren.
-Hvis du vil se live transmitteret medie på grunde, der understøtter det, skal du gå ind på QuickTime-siden (http://www.apple.dk/quicktime) og installere QuickTime afspilleren.
+		Det ser ikke ud til at Apples QuickTime software er installeret på dit system.
+Hvis du ønsker at se streaming media på parceller der understøtter dette skal du besøge siden [http://www.apple.com/quicktime QuickTime site] og installere QuickTime Player.
+	</notification>
+	<notification name="NoPlugin">
+		Ingen Media Plugin blev fundet til at håndtere mime af typen &quot;[MIME_TYPE]&quot;.  Media af denne type vil ikke være tilgængelig.
+	</notification>
+	<notification name="MediaPluginFailed">
+		Følgende Media Plugin has fejlede:
+    [PLUGIN]
+
+Prøv venligst at geninstallere plugin eller kontakt leverandøren hvis problemerne bliver ved.
+		<form name="form">
+			<ignore name="ignore" text="En Media Plugin kunne ikke afvikles"/>
+		</form>
 	</notification>
 	<notification name="OwnedObjectsReturned">
 		De genstande du ejer på det valgte stykke land er blevet returneret til din beholdning.
@@ -759,23 +969,26 @@ Genstande, der ikke kan overføres og som er dedikeret til gruppen, er blevet sl
 	<notification name="UnOwnedObjectsReturned">
 		Genstandene på det valgte stykke land, der IKKE er ejet af dig, er blevet returneret til deres ejere.
 	</notification>
+	<notification name="ServerObjectMessage">
+		Besked fra [NAME]:
+[MSG]
+	</notification>
 	<notification name="NotSafe">
-		Dette land har sat skade til (&apos;ikke sikker&apos;).
-Du kan komme til skade her. Hvis du dør, vil du blive teleporteret til din hjem-lokalitet.
+		Dette land er åbnet for &apos;skade&apos;.
+Du kan blive skadet her. Hvis du dør, vil du blive teleporteret til din hjemme lokation.
 	</notification>
 	<notification name="NoFly">
-		Dette land har slået flyvning fra (&apos;ingen flyvning&apos;).
+		Dette sted har ikke aktiveret ret til flyvning.
 Du kan ikke flyve her.
 	</notification>
 	<notification name="PushRestricted">
-		Dette land giver ikke mulighed for at &apos;skubbe&apos; andre, med mindre du ejer landet.
+		Dette sted tillader ikke skubning. Du kan ikke skubbe andre, med mindre du ejer dette land.
 	</notification>
 	<notification name="NoVoice">
-		Dette land har ikke mulighed for at bruge stemme.
+		Dette sted har ikke aktiveret stemme-chat. Du vil ikke kunne høre nogen tale.
 	</notification>
 	<notification name="NoBuild">
-		Dette land giver ikke mulighed for at bygge (&apos;byggeri forbudt&apos;).
-Du kan ikke skabe genstande her.
+		Dette sted har ikke aktiveret bygge-ret. Du kan ikke bygge eller &apos;rezze&apos; objekter her.
 	</notification>
 	<notification name="ScriptsStopped">
 		En administrator har midlertidig stoppet scripts i denne region.
@@ -784,12 +997,12 @@ Du kan ikke skabe genstande her.
 		Denne region kører ikke nogen scripts.
 	</notification>
 	<notification name="NoOutsideScripts">
-		Dette land har eksterne scripts slået fra
-(&apos;ingen eksterne scripts&apos;).
-Ingen scripts vil køre på nær dem, som tilhører ejeren af landet.
+		Dette sted tillader ikke udefra kommende scripts.
+
+Ingen scripts vil virke her, udover de som tilhører ejeren af landet.
 	</notification>
 	<notification name="ClaimPublicLand">
-		Du kan kun gøre krav på offentlig land i den region, du befinder dig i.
+		Du kan kun kræve land i den region du befinder dig i.
 	</notification>
 	<notification name="RegionTPAccessBlocked">
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating. Dette kan skyldes manglende validering af din alder eller at du ikke benytter den nyeste [APP_NAME] klient.
@@ -802,15 +1015,8 @@ Gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang ti
 	<notification name="NoTeenGridAccess">
 		Du kan ikke tilslutte dig denne &apos;Teen&apos; region.
 	</notification>
-	<notification name="NoHelpIslandTP">
-		Du kan ikke teleportere tilbage til Help Island.
-Gå til &apos;Help Island Puclic&apos; for at prøve tutorial igen.
-	</notification>
 	<notification name="ImproperPaymentStatus">
 		Du har ikke de rette betalingsoplysninger til at komme ind i denne region.
-	</notification>
-	<notification name="MustGetAgeRegion">
-		Du skal være aldersgodkendt for at komme ind i denne region.
 	</notification>
 	<notification name="MustGetAgeParcel">
 		Du skal være aldersgodkendt for at komme ind på denne parcel.
@@ -874,7 +1080,8 @@ Prøv igen om lidt.
 		No valid parcel could be found.
 	</notification>
 	<notification name="ObjectGiveItem">
-		En genstand med navnet [OBJECTFROMNAME], ejet af [FIRST] [LAST], har givet dig en/et [OBJECTTYPE] med navnet [OBJECTNAME].
+		Et objekt med navnet [OBJECTFROMNAME], ejet af [NAME_SLURL], har givet dig [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behold"/>
 			<button name="Discard" text="Smid væk"/>
@@ -882,7 +1089,8 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		En genstand med navnet [OBJECTFROMNAME], ejet af (en ukendt bruger), har givet dig en/et [OBJECTTYPE] med navnet [OBJECTNAME].
+		Et objekt med navnet [OBJECTFROMNAME], ejet af en ukendt beboer, har givet dig [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behold"/>
 			<button name="Discard" text="Smid væk"/>
@@ -890,15 +1098,17 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME] har givet dig en/et [OBJECTTYPE] med navnet &apos;[OBJECTNAME]&apos;.
+		[NAME_SLURL] har givet dig [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behold"/>
+			<button name="Show" text="Vis"/>
 			<button name="Discard" text="Smid væk"/>
-			<button name="Mute" text="Blokér"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
 		[NAME]
+
 [MESSAGE]
 	</notification>
 	<notification name="JoinGroup">
@@ -910,7 +1120,7 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] har tilbudt at teleportere dig til hans eller hendes lokalitet:
+		[NAME] har tilbudt dig en teleport til lokationen:
 
 [MESSAGE]
 		<form name="form">
@@ -935,6 +1145,9 @@ Som standard vil du kunne se andres onlinestatus.
 			<button name="Decline" text="Afvis"/>
 		</form>
 	</notification>
+	<notification name="FriendshipOffered">
+		Du har tilbudt venskab til [TO_NAME]
+	</notification>
 	<notification name="FriendshipAccepted">
 		[NAME] accepterede dit tilbud om venskab.
 	</notification>
@@ -950,12 +1163,12 @@ Dette vil tilføje et bogmærke i din beholdning, så du hurtigt kan sende en pe
 		</form>
 	</notification>
 	<notification name="RegionRestartMinutes">
-		Regionen genstarter om [MINUTES] minutter.
-Hvis du bliver i denne region, vil du blive logget af.
+		Denne region vil genstarte om [MINUTES] minutter.
+Hvis du ikke forlader regionen, vil du blive logget af.
 	</notification>
 	<notification name="RegionRestartSeconds">
-		Regionen genstarter om [SECONDS] sekunder.
-Hvis du bliver i denne region, vil du blive logget af.
+		Denne region genstartes om [SECONDS] sekunder.
+Hvis du ikke forlader regionen, vil du blive logget af.
 	</notification>
 	<notification name="LoadWebPage">
 		Indlæs internetside [URL]?
@@ -975,7 +1188,7 @@ Fra genstand: [OBJECTNAME], ejer: [NAME]?
 		Det lykkedes ikke at finde [TYPE] med navnet [DESC] i databasen.
 	</notification>
 	<notification name="InvalidWearable">
-		Den genstand du prøver at tage på benytter funktioner som din klient ikke kan forstå. Opdatér din version af [APP_NAME] for at tage genstanden på.
+		Den genstand du prøver at tage på benytter en funktion din klient ikke kan forstå. Upgradér venligst din version af [APP_NAME] for at kunne tage denne genstand på.
 	</notification>
 	<notification name="ScriptQuestion">
 		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[NAME]&apos;, vil gerne:
@@ -988,12 +1201,12 @@ Er det iorden?
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
-		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[NAME]&apos;, vil gerne:
+		Et objekt med navnet &apos;[OBJECTNAME]&apos;, ejet af &apos;[NAME]&apos;, ønsker at:
 
 [QUESTIONS]
-Hvis du ikke har tillid til denne genstand og dens skaber, bør du afvise denne forespørgsel. For yderligere information klik på Detaljer-knappen.
+Hvis du ikke stoler på dette objekt og dets skaber, bør du afvise denne forespørgsel.
 
-Imødekom denne forespørgsel?
+Tillad denne anmodning?
 		<form name="form">
 			<button name="Grant" text="Imødekom"/>
 			<button name="Deny" text="Afvis"/>
@@ -1014,39 +1227,44 @@ Imødekom denne forespørgsel?
 			<button name="Ignore" text="Ignorér"/>
 		</form>
 	</notification>
+	<notification name="ScriptToast">
+		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos; ønsker bruger-input.
+		<form name="form">
+			<button name="Open" text="Åben dialog"/>
+			<button name="Ignore" text="Ignorér"/>
+			<button name="Block" text="Blokér"/>
+		</form>
+	</notification>
 	<notification name="FirstBalanceIncrease">
-		Du har lige modtaget L$[AMOUNT].
-Genstande og andre brugere kan give dig L$.
-Din saldo er vist i øverste højre hjørne af skærmen.
+		Du har netop modtaget [AMOUNT] L$.
+Din balance vises øverst til højre.
 	</notification>
 	<notification name="FirstBalanceDecrease">
-		Du har lige modtaget L$[AMOUNT].
-Din saldo er vist i øverste højre hjørne af skærmen.
+		Du har netop betalt [AMOUNT] L$.
+Din balance vises øverst til højre.
+	</notification>
+	<notification name="BuyLindenDollarSuccess">
+		Tak for din betaling!
+
+Din L$ balance vil blive opdateret når transaktionen er gennemført. Ved transaktionen tager mere end 20 min., vil den blive annulleret. I så fald vil beløbet blive krediteret din US$ balance.
+
+Status for din betaling kan ses i din &apos;Transaction History&apos; side på din [http://secondlife.com/account/ Dashboard]
 	</notification>
 	<notification name="FirstSit">
-		Du sidder.
-Brug piletasterne (eller AWSD) for at ændre hvilken vej du ser.
-Klik på &apos;Stå op&apos;-knappen for at rejse dig op.
+		Du sidder ned.
+Benyt piletasterne (eller AWSD) til at se rundt.				
+Klik på &apos;Stå op&apos; tasten for at rejse dig.
 	</notification>
 	<notification name="FirstMap">
-		Klik og træk for at flytte kortvisningen.
+		Klik og træk på kortet for at se rundt.
 Dobbelt-klik for at teleportere.
-Brug kontrollerne til højre for at finde ting og se forskellige baggrunde.
+Benyt kontrollerne til højre for at finde ting og se forskellige baggrunde.
 	</notification>
 	<notification name="FirstBuild">
-		Du kan bygge nye genstande i nogle områder af [SECOND_LIFE].
-Brug værktøjet øverst til venstre for at bygge, og prøv at holde Ctrl eller Alt nede for hurtigt at skifte imellem værktøjerne.
-Tryk Esc for at stoppe med at bygge.
-	</notification>
-	<notification name="FirstLeftClickNoHit">
-		Venstre-klik interagerer med specielle genstande.
-Hvis musemarkøren ændrer sig til en hånd, kan du interagere med genstanden.
-Højre-klik viser altid en menu med ting du kan gøre.
+		Du har åbnet bygge værktøjer. Alle objekter du ser omkring dig er lavet via disse værktøjer.
 	</notification>
 	<notification name="FirstTeleport">
-		Du har lige teleporteret.
-Du er ved info-standen nærmest ved din destination.
-Din destination er markeret med en stor rød lyskegle.
+		Du kan kun teleportere til bestemte områder i denne region. Pilen peger på din specifikke destination. Klik på pilen for at fjerne den.
 	</notification>
 	<notification name="FirstOverrideKeys">
 		Dine bevælgelsestaster bliver nu håndteret af et objekt.
@@ -1055,46 +1273,41 @@ Nogle genstande (som skydevåben) kræver at du går ind i musevisning for at br
 Tryk på &apos;M&apos; for at gåre det.
 	</notification>
 	<notification name="FirstAppearance">
-		Du tilretter dit udseende.
-For at rotere og zoome brug piletasterne.
-Når du er færdig, tryk på &apos;Gem alt&apos; for at gemme dit udseende og lukke.
-Du kan rette dit udseende så tit du vil.
+		Du redigerer dit udseende.
+Benyt piletasterne til at se rundt.
+Når du er færdig, tryk på &apos;Gem alt&apos;.
 	</notification>
 	<notification name="FirstInventory">
-		Dette er din beholdning, der indeholder objekter, noter, tøj og andre ting du ejer.
-* For at bære et objekt eller en mappe med tøj, træk den over på dig selv.
-* For at få et objekt frem i verdenen, træk den ud på jorden.
-* For at læse en note, dobbeltklik på den.
+		Dette er din beholdning, som indeholder de genstande du ejer.
+
+* For at tage noget på, træk det over på dig selv.
+* For at &apos;rezze&apos; noget, træk det over på jorden.
+* For at læse en note, dobbelt-klik på den.
 	</notification>
 	<notification name="FirstSandbox">
-		Dette er sandkasseområdet.
-Genstande, der er skabt her, vil blive slettet efter du har forladt området. Sandkasser renses jævnligt. Se venligst informationen øverst på skærmen, lige ved siden af områdenavnet.
+		Dette er et sandkasse område. Her kan beboere lære ast bygge.
 
-Sandkasseområder er ikke almindelige. De er mærket med skilte.
+De ting du bygger vil blive slettet senere, så glem ikke at højre-klikke og vælge &quot;Tag&quot; for at tage en kopi af din kreation til din beholdning.
 	</notification>
 	<notification name="FirstFlexible">
-		Denne genstand er fleksibel.
-Fleksible genstande er ikke fysiske og man kan gå igennem dem, indtil fleksibel-punktet ikke er afkrydset.
+		Dette objekt er fleksibelt/blødt. Sådanne objekter skal være &apos;uden masse&apos; og ikke fysiske.
 	</notification>
 	<notification name="FirstDebugMenus">
-		Du har sat avanceret menu til.
-Denne menu indeholder funktioner brugbare for udviklere, der udbedrer fejl i [SECOND_LIFE].
-For at vise denne menu, skal man i Windows trykke Ctrl+Alt+D. På Mac tryk &#8997;&#8984;D.
+		Du har åbnet menuen &apos;Avanceret&apos;.
+
+For at slå denne menu fra og til,
+  Windows: Ctrl+Alt+D
+  Mac: &#8997;&#8984;D
 	</notification>
 	<notification name="FirstSculptedPrim">
-		Du retter en sculpted prim.
-Sculpted prims kræver et specielt tekstur for at specificere deres form.
-Du kan finde eksempler på sculptede teksturer i din beholdning.
-	</notification>
-	<notification name="FirstMedia">
-		Du er begyndt at afspille medie.  Medie kan sættes til automatisk af blive afspillet under Indstillinger, Lyd / Video. Vær opmærksom på, at der kan være en sikkerhedsrisiko for medie-steder, du ikke stoler på.
+		Du redigerer en &apos;Sculpted prim&apos;. Sådanne objekter kræver en speciel tekstur for at definere faconen.
 	</notification>
 	<notification name="MaxListSelectMessage">
 		Du må kun vælge op til [MAX_SELECT] genstande på denne liste.
 	</notification>
 	<notification name="VoiceInviteP2P">
-		[NAME] inviterer dig til en stemme-chat.
-Klik for at acceptere at koble dig på samtalen eller Afvis for at afvise invitationen. Klik på Slå fra for at blokere denne opkalder.
+		[NAME] inviterer dig til en stemme-chat samtale.
+Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik på Blokér for at blokere personen.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
@@ -1102,17 +1315,17 @@ Klik for at acceptere at koble dig på samtalen eller Afvis for at afvise invita
 		</form>
 	</notification>
 	<notification name="AutoUnmuteByIM">
-		[FIRST] [LAST] har fået en personlig besked (IM) og er automatisk ikke blokeret mere.
+		[FIRST] [LAST] fik tilsendt en personlig besked og er dermed automatisk ikke mere blokeret.
 	</notification>
 	<notification name="AutoUnmuteByMoney">
-		[FIRST] [LAST] har fået penge og er automatisk ikke blokeret mere.
+		[FIRST] [LAST] blev givet penge og er dermed automatisk ikke mere blokeret.
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[FIRST] [LAST] har fået tilbudt genstande og er automatisk ikke blokeret mere.
+		[FIRST] [LAST] blev tilbudt en genstand og er dermed automatisk ikke mere blokeret.
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME] har tilsluttet sig stemme-chat med gruppen [GROUP].
-Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitationen. Klik Slå fra for at blokere denne opkalder.
+		[NAME] har has sluttet sig til stemme-chaten i gruppen [GROUP].
+Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik på Blokér for at blokere personen.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
@@ -1120,8 +1333,8 @@ Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitati
 		</form>
 	</notification>
 	<notification name="VoiceInviteAdHoc">
-		[NAME] har tilsluttet sig stemme-chat med en konference-chat.
-Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitationen. Klik Slå fra for at blokere denne opkalder.
+		[NAME] har sluttet sig til en stemme-chat med en konference chat.
+Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik på Blokér for at blokere personen.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
@@ -1129,12 +1342,12 @@ Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitati
 		</form>
 	</notification>
 	<notification name="InviteAdHoc">
-		[NAME] inviterer dig til en konference-chat.
-Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitationen. Klik Slå fra for at blokere denne opkalder.
+		[NAME] inviterer dig til en konference chat.
+Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik på Blokér for at blokere personen.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
-			<button name="Mute" text="Blokeret"/>
+			<button name="Mute" text="Blokér"/>
 		</form>
 	</notification>
 	<notification name="VoiceChannelFull">
@@ -1144,25 +1357,25 @@ Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitati
 		Vi beklager.  Dette område har nået sin maksimale kapacitet for stemme-chat.  Prøv venligst at benytte stemme i et andet område.
 	</notification>
 	<notification name="VoiceChannelDisconnected">
-		Du er blevet koblet af [VOICE_CHANNEL_NAME].  Du vil nu blive koblet op på en lokal stemme-chat.
+		Du er blevet koblet fra [VOICE_CHANNEL_NAME].  Du vil nu blive koblet til almindelig voice-chat.
 	</notification>
 	<notification name="VoiceChannelDisconnectedP2P">
-		[VOICE_CHANNEL_NAME] har afsluttet opkaldet.  Du vil nu blive koblet op på en lokal stemme-chat.
+		[VOICE_CHANNEL_NAME] har afsluttet samtalen.  Du vil nu blive koblet til almindelig voice-chat.
 	</notification>
 	<notification name="P2PCallDeclined">
-		[VOICE_CHANNEL_NAME] har afvist dit opkald.  Du vil nu blive koblet op på en lokal stemme-chat.
+		[VOICE_CHANNEL_NAME] har avist dit opkald.  Du vil nu blive koblet til almindelig voice-chat.
 	</notification>
 	<notification name="P2PCallNoAnswer">
-		[VOICE_CHANNEL_NAME] har ikke mulighed for at besvare dit opkald.  Du vil nu blive koblet op på en lokal chat.
+		[VOICE_CHANNEL_NAME] er ikke tilgængelig til at modtage dit opkald.  Du vil nu blive koblet til almindelig voice-chat.
 	</notification>
 	<notification name="VoiceChannelJoinFailed">
-		Det lykkedes ikke at koble op til [VOICE_CHANNEL_NAME]. Prøv venligst igen senere.
+		Det lykkedes ikke at forbinde til [VOICE_CHANNEL_NAME], prøv venligst igen senere.  Du vil nu blive koblet til almindelig voice-chat.
 	</notification>
 	<notification name="VoiceLoginRetry">
 		Vi laver en stemmekanal til dig. Det kan tage op til et minut.
 	</notification>
 	<notification name="Cannot enter parcel: not a group member">
-		Du kan ikke komme ind på området. Du er ikke medlem af den nødvendige gruppe.
+		Kun medlemmer af en bestemt gruppe kan besøge dette område.
 	</notification>
 	<notification name="Cannot enter parcel: banned">
 		Du kan ikke komme ind på området. Du er blevet udelukket.
@@ -1177,9 +1390,58 @@ Klik Acceptér for at slutte dig til samtalen eller Afvis for at afvise invitati
 		En fejl er opstået under forsøget på at koble sig på stemme chatten [VOICE_CHANNEL_NAME].  Pråv venligst senere.
 	</notification>
 	<notification name="ServerVersionChanged">
-		Det område, du er kommet ind på, kører en anden simulatorversion. Klik på denne besked for detaljer.
+		Du er netop ankommet til en region der benytter en anden server version, hvilket kan influere på hastigheden. [[URL] For at se yderligere.]
 	</notification>
-	<notification name="UnableToOpenCommandURL">
-		Www-adressen, du har klikket på, kan ikke åbnes fra denne internetbrowser.
+	<notification name="UnsupportedCommandSLURL">
+		Den SLurl du klikkede på understøttes ikke.
 	</notification>
+	<notification name="BlockedSLURL">
+		En SLurl blev modtaget en ikke sikret browser og den er blevet blokeret af sikkerhedsmæssige årsager.
+	</notification>
+	<notification name="ThrottledSLURL">
+		Flere SLurls blev modtaget fra en browser i et kort tidsrum.
+De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
+	</notification>
+	<notification name="IMToast">
+		[MESSAGE]
+		<form name="form">
+			<button name="respondbutton" text="Svar"/>
+		</form>
+	</notification>
+	<notification name="AttachmentSaved">
+		Vedhæng er blevet gemt.
+	</notification>
+	<notification name="UnableToFindHelpTopic">
+		Ikke muligt at finde hjælp om dette element.
+	</notification>
+	<notification name="ObjectMediaFailure">
+		Server fejl: Media opdatering eller &quot;get&quot; fejlede.
+&apos;[ERROR]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TextChatIsMutedByModerator">
+		Din tekst chat er blevet slukket af moderator.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="VoiceIsMutedByModerator">
+		Din stemme er blevet slukket af moderatoren.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearTeleportHistory">
+		Er du sikker på at du vil slette teleport historikken?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
+	</notification>
+	<notification name="BottomTrayButtonCanNotBeShown">
+		Den valgte knap kan ikke vises lige nu.
+Knappen vil blive vist når der er nok plads til den.
+	</notification>
+	<global name="UnsupportedGLRequirements">
+		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.
+
+Hvis du bliver ved med at have problemer, besøg venligst [SUPPORT_SITE].
+	</global>
+	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
+		Hvis du selv ejer land, kan du benytte det til hjemme lokation.
+Ellers kan du se på verdenskortet og finde steder markeret med &quot;Infohub&quot;.
+	</global>
 </notifications>

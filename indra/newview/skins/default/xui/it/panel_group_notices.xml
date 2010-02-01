@@ -1,58 +1,55 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notice" name="notices_tab">
-	<string name="help_text">
+	<panel.string name="help_text">
 		Le notice sono un modo veloce per comunicare in un gruppo diffondendo un messaggio e recapitando un eventuale oggetto allegato. Le notice arrivano solo ai membri del gruppo il cui ruolo è abilitato a riceverli.
 Puoi disattivare la ricezione delle notice nella finestra principale.
-	</string>
-	<string name="no_notices_text">
-		Non ci sono vecchie notice.
-	</string>
-	<button label="?" label_selected="?" name="help_button"/>
-	<text name="lbl">
-		Archivio delle notice del gruppo
-	</text>
+	</panel.string>
+	<panel.string name="no_notices_text">
+		Non ci sono vecchie Notice
+	</panel.string>
 	<text name="lbl2">
-		Le notice sono conservate per 14 giorni. Il numero delle notice è limitato a 200 notice per gruppo al giorno.
+		Le Notice sono conservate per 14 giorni.
+Massimo 200 per gruppo al giorno
 	</text>
 	<scroll_list name="notice_list">
-		<column label="Oggetto" name="subject"/>
-		<column label="Da" name="from"/>
-		<column label="Data" name="date"/>
+		<scroll_list.columns label="Oggetto" name="subject"/>
+		<scroll_list.columns label="Da" name="from"/>
+		<scroll_list.columns label="Data" name="date"/>
 	</scroll_list>
 	<text name="notice_list_none_found">
-		Nessuna notice trovata.
+		Nessuna trovata
 	</text>
-	<button label="Crea una nuova notice" label_selected="Crea una nuova notice" name="create_new_notice"/>
-	<button label="Aggiorna" label_selected="Aggiorna l&apos;elenco" name="refresh_notices"/>
+	<button label="Crea una nuova notice" label_selected="Crea una nuova notice" name="create_new_notice" tool_tip="Crea una nuova notice"/>
+	<button label="Aggiorna" label_selected="Aggiorna l&apos;elenco" name="refresh_notices" tool_tip="Aggiorna la lista delle notice"/>
 	<panel label="Crea una nuova notice" name="panel_create_new_notice">
 		<text name="lbl">
 			Crea una notice
 		</text>
-		<text name="lbl2">
-			Puoi aggiungere un solo allegato alla notice trascinandolo dal tuo inventario in questa finestra. L&apos;allegato deve essere copiabile e cedibile, e non puoi allegare una cartella.
-		</text>
-		<text name="lbl3" left="20">
+		<text left="20" name="lbl3">
 			Oggetto:
 		</text>
-		<line_editor name="create_subject" width="251" left_delta="61"/>
-		<text name="lbl4" left="15" width="60">
+		<line_editor left_delta="61" name="create_subject" width="251"/>
+		<text left="15" name="lbl4" width="60">
 			Messaggio:
 		</text>
-		<text_editor name="create_message" left_delta="66" width="330"/>
+		<text_editor left_delta="66" name="create_message" width="330"/>
 		<text name="lbl5" width="68">
 			Allega:
 		</text>
-		<line_editor name="create_inventory_name" width="190" left_delta="74"/>
-		<button label="Rimuovi allegato" label_selected="Rimuovi allegato" name="remove_attachment"/>
-		<button label="Invia" label_selected="Invia" name="send_notice"/>
-		<panel name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario sulla casella del messaggio per inviarlo con la notice. Devi avere il permesso di copia e trasferimento dell&apos;oggetto per poterlo inviare con la notice."/>
+		<line_editor left_delta="74" name="create_inventory_name" width="190"/>
+		<text name="string">
+			Trascina e rilascia qui l&apos;oggetto da allegare:
+		</text>
+		<button label="Rimuovi" label_selected="Rimuovi allegato" name="remove_attachment"/>
+		<button label="Spedisci" label_selected="Spedisci" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario nello spazio ALLEGA per spedirlo con la notice. Devi avere i permessi copy e transfer relativi all&apos;oggetto da allegare."/>
 	</panel>
 	<panel label="Vedi le notice precedenti" name="panel_view_past_notice">
 		<text name="lbl">
 			Notice archiviate
 		</text>
 		<text name="lbl2">
-			Per mandare una nuova notice, clicca &apos;Crea una nuova notice&apos; qui sopra.
+			Per spedire una nuova notice, clicca il bottone +
 		</text>
 		<text name="lbl3">
 			Oggetto:
@@ -60,6 +57,6 @@ Puoi disattivare la ricezione delle notice nella finestra principale.
 		<text name="lbl4">
 			Messaggio:
 		</text>
-		<button label="Apri l&apos;allegato" label_selected="Apri l&apos;allegato" name="open_attachment"/>
+		<button label="Apri allegato" label_selected="Apri l&apos;allegato" name="open_attachment"/>
 	</panel>
 </panel>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="media_settings" title="IMPOSTAZIONI MEDIA">
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Cancella" label_selected="Cancella" name="Cancel"/>
+	<button label="Applica" label_selected="Applica" name="Apply"/>
+</floater>

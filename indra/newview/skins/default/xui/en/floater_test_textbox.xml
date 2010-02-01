@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_textbox"
  help_topic="floater_test_textbox"
+ translate="false"
  width="800">
     <text
      type="string"

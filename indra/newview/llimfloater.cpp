@@ -604,9 +604,9 @@ void LLIMFloater::updateMessages()
 			chat.mTimeStr = time;
 
 			// process offer notification
-			if (msg.has("notifiaction_id"))
+			if (msg.has("notification_id"))
 			{
-				chat.mNotifId = msg["notifiaction_id"].asUUID();
+				chat.mNotifId = msg["notification_id"].asUUID();
 			}
 			//process text message
 			else

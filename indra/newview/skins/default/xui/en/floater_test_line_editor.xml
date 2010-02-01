@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_line_editor"
  help_topic="floater_test_line_editor"
+ translate="false"
  width="400">
   <line_editor
    height="20"

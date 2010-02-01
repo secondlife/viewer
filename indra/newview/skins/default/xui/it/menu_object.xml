@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Object Pie">
+	<menu_item_call label="Tocca" name="Object Touch"/>
+	<menu_item_call label="Modifica" name="Edit..."/>
+	<menu_item_call label="Costruisci" name="Build"/>
+	<menu_item_call label="Apri" name="Open"/>
+	<menu_item_call label="Siedi qui" name="Object Sit"/>
+	<menu_item_call label="Profilo oggetto" name="Object Inspect"/>
+	<context_menu label="Metti &gt;" name="Put On">
+		<menu_item_call label="Indossa" name="Wear"/>
+		<context_menu label="Attacca &gt;" name="Object Attach"/>
+		<context_menu label="Attacca HUD &gt;" name="Object Attach HUD"/>
+	</context_menu>
+	<context_menu label="Togli &gt;" name="Remove">
+		<menu_item_call label="Prendi" name="Pie Object Take"/>
+		<menu_item_call label="Denuncia abuso" name="Report Abuse..."/>
+		<menu_item_call label="Blocca" name="Object Mute"/>
+		<menu_item_call label="Restituisci" name="Return..."/>
+		<menu_item_call label="Cancella" name="Delete"/>
+	</context_menu>
+	<menu_item_call label="Prendi copia" name="Take Copy"/>
+	<menu_item_call label="Paga" name="Pay..."/>
+	<menu_item_call label="Compra" name="Buy..."/>
+</context_menu>

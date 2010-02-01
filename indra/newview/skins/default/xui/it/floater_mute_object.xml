@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="IGNORA L&apos;OGGETTO DAL NOME">
+<floater name="mute by name" title="BLOCCA OGGETTO PER NOME">
 	<text name="message">
-		Ignora per nome ha effetti sull&apos;oggetto in chat e IM, non
-nei suoni. Devi scrivere esattamente il nome dell&apos;oggetto.
+		Blocca un oggetto:
 	</text>
 	<line_editor name="object_name">
 		Nome dell&apos;oggetto
 	</line_editor>
+	<text name="note">
+		* Blocca solo il testo dell&apos;oggetto, non i suoni
+	</text>
 	<button label="OK" name="OK"/>
 	<button label="Annulla" name="Cancel"/>
 </floater>

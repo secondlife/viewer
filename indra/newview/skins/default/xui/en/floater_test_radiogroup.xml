@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_radiogroup"
  help_topic="floater_test_radiogroup"
+ translate="false"
  width="400">
     <radio_group
      height="54"

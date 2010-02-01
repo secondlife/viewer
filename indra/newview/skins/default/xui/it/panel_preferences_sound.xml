@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Audio &amp; Video" name="Preference Media panel">
-	<slider label="Master" name="System Volume"/>
+<panel label="Suoni" name="Preference Media panel">
+	<slider label="Principale" name="System Volume"/>
+	<check_box initial_value="true" label="Spegni suono se minimizzato" name="mute_when_minimized"/>
 	<slider label="Ambiente" name="Wind Volume"/>
-	<slider label="Suoni" name="SFX Volume"/>
-	<slider label="Media" name="Media Volume"/>
-	<slider label="Interfaccia utente" name="UI Volume"/>
+	<slider label="Pulsanti" name="UI Volume"/>
+	<slider label="MultiMedia" name="Media Volume"/>
+	<slider label="Effetto Suoni" name="SFX Volume"/>
 	<slider label="Musica" name="Music Volume"/>
+	<check_box label="Voce" name="enable_voice_check"/>
 	<slider label="Voice" name="Voice Volume"/>
-	<text_editor name="voice_unavailable">
-		Voice chat non disponibile
-	</text_editor>
-	<check_box label="Abilita voice chat" name="enable_voice_check"/>
+	<text name="Listen from">
+		Ascolta da:
+	</text>
 	<radio_group name="ear_location">
-		<radio_item name="0" label="Ascolta voice chat dalla posizione della telecamera" />
-		<radio_item name="1" label="Ascolta voice chat dalla posizione dell&apos;avatar" />
+		<radio_item label="Posizione della Camera" name="0"/>
+		<radio_item label="Posizione dell&apos;Avatar" name="1"/>
 	</radio_group>
-	<button label="Configurazione periferica" name="device_settings_btn" width="165"/>
-	<text name="muting_text">
-		Volume:
-	</text>
-	<text name="streaming_prefs_text" bottom="-195" >
-		Preferenze Streaming:
-	</text>
-	<text name="audio_prefs_text">
-		Preferenze Audio:
-	</text>
-	<panel label="Volume" name="Volume Panel"/>
-	<check_box label="Ascolta il canale della musica" name="streaming_music"/>
-	<check_box height="32" label="Guarda i video" name="streaming_video"/>
-	<check_box label="Attiva automaticamente i video" name="auto_streaming_video"/>
-	<check_box label="Muta l&apos;audio quando minimizzi la finestra" name="mute_when_minimized"/>
-	<slider label="Effetto Doppler" name="Doppler Effect" label_width="140" width="270" />
-	<slider label="Fattore di Distanza" name="Distance Factor" label_width="140" width="270"/>
-	<slider label="Fattore di Allontanamento" name="Rolloff Factor" label_width="140" width="270"/>
-	<spinner label="Suono di Avviso Transazioni &#8805; a L$" name="L$ Change Threshold" label_width="195" width="259"/>
-	<spinner label="Livello vitale dell&apos;avatar" name="Health Change Threshold" label_width="195" width="259"/>
+	<button label="Dispositivi di Input/Output" name="device_settings_btn" width="165"/>
+	<panel label="Impostazioni del dispositivo" name="device_settings_panel">
+		<panel.string name="default_text">
+			Predefinito
+		</panel.string>
+		<text name="Input">
+			Input
+		</text>
+		<text name="My volume label">
+			Mio volume:
+		</text>
+		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Cambia il volume utilizzando questa barra"/>
+		<text name="wait_text">
+			Attendi
+		</text>
+		<text name="Output">
+			Output
+		</text>
+	</panel>
 </panel>

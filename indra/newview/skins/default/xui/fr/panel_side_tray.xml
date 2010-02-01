@@ -2,8 +2,12 @@
 <!-- Side tray cannot show background because it is always
 	partially on screen to hold tab buttons. -->
 <side_tray name="sidebar">
+	<sidetray_tab description="Activer/désactiver le panneau latéral." name="sidebar_openclose"/>
 	<sidetray_tab description="Domicile." name="sidebar_home">
 		<panel label="domicile" name="panel_home"/>
+	</sidetray_tab>
+	<sidetray_tab description="Modifiez votre profil public et vos Favoris." name="sidebar_me">
+		<panel label="Moi" name="panel_me"/>
 	</sidetray_tab>
 	<sidetray_tab description="Trouvez vos amis, vos contacts et les personnes se trouvant près de vous." name="sidebar_people">
 		<panel_container name="panel_container">
@@ -14,13 +18,10 @@
 	<sidetray_tab description="Trouvez de nouveaux lieux à découvrir et les lieux que vous connaissez déjà." label="Lieux" name="sidebar_places">
 		<panel label="Lieux" name="panel_places"/>
 	</sidetray_tab>
-	<sidetray_tab description="Modifiez votre profil public et vos Favoris." name="sidebar_me">
-		<panel label="Moi" name="panel_me"/>
+	<sidetray_tab description="Parcourez votre inventaire." name="sidebar_inventory">
+		<panel label="Modifier l&apos;inventaire" name="sidepanel_inventory"/>
 	</sidetray_tab>
 	<sidetray_tab description="Modifiez votre apparence actuelle." name="sidebar_appearance">
 		<panel label="Changer d&apos;apparence" name="sidepanel_appearance"/>
-	</sidetray_tab>
-	<sidetray_tab description="Parcourez votre inventaire." name="sidebar_inventory">
-		<panel label="Modifier l&apos;inventaire" name="sidepanel_inventory"/>
 	</sidetray_tab>
 </side_tray>

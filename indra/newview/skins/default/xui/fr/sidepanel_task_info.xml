@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="object properties" title="Propriétés de l&apos;objet">
+<panel name="object properties" title="Profil de l&apos;objet">
 	<panel.string name="text deed continued">
 		Céder
 	</panel.string>
@@ -36,6 +36,8 @@
 	<panel.string name="Sale Mixed">
 		Vente mixte
 	</panel.string>
+	<text name="title" value="Profil de l&apos;objet"/>
+	<text name="where" value="(dans le monde virtuel)"/>
 	<panel label="">
 		<text name="Name:">
 			Nom :
@@ -43,11 +45,11 @@
 		<text name="Description:">
 			Description :
 		</text>
-		<text name="Creator:">
+		<text name="CreatorNameLabel">
 			Créateur :
 		</text>
 		<text name="Creator Name">
-			Esbee Linden
+			Erica Linden
 		</text>
 		<text name="Owner:">
 			Propriétaire :
@@ -55,13 +57,12 @@
 		<text name="Owner Name">
 			Erica Linden
 		</text>
-		<text name="Group:">
+		<text name="Group_label">
 			Groupe :
 		</text>
 		<button name="button set group" tool_tip="Choisissez un groupe pour partager les permissions de cet objet"/>
 		<name_box initial_value="Chargement..." name="Group Name Proxy"/>
 		<button label="Céder" label_selected="Céder" name="button deed" tool_tip="En cédant un objet, vous donnez aussi les permissions au prochain propriétaire. Seul un officier peut céder les objets d&apos;un groupe."/>
-		<check_box label="Partager" name="checkbox share with group" tool_tip="Autorisez tous les membres du groupe choisi à utiliser et à partager vos droits pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Transférer."/>
 		<text name="label click action">
 			Cliquer pour :
 		</text>
@@ -72,7 +73,27 @@
 			<combo_box.item label="Payer l&apos;objet" name="Payobject"/>
 			<combo_box.item label="Ouvrir" name="Open"/>
 		</combo_box>
-		<check_box label="À vendre :" name="checkbox for sale"/>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Vous pouvez modifier cet objet
+			</text>
+			<text name="Anyone can:">
+				N&apos;importe qui :
+			</text>
+			<check_box label="Copier" name="checkbox allow everyone copy"/>
+			<check_box label="Bouger" name="checkbox allow everyone move"/>
+			<text name="GroupLabel">
+				Groupe :
+			</text>
+			<check_box label="Partager" name="checkbox share with group" tool_tip="Autorisez tous les membres du groupe choisi à utiliser et à partager vos droits pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Transférer."/>
+			<text name="NextOwnerLabel">
+				Le prochain propriétaire :
+			</text>
+			<check_box label="Modifier" name="checkbox next owner can modify"/>
+			<check_box label="Copier" name="checkbox next owner can copy"/>
+			<check_box label="Transférer" name="checkbox next owner can transfer" tool_tip="Le prochain propriétaire peut donner ou revendre cet objet"/>
+		</panel>
+		<check_box label="À vendre" name="checkbox for sale"/>
 		<combo_box name="sale type">
 			<combo_box.item label="Copier" name="Copy"/>
 			<combo_box.item label="Contenus" name="Contents"/>
@@ -80,47 +101,28 @@
 		</combo_box>
 		<spinner label="Prix : L$" name="Edit Cost"/>
 		<check_box label="Afficher dans les résultats de recherche" name="search_check" tool_tip="Permettre aux autres résidents de voir cet objet dans les résultats de recherche"/>
-		<panel name="perms_build">
-			<text name="perm_modify">
-				Vous pouvez modifier cet objet
-			</text>
-			<text name="Anyone can:">
-				N&apos;importe qui :
-			</text>
-			<check_box label="Bouger" name="checkbox allow everyone move"/>
-			<check_box label="Copier" name="checkbox allow everyone copy"/>
-			<text name="Next owner can:">
-				Le prochain propriétaire :
-			</text>
-			<check_box label="Modifier" name="checkbox next owner can modify"/>
-			<check_box label="Copier" name="checkbox next owner can copy"/>
-			<check_box label="Transférer" name="checkbox next owner can transfer" tool_tip="Le prochain propriétaire peut donner ou revendre cet objet"/>
-			<text name="B:">
-				B :
-			</text>
-			<text name="O:">
-				O :
-			</text>
-			<text name="G:">
-				G :
-			</text>
-			<text name="E:">
-				E :
-			</text>
-			<text name="N:">
-				N :
-			</text>
-			<text name="F:">
-				F :
-			</text>
-		</panel>
+		<text name="B:">
+			B :
+		</text>
+		<text name="O:">
+			O :
+		</text>
+		<text name="G:">
+			G :
+		</text>
+		<text name="E:">
+			E :
+		</text>
+		<text name="N:">
+			N :
+		</text>
+		<text name="F:">
+			F :
+		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="Éditer" name="edit_btn"/>
 		<button label="Ouvrir" name="open_btn"/>
 		<button label="Payer" name="pay_btn"/>
 		<button label="Acheter" name="buy_btn"/>
-		<button label="Annuler" name="cancel_btn"/>
-		<button label="Enregistrer" name="save_btn"/>
 	</panel>
 </panel>
