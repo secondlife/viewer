@@ -10709,7 +10709,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <real>150000.0</real>
+      <string />
     </map>
     <key>YawFromMousePosition</key>
     <map>

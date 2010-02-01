@@ -1,30 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Input &amp; kamera" name="Input panel">
-	<text name=" Mouselook Options:">
-		Førstepersons valg:
+<panel label="Input og kamera" name="Input panel">
+	<button label="Andre enheder" name="joystick_setup_button"/>
+	<text name="Mouselook:">
+		Første person:
 	</text>
-	<text name=" Mouse Sensitivity:">
-		Mus følsomhed:
+	<text name=" Mouse Sensitivity">
+		Mus - følsomhed
 	</text>
-	<check_box label="Omvendt mus" name="invert_mouse"/>
-	<text name=" Auto Fly Options:">
-		Auto flyv valg:
+	<check_box label="Omvendt" name="invert_mouse"/>
+	<text name="Network:">
+		Netværk:
 	</text>
-	<check_box label="Flyv/Land ved at holde Page Up/Down nede" name="automatic_fly"/>
-	<text name=" Camera Options:">
-		Kamera valg:
+	<text name="Maximum bandwidth">
+		Maksimum båndbredde
 	</text>
-	<text name="camera_fov_label">
-		Camera synsvinkel:
+	<text name="text_box2">
+		kbps
 	</text>
-	<text name="Camera Follow Distance:">
-		Kamera følge-afstand:
+	<check_box label="Speciel port" name="connection_port_enabled"/>
+	<spinner label="Port nummer:" name="web_proxy_port"/>
+	<text name="cache_size_label_l">
+		Cache størrelse
 	</text>
-	<check_box label="Fokusér kamera automatisk ved redigering" name="edit_camera_movement" tool_tip="Fokusér kamera automatisk når du går ind og ud af redigering."/>
-	<check_box label="Fokusér kamera automatisk ved udseende" name="appearance_camera_movement" tool_tip="Lad kameraet automatisk placere sig når du er i redigering"/>
-	<text name="text2">
-		Avatar skærm funktioner:
+	<text name="text_box5">
+		MB
 	</text>
-	<check_box label="Vis avatar i førsteperson" name="first_person_avatar_visible"/>
-	<button label="Joystick opsætning" name="joystick_setup_button"/>
+	<button label="Vælg" label_selected="Vælg" name="set_cache"/>
+	<button label="Nulstil" label_selected="Gem" name="reset_cache"/>
+	<text name="Cache location">
+		Cache lokation
+	</text>
+	<text name="Web:">
+		Web:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Benyt den indbyggede browser" name="internal" tool_tip="Brug den indbyggede web browser til hjælp, web links m.v. Denne browser åbner et nyt vindue i [APP_NAME]."/>
+		<radio_item label="Brug min normale browser (IE, Firefox)" name="external" tool_tip="Brug systemets standard web browser til hjælp, web links, m.v. Ikke anbefalet hvis du kører i fuld-skærm."/>
+	</radio_group>
+	<check_box initial_value="false" label="Web proxy" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="Angiv navn eller IP addresse på den proxy du ønsker at anvende"/>
+	<button label="Vælg" label_selected="Vælg" name="set_proxy"/>
+	<text name="Proxy location">
+		Proxy placering
+	</text>
 </panel>

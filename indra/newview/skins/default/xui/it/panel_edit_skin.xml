@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_skin_panel">
+	<panel name="avatar_skin_color_panel">
+		<texture_picker label="Tatuaggi Testa" name="Head Tattoos" tool_tip="Clicca per scegliere un&apos;immagine"/>
+		<texture_picker label="Tatuaggi superiori" name="Upper Tattoos" tool_tip="Clicca per scegliere un&apos;immagine"/>
+		<texture_picker label="Tatuaggi inferiori" name="Lower Tattoos" tool_tip="Clicca per scegliere un&apos;immagine"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="skin_color_tab" title="Colore della pelle"/>
+		<accordion_tab name="skin_face_tab" title="Dettagli del Viso"/>
+		<accordion_tab name="skin_makeup_tab" title="Trucco"/>
+		<accordion_tab name="skin_body_tab" title="Dettagli del Corpo"/>
+	</accordion>
+</panel>

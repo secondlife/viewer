@@ -12,8 +12,7 @@
 			<line_editor left="85" name="region name" width="198"/>
 			<check_box label="Initiation" name="check prelude" tool_tip="Définir cette région comme zone d&apos;initiation."/>
 			<check_box label="Soleil fixe" name="check fixed sun" tool_tip="Définir la position du soleil (comme dans Région et Domaine &gt; Terrain.)"/>
-			<check_box height="32" label="Réinitialiser le domicile 
-à la téléportation" name="check reset home" tool_tip="Lorsqu&apos;un résident se téléporte à l&apos;extérieur, réinitialise son domicile à la position de sa destination."/>
+			<check_box height="32" label="Réinitialiser le domicile  à la téléportation" name="check reset home" tool_tip="Quand les résidents s&apos;en vont par téléportation, réinitialisez leur domicile sur l&apos;emplacement de destination."/>
 			<check_box bottom_delta="-32" label="Visible" name="check visible" tool_tip="Cochez pour rendre la région visible aux non-admins."/>
 			<check_box label="Dégâts" name="check damage" tool_tip="Cochez pour activer les dégâts dans cette région."/>
 			<check_box label="Bloquer le suivi de trafic" name="block dwell" tool_tip="Cochez pour que la région ne comptabilise pas le trafic."/>
@@ -62,12 +61,9 @@
 			<text left_delta="75" name="region name">
 				Welsh
 			</text>
-			<check_box label="Désactiver les 
-scripts" name="disable scripts" tool_tip="Cochez pour désactiver tous les scripts dans cette région"/>
-			<check_box label="Désactiver les 
-collisions" name="disable collisions" tool_tip="Cochez pour désactiver les collisions entre non-avatars dans cette région"/>
-			<check_box label="Désactiver la 
-physique" name="disable physics" tool_tip="Cochez pour désactiver tous les effets liés à la physique dans cette région"/>
+			<check_box label="Désactiver les  scripts" name="disable scripts" tool_tip="Cochez pour désactiver tous les scripts dans cette région"/>
+			<check_box label="Désactiver les  collisions" name="disable collisions" tool_tip="Cochez pour désactiver les collisions entre non-avatars dans cette région"/>
+			<check_box label="Désactiver la  physique" name="disable physics" tool_tip="Cochez pour désactiver tous les effets liés à la physique dans cette région"/>
 			<button bottom="-85" label="Appliquer" label_selected="Appliquer" name="Apply" tool_tip="Cliquez ici pour appliquer les modifications effectuées ci-dessus."/>
 			<button label="Définir la cible" label_selected="Définir la cible" name="Set Target" tool_tip="Définir l&apos;avatar cible pour la suppression de l&apos;objet."/>
 			<text name="target_avatar_name">

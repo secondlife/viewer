@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_button"
  help_topic="floater_test_button"
+ translate="false"
  width="500">
     <button
      height="23"

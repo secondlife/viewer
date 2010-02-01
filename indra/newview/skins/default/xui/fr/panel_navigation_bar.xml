@@ -9,4 +9,7 @@
 			<combo_editor label="Rechercher dans [SECOND_LIFE]" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
+	<favorites_bar name="favorite">
+		<chevron_button name="&gt;&gt;" tool_tip="Afficher d&apos;avantage de Favoris"/>
+	</favorites_bar>
 </panel>

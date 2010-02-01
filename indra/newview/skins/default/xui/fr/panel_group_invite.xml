@@ -7,12 +7,10 @@
 		(en cours de chargement...)
 	</panel.string>
 	<panel.string name="already_in_group">
-		Certains des avatars font déjà partie du groupe et n&apos;ont pas été invités.
+		Certains résidents que vous avez choisis font déjà partie du groupe et l&apos;invitation ne leur a donc pas été envoyée.
 	</panel.string>
 	<text name="help_text">
-		Vous pouvez inviter plusieurs résidents
-à la fois. Cliquez d&apos;abord sur
-Choisir un résident.
+		Vous pouvez inviter plusieurs résidents à la fois. Cliquez d&apos;abord sur Choisir un résident.
 	</text>
 	<button label="Choisir un résident" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Pour sélectionner plusieurs résidents, maintenez la touche Ctrl enfoncée et cliquez sur leurs noms"/>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="Stå op" name="stand_up"/>
+	<menu_item_call label="Udseende" name="my_appearance"/>
+	<menu_item_call label="Profil" name="my_profile"/>
+	<menu_item_call label="Venner" name="my_friends"/>
+	<menu_item_call label="Grupper" name="my_groups"/>
+</menu>

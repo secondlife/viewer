@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MÉMOIRE DE LA RÉGION" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Mémoire des scripts de parcelles
+	</text>
+	<text name="parcels_listed">
+		Parcelles possédées :
+	</text>
+	<text name="memory_used">
+		Mémoire utilisée :
+	</text>
+	<text name="loading_text">
+		Chargement...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Taille (Ko)" name="size"/>
+		<scroll_list.columns label="Nom de l&apos;objet" name="name"/>
+		<scroll_list.columns label="Propriétaire d&apos;objet" name="owner"/>
+		<scroll_list.columns label="Parcelle/emplacement" name="location"/>
+	</scroll_list>
+	<button label="Rafraîchir la liste" name="refresh_list_btn"/>
+	<button label="Surbrillance" name="highlight_btn"/>
+	<button label="Retour" name="return_btn"/>
+</panel>

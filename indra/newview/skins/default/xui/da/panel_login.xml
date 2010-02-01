@@ -6,33 +6,29 @@
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</panel.string>
-	<panel name="login_widgets">
-		<text name="first_name_text">
-			Fornavn:
-		</text>
-		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] Fornavn"/>
-		<text name="last_name_text">
-			Efternavn:
-		</text>
-		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] Efternavn"/>
-		<text name="password_text">
-			Password:
-		</text>
-		<button label="Log Ind" label_selected="Log Ind" name="connect_btn"/>
-		<text name="start_location_text">
-			Start lokation:
-		</text>
-		<combo_box name="start_location_combo">
-			<combo_box.item label="Min sidste lokation" name="MyLastLocation"/>
-			<combo_box.item label="Hjem" name="MyHome"/>
-			<combo_box.item label="&lt;Skriv navn på region&gt;" name="Typeregionname"/>
-		</combo_box>
-		<check_box label="Husk password" name="remember_check"/>
-		<text name="create_new_account_text">
-			Opret bruger
-		</text>
-		<text name="forgot_password_text">
-			Glemt navn eller password?
-		</text>
-	</panel>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="first_name_text">
+				Fornavn:
+			</text>
+			<line_editor label="Fornavn" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
+			<line_editor label="Efternavn" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
+			<check_box label="Husk" name="remember_check"/>
+			<text name="start_location_text">
+				Start ved:
+			</text>
+			<combo_box name="start_location_combo">
+				<combo_box.item label="Hjem" name="MyHome"/>
+			</combo_box>
+			<button label="Log på" name="connect_btn"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				Opret bruger
+			</text>
+			<text name="login_help">
+				Hjælp til login
+			</text>
+		</layout_panel>
+	</layout_stack>
 </panel>

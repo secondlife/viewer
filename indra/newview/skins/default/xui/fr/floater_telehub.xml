@@ -21,11 +21,9 @@ le téléhub.
 	<button label="Ajouter point" name="add_spawn_point_btn"/>
 	<button label="Supprimer point" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
-		Sélectionnez l&apos;objet et cliquez sur Ajouter pour
-indiquer la position. Vous pourrez ensuite
-déplacer ou supprimer l&apos;objet.
+		Sélectionnez l&apos;objet et cliquez sur Ajouter pour indiquer la position.
+Vous pourrez ensuite déplacer ou supprimer l&apos;objet.
 Les positions sont relatives au centre du téléhub.
-Sélectionnez l&apos;élément dans la liste pour afficher
-sa position dans le Monde.
+Sélectionnez un objet dans la liste pour le mettre en surbrillance dans le monde virtuel.
 	</text>
 </floater>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_classified_info">
 	<panel.string name="type_mature">
-		Mature
+		Modéré
 	</panel.string>
 	<panel.string name="type_pg">
-		Contenu PG
+		Contenu Général
 	</panel.string>
 	<text name="title" value="Infos sur la petite annonce"/>
 	<scroll_container name="profile_scroll">

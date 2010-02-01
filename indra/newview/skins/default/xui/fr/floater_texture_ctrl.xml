@@ -17,7 +17,7 @@
 	<check_box label="Appliquer maintenant" name="apply_immediate_check"/>
 	<button bottom="-240" label="" label_selected="" name="Pipette"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
-	<button label="Ok" label_selected="Ok" name="Select"/>
+	<button label="OK" label_selected="OK" name="Select"/>
 	<string name="pick title">
 		Choisir :
 	</string>

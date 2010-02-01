@@ -3439,12 +3439,17 @@ void LLVoiceClient::sendPositionalUpdate(void)
 						<< "<Volume>" << volume << "</Volume>"
 						<< "</Request>\n\n\n";
 
-					// Send a "mute for me" command for the user
-					stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetParticipantMuteForMe.1\">"
-						<< "<SessionHandle>" << getAudioSessionHandle() << "</SessionHandle>"
-						<< "<ParticipantURI>" << p->mURI << "</ParticipantURI>"
-						<< "<Mute>" << (mute?"1":"0") << "</Mute>"
-						<< "</Request>\n\n\n";
+					if(!mAudioSession->mIsP2P)
+					{
+						// Send a "mute for me" command for the user
+						// Doesn't work in P2P sessions
+						stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetParticipantMuteForMe.1\">"
+							<< "<SessionHandle>" << getAudioSessionHandle() << "</SessionHandle>"
+							<< "<ParticipantURI>" << p->mURI << "</ParticipantURI>"
+							<< "<Mute>" << (mute?"1":"0") << "</Mute>"
+							<< "<Scope>Audio</Scope>"
+							<< "</Request>\n\n\n";
+					}
 				}
 				
 				p->mVolumeDirty = false;

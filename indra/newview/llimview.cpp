@@ -1733,6 +1733,9 @@ void LLIncomingCallDialog::onLifetimeExpired()
 	{
 		// close invitation if call is already not valid
 		mLifetimeTimer.stop();
+		LLUUID session_id = mPayload["session_id"].asUUID();
+		gIMMgr->clearPendingAgentListUpdates(session_id);
+		gIMMgr->clearPendingInvitation(session_id);
 		closeFloater();
 	}
 }

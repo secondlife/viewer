@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
+<floater name="whitelist_entry" title="ENTRÉE DE LA LISTE BLANCHE">
 	<text name="media_label">
 		Saisissez une URL ou un style d&apos;URL à ajouter à la liste des domaines autorisés
 	</text>

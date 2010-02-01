@@ -12,10 +12,10 @@ top="600"
        http://join.secondlife.com/
 </panel.string>
 <panel.string
-     name="real_url">
+     name="real_url" translate="false">
        http://secondlife.com/app/login/
 </panel.string>
-    <string name="reg_in_client_url">
+    <string name="reg_in_client_url" translate="false">
      http://secondlife.eniac15.lindenlab.com/reg-in-client/
 </string>
 <panel.string

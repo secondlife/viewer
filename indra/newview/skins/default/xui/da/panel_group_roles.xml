@@ -17,7 +17,7 @@ klik på deres navne.
 			<name_list name="member_list">
 				<name_list.columns label="Medlemsnavn" name="name"/>
 				<name_list.columns label="Doneret leje" name="donated"/>
-				<name_list.columns label="Sidst på den" name="online"/>
+				<name_list.columns label="Status" name="online"/>
 			</name_list>
 			<button label="Invitér nyt medlem" name="member_invite"/>
 			<button label="Udmeld" name="member_eject"/>
@@ -30,7 +30,7 @@ en eller flere roller. En gruppe kan have op til 10 roller,
 inkluderet alle- og ejerroller.
 			</panel.string>
 			<panel.string name="cant_delete_role">
-				&apos;Alle-&apos; og &apos;Ejerroller&apos; er specielle og kan ikke slettes.
+				Rollerne &apos;Everyone&apos; og &apos;Owners&apos; er specielle og kan ikke slettes
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -39,7 +39,7 @@ inkluderet alle- og ejerroller.
 			<scroll_list name="role_list">
 				<scroll_list.columns label="Rollenavn" name="name"/>
 				<scroll_list.columns label="Titel" name="title"/>
-				<scroll_list.columns label="Medlemmer" name="members"/>
+				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="Opret ny rolle" name="role_create"/>
 			<button label="Slet rolle" name="role_delete"/>
@@ -58,7 +58,7 @@ ting i denne gruppe. Der er en bred vifte af rettigheder.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Tildelte roller
+			Medlemmer
 		</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>
@@ -74,13 +74,13 @@ ting i denne gruppe. Der er en bred vifte af rettigheder.
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			Navn
+			Rolle navn
 		</text>
 		<line_editor name="role_name">
 			Ansatte
 		</line_editor>
 		<text name="static3">
-			Titel
+			Rolle titel
 		</text>
 		<line_editor name="role_title">
 			(venter)
@@ -94,7 +94,7 @@ ting i denne gruppe. Der er en bred vifte af rettigheder.
 		<text name="static4">
 			Tildelte roller
 		</text>
-		<check_box label="Medlemmer er synlige" name="role_visible_in_list" tool_tip="Angiver om medlemmer med denne rolle er synlige i fanen &apos;Generelt&apos; for avatarer uden for gruppen."/>
+		<check_box label="Vis medlemmer for andre" name="role_visible_in_list" tool_tip="Angiver om medlemmer med denne rolle er synlige i fanen &apos;Generelt&apos; for avatarer uden for gruppen."/>
 		<text name="static5" tool_tip="A list of Abilities the currently selected role can perform.">
 			Tilladte rettigheder
 		</text>
