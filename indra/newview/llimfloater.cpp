@@ -585,6 +585,9 @@ void LLIMFloater::updateMessages()
 	{
 //		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
+		LLSD chat_args;
+		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
 		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
@@ -614,7 +617,7 @@ void LLIMFloater::updateMessages()
 				chat.mText = message;
 			}
 			
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
+			mChatHistory->appendMessage(chat, chat_args);
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 	}
