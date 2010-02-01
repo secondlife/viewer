@@ -59,11 +59,12 @@ public:
 	void setColor(const LLColor4 &color) { mColor = color; }
 
 	const LLColor4& getReadOnlyColor() const { return mReadOnlyColor; }
+	void setReadOnlyColor(const LLColor4& color) { mReadOnlyColor = color; }
 
 	BOOL isVisible() const;
 	void setVisible(BOOL is_visible);
 
-	LLFontGL::ShadowType getShadowType() { return mDropShadow; }
+	LLFontGL::ShadowType getShadowType() const { return mDropShadow; }
 
 	void setFont(const LLFontGL* font);
 	const LLFontGL* getFont() const;
@@ -116,5 +117,6 @@ private:
 };
 
 typedef LLPointer<LLStyle> LLStyleSP;
+typedef LLPointer<const LLStyle> LLStyleConstSP;
 
 #endif  // LL_LLSTYLE_H

@@ -236,9 +236,10 @@
      disabled_control="CmdLineDisableVoice"
      label="Enable voice"
      layout="topleft"
-     left="28"
+     font.style="BOLD"
+     left="101"
      name="enable_voice_check"
-     top_pad="5"
+     top_pad="13"
      width="110"
      >
     </check_box>
@@ -365,7 +366,7 @@
      name="device_settings_panel"
      class="panel_voice_device_settings"
      width="501"
-     top="285">
+     top="280">
       <panel.string
         name="default_text">
         Default

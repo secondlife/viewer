@@ -35,6 +35,17 @@
 
 #include "llerror.h"
 
+LLRefCount::LLRefCount(const LLRefCount& other)
+:	mRef(0)
+{
+}
+
+LLRefCount& LLRefCount::operator=(const LLRefCount&)
+{
+	// do nothing, since ref count is specific to *this* reference
+	return *this;
+}
+
 LLRefCount::LLRefCount() :
 	mRef(0)
 {
