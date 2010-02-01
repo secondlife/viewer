@@ -171,26 +171,28 @@ public:
 	// Can this agent build on the parcel he is on?
 	// Used for parcel property icons in nav bar.
 	bool	allowAgentBuild() const;
+	bool	allowAgentBuild(const LLParcel* parcel) const;
 	
 	// Can this agent speak on the parcel he is on?
 	// Used for parcel property icons in nav bar.
 	bool	allowAgentVoice() const;
-	
+	bool	allowAgentVoice(const LLViewerRegion* region, const LLParcel* parcel) const;
+
 	// Can this agent start flying on this parcel?
 	// Used for parcel property icons in nav bar.
-	bool	allowAgentFly() const;
+	bool	allowAgentFly(const LLViewerRegion* region, const LLParcel* parcel) const;
 	
 	// Can this agent be pushed by llPushObject() on this parcel?
 	// Used for parcel property icons in nav bar.
-	bool	allowAgentPush() const;
+	bool	allowAgentPush(const LLViewerRegion* region, const LLParcel* parcel) const;
 	
 	// Can scripts written by non-parcel-owners run on the agent's current
 	// parcel?  Used for parcel property icons in nav bar.
-	bool	allowAgentScripts() const;
+	bool	allowAgentScripts(const LLViewerRegion* region, const LLParcel* parcel) const;
 	
 	// Can the agent be damaged here?
 	// Used for parcel property icons in nav bar.
-	bool	allowAgentDamage() const;
+	bool	allowAgentDamage(const LLViewerRegion* region, const LLParcel* parcel) const;
 
 	F32		getHoverParcelWidth() const		
 				{ return F32(mHoverEastNorth.mdV[VX] - mHoverWestSouth.mdV[VX]); }
