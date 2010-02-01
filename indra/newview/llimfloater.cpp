@@ -510,6 +510,20 @@ void LLIMFloater::setVisible(BOOL visible)
 	}
 }
 
+BOOL LLIMFloater::getVisible()
+{
+	if(isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
+		// Tabbed IM window is "visible" when we minimize it.
+		return !im_container->isMinimized() && im_container->getVisible();
+	}
+	else
+	{
+		return LLTransientDockableFloater::getVisible();
+	}
+}
+
 //static
 bool LLIMFloater::toggle(const LLUUID& session_id)
 {
