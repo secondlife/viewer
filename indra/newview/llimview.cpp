@@ -1467,6 +1467,7 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 	  mPayload(payload),
 	  mLifetime(DEFAULT_LIFETIME)
 {
+	setAutoFocus(FALSE);
 }
 
 void LLCallDialog::getAllowedRect(LLRect& rect)
@@ -1794,7 +1795,7 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetAction("Accept", onAccept, this);
 	childSetAction("Reject", onReject, this);
 	childSetAction("Start IM", onStartIM, this);
-	childSetFocus("Accept");
+	setDefaultBtn("Accept");
 
 	std::string notify_box_type = mPayload["notify_box_type"].asString();
 	if(notify_box_type != "VoiceInviteGroup" && notify_box_type != "VoiceInviteAdHoc")
@@ -2424,7 +2425,7 @@ void LLIMMgr::inviteToSession(
 		}
 		else
 		{
-			LLFloaterReg::showInstance("incoming_call", payload, TRUE);
+			LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 		}
 		mPendingInvitations[session_id.asString()] = LLSD();
 	}
@@ -2437,7 +2438,7 @@ void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::stri
 
 	std::string notify_box_type = payload["notify_box_type"].asString();
 
-	LLFloaterReg::showInstance("incoming_call", payload, TRUE);
+	LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 }
 
 //*TODO disconnects all sessions
