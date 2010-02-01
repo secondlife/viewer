@@ -4555,7 +4555,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
 			glLightf (gllight, GL_LINEAR_ATTENUATION,     linatten);
 			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  0.0f);
-			if (light->getLightTexture()) // directional (spot-)light
+			if (light->isLightSpotlight()) // directional (spot-)light
 			{
 				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
@@ -6647,7 +6647,7 @@ void LLPipeline::renderDeferredLighting()
 					{ //draw box if camera is outside box
 						if (render_local)
 						{
-							if (volume->getLightTexture())
+							if (volume->isLightSpotlight())
 							{
 								drawablep->getVOVolume()->updateSpotLightPriority();
 								spot_lights.push_back(drawablep);
@@ -6664,7 +6664,7 @@ void LLPipeline::renderDeferredLighting()
 					}
 					else if (render_fullscreen)
 					{	
-						if (volume->getLightTexture())
+						if (volume->isLightSpotlight())
 						{
 							drawablep->getVOVolume()->updateSpotLightPriority();
 							fullscreen_spot_lights.push_back(drawablep);
