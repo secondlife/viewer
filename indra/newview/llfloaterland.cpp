@@ -427,8 +427,17 @@ BOOL LLPanelLandGeneral::postBuild()
 	mBtnBuyLand = getChild<LLButton>("Buy Land...");
 	mBtnBuyLand->setClickedCallback(onClickBuyLand, (void*)&BUY_PERSONAL_LAND);
 	
-	mBtnScriptLimits = getChild<LLButton>("Scripts...");
-	mBtnScriptLimits->setClickedCallback(onClickScriptLimits, this);
+	std::string url = gAgent.getRegion()->getCapability("LandResources");
+	if (!url.empty())
+	{
+		mBtnScriptLimits = getChild<LLButton>("Scripts...");
+		mBtnScriptLimits->setClickedCallback(onClickScriptLimits, this);
+	}
+	else
+	{
+		mBtnScriptLimits = getChild<LLButton>("Scripts...");
+		mBtnScriptLimits->setVisible(false);
+	}
 	
 	mBtnBuyGroupLand = getChild<LLButton>("Buy For Group...");
 	mBtnBuyGroupLand->setClickedCallback(onClickBuyLand, (void*)&BUY_GROUP_LAND);
