@@ -157,14 +157,9 @@ namespace
 
 namespace tut
 {
-    bool llsd_equals(const LLSD& a, const LLSD& b) {
-        // cheesy, brute force, but it works
-        return std::string(ll_pretty_print_sd(a)) == std::string(ll_pretty_print_sd(b));
-    }
-
     void ensure_llsd_equals(const std::string& msg, const LLSD& expected, const LLSD& actual)
     {
-        if (!tut::llsd_equals(expected, actual))
+        if (!llsd_equals(expected, actual))
         {
             std::string message = msg;
             message += ": actual: ";
