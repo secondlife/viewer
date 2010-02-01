@@ -33,6 +33,7 @@
 
 #ifndef LLPROCESSOR_H
 #define LLPROCESSOR_H
+class LLProcessorInfoImpl;
 
 class LLProcessorInfo
 {
@@ -47,6 +48,8 @@ public:
 	std::string getCPUFamilyName() const;
 	std::string getCPUBrandName() const;
 	std::string getCPUFeatureDescription() const;
+private:
+	LLProcessorInfoImpl* mImpl;
 };
 
 # if 0

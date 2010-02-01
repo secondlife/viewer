@@ -324,10 +324,6 @@ const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 
 static std::string gWindowTitle;
 
-std::string gLoginPage;
-std::vector<std::string> gLoginURIs;
-static std::string gHelperURI;
-
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 
 void idle_afk_check()
