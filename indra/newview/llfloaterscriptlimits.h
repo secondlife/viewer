@@ -54,12 +54,12 @@ public:
 
 	// from LLPanel
 	virtual void refresh();
-	
+
 private:
-	
+
 	LLFloaterScriptLimits(const LLSD& seed);
 	~LLFloaterScriptLimits();
-	
+
 protected:
 
 	LLTabContainer* mTab;
@@ -167,13 +167,17 @@ public:
 
 private:
 
+	void onNameCache(	 const LLUUID& id,
+						 const std::string& first_name,
+						 const std::string& last_name);
+
 	LLUUID mParcelId;
 	BOOL mGotParcelMemoryUsed;
 	BOOL mGotParcelMemoryMax;
 	S32 mParcelMemoryMax;
 	S32 mParcelMemoryUsed;
 	
-	std::vector<LLUUID> mObjectListIDs;
+	std::vector<LLSD> mObjectListItems;
 		
 protected:
 
@@ -218,7 +222,7 @@ private:
 	S32 mParcelURLsMax;
 	S32 mParcelURLsUsed;
 	
-	std::vector<LLUUID> mObjectListIDs;
+	std::vector<LLSD> mObjectListItems;
 		
 protected:
 	

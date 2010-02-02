@@ -64,7 +64,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h" //for particle system banning
 #include "llchat.h"
-#include "llfloaterchat.h"
+#include "llimpanel.h"
 #include "llimview.h"
 #include "llnotifications.h"
 #include "lluistring.h"
@@ -258,7 +258,7 @@ LLMuteList::~LLMuteList()
 {
 	// If we quit from the login screen we will not have an SL account
 	// name.  Don't try to save, otherwise we'll dump a file in
-	// C:\Program Files\SecondLife\  JC
+	// C:\Program Files\SecondLife\ or similar. JC
 	std::string user_dir = gDirUtilp->getLindenUserDir();
 	if (!user_dir.empty())
 	{
@@ -532,9 +532,6 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 
 			LLIMModel::getInstance()->addMessage(agent_id, SYSTEM_FROM, LLUUID::null, message);
 		}
-
-		LLChat auto_chat(message);
-		LLFloaterChat::addChat(auto_chat, FALSE, FALSE);
 	}
 }
 

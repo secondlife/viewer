@@ -44,7 +44,7 @@ typedef enum ELLPath
 	LL_PATH_NONE = 0,
 	LL_PATH_USER_SETTINGS = 1,
 	LL_PATH_APP_SETTINGS = 2,	
-	LL_PATH_PER_SL_ACCOUNT = 3,	
+	LL_PATH_PER_SL_ACCOUNT = 3, // returns/expands to blank string if we don't know the account name yet
 	LL_PATH_CACHE = 4,	
 	LL_PATH_CHARACTER = 5,	
 	LL_PATH_HELP = 6,		

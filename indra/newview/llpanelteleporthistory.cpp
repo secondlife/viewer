@@ -550,7 +550,7 @@ void LLTeleportHistoryPanel::updateVerbs()
 
 	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
 
-	mTeleportBtn->setEnabled(NULL != itemp && itemp->getIndex() < (S32)mTeleportHistory->getItems().size() - 1);
+	mTeleportBtn->setEnabled(NULL != itemp);
 	mShowOnMapBtn->setEnabled(NULL != itemp);
 }
 
@@ -723,7 +723,10 @@ void LLTeleportHistoryPanel::onTeleportHistoryChange(S32 removed_index)
 	if (-1 == removed_index)
 		showTeleportHistory(); // recreate all items
 	else
+	{
 		replaceItem(removed_index); // replace removed item by most recent
+		updateVerbs();
+	}
 }
 
 void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
@@ -1033,7 +1036,7 @@ void LLTeleportHistoryPanel::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool
 bool LLTeleportHistoryPanel::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
 {
 	LLSD param = acc_tab->getValue();
-	if(!param.has("acc_collapsed"))
+	if(!param.has(COLLAPSED_BY_USER))
 	{
 		return false;
 	}
@@ -1045,4 +1048,11 @@ void LLTeleportHistoryPanel::onAccordionExpand(LLUICtrl* ctrl, const LLSD& param
 	bool expanded = param.asBoolean();
 	// Save accordion tab state to restore it in refresh()
 	setAccordionCollapsedByUser(ctrl, !expanded);
+
+	// Reset selection upon accordion being collapsed
+	// to disable "Teleport" and "Map" buttons for hidden item.
+	if (!expanded && mLastSelectedFlatlList)
+	{
+		mLastSelectedFlatlList->resetSelection();
+	}
 }

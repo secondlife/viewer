@@ -101,7 +101,7 @@ std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url)
 	{
 		start++;
 	}
-	return url.substr(start, url.size()-start-1);
+	return unescapeUrl(url.substr(start, url.size()-start-1));
 }
 
 std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string)
@@ -201,8 +201,12 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string)
 //
 LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 {
-	mPattern = boost::regex("(\\bwww\\.\\S+\\.\\S+|\\b[^ \t\n\r\f\v:/]+.com\\S*|\\b[^ \t\n\r\f\v:/]+.net\\S*|\\b[^ \t\n\r\f\v:/]+.edu\\S*|\\b[^ \t\n\r\f\v:/]+.org\\S*)",
-							boost::regex::perl|boost::regex::icase);
+	mPattern = boost::regex("("
+				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
+				"|" // or
+				"(?<!@)\\b[^[:space:]:@/]+\\.(?:com|net|edu|org)([/:]\\S*)?\\b" // i.e. FOO.net
+				")",
+				boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
 }

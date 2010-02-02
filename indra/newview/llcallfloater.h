@@ -75,11 +75,6 @@ public:
 	 */
 	/*virtual*/ void onChange();
 
-	/**
-	* Will reshape floater when participant list size changes
-	*/
-	/*virtual*/ S32 notifyParent(const LLSD& info);
-
 	static void sOnCurrentChannelChanged(const LLUUID& session_id);
 
 private:
@@ -88,7 +83,8 @@ private:
 		VC_LOCAL_CHAT,
 		VC_GROUP_CHAT,
 		VC_AD_HOC_CHAT,
-		VC_PEER_TO_PEER
+		VC_PEER_TO_PEER,
+		VC_PEER_TO_PEER_AVALINE
 	}EVoiceControls;
 
 	typedef enum e_speaker_state
@@ -219,21 +215,6 @@ private:
 	 * Clears all data from the latest voice session.
 	 */
 	void reset();
-
-	/**
-	* Reshapes floater to fit participant list height
-	*/
-	void reshapeToFitContent();
-
-	/**
-	* Returns height of participant list item
-	*/
-	S32 getParticipantItemHeight();
-
-	/**
-	* Returns predefined max visible participants.
-	*/
-	S32 getMaxVisibleItems();
 
 private:
 	speaker_state_map_t mSpeakerStateMap;

@@ -43,6 +43,7 @@
 #include "llerror.h"
 #include "lltimer.h"
 
+#include "llaccordionctrltab.h"
 #include "llbutton.h"
 #include "llmenugl.h"
 //#include "llstatusbar.h"
@@ -851,14 +852,26 @@ static LLPanel *childGetVisibleTabWithHelp(LLView *parent)
 	// look through immediate children first for an active tab with help
 	for (child = parent->getFirstChild(); child; child = parent->findNextSibling(child))
 	{
+		LLPanel *curTabPanel = NULL;
+
+		// do we have a tab container?
 		LLTabContainer *tab = dynamic_cast<LLTabContainer *>(child);
 		if (tab && tab->getVisible())
 		{
-			LLPanel *curTabPanel = tab->getCurrentPanel();
-			if (curTabPanel && !curTabPanel->getHelpTopic().empty())
-			{
-				return curTabPanel;
-			}
+			curTabPanel = tab->getCurrentPanel();
+		}
+
+		// do we have an accordion tab?
+		LLAccordionCtrlTab* accordion = dynamic_cast<LLAccordionCtrlTab *>(child);
+		if (accordion && accordion->getDisplayChildren())
+		{
+			curTabPanel = dynamic_cast<LLPanel *>(accordion->getAccordionView());
+		}
+
+		// if we found a valid tab, does it have a help topic?
+		if (curTabPanel && !curTabPanel->getHelpTopic().empty())
+		{
+			return curTabPanel;
 		}
 	}
 
@@ -883,6 +896,44 @@ LLPanel *LLPanel::childGetVisibleTabWithHelp()
 {
 	// find a visible tab with a help topic (to determine help context)
 	return ::childGetVisibleTabWithHelp(this);
+}
+
+static LLPanel *childGetVisiblePanelWithHelp(LLView *parent)
+{
+	LLView *child;
+
+	// look through immediate children first for an active panel with help
+	for (child = parent->getFirstChild(); child; child = parent->findNextSibling(child))
+	{
+		// do we have a panel with a help topic?
+		LLPanel *panel = dynamic_cast<LLPanel *>(child);
+		if (panel && panel->getVisible() && !panel->getHelpTopic().empty())
+		{
+			return panel;
+		}
+	}
+
+	// then try a bit harder and recurse through all children
+	for (child = parent->getFirstChild(); child; child = parent->findNextSibling(child))
+	{
+		if (child->getVisible())
+		{
+			LLPanel* panel = ::childGetVisiblePanelWithHelp(child);
+			if (panel)
+			{
+				return panel;
+			}
+		}
+	}
+
+	// couldn't find any active panels with a help topic string
+	return NULL;
+}
+
+LLPanel *LLPanel::childGetVisiblePanelWithHelp()
+{
+	// find a visible tab with a help topic (to determine help context)
+	return ::childGetVisiblePanelWithHelp(this);
 }
 
 void LLPanel::childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) )

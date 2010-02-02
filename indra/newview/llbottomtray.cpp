@@ -48,9 +48,19 @@
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 #include "lltexteditor.h"
+#include "llnotifications.h"
 
 // Build time optimization, generate extern template once in .cpp file
 template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+
+namespace
+{
+	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
+	const std::string& PANEL_CHATBAR_NAME	= "chat_bar";
+	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
+	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
+	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
+}
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
@@ -161,6 +171,9 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 	{
 		chiclet->setIMSessionName(name);
 		chiclet->setOtherParticipantId(other_participant_id);
+		
+		LLIMFloater::onIMChicletCreated(session_id);
+
 	}
 	else
 	{
@@ -233,6 +246,61 @@ void LLBottomTray::onFocusLost()
 	}
 }
 
+void LLBottomTray::savePanelsShape()
+{
+	mSavedShapeList.clear();
+	for (child_list_const_iter_t
+			 child_it = mToolbarStack->beginChild(),
+			 child_it_end = mToolbarStack->endChild();
+		 child_it != child_it_end; ++child_it)
+	{
+		mSavedShapeList.push_back( (*child_it)->getRect() );
+	}
+}
+
+void LLBottomTray::restorePanelsShape()
+{
+	if (mSavedShapeList.size() != mToolbarStack->getChildCount())
+		return;
+	int i = 0;
+	for (child_list_const_iter_t
+			 child_it = mToolbarStack->beginChild(),
+			 child_it_end = mToolbarStack->endChild();
+		 child_it != child_it_end; ++child_it)
+	{
+		(*child_it)->setShape(mSavedShapeList[i++]);
+	}
+}
+
+void LLBottomTray::onMouselookModeOut()
+{
+	// Apply the saved settings when we are not in mouselook mode, see EXT-3988.
+	{
+		setTrayButtonVisibleIfPossible (RS_BUTTON_GESTURES, gSavedSettings.getBOOL("ShowGestureButton"), false);
+		setTrayButtonVisibleIfPossible (RS_BUTTON_MOVEMENT, gSavedSettings.getBOOL("ShowMoveButton"),    false);
+		setTrayButtonVisibleIfPossible (RS_BUTTON_CAMERA,   gSavedSettings.getBOOL("ShowCameraButton"),  false);
+		setTrayButtonVisibleIfPossible (RS_BUTTON_SNAPSHOT, gSavedSettings.getBOOL("ShowSnapshotButton"),false);
+	}
+	// HACK: To avoid usage the LLLayoutStack logic of resizing, we force the updateLayout
+	// and then restore children saved shapes. See EXT-4309.
+	BOOL saved_anim = mToolbarStack->getAnimate();
+	mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, FALSE);
+	// Disable animation to prevent layout updating in several frames.
+	mToolbarStack->setAnimate(FALSE);
+	// Force the updating of layout to reset panels collapse factor.
+	mToolbarStack->updateLayout();
+	// Restore animate state.
+	mToolbarStack->setAnimate(saved_anim);
+	// Restore saved shapes.
+	restorePanelsShape();
+}
+
+void LLBottomTray::onMouselookModeIn()
+{
+	savePanelsShape();
+	mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, TRUE);
+}
+
 //virtual
 // setVisible used instead of onVisibilityChange, since LLAgent calls it on entering/leaving mouselook mode.
 // If bottom tray is already visible in mouselook mode, then onVisibilityChange will not be called from setVisible(true),
@@ -251,8 +319,10 @@ void LLBottomTray::setVisible(BOOL visible)
 		{
 			LLView* viewp = *child_it;
 			std::string name = viewp->getName();
-			
-			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name || "gesture_panel" == name)
+
+			// Chat bar and gesture button are shown even in mouselook mode.
+			// But the move, camera and snapshot buttons shouldn't be displayed. See EXT-3988.
+			if ("chat_bar" == name || "gesture_panel" == name || (visibility && ("movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)))
 				continue;
 			else 
 			{
@@ -260,6 +330,11 @@ void LLBottomTray::setVisible(BOOL visible)
 			}
 		}
 	}
+
+	if(visible)
+		gFloaterView->setSnapOffsetBottom(getRect().getHeight());
+	else
+		gFloaterView->setSnapOffsetBottom(0);
 }
 
 void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
@@ -322,15 +397,6 @@ void LLBottomTray::showCameraButton(BOOL visible)
 void LLBottomTray::showSnapshotButton(BOOL visible)
 {
 	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, visible);
-}
-
-namespace
-{
-	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
-	const std::string& PANEL_CHATBAR_NAME	= "chat_bar";
-	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
-	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
-	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
 }
 
 BOOL LLBottomTray::postBuild()
@@ -1005,7 +1071,7 @@ void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool vis
 	panel->setVisible(visible);
 }
 
-void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible)
+void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification)
 {
 	bool can_be_set = true;
 
@@ -1045,7 +1111,11 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 	{
 		// mark this button to show it while future bottom tray extending
 		mResizeState |= shown_object_type;
-		LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown");
+		if ( raise_notification )
+			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
+									 LLSD(),
+									 LLSD(),
+									 LLNotificationFunctorRegistry::instance().DONOTHING);
 	}
 }
 

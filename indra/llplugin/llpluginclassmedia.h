@@ -39,7 +39,7 @@
 #include "llrect.h"
 #include "llpluginclassmediaowner.h"
 #include <queue>
-
+#include "v4color.h"
 
 class LLPluginClassMedia : public LLPluginProcessParentOwner
 {
@@ -85,6 +85,8 @@ public:
 
 	void setSize(int width, int height);
 	void setAutoScale(bool auto_scale);
+	
+	void setBackgroundColor(LLColor4 color) { mBackgroundColor = color; };
 	
 	// Returns true if all of the texture parameters (depth, format, size, and texture size) are set up and consistent.
 	// This will initially be false, and will also be false for some time after setSize while the resize is processed.
@@ -212,6 +214,17 @@ public:
 	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
 	std::string getClickTarget() const { return mClickTarget; };
 
+	typedef enum 
+	{
+		TARGET_NONE,        // empty href target string
+		TARGET_BLANK,       // target to open link in user's preferred browser
+		TARGET_EXTERNAL,    // target to open link in external browser
+		TARGET_OTHER        // nonempty and unsupported target type
+	}ETargetType;
+
+	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
+	ETargetType getClickTargetType() const { return mClickTargetType; };
+
 	std::string getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
@@ -328,6 +341,8 @@ protected:
 	std::string		mMediaName;
 	std::string		mMediaDescription;
 	
+	LLColor4		mBackgroundColor;
+	
 	/////////////////////////////////////////
 	// media_browser class
 	std::string		mNavigateURI;
@@ -340,6 +355,7 @@ protected:
 	std::string		mLocation;
 	std::string		mClickURL;
 	std::string		mClickTarget;
+	ETargetType     mClickTargetType;
 	
 	/////////////////////////////////////////
 	// media_time class

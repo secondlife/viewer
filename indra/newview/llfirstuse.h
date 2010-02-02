@@ -79,6 +79,7 @@ object or from inventory.
 class LLFirstUse
 {
 public:
+/*	
 	// Add a config variable to be reset on resetFirstUse()
 	static void addConfigVariable(const std::string& var);
 	
@@ -97,11 +98,16 @@ public:
 	static void useBuild();
 //	static void useLeftClickNoHit();
 	static void useTeleport();
+*/ 
 	static void useOverrideKeys();
+/*	
 	static void useAttach();
 	static void useAppearance();
 	static void useInventory();
+ */
 	static void useSandbox();
+	
+/*
 	static void useFlexible();
 	static void useDebugMenus();
 	static void useSculptedPrim();
@@ -109,6 +115,7 @@ public:
 	
 protected:
 	static std::set<std::string> sConfigVariables;
+*/
 };
 
 #endif

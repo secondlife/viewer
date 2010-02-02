@@ -483,6 +483,10 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 				if (drop)
 				{
+					if (mItems.empty())
+					{
+						setLandingTab(NULL);
+					}
 					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
 					showDragMarker(FALSE);
 				}
@@ -508,14 +512,14 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 
 	if (dest)
 	{
-		updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId());
+		LLInventoryModel::updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId());
 	}
 	else
 	{
 		mItems.push_back(gInventory.getItem(mDragItemId));
 	}
 
-	saveItemsOrder(mItems);
+	gInventory.saveItemsOrder(mItems);
 
 	LLToggleableMenu* menu = (LLToggleableMenu*) mPopupMenuHandle.get();
 
@@ -644,7 +648,7 @@ LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
 	bool success = LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", buttonXMLNode);
 	if (!success)
 	{
-		llwarns << "Unable to read xml file with button for Favorites Bar: favorites_bar_button.xml" << llendl;
+		llwarns << "Failed to create Favorites Bar button from favorites_bar_button.xml" << llendl;
 		buttonXMLNode = NULL;
 	}
 	return buttonXMLNode;
@@ -1193,25 +1197,6 @@ BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array
 	return result;
 }
 
-void LLFavoritesBarCtrl::saveItemsOrder(LLInventoryModel::item_array_t& items)
-{
-	int sortField = 0;
-
-	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
-	{
-		LLViewerInventoryItem* item = *i;
-
-		item->setSortField(++sortField);
-		item->setComplete(TRUE);
-		item->updateServer(FALSE);
-
-		gInventory.updateItem(item);
-	}
-
-	gInventory.notifyObservers();
-}
-
 LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
 {
 	LLInventoryModel::item_array_t::iterator result = items.end();
@@ -1226,15 +1211,6 @@ LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLIn
 	}
 
 	return result;
-}
-
-void LLFavoritesBarCtrl::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId)
-{
-	LLViewerInventoryItem* srcItem = gInventory.getItem(srcItemId);
-	LLViewerInventoryItem* destItem = gInventory.getItem(destItemId);
-
-	items.erase(findItemByUUID(items, srcItem->getUUID()));
-	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
 }
 
 void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem)

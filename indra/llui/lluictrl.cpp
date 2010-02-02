@@ -868,6 +868,14 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 
 		if (panel)
 		{
+			// does the panel have a sub-panel with a help topic?
+			LLPanel *subpanel = panel->childGetVisiblePanelWithHelp();
+			if (subpanel)
+			{
+				help_topic_out = subpanel->getHelpTopic();
+				return true; // success (subpanel)
+			}
+
 			// does the panel have an active tab with a help topic?
 			LLPanel *tab = panel->childGetVisibleTabWithHelp();
 			if (tab)

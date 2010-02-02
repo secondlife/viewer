@@ -499,7 +499,24 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 	style_params.font.name(font_name);
 	style_params.font.size(font_size);	
 	style_params.font.style(input_append_params.font.style);
-	
+
+	std::string prefix = chat.mText.substr(0, 4);
+
+	//IRC styled /me messages.
+	bool irc_me = prefix == "/me " || prefix == "/me'";
+
+	// Delimiter after a name in header copy/past and in plain text mode
+	std::string delimiter = (chat.mChatType != CHAT_TYPE_SHOUT && chat.mChatType != CHAT_TYPE_WHISPER)
+		? ": "
+		: " ";
+
+	// Don't add any delimiter after name in irc styled messages
+	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
+	{
+		delimiter = LLStringUtil::null;
+		style_params.font.style = "ITALIC";
+	}
+
 	if (use_plain_text_chat_history)
 	{
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
@@ -512,11 +529,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 				LLStyle::Params link_params(style_params);
 				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				// Convert the name to a hotlink and add to message.
-				mEditor->appendText(chat.mFromName + ": ", false, link_params);
+				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
 			}
 			else
 			{
-				mEditor->appendText(chat.mFromName + ": ", false, style_params);
+				mEditor->appendText(chat.mFromName + delimiter, false, style_params);
 			}
 		}
 	}
@@ -560,39 +577,25 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 		view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
 
-		std::string header_text = "[" + chat.mTimeStr + "] ";
+		std::string widget_associated_text = "\n[" + chat.mTimeStr + "] ";
 		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
-			header_text += chat.mFromName + ": ";
+			widget_associated_text += chat.mFromName + delimiter;
 
-		mEditor->appendWidget(p, header_text, false);
+		mEditor->appendWidget(p, widget_associated_text, false);
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
 	}
-	//Handle IRC styled /me messages.
-	std::string prefix = chat.mText.substr(0, 4);
-	if (prefix == "/me " || prefix == "/me'")
-	{
-		style_params.font.style = "ITALIC";
 
-		if (chat.mFromName.size() > 0)
-			mEditor->appendText(chat.mFromName + " ", TRUE, style_params);
-		// Ensure that message ends with NewLine, to avoid losing of new lines
-		// while copy/paste from text chat. See EXT-3263.
-		mEditor->appendText(chat.mText.substr(4) + NEW_LINE, FALSE, style_params);
-	}
-	else
-	{
-		std::string message(chat.mText);
-		if ( message.size() > 0 && !LLStringOps::isSpace(message[message.size() - 1]) )
-		{
-			// Ensure that message ends with NewLine, to avoid losing of new lines
-			// while copy/paste from text chat. See EXT-3263.
-			message += NEW_LINE;
-		}
-		mEditor->appendText(message, FALSE, style_params);
-	}
+	std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+	mEditor->appendText(message, FALSE, style_params);
 	mEditor->blockUndo();
+
+	// automatically scroll to end when receiving chat from myself
+	if (chat.mFromID == gAgentID)
+	{
+		mEditor->setCursorAndScrollToEnd();
+	}
 }
 
 void LLChatHistory::draw()
@@ -606,3 +609,11 @@ void LLChatHistory::draw()
 	LLUICtrl::draw();
 }
 
+void LLChatHistory::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	bool is_scrolled_to_end = mEditor->scrolledToEnd();
+	LLUICtrl::reshape( width, height, called_from_parent );
+	// update scroll
+	if (is_scrolled_to_end)
+		mEditor->setCursorAndScrollToEnd();
+}

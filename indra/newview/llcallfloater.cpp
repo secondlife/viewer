@@ -47,11 +47,13 @@
 #include "llfloaterreg.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
+#include "lltextutil.h"
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
+void reshape_floater(LLCallFloater* floater, S32 delta_height);
 
 class LLNonAvatarCaller : public LLAvatarListItem
 {
@@ -74,6 +76,12 @@ public:
 			mAvatarIcon->setToolTip(std::string(""));
 		}
 		return rv;
+	}
+
+	void setName(const std::string& name)
+	{
+		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
+		LLAvatarListItem::setName(formatted_phone);
 	}
 
 	void setSpeakerId(const LLUUID& id) { mSpeakingIndicator->setSpeakerId(id); }
@@ -217,16 +225,6 @@ void LLCallFloater::onChange()
 	}
 }
 
-S32 LLCallFloater::notifyParent(const LLSD& info)
-{
-	if("size_changes" == info["action"])
-	{
-		reshapeToFitContent();
-		return 1;
-	}
-	return LLDockableFloater::notifyParent(info);
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
@@ -270,6 +268,11 @@ void LLCallFloater::updateSession()
 		case IM_NOTHING_SPECIAL:
 		case IM_SESSION_P2P_INVITE:
 			mVoiceType = VC_PEER_TO_PEER;
+
+			if (!im_session->mOtherParticipantIsAvatar)
+			{
+				mVoiceType = VC_PEER_TO_PEER_AVALINE;
+			}
 			break;
 		case IM_SESSION_CONFERENCE_START:
 		case IM_SESSION_GROUP_START:
@@ -302,8 +305,8 @@ void LLCallFloater::updateSession()
 	
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_call_btn", !is_local_chat);
-	
+	childSetVisible("leave_call_btn_panel", !is_local_chat);
+
 	refreshParticipantList();
 	updateAgentModeratorState();
 
@@ -321,16 +324,13 @@ void LLCallFloater::updateSession()
 
 void LLCallFloater::refreshParticipantList()
 {
-	bool non_avatar_caller = false;
-	if (VC_PEER_TO_PEER == mVoiceType)
+	bool non_avatar_caller = VC_PEER_TO_PEER_AVALINE == mVoiceType;
+
+	if (non_avatar_caller)
 	{
 		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSpeakerManager->getSessionID());
-		non_avatar_caller = !session->mOtherParticipantIsAvatar;
-		if (non_avatar_caller)
-		{
-			mNonAvatarCaller->setSpeakerId(session->mOtherParticipantID);
-			mNonAvatarCaller->setName(session->mName);
-		}
+		mNonAvatarCaller->setSpeakerId(session->mOtherParticipantID);
+		mNonAvatarCaller->setName(session->mName);
 	}
 
 	mNonAvatarCaller->setVisible(non_avatar_caller);
@@ -390,9 +390,17 @@ void LLCallFloater::updateTitle()
 		title = getString("title_nearby");
 		break;
 	case VC_PEER_TO_PEER:
+	case VC_PEER_TO_PEER_AVALINE:
 		{
+			title = voice_channel->getSessionName();
+
+			if (VC_PEER_TO_PEER_AVALINE == mVoiceType)
+			{
+				title = LLTextUtil::formatPhoneNumber(title);
+			}
+
 			LLStringUtil::format_map_t args;
-			args["[NAME]"] = voice_channel->getSessionName();
+			args["[NAME]"] = title;
 			title = getString("title_peer_2_peer", args);
 		}
 		break;
@@ -706,13 +714,28 @@ void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 {
-	if (mVoiceType != VC_LOCAL_CHAT)
-		return true;
+	bool is_valid = true;
+	switch (mVoiceType)
+	{
+	case  VC_LOCAL_CHAT:
+		{
+			// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
+			std::vector<LLUUID> speakers;
+			get_voice_participants_uuids(speakers);
+			is_valid = std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+		}
+		break;
+	case VC_GROUP_CHAT:
+		// if participant had left this call before do not allow add her again. See EXT-4216.
+		// but if she Join she will be added into the list from the LLCallFloater::onChange()
+		is_valid = STATE_LEFT != getState(speaker_id);
+		break;
+	default:
+		// do nothing. required for Linux build
+		break;
+	}
 
-	// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
-	std::vector<LLUUID> speakers;
-	get_voice_participants_uuids(speakers);
-	return std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
+	return is_valid;
 }
 
 void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
@@ -763,93 +786,6 @@ void LLCallFloater::reset()
 	mNonAvatarCaller->setVisible(FALSE);
 
 	mSpeakerManager = NULL;
-}
-
-void reshape_floater(LLCallFloater* floater, S32 delta_height)
-{
-	// Try to update floater top side if it is docked(to bottom bar).
-	// Try to update floater bottom side or top side if it is un-docked.
-	// If world rect is too small, floater will not be reshaped at all.
-
-	LLRect floater_rect = floater->getRect();
-	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
-
-	// floater is docked to bottom bar
-	if(floater->isDocked())
-	{
-		// can update floater top side
-		if(floater_rect.mTop + delta_height < world_rect.mTop)
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
-				floater_rect.mRight, floater_rect.mBottom);
-		}
-	}
-	// floater is un-docked
-	else
-	{
-		// can update floater bottom side
-		if( floater_rect.mBottom - delta_height >= world_rect.mBottom )
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop, 
-				floater_rect.mRight, floater_rect.mBottom - delta_height);
-		}
-		// could not update floater bottom side, check if we can update floater top side
-		else if( floater_rect.mTop + delta_height < world_rect.mTop )
-		{
-			floater_rect.set(floater_rect.mLeft, floater_rect.mTop + delta_height, 
-				floater_rect.mRight, floater_rect.mBottom);
-		}
-	}
-
-	floater->reshape(floater_rect.getWidth(), floater_rect.getHeight());
-	floater->setRect(floater_rect);
-}
-
-void LLCallFloater::reshapeToFitContent()
-{
-	const S32 ITEM_HEIGHT = getParticipantItemHeight();
-	static const S32 MAX_VISIBLE_ITEMS = getMaxVisibleItems();
-
-	static S32 items_pad = mAvatarList->getItemsPad();
-	S32 list_height = mAvatarList->getRect().getHeight();
-	S32 items_height = mAvatarList->getItemsRect().getHeight();
-	if(items_height <= 0)
-	{
-		// make "no one near" text visible
-		items_height = ITEM_HEIGHT + items_pad;
-	}
-	S32 max_list_height = MAX_VISIBLE_ITEMS * ITEM_HEIGHT + items_pad * (MAX_VISIBLE_ITEMS - 1);
-	max_list_height += 2* mAvatarList->getBorderWidth();
-
-	S32 delta = items_height - list_height;	
-	// too many items, don't reshape floater anymore, let scroll bar appear.
-	if(items_height >  max_list_height)
-	{
-		delta = max_list_height - list_height;
-	}
-
-	reshape_floater(this, delta);
-}
-
-S32 LLCallFloater::getParticipantItemHeight()
-{
-	std::vector<LLPanel*> items;
-	mAvatarList->getItems(items);
-	if(items.size() > 0)
-	{
-		return items[0]->getRect().getHeight();
-	}
-	else
-	{
-		return getChild<LLPanel>("non_avatar_caller")->getRect().getHeight();
-	}
-}
-
-S32 LLCallFloater::getMaxVisibleItems()
-{
-	S32 value = 5; // default value, in case convertToS32() fails.
-	LLStringUtil::convertToS32(getString("max_visible_items"), value);
-	return value;
 }
 
 //EOF

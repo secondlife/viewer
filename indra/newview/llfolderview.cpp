@@ -78,7 +78,7 @@
 ///----------------------------------------------------------------------------
 
 const S32 RENAME_WIDTH_PAD = 4;
-const S32 RENAME_HEIGHT_PAD = 2;
+const S32 RENAME_HEIGHT_PAD = 1;
 const S32 AUTO_OPEN_STACK_DEPTH = 16;
 const S32 MIN_ITEM_WIDTH_VISIBLE = LLFolderViewItem::ICON_WIDTH
 			+ LLFolderViewItem::ICON_PAD 
@@ -206,7 +206,9 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenCandidate = NULL;
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
-    static LLUICachedControl<S32> indentation("FolderIndentation", 0);
+	const LLFolderViewItem::Params& item_params =
+		LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
+	S32 indentation = item_params.folder_indentation();
 	mIndentation = -indentation; // children start at indentation 0
 	gIdleCallbacks.addFunction(idle, this);
 
@@ -395,7 +397,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		getRoot()->getFilter()->getShowFolderState();
 
 	S32 total_width = LEFT_PAD;
-	S32 running_height = mDebugFilters ? llceil(sSmallFont->getLineHeight()) : 0;
+	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
 	S32 target_height = running_height;
 	S32 parent_item_height = getRect().getHeight();
 
@@ -569,6 +571,8 @@ LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 								BOOL take_keyboard_focus)
 {
+	mSignalSelectCallback = take_keyboard_focus ? SIGNAL_KEYBOARD_FOCUS : SIGNAL_NO_KEYBOARD_FOCUS;
+
 	if( selection == this )
 	{
 		return FALSE;
@@ -595,8 +599,6 @@ BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL openitem,
 	}
 
 	llassert(mSelectedItems.size() <= 1);
-
-	mSignalSelectCallback = take_keyboard_focus ? SIGNAL_KEYBOARD_FOCUS : SIGNAL_NO_KEYBOARD_FOCUS;
 
 	return rv;
 }
@@ -820,10 +822,11 @@ void LLFolderView::clearSelection()
 	mSelectThisID.setNull();
 }
 
-BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection)
+BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
 {
-	selected_items_t::iterator item_it;
-	for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
+		 item_it != mSelectedItems.end(); 
+		 ++item_it)
 	{
 		selection.insert((*item_it)->getListener()->getUUID());
 	}
@@ -866,8 +869,8 @@ void LLFolderView::draw()
 	{
 		std::string current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",
 										mFilter->getCurrentGeneration(), mFilter->getMinRequiredGeneration(), mFilter->getMustPassGeneration());
-		sSmallFont->renderUTF8(current_filter_string, 0, 2, 
-			getRect().getHeight() - sSmallFont->getLineHeight(), LLColor4(0.5f, 0.5f, 0.8f, 1.f), 
+		LLFontGL::getFontMonospace()->renderUTF8(current_filter_string, 0, 2, 
+			getRect().getHeight() - LLFontGL::getFontMonospace()->getLineHeight(), LLColor4(0.5f, 0.5f, 0.8f, 1.f), 
 			LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 	}
 
@@ -1882,8 +1885,8 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
 		S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight()); 
-		// when navigating with keyboard, only move top of folders on screen, otherwise show whole folder
-		S32 max_height_to_show = mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
+		// when navigating with keyboard, only move top of opened folder on screen, otherwise show whole folder
+		S32 max_height_to_show = item->isOpen() && mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
 		
 		// get portion of item that we want to see...
 		LLRect item_local_rect = LLRect(item->getIndentation(), 
@@ -2218,10 +2221,9 @@ void LLFolderView::updateRenamerPosition()
 {
 	if(mRenameItem)
 	{
-		LLFontGL* font = getLabelFontForStyle(mLabelStyle);
-
-		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD - 1 + mRenameItem->getIndentation();
-		S32 y = llfloor(mRenameItem->getRect().getHeight() - font->getLineHeight()-2);
+		// See also LLFolderViewItem::draw()
+		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mRenameItem->getIndentation();
+		S32 y = mRenameItem->getRect().getHeight() - mRenameItem->getItemHeight() - RENAME_HEIGHT_PAD;
 		mRenameItem->localPointToScreen( x, y, &x, &y );
 		screenPointToLocal( x, y, &x, &y );
 		mRenamer->setOrigin( x, y );
@@ -2233,7 +2235,7 @@ void LLFolderView::updateRenamerPosition()
 		}
 
 		S32 width = llmax(llmin(mRenameItem->getRect().getWidth() - x, scroller_rect.getWidth() - x - getRect().mLeft), MINIMUM_RENAMER_WIDTH);
-		S32 height = llfloor(font->getLineHeight() + RENAME_HEIGHT_PAD);
+		S32 height = mRenameItem->getItemHeight() - RENAME_HEIGHT_PAD;
 		mRenamer->reshape( width, height, TRUE );
 	}
 }

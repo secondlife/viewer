@@ -63,8 +63,6 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
-    llaccordionctrl.cpp
-    llaccordionctrltab.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentdata.cpp
@@ -158,7 +156,6 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrency.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
-    llfloaterchat.cpp
     llfloaterchatterbox.cpp
     llfloatercolorpicker.cpp
     llfloatercustomize.cpp
@@ -214,7 +211,6 @@ set(viewer_SOURCE_FILES
     llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
-    llfloatervolumepulldown.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
@@ -252,6 +248,7 @@ set(viewer_SOURCE_FILES
     llinspectgroup.cpp
     llinspectobject.cpp
     llinspectremoteobject.cpp
+    llinspecttoast.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
@@ -349,6 +346,7 @@ set(viewer_SOURCE_FILES
     llpanelshower.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
+    llpanelvolumepulldown.cpp
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
@@ -387,6 +385,7 @@ set(viewer_SOURCE_FILES
     llspatialpartition.cpp
     llspeakbutton.cpp
     llspeakers.cpp
+    llspeakingindicatormanager.cpp
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
@@ -569,8 +568,6 @@ endif (LINUX)
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-    llaccordionctrl.h
-    llaccordionctrltab.h
     llagent.h
     llagentaccess.h
     llagentdata.h
@@ -667,7 +664,6 @@ set(viewer_HEADER_FILES
     llfloaterbuycurrency.h
     llfloaterbuyland.h
     llfloatercamera.h
-    llfloaterchat.h
     llfloaterchatterbox.h
     llfloatercolorpicker.h
     llfloatercustomize.h
@@ -759,6 +755,7 @@ set(viewer_HEADER_FILES
     llinspectgroup.h
     llinspectobject.h
     llinspectremoteobject.h
+    llinspecttoast.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
@@ -852,6 +849,7 @@ set(viewer_HEADER_FILES
     llpanelshower.h
     llpanelteleporthistory.h
     llpanelvolume.h
+    llpanelvolumepulldown.h
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
@@ -892,6 +890,7 @@ set(viewer_HEADER_FILES
     llspatialpartition.h
     llspeakbutton.h
     llspeakers.h
+    llspeakingindicatormanager.h
     llsplitbutton.h
     llsprite.h
     llstartup.h
@@ -1406,11 +1405,11 @@ if (WINDOWS)
       # Note the need to specify multiple names explicitly.
       set(GOOGLE_PERF_TOOLS_SOURCE
         ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
-	${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
-	${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
-	)
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
+        )
     endif(USE_GOOGLE_PERFTOOLS)
-	  
+  
 
     set(COPY_INPUT_DEPENDECIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
@@ -1499,15 +1498,16 @@ if (WINDOWS)
         --actions=copy
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
+        --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
-	--touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
+        --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
       DEPENDS 
-	${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-	stage_third_party_libs
-	${COPY_INPUT_DEPENDECIES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        stage_third_party_libs
+        ${COPY_INPUT_DEPENDECIES}
       COMMENT "Performing viewer_manifest copy"
       )
     
@@ -1569,6 +1569,7 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --artwork=${ARTWORK_DIR}
           --build=${CMAKE_CURRENT_BINARY_DIR}
+          --buildtype=${CMAKE_BUILD_TYPE}
           --channel=${VIEWER_CHANNEL}
           --configuration=${CMAKE_CFG_INTDIR}
           --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
@@ -1650,6 +1651,7 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
+        --buildtype=${CMAKE_BUILD_TYPE}
         --channel=${VIEWER_CHANNEL}
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
@@ -1695,6 +1697,7 @@ if (DARWIN)
       --actions=copy
       --artwork=${ARTWORK_DIR}
       --build=${CMAKE_CURRENT_BINARY_DIR}
+      --buildtype=${CMAKE_BUILD_TYPE}
       --configuration=${CMAKE_CFG_INTDIR}
       --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
       --grid=${GRID}
@@ -1715,6 +1718,7 @@ if (DARWIN)
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --grid=${GRID}
+          --buildtype=${CMAKE_BUILD_TYPE}
           --configuration=${CMAKE_CFG_INTDIR}
           --channel=${VIEWER_CHANNEL}
           --login_channel=${VIEWER_LOGIN_CHANNEL}
@@ -1734,6 +1738,7 @@ if (DARWIN)
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --grid=${GRID}
+          --buildtype=${CMAKE_BUILD_TYPE}
           --configuration=${CMAKE_CFG_INTDIR}
           --channel=${VIEWER_CHANNEL}
           --login_channel=${VIEWER_LOGIN_CHANNEL}
@@ -1761,9 +1766,10 @@ if (LL_TESTS)
     llagentaccess.cpp
     lldateutil.cpp
     llmediadataclient.cpp
-    llviewerhelputil.cpp
     lllogininstance.cpp
+    llviewerhelputil.cpp
   )
+
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS 
   ##################################################

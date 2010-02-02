@@ -35,24 +35,30 @@
 // profile.
 
 #include "llviewerprecompiledheaders.h"
-#include "llpanel.h"
+
+#include "llpanelpick.h"
+
 #include "message.h"
-#include "llagent.h"
-#include "llagentpicksinfo.h"
+
+#include "llparcel.h"
+
 #include "llbutton.h"
+#include "llfloaterreg.h"
 #include "lliconctrl.h"
 #include "lllineeditor.h"
-#include "llparcel.h"
-#include "llviewerparcelmgr.h"
+#include "llpanel.h"
+#include "llscrollcontainer.h"
 #include "lltexteditor.h"
+
+#include "llagent.h"
+#include "llagentpicksinfo.h"
+#include "llavatarpropertiesprocessor.h"
+#include "llfloaterworldmap.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llworldmap.h"
-#include "llfloaterworldmap.h"
-#include "llfloaterreg.h"
-#include "llavatarpropertiesprocessor.h"
-#include "llpanelpick.h"
 
 
 #define XML_PANEL_EDIT_PICK "panel_edit_pick.xml"
@@ -93,6 +99,10 @@ LLPanelPickInfo::LLPanelPickInfo()
  , mPickId(LLUUID::null)
  , mParcelId(LLUUID::null)
  , mRequestedId(LLUUID::null)
+ , mScrollingPanelMinHeight(0)
+ , mScrollingPanelWidth(0)
+ , mScrollingPanel(NULL)
+ , mScrollContainer(NULL)
 {
 }
 
@@ -146,7 +156,33 @@ BOOL LLPanelPickInfo::postBuild()
 	childSetAction("show_on_map_btn", boost::bind(&LLPanelPickInfo::onClickMap, this));
 	childSetAction("back_btn", boost::bind(&LLPanelPickInfo::onClickBack, this));
 
+	mScrollingPanel = getChild<LLPanel>("scroll_content_panel");
+	mScrollContainer = getChild<LLScrollContainer>("profile_scroll");
+
+	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
+	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
+
 	return TRUE;
+}
+
+void LLPanelPickInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+
+	if (!mScrollContainer || !mScrollingPanel)
+		return;
+
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	S32 scroll_height = mScrollContainer->getRect().getHeight();
+	if (mScrollingPanelMinHeight >= scroll_height)
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth, mScrollingPanelMinHeight);
+	}
+	else
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
+	}
 }
 
 void LLPanelPickInfo::processProperties(void* data, EAvatarProcessorType type)
@@ -284,37 +320,11 @@ void LLPanelPickInfo::setPickName(const std::string& name)
 void LLPanelPickInfo::setPickDesc(const std::string& desc)
 {
 	childSetValue(XML_DESC, desc);
-	updateContentPanelRect();
 }
 
 void LLPanelPickInfo::setPickLocation(const std::string& location)
 {
 	childSetValue(XML_LOCATION, location);
-}
-
-void LLPanelPickInfo::updateContentPanelRect()
-{
-	LLTextBox* desc = getChild<LLTextBox>(XML_DESC);
-
-	S32 text_height = desc->getTextPixelHeight();
-	LLRect text_rect = desc->getRect();
-
-	// let text-box height fit text height
-	text_rect.set(text_rect.mLeft, text_rect.mTop, text_rect.mRight, text_rect.mTop - text_height);
-	desc->setRect(text_rect);
-	desc->reshape(text_rect.getWidth(), text_rect.getHeight());
-	// force reflow
-	desc->setText(desc->getText());
-
-	// bottom of description text-box will be bottom of content panel
-	desc->localRectToOtherView(desc->getLocalRect(), &text_rect, getChild<LLView>("profile_scroll"));
-
-	LLPanel* content_panel = getChild<LLPanel>("scroll_content_panel");
-	LLRect content_rect = content_panel->getRect();
-	content_rect.set(content_rect.mLeft, content_rect.mTop, content_rect.mRight, text_rect.mBottom);
-	// Somehow setRect moves all elements down.
-	// Single reshape() updates rect and does not move anything.
-	content_panel->reshape(content_rect.getWidth(), content_rect.getHeight());
 }
 
 void LLPanelPickInfo::onClickMap()
@@ -438,7 +448,7 @@ BOOL LLPanelPickEdit::postBuild()
 {
 	LLPanelPickInfo::postBuild();
 
-	mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelPickEdit::onPickChanged, this, _1));
+	mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelPickEdit::onSnapshotChanged, this));
 
 	LLLineEditor* line_edit = getChild<LLLineEditor>("pick_name");
 	line_edit->setKeystrokeCallback(boost::bind(&LLPanelPickEdit::onPickChanged, this, _1), NULL);
@@ -527,16 +537,14 @@ void LLPanelPickEdit::sendUpdate()
 	}
 }
 
+void LLPanelPickEdit::onSnapshotChanged()
+{
+	enableSaveButton(true);
+}
+
 void LLPanelPickEdit::onPickChanged(LLUICtrl* ctrl)
 {
-	if(isDirty())
-	{
-		enableSaveButton(true);
-	}
-	else
-	{
-		enableSaveButton(false);
-	}
+	enableSaveButton(isDirty());
 }
 
 void LLPanelPickEdit::resetData()
@@ -602,10 +610,6 @@ void LLPanelPickEdit::initTexturePickerMouseEvents()
 	text_icon = getChild<LLIconCtrl>(XML_BTN_ON_TXTR);
 	mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseEnter, this, _1));
 	mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseLeave, this, _1));
-	
-	// *WORKAROUND: Needed for EXT-1625: enabling save button each time when picker is opened, even if 
-	// texture wasn't changed (see Steve's comment).
-	mSnapshotCtrl->setMouseDownCallback(boost::bind(&LLPanelPickEdit::enableSaveButton, this, true));
 	
 	text_icon->setVisible(FALSE);
 }

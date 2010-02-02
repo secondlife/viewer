@@ -93,6 +93,10 @@ public:
 	// Update view based on information from avatar properties processor
 	void processAvatarData(LLAvatarData* data);
 	
+	// override the inspector mouse leave so timer is only paused if 
+	// gear menu is not open
+	/* virtual */ void onMouseLeave(S32 x, S32 y, MASK mask);
+	
 private:
 	// Make network requests for all the data to display in this view.
 	// Used on construction and if avatar id changes.
@@ -112,6 +116,7 @@ private:
 	void onClickAddFriend();
 	void onClickViewProfile();
 	void onClickIM();
+	void onClickCall();
 	void onClickTeleport();
 	void onClickInviteToGroup();
 	void onClickPay();
@@ -204,6 +209,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.AddFriend",	boost::bind(&LLInspectAvatar::onClickAddFriend, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.IM",
 		boost::bind(&LLInspectAvatar::onClickIM, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Call",		boost::bind(&LLInspectAvatar::onClickCall, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
@@ -257,8 +263,6 @@ BOOL LLInspectAvatar::postBuild(void)
 }
 
 
-
-
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
 // LLSD for foo, which we will catch here.
 //virtual
@@ -274,7 +278,7 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	
 	getChild<LLUICtrl>("gear_self_btn")->setVisible(self);
 	getChild<LLUICtrl>("gear_btn")->setVisible(!self);
-	
+
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip
@@ -382,11 +386,25 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	mPropertiesRequest = NULL;
 }
 
+// For the avatar inspector, we only want to unpause the fade timer 
+// if neither the gear menu or self gear menu are open
+void LLInspectAvatar::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
+	LLMenuGL* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
+	if ( !(gear_menu && gear_menu->getVisible()) &&
+		 !(gear_menu_self && gear_menu_self->getVisible()))
+	{
+		mOpenTimer.unpause();
+	}
+}
+
 void LLInspectAvatar::updateModeratorPanel()
 {
 	bool enable_moderator_panel = false;
 
-    if (LLVoiceChannel::getCurrentVoiceChannel())
+    if (LLVoiceChannel::getCurrentVoiceChannel() &&
+		mAvatarID != gAgent.getID())
     {
 		LLUUID session_id = LLVoiceChannel::getCurrentVoiceChannel()->getSessionID();
 
@@ -400,6 +418,7 @@ void LLInspectAvatar::updateModeratorPanel()
 				LLPointer<LLSpeaker> selected_speakerp = speaker_mgr->findSpeaker(mAvatarID);
 				
 				if(speaker_mgr->isVoiceActive() && selected_speakerp && 
+					selected_speakerp->isInVoiceChannel() &&
 					((self_speakerp && self_speakerp->mIsModerator) || gAgent.isGodlike()))
 				{
 					getChild<LLUICtrl>("enable_voice")->setVisible(selected_speakerp->mModeratorMutedVoice);
@@ -497,42 +516,58 @@ void LLInspectAvatar::toggleSelectedVoice(bool enabled)
 
 void LLInspectAvatar::updateVolumeSlider()
 {
-	// By convention, we only display and toggle voice mutes, not all mutes
-	bool is_muted = LLMuteList::getInstance()->
-						isMuted(mAvatarID, LLMute::flagVoiceChat);
+
 	bool voice_enabled = gVoiceClient->getVoiceEnabled(mAvatarID);
 
-	LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
-	mute_btn->setEnabled( voice_enabled );
-	mute_btn->setValue( is_muted );
-
-	LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
-	volume_slider->setEnabled( voice_enabled && !is_muted );
-	const F32 DEFAULT_VOLUME = 0.5f;
-	F32 volume;
-	if (is_muted)
+	// Do not display volume slider and mute button if it 
+	// is ourself or we are not in a voice channel together
+	if (!voice_enabled || (mAvatarID == gAgent.getID()))
 	{
-		// it's clearer to display their volume as zero
-		volume = 0.f;
+		getChild<LLUICtrl>("mute_btn")->setVisible(false);
+		getChild<LLUICtrl>("volume_slider")->setVisible(false);
 	}
-	else if (!voice_enabled)
-	{
-		// use nominal value rather than 0
-		volume = DEFAULT_VOLUME;
-	}
-	else
-	{
-		// actual volume
-		volume = gVoiceClient->getUserVolume(mAvatarID);
 
-		// *HACK: Voice client doesn't have any data until user actually
-		// says something.
-		if (volume == 0.f)
+	else 
+	{
+		getChild<LLUICtrl>("mute_btn")->setVisible(true);
+		getChild<LLUICtrl>("volume_slider")->setVisible(true);
+
+		// By convention, we only display and toggle voice mutes, not all mutes
+		bool is_muted = LLMuteList::getInstance()->
+							isMuted(mAvatarID, LLMute::flagVoiceChat);
+
+		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
+
+		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+
+		mute_btn->setEnabled( !is_linden);
+		mute_btn->setValue( is_muted );
+
+		LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
+		volume_slider->setEnabled( !is_muted );
+
+		const F32 DEFAULT_VOLUME = 0.5f;
+		F32 volume;
+		if (is_muted)
 		{
-			volume = DEFAULT_VOLUME;
+			// it's clearer to display their volume as zero
+			volume = 0.f;
 		}
+		else
+		{
+			// actual volume
+			volume = gVoiceClient->getUserVolume(mAvatarID);
+
+			// *HACK: Voice client doesn't have any data until user actually
+			// says something.
+			if (volume == 0.f)
+			{
+				volume = DEFAULT_VOLUME;
+			}
+		}
+		volume_slider->setValue( (F64)volume );
 	}
-	volume_slider->setValue( (F64)volume );
+
 }
 
 void LLInspectAvatar::onClickMuteVolume()
@@ -608,6 +643,12 @@ bool LLInspectAvatar::onVisibleZoomIn()
 void LLInspectAvatar::onClickIM()
 { 
 	LLAvatarActions::startIM(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickCall()
+{ 
+	LLAvatarActions::startCall(mAvatarID);
 	closeFloater();
 }
 

@@ -50,7 +50,7 @@
 				<key>OpenCircuit</key>
 				<map>
 					<key>flavor</key>
-					<string>template</string>
+					<string>llsd</string>
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>

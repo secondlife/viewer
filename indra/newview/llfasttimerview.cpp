@@ -314,7 +314,7 @@ void LLFastTimerView::draw()
 	S32 left, top, right, bottom;
 	S32 x, y, barw, barh, dx, dy;
 	S32 texth, textw;
-	LLPointer<LLUIImage> box_imagep = LLUI::getUIImage("rounded_square.tga");
+	LLPointer<LLUIImage> box_imagep = LLUI::getUIImage("Rounded_Square");
 
 	// Draw the window background
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -323,7 +323,9 @@ void LLFastTimerView::draw()
 	S32 xleft = margin;
 	S32 ytop = margin;
 	
-	mAverageCyclesPerTimer = llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
+	mAverageCyclesPerTimer = LLFastTimer::sTimerCalls == 0 
+		? 0 
+		: llround(lerp((F32)mAverageCyclesPerTimer, (F32)(LLFastTimer::sTimerCycles / (U64)LLFastTimer::sTimerCalls), 0.1f));
 	LLFastTimer::sTimerCycles = 0;
 	LLFastTimer::sTimerCalls = 0;
 

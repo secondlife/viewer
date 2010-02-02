@@ -406,6 +406,11 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 
 void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 {
+	if (!region)
+	{
+		return; 
+	}
+
 	// call refresh from region on all panels
 	std::for_each(
 		mInfoPanels.begin(),
@@ -1598,7 +1603,7 @@ std::string all_estates_text()
 	}
 	else if (region && region->getOwner() == gAgent.getID())
 	{
-		return LLTrans::getString("AllEstatesYouOwn");
+		return LLTrans::getString("RegionInfoAllEstatesYouOwn");
 	}
 	else if (region && region->isEstateManager())
 	{

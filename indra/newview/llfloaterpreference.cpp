@@ -51,7 +51,7 @@
 #include "lldirpicker.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
@@ -185,8 +185,8 @@ void handleNameTagOptionChanged(const LLSD& newvalue);
 viewer_media_t get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
-bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
-bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
+//bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
+//bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
 
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
@@ -236,7 +236,7 @@ void handleNameTagOptionChanged(const LLSD& newvalue)
 	}
 }
 
-bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
+/*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option && floater )
@@ -244,7 +244,7 @@ bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFlo
 		if ( floater )
 		{
 			floater->setAllIgnored();
-			LLFirstUse::disableFirstUse();
+		//	LLFirstUse::disableFirstUse();
 			floater->buildPopupLists();
 		}
 	}
@@ -259,13 +259,13 @@ bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFl
 		if ( floater )
 		{
 			floater->resetAllIgnored();
-			LLFirstUse::resetFirstUse();
+			//LLFirstUse::resetFirstUse();
 			floater->buildPopupLists();
 		}
 	}
 	return false;
 }
-
+*/
 
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
@@ -313,8 +313,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.SelectSkin",				boost::bind(&LLFloaterPreference::onSelectSkin, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetKey",			boost::bind(&LLFloaterPreference::onClickSetKey, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
-	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
-	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
+//	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
+//	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
@@ -325,6 +325,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::onUpdateSliderText,this, _1,_2));	
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
+	mCommitCallbackRegistrar.add("Pref.ParcelMediaAutoPlayEnable",       boost::bind(&LLFloaterPreference::onCommitParcelMediaAutoPlayEnable, this));	
+	mCommitCallbackRegistrar.add("Pref.MediaEnabled",           boost::bind(&LLFloaterPreference::onCommitMediaEnabled, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
@@ -601,8 +603,8 @@ void LLFloaterPreference::onBtnOK()
 		apply();
 		closeFloater(false);
 
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 		// save all settings, even if equals defaults
 		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
@@ -986,6 +988,27 @@ void LLFloaterPreference::onCommitAutoDetectAspect()
 	}
 }
 
+void LLFloaterPreference::onCommitParcelMediaAutoPlayEnable()
+{
+	BOOL autoplay = getChild<LLCheckBoxCtrl>("autoplay_enabled")->get();
+		
+	gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, autoplay);
+
+	lldebugs << "autoplay now = " << int(autoplay) << llendl;
+}
+
+void LLFloaterPreference::onCommitMediaEnabled()
+{
+	LLCheckBoxCtrl *media_enabled_ctrl = getChild<LLCheckBoxCtrl>("media_enabled");
+	bool enabled = media_enabled_ctrl->get();
+	gSavedSettings.setBOOL("AudioStreamingVideo", enabled);
+	gSavedSettings.setBOOL("AudioStreamingMusic", enabled);
+	gSavedSettings.setBOOL("AudioStreamingMedia", enabled);
+	media_enabled_ctrl->setTentative(false);
+	// Update enabled state of the "autoplay" checkbox
+	getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(enabled);
+}
+
 void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
@@ -1050,7 +1073,7 @@ void LLFloaterPreference::onClickSetMiddleMouse()
 	// update the control right away since we no longer wait for apply
 	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
-
+/*
 void LLFloaterPreference::onClickSkipDialogs()
 {
 	LLNotificationsUtil::add("SkipShowNextTimeDialogs", LLSD(), LLSD(), boost::bind(&callback_skip_dialogs, _1, _2, this));
@@ -1060,6 +1083,7 @@ void LLFloaterPreference::onClickResetDialogs()
 {
 	LLNotificationsUtil::add("ResetShowNextTimeDialogs", LLSD(), LLSD(), boost::bind(&callback_reset_dialogs, _1, _2, this));
 }
+ */
 
 void LLFloaterPreference::onClickEnablePopup()
 {	
@@ -1397,6 +1421,20 @@ BOOL LLPanelPreference::postBuild()
 		ctrl_aspect_ratio->setCurrentByIndex(0);
 		
 		refresh();
+	}
+	
+	//////////////////////PanelPrivacy ///////////////////
+	if(hasChild("media_enabled"))
+	{
+		bool video_enabled = gSavedSettings.getBOOL("AudioStreamingVideo");
+		bool music_enabled = gSavedSettings.getBOOL("AudioStreamingMusic");
+		bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
+		bool enabled = video_enabled || music_enabled || media_enabled;
+		
+		LLCheckBoxCtrl *media_enabled_ctrl = getChild<LLCheckBoxCtrl>("media_enabled");	
+		media_enabled_ctrl->set(enabled);
+		media_enabled_ctrl->setTentative(!(video_enabled == music_enabled == media_enabled));
+		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(enabled);
 	}
 	
 	apply();

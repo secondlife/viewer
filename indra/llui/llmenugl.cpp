@@ -46,6 +46,7 @@
 
 #include "llmenugl.h"
 
+#include "llgl.h"
 #include "llmath.h"
 #include "llrender.h"
 #include "llfocusmgr.h"
@@ -98,7 +99,7 @@ const S32 TEAROFF_SEPARATOR_HEIGHT_PIXELS = 10;
 const S32 MENU_ITEM_PADDING = 4;
 
 const std::string BOOLEAN_TRUE_PREFIX( "\xE2\x9C\x94" ); // U+2714 HEAVY CHECK MARK
-const std::string BRANCH_SUFFIX( ">" );
+const std::string BRANCH_SUFFIX( "\xE2\x96\xB6" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
 const std::string ARROW_UP  ("^^^^^^^");
 const std::string ARROW_DOWN("vvvvvvv");
 
@@ -477,6 +478,7 @@ void LLMenuItemGL::draw( void )
 		if (dynamic_cast<LLMenuItemCallGL*>(this))
 			debug_count++;
 		gGL.color4fv( mHighlightBackground.get().mV );
+
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	}
 
@@ -1143,37 +1145,41 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 	if (!branch)
 		return LLMenuItemGL::handleKeyHere(key, mask);
 
-	if (getMenu()->getVisible() && branch->getVisible() && key == KEY_LEFT)
+	// an item is highlighted, my menu is open, and I have an active sub menu or we are in
+	// keyboard navigation mode
+	if (getHighlight() 
+		&& getMenu()->isOpen() 
+		&& (isActive() || LLMenuGL::getKeyboardMode()))
 	{
-		// switch to keyboard navigation mode
-		LLMenuGL::setKeyboardMode(TRUE);
+		if (branch->getVisible() && key == KEY_LEFT)
+		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
 
-		BOOL handled = branch->clearHoverItem();
-		if (branch->getTornOff())
-		{
-			((LLFloater*)branch->getParent())->setFocus(FALSE);
+			BOOL handled = branch->clearHoverItem();
+			if (branch->getTornOff())
+			{
+				((LLFloater*)branch->getParent())->setFocus(FALSE);
+			}
+			if (handled && getMenu()->getTornOff())
+			{
+				((LLFloater*)getMenu()->getParent())->setFocus(TRUE);
+			}
+			return handled;
 		}
-		if (handled && getMenu()->getTornOff())
+
+		if (key == KEY_RIGHT && !branch->getHighlightedItem())
 		{
-			((LLFloater*)getMenu()->getParent())->setFocus(TRUE);
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
+			LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
+			if (itemp)
+			{
+				return TRUE;
+			}
 		}
-		return handled;
 	}
-
-	if (getHighlight() && 
-		getMenu()->isOpen() && 
-		key == KEY_RIGHT && !branch->getHighlightedItem())
-	{
-		// switch to keyboard navigation mode
-		LLMenuGL::setKeyboardMode(TRUE);
-
-		LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
-		if (itemp)
-		{
-			return TRUE;
-		}
-	}
-
 	return LLMenuItemGL::handleKeyHere(key, mask);
 }
 
@@ -1431,7 +1437,7 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL menu_open = getBranch()->getVisible();
 	// don't do keyboard navigation of top-level menus unless in keyboard mode, or menu expanded
-	if (getHighlight() && getMenu()->getVisible() && (isActive() || LLMenuGL::getKeyboardMode()))
+	if (getHighlight() && getMenu()->isOpen() && (isActive() || LLMenuGL::getKeyboardMode()))
 	{
 		if (key == KEY_LEFT)
 		{
@@ -2836,6 +2842,7 @@ BOOL LLMenuGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
 	return TRUE;
 }
 
+
 void LLMenuGL::draw( void )
 {
 	if (mNeedsArrange)
@@ -2959,7 +2966,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	LLUI::getMousePositionLocal(menu->getParent(), &mouse_x, &mouse_y);
 	LLMenuHolderGL::sContextMenuSpawnPos.set(mouse_x,mouse_y);
 
-	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
+	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getRect();
 
 	const S32 HPAD = 2;
 	LLRect rect = menu->getRect();

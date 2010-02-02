@@ -71,7 +71,7 @@
 #include "lluicolortable.h"
 #include "llurldispatcher.h"
 #include "llurlhistory.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llrender.h"
 #include "llteleporthistory.h"
 #include "lllocationhistory.h"
@@ -313,6 +313,7 @@ void init_default_trans_args()
 {
 	default_trans_args.insert("SECOND_LIFE"); // World
 	default_trans_args.insert("APP_NAME");
+	default_trans_args.insert("CAPITALIZED_APP_NAME");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
 }
@@ -921,7 +922,6 @@ bool LLAppViewer::mainLoop()
 {
 	LLMemType mt1(LLMemType::MTYPE_MAIN);
 	mMainloopTimeout = new LLWatchdogTimeout();
-	// *FIX:Mani - Make this a setting, once new settings exist in this branch.
 	
 	//-------------------------------------------
 	// Run main loop until time to quit
@@ -931,12 +931,13 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
+	LLCurl::setSSLVerify(! gSavedSettings.getBOOL("NoVerifySSLCert"));
 	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
 	LLVoiceClient::init(gServicePump);
-				
+
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
@@ -1371,7 +1372,7 @@ bool LLAppViewer::cleanup()
 	if( gViewerWindow)
 		gViewerWindow->shutdownViews();
 
-	llinfos << "Cleaning up Inevntory" << llendflush;
+	llinfos << "Cleaning up Inventory" << llendflush;
 	
 	// Cleanup Inventory after the UI since it will delete any remaining observers
 	// (Deleted observers should have already removed themselves)
@@ -1473,10 +1474,17 @@ bool LLAppViewer::cleanup()
 	
 	LLUIColorTable::instance().saveUserSettings();
 
-	// PerAccountSettingsFile should be empty if no use has been logged on.
+	// PerAccountSettingsFile should be empty if no user has been logged on.
 	// *FIX:Mani This should get really saved in a "logoff" mode. 
-	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
-	llinfos << "Saved settings" << llendflush;
+	if (gSavedSettings.getString("PerAccountSettingsFile").empty())
+	{
+		llinfos << "Not saving per-account settings; don't know the account name yet." << llendl;
+	}
+	else
+	{
+		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
+		llinfos << "Saved settings" << llendflush;
+	}
 
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	// save all settings, even if equals defaults
@@ -1910,26 +1918,25 @@ bool LLAppViewer::initConfiguration()
 	// These are warnings that appear on the first experience of that condition.
 	// They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
 	// for disable/reset ability
-	LLFirstUse::addConfigVariable("FirstBalanceIncrease");
-	LLFirstUse::addConfigVariable("FirstBalanceDecrease");
-	LLFirstUse::addConfigVariable("FirstSit");
-	LLFirstUse::addConfigVariable("FirstMap");
-	LLFirstUse::addConfigVariable("FirstGoTo");
-	LLFirstUse::addConfigVariable("FirstBuild");
+//	LLFirstUse::addConfigVariable("FirstBalanceIncrease");
+//	LLFirstUse::addConfigVariable("FirstBalanceDecrease");
+//	LLFirstUse::addConfigVariable("FirstSit");
+//	LLFirstUse::addConfigVariable("FirstMap");
+//	LLFirstUse::addConfigVariable("FirstGoTo");
+//	LLFirstUse::addConfigVariable("FirstBuild");
 //	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
-	LLFirstUse::addConfigVariable("FirstTeleport");
-	LLFirstUse::addConfigVariable("FirstOverrideKeys");
-	LLFirstUse::addConfigVariable("FirstAttach");
-	LLFirstUse::addConfigVariable("FirstAppearance");
-	LLFirstUse::addConfigVariable("FirstInventory");
-	LLFirstUse::addConfigVariable("FirstSandbox");
-	LLFirstUse::addConfigVariable("FirstFlexible");
-	LLFirstUse::addConfigVariable("FirstDebugMenus");
-	LLFirstUse::addConfigVariable("FirstStreamingMusic");
-	LLFirstUse::addConfigVariable("FirstStreamingVideo");
-	LLFirstUse::addConfigVariable("FirstSculptedPrim");
-	LLFirstUse::addConfigVariable("FirstVoice");
-	LLFirstUse::addConfigVariable("FirstMedia");
+//	LLFirstUse::addConfigVariable("FirstTeleport");
+//	LLFirstUse::addConfigVariable("FirstOverrideKeys");
+//	LLFirstUse::addConfigVariable("FirstAttach");
+//	LLFirstUse::addConfigVariable("FirstAppearance");
+//	LLFirstUse::addConfigVariable("FirstInventory");
+//	LLFirstUse::addConfigVariable("FirstSandbox");
+//	LLFirstUse::addConfigVariable("FirstFlexible");
+//	LLFirstUse::addConfigVariable("FirstDebugMenus");
+//	LLFirstUse::addConfigVariable("FirstStreamingMedia");
+//	LLFirstUse::addConfigVariable("FirstSculptedPrim");
+//	LLFirstUse::addConfigVariable("FirstVoice");
+//	LLFirstUse::addConfigVariable("FirstMedia");
 		
 	// - read command line settings.
 	LLControlGroupCLP clp;

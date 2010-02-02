@@ -2074,7 +2074,12 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 {
 	if ("open" == action)
 	{
-		openItem();
+		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder *>(folder->getItemByID(mUUID));
+		if (f)
+		{
+			f->setOpen(TRUE);
+		}
+		
 		return;
 	}
 	else if ("paste" == action)
@@ -2228,7 +2233,20 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
 	// we only have one folder image now
+	if (preferred_type == LLFolderType::FT_OUTFIT)
+	{
+		return LLUI::getUIImage("Inv_LookFolderClosed");
+	}
 	return LLUI::getUIImage("Inv_FolderClosed");
+}
+
+LLUIImagePtr LLFolderBridge::getOpenIcon() const
+{
+	if (getPreferredType() == LLFolderType::FT_OUTFIT)
+	{
+		return LLUI::getUIImage("Inv_LookFolderOpen");
+	}
+	return LLUI::getUIImage("Inv_FolderOpen");
 }
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
@@ -2430,7 +2448,7 @@ void LLFolderBridge::folderOptionsMenu()
 
 	const LLInventoryCategory* category = model->getCategory(mUUID);
 	LLFolderType::EType type = category->getPreferredType();
-	const bool is_default_folder = category && LLFolderType::lookupIsProtectedType(type);
+	const bool is_system_folder = category && LLFolderType::lookupIsProtectedType(type);
 	// BAP change once we're no longer treating regular categories as ensembles.
 	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
 										  LLFolderType::lookupIsEnsembleType(type));
@@ -2444,8 +2462,8 @@ void LLFolderBridge::folderOptionsMenu()
 		mItems.push_back("Delete");
 	}
 
-	// Only enable calling-card related options for non-default folders.
-	if (!is_sidepanel && !is_default_folder)
+	// Only enable calling-card related options for non-system folders.
+	if (!is_sidepanel && !is_system_folder)
 	{
 		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
 		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
@@ -2479,10 +2497,14 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Folder Wearables Separator"));
 		}
 
-		// Only enable add/replace outfit for non-default folders.
-		if (!is_default_folder)
+		// Only enable add/replace outfit for non-system folders.
+		if (!is_system_folder)
 		{
-			mItems.push_back(std::string("Add To Outfit"));
+			// Adding an outfit onto another (versus replacing) doesn't make sense.
+			if (type != LLFolderType::FT_OUTFIT)
+			{
+				mItems.push_back(std::string("Add To Outfit"));
+			}
 			mItems.push_back(std::string("Replace Outfit"));
 		}
 		if (is_ensemble)
@@ -2614,6 +2636,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			{
 				mItems.push_back(std::string("Rename"));
 				mItems.push_back(std::string("Delete"));
+
+				// EXT-4030: disallow deletion of currently worn outfit
+				const LLViewerInventoryItem *base_outfit_link = LLAppearanceManager::instance().getBaseOutfitLink();
+				if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
+				{
+					mDisabledItems.push_back(std::string("Delete"));
+				}
 			}
 		}
 
@@ -2902,80 +2931,6 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	return false;
 }
 
-/*
-Next functions intended to reorder items in the inventory folder and save order on server
-Is now used for Favorites folder.
-
-*TODO: refactoring is needed with Favorites Bar functionality. Probably should be moved in LLInventoryModel
-*/
-void saveItemsOrder(LLInventoryModel::item_array_t& items)
-{
-	int sortField = 0;
-
-	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
-	{
-		LLViewerInventoryItem* item = *i;
-
-		item->setSortField(++sortField);
-		item->setComplete(TRUE);
-		item->updateServer(FALSE);
-
-		gInventory.updateItem(item);
-
-		// Tell the parent folder to refresh its sort order.
-		gInventory.addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
-	}
-
-	gInventory.notifyObservers();
-}
-
-LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
-{
-	LLInventoryModel::item_array_t::iterator result = items.end();
-
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
-	{
-		if ((*i)->getUUID() == id)
-		{
-			result = i;
-			break;
-		}
-	}
-
-	return result;
-}
-
-// See also LLInventorySort where landmarks in the Favorites folder are sorted.
-class LLViewerInventoryItemSort
-{
-public:
-	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
-	{
-		return a->getSortField() < b->getSortField();
-	}
-};
-
-/**
- * Sorts passed items by LLViewerInventoryItem sort field.
- *
- * @param[in, out] items - array of items, not sorted.
- */
-void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-{
-	static LLViewerInventoryItemSort sort_functor;
-	std::sort(items.begin(), items.end(), sort_functor);
-}
-
-void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId)
-{
-	LLViewerInventoryItem* srcItem = gInventory.getItem(srcItemId);
-	LLViewerInventoryItem* destItem = gInventory.getItem(destItemId);
-
-	items.erase(findItemByUUID(items, srcItem->getUUID()));
-	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
-}
-
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop)
 {
@@ -3058,36 +3013,34 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// if dragging from/into favorites folder only reorder items
 			if ((mUUID == inv_item->getParentUUID()) && folder_allows_reorder)
 			{
-				LLInventoryModel::cat_array_t cats;
-				LLInventoryModel::item_array_t items;
-				LLIsType is_type(LLAssetType::AT_LANDMARK);
-				model->collectDescendentsIf(mUUID, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
-
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
 				if (itemp)
 				{
 					LLUUID srcItemId = inv_item->getUUID();
 					LLUUID destItemId = itemp->getListener()->getUUID();
-
-					// ensure items are sorted properly before changing order. EXT-3498
-					rearrange_item_order_by_sort_field(items);
-
-					// update order
-					updateItemsOrder(items, srcItemId, destItemId);
-
-					saveItemsOrder(items);
+					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
 			else if (favorites_id == mUUID) // if target is the favorites folder we use copy
 			{
+				// use callback to rearrange favorite landmarks after adding
+				// to have new one placed before target (on which it was dropped). See EXT-4312.
+				LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
+				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+				LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
+				if (drag_over_item && drag_over_item->getListener())
+				{
+					cb.get()->setTargetLandmarkId(drag_over_item->getListener()->getUUID());
+				}
+
 				copy_inventory_item(
 					gAgent.getID(),
 					inv_item->getPermissions().getOwner(),
 					inv_item->getUUID(),
 					mUUID,
 					std::string(),
-					LLPointer<LLInventoryCallback>(NULL));
+					cb);
 			}
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{

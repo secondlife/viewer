@@ -1134,7 +1134,8 @@ void LLFloaterTools::getMediaState()
 				}
 				// XXX DISABLE this for now, because when the fetch finally 
 				// does come in, the state of this floater doesn't properly
-				// update.  This needs more thought.
+				// update.  Re-selecting fixes the problem, but there is 
+				// contention as to whether this is a sufficient solution.
 //				if (object->isMediaDataBeingFetched())
 //				{
 //					LL_INFOS("LLFloaterTools: media")
@@ -1221,10 +1222,10 @@ void LLFloaterTools::getMediaState()
 			mNeedMediaTitle = false;
 		}
 		
-		childSetEnabled("media_tex",  bool_has_media & editable);
-		childSetEnabled( "edit_media", bool_has_media & editable );
-		childSetEnabled( "delete_media", bool_has_media & editable );
-		childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
+		childSetEnabled("media_tex",  bool_has_media && editable);
+		childSetEnabled( "edit_media", bool_has_media && LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo && editable );
+		childSetEnabled( "delete_media", bool_has_media && editable );
+		childSetEnabled( "add_media", ( ! bool_has_media ) && editable );
 			// TODO: display a list of all media on the face - use 'identical' flag
 	}
 	else // not all face has media but at least one does.
@@ -1252,7 +1253,7 @@ void LLFloaterTools::getMediaState()
 		}
 		
 		childSetEnabled("media_tex",  TRUE);
-		childSetEnabled( "edit_media", TRUE);
+		childSetEnabled( "edit_media", LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo);
 		childSetEnabled( "delete_media", TRUE);
 		childSetEnabled( "add_media", FALSE );
 	}
@@ -1269,18 +1270,15 @@ void LLFloaterTools::getMediaState()
 // called when a user wants to add media to a prim or prim face
 void LLFloaterTools::onClickBtnAddMedia()
 {
-	// check for the edit tool and now many faces are selected
-	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
-	if((tool != LLToolFace::getInstance()) || LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
+	// check if multiple faces are selected
+	if(LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
 	{
-		LLNotificationsUtil::add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
-		
+		LLNotificationsUtil::add("MultipleFacesSelected", LLSD(), LLSD(), multipleFacesSelectedConfirm);
 	}
 	else
 	{
 		onClickBtnEditMedia();
 	}
-
 }
 
 // static
@@ -1423,7 +1421,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getControls();
         };
 		
-		const LLMediaEntry & mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_controls(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_controls, value_u8 );
@@ -1446,7 +1444,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getFirstClickInteract();
         };
 		
-		const LLMediaEntry & mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_first_click(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_first_click, value_bool );
@@ -1469,7 +1467,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getHomeURL();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_home_url(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_home_url, value_str );
@@ -1492,7 +1490,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getCurrentURL();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_current_url(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_current_url, value_str );
@@ -1516,7 +1514,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getAutoZoom();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_auto_zoom(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_zoom, value_bool );
@@ -1539,7 +1537,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getAutoPlay();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_auto_play(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_play, value_bool );
@@ -1563,7 +1561,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getAutoScale();;
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_auto_scale(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_scale, value_bool );
@@ -1586,7 +1584,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getAutoLoop();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_auto_loop(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_loop, value_bool );
@@ -1609,7 +1607,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getWidthPixels();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_width_pixels(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_width_pixels, value_int );
@@ -1632,7 +1630,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getHeightPixels();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_height_pixels(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_height_pixels, value_int );
@@ -1655,7 +1653,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getAltImageEnable();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_enable_alt_image(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_enable_alt_image, value_bool );
@@ -1678,7 +1676,7 @@ void LLFloaterTools::updateMediaSettings()
             return 0 != ( mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_OWNER );
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_perms_owner_interact(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_owner_interact, value_bool );
@@ -1701,7 +1699,7 @@ void LLFloaterTools::updateMediaSettings()
             return 0 != ( mMediaEntry.getPermsControl() & LLMediaEntry::PERM_OWNER );
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_perms_owner_control(default_media_data);
     identical = selected_objects ->getSelectedTEValue( &func_perms_owner_control, value_bool );
@@ -1724,7 +1722,7 @@ void LLFloaterTools::updateMediaSettings()
             return 0 != ( mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_GROUP );
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_perms_group_interact(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_group_interact, value_bool );
@@ -1747,7 +1745,7 @@ void LLFloaterTools::updateMediaSettings()
             return 0 != ( mMediaEntry.getPermsControl() & LLMediaEntry::PERM_GROUP );
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_perms_group_control(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_group_control, value_bool );
@@ -1770,7 +1768,7 @@ void LLFloaterTools::updateMediaSettings()
             return 0 != ( mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_ANYONE );
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_perms_anyone_interact(default_media_data);
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_perms_anyone_interact, value_bool );
@@ -1793,7 +1791,7 @@ void LLFloaterTools::updateMediaSettings()
             return 0 != ( mMediaEntry.getPermsControl() & LLMediaEntry::PERM_ANYONE );
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_perms_anyone_control(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_anyone_control, value_bool );
@@ -1816,7 +1814,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getWhiteListEnable();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_whitelist_enable(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_whitelist_enable, value_bool );
@@ -1839,7 +1837,7 @@ void LLFloaterTools::updateMediaSettings()
             return mMediaEntry.getWhiteList();
         };
 		
-		const LLMediaEntry &  mMediaEntry;
+		const LLMediaEntry &mMediaEntry;
 		
     } func_whitelist_urls(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_whitelist_urls, value_vector_str );

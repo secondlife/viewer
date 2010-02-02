@@ -44,15 +44,18 @@ static S32 DAYS_PER_MONTH_LEAP[] =
 
 static S32 days_from_month(S32 year, S32 month)
 {
+	llassert_always(1 <= month);
+	llassert_always(month <= 12);
+
 	if (year % 4 == 0 
 		&& year % 100 != 0)
 	{
 		// leap year
-		return DAYS_PER_MONTH_LEAP[month];
+		return DAYS_PER_MONTH_LEAP[month - 1];
 	}
 	else
 	{
-		return DAYS_PER_MONTH_NOLEAP[month];
+		return DAYS_PER_MONTH_NOLEAP[month - 1];
 	}
 }
 

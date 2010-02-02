@@ -180,7 +180,7 @@ void LLConsole::draw()
 	// draw remaining lines
 	F32 y_pos = 0.f;
 
-	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
+	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
 
 //	F32 console_opacity = llclamp(gSavedSettings.getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
 	F32 console_opacity = llclamp(LLUI::sSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
@@ -330,7 +330,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 			skip_chars = 0;
 		}
 
-		U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, TRUE);
+		U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
 
 		if (drawable != 0)
 		{
@@ -392,4 +392,10 @@ void LLConsole::addLine(const LLWString& wline, F32 size, const LLColor4 &color)
 	Paragraph paragraph(wline, color, mTimer.getElapsedTimeF32(), mFont,  (F32)getRect().getWidth() );
 	
 	mParagraphs.push_back ( paragraph );
+
+	// remove old paragraphs which can't possibly be visible any more.  ::draw() will do something similar but more conservative - we do this here because ::draw() isn't guaranteed to ever be called!  (i.e. the console isn't visible)
+        while ((S32)mParagraphs.size() > llmax((S32)0, (S32)(mMaxLines)))
+        {
+                mParagraphs.pop_front();
+        }
 }

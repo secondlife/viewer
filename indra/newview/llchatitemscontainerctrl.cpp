@@ -168,30 +168,30 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 	msg_text->setText(std::string(""));
 
-	std::string str_sender;
-	
-	if(gAgentID != mFromID)
-		str_sender = fromName;
-	else
-		str_sender = LLTrans::getString("You");
-
-	str_sender+=" ";
-
-	//append user name
+	if ( notification["chat_style"].asInteger() != CHAT_STYLE_IRC )
 	{
-		LLStyle::Params style_params_name;
+		std::string str_sender;
 
-		LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
+		str_sender = fromName;
 
-		style_params_name.color(userNameColor);
-		
-		std::string font_name = LLFontGL::nameFromFont(messageFont);
-		std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
-		style_params_name.font.name(font_name);
-		style_params_name.font.size(font_style_size);
-		
-		msg_text->appendText(str_sender, FALSE, style_params_name);
-		
+		str_sender+=" ";
+
+		//append user name
+		{
+			LLStyle::Params style_params_name;
+
+			LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
+
+			style_params_name.color(userNameColor);
+
+			std::string font_name = LLFontGL::nameFromFont(messageFont);
+			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
+			style_params_name.font.name(font_name);
+			style_params_name.font.size(font_style_size);
+
+			msg_text->appendText(str_sender, FALSE, style_params_name);
+
+		}
 	}
 
 	//append text
@@ -253,10 +253,32 @@ void LLNearbyChatToastPanel::onMouseEnter				(S32 x, S32 y, MASK mask)
 
 BOOL	LLNearbyChatToastPanel::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
-	if(mSourceType != CHAT_SOURCE_AGENT)
-		return LLPanel::handleMouseDown(x,y,mask);
-	LLFloaterReg::showInstance("nearby_chat",LLSD());
 	return LLPanel::handleMouseDown(x,y,mask);
+}
+
+BOOL	LLNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
+{
+	if(mSourceType != CHAT_SOURCE_AGENT)
+		return LLPanel::handleMouseUp(x,y,mask);
+
+	LLChatMsgBox* text_box = getChild<LLChatMsgBox>("msg_text", false);
+	S32 local_x = x - text_box->getRect().mLeft;
+	S32 local_y = y - text_box->getRect().mBottom;
+	
+	//if text_box process mouse up (ussually this is click on url) - we didn't show nearby_chat.
+	if (text_box->pointInView(local_x, local_y) )
+	{
+		if (text_box->handleMouseUp(local_x,local_y,mask) == TRUE)
+			return TRUE;
+		else
+		{
+			LLFloaterReg::showInstance("nearby_chat",LLSD());
+			return FALSE;
+		}
+	}
+
+	LLFloaterReg::showInstance("nearby_chat",LLSD());
+	return LLPanel::handleMouseUp(x,y,mask);
 }
 
 void	LLNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)

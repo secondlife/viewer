@@ -82,7 +82,7 @@ void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
 	getItems(items);
 	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
-		static_cast<LLAvatarListItem*>(*it)->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
+		static_cast<LLAvatarListItem*>(*it)->showSpeakingIndicator(mShowSpeakingIndicator);
 	}
 }
 
@@ -320,21 +320,25 @@ boost::signals2::connection LLAvatarList::setRefreshCompleteCallback(const commi
 	return mRefreshCompleteSignal.connect(cb);
 }
 
+boost::signals2::connection LLAvatarList::setItemDoubleClickCallback(const mouse_signal_t::slot_type& cb)
+{
+	return mItemDoubleClickSignal.connect(cb);
+}
+
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showInfoBtn(true);
-	item->showSpeakingIndicator(true);
 	item->setName(name);
 	item->setAvatarId(id, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 
-	item->childSetVisible("info_btn", false);
 	item->setAvatarIconVisible(mShowIcons);
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
-	item->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
+	item->showSpeakingIndicator(mShowSpeakingIndicator);
+
+	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoucleClicked, this, _1, _2, _3, _4));
 
 	addItem(item, id, pos);
 }
@@ -401,6 +405,11 @@ void LLAvatarList::updateLastInteractionTimes()
 		if (secs_since >= 0)
 			item->setLastInteractionTime(secs_since);
 	}
+}
+
+void LLAvatarList::onItemDoucleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+{
+	mItemDoubleClickSignal(ctrl, x, y, mask);
 }
 
 bool LLAvatarItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const

@@ -346,7 +346,8 @@ void LLTextBase::drawSelectionBackground()
 					S32 segment_line_start = segmentp->getStart() + segment_offset;
 					S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
 
-					S32 segment_width, segment_height;
+					S32 segment_width = 0;
+					S32 segment_height = 0;
 
 					// if selection after beginning of segment
 					if(selection_left >= segment_line_start)
@@ -433,7 +434,8 @@ void LLTextBase::drawCursor()
 
 			if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
 			{
-				S32 segment_width, segment_height;
+				S32 segment_width = 0;
+				S32 segment_height = 0;
 				segmentp->getDimensions(mCursorPos - segmentp->getStart(), 1, segment_width, segment_height);
 				S32 width = llmax(CURSOR_THICKNESS, segment_width);
 				cursor_rect.mRight = cursor_rect.mLeft + width;
@@ -2443,10 +2445,12 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
-	height = mFontHeight;
+	height = 0;
+	width = 0;
 	bool force_newline = false;
 	if (num_chars > 0)
 	{
+		height = mFontHeight;
 		LLWString text = mEditor.getWText();
 		// if last character is a newline, then return true, forcing line break
 		llwchar last_char = text[mStart + first_char + num_chars - 1];
@@ -2460,10 +2464,6 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		{
 			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 		}
-	}
-	else
-	{
-		width = 0;
 	}
 
 	LLUIImagePtr image = mStyle->getImage();
@@ -2509,10 +2509,15 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	// set max characters to length of segment, or to first newline
 	max_chars = llmin(max_chars, last_char - (mStart + segment_offset));
 
+	// if no character yet displayed on this line, don't require word wrapping since
+	// we can just move to the next line, otherwise insist on it so we make forward progress
+	LLFontGL::EWordWrapStyle word_wrap_style = (line_offset == 0) 
+		? LLFontGL::WORD_BOUNDARY_IF_POSSIBLE 
+		: LLFontGL::ONLY_WORD_BOUNDARIES;
 	S32 num_chars = mStyle->getFont()->maxDrawableChars(text.c_str() + segment_offset + mStart, 
 												(F32)num_pixels,
 												max_chars, 
-												TRUE);
+												word_wrap_style);
 
 	if (num_chars == 0 
 		&& line_offset == 0 

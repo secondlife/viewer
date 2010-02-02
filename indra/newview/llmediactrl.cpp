@@ -84,7 +84,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mHomePageUrl( "" ),
 	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
-	mExternalUrl( "" ),
 	mMediaSource( 0 ),
 	mTakeFocusOnClick( true ),
 	mCurrentNavUrl( "" ),
@@ -632,6 +631,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->setHomeURL(mHomePageUrl);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
+			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			if(mClearCache)
 			{
 				mMediaSource->clearCache();
@@ -671,34 +671,12 @@ LLPluginClassMedia* LLMediaCtrl::getMediaPlugin()
 //
 void LLMediaCtrl::draw()
 {
-	LLPluginClassMedia* media_plugin = NULL;
-	
-	if(mMediaSource && mMediaSource->hasMedia())
-	{
-		media_plugin = mMediaSource->getMediaPlugin();
-	}
-	else
-	{
-		return;
-	}
-	
-	if(!media_plugin || (!media_plugin->textureValid()))
-	{
-		// Don't try to draw without a valid texture
-		return;
-	}
-
-	LLViewerMediaTexture* media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
-	
-	if (!media_texture )
-		return;
-	
 	if ( gRestoreGL == 1 )
 	{
 		LLRect r = getRect();
 		reshape( r.getWidth(), r.getHeight(), FALSE );
 		return;
-	};
+	}
 
 	// NOTE: optimization needed here - probably only need to do this once
 	// unless tearoffs change the parent which they probably do.
@@ -712,125 +690,161 @@ void LLMediaCtrl::draw()
 		setFrequentUpdates( false );
 	};
 	
+	bool draw_media = false;
+	
+	LLPluginClassMedia* media_plugin = NULL;
+	LLViewerMediaTexture* media_texture = NULL;
+	
+	if(mMediaSource && mMediaSource->hasMedia())
+	{
+		media_plugin = mMediaSource->getMediaPlugin();
+
+		if(media_plugin && (media_plugin->textureValid()))
+		{
+			media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
+			if(media_texture)
+			{
+				draw_media = true;
+			}
+		}
+	}
+	
 	if(mHidingInitialLoad)
 	{
 		// If we're hiding loading, don't draw at all.
-		return;
+		draw_media = false;
 	}
 	
-	// alpha off for this
-	LLGLSUIDefault gls_ui;
-	LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
-
-	gGL.pushMatrix();
+	bool background_visible = isBackgroundVisible();
+	bool background_opaque = isBackgroundOpaque();
+	
+	if(draw_media)
 	{
-		if (mIgnoreUIScale)
-		{
-			glLoadIdentity();
-			// font system stores true screen origin, need to scale this by UI scale factor
-			// to get render origin for this view (with unit scale)
-			gGL.translatef(floorf(LLFontGL::sCurOrigin.mX * LLUI::sGLScaleFactor.mV[VX]), 
-						floorf(LLFontGL::sCurOrigin.mY * LLUI::sGLScaleFactor.mV[VY]), 
-						LLFontGL::sCurOrigin.mZ);
-		}
+		// alpha off for this
+		LLGLSUIDefault gls_ui;
+		LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
 
-		// scale texture to fit the space using texture coords
-		gGL.getTexUnit(0)->bind(media_texture);
-		gGL.color4fv( LLColor4::white.mV );
-		F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
-		F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
-
-		LLRect r = getRect();
-		S32 width, height;
-		S32 x_offset = 0;
-		S32 y_offset = 0;
-		
-		if(mStretchToFill)
+		gGL.pushMatrix();
 		{
-			if(mMaintainAspectRatio)
+			if (mIgnoreUIScale)
 			{
-				F32 media_aspect = (F32)(media_plugin->getWidth()) / (F32)(media_plugin->getHeight());
-				F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
-				if(media_aspect > view_aspect)
+				glLoadIdentity();
+				// font system stores true screen origin, need to scale this by UI scale factor
+				// to get render origin for this view (with unit scale)
+				gGL.translatef(floorf(LLFontGL::sCurOrigin.mX * LLUI::sGLScaleFactor.mV[VX]), 
+							floorf(LLFontGL::sCurOrigin.mY * LLUI::sGLScaleFactor.mV[VY]), 
+							LLFontGL::sCurOrigin.mZ);
+			}
+
+			// scale texture to fit the space using texture coords
+			gGL.getTexUnit(0)->bind(media_texture);
+			gGL.color4fv( LLColor4::white.mV );
+			F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
+			F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
+
+			LLRect r = getRect();
+			S32 width, height;
+			S32 x_offset = 0;
+			S32 y_offset = 0;
+			
+			if(mStretchToFill)
+			{
+				if(mMaintainAspectRatio)
 				{
-					// max width, adjusted height
-					width = r.getWidth();
-					height = llmin(llmax(llround(width / media_aspect), 0), r.getHeight());
+					F32 media_aspect = (F32)(media_plugin->getWidth()) / (F32)(media_plugin->getHeight());
+					F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
+					if(media_aspect > view_aspect)
+					{
+						// max width, adjusted height
+						width = r.getWidth();
+						height = llmin(llmax(llround(width / media_aspect), 0), r.getHeight());
+					}
+					else
+					{
+						// max height, adjusted width
+						height = r.getHeight();
+						width = llmin(llmax(llround(height * media_aspect), 0), r.getWidth());
+					}
 				}
 				else
 				{
-					// max height, adjusted width
+					width = r.getWidth();
 					height = r.getHeight();
-					width = llmin(llmax(llround(height * media_aspect), 0), r.getWidth());
 				}
 			}
 			else
 			{
-				width = r.getWidth();
-				height = r.getHeight();
+				width = llmin(media_plugin->getWidth(), r.getWidth());
+				height = llmin(media_plugin->getHeight(), r.getHeight());
 			}
+			
+			x_offset = (r.getWidth() - width) / 2;
+			y_offset = (r.getHeight() - height) / 2;		
+
+			if(mIgnoreUIScale)
+			{
+				x_offset = llround((F32)x_offset * LLUI::sGLScaleFactor.mV[VX]);
+				y_offset = llround((F32)y_offset * LLUI::sGLScaleFactor.mV[VY]);
+				width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
+				height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
+			}
+
+			// draw the browser
+			gGL.setSceneBlendType(LLRender::BT_REPLACE);
+			gGL.begin( LLRender::QUADS );
+			if (! media_plugin->getTextureCoordsOpenGL())
+			{
+				// render using web browser reported width and height, instead of trying to invert GL scale
+				gGL.texCoord2f( max_u, 0.f );
+				gGL.vertex2i( x_offset + width, y_offset + height );
+
+				gGL.texCoord2f( 0.f, 0.f );
+				gGL.vertex2i( x_offset, y_offset + height );
+
+				gGL.texCoord2f( 0.f, max_v );
+				gGL.vertex2i( x_offset, y_offset );
+
+				gGL.texCoord2f( max_u, max_v );
+				gGL.vertex2i( x_offset + width, y_offset );
+			}
+			else
+			{
+				// render using web browser reported width and height, instead of trying to invert GL scale
+				gGL.texCoord2f( max_u, max_v );
+				gGL.vertex2i( x_offset + width, y_offset + height );
+
+				gGL.texCoord2f( 0.f, max_v );
+				gGL.vertex2i( x_offset, y_offset + height );
+
+				gGL.texCoord2f( 0.f, 0.f );
+				gGL.vertex2i( x_offset, y_offset );
+
+				gGL.texCoord2f( max_u, 0.f );
+				gGL.vertex2i( x_offset + width, y_offset );
+			}
+			gGL.end();
+			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		}
-		else
-		{
-			width = llmin(media_plugin->getWidth(), r.getWidth());
-			height = llmin(media_plugin->getHeight(), r.getHeight());
-		}
-		
-		x_offset = (r.getWidth() - width) / 2;
-		y_offset = (r.getHeight() - height) / 2;		
-
-		if(mIgnoreUIScale)
-		{
-			x_offset = llround((F32)x_offset * LLUI::sGLScaleFactor.mV[VX]);
-			y_offset = llround((F32)y_offset * LLUI::sGLScaleFactor.mV[VY]);
-			width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
-			height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
-		}
-
-		// draw the browser
-		gGL.setSceneBlendType(LLRender::BT_REPLACE);
-		gGL.begin( LLRender::QUADS );
-		if (! media_plugin->getTextureCoordsOpenGL())
-		{
-			// render using web browser reported width and height, instead of trying to invert GL scale
-			gGL.texCoord2f( max_u, 0.f );
-			gGL.vertex2i( x_offset + width, y_offset + height );
-
-			gGL.texCoord2f( 0.f, 0.f );
-			gGL.vertex2i( x_offset, y_offset + height );
-
-			gGL.texCoord2f( 0.f, max_v );
-			gGL.vertex2i( x_offset, y_offset );
-
-			gGL.texCoord2f( max_u, max_v );
-			gGL.vertex2i( x_offset + width, y_offset );
-		}
-		else
-		{
-			// render using web browser reported width and height, instead of trying to invert GL scale
-			gGL.texCoord2f( max_u, max_v );
-			gGL.vertex2i( x_offset + width, y_offset + height );
-
-			gGL.texCoord2f( 0.f, max_v );
-			gGL.vertex2i( x_offset, y_offset + height );
-
-			gGL.texCoord2f( 0.f, 0.f );
-			gGL.vertex2i( x_offset, y_offset );
-
-			gGL.texCoord2f( max_u, 0.f );
-			gGL.vertex2i( x_offset + width, y_offset );
-		}
-		gGL.end();
-		gGL.setSceneBlendType(LLRender::BT_ALPHA);
+		gGL.popMatrix();
+	
 	}
-	gGL.popMatrix();
-
+	else
+	{
+		// Setting these will make LLPanel::draw draw the opaque background color.
+		setBackgroundVisible(true);
+		setBackgroundOpaque(true);
+	}
+	
 	// highlight if keyboard focus here. (TODO: this needs some work)
 	if ( mBorder && mBorder->getVisible() )
 		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus( this ) );
 
 	
 	LLPanel::draw();
+
+	// Restore the previous values
+	setBackgroundVisible(background_visible);
+	setBackgroundOpaque(background_opaque);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -862,9 +876,27 @@ bool LLMediaCtrl::onClickLinkExternalTarget(const LLSD& notification, const LLSD
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( 0 == option )
 	{
-		// open in external browser because we don't support 
-		// creation of our own secondary browser windows
-		LLWeb::loadURLExternal( notification["payload"]["external_url"].asString() );
+		LLSD payload = notification["payload"];
+		std::string url = payload["url"].asString();
+		S32 target_type = payload["target_type"].asInteger();
+
+		switch (target_type)
+		{
+		case LLPluginClassMedia::TARGET_EXTERNAL:
+			// load target in an external browser
+			LLWeb::loadURLExternal(url);
+			break;
+
+		case LLPluginClassMedia::TARGET_BLANK:
+			// load target in the user's preferred browser
+			LLWeb::loadURL(url);
+			break;
+
+		default:
+			// unsupported link target - shouldn't happen
+			LL_WARNS("LinkTarget") << "Unsupported link target type" << LL_ENDL;
+			break;
+		}
 	}
 	return false;
 }
@@ -978,20 +1010,18 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 {
 	// retrieve the event parameters
-	std::string target = self->getClickTarget();
 	std::string url = self->getClickURL();
+	U32 target_type = self->getClickTargetType();
 	
-	// if there is a value for the target
-	if ( !target.empty() )
+	// is there is a target specified for the link?
+	if (target_type == LLPluginClassMedia::TARGET_EXTERNAL ||
+		target_type == LLPluginClassMedia::TARGET_BLANK)
 	{
-		if ( target == "_external" )		
-		{
-			mExternalUrl = url;
-			LLSD payload;
-			payload["external_url"] = mExternalUrl;
-			LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
-			return;
-		}
+		LLSD payload;
+		payload["url"] = url;
+		payload["target_type"] = LLSD::Integer(target_type);
+		LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
+		return;
 	}
 
 	const std::string protocol1( "http://" );

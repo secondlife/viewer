@@ -167,20 +167,21 @@ BOOL LLFloaterAbout::postBuild()
 
 	// Now build the various pieces
 	support << getString("AboutHeader", args);
-	if (info.has("COMPILER"))
-	{
-		support << "\n\n" << getString("AboutCompiler", args);
-	}
 	if (info.has("REGION"))
 	{
 		support << "\n\n" << getString("AboutPosition", args);
 	}
 	support << "\n\n" << getString("AboutSystem", args);
+	support << "\n";
 	if (info.has("GRAPHICS_DRIVER_VERSION"))
 	{
-		support << "\n\n" << getString("AboutDriver", args);
+		support << "\n" << getString("AboutDriver", args);
 	}
-	support << "\n\n" << getString("AboutLibs", args);
+	support << "\n" << getString("AboutLibs", args);
+	if (info.has("COMPILER"))
+	{
+		support << "\n" << getString("AboutCompiler", args);
+	}
 	if (info.has("PACKETS_IN"))
 	{
 		support << '\n' << getString("AboutTraffic", args);
@@ -193,11 +194,11 @@ BOOL LLFloaterAbout::postBuild()
 	support_widget->blockUndo();
 
 	// Fix views
-	support_widget->setCursorPos(0);
 	support_widget->setEnabled(FALSE);
+	support_widget->startOfDoc();
 
-	credits_widget->setCursorPos(0);
 	credits_widget->setEnabled(FALSE);
+	credits_widget->startOfDoc();
 
 	return TRUE;
 }
@@ -268,7 +269,7 @@ LLSD LLFloaterAbout::getInfo()
 	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : LLTrans::getString("NotConnected");
 
 	// TODO: Implement media plugin version query
-	info["QT_WEBKIT_VERSION"] = "4.5.2 (version number hard-coded)";
+	info["QT_WEBKIT_VERSION"] = "4.6 (version number hard-coded)";
 
 	if (gPacketsIn > 0)
 	{

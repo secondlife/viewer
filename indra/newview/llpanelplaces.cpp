@@ -449,6 +449,22 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 	}
 }
 
+S32 LLPanelPlaces::notifyParent(const LLSD& info)
+{
+	if(info.has("update_verbs"))
+	{
+		if(mPosGlobal.isExactlyZero())
+		{
+			mPosGlobal.setVec(info["global_x"], info["global_y"], info["global_z"]);
+		}
+
+		updateVerbs();
+		
+		return 1;
+	}
+	return LLPanel::notifyParent(info);
+}
+
 void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 {
 	if (!mLandmarkInfo)
@@ -460,6 +476,8 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	mLandmarkInfo->displayParcelInfo(region_id, mPosGlobal);
 
 	mSaveBtn->setEnabled(TRUE);
+
+	updateVerbs();
 }
 
 void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_filter)
@@ -823,6 +841,19 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 			mLandmarkInfo->reshape(new_rect.getWidth(), new_rect.getHeight());
 
 			mPlaceProfile->setVisible(FALSE);
+		}
+		else
+		{
+			LLLandmarksPanel* landmarks_panel =
+					dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName("Landmarks"));
+			if (landmarks_panel && mItem.notNull())
+			{
+				// If a landmark info is being closed we open the landmarks tab
+				// and set this landmark selected.
+				mTabContainer->selectTabPanel(landmarks_panel);
+
+				landmarks_panel->setItemSelected(mItem->getUUID(), TRUE);
+			}
 		}
 	}
 }

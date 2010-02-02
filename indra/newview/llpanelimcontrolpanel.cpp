@@ -46,6 +46,7 @@
 #include "llimview.h"
 #include "llvoicechannel.h"
 #include "llsidetray.h"
+#include "llspeakers.h"
 #include "lltrans.h"
 
 void LLPanelChatControlPanel::onCallButtonClicked()
@@ -70,9 +71,9 @@ void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::E
 
 void LLPanelChatControlPanel::updateButtons(bool is_call_started)
 {
-	childSetVisible("end_call_btn", is_call_started);
-	childSetVisible("voice_ctrls_btn", is_call_started);
-	childSetVisible("call_btn", ! is_call_started);
+	childSetVisible("end_call_btn_panel", is_call_started);
+	childSetVisible("voice_ctrls_btn_panel", is_call_started);
+	childSetVisible("call_btn_panel", ! is_call_started);
 }
 
 LLPanelChatControlPanel::~LLPanelChatControlPanel()
@@ -302,7 +303,7 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 {
 	LLPanelChatControlPanel::setSessionId(session_id);
 
-	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
+	mGroupID = session_id;
 
 	// for group and Ad-hoc chat we need to include agent into list 
 	if(!mParticipantList)

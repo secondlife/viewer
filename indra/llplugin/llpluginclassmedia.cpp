@@ -37,6 +37,8 @@
 #include "llpluginclassmedia.h"
 #include "llpluginmessageclasses.h"
 
+#include "llqtwebkit.h"
+
 static int LOW_PRIORITY_TEXTURE_SIZE_DEFAULT = 256;
 
 static int nextPowerOf2( int value )
@@ -124,7 +126,8 @@ void LLPluginClassMedia::reset()
 	mCanPaste = false;
 	mMediaName.clear();
 	mMediaDescription.clear();
-
+	mBackgroundColor = LLColor4(1.0f, 1.0f, 1.0f, 1.0f);
+	
 	// media_browser class
 	mNavigateURI.clear();
 	mNavigateResultCode = -1;
@@ -133,6 +136,9 @@ void LLPluginClassMedia::reset()
 	mHistoryForwardAvailable = false;
 	mStatusText.clear();
 	mProgressPercent = 0;	
+	mClickURL.clear();
+	mClickTarget.clear();
+	mClickTargetType = TARGET_NONE;
 	
 	// media_time class
 	mCurrentTime = 0.0f;
@@ -234,6 +240,10 @@ void LLPluginClassMedia::idle(void)
 			message.setValueS32("height", mRequestedMediaHeight);
 			message.setValueS32("texture_width", mRequestedTextureWidth);
 			message.setValueS32("texture_height", mRequestedTextureHeight);
+			message.setValueReal("background_r", mBackgroundColor.mV[VX]);
+			message.setValueReal("background_g", mBackgroundColor.mV[VY]);
+			message.setValueReal("background_b", mBackgroundColor.mV[VZ]);
+			message.setValueReal("background_a", mBackgroundColor.mV[VW]);
 			mPlugin->sendMessage(message);	// DO NOT just use sendMessage() here -- we want this to jump ahead of the queue.
 			
 			LL_DEBUGS("Plugin") << "Sending size_change" << LL_ENDL;
@@ -664,6 +674,26 @@ void LLPluginClassMedia::paste()
 	sendMessage(message);
 }
 
+LLPluginClassMedia::ETargetType getTargetTypeFromLLQtWebkit(int target_type)
+{
+	// convert a LinkTargetType value from llqtwebkit to an ETargetType
+	// so that we don't expose the llqtwebkit header in viewer code
+	switch (target_type)
+	{
+	case LinkTargetType::LTT_TARGET_NONE:
+		return LLPluginClassMedia::TARGET_NONE;
+
+	case LinkTargetType::LTT_TARGET_BLANK:
+		return LLPluginClassMedia::TARGET_BLANK;
+
+	case LinkTargetType::LTT_TARGET_EXTERNAL:
+		return LLPluginClassMedia::TARGET_EXTERNAL;
+
+	default:
+		return LLPluginClassMedia::TARGET_OTHER;
+	}
+}
+
 /* virtual */ 
 void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 {
@@ -916,12 +946,15 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 		{
 			mClickURL = message.getValue("uri");
 			mClickTarget = message.getValue("target");
+			U32 target_type = message.getValueU32("target_type");
+			mClickTargetType = ::getTargetTypeFromLLQtWebkit(target_type);
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_HREF);
 		}
 		else if(message_name == "click_nofollow")
 		{
 			mClickURL = message.getValue("uri");
 			mClickTarget.clear();
+			mClickTargetType = TARGET_NONE;
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
 		}
 		else

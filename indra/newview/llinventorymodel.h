@@ -384,6 +384,39 @@ public:
 	void setLibraryOwnerID(const LLUUID& id);
 	void setLibraryRootFolderID(const LLUUID& id);
 
+
+	/**
+	 * Changes items order by insertion of the item identified by src_item_id
+	 * BEFORE the item identified by dest_item_id. Both items must exist in items array.
+	 *
+	 * Sorting is stored after method is finished. Only src_item_id is moved before dest_item_id.
+	 *
+	 * @param[in, out] items - vector with items to be updated. It should be sorted in a right way
+	 * before calling this method.
+	 * @param src_item_id - LLUUID of inventory item to be moved in new position
+	 * @param dest_item_id - LLUUID of inventory item before which source item should be placed.
+	 */
+	static void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& src_item_id, const LLUUID& dest_item_id);
+
+	/**
+	 * Saves current order of the passed items using inventory item sort field.
+	 *
+	 * It reset items' sort fields and saves them on server.
+	 * Is used to save order for Favorites folder.
+	 *
+	 * @param[in] items vector of items in order to be saved.
+	 */
+	void saveItemsOrder(const LLInventoryModel::item_array_t& items);
+
+	/**
+	 * Rearranges Landmarks inside Favorites folder.
+	 * Moves source landmark before target one.
+	 *
+	 * @param source_item_id - LLUUID of the source item to be moved into new position
+	 * @param target_item_id - LLUUID of the target item before which source item should be placed.
+	 */
+	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
+
 protected:
 
 	// Internal methods which add inventory and make sure that all of

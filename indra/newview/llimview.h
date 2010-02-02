@@ -33,22 +33,19 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "lldarray.h"
-#include "lldockablefloater.h"
-#include "llspeakers.h" //for LLIMSpeakerMgr
-#include "llimpanel.h" //for voice channels
-#include "llmodaldialog.h"
 #include "lldockablefloater.h"
 #include "llinstantmessage.h"
-#include "lluuid.h"
-#include "llmultifloater.h"
+
 #include "lllogchat.h"
+#include "llvoicechannel.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLCallDialogManager;	
+class LLIMSpeakerMgr;
+
 
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
@@ -77,6 +74,11 @@ public:
 		bool isAdHoc();
 		bool isP2P();
 		bool isOtherParticipantAvaline();
+
+		bool isP2PSessionType() const { return mSessionType == P2P_SESSION;}
+		bool isAdHocSessionType() const { return mSessionType == ADHOC_SESSION;}
+		bool isGroupSessionType() const { return mSessionType == GROUP_SESSION;}
+		bool isAvalineSessionType() const { return mSessionType == AVALINE_SESSION;}
 
 		LLUUID mSessionID;
 		std::string mName;
@@ -475,6 +477,7 @@ public:
 
 protected:
 	static std::string sPreviousSessionlName;
+	static LLIMModel::LLIMSession::SType sPreviousSessionType;
 	static std::string sCurrentSessionlName;
 	static LLIMModel::LLIMSession* sSession;
 	static LLVoiceChannel::EState sOldState;

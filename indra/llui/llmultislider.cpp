@@ -490,7 +490,7 @@ void LLMultiSlider::draw()
 	F32 opacity = getEnabled() ? 1.f : 0.3f;
 
 	// Track
-	LLUIImagePtr thumb_imagep = LLUI::getUIImage("rounded_square.tga");
+	LLUIImagePtr thumb_imagep = LLUI::getUIImage("Rounded_Square");
 
 	static LLUICachedControl<S32> multi_track_height ("UIMultiTrackHeight", 0);
 	S32 height_offset = (getRect().getHeight() - multi_track_height) / 2;

@@ -71,6 +71,12 @@ public:
 
 	void setItem(LLInventoryItem* item);
 
+	LLInventoryItem* getItem() { return mItem; }
+
+	std::string getPlaceInfoType() { return mPlaceInfoType; }
+
+	/*virtual*/ S32 notifyParent(const LLSD& info);
+
 private:
 	void onLandmarkLoaded(LLLandmark* landmark);
 	void onFilterEdit(const std::string& search_string, bool force_filter);

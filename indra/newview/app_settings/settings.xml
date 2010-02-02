@@ -276,7 +276,7 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-	<key>AudioSteamingMedia</key>
+	<key>AudioStreamingMedia</key>
     <map>
       <key>Comment</key>
       <string>Enable streaming</string>
@@ -285,7 +285,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>AudioStreamingMusic</key>
     <map>
@@ -296,7 +296,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>AudioStreamingVideo</key>
     <map>
@@ -307,7 +307,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
   <key>AuditTexture</key>
   <map>
@@ -407,6 +407,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>AvalinePhoneSeparator</key>
+    <map>
+      <key>Comment</key>
+      <string>Separator of phone parts to have Avaline numbers human readable in Voice Control Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>-</string>
     </map>
     <key>AvatarAxisDeadZone0</key>
     <map>
@@ -1130,9 +1141,9 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>5</integer>
     </map>
     <key>CameraAngle</key>
     <map>
@@ -3246,17 +3257,6 @@
       <key>Value</key>
       <real>0.75</real>
     </map>
-    <key>FolderIndentation</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of pixels to indent subfolders in inventory</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>8</integer>
-    </map>
     <key>FolderLoadingMessageWaitTime</key>
     <map>
       <key>Comment</key>
@@ -3596,7 +3596,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC]</string>
+      <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC][DEBUG_MODE]</string>
     </map>
     <key>HomeSidePanelURL</key>
     <map>
@@ -3607,7 +3607,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs.viewer-sidebar.secondlife.com.s3.amazonaws.com/sidebar.html</string>
+      <string>http://lecs.viewer-sidebar.secondlife.com.s3.amazonaws.com/sidebar.html?p=[AUTH_TOKEN]&amp;lang=[LANGUAGE]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]</string>
     </map>
     <key>SearchURL</key>
     <map>
@@ -3618,7 +3618,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://int.searchwww-phx0.damballah.lindenlab.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
+      <string>http://search.secondlife.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -3652,17 +3652,6 @@
       <string>String</string>
       <key>Value</key>
       <string />
-    </map>
-    <key>IMInChat</key>
-    <map>
-      <key>Comment</key>
-      <string>Copy IM into chat console</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>IMShowTimestamps</key>
     <map>
@@ -4809,6 +4798,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>MyOutfitsAutofill</key>
+	<map>
+		<key>Comment</key>
+		<string>Always autofill My Outfits from library when empty (else happens just once).</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>NearMeRange</key>
     <map>
       <key>Comment</key>
@@ -5039,6 +5039,18 @@
       <string>S32</string>
       <key>Value</key>
       <integer>5</integer>
+    </map>
+    <key>ToastButtonWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Default width of buttons in the toast. 
+      Note if required width will be less then this one, a button will be reshaped to default size , otherwise to required</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>90</integer>
     </map>
     <key>ChannelBottomPanelMargin</key>
     <map>
@@ -9320,18 +9332,7 @@
       <string>S32</string>
       <key>Value</key>
       <integer>2</integer>
-    </map>
-    <key>UILineEditorVPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Line Editor Vertical Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
-    </map>
+    </map> 
     <key>UIMaxComboWidth</key>
     <map>
       <key>Comment</key>

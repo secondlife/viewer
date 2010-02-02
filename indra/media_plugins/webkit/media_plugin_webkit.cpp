@@ -84,6 +84,7 @@ private:
 		INIT_STATE_NAVIGATING,			// Browser instance has been set up and initial navigate to about:blank has been issued
 		INIT_STATE_NAVIGATE_COMPLETE,	// initial navigate to about:blank has completed
 		INIT_STATE_WAIT_REDRAW,			// First real navigate begin has been received, waiting for page changed event to start handling redraws
+		INIT_STATE_WAIT_COMPLETE,		// Waiting for first real navigate complete event
 		INIT_STATE_RUNNING				// All initialization gymnastics are complete.
 	};
 	int mBrowserWindowId;
@@ -97,6 +98,9 @@ private:
 	int mLastMouseX;
 	int mLastMouseY;
 	bool mFirstFocus;
+	F32 mBackgroundR;
+	F32 mBackgroundG;
+	F32 mBackgroundB;
 	
 	void setInitState(int state)
 	{
@@ -122,7 +126,7 @@ private:
 			}
 		}
 		
-		if ( (mInitState == INIT_STATE_RUNNING) && mNeedsUpdate )
+		if ( (mInitState > INIT_STATE_WAIT_REDRAW) && mNeedsUpdate )
 		{
 			const unsigned char* browser_pixels = LLQtWebKit::getInstance()->grabBrowserWindow( mBrowserWindowId );
 
@@ -170,6 +174,15 @@ private:
 			return false;
 		}
 		std::string application_dir = std::string( cwd );
+
+#if LL_DARWIN
+	// When running under the Xcode debugger, there's a setting called "Break on Debugger()/DebugStr()" which defaults to being turned on.
+	// This causes the environment variable USERBREAK to be set to 1, which causes these legacy calls to break into the debugger.
+	// This wouldn't cause any problems except for the fact that the current release version of the Flash plugin has a call to Debugger() in it
+	// which gets hit when the plugin is probed by webkit.
+	// Unsetting the environment variable here works around this issue.
+	unsetenv("USERBREAK");
+#endif
 
 #if LL_WINDOWS
 		//*NOTE:Mani - On windows, at least, the component path is the
@@ -236,8 +249,9 @@ private:
 			// don't flip bitmap
 			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
 			
-			// set background color to be black - mostly for initial login page
-			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, 0x00, 0x00, 0x00 );
+			// set background color
+			// convert background color channels from [0.0, 1.0] to [0, 255];
+			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, int(mBackgroundR * 255.0f), int(mBackgroundG * 255.0f), int(mBackgroundB * 255.0f) );
 
 			// Set state _before_ starting the navigate, since onNavigateBegin might get called before this call returns.
 			setInitState(INIT_STATE_NAVIGATING);
@@ -245,7 +259,21 @@ private:
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
 			// FIXME: Re-added this because navigating to a "page" initializes things correctly - especially
 			// for the HTTP AUTH dialog issues (DEV-41731). Will fix at a later date.
-			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
+			// Build a data URL like this: "data:text/html,%3Chtml%3E%3Cbody bgcolor=%22#RRGGBB%22%3E%3C/body%3E%3C/html%3E"
+			// where RRGGBB is the background color in HTML style
+			std::stringstream url;
+			
+			url << "data:text/html,%3Chtml%3E%3Cbody%20bgcolor=%22#";
+			// convert background color channels from [0.0, 1.0] to [0, 255];
+			url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundR * 255.0f);
+			url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundG * 255.0f);
+			url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundB * 255.0f);
+			url << "%22%3E%3C/body%3E%3C/html%3E";
+			
+			lldebugs << "data url is: " << url.str() << llendl;
+						
+			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, url.str() );
+//			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
 
 			return true;
 		};
@@ -295,7 +323,7 @@ private:
 	{
 		if(mInitState == INIT_STATE_WAIT_REDRAW)
 		{
-			setInitState(INIT_STATE_RUNNING);
+			setInitState(INIT_STATE_WAIT_COMPLETE);
 		}
 		
 		// flag that an update is required
@@ -317,7 +345,9 @@ private:
 
 		if(mInitState == INIT_STATE_NAVIGATE_COMPLETE)
 		{
-			setInitState(INIT_STATE_WAIT_REDRAW);
+			// Skip the WAIT_REDRAW state now -- with the right background color set, it should no longer be necessary.
+//			setInitState(INIT_STATE_WAIT_REDRAW);
+			setInitState(INIT_STATE_WAIT_COMPLETE);
 		}
 		
 	}
@@ -328,6 +358,14 @@ private:
 	{
 		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
+			if(mInitState < INIT_STATE_RUNNING)
+			{
+				setInitState(INIT_STATE_RUNNING);
+				
+				// Clear the history, so the "back" button doesn't take you back to "about:blank".
+				LLQtWebKit::getInstance()->clearHistory(mBrowserWindowId);
+			}
+			
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
 			message.setValue("uri", event.getEventUri());
 			message.setValueS32("result_code", event.getIntValue());
@@ -400,6 +438,7 @@ private:
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
 		message.setValue("uri", event.getStringValue());
 		message.setValue("target", event.getStringValue2());
+		message.setValueU32("target_type", event.getLinkType());
 		sendMessage(message);
 	}
 	
@@ -695,7 +734,11 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				S32 height = message_in.getValueS32("height");
 				S32 texture_width = message_in.getValueS32("texture_width");
 				S32 texture_height = message_in.getValueS32("texture_height");
-				
+				mBackgroundR = message_in.getValueReal("background_r");
+				mBackgroundG = message_in.getValueReal("background_g");
+				mBackgroundB = message_in.getValueReal("background_b");
+//				mBackgroundA = message_in.setValueReal("background_a");		// Ignore any alpha
+								
 				if(!name.empty())
 				{
 					// Find the shared memory region with this name

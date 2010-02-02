@@ -79,7 +79,6 @@
 #include "llslider.h"
 #include "lldir.h"
 #include "llcombobox.h"
-//#include "llfloaterchat.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"

@@ -287,7 +287,7 @@ void LLHUDText::renderText(BOOL for_select)
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
 	// *TODO: cache this image
-	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
+	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
 
 	// *TODO: make this a per-text setting
 	LLColor4 bg_color = LLUIColorTable::instance().getColor("BackgroundChatColor");
@@ -606,7 +606,7 @@ void LLHUDText::addLine(const LLWString &wstr, const LLColor4& color, const LLFo
 			U32 line_length = 0;
 			do	
 			{
-				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), mUseBubble ? HUD_TEXT_MAX_WIDTH : HUD_TEXT_MAX_WIDTH_NO_BUBBLE, wline.length(), TRUE);
+				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), mUseBubble ? HUD_TEXT_MAX_WIDTH : HUD_TEXT_MAX_WIDTH_NO_BUBBLE, wline.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
 				mTextSegments.push_back(LLHUDTextSegment(iter->substr(line_length, segment_length), style, color));
 				line_length += segment_length;
 			}
@@ -642,7 +642,7 @@ void LLHUDText::setLabel(const LLWString &wlabel)
 			U32 line_length = 0;
 			do	
 			{
-				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), mUseBubble ? HUD_TEXT_MAX_WIDTH : HUD_TEXT_MAX_WIDTH_NO_BUBBLE, wstr.length(), TRUE);
+				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), mUseBubble ? HUD_TEXT_MAX_WIDTH : HUD_TEXT_MAX_WIDTH_NO_BUBBLE, wstr.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
 				mLabelSegments.push_back(LLHUDTextSegment(iter->substr(line_length, segment_length), LLFontGL::NORMAL, mColor));
 				line_length += segment_length;
 			}

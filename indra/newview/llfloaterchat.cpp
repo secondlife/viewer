@@ -37,8 +37,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterchat.h"
-
 // project include
 #include "llagent.h"
 #include "llappviewer.h"
@@ -190,7 +188,14 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {	
 	if (log_to_file && (gSavedPerAccountSettings.getBOOL("LogChat"))) 
 	{
-		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		if (chat.mChatType != CHAT_TYPE_WHISPER && chat.mChatType != CHAT_TYPE_SHOUT)
+		{
+			LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		}
+		else
+		{
+			LLLogChat::saveHistory("chat", "", chat.mFromID, chat.mFromName + " " + chat.mText);
+		}
 	}
 	
 	LLColor4 color = get_text_color(chat);
@@ -306,27 +311,17 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 }
 
 // Put a line of chat in all the right places
-void LLFloaterChat::addChat(const LLChat& chat, BOOL from_instant_message, BOOL local_agent)
+void LLFloaterChat::addChat(const LLChat& chat, BOOL local_agent)
 {
 	triggerAlerts(chat.mText);
 
 	// Add the sender to the list of people with which we've recently interacted.
-	if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
-		LLRecentPeople::instance().add(chat.mFromID);
+	// this is not the best place to add _all_ messages to recent list
+	// comment this for now, may remove later on code cleanup
+	//if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
+	//	LLRecentPeople::instance().add(chat.mFromID);
 	
-	bool add_chat = true;
-	bool log_chat = true;
-	if(from_instant_message)
-	{
-		if (!gSavedSettings.getBOOL("IMInChat"))
-			add_chat = false;
-		//log_chat = false;
-}
-	
-	if (add_chat)
-	{
-		addChatHistory(chat, log_chat);
-	}
+	addChatHistory(chat, true);
 }
 
 // Moved from lltextparser.cpp to break llui/llaudio library dependency.

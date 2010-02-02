@@ -70,7 +70,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
 
 	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
-	mAvatarListDoubleClickConnection = mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+	mAvatarListDoubleClickConnection = mAvatarList->setItemDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, _1));
 	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
     // Set onAvatarListDoubleClicked as default on_return action.
 	mAvatarListReturnConnection = mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
@@ -132,10 +132,15 @@ void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
 	mAvatarList->setSpeakingIndicatorsVisible(visible);
 };
 
-void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
+void LLParticipantList::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 {
-	// NOTE(EM): Should we check if there is multiple selection and start conference if it is so?
-	LLUUID clicked_id = list->getSelectedUUID();
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(ctrl);
+	if(!item)
+	{
+		return;
+	}
+
+	LLUUID clicked_id = item->getAvatarId();
 
 	if (clicked_id.isNull() || clicked_id == gAgent.getID())
 		return;
@@ -166,7 +171,6 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 				{
 					name.erase(found, moderator_indicator_len);
 					item->setName(name);
-					item->reshapeAvatarName();
 				}
 			}
 		}
@@ -188,7 +192,6 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 					name += " ";
 					name += moderator_indicator;
 					item->setName(name);
-					item->reshapeAvatarName();
 				}
 			}
 		}
@@ -279,6 +282,9 @@ bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> e
 					mModeratorList.erase(id);
 				}
 			}
+
+			// apply changes immediately
+			onAvatarListRefreshed(mAvatarList, LLSD());
 		}
 	}
 	return true;
@@ -576,7 +582,7 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	if (item == "can_mute_text" || "can_block" == item)
+	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item)
 	{
 		return mUUIDs.front() != gAgentID;
 	}
@@ -592,8 +598,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 			if (speakerp.notNull())
 			{
 				// not in voice participants can not be moderated
-				return speakerp->mStatus == LLSpeaker::STATUS_VOICE_ACTIVE
-					|| speakerp->mStatus == LLSpeaker::STATUS_MUTED;
+				return speakerp->isInVoiceChannel();
 			}
 		}
 		return false;

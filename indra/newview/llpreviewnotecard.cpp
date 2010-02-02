@@ -55,7 +55,6 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "lldir.h"
-//#include "llfloaterchat.h"
 #include "llviewerstats.h"
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llappviewer.h"		// app_abort_quit()

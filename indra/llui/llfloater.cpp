@@ -233,6 +233,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mAutoFocus(TRUE), // automatically take focus when opened
 	mCanDock(false),
 	mDocked(false),
+	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
 	mPreviousMinimizedLeft(0)
@@ -878,9 +879,11 @@ void LLFloater::setSnappedTo(const LLView* snap_view)
 	else
 	{
 		//RN: assume it's a floater as it must be a sibling to our parent floater
-		LLFloater* floaterp = (LLFloater*)snap_view;
-		
-		setSnapTarget(floaterp->getHandle());
+		const LLFloater* floaterp = dynamic_cast<const LLFloater*>(snap_view);
+		if (floaterp)
+		{
+			setSnapTarget(floaterp->getHandle());
+		}
 	}
 }
 
@@ -1065,10 +1068,6 @@ void LLFloater::setMinimized(BOOL minimize)
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
 	
-	// don't show the help button while minimized - it's
-	// not very useful when minimized and uses up space
-	mButtonsEnabled[BUTTON_HELP] = !minimize;
-
 	applyTitle ();
 
 	make_ui_sound("UISndWindowClose");
@@ -1361,6 +1360,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
 {
+	gFocusMgr.setTopCtrl(NULL);
 	setVisible(TRUE);
 	setFrontmost(take_focus);
 }
@@ -1458,6 +1458,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		}
 		self->setTornOff(false);
 	}
+	self->updateButtons();
 }
 
 // static
@@ -1741,14 +1742,32 @@ void LLFloater::updateButtons()
 	S32 button_count = 0;
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
-		if(!mButtons[i]) continue;
-		mButtons[i]->setEnabled(mButtonsEnabled[i]);
+		if (!mButtons[i])
+		{
+			continue;
+		}
 
-		if (mButtonsEnabled[i] 
-			//*HACK: always render close button for hosted floaters
-			// so that users don't accidentally hit the button when closing multiple windows
-			// in the chatterbox
-			|| (i == BUTTON_CLOSE && mButtonScale != 1.f))
+		bool enabled = mButtonsEnabled[i];
+		if (i == BUTTON_HELP)
+		{
+			// don't show the help button if the floater is minimized
+			// or if it is a docked tear-off floater
+			if (isMinimized() || (mButtonsEnabled[BUTTON_TEAR_OFF] && ! mTornOff))
+			{
+				enabled = false;
+			}
+		}
+		if (i == BUTTON_CLOSE && mButtonScale != 1.f)
+		{
+			//*HACK: always render close button for hosted floaters so
+			//that users don't accidentally hit the button when
+			//closing multiple windows in the chatterbox
+			enabled = true;
+		}
+
+		mButtons[i]->setEnabled(enabled);
+
+		if (enabled)
 		{
 			button_count++;
 
@@ -1775,7 +1794,7 @@ void LLFloater::updateButtons()
 			// the restore button should have a tab stop so that it takes action when you Ctrl-Tab to a minimized floater
 			mButtons[i]->setTabStop(i == BUTTON_RESTORE);
 		}
-		else if (mButtons[i])
+		else
 		{
 			mButtons[i]->setVisible(FALSE);
 		}
@@ -2344,7 +2363,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	LLRect::tCoordType screen_width = getSnapRect().getWidth();
 	LLRect::tCoordType screen_height = getSnapRect().getHeight();
 
-
+	
 	// only automatically resize non-minimized, resizable floaters
 	if( floater->isResizable() && !floater->isMinimized() )
 	{
@@ -2369,16 +2388,13 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			new_width = llmax(new_width, min_width);
 			new_height = llmax(new_height, min_height);
 
-			floater->reshape( new_width, new_height, TRUE );
-			if (floater->followsRight())
-			{
-				floater->translate(old_width - new_width, 0);
-			}
+			LLRect new_rect;
+			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
 
-			if (floater->followsTop())
-			{
-				floater->translate(0, old_height - new_height);
-			}
+			floater->reshape( new_width, new_height, TRUE );
+			floater->setRect(new_rect);
+
+			floater->translateIntoRect( getLocalRect(), false );
 		}
 	}
 

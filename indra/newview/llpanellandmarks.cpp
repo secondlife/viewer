@@ -35,6 +35,7 @@
 
 #include "llbutton.h"
 #include "llfloaterreg.h"
+#include "llnotificationsutil.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "llregionhandle.h"
@@ -304,6 +305,29 @@ void LLLandmarksPanel::updateShowFolderState()
 		);
 }
 
+void LLLandmarksPanel::setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus)
+{
+	if (selectItemInAccordionTab(mFavoritesInventoryPanel, "tab_favorites", obj_id, take_keyboard_focus))
+	{
+		return;
+	}
+
+	if (selectItemInAccordionTab(mLandmarksInventoryPanel, "tab_landmarks", obj_id, take_keyboard_focus))
+	{
+		return;
+	}
+
+	if (selectItemInAccordionTab(mMyInventoryPanel, "tab_inventory", obj_id, take_keyboard_focus))
+	{
+		return;
+	}
+
+	if (selectItemInAccordionTab(mLibraryInventoryPanel, "tab_library", obj_id, take_keyboard_focus))
+	{
+		return;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PROTECTED METHODS
 //////////////////////////////////////////////////////////////////////////
@@ -347,6 +371,36 @@ void LLLandmarksPanel::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_call
 LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const 
 {
 	return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : NULL;
+}
+
+LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPanel* inventory_list,
+															 const std::string& tab_name,
+															 const LLUUID& obj_id,
+															 BOOL take_keyboard_focus) const
+{
+	if (!inventory_list)
+		return NULL;
+
+	LLFolderView* folder_view = inventory_list->getRootFolder();
+
+	LLFolderViewItem* item = folder_view->getItemByID(obj_id);
+	if (!item)
+		return NULL;
+
+	LLAccordionCtrlTab* tab = getChild<LLAccordionCtrlTab>(tab_name);
+	if (!tab->isExpanded())
+	{
+		tab->changeOpenClose(false);
+	}
+
+	folder_view->setSelection(item, FALSE, take_keyboard_focus);
+
+	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
+	LLRect screen_rc;
+	localRectToScreen(item->getRect(), &screen_rc);
+	accordion->notifyParent(LLSD().with("scrollToShowRect", screen_rc.getValue()));
+
+	return item;
 }
 
 void LLLandmarksPanel::updateSortOrder(LLInventoryPanel* panel, bool byDate)
@@ -632,8 +686,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 		if(landmark)
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", 
-								LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+			LLNotificationsUtil::add("LandmarkAlreadyExists");
 		}
 		else
 		{

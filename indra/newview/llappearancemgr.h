@@ -62,10 +62,13 @@ public:
 	LLUUID getCOF();
 
 	// Finds the folder link to the currently worn outfit
-	const LLViewerInventoryItem *getCurrentOutfitLink();
+	const LLViewerInventoryItem *getBaseOutfitLink();
+	bool getBaseOutfitName(std::string &name);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
+
+	void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
@@ -94,6 +97,16 @@ public:
 	// Add COF link to ensemble folder.
 	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
 
+	//has the current outfit changed since it was loaded?
+	bool isOutfitDirty() { return mOutfitIsDirty; }
+
+	// set false if you just loaded the outfit, true otherwise
+	void setOutfitDirty(bool isDirty) { mOutfitIsDirty = isDirty; }
+	
+	// manually compare ouftit folder link to COF to see if outfit has changed.
+	// should only be necessary to do on initial login.
+	void updateIsDirty();
+
 protected:
 	LLAppearanceManager();
 	~LLAppearanceManager();
@@ -114,9 +127,11 @@ private:
 								   bool follow_folder_links);
 
 	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
+	void purgeBaseOutfitLink(const LLUUID& category);
 
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
+	bool mOutfitIsDirty;
 };
 
 #define SUPPORT_ENSEMBLES 0

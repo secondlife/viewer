@@ -127,7 +127,11 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mScrollState = SCROLL_NONE;
 
 	mPanelHandle.bind(this);
+	
+	mInactiveTimeout = gSavedSettings.getF32("MediaControlTimeout");
+	mControlFadeTime = gSavedSettings.getF32("MediaControlFadeTime");
 }
+
 LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
 {
 }
@@ -156,8 +160,6 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mSkipBackCtrl			= getChild<LLUICtrl>("skip_back");
 	mVolumeCtrl				= getChild<LLUICtrl>("media_volume");
 	mMuteBtn				= getChild<LLButton>("media_mute_button");
-	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up");
-	mVolumeDownCtrl			= getChild<LLUICtrl>("volume_down");
 	mVolumeSliderCtrl       = getChild<LLSliderCtrl>("volume_slider");
 	mWhitelistIcon			= getChild<LLIconCtrl>("media_whitelist_flag");
 	mSecureLockIcon			= getChild<LLIconCtrl>("media_secure_lock_flag");
@@ -172,6 +174,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	LLStringUtil::convertToF32(getString("zoom_near_padding"), mZoomNearPadding);
 	LLStringUtil::convertToF32(getString("zoom_medium_padding"), mZoomMediumPadding);
 	LLStringUtil::convertToF32(getString("zoom_far_padding"), mZoomFarPadding);
+	LLStringUtil::convertToS32(getString("top_world_view_avoid_zone"), mTopWorldViewAvoidZone);
 
 	// These are currently removed...but getChild creates a "dummy" widget.
 	// This class handles them missing.
@@ -207,11 +210,9 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	}
 		
 	mMediaAddress->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
-	mInactiveTimeout = gSavedSettings.getF32("MediaControlTimeout");
-	mControlFadeTime = gSavedSettings.getF32("MediaControlFadeTime");
-
+	
 	mCurrentZoom = ZOOM_NONE;
-	// clicks on HUD buttons do not remove keyboard focus from media
+	// clicks on buttons do not remove keyboard focus from media
 	setIsChrome(TRUE);
 	return TRUE;
 }
@@ -336,8 +337,6 @@ void LLPanelPrimMediaControls::updateShape()
 		mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
 		mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
 		mVolumeCtrl->setVisible(false);
-		mVolumeUpCtrl->setVisible(false);
-		mVolumeDownCtrl->setVisible(false);
 		
 		mWhitelistIcon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
 		// Disable zoom if HUD
@@ -370,11 +369,9 @@ void LLPanelPrimMediaControls::updateShape()
 			mSkipBackCtrl->setEnabled(has_focus && !mini_controls);
 			
 			mVolumeCtrl->setVisible(has_focus);
-			mVolumeUpCtrl->setVisible(has_focus);
-			mVolumeDownCtrl->setVisible(has_focus);
 			mVolumeCtrl->setEnabled(has_focus);
-			mVolumeSliderCtrl->setEnabled(has_focus && mVolumeSliderVisible > 0);
-			mVolumeSliderCtrl->setVisible(has_focus && mVolumeSliderVisible > 0);
+			mVolumeSliderCtrl->setEnabled(has_focus && shouldVolumeSliderBeVisible());
+			mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
 			
 			mWhitelistIcon->setVisible(false);
 			mSecureLockIcon->setVisible(false);
@@ -414,21 +411,15 @@ void LLPanelPrimMediaControls::updateShape()
 			// video vloume
 			if(volume <= 0.0)
 			{
-				mVolumeUpCtrl->setEnabled(TRUE);
-				mVolumeDownCtrl->setEnabled(FALSE);
 				mMuteBtn->setToggleState(true);
 			}
 			else if (volume >= 1.0)
 			{
-				mVolumeUpCtrl->setEnabled(FALSE);
-				mVolumeDownCtrl->setEnabled(TRUE);
 				mMuteBtn->setToggleState(false);
 			}
 			else
 			{
 				mMuteBtn->setToggleState(false);
-				mVolumeUpCtrl->setEnabled(TRUE);
-				mVolumeDownCtrl->setEnabled(TRUE);
 			}
 			
 			switch(result)
@@ -473,12 +464,8 @@ void LLPanelPrimMediaControls::updateShape()
 			mSkipBackCtrl->setEnabled(FALSE);
 			
 			mVolumeCtrl->setVisible(FALSE);
-			mVolumeUpCtrl->setVisible(FALSE);
-			mVolumeDownCtrl->setVisible(FALSE);
 			mVolumeSliderCtrl->setVisible(FALSE);
 			mVolumeCtrl->setEnabled(FALSE);
-			mVolumeUpCtrl->setEnabled(FALSE);
-			mVolumeDownCtrl->setEnabled(FALSE);
 			mVolumeSliderCtrl->setEnabled(FALSE);
 			
 			if (mMediaPanelScroll)
@@ -627,36 +614,45 @@ void LLPanelPrimMediaControls::updateShape()
 			update_min_max(min, max, LLVector3(screen_vert.v));
 		}
 		
+		// convert screenspace bbox to pixels (in screen coords)
+		LLRect window_rect = gViewerWindow->getWorldViewRectScaled();
 		LLCoordGL screen_min;
-		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidthScaled() * (min.mV[VX] + 1.f) * 0.5f);
-		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeightScaled() * (min.mV[VY] + 1.f) * 0.5f);
+		screen_min.mX = llround((F32)window_rect.getWidth() * (min.mV[VX] + 1.f) * 0.5f);
+		screen_min.mY = llround((F32)window_rect.getHeight() * (min.mV[VY] + 1.f) * 0.5f);
 		
 		LLCoordGL screen_max;
-		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidthScaled() * (max.mV[VX] + 1.f) * 0.5f);
-		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeightScaled() * (max.mV[VY] + 1.f) * 0.5f);
+		screen_max.mX = llround((F32)window_rect.getWidth() * (max.mV[VX] + 1.f) * 0.5f);
+		screen_max.mY = llround((F32)window_rect.getHeight() * (max.mV[VY] + 1.f) * 0.5f);
 		
-		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
-		LLRect media_controls_rect;
-		S32 volume_slider_height = mVolumeSliderCtrl->getRect().getHeight() - /*fudge*/ 2;
-		getParent()->screenRectToLocal(LLRect(screen_min.mX, screen_max.mY, screen_max.mX, screen_min.mY), &media_controls_rect);
-		media_controls_rect.mLeft -= mMediaRegion->getRect().mLeft;
-		media_controls_rect.mBottom -= mMediaRegion->getRect().mBottom - volume_slider_height;
-		media_controls_rect.mTop += getRect().getHeight() - mMediaRegion->getRect().mTop;
-		media_controls_rect.mRight += getRect().getWidth() - mMediaRegion->getRect().mRight;
+		// grow panel so that screenspace bounding box fits inside "media_region" element of panel
+		LLRect media_panel_rect;
+		// Get the height of the controls (less the volume slider)
+		S32 controls_height = mMediaControlsStack->getRect().getHeight() - mVolumeSliderCtrl->getRect().getHeight();
+		getParent()->screenRectToLocal(LLRect(screen_min.mX, screen_max.mY, screen_max.mX, screen_min.mY), &media_panel_rect);
+		media_panel_rect.mTop += controls_height;
 		
-		// keep all parts of HUD on-screen
-		LLRect window_rect = getParent()->getLocalRect();
-		media_controls_rect.intersectWith(window_rect);
+		// keep all parts of panel on-screen
+		// Area of the top of the world view to avoid putting the controls
+		window_rect.mTop -= mTopWorldViewAvoidZone;
+		// Don't include "spacing" bookends on left & right of the media controls
+		window_rect.mLeft -= mLeftBookend->getRect().getWidth();
+		window_rect.mRight += mRightBookend->getRect().getWidth();
+		// Don't include the volume slider
+		window_rect.mBottom -= mVolumeSliderCtrl->getRect().getHeight();
+		media_panel_rect.intersectWith(window_rect);
 		
 		// clamp to minimum size, keeping rect inside window
-		S32 centerX = media_controls_rect.getCenterX();
-		S32 centerY = media_controls_rect.getCenterY();
+		S32 centerX = media_panel_rect.getCenterX();
+		S32 centerY = media_panel_rect.getCenterY();
+		// Shrink screen rect by min width and height, to ensure containment
 		window_rect.stretch(-mMinWidth/2, -mMinHeight/2);
 		window_rect.clampPointToRect(centerX, centerY);
-		media_controls_rect.setCenterAndSize(centerX, centerY,
-											 llmax(mMinWidth, media_controls_rect.getWidth()), llmax(mMinHeight, media_controls_rect.getHeight()));
+		media_panel_rect.setCenterAndSize(centerX, centerY, 
+										  llmax(mMinWidth, media_panel_rect.getWidth()),
+										  llmax(mMinHeight, media_panel_rect.getHeight()));
 		
-		setShape(media_controls_rect, true);
+		// Finally set the size of the panel
+		setShape(media_panel_rect, true);
 		
 		// Test mouse position to see if the cursor is stationary
 		LLCoordWindow cursor_pos_window;
@@ -699,13 +695,13 @@ void LLPanelPrimMediaControls::updateShape()
 /*virtual*/
 void LLPanelPrimMediaControls::draw()
 {
-	F32 alpha = 1.f;
+	F32 alpha = getDrawContext().mAlpha;
 	if(mFadeTimer.getStarted())
 	{
 		F32 time = mFadeTimer.getElapsedTimeF32();
-		alpha = llmax(lerp(1.0, 0.0, time / mControlFadeTime), 0.0f);
+		alpha *= llmax(lerp(1.0, 0.0, time / mControlFadeTime), 0.0f);
 
-		if(mFadeTimer.getElapsedTimeF32() >= mControlFadeTime)
+		if(time >= mControlFadeTime)
 		{
 			if(mClearFaceOnFade)
 			{
@@ -726,27 +722,30 @@ void LLPanelPrimMediaControls::draw()
 	// Build rect for icon area in coord system of this panel
 	// Assumes layout_stack is a direct child of this panel
 	mMediaControlsStack->updateLayout();
-	LLRect icon_area = mMediaControlsStack->getRect();
-
+	
+	// adjust for layout stack spacing
+	S32 space = mMediaControlsStack->getPanelSpacing() + 1;
+	LLRect controls_bg_area = mMediaControlsStack->getRect();
+	
+	controls_bg_area.mTop += space;
+	
 	// adjust to ignore space from volume slider
-	icon_area.mTop -= mVolumeSliderCtrl->getRect().getHeight();
+	controls_bg_area.mBottom += mVolumeSliderCtrl->getRect().getHeight();
 	
 	// adjust to ignore space from left bookend padding
-	icon_area.mLeft += mLeftBookend->getRect().getWidth();
+	controls_bg_area.mLeft += mLeftBookend->getRect().getWidth() - space;
 	
 	// ignore space from right bookend padding
-	icon_area.mRight -= mRightBookend->getRect().getWidth();
+	controls_bg_area.mRight -= mRightBookend->getRect().getWidth() - space;
 		
 	// draw control background UI image
-	mBackgroundImage->draw( icon_area, UI_VERTEX_COLOR % alpha);
+	mBackgroundImage->draw( controls_bg_area, UI_VERTEX_COLOR % alpha);
 	
 	// draw volume slider background UI image
 	if (mVolumeSliderCtrl->getVisible())
 	{
-		LLRect volume_slider_rect = mVolumeSliderCtrl->getRect();
-		// For some reason the rect is not in the right place (??)
-		// This translates the bg to under the slider
-		volume_slider_rect.translate(mVolumeSliderCtrl->getParent()->getRect().mLeft, icon_area.getHeight());
+		LLRect volume_slider_rect;
+		screenRectToLocal(mVolumeSliderCtrl->calcScreenRect(), &volume_slider_rect);
 		mVolumeSliderBackgroundImage->draw(volume_slider_rect, UI_VERTEX_COLOR % alpha);
 	}
 	
@@ -1259,6 +1258,11 @@ void LLPanelPrimMediaControls::onToggleMute()
 		{
 			media_impl->setVolume(0.0);
 		}
+		else if (mVolumeSliderCtrl->getValueF32() == 0.0)
+		{
+			media_impl->setVolume(1.0);
+			mVolumeSliderCtrl->setValue(1.0);
+		}
 		else 
 		{
 			media_impl->setVolume(mVolumeSliderCtrl->getValueF32());
@@ -1271,8 +1275,12 @@ void LLPanelPrimMediaControls::showVolumeSlider()
 	mVolumeSliderVisible++;
 }
 
-
 void LLPanelPrimMediaControls::hideVolumeSlider()
 {
 	mVolumeSliderVisible--;
+}
+
+bool LLPanelPrimMediaControls::shouldVolumeSliderBeVisible()
+{
+	return mVolumeSliderVisible > 0;
 }

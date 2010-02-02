@@ -35,6 +35,7 @@
 // libs
 #include "llfloaterreg.h"
 #include "llmenugl.h"
+#include "llnotificationsutil.h"
 #include "llfiltereditor.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
@@ -531,10 +532,10 @@ BOOL LLPanelPeople::postBuild()
 	friends_panel->childSetAction("add_btn",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
 	friends_panel->childSetAction("del_btn",	boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
 
-	mOnlineFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mOnlineFriendList));
-	mAllFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mAllFriendList));
-	mNearbyList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mNearbyList));
-	mRecentList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mRecentList));
+	mOnlineFriendList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+	mAllFriendList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+	mNearbyList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+	mRecentList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
 
 	mOnlineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOnlineFriendList));
 	mAllFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mAllFriendList));
@@ -750,7 +751,6 @@ void LLPanelPeople::updateButtons()
 
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
 		groups_panel->childSetEnabled("activate_btn",	item_selected && !cur_group_active); // "none" or a non-active group selected
-		groups_panel->childSetEnabled("plus_btn",		item_selected);
 		groups_panel->childSetEnabled("minus_btn",		item_selected && selected_id.notNull());
 	}
 	else
@@ -1005,12 +1005,15 @@ void LLPanelPeople::onTabSelected(const LLSD& param)
 		mFilterEditor->setLabel(getString("people_filter_label"));
 }
 
-void LLPanelPeople::onAvatarListDoubleClicked(LLAvatarList* list)
+void LLPanelPeople::onAvatarListDoubleClicked(LLUICtrl* ctrl)
 {
-	LLUUID clicked_id = list->getSelectedUUID();
-
-	if (clicked_id.isNull())
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(ctrl);
+	if(!item)
+	{
 		return;
+	}
+
+	LLUUID clicked_id = item->getAvatarId();
 	
 #if 0 // SJB: Useful for testing, but not currently functional or to spec
 	LLAvatarActions::showProfile(clicked_id);
@@ -1138,6 +1141,12 @@ void LLPanelPeople::onAvatarPicked(
 
 void LLPanelPeople::onGroupPlusButtonClicked()
 {
+	if (!gAgent.canJoinGroups())
+	{
+		LLNotificationsUtil::add("JoinedTooManyGroups");
+		return;
+	}
+
 	LLMenuGL* plus_menu = (LLMenuGL*)mGroupPlusMenuHandle.get();
 	if (!plus_menu)
 		return;

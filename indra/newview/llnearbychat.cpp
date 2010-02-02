@@ -63,7 +63,7 @@
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLDockableFloater(NULL, false, key)
+	: LLDockableFloater(NULL, false, false, key)
 	,mChatHistory(NULL)
 {
 	
@@ -137,7 +137,7 @@ std::string appendTime()
 	time_t utc_time;
 	utc_time = time_corrected();
 	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"] ";
+		+LLTrans::getString("TimeMin")+"]";
 
 	LLSD substitution;
 
@@ -178,28 +178,8 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 	
 	if (!chat.mMuted)
 	{
-		tmp_chat.mFromName = chat.mFromID != gAgentID ? chat.mFromName : LLTrans::getString("You");
-
-		if (chat.mChatStyle == CHAT_STYLE_IRC)
-		{
-			LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-			LLViewerChat::getChatColor(chat,txt_color);
-			LLFontGL* fontp = LLViewerChat::getChatFont();
-			std::string font_name = LLFontGL::nameFromFont(fontp);
-			std::string font_size = LLFontGL::sizeFromFont(fontp);
-			LLStyle::Params append_style_params;
-			append_style_params.color(txt_color);
-			append_style_params.readonly_color(txt_color);
-			append_style_params.font.name(font_name);
-			append_style_params.font.size(font_size);
-			append_style_params.font.style = "ITALIC";
-
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history, append_style_params);
-		}
-		else
-		{
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
-		}
+		tmp_chat.mFromName = chat.mFromName;
+		mChatHistory->appendMessage(chat, use_plain_text_chat_history);
 	}
 
 	if(archive)
