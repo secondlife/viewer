@@ -1024,6 +1024,16 @@ void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 }
 
 //virtual
+void LLTextBase::handleVisibilityChange( BOOL new_visibility )
+{
+	if(!new_visibility && mPopupMenu)
+	{
+		mPopupMenu->hide();
+	}
+	LLUICtrl::handleVisibilityChange(new_visibility);
+}
+
+//virtual
 void LLTextBase::setValue(const LLSD& value )
 {
 	setText(value.asString());

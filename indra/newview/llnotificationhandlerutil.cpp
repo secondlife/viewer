@@ -168,6 +168,12 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 			session_name = "chat";
 		}
 
+		//there still appears a log history file with weird name " .txt"
+		if (" " == session_name || "{waiting}" == session_name || "{nobody}" == session_name)
+		{
+			llwarning("Weird session name (" + session_name + ") for notification " + notification->getName(), 666)
+		}
+
 		if(to_file_only)
 		{
 			logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),

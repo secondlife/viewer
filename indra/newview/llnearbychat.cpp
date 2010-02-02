@@ -300,8 +300,8 @@ void LLNearbyChat::loadHistory()
 		LLChat chat;
 		chat.mFromName = from;
 		chat.mFromID = from_id;
-		chat.mText = msg[IM_TEXT];
-		chat.mTimeStr = msg[IM_TIME];
+		chat.mText = msg[IM_TEXT].asString();
+		chat.mTimeStr = msg[IM_TIME].asString();
 		addMessage(chat);
 
 		it++;
