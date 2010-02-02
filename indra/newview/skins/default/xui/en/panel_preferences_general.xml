@@ -323,7 +323,6 @@
      follows="left|top"
      height="13"
      layout="topleft"
-     text_color="white"
      left="30"
      mouse_opaque="false"
      name="text_box3"
