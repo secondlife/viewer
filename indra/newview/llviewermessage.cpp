@@ -860,29 +860,12 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		 ++item_iter)
 	{
 		const LLUUID& item_id = (*item_iter);
-		LLInventoryItem* item = gInventory.getItem(item_id);
-		if(!item)
+		if(!highlight_offered_item(item_id))
 		{
-			LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
 			continue;
 		}
 
-		////////////////////////////////////////////////////////////////////////////////
-		// Don't highlight if it's in certain "quiet" folders which don't need UI 
-		// notification (e.g. trash, cof, lost-and-found).
-		const BOOL user_is_away = gAwayTimer.getStarted();
-		if(!user_is_away)
-		{
-			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
-			if (parent)
-			{
-				const LLFolderType::EType parent_type = parent->getPreferredType();
-				if (LLViewerFolderType::lookupIsQuietType(parent_type))
-				{
-					continue;
-				}
-			}
-		}
+		LLInventoryItem* item = gInventory.getItem(item_id);
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Special handling for various types.
@@ -929,10 +912,11 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						LLPanelPlaces *places_panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->getPanel("panel_places"));
 						if (places_panel)
 						{
-							// we are creating a landmark
+							// Landmark creation handling is moved to LLPanelPlaces::showAddedLandmarkInfo()
+							// TODO* LLPanelPlaces dependency is going to be removed. See EXT-4347.
 							if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
 							{
-								places_panel->setItem(item);
+								//places_panel->setItem(item);
 							}
 							// we are opening a group notice attachment
 							else
@@ -980,6 +964,34 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
+}
+
+bool highlight_offered_item(const LLUUID& item_id)
+{
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if(!item)
+	{
+		LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Don't highlight if it's in certain "quiet" folders which don't need UI
+	// notification (e.g. trash, cof, lost-and-found).
+	if(!gAgent.getAFK())
+	{
+		const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
+		if (parent)
+		{
+			const LLFolderType::EType parent_type = parent->getPreferredType();
+			if (LLViewerFolderType::lookupIsQuietType(parent_type))
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
@@ -2190,7 +2202,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 			if(nearby_chat)
 			{
-				nearby_chat->addMessage(chat);
+				LLSD args;
+				args["owner_id"] = from_id;
+				args["slurl"] = location;
+				nearby_chat->addMessage(chat, true, args);
 			}
 
 

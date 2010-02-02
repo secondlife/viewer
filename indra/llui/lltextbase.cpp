@@ -312,7 +312,6 @@ void LLTextBase::drawSelectionBackground()
 	// Draw selection even if we don't have keyboard focus for search/replace
 	if( hasSelection() && !mLineInfoList.empty())
 	{
-		LLWString text = getWText();
 		std::vector<LLRect> selection_rects;
 
 		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
@@ -411,7 +410,7 @@ void LLTextBase::drawCursor()
 		&& gFocusMgr.getAppHasFocus()
 		&& !mReadOnly)
 	{
-		LLWString wtext = getWText();
+		const LLWString &wtext = getWText();
 		const llwchar* text = wtext.c_str();
 
 		LLRect cursor_rect = getLocalRectFromDocIndex(mCursorPos);
@@ -497,7 +496,6 @@ void LLTextBase::drawCursor()
 
 void LLTextBase::drawText()
 {
-	LLWString text = getWText();
 	const S32 text_len = getLength();
 	if( text_len <= 0 )
 	{
@@ -1026,6 +1024,16 @@ void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 }
 
 //virtual
+void LLTextBase::handleVisibilityChange( BOOL new_visibility )
+{
+	if(!new_visibility && mPopupMenu)
+	{
+		mPopupMenu->hide();
+	}
+	LLUICtrl::handleVisibilityChange(new_visibility);
+}
+
+//virtual
 void LLTextBase::setValue(const LLSD& value )
 {
 	setText(value.asString());
@@ -1116,7 +1124,6 @@ void LLTextBase::reflow(S32 start_index)
 		S32 line_start_index = 0;
 		const S32 text_available_width = mVisibleTextRect.getWidth() - mHPad;  // reserve room for margin
 		S32 remaining_pixels = text_available_width;
-		LLWString text(getWText());
 		S32 line_count = 0;
 
 		// find and erase line info structs starting at start_index and going to end of document
@@ -1759,7 +1766,7 @@ void LLTextBase::setWText(const LLWString& text)
 	setText(wstring_to_utf8str(text));
 }
 
-LLWString LLTextBase::getWText() const
+const LLWString& LLTextBase::getWText() const
 {
     return getViewModel()->getDisplay();
 }
@@ -2454,7 +2461,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	if (num_chars > 0)
 	{
 		height = mFontHeight;
-		LLWString text = mEditor.getWText();
+		const LLWString &text = mEditor.getWText();
 		// if last character is a newline, then return true, forcing line break
 		llwchar last_char = text[mStart + first_char + num_chars - 1];
 		if (last_char == '\n')
@@ -2481,7 +2488,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
 {
-	LLWString text = mEditor.getWText();
+	const LLWString &text = mEditor.getWText();
 	return mStyle->getFont()->charFromPixelOffset(text.c_str(), mStart + start_offset,
 											   (F32)segment_local_x_coord,
 											   F32_MAX,
@@ -2491,7 +2498,7 @@ S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, 
 
 S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
 {
-	LLWString text = mEditor.getWText();
+	const LLWString &text = mEditor.getWText();
 
 	LLUIImagePtr image = mStyle->getImage();
 	if( image.notNull())

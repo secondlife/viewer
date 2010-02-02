@@ -122,6 +122,7 @@ public:
 	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
 	/*virtual*/ void		setColor( const LLColor4& c );
 	virtual     void 		setReadOnlyColor(const LLColor4 &c);
+	virtual	    void		handleVisibilityChange( BOOL new_visibility );
 
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
@@ -145,7 +146,7 @@ public:
 
 	// wide-char versions
 	void					setWText(const LLWString& text);
-	LLWString       		getWText() const;
+	const LLWString&       	getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 	// force reflow of text
