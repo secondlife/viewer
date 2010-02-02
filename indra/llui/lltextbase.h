@@ -145,7 +145,7 @@ public:
 
 	// wide-char versions
 	void					setWText(const LLWString& text);
-	LLWString       		getWText() const;
+	const LLWString&       	getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 	// force reflow of text
