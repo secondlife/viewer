@@ -423,10 +423,10 @@ static F64 calculate_cpu_frequency(U32 measure_msecs)
 class LLProcessorInfoWindowsImpl : public LLProcessorInfoImpl
 {
 public:
-	LLProcessorInfoWindowsImpl() :
+	LLProcessorInfoWindowsImpl()
 	{
 		getCPUIDInfo();
-		AddInfoItem("Frequency", calculate_cpu_frequency(50));
+		setInfo(eFrequency, calculate_cpu_frequency(50));
 	}
 
 private:
@@ -442,7 +442,7 @@ private:
 		int cpu_info[4] = {-1};
 		__cpuid(cpu_info, 0);
 		unsigned int ids = (unsigned int)cpu_info[0];
-		setInfo(eMaxID, ids);
+		setConfig(eMaxID, (S32)ids);
 
 		char cpu_vendor[0x20];
 		memset(cpu_vendor, 0, sizeof(cpu_vendor));
@@ -467,9 +467,9 @@ private:
 				setInfo(eExtendedModel, (cpu_info[0] >> 16) & 0xf);
 				int ext_family = (cpu_info[0] >> 20) & 0xff;
 				setInfo(eExtendedFamily, ext_family);
-				setInfo(eBrandIndex, cpu_info[1] & 0xff);
+				setInfo(eBrandID, cpu_info[1] & 0xff);
 
-				setInfo(eFamilyName, compute_CPUFamilyName(family, ext_family));
+				setInfo(eFamilyName, compute_CPUFamilyName(cpu_vendor, family, ext_family));
 
 				setConfig(eCLFLUSHCacheLineSize, ((cpu_info[1] >> 8) & 0xff) * 8);
 				setConfig(eAPICPhysicalID, (cpu_info[1] >> 24) & 0xff);
@@ -484,7 +484,7 @@ private:
 					setExtension(cpu_feature_names[eMONTIOR_MWAIT]);
 				}
 				
-				if(cpu_info[2] & 0x10) || false;
+				if(cpu_info[2] & 0x10)
 				{
 					setExtension(cpu_feature_names[eCPLDebugStore]);
 				}
@@ -515,7 +515,7 @@ private:
 		memset(cpu_brand_string, 0, sizeof(cpu_brand_string));
 
 		// Get the information associated with each extended ID.
-		for(unsigned int i=0x80000000; i<=mExtIds; ++i)
+		for(unsigned int i=0x80000000; i<=ext_ids; ++i)
 		{
 			__cpuid(cpu_info, i);
 
