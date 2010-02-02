@@ -66,10 +66,14 @@ public:
 
 	// Called on parcel selection change to update place information.
 	void changedParcelSelection();
-	// Called on agent inventory change to find out when inventory gets usable.
-	void changedInventory(U32 mask);
+	// Called once on agent inventory first change to find out when inventory gets usable
+	// and to create "My Landmarks" and "Teleport History" tabs.
+	void createTabs();
 	// Called when we receive the global 3D position of a parcel.
 	void changedGlobalPos(const LLVector3d &global_pos);
+
+	// Opens landmark info panel when agent creates or receives landmark.
+	void showAddedLandmarkInfo(const std::vector<LLUUID>& items);
 
 	void setItem(LLInventoryItem* item);
 
