@@ -70,13 +70,14 @@ public:
 private:
 
 	void rebuildTeleportHistoryMenu();
-	void showTeleportHistoryMenu();
+	void showTeleportHistoryMenu(LLUICtrl* btn_ctrl);
 	void invokeSearch(std::string search_text);
 	// callbacks
 	void onTeleportHistoryMenuItemClicked(const LLSD& userdata);
 	void onTeleportHistoryChanged();
 	void onBackButtonClicked();
-	void onBackOrForwardButtonHeldDown(const LLSD& param);
+	void onBackOrForwardButtonHeldDown(LLUICtrl* ctrl, const LLSD& param);
+	void onNavigationButtonHeldUp(LLButton* nav_button);
 	void onForwardButtonClicked();
 	void onHomeButtonClicked();
 	void onLocationSelection();
@@ -103,6 +104,7 @@ private:
 	LLRect						mDefaultFpRect;
 	boost::signals2::connection	mTeleportFailedConnection;
 	boost::signals2::connection	mTeleportFinishConnection;
+	boost::signals2::connection	mHistoryMenuConnection;
 	bool						mPurgeTPHistoryItems;
 	// if true, save location to location history when teleport finishes
 	bool						mSaveToLocationHistory;

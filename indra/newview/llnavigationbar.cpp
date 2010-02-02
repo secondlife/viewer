@@ -224,20 +224,13 @@ BOOL LLNavigationBar::postBuild()
 
 	fillSearchComboBox();
 
-	if (!mBtnBack || !mBtnForward || !mBtnHome ||
-		!mCmbLocation || !mSearchComboBox)
-	{
-		llwarns << "Malformed navigation bar" << llendl;
-		return FALSE;
-	}
-	
 	mBtnBack->setEnabled(FALSE);
 	mBtnBack->setClickedCallback(boost::bind(&LLNavigationBar::onBackButtonClicked, this));
-	mBtnBack->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _2));
+	mBtnBack->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this,_1, _2));
 
 	mBtnForward->setEnabled(FALSE);
 	mBtnForward->setClickedCallback(boost::bind(&LLNavigationBar::onForwardButtonClicked, this));
-	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _2));
+	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _1, _2));
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
@@ -332,10 +325,10 @@ void LLNavigationBar::onBackButtonClicked()
 	LLTeleportHistory::getInstance()->goBack();
 }
 
-void LLNavigationBar::onBackOrForwardButtonHeldDown(const LLSD& param)
+void LLNavigationBar::onBackOrForwardButtonHeldDown(LLUICtrl* ctrl, const LLSD& param)
 {
 	if (param["count"].asInteger() == 0)
-		showTeleportHistoryMenu();
+		showTeleportHistoryMenu(ctrl);
 }
 
 void LLNavigationBar::onForwardButtonClicked()
@@ -571,7 +564,7 @@ void LLNavigationBar::onRegionNameResponse(
 	gAgent.teleportViaLocation(global_pos);
 }
 
-void	LLNavigationBar::showTeleportHistoryMenu()
+void	LLNavigationBar::showTeleportHistoryMenu(LLUICtrl* btn_ctrl)
 {
 	// Don't show the popup if teleport history is empty.
 	if (LLTeleportHistory::getInstance()->isEmpty())
@@ -585,14 +578,43 @@ void	LLNavigationBar::showTeleportHistoryMenu()
 	if (mTeleportHistoryMenu == NULL)
 		return;
 	
-	// *TODO: why to draw/update anything before showing the menu?
-	mTeleportHistoryMenu->buildDrawLabels();
 	mTeleportHistoryMenu->updateParent(LLMenuGL::sMenuContainer);
 	const S32 MENU_SPAWN_PAD = -1;
-	LLMenuGL::showPopup(mBtnBack, mTeleportHistoryMenu, 0, MENU_SPAWN_PAD);
-
+	LLMenuGL::showPopup(btn_ctrl, mTeleportHistoryMenu, 0, MENU_SPAWN_PAD);
+	LLButton* nav_button = dynamic_cast<LLButton*>(btn_ctrl);
+	if(nav_button)
+	{
+		if(mHistoryMenuConnection.connected())
+		{
+			LL_WARNS("Navgationbar")<<"mHistoryMenuConnection should be disconnected at this moment."<<LL_ENDL;
+			mHistoryMenuConnection.disconnect();
+		}
+		mHistoryMenuConnection = gMenuHolder->setMouseUpCallback(boost::bind(&LLNavigationBar::onNavigationButtonHeldUp, this, nav_button));
+		// pressed state will be update after mouseUp in  onBackOrForwardButtonHeldUp();
+		nav_button->setForcePressedState(true);
+	}
 	// *HACK pass the mouse capturing to the drop-down menu
-	gFocusMgr.setMouseCapture( NULL );
+	// it need to let menu handle mouseup event
+	gFocusMgr.setMouseCapture(gMenuHolder);
+}
+/**
+ * Taking into account the HACK above,  this callback-function is responsible for correct handling of mouseUp event in case of holding-down the navigation buttons..
+ * We need to process this case separately to update a pressed state of navigation button.
+ */
+void LLNavigationBar::onNavigationButtonHeldUp(LLButton* nav_button)
+{
+	if(nav_button)
+	{
+		nav_button->setForcePressedState(false);
+	}
+	if(gFocusMgr.getMouseCapture() == gMenuHolder)
+	{
+		// we had passed mouseCapture in  showTeleportHistoryMenu()
+		// now we MUST release mouseCapture to continue a proper mouseevent workflow. 
+		gFocusMgr.setMouseCapture(NULL);
+	}
+	//gMenuHolder is using to display bunch of menus. Disconnect signal to avoid unnecessary calls.    
+	mHistoryMenuConnection.disconnect();
 }
 
 void LLNavigationBar::handleLoginComplete()
