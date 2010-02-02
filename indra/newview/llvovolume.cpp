@@ -2454,7 +2454,11 @@ void LLVOVolume::updateSpotLightPriority()
 bool LLVOVolume::isLightSpotlight() const
 {
 	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-	return params->isLightSpotlight();
+	if (params)
+	{
+		return params->isLightSpotlight();
+	}
+	return false;
 }
 
 
