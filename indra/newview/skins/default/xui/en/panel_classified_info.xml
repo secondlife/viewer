@@ -18,6 +18,10 @@
   name="type_pg">
     General Content
  </panel.string>
+ <panel.string
+  name="l$_price">
+    L$[PRICE]
+ </panel.string>
     <button
      follows="top|right"
      height="23"
@@ -71,8 +75,11 @@
          name="classified_snapshot"
          top="20"
          width="290" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="35"
          width="290"
          layout="topleft"
@@ -81,35 +88,53 @@
          left="10"
          top_pad="10"
          name="classified_name"
+         read_only="true"
          text_color="white"
+         v_pad="0"
          value="[name]"
          use_ellipses="true" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top"
+         h_pad="0"
          height="25"
          layout="topleft"
          left="10"
          name="classified_location"
+         read_only="true"
          width="290"
          word_wrap="true"
+         v_pad="0"
          value="[loading...]" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="18"
          layout="topleft"
          left="10"
          name="content_type"
+         read_only="true"
          width="290"
          top_pad="5"
+         v_pad="0"
          value="[content type]" />
-        <text
+        <text_editor
+         allow_html="true"
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="18"
          layout="topleft"
          left="10"
          name="category"
+         read_only="true"
          width="290"
          top_pad="5"
+         v_pad="0"
          value="[category]" />
         <check_box
          enabled="false"
@@ -119,26 +144,37 @@
          left="10"
          name="auto_renew"
          top_pad="5"
+         v_pad="0"
          width="290" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top"
+         h_pad="0"
          halign="left"
          height="16"
          layout="topleft"
          left="10"
          name="price_for_listing"
+         read_only="true"
          top_pad="5"
          tool_tip="Price for listing."
-         width="105">
-         L$[PRICE]
-        </text>
-        <text
+         v_pad="0"
+         width="105" />
+        <text_editor
+         allow_html="true"
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="200"
          layout="topleft"
          left="10"
+         max_length="1023"
          name="classified_desc"
+         read_only="true"
          width="290"
+         v_pad="0"
          value="[description]"
          word_wrap="true" />
     </panel>
