@@ -173,8 +173,7 @@
               value="http://librarianavengers.org"
               width="300"
               word_wrap="false"
-              use_ellipses="true"
-         />
+              use_ellipses="true" />
             <text
              follows="left|top"
            font.style="BOLD"
@@ -186,13 +185,18 @@
              top_pad="10"
              value="Resident Since:"
              width="300" />
-            <text
+            <text_editor
+             allow_scroll="false"
+             bg_visible="false"
              follows="left|top"
+             h_pad="0"
              height="15"
              layout="topleft"
              left="10"
              name="register_date"
+             read_only="true"
              translate="false"
+             v_pad="0"
              value="05/31/2376"
              width="300"
              word_wrap="true" />
@@ -218,19 +222,24 @@
          top_delta="0"
 	 value="Go to Dashboard"
          width="100"/> -->
-            <text
+            <text_editor
+             allow_scroll="false"
+             bg_visible="false"
              follows="left|top"
+             h_pad="0"
              height="28"
              layout="topleft"
              left="10"
              name="acc_status_text"
+             read_only="true"
              top_pad="0"
              translate="false"
+             v_pad="0"
              width="300"
              word_wrap="true">
               Resident. No payment info on file.
               Linden.
-            </text>
+            </text_editor>
             <text
              follows="left|top"
        font.style="BOLD"
