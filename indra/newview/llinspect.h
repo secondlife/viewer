@@ -56,6 +56,9 @@ public:
 	/*virtual*/ void onFocusLost();
 	
 protected:
+
+	virtual bool childHasVisiblePopupMenu();
+
 	LLFrameTimer		mCloseTimer;
 	LLFrameTimer		mOpenTimer;
 };
