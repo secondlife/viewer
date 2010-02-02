@@ -306,7 +306,7 @@
          name="add_friend"
          tool_tip="Offer friendship to the Resident"
          top="5"
-         width="81" />
+         width="80" />
         <button
          follows="bottom|left"
          height="23"
@@ -316,7 +316,7 @@
          tool_tip="Open instant message session"
          top="5"
          left_pad="3"
-         width="45" />
+         width="39" />
         <button
          follows="bottom|left"
          height="23"
@@ -326,7 +326,7 @@
          tool_tip="Call this Resident"
          left_pad="3"
          top="5"
-         width="46" />
+         width="43" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -337,7 +337,7 @@
          tool_tip="Show the Resident on the map"
          top="5"
          left_pad="3"
-         width="46" />
+         width="41" />
         <button
          follows="bottom|left"
          height="23"
@@ -347,8 +347,8 @@
          tool_tip="Offer teleport"
          left_pad="3"
          top="5"
-         width="78" />
-       <!-- <button
+         width="69" />
+        <button
          follows="bottom|right"
          height="23"
          label="▼"
@@ -357,8 +357,8 @@
          tool_tip="Pay money to or share inventory with the Resident"
          right="-1"
          top="5"
-	 left_pad="3"
-         width="23" />-->
+	 	 left_pad="3"
+         width="23" />
         </layout_panel>
       <layout_panel
          follows="bottom|left"
