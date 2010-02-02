@@ -164,7 +164,21 @@ void LLSidepanelInventory::onWearButtonClicked()
 
 void LLSidepanelInventory::onPlayButtonClicked()
 {
-	performActionOnSelection("activate");
+	const LLInventoryItem *item = getSelectedItem();
+	if (!item)
+	{
+		return;
+	}
+
+	switch(item->getInventoryType())
+	{
+	case LLInventoryType::IT_GESTURE:
+		performActionOnSelection("play");
+		break;
+	default:
+		performActionOnSelection("activate");
+		break;
+	}
 }
 
 void LLSidepanelInventory::onTeleportButtonClicked()

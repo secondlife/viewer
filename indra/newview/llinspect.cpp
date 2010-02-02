@@ -34,6 +34,7 @@
 
 #include "llcontrol.h"	// LLCachedControl
 #include "llui.h"		// LLUI::sSettingsGroups
+#include "llviewermenu.h"
 
 LLInspect::LLInspect(const LLSD& key)
 :	LLFloater(key),
@@ -107,4 +108,27 @@ BOOL LLInspect::handleHover(S32 x, S32 y, MASK mask)
 void LLInspect::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mOpenTimer.unpause();
+}
+
+bool LLInspect::childHasVisiblePopupMenu()
+{
+	// Child text-box may spawn a pop-up menu, if mouse is over the menu, Inspector 
+	// will hide(which is not expected).
+	// This is an attempt to find out if child control has spawned a menu.
+
+	LLView* child_menu = gMenuHolder->getVisibleMenu();
+	if(child_menu)
+	{
+		LLRect floater_rc = calcScreenRect();
+		LLRect menu_screen_rc = child_menu->calcScreenRect();
+		S32 mx, my;
+		LLUI::getMousePositionScreen(&mx, &my);
+
+		// This works wrong if we spawn a menu near Inspector and menu overlaps Inspector.
+		if(floater_rc.overlaps(menu_screen_rc) && menu_screen_rc.pointInRect(mx, my))
+		{
+			return true;
+		}
+	}
+	return false;
 }
