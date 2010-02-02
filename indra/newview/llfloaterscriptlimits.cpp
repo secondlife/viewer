@@ -73,7 +73,7 @@
 // use fake LLSD responses to check the viewer side is working correctly
 // I'm syncing this with the server side efforts so hopfully we can keep
 // the to-ing and fro-ing between the two teams to a minimum
-#define USE_FAKE_RESPONSES
+//#define USE_FAKE_RESPONSES
 
 #ifdef USE_FAKE_RESPONSES
 const S32 FAKE_NUMBER_OF_URLS = 329;
@@ -107,6 +107,12 @@ BOOL LLFloaterScriptLimits::postBuild()
 	}
 
 	mTab = getChild<LLTabContainer>("scriptlimits_panels");
+	
+	if(!mTab)
+	{
+		llinfos << "Error! couldn't get scriptlimits_panels, aborting Script Information setup" << llendl;
+		return FALSE;
+	}
 
 	// contruct the panels
 	std::string land_url = gAgent.getRegion()->getCapability("LandResources");
@@ -128,11 +134,12 @@ BOOL LLFloaterScriptLimits::postBuild()
 		mTab->addTabPanel(panel_attachments);
 	}
 	
-	if(selectParcelPanel)
+	if(mInfoPanels.size() > 0)
 	{
 		mTab->selectTab(0);
 	}
-	else
+
+	if(!selectParcelPanel && (mInfoPanels.size() > 1))
 	{
 		mTab->selectTab(1);
 	}
@@ -257,18 +264,18 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 	
 	fake_content["summary"] = summary;
 
-	const LLSD* content = &fake_content;
+	const LLSD& content = fake_content;
 
 #else
 
-	const LLSD* content = &content_ref;
+	const LLSD& content = content_ref;
 
 #endif
 
 
 #ifdef DUMP_REPLIES_TO_LLINFOS
 
-	LLSDNotationStreamer notation_streamer(*content);
+	LLSDNotationStreamer notation_streamer(content);
 	std::ostringstream nice_llsd;
 	nice_llsd << notation_streamer;
 
@@ -287,7 +294,7 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
 		LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-		panel_memory->setRegionSummary(*content);
+		panel_memory->setRegionSummary(content);
 	}
 }
 
@@ -352,23 +359,23 @@ result (map)
 	parcels.append(parcel);
 
 	fake_content["parcels"] = parcels;
-	const LLSD* content = &fake_content;
+	const LLSD& content = fake_content;
 
 #else
 
-	const LLSD* content = &content_ref;
+	const LLSD& content = content_ref;
 
 #endif
 
 #ifdef DUMP_REPLIES_TO_LLINFOS
 
-	LLSDNotationStreamer notation_streamer(*content);
+	LLSDNotationStreamer notation_streamer(content);
 	std::ostringstream nice_llsd;
 	nice_llsd << notation_streamer;
 
 	OSMessageBox(nice_llsd.str(), "details response:", 0);
 
-	llinfos << "details response:" << *content << llendl;
+	llinfos << "details response:" << content << llendl;
 
 #endif
 
@@ -381,8 +388,22 @@ result (map)
 	else
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-		panel_memory->setRegionDetails(*content);
+		if(tab)
+		{
+			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+			if(panel_memory)
+			{
+				panel_memory->setRegionDetails(content);
+			}
+			else
+			{
+				llinfos << "Failed to get scriptlimits memory panel" << llendl;
+			}
+		}
+		else
+		{
+			llinfos << "Failed to get scriptlimits_panels" << llendl;
+		}
 	}
 }
 
@@ -426,23 +447,23 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 	fake_content["summary"] = summary;
 	fake_content["attachments"] = content_ref["attachments"];
 
-	const LLSD* content = &fake_content;
+	const LLSD& content = fake_content;
 
 #else
 
-	const LLSD* content = &content_ref;
+	const LLSD& content = content_ref;
 
 #endif
 
 #ifdef DUMP_REPLIES_TO_LLINFOS
 
-	LLSDNotationStreamer notation_streamer(*content);
+	LLSDNotationStreamer notation_streamer(content);
 	std::ostringstream nice_llsd;
 	nice_llsd << notation_streamer;
 
 	OSMessageBox(nice_llsd.str(), "attachment response:", 0);
 	
-	llinfos << "attachment response:" << *content << llendl;
+	llinfos << "attachment response:" << content << llendl;
 
 #endif
 
@@ -455,8 +476,22 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 	else
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		LLPanelScriptLimitsAttachment* panel = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
-		panel->setAttachmentDetails(*content);
+		if(tab)
+		{
+			LLPanelScriptLimitsAttachment* panel = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
+			if(panel)
+			{
+				panel->setAttachmentDetails(content);
+			}
+			else
+			{
+				llinfos << "Failed to get script_limits_my_avatar_panel" << llendl;
+			}
+		}
+		else
+		{
+			llinfos << "Failed to get scriptlimits_panels" << llendl;
+		}
 	}
 }
 
@@ -534,6 +569,11 @@ void LLPanelScriptLimitsRegionMemory::onNameCache(
 	std::string name = first_name + " " + last_name;
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");	
+	if(!list)
+	{
+		return;
+	}
+	
 	std::vector<LLSD>::iterator id_itor;
 	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
 	{
@@ -554,6 +594,12 @@ void LLPanelScriptLimitsRegionMemory::onNameCache(
 void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 {
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
+	
+	if(!list)
+	{
+		llinfos << "Error getting the scripts_list control" << llendl;
+		return;
+	}
 
 	S32 number_parcels = content["parcels"].size();
 
@@ -634,8 +680,6 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			LLSD element;
 
 			element["id"] = task_id;
-			element["owner_id"] = owner_id;
-			element["local_id"] = local_id;
 			element["columns"][0]["column"] = "size";
 			element["columns"][0]["value"] = llformat("%d", size);
 			element["columns"][0]["font"] = "SANSSERIF";
@@ -663,6 +707,9 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			element["columns"][5]["font"] = "SANSSERIF";
 
 			list->addElement(element, ADD_SORTED);
+			
+			element["owner_id"] = owner_id;
+			element["local_id"] = local_id;
 			mObjectListItems.push_back(element);
 		}
 	}
@@ -670,17 +717,25 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	if (has_locations)
 	{
 		LLButton* btn = getChild<LLButton>("highlight_btn");
-		btn->setVisible(true);
+		if(btn)
+		{
+			btn->setVisible(true);
+		}
 	}
 
 	if (has_local_ids)
 	{
 		LLButton* btn = getChild<LLButton>("return_btn");
-		btn->setVisible(true);
+		if(btn)
+		{
+			btn->setVisible(true);
+		}
 	}
 	
 	// save the structure to make object return easier
 	mContent = content;
+
+	childSetValue("loading_text", LLSD(std::string("")));
 }
 
 void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
@@ -744,8 +799,6 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 		std::string msg_parcel_urls = LLTrans::getString("ScriptLimitsURLsUsed", args_parcel_urls);
 		childSetValue("urls_used", LLSD(msg_parcel_urls));
 	}
-	
-	childSetValue("loading_text", LLSD(std::string("")));
 }
 
 BOOL LLPanelScriptLimitsRegionMemory::postBuild()
@@ -758,6 +811,10 @@ BOOL LLPanelScriptLimitsRegionMemory::postBuild()
 	childSetValue("loading_text", LLSD(msg_waiting));
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
+	if(!list)
+	{
+		return FALSE;
+	}
 
 	//set all columns to resizable mode even if some columns will be empty
 	for(S32 column = 0; column < list->getNumColumns(); column++)
@@ -862,17 +919,22 @@ void LLPanelScriptLimitsRegionMemory::clearList()
 // static
 void LLPanelScriptLimitsRegionMemory::onClickRefresh(void* userdata)
 {
-	//**don't use userdata without checking for null-ness**
 	llinfos << "LLPanelRegionGeneralInfo::onClickRefresh" << llendl;
 	
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(instance)
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-		panel_memory->clearList();
+		if(tab)
+		{
+			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+			if(panel_memory)
+			{
+				panel_memory->clearList();
 		
-		panel_memory->StartRequestChain();
+				panel_memory->StartRequestChain();
+			}
+		}
 		return;
 	}
 	else
@@ -912,8 +974,14 @@ void LLPanelScriptLimitsRegionMemory::onClickHighlight(void* userdata)
 	if(instance)
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		LLPanelScriptLimitsRegionMemory* panel = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-		panel->showBeacon();
+		if(tab)
+		{
+			LLPanelScriptLimitsRegionMemory* panel = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+			if(panel)
+			{
+				panel->showBeacon();
+			}
+		}
 		return;
 	}
 	else
@@ -1012,8 +1080,14 @@ void LLPanelScriptLimitsRegionMemory::onClickReturn(void* userdata)
 	if(instance)
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		LLPanelScriptLimitsRegionMemory* panel = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-		panel->returnObjects();
+		if(tab)
+		{
+			LLPanelScriptLimitsRegionMemory* panel = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+			if(panel)
+			{
+				panel->returnObjects();
+			}
+		}
 		return;
 	}
 	else
@@ -1045,6 +1119,12 @@ BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 {
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
+	
+	if(!list)
+	{
+		return;
+	}
+	
 	S32 number_attachments = content["attachments"].size();
 
 	for(int i = 0; i < number_attachments; i++)

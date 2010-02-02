@@ -427,16 +427,25 @@ BOOL LLPanelLandGeneral::postBuild()
 	mBtnBuyLand = getChild<LLButton>("Buy Land...");
 	mBtnBuyLand->setClickedCallback(onClickBuyLand, (void*)&BUY_PERSONAL_LAND);
 	
+	// note: on region change this will not be re checked, should not matter on Agni as
+	// 99% of the time all regions will return the same caps. In case of an erroneous setting
+	// to enabled the floater will just throw an error when trying to get it's cap
 	std::string url = gAgent.getRegion()->getCapability("LandResources");
 	if (!url.empty())
 	{
 		mBtnScriptLimits = getChild<LLButton>("Scripts...");
-		mBtnScriptLimits->setClickedCallback(onClickScriptLimits, this);
+		if(mBtnScriptLimits)
+		{
+			mBtnScriptLimits->setClickedCallback(onClickScriptLimits, this);
+		}
 	}
 	else
 	{
 		mBtnScriptLimits = getChild<LLButton>("Scripts...");
-		mBtnScriptLimits->setVisible(false);
+		if(mBtnScriptLimits)
+		{
+			mBtnScriptLimits->setVisible(false);
+		}
 	}
 	
 	mBtnBuyGroupLand = getChild<LLButton>("Buy For Group...");
