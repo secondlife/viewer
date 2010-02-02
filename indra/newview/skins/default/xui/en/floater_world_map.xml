@@ -403,7 +403,7 @@
       height="16"
       image_name="map_track_16.tga"
       layout="topleft"
-      left="5"
+      left="3"
       top="11"
       mouse_opaque="true"
       name="friends_icon"
@@ -415,7 +415,7 @@
      label="Online Friends"
      layout="topleft"
      top_delta="-4"
-     left_pad="5"
+     left_pad="7"
      max_chars="60"
      name="friend combo"
      tool_tip="Show friends on map"
@@ -433,7 +433,7 @@
      height="16"
      image_name="map_track_16.tga"
      layout="topleft"
-     left="5"
+     left="3"
      top_pad="8"
      mouse_opaque="true"
      name="landmark_icon"
@@ -445,7 +445,7 @@
      label="My Landmarks"
      layout="topleft"
      top_delta="-3"
-     left_pad="5"
+     left_pad="7"
      max_chars="64"
      name="landmark combo"
      tool_tip="Landmark to show on map"
@@ -463,7 +463,7 @@
      height="16"
      image_name="map_track_16.tga"
      layout="topleft"
-     left="5"
+     left="3"
      top_pad="7"
      mouse_opaque="true"
      name="region_icon"
@@ -476,7 +476,7 @@
      label="Regions by Name"
      layout="topleft"
      top_delta="-2"
-     left_pad="5"
+     left_pad="7"
      name="location"
      select_on_focus="true"
      tool_tip="Type the name of a region"
@@ -497,6 +497,19 @@
 		<button.commit_callback
 		function="WMap.Location" />
     </button>
+   <button
+     image_overlay="Refresh_Off"
+     follows="top|right"
+     height="23"
+     layout="topleft"
+     left="0"
+     name="Clear"
+     tool_tip="Clear tracking lines and reset map"
+     top_pad="5"
+     width="23">
+		<button.commit_callback
+		function="WMap.Clear" />
+    </button>
     <scroll_list
      draw_stripes="false"
      bg_writeable_color="MouseGray"
@@ -505,7 +518,7 @@
      layout="topleft"
      left="28"
      name="search_results"
-     top_pad="5"
+     top_pad="-23"
      width="209"
      sort_column="1">
         <scroll_list.columns
@@ -545,19 +558,6 @@
 		<button.commit_callback
 		function="WMap.CopySLURL" />
     </button>
-   <!-- <button
-     follows="right|bottom"
-     height="23"
-     label="Clear"
-     layout="topleft"
-     left="10"
-     name="Clear"
-     tool_tip="Stop tracking"
-     top_pad="5"
-     width="105">
-		<button.commit_callback
-		function="WMap.Clear" />
-    </button>-->
     <button
      enabled="false"
      follows="right|bottom"
