@@ -2202,7 +2202,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 			if(nearby_chat)
 			{
-				nearby_chat->addMessage(chat);
+				LLSD args;
+				args["owner_id"] = from_id;
+				args["slurl"] = location;
+				nearby_chat->addMessage(chat, true, args);
 			}
 
 

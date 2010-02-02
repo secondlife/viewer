@@ -49,7 +49,7 @@ LLUrlEntryBase::~LLUrlEntryBase()
 {
 }
 
-std::string LLUrlEntryBase::getUrl(const std::string &string)
+std::string LLUrlEntryBase::getUrl(const std::string &string) const
 {
 	return escapeUrl(string);
 }
@@ -89,7 +89,7 @@ std::string LLUrlEntryBase::escapeUrl(const std::string &url) const
 	return LLURI::escape(url, no_escape_chars, true);
 }
 
-std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url)
+std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url) const
 {
 	// return the label part from [http://www.example.org Label]
 	const char *text = url.c_str();
@@ -105,7 +105,7 @@ std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url)
 	return unescapeUrl(url.substr(start, url.size()-start-1));
 }
 
-std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string)
+std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string) const
 {
 	// return the url part from [http://www.example.org Label]
 	const char *text = string.c_str();
@@ -192,7 +192,7 @@ std::string LLUrlEntryHTTPLabel::getLabel(const std::string &url, const LLUrlLab
 	return getLabelFromWikiLink(url);
 }
 
-std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string)
+std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 {
 	return getUrlFromWikiLink(string);
 }
@@ -217,7 +217,7 @@ std::string LLUrlEntryHTTPNoProtocol::getLabel(const std::string &url, const LLU
 	return unescapeUrl(url);
 }
 
-std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string)
+std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string) const
 {
 	if (string.find("://") == std::string::npos)
 	{
@@ -597,7 +597,7 @@ std::string LLUrlEntrySLLabel::getLabel(const std::string &url, const LLUrlLabel
 	return getLabelFromWikiLink(url);
 }
 
-std::string LLUrlEntrySLLabel::getUrl(const std::string &string)
+std::string LLUrlEntrySLLabel::getUrl(const std::string &string) const
 {
 	return getUrlFromWikiLink(string);
 }
@@ -648,14 +648,18 @@ std::string LLUrlEntryWorldMap::getLocation(const std::string &url) const
 //
 LLUrlEntryNoLink::LLUrlEntryNoLink()
 {
-	mPattern = boost::regex("<nolink>[^[:space:]<]+</nolink>",
+	mPattern = boost::regex("<nolink>[^<]*</nolink>",
 							boost::regex::perl|boost::regex::icase);
 	mDisabledLink = true;
 }
 
-std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+std::string LLUrlEntryNoLink::getUrl(const std::string &url) const
 {
 	// return the text between the <nolink> and </nolink> tags
 	return url.substr(8, url.size()-8-9);
 }
 
+std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return getUrl(url);
+}
