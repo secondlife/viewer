@@ -393,11 +393,18 @@ void LLInspectAvatar::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
 	LLMenuGL* gear_menu_self = getChild<LLMenuButton>("gear_self_btn")->getMenu();
-	if ( !(gear_menu && gear_menu->getVisible()) &&
-		 !(gear_menu_self && gear_menu_self->getVisible()))
+	if ( gear_menu && gear_menu->getVisible() &&
+		 gear_menu_self && gear_menu_self->getVisible() )
 	{
-		mOpenTimer.unpause();
+		return;
 	}
+
+	if(childHasVisiblePopupMenu())
+	{
+		return;
+	}
+
+	mOpenTimer.unpause();
 }
 
 void LLInspectAvatar::updateModeratorPanel()

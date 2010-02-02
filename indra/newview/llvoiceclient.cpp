@@ -5982,7 +5982,7 @@ bool LLVoiceClient::voiceEnabled()
 
 bool LLVoiceClient::voiceWorking()
 {
-	return (stateLoggedIn <= mState) && (mState <= stateLeavingSession);
+	return (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
 }
 
 void LLVoiceClient::setLipSyncEnabled(BOOL enabled)

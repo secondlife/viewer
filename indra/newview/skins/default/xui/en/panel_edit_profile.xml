@@ -255,13 +255,18 @@
          top_pad="10"
          value="My Account:"
          width="100" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
-         height="15"
+         h_pad="0"
+         height="28"
          layout="topleft"
          left="10"
          name="acc_status_text"
+         read_only="true"
          top_pad="5"
+         v_pad="0"
          value="Resident. No payment info on file."
          width="200"
          word_wrap="true" />
