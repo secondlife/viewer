@@ -2,13 +2,12 @@
 <panel
  bevel_style="none"
  border_style="line"
- bottom="550"
  follows="left|top|right|bottom"
- height="508"
+ height="522"
  layout="topleft"
  left="0"
  name="script panel"
- width="500">
+ width="497">
     <panel.string
      name="loading">
         Loading...
@@ -29,71 +28,17 @@
      name="Title">
         Script: [NAME]
     </panel.string>
-    <text_editor
-     type="string"
-     length="1"
-     bottom="393"
-     follows="left|top|right|bottom"
-     font="Monospace"
-     height="376"
-     ignore_tab="false"
-     layout="topleft"
-     left="4"
-     max_length="65536"
-     name="Script Editor"
-     width="492"
-     show_line_numbers="true" 
-     handle_edit_keys_directly="true" 
-     word_wrap="true">
-        Loading...
-    </text_editor>
-    <button
-     bottom="499"
-     follows="right|bottom"
-     height="20"
-     label="Save"
-     label_selected="Save"
-     layout="topleft"
-     left="360"
-     name="Save_btn"
-     width="128" />
-    <scroll_list
-     bottom="457"
-     follows="left|right|bottom"
-     height="60"
-     layout="topleft"
-     left="4"
-     name="lsl errors"
-     width="492" />
-    <combo_box
-     bottom="499"
-     follows="left|bottom"
-     height="20"
-     label="Insert..."
-     layout="topleft"
-     left="12"
-     name="Insert..."
-     width="128" />
-    <text
-     bottom="473"
-     follows="left|bottom"
-     height="12"
-     layout="topleft"
-     left="12"
-     name="line_col"
-     width="128" />
     <menu_bar
      bg_visible="false"
-     bottom="18"
-     follows="left|top|right"
+     follows="left|top"
      height="18"
      layout="topleft"
-     left="8"
+     left="0"
      mouse_opaque="false"
      name="script_menu"
      width="476">
         <menu
-         bottom="18"
+         top="0"
          height="62"
          label="File"
          layout="topleft"
@@ -113,11 +58,10 @@
              name="Revert All Changes" />
         </menu>
         <menu
-         bottom="-647"
+         top="0"
          height="198"
          label="Edit"
          layout="topleft"
-         left="222"
          mouse_opaque="false"
          name="Edit"
          width="139">
@@ -169,11 +113,10 @@
              name="Search / Replace..." />
         </menu>
         <menu
-         bottom="18"
+         top="0"
          height="34"
          label="Help"
          layout="topleft"
-         left="0"
          mouse_opaque="false"
          name="Help"
          width="112">
@@ -187,4 +130,53 @@
              name="Keyword Help..." />
         </menu>
     </menu_bar>
+    <text_editor
+    left="0"
+     type="string"
+     length="1"
+     follows="left|top|right|bottom"
+     font="Monospace"
+     height="376"
+     ignore_tab="false"
+     layout="topleft"
+     max_length="65536"
+     name="Script Editor"
+     width="487"
+     show_line_numbers="true" 
+     handle_edit_keys_directly="true" 
+     word_wrap="true">
+        Loading...
+    </text_editor>
+    <scroll_list
+    top_pad="10"
+    left="0"
+     follows="left|right|bottom"
+     height="60"
+     layout="topleft"
+     name="lsl errors"
+     width="487" />
+    <text
+     follows="left|bottom"
+     height="12"
+     layout="topleft"
+     left="0"
+     name="line_col"
+     width="128" />
+    <combo_box
+     follows="left|bottom"
+     height="23"
+     label="Insert..."
+     layout="topleft"
+     name="Insert..."
+     width="128" />
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Save"
+     label_selected="Save"
+     layout="topleft"
+     top_pad="-35"
+     right="487"
+     name="Save_btn"
+     width="61" />
 </panel>

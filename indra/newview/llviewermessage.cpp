@@ -870,8 +870,7 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		////////////////////////////////////////////////////////////////////////////////
 		// Don't highlight if it's in certain "quiet" folders which don't need UI 
 		// notification (e.g. trash, cof, lost-and-found).
-		const BOOL user_is_away = gAwayTimer.getStarted();
-		if(!user_is_away)
+		if(!gAgent.getAFK())
 		{
 			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
 			if (parent)

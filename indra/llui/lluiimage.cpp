@@ -182,11 +182,11 @@ namespace LLInitParam
 	{
 		if (mData.mValue == NULL)
 		{
-			name = "none";
+			name.set("none", false);
 		}
 		else
 		{
-			name = mData.mValue->getName();
+			name.set(mData.mValue->getName(), false);
 		}
 	}
 

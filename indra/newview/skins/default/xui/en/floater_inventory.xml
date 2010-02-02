@@ -12,11 +12,11 @@
  save_rect="true"
  save_visibility="true"
  single_instance="false"
- title="INVENTORY"
+ title="MY INVENTORY"
  width="467">
     <floater.string
      name="Title">
-        Inventory
+        MY INVENTORY
     </floater.string>
     <floater.string
      name="TitleFetching">

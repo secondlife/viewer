@@ -16,13 +16,15 @@ LLUIColor::LLUIColor()
 {
 }
 
-LLUIColor::LLUIColor(const LLColor4* color)
-	:mColorPtr(color)
+
+LLUIColor::LLUIColor(const LLColor4& color)
+:	mColor(color), 
+	mColorPtr(NULL)
 {
 }
 
-LLUIColor::LLUIColor(const LLColor4& color)
-	:mColor(color), mColorPtr(NULL)
+LLUIColor::LLUIColor(const LLUIColor* color)
+:	mColorPtr(color)
 {
 }
 
@@ -32,14 +34,14 @@ void LLUIColor::set(const LLColor4& color)
 	mColorPtr = NULL;
 }
 
-void LLUIColor::set(const LLColor4* color)
+void LLUIColor::set(const LLUIColor* color)
 {
 	mColorPtr = color;
 }
 
 const LLColor4& LLUIColor::get() const
 {
-	return (mColorPtr == NULL ? mColor : *mColorPtr);
+	return (mColorPtr == NULL ? mColor : mColorPtr->get());
 }
 
 LLUIColor::operator const LLColor4& () const

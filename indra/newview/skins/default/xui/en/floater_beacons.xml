@@ -25,7 +25,7 @@
          name="label_show"
          text_color="White"
          type="string">
-            Show:
+            Show :
          </text>
         <check_box
          control_name="renderbeacons"
@@ -117,6 +117,7 @@
         <check_box
          control_name="soundsbeacon"
          height="16"
+         left="0"
          label="Sound sources"
          layout="topleft"
          name="sounds" >

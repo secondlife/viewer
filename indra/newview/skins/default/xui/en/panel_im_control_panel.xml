@@ -30,7 +30,7 @@
      left="5"
      name="button_stack"
      orientation="vertical"
-     top_pad="0"
+     top_pad="-5"
      width="105">
         <layout_panel
          mouse_opaque="false"
@@ -55,7 +55,7 @@
          user_resize="false">
             <button
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Profile"
              name="view_profile_btn"
              top="0"
@@ -72,7 +72,7 @@
          user_resize="false">
             <button
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Add Friend"
              name="add_friend_btn"
              top="5"
@@ -90,7 +90,7 @@
         <button
              auto_resize="false"
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Teleport"
              name="teleport_btn"
              width="100" />
@@ -107,7 +107,7 @@
            <button
              auto_resize="true"
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Share"
              name="share_btn"
              width="100" />
@@ -123,7 +123,7 @@
          user_resize="false">
             <button
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Call"
              name="call_btn"
              width="100" />
@@ -140,7 +140,7 @@
          visible="false">
             <button
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Leave Call"
              name="end_call_btn"
              width="100" />
@@ -157,7 +157,7 @@
          visible="false">
             <button
              follows="left|top|right"
-             height="20"
+             height="23"
              label="Voice Controls"
              name="voice_ctrls_btn"
              width="100" />
