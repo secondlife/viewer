@@ -164,7 +164,7 @@ void LLSidepanelInventory::onWearButtonClicked()
 
 void LLSidepanelInventory::onPlayButtonClicked()
 {
-	performActionOnSelection("activate");
+	performActionOnSelection("open");
 }
 
 void LLSidepanelInventory::onTeleportButtonClicked()
