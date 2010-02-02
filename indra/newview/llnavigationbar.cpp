@@ -34,6 +34,8 @@
 
 #include "llnavigationbar.h"
 
+#include "v2math.h"
+
 #include "llregionhandle.h"
 
 #include "llfloaterreg.h"
@@ -181,6 +183,77 @@ void LLTeleportHistoryMenuItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	mArrowIcon->setVisible(FALSE);
 }
 
+static LLDefaultChildRegistry::Register<LLPullButton> menu_button("pull_button");
+
+LLPullButton::LLPullButton(const LLPullButton::Params& params):
+		LLButton(params)
+	,	mClickDraggingSignal(NULL)
+{
+	setDirectionFromName(params.direction);
+}
+boost::signals2::connection LLPullButton::setClickDraggingCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mClickDraggingSignal) mClickDraggingSignal = new commit_signal_t();
+	return mClickDraggingSignal->connect(cb); 
+}
+
+/*virtual*/
+void LLPullButton::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLButton::onMouseLeave(x, y, mask);
+	
+	if(mMouseDownTimer.getStarted() )
+	{
+		const LLVector2 cursor_direction = LLVector2(F32(x),F32(y)) - mLastMouseDown;
+		if( angle_between(mDraggingDirection, cursor_direction) < 0.5 * F_PI_BY_TWO)//call if angle < pi/4 
+			{
+				if(mClickDraggingSignal)
+				{
+					(*mClickDraggingSignal)(this, LLSD());
+				}
+			}
+	}
+
+}
+
+/*virtual*/
+BOOL LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
+	{
+	BOOL handled = LLButton::handleMouseDown(x,y, mask);
+	if(handled)
+	{
+		mLastMouseDown.set(F32(x), F32(y));
+	}
+	return handled;
+}
+
+/*virtual*/
+BOOL LLPullButton::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	mLastMouseDown.clear();
+	return LLButton::handleMouseUp(x, y, mask);
+}
+
+void LLPullButton::setDirectionFromName(const std::string& name)
+{
+	if (name == "left")
+	{
+		mDraggingDirection.set(F32(-1), F32(0)); 
+	}
+	else if (name == "right")
+	{
+		mDraggingDirection.set(F32(0), F32(1)); 
+	}
+	else if (name == "down")
+	{
+		 mDraggingDirection.set(F32(0), F32(-1)); 
+	}
+	else if (name == "up")
+	{
+		 mDraggingDirection.set(F32(0), F32(1)); 
+	}
+}
+
 //-- LNavigationBar ----------------------------------------------------------
 
 /*
@@ -215,8 +288,8 @@ LLNavigationBar::~LLNavigationBar()
 
 BOOL LLNavigationBar::postBuild()
 {
-	mBtnBack	= getChild<LLButton>("back_btn");
-	mBtnForward	= getChild<LLButton>("forward_btn");
+	mBtnBack	= getChild<LLPullButton>("back_btn");
+	mBtnForward	= getChild<LLPullButton>("forward_btn");
 	mBtnHome	= getChild<LLButton>("home_btn");
 	
 	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo"); 
@@ -227,10 +300,12 @@ BOOL LLNavigationBar::postBuild()
 	mBtnBack->setEnabled(FALSE);
 	mBtnBack->setClickedCallback(boost::bind(&LLNavigationBar::onBackButtonClicked, this));
 	mBtnBack->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this,_1, _2));
-
+	mBtnBack->setClickDraggingCallback(boost::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
+	
 	mBtnForward->setEnabled(FALSE);
 	mBtnForward->setClickedCallback(boost::bind(&LLNavigationBar::onForwardButtonClicked, this));
 	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _1, _2));
+	mBtnForward->setClickDraggingCallback(boost::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
