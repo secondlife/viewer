@@ -33,7 +33,6 @@
 #ifndef LL_TOOLPLACER_H
 #define LL_TOOLPLACER_H
 
-#include "llprimitive.h"
 #include "llpanel.h"
 #include "lltool.h"
 
