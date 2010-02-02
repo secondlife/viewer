@@ -1,39 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="通知" name="notices_tab">
-	<string name="help_text">
-		通知機能を使うと、グループ内ですばやく情報を伝達できます。
-複数のあて先にメッセージを送信できるほか、
-必要に応じてアイテムをメッセージに添付することもできます。 
-通知は、受信アビリティがある役割のグループ・メンバーにのみ配信されます。
-通知をオフにするには、一般タブを使います。
-	</string>
-	<string name="no_notices_text">
-		過去の通知はありません。
-	</string>
-	<button label="?" label_selected="?" name="help_button"/>
-	<text name="lbl">
-		グループ通知アーカイブ
-	</text>
+	<panel.string name="help_text">
+		通知でメッセージと
+アイテムを添付して送ることができます。 通知を受け取る権限のある役割の
+グループメンバーが
+受け取ることができます。 通知を受け取りたくない場合は
+一般タブから設定してください。
+	</panel.string>
+	<panel.string name="no_notices_text">
+		過去の通知はありません
+	</panel.string>
 	<text name="lbl2">
-		通知は 14 日間保存されます。 通知リストは 1 つのグループにつき、1 日最大 200件 に制限されます。
+		通知は 14 日間保存されます。
+1 日の制限数は 200 通です。
 	</text>
 	<scroll_list name="notice_list">
-		<column label="" name="icon"/>
-		<column label="件名" name="subject"/>
-		<column label="送り主" name="from"/>
-		<column label="日付" name="date"/>
+		<scroll_list.columns label="" name="icon"/>
+		<scroll_list.columns label="件名" name="subject"/>
+		<scroll_list.columns label="送り主" name="from"/>
+		<scroll_list.columns label="日付" name="date"/>
 	</scroll_list>
 	<text name="notice_list_none_found">
-		何も見つかりませんでした。
+		見つかりませんでした
 	</text>
-	<button label="新しい通知" label_selected="新しい通知を作成" name="create_new_notice"/>
+	<button label="新しい通知を作成" label_selected="新しい通知を作成" name="create_new_notice" tool_tip="新しい通知を作成"/>
 	<button label="更新" label_selected="リスト更新" name="refresh_notices"/>
 	<panel label="新しい通知を作成" name="panel_create_new_notice">
 		<text name="lbl">
 			通知を作成
-		</text>
-		<text name="lbl2">
-			持ち物からこのパネルにアイテムを 1 つドラッグして添付できます。 添付するアイテムはコピーと再販・プレゼントが可能でなければなりません。また、フォルダは送れません。
 		</text>
 		<text name="lbl3">
 			件名：
@@ -44,16 +38,19 @@
 		<text name="lbl5">
 			添付：
 		</text>
-		<button label="添付物を削除" label_selected="添付物を削除" name="remove_attachment"/>
-		<button label="送信" label_selected="通知を送信" name="send_notice"/>
-		<panel name="drop_target" tool_tip="持ち物からアイテムをメッセージ欄にドラッグしてください。通知と一緒に送信されます。送信するにはコピー、譲渡が可能なオブジェクトである必要があります。"/>
+		<text name="string">
+			添付するアイテムをここにドラッグ -- &gt;
+		</text>
+		<button label="取り外す" label_selected="添付物を削除" name="remove_attachment"/>
+		<button label="送信" label_selected="送信" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="持ち物からアイテムをメッセージ欄にドラッグしてください。通知と一緒に送信されます。送信するにはコピー、譲渡が可能なオブジェクトである必要があります。"/>
 	</panel>
 	<panel label="過去の通知を表示" name="panel_view_past_notice">
 		<text name="lbl">
 			アーカイブ通知
 		</text>
 		<text name="lbl2">
-			新しい通知の送信は、上の[新しい通知を作成する]をクリックしてください。
+			新しい通知を送信するには、+ ボタンを押してください
 		</text>
 		<text name="lbl3">
 			件名：
@@ -61,6 +58,6 @@
 		<text name="lbl4">
 			メッセージ：
 		</text>
-		<button label="添付物を開く" label_selected="添付物を開く" name="open_attachment"/>
+		<button label="添付アイテムを開く" label_selected="添付物を開く" name="open_attachment"/>
 	</panel>
 </panel>

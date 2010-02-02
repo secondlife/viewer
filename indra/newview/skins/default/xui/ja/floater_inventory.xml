@@ -1,51 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory" title="持ち物">
-	<search_editor label="ここに入力して検索" name="inventory search editor" />
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="すべて" name="All Items" />
-		<inventory_panel label="最近の入手アイテム" name="Recent Items" />
-	</tab_container>
-	<menu_bar name="Inventory Menu">
-		<menu label="ファイル" name="File">
-			<menu_item_call label="開く" name="Open" />
-			<menu_item_call label="新しいウィンドウ" name="New Window" />
-			<menu_item_call label="フィルタを表示" name="Show Filters" />
-			<menu_item_call label="フィルターのリセット" name="Reset Current" />
-			<menu_item_call label="すべてのフォルダを閉じる" name="Close All Folders" />
-			<menu_item_call label="ゴミ箱を空にする" name="Empty Trash" />
-		</menu>
-		<menu label="作成" name="Create">
-			<menu_item_call label="新しいフォルダ" name="New Folder" />
-			<menu_item_call label="新しいスクリプト" name="New Script" />
-			<menu_item_call label="新しいノート" name="New Note" />
-			<menu_item_call label="新しいジェスチャー" name="New Gesture" />
-			<menu name="New Clothes">
-				<menu_item_call label="新しいシャツ" name="New Shirt" />
-				<menu_item_call label="新しいズボン" name="New Pants" />
-				<menu_item_call label="新しい靴" name="New Shoes" />
-				<menu_item_call label="新しい靴下" name="New Socks" />
-				<menu_item_call label="新しいジャケット" name="New Jacket" />
-				<menu_item_call label="新しいスカート" name="New Skirt" />
-				<menu_item_call label="新しい手袋" name="New Gloves" />
-				<menu_item_call label="新しい下着" name="New Undershirt" />
-				<menu_item_call label="新しいパンツ" name="New Underpants" />
-			</menu>
-			<menu name="New Body Parts">
-				<menu_item_call label="新しいシェイプ(体型)" name="New Shape" />
-				<menu_item_call label="新しいスキン" name="New Skin" />
-				<menu_item_call label="新しい髪" name="New Hair" />
-				<menu_item_call label="新しい眼" name="New Eyes" />
-			</menu>
-		</menu>
-		<menu label="並べ替え" name="Sort">
-			<menu_item_check label="名前" name="By Name" />
-			<menu_item_check label="日付" name="By Date" />
-			<menu_item_check label="フォルダは常に名前順" name="Folders Always By Name" />
-			<menu_item_check label="システムフォルダをトップへ" name="System Folders To Top" />
-		</menu>
-		<menu label="フィルタ" name="Filters">
-			<menu_item_check label="現状を修正" name="Modify Current" />
-			<menu_item_call label="現状をリセット" name="Reset Current" />
-		</menu>
-	</menu_bar>
+	<floater.string name="Title">
+		インベントリ
+	</floater.string>
+	<floater.string name="TitleFetching">
+		持ち物 （ [ITEM_COUNT]  アイテムを取得中...） [FILTER]
+	</floater.string>
+	<floater.string name="TitleCompleted">
+		持ち物 （ [ITEM_COUNT]  アイテム） [FILTER]
+	</floater.string>
+	<floater.string name="Fetched">
+		取得済
+	</floater.string>
+	<panel label="持ち物パネル" name="Inventory Panel"/>
 </floater>

@@ -1,42 +1,49 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_im_group
- font="SansSerif"
- height="25"
+ height="23"
  name="im_group_chiclet"
  show_speaker="false"
  width="25">
+    <chiclet_im_group.chiclet_button 
+     height="23"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     name="chiclet_button"
+     tab_stop="false"
+     width="25"/>
     <chiclet_im_group.speaker
      auto_update="true"
      draw_border="false"
-     height="25"
+     height="23"
      left="25"
      name="speaker"
      visible="false"
-     width="20"/>
+     width="20" />
     <chiclet_im_group.group_icon
+     bottom="2"
      default_icon="Generic_Group"
      follows="left|top|bottom"
-     height="22"
-     mouse_opaque="true"
+     height="18"
+     left="3"
+     mouse_opaque="false"
      name="group_icon"
-     width="22"/>
+     width="19" />
     <chiclet_im_group.unread_notifications
-     height="25"
-     font="SansSerif"
-     font_halign="center"
+     height="23"
+     halign="center"
      left="25"
      mouse_opaque="false"
      name="unread"
      text_color="white"
-     v_pad="5"
+     v_pad="3"
      visible="false"
      width="20"/>
     <chiclet_im_group.new_message_icon
-     bottom="12"
-     height="13"
-     image_name="Unread_IM"
-     left="12"
-     name="new_message_icon"
-     visible="false"
-     width="13" />
+bottom="11"
+  height="14"
+  image_name="Unread_Chiclet"
+  left="12"
+  name="new_message_icon"
+  visible="false"
+  width="14" />
 </chiclet_im_group>

@@ -301,14 +301,15 @@
          left="10"
          name="partner_data_panel"
          width="285">
-            <text
+            <name_box
              follows="left|top|right"
              height="30"
+             initial_value="(retrieving)"
              layout="topleft"
              left="0"
+             link="true"
              name="partner_text"
              top="0"
-             value="[FIRST] [LAST]"
              width="285"
              word_wrap="true" />
          </panel>

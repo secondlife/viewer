@@ -4,7 +4,7 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="pick_name" value="[name]"/>
-			<text name="pick_location" value="[chargement...]"/>
+			<text name="pick_location" value="[loading...]"/>
 			<text name="pick_desc" value="[description]"/>
 		</panel>
 	</scroll_container>

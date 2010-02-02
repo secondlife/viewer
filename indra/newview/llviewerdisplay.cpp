@@ -45,7 +45,7 @@
 #include "lldynamictexture.h"
 #include "lldrawpoolalpha.h"
 #include "llfeaturemanager.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llhudmanager.h"
 #include "llimagebmp.h"
 #include "llmemory.h"
@@ -404,7 +404,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				if( arrival_fraction > 1.f )
 				{
 					arrival_fraction = 1.f;
-					LLFirstUse::useTeleport();
+					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
@@ -483,7 +483,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Disconnected");
 		render_ui();
-		render_disconnected_background();
 	}
 	
 	//////////////////////////
@@ -1011,7 +1010,7 @@ void render_hud_attachments()
 
 LLRect get_whole_screen_region()
 {
-	LLRect whole_screen = gViewerWindow->getWindowRectScaled();
+	LLRect whole_screen = gViewerWindow->getWorldViewRectScaled();
 	
 	// apply camera zoom transform (for high res screenshots)
 	F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
@@ -1019,13 +1018,13 @@ LLRect get_whole_screen_region()
 	if (zoom_factor > 1.f)
 	{
 		S32 num_horizontal_tiles = llceil(zoom_factor);
-		S32 tile_width = llround((F32)gViewerWindow->getWindowWidthScaled() / zoom_factor);
-		S32 tile_height = llround((F32)gViewerWindow->getWindowHeightScaled() / zoom_factor);
+		S32 tile_width = llround((F32)gViewerWindow->getWorldViewWidthScaled() / zoom_factor);
+		S32 tile_height = llround((F32)gViewerWindow->getWorldViewHeightScaled() / zoom_factor);
 		int tile_y = sub_region / num_horizontal_tiles;
 		int tile_x = sub_region - (tile_y * num_horizontal_tiles);
 		glh::matrix4f mat;
 		
-		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWindowHeightScaled() - (tile_y * tile_height), tile_width, tile_height);
+		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWorldViewHeightScaled() - (tile_y * tile_height), tile_width, tile_height);
 	}
 	return whole_screen;
 }
@@ -1045,12 +1044,12 @@ bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::mat
 		F32 aspect_ratio = LLViewerCamera::getInstance()->getAspect();
 		
 		glh::matrix4f mat;
-		F32 scale_x = (F32)gViewerWindow->getWindowWidthScaled() / (F32)screen_region.getWidth();
-		F32 scale_y = (F32)gViewerWindow->getWindowHeightScaled() / (F32)screen_region.getHeight();
+		F32 scale_x = (F32)gViewerWindow->getWorldViewWidthScaled() / (F32)screen_region.getWidth();
+		F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
 		mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
 		mat.set_translate(
-			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWindowWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-					   clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWindowHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
+			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+					   clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
 					   0.f));
 		proj *= mat;
 		
@@ -1140,6 +1139,10 @@ void render_ui(F32 zoom_factor, int subfield)
 			{
 				render_ui_3d();
 				LLGLState::checkStates();
+			}
+			else
+			{
+				render_disconnected_background();
 			}
 
 			render_ui_2d();
@@ -1300,8 +1303,8 @@ void render_ui_2d()
 	if (gAgent.getAvatarObject() && gAgent.mHUDCurZoom < 0.98f)
 	{
 		glPushMatrix();
-		S32 half_width = (gViewerWindow->getWindowWidthScaled() / 2);
-		S32 half_height = (gViewerWindow->getWindowHeightScaled() / 2);
+		S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
+		S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
 		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
 		glTranslatef((F32)half_width, (F32)half_height, 0.f);
 		F32 zoom = gAgent.mHUDCurZoom;

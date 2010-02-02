@@ -15,32 +15,32 @@
 		Maximale Bandbreite
 	</text>
 	<text name="text_box2">
-		kbps
+		kbit/s
 	</text>
-	<check_box label="Benutzerdefinierter Port" name="connection_port_enabled"/>
-	<spinner label="Port-Nummer:" name="web_proxy_port"/>
+	<check_box label="Eigener Port" name="connection_port_enabled"/>
+	<spinner label="Portnummer:" name="web_proxy_port"/>
 	<text name="cache_size_label_l">
-		Cache
+		Cachegröße
 	</text>
 	<text name="text_box5">
 		MB
 	</text>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_cache"/>
-	<button label="Zurücksetzen" label_selected="Festlegen" name="reset_cache"/>
+	<button label="Zurücksetzen" label_selected="Set" name="reset_cache"/>
 	<text name="Cache location">
-		Cache-Ordner
+		Speicherort des Caches
 	</text>
 	<text name="Web:">
-		Internet:
+		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Den integrierten Browser für Hilfe, Internetlinks, usw. verwenden. Der Browser wird als eigenständiges Fenster in [APP_NAME] geöffnet."/>
-		<radio_item label="Meinen Browser verwenden (IE, Firefox)" name="external" tool_tip="Standard-Browser für Hilfe, Weblinks usw. verwenden. Im Vollbildmodus nicht empfohlen."/>
+		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Integrierten Webbrowser verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Dieser Browser öffnet als neues Fenster innerhalb von [APP_NAME]."/>
+		<radio_item label="Meinen Browser verwenden (IE, Firefox)" name="external" tool_tip="Standard Webbrowser des Systems verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Bei Vollbildmodus nicht empfohlen."/>
 	</radio_group>
-	<check_box initial_value="false" label="Web-Proxy:" name="web_proxy_enabled"/>
-	<line_editor name="web_proxy_editor" tool_tip="Name oder IP-Adresse des Proxys"/>
+	<check_box initial_value="false" label="Web Proxy" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="Name oder IP Adresse des Proxyservers, den Sie benutzen möchten"/>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_proxy"/>
 	<text name="Proxy location">
-		Proxy-Standort
+		Proxyadresse
 	</text>
 </panel>

@@ -107,7 +107,7 @@
      height="16"
      layout="topleft"
      top_delta="0"
-     left="242"
+     left="217"
      name="currency_label"
      width="15">
       L$
@@ -123,7 +123,7 @@
      label="L$"
      left_pad="3"
      name="currency_amt"
-     width="60">
+     width="85">
         1234
     </line_editor>
     <text
@@ -222,7 +222,7 @@
      width="300"
      height="30"
      name="currency_links">
-      [http://www.secondlife.com/ payment method] | [http://www.secondlife.com/ currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+      [http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
     </text>
     <text
      type="string"
@@ -304,7 +304,7 @@ Re-enter amount to see the latest exchange rate.
     </text>
      <text
       type="string"
-      width="175"
+      width="176"
       height="125"
       top="60"
       left="165"

@@ -162,6 +162,9 @@ private:
 	void onItemClick(LLSysWellItem* item);
 	void onItemClose(LLSysWellItem* item);
 
+	// ID of a toast loaded by user (by clicking notification well item)
+	LLUUID mLoadedToastId;
+
 };
 
 /**
@@ -217,6 +220,8 @@ private:
 		void onMouseEnter(S32 x, S32 y, MASK mask);
 		void onMouseLeave(S32 x, S32 y, MASK mask);
 		BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+		BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
 	private:
 		static const S32 CHICLET_HPAD = 10;
 		void onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param);
@@ -245,6 +250,8 @@ private:
 		/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
 		/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 		/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+		/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
 	private:
 		void onClosePanel();
 		static EObjectType getObjectType(const LLNotificationPtr& notification);

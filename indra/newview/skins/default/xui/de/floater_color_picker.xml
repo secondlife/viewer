@@ -21,12 +21,11 @@
 	<check_box label="Jetzt übernehmen" name="apply_immediate"/>
 	<button label="" label_selected="" name="color_pipette"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>
-	<button label="OK" label_selected="Auswählen" name="select_btn"/>
+	<button label="OK" label_selected="OK" name="select_btn"/>
 	<text name="Current color:">
 		Aktuelle Farbe:
 	</text>
 	<text name="(Drag below to save.)">
-		(Nach unten ziehen,
- um zu speichern)
+		(Zum Speichern nach unten ziehen.)
 	</text>
 </floater>

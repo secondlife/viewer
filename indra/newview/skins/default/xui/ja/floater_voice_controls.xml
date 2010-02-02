@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_voice_controls" title="ボイスコントロール">
+	<panel name="control_panel">
+		<panel name="my_panel">
+			<text name="user_text" value="Mya Avatar:"/>
+		</panel>
+		<layout_stack>
+			<layout_panel>
+				<slider_bar name="volume_slider_bar" tool_tip="音量"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</floater>

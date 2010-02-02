@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="WindLight floater" title="ERWEITERTER HIMMEL-EDITOR">
 	<text name="KeyFramePresetsText">
 		Voreinstellungen:
 	</text>
-	<button label="Neu" label_selected="Neu" name="WLNewPreset" />
-	<button label="Speichern" label_selected="Speichern" name="WLSavePreset" />
-	<button label="Löschen" label_selected="Löschen" name="WLDeletePreset" />
-	<button label="Tageszyklus-Editor" label_selected="Tageszyklus-Editor"
-	     name="WLDayCycleMenuButton" />
+	<button label="Neu" label_selected="Neu" name="WLNewPreset"/>
+	<button label="Speichern" label_selected="Speichern" name="WLSavePreset"/>
+	<button label="Löschen" label_selected="Löschen" name="WLDeletePreset"/>
+	<button label="Tageszyklus-Editor" label_selected="Tageszyklus-Editor" name="WLDayCycleMenuButton"/>
 	<tab_container name="WindLight Tabs">
 		<panel label="Atmosphäre" name="Atmosphere">
 			<text name="BHText">
 				Horizontfarbe
 			</text>
-			<button label=" ?" name="WLBlueHorizonHelp" />
+			<button label=" ?" name="WLBlueHorizonHelp"/>
 			<text name="BHText2">
 				R
 			</text>
@@ -29,11 +28,11 @@
 			<text name="BDensText">
 				Horizonttrübung
 			</text>
-			<button label=" ?" name="WLHazeHorizonHelp" />
+			<button label=" ?" name="WLHazeHorizonHelp"/>
 			<text name="BDensText2">
 				Farbintensität
 			</text>
-			<button label=" ?" name="WLBlueDensityHelp" />
+			<button label=" ?" name="WLBlueDensityHelp"/>
 			<text name="BHText6">
 				R
 			</text>
@@ -49,25 +48,25 @@
 			<text name="HDText">
 				Trübungsintensität
 			</text>
-			<button label=" ?" name="WLHazeDensityHelp" />
+			<button label=" ?" name="WLHazeDensityHelp"/>
 			<text name="DensMultText">
 				Dichtemultiplikator
 			</text>
-			<button label=" ?" name="WLDensityMultHelp" />
+			<button label=" ?" name="WLDensityMultHelp"/>
 			<text name="WLDistanceMultText">
 				Entfernungsmultiplikator
 			</text>
-			<button label=" ?" name="WLDistanceMultHelp" />
+			<button label=" ?" name="WLDistanceMultHelp"/>
 			<text name="MaxAltText">
 				Max. Höhe
 			</text>
-			<button label=" ?" name="WLMaxAltitudeHelp" />
+			<button label=" ?" name="WLMaxAltitudeHelp"/>
 		</panel>
 		<panel label="Licht" name="Lighting">
 			<text name="SLCText">
 				Sonne/Mond-Farbe
 			</text>
-			<button label=" ?" name="WLSunlightColorHelp" />
+			<button label=" ?" name="WLSunlightColorHelp"/>
 			<text name="BHText">
 				R
 			</text>
@@ -83,11 +82,11 @@
 			<text name="TODText">
 				Sonne/Mond-Stand
 			</text>
-			<button label=" ?" name="WLTimeOfDayHelp" />
+			<button label=" ?" name="WLTimeOfDayHelp"/>
 			<text name="WLAmbientText">
 				Umgebung
 			</text>
-			<button label=" ?" name="WLAmbientHelp" />
+			<button label=" ?" name="WLAmbientHelp"/>
 			<text name="BHText5">
 				R
 			</text>
@@ -103,27 +102,27 @@
 			<text name="WLEastAngleText">
 				Ostausrichtung
 			</text>
-			<button label=" ?" name="WLEastAngleHelp" />
+			<button label=" ?" name="WLEastAngleHelp"/>
 			<text name="SunGlowText">
 				Sonnenleuchtkraft
 			</text>
-			<button label=" ?" name="WLSunGlowHelp" />
-			<slider label="Fokus " name="WLGlowB" />
-			<slider label="Größe    " name="WLGlowR" />
+			<button label=" ?" name="WLSunGlowHelp"/>
+			<slider label="Fokus " name="WLGlowB"/>
+			<slider label="Größe    " name="WLGlowR"/>
 			<text name="SceneGammaText">
 				Gamma in Szene
 			</text>
-			<button label=" ?" name="WLSceneGammaHelp" />
+			<button label=" ?" name="WLSceneGammaHelp"/>
 			<text name="WLStarText">
 				Sternenleuchtkraft
 			</text>
-			<button label=" ?" name="WLStarBrightnessHelp" />
+			<button label=" ?" name="WLStarBrightnessHelp"/>
 		</panel>
 		<panel label="Wolken" name="Clouds">
 			<text name="WLCloudColorText">
 				Wolkenfarbe
 			</text>
-			<button label=" ?" name="WLCloudColorHelp" />
+			<button label=" ?" name="WLCloudColorHelp"/>
 			<text name="BHText">
 				R
 			</text>
@@ -139,7 +138,7 @@
 			<text name="WLCloudColorText2">
 				Wolken-XY/Dichte
 			</text>
-			<button label=" ?" name="WLCloudDensityHelp" />
+			<button label=" ?" name="WLCloudDensityHelp"/>
 			<text name="BHText5">
 				X
 			</text>
@@ -152,15 +151,15 @@
 			<text name="WLCloudCoverageText">
 				Wolkendichte
 			</text>
-			<button label=" ?" name="WLCloudCoverageHelp" />
+			<button label=" ?" name="WLCloudCoverageHelp"/>
 			<text name="WLCloudScaleText">
 				Wolkenskalierung
 			</text>
-			<button label=" ?" name="WLCloudScaleHelp" />
+			<button label=" ?" name="WLCloudScaleHelp"/>
 			<text name="WLCloudDetailText">
 				Wolkendetails (XY/Dichte)
 			</text>
-			<button label=" ?" name="WLCloudDetailHelp" />
+			<button label=" ?" name="WLCloudDetailHelp"/>
 			<text name="BHText8">
 				X
 			</text>
@@ -173,15 +172,15 @@
 			<text name="WLCloudScrollXText">
 				Wolkenbewegung X
 			</text>
-			<button label=" ?" name="WLCloudScrollXHelp" />
-			<check_box label="Fest" name="WLCloudLockX" />
+			<button label=" ?" name="WLCloudScrollXHelp"/>
+			<check_box label="Fest" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
 				Wolkenbewegung Y
 			</text>
-			<button label=" ?" name="WLCloudScrollYHelp" />
-			<check_box label="Fest" name="WLCloudLockY" />
-			<check_box label="Klassische Wolken" name="DrawClassicClouds" />
-			<button label=" ?" name="WLClassicCloudsHelp" />
+			<button label=" ?" name="WLCloudScrollYHelp"/>
+			<check_box label="Fest" name="WLCloudLockY"/>
+			<check_box label="Klassische Wolken" name="DrawClassicClouds"/>
+			<button label=" ?" name="WLClassicCloudsHelp"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultSkyNames">

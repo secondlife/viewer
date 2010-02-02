@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="item properties" title="PROPRIÉTÉS DE L&apos;OBJET DE L&apos;INVENTAIRE">
+<floater name="item properties" title="PROPRIÉTÉS DES ARTICLES DE L&apos;INVENTAIRE">
 	<floater.string name="unknown">
 		(inconnu)
 	</floater.string>
@@ -11,6 +11,9 @@
 	</floater.string>
 	<floater.string name="owner_can">
 		Le propriétaire peut :
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</floater.string>
 	<text name="LabelItemNameTitle">
 		Nom :
@@ -39,21 +42,21 @@
 		Wed May 24 12:50:46 2006
 	</text>
 	<text name="OwnerLabel">
-		Vous :
+		Vous :
 	</text>
 	<check_box label="Éditer" name="CheckOwnerModify"/>
 	<check_box label="Copier" name="CheckOwnerCopy"/>
 	<check_box label="Revendre" name="CheckOwnerTransfer"/>
 	<text name="AnyoneLabel">
-		N&apos;importe qui :
+		N&apos;importe qui :
 	</text>
 	<check_box label="Copier" name="CheckEveryoneCopy"/>
 	<text name="GroupLabel">
-		Groupe :
+		Groupe :
 	</text>
 	<check_box label="Partager" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel" width="192">
-		Le prochain propriétaire :
+		Le prochain propriétaire :
 	</text>
 	<check_box label="Éditer" name="CheckNextOwnerModify"/>
 	<check_box label="Copier" name="CheckNextOwnerCopy"/>
@@ -63,5 +66,8 @@
 		<combo_box.item label="Copier" name="Copy"/>
 		<combo_box.item label="Original" name="Original"/>
 	</combo_box>
-	<spinner label="Prix : L$" name="Edit Cost"/>
+	<spinner label="Prix :" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
 </floater>

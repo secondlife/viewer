@@ -12,11 +12,18 @@
 	<panel.string name="bandwidth_tooltip">
 		Bande passante
 	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
 	</panel.string>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Mon solde : Cliquez ici pour acheter plus de L$"/>
-	<text name="TimeText" tool_tip="Heure actuelle (Californie)">
+	<button label="" label_selected="" name="buycurrency" tool_tip="Mon solde : Cliquez pour acheter plus de L$"/>
+	<text name="TimeText" tool_tip="Heure actuelle (Pacifique)">
 		midi
 	</text>
+	<button name="volume_btn" tool_tip="Contrôle du volume global"/>
 </panel>

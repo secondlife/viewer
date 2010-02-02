@@ -822,13 +822,15 @@ class LinuxManifest(ViewerManifest):
             'dst': self.get_dst_prefix(),
             'inst': self.build_path_of(installer_name)})
         try:
-            # --numeric-owner hides the username of the builder for
-            # security etc.
-            self.run_command('tar -C %(dir)s --numeric-owner -cjf '
-                             '%(inst_path)s.tar.bz2 %(inst_name)s' % {
-                'dir': self.get_build_prefix(),
-                'inst_name': installer_name,
-                'inst_path':self.build_path_of(installer_name)})
+            # only create tarball if it's not a debug build.
+            if self.args['buildtype'].lower() != 'debug':
+                # --numeric-owner hides the username of the builder for
+                # security etc.
+                self.run_command('tar -C %(dir)s --numeric-owner -cjf '
+                                 '%(inst_path)s.tar.bz2 %(inst_name)s' % {
+                        'dir': self.get_build_prefix(),
+                        'inst_name': installer_name,
+                        'inst_path':self.build_path_of(installer_name)})
         finally:
             self.run_command("mv %(inst)s %(dst)s" % {
                 'dst': self.get_dst_prefix(),
@@ -852,7 +854,14 @@ class Linux_i686Manifest(LinuxManifest):
                 print "Skipping %s - not found" % libfile
                 pass
 
-        self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
+            
+        if(self.args['buildtype'].lower() != 'debug'):
+            print "* packaging stripped viewer binary."
+            self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
+        else:
+            print "* packaging un-stripped viewer binary."
+            self.path("secondlife-bin","bin/do-not-directly-run-secondlife-bin")
+
         self.path("../linux_crash_logger/linux-crash-logger-stripped","bin/linux-crash-logger.bin")
         self.path("../linux_updater/linux-updater-stripped", "bin/linux-updater.bin")
         self.path("../llplugin/slplugin/SLPlugin", "bin/SLPlugin")

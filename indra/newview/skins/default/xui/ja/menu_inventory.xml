@@ -12,7 +12,7 @@
 	<menu_item_call label="新しいスクリプト" name="New Script"/>
 	<menu_item_call label="新しいノート" name="New Note"/>
 	<menu_item_call label="新しいジェスチャー" name="New Gesture"/>
-	<menu label="新規衣類" name="New Clothes">
+	<menu label="新しい衣類" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
 		<menu_item_call label="新しいズボン" name="New Pants"/>
 		<menu_item_call label="新しい靴" name="New Shoes"/>
@@ -22,8 +22,10 @@
 		<menu_item_call label="新しい手袋" name="New Gloves"/>
 		<menu_item_call label="新しい下着" name="New Undershirt"/>
 		<menu_item_call label="新しいパンツ" name="New Underpants"/>
+		<menu_item_call label="新しいアルファマスク" name="New Alpha Mask"/>
+		<menu_item_call label="新しいタトゥ" name="New Tattoo"/>
 	</menu>
-	<menu label="新規身体部位" name="New Body Parts">
+	<menu label="新しい身体部位" name="New Body Parts">
 		<menu_item_call label="新しいシェイプ(体型)" name="New Shape"/>
 		<menu_item_call label="新しいスキン" name="New Skin"/>
 		<menu_item_call label="新しい髪" name="New Hair"/>
@@ -46,18 +48,21 @@
 	<menu_item_call label="開く" name="Sound Open"/>
 	<menu_item_call label="アイテムを除外" name="Purge Item"/>
 	<menu_item_call label="アイテムを復元" name="Restore Item"/>
+	<menu_item_call label="オリジナルを探す" name="Find Original"/>
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="プロパティ" name="Properties"/>
 	<menu_item_call label="名前の変更" name="Rename"/>
 	<menu_item_call label="UUIDをコピー" name="Copy Asset UUID"/>
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="貼り付け" name="Paste"/>
+	<menu_item_call label="リンクの貼り付け" name="Paste As Link"/>
 	<menu_item_call label="削除" name="Delete"/>
-	<menu_item_call label="アイテムを取り外す" name="Take Off Items"/>
+	<menu_item_call label="アウトフィットから取り除く" name="Remove From Outfit"/>
 	<menu_item_call label="服装に追加" name="Add To Outfit"/>
 	<menu_item_call label="服装を置換" name="Replace Outfit"/>
 	<menu_item_call label="会議チャット開始" name="Conference Chat Folder"/>
 	<menu_item_call label="再生" name="Sound Play"/>
+	<menu_item_call label="ランドマークの情報" name="About Landmark"/>
 	<menu_item_call label="世界で再生" name="Animation Play"/>
 	<menu_item_call label="ローカルに再生" name="Animation Audition"/>
 	<menu_item_call label="インスタント・メッセージを送信" name="Send Instant Message"/>
@@ -65,6 +70,7 @@
 	<menu_item_call label="会議チャット開始" name="Conference Chat"/>
 	<menu_item_call label="アクティブ" name="Activate"/>
 	<menu_item_call label="非アクティブ" name="Deactivate"/>
+	<menu_item_call label="別名で保存" name="Save As"/>
 	<menu_item_call label="自分から取り外す" name="Detach From Yourself"/>
 	<menu_item_call label="装着" name="Object Wear"/>
 	<menu label="装着先" name="Attach To"/>

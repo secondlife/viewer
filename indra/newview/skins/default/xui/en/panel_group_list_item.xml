@@ -65,6 +65,7 @@
      left_pad="5"
      right="-3"
      name="profile_btn"
+     tool_tip="View profile"
      top_delta="-2"
      width="20" />
 </panel>

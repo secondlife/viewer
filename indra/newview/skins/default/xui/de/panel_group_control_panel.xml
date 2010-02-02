@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<button label="Gruppeninfo" name="group_info_btn"/>
+	<panel name="panel_call_buttons">
+		<button label="Gruppe anrufen" name="call_btn"/>
+		<button label="Anruf beenden" name="end_call_btn"/>
+		<button label="Voice-Steuerung öffnen" name="voice_ctrls_btn"/>
+	</panel>
+</panel>

@@ -47,7 +47,7 @@
          label="Search"
          layout="topleft"
          left="6"
-         help_topic="avatarpicker_search_tab"
+         help_topic="avatarpicker"
          name="SearchPanel"
          top="150"
          width="132">
@@ -98,7 +98,7 @@
          label="Friends"
          layout="topleft"
          left="6"
-         help_topic="avatarpicker_friends_tab"
+         help_topic="avatarpicker"
          name="FriendsPanel"
          top="150"
          width="132">
@@ -144,7 +144,7 @@
          label="Near Me"
          layout="topleft"
          left="6"
-         help_topic="avatarpicker_near_me_tab"
+         help_topic="avatarpicker"
          name="NearMePanel"
          top="150"
          width="132">

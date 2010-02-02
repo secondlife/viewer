@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="WIKI LSL">
-	<check_box label="Suivre le curseur" name="lock_check" />
-	<combo_box label="Verrouiller" name="history_combo" left_delta="120" width="70"/>
-	<button label="Précédente" name="back_btn" left_delta="75"/>
-	<button label="Suivante" name="fwd_btn" />
+	<check_box label="Suivre le curseur" name="lock_check"/>
+	<combo_box label="Verrouiller" left_delta="120" name="history_combo" width="70"/>
+	<button label="Précédente" left_delta="75" name="back_btn"/>
+	<button label="Suivante" name="fwd_btn"/>
 </floater>

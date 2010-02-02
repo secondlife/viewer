@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Inhalt-Berechtigungen bearbeiten">
+<floater name="floaterbulkperms" title="INHALTS-BERECHTIGUNGEN BEARBEITEN">
 	<floater.string name="nothing_to_modify_text">
 		Auswahl enthält keinen Inhalt, der bearbeitet werden kann.
 	</floater.string>
@@ -29,6 +29,7 @@
 	<check_box label="Sounds" name="check_sound"/>
 	<icon name="icon_sound" tool_tip="Sounds"/>
 	<check_box label="Texturen" name="check_texture"/>
+	<icon name="icon_texture" tool_tip="Texturen"/>
 	<button label="√ Alle" label_selected="Alle" name="check_all"/>
 	<button label="Löschen" label_selected="Keine" name="check_none"/>
 	<text name="newperms">
@@ -37,7 +38,7 @@
 	<text name="GroupLabel">
 		Gruppe:
 	</text>
-	<check_box label="Freigeben" name="share_with_group"/>
+	<check_box label="Teilen" name="share_with_group"/>
 	<text name="AnyoneLabel">
 		Jeder:
 	</text>

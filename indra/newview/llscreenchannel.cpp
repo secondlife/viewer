@@ -47,6 +47,7 @@
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 #include "llscriptfloater.h"
+#include "llfontgl.h"
 
 #include <algorithm>
 
@@ -59,17 +60,14 @@ bool LLScreenChannel::mWasStartUpToastShown = false;
 // LLScreenChannelBase
 //////////////////////
 LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
-												mOverflowToastPanel(NULL) 
-												,mToastAlignment(NA_BOTTOM)
+												mToastAlignment(NA_BOTTOM)
 												,mCanStoreToasts(true)
 												,mHiddenToastsNum(0)
-												,mOverflowToastHidden(false)
 												,mHoveredToast(NULL)
 												,mControlHovering(false)
 												,mShowToasts(true)
 {	
 	mID = id;
-	mOverflowFormatString = LLTrans::getString("OverflowInfoChannelString");
 	mWorldViewRectConnection = gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLScreenChannelBase::updatePositionAndSize, this, _1, _2));
 	setMouseOpaque( false );
 	setVisible(FALSE);
@@ -217,11 +215,6 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 
 	ToastElem new_toast_elem(p);
 
-	// reset HIDDEN flags for the Overflow Toast
-	mOverflowToastHidden = false;
-	if(mOverflowToastPanel)
-		mOverflowToastPanel->setIsHidden(false);
-	
 	new_toast_elem.toast->setOnFadeCallback(boost::bind(&LLScreenChannel::onToastFade, this, _1));
 	new_toast_elem.toast->setOnToastDestroyedCallback(boost::bind(&LLScreenChannel::onToastDestroyed, this, _1));
 	if(mControlHovering)
@@ -258,6 +251,13 @@ void LLScreenChannel::onToastDestroyed(LLToast* toast)
 	{
 		mToastList.erase(it);
 	}
+
+	it = find(mStoredToastList.begin(), mStoredToastList.end(), static_cast<LLPanel*>(toast));
+
+	if(it != mStoredToastList.end())
+	{
+		mStoredToastList.erase(it);
+	}
 }
 
 
@@ -287,6 +287,11 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 //--------------------------------------------------------------------------
 void LLScreenChannel::deleteToast(LLToast* toast)
 {
+	if (toast->isDead())
+	{
+		return;
+	}
+
 	// send signal to observers about destroying of a toast
 	toast->mOnDeleteToastSignal(toast);
 	
@@ -322,8 +327,6 @@ void LLScreenChannel::loadStoredToastsToChannel()
 
 	if(mStoredToastList.size() == 0)
 		return;
-	
-	mOverflowToastHidden = false;
 
 	for(it = mStoredToastList.begin(); it != mStoredToastList.end(); ++it)
 	{
@@ -344,8 +347,6 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	if( it == mStoredToastList.end() )
 		return;
 
-	mOverflowToastHidden = false;
-
 	LLToast* toast = (*it).toast;
 
 	if(toast->getVisible())
@@ -357,7 +358,6 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	toast->setIsHidden(false);
 	toast->resetTimer();
 	mToastList.push_back((*it));
-	mStoredToastList.erase(it);
 
 	redrawToasts();
 }
@@ -491,7 +491,7 @@ void LLScreenChannel::showToastsBottom()
 		if(floater && floater->overlapsScreenChannel())
 		{
 			LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
-			if(toast_rect.mTop + getOverflowToastHeight() + toast_margin > world_rect.mTop)
+			if(toast_rect.mTop > world_rect.mTop)
 			{
 				break;
 			}
@@ -527,7 +527,7 @@ void LLScreenChannel::showToastsBottom()
 		}		
 	}
 
-	if(it != mToastList.rend() && !mOverflowToastHidden)
+	if(it != mToastList.rend())
 	{
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
@@ -536,7 +536,6 @@ void LLScreenChannel::showToastsBottom()
 			(*it).toast->setVisible(FALSE);
 			mHiddenToastsNum++;
 		}
-		createOverflowToast(bottom, gSavedSettings.getS32("NotificationTipToastLifeTime"));
 	}
 	else
 	{
@@ -567,97 +566,10 @@ void LLScreenChannel::showToastsTop()
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
-{
-	LLRect toast_rect;
-	LLToast::Params p;
-	p.lifetime_secs = timer;
-
-	if(!mOverflowToastPanel)
-		mOverflowToastPanel = new LLToast(p);
-
-	if(!mOverflowToastPanel)
-		return;
-
-	mOverflowToastPanel->startFading();
-	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
-
-	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
-	std::string	text = llformat(mOverflowFormatString.c_str(),mHiddenToastsNum);
-	if(mHiddenToastsNum == 1)
-	{
-		text += ".";
-	}
-	else
-	{
-		text += "s.";
-	}
-
-	toast_rect = mOverflowToastPanel->getRect();
-	mOverflowToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
-	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
-	mOverflowToastPanel->setRect(toast_rect);
-
-	// don't show overflow toast if there is not enough space for it.
-	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
-	if(floater && floater->overlapsScreenChannel())
-	{
-		LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
-		if(toast_rect.mTop > world_rect.mTop)
-		{
-			closeOverflowToastPanel();
-			return;
-		}
-	}
-
-	text_box->setValue(text);
-	text_box->setVisible(TRUE);
-
-	mOverflowToastPanel->setVisible(TRUE);
-}
-
-//--------------------------------------------------------------------------
-void LLScreenChannel::onOverflowToastHide()
-{
-	mOverflowToastHidden = true;
-
-	// remove all hidden toasts from channel and save interactive notifications
-	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end();)
-	{
-		if(!(*it).toast->getVisible())
-		{
-			if((*it).toast->getCanBeStored())
-			{
-				storeToast((*it));
-			}
-			else
-			{
-				deleteToast((*it).toast);
-			}
-
-			it = mToastList.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-}
-
-//--------------------------------------------------------------------------
-void LLScreenChannel::closeOverflowToastPanel()
-{
-	if(mOverflowToastPanel != NULL)
-	{
-		mOverflowToastPanel->setVisible(FALSE);
-		mOverflowToastPanel->stopFading();
-	}
-}
-
-//--------------------------------------------------------------------------
 void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 {
 	LLRect toast_rect;
+	LLRect tbox_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
 	p.enable_hide_btn = false;
@@ -672,9 +584,26 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	std::string	text = LLTrans::getString("StartUpNotifications");
 
+	tbox_rect   = text_box->getRect();
+	S32 tbox_width  = tbox_rect.getWidth();
+	S32 tbox_vpad   = text_box->getVPad();
+	S32 text_width  = text_box->getDefaultFont()->getWidth(text);
+	S32 text_height = text_box->getTextPixelHeight();
+
+	// EXT - 3703 (Startup toast message doesn't fit toast width)
+	// Calculating TextBox HEIGHT needed to include the whole string according to the given WIDTH of the TextBox.
+	S32 new_tbox_height = (text_width/tbox_width + 1) * text_height;
+	// Calculating TOP position of TextBox
+	S32 new_tbox_top = new_tbox_height + tbox_vpad + gSavedSettings.getS32("ToastGap");
+	// Calculating toast HEIGHT according to the new TextBox size
+	S32 toast_height = new_tbox_height + tbox_vpad * 2;
+
+	tbox_rect.setLeftTopAndSize(tbox_rect.mLeft, new_tbox_top, tbox_rect.getWidth(), new_tbox_height);
+	text_box->setRect(tbox_rect);
+
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
-	toast_rect.setLeftTopAndSize(0, toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
+	toast_rect.setLeftTopAndSize(0, toast_height + gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_height);
 	mStartUpToastPanel->setRect(toast_rect);
 
 	text_box->setValue(text);
@@ -697,24 +626,6 @@ F32 LLScreenChannel::getHeightRatio()
 		ratio = 1.0f;
 	}
 	return ratio;
-}
-
-S32 LLScreenChannel::getOverflowToastHeight()
-{
-	if(mOverflowToastPanel)
-	{
-		return mOverflowToastPanel->getRect().getHeight();
-	}
-
-	static S32 height = 0;
-	if(0 == height)
-	{
-		LLToast::Params p;
-		LLToast* toast = new LLToast(p);
-		height = toast->getRect().getHeight();
-		delete toast;
-	}
-	return height;
 }
 
 //--------------------------------------------------------------------------
@@ -776,6 +687,19 @@ void LLScreenChannel::hideToastsFromScreen()
 	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::hideToast(const LLUUID& notification_id)
+{
+	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), notification_id);
+	if(mToastList.end() != it)
+	{
+		ToastElem te = *it;
+		te.toast->setVisible(FALSE);
+		te.toast->stopTimer();
+		mToastList.erase(it);
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -896,3 +820,13 @@ void LLScreenChannel::updateShowToastsState()
 
 //--------------------------------------------------------------------------
 
+LLToast* LLScreenChannel::getToastByNotificationID(LLUUID id)
+{
+	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(),
+			mStoredToastList.end(), id);
+
+	if (it == mStoredToastList.end())
+		return NULL;
+
+	return it->toast;
+}

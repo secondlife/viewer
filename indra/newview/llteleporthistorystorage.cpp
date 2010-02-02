@@ -246,13 +246,6 @@ void LLTeleportHistoryStorage::goToItem(S32 idx)
 		dump();
 		return;
 	}
-	
-	if (idx == (S32)mItems.size() - 1)
-	{
-		llwarns << "Will not teleport to the same location." << llendl;
-		dump();
-		return;
-	}
 
 	// Attempt to teleport to the requested item.
 	gAgent.teleportViaLocation(mItems[idx].mGlobalPos);

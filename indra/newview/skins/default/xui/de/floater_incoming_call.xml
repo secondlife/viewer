@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="incoming call" title="ANRUF VON UNBEKANNT">
+	<floater.string name="localchat">
+		Voice-Chat in der Nähe
+	</floater.string>
+	<floater.string name="anonymous">
+		Anonym
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		ruft an.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		ist einem Voice-Konferenz-Chat beigetreten.
+	</floater.string>
+	<text name="question">
+		Möchten Sie [CURRENT_CHAT] verlassen und diesem Voice-Chat beitreten?
+	</text>
+	<button label="Akzeptieren" label_selected="Akzeptieren" name="Accept"/>
+	<button label="Ablehnen" label_selected="Ablehnen" name="Reject"/>
+	<button label="IM starten" name="Start IM"/>
+</floater>

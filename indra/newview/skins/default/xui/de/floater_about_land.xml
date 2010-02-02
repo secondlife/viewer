@@ -9,6 +9,9 @@
 	<floater.string name="Seconds">
 		[SECONDS] Sekunden
 	</floater.string>
+	<floater.string name="Remaining">
+		Restzeit
+	</floater.string>
 	<tab_container name="landtab">
 		<panel label="Allgemein" name="land_general_panel">
 			<panel.string name="new users only">
@@ -21,7 +24,7 @@
 				Gebiet:
 			</panel.string>
 			<panel.string name="area_size_text">
-				[AREA] qm.
+				[AREA] m².
 			</panel.string>
 			<panel.string name="auction_id_text">
 				Auktions-ID: [ID]
@@ -90,7 +93,7 @@
 				Nicht zu verkaufen.
 			</text>
 			<text name="For Sale: Price L$[PRICE].">
-				Preis: [PRICE] L$ ([PRICE_PER_SQM] L$/qm.).
+				Preis: [PRICE] L$ ([PRICE_PER_SQM]L$/m²).
 			</text>
 			<text name="SalePending"/>
 			<button bottom="-222" label="Land verkaufen..." label_selected="Land verkaufen..." name="Sell Land..."/>
@@ -114,7 +117,7 @@
 				Gebiet:
 			</text>
 			<text name="PriceText">
-				4048 qm.
+				4.048 m²
 			</text>
 			<text name="Traffic:">
 				Traffic:
@@ -279,7 +282,7 @@ werden.
 				Diese Parzelle in Suchergebnissen anzeigen.
 			</panel.string>
 			<panel.string name="search_disabled_small_tooltip">
-				Diese Option ist nicht aktiviert, da diese Parzelle nicht größer als 128 qm ist.
+				Diese Option ist nicht aktiviert, weil die Parzelle 128 m² oder kleiner ist.
 Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel.string>
 			<panel.string name="search_disabled_permissions_tooltip">
@@ -370,11 +373,11 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Landepunkt: [LANDING]
 			</text>
 			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
-			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen." width="70"/>
+			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
 			<text name="Teleport Routing: ">
 				Teleport-Route:
 			</text>
-			<combo_box name="landing type" tool_tip="Teleport-Route -- festlegen, wie Teleports auf Ihrem Land gehandhabt werden sollen.">
+			<combo_box name="landing type" tool_tip="Teleport-Route -- festlegen, wie Teleports auf Ihrem Land gehandhabt werden sollen">
 				<combo_box.item label="Blockiert" name="Blocked"/>
 				<combo_box.item label="Landepunkt" name="LandingPoint"/>
 				<combo_box.item label="Überall" name="Anywhere"/>

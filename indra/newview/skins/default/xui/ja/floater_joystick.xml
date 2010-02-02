@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="ジョイスティックの設定">
-	<check_box name="enable_joystick" width="120" label="ジョイスティックを使う："/>
+	<check_box label="ジョイスティックを使う：" name="enable_joystick" width="120"/>
 	<text left="180" name="joystick_type" width="320"/>
 	<spinner label="X軸マッピング" name="JoystickAxis1"/>
 	<spinner label="Y軸マッピング" name="JoystickAxis2"/>
@@ -15,9 +15,9 @@
 	<text name="Control Modes:">
 		制御モード：
 	</text>
-	<check_box left="131" name="JoystickAvatarEnabled" label="アバター"/>
-	<check_box left="201" name="JoystickBuildEnabled" label="造る"/>
-	<check_box left="271" name="JoystickFlycamEnabled" label="フライ・カメラ"/>
+	<check_box label="アバター" left="131" name="JoystickAvatarEnabled"/>
+	<check_box label="造る" left="201" name="JoystickBuildEnabled"/>
+	<check_box label="フライ・カメラ" left="271" name="JoystickFlycamEnabled"/>
 	<text left="5" name="XScale" width="120">
 		Xスケール
 	</text>

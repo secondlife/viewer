@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="Propriétés des objets de l&apos;inventaire">
+	<panel.string name="unknown">
+		(inconnu)
+	</panel.string>
+	<panel.string name="public">
+		(public)
+	</panel.string>
+	<panel.string name="you_can">
+		Vous pouvez :
+	</panel.string>
+	<panel.string name="owner_can">
+		Le propriétaire peut :
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</panel.string>
+	<panel label="">
+		<text name="LabelItemNameTitle">
+			Nom :
+		</text>
+		<text name="LabelItemDescTitle">
+			Description :
+		</text>
+		<text name="LabelCreatorTitle">
+			Créateur :
+		</text>
+		<text name="LabelCreatorName">
+			Nicole Linden
+		</text>
+		<button label="Profil..." name="BtnCreator"/>
+		<text name="LabelOwnerTitle">
+			Propriétaire :
+		</text>
+		<text name="LabelOwnerName">
+			Thrax Linden
+		</text>
+		<button label="Profil..." name="BtnOwner"/>
+		<text name="LabelAcquiredTitle">
+			Acquis :
+		</text>
+		<text name="LabelAcquiredDate">
+			Wed May 24 12:50:46 2006
+		</text>
+		<text name="OwnerLabel">
+			Vous :
+		</text>
+		<check_box label="Éditer" name="CheckOwnerModify"/>
+		<check_box label="Copier" name="CheckOwnerCopy"/>
+		<check_box label="Revendre" name="CheckOwnerTransfer"/>
+		<text name="AnyoneLabel">
+			N&apos;importe qui :
+		</text>
+		<check_box label="Copier" name="CheckEveryoneCopy"/>
+		<text name="GroupLabel">
+			Groupe :
+		</text>
+		<check_box label="Partager" name="CheckShareWithGroup"/>
+		<text name="NextOwnerLabel">
+			Le prochain propriétaire :
+		</text>
+		<check_box label="Éditer" name="CheckNextOwnerModify"/>
+		<check_box label="Copier" name="CheckNextOwnerCopy"/>
+		<check_box label="Revendre" name="CheckNextOwnerTransfer"/>
+		<check_box label="À vendre" name="CheckPurchase"/>
+		<combo_box name="combobox sale copy">
+			<combo_box.item label="Copier" name="Copy"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Prix :" name="Edit Cost"/>
+		<text name="CurrencySymbol">
+			L$
+		</text>
+	</panel>
+	<panel name="button_panel">
+		<button label="Éditer" name="edit_btn"/>
+		<button label="Annuler" name="cancel_btn"/>
+		<button label="Enregistrer" name="save_btn"/>
+	</panel>
+</panel>

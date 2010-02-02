@@ -12,11 +12,18 @@
 	<panel.string name="bandwidth_tooltip">
 		帯域幅
 	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[year, datetime, slt] [month, datetime, slt] [day, datetime, slt] （[weekday, datetime, slt]）
+	</panel.string>
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<button label="" label_selected="" name="buycurrency" tool_tip="私の残高： ここをクリックして L$ を購入"/>
-	<text name="TimeText" tool_tip="現在時刻（太平洋時）">
+	<button label="" label_selected="" name="buycurrency" tool_tip="私の残高： クリックして L$ を購入します"/>
+	<text name="TimeText" tool_tip="現在時刻（太平洋）">
 		12：00 AM
 	</text>
+	<button name="volume_btn" tool_tip="グローバル音量設定"/>
 </panel>

@@ -12,8 +12,8 @@
 	<button label="?" name="disable_collisions_help"/>
 	<check_box label="Désactiver la physique" name="disable_physics_check" tool_tip="Désactiver tous les effets liés à la physique dans cette région"/>
 	<button label="?" name="disable_physics_help"/>
-	<button label="Appliquer" name="apply_btn" bottom_delta="-38"/>
-	<text name="objret_text_lbl" bottom_delta="-42">
+	<button bottom_delta="-38" label="Appliquer" name="apply_btn"/>
+	<text bottom_delta="-42" name="objret_text_lbl">
 		Renvoi de l&apos;objet
 	</text>
 	<text name="resident_text_lbl">
@@ -22,19 +22,19 @@
 	<line_editor name="target_avatar_name">
 		(aucun)
 	</line_editor>
-	<button label="Choisir..." name="choose_avatar_btn"/>
+	<button label="Choisir" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		Options :
 	</text>
-	<check_box label="Ne renvoyer que les objets avec des scripts" name="return_scripts" tool_tip="Ne renvoyer que les objets avec des scripts."/>
-	<check_box label="Ne renvoyer que les objets sur le terrain de quelqu&apos;un d&apos;autre" name="return_other_land" tool_tip="Ne renvoyer que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre"/>
-	<check_box label="Renvoyer les objets dans toutes les régions de ce domaine" name="return_estate_wide" tool_tip="Renvoyer les objets dans toutes les régions qui constituent ce domaine"/>
+	<check_box label="Avec scripts" name="return_scripts" tool_tip="Renvoyer les objets avec scripts uniquement"/>
+	<check_box label="Sur le terrain d&apos;un autre résident" name="return_other_land" tool_tip="Ne renvoyer que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre"/>
+	<check_box label="Dans toutes les régions de ce domaine" name="return_estate_wide" tool_tip="Renvoyer les objets dans toutes les régions qui constituent ce domaine"/>
 	<button label="Renvoyer" name="return_btn"/>
 	<button label="Afficher les collisions les plus consommatrices..." name="top_colliders_btn" tool_tip="Liste des objets avec le plus de collisions potentielles" width="320"/>
-	<button label="?" name="top_colliders_help" left="337"/>
+	<button label="?" left="337" name="top_colliders_help"/>
 	<button label="Afficher les objets scriptés les plus consommateurs..." name="top_scripts_btn" tool_tip="Liste des objets qui passent le plus de temps à exécuter des scripts" width="320"/>
-	<button label="?" name="top_scripts_help" left="337"/>
+	<button label="?" left="337" name="top_scripts_help"/>
 	<button label="Redémarrer la région" name="restart_btn" tool_tip="Redémarrer la région au bout de 2 minutes" width="160"/>
-	<button label="?" name="restart_help" left="177" />
+	<button label="?" left="177" name="restart_help"/>
 	<button label="Retarder le redémarrage" name="cancel_restart_btn" tool_tip="Retarder le redémarrage de la région d&apos;une heure" width="160"/>
 </panel>

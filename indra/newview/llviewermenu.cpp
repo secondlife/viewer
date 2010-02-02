@@ -48,11 +48,10 @@
 #include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llfloaterbuycurrency.h"
-#include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatergodtools.h"
@@ -62,6 +61,7 @@
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
+#include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llavataractions.h"
@@ -436,17 +436,7 @@ void init_menus()
 	gMenuBarView->setBackgroundColor( color );
 
 	gMenuHolder->addChild(gMenuBarView);
-	
-	// menu holder appears on top of menu bar so you can see the menu title
-	// flash when an item is triggered (the flash occurs in the holder)
-	gViewerWindow->getRootView()->addChild(gMenuHolder);
-
-	// This removes tool tip view from main view and adds it
-	// to root view in front of menu holder.
-	// Otherwise tool tips for menu items would be overlapped by menu, since
-	// main view is behind of menu holder now.
-	gViewerWindow->getRootView()->addChild(gToolTipView);
-   
+  
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());
 
@@ -2466,7 +2456,7 @@ class LLViewJoystickFlycam : public view_listener_t
 class LLViewCheckJoystickFlycam : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
-		{
+	{
 		bool new_value = LLViewerJoystick::getInstance()->getOverrideCamera();
 		return new_value;
 	}
@@ -2500,7 +2490,7 @@ class LLObjectBuild : public view_listener_t
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 		return true;
 	}
 };
@@ -2545,7 +2535,7 @@ void handle_object_edit()
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
 	
 	// Could be first use
-	LLFirstUse::useBuild();
+	//LLFirstUse::useBuild();
 	return;
 }
 
@@ -2596,7 +2586,7 @@ class LLLandBuild : public view_listener_t
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 		return true;
 	}
 };
@@ -2833,7 +2823,7 @@ bool handle_go_to()
 	}
 
 	// Could be first use
-	LLFirstUse::useGoTo();
+	//LLFirstUse::useGoTo();
 	return true;
 }
 
@@ -3374,14 +3364,49 @@ void handle_show_side_tray()
 	root->addChild(side_tray);
 }
 
-class LLShowPanelPeopleTab : public view_listener_t
+// Toggle one of "People" panel tabs in side tray.
+class LLTogglePanelPeopleTab : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		// Open tab of the "People" panel in side tray.
+		std::string panel_name = userdata.asString();
+
 		LLSD param;
-		param["people_panel_tab_name"] = userdata.asString();
-		LLSideTray::getInstance()->showPanel("panel_people", param);
+		param["people_panel_tab_name"] = panel_name;
+
+		static LLPanel* friends_panel = NULL;
+		static LLPanel* groups_panel = NULL;
+		static LLPanel* nearby_panel = NULL;
+
+		if (panel_name == "friends_panel")
+		{
+			return togglePeoplePanel(friends_panel, panel_name, param);
+		}
+		else if (panel_name == "groups_panel")
+		{
+			return togglePeoplePanel(groups_panel, panel_name, param);
+		}
+		else if (panel_name == "nearby_panel")
+		{
+			return togglePeoplePanel(nearby_panel, panel_name, param);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	static bool togglePeoplePanel(LLPanel* &panel, const std::string& panel_name, const LLSD& param)
+	{
+		if(!panel)
+		{
+			panel = LLSideTray::getInstance()->getPanel(panel_name);
+			if(!panel)
+				return false;
+		}
+
+		LLSideTray::getInstance()->togglePanel(panel, "panel_people", param);
+
 		return true;
 	}
 };
@@ -3635,7 +3660,7 @@ void near_sit_down_point(BOOL success, void *)
 		gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 
 		// Might be first sit
-		LLFirstUse::useSit();
+		//LLFirstUse::useSit();
 	}
 }
 
@@ -3704,6 +3729,7 @@ void reset_view_final( BOOL proceed )
 	}
 
 	gAgent.resetView(TRUE, TRUE);
+	gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
 }
 
 class LLViewLookAtLastChatter : public view_listener_t
@@ -5152,7 +5178,7 @@ void toggle_debug_menus(void*)
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
 	if(visible)
 	{
-		LLFirstUse::useDebugMenus();
+		//LLFirstUse::useDebugMenus();
 	}
 	show_debug_menus();
 }
@@ -5856,8 +5882,12 @@ void confirm_replace_attachment(S32 option, void* user_data)
 	}
 }
 
-bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
+void callback_attachment_drop(const LLSD& notification, const LLSD& response)
 {
+	// Ensure user confirmed the drop
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return;
+
 	// Called when the user clicked on an object attached to them
 	// and selected "Drop".
 	LLUUID object_id = notification["payload"]["object_id"].asUUID();
@@ -5866,7 +5896,7 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 	if (!object)
 	{
 		llwarns << "handle_drop_attachment() - no object to drop" << llendl;
-		return true;
+		return;
 	}
 
 	LLViewerObject *parent = (LLViewerObject*)object->getParent();
@@ -5883,13 +5913,13 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 	if (!object)
 	{
 		llwarns << "handle_detach() - no object to detach" << llendl;
-		return true;
+		return;
 	}
 
 	if (object->isAvatar())
 	{
 		llwarns << "Trying to detach avatar from avatar." << llendl;
-		return true;
+		return;
 	}
 	
 	// reselect the object
@@ -5897,7 +5927,7 @@ bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
 
 	LLSelectMgr::getInstance()->sendDropAttachment();
 
-	return true;
+	return;
 }
 
 class LLAttachmentDrop : public view_listener_t
@@ -6344,49 +6374,55 @@ class LLToolsSelectedScriptAction : public view_listener_t
 void handle_selected_texture_info(void*)
 {
 	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+   		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
 	{
 		LLSelectNode* node = *iter;
-		
-		std::string msg;
-		msg.assign("Texture info for: ");
-		msg.append(node->mName);
-		LLChat chat(msg);
-		LLFloaterChat::addChat(chat);
+	   	
+   		std::string msg;
+   		msg.assign("Texture info for: ");
+   		msg.append(node->mName);
 
-		U8 te_count = node->getObject()->getNumTEs();
-		// map from texture ID to list of faces using it
-		typedef std::map< LLUUID, std::vector<U8> > map_t;
-		map_t faces_per_texture;
-		for (U8 i = 0; i < te_count; i++)
-		{
-			if (!node->isTESelected(i)) continue;
+		//TODO* CHAT: how to show this?
+		//LLSD args;
+		//args["MESSAGE"] = msg;
+		//LLNotificationsUtil::add("SystemMessage", args);
+	   
+   		U8 te_count = node->getObject()->getNumTEs();
+   		// map from texture ID to list of faces using it
+   		typedef std::map< LLUUID, std::vector<U8> > map_t;
+   		map_t faces_per_texture;
+   		for (U8 i = 0; i < te_count; i++)
+   		{
+   			if (!node->isTESelected(i)) continue;
+	   
+   			LLViewerTexture* img = node->getObject()->getTEImage(i);
+   			LLUUID image_id = img->getID();
+   			faces_per_texture[image_id].push_back(i);
+   		}
+   		// Per-texture, dump which faces are using it.
+   		map_t::iterator it;
+   		for (it = faces_per_texture.begin(); it != faces_per_texture.end(); ++it)
+   		{
+   			LLUUID image_id = it->first;
+   			U8 te = it->second[0];
+   			LLViewerTexture* img = node->getObject()->getTEImage(te);
+   			S32 height = img->getHeight();
+   			S32 width = img->getWidth();
+   			S32 components = img->getComponents();
+   			msg = llformat("%dx%d %s on face ",
+   								width,
+   								height,
+   								(components == 4 ? "alpha" : "opaque"));
+   			for (U8 i = 0; i < it->second.size(); ++i)
+   			{
+   				msg.append( llformat("%d ", (S32)(it->second[i])));
+   			}
 
-			LLViewerTexture* img = node->getObject()->getTEImage(i);
-			LLUUID image_id = img->getID();
-			faces_per_texture[image_id].push_back(i);
-		}
-		// Per-texture, dump which faces are using it.
-		map_t::iterator it;
-		for (it = faces_per_texture.begin(); it != faces_per_texture.end(); ++it)
-		{
-			LLUUID image_id = it->first;
-			U8 te = it->second[0];
-			LLViewerTexture* img = node->getObject()->getTEImage(te);
-			S32 height = img->getHeight();
-			S32 width = img->getWidth();
-			S32 components = img->getComponents();
-			msg = llformat("%dx%d %s on face ",
-								width,
-								height,
-								(components == 4 ? "alpha" : "opaque"));
-			for (U8 i = 0; i < it->second.size(); ++i)
-			{
-				msg.append( llformat("%d ", (S32)(it->second[i])));
-			}
-			LLChat chat(msg);
-			LLFloaterChat::addChat(chat);
-		}
+			//TODO* CHAT: how to show this?
+			//LLSD args;
+			//args["MESSAGE"] = msg;
+			//LLNotificationsUtil::add("SystemMessage", args);
+   		}
 	}
 }
 
@@ -7902,7 +7938,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	// we don't use boost::bind directly to delay side tray construction
-	view_listener_t::addMenu( new LLShowPanelPeopleTab(), "SideTray.PanelPeopleTab");
+	view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
@@ -7953,8 +7989,8 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
-
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
+	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
 	// Attachment pie menu
 	enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="持ち物アイテムのプロパティ">
+	<panel.string name="unknown">
+		（不明）
+	</panel.string>
+	<panel.string name="public">
+		（公開）
+	</panel.string>
+	<panel.string name="you_can">
+		あなたができること：
+	</panel.string>
+	<panel.string name="owner_can">
+		所有者ができること：
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</panel.string>
+	<panel label="">
+		<text name="LabelItemNameTitle">
+			名前：
+		</text>
+		<text name="LabelItemDescTitle">
+			説明：
+		</text>
+		<text name="LabelCreatorTitle">
+			制作者：
+		</text>
+		<text name="LabelCreatorName">
+			Nicole Linden
+		</text>
+		<button label="プロフィール..." name="BtnCreator"/>
+		<text name="LabelOwnerTitle">
+			所有者：
+		</text>
+		<text name="LabelOwnerName">
+			Thrax Linden
+		</text>
+		<button label="プロフィール..." name="BtnOwner"/>
+		<text name="LabelAcquiredTitle">
+			取得：
+		</text>
+		<text name="LabelAcquiredDate">
+			Wed May 24 12:50:46 2006
+		</text>
+		<text name="OwnerLabel">
+			あなた：
+		</text>
+		<check_box label="編集" name="CheckOwnerModify"/>
+		<check_box label="コピー" name="CheckOwnerCopy"/>
+		<check_box label="再販・プレゼント" name="CheckOwnerTransfer"/>
+		<text name="AnyoneLabel">
+			全員：
+		</text>
+		<check_box label="コピー" name="CheckEveryoneCopy"/>
+		<text name="GroupLabel">
+			グループ：
+		</text>
+		<check_box label="共有" name="CheckShareWithGroup"/>
+		<text name="NextOwnerLabel">
+			次の所有者：
+		</text>
+		<check_box label="編集" name="CheckNextOwnerModify"/>
+		<check_box label="コピー" name="CheckNextOwnerCopy"/>
+		<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer"/>
+		<check_box label="販売する" name="CheckPurchase"/>
+		<combo_box name="combobox sale copy">
+			<combo_box.item label="コピー" name="Copy"/>
+			<combo_box.item label="オリジナル" name="Original"/>
+		</combo_box>
+		<spinner label="価格：" name="Edit Cost"/>
+		<text name="CurrencySymbol">
+			L$
+		</text>
+	</panel>
+	<panel name="button_panel">
+		<button label="編集" name="edit_btn"/>
+		<button label="キャンセル" name="cancel_btn"/>
+		<button label="保存" name="save_btn"/>
+	</panel>
+</panel>

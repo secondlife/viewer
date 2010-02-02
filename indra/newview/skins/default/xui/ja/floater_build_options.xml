@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="build options floater" title="グリッドのオプション">
+<floater name="build options floater" title="グリッドオプション">
 	<spinner label="グリッドユニット（メートル）" name="GridResolution"/>
 	<spinner label="ｸﾞﾘｯﾄﾞ範囲（ﾒｰﾄﾙ）" name="GridDrawSize"/>
 	<check_box label="サブユニットにスナップ" name="GridSubUnit"/>

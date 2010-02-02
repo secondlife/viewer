@@ -41,6 +41,7 @@ halign="center"
          follows="all"
          height="295"
          label="MY INVENTORY"
+         help_topic="my_inventory_tab"
          layout="topleft"
          left="0"
          name="All Items"
@@ -51,6 +52,7 @@ halign="center"
          follows="all"
          height="295"
          label="RECENT"
+         help_topic="recent_inventory_tab"
          layout="topleft"
          left_delta="0"
          name="Recent Items"
@@ -208,7 +210,7 @@ halign="center"
              layout="topleft"
              name="Reset Current">
                 <menu_item_call.on_click
-                 function="Inventory.ResetFilter" />
+                 function="Inventory.ResetFilters" />
             </menu_item_call>
             <menu_item_call
              label="Close All Folders"
@@ -262,7 +264,7 @@ halign="center"
                  parameter="lsl" />
             </menu_item_call>
             <menu_item_call
-             label="New Note"
+             label="New Notecard"
              layout="topleft"
              name="New Note">
                 <menu_item_call.on_click

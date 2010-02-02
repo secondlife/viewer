@@ -30,25 +30,25 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
      height="16"
      layout="topleft"
      left_pad="7"
+     top_delta="3"
      name="payee_name"
-     width="210">
-        [FIRST] [LAST]
+     width="184">
+      Ericacita Moostopolison
     </text>
     <text
      type="string"
      length="1"
      follows="left|top"
      halign="left"
-     height="16"
+     height="14"
      layout="topleft"
-     left="30"
+     left="34"
      name="object_name_label"
      top_pad="0"
-     width="150">
+     width="180">
         Via object:
     </text>
    <icon
@@ -59,20 +59,21 @@
      name="icon_object"
      tool_tip="Objects"
      top_pad="0"
-     left="30"
+     left="10"
      />
     <text
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="18"
+     height="16"
      layout="topleft"
-     left_pad="5"
+     left_pad="7"
      name="object_name_text"
-     top_delta="0"
-     width="210">
-        ...
+     top_delta="3"
+     use_ellipses="true"
+     word_wrap="false"
+     width="188">
+        My awesome object with a really damn long name
     </text>
    <button
      height="23"
@@ -112,7 +113,7 @@
      type="string"
      length="1"
      follows="left|top"
-     height="18"
+     height="14"
      layout="topleft"
      left="25"
      name="amount text"
@@ -123,7 +124,7 @@
     <line_editor
      border_style="line"
      follows="left|top|right"
-     height="19"
+     height="21"
      top_pad="0"
      layout="topleft"
      left="120"

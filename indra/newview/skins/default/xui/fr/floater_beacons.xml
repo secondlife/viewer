@@ -2,15 +2,15 @@
 <floater name="beacons" title="BALISES">
 	<panel name="beacons_panel">
 		<text name="label_show">
-			Afficher :
+			Afficher :
 		</text>
 		<check_box label="Balises" name="beacons"/>
 		<check_box label="Surbrillances" name="highlights"/>
 		<text name="beacon_width_label" tool_tip="Largeur de la balise">
-			Largeur :
+			Largeur :
 		</text>
 		<text name="label_objects">
-			Pour ces objets :
+			Pour ces objets :
 		</text>
 		<check_box label="Physique" name="physical"/>
 		<check_box label="Scripté" name="scripted"/>

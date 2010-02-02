@@ -793,8 +793,13 @@ def _getuser():
         import getpass
         return getpass.getuser()
     except ImportError:
-        import win32api
-        return win32api.GetUserName()
+        import ctypes
+        MAX_PATH = 260                  # according to a recent WinDef.h
+        name = ctypes.create_unicode_buffer(MAX_PATH)
+        namelen = ctypes.c_int(len(name)) # len in chars, NOT bytes
+        if not ctypes.windll.advapi32.GetUserNameW(name, ctypes.byref(namelen)):
+            raise ctypes.WinError()
+        return name.value
 
 def _default_installable_cache():
     """In general, the installable files do not change much, so find a 

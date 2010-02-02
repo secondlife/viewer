@@ -193,6 +193,7 @@ static	void updatePosition(void);
 		static bool voiceEnabled();
 		void setUsePTT(bool usePTT);
 		void setPTTIsToggle(bool PTTIsToggle);
+		bool getPTTIsToggle();
 		void setPTTKey(std::string &key);
 		void setEarLocation(S32 loc);
 		void setVoiceVolume(F32 volume);
@@ -353,6 +354,7 @@ static	void updatePosition(void);
 
 		participantState *findParticipantByID(const LLUUID& id);
 		participantMap *getParticipantList(void);
+		void getParticipantsUUIDSet(std::set<LLUUID>& participant_uuids);
 		
 		typedef std::map<const std::string*, sessionState*, stringMapComparitor> sessionMap;
 		typedef std::set<sessionState*> sessionSet;

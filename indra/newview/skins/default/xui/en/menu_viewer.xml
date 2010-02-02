@@ -198,40 +198,6 @@
              function="Floater.Toggle"
              parameter="nearby_media" />
         </menu_item_check>
-        <!--menu_item_check
-         label="Block List"
-         layout="topleft"
-         name="Mute List">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="mute" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="mute" />
-        </menu_item_check-->
-        <menu_item_separator
-         layout="topleft" />
-        <menu_item_check
-         label="(Legacy) Communicate"
-         layout="topleft"
-         name="Instant Message"
-         shortcut="control|T">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="communicate" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="communicate" />
-        </menu_item_check>
-        <menu_item_call
-         label="(Temp) Media Remote Ctrl"
-         layout="topleft"
-         name="Preferences"
-         shortcut="control|alt|M">
-            <menu_item_call.on_click
-             function="Floater.Toggle"
-             parameter="media_remote_ctrl" />
-        </menu_item_call>
     </menu>
     <menu
      label="World"
@@ -283,7 +249,7 @@
             </menu_item_call>
       <menu
            create_jump_keys="true"
-           label="About This Place"
+           label="Place Profile"
            layout="topleft"
            name="Land"
            tear_off="true">
@@ -307,7 +273,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-             label="Buy Land"
+             label="Buy This Land"
              layout="topleft"
              name="Buy Land">
                 <menu_item_call.on_click
@@ -327,7 +293,7 @@
            create_jump_keys="true"
            label="Show"
            layout="topleft"
-           name="Land"
+           name="LandShow"
            tear_off="true">
          <menu_item_check
          label="Move Controls"
@@ -1637,17 +1603,6 @@
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
-        <menu_item_check
-         label="Show IMs in Nearby Chat"
-         layout="topleft"
-         name="IMInChat">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="IMInChat" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="IMInChat" />
-        </menu_item_check>
         <menu_item_separator
          layout="topleft" />
         <menu
@@ -2816,8 +2771,7 @@
             <menu_item_call
              label="Dump Focus Holder"
              layout="topleft"
-             name="Dump Focus Holder"
-             shortcut="control|alt|F">
+             name="Dump Focus Holder">
                 <menu_item_call.on_click
                  function="Advanced.DumpFocusHolder" />
             </menu_item_call>

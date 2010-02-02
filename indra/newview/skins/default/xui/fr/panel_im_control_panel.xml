@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_im_control_panel">
-	<button label="Voir le profil" name="view_profile_btn"/>
+	<text name="avatar_name" value="Inconnu"/>
+	<button label="Profil" name="view_profile_btn"/>
 	<button label="Devenir amis" name="add_friend_btn"/>
+	<button label="Téléporter" name="teleport_btn"/>
 	<button label="Partager" name="share_btn"/>
 	<panel name="panel_call_buttons">
 		<button label="Appeler" name="call_btn"/>
+		<button label="Quitter l&apos;appel" name="end_call_btn"/>
+		<button label="Contrôles vocaux" name="voice_ctrls_btn"/>
 	</panel>
 </panel>

@@ -153,28 +153,19 @@
 		     layout="topleft"
     		 left="5"
 		 name="CreatorNameLabel"
-		  top_pad="10"
+		  top_pad="12"
 		     width="78">
 	        Creator:
     	</text>
-	    	<avatar_icon
-     follows="top|left"
-     height="20"
-     default_icon_name="Generic_Person"
-     layout="topleft"
-     left_pad="0"
-      top_delta="-6"
-     mouse_opaque="true"
-     width="20" />
 	    <text
 		     type="string"
-     follows="left|right"
+     follows="left|right|top"
      font="SansSerifSmall"
      height="15"
      layout="topleft"
-     left_pad="5"
+     left_pad="0"
              name="Creator Name"
-		     top_delta="6"
+		     top_delta="0"
 		     width="140">
 	        Erica Linden
 	     </text>
@@ -186,28 +177,19 @@
 			layout="topleft"
 			left="5"
 			name="Owner:"
-			top_pad="10"
+			top_pad="15"
 			 width="78">
 			    Owner:
 	     </text>
-	     <avatar_icon
-     follows="top|left"
-     height="20"
-     default_icon_name="Generic_Person"
-     layout="topleft"
-     left_pad="0"
-	    top_delta="-6"
-	    mouse_opaque="true"
-     width="20" />
 	     <text
 			    type="string"
-			    follows="left|right"
+			    follows="left|right|top"
 			    font="SansSerifSmall"
 			    height="15"
 			    layout="topleft"
-			    left_pad="5"
+			    left_pad="0"
 			    name="Owner Name"
-			    top_delta="6"
+			    top_delta="0"
 			    width="140">
 			    Erica Linden
 	     </text>
@@ -219,7 +201,7 @@
 			 layout="topleft"
 			 left="5"
 			name="Group_label"
-			top_pad="10"
+			top_pad="15"
 			width="78">
 			    Group:
 	     </text>
@@ -536,7 +518,6 @@
     <panel
 		 height="25"
 		 layout="bottomright"
-		 help_topic="button_tab"
 		 name="button_panel"
 		 left="5"
 		 bottom="5"

@@ -29,12 +29,12 @@
 	 visible="false"
 	 left="0"
 	 top="0"
-	 height="60"
+	 height="50"
 	 width="600"/>
 	<panel
 	 background_visible="false"
 	 follows="left|top|right"
-	 top="5"
+	 top="3"
 	 height="23"
 	 layout="topleft"
 	 name="navigation_panel"
@@ -42,28 +42,17 @@
 	     <button
 	     follows="left|top"
 	     height="23"
-	     image_disabled="PushButton_Disabled"
-	     image_disabled_selected="PushButton_Disabled"
 	     image_overlay="Arrow_Left_Off"
-	     image_selected="PushButton_Selected"
-	     image_unselected="PushButton_Off"
-	     hover_glow_amount="0.15"
 	     layout="topleft"
 	     left="10"
 	     name="back_btn"
 	     tool_tip="Go back to previous location"
-	     top="3"
+	     top="2"
 	     width="31" />
-
 	    <button
 	     follows="left|top"
 	     height="23"
-	     image_disabled="PushButton_Disabled"
-	     image_disabled_selected="PushButton_Disabled"
 	     image_overlay="Arrow_Right_Off"
-	     image_selected="PushButton_Selected"
-	     image_unselected="PushButton_Off"
-	     hover_glow_amount="0.15"
 	     layout="topleft"
 	     left_pad="0"
 	     name="forward_btn"
@@ -73,12 +62,7 @@
 	    <button
 	     follows="left|top"
 	     height="23"
-	     image_disabled="PushButton_Disabled"
-	     image_disabled_selected="PushButton_Disabled"
 	     image_overlay="Home_Off"
-	     image_selected="PushButton_Selected"
-	     image_unselected="PushButton_Off"
-	     hover_glow_amount="0.15"
 	     layout="topleft"
 	     left_pad="7"
 	     name="home_btn"
@@ -108,7 +92,6 @@
 	         width="20" />
 	      -->
 	    </location_input>
-
 	<!--     <button -->
 	<!--      follows="right|top" -->
 	<!--      height="20" -->
@@ -124,7 +107,6 @@
 	<!--      name="search_bg" -->
 	<!--      top_delta="0" -->
 	<!--      width="168" /> -->
-
         <search_combo_box
 	     bevel_style="none"
 	     border_style="line"
@@ -144,9 +126,14 @@
          <combo_editor
           label="Search [SECOND_LIFE]"
           name="search_combo_editor"/>
+         <combo_list
+          draw_border="true"
+          border.highlight_light_color="FocusColor"
+          border.highlight_dark_color="FocusColor"
+          border.shadow_light_color="FocusColor"
+          border.shadow_dark_color="FocusColor"/>
         </search_combo_box>
 	</panel>
-
     <favorites_bar
      follows="left|right|top"
      font="SansSerifSmall"
@@ -154,16 +141,17 @@
      layout="topleft"
      left="0"
      name="favorite"
-     image_drag_indication="arrow_down.tga"
-   bottom="57"
+     image_drag_indication="Accordion_ArrowOpened_Off"
+   bottom="55"
    width="590">
     <chevron_button name=">>"
                      image_unselected="TabIcon_Close_Off"
                      image_selected="TabIcon_Close_Off"
                      tab_stop="false"
-                     follows="left|bottom" 
-                     tool_tip="Show more of My Favorites" 
+                     follows="left|bottom"
+                     tool_tip="Show more of My Favorites"
                      width="15"
+		     top="15"
                      height="15"/>
   </favorites_bar>
 </panel>

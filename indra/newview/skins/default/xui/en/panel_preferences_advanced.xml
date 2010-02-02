@@ -2,7 +2,6 @@
 
 <panel
  border="true"
- background_visible="true"
  follows="left|top|right|bottom"
  height="408"
  layout="topleft"
@@ -35,7 +34,14 @@
      name="background"
      tool_tip="Choose color for bubble chat"
      top_delta="1"
-     width="44" />
+     width="44">
+        <color_swatch.init_callback
+		     function="Pref.getUIColor"
+		     parameter="BackgroundChatColor" />
+		    <color_swatch.commit_callback
+		     function="Pref.applyUIColor"
+		     parameter="BackgroundChatColor" />
+    </color_swatch>
     <slider
      control_name="ChatBubbleOpacity"
      follows="left|top"

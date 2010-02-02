@@ -143,7 +143,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
                         << " with uri '" << uri << "', credentials " << printable_credentials << LL_ENDL;
 
 	// Arriving in SRVRequest state
-    LLEventStream replyPump("reply", true);
+    LLEventStream replyPump("SRVreply", true);
     // Should be an array of one or more uri strings.
     LLSD rewrittenURIs;
     {
@@ -160,8 +160,11 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
 			seconds_to_timeout = credentials["cfg_srv_timeout"].asReal();
 		}
 
-		filter.eventAfter(seconds_to_timeout, 
-			getProgressEventLLSD("offline", "fail.login"));
+        // If the SRV request times out (e.g. EXT-3934), simulate response: an
+        // array containing our original URI.
+        LLSD fakeResponse(LLSD::emptyArray());
+        fakeResponse.append(uri);
+		filter.eventAfter(seconds_to_timeout, fakeResponse);
 
 		std::string srv_pump_name = "LLAres";
 		if(credentials.has("cfg_srv_pump"))
@@ -178,6 +181,10 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
     } // we no longer need the filter
 
     LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));
+    // EXT-4193: use a DIFFERENT reply pump than for the SRV request. We used
+    // to share them -- but the EXT-3934 fix made it possible for an abandoned
+    // SRV response to arrive just as we were expecting the XMLRPC response.
+    LLEventStream loginReplyPump("loginreply", true);
 
     // Loop through the rewrittenURIs, counting attempts along the way.
     // Because of possible redirect responses, we may make more than one
@@ -188,7 +195,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
          urit != urend; ++urit)
     {
         LLSD request(credentials);
-        request["reply"] = replyPump.getName();
+        request["reply"] = loginReplyPump.getName();
         request["uri"] = *urit;
         std::string status;
 
@@ -213,11 +220,11 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
             // possible for the reply to arrive before the post() call
             // returns. Subsequent responses, of course, must be awaited
             // without posting again.
-            for (mAuthResponse = validateResponse(replyPump.getName(),
-                                     postAndWait(self, request, xmlrpcPump, replyPump, "reply"));
+            for (mAuthResponse = validateResponse(loginReplyPump.getName(),
+                                 postAndWait(self, request, xmlrpcPump, loginReplyPump, "reply"));
                  mAuthResponse["status"].asString() == "Downloading";
-                 mAuthResponse = validateResponse(replyPump.getName(),
-                                     waitForEventOn(self, replyPump)))
+                 mAuthResponse = validateResponse(loginReplyPump.getName(),
+                                     waitForEventOn(self, loginReplyPump)))
             {
                 // Still Downloading -- send progress update.
                 sendProgressEvent("offline", "downloading");

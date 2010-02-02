@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="不動産" name="Estate">
 	<text name="estate_help_text">
 		このタブの設定を変更するとこの不動産内
@@ -19,60 +19,57 @@
 	<text name="Only Allow">
 		次へのアクセスを制限：
 	</text>
-	<check_box label="支払い情報登録済みの住人" name="limit_payment"
-	     tool_tip="支払い情報未登録の住人を排除する" />
-	<check_box label="年齢確認済みの成人" name="limit_age_verified"
-	     tool_tip="年齢確認を済ませていない住人を排除する詳細については、support.secondlife.comを参照してください。" />
-	<check_box label="ボイスチャットを許可" name="voice_chat_check" />
-	<button label="?" name="voice_chat_help" />
+	<check_box label="支払い情報登録済みの住人" name="limit_payment" tool_tip="未確認の住人の立入を禁止します"/>
+	<check_box label="年齢確認済みの成人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を立入禁止にします。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
+	<check_box label="ボイスチャットを許可" name="voice_chat_check"/>
+	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">
 		嫌がらせに関するメール先:
 	</text>
 	<string name="email_unsupported">
 		サポートされていない機能
 	</string>
-	<button label="?" name="abuse_email_address_help" />
+	<button label="?" name="abuse_email_address_help"/>
 	<text name="estate_manager_label">
 		不動産マネージャー：
 	</text>
-	<button label="?" name="estate_manager_help" />
-	<button label="追加..." name="add_estate_manager_btn" />
-	<button label="削除..." name="remove_estate_manager_btn" />
-	<check_box label="世界時間を使用" name="use_global_time_check" />
-	<button label="?" name="use_global_time_help" />
-	<check_box label="太陽固定" name="fixed_sun_check" />
-	<button label="?" name="fixed_sun_help" />
-	<slider label="段階" name="sun_hour_slider" />
-	<check_box label="パブリック・アクセスを許可" name="externally_visible_check" />
-	<button label="?" name="externally_visible_help" />
-	<check_box label="直接テレポートを許可" name="allow_direct_teleport" />
-	<button label="?" name="allow_direct_teleport_help" />
+	<button label="?" name="estate_manager_help"/>
+	<button label="追加..." name="add_estate_manager_btn"/>
+	<button label="削除..." name="remove_estate_manager_btn"/>
+	<check_box label="世界時間を使用" name="use_global_time_check"/>
+	<button label="?" name="use_global_time_help"/>
+	<check_box label="太陽固定" name="fixed_sun_check"/>
+	<button label="?" name="fixed_sun_help"/>
+	<slider label="段階" name="sun_hour_slider"/>
+	<check_box label="パブリック・アクセスを許可" name="externally_visible_check"/>
+	<button label="?" name="externally_visible_help"/>
+	<check_box label="直接テレポートを許可" name="allow_direct_teleport"/>
+	<button label="?" name="allow_direct_teleport_help"/>
 	<text name="region_text_lbl">
 		支払い状況によりアクセスを拒否：
 	</text>
-	<check_box label="支払情報登録がないものを拒否" name="deny_anonymous" />
-	<check_box label="支払情報登録があるものを拒否" name="deny_identified" />
-	<check_box label="使用されている支払情報を拒否" name="deny_transacted" />
-	<button label="適用" name="apply_btn" />
+	<check_box label="支払情報登録がないものを拒否" name="deny_anonymous"/>
+	<check_box label="支払情報登録があるものを拒否" name="deny_identified"/>
+	<check_box label="使用されている支払情報を拒否" name="deny_transacted"/>
+	<button label="適用" name="apply_btn"/>
 	<text name="allow_resident_label">
 		許可された住人:
 	</text>
-	<button label="?" name="allow_resident_help" />
-	<button label="追加..." name="add_allowed_avatar_btn" />
-	<button label="削除..." name="remove_allowed_avatar_btn" />
+	<button label="?" name="allow_resident_help"/>
+	<button label="追加..." name="add_allowed_avatar_btn"/>
+	<button label="削除..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
 		許可されたグループ：
 	</text>
-	<button label="?" name="allow_group_help" />
-	<button label="追加..." name="add_allowed_group_btn" />
-	<button label="削除..." name="remove_allowed_group_btn" />
+	<button label="?" name="allow_group_help"/>
+	<button label="追加..." name="add_allowed_group_btn"/>
+	<button label="削除..." name="remove_allowed_group_btn"/>
 	<text name="ban_resident_label">
 		禁止された住人:
 	</text>
-	<button label="?" name="ban_resident_help" />
-	<button label="追加..." name="add_banned_avatar_btn" />
-	<button label="削除..." name="remove_banned_avatar_btn" />
-	<button label="メッセージを不動産へ送信..." name="message_estate_btn" />
-	<button label="土地からユーザーを追い出す..."
-	     name="kick_user_from_estate_btn" />
+	<button label="?" name="ban_resident_help"/>
+	<button label="追加..." name="add_banned_avatar_btn"/>
+	<button label="削除..." name="remove_banned_avatar_btn"/>
+	<button label="メッセージを不動産へ送信..." name="message_estate_btn"/>
+	<button label="土地からユーザーを追い出す..." name="kick_user_from_estate_btn"/>
 </panel>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_about" title="メディア・ブラウザ">
+<floater name="floater_about" title="メディアブラウザ">
 	<floater.string name="home_page_url">
 		http://jp.secondlife.com
 	</floater.string>

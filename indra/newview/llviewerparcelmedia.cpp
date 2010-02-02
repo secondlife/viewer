@@ -34,6 +34,7 @@
 #include "llviewerparcelmedia.h"
 
 #include "llagent.h"
+#include "llaudioengine.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llviewerregion.h"
@@ -44,7 +45,7 @@
 #include "llviewermediafocus.h"
 #include "llviewerparcelmediaautoplay.h"
 #include "llnotificationsutil.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexture.h"
 
@@ -53,10 +54,6 @@
 S32 LLViewerParcelMedia::sMediaParcelLocalID = 0;
 LLUUID LLViewerParcelMedia::sMediaRegionID;
 viewer_media_t LLViewerParcelMedia::sMediaImpl;
-
-
-// Local functions
-bool callback_play_media(const LLSD& notification, const LLSD& response, LLParcel* parcel);
 
 
 // static
@@ -109,12 +106,12 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			std::string mediaCurrentUrl = std::string( parcel->getMediaCurrentURL());
 
 			// First use warning
-			if(	! mediaUrl.empty() && gWarningSettings.getBOOL("FirstStreamingVideo") )
+			if( (!mediaUrl.empty() ||
+			     !parcel->getMusicURL().empty())
+			    && LLViewerMedia::needsMediaFirstRun())
 			{
-				LLNotificationsUtil::add("ParcelCanPlayMedia", LLSD(), LLSD(),
-					boost::bind(callback_play_media, _1, _2, parcel));
+				LLViewerMedia::displayMediaFirstRun();
 				return;
-
 			}
 
 			// if we have a current (link sharing) url, use it instead
@@ -182,7 +179,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 
 	if (!parcel) return;
 
-	if (!gSavedSettings.getBOOL("AudioSteamingMedia") || !gSavedSettings.getBOOL("AudioStreamingVideo"))
+	if (!gSavedSettings.getBOOL("AudioStreamingMedia") || !gSavedSettings.getBOOL("AudioStreamingVideo"))
 		return;
 
 	std::string media_url = parcel->getMediaURL();
@@ -245,7 +242,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 		sMediaImpl->navigateTo(media_url, mime_type, true);
 	}
 
-	LLFirstUse::useMedia();
+	//LLFirstUse::useMedia();
 
 	LLViewerParcelMediaAutoPlay::playStarted();
 }
@@ -284,7 +281,7 @@ void LLViewerParcelMedia::start()
 	}
 	sMediaImpl->start();
 
-	LLFirstUse::useMedia();
+	//LLFirstUse::useMedia();
 
 	LLViewerParcelMediaAutoPlay::playStarted();
 }
@@ -586,24 +583,6 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		};
 		break;
 	};
-}
-
-bool callback_play_media(const LLSD& notification, const LLSD& response, LLParcel* parcel)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
-		if(!gSavedSettings.getBOOL("AudioSteamingMedia")) 
-			gSavedSettings.setBOOL("AudioSteamingMedia", TRUE);
-		LLViewerParcelMedia::play(parcel);
-	}
-	else
-	{
-		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
-	}
-	gWarningSettings.setBOOL("FirstStreamingVideo", FALSE);
-	return false;
 }
 
 // TODO: observer

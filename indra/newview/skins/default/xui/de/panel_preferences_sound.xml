@@ -1,73 +1,38 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Audio und Video" name="Preference Media panel">
-	<slider label="Master" name="System Volume"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sounds" name="Preference Media panel">
+	<slider label="Master-Lautstärke" name="System Volume"/>
+	<check_box initial_value="true" label="Stummschalten, wenn verkleinert" name="mute_when_minimized"/>
 	<slider label="Umgebung" name="Wind Volume"/>
-	<slider label="Sounds" name="SFX Volume"/>
+	<slider label="Schaltflächen" name="UI Volume"/>
 	<slider label="Medien" name="Media Volume"/>
-	<slider label="UI" name="UI Volume"/>
-	<slider label="Musik" name="Music Volume"/>
+	<slider label="Soundeffekte" name="SFX Volume"/>
+	<slider label="Musik wird gestreamt" name="Music Volume"/>
+	<check_box label="Sprache" name="enable_voice_check"/>
 	<slider label="Sprache" name="Voice Volume"/>
-	<text_editor name="voice_unavailable">
-		Voice-Chat ist nicht verfügbar
-	</text_editor>
-	<check_box label="Voice-Chat aktivieren" name="enable_voice_check"/>
+	<text name="Listen from">
+		Hören von:
+	</text>
 	<radio_group name="ear_location">
-		<radio_item name="0" label="Voice-Chat von Kameraposition aus hören" />
-		<radio_item name="1" label="Voice-Chat von Avatarposition aus hören" />
+		<radio_item label="Kameraposition" name="0"/>
+		<radio_item label="Avatarposition" name="1"/>
 	</radio_group>
-	<button label="Geräte-Einstellungen" name="device_settings_btn"/>
-	<text name="muting_text">
-		Lautstärke:
-	</text>
-	<check_box label="Audio stummschalten" name="disable audio" />
-	<text name="streaming_prefs_text">
-		Streaming-Einstellungen:
-	</text>
-	<text name="audio_prefs_text">
-		Audio-Einstellungen:
-	</text>
-	<panel label="Lautstärke" name="Volume Panel" />
-	<check_box label="Medien automatisch wiedergeben" name="auto_streaming_video" />
-	<check_box label="Audio stummschalten, wenn Fenster minimiert ist"
-	     name="mute_when_minimized" />
-	<text name="streaming_text">
-		Streaming:
-	</text>
-	<check_box label="Streaming-Musik abspielen" name="streaming_music" />
-	<check_box label="Streaming-Media abspielen" name="streaming_video" />
-	<text name="system_volume_text">
-		Soundeffekte:
-	</text>
-	<text name="wind_volume_text">
-		Windlautstärke:
-	</text>
-	<text name="footsteps_volume_text">
-		Schrittlautstärke:
-	</text>
-	<text name="ui_volume_text">
-		UI-Volumen:
-	</text>
-	<slider label="Dopplereffekt" name="Doppler Effect" />
-	<slider label="Distanzfaktor" name="Distance Factor" />
-	<slider label="Rolloff-Faktor" name="Rolloff Factor" />
-	<spinner label="L$ Änderungs-Grenzwert" name="L$ Change Threshold" />
-	<spinner label="Gesundheitsschwellwert" name="Health Change Threshold" />
-	<text name="doppler_effect_text">
-		Audio-Einstellungen:
-	</text>
-	<text name="distance_factor_text">
-		Distanzfaktor:
-	</text>
-	<text name="rolloff_factor_text">
-		Rolloff-Faktor:
-	</text>
-	<text name="default_upload_bitrate_text">
-		Standard-Upload-Bitrate:
-	</text>
-	<radio_group name="bitrate">
-		<radio_item name="32kbps" label="32 kbit/s" />
-		<radio_item name="64kbps" label="64 kbit/s" />
-		<radio_item name="96kbps" label="96 kbit/s" />
-		<radio_item name="128kbps" label="128 kbit/s" />
-	</radio_group>
+	<button label="Eingabe-/Ausgabegeräte" name="device_settings_btn"/>
+	<panel label="Geräte-Einstellungen" name="device_settings_panel">
+		<panel.string name="default_text">
+			Standard
+		</panel.string>
+		<text name="Input">
+			Eingabe
+		</text>
+		<text name="My volume label">
+			Meine Lautstärke:
+		</text>
+		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Ändern Sie die Lautstärke mit dem Regler"/>
+		<text name="wait_text">
+			Bitte warten
+		</text>
+		<text name="Output">
+			Ausgabe
+		</text>
+	</panel>
 </panel>

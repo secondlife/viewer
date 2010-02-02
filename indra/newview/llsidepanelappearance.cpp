@@ -62,6 +62,7 @@ public:
 	{
 		mPanel->inventoryFetched();
 		gInventory.removeObserver(this);
+		delete this;
 	}
 private:
 	LLSidepanelAppearance *mPanel;
@@ -86,7 +87,7 @@ void LLWatchForOutfitRenameObserver::changed(U32 mask)
 		mPanel->refreshCurrentOutfitName();
 	}
 }
-	
+
 LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
@@ -94,14 +95,12 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mLookInfo(NULL),
 	mCurrOutfitPanel(NULL)
 {
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_appearance.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
-	mFetchWorn = new LLCurrentlyWornFetchObserver(this);
-	
-	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
 {
+	gInventory.removeObserver(mOutfitRenameWatcher);
+	delete mOutfitRenameWatcher;
 }
 
 // virtual
@@ -151,9 +150,12 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
+
+	mOutfitDirtyTag = getChild<LLTextBox>("currentlook_title");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
+	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 	gInventory.addObserver(mOutfitRenameWatcher);
 
 	return TRUE;
@@ -165,6 +167,11 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	fetchInventory();
 	refreshCurrentOutfitName();
 	updateVerbs();
+
+	if (mPanelOutfitsInventory)
+	{
+		mPanelOutfitsInventory->onOpen(key);
+	}
 
 	if(key.size() == 0)
 		return;
@@ -198,7 +205,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 
 void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 {
-	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
+	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
 	if (!outfit_link)
 		return;
 	if (!outfit_link->getIsLinkType())
@@ -208,7 +215,7 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 	if (tab_outfits)
 	{
 		tab_outfits->changeOpenClose(FALSE);
-		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_accordionpanel");
+		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
 			LLFolderView *folder = inventory_panel->getRootFolder();
@@ -248,7 +255,7 @@ void LLSidepanelAppearance::onNewOutfitButtonClicked()
 {
 	if (!mLookInfo->getVisible())
 	{
-		mPanelOutfitsInventory->onNew();
+		mPanelOutfitsInventory->onSave();
 	}
 }
 
@@ -311,17 +318,14 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
+	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
-		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
-		if (outfit_link)
+		std::string outfit_name;
+		if (LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
 		{
-			const LLViewerInventoryCategory *cat = outfit_link->getLinkedCategory();
-			if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
-			{
-				mCurrentLookName->setText(cat->getName());
+				mCurrentLookName->setText(outfit_name);
 				return;
-			}
 		}
 		mCurrentLookName->setText(getString("No Outfit"));
 		mOpenOutfitBtn->setEnabled(FALSE);
@@ -381,16 +385,17 @@ void LLSidepanelAppearance::fetchInventory()
 		}
 	}
 
-	mFetchWorn->fetchItems(ids);
+	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
+	fetch_worn->fetchItems(ids);
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
-	if (mFetchWorn->isEverythingComplete())
+	if (fetch_worn->isEverythingComplete())
 	{
-		mFetchWorn->done();
+		fetch_worn->done();
 	}
 	else
 	{
-		gInventory.addObserver(mFetchWorn);
+		gInventory.addObserver(fetch_worn);
 	}
 }
 

@@ -48,12 +48,15 @@
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
 #include "llcallbacklist.h"
+#include "llparcel.h"
+#include "llaudioengine.h"  // for gAudiop
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
+//#include "llfirstuse.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -170,12 +173,15 @@ public:
 		//     accept this and go past it in the MIME type probe
 		// 302 means the resource can be found temporarily in a different place - added this for join.secondlife.com
 		// 499 is a code specifc to join.secondlife.com (????) apparently safe to ignore
-		if(	((status >= 200) && (status < 300))	||
-			((status >= 400) && (status < 499))	|| 
-			(status == 500) ||
-			(status == 302) ||
-			(status == 499) 
-			)
+//		if(	((status >= 200) && (status < 300))	||
+//			((status >= 400) && (status < 499))	|| 
+//			(status == 500) ||
+//			(status == 302) ||
+//			(status == 499) 
+//			)
+		// We now no longer check the error code returned from the probe.
+		// If we have a mime type, use it.  If not, default to the web plugin and let it handle error reporting.
+		if(1)
 		{
 			// The probe was successful.
 			if(mime_type.empty())
@@ -705,6 +711,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	
 	std::vector<LLViewerMediaImpl*> proximity_order;
 	
+	bool inworld_media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
+	bool needs_first_run = LLViewerMedia::needsMediaFirstRun();
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -819,6 +827,21 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			new_priority = LLPluginClassMedia::PRIORITY_LOW;
 		}
 		
+		if(!inworld_media_enabled)
+		{
+			// If inworld media is locked out, force all inworld media to stay unloaded.
+			if(!pimpl->getUsedInUI())
+			{
+				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
+				if(needs_first_run)
+				{
+					// Don't do this more than once in this loop.
+					needs_first_run = false;
+					LLViewerMedia::displayMediaFirstRun();
+				}
+			}
+		}
+		
 		pimpl->setPriority(new_priority);
 		
 		if(pimpl->getUsedInUI())
@@ -885,6 +908,61 @@ void LLViewerMedia::cleanupClass()
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::needsMediaFirstRun()
+{
+	return gWarningSettings.getBOOL("FirstStreamingMedia");
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::displayMediaFirstRun()
+{
+	gWarningSettings.setBOOL("FirstStreamingMedia", FALSE);
+
+	LLNotificationsUtil::add("ParcelCanPlayMedia", LLSD(), LLSD(),
+		boost::bind(firstRunCallback, _1, _2));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		// user has elected to automatically play media.
+		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
+		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
+		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
+
+		LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+				
+		if (parcel)
+		{
+			// play media right now, if available
+			LLViewerParcelMedia::play(parcel);
+		
+			// play music right now, if available
+			std::string music_url = parcel->getMusicURL();
+			if (gAudiop && !music_url.empty())
+				gAudiop->startInternetStream(music_url);
+		}
+	}
+	else
+	{
+		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, FALSE);
+		gSavedSettings.setBOOL("AudioStreamingMedia", FALSE);
+		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
+		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
+	}
+	return false;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -927,6 +1005,9 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMediaAutoPlay(false),
 	mInNearbyMediaList(false),
 	mClearCache(false),
+	mBackgroundColor(LLColor4::white),
+	mNavigateSuspended(false),
+	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false)
 { 
 
@@ -987,7 +1068,7 @@ void LLViewerMediaImpl::emitEvent(LLPluginClassMedia* plugin, LLViewerMediaObser
 bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 {
 	bool mimeTypeChanged = (mMimeType != mime_type);
-	bool pluginChanged = (LLMIMETypes::implType(mMimeType) != LLMIMETypes::implType(mime_type));
+	bool pluginChanged = (LLMIMETypes::implType(mCurrentMimeType) != LLMIMETypes::implType(mime_type));
 	
 	if(!mMediaSource || pluginChanged)
 	{
@@ -1127,6 +1208,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	// If we got here, we want to ignore previous init failures.
 	mMediaSourceFailed = false;
 
+	// Save the MIME type that really caused the plugin to load
+	mCurrentMimeType = mMimeType;
+
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
 	if (media_source)
@@ -1136,6 +1220,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
+		media_source->setBackgroundColor(mBackgroundColor);
 		
 		if(mClearCache)
 		{
@@ -1161,7 +1246,24 @@ void LLViewerMediaImpl::loadURI()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->loadURI( mMediaURL );
+		// *HACK: we don't know if the URI coming in is properly escaped
+		// (the contract doesn't specify whether it is escaped or not.
+		// but LLQtWebKit expects it to be, so we do our best to encode
+		// special characters)
+		// The strings below were taken right from http://www.ietf.org/rfc/rfc1738.txt
+		// Note especially that '%' and '/' are there.
+		std::string uri = LLURI::escape(mMediaURL,
+										"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+										"0123456789"
+										"$-_.+"
+										"!*'(),"
+										"{}|\\^~[]`"
+										"<>#%"
+										";/?:@&=",
+										false);
+		llinfos << "Asking media source to load URI: " << uri << llendl;
+		
+		mMediaSource->loadURI( uri );
 
 		if(mPreviousMediaState == MEDIA_PLAYING)
 		{
@@ -1563,6 +1665,7 @@ void LLViewerMediaImpl::unload()
 	mMediaURL.clear();
 	mMimeType.clear();
 	mCurrentMediaURL.clear();
+	mCurrentMimeType.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1612,6 +1715,13 @@ void LLViewerMediaImpl::navigateInternal()
 	// Helpful to have media urls in log file. Shouldn't be spammy.
 	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
 
+	if(mNavigateSuspended)
+	{
+		llwarns << "Deferring navigate." << llendl;
+		mNavigateSuspendedDeferred = true;
+		return;
+	}
+	
 	if(mMimeTypeProbe != NULL)
 	{
 		llwarns << "MIME type probe already in progress -- bailing out." << llendl;
@@ -1818,7 +1928,17 @@ void LLViewerMediaImpl::update()
 		return;
 	}
 	
+	// Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
+	setNavigateSuspended(true);
+	
 	mMediaSource->idle();
+
+	setNavigateSuspended(false);
+
+	if(mMediaSource == NULL)
+	{
+		return;
+	}
 	
 	if(mMediaSource->isPluginExited())
 	{
@@ -1901,8 +2021,8 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		|| placeholder_image->getUseMipMaps()
 		|| (placeholder_image->getWidth() != mMediaSource->getTextureWidth())
 		|| (placeholder_image->getHeight() != mMediaSource->getTextureHeight())
-		|| (mTextureUsedWidth > mMediaSource->getWidth())
-		|| (mTextureUsedHeight > mMediaSource->getHeight())
+		|| (mTextureUsedWidth != mMediaSource->getWidth())
+		|| (mTextureUsedHeight != mMediaSource->getHeight())
 		)
 	{
 		LL_DEBUGS("Media") << "initializing media placeholder" << LL_ENDL;
@@ -1920,7 +2040,9 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x00, 0x00, 0x00, 0xff);
+		// Clear the texture to the background color, ignoring alpha.
+		// convert background color channels from [0.0, 1.0] to [0, 255];
+		raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
@@ -2123,7 +2245,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			
 			// TODO: may want a different message for this case?
 			LLSD args;
-			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			args["PLUGIN"] = LLMIMETypes::implType(mCurrentMimeType);
 			LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
 		break;
@@ -2137,7 +2259,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			resetPreviousMediaState();
 
 			LLSD args;
-			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			args["PLUGIN"] = LLMIMETypes::implType(mCurrentMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
 			//LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
@@ -2391,6 +2513,16 @@ void LLViewerMediaImpl::setUsedInUI(bool used_in_ui)
 	}
 };
 
+void LLViewerMediaImpl::setBackgroundColor(LLColor4 color)
+{
+	mBackgroundColor = color; 
+
+	if(mMediaSource)
+	{
+		mMediaSource->setBackgroundColor(mBackgroundColor);
+	}
+};
+
 F64 LLViewerMediaImpl::getCPUUsage() const
 {
 	F64 result = 0.0f;
@@ -2460,6 +2592,23 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 		case MEDIANAVSTATE_SERVER_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED" << llendl; break;
 		case MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
+	}
+}
+
+void LLViewerMediaImpl::setNavigateSuspended(bool suspend)
+{
+	if(mNavigateSuspended != suspend)
+	{
+		mNavigateSuspended = suspend;
+		if(!suspend)
+		{
+			// We're coming out of suspend.  If someone tried to do a navigate while suspended, do one now instead.
+			if(mNavigateSuspendedDeferred)
+			{
+				mNavigateSuspendedDeferred = false;
+				navigateInternal();
+			}
+		}
 	}
 }
 
@@ -2537,76 +2686,3 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 	}
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static
-void LLViewerMedia::toggleMusicPlay(void*)
-{
-// FIXME: This probably doesn't belong here
-#if 0
-	if (mMusicState != PLAYING)
-	{
-		mMusicState = PLAYING; // desired state
-		if (gAudiop)
-		{
-			LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-			if ( parcel )
-			{
-				gAudiop->startInternetStream(parcel->getMusicURL());
-			}
-		}
-	}
-	else
-	{
-		mMusicState = STOPPED; // desired state
-		if (gAudiop)
-		{
-			gAudiop->stopInternetStream();
-		}
-	}
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static
-void LLViewerMedia::toggleMediaPlay(void*)
-{
-// FIXME: This probably doesn't belong here
-#if 0
-	if (LLViewerMedia::isMediaPaused())
-	{
-		LLViewerParcelMedia::start();
-	}
-	else if(LLViewerMedia::isMediaPlaying())
-	{
-		LLViewerParcelMedia::pause();
-	}
-	else
-	{
-		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-		if (parcel)
-		{
-			LLViewerParcelMedia::play(parcel);
-		}
-	}
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static
-void LLViewerMedia::mediaStop(void*)
-{
-// FIXME: This probably doesn't belong here
-#if 0
-	LLViewerParcelMedia::stop();
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//static 
-bool LLViewerMedia::isMusicPlaying()
-{	
-// FIXME: This probably doesn't belong here
-// FIXME: make this work
-	return false;	
-}

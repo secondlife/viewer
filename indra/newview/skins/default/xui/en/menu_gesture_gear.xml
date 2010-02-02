@@ -17,7 +17,7 @@
      layout="topleft"
      name="copy_gesture">
         <on_click
-         function="Gesture.Action.CopyPast"
+         function="Gesture.Action.CopyPaste"
          parameter="copy_gesture" />
         <on_enable
          function="Gesture.EnableAction"
@@ -28,7 +28,7 @@
      layout="topleft"
      name="paste">
         <on_click
-         function="Gesture.Action.CopyPast"
+         function="Gesture.Action.CopyPaste"
          parameter="paste" />
         <on_enable
          function="Gesture.EnableAction"
@@ -39,7 +39,7 @@
      layout="topleft"
      name="copy_uuid">
         <on_click
-         function="Gesture.Action.CopyPast"
+         function="Gesture.Action.CopyPaste"
          parameter="copy_uuid" />
         <on_enable
          function="Gesture.EnableAction"

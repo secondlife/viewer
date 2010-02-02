@@ -1513,16 +1513,20 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		{
 			desired_discard -= 2;
 		}
-		else if (!isJustBound() && mCachedRawImageReady && !mBoostLevel)
+		else if (!isJustBound() && mCachedRawImageReady)
 		{
-			// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
-			desired_discard = cur_discard;
+			if(mBoostLevel < BOOST_HIGH)
+			{
+				// We haven't rendered this in a while, de-prioritize it
+				desired_discard += 2;
+			}
+			//else
+			//{
+			//	// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
+			//	desired_discard = cur_discard;
+			//}
 		}
-		else if (mGLTexturep.notNull() && !mGLTexturep->getBoundRecently() && mBoostLevel == LLViewerTexture::BOOST_NONE)
-		{
-			// We haven't rendered this in a while, de-prioritize it
-			desired_discard += 2;
-		}
+
 		S32 ddiscard = cur_discard - desired_discard;
 		ddiscard = llclamp(ddiscard, 0, 4);
 		priority = (ddiscard+1)*100000.f;
@@ -1629,7 +1633,7 @@ bool LLViewerFetchedTexture::updateFetch()
 	S32 desired_discard = getDesiredDiscardLevel();
 	F32 decode_priority = getDecodePriority();
 	decode_priority = llmax(decode_priority, 0.0f);
-	
+
 	if (mIsFetching)
 	{
 		// Sets mRawDiscardLevel, mRawImage, mAuxRawImage
@@ -1772,10 +1776,10 @@ bool LLViewerFetchedTexture::updateFetch()
 	{
 		make_request = false;
 	}
-	else if (!isJustBound() && mCachedRawImageReady)
-	{
-		make_request = false;
-	}
+	//else if (!isJustBound() && mCachedRawImageReady)
+	//{
+	//	make_request = false;
+	//}
 	else
 	{
 		if (mIsFetching)
@@ -1847,12 +1851,12 @@ BOOL LLViewerFetchedTexture::forceFetch()
 	{
 		return false ;
 	}
-	if(mDesiredSavedRawDiscardLevel < getDiscardLevel())
+	//if(mDesiredSavedRawDiscardLevel < getDiscardLevel())
 	{
 		//no need to force fetching. normal fetching flow will do the work.
 		//return false ;
 	}
-	if (mNeedsCreateTexture)
+	//if (mNeedsCreateTexture)
 	{
 		// We may be fetching still (e.g. waiting on write)
 		// but don't check until we've processed the raw data we have
@@ -1888,7 +1892,8 @@ BOOL LLViewerFetchedTexture::forceFetch()
 		h = getHeight(0);
 		c = getComponents();
 	}
-	fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mUrl, getID(),getTargetHost(), maxDecodePriority(),
+	setDecodePriority(maxDecodePriority()) ;
+	fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mUrl, getID(),getTargetHost(), getDecodePriority(),
 																		  w, h, c, desired_discard, needsAux());
 
 	if (fetch_request_created)
@@ -2767,7 +2772,7 @@ void LLViewerMediaTexture::updateClass()
 
 #if 0
 	//force to play media.
-	gSavedSettings.setBOOL("AudioSteamingMedia", true) ;
+	gSavedSettings.setBOOL("AudioStreamingMedia", true) ;
 	gSavedSettings.setBOOL("AudioStreamingVideo", true) ;
 #endif
 
@@ -3007,7 +3012,7 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 	LLViewerTexture::addFace(facep) ;
 
 	const LLTextureEntry* te = facep->getTextureEntry() ;
-	if(te)
+	if(te && te->getID().notNull())
 	{
 		LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
 		if(tex)
@@ -3024,7 +3029,10 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 		return ;
 	}
 	
-	llerrs << "The face does not have a valid texture before media texture." << llendl ;
+	if(te && te->getID().notNull()) //should have a texture
+	{
+		llerrs << "The face does not have a valid texture before media texture." << llendl ;
+	}
 }
 
 //virtual 
@@ -3033,7 +3041,7 @@ void LLViewerMediaTexture::removeFace(LLFace* facep)
 	LLViewerTexture::removeFace(facep) ;
 
 	const LLTextureEntry* te = facep->getTextureEntry() ;
-	if(te)
+	if(te && te->getID().notNull())
 	{
 		LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
 		if(tex)
@@ -3094,7 +3102,10 @@ void LLViewerMediaTexture::removeFace(LLFace* facep)
 		}
 	}
 
-	llerrs << "mTextureList texture reference number is corrupted." << llendl ;
+	if(te && te->getID().notNull()) //should have a texture
+	{
+		llerrs << "mTextureList texture reference number is corrupted." << llendl ;
+	}
 }
 
 void LLViewerMediaTexture::stopPlaying()
@@ -3130,10 +3141,14 @@ void LLViewerMediaTexture::switchTexture(LLFace* facep)
 			const LLTextureEntry* te = facep->getTextureEntry() ;
 			if(te)
 			{
-				LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
+				LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID()) : NULL ;
 				if(!tex && te->getID() != mID)//try parcel media.
 				{
 					tex = gTextureList.findImage(mID) ;
+				}
+				if(!tex)
+				{
+					tex = LLViewerFetchedTexture::sDefaultImagep ;
 				}
 				facep->switchTexture(tex) ;
 			}

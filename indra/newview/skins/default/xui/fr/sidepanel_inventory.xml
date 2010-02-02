@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Choses" name="objects panel">
+	<panel label="" name="sidepanel__inventory_panel">
+		<panel name="button_panel">
+			<button label="Infos" name="info_btn"/>
+			<button label="Porter" name="wear_btn"/>
+			<button label="Jouer" name="play_btn"/>
+			<button label="Téléporter" name="teleport_btn"/>
+		</panel>
+	</panel>
+</panel>

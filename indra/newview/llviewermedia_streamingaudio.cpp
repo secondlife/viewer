@@ -62,7 +62,7 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 	if (!mMediaPlugin) // lazy-init the underlying media plugin
 	{
 		mMediaPlugin = initializeMedia("audio/mpeg"); // assumes that whatever media implementation supports mp3 also supports vorbis.
-		llinfos << "steaming audio mMediaPlugin is now " << mMediaPlugin << llendl;
+		llinfos << "streaming audio mMediaPlugin is now " << mMediaPlugin << llendl;
 	}
 
 	if(!mMediaPlugin)

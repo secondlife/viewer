@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<button label="グループ情報" name="group_info_btn"/>
+	<panel name="panel_call_buttons">
+		<button label="グループにコール" name="call_btn"/>
+		<button label="コール終了" name="end_call_btn"/>
+		<button label="ボイスコントロールを開く" name="voice_ctrls_btn"/>
+	</panel>
+</panel>

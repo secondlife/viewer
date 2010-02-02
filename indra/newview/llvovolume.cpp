@@ -1852,12 +1852,32 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
 	if (mep && impl)
 	{
         std::string url = mep->getCurrentURL();
-        if (url.empty())
+		// Look for a ":", if not there, assume "http://"
+		if (!url.empty() && std::string::npos == url.find(':')) 
+		{
+			url = "http://" + url;
+		}
+		// If the url we're trying to "bounce back" to is either empty or not
+		// allowed by the whitelist, try the home url.  If *that* doesn't work,
+		// set the media as failed and unload it
+        if (url.empty() || !mep->checkCandidateUrl(url))
         {
             url = mep->getHomeURL();
+			// Look for a ":", if not there, assume "http://"
+			if (!url.empty() && std::string::npos == url.find(':')) 
+			{
+				url = "http://" + url;
+			}
         }
-        if (! url.empty())
-        {
+        if (url.empty() || !mep->checkCandidateUrl(url))
+		{
+			// The url to navigate back to is not good, and we have nowhere else
+			// to go.
+			LL_WARNS("MediaOnAPrim") << "FAILED to bounce back URL \"" << url << "\" -- unloading impl" << LL_ENDL;
+			impl->setMediaFailed(true);
+		}
+		else {
+			// Okay, navigate now
             LL_INFOS("MediaOnAPrim") << "bouncing back to URL: " << url << LL_ENDL;
             impl->navigateTo(url, "", false, true);
         }
@@ -2106,11 +2126,19 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 
 F64 LLVOVolume::getTotalMediaInterest() const
 {
+	// If this object is currently focused, this object has "high" interest
 	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == getID())
 		return F64_MAX;
 	
 	F64 interest = (F64)-1.0;  // means not interested;
-    int i = 0;
+    
+	// If this object is selected, this object has "high" interest, but since 
+	// there can be more than one, we still add in calculated impl interest
+	// XXX Sadly, 'contains()' doesn't take a const :(
+	if (LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this)))
+		interest = F64_MAX / 2.0;
+	
+	int i = 0;
 	const int end = getNumTEs();
 	for ( ; i < end; ++i)
 	{
@@ -2689,13 +2717,16 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
 
-		textures.insert(img->getID());
+		if (img)
+		{
+			textures.insert(img->getID());
+		}
 
 		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
 		{
 			alpha++;
 		}
-		else if (img->getPrimaryFormat() == GL_ALPHA)
+		else if (img && img->getPrimaryFormat() == GL_ALPHA)
 		{
 			invisi = 1;
 		}

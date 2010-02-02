@@ -39,4 +39,5 @@
 	</text>
 	<check_box initial_value="true" label="Jouer l&apos;animation clavier quand vous écrivez" name="play_typing_animation"/>
 	<check_box label="M&apos;envoyer les IM par e-mail une fois déconnecté" name="send_im_to_email"/>
+	<check_box label="Activer l&apos;historique des chats en texte brut" name="plain_text_chat_history"/>
 </panel>

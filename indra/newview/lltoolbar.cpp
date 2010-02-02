@@ -60,7 +60,7 @@
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llviewermenu.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llpanelblockedlist.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -70,7 +70,6 @@
 #include "llviewerwindow.h"
 #include "lltoolgrab.h"
 #include "llcombobox.h"
-#include "llfloaterchat.h"
 #include "llimpanel.h"
 #include "lllayoutstack.h"
 
@@ -281,21 +280,6 @@ void LLToolBar::updateCommunicateList()
 	}
 	itemp = communicate_button->addElement(contact_sd, ADD_TOP);
 
-	LLSD communicate_sd;
-	communicate_sd["value"] = "local chat";
-	communicate_sd["columns"][0]["value"] = LLFloaterChat::getInstance()->getShortTitle();
-
-	if (LLFloaterChat::getInstance() == frontmost_floater)
-	{
-		communicate_sd["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
-		communicate_sd["columns"][0]["font"]["style"] = "BOLD";
-		if (selected.isUndefined())
-		{
-			selected = "local chat";
-		}
-	}
-	itemp = communicate_button->addElement(communicate_sd, ADD_TOP);
-
 	communicate_button->addSeparator(ADD_TOP);
 	communicate_button->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
 	communicate_button->addSeparator(ADD_TOP);
@@ -357,8 +341,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 		if(chatterbox_instance)
 		{
 			chatterbox_instance->addFloater(LLFloaterMyFriends::getInstance(), FALSE);
-		    chatterbox_instance->addFloater(LLFloaterChat::getInstance(), FALSE);
-		
+			
 			LLUUID session_to_show;
 		
 			std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;

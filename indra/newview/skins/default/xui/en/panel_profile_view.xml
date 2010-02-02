@@ -26,8 +26,8 @@
      top="2"
      width="23" />
     <text_editor
-      allow_scroll="false" 
-      bg_visible="false" 
+      allow_scroll="false"
+      bg_visible="false"
       read_only = "true"
       follows="top|left|right"
       font="SansSerifHugeBold"
@@ -55,12 +55,12 @@
      halign="center"
      layout="topleft"
      left="10"
-	 min_width="333"
+     min_width="333"
      name="tabs"
      tab_min_width="80"
      tab_height="30"
      tab_position="top"
-     top_pad="10"
+     top_pad="5"
      width="313">
         <panel
          class="panel_profile"

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="worldmap" title="WELTKARTE">
-	<tab_container name="maptab">
-		<panel label="Objekte" name="objects_mapview"/>
-		<panel label="Terrain" name="terrain_mapview"/>
-	</tab_container>
+<floater name="worldmap" title="KARTE">
 	<text name="you_label">
 		Sie
 	</text>
@@ -19,19 +15,19 @@
 	<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
 	<check_box label="Einwohner" name="people_chk"/>
 	<check_box label="Infohub" name="infohub_chk"/>
-	<check_box label="Telehub" name="telehubchk"/>
+	<check_box label="Telehub" name="telehub_chk"/>
 	<check_box label="Land zu verkaufen" name="land_for_sale_chk"/>
 	<text name="events_label">
 		Events:
 	</text>
 	<check_box label="PG" name="event_chk"/>
-	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Online-Freunde" name="friend combo" tool_tip="Freund, der auf Karte angezeigt werden soll">
-		<combo_box.item name="item1" label="Online-Freunde" />
+		<combo_box.item label="Online-Freunde" name="item1"/>
 	</combo_box>
 	<combo_box label="Landmarken" name="landmark combo" tool_tip="Landmarke, die auf Karte angezeigt werden soll">
-		<combo_box.item name="item1" label="Landmarken" />
+		<combo_box.item label="Landmarken" name="item1"/>
 	</combo_box>
 	<line_editor label="Nach Regionsname suchen" name="location" tool_tip="Geben Sie den Namen einer Region ein"/>
 	<button label="Suchen" name="DoSearch" tool_tip="Nach einer Region suchen"/>
@@ -39,8 +35,8 @@
 		Suchergebnisse:
 	</text>
 	<scroll_list name="search_results">
-		<column label="" name="icon"/>
-		<column label="" name="sim_name"/>
+		<scroll_list.columns label="" name="icon"/>
+		<scroll_list.columns label="" name="sim_name"/>
 	</scroll_list>
 	<text name="location_label">
 		Standort:

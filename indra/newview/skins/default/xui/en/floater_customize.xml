@@ -12,16 +12,6 @@
  title="APPEARANCE"
  top_delta="-185"
  width="524">
- <check_box
-             enabled="true"
-             height="23"
-             label="Show Attachments in Previews"
-             layout="topleft"
-             left="110"
-             name="show attachments"
-             tool_tip="Display attachments on your avatar in the preview panels below."
-             top="20"
-             width="146" />
     <tab_container
      height="517"
      layout="topleft"
@@ -270,10 +260,9 @@
              left="10"
              name="not worn instructions"
              top="31"
+             word_wrap="true"
              width="373">
-                Put on a new shape by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new shape by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -284,6 +273,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -310,7 +300,7 @@ scratch and wear it.
              left="10"
              name="Create New"
              top="104"
-             width="140" />
+             width="160" />
             <button
              follows="right|bottom"
              height="23"
@@ -473,10 +463,9 @@ scratch and wear it.
              left="10"
              name="not worn instructions"
              top="31"
+             word_wrap="true"
              width="373">
-                Put on a new skin by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new skin by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -487,6 +476,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -552,7 +542,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-249"
-             width="120" />
+             width="160" />
             <button
              follows="right|bottom"
              height="23"
@@ -723,10 +713,9 @@ scratch and wear it.
              left="10"
              name="not worn instructions"
              top="31"
+             word_wrap="true"
              width="373">
-                Put on a new hair by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new hair by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -737,6 +726,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -775,7 +765,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-89"
-             width="120" />
+             width="160" />
             <button
              follows="right|bottom"
              height="23"
@@ -908,10 +898,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new eyes by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new set of eyes by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -922,6 +911,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -960,7 +950,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="39"
-             width="120" />
+             width="160" />
             <button
              follows="right|bottom"
              height="23"
@@ -1066,7 +1056,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-41"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -1180,10 +1170,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new shirt by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new shirt by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -1194,6 +1183,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -1272,7 +1262,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-41"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -1386,10 +1376,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new pants by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on new pants by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -1400,6 +1389,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -1519,10 +1509,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new shoes by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new pair of shoes by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -1533,6 +1522,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -1582,7 +1572,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-41"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -1725,10 +1715,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new socks by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on new socks by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -1739,6 +1728,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -1788,7 +1778,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-41"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -1931,10 +1921,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new jacket by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new jacket by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -1945,6 +1934,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -2006,7 +1996,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-121"
-             width="140" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -2149,10 +2139,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new gloves by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on new gloves by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -2163,6 +2152,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -2212,7 +2202,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-41"
-             width="130" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -2355,10 +2345,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new undershirt by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new undershirt by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -2369,6 +2358,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -2561,10 +2551,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new underpants by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on new underpants by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -2575,6 +2564,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -2767,10 +2757,9 @@ scratch and wear it.
              left_delta="0"
              name="not worn instructions"
              top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new skirt by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new skirt by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -2781,6 +2770,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -2830,7 +2820,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-41"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -2972,11 +2962,10 @@ scratch and wear it.
              layout="topleft"
              left_delta="-2"
              name="not worn instructions"
-             top_delta="2"
+             top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new alpha mask by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new alpha mask by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -2987,6 +2976,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -3118,7 +3108,7 @@ scratch and wear it.
              left="8"
              name="Create New"
              top="104"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -3260,11 +3250,10 @@ scratch and wear it.
              layout="topleft"
              left_delta="-2"
              name="not worn instructions"
-             top_delta="2"
+             top_pad="8"
+             word_wrap="true"
              width="373">
-                Put on a new tattoo by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+                Put on a new tattoo by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
             </text>
             <text
              type="string"
@@ -3275,6 +3264,7 @@ scratch and wear it.
              left_delta="0"
              name="no modify instructions"
              top_delta="0"
+             word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
             </text>
@@ -3337,7 +3327,7 @@ scratch and wear it.
              left_delta="0"
              name="Create New"
              top_delta="-121"
-             width="120" />
+             width="160" />
             <button
              follows="left|top"
              height="23"

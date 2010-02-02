@@ -88,6 +88,7 @@ background_visible="true"
      initial_value="(retrieving)"
      layout="topleft"
      left_delta="0"
+     link="true"
      name="founder_name"
      top_pad="2"
      use_ellipses="true"
@@ -150,7 +151,6 @@ background_visible="true"
              filename="panel_group_roles.xml"
              layout="topleft"
              left="0"
-             help_topic="group_roles_tab"
              name="group_roles_tab_panel"
              top="0" />
          </accordion_tab>
@@ -180,7 +180,6 @@ background_visible="true"
          filename="panel_group_land_money.xml"
          layout="topleft"
          left="0"
-         help_topic="group_land_money_tab"
          name="group_land_tab_panel"
          top="0" />
          </accordion_tab>
@@ -216,12 +215,28 @@ background_visible="true"
      visible="false"
      width="65" />-->
      <button
+     follows="bottom|right"          
+     label="Group Chat"
+     name="btn_chat"
+     right="-184"
+     left_pad="2"     
+     height="22"          
+     width="85" />
+     <button
+     follows="bottom|right"          
+     label="Group Call"
+     name="btn_call"
+     right="-97"
+     left_pad="2"     
+     height="22"          
+     width="85" />
+     <button
      height="22"
      label="Save"
      label_selected="Save"
      name="btn_apply"
      left_pad="10"
      right="-10"
-     width="100" />
+     width="85" />
      </panel>
 </panel>

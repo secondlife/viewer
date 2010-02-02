@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_group">
+	<string name="PrivateGroup">
+		Private Gruppe
+	</string>
+	<string name="FreeToJoin">
+		Mitgliedschaft kostenlos
+	</string>
+	<string name="CostToJoin">
+		Mitgliedschaft: [AMOUNT] L$
+	</string>
+	<string name="YouAreMember">
+		Sie sind Mitglied
+	</string>
+	<text name="group_name">
+		Grumpitys schlecht gelaunte Elche
+	</text>
+	<text name="group_subtitle">
+		123 Mitglieder
+	</text>
+	<text name="group_details">
+		Eine Gruppe für Leute, die sich gerne mit Elchen unterhält.
+Hoch solln sie leben!  Elche forever!  Und auch Mungos!
+	</text>
+	<text name="group_cost">
+		Mitgliedschaft: 123 L$
+	</text>
+	<button label="Zusammen" name="join_btn"/>
+	<button label="Verlassen" name="leave_btn"/>
+</floater>

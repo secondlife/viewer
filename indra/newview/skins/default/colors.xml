@@ -57,30 +57,36 @@
 	 name="Black_50"
 	 value="0 0 0 0.5" />
 	<color
+	name="FrogGreen"
+	value="0.26 0.345 0.263 1" />
+	<color
 	 name="Red"
-	 value="1 0 0 1" />
+	 value="0.729 0 0.121 1" />
 	<color
 	 name="Blue"
 	 value="0 0 1 1" />
 	<color
 	 name="Yellow"
-	 value="0.114 0.65 0.1" />
+	 value="1 1 0 1" />
 	<color
 	 name="Green"
-	 value="0 .39 .10 1" />
+	 value="0 1 0 1" />
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
-  <!-- Make potentially unused colors show up bright purple.
+	<color
+	name="Purple"
+	value="1 0 1 1" />
+  <!-- This color name makes potentially unused colors show up bright purple.
   Leave this here until all Unused? are removed below, otherwise
   the viewer generates many warnings on startup. -->
   <color
 	 name="Unused?"
-	 value="1 0 1 1" />
+	 value=".831 1 0 1" />
 
   <!-- UI Definitions -->
 
-	<color
+    <color
      name="AgentChatColor"
      reference="White" />
     <color
@@ -168,11 +174,14 @@
      name="ChatHistoryTextColor"
      reference="LtGray" />
     <color
+     name="ChicletFlashColor"
+     value="0.114 0.65 0.1" />
+    <color
      name="ColorDropShadow"
      reference="Black_50" />
     <color
      name="ColorPaletteEntry01"
-     value="0 0 0 1" />
+     reference="Black" />
     <color
      name="ColorPaletteEntry02"
      value="0.5 0.5 0.5 1" />
@@ -214,34 +223,34 @@
      value="0.5 0.25 0 1" />
     <color
      name="ColorPaletteEntry15"
-     value="1 1 1 1" />
+     reference="White" />
     <color
      name="ColorPaletteEntry16"
-     value="1 1 1 1" />
+     reference="White" />
     <color
      name="ColorPaletteEntry17"
-     value="1 1 1 1" />
+     reference="White" />
     <color
      name="ColorPaletteEntry18"
-     value="0.75 0.75 0.75 1" />
+     reference="LtGray" />
     <color
      name="ColorPaletteEntry19"
-     value="1 0 0 1" />
+     reference="Red" />
     <color
      name="ColorPaletteEntry20"
-     reference="Unused?" />
+     reference=".5 .5 1 0" />
     <color
      name="ColorPaletteEntry21"
-     value="0 1 0 1" />
+     reference="Green" />
     <color
      name="ColorPaletteEntry22"
      value="0 1 1 1" />
     <color
      name="ColorPaletteEntry23"
-     value="0 0 1 1" />
+     reference="Blue" />
     <color
      name="ColorPaletteEntry24"
-     value="1 0 1 1" />
+     reference="Purple" />
     <color
      name="ColorPaletteEntry25"
      value="1 1 0.5 1" />
@@ -262,10 +271,10 @@
      value="1 0.5 0 1" />
     <color
      name="ColorPaletteEntry31"
-     value="1 1 1 1" />
+     reference="White" />
     <color
      name="ColorPaletteEntry32"
-     value="1 1 1 1" />
+     reference="White" />
     <color
      name="ConsoleBackground"
      reference="Black" />
@@ -289,7 +298,7 @@
      reference="White" />
      <color
      name="FilterBackgroundColor"
-     reference="MouseGray" />
+     reference="Black" />
     <color
      name="FilterTextColor"
      value="0.38 0.69 0.57 1" />
@@ -322,7 +331,7 @@
      value="0.92 0.92 1 0.78" />
     <color
      name="GridlineColor"
-     value="1 0 0 1" />
+     reference="Red" />
     <color
      name="GridlineShadowColor"
      value="0 0 0 0.31" />
@@ -334,10 +343,10 @@
      value="0.3344 0.5456 0.5159 1" />
     <color
      name="GroupNotifyTextColor"
-	 reference="White"/>
+     reference="White"/>
     <color
      name="GroupNotifyDimmedTextColor"
-	 reference="DkGray"/>
+     reference="DkGray" />
     <color
      name="GroupOverTierColor"
      value="0.43 0.06 0.06 1" />
@@ -367,7 +376,7 @@
      reference="Unused?" />
     <color
      name="HighlightChildColor"
-     reference="Unused?" />
+     reference="Yellow" />
     <color
      name="HighlightInspectColor"
      value="1 0.5 0 1" />
@@ -391,7 +400,10 @@
      reference="White" />
     <color
      name="InventoryBackgroundColor"
-     reference="Unused?" />
+     reference="DkGray2" />
+    <color
+     name="InventoryFocusOutlineColor"
+     reference="White_25" />
     <color
      name="InventoryItemSuffixColor"
      reference="White_25" />
@@ -454,7 +466,7 @@
      reference="DkGray" />
     <color
      name="MenuBarGodBgColor"
-     reference="Green" />
+     reference="FrogGreen" />
     <color
      name="MenuDefaultBgColor"
      reference="DkGray2" />
@@ -475,7 +487,7 @@
      reference="Black" />
     <color
      name="MenuNonProductionGodBgColor"
-     value="0 0.5 0 1" />
+     value="0.263 0.325 0.345 1" />
     <color
      name="MenuPopupBgColor"
 	  reference="DkGray2" />
@@ -502,7 +514,7 @@
      value="0 0 0 0.3" />
     <color
      name="NetMapGroupOwnAboveWater"
-     value="1 0 1 1" />
+     reference="Purple" />
     <color
      name="NetMapGroupOwnBelowWater"
      value="0.78 0 0.78 1" />
@@ -535,7 +547,7 @@
      reference="EmphasisColor" />
     <color
      name="OverdrivenColor"
-     value="1 0 0 1" />
+     reference="Red" />
     <color
      name="PanelDefaultBackgroundColor"
      reference="DkGray" />
@@ -619,7 +631,7 @@
      value="0.13 0.42 0.77 1" />
     <color
      name="SilhouetteParentColor"
-     reference="Unused?" />
+     reference="Yellow" />
     <color
      name="SliderDisabledThumbColor"
      reference="White_25" />
@@ -634,10 +646,10 @@
      reference="Unused?" />
     <color
      name="SpeakingColor"
-     value="0 1 0 1" />
+     reference="FrogGreen" />
     <color
      name="SystemChatColor"
-	 reference="White" />
+     reference="White" />
     <color
      name="TextBgFocusColor"
      reference="White" />
@@ -652,7 +664,7 @@
      reference="Black" />
     <color
      name="TextDefaultColor"
-     value="Black" />
+     reference="Black" />
     <color
      name="TextEmbeddedItemColor"
      value="0 0 0.5 1" />
@@ -703,7 +715,7 @@
     <color
      name="SysWellItemSelected"
      value="0.3 0.3 0.3 1.0" />
-	<color
+    <color
      name="ChatToastAgentNameColor"
      reference="EmphasisColor" />
   <color

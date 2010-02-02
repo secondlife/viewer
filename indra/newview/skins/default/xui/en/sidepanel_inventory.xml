@@ -28,12 +28,11 @@
 			 name="panel_main_inventory"
 			 top="0"
 			 label=""
-			 height="500"
+			 height="545"
 			 width="330" />
 		<panel
 			 height="25"
 			 layout="bottomright"
-			 help_topic="item_button_tab"
 			 name="button_panel"
 			 left="5"
 			 bottom="5"

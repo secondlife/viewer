@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="mute by name" title="OBJEKT NACH NAME STUMMSCHALTEN">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="mute by name" title="OBJEKT NACH NAMEN IGNORIEREN">
 	<text name="message">
-		Stummschalten nach Name betrifft nur Chat und IM, keine
-Sounds. Sie müssen den Objektnamen exakt angeben.
+		Objekt ignorieren:
 	</text>
 	<line_editor name="object_name">
 		Objektname
 	</line_editor>
-	<button label="OK" name="OK" />
-	<button label="Abbrechen" name="Cancel" />
+	<text name="note">
+		* Ignoriert nur Objekttext, nicht die Geräusche
+	</text>
+	<button label="OK" name="OK"/>
+	<button label="Abbrechen" name="Cancel"/>
 </floater>

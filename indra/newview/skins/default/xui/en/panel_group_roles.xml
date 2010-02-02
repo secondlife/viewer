@@ -210,6 +210,18 @@ including the Everyone and Owner Roles.
                 Abilities allow Members in Roles to do specific
 things in this group. There&apos;s a broad variety of Abilities.
             </panel.string>
+            <panel.string
+             name="power_folder_icon">
+                Inv_FolderClosed
+            </panel.string>
+            <panel.string
+             name="power_all_have_icon">
+                Checkbox_On
+            </panel.string>
+            <panel.string
+             name="power_partial_icon">
+                Checkbox_Off
+            </panel.string>
          <filter_editor
          layout="topleft"
          top="5"
@@ -220,23 +232,32 @@ things in this group. There&apos;s a broad variety of Abilities.
          max_length="250"
          label="Filter Abilities"
          name="filter_input" />
-            <scroll_list
-             column_padding="0"
-             draw_stripes="false"
-             follows="left|top"
-             height="200"
-             layout="topleft"
-             left="0"
-             multi_select="true"
-             name="action_list"
-             search_column="1"
-             tool_tip="Select an Ability to view more details"
-             top_pad="5"
-             width="300">
-                <scroll_list.columns
-                 name="action"
-                 width="300" />
-            </scroll_list>
+
+        <scroll_list
+         column_padding="0"
+         draw_stripes="true"
+         height="200"
+         follows="left|top"
+         layout="topleft"
+         left="0"
+         name="action_list"
+         search_column="2"
+         tool_tip="Select an Ability to view more details"
+         top_pad="5"
+         width="300">
+            <scroll_list.columns
+             label=""
+             name="icon"
+             width="2" />
+            <scroll_list.columns
+             label=""
+             name="checkbox"
+             width="20" />
+            <scroll_list.columns
+             label=""
+             name="action"
+             width="270" />
+        </scroll_list>
         </panel>
     </tab_container>
     <panel
@@ -258,7 +279,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          name="static"
          top_pad="5"
          width="300">
-            Assigned Members
+            Assigned Roles
         </text>
         <scroll_list
          draw_stripes="true"

@@ -1,17 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="アクティブ・ジェスチャー">
-	<text name="help_label">
-		ジェスチャーをダブルクリックして、&#10;アニメーションとサウンドを再生。
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="場所" name="gestures" title="ジェスチャー">
+	<floater.string name="loading">
+		ローディング...
+	</floater.string>
+	<floater.string name="playing">
+		（再生中）
+	</floater.string>
+	<floater.string name="copy_name">
+		[COPY_NAME] のコピー
+	</floater.string>
 	<scroll_list bottom_delta="-385" height="360" name="gesture_list">
-		<column label="トリガ" name="trigger" />
-		<column label="キー" name="shortcut" />
-		<column label="" name="key" />
-		<column label="名前" name="name" />
+		<scroll_list.columns label="名前" name="name"/>
+		<scroll_list.columns label="チャット" name="trigger"/>
+		<scroll_list.columns label="" name="key"/>
+		<scroll_list.columns label="キー" name="shortcut"/>
 	</scroll_list>
-	<button label="新規" name="new_gesture_btn" />
-	<button label="持ち物" name="inventory_btn" />
-	<button label="編集" name="edit_btn" />
-	<button label="再生" name="play_btn" />
-	<button label="停止" name="stop_btn" />
+	<panel label="bottom_panel" name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="詳細オプション"/>
+		<button name="new_gesture_btn" tool_tip="新規ジェスチャーを作成"/>
+		<button name="activate_btn" tool_tip="選択したジェスチャーのアクティベートの有無"/>
+		<button name="del_btn" tool_tip="このジェスチャーを削除"/>
+	</panel>
+	<button label="編集" name="edit_btn"/>
+	<button label="再生" name="play_btn"/>
+	<button label="停止" name="stop_btn"/>
 </floater>

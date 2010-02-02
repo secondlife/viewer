@@ -39,7 +39,8 @@
    name="toast_text"
    word_wrap="true"
    text_color="white"
-   top="5" 
+   top="5"
+   v_pad="5" 
     use_ellipses="true"
    width="260">
     Toast text;

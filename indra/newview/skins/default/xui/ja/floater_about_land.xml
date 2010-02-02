@@ -9,6 +9,9 @@
 	<floater.string name="Seconds">
 		[SECONDS] 秒
 	</floater.string>
+	<floater.string name="Remaining">
+		残り
+	</floater.string>
 	<tab_container name="landtab">
 		<panel label="一般" name="land_general_panel">
 			<panel.string name="new users only">
@@ -21,7 +24,7 @@
 				面積：
 			</panel.string>
 			<panel.string name="area_size_text">
-				[AREA]平方メートル
+				[AREA] 平方メートル
 			</panel.string>
 			<panel.string name="auction_id_text">
 				オークションID： [ID]
@@ -81,7 +84,7 @@
 				グループ：
 			</text>
 			<button label="設定..." label_selected="設定..." name="Set..."/>
-			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループ・オフィサーは、この土地をグループに譲渡し、グループの土地配分に委ねることができます。"/>
+			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。そうするとグループの土地割り当てによってサポートされます。"/>
 			<button label="譲渡..." label_selected="譲渡..." name="Deed..." tool_tip="選択されたグループのオフィサーであるときのみ、土地を譲渡できます。"/>
 			<check_box label="オーナーが譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
 			<text name="For Sale:">
@@ -114,7 +117,7 @@
 				面積：
 			</text>
 			<text name="PriceText">
-				4048平方メートル
+				4048 m²
 			</text>
 			<text name="Traffic:">
 				交通量:
@@ -370,11 +373,11 @@
 				着地点: [LANDING]
 			</text>
 			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者の着地点の設定を行います。この区画内に立って行ってください。"/>
-			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="着地点をクリアしてください。"/>
+			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="着地点をクリア"/>
 			<text name="Teleport Routing: ">
 				テレポート制限：
 			</text>
-			<combo_box name="landing type" tool_tip="Teleport Routing -- select how to handle teleports onto your land.">
+			<combo_box name="landing type" tool_tip="テレポート経路 -- あなたの土地へのテレポート経路を選択">
 				<combo_box.item label="不可" name="Blocked"/>
 				<combo_box.item label="着地点" name="LandingPoint"/>
 				<combo_box.item label="どこでも" name="Anywhere"/>
@@ -435,7 +438,7 @@
 			</text>
 			<check_box label="ボイスを有効にする" name="parcel_enable_voice_channel"/>
 			<check_box label="ボイスを有効にする（不動産設定）" name="parcel_enable_voice_channel_is_estate_disabled"/>
-			<check_box label="この区画でのボイス使用を制限する" name="parcel_enable_voice_channel_parcel"/>
+			<check_box label="この区画でのボイス使用を制限" name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="アクセス" name="land_access_panel">
 			<panel.string name="estate_override">
@@ -449,7 +452,7 @@
 				次の住人のアクセスをブロック：
 			</text>
 			<check_box label="Linden Labに支払い情報を登録していない住人" name="limit_payment" tool_tip="支払い情報未確認の住人を排除する"/>
-			<check_box label="年齢確認を済ませていない成人の住人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を禁止します。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
+			<check_box label="年齢確認を済ませていない成人の住人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を立入禁止にします。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
 			<check_box label="グループ・アクセスを許可：[GROUP]" name="GroupCheck" tool_tip="[一般]タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可"/>
 			<combo_box name="pass_combo">

@@ -9,7 +9,7 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
- title="Instant Messages"
+ title="CONVERSATIONS"
  width="392">
     <tab_container
      follows="left|right|top|bottom"
@@ -19,6 +19,7 @@
      name="im_box_tab_container"
      tab_position="bottom"
      tab_width="80"
+     tab_height="16"
      top="0"
      width="390" />
     <icon

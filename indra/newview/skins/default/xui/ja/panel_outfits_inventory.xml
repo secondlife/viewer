@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Outfits">
+	<accordion name="outfits_accordion">
+		<accordion_tab name="tab_outfits" title="アウトフィットバー"/>
+		<accordion_tab name="tab_cof" title="現在のアウトフィットバー"/>
+	</accordion>
+	<button label="&gt;" name="selector" tool_tip="アウトフィットのプロパティを表示"/>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="その他のオプションを表示"/>
+		<button name="add_btn" tool_tip="新しいアイテムの追加"/>
+		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除"/>
+	</panel>
+</panel>

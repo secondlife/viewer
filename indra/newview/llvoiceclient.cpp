@@ -62,7 +62,8 @@
 #include "llimview.h" // for LLIMMgr
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
+#include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
@@ -70,7 +71,6 @@
 #include "llvoicechannel.h"
 
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
-#include "llfloaterchat.h"		// for LLFloaterChat::addChat()
 
 // for base64 decoding
 #include "apr_base64.h"
@@ -4445,7 +4445,7 @@ void LLVoiceClient::participantUpdatedEvent(
 			participant->mVolume = volume;
 
 			
-			// *HACH: mantipov: added while working on EXT-3544
+			// *HACK: mantipov: added while working on EXT-3544
 			/*
 			Sometimes LLVoiceClient::participantUpdatedEvent callback is called BEFORE 
 			LLViewerChatterBoxSessionAgentListUpdates::post() sometimes AFTER.
@@ -4462,7 +4462,9 @@ void LLVoiceClient::participantUpdatedEvent(
 			in LLCallFloater::draw()
 			*/
 			LLVoiceChannel* voice_cnl = LLVoiceChannel::getCurrentVoiceChannel();
-			if (voice_cnl)
+
+			// ignore session ID of local chat
+			if (voice_cnl && voice_cnl->getSessionID().notNull())
 			{
 				LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(voice_cnl->getSessionID());
 				if (speaker_manager)
@@ -4707,10 +4709,6 @@ void LLVoiceClient::messageEvent(
 						LLUUID::null,			// default arg
 						LLVector3::zero,		// default arg
 						true);					// prepend name and make it a link to the user's profile
-
-				chat.mText = std::string("IM: ") + session->mName + std::string(": ") + message;
-				// If the chat should come in quietly (i.e. we're in busy mode), pretend it's from a local agent.
-				LLFloaterChat::addChat( chat, TRUE, quiet_chat );
 			}
 		}		
 	}
@@ -5002,6 +5000,17 @@ LLVoiceClient::participantMap *LLVoiceClient::getParticipantList(void)
 	return result;
 }
 
+void LLVoiceClient::getParticipantsUUIDSet(std::set<LLUUID>& participant_uuids)
+{
+	if (NULL == mAudioSession) return;
+
+	participantUUIDMap::const_iterator it = mAudioSession->mParticipantsByUUID.begin(),
+		it_end = mAudioSession->mParticipantsByUUID.end();
+	for (; it != it_end; ++it)
+	{
+		participant_uuids.insert((*(*it).first));
+	}
+}
 
 LLVoiceClient::participantState *LLVoiceClient::sessionState::findParticipant(const std::string &uri)
 {
@@ -5883,6 +5892,10 @@ void LLVoiceClient::setPTTIsToggle(bool PTTIsToggle)
 	mPTTIsToggle = PTTIsToggle;
 }
 
+bool LLVoiceClient::getPTTIsToggle()
+{
+	return mPTTIsToggle;
+}
 
 void LLVoiceClient::setPTTKey(std::string &key)
 {

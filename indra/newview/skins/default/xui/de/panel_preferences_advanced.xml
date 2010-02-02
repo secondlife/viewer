@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="advanced">
+	<panel.string name="resolution_format">
+		[RES_X] x [RES_Y]
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</panel.string>
+	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
+	<color_swatch name="background" tool_tip="Farbe für Blasen-Chat auswählen"/>
+	<slider label="Deckkraft" name="bubble_chat_opacity"/>
 	<text name="AspectRatioLabel1" tool_tip="Breite/Höhe">
-		Aspektverhältnis:
+		Seitenverhältnis
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="Breite/Höhe">
 		<combo_box.item label="4:3 (Standard-CRT)" name="item1"/>
@@ -9,4 +18,31 @@
 		<combo_box.item label="8:5 (Widescreen)" name="item3"/>
 		<combo_box.item label="16:9 (Widescreen)" name="item4"/>
 	</combo_box>
+	<check_box label="Automatisch erkennen" name="aspect_auto_detect"/>
+	<text name="heading1">
+		Kamera:
+	</text>
+	<slider label="Sichtwinkel" name="camera_fov"/>
+	<slider label="Abstand" name="camera_offset_scale"/>
+	<text name="heading2">
+		Automatische Positionierung:
+	</text>
+	<check_box label="Bauen/Bearbeiten" name="edit_camera_movement" tool_tip="Automatische Kamerapositionierung bei Wechsel in und aus dem Bearbeitungsmodus verwenden"/>
+	<check_box label="Aussehen" name="appearance_camera_movement" tool_tip="Automatische Kamerapositionierung im Bearbeitenmodus verwenden"/>
+	<text name="heading3">
+		Avatare:
+	</text>
+	<check_box label="Mich im Mouselook anzeigen" name="first_person_avatar_visible"/>
+	<check_box label="Mit Pfeiltasten bewegen" name="arrow_keys_move_avatar_check"/>
+	<check_box label="2-mal-drücken-halten, um zu rennen" name="tap_tap_hold_to_run"/>
+	<check_box label="Avatarlippen beim Sprechen bewegen" name="enable_lip_sync"/>
+	<check_box label="Skript-Fehler anzeigen" name="show_script_errors"/>
+	<radio_group name="show_location">
+		<radio_item label="In Chat" name="0"/>
+		<radio_item label="In einem Fenster" name="1"/>
+	</radio_group>
+	<check_box label="Umschaltmodus für Mikrofon, wenn die Auslöste-Taste zum Sprechen gedrückt wird:" name="push_to_talk_toggle_check" tool_tip="Wenn der Umschaltmodus aktiviert ist, drücken Sie die Auslöse-Taste EINMAL, um Ihr Mikrofon an oder aus zu stellen. Wenn der Umschaltmodus nicht motiviert ist, ist das Mikro nur dann eingeschaltet, wenn Sie die Auslösetaste gedrückt halten."/>
+	<line_editor label="Auslöser für Zum-Sprechen-drücken:" name="modifier_combo"/>
+	<button label="Taste festlegen" name="set_voice_hotkey_button"/>
+	<button label="Mittlere Maustaste" name="set_voice_middlemouse_button"/>
 </panel>

@@ -41,7 +41,7 @@
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterland.h"
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
@@ -68,6 +68,7 @@
 #include "llviewermedia.h"
 #include "llvoavatarself.h"
 #include "llviewermediafocus.h"
+#include "llvovolume.h"
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
@@ -101,16 +102,13 @@ BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktyp
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	//left mouse down always picks transparent
-	gViewerWindow->pickAsync(x, y, mask, leftMouseCallback, TRUE);
+	mPick = gViewerWindow->pickImmediate(x, y, TRUE);
+	mPick.mKeyMask = mask;
 	mGrabMouseButtonDown = TRUE;
-	return TRUE;
-}
+	
+	pickLeftMouseDownCallback();
 
-// static
-void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
-{
-	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickLeftMouseDownCallback();
+	return TRUE;
 }
 
 // Spawn context menus on right mouse down so you can drag over and select
@@ -118,8 +116,13 @@ void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
-	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE);
+	mPick = gViewerWindow->pickImmediate(x, y, FALSE);
+	mPick.mKeyMask = mask;
+
 	// claim not handled so UI focus stays same
+	
+	pickRightMouseDownCallback();
+	
 	return FALSE;
 }
 
@@ -132,13 +135,6 @@ BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
 BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
-}
-
-// static
-void LLToolPie::rightMouseCallback(const LLPickInfo& pick_info)
-{
-	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickRightMouseDownCallback();
 }
 
 // True if you selected an object.
@@ -634,12 +630,14 @@ static bool needs_tooltip(LLSelectNode* nodep)
 		return false;
 
 	LLViewerObject* object = nodep->getObject();
+	LLVOVolume* vovolume = dynamic_cast<LLVOVolume*>(object);
 	LLViewerObject *parent = (LLViewerObject *)object->getParent();
 	if (object->flagHandleTouch()
 		|| (parent && parent->flagHandleTouch())
 		|| object->flagTakesMoney()
 		|| (parent && parent->flagTakesMoney())
 		|| object->flagAllowInventoryAdd()
+		|| (vovolume && vovolume->hasMedia())
 		)
 	{
 		return true;
@@ -733,10 +731,11 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				p.message(avatar_name);
-				p.image(LLUI::getUIImage("Info"));
+				p.image.name("Inspector_I");
 				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
+				p.delay_time(0.35f);
 				p.wrap(false);
 				
 				LLToolTipMgr::instance().show(p);
@@ -823,7 +822,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					LLInspector::Params p;
 					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 					p.message(tooltip_msg);
-					p.image(LLUI::getUIImage("Info_Off"));
+					p.image.name("Inspector_I");
 					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
 					p.time_based_media(is_time_based_media);
 					p.web_based_media(is_web_based_media);
@@ -832,6 +831,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 					p.visible_time_near(6.f);
 					p.visible_time_far(3.f);
+					p.delay_time(0.35f);
 					p.wrap(false);
 					
 					LLToolTipMgr::instance().show(p);
@@ -1515,7 +1515,7 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			}
 			else
 			{
-				mute_msg = LLTrans::getString("MuteObject");
+				mute_msg = LLTrans::getString("MuteObject2");
 			}
 			
 			gMenuHolder->childSetText("Object Mute", mute_msg);

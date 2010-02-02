@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="コンテンツ権限を編集">
+<floater name="floaterbulkperms" title="コンテンツ権限の編集">
 	<floater.string name="nothing_to_modify_text">
 		選択した中に編集できないコンテンツが含まれています
 	</floater.string>
@@ -29,7 +29,8 @@
 	<check_box label="サウンド" name="check_sound"/>
 	<icon name="icon_sound" tool_tip="サウンド"/>
 	<check_box label="テクスチャー" name="check_texture"/>
-	<button label="√ すべて" label_selected="全て" name="check_all"/>
+	<icon name="icon_texture" tool_tip="テクスチャ"/>
+	<button label="すべてに √" label_selected="全て" name="check_all"/>
 	<button label="クリア" label_selected="なし" name="check_none"/>
 	<text name="newperms">
 		新しいコンテンツ権限
@@ -39,7 +40,7 @@
 	</text>
 	<check_box label="共有" name="share_with_group"/>
 	<text name="AnyoneLabel">
-		すべての人：
+		全員：
 	</text>
 	<check_box label="コピー" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
@@ -47,7 +48,7 @@
 	</text>
 	<check_box label="修正" name="next_owner_modify"/>
 	<check_box label="コピー" name="next_owner_copy"/>
-	<check_box initial_value="true" label="再販/プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
-	<button label="OK" name="apply"/>
+	<check_box initial_value="true" label="再販・プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+	<button label="Ok" name="apply"/>
 	<button label="キャンセル" name="close"/>
 </floater>

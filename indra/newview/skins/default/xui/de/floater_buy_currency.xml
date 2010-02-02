@@ -1,68 +1,66 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="buy currency" title="GELD KAUFEN">
-	<text name="info_buying">
-		Kaufe Geld:
-	</text>
-	<text name="info_cannot_buy">
-		Kaufen jetzt nicht möglich:
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="L$ kaufen">
+	<floater.string name="buy_currency">
+		[LINDENS] L$ für ca. [LOCALAMOUNT] kaufen
+	</floater.string>
 	<text name="info_need_more">
-		Sie brauchen mehr Geld:
+		Sie brauchen mehr Geld
 	</text>
-	<text name="error_message">
-		Irgendetwas stimmt nicht.
-	</text>
-	<button label="Gehe zu Website" name="error_web" />
 	<text name="contacting">
 		LindeX wird kontaktiert...
 	</text>
-	<text name="buy_action_unknown">
-		L$ an der LindeX kaufen
-	</text>
-	<text name="buy_action">
-		[NAME] L$ [PRICE]
-	</text>
-	<text name="currency_action" width="90">
+	<text name="info_buying">
 		L$ kaufen
 	</text>
-	<line_editor left_delta="55" name="currency_amt">
-		1234
-	</line_editor>
-	<text name="currency_est">
-		für ca. [LOCALAMOUNT]
-	</text>
-	<text name="getting_data">
-		Daten werden geladen...
-	</text>
 	<text name="balance_label">
-		Sie haben zurzeit
+		Ich habe
 	</text>
 	<text name="balance_amount">
 		[AMT] L$
 	</text>
-	<text name="buying_label">
-		Sie kaufen
+	<text name="currency_action" width="90">
+		Ich möchte kaufen
 	</text>
-	<text name="buying_amount">
-		[AMT] L$
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" left_delta="55" name="currency_amt">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		Zum Preis von
+	</text>
+	<text name="currency_est">
+		ca. [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Schätzung erfolgt...
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
 	</text>
 	<text name="total_label">
-		Ihr neuer Kontostand:
+		Mein neuer Kontostand wird sein
 	</text>
 	<text name="total_amount">
 		[AMT] L$
 	</text>
+	<text name="currency_links">
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=de-DE payment method] | [http://www.secondlife.com/my/account/currency.php?lang=de-DE currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=de-DE exchange rate]
+	</text>
+	<text name="exchange_rate_note">
+		Geben Sie den Betrag erneut ein, um die aktuellste Umtauschrate anzuzeigen.
+	</text>
 	<text name="purchase_warning_repurchase">
-		Dieser Einkauf betrifft ausschließlich Geld.
-Wiederholen Sie den Vorgang.
+		Nach Bestätigung dieses Kaufs werden nur L$ gekauft, nicht das Objekt.
 	</text>
 	<text name="purchase_warning_notenough">
-		Sie kaufen nicht genügend Geld.
-Kaufen Sie mehr.
+		Sie kaufen nicht genügend L$. Bitte erhöhen Sie den Betrag.
 	</text>
-	<button label="Kaufen" name="buy_btn" />
-	<button label="Abbrechen" name="cancel_btn" />
-	<text name="buy_currency">
-		[LINDENS] L$ für ca. [LOCALAMOUNT] kaufen
+	<button label="Jetzt kaufen" name="buy_btn"/>
+	<button label="Abbrechen" name="cancel_btn"/>
+	<text name="info_cannot_buy">
+		Kauf nicht möglich
 	</text>
+	<button label="Weiter zum Internet" name="error_web"/>
 </floater>

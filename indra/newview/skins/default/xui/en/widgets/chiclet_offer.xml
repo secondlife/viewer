@@ -1,22 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_offer
- font="SansSerif"
- height="25"
+ height="23"
  name="offer_chiclet"
  width="25">
+ <chiclet_offer.chiclet_button 
+  height="23"
+  image_selected="PushButton_Selected"
+  image_unselected="PushButton_Off"
+  name="chiclet_button"
+  tab_stop="false"
+  width="25"/>
  <chiclet_offer.icon
-  default_icon="Generic_Object_Small" 
+  bottom="2"
+  default_icon="Generic_Object_Small"
   follows="all"
-  height="22"
+  height="18"
+  left="3"
   mouse_opaque="false"
   name="chiclet_icon"
-  width="22"/>
+  width="19" />
  <chiclet_offer.new_message_icon
-  bottom="12"
-  height="13"
-  image_name="Unread_IM"
+  bottom="11"
+  height="14"
+  image_name="Unread_Chiclet"
   left="12"
   name="new_message_icon"
   visible="false"
-  width="13" />
+  width="14" />
 </chiclet_offer>

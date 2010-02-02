@@ -5,7 +5,7 @@
 	<check_box label="Fixation des sous-unités" name="GridSubUnit"/>
 	<check_box label="Afficher les sections transversales" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="Opacité de la grille">
-		Opacité :
+		Opacité :
 	</text>
 	<slider label="Opacité de la grille" name="GridOpacity"/>
 </floater>
