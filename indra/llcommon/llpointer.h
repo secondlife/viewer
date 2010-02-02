@@ -95,7 +95,6 @@ public:
 	bool notNull() const						{ return (mPointer != NULL); }
 
 	operator Type*()       const				{ return mPointer; }
-	operator const Type*() const				{ return mPointer; }
 	bool operator !=(Type* ptr) const           { return (mPointer != ptr); 	}
 	bool operator ==(Type* ptr) const           { return (mPointer == ptr); 	}
 	bool operator ==(const LLPointer<Type>& ptr) const           { return (mPointer == ptr.mPointer); 	}

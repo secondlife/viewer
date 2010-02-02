@@ -242,7 +242,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 	do { \
 		static LLError::CallSite _site( \
 			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, broadTag, narrowTag, once);\
-		if (_site.shouldLog()) \
+		if (LL_UNLIKELY(_site.shouldLog()))			\
 		{ \
 			std::ostringstream* _out = LLError::Log::out(); \
 			(*_out)

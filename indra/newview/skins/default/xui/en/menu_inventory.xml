@@ -516,7 +516,7 @@
      layout="topleft" 
      name="Animation Separator" />
     <menu_item_call
-     label="Play in World"
+     label="Play Inworld"
      layout="topleft"
      name="Animation Play">
         <menu_item_call.on_click

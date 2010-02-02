@@ -60,6 +60,7 @@
         </menu_item_call>
     </menu>
     <menu
+      visible="false"
      create_jump_keys="true"
      label="Debug"
      name="Debug"

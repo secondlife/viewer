@@ -42,6 +42,7 @@ class LLLandmark;
 // internals
 class LLAddLandmarkObserver;
 class LLRemoveLandmarkObserver;
+class LLParcelChangeObserver;
 class LLMenuGL;
 class LLTeleportHistoryItem;
 
@@ -56,6 +57,7 @@ class LLLocationInputCtrl
 	LOG_CLASS(LLLocationInputCtrl);
 	friend class LLAddLandmarkObserver;
 	friend class LLRemoveLandmarkObserver;
+	friend class LLParcelChangeObserver;
 
 public:
 	struct Params 
@@ -164,6 +166,7 @@ private:
 
 	LLAddLandmarkObserver*		mAddLandmarkObserver;
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
+	LLParcelChangeObserver*		mParcelChangeObserver;
 
 	boost::signals2::connection	mParcelMgrConnection;
 	boost::signals2::connection	mLocationHistoryConnection;

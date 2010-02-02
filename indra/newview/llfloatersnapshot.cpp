@@ -2084,6 +2084,10 @@ void LLFloaterSnapshot::draw()
 
 			S32 offset_x = (getRect().getWidth() - previewp->getThumbnailWidth()) / 2 ;
 			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
+			if (! gSavedSettings.getBOOL("AdvanceSnapshot"))
+			{
+				offset_y += getUIWinHeightShort() - getUIWinHeightLong();
+			}
 
 			glMatrixMode(GL_MODELVIEW);
 			gl_draw_scaled_image(offset_x, offset_y, 

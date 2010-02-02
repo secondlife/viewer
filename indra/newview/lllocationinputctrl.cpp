@@ -153,6 +153,23 @@ private:
 	LLLocationInputCtrl* mInput;
 };
 
+class LLParcelChangeObserver : public LLParcelObserver
+{
+public:
+	LLParcelChangeObserver(LLLocationInputCtrl* input) : mInput(input) {}
+
+private:
+	/*virtual*/ void changed()
+	{
+		if (mInput)
+		{
+			mInput->refreshParcelIcons();
+		}
+	}
+
+	LLLocationInputCtrl* mInput;
+};
+
 //============================================================================
 
 
@@ -335,7 +352,10 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
 	gInventory.addObserver(mRemoveLandmarkObserver);
 	gInventory.addObserver(mAddLandmarkObserver);
-	
+
+	mParcelChangeObserver = new LLParcelChangeObserver(this);
+	LLViewerParcelMgr::getInstance()->addObserver(mParcelChangeObserver);
+
 	mAddLandmarkTooltip = LLTrans::getString("LocationCtrlAddLandmarkTooltip");
 	mEditLandmarkTooltip = LLTrans::getString("LocationCtrlEditLandmarkTooltip");
 	getChild<LLView>("Location History")->setToolTip(LLTrans::getString("LocationCtrlComboBtnTooltip"));
@@ -348,6 +368,9 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
 	gInventory.removeObserver(mAddLandmarkObserver);
 	delete mRemoveLandmarkObserver;
 	delete mAddLandmarkObserver;
+
+	LLViewerParcelMgr::getInstance()->removeObserver(mParcelChangeObserver);
+	delete mParcelChangeObserver;
 
 	mParcelMgrConnection.disconnect();
 	mLocationHistoryConnection.disconnect();
@@ -673,15 +696,39 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	if (show_properties)
 	{
 		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
+
+		LLViewerRegion* agent_region = gAgent.getRegion();
 		LLParcel* agent_parcel = vpm->getAgentParcel();
-		bool allow_buy      = vpm->canAgentBuyParcel( agent_parcel, false);
-		bool allow_voice	= vpm->allowAgentVoice();
-		bool allow_fly		= vpm->allowAgentFly();
-		bool allow_push		= vpm->allowAgentPush();
-		bool allow_build	= agent_parcel && agent_parcel->getAllowModify(); // true when anyone is allowed to build. See EXT-4610.
-		bool allow_scripts	= vpm->allowAgentScripts();
-		bool allow_damage	= vpm->allowAgentDamage();
-		
+		if (!agent_region || !agent_parcel)
+			return;
+
+		LLParcel* current_parcel;
+		LLViewerRegion* selection_region = vpm->getSelectionRegion();
+		LLParcel* selected_parcel = vpm->getParcelSelection()->getParcel();
+
+		// If agent is in selected parcel we use its properties because
+		// they are updated more often by LLViewerParcelMgr than agent parcel properties.
+		// See LLViewerParcelMgr::processParcelProperties().
+		// This is needed to reflect parcel restrictions changes without having to leave
+		// the parcel and then enter it again. See EXT-2987
+		if (selected_parcel && selected_parcel->getLocalID() == agent_parcel->getLocalID()
+				&& selection_region == agent_region)
+		{
+			current_parcel = selected_parcel;
+		}
+		else
+		{
+			current_parcel = agent_parcel;
+		}
+
+		bool allow_buy      = vpm->canAgentBuyParcel(current_parcel, false);
+		bool allow_voice	= vpm->allowAgentVoice(agent_region, current_parcel);
+		bool allow_fly		= vpm->allowAgentFly(agent_region, current_parcel);
+		bool allow_push		= vpm->allowAgentPush(agent_region, current_parcel);
+		bool allow_build	= vpm->allowAgentBuild(current_parcel); // true when anyone is allowed to build. See EXT-4610.
+		bool allow_scripts	= vpm->allowAgentScripts(agent_region, current_parcel);
+		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
+
 		// Most icons are "block this ability"
 		mForSaleBtn->setVisible(allow_buy);
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
