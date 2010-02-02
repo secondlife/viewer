@@ -550,6 +550,8 @@ public:
 	LLProcessorInfoDarwinImpl() 
 	{
 		getCPUIDInfo();
+		uint64_t frequency = getSysctlInt64("hw.cpufrequency");
+		setInfo(eFrequency, (F64)frequency);
 	}
 
 	virtual ~LLProcessorInfoDarwinImpl() {}
