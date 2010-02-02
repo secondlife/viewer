@@ -200,6 +200,18 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 		mMessageArchive.push_back(chat);
 		if(mMessageArchive.size()>200)
 			mMessageArchive.erase(mMessageArchive.begin());
+
+		if (gSavedPerAccountSettings.getBOOL("LogChat")) 
+		{
+			if (chat.mChatType != CHAT_TYPE_WHISPER && chat.mChatType != CHAT_TYPE_SHOUT)
+			{
+				LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+			}
+			else
+			{
+				LLLogChat::saveHistory("chat", "", chat.mFromID, chat.mFromName + " " + chat.mText);
+			}
+		}
 	}
 }
 
