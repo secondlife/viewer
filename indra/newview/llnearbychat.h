@@ -65,6 +65,10 @@ public:
 
 	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
 
+	void loadHistory();
+
+	static LLNearbyChat* getInstance();
+
 private:
 	virtual void    applySavedVariables();
 

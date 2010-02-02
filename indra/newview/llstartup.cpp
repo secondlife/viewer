@@ -67,6 +67,7 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
+#include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
@@ -904,6 +905,7 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
+
 		//good as place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
 		LLFile::mkdir(user_windlight_path_name.c_str());		
@@ -1282,6 +1284,14 @@ bool idle_startup()
 			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
 			// Load stored cache if possible
             LLAppViewer::instance()->loadNameCache();
+		}
+
+		//gCacheName is required for nearby chat history loading
+		//so I just moved nearby history loading a few states further
+		if (!gNoRender && gSavedPerAccountSettings.getBOOL("LogShowHistory"))
+		{
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
+			if (nearby_chat) nearby_chat->loadHistory();
 		}
 
 		// *Note: this is where gWorldMap used to be initialized.

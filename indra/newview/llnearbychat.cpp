@@ -62,6 +62,12 @@
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
+const static std::string IM_TIME("time");
+const static std::string IM_TEXT("message");
+const static std::string IM_FROM("from");
+const static std::string IM_FROM_ID("from_id");
+
+
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
 	: LLDockableFloater(NULL, false, false, key)
 	,mChatHistory(NULL)
@@ -262,6 +268,39 @@ void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 		nearby_chat->updateChatHistoryStyle();
 }
 
+void LLNearbyChat::loadHistory()
+{
+	std::list<LLSD> history;
+	LLLogChat::loadAllHistory("chat", history);
+
+	std::list<LLSD>::const_iterator it = history.begin();
+	while (it != history.end())
+	{
+		const LLSD& msg = *it;
+
+		std::string from = msg[IM_FROM];
+		LLUUID from_id = LLUUID::null;
+		if (msg[IM_FROM_ID].isUndefined())
+		{
+			gCacheName->getUUID(from, from_id);
+		}
+
+		LLChat chat;
+		chat.mFromName = from;
+		chat.mFromID = from_id;
+		chat.mText = msg[IM_TEXT];
+		chat.mTimeStr = msg[IM_TIME];
+		addMessage(chat);
+
+		it++;
+	}
+}
+
+//static
+LLNearbyChat* LLNearbyChat::getInstance()
+{
+	return LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -278,3 +317,4 @@ void LLNearbyChat::onFocusLost()
 	setBackgroundOpaque(false);
 	LLPanel::onFocusLost();
 }
+
