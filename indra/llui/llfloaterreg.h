@@ -75,6 +75,7 @@ private:
 	static instance_map_t sInstanceMap;
 	static build_map_t sBuildMap;
 	static std::map<std::string,std::string> sGroupMap;
+	static bool sBlockShowFloaters;
 	
 public:
 	// Registration
@@ -152,6 +153,8 @@ public:
 	{
 		return dynamic_cast<T*>(showInstance(name, key, focus));
 	}
+
+	static void blockShowFloaters(bool value) { sBlockShowFloaters = value;}
 	
 };
 

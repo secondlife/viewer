@@ -2579,6 +2579,8 @@ void LLFloaterView::pushVisibleAll(BOOL visible, const skip_list_t& skip_list)
 			view->pushVisible(visible);
 		}
 	}
+
+	LLFloaterReg::blockShowFloaters(true);
 }
 
 void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
@@ -2596,6 +2598,8 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 			view->popVisible();
 		}
 	}
+
+	LLFloaterReg::blockShowFloaters(false);
 }
 
 void LLFloater::setInstanceName(const std::string& name)
