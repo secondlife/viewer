@@ -47,6 +47,7 @@
 #include "lllineeditor.h"
 #include "llmutelist.h"
 #include "llfloaterreporter.h"
+#include "llslurl.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -102,10 +103,6 @@ private:
 	static void onGive(void* data);
 	void give(S32 amount);
 	static void processPayPriceReply(LLMessageSystem* msg, void **userdata);
-	void onCacheOwnerName(const LLUUID& owner_id,
-						  const std::string& firstname,
-						  const std::string& lastname,
-						  BOOL is_group);
 	void finishPayUI(const LLUUID& target_id, BOOL is_group);
 
 protected:
@@ -426,7 +423,20 @@ void LLFloaterPay::payDirectly(money_callback callback,
 	
 void LLFloaterPay::finishPayUI(const LLUUID& target_id, BOOL is_group)
 {
-	gCacheName->get(target_id, is_group, boost::bind(&LLFloaterPay::onCacheOwnerName, this, _1, _2, _3, _4));
+	// IDEVO
+	//gCacheName->get(target_id, is_group, boost::bind(&LLFloaterPay::onCacheOwnerName, this, _1, _2, _3, _4));
+	std::string slurl;
+	if (is_group)
+	{
+		setTitle(getString("payee_group"));
+		slurl = LLSLURL::buildCommand("group", target_id, "inspect");
+	}
+	else
+	{
+		setTitle(getString("payee_resident"));
+		slurl = LLSLURL::buildCommand("agent", target_id, "inspect");
+	}
+	childSetText("payee_name", slurl);
 
 	// Make sure the amount field has focus
 
@@ -435,24 +445,6 @@ void LLFloaterPay::finishPayUI(const LLUUID& target_id, BOOL is_group)
 	LLLineEditor* amount = getChild<LLLineEditor>("amount");
 	amount->selectAll();
 	mTargetIsGroup = is_group;
-}
-
-void LLFloaterPay::onCacheOwnerName(const LLUUID& owner_id,
-									const std::string& firstname,
-									const std::string& lastname,
-									BOOL is_group)
-{
-	if (is_group)
-	{
-		setTitle(getString("payee_group"));
-	}
-	else
-	{
-		setTitle(getString("payee_resident"));
-	}
-	
-	childSetTextArg("payee_name", "[FIRST]", firstname);
-	childSetTextArg("payee_name", "[LAST]", lastname);
 }
 
 // static

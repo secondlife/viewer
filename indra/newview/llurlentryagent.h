@@ -46,8 +46,7 @@ public:
 	LLUrlEntryAgent();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 private:
-	void onAgentNameReceived(const LLUUID& id, const std::string& first,
-							 const std::string& last, BOOL is_group);
+	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
 };
 
 #endif

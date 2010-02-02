@@ -496,7 +496,7 @@ void LLMuteList::updateRemove(const LLMute& mute)
 	gAgent.sendReliableMessage();
 }
 
-void notify_automute_callback(const LLUUID& agent_id, const std::string& first_name, const std::string& last_name, BOOL is_group, LLMuteList::EAutoReason reason)
+void notify_automute_callback(const LLUUID& agent_id, const std::string& full_name, bool is_group, LLMuteList::EAutoReason reason)
 {
 	std::string notif_name;
 	switch (reason)
@@ -514,8 +514,7 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 	}
 
 	LLSD args;
-	args["FIRST"] = first_name;
-	args["LAST"] = last_name;
+	args["NAME"] = full_name;
     
 	LLNotificationPtr notif_ptr = LLNotifications::instance().add(notif_name, args, LLSD());
 	if (notif_ptr)
@@ -536,7 +535,7 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 }
 
 
-BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason, const std::string& first_name, const std::string& last_name)
+BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason)
 {
 	BOOL removed = FALSE;
 
@@ -546,24 +545,17 @@ BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason, co
 		removed = TRUE;
 		remove(automute);
 
-		if (first_name.empty() && last_name.empty())
+		std::string full_name;
+		if (gCacheName->getFullName(agent_id, full_name))
 		{
-			std::string cache_first, cache_last;
-			if (gCacheName->getName(agent_id, cache_first, cache_last))
-			{
-				// name in cache, call callback directly
-				notify_automute_callback(agent_id, cache_first, cache_last, FALSE, reason);
-			}
-			else
-			{
-				// not in cache, lookup name from cache
-				gCacheName->get(agent_id, FALSE, boost::bind(&notify_automute_callback, _1, _2, _3, _4, reason));
-			}
+			// name in cache, call callback directly
+			notify_automute_callback(agent_id, full_name, false, reason);
 		}
 		else
 		{
-			// call callback directly
-			notify_automute_callback(agent_id, first_name, last_name, FALSE, reason);
+			// not in cache, lookup name from cache
+			gCacheName->get(agent_id, false,
+				boost::bind(&notify_automute_callback, _1, _2, _3, reason));
 		}
 	}
 

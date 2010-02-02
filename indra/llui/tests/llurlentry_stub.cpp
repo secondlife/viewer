@@ -49,7 +49,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 	return TRUE;
 }
 
-boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback)
 {
 	return boost::signals2::connection();
 }

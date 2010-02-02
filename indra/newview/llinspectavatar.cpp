@@ -138,11 +138,9 @@ private:
 	bool isNotFriend();
 	
 	// Callback for gCacheName to look up avatar name
-	void nameUpdatedCallback(
-							 const LLUUID& id,
-							 const std::string& first,
-							 const std::string& last,
-							 BOOL is_group);
+	void nameUpdatedCallback(const LLUUID& id,
+							 const std::string& name,
+							 bool is_group);
 	
 private:
 	LLUUID				mAvatarID;
@@ -359,9 +357,9 @@ void LLInspectAvatar::requestUpdate()
 
 	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
-	gCacheName->get(mAvatarID, FALSE,
+	gCacheName->get(mAvatarID, false,
 		boost::bind(&LLInspectAvatar::nameUpdatedCallback,
-			this, _1, _2, _3, _4));
+			this, _1, _2, _3));
 }
 
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
@@ -597,13 +595,12 @@ void LLInspectAvatar::onVolumeChange(const LLSD& data)
 
 void LLInspectAvatar::nameUpdatedCallback(
 	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
+	const std::string& name,
+	bool is_group)
 {
 	if (id == mAvatarID)
 	{
-		mAvatarName = first + " " + last;
+		mAvatarName = name;
 		childSetValue("user_name", LLSD(mAvatarName) );
 	}
 }

@@ -115,7 +115,7 @@ void LLPanelMediaSettingsPermissions::draw()
 		if(mPermsGroupName)
 		{
 			mPermsGroupName->setNameID(LLUUID::null, TRUE);
-			mPermsGroupName->refresh(LLUUID::null, LLStringUtil::null, LLStringUtil::null, true);
+			mPermsGroupName->refresh(LLUUID::null, std::string(), true);
 			mPermsGroupName->setEnabled(false);
 		};
 	};

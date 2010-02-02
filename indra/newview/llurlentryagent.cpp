@@ -53,10 +53,10 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 }
 
 // IDEVO demo code
-static std::string clean_name(const std::string& first, const std::string& last)
+static std::string clean_name(const std::string& full_name)
 {
 	std::string displayname;
-	if (first == "miyazaki23") // IDEVO demo code
+	if (full_name == "miyazaki23") // IDEVO demo code
 	{
 		// miyazaki
 		displayname += (char)(0xE5);
@@ -77,44 +77,35 @@ static std::string clean_name(const std::string& first, const std::string& last)
 		displayname += (char)(0x82);
 		displayname += (char)(0x93);
 	}
-	else if (first == "Jim")
+	else if (full_name == "Jim Linden")
 	{
 		displayname = "Jos";
 		displayname += (char)(0xC3);
 		displayname += (char)(0xA9);
 		displayname += " Sanchez";
 	}
-	else if (first == "James")
+	else if (full_name == "James Linden")
 	{
 		displayname = "James Cook";
-	}
-
-	std::string fullname = first;
-	if (!last.empty()
-		&& last != "Resident")
-	{
-		fullname += ' ';
-		fullname += last;
 	}
 
 	std::string final;
 	if (!displayname.empty())
 	{
-		final = displayname + " (" + fullname + ")";
+		final = displayname + " (" + full_name + ")";
 	}
 	else
 	{
-		final = fullname;
+		final = full_name;
 	}
 	return final;
 }
 
-void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
-										  const std::string& first,
-										  const std::string& last,
-										  BOOL is_group)
+void LLUrlEntryAgent::onNameCache(const LLUUID& id,
+								  const std::string& full_name,
+								  bool is_group)
 {
-	std::string final = clean_name(first, last);
+	std::string final = clean_name(full_name);
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), final);
 }
@@ -135,20 +126,20 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 
 	LLUUID agent_id(agent_id_string);
-	std::string first, last;
+	std::string full_name;
 	if (agent_id.isNull())
 	{
 		return LLTrans::getString("AvatarNameNobody");
 	}
-	else if (gCacheName->getName(agent_id, first, last))
+	else if (gCacheName->getFullName(agent_id, full_name))
 	{
-		return clean_name(first, last);
+		return clean_name(full_name);
 	}
 	else
 	{
-		gCacheName->get(agent_id, FALSE,
-			boost::bind(&LLUrlEntryAgent::onAgentNameReceived,
-				this, _1, _2, _3, _4));
+		gCacheName->get(agent_id, false,
+			boost::bind(&LLUrlEntryAgent::onNameCache,
+				this, _1, _2, _3));
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}

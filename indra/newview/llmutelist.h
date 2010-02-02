@@ -107,7 +107,7 @@ public:
 
 	// Remove both normal and legacy mutes, for any or all properties.
 	BOOL remove(const LLMute& mute, U32 flags = 0);
-	BOOL autoRemove(const LLUUID& agent_id, const EAutoReason reason, const std::string& first_name = LLStringUtil::null, const std::string& last_name = LLStringUtil::null);
+	BOOL autoRemove(const LLUUID& agent_id, const EAutoReason reason);
 	
 	// Name is required to test against legacy text-only mutes.
 	BOOL isMuted(const LLUUID& id, const std::string& name = LLStringUtil::null, U32 flags = 0) const;

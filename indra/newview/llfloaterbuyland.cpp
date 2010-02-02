@@ -182,9 +182,8 @@ public:
 	void updateNames();
 	// Name cache callback
 	void updateGroupName(const LLUUID& id,
-						 const std::string& first_name,
-						 const std::string& last_name,
-						 BOOL is_group);
+						 const std::string& name,
+						 bool is_group);
 	
 	void refreshUI();
 	
@@ -801,9 +800,9 @@ void LLFloaterBuyLandUI::updateNames()
 	}
 	else if (parcelp->getIsGroupOwned())
 	{
-		gCacheName->get(parcelp->getGroupID(), TRUE,
+		gCacheName->get(parcelp->getGroupID(), true,
 			boost::bind(&LLFloaterBuyLandUI::updateGroupName, this,
-				_1, _2, _3, _4));
+				_1, _2, _3));
 	}
 	else
 	{
@@ -813,16 +812,15 @@ void LLFloaterBuyLandUI::updateNames()
 }
 
 void LLFloaterBuyLandUI::updateGroupName(const LLUUID& id,
-						 const std::string& first_name,
-						 const std::string& last_name,
-						 BOOL is_group)
+						 const std::string& name,
+						 bool is_group)
 {
 	LLParcel* parcelp = mParcel->getParcel();
 	if (parcelp
 		&& parcelp->getGroupID() == id)
 	{
 		// request is current
-		mParcelSellerName = first_name;
+		mParcelSellerName = name;
 	}
 }
 

@@ -315,12 +315,11 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 }
 
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
-										  const std::string& first,
-										  const std::string& last,
-										  BOOL is_group)
+										  const std::string& name,
+										  bool is_group)
 {
 	// received the group name from the server - tell our observers
-	callObservers(id.asString(), first);
+	callObservers(id.asString(), name);
 }
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -350,9 +349,9 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		gCacheName->get(group_id, TRUE,
+		gCacheName->get(group_id, true,
 			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
-				this, _1, _2, _3, _4));
+				this, _1, _2, _3));
 		addObserver(group_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}

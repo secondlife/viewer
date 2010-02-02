@@ -335,11 +335,8 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(U32 status, const std::stri
 // callback from the name cache with an owner name to add to the list
 void LLPanelScriptLimitsRegionMemory::onNameCache(
 						 const LLUUID& id,
-						 const std::string& first_name,
-						 const std::string& last_name)
+						 const std::string& name)
 {
-	std::string name = first_name + " " + last_name;
-
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");	
 	std::vector<LLSD>::iterator id_itor;
 	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
@@ -421,9 +418,12 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 				{
 					names_requested.push_back(owner_id);
-					gCacheName->get(owner_id, TRUE,
-					boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
-						this, _1, _2, _3));
+					// Is this a bug?  It's trying to look up a GROUP name, not
+					// an AVATAR name?  JC
+					const bool is_group = true;
+					gCacheName->get(owner_id, is_group,
+						boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+							this, _1, _2));
 				}
 			}
 

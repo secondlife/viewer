@@ -426,11 +426,11 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			if(!parcel->getGroupID().isNull())
 			{
 				// FIXME: Using parcel group as region group.
-				gCacheName->get(parcel->getGroupID(), TRUE,
-								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mRegionGroupText, _2, _3));
+				gCacheName->get(parcel->getGroupID(), true,
+								boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionGroupText, _2));
 
-				gCacheName->get(parcel->getGroupID(), TRUE,
-								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mParcelOwner, _2, _3));
+				gCacheName->get(parcel->getGroupID(), true,
+								boost::bind(&LLPanelPlaceInfo::onNameCache, mParcelOwner, _2));
 			}
 			else
 			{
@@ -448,8 +448,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			std::string parcel_owner =
 				LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
 			mParcelOwner->setText(parcel_owner);
-			gCacheName->get(region->getOwner(), FALSE,
-							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mRegionOwnerText, _2, _3));
+			gCacheName->get(region->getOwner(), false,
+							boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionOwnerText, _2));
 		}
 
 		if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -475,8 +475,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
-			gCacheName->get(auth_buyer_id, TRUE,
-							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mSaleToText, _2, _3));
+			gCacheName->get(auth_buyer_id, true,
+							boost::bind(&LLPanelPlaceInfo::onNameCache, mSaleToText, _2));
 
 			// Show sales info to a specific person or a group he belongs to.
 			if (auth_buyer_id != gAgent.getID() && !gAgent.isInGroup(auth_buyer_id))

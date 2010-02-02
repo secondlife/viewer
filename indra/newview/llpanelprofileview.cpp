@@ -109,8 +109,8 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	}
 
 	// Update the avatar name.
-	gCacheName->get(getAvatarId(), FALSE,
-		boost::bind(&LLPanelProfileView::onAvatarNameCached, this, _1, _2, _3, _4));
+	gCacheName->get(getAvatarId(), false,
+		boost::bind(&LLPanelProfileView::onNameCache, this, _1, _2, _3));
 /*
 // disable this part of code according to EXT-2022. See processOnlineStatus
 	// status should only show if viewer has permission to view online/offline. EXT-453 
@@ -187,10 +187,10 @@ void LLPanelProfileView::processOnlineStatus(bool online)
 	mStatusText->setVisible(online);
 }
 
-void LLPanelProfileView::onAvatarNameCached(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
+void LLPanelProfileView::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	llassert(getAvatarId() == id);
-	getChild<LLUICtrl>("user_name", FALSE)->setValue(first_name + " " + last_name);
+	getChild<LLUICtrl>("user_name", FALSE)->setValue(full_name);
 }
 
 void LLPanelProfileView::togglePanel(LLPanel* panel, const LLSD& key)

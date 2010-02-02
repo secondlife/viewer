@@ -82,7 +82,7 @@ public:
 	virtual void changed(U32 mask);
 
 protected:
-	void nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
 
 private:
 	void onViewProfileButtonClicked();

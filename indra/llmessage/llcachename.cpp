@@ -75,7 +75,7 @@ public:
 public:
 	bool mIsGroup;
 	U32 mCreateTime;	// unix time_t
-	std::string mFirstName;
+	std::string mFirstName;		// IDEVO TODO collapse to one field
 	std::string mLastName;
 	std::string mGroupName;
 };
@@ -520,13 +520,7 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
 	std::string first_name, last_name;
 	BOOL res = getName(id, first_name, last_name);
-	fullname = first_name;
-	if (!last_name.empty())
-	{
-		// IDEVO legacy resident name, not SLID
-		fullname += " ";
-		fullname += last_name;
-	}
+	fullname = buildFullname(first_name, last_name);
 	return res;
 }
 
@@ -566,7 +560,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 
 BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
 {
-	std::string fullname = first + " " + last;
+	std::string fullname = buildFullname(first, last);
 	return getUUID(fullname, id);
 }
 
@@ -584,6 +578,19 @@ BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
 	}
 }
 
+//static
+std::string LLCacheName::buildFullname(const std::string& first, const std::string& last)
+{
+	std::string fullname = first;
+	if (!last.empty()
+		&& last != "Resident")
+	{
+		fullname += ' ';
+		fullname += last;
+	}
+	return fullname;
+}
+
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
 //  The reason it is a slot is so that the legacy get() function below can bind an old callback
 //  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior
@@ -591,7 +598,7 @@ BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
 //  we call it immediately. -Steve
 // NOTE: Even though passing first and last name is a bit of extra overhead, it eliminates the
 //  potential need for any parsing should any code need to handle first and last name independently.
-boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback)
 {
 	boost::signals2::connection res;
 	
@@ -599,7 +606,7 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, co
 	{
 		LLCacheNameSignal signal;
 		signal.connect(callback);
-		signal(id, sCacheName["nobody"], "", is_group);
+		signal(id, sCacheName["nobody"], is_group);
 		return res;
 	}
 
@@ -611,11 +618,13 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, co
 		// id found in map therefore we can call the callback immediately.
 		if (entry->mIsGroup)
 		{
-			signal(id, entry->mGroupName, "", entry->mIsGroup);
+			signal(id, entry->mGroupName, entry->mIsGroup);
 		}
 		else
 		{
-			signal(id, entry->mFirstName, entry->mLastName, entry->mIsGroup);
+			std::string fullname =
+				buildFullname(entry->mFirstName, entry->mLastName);
+			signal(id, fullname, entry->mIsGroup);
 		}
 	}
 	else
@@ -637,9 +646,9 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, co
 	return res;
 }
 
-boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, old_callback_t callback, void* user_data)
 {
-	return get(id, is_group, boost::bind(callback, _1, _2, _3, _4, user_data));
+	return get(id, is_group, boost::bind(callback, _1, _2, _3, user_data));
 }
 
 void LLCacheName::processPending()
@@ -711,7 +720,7 @@ void LLCacheName::dump()
 		{
 			llinfos
 				<< iter->first << " = "
-				<< entry->mFirstName << " " << entry->mLastName
+				<< buildFullname(entry->mFirstName, entry->mLastName)
 				<< " @ " << entry->mCreateTime
 				<< llendl;
 		}
@@ -757,11 +766,13 @@ void LLCacheName::Impl::processPendingReplies()
 
 		if (!entry->mIsGroup)
 		{
-			(reply->mSignal)(reply->mID, entry->mFirstName, entry->mLastName, FALSE);
+			std::string fullname =
+				LLCacheName::buildFullname(entry->mFirstName, entry->mLastName);
+			(reply->mSignal)(reply->mID, fullname, false);
 		}
 		else
 		{
-			(reply->mSignal)(reply->mID, entry->mGroupName, "", TRUE);
+			(reply->mSignal)(reply->mID, entry->mGroupName, true);
 		}
 	}
 
@@ -924,7 +935,8 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  entry->mLastName, i);
 
-			// IDEVO HACK - blank out last name
+			// IDEVO blank out last name for storage to reduce string compares on
+			// retrieval.  Eventually need to convert to single mName field.
 			if (entry->mLastName == "Resident")
 			{
 				entry->mLastName = "";
@@ -938,13 +950,14 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 
 		if (!isGroup)
 		{
-			mSignal(id, entry->mFirstName, entry->mLastName, FALSE);
-			std::string fullname = entry->mFirstName + " " + entry->mLastName;
+			std::string fullname =
+				LLCacheName::buildFullname(entry->mFirstName, entry->mLastName);
+			mSignal(id, fullname, false);
 			mReverseCache[fullname] = id;
 		}
 		else
 		{
-			mSignal(id, entry->mGroupName, "", TRUE);
+			mSignal(id, entry->mGroupName, true);
 			mReverseCache[entry->mGroupName] = id;
 		}
 	}
@@ -973,4 +986,3 @@ void LLCacheName::Impl::handleUUIDGroupNameReply(LLMessageSystem* msg, void** us
 {
 	((LLCacheName::Impl*)userData)->processUUIDReply(msg, true);
 }
-

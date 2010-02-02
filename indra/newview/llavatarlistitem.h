@@ -139,7 +139,7 @@ private:
 	} EAvatarListItemChildIndex;
 
 	void setNameInternal(const std::string& name, const std::string& highlight);
-	void onNameCache(const std::string& first_name, const std::string& last_name);
+	void onNameCache(const std::string& fullname);
 
 	std::string formatSeconds(U32 secs);
 

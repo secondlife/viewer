@@ -103,11 +103,7 @@ public:
 		}
 		else if (level == "add")
 		{
-			std::string name;
-			name.assign(getFirstName());
-			name.append(" ");
-			name.append(getLastName());
-
+			std::string name = getFullName();
 			LLAvatarActions::requestFriendshipDialog(getAvatarId(), name);
 		}
 		else if (level == "remove")
@@ -177,14 +173,13 @@ public:
 	}
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
-	const std::string&	getFirstName() const { return mFirstName; }
-	const std::string&	getLastName	() const { return mLastName; }
+	const std::string&	getFullName() const { return mFullName; }
 
 	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
 	{
 		mAvatarID = chat.mFromID;
 		mSourceType = chat.mSourceType;
-		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
+		gCacheName->get(mAvatarID, false, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3));
 		if(chat.mFromID.isNull())
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
@@ -256,12 +251,11 @@ public:
 		LLPanel::draw();
 	}
 
-	void nameUpdatedCallback(const LLUUID& id,const std::string& first,const std::string& last,BOOL is_group)
+	void nameUpdatedCallback(const LLUUID& id,const std::string& full_name, bool is_group)
 	{
 		if (id != mAvatarID)
 			return;
-		mFirstName = first;
-		mLastName = last;
+		mFullName = full_name;
 	}
 protected:
 	static const S32 PADDING = 20;
@@ -341,8 +335,7 @@ protected:
 
 	LLUUID			    mAvatarID;
 	EChatSourceType		mSourceType;
-	std::string			mFirstName;
-	std::string			mLastName;
+	std::string			mFullName;
 	std::string			mFrom;
 
 	S32					mMinUserNameWidth;

@@ -164,7 +164,7 @@ void LLPanelIMControlPanel::onViewProfileButtonClicked()
 void LLPanelIMControlPanel::onAddFriendButtonClicked()
 {
 	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	std::string full_name = avatar_icon->getFirstName() + " " + avatar_icon->getLastName();
+	std::string full_name = avatar_icon->getFullName();
 	LLAvatarActions::requestFriendshipDialog(mAvatarID, full_name);
 }
 
@@ -213,7 +213,8 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 	else
 	{
 		// If the participant is an avatar, fetch the currect name
-		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLPanelIMControlPanel::nameUpdatedCallback, this, _1, _2, _3, _4));
+		gCacheName->get(mAvatarID, false,
+			boost::bind(&LLPanelIMControlPanel::onNameCache, this, _1, _2, _3));
 	}
 }
 
@@ -229,14 +230,11 @@ void LLPanelIMControlPanel::changed(U32 mask)
 	}
 }
 
-void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
+void LLPanelIMControlPanel::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	if ( id == mAvatarID )
 	{
-		std::string avatar_name;
-		avatar_name.assign(first);
-		avatar_name.append(" ");
-		avatar_name.append(last);
+		std::string avatar_name = full_name;
 		getChild<LLTextBox>("avatar_name")->setValue(avatar_name);
 		getChild<LLTextBox>("avatar_name")->setToolTip(avatar_name);
 	}

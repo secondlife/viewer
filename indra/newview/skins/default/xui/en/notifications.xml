@@ -5579,21 +5579,21 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    icon="notify.tga"
    name="AutoUnmuteByIM"
    type="notify">
-[FIRST] [LAST] was sent an instant message and has been automatically unblocked.
+[NAME] was sent an instant message and has been automatically unblocked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByMoney"
    type="notify">
-[FIRST] [LAST] was given money and has been automatically unblocked.
+[NAME] was given money and has been automatically unblocked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByInventory"
    type="notify">
-[FIRST] [LAST] was offered inventory and has been automatically unblocked.
+[NAME] was offered inventory and has been automatically unblocked.
   </notification>
 
   <notification

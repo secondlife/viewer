@@ -42,13 +42,12 @@ class LLUUID;
 
 
 typedef boost::signals2::signal<void (const LLUUID& id,
-                                      const std::string& first_name,
-                                      const std::string& last_name,
-                                      BOOL is_group)> LLCacheNameSignal;
+                                      const std::string& name,
+                                      bool is_group)> LLCacheNameSignal;
 typedef LLCacheNameSignal::slot_type LLCacheNameCallback;
 
 // Old callback with user data for compatability
-typedef void (*old_callback_t)(const LLUUID&, const std::string&, const std::string&, BOOL, void*);
+typedef void (*old_callback_t)(const LLUUID&, const std::string&, bool, void*);
 
 // Here's the theory:
 // If you request a name that isn't in the cache, it returns "waiting"
@@ -89,6 +88,10 @@ public:
 	// Reverse lookup of UUID from name
 	BOOL getUUID(const std::string& first, const std::string& last, LLUUID& id);
 	BOOL getUUID(const std::string& fullname, LLUUID& id);
+
+	// IDEVO Temporary code
+	// Clean up new-style "bobsmith123 Resident" names to "bobsmith123" for display
+	static std::string buildFullname(const std::string& first, const std::string& last);
 	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
@@ -100,10 +103,10 @@ public:
 	// If the data is currently available, may call the callback immediatly
 	// otherwise, will request the data, and will call the callback when
 	// available.  There is no garuntee the callback will ever be called.
-	boost::signals2::connection get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback);
+	boost::signals2::connection get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback);
 	
 	// LEGACY
-	boost::signals2::connection get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data);
+	boost::signals2::connection get(const LLUUID& id, bool is_group, old_callback_t callback, void* user_data);
 	// This method needs to be called from time to time to send out
 	// requests.
 	void processPending();

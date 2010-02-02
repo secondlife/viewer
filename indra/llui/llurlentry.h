@@ -168,8 +168,7 @@ public:
 	LLUrlEntryGroup();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 private:
-	void onGroupNameReceived(const LLUUID& id, const std::string& first,
-							 const std::string& last, BOOL is_group);
+	void onGroupNameReceived(const LLUUID& id, const std::string& name, bool is_group);
 };
 
 ///
