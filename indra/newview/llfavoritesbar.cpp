@@ -370,7 +370,8 @@ struct LLFavoritesSort
 
 LLFavoritesBarCtrl::Params::Params()
 : image_drag_indication("image_drag_indication"),
-  chevron_button("chevron_button")
+  chevron_button("chevron_button"),
+  label("label")
 {
 }
 
@@ -401,6 +402,10 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	chevron_button_params.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));     
 	mChevronButton = LLUICtrlFactory::create<LLButton> (chevron_button_params);
 	addChild(mChevronButton); 
+
+	LLTextBox::Params label_param(p.label);
+	mBarLabel = LLUICtrlFactory::create<LLTextBox> (label_param);
+	addChild(mBarLabel);
 }
 
 LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
