@@ -474,6 +474,7 @@ void LLBottomTray::onContextMenuItemClicked(const LLSD& userdata)
 	else if (item == "paste")
 	{
 		edit_box->paste();
+		edit_box->setFocus(TRUE);
 	}
 	else if (item == "delete")
 	{

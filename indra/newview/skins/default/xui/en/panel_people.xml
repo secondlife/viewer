@@ -160,6 +160,17 @@ background_visible="true"
                          width="313" />
                 </accordion_tab>
             </accordion>
+            <text
+             follows="all"
+             height="450"
+             left="10"
+             name="no_friends_msg"
+             top="10"
+             width="293"
+             wrap="true">
+                To add friends try [secondlife:///app/search/people global search] or click on a user to add them as a friend.
+If you're looking for people to hang out with, [secondlife:///app/worldmap try the Map].
+             </text>
             <panel
              follows="left|right|bottom"
              height="30"

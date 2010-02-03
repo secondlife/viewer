@@ -667,6 +667,11 @@ void LLPanelPeople::updateFriendList()
 		lldebugs << "Friends Cards were not found" << llendl;
 	}
 
+	// show special help text for just created account to help found friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
+	no_friends_text->setVisible(all_friendsp.size() == 0);
+
+
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 	for (; buddy_it != all_buddies.end(); ++buddy_it)
 	{
