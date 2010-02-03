@@ -89,9 +89,6 @@ LLGroupList::LLGroupList(const Params& p)
 
 	mShowIcons = gSavedSettings.getBOOL("GroupListShowIcons");
 	setCommitOnSelectionChange(true);
-	// TODO: implement context menu
-	// display a context menu appropriate for a list of group names
-//	setContextMenu(LLScrollListCtrl::MENU_GROUP);
 
 	// Set default sort order.
 	setComparator(&GROUP_COMPARATOR);
