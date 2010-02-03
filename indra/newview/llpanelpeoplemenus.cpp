@@ -164,11 +164,7 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	if (item == std::string("can_block"))
 	{
 		const LLUUID& id = mUUIDs.front();
-		std::string firstname, lastname;
-		gCacheName->getName(id, firstname, lastname);
-		bool is_linden = !LLStringUtil::compareStrings(lastname, "Linden");
-		bool is_self = id == gAgentID;
-		return !is_self && !is_linden;
+		return LLAvatarActions::canBlock(id);
 	}
 	else if (item == std::string("can_add"))
 	{

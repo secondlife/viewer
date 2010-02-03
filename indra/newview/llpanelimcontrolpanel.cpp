@@ -81,11 +81,15 @@ void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::E
 
 void LLPanelChatControlPanel::updateCallButton()
 {
-	// hide/show call button
 	bool voice_enabled = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
-	if (!session) return;
+	
+	if (!session) 
+	{
+		childSetEnabled("call_btn", false);
+		return;
+	}
 
 	bool session_initialized = session->mSessionInitialized;
 	bool callback_enabled = session->mCallBackEnabled;

@@ -1708,6 +1708,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	bool start_message = true;
 	LLMessageSystem* msg = gMessageSystem;
 
+	
+
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap) return;
 
@@ -1715,6 +1717,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 		 it != member_ids.end(); ++it)
 	{
 		LLUUID& ejected_member_id = (*it);
+
+		llwarns << "LLGroupMgr::sendGroupMemberEjects -- ejecting member" << ejected_member_id << llendl;
 		
 		// Can't use 'eject' to leave a group.
 		if ((*it) == gAgent.getID()) continue;
@@ -1751,11 +1755,14 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 				if ((*rit).first.notNull() && (*rit).second!=0)
 				{
 					(*rit).second->removeMember(ejected_member_id);
+
+					llwarns << "LLGroupMgr::sendGroupMemberEjects - removing member from role " << llendl;
 				}
 			}
 			
 			group_datap->mMembers.erase(*it);
 			
+			llwarns << "LLGroupMgr::sendGroupMemberEjects - deleting memnber data " << llendl;
 			delete (*mit).second;
 		}
 	}
@@ -1764,6 +1771,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	{
 		gAgent.sendReliableMessage();
 	}
+
+	llwarns << "LLGroupMgr::sendGroupMemberEjects - done " << llendl;
 }
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
