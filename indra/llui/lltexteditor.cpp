@@ -2574,7 +2574,7 @@ void LLTextEditor::updateLinkSegments()
 			// then update the link's HREF to be the same as the label text.
 			// This lets users edit Urls in-place.
 			LLStyleConstSP style = segment->getStyle();
-			LLStyle* new_style = new LLStyle(*style);
+			LLStyleSP new_style(new LLStyle(*style));
 			LLWString url_label = wtext.substr(segment->getStart(), segment->getEnd()-segment->getStart());
 			if (LLUrlRegistry::instance().hasUrl(url_label))
 			{
