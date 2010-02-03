@@ -343,20 +343,20 @@ public:
     /// Instantiate an LLTreeDFSIter to start a depth-first walk. Pass
     /// functors to extract the 'child begin' and 'child end' iterators from
     /// each node.
-    LLTreeDFSIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc):
-        mBeginFunc(beginfunc),
-        mEndFunc(endfunc),
-		mSkipChildren(false)
+    LLTreeDFSIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc)
+	    : mBeginFunc(beginfunc),
+	    mEndFunc(endfunc),
+	    mSkipChildren(false)
     {
         // Only push back this node if it's non-NULL!
         if (node)
             mPending.push_back(node);
     }
     /// Instantiate an LLTreeDFSIter to mark the end of the walk
-    LLTreeDFSIter() {}
+    LLTreeDFSIter() : mSkipChildren(false) {}
 
-	/// flags iterator logic to skip traversing children of current node on next increment
-	void skipDescendants(bool skip = true) { mSkipChildren = skip; }
+    /// flags iterator logic to skip traversing children of current node on next increment
+    void skipDescendants(bool skip = true) { mSkipChildren = skip; }
 
 private:
     /// leverage boost::iterator_facade
@@ -405,8 +405,8 @@ private:
     func_type mBeginFunc;
     /// functor to extract end() child iterator
     func_type mEndFunc;
-	/// flag which controls traversal of children (skip children of current node if true)
-	bool	mSkipChildren;
+    /// flag which controls traversal of children (skip children of current node if true)
+    bool	mSkipChildren;
 };
 
 /**
@@ -455,17 +455,17 @@ public:
 	    : mBeginFunc(beginfunc),
 	    mEndFunc(endfunc),
 	    mSkipAncestors(false)
-    {
+	    {
         if (! node)
             return;
         mPending.push_back(typename list_type::value_type(node, false));
         makeCurrent();
     }
     /// Instantiate an LLTreeDFSPostIter to mark the end of the walk
-     LLTreeDFSPostIter() : mSkipAncestors(false) {}
+    LLTreeDFSPostIter() : mSkipAncestors(false) {}
 
-	/// flags iterator logic to skip traversing ancestors of current node on next increment
-	void skipAncestors(bool skip = true) { mSkipAncestors = skip; }
+    /// flags iterator logic to skip traversing ancestors of current node on next increment
+    void skipAncestors(bool skip = true) { mSkipAncestors = skip; }
 
 private:
     /// leverage boost::iterator_facade
