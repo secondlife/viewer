@@ -117,6 +117,7 @@ std::string STATUS[] =
 "E_ST_NO_XLT_EASEOUT",
 "E_ST_NO_XLT_HAND",
 "E_ST_NO_XLT_EMOTE",
+"E_ST_BAD_ROOT"
 };
 //-----------------------------------------------------------------------------
 // LLFloaterAnimPreview()

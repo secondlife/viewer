@@ -254,7 +254,7 @@
      name="first_column"
      label="Column A"/>
     <scroll_list.columns
-     dynamic_width="true"
+     width="-1"
      name="second_column"
      label="Column B"/>
     <row>
