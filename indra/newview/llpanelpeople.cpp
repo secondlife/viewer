@@ -516,7 +516,6 @@ BOOL LLPanelPeople::postBuild()
 	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
-	mGroupList->setNoItemsCommentText(getString("no_groups"));
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
