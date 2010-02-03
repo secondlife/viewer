@@ -55,6 +55,7 @@
 #include "lltoastnotifypanel.h"
 #include "llviewerregion.h"
 #include "llworld.h"
+#include "lluiconstants.h"
 
 
 #include "llsidetray.h"//for blocked objects panel
@@ -664,8 +665,36 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		{
 			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(
 					notification);
+			//we can't set follows in xml since it broke toasts behavior
 			notify_box->setFollowsLeft();
 			notify_box->setFollowsRight();
+			notify_box->setFollowsTop();
+
+			LLButton* accept_button = notify_box->getChild<LLButton> ("Accept",
+					TRUE);
+			if (accept_button != NULL)
+			{
+				accept_button->setFollowsNone();
+				accept_button->setOrigin(2*HPAD, accept_button->getRect().mBottom);
+			}
+
+			LLButton* decline_button = notify_box->getChild<LLButton> (
+					"Decline", TRUE);
+			if (accept_button != NULL && decline_button != NULL)
+			{
+				decline_button->setFollowsNone();
+				decline_button->setOrigin(4*HPAD
+						+ accept_button->getRect().getWidth(),
+						decline_button->getRect().mBottom);
+			}
+
+			LLTextEditor* text_editor = notify_box->getChild<LLTextEditor>("text_editor_box", TRUE);
+			S32 text_heigth = 0;
+			if(text_editor != NULL)
+			{
+				text_heigth = text_editor->getTextBoundingRect().getHeight();
+			}
+
 			//Prepare the rect for the view
 			LLRect target_rect = mEditor->getDocumentView()->getRect();
 			// squeeze down the widget by subtracting padding off left and right
@@ -674,6 +703,15 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			notify_box->reshape(target_rect.getWidth(),
 					notify_box->getRect().getHeight());
 			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+
+			if (text_editor != NULL)
+			{
+				S32 text_heigth_delta =
+						text_editor->getTextBoundingRect().getHeight()
+								- text_heigth;
+				notify_box->reshape(target_rect.getWidth(),
+								notify_box->getRect().getHeight() + text_heigth_delta);
+			}
 
 			LLInlineViewSegment::Params params;
 			params.view = notify_box;
