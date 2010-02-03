@@ -34,7 +34,7 @@
 		</panel>
 		<panel label="In meiner Nähe" name="NearMePanel">
 			<text name="InstructSelectResident">
-				Wählen Sie eine Person aus, die sich in der Nähe befindet:
+				Wählen Sie eine Person aus:
 			</text>
 			<slider bottom_delta="-36" label="Bereich" name="near_me_range"/>
 			<text name="meters">

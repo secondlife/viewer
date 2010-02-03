@@ -99,17 +99,17 @@ void LLPanelLandmarkInfo::resetLocation()
 {
 	LLPanelPlaceInfo::resetLocation();
 
-	std::string not_available = getString("not_available");
-	mCreator->setText(not_available);
-	mOwner->setText(not_available);
-	mCreated->setText(not_available);
+	std::string loading = LLTrans::getString("LoadingData");
+	mCreator->setText(loading);
+	mOwner->setText(loading);
+	mCreated->setText(loading);
 	mLandmarkTitle->setText(LLStringUtil::null);
 	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
 }
 
 // virtual
-void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
+void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 {
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
@@ -374,7 +374,6 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
-	LLViewerInventoryItem::insertDefaultSortField(name);
 
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc,

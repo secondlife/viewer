@@ -48,13 +48,11 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 	mAutoResize = FALSE;
 }
 
-LLIMFloaterContainer::~LLIMFloaterContainer()
-{
-	LLGroupMgr::getInstance()->removeObserver(this);
-}
+LLIMFloaterContainer::~LLIMFloaterContainer(){}
 
 BOOL LLIMFloaterContainer::postBuild()
 {
+	LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLIMFloaterContainer::onNewMessageReceived, this, _1));
 	// Do not call base postBuild to not connect to mCloseSignal to not close all floaters via Close button
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
 	return TRUE;
@@ -95,11 +93,10 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	if(gAgent.isInGroup(session_id))
 	{
 		mSessions[session_id] = floaterp;
-		mID = session_id;
-		mGroupID.push_back(session_id);
 		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(session_id);
 		LLGroupMgr* gm = LLGroupMgr::getInstance();
-		gm->addObserver(this);
+		gm->addObserver(session_id, this);
+		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 
 		if (group_data && group_data->mInsigniaID.notNull())
 		{
@@ -107,6 +104,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		}
 		else
 		{
+			mTabContainer->setTabImage(floaterp, "Generic_Group");
 			gm->sendGroupPropertiesRequest(session_id);
 		}
 	}
@@ -119,13 +117,14 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		mSessions[avatar_id] = floaterp;
 
 		LLUUID* icon_id_ptr = LLAvatarIconIDCache::getInstance()->get(avatar_id);
-		if(!icon_id_ptr)
+		if(icon_id_ptr && icon_id_ptr->notNull())
 		{
-			app.sendAvatarPropertiesRequest(avatar_id);
+			mTabContainer->setTabImage(floaterp, *icon_id_ptr);
 		}
 		else
 		{
-			mTabContainer->setTabImage(floaterp, *icon_id_ptr);
+			mTabContainer->setTabImage(floaterp, "Generic_Person");
+			app.sendAvatarPropertiesRequest(avatar_id);
 		}
 	}
 }
@@ -134,31 +133,28 @@ void LLIMFloaterContainer::processProperties(void* data, enum EAvatarProcessorTy
 {
 	if (APT_PROPERTIES == type)
 	{
-			LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
-			if (avatar_data)
+		LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+		if (avatar_data)
+		{
+			LLUUID avatar_id = avatar_data->avatar_id;
+			LLUUID* cached_avatarId = LLAvatarIconIDCache::getInstance()->get(avatar_id);
+			if(cached_avatarId && cached_avatarId->notNull() && avatar_data->image_id != *cached_avatarId)
 			{
-				LLUUID avatar_id = avatar_data->avatar_id;
-				if(avatar_data->image_id != *LLAvatarIconIDCache::getInstance()->get(avatar_id))
-				{
-					LLAvatarIconIDCache::getInstance()->add(avatar_id,avatar_data->image_id);
-				}
+				LLAvatarIconIDCache::getInstance()->add(avatar_id,avatar_data->image_id);
 				mTabContainer->setTabImage(get_ptr_in_map(mSessions, avatar_id), avatar_data->image_id);
 			}
+		}
 	}
 }
 
-void LLIMFloaterContainer::changed(LLGroupChange gc)
+void LLIMFloaterContainer::changed(const LLUUID& group_id, LLGroupChange gc)
 {
 	if (GC_PROPERTIES == gc)
 	{
-		for(groupIDs_t::iterator it = mGroupID.begin(); it!=mGroupID.end(); it++)
+		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(group_id);
+		if (group_data && group_data->mInsigniaID.notNull())
 		{
-			LLUUID group_id = *it;
-			LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(group_id);
-			if (group_data && group_data->mInsigniaID.notNull())
-			{
-				mTabContainer->setTabImage(get_ptr_in_map(mSessions, group_id), group_data->mInsigniaID);
-			}
+			mTabContainer->setTabImage(get_ptr_in_map(mSessions, group_id), group_data->mInsigniaID);
 		}
 	}
 }
@@ -166,6 +162,22 @@ void LLIMFloaterContainer::changed(LLGroupChange gc)
 void LLIMFloaterContainer::onCloseFloater(LLUUID id)
 {
 	LLAvatarPropertiesProcessor::instance().removeObserver(id, this);
+	LLGroupMgr::instance().removeObserver(id, this);
+
+}
+
+void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
+{
+	LLUUID session_id = data["from_id"].asUUID();
+	LLFloater* floaterp = get_ptr_in_map(mSessions, session_id);
+	LLFloater* current_floater = LLMultiFloater::getActiveFloater();
+
+	if(floaterp && current_floater && floaterp != current_floater)
+	{
+		if(LLMultiFloater::isFloaterFlashing(floaterp))
+			LLMultiFloater::setFloaterFlashing(floaterp, FALSE);
+		LLMultiFloater::setFloaterFlashing(floaterp, TRUE);
+	}
 }
 
 LLIMFloaterContainer* LLIMFloaterContainer::findInstance()

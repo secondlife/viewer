@@ -1,55 +1,56 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="EN COURS DE CHARGEMENT...">
+<floater name="top_objects" title="Objets les plus utilisés">
+	<floater.string name="top_scripts_title">
+		Scripts principaux
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] scripts prenant un total de [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Heure
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Heure Mono
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Collisions les plus consommatrices
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		[COUNT] collisions les plus consommatrices
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Score
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Aucun résultat.
+	</floater.string>
 	<text name="title_text">
 		Chargement...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Score" name="score"/>
-		<column label="Nom" name="name"/>
-		<column label="Propriétaire" name="owner"/>
-		<column label="Lieu" name="location"/>
-		<column label="Heure" name="time"/>
-		<column label="Heure Mono" name="mono_time"/>
+		<scroll_list.columns label="Score" name="score"/>
+		<scroll_list.columns label="Nom" name="name"/>
+		<scroll_list.columns label="Propriétaire" name="owner"/>
+		<scroll_list.columns label="Lieu" name="location"/>
+		<scroll_list.columns label="Heure" name="time"/>
+		<scroll_list.columns label="Heure Mono" name="mono_time"/>
+		<scroll_list.columns label="URL" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
 		ID de l&apos;objet :
 	</text>
 	<button label="Afficher balise" name="show_beacon_btn"/>
 	<text name="obj_name_text">
-		Objet :
+		Nom :
 	</text>
 	<button label="Filtre" name="filter_object_btn"/>
 	<text name="owner_name_text">
-		Propriétaire :
+		Propriétaire :
 	</text>
 	<button label="Filtre" name="filter_owner_btn"/>
+	<button label="Rafraîchir" name="refresh_btn"/>
 	<button label="Renvoyer" name="return_selected_btn"/>
 	<button label="Tout renvoyer" name="return_all_btn"/>
 	<button label="Désactiver" name="disable_selected_btn"/>
 	<button label="Tout désactiver" name="disable_all_btn"/>
-	<button label="Rafraîchir" name="refresh_btn"/>
-	<string name="top_scripts_title">
-		Scripts principaux
-	</string>
-	<string name="top_scripts_text">
-		[COUNT] scripts prenant un total de [TIME] ms
-	</string>
-	<string name="scripts_score_label">
-		Heure
-	</string>
-	<string name="scripts_mono_time_label">
-		Heure Mono
-	</string>
-	<string name="top_colliders_title">
-		Collisions les plus consommatrices
-	</string>
-	<string name="top_colliders_text">
-		[COUNT] collisions les plus consommatrices
-	</string>
-	<string name="colliders_score_label">
-		Score
-	</string>
-	<string name="none_descriptor">
-		Aucun résultat.
-	</string>
 </floater>

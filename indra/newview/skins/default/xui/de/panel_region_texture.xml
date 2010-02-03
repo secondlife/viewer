@@ -48,8 +48,7 @@
 		Diese Werte geben den Mischungsgrad für die obigen Texturen an.
 	</text>
 	<text name="height_text_lbl11">
-		Der UNTERE Wert gibt die MAXIMALE Höhe von Textur Nr. 1 an
-und der OBERE WERT die MINIMALE Höhe von Textur 4.
+		In Metern gemessen. Der NIEDRIG-Wert ist die MAXIMALE Höhe der Textur #1, der HÖCHST-Wert ist die MINDEST-Höhe von Textur #4.
 	</text>
 	<text name="height_text_lbl12">
 		und der OBERE WERT die MINIMALE Höhe von Textur 4.

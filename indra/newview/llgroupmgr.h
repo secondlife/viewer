@@ -53,6 +53,13 @@ protected:
 	LLUUID	mID;
 };
 
+class LLParticularGroupMgrObserver
+{
+public:
+	virtual ~LLParticularGroupMgrObserver(){}
+	virtual void changed(const LLUUID& group_id, LLGroupChange gc) = 0;
+};
+
 class LLGroupRoleData;
 
 class LLGroupMemberData
@@ -306,7 +313,9 @@ public:
 	~LLGroupMgr();
 
 	void addObserver(LLGroupMgrObserver* observer);
+	void addObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer);
 	void removeObserver(LLGroupMgrObserver* observer);
+	void removeObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer);
 	LLGroupMgrGroupData* getGroupData(const LLUUID& id);
 
 	void sendGroupPropertiesRequest(const LLUUID& group_id);
@@ -355,13 +364,19 @@ public:
 
 private:
 	void notifyObservers(LLGroupChange gc);
+	void notifyObserver(const LLUUID& group_id, LLGroupChange gc);
 	void addGroup(LLGroupMgrGroupData* group_datap);
 	LLGroupMgrGroupData* createGroupData(const LLUUID &id);
 
 	typedef std::multimap<LLUUID,LLGroupMgrObserver*> observer_multimap_t;
 	observer_multimap_t mObservers;
+
 	typedef std::map<LLUUID, LLGroupMgrGroupData*> group_map_t;
 	group_map_t mGroups;
+
+	typedef std::set<LLParticularGroupMgrObserver*> observer_set_t;
+	typedef std::map<LLUUID,observer_set_t> observer_map_t;
+	observer_map_t mParticularObservers;
 };
 
 

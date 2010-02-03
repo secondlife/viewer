@@ -1650,24 +1650,8 @@ void LLFloater::draw()
 	}
 	else
 	{
-		//FIXME: get rid of this hack
-		// draw children
-		LLView* focused_child = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
-		BOOL focused_child_visible = FALSE;
-		if (focused_child && focused_child->getParent() == this)
-		{
-			focused_child_visible = focused_child->getVisible();
-			focused_child->setVisible(FALSE);
-		}
-
 		// don't call LLPanel::draw() since we've implemented custom background rendering
 		LLView::draw();
-
-		if (focused_child_visible)
-		{
-			focused_child->setVisible(TRUE);
-		}
-		drawChild(focused_child);
 	}
 
 	// update tearoff button for torn off floaters
@@ -1916,9 +1900,10 @@ static LLDefaultChildRegistry::Register<LLFloaterView> r("floater_view");
 
 LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
+
 	mFocusCycleMode(FALSE),
-	mSnapOffsetBottom(0)
-	,mSnapOffsetRight(0)
+	mSnapOffsetBottom(0),
+	mSnapOffsetRight(0)
 {
 }
 
@@ -2578,6 +2563,8 @@ void LLFloaterView::pushVisibleAll(BOOL visible, const skip_list_t& skip_list)
 			view->pushVisible(visible);
 		}
 	}
+
+	LLFloaterReg::blockShowFloaters(true);
 }
 
 void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
@@ -2595,6 +2582,8 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 			view->popVisible();
 		}
 	}
+
+	LLFloaterReg::blockShowFloaters(false);
 }
 
 void LLFloater::setInstanceName(const std::string& name)

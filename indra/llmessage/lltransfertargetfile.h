@@ -40,7 +40,12 @@ typedef void (*LLTTFCompleteCallback)(const LLTSCode status, void *user_data);
 class LLTransferTargetParamsFile : public LLTransferTargetParams
 {
 public:
-	LLTransferTargetParamsFile() : LLTransferTargetParams(LLTTT_FILE) {}
+	LLTransferTargetParamsFile()
+		: LLTransferTargetParams(LLTTT_FILE),
+
+		mCompleteCallback(NULL),
+		mUserData(NULL)
+	{}
 	void setFilename(const std::string& filename)	{ mFilename = filename; }
 	void setCallback(LLTTFCompleteCallback cb, void *user_data)		{ mCompleteCallback = cb; mUserData = user_data; }
 

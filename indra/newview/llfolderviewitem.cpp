@@ -40,7 +40,6 @@
 #include "llinventoryfilter.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
-#include "llviewerinventory.h"
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
@@ -2541,13 +2540,11 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 	{
 
 		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-		static const LLUUID& landmarks_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 		LLUUID a_uuid = a->getParentFolder()->getListener()->getUUID();
 		LLUUID b_uuid = b->getParentFolder()->getListener()->getUUID();
 
-		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id) ||
-			(a_uuid == landmarks_folder_id && b_uuid == landmarks_folder_id))
+		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
 		{
 			// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
 			// or to LLInvFVBridge

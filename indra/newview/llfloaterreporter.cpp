@@ -248,6 +248,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 			if ( objectp->isAttachment() )
 			{
 				objectp = (LLViewerObject*)objectp->getRoot();
+				mObjectID = objectp->getID();
 			}
 
 			// correct the region and position information
@@ -278,7 +279,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 					object_owner.append("Unknown");
 				}
 
-				setFromAvatar(object_id, object_owner);
+				setFromAvatar(mObjectID, object_owner);
 			}
 			else
 			{
@@ -324,7 +325,7 @@ void LLFloaterReporter::setFromAvatar(const LLUUID& avatar_id, const std::string
 
 	std::string avatar_link = LLSLURL::buildCommand("agent", mObjectID, "inspect");
 	childSetText("owner_name", avatar_link);
-	childSetText("object_name", avatar_name); // name
+	childSetText("object_name", avatar_name);
 	childSetText("abuser_name_edit", avatar_name);
 }
 

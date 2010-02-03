@@ -46,7 +46,6 @@
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
-#include "llviewerinventory.h"
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
 
@@ -308,7 +307,7 @@ void LLTeleportHistoryFlatItemStorage::purge()
 ////////////////////////////////////////////////////////////////////////////////
 
 LLTeleportHistoryPanel::ContextMenu::ContextMenu() :
-	mMenu(NULL)
+	mMenu(NULL), mIndex(0)
 {
 }
 
@@ -941,6 +940,9 @@ bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notificati
 
 	if (0 == option)
 	{
+		// order does matter, call this first or teleport history will contain one record(current location)
+		LLTeleportHistory::getInstance()->purgeItems();
+
 		LLTeleportHistoryStorage *th = LLTeleportHistoryStorage::getInstance();
 		th->purgeItems();
 		th->save();

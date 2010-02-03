@@ -1,38 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text name="ParcelNameText" tool_tip="Nome dell&apos;appezzamento di terreno su cui sei. Clicca &apos;Informazioni sul terreno&apos;.">
-		indica qui il nome del terreno
-	</text>
-	<text name="BalanceText" tool_tip="Saldo dell&apos;Account">
-		In caricamento ...
-	</text>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Acquista valuta"/>
-	<text name="TimeText" tool_tip="Ora corrente (Pacifico)">
+	<panel.string name="StatBarDaysOfWeek">
+		Domenica:Lunedì:Martedì:Mercoledì:Giovedì:Venerdì:Sabato
+	</panel.string>
+	<panel.string name="StatBarMonthsOfYear">
+		Gennaio:Febbraio:Marzo:Aprile:Maggio:Giugno:Luglio:Agosto:Settembre:Ottobre:Novembre:Dicembre
+	</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Perdita di pacchetti
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Larghezza di banda
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Il mio saldo: Clicca per comprare più L$"/>
+	<text name="TimeText" tool_tip="Ora attuale (Pacific)">
 		12:00 AM
 	</text>
-	<string name="StatBarDaysOfWeek">
-		Domenica:Lunedì:Martedì:Mercoledì:Giovedì:Venerdì:Sabato
-	</string>
-	<string name="StatBarMonthsOfYear">
-		Gennaio:Febbraio:Marzo:Aprile:Maggio:Giugno:Luglio:Agosto:Settembre:Ottobre:Novembre:Dicembre
-	</string>
-	<button label="" label_selected="" name="scriptout" tool_tip="Avvisi ed Errori degli script"/>
-	<button label="" label_selected="" name="health" tool_tip="Salute"/>
-	<text name="HealthText" tool_tip="Salute">
-		100%
-	</text>
-	<button label="" label_selected="" name="no_fly" tool_tip="Volo non permesso"/>
-	<button label="" label_selected="" name="no_build" tool_tip="Costruzione non permessa"/>
-	<button label="" label_selected="" name="no_scripts" tool_tip="Script non permessi"/>
-	<button label="" label_selected="" name="restrictpush" tool_tip="Vietato spingere"/>
-	<button label="" label_selected="" name="status_no_voice" tool_tip="Voice non disponibile qui"/>
-	<button label="" label_selected="" name="buyland" tool_tip="Compra questo terreno"/>
-	<line_editor label="Cerca" name="search_editor" tool_tip="Cerca in [SECOND_LIFE]"/>
-	<button label="" label_selected="" name="search_btn" tool_tip="Cerca in [SECOND_LIFE]"/>
-	<string name="packet_loss_tooltip">
-		Perdita di pacchetti
-	</string>
-	<string name="bandwidth_tooltip">
-		Larghezza di banda
-	</string>
+	<button name="volume_btn" tool_tip="Controllo del volume globale"/>
 </panel>

@@ -198,7 +198,9 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 {
 	fillCommonData(avatar_data);
 
-	fillOnlineStatus(avatar_data);
+	// 'Home page' was hidden in LLPanelAvatarProfile::fillCommonData() to fix  EXT-4734
+	// Show 'Home page' in Edit My Profile (EXT-4873)
+	childSetVisible("homepage_edit", true);
 
 	fillPartnerData(avatar_data);
 

@@ -57,6 +57,8 @@ public:
 	void saveFolderState();
 	void restoreFolderState();
 
+	virtual S32	notify(const LLSD& info) ;
+
 private:
 	LLSaveFolderState*			mSavedFolderState;
 };

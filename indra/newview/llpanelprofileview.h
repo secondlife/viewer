@@ -64,8 +64,6 @@ public:
 	
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void togglePanel(LLPanel* panel, const LLSD& key = LLSD());
-
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
@@ -81,8 +79,21 @@ public:
 protected:
 
 	void onBackBtnClick();
-	bool isGrantedToSeeOnlineStatus(); // deprecated after EXT-2022 is implemented
-	void updateOnlineStatus(); // deprecated after EXT-2022 is implemented
+	bool isGrantedToSeeOnlineStatus();
+
+	/**
+	 * Displays avatar's online status if possible.
+	 *
+	 * Requirements from EXT-3880:
+	 * For friends:
+	 * - Online when online and privacy settings allow to show
+	 * - Offline when offline and privacy settings allow to show
+	 * - Else: nothing
+	 * For other avatars:
+	 *  - Online when online and was not set in Preferences/"Only Friends & Groups can see when I am online"
+	 *  - Else: Offline
+	 */
+	void updateOnlineStatus();
 	void processOnlineStatus(bool online);
 
 private:
@@ -95,7 +106,6 @@ private:
 
 	LLTextBox* mStatusText;
 	AvatarStatusObserver* mAvatarStatusObserver;
-	bool mAvatarIsOnline;
 };
 
 #endif //LL_LLPANELPROFILEVIEW_H

@@ -37,7 +37,9 @@
 
 // library includes
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
 #include "llsdutil.h"
+
 
 // project includes
 #include "llvoavatar.h"
@@ -69,8 +71,6 @@
 #include "llviewercamera.h"
 #include "llvoavatarself.h"
 #include "llvoicechannel.h"
-
-#include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 
 // for base64 decoding
 #include "apr_base64.h"
@@ -294,8 +294,14 @@ void LLVivoxProtocolParser::reset()
 	ignoringTags = false;
 	accumulateText = false;
 	energy = 0.f;
+	hasText = false;
+	hasAudio = false;
+	hasVideo = false;
+	terminated = false;
 	ignoreDepth = 0;
 	isChannel = false;
+	incoming = false;
+	enabled = false;
 	isEvent = false;
 	isLocallyMuted = false;
 	isModeratorMuted = false;
@@ -1092,6 +1098,119 @@ static void killGateway()
 
 #endif
 
+class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
+{
+	LOG_CLASS(LLSpeakerVolumeStorage);
+public:
+
+	/**
+	 * Sets internal voluem level for specified user.
+	 *
+	 * @param[in] speaker_id - LLUUID of user to store volume level for
+	 * @param[in] volume - internal volume level to be stored for user.
+	 */
+	void storeSpeakerVolume(const LLUUID& speaker_id, S32 volume);
+
+	/**
+	 * Gets stored internal volume level for specified speaker.
+	 *
+	 * If specified user is not found default level will be returned. It is equivalent of 
+	 * external level 0.5 from the 0.0..1.0 range.
+	 * Default internal level is calculated as: internal = 400 * external^2
+	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
+	 *
+	 * @param[in] speaker_id - LLUUID of user to get his volume level
+	 */
+	S32 getSpeakerVolume(const LLUUID& speaker_id);
+
+private:
+	friend class LLSingleton<LLSpeakerVolumeStorage>;
+	LLSpeakerVolumeStorage();
+	~LLSpeakerVolumeStorage();
+
+	const static std::string SETTINGS_FILE_NAME;
+
+	void load();
+	void save();
+
+	typedef std::map<LLUUID, S32> speaker_data_map_t;
+	speaker_data_map_t mSpeakersData;
+};
+
+const std::string LLSpeakerVolumeStorage::SETTINGS_FILE_NAME = "volume_settings.xml";
+
+LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
+{
+	load();
+}
+
+LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
+{
+	save();
+}
+
+void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, S32 volume)
+{
+	mSpeakersData[speaker_id] = volume;
+}
+
+S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
+{
+	// default internal level of user voice.
+	const static LLUICachedControl<S32> DEFAULT_INTERNAL_VOLUME_LEVEL("VoiceDefaultInternalLevel", 100);
+	S32 ret_val = DEFAULT_INTERNAL_VOLUME_LEVEL;
+	speaker_data_map_t::const_iterator it = mSpeakersData.find(speaker_id);
+	
+	if (it != mSpeakersData.end())
+	{
+		ret_val = it->second;
+	}
+	return ret_val;
+}
+
+void LLSpeakerVolumeStorage::load()
+{
+	// load per-resident voice volume information
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SETTINGS_FILE_NAME);
+
+	LLSD settings_llsd;
+	llifstream file;
+	file.open(filename);
+	if (file.is_open())
+	{
+		LLSDSerialize::fromXML(settings_llsd, file);
+	}
+
+	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
+		iter != settings_llsd.endMap(); ++iter)
+	{
+		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+	}
+}
+
+void LLSpeakerVolumeStorage::save()
+{
+	// If we quit from the login screen we will not have an SL account
+	// name.  Don't try to save, otherwise we'll dump a file in
+	// C:\Program Files\SecondLife\ or similar. JC
+	std::string user_dir = gDirUtilp->getLindenUserDir();
+	if (!user_dir.empty())
+	{
+		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SETTINGS_FILE_NAME);
+		LLSD settings_llsd;
+
+		for(speaker_data_map_t::const_iterator iter = mSpeakersData.begin(); iter != mSpeakersData.end(); ++iter)
+		{
+			settings_llsd[iter->first.asString()] = iter->second;
+		}
+
+		llofstream file;
+		file.open(filename);
+		LLSDSerialize::toPrettyXML(settings_llsd, file);
+	}
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 LLVoiceClient::LLVoiceClient() :
@@ -1139,7 +1258,6 @@ LLVoiceClient::LLVoiceClient() :
 	mEarLocation(0),
 	mSpeakerVolumeDirty(true),
 	mSpeakerMuteDirty(true),
-	mSpeakerVolume(0),
 	mMicVolume(0),
 	mMicVolumeDirty(true),
 	
@@ -1152,6 +1270,8 @@ LLVoiceClient::LLVoiceClient() :
 	
 	mAPIVersion = LLTrans::getString("NotConnected");
 
+	mSpeakerVolume = scale_speaker_volume(0);
+	
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
 		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
@@ -3320,12 +3440,17 @@ void LLVoiceClient::sendPositionalUpdate(void)
 						<< "<Volume>" << volume << "</Volume>"
 						<< "</Request>\n\n\n";
 
-					// Send a "mute for me" command for the user
-					stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetParticipantMuteForMe.1\">"
-						<< "<SessionHandle>" << getAudioSessionHandle() << "</SessionHandle>"
-						<< "<ParticipantURI>" << p->mURI << "</ParticipantURI>"
-						<< "<Mute>" << (mute?"1":"0") << "</Mute>"
-						<< "</Request>\n\n\n";
+					if(!mAudioSession->mIsP2P)
+					{
+						// Send a "mute for me" command for the user
+						// Doesn't work in P2P sessions
+						stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetParticipantMuteForMe.1\">"
+							<< "<SessionHandle>" << getAudioSessionHandle() << "</SessionHandle>"
+							<< "<ParticipantURI>" << p->mURI << "</ParticipantURI>"
+							<< "<Mute>" << (mute?"1":"0") << "</Mute>"
+							<< "<Scope>Audio</Scope>"
+							<< "</Request>\n\n\n";
+					}
 				}
 				
 				p->mVolumeDirty = false;
@@ -3401,7 +3526,7 @@ void LLVoiceClient::buildLocalAudioUpdates(std::ostringstream &stream)
 
 	if(mSpeakerMuteDirty)
 	{
-		const char *muteval = ((mSpeakerVolume == 0)?"true":"false");
+		const char *muteval = ((mSpeakerVolume <= scale_speaker_volume(0))?"true":"false");
 
 		mSpeakerMuteDirty = false;
 
@@ -4914,7 +5039,9 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 		}
 		
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(&(result->mAvatarID), result));
-		
+
+		result->mUserVolume = LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID);
+
 		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
 	
@@ -5853,6 +5980,13 @@ bool LLVoiceClient::voiceEnabled()
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
+//AD *TODO: investigate possible merge of voiceWorking() and voiceEnabled() into one non-static method
+bool LLVoiceClient::voiceWorking()
+{
+	//Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
+	return (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
+}
+
 void LLVoiceClient::setLipSyncEnabled(BOOL enabled)
 {
 	mLipSyncEnabled = enabled;
@@ -5931,7 +6065,8 @@ void LLVoiceClient::setVoiceVolume(F32 volume)
 
 	if(scaled_volume != mSpeakerVolume)
 	{
-		if((scaled_volume == 0) || (mSpeakerVolume == 0))
+		int min_volume = scale_speaker_volume(0);
+		if((scaled_volume == min_volume) || (mSpeakerVolume == min_volume))
 		{
 			mSpeakerMuteDirty = true;
 		}
@@ -6158,6 +6293,9 @@ void LLVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 			participant->mUserVolume = llclamp(ivol, 0, 400);
 			participant->mVolumeDirty = TRUE;
 			mAudioSession->mVolumeDirty = TRUE;
+
+			// store this volume setting for future sessions
+			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, participant->mUserVolume);
 		}
 	}
 }
@@ -6283,6 +6421,7 @@ void LLVoiceClient::filePlaybackSetMode(bool vox, float speed)
 }
 
 LLVoiceClient::sessionState::sessionState() :
+	mErrorStatusCode(0),
 	mMediaStreamState(streamStateUnknown),
 	mTextStreamState(streamStateUnknown),
 	mCreateInProgress(false),

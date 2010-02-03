@@ -39,7 +39,6 @@
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"	// gInventory.backgroundFetchActive()
 #include "llviewercontrol.h"
-#include "llviewerinventory.h"
 #include "llfolderview.h"
 
 // linden library includes

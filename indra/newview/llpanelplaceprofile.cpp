@@ -42,6 +42,8 @@
 #include "lltextbox.h"
 #include "lltexteditor.h"
 
+#include "lltrans.h"
+
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagent.h"
@@ -164,49 +166,49 @@ void LLPanelPlaceProfile::resetLocation()
 	mForSalePanel->setVisible(FALSE);
 	mYouAreHerePanel->setVisible(FALSE);
 
-	std::string not_available = getString("not_available");
-	mParcelOwner->setValue(not_available);
+	std::string loading = LLTrans::getString("LoadingData");
+	mParcelOwner->setValue(loading);
 
-	mParcelRatingIcon->setValue(not_available);
-	mParcelRatingText->setText(not_available);
-	mVoiceIcon->setValue(not_available);
-	mVoiceText->setText(not_available);
-	mFlyIcon->setValue(not_available);
-	mFlyText->setText(not_available);
-	mPushIcon->setValue(not_available);
-	mPushText->setText(not_available);
-	mBuildIcon->setValue(not_available);
-	mBuildText->setText(not_available);
-	mScriptsIcon->setValue(not_available);
-	mScriptsText->setText(not_available);
-	mDamageIcon->setValue(not_available);
-	mDamageText->setText(not_available);
+	mParcelRatingIcon->setValue(loading);
+	mParcelRatingText->setText(loading);
+	mVoiceIcon->setValue(loading);
+	mVoiceText->setText(loading);
+	mFlyIcon->setValue(loading);
+	mFlyText->setText(loading);
+	mPushIcon->setValue(loading);
+	mPushText->setText(loading);
+	mBuildIcon->setValue(loading);
+	mBuildText->setText(loading);
+	mScriptsIcon->setValue(loading);
+	mScriptsText->setText(loading);
+	mDamageIcon->setValue(loading);
+	mDamageText->setText(loading);
 
-	mRegionNameText->setValue(not_available);
-	mRegionTypeText->setValue(not_available);
-	mRegionRatingIcon->setValue(not_available);
-	mRegionRatingText->setValue(not_available);
-	mRegionOwnerText->setValue(not_available);
-	mRegionGroupText->setValue(not_available);
+	mRegionNameText->setValue(loading);
+	mRegionTypeText->setValue(loading);
+	mRegionRatingIcon->setValue(loading);
+	mRegionRatingText->setValue(loading);
+	mRegionOwnerText->setValue(loading);
+	mRegionGroupText->setValue(loading);
 
-	mEstateNameText->setValue(not_available);
-	mEstateRatingText->setValue(not_available);
-	mEstateOwnerText->setValue(not_available);
-	mCovenantText->setValue(not_available);
+	mEstateNameText->setValue(loading);
+	mEstateRatingText->setValue(loading);
+	mEstateOwnerText->setValue(loading);
+	mCovenantText->setValue(loading);
 
-	mSalesPriceText->setValue(not_available);
-	mAreaText->setValue(not_available);
-	mTrafficText->setValue(not_available);
-	mPrimitivesText->setValue(not_available);
-	mParcelScriptsText->setValue(not_available);
-	mTerraformLimitsText->setValue(not_available);
-	mSubdivideText->setValue(not_available);
-	mResaleText->setValue(not_available);
-	mSaleToText->setValue(not_available);
+	mSalesPriceText->setValue(loading);
+	mAreaText->setValue(loading);
+	mTrafficText->setValue(loading);
+	mPrimitivesText->setValue(loading);
+	mParcelScriptsText->setValue(loading);
+	mTerraformLimitsText->setValue(loading);
+	mSubdivideText->setValue(loading);
+	mResaleText->setValue(loading);
+	mSaleToText->setValue(loading);
 }
 
 // virtual
-void LLPanelPlaceProfile::setInfoType(INFO_TYPE type)
+void LLPanelPlaceProfile::setInfoType(EInfoType type)
 {
 	bool is_info_type_agent = type == AGENT;
 
@@ -339,8 +341,10 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	std::string on = getString("on");
 	std::string off = getString("off");
 
+	LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
+
 	// Processing parcel characteristics
-	if (parcel->getParcelFlagAllowVoice())
+	if (vpm->allowAgentVoice(region, parcel))
 	{
 		mVoiceIcon->setValue(icon_voice);
 		mVoiceText->setText(on);
@@ -351,7 +355,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mVoiceText->setText(off);
 	}
 
-	if (!region->getBlockFly() && parcel->getAllowFly())
+	if (vpm->allowAgentFly(region, parcel))
 	{
 		mFlyIcon->setValue(icon_fly);
 		mFlyText->setText(on);
@@ -362,18 +366,18 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mFlyText->setText(off);
 	}
 
-	if (region->getRestrictPushObject() || parcel->getRestrictPushObject())
-	{
-		mPushIcon->setValue(icon_push_no);
-		mPushText->setText(off);
-	}
-	else
+	if (vpm->allowAgentPush(region, parcel))
 	{
 		mPushIcon->setValue(icon_push);
 		mPushText->setText(on);
 	}
+	else
+	{
+		mPushIcon->setValue(icon_push_no);
+		mPushText->setText(off);
+	}
 
-	if (parcel->getAllowModify())
+	if (vpm->allowAgentBuild(parcel))
 	{
 		mBuildIcon->setValue(icon_build);
 		mBuildText->setText(on);
@@ -384,20 +388,18 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mBuildText->setText(off);
 	}
 
-	if((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) ||
-	   (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
-	   !parcel->getAllowOtherScripts())
-	{
-		mScriptsIcon->setValue(icon_scripts_no);
-		mScriptsText->setText(off);
-	}
-	else
+	if (vpm->allowAgentScripts(region, parcel))
 	{
 		mScriptsIcon->setValue(icon_scripts);
 		mScriptsText->setText(on);
 	}
+	else
+	{
+		mScriptsIcon->setValue(icon_scripts_no);
+		mScriptsText->setText(off);
+	}
 
-	if (region->getAllowDamage() || parcel->getAllowDamage())
+	if (vpm->allowAgentDamage(region, parcel))
 	{
 		mDamageIcon->setValue(icon_damage);
 		mDamageText->setText(on);
@@ -464,12 +466,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	S32 claim_price;
 	S32 rent_price;
 	F32 dwell;
-	BOOL for_sale = parcel->getForSale();
-	LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
-													 &claim_price,
-													 &rent_price,
-													 &for_sale,
-													 &dwell);
+	BOOL for_sale;
+	vpm->getDisplayInfo(&area, &claim_price, &rent_price, &for_sale, &dwell);
 	if (for_sale)
 	{
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();

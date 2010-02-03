@@ -58,6 +58,7 @@ public:
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ BOOL getVisible();
 	// Check typing timeout timer.
 	/*virtual*/ void draw();
 
@@ -80,6 +81,7 @@ public:
 
 	// get new messages from LLIMModel
 	void updateMessages();
+	void reloadMessages();
 	static void onSendMsg( LLUICtrl*, void*);
 	void sendMsg();
 

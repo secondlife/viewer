@@ -6,36 +6,40 @@
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=de
 	</panel.string>
-	<panel name="login_widgets">
-		<text name="first_name_text">
-			Vorname:
-		</text>
-		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] Vorname"/>
-		<text name="last_name_text">
-			Nachname:
-		</text>
-		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] Nachname"/>
-		<text name="password_text">
-			Kennwort:
-		</text>
-		<button label="Login" label_selected="Login" name="connect_btn"/>
-		<text name="start_location_text">
-			Startposition:
-		</text>
-		<combo_box name="start_location_combo">
-			<combo_box.item label="Mein letzter Standort" name="MyLastLocation"/>
-			<combo_box.item label="Mein Zuhause" name="MyHome"/>
-			<combo_box.item label="&lt;Region eingeben&gt;" name="Typeregionname"/>
-		</combo_box>
-		<check_box label="Kennwort merken" name="remember_check"/>
-		<text name="create_new_account_text">
-			Neues Konto erstellen
-		</text>
-		<text name="forgot_password_text">
-			Namen oder Kennwort vergessen?
-		</text>
-		<text name="channel_text">
-			[VERSION]
-		</text>
-	</panel>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="first_name_text">
+				Vorname:
+			</text>
+			<line_editor label="Vorname" name="first_name_edit" tool_tip="[SECOND_LIFE] Vorname"/>
+			<text name="last_name_text">
+				Nachname:
+			</text>
+			<line_editor label="Nachname" name="last_name_edit" tool_tip="[SECOND_LIFE] Nachname"/>
+			<text name="password_text">
+				Kennwort:
+			</text>
+			<check_box label="Kennwort merken" name="remember_check"/>
+			<text name="start_location_text">
+				Hier anfangen:
+			</text>
+			<combo_box name="start_location_combo">
+				<combo_box.item label="Mein letzter Standort" name="MyLastLocation"/>
+				<combo_box.item label="Mein Zuhause" name="MyHome"/>
+				<combo_box.item label="&lt;Region eingeben&gt;" name="Typeregionname"/>
+			</combo_box>
+			<button label="Anmelden" name="connect_btn"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				Registrieren
+			</text>
+			<text name="forgot_password_text">
+				Namen oder Kennwort vergessen?
+			</text>
+			<text name="login_help">
+				Sie brauchen Hilfe?
+			</text>
+		</layout_panel>
+	</layout_stack>
 </panel>

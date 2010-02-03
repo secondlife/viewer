@@ -1029,6 +1029,8 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	// does not contain this image.
 	mIsMissingAsset = FALSE;
 
+	mLoadedCallbackDesiredDiscardLevel = 0;
+
 	mNeedsCreateTexture = FALSE;
 	
 	mIsRawImageValid = FALSE;
@@ -1041,6 +1043,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mFetchPriority = 0;
 	mDownloadProgress = 0.f;
 	mFetchDeltaTime = 999999.f;
+	mRequestDeltaTime = 0.f;
 	mForSculpt = FALSE ;
 	mIsFetched = FALSE ;
 
@@ -2777,7 +2780,6 @@ void LLViewerMediaTexture::updateClass()
 #if 0
 	//force to play media.
 	gSavedSettings.setBOOL("AudioStreamingMedia", true) ;
-	gSavedSettings.setBOOL("AudioStreamingVideo", true) ;
 #endif
 
 	for(media_map_t::iterator iter = sMediaMap.begin() ; iter != sMediaMap.end(); )

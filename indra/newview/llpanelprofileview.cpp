@@ -101,8 +101,6 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 		id = key["id"];
 	}
 
-	// subscribe observer to get online status. Request will be sent by LLPanelAvatarProfile itself
-	mAvatarStatusObserver->subscribe();
 	if(id.notNull() && getAvatarId() != id)
 	{
 		setAvatarId(id);
@@ -111,12 +109,9 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	// Update the avatar name.
 	gCacheName->get(getAvatarId(), false,
 		boost::bind(&LLPanelProfileView::onNameCache, this, _1, _2, _3));
-/*
-// disable this part of code according to EXT-2022. See processOnlineStatus
-	// status should only show if viewer has permission to view online/offline. EXT-453 
-	mStatusText->setVisible(isGrantedToSeeOnlineStatus());
+
 	updateOnlineStatus();
-*/
+
 
 	LLPanelProfile::onOpen(key);
 }
@@ -164,46 +159,49 @@ bool LLPanelProfileView::isGrantedToSeeOnlineStatus()
 	// *NOTE: GRANT_ONLINE_STATUS is always set to false while changing any other status.
 	// When avatar disallow me to see her online status processOfflineNotification Message is received by the viewer
 	// see comments for ChangeUserRights template message. EXT-453.
-//	return relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS);
-	return true;
+	// If GRANT_ONLINE_STATUS flag is changed it will be applied when viewer restarts. EXT-3880
+	return relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS);
 }
 
+// method was disabled according to EXT-2022. Re-enabled & improved according to EXT-3880
 void LLPanelProfileView::updateOnlineStatus()
 {
+	// set text box visible to show online status for non-friends who has not set in Preferences
+	// "Only Friends & Groups can see when I am online"
+	mStatusText->setVisible(TRUE);
+
 	const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 	if (NULL == relationship)
+	{
+		// this is non-friend avatar. Status will be updated from LLAvatarPropertiesProcessor.
+		// in LLPanelProfileView::processOnlineStatus()
+
+		// subscribe observer to get online status. Request will be sent by LLPanelAvatarProfile itself.
+		// do not subscribe for friend avatar because online status can be wrong overridden
+		// via LLAvatarData::flags if Preferences: "Only Friends & Groups can see when I am online" is set.
+		mAvatarStatusObserver->subscribe();
 		return;
+	}
+	// For friend let check if he allowed me to see his status
+
+	// status should only show if viewer has permission to view online/offline. EXT-453, EXT-3880
+	mStatusText->setVisible(isGrantedToSeeOnlineStatus());
 
 	bool online = relationship->isOnline();
-
-	std::string status = getString(online ? "status_online" : "status_offline");
-
-	mStatusText->setValue(status);
+	processOnlineStatus(online);
 }
 
 void LLPanelProfileView::processOnlineStatus(bool online)
 {
-	mAvatarIsOnline = online;
-	mStatusText->setVisible(online);
+	std::string status = getString(online ? "status_online" : "status_offline");
+
+	mStatusText->setValue(status);
 }
 
 void LLPanelProfileView::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	llassert(getAvatarId() == id);
 	getChild<LLUICtrl>("user_name", FALSE)->setValue(full_name);
-}
-
-void LLPanelProfileView::togglePanel(LLPanel* panel, const LLSD& key)
-{
-	// *TODO: unused method?
-
-	LLPanelProfile::togglePanel(panel);
-	if(FALSE == panel->getVisible())
-	{
-		// LLPanelProfile::togglePanel shows/hides all children,
-		// we don't want to display online status for non friends, so re-hide it here
-		mStatusText->setVisible(mAvatarIsOnline);
-	}
 }
 
 // EOF

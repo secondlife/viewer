@@ -301,6 +301,7 @@ protected:
 	const LLRect&	getExpandedRect() const { return mExpandedRect; }
 
 	void			setAutoFocus(BOOL focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
+	BOOL			getAutoFocus() const { return mAutoFocus; }
 	LLDragHandle*	getDragHandle() const { return mDragHandle; }
 
 	void			destroy() { die(); } // Don't call this directly.  You probably want to call closeFloater()
@@ -468,9 +469,6 @@ public:
 	void setSnapOffsetRight(S32 offset) { mSnapOffsetRight = offset; }
 
 private:
-	S32				mColumn;
-	S32				mNextLeft;
-	S32				mNextTop;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;

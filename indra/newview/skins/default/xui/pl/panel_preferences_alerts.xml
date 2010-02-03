@@ -1,21 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Informacje" name="popups" title="Popups">
-	<text name="dont_show_label">
-		Ukryj te informacje:
+	<text name="tell_me_label">
+		Powiadom mnie:
 	</text>
-	<button label="Pokazuj Tę Informację" name="enable_popup" />
-	<button label="Pokazuj Wszystko..." name="reset_dialogs_btn"
-	     tool_tip="Wyświetlaj wszystkie opcjonalne i &apos;Użyte pierwszy raz&apos; informacje." />
+	<check_box label="Kiedy wydaję lub otrzymuję L$" name="notify_money_change_checkbox"/>
+	<check_box label="Kiedy moi znajomi się logują lub wylogowują" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Pokazuj te informacje:
+		Zawsze pokazuj te powiadomienia:
 	</text>
-	<button label="Ukryj Tę Informację..." name="skip_dialogs_btn"
-	     tool_tip="Nie wyświetlaj żadnych opcjonalnych i &apos;Użyte pierwszy raz&apos; informacji" />
-	<text name="text_box2">
-		Oferty notek, obrazów i miejsc (LM):
+	<text name="dont_show_label">
+		Nigdy nie pokazuj tych powiadomień:
 	</text>
-	<check_box label="Akceptuj automatycznie" name="accept_new_inventory" />
-	<check_box label="Wyświetlaj automatycznie po akceptacji" name="show_new_inventory" />
-	<check_box label="Automatycznie pokazuj nowe obiekty w szafie po akceptacji"
-	     name="show_in_inventory" />
 </panel>

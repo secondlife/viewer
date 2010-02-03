@@ -462,6 +462,9 @@ LLPanelPeople::~LLPanelPeople()
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
 
+	if(LLVoiceClient::getInstance())
+		LLVoiceClient::getInstance()->removeObserver(this);
+
 	LLView::deleteViewByHandle(mGroupPlusMenuHandle);
 	LLView::deleteViewByHandle(mNearbyViewSortMenuHandle);
 	LLView::deleteViewByHandle(mFriendsViewSortMenuHandle);
@@ -513,7 +516,6 @@ BOOL LLPanelPeople::postBuild()
 	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
-	mGroupList->setNoItemsCommentText(getString("no_groups"));
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
@@ -612,6 +614,8 @@ BOOL LLPanelPeople::postBuild()
 	if(recent_view_sort)
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
 
+	gVoiceClient->addObserver(this);
+
 	// call this method in case some list is empty and buttons can be in inconsistent state
 	updateButtons();
 
@@ -619,6 +623,17 @@ BOOL LLPanelPeople::postBuild()
 	mAllFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
 
 	return TRUE;
+}
+
+// virtual
+void LLPanelPeople::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+	
+	updateButtons();
 }
 
 void LLPanelPeople::updateFriendList()
@@ -651,6 +666,11 @@ void LLPanelPeople::updateFriendList()
 	{
 		lldebugs << "Friends Cards were not found" << llendl;
 	}
+
+	// show special help text for just created account to help found friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
+	no_friends_text->setVisible(all_friendsp.size() == 0);
+
 
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 	for (; buddy_it != all_buddies.end(); ++buddy_it)
@@ -775,39 +795,18 @@ void LLPanelPeople::updateButtons()
 		}
 	}
 
+	bool enable_calls = gVoiceClient->voiceWorking() && gVoiceClient->voiceEnabled();
+
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",			multiple_selected && canCall());
+	buttonSetEnabled("call_btn",			multiple_selected && enable_calls);
 	buttonSetEnabled("share_btn",			item_selected); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
-	buttonSetEnabled("group_call_btn", !none_group_selected);
+	buttonSetEnabled("group_call_btn", !none_group_selected && enable_calls);
 	buttonSetEnabled("chat_btn", !none_group_selected);
-}
-
-bool LLPanelPeople::canCall()
-{
-	std::vector<LLUUID> selected_uuids;
-	getCurrentItemIDs(selected_uuids);
-
-	bool result = false;
-
-	std::vector<LLUUID>::const_iterator
-		id = selected_uuids.begin(),
-		uuids_end = selected_uuids.end();
-
-	for (;id != uuids_end; ++id)
-	{
-		if (LLAvatarActions::canCall(*id))
-		{
-			result = true;
-			break;
-		}
-	}
-
-	return result;
 }
 
 std::string LLPanelPeople::getActiveTabName() const

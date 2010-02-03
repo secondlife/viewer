@@ -60,32 +60,33 @@
  <scroll_container
      color="DkGray2"
      follows="all"
-     height="505"
+     height="493"
      min_height="300"
      layout="topleft"
-     left="0"
+     left="9"
+     width="290"
      name="profile_scroll"
      reserve_scroll_corner="true"
      opaque="true"
-     top="0">
+     top="10">
       <panel
          name="scroll_content_panel"
          follows="left|top|right"
          layout="topleft"
          top="0"
-     height="505"
+     height="493"
      min_height="300"
          left="0"
-         width="313">
+         width="290">
     <panel
      name="data_panel"
      follows="left|top|right"
          layout="topleft"
          top="0"
-     height="505"
+     height="493"
      min_height="300"
          left="0"
-         width="313">
+         width="290">
      <panel
        name="lifes_images_panel"
          follows="left|top|right"
@@ -93,7 +94,7 @@
          layout="topleft"
          top="0"
          left="0"
-         width="285">
+         width="290">
 	 <panel
          follows="left|top"
          height="117"
@@ -101,25 +102,26 @@
          left="10"
          name="second_life_image_panel"
          top="0"
-         width="285">
+         width="280">
           <text
              follows="left|top|right"
 	     font.style="BOLD"
              height="15"
              layout="topleft"
              left="0"
+             top="10"
             name="second_life_photo_title_text"
              text_color="white"
              value="[SECOND_LIFE]:"
-             width="170" />
+             width="100" />
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
              enabled="false"
              follows="top|left"
-             height="117"
+             height="124"
              layout="topleft"
-             left="0"
+             left="1"
              name="2nd_life_pic"
              top_pad="0"
              width="102" />
@@ -140,13 +142,13 @@
        length="1"
        follows="left|top|right"
        font="SansSerifSmall"
-       height="100"
+       height="102"
        layout="topleft"
-       left="120"
-       top="18"
+       left="123"
+       top="25"
        max_length="512"
        name="sl_description_edit"
-       width="173"
+       width="157"
        word_wrap="true">
       </text_editor>
       <panel
@@ -163,18 +165,19 @@
              height="15"
              layout="topleft"
              left="0"
+             top_pad="10"
             name="real_world_photo_title_text"
              text_color="white"
              value="Real World:"
-             width="173" />
+             width="100" />
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
              enabled="false"
              follows="top|left"
-             height="117"
+             height="124"
              layout="topleft"
-             left="0"
+             left="1"
              name="real_world_pic"
              top_pad="0"
              width="102" />
@@ -194,13 +197,13 @@
        length="1"
        follows="left|top|right"
        font="SansSerifSmall"
-       height="100"
+       height="102"
        layout="topleft"
-       left="120"
+       left="123"
        max_length="512"
-       top="142"
+       top="157"
        name="fl_description_edit"
-       width="173"
+       width="157"
        word_wrap="true">
       </text_editor>
       <text
@@ -215,7 +218,7 @@
        name="title_homepage_text"
        text_color="white"
        top_pad="10"
-       width="285">
+       width="100">
           Homepage:
       </text>
       <line_editor
@@ -227,19 +230,19 @@
        top_pad="0"
        value="http://"
        name="homepage_edit"
-       width="285">
+       width="270">
       </line_editor>
       <check_box
        follows="left|top"
        font="SansSerifSmall"
        label="Show me in Search results"
        layout="topleft"
-       left="10"
+       left="8"
        name="show_in_search_checkbox"
        height="15"
        text_enabled_color="white"
-       top_pad="10"
-       width="240" />
+       top_pad="12"
+       width="100" />
       <text
          follows="left|top"
          font="SansSerifSmall"
@@ -249,9 +252,24 @@
          left="10"
          name="title_acc_status_text"
          text_color="white"
-         top_pad="5"
+         top_pad="10"
          value="My Account:"
-         width="285" />
+         width="100" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top|right"
+         h_pad="0"
+         height="28"
+         layout="topleft"
+         left="10"
+         name="acc_status_text"
+         read_only="true"
+         top_pad="5"
+         v_pad="0"
+         value="Resident. No payment info on file."
+         width="200"
+         word_wrap="true" />
         <text
          type="string"
          follows="left|top"
@@ -261,17 +279,7 @@
          left="10"
          name="my_account_link"
          value="[[URL] Go to My Dashboard]"
-         width="285" />
-        <text
-         follows="left|top|right"
-         height="20"
-         layout="topleft"
-         left="10"
-         name="acc_status_text"
-         top_pad="5"
-         value="Resident. No payment info on file."
-         width="285"
-         word_wrap="true" />
+         width="200" />
         <text
          follows="left|top"
          font="SansSerifSmall"
@@ -281,26 +289,16 @@
          left="10"
          name="title_partner_text"
          text_color="white"
-         top_pad="0"
+         top_pad="10"
          value="My Partner:"
          width="150" />
-        <text
-         follows="left|top"
-         height="15"
-         halign="right"
-         layout="topleft"
-         left_pad="10"
-         right="-10"
-         name="partner_edit_link"
-         value="[[URL] Edit]"
-         width="50" />
         <panel
          follows="left|top|right"
          height="15"
          layout="topleft"
          left="10"
          name="partner_data_panel"
-         width="285">
+         width="200">
             <name_box
              follows="left|top|right"
              height="30"
@@ -310,36 +308,43 @@
              link="true"
              name="partner_text"
              top="0"
-             width="285"
+             width="200"
              word_wrap="true" />
          </panel>
+        <text
+         follows="left|top"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="partner_edit_link"
+         value="[[URL] Edit]"
+         width="50" />
     </panel>
     </panel>
     </scroll_container>
     <panel
        follows="bottom|left"
-       height="20"
-       left="10"
+       height="28"
+       left="0"
        name="profile_me_buttons_panel"
-       top_pad="5"
-       width="303">
+       top_pad="0"
+       width="313">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Save Changes"
          layout="topleft"
-         left="0"
+         left="9"
          name="save_btn"
-         top="0"
-         width="130" />
+         top="5"
+         width="152" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Cancel"
          layout="topleft"
-         left_pad="10"
+         left_pad="4"
          name="cancel_btn"
-         right="-1"
-         width="130" />
+         width="152" />
     </panel>
 </panel>

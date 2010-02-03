@@ -510,6 +510,20 @@ void LLIMFloater::setVisible(BOOL visible)
 	}
 }
 
+BOOL LLIMFloater::getVisible()
+{
+	if(isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
+		// getVisible() returns TRUE when Tabbed IM window is minimized.
+		return !im_container->isMinimized() && im_container->getVisible();
+	}
+	else
+	{
+		return LLTransientDockableFloater::getVisible();
+	}
+}
+
 //static
 bool LLIMFloater::toggle(const LLUUID& session_id)
 {
@@ -558,6 +572,12 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 		setKey(im_session_id);
 		mControlPanel->setSessionId(im_session_id);
 	}
+
+	// updating "Call" button from group control panel here to enable it without placing into draw() (EXT-4796)
+	if(gAgent.isInGroup(im_session_id))
+	{
+		mControlPanel->updateCallButton();
+	}
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
@@ -585,6 +605,9 @@ void LLIMFloater::updateMessages()
 	{
 //		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
+		LLSD chat_args;
+		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
 		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
@@ -599,14 +622,32 @@ void LLIMFloater::updateMessages()
 
 			LLChat chat;
 			chat.mFromID = from_id;
+			chat.mSessionID = mSessionID;
 			chat.mFromName = from;
-			chat.mText = message;
 			chat.mTimeStr = time;
+
+			// process offer notification
+			if (msg.has("notification_id"))
+			{
+				chat.mNotifId = msg["notification_id"].asUUID();
+			}
+			//process text message
+			else
+			{
+				chat.mText = message;
+			}
 			
-			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
+			mChatHistory->appendMessage(chat, chat_args);
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 	}
+}
+
+void LLIMFloater::reloadMessages()
+{
+	mChatHistory->clear();
+	mLastMessageIndex = -1;
+	updateMessages();
 }
 
 // static

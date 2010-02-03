@@ -145,6 +145,10 @@ private:
 	 */
 	void updateParticipantsVoiceState();
 
+	/**
+	 * Updates voice state of participant not in current voice channel depend on its current state.
+	 */
+	void updateNotInVoiceParticipantState(LLAvatarListItem* item);
 	void setState(LLAvatarListItem* item, ESpeakerState state);
 	void setState(const LLUUID& speaker_id, ESpeakerState state)
 	{
@@ -216,7 +220,7 @@ private:
 	 *
 	 * Clears all data from the latest voice session.
 	 */
-	void reset();
+	void reset(const LLVoiceChannel::EState& new_state);
 
 private:
 	speaker_state_map_t mSpeakerStateMap;

@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llcommandhandler.h"
 #include "llfloatercustomize.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
@@ -46,6 +47,23 @@
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
 #include "llwearablelist.h"
+
+// support for secondlife:///app/appearance SLapps
+class LLAppearanceHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLAppearanceHandler() : LLCommandHandler("appearance", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		// support secondlife:///app/appearance/show, but for now we just
+		// make all secondlife:///app/appearance SLapps behave this way
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD());
+		return true;
+	}
+};
+LLAppearanceHandler gAppearanceHandler;
 
 class LLWearInventoryCategoryCallback : public LLInventoryCallback
 {
@@ -261,7 +279,10 @@ public:
 
 	virtual ~LLUpdateAppearanceOnDestroy()
 	{
-		LLAppearanceManager::instance().updateAppearanceFromCOF();
+		if (!LLApp::isExiting())
+		{
+			LLAppearanceManager::instance().updateAppearanceFromCOF();
+		}
 	}
 
 	/* virtual */ void fire(const LLUUID& inv_item)
@@ -274,11 +295,11 @@ private:
 
 struct LLFoundData
 {
-	LLFoundData() {}
+	LLFoundData() : mAssetType(LLAssetType::AT_NONE), mWearable(NULL) {}
 	LLFoundData(const LLUUID& item_id,
-				const LLUUID& asset_id,
-				const std::string& name,
-				LLAssetType::EType asset_type) :
+		    const LLUUID& asset_id,
+		    const std::string& name,
+		    LLAssetType::EType asset_type) :
 		mItemID(item_id),
 		mAssetID(asset_id),
 		mName(name),
@@ -1063,7 +1084,6 @@ void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_up
 		// MULTI-WEARABLES: revisit if more than one per type is allowed.
 		else if (areMatchingWearables(vitem,inv_item))
 		{
-			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
 			if (inv_item->getIsLinkType())
 			{
 				gInventory.purgeObject(inv_item->getUUID());

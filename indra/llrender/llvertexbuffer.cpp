@@ -215,14 +215,18 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 
 void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
 {
+	llassert(mRequestedNumVerts >= 0);
+
 	if (start >= (U32) mRequestedNumVerts ||
-		end >= (U32) mRequestedNumVerts)
+	    end >= (U32) mRequestedNumVerts)
 	{
 		llerrs << "Bad vertex buffer draw range: [" << start << ", " << end << "]" << llendl;
 	}
 
+	llassert(mRequestedNumIndices >= 0);
+
 	if (indices_offset >= (U32) mRequestedNumIndices ||
-		indices_offset + count > (U32) mRequestedNumIndices)
+	    indices_offset + count > (U32) mRequestedNumIndices)
 	{
 		llerrs << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << llendl;
 	}
@@ -237,7 +241,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
-	if (mode > LLRender::NUM_MODES)
+	if (mode >= LLRender::NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
 		return;
@@ -251,8 +255,9 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
+	llassert(mRequestedNumIndices >= 0);
 	if (indices_offset >= (U32) mRequestedNumIndices ||
-		indices_offset + count > (U32) mRequestedNumIndices)
+	    indices_offset + count > (U32) mRequestedNumIndices)
 	{
 		llerrs << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << llendl;
 	}
@@ -267,7 +272,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
-	if (mode > LLRender::NUM_MODES)
+	if (mode >= LLRender::NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
 		return;
@@ -281,8 +286,9 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
+	llassert(mRequestedNumVerts >= 0);
 	if (first >= (U32) mRequestedNumVerts ||
-		first + count > (U32) mRequestedNumVerts)
+	    first + count > (U32) mRequestedNumVerts)
 	{
 		llerrs << "Bad vertex buffer draw range: [" << first << ", " << first+count << "]" << llendl;
 	}
@@ -292,7 +298,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}
 
-	if (mode > LLRender::NUM_MODES)
+	if (mode >= LLRender::NUM_MODES)
 	{
 		llerrs << "Invalid draw mode: " << mode << llendl;
 		return;
@@ -354,7 +360,14 @@ void LLVertexBuffer::clientCopy(F64 max_time)
 
 LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	LLRefCount(),
-	mNumVerts(0), mNumIndices(0), mUsage(usage), mGLBuffer(0), mGLIndices(0), 
+
+	mNumVerts(0),
+	mNumIndices(0),
+	mRequestedNumVerts(-1),
+	mRequestedNumIndices(-1),
+	mUsage(usage),
+	mGLBuffer(0),
+	mGLIndices(0), 
 	mMappedData(NULL),
 	mMappedIndexData(NULL), mLocked(FALSE),
 	mFinal(FALSE),
@@ -600,6 +613,8 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_UPDATE_VERTS);
 
+	llassert(nverts >= 0);
+
 	if (nverts >= 65535)
 	{
 		llwarns << "Vertex buffer overflow!" << llendl;
@@ -628,6 +643,9 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 void LLVertexBuffer::updateNumIndices(S32 nindices)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_UPDATE_INDICES);
+
+	llassert(nindices >= 0);
+
 	mRequestedNumIndices = nindices;
 	if (!mDynamicSize)
 	{
@@ -668,6 +686,9 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 
 void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 {
+	llassert(newnverts >= 0);
+	llassert(newnindices >= 0);
+
 	mRequestedNumVerts = newnverts;
 	mRequestedNumIndices = newnindices;
 

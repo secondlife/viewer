@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="WIRD GELDADEN...">
+<floater name="top_objects" title="Top-Objekte">
+	<floater.string name="top_scripts_title">
+		Top-Skripts
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] Skripts benötigen insgesamt [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Zeit
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Mono-Uhrzeit:
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Top-Kollisionsobjekte
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		Top [COUNT] Objekte mit vielen potenziellen Kollisionen
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Wertung
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Nicht gefunden.
+	</floater.string>
 	<text name="title_text">
 		Wird geladen...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Wertung" name="score" width="65"/>
-		<column label="Name" name="name" width="135"/>
-		<column label="Eigentümer" name="owner"/>
-		<column label="Position" name="location" width="125"/>
-		<column label="Uhrzeit" name="time"/>
-		<column label="Mono-Uhrzeit:" name="mono_time"/>
+		<scroll_list.columns label="Wertung" name="score" width="65"/>
+		<scroll_list.columns label="Name" name="name" width="135"/>
+		<scroll_list.columns label="Eigentümer" name="owner"/>
+		<scroll_list.columns label="Position" name="location" width="125"/>
+		<scroll_list.columns label="Uhrzeit" name="time"/>
+		<scroll_list.columns label="Mono-Uhrzeit:" name="mono_time"/>
+		<scroll_list.columns label="URLs" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
 		Objekt-ID:
@@ -22,37 +47,13 @@
 	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="false" follows="left|bottom|right" font="SansSerifSmall" height="20" left="80" name="object_name_editor" text_readonly_color="white" width="244"/>
 	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter" name="filter_object_btn" right="-10" width="110"/>
 	<text name="owner_name_text">
-		Eigentümername:
+		Eigentümer:
 	</text>
 	<line_editor bg_readonly_color="clear" bottom_delta="3" enabled="true" follows="left|bottom|right" font="SansSerifSmall" height="20" left="106" name="owner_name_editor" text_readonly_color="white" width="218"/>
 	<button bottom_delta="0" follows="bottom|right" height="20" label="Filter" name="filter_owner_btn" right="-10" width="110"/>
+	<button bottom_delta="0" follows="bottom|right" height="20" label="Aktualisieren" name="refresh_btn" right="-10" width="110"/>
 	<button bottom="35" follows="bottom|left" height="20" label="Auswahl zurückgeben" left="10" name="return_selected_btn" width="134"/>
 	<button bottom="35" follows="bottom|left" height="20" label="Alle zurückgeben" left="150" name="return_all_btn" width="134"/>
 	<button bottom="10" follows="bottom|left" height="20" label="Auswahl deaktivieren" left="10" name="disable_selected_btn" width="134"/>
 	<button bottom="10" follows="bottom|left" height="20" label="Alle deaktivieren" left="150" name="disable_all_btn" width="134"/>
-	<button bottom_delta="0" follows="bottom|right" height="20" label="Aktualisieren" name="refresh_btn" right="-10" width="110"/>
-	<string name="top_scripts_title">
-		Top-Skripts
-	</string>
-	<string name="top_scripts_text">
-		[COUNT] Skripts benötigen insgesamt [TIME] ms
-	</string>
-	<string name="scripts_score_label">
-		Zeit
-	</string>
-	<string name="scripts_mono_time_label">
-		Mono-Uhrzeit:
-	</string>
-	<string name="top_colliders_title">
-		Top-Kollisionsobjekte
-	</string>
-	<string name="top_colliders_text">
-		Top [COUNT] Objekte mit vielen potenziellen Kollisionen
-	</string>
-	<string name="colliders_score_label">
-		Wertung
-	</string>
-	<string name="none_descriptor">
-		Nicht gefunden.
-	</string>
 </floater>

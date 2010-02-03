@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Czat/IM" name="chat">
-  <text name="text_box">
-		Rozmiar Czcionki Czatu:
-	</text>
-  <radio_group name="chat_font_size">
-    <radio_item name="radio" label="Mała" />
-    <radio_item name="radio2" label="Średnia" />
-    <radio_item name="radio3" label="Duża" />
-  </radio_group>
+	<radio_group name="chat_font_size">
+		<radio_item label="Mała" name="radio"/>
+		<radio_item label="Średnia" name="radio2"/>
+		<radio_item label="Duża" name="radio3"/>
+	</radio_group>
 	<color_swatch label="Ty" name="user"/>
 	<text name="text_box1">
-		Ty
+		Ja
 	</text>
 	<color_swatch label="Inni" name="agent"/>
 	<text name="text_box2">
@@ -36,22 +33,10 @@
 	<text name="text_box7">
 		Właściciel
 	</text>
-	<color_swatch label="Chmurka" name="background"/>
-	<text name="text_box8">
-		Chmurka
-	</text>
 	<color_swatch label="Linki" name="links"/>
 	<text name="text_box9">
 		Linki
 	</text>
-  <check_box label="Pokazuj ostrzeżenia i błędy skryptu w czacie" name="script_errors_as_chat" />
-  <spinner label="Zamykaj czat w" name="fade_chat_time" />
-  <slider label="Przeźroczystość" name="console_opacity" />
-  <check_box label="Używaj pełnej szerokość ekranu (restart wymagany)" name="chat_full_width_check" />
-  <check_box label="Zamknij panel czatu po naciśnięciu Wróć" name="close_chat_on_return_check" />
-  <check_box label="Strzałki sterują awatarem podczas czatu" name="arrow_keys_move_avatar_check" />
-  <check_box label="Pokazuj czas w czacie" name="show_timestamps_check" />
-  <check_box label="Używaj animacji podczas pisania" name="play_typing_animation" />
-  <check_box label="Pokazuj chmurki w czacie" name="bubble_text_chat" />
-  <slider label="Przeźroczystość" name="bubble_chat_opacity" />
+	<check_box initial_value="true" label="Używaj animacji podczas pisania" name="play_typing_animation"/>
+	<check_box label="Wysyłaj wszystkie wiadomości (IM) na moją skrzynkę pocztową kiedy jestem niedostępny" name="send_im_to_email"/>
 </panel>

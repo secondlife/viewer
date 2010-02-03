@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- can_minimize="false" 
+ can_minimize="true" 
  can_resize="true"
+ center_horiz="true"
+ center_vert="true"
  follows="top|right"
- height="225"
+ height="218"
  layout="topleft"
  min_height="60"
  min_width="174"
  name="Map"
+ title="Mini Map"
  help_topic="map"
  save_rect="true"
  save_visibility="true"
@@ -52,116 +55,116 @@
     </floater.string>
     <net_map
      bg_color="NetMapBackgroundColor"
-     bottom="225"
      follows="top|left|bottom|right"
      layout="topleft"
      left="0"
      mouse_opaque="false"
      name="Net Map"
-     right="198"
-     top="2" />
+     width="200"
+     height="200"
+     top="18"/>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="N"
      layout="topleft"
      left="0"
      name="floater_map_north"
      right="10"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         N
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="E"
      layout="topleft"
      left="0"
      name="floater_map_east"
      right="10"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         E
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="205"
      label="W"
      layout="topleft"
      left="0"
      name="floater_map_west"
      right="11"
      text_color="1 1 1 0.7"
-     top="215">
+     top="195">
         W
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="S"
      layout="topleft"
      left="0"
      name="floater_map_south"
      right="10"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         S
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="SE"
      layout="topleft"
      left="0"
      name="floater_map_southeast"
      right="20"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         SE
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="NE"
      layout="topleft"
      left="0"
      name="floater_map_northeast"
      right="20"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         NE
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="SW"
      layout="topleft"
      left="0"
      name="floater_map_southwest"
      right="20"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         SW
     </text>
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="218"
      label="NW"
      layout="topleft"
      left="0"
      name="floater_map_northwest"
      right="20"
      text_color="1 1 1 0.7"
-     top="215">
+     top="209">
         NW
     </text>
 </floater>

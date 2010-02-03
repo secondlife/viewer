@@ -94,6 +94,7 @@ void LLGroupIconCtrl::setValue(const LLSD& value)
 		if (mGroupId != value.asUUID())
 		{
 			mGroupId = value.asUUID();
+			mID = mGroupId; // set LLGroupMgrObserver::mID to make callbacks work
 
 			// Check if cache already contains image_id for that group
 			if (!updateFromCache())

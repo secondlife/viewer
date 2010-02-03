@@ -11,7 +11,7 @@
  can_dock="false"
  can_minimize="true"
  can_close="true"
- visible="true"
+ visible="false"
  width="360"
  can_resize="true"
  min_width="250"

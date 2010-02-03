@@ -35,6 +35,7 @@
 #include "llgroupmgr.h"
 #include "llpanel.h"
 #include "lltimer.h"
+#include "llvoiceclient.h"
 
 struct LLOfferInfo;
 
@@ -47,7 +48,8 @@ class LLAgent;
 
 
 class LLPanelGroup : public LLPanel,
-					 public LLGroupMgrObserver 
+					 public LLGroupMgrObserver,
+					 public LLVoiceClientStatusObserver
 {
 public:
 	LLPanelGroup();
@@ -64,6 +66,10 @@ public:
 	// Group manager observer trigger.
 	virtual void changed(LLGroupChange gc);
 
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+
 	void showNotice(const std::string& subject,
 					const std::string& message,
 					const bool& has_inventory,
@@ -79,9 +85,6 @@ public:
 
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	void setAllowEdit(BOOL v) { mAllowEdit = v; }
-
-	
 	static void refreshCreatedGroup(const LLUUID& group_id);
 
 	static void showNotice(const std::string& subject,
@@ -120,7 +123,7 @@ protected:
 
 	LLTimer mRefreshTimer;
 
-	BOOL mAllowEdit;
+	BOOL mSkipRefresh;
 
 	std::string mDefaultNeedsApplyMesg;
 	std::string mWantApplyMesg;
@@ -162,8 +165,6 @@ public:
 	virtual BOOL postBuild();
 
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
-
-	void setAllowEdit(BOOL v) { mAllowEdit = v; }
 
 	virtual void setGroupID(const LLUUID& id) {mGroupID = id;};
 

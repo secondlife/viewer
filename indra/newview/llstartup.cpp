@@ -67,6 +67,7 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
+#include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
@@ -904,7 +905,8 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//good as place as any to create user windlight directories
+
+		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
 		LLFile::mkdir(user_windlight_path_name.c_str());		
 
@@ -1282,6 +1284,14 @@ bool idle_startup()
 			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
 			// Load stored cache if possible
             LLAppViewer::instance()->loadNameCache();
+		}
+
+		//gCacheName is required for nearby chat history loading
+		//so I just moved nearby history loading a few states further
+		if (!gNoRender && gSavedPerAccountSettings.getBOOL("LogShowHistory"))
+		{
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
+			if (nearby_chat) nearby_chat->loadHistory();
 		}
 
 		// *Note: this is where gWorldMap used to be initialized.
@@ -1834,21 +1844,6 @@ bool idle_startup()
 	if (STATE_PRECACHE == LLStartUp::getStartupState())
 	{
 		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
-
-		// We now have an inventory skeleton, so if this is a user's first
-		// login, we can start setting up their clothing and avatar 
-		// appearance.  This helps to avoid the generic "Ruth" avatar in
-		// the orientation island tutorial experience. JC
-		if (gAgent.isFirstLogin()
-			&& !sInitialOutfit.empty()    // registration set up an outfit
-			&& !sInitialOutfitGender.empty() // and a gender
-			&& gAgent.getAvatarObject()	  // can't wear clothes without object
-			&& !gAgent.isGenderChosen() ) // nothing already loading
-		{
-			// Start loading the wearables, textures, gestures
-			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
-		}
-
 
 		// We now have an inventory skeleton, so if this is a user's first
 		// login, we can start setting up their clothing and avatar 
@@ -2526,6 +2521,11 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
+	// Not going through the processAgentInitialWearables path, so need to set this here.
+	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
+	// Initiate creation of COF, since we're also bypassing that.
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	
 	S32 gender = 0;
 	std::string gestures;
 	if (gender_name == "male")
@@ -2544,7 +2544,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	LLNameCategoryCollector has_name(outfit_folder_name);
-	gInventory.collectDescendentsIf(LLUUID::null,
+	gInventory.collectDescendentsIf(gInventory.getLibraryRootFolderID(),
 									cat_array,
 									item_array,
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -2555,7 +2555,10 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
-		LLAppearanceManager::instance().wearOutfitByName(outfit_folder_name);
+		LLInventoryCategory* cat = cat_array.get(0);
+		bool do_copy = true;
+		bool do_append = false;
+		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
 	LLAppearanceManager::instance().wearOutfitByName(gestures);
 	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);

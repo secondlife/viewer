@@ -10,6 +10,9 @@
 	<string name="APP_NAME">
 		Second Life
 	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SECOND_LIFE_GRID">
 		Second Life Grid
 	</string>
@@ -49,6 +52,9 @@
 	<string name="LoginInitializingMultimedia">
 		マルチメディアを初期化しています...
 	</string>
+	<string name="LoginInitializingFonts">
+		フォントをローディング中...
+	</string>
 	<string name="LoginVerifyingCache">
 		キャッシュ・ファイルを検証しています(所要時間は60～90秒)...
 	</string>
@@ -78,6 +84,9 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		服をダウンロードしています...
+	</string>
+	<string name="LoginFailedNoNetwork">
+		ネットワークエラー： 接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
 	<string name="Quit">
 		終了
@@ -174,7 +183,7 @@
 		地図に表示
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		閉じる （&#8984;W）
+		閉じる （⌘W）
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		閉じる （Ctrl+W）
@@ -190,9 +199,6 @@
 	</string>
 	<string name="BUTTON_DOCK">
 		ドッキング
-	</string>
-	<string name="BUTTON_UNDOCK">
-		切り離す
 	</string>
 	<string name="BUTTON_HELP">
 		ヘルプを表示
@@ -626,11 +632,14 @@
 	<string name="ControlYourCamera">
 		カメラのコントロール
 	</string>
+	<string name="NotConnected">
+		接続されていません
+	</string>
 	<string name="SIM_ACCESS_PG">
-		PG
+		一般
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Mature
+		控えめ
 	</string>
 	<string name="SIM_ACCESS_ADULT">
 		Adult
@@ -817,6 +826,9 @@
 	</string>
 	<string name="InventoryNoMatchingItems">
 		一致するアイテムが持ち物にありませんでした
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		ここにランドマークをドラッグして、お気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
 		持ち物内にこのテクスチャのコピーがありません
@@ -1288,6 +1300,156 @@
 	<string name="RegionInfoAllowedGroups">
 		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] グループ）
 	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		区画スクリプトメモリ
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		区画一覧： [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		使用されたメモリ： [MAX] kb 中 [COUNT] kb：[AVAILABLE] kb 利用可
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		使用されたメモリ： [COUNT] kb
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		区画のスクリプトURL
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		使用されたURL： [MAX] 中 [COUNT] ：[AVAILABLE] 利用可
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		使用されたURL： [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		情報のリクエスト中にエラーが発生しました
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		エラー： スクリプト情報は現在地のみ取得できます
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		情報を取得中...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		この区画を調査する権限がありません。
+	</string>
+	<string name="SITTING_ON">
+		着席中
+	</string>
+	<string name="ATTACH_CHEST">
+		胸部
+	</string>
+	<string name="ATTACH_HEAD">
+		頭
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		左肩
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		右肩
+	</string>
+	<string name="ATTACH_LHAND">
+		左手
+	</string>
+	<string name="ATTACH_RHAND">
+		右手
+	</string>
+	<string name="ATTACH_LFOOT">
+		左足
+	</string>
+	<string name="ATTACH_RFOOT">
+		右足
+	</string>
+	<string name="ATTACH_BACK">
+		背中
+	</string>
+	<string name="ATTACH_PELVIS">
+		骨盤
+	</string>
+	<string name="ATTACH_MOUTH">
+		口
+	</string>
+	<string name="ATTACH_CHIN">
+		あご
+	</string>
+	<string name="ATTACH_LEAR">
+		左耳
+	</string>
+	<string name="ATTACH_REAR">
+		右耳
+	</string>
+	<string name="ATTACH_LEYE">
+		左目
+	</string>
+	<string name="ATTACH_REYE">
+		右目
+	</string>
+	<string name="ATTACH_NOSE">
+		鼻
+	</string>
+	<string name="ATTACH_RUARM">
+		右腕（上）
+	</string>
+	<string name="ATTACH_RLARM">
+		右腕（下）
+	</string>
+	<string name="ATTACH_LUARM">
+		左腕（上）
+	</string>
+	<string name="ATTACH_LLARM">
+		左腕（下）
+	</string>
+	<string name="ATTACH_RHIP">
+		右腰
+	</string>
+	<string name="ATTACH_RULEG">
+		右脚（上）
+	</string>
+	<string name="ATTACH_RLLEG">
+		右脚（下）
+	</string>
+	<string name="ATTACH_LHIP">
+		左腰
+	</string>
+	<string name="ATTACH_LULEG">
+		左脚（上）
+	</string>
+	<string name="ATTACH_LLLEG">
+		左脚（下）
+	</string>
+	<string name="ATTACH_BELLY">
+		お腹
+	</string>
+	<string name="ATTACH_RPEC">
+		右胸筋
+	</string>
+	<string name="ATTACH_LPEC">
+		左胸筋
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD（中央 2）
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD右上
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD（上・中央）
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD 左上
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD（中央 1）
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD（左下）
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD（下）
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD（右下）
+	</string>
 	<string name="CursorPos">
 		[LINE] 行目、[COLUMN] 列目
 	</string>
@@ -1324,8 +1486,8 @@
 	<string name="covenant_last_modified">
 		最終修正日：
 	</string>
-	<string name="none_text" value=" （なし）"/>
-	<string name="never_text" value=" （無）"/>
+	<string name="none_text" value=" （なし） "/>
+	<string name="never_text" value=" （無） "/>
 	<string name="GroupOwned">
 		グループ所有
 	</string>
@@ -1337,6 +1499,12 @@
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		（掲載後更新）
+	</string>
+	<string name="NoPicksClassifiedsText">
+		ここにはピック・クラシファイド広告はありません。
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		ローディング...
 	</string>
 	<string name="MultiPreviewTitle">
 		プレビュー
@@ -1414,23 +1582,35 @@
 		不明の拡張子： %s
 使用可能な拡張子： .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
+	<string name="MuteObject2">
+		ブロック
+	</string>
+	<string name="MuteAvatar">
+		ブロック
+	</string>
+	<string name="UnmuteObject">
+		ブロック解除
+	</string>
+	<string name="UnmuteAvatar">
+		ブロック解除
+	</string>
 	<string name="AddLandmarkNavBarMenu">
-		ランドマークを追加...
+		マイ ランドマークに追加...
 	</string>
 	<string name="EditLandmarkNavBarMenu">
-		ランドマークを編集...
+		マイ ランドマークを編集...
 	</string>
 	<string name="accel-mac-control">
-		&#8963;
+		⌃
 	</string>
 	<string name="accel-mac-command">
-		&#8984;
+		⌘
 	</string>
 	<string name="accel-mac-option">
-		&#8997;
+		⌥
 	</string>
 	<string name="accel-mac-shift">
-		&#8679;
+		⇧
 	</string>
 	<string name="accel-win-control">
 		Ctrl+
@@ -1616,7 +1796,7 @@
 		致命的なエラー
 	</string>
 	<string name="MBRequiresAltiVec">
-		 [APP_NAME] は、AltiVec搭載のプロセッサが必要です。（G4 以降）
+		[APP_NAME] は、AltiVec搭載のプロセッサが必要です。（G4 以降）
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] はすでに実行中です。
@@ -1628,7 +1808,7 @@
 クラッシュ報告を送信しますか？
 	</string>
 	<string name="MBAlert">
-		警告
+		通知
 	</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] は DirectX 9.0b 及びそれ以降のバージョンを検出することができませんでした。
@@ -2009,12 +2189,6 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Eyes Bugged">
 		下まぶたがたるんだ目
-	</string>
-	<string name="Eyes Shear Left Up">
-		左側を上に
-	</string>
-	<string name="Eyes Shear Right Up">
-		右側を上に
 	</string>
 	<string name="Face Shear">
 		顔のゆがみ
@@ -3018,6 +3192,27 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="LocationCtrlComboBtnTooltip">
 		マイロケーション履歴
 	</string>
+	<string name="LocationCtrlForSaleTooltip">
+		この土地を購入
+	</string>
+	<string name="LocationCtrlVoiceTooltip">
+		ここではボイスの利用ができません
+	</string>
+	<string name="LocationCtrlFlyTooltip">
+		飛行は禁止されています
+	</string>
+	<string name="LocationCtrlPushTooltip">
+		プッシュ禁止
+	</string>
+	<string name="LocationCtrlBuildTooltip">
+		オブジェクトの制作・ドロップは禁止されています
+	</string>
+	<string name="LocationCtrlScriptsTooltip">
+		スクリプト不可
+	</string>
+	<string name="LocationCtrlDamageTooltip">
+		体力
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] アップデート
 	</string>
@@ -3075,6 +3270,33 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="IM_moderator_label">
 		（モデレータ）
 	</string>
+	<string name="started_call">
+		ボイスコールを開始します
+	</string>
+	<string name="joined_call">
+		ボイスコールに参加しました
+	</string>
+	<string name="ringing-im">
+		ボイスコールに参加...
+	</string>
+	<string name="connected-im">
+		接続しました。コール終了をクリックして切ります
+	</string>
+	<string name="hang_up-im">
+		ボイスコールから退席しました
+	</string>
+	<string name="answering-im">
+		接続中...
+	</string>
+	<string name="conference-title">
+		アドホックコンファレンス
+	</string>
+	<string name="inventory_item_offered-im">
+		持ち物アイテムが送られてきました
+	</string>
+	<string name="share_alert">
+		持ち物からここにアイテムをドラッグします
+	</string>
 	<string name="only_user_message">
 		このセッションにいるユーザーはあなただけです。
 	</string>
@@ -3083,6 +3305,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="invite_message">
 		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
+	</string>
+	<string name="muted_message">
+		この住人をブロックしています。 メッセージを送ると、ブロックが自動的に解除されます。
+	</string>
+	<string name="generic">
+		リクエスト中にエラーが発生しました。あとでもう一度お試しください。
 	</string>
 	<string name="generic_request_error">
 		要求中にエラーが発生しました。後でもう一度試してください。
@@ -3102,19 +3330,37 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="not_a_mod_error">
 		あなたはセッション・モデレータではありません。
 	</string>
+	<string name="muted">
+		グループのモデレーターが、あなたのテキストチャットを禁止しました。
+	</string>
 	<string name="muted_error">
 		グループモデレータがあなたのテキストチャットを無効化しました
 	</string>
 	<string name="add_session_event">
 		[RECIPIENT] とのチャット・セッションにユーザーを追加することができません
 	</string>
+	<string name="message">
+		[RECIPIENT] とのチャットセッションに、メッセージを送信することができません。
+	</string>
 	<string name="message_session_event">
 		[RECIPIENT] とのチャット・セッションにメッセージを送ることができません
+	</string>
+	<string name="mute">
+		モデレート中にエラーが発生しました。
+	</string>
+	<string name="removed">
+		グループから脱退しました。
 	</string>
 	<string name="removed_from_group">
 		あなたはグループから削除されました。
 	</string>
 	<string name="close_on_no_ability">
 		このチャット・セッションを継続することはできません
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] は何か新しいことを言いました。
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] は何か新しいことを言いました。
 	</string>
 </strings>

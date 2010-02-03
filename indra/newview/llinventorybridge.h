@@ -320,8 +320,12 @@ public:
 	LLViewerInventoryCategory* getCategory() const;
 
 protected:
-	LLFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-		LLInvFVBridge(inventory, uuid), mCallingCards(FALSE), mWearables(FALSE) {}
+	LLFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid)
+		: LLInvFVBridge(inventory, uuid),
+
+		mCallingCards(FALSE),
+		mWearables(FALSE),
+		mMenu(NULL) {}
 
 	// menu callbacks
 	static void pasteClipboard(void* user_data);
@@ -486,6 +490,8 @@ public:
 	virtual BOOL removeItem();
 
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+
+	static void playGesture(const LLUUID& item_id);
 
 protected:
 	LLGestureBridge(LLInventoryPanel* inventory, const LLUUID& uuid)

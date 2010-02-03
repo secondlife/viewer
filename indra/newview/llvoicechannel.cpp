@@ -389,13 +389,16 @@ void LLVoiceChannel::setState(EState state)
 	switch(state)
 	{
 	case STATE_RINGING:
-		gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
+		//TODO: remove or redirect this call status notification
+//		LLCallInfoDialog::show("ringing", mNotifyArgs);
 		break;
 	case STATE_CONNECTED:
-		gIMMgr->addSystemMessage(mSessionID, "connected", mNotifyArgs);
+		//TODO: remove or redirect this call status notification
+//		LLCallInfoDialog::show("connected", mNotifyArgs);
 		break;
 	case STATE_HUNG_UP:
-		gIMMgr->addSystemMessage(mSessionID, "hang_up", mNotifyArgs);
+		//TODO: remove or redirect this call status notification
+//		LLCallInfoDialog::show("hang_up", mNotifyArgs);
 		break;
 	default:
 		break;
@@ -635,7 +638,8 @@ void LLVoiceChannelGroup::setState(EState state)
 	case STATE_RINGING:
 		if ( !mIsRetrying )
 		{
-			gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
+			//TODO: remove or redirect this call status notification
+//			LLCallInfoDialog::show("ringing", mNotifyArgs);
 		}
 
 		doSetState(state);
@@ -698,7 +702,12 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 		// do not notify user when leaving proximal channel
 		return;
 	case STATUS_VOICE_DISABLED:
-		 gIMMgr->addSystemMessage(LLUUID::null, "unavailable", mNotifyArgs);
+		//skip showing "Voice not available at your current location" when agent voice is disabled (EXT-4749)
+		if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+		{
+			//TODO: remove or redirect this call status notification
+//			LLCallInfoDialog::show("unavailable", mNotifyArgs);
+		}
 		return;
 	default:
 		break;
@@ -897,7 +906,8 @@ void LLVoiceChannelP2P::setState(EState state)
 		// so provide a special purpose message here
 		if (mReceivedCall && state == STATE_RINGING)
 		{
-			gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
+			//TODO: remove or redirect this call status notification
+//			LLCallInfoDialog::show("answering", mNotifyArgs);
 			doSetState(state);
 			return;
 		}

@@ -148,7 +148,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 		&& column_index == mNameColumnIndex)
 	{
 		// ...this is the column with the avatar name
-		LLUUID avatar_id = getItemId(hit_item);
+		LLUUID avatar_id = hit_item->getUUID();
 		if (avatar_id.notNull())
 		{
 			// ...valid avatar id
@@ -162,7 +162,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 				localRectToScreen(cell_rect, &sticky_rect);
 
 				// Spawn at right side of cell
-				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop );
+				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop + (sticky_rect.getHeight()-16)/2 );
 				LLPointer<LLUIImage> icon = LLUI::getUIImage("Info_Small");
 
 				// Should we show a group or an avatar inspector?
@@ -230,14 +230,15 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	std::string& suffix)
 {
 	LLUUID id = name_item.value().asUUID();
-	LLScrollListItem* item = NULL;
+	LLNameListItem* item = NULL;
 
 	// Store item type so that we can invoke the proper inspector.
 	// *TODO Vadim: Is there a more proper way of storing additional item data?
 	{
-		LLNameListCtrl::NameItem name_item_(name_item);
-		name_item_.value = LLSD().with("uuid", id).with("is_group", name_item.target() == GROUP);
-		item = LLScrollListCtrl::addRow(name_item_, pos);
+		LLNameListCtrl::NameItem item_p(name_item);
+		item_p.value = LLSD().with("uuid", id).with("is_group", name_item.target() == GROUP);
+		item = new LLNameListItem(item_p);
+		LLScrollListCtrl::addRow(item, item_p, pos);
 	}
 
 	if (!item) return NULL;
@@ -298,7 +299,7 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); it++)
 	{
 		LLScrollListItem* item = *it;
-		if (getItemId(item) == agent_id)
+		if (item->getUUID() == agent_id)
 		{
 			idx = getItemIndex(item);
 			break;
@@ -324,7 +325,7 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& full_name, boo
 	for (iter = getItemList().begin(); iter != getItemList().end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (getItemId(item) == id)
+		if (item->getUUID() == id)
 		{
 			LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(0);
 			cell = item->getColumn(mNameColumnIndex);
@@ -362,10 +363,4 @@ void LLNameListCtrl::updateColumns()
 			mNameColumnIndex = name_column->mIndex;
 		}
 	}
-}
-
-// static
-LLUUID LLNameListCtrl::getItemId(LLScrollListItem* item)
-{
-	return item->getValue()["uuid"].asUUID();
 }

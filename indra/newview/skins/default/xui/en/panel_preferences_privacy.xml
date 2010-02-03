@@ -78,19 +78,19 @@
      top_pad="10"
      width="350" />
 	<check_box
-     control_name="MediaEnabled"
+     name="media_enabled"
+     control_name="AudioStreamingMedia"
      height="16"
      label="Media Enabled"
      layout="topleft"
      left="30"
-     name="media_enabled"
      top_pad="10"
      width="350">
        <check_box.commit_callback
           function="Pref.MediaEnabled" />
     </check_box>
 	<check_box
-	 enabled_control="MediaEnabled"
+	 enabled_control="AudioStreamingMedia"
      control_name="ParcelMediaAutoPlayEnable"
      height="16"
      label="Allow Media to auto-play"
@@ -102,7 +102,19 @@
        <check_box.commit_callback
           function="Pref.ParcelMediaAutoPlayEnable" />
     </check_box>
-   <text
+	<check_box
+     control_name="AudioStreamingMusic"
+     height="16"
+     label="Music Enabled"
+     layout="topleft"
+     left="30"
+     name="music_enabled"
+     top_pad="10"
+     width="350">
+       <check_box.commit_callback
+          function="Pref.MusicEnabled" />
+    </check_box>
+	<text
       type="string"
     length="1"
     follows="left|top"
@@ -162,8 +174,7 @@
     </text>    
     <line_editor
      bottom="366"
-     control_name="InstantMessageLogFolder"
-     enabled="false"
+     control_name="InstantMessageLogPath"
      follows="top|left|right"
      halign="right"
      height="23"

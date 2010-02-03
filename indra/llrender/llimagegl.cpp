@@ -436,6 +436,8 @@ void LLImageGL::init(BOOL usemipmaps)
 	mLastBindTime = 0.f;
 
 	mPickMask = NULL;
+	mPickMaskWidth = 0;
+	mPickMaskHeight = 0;
 	mUseMipMaps = usemipmaps;
 	mHasExplicitFormat = FALSE;
 	mAutoGenMips = FALSE;
@@ -527,7 +529,12 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
 // 			llwarns << "Setting Size of LLImageGL with existing mTexName = " << mTexName << llendl;
 			destroyGLTexture();
 		}
-		
+
+		// pickmask validity depends on old image size, delete it
+		delete [] mPickMask;
+		mPickMask = NULL;
+		mPickMaskWidth = mPickMaskHeight = 0;
+
 		mWidth = width;
 		mHeight = height;
 		mComponents = ncomponents;
@@ -1675,24 +1682,25 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 		return ;
 	}
 
+	delete [] mPickMask;
+	mPickMask = NULL;
+	mPickMaskWidth = mPickMaskHeight = 0;
+
 	if (mFormatType != GL_UNSIGNED_BYTE ||
 	    mFormatPrimary != GL_RGBA)
 	{
 		//cannot generate a pick mask for this texture
-		delete [] mPickMask;
-		mPickMask = NULL;
 		return;
 	}
 
-	U32 pick_width = width/2;
-	U32 pick_height = height/2;
+	U32 pick_width = width/2 + 1;
+	U32 pick_height = height/2 + 1;
 
-	U32 size = llmax(pick_width, (U32) 1) * llmax(pick_height, (U32) 1);
-
-	size = size/8 + 1;
-
-	delete[] mPickMask;
+	U32 size = pick_width * pick_height;
+	size = (size + 7) / 8; // pixelcount-to-bits
 	mPickMask = new U8[size];
+	mPickMaskWidth = pick_width;
+	mPickMaskHeight = pick_height;
 
 	memset(mPickMask, 0, sizeof(U8) * size);
 
@@ -1708,10 +1716,7 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 			{
 				U32 pick_idx = pick_bit/8;
 				U32 pick_offset = pick_bit%8;
-				if (pick_idx >= size)
-				{
-					llerrs << "WTF?" << llendl;
-				}
+				llassert(pick_idx < size);
 
 				mPickMask[pick_idx] |= 1 << pick_offset;
 			}
@@ -1727,35 +1732,34 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 	if (mPickMask)
 	{
-		S32 width = getWidth()/2;
-		S32 height = getHeight()/2;
-
 		F32 u = tc.mV[0] - floorf(tc.mV[0]);
 		F32 v = tc.mV[1] - floorf(tc.mV[1]);
 
-		if (u < 0.f || u > 1.f ||
-		    v < 0.f || v > 1.f)
+		if (LL_UNLIKELY(u < 0.f || u > 1.f ||
+				v < 0.f || v > 1.f))
 		{
 			LL_WARNS_ONCE("render") << "Ugh, u/v out of range in image mask pick" << LL_ENDL;
 			u = v = 0.f;
 			llassert(false);
 		}
-		
-		S32 x = (S32)(u * width);
-		S32 y = (S32)(v * height);
 
-		if (x >= width)
+		llassert(mPickMaskWidth > 0 && mPickMaskHeight > 0);
+		
+		S32 x = llfloor(u * mPickMaskWidth);
+		S32 y = llfloor(v * mPickMaskHeight);
+
+		if (LL_UNLIKELY(x >= mPickMaskWidth))
 		{
 			LL_WARNS_ONCE("render") << "Ooh, width overrun on pick mask read, that coulda been bad." << LL_ENDL;
-			x = llmax(0, width-1);
+			x = llmax(0, mPickMaskWidth-1);
 		}
-		if (y >= height)
+		if (LL_UNLIKELY(y >= mPickMaskHeight))
 		{
 			LL_WARNS_ONCE("render") << "Ooh, height overrun on pick mask read, that woulda been bad." << LL_ENDL;
-			y = llmax(0, height-1);
+			y = llmax(0, mPickMaskHeight-1);
 		}
 
-		S32 idx = y*width+x;
+		S32 idx = y*mPickMaskWidth+x;
 		S32 offset = idx%8;
 
 		res = mPickMask[idx/8] & (1 << offset) ? TRUE : FALSE;

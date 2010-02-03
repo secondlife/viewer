@@ -170,7 +170,8 @@
 	</combo_box>
 	<spinner label="ﾌｪｰｽﾞｲﾝ(秒)" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間（秒）"/>
 	<spinner label="ﾌｪｰｽﾞｱｳﾄ(秒)" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間（秒）"/>
-	<button label="" name="play_btn" tool_tip="アニメーションの再生・一時停止"/>
+	<button label="" name="play_btn" tool_tip="アニメーションを再生する"/>
+	<button name="pause_btn" tool_tip="アニメーションを一時停止する"/>
 	<button label="" name="stop_btn" tool_tip="アニメーションの再生を停止"/>
 	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">
@@ -178,6 +179,6 @@
  
  Poser 4からエクスポートされたBVHファイルを推奨します。
 	</text>
-	<button label="取り消し" name="cancel_btn"/>
 	<button label="ｱｯﾌﾟﾛｰﾄﾞL$[AMOUNT]" name="ok_btn"/>
+	<button label="取り消し" name="cancel_btn"/>
 </floater>

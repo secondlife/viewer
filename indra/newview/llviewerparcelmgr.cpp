@@ -69,7 +69,6 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llworld.h"
-#include "lloverlaybar.h"
 #include "roles_constants.h"
 #include "llweb.h"
 
@@ -667,31 +666,38 @@ bool LLViewerParcelMgr::allowAgentBuild() const
 	}
 }
 
-bool LLViewerParcelMgr::allowAgentVoice() const
+// Return whether anyone can build on the given parcel
+bool LLViewerParcelMgr::allowAgentBuild(const LLParcel* parcel) const
 {
-	LLViewerRegion* region = gAgent.getRegion();
-	return region && region->isVoiceEnabled()
-		&& mAgentParcel	&& mAgentParcel->getParcelFlagAllowVoice();
+	return parcel->getAllowModify();
 }
 
-bool LLViewerParcelMgr::allowAgentFly() const
+bool LLViewerParcelMgr::allowAgentVoice() const
 {
-	LLViewerRegion* region = gAgent.getRegion();
+	return allowAgentVoice(gAgent.getRegion(), mAgentParcel);
+}
+
+bool LLViewerParcelMgr::allowAgentVoice(const LLViewerRegion* region, const LLParcel* parcel) const
+{
+	return region && region->isVoiceEnabled()
+		&& parcel	&& parcel->getParcelFlagAllowVoice();
+}
+
+bool LLViewerParcelMgr::allowAgentFly(const LLViewerRegion* region, const LLParcel* parcel) const
+{
 	return region && !region->getBlockFly()
-		&& mAgentParcel && mAgentParcel->getAllowFly();
+		&& parcel && parcel->getAllowFly();
 }
 
 // Can the agent be pushed around by LLPushObject?
-bool LLViewerParcelMgr::allowAgentPush() const
+bool LLViewerParcelMgr::allowAgentPush(const LLViewerRegion* region, const LLParcel* parcel) const
 {
-	LLViewerRegion* region = gAgent.getRegion();
 	return region && !region->getRestrictPushObject()
-		&& mAgentParcel && !mAgentParcel->getRestrictPushObject();
+		&& parcel && !parcel->getRestrictPushObject();
 }
 
-bool LLViewerParcelMgr::allowAgentScripts() const
+bool LLViewerParcelMgr::allowAgentScripts(const LLViewerRegion* region, const LLParcel* parcel) const
 {
-	LLViewerRegion* region = gAgent.getRegion();
 	// *NOTE: This code does not take into account group-owned parcels
 	// and the flag to allow group-owned scripted objects to run.
 	// This mirrors the traditional menu bar parcel icon code, but is not
@@ -699,15 +705,14 @@ bool LLViewerParcelMgr::allowAgentScripts() const
 	return region
 		&& !(region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
 		&& !(region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
-		&& mAgentParcel
-		&& mAgentParcel->getAllowOtherScripts();
+		&& parcel
+		&& parcel->getAllowOtherScripts();
 }
 
-bool LLViewerParcelMgr::allowAgentDamage() const
+bool LLViewerParcelMgr::allowAgentDamage(const LLViewerRegion* region, const LLParcel* parcel) const
 {
-	LLViewerRegion* region = gAgent.getRegion();
-	return region && region->getAllowDamage()
-		&& mAgentParcel && mAgentParcel->getAllowDamage();
+	return (region && region->getAllowDamage())
+		|| (parcel && parcel->getAllowDamage());
 }
 
 BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const
@@ -1815,7 +1820,7 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 
 	if (parcel_id != parcel->getLocalID())
 	{
-		llwarns << "processParcelAccessListReply for parcel " << parcel_id
+		LL_WARNS_ONCE("") << "processParcelAccessListReply for parcel " << parcel_id
 			<< " which isn't the selected parcel " << parcel->getLocalID()<< llendl;
 		return;
 	}

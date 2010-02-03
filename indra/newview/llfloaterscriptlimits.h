@@ -145,7 +145,14 @@ class LLPanelScriptLimitsRegionMemory : public LLPanelScriptLimitsInfo, LLRemote
 	
 public:
 	LLPanelScriptLimitsRegionMemory()
-		:	LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(), mParcelId(LLUUID()), mGotParcelMemoryUsed(FALSE), mGotParcelMemoryMax(FALSE) {};
+		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
+
+		mParcelId(LLUUID()),
+		mGotParcelMemoryUsed(FALSE),
+		mGotParcelMemoryMax(FALSE),
+		mParcelMemoryMax(0),
+		mParcelMemoryUsed(0) {};
+
 	~LLPanelScriptLimitsRegionMemory()
 	{
 		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
@@ -159,21 +166,31 @@ public:
 
 	BOOL StartRequestChain();
 
-	void populateParcelMemoryText();
 	BOOL getLandScriptResources();
 	void clearList();
 	void showBeacon();
+	void returnObjectsFromParcel(S32 local_id);
 	void returnObjects();
 
 private:
 	void onNameCache(	 const LLUUID& id,
 						 const std::string& name);
 
+	LLSD mContent;
 	LLUUID mParcelId;
 	BOOL mGotParcelMemoryUsed;
+	BOOL mGotParcelMemoryUsedDetails;
 	BOOL mGotParcelMemoryMax;
 	S32 mParcelMemoryMax;
 	S32 mParcelMemoryUsed;
+	S32 mParcelMemoryUsedDetails;
+	
+	BOOL mGotParcelURLsUsed;
+	BOOL mGotParcelURLsUsedDetails;
+	BOOL mGotParcelURLsMax;
+	S32 mParcelURLsMax;
+	S32 mParcelURLsUsed;
+	S32 mParcelURLsUsedDetails;
 	
 	std::vector<LLSD> mObjectListItems;
 		
@@ -183,46 +200,6 @@ protected:
 /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 /*virtual*/ void setParcelID(const LLUUID& parcel_id);
 /*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
-	
-	static void onClickRefresh(void* userdata);
-	static void onClickHighlight(void* userdata);
-	static void onClickReturn(void* userdata);
-};
-
-/////////////////////////////////////////////////////////////////////////////
-// URLs panel
-/////////////////////////////////////////////////////////////////////////////
-
-class LLPanelScriptLimitsRegionURLs : public LLPanelScriptLimitsInfo
-{
-	
-public:
-	LLPanelScriptLimitsRegionURLs()
-		:	LLPanelScriptLimitsInfo(), mParcelId(LLUUID()), mGotParcelURLsUsed(FALSE), mGotParcelURLsMax(FALSE) {};
-	~LLPanelScriptLimitsRegionURLs()
-	{
-	};
-	
-	// LLPanel
-	virtual BOOL postBuild();
-
-	void setRegionDetails(LLSD content);
-	void setRegionSummary(LLSD content);
-
-	void populateParcelURLsText();
-	void clearList();
-
-private:
-
-	LLUUID mParcelId;
-	BOOL mGotParcelURLsUsed;
-	BOOL mGotParcelURLsMax;
-	S32 mParcelURLsMax;
-	S32 mParcelURLsUsed;
-	
-	std::vector<LLSD> mObjectListItems;
-		
-protected:
 	
 	static void onClickRefresh(void* userdata);
 	static void onClickHighlight(void* userdata);
@@ -248,10 +225,25 @@ public:
 
 	void setAttachmentDetails(LLSD content);
 
+	void setAttachmentSummary(LLSD content);
 	BOOL requestAttachmentDetails();
 	void clearList();
 
 private:
+
+	BOOL mGotAttachmentMemoryUsed;
+	BOOL mGotAttachmentMemoryUsedDetails;
+	BOOL mGotAttachmentMemoryMax;
+	S32 mAttachmentMemoryMax;
+	S32 mAttachmentMemoryUsed;
+	S32 mAttachmentMemoryUsedDetails;
+	
+	BOOL mGotAttachmentURLsUsed;
+	BOOL mGotAttachmentURLsUsedDetails;
+	BOOL mGotAttachmentURLsMax;
+	S32 mAttachmentURLsMax;
+	S32 mAttachmentURLsUsed;
+	S32 mAttachmentURLsUsedDetails;
 
 protected:
 	

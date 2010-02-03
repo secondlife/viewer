@@ -54,8 +54,10 @@ class LLViewerInventoryCategory;
 class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 {
 public:
-	enum INFO_TYPE
+	enum EInfoType
 	{
+		UNKNOWN,
+
 		AGENT,
 		CREATE_LANDMARK,
 		LANDMARK,
@@ -79,7 +81,7 @@ public:
 	// Depending on how the panel was triggered
 	// (from landmark or current location, or other)
 	// sets a corresponding title and contents.
-	virtual void setInfoType(INFO_TYPE type);
+	virtual void setInfoType(EInfoType type);
 
 	// Requests remote parcel info by parcel ID.
 	void sendParcelInfoRequest();
@@ -112,7 +114,7 @@ protected:
 	std::string				mCurrentTitle;
 	S32						mScrollingPanelMinHeight;
 	S32						mScrollingPanelWidth;
-	INFO_TYPE 				mInfoType;
+	EInfoType 				mInfoType;
 
 	LLScrollContainer*		mScrollContainer;
 	LLPanel*				mScrollingPanel;

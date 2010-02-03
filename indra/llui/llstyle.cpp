@@ -49,7 +49,10 @@ LLStyle::Params::Params()
 
 
 LLStyle::LLStyle(const LLStyle::Params& p)
-:	mVisible(p.visible),
+:	mItalic(FALSE),
+	mBold(FALSE),
+	mUnderline(FALSE),
+	mVisible(p.visible),
 	mColor(p.color()),
 	mReadOnlyColor(p.readonly_color()),
 	mFont(p.font()),

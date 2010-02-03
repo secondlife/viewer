@@ -281,7 +281,8 @@ bool CProcessor::AnalyzeIntelProcessor()
 	// already have a string here from GetCPUInfo().  JC
 	if ( CPUInfo.uiBrandID < LL_ARRAY_SIZE(INTEL_BRAND) )
 	{
-		strcpy(CPUInfo.strBrandID, INTEL_BRAND[CPUInfo.uiBrandID]);
+		strncpy(CPUInfo.strBrandID, INTEL_BRAND[CPUInfo.uiBrandID], sizeof(CPUInfo.strBrandID)-1);
+		CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID)-1]='\0';
 
 		if (CPUInfo.uiBrandID == 3 && CPUInfo.uiModel == 6)
 		{

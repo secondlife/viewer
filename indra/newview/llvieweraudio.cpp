@@ -242,10 +242,29 @@ void audio_update_wind(bool force_update)
 		// outside the fade-in.
 		F32 master_volume  = gSavedSettings.getBOOL("MuteAudio") ? 0.f : gSavedSettings.getF32("AudioLevelMaster");
 		F32 ambient_volume = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient");
+		F32 max_wind_volume = master_volume * ambient_volume;
 
-		F32 wind_volume = master_volume * ambient_volume;
-		gAudiop->mMaxWindGain = wind_volume;
-		
+		const F32 WIND_SOUND_TRANSITION_TIME = 2.f;
+		// amount to change volume this frame
+		F32 volume_delta = (LLFrameTimer::getFrameDeltaTimeF32() / WIND_SOUND_TRANSITION_TIME) * max_wind_volume;
+		if (force_update) 
+		{
+			// initialize wind volume (force_update) by using large volume_delta
+			// which is sufficient to completely turn off or turn on wind noise
+			volume_delta = max_wind_volume;
+		}
+
+		// mute wind when not flying
+		if (gAgent.getFlying())
+		{
+			// volume increases by volume_delta, up to no more than max_wind_volume
+			gAudiop->mMaxWindGain = llmin(gAudiop->mMaxWindGain + volume_delta, max_wind_volume);
+		}
+		else
+		{
+			// volume decreases by volume_delta, down to no less than 0
+			gAudiop->mMaxWindGain = llmax(gAudiop->mMaxWindGain - volume_delta, 0.f);
+		}
 		
 		last_camera_water_height = camera_water_height;
 		gAudiop->updateWind(gRelativeWindVec, camera_water_height);

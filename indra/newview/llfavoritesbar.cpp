@@ -370,7 +370,8 @@ struct LLFavoritesSort
 
 LLFavoritesBarCtrl::Params::Params()
 : image_drag_indication("image_drag_indication"),
-  chevron_button("chevron_button")
+  chevron_button("chevron_button"),
+  label("label")
 {
 }
 
@@ -401,6 +402,10 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	chevron_button_params.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));     
 	mChevronButton = LLUICtrlFactory::create<LLButton> (chevron_button_params);
 	addChild(mChevronButton); 
+
+	LLTextBox::Params label_param(p.label);
+	mBarLabel = LLUICtrlFactory::create<LLTextBox> (label_param);
+	addChild(mBarLabel);
 }
 
 LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
@@ -685,7 +690,7 @@ void LLFavoritesBarCtrl::updateButtons()
 			{
 				// an child's order  and mItems  should be same   
 				if (button->getLandmarkId() != item->getUUID() // sort order has been changed
-					|| button->getLabelSelected() != item->getDisplayName() // favorite's name has been changed
+					|| button->getLabelSelected() != item->getName() // favorite's name has been changed
 					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
 				{
 					break;
@@ -780,8 +785,8 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	 * Empty space (or ...) is displaying instead of last symbols, even though the width of the button is enough.
 	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  20 pixels.
 	 */
-	int requred_width = mFont->getWidth(item->getDisplayName()) + 20;
-	int width = requred_width > def_button_width? def_button_width : requred_width;
+	int required_width = mFont->getWidth(item->getName()) + 20;
+	int width = required_width > def_button_width? def_button_width : required_width;
 	LLFavoriteLandmarkButton* fav_btn = NULL;
 
 	// do we have a place for next button + double buttonHGap + mChevronButton ? 

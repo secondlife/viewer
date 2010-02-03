@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- follows="all"
-     height="395"
  label="General"
+ follows="all"
+ height="604"
+ width="313"
  class="panel_group_general"
- layout="topleft"
- name="general_tab"
- width="323">
+ name="general_tab">
     <panel.string
      name="help_text">
         The General tab contains general information about this group, a list of members, general Group Preferences and member options.
@@ -25,12 +24,14 @@ Hover your mouse over the options for more help.
      type="string"
      follows="left|top|right"
      left="5"
-     height="60"
+     height="150"
      layout="topleft"
      max_length="511"
      name="charter"
      top="5"
      right="-1"
+    bg_readonly_color="DkGray2"
+    text_readonly_color="White"
      word_wrap="true">
      Group Charter
     </text_editor>
@@ -38,21 +39,24 @@ Hover your mouse over the options for more help.
      column_padding="0"
      draw_heading="true"
      follows="left|top|right"
-     heading_height="20"
-     height="156"
+     heading_height="23"
+     height="200"
      layout="topleft"
      left="0"
-     right="-1"
      name="visible_members"
      top_pad="2">
         <name_list.columns
          label="Member"
          name="name"
-         relative_width="0.6" />
+         relative_width="0.4" />
         <name_list.columns
          label="Title"
          name="title"
          relative_width="0.4" />
+        <name_list.columns
+         label="Status"
+         name="status"
+         relative_width="0.2" />
       </name_list>
          <text
          follows="left|top|right"
@@ -60,17 +64,29 @@ Hover your mouse over the options for more help.
          height="12"
          layout="left|top|right"
          left="5"
+         text_color="EmphasisColor"
+         name="my_group_settngs_label"
+         top_pad="10"
+         width="300">
+           Me
+        </text>
+         <text
+         follows="left|top|right"
+         type="string"
+         height="12"
+         layout="left|top|right"
+         left="10"
          name="active_title_label"
          top_pad="5"
          width="300">
-            My Title
+            My title:
         </text>
         <combo_box
          follows="left|top|right"
-         height="20"
+         height="23"
          layout="topleft"
-         left="5"
-     right="-5"
+         left="10"
+         right="-5"
          name="active_title"
          tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."
          top_pad="2" />
@@ -79,7 +95,7 @@ Hover your mouse over the options for more help.
          font="SansSerifSmall"
          label="Receive group notices"
          layout="topleft"
-         left="5"
+         left="10"
          name="receive_notices"
          tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."
          top_pad="5"
@@ -88,36 +104,46 @@ Hover your mouse over the options for more help.
          height="16"
          label="Show in my profile"
          layout="topleft"
-         left="5"
+         left="10"
          name="list_groups_in_profile"
          tool_tip="Sets whether you want to show this group in your profile"
          top_pad="5"
          width="295" />
-        <panel
+   <panel
          background_visible="true"
          bevel_style="in"
          border="true"
          bg_alpha_color="FloaterUnfocusBorderColor"
          follows="left|top|right"
-         height="88"
+         height="140"
+         width="313"
          layout="topleft"
-         left="2"
-         right="-1"
+         left="0"
          name="preferences_container"
-         top_pad="2">
+         top_pad="5">
+        <text
+         follows="left|top|right"
+         type="string"
+         height="12"
+         layout="left|top|right"
+         left="5"
+         text_color="EmphasisColor"
+         name="group_settngs_label"
+         width="300">
+         Group
+        </text>
         <check_box
          follows="right|top|left"
          height="16"
-         label="Open enrollment"
+         label="Anyone can join"
          layout="topleft"
          left="10"
          name="open_enrollement"
          tool_tip="Sets whether this group allows new members to join without being invited."
-         top_pad="5"
          width="90" />
         <check_box
          height="16"
-         label="Enrollment fee"
+         label="Cost to join"
          layout="topleft"
          left_delta="0"
          name="check_enrollment_fee"
@@ -126,27 +152,26 @@ Hover your mouse over the options for more help.
          width="300" />
         <spinner
          decimal_digits="0"
-         follows="left|top|right"
+         follows="left|top"
          halign="left"
-         height="16"
+         height="23"
          increment="1"
          label_width="15"
          label="L$"
          layout="topleft"
-         right="-30"
          max_val="99999"
-         left_pad="0"
+         left="30"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
-         width="80" />
-         <combo_box
-         follows="left|top|right"
-         height="20"
+         width="170" />
+        <combo_box
+         follows="left|top"
+         height="23"
          layout="topleft"
          left="10"
          name="group_mature_check"
          tool_tip="Sets whether your group contains information rated as Moderate"
-         top_pad="0"
+         top_pad="4"
          width="190">
             <combo_box.item
              label="General Content"
@@ -158,7 +183,7 @@ Hover your mouse over the options for more help.
              value="Mature" />
         </combo_box>
         <check_box
-         follows="left|top|right"
+         follows="left|top"
          height="16"
          initial_value="true"
          label="Show in search"
@@ -168,5 +193,6 @@ Hover your mouse over the options for more help.
          tool_tip="Let people see this group in search results"
          top_pad="4"
          width="300" />
+
     </panel>
 </panel>

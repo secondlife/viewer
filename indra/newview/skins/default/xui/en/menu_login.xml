@@ -10,6 +10,7 @@
     <menu
      create_jump_keys="true"
      label="Me"
+     tear_off="true"
      name="File">
         <menu_item_call
          label="Preferences"
@@ -39,6 +40,7 @@
     <menu
      create_jump_keys="true"
      label="Help"
+     tear_off="true"
      name="Help">
         <menu_item_call
          label="[SECOND_LIFE] Help"
@@ -58,6 +60,7 @@
         </menu_item_call>
     </menu>
     <menu
+      visible="false"
      create_jump_keys="true"
      label="Debug"
      name="Debug"
@@ -194,6 +197,7 @@
         <menu_item_call
          label="Textbox"
          name="Textbox"
+         translate="false"
          shortcut="control|1">
           <menu_item_call.on_click
            function="Floater.Show"
@@ -202,6 +206,7 @@
         <menu_item_call
          label="Text Editor"
          name="Text Editor"
+         translate="false"
          shortcut="control|2">
           <menu_item_call.on_click
            function="Floater.Show"
@@ -210,6 +215,7 @@
         <menu_item_call
          label="Widgets"
          name="Widgets"
+         translate="false"
          shortcut="control|shift|T">
           <menu_item_call.on_click
            function="Floater.Show"
@@ -217,6 +223,7 @@
         </menu_item_call>
         <menu_item_call
          label="Inspectors"
+         translate="false"
          name="Inspectors">
           <menu_item_call.on_click
            function="Floater.Show"

@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "llfloaterreg.h"
 #include "llnearbychat.h"
+#include "llimfloater.h"
 
 using namespace LLNotificationsUI;
 
@@ -91,6 +92,13 @@ bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 }
 
 // static
+bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
+{
+	return OFFER_FRIENDSHIP == notification->getName();
+}
+
+
+// static
 bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
 {
 	return canLogToIM(notification) && canSpawnIMSession(notification);
@@ -123,16 +131,29 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 				message);
 
 		// restore active session id
-		LLIMModel::instance().setActiveSessionID(active_session_id);
+		if (active_session_id.isNull())
+		{
+			LLIMModel::instance().resetActiveSessionID();
+		}
+		else
+		{
+			LLIMModel::instance().setActiveSessionID(active_session_id);
+		}
 	}
 }
 
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 {
+	logToIMP2P(notification, false);
+}
+
+// static
+void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
+{
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
-	const std::string session_name = notification->getPayload().has(
+	std::string session_name = notification->getPayload().has(
 			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
 
 	// don't create IM p2p session with objects, it's necessary condition to log
@@ -141,8 +162,28 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
 
-		logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
-				from_id, from_id);
+		//*HACK for ServerObjectMessage the sesson name is really weird, see EXT-4779
+		if (SERVER_OBJECT_MESSAGE == notification->getName())
+		{
+			session_name = "chat";
+		}
+
+		//there still appears a log history file with weird name " .txt"
+		if (" " == session_name || "{waiting}" == session_name || "{nobody}" == session_name)
+		{
+			llwarning("Weird session name (" + session_name + ") for notification " + notification->getName(), 666)
+		}
+
+		if(to_file_only)
+		{
+			logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
+					LLUUID(), LLUUID());
+		}
+		else
+		{
+			logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
+					from_id, from_id);
+		}
 	}
 }
 
@@ -184,7 +225,7 @@ void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChat
 }
 
 // static
-void LLHandlerUtil::spawnIMSession(const std::string& name, const LLUUID& from_id)
+LLUUID LLHandlerUtil::spawnIMSession(const std::string& name, const LLUUID& from_id)
 {
 	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
 
@@ -192,8 +233,10 @@ void LLHandlerUtil::spawnIMSession(const std::string& name, const LLUUID& from_i
 			session_id);
 	if (session == NULL)
 	{
-		LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL, from_id);
+		session_id = LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL, from_id);
 	}
+
+	return session_id;
 }
 
 // static
@@ -202,4 +245,50 @@ std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notifica
 	return notification->getSubstitutions().has("NAME")
 		? notification->getSubstitutions()["NAME"]
 		: notification->getSubstitutions()["[NAME]"];
+}
+
+// static
+void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
+{
+	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+	LLUUID from_id = notification->getPayload()["from_id"];
+
+	LLUUID session_id = spawnIMSession(name, from_id);
+	// add offer to session
+	LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
+			session_id);
+	llassert_always(session != NULL);
+
+	LLSD offer;
+	offer["notification_id"] = notification->getID();
+	offer["from_id"] = notification->getPayload()["from_id"];
+	offer["from"] = name;
+	offer["time"] = LLLogChat::timestamp(true);
+	session->mMsgs.push_front(offer);
+
+	LLIMFloater::show(session_id);
+}
+
+// static
+void LLHandlerUtil::reloadIMFloaterMessages(
+		const LLNotificationPtr& notification)
+{
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+			"impanel", session_id);
+	if (im_floater != NULL)
+	{
+		LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
+				session_id);
+		if(session != NULL)
+		{
+			session->mMsgs.clear();
+			std::list<LLSD> chat_history;
+			LLLogChat::loadAllHistory(session->mHistoryFileName, chat_history);
+			session->addMessagesFromHistory(chat_history);
+		}
+
+		im_floater->reloadMessages();
+	}
 }

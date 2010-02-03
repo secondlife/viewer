@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="500"
+ height="535"
  label="Profile"
  layout="topleft"
  left="0"
  name="panel_profile"
  top="0"
- width="313">
+ width="315">
     <string
      name="CaptionTextAcctInfo">
         [ACCTTYPE]
@@ -41,8 +41,8 @@
      layout="topleft"
      left="0"
      top="0"
-     height="480"
-     width="313"
+     height="522"
+     width="315"
      border_size="0">
       <layout_panel
          name="profile_stack"
@@ -50,9 +50,9 @@
          layout="topleft"
          top="0"
          left="0"
-         height="480"
+         height="492"
          user_resize="false"
-         width="313">
+         width="315">
         <scroll_container
          color="DkGray2"
          follows="all"
@@ -60,13 +60,13 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="480"
-         width="313"
+         height="492"
+         width="315"
          top="0">
           <panel
                 layout="topleft"
           follows="left|top|right"
-                height="505"
+                height="492"
                name="scroll_content_panel"
                 top="0"
                 left="0"
@@ -84,9 +84,9 @@
                default_image_name="None"
                enabled="false"
                follows="top|left"
-               height="117"
+               height="124"
                layout="topleft"
-               left="0"
+               left="3"
                name="2nd_life_pic"
                top="10"
                width="102" />
@@ -96,7 +96,7 @@
               layout="topleft"
               name="2nd_life_edit_icon"
               label=""
-              left="0"
+              left="3"
               tool_tip="Click the Edit Profile button below to change image"
               top="10"
               width="102" />
@@ -119,6 +119,7 @@
                textbox.max_length="512"
                name="sl_description_edit"
                top_pad="-3"
+               translate="false"
                width="181"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
@@ -129,7 +130,7 @@
              follows="left|top|right"
              height="117"
              layout="topleft"
-       top_pad="10"
+       top_pad="0"
              left="10"
              name="first_life_image_panel"
              width="297">
@@ -138,9 +139,9 @@
                default_image_name="None"
                enabled="false"
                follows="top|left"
-               height="117"
+               height="124"
                layout="topleft"
-               left="0"
+               left="3"
                name="real_world_pic"
                width="102" />
               <icon
@@ -149,7 +150,7 @@
               layout="topleft"
               name="real_world_edit_icon"
               label=""
-              left="0"
+              left="3"
               tool_tip="Click the Edit Profile button below to change image"
               top="4"
               width="102" />
@@ -172,6 +173,7 @@
                textbox.max_length="512"
                name="fl_description_edit"
                top_pad="-3"
+               translate="false"
                width="181"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
@@ -187,6 +189,7 @@
              left="10"
              name="homepage_edit"
              top_pad="0"
+             translate="false"
              value="http://librarianavengers.org"
              width="300"
              word_wrap="false"
@@ -203,12 +206,18 @@
              top_pad="10"
              value="Resident Since:"
              width="300" />
-            <text
+            <text_editor
+             allow_scroll="false"
+             bg_visible="false"
              follows="left|top"
+             h_pad="0"
              height="15"
              layout="topleft"
              left="10"
              name="register_date"
+             read_only="true"
+             translate="false"
+             v_pad="0"
              value="05/31/2376"
              width="300"
              word_wrap="true" />
@@ -234,18 +243,24 @@
          top_delta="0"
 	 value="Go to Dashboard"
          width="100"/> -->
-            <text
+            <text_editor
+            allow_scroll="false"
+            bg_visible="false"
             follows="left|top"
+            h_pad="0"
             height="28"
             layout="topleft"
             left="10"
             name="acc_status_text"
+            read_only="true"
             top_pad="0"
+            translate="false"
+            v_pad="0"
             width="300"
             word_wrap="true">
               Resident. No payment info on file.
               Linden.
-            </text>
+            </text_editor>
             <text
              follows="left|top"
        font.style="BOLD"
@@ -295,6 +310,7 @@
             left="7"
             name="sl_groups"
           top_pad="0"
+            translate="false"
             width="298"
             expanded_bg_visible="true"
             expanded_bg_color="DkGray">
@@ -373,23 +389,20 @@
         <button
          follows="bottom|right"
          height="23"
-         left="20"
+         left="4"
 	 top="5"
          label="Edit Profile"
-         layout="topleft"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
-         width="130" />
+         width="152" />
         <button
          follows="bottom|right"
          height="23"
          label="Edit Appearance"
-         left_pad="10"
-         layout="topleft"
+         left_pad="4"
          name="edit_appearance_btn"
-         top="5"
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
-         width="130" />
+         width="152" />
  </layout_panel>
 </layout_stack>
 </panel>

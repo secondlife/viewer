@@ -61,8 +61,11 @@
          name="pick_snapshot"
          top="20"
          width="280" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="35"
          width="280"
          layout="topleft"
@@ -71,23 +74,31 @@
          left="10"
          top_pad="10"
          name="pick_name"
+         read_only="true"
          text_color="white"
+         v_pad="0"
          value="[name]"
          use_ellipses="true" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="25"
          layout="topleft"
          left="10"
          name="pick_location"
+         read_only="true"
          width="280"
          word_wrap="true"
+         v_pad="0"
          value="[loading...]" />
         <text_editor
          bg_readonly_color="DkGray2"
          follows="all"
          height="100"
          width="280"
+         allow_html="true"	
          hide_scrollbar="false"
          layout="topleft"
          left="10"

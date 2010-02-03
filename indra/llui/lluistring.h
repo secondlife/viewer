@@ -64,7 +64,7 @@ class LLUIString
 public:
 	// These methods all perform appropriate argument substitution
 	// and modify mOrig where appropriate
-	LLUIString() {}
+        LLUIString() : mNeedsResult(false), mNeedsWResult(false) {}
 	LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
 	LLUIString(const std::string& instring) { assign(instring); }
 

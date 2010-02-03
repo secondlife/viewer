@@ -762,6 +762,14 @@ void LLGroupMgr::addObserver(LLGroupMgrObserver* observer)
 		mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
 }
 
+void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+{
+	if(group_id.notNull() && observer)
+	{
+		mParticularObservers[group_id].insert(observer);
+	}
+}
+
 void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 {
 	if (!observer)
@@ -782,6 +790,23 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 			++it;
 		}
 	}
+}
+
+void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+{
+	if(group_id.isNull() || !observer)
+	{
+		return;
+	}
+
+    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
+    if(obs_it == mParticularObservers.end())
+        return;
+
+    obs_it->second.erase(observer);
+
+    if (obs_it->second.size() == 0)
+    	mParticularObservers.erase(obs_it);
 }
 
 LLGroupMgrGroupData* LLGroupMgr::getGroupData(const LLUUID& id)
@@ -1325,6 +1350,7 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 		LLUUID group_id = gi->first;
 		if (gi->second->mChanged)
 		{
+			// notify LLGroupMgrObserver
 			// Copy the map because observers may remove themselves on update
 			observer_multimap_t observers = mObservers;
 
@@ -1336,6 +1362,18 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 				oi->second->changed(gc);
 			}
 			gi->second->mChanged = FALSE;
+
+
+			// notify LLParticularGroupMgrObserver
+		    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
+		    if(obs_it == mParticularObservers.end())
+		        return;
+
+		    observer_set_t& obs = obs_it->second;
+		    for (observer_set_t::iterator ob_it = obs.begin(); ob_it != obs.end(); ++ob_it)
+		    {
+		        (*ob_it)->changed(group_id, gc);
+		    }
 		}
 	}
 }
@@ -1670,12 +1708,18 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	bool start_message = true;
 	LLMessageSystem* msg = gMessageSystem;
 
+	
+
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap) return;
 
 	for (std::vector<LLUUID>::iterator it = member_ids.begin();
 		 it != member_ids.end(); ++it)
 	{
+		LLUUID& ejected_member_id = (*it);
+
+		llwarns << "LLGroupMgr::sendGroupMemberEjects -- ejecting member" << ejected_member_id << llendl;
+		
 		// Can't use 'eject' to leave a group.
 		if ((*it) == gAgent.getID()) continue;
 
@@ -1696,7 +1740,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			}
 			
 			msg->nextBlock("EjectData");
-			msg->addUUID("EjecteeID",(*it));
+			msg->addUUID("EjecteeID",ejected_member_id);
 
 			if (msg->isSendFull())
 			{
@@ -1708,13 +1752,18 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			for (LLGroupMemberData::role_list_t::iterator rit = (*mit).second->roleBegin();
 				 rit != (*mit).second->roleEnd(); ++rit)
 			{
-				if ((*rit).first.notNull())
+				if ((*rit).first.notNull() && (*rit).second!=0)
 				{
-					(*rit).second->removeMember(*it);
+					(*rit).second->removeMember(ejected_member_id);
+
+					llwarns << "LLGroupMgr::sendGroupMemberEjects - removing member from role " << llendl;
 				}
 			}
-			delete (*mit).second;
+			
 			group_datap->mMembers.erase(*it);
+			
+			llwarns << "LLGroupMgr::sendGroupMemberEjects - deleting memnber data " << llendl;
+			delete (*mit).second;
 		}
 	}
 
@@ -1722,6 +1771,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	{
 		gAgent.sendReliableMessage();
 	}
+
+	llwarns << "LLGroupMgr::sendGroupMemberEjects - done " << llendl;
 }
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)

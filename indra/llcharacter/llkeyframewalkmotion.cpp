@@ -58,11 +58,15 @@ const F32 MAX_ROLL = 0.6f;
 // LLKeyframeWalkMotion()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLKeyframeWalkMotion::LLKeyframeWalkMotion(const LLUUID &id) : LLKeyframeMotion(id)
+LLKeyframeWalkMotion::LLKeyframeWalkMotion(const LLUUID &id)
+  : LLKeyframeMotion(id),
+    
+    mCharacter(NULL),
+    mCyclePhase(0.0f),
+    mRealTimeLast(0.0f),
+    mAdjTimeLast(0.0f),
+    mDownFoot(0)
 {
-	mRealTimeLast = 0.0f;
-	mAdjTimeLast = 0.0f;
-	mCharacter = NULL;
 }
 
 

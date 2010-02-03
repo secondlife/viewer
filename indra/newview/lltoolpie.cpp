@@ -68,7 +68,6 @@
 #include "llviewermedia.h"
 #include "llvoavatarself.h"
 #include "llviewermediafocus.h"
-#include "llvovolume.h"
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
@@ -630,14 +629,12 @@ static bool needs_tooltip(LLSelectNode* nodep)
 		return false;
 
 	LLViewerObject* object = nodep->getObject();
-	LLVOVolume* vovolume = dynamic_cast<LLVOVolume*>(object);
 	LLViewerObject *parent = (LLViewerObject *)object->getParent();
 	if (object->flagHandleTouch()
 		|| (parent && parent->flagHandleTouch())
 		|| object->flagTakesMoney()
 		|| (parent && parent->flagTakesMoney())
 		|| object->flagAllowInventoryAdd()
-		|| (vovolume && vovolume->hasMedia())
 		)
 	{
 		return true;
@@ -913,50 +910,58 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				tooltip_msg.append( nodep->mName );
 			}
 			
+			bool has_media = false;
 			bool is_time_based_media = false;
 			bool is_web_based_media = false;
 			bool is_media_playing = false;
+			bool is_media_displaying = false;
 			
 			// Does this face have media?
 			const LLTextureEntry* tep = hover_object->getTE(mHoverPick.mObjectFace);
 			
 			if(tep)
 			{
-				const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+				has_media = tep->hasMedia();
+				const LLMediaEntry* mep = has_media ? tep->getMediaData() : NULL;
 				if (mep)
 				{
-					viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
+					viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 					LLPluginClassMedia* media_plugin = NULL;
 					
 					if (media_impl.notNull() && (media_impl->hasMedia()))
 					{
+						is_media_displaying = true;
 						LLStringUtil::format_map_t args;
 						
 						media_plugin = media_impl->getMediaPlugin();
 						if(media_plugin)
-						{	if(media_plugin->pluginSupportsMediaTime())
-						{
-							is_time_based_media = true;
-							is_web_based_media = false;
-							//args["[CurrentURL]"] =  media_impl->getMediaURL();
-							is_media_playing = media_impl->isMediaPlaying();
-						}
-						else
-						{
-							is_time_based_media = false;
-							is_web_based_media = true;
-							//args["[CurrentURL]"] =  media_plugin->getLocation();
-						}
+						{	
+							if(media_plugin->pluginSupportsMediaTime())
+							{
+								is_time_based_media = true;
+								is_web_based_media = false;
+								//args["[CurrentURL]"] =  media_impl->getMediaURL();
+								is_media_playing = media_impl->isMediaPlaying();
+							}
+							else
+							{
+								is_time_based_media = false;
+								is_web_based_media = true;
+								//args["[CurrentURL]"] =  media_plugin->getLocation();
+							}
 							//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
 						}
 					}
 				}
 			}
 			
+			// Avoid showing tip over media that's displaying
 			// also check the primary node since sometimes it can have an action even though
 			// the root node doesn't
-			bool needs_tip = needs_tooltip(nodep) || 
-			needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode());
+			bool needs_tip = !is_media_displaying &&
+				(has_media || 
+				 needs_tooltip(nodep) || 
+				 needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode()));
 			
 			if (show_all_object_tips || needs_tip)
 			{

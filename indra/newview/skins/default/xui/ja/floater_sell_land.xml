@@ -39,7 +39,7 @@
 				販売先の指定なしか、特定の人に販売するか選択してください。
 			</text>
 			<combo_box name="sell_to">
-				<combo_box.item label="-- 1つ選択 --" name="--selectone--"/>
+				<combo_box.item label="- 1つ選択 -" name="--selectone--"/>
 				<combo_box.item label="指定なし・誰にでも販売" name="Anyone"/>
 				<combo_box.item label="特定の人：" name="Specificuser:"/>
 			</combo_box>

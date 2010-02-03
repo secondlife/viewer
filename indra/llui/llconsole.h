@@ -150,8 +150,6 @@ private:
 	F32			mLinePersistTime; // Age at which to stop drawing.
 	F32			mFadeTime; // Age at which to start fading
 	const LLFontGL*	mFont;
-	S32			mLastBoxHeight;
-	S32			mLastBoxWidth;
 	S32			mConsoleWidth;
 	S32			mConsoleHeight;
 

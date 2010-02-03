@@ -39,8 +39,9 @@
 #include "lltrans.h"
 #include "lluicolortable.h"
 
-LLUrlEntryBase::LLUrlEntryBase()
-: mColor(LLUIColorTable::instance().getColor("HTMLLinkColor"))
+LLUrlEntryBase::LLUrlEntryBase() :
+	mColor(LLUIColorTable::instance().getColor("HTMLLinkColor")),
+	mDisabledLink(false)
 {
 }
 
@@ -48,7 +49,7 @@ LLUrlEntryBase::~LLUrlEntryBase()
 {
 }
 
-std::string LLUrlEntryBase::getUrl(const std::string &string)
+std::string LLUrlEntryBase::getUrl(const std::string &string) const
 {
 	return escapeUrl(string);
 }
@@ -88,7 +89,7 @@ std::string LLUrlEntryBase::escapeUrl(const std::string &url) const
 	return LLURI::escape(url, no_escape_chars, true);
 }
 
-std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url)
+std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url) const
 {
 	// return the label part from [http://www.example.org Label]
 	const char *text = url.c_str();
@@ -104,7 +105,7 @@ std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url)
 	return unescapeUrl(url.substr(start, url.size()-start-1));
 }
 
-std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string)
+std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string) const
 {
 	// return the url part from [http://www.example.org Label]
 	const char *text = string.c_str();
@@ -191,7 +192,7 @@ std::string LLUrlEntryHTTPLabel::getLabel(const std::string &url, const LLUrlLab
 	return getLabelFromWikiLink(url);
 }
 
-std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string)
+std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 {
 	return getUrlFromWikiLink(string);
 }
@@ -204,7 +205,7 @@ LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 	mPattern = boost::regex("("
 				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
 				"|" // or
-				"(?<!@)\\b[^[:space:]:@/]+\\.(?:com|net|edu|org)([/:]\\S*)?\\b" // i.e. FOO.net
+				"(?<!@)\\b[^[:space:]:@/>]+\\.(?:com|net|edu|org)([/:][^[:space:]<]*)?\\b" // i.e. FOO.net
 				")",
 				boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
@@ -216,7 +217,7 @@ std::string LLUrlEntryHTTPNoProtocol::getLabel(const std::string &url, const LLU
 	return unescapeUrl(url);
 }
 
-std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string)
+std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string) const
 {
 	if (string.find("://") == std::string::npos)
 	{
@@ -231,7 +232,7 @@ std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string)
 LLUrlEntrySLURL::LLUrlEntrySLURL()
 {
 	// see http://slurl.com/about.php for details on the SLURL format
-	mPattern = boost::regex("http://slurl.com/secondlife/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
+	mPattern = boost::regex("http://(maps.secondlife.com|slurl.com)/secondlife/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -665,7 +666,7 @@ std::string LLUrlEntrySLLabel::getLabel(const std::string &url, const LLUrlLabel
 	return getLabelFromWikiLink(url);
 }
 
-std::string LLUrlEntrySLLabel::getUrl(const std::string &string)
+std::string LLUrlEntrySLLabel::getUrl(const std::string &string) const
 {
 	return getUrlFromWikiLink(string);
 }
@@ -709,4 +710,25 @@ std::string LLUrlEntryWorldMap::getLocation(const std::string &url) const
 {
 	// return the part of the Url after secondlife:///app/worldmap/ part
 	return ::getStringAfterToken(url, "app/worldmap/");
+}
+
+//
+// LLUrlEntryNoLink lets us turn of URL detection with <nolink>...</nolink> tags
+//
+LLUrlEntryNoLink::LLUrlEntryNoLink()
+{
+	mPattern = boost::regex("<nolink>[^<]*</nolink>",
+							boost::regex::perl|boost::regex::icase);
+	mDisabledLink = true;
+}
+
+std::string LLUrlEntryNoLink::getUrl(const std::string &url) const
+{
+	// return the text between the <nolink> and </nolink> tags
+	return url.substr(8, url.size()-8-9);
+}
+
+std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return getUrl(url);
 }

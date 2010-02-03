@@ -10,33 +10,37 @@
 		Textures composées
 	</text>
 	<button label="Vider ces ID dans la console" label_selected="Vider" left="-185" name="Dump" width="175"/>
-	<texture_picker label="Cheveux" name="hair-baked"/>
-	<texture_picker label="Cheveux" name="hair_grain"/>
-	<texture_picker label="Alpha cheveux" name="hair_alpha"/>
-	<texture_picker label="Tête" name="head-baked"/>
-	<texture_picker label="Maquillage" name="head_bodypaint"/>
-	<texture_picker label="Alpha tête" name="head_alpha"/>
-	<texture_picker label="Tatouage tête" name="head_tattoo"/>
-	<texture_picker label="Yeux" name="eyes-baked"/>
-	<texture_picker label="Œil" name="eyes_iris"/>
-	<texture_picker label="Alpha yeux" name="eyes_alpha"/>
-	<texture_picker label="Haut du corps" name="upper-baked"/>
-	<texture_picker label="Peinture corporelle haut" name="upper_bodypaint"/>
-	<texture_picker label="Sous-vêtements (homme)" name="upper_undershirt"/>
-	<texture_picker label="Gants" name="upper_gloves"/>
-	<texture_picker label="Chemise" name="upper_shirt"/>
-	<texture_picker label="Veste (haut)" name="upper_jacket"/>
-	<texture_picker label="Alpha haut" name="upper_alpha"/>
-	<texture_picker label="Tatouage haut" name="upper_tattoo"/>
-	<texture_picker label="Bas du corps" name="lower-baked"/>
-	<texture_picker label="Peinture corporelle bas" name="lower_bodypaint"/>
-	<texture_picker label="Sous-vêtements (femme)" name="lower_underpants"/>
-	<texture_picker label="Chaussettes" name="lower_socks"/>
-	<texture_picker label="Chaussures" name="lower_shoes"/>
-	<texture_picker label="Pantalon" name="lower_pants"/>
-	<texture_picker label="Veste" name="lower_jacket"/>
-	<texture_picker label="Alpha bas" name="lower_alpha"/>
-	<texture_picker label="Tatouage bas" name="lower_tattoo"/>
-	<texture_picker label="Jupe" name="skirt-baked"/>
-	<texture_picker label="Jupe" name="skirt"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<texture_picker label="Cheveux" name="hair-baked"/>
+			<texture_picker label="Cheveux" name="hair_grain"/>
+			<texture_picker label="Alpha cheveux" name="hair_alpha"/>
+			<texture_picker label="Tête" name="head-baked"/>
+			<texture_picker label="Maquillage" name="head_bodypaint"/>
+			<texture_picker label="Alpha tête" name="head_alpha"/>
+			<texture_picker label="Tatouage tête" name="head_tattoo"/>
+			<texture_picker label="Yeux" name="eyes-baked"/>
+			<texture_picker label="Œil" name="eyes_iris"/>
+			<texture_picker label="Alpha yeux" name="eyes_alpha"/>
+			<texture_picker label="Haut du corps" name="upper-baked"/>
+			<texture_picker label="Peinture corporelle haut" name="upper_bodypaint"/>
+			<texture_picker label="Sous-vêtements (homme)" name="upper_undershirt"/>
+			<texture_picker label="Gants" name="upper_gloves"/>
+			<texture_picker label="Chemise" name="upper_shirt"/>
+			<texture_picker label="Veste (haut)" name="upper_jacket"/>
+			<texture_picker label="Alpha haut" name="upper_alpha"/>
+			<texture_picker label="Tatouage haut" name="upper_tattoo"/>
+			<texture_picker label="Bas du corps" name="lower-baked"/>
+			<texture_picker label="Peinture corporelle bas" name="lower_bodypaint"/>
+			<texture_picker label="Sous-vêtements (femme)" name="lower_underpants"/>
+			<texture_picker label="Chaussettes" name="lower_socks"/>
+			<texture_picker label="Chaussures" name="lower_shoes"/>
+			<texture_picker label="Pantalon" name="lower_pants"/>
+			<texture_picker label="Veste" name="lower_jacket"/>
+			<texture_picker label="Alpha bas" name="lower_alpha"/>
+			<texture_picker label="Tatouage bas" name="lower_tattoo"/>
+			<texture_picker label="Jupe" name="skirt-baked"/>
+			<texture_picker label="Jupe" name="skirt"/>
+		</panel>
+	</scroll_container>
 </floater>

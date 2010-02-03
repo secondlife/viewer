@@ -9,4 +9,7 @@
 			<combo_editor label="[SECOND_LIFE] を検索：" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
+	<favorites_bar name="favorite">
+		<chevron_button name="&gt;&gt;" tool_tip="お気に入りをもっと表示"/>
+	</favorites_bar>
 </panel>

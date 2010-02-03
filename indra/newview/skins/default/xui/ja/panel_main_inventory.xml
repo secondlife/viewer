@@ -3,10 +3,10 @@
 	<panel.string name="Title">
 		もの
 	</panel.string>
-	<filter_editor label="フィルター" name="inventory search editor"/>
+	<filter_editor label="持ち物をフィルター" name="inventory search editor"/>
 	<tab_container name="inventory filter tabs">
-		<inventory_panel label="すべて" name="All Items"/>
-		<inventory_panel label="最近の入手アイテム" name="Recent Items"/>
+		<inventory_panel label="持ち物" name="All Items"/>
+		<inventory_panel label="最新" name="Recent Items"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="その他のオプションを表示"/>
@@ -32,7 +32,7 @@
 		<menu label="新規作成" name="Create">
 			<menu_item_call label="フォルダ" name="New Folder"/>
 			<menu_item_call label="スクリプト" name="New Script"/>
-			<menu_item_call label="ノート" name="New Note"/>
+			<menu_item_call label="新しいノートカード" name="New Note"/>
 			<menu_item_call label="ジェスチャー" name="New Gesture"/>
 			<menu label="衣類" name="New Clothes">
 				<menu_item_call label="シャツ" name="New Shirt"/>

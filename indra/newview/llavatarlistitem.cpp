@@ -48,6 +48,17 @@ S32 LLAvatarListItem::sLeftPadding = 0;
 S32 LLAvatarListItem::sRightNamePadding = 0;
 S32 LLAvatarListItem::sChildrenWidths[LLAvatarListItem::ALIC_COUNT];
 
+static LLWidgetNameRegistry::StaticRegistrar sRegisterAvatarListItemParams(&typeid(LLAvatarListItem::Params), "avatar_list_item");
+
+LLAvatarListItem::Params::Params()
+:	default_style("default_style"),
+	voice_call_invited_style("voice_call_invited_style"),
+	voice_call_joined_style("voice_call_joined_style"),
+	voice_call_left_style("voice_call_left_style"),
+	online_style("online_style"),
+	offline_style("offline_style")
+{};
+
 
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 :	LLPanel(),
@@ -166,9 +177,30 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 
 void LLAvatarListItem::setState(EItemState item_style)
 {
-	item_style_map_t& item_styles_params_map = getItemStylesParams();
+	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
 
-	mAvatarNameStyle = item_styles_params_map[item_style];
+	switch(item_style)
+	{
+	default:
+	case IS_DEFAULT:
+		mAvatarNameStyle = params.default_style();
+		break;
+	case IS_VOICE_INVITED:
+		mAvatarNameStyle = params.voice_call_invited_style();
+		break;
+	case IS_VOICE_JOINED:
+		mAvatarNameStyle = params.voice_call_joined_style();
+		break;
+	case IS_VOICE_LEFT:
+		mAvatarNameStyle = params.voice_call_left_style();
+		break;
+	case IS_ONLINE:
+		mAvatarNameStyle = params.online_style();
+		break;
+	case IS_OFFLINE:
+		mAvatarNameStyle = params.offline_style();
+		break;
+	}
 
 	// *NOTE: You cannot set the style on a text box anymore, you must
 	// rebuild the text.  This will cause problems if the text contains
@@ -352,58 +384,6 @@ std::string LLAvatarListItem::formatSeconds(U32 secs)
 }
 
 // static
-LLAvatarListItem::item_style_map_t& LLAvatarListItem::getItemStylesParams()
-{
-	static item_style_map_t item_styles_params_map;
-	if (!item_styles_params_map.empty()) return item_styles_params_map;
-
-	LLPanel::Params params = LLUICtrlFactory::getDefaultParams<LLPanel>();
-	LLPanel* params_panel = LLUICtrlFactory::create<LLPanel>(params);
-
-	BOOL sucsess = LLUICtrlFactory::instance().buildPanel(params_panel, "panel_avatar_list_item_params.xml");
-
-	if (sucsess)
-	{
-
-		item_styles_params_map.insert(
-			std::make_pair(IS_DEFAULT,
-			params_panel->getChild<LLTextBox>("default_style")->getDefaultStyle()));
-
-		item_styles_params_map.insert(
-			std::make_pair(IS_VOICE_INVITED,
-			params_panel->getChild<LLTextBox>("voice_call_invited_style")->getDefaultStyle()));
-
-		item_styles_params_map.insert(
-			std::make_pair(IS_VOICE_JOINED,
-			params_panel->getChild<LLTextBox>("voice_call_joined_style")->getDefaultStyle()));
-
-		item_styles_params_map.insert(
-			std::make_pair(IS_VOICE_LEFT,
-			params_panel->getChild<LLTextBox>("voice_call_left_style")->getDefaultStyle()));
-
-		item_styles_params_map.insert(
-			std::make_pair(IS_ONLINE,
-			params_panel->getChild<LLTextBox>("online_style")->getDefaultStyle()));
-
-		item_styles_params_map.insert(
-			std::make_pair(IS_OFFLINE,
-			params_panel->getChild<LLTextBox>("offline_style")->getDefaultStyle()));
-	}
-	else
-	{
-		item_styles_params_map.insert(std::make_pair(IS_DEFAULT, LLStyle::Params()));
-		item_styles_params_map.insert(std::make_pair(IS_VOICE_INVITED, LLStyle::Params()));
-		item_styles_params_map.insert(std::make_pair(IS_VOICE_JOINED, LLStyle::Params()));
-		item_styles_params_map.insert(std::make_pair(IS_VOICE_LEFT, LLStyle::Params()));
-		item_styles_params_map.insert(std::make_pair(IS_ONLINE, LLStyle::Params()));
-		item_styles_params_map.insert(std::make_pair(IS_OFFLINE, LLStyle::Params()));
-	}
-	if (params_panel) params_panel->die();
-
-	return item_styles_params_map;
-}
-
-// static
 LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
 {
 	static icon_color_map_t item_icon_color_map;
@@ -439,17 +419,17 @@ LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
 // static
 void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 {
+	//speaking indicator width + padding
+	S32 speaking_indicator_width = avatar_item->getRect().getWidth() - avatar_item->mSpeakingIndicator->getRect().mLeft;
+
 	//profile btn width + padding
-	S32 profile_btn_width = avatar_item->getRect().getWidth() - avatar_item->mProfileBtn->getRect().mLeft;
+	S32 profile_btn_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mProfileBtn->getRect().mLeft;
 
 	//info btn width + padding
 	S32 info_btn_width = avatar_item->mProfileBtn->getRect().mLeft - avatar_item->mInfoBtn->getRect().mLeft;
 
-	//speaking indicator width + padding
-	S32 speaking_indicator_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mSpeakingIndicator->getRect().mLeft;
-
 	// last interaction time textbox width + padding
-	S32 last_interaction_time_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
+	S32 last_interaction_time_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
 
 	// icon width + padding
 	S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
@@ -461,9 +441,9 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	sChildrenWidths[--index] = icon_width;
 	sChildrenWidths[--index] = 0; // for avatar name we don't need its width, it will be calculated as "left available space"
 	sChildrenWidths[--index] = last_interaction_time_width;
-	sChildrenWidths[--index] = speaking_indicator_width;
 	sChildrenWidths[--index] = info_btn_width;
 	sChildrenWidths[--index] = profile_btn_width;
+	sChildrenWidths[--index] = speaking_indicator_width;
 }
 
 void LLAvatarListItem::updateChildren()

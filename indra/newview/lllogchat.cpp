@@ -138,16 +138,20 @@ void LLLogChat::saveHistory(const std::string& filename,
 			    const LLUUID& from_id,
 			    const std::string& line)
 {
-	if(!filename.size())
+	std::string tmp_filename = filename;
+	LLStringUtil::trim(tmp_filename);
+	if (tmp_filename.empty())
 	{
-		llinfos << "Filename is Empty!" << llendl;
+		std::string warn = "Chat history filename [" + filename + "] is empty!";
+		llwarning(warn, 666);
+		llassert(tmp_filename.size());
 		return;
 	}
-
+	
 	llofstream file (LLLogChat::makeLogFileName(filename), std::ios_base::app);
 	if (!file.is_open())
 	{
-		llinfos << "Couldn't open chat history log!" << llendl;
+		llwarns << "Couldn't open chat history log! - " + filename << llendl;
 		return;
 	}
 

@@ -244,6 +244,16 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="FriendsAndGroupsOnly"
+   type="alertmodal">
+    Non-friends won't know that you've choosen to ignore their calls and instant messages.
+    <usetemplate
+     name="okbutton"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
@@ -2931,7 +2941,6 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    type="alert">
 You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
-[INVITE]
     <usetemplate
      name="okcancelbuttons"
      notext="Decline"
@@ -3078,7 +3087,7 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="TeleportFromLandmark"
    type="alertmodal">
-Are you sure you want to teleport to [LOCATION]?
+Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
     <usetemplate
      ignoretext="Confirm that I want to teleport to a landmark"
      name="okcancelignore"
@@ -3841,7 +3850,7 @@ Are you sure you want to quit?
    type="alertmodal">
 Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
-All reported abuses are investigated and resolved. You can view the resolution by reading the [http://secondlife.com/support/incidentreport.php Incident Report].
+All reported abuses are investigated and resolved.
    <unique/>
   </notification>
 
@@ -5147,7 +5156,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="alertmodal">
+   type="offer">
 [NAME] is offering friendship.
 
 [MESSAGE]
@@ -5162,10 +5171,6 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
        index="1"
        name="Decline"
        text="Decline"/>
-      <button
-       index="2"
-       name="Send IM"
-       text="Send IM"/>
     </form>
   </notification>
   

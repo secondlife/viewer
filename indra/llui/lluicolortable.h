@@ -94,7 +94,7 @@ private:
 	bool loadFromFilename(const std::string& filename);
 
 	// consider using sorted vector, can be much faster
-	typedef std::map<std::string, LLColor4>  string_color_map_t;
+	typedef std::map<std::string, LLUIColor>  string_color_map_t;
 	
 	void clearTable(string_color_map_t& table);
 	void setColor(const std::string& name, const LLColor4& color, string_color_map_t& table);

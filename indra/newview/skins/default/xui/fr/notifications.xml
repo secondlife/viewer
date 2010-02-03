@@ -32,10 +32,10 @@
 			<button name="No" text="$notext"/>
 		</form>
 	</template>
-	<notification functor="GenericAcknowledge" label="Message d&apos;alerte inconnu" name="MissingAlert">
-		Votre version de [APP_NAME] ne peut afficher ce message d&apos;erreur.  Veuillez vous assurer que vous avez bien la toute dernière version du client.
+	<notification functor="GenericAcknowledge" label="Message de notification inconnu" name="MissingAlert">
+		Votre version de [APP_NAME] ne peut afficher ce message de notification.  Veuillez vous assurer que vous avez bien la toute dernière version du client.
 
-Détails de l&apos;erreur : L&apos;alerte, appelée &apos;[_NAME]&apos;, est introuvable dans notifications.xml.
+Détails de l&apos;erreur : La notification, appelée &apos;[_NAME]&apos;, est introuvable dans notifications.xml.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="FloaterNotFound">
@@ -95,12 +95,12 @@ Veuillez ne sélectionner qu&apos;un seul objet.
 	</notification>
 	<notification name="GrantModifyRights">
 		Lorsque vous accordez des droits d&apos;édition à un autre résident, vous lui permettez de changer, supprimer ou prendre n&apos;importe lequel de vos objets dans le Monde. Réfléchissez bien avant d&apos;accorder ces droits.
-Souhaitez-vous accorder des droits d&apos;édition à [FIRST_NAME] [LAST_NAME] ?
+Souhaitez-vous accorder des droits d&apos;édition à [FIRST_NAME] [LAST_NAME] ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
 		Lorsque vous accordez des droits d&apos;édition à un autre résident, vous lui permettez de changer n&apos;importe lequel de vos objets dans le Monde. Réfléchissez bien avant d&apos;accorder ces droits.
-Souhaitez-vous accorder des droits d&apos;édition aux résidents selectionnés ?
+Souhaitez-vous accorder des droits d&apos;édition aux résidents sélectionnés ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="RevokeModifyRights">
@@ -148,6 +148,11 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 
 Ajouter ce pouvoir à « [ROLE_NAME] » ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="AttachmentDrop">
+		Vous êtes sur le point d&apos;abandonner l&apos;élément joint.
+Voulez-vous vraiment continuer ?
+		<usetemplate ignoretext="Confirmez avant d&apos;abandonner les éléments joints." name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="ClickUnimplemented">
 		Désolés, pas encore mis en œuvre.
@@ -247,14 +252,8 @@ Pour que les armes fonctionnent, les scripts doivent être autorisés.
 	<notification name="MultipleFacesSelected">
 		Plusieurs faces sont sélectionnées.
 Si vous poursuivez cette action, des instances séparées du média seront définies sur plusieurs faces de l&apos;objet.
-Pour ne placer le média que sur une seule face, choisissez Sélectionner une texture, cliquez sur la face de l&apos;objet de votre choix, puis sur Ajouter.
+Pour ne placer le média que sur une seule face, choisissez Sélectionner une face, cliquez sur la face de l&apos;objet de votre choix, puis sur Ajouter.
 		<usetemplate ignoretext="Le média sera défini sur plusieurs faces sélectionnées" name="okcancelignore" notext="Annuler" yestext="OK"/>
-	</notification>
-	<notification name="WhiteListInvalidatesHomeUrl">
-		Si vous ajoutez cette entrée à la liste blanche, l&apos;URL du domicile que vous avez spécifiée
-pour cette instance du média ne sera plus valide. Vous n&apos;êtes pas autorisé(e) à faire cela,
-l&apos;entrée ne peut donc pas être ajoutée à la liste blanche.
-		<usetemplate name="okbutton" yestext="Ok"/>
 	</notification>
 	<notification name="MustBeInParcel">
 		Pour définir le point d&apos;atterrissage, vous devez vous trouver à l&apos;intérieur de la parcelle.
@@ -345,14 +344,6 @@ Voulez-vous vraiment continuer ?
 	</notification>
 	<notification name="SelectHistoryItemToView">
 		Veuillez sélectionner un historique.
-	</notification>
-	<notification name="ResetShowNextTimeDialogs">
-		Souhaitez-vous réactiver tous les pop-ups que vous aviez désactivés ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
-	</notification>
-	<notification name="SkipShowNextTimeDialogs">
-		Voulez-vous désactiver tous les pop-ups qui peuvent être évités ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
 		Le cache sera vidé après le redémarrage de [APP_NAME].
@@ -615,6 +606,10 @@ Veuillez réessayer ultérieurement.
 	<notification name="LandmarkCreated">
 		Vous avez ajouté [LANDMARK_NAME] à votre dossier [FOLDER_NAME].
 	</notification>
+	<notification name="LandmarkAlreadyExists">
+		Vous avez déjà un repère pour cet emplacement.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="CannotCreateLandmarkNotOwner">
 		Vous ne pouvez pas créer de repère ici car le propriétaire du terrain ne l&apos;autorise pas.
 	</notification>
@@ -713,7 +708,8 @@ aucune parcelle sélectionnée.
 		Impossible de définir un propriétaire car la sélection couvre plusieurs régions. Veuillez sélectionner une zone plus petite et réessayer.
 	</notification>
 	<notification name="ForceOwnerAuctionWarning">
-		Cette parcelle est mise aux enchères. Définir un propriétaire annulerait les enchères, ce qui pourrait être gênant pour certains résidents si ces dernières ont commencé. Souhaitez-vous définir un propriétaire ?
+		Cette parcelle est mise aux enchères. Définir un propriétaire annulerait les enchères, ce qui pourrait être gênant pour certains résidents si ces dernières ont commencé.
+Définir un propriétaire ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="CannotContentifyNothingSelected">
@@ -762,11 +758,11 @@ plusieurs parcelles sélectionnées.
 Essayez de ne sélectionner qu&apos;une seule parcelle.
 	</notification>
 	<notification name="ParcelCanPlayMedia">
-		Cette parcelle propose des flux média.
-Pour jouer des flux média, il faut avoir une connexion internet rapide.
+		Cet emplacement propose des flux de média.
+Pour jouer des flux de média, il faut avoir une connexion Internet rapide.
 
-Jouer les flux média lorsqu&apos;ils sont disponibles ?
-(Vous pourrez modifier cette option ultérieurement sous Préférences &gt; Audio et vidéo.)
+Jouer les flux de média lorsqu&apos;ils sont disponibles ?
+(Vous pourrez modifier cette option ultérieurement sous Préférences &gt; Confidentialité.)
 		<usetemplate name="okcancelbuttons" notext="Désactiver" yestext="Jouer le média"/>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
@@ -1323,6 +1319,10 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 [INVITE]
 		<usetemplate name="okcancelbuttons" notext="Refuser" yestext="Rejoindre"/>
 	</notification>
+	<notification name="JoinedTooManyGroups">
+		Vous avez atteint le nombre de groupes maximum. Vous devez en quitter un avant d&apos;en rejoindre ou d&apos;en créer un nouveau.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="KickUser">
 		Éjecter cet utilisateur avec quel message ?
 		<form name="form">
@@ -1567,11 +1567,11 @@ Publier cette petite annonce maintenant pour [AMOUNT] L$ ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		Cette petite annonce contient-elle du contenu Mature ?
+		Cette petite annonce contient-elle du contenu Modéré ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="SetGroupMature">
-		Ce groupe contient-il du contenu Mature ?
+		Ce groupe contient-il du contenu Modéré ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification label="Confirmer le redémarrage" name="ConfirmRestart">
@@ -1587,8 +1587,10 @@ Publier cette petite annonce maintenant pour [AMOUNT] L$ ?
 		</form>
 	</notification>
 	<notification label="Catégorie de la région modifiée" name="RegionMaturityChange">
-		La catégorie d&apos;accès de cette région a été mise à jour.
+		Le niveau de maturité de cette région a été mis à jour.
 Ce changement n&apos;apparaîtra pas immédiatement sur la carte.
+
+Pour entrer dans les régions Adultes, le résident doit avoir vérifié son compte, que ce soit par vérification de l&apos;âge ou du mode de paiement.
 	</notification>
 	<notification label="Versions de voix non compatibles" name="VoiceVersionMismatch">
 		Cette version de [APP_NAME] n&apos;est pas compatible avec la fonctionnalité de chat vocal dans cette région. Vous devez mettre à jour [APP_NAME] pour que le chat vocal fonctionne correctement.
@@ -1709,16 +1711,6 @@ Déplacer les objets de l&apos;inventaire ?
 		Utilisez cet outil pour signaler des infractions aux [http://secondlife.com/corporate/tos.php Conditions d&apos;utilisation] et aux [http://secondlife.com/corporate/cs.php Règles communautaires].
 
 Lorsqu&apos;elles sont signalées, toutes les infractions font l&apos;objet d&apos;une enquête et sont résolues. Vous pouvez consulter les détails de la résolution d&apos;un incident dans le [http://secondlife.com/support/incidentreport.php Rapport d&apos;incident].
-	</notification>
-	<notification name="HelpReportAbuseEmailEO">
-		IMPORTANT : ce rapport sera envoyé au propriétaire de la région dans laquelle vous vous trouvez actuellement et non à Linden Lab.
-
-Pour rendre service aux résidents et visiteurs, le propriétaire de la région dans laquelle vous vous trouvez a choisi de recevoir et de résoudre tous les rapports concernant cette région. Linden Lab n&apos;enquêtera pas sur les rapports que vous envoyez depuis cet emplacement.
-
-Le propriétaire de la région résoudra les incidents signalés dans les rapports selon les règles locales de cette région, telles qu&apos;elles sont définies dans le règlement du domaine.
-(Pour consulter les règlements, sélectionnez À propos des terrains dans le menu Monde.)
-
-La résolution de ce rapport ne s&apos;applique qu&apos;à cette région. L&apos;accès des résidents aux autres zones de [SECOND_LIFE] ne sera pas affecté par l&apos;issue de ce rapport. Seul Linden Lab peut interdire l&apos;accès à la totalité de [SECOND_LIFE].
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Veuillez choisir une catégorie pour ce rapport d&apos;infraction.
@@ -1954,7 +1946,6 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 	</notification>
 	<notification name="UnableToLoadGesture">
 		Impossible de charger le geste [NAME].
-Merci de réessayer.
 	</notification>
 	<notification name="LandmarkMissing">
 		Repère absent de la base de données.
@@ -2057,7 +2048,7 @@ Veuillez sélectionner un terrain plus petit.
 		Certains termes de votre recherche ont été exclus car ils ne correspondaient pas aux standards fixés dans les Règles communautaires.
 	</notification>
 	<notification name="NoContentToSearch">
-		Veuillez sélectionner au moins un type de contenu à rechercher (PG, Mature ou Adulte)
+		Veuillez sélectionner au moins un type de contenu à rechercher (Général, Modéré ou Adulte)
 	</notification>
 	<notification name="GroupVote">
 		[NAME] a proposé un vote pour :
@@ -2068,6 +2059,9 @@ Veuillez sélectionner un terrain plus petit.
 		</form>
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentRecived">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2116,7 +2110,7 @@ Si le problème persiste, veuillez réinstaller le plugin ou contacter le vendeu
 		Les objets que vous possédez sur la parcelle de terrain appartenant à [FIRST] [LAST] ont été renvoyés dans votre inventaire.
 	</notification>
 	<notification name="OtherObjectsReturned2">
-		Les objets sur la parcelle appartenant à « [NAME] » ont étés renvoyés à leur propriétaire.
+		Les objets sur la parcelle de terrain sélectionnée appartenant au résident [NAME] ont été rendus à leur propriétaire.
 	</notification>
 	<notification name="GroupObjectsReturned">
 		Les objets sélectionnés sur la parcelle de terrain partagée avec le groupe [GROUPNAME] ont été renvoyés dans l&apos;inventaire de leur propriétaire.
@@ -2129,7 +2123,6 @@ Les objets non transférables donnés au groupe ont étés supprimés.
 	<notification name="ServerObjectMessage">
 		Message de [NAME] :
 [MSG]
-		<usetemplate name="okcancelbuttons" notext="OK" yestext="Inspecter"/>
 	</notification>
 	<notification name="NotSafe">
 		Les dégâts sont autorisés sur ce terrain.
@@ -2262,9 +2255,9 @@ Veuillez réessayer dans quelques minutes.
 		[NAME_SLURL] vous a donné un [OBJECTTYPE] :
 [ITEM_SLURL]
 		<form name="form">
-			<button name="Keep" text="Garder"/>
 			<button name="Show" text="Afficher"/>
 			<button name="Discard" text="Jeter"/>
+			<button name="Mute" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
@@ -2289,6 +2282,9 @@ Veuillez réessayer dans quelques minutes.
 			<button name="Cancel" text="Annuler"/>
 		</form>
 	</notification>
+	<notification name="TeleportOfferSent">
+		Offre de téléportation envoyée à [TO_NAME]
+	</notification>
 	<notification name="GotoURL">
 		[MESSAGE]
 [URL]
@@ -2306,7 +2302,11 @@ Veuillez réessayer dans quelques minutes.
 		<form name="form">
 			<button name="Accept" text="Accepter"/>
 			<button name="Decline" text="Refuser"/>
+			<button name="Send IM" text="Envoyer IM"/>
 		</form>
+	</notification>
+	<notification name="FriendshipOffered">
+		Vous avez proposé à [TO_NAME] de devenir votre ami(e)
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
 		[NAME] vous demande de devenir son ami.
@@ -2405,14 +2405,6 @@ Accepter cette requête ?
 			<button name="Block" text="Ignorer"/>
 		</form>
 	</notification>
-	<notification name="FirstBalanceIncrease">
-		Vous venez de recevoir [AMOUNT] L$.
-Votre solde en L$ est affiché en haut à droite.
-	</notification>
-	<notification name="FirstBalanceDecrease">
-		Vous venez de payer [AMOUNT] L$.
-Votre solde en L$ est affiché en haut à droite.
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Nous vous remercions de votre paiement.
 
@@ -2420,57 +2412,16 @@ Votre solde en L$ sera mis à jour une fois le traitement terminé. Si le traite
 
 Vous pouvez consulter le statut de votre paiement à la page Historique de mes transactions sur votre [http://secondlife.com/account/ Page d&apos;accueil]
 	</notification>
-	<notification name="FirstSit">
-		Vous êtes assis(e).
-Utilisez les touches de direction (ou AWSD) pour regarder autour de vous.
-Pour vous lever, cliquez sur le bouton Me lever.
-	</notification>
-	<notification name="FirstMap">
-		Cliquez et faites glisser pour faire défiler la carte.
-Double-cliquez pour vous téléporter.
-Utilisez les contrôles à droite pour trouver des choses et afficher différents arrière-plans.
-	</notification>
-	<notification name="FirstBuild">
-		Vous avez ouvert les outils de construction. Tous les objets autour de vous ont été créés avec ces outils.
-	</notification>
-	<notification name="FirstTeleport">
-		Vous ne pouvez vous téléporter que dans certaines zones de cette région. La flèche pointe vers votre destination. Cliquez sur la flèche pour la faire disparaître.
-	</notification>
 	<notification name="FirstOverrideKeys">
 		Vos mouvements sont maintenant pris en charge par un objet.
 Essayez les flèches de votre clavier ou AWSD pour voir à quoi elles servent.
 Certains objets (comme les armes) nécessitent l&apos;activation du mode Vue subjective pour être utilisés.
 Pour cela, appuyez sur la touche M.
 	</notification>
-	<notification name="FirstAppearance">
-		Vous êtes en train d&apos;éditer votre apparence.
-Utilisez les touches de direction pour regarder autour de vous.
-Une fois terminé, cliquer sur Tout enregistrer.
-	</notification>
-	<notification name="FirstInventory">
-		Il s&apos;agit de votre inventaire qui contient vos possessions.
-
-* Pour porter quelque chose, faites glisser l&apos;objet sur vous-même.
-* Pour rezzer un objet dans le monde, faites-le glisser sur le sol.
-* Pour lire une note, double-cliquez dessus.
-	</notification>
 	<notification name="FirstSandbox">
 		Cette région est un bac à sable et est utilisée par les résidents pour apprendre à construire.
 
 Les objets que vous construisez ici seront supprimés après votre départ. N&apos;oubliez donc pas de cliquer droit et de choisir Prendre pour sauvegarder votre création dans votre inventaire.
-	</notification>
-	<notification name="FirstFlexible">
-		Cet objet est flexible. Les objets flexibles ne peuvent pas avoir de propriétés physiques et doivent rester fantômes.
-	</notification>
-	<notification name="FirstDebugMenus">
-		Vous avez ouvert le menu Avancé.
-
-Pour activer/désactiver ce menu,
-  Windows : Ctrl+Alt+D
-  Mac : &#8997;&#8984;D
-	</notification>
-	<notification name="FirstSculptedPrim">
-		Vous êtes en train d&apos;éditer un sculptie. Pour spécifier la forme d&apos;un sculptie, vous devez utiliser une texture spécifique.
 	</notification>
 	<notification name="MaxListSelectMessage">
 		Vous ne pouvez sélectionner que [MAX_SELECT] objets maximum dans cette liste.
@@ -2565,11 +2516,22 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 	<notification name="UnsupportedCommandSLURL">
 		La SLurl que vous avez saisie n&apos;est pas prise en charge.
 	</notification>
+	<notification name="BlockedSLURL">
+		Une SLurl a été reçue d&apos;un navigateur non sécurisé et a été bloquée pour votre sécurité.
+	</notification>
+	<notification name="ThrottledSLURL">
+		Plusieurs SLurl ont été reçues d&apos;un navigateur non sécurisé pendant un court laps de temps.
+Elles vont être bloquées pendant quelques secondes pour votre sécurité.
+	</notification>
 	<notification name="IMToast">
 		[MESSAGE]
 		<form name="form">
 			<button name="respondbutton" text="Répondre"/>
 		</form>
+	</notification>
+	<notification name="ConfirmCloseAll">
+		Êtes-vous certain de vouloir fermer tous les IM ?
+		<usetemplate name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.
@@ -2580,6 +2542,14 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 	<notification name="ObjectMediaFailure">
 		Erreur serveur : Échec de la mise à jour ou de l&apos;obtention du média.
 &apos;[ERROR]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TextChatIsMutedByModerator">
+		Le modérateur ignore votre chat écrit.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="VoiceIsMutedByModerator">
+		Le modérateur ignore vos paroles.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearTeleportHistory">

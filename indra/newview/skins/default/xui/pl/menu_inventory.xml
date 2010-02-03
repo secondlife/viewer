@@ -12,7 +12,7 @@
 	<menu_item_call label="Nowy Skrypt" name="New Script"/>
 	<menu_item_call label="Nowa Nota" name="New Note"/>
 	<menu_item_call label="Nowy Gest" name="New Gesture"/>
-	<menu name="New Clothes">
+	<menu label="Nowe Ubranie" name="New Clothes">
 		<menu_item_call label="Nowa Koszulka" name="New Shirt"/>
 		<menu_item_call label="Nowe Spodnie" name="New Pants"/>
 		<menu_item_call label="Nowe Buty" name="New Shoes"/>
@@ -22,31 +22,47 @@
 		<menu_item_call label="Nowe Rękawiczki" name="New Gloves"/>
 		<menu_item_call label="Nowy Podkoszulek" name="New Undershirt"/>
 		<menu_item_call label="Nowa Bielizna" name="New Underpants"/>
+		<menu_item_call label="Nowa Maska Przezroczysta" name="New Alpha Mask"/>
+		<menu_item_call label="Nowy Tatuaż" name="New Tattoo"/>
 	</menu>
-	<menu name="New Body Parts">
+	<menu label="Nowa Część Ciała" name="New Body Parts">
 		<menu_item_call label="Nowy Kształt" name="New Shape"/>
 		<menu_item_call label="Nowa Skórka" name="New Skin"/>
 		<menu_item_call label="Nowe Włosy" name="New Hair"/>
 		<menu_item_call label="Nowe Oczy" name="New Eyes"/>
+	</menu>
+	<menu label="Zmień Czcionkę" name="Change Type">
+		<menu_item_call label="Domyślna" name="Default"/>
+		<menu_item_call label="Rękawiczki" name="Gloves"/>
+		<menu_item_call label="Kurtka" name="Jacket"/>
+		<menu_item_call label="Spodnie" name="Pants"/>
+		<menu_item_call label="Kształt" name="Shape"/>
+		<menu_item_call label="Buty" name="Shoes"/>
+		<menu_item_call label="Koszulka" name="Shirt"/>
+		<menu_item_call label="Spódnica" name="Skirt"/>
+		<menu_item_call label="Bielizna" name="Underpants"/>
+		<menu_item_call label="Podkoszulek" name="Undershirt"/>
 	</menu>
 	<menu_item_call label="Teleportuj" name="Landmark Open"/>
 	<menu_item_call label="Otwórz" name="Animation Open"/>
 	<menu_item_call label="Otwórz" name="Sound Open"/>
 	<menu_item_call label="Usuń Obiekt" name="Purge Item"/>
 	<menu_item_call label="Przywróć Obiekt" name="Restore Item"/>
+	<menu_item_call label="Otwórz Link" name="Goto Link"/>
 	<menu_item_call label="Otwórz" name="Open"/>
 	<menu_item_call label="Właściwości" name="Properties"/>
 	<menu_item_call label="Zmień Nazwę" name="Rename"/>
 	<menu_item_call label="Kopiuj Dane UUID" name="Copy Asset UUID"/>
 	<menu_item_call label="Kopiuj" name="Copy"/>
 	<menu_item_call label="Wklej" name="Paste"/>
+	<menu_item_call label="Wklej jako Link" name="Paste As Link"/>
 	<menu_item_call label="Usuń" name="Delete"/>
 	<menu_item_call label="Zdejmij Obiekt" name="Take Off Items"/>
 	<menu_item_call label="Dodaj do Stroju" name="Add To Outfit"/>
 	<menu_item_call label="Zmień Strój" name="Replace Outfit"/>
 	<menu_item_call label="Rozpocznij Konferencję Czatową" name="Conference Chat Folder"/>
 	<menu_item_call label="Odtwarzaj" name="Sound Play"/>
-	<menu_item_call label="O Miejscu" name="Teleport To Landmark"/>
+	<menu_item_call label="O Miejscu" name="About Landmark"/>
 	<menu_item_call label="Odtwarzaj w Świecie" name="Animation Play"/>
 	<menu_item_call label="Odtwarzaj Lokalnie" name="Animation Audition"/>
 	<menu_item_call label="Wyślij IM" name="Send Instant Message"/>
@@ -54,8 +70,8 @@
 	<menu_item_call label="Rozpocznij Konferencję Czatową" name="Conference Chat"/>
 	<menu_item_call label="Aktywuj" name="Activate"/>
 	<menu_item_call label="Deaktywuj" name="Deactivate"/>
+	<menu_item_call label="Zapisz jako" name="Save As"/>
 	<menu_item_call label="Odłącz od Siebie" name="Detach From Yourself"/>
-	<menu_item_call label="Przywróć ostatnią pozycję" name="Restore to Last Position"/>
 	<menu_item_call label="Ubierz" name="Object Wear"/>
 	<menu label="Dołącz do" name="Attach To"/>
 	<menu label="Dołącz do Załączników HUD" name="Attach To HUD"/>

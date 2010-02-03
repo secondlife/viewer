@@ -583,7 +583,8 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item)
+	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item 
+		|| "can_pay" == item || "can_add" == item)
 	{
 		return mUUIDs.front() != gAgentID;
 	}
@@ -628,7 +629,9 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	}
 	else if (item == "can_call")
 	{
-		return LLVoiceClient::voiceEnabled();
+		bool not_agent = mUUIDs.front() != gAgentID;
+		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		return can_call;
 	}
 
 	return true;

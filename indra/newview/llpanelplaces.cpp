@@ -34,7 +34,7 @@
 #include "llpanelplaces.h"
 
 #include "llassettype.h"
-#include "llwindow.h"
+#include "lltimer.h"
 
 #include "llinventory.h"
 #include "lllandmark.h"
@@ -48,6 +48,8 @@
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+
+#include "llwindow.h"
 
 #include "llagent.h"
 #include "llagentpicksinfo.h"
@@ -68,11 +70,13 @@
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
+#include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 
 static const S32 LANDMARK_FOLDERS_MENU_WIDTH = 250;
+static const F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
 static const std::string AGENT_INFO_TYPE			= "agent";
 static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
 static const std::string LANDMARK_INFO_TYPE			= "landmark";
@@ -102,22 +106,35 @@ private:
 	LLPanelPlaces*		mPlaces;
 };
 
-class LLPlacesInventoryObserver : public LLInventoryObserver
+class LLPlacesInventoryObserver : public LLInventoryAddedObserver
 {
 public:
 	LLPlacesInventoryObserver(LLPanelPlaces* places_panel) :
-		LLInventoryObserver(),
-		mPlaces(places_panel)
+		mPlaces(places_panel),
+		mTabsCreated(false)
 	{}
 
 	/*virtual*/ void changed(U32 mask)
 	{
-		if (mPlaces)
-			mPlaces->changedInventory(mask);
+		LLInventoryAddedObserver::changed(mask);
+
+		if (!mTabsCreated && mPlaces)
+		{
+			mPlaces->createTabs();
+			mTabsCreated = true;
+		}
+	}
+
+protected:
+	/*virtual*/ void done()
+	{
+		mPlaces->showAddedLandmarkInfo(mAdded);
+		mAdded.clear();
 	}
 
 private:
 	LLPanelPlaces*		mPlaces;
+	bool				mTabsCreated;
 };
 
 class LLPlacesRemoteParcelInfoObserver : public LLRemoteParcelInfoObserver
@@ -269,11 +286,11 @@ BOOL LLPanelPlaces::postBuild()
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return FALSE;
 
-	LLButton* back_btn = mPlaceProfile->getChild<LLButton>("back_btn");
-	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+	mPlaceProfileBackBtn = mPlaceProfile->getChild<LLButton>("back_btn");
+	mPlaceProfileBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-	back_btn = mLandmarkInfo->getChild<LLButton>("back_btn");
-	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+	mLandmarkInfoBackBtn = mLandmarkInfo->getChild<LLButton>("back_btn");
+	mLandmarkInfoBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
 	LLLineEditor* title_editor = mLandmarkInfo->getChild<LLLineEditor>("title_editor");
 	title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
@@ -324,9 +341,12 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 			mLandmarkInfo->displayParcelInfo(LLUUID(), mPosGlobal);
 
-			// Disable Save button because there is no item to save yet.
-			// The button will be enabled in onLandmarkLoaded callback.
+			// Disabling "Save", "Close" and "Back" buttons to prevent closing "Create Landmark"
+			// panel before created landmark is loaded.
+			// These buttons will be enabled when created landmark is added to inventory.
 			mSaveBtn->setEnabled(FALSE);
+			mCloseBtn->setEnabled(FALSE);
+			mLandmarkInfoBackBtn->setEnabled(FALSE);
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 		{
@@ -384,6 +404,10 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	// Otherwise stop using land selection and deselect land.
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
+		// We don't know if we are already added to LLViewerParcelMgr observers list
+		// so try to remove observer not to add an extra one.
+		parcel_mgr->removeObserver(mParcelObserver);
+
 		parcel_mgr->addObserver(mParcelObserver);
 		parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
 	}
@@ -430,6 +454,8 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 
 	mEditBtn->setEnabled(is_landmark_editable);
 	mSaveBtn->setEnabled(is_landmark_editable);
+	mCloseBtn->setEnabled(TRUE);
+	mLandmarkInfoBackBtn->setEnabled(TRUE);
 
 	if (is_landmark_editable)
 	{
@@ -480,8 +506,6 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	landmark->getRegionID(region_id);
 	landmark->getGlobalPos(mPosGlobal);
 	mLandmarkInfo->displayParcelInfo(region_id, mPosGlobal);
-
-	mSaveBtn->setEnabled(TRUE);
 
 	updateVerbs();
 }
@@ -826,6 +850,10 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		{
 			mPlaceProfile->resetLocation();
 
+			// Do not reset location info until mResetInfoTimer has expired
+			// to avoid text blinking.
+			mResetInfoTimer.setTimerExpirySec(PLACE_INFO_UPDATE_INTERVAL);
+
 			LLRect rect = getRect();
 			LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
 			mPlaceProfile->reshape(new_rect.getWidth(), new_rect.getHeight());
@@ -898,6 +926,8 @@ void LLPanelPlaces::changedParcelSelection()
 	if (!region || !parcel)
 		return;
 
+	LLVector3d prev_pos_global = mPosGlobal;
+
 	// If agent is inside the selected parcel show agent's region<X, Y, Z>,
 	// otherwise show region<X, Y, Z> of agent's selection point.
 	bool is_current_parcel = is_agent_in_selected_parcel(parcel);
@@ -914,13 +944,20 @@ void LLPanelPlaces::changedParcelSelection()
 		}
 	}
 
-	mPlaceProfile->resetLocation();
+	// Reset location info only if global position has changed
+	// and update timer has expired to reduce unnecessary text and icons updates.
+	if (prev_pos_global != mPosGlobal && mResetInfoTimer.hasExpired())
+	{
+		mPlaceProfile->resetLocation();
+		mResetInfoTimer.setTimerExpirySec(PLACE_INFO_UPDATE_INTERVAL);
+	}
+
 	mPlaceProfile->displaySelectedParcelInfo(parcel, region, mPosGlobal, is_current_parcel);
 
 	updateVerbs();
 }
 
-void LLPanelPlaces::changedInventory(U32 mask)
+void LLPanelPlaces::createTabs()
 {
 	if (!(gInventory.isInventoryUsable() && LLTeleportHistory::getInstance()))
 		return;
@@ -956,16 +993,39 @@ void LLPanelPlaces::changedInventory(U32 mask)
 	// Filter applied to show all items.
 	if (mActivePanel)
 		mActivePanel->onSearchEdit(mActivePanel->getFilterSubString());
-
-	// we don't need to monitor inventory changes anymore,
-	// so remove the observer
-	gInventory.removeObserver(mInventoryObserver);
 }
 
 void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
 {
 	mPosGlobal = global_pos;
 	updateVerbs();
+}
+
+void LLPanelPlaces::showAddedLandmarkInfo(const std::vector<LLUUID>& items)
+{
+	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 ++item_iter)
+	{
+		const LLUUID& item_id = (*item_iter);
+		if(!highlight_offered_item(item_id))
+		{
+			continue;
+		}
+
+		LLInventoryItem* item = gInventory.getItem(item_id);
+
+		if (LLAssetType::AT_LANDMARK == item->getType())
+		{
+			// Created landmark is passed to Places panel to allow its editing.
+			// If the panel is closed we don't reopen it until created landmark is loaded.
+			if("create_landmark" == getPlaceInfoType() && !getItem())
+			{
+				setItem(item);
+			}
+			break;
+		}
+	}
 }
 
 void LLPanelPlaces::updateVerbs()
@@ -1009,6 +1069,13 @@ void LLPanelPlaces::updateVerbs()
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
 			mTeleportBtn->setEnabled(have_3d_pos);
+		}
+
+		// Do not enable landmark info Back button when we are waiting
+		// for newly created landmark to load.
+		if (!is_create_landmark_visible)
+		{
+			mLandmarkInfoBackBtn->setEnabled(TRUE);
 		}
 	}
 	else

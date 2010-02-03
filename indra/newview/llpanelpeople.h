@@ -36,13 +36,16 @@
 #include <llpanel.h>
 
 #include "llcallingcard.h" // for avatar tracker
+#include "llvoiceclient.h"
 
 class LLFilterEditor;
 class LLTabContainer;
 class LLAvatarList;
 class LLGroupList;
 
-class LLPanelPeople : public LLPanel
+class LLPanelPeople 
+	: public LLPanel
+	, public LLVoiceClientStatusObserver
 {
 	LOG_CLASS(LLPanelPeople);
 public:
@@ -52,6 +55,9 @@ public:
 	/*virtual*/ BOOL 	postBuild();
 	/*virtual*/ void	onOpen(const LLSD& key);
 	/*virtual*/ bool	notifyChildren(const LLSD& info);
+	// Implements LLVoiceClientStatusObserver::onChange() to enable call buttons
+	// when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 	// internals
 	class Updater;
@@ -73,7 +79,6 @@ private:
 
 	bool					isFriendOnline(const LLUUID& id);
 	bool					isItemsFreeOfFriends(const std::vector<LLUUID>& uuids);
-	bool 					canCall();
 
 	void					updateButtons();
 	std::string				getActiveTabName() const;

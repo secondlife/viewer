@@ -62,6 +62,12 @@
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
+const static std::string IM_TIME("time");
+const static std::string IM_TEXT("message");
+const static std::string IM_FROM("from");
+const static std::string IM_FROM_ID("from_id");
+
+
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
 	: LLDockableFloater(NULL, false, false, key)
 	,mChatHistory(NULL)
@@ -100,6 +106,11 @@ BOOL LLNearbyChat::postBuild()
 			LLBottomTray::getInstance()->getNearbyChatBar(), this,
 			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
 	}
+
+	setIsChrome(true);
+	//chrome="true" hides floater caption 
+	if (mDragHandle)
+		mDragHandle->setTitleVisible(TRUE);
 
 	return true;
 }
@@ -148,7 +159,7 @@ std::string appendTime()
 }
 
 
-void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
+void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 {
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
@@ -179,7 +190,9 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 	if (!chat.mMuted)
 	{
 		tmp_chat.mFromName = chat.mFromName;
-		mChatHistory->appendMessage(chat, use_plain_text_chat_history);
+		LLSD chat_args = args;
+		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+		mChatHistory->appendMessage(chat, chat_args);
 	}
 
 	if(archive)
@@ -187,6 +200,18 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 		mMessageArchive.push_back(chat);
 		if(mMessageArchive.size()>200)
 			mMessageArchive.erase(mMessageArchive.begin());
+
+		if (gSavedPerAccountSettings.getBOOL("LogChat")) 
+		{
+			if (chat.mChatType != CHAT_TYPE_WHISPER && chat.mChatType != CHAT_TYPE_SHOUT)
+			{
+				LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+			}
+			else
+			{
+				LLLogChat::saveHistory("chat", "", chat.mFromID, chat.mFromName + " " + chat.mText);
+			}
+		}
 	}
 }
 
@@ -255,6 +280,39 @@ void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 		nearby_chat->updateChatHistoryStyle();
 }
 
+void LLNearbyChat::loadHistory()
+{
+	std::list<LLSD> history;
+	LLLogChat::loadAllHistory("chat", history);
+
+	std::list<LLSD>::const_iterator it = history.begin();
+	while (it != history.end())
+	{
+		const LLSD& msg = *it;
+
+		std::string from = msg[IM_FROM];
+		LLUUID from_id = LLUUID::null;
+		if (msg[IM_FROM_ID].isUndefined())
+		{
+			gCacheName->getUUID(from, from_id);
+		}
+
+		LLChat chat;
+		chat.mFromName = from;
+		chat.mFromID = from_id;
+		chat.mText = msg[IM_TEXT].asString();
+		chat.mTimeStr = msg[IM_TIME].asString();
+		addMessage(chat);
+
+		it++;
+	}
+}
+
+//static
+LLNearbyChat* LLNearbyChat::getInstance()
+{
+	return LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -271,3 +329,4 @@ void LLNearbyChat::onFocusLost()
 	setBackgroundOpaque(false);
 	LLPanel::onFocusLost();
 }
+

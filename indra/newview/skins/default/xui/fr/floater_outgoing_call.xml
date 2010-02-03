@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="outgoing call" title="APPEL EN COURS">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		Chat vocal près de vous
 	</floater.string>
@@ -20,6 +23,12 @@
 	</text>
 	<text name="noanswer">
 		Pas de réponse.  Veuillez réessayer ultérieurement.
+	</text>
+	<text name="nearby">
+		Vous avez été déconnecté(e) de [VOICE_CHANNEL_NAME].  Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
+	</text>
+	<text name="nearby_P2P">
+		[VOICE_CHANNEL_NAME] a mis fin à l&apos;appel.  Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
 	</text>
 	<text name="leaving">
 		En train de quitter [CURRENT_CHAT].

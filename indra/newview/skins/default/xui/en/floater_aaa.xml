@@ -17,8 +17,9 @@
  save_visibility="true"
  single_instance="true" 
  width="320">
-  <string name="nudge_parabuild">Nudge 1</string>
-  <string name="test_the_vlt">This string CHANGE is extracted.</string>
+  <string name="nudge_parabuild" translate="false">Nudge 1</string>
+  <string name="test_the_vlt">This string CHANGE2 is extracted.</string>
+  <string name="testing_eli">Just a test. changes.</string>
   <chat_history
    allow_html="true"
    bg_readonly_color="ChatHistoryBgColor"
@@ -34,6 +35,7 @@
    parse_highlights="true"
    text_color="ChatHistoryTextColor"
    text_readonly_color="ChatHistoryTextColor"
+   translate="false"
    width="320">
 Really long line that is long enough to wrap once with jyg descenders.
 Really long line that is long enough to wrap once with jyg descenders.

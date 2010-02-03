@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Teleport History">
+	<accordion name="history_accordion">
+		<accordion_tab name="today" title="I dag"/>
+		<accordion_tab name="yesterday" title="I går"/>
+		<accordion_tab name="2_days_ago" title="2 dage siden"/>
+		<accordion_tab name="3_days_ago" title="3 dage siden"/>
+		<accordion_tab name="4_days_ago" title="4 dage siden"/>
+		<accordion_tab name="5_days_ago" title="5 dage siden"/>
+		<accordion_tab name="6_days_and_older" title="6 dage siden"/>
+		<accordion_tab name="1_month_and_older" title="1 måned eller ældre"/>
+		<accordion_tab name="6_months_and_older" title="6 måneder eller ældre"/>
+	</accordion>
+</panel>

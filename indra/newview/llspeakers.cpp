@@ -70,8 +70,6 @@ LLSpeaker::LLSpeaker(const LLUUID& id, const std::string& name, const ESpeakerTy
 	{
 		mDisplayName = name;
 	}
-
-	gVoiceClient->setUserVolume(id, LLMuteList::getInstance()->getSavedResidentVolume(id));
 }
 
 
