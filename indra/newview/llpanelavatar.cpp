@@ -582,9 +582,6 @@ void LLPanelAvatarProfile::processProfileProperties(const LLAvatarData* avatar_d
 {
 	fillCommonData(avatar_data);
 
-	// Hide home page textbox if no page was set to fix "homepage URL appears clickable without URL - EXT-4734"
-	childSetVisible("homepage_edit", !avatar_data->profile_url.empty());
-
 	fillPartnerData(avatar_data);
 
 	fillAccountStatus(avatar_data);
@@ -638,6 +635,9 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 	childSetValue("2nd_life_pic", avatar_data->image_id);
 	childSetValue("real_world_pic", avatar_data->fl_image_id);
 	childSetValue("homepage_edit", avatar_data->profile_url);
+
+	// Hide home page textbox if no page was set to fix "homepage URL appears clickable without URL - EXT-4734"
+	childSetVisible("homepage_edit", !avatar_data->profile_url.empty());
 }
 
 void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
