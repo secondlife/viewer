@@ -722,14 +722,12 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		}
 
 		bool allow_buy      = vpm->canAgentBuyParcel(current_parcel, false);
-		bool allow_voice	= agent_region->isVoiceEnabled() && current_parcel->getParcelFlagAllowVoice();
-		bool allow_fly		= !agent_region->getBlockFly() && current_parcel->getAllowFly();
-		bool allow_push		= !agent_region->getRestrictPushObject() && !current_parcel->getRestrictPushObject();
-		bool allow_build	= current_parcel->getAllowModify(); // true when anyone is allowed to build. See EXT-4610.
-		bool allow_scripts	= !(agent_region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) &&
-							  !(agent_region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) &&
-							  current_parcel->getAllowOtherScripts();
-		bool allow_damage	= agent_region->getAllowDamage() || current_parcel->getAllowDamage();
+		bool allow_voice	= vpm->allowAgentVoice(agent_region, current_parcel);
+		bool allow_fly		= vpm->allowAgentFly(agent_region, current_parcel);
+		bool allow_push		= vpm->allowAgentPush(agent_region, current_parcel);
+		bool allow_build	= vpm->allowAgentBuild(current_parcel); // true when anyone is allowed to build. See EXT-4610.
+		bool allow_scripts	= vpm->allowAgentScripts(agent_region, current_parcel);
+		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
 
 		// Most icons are "block this ability"
 		mForSaleBtn->setVisible(allow_buy);

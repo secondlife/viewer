@@ -1467,6 +1467,7 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 	  mPayload(payload),
 	  mLifetime(DEFAULT_LIFETIME)
 {
+	setAutoFocus(FALSE);
 }
 
 void LLCallDialog::getAllowedRect(LLRect& rect)
@@ -1708,6 +1709,8 @@ BOOL LLOutgoingCallDialog::postBuild()
 
 	childSetAction("Cancel", onCancel, this);
 
+	setCanDrag(FALSE);
+
 	return success;
 }
 
@@ -1794,7 +1797,7 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetAction("Accept", onAccept, this);
 	childSetAction("Reject", onReject, this);
 	childSetAction("Start IM", onStartIM, this);
-	childSetFocus("Accept");
+	setDefaultBtn("Accept");
 
 	std::string notify_box_type = mPayload["notify_box_type"].asString();
 	if(notify_box_type != "VoiceInviteGroup" && notify_box_type != "VoiceInviteAdHoc")
@@ -1806,6 +1809,8 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		mLifetimeTimer.stop();
 	}
+
+	setCanDrag(FALSE);
 
 	return TRUE;
 }
@@ -2424,7 +2429,7 @@ void LLIMMgr::inviteToSession(
 		}
 		else
 		{
-			LLFloaterReg::showInstance("incoming_call", payload, TRUE);
+			LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 		}
 		mPendingInvitations[session_id.asString()] = LLSD();
 	}
@@ -2437,7 +2442,7 @@ void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::stri
 
 	std::string notify_box_type = payload["notify_box_type"].asString();
 
-	LLFloaterReg::showInstance("incoming_call", payload, TRUE);
+	LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 }
 
 //*TODO disconnects all sessions
@@ -2983,48 +2988,6 @@ public:
 		}
 	}
 };
-
-LLCallInfoDialog::LLCallInfoDialog(const LLSD& payload) : LLCallDialog(payload)
-{
-}
-
-BOOL LLCallInfoDialog::postBuild()
-{
-	// init notification's lifetime
-	std::istringstream ss( getString("lifetime") );
-	if (!(ss >> mLifetime))
-	{
-		mLifetime = DEFAULT_LIFETIME;
-	}
-	return LLCallDialog::postBuild();
-}
-
-void LLCallInfoDialog::onOpen(const LLSD& key)
-{
-	if(key.has("msg"))
-	{
-		std::string msg = key["msg"];
-		getChild<LLTextBox>("msg")->setValue(msg);
-	}
-
-	mLifetimeTimer.start();
-}
-
-void LLCallInfoDialog::show(const std::string& status_name, const LLSD& args)
-{
-	LLUIString message = LLTrans::getString(status_name);
-	message.setArgs(args);
-
-	LLSD payload;
-	payload["msg"] = message;
-	LLFloater* inst = LLFloaterReg::findInstance("call_info");
-
-	// avoid recreate instance with the same message
-	if (inst == NULL || message.getString() != inst->getChild<LLTextBox>("msg")->getValue())
-	{
-		LLFloaterReg::showInstance("call_info", payload);
-	}
-}
 
 LLHTTPRegistration<LLViewerChatterBoxSessionStartReply>
    gHTTPRegistrationMessageChatterboxsessionstartreply(

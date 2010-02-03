@@ -1081,7 +1081,6 @@ void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_up
 		// MULTI-WEARABLES: revisit if more than one per type is allowed.
 		else if (areMatchingWearables(vitem,inv_item))
 		{
-			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
 			if (inv_item->getIsLinkType())
 			{
 				gInventory.purgeObject(inv_item->getUUID());

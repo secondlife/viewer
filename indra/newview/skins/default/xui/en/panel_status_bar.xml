@@ -49,7 +49,7 @@
      image_unselected="spacer35.tga"
      image_pressed="spacer35.tga"
      height="16"
-     right="-228"
+     right="-204"
      label_shadow="false"
      name="buycurrency"
      tool_tip="My Balance"
@@ -69,15 +69,16 @@
      left_pad="0"
      label_shadow="false"
      name="buyL"
-     pad_right="20px"
+     pad_right="20"
+     pad_bottom="2"
      tool_tip="Click to buy more L$"
      top="2"
-     width="100" />
+     width="71" />
     <text
      type="string"
      font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
-     follows="right|bottom"
+     follows="right|top"
      halign="right"
      height="16"
      top="5"
@@ -85,11 +86,11 @@
      left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="85">
-        12:00 AM
+     width="89">
+        24:00 AM PST
     </text>
     <button
-     follows="right|bottom"
+     follows="right|top"
      height="15"
      image_selected="AudioMute_Off"
      image_pressed="Audio_Press"
@@ -101,7 +102,7 @@
      tool_tip="Global Volume Control"
      width="16" />
     <text
-     follows="right|bottom"
+     follows="right|top"
      halign="center"
      height="12"
      layout="topleft"

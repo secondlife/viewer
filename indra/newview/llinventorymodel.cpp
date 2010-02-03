@@ -142,105 +142,6 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	return rv;
 }
 
-/*
-This namespace contains a functionality to remove LM prefixes were used to store sort order of
-Favorite Landmarks in landmarks' names.
-Once being in Favorites folder LM inventory Item has such prefix.
-Due to another solution is implemented in EXT-3985 these prefixes should be removed.
-
-*NOTE: It will be unnecessary after the first successful session in viewer 2.0.
-Can be removed before public release.
-
-Implementation details:
-At the first run with this patch it patches all cached landmarks: removes LM sort prefixes and
-updates them on the viewer and server sides.
-Also it calls fetching agent's inventory to process not yet loaded landmarks too.
-If fetching is successfully done it will store special per-agent empty file-marker
-in the user temporary folder (where cached inventory is loaded) while caching agent's inventory.
-After that in will not affect the viewer until cached marker is removed.
-*/
-namespace LMSortPrefix
-{
-	bool cleanup_done = false;
-	const std::string getMarkerPath()
-	{
-		std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, gAgentID.asString()));
-		std::string marker_filename = llformat("%s-lm_prefix_marker", path.c_str());
-
-		return marker_filename;
-	}
-	bool wasClean()
-	{
-		static bool was_clean = false;
-		static bool already_init = false;
-		if (already_init) return was_clean;
-
-		already_init = true;
-		std::string path_to_marker = getMarkerPath();
-		was_clean = LLFile::isfile(path_to_marker);
-
-		return was_clean;
-	}
-
-	void setLandmarksWereCleaned()
-	{
-		if (cleanup_done)
-		{
-			std::string path_to_marker = getMarkerPath();
-			LLFILE* file = LLFile::fopen(path_to_marker, "w");
-			if(!file)
-			{
-				llwarns << "unable to save marker that LM prefixes were removed: " << path_to_marker << llendl;
-				return;
-			}
-
-			fclose(file);
-		}
-	}
-
-	void removePrefix(LLPointer<LLViewerInventoryItem> inv_item)
-	{
-		if (wasClean())
-		{
-			LL_INFOS_ONCE("") << "Inventory was cleaned for this avatar. Patch can be removed." << LL_ENDL;
-			return;
-		}
-
-		if (LLInventoryType::IT_LANDMARK != inv_item->getInventoryType()) return;
-
-		std::string old_name = inv_item->getName();
-
-		S32 sort_field = -1;
-		std::string display_name;
-		BOOL exists = LLViewerInventoryItem::extractSortFieldAndDisplayName(old_name, &sort_field, &display_name);
-		if (exists && sort_field != -1)
-		{
-			llinfos << "Removing Landmark sort field and separator for: " << old_name << " | " << inv_item->getUUID() << llendl;
-			LLUUID parent_uuid = inv_item->getParentUUID();
-			if (gInventory.getCategory(parent_uuid))
-			{
-				llinfos << "parent folder is: " << gInventory.getCategory(parent_uuid)->getName() << llendl;
-			}
-
-
-			// mark item completed to avoid error while copying and updating server
-			inv_item->setComplete(TRUE);
-			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item.get());
-			new_item->rename(display_name);
-			gInventory.updateItem(new_item);
-			new_item->updateServer(FALSE);
-
-			gInventory.notifyObservers();
-		}
-	}
-
-	void completeCleanup()
-	{
-		// background fetch is completed. can save marker
-		cleanup_done = true;
-	}
-}
-
 ///----------------------------------------------------------------------------
 /// Class LLInventoryModel
 ///----------------------------------------------------------------------------
@@ -317,7 +218,10 @@ BOOL LLInventoryModel::isObjectDescendentOf(const LLUUID& obj_id,
 const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(const LLUUID& obj_id) const
 {
 	const LLInventoryObject* obj = getObject(obj_id);
-	const LLUUID& parent_id = obj->getParentUUID();
+
+	// Search up the parent chain until we get to root or an acceptable folder.
+	// This assumes there are no cycles in the tree else we'll get a hang.
+	LLUUID parent_id = obj->getParentUUID();
 	while (!parent_id.isNull())
 	{
 		const LLViewerInventoryCategory *cat = getCategory(parent_id);
@@ -329,6 +233,7 @@ const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(cons
 		{
 			return cat;
 		}
+		parent_id = cat->getParentUUID();
 	}
 	return NULL;
 }
@@ -1835,8 +1740,6 @@ void LLInventoryModel::stopBackgroundFetch()
 		gIdleCallbacks.deleteFunction(&LLInventoryModel::backgroundFetch, NULL);
 		sBulkFetchCount=0;
 		sMinTimeBetweenFetches=0.0f;
-
-		LMSortPrefix::completeCleanup();
 	}
 }
 
@@ -1983,13 +1886,6 @@ void LLInventoryModel::cache(
 	const LLUUID& parent_folder_id,
 	const LLUUID& agent_id)
 {
-	if (getRootFolderID() == parent_folder_id)
-	{
-		// *TODO: mantipov: can be removed before public release, EXT-3985
-		//save marker to avoid fetching inventory on future sessions
-		LMSortPrefix::setLandmarksWereCleaned();
-	}
-
 	lldebugs << "Caching " << parent_folder_id << " for " << agent_id
 			 << llendl;
 	LLViewerInventoryCategory* root_cat = getCategory(parent_folder_id);
@@ -2800,28 +2696,6 @@ void LLInventoryModel::buildParentChildMap()
 			// The inv tree is built.
 			mIsAgentInvUsable = true;
 
-			{// *TODO: mantipov: can be removed before public release, EXT-3985
-				/*
-				*HACK: mantipov: to cleanup landmarks were marked with sort index prefix in name.
-				Is necessary to be called once per account after EXT-3985 is implemented.
-				So, let fetch agent's inventory, processing will be done in processInventoryDescendents()
-				Should be removed before public release.
-				*/
-				if (!LMSortPrefix::wasClean())
-				{
-					cat_array_t cats;
-					item_array_t items;
-					collectDescendents(agent_inv_root_id, cats, items, INCLUDE_TRASH);
-
-					for (item_array_t::const_iterator it= items.begin(); it != items.end(); ++it)
-					{
-						LMSortPrefix::removePrefix(*it);
-					}
-
-					gInventory.startBackgroundFetch(agent_inv_root_id);
-				}
-			}
-
 			llinfos << "Inventory initialized, notifying observers" << llendl;
 			addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
 			notifyObservers();
@@ -3587,10 +3461,6 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 			continue;
 		}
 		gInventory.updateItem(titem);
-
-		{// *TODO: mantipov: can be removed before public release, EXT-3985
-			LMSortPrefix::removePrefix(titem);
-		}
 	}
 
 	// set version and descendentcount according to message.

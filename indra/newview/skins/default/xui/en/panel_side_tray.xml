@@ -91,7 +91,7 @@
         class="panel_group_info_sidetray"
         name="panel_group_info_sidetray"
         filename="panel_group_info_sidetray.xml"
-        label="Group Info"
+        label="Group Profile"
         font="SansSerifBold"
       />
       <panel

@@ -153,7 +153,7 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 {
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
-	const std::string session_name = notification->getPayload().has(
+	std::string session_name = notification->getPayload().has(
 			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
 
 	// don't create IM p2p session with objects, it's necessary condition to log
@@ -161,6 +161,18 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 			!= OBJECT_GIVE_ITEM_UNKNOWN_USER)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
+
+		//*HACK for ServerObjectMessage the sesson name is really weird, see EXT-4779
+		if (SERVER_OBJECT_MESSAGE == notification->getName())
+		{
+			session_name = "chat";
+		}
+
+		//there still appears a log history file with weird name " .txt"
+		if (" " == session_name || "{waiting}" == session_name || "{nobody}" == session_name)
+		{
+			llwarning("Weird session name (" + session_name + ") for notification " + notification->getName(), 666)
+		}
 
 		if(to_file_only)
 		{
