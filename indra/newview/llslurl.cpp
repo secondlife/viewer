@@ -39,7 +39,8 @@
 const std::string LLSLURL::PREFIX_SL_HELP		= "secondlife://app.";
 const std::string LLSLURL::PREFIX_SL			= "sl://";
 const std::string LLSLURL::PREFIX_SECONDLIFE	= "secondlife://";
-const std::string LLSLURL::PREFIX_SLURL			= "http://slurl.com/secondlife/";
+const std::string LLSLURL::PREFIX_SLURL_OLD		= "http://slurl.com/secondlife/";
+const std::string LLSLURL::PREFIX_SLURL			= "http://maps.secondlife.com/secondlife/";
 
 const std::string LLSLURL::APP_TOKEN = "app/";
 
@@ -63,6 +64,11 @@ std::string LLSLURL::stripProtocol(const std::string& url)
 	{
 		stripped.erase(0, PREFIX_SLURL.length());
 	}
+	else if (matchPrefix(stripped, PREFIX_SLURL_OLD))
+	{
+		stripped.erase(0, PREFIX_SLURL_OLD.length());
+	}
+
 	
 	return stripped;
 }
@@ -74,6 +80,7 @@ bool LLSLURL::isSLURL(const std::string& url)
 	if (matchPrefix(url, PREFIX_SL))			return true;
 	if (matchPrefix(url, PREFIX_SECONDLIFE))	return true;
 	if (matchPrefix(url, PREFIX_SLURL))			return true;
+	if (matchPrefix(url, PREFIX_SLURL_OLD))		return true;
 	
 	return false;
 }
@@ -83,7 +90,8 @@ bool LLSLURL::isSLURLCommand(const std::string& url)
 { 
 	if (matchPrefix(url, PREFIX_SL + APP_TOKEN) ||
 		matchPrefix(url, PREFIX_SECONDLIFE + "/" + APP_TOKEN) ||
-		matchPrefix(url, PREFIX_SLURL + APP_TOKEN) )
+		matchPrefix(url, PREFIX_SLURL + APP_TOKEN) ||
+		matchPrefix(url, PREFIX_SLURL_OLD + APP_TOKEN) )
 	{
 		return true;
 	}
