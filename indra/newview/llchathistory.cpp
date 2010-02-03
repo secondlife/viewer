@@ -53,7 +53,9 @@
 #include "llagent.h"
 #include "llnotificationsutil.h"
 #include "lltoastnotifypanel.h"
+#include "lltooltip.h"
 #include "llviewerregion.h"
+#include "llviewertexteditor.h"
 #include "llworld.h"
 #include "lluiconstants.h"
 
@@ -109,6 +111,34 @@ public:
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		return LLPanel::handleMouseUp(x,y,mask);
+	}
+
+	//*TODO remake it using mouse enter/leave and static LLHandle<LLIconCtrl> to add/remove as a child
+	BOOL handleToolTip(S32 x, S32 y, MASK mask)
+	{
+		LLViewerTextEditor* name = getChild<LLViewerTextEditor>("user_name");
+		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && SYSTEM_FROM != mFrom)
+		{
+
+			// Spawn at right side of the name textbox.
+			LLRect sticky_rect = name->calcScreenRect();
+			S32 icon_x = llmin(sticky_rect.mLeft + name->getTextBoundingRect().getWidth() + 7, sticky_rect.mRight - 3);
+
+			LLToolTip::Params params;
+			params.background_visible(false);
+			params.click_callback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, 0, 0, 0));
+			params.delay_time(0.0f);		// spawn instantly on hover
+			params.image(LLUI::getUIImage("Info_Small"));
+			params.message("");
+			params.padding(0);
+			params.pos(LLCoordGL(icon_x, sticky_rect.mTop - 2));
+			params.sticky_rect(sticky_rect);
+
+			LLToolTipMgr::getInstance()->show(params);
+			return TRUE;
+		}
+
+		return LLPanel::handleToolTip(x, y, mask);
 	}
 
 	void onObjectIconContextMenuItemClicked(const LLSD& userdata)
