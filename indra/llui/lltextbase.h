@@ -122,6 +122,7 @@ public:
 	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
 	/*virtual*/ void		setColor( const LLColor4& c );
 	virtual     void 		setReadOnlyColor(const LLColor4 &c);
+	virtual	    void		handleVisibilityChange( BOOL new_visibility );
 
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
@@ -149,7 +150,7 @@ public:
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 	// force reflow of text
-	void					needsReflow() { mReflowNeeded = TRUE; }
+	void					needsReflow(S32 index = 0);
 
 	S32						getLength() const { return getWText().length(); }
 	S32						getLineCount() const { return mLineInfoList.size(); }
@@ -291,7 +292,7 @@ protected:
 	S32								getFirstVisibleLine() const;
 	std::pair<S32, S32>				getVisibleLines(bool fully_visible = false);
 	S32								getLeftOffset(S32 width);
-	void							reflow(S32 start_index = 0);
+	void							reflow();
 
 	// cursor
 	void							updateCursorXPos();
@@ -361,7 +362,7 @@ protected:
 	class LLScrollContainer*	mScroller;
 
 	// transient state
-	bool						mReflowNeeded;		// need to reflow text because of change to text contents or display region
+	S32							mReflowIndex;		// index at which to start reflow.  S32_MAX indicates no reflow needed.
 	bool						mScrollNeeded;		// need to change scroll region because of change to cursor position
 	S32							mScrollIndex;		// index of first character to keep visible in scroll region
 

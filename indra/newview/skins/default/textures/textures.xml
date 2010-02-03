@@ -321,20 +321,35 @@ with the same filename but different name
   <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 
   <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
+  <texture name="Object_Cone_Selected" file_name="build/Object_Cone_Selected.png" preload="false" />
   <texture name="Object_Cube" file_name="build/Object_Cube.png" preload="false" />
+  <texture name="Object_Cube_Selected" file_name="build/Object_Cube_Selected.png" preload="false" />
   <texture name="Object_Cylinder" file_name="build/Object_Cylinder.png" preload="false" />
+  <texture name="Object_Cylinder_Selected" file_name="build/Object_Cylinder_Selected.png" preload="false" />
   <texture name="Object_Grass" file_name="build/Object_Grass.png" preload="false" />
+  <texture name="Object_Grass_Selected" file_name="build/Object_Grass_Selected.png" preload="false" />
   <texture name="Object_Hemi_Cone" file_name="build/Object_Hemi_Cone.png" preload="false" />
+  <texture name="Object_Hemi_Cone_Selected" file_name="build/Object_Hemi_Cone_Selected.png" preload="false" />
   <texture name="Object_Hemi_Cylinder" file_name="build/Object_Hemi_Cylinder.png" preload="false" />
+  <texture name="Object_Hemi_Cylinder_Selected" file_name="build/Object_Hemi_Cylinder_Selected.png" preload="false" />
   <texture name="Object_Hemi_Sphere" file_name="build/Object_Hemi_Sphere.png" preload="false" />
+  <texture name="Object_Hemi_Sphere_Selected" file_name="build/Object_Hemi_Sphere_Selected.png" preload="false" />
   <texture name="Object_Prism" file_name="build/Object_Prism.png" preload="false" />
+  <texture name="Object_Prism_Selected" file_name="build/Object_Prism_Selected.png" preload="false" />
   <texture name="Object_Pyramid" file_name="build/Object_Pyramid.png" preload="false" />
+  <texture name="Object_Pyramid_Selected" file_name="build/Object_Pyramid_Selected.png" preload="false" />
   <texture name="Object_Ring" file_name="build/Object_Ring.png" preload="false" />
+  <texture name="Object_Ring_Selected" file_name="build/Object_Ring_Selected.png" preload="false" />
   <texture name="Object_Sphere" file_name="build/Object_Sphere.png" preload="false" />
+  <texture name="Object_Sphere_Selected" file_name="build/Object_Sphere_Selected.png" preload="false" />
   <texture name="Object_Tetrahedron" file_name="build/Object_Tetrahedron.png" preload="false" />
+  <texture name="Object_Tetrahedron_Selected" file_name="build/Object_Tetrahedron_Selected.png" preload="false" />
   <texture name="Object_Torus" file_name="build/Object_Torus.png" preload="false" />
+  <texture name="Object_Torus_Selected" file_name="build/Object_Torus_Selected.png" preload="false" />
   <texture name="Object_Tree" file_name="build/Object_Tree.png" preload="false" />
+  <texture name="Object_Tree_Selected" file_name="build/Object_Tree_Selected.png" preload="false" />
   <texture name="Object_Tube" file_name="build/Object_Tube.png" preload="false" />
+  <texture name="Object_Tube_Selected" file_name="build/Object_Tube_Selected.png" preload="false" />
 
   <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Disabled.png" preload="false" />
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
@@ -585,10 +600,15 @@ with the same filename but different name
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
 
   <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
+  <texture name="Tool_Create_Selected" file_name="build/Tool_Create_Selected.png" preload="false" />
   <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />
+  <texture name="Tool_Dozer_Selected" file_name="build/Tool_Dozer_Selected.png" preload="false" />
   <texture name="Tool_Face" file_name="build/Tool_Face.png" preload="false" />
+  <texture name="Tool_Face_Selected" file_name="build/Tool_Face_Selected.png" preload="false" />
   <texture name="Tool_Grab" file_name="build/Tool_Grab.png" preload="false" />
+  <texture name="Tool_Grab_Selected" file_name="build/Tool_Grab_Selected.png" preload="false" />
   <texture name="Tool_Zoom" file_name="build/Tool_Zoom.png" preload="false" />
+  <texture name="Tool_Zoom_Selected" file_name="build/Tool_Zoom_Selected.png" preload="false" />
 
   <texture name="Toolbar_Divider" file_name="containers/Toolbar_Divider.png" preload="false" />
   <texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="false" scale.left="5" scale.bottom="4" scale.top="24" scale.right="30" />

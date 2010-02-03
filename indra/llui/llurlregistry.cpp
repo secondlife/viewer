@@ -132,7 +132,8 @@ static bool stringHasUrl(const std::string &text)
 			text.find(".com") != std::string::npos ||
 			text.find(".net") != std::string::npos ||
 			text.find(".edu") != std::string::npos ||
-			text.find(".org") != std::string::npos);
+			text.find(".org") != std::string::npos ||
+			text.find("<nolink>") != std::string::npos);
 }
 
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)

@@ -579,19 +579,26 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				url += "?name=" + chat.mFromName;
 				url += "&owner=" + args["owner_id"].asString();
 
-				LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
-				if (region)
+				std::string slurl = args["slurl"].asString();
+				if (slurl.empty())
 				{
-					S32 x, y, z;
-					LLSLURL::globalPosToXYZ(LLVector3d(chat.mPosAgent), x, y, z);
-					url += "&slurl=" + region->getName() + llformat("/%d/%d/%d", x, y, z);
+					LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+					if (region)
+					{
+						S32 x, y, z;
+						LLSLURL::globalPosToXYZ(LLVector3d(chat.mPosAgent), x, y, z);
+						slurl = region->getName() + llformat("/%d/%d/%d", x, y, z);
+					}
 				}
+				url += "&slurl=" + slurl;
 
 				// set the link for the object name to be the objectim SLapp
+				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
 				link_params.color.control = "HTMLLinkColor";
 				link_params.link_href = url;
-				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
+				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
+									false, link_params);
 			}
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
 			{

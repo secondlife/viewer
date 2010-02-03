@@ -116,7 +116,7 @@ LLExpandableTextBox::LLTextBoxEx::Params::Params()
 }
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
-:	LLTextBox(p),
+:	LLTextEditor(p),
 	mExpanderLabel(p.more_label),
 	mExpanderVisible(false)
 {
@@ -127,7 +127,7 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	hideExpandText();
-	LLTextBox::reshape(width, height, called_from_parent);
+	LLTextEditor::reshape(width, height, called_from_parent);
 
 	if (getTextPixelHeight() > getRect().getHeight())
 	{
@@ -140,7 +140,7 @@ void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text,cons
 	// LLTextBox::setText will obliterate the expander segment, so make sure
 	// we generate it again by clearing mExpanderVisible
 	mExpanderVisible = false;
-	LLTextBox::setText(text, input_params);
+	LLTextEditor::setText(text, input_params);
 
 	// text contents have changed, segments are cleared out
 	// so hide the expander and determine if we need it
@@ -199,6 +199,11 @@ S32 LLExpandableTextBox::LLTextBoxEx::getVerticalTextDelta()
 	S32 textbox_height = getRect().getHeight();
 
 	return text_height - textbox_height;
+}
+
+S32 LLExpandableTextBox::LLTextBoxEx::getTextPixelHeight()
+{
+	return getTextBoundingRect().getHeight();
 }
 
 //////////////////////////////////////////////////////////////////////////
