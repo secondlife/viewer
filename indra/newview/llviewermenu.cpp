@@ -603,6 +603,10 @@ class LLAdvancedToggleHUDInfo : public view_listener_t
 		{
 			gDisplayFOV = !(gDisplayFOV);
 		}
+		else if ("badge" == info_type)
+		{
+			gDisplayBadge = !(gDisplayBadge);
+		}
 		return true;
 	}
 };
@@ -624,6 +628,10 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 		else if ("fov" == info_type)
 		{
 			new_value = gDisplayFOV;
+		}
+		else if ("badge" == info_type)
+		{
+			new_value = gDisplayBadge;
 		}
 		return new_value;
 	}
