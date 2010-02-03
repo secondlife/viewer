@@ -71,7 +71,7 @@ public:
 	boost::regex getPattern() const { return mPattern; }
 
 	/// Return the url from a string that matched the regex
-	virtual std::string getUrl(const std::string &string);
+	virtual std::string getUrl(const std::string &string) const;
 
 	/// Given a matched Url, return a label for the Url
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
@@ -98,8 +98,8 @@ protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;
 	std::string unescapeUrl(const std::string &url) const;
-	std::string getLabelFromWikiLink(const std::string &url);
-	std::string getUrlFromWikiLink(const std::string &string);
+	std::string getLabelFromWikiLink(const std::string &url) const;
+	std::string getUrlFromWikiLink(const std::string &string) const;
 	void addObserver(const std::string &id, const std::string &url, const LLUrlLabelCallback &cb); 
 	void callObservers(const std::string &id, const std::string &label);
 
@@ -135,7 +135,7 @@ class LLUrlEntryHTTPLabel : public LLUrlEntryBase
 public:
 	LLUrlEntryHTTPLabel();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getUrl(const std::string &string);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
 ///
@@ -146,7 +146,7 @@ class LLUrlEntryHTTPNoProtocol : public LLUrlEntryBase
 public:
 	LLUrlEntryHTTPNoProtocol();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getUrl(const std::string &string);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
 ///
@@ -256,7 +256,7 @@ class LLUrlEntrySLLabel : public LLUrlEntryBase
 public:
 	LLUrlEntrySLLabel();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getUrl(const std::string &string);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
 ///
@@ -279,6 +279,7 @@ class LLUrlEntryNoLink : public LLUrlEntryBase
 public:
 	LLUrlEntryNoLink();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
 #endif

@@ -147,7 +147,11 @@ Maximum animation length is [MAX_LENGTH] seconds.
      name="E_ST_NO_XLT_EMOTE">
         Cannot read emote name.
     </floater.string>
-    <text
+    <floater.string
+     name="E_ST_BAD_ROOT">
+        Incorrect root joint name, use "hip".
+    </floater.string>
+  <text
      type="string"
      length="1"
      bottom="42"

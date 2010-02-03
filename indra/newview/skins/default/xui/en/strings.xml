@@ -2051,6 +2051,7 @@ this texture in your inventory
 	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
 	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
 	<string name="ScriptLimitsRequestError">Error requesting information</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">No Parcel Selected</string>
 	<string name="ScriptLimitsRequestWrongRegion">Error: script information is only available in your current region</string>
 	<string name="ScriptLimitsRequestWaiting">Retrieving information...</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">You do not have permission to examine this parcel</string>
