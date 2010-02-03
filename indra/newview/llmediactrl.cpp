@@ -542,9 +542,9 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 
 	if (! gDirUtilp->fileExists(expanded_filename))
 	{
-		if (language != "en-us")
+		if (language != "en")
 		{
-			expanded_filename = gDirUtilp->findSkinnedFilename("html", "en-us", filename);
+			expanded_filename = gDirUtilp->findSkinnedFilename("html", "en", filename);
 			if (! gDirUtilp->fileExists(expanded_filename))
 			{
 				llwarns << "File " << subdir << delim << filename_in << "not found" << llendl;

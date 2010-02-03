@@ -7179,25 +7179,7 @@ void handle_buy_currency_test(void*)
 	LLStringUtil::format_map_t replace;
 	replace["[AGENT_ID]"] = gAgent.getID().asString();
 	replace["[SESSION_ID]"] = gAgent.getSecureSessionID().asString();
-
-	// *TODO: Replace with call to LLUI::getLanguage() after windows-setup
-	// branch merges in. JC
-	std::string language = "en";
-	language = gSavedSettings.getString("Language");
-	if (language.empty() || language == "default")
-	{
-		language = gSavedSettings.getString("InstallLanguage");
-	}
-	if (language.empty() || language == "default")
-	{
-		language = gSavedSettings.getString("SystemLanguage");
-	}
-	if (language.empty() || language == "default")
-	{
-		language = "en";
-	}
-
-	replace["[LANGUAGE]"] = language;
+	replace["[LANGUAGE]"] = LLUI::getLanguage();
 	LLStringUtil::format(url, replace);
 
 	llinfos << "buy currency url " << url << llendl;
