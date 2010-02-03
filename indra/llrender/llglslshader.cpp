@@ -70,7 +70,7 @@ hasGamma(false), hasLighting(false), calculatesAtmospherics(false)
 // LLGLSL Shader implementation
 //===============================
 LLGLSLShader::LLGLSLShader()
-: mProgramObject(0), mShaderLevel(0), mShaderGroup(SG_DEFAULT)
+	: mProgramObject(0), mActiveTextureChannels(0), mShaderLevel(0), mShaderGroup(SG_DEFAULT), mUniformsDirty(FALSE)
 {
 }
 
