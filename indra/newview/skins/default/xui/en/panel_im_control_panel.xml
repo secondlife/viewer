@@ -120,6 +120,23 @@
          layout="topleft"
          min_height="25"
          width="100"
+         name="share_btn_panel"
+         user_resize="false">
+           <button
+             auto_resize="true"
+             follows="left|top|right"
+             height="23"
+             label="Pay"
+             name="pay_btn"
+             width="100" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="top|left|right"
+         height="25"
+         layout="topleft"
+         min_height="25"
+         width="100"
          name="call_btn_panel"
          user_resize="false">
             <button

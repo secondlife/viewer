@@ -1709,6 +1709,8 @@ BOOL LLOutgoingCallDialog::postBuild()
 
 	childSetAction("Cancel", onCancel, this);
 
+	setCanDrag(FALSE);
+
 	return success;
 }
 
@@ -1807,6 +1809,8 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		mLifetimeTimer.stop();
 	}
+
+	setCanDrag(FALSE);
 
 	return TRUE;
 }
