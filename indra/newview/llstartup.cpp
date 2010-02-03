@@ -1849,22 +1849,6 @@ bool idle_startup()
 			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
 		}
 
-#if 0 // WHY 2x? BAP
-		// We now have an inventory skeleton, so if this is a user's first
-		// login, we can start setting up their clothing and avatar 
-		// appearance.  This helps to avoid the generic "Ruth" avatar in
-		// the orientation island tutorial experience. JC
-		if (gAgent.isFirstLogin()
-			&& !sInitialOutfit.empty()    // registration set up an outfit
-			&& !sInitialOutfitGender.empty() // and a gender
-			&& gAgent.getAvatarObject()	  // can't wear clothes without object
-			&& !gAgent.isGenderChosen() ) // nothing already loading
-		{
-			// Start loading the wearables, textures, gestures
-			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
-		}
-#endif
-
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
 		   || (timeout_frac > 3.f))
