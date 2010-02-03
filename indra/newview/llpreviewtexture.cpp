@@ -74,29 +74,16 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mLastHeight(0),
 	  mLastWidth(0),
 	  mAspectRatio(0.f),
-	  mPreviewToSave(FALSE)
+	  mPreviewToSave(FALSE),
+	  mImage(NULL)
 {
-	const LLViewerInventoryItem *item = static_cast<const LLViewerInventoryItem*>(getItem());
-	if(item)
-	{
-		mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
-		mImageID = item->getAssetUUID();
-		mIsCopyable = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
-	}
-	else // not an item, assume it's an asset id
-	{
-		mImageID = mItemUUID;
-		mCopyToInv = TRUE;
-		mIsCopyable = TRUE;
-	}
-
+	updateImageID();
 	if (key.has("save_as"))
 	{
 		mPreviewToSave = TRUE;
 	}
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_texture.xml", FALSE);
 }
-
 
 LLPreviewTexture::~LLPreviewTexture()
 {
@@ -492,4 +479,43 @@ LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 	return mAssetStatus;
+}
+
+void LLPreviewTexture::updateImageID()
+{
+	const LLViewerInventoryItem *item = static_cast<const LLViewerInventoryItem*>(getItem());
+	if(item)
+	{
+		mImageID = item->getAssetUUID();
+		mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
+		mCopyToInv = FALSE;
+		mIsCopyable = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+	}
+	else // not an item, assume it's an asset id
+	{
+		mImageID = mItemUUID;
+		mShowKeepDiscard = FALSE;
+		mCopyToInv = TRUE;
+		mIsCopyable = TRUE;
+	}
+
+}
+
+/* virtual */
+void LLPreviewTexture::setObjectID(const LLUUID& object_id)
+{
+	mObjectUUID = object_id;
+
+	const LLUUID old_image_id = mImageID;
+
+	// Update what image we're pointing to, such as if we just specified the mObjectID
+	// that this mItemID is part of.
+	updateImageID();
+
+	// If the imageID has changed, start over and reload the new image.
+	if (mImageID != old_image_id)
+	{
+		mAssetStatus = PREVIEW_ASSET_UNLOADED;
+		loadAsset();
+	}
 }
