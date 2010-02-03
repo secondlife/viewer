@@ -483,6 +483,7 @@ BOOL LLPanelAvatarProfile::postBuild()
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
 	registrar.add("Profile.Share", boost::bind(&LLPanelAvatarProfile::share, this));
+	registrar.add("Profile.BlockUnblock", boost::bind(&LLPanelAvatarProfile::toggleBlock, this));
 	registrar.add("Profile.Kick", boost::bind(&LLPanelAvatarProfile::kick, this));
 	registrar.add("Profile.Freeze", boost::bind(&LLPanelAvatarProfile::freeze, this));
 	registrar.add("Profile.Unfreeze", boost::bind(&LLPanelAvatarProfile::unfreeze, this));
@@ -490,6 +491,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
 	enable.add("Profile.EnableGod", boost::bind(&enable_god));
+	enable.add("Profile.CheckItem", boost::bind(&LLPanelAvatarProfile::checkOverflowMenuItem, this, _2));
+	enable.add("Profile.EnableItem", boost::bind(&LLPanelAvatarProfile::enableOverflowMenuItem, this, _2));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -666,6 +669,26 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
+bool LLPanelAvatarProfile::checkOverflowMenuItem(const LLSD& param)
+{
+    std::string item = param.asString();
+
+    if (item == "is_blocked")
+        return LLAvatarActions::isBlocked(getAvatarId());
+
+    return false;
+}
+
+bool LLPanelAvatarProfile::enableOverflowMenuItem(const LLSD& param)
+{
+    std::string item = param.asString();
+
+    if (item == "can_block")
+        return LLAvatarActions::canBlock(getAvatarId());
+
+    return false;
+}
+
 void LLPanelAvatarProfile::pay()
 {
 	LLAvatarActions::pay(getAvatarId());
@@ -674,6 +697,11 @@ void LLPanelAvatarProfile::pay()
 void LLPanelAvatarProfile::share()
 {
 	LLAvatarActions::share(getAvatarId());
+}
+
+void LLPanelAvatarProfile::toggleBlock()
+{
+	LLAvatarActions::toggleBlock(getAvatarId());
 }
 
 void LLPanelAvatarProfile::kick()
