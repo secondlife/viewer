@@ -451,10 +451,10 @@ public:
     /// Instantiate an LLTreeDFSPostIter to start a depth-first walk. Pass
     /// functors to extract the 'child begin' and 'child end' iterators from
     /// each node.
-    LLTreeDFSPostIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc):
-        mBeginFunc(beginfunc),
-        mEndFunc(endfunc),
-		mSkipAncestors(false)
+    LLTreeDFSPostIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc)
+	    : mBeginFunc(beginfunc),
+	    mEndFunc(endfunc),
+	    mSkipAncestors(false)
     {
         if (! node)
             return;
@@ -462,7 +462,7 @@ public:
         makeCurrent();
     }
     /// Instantiate an LLTreeDFSPostIter to mark the end of the walk
-    LLTreeDFSPostIter() {}
+     LLTreeDFSPostIter() : mSkipAncestors(false) {}
 
 	/// flags iterator logic to skip traversing ancestors of current node on next increment
 	void skipAncestors(bool skip = true) { mSkipAncestors = skip; }
