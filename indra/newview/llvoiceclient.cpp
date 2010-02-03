@@ -5980,9 +5980,11 @@ bool LLVoiceClient::voiceEnabled()
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
+//AD *TODO: investigate possible merge of voiceWorking() and voiceEnabled() into one non-static method
 bool LLVoiceClient::voiceWorking()
 {
-	return (stateLoggedIn <= mState) && (mState <= stateLeavingSession);
+	//Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
+	return (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
 }
 
 void LLVoiceClient::setLipSyncEnabled(BOOL enabled)

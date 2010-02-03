@@ -2300,7 +2300,7 @@ public:
 	
 	virtual ~LLLibraryOutfitsCopyDone()
 	{
-		if (mLibraryOutfitsFetcher)
+		if (!!LLApp::isExiting() && mLibraryOutfitsFetcher)
 		{
 			gInventory.addObserver(mLibraryOutfitsFetcher);
 			mLibraryOutfitsFetcher->done();
