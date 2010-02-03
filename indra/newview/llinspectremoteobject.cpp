@@ -167,7 +167,8 @@ void LLInspectRemoteObject::nameCallback(const LLUUID& id, const std::string& fi
 void LLInspectRemoteObject::update()
 {
 	// show the object name as the inspector's title
-	getChild<LLUICtrl>("object_name")->setValue(mName);
+	// (don't hyperlink URLs in object names)
+	getChild<LLUICtrl>("object_name")->setValue("<nolink>" + mName + "</nolink>");
 
 	// show the object's owner - click it to show profile
 	std::string owner = mOwner;
@@ -192,7 +193,7 @@ void LLInspectRemoteObject::update()
 	std::string url;
 	if (! mSLurl.empty())
 	{
-		std::string url = "secondlife:///app/teleport/" + mSLurl;
+		url = "secondlife:///app/teleport/" + mSLurl;
 	}
 	getChild<LLUICtrl>("object_slurl")->setValue(url);
 

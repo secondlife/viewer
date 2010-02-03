@@ -1258,7 +1258,6 @@ LLVoiceClient::LLVoiceClient() :
 	mEarLocation(0),
 	mSpeakerVolumeDirty(true),
 	mSpeakerMuteDirty(true),
-	mSpeakerVolume(0),
 	mMicVolume(0),
 	mMicVolumeDirty(true),
 	
@@ -1271,6 +1270,8 @@ LLVoiceClient::LLVoiceClient() :
 	
 	mAPIVersion = LLTrans::getString("NotConnected");
 
+	mSpeakerVolume = scale_speaker_volume(0);
+	
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
 		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
@@ -3525,7 +3526,7 @@ void LLVoiceClient::buildLocalAudioUpdates(std::ostringstream &stream)
 
 	if(mSpeakerMuteDirty)
 	{
-		const char *muteval = ((mSpeakerVolume == 0)?"true":"false");
+		const char *muteval = ((mSpeakerVolume <= scale_speaker_volume(0))?"true":"false");
 
 		mSpeakerMuteDirty = false;
 
@@ -6064,7 +6065,8 @@ void LLVoiceClient::setVoiceVolume(F32 volume)
 
 	if(scaled_volume != mSpeakerVolume)
 	{
-		if((scaled_volume == 0) || (mSpeakerVolume == 0))
+		int min_volume = scale_speaker_volume(0);
+		if((scaled_volume == min_volume) || (mSpeakerVolume == min_volume))
 		{
 			mSpeakerMuteDirty = true;
 		}
