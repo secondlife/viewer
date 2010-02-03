@@ -45,6 +45,17 @@
          name="group_icon"
          top="3"
          width="18" />
+        <avatar_icon
+         color="Green"
+         follows="right"
+         height="18"
+         image_name="Generic_Person"
+         layout="topleft"
+         left="3"
+         mouse_opaque="false"
+         name="adhoc_icon"
+         top="3"
+         width="18" />
         <!--<icon
          follows="right"
          height="20"

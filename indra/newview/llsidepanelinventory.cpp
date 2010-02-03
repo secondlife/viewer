@@ -176,7 +176,7 @@ void LLSidepanelInventory::onPlayButtonClicked()
 		performActionOnSelection("play");
 		break;
 	default:
-		performActionOnSelection("activate");
+		performActionOnSelection("open");
 		break;
 	}
 }
