@@ -279,7 +279,10 @@ public:
 
 	virtual ~LLUpdateAppearanceOnDestroy()
 	{
-		LLAppearanceManager::instance().updateAppearanceFromCOF();
+		if (!!LLApp::isExiting())
+		{
+			LLAppearanceManager::instance().updateAppearanceFromCOF();
+		}
 	}
 
 	/* virtual */ void fire(const LLUUID& inv_item)
