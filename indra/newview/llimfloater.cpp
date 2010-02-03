@@ -515,7 +515,7 @@ BOOL LLIMFloater::getVisible()
 	if(isChatMultiTab())
 	{
 		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
-		// Tabbed IM window is "visible" when we minimize it.
+		// getVisible() returns TRUE when Tabbed IM window is minimized.
 		return !im_container->isMinimized() && im_container->getVisible();
 	}
 	else
