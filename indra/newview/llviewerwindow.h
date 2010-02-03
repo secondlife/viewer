@@ -506,5 +506,6 @@ extern S32 CHAT_BAR_HEIGHT;
 extern BOOL			gDisplayCameraPos;
 extern BOOL			gDisplayWindInfo;
 extern BOOL			gDisplayFOV;
+extern BOOL			gDisplayBadge;
 
 #endif
