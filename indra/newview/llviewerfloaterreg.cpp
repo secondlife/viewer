@@ -200,7 +200,6 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("openobject", "floater_openobject.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOpenObject>);
 	LLFloaterReg::add("outgoing_call", "floater_outgoing_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutgoingCallDialog>);
-	LLFloaterReg::add("call_info", "floater_call_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallInfoDialog>);
 	LLFloaterReg::add("parcel_info", "floater_preview_url.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterParcelInfo>);
 	LLFloaterPayUtil::registerFloater();
 

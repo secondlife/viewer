@@ -2181,6 +2181,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mFromID = from_id ^ gAgent.getSessionID();
 			}
 
+			if(SYSTEM_FROM == name)
+			{
+				// System's UUID is NULL (fixes EXT-4766)
+				chat.mFromID = from_id = LLUUID::null;
+			}
+
 			LLSD query_string;
 			query_string["owner"] = from_id;
 			query_string["slurl"] = location;

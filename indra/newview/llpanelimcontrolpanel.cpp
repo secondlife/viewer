@@ -280,8 +280,6 @@ void LLPanelGroupControlPanel::draw()
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipantList)
 		mParticipantList->updateRecentSpeakersOrder();
-	//* TODO: find better way to properly enable call button for group and remove this call from draw()
-	updateCallButton();
 	LLPanelChatControlPanel::draw();
 }
 
