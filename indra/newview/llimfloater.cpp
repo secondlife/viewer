@@ -515,7 +515,7 @@ BOOL LLIMFloater::getVisible()
 	if(isChatMultiTab())
 	{
 		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
-		// Tabbed IM window is "visible" when we minimize it.
+		// getVisible() returns TRUE when Tabbed IM window is minimized.
 		return !im_container->isMinimized() && im_container->getVisible();
 	}
 	else
@@ -571,6 +571,12 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 		mSessionID = im_session_id;
 		setKey(im_session_id);
 		mControlPanel->setSessionId(im_session_id);
+	}
+
+	// updating "Call" button from group control panel here to enable it without placing into draw() (EXT-4796)
+	if(gAgent.isInGroup(im_session_id))
+	{
+		mControlPanel->updateCallButton();
 	}
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
