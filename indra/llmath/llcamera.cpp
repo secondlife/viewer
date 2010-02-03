@@ -45,7 +45,8 @@ LLCamera::LLCamera() :
 	mNearPlane(DEFAULT_NEAR_PLANE),
 	mFarPlane(DEFAULT_FAR_PLANE),
 	mFixedDistance(-1.f),
-	mPlaneCount(6)
+	mPlaneCount(6),
+	mFrustumCornerDist(0.f)
 {
 	calculateFrustumPlanes();
 } 
@@ -648,7 +649,6 @@ void LLCamera::ignoreAgentFrustumPlane(S32 idx)
 
 void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 {
-
 	for (int i = 0; i < 8; i++)
 	{
 		mAgentFrustum[i] = frust[i];
