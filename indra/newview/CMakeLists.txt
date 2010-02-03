@@ -445,7 +445,6 @@ set(viewer_SOURCE_FILES
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
-    llurlentryagent.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlsimstring.cpp
@@ -953,7 +952,6 @@ set(viewer_HEADER_FILES
     llurl.h
     llurldispatcher.h
     llurldispatcherlistener.h
-    llurlentryagent.h
     llurlhistory.h
     llurllineeditorctrl.h
     llurlsimstring.h

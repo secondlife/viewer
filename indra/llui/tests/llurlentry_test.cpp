@@ -266,30 +266,28 @@ namespace tut
 		//
 		// test LLUrlEntryAgent - secondlife://app/agent Urls
 		//
-		// IDEVO - moved temporarily into newview, not available for test
-		//LLUrlEntryAgent url;
-		//boost::regex r = url.getPattern();
+		LLUrlEntryAgent url;
+		boost::regex r = url.getPattern();
 
-		//testRegex("Invalid Agent Url", r,
-		//		  "secondlife:///app/agent/0e346d8b-4433-4d66-XXXX-fd37083abc4c/about",
-		//		  "");
+		testRegex("Invalid Agent Url", r,
+				  "secondlife:///app/agent/0e346d8b-4433-4d66-XXXX-fd37083abc4c/about",
+				  "");
 
-		//testRegex("Agent Url ", r,
-		//		  "secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about",
-		//		  "secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		testRegex("Agent Url ", r,
+				  "secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about",
+				  "secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
 
-		//testRegex("Agent Url in text", r,
-		//		  "XXX secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about XXX",
-		//		  "secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		testRegex("Agent Url in text", r,
+				  "XXX secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about XXX",
+				  "secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
 
-		//testRegex("Agent Url multicase", r,
-		//		  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/About XXX",
-		//		  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/About");
+		testRegex("Agent Url multicase", r,
+				  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/About XXX",
+				  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/About");
 
-		//testRegex("Agent Url alternate command", r,
-		//		  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar",
-		//		  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar");
-
+		testRegex("Agent Url alternate command", r,
+				  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar",
+				  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar");
 	}
 
 	template<> template<>

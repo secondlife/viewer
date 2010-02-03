@@ -49,7 +49,7 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
-	// IDEVO registerUrl(new LLUrlEntryAgent());
+	registerUrl(new LLUrlEntryAgent());
 	registerUrl(new LLUrlEntryGroup());
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());

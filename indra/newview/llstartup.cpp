@@ -144,9 +144,7 @@
 #include "llui.h"
 #include "llurldispatcher.h"
 #include "llurlsimstring.h"
-#include "llurlentryagent.h"	// IDEVO
 #include "llurlhistory.h"
-#include "llurlregistry.h"		// IDEVO
 #include "llurlwhitelist.h"
 #include "llvieweraudio.h"
 #include "llviewerassetstorage.h"
@@ -1284,9 +1282,6 @@ bool idle_startup()
 			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
 			// Load stored cache if possible
             LLAppViewer::instance()->loadNameCache();
-
-			// Handle secondlife:///app/agent name lookups IDEVO
-			LLUrlRegistry::getInstance()->registerUrl(new LLUrlEntryAgent(), true);
 		}
 
 		// *Note: this is where gWorldMap used to be initialized.

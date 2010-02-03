@@ -297,7 +297,132 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 	return url.substr(pos, url.size() - pos);
 }
 
-// LLUrlEntryAgent temporarily moved to newview IDEVO
+//
+// LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+//
+LLUrlEntryAgent::LLUrlEntryAgent()
+{
+	mPattern = boost::regex("secondlife:///app/agent/[\\da-f-]+/\\w+",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_agent.xml";
+	mIcon = "Generic_Person";
+	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
+}
+
+// IDEVO demo code
+static std::string clean_name(const std::string& full_name)
+{
+	std::string displayname;
+	if (full_name == "miyazaki23") // IDEVO demo code
+	{
+		// miyazaki
+		displayname += (char)(0xE5);
+		displayname += (char)(0xAE);
+		displayname += (char)(0xAE);
+		displayname += (char)(0xE5);
+		displayname += (char)(0xB4);
+		displayname += (char)(0x8E);
+		// hayao
+		displayname += (char)(0xE9);
+		displayname += (char)(0xA7);
+		displayname += (char)(0xBF);
+		// san
+		displayname += (char)(0xE3);
+		displayname += (char)(0x81);
+		displayname += (char)(0x95);
+		displayname += (char)(0xE3);
+		displayname += (char)(0x82);
+		displayname += (char)(0x93);
+	}
+	else if (full_name == "Jim Linden")
+	{
+		displayname = "Jos";
+		displayname += (char)(0xC3);
+		displayname += (char)(0xA9);
+		displayname += " Sanchez";
+	}
+	else if (full_name == "James Linden")
+	{
+		displayname = "James Cook";
+	}
+	else if (full_name == "Hamilton Linden")
+	{
+		displayname = "Hamilton Hitchings";
+	}
+	else if (full_name == "Rome Linden")
+	{
+		displayname = "Rome Portlock";
+	}
+	else if (full_name == "M Linden")
+	{
+		displayname = "Mark Kingdon";
+	}
+	else if (full_name == "T Linden")
+	{
+		displayname = "Tom Hale";
+	}
+	else if (full_name == "Callen Linden")
+	{
+		displayname = "Christina Allen";
+	}
+	
+	std::string final;
+	if (!displayname.empty())
+	{
+		final = displayname + " (" + full_name + ")";
+	}
+	else
+	{
+		final = full_name;
+	}
+	return final;
+}
+
+void LLUrlEntryAgent::onNameCache(const LLUUID& id,
+								  const std::string& full_name,
+								  bool is_group)
+{
+	std::string final = clean_name(full_name);
+	// received the agent name from the server - tell our observers
+	callObservers(id.asString(), final);
+}
+
+std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	if (!gCacheName)
+	{
+		// probably at the login screen, use short string for layout
+		return LLTrans::getString("LoadingData");
+	}
+	
+	std::string agent_id_string = getIDStringFromUrl(url);
+	if (agent_id_string.empty())
+	{
+		// something went wrong, just give raw url
+		return unescapeUrl(url);
+	}
+	
+	LLUUID agent_id(agent_id_string);
+	std::string full_name;
+	if (agent_id.isNull())
+	{
+		return LLTrans::getString("AvatarNameNobody");
+	}
+	else if (gCacheName->getFullName(agent_id, full_name))
+	{
+		return clean_name(full_name);
+	}
+	else
+	{
+		gCacheName->get(agent_id, false,
+						boost::bind(&LLUrlEntryAgent::onNameCache,
+									this, _1, _2, _3));
+		addObserver(agent_id_string, url, cb);
+		return LLTrans::getString("LoadingData");
+	}
+}
+
 
 //
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
