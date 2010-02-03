@@ -12,7 +12,7 @@
  can_minimize="true"
  can_close="true"
  visible="false"
- width="440"
+ width="360"
  can_resize="true"
  min_width="250"
  min_height="190">
@@ -20,7 +20,7 @@
    animate="false" 
   follows="all"
   height="320"
-  width="440"
+  width="360"
   layout="topleft"
   orientation="horizontal"
   name="im_panels"
@@ -38,7 +38,7 @@
        left="0"
        top="0"
        height="200"
-	     width="325"
+	     width="245"
        user_resize="true">
         <button
           height="20"
@@ -65,7 +65,7 @@
          parse_highlights="true"
          allow_html="true"
         left="1"
-         width="320">
+         width="240">
         </chat_history>
         <line_editor
          bottom="0"
@@ -75,7 +75,7 @@
          label="To"
          layout="bottomleft"
          name="chat_editor"
-         width="320">
+         width="240">
         </line_editor>
     </layout_panel>
   </layout_stack>

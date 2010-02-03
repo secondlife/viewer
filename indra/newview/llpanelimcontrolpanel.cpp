@@ -81,11 +81,15 @@ void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::E
 
 void LLPanelChatControlPanel::updateCallButton()
 {
-	// hide/show call button
 	bool voice_enabled = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
-	if (!session) return;
+	
+	if (!session) 
+	{
+		childSetEnabled("call_btn", false);
+		return;
+	}
 
 	bool session_initialized = session->mSessionInitialized;
 	bool callback_enabled = session->mCallBackEnabled;
@@ -280,8 +284,6 @@ void LLPanelGroupControlPanel::draw()
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipantList)
 		mParticipantList->updateRecentSpeakersOrder();
-	//* TODO: find better way to properly enable call button for group and remove this call from draw()
-	updateCallButton();
 	LLPanelChatControlPanel::draw();
 }
 

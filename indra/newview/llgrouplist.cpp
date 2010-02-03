@@ -72,6 +72,8 @@ public:
 static const LLGroupComparator GROUP_COMPARATOR;
 
 LLGroupList::Params::Params()
+: no_groups_msg("no_groups_msg")
+, no_filtered_groups_msg("no_filtered_groups_msg")
 {
 	
 }
@@ -79,15 +81,14 @@ LLGroupList::Params::Params()
 LLGroupList::LLGroupList(const Params& p)
 :	LLFlatListView(p)
 	, mDirty(true) // to force initial update
+	, mNoFilteredGroupsMsg(p.no_filtered_groups_msg)
+	, mNoGroupsMsg(p.no_groups_msg)
 {
 	// Listen for agent group changes.
 	gAgent.addListener(this, "new group");
 
 	mShowIcons = gSavedSettings.getBOOL("GroupListShowIcons");
 	setCommitOnSelectionChange(true);
-	// TODO: implement context menu
-	// display a context menu appropriate for a list of group names
-//	setContextMenu(LLScrollListCtrl::MENU_GROUP);
 
 	// Set default sort order.
 	setComparator(&GROUP_COMPARATOR);
@@ -158,6 +159,18 @@ void LLGroupList::refresh()
 	LLUUID				id;
 	bool				have_filter		= !mNameFilter.empty();
 
+	// set no items message depend on filter state & total count of groups
+	if (have_filter)
+	{
+		// groups were filtered
+		setNoItemsCommentText(mNoFilteredGroupsMsg);
+	}
+	else if (0 == count)
+	{
+		// user is not a member of any group
+		setNoItemsCommentText(mNoGroupsMsg);
+	}
+
 	clear();
 
 	for(S32 i = 0; i < count; ++i)
@@ -173,7 +186,8 @@ void LLGroupList::refresh()
 	sort();
 
 	// Add "none" to list at top if filter not set (what's the point of filtering "none"?).
-	if (!have_filter)
+	// but only if some real groups exists. EXT-4838
+	if (!have_filter && count > 0)
 	{
 		std::string loc_none = LLTrans::getString("GroupsNone");
 		addNewItem(LLUUID::null, loc_none, LLUUID::null, ADD_TOP);

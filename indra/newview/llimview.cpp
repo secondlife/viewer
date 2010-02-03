@@ -1709,6 +1709,8 @@ BOOL LLOutgoingCallDialog::postBuild()
 
 	childSetAction("Cancel", onCancel, this);
 
+	setCanDrag(FALSE);
+
 	return success;
 }
 
@@ -1807,6 +1809,8 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		mLifetimeTimer.stop();
 	}
+
+	setCanDrag(FALSE);
 
 	return TRUE;
 }
@@ -2984,48 +2988,6 @@ public:
 		}
 	}
 };
-
-LLCallInfoDialog::LLCallInfoDialog(const LLSD& payload) : LLCallDialog(payload)
-{
-}
-
-BOOL LLCallInfoDialog::postBuild()
-{
-	// init notification's lifetime
-	std::istringstream ss( getString("lifetime") );
-	if (!(ss >> mLifetime))
-	{
-		mLifetime = DEFAULT_LIFETIME;
-	}
-	return LLCallDialog::postBuild();
-}
-
-void LLCallInfoDialog::onOpen(const LLSD& key)
-{
-	if(key.has("msg"))
-	{
-		std::string msg = key["msg"];
-		getChild<LLTextBox>("msg")->setValue(msg);
-	}
-
-	mLifetimeTimer.start();
-}
-
-void LLCallInfoDialog::show(const std::string& status_name, const LLSD& args)
-{
-	LLUIString message = LLTrans::getString(status_name);
-	message.setArgs(args);
-
-	LLSD payload;
-	payload["msg"] = message;
-	LLFloater* inst = LLFloaterReg::findInstance("call_info");
-
-	// avoid recreate instance with the same message
-	if (inst == NULL || message.getString() != inst->getChild<LLTextBox>("msg")->getValue())
-	{
-		LLFloaterReg::showInstance("call_info", payload);
-	}
-}
 
 LLHTTPRegistration<LLViewerChatterBoxSessionStartReply>
    gHTTPRegistrationMessageChatterboxsessionstartreply(

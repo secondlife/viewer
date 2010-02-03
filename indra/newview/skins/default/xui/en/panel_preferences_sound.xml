@@ -33,16 +33,15 @@
     <button
      control_name="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
+     left_pad="10"
      name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
     <check_box
      control_name="MuteWhenMinimized"
      height="15"
@@ -74,20 +73,19 @@
          function="Pref.setControlFalse"
          parameter="MuteAmbient" />
     </slider>
-    <button
-     control_name="MuteAmbient"
+        <button
+    control_name="MuteAmbient"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
-     name="mute_wind"
+     left_pad="10"
+     name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
         <slider
      control_name="AudioLevelUI"
      disabled_control="MuteAudio"
@@ -113,16 +111,15 @@
      control_name="MuteUI"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
-     name="mute_ui"
+     left_pad="10"
+     name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
         <slider
      control_name="AudioLevelMedia"
      disabled_control="MuteAudio"
@@ -144,20 +141,19 @@
      function="Pref.setControlFalse"
      parameter="MuteMedia" />
     </slider>
-    <button
+   <button
      control_name="MuteMedia"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
-     name="mute_media"
+     left_pad="10"
+     name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
     <slider
      control_name="AudioLevelSFX"
      disabled_control="MuteAudio"
@@ -179,20 +175,19 @@
          function="Pref.setControlFalse"
          parameter="MuteSounds" />
     </slider>
-    <button
+   <button
      control_name="MuteSounds"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
-     name="mute_sfx"
+     left_pad="10"
+     name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
     <slider
      control_name="AudioLevelMusic"
      disabled_control="MuteAudio"
@@ -214,20 +209,19 @@
          function="Pref.setControlFalse"
          parameter="MuteMusic" />
     </slider>
-    <button
+      <button
      control_name="MuteMusic"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
-     name="mute_music"
+     left_pad="10"
+     name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
    <check_box
      label_text.halign="left"
      follows="left|top"
@@ -236,10 +230,9 @@
      disabled_control="CmdLineDisableVoice"
      label="Enable voice"
      layout="topleft"
-     font.style="BOLD"
-     left="101"
+     left="28"
      name="enable_voice_check"
-     top_pad="13"
+     top_pad="5"
      width="110"
      >
     </check_box>
@@ -265,21 +258,19 @@
          function="Pref.setControlFalse"
          parameter="MuteVoice" />
     </slider>
-    <button
+     <button
      control_name="MuteVoice"
-     enabled_control="EnableVoiceChat"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="18"
+     height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="16"
-     name="mute_voice"
+     left_pad="10"
+     name="mute_audio"
      tab_stop="false"
-     top_delta="-2"
-     width="22" />
+     width="16" />
     <text
      type="string"
      length="1"
@@ -366,7 +357,7 @@
      name="device_settings_panel"
      class="panel_voice_device_settings"
      width="501"
-     top="280">
+     top="285">
       <panel.string
         name="default_text">
         Default

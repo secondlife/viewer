@@ -43,6 +43,7 @@ static const F32 PLUGIN_IDLE_SECONDS = 1.0f / 100.0f;  // Each call to idle will
 
 LLPluginProcessChild::LLPluginProcessChild()
 {
+	mState = STATE_UNINITIALIZED;
 	mInstance = NULL;
 	mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
 	mSleepTime = PLUGIN_IDLE_SECONDS;	// default: send idle messages at 100Hz

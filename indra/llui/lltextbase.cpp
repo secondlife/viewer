@@ -185,7 +185,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mWriteableBgColor(p.bg_writeable_color),
 	mReadOnlyBgColor(p.bg_readonly_color),
 	mFocusBgColor(p.bg_focus_color),
-	mReflowNeeded(FALSE),
+	mReflowIndex(S32_MAX),
 	mCursorPos( 0 ),
 	mScrollNeeded(FALSE),
 	mDesiredXPixel(-1),
@@ -660,7 +660,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	}
 
 	onValueChange(pos, pos + insert_len);
-	needsReflow();
+	needsReflow(pos);
 
 	return insert_len;
 }
@@ -720,7 +720,7 @@ S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 	createDefaultSegment();
 
 	onValueChange(pos, pos);
-	needsReflow();
+	needsReflow(pos);
 
 	return -length;	// This will be wrong if someone calls removeStringNoUndo with an excessive length
 }
@@ -736,7 +736,7 @@ S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
     getViewModel()->setDisplay(text);
 
 	onValueChange(pos, pos + 1);
-	needsReflow();
+	needsReflow(pos);
 
 	return 1;
 }
@@ -762,15 +762,18 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 	}
 
 	segment_set_t::iterator cur_seg_iter = getSegIterContaining(segment_to_insert->getStart());
+	S32 reflow_start_index = 0;
 
 	if (cur_seg_iter == mSegments.end())
 	{
 		mSegments.insert(segment_to_insert);
 		segment_to_insert->linkToDocument(this);
+		reflow_start_index = segment_to_insert->getStart();
 	}
 	else
 	{
 		LLTextSegmentPtr cur_segmentp = *cur_seg_iter;
+		reflow_start_index = cur_segmentp->getStart();
 		if (cur_segmentp->getStart() < segment_to_insert->getStart())
 		{
 			S32 old_segment_end = cur_segmentp->getEnd();
@@ -829,7 +832,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 	}
 
 	// layout potentially changed
-	needsReflow();
+	needsReflow(reflow_start_index);
 }
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1084,15 +1087,16 @@ S32 LLTextBase::getLeftOffset(S32 width)
 
 
 static LLFastTimer::DeclareTimer FTM_TEXT_REFLOW ("Text Reflow");
-void LLTextBase::reflow(S32 start_index)
+void LLTextBase::reflow()
 {
 	LLFastTimer ft(FTM_TEXT_REFLOW);
 
 	updateSegments();
 
-	while(mReflowNeeded)
+	while(mReflowIndex < S32_MAX)
 	{
-		mReflowNeeded = false;
+		S32 start_index = mReflowIndex;
+		mReflowIndex = S32_MAX;
 
 		// shrink document to minimum size (visible portion of text widget)
 		// to force inlined widgets with follows set to shrink
@@ -1617,6 +1621,12 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 	{
 		appendAndHighlightText(new_text, prepend_newline, part, style_params);
 	}
+}
+
+void LLTextBase::needsReflow(S32 index)
+{
+	lldebugs << "reflow on object " << (void*)this << " index = " << mReflowIndex << ", new index = " << index << llendl;
+	mReflowIndex = llmin(mReflowIndex, index);
 }
 
 void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
@@ -2260,7 +2270,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 	LLUIImagePtr image = mStyle->getImage();
 	if (image.notNull())
 	{
-		mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor));
+		mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor, start));
 	}
 }
 
@@ -2322,8 +2332,6 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 	const LLFontGL* font = mStyle->getFont();
 
 	LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
-
-	font = mStyle->getFont();
 
   	if( selection_start > seg_start )
 	{

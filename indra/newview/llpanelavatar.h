@@ -192,12 +192,18 @@ protected:
 	 */
 	void share();
 
+	/**
+	 * Add/remove resident to/from your block list.
+	 */
+	void toggleBlock();
+
 	void kick();
 	void freeze();
 	void unfreeze();
 	void csr();
 	
-
+	bool checkOverflowMenuItem(const LLSD& param);
+	bool enableOverflowMenuItem(const LLSD& param);
 	bool enableGod();
 
 
