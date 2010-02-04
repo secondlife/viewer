@@ -64,6 +64,7 @@
      layout="topleft"
      left="103"
      name="description"
+     textbox.mouse_opaque="false" 
      top_pad="0"
      width="178"
      word_wrap="true" />

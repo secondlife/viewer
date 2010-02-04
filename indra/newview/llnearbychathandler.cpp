@@ -274,6 +274,13 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 			toast->setRect(toast_rect);
 			toast->setIsHidden(false);
 			toast->setVisible(TRUE);
+
+			if(!toast->hasFocus())
+			{
+				// Fixing Z-order of toasts (EXT-4862)
+				// Next toast will be positioned under this one.
+				gFloaterView->sendChildToBack(toast);
+			}
 			
 			bottom = toast->getRect().mTop;
 		}		

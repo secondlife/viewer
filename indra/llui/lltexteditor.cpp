@@ -720,7 +720,10 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if (!LLTextBase::handleRightMouseDown(x, y, mask))
 	{
-		showContextMenu(x, y);
+		if(getMouseOpaque())
+		{
+			showContextMenu(x, y);
+		}
 	}
 	return TRUE;
 }

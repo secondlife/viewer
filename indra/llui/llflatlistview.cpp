@@ -42,8 +42,6 @@ static const LLDefaultChildRegistry::Register<LLFlatListView> flat_list_view("fl
 const LLSD SELECTED_EVENT	= LLSD().with("selected", true);
 const LLSD UNSELECTED_EVENT	= LLSD().with("selected", false);
 
-static const std::string COMMENT_TEXTBOX = "comment_text";
-
 //forward declaration
 bool llsds_are_equal(const LLSD& llsd_1, const LLSD& llsd_2);
 
@@ -51,7 +49,8 @@ LLFlatListView::Params::Params()
 :	item_pad("item_pad"),
 	allow_select("allow_select"),
 	multi_select("multi_select"),
-	keep_one_selected("keep_one_selected")
+	keep_one_selected("keep_one_selected"),
+	no_items_text("no_items_text")
 {};
 
 void LLFlatListView::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
@@ -295,19 +294,6 @@ void LLFlatListView::resetSelection(bool no_commit_on_deselection /*= false*/)
 
 void LLFlatListView::setNoItemsCommentText(const std::string& comment_text)
 {
-	if (NULL == mNoItemsCommentTextbox)
-	{
-		LLRect comment_rect = getRect();
-		comment_rect.setOriginAndSize(0, 0, comment_rect.getWidth(), comment_rect.getHeight());
-		comment_rect.stretch(-getBorderWidth());
-		LLTextBox::Params text_p;
-		text_p.name(COMMENT_TEXTBOX);
-		text_p.border_visible(false);
-		text_p.rect(comment_rect);
-		text_p.follows.flags(FOLLOWS_ALL);
-		mNoItemsCommentTextbox = LLUICtrlFactory::create<LLTextBox>(text_p, this);
-	}
-
 	mNoItemsCommentTextbox->setValue(comment_text);
 }
 
@@ -361,7 +347,6 @@ bool LLFlatListView::updateValue(const LLSD& old_value, const LLSD& new_value)
 // PROTECTED STUFF
 //////////////////////////////////////////////////////////////////////////
 
-
 LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
 :	LLScrollContainer(p)
   , mItemComparator(NULL)
@@ -398,6 +383,25 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
 	params.bevel_style(LLViewBorder::BEVEL_IN);
 	mSelectedItemsBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	mItemsPanel->addChild( mSelectedItemsBorder );
+
+	{
+		// create textbox for "No Items" comment text
+		LLTextBox::Params text_p = p.no_items_text;
+		if (!text_p.rect.isProvided())
+		{
+			LLRect comment_rect = getRect();
+			comment_rect.setOriginAndSize(0, 0, comment_rect.getWidth(), comment_rect.getHeight());
+			comment_rect.stretch(-getBorderWidth());
+			text_p.rect(comment_rect);
+		}
+		text_p.border_visible(false);
+
+		if (!text_p.follows.isProvided())
+		{
+			text_p.follows.flags(FOLLOWS_ALL);
+		}
+		mNoItemsCommentTextbox = LLUICtrlFactory::create<LLTextBox>(text_p, this);
+	}
 };
 
 // virtual
@@ -861,7 +865,11 @@ void LLFlatListView::notifyParentItemsRectChanged()
 	// take into account comment text height if exists
 	if (mNoItemsCommentTextbox && mNoItemsCommentTextbox->getVisible())
 	{
+		// top text padding inside the textbox is included into the height
 		comment_height = mNoItemsCommentTextbox->getTextPixelHeight();
+
+		// take into account a distance from parent's top border to textbox's top
+		comment_height += getRect().getHeight() - mNoItemsCommentTextbox->getRect().mTop;
 	}
 
 	LLRect req_rect =  getItemsRect();
@@ -892,6 +900,10 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 	{
 		if (visible)
 		{
+/*
+// *NOTE: MA 2010-02-04
+// Deprecated after params of the comment text box were moved into widget (flat_list_view.xml)
+// can be removed later if nothing happened.
 			// We have to update child rect here because of issues with rect after reshaping while creating LLTextbox
 			// It is possible to have invalid LLRect if Flat List is in LLAccordionTab
 			LLRect comment_rect = getLocalRect();
@@ -903,6 +915,7 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 			LLViewBorder* scroll_border = getChild<LLViewBorder>("scroll border");
 			comment_rect.stretch(-scroll_border->getBorderWidth());
 			mNoItemsCommentTextbox->setRect(comment_rect);
+*/
 		}
 		mNoItemsCommentTextbox->setVisible(visible);
 	}

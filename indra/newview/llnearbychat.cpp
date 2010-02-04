@@ -200,18 +200,16 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 		mMessageArchive.push_back(chat);
 		if(mMessageArchive.size()>200)
 			mMessageArchive.erase(mMessageArchive.begin());
+	}
 
-		if (gSavedPerAccountSettings.getBOOL("LogChat")) 
-		{
-			if (chat.mChatType != CHAT_TYPE_WHISPER && chat.mChatType != CHAT_TYPE_SHOUT)
-			{
-				LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
-			}
-			else
-			{
-				LLLogChat::saveHistory("chat", "", chat.mFromID, chat.mFromName + " " + chat.mText);
-			}
-		}
+	if (args["do_not_log"].asBoolean()) 
+	{
+		return;
+	}
+
+	if (gSavedPerAccountSettings.getBOOL("LogChat")) 
+	{
+		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
 	}
 }
 
@@ -282,6 +280,9 @@ void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 
 void LLNearbyChat::loadHistory()
 {
+	LLSD do_not_log;
+	do_not_log["do_not_log"] = true;
+
 	std::list<LLSD> history;
 	LLLogChat::loadAllHistory("chat", history);
 
@@ -302,7 +303,7 @@ void LLNearbyChat::loadHistory()
 		chat.mFromID = from_id;
 		chat.mText = msg[IM_TEXT].asString();
 		chat.mTimeStr = msg[IM_TIME].asString();
-		addMessage(chat);
+		addMessage(chat, true, do_not_log);
 
 		it++;
 	}
