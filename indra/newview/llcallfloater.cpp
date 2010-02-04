@@ -678,7 +678,8 @@ void LLCallFloater::resetVoiceRemoveTimers()
 
 void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id);
+	bool delete_it = true;
+	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id, delete_it);
 }
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)

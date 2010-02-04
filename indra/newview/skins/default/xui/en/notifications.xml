@@ -405,6 +405,19 @@ Do you wish to proceed?
 
   <notification
    icon="alertmodal.tga"
+   name="JoinGroupNoCost"
+   type="alertmodal">
+You are Joining group [NAME].
+Do you wish to proceed?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Join"/>
+  </notification>
+
+
+  <notification
+   icon="alertmodal.tga"
    name="JoinGroupCannotAfford"
    type="alertmodal">
 Joining this group costs L$[COST].
@@ -1519,7 +1532,7 @@ Your search terms were too short so no search was performed.
    icon="alertmodal.tga"
    name="CouldNotTeleportReason"
    type="alertmodal">
-Could not teleport.
+Teleport failed.
 [REASON]
   </notification>
 
