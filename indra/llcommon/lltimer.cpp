@@ -578,7 +578,7 @@ LLEventTimer::LLEventTimer(const LLDate& time)
 
 LLEventTimer::~LLEventTimer()
 {
-	llassert(!mBusy); // this LLEventTimer was destroyed from its own tick() function - bad.
+	llassert(!mBusy); // this LLEventTimer was destroyed from within its own tick() function - bad.  if you want tick() to cause destruction of its own timer, make it return true.
 }
 
 //static
