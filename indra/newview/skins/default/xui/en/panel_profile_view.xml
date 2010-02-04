@@ -35,7 +35,7 @@
       layout="topleft"
       left_pad="10"
       name="user_name"
-      text_color="white"
+      text_color="LtGray"
       top="0"
       value="(Loading...)"
       use_ellipses="true"
