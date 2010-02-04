@@ -585,9 +585,16 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	bool irc_me = prefix == "/me " || prefix == "/me'";
 
 	// Delimiter after a name in header copy/past and in plain text mode
-	std::string delimiter = (chat.mChatType != CHAT_TYPE_SHOUT && chat.mChatType != CHAT_TYPE_WHISPER)
-		? ": "
-		: " ";
+	std::string delimiter = ": ";
+	std::string shout = LLTrans::getString("shout");
+	std::string whisper = LLTrans::getString("whisper");
+	if (chat.mChatType == CHAT_TYPE_SHOUT || 
+		chat.mChatType == CHAT_TYPE_WHISPER ||
+		chat.mText.compare(0, shout.length(), shout) == 0 ||
+		chat.mText.compare(0, whisper.length(), whisper) == 0)
+	{
+		delimiter = " ";
+	}
 
 	// Don't add any delimiter after name in irc styled messages
 	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
