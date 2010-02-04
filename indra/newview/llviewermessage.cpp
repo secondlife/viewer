@@ -1478,6 +1478,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 	// Strip any SLURL from the message display. (DEV-2754)
 	std::string msg = info->mDesc;
 	int indx = msg.find(" ( http://slurl.com/secondlife/");
+	if(indx == std::string::npos)
+	{
+		// try to find new slurl host
+		indx = msg.find(" ( http://maps.secondlife.com/secondlife/");
+	}
 	if(indx >= 0)
 	{
 		LLStringUtil::truncate(msg, indx);

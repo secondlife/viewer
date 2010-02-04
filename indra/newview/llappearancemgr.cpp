@@ -279,7 +279,7 @@ public:
 
 	virtual ~LLUpdateAppearanceOnDestroy()
 	{
-		if (!!LLApp::isExiting())
+		if (!LLApp::isExiting())
 		{
 			LLAppearanceManager::instance().updateAppearanceFromCOF();
 		}

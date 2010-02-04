@@ -63,6 +63,12 @@ LLCubeMap::LLCubeMap()
 	  mTextureCoordStage(0),
 	  mMatrixStage(0)
 {
+	mTargets[0] = GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB;
+	mTargets[1] = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
+	mTargets[2] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB;
+	mTargets[3] = GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB;
+	mTargets[4] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB;
+	mTargets[5] = GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB;
 }
 
 LLCubeMap::~LLCubeMap()
@@ -75,13 +81,6 @@ void LLCubeMap::initGL()
 
 	if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 	{
-		mTargets[0] = GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB;
-		mTargets[1] = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
-		mTargets[2] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB;
-		mTargets[3] = GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB;
-		mTargets[4] = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB;
-		mTargets[5] = GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB;
-		
 		// Not initialized, do stuff.
 		if (mImages[0].isNull())
 		{

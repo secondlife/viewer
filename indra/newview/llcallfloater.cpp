@@ -52,6 +52,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
+#include "llviewerparcelmgr.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 void reshape_floater(LLCallFloater* floater, S32 delta_height);
@@ -677,7 +678,8 @@ void LLCallFloater::resetVoiceRemoveTimers()
 
 void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id);
+	bool delete_it = true;
+	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id, delete_it);
 }
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
@@ -731,11 +733,11 @@ void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 	}
 	else
 	{
-		reset();
+		reset(new_state);
 	}
 }
 
-void LLCallFloater::reset()
+void LLCallFloater::reset(const LLVoiceChannel::EState& new_state)
 {
 	// lets forget states from the previous session
 	// for timers...
@@ -748,8 +750,18 @@ void LLCallFloater::reset()
 	mParticipants = NULL;
 	mAvatarList->clear();
 
-	// update floater to show Loading while waiting for data.
-	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	// "loading" is shown in parcel with disabled voice only when state is "ringing"
+	// to avoid showing it in nearby chat vcp all the time- "no_one_near" is now shown there (EXT-4648)
+	bool show_loading = LLVoiceChannel::STATE_RINGING == new_state;
+	if(!show_loading && !LLViewerParcelMgr::getInstance()->allowAgentVoice() && mVoiceType ==  VC_LOCAL_CHAT)
+	{
+		mAvatarList->setNoItemsCommentText(getString("no_one_near"));
+	}
+	else
+	{
+		// update floater to show Loading while waiting for data.
+		mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	}
 	mAvatarList->setVisible(TRUE);
 	mNonAvatarCaller->setVisible(FALSE);
 
