@@ -99,7 +99,7 @@
     top="19"
     left="2"
     follows="right|top"
-    image_name="Parcel_Damage_Dark"
+    image_name="Parcel_Health_Dark"
     />
   <!-- Default text color is invisible on top of nav bar background -->
   <damage_text
