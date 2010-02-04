@@ -565,19 +565,23 @@ LLEventTimer::LLEventTimer(F32 period)
 : mEventTimer()
 {
 	mPeriod = period;
+	mBusy = false;
 }
 
 LLEventTimer::LLEventTimer(const LLDate& time)
 : mEventTimer()
 {
 	mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
+	mBusy = false;
 }
 
 
 LLEventTimer::~LLEventTimer()
 {
+	llassert(!mBusy); // this LLEventTimer was destroyed from its own tick() function - bad.
 }
 
+//static
 void LLEventTimer::updateClass() 
 {
 	std::list<LLEventTimer*> completed_timers;
@@ -587,10 +591,12 @@ void LLEventTimer::updateClass()
 		F32 et = timer.mEventTimer.getElapsedTimeF32();
 		if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
 			timer.mEventTimer.reset();
+			timer.mBusy = true;
 			if ( timer.tick() )
 			{
 				completed_timers.push_back( &timer );
 			}
+			timer.mBusy = false;
 		}
 	}
 
