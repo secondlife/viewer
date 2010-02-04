@@ -582,12 +582,16 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	items.push_back(std::string("Paste Separator"));
 
+	// "Remove link" and "Delete" are the same operation.
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
 		items.push_back(std::string("Remove Link"));
 	}
+	else
+	{
+		items.push_back(std::string("Delete"));
+	}
 
-	items.push_back(std::string("Delete"));
 	if (!isItemRemovable())
 	{
 		disabled_items.push_back(std::string("Delete"));
