@@ -107,13 +107,15 @@ struct LLAttachmentRezAction
 	S32		mAttachPt;
 };
 
+typedef std::vector<std::string> menuentry_vec_t;
+
 const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type);
 void hide_context_entries(LLMenuGL& menu, 
-						const std::vector<std::string> &entries_to_show,
-						const std::vector<std::string> &disabled_entries);
+						  const menuentry_vec_t &entries_to_show,
+						  const menuentry_vec_t &disabled_entries);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInvFVBridge (& it's derived classes)
+// Class LLInvFVBridge (& its derived classes)
 //
 // Short for Inventory-Folder-View-Bridge. This is an
 // implementation class to be able to view inventory items.
@@ -172,9 +174,11 @@ public:
 	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual void pasteFromClipboard() {}
 	virtual void pasteLinkFromClipboard() {}
-	void getClipboardEntries(bool show_asset_id, std::vector<std::string> &items, 
-		std::vector<std::string> &disabled_items, U32 flags);
+	void getClipboardEntries(bool show_asset_id, menuentry_vec_t &items, 
+		menuentry_vec_t &disabled_items, U32 flags);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	virtual void addTrashContextMenuOptions(menuentry_vec_t &items,
+											menuentry_vec_t &disabled_items);
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
@@ -361,8 +365,8 @@ private:
 	BOOL			mCallingCards;
 	BOOL			mWearables;
 	LLMenuGL*		mMenu;
-	std::vector<std::string> mItems;
-	std::vector<std::string> mDisabledItems;
+	menuentry_vec_t mItems;
+	menuentry_vec_t mDisabledItems;
 };
 
 // DEPRECATED
@@ -816,7 +820,7 @@ void teleport_via_landmark(const LLUUID& asset_id);
 
 // Utility function to hide all entries except those in the list
 void hide_context_entries(LLMenuGL& menu, 
-		const std::vector<std::string> &entries_to_show, 
-		const std::vector<std::string> &disabled_entries);
+		const menuentry_vec_t &entries_to_show, 
+		const menuentry_vec_t &disabled_entries);
 
 #endif // LL_LLINVENTORYBRIDGE_H
