@@ -4922,7 +4922,6 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	{
 		llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
 	}
-	llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
 	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 		 iter != items.end();
 		 ++iter)
@@ -4958,7 +4957,10 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 		// Find and remove this item from the COF.
 		LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(
 			item_id, LLAppearanceManager::instance().getCOF());
-		llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
+		if (items.size() != 1)
+		{
+			llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
+		}
 		for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 			 iter != items.end();
 			 ++iter)
