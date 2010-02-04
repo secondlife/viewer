@@ -168,14 +168,14 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	}
 	substitution["REGION_ID"] = region_id;
 
-	// find the parcel ID
-	LLUUID parcel_id;
+	// find the parcel local ID
+	S32 parcel_id = 0;
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
-		parcel_id = parcel->getID();
+		parcel_id = parcel->getLocalID();
 	}
-	substitution["PARCEL_ID"] = parcel_id;
+	substitution["PARCEL_ID"] = llformat("%d", parcel_id);
 
 	// expand all of the substitution strings and escape the url
 	std::string expanded_url = url;
