@@ -145,10 +145,19 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["VERSION_PATCH"] = LLVersionInfo::getPatch();
 	substitution["VERSION_BUILD"] = LLVersionInfo::getBuild();
 	substitution["CHANNEL"] = LLVersionInfo::getChannel();
-	substitution["LANGUAGE"] = LLUI::getLanguage();
 	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	substitution["SESSION_ID"] = gAgent.getSessionID();
+
+	// work out the current language
+	std::string lang = LLUI::getLanguage();
+	if (lang == "en-us")
+	{
+		// *HACK: the correct fix is to change English.lproj/language.txt,
+		// but we're late in the release cycle and this is a less risky fix
+		lang = "en";
+	}
+	substitution["LANGUAGE"] = lang;
 
 	// find the region ID
 	LLUUID region_id;
