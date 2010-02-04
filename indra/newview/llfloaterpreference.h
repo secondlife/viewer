@@ -161,6 +161,7 @@ public:
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
+	virtual void setHardwareDefaults(){};
 
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
@@ -175,6 +176,21 @@ private:
 
 	typedef std::map<std::string, LLColor4> string_color_map_t;
 	string_color_map_t mSavedColors;
+};
+
+class LLPanelPreferenceGraphics : public LLPanelPreference
+{
+public:
+	BOOL postBuild();
+	void draw();
+	void apply();
+	void cancel();
+	void saveSettings();
+	void setHardwareDefaults();
+protected:
+	bool hasDirtyChilds();
+	void resetDirtyChilds();
+	
 };
 
 #endif  // LL_LLPREFERENCEFLOATER_H
