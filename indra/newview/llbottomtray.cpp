@@ -441,6 +441,8 @@ BOOL LLBottomTray::postBuild()
 	mObjectDefaultWidthMap[RS_BUTTON_CAMERA]   = mCamPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
 
+	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
+
 	return TRUE;
 }
 
