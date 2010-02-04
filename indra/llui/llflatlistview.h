@@ -35,8 +35,8 @@
 
 #include "llpanel.h"
 #include "llscrollcontainer.h"
+#include "lltextbox.h"
 
-class LLTextBox;
 
 /**
  * LLFlatListView represents a flat list ui control that operates on items in a form of LLPanel's.
@@ -107,6 +107,9 @@ public:
 
 		/** padding between items */
 		Optional<U32> item_pad; 
+
+		/** textbox with info message when list is empty*/
+		Optional<LLTextBox::Params> no_items_text;
 
 		Params();
 	};
