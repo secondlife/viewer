@@ -177,8 +177,6 @@ public:
 	void getClipboardEntries(bool show_asset_id, menuentry_vec_t &items, 
 		menuentry_vec_t &disabled_items, U32 flags);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void addTrashContextMenuOptions(menuentry_vec_t &items,
-											menuentry_vec_t &disabled_items);
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
@@ -191,6 +189,14 @@ public:
 	// Allow context menus to be customized for side panel.
 	bool isInOutfitsSidePanel() const;
 
+	//--------------------------------------------------------------------
+	// Convenience functions for adding various common menu options.
+	//--------------------------------------------------------------------
+protected:
+	virtual void addTrashContextMenuOptions(menuentry_vec_t &items,
+											menuentry_vec_t &disabled_items);
+	virtual void addDeleteContextMenuOptions(menuentry_vec_t &items,
+											 menuentry_vec_t &disabled_items);
 
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid);

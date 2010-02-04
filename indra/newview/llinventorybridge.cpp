@@ -181,10 +181,14 @@ BOOL LLInvFVBridge::isItemRemovable() const
 	{
 		return FALSE;
 	}
+
+	// Can't delete an item that's in the library.
 	if(!model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
 	{
 		return FALSE;
 	}
+
+	// Disable delete from COF folder; have users explicitly choose "detach/take off".
 	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
 	{
 		return FALSE;
@@ -466,6 +470,8 @@ void hide_context_entries(LLMenuGL& menu,
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
+	BOOL is_previous_entry_separator = FALSE;
+
 	LLView::child_list_t::const_iterator itor;
 	for (itor = list->begin(); itor != list->end(); ++itor)
 	{
@@ -488,6 +494,17 @@ void hide_context_entries(LLMenuGL& menu,
 				found = true;
 			}
 		}
+
+		// Don't allow multiple separators in a row (e.g. such as if there are no items
+		// between two separators).
+		if (found)
+		{
+			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(*itor) != NULL);
+			if (is_entry_separator && is_previous_entry_separator)
+				found = false;
+			is_previous_entry_separator = is_entry_separator;
+		}
+		
 		if (!found)
 		{
 			(*itor)->setVisible(FALSE);
@@ -582,20 +599,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	items.push_back(std::string("Paste Separator"));
 
-	// "Remove link" and "Delete" are the same operation.
-	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
-	{
-		items.push_back(std::string("Remove Link"));
-	}
-	else
-	{
-		items.push_back(std::string("Delete"));
-	}
-
-	if (!isItemRemovable())
-	{
-		disabled_items.push_back(std::string("Delete"));
-	}
+	addDeleteContextMenuOptions(items, disabled_items);
 
 	// If multiple items are selected, disable properties (if it exists).
 	if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -643,6 +647,32 @@ void LLInvFVBridge::addTrashContextMenuOptions(menuentry_vec_t &items,
 	items.push_back(std::string("Restore Item"));
 }
 
+void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
+												menuentry_vec_t &disabled_items)
+{
+	// Don't allow delete as a direct option from COF folder.
+	if (isCOFFolder())
+	{
+		return;
+	}
+
+	const LLInventoryObject *obj = getInventoryObject();
+
+	// "Remove link" and "Delete" are the same operation.
+	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
+	{
+		items.push_back(std::string("Remove Link"));
+	}
+	else
+	{
+		items.push_back(std::string("Delete"));
+	}
+
+	if (!isItemRemovable())
+	{
+		disabled_items.push_back(std::string("Delete"));
+	}
+}
 
 // *TODO: remove this
 BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
@@ -2477,7 +2507,7 @@ void LLFolderBridge::folderOptionsMenu()
 	if (is_sidepanel)
 	{
 		mItems.push_back("Rename");
-		mItems.push_back("Delete");
+		addDeleteContextMenuOptions(mItems, disabled_items);
 	}
 
 	// Only enable calling-card related options for non-system folders.
@@ -2647,11 +2677,11 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		else
 		{
 			// Want some but not all of the items from getClipboardEntries for outfits.
-			if (cat && cat->getPreferredType()==LLFolderType::FT_OUTFIT)
+			if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
 			{
 				mItems.push_back(std::string("Rename"));
-				mItems.push_back(std::string("Delete"));
 
+				addDeleteContextMenuOptions(mItems, mDisabledItems);
 				// EXT-4030: disallow deletion of currently worn outfit
 				const LLViewerInventoryItem *base_outfit_link = LLAppearanceManager::instance().getBaseOutfitLink();
 				if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
@@ -4190,6 +4220,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 			if( get_is_item_worn( mUUID ) )
 			{
+				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
@@ -5281,11 +5312,7 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	else
 	{
 		items.push_back(std::string("Properties"));
-		items.push_back(std::string("Delete"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Delete"));
-		}
+		addDeleteContextMenuOptions(items, disabled_items);
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
@@ -5326,11 +5353,7 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	else
 	{
 		items.push_back(std::string("Find Original"));
-		items.push_back(std::string("Delete"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Delete"));
-		}
+		addDeleteContextMenuOptions(items, disabled_items);
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
