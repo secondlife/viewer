@@ -4916,7 +4916,12 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	}
 
 	// Find and remove this item from the COF.
+	// FIXME 2.1 - call removeCOFItemLinks in llappearancemgr instead.
 	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::instance().getCOF());
+	if (items.size() != 1)
+	{
+		llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
+	}
 	llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
 	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 		 iter != items.end();
