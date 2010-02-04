@@ -628,8 +628,8 @@ void LLFavoritesBarCtrl::draw()
 
 	if (mShowDragMarker)
 	{
-		S32 w = mImageDragIndication->getWidth() / 2;
-		S32 h = mImageDragIndication->getHeight() / 2;
+		S32 w = mImageDragIndication->getWidth();
+		S32 h = mImageDragIndication->getHeight();
 
 		if (mLandingTab)
 		{
