@@ -158,8 +158,10 @@ public:
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	//virtual BOOL renameItem(const std::string& new_name) {}
-	virtual BOOL isItemRemovable();
+	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const;
+	virtual BOOL isItemInTrash() const;
+
 	//virtual BOOL removeItem() = 0;
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
 	virtual void move(LLFolderViewEventListener* new_parent_bridge) {}
@@ -185,13 +187,13 @@ public:
 	// Allow context menus to be customized for side panel.
 	bool isInOutfitsSidePanel() const;
 
+
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid);
 
 	LLInventoryObject* getInventoryObject() const;
 	LLInventoryModel* getInventoryModel() const;
 	
-	BOOL isInTrash() const;
 	BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
 	BOOL isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
@@ -306,7 +308,7 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data);
 
-	virtual BOOL isItemRemovable();
+	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const ;
 	virtual BOOL isUpToDate() const;
 	virtual BOOL isItemCopyable() const;
@@ -786,7 +788,7 @@ protected:
 	LLWearableBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
 
 
-	BOOL isInTrash() const;
+	BOOL isItemInTrash() const;
 	// return true if the item is in agent inventory. if false, it
 	// must be lost or in the inventory library.
 	BOOL isAgentInventory() const;

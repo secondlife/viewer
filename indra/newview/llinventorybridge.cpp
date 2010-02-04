@@ -174,7 +174,7 @@ time_t LLInvFVBridge::getCreationDate() const
 }
 
 // Can be destroyed (or moved to trash)
-BOOL LLInvFVBridge::isItemRemovable()
+BOOL LLInvFVBridge::isItemRemovable() const
 {
 	const LLInventoryModel* model = getInventoryModel();
 	if(!model) 
@@ -605,7 +605,7 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	lldebugs << "LLInvFVBridge::buildContextMenu()" << llendl;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -670,7 +670,7 @@ LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 	return panel ? panel->getModel() : NULL;
 }
 
-BOOL LLInvFVBridge::isInTrash() const
+BOOL LLInvFVBridge::isItemInTrash() const
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
@@ -680,7 +680,7 @@ BOOL LLInvFVBridge::isInTrash() const
 
 BOOL LLInvFVBridge::isLinkedObjectInTrash() const
 {
-	if (isInTrash()) return TRUE;
+	if (isItemInTrash()) return TRUE;
 
 	const LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
@@ -1412,7 +1412,7 @@ public:
 };
 
 // Can be destroyed (or moved to trash)
-BOOL LLFolderBridge::isItemRemovable()
+BOOL LLFolderBridge::isItemRemovable() const
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model)
@@ -3208,7 +3208,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -3302,7 +3302,7 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -3351,7 +3351,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> disabled_items;
 
 	lldebugs << "LLLandmarkBridge::buildContextMenu()" << llendl;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -3576,7 +3576,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -3841,7 +3841,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	lldebugs << "LLGestureBridge::buildContextMenu()" << llendl;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -3905,7 +3905,7 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> disabled_items;
 
 	lldebugs << "LLAnimationBridge::buildContextMenu()" << llendl;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -4184,7 +4184,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -4220,7 +4220,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			{
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else if (!isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
+			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4558,7 +4558,7 @@ void LLWearableBridge::openItem()
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
 	/*
-	if( isInTrash() )
+	if( isItemInTrash() )
 	{
 		LLNotificationsUtil::add("CannotWearTrash");
 	}
@@ -4600,7 +4600,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	lldebugs << "LLWearableBridge::buildContextMenu()" << llendl;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -5195,7 +5195,7 @@ void	LLLSLTextBridgeAction::doIt()
 }
 
 
-BOOL LLWearableBridgeAction::isInTrash() const
+BOOL LLWearableBridgeAction::isItemInTrash() const
 {
 	if(!mModel) return FALSE;
 	const LLUUID trash_id = mModel->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -5243,7 +5243,7 @@ void LLWearableBridgeAction::wearOnAvatar()
 //virtual
 void LLWearableBridgeAction::doIt()
 {
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		LLNotificationsUtil::add("CannotWearTrash");
 	}
@@ -5308,7 +5308,7 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	items.push_back(std::string("Find Original"));
 	disabled_items.push_back(std::string("Find Original"));
 	
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
@@ -5359,7 +5359,7 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
