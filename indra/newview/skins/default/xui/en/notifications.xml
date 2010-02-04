@@ -1532,7 +1532,7 @@ Your search terms were too short so no search was performed.
    icon="alertmodal.tga"
    name="CouldNotTeleportReason"
    type="alertmodal">
-Could not teleport.
+Teleport failed.
 [REASON]
   </notification>
 
