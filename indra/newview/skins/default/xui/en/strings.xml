@@ -115,9 +115,6 @@
   <!-- Avatar name: More than one avatar is selected/used here -->
   <string name="AvatarNameMultiple">(multiple)</string>
 
-  <!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
-	<string name="AvatarNameHippos">(hippos)</string>
-
 	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">(none)</string>
 

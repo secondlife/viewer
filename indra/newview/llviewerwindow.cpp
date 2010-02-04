@@ -233,6 +233,7 @@ S32				gDebugRaycastFaceHit;
 BOOL				gDisplayWindInfo = FALSE;
 BOOL				gDisplayCameraPos = FALSE;
 BOOL				gDisplayFOV = FALSE;
+BOOL				gDisplayBadge = FALSE;
 
 S32 CHAT_BAR_HEIGHT = 28; 
 S32 OVERLAY_BAR_HEIGHT = 20;
@@ -421,6 +422,11 @@ public:
 		{
 			addText(xpos, ypos, llformat("FOV: %2.1f deg", RAD_TO_DEG * LLViewerCamera::getInstance()->getView()));
 			ypos += y_inc;
+		}
+		if (gDisplayBadge)
+		{
+			addText(xpos, ypos+(y_inc/2), llformat("Hippos!", RAD_TO_DEG * LLViewerCamera::getInstance()->getView()));
+			ypos += y_inc * 2;
 		}
 		
 		/*if (LLViewerJoystick::getInstance()->getOverrideCamera())
