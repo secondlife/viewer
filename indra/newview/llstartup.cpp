@@ -773,8 +773,6 @@ bool idle_startup()
 
 			LLPanelLogin::giveFocus();
 
-			gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
-
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
@@ -1996,6 +1994,9 @@ bool idle_startup()
 		// LLUserAuth::getInstance()->reset();
 
 		LLStartUp::setStartupState( STATE_STARTED );
+
+		// Mark that we have successfully logged in at least once
+		gSavedSettings.setBOOL("HadFirstSuccessfulLogin", TRUE);
 
 		// Unmute audio if desired and setup volumes.
 		// Unmute audio if desired and setup volumes.
