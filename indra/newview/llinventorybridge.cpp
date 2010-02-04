@@ -607,12 +607,12 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> disabled_items;
 	if(isInTrash())
 	{
-		items.push_back(std::string("PurgeItem"));
+		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
 		{
-			disabled_items.push_back(std::string("PurgeItem"));
+			disabled_items.push_back(std::string("Purge Item"));
 		}
-		items.push_back(std::string("RestoreItem"));
+		items.push_back(std::string("Restore Item"));
 	}
 	else
 	{
