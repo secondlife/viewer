@@ -533,9 +533,13 @@ void LLScreenChannel::showToastsBottom()
 			// HACK
 			// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
 			(*it).toast->setVisible(TRUE);
-			// Show toast behind floaters. (EXT-3089)
-			gFloaterView->sendChildToBack((*it).toast);
 		}		
+		if(!(*it).toast->hasFocus())
+		{
+			// Fixing Z-order of toasts (EXT-4862)
+			// Next toast will be positioned under this one.
+			gFloaterView->sendChildToBack((*it).toast);
+		}
 	}
 
 	if(it != mToastList.rend())
