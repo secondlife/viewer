@@ -55,6 +55,8 @@ public:
 
 	virtual void openPanel(LLPanel* panel, const LLSD& params);
 
+	virtual void closePanel(LLPanel* panel);
+
 	S32 notifyParent(const LLSD& info);
 
 protected:
