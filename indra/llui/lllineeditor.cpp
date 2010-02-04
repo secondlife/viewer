@@ -422,12 +422,16 @@ void LLLineEditor::setCursor( S32 pos )
 	S32 old_cursor_pos = getCursor();
 	mCursorPos = llclamp( pos, 0, mText.length());
 
+	// position of end of next character after cursor
 	S32 pixels_after_scroll = findPixelNearestPos();
 	if( pixels_after_scroll > mTextRightEdge )
 	{
 		S32 width_chars_to_left = mGLFont->getWidth(mText.getWString().c_str(), 0, mScrollHPos);
 		S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, (F32)(mTextRightEdge - mTextLeftEdge + width_chars_to_left))); 
-		S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), getCursor());
+		// character immediately to left of cursor should be last one visible (SCROLL_INCREMENT_ADD will scroll in more characters)
+		// or first character if cursor is at beginning
+		S32 new_last_visible_char = llmax(0, getCursor() - 1);
+		S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), new_last_visible_char);
 		if (old_cursor_pos == last_visible_char)
 		{
 			mScrollHPos = llmin(mText.length(), llmax(min_scroll, mScrollHPos + SCROLL_INCREMENT_ADD));
