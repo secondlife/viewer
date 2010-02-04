@@ -391,14 +391,6 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      notext="No"
      yestext="Yes"/>
   </notification>
-
-  <notification
-    icon="alertmodal.tga"
-    name="ClickUnimplemented"
-    type="alertmodal">
-Sorry, not implemented yet.
-  </notification>
-
   <notification
    icon="alertmodal.tga"
    name="JoinGroupCanAfford"

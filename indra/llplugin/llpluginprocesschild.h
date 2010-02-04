@@ -89,8 +89,9 @@ private:
 		STATE_ERROR,				// generic bailout state
 		STATE_DONE					// state machine will sit in this state after either error or normal termination.
 	};
-	EState mState;
 	void setState(EState state);
+
+	EState mState;
 	
 	LLHost mLauncherHost;
 	LLSocket::ptr_t mSocket;

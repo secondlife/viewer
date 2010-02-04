@@ -607,12 +607,12 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> disabled_items;
 	if(isInTrash())
 	{
-		items.push_back(std::string("PurgeItem"));
+		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
 		{
-			disabled_items.push_back(std::string("PurgeItem"));
+			disabled_items.push_back(std::string("Purge Item"));
 		}
-		items.push_back(std::string("RestoreItem"));
+		items.push_back(std::string("Restore Item"));
 	}
 	else
 	{
@@ -2617,14 +2617,17 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			mItems.push_back(std::string("New Gesture"));
 			mItems.push_back(std::string("New Clothes"));
 			mItems.push_back(std::string("New Body Parts"));
-			mItems.push_back(std::string("Change Type"));
 
-			LLViewerInventoryCategory *cat = getCategory();
+			// Changing folder types is just a debug feature; this is fairly unsupported
+			// and can lead to unexpected behavior if enabled.
+#if !LL_RELEASE_FOR_DOWNLOAD
+			mItems.push_back(std::string("Change Type"));
+			const LLViewerInventoryCategory *cat = getCategory();
 			if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 			{
 				mDisabledItems.push_back(std::string("Change Type"));
 			}
-
+#endif
 			getClipboardEntries(false, mItems, mDisabledItems, flags);
 		}
 		else
