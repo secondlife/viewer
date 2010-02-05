@@ -675,8 +675,7 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 	{
 		// Don't show on first run after install
 		// Otherwise ShowStartLocation defaults to true.
-		show_start = gSavedSettings.getBOOL("ShowStartLocation")
-					&& gSavedSettings.getBOOL("HadFirstSuccessfulLogin");
+		show_start = gSavedSettings.getBOOL("ShowStartLocation");
 	}
 
 	sInstance->childSetVisible("start_location_combo", show_start);
@@ -846,8 +845,7 @@ void LLPanelLogin::loadLoginPage()
 	{
 		oStr << "&auto_login=TRUE";
 	}
-	if (gSavedSettings.getBOOL("ShowStartLocation")
-		&& gSavedSettings.getBOOL("HadFirstSuccessfulLogin"))
+	if (gSavedSettings.getBOOL("ShowStartLocation"))
 	{
 		oStr << "&show_start_location=TRUE";
 	}	
