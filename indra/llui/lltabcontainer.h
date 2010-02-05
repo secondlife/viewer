@@ -101,11 +101,6 @@ public:
 		 *  Paddings for LLIconCtrl in case of LLCustomButtonIconCtrl usage(use_custom_icon_ctrl = true)
 		 */
 		Optional<S32>						tab_icon_ctrl_pad;
-		/**
-		 * LLIconCtrl size
-		 */
-		Optional<S32>						tab_icon_ctrl_width,
-											tab_icon_ctrl_height;
 
 		Params();
 	};
@@ -247,7 +242,6 @@ private:
 	// updates tab button images given the tuple, tab position and the corresponding params
 	void update_images(LLTabTuple* tuple, TabParams params, LLTabContainer::TabPosition pos);
 	void reshapeTuple(LLTabTuple* tuple);
-	LLButton* createCustomButton(const LLButton::Params& p);
 
 	// Variables
 	
@@ -300,8 +294,6 @@ private:
 
 	bool							mCustomIconCtrlUsed;
 	S32								mTabIconCtrlPad;
-	S32								mTabIconCtrlHeight;
-	S32								mTabIconCtrlWidth;
 };
 
 #endif  // LL_TABCONTAINER_H

@@ -69,7 +69,6 @@ private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
 
-	void onCloseFloater(LLUUID avatar_id);
 
 	void onNewMessageReceived(const LLSD& data);
 };

@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llimview.h"
 #include "llavatariconctrl.h"
+#include "llgroupiconctrl.h"
 #include "llagent.h"
 
 //
@@ -90,23 +91,15 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLUUID session_id = floaterp->getKey();
 
+	LLIconCtrl* icon = 0;
+
 	if(gAgent.isInGroup(session_id))
 	{
-		mSessions[session_id] = floaterp;
-		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(session_id);
-		LLGroupMgr* gm = LLGroupMgr::getInstance();
-		gm->addObserver(session_id, this);
-		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
+		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
+		icon_params.group_id = session_id;
+		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
 
-		if (group_data && group_data->mInsigniaID.notNull())
-		{
-			mTabContainer->setTabImage(get_ptr_in_map(mSessions, session_id), group_data->mInsigniaID);
-		}
-		else
-		{
-			mTabContainer->setTabImage(floaterp, "Generic_Group");
-			gm->sendGroupPropertiesRequest(session_id);
-		}
+		mSessions[session_id] = floaterp;
 	}
 	else
 	{
@@ -114,27 +107,11 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
 		icon_params.avatar_id = avatar_id;
-		LLAvatarIconCtrl* icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
-		icon->setValue(avatar_id);
-		mTabContainer->setTabImage(floaterp, icon);
+		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
 
-		/*
-		LLAvatarPropertiesProcessor& app = LLAvatarPropertiesProcessor::instance();
-		app.addObserver(avatar_id, this);
-		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, avatar_id));
 		mSessions[avatar_id] = floaterp;
-
-		LLUUID* icon_id_ptr = LLAvatarIconIDCache::getInstance()->get(avatar_id);
-		if(icon_id_ptr && icon_id_ptr->notNull())
-		{
-			mTabContainer->setTabImage(floaterp, *icon_id_ptr);
-		}
-		else
-		{
-			mTabContainer->setTabImage(floaterp, "Generic_Person");
-			app.sendAvatarPropertiesRequest(avatar_id);
-		}*/
 	}
+	mTabContainer->setTabImage(floaterp, icon);
 }
 
 void LLIMFloaterContainer::processProperties(void* data, enum EAvatarProcessorType type)
@@ -165,13 +142,6 @@ void LLIMFloaterContainer::changed(const LLUUID& group_id, LLGroupChange gc)
 			mTabContainer->setTabImage(get_ptr_in_map(mSessions, group_id), group_data->mInsigniaID);
 		}
 	}
-}
-
-void LLIMFloaterContainer::onCloseFloater(LLUUID id)
-{
-	LLAvatarPropertiesProcessor::instance().removeObserver(id, this);
-	LLGroupMgr::instance().removeObserver(id, this);
-
 }
 
 void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
