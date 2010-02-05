@@ -407,7 +407,7 @@ Do you wish to proceed?
    icon="alertmodal.tga"
    name="JoinGroupNoCost"
    type="alertmodal">
-You are Joining group [NAME].
+You are joining group [NAME].
 Do you wish to proceed?
     <usetemplate
      name="okcancelbuttons"
