@@ -242,7 +242,8 @@ LLTextEditor::Params::Params()
 	handle_edit_keys_directly("handle_edit_keys_directly", false),
 	show_line_numbers("show_line_numbers", false),
 	default_color("default_color"),
-    commit_on_focus_lost("commit_on_focus_lost", false)
+    commit_on_focus_lost("commit_on_focus_lost", false),
+	show_context_menu("show_context_menu")
 {}
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
@@ -258,7 +259,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mTabsToNextField(p.ignore_tab),
-	mContextMenu(NULL)
+	mContextMenu(NULL),
+	mShowContextMenu(p.show_context_menu)
 {
 	mDefaultFont = p.font;
 
@@ -720,7 +722,7 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if (!LLTextBase::handleRightMouseDown(x, y, mask))
 	{
-		if(getMouseOpaque())
+		if(getChowContextMenu())
 		{
 			showContextMenu(x, y);
 		}
