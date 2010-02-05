@@ -35,7 +35,6 @@
 #include "lltabcontainer.h"
 
 #include "llfocusmgr.h"
-#include "llbutton.h"
 #include "lllocalcliprect.h"
 #include "llrect.h"
 #include "llresizehandle.h"
@@ -96,6 +95,92 @@ public:
 
 //----------------------------------------------------------------------------
 
+//============================================================================
+/*
+ * @file lltabcontainer.cpp
+ * @brief class implements LLButton with LLIconCtrl on it
+ */
+class LLCustomButtonIconCtrl : public LLButton
+{
+public:
+	struct Params
+	: public LLInitParam::Block<Params, LLButton::Params>
+	{
+		// LEFT, RIGHT, TOP, BOTTOM paddings of LLIconCtrl in this class has same value
+		Optional<S32>					icon_ctrl_pad;
+
+		Optional<S32>					icon_ctrl_width,
+										icon_ctrl_height;
+		Params():
+		icon_ctrl_pad("icon_ctrl_pad", 0),
+		icon_ctrl_width("icon_ctrl_width", 16),
+		icon_ctrl_height("icon_ctrl_height", 16)
+		{}
+	};
+
+protected:
+	friend class LLUICtrlFactory;
+	LLCustomButtonIconCtrl(const Params& p):
+		LLButton(p),
+		mIcon(NULL),
+		mIconCtrlPad(p.icon_ctrl_pad),
+		mIconCtrlWidht(p.icon_ctrl_width),
+		mIconCtrlHeight(p.icon_ctrl_height)
+		{}
+
+public:
+
+	void updateLayout()
+	{
+		LLRect button_rect = getRect();
+		LLRect icon_rect = mIcon->getRect();
+		S32 pad = mIconCtrlPad * 2;
+
+		switch(mIconAlignment)
+		{
+		case LLFontGL::LEFT:
+			icon_rect.setLeftTopAndSize(button_rect.mLeft + mIconCtrlPad, button_rect.mTop - mIconCtrlPad, mIconCtrlWidht - pad, mIconCtrlHeight - pad);
+			setLeftHPad(mIconCtrlWidht + pad);
+			break;
+		case LLFontGL::HCENTER:
+			//*TODO implement for HCENTER icon alignment
+			break;
+		case LLFontGL::RIGHT:
+			//*TODO implement for RIGHT icon alignment
+			break;
+		default:
+			break;
+		}
+		mIcon->setRect(icon_rect);
+	}
+
+	void setIcon(LLIconCtrl* icon, LLFontGL::HAlign alignment = LLFontGL::LEFT)
+	{
+		if(icon)
+		{
+			if(mIcon)
+			{
+				removeChild(mIcon);
+				mIcon->die();
+			}
+			mIcon = icon;
+			mIconAlignment = alignment;
+
+			addChild(mIcon);
+			updateLayout();
+		}
+	}
+
+
+private:
+	LLIconCtrl* mIcon;
+	LLFontGL::HAlign mIconAlignment;
+	S32 mIconCtrlPad;
+	S32 mIconCtrlWidht;
+	S32 mIconCtrlHeight;
+};
+//============================================================================
+
 struct LLPlaceHolderPanel : public LLPanel
 {
 	// create dummy param block to register with "placeholder" nane
@@ -127,7 +212,12 @@ LLTabContainer::Params::Params()
 	tab_padding_right("tab_padding_right"),
 	first_tab("first_tab"),
 	middle_tab("middle_tab"),
-	last_tab("last_tab")
+	last_tab("last_tab"),
+	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
+	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
+	tab_icon_ctrl_width("tab_icon_ctrl_width"),
+	tab_icon_ctrl_height("tab_icon_ctrl_height")
+
 {
 	name(std::string("tab_container"));
 	mouse_opaque = false;
@@ -162,7 +252,11 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mFont(p.font),
 	mFirstTabParams(p.first_tab),
 	mMiddleTabParams(p.middle_tab),
-	mLastTabParams(p.last_tab)
+	mLastTabParams(p.last_tab),
+	mCustomIconCtrlUsed(p.use_custom_icon_ctrl),
+	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
+	mTabIconCtrlWidth(p.tab_icon_ctrl_width),
+	mTabIconCtrlHeight(p.tab_icon_ctrl_height)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
 
@@ -942,7 +1036,14 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			{
 				p.pad_left(indent);
 			}
-			btn = LLUICtrlFactory::create<LLButton>(p);
+			if(mCustomIconCtrlUsed)
+			{
+				btn = createCustomButton(p);
+			}
+			else
+			{
+				btn = LLUICtrlFactory::create<LLButton>(p);
+			}
 		}
 		else
 		{
@@ -980,7 +1081,14 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 				p.follows.flags = p.follows.flags() | FOLLOWS_BOTTOM;
 			}
 
-++			btn = LLUICtrlFactory::create<LLButton>(p);
+			if(mCustomIconCtrlUsed)
+			{
+				btn = createCustomButton(p);
+			}
+			else
+			{
+				btn = LLUICtrlFactory::create<LLButton>(p);
+			}
 		}
 	}
 	
@@ -1041,6 +1149,19 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 
 	updateMaxScrollPos();
+}
+
+LLButton* LLTabContainer::createCustomButton(const LLButton::Params& p)
+{
+	LLCustomButtonIconCtrl::Params custom_btn_params;
+	LLButton::Params* btn_params_p = dynamic_cast<LLButton::Params*>(&custom_btn_params);
+
+	btn_params_p->overwriteFrom(p);
+	custom_btn_params.icon_ctrl_pad(mTabIconCtrlPad);
+	custom_btn_params.icon_ctrl_width(mTabIconCtrlWidth);
+	custom_btn_params.icon_ctrl_height(mTabIconCtrlHeight);
+
+	return LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
 }
 
 void LLTabContainer::addPlaceholder(LLPanel* child, const std::string& label)
@@ -1484,7 +1605,7 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 	if( tuple )
 	{
 		tuple->mButton->setImageOverlay(image_name, LLFontGL::LEFT, color);
-		reshape_tuple(tuple);
+		reshapeTuple(tuple);
 	}
 }
 
@@ -1494,11 +1615,26 @@ void LLTabContainer::setTabImage(LLPanel* child, const LLUUID& image_id, const L
 	if( tuple )
 	{
 		tuple->mButton->setImageOverlay(image_id, LLFontGL::LEFT, color);
-		reshape_tuple(tuple);
+		reshapeTuple(tuple);
 	}
 }
 
-void LLTabContainer::reshape_tuple(LLTabTuple* tuple)
+void LLTabContainer::setTabImage(LLPanel* child, LLIconCtrl* icon)
+{
+	LLTabTuple* tuple = getTabByPanel(child);
+	LLCustomButtonIconCtrl* button;
+
+	if(tuple)
+	{
+		button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
+		if(button)
+		{
+			button->setIcon(icon);
+		}
+	}
+}
+
+void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
 {
 	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
 	static LLUICachedControl<S32> image_left_padding ("UIButtonImageLeftPadding", 4);

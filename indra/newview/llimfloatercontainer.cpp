@@ -111,6 +111,14 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	else
 	{
 		LLUUID avatar_id = LLIMModel::getInstance()->getOtherParticipantID(session_id);
+
+		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
+		icon_params.avatar_id = avatar_id;
+		LLAvatarIconCtrl* icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
+		icon->setValue(avatar_id);
+		mTabContainer->setTabImage(floaterp, icon);
+
+		/*
 		LLAvatarPropertiesProcessor& app = LLAvatarPropertiesProcessor::instance();
 		app.addObserver(avatar_id, this);
 		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, avatar_id));
@@ -125,7 +133,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		{
 			mTabContainer->setTabImage(floaterp, "Generic_Person");
 			app.sendAvatarPropertiesRequest(avatar_id);
-		}
+		}*/
 	}
 }
 
