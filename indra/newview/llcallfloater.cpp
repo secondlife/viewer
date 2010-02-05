@@ -721,7 +721,15 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
-	updateState(new_state);
+	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
+	if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+	{
+		updateState(new_state);
+	}
+	else
+	{
+		closeFloater();
+	}
 }
 
 void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
