@@ -461,6 +461,27 @@ private:
 		return (LLQtWebKit::EKeyboardModifier)result;
 	}
 	
+	////////////////////////////////////////////////////////////////////////////////
+	//
+	void deserializeKeyboardData( LLSD native_key_data, uint32_t& native_scan_code, uint32_t& native_virtual_key, uint32_t& native_modifiers )
+	{
+		if( native_key_data.isMap() )
+		{
+			// these LLSD names are a little confusing here but they
+			// make more sense on the Mac specific version and that was done first
+			native_scan_code = (uint32_t)(native_key_data["key_code"].asInteger());
+			native_virtual_key = (uint32_t)(native_key_data["char_code"].asInteger());
+			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
+
+			// would like to use LLQtWebKit::KM_MODIFIER_SHIFT but don't want
+			// make the client depend on llQtWebKit so pass over as an int
+			// (not bool so we can to modifier list later)
+			if ( native_modifiers == 1 )
+				native_modifiers = LLQtWebKit::KM_MODIFIER_SHIFT;
+			else
+				native_modifiers = LLQtWebKit::KM_MODIFIER_NONE;
+		};
+	};
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -494,13 +515,7 @@ private:
 		uint32_t native_scan_code = 0;
 		uint32_t native_virtual_key = 0;
 		uint32_t native_modifiers = 0;
-		
-		if(native_key_data.isMap())
-		{
-			native_scan_code = (uint32_t)(native_key_data["key_code"].asInteger());
-			native_virtual_key = (uint32_t)(native_key_data["char_code"].asInteger());
-			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
-		}
+		deserializeKeyboardData( native_key_data, native_scan_code, native_virtual_key, native_modifiers );
 		
 		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, key_event, (uint32_t)key, utf8_text.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 
@@ -525,13 +540,7 @@ private:
 		uint32_t native_scan_code = 0;
 		uint32_t native_virtual_key = 0;
 		uint32_t native_modifiers = 0;
-		
-		if(native_key_data.isMap())
-		{
-			native_scan_code = (uint32_t)(native_key_data["key_code"].asInteger());
-			native_virtual_key = (uint32_t)(native_key_data["char_code"].asInteger());
-			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
-		}
+		deserializeKeyboardData( native_key_data, native_scan_code, native_virtual_key, native_modifiers );
 		
 		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_DOWN, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_UP, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
