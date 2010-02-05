@@ -1272,8 +1272,7 @@ BOOL LLFolderView::canCut() const
 		const LLFolderViewItem* item = *selected_it;
 		const LLFolderViewEventListener* listener = item->getListener();
 
-		// *WARKAROUND: it is too many places where the "isItemRemovable" method should be changed with "const" modifier
-		if (!listener || !(const_cast<LLFolderViewEventListener*>(listener))->isItemRemovable())
+		if (!listener || !listener->isItemRemovable())
 		{
 			return FALSE;
 		}

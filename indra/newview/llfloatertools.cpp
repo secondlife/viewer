@@ -1321,7 +1321,7 @@ bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& re
 	switch( option )
 	{
 		case 0:  // "Yes"
-			LLSelectMgr::getInstance()->selectionSetMedia( 0 );
+			LLSelectMgr::getInstance()->selectionSetMedia( 0, LLSD() );
 			if(LLFloaterReg::instanceVisible("media_settings"))
 			{
 				LLFloaterReg::hideInstance("media_settings");

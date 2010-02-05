@@ -1,33 +1,33 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="top_objects" title="INDLÆSER...">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="top_objects" title="Top objekter">
 	<text name="title_text">
 		Henter...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Point" name="score" />
-		<column label="Navn" name="name" />
-		<column label="Ejer" name="owner" />
-		<column label="Lokation" name="location" />
-		<column label="Tid" name="time" />
-		<column label="Mono tid" name="mono_time" />
+		<column label="Point" name="score"/>
+		<column label="Navn" name="name"/>
+		<column label="Ejer" name="owner"/>
+		<column label="Lokation" name="location"/>
+		<column label="Tid" name="time"/>
+		<column label="Mono tid" name="mono_time"/>
 	</scroll_list>
 	<text name="id_text">
 		Objekt ID:
 	</text>
-	<button label="Vis pejlelys" name="show_beacon_btn" />
+	<button label="Vis pejlelys" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Objekt navn:
 	</text>
-	<button label="Filter" name="filter_object_btn" />
+	<button label="Filter" name="filter_object_btn"/>
 	<text name="owner_name_text">
-		Ejers navn:
+		Ejer:
 	</text>
-	<button label="Filter" name="filter_owner_btn" />
-	<button label="Returnér valgte" name="return_selected_btn" />
-	<button label="Returnér alle" name="return_all_btn" />
-	<button label="Afbryd valgte" name="disable_selected_btn" />
-	<button label="Afbryd alle" name="disable_all_btn" />
-	<button label="Genopfrisk" name="refresh_btn" />
+	<button label="Filter" name="filter_owner_btn"/>
+	<button label="Returnér valgte" name="return_selected_btn"/>
+	<button label="Returnér alle" name="return_all_btn"/>
+	<button label="Afbryd valgte" name="disable_selected_btn"/>
+	<button label="Afbryd alle" name="disable_all_btn"/>
+	<button label="Genopfrisk" name="refresh_btn"/>
 	<string name="top_scripts_title">
 		Mest krævende scripts
 	</string>

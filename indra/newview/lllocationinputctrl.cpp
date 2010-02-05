@@ -227,6 +227,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
 	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
+	mTextEntry->setContextMenu(NULL);
 	addChild(mTextEntry);
 	// LLLineEditor is replaced with LLLocationLineEditor
 

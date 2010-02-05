@@ -761,6 +761,8 @@ void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 	wearable->refreshName();
 	wearable->setLabelUpdated();
 
+	wearable->pullCrossWearableValues();
+
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
 	// then force a re-save of this wearable after slamming the version number to 22.
 	// This number was incorrectly incremented for internal builds before release, and
@@ -927,13 +929,6 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (mInitialWearablesUpdateReceived)
 		return;
 	mInitialWearablesUpdateReceived = true;
-	
-	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
-	// then auto-populate outfits from the library into the My Outfits folder.
-	if (LLInventoryModel::getIsFirstTimeInViewer2() || gSavedSettings.getBOOL("MyOutfitsAutofill"))
-	{
-		gAgentWearables.populateMyOutfitsFolder();
-	}
 
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);

@@ -601,14 +601,20 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 	{
 		llwchar wch = wchars[i];
 
-		F32 char_width = mFontFreetype->getXAdvance(wch);
+		const LLFontGlyphInfo* fgi= mFontFreetype->getGlyphInfo(wch);
 
-		if( scaled_max_pixels < (total_width + char_width) )
+		// last character uses character width, since the whole character needs to be visible
+		// other characters just use advance
+		F32 width = (i == start) 
+			? (F32)(fgi->mWidth + fgi->mXBearing)  	// use actual width for last character
+			: fgi->mXAdvance;						// use advance for all other characters										
+
+		if( scaled_max_pixels < (total_width + width) )
 		{
 			break;
 		}
 
-		total_width += char_width;
+		total_width += width;
 		drawable_chars++;
 
 		if( max_chars >= 0 && drawable_chars >= max_chars )
@@ -626,7 +632,17 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		total_width = llround(total_width);
 	}
 
-	return start_pos - drawable_chars;
+	if (drawable_chars == 0)
+	{
+		return start_pos; // just draw last character
+	}
+	else
+	{
+		// if only 1 character is drawable, we want to return start_pos as the first character to draw
+		// if 2 are drawable, return start_pos and character before start_pos, etc.
+		return start_pos + 1 - drawable_chars;
+	}
+	
 }
 
 S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, BOOL round) const

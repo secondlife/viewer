@@ -44,46 +44,41 @@ class LLSearchComboBox;
 /**
  * This button is able to handle click-dragging mouse event.
  * It has appropriated signal for this event.
- * Dragging direction can be set from xml by attribute called 'direction'
+ * Dragging direction can be set from xml attribute called 'direction'
  * 
  * *TODO: move to llui?  
  */
 
-class LLPullButton : public LLButton
+class LLPullButton: public LLButton
 {
 	LOG_CLASS(LLPullButton);
-	
+
 public:
-	
-	struct Params : public LLInitParam::Block<Params, LLButton::Params>
+	struct Params: public LLInitParam::Block<Params, LLButton::Params>
 	{
-		Optional<std::string>	direction; // left, right, down, up
-		
-		Params()
-		:	direction("direction","down")
-		{}
+		Optional<std::string> direction; // left, right, down, up
+
+		Params() 
+		:	direction("direction", "down")
+		{
+		}
 	};
 	
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	
+
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	
+
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
-	boost::signals2::connection setClickDraggingCallback( const commit_signal_t::slot_type& cb );
-	
-	/* virtual*/ ~LLPullButton()
-	{
-		delete mClickDraggingSignal;
-	}
-	
+	boost::signals2::connection setClickDraggingCallback(const commit_signal_t::slot_type& cb);
+
 protected:
 	friend class LLUICtrlFactory;
 	// convert string name into direction vector
 	void setDirectionFromName(const std::string& name);
 	LLPullButton(const LLPullButton::Params& params);
-	
-	commit_signal_t* mClickDraggingSignal;	
+
+	commit_signal_t mClickDraggingSignal;
 	LLVector2 mLastMouseDown;
 	LLVector2 mDraggingDirection;
 };

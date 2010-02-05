@@ -46,10 +46,10 @@ width="333">
       top="0"
       width="30" />
       <text
-      font="SansSerifHuge"
+      font="SansSerifHugeBold"
       height="20"
       left_pad="5"
-      text_color="white"
+      text_color="LtGray"
       top="3"
       use_ellipses="true"
       width="305"

@@ -1966,6 +1966,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 
 	// Don't know if this is needed
 	updateMeshTextures();
+
 }
 
 //-----------------------------------------------------------------------------
