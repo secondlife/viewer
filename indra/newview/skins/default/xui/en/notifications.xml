@@ -4763,7 +4763,7 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    name="ServerObjectMessage"
    type="notify">
 Message from [NAME]:
-[MSG]
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
   </notification>
 
   <notification
