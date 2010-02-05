@@ -1700,6 +1700,10 @@ bool idle_startup()
 					<< " kbps" << LL_ENDL;
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
+
+			// Set the show start location to true, now that the user has logged
+			// on with this install.
+			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
 		}
 
 		// We're successfully logged in.
