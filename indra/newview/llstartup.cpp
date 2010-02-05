@@ -800,6 +800,9 @@ bool idle_startup()
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 
+		// Hide the splash screen
+		LLSplashScreen::hide();
+
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
 		display_startup();
