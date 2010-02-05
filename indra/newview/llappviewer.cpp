@@ -1353,9 +1353,6 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Cache files removed" << llendflush;
 
-
-	cleanup_menus();
-
 	// Wait for any pending VFS IO
 	while (1)
 	{
