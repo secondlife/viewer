@@ -470,7 +470,9 @@ void hide_context_entries(LLMenuGL& menu,
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
-	BOOL is_previous_entry_separator = FALSE;
+	// For removing double separators or leading separator.  Start at true so that
+	// if the first element is a separator, it will not be shown.
+	BOOL is_previous_entry_separator = TRUE;
 
 	LLView::child_list_t::const_iterator itor;
 	for (itor = list->begin(); itor != list->end(); ++itor)
@@ -582,8 +584,12 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	items.push_back(std::string("Paste"));
-	if (!isClipboardPasteable() || (flags & FIRST_SELECTED_ITEM) == 0)
+	// Don't allow items to be pasted directly into the COF.
+	if (!isCOFFolder())
+	{
+		items.push_back(std::string("Paste"));
+	}
+	if (!isClipboardPasteable() || ((flags & FIRST_SELECTED_ITEM) == 0))
 	{
 		disabled_items.push_back(std::string("Paste"));
 	}
