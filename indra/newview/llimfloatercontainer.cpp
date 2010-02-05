@@ -100,6 +100,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
 
 		mSessions[session_id] = floaterp;
+		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
 	else
 	{
@@ -110,8 +111,14 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
 
 		mSessions[avatar_id] = floaterp;
+		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, avatar_id));
 	}
 	mTabContainer->setTabImage(floaterp, icon);
+}
+
+void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
+{
+	mSessions.erase(id);
 }
 
 void LLIMFloaterContainer::processProperties(void* data, enum EAvatarProcessorType type)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="APPEARANCE" width="509">
+<floater name="floater customize" title="UDSEENDE" width="509">
 	<tab_container name="customize tab container" width="507">
 		<placeholder label="Krops Dele" name="body_parts_placeholder"/>
 		<panel label="Kropsbygning" name="Shape">
@@ -14,8 +14,8 @@
 			<button label="Overkrop" label_selected="Overkrop" name="Torso"/>
 			<button label="Ben" label_selected="Ben" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item name="radio" label="Kvinde" />
-				<radio_item name="radio2" label="Mand" />
+				<radio_item label="Kvinde" name="radio"/>
+				<radio_item label="Mand" name="radio2"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -78,9 +78,9 @@ og bagefter &apos;tage den på&apos;.
 			<text name="Item Action Label">
 				Hud:
 			</text>
-			<texture_picker width="98" label="Tatoveringer hoved" name="Head Tattoos" tool_tip="Klik for at vælge et billede"/>
-			<texture_picker width="98" label="Tatover. overkrop" name="Upper Tattoos" tool_tip="Klik for at vælge et billede"/>
-			<texture_picker width="98" label="Tatover. underkrop" name="Lower Tattoos" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Tatoveringer hoved" name="Head Tattoos" tool_tip="Klik for at vælge et billede" width="98"/>
+			<texture_picker label="Tatover. overkrop" name="Upper Tattoos" tool_tip="Klik for at vælge et billede" width="98"/>
+			<texture_picker label="Tatover. underkrop" name="Lower Tattoos" tool_tip="Klik for at vælge et billede" width="98"/>
 			<button label="Lav ny hud" label_selected="Lav nyt hud" name="Create New"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -156,7 +156,7 @@ og bagefter &apos;tage dem på&apos;.
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
 		</panel>
-		<panel label="Tøje" name="clothes_placeholder"/>
+		<placeholder label="Tøje" name="clothes_placeholder"/>
 		<panel label="Trøje" name="Shirt">
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
@@ -471,9 +471,81 @@ og bagefter &apos;tage den på&apos;.
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
 		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: kan ikke ændre
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Placeret i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Brug en ny &quot;alpha mask&quot; ved at trække en fra din beholding til din avatar.
+Alternativt kan du lave en fra bunden og bære denne.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at ændre denne.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Alpha - nedre" name="Lower Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øvre alpha" name="Upper Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - hoved" name="Head Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - øjne" name="Eye Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - hår" name="Hair Alpha" tool_tip="Klik for at vælge et billede"/>
+			<button label="Lav ny &quot;Alpha&quot;" label_selected="Lav ny &quot;Alpha&quot;" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
+		</panel>
+		<panel label="Tatovering" name="Tattoo">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: kan ikke ændre
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Placeret i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Brug en ny tatovering ved at trække en fra din beholding til din avatar.
+Alternativt kan du lave en fra bunden og bære denne.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at ændre denne.
+			</text>
+			<text name="Item Action Label">
+				Tatovering:
+			</text>
+			<texture_picker label="Tatovering - hovede" name="Head Tattoo" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øvre tatovering" name="Upper Tattoo" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Nedre tatovering" name="Lower Tattoo" tool_tip="Klik for at vælge et billede"/>
+			<button label="lav ny tatovering" label_selected="Lav ny tatovering" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
+		</panel>
 	</tab_container>
 	<scroll_container left="212" name="panel_container"/>
+	<button label="Lav sæt" label_selected="Lav sæt" name="make_outfit_btn"/>
 	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
-	<button label="Opret sæt..." label_selected="Opret sæt..." name="Make Outfit"/>
 </floater>

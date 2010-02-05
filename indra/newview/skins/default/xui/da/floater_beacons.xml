@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="beacons" title="PEJLELYS">
 	<panel name="beacons_panel">
-		<check_box label="Kun scriptede objekter med &quot;rør&quot;" name="touch_only" />
-		<check_box label="Scriptede objekter" name="scripted" />
-		<check_box label="Fysiske objekter" name="physical" />
-		<check_box label="Lyd kilder" name="sounds" />
-		<check_box label="Partikel kilder" name="particles" />
-		<check_box label="Rendér highlights" name="highlights" />
-		<check_box label="Rendér pejlelys" name="beacons" />
-		<text name="beacon_width_label">
-			Pejlelys bredde:
+		<text name="label_show">
+			Vis:
 		</text>
+		<check_box label="Pejlelys" name="beacons"/>
+		<check_box label="Fremhævninger" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="Pejlelys bredde">
+			Bredde:
+		</text>
+		<text name="label_objects">
+			For disse objekter:
+		</text>
+		<check_box label="Fysisk" name="physical"/>
+		<check_box label="Scriptet" name="scripted"/>
+		<check_box label="Kun berøring" name="touch_only"/>
+		<check_box label="Lydkilder" name="sounds"/>
+		<check_box label="Partikel kilder" name="particles"/>
 	</panel>
 </floater>

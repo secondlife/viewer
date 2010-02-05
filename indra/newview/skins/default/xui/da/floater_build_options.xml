@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="build options floater" title="GITTER INDSTILLINGER">
-	<spinner label="Gitter enhed (meter)" name="GridResolution" width="200" label_width="136"/>
-	<spinner label="Gitter rækkevidde (meter)" name="GridDrawSize" width="200" label_width="136"/>
-	<check_box label="Aktiver låsning til under-enheder" name="GridSubUnit" />
-	<check_box label="Vis &apos;cross sections&apos;" name="GridCrossSection" />
-	<slider label="Gitter synlighed" name="GridOpacity" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="GITTER VALG">
+	<spinner label="Gitter enheder (meter)" label_width="136" name="GridResolution" width="200"/>
+	<spinner label="Gitter rækkevidde (meter)" label_width="136" name="GridDrawSize" width="200"/>
+	<check_box label="Aktivér låsning til underenheder" name="GridSubUnit"/>
+	<check_box label="Vis &apos;cross-sections&apos;" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Gitter synlighed">
+		Uigennemsigtighed:
+	</text>
+	<slider label="Gitter synlighed" name="GridOpacity"/>
 </floater>

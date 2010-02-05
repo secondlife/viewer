@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="SE FOTO">
+<floater name="Snapshot" title="FOTO FORHÅNDSVINSNING">
 	<text name="type_label">
 		Hvor skal foto hen?
 	</text>
 	<radio_group label="Snapshot type" name="snapshot_type_radio">
-		<radio_item name="postcard" label="Send via e-mail" />
-		<radio_item name="texture" label="Gem i din beholdning (L$[AMOUNT])" />
-		<radio_item name="local" label="Gem på din computer" />
+		<radio_item label="Send via e-mail" name="postcard"/>
+		<radio_item label="Gem i din beholdning (L$[AMOUNT])" name="texture"/>
+		<radio_item label="Gem på din computer" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
 		Fil størrelse: [SIZE] KB
@@ -15,12 +15,12 @@
 	<button label="Send" name="send_btn"/>
 	<button label="Gem (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Gem" name="save_btn" tool_tip="Gem billede i på din computer">
-		<flyout_button_item name="save_item" label="Gem"/>
-		<flyout_button_item name="saveas_item" label="Gem som..."/>
+		<flyout_button_item label="Gem" name="save_item"/>
+		<flyout_button_item label="Gem som..." name="saveas_item"/>
 	</flyout_button>
 	<button label="Annullér" name="discard_btn"/>
-	<button label="Mere &gt;&gt;" name="more_btn" tool_tip="Avancerede valg"/>
-	<button label="&lt;&lt; Mindre" name="less_btn" tool_tip="Avancerede valg"/>
+	<button label="Mere &gt;&gt;" name="more_btn" tool_tip="Avancerede muligheder"/>
+	<button label="&lt;&lt; Mindre" name="less_btn" tool_tip="Avancerede muligheder"/>
 	<text name="type_label2">
 		Størrelse
 	</text>
@@ -28,45 +28,45 @@
 		Format
 	</text>
 	<combo_box label="Opløsning" name="postcard_size_combo">
-		<combo_box.item name="CurrentWindow" label="Aktuelle vindue"/>
-		<combo_box.item name="640x480" label="640x480"/>
-		<combo_box.item name="800x600" label="800x600"/>
-		<combo_box.item name="1024x768" label="1024x768"/>
-		<combo_box.item name="Custom" label="Manuel"/>
+		<combo_box.item label="Aktuelle vindue" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="Manuel" name="Custom"/>
 	</combo_box>
 	<combo_box label="Opløsning" name="texture_size_combo">
-		<combo_box.item name="CurrentWindow" label="Aktuelle vindue"/>
-		<combo_box.item name="Small(128x128)" label="Lille (128x128)"/>
-		<combo_box.item name="Medium(256x256)" label="Medium (256x256)"/>
-		<combo_box.item name="Large(512x512)" label="Stor (512x512)"/>
-		<combo_box.item name="Custom" label="Manuel"/>
+		<combo_box.item label="Aktuelle vindue" name="CurrentWindow"/>
+		<combo_box.item label="Lille (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Medium (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Stor (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Manuel" name="Custom"/>
 	</combo_box>
 	<combo_box label="Opløsning" name="local_size_combo">
-		<combo_box.item name="CurrentWindow" label="Aktuelle vindue"/>
-		<combo_box.item name="320x240" label="320x240"/>
-		<combo_box.item name="640x480" label="640x480"/>
-		<combo_box.item name="800x600" label="800x600"/>
-		<combo_box.item name="1024x768" label="1024x768"/>
-		<combo_box.item name="1280x1024" label="1280x1024"/>
-		<combo_box.item name="1600x1200" label="1600x1200"/>
-		<combo_box.item name="Custom" label="Manuelt"/>
+		<combo_box.item label="Aktuelle vindue" name="CurrentWindow"/>
+		<combo_box.item label="320x240" name="320x240"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1280x1024" name="1280x1024"/>
+		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="Manuelt" name="Custom"/>
 	</combo_box>
 	<combo_box label="Fil-format" name="local_format_combo" width="76">
-		<combo_box.item name="PNG" label="PNG"/>
-		<combo_box.item name="JPEG" label="JPEG"/>
-		<combo_box.item name="BMP" label="BMP"/>
+		<combo_box.item label="PNG" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP" name="BMP"/>
 	</combo_box>
-	<spinner label="Bredde" name="snapshot_width" label_width="41" width="101"/>
-	<spinner label="Højde" name="snapshot_height" label_width="32" width="92" left="117"/>
+	<spinner label="Bredde" label_width="41" name="snapshot_width" width="101"/>
+	<spinner label="Højde" label_width="32" left="117" name="snapshot_height" width="92"/>
 	<check_box label="Fasthold proportioner" name="keep_aspect_check"/>
 	<slider label="Billed-kvalitet" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Benyt:
 	</text>
 	<combo_box label="Billedlag" name="layer_types">
-		<combo_box.item name="Colors" label="Farver"/>
-		<combo_box.item name="Depth" label="Dybde"/>
-		<combo_box.item name="ObjectMattes" label="Materinger"/>
+		<combo_box.item label="Farver" name="Colors"/>
+		<combo_box.item label="Dybde" name="Depth"/>
+		<combo_box.item label="Materinger" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="Vis brugerflade på foto" name="ui_check"/>
 	<check_box label="Vis HUD objekter på foto" name="hud_check"/>

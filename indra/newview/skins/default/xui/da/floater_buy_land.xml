@@ -59,7 +59,7 @@
 	<text left_delta="62" name="info_price">
 		L$ 1500
 (L$ 1.1/m²)
-sælges med objekter
+solgt med objekter
 	</text>
 	<text name="info_action">
 		Køb af dette land vil:
@@ -75,16 +75,16 @@ sælges med objekter
 		Kun premium medlemmer kan eje land.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="US$9.95/md, månedlig afregning" />
-		<combo_box.item name="US$7.50/month,billedquarterly" label="US$7.50/md, kvartalsvis afregning" />
-		<combo_box.item name="US$6.00/month,billedannually" label="US$6.00/md, årlig afregning" />
+		<combo_box.item label="US$9.95 pr. måned, faktureret månedligt" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$7.50 pr. måned, faktureret kvartalsvist" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$6.00 pr. måned, faktureret årligt" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Forøg dine månedlige arealanvendelse gebyrer til US $ 40/måned.
 	</text>
 	<text name="land_use_reason">
-		You hold 1309 m² of land. 
-This parcel is 512 m² of land.
+		Du ejer 1309 m² land.
+Denne parcel er på 512 m².
 	</text>
 	<text name="purchase_action">
 		Betal Joe Resident L$ 4000 dette areal
@@ -99,12 +99,12 @@ This parcel is 512 m² of land.
 		1000
 	</line_editor>
 	<text name="currency_est">
-		for ca. US$ [AMOUNT2]
+		for ca. [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Du har L$2,100.
 	</text>
-	<check_box label="Fjern [AMOUNT] kvadratmeter af bidrag fra gruppe." name="remove_contribution"/>
+	<check_box label="Fjern [AMOUNT] m² af bidrag fra gruppe." name="remove_contribution"/>
 	<button label="Køb" name="buy_btn"/>
 	<button label="Annullér" name="cancel_btn"/>
 	<string name="can_resell">
@@ -181,16 +181,16 @@ Prøv at vælge et mindre område.
 		Din konto kan eje jord.
 	</string>
 	<string name="land_holdings">
-		Du har [BUYER] m² jord.
+		Du ejer [BUYER] m² land.
 	</string>
 	<string name="pay_to_for_land">
 		Betal L$ [AMOUNT] til [SELLER] for dette stykke jord
 	</string>
 	<string name="buy_for_US">
-		Køb L$ [AMOUNT] for ca. US$ [AMOUNT2],
+		Køb L$ [AMOUNT] for ca. [LOCAL_AMOUNT],
 	</string>
 	<string name="parcel_meters">
-		Denne parcel er [AMOUNT] m².
+		Denne parcel er på [AMOUNT] m²
 	</string>
 	<string name="premium_land">
 		Dette stykke jord er premium, og vil tælle som [AMOUNT] m².
@@ -200,7 +200,7 @@ Prøv at vælge et mindre område.
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT] m²
-kan indeholder [AMOUNT2] objekter
+kan indeholde [AMOUNT2] objekter
 	</string>
 	<string name="sold_with_objects">
 		solgt med objekter

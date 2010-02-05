@@ -39,4 +39,8 @@
 	</text>
 	<check_box initial_value="true" label="Afspil skrive animation ved chat" name="play_typing_animation"/>
 	<check_box label="Send e-mail til mig når jeg modtager IM og er offline" name="send_im_to_email"/>
+	<radio_group name="chat_window" tool_tip="Vis dine personlige beskeder i separate vinduer eller i ét vindue med mange faner (ændring kræver genstart)">
+		<radio_item label="Flere vinduer" name="radio"/>
+		<radio_item label="Et vindue" name="radio2"/>
+	</radio_group>
 </panel>
