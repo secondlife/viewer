@@ -1869,8 +1869,7 @@ void LLVOAvatar::releaseMeshData()
 // virtual
 void LLVOAvatar::restoreMeshData()
 {
-	// BAP restore
-	//llassert(!isSelf());
+	llassert(!isSelf());
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
 	//llinfos << "Restoring" << llendl;

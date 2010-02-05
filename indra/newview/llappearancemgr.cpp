@@ -48,6 +48,31 @@
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
+LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name)
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLNameCategoryCollector has_name(name);
+	gInventory.collectDescendentsIf(parent_id,
+									cat_array,
+									item_array,
+									LLInventoryModel::EXCLUDE_TRASH,
+									has_name);
+	if (0 == cat_array.count())
+		return LLUUID();
+	else
+	{
+		LLViewerInventoryCategory *cat = cat_array.get(0);
+		if (cat)
+			return cat->getUUID();
+		else
+		{
+			llwarns << "null cat" << llendl;
+			return LLUUID();
+		}
+	}
+}
+
 // support for secondlife:///app/appearance SLapps
 class LLAppearanceHandler : public LLCommandHandler
 {
@@ -538,6 +563,8 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 														LLFolderType::FT_NONE,
 														src_cat->getName());
 	shallowCopyCategoryContents(src_id, subfolder_id, cb);
+
+	gInventory.notifyObservers();
 }
 
 // Copy contents of src_id to dst_id.

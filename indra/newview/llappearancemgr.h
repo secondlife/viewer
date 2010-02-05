@@ -35,6 +35,7 @@
 
 #include "llsingleton.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llcallbacklist.h"
 
 class LLWearable;
@@ -148,6 +149,8 @@ public:
 
 #define SUPPORT_ENSEMBLES 0
 
+LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
+
 // Shim class and template function to allow arbitrary boost::bind
 // expressions to be run as one-time idle callbacks.
 template <typename T>
@@ -214,6 +217,105 @@ void doOnIdleRepeating(T callable)
 {
 	OnIdleCallbackRepeating<T>* cb_functor = new OnIdleCallbackRepeating<T>(callable);
 	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating<T>::onIdle,cb_functor);
+}
+
+template <class T>
+class CallAfterCategoryFetchStage2: public LLInventoryFetchObserver
+{
+public:
+	CallAfterCategoryFetchStage2(T callable):
+		mCallable(callable)
+	{
+	}
+	~CallAfterCategoryFetchStage2()
+	{
+	}
+	virtual void done()
+	{
+		gInventory.removeObserver(this);
+		doOnIdle(mCallable);
+		delete this;
+	}
+protected:
+	T mCallable;
+};
+
+template <class T>
+class CallAfterCategoryFetchStage1: public LLInventoryFetchDescendentsObserver
+{
+public:
+	CallAfterCategoryFetchStage1(T callable):
+		mCallable(callable)
+	{
+	}
+	~CallAfterCategoryFetchStage1()
+	{
+	}
+	virtual void done()
+	{
+		// What we do here is get the complete information on the items in
+		// the library, and set up an observer that will wait for that to
+		// happen.
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectDescendents(mCompleteFolders.front(),
+									  cat_array,
+									  item_array,
+									  LLInventoryModel::EXCLUDE_TRASH);
+		S32 count = item_array.count();
+		if(!count)
+		{
+			llwarns << "Nothing fetched in category " << mCompleteFolders.front()
+					<< llendl;
+			//dec_busy_count();
+			gInventory.removeObserver(this);
+			delete this;
+			return;
+		}
+
+		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(mCallable);
+		LLInventoryFetchObserver::item_ref_t ids;
+		for(S32 i = 0; i < count; ++i)
+		{
+			ids.push_back(item_array.get(i)->getUUID());
+		}
+		
+		gInventory.removeObserver(this);
+		
+		// do the fetch
+		stage2->fetchItems(ids);
+		if(stage2->isEverythingComplete())
+		{
+			// everything is already here - call done.
+			stage2->done();
+		}
+		else
+		{
+			// it's all on it's way - add an observer, and the inventory
+			// will call done for us when everything is here.
+			gInventory.addObserver(stage2);
+		}
+		delete this;
+	}
+protected:
+	T mCallable;
+};
+
+template <class T> 
+void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
+{
+	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(callable);
+	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	folders.push_back(cat_id);
+	stage1->fetchDescendents(folders);
+	if (stage1->isEverythingComplete())
+	{
+		stage1->done();
+	}
+	else
+	{
+		gInventory.addObserver(stage1);
+	}
 }
 
 #endif
