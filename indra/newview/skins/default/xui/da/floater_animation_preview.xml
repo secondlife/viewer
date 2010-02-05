@@ -1,97 +1,184 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Animation Preview" title="">
+	<floater.string name="failed_to_initialize">
+		Fejlede at starte bevægelse
+	</floater.string>
+	<floater.string name="anim_too_long">
+		Animations filen er [LENGTH] sekunder lang.
+
+Maksimal animations længde er [MAX_LENGTH] sekunder.
+	</floater.string>
+	<floater.string name="failed_file_read">
+		Kan ikke læse animations fil.
+
+[STATUS]
+	</floater.string>
+	<floater.string name="E_ST_OK">
+		OK
+	</floater.string>
+	<floater.string name="E_ST_EOF">
+		Fil afsluttet for tidligt.
+	</floater.string>
+	<floater.string name="E_ST_NO_CONSTRAINT">
+		Kan ikke læse &quot;constraint definition&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_FILE">
+		Kan ikke åbne BVH fil.
+	</floater.string>
+	<floater.string name="E_ST_NO_HIER">
+		Ugyldig header i HIERARCHY.
+	</floater.string>
+	<floater.string name="E_ST_NO_JOINT">
+		Kan ikke finde &quot;ROOT&quot; eller &quot;JOINT&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_NAME">
+		Kan ikke finde JOINT navn.
+	</floater.string>
+	<floater.string name="E_ST_NO_OFFSET">
+		Kan ikke finde OFFSET.
+	</floater.string>
+	<floater.string name="E_ST_NO_CHANNELS">
+		Kan ikke finde CHANNELS.
+	</floater.string>
+	<floater.string name="E_ST_NO_ROTATION">
+		Kan ikke læse &quot;rotation order&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_AXIS">
+		Kan ikke finde rotationsakser.
+	</floater.string>
+	<floater.string name="E_ST_NO_MOTION">
+		Kan ikke finde MOTION.
+	</floater.string>
+	<floater.string name="E_ST_NO_FRAMES">
+		Kan ikke læse antal &quot;frames&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_FRAME_TIME">
+		Kan ikke læse &quot;frame time&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_POS">
+		Kan ikke læse positionsværdier.
+	</floater.string>
+	<floater.string name="E_ST_NO_ROT">
+		Kan ikke læse rotationsværdier.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_FILE">
+		kan ikke åbne &quot;translation file&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_HEADER">
+		Kan ikke læse &quot;translation header.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_NAME">
+		Kan ikke aflæse &quot;translation&quot; navne.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_IGNORE">
+		Kan ikke læse &quot;translation ignore&quot; værdi.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_RELATIVE">
+		Kan ikke læse &quot;translation relative&quot; værdi.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_OUTNAME">
+		Kan ikke læse &quot;translation outname&quot; værdi.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_MATRIX">
+		Kan ikke læse &quot;translation matrix&quot;.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_MERGECHILD">
+		Kan ikke læse &quot;mergechild&quot; navn.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_MERGEPARENT">
+		Kan ikke læse &quot;mergeparent&quot; navn.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_PRIORITY">
+		Kan ikke finde prioritetsværdi.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_LOOP">
+		Kan ikke læse &quot;loop&quot; værdi.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_EASEIN">
+		kan ikke læse &quot;easeIn&quot; værdier.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_EASEOUT">
+		Kan ikke læse &quot;easeOut&quot; værdier.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_HAND">
+		Kan ikke læse &quot;hand morph&quot; værdi.
+	</floater.string>
+	<floater.string name="E_ST_NO_XLT_EMOTE">
+		kan ikke læse &quot;emote&quot; navn.
+	</floater.string>
 	<text name="name_label">
 		Navn:
 	</text>
 	<text name="description_label">
 		Beskrivelse:
 	</text>
-	<spinner label="Prioritet" name="priority"
-	     tool_tip="Vælg hvilke andre animationer der har lavere prioritet end denne." />
-	<check_box label="Gentag" name="loop_check" tool_tip="Gentager animationen konstant." />
-	<spinner left="76" label_width="40" width="105" label="Ind(%)" name="loop_in_point" tool_tip="Sætter punktet hvor gentagelsen genstarter fra."/>
-	<spinner label="Ud (%)" name="loop_out_point"
-	     tool_tip="Sætter punktet i animationen der afslutter gentagelsen." />
+	<spinner label="Prioritet" name="priority" tool_tip="Vælg hvilke andre animationer der &quot;overstyres&quot; af denne"/>
+	<check_box label="Gentag" name="loop_check" tool_tip="Gentager animationen konstant"/>
+	<spinner label="Ind(%)" label_width="40" left="76" name="loop_in_point" tool_tip="Sætter punktet hvor gentagelsen genstarter fra" width="105"/>
+	<spinner label="Ud (%)" name="loop_out_point" tool_tip="Sætter punktet i animationen der afslutter gentagelsen"/>
 	<text name="hand_label">
 		Hånd posering
 	</text>
-	<combo_box label="" name="hand_pose_combo"
-	     tool_tip="Kontrollerer hvad hænderne går i løbet af animationen." width="140">
-		<combo_box.item name="Spread" label="Spredt" />
-		<combo_box.item name="Relaxed" label="Afslappet" />
-		<combo_box.item name="PointBoth" label="Peg begge" />
-		<combo_box.item name="Fist" label="Knytnæver" />
-		<combo_box.item name="RelaxedLeft" label="Afslappet venstre" />
-		<combo_box.item name="PointLeft" label="Peg venstre" />
-		<combo_box.item name="FistLeft" label="Knytnæve venstre" />
-		<combo_box.item name="RelaxedRight" label="Afslappet højre" />
-		<combo_box.item name="PointRight" label="Peg højre" />
-		<combo_box.item name="FistRight" label="Knytnæve højre" />
-		<combo_box.item name="SaluteRight" label="Honnør højre" />
-		<combo_box.item name="Typing" label="Skriver" />
-		<combo_box.item name="PeaceRight" label="Fredstegn højre" />
+	<combo_box label="" name="hand_pose_combo" tool_tip="Kontrollerer hvad hænderne går i løbet af animationen" width="140">
+		<combo_box.item label="Spredt" name="Spread"/>
+		<combo_box.item label="Afslappet" name="Relaxed"/>
+		<combo_box.item label="Peg begge" name="PointBoth"/>
+		<combo_box.item label="Knytnæver" name="Fist"/>
+		<combo_box.item label="Afslappet venstre" name="RelaxedLeft"/>
+		<combo_box.item label="Peg venstre" name="PointLeft"/>
+		<combo_box.item label="Knytnæve venstre" name="FistLeft"/>
+		<combo_box.item label="Afslappet højre" name="RelaxedRight"/>
+		<combo_box.item label="peg højre" name="PointRight"/>
+		<combo_box.item label="knytnæve højre" name="FistRight"/>
+		<combo_box.item label="Honnør højre" name="SaluteRight"/>
+		<combo_box.item label="Skrivende" name="Typing"/>
+		<combo_box.item label="Fredstegn højre" name="PeaceRight"/>
 	</combo_box>
 	<text name="emote_label">
 		Ansigtsudtryk
 	</text>
-	<combo_box label="" name="emote_combo"
-	     tool_tip="Angiver hvad ansigtet gør under animationen" width="140">
-		<combo_box.item name="[None]" label="Intet]" />
-		<combo_box.item name="Aaaaah" label="Aaaaah" />
-		<combo_box.item name="Afraid" label="Bange" />
-		<combo_box.item name="Angry" label="Vred" />
-		<combo_box.item name="BigSmile" label="Stort smil" />
-		<combo_box.item name="Bored" label="Keder sig" />
-		<combo_box.item name="Cry" label="Græder" />
-		<combo_box.item name="Disdain" label="Forarget" />
-		<combo_box.item name="Embarrassed" label="Flov" />
-		<combo_box.item name="Frown" label="Skuler" />
-		<combo_box.item name="Kiss" label="Kysser" />
-		<combo_box.item name="Laugh" label="Griner" />
-		<combo_box.item name="Plllppt" label="Plllppt" />
-		<combo_box.item name="Repulsed" label="Frastødt" />
-		<combo_box.item name="Sad" label="Ked af det" />
-		<combo_box.item name="Shrug" label="Skuldertræk" />
-		<combo_box.item name="Smile" label="Smiler" />
-		<combo_box.item name="Surprise" label="Overrasket" />
-		<combo_box.item name="Wink" label="Blinker" />
-		<combo_box.item name="Worry" label="Bekymret" />
+	<combo_box label="" name="emote_combo" tool_tip="Angiver hvad ansigtet gør under animationen" width="140">
+		<combo_box.item label="(Intet)" name="[None]"/>
+		<combo_box.item label="Aaaaah" name="Aaaaah"/>
+		<combo_box.item label="Bange" name="Afraid"/>
+		<combo_box.item label="Vred" name="Angry"/>
+		<combo_box.item label="Stort smil" name="BigSmile"/>
+		<combo_box.item label="Keder sig" name="Bored"/>
+		<combo_box.item label="Græder" name="Cry"/>
+		<combo_box.item label="Forarget" name="Disdain"/>
+		<combo_box.item label="Flov" name="Embarrassed"/>
+		<combo_box.item label="Skuler" name="Frown"/>
+		<combo_box.item label="Kysser" name="Kiss"/>
+		<combo_box.item label="Griner" name="Laugh"/>
+		<combo_box.item label="Plllppt" name="Plllppt"/>
+		<combo_box.item label="Frastødt" name="Repulsed"/>
+		<combo_box.item label="Ked af det" name="Sad"/>
+		<combo_box.item label="Skuldertræk" name="Shrug"/>
+		<combo_box.item label="Smil" name="Smile"/>
+		<combo_box.item label="Overrasket" name="Surprise"/>
+		<combo_box.item label="Blinker" name="Wink"/>
+		<combo_box.item label="Bekymret" name="Worry"/>
 	</combo_box>
 	<text name="preview_label">
 		Vis mens
 	</text>
-	<combo_box label="" name="preview_base_anim"
-	     tool_tip="Se hvordan animation ser ud i forskellige typiske avatar-situationer." width="140">
-		<combo_box.item name="Standing" label="Står" />
-		<combo_box.item name="Walking" label="Går" />
-		<combo_box.item name="Sitting" label="Sidder" />
-		<combo_box.item name="Flying" label="Flyver" />
+	<combo_box label="" name="preview_base_anim" tool_tip="Se hvordan animation ser ud i forskellige typiske avatar-situationer." width="140">
+		<combo_box.item label="Stående" name="Standing"/>
+		<combo_box.item label="Gående" name="Walking"/>
+		<combo_box.item label="Sidder" name="Sitting"/>
+		<combo_box.item label="Flyver" name="Flying"/>
 	</combo_box>
-	<spinner label="start (sec)" name="ease_in_time"
-	     tool_tip="Tid i sekunder animationen bruger på at komme i gang." />
-	<spinner label="Afslut (sec)" name="ease_out_time"
-	     tool_tip="Tid i sekunder animationen bruger på at afslutte." />
-	<button label="" name="play_btn" tool_tip="Start/pause din animation." />
-	<button label="" name="stop_btn" tool_tip="Stop afspilning af animation" />
-	<slider label="" name="playback_slider" />
+	<spinner label="start (sec)" name="ease_in_time" tool_tip="Tid (i sekunder) animationen bruger på at komme i gang."/>
+	<spinner label="Afslut (sec)" name="ease_out_time" tool_tip="Tid (i sekunder) animationen bruger på at afslutte"/>
+	<button label="" name="play_btn" tool_tip="Start din animation"/>
+	<button name="pause_btn" tool_tip="Pause din animation"/>
+	<button label="" name="stop_btn" tool_tip="Stop afspilning af animation"/>
+	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">
 		Kan ikke læse animations fil.
 
 Vi anbefaler BVH filer der er exporteret fra Poser 4.
 	</text>
-	<button label="Annullér" name="cancel_btn" />
-	<button label="Hent (L$[AMOUNT])" name="ok_btn" />
-	<string name="failed_to_initialize">
-		Fejlede at starte bevægelse
-	</string>
-	<string name="anim_too_long">
-		Animations filen er [LENGTH] sekunder lang.
-
-Maksimal animations længde er [MAX_LENGTH] sekunder.
-	</string>
-	<string name="failed_file_read">
-		Kan ikke læse animations fil.
-
-[STATUS]
-	</string>
+	<button label="Hent (L$[AMOUNT])" name="ok_btn"/>
+	<button label="Annullér" name="cancel_btn"/>
 </floater>

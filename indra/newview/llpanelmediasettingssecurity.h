@@ -53,11 +53,12 @@ public:
 	// Hook that the floater calls before applying changes from the panel
 	void preApply();
 	// Function that asks the panel to fill in values associated with the panel
-    void getValues(LLSD &fill_me_in);
+	// 'include_tentative' means fill in tentative values as well, otherwise do not
+	void getValues(LLSD &fill_me_in, bool include_tentative = true);
 	// Hook that the floater calls after applying changes to the panel
 	void postApply();
 	
-	static void initValues( void* userdata, const LLSD& media_settings,bool editable );
+	static void initValues( void* userdata, const LLSD& media_settings, bool editable);
 	static void clearValues( void* userdata, bool editable);
 	void addWhiteListEntry( const std::string& url );
 	void setParent( LLFloaterMediaSettings* parent );

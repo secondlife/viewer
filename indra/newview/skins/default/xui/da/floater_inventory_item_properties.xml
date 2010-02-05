@@ -1,5 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="item properties" title="EGENSKABER FOR OBJEKT I BEHOLDNING">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="OPLYSNINGER OM BEHOLDNINGSGENSTAND">
+	<floater.string name="unknown">
+		(ukendt)
+	</floater.string>
+	<floater.string name="public">
+		(offentlig)
+	</floater.string>
+	<floater.string name="you_can">
+		Du kan:
+	</floater.string>
+	<floater.string name="owner_can">
+		Ejer kan:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
 	<text name="LabelItemNameTitle">
 		Navn:
 	</text>
@@ -12,14 +27,14 @@
 	<text name="LabelCreatorName">
 		Nicole Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnCreator" />
+	<button label="Profil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Ejer:
 	</text>
 	<text name="LabelOwnerName">
 		Thrax Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnOwner" />
+	<button label="Profil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		Erhvervet:
 	</text>
@@ -27,55 +42,32 @@
 		Wed May 24 12:50:46 2006
 	</text>
 	<text name="OwnerLabel">
-		Du kan:
+		Dig:
 	</text>
-	<check_box label="Redigere" name="CheckOwnerModify" />
-	<check_box label="Kopiere" name="CheckOwnerCopy" />
-	<check_box label="Sælge/give væk" name="CheckOwnerTransfer" />
-	<text name="BaseMaskDebug">
-		S:
+	<check_box label="Redigér" name="CheckOwnerModify"/>
+	<check_box label="Kopiere" name="CheckOwnerCopy"/>
+	<check_box label="Sælg" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Enhver:
 	</text>
-	<text name="OwnerMaskDebug">
-		E:
+	<check_box label="Kopiér" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Gruppe:
 	</text>
-	<text name="GroupMaskDebug">
-		G:
-	</text>
-	<text name="EveryoneMaskDebug">
-		A:
-	</text>
-	<text name="NextMaskDebug">
-		N:
-	</text>
-	<check_box label="Del med gruppe" name="CheckShareWithGroup" />
-	<check_box label="Tillad alle at kopiere" name="CheckEveryoneCopy" />
+	<check_box label="Del" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel">
-		Næste ejer kan:
+		Næste ejer:
 	</text>
-	<check_box label="Redigere" name="CheckNextOwnerModify" />
-	<check_box label="Kopiere" name="CheckNextOwnerCopy" />
-	<check_box label="Sælge/Give væk" name="CheckNextOwnerTransfer" />
-	<text name="SaleLabel">
-		Markér ting:
+	<check_box label="Redigér" name="CheckNextOwnerModify"/>
+	<check_box label="Kopiere" name="CheckNextOwnerCopy"/>
+	<check_box label="Sælg" name="CheckNextOwnerTransfer"/>
+	<check_box label="Til salg" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Kopiér" name="Copy"/>
+		<combo_box.item label="Original" name="Original"/>
+	</combo_box>
+	<spinner label="Pris:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
 	</text>
-	<check_box label="Til salg" name="CheckPurchase" />
-	<radio_group name="RadioSaleType">
-		<radio_item name="radio" label="Original" />
-		<radio_item name="radio2" label="Kopi" />
-	</radio_group>
-	<text name="TextPrice">
-		Pris:  L$
-	</text>
-	<string name="unknown">
-		(ukendt)
-	</string>
-	<string name="public">
-		(offentlig)
-	</string>
-	<string name="you_can">
-		Du kan:
-	</string>
-	<string name="owner_can">
-		Ejer kan:
-	</string>
 </floater>

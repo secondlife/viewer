@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script search" title="SCRIPT SØGNING">
-	<check_box label="Store/små bogstaver har ingen betydning" name="case_text" />
-	<button label="Søg" label_selected="Søg" name="search_btn" />
-	<button label="Erstat" label_selected="Erstat" name="replace_btn" />
-	<button label="Erstat alle" label_selected="Erstat alle" name="replace_all_btn" />
+	<check_box label="Store/små bogstaver har ingen betydning" name="case_text"/>
+	<button label="Søg" label_selected="Søg" name="search_btn"/>
+	<button label="Erstat" label_selected="Erstat" name="replace_btn"/>
+	<button label="Erstat alle" label_selected="Erstat alle" name="replace_all_btn"/>
 	<text name="txt">
 		Søg
 	</text>

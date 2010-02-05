@@ -250,18 +250,18 @@ bool LLPanelMediaSettingsGeneral::isMultiple()
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_settings ,bool editable)
+void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& _media_settings, bool editable)
 {
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
 	self->mMediaEditable = editable;
 
+	LLSD media_settings = _media_settings;
+	
 	if ( LLPanelMediaSettingsGeneral::isMultiple() )
 	{
-		self->clearValues(self, self->mMediaEditable);
-		// only show multiple 
-		self->mHomeURL->setText(LLTrans::getString("Multiple Media"));
-		self->mCurrentURL->setText(LLTrans::getString("Multiple Media"));
-		return;
+		// *HACK:  "edit" the incoming media_settings
+		media_settings[LLMediaEntry::CURRENT_URL_KEY] = LLTrans::getString("Multiple Media");
+		media_settings[LLMediaEntry::HOME_URL_KEY] = LLTrans::getString("Multiple Media");
 	}
 	
 	std::string base_key( "" );
@@ -286,7 +286,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 		{ LLMediaEntry::WIDTH_PIXELS_KEY,			self->mWidthPixels,		"LLSpinCtrl" },
 		{ "", NULL , "" }
 	};
-
+	
 	for( int i = 0; data_set[ i ].key_name.length() > 0; ++i )
 	{
 		base_key = std::string( data_set[ i ].key_name );
@@ -405,20 +405,21 @@ void LLPanelMediaSettingsGeneral::preApply()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
+void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in, bool include_tentative )
 {
-	fill_me_in[LLMediaEntry::AUTO_LOOP_KEY] = (LLSD::Boolean)mAutoLoop->getValue();
-	fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = (LLSD::Boolean)mAutoPlay->getValue();
-	fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = (LLSD::Boolean)mAutoScale->getValue();
-	fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = (LLSD::Boolean)mAutoZoom->getValue();
+	if (include_tentative || !mAutoLoop->getTentative()) fill_me_in[LLMediaEntry::AUTO_LOOP_KEY] = (LLSD::Boolean)mAutoLoop->getValue();
+	if (include_tentative || !mAutoPlay->getTentative()) fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = (LLSD::Boolean)mAutoPlay->getValue();
+	if (include_tentative || !mAutoScale->getTentative()) fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = (LLSD::Boolean)mAutoScale->getValue();
+	if (include_tentative || !mAutoZoom->getTentative()) fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = (LLSD::Boolean)mAutoZoom->getValue();
 	//Don't fill in current URL: this is only supposed to get changed via navigate
-	// fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
-	fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = (LLSD::Integer)mHeightPixels->getValue();
+	// if (include_tentative || !mCurrentURL->getTentative()) fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
+	if (include_tentative || !mHeightPixels->getTentative()) fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = (LLSD::Integer)mHeightPixels->getValue();
 	// Don't fill in the home URL if it is the special "Multiple Media" string!
-	if (LLTrans::getString("Multiple Media") != mHomeURL->getValue())
-		fill_me_in[LLMediaEntry::HOME_URL_KEY] = (LLSD::String)mHomeURL->getValue();
-	fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = (LLSD::Boolean)mFirstClick->getValue();
-	fill_me_in[LLMediaEntry::WIDTH_PIXELS_KEY] = (LLSD::Integer)mWidthPixels->getValue();
+	if ((include_tentative || !mHomeURL->getTentative())
+		&& LLTrans::getString("Multiple Media") != mHomeURL->getValue())
+			fill_me_in[LLMediaEntry::HOME_URL_KEY] = (LLSD::String)mHomeURL->getValue();
+	if (include_tentative || !mFirstClick->getTentative()) fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = (LLSD::Boolean)mFirstClick->getValue();
+	if (include_tentative || !mWidthPixels->getTentative()) fill_me_in[LLMediaEntry::WIDTH_PIXELS_KEY] = (LLSD::Integer)mWidthPixels->getValue();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
