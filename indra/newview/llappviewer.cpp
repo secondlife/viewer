@@ -2611,7 +2611,7 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
 	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer) LLMemory::getCurrentRSS() >> 10;
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
-	gDebugInfo["HadFirstSuccessfulLogin"] = gSavedSettings.getBOOL("HadFirstSuccessfulLogin");
+	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
 	if(gLogoutInProgress)
 	{
