@@ -56,6 +56,7 @@
 class LLFontGL;
 class LLLineEditorRollback;
 class LLButton;
+class LLContextMenu;
 
 typedef boost::function<BOOL (const LLWString &wstr)> LLLinePrevalidateFunc;
 
@@ -113,6 +114,7 @@ protected:
 	LLLineEditor(const Params&);
 	friend class LLUICtrlFactory;
 	friend class LLFloaterEditUI;
+	void showContextMenu(S32 x, S32 y);
 public:
 	virtual ~LLLineEditor();
 
@@ -122,6 +124,7 @@ public:
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick(S32 x,S32 y,MASK mask);
 	/*virtual*/ BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
 	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	onMouseCaptureLost();
@@ -204,6 +207,8 @@ public:
 	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor.get(); }
 	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
 
+	const LLFontGL* getFont() const { return mGLFont; }
+
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
 	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
@@ -249,7 +254,9 @@ public:
 	void			updateHistory(); // stores current line in history
 
 	void			setReplaceNewlinesWithSpaces(BOOL replace);
-	
+
+	void			setContextMenu(LLContextMenu* new_context_menu);
+
 private:
 	// private helper methods
 
@@ -347,6 +354,8 @@ protected:
 	LLWString	mPreeditOverwrittenWString;
 	std::vector<S32> mPreeditPositions;
 	LLPreeditor::standouts_t mPreeditStandouts;
+
+	LLHandle<LLView> mContextMenuHandle;
 
 private:
 	// Instances that by default point to the statics but can be overidden in XML.

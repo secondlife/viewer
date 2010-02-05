@@ -41,6 +41,7 @@
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llgl.h"
+#include "llmediaentry.h"
 #include "llrender.h"
 #include "llnotifications.h"
 #include "llpermissions.h"
@@ -1739,24 +1740,57 @@ void LLSelectMgr::selectionSetFullbright(U8 fullbright)
 	getSelection()->applyToObjects(&sendfunc);
 }
 
-void LLSelectMgr::selectionSetMedia(U8 media_type)
-{
-	
+// This function expects media_data to be a map containing relevant
+// media data name/value pairs (e.g. home_url, etc.)
+void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
+{	
 	struct f : public LLSelectedTEFunctor
 	{
 		U8 mMediaFlags;
-		f(const U8& t) : mMediaFlags(t) {}
+		const LLSD &mMediaData;
+		f(const U8& t, const LLSD& d) : mMediaFlags(t), mMediaData(d) {}
 		bool apply(LLViewerObject* object, S32 te)
 		{
 			if (object->permModify())
 			{
-				// update viewer has media
-				object->setTEMediaFlags(te, mMediaFlags);
+				// If we are adding media, then check the current state of the
+				// media data on this face.  
+				//  - If it does not have media, AND we are NOT setting the HOME URL, then do NOT add media to this
+				// face.
+				//  - If it does not have media, and we ARE setting the HOME URL, add media to this face.
+				//  - If it does already have media, add/update media to/on this face
+				// If we are removing media, just do it (ignore the passed-in LLSD).
+				if (mMediaFlags & LLTextureEntry::MF_HAS_MEDIA)
+				{
+					llassert(mMediaData.isMap());
+					const LLTextureEntry *texture_entry = object->getTE(te);
+					if (!mMediaData.isMap() ||
+						(NULL != texture_entry) && !texture_entry->hasMedia() && !mMediaData.has(LLMediaEntry::HOME_URL_KEY))
+					{
+						// skip adding/updating media
+					}
+					else {
+						// Add/update media
+						object->setTEMediaFlags(te, mMediaFlags);
+						LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+						llassert(NULL != vo);
+						if (NULL != vo) 
+						{
+							vo->syncMediaData(te, mMediaData, true/*merge*/, true/*ignore_agent*/);
+						}
+					}
+				}
+				else
+				{
+					// delete media (or just set the flags)
+					object->setTEMediaFlags(te, mMediaFlags);
+				}
 			}
 			return true;
 		}
-	} setfunc(media_type);
+	} setfunc(media_type, media_data);
 	getSelection()->applyToTEs(&setfunc);
+	
 	struct f2 : public LLSelectedObjectFunctor
 	{
 		virtual bool apply(LLViewerObject* object)
@@ -1764,45 +1798,12 @@ void LLSelectMgr::selectionSetMedia(U8 media_type)
 			if (object->permModify())
 			{
 				object->sendTEUpdate();
-			}
-			return true;
-		}
-	} func2;
-	mSelectedObjects->applyToObjects( &func2 );
-}
-
-// This function expects media_data to be a map containing relevant
-// media data name/value pairs (e.g. home_url, etc.)
-void LLSelectMgr::selectionSetMediaData(const LLSD &media_data)
-{
-
-	struct f : public LLSelectedTEFunctor
-	{
-		const LLSD &mMediaData;
-		f(const LLSD& t) : mMediaData(t) {}
-		bool apply(LLViewerObject* object, S32 te)
-		{
-			if (object->permModify())
-			{
-                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
-                if (NULL != vo) 
-                {
-                    vo->syncMediaData(te, mMediaData, true/*merge*/, true/*ignore_agent*/);
-                }                
-			}
-			return true;
-		}
-	} setfunc(media_data);
-	getSelection()->applyToTEs(&setfunc);
-
-	struct f2 : public LLSelectedObjectFunctor
-	{
-		virtual bool apply(LLViewerObject* object)
-		{
-			if (object->permModify())
-			{
-                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
-                if (NULL != vo) 
+				LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+				llassert(NULL != vo);
+				// It's okay to skip this object if hasMedia() is false...
+				// the sendTEUpdate() above would remove all media data if it were
+				// there.
+                if (NULL != vo && vo->hasMedia())
                 {
                     // Send updated media data FOR THE ENTIRE OBJECT
                     vo->sendMediaDataUpdate();
@@ -1811,10 +1812,8 @@ void LLSelectMgr::selectionSetMediaData(const LLSD &media_data)
 			return true;
 		}
 	} func2;
-	getSelection()->applyToObjects(&func2);
+	mSelectedObjects->applyToObjects( &func2 );
 }
-
-
 
 void LLSelectMgr::selectionSetGlow(F32 glow)
 {

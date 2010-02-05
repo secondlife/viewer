@@ -515,8 +515,11 @@ BOOL LLIMFloater::getVisible()
 	if(isChatMultiTab())
 	{
 		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
+		
+		// Treat inactive floater as invisible.
+		bool is_active = im_container->getActiveFloater() == this;
 		// getVisible() returns TRUE when Tabbed IM window is minimized.
-		return !im_container->isMinimized() && im_container->getVisible();
+		return is_active && !im_container->isMinimized() && im_container->getVisible();
 	}
 	else
 	{

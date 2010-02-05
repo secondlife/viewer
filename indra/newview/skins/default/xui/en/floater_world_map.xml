@@ -4,7 +4,7 @@
  can_resize="true"
  center_horiz="true"
  center_vert="true"
- height="535"
+ height="600"
  layout="topleft"
  min_height="520"
  min_width="520"
@@ -14,16 +14,16 @@
  save_visibility="true"
  single_instance="true"
  title="WORLD MAP"
- width="800">
+ width="650">
     <panel
      filename="panel_world_map.xml"
      follows="all"
-     height="500"
+     height="555"
      layout="topleft"
      left="10"
      name="objects_mapview"
      top="25"
-     width="542" />
+     width="375" />
      <panel
      name="layout_panel_1"
      height="22"
@@ -394,7 +394,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="270"
+	 height="310"
 	 top_pad="0"
 	 width="238">
 	 <icon
@@ -514,7 +514,7 @@
      draw_stripes="false"
      bg_writeable_color="MouseGray"
      follows="all"
-     height="115"
+     height="145"
      layout="topleft"
      left="28"
      name="search_results"

@@ -55,6 +55,7 @@
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "llclipboard.h"
+#include "llmenugl.h"
 
 //
 // Imported globals
@@ -164,7 +165,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mTentativeFgColor(p.text_tentative_color()),
 	mHighlightColor(p.highlight_color()),
 	mPreeditBgColor(p.preedit_bg_color()),
-	mGLFont(p.font)
+	mGLFont(p.font),
+	mContextMenuHandle()
 {
 	llassert( mMaxLengthBytes > 0 );
 
@@ -191,6 +193,12 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	setCursor(mText.length());
 
 	setPrevalidate(p.prevalidate_callback());
+
+	LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
+		("menu_text_editor.xml",
+		 LLMenuGL::sMenuContainer,
+		 LLMenuHolderGL::child_registry_t::instance());
+	setContextMenu(menu);
 }
  
 LLLineEditor::~LLLineEditor()
@@ -422,12 +430,16 @@ void LLLineEditor::setCursor( S32 pos )
 	S32 old_cursor_pos = getCursor();
 	mCursorPos = llclamp( pos, 0, mText.length());
 
+	// position of end of next character after cursor
 	S32 pixels_after_scroll = findPixelNearestPos();
 	if( pixels_after_scroll > mTextRightEdge )
 	{
 		S32 width_chars_to_left = mGLFont->getWidth(mText.getWString().c_str(), 0, mScrollHPos);
 		S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, (F32)(mTextRightEdge - mTextLeftEdge + width_chars_to_left))); 
-		S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), getCursor());
+		// character immediately to left of cursor should be last one visible (SCROLL_INCREMENT_ADD will scroll in more characters)
+		// or first character if cursor is at beginning
+		S32 new_last_visible_char = llmax(0, getCursor() - 1);
+		S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), new_last_visible_char);
 		if (old_cursor_pos == last_visible_char)
 		{
 			mScrollHPos = llmin(mText.length(), llmax(min_scroll, mScrollHPos + SCROLL_INCREMENT_ADD));
@@ -659,6 +671,16 @@ BOOL LLLineEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setCursorAtLocalPos(x);
 		pastePrimary();
+	}
+	return TRUE;
+}
+
+BOOL LLLineEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	setFocus(TRUE);
+	if (!LLUICtrl::handleRightMouseDown(x, y, mask))
+	{
+		showContextMenu(x, y);
 	}
 	return TRUE;
 }
@@ -2559,4 +2581,26 @@ LLWString LLLineEditor::getConvertedText() const
 		LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 	}
 	return text;
+}
+
+void LLLineEditor::showContextMenu(S32 x, S32 y)
+{
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+
+	if (menu)
+	{
+		gEditMenuHandler = this;
+
+		S32 screen_x, screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+		menu->show(screen_x, screen_y);
+	}
+}
+
+void LLLineEditor::setContextMenu(LLContextMenu* new_context_menu)
+{
+	if (new_context_menu)
+		mContextMenuHandle = new_context_menu->getHandle();
+	else
+		mContextMenuHandle.markDead();
 }

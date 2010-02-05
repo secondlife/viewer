@@ -1,9 +1,44 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_texture">
+	<floater.string name="Title">
+		Tekstur: [NAME]
+	</floater.string>
+	<floater.string name="Copy">
+		Kopiér til beholdning
+	</floater.string>
 	<text name="desc txt">
 		Beskrivelse:
 	</text>
 	<text name="dimensions">
-		Størrelse: [WIDTH] x [HEIGHT]
+		[WIDTH]px x [HEIGHT]px
 	</text>
+	<combo_box name="combo_aspect_ratio" tool_tip="Forhåndsvisning med et bestemt billedformat">
+		<combo_item name="Unconstrained">
+			Ikke låst
+		</combo_item>
+		<combo_item name="1:1" tool_tip="Typisk valg til gruppe logo eller &quot;Real world&quot; profil billede">
+			1:1
+		</combo_item>
+		<combo_item name="4:3" tool_tip="Typisk valg til din &quot;Second Life Profil&quot; billede">
+			4:3
+		</combo_item>
+		<combo_item name="10:7" tool_tip="Typisk valg til billeder i annoncer, landemærker og søgninger">
+			10:7
+		</combo_item>
+		<combo_item name="3:2" tool_tip="Typisk valg til &quot;Om land&quot; billede">
+			3:2
+		</combo_item>
+		<combo_item name="16:10">
+			16:10
+		</combo_item>
+		<combo_item name="16:9" tool_tip="Typisk valg til favorit billeder i profil">
+			16:9
+		</combo_item>
+		<combo_item name="2:1">
+			2:1
+		</combo_item>
+	</combo_box>
+	<button label="OK" name="keep"/>
+	<button label="Annullér" name="discard"/>
+	<button label="Gem som" name="save_tex_btn"/>
 </floater>

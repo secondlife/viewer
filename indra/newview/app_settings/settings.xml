@@ -2817,16 +2817,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>HadFirstSuccessfulLogin</key>
+    <key>FirstRunThisInstall</key>
     <map>
       <key>Comment</key>
-      <string>Specifies whether you have successfully logged in at least once before</string>
+      <string>Specifies that you have not run the viewer since you installed the latest update</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>FirstSelectedDisabledPopups</key>
     <map>
@@ -8432,7 +8432,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>ShowTangentBasis</key>
     <map>

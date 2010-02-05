@@ -1353,6 +1353,11 @@ BOOL LLAppearanceManager::getIsInCOF(const LLUUID& obj_id) const
 BOOL LLAppearanceManager::getIsProtectedCOFItem(const LLUUID& obj_id) const
 {
 	if (!getIsInCOF(obj_id)) return FALSE;
+
+	// For now, don't allow direct deletion from the COF.  Instead, force users
+	// to choose "Detach" or "Take Off".
+	return TRUE;
+	/*
 	const LLInventoryObject *obj = gInventory.getObject(obj_id);
 	if (!obj) return FALSE;
 
@@ -1363,4 +1368,5 @@ BOOL LLAppearanceManager::getIsProtectedCOFItem(const LLUUID& obj_id) const
 	if (obj->getActualType() == LLAssetType::AT_LINK_FOLDER) return TRUE;
 
 	return FALSE;
+	*/
 }

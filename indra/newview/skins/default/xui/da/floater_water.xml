@@ -1,32 +1,32 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="AVANCERET OPSÆTNING AF VAND">
 	<text name="KeyFramePresetsText">
 		Vand opsætninger:
 	</text>
-	<button label="Ny" label_selected="Ny" name="WaterNewPreset" />
-	<button label="Gem" label_selected="Gem" name="WaterSavePreset" />
-	<button label="Slet" label_selected="Slet" name="WaterDeletePreset" />
+	<button label="Ny" label_selected="Ny" name="WaterNewPreset"/>
+	<button label="Gem" label_selected="Gem" name="WaterSavePreset"/>
+	<button label="Slet" label_selected="Slet" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
 		<panel label="Opsætning" name="Settings">
 			<text name="BHText">
 				Vandtåge farve
 			</text>
-			<button label="?" name="WaterFogColorHelp" />
-			<color_swatch label="" name="WaterFogColor" tool_tip="Click to open Color Picker" />
+			<button label="?" name="WaterFogColorHelp"/>
+			<color_swatch label="" name="WaterFogColor" tool_tip="Klik for at åbne farvevælger"/>
 			<text name="WaterFogDensText">
 				Tåge tæthedskarakteristik
 			</text>
-			<button label="?" name="WaterFogDensityHelp" />
-			<slider label="" name="WaterFogDensity" />
+			<button label="?" name="WaterFogDensityHelp"/>
+			<slider label="" name="WaterFogDensity"/>
 			<text name="WaterUnderWaterFogModText">
 				Tilretning undervandståge
 			</text>
-			<button label="?" name="WaterUnderWaterFogModHelp" />
-			<slider label="" name="WaterUnderWaterFogMod" />
+			<button label="?" name="WaterUnderWaterFogModHelp"/>
+			<slider label="" name="WaterUnderWaterFogMod"/>
 			<text name="BDensText">
 				Lille bølge reflektionsskala
 			</text>
-			<button label="?" name="WaterNormalScaleHelp" />
+			<button label="?" name="WaterNormalScaleHelp"/>
 			<text name="BHText2">
 				1
 			</text>
@@ -36,65 +36,65 @@
 			<text name="BHText4">
 				3
 			</text>
-			<slider label="" name="WaterNormalScaleX" />
-			<slider label="" name="WaterNormalScaleY" />
-			<slider label="" name="WaterNormalScaleZ" />
+			<slider label="" name="WaterNormalScaleX"/>
+			<slider label="" name="WaterNormalScaleY"/>
+			<slider label="" name="WaterNormalScaleZ"/>
 			<text name="HDText">
 				Spredningsskala
 			</text>
-			<button label="?" name="WaterFresnelScaleHelp" />
-			<slider label="" name="WaterFresnelScale" />
+			<button label="?" name="WaterFresnelScaleHelp"/>
+			<slider label="" name="WaterFresnelScale"/>
 			<text name="FresnelOffsetText">
 				Spredning offset
 			</text>
-			<button label="?" name="WaterFresnelOffsetHelp" />
-			<slider label="" name="WaterFresnelOffset" />
+			<button label="?" name="WaterFresnelOffsetHelp"/>
+			<slider label="" name="WaterFresnelOffset"/>
 			<text name="DensMultText">
 				Lysbrydning fra oven
 			</text>
-			<button label="?" name="WaterScaleAboveHelp" />
-			<slider label="" name="WaterScaleAbove" />
+			<button label="?" name="WaterScaleAboveHelp"/>
+			<slider label="" name="WaterScaleAbove"/>
 			<text name="WaterScaleBelowText">
 				Lysbrydning fra neden
 			</text>
-			<button label="?" name="WaterScaleBelowHelp" />
-			<slider label="" name="WaterScaleBelow" />
+			<button label="?" name="WaterScaleBelowHelp"/>
+			<slider label="" name="WaterScaleBelow"/>
 			<text name="MaxAltText">
 				Udviskning
 			</text>
-			<button label="?" name="WaterBlurMultiplierHelp" />
-			<slider label="" name="WaterBlurMult" />
+			<button label="?" name="WaterBlurMultiplierHelp"/>
+			<slider label="" name="WaterBlurMult"/>
 		</panel>
 		<panel label="Billede" name="Waves">
 			<text name="BHText">
 				Retning for store bølger
 			</text>
-			<button label="?" name="WaterWave1Help" />
+			<button label="?" name="WaterWave1Help"/>
 			<text name="WaterWave1DirXText">
 				X
 			</text>
 			<text name="WaterWave1DirYText">
 				Y
 			</text>
-			<slider label="" name="WaterWave1DirX" />
-			<slider label="" name="WaterWave1DirY" />
+			<slider label="" name="WaterWave1DirX"/>
+			<slider label="" name="WaterWave1DirY"/>
 			<text name="BHText2">
 				Retning for små bølger
 			</text>
-			<button label="?" name="WaterWave2Help" />
+			<button label="?" name="WaterWave2Help"/>
 			<text name="WaterWave2DirXText">
 				X
 			</text>
 			<text name="WaterWave2DirYText">
 				Y
 			</text>
-			<slider label="" name="WaterWave2DirX" />
-			<slider label="" name="WaterWave2DirY" />
+			<slider label="" name="WaterWave2DirX"/>
+			<slider label="" name="WaterWave2DirY"/>
 			<text name="BHText3">
 				Tekstur map
 			</text>
-			<button label="?" name="WaterNormalMapHelp" />
-			<texture_picker label="" name="WaterNormalMap" />
+			<button label="?" name="WaterNormalMapHelp"/>
+			<texture_picker label="" name="WaterNormalMap"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultWaterNames">

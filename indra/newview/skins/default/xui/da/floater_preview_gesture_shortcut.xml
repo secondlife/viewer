@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Gesture" title="GENVEJ BEVÆGELSER">
+	<text name="trigger_label">
+		Chat:
+	</text>
+	<text name="key_label">
+		Tastatur:
+	</text>
+	<combo_box label="Intet" name="modifier_combo"/>
+	<combo_box label="Intet" name="key_combo"/>
+	<text name="replace_text" tool_tip="Erstat udløser ord med disse ord. For eksempel uløser &quot;hello&quot; erstat med &quot;hej&quot; vil ændre chat &apos;Jeg ville bare sige hello&apos; til &apos;Jeg ville bare sige hej&apos; samtidig med bevægelsen afspilles!">
+		Erstat:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Erstat udløser ord med disse ord. For eksempel uløser &quot;hello&quot; erstat med &quot;hej&quot; vil ændre chat &apos;Jeg ville bare sige hello&apos; til &apos;Jeg ville bare sige hej&apos; samtidig med bevægelsen afspilles!"/>
+</floater>

@@ -50,7 +50,7 @@
      width="23" />
     <text
      follows="top|left|right"
-     font="SansSerifHuge"
+     font="SansSerifHugeBold"
      height="26"
      layout="topleft"
      left_pad="10"

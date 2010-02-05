@@ -89,7 +89,7 @@ No Answer.  Please try again later.
    top="27"
    width="315"
    word_wrap="true">
-    You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
+    You have been disconnected from [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
   </text>
   <text
    font="SansSerifLarge"
@@ -100,7 +100,7 @@ No Answer.  Please try again later.
    top="27"
    width="315"
    word_wrap="true">
-    [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
+    [VOICE_CHANNEL_NAME] has ended the call.  [RECONNECT_NEARBY]
   </text>
   <text
      font="SansSerif"
