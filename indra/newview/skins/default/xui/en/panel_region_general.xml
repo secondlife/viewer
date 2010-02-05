@@ -134,6 +134,7 @@
      top="200"
      width="80" />
     <spinner
+     decimal_digits="0"
      follows="left|top"
      height="20"
      increment="1"

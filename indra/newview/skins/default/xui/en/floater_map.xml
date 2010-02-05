@@ -3,12 +3,10 @@
  legacy_header_height="18"
  can_minimize="true" 
  can_resize="true"
- center_horiz="true"
- center_vert="true"
  follows="top|right"
  height="218"
  layout="topleft"
- min_height="60"
+ min_height="174"
  min_width="174"
  name="Map"
  title="Mini Map"
@@ -16,6 +14,8 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
+ left="0"
+ top="0"
  width="200">
     <floater.string
      name="mini_map_north">

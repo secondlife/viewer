@@ -64,7 +64,7 @@
      layout="topleft"
      left="103"
      name="picture_descr"
-     textbox.mouse_opaque="false" 
+     textbox.show_context_menu="false" 
      top_pad="0"
      width="178"
      word_wrap="true" />
