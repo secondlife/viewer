@@ -139,7 +139,9 @@ public:
 			setLeftHPad(icon_size + mIconCtrlPad * 2);
 			break;
 		case LLFontGL::HCENTER:
-			//*TODO implement for HCENTER icon alignment
+			icon_rect.setLeftTopAndSize(button_rect.mRight - (button_rect.getWidth() + mIconCtrlPad - icon_size)/2, button_rect.mTop - mIconCtrlPad, 
+				icon_size, icon_size);
+			setRightHPad(icon_size + mIconCtrlPad * 2);
 			break;
 		case LLFontGL::RIGHT:
 			icon_rect.setLeftTopAndSize(button_rect.mRight - mIconCtrlPad - icon_size, button_rect.mTop - mIconCtrlPad, 
