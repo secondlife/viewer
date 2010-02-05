@@ -1575,8 +1575,10 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 				{
 					LLStyle::Params icon;
 					icon.image = image;
-					// HACK: fix spacing of images and remove the fixed char spacing
-					appendAndHighlightText("   ", prepend_newline, part, icon);
+					// Text will be replaced during rendering with the icon,
+					// but string cannot be empty or the segment won't be
+					// added (or drawn).
+					appendAndHighlightText(" ", prepend_newline, part, icon);
 					prepend_newline = false;
 				}
 			}
@@ -2297,14 +2299,21 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 	{
 		if ( mStyle->isImage() && (start >= 0) && (end <= mEnd - mStart))
 		{
+			// ...for images, only render the image, not the underlying text,
+			// which is only a placeholder space
 			LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
 			LLUIImagePtr image = mStyle->getImage();
 			S32 style_image_height = image->getHeight();
 			S32 style_image_width = image->getWidth();
-			// Center the image vertically
-			S32 image_bottom = draw_rect.getCenterY() - (style_image_height/2);
+			// Text is drawn from the top of the draw_rect downward
+			S32 text_center = draw_rect.mTop - (mFontHeight / 2);
+			// Align image to center of text
+			S32 image_bottom = text_center - (style_image_height / 2);
 			image->draw(draw_rect.mLeft, image_bottom, 
 				style_image_width, style_image_height, color);
+			
+			const S32 IMAGE_HPAD = 2;
+			return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
 		}
 
 		return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
