@@ -972,8 +972,8 @@ void LLLocationInputCtrl::changeLocationPresentation()
 	if (!mTextEntry)
 		return;
 
-	//change location presentation only if user does not  select/past anything and 
-	//human-readable region name  is being displayed
+	//change location presentation only if user does not select/paste anything and 
+	//human-readable region name is being displayed
 	std::string text = mTextEntry->getText();
 	LLStringUtil::trim(text);
 	if(!mTextEntry->hasSelection() && text == mHumanReadableLocation)
