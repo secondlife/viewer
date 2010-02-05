@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_socks_panel">
+	<panel name="avatar_socks_color_panel">
+		<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+		<color_swatch label="Farve/Nuance" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="socks_main_tab" title="Strømper"/>
+	</accordion>
+</panel>

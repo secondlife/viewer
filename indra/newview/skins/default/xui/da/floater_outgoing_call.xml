@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="outgoing call" title="KALDER">
+	<floater.string name="localchat">
+		Stemme chat nærved
+	</floater.string>
+	<floater.string name="anonymous">
+		anonym
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		kalder op.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		har sluttet sig til stemmechat med en konference chat.
+	</floater.string>
+	<text name="connecting">
+		Tilslutter til [CALLEE_NAME]
+	</text>
+	<text name="calling">
+		Kalder [CALLEE_NAME]
+	</text>
+	<text name="noanswer">
+		Intet svar.  Prøv igen senere.
+	</text>
+	<text name="leaving">
+		Forlader [CURRENT_CHAT].
+	</text>
+	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
+</floater>

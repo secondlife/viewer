@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Personlig samtale (IM)">
 	<string name="only_user_message">
 		Du er den eneste deltager i denne samtale
@@ -10,7 +10,7 @@
 		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
 	</string>
 	<string name="muted_message">
-		Du har blokeret denne beboer. Hvis du starter en samtale vil denne blokering automatisk blive fjernet.
+		Du har blokeret denne beboer. Hvis du sender besked vil denne blokering fjernes.
 	</string>
 	<string name="generic_request_error">
 		Kunne ikke etablere forbindelse, prøv igen senere

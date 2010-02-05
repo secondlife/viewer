@@ -1,30 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Hardware Settings Floater" title="HARDWARE OPSÆTNING">
 	<text name="Filtering:">
 		Filtrering:
 	</text>
-	<check_box label="Anisotropic filtrering (langsommere når aktiveret)" name="ani" />
+	<check_box label="Anisotropic filtrering (langsommere når aktiveret)" name="ani"/>
 	<text name="Antialiasing:">
 		Antialiasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa" width="100">
-		<combo_box.item name="FSAADisabled" label="Slået fra"/>
-		<combo_box.item name="2x" label="2x"/>
-		<combo_box.item name="4x" label="4x"/>
-		<combo_box.item name="8x" label="8x"/>
-		<combo_box.item name="16x" label="16x"/>
+		<combo_box.item label="Slået fra" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
-	<spinner label="Gamma:" name="gamma" />
+	<spinner label="Gamma:" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
 		(Lysstyrke, lavere er lysere, 0=benyt standard)
 	</text>
 	<text name="Enable VBO:">
 		Aktivér VBO:
 	</text>
-	<check_box label="Aktivér OpenGL Vertex Buffer objekter" name="vbo"
-	     tool_tip="Aktivér af dette på nyere hardware giver performance forbedring.  På ældre hardware kan aktivering medfø nedbrud." />
-	<slider label="Tekstur hukommelse (MB):" name="GrapicsCardTextureMemory"
-	     tool_tip="Mængde hukommelse der skal allokeres til teksturer (textures). Standardindstilling er hukommelse på grafikkortet. Reduktion kan medfø bedre ydeevne, men kan samtidig gøre teksturer mere udflydende." />
-	<spinner label="Tåge: afstandsforhold:" name="fog" />
-	<button label="OK" label_selected="OK" name="OK" />
+	<check_box initial_value="true" label="Aktivér OpenGL Vertex Buffer objekter" name="vbo" tool_tip="Aktivér af dette på nyere hardware giver performance forbedring.  På ældre hardware kan aktivering medfø nedbrud."/>
+	<slider label="Tekstur hukommelse (MB):" name="GraphicsCardTextureMemory" tool_tip="Mængde hukommelse der skal allokeres til teksturer (textures). Standardindstilling er hukommelse på grafikkortet. Reduktion kan medfø bedre ydeevne, men kan samtidig gøre teksturer mere udflydende."/>
+	<spinner label="Tåge: afstandsforhold:" name="fog"/>
+	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

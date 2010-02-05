@@ -1,42 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafik" name="Display panel">
-	<button label="?" name="GraphicsPreferencesHelpButton" />
-	<check_box label="Kør Second Life i et vindue" name="windowed mode" />
-	<text_editor name="FullScreenInfo">
-		Hvis dette ikke er valgt kører Second Life i Fuld skærm.
-	</text_editor>
-	<text name="WindowSizeLabel">
-		Opløsning:
+	<text name="UI Size:">
+		UI størrelse:
 	</text>
-	<combo_box name="windowsize combo">
-		<combo_box.item name="640x480" label="640x480" />
-		<combo_box.item name="800x600" label="800x600" />
-		<combo_box.item name="720x480" label="720x480 (NTSC)" />
-		<combo_box.item name="768x576" label="768x576 (PAL)" />
-		<combo_box.item name="1024x768" label="1024x768" />
-	</combo_box>
-	<text name="DisplayResLabel">
-		Skærm opløsning:
-	</text>
-	<text name="AspectRatioLabel1" tool_tip="bredde / højde">
-		Format:
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="bredde/ højde">
-		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Standard CRT)" />
-		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)" />
-		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)" />
-		<combo_box.item name="16:9(Widescreen)" label="16:9 (Widescreen)" />
-	</combo_box>
-	<check_box label="Auto-detect format" name="aspect_auto_detect" />
-	<text name="HigherText">
-		Kvalitet og
-	</text>
-	<text name="QualityText">
-		Ydelse:
+	<text name="QualitySpeed">
+		Kvalitet og hastighed:
 	</text>
 	<text name="FasterText">
 		Hurtigere
 	</text>
+	<text name="BetterText">
+		Bedre
+	</text>
+	<slider label="" name="QualityPerformanceSelection"/>
 	<text name="ShadersPrefText">
 		Lav
 	</text>
@@ -49,99 +25,82 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<text name="HigherText2">
-		Højere
-	</text>
-	<text name="QualityText2">
-		Kvalitet
-	</text>
-	<slider label="" name="QualityPerformanceSelection" />
-	<check_box label="Manuelt" name="CustomSettings" />
-	<panel name="CustomGraphics Panel">
-	<text name="ShadersText">
-		Overflader:
-	</text>
-	<check_box label="Glatte flader og skin" name="BumpShiny" />
-	<check_box label="Basale flader" name="BasicShaders"
-	     tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher." />
-	<check_box label="Atmosfæriske flader" name="WindLightUseAtmosShaders" />
-	<check_box label="Reflektioner i vand" name="Reflections" />
-	<text name="ReflectionDetailText">
-		Spejlnings detaljer:
-	</text>
-	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0" label="Terræn og træer" />
-		<radio_item name="1" label="Alle statiske objekter" />
-		<radio_item name="2" label="Alle avatarer og objekter" />
-		<radio_item name="3" label="Alt" />
-	</radio_group>
-	<text name="AvatarRenderingText">
-		Avatar gengivelse
-	</text>
-	<check_box label="Mini-figurer på lang afstand" name="AvatarImpostors" />
-	<check_box label="Hardware Skinning" name="AvatarVertexProgram" />
-	<check_box label="Avatar tøj" name="AvatarCloth" />
-	<text name="DrawDistanceMeterText1">
-		m
-	</text>
-	<text name="DrawDistanceMeterText2">
-		m
-	</text>
-	<slider label="Maks. visnings-afstand:" name="DrawDistance" />
-	<slider label="Maks. antal partikler:" name="MaxParticleCount" />
-	<slider label="Efterbehandlingskvalitet:" name="RenderPostProcess" />
-	<text name="MeshDetailText">
-		Netmaske detaljer:
-	</text>
-	<slider label="  Objekter:" name="ObjectMeshDetail" />
-	<slider label="  Flexiprims:" name="FlexibleMeshDetail" />
-	<slider label="  Træer:" name="TreeMeshDetail" />
-	<slider label="  Avatarer:" name="AvatarMeshDetail" />
-	<slider label="  Terræn:" name="TerrainMeshDetail" />
-	<slider label="  Himmel:" name="SkyMeshDetail" />
-	<text name="PostProcessText">
-		Lav
-	</text>
-	<text name="ObjectMeshDetailText">
-		Lav
-	</text>
-	<text name="FlexibleMeshDetailText">
-		Lav
-	</text>
-	<text name="TreeMeshDetailText">
-		Lav
-	</text>
-	<text name="AvatarMeshDetailText">
-		Lav
-	</text>
-	<text name="TerrainMeshDetailText">
-		Lav
-	</text>
-	<text name="SkyMeshDetailText">
-		Lav
-	</text>
-	<text name="LightingDetailText">
-		Lys detaljer:
-	</text>
-	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon" label="Kun sol og måne" />
-		<radio_item name="LocalLights" label="Lys i nærheden" />
-	</radio_group>
-	<text name="TerrainDetailText">
-		Terræn detaljer:
-	</text>
-	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0" label="Lav" />
-		<radio_item name="2" label="Høj" />
-	</radio_group>
+	<panel label="CustomGraphics" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Overflader:
+		</text>
+		<check_box initial_value="true" label="Glatte flader og skin" name="BumpShiny"/>
+		<check_box initial_value="true" label="Basale flader" name="BasicShaders" tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher."/>
+		<check_box initial_value="true" label="Atmosfæriske flader" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Reflektioner i vand" name="Reflections"/>
+		<text name="ReflectionDetailText">
+			Spejlnings detaljer:
+		</text>
+		<radio_group name="ReflectionDetailRadio">
+			<radio_item label="Terræn og træer" name="0"/>
+			<radio_item label="Alle statiske objekter" name="1"/>
+			<radio_item label="Alle avatarer og objekter" name="2"/>
+			<radio_item label="Alt" name="3"/>
+		</radio_group>
+		<text name="AvatarRenderingText">
+			Avatar gengivelse
+		</text>
+		<check_box initial_value="true" label="Mini-figurer på lang afstand" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Avatar tøj" name="AvatarCloth"/>
+		<slider label="Maks. visnings-afstand:" name="DrawDistance"/>
+		<text name="DrawDistanceMeterText2">
+			m
+		</text>
+		<slider label="Maks. antal partikler:" name="MaxParticleCount"/>
+		<slider label="Efterbehandlingskvalitet:" name="RenderPostProcess"/>
+		<text name="MeshDetailText">
+			Netmaske detaljer:
+		</text>
+		<slider label="  Objekter:" name="ObjectMeshDetail"/>
+		<slider label="  Flexiprims:" name="FlexibleMeshDetail"/>
+		<slider label="  Træer:" name="TreeMeshDetail"/>
+		<slider label="  Avatarer:" name="AvatarMeshDetail"/>
+		<slider label="  Terræn:" name="TerrainMeshDetail"/>
+		<slider label="  Himmel:" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Lav
+		</text>
+		<text name="ObjectMeshDetailText">
+			Lav
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Lav
+		</text>
+		<text name="TreeMeshDetailText">
+			Lav
+		</text>
+		<text name="AvatarMeshDetailText">
+			Lav
+		</text>
+		<text name="TerrainMeshDetailText">
+			Lav
+		</text>
+		<text name="SkyMeshDetailText">
+			Lav
+		</text>
+		<text name="LightingDetailText">
+			Lys detaljer:
+		</text>
+		<radio_group name="LightingDetailRadio">
+			<radio_item label="Kun sol og måne" name="SunMoon"/>
+			<radio_item label="Lys i nærheden" name="LocalLights"/>
+		</radio_group>
+		<text name="TerrainDetailText">
+			Terræn detaljer:
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Lav" name="0"/>
+			<radio_item label="Høj" name="2"/>
+		</radio_group>
 	</panel>
-	<button label="Anbefalede indstillinger" name="Defaults" />
-	<button label="Hardware valg" label_selected="Hardware Options"
-	     name="GraphicsHardwareButton" />
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
-	<panel.string name="aspect_ratio_text">
-		[NUM]:[DEN]
-	</panel.string>
+	<button label="Benyt" label_selected="Benyt" name="Apply"/>
+	<button label="Nulstil" name="Defaults"/>
+	<button label="Avanceret" name="Advanced"/>
+	<button label="Hardware" label_selected="Hardware" name="GraphicsHardwareButton"/>
 </panel>
