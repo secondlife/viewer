@@ -116,10 +116,10 @@
   follows="left|top"
   font="SansSerif"
   height="20"
-  left="0"
+  left="10"
   max_length="65536"
   name="slurl"
-  top_pad="4"
+  top_pad="20"
   width="150">
     secondlife:///app/agent/00000000-0000-0000-0000-000000000000/inspect
   </text>
@@ -127,12 +127,11 @@
   follows="left|top"
   font="SansSerif"
   height="20"
-  left="0"
+  left="10"
   max_length="65536"
   name="slurl_group"
-  top_pad="4"
+  top_pad="20"
   width="150">
     secondlife:///app/group/00000000-0000-0000-0000-000000000000/inspect
   </text>
-
 </floater>
