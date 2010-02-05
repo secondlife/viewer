@@ -55,6 +55,7 @@
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "llclipboard.h"
+#include "llmenugl.h"
 
 //
 // Imported globals
@@ -164,7 +165,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mTentativeFgColor(p.text_tentative_color()),
 	mHighlightColor(p.highlight_color()),
 	mPreeditBgColor(p.preedit_bg_color()),
-	mGLFont(p.font)
+	mGLFont(p.font),
+	mContextMenuHandle()
 {
 	llassert( mMaxLengthBytes > 0 );
 
@@ -191,6 +193,12 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	setCursor(mText.length());
 
 	setPrevalidate(p.prevalidate_callback());
+
+	LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
+		("menu_text_editor.xml",
+		 LLMenuGL::sMenuContainer,
+		 LLMenuHolderGL::child_registry_t::instance());
+	setContextMenu(menu);
 }
  
 LLLineEditor::~LLLineEditor()
@@ -663,6 +671,16 @@ BOOL LLLineEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setCursorAtLocalPos(x);
 		pastePrimary();
+	}
+	return TRUE;
+}
+
+BOOL LLLineEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	setFocus(TRUE);
+	if (!LLUICtrl::handleRightMouseDown(x, y, mask))
+	{
+		showContextMenu(x, y);
 	}
 	return TRUE;
 }
@@ -2563,4 +2581,26 @@ LLWString LLLineEditor::getConvertedText() const
 		LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 	}
 	return text;
+}
+
+void LLLineEditor::showContextMenu(S32 x, S32 y)
+{
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+
+	if (menu)
+	{
+		gEditMenuHandler = this;
+
+		S32 screen_x, screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+		menu->show(screen_x, screen_y);
+	}
+}
+
+void LLLineEditor::setContextMenu(LLContextMenu* new_context_menu)
+{
+	if (new_context_menu)
+		mContextMenuHandle = new_context_menu->getHandle();
+	else
+		mContextMenuHandle.markDead();
 }

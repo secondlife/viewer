@@ -80,6 +80,14 @@ public:
 	{
 		mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
+
+		// Hide "show_nearby_chat" button 
+		LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
+		LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
+		S32 delta_width = show_btn->getRect().getWidth();
+		show_btn->setVisible(FALSE);
+		chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
+
 		return TRUE;
 	}
 
@@ -432,6 +440,8 @@ BOOL LLBottomTray::postBuild()
 	mObjectDefaultWidthMap[RS_BUTTON_MOVEMENT] = mMovementPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_CAMERA]   = mCamPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
+
+	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
 
 	return TRUE;
 }
