@@ -125,14 +125,6 @@ void LLViewBorder::draw()
 			llassert( FALSE );  // not implemented
 		}
 	}
-	else
-	if( STYLE_TEXTURE == mStyle )
-	{
-		if( mTexture )
-		{
-			drawTextures();
-		}
-	}
 
 	LLView::draw();
 }
@@ -253,56 +245,6 @@ void LLViewBorder::drawTwoPixelLines()
 	gGL.color3fv( bottom_in_color.mV );
 	gl_line_2d(right-2, top-2, right-2, bottom+1);
 	gl_line_2d(left+1, bottom+1, right-1, bottom+1);
-}
-
-void LLViewBorder::drawTextures()
-{
-	//LLGLSUIDefault gls_ui;
-
-	//llassert( FALSE );  // TODO: finish implementing
-
-	//gGL.color4fv(UI_VERTEX_COLOR.mV);
-
-	//gGL.getTexUnit(0)->bind(mTexture);
-	//gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-
-	//drawTextureTrapezoid(   0.f, mBorderWidth, getRect().getWidth(),  0,					0 );
-	//drawTextureTrapezoid(  90.f, mBorderWidth, getRect().getHeight(), (F32)getRect().getWidth(),0 );
-	//drawTextureTrapezoid( 180.f, mBorderWidth, getRect().getWidth(),  (F32)getRect().getWidth(),(F32)getRect().getHeight() );
-	//drawTextureTrapezoid( 270.f, mBorderWidth, getRect().getHeight(), 0,					(F32)getRect().getHeight() );
-}
-
-
-void LLViewBorder::drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32 start_x, F32 start_y )
-{
-	gGL.pushMatrix();
-	{
-		gGL.translatef(start_x, start_y, 0.f);
-		glRotatef( degrees, 0, 0, 1 );
-
-		gGL.begin(LLRender::QUADS);
-		{
-			//      width, width   /---------\ length-width, width		//
-			//	   			      /           \							//
-			//				     /			   \						//
-			//				    /---------------\						//
-			//    			0,0					  length, 0				//
-
-			gGL.texCoord2f( 0, 0 );
-			gGL.vertex2i( 0, 0 );
-
-			gGL.texCoord2f( (GLfloat)length, 0 );
-			gGL.vertex2i( length, 0 );
-
-			gGL.texCoord2f( (GLfloat)(length - width), (GLfloat)width );
-			gGL.vertex2i( length - width, width );
-
-			gGL.texCoord2f( (GLfloat)width, (GLfloat)width );
-			gGL.vertex2i( width, width );
-		}
-		gGL.end();
-	}
-	gGL.popMatrix();
 }
 
 BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style)
