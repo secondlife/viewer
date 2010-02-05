@@ -68,7 +68,8 @@ public:
 								ignore_tab,
 								handle_edit_keys_directly,
 								show_line_numbers,
-								commit_on_focus_lost;
+								commit_on_focus_lost,
+								show_context_menu;
 
 		//colors
 		Optional<LLUIColor>		default_color;
@@ -200,6 +201,9 @@ public:
 	const LLTextSegmentPtr	getPreviousSegment() const;
 	void getSelectedSegments(segment_vec_t& segments) const;
 
+	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
+	bool			getChowContextMenu() const { return mShowContextMenu; }
+
 protected:
 	void			showContextMenu(S32 x, S32 y);
 	void			drawPreeditMarker();
@@ -319,6 +323,7 @@ private:
 	BOOL			mTakesFocus;
 
 	BOOL			mAllowEmbeddedItems;
+	bool			mShowContextMenu;
 
 	LLUUID			mSourceID;
 
