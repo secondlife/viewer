@@ -188,6 +188,7 @@ public:
 protected:
 	LLTimer mEventTimer;
 	F32 mPeriod;
+	bool mBusy;
 };
 
 U64 LL_COMMON_API totalTime();					// Returns current system time in microseconds

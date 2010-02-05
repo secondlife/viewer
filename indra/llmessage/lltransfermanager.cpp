@@ -1196,6 +1196,7 @@ LLTransferTarget::LLTransferTarget(
 	mType(type),
 	mSourceType(source_type),
 	mID(transfer_id),
+	mChannelp(NULL),
 	mGotInfo(FALSE),
 	mSize(0),
 	mLastPacketID(-1)

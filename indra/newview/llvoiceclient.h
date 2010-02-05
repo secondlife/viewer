@@ -192,6 +192,7 @@ static	void updatePosition(void);
 		void setVoiceEnabled(bool enabled);
 		static bool voiceEnabled();
 		// Checks is voice working judging from mState
+		// Returns true if vivox has successfully logged in and is not in error state
 		bool voiceWorking();
 		void setUsePTT(bool usePTT);
 		void setPTTIsToggle(bool PTTIsToggle);

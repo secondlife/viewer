@@ -530,16 +530,6 @@ private:
 	void hideAllText();
 };
 
-class LLCallInfoDialog : public LLCallDialog
-{
-public:
-	LLCallInfoDialog(const LLSD& payload);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	static void show(const std::string& status_name, const LLSD& args);
-};
-
 // Globals
 extern LLIMMgr *gIMMgr;
 

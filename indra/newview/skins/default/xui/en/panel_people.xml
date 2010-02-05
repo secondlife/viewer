@@ -24,9 +24,6 @@ background_visible="true"
      name="no_friends"
      value="No friends" />
     <string
-     name="no_groups"
-     value="No groups" />
-    <string
      name="people_filter_label"
      value="Filter People" />
     <string
@@ -140,6 +137,7 @@ background_visible="true"
                         <avatar_list
                          allow_select="true"
                          follows="all"
+                         height="235"
                          layout="topleft"
                          left="0"
                          multi_select="true"
@@ -155,6 +153,7 @@ background_visible="true"
                         <avatar_list
                          allow_select="true"
                          follows="all"
+                         height="235"
                          layout="topleft"
                          left="0"
                          multi_select="true"
@@ -163,6 +162,17 @@ background_visible="true"
                          width="313" />
                 </accordion_tab>
             </accordion>
+            <text
+             follows="all"
+             height="450"
+             left="10"
+             name="no_friends_msg"
+             top="10"
+             width="293"
+             wrap="true">
+                To add friends try [secondlife:///app/search/people global search] or click on a user to add them as a friend.
+If you're looking for people to hang out with, [secondlife:///app/worldmap try the Map].
+             </text>
             <panel
              follows="left|right|bottom"
              height="30"
@@ -226,6 +236,8 @@ background_visible="true"
              layout="topleft"
              left="0"
              name="group_list"
+             no_filtered_groups_msg="No groups"
+             no_groups_msg="[secondlife:///app/search/groups Trying searching for some groups to join.]"
              top="0"
              width="313" />
             <panel

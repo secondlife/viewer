@@ -279,7 +279,10 @@ public:
 
 	virtual ~LLUpdateAppearanceOnDestroy()
 	{
-		LLAppearanceManager::instance().updateAppearanceFromCOF();
+		if (!LLApp::isExiting())
+		{
+			LLAppearanceManager::instance().updateAppearanceFromCOF();
+		}
 	}
 
 	/* virtual */ void fire(const LLUUID& inv_item)
@@ -318,7 +321,7 @@ public:
 	~LLWearableHoldingPattern();
 
 	bool pollCompletion();
-	bool isDone();
+	bool isFetchCompleted();
 	bool isTimedOut();
 	
 	typedef std::list<LLFoundData> found_list_t;
@@ -327,10 +330,12 @@ public:
 	LLInventoryModel::item_array_t mGestItems;
 	S32 mResolved;
 	LLTimer mWaitTime;
+	bool mFired;
 };
 
 LLWearableHoldingPattern::LLWearableHoldingPattern():
-	mResolved(0)
+	mResolved(0),
+	mFired(false)
 {
 }
 
@@ -338,31 +343,34 @@ LLWearableHoldingPattern::~LLWearableHoldingPattern()
 {
 }
 
-bool LLWearableHoldingPattern::isDone()
+bool LLWearableHoldingPattern::isFetchCompleted()
 {
-	if (mResolved >= (S32)mFoundList.size())
-		return true; // have everything we were waiting for
-	else if (isTimedOut())
-	{
-		llwarns << "Exceeded max wait time, updating appearance based on what has arrived" << llendl;
-		return true;
-	}
-	return false;
-
+	return (mResolved >= (S32)mFoundList.size()); // have everything we were waiting for?
 }
 
 bool LLWearableHoldingPattern::isTimedOut()
 {
-	static F32 max_wait_time = 15.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
+	static F32 max_wait_time = 20.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
 	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
 }
 
 bool LLWearableHoldingPattern::pollCompletion()
 {
-	bool done = isDone();
-	llinfos << "polling, done status: " << done << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+	bool completed = isFetchCompleted();
+	bool timed_out = isTimedOut();
+	bool done = completed || timed_out;
+	
+	llinfos << "polling, done status: " << completed << " timed out? " << timed_out << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+
 	if (done)
 	{
+		mFired = true;
+		
+		if (timed_out)
+		{
+			llwarns << "Exceeded max wait time for wearables, updating appearance based on what has arrived" << llendl;
+		}
+
 		// Activate all gestures in this folder
 		if (mGestItems.count() > 0)
 		{
@@ -394,7 +402,11 @@ bool LLWearableHoldingPattern::pollCompletion()
 			LLAgentWearables::userUpdateAttachments(mObjItems);
 		}
 
-		delete this;
+		if (completed)
+		{
+			// Only safe to delete if all wearable callbacks completed.
+			delete this;
+		}
 	}
 	return done;
 }
@@ -429,7 +441,11 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 static void onWearableAssetFetch(LLWearable* wearable, void* data)
 {
 	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
-	
+	if (holder->mFired)
+	{
+		llwarns << "called after holder fired" << llendl;
+	}
+
 	if(wearable)
 	{
 		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();

@@ -185,43 +185,46 @@ void LLTeleportHistoryMenuItem::onMouseLeave(S32 x, S32 y, MASK mask)
 
 static LLDefaultChildRegistry::Register<LLPullButton> menu_button("pull_button");
 
-LLPullButton::LLPullButton(const LLPullButton::Params& params):
-		LLButton(params)
-	,	mClickDraggingSignal(NULL)
+LLPullButton::LLPullButton(const LLPullButton::Params& params) :
+	LLButton(params)
 {
 	setDirectionFromName(params.direction);
 }
-boost::signals2::connection LLPullButton::setClickDraggingCallback( const commit_signal_t::slot_type& cb ) 
-{ 
-	if (!mClickDraggingSignal) mClickDraggingSignal = new commit_signal_t();
-	return mClickDraggingSignal->connect(cb); 
+boost::signals2::connection LLPullButton::setClickDraggingCallback(const commit_signal_t::slot_type& cb)
+{
+	return mClickDraggingSignal.connect(cb);
 }
 
 /*virtual*/
 void LLPullButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	LLButton::onMouseLeave(x, y, mask);
-	
-	if(mMouseDownTimer.getStarted() )
+
+	if (mMouseDownTimer.getStarted()) //an user have done a mouse down, if the timer started. see LLButton::handleMouseDown for details
 	{
-		const LLVector2 cursor_direction = LLVector2(F32(x),F32(y)) - mLastMouseDown;
-		if( angle_between(mDraggingDirection, cursor_direction) < 0.5 * F_PI_BY_TWO)//call if angle < pi/4 
-			{
-				if(mClickDraggingSignal)
-				{
-					(*mClickDraggingSignal)(this, LLSD());
-				}
-			}
+		const LLVector2 cursor_direction = LLVector2(F32(x), F32(y)) - mLastMouseDown;
+		/* For now cursor_direction points to the direction of mouse movement
+		 * Need to decide whether should we fire a signal. 
+		 * We fire if angle between mDraggingDirection and cursor_direction is less that 45 degree
+		 * Note:
+		 * 0.5 * F_PI_BY_TWO equals to PI/4 radian that equals to angle of 45 degrees
+		 */
+		if (angle_between(mDraggingDirection, cursor_direction) < 0.5 * F_PI_BY_TWO)//call if angle < pi/4 
+		{
+			mClickDraggingSignal(this, LLSD());
+		}
 	}
 
 }
 
 /*virtual*/
 BOOL LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLButton::handleMouseDown(x, y, mask);
+	if (handled)
 	{
-	BOOL handled = LLButton::handleMouseDown(x,y, mask);
-	if(handled)
-	{
+		//if mouse down was handled by button, 
+		//capture mouse position to calculate the direction of  mouse move  after mouseLeave event 
 		mLastMouseDown.set(F32(x), F32(y));
 	}
 	return handled;
@@ -230,27 +233,31 @@ BOOL LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
 /*virtual*/
 BOOL LLPullButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
+	// reset data to get ready for next circle 
 	mLastMouseDown.clear();
 	return LLButton::handleMouseUp(x, y, mask);
 }
-
+/**
+ * this function is setting up dragging direction vector. 
+ * Last one is just unit vector. It points to direction of mouse drag that we need to handle   
+ */
 void LLPullButton::setDirectionFromName(const std::string& name)
 {
 	if (name == "left")
 	{
-		mDraggingDirection.set(F32(-1), F32(0)); 
+		mDraggingDirection.set(F32(-1), F32(0));
 	}
 	else if (name == "right")
 	{
-		mDraggingDirection.set(F32(0), F32(1)); 
+		mDraggingDirection.set(F32(0), F32(1));
 	}
 	else if (name == "down")
 	{
-		 mDraggingDirection.set(F32(0), F32(-1)); 
+		mDraggingDirection.set(F32(0), F32(-1));
 	}
 	else if (name == "up")
 	{
-		 mDraggingDirection.set(F32(0), F32(1)); 
+		mDraggingDirection.set(F32(0), F32(1));
 	}
 }
 

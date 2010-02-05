@@ -69,6 +69,20 @@ BOOL LLPanelMe::postBuild()
 void LLPanelMe::onOpen(const LLSD& key)
 {
 	LLPanelProfile::onOpen(key);
+
+	if(key.isUndefined() || key.has("edit_my_profile"))
+	{
+		// Open Edit My Profile panel by default (through Side Tray -> My Profile) (EXT-4823)
+		buildEditPanel();
+		openPanel(mEditPanel, getAvatarId());
+	}
+	else if(mEditPanel)
+	{
+		// When opening Me Panel through Side Tray LLPanelMe::onOpen() is called twice.
+		// First time key can be undefined and second time - key may contain some data.
+		// Lets close Edit Panel if key does contain some data on second call.
+		closePanel(mEditPanel);
+	}
 }
 
 bool LLPanelMe::notifyChildren(const LLSD& info)
@@ -197,6 +211,10 @@ void LLPanelMyProfileEdit::processProperties(void* data, EAvatarProcessorType ty
 void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_data)
 {
 	fillCommonData(avatar_data);
+
+	// 'Home page' was hidden in LLPanelAvatarProfile::fillCommonData() to fix  EXT-4734
+	// Show 'Home page' in Edit My Profile (EXT-4873)
+	childSetVisible("homepage_edit", true);
 
 	fillPartnerData(avatar_data);
 

@@ -161,12 +161,17 @@ void LLGroupActions::join(const LLUUID& group_id)
 		S32 cost = gdatap->mMembershipFee;
 		LLSD args;
 		args["COST"] = llformat("%d", cost);
+		args["NAME"] = gdatap->mName;
 		LLSD payload;
 		payload["group_id"] = group_id;
 
 		if (can_afford_transaction(cost))
 		{
-			LLNotificationsUtil::add("JoinGroupCanAfford", args, payload, onJoinGroup);
+			if(cost > 0)
+				LLNotificationsUtil::add("JoinGroupCanAfford", args, payload, onJoinGroup);
+			else
+				LLNotificationsUtil::add("JoinGroupNoCost", args, payload, onJoinGroup);
+				
 		}
 		else
 		{

@@ -1998,6 +1998,18 @@
                  function="Advanced.ToggleHUDInfo"
                  parameter="fov" />
             </menu_item_check>
+            <menu_item_check
+             label="Badge"
+             layout="topleft"
+             name="Badge"
+			 shortcut="alt|control|shift|h">
+                <menu_item_check.on_check
+                 function="Advanced.CheckHUDInfo"
+                 parameter="badge" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleHUDInfo"
+                 parameter="badge" />
+            </menu_item_check>
         </menu>
         <menu
          create_jump_keys="true"

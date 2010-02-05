@@ -1478,6 +1478,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 	// Strip any SLURL from the message display. (DEV-2754)
 	std::string msg = info->mDesc;
 	int indx = msg.find(" ( http://slurl.com/secondlife/");
+	if(indx == std::string::npos)
+	{
+		// try to find new slurl host
+		indx = msg.find(" ( http://maps.secondlife.com/secondlife/");
+	}
 	if(indx >= 0)
 	{
 		LLStringUtil::truncate(msg, indx);
@@ -2179,6 +2184,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// This isn't ideal - it will make 1 style for all objects owned by the the same person/group.
 				// This works because the only thing we can really do in this case is show the owner name and link to their profile.
 				chat.mFromID = from_id ^ gAgent.getSessionID();
+			}
+
+			if(SYSTEM_FROM == name)
+			{
+				// System's UUID is NULL (fixes EXT-4766)
+				chat.mFromID = from_id = LLUUID::null;
 			}
 
 			LLSD query_string;
