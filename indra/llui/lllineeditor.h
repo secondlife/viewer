@@ -51,26 +51,17 @@
 #include "llviewborder.h"
 
 #include "llpreeditor.h"
-#include <boost/function.hpp>
+#include "lltextvalidate.h"
 
 class LLFontGL;
 class LLLineEditorRollback;
 class LLButton;
-
-typedef boost::function<BOOL (const LLWString &wstr)> LLLinePrevalidateFunc;
 
 class LLLineEditor
 : public LLUICtrl, public LLEditMenuHandler, protected LLPreeditor
 {
 public:
 
-	struct PrevalidateNamedFuncs
-	:	public LLInitParam::TypeValuesHelper<LLLinePrevalidateFunc, PrevalidateNamedFuncs>
-
-	{
-		static void declareValues();
-	};
-	
 	typedef boost::function<void (LLLineEditor* caller)> keystroke_callback_t;
 	
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -80,7 +71,7 @@ public:
 
 		Optional<keystroke_callback_t>	keystroke_callback;
 
-		Optional<LLLinePrevalidateFunc, PrevalidateNamedFuncs>	prevalidate_callback;
+		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
 		
 		Optional<LLViewBorder::Params>	border;
 
@@ -231,17 +222,7 @@ public:
 	void setTextPadding(S32 left, S32 right);
 
 	// Prevalidation controls which keystrokes can affect the editor
-	void			setPrevalidate( LLLinePrevalidateFunc func );
-	static BOOL		prevalidateFloat(const LLWString &str );
-	static BOOL		prevalidateInt(const LLWString &str );
-	static BOOL		prevalidatePositiveS32(const LLWString &str);
-	static BOOL		prevalidateNonNegativeS32(const LLWString &str);
-	static BOOL		prevalidateAlphaNum(const LLWString &str );
-	static BOOL		prevalidateAlphaNumSpace(const LLWString &str );
-	static BOOL		prevalidateASCIIPrintableNoPipe(const LLWString &str); 
-	static BOOL		prevalidateASCIIPrintableNoSpace(const LLWString &str);
-	static BOOL		prevalidateASCII(const LLWString &str);
-
+	void			setPrevalidate( LLTextValidate::validate_func_t func );
 	static BOOL		postvalidateFloat(const std::string &str);
 
 	// line history support:
@@ -319,7 +300,7 @@ protected:
 	S32			mLastSelectionStart;
 	S32			mLastSelectionEnd;
 
-	LLLinePrevalidateFunc mPrevalidateFunc;
+	LLTextValidate::validate_func_t mPrevalidateFunc;
 
 	LLFrameTimer mKeystrokeTimer;
 	LLTimer		mTripleClickTimer;

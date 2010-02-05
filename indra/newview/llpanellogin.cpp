@@ -213,8 +213,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 
 #if !USE_VIEWER_AUTH
-	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
-	childSetPrevalidate("last_name_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
+	childSetPrevalidate("first_name_edit", LLTextValidate::validateASCIIPrintableNoSpace);
+	childSetPrevalidate("last_name_edit", LLTextValidate::validateASCIIPrintableNoSpace);
 
 	childSetCommitCallback("password_edit", mungePassword, this);
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);

@@ -44,6 +44,7 @@
 #include "lldarray.h"
 #include "llviewborder.h" // for params
 #include "lltextbase.h"
+#include "lltextvalidate.h"
 
 #include "llpreeditor.h"
 #include "llcontrol.h"
@@ -63,6 +64,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
 	{
 		Optional<std::string>	default_text;
+		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
 
 		Optional<bool>			embedded_items,
 								ignore_tab,
@@ -329,6 +331,7 @@ private:
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 
 	keystroke_signal_t mKeystrokeSignal;
+	LLTextValidate::validate_func_t mPrevalidateFunc;
 
 	LLContextMenu* mContextMenu;
 }; // end class LLTextEditor
