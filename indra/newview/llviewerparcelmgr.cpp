@@ -69,7 +69,6 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llworld.h"
-#include "lloverlaybar.h"
 #include "roles_constants.h"
 #include "llweb.h"
 
@@ -706,8 +705,8 @@ bool LLViewerParcelMgr::allowAgentScripts() const
 bool LLViewerParcelMgr::allowAgentDamage() const
 {
 	LLViewerRegion* region = gAgent.getRegion();
-	return region && region->getAllowDamage()
-		&& mAgentParcel && mAgentParcel->getAllowDamage();
+	return (region && region->getAllowDamage())
+		|| (mAgentParcel && mAgentParcel->getAllowDamage());
 }
 
 BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const
@@ -1320,13 +1319,36 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 
 void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 {
-	//FIXME: only request parcel info when tooltip is shown
-	return;
-	/*LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
+	static U32 last_west, last_south;
+
+
+	// only request parcel info when tooltip is shown
+	if (!gSavedSettings.getBOOL("ShowLandHoverTip"))
+	{
+		return;
+	}
+
+	// only request parcel info if position has changed outside of the
+	// last parcel grid step
+	U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
+	U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
+	
+	if ((west_parcel_step == last_west) && (south_parcel_step == last_south))
+	{
+		return;
+	}
+	else 
+	{
+		last_west = west_parcel_step;
+		last_south = south_parcel_step;
+	}
+
+	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
 	if (!region)
 	{
 		return;
 	}
+
 
 	// Send a rectangle around the point.
 	// This means the parcel sent back is at least a rectangle around the point,
@@ -1354,7 +1376,7 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 	msg->addBOOL("SnapSelection",			FALSE );
 	msg->sendReliable( region->getHost() );
 
-	mHoverRequestResult = PARCEL_RESULT_NO_DATA;*/
+	mHoverRequestResult = PARCEL_RESULT_NO_DATA;
 }
 
 
@@ -1792,7 +1814,7 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 
 	if (parcel_id != parcel->getLocalID())
 	{
-		llwarns << "processParcelAccessListReply for parcel " << parcel_id
+		LL_WARNS_ONCE("") << "processParcelAccessListReply for parcel " << parcel_id
 			<< " which isn't the selected parcel " << parcel->getLocalID()<< llendl;
 		return;
 	}

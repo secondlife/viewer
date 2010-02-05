@@ -1360,6 +1360,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
 {
+	gFocusMgr.setTopCtrl(NULL);
 	setVisible(TRUE);
 	setFrontmost(take_focus);
 }
@@ -1915,9 +1916,10 @@ static LLDefaultChildRegistry::Register<LLFloaterView> r("floater_view");
 
 LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
+
 	mFocusCycleMode(FALSE),
-	mSnapOffsetBottom(0)
-	,mSnapOffsetRight(0)
+	mSnapOffsetBottom(0),
+	mSnapOffsetRight(0)
 {
 }
 
@@ -2362,7 +2364,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	LLRect::tCoordType screen_width = getSnapRect().getWidth();
 	LLRect::tCoordType screen_height = getSnapRect().getHeight();
 
-
+	
 	// only automatically resize non-minimized, resizable floaters
 	if( floater->isResizable() && !floater->isMinimized() )
 	{
@@ -2387,16 +2389,13 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			new_width = llmax(new_width, min_width);
 			new_height = llmax(new_height, min_height);
 
-			floater->reshape( new_width, new_height, TRUE );
-			if (floater->followsRight())
-			{
-				floater->translate(old_width - new_width, 0);
-			}
+			LLRect new_rect;
+			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
 
-			if (floater->followsTop())
-			{
-				floater->translate(0, old_height - new_height);
-			}
+			floater->reshape( new_width, new_height, TRUE );
+			floater->setRect(new_rect);
+
+			floater->translateIntoRect( getLocalRect(), false );
 		}
 	}
 

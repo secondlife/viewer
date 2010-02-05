@@ -58,17 +58,14 @@ public:
 protected:
 	~LLViewerInventoryItem( void ); // ref counted
 	BOOL extractSortFieldAndDisplayName(S32* sortField, std::string* displayName) const { return extractSortFieldAndDisplayName(mName, sortField, displayName); }
-	static char getSeparator() { return '@'; }
 	mutable std::string mDisplayName;
 	
 public:
 	virtual LLAssetType::EType getType() const;
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const std::string& getName() const;
-	virtual const std::string& getDisplayName() const;
 	virtual S32 getSortField() const;
 	virtual void setSortField(S32 sortField);
-	virtual void rename(const std::string& new_name);
 	virtual const LLPermissions& getPermissions() const;
 	virtual const LLUUID& getCreatorUUID() const;
 	virtual const std::string& getDescription() const;
@@ -81,7 +78,6 @@ public:
 	virtual U32 getCRC32() const; // really more of a checksum.
 
 	static BOOL extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName);
-	static void insertDefaultSortField(std::string& name);
 
 	// construct a complete viewer inventory item
 	LLViewerInventoryItem(const LLUUID& uuid, const LLUUID& parent_uuid,
@@ -277,6 +273,18 @@ class CreateGestureCallback : public LLInventoryCallback
 {
 public:
 	void fire(const LLUUID& inv_item);
+};
+
+class AddFavoriteLandmarkCallback : public LLInventoryCallback
+{
+public:
+	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
+	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
+
+private:
+	void fire(const LLUUID& inv_item);
+
+	LLUUID mTargetLandmarkId;
 };
 
 // misc functions

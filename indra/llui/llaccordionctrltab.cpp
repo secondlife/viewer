@@ -45,6 +45,7 @@ static const std::string DD_HEADER_NAME = "dd_header";
 static const S32 HEADER_HEIGHT = 20;
 static const S32 HEADER_IMAGE_LEFT_OFFSET = 5;
 static const S32 HEADER_TEXT_LEFT_OFFSET = 30;
+static const F32 AUTO_OPEN_TIME = 1.f;
 
 static LLDefaultChildRegistry::Register<LLAccordionCtrlTab> t1("accordion_tab");
 
@@ -73,6 +74,11 @@ public:
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+								   EDragAndDropType cargo_type,
+								   void* cargo_data,
+								   EAcceptance* accept,
+								   std::string& tooltip_msg);
 private:
 
 	LLTextBox* mHeaderTextbox;
@@ -92,6 +98,8 @@ private:
 	LLUIColor mHeaderBGColor;
 
 	bool mNeedsHighlight;
+
+	LLFrameTimer mAutoOpenTimer;
 };
 
 LLAccordionCtrlTab::LLAccordionCtrlTabHeader::Params::Params()
@@ -157,7 +165,8 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 	// because the user's mental model of focus is that it goes away after
 	// the accordion is closed.
 	if (getParent()->hasFocus()
-		&& !(collapsible && !expanded))
+		/*&& !(collapsible && !expanded)*/ // WHY??
+		)
 	{
 		mImageHeaderFocused->draw(0,0,width,height);
 	}
@@ -208,6 +217,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::onMouseLeave(S32 x, S32 y, MA
 {
 	LLUICtrl::onMouseLeave(x, y, mask);
 	mNeedsHighlight = false;
+	mAutoOpenTimer.stop();
 }
 BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
@@ -217,8 +227,33 @@ BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleKey(KEY key, MASK mask,
 	}
 	return LLUICtrl::handleKey(key, mask, called_from_parent);
 }
+BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleDragAndDrop(S32 x, S32 y, MASK mask,
+																	 BOOL drop,
+																	 EDragAndDropType cargo_type,
+																	 void* cargo_data,
+																	 EAcceptance* accept,
+																	 std::string& tooltip_msg)
+{
+	LLAccordionCtrlTab* parent = dynamic_cast<LLAccordionCtrlTab*>(getParent());
 
+	if ( parent && !parent->getDisplayChildren() && parent->getCollapsible() && parent->canOpenClose() )
+	{
+		if (mAutoOpenTimer.getStarted())
+		{
+			if (mAutoOpenTimer.getElapsedTimeF32() > AUTO_OPEN_TIME)
+			{
+				parent->changeOpenClose(false);
+				mAutoOpenTimer.stop();
+				return TRUE;
+			}
+		}
+		else
+			mAutoOpenTimer.start();
+	}
 
+	return LLUICtrl::handleDragAndDrop(x, y, mask, drop, cargo_type,
+									   cargo_data, accept, tooltip_msg);
+}
 LLAccordionCtrlTab::Params::Params()
 	: title("title")
 	,display_children("expanded", true)

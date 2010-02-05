@@ -378,6 +378,7 @@ void LLSnapshotLivePreview::setSnapshotQuality(S32 quality)
 	{
 		mSnapshotQuality = quality;
 		gSavedSettings.setS32("SnapshotQuality", quality);
+		mSnapshotUpToDate = FALSE;
 	}
 }
 
@@ -1028,7 +1029,8 @@ class LLFloaterSnapshot::Impl
 public:
 	Impl()
 	:	mAvatarPauseHandles(),
-		mLastToolset(NULL)
+		mLastToolset(NULL),
+		mAspectRatioCheckOff(false)
 	{
 	}
 	~Impl()
@@ -1079,7 +1081,7 @@ public:
 
 	LLToolset*	mLastToolset;
 	LLHandle<LLView> mPreviewHandle;
-	BOOL mAspectRatioCheckOff ;
+	bool mAspectRatioCheckOff ;
 };
 
 // static
@@ -1606,7 +1608,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	
 	if(0 == index) //current window size
 	{
-		view->impl.mAspectRatioCheckOff = TRUE ;
+		view->impl.mAspectRatioCheckOff = true ;
 		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
@@ -1616,7 +1618,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 	else if(-1 == index) //custom
 	{
-		view->impl.mAspectRatioCheckOff = FALSE ;
+		view->impl.mAspectRatioCheckOff = false ;
 		//if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
 		{
 			view->childSetEnabled("keep_aspect_check", TRUE) ;
@@ -1629,7 +1631,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 	else
 	{
-		view->impl.mAspectRatioCheckOff = TRUE ;
+		view->impl.mAspectRatioCheckOff = true ;
 		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
@@ -2078,8 +2080,10 @@ void LLFloaterSnapshot::draw()
 	{		
 		if(previewp->getThumbnailImage())
 		{
+			LLRect thumbnail_rect = getChild<LLUICtrl>("thumbnail_placeholder")->getRect();
+
 			S32 offset_x = (getRect().getWidth() - previewp->getThumbnailWidth()) / 2 ;
-			S32 offset_y = getRect().getHeight() - 205 + (90 - previewp->getThumbnailHeight()) / 2 ;
+			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
 
 			glMatrixMode(GL_MODELVIEW);
 			gl_draw_scaled_image(offset_x, offset_y, 

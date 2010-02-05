@@ -89,8 +89,8 @@ BOOL LLPanelGroupTab::postBuild()
 LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),
-	mAllowEdit( TRUE )
-	,mShowingNotifyDialog(false)
+	mSkipRefresh(FALSE),
+	mShowingNotifyDialog(false)
 {
 	// Set up the factory callbacks.
 	// Roles sub tabs
@@ -101,6 +101,8 @@ LLPanelGroup::LLPanelGroup()
 LLPanelGroup::~LLPanelGroup()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
+	if(LLVoiceClient::getInstance())
+		LLVoiceClient::getInstance()->removeObserver(this);
 }
 
 void LLPanelGroup::onOpen(const LLSD& key)
@@ -166,7 +168,6 @@ BOOL LLPanelGroup::postBuild()
 
 	button = getChild<LLButton>("btn_refresh");
 	button->setClickedCallback(onBtnRefresh, this);
-	button->setVisible(mAllowEdit);
 
 	getChild<LLButton>("btn_create")->setVisible(false);
 
@@ -188,6 +189,8 @@ BOOL LLPanelGroup::postBuild()
 
 	if(panel_general)
 		panel_general->setupCtrls(this);
+
+	gVoiceClient->addObserver(this);
 	
 	return TRUE;
 }
@@ -298,6 +301,17 @@ void LLPanelGroup::changed(LLGroupChange gc)
 	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
 		(*it)->update(gc);
 	update(gc);
+}
+
+// virtual
+void LLPanelGroup::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+
+	childSetEnabled("btn_call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelGroup::notifyObservers()
@@ -419,12 +433,17 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		if(tab_land->getDisplayChildren())
 			tab_land->changeOpenClose(tab_land->getDisplayChildren());
 
-		tab_roles->canOpenClose(false);
-		tab_notices->canOpenClose(false);
-		tab_land->canOpenClose(false);
+		tab_roles->setVisible(false);
+		tab_notices->setVisible(false);
+		tab_land->setVisible(false);
 
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
+
+		if(button_call)
+			button_call->setVisible(false);
+		if(button_chat)
+			button_chat->setVisible(false);
 	}
 	else 
 	{
@@ -443,15 +462,19 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		LLGroupData agent_gdatap;
 		bool is_member = gAgent.getGroupData(mID,agent_gdatap);
 		
-		tab_roles->canOpenClose(is_member);
-		tab_notices->canOpenClose(is_member);
-		tab_land->canOpenClose(is_member);
+		tab_roles->setVisible(is_member);
+		tab_notices->setVisible(is_member);
+		tab_land->setVisible(is_member);
 
 		getChild<LLUICtrl>("group_name")->setVisible(true);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(false);
 
 		if(button_apply)
 			button_apply->setVisible(is_member);
+		if(button_call)
+			button_call->setVisible(is_member);
+		if(button_chat)
+			button_chat->setVisible(is_member);
 	}
 
 	reposButtons();
@@ -468,7 +491,12 @@ bool LLPanelGroup::apply(LLPanelGroupTab* tab)
 	
 	std::string apply_mesg;
 	if(tab->apply( apply_mesg ) )
+	{
+		//we skip refreshing group after ew manually apply changes since its very annoying
+		//for those who are editing group
+		mSkipRefresh = TRUE;
 		return true;
+	}
 		
 	if ( !apply_mesg.empty() )
 	{
@@ -515,6 +543,11 @@ void LLPanelGroup::draw()
 
 void LLPanelGroup::refreshData()
 {
+	if(mSkipRefresh)
+	{
+		mSkipRefresh = FALSE;
+		return;
+	}
 	LLGroupMgr::getInstance()->clearGroupData(getID());
 
 	setGroupID(getID());
@@ -536,10 +569,10 @@ void LLPanelGroup::chatGroup()
 }
 
 void LLPanelGroup::showNotice(const std::string& subject,
-							  const std::string& message,
-							  const bool& has_inventory,
-							  const std::string& inventory_name,
-							  LLOfferInfo* inventory_offer)
+			      const std::string& message,
+			      const bool& has_inventory,
+			      const std::string& inventory_name,
+			      LLOfferInfo* inventory_offer)
 {
 	LLPanelGroupNotices* panel_notices = findChild<LLPanelGroupNotices>("group_notices_tab_panel");
 	if(!panel_notices)

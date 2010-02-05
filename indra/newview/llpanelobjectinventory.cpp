@@ -445,7 +445,7 @@ bool remove_task_inventory_callback(const LLSD& notification, const LLSD& respon
 }
 
 // helper for remove
-// ! REFACTOR ! two_uuids_list_t is also defined in llinevntorybridge.h, but differently.
+// ! REFACTOR ! two_uuids_list_t is also defined in llinventorybridge.h, but differently.
 typedef std::pair<LLUUID, std::list<LLUUID> > panel_two_uuids_list_t;
 typedef std::pair<LLPanelObjectInventory*, panel_two_uuids_list_t> remove_data_t;
 BOOL LLTaskInvFVBridge::removeItem()
@@ -463,10 +463,6 @@ BOOL LLTaskInvFVBridge::removeItem()
 			}
 			else
 			{
-				remove_data_t* data = new remove_data_t;
-				data->first = mPanel;
-				data->second.first = mPanel->getTaskUUID();
-				data->second.second.push_back(mUUID);
 				LLSD payload;
 				payload["task_id"] = mPanel->getTaskUUID();
 				payload["inventory_ids"].append(mUUID);

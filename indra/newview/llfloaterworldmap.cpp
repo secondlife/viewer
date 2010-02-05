@@ -116,9 +116,12 @@ public:
 	{
 		if (params.size() == 0)
 		{
-			return false;
+			// support the secondlife:///app/worldmap SLapp
+			LLFloaterReg::showInstance("world_map", "center");
+			return true;
 		}
 
+		// support the secondlife:///app/worldmap/{LOCATION}/{COORDS} SLapp
 		const std::string region_name = params[0].asString();
 		S32 x = (params.size() > 1) ? params[1].asInteger() : 128;
 		S32 y = (params.size() > 2) ? params[2].asInteger() : 128;

@@ -753,6 +753,11 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 			impl_count_interest_normal++;
 		}
+		else if(pimpl->isParcelMedia())
+		{
+			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+			impl_count_interest_normal++;
+		}
 		else
 		{
 			// Look at interest and CPU usage for instances that aren't in any of the above states.
@@ -936,7 +941,6 @@ bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& respo
 	{
 		// user has elected to automatically play media.
 		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
-		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
 		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
 		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
 
@@ -957,7 +961,6 @@ bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& respo
 	{
 		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, FALSE);
 		gSavedSettings.setBOOL("AudioStreamingMedia", FALSE);
-		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
 		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
 	}
 	return false;
@@ -1247,7 +1250,24 @@ void LLViewerMediaImpl::loadURI()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->loadURI( mMediaURL );
+		// *HACK: we don't know if the URI coming in is properly escaped
+		// (the contract doesn't specify whether it is escaped or not.
+		// but LLQtWebKit expects it to be, so we do our best to encode
+		// special characters)
+		// The strings below were taken right from http://www.ietf.org/rfc/rfc1738.txt
+		// Note especially that '%' and '/' are there.
+		std::string uri = LLURI::escape(mMediaURL,
+										"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+										"0123456789"
+										"$-_.+"
+										"!*'(),"
+										"{}|\\^~[]`"
+										"<>#%"
+										";/?:@&=",
+										false);
+		llinfos << "Asking media source to load URI: " << uri << llendl;
+		
+		mMediaSource->loadURI( uri );
 
 		if(mPreviousMediaState == MEDIA_PLAYING)
 		{
@@ -1792,11 +1812,6 @@ void LLViewerMediaImpl::navigateStop()
 bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
 	bool result = false;
-	// *NOTE:Mani - if this doesn't exist llmozlib goes crashy in the debug build.
-	// LLMozlib::init wants to write some files to <exe_dir>/components
-	std::string debug_init_component_dir( gDirUtilp->getExecutableDir() );
-	debug_init_component_dir += "/components";
-	LLAPRFile::makeDir(debug_init_component_dir.c_str()); 
 	
 	if (mMediaSource)
 	{

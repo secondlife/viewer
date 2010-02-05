@@ -64,7 +64,7 @@ void LLAvatarIconIDCache::load	()
 	llinfos << "Loading avatar icon id cache." << llendl;
 	
 	// build filename for each user
-	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
+	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mFilename);
 	llifstream file(resolved_filename);
 
 	if (!file.is_open())
@@ -97,7 +97,7 @@ void LLAvatarIconIDCache::load	()
 
 void LLAvatarIconIDCache::save	()
 {
-	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
+	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mFilename);
 
 	// open a file for writing
 	llofstream file (resolved_filename);

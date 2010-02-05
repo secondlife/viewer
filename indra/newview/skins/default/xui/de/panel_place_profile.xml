@@ -6,7 +6,7 @@
 	<string name="available" value="verfügbar"/>
 	<string name="allocated" value="vergeben"/>
 	<string name="title_place" value="Ortsprofil"/>
-	<string name="title_teleport_history" value="Teleport-Verlauf"/>
+	<string name="title_teleport_history" value="Speicherort der Teleport-Liste"/>
 	<string name="not_available" value="k.A."/>
 	<string name="unknown" value="(unbekannt)"/>
 	<string name="public" value="(öffentlich)"/>
@@ -56,6 +56,7 @@
 	<string name="icon_ScriptsNo" value="parcel_drk_ScriptsNo"/>
 	<string name="icon_Damage" value="parcel_drk_Damage"/>
 	<string name="icon_DamageNo" value="parcel_drk_DamageNo"/>
+	<button name="back_btn" tool_tip="Hinten"/>
 	<text name="title" value="Ortsprofil"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">

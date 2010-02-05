@@ -528,7 +528,16 @@ BOOL LLPanelScriptLimitsRegionMemory::postBuild()
 		
 	std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
 	childSetValue("loading_text", LLSD(msg_waiting));
-	
+
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
+
+	//set all columns to resizable mode even if some columns will be empty
+	for(S32 column = 0; column < list->getNumColumns(); column++)
+	{
+		LLScrollListColumn* columnp = list->getColumn(column);
+		columnp->mHeader->setHasResizableElement(TRUE);
+	}
+
 	return StartRequestChain();
 }
 

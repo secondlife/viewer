@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview notecard" title="HINWEIS:">
+<floater name="preview notecard" title="NOTIZKARTE:">
 	<floater.string name="no_object">
-		Es wurde kein Objekt gefunden, das diese Notiz enthält.
+		Es wurde kein Objekt gefunden, das diese Notizkarte enthält.
 	</floater.string>
 	<floater.string name="not_allowed">
 		Ihnen fehlt die Berechtigung zur Anzeige dieser Notizkarte.

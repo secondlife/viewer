@@ -325,8 +325,12 @@ public:
 	};
 
 	
-	/*virtual*/ ~LLIMChiclet() {};
+	virtual ~LLIMChiclet() {};
 
+	/**
+	 * It is used for default setting up of chicklet:click handler, etc.  
+	 */
+	BOOL postBuild();
 	/**
 	 * Sets IM session name. This name will be displayed in chiclet tooltip.
 	 */
@@ -422,11 +426,11 @@ public:
 	 */
 	virtual void onMouseDown();
 
+	virtual void setToggleState(bool toggle);
+
 protected:
 
 	LLIMChiclet(const LLIMChiclet::Params& p);
-
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 
@@ -438,7 +442,7 @@ protected:
 	LLIconCtrl* mNewMessagesIcon;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
 	LLChicletSpeakerCtrl* mSpeakerCtrl;
-
+	LLButton* mChicletButton;
 
 	/** the id of another participant, either an avatar id or a group id*/
 	LLUUID mOtherParticipantId;
@@ -473,6 +477,8 @@ class LLIMP2PChiclet : public LLIMChiclet
 public:
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
+		Optional<LLButton::Params> chiclet_button;
+
 		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
 
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
@@ -538,6 +544,8 @@ class LLAdHocChiclet : public LLIMChiclet
 public:
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
+		Optional<LLButton::Params> chiclet_button;
+
 		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
 
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
@@ -614,6 +622,8 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
+		Optional<LLButton::Params> chiclet_button;
+
 		Optional<LLIconCtrl::Params> icon;
 
 		Optional<LLIconCtrl::Params> new_message_icon;
@@ -631,11 +641,6 @@ public:
 	 * Toggle script floater
 	 */
 	/*virtual*/ void onMouseDown();
-
-	/**
-	 * Override default handler
-	 */
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 
@@ -656,6 +661,8 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
+		Optional<LLButton::Params> chiclet_button;
+
 		Optional<LLChicletInvOfferIconCtrl::Params> icon;
 
 		Optional<LLIconCtrl::Params> new_message_icon;
@@ -674,12 +681,6 @@ public:
 	 */
 	/*virtual*/ void onMouseDown();
 
-	/**
-	 * Override default handler
-	 */
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-
-
 protected:
 	LLInvOfferChiclet(const Params&);
 	friend class LLUICtrlFactory;
@@ -697,6 +698,8 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
+		Optional<LLButton::Params> chiclet_button;
+
 		Optional<LLChicletGroupIconCtrl::Params> group_icon;
 
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
@@ -1039,6 +1042,11 @@ public:
 	S32 getTotalUnreadIMCount();
 
 	S32	notifyParent(const LLSD& info);
+
+	/**
+	 * Toggle chiclet by session id ON and toggle OFF all other chiclets.
+	 */
+	void setChicletToggleState(const LLUUID& session_id, bool toggle);
 
 protected:
 	LLChicletPanel(const Params&p);

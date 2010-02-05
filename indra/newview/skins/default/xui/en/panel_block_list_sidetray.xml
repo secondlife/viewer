@@ -29,7 +29,7 @@
      text_color="white"
      top="5"
      width="250">
-        Blocked List
+        Block List
      </text>
     <scroll_list
      follows="all"

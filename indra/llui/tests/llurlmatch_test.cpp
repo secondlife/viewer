@@ -53,7 +53,7 @@ namespace tut
 		LLUrlMatch match;
 		ensure("empty()", match.empty());
 
-		match.setValues(0, 1, "http://secondlife.com", "Second Life", "", "", LLUIColor(), "", "");
+		match.setValues(0, 1, "http://secondlife.com", "Second Life", "", "", LLUIColor(), "", "", false);
 		ensure("! empty()", ! match.empty());
 	}
 
@@ -66,7 +66,7 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getStart() == 0", match.getStart(), 0);
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getStart() == 10", match.getStart(), 10);
 	}
 
@@ -79,7 +79,7 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getEnd() == 0", match.getEnd(), 0);
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getEnd() == 20", match.getEnd(), 20);
 	}
 
@@ -92,10 +92,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getUrl() == ''", match.getUrl(), "");
 
-		match.setValues(10, 20, "http://slurl.com/", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "http://slurl.com/", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getUrl() == 'http://slurl.com/'", match.getUrl(), "http://slurl.com/");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getUrl() == '' (2)", match.getUrl(), "");
 	}
 
@@ -108,10 +108,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getLabel() == ''", match.getLabel(), "");
 
-		match.setValues(10, 20, "", "Label", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "Label", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getLabel() == 'Label'", match.getLabel(), "Label");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getLabel() == '' (2)", match.getLabel(), "");
 	}
 
@@ -124,10 +124,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getTooltip() == ''", match.getTooltip(), "");
 
-		match.setValues(10, 20, "", "", "Info", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "Info", "", LLUIColor(), "", "", false);
 		ensure_equals("getTooltip() == 'Info'", match.getTooltip(), "Info");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getTooltip() == '' (2)", match.getTooltip(), "");
 	}
 
@@ -140,10 +140,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getIcon() == ''", match.getIcon(), "");
 
-		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "", "", false);
 		ensure_equals("getIcon() == 'Icon'", match.getIcon(), "Icon");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure_equals("getIcon() == '' (2)", match.getIcon(), "");
 	}
 
@@ -156,10 +156,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure("getMenuName() empty", match.getMenuName().empty());
 
-		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "");
+		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "", false);
 		ensure_equals("getMenuName() == \"xui_file.xml\"", match.getMenuName(), "xui_file.xml");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure("getMenuName() empty (2)", match.getMenuName().empty());
 	}
 
@@ -172,10 +172,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure("getLocation() empty", match.getLocation().empty());
 
-		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "Paris");
+		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "Paris", false);
 		ensure_equals("getLocation() == \"Paris\"", match.getLocation(), "Paris");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "");
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
 		ensure("getLocation() empty (2)", match.getLocation().empty());
 	}
 }

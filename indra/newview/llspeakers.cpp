@@ -44,7 +44,6 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 
-const F32 SPEAKER_TIMEOUT = 10.f; // seconds of not being on voice channel before removed from list of active speakers
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
 const LLColor4 ACTIVE_COLOR(0.5f, 0.5f, 0.5f, 1.f);
 
@@ -71,10 +70,6 @@ LLSpeaker::LLSpeaker(const LLUUID& id, const std::string& name, const ESpeakerTy
 	{
 		mDisplayName = name;
 	}
-
-	gVoiceClient->setUserVolume(id, LLMuteList::getInstance()->getSavedResidentVolume(id));
-
-	mActivityTimer.resetWithExpiry(SPEAKER_TIMEOUT);
 }
 
 
@@ -164,6 +159,89 @@ bool LLSortRecentSpeakers::operator()(const LLPointer<LLSpeaker> lhs, const LLPo
 	return(	lhs->mDisplayName.compare(rhs->mDisplayName) < 0 );
 }
 
+LLSpeakerActionTimer::LLSpeakerActionTimer(action_callback_t action_cb, F32 action_period, const LLUUID& speaker_id)
+: LLEventTimer(action_period)
+, mActionCallback(action_cb)
+, mSpeakerId(speaker_id)
+{
+}
+
+BOOL LLSpeakerActionTimer::tick()
+{
+	if (mActionCallback)
+	{
+		return (BOOL)mActionCallback(mSpeakerId);
+	}
+	return TRUE;
+}
+
+LLSpeakersDelayActionsStorage::LLSpeakersDelayActionsStorage(LLSpeakerActionTimer::action_callback_t action_cb, F32 action_delay)
+: mActionCallback(action_cb)
+, mActionDelay(action_delay)
+{
+}
+
+LLSpeakersDelayActionsStorage::~LLSpeakersDelayActionsStorage()
+{
+	removeAllTimers();
+}
+
+void LLSpeakersDelayActionsStorage::setActionTimer(const LLUUID& speaker_id)
+{
+	bool not_found = true;
+	if (mActionTimersMap.size() > 0)
+	{
+		not_found = mActionTimersMap.find(speaker_id) == mActionTimersMap.end();
+	}
+
+	// If there is already a started timer for the passed UUID don't do anything.
+	if (not_found)
+	{
+		// Starting a timer to remove an participant after delay is completed
+		mActionTimersMap.insert(LLSpeakerActionTimer::action_value_t(speaker_id,
+			new LLSpeakerActionTimer(
+				boost::bind(&LLSpeakersDelayActionsStorage::onTimerActionCallback, this, _1),
+				mActionDelay, speaker_id)));
+	}
+}
+
+void LLSpeakersDelayActionsStorage::unsetActionTimer(const LLUUID& speaker_id)
+{
+	if (mActionTimersMap.size() == 0) return;
+
+	LLSpeakerActionTimer::action_timer_iter_t it_speaker = mActionTimersMap.find(speaker_id);
+
+	if (it_speaker != mActionTimersMap.end())
+	{
+		delete it_speaker->second;
+		mActionTimersMap.erase(it_speaker);
+	}
+}
+
+void LLSpeakersDelayActionsStorage::removeAllTimers()
+{
+	LLSpeakerActionTimer::action_timer_iter_t iter = mActionTimersMap.begin();
+	for (; iter != mActionTimersMap.end(); ++iter)
+	{
+		delete iter->second;
+	}
+	mActionTimersMap.clear();
+}
+
+bool LLSpeakersDelayActionsStorage::onTimerActionCallback(const LLUUID& speaker_id)
+{
+	unsetActionTimer(speaker_id);
+
+	if (mActionCallback)
+	{
+		mActionCallback(speaker_id);
+	}
+
+	// do not return true to avoid deleting of an timer twice:
+	// in LLSpeakersDelayActionsStorage::unsetActionTimer() & LLEventTimer::updateClass()
+	return false;
+}
+
 
 //
 // LLSpeakerMgr
@@ -172,10 +250,14 @@ bool LLSortRecentSpeakers::operator()(const LLPointer<LLSpeaker> lhs, const LLPo
 LLSpeakerMgr::LLSpeakerMgr(LLVoiceChannel* channelp) : 
 	mVoiceChannel(channelp)
 {
+	static LLUICachedControl<F32> remove_delay ("SpeakerParticipantRemoveDelay", 10.0);
+
+	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLSpeakerMgr::removeSpeaker, this, _1), remove_delay);
 }
 
 LLSpeakerMgr::~LLSpeakerMgr()
 {
+	delete mSpeakerDelayRemover;
 }
 
 LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::string& name, LLSpeaker::ESpeakerStatus status, LLSpeaker::ESpeakerType type)
@@ -198,7 +280,6 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 		{
 			// keep highest priority status (lowest value) instead of overriding current value
 			speakerp->mStatus = llmin(speakerp->mStatus, status);
-			speakerp->mActivityTimer.resetWithExpiry(SPEAKER_TIMEOUT);
 			// RN: due to a weird behavior where IMs from attached objects come from the wearer's agent_id
 			// we need to override speakers that we think are objects when we find out they are really
 			// residents
@@ -209,6 +290,8 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 			}
 		}
 	}
+
+	mSpeakerDelayRemover->unsetActionTimer(speakerp->mID);
 
 	return speakerp;
 }
@@ -314,7 +397,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 	S32 sort_index = 0;
 	speaker_list_t::iterator sorted_speaker_it;
 	for(sorted_speaker_it = mSpeakersSorted.begin(); 
-		sorted_speaker_it != mSpeakersSorted.end(); )
+		sorted_speaker_it != mSpeakersSorted.end(); ++sorted_speaker_it)
 	{
 		LLPointer<LLSpeaker> speakerp = *sorted_speaker_it;
 		
@@ -327,19 +410,6 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 		// stuff sort ordinal into speaker so the ui can sort by this value
 		speakerp->mSortIndex = sort_index++;
-
-		// remove speakers that have been gone too long
-		if (speakerp->mStatus == LLSpeaker::STATUS_NOT_IN_CHANNEL && speakerp->mActivityTimer.hasExpired())
-		{
-			fireEvent(new LLSpeakerListChangeEvent(this, speakerp->mID), "remove");
-
-			mSpeakers.erase(speakerp->mID);
-			sorted_speaker_it = mSpeakersSorted.erase(sorted_speaker_it);
-		}
-		else
-		{
-			++sorted_speaker_it;
-		}
 	}
 }
 
@@ -361,6 +431,35 @@ void LLSpeakerMgr::updateSpeakerList()
 			}
 		}
 	}
+}
+
+void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
+{
+	speakerp->mStatus = LLSpeaker::STATUS_NOT_IN_CHANNEL;
+	speakerp->mDotColor = INACTIVE_COLOR;
+	mSpeakerDelayRemover->setActionTimer(speakerp->mID);
+}
+
+bool LLSpeakerMgr::removeSpeaker(const LLUUID& speaker_id)
+{
+	mSpeakers.erase(speaker_id);
+
+	speaker_list_t::iterator sorted_speaker_it = mSpeakersSorted.begin();
+	
+	for(; sorted_speaker_it != mSpeakersSorted.end(); ++sorted_speaker_it)
+	{
+		if (speaker_id == (*sorted_speaker_it)->mID)
+		{
+			mSpeakersSorted.erase(sorted_speaker_it);
+			break;
+		}
+	}
+
+	fireEvent(new LLSpeakerListChangeEvent(this, speaker_id), "remove");
+
+	update(TRUE);
+
+	return false;
 }
 
 LLPointer<LLSpeaker> LLSpeakerMgr::findSpeaker(const LLUUID& speaker_id)
@@ -511,9 +610,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			{
 				if (agent_data["transition"].asString() == "LEAVE" && speakerp.notNull())
 				{
-					speakerp->mStatus = LLSpeaker::STATUS_NOT_IN_CHANNEL;
-					speakerp->mDotColor = INACTIVE_COLOR;
-					speakerp->mActivityTimer.resetWithExpiry(SPEAKER_TIMEOUT);
+					setSpeakerNotInChannel(speakerp);
 				}
 				else if (agent_data["transition"].asString() == "ENTER")
 				{
@@ -563,9 +660,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			std::string agent_transition = update_it->second.asString();
 			if (agent_transition == "LEAVE" && speakerp.notNull())
 			{
-				speakerp->mStatus = LLSpeaker::STATUS_NOT_IN_CHANNEL;
-				speakerp->mDotColor = INACTIVE_COLOR;
-				speakerp->mActivityTimer.resetWithExpiry(SPEAKER_TIMEOUT);
+				setSpeakerNotInChannel(speakerp);
 			}
 			else if ( agent_transition == "ENTER")
 			{
@@ -734,12 +829,13 @@ void LLActiveSpeakerMgr::updateSpeakerList()
 	mVoiceChannel = LLVoiceChannel::getCurrentVoiceChannel();
 
 	// always populate from active voice channel
-	if (LLVoiceChannel::getCurrentVoiceChannel() != mVoiceChannel)
+	if (LLVoiceChannel::getCurrentVoiceChannel() != mVoiceChannel) //MA: seems this is always false
 	{
 		fireEvent(new LLSpeakerListChangeEvent(this, LLUUID::null), "clear");
 		mSpeakers.clear();
 		mSpeakersSorted.clear();
 		mVoiceChannel = LLVoiceChannel::getCurrentVoiceChannel();
+		mSpeakerDelayRemover->removeAllTimers();
 	}
 	LLSpeakerMgr::updateSpeakerList();
 
@@ -800,9 +896,7 @@ void LLLocalSpeakerMgr::updateSpeakerList()
 			LLVOAvatar* avatarp = (LLVOAvatar*)gObjectList.findObject(speaker_id);
 			if (!avatarp || dist_vec(avatarp->getPositionAgent(), gAgent.getPositionAgent()) > CHAT_NORMAL_RADIUS)
 			{
-				speakerp->mStatus = LLSpeaker::STATUS_NOT_IN_CHANNEL;
-				speakerp->mDotColor = INACTIVE_COLOR;
-				speakerp->mActivityTimer.resetWithExpiry(SPEAKER_TIMEOUT);
+				setSpeakerNotInChannel(speakerp);
 			}
 		}
 	}

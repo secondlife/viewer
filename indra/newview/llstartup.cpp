@@ -101,7 +101,6 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 //#include "llfirstuse.h"
-#include "llfloaterchat.h"
 #include "llfloaterhud.h"
 #include "llfloaterland.h"
 #include "llfloaterpreference.h"
@@ -307,59 +306,6 @@ void update_texture_fetch()
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 	gTextureList.updateImages(0.10f);
 }
-
-//Copies landmarks from the "Library" to "My Favorites"
-void populate_favorites_bar()
-{
-	//*TODO consider extending LLInventoryModel::findCategoryUUIDForType(...) to support both root's
-	LLInventoryModel::cat_array_t* lib_cats = NULL;
-	LLInventoryModel::item_array_t* lib_items = NULL;
-	gInventory.getDirectDescendentsOf(gInventory.getLibraryRootFolderID(), lib_cats, lib_items);
-	if (!lib_cats) return;
-
-	LLUUID lib_landmarks(LLUUID::null);
-	S32 count = lib_cats->count();
-	for(S32 i = 0; i < count; ++i)
-	{
-		if(lib_cats->get(i)->getPreferredType() == LLFolderType::FT_LANDMARK)
-		{
-			lib_landmarks = lib_cats->get(i)->getUUID();
-			break;
-		}
-	}
-	if (lib_landmarks.isNull())
-	{
-		llerror("Library inventory is missing Landmarks", 0);
-		return;
-	}
-
-	LLInventoryModel::cat_array_t* lm_cats = NULL;
-	LLInventoryModel::item_array_t* lm_items = NULL;
-	gInventory.getDirectDescendentsOf(lib_landmarks, lm_cats, lm_items);
-	if (!lm_items) return;
-
-	const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	if (favorites_id.isNull())
-	{
-		llerror("My Inventory is missing My Favorites", 0);
-		return;
-	}
-
-	S32 lm_count = lm_items->count();
-	for (S32 i = 0; i < lm_count; ++i)
-	{
-		LLInventoryItem* item = lm_items->get(i);
-		if (item->getUUID().isNull()) continue;
-
-		copy_inventory_item(gAgent.getID(),
-			item->getPermissions().getOwner(),
-			item->getUUID(),
-			favorites_id,
-			std::string(),
-			LLPointer<LLInventoryCallback>(NULL));
-	}
-}
-
 
 // Returns false to skip other idle processing. Should only return
 // true when all initialization done.
@@ -920,9 +866,9 @@ bool idle_startup()
 		// create necessary directories
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(gFirstname, gLastname);
-    	LLFile::mkdir(gDirUtilp->getLindenUserDir());
-
-        // Set PerAccountSettingsFile to the default value.
+		LLFile::mkdir(gDirUtilp->getLindenUserDir());
+		
+		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
 				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")));
@@ -958,13 +904,6 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		// chat history must be loaded AFTER chat directories are defined.
-		if (!gNoRender && gSavedPerAccountSettings.getBOOL("LogShowHistory"))
-		{
-			LLFloaterChat::loadHistory();
-		}
-		
-		
 		//good as place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
 		LLFile::mkdir(user_windlight_path_name.c_str());		
@@ -1712,12 +1651,6 @@ bool idle_startup()
 		// Create the inventory views
 		llinfos << "Creating Inventory Views" << llendl;
 		LLFloaterReg::getInstance("inventory");
-
-		//default initial content for Favorites Bar 
-		if (gAgent.isFirstLogin())
-		{
-			populate_favorites_bar();
-		}
 
 		LLStartUp::setStartupState( STATE_MISC );
 		return FALSE;

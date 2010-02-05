@@ -163,7 +163,6 @@
 #include "llvotree.h"
 #include "llvoavatar.h"
 #include "llfolderview.h"
-#include "lltoolbar.h"
 #include "llagentpilot.h"
 #include "llvovolume.h"
 #include "llflexibleobject.h" 
@@ -414,7 +413,6 @@ static void settings_to_globals()
 	LLVOAvatar::sVisibleInFirstPerson	= gSavedSettings.getBOOL("FirstPersonAvatarVisible");
 	// clamp auto-open time to some minimum usable value
 	LLFolderView::sAutoOpenTime			= llmax(0.25f, gSavedSettings.getF32("FolderAutoOpenDelay"));
-	LLToolBar::sInventoryAutoOpenTime	= gSavedSettings.getF32("InventoryAutoOpenDelay");
 	LLSelectMgr::sRectSelectInclusive	= gSavedSettings.getBOOL("RectangleSelectInclusive");
 	LLSelectMgr::sRenderHiddenSelections = gSavedSettings.getBOOL("RenderHiddenSelections");
 	LLSelectMgr::sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
@@ -926,7 +924,6 @@ bool LLAppViewer::mainLoop()
 {
 	LLMemType mt1(LLMemType::MTYPE_MAIN);
 	mMainloopTimeout = new LLWatchdogTimeout();
-	// *FIX:Mani - Make this a setting, once new settings exist in this branch.
 	
 	//-------------------------------------------
 	// Run main loop until time to quit
@@ -936,12 +933,13 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
+	LLCurl::setSSLVerify(! gSavedSettings.getBOOL("NoVerifySSLCert"));
 	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
 	LLVoiceClient::init(gServicePump);
-				
+
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
@@ -1376,7 +1374,7 @@ bool LLAppViewer::cleanup()
 	if( gViewerWindow)
 		gViewerWindow->shutdownViews();
 
-	llinfos << "Cleaning up Inevntory" << llendflush;
+	llinfos << "Cleaning up Inventory" << llendflush;
 	
 	// Cleanup Inventory after the UI since it will delete any remaining observers
 	// (Deleted observers should have already removed themselves)
@@ -1478,10 +1476,17 @@ bool LLAppViewer::cleanup()
 	
 	LLUIColorTable::instance().saveUserSettings();
 
-	// PerAccountSettingsFile should be empty if no use has been logged on.
+	// PerAccountSettingsFile should be empty if no user has been logged on.
 	// *FIX:Mani This should get really saved in a "logoff" mode. 
-	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
-	llinfos << "Saved settings" << llendflush;
+	if (gSavedSettings.getString("PerAccountSettingsFile").empty())
+	{
+		llinfos << "Not saving per-account settings; don't know the account name yet." << llendl;
+	}
+	else
+	{
+		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
+		llinfos << "Saved settings" << llendflush;
+	}
 
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	// save all settings, even if equals defaults
@@ -2678,7 +2683,7 @@ void LLAppViewer::handleViewerCrash()
 		gMessageSystem->stopLogging();
 	}
 
-	LLWorld::getInstance()->getInfo(gDebugInfo);
+	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo);
 
 	// Close the debug file
 	pApp->writeDebugInfo();
@@ -2886,7 +2891,14 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	LLNotificationsUtil::add("ConfirmQuit");
+	if (gDisconnected)
+	{
+		requestQuit();
+	}
+	else
+	{
+		LLNotificationsUtil::add("ConfirmQuit");
+	}
 }
 
 static bool finish_early_exit(const LLSD& notification, const LLSD& response)
@@ -4398,3 +4410,15 @@ void LLAppViewer::launchUpdater()
 	// LLAppViewer::instance()->forceQuit();
 }
 
+
+//virtual
+void LLAppViewer::setMasterSystemAudioMute(bool mute)
+{
+	gSavedSettings.setBOOL("MuteAudio", mute);
+}
+
+//virtual
+bool LLAppViewer::getMasterSystemAudioMute()
+{
+	return gSavedSettings.getBOOL("MuteAudio");
+}

@@ -47,7 +47,6 @@ protected:
 	LLPointer<LLViewerTexture> mWaterImagep;
 	LLPointer<LLViewerTexture> mWaterNormp;
 
-	const LLWaterSurface *mWaterSurface;
 public:
 	static BOOL sSkipScreenCopy;
 	static BOOL sNeedsReflectionUpdate;

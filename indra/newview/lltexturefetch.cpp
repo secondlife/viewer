@@ -495,8 +495,8 @@ void LLTextureFetchWorker::setupPacketData()
 U32 LLTextureFetchWorker::calcWorkPriority()
 {
 // 	llassert_always(mImagePriority >= 0 && mImagePriority <= LLViewerTexture::maxDecodePriority());
-	F32 priority_scale = (F32)LLWorkerThread::PRIORITY_LOWBITS / LLViewerFetchedTexture::maxDecodePriority();
-	mWorkPriority = (U32)(mImagePriority * priority_scale);
+	static F32 PRIORITY_SCALE = (F32)LLWorkerThread::PRIORITY_LOWBITS / LLViewerFetchedTexture::maxDecodePriority();
+	mWorkPriority = (U32)(mImagePriority * PRIORITY_SCALE);
 	return mWorkPriority;
 }
 
@@ -574,7 +574,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 {
 	LLMutexLock lock(&mWorkMutex);
 
-	if ((mFetcher->isQuitting() || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
+	if ((mFetcher->isQuitting() || mImagePriority < 1.0f || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
 	{
 		if (mState < WRITE_TO_CACHE)
 		{
@@ -661,6 +661,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = SEND_HTTP_REQ;
+				delete responder;
+				responder = NULL;
 			}
 		}
 

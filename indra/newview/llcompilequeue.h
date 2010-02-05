@@ -104,10 +104,10 @@ protected:
 	// Object Queue
 	LLDynamicArray<LLUUID> mObjectIDs;
 	LLUUID mCurrentObjectID;
-	BOOL mDone;
+	bool mDone;
 
 	std::string mStartString;
-	BOOL mMono;
+	bool mMono;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -59,7 +59,6 @@
 
 #include "llbutton.h"
 #include "lldir.h"
-#include "llfloaterchat.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
@@ -93,7 +92,8 @@ struct LLScriptQueueData
 // Default constructor
 LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
 	LLFloater(key),
-	mDone(FALSE)
+	mDone(false),
+	mMono(false)
 {
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_queue.xml", FALSE);
 }
@@ -217,7 +217,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 	} while((mObjectIDs.count() > 0) && !successful_start);
 	if(isDone() && !mDone)
 	{
-		mDone = TRUE;
+		mDone = true;
 		getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("Done"));
 		childSetEnabled("close",TRUE);
 	}
@@ -447,14 +447,18 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
-			LLChat chat(LLTrans::getString("CompileQueueScriptNotFound"));
-			LLFloaterChat::addChat(chat);
+			LLSD args;
+			args["MESSAGE"] = LLTrans::getString("CompileQueueScriptNotFound");
+			LLNotificationsUtil::add("SystemMessage", args);
+			
 			buffer = LLTrans::getString("CompileQueueProblemDownloading") + (": ") + data->mScriptName;
 		}
 		else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 		{
-			LLChat chat(LLTrans::getString("CompileQueueInsufficientPermDownload"));
-			LLFloaterChat::addChat(chat);
+			LLSD args;
+			args["MESSAGE"] = LLTrans::getString("CompileQueueInsufficientPermDownload");
+			LLNotificationsUtil::add("SystemMessage", args);
+
 			buffer = LLTrans::getString("CompileQueueInsufficientPermFor") + (": ") + data->mScriptName;
 		}
 		else

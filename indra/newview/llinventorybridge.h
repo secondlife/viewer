@@ -320,8 +320,12 @@ public:
 	LLViewerInventoryCategory* getCategory() const;
 
 protected:
-	LLFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-		LLInvFVBridge(inventory, uuid), mCallingCards(FALSE), mWearables(FALSE) {}
+	LLFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid)
+		: LLInvFVBridge(inventory, uuid),
+
+		mCallingCards(FALSE),
+		mWearables(FALSE),
+		mMenu(NULL) {}
 
 	// menu callbacks
 	static void pasteClipboard(void* user_data);
@@ -448,7 +452,6 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data);
 	void refreshFolderViewItem();
-	BOOL removeItem();
 
 protected:
 	LLCallingCardBridge( LLInventoryPanel* inventory, const LLUUID& uuid );

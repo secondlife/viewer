@@ -165,6 +165,8 @@ BOOL LLPanelAvatarNotes::postBuild()
 	resetControls();
 	resetData();
 
+	gVoiceClient->addObserver((LLVoiceClientStatusObserver*)this);
+
 	return TRUE;
 }
 
@@ -337,6 +339,8 @@ LLPanelAvatarNotes::~LLPanelAvatarNotes()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+		if(LLVoiceClient::getInstance())
+			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
 	}
 }
 
@@ -344,6 +348,17 @@ LLPanelAvatarNotes::~LLPanelAvatarNotes()
 void LLPanelAvatarNotes::changed(U32 mask)
 {
 	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+}
+
+// virtual
+void LLPanelAvatarNotes::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+
+	childSetEnabled("call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelAvatarNotes::setAvatarId(const LLUUID& id)
@@ -437,7 +452,6 @@ void LLPanelProfileTab::updateButtons()
 
 	bool enable_map_btn = is_avatar_online && gAgent.isGodlike() || is_agent_mappable(getAvatarId());
 	childSetEnabled("show_on_map_btn", enable_map_btn);
-	childSetEnabled("call", LLAvatarActions::canCall(getAvatarId()));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -484,6 +498,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	pic = getChild<LLTextureCtrl>("real_world_pic");
 	pic->setFallbackImageName("default_profile_picture.j2c");
+
+	gVoiceClient->addObserver((LLVoiceClientStatusObserver*)this);
 
 	resetControls();
 	resetData();
@@ -568,8 +584,6 @@ void LLPanelAvatarProfile::processProfileProperties(const LLAvatarData* avatar_d
 
 	fillPartnerData(avatar_data);
 
-	fillOnlineStatus(avatar_data);
-
 	fillAccountStatus(avatar_data);
 }
 
@@ -621,6 +635,9 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 	childSetValue("2nd_life_pic", avatar_data->image_id);
 	childSetValue("real_world_pic", avatar_data->fl_image_id);
 	childSetValue("homepage_edit", avatar_data->profile_url);
+
+	// Hide home page textbox if no page was set to fix "homepage URL appears clickable without URL - EXT-4734"
+	childSetVisible("homepage_edit", !avatar_data->profile_url.empty());
 }
 
 void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
@@ -635,21 +652,6 @@ void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
 		name_box->setNameID(LLUUID::null, FALSE);
 		name_box->setText(getString("no_partner_text"));
 	}
-}
-
-void LLPanelAvatarProfile::fillOnlineStatus(const LLAvatarData* avatar_data)
-{
-	bool online = avatar_data->flags & AVATAR_ONLINE;
-	if(LLAvatarActions::isFriend(avatar_data->avatar_id))
-	{
-		// Online status NO could be because they are hidden
-		// If they are a friend, we may know the truth!
-		online = LLAvatarTracker::instance().isBuddyOnline(avatar_data->avatar_id);
-	}
-	childSetValue("online_status", online ?
-		"Online" : "Offline");
-	childSetColor("online_status", online ? 
-		LLColor4::green : LLColor4::red);
 }
 
 void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
@@ -757,6 +759,8 @@ LLPanelAvatarProfile::~LLPanelAvatarProfile()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
+		if(LLVoiceClient::getInstance())
+			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
 	}
 }
 
@@ -764,6 +768,17 @@ LLPanelAvatarProfile::~LLPanelAvatarProfile()
 void LLPanelAvatarProfile::changed(U32 mask)
 {
 	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+}
+
+// virtual
+void LLPanelAvatarProfile::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+
+	childSetEnabled("call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelAvatarProfile::setAvatarId(const LLUUID& id)

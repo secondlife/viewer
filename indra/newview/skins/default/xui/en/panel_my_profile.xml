@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="535"
+ height="500"
  label="Profile"
  layout="topleft"
  left="0"
@@ -41,7 +41,7 @@
      layout="topleft"
      left="0"
      top="0"
-     height="535"
+     height="480"
      width="313"
      border_size="0">
       <layout_panel
@@ -50,7 +50,8 @@
          layout="topleft"
          top="0"
          left="0"
-         height="505"
+         height="480"
+         user_resize="false"
          width="313">
         <scroll_container
          color="DkGray2"
@@ -59,7 +60,7 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="505"
+         height="480"
          width="313"
          top="0">
           <panel
@@ -267,6 +268,7 @@
               <name_box
                follows="left|top"
                height="10"
+               initial_value="(retrieving)"
                layout="topleft"
                left="0"
                link="true"
@@ -364,6 +366,7 @@
      top_pad="0"
      name="profile_me_buttons_panel"
      visible="false"
+     user_resize="false" 
      auto_resize="false" 
      height="28"
      width="313">
@@ -371,8 +374,9 @@
          follows="bottom|right"
          height="23"
          left="20"
-	 top="0"
+	 top="5"
          label="Edit Profile"
+         layout="topleft"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
          width="130" />
@@ -381,7 +385,9 @@
          height="23"
          label="Edit Appearance"
          left_pad="10"
+         layout="topleft"
          name="edit_appearance_btn"
+         top="5"
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
          width="130" />
  </layout_panel>

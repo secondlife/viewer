@@ -142,6 +142,7 @@ LLScrollListCtrl::Params::Params()
 	contents(""),
 	scroll_bar_bg_visible("scroll_bar_bg_visible"),
 	scroll_bar_bg_color("scroll_bar_bg_color")
+	, border("border")
 {
 	name = "scroll_list";
 	mouse_opaque = true;
@@ -231,10 +232,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	if (p.has_border)
 	{
 		LLRect border_rect = getLocalRect();
-		LLViewBorder::Params params;
-		params.name("dig border");
+		LLViewBorder::Params params = p.border;
 		params.rect(border_rect);
-		params.bevel_style(LLViewBorder::BEVEL_IN);
 		mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 		addChild(mBorder);
 	}
@@ -499,7 +498,7 @@ void LLScrollListCtrl::fitContents(S32 max_width, S32 max_height)
 {
 	S32 height = llmin( getRequiredRect().getHeight(), max_height );
 	if(mPageLines)
-		height = llmin( mPageLines * mLineHeight + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
+		height = llmin( mPageLines * mLineHeight + 2*mBorderThickness + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
 
 	S32 width = getRect().getWidth();
 
@@ -1535,7 +1534,7 @@ LLRect LLScrollListCtrl::getCellRect(S32 row_index, S32 column_index)
 	S32 rect_bottom = getRowOffsetFromIndex(row_index);
 	LLScrollListColumn* columnp = getColumn(column_index);
 	cell_rect.setOriginAndSize(rect_left, rect_bottom,
-		rect_left + columnp->getWidth(), mLineHeight);
+		/*rect_left + */columnp->getWidth(), mLineHeight);
 	return cell_rect;
 }
 
@@ -2761,9 +2760,13 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition
 
 LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
-	if (!item_p.validateBlock()) return NULL;
-
 	LLScrollListItem *new_item = new LLScrollListItem(item_p);
+	return addRow(new_item, item_p, pos);
+}
+
+LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& item_p, EAddPosition pos)
+{
+	if (!item_p.validateBlock() || !new_item) return NULL;
 	new_item->setNumColumns(mColumns.size());
 
 	// Add any columns we don't already have

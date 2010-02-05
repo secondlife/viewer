@@ -53,7 +53,7 @@
      label_shadow="false"
      name="buycurrency"
      tool_tip="My Balance"
-     top="5"
+     top="3"
      width="100" />
     <button
      auto_resize="true"
@@ -71,7 +71,7 @@
      name="buyL"
      pad_right="20px"
      tool_tip="Click to buy more L$"
-     top="5"
+     top="2"
      width="100" />
     <text
      type="string"
@@ -80,7 +80,7 @@
      follows="right|bottom"
      halign="right"
      height="16"
-     top="7"
+     top="5"
      layout="topleft"
      left_pad="0"
      name="TimeText"
@@ -96,7 +96,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      left_pad="18"
-     top="4"
+     top="2"
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />

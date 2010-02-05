@@ -682,6 +682,14 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 	mFolders->setSelectionByID(obj_id, take_keyboard_focus);
 }
 
+void LLInventoryPanel::setSelectCallback(const LLFolderView::signal_t::slot_type& cb) 
+{ 
+	if (mFolders) 
+	{
+		mFolders->setSelectCallback(cb);
+	}
+}
+
 void LLInventoryPanel::clearSelection()
 {
 	mFolders->clearSelection();
@@ -751,7 +759,9 @@ bool LLInventoryPanel::beginIMSession()
 				S32 count = item_array.count();
 				if(count > 0)
 				{
-					LLFloaterReg::showInstance("communicate");
+					//*TODO by what to replace that?
+					//LLFloaterReg::showInstance("communicate");
+
 					// create the session
 					LLAvatarTracker& at = LLAvatarTracker::instance();
 					LLUUID id;

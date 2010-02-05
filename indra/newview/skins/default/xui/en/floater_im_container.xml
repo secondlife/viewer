@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <multi_floater
- can_minimize="false"
+ can_close="false"  
+ can_minimize="true"
  can_resize="true"
  height="390"
  layout="topleft"

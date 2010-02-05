@@ -78,7 +78,7 @@
 ///----------------------------------------------------------------------------
 
 const S32 RENAME_WIDTH_PAD = 4;
-const S32 RENAME_HEIGHT_PAD = 2;
+const S32 RENAME_HEIGHT_PAD = 1;
 const S32 AUTO_OPEN_STACK_DEPTH = 16;
 const S32 MIN_ITEM_WIDTH_VISIBLE = LLFolderViewItem::ICON_WIDTH
 			+ LLFolderViewItem::ICON_PAD 
@@ -1391,6 +1391,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
 		mRenamer->setTopLostCallback(boost::bind(onRenamerLost, _1));
+		mRenamer->setFocusLostCallback(boost::bind(onRenamerLost, _1));
 		gFocusMgr.setTopCtrl( mRenamer );
 	}
 }
@@ -1507,9 +1508,25 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 				{
 					if (next == last_selected)
 					{
+						//special case for LLAccordionCtrl
+						if(notifyParent(LLSD().with("action","select_next")) > 0 )//message was processed
+						{
+							clearSelection();
+							return TRUE;
+						}
 						return FALSE;
 					}
 					setSelection( next, FALSE, TRUE );
+				}
+				else
+				{
+					//special case for LLAccordionCtrl
+					if(notifyParent(LLSD().with("action","select_next")) > 0 )//message was processed
+					{
+						clearSelection();
+						return TRUE;
+					}
+					return FALSE;
 				}
 			}
 			scrollToShowSelection();
@@ -1555,6 +1572,13 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 				{
 					if (prev == this)
 					{
+						// If case we are in accordion tab notify parent to go to the previous accordion
+						if(notifyParent(LLSD().with("action","select_prev")) > 0 )//message was processed
+						{
+							clearSelection();
+							return TRUE;
+						}
+
 						return FALSE;
 					}
 					setSelection( prev, FALSE, TRUE );
@@ -1885,8 +1909,8 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
 		S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight()); 
-		// when navigating with keyboard, only move top of folders on screen, otherwise show whole folder
-		S32 max_height_to_show = mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
+		// when navigating with keyboard, only move top of opened folder on screen, otherwise show whole folder
+		S32 max_height_to_show = item->isOpen() && mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
 		
 		// get portion of item that we want to see...
 		LLRect item_local_rect = LLRect(item->getIndentation(), 
@@ -2221,10 +2245,9 @@ void LLFolderView::updateRenamerPosition()
 {
 	if(mRenameItem)
 	{
-		LLFontGL* font = getLabelFontForStyle(mLabelStyle);
-
-		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD - 1 + mRenameItem->getIndentation();
-		S32 y = llfloor(mRenameItem->getRect().getHeight() - font->getLineHeight()-2);
+		// See also LLFolderViewItem::draw()
+		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mRenameItem->getIndentation();
+		S32 y = mRenameItem->getRect().getHeight() - mRenameItem->getItemHeight() - RENAME_HEIGHT_PAD;
 		mRenameItem->localPointToScreen( x, y, &x, &y );
 		screenPointToLocal( x, y, &x, &y );
 		mRenamer->setOrigin( x, y );
@@ -2236,9 +2259,86 @@ void LLFolderView::updateRenamerPosition()
 		}
 
 		S32 width = llmax(llmin(mRenameItem->getRect().getWidth() - x, scroller_rect.getWidth() - x - getRect().mLeft), MINIMUM_RENAMER_WIDTH);
-		S32 height = llfloor(font->getLineHeight() + RENAME_HEIGHT_PAD);
+		S32 height = mRenameItem->getItemHeight() - RENAME_HEIGHT_PAD;
 		mRenamer->reshape( width, height, TRUE );
 	}
+}
+
+bool LLFolderView::selectFirstItem()
+{
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();)
+	{
+		LLFolderViewFolder* folder = (*iter );
+		if (folder->getVisible())
+		{
+			LLFolderViewItem* itemp = folder->getNextFromChild(0,true);
+			if(itemp)
+				setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+		
+	}
+	for(items_t::iterator iit = mItems.begin();
+		iit != mItems.end(); ++iit)
+	{
+		LLFolderViewItem* itemp = (*iit);
+		if (itemp->getVisible())
+		{
+			setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+	}
+	return false;
+}
+bool LLFolderView::selectLastItem()
+{
+	for(items_t::reverse_iterator iit = mItems.rbegin();
+		iit != mItems.rend(); ++iit)
+	{
+		LLFolderViewItem* itemp = (*iit);
+		if (itemp->getVisible())
+		{
+			setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+	}
+	for (folders_t::reverse_iterator iter = mFolders.rbegin();
+		 iter != mFolders.rend();)
+	{
+		LLFolderViewFolder* folder = (*iter);
+		if (folder->getVisible())
+		{
+			LLFolderViewItem* itemp = folder->getPreviousFromChild(0,true);
+			if(itemp)
+				setSelection(itemp,FALSE,TRUE);
+			return true;	
+		}
+	}
+	return false;
+}
+
+
+S32	LLFolderView::notify(const LLSD& info) 
+{
+	if(info.has("action"))
+	{
+		std::string str_action = info["action"];
+		if(str_action == "select_first")
+		{
+			setFocus(true);
+			selectFirstItem();
+			return 1;
+
+		}
+		else if(str_action == "select_last")
+		{
+			setFocus(true);
+			selectLastItem();
+			return 1;
+		}
+	}
+	return 0;
 }
 
 

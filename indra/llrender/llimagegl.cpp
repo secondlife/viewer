@@ -428,49 +428,58 @@ LLImageGL::~LLImageGL()
 
 void LLImageGL::init(BOOL usemipmaps)
 {
-#ifdef DEBUG_MISS
-	mMissed				= FALSE;
-#endif
+	// keep these members in the same order as declared in llimagehl.h
+	// so that it is obvious by visual inspection if we forgot to
+	// init a field.
 
-	mPickMask		  = NULL;
-	mTextureMemory    = 0;
-	mLastBindTime     = 0.f;
+	mTextureMemory = 0;
+	mLastBindTime = 0.f;
+
+	mPickMask = NULL;
+	mPickMaskWidth = 0;
+	mPickMaskHeight = 0;
+	mUseMipMaps = usemipmaps;
+	mHasExplicitFormat = FALSE;
+	mAutoGenMips = FALSE;
+
+	mIsMask = FALSE;
+	mNeedsAlphaAndPickMask = TRUE ;
+	mAlphaStride = 0 ;
+	mAlphaOffset = 0 ;
+
+	mGLTextureCreated = FALSE ;
+	mTexName = 0;
+	mWidth = 0;
+	mHeight	= 0;
+	mCurrentDiscardLevel = -1;	
+
+	mDiscardLevelInAtlas = -1 ;
+	mTexelsInAtlas = 0 ;
+	mTexelsInGLTexture = 0 ;
 	
-	mTarget			  = GL_TEXTURE_2D;
-	mBindTarget		  = LLTexUnit::TT_TEXTURE;
-	mUseMipMaps		  = usemipmaps;
-	mHasMipMaps		  = false;
-	mAutoGenMips	  = FALSE;
-	mTexName          = 0;
-	mIsResident       = 0;
+	mTarget = GL_TEXTURE_2D;
+	mBindTarget = LLTexUnit::TT_TEXTURE;
+	mHasMipMaps = false;
+
+	mIsResident = 0;
+
+	mComponents = 0;
+	mMaxDiscardLevel = MAX_DISCARD_LEVEL;
 
 	mTexOptionsDirty = true;
 	mAddressMode = LLTexUnit::TAM_WRAP;
 	mFilterOption = LLTexUnit::TFO_ANISOTROPIC;
-	mWidth				= 0;
-	mHeight				= 0;
-	mComponents			= 0;
-	
-	mMaxDiscardLevel = MAX_DISCARD_LEVEL;
-	mCurrentDiscardLevel = -1;	
 	
 	mFormatInternal = -1;
 	mFormatPrimary = (LLGLenum) 0;
 	mFormatType = GL_UNSIGNED_BYTE;
 	mFormatSwapBytes = FALSE;
-	mHasExplicitFormat = FALSE;
 
-	mGLTextureCreated = FALSE ;
+#ifdef DEBUG_MISS
+	mMissed	= FALSE;
+#endif
 
-	mIsMask = FALSE;
-	mCategory = -1 ;
-	mAlphaStride = 0 ;
-	mAlphaOffset = 0 ;
-	mNeedsAlphaAndPickMask = TRUE ;
-
-	mDiscardLevelInAtlas = -1 ;
-	mTexelsInAtlas = 0 ;
-	mTexelsInGLTexture = 0 ;
+	mCategory = -1;
 }
 
 void LLImageGL::cleanup()
@@ -520,7 +529,12 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents)
 // 			llwarns << "Setting Size of LLImageGL with existing mTexName = " << mTexName << llendl;
 			destroyGLTexture();
 		}
-		
+
+		// pickmask validity depends on old image size, delete it
+		delete [] mPickMask;
+		mPickMask = NULL;
+		mPickMaskWidth = mPickMaskHeight = 0;
+
 		mWidth = width;
 		mHeight = height;
 		mComponents = ncomponents;
@@ -1668,12 +1682,14 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 		return ;
 	}
 
+	delete [] mPickMask;
+	mPickMask = NULL;
+	mPickMaskWidth = mPickMaskHeight = 0;
+
 	if (mFormatType != GL_UNSIGNED_BYTE ||
-		mFormatPrimary != GL_RGBA)
+	    mFormatPrimary != GL_RGBA)
 	{
 		//cannot generate a pick mask for this texture
-		delete [] mPickMask;
-		mPickMask = NULL;
 		return;
 	}
 
@@ -1681,11 +1697,10 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 	U32 pick_height = height/2;
 
 	U32 size = llmax(pick_width, (U32) 1) * llmax(pick_height, (U32) 1);
-
 	size = size/8 + 1;
-
-	delete[] mPickMask;
 	mPickMask = new U8[size];
+	mPickMaskWidth = pick_width;
+	mPickMaskHeight = pick_height;
 
 	memset(mPickMask, 0, sizeof(U8) * size);
 
@@ -1701,10 +1716,7 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 			{
 				U32 pick_idx = pick_bit/8;
 				U32 pick_offset = pick_bit%8;
-				if (pick_idx >= size)
-				{
-					llerrs << "WTF?" << llendl;
-				}
+				llassert(pick_idx < size);
 
 				mPickMask[pick_idx] |= 1 << pick_offset;
 			}
@@ -1720,22 +1732,34 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 	if (mPickMask)
 	{
-		S32 width = getWidth()/2;
-		S32 height = getHeight()/2;
-
 		F32 u = tc.mV[0] - floorf(tc.mV[0]);
 		F32 v = tc.mV[1] - floorf(tc.mV[1]);
 
-		if (u < 0.f || u > 1.f ||
-		    v < 0.f || v > 1.f)
+		if (LL_UNLIKELY(u < 0.f || u > 1.f ||
+				v < 0.f || v > 1.f))
 		{
-			llerrs << "WTF?" << llendl;
+			LL_WARNS_ONCE("render") << "Ugh, u/v out of range in image mask pick" << LL_ENDL;
+			u = v = 0.f;
+			llassert(false);
 		}
-		
-		S32 x = (S32)(u * width);
-		S32 y = (S32)(v * height);
 
-		S32 idx = y*width+x;
+		llassert(mPickMaskWidth > 0 && mPickMaskHeight > 0);
+		
+		S32 x = (S32)(u * mPickMaskWidth);
+		S32 y = (S32)(v * mPickMaskHeight);
+
+		if (LL_UNLIKELY(x >= mPickMaskWidth))
+		{
+			LL_WARNS_ONCE("render") << "Ooh, width overrun on pick mask read, that coulda been bad." << LL_ENDL;
+			x = llmax(0, mPickMaskWidth-1);
+		}
+		if (LL_UNLIKELY(y >= mPickMaskHeight))
+		{
+			LL_WARNS_ONCE("render") << "Ooh, height overrun on pick mask read, that woulda been bad." << LL_ENDL;
+			y = llmax(0, mPickMaskHeight-1);
+		}
+
+		S32 idx = y*mPickMaskWidth+x;
 		S32 offset = idx%8;
 
 		res = mPickMask[idx/8] & (1 << offset) ? TRUE : FALSE;

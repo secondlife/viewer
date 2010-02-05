@@ -567,6 +567,7 @@ LLTexLayerSet::LLTexLayerSet(LLVOAvatarSelf* const avatar) :
 	mAvatar( avatar ),
 	mUpdatesEnabled( FALSE ),
 	mIsVisible( TRUE ),
+	mBakedTexIndex(LLVOAvatarDefines::BAKED_HEAD),
 	mInfo( NULL )
 {
 }
@@ -1139,7 +1140,11 @@ LLTexLayerInterface::LLTexLayerInterface(const LLTexLayerInterface &layer, LLWea
 
 BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearable  ) // This sets mInfo and calls initialization functions
 {
-	llassert(mInfo == NULL);
+	//llassert(mInfo == NULL); // nyx says this is probably bogus but needs investigating
+        if (mInfo != NULL) // above llassert(), but softened into a warning
+        {
+                llwarns << "BAD STUFF!  mInfo != NULL" << llendl;
+        }
 	mInfo = info;
 	//mID = info->mID; // No ID
 
@@ -1856,7 +1861,7 @@ U32 LLTexLayerTemplate::updateWearableCache()
 }
 LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 {
-	if (mWearableCache.size() <= i || i < 0)
+	if (mWearableCache.size() <= i)
 	{
 		return NULL;
 	}

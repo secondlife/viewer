@@ -205,7 +205,9 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 
 struct LLOfferInfo
 {
-	LLOfferInfo() {};
+        LLOfferInfo()
+	:	mFromGroup(FALSE), mFromObject(FALSE),
+		mIM(IM_NOTHING_SPECIAL), mType(LLAssetType::AT_NONE) {};
 	LLOfferInfo(const LLSD& sd);
 
 	void forceResponse(InventoryOfferResponse response);

@@ -98,17 +98,17 @@ void LLPanelLandmarkInfo::resetLocation()
 {
 	LLPanelPlaceInfo::resetLocation();
 
-	std::string not_available = getString("not_available");
-	mCreator->setText(not_available);
-	mOwner->setText(not_available);
-	mCreated->setText(not_available);
+	std::string loading = LLTrans::getString("LoadingData");
+	mCreator->setText(loading);
+	mOwner->setText(loading);
+	mCreated->setText(loading);
 	mLandmarkTitle->setText(LLStringUtil::null);
 	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
 }
 
 // virtual
-void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
+void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 {
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
@@ -184,6 +184,13 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 		region_y = llround(mPosRegion.mV[VY]);
 		region_z = llround(mPosRegion.mV[VZ]);
 	}
+
+	LLSD info;
+	info["update_verbs"] = true;
+	info["global_x"] = parcel_data.global_x;
+	info["global_y"] = parcel_data.global_y;
+	info["global_z"] = parcel_data.global_z;
+	notifyParent(info);
 
 	if (mInfoType == CREATE_LANDMARK)
 	{
@@ -360,7 +367,6 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
-	LLViewerInventoryItem::insertDefaultSortField(name);
 
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc,

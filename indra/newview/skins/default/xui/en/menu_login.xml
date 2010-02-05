@@ -10,6 +10,7 @@
     <menu
      create_jump_keys="true"
      label="Me"
+     tear_off="true"
      name="File">
         <menu_item_call
          label="Preferences"
@@ -39,6 +40,7 @@
     <menu
      create_jump_keys="true"
      label="Help"
+     tear_off="true"
      name="Help">
         <menu_item_call
          label="[SECOND_LIFE] Help"

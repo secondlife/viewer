@@ -32,10 +32,10 @@
 			<button name="No" text="$notext"/>
 		</form>
 	</template>
-	<notification functor="GenericAcknowledge" label="不明な警告メッセージ" name="MissingAlert">
-		あなたの [APP_NAME] のバージョンでは今受け取った警告メッセージを表示することができません。  最新ビューワがインストールされているかご確認ください。
+	<notification functor="GenericAcknowledge" label="不明の通知メッセージ" name="MissingAlert">
+		あなたの [APP_NAME] のバージョンでは今受け取った通知メッセージを表示することができません。  最新ビューワがインストールされているかご確認ください。
 
-エラー詳細： 「[_NAME]」という警告は notifications.xml にありませんでした。
+エラー詳細： 「[_NAME]」という通知は notifications.xml にありませんでした。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="FloaterNotFound">
@@ -93,15 +93,13 @@
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="保存しない" yestext="すべて保存"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		他の住人に変更権限を与えると、その人はあなたが所有している
-すべてのオブジェクトを変更、削除、または取得することができるようになります。この許可を与えるときは細心の注意を払ってください。
-[FIRST_NAME] [LAST_NAME]に対して変更権限を与えますか？
+		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。 この権限を与える際には十分に注意してください。
+[FIRST_NAME] [LAST_NAME] に修正権限を与えますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
-		変更権限を与えると、その人はあなたが作成した全てのオブジェクトを変更することができます。
-この許可を与えるときには細心の注意を払ってください。
-選択した住人に変更権限を与えますか？
+		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更することができます。 この権限を与える際には十分に注意してください。
+選択した住人に修正権限を与えますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="RevokeModifyRights">
@@ -158,6 +156,11 @@
 
 この能力を[ROLE_NAME]に割り当てますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="AttachmentDrop">
+		アタッチメントを下に置こうとしています。
+続けますか？
+		<usetemplate ignoretext="アタッチメントを下に落とす前に確認する" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="ClickUnimplemented">
 		申し訳ありませんが、まだ未実装です。
@@ -267,15 +270,9 @@ L$が不足しているのでこのグループに参加することができま
 	</notification>
 	<notification name="MultipleFacesSelected">
 		現在複数の面が選択されています。
-このまま続けた場合、メディアの別々の段階がオブジェクトの複数の面に設定されます。
-メディアを 1 つの面だけに取り付けるには、「テクスチャを選択」を選び、オブジェクトの希望する面をクリック、それから「追加」をクリックしてください。
+このまま続けた場合、メディアの別々のインスタンスがオブジェクトの複数の面に設定されます。
+メディアを 1 つの面だけに取り付けるには、「面を選択」を選んでオブジェクトの希望する面をクリック、それから「追加」をクリックしてください。
 		<usetemplate ignoretext="メディアは選択した複数の面にセットされます。" name="okcancelignore" notext="キャンセル" yestext="OK"/>
-	</notification>
-	<notification name="WhiteListInvalidatesHomeUrl">
-		この入力をホワイトリストに追加すると、このメディア向けに特定した
-ホーム URL を無効とします。 あなたにはこれを実行する許可がないので、
-入力はホワイトリストには追加されません。
-		<usetemplate name="okbutton" yestext="Ok"/>
 	</notification>
 	<notification name="MustBeInParcel">
 		着地点を設定するには、この区画の内側に
@@ -367,14 +364,6 @@ L$が不足しているのでこのグループに参加することができま
 	</notification>
 	<notification name="SelectHistoryItemToView">
 		表示する履歴アイテムを選択してください。
-	</notification>
-	<notification name="ResetShowNextTimeDialogs">
-		これらのポップアップ全てを再度有効化しますか？（以前「今後は表示しない」と指定しています）
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
-	</notification>
-	<notification name="SkipShowNextTimeDialogs">
-		スキップ可能なポップアップ全てを無効化しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
 		[APP_NAME] を再起動後にキャッシュがクリアされます。
@@ -648,6 +637,10 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="LandmarkCreated">
 		「 [LANDMARK_NAME] 」を「 [FOLDER_NAME] 」フォルダに追加しました。
 	</notification>
+	<notification name="LandmarkAlreadyExists">
+		この位置のランドマークを既に持っています。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="CannotCreateLandmarkNotOwner">
 		土地の所有者が許可していないため、
 ランドマークを作成することはできません。
@@ -753,10 +746,8 @@ L$が不足しているのでこのグループに参加することができま
 選択する面積を小さくして、もう一度試してください。
 	</notification>
 	<notification name="ForceOwnerAuctionWarning">
-		この区画はオークションに出品されています。
-区画の所有権を取得するとオークションが無効になり、
-入札が開始していたら不満に思う住人が出てくるかもしれません。
-所有権を取得しますか？
+		この区画はオークションに出されています。 所有権を変更するとオークションはキャンセルとなり、既にオークションに参加している住人がいればその人に迷惑をかけてしまいます。
+所有権を変更しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="CannotContentifyNothingSelected">
@@ -805,11 +796,11 @@ L$が不足しているのでこのグループに参加することができま
 これより1つの区画を選択してください。
 	</notification>
 	<notification name="ParcelCanPlayMedia">
-		ここではストリーミング・メディア再生が可能です。
-メディアのストリーミングには、高速なインターネット接続環境が必要です。
+		この場所では、ストリーミングメディアの再生が可能です。
+ストリーミングメディアには、高速インターネット接続を要します。
 
-利用可能になったら再生しますか？
-（このオプションは、「環境設定」＞「音声とビデオ」で後からでも変更できます）
+利用可能なときにストリーミングメディアを再生しますか？
+（このオプションは、「環境設定」 &gt; 「プライバシー」であとからでも変更できます。）
 		<usetemplate name="okcancelbuttons" notext="無効化" yestext="メディアを再生"/>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
@@ -1394,6 +1385,10 @@ F1キーを押してください。
 [INVITE]
 		<usetemplate name="okcancelbuttons" notext="辞退" yestext="参加"/>
 	</notification>
+	<notification name="JoinedTooManyGroups">
+		加入できるグループの最大限に達しました。 新しくグループに参加、または作成する前に、どれかグループから抜けてください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="KickUser">
 		どんなメッセージを表示して、このユーザーを追い出しますか？
 		<form name="form">
@@ -1641,11 +1636,11 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		この広告にMatureコンテンツは含まれていますか？
+		この広告に「控えめ」コンテンツは含まれていますか？
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="SetGroupMature">
-		この広告にMatureコンテンツは含まれていますか？
+		このグループに「控えめ」コンテンツが含まれていますか？
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification label="再起動を確認" name="ConfirmRestart">
@@ -1663,8 +1658,10 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 		</form>
 	</notification>
 	<notification label="地域のレーティング区分指定変更済み" name="RegionMaturityChange">
-		この地域のレーティング区分指定がアップデートされました。
-この変更が地図に反映されるまでにはしばらく時間がかかります。
+		このリージョンのレーティング区分がアップデートされました。
+地図に変更が反映されるまで数分かかることがあります。
+
+アダルト専用リージョンに入るには、住人のアカウントが年齢確認か支払方法のいずれかで「確認済み」でなければなりません。
 	</notification>
 	<notification label="ボイスバージョンの不一致" name="VoiceVersionMismatch">
 		[APP_NAME] のこのバージョンは、このリージョンにおけるボイスチャットの互換性がありません。 ボイスチャットを正常に行うためには、[APP_NAME] のアップデートが必要です。
@@ -1784,16 +1781,6 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 		このツールを利用して [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] の違反を報告してください。
 
 報告された嫌がらせはすべて調査・解決されます。 解決されたものは [http://secondlife.com/support/incidentreport.php Incident Report] で見ることができます。
-	</notification>
-	<notification name="HelpReportAbuseEmailEO">
-		重要： この報告は Linden Lab には送信されず、現在あなたがいるリージョンの所有者に送信されます。
-
-住人や訪問者へのサービスの一環として、現在いるリージョンの所有者は、このリージョン内のすべての報告を自ら受け取り、解決するよう設定しています。 Linden Lab はここから送信された報告の調査を行いません。
-
-リージョンの所有者は、このリージョンの不動産約款に記載されたローカルルールに則って報告に対応します。
-（「世界」メニューの「土地情報」で約款を確認できます。）
-
-この報告への解決策は、このリージョンでのみ適用されます。 [SECOND_LIFE] のその他のエリアにアクセスする住人には、この報告の結果には影響がありません。 [SECOND_LIFE] へのアクセスを制限できるのは、Linden Lab だけです。
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		嫌がらせ報告のカテゴリを選択してください。
@@ -2034,8 +2021,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		ジェスチャーの [NAME] がデータベースに見つかりません。
 	</notification>
 	<notification name="UnableToLoadGesture">
-		ジェスチャー[NAME] を読み込むことができません。
-再度、試みてください。
+		[NAME] というジェスチャーを読み込むことができませんでした。
 	</notification>
 	<notification name="LandmarkMissing">
 		データベースにランドマークがありません。
@@ -2139,7 +2125,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		コミュニティスタンダードに明記されているコンテンツ制限により、あなたの検索語の一部が除外されました。
 	</notification>
 	<notification name="NoContentToSearch">
-		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（PG, Mature, Adult）
+		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（一般、控えめ、アダルト）
 	</notification>
 	<notification name="GroupVote">
 		[NAME] は投票の申請をしています：
@@ -2150,6 +2136,9 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		</form>
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentRecived">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2201,8 +2190,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
  が所有するオブジェクトは、オーナーの持ち物に返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned2">
-		選択された土地の区画上にあり、
-住人の[NAME]の所有だったオブジェクトはオーナーに返却されました。
+		「[NAME]」という名前の住人が所有する、選択した区画にあるオブジェクトは、所有者に返却されました。
 	</notification>
 	<notification name="GroupObjectsReturned">
 		選択されている区画上にあり、[GROUPNAME] というグループと共有だったオブジェクトは、オーナーの持ち物に返却されました。
@@ -2215,7 +2203,6 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 	<notification name="ServerObjectMessage">
 		[NAME] からのメッセージ：
 [MSG]
-		<usetemplate name="okcancelbuttons" notext="OK" yestext="調べる"/>
 	</notification>
 	<notification name="NotSafe">
 		この土地ではダメージが有効です。
@@ -2327,8 +2314,8 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		有効な区画が見つかりませんでした。
 	</notification>
 	<notification name="ObjectGiveItem">
-		[NAME_SLURL] が所有する [OBJECTFROMNAME] が、あなたに [OBJECTTYPE] ：
-[ITEM_SLURL] を渡しました
+		[NAME_SLURL] が所有する [OBJECTFROMNAME] という名前のオブジェクトが、あなたにこの [OBJECTTYPE] を渡しました：
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>
@@ -2336,8 +2323,8 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		（不明の住人）が所有する [OBJECTFROMNAME] が、あなたに [OBJECTTYPE] ：
-[ITEM_SLURL] を渡しました
+		（不明の住人）が所有する [OBJECTFROMNAME] という名前のオブジェクトが、あなたにこの [OBJECTTYPE] を渡しました：
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
 			<button name="Discard" text="破棄"/>
@@ -2345,12 +2332,12 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME_SLURL] があなたに [OBJECTTYPE]：
-[ITEM_SLURL] を渡しました
+		[NAME_SLURL] があなたにこの [OBJECTTYPE] を渡しました：
+[ITEM_SLURL]
 		<form name="form">
-			<button name="Keep" text="受け取る"/>
 			<button name="Show" text="表示"/>
 			<button name="Discard" text="破棄"/>
+			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
@@ -2375,6 +2362,9 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
+	<notification name="TeleportOfferSent">
+		[TO_NAME] にテレポートを送りました。
+	</notification>
 	<notification name="GotoURL">
 		[MESSAGE]
 [URL]
@@ -2393,7 +2383,11 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
+			<button name="Send IM" text="IMを送信"/>
 		</form>
+	</notification>
+	<notification name="FriendshipOffered">
+		[TO_NAME] にフレンド登録を申し出ました。
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
 		[NAME]は、
@@ -2412,9 +2406,8 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		[NAME]は、フレンド 登録を断りました。
 	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST]が
-あなたにコーリングカードを送ってきました。
-これにより、あなたの持ち物にブックマークが追加され、この住人にすばやくIMすることができます。
+		[FIRST] [LAST] がコーリングカードを渡そうとしています。
+あなたの持ち物にブックマークが追加され、この住人に素早く IM を送ることができます。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
@@ -2494,14 +2487,6 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 			<button name="Block" text="ブロック"/>
 		</form>
 	</notification>
-	<notification name="FirstBalanceIncrease">
-		L$ [AMOUNT] を受け取りました。
-あなたの L$ 残高は画面右上に表示されています。
-	</notification>
-	<notification name="FirstBalanceDecrease">
-		L$ [AMOUNT] を支払いました。
-あなたの L$ 残高は画面右上に表示されています。
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		お支払ありがとうございます。
 
@@ -2509,57 +2494,16 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 
 [http://secondlife.com/account/ マイアカウント] の取引履歴ページで、支払状況を確認できます。
 	</notification>
-	<notification name="FirstSit">
-		着席中です。
-周囲を見るには矢印キーか AWSD キーを使ってください。
-立つときには「立ち上がる」ボタンをクリックしてください。
-	</notification>
-	<notification name="FirstMap">
-		地図をクリック・ドラッグして周囲を見てください。
-ダブルクリックするとテレポートします。
-右側のコントロールで場所を探したり背景を変更してください。
-	</notification>
-	<notification name="FirstBuild">
-		制作ツールを開きました。 見るものすべてがこのツールで作成されたものです。
-	</notification>
-	<notification name="FirstTeleport">
-		このリージョンでは特定のエリアにのみテレポートできます。 矢印が目的地を指しています。 矢印をクリックすると消えます。
-	</notification>
 	<notification name="FirstOverrideKeys">
 		あなたの移動キーをオブジェクトが操作しています。
 矢印かAWSDのキーで動作を確認してください。
 銃などのオブジェクトだと、一人称視点（マウスルック）に変更する必要があります。
 Mキーを押して変更します。
 	</notification>
-	<notification name="FirstAppearance">
-		容姿を編集中です。
-周囲を見るには矢印キーを使ってください。
-終わったら「すべて保存」を押してください。
-	</notification>
-	<notification name="FirstInventory">
-		これはあなたの持ち物です。所有しているアイテムが入っています。
-
-* アイテムを自分にドラッグして装着してください。
-* アイテムを地面にドラッグして Rez してください。
-* ノートカードをダブルクリックして開いてください。
-	</notification>
 	<notification name="FirstSandbox">
 		ここはサンドボックスエリアです。住人が制作を学ぶことができます。
 
 ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、持ち物に入れてお持ち帰りするのをお忘れなく。
-	</notification>
-	<notification name="FirstFlexible">
-		このオブジェクトはフレキシブルです。 フレキシスは、「物理」ではなく「ファントム」でなければなりません。
-	</notification>
-	<notification name="FirstDebugMenus">
-		アドバンスメニューを開きました。
-
-このメニューの有効・無効設定
-  Windows： Ctrl+Alt+D
-  Mac： &#8997;&#8984;D
-	</notification>
-	<notification name="FirstSculptedPrim">
-		スカルプトプリムを編集中です。 スカルプトには形状の輪郭を指定するための特別なテクスチャが必要です。
 	</notification>
 	<notification name="MaxListSelectMessage">
 		このリストから[MAX_SELECT]個までのアイテムを選択できます。
@@ -2654,11 +2598,22 @@ Mキーを押して変更します。
 	<notification name="UnsupportedCommandSLURL">
 		クリックした SLurl はサポートされていません。
 	</notification>
+	<notification name="BlockedSLURL">
+		信用できないブラウザから SLurl が送られてきたので、セキュリティのためブロックされました。
+	</notification>
+	<notification name="ThrottledSLURL">
+		短期間のあいだに、信用できないブラウザから複数の SLurls が送られてきました。
+安全のために数秒間ブロックされます。
+	</notification>
 	<notification name="IMToast">
 		[MESSAGE]
 		<form name="form">
 			<button name="respondbutton" text="返答"/>
 		</form>
+	</notification>
+	<notification name="ConfirmCloseAll">
+		すべての IM を閉じますか？
+		<usetemplate name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		アタッチメントが保存されました。
@@ -2669,6 +2624,14 @@ Mキーを押して変更します。
 	<notification name="ObjectMediaFailure">
 		サーバーエラー： メディアのアップデートまたは失敗。
 「[ERROR]」
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TextChatIsMutedByModerator">
+		モデレーターがあなたの文字チャットをミュートしました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="VoiceIsMutedByModerator">
+		モデレーターがあなたのボイスをミュートしました。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearTeleportHistory">

@@ -185,6 +185,11 @@ BOOL LLInvFVBridge::isItemRemovable()
 	{
 		return FALSE;
 	}
+	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
+	{
+		return FALSE;
+	}
+
 	const LLInventoryObject *obj = model->getItem(mUUID);
 	if (obj && obj->getIsLinkType())
 	{
@@ -574,8 +579,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			disabled_items.push_back(std::string("Paste As Link"));
 		}
 	}
-	items.push_back(std::string("Paste Separator"));
 
+	items.push_back(std::string("Paste Separator"));
 
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
@@ -712,14 +717,7 @@ BOOL LLInvFVBridge::isAgentInventory() const
 
 BOOL LLInvFVBridge::isCOFFolder() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if(!model) return TRUE;
-	const LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-	if (mUUID == cof_id || model->isObjectDescendentOf(mUUID, cof_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return LLAppearanceManager::instance().getIsInCOF(mUUID);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -2931,27 +2929,6 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	return false;
 }
 
-// See also LLInventorySort where landmarks in the Favorites folder are sorted.
-class LLViewerInventoryItemSort
-{
-public:
-	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
-	{
-		return a->getSortField() < b->getSortField();
-	}
-};
-
-/**
- * Sorts passed items by LLViewerInventoryItem sort field.
- *
- * @param[in, out] items - array of items, not sorted.
- */
-void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-{
-	static LLViewerInventoryItemSort sort_functor;
-	std::sort(items.begin(), items.end(), sort_functor);
-}
-
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop)
 {
@@ -3034,36 +3011,34 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// if dragging from/into favorites folder only reorder items
 			if ((mUUID == inv_item->getParentUUID()) && folder_allows_reorder)
 			{
-				LLInventoryModel::cat_array_t cats;
-				LLInventoryModel::item_array_t items;
-				LLIsType is_type(LLAssetType::AT_LANDMARK);
-				model->collectDescendentsIf(mUUID, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
-
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
 				if (itemp)
 				{
 					LLUUID srcItemId = inv_item->getUUID();
 					LLUUID destItemId = itemp->getListener()->getUUID();
-
-					// ensure items are sorted properly before changing order. EXT-3498
-					rearrange_item_order_by_sort_field(items);
-
-					// update order
-					LLInventoryModel::updateItemsOrder(items, srcItemId, destItemId);
-
-					gInventory.saveItemsOrder(items);
+					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
 			else if (favorites_id == mUUID) // if target is the favorites folder we use copy
 			{
+				// use callback to rearrange favorite landmarks after adding
+				// to have new one placed before target (on which it was dropped). See EXT-4312.
+				LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
+				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+				LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
+				if (drag_over_item && drag_over_item->getListener())
+				{
+					cb.get()->setTargetLandmarkId(drag_over_item->getListener()->getUUID());
+				}
+
 				copy_inventory_item(
 					gAgent.getID(),
 					inv_item->getPermissions().getOwner(),
 					inv_item->getUUID(),
 					mUUID,
 					std::string(),
-					LLPointer<LLInventoryCallback>(NULL));
+					cb);
 			}
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{
@@ -3710,18 +3685,6 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 	return rv;
 }
 
-BOOL LLCallingCardBridge::removeItem()
-{
-	if (LLFriendCardsManager::instance().isItemInAnyFriendsList(getItem()))
-	{
-		LLAvatarActions::removeFriendDialog(getItem()->getCreatorUUID());
-		return FALSE;
-	}
-	else
-	{
-		return LLItemBridge::removeItem();
-	}
-}
 // +=================================================+
 // |        LLNotecardBridge                         |
 // +=================================================+
@@ -3833,8 +3796,25 @@ void LLGestureBridge::openItem()
 
 BOOL LLGestureBridge::removeItem()
 {
-	// Force close the preview window, if it exists
-	LLGestureManager::instance().deactivateGesture(mUUID);
+	// Grab class information locally since *this may be deleted
+	// within this function.  Not a great pattern...
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model)
+	{
+		return FALSE;
+	}
+	const LLUUID item_id = mUUID;
+	
+	// This will also force close the preview window, if it exists.
+	// This may actually delete *this, if mUUID is in the COF.
+	LLGestureManager::instance().deactivateGesture(item_id);
+	
+	// If deactivateGesture deleted *this, then return out immediately.
+	if (!model->getObject(item_id))
+	{
+		return TRUE;
+	}
+
 	return LLItemBridge::removeItem();
 }
 
@@ -4628,7 +4608,10 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
-		items.push_back(std::string("Wearable Separator"));
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Wearable Separator"));
+		}
 
 		items.push_back(std::string("Wearable Edit"));
 
@@ -5093,8 +5076,12 @@ void	LLLandmarkBridgeAction::doIt()
 		// Opening (double-clicking) a landmark immediately teleports,
 		// but warns you the first time.
 		LLSD payload;
-		payload["asset_id"] = item->getAssetUUID();
-		LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
+		payload["asset_id"] = item->getAssetUUID();		
+		
+		LLSD args; 
+		args["LOCATION"] = item->getName(); 
+		
+		LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
 	}
 
 	LLInvFVBridgeAction::doIt();

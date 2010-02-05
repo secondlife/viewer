@@ -5,6 +5,7 @@
  layout="topleft"
  left="0"
  mouse_opaque="false"
+ tab_stop="false" 
  name="main_view"
  width="1024">
   <layout_stack border_size="0"
@@ -18,6 +19,7 @@
                   height="60"
                   mouse_opaque="false"
                   name="nav_bar_container"
+                  tab_stop="false"
                   width="1024"
                   user_resize="false" 
                   visible="false">
@@ -27,6 +29,7 @@
                   height="500"
                   layout="topleft"
                   mouse_opaque="false"
+                  tab_stop="false" 
                   name="hud"
                   width="1024">
       <layout_stack border_size="0"
@@ -38,11 +41,12 @@
                     orientation="horizontal"
                     top="0"
                     width="1024">
-        <panel auto_resize="true"
+        <layout_panel auto_resize="true"
                follows="all"
                height="500"
                layout="topleft"
                mouse_opaque="false"
+               tab_stop="false"
                name="non_side_tray_view"
                user_resize="false"
                width="500">
@@ -60,19 +64,22 @@
                         left="0"
                         mouse_opaque="false"
                         name="world_stack"
-                        orientation="vertical">
+                        orientation="vertical"
+                        tab_stop="false">
             <panel auto_resize="true"
                    follows="all"
                    height="500"
                    layout="topleft"
+                   tab_stop="false"
                    mouse_opaque="false"
-                   name="hud container"
+                name="hud container"
                    width="500">
               <panel follows="right|top|bottom"
                      height="500"
                      mouse_opaque="false"
                      name="side_bar_tabs"
                      right="500"
+                     tab_stop="false"
                      top="0"
                      width="32"/>
               <panel bottom="500"
@@ -80,6 +87,7 @@
                      height="25"
                      left="0"
                      mouse_opaque="false"
+                     tab_stop="false"
                      name="stand_stop_flying_container"
                      visible="false"
                      width="500"/>
@@ -91,13 +99,14 @@
                    name="bottom_tray_container"
                    visible="false"/>
           </layout_stack>
-        </panel>
+        </layout_panel>
         <!-- side tray -->
         <layout_panel auto_resize="false"
                       follows="all"
                       height="500"
                       min_width="333"
                       mouse_opaque="false"
+                      tab_stop="false"
                       name="side_tray_container"
                       user_resize="false"
                       visible="false"
@@ -132,8 +141,9 @@
     </layout_panel>
   </layout_stack>
   <panel mouse_opaque="false"
-         follows="left|right|top" 
+         follows="left|right|top"
          name="status_bar_container"
+                tab_stop="false"
          height="19"
          left="0" 
          top="0" 

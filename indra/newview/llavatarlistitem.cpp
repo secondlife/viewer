@@ -440,17 +440,17 @@ LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
 // static
 void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 {
+	//speaking indicator width + padding
+	S32 speaking_indicator_width = avatar_item->getRect().getWidth() - avatar_item->mSpeakingIndicator->getRect().mLeft;
+
 	//profile btn width + padding
-	S32 profile_btn_width = avatar_item->getRect().getWidth() - avatar_item->mProfileBtn->getRect().mLeft;
+	S32 profile_btn_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mProfileBtn->getRect().mLeft;
 
 	//info btn width + padding
 	S32 info_btn_width = avatar_item->mProfileBtn->getRect().mLeft - avatar_item->mInfoBtn->getRect().mLeft;
 
-	//speaking indicator width + padding
-	S32 speaking_indicator_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mSpeakingIndicator->getRect().mLeft;
-
 	// last interaction time textbox width + padding
-	S32 last_interaction_time_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
+	S32 last_interaction_time_width = avatar_item->mInfoBtn->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
 
 	// icon width + padding
 	S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
@@ -462,9 +462,9 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	sChildrenWidths[--index] = icon_width;
 	sChildrenWidths[--index] = 0; // for avatar name we don't need its width, it will be calculated as "left available space"
 	sChildrenWidths[--index] = last_interaction_time_width;
-	sChildrenWidths[--index] = speaking_indicator_width;
 	sChildrenWidths[--index] = info_btn_width;
 	sChildrenWidths[--index] = profile_btn_width;
+	sChildrenWidths[--index] = speaking_indicator_width;
 }
 
 void LLAvatarListItem::updateChildren()

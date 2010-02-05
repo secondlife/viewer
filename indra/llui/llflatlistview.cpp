@@ -289,8 +289,8 @@ void LLFlatListView::resetSelection(bool no_commit_on_deselection /*= false*/)
 		onCommit();
 	}
 
-	// Stretch selected items rect to ensure it won't be clipped
-	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
+	// Stretch selected item rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
 }
 
 void LLFlatListView::setNoItemsCommentText(const std::string& comment_text)
@@ -393,7 +393,7 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
 
 	LLViewBorder::Params params;
 	params.name("scroll border");
-	params.rect(getSelectedItemsRect());
+	params.rect(getLastSelectedItemRect());
 	params.visible(false);
 	params.bevel_style(LLViewBorder::BEVEL_IN);
 	mSelectedItemsBorder = LLUICtrlFactory::create<LLViewBorder> (params);
@@ -480,8 +480,8 @@ void LLFlatListView::rearrangeItems()
 		item_new_top -= (rc.getHeight() + mItemPad);
 	}
 
-	// Stretch selected items rect to ensure it won't be clipped
-	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
+	// Stretch selected item rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
 }
 
 void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
@@ -664,8 +664,8 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 		onCommit();
 	}
 
-	// Stretch selected items rect to ensure it won't be clipped
-	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
+	// Stretch selected item rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
 
 	return true;
 }
@@ -678,23 +678,6 @@ LLRect LLFlatListView::getLastSelectedItemRect()
 	}
 
 	return mSelectedItemPairs.back()->first->getRect();
-}
-
-LLRect LLFlatListView::getSelectedItemsRect()
-{
-	if (!mSelectedItemPairs.size())
-	{
-		return LLRect::null;
-	}
-	LLRect rc = getLastSelectedItemRect();
-	for ( pairs_const_iterator_t
-			  it = mSelectedItemPairs.begin(),
-			  it_end = mSelectedItemPairs.end();
-		  it != it_end; ++it )
-	{
-		rc.unionWith((*it)->first->getRect());
-	}
-	return rc;
 }
 
 void LLFlatListView::selectFirstItem	()
@@ -711,19 +694,12 @@ void LLFlatListView::selectLastItem		()
 
 void LLFlatListView::ensureSelectedVisible()
 {
-	LLRect visible_rc = getVisibleContentRect();
 	LLRect selected_rc = getLastSelectedItemRect();
 
-	if ( !visible_rc.contains (selected_rc) )
+	if ( selected_rc.isValid() )
 	{
-		// But scroll in Items panel coordinates
 		scrollToShowRect(selected_rc);
 	}
-
-	// In case we are in accordion tab notify parent to show selected rectangle
-	LLRect screen_rc;
-	localRectToScreen(selected_rc, &screen_rc);
-	notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 }
 
 
@@ -826,8 +802,8 @@ bool LLFlatListView::selectAll()
 		onCommit();
 	}
 
-	// Stretch selected items rect to ensure it won't be clipped
-	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
+	// Stretch selected item rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
 
 	return true;
 }

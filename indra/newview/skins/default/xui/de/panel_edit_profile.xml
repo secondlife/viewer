@@ -19,6 +19,9 @@
 	<string name="partner_edit_link_url">
 		http://www.secondlife.com/account/partners.php?lang=de
 	</string>
+	<string name="my_account_link_url">
+		http://de.secondlife.com/my
+	</string>
 	<string name="no_partner_text" value="Keiner"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
@@ -39,12 +42,12 @@
 				<line_editor name="homepage_edit" value="http://"/>
 				<check_box label="In Suchergebnissen anzeigen" name="show_in_search_checkbox"/>
 				<text name="title_acc_status_text" value="Mein Konto:"/>
-				<text name="my_account_link" value="Meine Startseite aufrufen"/>
+				<text name="my_account_link" value="[[URL] Meine Startseite aufrufen]"/>
 				<text name="acc_status_text" value="Einwohner. Keine Zahlungsinfo archiviert."/>
 				<text name="title_partner_text" value="Mein Partner:"/>
 				<text name="partner_edit_link" value="[[URL] bearbeiten]"/>
 				<panel name="partner_data_panel">
-					<text name="partner_text" value="[FIRST] [LAST]"/>
+					<name_box name="partner_text" value="[FIRST] [LAST]"/>
 				</panel>
 			</panel>
 		</panel>

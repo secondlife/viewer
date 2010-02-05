@@ -48,9 +48,52 @@
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 #include "lltexteditor.h"
+#include "llnotifications.h"
 
 // Build time optimization, generate extern template once in .cpp file
 template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+
+namespace
+{
+	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
+	const std::string& PANEL_CHATBAR_NAME	= "chat_bar";
+	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
+	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
+	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
+}
+
+class LLBottomTrayLite
+	: public LLPanel
+{
+public:
+	LLBottomTrayLite()
+		: mNearbyChatBar(NULL),
+		  mGesturePanel(NULL)
+	{
+		mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_bottomtray_lite.xml");
+		// Necessary for focus movement among child controls
+		setFocusRoot(TRUE);
+	}
+
+	BOOL postBuild()
+	{
+		mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+		mGesturePanel = getChild<LLPanel>("gesture_panel");
+		return TRUE;
+	}
+
+	void onFocusLost()
+	{
+		if (gAgent.cameraMouselook())
+		{
+			LLBottomTray::getInstance()->setVisible(FALSE);
+		}
+	}
+
+	LLNearbyChatBar*	mNearbyChatBar;
+	LLPanel*			mGesturePanel;
+};
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
@@ -66,6 +109,8 @@ LLBottomTray::LLBottomTray(const LLSD&)
 ,	mSnapshotPanel(NULL)
 ,	mGesturePanel(NULL)
 ,	mCamButton(NULL)
+,	mBottomTrayLite(NULL)
+,	mIsInLiteMode(false)
 {
 	// Firstly add ourself to IMSession observers, so we catch session events
 	// before chiclets do that.
@@ -90,6 +135,12 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
+
+	{
+		mBottomTrayLite = new LLBottomTrayLite();
+		mBottomTrayLite->setFollowsAll();
+		mBottomTrayLite->setVisible(FALSE);
+	}
 }
 
 LLBottomTray::~LLBottomTray()
@@ -122,6 +173,11 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 void* LLBottomTray::createNearbyChatBar(void* userdata)
 {
 	return new LLNearbyChatBar();
+}
+
+LLNearbyChatBar* LLBottomTray::getNearbyChatBar()
+{
+	return mIsInLiteMode ? mBottomTrayLite->mNearbyChatBar : mNearbyChatBar;
 }
 
 LLIMChiclet* LLBottomTray::createIMChiclet(const LLUUID& session_id)
@@ -227,13 +283,27 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	mSpeakBtn->setEnabled(enable);
 }
 
-//virtual
-void LLBottomTray::onFocusLost()
+void LLBottomTray::onMouselookModeOut()
 {
-	if (gAgent.cameraMouselook())
-	{
-		setVisible(FALSE);
-	}
+	mIsInLiteMode = false;
+	mBottomTrayLite->setVisible(FALSE);
+	mNearbyChatBar->getChatBox()->setText(mBottomTrayLite->mNearbyChatBar->getChatBox()->getText());
+	setVisible(TRUE);
+}
+
+void LLBottomTray::onMouselookModeIn()
+{
+	setVisible(FALSE);
+
+	// Attach the lite bottom tray
+	if (getParent() && mBottomTrayLite->getParent() != getParent())
+		getParent()->addChild(mBottomTrayLite);
+
+	mBottomTrayLite->setShape(getLocalRect());
+	mBottomTrayLite->mNearbyChatBar->getChatBox()->setText(mNearbyChatBar->getChatBox()->getText());
+	mBottomTrayLite->mGesturePanel->setVisible(gSavedSettings.getBOOL("ShowGestureButton"));
+
+	mIsInLiteMode = true;
 }
 
 //virtual
@@ -241,38 +311,18 @@ void LLBottomTray::onFocusLost()
 // If bottom tray is already visible in mouselook mode, then onVisibilityChange will not be called from setVisible(true),
 void LLBottomTray::setVisible(BOOL visible)
 {
-	LLPanel::setVisible(visible);
-
-	// *NOTE: we must check mToolbarStack against NULL because setVisible is called from the 
-	// LLPanel::initFromParams BEFORE postBuild is called and child controls are not exist yet
-	if (NULL != mToolbarStack)
+	if (mIsInLiteMode)
 	{
-		BOOL visibility = gAgent.cameraMouselook() ? false : true;
-
-		for ( child_list_const_iter_t child_it = mToolbarStack->getChildList()->begin(); 
-			child_it != mToolbarStack->getChildList()->end(); child_it++)
-		{
-			LLView* viewp = *child_it;
-			std::string name = viewp->getName();
-
-			// Chat bar and gesture button are shown even in mouselook mode. But the move, camera and snapshot buttons shouldn't be displayed. See EXT-3988.
-			if ("chat_bar" == name || "gesture_panel" == name || (visibility && ("movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)))
-				continue;
-			else 
-			{
-				viewp->setVisible(visibility);
-			}
-		}
-
-		// Apply the saved settings when we are not in mouselook mode, see EXT-3988.
-		if (visibility)
-		{
-			showCameraButton(gSavedSettings.getBOOL("ShowCameraButton"));
-			showSnapshotButton(gSavedSettings.getBOOL("ShowSnapshotButton"));
-			showMoveButton(gSavedSettings.getBOOL("ShowMoveButton"));
-			showGestureButton(gSavedSettings.getBOOL("ShowGestureButton"));
-		}
+		mBottomTrayLite->setVisible(visible);
 	}
+	else
+	{
+		LLPanel::setVisible(visible);
+	}
+	if(visible)
+		gFloaterView->setSnapOffsetBottom(getRect().getHeight());
+	else
+		gFloaterView->setSnapOffsetBottom(0);
 }
 
 void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
@@ -335,15 +385,6 @@ void LLBottomTray::showCameraButton(BOOL visible)
 void LLBottomTray::showSnapshotButton(BOOL visible)
 {
 	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, visible);
-}
-
-namespace
-{
-	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
-	const std::string& PANEL_CHATBAR_NAME	= "chat_bar";
-	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
-	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
-	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
 }
 
 BOOL LLBottomTray::postBuild()
@@ -482,7 +523,18 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
 	{
-		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
+		// Firstly, update layout stack to ensure we deal with correct panel sizes.
+		{
+			BOOL saved_anim = mToolbarStack->getAnimate();
+			// Set chiclet panel to be autoresized by default.
+			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
+			// Disable animation to prevent layout updating in several frames.
+			mToolbarStack->setAnimate(FALSE);
+			// Force the updating of layout to reset panels collapse factor.
+			mToolbarStack->updateLayout();
+			// Restore animate state.
+			mToolbarStack->setAnimate(saved_anim);
+		}
 
 		// bottom tray is narrowed
 		if (delta_width < 0)
@@ -584,7 +636,7 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mNearbyChatBar->getRect().getHeight());
 
-		log(mChicletPanel, "after processing panel decreasing via nearby chatbar panel");
+		log(mNearbyChatBar, "after processing panel decreasing via nearby chatbar panel");
 
 		lldebugs << "RS_CHATBAR_INPUT"
 			<< ", delta_panel: " << delta_panel
@@ -1004,6 +1056,11 @@ void LLBottomTray::initStateProcessedObjectMap()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, mMovementPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, mCamPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
+
+	mDummiesMap.insert(std::make_pair(RS_BUTTON_GESTURES, getChild<LLUICtrl>("after_gesture_panel")));
+	mDummiesMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, getChild<LLUICtrl>("after_movement_panel")));
+	mDummiesMap.insert(std::make_pair(RS_BUTTON_CAMERA,   getChild<LLUICtrl>("after_cam_panel")));
+	mDummiesMap.insert(std::make_pair(RS_BUTTON_SPEAK,    getChild<LLUICtrl>("after_speak_panel")));
 }
 
 void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool visible)
@@ -1016,9 +1073,14 @@ void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool vis
 	}
 
 	panel->setVisible(visible);
+
+	if (mDummiesMap.count(shown_object_type))
+	{
+		mDummiesMap[shown_object_type]->setVisible(visible);
+	}
 }
 
-void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible)
+void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification)
 {
 	bool can_be_set = true;
 
@@ -1031,6 +1093,8 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 			return;
 		}
 
+		const S32 dummy_width = mDummiesMap.count(shown_object_type) ? mDummiesMap[shown_object_type]->getRect().getWidth() : 0;
+
 		const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
 		const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
 
@@ -1040,7 +1104,7 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 		const S32 available_width = (chatbar_panel_width - chatbar_panel_min_width)
 			+ (chiclet_panel_width - chiclet_panel_min_width);
 
-		const S32 required_width = panel->getRect().getWidth();
+		const S32 required_width = panel->getRect().getWidth() + dummy_width;
 		can_be_set = available_width >= required_width;
 	}
 
@@ -1058,7 +1122,11 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 	{
 		// mark this button to show it while future bottom tray extending
 		mResizeState |= shown_object_type;
-		LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown");
+		if ( raise_notification )
+			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
+									 LLSD(),
+									 LLSD(),
+									 LLNotificationFunctorRegistry::instance().DONOTHING);
 	}
 }
 

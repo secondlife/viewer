@@ -75,11 +75,12 @@ public:
 			return false;
 		}
 
+		//*TODO by what to replace showing groups floater?
 		if (tokens[0].asString() == "list")
 		{
 			if (tokens[1].asString() == "show")
 			{
-				LLFloaterReg::showInstance("contacts", "groups");
+				//LLFloaterReg::showInstance("contacts", "groups");
 				return true;
 			}
             return false;

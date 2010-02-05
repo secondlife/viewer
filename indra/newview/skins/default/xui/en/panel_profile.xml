@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="535"
+ height="540"
  label="Profile"
  layout="topleft"
  left="0"
@@ -66,6 +66,7 @@
                 layout="topleft"
           follows="left|top|right"
                 height="505"
+		min_height="505"
                 name="profile_scroll_panel"
                 top="0"
                 left="0"
@@ -108,10 +109,10 @@
                textbox.max_length="512"
                name="sl_description_edit"
                top_pad="-3"
-               width="185"
+               width="180"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet.Nullamma lesuada mauris sit amet ipsum. adipiscing elit. Ae nean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
               </expandable_text>
             </panel>
             <panel
@@ -151,7 +152,7 @@
                textbox.max_length="512"
                name="fl_description_edit"
                top_pad="-3"
-               width="185"
+               width="180"
                expanded_bg_visible="true"
                expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -247,6 +248,7 @@
               <name_box
                follows="left|top"
                height="10"
+               initial_value="(retrieving)"
                layout="topleft"
                left="0"
                link="true"
@@ -283,10 +285,10 @@
       </layout_panel>
       <layout_panel
               follows="bottom|left"
-         height="28"
+         height="30"
          layout="topleft"
          name="profile_buttons_panel"
-         auto_resize="false" 
+         auto_resize="false"
          width="313">
         <button
          follows="bottom|left"
@@ -354,7 +356,7 @@
         </layout_panel>
       <layout_panel
          follows="bottom|left"
-         height="28"
+         height="30"
          layout="topleft"
          name="profile_me_buttons_panel"
          visible="false"
@@ -363,7 +365,7 @@
          follows="bottom|right"
          height="23"
          left="20"
-	 top="0"
+         top="0"
          label="Edit Profile"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
@@ -377,6 +379,6 @@
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
          width="130" />
         </layout_panel>
-    
+
 </layout_stack>
 </panel>

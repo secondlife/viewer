@@ -48,9 +48,11 @@ public:
 
 	/*virtual*/ void resetLocation();
 
-	/*virtual*/ void setInfoType(INFO_TYPE type);
+	/*virtual*/ void setInfoType(EInfoType type);
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
 
 	// Displays information about the currently selected parcel
 	// without sending a request to the server.

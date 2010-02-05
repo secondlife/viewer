@@ -94,7 +94,7 @@ public:
 	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM);
+	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, std::string& suffix = LLStringUtil::null);
 
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.
@@ -121,12 +121,32 @@ public:
 
 	/*virtual*/ void updateColumns();
 private:
-	void showAvatarInspector(const LLUUID& avatar_id);
+	void showInspector(const LLUUID& avatar_id, bool is_group);
 
 private:
 	S32    			mNameColumnIndex;
 	std::string		mNameColumn;
 	BOOL			mAllowCallingCardDrop;
+};
+
+/**
+ * LLNameListCtrl item
+ * 
+ * We don't use LLScrollListItem to be able to override getUUID(), which is needed
+ * because the name list item value is not simply an UUID but a map (uuid, is_group).
+ */
+class LLNameListItem : public LLScrollListItem
+{
+public:
+	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
+
+protected:
+	friend class LLNameListCtrl;
+
+	LLNameListItem( const LLScrollListItem::Params& p )
+	:	LLScrollListItem(p)
+	{
+	}
 };
 
 #endif

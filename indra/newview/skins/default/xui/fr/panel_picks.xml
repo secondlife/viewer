@@ -10,7 +10,7 @@
 		<accordion_tab name="tab_classifieds" title="Petites annonces"/>
 	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
-		<button name="new_btn" tool_tip="Ajouter cet endroit à mes Favoris"/>
+		<button name="new_btn" tool_tip="Ajouter cet endroit à mes Préférences"/>
 	</panel>
 	<panel name="buttons_cucks">
 		<button label="Infos" name="info_btn"/>

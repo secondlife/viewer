@@ -39,12 +39,16 @@
 #include "llbutton.h"
 #include "llfocusmgr.h"
 #include "llmenugl.h"
+#include "llparcel.h"
 #include "llstring.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "lltooltip.h"
+#include "llnotificationsutil.h"
+#include "llregionflags.h"
 
 // newview includes
+#include "llagent.h"
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
@@ -56,6 +60,7 @@
 #include "lltrans.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llurllineeditorctrl.h"
@@ -256,36 +261,42 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	voice_icon.tool_tip = LLTrans::getString("LocationCtrlVoiceTooltip");
 	voice_icon.mouse_opaque = true;
 	mParcelIcon[VOICE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(voice_icon);
+	mParcelIcon[VOICE_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, VOICE_ICON));
 	addChild(mParcelIcon[VOICE_ICON]);
 
 	LLIconCtrl::Params fly_icon = p.fly_icon;
 	fly_icon.tool_tip = LLTrans::getString("LocationCtrlFlyTooltip");
 	fly_icon.mouse_opaque = true;
 	mParcelIcon[FLY_ICON] = LLUICtrlFactory::create<LLIconCtrl>(fly_icon);
+	mParcelIcon[FLY_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, FLY_ICON));
 	addChild(mParcelIcon[FLY_ICON]);
 
 	LLIconCtrl::Params push_icon = p.push_icon;
 	push_icon.tool_tip = LLTrans::getString("LocationCtrlPushTooltip");
 	push_icon.mouse_opaque = true;
 	mParcelIcon[PUSH_ICON] = LLUICtrlFactory::create<LLIconCtrl>(push_icon);
+	mParcelIcon[PUSH_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PUSH_ICON));
 	addChild(mParcelIcon[PUSH_ICON]);
 
 	LLIconCtrl::Params build_icon = p.build_icon;
 	build_icon.tool_tip = LLTrans::getString("LocationCtrlBuildTooltip");
 	build_icon.mouse_opaque = true;
 	mParcelIcon[BUILD_ICON] = LLUICtrlFactory::create<LLIconCtrl>(build_icon);
+	mParcelIcon[BUILD_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, BUILD_ICON));
 	addChild(mParcelIcon[BUILD_ICON]);
 
 	LLIconCtrl::Params scripts_icon = p.scripts_icon;
 	scripts_icon.tool_tip = LLTrans::getString("LocationCtrlScriptsTooltip");
 	scripts_icon.mouse_opaque = true;
 	mParcelIcon[SCRIPTS_ICON] = LLUICtrlFactory::create<LLIconCtrl>(scripts_icon);
+	mParcelIcon[SCRIPTS_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, SCRIPTS_ICON));
 	addChild(mParcelIcon[SCRIPTS_ICON]);
 
 	LLIconCtrl::Params damage_icon = p.damage_icon;
 	damage_icon.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
 	damage_icon.mouse_opaque = true;
 	mParcelIcon[DAMAGE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(damage_icon);
+	mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, DAMAGE_ICON));
 	addChild(mParcelIcon[DAMAGE_ICON]);
 	
 	LLTextBox::Params damage_text = p.damage_text;
@@ -662,11 +673,12 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	if (show_properties)
 	{
 		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
-		bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
+		LLParcel* agent_parcel = vpm->getAgentParcel();
+		bool allow_buy      = vpm->canAgentBuyParcel( agent_parcel, false);
 		bool allow_voice	= vpm->allowAgentVoice();
 		bool allow_fly		= vpm->allowAgentFly();
 		bool allow_push		= vpm->allowAgentPush();
-		bool allow_build	= vpm->allowAgentBuild();
+		bool allow_build	= agent_parcel && agent_parcel->getAllowModify(); // true when anyone is allowed to build. See EXT-4610.
 		bool allow_scripts	= vpm->allowAgentScripts();
 		bool allow_damage	= vpm->allowAgentDamage();
 		
@@ -917,4 +929,46 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	}
 
 	return false;
+}
+
+void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
+{
+	switch (icon)
+	{
+	case VOICE_ICON:
+		LLNotificationsUtil::add("NoVoice");
+		break;
+	case FLY_ICON:
+		LLNotificationsUtil::add("NoFly");
+		break;
+	case PUSH_ICON:
+		LLNotificationsUtil::add("PushRestricted");
+		break;
+	case BUILD_ICON:
+		LLNotificationsUtil::add("NoBuild");
+		break;
+	case SCRIPTS_ICON:
+	{
+		LLViewerRegion* region = gAgent.getRegion();
+		if(region && region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
+		{
+			LLNotificationsUtil::add("ScriptsStopped");
+		}
+		else if(region && region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
+		{
+			LLNotificationsUtil::add("ScriptsNotRunning");
+		}
+		else
+		{
+			LLNotificationsUtil::add("NoOutsideScripts");
+		}
+		break;
+	}
+	case DAMAGE_ICON:
+		LLNotificationsUtil::add("NotSafe");
+		break;
+	case ICON_COUNT:
+		break;
+	// no default to get compiler warning when a new icon gets added
+	}
 }

@@ -408,6 +408,15 @@ public:
 	 */
 	void saveItemsOrder(const LLInventoryModel::item_array_t& items);
 
+	/**
+	 * Rearranges Landmarks inside Favorites folder.
+	 * Moves source landmark before target one.
+	 *
+	 * @param source_item_id - LLUUID of the source item to be moved into new position
+	 * @param target_item_id - LLUUID of the target item before which source item should be placed.
+	 */
+	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
+
 protected:
 
 	// Internal methods which add inventory and make sure that all of

@@ -3,7 +3,6 @@
 <!-- All buttons in the Favorites bar will be created from this one -->
 <button
  follows="left|bottom"
- font_halign="center"
  halign="center"
  height="15"
  image_disabled="transparent.j2c"
@@ -11,6 +10,8 @@
  image_selected="transparent.j2c"
  image_unselected="transparent.j2c"
  image_pressed="Favorite_Link_Over"
+ image_hover_selected="Favorite_Link_Over"
+ image_hover_unselected="Favorite_Link_Over"
  hover_glow_amount="0.15"
  label_shadow="false"
  layout="topleft"

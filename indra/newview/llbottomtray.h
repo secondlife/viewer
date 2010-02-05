@@ -46,6 +46,7 @@ class LLNotificationChiclet;
 class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
+class LLBottomTrayLite;
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBOTTOMTRAY_CPP
@@ -60,13 +61,14 @@ class LLBottomTray
 {
 	LOG_CLASS(LLBottomTray);
 	friend class LLSingleton<LLBottomTray>;
+	friend class LLBottomTrayLite;
 public:
 	~LLBottomTray();
 
 	BOOL postBuild();
 
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
-	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
+	LLNearbyChatBar*		getNearbyChatBar();
 
 	void onCommitGesture(LLUICtrl* ctrl);
 
@@ -79,7 +81,6 @@ public:
 
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent);
 
-	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the speak
@@ -92,7 +93,10 @@ public:
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
-	
+
+	void onMouselookModeIn();
+	void onMouselookModeOut();
+
 	/**
 	 * Creates IM Chiclet based on session type (IM chat or Group chat)
 	 */
@@ -167,7 +171,7 @@ private:
 	 *  - if hidden via context menu button should be shown but there is no enough room for now
 	 *    it will be shown while extending.
 	 */
-	void setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible);
+	void setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification = true);
 
 	MASK mResizeState;
 
@@ -176,6 +180,9 @@ private:
 
 	typedef std::map<EResizeState, S32> state_object_width_map_t;
 	state_object_width_map_t mObjectDefaultWidthMap;
+
+	typedef std::map<EResizeState, LLUICtrl*> dummies_map_t;
+	dummies_map_t mDummiesMap;
 
 protected:
 
@@ -201,6 +208,8 @@ protected:
 	LLPanel*			mGesturePanel;
 	LLButton*			mCamButton;
 	LLButton*			mMovementButton;
+	LLBottomTrayLite*   mBottomTrayLite;
+	bool                mIsInLiteMode;
 };
 
 #endif // LL_LLBOTTOMPANEL_H

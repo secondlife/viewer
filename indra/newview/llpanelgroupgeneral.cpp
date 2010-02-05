@@ -679,6 +679,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 			LLSD row;
 			row["columns"][0]["value"] = pending.str();
+			row["columns"][0]["column"] = "name";
 
 			mListVisibleMembers->setEnabled(FALSE);
 			mListVisibleMembers->addElement(row);
@@ -731,9 +732,11 @@ void LLPanelGroupGeneral::updateMembers()
 		row["columns"][1]["value"] = member->getTitle();
 		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
 		row["columns"][1]["font"]["style"] = style;
+
+		std::string status = member->getOnlineStatus();
 		
-		row["columns"][2]["column"] = "online";
-		row["columns"][2]["value"] = member->getOnlineStatus();
+		row["columns"][2]["column"] = "status";
+		row["columns"][2]["value"] = status;
 		row["columns"][2]["font"]["name"] = "SANSSERIF_SMALL";
 		row["columns"][2]["font"]["style"] = style;
 
@@ -846,6 +849,7 @@ void LLPanelGroupGeneral::reset()
 	{
 		LLSD row;
 		row["columns"][0]["value"] = "no members yet";
+		row["columns"][0]["column"] = "name";
 
 		mListVisibleMembers->deleteAllItems();
 		mListVisibleMembers->setEnabled(FALSE);

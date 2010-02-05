@@ -156,14 +156,11 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrency.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
-    llfloaterchat.cpp
-    llfloaterchatterbox.cpp
     llfloatercolorpicker.cpp
     llfloatercustomize.cpp
     llfloaterdaycycle.cpp
     llfloaterenvsettings.cpp
     llfloaterfonttest.cpp
-    llfloaterfriends.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
     llfloatergroupinvite.cpp
@@ -242,7 +239,6 @@ set(viewer_SOURCE_FILES
     llimfloater.cpp
     llimfloatercontainer.cpp
     llimhandler.cpp
-    llimpanel.cpp
     llimview.cpp
     llinspect.cpp
     llinspectavatar.cpp
@@ -274,7 +270,6 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
     llmetricperformancetester.cpp
@@ -298,7 +293,6 @@ set(viewer_SOURCE_FILES
     llnotificationscripthandler.cpp
     llnotificationtiphandler.cpp
     lloutputmonitorctrl.cpp
-    lloverlaybar.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
     llpanelblockedlist.cpp
@@ -344,7 +338,6 @@ set(viewer_SOURCE_FILES
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
     llpanelprofileview.cpp
-    llpanelshower.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
@@ -420,7 +413,6 @@ set(viewer_SOURCE_FILES
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
     lltool.cpp
-    lltoolbar.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
     lltooldraganddrop.cpp
@@ -515,7 +507,6 @@ set(viewer_SOURCE_FILES
     llvoground.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
-    llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
@@ -665,14 +656,11 @@ set(viewer_HEADER_FILES
     llfloaterbuycurrency.h
     llfloaterbuyland.h
     llfloatercamera.h
-    llfloaterchat.h
-    llfloaterchatterbox.h
     llfloatercolorpicker.h
     llfloatercustomize.h
     llfloaterdaycycle.h
     llfloaterenvsettings.h
     llfloaterfonttest.h
-    llfloaterfriends.h
     llfloatergesture.h
     llfloatergodtools.h
     llfloatergroupinvite.h
@@ -750,7 +738,6 @@ set(viewer_HEADER_FILES
     llhudview.h
     llimfloater.h
     llimfloatercontainer.h
-    llimpanel.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -783,7 +770,6 @@ set(viewer_HEADER_FILES
     llmaniptranslate.h
     llmediactrl.h
     llmediadataclient.h
-    llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
     llmetricperformancetester.h
@@ -802,7 +788,6 @@ set(viewer_HEADER_FILES
     llnotificationhandler.h
     llnotificationmanager.h
     lloutputmonitorctrl.h
-    lloverlaybar.h
     llpanelavatar.h
     llpanelavatartag.h
     llpanelblockedlist.h
@@ -848,7 +833,6 @@ set(viewer_HEADER_FILES
     llpanelprimmediacontrols.h
     llpanelprofile.h
     llpanelprofileview.h
-    llpanelshower.h
     llpanelteleporthistory.h
     llpanelvolume.h
     llpanelvolumepulldown.h
@@ -927,7 +911,6 @@ set(viewer_HEADER_FILES
     lltoastnotifypanel.h
     lltoastpanel.h
     lltool.h
-    lltoolbar.h
     lltoolbrush.h
     lltoolcomp.h
     lltooldraganddrop.h
@@ -1020,7 +1003,6 @@ set(viewer_HEADER_FILES
     llvoground.h
     llvoicechannel.h
     llvoiceclient.h
-    llvoiceremotectrl.h
     llvoicevisualizer.h
     llvoinventorylistener.h
     llvopartgroup.h
@@ -1068,11 +1050,13 @@ if (DARWIN)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COCOA_LIBRARY Cocoa)
   find_library(IOKIT_LIBRARY IOKit)
+  find_library(COREAUDIO_LIBRARY CoreAudio)
 
   set(viewer_LIBRARIES
     ${COCOA_LIBRARY}
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
+    ${COREAUDIO_LIBRARY}
     )
 
   # Add resource files to the project.
@@ -1407,11 +1391,11 @@ if (WINDOWS)
       # Note the need to specify multiple names explicitly.
       set(GOOGLE_PERF_TOOLS_SOURCE
         ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
-	${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
-	${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
-	)
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
+        )
     endif(USE_GOOGLE_PERFTOOLS)
-	  
+  
 
     set(COPY_INPUT_DEPENDECIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
@@ -1505,11 +1489,11 @@ if (WINDOWS)
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
-	--touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
+        --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
       DEPENDS 
-	${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-	stage_third_party_libs
-	${COPY_INPUT_DEPENDECIES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        stage_third_party_libs
+        ${COPY_INPUT_DEPENDECIES}
       COMMENT "Performing viewer_manifest copy"
       )
     
@@ -1582,7 +1566,10 @@ if (WINDOWS)
         DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
 
-      add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
+      add_custom_target(package ALL DEPENDS 
+        ${CMAKE_CFG_INTDIR}/touched.bat
+        windows-setup-build-all 
+        )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)

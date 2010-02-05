@@ -42,7 +42,6 @@
 #include "llbottomtray.h"
 #include "llchannelmanager.h"
 #include "llchiclet.h"
-#include "llfloaterchat.h"
 #include "llfloaterreg.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"
@@ -59,6 +58,7 @@
 #include "llinventorymodel.h"
 #include "llrootview.h"
 
+#include "llspeakers.h"
 
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
@@ -110,11 +110,15 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		}
 	}
 	setOverlapsScreenChannel(true);
+
+	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 }
 
 void LLIMFloater::onFocusLost()
 {
 	LLIMModel::getInstance()->resetActiveSessionID();
+	
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, false);
 }
 
 void LLIMFloater::onFocusReceived()
@@ -126,6 +130,8 @@ void LLIMFloater::onFocusReceived()
 	{
 		mInputEditor->setFocus(TRUE);
 	}
+
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
 }
 
 // virtual
@@ -224,6 +230,7 @@ void LLIMFloater::sendMsg()
 
 LLIMFloater::~LLIMFloater()
 {
+	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 }
 
 //virtual
@@ -347,13 +354,15 @@ void* LLIMFloater::createPanelAdHocControl(void* userdata)
 
 void LLIMFloater::onSlide()
 {
-	LLPanel* im_control_panel = getChild<LLPanel>("panel_im_control_panel");
-	im_control_panel->setVisible(!im_control_panel->getVisible());
+	mControlPanel->setVisible(!mControlPanel->getVisible());
 
-	gSavedSettings.setBOOL("IMShowControlPanel", im_control_panel->getVisible());
+	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getVisible());
 
-	getChild<LLButton>("slide_left_btn")->setVisible(im_control_panel->getVisible());
-	getChild<LLButton>("slide_right_btn")->setVisible(!im_control_panel->getVisible());
+	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getVisible());
+	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getVisible());
+
+	LLLayoutStack* stack = getChild<LLLayoutStack>("im_panels");
+	if (stack) stack->setAnimate(true);
 }
 
 //static
@@ -490,6 +499,15 @@ void LLIMFloater::setVisible(BOOL visible)
 		updateMessages();
 		mInputEditor->setFocus(TRUE);
 	}
+
+	if(!visible)
+	{
+		LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
+		if(chiclet)
+		{
+			chiclet->setToggleState(false);
+		}
+	}
 }
 
 //static
@@ -498,14 +516,14 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	if(!isChatMultiTab())
 	{
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater && floater->getVisible())
+		if (floater && floater->getVisible() && floater->hasFocus())
 		{
 			// clicking on chiclet to close floater just hides it to maintain existing
 			// scroll/text entry state
 			floater->setVisible(false);
 			return false;
 		}
-		else if(floater && !floater->isDocked())
+		else if(floater && (!floater->isDocked() || floater->getVisible() && !floater->hasFocus()))
 		{
 			floater->setVisible(TRUE);
 			floater->setFocus(TRUE);
@@ -581,14 +599,32 @@ void LLIMFloater::updateMessages()
 
 			LLChat chat;
 			chat.mFromID = from_id;
+			chat.mSessionID = mSessionID;
 			chat.mFromName = from;
-			chat.mText = message;
 			chat.mTimeStr = time;
+
+			// process offer notification
+			if (msg.has("notification_id"))
+			{
+				chat.mNotifId = msg["notification_id"].asUUID();
+			}
+			//process text message
+			else
+			{
+				chat.mText = message;
+			}
 			
 			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 	}
+}
+
+void LLIMFloater::reloadMessages()
+{
+	mChatHistory->clear();
+	mLastMessageIndex = -1;
+	updateMessages();
 }
 
 // static

@@ -9,4 +9,6 @@
 	<menu_item_call label="ごみ箱を空にする" name="empty_trash"/>
 	<menu_item_call label="紛失物を空にする" name="empty_lostnfound"/>
 	<menu_item_call label="別名でテクスチャを保存" name="Save Texture As"/>
+	<menu_item_call label="オリジナルを表示" name="Find Original"/>
+	<menu_item_call label="すべてのリンクを表示" name="Find All Links"/>
 </menu>

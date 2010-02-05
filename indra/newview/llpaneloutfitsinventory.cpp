@@ -61,6 +61,9 @@
 
 #include "llviewercontrol.h"
 
+static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
+static const std::string COF_TAB_NAME = "cof_tab";
+
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 bool LLPanelOutfitsInventory::sShowDebugEditor = false;
 
@@ -267,7 +270,7 @@ void LLPanelOutfitsInventory::onSaveCommit(const std::string& outfit_name)
 
 	if (mAppearanceTabs)
 	{
-		mAppearanceTabs->selectTabByName("outfitslist_tab");
+		mAppearanceTabs->selectTabByName(OUTFITS_TAB_NAME);
 	}
 }
 
@@ -503,8 +506,7 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	
 	if (command_name == "wear")
 	{
-		const BOOL is_my_outfits = (mActivePanel->getName() == "outfitslist_tab");
-		if (!is_my_outfits)
+		if (isCOFPanelActive())
 		{
 			return FALSE;
 		}
@@ -558,19 +560,15 @@ bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropTy
 
 void LLPanelOutfitsInventory::initTabPanels()
 {
-	mTabPanels.resize(2);
-
-	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>("cof_tab");
+	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>(COF_TAB_NAME);
 	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mTabPanels[0] = cof_panel;
-	
-	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>("outfitslist_tab");
+	mTabPanels.push_back(cof_panel);
+
+	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>(OUTFITS_TAB_NAME);
 	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, LLInventoryFilter::FILTERTYPE_CATEGORY);
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mTabPanels[1] = myoutfits_panel;
-
-	mActivePanel = mTabPanels[0];
-
+	mTabPanels.push_back(myoutfits_panel);
+	
 	for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
 		 iter != mTabPanels.end();
 		 ++iter)
@@ -581,6 +579,7 @@ void LLPanelOutfitsInventory::initTabPanels()
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
+	mActivePanel = (LLInventoryPanel*)mAppearanceTabs->getCurrentPanel();
 }
 
 void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -616,19 +615,19 @@ void LLPanelOutfitsInventory::onTabChange()
 	updateVerbs();
 }
 
-LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()
+BOOL LLPanelOutfitsInventory::isTabPanel(LLInventoryPanel *panel) const
 {
-	return mActivePanel;
-}
-
-bool LLPanelOutfitsInventory::isTabPanel(LLInventoryPanel *panel)
-{
-	for(tabpanels_vec_t::iterator it = mTabPanels.begin();
+	for(tabpanels_vec_t::const_iterator it = mTabPanels.begin();
 		it != mTabPanels.end();
 		++it)
 	{
 		if (*it == panel)
-			return true;
+			return TRUE;
 	}
-	return false;
+	return FALSE;
+}
+
+BOOL LLPanelOutfitsInventory::isCOFPanelActive() const
+{
+	return (getActivePanel()->getName() == COF_TAB_NAME);
 }

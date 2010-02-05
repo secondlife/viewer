@@ -384,7 +384,8 @@ LLNotificationTemplate::LLNotificationTemplate() :
 	mExpireSeconds(0),
 	mExpireOption(-1),
 	mURLOption(-1),
-    mURLOpenExternally(-1),
+	mURLOpenExternally(-1),
+	mPersist(false),
 	mUnique(false),
 	mPriority(NOTIFICATION_PRIORITY_NORMAL)
 {
@@ -1058,6 +1059,7 @@ LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelN
 	if(p == mChannels.end())
 	{
 		llerrs << "Did not find channel named " << channelName << llendl;
+		return LLNotificationChannelPtr();
 	}
 	return p->second;
 }

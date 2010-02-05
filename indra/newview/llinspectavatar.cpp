@@ -229,6 +229,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mEnableCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
+	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	mEnableCallbackRegistrar.add("InspectAvatar.EnableMute", boost::bind(&LLInspectAvatar::enableMute, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.EnableUnmute", boost::bind(&LLInspectAvatar::enableUnmute, this));
 
@@ -689,7 +690,7 @@ void LLInspectAvatar::onToggleMute()
 
 void LLInspectAvatar::onClickReport()
 {
-	LLFloaterReporter::showFromObject(mAvatarID);
+	LLFloaterReporter::showFromAvatar(mAvatarID, mAvatarName);
 	closeFloater();
 }
 

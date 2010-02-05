@@ -48,8 +48,11 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 
-LLDrawPoolSky::LLDrawPoolSky() :
-	LLFacePool(POOL_SKY), mShader(NULL)
+LLDrawPoolSky::LLDrawPoolSky()
+:	LLFacePool(POOL_SKY),
+	
+	mSkyTex(NULL),
+	mShader(NULL)
 {
 }
 
@@ -132,6 +135,7 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 		return;
 	}
 
+	llassert(mSkyTex);
 	mSkyTex[side].bindTexture(TRUE);
 	
 	face.renderIndexed();

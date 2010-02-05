@@ -35,11 +35,11 @@
 
 #include "llsingleton.h"
 #include "llinventorymodel.h"
-#include "llviewerinventory.h"
 #include "llcallbacklist.h"
 
 class LLWearable;
-struct LLWearableHoldingPattern;
+class LLWearableHoldingPattern;
+class LLInventoryCallback;
 
 class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
 {
@@ -59,7 +59,7 @@ public:
 							 LLPointer<LLInventoryCallback> cb);
 
 	// Find the Current Outfit folder.
-	LLUUID getCOF();
+	const LLUUID getCOF() const;
 
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
@@ -132,6 +132,14 @@ private:
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Item-specific convenience functions 
+public:
+	// Is this in the COF?
+	BOOL getIsInCOF(const LLUUID& obj_id) const;
+	// Is this in the COF and can the user delete it from the COF?
+	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
 };
 
 #define SUPPORT_ENSEMBLES 0
@@ -166,6 +174,42 @@ void doOnIdle(T callable)
 {
 	OnIdleCallback<T>* cb_functor = new OnIdleCallback<T>(callable);
 	gIdleCallbacks.addFunction(&OnIdleCallback<T>::onIdle,cb_functor);
+}
+
+// Shim class and template function to allow arbitrary boost::bind
+// expressions to be run as recurring idle callbacks.
+template <typename T>
+class OnIdleCallbackRepeating
+{
+public:
+	OnIdleCallbackRepeating(T callable):
+		mCallable(callable)
+	{
+	}
+	// Will keep getting called until the callable returns false.
+	static void onIdle(void *data)
+	{
+		OnIdleCallbackRepeating<T>* self = reinterpret_cast<OnIdleCallbackRepeating<T>*>(data);
+		bool done = self->call();
+		if (done)
+		{
+			gIdleCallbacks.deleteFunction(onIdle, data);
+			delete self;
+		}
+	}
+	bool call()
+	{
+		return mCallable();
+	}
+private:
+	T mCallable;
+};
+
+template <typename T>
+void doOnIdleRepeating(T callable)
+{
+	OnIdleCallbackRepeating<T>* cb_functor = new OnIdleCallbackRepeating<T>(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating<T>::onIdle,cb_functor);
 }
 
 #endif

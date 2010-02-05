@@ -878,6 +878,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 {
 	setAllowNoTexture(p.allow_no_texture);
 	setCanApplyImmediately(p.can_apply_immediately);
+	mCommitOnSelection = !p.no_commit_on_selection;
 
 	LLTextBox::Params params(p.caption_text);
 	params.name(p.label);
@@ -1102,7 +1103,10 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 	{
 		if (op == TEXTURE_CANCEL)
 			mViewModel->resetDirty();
-		else
+		// If the "no_commit_on_selection" parameter is set
+		// we get dirty only when user presses OK in the picker
+		// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
+		else if (mCommitOnSelection || op == TEXTURE_SELECT)
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 			
 		if( floaterp->isDirty() )
@@ -1122,7 +1126,11 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 			}
 			else
 			{
-				onCommit();
+				// If the "no_commit_on_selection" parameter is set
+				// we commit only when user presses OK in the picker
+				// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
+				if (mCommitOnSelection || op == TEXTURE_SELECT)
+					onCommit();
 			}
 		}
 	}
@@ -1160,6 +1168,9 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		{
 			if(doDrop(item))
 			{
+				if (!mCommitOnSelection)
+					mViewModel->setDirty();
+
 				// This removes the 'Multiple' overlay, since
 				// there is now only one texture selected.
 				setTentative( FALSE ); 
@@ -1190,8 +1201,12 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
-		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+		LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES,LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		
+		texture->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+		texture->forceToSaveRawImage(0) ;
+
+		mTexturep = texture;
 	}
 	else if (!mFallbackImageName.empty())
 	{

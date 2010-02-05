@@ -179,7 +179,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 
 	if (!parcel) return;
 
-	if (!gSavedSettings.getBOOL("AudioStreamingMedia") || !gSavedSettings.getBOOL("AudioStreamingVideo"))
+	if (!gSavedSettings.getBOOL("AudioStreamingMedia"))
 		return;
 
 	std::string media_url = parcel->getMediaURL();
@@ -212,22 +212,15 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 		else
 		{
 			// Since the texture id is different, we need to generate a new impl
-			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
 			// Delete the old one first so they don't fight over the texture.
 			sMediaImpl = NULL;
-
-			sMediaImpl = LLViewerMedia::newMediaImpl(
-				placeholder_texture_id,
-				media_width, 
-				media_height, 
-				media_auto_scale,
-				media_loop);
-			sMediaImpl->setIsParcelMedia(true);
-			sMediaImpl->navigateTo(media_url, mime_type, true);
+			
+			// A new impl will be created below.
 		}
 	}
-	else
+
+	if(!sMediaImpl)
 	{
 		LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 

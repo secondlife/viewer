@@ -40,7 +40,6 @@
 #include "llinventoryfilter.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
-#include "llviewerinventory.h"
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
@@ -855,6 +854,7 @@ void LLFolderViewItem::draw()
 			ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, arrow_image->getImage(), sFgColor);
 	}
 
+	// See also LLFolderView::updateRenamerPosition()
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
 
 	LLFontGL* font = getLabelFontForStyle(mLabelStyle);

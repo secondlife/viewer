@@ -51,6 +51,7 @@
 #include "lldate.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcolumn.h"
+#include "llviewborder.h"
 
 class LLScrollListCell;
 class LLTextBox;
@@ -109,6 +110,8 @@ public:
 							scroll_bar_bg_color;
 
 		Optional<Contents> contents;
+
+		Optional<LLViewBorder::Params> border;
 		
 		Params();
 	};
@@ -145,6 +148,7 @@ public:
 	// "columns" => [ "column" => column name, "value" => value, "type" => type, "font" => font, "font-style" => style ], "id" => uuid
 	// Creates missing columns automatically.
 	virtual LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+	virtual LLScrollListItem* addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& value, EAddPosition pos = ADD_BOTTOM);
 	virtual LLScrollListItem* addRow(const LLScrollListItem::Params& value, EAddPosition pos = ADD_BOTTOM);
 	// Simple add element. Takes a single array of:
 	// [ "value" => value, "font" => font, "font-style" => style ]

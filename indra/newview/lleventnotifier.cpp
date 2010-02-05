@@ -174,6 +174,7 @@ void LLEventNotifier::remove(const U32 event_id)
 
 LLEventNotification::LLEventNotification() :
 	mEventID(0),
+	mEventDate(0),
 	mEventName("")
 {
 }

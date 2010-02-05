@@ -101,6 +101,11 @@ BOOL LLNearbyChat::postBuild()
 			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
 	}
 
+	setIsChrome(true);
+	//chrome="true" hides floater caption 
+	if (mDragHandle)
+		mDragHandle->setTitleVisible(TRUE);
+
 	return true;
 }
 
@@ -148,7 +153,7 @@ std::string appendTime()
 }
 
 
-void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
+void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 {
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
@@ -179,7 +184,9 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 	if (!chat.mMuted)
 	{
 		tmp_chat.mFromName = chat.mFromName;
-		mChatHistory->appendMessage(chat, use_plain_text_chat_history);
+		LLSD chat_args = args;
+		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+		mChatHistory->appendMessage(chat, chat_args);
 	}
 
 	if(archive)
