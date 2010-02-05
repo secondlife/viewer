@@ -76,6 +76,6 @@
      left_pad="5"
      right="-8"
      name="info_chevron"
-     top_delta="15"
+     top_delta="24"
      width="20" />
 </panel>
