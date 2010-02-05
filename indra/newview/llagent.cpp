@@ -3017,6 +3017,9 @@ void LLAgent::endAnimationUpdateUI()
 //-----------------------------------------------------------------------------
 void LLAgent::updateCamera()
 {
+	static LLFastTimer::DeclareTimer ftm("Camera");
+	LLFastTimer t(ftm);
+
 	//Ventrella - changed camera_skyward to the new global "mCameraUpVector"
 	mCameraUpVector = LLVector3::z_axis;
 	//LLVector3	camera_skyward(0.f, 0.f, 1.f);
