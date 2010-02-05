@@ -510,8 +510,12 @@ BOOL LLVOAvatarSelf::buildMenus()
 
 LLVOAvatarSelf::~LLVOAvatarSelf()
 {
-	gAgent.setAvatarObject(NULL);
-	gAgentWearables.setAvatarObject(NULL);
+	// gAgents pointer might have been set to a different Avatar Self, don't get rid of it if so.
+	if (gAgent.getAvatarObject() == this)
+	{
+		gAgent.setAvatarObject(NULL);
+		gAgentWearables.setAvatarObject(NULL);
+	}
 	delete mScreenp;
 	mScreenp = NULL;
 }
