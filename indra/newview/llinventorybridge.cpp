@@ -5046,7 +5046,7 @@ void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
 		if (!isItemRemovable())
