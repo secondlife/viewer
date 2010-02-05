@@ -207,6 +207,8 @@ public:
 	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor.get(); }
 	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
 
+	const LLFontGL* getFont() const { return mGLFont; }
+
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
 	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
