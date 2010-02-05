@@ -54,9 +54,13 @@ public:
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
-	// Copy all items in a category.
+	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 							 LLPointer<LLInventoryCallback> cb);
+
+	// Copy all items in a category.
+	void shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
+									 LLPointer<LLInventoryCallback> cb);
 
 	// Find the Current Outfit folder.
 	const LLUUID getCOF() const;

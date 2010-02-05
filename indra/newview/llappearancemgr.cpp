@@ -519,8 +519,30 @@ void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, boo
 	LLAppearanceManager::instance().updateCOF(category,append);
 }
 
+// Create a copy of src_id + contents as a subfolder of dst_id.
 void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 											  LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryCategory *src_cat = gInventory.getCategory(src_id);
+	if (!src_cat)
+	{
+		llwarns << "folder not found for src " << src_id.asString() << llendl;
+		return;
+	}
+	LLUUID parent_id = dst_id;
+	if(parent_id.isNull())
+	{
+		parent_id = gInventory.getRootFolderID();
+	}
+	LLUUID subfolder_id = gInventory.createNewCategory( parent_id,
+														LLFolderType::FT_NONE,
+														src_cat->getName());
+	shallowCopyCategoryContents(src_id, subfolder_id, cb);
+}
+
+// Copy contents of src_id to dst_id.
+void LLAppearanceManager::shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
+													  LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;

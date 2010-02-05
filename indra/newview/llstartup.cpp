@@ -2530,6 +2530,109 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
+LLViewerInventoryCategory* findDescendentCategoryByName(const LLUUID& parent_id,const std::string& name)
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLNameCategoryCollector has_name(name);
+	gInventory.collectDescendentsIf(parent_id,
+									cat_array,
+									item_array,
+									LLInventoryModel::EXCLUDE_TRASH,
+									has_name);
+	if (0 == cat_array.count())
+		return NULL;
+	else
+		return cat_array.get(0);
+}
+
+class CopyAfterFetchStage2: public LLInventoryFetchObserver
+{
+public:
+	CopyAfterFetchStage2(LLViewerInventoryCategory *cat, const LLUUID& dst_id):
+		mCat(cat),
+		mDstID(dst_id)
+	{
+	}
+	~CopyAfterFetchStage2()
+	{
+	}
+	virtual void done()
+	{
+//		LLAppearanceManager::instance().shallowCopyCategory(cat,dst_id,NULL);
+		gInventory.removeObserver(this);
+		LLPointer<LLInventoryCallback> cb(NULL);
+		LLAppearanceManager *app_mgr = &(LLAppearanceManager::instance());
+		doOnIdle(boost::bind(&LLAppearanceManager::shallowCopyCategory,app_mgr,mCat->getUUID(),mDstID,cb));
+		delete this;
+	}
+protected:
+	LLViewerInventoryCategory *mCat;
+	LLUUID mDstID;
+};
+
+class CopyAfterFetchStage1: public LLInventoryFetchDescendentsObserver
+{
+public:
+	CopyAfterFetchStage1(LLViewerInventoryCategory *cat, const LLUUID& dst_id):
+		mCat(cat),
+		mDstID(dst_id)
+	{
+	}
+	~CopyAfterFetchStage1()
+	{
+	}
+	virtual void done()
+	{
+		// What we do here is get the complete information on the items in
+		// the library, and set up an observer that will wait for that to
+		// happen.
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectDescendents(mCompleteFolders.front(),
+									  cat_array,
+									  item_array,
+									  LLInventoryModel::EXCLUDE_TRASH);
+		S32 count = item_array.count();
+		if(!count)
+		{
+			llwarns << "Nothing fetched in category " << mCompleteFolders.front()
+					<< llendl;
+			//dec_busy_count();
+			gInventory.removeObserver(this);
+			delete this;
+			return;
+		}
+
+		CopyAfterFetchStage2 *stage2 = new CopyAfterFetchStage2(mCat,mDstID);
+		LLInventoryFetchObserver::item_ref_t ids;
+		for(S32 i = 0; i < count; ++i)
+		{
+			ids.push_back(item_array.get(i)->getUUID());
+		}
+		
+		gInventory.removeObserver(this);
+		
+		// do the fetch
+		stage2->fetchItems(ids);
+		if(stage2->isEverythingComplete())
+		{
+			// everything is already here - call done.
+			stage2->done();
+		}
+		else
+		{
+			// it's all on it's way - add an observer, and the inventory
+			// will call done for us when everything is here.
+			gInventory.addObserver(stage2);
+		}
+		delete this;
+	}
+protected:
+	LLViewerInventoryCategory *mCat;
+	LLUUID mDstID;
+};
+
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
@@ -2553,27 +2656,59 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	// try to find the outfit - if not there, create some default
 	// wearables.
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	LLNameCategoryCollector has_name(outfit_folder_name);
-	gInventory.collectDescendentsIf(gInventory.getLibraryRootFolderID(),
-									cat_array,
-									item_array,
-									LLInventoryModel::EXCLUDE_TRASH,
-									has_name);
-	if (0 == cat_array.count())
+	LLViewerInventoryCategory *cat = findDescendentCategoryByName(
+		gInventory.getLibraryRootFolderID(),
+		outfit_folder_name);
+	if (!cat)
 	{
 		gAgentWearables.createStandardWearables(gender);
 	}
 	else
 	{
-		LLInventoryCategory* cat = cat_array.get(0);
 		bool do_copy = true;
 		bool do_append = false;
 		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
-	LLAppearanceManager::instance().wearOutfitByName(gestures);
-	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);
+
+	// Copy gender-specific gestures.
+	LLViewerInventoryCategory *gestures_cat = findDescendentCategoryByName( 
+		gInventory.getLibraryRootFolderID(),
+		gestures);
+	if (gestures_cat)
+	{
+		CopyAfterFetchStage1 *stage1 = new CopyAfterFetchStage1(
+			gestures_cat, gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE));
+		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		folders.push_back(gestures_cat->getUUID());
+		stage1->fetchDescendents(folders);
+		if (stage1->isEverythingComplete())
+		{
+			stage1->done();
+		}
+		else
+		{
+			gInventory.addObserver(stage1);
+		}
+
+//		LLAppearanceManager::instance().shallowCopyCategory(
+//			gestures_cat->getUUID(),
+//			gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE),
+//			NULL);
+	}
+
+	// Copy common gestures.
+#if 0
+	LLViewerInventoryCategory *common_gestures_cat = findDescendentCategoryByName( 
+		gInventory.getLibraryRootFolderID(),
+		COMMON_GESTURES_FOLDER);
+	if (common_gestures_cat)
+	{
+		LLAppearanceManager::instance().shallowCopyCategory(
+			common_gestures_cat->getUUID(),
+			gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE),
+			NULL);
+	}
+#endif
 
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
