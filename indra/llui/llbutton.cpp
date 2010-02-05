@@ -771,12 +771,7 @@ void LLButton::draw()
 			center_x++;
 		}
 
-		S32 text_width_delta = overlay_width + 1;
-		// if image paddings set, they should participate in scaling process
-		S32 image_size_delta = mImageOverlayTopPad + mImageOverlayBottomPad;
-		overlay_width = overlay_width - image_size_delta;
-		overlay_height = overlay_height - image_size_delta;
-
+		center_y += (mImageOverlayBottomPad - mImageOverlayTopPad);
 		// fade out overlay images on disabled buttons
 		LLColor4 overlay_color = mImageOverlayColor.get();
 		if (!enabled)
@@ -788,10 +783,9 @@ void LLButton::draw()
 		switch(mImageOverlayAlignment)
 		{
 		case LLFontGL::LEFT:
-			text_left += overlay_width + mImageOverlayRightPad + 1;
-			text_width -= text_width_delta;
+			text_left += overlay_width + 1;
 			mImageOverlay->draw(
-				mLeftHPad, 
+				mImageOverlayLeftPad,
 				center_y - (overlay_height / 2), 
 				overlay_width, 
 				overlay_height, 
@@ -806,10 +800,9 @@ void LLButton::draw()
 				overlay_color);
 			break;
 		case LLFontGL::RIGHT:
-			text_right -= overlay_width + mImageOverlayLeftPad+ 1;
-			text_width -= text_width_delta;
+			text_right -= overlay_width + 1;
 			mImageOverlay->draw(
-				getRect().getWidth() - mRightHPad - overlay_width, 
+				getRect().getWidth() - mImageOverlayRightPad - overlay_width,
 				center_y - (overlay_height / 2), 
 				overlay_width, 
 				overlay_height, 
