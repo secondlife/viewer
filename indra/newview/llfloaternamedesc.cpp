@@ -111,7 +111,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	if (NameEditor)
 	{
 		NameEditor->setMaxTextLength(DB_INV_ITEM_NAME_STR_LEN);
-		NameEditor->setPrevalidate(&LLLineEditor::prevalidateASCIIPrintableNoPipe);
+		NameEditor->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	}
 
 	y -= llfloor(PREVIEW_LINE_HEIGHT * 1.2f);
@@ -123,7 +123,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	if (DescEditor)
 	{
 		DescEditor->setMaxTextLength(DB_INV_ITEM_DESC_STR_LEN);
-		DescEditor->setPrevalidate(&LLLineEditor::prevalidateASCIIPrintableNoPipe);
+		DescEditor->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	}
 
 	y -= llfloor(PREVIEW_LINE_HEIGHT * 1.2f);

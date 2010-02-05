@@ -955,7 +955,7 @@ BOOL LLPreviewLSL::postBuild()
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	childSetText("desc", item->getDescription());
-	childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 
 	return LLPreview::postBuild();
 }

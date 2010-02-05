@@ -19,7 +19,7 @@
          name="avatar_icon"
          top="3"
          width="18" />
-    <text_editor
+    <text
       allow_scroll="false"
       v_pad = "7"
       read_only = "true"

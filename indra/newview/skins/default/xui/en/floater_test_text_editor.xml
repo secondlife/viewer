@@ -28,4 +28,17 @@
    width="200">
     This contains long text and should scroll horizontally to the right
   </text_editor>
+  <text_editor
+   height="50"
+   follows="top|left|bottom"
+   font="SansSerif"
+   left="10"
+   name="numeric_text_editor"
+   tool_tip="text editor for numeric text entry only"
+   top_pad="10"
+   text_type="int"
+   width="200">
+    This is text that is NOT a number, so shouldn't appear
+  </text_editor>
+
 </floater>

@@ -138,7 +138,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 			params.font(p.font);
 			params.max_length_bytes(MAX_STRING_LENGTH);
 			params.commit_callback.function(LLMultiSliderCtrl::onEditorCommit);
-			params.prevalidate_callback(&LLLineEditor::prevalidateFloat);
+			params.prevalidate_callback(&LLTextValidate::validateFloat);
 			params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 			mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 			mEditor->setFocusReceivedCallback( boost::bind(LLMultiSliderCtrl::onEditorGainFocus, _1, this) );
