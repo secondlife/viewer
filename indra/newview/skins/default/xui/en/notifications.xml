@@ -257,7 +257,7 @@ Save all changes to clothing/body parts?
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
-Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to grant modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -280,7 +280,7 @@ Do you want to grant modify rights for the selected Residents?
    icon="alertmodal.tga"
    name="RevokeModifyRights"
    type="alertmodal">
-Do you want to revoke modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to revoke modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -2039,7 +2039,7 @@ Would you be my friend?
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
-Do you want to remove [FIRST_NAME] [LAST_NAME] from your Friends List?
+Do you want to remove [NAME] from your Friends List?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2279,7 +2279,7 @@ Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
    name="DeedLandToGroupWithContribution"
    type="alertmodal">
 By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
-The deed will include a simultaneous land contribution to the group from &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
@@ -4318,14 +4318,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+[NAME] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+[NAME] is Offline
   </notification>
 
   <notification
@@ -4476,13 +4476,6 @@ You cannot modify protected categories.
    name="CannotRemoveProtectedCategories"
    type="notifytip">
 You cannot remove protected categories.
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="OfferedCard"
-   type="notifytip">
-You have offered a calling card to [FIRST] [LAST]
   </notification>
 
   <notification
@@ -4728,7 +4721,7 @@ The objects you own on the selected parcel of land have been returned back to yo
    icon="notify.tga"
    name="OtherObjectsReturned"
    type="notify">
-The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
+The objects on the selected parcel of land that is owned by [NAME] have been returned to his or her inventory.
   </notification>
 
   <notification
@@ -5017,28 +5010,6 @@ No valid parcel could be found.
    name="ObjectGiveItem"
    type="offer">
 An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
-[ITEM_SLURL]
-    <form name="form">
-      <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
-      <button
-       index="1"
-       name="Discard"
-       text="Discard"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Block"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="ObjectGiveItemUnknownUser"
-   type="offer">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -5350,7 +5321,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialog"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+[NAME]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
     <form name="form">
       <button

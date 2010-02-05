@@ -2653,13 +2653,12 @@ void LLIMMgr::noteOfflineUsers(
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
-			std::string first, last;
+			std::string full_name;
 			if(info && !info->isOnline()
-			   && gCacheName->getName(ids.get(i), first, last))
+			   && gCacheName->getFullName(ids.get(i), full_name))
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
-				offline.setArg("[FIRST]", first);
-				offline.setArg("[LAST]", last);
+				offline.setArg("[NAME]", full_name);
 				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}

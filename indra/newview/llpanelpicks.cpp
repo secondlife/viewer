@@ -265,9 +265,9 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		LLAvatarPicks* avatar_picks = static_cast<LLAvatarPicks*>(data);
 		if(avatar_picks && getAvatarId() == avatar_picks->target_id)
 		{
-			std::string name, second_name;
-			gCacheName->getName(getAvatarId(),name,second_name);
-			childSetTextArg("pick_title", "[NAME]",name);
+			std::string full_name;
+			gCacheName->getFullName(getAvatarId(), full_name);
+			childSetTextArg("pick_title", "[NAME]", full_name);
 			
 			// Save selection, to be able to edit same item after saving changes. See EXT-3023.
 			LLUUID selected_id = mPicksList->getSelectedValue()[PICK_ID];

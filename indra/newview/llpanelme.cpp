@@ -208,13 +208,13 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 
 	childSetValue("show_in_search_checkbox", (BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
 
-	std::string first, last;
-	BOOL found = gCacheName->getName(avatar_data->avatar_id, first, last);
-	if (found)
-	{
-		childSetTextArg("name_text", "[FIRST]", first);
-		childSetTextArg("name_text", "[LAST]", last);
-	}
+	// IDEVO - These fields do not seem to exist any more.
+	//std::string full_name;
+	//BOOL found = gCacheName->getFullName(avatar_data->avatar_id, full_name);
+	//if (found)
+	//{
+	//	childSetTextArg("name_text", "[NAME]", full_name);
+	//}
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()

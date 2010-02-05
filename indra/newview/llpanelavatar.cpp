@@ -226,12 +226,11 @@ void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
 
 void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
 {
-	std::string first, last;
+	std::string full_name;
 	LLSD args;
-	if (gCacheName->getName(getAvatarId(), first, last))
+	if (gCacheName->getFullName(getAvatarId(), full_name))
 	{
-		args["FIRST_NAME"] = first;
-		args["LAST_NAME"] = last;
+		args["NAME"] = full_name;
 	}
 
 	if (grant)

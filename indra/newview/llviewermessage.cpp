@@ -1030,7 +1030,6 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
-				|| notification->getName() == "ObjectGiveItemUnknownUser"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1334,12 +1333,12 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		}
 		else
 		{
-			std::string first_name, last_name;
-			if (gCacheName->getName(mFromID, first_name, last_name))
+			std::string full_name;
+			if (gCacheName->getFullName(mFromID, full_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+ LLTrans::getString("'") + mFromName 
-				+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + first_name + " " + last_name;
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + first_name + " " + last_name;
+					+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + full_name;
+				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + full_name;
 			}
 			else
 			{
@@ -1507,30 +1506,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
-	// Name cache callbacks don't store userdata, so can't save
-	// off the LLOfferInfo.  Argh.
-	BOOL name_found = FALSE;
-	if (info->mFromGroup)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(info->mFromID, group_name))
-		{
-			args["FIRST"] = group_name;
-			args["LAST"] = "";
-			name_found = TRUE;
-		}
-	}
-	else
-	{
-		std::string first_name, last_name;
-		if (gCacheName->getName(info->mFromID, first_name, last_name))
-		{
-			args["FIRST"] = first_name;
-			args["LAST"] = last_name;
-			name_found = TRUE;
-		}
-	}
-
 	// If mObjectID is null then generate the object_id based on msg to prevent
 	// multiple creation of chiclets for same object.
 	LLUUID object_id = info->mObjectID;
@@ -1545,7 +1520,14 @@ void inventory_offer_handler(LLOfferInfo* info)
 	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
-	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	if (info->mFromGroup)
+	{
+		args["NAME_SLURL"] = LLSLURL::buildCommand("group", info->mFromID, "about");
+	}
+	else
+	{
+		args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	}
 	std::string verb = "select?name=" + LLURI::escape(msg);
 	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
@@ -1558,7 +1540,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		args["ITEM_SLURL"] = msg;
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
-		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		p.name = "ObjectGiveItem";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
 		LLNotifications::instance().add(p);
 	}
@@ -5726,8 +5708,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLNotificationPtr notification;
 	if (!first_name.empty())
 	{
-		args["FIRST"] = first_name;
-		args["LAST"] = last_name;
+		args["NAME"] = LLCacheName::buildFullname(first_name, last_name);
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialog").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
