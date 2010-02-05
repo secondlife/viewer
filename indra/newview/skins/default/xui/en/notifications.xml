@@ -3852,7 +3852,7 @@ Are you sure you want to quit?
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"
-   type="alertmodal">
+   type="alert">
 Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
 All reported abuses are investigated and resolved.
