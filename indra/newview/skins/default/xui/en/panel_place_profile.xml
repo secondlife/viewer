@@ -29,7 +29,7 @@
      value="Place Profile" />
     <string
      name="title_teleport_history"
-     value="Teleport History Location" />
+     value="Teleport History" />
     <string
      name="not_available"
      value="(N\A)" />
@@ -156,7 +156,7 @@
      layout="topleft"
      left_pad="10"
      name="title"
-     text_color="white"
+     text_color="LtGray"
      top="0"
      use_ellipses="true"
      value="Place Profile"
