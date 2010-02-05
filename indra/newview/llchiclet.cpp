@@ -545,6 +545,7 @@ void LLIMChiclet::toggleSpeakerControl()
 	}
 
 	setRequiredWidth();
+	mSpeakerCtrl->setSpeakerId(LLUUID::null);
 	mSpeakerCtrl->setVisible(getShowSpeaker());
 }
 
@@ -954,7 +955,10 @@ LLIMGroupChiclet::~LLIMGroupChiclet()
 
 void LLIMGroupChiclet::draw()
 {
-	switchToCurrentSpeaker();
+	if(getShowSpeaker())
+	{
+		switchToCurrentSpeaker();
+	}
 	LLIMChiclet::draw();
 }
 
