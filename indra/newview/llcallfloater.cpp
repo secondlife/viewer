@@ -52,6 +52,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
+#include "llviewerparcelmgr.h"
 
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
 void reshape_floater(LLCallFloater* floater, S32 delta_height);
@@ -677,7 +678,8 @@ void LLCallFloater::resetVoiceRemoveTimers()
 
 void LLCallFloater::removeVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 {
-	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id);
+	bool delete_it = true;
+	mSpeakerDelayRemover->unsetActionTimer(voice_speaker_id, delete_it);
 }
 
 bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
@@ -719,7 +721,15 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
-	updateState(new_state);
+	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
+	if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+	{
+		updateState(new_state);
+	}
+	else
+	{
+		closeFloater();
+	}
 }
 
 void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
@@ -731,11 +741,11 @@ void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 	}
 	else
 	{
-		reset();
+		reset(new_state);
 	}
 }
 
-void LLCallFloater::reset()
+void LLCallFloater::reset(const LLVoiceChannel::EState& new_state)
 {
 	// lets forget states from the previous session
 	// for timers...
@@ -748,8 +758,26 @@ void LLCallFloater::reset()
 	mParticipants = NULL;
 	mAvatarList->clear();
 
-	// update floater to show Loading while waiting for data.
-	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	// These ifs were added instead of simply showing "loading" to make VCP work correctly in parcels
+	// with disabled voice (EXT-4648 and EXT-4649)
+	if (!LLViewerParcelMgr::getInstance()->allowAgentVoice() && LLVoiceChannel::STATE_HUNG_UP == new_state)
+	{
+		// hides "Leave Call" when call is ended in parcel with disabled voice- hiding usually happens in
+		// updateSession() which won't be called here because connect to nearby voice never happens 
+		childSetVisible("leave_call_btn_panel", false);
+		// setting title to nearby chat an "no one near..." text- because in region with disabled
+		// voice we won't have chance to really connect to nearby, so VCP is changed here manually
+		setTitle(getString("title_nearby"));
+		mAvatarList->setNoItemsCommentText(getString("no_one_near"));
+	}
+	// "loading" is shown  only when state is "ringing" to avoid showing it in nearby chat vcp
+	// of parcels with disabled voice all the time- "no_one_near" is now shown there (EXT-4648)
+	else if (new_state == LLVoiceChannel::STATE_RINGING)
+	{
+		// update floater to show Loading while waiting for data.
+		mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	}
+
 	mAvatarList->setVisible(TRUE);
 	mNonAvatarCaller->setVisible(FALSE);
 

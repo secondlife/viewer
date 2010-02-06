@@ -1353,9 +1353,6 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Cache files removed" << llendflush;
 
-
-	cleanup_menus();
-
 	// Wait for any pending VFS IO
 	while (1)
 	{
@@ -2364,9 +2361,6 @@ bool LLAppViewer::initWindow()
 
 	// store setting in a global for easy access and modification
 	gNoRender = gSavedSettings.getBOOL("DisableRendering");
-
-	// Hide the splash screen
-	LLSplashScreen::hide();
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");

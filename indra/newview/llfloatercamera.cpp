@@ -65,7 +65,7 @@ public:
 	LLPanelCameraZoom();
 
 	/* virtual */ BOOL	postBuild();
-	/* virtual */ void	onOpen(const LLSD& key);
+	/* virtual */ void	draw();
 
 protected:
 	void	onZoomPlusHeldDown();
@@ -73,7 +73,6 @@ protected:
 	void	onSliderValueChanged();
 
 private:
-	F32			mSavedSliderVal;
 	LLButton*	mPlusBtn;
 	LLButton*	mMinusBtn;
 	LLSlider*	mSlider;
@@ -88,8 +87,7 @@ static LLRegisterPanelClassWrapper<LLPanelCameraZoom> t_camera_zoom_panel("camer
 LLPanelCameraZoom::LLPanelCameraZoom()
 :	mPlusBtn( NULL ),
 	mMinusBtn( NULL ),
-	mSlider( NULL ),
-	mSavedSliderVal(0.f)
+	mSlider( NULL )
 {
 	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
 	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
@@ -101,16 +99,13 @@ BOOL LLPanelCameraZoom::postBuild()
 	mPlusBtn  = getChild <LLButton> ("zoom_plus_btn");
 	mMinusBtn = getChild <LLButton> ("zoom_minus_btn");
 	mSlider   = getChild <LLSlider> ("zoom_slider");
-	mSlider->setMinValue(.0f);
-	mSlider->setMaxValue(8.f);
 	return LLPanel::postBuild();
 }
 
-void LLPanelCameraZoom::onOpen(const LLSD& key)
+void LLPanelCameraZoom::draw()
 {
-	LLVector3d to_focus = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin()) - gAgent.calcFocusPositionTargetGlobal();
-	mSavedSliderVal = 8.f - (F32)to_focus.magVec(); // maximum minus current
-	mSlider->setValue( mSavedSliderVal );
+	mSlider->setValue(gAgent.getCameraZoomFraction());
+	LLPanel::draw();
 }
 
 void LLPanelCameraZoom::onZoomPlusHeldDown()
@@ -135,13 +130,8 @@ void LLPanelCameraZoom::onZoomMinusHeldDown()
 
 void  LLPanelCameraZoom::onSliderValueChanged()
 {
-	F32 val	 = mSlider->getValueF32();
-	F32 rate = val - mSavedSliderVal;
-
-	gAgent.unlockView();
-	gAgent.cameraOrbitIn(rate);
-
-	mSavedSliderVal = val;
+	F32 zoom_level = mSlider->getValueF32();
+	gAgent.setCameraZoomFraction(zoom_level);
 }
 
 void activate_camera_tool()

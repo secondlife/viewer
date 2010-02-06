@@ -53,8 +53,11 @@
 #include "llagent.h"
 #include "llnotificationsutil.h"
 #include "lltoastnotifypanel.h"
+#include "lltooltip.h"
 #include "llviewerregion.h"
+#include "llviewertexteditor.h"
 #include "llworld.h"
+#include "lluiconstants.h"
 
 
 #include "llsidetray.h"//for blocked objects panel
@@ -108,6 +111,34 @@ public:
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		return LLPanel::handleMouseUp(x,y,mask);
+	}
+
+	//*TODO remake it using mouse enter/leave and static LLHandle<LLIconCtrl> to add/remove as a child
+	BOOL handleToolTip(S32 x, S32 y, MASK mask)
+	{
+		LLViewerTextEditor* name = getChild<LLViewerTextEditor>("user_name");
+		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && SYSTEM_FROM != mFrom)
+		{
+
+			// Spawn at right side of the name textbox.
+			LLRect sticky_rect = name->calcScreenRect();
+			S32 icon_x = llmin(sticky_rect.mLeft + name->getTextBoundingRect().getWidth() + 7, sticky_rect.mRight - 3);
+
+			LLToolTip::Params params;
+			params.background_visible(false);
+			params.click_callback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, 0, 0, 0));
+			params.delay_time(0.0f);		// spawn instantly on hover
+			params.image(LLUI::getUIImage("Info_Small"));
+			params.message("");
+			params.padding(0);
+			params.pos(LLCoordGL(icon_x, sticky_rect.mTop - 2));
+			params.sticky_rect(sticky_rect);
+
+			LLToolTipMgr::getInstance()->show(params);
+			return TRUE;
+		}
+
+		return LLPanel::handleToolTip(x, y, mask);
 	}
 
 	void onObjectIconContextMenuItemClicked(const LLSD& userdata)
@@ -231,7 +262,7 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-		LLTextEditor* userName = getChild<LLTextEditor>("user_name");
+		LLTextBox* userName = getChild<LLTextBox>("user_name");
 
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
@@ -269,7 +300,7 @@ public:
 
 	/*virtual*/ void draw()
 	{
-		LLTextEditor* user_name = getChild<LLTextEditor>("user_name");
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
 
 		LLRect user_name_rect = user_name->getRect();
@@ -554,9 +585,16 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	bool irc_me = prefix == "/me " || prefix == "/me'";
 
 	// Delimiter after a name in header copy/past and in plain text mode
-	std::string delimiter = (chat.mChatType != CHAT_TYPE_SHOUT && chat.mChatType != CHAT_TYPE_WHISPER)
-		? ": "
-		: " ";
+	std::string delimiter = ": ";
+	std::string shout = LLTrans::getString("shout");
+	std::string whisper = LLTrans::getString("whisper");
+	if (chat.mChatType == CHAT_TYPE_SHOUT || 
+		chat.mChatType == CHAT_TYPE_WHISPER ||
+		chat.mText.compare(0, shout.length(), shout) == 0 ||
+		chat.mText.compare(0, whisper.length(), whisper) == 0)
+	{
+		delimiter = " ";
+	}
 
 	// Don't add any delimiter after name in irc styled messages
 	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
@@ -671,8 +709,36 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		{
 			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(
 					notification);
+			//we can't set follows in xml since it broke toasts behavior
 			notify_box->setFollowsLeft();
 			notify_box->setFollowsRight();
+			notify_box->setFollowsTop();
+
+			LLButton* accept_button = notify_box->getChild<LLButton> ("Accept",
+					TRUE);
+			if (accept_button != NULL)
+			{
+				accept_button->setFollowsNone();
+				accept_button->setOrigin(2*HPAD, accept_button->getRect().mBottom);
+			}
+
+			LLButton* decline_button = notify_box->getChild<LLButton> (
+					"Decline", TRUE);
+			if (accept_button != NULL && decline_button != NULL)
+			{
+				decline_button->setFollowsNone();
+				decline_button->setOrigin(4*HPAD
+						+ accept_button->getRect().getWidth(),
+						decline_button->getRect().mBottom);
+			}
+
+			LLTextEditor* text_editor = notify_box->getChild<LLTextEditor>("text_editor_box", TRUE);
+			S32 text_heigth = 0;
+			if(text_editor != NULL)
+			{
+				text_heigth = text_editor->getTextBoundingRect().getHeight();
+			}
+
 			//Prepare the rect for the view
 			LLRect target_rect = mEditor->getDocumentView()->getRect();
 			// squeeze down the widget by subtracting padding off left and right
@@ -681,6 +747,15 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			notify_box->reshape(target_rect.getWidth(),
 					notify_box->getRect().getHeight());
 			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+
+			if (text_editor != NULL)
+			{
+				S32 text_heigth_delta =
+						text_editor->getTextBoundingRect().getHeight()
+								- text_heigth;
+				notify_box->reshape(target_rect.getWidth(),
+								notify_box->getRect().getHeight() + text_heigth_delta);
+			}
 
 			LLInlineViewSegment::Params params;
 			params.view = notify_box;

@@ -5,6 +5,7 @@ label_pad_left - padding to the left of tab button labels
 -->
 <tab_container tab_min_width="60"
                tab_max_width="150"
+               use_custom_icon_ctrl="false"
                halign="center"
                font="SansSerifSmall" 
                tab_height="21"

@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
-	<string name="stop_txt">
+	<floater.string name="step_anim">
+		Animation til afspilning:
+	</floater.string>
+	<floater.string name="step_sound">
+		Lyd til afspilning:
+	</floater.string>
+	<floater.string name="step_chat">
+		Sig:
+	</floater.string>
+	<floater.string name="step_wait">
+		Vent:
+	</floater.string>
+	<floater.string name="stop_txt">
 		Stop
-	</string>
-	<string name="preview_txt">
+	</floater.string>
+	<floater.string name="preview_txt">
 		Vis
-	</string>
-	<string name="none_text">
+	</floater.string>
+	<floater.string name="none_text">
 		-- Intet --
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Bevægelse: [NAME]
+	</floater.string>
 	<text name="desc_label">
 		Beskrivelse:
 	</text>
@@ -23,33 +38,27 @@
 		Genvejstast:
 	</text>
 	<combo_box label="Ingen" name="modifier_combo" width="60"/>
-	<combo_box label="Ingen" name="key_combo" left_delta="70" width="60"/>
+	<combo_box label="Ingen" left_delta="70" name="key_combo" width="60"/>
 	<text name="library_label">
 		Type:
 	</text>
+	<scroll_list name="library_list"/>
+	<button label="Tilføj &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Trin:
 	</text>
-	<scroll_list name="library_list">
-		Animation
-Lyd
-Chat
-Vent
-	</scroll_list>
-	<button label="Tilføj &gt;&gt;" name="add_btn"/>
-	<button label="Flyt op" name="up_btn"/>
-	<button label="Flyt ned" name="down_btn"/>
+	<button label="Op" name="up_btn"/>
+	<button label="Ned" name="down_btn"/>
 	<button label="Fjern" name="delete_btn"/>
-	<text name="help_label">
-		Alle trin vil ske samtidigt,
-medmindre du tilføjer vente trin.
-	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start" label="Start" />
-		<radio_item name="stop" label="Stop" />
+		<radio_item label="Start" name="start"/>
+		<radio_item label="Stop" name="stop"/>
 	</radio_group>
 	<check_box label="Indtil animation er færdig" name="wait_anim_check"/>
 	<check_box label="tid i sekunder" name="wait_time_check"/>
+	<text name="help_label">
+		Alle trin vil ske samtidigt, medmindre du tilføjer vente trin.
+	</text>
 	<check_box label="Aktiv" name="active_check" tool_tip="Aktive bevægelser kan blive aktiveret ved at skrive deress udløser tekst eller ved at trykke på genvejstaste. Bevægelser vil normalt være inaktive hvis der allerede findes en tilsvarende genvejstaste."/>
 	<button label="Vis" name="preview_btn"/>
 	<button label="Gem" name="save_btn"/>

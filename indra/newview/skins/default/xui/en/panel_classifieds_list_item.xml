@@ -64,6 +64,7 @@
      layout="topleft"
      left="103"
      name="description"
+     textbox.show_context_menu="false" 
      top_pad="0"
      width="178"
      word_wrap="true" />
@@ -75,6 +76,6 @@
      left_pad="5"
      right="-8"
      name="info_chevron"
-     top_delta="15"
+     top_delta="24"
      width="20" />
 </panel>

@@ -414,17 +414,17 @@ LLPanelRegionTools::LLPanelRegionTools()
 BOOL LLPanelRegionTools::postBuild()
 {
 	getChild<LLLineEditor>("region name")->setKeystrokeCallback(onChangeSimName, this);
-	childSetPrevalidate("region name", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
-	childSetPrevalidate("estate", &LLLineEditor::prevalidatePositiveS32);
-	childSetPrevalidate("parentestate", &LLLineEditor::prevalidatePositiveS32);
+	childSetPrevalidate("region name", &LLTextValidate::validateASCIIPrintableNoPipe);
+	childSetPrevalidate("estate", &LLTextValidate::validatePositiveS32);
+	childSetPrevalidate("parentestate", &LLTextValidate::validatePositiveS32);
 	childDisable("parentestate");
-	childSetPrevalidate("gridposx", &LLLineEditor::prevalidatePositiveS32);
+	childSetPrevalidate("gridposx", &LLTextValidate::validatePositiveS32);
 	childDisable("gridposx");
-	childSetPrevalidate("gridposy", &LLLineEditor::prevalidatePositiveS32);
+	childSetPrevalidate("gridposy", &LLTextValidate::validatePositiveS32);
 	childDisable("gridposy");
 	
-	childSetPrevalidate("redirectx", &LLLineEditor::prevalidatePositiveS32);
-	childSetPrevalidate("redirecty", &LLLineEditor::prevalidatePositiveS32);
+	childSetPrevalidate("redirectx", &LLTextValidate::validatePositiveS32);
+	childSetPrevalidate("redirecty", &LLTextValidate::validatePositiveS32);
 			 
 	return TRUE;
 }

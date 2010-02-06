@@ -46,7 +46,7 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php?lang=ja-JP payment method] | [http://www.secondlife.com/my/account/currency.php?lang=ja-JP currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=ja-JP exchange rate]
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=ja-JP 支払方法] | [http://www.secondlife.com/my/account/currency.php?lang=ja-JP 通貨] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=ja-JP 換算レート]
 	</text>
 	<text name="exchange_rate_note">
 		金額を再入力して最新換算レートを確認します。

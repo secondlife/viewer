@@ -800,6 +800,9 @@ bool idle_startup()
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 
+		// Hide the splash screen
+		LLSplashScreen::hide();
+
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
 		display_startup();
@@ -1700,6 +1703,10 @@ bool idle_startup()
 					<< " kbps" << LL_ENDL;
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
+
+			// Set the show start location to true, now that the user has logged
+			// on with this install.
+			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
 		}
 
 		// We're successfully logged in.
@@ -1859,21 +1866,6 @@ bool idle_startup()
 			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
 		}
 
-
-		// We now have an inventory skeleton, so if this is a user's first
-		// login, we can start setting up their clothing and avatar 
-		// appearance.  This helps to avoid the generic "Ruth" avatar in
-		// the orientation island tutorial experience. JC
-		if (gAgent.isFirstLogin()
-			&& !sInitialOutfit.empty()    // registration set up an outfit
-			&& !sInitialOutfitGender.empty() // and a gender
-			&& gAgent.getAvatarObject()	  // can't wear clothes without object
-			&& !gAgent.isGenderChosen() ) // nothing already loading
-		{
-			// Start loading the wearables, textures, gestures
-			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
-		}
-
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
 		   || (timeout_frac > 3.f))
@@ -1893,6 +1885,17 @@ bool idle_startup()
 				LLViewerShaderMgr::instance()->setShaders();
 			}
 		}
+		
+		// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
+		// then auto-populate outfits from the library into the My Outfits folder.
+		static bool check_populate_my_outfits = true;
+		if (check_populate_my_outfits && 
+			(LLInventoryModel::getIsFirstTimeInViewer2() 
+			 || gSavedSettings.getBOOL("MyOutfitsAutofill")))
+		{
+			gAgentWearables.populateMyOutfitsFolder();
+		}
+		check_populate_my_outfits = false;
 
 		return TRUE;
 	}
@@ -2536,6 +2539,11 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
+	// Not going through the processAgentInitialWearables path, so need to set this here.
+	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
+	// Initiate creation of COF, since we're also bypassing that.
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	
 	S32 gender = 0;
 	std::string gestures;
 	if (gender_name == "male")
@@ -2554,7 +2562,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	LLNameCategoryCollector has_name(outfit_folder_name);
-	gInventory.collectDescendentsIf(LLUUID::null,
+	gInventory.collectDescendentsIf(gInventory.getLibraryRootFolderID(),
 									cat_array,
 									item_array,
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -2565,7 +2573,10 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
-		LLAppearanceManager::instance().wearOutfitByName(outfit_folder_name);
+		LLInventoryCategory* cat = cat_array.get(0);
+		bool do_copy = true;
+		bool do_append = false;
+		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
 	LLAppearanceManager::instance().wearOutfitByName(gestures);
 	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);

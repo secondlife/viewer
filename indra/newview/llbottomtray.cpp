@@ -80,6 +80,14 @@ public:
 	{
 		mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
+
+		// Hide "show_nearby_chat" button 
+		LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
+		LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
+		S32 delta_width = show_btn->getRect().getWidth();
+		show_btn->setVisible(FALSE);
+		chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
+
 		return TRUE;
 	}
 
@@ -280,7 +288,13 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 		break;
 	}
 
-	mSpeakBtn->setEnabled(enable);
+	// We have to enable/disable right and left parts of speak button separately (EXT-4648)
+	mSpeakBtn->setSpeakBtnEnabled(enable);
+	// skipped to avoid button blinking
+	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
+	{
+		mSpeakBtn->setFlyoutBtnEnabled(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
+	}
 }
 
 void LLBottomTray::onMouselookModeOut()
@@ -410,9 +424,10 @@ BOOL LLBottomTray::postBuild()
 	mSpeakPanel = getChild<LLPanel>("speak_panel");
 	mSpeakBtn = getChild<LLSpeakButton>("talk");
 
-	// Speak button should be initially disabled because
+	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
-	mSpeakBtn->setEnabled(FALSE);
+	mSpeakBtn->setSpeakBtnEnabled(false);
+	mSpeakBtn->setFlyoutBtnEnabled(false);
 
 	// Localization tool doesn't understand custom buttons like <talk_button>
 	mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
@@ -425,6 +440,8 @@ BOOL LLBottomTray::postBuild()
 	mObjectDefaultWidthMap[RS_BUTTON_MOVEMENT] = mMovementPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_CAMERA]   = mCamPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
+
+	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
 
 	return TRUE;
 }
@@ -474,6 +491,7 @@ void LLBottomTray::onContextMenuItemClicked(const LLSD& userdata)
 	else if (item == "paste")
 	{
 		edit_box->paste();
+		edit_box->setFocus(TRUE);
 	}
 	else if (item == "delete")
 	{

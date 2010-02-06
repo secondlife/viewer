@@ -94,27 +94,6 @@ void LLPanelMediaSettingsSecurity::draw()
 void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media_settings , bool editable)
 {
 	LLPanelMediaSettingsSecurity *self =(LLPanelMediaSettingsSecurity *)userdata;
-
-	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
-	{
-		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
-		{
-			self->clearValues(self, editable);
-			// only show multiple 
-			return;
-		}
-		
-	}
-	else
-	{
-		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
-		{
-			self->clearValues(self, editable);
-			// only show multiple 
-			return;
-		}			
-		
-	}
 	std::string base_key( "" );
 	std::string tentative_key( "" );
 
@@ -136,6 +115,8 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 		base_key = std::string( data_set[ i ].key_name );
         tentative_key = base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX );
 
+		bool enabled_overridden = false;
+		
 		// TODO: CP - I bet there is a better way to do this using Boost
 		if ( media_settings[ base_key ].isDefined() )
 		{
@@ -150,20 +131,31 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 				// get control 
 				LLScrollListCtrl* list = static_cast< LLScrollListCtrl* >( data_set[ i ].ctrl_ptr );
 				list->deleteAllItems();
-
+				
 				// points to list of white list URLs
 				LLSD url_list = media_settings[ base_key ];
-
-				// iterate over them and add to scroll list
-				LLSD::array_iterator iter = url_list.beginArray();
-				while( iter != url_list.endArray() )
+				
+				// better be the whitelist
+				llassert(data_set[ i ].ctrl_ptr == self->mWhiteListList);
+				
+				// If tentative, don't add entries
+				if (media_settings[ tentative_key ].asBoolean())
 				{
-					std::string entry = *iter;
-					self->addWhiteListEntry( entry );
-					++iter;
-				};
+					self->mWhiteListList->setEnabled(false);
+					enabled_overridden = true;
+				}
+				else {
+					// iterate over them and add to scroll list
+					LLSD::array_iterator iter = url_list.beginArray();
+					while( iter != url_list.endArray() )
+					{
+						std::string entry = *iter;
+						self->addWhiteListEntry( entry );
+						++iter;
+					}
+				}
 			};
-			data_set[ i ].ctrl_ptr->setEnabled(editable);
+			if ( ! enabled_overridden) data_set[ i ].ctrl_ptr->setEnabled(editable);
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
@@ -192,25 +184,29 @@ void LLPanelMediaSettingsSecurity::preApply()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
+void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in, bool include_tentative )
 {
-    fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = (LLSD::Boolean)mEnableWhiteList->getValue();
-
-    // iterate over white list and extract items
-    std::vector< LLScrollListItem* > whitelist_items = mWhiteListList->getAllData();
-    std::vector< LLScrollListItem* >::iterator iter = whitelist_items.begin();
-
-	// *NOTE: need actually set the key to be an emptyArray(), or the merge
-	// we do with this LLSD will think there's nothing to change.
-    fill_me_in[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
-    while( iter != whitelist_items.end() )
-    {
-		LLScrollListCell* cell = (*iter)->getColumn( ENTRY_COLUMN );
-		std::string whitelist_url = cell->getValue().asString();
-
-        fill_me_in[ LLMediaEntry::WHITELIST_KEY ].append( whitelist_url );
-        ++iter;
-    };
+    if (include_tentative || !mEnableWhiteList->getTentative()) 
+		fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = (LLSD::Boolean)mEnableWhiteList->getValue();
+	
+	if (include_tentative || !mWhiteListList->getTentative())
+	{
+		// iterate over white list and extract items
+		std::vector< LLScrollListItem* > whitelist_items = mWhiteListList->getAllData();
+		std::vector< LLScrollListItem* >::iterator iter = whitelist_items.begin();
+		
+		// *NOTE: need actually set the key to be an emptyArray(), or the merge
+		// we do with this LLSD will think there's nothing to change.
+		fill_me_in[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
+		while( iter != whitelist_items.end() )
+		{
+			LLScrollListCell* cell = (*iter)->getColumn( ENTRY_COLUMN );
+			std::string whitelist_url = cell->getValue().asString();
+			
+			fill_me_in[ LLMediaEntry::WHITELIST_KEY ].append( whitelist_url );
+			++iter;
+		};
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,6 +243,10 @@ const std::string LLPanelMediaSettingsSecurity::makeValidUrl( const std::string&
 // white list list box widget and build a list to test against. 
 bool LLPanelMediaSettingsSecurity::urlPassesWhiteList( const std::string& test_url )
 {
+	// If the whitlelist list is tentative, it means we have multiple settings.
+	// In that case, we have no choice but to return true
+	if ( mWhiteListList->getTentative() ) return true;
+	
 	// the checkUrlAgainstWhitelist(..) function works on a vector
 	// of strings for the white list entries - in this panel, the white list
 	// is stored in the widgets themselves so we need to build something compatible.
@@ -330,7 +330,7 @@ void LLPanelMediaSettingsSecurity::addWhiteListEntry( const std::string& entry )
 	// always add in the entry itself
 	row[ "columns" ][ ENTRY_COLUMN ][ "type" ] = "text";
 	row[ "columns" ][ ENTRY_COLUMN ][ "value" ] = entry;
-
+	
 	// add to the white list scroll box
 	mWhiteListList->addElement( row );
 };

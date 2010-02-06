@@ -29,7 +29,7 @@
      layout="topleft"
      name="back_btn"
      picture_style="true"
-     left="10"
+     left="11"
      tab_stop="false"
      top="2"
      width="23" />
@@ -40,7 +40,7 @@
      layout="topleft"
      left_pad="10"
      name="title"
-     text_color="white"
+     text_color="LtGray"
      top="0"
      value="Classified Info"
      use_ellipses="true"
@@ -49,13 +49,13 @@
      color="DkGray2"
      opaque="true"
      follows="all"
-     height="500"
+     height="502"
      layout="topleft"
-     left="10"
+     left="9"
      top_pad="10"
      name="profile_scroll"
      reserve_scroll_corner="false"
-     width="313">
+     width="310">
     <panel
      name="scroll_content_panel"
      follows="left|top"
@@ -65,16 +65,16 @@
      background_visible="false"
      height="500"
      left="0"
-     width="295">
+     width="285">
         <texture_picker
          enabled="false"
-         follows="left|top"
+         follows="left|top|right"
          height="197"
          layout="topleft"
-         left="10"
+         left="11"
          name="classified_snapshot"
-         top="20"
-         width="290" />
+         top="10"
+         width="286" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -181,37 +181,35 @@
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="20"
+     height="35"
      layout="topleft"
-     top_pad="8"
-     left="10"
+     top_pad="5"
+     left="9"
      name="buttons">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Teleport"
          layout="topleft"
          left="0"
          name="teleport_btn"
          top="0"
-         width="90" />
+         width="101" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Map"
          layout="topleft"
-         left_pad="10"
+         left_pad="3"
          name="show_on_map_btn"
-         top="0"
-         width="90" />
+         width="100" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Edit"
          layout="topleft"
-         right="-1"
          name="edit_btn"
-         top="0"
-         width="90" />
+         left_pad="3"
+         width="101" />
     </panel>
 </panel>

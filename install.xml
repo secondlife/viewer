@@ -193,30 +193,30 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>609c469ee1857723260b5a9943b9c2c1</string>
+            <string>84821102cb819257a66c8f38732647fc</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20091202.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20100119.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>7085044567999489d82b9ed28f16e480</string>
+            <string>ee8e1b4bbcf137a84d6a85a1c51386ff</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20091202.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100119.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>b4aeefcba3d749f1e9f2a12c6f70192b</string>
+            <string>af4badd6b2c10bc4db82ff1256695892</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux64-20091202.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux64-20100119.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>6746ae9fd9aff98b15f7b9f0f40334ab</string>
+            <string>acbf7a4165a917a4e087879d1756b355</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20091204.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20100119.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1367,23 +1367,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>51f3fa1ab39563505df83b48ba432a3c</string>
+            <string>316f86790b7afb5c9bd4f95bc193b80f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7852-darwin-20100115.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7930-darwin-20100205.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>ab9573d6aa2acdd79a553c144c9ecb09</string>
+            <string>13f6886fa3e6675838e47adcabb0f0ac</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7852-linux-20100115.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7930-linux-20100205.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>88ab785eebdc4f53a7dfc4e0b95f67ec</string>
+            <string>2a81e3c42799c33742746925f16b54ca</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7852-windows-20100115.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7930-windows-20100205.tar.bz2</uri>
           </map>
         </map>
       </map>

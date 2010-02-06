@@ -225,7 +225,7 @@ LLFolderView::LLFolderView(const Params& p)
 	params.font(getLabelFontForStyle(LLFontGL::NORMAL));
 	params.max_length_bytes(DB_INV_ITEM_NAME_STR_LEN);
 	params.commit_callback.function(boost::bind(&LLFolderView::commitRename, this, _2));
-	params.prevalidate_callback(&LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	params.prevalidate_callback(&LLTextValidate::validateASCIIPrintableNoPipe);
 	params.commit_on_focus_lost(true);
 	params.visible(false);
 	mRenamer = LLUICtrlFactory::create<LLLineEditor> (params);
@@ -1272,8 +1272,7 @@ BOOL LLFolderView::canCut() const
 		const LLFolderViewItem* item = *selected_it;
 		const LLFolderViewEventListener* listener = item->getListener();
 
-		// *WARKAROUND: it is too many places where the "isItemRemovable" method should be changed with "const" modifier
-		if (!listener || !(const_cast<LLFolderViewEventListener*>(listener))->isItemRemovable())
+		if (!listener || !listener->isItemRemovable())
 		{
 			return FALSE;
 		}

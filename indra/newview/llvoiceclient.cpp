@@ -1107,16 +1107,17 @@ public:
 	 * Sets internal voluem level for specified user.
 	 *
 	 * @param[in] speaker_id - LLUUID of user to store volume level for
-	 * @param[in] volume - internal volume level to be stored for user.
+	 * @param[in] volume - external (vivox) volume level to be stored for user.
 	 */
-	void storeSpeakerVolume(const LLUUID& speaker_id, S32 volume);
+	void storeSpeakerVolume(const LLUUID& speaker_id, F32 volume);
 
 	/**
-	 * Gets stored internal volume level for specified speaker.
+	 * Gets stored external (vivox) volume level for specified speaker and
+	 * transforms it into internal (viewer) level.
 	 *
 	 * If specified user is not found default level will be returned. It is equivalent of 
 	 * external level 0.5 from the 0.0..1.0 range.
-	 * Default internal level is calculated as: internal = 400 * external^2
+	 * Internal level is calculated as: internal = 400 * external^2
 	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
 	 *
 	 * @param[in] speaker_id - LLUUID of user to get his volume level
@@ -1133,7 +1134,7 @@ private:
 	void load();
 	void save();
 
-	typedef std::map<LLUUID, S32> speaker_data_map_t;
+	typedef std::map<LLUUID, F32> speaker_data_map_t;
 	speaker_data_map_t mSpeakersData;
 };
 
@@ -1149,7 +1150,7 @@ LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
 	save();
 }
 
-void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, S32 volume)
+void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 volume)
 {
 	mSpeakersData[speaker_id] = volume;
 }
@@ -1163,7 +1164,10 @@ S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
 	
 	if (it != mSpeakersData.end())
 	{
-		ret_val = it->second;
+		F32 f_val = it->second;
+		// volume can amplify by as much as 4x!
+		S32 ivol = (S32)(400.f * f_val * f_val);
+		ret_val = llclamp(ivol, 0, 400);
 	}
 	return ret_val;
 }
@@ -1184,7 +1188,7 @@ void LLSpeakerVolumeStorage::load()
 	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
 		iter != settings_llsd.endMap(); ++iter)
 	{
-		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (F32)iter->second.asReal()));
 	}
 }
 
@@ -5980,8 +5984,10 @@ bool LLVoiceClient::voiceEnabled()
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
+//AD *TODO: investigate possible merge of voiceWorking() and voiceEnabled() into one non-static method
 bool LLVoiceClient::voiceWorking()
 {
+	//Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
 	return (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
 }
 
@@ -6286,14 +6292,14 @@ void LLVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 		participantState *participant = findParticipantByID(id);
 		if (participant)
 		{
+			// store this volume setting for future sessions
+			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, volume);
+
 			// volume can amplify by as much as 4x!
 			S32 ivol = (S32)(400.f * volume * volume);
 			participant->mUserVolume = llclamp(ivol, 0, 400);
 			participant->mVolumeDirty = TRUE;
 			mAudioSession->mVolumeDirty = TRUE;
-
-			// store this volume setting for future sessions
-			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, participant->mUserVolume);
 		}
 	}
 }
