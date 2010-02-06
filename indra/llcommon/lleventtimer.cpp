@@ -42,7 +42,6 @@
 //		LLEventTimer Implementation
 //
 //////////////////////////////////////////////////////////////////////////////
-bool LLEventTimer::sInTickLoop = false;
 
 LLEventTimer::LLEventTimer(F32 period)
 : mEventTimer()
@@ -59,27 +58,28 @@ LLEventTimer::LLEventTimer(const LLDate& time)
 
 LLEventTimer::~LLEventTimer()
 {
-	llassert(!LLEventTimer::sInTickLoop); // this LLEventTimer was destroyed from within its own tick() function - bad.  if you want tick() to cause destruction of its own timer, make it return true.
 }
 
 //static
 void LLEventTimer::updateClass() 
 {
 	std::list<LLEventTimer*> completed_timers;
-	LLEventTimer::sInTickLoop = true;
-	for (instance_iter iter = beginInstances(); iter != endInstances(); ) 
+
 	{
-		LLEventTimer& timer = *iter++;
-		F32 et = timer.mEventTimer.getElapsedTimeF32();
-		if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
-			timer.mEventTimer.reset();
-			if ( timer.tick() )
-			{
-				completed_timers.push_back( &timer );
+		LLInstanceTrackerScopedGuard guard;
+		for (instance_iter iter = guard.beginInstances(); iter != guard.endInstances(); ) 
+		{
+			LLEventTimer& timer = *iter++;
+			F32 et = timer.mEventTimer.getElapsedTimeF32();
+			if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
+				timer.mEventTimer.reset();
+				if ( timer.tick() )
+				{
+					completed_timers.push_back( &timer );
+				}
 			}
 		}
 	}
-	LLEventTimer::sInTickLoop = false;
 
 	if ( completed_timers.size() > 0 )
 	{

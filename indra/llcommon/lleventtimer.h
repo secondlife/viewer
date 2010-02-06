@@ -55,7 +55,6 @@ public:
 protected:
 	LLTimer mEventTimer;
 	F32 mPeriod;
-	static bool sInTickLoop;
 };
 
 #endif //LL_EVENTTIMER_H
