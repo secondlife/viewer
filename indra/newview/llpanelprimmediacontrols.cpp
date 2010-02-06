@@ -1036,8 +1036,9 @@ void LLPanelPrimMediaControls::updateZoom()
 	}
 
 	if (zoom_padding > 0.0f)
-	{
-		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding);
+	{	
+		// since we only zoom into medium for now, always set zoom_in constraint to true
+		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding, true);
 	}
 	
 	// Remember the object ID/face we zoomed into, so we can update the zoom icon appropriately
