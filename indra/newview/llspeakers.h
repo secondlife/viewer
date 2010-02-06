@@ -34,6 +34,7 @@
 #define LL_LLSPEAKERS_H
 
 #include "llevent.h"
+#include "lleventtimer.h"
 #include "llspeakers.h"
 #include "llvoicechannel.h"
 

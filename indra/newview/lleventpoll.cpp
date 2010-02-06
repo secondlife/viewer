@@ -39,7 +39,7 @@
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"
 #include "llsdserialize.h"
-#include "lltimer.h"
+#include "lleventtimer.h"
 #include "llviewerregion.h"
 #include "message.h"
 #include "lltrans.h"

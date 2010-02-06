@@ -38,6 +38,7 @@
 #include "llavataractions.h"
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
+#include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llregionhandle.h"

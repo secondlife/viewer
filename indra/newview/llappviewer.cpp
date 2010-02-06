@@ -40,6 +40,7 @@
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
 #include "llerrorcontrol.h"
+#include "lleventtimer.h"
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"

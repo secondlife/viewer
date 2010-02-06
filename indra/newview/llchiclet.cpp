@@ -36,6 +36,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llbottomtray.h"
+#include "lleventtimer.h"
 #include "llgroupactions.h"
 #include "lliconctrl.h"
 #include "llimfloater.h"
