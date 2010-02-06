@@ -560,45 +560,44 @@ void secondsToTimecodeString(F32 current_time, std::string& tcstring)
 //		LLEventTimer Implementation
 //
 //////////////////////////////////////////////////////////////////////////////
+bool LLEventTimer::sInTickLoop = false;
 
 LLEventTimer::LLEventTimer(F32 period)
 : mEventTimer()
 {
 	mPeriod = period;
-	mBusy = false;
 }
 
 LLEventTimer::LLEventTimer(const LLDate& time)
 : mEventTimer()
 {
 	mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
-	mBusy = false;
 }
 
 
 LLEventTimer::~LLEventTimer()
 {
-	llassert(!mBusy); // this LLEventTimer was destroyed from within its own tick() function - bad.  if you want tick() to cause destruction of its own timer, make it return true.
+	llassert(!LLEventTimer::sInTickLoop); // this LLEventTimer was destroyed from within its own tick() function - bad.  if you want tick() to cause destruction of its own timer, make it return true.
 }
 
 //static
 void LLEventTimer::updateClass() 
 {
 	std::list<LLEventTimer*> completed_timers;
+	LLEventTimer::sInTickLoop = true;
 	for (instance_iter iter = beginInstances(); iter != endInstances(); ) 
 	{
 		LLEventTimer& timer = *iter++;
 		F32 et = timer.mEventTimer.getElapsedTimeF32();
 		if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
 			timer.mEventTimer.reset();
-			timer.mBusy = true;
 			if ( timer.tick() )
 			{
 				completed_timers.push_back( &timer );
 			}
-			timer.mBusy = false;
 		}
 	}
+	LLEventTimer::sInTickLoop = false;
 
 	if ( completed_timers.size() > 0 )
 	{

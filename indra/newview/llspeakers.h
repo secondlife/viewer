@@ -155,6 +155,13 @@ public:
 	 */
 	virtual BOOL tick();
 
+	/**
+	 * Clears the callback.
+	 *
+	 * Use this instead of deleteing this object. 
+	 * The next call to tick() will return true and that will destroy this object.
+	 */
+	void unset();
 private:
 	action_callback_t	mActionCallback;
 	LLUUID				mSpeakerId;
@@ -180,7 +187,7 @@ public:
 	 *
 	 * @see onTimerActionCallback()
 	 */
-	void unsetActionTimer(const LLUUID& speaker_id, bool delete_it);
+	void unsetActionTimer(const LLUUID& speaker_id);
 
 	void removeAllTimers();
 private:
@@ -188,7 +195,6 @@ private:
 	 * Callback of the each instance of LLSpeakerActionTimer.
 	 *
 	 * Unsets an appropriate timer instance and calls action callback for specified speacker_id.
-	 * It always returns false to not use LLEventTimer::updateClass functionality of timer deleting.
 	 *
 	 * @see unsetActionTimer()
 	 */
