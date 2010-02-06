@@ -1770,6 +1770,12 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 						{
 							optionally_start_music(music_url);
 						}
+						else
+						{
+							llinfos << "Stopping parcel music (invalid audio stream URL)" << llendl;
+							// clears the URL 
+							gAudiop->startInternetStream(LLStringUtil::null); 
+						}
 					}
 					else if (!gAudiop->getInternetStreamURL().empty())
 					{
