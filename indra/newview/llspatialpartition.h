@@ -93,6 +93,7 @@ public:
 	LLFace* mFace; //associated face
 	F32 mDistance;
 	LLVector3 mExtents[2];
+	U32 mDrawMode;
 
 	struct CompareTexture
 	{
