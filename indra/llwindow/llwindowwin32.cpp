@@ -3053,20 +3053,8 @@ LLSD LLWindowWin32::getNativeKeyData()
 {
 	LLSD result = LLSD::emptyMap();
 
-	// would like to use LLQtWebKit::KM_MODIFIER_SHIFT but don't want 
-	// make the client depend on llQtWebKit so pass over as an int
-	// (not bool so we can to modifier list later)
-	S32 modifiers = 0;
-    if ( GetKeyState( VK_SHIFT ) )
-    {
-        modifiers = 1;
-    };
-
-	// these LLSD names are a little confusing here but they 
-	// make more sense on the Mac specific version and that was done first
-	result["key_code"] = (S32)mKeyScanCode;
-	result["char_code"] = (S32)mKeyVirtualKey;
-	result["modifiers"] = modifiers;
+	result["scan_code"] = (S32)mKeyScanCode;
+	result["virtual_key"] = (S32)mKeyVirtualKey;
 
 	return result;
 }

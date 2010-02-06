@@ -474,21 +474,23 @@ private:
 	//
 	void deserializeKeyboardData( LLSD native_key_data, uint32_t& native_scan_code, uint32_t& native_virtual_key, uint32_t& native_modifiers )
 	{
+		native_scan_code = 0;
+		native_virtual_key = 0;
+		native_modifiers = 0;
+		
 		if( native_key_data.isMap() )
 		{
-			// these LLSD names are a little confusing here but they
-			// make more sense on the Mac specific version and that was done first
-			native_scan_code = (uint32_t)(native_key_data["key_code"].asInteger());
-			native_virtual_key = (uint32_t)(native_key_data["char_code"].asInteger());
+#if LL_DARWIN
+			native_scan_code = (uint32_t)(native_key_data["char_code"].asInteger());
+			native_virtual_key = (uint32_t)(native_key_data["key_code"].asInteger());
 			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
-
-			// would like to use LLQtWebKit::KM_MODIFIER_SHIFT but don't want
-			// make the client depend on llQtWebKit so pass over as an int
-			// (not bool so we can to modifier list later)
-			if ( native_modifiers == 1 )
-				native_modifiers = LLQtWebKit::KM_MODIFIER_SHIFT;
-			else
-				native_modifiers = LLQtWebKit::KM_MODIFIER_NONE;
+#elif LL_WINDOWS
+			native_scan_code = (uint32_t)(native_key_data["scan_code"].asInteger());
+			native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());
+			// TODO: I don't think we need to do anything with native modifiers here -- please verify
+#else
+			// Add other platforms here as needed
+#endif
 		};
 	};
 
