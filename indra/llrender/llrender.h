@@ -360,7 +360,8 @@ private:
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
-	U32				mCurrSceneBlendType;
+	U32				mCurrBlendSFactor;
+	U32				mCurrBlendDFactor;
 
 	F32				mMaxAnisotropy;
 
