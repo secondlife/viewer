@@ -2312,7 +2312,7 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 			image->draw(draw_rect.mLeft, image_bottom, 
 				style_image_width, style_image_height, color);
 			
-			const S32 IMAGE_HPAD = 2;
+			const S32 IMAGE_HPAD = 3;
 			return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
 		}
 
