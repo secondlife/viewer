@@ -1610,6 +1610,13 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		}
 		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", channel_name);
 		childSetTextArg("nearby_P2P", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
+
+		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
+		// so no reconnection to nearby chat happens (EXT-4397)
+		bool voice_works = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		std::string reconnect_nearby = voice_works ? LLTrans::getString("reconnect_nearby") : std::string();
+		childSetTextArg("nearby", "[RECONNECT_NEARBY]", reconnect_nearby);
+		childSetTextArg("nearby_P2P", "[RECONNECT_NEARBY]", reconnect_nearby);
 	}
 
 	std::string callee_name = mPayload["session_name"].asString();

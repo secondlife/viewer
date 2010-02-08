@@ -39,6 +39,7 @@
 #include "llvoavatarself.h"
 #include "llagent.h"
 #include "llwearable.h"
+#include "llagentwearables.h"
 
 //-----------------------------------------------------------------------------
 // LLDriverParamInfo
@@ -527,6 +528,38 @@ void LLDriverParam::resetDrivenParams()
 	mDriven.clear();
 	mDriven.reserve(getInfo()->mDrivenInfoList.size());
 }
+
+void LLDriverParam::updateCrossDrivenParams(EWearableType driven_type)
+{
+	bool needs_update = (getWearableType()==driven_type);
+
+	// if the driver has a driven entry for the passed-in wearable type, we need to refresh the value
+	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); iter++ )
+	{
+		LLDrivenEntry* driven = &(*iter);
+		if (driven && driven->mParam && driven->mParam->getCrossWearable() && driven->mParam->getWearableType() == driven_type)
+		{
+			needs_update = true;
+		}
+	}
+
+
+	if (needs_update)
+	{
+		EWearableType driver_type = (EWearableType)getWearableType();
+		
+		// If we've gotten here, we've added a new wearable of type "type"
+		// Thus this wearable needs to get updates from the driver wearable.
+		// The call to setVisualParamWeight seems redundant, but is necessary
+		// as the number of driven wearables has changed since the last update. -Nyx
+		LLWearable *wearable = gAgentWearables.getTopWearable(driver_type);
+		if (wearable)
+		{
+			wearable->setVisualParamWeight(mID, wearable->getVisualParamWeight(mID), false);
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // getDrivenWeight()

@@ -502,8 +502,7 @@ public:
 	void selectionSetTexGen( U8 texgen );
 	void selectionSetShiny( U8 shiny );
 	void selectionSetFullbright( U8 fullbright );
-	void selectionSetMedia( U8 media_type );
-	void selectionSetMediaData(const LLSD &media_data); // NOTE: modifies media_data!!!
+	void selectionSetMedia( U8 media_type, const LLSD &media_data );
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);

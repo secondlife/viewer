@@ -129,7 +129,8 @@ private:
 class LLInspector : public LLToolTip
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLToolTip::Params> {};
+	struct Params : public LLInitParam::Block<Params, LLToolTip::Params> 
+	{};
 };
 
 class LLToolTipMgr : public LLSingleton<LLToolTipMgr>

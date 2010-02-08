@@ -71,7 +71,7 @@
      layout="topleft"
      left_pad="10"
      name="title"
-     text_color="white"
+     text_color="LtGray"
      top="0"
      use_ellipses="true"
      value="Place Profile"

@@ -4,7 +4,7 @@
  can_resize="true"
  center_horiz="true"
  center_vert="true"
- height="535"
+ height="600"
  layout="topleft"
  min_height="520"
  min_width="520"
@@ -14,16 +14,16 @@
  save_visibility="true"
  single_instance="true"
  title="WORLD MAP"
- width="800">
+ width="650">
     <panel
      filename="panel_world_map.xml"
      follows="all"
-     height="500"
+     height="555"
      layout="topleft"
      left="10"
      name="objects_mapview"
      top="25"
-     width="542" />
+     width="375" />
      <panel
      name="layout_panel_1"
      height="22"
@@ -279,12 +279,12 @@
          <icon
      follows="top|right"
      height="16"
-     image_name="map_event.tga"
+     image_name="Parcel_PG_Dark"
      layout="topleft"
      mouse_opaque="true"
      name="event"
      left_pad="0"
-     width="16" />
+     width="18" />
       <text
      type="string"
      length="1"
@@ -312,13 +312,13 @@
     <icon
      follows="top|right"
      height="16"
-     image_name="map_event_mature.tga"
+     image_name="Parcel_M_Dark"
      layout="topleft"
      mouse_opaque="true"
      name="events_mature_icon"
      top_delta="0"
      left_pad="0"
-     width="16" />
+     width="18" />
            <text
      type="string"
      length="1"
@@ -345,13 +345,13 @@
     <icon
      follows="top|right"
      height="16"
-     image_name="map_event_adult.tga"
+     image_name="Parcel_R_Dark"
      layout="topleft"
      left_pad="0"
      mouse_opaque="true"
      name="events_adult_icon"
      top_delta="0"
-     width="16" />
+     width="18" />
                 <text
      type="string"
      length="1"
@@ -394,7 +394,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="270"
+	 height="310"
 	 top_pad="0"
 	 width="238">
 	 <icon
@@ -514,7 +514,7 @@
      draw_stripes="false"
      bg_writeable_color="MouseGray"
      follows="all"
-     height="115"
+     height="145"
      layout="topleft"
      left="28"
      name="search_results"

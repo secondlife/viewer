@@ -36,6 +36,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llbottomtray.h"
+#include "lleventtimer.h"
 #include "llgroupactions.h"
 #include "lliconctrl.h"
 #include "llimfloater.h"
@@ -545,6 +546,7 @@ void LLIMChiclet::toggleSpeakerControl()
 	}
 
 	setRequiredWidth();
+	mSpeakerCtrl->setSpeakerId(LLUUID::null);
 	mSpeakerCtrl->setVisible(getShowSpeaker());
 }
 
@@ -954,7 +956,10 @@ LLIMGroupChiclet::~LLIMGroupChiclet()
 
 void LLIMGroupChiclet::draw()
 {
-	switchToCurrentSpeaker();
+	if(getShowSpeaker())
+	{
+		switchToCurrentSpeaker();
+	}
 	LLIMChiclet::draw();
 }
 

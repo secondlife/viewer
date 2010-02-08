@@ -936,7 +936,7 @@ LLPanel *LLPanel::childGetVisiblePanelWithHelp()
 	return ::childGetVisiblePanelWithHelp(this);
 }
 
-void LLPanel::childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) )
+void LLPanel::childSetPrevalidate(const std::string& id, bool (*func)(const LLWString &) )
 {
 	LLLineEditor* child = findChild<LLLineEditor>(id);
 	if (child)

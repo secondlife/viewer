@@ -19,8 +19,11 @@
      left="1"
      name="im_box_tab_container"
      tab_position="bottom"
-     tab_width="80"
+     tab_width="64"
+     tab_max_width = "134"
      tab_height="16"
+     use_custom_icon_ctrl="true"
+     tab_icon_ctrl_pad="2"
      top="0"
      width="390" />
     <icon

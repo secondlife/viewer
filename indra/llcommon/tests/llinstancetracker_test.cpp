@@ -138,23 +138,29 @@ namespace tut
         keys.insert(&one);
         keys.insert(&two);
         keys.insert(&three);
-        for (Unkeyed::key_iter ki(Unkeyed::beginKeys()), kend(Unkeyed::endKeys());
-             ki != kend; ++ki)
-        {
-            ensure_equals("spurious key", keys.erase(*ki), 1);
-        }
+	{
+		Unkeyed::LLInstanceTrackerScopedGuard guard;
+		for (Unkeyed::key_iter ki(guard.beginKeys()), kend(guard.endKeys());
+		     ki != kend; ++ki)
+		{
+			ensure_equals("spurious key", keys.erase(*ki), 1);
+		}
+	}
         ensure_equals("unreported key", keys.size(), 0);
 
         KeySet instances;
         instances.insert(&one);
         instances.insert(&two);
         instances.insert(&three);
-        for (Unkeyed::instance_iter ii(Unkeyed::beginInstances()), iend(Unkeyed::endInstances());
-             ii != iend; ++ii)
-        {
-            Unkeyed& ref = *ii;
-            ensure_equals("spurious instance", instances.erase(&ref), 1);
-        }
+	{
+		Unkeyed::LLInstanceTrackerScopedGuard guard;
+		for (Unkeyed::instance_iter ii(guard.beginInstances()), iend(guard.endInstances());
+		     ii != iend; ++ii)
+		{
+			Unkeyed& ref = *ii;
+			ensure_equals("spurious instance", instances.erase(&ref), 1);
+		}
+	}
         ensure_equals("unreported instance", instances.size(), 0);
     }
 } // namespace tut
