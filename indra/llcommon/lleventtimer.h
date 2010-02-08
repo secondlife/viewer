@@ -1,10 +1,10 @@
-/**
- * @file llviewerparcelmediaautoplay.h
- * @brief timer to automatically play media in a parcel
+/** 
+ * @file lleventtimer.h
+ * @brief Cross-platform objects for doing timing 
  *
- * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * $LicenseInfo:firstyear=2000&license=viewergpl$
  * 
- * Copyright (c) 2007-2009, Linden Research, Inc.
+ * Copyright (c) 2000-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,28 +30,31 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERPARCELMEDIAAUTOPLAY_H
-#define LLVIEWERPARCELMEDIAAUTOPLAY_H
+#ifndef LL_EVENTTIMER_H					
+#define LL_EVENTTIMER_H
 
-#include "lleventtimer.h"
-#include "lluuid.h"
+#include "stdtypes.h"
+#include "lldate.h"
+#include "llinstancetracker.h"
+#include "lltimer.h"
 
-// timer to automatically play media
-class LLViewerParcelMediaAutoPlay : LLEventTimer
+// class for scheduling a function to be called at a given frequency (approximate, inprecise)
+class LL_COMMON_API LLEventTimer : protected LLInstanceTracker<LLEventTimer>
 {
- public:
-	LLViewerParcelMediaAutoPlay();
-	virtual BOOL tick();
-	static void initClass();
-	static void cleanupClass();
-	static void playStarted();
+public:
+	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
+	LLEventTimer(const LLDate& time);
+	virtual ~LLEventTimer();
+	
+	//function to be called at the supplied frequency
+	// Normally return FALSE; TRUE will delete the timer after the function returns.
+	virtual BOOL tick() = 0;
 
- private:
-	S32 mLastParcelID;
-	LLUUID mLastRegionID;
-	BOOL mPlayed;
-	F32 mTimeInParcel;
+	static void updateClass();
+
+protected:
+	LLTimer mEventTimer;
+	F32 mPeriod;
 };
 
-
-#endif // LLVIEWERPARCELMEDIAAUTOPLAY_H
+#endif //LL_EVENTTIMER_H

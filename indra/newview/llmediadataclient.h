@@ -37,7 +37,7 @@
 #include <queue>
 #include "llrefcount.h"
 #include "llpointer.h"
-#include "lltimer.h"
+#include "lleventtimer.h"
 
 
 // Link seam for LLVOVolume

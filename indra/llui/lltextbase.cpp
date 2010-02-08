@@ -1137,6 +1137,7 @@ void LLTextBase::reflow()
 			line_list_t::iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), start_index, line_end_compare());
 			line_start_index = iter->mDocIndexStart;
 			line_count = iter->mLineNum;
+			cur_top = iter->mRect.mTop;
 			getSegmentAndOffset(iter->mDocIndexStart, &seg_iter, &seg_offset);
 			mLineInfoList.erase(iter, mLineInfoList.end());
 		}

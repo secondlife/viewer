@@ -1,10 +1,11 @@
-/**
- * @file llviewerparcelmediaautoplay.h
- * @brief timer to automatically play media in a parcel
+/** 
+ * @file lltextbase.h
+ * @author Martin Reddy
+ * @brief The base class of text box/editor, providing Url handling support
  *
- * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2007-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,28 +31,33 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERPARCELMEDIAAUTOPLAY_H
-#define LLVIEWERPARCELMEDIAAUTOPLAY_H
+#ifndef LL_LLTEXTVALIDATE_H
+#define LL_LLTEXTVALIDATE_H
 
-#include "lleventtimer.h"
-#include "lluuid.h"
+#include "llstring.h"
+#include "llinitparam.h"
+#include <boost/function.hpp>
 
-// timer to automatically play media
-class LLViewerParcelMediaAutoPlay : LLEventTimer
+namespace LLTextValidate
 {
- public:
-	LLViewerParcelMediaAutoPlay();
-	virtual BOOL tick();
-	static void initClass();
-	static void cleanupClass();
-	static void playStarted();
+	typedef boost::function<BOOL (const LLWString &wstr)> validate_func_t;
 
- private:
-	S32 mLastParcelID;
-	LLUUID mLastRegionID;
-	BOOL mPlayed;
-	F32 mTimeInParcel;
-};
+	struct ValidateTextNamedFuncs
+	:	public LLInitParam::TypeValuesHelper<validate_func_t, ValidateTextNamedFuncs>
+	{
+		static void declareValues();
+	};
+
+	bool	validateFloat(const LLWString &str );
+	bool	validateInt(const LLWString &str );
+	bool	validatePositiveS32(const LLWString &str);
+	bool	validateNonNegativeS32(const LLWString &str);
+	bool	validateAlphaNum(const LLWString &str );
+	bool	validateAlphaNumSpace(const LLWString &str );
+	bool	validateASCIIPrintableNoPipe(const LLWString &str); 
+	bool	validateASCIIPrintableNoSpace(const LLWString &str);
+	bool	validateASCII(const LLWString &str);
+}
 
 
-#endif // LLVIEWERPARCELMEDIAAUTOPLAY_H
+#endif

@@ -18,7 +18,7 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
-     left="10"
+     left="11"
      tab_stop="false"
      top="2"
      width="23" />
@@ -26,26 +26,26 @@
      type="string"
      length="1"
      follows="top"
-     font="SansSerifHuge"
-     height="15"
+     font="SansSerifHugeBold"
+     height="26"
      layout="topleft"
      left_pad="10"
      name="title"
-     text_color="white"
-     top="5"
+     text_color="LtGray"
+     top="0"
      width="250">
         Edit Pick
     </text>
    <scroll_container
      color="DkGray2"
      follows="all"
-     height="500"
+     height="502"
      layout="topleft"
-     left="10"
+     left="9"
      top_pad="10"
      name="profile_scroll"
      opaque="true"
-     width="313">
+     width="310">
     <panel
      name="scroll_content_panel"
      follows="left|top|right"
@@ -59,11 +59,11 @@
     <texture_picker
      follows="left|top|right"
      height="197"
-     width="280"
+     width="272"
      layout="topleft"
      no_commit_on_selection="true"
-     top="20"
-     left="10"
+     top="10"
+     left="11"
      name="pick_snapshot" />
           <icon
            height="18"
@@ -73,7 +73,7 @@
            name="edit_icon"
            label=""
            tool_tip="Click to select an image"
-           top="27"
+           top="17"
            width="18" />
         <text
          type="string"
@@ -100,7 +100,7 @@
          max_length="63"
          name="pick_name"
          text_color="black"
-         width="280" />
+         width="273" />
         <text
          type="string"
          length="1"
@@ -119,7 +119,7 @@
         <text_editor
          follows="left|top|right"
          height="100"
-         width="280"
+         width="273"
          hide_scrollbar="false"
          layout="topleft"
          left="10"
@@ -158,41 +158,40 @@
         </text>
         <button
          follows="left|top"
-         height="20"
+         height="23"
          label="Set to Current Location"
          layout="topleft"
          left="8"
          top_pad="0"
          name="set_to_curr_location_btn"
-         width="200" />
+         width="156" />
     </panel>
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="20"
+     height="23"
      label="bottom_panel"
      layout="topleft"
-     left="10"
+     left="9"
      name="bottom_panel"
      top_pad="5"
      width="303">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Save [WHAT]"
          layout="topleft"
          name="save_changes_btn"
          left="0"
          top="0"
-         width="130" />
+         width="152" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Cancel"
          layout="topleft"
          name="cancel_btn"
-         left_pad="5"
-         right="-1"
-         width="130" />
+         left_pad="3"
+        width="152" />
     </panel>
 </panel>

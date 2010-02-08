@@ -38,6 +38,7 @@
 #include "llavataractions.h"
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
+#include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llregionhandle.h"
@@ -914,12 +915,13 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						{
 							// Landmark creation handling is moved to LLPanelPlaces::showAddedLandmarkInfo()
 							// TODO* LLPanelPlaces dependency is going to be removed. See EXT-4347.
-							if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
-							{
-								//places_panel->setItem(item);
-							}
+							//if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
+							//{
+							//	places_panel->setItem(item);
+							//}
+							//else
 							// we are opening a group notice attachment
-							else
+							if("create_landmark" != places_panel->getPlaceInfoType())
 							{
 								LLSD args;
 								args["type"] = "landmark";

@@ -196,10 +196,9 @@ void LLPanelAvatarNotes::fillRightsData()
 		childSetValue("map_check",LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
 		childSetValue("objects_check",LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
 
-		childSetEnabled("status_check",TRUE);
-		childSetEnabled("map_check",TRUE);
-		childSetEnabled("objects_check",TRUE);
 	}
+
+	enableCheckboxes(NULL != relation);
 }
 
 void LLPanelAvatarNotes::onCommitNotes()
@@ -250,6 +249,17 @@ void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
 
 void LLPanelAvatarNotes::onCommitRights()
 {
+	const LLRelationship* buddy_relationship =
+		LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+
+	if (NULL == buddy_relationship)
+	{
+		// Lets have a warning log message instead of having a crash. EXT-4947.
+		llwarns << "Trying to modify rights for non-friend avatar. Skipped." << llendl;
+		return;
+	}
+
+
 	S32 rights = 0;
 
 	if(childGetValue("status_check").asBoolean())
@@ -259,8 +269,6 @@ void LLPanelAvatarNotes::onCommitRights()
 	if(childGetValue("objects_check").asBoolean())
 		rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
 
-	const LLRelationship* buddy_relationship =
-			LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 	bool allow_modify_objects = childGetValue("objects_check").asBoolean();
 
 	// if modify objects checkbox clicked
@@ -304,9 +312,7 @@ void LLPanelAvatarNotes::resetControls()
 	//Disable "Add Friend" button for friends.
 	childSetEnabled("add_friend", TRUE);
 
-	childSetEnabled("status_check",FALSE);
-	childSetEnabled("map_check",FALSE);
-	childSetEnabled("objects_check",FALSE);
+	enableCheckboxes(false);
 }
 
 void LLPanelAvatarNotes::onAddFriendButtonClick()
@@ -334,6 +340,13 @@ void LLPanelAvatarNotes::onShareButtonClick()
 	//*TODO not implemented.
 }
 
+void LLPanelAvatarNotes::enableCheckboxes(bool enable)
+{
+	childSetEnabled("status_check", enable);
+	childSetEnabled("map_check", enable);
+	childSetEnabled("objects_check", enable);
+}
+
 LLPanelAvatarNotes::~LLPanelAvatarNotes()
 {
 	if(getAvatarId().notNull())
@@ -348,6 +361,9 @@ LLPanelAvatarNotes::~LLPanelAvatarNotes()
 void LLPanelAvatarNotes::changed(U32 mask)
 {
 	childSetEnabled("teleport", LLAvatarTracker::instance().isBuddyOnline(getAvatarId()));
+
+	// update rights to avoid have checkboxes enabled when friendship is terminated. EXT-4947.
+	fillRightsData();
 }
 
 // virtual

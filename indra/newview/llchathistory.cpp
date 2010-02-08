@@ -262,7 +262,7 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-		LLTextEditor* userName = getChild<LLTextEditor>("user_name");
+		LLTextBox* userName = getChild<LLTextBox>("user_name");
 
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
@@ -300,7 +300,7 @@ public:
 
 	/*virtual*/ void draw()
 	{
-		LLTextEditor* user_name = getChild<LLTextEditor>("user_name");
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
 
 		LLRect user_name_rect = user_name->getRect();

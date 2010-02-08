@@ -44,6 +44,7 @@
 #include "lldarray.h"
 #include "llviewborder.h" // for params
 #include "lltextbase.h"
+#include "lltextvalidate.h"
 
 #include "llpreeditor.h"
 #include "llcontrol.h"
@@ -63,12 +64,14 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
 	{
 		Optional<std::string>	default_text;
+		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
 
 		Optional<bool>			embedded_items,
 								ignore_tab,
 								handle_edit_keys_directly,
 								show_line_numbers,
-								commit_on_focus_lost;
+								commit_on_focus_lost,
+								show_context_menu;
 
 		//colors
 		Optional<LLUIColor>		default_color;
@@ -200,6 +203,9 @@ public:
 	const LLTextSegmentPtr	getPreviousSegment() const;
 	void getSelectedSegments(segment_vec_t& segments) const;
 
+	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
+	bool			getChowContextMenu() const { return mShowContextMenu; }
+
 protected:
 	void			showContextMenu(S32 x, S32 y);
 	void			drawPreeditMarker();
@@ -319,6 +325,7 @@ private:
 	BOOL			mTakesFocus;
 
 	BOOL			mAllowEmbeddedItems;
+	bool			mShowContextMenu;
 
 	LLUUID			mSourceID;
 
@@ -329,6 +336,7 @@ private:
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 
 	keystroke_signal_t mKeystrokeSignal;
+	LLTextValidate::validate_func_t mPrevalidateFunc;
 
 	LLContextMenu* mContextMenu;
 }; // end class LLTextEditor
