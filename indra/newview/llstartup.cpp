@@ -135,13 +135,14 @@
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llsidetray.h"
 #include "llstatview.h"
-#include "lltrans.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
 #include "llsurface.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "lltoolmgr.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llurldispatcher.h"
 #include "llurlsimstring.h"
@@ -1201,6 +1202,7 @@ bool idle_startup()
 
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
+		
 		return FALSE;
 	}
 
@@ -1707,6 +1709,9 @@ bool idle_startup()
 			// Set the show start location to true, now that the user has logged
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+			
+			LLSideTray::getInstance()->showPanel("panel_home", LLSD());
+
 		}
 
 		// We're successfully logged in.
