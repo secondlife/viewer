@@ -7384,8 +7384,19 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
+  <key>RenderUseTriStrips</key>
+  <map>
+    <key>Comment</key>
+    <string>Use triangle strips for rendering prims.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>RenderUseFarClip</key>
     <map>
       <key>Comment</key>

@@ -496,7 +496,9 @@ void LLViewerTexture::init(bool firstinit)
 	mAdditionalDecodePriority = 0.f ;	
 	mParcelMedia = NULL ;
 	mNumFaces = 0 ;
+	mNumVolumes = 0;
 	mFaceList.clear() ;
+	mVolumeList.clear();
 }
 
 //virtual 
@@ -508,7 +510,7 @@ S8 LLViewerTexture::getType() const
 void LLViewerTexture::cleanup()
 {
 	mFaceList.clear() ;
-	
+	mVolumeList.clear();
 	if(mGLTexturep)
 	{
 		mGLTexturep->cleanup();
@@ -661,6 +663,42 @@ S32 LLViewerTexture::getNumFaces() const
 	return mNumFaces ;
 }
 
+
+//virtual
+void LLViewerTexture::addVolume(LLVOVolume* volumep) 
+{
+	if( mNumVolumes >= mVolumeList.size())
+	{
+		mVolumeList.resize(2 * mNumVolumes + 1) ;		
+	}
+	mVolumeList[mNumVolumes] = volumep ;
+	volumep->setIndexInTex(mNumVolumes) ;
+	mNumVolumes++ ;
+	mLastVolumeListUpdateTimer.reset() ;
+}
+
+//virtual
+void LLViewerTexture::removeVolume(LLVOVolume* volumep) 
+{
+	if(mNumVolumes > 1)
+	{
+		S32 index = volumep->getIndexInTex() ; 
+		mVolumeList[index] = mVolumeList[--mNumVolumes] ;
+		mVolumeList[index]->setIndexInTex(index) ;
+	}
+	else 
+	{
+		mVolumeList.clear() ;
+		mNumVolumes = 0 ;
+	}
+	mLastVolumeListUpdateTimer.reset() ;
+}
+
+S32 LLViewerTexture::getNumVolumes() const
+{
+	return mNumVolumes ;
+}
+
 void LLViewerTexture::reorganizeFaceList()
 {
 	static const F32 MAX_WAIT_TIME = 20.f; // seconds
@@ -679,6 +717,27 @@ void LLViewerTexture::reorganizeFaceList()
 	mLastFaceListUpdateTimer.reset() ;
 	mFaceList.erase(mFaceList.begin() + mNumFaces, mFaceList.end());
 }
+
+void LLViewerTexture::reorganizeVolumeList()
+{
+	static const F32 MAX_WAIT_TIME = 20.f; // seconds
+	static const U32 MAX_EXTRA_BUFFER_SIZE = 4 ;
+
+	if(mNumVolumes + MAX_EXTRA_BUFFER_SIZE > mVolumeList.size())
+	{
+		return ;
+	}
+
+	if(mLastVolumeListUpdateTimer.getElapsedTimeF32() < MAX_WAIT_TIME)
+	{
+		return ;
+	}
+
+	mLastVolumeListUpdateTimer.reset() ;
+	mVolumeList.erase(mVolumeList.begin() + mNumVolumes, mVolumeList.end());
+}
+
+
 
 //virtual
 void LLViewerTexture::switchToCachedImage()
@@ -1598,6 +1657,7 @@ void LLViewerFetchedTexture::updateVirtualSize()
 	}
 	mNeedsResetMaxVirtualSize = TRUE ;
 	reorganizeFaceList() ;
+	reorganizeVolumeList();
 }
 
 bool LLViewerFetchedTexture::updateFetch()
@@ -3252,6 +3312,7 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 
 	mNeedsResetMaxVirtualSize = TRUE ;
 	reorganizeFaceList() ;
+	reorganizeVolumeList();
 
 	return mMaxVirtualSize ;
 }
