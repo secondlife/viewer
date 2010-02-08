@@ -31,7 +31,7 @@
 	</accordion>
 	<panel name="button_row">
 		<button label="作成" label_selected="新しいグループ" name="btn_create"/>
-		<button label="グループチャット" name="btn_chat"/>
+		<button label="グループチャット" name="btn_chat" width="100"/>
 		<button label="グループコール" name="btn_call"/>
 		<button label="保存" label_selected="保存" name="btn_apply"/>
 	</panel>

@@ -3,13 +3,13 @@
 	<floater.string name="InvalidAvatar">
 		無効なアバター
 	</floater.string>
-	<text name="label">
+	<text name="label" width="100">
 		ベークドテクスチャ
 	</text>
 	<text name="composite_label" width="128">
 		合成テクスチャー
 	</text>
-	<button label="テクスチャID一覧をコンソールに書き込む" label_selected="捨てる" name="Dump"/>
+	<button label="テクスチャID一覧をコンソールに書き込む" label_selected="捨てる" name="Dump" width="200"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<texture_picker label="髪" name="hair-baked"/>

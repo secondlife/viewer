@@ -3,19 +3,19 @@
 	<text name="region_text_lbl">
 		リージョン:
 	</text>
-	<text name="region_text">
+	<text name="region_text" left_delta="70">
 		不明
 	</text>
 	<text name="version_channel_text_lbl">
 		バージョン：
 	</text>
-	<text name="version_channel_text">
+	<text name="version_channel_text" left_delta="70">
 		不明
 	</text>
 	<text name="region_type_lbl">
 		種類：
 	</text>
-	<text name="region_type">
+	<text name="region_type" left_delta="70">
 		不明
 	</text>
 	<check_box label="地形編集をブロック" name="block_terraform_check"/>
@@ -25,8 +25,8 @@
 	<check_box label="土地の再販を許可" name="allow_land_resell_check"/>
 	<check_box label="土地の統合・分割を許可" name="allow_parcel_changes_check"/>
 	<check_box label="土地の検索教示をブロック" name="block_parcel_search_check" tool_tip="このリージョンとリージョン内の区画を検索結果に表示する"/>
-	<spinner label="アバター数上限" name="agent_limit_spin"/>
-	<spinner label="オブジェクトボーナス" name="object_bonus_spin"/>
+	<spinner label="アバター数上限" name="agent_limit_spin" label_width="110" width="190"/>
+	<spinner label="オブジェクトボーナス" name="object_bonus_spin" label_width="110" width="190"/>
 	<text label="レーティング区分" name="access_text">
 		レーティング区分：
 	</text>

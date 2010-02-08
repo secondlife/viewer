@@ -43,7 +43,7 @@
 		全員：
 	</text>
 	<check_box label="コピー" name="everyone_copy"/>
-	<text name="NextOwnerLabel">
+	<text name="NextOwnerLabel" left="160">
 		次の所有者：
 	</text>
 	<check_box label="修正" name="next_owner_modify"/>
