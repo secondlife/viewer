@@ -269,6 +269,7 @@
                  name="notes_editor"
                  read_only="true"
                  text_readonly_color="white"
+                 text_type="ascii"
                  top_pad="5"
                  width="290"
                  wrap="true" />
