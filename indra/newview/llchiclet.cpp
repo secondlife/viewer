@@ -1159,10 +1159,10 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 
 void object_chiclet_callback(const LLSD& data)
 {
-	LLUUID object_id = data["object_id"];
+	LLUUID notification_id = data["notification_id"];
 	bool new_message = data["new_message"];
 
-	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(object_id);
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(notification_id);
 	std::list<LLChiclet *>::iterator iter;
 	for (iter = chiclets.begin(); iter != chiclets.end(); iter++)
 	{
@@ -1894,12 +1894,8 @@ void LLScriptChiclet::setSessionId(const LLUUID& session_id)
 	setShowNewMessagesIcon( getSessionId() != session_id );
 
 	LLIMChiclet::setSessionId(session_id);
-	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(session_id);
-	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
-	if(notification)
-	{
-		setToolTip(notification->getSubstitutions()["TITLE"].asString());
-	}
+
+	setToolTip(LLScriptFloaterManager::getObjectName(session_id));
 }
 
 void LLScriptChiclet::setCounter(S32 counter)
@@ -1948,13 +1944,10 @@ void LLInvOfferChiclet::setSessionId(const LLUUID& session_id)
 {
 	setShowNewMessagesIcon( getSessionId() != session_id );
 
+	setToolTip(LLScriptFloaterManager::getObjectName(session_id));
+
 	LLIMChiclet::setSessionId(session_id);
-	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(session_id);
-	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
-	if(notification)
-	{
-		setToolTip(notification->getSubstitutions()["TITLE"].asString());
-	}
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(session_id);
 
 	if ( notification && notification->getName() == INVENTORY_USER_OFFER )
 	{
