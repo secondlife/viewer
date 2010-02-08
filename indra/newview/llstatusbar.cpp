@@ -130,7 +130,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	
 	// status bar can possible overlay menus?
 	setMouseOpaque(FALSE);
-	setIsChrome(TRUE);
 
 	// size of day of the weeks and year
 	sDays.reserve(7);
@@ -140,9 +139,39 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mHealthTimer = new LLFrameTimer();
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_status_bar.xml");
+}
 
-	// status bar can never get a tab
-	setFocusRoot(FALSE);
+LLStatusBar::~LLStatusBar()
+{
+	delete mBalanceTimer;
+	mBalanceTimer = NULL;
+
+	delete mHealthTimer;
+	mHealthTimer = NULL;
+
+	// LLView destructor cleans up children
+}
+
+//-----------------------------------------------------------------------
+// Overrides
+//-----------------------------------------------------------------------
+
+// virtual
+void LLStatusBar::draw()
+{
+	refresh();
+	LLPanel::draw();
+}
+
+BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	show_navbar_context_menu(this,x,y);
+	return TRUE;
+}
+
+BOOL LLStatusBar::postBuild()
+{
+	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	// build date necessary data (must do after panel built)
 	setupDate();
@@ -158,7 +187,9 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
 	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
-	mBtnVolume->setIsChrome(TRUE);
+
+	LLButton* media_toggle = getChild<LLButton>("media_toggle_btn");
+	media_toggle->setMouseEnterCallback(boost::bind(&LLFloaterReg::showInstance, "nearby_media", LLSD(), true));
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -218,39 +249,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
-}
-
-LLStatusBar::~LLStatusBar()
-{
-	delete mBalanceTimer;
-	mBalanceTimer = NULL;
-
-	delete mHealthTimer;
-	mHealthTimer = NULL;
-
-	// LLView destructor cleans up children
-}
-
-//-----------------------------------------------------------------------
-// Overrides
-//-----------------------------------------------------------------------
-
-// virtual
-void LLStatusBar::draw()
-{
-	refresh();
-	LLPanel::draw();
-}
-
-BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	show_navbar_context_menu(this,x,y);
-	return TRUE;
-}
-
-BOOL LLStatusBar::postBuild()
-{
-	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	return TRUE;
 }
