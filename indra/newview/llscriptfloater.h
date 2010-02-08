@@ -48,6 +48,15 @@ class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
 	// know how script notifications should look like.
 public:
 
+	typedef enum e_object_type
+	{
+		OBJ_SCRIPT,
+		OBJ_GIVE_INVENTORY,
+		OBJ_LOAD_URL,
+
+		OBJ_UNKNOWN
+	}EObjectType;
+
 	/**
 	 * Handles new notifications.
 	 * Saves notification and object ids, removes old notification if needed, creates script chiclet
@@ -62,11 +71,6 @@ public:
 	void onRemoveNotification(const LLUUID& notification_id);
 
 	/**
-	 * Wrapper for onRemoveNotification, removes notification by object id.
-	 */
-	void removeNotificationByObjectId(const LLUUID& object_id);
-
-	/**
 	 * Toggles script floater.
 	 * Removes "new message" icon from chiclet and removes notification toast.
 	 */
@@ -76,12 +80,9 @@ public:
 
 	LLUUID findNotificationId(const LLUUID& object_id);
 
-	LLUUID findNotificationToastId(const LLUUID& object_id);
+	static EObjectType getObjectType(const LLUUID& notification_id);
 
-	/**
-	 * Associate notification toast id with object id.
-	 */
-	void setNotificationToastId(const LLUUID& object_id, const LLUUID& notification_id);
+	static std::string getObjectName(const LLUUID& notification_id);
 
 	/**
 	* Callback for notification toast buttons.
@@ -93,16 +94,18 @@ public:
 	boost::signals2::connection addNewObjectCallback(const object_signal_t::slot_type& cb) { return mNewObjectSignal.connect(cb); }
 	boost::signals2::connection addToggleObjectFloaterCallback(const object_signal_t::slot_type& cb) { return mToggleFloaterSignal.connect(cb); }
 
+protected:
+
+	typedef std::map<std::string, EObjectType> object_type_map;
+
+	static object_type_map initObjectTypeMap();
+
+	// <notification_id, object_id>
+	typedef std::map<LLUUID, LLUUID> script_notification_map_t;
+
+	script_notification_map_t::const_iterator findUsingObjectId(const LLUUID& object_id);
+
 private:
-
-	struct LLNotificationData
-	{
-		LLUUID notification_id;
-		LLUUID toast_notification_id;
-	};
-
-	// <object_id, notification_data>
-	typedef std::map<LLUUID, LLNotificationData> script_notification_map_t;
 
 	script_notification_map_t mNotifications;
 
@@ -136,9 +139,9 @@ public:
 	 */
 	static LLScriptFloater* show(const LLUUID& object_id);
 
-	const LLUUID& getObjectId() { return mObjectId; }
+	const LLUUID& getNotificationId() { return mNotificationId; }
 
-	void setObjectId(const LLUUID& id) { mObjectId = id; }
+	void setNotificationId(const LLUUID& id) { mNotificationId = id; }
 
 	/**
 	 * Close notification if script floater is closed.
@@ -180,7 +183,7 @@ protected:
 
 private:
 	LLToastNotifyPanel* mScriptForm;
-	LLUUID mObjectId;
+	LLUUID mNotificationId;
 };
 
 #endif //LL_SCRIPTFLOATER_H

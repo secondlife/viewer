@@ -418,16 +418,16 @@ BOOL LLIMWellWindow::RowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 /*         ObjectRowPanel implementation                                */
 /************************************************************************/
 
-LLIMWellWindow::ObjectRowPanel::ObjectRowPanel(const LLUUID& object_id, bool new_message/* = false*/)
+LLIMWellWindow::ObjectRowPanel::ObjectRowPanel(const LLUUID& notification_id, bool new_message/* = false*/)
  : LLPanel()
  , mChiclet(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_active_object_row.xml", NULL);
 
-	initChiclet(object_id);
+	initChiclet(notification_id);
 
 	LLTextBox* obj_name = getChild<LLTextBox>("object_name");
-	obj_name->setValue(getObjectName(object_id));
+	obj_name->setValue(LLScriptFloaterManager::getObjectName(notification_id));
 
 	mCloseBtn = getChild<LLButton>("hide_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLIMWellWindow::ObjectRowPanel::onClosePanel, this));
@@ -438,90 +438,18 @@ LLIMWellWindow::ObjectRowPanel::~ObjectRowPanel()
 {
 }
 
-std::string LLIMWellWindow::ObjectRowPanel::getObjectName(const LLUUID& object_id)
-{
-	using namespace LLNotificationsUI;
-	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(object_id);
-	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
-	if(!notification)
-	{
-		llwarns << "Invalid notification" << llendl;
-		return LLStringUtil::null;
-	}
-
-	std::string text;
-
-	switch(getObjectType(notification))
-	{
-	case OBJ_SCRIPT:
-		text = notification->getSubstitutions()["TITLE"].asString();
-		break;
-	case OBJ_LOAD_URL:
-		text = notification->getSubstitutions()["OBJECTNAME"].asString();
-		break;
-	case OBJ_GIVE_INVENTORY:
-		text = notification->getSubstitutions()["NAME"].asString();
-		break;
-	default:
-		text = getString("unknown_obj");
-		break;
-	}
-
-	return text;
-}
-
 //---------------------------------------------------------------------------------
 void LLIMWellWindow::ObjectRowPanel::onClosePanel()
 {
-	LLScriptFloaterManager::getInstance()->removeNotificationByObjectId(mChiclet->getSessionId());
+	LLScriptFloaterManager::getInstance()->onRemoveNotification(mChiclet->getSessionId());
 }
 
-//static
-LLIMWellWindow::ObjectRowPanel::object_type_map LLIMWellWindow::ObjectRowPanel::initObjectTypeMap()
+void LLIMWellWindow::ObjectRowPanel::initChiclet(const LLUUID& notification_id, bool new_message/* = false*/)
 {
-	object_type_map type_map;
-	type_map["ScriptDialog"] = OBJ_SCRIPT;
-	type_map["LoadWebPage"] = OBJ_LOAD_URL;
-	type_map["ObjectGiveItem"] = OBJ_GIVE_INVENTORY;
-	return type_map;
-}
-
-// static
-LLIMWellWindow::ObjectRowPanel::EObjectType LLIMWellWindow::ObjectRowPanel::getObjectType(const LLNotificationPtr& notification)
-{
-	if(!notification)
-	{
-		llwarns << "Invalid notification" << llendl;
-		return OBJ_UNKNOWN;
-	}
-
-	static object_type_map type_map = initObjectTypeMap();
-	std::string name = notification->getName();
-	object_type_map::const_iterator it = type_map.find(name);
-	if(it != type_map.end())
-	{
-		return it->second;
-	}
-
-	llwarns << "Unknown object type" << llendl;
-	return OBJ_UNKNOWN;
-}
-
-void LLIMWellWindow::ObjectRowPanel::initChiclet(const LLUUID& object_id, bool new_message/* = false*/)
-{
-	using namespace LLNotificationsUI;
-	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(object_id);
-	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
-	if(!notification)
-	{
-		llwarns << "Invalid notification" << llendl;
-		return;
-	}
-
 	// Choose which of the pre-created chiclets to use.
-	switch(getObjectType(notification))
+	switch(LLScriptFloaterManager::getObjectType(notification_id))
 	{
-	case OBJ_GIVE_INVENTORY:
+	case LLScriptFloaterManager::OBJ_GIVE_INVENTORY:
 		mChiclet = getChild<LLInvOfferChiclet>("inv_offer_chiclet");
 		break;
 	default:
@@ -530,8 +458,7 @@ void LLIMWellWindow::ObjectRowPanel::initChiclet(const LLUUID& object_id, bool n
 	}
 
 	mChiclet->setVisible(true);
-	mChiclet->setSessionId(object_id);
-//	mChiclet->setShowNewMessagesIcon(new_message);
+	mChiclet->setSessionId(notification_id);
 }
 
 //---------------------------------------------------------------------------------
@@ -780,10 +707,10 @@ void LLIMWellWindow::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID
 	}
 }
 
-LLChiclet* LLIMWellWindow::findObjectChiclet(const LLUUID& object_id)
+LLChiclet* LLIMWellWindow::findObjectChiclet(const LLUUID& notification_id)
 {
 	LLChiclet* res = NULL;
-	ObjectRowPanel* panel = mMessageList->getTypedItemByValue<ObjectRowPanel>(object_id);
+	ObjectRowPanel* panel = mMessageList->getTypedItemByValue<ObjectRowPanel>(notification_id);
 	if (panel != NULL)
 	{
 		res = panel->mChiclet;
@@ -861,33 +788,33 @@ void LLIMWellWindow::delIMRow(const LLUUID& sessionId)
 	}
 }
 
-void LLIMWellWindow::addObjectRow(const LLUUID& object_id, bool new_message/* = false*/)
+void LLIMWellWindow::addObjectRow(const LLUUID& notification_id, bool new_message/* = false*/)
 {
-	if (mMessageList->getItemByValue(object_id) == NULL)
+	if (mMessageList->getItemByValue(notification_id) == NULL)
 	{
-		ObjectRowPanel* item = new ObjectRowPanel(object_id, new_message);
-		if (mMessageList->insertItemAfter(mSeparator, item, object_id))
+		ObjectRowPanel* item = new ObjectRowPanel(notification_id, new_message);
+		if (mMessageList->insertItemAfter(mSeparator, item, notification_id))
 		{
 			handleItemAdded(IT_INSTANT_MESSAGE);
 		}
 		else
 		{
-			llwarns << "Unable to add Object Row into the list, objectID: " << object_id << llendl;
+			llwarns << "Unable to add Object Row into the list, notificationID: " << notification_id << llendl;
 			item->die();
 		}
 		reshapeWindow();
 	}
 }
 
-void LLIMWellWindow::removeObjectRow(const LLUUID& object_id)
+void LLIMWellWindow::removeObjectRow(const LLUUID& notification_id)
 {
-	if (mMessageList->removeItemByValue(object_id))
+	if (mMessageList->removeItemByValue(notification_id))
 	{
 		handleItemRemoved(IT_INSTANT_MESSAGE);
 	}
 	else
 	{
-		llwarns << "Unable to remove Object Row from the list, objectID: " << object_id << llendl;
+		llwarns << "Unable to remove Object Row from the list, notificationID: " << notification_id << llendl;
 	}
 
 	reshapeWindow();
@@ -967,8 +894,7 @@ void LLIMWellWindow::closeAllImpl()
 		ObjectRowPanel* obj_panel = dynamic_cast <ObjectRowPanel*> (panel);
 		if (obj_panel)
 		{
-			LLScriptFloaterManager::instance()
-				.removeNotificationByObjectId(*iter);
+			LLScriptFloaterManager::instance().onRemoveNotification(*iter);
 		}
 	}
 }
