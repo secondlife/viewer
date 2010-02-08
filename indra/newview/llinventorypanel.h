@@ -61,6 +61,9 @@ class LLTabContainer;
 
 class LLInventoryPanel : public LLPanel
 {
+	//--------------------------------------------------------------------
+	// Data
+	//--------------------------------------------------------------------
 public:
 	static const std::string DEFAULT_SORT_ORDER;
 	static const std::string RECENTITEMS_SORT_ORDER;
@@ -97,13 +100,16 @@ public:
 		{}
 	};
 
+	//--------------------------------------------------------------------
+	// Initialization
+	//--------------------------------------------------------------------
 protected:
 	LLInventoryPanel(const Params&);
 	friend class LLUICtrlFactory;
-
 public:
 	virtual ~LLInventoryPanel();
 
+public:
 	LLInventoryModel* getModel() { return mInventory; }
 
 	BOOL postBuild();
@@ -185,6 +191,16 @@ protected:
 	 * Take into account it will not be deleted by LLInventoryPanel itself.
 	 */
 	const LLInventoryFVBridgeBuilder* mInvFVBridgeBuilder;
+
+	//--------------------------------------------------------------------
+	// Hidden folders
+	//--------------------------------------------------------------------
+public:
+	void addHideFolderType(LLFolderType::EType folder_type);
+protected:
+	BOOL getIsHiddenFolderType(LLFolderType::EType folder_type) const;
+private:
+	std::vector<LLFolderType::EType> mHiddenFolderTypes;
 
 	//--------------------------------------------------------------------
 	// Initialization routines for building up the UI ("views")
