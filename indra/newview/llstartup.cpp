@@ -2544,6 +2544,8 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
+	llinfos << "BAP load initial outfit start" << llendl;
+
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
