@@ -220,7 +220,9 @@ public:
 
 	Impl(LLMessageSystem* msg);
 	~Impl();
-	
+
+	BOOL getName(const LLUUID& id, std::string& first, std::string& last);
+
 	boost::signals2::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
 	void addPending(const LLUUID& id, const LLHost& host);
 	
@@ -480,7 +482,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 }
 
 
-BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& last)
+BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last)
 {
 	if(id.isNull())
 	{
@@ -489,7 +491,7 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 		return FALSE;
 	}
 
-	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
+	LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
 	if (entry)
 	{
 		first = entry->mFirstName;
@@ -500,9 +502,9 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 	{
 		first = sCacheName["waiting"];
 		last.clear();
-		if (!impl.isRequestPending(id))
+		if (!isRequestPending(id))
 		{
-			impl.mAskNameQueue.insert(id);
+			mAskNameQueue.insert(id);
 		}	
 		return FALSE;
 	}
@@ -521,9 +523,63 @@ void LLCacheName::LocalizeCacheName(std::string key, std::string value)
 BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
 	std::string first_name, last_name;
-	BOOL res = getName(id, first_name, last_name);
-	fullname = buildFullname(first_name, last_name);
+	BOOL res = impl.getName(id, first_name, last_name);
+	fullname = buildFullName(first_name, last_name);
 	return res;
+}
+
+static std::map<LLUUID, std::string> sDisplayNames;
+
+bool LLCacheName::getDisplayName(const LLUUID& id, std::string& display_name)
+{
+	if (sDisplayNames.empty())
+	{
+		LLUUID id;
+		const unsigned char miyazaki_hayao_san[]
+			= { 0xE5, 0xAE, 0xAE, 0xE5, 0xB4, 0x8E,
+				0xE9, 0xA7, 0xBF,
+				0xE3, 0x81, 0x95, 0xE3, 0x82, 0x93, '\0' };
+		id.set("27888d5f-4ddb-4df3-ad36-a1483ce0b3d9"); // miyazaki23
+		sDisplayNames[id] = (const char*)miyazaki_hayao_san;
+
+		id.set("3e5bf676-3577-c9ee-9fac-10df430015a1"); // Jim Linden
+		sDisplayNames[id] = "Jim Jenkins";
+
+		const unsigned char jose_sanchez[] =
+			{ 'J','o','s',0xC3,0xA9,' ','S','a','n','c','h','e','z', '\0' };
+		id.set("a2e76fcd-9360-4f6d-a924-938f923df11a"); // James Linden
+		sDisplayNames[id] = (const char*)jose_sanchez;
+
+		id.set("3f7ced39-5e38-4fdd-90f2-423560b1e6e2"); // Hamilton Linden
+		sDisplayNames[id] = "Hamilton Hitchings";
+
+		id.set("537da1e1-a89f-4f9b-9056-b1f0757ccdd0"); // Rome Linden
+		sDisplayNames[id] = "Rome Portlock";
+
+		id.set("244195d6-c9b7-4fd6-9229-c3a8b2e60e81"); // M Linden
+		sDisplayNames[id] = "Mark Kingdon";
+
+		id.set("49856302-98d4-4e32-b5e9-035e5b4e83a4"); // T Linden
+		sDisplayNames[id] = "Tom Hale";
+
+		id.set("e6ed7825-708f-4c6b-b6a7-f3fe921a9176"); // Callen Linden
+		sDisplayNames[id] = "Christina Allen";
+
+		id.set("a7f0ac18-205f-41d2-b5b4-f75f096ae511"); // Crimp Linden
+		sDisplayNames[id] = "Chris Rimple";
+	}
+
+	std::map<LLUUID,std::string>::iterator it = sDisplayNames.find(id);
+	if (it != sDisplayNames.end())
+	{
+		display_name = it->second;
+		return true;
+	}
+	else
+	{
+		display_name = "";
+		return false;
+	}
 }
 
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
@@ -562,7 +618,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 
 BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
 {
-	std::string fullname = buildFullname(first, last);
+	std::string fullname = buildFullName(first, last);
 	return getUUID(fullname, id);
 }
 
@@ -581,7 +637,7 @@ BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
 }
 
 //static
-std::string LLCacheName::buildFullname(const std::string& first, const std::string& last)
+std::string LLCacheName::buildFullName(const std::string& first, const std::string& last)
 {
 	std::string fullname = first;
 	if (!last.empty()
@@ -625,7 +681,7 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, co
 		else
 		{
 			std::string fullname =
-				buildFullname(entry->mFirstName, entry->mLastName);
+				buildFullName(entry->mFirstName, entry->mLastName);
 			signal(id, fullname, entry->mIsGroup);
 		}
 	}
@@ -722,7 +778,7 @@ void LLCacheName::dump()
 		{
 			llinfos
 				<< iter->first << " = "
-				<< buildFullname(entry->mFirstName, entry->mLastName)
+				<< buildFullName(entry->mFirstName, entry->mLastName)
 				<< " @ " << entry->mCreateTime
 				<< llendl;
 		}
@@ -769,7 +825,7 @@ void LLCacheName::Impl::processPendingReplies()
 		if (!entry->mIsGroup)
 		{
 			std::string fullname =
-				LLCacheName::buildFullname(entry->mFirstName, entry->mLastName);
+				LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
 			(reply->mSignal)(reply->mID, fullname, false);
 		}
 		else
@@ -952,10 +1008,10 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 
 		if (!isGroup)
 		{
-			std::string fullname =
-				LLCacheName::buildFullname(entry->mFirstName, entry->mLastName);
-			mSignal(id, fullname, false);
-			mReverseCache[fullname] = id;
+			std::string full_name =
+				LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+			mSignal(id, full_name, false);
+			mReverseCache[full_name] = id;
 		}
 		else
 		{

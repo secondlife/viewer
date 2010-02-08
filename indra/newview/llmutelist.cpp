@@ -118,9 +118,8 @@ LLMute::LLMute(const LLUUID& id, const std::string& name, EType type, U32 flags)
 		LLNameValue* lastname = mute_object->getNVPair("LastName");
 		if (firstname && lastname)
 		{
-			mName.assign( firstname->getString() );
-			mName.append(" ");
-			mName.append( lastname->getString() );
+			mName = LLCacheName::buildFullName(
+				firstname->getString(), lastname->getString());
 		}
 		mType = mute_object->isAvatar() ? AGENT : OBJECT;
 	}

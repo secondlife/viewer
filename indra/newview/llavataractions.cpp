@@ -103,7 +103,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id)
 	}
 
 	std::string full_name;
-	// IDEVO gCacheName->getFullName(id, full_name);
+	gCacheName->getFullName(id, full_name);
 	requestFriendshipDialog(id, full_name);
 }
 

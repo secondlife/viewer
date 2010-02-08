@@ -312,66 +312,13 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 }
 
 // IDEVO demo code
-static std::string clean_name(const std::string& full_name)
+std::string LLUrlEntryAgent::buildName(const LLUUID& id, const std::string& full_name)
 {
-	std::string displayname;
-	if (full_name == "miyazaki23") // IDEVO demo code
-	{
-		// miyazaki
-		displayname += (char)(0xE5);
-		displayname += (char)(0xAE);
-		displayname += (char)(0xAE);
-		displayname += (char)(0xE5);
-		displayname += (char)(0xB4);
-		displayname += (char)(0x8E);
-		// hayao
-		displayname += (char)(0xE9);
-		displayname += (char)(0xA7);
-		displayname += (char)(0xBF);
-		// san
-		displayname += (char)(0xE3);
-		displayname += (char)(0x81);
-		displayname += (char)(0x95);
-		displayname += (char)(0xE3);
-		displayname += (char)(0x82);
-		displayname += (char)(0x93);
-	}
-	else if (full_name == "Jim Linden")
-	{
-		displayname = "Jos";
-		displayname += (char)(0xC3);
-		displayname += (char)(0xA9);
-		displayname += " Sanchez";
-	}
-	else if (full_name == "James Linden")
-	{
-		displayname = "James Cook";
-	}
-	else if (full_name == "Hamilton Linden")
-	{
-		displayname = "Hamilton Hitchings";
-	}
-	else if (full_name == "Rome Linden")
-	{
-		displayname = "Rome Portlock";
-	}
-	else if (full_name == "M Linden")
-	{
-		displayname = "Mark Kingdon";
-	}
-	else if (full_name == "T Linden")
-	{
-		displayname = "Tom Hale";
-	}
-	else if (full_name == "Callen Linden")
-	{
-		displayname = "Christina Allen";
-	}
-	
 	std::string final;
-	if (!displayname.empty())
+	std::string display_name;
+	if (gCacheName->getDisplayName(id, display_name))
 	{
-		final = displayname + " (" + full_name + ")";
+		final = display_name + " (" + full_name + ")";
 	}
 	else
 	{
@@ -384,7 +331,7 @@ void LLUrlEntryAgent::onNameCache(const LLUUID& id,
 								  const std::string& full_name,
 								  bool is_group)
 {
-	std::string final = clean_name(full_name);
+	std::string final = buildName(id, full_name);
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), final);
 }
@@ -412,7 +359,7 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else if (gCacheName->getFullName(agent_id, full_name))
 	{
-		return clean_name(full_name);
+		return buildName(agent_id, full_name);
 	}
 	else
 	{

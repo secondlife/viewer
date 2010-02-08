@@ -170,6 +170,7 @@ public:
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 private:
 	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+	std::string buildName(const LLUUID& id, const std::string& full_name);
 };
 
 ///

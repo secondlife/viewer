@@ -77,13 +77,16 @@ public:
 	bool importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
-	// If available, copies the first and last name into the strings provided.
-	// first must be at least DB_FIRST_NAME_BUF_SIZE characters.
-	// last must be at least DB_LAST_NAME_BUF_SIZE characters.
+	// If available, copies name ("bobsmith123" or "James Linden") into string
 	// If not available, copies the string "waiting".
 	// Returns TRUE iff available.
-	BOOL getName(const LLUUID& id, std::string& first, std::string& last);
-	BOOL getFullName(const LLUUID& id, std::string& fullname);
+	BOOL getFullName(const LLUUID& id, std::string& full_name);
+
+	// IDEVO temporary code
+	// If available, copies display name (UTF-8) into string
+	// If not available, copies empty string
+	// Returns TRUE iff available
+	bool getDisplayName(const LLUUID& id, std::string& display_name);
 	
 	// Reverse lookup of UUID from name
 	BOOL getUUID(const std::string& first, const std::string& last, LLUUID& id);
@@ -91,7 +94,7 @@ public:
 
 	// IDEVO Temporary code
 	// Clean up new-style "bobsmith123 Resident" names to "bobsmith123" for display
-	static std::string buildFullname(const std::string& first, const std::string& last);
+	static std::string buildFullName(const std::string& first, const std::string& last);
 	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least

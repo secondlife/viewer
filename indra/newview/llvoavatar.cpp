@@ -44,6 +44,7 @@
 #include <ctype.h>
 
 #include "llaudioengine.h"
+#include "llcachename.h"
 #include "noise.h"
 #include "sound_ids.h"
 
@@ -2773,31 +2774,42 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				|| is_appearance != mNameAppearance)
 			{
 				std::string line;
-				if (!sRenderGroupTitles)
-				{
-					// If all group titles are turned off, stack first name
-					// on a line above last name
-					line += firstname->getString();
-					line += "\n";
-				}
-				else if (title && title->getString() && title->getString()[0] != '\0')
+				// IDEVO JAMESDEBUG
+				//if (!sRenderGroupTitles)
+				//{
+				//	// If all group titles are turned off, stack first name
+				//	// on a line above last name
+				//	line += firstname->getString();
+				//	line += "\n";
+				//}
+				//else if (title && title->getString() && title->getString()[0] != '\0')
+				//{
+				//	line += title->getString();
+				//	LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
+				//	line += "\n";
+				//	line += firstname->getString();
+				//}
+				//else
+				//{
+				//	line += firstname->getString();
+				//}
+				if (title && title->getString() && title->getString()[0] != '\0')
 				{
 					line += title->getString();
 					LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
 					line += "\n";
-					line += firstname->getString();
+				}
+
+				std::string display_name;
+				if (gCacheName->getDisplayName(getID(), display_name))
+				{
+					line += display_name;
 				}
 				else
 				{
-					line += firstname->getString();
+					line += LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
 				}
 
-				// Suppress last name "Resident" as this is used for new SLID names
-				if (strcmp(lastname->getString(), "Resident"))
-				{
-					line += " ";
-					line += lastname->getString();
-				}
 				BOOL need_comma = FALSE;
 
 				if (is_away || is_muted || is_busy)
@@ -7520,9 +7532,7 @@ std::string LLVOAvatar::getFullname() const
 	LLNameValue* last  = getNVPair("LastName"); 
 	if (first && last)
 	{
-		name += first->getString();
-		name += " ";
-		name += last->getString();
+		name = LLCacheName::buildFullName( first->getString(), last->getString() );
 	}
 
 	return name;

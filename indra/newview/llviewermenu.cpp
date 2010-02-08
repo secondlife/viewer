@@ -2758,9 +2758,8 @@ class LLObjectMute : public view_listener_t
 			LLNameValue *lastname = avatar->getNVPair("LastName");
 			if (firstname && lastname)
 			{
-				name = firstname->getString();
-				name += " ";
-				name += lastname->getString();
+				name = LLCacheName::buildFullName(
+					firstname->getString(), lastname->getString());
 			}
 			
 			type = LLMute::AGENT;
@@ -3517,21 +3516,17 @@ void request_friendship(const LLUUID& dest_id)
 	LLViewerObject* dest = gObjectList.findObject(dest_id);
 	if(dest && dest->isAvatar())
 	{
-		std::string fullname;
-		LLSD args;
+		std::string full_name;
 		LLNameValue* nvfirst = dest->getNVPair("FirstName");
 		LLNameValue* nvlast = dest->getNVPair("LastName");
 		if(nvfirst && nvlast)
 		{
-			args["FIRST"] = nvfirst->getString();
-			args["LAST"] = nvlast->getString();
-			fullname = nvfirst->getString();
-			fullname += " ";
-			fullname += nvlast->getString();
+			full_name = LLCacheName::buildFullName(
+				nvfirst->getString(), nvlast->getString());
 		}
-		if (!fullname.empty())
+		if (!full_name.empty())
 		{
-			LLAvatarActions::requestFriendshipDialog(dest_id, fullname);
+			LLAvatarActions::requestFriendshipDialog(dest_id, full_name);
 		}
 		else
 		{

@@ -421,7 +421,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		}
 		else
 		{
-			avatar_name = LLCacheName::buildFullname(first_name, last_name);
+			avatar_name = LLCacheName::buildFullName(first_name, last_name);
 			search_results->setEnabled(TRUE);
 			found_one = TRUE;
 		}

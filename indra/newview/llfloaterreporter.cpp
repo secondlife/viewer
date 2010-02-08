@@ -39,6 +39,7 @@
 
 // linden library includes
 #include "llassetstorage.h"
+#include "llcachename.h"
 #include "llfontgl.h"
 #include "llimagej2c.h"
 #include "llinventory.h"
@@ -270,9 +271,8 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 				LLNameValue* lastname =  objectp->getNVPair("LastName");
 				if (firstname && lastname)
 				{
-					object_owner.append(firstname->getString());
-					object_owner.append(1, ' ');
-					object_owner.append(lastname->getString());
+					object_owner = LLCacheName::buildFullName(
+						firstname->getString(), lastname->getString());
 				}
 				else
 				{

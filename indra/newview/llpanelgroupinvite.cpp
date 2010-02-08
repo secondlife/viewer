@@ -408,14 +408,13 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 		if(dest && dest->isAvatar())
 		{
 			std::string fullname;
-			LLSD args;
 			LLNameValue* nvfirst = dest->getNVPair("FirstName");
 			LLNameValue* nvlast = dest->getNVPair("LastName");
 			if(nvfirst && nvlast)
 			{
-				args["FIRST"] = std::string(nvfirst->getString());
-				args["LAST"] = std::string(nvlast->getString());
-				fullname = std::string(nvfirst->getString()) + " " + std::string(nvlast->getString());
+				fullname = LLCacheName::buildFullName(
+					nvfirst->getString(), nvlast->getString());
+
 			}
 			if (!fullname.empty())
 			{
