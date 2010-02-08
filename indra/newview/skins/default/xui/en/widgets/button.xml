@@ -11,6 +11,7 @@
         image_right_pad="0"
         image_top_pad="0"
         image_bottom_pad="0"
+        imgoverlay_label_space="1"
         label_color="ButtonLabelColor"
         label_color_selected="ButtonLabelSelectedColor"
         label_color_disabled="ButtonLabelDisabledColor"

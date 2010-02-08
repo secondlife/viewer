@@ -85,6 +85,7 @@ LLButton::Params::Params()
 	image_right_pad("image_right_pad"),
 	image_top_pad("image_top_pad"),
 	image_bottom_pad("image_bottom_pad"),
+	imgoverlay_label_space("imgoverlay_label_space", 1),
 	label_color("label_color"),
 	label_color_selected("label_color_selected"),	// requires is_toggle true
 	label_color_disabled("label_color_disabled"),
@@ -148,6 +149,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mImageOverlayRightPad(p.image_right_pad),
 	mImageOverlayTopPad(p.image_top_pad),
 	mImageOverlayBottomPad(p.image_bottom_pad),
+	mImgOverlayLabelSpace(p.imgoverlay_label_space),
 	mIsToggle(p.is_toggle),
 	mScaleImage(p.scale_image),
 	mDropShadowedText(p.label_shadow),
@@ -783,9 +785,9 @@ void LLButton::draw()
 		switch(mImageOverlayAlignment)
 		{
 		case LLFontGL::LEFT:
-			text_left += overlay_width + 1;
+			text_left += overlay_width + mImgOverlayLabelSpace;
 			mImageOverlay->draw(
-				mImageOverlayLeftPad,
+				mLeftHPad,
 				center_y - (overlay_height / 2), 
 				overlay_width, 
 				overlay_height, 
@@ -800,9 +802,9 @@ void LLButton::draw()
 				overlay_color);
 			break;
 		case LLFontGL::RIGHT:
-			text_right -= overlay_width + 1;
+			text_right -= overlay_width + mImgOverlayLabelSpace;
 			mImageOverlay->draw(
-				getRect().getWidth() - mImageOverlayRightPad - overlay_width,
+				getRect().getWidth() - mRightHPad - overlay_width,
 				center_y - (overlay_height / 2), 
 				overlay_width, 
 				overlay_height, 

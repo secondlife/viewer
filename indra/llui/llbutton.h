@@ -112,6 +112,11 @@ public:
 		Optional<S32>			image_top_pad;
 		Optional<S32>			image_bottom_pad;
 
+		/**
+		 * Space between image_overlay and label
+		 */
+		Optional<S32>			imgoverlay_label_space;
+
 		// callbacks
 		Optional<CommitCallbackParam>	click_callback, // alias -> commit_callback
 										mouse_down_callback,
@@ -332,6 +337,11 @@ private:
 	S32							mImageOverlayRightPad;
 	S32							mImageOverlayTopPad;
 	S32							mImageOverlayBottomPad;
+
+	/*
+	 * Space between image_overlay and label
+	 */
+	S32							mImgOverlayLabelSpace;
 
 	F32							mHoverGlowStrength;
 	F32							mCurGlowStrength;
