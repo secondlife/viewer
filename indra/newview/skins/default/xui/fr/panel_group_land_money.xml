@@ -17,7 +17,7 @@
 		Terrain du groupe
 	</text>
 	<scroll_list name="group_parcel_list" width="310">
-        <columnlabel="Parcelle"name="name"width="76" />
+        <column	label="Parcelle" name="name" width="76" />
         <column         label="Région"         name="location"         width="78" />
         <column         label="Type"         name="type"         width="70" />
         <column         label="Surface"         name="area"         width="50" />
