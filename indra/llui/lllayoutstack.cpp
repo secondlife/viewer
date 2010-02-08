@@ -816,7 +816,10 @@ void LLLayoutStack::calcMinExtents()
 //static 
 void LLLayoutStack::updateClass()
 {
-	for (LLLayoutStack::instance_iter it = beginInstances(); it != endInstances(); ++it)
+	LLInstanceTrackerScopedGuard guard;
+	for (LLLayoutStack::instance_iter it = guard.beginInstances();
+	     it != guard.endInstances();
+	     ++it)
 	{
 		it->updateLayout();
 	}

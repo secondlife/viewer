@@ -20,11 +20,11 @@
     </floater.string>
     <floater.string
      name="TitleFetching">
-        Inventory (Fetching [ITEM_COUNT] Items...) [FILTER]
+        MY INVENTORY (Fetching [ITEM_COUNT] Items...) [FILTER]
     </floater.string>
     <floater.string
      name="TitleCompleted">
-        Inventory ([ITEM_COUNT] Items) [FILTER]
+        MY INVENTORY ([ITEM_COUNT] Items) [FILTER]
     </floater.string>
     <floater.string
      name="Fetched">

@@ -356,8 +356,9 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& first,
 void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& first,
 								const std::string& last, BOOL is_group)
 {
+	LLInstanceTrackerScopedGuard guard;
 	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
-	for (it = beginInstances(); it != endInstances(); ++it)
+	for (it = guard.beginInstances(); it != guard.endInstances(); ++it)
 	{
 		LLNameListCtrl& ctrl = *it;
 		ctrl.refresh(id, first, last, is_group);

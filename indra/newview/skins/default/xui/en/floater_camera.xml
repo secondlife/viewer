@@ -82,6 +82,8 @@
               orientation="vertical"
               tool_tip="Zoom camera toward focus"
               top_pad="0"
+              min_val="0"
+              max_val="1" 
               width="18">
              <commit_callback function="Slider.value_changed"/>
            </slider_bar>

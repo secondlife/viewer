@@ -79,7 +79,7 @@ BOOL LLPreviewAnim::postBuild()
 	childSetAction("Anim audition btn",auditionAnim, this);
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
-	childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 	
 	return LLPreview::postBuild();
 }
