@@ -15,12 +15,12 @@
 			<button label="OK" left_delta="515" name="go"/>
 		</layout_panel>
 		<layout_panel name="time_controls">
-			<button label="en arrière" name="rewind"/>
+			<button label="en arrière" name="rewind" width="60"/>
 			<button label="stop" name="stop"/>
-			<button label="en avant" name="seek"/>
+			<button label="en avant" name="seek" width="60"/>
 		</layout_panel>
 		<layout_panel name="parcel_owner_controls">
-			<button label="Envoyer la page actuelle à la parcelle" name="assign"/>
+			<button label="Envoyer la page actuelle à la parcelle" name="assign" width="220"/>
 		</layout_panel>
 		<layout_panel name="external_controls">
 			<button label="Ouvrir dans mon navigateur web" name="open_browser" width="196"/>

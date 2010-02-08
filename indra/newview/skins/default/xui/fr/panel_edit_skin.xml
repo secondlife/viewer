@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_skin_panel">
 	<panel name="avatar_skin_color_panel">
-		<texture_picker label="Tatouage tête" name="Head Tattoos" tool_tip="Cliquez pour sélectionner une image"/>
-		<texture_picker label="Tatouage haut" name="Upper Tattoos" tool_tip="Cliquez pour sélectionner une image"/>
+		<texture_picker label="Tatouage tête" name="Head Tattoos" width="76" tool_tip="Cliquez pour sélectionner une image"/>
+		<texture_picker label="Tatouage haut" name="Upper Tattoos" width="80" tool_tip="Cliquez pour sélectionner une image"/>
 		<texture_picker label="Tatouage bas" name="Lower Tattoos" tool_tip="Cliquez pour sélectionner une image"/>
 	</panel>
 	<accordion name="wearable_accordion">

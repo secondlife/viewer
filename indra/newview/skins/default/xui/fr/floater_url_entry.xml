@@ -3,11 +3,11 @@
 	<text name="media_label">
 		URL du média :
 	</text>
-	<combo_box left="100" name="media_entry" width="360" />
-	<button label="OK" name="ok_btn" />
+	<combo_box name="media_entry"/>
+	<button label="OK" name="ok_btn" width="30" />
 	<button label="Annuler" name="cancel_btn" />
-	<button label="Effacer" name="clear_btn" />
-	<text name="loading_label">
+	<button label="Effacer" name="clear_btn" left_pad="94"/>
+	<text name="loading_label" left="120">
 		Chargement...
 	</text>
 </floater>

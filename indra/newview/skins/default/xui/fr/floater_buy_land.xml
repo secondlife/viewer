@@ -37,10 +37,10 @@
 		Vous devez accepter le règlement du domaine :
 	</text>
 	<text left="470" name="covenant_timestamp_text"/>
-	<text_editor name="covenant_editor">
+	<text_editor name="covenant_editor" left="510">
 		Chargement...
 	</text_editor>
-	<check_box label="J&apos;accepte le règlement ci-dessus." name="agree_covenant"/>
+	<check_box label="J&apos;accepte le règlement ci-dessus." name="agree_covenant" left="510"/>
 	<text name="info_parcel_label">
 		Parcelle :
 	</text>
@@ -79,9 +79,20 @@ vendu avec objets
 		<combo_box.item label="7,50 US$/mois, facturation trimestrielle" name="US$7.50/month,billedquarterly"/>
 		<combo_box.item label="6,00 US$/mois, facturation annuelle" name="US$6.00/month,billedannually"/>
 	</combo_box>
-	<text name="land_use_action">
-		Augmentez vos frais d&apos;occupation de terrain à 40 US$/mois.
-	</text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="land_use_action"
+     right="500"
+     top="284"
+     width="400">
+        Augmentez vos frais d&apos;occupation de terrain à 40 US$/mois.
+    </text>
 	<text name="land_use_reason">
 		Vous détenez 1 309 m² de terrain.
 Cette parcelle fait 512 m².

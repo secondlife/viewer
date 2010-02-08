@@ -16,13 +16,13 @@
 	<text name="group_land_heading">
 		Terrain du groupe
 	</text>
-	<scroll_list name="group_parcel_list">
-		<column label="Parcelle" name="name"/>
-		<column label="Région" name="location"/>
-		<column label="Type" name="type"/>
-		<column label="Surface" name="area"/>
-		<column label="" name="hidden"/>
-	</scroll_list>
+	<scroll_list name="group_parcel_list" width="310">
+        <columnlabel="Parcelle"name="name"width="76" />
+        <column         label="Région"         name="location"         width="78" />
+        <column         label="Type"         name="type"         width="70" />
+        <column         label="Surface"         name="area"         width="50" />
+        <column         label=""         name="hidden"         width="-1" />
+    </scroll_list>
 	<button label="Carte" label_selected="Carte" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Total des contributions :
