@@ -14,8 +14,8 @@
 			<button label="Los" name="go"/>
 		</layout_panel>
 		<layout_panel name="time_controls">
-			<button label="zurückspulen" name="rewind"/>
-			<button label="anhalten" name="stop"/>
+			<button label="zurückspulen" name="rewind" width="100"/>
+			<button label="anhalten" name="stop" left_pad="20"/>
 			<button label="vorwärts" name="seek"/>
 		</layout_panel>
 		<layout_panel name="parcel_owner_controls">

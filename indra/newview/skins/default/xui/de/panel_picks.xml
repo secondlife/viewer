@@ -11,7 +11,7 @@
 	</panel>
 	<panel name="buttons_cucks">
 		<button label="Info" name="info_btn" tool_tip="Auswahl-Information anzeigen"/>
-		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu entsprechendem Standort teleportieren"/>
+		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu entsprechendem Standort teleportieren" width="100"/>
 		<button label="Karte" name="show_on_map_btn" tool_tip="Den entsprechenden Standort auf der Karte anzeigen"/>
 	</panel>
 </panel>

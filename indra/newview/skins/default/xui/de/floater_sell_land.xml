@@ -5,13 +5,13 @@
 			<text name="info_parcel_label">
 				Parzelle:
 			</text>
-			<text bottom_delta="-5" height="16" name="info_parcel">
+			<text bottom_delta="-5" height="16" name="info_parcel" left="70">
 				PARZELLENNAME
 			</text>
 			<text name="info_size_label">
 				Größe:
 			</text>
-			<text bottom_delta="-21" height="32" name="info_size">
+			<text bottom_delta="-21" height="32" name="info_size" left="70">
 				[AREA] m².
 			</text>
 			<text bottom_delta="-57" height="28" name="info_action">
@@ -20,7 +20,7 @@
 			<text name="price_label">
 				1. Preis festlegen:
 			</text>
-			<text name="price_text">
+			<text name="price_text" >
 				Einen angemessenen Preis auswählen.
 			</text>
 			<text name="price_ld">
