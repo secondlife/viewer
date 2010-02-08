@@ -2564,27 +2564,53 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	// try to find the outfit - if not there, create some default
 	// wearables.
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	LLNameCategoryCollector has_name(outfit_folder_name);
-	gInventory.collectDescendentsIf(gInventory.getLibraryRootFolderID(),
-									cat_array,
-									item_array,
-									LLInventoryModel::EXCLUDE_TRASH,
-									has_name);
-	if (0 == cat_array.count())
+	LLUUID cat_id = findDescendentCategoryIDByName(
+		gInventory.getLibraryRootFolderID(),
+		outfit_folder_name);
+	if (cat_id.isNull())
 	{
 		gAgentWearables.createStandardWearables(gender);
 	}
 	else
 	{
-		LLInventoryCategory* cat = cat_array.get(0);
 		bool do_copy = true;
 		bool do_append = false;
+		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
-	LLAppearanceManager::instance().wearOutfitByName(gestures);
-	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);
+
+	// Copy gestures
+	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
+	LLPointer<LLInventoryCallback> cb(NULL);
+	LLAppearanceManager *app_mgr = &(LLAppearanceManager::instance());
+
+	// - Copy gender-specific gestures.
+	LLUUID gestures_cat_id = findDescendentCategoryIDByName( 
+		gInventory.getLibraryRootFolderID(),
+		gestures);
+	if (gestures_cat_id.notNull())
+	{
+		callAfterCategoryFetch(gestures_cat_id,
+							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+										   app_mgr,
+										   gestures_cat_id,
+										   dst_id,
+										   cb));
+	}
+
+	// - Copy common gestures.
+	LLUUID common_gestures_cat_id = findDescendentCategoryIDByName( 
+		gInventory.getLibraryRootFolderID(),
+		COMMON_GESTURES_FOLDER);
+	if (common_gestures_cat_id.notNull())
+	{
+		callAfterCategoryFetch(common_gestures_cat_id,
+							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+										   app_mgr,
+										   common_gestures_cat_id,
+										   dst_id,
+										   cb));
+	}
 
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
