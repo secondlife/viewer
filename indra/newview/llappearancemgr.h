@@ -36,6 +36,7 @@
 #include "llsingleton.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llviewerinventory.h"
 #include "llcallbacklist.h"
 
 class LLWearable;
