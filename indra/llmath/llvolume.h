@@ -805,6 +805,8 @@ public:
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
 	
+	void appendFace(const LLVolumeFace& face);
+
 	class VertexData
 	{
 	public:
