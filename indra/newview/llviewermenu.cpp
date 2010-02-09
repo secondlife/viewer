@@ -5332,7 +5332,7 @@ class LLWorldCreateLandmark : public view_listener_t
 
 void handle_look_at_selection(const LLSD& param)
 {
-	const F32 PADDING_FACTOR = 2.f;
+	const F32 PADDING_FACTOR = 1.75f;
 	BOOL zoom = (param.asString() == "zoom");
 	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
@@ -5352,14 +5352,19 @@ void handle_look_at_selection(const LLSD& param)
 		}
 		if (zoom)
 		{
+			// Make sure we are not increasing the distance between the camera and object
+			LLVector3d orig_distance = gAgent.getCameraPositionGlobal() - LLSelectMgr::getInstance()->getSelectionCenterGlobal();
+			distance = llmin(distance, (F32) orig_distance.length());
+				
 			gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
-											LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
-											object_id );
+										LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
+										object_id );
+			
 		}
 		else
 		{
 			gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
-		}
+		}	
 	}
 }
 
