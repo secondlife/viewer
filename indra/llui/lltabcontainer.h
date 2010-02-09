@@ -93,6 +93,16 @@ public:
 											last_tab;
 
 		/**
+		 * Tab label horizontal alignment
+		 */
+		Optional<LLFontGL::HAlign>			font_halign;
+
+		/**
+		 * Tab label ellipses
+		 */
+		Optional<bool>						use_ellipses;
+
+		/**
 		 * Use LLCustomButtonIconCtrl or LLButton in LLTabTuple
 		 */
 		Optional<bool>						use_custom_icon_ctrl;
@@ -294,6 +304,7 @@ private:
 
 	bool							mCustomIconCtrlUsed;
 	S32								mTabIconCtrlPad;
+	bool							mUseTabEllipses;
 };
 
 #endif  // LL_TABCONTAINER_H
