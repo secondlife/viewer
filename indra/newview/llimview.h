@@ -472,6 +472,7 @@ public:
 
 	// check timer state
 	/*virtual*/ void draw();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 protected:
 	// lifetime timer for a notification
