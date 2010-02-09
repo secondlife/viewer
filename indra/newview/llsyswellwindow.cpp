@@ -404,7 +404,10 @@ BOOL LLIMWellWindow::RowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Pass the mouse down event to the chiclet (EXT-596).
 	if (!mChiclet->pointInView(x, y) && !mCloseBtn->getRect().pointInRect(x, y)) // prevent double call of LLIMChiclet::onMouseDown()
+	{
 		mChiclet->onMouseDown();
+		return TRUE;
+	}
 
 	return LLPanel::handleMouseDown(x, y, mask);
 }
@@ -479,7 +482,10 @@ BOOL LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Pass the mouse down event to the chiclet (EXT-596).
 	if (!mChiclet->pointInView(x, y) && !mCloseBtn->getRect().pointInRect(x, y)) // prevent double call of LLIMChiclet::onMouseDown()
+	{
 		mChiclet->onMouseDown();
+		return TRUE;
+	}
 
 	return LLPanel::handleMouseDown(x, y, mask);
 }

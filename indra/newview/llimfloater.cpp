@@ -407,12 +407,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 			}
 		}
 
-		if (floater_container)
-		{
-			//selecting the panel resets a chiclet's counter
-			floater_container->selectFloater(floater);
-			floater_container->setVisible(TRUE);
-		}
+		floater->openFloater(floater->getKey());
 	}
 	else
 	{

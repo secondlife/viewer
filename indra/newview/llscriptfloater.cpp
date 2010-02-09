@@ -74,9 +74,6 @@ LLScriptFloater::LLScriptFloater(const LLSD& key)
 
 bool LLScriptFloater::toggle(const LLUUID& notification_id)
 {
-	// Force chiclet toggle on here because first onFocusReceived() will not toggle it on.
-	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(notification_id, true);
-
 	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 
 	// show existing floater
@@ -91,23 +88,24 @@ bool LLScriptFloater::toggle(const LLUUID& notification_id)
 		{
 			floater->setVisible(TRUE);
 			floater->setFocus(TRUE);
-			return true;
 		}
 	}
 	// create and show new floater
 	else
 	{
 		show(notification_id);
-		return true;
 	}
+
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(notification_id, true);
+	return true;
 }
 
 LLScriptFloater* LLScriptFloater::show(const LLUUID& notification_id)
 {
-	LLScriptFloater* floater = LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id);
-
+	LLScriptFloater* floater = LLFloaterReg::getTypedInstance<LLScriptFloater>("script_floater", notification_id);
 	floater->setNotificationId(notification_id);
 	floater->createForm(notification_id);
+	LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, TRUE);
 
 	if (floater->getDockControl() == NULL)
 	{
