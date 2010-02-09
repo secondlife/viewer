@@ -363,7 +363,7 @@
 			<text name="edit_object">
 				Objekteigenschaften bearbeiten:
 			</text>
-			<check_box label="Flexibler Weg" name="Flexible1D Checkbox Ctrl" tool_tip="Bewirkt, dass sich das Objekt um die Z-Achse biegen kann. (Nur Client-Seite)"/>
+			<check_box label="Flexibler Pfad" name="Flexible1D Checkbox Ctrl" tool_tip="Bewirkt, dass sich das Objekt um die Z-Achse biegen kann. (Nur Client-Seite)"/>
 			<spinner label="Weichheit" name="FlexNumSections"/>
 			<spinner label="Schwerkraft" name="FlexGravity"/>
 			<spinner label="Ziehen" name="FlexFriction"/>
