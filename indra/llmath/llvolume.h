@@ -805,6 +805,8 @@ public:
 	void createBinormals();
 	void makeTriStrip();
 	
+	void appendFace(const LLVolumeFace& face);
+
 	class VertexData
 	{
 	public:

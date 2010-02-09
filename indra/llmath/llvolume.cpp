@@ -5614,6 +5614,25 @@ void LLVolumeFace::createBinormals()
 	}
 }
 
+void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& transform, LLMatrix4& norm_transform)
+{
+	for (U32 i = 0; i < face.mVertices.size(); ++i)
+	{
+		VertexData v = face.mVertices[i];
+		v.mPosition *= mat;
+		v.mNormal *= norm_transform;
+
+
+		mVertices.push_back(v);
+	}
+
+	U16 offset = mIndices.size();
+	for (U32 i = 0; i < face.mIndices.size(); ++i)
+	{
+		mIndices.push_back(face.mIndices[i]+offset);
+	}
+}
+
 BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
