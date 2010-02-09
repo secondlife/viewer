@@ -9,7 +9,6 @@ include(LLPlugin)
 include(LLMath)
 include(LLRender)
 include(LLWindow)
-include(UI)
 include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
@@ -39,21 +38,13 @@ add_library(media_plugin_webkit
     ${media_plugin_webkit_SOURCE_FILES}
 )
 
-set(media_plugin_webkit_LINK_LIBRARIES
+target_link_libraries(media_plugin_webkit
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
   ${WEBKIT_PLUGIN_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
-
-if (LINUX)
-  list(APPEND media_plugin_webkit_LINK_LIBRARIES
-       ${UI_LIBRARIES}     # for glib/GTK
-       )
-endif (LINUX)
-
-target_link_libraries(media_plugin_webkit ${media_plugin_webkit_LINK_LIBRARIES})
 
 add_dependencies(media_plugin_webkit
   ${LLPLUGIN_LIBRARIES}
