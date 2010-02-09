@@ -1842,6 +1842,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
+				/*
+				EXT-5099
+				currently there is no way to store in history only...
+				using  LLNotificationsUtil::add will add message to Nearby Chat
+
 				// muted user, so don't start an IM session, just record line in chat
 				// history.  Pretend the chat is from a local agent,
 				// so it will go into the history but not be shown on screen.
@@ -1849,6 +1854,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["MESSAGE"] = buffer;
 				LLNotificationsUtil::add("SystemMessageTip", args);
+				*/
 			}
 		}
 		break;
