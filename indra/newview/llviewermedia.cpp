@@ -57,6 +57,7 @@
 #include "llkeyboard.h"
 #include "llmutelist.h"
 //#include "llfirstuse.h"
+#include "llwindow.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -712,7 +713,6 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	std::vector<LLViewerMediaImpl*> proximity_order;
 	
 	bool inworld_media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-	bool needs_first_run = LLViewerMedia::needsMediaFirstRun();
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -838,12 +838,6 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			if(!pimpl->getUsedInUI())
 			{
 				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
-				if(needs_first_run)
-				{
-					// Don't do this more than once in this loop.
-					needs_first_run = false;
-					LLViewerMedia::displayMediaFirstRun();
-				}
 			}
 		}
 		
@@ -912,59 +906,6 @@ void LLViewerMedia::cleanupClass()
 {
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// static
-bool LLViewerMedia::needsMediaFirstRun()
-{
-	return gWarningSettings.getBOOL("FirstStreamingMedia");
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// static
-void LLViewerMedia::displayMediaFirstRun()
-{
-	gWarningSettings.setBOOL("FirstStreamingMedia", FALSE);
-
-	LLNotificationsUtil::add("ParcelCanPlayMedia", LLSD(), LLSD(),
-		boost::bind(firstRunCallback, _1, _2));
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// static
-bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		// user has elected to automatically play media.
-		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
-		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
-		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
-
-		LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-				
-		if (parcel)
-		{
-			// play media right now, if available
-			LLViewerParcelMedia::play(parcel);
-		
-			// play music right now, if available
-			std::string music_url = parcel->getMusicURL();
-			if (gAudiop && !music_url.empty())
-				gAudiop->startInternetStream(music_url);
-		}
-	}
-	else
-	{
-		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, FALSE);
-		gSavedSettings.setBOOL("AudioStreamingMedia", FALSE);
-		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
-	}
-	return false;
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
@@ -1839,9 +1780,12 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 		
 		if(!result)
 		{
-			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+			
+			LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+			
+			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask, native_key_data);
 			// Since the viewer internal event dispatching doesn't give us key-up events, simulate one here.
-			(void)mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP ,key, mask);
+			(void)mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP ,key, mask, native_key_data);
 		}
 	}
 	
@@ -1859,7 +1803,9 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 		if (uni_char >= 32 // discard 'control' characters
 			&& uni_char != 127) // SDL thinks this is 'delete' - yuck.
 		{
-			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE));
+			LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+			
+			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE), native_key_data);
 		}
 	}
 	

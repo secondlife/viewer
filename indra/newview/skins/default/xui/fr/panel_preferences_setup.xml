@@ -18,7 +18,7 @@
 		kbps
 	</text>
 	<check_box label="Port de connexion personnalisé" name="connection_port_enabled"/>
-	<spinner label="Numéro de port :" name="web_proxy_port"/>
+	<spinner label="Numéro de port :" label_width="95" name="web_proxy_port" width="170"/>
 	<text name="cache_size_label_l">
 		Taille de la mémoire
 	</text>

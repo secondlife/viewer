@@ -7,7 +7,8 @@
 		Vous avez besoin de plus de L$
 	</text>
 	<text name="contacting">
-		En train de contacter le Lindex...
+		En train de contacter 
+le Lindex...
 	</text>
 	<text left="5" name="info_buying">
 		Acheter des L$
@@ -59,7 +60,7 @@
 	</text>
 	<button label="Acheter" name="buy_btn"/>
 	<button label="Annuler" name="cancel_btn"/>
-	<text left="5" name="info_cannot_buy" right="-5">
+	<text left="5" name="info_cannot_buy" width="200" right="-5">
 		Achat impossible
 	</text>
 	<button label="Accéder au Web" name="error_web"/>

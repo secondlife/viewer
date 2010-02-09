@@ -120,6 +120,10 @@ public:
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
+	// Provide native key event data
+	/*virtual*/ LLSD getNativeKeyData();
+
+
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
@@ -218,6 +222,7 @@ protected:
 
 	friend class LLWindowManager;
 	static WindowRef sMediaWindow;
+	EventRef 	mRawKeyEvent;
 
 };
 

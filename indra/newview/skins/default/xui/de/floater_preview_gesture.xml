@@ -36,7 +36,7 @@
 	<text name="replace_text" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt.">
 		Ersetzen mit:
 	</text>
-	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt."/>
+	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt." left_delta="94" width="160"/>
 	<text name="key_label">
 		Tastenkürzel:
 	</text>
@@ -45,8 +45,8 @@
 	<text name="library_label">
 		Bibliothek:
 	</text>
-	<scroll_list name="library_list"/>
-	<button label="Hinzufügen &gt;&gt;" name="add_btn"/>
+	<scroll_list name="library_list" width="166"/>
+	<button label="Hinzufügen &gt;&gt;" name="add_btn" left_pad="6" width="94"/>
 	<text name="steps_label">
 		Schritte:
 	</text>

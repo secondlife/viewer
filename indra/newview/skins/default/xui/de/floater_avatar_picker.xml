@@ -21,11 +21,12 @@
 	<tab_container name="ResidentChooserTabs">
 		<panel label="Suchen" name="SearchPanel">
 			<text name="InstructSearchResidentName">
-				Geben Sie einen Teil des Namens einer Person ein:
+				Geben Sie einen Teil des Namens einer
+Person ein:
 			</text>
-			<line_editor bottom_delta="-36" name="Edit"/>
-			<button label="Los" label_selected="Los" name="Find"/>
-			<scroll_list bottom_delta="-79" height="74" name="SearchResults"/>
+			<line_editor bottom_delta="-76" name="Edit" top_pad="16"/>
+			<button label="Los" label_selected="Los" name="Find" top="70"/>
+			<scroll_list top="80" height="54" name="SearchResults"/>
 		</panel>
 		<panel label="Freunde" name="FriendsPanel">
 			<text name="InstructSelectFriend">

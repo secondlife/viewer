@@ -279,12 +279,12 @@
          <icon
      follows="top|right"
      height="16"
-     image_name="map_event.tga"
+     image_name="Parcel_PG_Dark"
      layout="topleft"
      mouse_opaque="true"
      name="event"
      left_pad="0"
-     width="16" />
+     width="18" />
       <text
      type="string"
      length="1"
@@ -312,13 +312,13 @@
     <icon
      follows="top|right"
      height="16"
-     image_name="map_event_mature.tga"
+     image_name="Parcel_M_Dark"
      layout="topleft"
      mouse_opaque="true"
      name="events_mature_icon"
      top_delta="0"
      left_pad="0"
-     width="16" />
+     width="18" />
            <text
      type="string"
      length="1"
@@ -345,13 +345,13 @@
     <icon
      follows="top|right"
      height="16"
-     image_name="map_event_adult.tga"
+     image_name="Parcel_R_Dark"
      layout="topleft"
      left_pad="0"
      mouse_opaque="true"
      name="events_adult_icon"
      top_delta="0"
-     width="16" />
+     width="18" />
                 <text
      type="string"
      length="1"

@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="ゴッド・ツール">
 	<tab_container name="GodTools Tabs">
 		<panel label="グリッド" name="grid">
-			<button label="すべてのユーザーを追い出す" label_selected="すべてのユーザーを追い出す" name="Kick all users"/>
+			<button label="すべてのユーザーを追い出す" label_selected="すべてのユーザーを追い出す" name="Kick all users" width="160"/>
 			<button label="この地域の地図の表示キャッシュを消去" label_selected="この地域の地図の表示キャッシュを消去" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="地域" name="region">
@@ -33,13 +33,15 @@
 			<line_editor name="gridposx" tool_tip="これは、この地域のグリッドxの位置です。"/>
 			<line_editor name="gridposy" tool_tip="これは、この地域のグリッドyの位置です。"/>
 			<text name="Redirect to Grid: ">
-				グリッドにリダイレクト：
+				グリッドにリダ
+イレクト：
 			</text>
 			<text name="billable factor text">
 				請求率：
 			</text>
 			<text name="land cost text">
-				平方メートル当たりL$：
+				平方メートル当
+たりL$：
 			</text>
 			<button label="更新" label_selected="更新" name="Refresh" tool_tip="上記の情報を更新するには、ここをクリックします。"/>
 			<button label="適用" label_selected="適用" name="Apply" tool_tip="上記の変更を適用するには、ここをクリックします。"/>

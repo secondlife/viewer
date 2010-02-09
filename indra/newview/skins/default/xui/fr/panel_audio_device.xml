@@ -6,7 +6,7 @@
 	<text name="Input device (microphone):">
 		Périphérique d&apos;entrée (micro) :
 	</text>
-	<text name="Output device (speakers):">
+	<text name="Output device (speakers):" width="300">
 		Périphérique de sortie (haut-parleurs) :
 	</text>
 	<text name="Input level:">

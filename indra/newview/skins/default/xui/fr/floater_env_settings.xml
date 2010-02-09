@@ -3,7 +3,7 @@
 	<floater.string name="timeStr">
 		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
 	</floater.string>
-	<text bottom="-45" name="EnvTimeText">
+	<text bottom="-45" name="EnvTimeText" top="29">
 		Heure de la
 journée
 	</text>
@@ -14,7 +14,7 @@ journée
 		Couverture
 nuageuse
 	</text>
-	<text bottom="-45" name="EnvWaterColorText">
+	<text bottom="-45" name="EnvWaterColorText" top="29">
 		Couleur de
 l&apos;eau
 	</text>
@@ -23,7 +23,7 @@ l&apos;eau
 		Brouillard
 dans l&apos;eau
 	</text>
-	<button bottom="-144" label="Utiliser heure du domaine" name="EnvUseEstateTimeButton" width="145"/>
+	<button bottom="-144" label="Utiliser heure du domaine" name="EnvUseEstateTimeButton" width="152"/>
 	<button label="Ciel avancé" left="162" name="EnvAdvancedSkyButton" width="145"/>
 	<button label="Eau avancée" left="316" name="EnvAdvancedWaterButton" width="145"/>
 </floater>

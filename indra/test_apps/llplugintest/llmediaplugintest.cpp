@@ -1169,8 +1169,8 @@ void LLMediaPluginTest::keyboard( int key )
 		exit( 0 );
 	};
 
-	mSelectedPanel->mMediaSource->keyEvent( LLPluginClassMedia::KEY_EVENT_DOWN, key, 0 );
-	mSelectedPanel->mMediaSource->keyEvent( LLPluginClassMedia::KEY_EVENT_UP, key, 0 );
+	mSelectedPanel->mMediaSource->keyEvent( LLPluginClassMedia::KEY_EVENT_DOWN, key, 0 , LLSD());
+	mSelectedPanel->mMediaSource->keyEvent( LLPluginClassMedia::KEY_EVENT_UP, key, 0, LLSD());
 };
 
 ////////////////////////////////////////////////////////////////////////////////

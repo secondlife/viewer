@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="MemLeak" title="SPEICHERVERLUST SIMULIEREN">
-	<spinner label="Verlustgeschwindigkeit (Bytes pro Frame):" name="leak_speed"/>
-	<spinner label="Max. Speicherverlust (MB):" name="max_leak"/>
+	<spinner label="Verlustgeschwindigkeit (Bytes pro Frame):" name="leak_speed" label_width="224"/>
+	<spinner label="Max. Speicherverlust (MB):" name="max_leak" label_width="224"/>
 	<text name="total_leaked_label">
 		Aktueller Speicherverlust:[SIZE] KB
 	</text>

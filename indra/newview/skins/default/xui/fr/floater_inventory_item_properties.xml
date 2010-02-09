@@ -47,11 +47,11 @@
 	<check_box label="Éditer" name="CheckOwnerModify"/>
 	<check_box label="Copier" name="CheckOwnerCopy"/>
 	<check_box label="Revendre" name="CheckOwnerTransfer"/>
-	<text name="AnyoneLabel">
+	<text name="AnyoneLabel" width="80">
 		N&apos;importe qui :
 	</text>
 	<check_box label="Copier" name="CheckEveryoneCopy"/>
-	<text name="GroupLabel">
+	<text name="GroupLabel" width="80">
 		Groupe :
 	</text>
 	<check_box label="Partager" name="CheckShareWithGroup"/>

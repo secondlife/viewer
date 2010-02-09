@@ -48,6 +48,31 @@
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
+LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name)
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLNameCategoryCollector has_name(name);
+	gInventory.collectDescendentsIf(parent_id,
+									cat_array,
+									item_array,
+									LLInventoryModel::EXCLUDE_TRASH,
+									has_name);
+	if (0 == cat_array.count())
+		return LLUUID();
+	else
+	{
+		LLViewerInventoryCategory *cat = cat_array.get(0);
+		if (cat)
+			return cat->getUUID();
+		else
+		{
+			llwarns << "null cat" << llendl;
+			return LLUUID();
+		}
+	}
+}
+
 // support for secondlife:///app/appearance SLapps
 class LLAppearanceHandler : public LLCommandHandler
 {
@@ -519,8 +544,32 @@ void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, boo
 	LLAppearanceManager::instance().updateCOF(category,append);
 }
 
+// Create a copy of src_id + contents as a subfolder of dst_id.
 void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 											  LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryCategory *src_cat = gInventory.getCategory(src_id);
+	if (!src_cat)
+	{
+		llwarns << "folder not found for src " << src_id.asString() << llendl;
+		return;
+	}
+	LLUUID parent_id = dst_id;
+	if(parent_id.isNull())
+	{
+		parent_id = gInventory.getRootFolderID();
+	}
+	LLUUID subfolder_id = gInventory.createNewCategory( parent_id,
+														LLFolderType::FT_NONE,
+														src_cat->getName());
+	shallowCopyCategoryContents(src_id, subfolder_id, cb);
+
+	gInventory.notifyObservers();
+}
+
+// Copy contents of src_id to dst_id.
+void LLAppearanceManager::shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
+													  LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;

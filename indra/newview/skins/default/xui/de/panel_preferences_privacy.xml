@@ -23,5 +23,5 @@
 		Speicherort für Protokolle:
 	</text>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="log_path_button"/>
-	<button label="Ignorierte Einwohner/Objekte" name="block_list"/>
+	<button label="Ignorierte Einwohner/Objekte" name="block_list" width="180"/>
 </panel>

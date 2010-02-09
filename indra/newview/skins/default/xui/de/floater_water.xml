@@ -3,7 +3,7 @@
 	<floater.string name="WLDefaultWaterNames">
 		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
 	</floater.string>
-	<text name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText" width="116">
 		Voreinstellungen:
 	</text>
 	<button label="Neu" label_selected="Neu" name="WaterNewPreset"/>
