@@ -526,14 +526,13 @@ private:
 		// Any special-case handling we want to do for particular keys...
 		switch((KEY)key)
 		{
-#if !LL_LINUX
 			// ASCII codes for some standard keys
 			case LLQtWebKit::KEY_BACKSPACE:		utf8_text = (char)8;		break;
 			case LLQtWebKit::KEY_TAB:			utf8_text = (char)9;		break;
 			case LLQtWebKit::KEY_RETURN:		utf8_text = (char)13;		break;
 			case LLQtWebKit::KEY_PAD_RETURN:	utf8_text = (char)13;		break;
 			case LLQtWebKit::KEY_ESCAPE:		utf8_text = (char)27;		break;
-#endif
+			
 			default:  
 			break;
 		}
@@ -545,9 +544,7 @@ private:
 		uint32_t native_modifiers = 0;
 		deserializeKeyboardData( native_key_data, native_scan_code, native_virtual_key, native_modifiers );
 		
-#if !LL_LINUX
 		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, key_event, (uint32_t)key, utf8_text.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
-#endif
 
 		checkEditState();
 	};
@@ -556,12 +553,8 @@ private:
 	//
 	void unicodeInput( const std::string &utf8str, LLQtWebKit::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 	{		
-#if !LL_LINUX
 		uint32_t key = LLQtWebKit::KEY_NONE;
-#else
-		uint32_t key = 0;
-#endif
-
+		
 //		std::cerr << "unicode input, native_key_data = " << native_key_data << std::endl;
 		
 		if(utf8str.size() == 1)
@@ -576,10 +569,8 @@ private:
 		uint32_t native_modifiers = 0;
 		deserializeKeyboardData( native_key_data, native_scan_code, native_virtual_key, native_modifiers );
 		
-#if !LL_LINUX
 		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_DOWN, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 		LLQtWebKit::getInstance()->keyboardEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_UP, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
-#endif
 
 		checkEditState();
 	};
