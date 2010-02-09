@@ -202,6 +202,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
+	mIndexInTex = 0;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -235,6 +236,11 @@ void LLVOVolume::markDead()
 		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
 		{
 			removeMediaImpl(i);
+		}
+
+		if (mSculptTexture.notNull())
+		{
+			mSculptTexture->removeVolume(this);
 		}
 	}
 	
@@ -607,6 +613,9 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	LLViewerObject::idleUpdate(agent, world, time);
 
+	static LLFastTimer::DeclareTimer ftm("Volume");
+	LLFastTimer t(ftm);
+
 	if (mDead || mDrawable.isNull())
 	{
 		return TRUE;
@@ -626,6 +635,18 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	if (mVolumeImpl)
 	{
 		mVolumeImpl->doIdleUpdate(agent, world, time);
+	}
+
+	const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
+
+	if (mDrawable->isActive())
+	{
+		if (mDrawable->isRoot() && 
+			mDrawable->mQuietCount++ > MAX_ACTIVE_OBJECT_QUIET_FRAMES && 
+			(!mDrawable->getParent() || !mDrawable->getParent()->isActive()))
+		{
+			mDrawable->makeStatic();
+		}
 	}
 
 	return TRUE;
@@ -736,53 +757,52 @@ void LLVOVolume::updateTextureVirtualSize()
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID id =  sculpt_params->getSculptTexture();
-		U8 sculpt_type = sculpt_params->getSculptType();
+		
+		updateSculptTexture();
+		
+		
 
-		if ((sculpt_type & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
+		if (mSculptTexture.notNull())
 		{
-			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-
-			if (mSculptTexture.notNull())
-			{
-				mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
+			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
 												(S32)LLViewerTexture::BOOST_SCULPTED));
-				mSculptTexture->setForSculpt() ;
+			mSculptTexture->setForSculpt() ;
 			
-				if(!mSculptTexture->isCachedRawImageReady())
-				{
-					S32 lod = llmin(mLOD, 3);
-					F32 lodf = ((F32)(lod + 1.0f)/4.f);
-					F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
-					mSculptTexture->addTextureStats(2.f * tex_size * tex_size, FALSE);
-				
-					//if the sculpty very close to the view point, load first
-					{				
+			if(!mSculptTexture->isCachedRawImageReady())
+			{
+				S32 lod = llmin(mLOD, 3);
+				F32 lodf = ((F32)(lod + 1.0f)/4.f);
+				F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
+				mSculptTexture->addTextureStats(2.f * tex_size * tex_size, FALSE);
+			
+				//if the sculpty very close to the view point, load first
+				{				
 					LLVector3 lookAt = getPositionAgent() - camera->getOrigin();
-						F32 dist = lookAt.normVec() ;
+					F32 dist = lookAt.normVec() ;
 					F32 cos_angle_to_view_dir = lookAt * camera->getXAxis() ;				
-						mSculptTexture->setAdditionalDecodePriority(0.8f * LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist)) ;
-					}
-				}
-	
-				S32 texture_discard = mSculptTexture->getDiscardLevel(); //try to match the texture
-				S32 current_discard = getVolume() ? getVolume()->getSculptLevel() : -2 ;
-
-				if (texture_discard >= 0 && //texture has some data available
-					(texture_discard < current_discard || //texture has more data than last rebuild
-					 current_discard < 0)) //no previous rebuild
-				{
-					gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
-					mSculptChanged = TRUE;
-				}
-
-				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SCULPTED))
-				{
-					setDebugText(llformat("T%d C%d V%d\n%dx%d",
-										  texture_discard, current_discard, getVolume()->getSculptLevel(),
-										  mSculptTexture->getHeight(), mSculptTexture->getWidth()));
+					mSculptTexture->setAdditionalDecodePriority(0.8f * LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist)) ;
 				}
 			}
+	
+			S32 texture_discard = mSculptTexture->getDiscardLevel(); //try to match the texture
+			S32 current_discard = getVolume() ? getVolume()->getSculptLevel() : -2 ;
+
+			if (texture_discard >= 0 && //texture has some data available
+				(texture_discard < current_discard || //texture has more data than last rebuild
+				current_discard < 0)) //no previous rebuild
+			{
+				gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
+				mSculptChanged = TRUE;
+			}
+
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SCULPTED))
+			{
+				setDebugText(llformat("T%d C%d V%d\n%dx%d",
+										  texture_discard, current_discard, getVolume()->getSculptLevel(),
+										  mSculptTexture->getHeight(), mSculptTexture->getWidth()));
+			}
 		}
+
 	}
 
 	if (getLightTextureID().notNull())
@@ -952,9 +972,13 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 		{
 			mVolumeImpl->onSetVolume(volume_params, mLOD);
 		}
-		
+	
+		updateSculptTexture();
+
 		if (isSculpted())
 		{
+			updateSculptTexture();
+
 			// if it's a mesh
 			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
@@ -971,32 +995,46 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 			}
 			else // otherwise is sculptie
 			{
-				mSculptTexture = LLViewerTextureManager::getFetchedTexture(volume_params.getSculptID(), TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 
 				if (mSculptTexture.notNull())
 				{
-					//ignore sculpt GL usage since bao fixed this in a separate branch
-					if (!gGLActive)
-					{
-						gGLActive = TRUE;
-						sculpt();
-						gGLActive = FALSE;
-					}
-					else
-					{
-						sculpt();
-					}
+				sculpt();
 				}
 			}
-		}
-		else
-		{
-			mSculptTexture = NULL;
 		}
 
 		return TRUE;
 	}
 	return FALSE;
+}
+
+void LLVOVolume::updateSculptTexture()
+{
+	LLPointer<LLViewerFetchedTexture> old_sculpt = mSculptTexture;
+
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLUUID id =  sculpt_params->getSculptTexture(); 
+		mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	}
+	else
+	{
+		mSculptTexture = NULL;
+	}
+
+	if (mSculptTexture != old_sculpt)
+	{
+		if (old_sculpt.notNull())
+		{
+			old_sculpt->removeVolume(this);
+		}
+		if (mSculptTexture.notNull())
+		{
+			mSculptTexture->addVolume(this);
+		}
+	}
+	
 }
 
 
@@ -1071,6 +1109,17 @@ void LLVOVolume::sculpt()
 			}
 		}
 		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
+
+		//notify rebuild any other VOVolumes that reference this sculpty volume
+		for (S32 i = 0; i < mSculptTexture->getNumVolumes(); ++i)
+		{
+			LLVOVolume* volume = (*(mSculptTexture->getVolumeList()))[i];
+			if (volume != this && volume->getVolume() == getVolume())
+			{
+				gPipeline.markRebuild(volume->mDrawable, LLDrawable::REBUILD_GEOMETRY, FALSE);
+				volume->mSculptChanged = TRUE;
+			}
+		}
 	}
 }
 
@@ -1100,7 +1149,7 @@ BOOL LLVOVolume::calcLOD()
 	S32 cur_detail = 0;
 	
 	F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
-	F32 distance = llmin(mDrawable->mDistanceWRTCamera, MAX_LOD_DISTANCE);
+	F32 distance = mDrawable->mDistanceWRTCamera; //llmin(mDrawable->mDistanceWRTCamera, MAX_LOD_DISTANCE);
 	distance *= sDistanceFactor;
 			
 	F32 rampDist = LLVOVolume::sLODFactor * 2;
@@ -1536,7 +1585,14 @@ void LLVOVolume::updateFaceSize(S32 idx)
 	else
 	{
 		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		facep->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+		if (LLPipeline::sUseTriStrips)
+		{
+			facep->setSize(vol_face.mVertices.size(), vol_face.mTriStrip.size());
+		}
+		else
+		{
+			facep->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+		}
 	}
 }
 
@@ -3338,6 +3394,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mExtents[0] = facep->mExtents[0];
 		draw_info->mExtents[1] = facep->mExtents[1];
 		validate_draw_info(*draw_info);
+
+		if (LLPipeline::sUseTriStrips)
+		{
+			draw_info->mDrawMode = LLRender::TRIANGLE_STRIP;
+		}
 	}
 }
 
@@ -3422,7 +3483,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
 
-			if (cur_total > max_total)
+			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{
 				facep->mVertexBuffer = NULL;
 				facep->mLastVertexBuffer = NULL;

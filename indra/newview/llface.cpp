@@ -889,7 +889,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	llpushcallstacks ;
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
-	S32 num_indices = (S32)vf.mIndices.size();
+	S32 num_indices = LLPipeline::sUseTriStrips ? (S32)vf.mTriStrip.size() : (S32) vf.mIndices.size();
 	
 	if (mVertexBuffer.notNull())
 	{
@@ -1079,9 +1079,19 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (full_rebuild)
 	{
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
-		for (S32 i = 0; i < num_indices; i++)
+		if (LLPipeline::sUseTriStrips)
 		{
-			*indicesp++ = vf.mIndices[i] + index_offset;
+			for (U16 i = 0; i < num_indices; i++)
+			{
+				*indicesp++ = vf.mTriStrip[i] + index_offset;
+			}
+		}
+		else
+		{
+			for (U16 i = 0; i < num_indices; i++)
+			{
+				*indicesp++ = vf.mIndices[i] + index_offset;
+			}
 		}
 	}
 	
@@ -1593,8 +1603,13 @@ S32 LLFace::pushVertices(const U16* index_array) const
 {
 	if (mIndicesCount)
 	{
-		mVertexBuffer->drawRange(LLRender::TRIANGLES, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
-		gPipeline.addTrianglesDrawn(mIndicesCount/3);
+		U32 render_type = LLRender::TRIANGLES;
+		if (mDrawInfo)
+		{
+			render_type = mDrawInfo->mDrawMode;
+		}
+		mVertexBuffer->drawRange(render_type, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
+		gPipeline.addTrianglesDrawn(mIndicesCount, render_type);
 	}
 
 	return mIndicesCount;

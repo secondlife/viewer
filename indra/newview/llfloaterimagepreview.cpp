@@ -688,6 +688,9 @@ BOOL LLImagePreviewAvatar::render()
 	mNeedsUpdate = FALSE;
 	LLVOAvatar* avatarp = mDummyAvatar;
 
+	gGL.pushUIMatrix();
+	gGL.loadUIIdentity();
+
 	glMatrixMode(GL_PROJECTION);
 	gGL.pushMatrix();
 	glLoadIdentity();
@@ -696,6 +699,7 @@ BOOL LLImagePreviewAvatar::render()
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
 	glLoadIdentity();
+	
 
 	LLGLSUIDefault def;
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
@@ -741,6 +745,7 @@ BOOL LLImagePreviewAvatar::render()
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 
+	gGL.popUIMatrix();
 	gGL.color4f(1,1,1,1);
 	return TRUE;
 }

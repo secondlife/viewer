@@ -803,6 +803,7 @@ public:
 
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
+	void makeTriStrip();
 	
 	class VertexData
 	{
@@ -848,6 +849,7 @@ public:
 
 	std::vector<VertexData> mVertices;
 	std::vector<U16>	mIndices;
+	std::vector<U16>	mTriStrip;
 	std::vector<S32>	mEdge;
 
 private:

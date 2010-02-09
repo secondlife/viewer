@@ -167,13 +167,16 @@ BOOL LLVisualParamHint::render()
 	LLVisualParamReset::sDirty = TRUE;
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 
+	gGL.pushUIMatrix();
+	gGL.loadUIIdentity();
+
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
 	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
 
 	LLGLSUIDefault gls_ui;
@@ -181,10 +184,10 @@ BOOL LLVisualParamHint::render()
 	mBackgroundp->draw(0, 0, mFullWidth, mFullHeight);
 
 	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	gGL.popMatrix();
 
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.popMatrix();
 
 	mNeedsUpdate = FALSE;
 	mIsVisible = TRUE;
@@ -247,6 +250,7 @@ BOOL LLVisualParamHint::render()
 	mVisualParam->setWeight(mLastParamWeight, FALSE);
 	gGL.color4f(1,1,1,1);
 	mGLTexturep->setGLTextureCreated(true);
+	gGL.popUIMatrix();
 	return TRUE;
 }
 
