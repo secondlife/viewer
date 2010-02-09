@@ -763,8 +763,8 @@ LLRender::LLRender()
 
 	mCurrAlphaFunc = CF_DEFAULT;
 	mCurrAlphaFuncVal = 0.01f;
-	mCurrBlendSFactor = BF_SOURCE_ALPHA;
-	mCurrBlendDFactor = BF_ONE_MINUS_SOURCE_ALPHA;
+	mCurrBlendSFactor = BF_ONE;
+	mCurrBlendDFactor = BF_ZERO;
 }
 
 LLRender::~LLRender()
