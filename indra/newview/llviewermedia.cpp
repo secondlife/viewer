@@ -2663,7 +2663,9 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 //
 bool LLViewerMediaImpl::isAutoPlayable() const
 {
-	return (mMediaAutoPlay && gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING));
+	return (mMediaAutoPlay && 
+			gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			gSavedSettings.getBOOL("MediaTentativeAutoPlay"));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

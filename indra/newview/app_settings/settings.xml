@@ -4611,6 +4611,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>MediaTentativeAutoPlay</key>
+  <map>
+    <key>Comment</key>
+    <string>This is a tentative flag that may be temporarily set off by the user, until she teleports</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>MemoryLogFrequency</key>
         <map>
         <key>Comment</key>
