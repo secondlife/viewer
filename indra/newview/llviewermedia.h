@@ -48,7 +48,7 @@ class LLViewerMediaImpl;
 class LLUUID;
 class LLViewerMediaTexture;
 class LLMediaEntry;
-class LLVOVolume ;
+class LLVOVolume;
 class LLMimeDiscoveryResponder;
 
 typedef LLPointer<LLViewerMediaImpl> viewer_media_t;
@@ -76,7 +76,10 @@ class LLViewerMedia
 	public:
 
 		// String to get/set media autoplay in gSavedSettings
-		static const char *AUTO_PLAY_MEDIA_SETTING;
+		static const char* AUTO_PLAY_MEDIA_SETTING;
+		static const char* SHOW_MEDIA_ON_OTHERS_SETTING;
+		static const char* SHOW_MEDIA_WITHIN_PARCEL_SETTING;
+		static const char* SHOW_MEDIA_OUTSIDE_PARCEL_SETTING;
 	
 		typedef std::vector<LLViewerMediaImpl*> impl_list;
 
@@ -199,14 +202,16 @@ public:
 	void updateImagesMediaStreams();
 	LLUUID getMediaTextureID() const;
 	
-	void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; };
+	void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
 	void setVisible(bool visible);
-	bool getVisible() const { return mVisible; };
+	bool getVisible() const { return mVisible; }
+	bool isVisible() const { return mVisible; }
 
+	bool isMediaTimeBased();
 	bool isMediaPlaying();
 	bool isMediaPaused();
 	bool hasMedia() const;
-	bool isMediaFailed() const { return mMediaSourceFailed; };
+	bool isMediaFailed() const { return mMediaSourceFailed; }
 	void setMediaFailed(bool val) { mMediaSourceFailed = val; }
 	void resetPreviousMediaState();
 	
@@ -222,10 +227,10 @@ public:
 	// returns true if this instance could be playable based on autoplay setting, current load state, etc.
 	bool isPlayable() const;
 	
-	void setIsParcelMedia(bool is_parcel_media) { mIsParcelMedia = is_parcel_media; };
-	bool isParcelMedia() const { return mIsParcelMedia; };
+	void setIsParcelMedia(bool is_parcel_media) { mIsParcelMedia = is_parcel_media; }
+	bool isParcelMedia() const { return mIsParcelMedia; }
 
-	ECursorType getLastSetCursor() { return mLastSetCursor; };
+	ECursorType getLastSetCursor() { return mLastSetCursor; }
 	
 	// utility function to create a ready-to-use media instance from a desired media type.
 	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height);
@@ -325,6 +330,18 @@ public:
 	bool isNavigateSuspended() { return mNavigateSuspended; };
 	
 	void cancelMimeTypeProbe();
+	
+	// Is this media attached to an avatar *not* self
+	bool isAttachedToAnotherAvatar() const;
+	
+	// Is this media in the agent's parcel?
+	bool isInAgentParcel() const;
+
+private:
+	bool isAutoPlayable() const;
+	bool shouldShowBasedOnClass() const;
+	static bool isObjectAttachedToAnotherAvatar(LLVOVolume *obj);
+	static bool isObjectInAgentParcel(LLVOVolume *obj);
 	
 private:
 	// a single media url with some data and an impl.

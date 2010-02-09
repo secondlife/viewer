@@ -50,6 +50,9 @@
 #include "llcallbacklist.h"
 #include "llparcel.h"
 #include "llaudioengine.h"  // for gAudiop
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
+#include "llviewerregion.h"
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -63,6 +66,10 @@
 #include <boost/signals2.hpp>
 
 /*static*/ const char* LLViewerMedia::AUTO_PLAY_MEDIA_SETTING = "ParcelMediaAutoPlayEnable";
+/*static*/ const char* LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING = "MediaShowOnOthers";
+/*static*/ const char* LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING = "MediaShowWithinParcel";
+/*static*/ const char* LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING = "MediaShowOutsideParcel";
+
 
 // Move this to its own file.
 
@@ -366,8 +373,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			// The current media URL is not empty.
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
-			bool auto_play = (media_impl->mMediaAutoPlay && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING));
-			
+			bool auto_play = media_impl->isAutoPlayable();			
 			if((was_loaded || auto_play) && !update_from_self)
 			{
 				needs_navigate = url_changed;
@@ -391,7 +397,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
 		media_impl->mMediaEntryURL = media_entry->getCurrentURL();
 		
-		if(media_impl->mMediaAutoPlay && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
+		if(media_impl->isAutoPlayable())
 		{
 			needs_navigate = true;
 		}
@@ -818,7 +824,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			
 			impl_count_total++;
 		}
-		
+
 		// Overrides if the window is minimized or we lost focus (taking care
 		// not to accidentally "raise" the priority either)
 		if (!gViewerWindow->getActive() /* viewer window minimized? */ 
@@ -840,7 +846,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 			}
 		}
-		
+					
 		pimpl->setPriority(new_priority);
 		
 		if(pimpl->getUsedInUI())
@@ -907,6 +913,8 @@ void LLViewerMedia::cleanupClass()
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 }
 
+		// XXX TODO: what to do about other AUTO_PLAY settings?
+		// XXX TODO: what to do about other AUTO_PLAY settings?
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2057,6 +2065,21 @@ void LLViewerMediaImpl::scaleMouse(S32 *mouse_x, S32 *mouse_y)
 #endif
 }
 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::isMediaTimeBased()
+{
+	bool result = false;
+	
+	if(mMediaSource)
+	{
+		result = mMediaSource->pluginSupportsMediaTime();
+	}
+	
+	return result;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::isMediaPlaying()
 {
@@ -2118,7 +2141,7 @@ void LLViewerMediaImpl::setDisabled(bool disabled)
 		else
 		{
 			// We just (re)enabled this media.  Do a navigate if auto-play is in order.
-			if(mMediaAutoPlay && gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING))
+			if(isAutoPlayable())
 			{
 				navigateTo(mMediaEntryURL, "", true, true);
 			}
@@ -2143,6 +2166,12 @@ bool LLViewerMediaImpl::isForcedUnloaded() const
 		{
 			return true;
 		}
+	}
+	
+	// If this media's class is not supposed to be shown, unload
+	if (!shouldShowBasedOnClass())
+	{
+		return true;
 	}
 	
 	return false;
@@ -2630,3 +2659,110 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isAutoPlayable() const
+{
+	return (mMediaAutoPlay && gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::shouldShowBasedOnClass() const
+{
+	// If this is parcel media or in the UI, return true always
+	if (getUsedInUI() || isParcelMedia()) return true;
+	
+	bool attached_to_another_avatar = isAttachedToAnotherAvatar();
+	bool inside_parcel = isInAgentParcel();
+	
+	//	llinfos << " hasFocus = " << hasFocus() <<
+	//	" others = " << (attached_to_another_avatar && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING)) <<
+	//	" within = " << (inside_parcel && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING)) <<
+	//	" outside = " << (!inside_parcel && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING)) << llendl;
+	
+	// If it has focus, we should show it
+	if (hasFocus())
+		return true;
+	
+	// If it is attached to an avatar and the pref is off, we shouldn't show it
+	if (attached_to_another_avatar)
+		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING);
+	
+	if (inside_parcel)
+		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING);
+	else 
+		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isAttachedToAnotherAvatar() const
+{
+	bool result = false;
+	
+	std::list< LLVOVolume* >::const_iterator iter = mObjectList.begin();
+	std::list< LLVOVolume* >::const_iterator end = mObjectList.end();
+	for ( ; iter != end; iter++)
+	{
+		if (isObjectAttachedToAnotherAvatar(*iter))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//static
+bool LLViewerMediaImpl::isObjectAttachedToAnotherAvatar(LLVOVolume *obj)
+{
+	bool result = false;
+	LLXform *xform = obj;
+	// Walk up parent chain
+	while (NULL != xform)
+	{
+		LLViewerObject *object = dynamic_cast<LLViewerObject*> (xform);
+		if (NULL != object)
+		{
+			LLVOAvatar *avatar = object->asAvatar();
+			if (NULL != avatar && avatar != gAgent.getAvatarObject())
+			{
+				result = true;
+				break;
+			}
+		}
+		xform = xform->getParent();
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isInAgentParcel() const
+{
+	bool result = false;
+	
+	std::list< LLVOVolume* >::const_iterator iter = mObjectList.begin();
+	std::list< LLVOVolume* >::const_iterator end = mObjectList.end();
+	for ( ; iter != end; iter++)
+	{
+		LLVOVolume *object = *iter;
+		if (LLViewerMediaImpl::isObjectInAgentParcel(object))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+// static
+bool LLViewerMediaImpl::isObjectInAgentParcel(LLVOVolume *obj)
+{
+	return (LLViewerParcelMgr::getInstance()->inAgentParcel(obj->getPositionGlobal()));
+}

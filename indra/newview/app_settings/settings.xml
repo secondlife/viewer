@@ -4578,6 +4578,39 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MediaShowOnOthers</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show media on other avatars</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaShowOutsideParcel</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show media from outside the current parcel</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MediaShowWithinParcel</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show media within the current parcel</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>MemoryLogFrequency</key>
         <map>
         <key>Comment</key>
