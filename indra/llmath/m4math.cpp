@@ -221,8 +221,33 @@ const LLMatrix4&	LLMatrix4::transpose()
 
 F32 LLMatrix4::determinant() const
 {
-	llerrs << "Not implemented!" << llendl;
-	return 0.f;
+	F32 value =
+	    mMatrix[0][3] * mMatrix[1][2] * mMatrix[2][1] * mMatrix[3][0] -
+	    mMatrix[0][2] * mMatrix[1][3] * mMatrix[2][1] * mMatrix[3][0] -
+	    mMatrix[0][3] * mMatrix[1][1] * mMatrix[2][2] * mMatrix[3][0] +
+	    mMatrix[0][1] * mMatrix[1][3] * mMatrix[2][2] * mMatrix[3][0] +
+	    mMatrix[0][2] * mMatrix[1][1] * mMatrix[2][3] * mMatrix[3][0] -
+	    mMatrix[0][1] * mMatrix[1][2] * mMatrix[2][3] * mMatrix[3][0] -
+	    mMatrix[0][3] * mMatrix[1][2] * mMatrix[2][0] * mMatrix[3][1] +
+	    mMatrix[0][2] * mMatrix[1][3] * mMatrix[2][0] * mMatrix[3][1] +
+	    mMatrix[0][3] * mMatrix[1][0] * mMatrix[2][2] * mMatrix[3][1] -
+	    mMatrix[0][0] * mMatrix[1][3] * mMatrix[2][2] * mMatrix[3][1] -
+	    mMatrix[0][2] * mMatrix[1][0] * mMatrix[2][3] * mMatrix[3][1] +
+	    mMatrix[0][0] * mMatrix[1][2] * mMatrix[2][3] * mMatrix[3][1] +
+	    mMatrix[0][3] * mMatrix[1][1] * mMatrix[2][0] * mMatrix[3][2] -
+	    mMatrix[0][1] * mMatrix[1][3] * mMatrix[2][0] * mMatrix[3][2] -
+	    mMatrix[0][3] * mMatrix[1][0] * mMatrix[2][1] * mMatrix[3][2] +
+	    mMatrix[0][0] * mMatrix[1][3] * mMatrix[2][1] * mMatrix[3][2] +
+	    mMatrix[0][1] * mMatrix[1][0] * mMatrix[2][3] * mMatrix[3][2] -
+	    mMatrix[0][0] * mMatrix[1][1] * mMatrix[2][3] * mMatrix[3][2] -
+	    mMatrix[0][2] * mMatrix[1][1] * mMatrix[2][0] * mMatrix[3][3] +
+	    mMatrix[0][1] * mMatrix[1][2] * mMatrix[2][0] * mMatrix[3][3] +
+	    mMatrix[0][2] * mMatrix[1][0] * mMatrix[2][1] * mMatrix[3][3] -
+	    mMatrix[0][0] * mMatrix[1][2] * mMatrix[2][1] * mMatrix[3][3] -
+	    mMatrix[0][1] * mMatrix[1][0] * mMatrix[2][2] * mMatrix[3][3] +
+		mMatrix[0][0] * mMatrix[1][1] * mMatrix[2][2] * mMatrix[3][3];
+
+	return value;
 }
 
 // Only works for pure orthonormal, homogeneous transform matrices.
@@ -425,6 +450,17 @@ const LLMatrix4&  	LLMatrix4::initRotTrans(const LLQuaternion &q, const LLVector
 	LLMatrix3	mat(q);
 	initMatrix(mat);
 	setTranslation(translation);
+	return (*this);
+}
+
+const LLMatrix4& LLMatrix4::initScale(const LLVector3 &scale)
+{
+	setIdentity();
+
+	mMatrix[VX][VX] = scale.mV[VX];
+	mMatrix[VY][VY] = scale.mV[VY];
+	mMatrix[VZ][VZ] = scale.mV[VZ];
+	
 	return (*this);
 }
 
@@ -772,6 +808,23 @@ bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b)
 		}
 	}
 	return FALSE;
+}
+
+bool operator<(const LLMatrix4& a, const LLMatrix4 &b)
+{
+	U32		i, j;
+	for (i = 0; i < NUM_VALUES_IN_MAT4; i++)
+	{
+		for (j = 0; j < NUM_VALUES_IN_MAT4; j++)
+		{
+			if (a.mMatrix[i][j] != b.mMatrix[i][j])
+			{
+				return a.mMatrix[i][j] < b.mMatrix[i][j];
+			}
+		}
+	}
+
+	return false;
 }
 
 const LLMatrix4& operator*=(LLMatrix4 &a, F32 k)

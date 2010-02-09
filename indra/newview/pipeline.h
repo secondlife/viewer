@@ -58,6 +58,8 @@ class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
+class LLCurlRequest;
+class LLMeshResponder;
 
 typedef enum e_avatar_skinning_method
 {
@@ -671,6 +673,13 @@ public:
 	std::vector<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
+
+
+	typedef std::map<LLUUID, std::set<LLUUID> > mesh_load_map;
+	mesh_load_map mLoadingMeshes[4];
+	
+	typedef std::list<LLMeshResponder*> mesh_response_list;
+	mesh_response_list			mMeshResponseList;
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	LLPointer<LLViewerTexture>	mBloomImagep;

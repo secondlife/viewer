@@ -2041,6 +2041,9 @@ std::string get_extension(LLAssetType::EType type)
 	case LLAssetType::AT_ANIMATION:
 		extension = ".lla";
 		break;
+	case LLAssetType::AT_MESH:
+		extension = ".slm";
+		break;
 	default:
 		// Just use the asset server filename extension in most cases
 		extension += ".";
