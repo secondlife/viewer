@@ -488,6 +488,10 @@ private:
 			native_scan_code = (uint32_t)(native_key_data["scan_code"].asInteger());
 			native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());
 			// TODO: I don't think we need to do anything with native modifiers here -- please verify
+#elif LL_LINUX
+			native_scan_code = (uint32_t)(native_key_data["scan_code"].asInteger());
+			native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());
+			native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
 #else
 			// Add other platforms here as needed
 #endif
