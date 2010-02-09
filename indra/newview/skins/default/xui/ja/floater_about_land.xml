@@ -97,7 +97,7 @@
 			<text name="For Sale: Price L$[PRICE].">
 				価格： L$[PRICE] （L$[PRICE_PER_SQM]/平方メートル）
 			</text>
-			<button label="土地を売る" label_selected="土地を販売..." name="Sell Land..."/>
+			<button label="土地を売る" label_selected="土地を販売..." name="Sell Land..." width="100"/>
 			<text name="For sale to">
 				販売先：[BUYER]
 			</text>
@@ -107,7 +107,7 @@
 			<text name="Selling with no objects in parcel.">
 				オブジェクトは販売しない
 			</text>
-			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"/>
+			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"  width="100"/>
 			<text name="Claimed:">
 				取得日時：
 			</text>
@@ -126,10 +126,10 @@
 			<text name="DwellText">
 				誤
 			</text>
-			<button label="土地の購入" label_selected="土地を購入..." left="130" name="Buy Land..." width="125"/>
-			<button label="スクリプト情報" name="Scripts..."/>
+			<button label="土地の購入" label_selected="土地を購入..." left="130" name="Buy Land..." width="100"/>
+			<button label="スクリプト情報" name="Scripts..." width="100"/>
 			<button label="グループに購入" label_selected="グループ用に購入..." name="Buy For Group..."/>
-			<button label="入場許可を購入" label_selected="入場許可を購入..." left="130" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="125"/>
+			<button label="入場許可を購入" label_selected="入場許可を購入..." left="130" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="100"/>
 			<button label="土地の放棄" label_selected="土地を放棄..." name="Abandon Land..."/>
 			<button label="土地を取り戻す" label_selected="土地の返還を要求..." name="Reclaim Land..."/>
 			<button label="リンデンセール" label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
@@ -364,7 +364,7 @@
 			<text name="Snapshot:">
 				スナップショット：
 			</text>
-			<texture_picker label="" left="116" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
+			<texture_picker label="" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
 			<text name="landing_point">
 				着地点: [LANDING]
 			</text>
@@ -400,7 +400,7 @@
 			<text name="Media texture:">
 				テクスチャの置き換え：
 			</text>
-			<texture_picker label="" name="media texture" tool_tip="写真をクリックして選択"/>
+			<texture_picker label="" name="media texture" tool_tip="写真をクリックして選択" left="120"/>
 			<text name="replace_texture_help" width="290">
 				このテクスチャを使用するオブジェクトのプレイをクリックすると、ムービーや Web ページを表示します。  テクスチャを変更するにはサムネイルを選択してください。
 			</text>

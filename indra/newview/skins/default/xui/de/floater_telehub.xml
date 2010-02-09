@@ -6,15 +6,15 @@
 	<text name="status_text_not_connected">
 		Kein Telehub verbunden.
 	</text>
-	<text name="help_text_connected">
+	<text name="help_text_connected" width="300">
 		Klicken Sie zum Entfernen auf „Trennen“.
 	</text>
 	<text bottom_delta="-18" height="38" name="help_text_not_connected">
 		Wählen Sie ein Objekt und klicken Sie auf
 „Mit Telehub verbinden“.
 	</text>
-	<button label="Mit Telehub verbinden" name="connect_btn" width="122"/>
-	<button label="Trennen" left="142" name="disconnect_btn" width="98"/>
+	<button label="Mit Telehub verbinden" name="connect_btn" width="134"/>
+	<button label="Trennen" left="152" name="disconnect_btn" width="88"/>
 	<text name="spawn_points_text" width="230">
 		Spawn-Punkte (Positionen, nicht Objekte):
 	</text>

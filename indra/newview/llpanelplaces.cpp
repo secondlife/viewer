@@ -1023,7 +1023,6 @@ void LLPanelPlaces::showAddedLandmarkInfo(const std::vector<LLUUID>& items)
 			{
 				setItem(item);
 			}
-			break;
 		}
 	}
 }

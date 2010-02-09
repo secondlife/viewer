@@ -522,6 +522,11 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				{
 					folderp->setHidden(TRUE);
 				}
+				const LLViewerInventoryCategory *cat = dynamic_cast<LLViewerInventoryCategory *>(objectp);
+				if (cat && getIsHiddenFolderType(cat->getPreferredType()))
+				{
+					folderp->setHidden(TRUE);
+				}
 			}
 		}
 		else 
@@ -553,6 +558,12 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		if (itemp)
 		{
 			itemp->addToFolder(parent_folder, mFolders);
+
+			// Don't add children of hidden folders unless this is the panel's root folder.
+			if (itemp->getHidden() && (id != mStartFolderID))
+			{
+				return;
+			}
 		}
 	}
 
@@ -953,4 +964,17 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	}
 
 	return NULL;
+}
+
+void LLInventoryPanel::addHideFolderType(LLFolderType::EType folder_type)
+{
+	if (!getIsHiddenFolderType(folder_type))
+	{
+		mHiddenFolderTypes.push_back(folder_type);
+	}
+}
+
+BOOL LLInventoryPanel::getIsHiddenFolderType(LLFolderType::EType folder_type) const
+{
+	return (std::find(mHiddenFolderTypes.begin(), mHiddenFolderTypes.end(), folder_type) != mHiddenFolderTypes.end());
 }

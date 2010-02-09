@@ -5,13 +5,13 @@
 			<text name="info_parcel_label">
 				Parcelle :
 			</text>
-			<text name="info_parcel">
+			<text name="info_parcel" left="70">
 				NOM DE LA PARCELLE
 			</text>
 			<text name="info_size_label">
 				Taille :
 			</text>
-			<text name="info_size">
+			<text name="info_size" left="70">
 				[AREA] m²
 			</text>
 			<text bottom_delta="-60" name="info_action">

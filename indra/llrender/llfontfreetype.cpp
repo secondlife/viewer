@@ -504,8 +504,13 @@ void LLFontFreetype::resetBitmapCache()
 	mCharGlyphInfoMap.clear();
 	mFontBitmapCachep->reset();
 
-	// Add the empty glyph
-	addGlyphFromFont(this, 0, 0);
+	// Adding default glyph is skipped for fallback fonts here as well as in loadFace(). 
+	// This if was added as fix for EXT-4971.
+	if(!mIsFallback)
+	{
+		// Add the empty glyph
+		addGlyphFromFont(this, 0, 0);
+	}
 }
 
 void LLFontFreetype::destroyGL()

@@ -38,7 +38,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -82,7 +82,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -116,7 +116,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -150,7 +150,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -184,7 +184,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -218,7 +218,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -267,7 +267,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-     left_pad="10"
+     left_pad="16"
      name="mute_audio"
      tab_stop="false"
      width="16" />

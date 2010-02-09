@@ -13,7 +13,7 @@
 	<check_box label="Physik deaktivieren" name="disable_physics_check" tool_tip="Physik in dieser Region deaktivieren"/>
 	<button label="?" name="disable_physics_help"/>
 	<button label="Übernehmen" name="apply_btn"/>
-	<text name="objret_text_lbl" width="105">
+	<text name="objret_text_lbl" width="110">
 		Objekt zurückgeben
 	</text>
 	<text name="resident_text_lbl">

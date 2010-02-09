@@ -23,7 +23,7 @@
 		<column label="面積" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="地図" label_selected="地図" name="map_button"/>
+	<button label="地図" label_selected="地図" name="map_button" width="60"/>
 	<text name="total_contributed_land_label">
 		寄付合計：
 	</text>
@@ -48,10 +48,10 @@
 	<string name="land_contrib_error">
 		土地の貢献を設定することができません
 	</string>
-	<text name="your_contribution_units">
+	<text name="your_contribution_units" width="80">
 		平方メートル
 	</text>
-	<text name="your_contribution_max_value">
+	<text name="your_contribution_max_value" width="100">
 		（最大 [AMOUNT]）
 	</text>
 	<text name="group_over_limit_text">

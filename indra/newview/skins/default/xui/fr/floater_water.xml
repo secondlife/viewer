@@ -3,7 +3,7 @@
 	<floater.string name="WLDefaultWaterNames">
 		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
 	</floater.string>
-	<text name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText" width="120">
 		Préréglages eau :
 	</text>
 	<button label="Nouveau" label_selected="Nouveau" name="WaterNewPreset"/>
@@ -12,8 +12,7 @@
 	<tab_container name="Water Tabs">
 		<panel label="Paramètres" name="Settings">
 			<text name="BHText">
-				Couleur du brouillard
-dans l&apos;eau
+				Couleur du brouillard dans l&apos;eau
 			</text>
 			<color_swatch left="75" name="WaterFogColor" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
 			<text name="WaterFogDensText">

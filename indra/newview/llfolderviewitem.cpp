@@ -1339,10 +1339,6 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			if (folder->getFiltered() || folder->hasFilteredDescendants(filter.getMinRequiredGeneration()))
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
-				if (getRoot()->needsAutoSelect() && autoopen_folders)
-				{
-					folder->setOpenArrangeRecursively(TRUE);
-				}
 			}
 			// just skip it, it has already been filtered
 			continue;

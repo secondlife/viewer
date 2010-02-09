@@ -132,7 +132,7 @@ protected:
 	HCURSOR loadColorCursor(LPCTSTR name);
 	BOOL	isValid();
 	void	moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
-
+	LLSD	getNativeKeyData();
 
 	// Changes display resolution. Returns true if successful
 	BOOL	setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
@@ -210,6 +210,10 @@ protected:
 	LLPreeditor		*mPreeditor;
 
 	LLDragDropWin32* mDragDrop;
+
+	U32				mKeyCharCode;
+	U32				mKeyScanCode;
+	U32				mKeyVirtualKey;
 
 	friend class LLWindowManager;
 };

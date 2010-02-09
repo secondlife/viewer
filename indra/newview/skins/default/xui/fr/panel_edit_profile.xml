@@ -53,7 +53,7 @@
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="Enregistrer les changements" name="save_btn"/>
+		<button label="Enregistrer les changements" width="166" name="save_btn"/>
 		<button label="Annuler" name="cancel_btn"/>
 	</panel>
 </panel>

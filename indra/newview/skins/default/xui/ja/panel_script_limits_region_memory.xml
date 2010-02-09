@@ -13,9 +13,9 @@
 		ローディング...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="サイズ （kb）" name="size"/>
+		<scroll_list.columns label="サイズ （kb）" name="size" width="90"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
-		<scroll_list.columns label="オブジェクトの所有者" name="owner"/>
+		<scroll_list.columns label="オブジェクトの所有者" name="owner" width="120"/>
 		<scroll_list.columns label="区画・位置" name="location"/>
 	</scroll_list>
 	<button label="リスト更新" name="refresh_list_btn"/>

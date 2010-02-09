@@ -247,7 +247,7 @@
         <layout_panel
          mouse_opaque="false"
          follows="left|right"
-         height="29"
+         height="30"
          layout="topleft"
          top="0"
          name="chiclet_list_panel"
@@ -260,12 +260,12 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
             <chiclet_panel
 	    mouse_opaque="false"
              follows="left|right"
-             height="23"
+             height="24"
              layout="topleft"
              left="1"
              min_width="110"
              name="chiclet_list"
-             top="8"
+             top="7"
              chiclet_padding="4"
              scrolling_offset="40"
              width="189">

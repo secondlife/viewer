@@ -974,12 +974,6 @@ void LLViewerTexture::updateBindStatsForTester()
 //start of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------
 
-//static
-F32 LLViewerFetchedTexture::maxDecodePriority()
-{
-	return 6000000.f;
-}
-
 LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, const LLHost& host, BOOL usemipmaps)
 	: LLViewerTexture(id, usemipmaps),
 	mTargetHost(host)
@@ -1426,6 +1420,13 @@ void LLViewerFetchedTexture::processTextureStats()
 	}
 }
 
+const F32 MAX_PRIORITY_PIXEL                         = 999.f ;     //pixel area
+const F32 PRIORITY_BOOST_LEVEL_FACTOR                = 1000.f ;    //boost level
+const F32 PRIORITY_DELTA_DISCARD_LEVEL_FACTOR        = 100000.f ;  //delta discard
+const S32 MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY       = 4 ;
+const F32 PRIORITY_ADDITIONAL_FACTOR                 = 1000000.f ; //additional 
+const S32 MAX_ADDITIONAL_LEVEL_FOR_PRIORITY          = 8 ;
+const F32 PRIORITY_BOOST_HIGH_FACTOR                 = 10000000.f ;//boost high
 F32 LLViewerFetchedTexture::calcDecodePriority()
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -1453,7 +1454,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	bool have_all_data = (cur_discard >= 0 && (cur_discard <= mDesiredDiscardLevel));
 	F32 pixel_priority = fsqrtf(mMaxVirtualSize);
 
-	F32 priority;
+	F32 priority = 0.f;
 	if (mIsMissingAsset)
 	{
 		priority = 0.0f;
@@ -1496,8 +1497,8 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		static const F64 log_2 = log(2.0);
 		F32 desired = (F32)(log(32.0/pixel_priority) / log_2);
 		S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired;
-		ddiscard = llclamp(ddiscard, 0, 4);
-		priority = (ddiscard+1)*100000.f;
+		ddiscard = llclamp(ddiscard, 0, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
+		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
 	}
 	else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
 	{
@@ -1523,42 +1524,53 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 				// We haven't rendered this in a while, de-prioritize it
 				desired_discard += 2;
 			}
-			//else
-			//{
-			//	// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
-			//	desired_discard = cur_discard;
-			//}
+			else
+			{
+				// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
+				desired_discard = cur_discard;
+			}
 		}
 
 		S32 ddiscard = cur_discard - desired_discard;
-		ddiscard = llclamp(ddiscard, 0, 4);
-		priority = (ddiscard+1)*100000.f;
+		ddiscard = llclamp(ddiscard, 0, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
+		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
 	}
 
 	// Priority Formula:
 	// BOOST_HIGH  +  ADDITIONAL PRI + DELTA DISCARD + BOOST LEVEL + PIXELS
-	// [10,000,000] + [1-9,000,000]  + [1-400,000]   + [1-20,000]  + [0-999]
+	// [10,000,000] + [1,000,000-9,000,000]  + [100,000-500,000]   + [1-20,000]  + [0-999]
 	if (priority > 0.0f)
 	{
-		pixel_priority = llclamp(pixel_priority, 0.0f, 999.f); 
+		pixel_priority = llclamp(pixel_priority, 0.0f, MAX_PRIORITY_PIXEL); 
 
-		priority = pixel_priority + 1000.f * mBoostLevel;
+		priority += pixel_priority + PRIORITY_BOOST_LEVEL_FACTOR * mBoostLevel;
 
 		if ( mBoostLevel > BOOST_HIGH)
 		{
-			priority += 10000000.f;
+			priority += PRIORITY_BOOST_HIGH_FACTOR;
 		}		
 
 		if(mAdditionalDecodePriority > 0.0f)
 		{
-			// 1-9
-			S32 additional_priority = (S32)(1.0f + mAdditionalDecodePriority*8.0f + .5f); // round
-			// priority range += 0-9,000,000
-			priority += 1000000.f * (F32)additional_priority;
+			// priority range += 1,000,000.f-9,000,000.f
+			priority += PRIORITY_ADDITIONAL_FACTOR * (1.0 + mAdditionalDecodePriority * MAX_ADDITIONAL_LEVEL_FOR_PRIORITY);
 		}
 	}
 	return priority;
 }
+
+//static
+F32 LLViewerFetchedTexture::maxDecodePriority()
+{
+	static const F32 max_priority = PRIORITY_BOOST_HIGH_FACTOR +                           //boost_high
+		PRIORITY_ADDITIONAL_FACTOR * (MAX_ADDITIONAL_LEVEL_FOR_PRIORITY + 1) +             //additional (view dependent factors)
+		PRIORITY_DELTA_DISCARD_LEVEL_FACTOR * (MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY + 1) + //delta discard
+		PRIORITY_BOOST_LEVEL_FACTOR * (BOOST_MAX_LEVEL - 1) +                              //boost level
+		MAX_PRIORITY_PIXEL + 1.0f ;                                                        //pixel area.
+	
+	return max_priority ;
+}
+
 //============================================================================
 
 void LLViewerFetchedTexture::setDecodePriority(F32 priority)

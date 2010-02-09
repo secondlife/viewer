@@ -24,6 +24,8 @@
      tab_height="16"
      use_custom_icon_ctrl="true"
      tab_icon_ctrl_pad="2"
+     font_halign="left"
+     use_ellipses="true"
      top="0"
      width="390" />
     <icon

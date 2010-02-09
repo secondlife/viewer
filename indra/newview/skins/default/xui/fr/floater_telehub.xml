@@ -10,8 +10,7 @@
 		Pour supprimer, cliquez sur Déconnecter.
 	</text>
 	<text bottom_delta="-18" height="38" name="help_text_not_connected">
-		Sélectionner l&apos;objet et cliquez sur Connecter
-le téléhub.
+		Sélectionner l&apos;objet et cliquez sur Connecter le téléhub.
 	</text>
 	<button label="Connecter le téléhub" name="connect_btn" width="122"/>
 	<button label="Déconnecter" left="142" name="disconnect_btn" width="98"/>
@@ -20,7 +19,7 @@ le téléhub.
 	</text>
 	<button label="Ajouter point" name="add_spawn_point_btn"/>
 	<button label="Supprimer point" name="remove_spawn_point_btn"/>
-	<text name="spawn_point_help">
+	<text name="spawn_point_help" height="100">
 		Sélectionnez l&apos;objet et cliquez sur Ajouter pour indiquer la position.
 Vous pourrez ensuite déplacer ou supprimer l&apos;objet.
 Les positions sont relatives au centre du téléhub.

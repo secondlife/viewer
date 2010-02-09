@@ -27,10 +27,10 @@
 	<text name="resellable_changeable_label">
 		この地域で購入した土地：
 	</text>
-	<text name="resellable_clause">
+	<text name="resellable_clause" left="460">
 		再販できる場合とできない場合があります。
 	</text>
-	<text name="changeable_clause">
+	<text name="changeable_clause" left="460">
 		統合または再分割できる場合とできない場合があります。
 	</text>
 	<text name="covenant_text">

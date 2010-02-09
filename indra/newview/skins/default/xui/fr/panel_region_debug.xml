@@ -13,7 +13,7 @@
 	<check_box label="Désactiver la physique" name="disable_physics_check" tool_tip="Désactiver tous les effets liés à la physique dans cette région"/>
 	<button label="?" name="disable_physics_help"/>
 	<button bottom_delta="-38" label="Appliquer" name="apply_btn"/>
-	<text bottom_delta="-42" name="objret_text_lbl">
+	<text bottom_delta="-42" name="objret_text_lbl" width="260">
 		Renvoi de l&apos;objet
 	</text>
 	<text name="resident_text_lbl">
