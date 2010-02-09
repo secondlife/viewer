@@ -19,7 +19,7 @@
 	<text name="language_textbox2">
 		(Erfordert Neustart)
 	</text>
-	<text name="maturity_desired_prompt">
+	<text name="maturity_desired_prompt" width="350">
 		Ich möchte auf Inhalt mit folgender Alterseinstufung zugreifen:
 	</text>
 	<text name="maturity_desired_textbox"/>

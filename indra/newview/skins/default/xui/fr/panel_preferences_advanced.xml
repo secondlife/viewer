@@ -9,7 +9,7 @@
 	<check_box label="Bulles de chat" name="bubble_text_chat"/>
 	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat"/>
 	<slider label="Opacité" name="bubble_chat_opacity"/>
-	<text name="AspectRatioLabel1" tool_tip="largeur/hauteur">
+	<text width="140" name="AspectRatioLabel1" tool_tip="largeur/hauteur">
 		Rapport hauteur/largeur
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="largeur/hauteur">

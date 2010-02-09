@@ -39,7 +39,7 @@
 	<text name="height_text_lbl9">
 		Nord-est
 	</text>
-	<text name="height_text_lbl10">
+	<text name="height_text_lbl10" width="460">
 		Ces valeurs représentent les limites de mélange pour les textures ci-dessus.
 	</text>
 	<text name="height_text_lbl11">

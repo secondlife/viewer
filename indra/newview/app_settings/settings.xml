@@ -4666,6 +4666,17 @@
       <key>Value</key>
       <integer>410</integer>
     </map>
+    <key>MePanelOpened</key>
+    <map>
+      <key>Comment</key>
+      <string>Indicates that Me Panel was opened at least once after Viewer was installed</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
     <key>MigrateCacheDirectory</key>
     <map>
       <key>Comment</key>
@@ -9970,28 +9981,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>15</integer>
-    </map>
-    <key>UIButtonImageLeftPadding</key>
-    <map>
-      <key>Comment</key>
-      <string>Button Overlay Image Left Padding</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>4</integer>
-    </map>
-    <key>UIButtonImageRightPadding</key>
-    <map>
-      <key>Comment</key>
-      <string>Button Overlay Image Right Padding</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>4</integer>
     </map>
     <key>UIButtonImageTopPadding</key>
     <map>

@@ -3,7 +3,7 @@
 	<text name="groupdesc">
 		ｱｸﾃｨﾌﾞなｸﾞﾙｰﾌﾟ名は太字で表示されています
 	</text>
-	<text name="groupcount">
+	<text name="groupcount" width="270">
 		あなたは[COUNT] ｸﾞﾙｰﾌﾟに所属しています (最大[MAX])
 	</text>
 	<button label="IM/コール" name="IM"

@@ -30,13 +30,13 @@
 	<text name="total_contributed_land_value">
 		[AREA] m².
 	</text>
-	<text name="total_land_in_use_label">
+	<text name="total_land_in_use_label" left="28" width="180">
 		Insgesamt verwendetes Land:
 	</text>
 	<text name="total_land_in_use_value">
 		[AREA] m².
 	</text>
-	<text name="land_available_label">
+	<text name="land_available_label" left="4">
 		Land verfügbar:
 	</text>
 	<text name="land_available_value">
@@ -54,10 +54,10 @@
 	<text name="your_contribution_max_value">
 		([AMOUNT] max.)
 	</text>
-	<text name="group_over_limit_text">
+	<text name="group_over_limit_text" width="300">
 		Um das benutzte Land zu unterstützen, sind weitere Landnutzungsrechte erforderlich.
 	</text>
-	<text name="group_money_heading">
+	<text name="group_money_heading" left="10" top_pad="10">
 		Gruppen-L$
 	</text>
 	<tab_container name="group_money_tab_container">

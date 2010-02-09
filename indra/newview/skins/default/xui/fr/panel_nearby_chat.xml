@@ -2,8 +2,8 @@
 <!-- All our XML is utf-8 encoded. -->
 <panel name="nearby_chat">
 	<panel name="chat_caption">
-		<text name="sender_name">
-			CHAT PRÈS DE VOUS
-		</text>
+    	<text 
+	name="sender_name" 
+width="170">CHAT PRÈS DE VOUS</text>
 	</panel>
 </panel>

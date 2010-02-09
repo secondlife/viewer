@@ -676,9 +676,6 @@ void LLImageRaw::copy(LLImageRaw* src)
 
 	LLImageRaw* dst = this;  // Just for clarity.
 
-	llassert( (3 == src->getComponents()) || (4 == src->getComponents()) );
-	llassert( (3 == dst->getComponents()) || (4 == dst->getComponents()) );
-
 	if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
 	{
 		// No scaling needed

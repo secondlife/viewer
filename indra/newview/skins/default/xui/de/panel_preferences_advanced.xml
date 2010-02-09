@@ -8,7 +8,7 @@
 	</panel.string>
 	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
 	<color_swatch name="background" tool_tip="Farbe für Blasen-Chat auswählen"/>
-	<slider label="Deckkraft" name="bubble_chat_opacity"/>
+	<slider label="Deckkraft" name="bubble_chat_opacity" label_width="66"/>
 	<text name="AspectRatioLabel1" tool_tip="Breite/Höhe">
 		Seitenverhältnis
 	</text>

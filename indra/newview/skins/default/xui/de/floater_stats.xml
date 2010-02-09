@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Statistics" title="STATISTIKEN">
-	<scroll_container name="statistics_scroll">
-		<container_view name="statistics_view">
+<floater name="Statistics" title="STATISTIKEN" width="280">
+	<scroll_container name="statistics_scroll" width="280">
+		<container_view name="statistics_view" width="280">
 			<stat_view label="Basic" name="basic">
 				<stat_bar label="FPS" name="fps"/>
 				<stat_bar label="Bandbreite" name="bandwidth"/>

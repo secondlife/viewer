@@ -41,6 +41,7 @@
 #include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
+#include "llviewercontrol.h"
 
 #define PICKER_SECOND_LIFE "2nd_life_pic"
 #define PICKER_FIRST_LIFE "real_world_pic"
@@ -70,18 +71,16 @@ void LLPanelMe::onOpen(const LLSD& key)
 {
 	LLPanelProfile::onOpen(key);
 
-	if(key.isUndefined() || key.has("edit_my_profile"))
+	// Force Edit My Profile if this is the first time when user is opening Me Panel (EXT-5068)
+	bool opened = gSavedSettings.getBOOL("MePanelOpened");
+	// In some cases Side Tray my call onOpen() twice, check getCollapsed() to be sure this
+	// is the last time onOpen() is called
+	if( !opened && !LLSideTray::getInstance()->getCollapsed() )
 	{
-		// Open Edit My Profile panel by default (through Side Tray -> My Profile) (EXT-4823)
 		buildEditPanel();
 		openPanel(mEditPanel, getAvatarId());
-	}
-	else if(mEditPanel)
-	{
-		// When opening Me Panel through Side Tray LLPanelMe::onOpen() is called twice.
-		// First time key can be undefined and second time - key may contain some data.
-		// Lets close Edit Panel if key does contain some data on second call.
-		closePanel(mEditPanel);
+
+		gSavedSettings.setBOOL("MePanelOpened", true);
 	}
 }
 

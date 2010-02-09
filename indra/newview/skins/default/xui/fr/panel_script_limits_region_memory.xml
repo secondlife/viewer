@@ -13,9 +13,9 @@
 		Chargement...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="Taille (Ko)" name="size"/>
+		<scroll_list.columns label="Taille (Ko)" width="80" name="size"/>
 		<scroll_list.columns label="Nom de l&apos;objet" name="name"/>
-		<scroll_list.columns label="Propriétaire d&apos;objet" name="owner"/>
+		<scroll_list.columns label="Propriétaire d&apos;objet" width="140" name="owner"/>
 		<scroll_list.columns label="Parcelle/emplacement" name="location"/>
 	</scroll_list>
 	<button label="Rafraîchir la liste" name="refresh_list_btn"/>

@@ -1412,7 +1412,7 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		new_folder_name);
 
 	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
-	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, cb);
+	LLAppearanceManager::instance().shallowCopyCategoryContents(LLAppearanceManager::instance().getCOF(),folder_id, cb);
 	LLAppearanceManager::instance().createBaseOutfitLink(folder_id, cb);
 
 	return folder_id;
@@ -2329,7 +2329,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 			LLUUID folder_id = gInventory.createNewCategory(mImportedClothingID,
 															LLFolderType::FT_NONE,
 															iter->second);
-			LLAppearanceManager::getInstance()->shallowCopyCategory(iter->first, folder_id, copy_waiter);
+			LLAppearanceManager::getInstance()->shallowCopyCategoryContents(iter->first, folder_id, copy_waiter);
 		}
 	}
 	else

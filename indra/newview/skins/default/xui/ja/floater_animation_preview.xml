@@ -114,8 +114,8 @@
 	</text>
 	<spinner label="優先順位" name="priority" tool_tip="このアニメーションがどのアニメーションを上書きするかを決めます"/>
 	<check_box label="ループ" name="loop_check" tool_tip="このアニメーションをループ再生します"/>
-	<spinner label="イン(％)" label_width="45" left="70" name="loop_in_point" tool_tip="アニメーションのループ復帰点を設定します" width="100"/>
-	<spinner label="アウト(％)" label_width="60" left="170" name="loop_out_point" tool_tip="アニメーションのループ終了点を設定します" width="100"/>
+	<spinner label="イン(％)" label_width="45" left="60" name="loop_in_point" tool_tip="アニメーションのループ復帰点を設定します" width="100"/>
+	<spinner label="アウト(％)" label_width="50" left="170" name="loop_out_point" tool_tip="アニメーションのループ終了点を設定します" width="100"/>
 	<text name="hand_label">
 		手の動き
 	</text>

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<!-- See also settings.xml UIFloater* settings for configuration -->
 <inspector name="inspector"
-          bg_opaque_color="DkGray_66"
-          background_visible="true"
-          bg_opaque_image="none"
-          background_opaque="true"
-          bg_alpha_image="none"
-		  text_color="InspectorTipTextColor"
- />
+           bg_opaque_color="DkGray_66"
+           background_visible="true"
+           bg_opaque_image="Inspector_Hover"
+           background_opaque="true"
+           bg_alpha_image="none"
+           mouse_opaque="true" 
+           text_color="InspectorTipTextColor"/>

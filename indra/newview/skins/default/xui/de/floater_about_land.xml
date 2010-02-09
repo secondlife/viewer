@@ -12,7 +12,7 @@
 	<floater.string name="Remaining">
 		Restzeit
 	</floater.string>
-	<tab_container name="landtab">
+	<tab_container name="landtab" width="489" tab_min_width="40">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
 				Nur neue Benutzer
@@ -83,7 +83,7 @@
 			<text name="GroupText">
 				Leyla Linden
 			</text>
-			<button label="Festlegen" label_selected="Einstellen..." name="Set..."/>
+			<button label="Festlegen" label_selected="Einstellen..." name="Set..." width="90"/>
 			<check_box label="Übertragung an Gruppe zulassen" name="check deed" tool_tip="Ein Gruppen-Officer kann dieses Land der Gruppe übertragen. Das Land wird dann über die Landzuteilung der Gruppe verwaltet."/>
 			<button label="Übertragung" label_selected="Übertragen..." name="Deed..." tool_tip="Sie können Land nur übertragen, wenn Sie in der ausgewählten Gruppe Officer sind."/>
 			<check_box label="Eigentümer leistet Beitrag durch Übertragung" name="check contrib" tool_tip="Wenn das Land an die Gruppe übertragen wird, trägt der frühere Eigentümer ausreichend Landnutzungsrechte bei, um es zu halten."/>
@@ -101,10 +101,10 @@
 			<text name="For sale to">
 				Zum Verkauf an: [BUYER]
 			</text>
-			<text name="Sell with landowners objects in parcel." width="210">
+			<text name="Sell with landowners objects in parcel." left_delta="-50" width="240">
 				Objekte sind im Verkauf eingeschlossen
 			</text>
-			<text name="Selling with no objects in parcel." width="237">
+			<text name="Selling with no objects in parcel." width="260">
 				Objekte sind im Verkauf nicht eingeschlossen
 			</text>
 			<button bottom="-222" label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen" name="Cancel Land Sale"/>
@@ -230,7 +230,7 @@ werden.
 			<text left="14" name="Owned by parcel owner:" width="200">
 				Im Eigentum des Parzellenbesitzers:
 			</text>
-			<text left="204" name="owner_objects_text" width="48">
+			<text left="204" left_delta="200" name="owner_objects_text" width="48">
 				[COUNT]
 			</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner" right="-135" width="60"/>
@@ -257,7 +257,7 @@ werden.
 			<text left="204" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="380">
+			<text left="4" name="Autoreturn" width="410">
 				Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):
 			</text>
 			<line_editor name="clean other time" right="-10" width="56"/>
@@ -269,7 +269,7 @@ werden.
 			<name_list name="owner list">
 				<name_list.columns label="Typ" name="type"/>
 				<name_list.columns label="Name" name="name"/>
-				<name_list.columns label="Zählen" name="count"/>
+				<name_list.columns label="Zählen" name="count" width="80"/>
 				<name_list.columns label="Aktuellster" name="mostrecent"/>
 			</name_list>
 		</panel>
@@ -368,7 +368,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>
-			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
+			<button label="Festlegen" label_selected="Festlegen" left="234" right="-88" name="Set" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
 			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
 			<text name="Teleport Routing: ">
 				Teleport-Route:
@@ -444,7 +444,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Zugang zu dieser Parzelle
 			</text>
 			<check_box label="Öffentlichen Zugang erlauben [MATURITY]" name="public_access"/>
-			<text name="Only Allow">
+			<text name="Only Allow" width="400">
 				Zugang auf Einwohner beschränken, die überprüft wurden von:
 			</text>
 			<check_box label="Zahlungsinformation gespeichert [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen."/>

@@ -45,8 +45,8 @@
 		<combo_box.item label="JPEG" name="JPEG"/>
 		<combo_box.item label="BMP" name="BMP"/>
 	</combo_box>
-	<spinner label="Largeur" label_width="41" name="snapshot_width" width="101"/>
-	<spinner label="Hauteur" label_width="41" left="121" name="snapshot_height" width="101"/>
+	<spinner label="Largeur" label_width="44" name="snapshot_width" width="101"/>
+	<spinner label="Hauteur" label_width="46" left="121" name="snapshot_height" width="101"/>
 	<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Capturer :

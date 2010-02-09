@@ -27,23 +27,23 @@ Vous pouvez désactiver la réception des notices dans l&apos;onglet Général.
 		<text name="lbl">
 			Créer une notice
 		</text>
-		<text bottom_delta="-79" left="20" name="lbl3">
+		<text name="lbl3">
 			Sujet :
 		</text>
-		<line_editor left_delta="61" name="create_subject" width="331"/>
-		<text left="20" name="lbl4">
+		<line_editor name="create_subject" />
+		<text  name="lbl4">
 			Message :
 		</text>
-		<text_editor bottom_delta="-90" height="104" left_delta="61" name="create_message" width="330"/>
-		<text name="lbl5" width="68">
+		<text_editor name="create_message"/>
+		<text name="lbl5" >
 			Pièce-jointe :
 		</text>
-		<line_editor left_delta="74" name="create_inventory_name" width="190"/>
+		<line_editor name="create_inventory_name"/>
 		<text name="string">
 			Faire glisser l&apos;objet et le déposer ici pour le joindre :
 		</text>
-		<button label="Supprimer" label_selected="Supprimer pièce-jointe" left="274" name="remove_attachment" width="140"/>
-		<button label="Envoyer" label_selected="Envoyer" left="274" name="send_notice" width="140"/>
+		<button label="Supprimer" label_selected="Supprimer pièce-jointe" name="remove_attachment"/>
+		<button label="Envoyer" label_selected="Envoyer" left="200" name="send_notice" width="100"/>
 		<group_drop_target name="drop_target" tool_tip="Faites glisser un objet de l&apos;inventaire jusqu&apos;à cette case pour l&apos;envoyer avec la notice. Vous devez avoir l&apos;autorisation de copier et transférer l&apos;objet pour pouvoir le joindre."/>
 	</panel>
 	<panel label="Voir ancienne notice" name="panel_view_past_notice">

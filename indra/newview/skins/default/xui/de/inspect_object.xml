@@ -39,7 +39,7 @@ Besitzer secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 	</text>
 	<button label="Kaufen" name="buy_btn"/>
 	<button label="Zahlen" name="pay_btn"/>
-	<button label="Kopie nehmen" name="take_free_copy_btn"/>
+	<button label="Kopie nehmen" name="take_free_copy_btn" width="100"/>
 	<button label="Berühren" name="touch_btn"/>
 	<button label="Sitzen" name="sit_btn"/>
 	<button label="Öffnen" name="open_btn"/>

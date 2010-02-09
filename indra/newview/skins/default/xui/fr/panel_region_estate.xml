@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Domaine" name="Estate">
 	<text bottom="-34" name="estate_help_text">
-		Les modifications des paramètres de cet onglet affecteront toutes les régions du domaine.
+		Les modifications des paramètres de cet 
+onglet affecteront toutes les régions du 
+domaine.
 	</text>
-	<text bottom_delta="-34" name="estate_text">
+	<text top_pad="8" bottom_delta="-34" name="estate_text">
 		Domaine :
 	</text>
 	<text name="estate_name">

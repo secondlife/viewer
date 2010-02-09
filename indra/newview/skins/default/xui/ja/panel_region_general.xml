@@ -3,19 +3,19 @@
 	<text name="region_text_lbl">
 		地域：
 	</text>
-	<text left="90" name="region_text">
+	<text left_delta="70" name="region_text">
 		未知
 	</text>
 	<text name="version_channel_text_lbl" width="100">
 		バージョン：
 	</text>
-	<text left="90" name="version_channel_text">
+	<text left_delta="70" name="version_channel_text">
 		不明
 	</text>
 	<text name="region_type_lbl">
 		種類：
 	</text>
-	<text name="region_type">
+	<text name="region_type" left_delta="70">
 		不明
 	</text>
 	<check_box label="土地整備をブロック" name="block_terraform_check"/>
