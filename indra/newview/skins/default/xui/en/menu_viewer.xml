@@ -1594,6 +1594,16 @@
          name="Shortcuts"
          tear_off="true"
          visible="false">
+          <menu_item_call
+             label="Image (L$[COST])..."
+             layout="topleft"
+             name="Upload Image"
+             shortcut="control|U">
+            <menu_item_call.on_click
+               function="File.UploadImage"
+               parameter="" />
+            <menu_item_call.on_enable
+               function="File.EnableUpload" />
             <menu_item_check
                label="Search"
                layout="topleft"
