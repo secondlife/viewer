@@ -867,6 +867,10 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		}
 
 		LLInventoryItem* item = gInventory.getItem(item_id);
+		llassert(item);
+		if (!item) {
+			continue;
+		}
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Special handling for various types.
