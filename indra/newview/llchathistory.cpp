@@ -647,7 +647,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
 			{
 				LLStyle::Params link_params(style_params);
-				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				// Convert the name to a hotlink and add to message.
 				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
 			}
