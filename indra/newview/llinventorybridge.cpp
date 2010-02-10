@@ -2232,7 +2232,10 @@ void LLFolderBridge::determineFolderType()
 	{
 		LLInventoryModel* model = getInventoryModel();
 		LLViewerInventoryCategory* category = model->getCategory(mUUID);
-		category->determineFolderType();
+		if (category)
+		{
+			category->determineFolderType();
+		}
 	}
 }
 
