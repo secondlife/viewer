@@ -119,6 +119,7 @@ protected:
 	LLCustomButtonIconCtrl(const Params& p):
 		LLButton(p),
 		mIcon(NULL),
+		mIconAlignment(LLFontGL::HCENTER),
 		mIconCtrlPad(p.icon_ctrl_pad)
 		{}
 
