@@ -210,6 +210,8 @@ public:
 	void 			idleUpdateLoadingEffect();
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
+	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagColor(BOOL new_name, F32 alpha);
 	void 			idleUpdateRenderCost();
 	void 			idleUpdateTractorBeam();
 	void 			idleUpdateBelowWater();
@@ -822,10 +824,12 @@ protected:
 private:
 	LLWString 		mNameString;
 	std::string  	mTitle;
-	BOOL	  		mNameAway;
-	BOOL	  		mNameBusy;
-	BOOL	  		mNameMute;
-	BOOL      		mNameAppearance;
+	bool	  		mNameAway;
+	bool	  		mNameBusy;
+	bool	  		mNameMute;
+	bool      		mNameAppearance;
+	bool			mNameFriend;
+	F32				mNameAlpha;
 	BOOL      		mRenderGroupTitles;
 
 	//--------------------------------------------------------------------

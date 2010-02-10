@@ -87,7 +87,6 @@ bool lltextobject_further_away::operator()(const LLPointer<LLHUDText>& lhs, cons
 LLHUDText::LLHUDText(const U8 type) :
 			LLHUDObject(type),
 			mUseBubble(FALSE),
-			mUsePixelSize(TRUE),
 			mVisibleOffScreen(FALSE),
 			mWidth(0.f),
 			mHeight(0.f),
@@ -678,11 +677,6 @@ void LLHUDText::setColor(const LLColor4 &color)
 	}
 }
 
-
-void LLHUDText::setUsePixelSize(const BOOL use_pixel_size)
-{
-	mUsePixelSize = use_pixel_size;
-}
 
 void LLHUDText::setDoFade(const BOOL do_fade)
 {

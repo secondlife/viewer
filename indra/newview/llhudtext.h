@@ -99,7 +99,6 @@ public:
 	void setDropShadow(const BOOL do_shadow);
 	void setFont(const LLFontGL* font);
 	void setColor(const LLColor4 &color);
-	void setUsePixelSize(const BOOL use_pixel_size);
 	void setZCompare(const BOOL zcompare);
 	void setDoFade(const BOOL do_fade);
 	void setVisibleOffScreen(BOOL visible) { mVisibleOffScreen = visible; }
@@ -150,7 +149,6 @@ private:
 	F32				mFadeRange;
 	F32				mFadeDistance;
 	F32				mLastDistance;
-	BOOL			mUsePixelSize;
 	BOOL			mZCompare;
 	BOOL			mVisibleOffScreen;
 	BOOL			mOffscreen;

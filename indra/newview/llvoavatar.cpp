@@ -53,6 +53,7 @@
 #include "llanimationstates.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llviewercontrol.h"
+#include "llcallingcard.h"		// IDEVO for LLAvatarTracker
 #include "lldrawpoolavatar.h"
 #include "lldriverparam.h"
 #include "lleditingmotion.h"
@@ -651,11 +652,13 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mAppearanceAnimating(FALSE),
 	mNameString(),
 	mTitle(),
-	mNameAway(FALSE),
-	mNameBusy(FALSE),
-	mNameMute(FALSE),
+	mNameAway(false),
+	mNameBusy(false),
+	mNameMute(false),
+	mNameAppearance(false),
+	mNameFriend(false),
+	mNameAlpha(0.f),
 	mRenderGroupTitles(sRenderGroupTitles),
-	mNameAppearance(FALSE),
 	mFirstTEMessageReceived( FALSE ),
 	mFirstAppearanceMessageReceived( FALSE ),
 	mCulled( FALSE ),
@@ -2660,303 +2663,335 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 								 && gSavedSettings.getS32("AvatarNameTagMode") ));
 	}
 
-	if ( render_name )
+	if ( !render_name )
 	{
-		BOOL new_name = FALSE;
-		if (visible_chat != mVisibleChat)
+		if (mNameText)
 		{
-			mVisibleChat = visible_chat;
-			new_name = TRUE;
+			// ...clean up old name tag
+			mNameText->markDead();
+			mNameText = NULL;
+			sNumVisibleChatBubbles--;
 		}
-		
-		if (sRenderGroupTitles != mRenderGroupTitles)
+		return;
+	}
+
+	BOOL new_name = FALSE;
+	if (visible_chat != mVisibleChat)
+	{
+		mVisibleChat = visible_chat;
+		new_name = TRUE;
+	}
+	
+	if (sRenderGroupTitles != mRenderGroupTitles)
+	{
+		mRenderGroupTitles = sRenderGroupTitles;
+		new_name = TRUE;
+	}
+
+	// First Calculate Alpha
+	// If alpha > 0, create mNameText if necessary, otherwise delete it
+	F32 alpha = 0.f;
+	if (mAppAngle > 5.f)
+	{
+		const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
+		if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
 		{
-			mRenderGroupTitles = sRenderGroupTitles;
-			new_name = TRUE;
+			alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
 		}
-
-		// First Calculate Alpha
-		// If alpha > 0, create mNameText if necessary, otherwise delete it
+		else
 		{
-			F32 alpha = 0.f;
-			if (mAppAngle > 5.f)
-			{
-				const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
-				if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
-				{
-					alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
-				}
-				else
-				{
-					// ...not fading, full alpha
-					alpha = 1.f;
-				}
-			}
-			else if (mAppAngle > 2.f)
-			{
-				// far away is faded out also
-				alpha = (mAppAngle-2.f)/3.f;
-			}
-
-			if (alpha > 0.f)
-			{
-				if (!mNameText)
-				{
-					mNameText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-					mNameText->setMass(10.f);
-					mNameText->setSourceObject(this);
-					mNameText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
-					mNameText->setVisibleOffScreen(TRUE);
-					mNameText->setMaxLines(11);
-					mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-					mNameText->setUseBubble(TRUE);
-					sNumVisibleChatBubbles++;
-					new_name = TRUE;
-				}
-				
-				LLColor4 avatar_name_color = LLUIColorTable::instance().getColor( "AvatarNameColor" );
-				avatar_name_color.setAlpha(alpha);
-				mNameText->setColor(avatar_name_color);
-				
-				LLQuaternion root_rot = mRoot.getWorldRotation();
-				mNameText->setUsePixelSize(TRUE);
-				LLVector3 pixel_right_vec;
-				LLVector3 pixel_up_vec;
-				LLViewerCamera::getInstance()->getPixelVectors(root_pos_last, pixel_up_vec, pixel_right_vec);
-				LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
-				camera_to_av.normalize();
-				LLVector3 local_camera_at = camera_to_av * ~root_rot;
-				LLVector3 local_camera_up = camera_to_av % LLViewerCamera::getInstance()->getLeftAxis();
-				local_camera_up.normalize();
-				local_camera_up = local_camera_up * ~root_rot;
-			
-				local_camera_up.scaleVec(mBodySize * 0.5f);
-				local_camera_at.scaleVec(mBodySize * 0.5f);
-
-				LLVector3 name_position = mRoot.getWorldPosition() + 
-					(local_camera_up * root_rot) -
-					(projected_vec(local_camera_at * root_rot, camera_to_av));
-				name_position += pixel_up_vec * 15.f;
-				mNameText->setPositionAgent(name_position);
-			}
-			else if (mNameText)
-			{
-				mNameText->markDead();
-				mNameText = NULL;
-				sNumVisibleChatBubbles--;
-			}
-		}
-		
-		LLNameValue *title = getNVPair("Title");
-		LLNameValue* firstname = getNVPair("FirstName");
-		LLNameValue* lastname = getNVPair("LastName");
-
-		if (mNameText.notNull() && firstname && lastname)
-		{
-			BOOL is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
-			BOOL is_busy = mSignaledAnimations.find(ANIM_AGENT_BUSY) != mSignaledAnimations.end();
-			BOOL is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
-			BOOL is_muted;
-			if (isSelf())
-			{
-				is_muted = FALSE;
-			}
-			else
-			{
-				is_muted = LLMuteList::getInstance()->isMuted(getID());
-			}
-
-			if (mNameString.empty() ||
-				new_name ||
-				(!title && !mTitle.empty()) ||
-				(title && mTitle != title->getString()) ||
-				(is_away != mNameAway || is_busy != mNameBusy || is_muted != mNameMute)
-				|| is_appearance != mNameAppearance)
-			{
-				std::string line;
-				// IDEVO JAMESDEBUG
-				//if (!sRenderGroupTitles)
-				//{
-				//	// If all group titles are turned off, stack first name
-				//	// on a line above last name
-				//	line += firstname->getString();
-				//	line += "\n";
-				//}
-				//else if (title && title->getString() && title->getString()[0] != '\0')
-				//{
-				//	line += title->getString();
-				//	LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
-				//	line += "\n";
-				//	line += firstname->getString();
-				//}
-				//else
-				//{
-				//	line += firstname->getString();
-				//}
-				if (title && title->getString() && title->getString()[0] != '\0')
-				{
-					line += title->getString();
-					LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
-					line += "\n";
-				}
-
-				std::string display_name;
-				if (gCacheName->getDisplayName(getID(), display_name))
-				{
-					line += display_name;
-				}
-				else
-				{
-					line += LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
-				}
-
-				BOOL need_comma = FALSE;
-
-				if (is_away || is_muted || is_busy)
-				{
-					line += " (";
-					if (is_away)
-					{
-						line += LLTrans::getString("AvatarAway");
-						need_comma = TRUE;
-					}
-					if (is_busy)
-					{
-						if (need_comma)
-						{
-							line += ", ";
-						}
-						line += LLTrans::getString("AvatarBusy");
-						need_comma = TRUE;
-					}
-					if (is_muted)
-					{
-						if (need_comma)
-						{
-							line += ", ";
-						}
-						line += LLTrans::getString("AvatarMuted");
-						need_comma = TRUE;
-					}
-					line += ")";
-				}
-				if (is_appearance)
-				{
-					line += "\n";
-					line += LLTrans::getString("AvatarEditingAppearance");
-				}
-				mNameAway = is_away;
-				mNameBusy = is_busy;
-				mNameMute = is_muted;
-				mNameAppearance = is_appearance;
-				mTitle = title ? title->getString() : "";
-				LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
-				mNameString = utf8str_to_wstring(line);
-				new_name = TRUE;
-			}
-
-			if (visible_chat)
-			{
-				mNameText->setDropShadow(TRUE);
-				mNameText->setFont(LLFontGL::getFontSansSerif());
-				mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_LEFT);
-				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
-				if (new_name)
-				{
-					mNameText->setLabel(mNameString);
-				}
-			
-				char line[MAX_STRING];		/* Flawfinder: ignore */
-				line[0] = '\0';
-				std::deque<LLChat>::iterator chat_iter = mChats.begin();
-				mNameText->clearString();
-
-				LLColor4 new_chat = LLUIColorTable::instance().getColor( "AvatarNameColor" );
-				LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
-				LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
-				if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
-				{
-					++chat_iter;
-				}
-
-				for(; chat_iter != mChats.end(); ++chat_iter)
-				{
-					F32 chat_fade_amt = llclamp((F32)((LLFrameTimer::getElapsedSeconds() - chat_iter->mTime) / CHAT_FADE_TIME), 0.f, 4.f);
-					LLFontGL::StyleFlags style;
-					switch(chat_iter->mChatType)
-					{
-						case CHAT_TYPE_WHISPER:
-							style = LLFontGL::ITALIC;
-							break;
-						case CHAT_TYPE_SHOUT:
-							style = LLFontGL::BOLD;
-							break;
-						default:
-							style = LLFontGL::NORMAL;
-							break;
-					}
-					if (chat_fade_amt < 1.f)
-					{
-						F32 u = clamp_rescale(chat_fade_amt, 0.9f, 1.f, 0.f, 1.f);
-						mNameText->addLine(utf8str_to_wstring(chat_iter->mText), lerp(new_chat, normal_chat, u), style);
-					}
-					else if (chat_fade_amt < 2.f)
-					{
-						F32 u = clamp_rescale(chat_fade_amt, 1.9f, 2.f, 0.f, 1.f);
-						mNameText->addLine(utf8str_to_wstring(chat_iter->mText), lerp(normal_chat, old_chat, u), style);
-					}
-					else if (chat_fade_amt < 3.f)
-					{
-						// *NOTE: only remove lines down to minimum number
-						mNameText->addLine(utf8str_to_wstring(chat_iter->mText), old_chat, style);
-					}
-				}
-				mNameText->setVisibleOffScreen(TRUE);
-
-				if (mTyping)
-				{
-					S32 dot_count = (llfloor(mTypingTimer.getElapsedTimeF32() * 3.f) + 2) % 3 + 1;
-					switch(dot_count)
-					{
-						case 1:
-							mNameText->addLine(".", new_chat);
-							break;
-						case 2:
-							mNameText->addLine("..", new_chat);
-							break;
-						case 3:
-							mNameText->addLine("...", new_chat);
-							break;
-					}
-
-				}
-			}
-			else
-			{
-				if (gSavedSettings.getBOOL("SmallAvatarNames"))
-				{
-					mNameText->setFont(LLFontGL::getFontSansSerif());
-				}
-				else
-				{
-					mNameText->setFont(LLFontGL::getFontSansSerifBig());
-				}
-				mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
-				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-				mNameText->setVisibleOffScreen(FALSE);
-				if (new_name)
-				{
-					mNameText->setLabel("");
-					mNameText->setString(mNameString);
-				}
-			}
+			// ...not fading, full alpha
+			alpha = 1.f;
 		}
 	}
-	else if (mNameText)
+	else if (mAppAngle > 2.f)
 	{
-		mNameText->markDead();
-		mNameText = NULL;
-		sNumVisibleChatBubbles--;
+		// far away is faded out also
+		alpha = (mAppAngle-2.f)/3.f;
+	}
+
+	if (alpha <= 0.f)
+	{
+		if (mNameText)
+		{
+			mNameText->markDead();
+			mNameText = NULL;
+			sNumVisibleChatBubbles--;
+		}
+		return;
+	}
+
+	if (!mNameText)
+	{
+		mNameText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+		mNameText->setMass(10.f);
+		mNameText->setSourceObject(this);
+		mNameText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
+		mNameText->setVisibleOffScreen(TRUE);
+		mNameText->setMaxLines(11);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
+		mNameText->setUseBubble(TRUE);
+		sNumVisibleChatBubbles++;
+		new_name = TRUE;
+	}
+
+	idleUpdateNameTagColor(new_name, alpha);
+	
+	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
+	mNameText->setPositionAgent(name_position);
+	
+	LLNameValue *title = getNVPair("Title");
+	LLNameValue* firstname = getNVPair("FirstName");
+	LLNameValue* lastname = getNVPair("LastName");
+
+	// Avatars must have a first and last name
+	if (!firstname || !lastname) return;
+
+	bool is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
+	bool is_busy = mSignaledAnimations.find(ANIM_AGENT_BUSY) != mSignaledAnimations.end();
+	bool is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
+	bool is_muted;
+	if (isSelf())
+	{
+		is_muted = false;
+	}
+	else
+	{
+		is_muted = LLMuteList::getInstance()->isMuted(getID());
+	}
+
+	// Rebuild name tag if state change detected
+	if (mNameString.empty()
+		|| new_name
+		|| (!title && !mTitle.empty())
+		|| (title && mTitle != title->getString())
+		|| is_away != mNameAway 
+		|| is_busy != mNameBusy 
+		|| is_muted != mNameMute
+		|| is_appearance != mNameAppearance)
+	{
+		std::string line;
+		// IDEVO JAMESDEBUG
+		//if (!sRenderGroupTitles)
+		//{
+		//	// If all group titles are turned off, stack first name
+		//	// on a line above last name
+		//	line += firstname->getString();
+		//	line += "\n";
+		//}
+		//else if (title && title->getString() && title->getString()[0] != '\0')
+		//{
+		//	line += title->getString();
+		//	LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
+		//	line += "\n";
+		//	line += firstname->getString();
+		//}
+		//else
+		//{
+		//	line += firstname->getString();
+		//}
+		if (sRenderGroupTitles
+			&& title && title->getString() && title->getString()[0] != '\0')
+		{
+			line += title->getString();
+			LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
+			line += "\n";
+		}
+
+		std::string display_name;
+		if (gCacheName->getDisplayName(getID(), display_name))
+		{
+			line += display_name;
+		}
+		else
+		{
+			line += LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
+		}
+
+		BOOL need_comma = FALSE;
+
+		if (is_away || is_muted || is_busy)
+		{
+			line += " (";
+			if (is_away)
+			{
+				line += LLTrans::getString("AvatarAway");
+				need_comma = TRUE;
+			}
+			if (is_busy)
+			{
+				if (need_comma)
+				{
+					line += ", ";
+				}
+				line += LLTrans::getString("AvatarBusy");
+				need_comma = TRUE;
+			}
+			if (is_muted)
+			{
+				if (need_comma)
+				{
+					line += ", ";
+				}
+				line += LLTrans::getString("AvatarMuted");
+				need_comma = TRUE;
+			}
+			line += ")";
+		}
+		if (is_appearance)
+		{
+			line += "\n";
+			line += LLTrans::getString("AvatarEditingAppearance");
+		}
+		mNameAway = is_away;
+		mNameBusy = is_busy;
+		mNameMute = is_muted;
+		mNameAppearance = is_appearance;
+		mTitle = title ? title->getString() : "";
+		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
+		mNameString = utf8str_to_wstring(line);
+		new_name = TRUE;
+	}
+
+	if (visible_chat)
+	{
+		mNameText->setDropShadow(TRUE);
+		mNameText->setFont(LLFontGL::getFontSansSerif());
+		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_LEFT);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
+		if (new_name)
+		{
+			mNameText->setLabel(mNameString);
+		}
+	
+		char line[MAX_STRING];		/* Flawfinder: ignore */
+		line[0] = '\0';
+		std::deque<LLChat>::iterator chat_iter = mChats.begin();
+		mNameText->clearString();
+
+		LLColor4 new_chat = LLUIColorTable::instance().getColor( "AvatarNameColor" );
+		LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
+		LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
+		if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
+		{
+			++chat_iter;
+		}
+
+		for(; chat_iter != mChats.end(); ++chat_iter)
+		{
+			F32 chat_fade_amt = llclamp((F32)((LLFrameTimer::getElapsedSeconds() - chat_iter->mTime) / CHAT_FADE_TIME), 0.f, 4.f);
+			LLFontGL::StyleFlags style;
+			switch(chat_iter->mChatType)
+			{
+				case CHAT_TYPE_WHISPER:
+					style = LLFontGL::ITALIC;
+					break;
+				case CHAT_TYPE_SHOUT:
+					style = LLFontGL::BOLD;
+					break;
+				default:
+					style = LLFontGL::NORMAL;
+					break;
+			}
+			if (chat_fade_amt < 1.f)
+			{
+				F32 u = clamp_rescale(chat_fade_amt, 0.9f, 1.f, 0.f, 1.f);
+				mNameText->addLine(utf8str_to_wstring(chat_iter->mText), lerp(new_chat, normal_chat, u), style);
+			}
+			else if (chat_fade_amt < 2.f)
+			{
+				F32 u = clamp_rescale(chat_fade_amt, 1.9f, 2.f, 0.f, 1.f);
+				mNameText->addLine(utf8str_to_wstring(chat_iter->mText), lerp(normal_chat, old_chat, u), style);
+			}
+			else if (chat_fade_amt < 3.f)
+			{
+				// *NOTE: only remove lines down to minimum number
+				mNameText->addLine(utf8str_to_wstring(chat_iter->mText), old_chat, style);
+			}
+		}
+		mNameText->setVisibleOffScreen(TRUE);
+
+		if (mTyping)
+		{
+			S32 dot_count = (llfloor(mTypingTimer.getElapsedTimeF32() * 3.f) + 2) % 3 + 1;
+			switch(dot_count)
+			{
+				case 1:
+					mNameText->addLine(".", new_chat);
+					break;
+				case 2:
+					mNameText->addLine("..", new_chat);
+					break;
+				case 3:
+					mNameText->addLine("...", new_chat);
+					break;
+			}
+
+		}
+	}
+	else
+	{
+		static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
+		if (small_avatar_names)
+		{
+			mNameText->setFont(LLFontGL::getFontSansSerif());
+		}
+		else
+		{
+			mNameText->setFont(LLFontGL::getFontSansSerifBig());
+		}
+		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
+		mNameText->setVisibleOffScreen(FALSE);
+		if (new_name)
+		{
+			mNameText->setLabel("");
+			mNameText->setString(mNameString);
+		}
+	}
+}
+
+// Compute name tag position during idle update
+LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
+{
+	LLQuaternion root_rot = mRoot.getWorldRotation();
+	LLVector3 pixel_right_vec;
+	LLVector3 pixel_up_vec;
+	LLViewerCamera::getInstance()->getPixelVectors(root_pos_last, pixel_up_vec, pixel_right_vec);
+	LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
+	camera_to_av.normalize();
+	LLVector3 local_camera_at = camera_to_av * ~root_rot;
+	LLVector3 local_camera_up = camera_to_av % LLViewerCamera::getInstance()->getLeftAxis();
+	local_camera_up.normalize();
+	local_camera_up = local_camera_up * ~root_rot;
+
+	local_camera_up.scaleVec(mBodySize * 0.5f);
+	local_camera_at.scaleVec(mBodySize * 0.5f);
+
+	LLVector3 name_position = mRoot.getWorldPosition() + 
+		(local_camera_up * root_rot) -
+		(projected_vec(local_camera_at * root_rot, camera_to_av));
+	name_position += pixel_up_vec * 15.f;
+	return name_position;
+}
+
+void LLVOAvatar::idleUpdateNameTagColor(BOOL new_name, F32 alpha)
+{
+	llassert(mNameText);
+
+	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
+	if (new_name
+		|| alpha != mNameAlpha
+		|| is_friend != mNameFriend)
+	{
+		const char* color_name = (is_friend ? "AvatarNameFriendColor" : "AvatarNameColor");
+		LLColor4 avatar_name_color =
+			LLUIColorTable::getInstance()->getColor( color_name );
+		avatar_name_color.setAlpha(alpha);
+		mNameText->setColor(avatar_name_color);
+
+		mNameFriend = is_friend;
+		mNameAlpha = alpha;
 	}
 }
 
