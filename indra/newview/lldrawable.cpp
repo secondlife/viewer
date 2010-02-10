@@ -1049,9 +1049,13 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 
 	llassert(mDrawable);
 	llassert(mDrawable->getRegion());
-	llassert(mDrawable->getRegion()->getSpatialPartition(mPartitionType));
+	LLSpatialPartition *part = mDrawable->getRegion()->getSpatialPartition(mPartitionType);
+	llassert(part);
 	
-	mDrawable->getRegion()->getSpatialPartition(mPartitionType)->put(this);
+	if (part)
+	{
+		part->put(this);
+	}
 }
 
 LLSpatialBridge::~LLSpatialBridge()
