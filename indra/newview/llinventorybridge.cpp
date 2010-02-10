@@ -3816,7 +3816,12 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 			BOOL inform_server = TRUE;
 			BOOL deactivate_similar = FALSE;
 			LLGestureManager::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
-			LLGestureManager::instance().activateGestureWithAsset(mUUID, gInventory.getItem(mUUID)->getAssetUUID(), inform_server, deactivate_similar);
+			LLViewerInventoryItem* item = gInventory.getItem(mUUID);
+			llassert(item);
+			if (item)
+			{
+				LLGestureManager::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
+			}
 		}
 		else
 		{
