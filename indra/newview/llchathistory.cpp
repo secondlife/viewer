@@ -66,6 +66,8 @@ static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
+const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
+
 // support for secondlife:///app/objectim/{UUID}/ SLapps
 class LLObjectIMHandler : public LLCommandHandler
 {
@@ -544,6 +546,7 @@ void LLChatHistory::clear()
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
+
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
@@ -609,6 +612,14 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		style_params.font.style = "ITALIC";
 	}
 
+	//*HACK we graying out chat history by graying out messages that contains full date in a time string
+	bool message_from_log = chat.mTimeStr.length() > LENGTH_OF_TIME_STR; 
+	if (message_from_log)
+	{
+		style_params.color(LLColor4::grey);
+		style_params.readonly_color(LLColor4::grey);
+	}
+
 	if (use_plain_text_chat_history)
 	{
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
@@ -644,7 +655,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
 									false, link_params);
 			}
-			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
