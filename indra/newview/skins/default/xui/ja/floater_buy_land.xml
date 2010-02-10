@@ -67,12 +67,12 @@
 	<text name="error_message">
 		何か変です
 	</text>
-	<button label="ウェブ・サイトに移動" name="error_web"/>
+	<button label="Webサイトに移動" name="error_web"/>
 	<text name="account_action">
-		プレミアム・メンバーにアップグレード
+		プレミアム会員にアップグレード
 	</text>
 	<text name="account_reason">
-		土地を保有できるのはプレミアム・メンバーだけです
+		土地を保有できるのはプレミアム会員だけです
 	</text>
 	<combo_box name="account_level">
 		<combo_box.item label="月額 9.95米ドル、 月払い" name="US$9.95/month,billedmonthly"/>
@@ -114,10 +114,10 @@
 		再販不可能
 	</string>
 	<string name="can_change">
-		統合／再分割可能
+		統合・再分割可能
 	</string>
 	<string name="can_not_change">
-		統合／再分割不可能
+		統合・再分割不可能
 	</string>
 	<string name="cant_buy_for_group">
 		あなたはアクティブなグループ用の土地購入を許可されていません
@@ -127,7 +127,7 @@
 	</string>
 	<string name="multiple_parcels_selected">
 		複数の異なった区画を選択しました。 
-これより小さなエリアを選択してください。
+これより小さな範囲を選択してください。
 	</string>
 	<string name="no_permission">
 		あなたはアクティブなグループ用の土地購入を許可されていません
@@ -149,7 +149,7 @@
 	</string>
 	<string name="not_owned_by_you">
 		他の使用者に所有された土地が選択されています。 
-これより小さなエリアを選択してください。
+これより小さな範囲を選択してください。
 	</string>
 	<string name="processing">
 		購入処理中...
@@ -203,7 +203,7 @@
 オブジェクト [AMOUNT2] 個サポート
 	</string>
 	<string name="sold_with_objects">
-		オブジェクトと共に販売済み
+		オブジェクト込みで販売
 	</string>
 	<string name="sold_without_objects">
 		オブジェクトは含まれていません

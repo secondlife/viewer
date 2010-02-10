@@ -10,7 +10,7 @@
 		「切断」をクリックして削除します。
 	</text>
 	<text name="help_text_not_connected">
-		物体を選択し「テレハブの接続」をクリックする
+		物体を選択して「テレハブの接続」をクリックしてください。
 	</text>
 	<button label="テレハブの接続" name="connect_btn"/>
 	<button label="切断" name="disconnect_btn"/>

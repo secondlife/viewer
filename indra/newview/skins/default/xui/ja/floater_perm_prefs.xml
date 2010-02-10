@@ -5,11 +5,11 @@
 		<check_box label="グループで共同管理" name="share_with_group"/>
 		<check_box label="誰に対してもコピーを許可" name="everyone_copy"/>
 		<text name="NextOwnerLabel">
-			次のオーナーができる操作：
+			次の所有者ができる操作：
 		</text>
 		<check_box label="修正" name="next_owner_modify"/>
 		<check_box label="コピー" name="next_owner_copy"/>
-		<check_box label="再販/プレゼント" name="next_owner_transfer"/>
+		<check_box label="再販・プレゼント" name="next_owner_transfer"/>
 	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="取り消し" label_selected="取り消し" name="cancel"/>

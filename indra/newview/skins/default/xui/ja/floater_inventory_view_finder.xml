@@ -9,7 +9,7 @@
 	<check_box label="オブジェクト" name="check_object"/>
 	<check_box label="スクリプト" name="check_script"/>
 	<check_box label="サウンド" name="check_sound"/>
-	<check_box label="テクスチャー" name="check_texture"/>
+	<check_box label="テクスチャ" name="check_texture"/>
 	<check_box label="スナップショット" name="check_snapshot"/>
 	<button label="すべて" label_selected="すべて" name="All"/>
 	<button label="なし" label_selected="なし" name="None"/>

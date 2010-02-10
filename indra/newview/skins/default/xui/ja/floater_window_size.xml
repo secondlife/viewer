@@ -4,7 +4,7 @@
 		[RES_X] x [RES_Y]
 	</string>
 	<text name="windowsize_text">
-		ウィンドウのサイズの設定：
+		ウィンドウのサイズを設定：
 	</text>
 	<combo_box name="window_size_combo" tool_tip="横幅 x 高さ">
 		<combo_box.item label="1000 x 700 （標準）" name="item0"/>

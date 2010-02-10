@@ -15,9 +15,9 @@
 		<layout_panel name="notes_buttons_panel">
 			<button label="フレンド登録" name="add_friend" tool_tip="フレンド登録を申し出ます"/>
 			<button label="IM" name="im" tool_tip="インスタントメッセージを開きます"/>
-			<button label="コール" name="call" tool_tip="この住人にコールする"/>
-			<button label="地図" name="show_on_map_btn" tool_tip="住人を地図上で表示する"/>
-			<button label="テレポート" name="teleport" tool_tip="テレポートを送る"/>
+			<button label="コール" name="call" tool_tip="この住人にコールします"/>
+			<button label="地図" name="show_on_map_btn" tool_tip="住人を地図上で表示します"/>
+			<button label="テレポート" name="teleport" tool_tip="テレポートを送ります"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

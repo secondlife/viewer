@@ -9,8 +9,8 @@
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<context_menu label="装着 &gt;" name="Put On">
 		<menu_item_call label="装着" name="Wear"/>
-		<context_menu label="取り付け &gt;" name="Object Attach"/>
-		<context_menu label="HUD を取り付け &gt;" name="Object Attach HUD"/>
+		<context_menu label="取り付ける &gt;" name="Object Attach"/>
+		<context_menu label="HUD を取り付ける &gt;" name="Object Attach HUD"/>
 	</context_menu>
 	<context_menu label="削除 &gt;" name="Remove">
 		<menu_item_call label="取る" name="Pie Object Take"/>

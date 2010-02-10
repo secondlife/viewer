@@ -18,7 +18,7 @@
 	</text>
 	<scroll_list name="group_parcel_list">
 		<column label="区画" name="name"/>
-		<column label="地域（リージョン）" name="location"/>
+		<column label="地域" name="location"/>
 		<column label="種類" name="type"/>
 		<column label="面積" name="area"/>
 		<column label="" name="hidden"/>

@@ -4482,7 +4482,9 @@ void LLAgent::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLV
 	{
 		const F64 ANIM_METERS_PER_SECOND = 10.0;
 		const F64 MIN_ANIM_SECONDS = 0.5;
+		const F64 MAX_ANIM_SECONDS = 10.0;
 		F64 anim_duration = llmax( MIN_ANIM_SECONDS, sqrt(focus_delta_squared) / ANIM_METERS_PER_SECOND );
+		anim_duration = llmin( anim_duration, MAX_ANIM_SECONDS );
 		setAnimationDuration( (F32)anim_duration );
 	}
 

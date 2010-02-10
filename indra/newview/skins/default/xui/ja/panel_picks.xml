@@ -10,8 +10,8 @@
 		<button name="new_btn" tool_tip="現在地の新しいピック、またはクラシファイド広告を作成します"/>
 	</panel>
 	<panel name="buttons_cucks">
-		<button label="情報" name="info_btn" tool_tip="ピックの情報を表示"/>
-		<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポート"/>
-		<button label="地図" name="show_on_map_btn" tool_tip="世界地図に該当するエリアを表示"/>
+		<button label="情報" name="info_btn" tool_tip="ピックの情報を表示します"/>
+		<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートします"/>
+		<button label="地図" name="show_on_map_btn" tool_tip="世界地図に該当するエリアを表示します"/>
 	</panel>
 </panel>
