@@ -1113,6 +1113,9 @@ void LLItemBridge::restoreItem()
 
 void LLItemBridge::restoreToWorld()
 {
+	//Similar functionality to the drag and drop rez logic
+	bool remove_from_inventory = false;
+
 	LLViewerInventoryItem* itemp = (LLViewerInventoryItem*)getItem();
 	if (itemp)
 	{
@@ -1125,23 +1128,20 @@ void LLItemBridge::restoreToWorld()
 		msg->nextBlockFast(_PREHASH_InventoryData);
 		itemp->packMessage(msg);
 		msg->sendReliable(gAgent.getRegion()->getHost());
-	}
 
-	//Similar functionality to the drag and drop rez logic
-	BOOL remove_from_inventory = FALSE;
-
-	//remove local inventory copy, sim will deal with permissions and removing the item
-	//from the actual inventory if its a no-copy etc
-	if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		remove_from_inventory = TRUE;
-	}
-
-	// Check if it's in the trash. (again similar to the normal rez logic)
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
-	{
-		remove_from_inventory = TRUE;
+		//remove local inventory copy, sim will deal with permissions and removing the item
+		//from the actual inventory if its a no-copy etc
+		if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
+		{
+			remove_from_inventory = true;
+		}
+		
+		// Check if it's in the trash. (again similar to the normal rez logic)
+		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
+		{
+			remove_from_inventory = true;
+		}
 	}
 
 	if(remove_from_inventory)
