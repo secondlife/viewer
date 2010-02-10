@@ -2548,8 +2548,8 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 			LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b->getListener()))->getItem();
 			if (!aitem || !bitem)
 				return false;
-			S32 a_sort = (aitem->getSortField();
-			S32 b_sort = (bitem->getSortField();
+			S32 a_sort = aitem->getSortField();
+			S32 b_sort = bitem->getSortField();
 			return a_sort < b_sort;
 		}
 	}
