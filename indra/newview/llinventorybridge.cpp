@@ -1537,7 +1537,7 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	return TRUE;
+	return FALSE;
 }
 
 BOOL LLFolderBridge::copyToClipboard() const

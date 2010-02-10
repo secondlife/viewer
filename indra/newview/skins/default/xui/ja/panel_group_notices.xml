@@ -21,8 +21,8 @@
 	<text name="notice_list_none_found">
 		見つかりませんでした
 	</text>
-	<button label="新しい通知を作成" label_selected="新しい通知を作成" name="create_new_notice" tool_tip="新しい通知を作成"/>
-	<button label="更新" label_selected="リスト更新" name="refresh_notices" tool_tip="通知リストを更新"/>
+	<button label="新しい通知を作成" label_selected="新しい通知を作成" name="create_new_notice" tool_tip="新しい通知を作成します"/>
+	<button label="更新" label_selected="リスト更新" name="refresh_notices" tool_tip="通知リストを更新します"/>
 	<panel label="新しい通知を作成" name="panel_create_new_notice">
 		<text name="lbl">
 			通知を作成
@@ -31,7 +31,7 @@
 			件名：
 		</text>
 		<text name="lbl4">
-			ﾒｯｾｰｼﾞ：
+			内容：
 		</text>
 		<text name="lbl5">
 			添付：
@@ -54,7 +54,7 @@
 			件名：
 		</text>
 		<text name="lbl4">
-			メッセージ：
+			内容：
 		</text>
 		<button label="添付アイテムを開く" label_selected="添付物を開く" name="open_attachment"/>
 	</panel>

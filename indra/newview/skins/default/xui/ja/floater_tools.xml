@@ -171,7 +171,7 @@
 				Esbee Linden
 			</text>
 			<text name="Owner:">
-				オーナー：
+				所有者：
 			</text>
 			<text name="Owner Name">
 				Erica Linden
@@ -197,7 +197,7 @@
 			<check_box label="販売対象：" name="checkbox for sale"/>
 			<combo_box name="sale type">
 				<combo_box.item label="コピー" name="Copy"/>
-				<combo_box.item label="コンテンツ" name="Contents"/>
+				<combo_box.item label="中身" name="Contents"/>
 				<combo_box.item label="オリジナル" name="Original"/>
 			</combo_box>
 			<spinner label="価格： L$" name="Edit Cost"/>
@@ -239,9 +239,9 @@
 		</panel>
 		<panel label="形状" name="Object">
 			<check_box label="ロック済み" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。 この機能を使うと、構築中に意図しない編集を防ぐことができます。"/>
-			<check_box label="物理" name="Physical Checkbox Ctrl" tool_tip="オブジェクトに対する重力の作用と影響を有効にする"/>
+			<check_box label="物理" name="Physical Checkbox Ctrl" tool_tip="オブジェクトに対する重力の作用と影響を有効にします"/>
 			<check_box label="臨時" name="Temporary Checkbox Ctrl" tool_tip="制作後 1 分でオブジェクトは削除されます"/>
-			<check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクト同士の衝突またはオブジェクトとアバターの衝突を回避"/>
+			<check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクト同士の衝突またはオブジェクトとアバターの衝突を回避します"/>
 			<text name="label position">
 				位置（メートル）
 			</text>
@@ -280,7 +280,7 @@
 				<combo_box.item label="ゴム" name="Rubber"/>
 			</combo_box>
 			<text name="text cut">
-				パスカット (始点/終点)
+				パスカット (始点・終点)
 			</text>
 			<spinner label="B" name="cut begin"/>
 			<spinner label="E" name="cut end"/>
@@ -300,7 +300,7 @@
 				<combo_box.item label="三角形" name="Triangle"/>
 			</combo_box>
 			<text name="text twist">
-				ひねり (始点/終点)
+				ひねり (始点・終点)
 			</text>
 			<spinner label="B" name="Twist Begin"/>
 			<spinner label="E" name="Twist End"/>
@@ -318,13 +318,13 @@
 			<spinner label="X" name="Shear X"/>
 			<spinner label="Y" name="Shear Y"/>
 			<text name="advanced_cut">
-				プロフィールカット (始点/終点)
+				プロフィールカット (始点・終点)
 			</text>
 			<text name="advanced_dimple">
-				くぼみ (始点/終点)
+				くぼみ (始点・終点)
 			</text>
 			<text name="advanced_slice">
-				切り取り (始点/終点)
+				切り取り (始点・終点)
 			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
@@ -340,8 +340,8 @@
 				回転体
 			</text>
 			<texture_picker label="スカルプトテクスチャー" name="sculpt texture control" tool_tip="クリックして写真を選択してください。"/>
-			<check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムを X 軸上で反転させる"/>
-			<check_box label="裏返し" name="sculpt invert control" tool_tip="スカルプトプリムを反転させて裏返す"/>
+			<check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムを X 軸上で反転させます"/>
+			<check_box label="裏返し" name="sculpt invert control" tool_tip="スカルプトプリムを反転させて裏返します"/>
 			<text name="label sculpt type">
 				縫い目のタイプ
 			</text>
@@ -360,7 +360,7 @@
 			<text name="edit_object">
 				オブジェクトの特徴を編集：
 			</text>
-			<check_box label="フレキシブル・パス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にする（クライアント側のみ）"/>
+			<check_box label="フレキシブル・パス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
 			<spinner label="柔軟性" label_width="72" name="FlexNumSections" width="135"/>
 			<spinner label="重力" label_width="72" name="FlexGravity" width="135"/>
 			<spinner label="ドラッグ" label_width="72" name="FlexFriction" width="135"/>
@@ -369,9 +369,9 @@
 			<spinner label="X軸方向の力" label_width="72" name="FlexForceX" width="135"/>
 			<spinner label="Y軸方向の力" label_width="72" name="FlexForceY" width="135"/>
 			<spinner label="Z軸方向の力" label_width="72" name="FlexForceZ" width="135"/>
-			<check_box label="光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光"/>
+			<check_box label="光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します"/>
 			<color_swatch label="" left_delta="74" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択（遅延レンダリング有効時のみ）"/>
+			<texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択します（遅延レンダリング有効時のみ）"/>
 			<spinner label="輝度" label_width="72" name="Light Intensity" width="135"/>
 			<spinner label="FOV" name="Light FOV"/>
 			<spinner label="半径" label_width="72" name="Light Radius" width="135"/>
@@ -381,7 +381,7 @@
 		</panel>
 		<panel label="材質" name="Texture">
 			<panel.string name="string repeats per meter">
-				ﾒｰﾄﾙごとに繰返す
+				メートルごとに繰り返す
 			</panel.string>
 			<panel.string name="string repeats per face">
 				面ごとに繰り返す
@@ -453,10 +453,10 @@
 				<text name="media_tex">
 					メディア
 				</text>
-				<button name="add_media" tool_tip="メディアを追加"/>
-				<button name="delete_media" tool_tip="このメディアテクスチャを削除"/>
-				<button name="edit_media" tool_tip="このメディアを編集"/>
-				<button label="揃える" label_selected="メディアを一列に揃える" name="button align" tool_tip="メディアテクスチャを一列に揃える（最初に読み込む必要があります）"/>
+				<button name="add_media" tool_tip="メディアを追加します"/>
+				<button name="delete_media" tool_tip="このメディアテクスチャを削除します"/>
+				<button name="edit_media" tool_tip="このメディアを編集します"/>
+				<button label="揃える" label_selected="メディアを一列に揃える" name="button align" tool_tip="メディアテクスチャを一列に揃えます（最初に読み込む必要があります）"/>
 			</panel>
 		</panel>
 		<panel label="中身" name="Contents">
@@ -475,7 +475,7 @@
 			面積： [AREA] 平方メートル
 		</text>
 		<button label="土地情報" label_selected="土地情報" name="button about land"/>
-		<check_box label="オーナーを表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけ：   緑 = あなたの土地  アクア = あなたのグループ所有地  赤 = 他人が所有する土地  黄色 = 売り出し中  紫 = オークション  グレー = パブリック"/>
+		<check_box label="所有者を表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけます：   緑 = あなたの土地  アクア = あなたのグループ所有地  赤 = 他人が所有する土地  黄色 = 売り出し中  紫 = オークション  グレー = パブリック"/>
 		<text name="label_parcel_modify">
 			区画の編集
 		</text>

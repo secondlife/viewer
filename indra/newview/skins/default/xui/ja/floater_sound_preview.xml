@@ -9,7 +9,7 @@
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
 	<button label="アップロード　（L$[AMOUNT]）" label_selected="アップロード　（L$[AMOUNT]）" name="ok_btn"/>
 	<text name="text">
-		ﾋﾞｯﾄﾚｰﾄ(kbps)：
+		ビットレート(kbps)：
 	</text>
 	<radio_group name="bitrate">
 		<radio_item label="32" name="32"/>

@@ -3,10 +3,10 @@
 	<button label="続行" label_selected="続行" name="Continue" />
 	<button label="取り消し" label_selected="取り消し" name="Cancel" />
 	<text name="tos_title">
-		クリティカル・メッセージ
+		クリティカルメッセージ
 	</text>
 	<text name="tos_heading">
-		次のメッセージを注意深くお読みください。
+		次のメッセージを注意してよくお読みください。
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="セキュリティ" name="Media Settings Security">
-	<check_box initial_value="false" label="指定したURLパターンにのみアクセスを許可する" name="whitelist_enable"/>
+	<check_box initial_value="false" label="指定したURLパターンのみアクセスを許可する" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
 		ホームページに失敗したエントリーがマークされました：
 	</text>
