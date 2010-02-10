@@ -2532,6 +2532,10 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	// update visibility when avatar is partially loaded
 	if (updateIsFullyLoaded()) // changed?
 	{
+		if (isFullyLoaded() && isSelf())
+		{
+			llwarns << "BAP self isFullyLoaded" << llendl;
+		}
 		if (isFullyLoaded())
 		{
 			deleteParticleSource();
