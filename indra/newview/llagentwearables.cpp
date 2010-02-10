@@ -1621,8 +1621,10 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		}
 
 		if (new_wearable)
+		{
 			new_wearable->setItemID(new_item->getUUID());
-		setWearable(type,0,new_wearable);
+			setWearable(type,0,new_wearable);
+		}
 	}
 
 	std::vector<LLWearable*> wearables_being_removed;
