@@ -4307,14 +4307,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+[NAME_SLURL] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+[NAME_SLURL] is Offline
   </notification>
 
   <notification
