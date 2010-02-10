@@ -128,19 +128,9 @@
      width="420">
         Type your message here.
     </text_editor>
-    <text
-     type="string"
-     length="1"
-     bottom_delta="37"
-     follows="left|bottom"
-     layout="topleft"
-     left="12"
-     name="fine_print">
-        If your recipient joins SL, you&apos;ll get a referral bonus.
-    </text>
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
@@ -149,7 +139,7 @@
      width="100" />
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Send"
      layout="topleft"
      left_delta="-106"
