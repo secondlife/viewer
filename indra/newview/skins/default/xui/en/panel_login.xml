@@ -60,7 +60,7 @@ name="first_name_text"
 top="20"
 left="20"
 width="150">
-  Second Life ID:
+  Second Life Name or ID:
 </text>
 <line_editor
 follows="left|bottom"

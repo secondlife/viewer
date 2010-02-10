@@ -138,7 +138,7 @@ private:
 	bool isNotFriend();
 	
 	// Callback for gCacheName to look up avatar name
-	void nameUpdatedCallback(const LLUUID& id,
+	void onNameCache(const LLUUID& id,
 							 const std::string& name,
 							 bool is_group);
 	
@@ -359,7 +359,7 @@ void LLInspectAvatar::requestUpdate()
 	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
 	gCacheName->get(mAvatarID, false,
-		boost::bind(&LLInspectAvatar::nameUpdatedCallback,
+		boost::bind(&LLInspectAvatar::onNameCache,
 			this, _1, _2, _3));
 }
 
@@ -601,7 +601,7 @@ void LLInspectAvatar::onVolumeChange(const LLSD& data)
 	gVoiceClient->setUserVolume(mAvatarID, volume);
 }
 
-void LLInspectAvatar::nameUpdatedCallback(
+void LLInspectAvatar::onNameCache(
 	const LLUUID& id,
 	const std::string& name,
 	bool is_group)
@@ -609,7 +609,18 @@ void LLInspectAvatar::nameUpdatedCallback(
 	if (id == mAvatarID)
 	{
 		mAvatarName = name;
-		childSetValue("user_name", LLSD(mAvatarName) );
+
+		// IDEVO JAMESDEBUG - need to always display a display name
+		std::string display_name;
+		if (gCacheName->getDisplayName(mAvatarID, display_name))
+		{
+			getChild<LLUICtrl>("user_name")->setValue(display_name);
+		}
+		else
+		{
+			getChild<LLUICtrl>("user_name")->setValue(name);
+		}
+		getChild<LLUICtrl>("user_slid")->setValue(name);
 	}
 }
 
