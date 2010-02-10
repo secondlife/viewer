@@ -293,7 +293,7 @@ void LLDockControl::moveDockable()
 		{
 			mDockTongueX = dockRect.getCenterX() - mDockTongue->getWidth() / 2;
 		}
-		mDockTongueY = dockRect.mTop + mDockTongue->getHeight();
+		mDockTongueY = dockRect.mBottom - mDockTongue->getHeight();
 
 		break;
 	}
