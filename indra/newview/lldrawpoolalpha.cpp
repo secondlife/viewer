@@ -180,6 +180,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	if (LLPipeline::sFastAlpha && !deferred_render)
 	{
+		LLGLDisable blend_enable(GL_BLEND);
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.33f);
 		if (mVertexShaderLevel > 0)
 		{
