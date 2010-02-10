@@ -7,7 +7,7 @@
 		説明：
 	</text>
 	<text name="preview_label">
-		ｲﾒｰｼﾞのﾌﾟﾚﾋﾞｭｰ：
+		プレビュー：
 	</text>
 	<combo_box label="服の種類" name="clothing_type_combo">
 		<combo_box.item label="画像" name="Image"/>
@@ -26,7 +26,7 @@
 
 24bitTarga(.tga)でイメージを保存してください。
 	</text>
-	<check_box label="ロスのない圧縮を使用" name="lossless_check"/>
+	<check_box label="可逆圧縮" name="lossless_check"/>
 	<button label="取り消し" name="cancel_btn"/>
-	<button label="ｱｯﾌﾟﾛｰﾄﾞL$[AMOUNT]" name="ok_btn"/>
+	<button label="アップロードﾞL$[AMOUNT]" name="ok_btn"/>
 </floater>

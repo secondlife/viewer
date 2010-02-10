@@ -24,7 +24,7 @@
 		<menu_item_call label="UI/色の設定" name="UI/Color Settings"/>
 		<menu_item_call label="XUI プレビューツール" name="UI Preview Tool"/>
 		<menu label="UI テスト" name="UI Tests"/>
-		<menu_item_call label="ウィンドウのサイズの設定..." name="Set Window Size..."/>
+		<menu_item_call label="ウィンドウのサイズを設定..." name="Set Window Size..."/>
 		<menu_item_call label="利用規約を表示" name="TOS"/>
 		<menu_item_call label="クリティカルメッセージを表示" name="Critical"/>
 		<menu_item_call label="Web ブラウザのテスト" name="Web Browser Test"/>

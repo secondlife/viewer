@@ -22,8 +22,8 @@
 			<button label="現在のページを区画に送る" name="assign"/>
 		</layout_panel>
 		<layout_panel name="external_controls">
-			<button label="外部ウェブ・ブラウザで開く" name="open_browser"/>
-			<check_box label="常に外部のウェブ・ブラウザで開く" name="open_always"/>
+			<button label="外部Webブラウザで開く" name="open_browser"/>
+			<check_box label="常に外部のWebブラウザで開く" name="open_always"/>
 			<button label="閉じる" name="close"/>
 		</layout_panel>
 	</layout_stack>
