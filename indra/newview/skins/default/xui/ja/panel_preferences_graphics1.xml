@@ -55,7 +55,7 @@
 		<text name="AvatarRenderingText">
 			アバター表示：
 		</text>
-		<check_box initial_value="true" label="アバターの精度を上げる" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="アバターの描画を簡略化" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="ハードウェアスキニング" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="アバターの布" name="AvatarCloth"/>
 		<slider label="描画距離：" name="DrawDistance"/>

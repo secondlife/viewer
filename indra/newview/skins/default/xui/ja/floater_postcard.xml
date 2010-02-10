@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Postcard" title="スナップショットをメール">
 	<text name="to_label">
-		住人のEメール：
+		住人のメール：
 	</text>
 	<line_editor left="145" name="to_form" width="125"/>
 	<text name="from_label">
-		あなたのEメール：
+		あなたのメール：
 	</text>
 	<line_editor left="145" name="from_form" width="125"/>
 	<text name="name_label">
@@ -15,14 +15,14 @@
 	<text name="subject_label">
 		件名：
 	</text>
-	<line_editor label="件名をここに入力" left="145" name="subject_form" width="125"/>
+	<line_editor label="件名を入力してください" left="145" name="subject_form" width="125"/>
 	<text name="msg_label">
 		メッセージ：
 	</text>
 	<text_editor bottom_delta="-120" height="110" name="msg_form">
 		メッセージをここに入力してください。
 	</text_editor>
-	<check_box label="ウェブ上で公開" name="allow_publish_check" tool_tip="このポストカードをウェブ上で公開します。"/>
+	<check_box label="Web上で公開" name="allow_publish_check" tool_tip="このポストカードをWeb上で公開します。"/>
 	<check_box label="成人向けコンテンツ" name="mature_check" tool_tip="このポストカードには成人向け内容が含まれます。"/>
 	<button label="?" left="300" name="publish_help_btn"/>
 	<text name="fine_print">

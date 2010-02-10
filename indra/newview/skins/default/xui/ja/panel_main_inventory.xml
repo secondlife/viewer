@@ -9,9 +9,9 @@
 		<inventory_panel label="最新" name="Recent Items"/>
 	</tab_container>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="その他のオプションを表示"/>
-		<button name="add_btn" tool_tip="新しいアイテムの追加"/>
-		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除"/>
+		<button name="options_gear_btn" tool_tip="その他のオプションを表示します"/>
+		<button name="add_btn" tool_tip="新しいアイテムを追加します"/>
+		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除します"/>
 	</panel>
 	<menu_bar name="Inventory Menu">
 		<menu label="ファイル" name="File">
@@ -32,7 +32,7 @@
 		<menu label="新規作成" name="Create">
 			<menu_item_call label="フォルダ" name="New Folder"/>
 			<menu_item_call label="スクリプト" name="New Script"/>
-			<menu_item_call label="新しいノートカード" name="New Note"/>
+			<menu_item_call label="ノートカード" name="New Note"/>
 			<menu_item_call label="ジェスチャー" name="New Gesture"/>
 			<menu label="衣類" name="New Clothes">
 				<menu_item_call label="シャツ" name="New Shirt"/>
@@ -40,7 +40,7 @@
 				<menu_item_call label="靴" name="New Shoes"/>
 				<menu_item_call label="靴下" name="New Socks"/>
 				<menu_item_call label="ジャケット" name="New Jacket"/>
-				<menu_item_call label="シャツ" name="New Skirt"/>
+				<menu_item_call label="スカート" name="New Skirt"/>
 				<menu_item_call label="手袋" name="New Gloves"/>
 				<menu_item_call label="下着（上）" name="New Undershirt"/>
 				<menu_item_call label="下着（下）" name="New Underpants"/>

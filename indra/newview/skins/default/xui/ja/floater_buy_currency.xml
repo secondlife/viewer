@@ -40,7 +40,7 @@
 		[NAME] L$ [PRICE]
 	</text>
 	<text name="total_label">
-		新しい残高
+		購入後の残高
 	</text>
 	<text name="total_amount">
 		L$ [AMT]

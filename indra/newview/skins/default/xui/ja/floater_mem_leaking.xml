@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="MemLeak" title="メモリリークのシミュレート">
-	<spinner label="リークスピード(1フレームごとのバイト数)：" label_width="244" name="leak_speed"/>
-	<spinner label="リークした最大メモリ数(MB)：" label_width="244" name="max_leak"/>
+	<spinner label="リーク速度(1フレームごとのバイト数)：" label_width="244" name="leak_speed"/>
+	<spinner label="最大メモリリーク(MB)：" label_width="244" name="max_leak"/>
 	<text name="total_leaked_label">
-		現在のリークメモリサイズ： [SIZE] KB
+		現在のメモリリーク： [SIZE] KB
 	</text>
 	<text name="note_label_1">
 		[NOTE1]

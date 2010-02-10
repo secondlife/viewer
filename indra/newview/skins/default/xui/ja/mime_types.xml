@@ -2,13 +2,13 @@
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
-			ウェブ・コンテンツ
+			Webコンテンツ
 		</label>
 		<tooltip name="web_tooltip">
-			ここにウェブ・コンテンツがあります。
+			ここにWebコンテンツがあります。
 		</tooltip>
 		<playtip name="web_playtip">
-			ウェブ・コンテンツを表示
+			Webコンテンツを表示
 		</playtip>
 	</widgetset>
 	<widgetset name="movie">
@@ -119,7 +119,7 @@
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			ウェブ・ページ (XHTML)
+			Webページ (XHTML)
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -184,7 +184,7 @@
 	</mimetype>
 	<mimetype menu="1" name="text/html">
 		<label name="text/html_label">
-			ウェブ・ページ
+			Webページ
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="text/plain">

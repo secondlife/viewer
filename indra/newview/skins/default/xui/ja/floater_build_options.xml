@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="グリッドオプション">
 	<spinner label="グリッドユニット（メートル）" name="GridResolution"/>
-	<spinner label="ｸﾞﾘｯﾄﾞ範囲（ﾒｰﾄﾙ）" name="GridDrawSize"/>
+	<spinner label="グリッドﾞ範囲（メートル）" name="GridDrawSize"/>
 	<check_box label="サブユニットにスナップ" name="GridSubUnit"/>
 	<check_box label="横断面を表示" name="GridCrossSection"/>
 	<text name="grid_opacity_label" tool_tip="グリッドの透明度">

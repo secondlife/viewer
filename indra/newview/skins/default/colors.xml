@@ -554,7 +554,7 @@
      reference="White" />
     <color
      name="ObjectChatColor"
-     reference="EmphasisColor_35" />
+     reference="EmphasisColor" />
     <color
      name="OverdrivenColor"
      reference="Red" />

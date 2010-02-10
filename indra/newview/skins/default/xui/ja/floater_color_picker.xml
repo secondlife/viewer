@@ -18,7 +18,7 @@
 	<text name="l_val_text">
 		輝度：
 	</text>
-	<check_box label="今すぐ適用" name="apply_immediate"/>
+	<check_box label="すぐ適用" name="apply_immediate"/>
 	<button label="" label_selected="" name="color_pipette"/>
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
 	<button label="OK" label_selected="OK" name="select_btn"/>

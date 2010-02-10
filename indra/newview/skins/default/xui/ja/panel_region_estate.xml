@@ -40,7 +40,7 @@
 	<check_box label="太陽固定" name="fixed_sun_check"/>
 	<button label="?" name="fixed_sun_help"/>
 	<slider label="段階" name="sun_hour_slider"/>
-	<check_box label="パブリック・アクセスを許可" name="externally_visible_check"/>
+	<check_box label="パブリックアクセスを許可" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<check_box label="直接テレポートを許可" name="allow_direct_teleport"/>
 	<button label="?" name="allow_direct_teleport_help"/>

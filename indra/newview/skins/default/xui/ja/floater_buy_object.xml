@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="contents" title="オブジェクトのコピーを購入">
 	<text name="contents_text">
-		内容：
+		中身：
 	</text>
 	<text name="buy_text">
 		[NAME]からL$[AMOUNT]で購入しますか？
@@ -12,15 +12,15 @@
 		購入
 	</text>
 	<string name="title_buy_copy_text">
-		次のものを買う
+		次のものを購入
 	</string>
 	<text name="no_copy_text">
-		(コピーなし)
+		(コピー不可)
 	</text>
 	<text name="no_modify_text">
-		(修正なし)
+		(修正不可)
 	</text>
 	<text name="no_transfer_text">
-		(転送なし)
+		(再販・プレゼント不可)
 	</text>
 </floater>
