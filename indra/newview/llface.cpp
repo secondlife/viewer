@@ -1040,17 +1040,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_color)
 	{
-		GLfloat alpha[4] =
+		if (tep)
 		{
-			0.00f,
-			0.25f,
-			0.5f,
-			0.75f
-		};
-
-		if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
-		{
-			color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
+			GLfloat alpha[4] =
+			{
+				0.00f,
+				0.25f,
+				0.5f,
+				0.75f
+			};
+			
+			if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
+			{
+				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
+			}
 		}
 	}
 
