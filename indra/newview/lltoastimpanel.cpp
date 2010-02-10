@@ -188,16 +188,15 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 
 void LLToastIMPanel::initIcon()
 {
-	LLIconCtrl* sys_msg_icon = getChild<LLIconCtrl>("sys_msg_icon");
-
 	mAvatarIcon->setVisible(FALSE);
 	mGroupIcon->setVisible(FALSE);
-	sys_msg_icon->setVisible(FALSE);
 	mAdhocIcon->setVisible(FALSE);
 
 	if(mAvatarName->getValue().asString() == SYSTEM_FROM)
 	{
-		sys_msg_icon->setVisible(TRUE);
+		// "sys_msg_icon" was disabled by Erica in the changeset: 5109 (85181bc92cbe)
+		// and "dummy widget" warnings appeared in log.
+		// It does not make sense to have such image with empty name. Removed for EXT-5057.
 	}
 	else
 	{
