@@ -159,7 +159,6 @@ Maximum 200 per group daily
          left_pad="3"
          max_length="511"
          name="create_message"
-         text_type="ascii"
          top_delta="0"
          width="220"
          word_wrap="true" />
