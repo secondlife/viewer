@@ -102,6 +102,11 @@ class LLViewerMedia
 		static bool textureHasMedia(const LLUUID& texture_id);
 		static void setVolume(F32 volume);
 
+		// Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
+		static bool isAnyMediaShowing();
+		// Set all media enabled or disabled, depending on val.   Does not include media in the UI.
+		static void setAllMediaEnabled(bool val);
+	
 		static void updateMedia(void* dummy_arg = NULL);
 
 		static void initClass();

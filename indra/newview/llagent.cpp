@@ -5981,6 +5981,11 @@ bool LLAgent::teleportCore(bool is_local)
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
 //	gVoiceClient->leaveChannel();
 	
+	// Clear the "tentative" autoplay flag (i.e. set it to true)
+	// XXX: Do we also want to re-enable all media, because we might teleport
+	// somewhere where that media would still exist?   
+	gSavedSettings.setBOOL("MediaTentativeAutoPlay", true);
+	
 	return true;
 }
 

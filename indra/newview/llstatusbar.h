@@ -87,6 +87,7 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
+ 	
 private:
 	// simple method to setup the part that holds the date
 	void setupDate();
@@ -96,6 +97,8 @@ private:
 
 	static void onMouseEnterVolume(LLUICtrl* ctrl);
 	static void onClickStatGraph(void* data);
+	
+	static void onClickMediaToggle(void* data);
 
 private:
 	LLTextBox	*mTextHealth;
@@ -105,6 +108,7 @@ private:
 	LLStatGraph *mSGPacketLoss;
 
 	LLButton	*mBtnVolume;
+	LLButton	*mMediaToggle;
 
 	S32				mBalance;
 	S32				mHealth;

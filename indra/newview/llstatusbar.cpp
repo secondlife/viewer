@@ -61,6 +61,7 @@
 #include "llresmgr.h"
 #include "llworld.h"
 #include "llstatgraph.h"
+#include "llviewermedia.h"
 #include "llviewermenu.h"	// for gMenuBarView
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
@@ -188,8 +189,9 @@ BOOL LLStatusBar::postBuild()
 	mBtnVolume->setClickedCallback( onClickVolume, this );
 	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
 
-	LLButton* media_toggle = getChild<LLButton>("media_toggle_btn");
-	media_toggle->setMouseEnterCallback(boost::bind(&LLFloaterReg::showInstance, "nearby_media", LLSD(), true));
+	mMediaToggle = getChild<LLButton>("media_toggle_btn");
+	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
+	mMediaToggle->setMouseEnterCallback(boost::bind(&LLFloaterReg::showInstance, "nearby_media", LLSD(), true));
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -354,6 +356,8 @@ void LLStatusBar::refresh()
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
+	
+	mMediaToggle->setValue(!LLViewerMedia::isAnyMediaShowing());
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -523,6 +527,14 @@ static void onClickVolume(void* data)
 	// toggle the master mute setting
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	LLAppViewer::instance()->setMasterSystemAudioMute(!mute_audio);	
+}
+
+//static 
+void LLStatusBar::onClickMediaToggle(void* data)
+{
+	LLStatusBar *status_bar = (LLStatusBar*)data;
+	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
+	LLViewerMedia::setAllMediaEnabled(! status_bar->mMediaToggle->getValue());
 }
 
 // sets the static variables necessary for the date

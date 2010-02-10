@@ -94,10 +94,10 @@
     <button
      follows="right|top"
      height="15"
-     image_selected="button_anim_play.tga"
-     image_unselected="button_anim_pause.tga"
-     image_pressed="button_anim_pause_selected.tga"
-     image_pressed_selected="button_anim_play_selected.tga"
+     image_selected="Pause_Off"
+     image_unselected="Play_Off"
+     image_pressed="Play_Press"
+     image_pressed_selected="Pause_Press"
      is_toggle="true"
      left_pad="15"
      top="2"
@@ -105,7 +105,6 @@
      tool_tip="Click to toggle media"
      width="16" >
     </button>
-
     <button
      follows="right|top"
      height="15"
