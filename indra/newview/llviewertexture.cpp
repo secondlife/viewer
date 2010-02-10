@@ -715,7 +715,7 @@ void LLViewerTexture::generateGLTexture()
 
 LLImageGL* LLViewerTexture::getGLTexture() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	
 	return mGLTexturep ;
 }
@@ -732,7 +732,7 @@ BOOL LLViewerTexture::createGLTexture()
 
 BOOL LLViewerTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename, BOOL to_create, S32 category)
 {
-	llassert_always(mGLTexturep.notNull()) ;	
+	llassert(mGLTexturep.notNull()) ;	
 
 	BOOL ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category) ;
 	
@@ -748,55 +748,55 @@ BOOL LLViewerTexture::createGLTexture(S32 discard_level, const LLImageRaw* image
 
 void LLViewerTexture::setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	
 	mGLTexturep->setExplicitFormat(internal_format, primary_format, type_format, swap_bytes) ;
 }
 void LLViewerTexture::setAddressMode(LLTexUnit::eTextureAddressMode mode)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	mGLTexturep->setAddressMode(mode) ;
 }
 void LLViewerTexture::setFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	mGLTexturep->setFilteringOption(option) ;
 }
 
 //virtual
 S32	LLViewerTexture::getWidth(S32 discard_level) const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	return mGLTexturep->getWidth(discard_level) ;
 }
 
 //virtual
 S32	LLViewerTexture::getHeight(S32 discard_level) const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	return mGLTexturep->getHeight(discard_level) ;
 }
 
 S32 LLViewerTexture::getMaxDiscardLevel() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	return mGLTexturep->getMaxDiscardLevel() ;
 }
 S32 LLViewerTexture::getDiscardLevel() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	return mGLTexturep->getDiscardLevel() ;
 }
 S8  LLViewerTexture::getComponents() const 
 { 
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	
 	return mGLTexturep->getComponents() ;
 }
 
 LLGLuint LLViewerTexture::getTexName() const 
 { 
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getTexName() ; 
 }
@@ -821,124 +821,124 @@ BOOL LLViewerTexture::getBoundRecently() const
 
 LLTexUnit::eTextureType LLViewerTexture::getTarget(void) const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 	return mGLTexturep->getTarget() ;
 }
 
 BOOL LLViewerTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height) ;
 }
 
 BOOL LLViewerTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->setSubImage(datap, data_width, data_height, x_pos, y_pos, width, height) ;
 }
 
 void LLViewerTexture::setGLTextureCreated (bool initialized)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	mGLTexturep->setGLTextureCreated (initialized) ;
 }
 
 void  LLViewerTexture::setCategory(S32 category) 
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	mGLTexturep->setCategory(category) ;
 }
 
 LLTexUnit::eTextureAddressMode LLViewerTexture::getAddressMode(void) const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getAddressMode() ;
 }
 
 S32 LLViewerTexture::getTextureMemory() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->mTextureMemory ;
 }
 
 LLGLenum LLViewerTexture::getPrimaryFormat() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getPrimaryFormat() ;
 }
 
 BOOL LLViewerTexture::getIsAlphaMask() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getIsAlphaMask() ;
 }
 
 BOOL LLViewerTexture::getMask(const LLVector2 &tc)
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getMask(tc) ;
 }
 
 F32 LLViewerTexture::getTimePassedSinceLastBound()
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getTimePassedSinceLastBound() ;
 }
 BOOL LLViewerTexture::getMissed() const 
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getMissed() ;
 }
 
 BOOL LLViewerTexture::isJustBound() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->isJustBound() ;
 }
 
 void LLViewerTexture::forceUpdateBindStats(void) const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->forceUpdateBindStats() ;
 }
 
 U32 LLViewerTexture::getTexelsInAtlas() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getTexelsInAtlas() ;
 }
 
 U32 LLViewerTexture::getTexelsInGLTexture() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getTexelsInGLTexture() ;
 }
 
 BOOL LLViewerTexture::isGLTextureCreated() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->isGLTextureCreated() ;
 }
 
 S32  LLViewerTexture::getDiscardLevelInAtlas() const
 {
-	llassert_always(mGLTexturep.notNull()) ;
+	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->getDiscardLevelInAtlas() ;
 }
