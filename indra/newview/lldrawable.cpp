@@ -1367,10 +1367,14 @@ BOOL LLSpatialBridge::updateMove()
 {
 	llassert(mDrawable);
 	llassert(mDrawable->getRegion());
-	llassert(mDrawable->getRegion()->getSpatialPartition(mPartitionType));
+	LLSpatialPartition* part = mDrawable->getRegion()->getSpatialPartition(mPartitionType);
+	llassert(part);
 
 	mOctree->balance();
-	mDrawable->getRegion()->getSpatialPartition(mPartitionType)->move(this, getSpatialGroup(), TRUE);
+	if (part)
+	{
+		part->move(this, getSpatialGroup(), TRUE);
+	}
 	return TRUE;
 }
 
