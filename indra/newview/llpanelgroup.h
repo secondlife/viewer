@@ -130,6 +130,9 @@ protected:
 
 	std::vector<LLPanelGroupTab* > mTabs;
 
+	LLButton*		mButtonJoin;
+	LLUICtrl*		mJoinText;
+
 };
 
 class LLPanelGroupTab : public LLPanel

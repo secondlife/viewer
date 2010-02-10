@@ -289,7 +289,12 @@ public:
 
 		if(!chat.mFromID.isNull())
 		{
-			icon->setValue(chat.mFromID);
+			if(mSourceType != CHAT_SOURCE_AGENT)
+				icon->setValue(LLSD("OBJECT_Icon"));
+			else
+				icon->setValue(chat.mFromID);
+
+			
 		}
 		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
 		{
