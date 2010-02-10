@@ -217,7 +217,21 @@ class LLPanelScriptLimitsAttachment : public LLPanelScriptLimitsInfo
 	
 public:
 	LLPanelScriptLimitsAttachment()
-		:	LLPanelScriptLimitsInfo() {};
+		:	LLPanelScriptLimitsInfo(),
+		mGotAttachmentMemoryUsed(false),
+		mGotAttachmentMemoryUsedDetails(false),
+		mGotAttachmentMemoryMax(false),
+		mAttachmentMemoryMax(0),
+		mAttachmentMemoryUsed(0),
+		mAttachmentMemoryUsedDetails(0),
+		mGotAttachmentURLsUsed(false),
+		mGotAttachmentURLsUsedDetails(false),
+		mGotAttachmentURLsMax(false),
+		mAttachmentURLsMax(0),
+		mAttachmentURLsUsed(0),
+		mAttachmentURLsUsedDetails(0)
+		{};
+
 	~LLPanelScriptLimitsAttachment()
 	{
 	};
@@ -233,16 +247,16 @@ public:
 
 private:
 
-	BOOL mGotAttachmentMemoryUsed;
-	BOOL mGotAttachmentMemoryUsedDetails;
-	BOOL mGotAttachmentMemoryMax;
+	bool mGotAttachmentMemoryUsed;
+	bool mGotAttachmentMemoryUsedDetails;
+	bool mGotAttachmentMemoryMax;
 	S32 mAttachmentMemoryMax;
 	S32 mAttachmentMemoryUsed;
 	S32 mAttachmentMemoryUsedDetails;
 	
-	BOOL mGotAttachmentURLsUsed;
-	BOOL mGotAttachmentURLsUsedDetails;
-	BOOL mGotAttachmentURLsMax;
+	bool mGotAttachmentURLsUsed;
+	bool mGotAttachmentURLsUsedDetails;
+	bool mGotAttachmentURLsMax;
 	S32 mAttachmentURLsMax;
 	S32 mAttachmentURLsUsed;
 	S32 mAttachmentURLsUsedDetails;
