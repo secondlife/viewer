@@ -204,7 +204,7 @@ public:
 	void getSelectedSegments(segment_vec_t& segments) const;
 
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
-	bool			getChowContextMenu() const { return mShowContextMenu; }
+	bool			getShowContextMenu() const { return mShowContextMenu; }
 
 protected:
 	void			showContextMenu(S32 x, S32 y);
