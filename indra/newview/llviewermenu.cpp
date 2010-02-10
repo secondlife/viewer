@@ -5630,14 +5630,15 @@ class LLShowSidetrayPanel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
-		// Open up either the sidepanel or new floater.
-		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		// Toggle the panel
+		if (!LLSideTray::getInstance()->isPanelActive(panel_name))
 		{
-			LLFloaterInventory::showAgentInventory();
+			// LLFloaterInventory::showAgentInventory();
+			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
 		}
 		else
 		{
-			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+			LLSideTray::getInstance()->collapseSideBar();
 		}
 		return true;
 	}
