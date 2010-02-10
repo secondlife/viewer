@@ -31,7 +31,7 @@ background_visible="true"
       follows="top|left"
       top="0"
       left="0"
-      height="129"
+      height="29"
       width="313"
       layout="topleft">
     <button
@@ -70,66 +70,6 @@ background_visible="true"
      width="270"
      height="20"
      visible="false" />
-    <texture_picker
-     follows="left|top"
-     height="113"
-     label=""
-     layout="topleft"
-     left="10"
-     name="insignia"
-     no_commit_on_selection="true"
-     tool_tip="Click to choose a picture"
-     top_pad="5"
-     width="100" />
-    <text
-      font="SansSerifSmall"
-      text_color="White_50"
-      width="190"
-      follows="top|left"
-      layout="topleft"
-      mouse_opaque="false"
-     type="string"
-     height="16"
-     length="1"
-     left_pad="10"
-     name="prepend_founded_by"
-     top_delta="0">
-      Founder:
-    </text>
-    <name_box
-     follows="left|top"
-     height="16"
-     initial_value="(retrieving)"
-     layout="topleft"
-     left_delta="0"
-     link="true"
-     name="founder_name"
-     top_pad="2"
-     use_ellipses="true"
-     width="190" />
-    <text
-    font="SansSerifMedium"
-    text_color="EmphasisColor"
-     type="string"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left_delta="0"
-     name="join_cost_text"
-     top_pad="10"
-     visible="true"
-     width="190">
-      Free
-    </text>
-    <button
-     follows="left|top"
-     left_delta="0"
-     top_pad="6"
-     height="23"
-     label="JOIN NOW!"
-     name="btn_join"
-     visible="true"
-     width="120" />
     </panel>
    <layout_stack
      name="layout"
@@ -137,7 +77,7 @@ background_visible="true"
       follows="all"
      left="0"
      top_pad="0"
-     height="437"
+     height="537"
      width="313"
      border_size="0">
    <layout_panel

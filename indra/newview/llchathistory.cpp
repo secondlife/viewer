@@ -116,7 +116,7 @@ public:
 	//*TODO remake it using mouse enter/leave and static LLHandle<LLIconCtrl> to add/remove as a child
 	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
-		LLViewerTextEditor* name = getChild<LLViewerTextEditor>("user_name");
+		LLTextBase* name = getChild<LLTextBase>("user_name");
 		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && SYSTEM_FROM != mFrom)
 		{
 
@@ -289,7 +289,12 @@ public:
 
 		if(!chat.mFromID.isNull())
 		{
-			icon->setValue(chat.mFromID);
+			if(mSourceType != CHAT_SOURCE_AGENT)
+				icon->setValue(LLSD("OBJECT_Icon"));
+			else
+				icon->setValue(chat.mFromID);
+
+			
 		}
 		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
 		{
