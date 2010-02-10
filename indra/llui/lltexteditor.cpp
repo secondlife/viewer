@@ -737,7 +737,7 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if (!LLTextBase::handleRightMouseDown(x, y, mask))
 	{
-		if(getChowContextMenu())
+		if(getShowContextMenu())
 		{
 			showContextMenu(x, y);
 		}
