@@ -1015,7 +1015,8 @@ void LLPanelPlaces::showAddedLandmarkInfo(const std::vector<LLUUID>& items)
 
 		LLInventoryItem* item = gInventory.getItem(item_id);
 
-		if (LLAssetType::AT_LANDMARK == item->getType())
+		llassert(item);
+		if (item && (LLAssetType::AT_LANDMARK == item->getType()) )
 		{
 			// Created landmark is passed to Places panel to allow its editing.
 			// If the panel is closed we don't reopen it until created landmark is loaded.
