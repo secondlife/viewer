@@ -550,6 +550,9 @@ bool LLCacheName::getDisplayName(const LLUUID& id, std::string& display_name)
 		id.set("a2e76fcd-9360-4f6d-a924-938f923df11a"); // James Linden
 		sDisplayNames[id] = (const char*)jose_sanchez;
 
+		id.set("a23fff6c-80ae-4997-9253-48272fd01d3c"); // bobsmith123
+		sDisplayNames[id] = (const char*)jose_sanchez;
+
 		id.set("3f7ced39-5e38-4fdd-90f2-423560b1e6e2"); // Hamilton Linden
 		sDisplayNames[id] = "Hamilton Hitchings";
 
