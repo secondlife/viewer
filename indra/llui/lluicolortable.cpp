@@ -56,7 +56,7 @@ LLUIColorTable::Params::Params()
 {
 }
 
-void LLUIColorTable::insertFromParams(const Params& p)
+void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table)
 {
 	// this map will contain all color references after the following loop
 	typedef std::map<std::string, std::string> string_string_map_t;
@@ -69,14 +69,7 @@ void LLUIColorTable::insertFromParams(const Params& p)
 		ColorEntryParams color_entry = *it;
 		if(color_entry.color.value.isChosen())
 		{
-			if(mUserSetColors.find(color_entry.name)!=mUserSetColors.end())
-			{
-				setColor(color_entry.name, color_entry.color.value);
-			}
-			else
-			{
-				setColor(color_entry.name, color_entry.color.value, mLoadedColors);
-			}
+			setColor(color_entry.name, color_entry.color.value, table);
 		}
 		else
 		{
@@ -220,16 +213,16 @@ bool LLUIColorTable::loadFromSettings()
 	bool result = false;
 
 	std::string default_filename = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "colors.xml");
-	result |= loadFromFilename(default_filename);
+	result |= loadFromFilename(default_filename, mLoadedColors);
 
 	std::string current_filename = gDirUtilp->getExpandedFilename(LL_PATH_TOP_SKIN, "colors.xml");
 	if(current_filename != default_filename)
 	{
-		result |= loadFromFilename(current_filename);
+		result |= loadFromFilename(current_filename, mLoadedColors);
 	}
 
 	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "colors.xml");
-	loadFromFilename(user_filename);
+	loadFromFilename(user_filename, mUserSetColors);
 
 	return result;
 }
@@ -299,7 +292,7 @@ void LLUIColorTable::setColor(const std::string& name, const LLColor4& color, st
 	}
 }
 
-bool LLUIColorTable::loadFromFilename(const std::string& filename)
+bool LLUIColorTable::loadFromFilename(const std::string& filename, string_color_map_t& table)
 {
 	LLXMLNodePtr root;
 
@@ -320,7 +313,7 @@ bool LLUIColorTable::loadFromFilename(const std::string& filename)
 
 	if(params.validateBlock())
 	{
-		insertFromParams(params);
+		insertFromParams(params, table);
 	}
 	else
 	{
@@ -330,3 +323,10 @@ bool LLUIColorTable::loadFromFilename(const std::string& filename)
 
 	return true;
 }
+
+void LLUIColorTable::insertFromParams(const Params& p)
+{
+	insertFromParams(p, mUserSetColors);
+}
+
+// EOF
