@@ -13,12 +13,12 @@
 		Wird geladen...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="Größe (KB)" name="size"/>
+		<scroll_list.columns label="Größe (KB)" name="size" width="80"/>
 		<scroll_list.columns label="Objektname" name="name"/>
-		<scroll_list.columns label="Objekteigentümer" name="owner"/>
+		<scroll_list.columns label="Objekteigentümer" name="owner" width="130"/>
 		<scroll_list.columns label="Parzelle / Standort" name="location"/>
 	</scroll_list>
-	<button label="Liste aktualisieren" name="refresh_list_btn"/>
+	<button label="Liste aktualisieren" name="refresh_list_btn" width="110"/>
 	<button label="Markieren" name="highlight_btn"/>
 	<button label="Zurückgeben" name="return_btn"/>
 </panel>

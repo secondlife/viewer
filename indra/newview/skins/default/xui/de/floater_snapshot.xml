@@ -60,7 +60,7 @@
 	<spinner label="Höhe" name="snapshot_height"/>
 	<check_box label="Seitenverhältnis beibehalten" name="keep_aspect_check"/>
 	<slider label="Bildqualität" name="image_quality_slider"/>
-	<text name="layer_type_label" width="63">
+	<text name="layer_type_label" width="66">
 		Aufnehmen:
 	</text>
 	<combo_box label="Bildlayer" left="73" name="layer_types" width="132">

@@ -59,10 +59,10 @@
 		Nächster Eigentümer:
 	</text>
 	<check_box label="Bearbeiten" name="CheckNextOwnerModify"/>
-	<check_box label="Kopieren" left_delta="85" name="CheckNextOwnerCopy"/>
+	<check_box label="Kopieren" left_delta="55" name="CheckNextOwnerCopy"/>
 	<check_box label="Wiederverkaufen" name="CheckNextOwnerTransfer"/>
 	<check_box label="Zum Verkauf" name="CheckPurchase"/>
-	<combo_box name="combobox sale copy">
+	<combo_box name="combobox sale copy" left_pad="25">
 		<combo_box.item label="Kopieren" name="Copy"/>
 		<combo_box.item label="Original" name="Original"/>
 	</combo_box>

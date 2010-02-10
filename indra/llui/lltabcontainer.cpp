@@ -119,6 +119,7 @@ protected:
 	LLCustomButtonIconCtrl(const Params& p):
 		LLButton(p),
 		mIcon(NULL),
+		mIconAlignment(LLFontGL::HCENTER),
 		mIconCtrlPad(p.icon_ctrl_pad)
 		{}
 
@@ -212,7 +213,8 @@ LLTabContainer::Params::Params()
 	middle_tab("middle_tab"),
 	last_tab("last_tab"),
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
-	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0)
+	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
+	use_ellipses("use_ellipses")
 {
 	name(std::string("tab_container"));
 	mouse_opaque = false;
@@ -249,7 +251,8 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mMiddleTabParams(p.middle_tab),
 	mLastTabParams(p.last_tab),
 	mCustomIconCtrlUsed(p.use_custom_icon_ctrl),
-	mTabIconCtrlPad(p.tab_icon_ctrl_pad)
+	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
+	mUseTabEllipses(p.use_ellipses)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
 
@@ -1485,8 +1488,8 @@ BOOL LLTabContainer::setTab(S32 which)
 		{
 			LLTabTuple* tuple = *iter;
 			BOOL is_selected = ( tuple == selected_tuple );
-			tuple->mButton->setUseEllipses(TRUE);
-			tuple->mButton->setHAlign(LLFontGL::LEFT);
+			tuple->mButton->setUseEllipses(mUseTabEllipses);
+			tuple->mButton->setHAlign(mFontHalign);
 			tuple->mTabPanel->setVisible( is_selected );
 // 			tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
 			tuple->mButton->setToggleState( is_selected );
@@ -1628,15 +1631,11 @@ void LLTabContainer::setTabImage(LLPanel* child, LLIconCtrl* icon)
 void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
 {
 	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
-	static LLUICachedControl<S32> image_left_padding ("UIButtonImageLeftPadding", 4);
-	static LLUICachedControl<S32> image_right_padding ("UIButtonImageRightPadding", 4);
 	static LLUICachedControl<S32> image_top_padding ("UIButtonImageTopPadding", 2);
 	static LLUICachedControl<S32> image_bottom_padding ("UIButtonImageBottomPadding", 2);
 
 	if (!mIsVertical)
 	{
-		tuple->mButton->setImageOverlayLeftPad(image_left_padding);
-		tuple->mButton->setImageOverlayRightPad(image_right_padding);
 		tuple->mButton->setImageOverlayTopPad(image_top_padding);
 		tuple->mButton->setImageOverlayBottomPad(image_bottom_padding);
 

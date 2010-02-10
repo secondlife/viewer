@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater min_width="450" name="inspect" title="OBJEKTE UNTERSUCHEN">
+<floater min_width="460" name="inspect" title="OBJEKTE UNTERSUCHEN" width="460">
 	<floater.string name="timeStamp">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</floater.string>
 	<scroll_list name="object_list" tool_tip="Wählen Sie ein Objekt aus dieser Liste, um es in der Second Life-Welt zu markieren">
 		<scroll_list.columns label="Objektname" name="object_name"/>
-		<scroll_list.columns label="Besitzer" name="owner_name"/>
+		<scroll_list.columns label="Besitzer" name="owner_name" />
 		<scroll_list.columns label="Ersteller" name="creator_name"/>
-		<scroll_list.columns label="Erstellungsdatum" name="creation_date"/>
+		<scroll_list.columns label="Erstellungsdatum" name="creation_date" width="116"/>
 	</scroll_list>
 	<button label="Besitzerprofil einsehen..." name="button owner" tool_tip="Profil des Besitzers des markierten Objekts einsehen" width="155"/>
 	<button label="Erstellerprofil einsehen..." left="175" name="button creator" tool_tip="Profil des ursprünglichen Erstellers des markierten Objekts einsehen" width="155"/>

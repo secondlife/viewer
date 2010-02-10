@@ -3,7 +3,7 @@
 	<panel name="avatar_jacket_color_panel">
 		<texture_picker label="Tissu (haut)" name="Upper Fabric" tool_tip="Cliquez pour sélectionner une image"/>
 		<texture_picker label="Tissu (bas)" name="Lower Fabric" tool_tip="Cliquez pour sélectionner une image"/>
-		<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
+		<color_swatch label="Couleur/Teinte" name="Color/Tint" width="80" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
 	</panel>
 	<accordion name="wearable_accordion">
 		<accordion_tab name="jacket_main_tab" title="Veste"/>

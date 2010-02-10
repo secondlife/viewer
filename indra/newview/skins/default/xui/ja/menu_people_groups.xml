@@ -3,6 +3,6 @@
 	<menu_item_call label="情報を表示" name="View Info"/>
 	<menu_item_call label="チャット" name="Chat"/>
 	<menu_item_call label="コール" name="Call"/>
-	<menu_item_call label="有効化" name="Activate"/>
+	<menu_item_call label="アクティブ" name="Activate"/>
 	<menu_item_call label="脱退" name="Leave"/>
 </menu>

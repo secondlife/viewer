@@ -4,7 +4,7 @@
 		Chargement...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="Taille (Ko)" name="size"/>
+		<scroll_list.columns label="Taille (Ko)" width="80" name="size"/>
 		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="Nom de l&apos;objet" name="name"/>
 		<scroll_list.columns label="Endroit" name="location"/>

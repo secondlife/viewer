@@ -18,7 +18,7 @@
 	<text name="estate_cov_lbl">
 		Vertrag:
 	</text>
-	<text name="covenant_timestamp_text">
+	<text name="covenant_timestamp_text" width="320">
 		Letzte Änderung am Mittwoch, den 31. Dez. 1969, 16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
@@ -28,7 +28,7 @@
 	<button label="Zurücksetzen" name="reset_covenant"/>
 	<text name="covenant_help_text">
 		Änderungen am Vertrag werden für alle Parzellen auf dem 
-      Grundstück übernommen.
+Grundstück übernommen.
 	</text>
 	<text bottom_delta="-36" name="covenant_instructions">
 		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für dieses Grundstück zu ändern.
@@ -63,7 +63,7 @@
 	<text name="changeable_lbl">
 		Unterteilen:
 	</text>
-	<text name="changeable_clause">
+	<text name="changeable_clause" width="366">
 		Land in dieser Region kann nicht zusammengelegt/geteilt werden.
 	</text>
 	<string name="can_resell">

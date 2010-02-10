@@ -1733,21 +1733,6 @@ Try selecting a single parcel.
 
   <notification
    icon="alertmodal.tga"
-   name="ParcelCanPlayMedia"
-   type="alertmodal">
-This location can play streaming media.
-Streaming media requires a fast Internet connection.
-
-Play streaming media when available?
-(You can change this option later under Preferences &gt; Privacy.)
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Disable"
-     yestext="Play Media"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="CannotDeedLandWaitingForServer"
    type="alertmodal">
 Unable to deed land:
@@ -4322,14 +4307,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+[NAME_SLURL] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+[NAME_SLURL] is Offline
   </notification>
 
   <notification

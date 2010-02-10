@@ -602,7 +602,7 @@ void LLFloaterPreference::onBtnOK()
 	if (hasFocus())
 	{
 		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus->acceptsTextInput())
+		if (cur_focus && cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
 		}
@@ -635,7 +635,7 @@ void LLFloaterPreference::onBtnApply( )
 	if (hasFocus())
 	{
 		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus->acceptsTextInput())
+		if (cur_focus && cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
 		}
@@ -652,7 +652,7 @@ void LLFloaterPreference::onBtnCancel()
 	if (hasFocus())
 	{
 		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus->acceptsTextInput())
+		if (cur_focus && cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
 		}

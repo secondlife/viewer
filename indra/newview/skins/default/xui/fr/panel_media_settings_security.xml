@@ -2,7 +2,8 @@
 <panel label="Sécurité" name="Media Settings Security">
 	<check_box initial_value="false" label="Autoriser l&apos;accès aux styles d&apos;URL spécifiés uniquement" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
-		Les entrées par lesquelles la page d&apos;accueil est rejetée sont indiquées :
+		Les entrées par lesquelles la page 
+d&apos;accueil est rejetée sont indiquées :
 	</text>
 	<button label="Ajouter" name="whitelist_add"/>
 	<button label="Supprimer" name="whitelist_del"/>

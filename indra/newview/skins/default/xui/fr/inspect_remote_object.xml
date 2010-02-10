@@ -7,7 +7,7 @@
 	<text name="object_name">
 		Nom d&apos;objet de test vraiment très long
 	</text>
-	<text name="object_owner_label">
+	<text name="object_owner_label" width="70">
 		Propriétaire :
 	</text>
 	<text name="object_owner">

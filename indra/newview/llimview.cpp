@@ -1517,6 +1517,15 @@ void LLCallDialog::draw()
 	}
 }
 
+// virtual
+void LLCallDialog::onOpen(const LLSD& key)
+{
+	LLDockableFloater::onOpen(key);
+
+	// it should be over the all floaters. EXT-5116
+	gFloaterView->bringToFront(this);
+}
+
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 {
 	// *NOTE: 12/28/2009: check avaline calls: LLVoiceClient::isParticipantAvatar returns false for them

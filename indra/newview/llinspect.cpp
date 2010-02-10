@@ -32,6 +32,7 @@
 
 #include "llinspect.h"
 
+#include "lltooltip.h"
 #include "llcontrol.h"	// LLCachedControl
 #include "llui.h"		// LLUI::sSettingsGroups
 #include "llviewermenu.h"
@@ -104,6 +105,26 @@ BOOL LLInspect::handleHover(S32 x, S32 y, MASK mask)
 	return LLView::handleHover(x, y, mask);
 }
 
+BOOL LLInspect::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = FALSE;
+
+
+	//delegate handling of tooltip to the hovered child
+	LLView* child_handler = childFromPoint(x,y);
+	if (child_handler && !child_handler->getToolTip().empty())// show tooltip if a view has non-empty tooltip message
+	{
+		//build LLInspector params to get correct tooltip setting, etc. background image
+		LLInspector::Params params;
+		params.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+		params.message = child_handler->getToolTip();
+		//set up delay if there is no visible tooltip at this moment
+		params.delay_time =  LLToolTipMgr::instance().toolTipVisible() ? 0.f : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
+		LLToolTipMgr::instance().show(params);
+		handled = TRUE;
+	}
+	return handled;
+}
 // virtual
 void LLInspect::onMouseLeave(S32 x, S32 y, MASK mask)
 {

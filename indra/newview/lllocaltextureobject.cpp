@@ -70,6 +70,7 @@ LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject& lto) :
 		if (!original_layer)
 		{
 			llerrs << "could not clone Local Texture Object: unable to extract texlayer!" << llendl;
+			continue;
 		}
 
 		LLTexLayer* new_layer = new LLTexLayer(*original_layer);

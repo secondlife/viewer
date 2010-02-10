@@ -10,10 +10,6 @@
   background_opaque="false"
   background_visible="true"
   bg_alpha_color="0.0 0.0 0.0 0.0" >
-  <string
-   name="unknown_obj">
-    Unknown Object
-  </string>
   <chiclet_script
     name="object_chiclet"
     layout="topleft"

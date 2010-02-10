@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="groups">
 	<text name="groupdesc">
-		ｱｸﾃｨﾌﾞなｸﾞﾙｰﾌﾟ名は太字で表示されています
+		アクティブなグループは太字で表示されています
 	</text>
-	<text name="groupcount">
-		あなたは[COUNT] ｸﾞﾙｰﾌﾟに所属しています (最大[MAX])
+	<text name="groupcount" width="270">
+		[COUNT] のグループに所属しています (最大[MAX])
 	</text>
-	<button label="IM/コール" name="IM"
+	<button label="IM・コール" name="IM"
 	     tool_tip="インスタントメッセージ・セッションを開く" />
 	<button label="情報" name="Info" />
 	<button label="アクティブ" name="Activate" />

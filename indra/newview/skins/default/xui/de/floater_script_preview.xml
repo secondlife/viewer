@@ -3,7 +3,7 @@
 	<floater.string name="Title">
 		Skript: [NAME]
 	</floater.string>
-	<text name="desc txt">
+	<text name="desc txt" width="120">
 		Beschreibung:
 	</text>
 </floater>

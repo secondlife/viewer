@@ -15,8 +15,8 @@ um mehrere Mitglieder auszuwählen.
 			</panel.string>
 			<filter_editor label="Mitglieder filtern" name="filter_input"/>
 			<name_list name="member_list">
-				<name_list.columns label="Mitglied" name="name"/>
-				<name_list.columns label="Übereignung" name="donated"/>
+				<name_list.columns label="Mitglied" name="name" relative_width="0.30"/>
+				<name_list.columns label="Übereignung" name="donated" relative_width="0.33"/>
 				<name_list.columns label="Status" name="online"/>
 			</name_list>
 			<button label="Einladen" name="member_invite"/>
