@@ -148,8 +148,8 @@ public:
 		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
 
 		mParcelId(LLUUID()),
-		mGotParcelMemoryUsed(FALSE),
-		mGotParcelMemoryMax(FALSE),
+		mGotParcelMemoryUsed(false),
+		mGotParcelMemoryMax(false),
 		mParcelMemoryMax(0),
 		mParcelMemoryUsed(0) {};
 
@@ -180,16 +180,16 @@ private:
 
 	LLSD mContent;
 	LLUUID mParcelId;
-	BOOL mGotParcelMemoryUsed;
-	BOOL mGotParcelMemoryUsedDetails;
-	BOOL mGotParcelMemoryMax;
+	bool mGotParcelMemoryUsed;
+	bool mGotParcelMemoryUsedDetails;
+	bool mGotParcelMemoryMax;
 	S32 mParcelMemoryMax;
 	S32 mParcelMemoryUsed;
 	S32 mParcelMemoryUsedDetails;
 	
-	BOOL mGotParcelURLsUsed;
-	BOOL mGotParcelURLsUsedDetails;
-	BOOL mGotParcelURLsMax;
+	bool mGotParcelURLsUsed;
+	bool mGotParcelURLsUsedDetails;
+	bool mGotParcelURLsMax;
 	S32 mParcelURLsMax;
 	S32 mParcelURLsUsed;
 	S32 mParcelURLsUsedDetails;
