@@ -301,7 +301,8 @@ void LLFace::switchTexture(LLViewerTexture* new_texture)
 
 	if(!new_texture)
 	{
-		llerrs << "Can not switch to a null texture." << llendl ;
+		llerrs << "Can not switch to a null texture." << llendl;
+		return;
 	}
 	new_texture->addTextureStats(mTexture->getMaxVirtualSize()) ;
 
