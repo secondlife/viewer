@@ -48,7 +48,7 @@
 	<check_box initial_value="true" label="小さいアバター名" name="small_avatar_names_checkbox"/>
 	<check_box label="グループタイトルを表示" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
-		私のビームの色：
+		ビームの色：
 	</text>
 	<text name="title_afk_text">
 		一時退席までの時間：

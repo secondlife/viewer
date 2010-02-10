@@ -23,5 +23,5 @@
 	<menu_item_call label="容姿" name="Appearance..."/>
 	<menu_item_call label="フレンド" name="Friends..."/>
 	<menu_item_call label="グループ" name="Groups..."/>
-	<menu_item_call label="マイ プロフィール" name="Profile..."/>
+	<menu_item_call label="プロフィール" name="Profile..."/>
 </context_menu>

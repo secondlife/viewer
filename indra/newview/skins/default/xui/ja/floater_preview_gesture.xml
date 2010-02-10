@@ -38,7 +38,7 @@
 	</text>
 	<line_editor name="replace_editor" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
 	<text name="key_label">
-		ショートカット・キー：
+		ショートカット：
 	</text>
 	<combo_box label="なし" left="160" name="modifier_combo"/>
 	<combo_box label="なし" name="key_combo"/>

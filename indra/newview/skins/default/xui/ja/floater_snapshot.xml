@@ -28,21 +28,21 @@
 		形式
 	</text>
 	<combo_box label="解像度" name="postcard_size_combo">
-		<combo_box.item label="現在のｳｨﾝﾄﾞｳ" name="CurrentWindow"/>
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<combo_box label="解像度" name="texture_size_combo">
-		<combo_box.item label="現在のｳｨﾝﾄﾞｳ" name="CurrentWindow"/>
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="小（128x128）" name="Small(128x128)"/>
 		<combo_box.item label="中（256x256）" name="Medium(256x256)"/>
 		<combo_box.item label="大（512x512）" name="Large(512x512)"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<combo_box label="解像度" name="local_size_combo">
-		<combo_box.item label="現在のｳｨﾝﾄﾞｳ" name="CurrentWindow"/>
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="320x240" name="320x240"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
@@ -61,7 +61,7 @@
 	<check_box label="縦横比の固定" name="keep_aspect_check"/>
 	<slider label="画質" name="image_quality_slider"/>
 	<text name="layer_type_label">
-		ｷｬﾌﾟﾁｬ：
+		キャプチャ：
 	</text>
 	<combo_box label="画像レイヤー" name="layer_types">
 		<combo_box.item label="色" name="Colors"/>

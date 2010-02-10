@@ -9,7 +9,7 @@
 		一般的なグループ情報が変更されました。
 	</panel.string>
 	<panel.string name="incomplete_member_data_str">
-		メンバー・データを検索
+		メンバーのデータを検索
 	</panel.string>
 	<text_editor name="charter">
 		グループの理念、指針を記入してください

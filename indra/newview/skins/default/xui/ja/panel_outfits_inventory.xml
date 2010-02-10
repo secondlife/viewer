@@ -5,10 +5,10 @@
 		<inventory_panel label="着用中" name="cof_accordionpanel"/>
 	</tab_container>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="その他のオプションを表示"/>
-		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除"/>
-		<button label="アウトフィットを保存する" name="make_outfit_btn" tool_tip="容姿をアウトフィットに保存する" width="140"/>
-		<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用する"/>
+		<button name="options_gear_btn" tool_tip="その他のオプションを表示します"/>
+		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除します"/>
+		<button label="アウトフィットを保存する" name="make_outfit_btn" tool_tip="容姿をアウトフィットに保存します" width="140"/>
+		<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用します"/>
 		<button label="M" name="look_edit_btn"/>
 	</panel>
 </panel>

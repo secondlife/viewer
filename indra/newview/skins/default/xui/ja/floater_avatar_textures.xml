@@ -7,7 +7,7 @@
 		ベークドテクスチャ
 	</text>
 	<text name="composite_label" width="128">
-		合成テクスチャー
+		合成テクスチャ
 	</text>
 	<button label="テクスチャID一覧をコンソールに書き込む" label_selected="捨てる" name="Dump" width="200"/>
 	<scroll_container name="profile_scroll">

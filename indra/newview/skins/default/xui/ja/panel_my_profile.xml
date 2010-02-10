@@ -28,7 +28,7 @@
 						<icon label="" name="real_world_edit_icon" tool_tip="下の「プロフィールの編集」ボタンを押して画像を変更します"/>
 						<text name="title_rw_descr_text" value="現実世界："/>
 					</panel>
-					<text name="title_member_text" value="住人となった日："/>
+					<text name="title_member_text" value="メンバー登録："/>
 					<text name="title_acc_status_text" value="アカウントの状態："/>
 					<text name="acc_status_text">
 						住人。 支払情報未登録。

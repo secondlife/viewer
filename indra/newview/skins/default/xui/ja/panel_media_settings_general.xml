@@ -20,7 +20,7 @@
 	<check_box initial_value="false" label="自動ズーム" name="auto_zoom"/>
 	<check_box initial_value="false" label="自動メディア再生" name="auto_play"/>
 	<text name="media_setting_note">
-		注： 住人はこの設定を無視できます
+		注意： 住人はこの設定を無視できます
 	</text>
 	<check_box initial_value="false" label="オブジェクトの表面のメディアの自動スケール" name="auto_scale"/>
 	<text name="size_label">
