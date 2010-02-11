@@ -195,6 +195,62 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
+static void assign_clothing_bodypart_icon(EInventoryIcon &idx, U32 attachment_point)
+{
+	const EWearableType wearable_type = EWearableType(LLInventoryItem::II_FLAGS_WEARABLES_MASK & attachment_point);
+	switch(wearable_type)
+	{
+		case WT_SHAPE:
+			idx = BODYPART_SHAPE_ICON_NAME;
+			break;
+		case WT_SKIN:
+			idx = BODYPART_SKIN_ICON_NAME;
+			break;
+		case WT_HAIR:
+			idx = BODYPART_HAIR_ICON_NAME;
+			break;
+		case WT_EYES:
+			idx = BODYPART_EYES_ICON_NAME;
+			break;
+		case WT_SHIRT:
+			idx = CLOTHING_SHIRT_ICON_NAME;
+			break;
+		case WT_PANTS:
+			idx = CLOTHING_PANTS_ICON_NAME;
+			break;
+		case WT_SHOES:
+			idx = CLOTHING_SHOES_ICON_NAME;
+			break;
+		case WT_SOCKS:
+			idx = CLOTHING_SOCKS_ICON_NAME;
+			break;
+		case WT_JACKET:
+			idx = CLOTHING_JACKET_ICON_NAME;
+			break;
+		case WT_GLOVES:
+			idx = CLOTHING_GLOVES_ICON_NAME;
+			break;
+		case WT_UNDERSHIRT:
+			idx = CLOTHING_UNDERSHIRT_ICON_NAME;
+			break;
+		case WT_UNDERPANTS:
+			idx = CLOTHING_UNDERPANTS_ICON_NAME;
+			break;
+		case WT_SKIRT:
+			idx = CLOTHING_SKIRT_ICON_NAME;
+			break;
+		case WT_ALPHA:
+			idx = CLOTHING_ALPHA_ICON_NAME;
+			break;
+		case WT_TATTOO:
+			idx = CLOTHING_TATTOO_ICON_NAME;
+			break;
+		default:
+			break;
+	}
+}
+										  
+
 const std::string& get_item_icon_name(LLAssetType::EType asset_type,
 							 LLInventoryType::EType inventory_type,
 							 U32 attachment_point,
@@ -249,62 +305,11 @@ const std::string& get_item_icon_name(LLAssetType::EType asset_type,
 		break;
 	case LLAssetType::AT_CLOTHING:
 		idx = CLOTHING_ICON_NAME;
-	case LLAssetType::AT_BODYPART :
-		if(LLAssetType::AT_BODYPART == asset_type)
-		{
-			idx = BODYPART_ICON_NAME;
-		}
-		switch(LLInventoryItem::II_FLAGS_WEARABLES_MASK & attachment_point)
-		{
-		case WT_SHAPE:
-			idx = BODYPART_SHAPE_ICON_NAME;
-			break;
-		case WT_SKIN:
-			idx = BODYPART_SKIN_ICON_NAME;
-			break;
-		case WT_HAIR:
-			idx = BODYPART_HAIR_ICON_NAME;
-			break;
-		case WT_EYES:
-			idx = BODYPART_EYES_ICON_NAME;
-			break;
-		case WT_SHIRT:
-			idx = CLOTHING_SHIRT_ICON_NAME;
-			break;
-		case WT_PANTS:
-			idx = CLOTHING_PANTS_ICON_NAME;
-			break;
-		case WT_SHOES:
-			idx = CLOTHING_SHOES_ICON_NAME;
-			break;
-		case WT_SOCKS:
-			idx = CLOTHING_SOCKS_ICON_NAME;
-			break;
-		case WT_JACKET:
-			idx = CLOTHING_JACKET_ICON_NAME;
-			break;
-		case WT_GLOVES:
-			idx = CLOTHING_GLOVES_ICON_NAME;
-			break;
-		case WT_UNDERSHIRT:
-			idx = CLOTHING_UNDERSHIRT_ICON_NAME;
-			break;
-		case WT_UNDERPANTS:
-			idx = CLOTHING_UNDERPANTS_ICON_NAME;
-			break;
-		case WT_SKIRT:
-			idx = CLOTHING_SKIRT_ICON_NAME;
-			break;
-		case WT_ALPHA:
-			idx = CLOTHING_ALPHA_ICON_NAME;
-			break;
-		case WT_TATTOO:
-			idx = CLOTHING_TATTOO_ICON_NAME;
-			break;
-		default:
-			// no-op, go with choice above
-			break;
-		}
+		assign_clothing_bodypart_icon(idx, attachment_point);
+		break;
+	case LLAssetType::AT_BODYPART:
+		idx = BODYPART_ICON_NAME;
+		assign_clothing_bodypart_icon(idx, attachment_point);
 		break;
 	case LLAssetType::AT_NOTECARD:
 		idx = NOTECARD_ICON_NAME;

@@ -37,7 +37,7 @@ halign="center"
      top_pad="4"
      width="305">
         <inventory_panel
-	border="false"
+	       border="false"
          follows="all"
          height="295"
          label="MY INVENTORY"
@@ -48,7 +48,7 @@ halign="center"
          top="16"
          width="290" />
         <inventory_panel
-	border="false"
+	       border="false"
          follows="all"
          height="295"
          label="RECENT"
