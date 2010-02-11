@@ -1048,14 +1048,13 @@ void LLPanelPlaces::updateVerbs()
 
 	mTeleportBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mShowOnMapBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
-	mOverflowBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mOverflowBtn->setVisible(is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn);
 	mEditBtn->setVisible(mPlaceInfoType == LANDMARK_INFO_TYPE && !isLandmarkEditModeOn);
 	mSaveBtn->setVisible(isLandmarkEditModeOn);
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 
 	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
-	mOverflowBtn->setEnabled(is_place_info_visible && !is_create_landmark_visible);
 
 	if (is_place_info_visible)
 	{

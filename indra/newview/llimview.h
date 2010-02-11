@@ -452,7 +452,7 @@ public:
 
 	static void initClass();
 	static void onVoiceChannelChanged(const LLUUID &session_id);
-	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
+	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent);
 
 protected:
 	static std::string sPreviousSessionlName;

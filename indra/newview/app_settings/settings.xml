@@ -8456,6 +8456,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowVoiceVisualizersInCalls</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables in-world voice visualizers, voice gestures and lip-sync while in group or P2P calls.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowVolumeSettingsPopup</key>
     <map>
       <key>Comment</key>
@@ -9948,28 +9959,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>15</integer>
-    </map>
-    <key>UIButtonImageTopPadding</key>
-    <map>
-      <key>Comment</key>
-      <string>Button Overlay Image Top Padding</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
-    <key>UIButtonImageBottomPadding</key>
-    <map>
-      <key>Comment</key>
-      <string>Button Overlay Image Bottom Padding</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
     </map>
 	<key>UploadBakedTexOld</key>
     <map>

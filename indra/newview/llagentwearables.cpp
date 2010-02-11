@@ -1290,25 +1290,29 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 							j,
 							new_wearable,
 							todo);
-					if (isWearableCopyable((EWearableType)type, j))
+					llassert(item);
+					if (item)
 					{
-						copy_inventory_item(
-							gAgent.getID(),
-							item->getPermissions().getOwner(),
-							item->getUUID(),
-							folder_id,
-							new_name,
-							cb);
-					}
-					else
-					{
-						move_inventory_item(
-							gAgent.getID(),
-							gAgent.getSessionID(),
-							item->getUUID(),
-							folder_id,
-							new_name,
-							cb);
+						if (isWearableCopyable((EWearableType)type, j))
+						{
+							copy_inventory_item(
+									    gAgent.getID(),
+									    item->getPermissions().getOwner(),
+									    item->getUUID(),
+									    folder_id,
+									    new_name,
+									    cb);
+						}
+						else
+						{
+							move_inventory_item(
+									    gAgent.getID(),
+									    gAgent.getSessionID(),
+									    item->getUUID(),
+									    folder_id,
+									    new_name,
+									    cb);
+						}
 					}
 				}
 			}
