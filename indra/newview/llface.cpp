@@ -1327,6 +1327,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	return TRUE;
 }
 
+//check if the face has a media
+BOOL LLFace::hasMedia() const 
+{
+	if(mHasMedia)
+	{
+		return TRUE ;
+	}
+	if(mTexture.notNull()) 
+	{
+		return mTexture->hasParcelMedia() ;  //if has a parcel media
+	}
+
+	return FALSE ; //no media.
+}
+
 const F32 LEAST_IMPORTANCE = 0.05f ;
 const F32 LEAST_IMPORTANCE_FOR_LARGE_IMAGE = 0.3f ;
 
@@ -1336,7 +1351,7 @@ F32 LLFace::getTextureVirtualSize()
 	F32 cos_angle_to_view_dir;
 	mPixelArea = calcPixelArea(cos_angle_to_view_dir, radius);
 
-	if (mPixelArea <= 0)
+	if (mPixelArea < 0.0001f)
 	{
 		return 0.f;
 	}
@@ -1381,14 +1396,38 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
 	//get area of circle around face
 	LLVector3 center = getPositionAgent();
-	LLVector3 size = (mExtents[1] - mExtents[0]) * 0.5f;
-	
+	LLVector3 size = (mExtents[1] - mExtents[0]) * 0.5f;	
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
+
+	//if has media, check if the face is out of the view frustum.
+	BOOL has_media = hasMedia() ;
+	if(has_media && !camera->AABBInFrustum(center, size)) 
+	{
+		mImportanceToCamera = 0.f ;
+		return 0.f ;
+	}
+
+	F32 size_squared = size.lengthSquared() ;
 	LLVector3 lookAt = center - camera->getOrigin();
 	F32 dist = lookAt.normVec() ;
+	cos_angle_to_view_dir = lookAt * camera->getXAxis() ;	
+	if(has_media)
+	{
+		if(cos_angle_to_view_dir > camera->getCosHalfFov()) //the center is within the view frustum
+		{
+			cos_angle_to_view_dir = 1.0f ;
+		}
+		else
+		{		
+			if(dist * dist * (lookAt - camera->getXAxis()).lengthSquared() < size_squared)
+			{
+				cos_angle_to_view_dir = 1.0f ;
+			}
+		}
+	}
 
 	//get area of circle around node
-	F32 app_angle = atanf(size.length()/dist);
+	F32 app_angle = atanf(fsqrtf(size_squared) / dist);
 	radius = app_angle*LLDrawable::sCurPixelAngle;
 	F32 face_area = radius*radius * 3.14159f;
 
@@ -1398,8 +1437,7 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 		mImportanceToCamera = 1.0f ;
 	}
 	else
-	{
-		cos_angle_to_view_dir = lookAt * camera->getXAxis() ;	
+	{		
 		mImportanceToCamera = LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist) ;
 	}
 

@@ -2995,6 +2995,10 @@ void LLViewerMediaTexture::initVirtualSize()
 
 void LLViewerMediaTexture::addMediaToFace(LLFace* facep) 
 {
+	if(facep)
+	{
+		facep->setHasMedia(true) ;
+	}
 	if(!mIsPlaying)
 	{
 		return ; //no need to add the face because the media is not in playing.
@@ -3005,14 +3009,16 @@ void LLViewerMediaTexture::addMediaToFace(LLFace* facep)
 	
 void LLViewerMediaTexture::removeMediaFromFace(LLFace* facep) 
 {
-	if(!mIsPlaying)
-	{
-		return ; //no need to remove the face because the media is not in playing.
-	}
 	if(!facep)
 	{
 		return ;
 	}
+	facep->setHasMedia(false) ;
+
+	if(!mIsPlaying)
+	{
+		return ; //no need to remove the face because the media is not in playing.
+	}	
 
 	mIsPlaying = FALSE ; //set to remove the media from the face.
 	switchTexture(facep) ;
