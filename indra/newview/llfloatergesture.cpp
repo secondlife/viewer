@@ -510,6 +510,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);
+		llassert(gesture_dir);
 		LLPointer<GestureCopiedCallback> cb = new GestureCopiedCallback(this);
 
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
@@ -517,7 +518,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 			LLInventoryItem* item = gInventory.getItem(*it);
 			LLStringUtil::format_map_t string_args;
 			string_args["[COPY_NAME]"] = item->getName();
-			if(item && item->getInventoryType() == LLInventoryType::IT_GESTURE)
+			if(gesture_dir && item && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
 				LL_DEBUGS("Gesture")<< "Copying gesture " << item->getName() << "  "<< item->getUUID() << " into "
 										<< gesture_dir->getName() << "  "<< gesture_dir->getUUID() << LL_ENDL;
