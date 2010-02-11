@@ -63,6 +63,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
+#include "llavataractions.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -711,7 +712,21 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		if(notify)
 		{
 			// Popup a notify box with online status of this agent
-			LLNotificationPtr notification = LLNotificationsUtil::add(online ? "FriendOnline" : "FriendOffline", args);
+			LLNotificationPtr notification;
+
+			if (online)
+			{
+				notification =
+					LLNotificationsUtil::add("FriendOnline",
+											 args,
+											 LLSD().with("respond_on_mousedown", TRUE),
+											 boost::bind(&LLAvatarActions::startIM, agent_id));
+			}
+			else
+			{
+				notification =
+					LLNotificationsUtil::add("FriendOffline", args);
+			}
 
 			// If there's an open IM session with this agent, send a notification there too.
 			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);
