@@ -240,14 +240,14 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	const BOOL is_calling_card = (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
 	const LLPermissions& perm = item->getPermissions();
 	const BOOL can_agent_manipulate = gAgent.allowOperation(PERM_OWNER, perm, 
-															GP_OBJECT_MANIPULATE);
+								GP_OBJECT_MANIPULATE);
 	const BOOL can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm, 
-													  GP_OBJECT_SET_SALE) &&
+							  GP_OBJECT_SET_SALE) &&
 		!cannot_restrict_permissions;
 	const BOOL is_link = item->getIsLinkType();
 	
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	bool not_in_trash = item && (item->getUUID() != trash_id) && !gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
+	bool not_in_trash = (item->getUUID() != trash_id) && !gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
 
 	// You need permission to modify the object to modify an inventory
 	// item in it.
