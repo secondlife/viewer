@@ -956,6 +956,7 @@ void LLAgent::sendMessage()
 	if (!mRegionp)
 	{
 		llerrs << "No region for agent yet!" << llendl;
+		return;
 	}
 	gMessageSystem->sendMessage(mRegionp->getHost());
 }

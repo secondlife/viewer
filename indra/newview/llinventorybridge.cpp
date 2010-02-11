@@ -1113,6 +1113,9 @@ void LLItemBridge::restoreItem()
 
 void LLItemBridge::restoreToWorld()
 {
+	//Similar functionality to the drag and drop rez logic
+	bool remove_from_inventory = false;
+
 	LLViewerInventoryItem* itemp = (LLViewerInventoryItem*)getItem();
 	if (itemp)
 	{
@@ -1125,23 +1128,20 @@ void LLItemBridge::restoreToWorld()
 		msg->nextBlockFast(_PREHASH_InventoryData);
 		itemp->packMessage(msg);
 		msg->sendReliable(gAgent.getRegion()->getHost());
-	}
 
-	//Similar functionality to the drag and drop rez logic
-	BOOL remove_from_inventory = FALSE;
-
-	//remove local inventory copy, sim will deal with permissions and removing the item
-	//from the actual inventory if its a no-copy etc
-	if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		remove_from_inventory = TRUE;
-	}
-
-	// Check if it's in the trash. (again similar to the normal rez logic)
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
-	{
-		remove_from_inventory = TRUE;
+		//remove local inventory copy, sim will deal with permissions and removing the item
+		//from the actual inventory if its a no-copy etc
+		if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
+		{
+			remove_from_inventory = true;
+		}
+		
+		// Check if it's in the trash. (again similar to the normal rez logic)
+		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
+		{
+			remove_from_inventory = true;
+		}
 	}
 
 	if(remove_from_inventory)
@@ -2232,7 +2232,10 @@ void LLFolderBridge::determineFolderType()
 	{
 		LLInventoryModel* model = getInventoryModel();
 		LLViewerInventoryCategory* category = model->getCategory(mUUID);
-		category->determineFolderType();
+		if (category)
+		{
+			category->determineFolderType();
+		}
 	}
 }
 
@@ -2429,7 +2432,9 @@ void LLFolderBridge::pasteFromClipboard()
 				{
 					// move_inventory_item() is not enough,
 					//we have to update inventory locally too
-					changeItemParent(model, dynamic_cast<LLViewerInventoryItem*>(item), parent_id, FALSE);
+					LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
+					llassert(viitem);
+					changeItemParent(model, viitem, parent_id, FALSE);
 				}
 				else
 				{
@@ -2501,11 +2506,13 @@ void LLFolderBridge::folderOptionsMenu()
 	if(!model) return;
 
 	const LLInventoryCategory* category = model->getCategory(mUUID);
+	if(!category) return;
+
 	LLFolderType::EType type = category->getPreferredType();
-	const bool is_system_folder = category && LLFolderType::lookupIsProtectedType(type);
+	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
 	// BAP change once we're no longer treating regular categories as ensembles.
-	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
-										  LLFolderType::lookupIsEnsembleType(type));
+	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
+				  LLFolderType::lookupIsEnsembleType(type));
 
 	// calling card related functionality for folders.
 
@@ -3627,9 +3634,13 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		LLInventoryItem* item = getItem();
 		BOOL good_card = (item
-						  && (LLUUID::null != item->getCreatorUUID())
-						  && (item->getCreatorUUID() != gAgent.getID()));
-		BOOL user_online = (LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()));
+				  && (LLUUID::null != item->getCreatorUUID())
+				  && (item->getCreatorUUID() != gAgent.getID()));
+		BOOL user_online = FALSE;
+		if (item)
+		{
+			user_online = (LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()));
+		}
 		items.push_back(std::string("Send Instant Message Separator"));
 		items.push_back(std::string("Send Instant Message"));
 		items.push_back(std::string("Offer Teleport..."));
@@ -3816,7 +3827,12 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 			BOOL inform_server = TRUE;
 			BOOL deactivate_similar = FALSE;
 			LLGestureManager::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
-			LLGestureManager::instance().activateGestureWithAsset(mUUID, gInventory.getItem(mUUID)->getAssetUUID(), inform_server, deactivate_similar);
+			LLViewerInventoryItem* item = gInventory.getItem(mUUID);
+			llassert(item);
+			if (item)
+			{
+				LLGestureManager::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
+			}
 		}
 		else
 		{
@@ -4059,12 +4075,13 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
 			gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
-		}
-		// this object might have been selected, so let the selection manager know it's gone now
-		LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
-		if (found_obj)
-		{
-			LLSelectMgr::getInstance()->remove(found_obj);
+
+			// this object might have been selected, so let the selection manager know it's gone now
+			LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
+			if (found_obj)
+			{
+				LLSelectMgr::getInstance()->remove(found_obj);
+			}
 		}
 	}
 	else LLItemBridge::performAction(folder, model, action);

@@ -278,7 +278,7 @@ void LLSidepanelAppearance::toggleLookInfoPanel(BOOL visible)
 		return;
 
 	mLookInfo->setVisible(visible);
-	mPanelOutfitsInventory->setVisible(!visible);
+	if (mPanelOutfitsInventory) mPanelOutfitsInventory->setVisible(!visible);
 	mFilterEditor->setVisible(!visible);
 	mEditBtn->setVisible(!visible);
 	mNewOutfitBtn->setVisible(!visible);
@@ -305,7 +305,7 @@ void LLSidepanelAppearance::updateVerbs()
 {
 	bool is_look_info_visible = mLookInfo->getVisible();
 
-	if (!is_look_info_visible)
+	if (mPanelOutfitsInventory && !is_look_info_visible)
 	{
 		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
 		mEditBtn->setEnabled(is_correct_type);

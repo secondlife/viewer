@@ -432,6 +432,12 @@ const LLVector3*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly_
 		}
 	}
 
+	llassert(driven);
+	if (!driven)
+	{
+		return NULL; // shouldn't happen, but...
+	}
+
 	// We're already in the middle of a param's distortions, so get the next one.
 	const LLVector3* v = driven->mParam->getNextDistortion( index, poly_mesh );
 	if( (!v) && (iter != mDriven.end()) )

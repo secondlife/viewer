@@ -526,9 +526,10 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 	{
 		root_folder->setupMenuHandle(LLInventoryType::IT_CATEGORY, mGearFolderMenu->getHandle());
 		root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
+
+		root_folder->setParentLandmarksPanel(this);
 	}
 
-	root_folder->setParentLandmarksPanel(this);
 	inventory_list->saveFolderState();
 }
 
