@@ -43,7 +43,7 @@
 
 class LLTabContainer;
 
-class LLIMFloaterContainer : public LLMultiFloater, public LLAvatarPropertiesObserver, public LLParticularGroupMgrObserver
+class LLIMFloaterContainer : public LLMultiFloater
 {
 public:
 	LLIMFloaterContainer(const LLSD& seed);
@@ -56,9 +56,6 @@ public:
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-
-	void processProperties(void* data, EAvatarProcessorType type);
-	void changed(const LLUUID& group_id, LLGroupChange gc);
 
 	static LLFloater* getCurrentVoiceFloater();
 

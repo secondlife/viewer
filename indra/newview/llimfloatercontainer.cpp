@@ -121,36 +121,6 @@ void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
 	mSessions.erase(id);
 }
 
-void LLIMFloaterContainer::processProperties(void* data, enum EAvatarProcessorType type)
-{
-	if (APT_PROPERTIES == type)
-	{
-		LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
-		if (avatar_data)
-		{
-			LLUUID avatar_id = avatar_data->avatar_id;
-			LLUUID* cached_avatarId = LLAvatarIconIDCache::getInstance()->get(avatar_id);
-			if(cached_avatarId && cached_avatarId->notNull() && avatar_data->image_id != *cached_avatarId)
-			{
-				LLAvatarIconIDCache::getInstance()->add(avatar_id,avatar_data->image_id);
-				mTabContainer->setTabImage(get_ptr_in_map(mSessions, avatar_id), avatar_data->image_id);
-			}
-		}
-	}
-}
-
-void LLIMFloaterContainer::changed(const LLUUID& group_id, LLGroupChange gc)
-{
-	if (GC_PROPERTIES == gc)
-	{
-		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(group_id);
-		if (group_data && group_data->mInsigniaID.notNull())
-		{
-			mTabContainer->setTabImage(get_ptr_in_map(mSessions, group_id), group_data->mInsigniaID);
-		}
-	}
-}
-
 void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
 {
 	LLUUID session_id = data["from_id"].asUUID();

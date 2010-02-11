@@ -9949,28 +9949,6 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-    <key>UIButtonImageTopPadding</key>
-    <map>
-      <key>Comment</key>
-      <string>Button Overlay Image Top Padding</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
-    <key>UIButtonImageBottomPadding</key>
-    <map>
-      <key>Comment</key>
-      <string>Button Overlay Image Bottom Padding</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
 	<key>UploadBakedTexOld</key>
     <map>
       <key>Comment</key>
