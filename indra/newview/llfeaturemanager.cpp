@@ -287,6 +287,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 			if (!flp)
 			{
 				LL_ERRS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
+				return FALSE;
 			}
 			S32 available;
 			F32 recommended;

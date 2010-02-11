@@ -1264,8 +1264,11 @@ LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLIn
 void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem)
 {
 	LLViewerInventoryItem* beforeItem = gInventory.getItem(beforeItemId);
-
-	items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+	llassert(beforeItem);
+	if (beforeItem)
+	{
+		items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+	}
 }
 
 // EOF
