@@ -141,32 +141,6 @@ BOOL LLToastIMPanel::handleToolTip(S32 x, S32 y, MASK mask)
 	return LLToastPanel::handleToolTip(x, y, mask);
 }
 
-void LLToastIMPanel::showInspector()
-{
-	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionID);
-	if(!im_session)
-	{
-		llwarns << "Invalid IM session" << llendl;
-		return;
-	}
-
-	switch(im_session->mSessionType)
-	{
-	case LLIMModel::LLIMSession::P2P_SESSION:
-		LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarID));
-		break;
-	case LLIMModel::LLIMSession::GROUP_SESSION:
-		LLFloaterReg::showInstance("inspect_group", LLSD().with("group_id", mSessionID));
-		break;
-	case LLIMModel::LLIMSession::ADHOC_SESSION:
-		LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", im_session->mOtherParticipantID));
-		break;
-	default:
-		llwarns << "Unknown IM session type" << llendl;
-		break;
-	}
-}
-
 void LLToastIMPanel::spawnNameToolTip()
 {
 	// Spawn at right side of the name textbox.
@@ -176,7 +150,7 @@ void LLToastIMPanel::spawnNameToolTip()
 
 	LLToolTip::Params params;
 	params.background_visible(false);
-	params.click_callback(boost::bind(&LLToastIMPanel::showInspector, this));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", mAvatarID), FALSE));
 	params.delay_time(0.0f);		// spawn instantly on hover
 	params.image(LLUI::getUIImage("Info_Small"));
 	params.message("");
@@ -201,7 +175,7 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 
 	LLInspector::Params params;
 	params.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-	params.click_callback(boost::bind(&LLToastIMPanel::showInspector, this));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_group", LLSD().with("group_id", mSessionID), FALSE));
 	params.delay_time(0.100f);
 	params.image(LLUI::getUIImage("Info_Small"));
 	params.message(g_data.mName);
@@ -214,16 +188,15 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 
 void LLToastIMPanel::initIcon()
 {
-	LLIconCtrl* sys_msg_icon = getChild<LLIconCtrl>("sys_msg_icon");
-
 	mAvatarIcon->setVisible(FALSE);
 	mGroupIcon->setVisible(FALSE);
-	sys_msg_icon->setVisible(FALSE);
 	mAdhocIcon->setVisible(FALSE);
 
 	if(mAvatarName->getValue().asString() == SYSTEM_FROM)
 	{
-		sys_msg_icon->setVisible(TRUE);
+		// "sys_msg_icon" was disabled by Erica in the changeset: 5109 (85181bc92cbe)
+		// and "dummy widget" warnings appeared in log.
+		// It does not make sense to have such image with empty name. Removed for EXT-5057.
 	}
 	else
 	{
