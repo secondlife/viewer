@@ -668,7 +668,7 @@ void LLAppearanceManager::filterWearableItems(
 		EWearableType type = item->getWearableType();
 		if(type < 0 || type >= WT_COUNT)
 		{
-			LL_WARNS("Appearance") << "Invalid wearable type. Type does not match wearable flag bitfield." << LL_ENDL;
+			LL_WARNS("Appearance") << "Invalid wearable type. Inventory type does not match wearable flag bitfield." << LL_ENDL;
 			continue;
 		}
 		items_by_type[type].push_back(item);
