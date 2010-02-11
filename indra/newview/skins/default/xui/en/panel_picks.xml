@@ -24,6 +24,7 @@ bg_opaque_color="DkGray2"
   layout="topleft"
   left="6"
   name="picks_panel_text"
+  wrap="true"
   top="10"
   width="313"/>
  <accordion

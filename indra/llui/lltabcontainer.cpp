@@ -1631,14 +1631,9 @@ void LLTabContainer::setTabImage(LLPanel* child, LLIconCtrl* icon)
 void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
 {
 	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
-	static LLUICachedControl<S32> image_top_padding ("UIButtonImageTopPadding", 2);
-	static LLUICachedControl<S32> image_bottom_padding ("UIButtonImageBottomPadding", 2);
 
 	if (!mIsVertical)
 	{
-		tuple->mButton->setImageOverlayTopPad(image_top_padding);
-		tuple->mButton->setImageOverlayBottomPad(image_bottom_padding);
-
 		// remove current width from total tab strip width
 		mTotalTabWidth -= tuple->mButton->getRect().getWidth();
 
