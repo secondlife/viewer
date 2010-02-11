@@ -427,8 +427,13 @@ void LLFloaterGesture::onClickPlay()
 		BOOL inform_server = TRUE;
 		BOOL deactivate_similar = FALSE;
 		LLGestureManager::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));
-		LLGestureManager::instance().activateGestureWithAsset(item_id, gInventory.getItem(item_id)->getAssetUUID(), inform_server, deactivate_similar);
-		LL_DEBUGS("Gesture")<< "Activating gesture with inventory ID: " << item_id <<LL_ENDL;
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		llassert(item);
+		if (item)
+		{
+			LLGestureManager::instance().activateGestureWithAsset(item_id, item->getAssetUUID(), inform_server, deactivate_similar);
+			LL_DEBUGS("Gesture")<< "Activating gesture with inventory ID: " << item_id <<LL_ENDL;
+		}
 	}
 	else
 	{
