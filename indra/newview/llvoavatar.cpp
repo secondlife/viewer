@@ -2192,12 +2192,15 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	// store off last frame's root position to be consistent with camera position
 	LLVector3 root_pos_last = mRoot.getWorldPosition();
 	BOOL detailed_update = updateCharacter(agent);
-	BOOL voice_enabled = gVoiceClient->getVoiceEnabled( mID ) && gVoiceClient->inProximalChannel();
 
 	if (gNoRender)
 	{
 		return TRUE;
 	}
+
+	static LLUICachedControl<bool> visualizers_in_calls("ShowVoiceVisualizersInCalls", false);
+	bool voice_enabled = (visualizers_in_calls || gVoiceClient->inProximalChannel()) &&
+						 gVoiceClient->getVoiceEnabled(mID);
 
 	idleUpdateVoiceVisualizer( voice_enabled );
 	idleUpdateMisc( detailed_update );
