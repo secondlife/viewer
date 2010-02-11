@@ -118,6 +118,7 @@ BOOL LLPlacesInventoryPanel::postBuild()
 	mScroller->addChild(mFolders);
 
 	mFolders->setScrollContainer(mScroller);
+	mFolders->addChild(mFolders->mStatusTextBox);
 
 
 	// cut subitems

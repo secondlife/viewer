@@ -236,7 +236,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
              layout="topleft"
              left="0"
              name="group_list"
-             no_filtered_groups_msg="No groups"
+             no_filtered_groups_msg="[secondlife:///app/search/groups Try fine the group in search?]"
              no_groups_msg="[secondlife:///app/search/groups Try searching for some groups to join.]"
              top="0"
              width="313" />
