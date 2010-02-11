@@ -59,11 +59,11 @@
          name="Inventory"
          shortcut="control|shift|I">
             <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="inventory" />
+             function="SidetrayPanelVisible"
+             parameter="sidepanel_inventory" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="inventory" />
+             function="ShowSidetrayPanel"
+             parameter="sidepanel_inventory" />
         </menu_item_check>
         <menu_item_call
          label="Show Inventory in Side Tray"
