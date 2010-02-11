@@ -414,7 +414,7 @@ void LLPanelLandmarkInfo::populateFoldersList()
 	else
 	{
 		std::string cat_full_name = getFullFolderName(lmcat);
-		mFolderCombo->add(cat_full_name, cat->getUUID());
+		mFolderCombo->add(cat_full_name, lmcat->getUUID());
 	}
 
 	typedef std::vector<folder_pair_t> folder_vec_t;
@@ -423,7 +423,7 @@ void LLPanelLandmarkInfo::populateFoldersList()
 	for (S32 i = 0; i < cats.count(); i++)
 	{
 		const LLViewerInventoryCategory* cat = cats.get(i);
-		cat_full_name = getFullFolderName(cat);
+		std::string cat_full_name = getFullFolderName(cat);
 		folders.push_back(folder_pair_t(cat->getUUID(), cat_full_name));
 	}
 	sort(folders.begin(), folders.end(), cmp_folders);
