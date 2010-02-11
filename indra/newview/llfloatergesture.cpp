@@ -516,10 +516,10 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
-			LLStringUtil::format_map_t string_args;
-			string_args["[COPY_NAME]"] = item->getName();
 			if(gesture_dir && item && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
+				LLStringUtil::format_map_t string_args;
+				string_args["[COPY_NAME]"] = item->getName();
 				LL_DEBUGS("Gesture")<< "Copying gesture " << item->getName() << "  "<< item->getUUID() << " into "
 										<< gesture_dir->getName() << "  "<< gesture_dir->getUUID() << LL_ENDL;
 				copy_inventory_item(gAgent.getID(), item->getPermissions().getOwner(), item->getUUID(), 
