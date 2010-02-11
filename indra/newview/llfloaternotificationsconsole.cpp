@@ -124,10 +124,15 @@ void LLNotificationChannelPanel::onClickNotificationReject(void* user_data)
 {
 	LLNotificationChannelPanel* self = (LLNotificationChannelPanel*)user_data;
 	if (!self) return;
-	void* data = self->getChild<LLScrollListCtrl>("notification_rejects_list")->getFirstSelected()->getUserdata();
-	if (data)
+	LLScrollListItem* firstselected = self->getChild<LLScrollListCtrl>("notification_rejects_list")->getFirstSelected();
+	llassert(firstselected);
+	if (firstselected)
 	{
-		gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), TRUE);
+		void* data = firstselected->getUserdata();
+		if (data)
+		{
+			gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), TRUE);
+		}
 	}
 }
 
