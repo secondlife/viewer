@@ -211,7 +211,7 @@ public:
 
 private:	
 	F32         adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius );
-	F32         calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
+	BOOL        calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
 public:
 	static F32  calcImportanceToCamera(F32 to_view_dir, F32 dist);
 
