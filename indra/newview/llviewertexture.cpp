@@ -2885,12 +2885,11 @@ LLViewerMediaTexture::~LLViewerMediaTexture()
 
 void LLViewerMediaTexture::reinit(BOOL usemipmaps /* = TRUE */)
 {
-	mGLTexturep = NULL ;
-	init(false);
+	llassert(mGLTexturep.notNull()) ;
+
 	mUseMipMaps = usemipmaps ;
 	getLastReferencedTimer()->reset() ;
-
-	generateGLTexture() ;
+	mGLTexturep->setUseMipMaps(mUseMipMaps) ;
 	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 }
 
