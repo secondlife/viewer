@@ -376,7 +376,9 @@ LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_t
 // static
 void LLConsole::updateClass()
 {	
-	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+	LLInstanceTrackerScopedGuard guard;
+
+	for (instance_iter it = guard.beginInstances(); it != guard.endInstances(); ++it)
 	{
 		it->update();
 	} 
