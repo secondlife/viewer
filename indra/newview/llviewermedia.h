@@ -124,7 +124,9 @@ class LLViewerMedia
 		
 		// This is the comparitor used to sort the list.
 		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
-		
+	
+	private:
+		static void onTeleportFinished();
 };
 
 // Implementation functions not exported into header file
