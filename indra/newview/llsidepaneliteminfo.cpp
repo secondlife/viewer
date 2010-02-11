@@ -231,6 +231,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	// PERMISSIONS LOOKUP //
 	////////////////////////
 
+	llassert(item);
+	if (!item) return;
+
 	// do not enable the UI for incomplete items.
 	BOOL is_complete = item->isComplete();
 	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(item->getInventoryType());
