@@ -2476,6 +2476,8 @@ void LLViewerWindow::updateUI()
 
 	static std::string last_handle_msg;
 
+	LLConsole::updateClass();
+
 	// animate layout stacks so we have up to date rect for world view
 	LLLayoutStack::updateClass();
 

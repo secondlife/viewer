@@ -96,11 +96,22 @@ No Answer.  Please try again later.
    height="40"
    layout="topleft"
    left="77"
-   name="nearby_P2P"
+   name="nearby_P2P_by_other"
    top="27"
    width="315"
    word_wrap="true">
     [VOICE_CHANNEL_NAME] has ended the call.  [RECONNECT_NEARBY]
+  </text>
+  <text
+   font="SansSerifLarge"
+   height="40"
+   layout="topleft"
+   left="77"
+   name="nearby_P2P_by_agent"
+   top="27"
+   width="315"
+   word_wrap="true">
+    You have ended the call.  [RECONNECT_NEARBY]
   </text>
   <text
      font="SansSerif"

@@ -56,16 +56,6 @@
          name="adhoc_icon"
          top="3"
          width="18" />
-        <!--<icon
-         follows="right"
-         height="20"
-         image_name=""
-         layout="topleft"
-         left="3"
-         mouse_opaque="true"
-         name="sys_msg_icon"
-         top="0"
-         width="20" />-->
         <text
          follows="left|right"
          font.style="BOLD"

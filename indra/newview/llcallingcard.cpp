@@ -56,6 +56,7 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
+#include "llslurl.h"
 #include "llimview.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
@@ -689,13 +690,8 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				setBuddyOnline(agent_id,online);
 				if(chat_notify)
 				{
-					std::string first, last;
-					if(gCacheName->getName(agent_id, first, last))
-					{
-						notify = TRUE;
-						args["FIRST"] = first;
-						args["LAST"] = last;
-					}
+					notify = TRUE;
+					args["NAME_SLURL"] = LLSLURL::buildCommand("agent", agent_id, "about");
 				}
 			}
 			else

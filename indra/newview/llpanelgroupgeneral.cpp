@@ -206,15 +206,19 @@ BOOL LLPanelGroupGeneral::postBuild()
 
 void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 {
-	mInsignia = panel_group->getChild<LLTextureCtrl>("insignia");
+	mInsignia = getChild<LLTextureCtrl>("insignia");
 	if (mInsignia)
 	{
 		mInsignia->setCommitCallback(onCommitAny, this);
 		mDefaultIconID = mInsignia->getImageAssetID();
 	}
-	mFounderName = panel_group->getChild<LLNameBox>("founder_name");
+	mFounderName = getChild<LLNameBox>("founder_name");
+
+
 	mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
 	mGroupNameEditor->setPrevalidate( LLTextValidate::validateASCII );
+	
+
 }
 
 // static
