@@ -843,10 +843,13 @@ void LLPanelPicks::onPanelClassifiedClose(LLPanelClassifiedInfo* panel)
 			{
 				LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(
 					mClassifiedsList->getItemByValue(values[n]));
-
-				c_item->setClassifiedName(panel->getClassifiedName());
-				c_item->setDescription(panel->getDescription());
-				c_item->setSnapshotId(panel->getSnapshotId());
+				llassert(c_item);
+				if (c_item)
+				{
+					c_item->setClassifiedName(panel->getClassifiedName());
+					c_item->setDescription(panel->getDescription());
+					c_item->setSnapshotId(panel->getSnapshotId());
+				}
 			}
 		}
 	}

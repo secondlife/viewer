@@ -339,7 +339,7 @@
 		リンク
 	</string>
 	<string name="AvatarEditingAppearance">
-		（容姿の編集）
+		（容姿の編集中）
 	</string>
 	<string name="AvatarAway">
 		一時退席中
@@ -588,7 +588,7 @@
 		接続しました
 	</string>
 	<string name="unavailable">
-		あなたの現在のロケーションでは、ボイスを利用できません。
+		現在地では、ボイスを利用できません。
 	</string>
 	<string name="hang_up">
 		インワールドボイスチャットの通話が切断されました
@@ -642,7 +642,7 @@
 		控えめ
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Adult
+		アダルト
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		オフライン
@@ -786,7 +786,7 @@
 		添付アイテムを保存
 	</string>
 	<string name="TeleportOffer">
-		テレポートを渡す
+		テレポートを送る
 	</string>
 	<string name="StartUpNotifications">
 		不在中に新しい通知が届きました。
@@ -833,7 +833,7 @@
 	<string name="InventoryNoTexture">
 		持ち物内にこのテクスチャのコピーがありません
 	</string>
-	<string name="no_transfer" value=" （再販/プレゼント不可）"/>
+	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
 	<string name="no_copy" value=" （コピー不可）"/>
 	<string name="worn" value=" （着用中）"/>
@@ -874,7 +874,7 @@
 	<string name="No Filters" value="いいえ "/>
 	<string name="Since Logoff" value=" - ログオフ以来"/>
 	<string name="InvFolder My Inventory">
-		マイ 持ち物
+		持ち物
 	</string>
 	<string name="InvFolder My Favorites">
 		お気に入り
@@ -1706,7 +1706,7 @@
 		Linden 所在地
 	</string>
 	<string name="Adult">
-		Adult
+		アダルト
 	</string>
 	<string name="Arts&amp;Culture">
 		アートとカルチャー
@@ -3190,7 +3190,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		現在地の詳細を見る
 	</string>
 	<string name="LocationCtrlComboBtnTooltip">
-		マイロケーション履歴
+		マイ ロケーション履歴
 	</string>
 	<string name="LocationCtrlForSaleTooltip">
 		この土地を購入
@@ -3247,7 +3247,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		-- インスタントメッセージの保存開始 --
 	</string>
 	<string name="IM_typing_start_string">
-		[NAME] は入力中...
+		[NAME] は入力中です...
 	</string>
 	<string name="Unnamed">
 		（名前なし）

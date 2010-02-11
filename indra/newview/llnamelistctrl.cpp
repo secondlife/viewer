@@ -339,8 +339,7 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& first,
 		LLScrollListItem* item = *iter;
 		if (item->getUUID() == id)
 		{
-			LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(0);
-			cell = item->getColumn(mNameColumnIndex);
+			LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
 			if (cell)
 			{
 				cell->setValue(fullname);

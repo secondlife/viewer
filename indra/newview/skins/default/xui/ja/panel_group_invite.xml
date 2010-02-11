@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーを招待" name="invite_panel">
 	<panel.string name="confirm_invite_owner_str">
-		本当に新しい所有者を招待しますか?この操作は取り消しできません。
+		本当に新しい所有者を招待しますか？この操作は取り消しできません。
 	</panel.string>
 	<panel.string name="loading">
 		(ローディング．．．)

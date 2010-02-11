@@ -77,6 +77,9 @@ const static std::string IM_FROM_ID("from_id");
 const static std::string NO_SESSION("(IM Session Doesn't Exist)");
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
+const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
+const static std::string NEARBY_P2P_BY_AGENT("nearby_P2P_by_agent");
+
 std::string LLCallDialogManager::sPreviousSessionlName = "";
 LLIMModel::LLIMSession::SType LLCallDialogManager::sPreviousSessionType = LLIMModel::LLIMSession::P2P_SESSION;
 std::string LLCallDialogManager::sCurrentSessionlName = "";
@@ -1372,7 +1375,7 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 	}
 
 	sSession = session;
-	sSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3));
+	sSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
 	if(sCurrentSessionlName != session->mName)
 	{
 		sPreviousSessionlName = sCurrentSessionlName;
@@ -1403,7 +1406,7 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 
 }
 
-void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
+void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent)
 {
 	LLSD mCallDialogPayload;
 	LLOutgoingCallDialog* ocd = NULL;
@@ -1423,6 +1426,7 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 	mCallDialogPayload["state"] = new_state;
 	mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
 	mCallDialogPayload["session_type"] = sSession->mSessionType;
+	mCallDialogPayload["ended_by_agent"] = ended_by_agent;
 
 	switch(new_state)
 	{			
@@ -1517,6 +1521,15 @@ void LLCallDialog::draw()
 	}
 }
 
+// virtual
+void LLCallDialog::onOpen(const LLSD& key)
+{
+	LLDockableFloater::onOpen(key);
+
+	// it should be over the all floaters. EXT-5116
+	gFloaterView->bringToFront(this);
+}
+
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 {
 	// *NOTE: 12/28/2009: check avaline calls: LLVoiceClient::isParticipantAvatar returns false for them
@@ -1609,14 +1622,16 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			channel_name = LLTextUtil::formatPhoneNumber(channel_name);
 		}
 		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", channel_name);
-		childSetTextArg("nearby_P2P", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
+		childSetTextArg("nearby_P2P_by_other", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
 
 		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
 		// so no reconnection to nearby chat happens (EXT-4397)
 		bool voice_works = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 		std::string reconnect_nearby = voice_works ? LLTrans::getString("reconnect_nearby") : std::string();
 		childSetTextArg("nearby", "[RECONNECT_NEARBY]", reconnect_nearby);
-		childSetTextArg("nearby_P2P", "[RECONNECT_NEARBY]", reconnect_nearby);
+
+		const std::string& nearby_str = mPayload["ended_by_agent"] ? NEARBY_P2P_BY_AGENT : NEARBY_P2P_BY_OTHER;
+		childSetTextArg(nearby_str, "[RECONNECT_NEARBY]", reconnect_nearby);
 	}
 
 	std::string callee_name = mPayload["session_name"].asString();
@@ -1671,7 +1686,8 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	case LLVoiceChannel::STATE_HUNG_UP :
 		if (mPayload["session_type"].asInteger() == LLIMModel::LLIMSession::P2P_SESSION)
 		{
-			getChild<LLTextBox>("nearby_P2P")->setVisible(true);
+			const std::string& nearby_str = mPayload["ended_by_agent"] ? NEARBY_P2P_BY_AGENT : NEARBY_P2P_BY_OTHER;
+			getChild<LLTextBox>(nearby_str)->setVisible(true);
 		} 
 		else
 		{
@@ -1690,7 +1706,8 @@ void LLOutgoingCallDialog::hideAllText()
 	getChild<LLTextBox>("calling")->setVisible(false);
 	getChild<LLTextBox>("leaving")->setVisible(false);
 	getChild<LLTextBox>("connecting")->setVisible(false);
-	getChild<LLTextBox>("nearby_P2P")->setVisible(false);
+	getChild<LLTextBox>("nearby_P2P_by_other")->setVisible(false);
+	getChild<LLTextBox>("nearby_P2P_by_agent")->setVisible(false);
 	getChild<LLTextBox>("nearby")->setVisible(false);
 	getChild<LLTextBox>("noanswer")->setVisible(false);
 }

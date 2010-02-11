@@ -36,7 +36,7 @@
 			</panel>
 			<panel name="landmark_edit_panel">
 				<text name="title_label" value="タイトル："/>
-				<text name="notes_label" value="個人的メモ："/>
+				<text name="notes_label" value="メモ："/>
 				<text name="folder_label" value="ランドマークの位置："/>
 			</panel>
 		</panel>

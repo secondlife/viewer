@@ -3822,6 +3822,7 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 
 	// Generate the vertex mapping and the list of vertices without
 	// duplicates.  This will crash if there are no vertices.
+	llassert(num_input_vertices > 0); // check for no vertices!
 	S32 *vertex_mapping = new S32[num_input_vertices];
 	LLVector3 *new_vertices = new LLVector3[num_input_vertices];
 	LLVertexIndexPair *prev_pairp = NULL;

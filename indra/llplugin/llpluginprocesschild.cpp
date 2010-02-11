@@ -278,14 +278,21 @@ bool LLPluginProcessChild::isDone(void)
 
 void LLPluginProcessChild::sendMessageToPlugin(const LLPluginMessage &message)
 {
-	std::string buffer = message.generate();
-
-	LL_DEBUGS("Plugin") << "Sending to plugin: " << buffer << LL_ENDL;
-	LLTimer elapsed;
-	
-	mInstance->sendMessage(buffer);
-
-	mCPUElapsed += elapsed.getElapsedTimeF64();
+	if (mInstance)
+	{
+		std::string buffer = message.generate();
+		
+		LL_DEBUGS("Plugin") << "Sending to plugin: " << buffer << LL_ENDL;
+		LLTimer elapsed;
+		
+		mInstance->sendMessage(buffer);
+		
+		mCPUElapsed += elapsed.getElapsedTimeF64();
+	}
+	else
+	{
+		LL_WARNS("Plugin") << "mInstance == NULL" << LL_ENDL;
+	}
 }
 
 void LLPluginProcessChild::sendMessageToParent(const LLPluginMessage &message)

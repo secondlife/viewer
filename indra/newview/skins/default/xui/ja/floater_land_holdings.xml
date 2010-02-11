@@ -7,17 +7,17 @@
 		<column label="面積" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="この土地の中心にテレポート"/>
+	<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="この土地の中心にテレポートします"/>
 	<button label="地図" label_selected="地図" name="Show on Map" tool_tip="この土地を世界地図に表示します"/>
 	<text name="contrib_label">
-		あなたのグループへの貢献：
+		所属グループへの貢献：
 	</text>
 	<scroll_list name="grant list">
 		<column label="グループ名" name="group"/>
 		<column label="面積" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
-		現在の支払いプランでの許可された保有地：
+		現在の支払いプランで許可された保有地：
 	</text>
 	<text name="allowed_text">
 		[AREA] 平方メートル
@@ -29,7 +29,7 @@
 		[AREA] 平方メートル
 	</text>
 	<text name="available_label">
-		土地購入可：
+		購入可能な土地：
 	</text>
 	<text name="available_text">
 		[AREA] 平方メートル

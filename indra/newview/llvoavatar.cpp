@@ -1492,9 +1492,9 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 	//-------------------------------------------------------------------------
 	// parse the file
 	//-------------------------------------------------------------------------
-	BOOL success = sSkeletonXMLTree.parseFile( filename, FALSE );
+	BOOL parsesuccess = sSkeletonXMLTree.parseFile( filename, FALSE );
 
-	if (!success)
+	if (!parsesuccess)
 	{
 		llerrs << "Can't parse skeleton file: " << filename << llendl;
 		return FALSE;
@@ -1505,11 +1505,13 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 	if (!root) 
 	{
 		llerrs << "No root node found in avatar skeleton file: " << filename << llendl;
+		return FALSE;
 	}
 
 	if( !root->hasName( "linden_skeleton" ) )
 	{
 		llerrs << "Invalid avatar skeleton file header: " << filename << llendl;
+		return FALSE;
 	}
 
 	std::string version;
@@ -1517,6 +1519,7 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
 	{
 		llerrs << "Invalid avatar skeleton file version: " << version << " in file: " << filename << llendl;
+		return FALSE;
 	}
 
 	return TRUE;
@@ -3082,7 +3085,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	if (!visible)
 	{
-		//updateMotions(LLCharacter::HIDDEN_UPDATE);
+		updateMotions(LLCharacter::HIDDEN_UPDATE);
 		return FALSE;
 	}
 
@@ -4051,6 +4054,7 @@ void LLVOAvatar::updateTextures()
 			// Spam if this is a baked texture, not set to default image, without valid host info
 			if (isIndexBakedTexture((ETextureIndex)texture_index)
 				&& imagep->getID() != IMG_DEFAULT_AVATAR
+				&& imagep->getID() != IMG_INVISIBLE
 				&& !imagep->getTargetHost().isOk())
 			{
 				LL_WARNS_ONCE("Texture") << "LLVOAvatar::updateTextures No host for texture "

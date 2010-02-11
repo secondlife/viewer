@@ -194,6 +194,9 @@ public:
 	F32         getTextureVirtualSize() ;
 	F32         getImportanceToCamera()const {return mImportanceToCamera ;}
 
+	void        setHasMedia(bool has_media)  { mHasMedia = has_media ;}
+	BOOL        hasMedia() const ;
+
 	//for atlas
 	LLTextureAtlasSlot*   getAtlasInfo() ;
 	void                  setAtlasInUse(BOOL flag);
@@ -262,7 +265,7 @@ private:
 	//based on the distance from the face to the view point and the angle from the face center to the view direction.
 	F32         mImportanceToCamera ; 
 	F32         mBoundingSphereRadius ;
-
+	bool        mHasMedia ;
 
 	//atlas
 	LLPointer<LLTextureAtlasSlot> mAtlasInfop ;

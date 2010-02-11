@@ -867,6 +867,10 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		}
 
 		LLInventoryItem* item = gInventory.getItem(item_id);
+		llassert(item);
+		if (!item) {
+			continue;
+		}
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Special handling for various types.
@@ -1302,13 +1306,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
 	LLInventoryObserver* opener = NULL;
-	LLViewerInventoryCategory* catp = NULL;
-	catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
-	LLViewerInventoryItem* itemp = NULL;
-	if(!catp)
-	{
-		itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
-	}
 	
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.

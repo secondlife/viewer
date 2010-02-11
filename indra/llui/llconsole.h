@@ -40,7 +40,7 @@
 
 class LLSD;
 
-class LLConsole : public LLFixedBuffer, public LLUICtrl
+class LLConsole : public LLFixedBuffer, public LLUICtrl, public LLInstanceTracker<LLConsole>
 {
 public:
 	typedef enum e_font_size
@@ -68,6 +68,9 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
+	// call once per frame to pull data out of LLFixedBuffer
+	static void updateClass();
+
 	//A paragraph color segment defines the color of text in a line 
 	//of text that was received for console display.  It has no 
 	//notion of line wraps, screen position, or the text it contains.
@@ -139,14 +142,12 @@ public:
 	// -1 = monospace, 0 means small, font size = 1 means big
 	void			setFontSize(S32 size_index);
 
-	void			addLine(const std::string& utf8line, F32 size, const LLColor4 &color);
-	void			addLine(const LLWString& wline, F32 size, const LLColor4 &color);
 	
 	// Overrides
 	/*virtual*/ void	draw();
-	/*virtual*/ void	addLine(const std::string& utf8line);
-	/*virtual*/ void	addLine(const LLWString& line);
 private:
+	void		update();
+
 	F32			mLinePersistTime; // Age at which to stop drawing.
 	F32			mFadeTime; // Age at which to start fading
 	const LLFontGL*	mFont;

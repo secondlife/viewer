@@ -677,9 +677,12 @@ void LLGroupMgrGroupData::sendRoleChanges()
 				break;
 			}
 			case RC_UPDATE_ALL:
+				// fall through
 			case RC_UPDATE_POWERS:
 				need_power_recalc = true;
+				// fall through
 			case RC_UPDATE_DATA:
+				// fall through
 			default: 
 			{
 				LLGroupRoleData* group_role_data = (*role_it).second;
