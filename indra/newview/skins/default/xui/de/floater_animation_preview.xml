@@ -180,6 +180,6 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 
 Wir empfehlen exportierte BVH-Dateien aus Poser 4.
 	</text>
-	<button label="Hochladen ([AMOUNT] L$)" name="ok_btn"/>
-	<button label="Abbrechen" name="cancel_btn"/>
+	<button label="Hochladen ([AMOUNT] L$)" name="ok_btn" width="160"/>
+	<button label="Abbrechen" name="cancel_btn" left="180" width="88"/>
 </floater>

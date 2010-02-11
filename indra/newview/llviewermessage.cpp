@@ -38,6 +38,7 @@
 #include "llavataractions.h"
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
+#include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llregionhandle.h"
@@ -866,6 +867,10 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		}
 
 		LLInventoryItem* item = gInventory.getItem(item_id);
+		llassert(item);
+		if (!item) {
+			continue;
+		}
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Special handling for various types.
@@ -914,12 +919,13 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						{
 							// Landmark creation handling is moved to LLPanelPlaces::showAddedLandmarkInfo()
 							// TODO* LLPanelPlaces dependency is going to be removed. See EXT-4347.
-							if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
-							{
+							//if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
+							//{
 								//places_panel->setItem(item);
-							}
+							//}
+							//else
 							// we are opening a group notice attachment
-							else
+							if("create_landmark" != places_panel->getPlaceInfoType())
 							{
 								LLSD args;
 								args["type"] = "landmark";
@@ -1257,10 +1263,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gInventory.addObserver(opener);
 	}
 
-	// Remove script dialog because there is no need in it no more.
-	LLUUID object_id = notification["payload"]["object_id"].asUUID();
-	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
-
 	delete this;
 	return false;
 }
@@ -1300,13 +1302,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
 	LLInventoryObserver* opener = NULL;
-	LLViewerInventoryCategory* catp = NULL;
-	catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
-	LLViewerInventoryItem* itemp = NULL;
-	if(!catp)
-	{
-		itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
-	}
 	
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
@@ -1433,10 +1428,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	{
 		gInventory.addObserver(opener);
 	}
-
-	// Remove script dialog because there is no need in it no more.
-	LLUUID object_id = notification["payload"]["object_id"].asUUID();
-	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
 
 	delete this;
 	return false;
@@ -1571,7 +1562,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		{
 			payload["give_inventory_notification"] = TRUE;
 			LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
-			LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
 		}
 	}
 }
@@ -1884,6 +1874,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
+				/*
+				EXT-5099
+				currently there is no way to store in history only...
+				using  LLNotificationsUtil::add will add message to Nearby Chat
+
 				// muted user, so don't start an IM session, just record line in chat
 				// history.  Pretend the chat is from a local agent,
 				// so it will go into the history but not be shown on screen.
@@ -1891,6 +1886,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["MESSAGE"] = buffer;
 				LLNotificationsUtil::add("SystemMessageTip", args);
+				*/
 			}
 		}
 		break;

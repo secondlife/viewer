@@ -677,9 +677,12 @@ void LLGroupMgrGroupData::sendRoleChanges()
 				break;
 			}
 			case RC_UPDATE_ALL:
+				// fall through
 			case RC_UPDATE_POWERS:
 				need_power_recalc = true;
+				// fall through
 			case RC_UPDATE_DATA:
+				// fall through
 			default: 
 			{
 				LLGroupRoleData* group_role_data = (*role_it).second;
@@ -762,7 +765,7 @@ void LLGroupMgr::addObserver(LLGroupMgrObserver* observer)
 		mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
 }
 
-void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupObserver* observer)
 {
 	if(group_id.notNull() && observer)
 	{
@@ -792,7 +795,7 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 	}
 }
 
-void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupObserver* observer)
 {
 	if(group_id.isNull() || !observer)
 	{
@@ -1364,7 +1367,7 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 			gi->second->mChanged = FALSE;
 
 
-			// notify LLParticularGroupMgrObserver
+			// notify LLParticularGroupObserver
 		    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
 		    if(obs_it == mParticularObservers.end())
 		        return;

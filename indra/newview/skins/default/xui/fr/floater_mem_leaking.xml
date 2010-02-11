@@ -12,7 +12,7 @@
 		[NOTE2]
 	</text>
 	<button label="Commencer" name="start_btn" width="85"/>
-	<button label="Stop" left="100" name="stop_btn"/>
-	<button label="Libérer" left="177" name="release_btn"/>
-	<button label="Fermer" name="close_btn"/>
+	<button label="Stop" name="stop_btn"/>
+	<button label="Libérer" name="release_btn"/>
+	<button label="Fermer" name="close_btn" left_pad="20"/>
 </floater>

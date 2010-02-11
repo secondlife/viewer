@@ -23,12 +23,12 @@
 			<text name="start_location_text">
 				開始地点：
 			</text>
-			<combo_box name="start_location_combo">
+			<combo_box name="start_location_combo" width="160">
 				<combo_box.item label="最後にログアウトした場所" name="MyLastLocation"/>
 				<combo_box.item label="ホーム" name="MyHome"/>
 				<combo_box.item label="＜地域名を入力＞" name="Typeregionname"/>
 			</combo_box>
-			<button label="ログイン" name="connect_btn"/>
+			<button label="ログイン" name="connect_btn" left_pad="30" width="60"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_new_account_text">

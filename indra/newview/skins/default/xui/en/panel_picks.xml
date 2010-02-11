@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+bg_opaque_color="DkGray2"
+       background_visible="true"
+       background_opaque="true"
  follows="all"
  height="540"
  label="Picks"
@@ -21,6 +24,7 @@
   layout="topleft"
   left="6"
   name="picks_panel_text"
+  wrap="true"
   top="10"
   width="313"/>
  <accordion
@@ -70,13 +74,15 @@
     </accordion_tab>
  </accordion>
    <panel
-         background_visible="true"
+bg_opaque_color="DkGray2"
+       background_visible="true"
+       background_opaque="true"
          bevel_style="none"
          enabled="false"
          auto_resize="false"
          follows="bottom"
-         left="0"
-         height="18"
+         left="1"
+         height="27"
          label="bottom_panel"
          layout="topleft"
          name="edit_panel"
@@ -90,9 +96,9 @@
              image_unselected="OptionsMenu_Off"
               image_disabled="OptionsMenu_Disabled"
              layout="topleft"
-             left="0"
+             left="10"
              name="gear_menu_btn"
-             top="5"
+             top="9"
              width="18" />
             <button
              follows="bottom|left"
@@ -104,7 +110,7 @@
              left_pad="15"
              name="new_btn"
              tool_tip="Create a new pick or classified at the current location"
-             top="5"
+             top="9"
              width="18" />
             <button
              follows="bottom|right"
@@ -115,14 +121,17 @@
              layout="topleft"
              name="trash_btn"
              right="-10"
-             top="5"
+             top="9"
              width="18" />
         </panel>
         <panel
+ bg_opaque_color="DkGray"
+       background_visible="true"
+       background_opaque="true"
          layout="topleft"
          left="0"
          height="30"
-         top_pad="10"
+         top_pad="7"
          name="buttons_cucks"
          width="313">
        <button
@@ -131,35 +140,33 @@
          height="23"
          label="Info"
          layout="topleft"
-         left="5"
+         left="2"
          name="info_btn"
          tab_stop="false"
          tool_tip="Show pick information"
-         top="0"
-         width="55" />
+         top="5"
+         width="95" />
         <button
          enabled="false"
          follows="bottom|left"
          height="23"
          label="Teleport"
          layout="topleft"
-         left_pad="5"
+         left_pad="3"
          name="teleport_btn"
          tab_stop="false"
          tool_tip="Teleport to the corresponding area"
-         top="0"
-         width="77" />
+         width="117" />
         <button
          enabled="false"
          follows="bottom|left"
          height="23"
          label="Map"
          layout="topleft"
-         left_pad="5"
+         left_pad="3"
          name="show_on_map_btn"
          tab_stop="false"
          tool_tip="Show the corresponding area on the World Map"
-         top="0"
-         width="50" />
+         width="90" />
         </panel>
 </panel>

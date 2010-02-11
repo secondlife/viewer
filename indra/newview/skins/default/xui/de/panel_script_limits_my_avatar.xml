@@ -4,7 +4,7 @@
 		Wird geladen...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="Größe (KB)" name="size"/>
+		<scroll_list.columns label="Größe (KB)" name="size" width="80"/>
 		<scroll_list.columns label="URLs" name="urls"/>
 		<scroll_list.columns label="Objektname" name="name"/>
 		<scroll_list.columns label="Ort" name="location"/>

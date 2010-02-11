@@ -1049,9 +1049,13 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 
 	llassert(mDrawable);
 	llassert(mDrawable->getRegion());
-	llassert(mDrawable->getRegion()->getSpatialPartition(mPartitionType));
+	LLSpatialPartition *part = mDrawable->getRegion()->getSpatialPartition(mPartitionType);
+	llassert(part);
 	
-	mDrawable->getRegion()->getSpatialPartition(mPartitionType)->put(this);
+	if (part)
+	{
+		part->put(this);
+	}
 }
 
 LLSpatialBridge::~LLSpatialBridge()
@@ -1367,10 +1371,14 @@ BOOL LLSpatialBridge::updateMove()
 {
 	llassert(mDrawable);
 	llassert(mDrawable->getRegion());
-	llassert(mDrawable->getRegion()->getSpatialPartition(mPartitionType));
+	LLSpatialPartition* part = mDrawable->getRegion()->getSpatialPartition(mPartitionType);
+	llassert(part);
 
 	mOctree->balance();
-	mDrawable->getRegion()->getSpatialPartition(mPartitionType)->move(this, getSpatialGroup(), TRUE);
+	if (part)
+	{
+		part->move(this, getSpatialGroup(), TRUE);
+	}
 	return TRUE;
 }
 

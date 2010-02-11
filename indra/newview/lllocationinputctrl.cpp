@@ -176,7 +176,9 @@ private:
 static LLDefaultChildRegistry::Register<LLLocationInputCtrl> r("location_input");
 
 LLLocationInputCtrl::Params::Params()
-:	add_landmark_image_enabled("add_landmark_image_enabled"),
+:	icon_maturity_general("icon_maturity_general"),
+	icon_maturity_adult("icon_maturity_adult"),
+	add_landmark_image_enabled("add_landmark_image_enabled"),
 	add_landmark_image_disabled("add_landmark_image_disabled"),
 	add_landmark_image_hover("add_landmark_image_hover"),
 	add_landmark_image_selected("add_landmark_image_selected"),
@@ -185,6 +187,7 @@ LLLocationInputCtrl::Params::Params()
 	add_landmark_button("add_landmark_button"),
 	for_sale_button("for_sale_button"),
 	info_button("info_button"),
+	maturity_icon("maturity_icon"),
 	voice_icon("voice_icon"),
 	fly_icon("fly_icon"),
 	push_icon("push_icon"),
@@ -204,7 +207,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mForSaleBtn(NULL),
 	mInfoBtn(NULL),
 	mLandmarkImageOn(NULL),
-	mLandmarkImageOff(NULL)
+	mLandmarkImageOff(NULL),
+	mIconMaturityGeneral(NULL),
+	mIconMaturityAdult(NULL)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
 	// to make needed escaping while copying and cutting url
@@ -227,6 +232,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
 	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
+	mTextEntry->setContextMenu(NULL);
 	addChild(mTextEntry);
 	// LLLineEditor is replaced with LLLocationLineEditor
 
@@ -263,7 +269,20 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mAddLandmarkBtn = LLUICtrlFactory::create<LLButton>(al_params);
 	enableAddLandmarkButton(true);
 	addChild(mAddLandmarkBtn);
-	
+
+	if (p.icon_maturity_general())
+	{
+		mIconMaturityGeneral = p.icon_maturity_general;
+	}
+	if (p.icon_maturity_adult())
+	{
+		mIconMaturityAdult = p.icon_maturity_adult;
+	}
+
+	LLIconCtrl::Params maturity_icon = p.maturity_icon;
+	mMaturityIcon = LLUICtrlFactory::create<LLIconCtrl>(maturity_icon);
+	addChild(mMaturityIcon);
+
 	LLButton::Params for_sale_button = p.for_sale_button;
 	for_sale_button.tool_tip = LLTrans::getString("LocationCtrlForSaleTooltip");
 	for_sale_button.click_callback.function(
@@ -470,7 +489,10 @@ void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
  */
 void LLLocationInputCtrl::setText(const LLStringExplicit& text)
 {
-	mTextEntry->setText(text);
+	if (mTextEntry)
+	{
+		mTextEntry->setText(text);
+	}
 	mHasAutocompletedText = FALSE;
 }
 
@@ -479,7 +501,9 @@ void LLLocationInputCtrl::setFocus(BOOL b)
 	LLComboBox::setFocus(b);
 
 	if (mTextEntry && b && !mList->getVisible())
+	{
 		mTextEntry->setFocus(TRUE);
+	}
 }
 
 void LLLocationInputCtrl::handleLoginComplete()
@@ -519,6 +543,25 @@ void LLLocationInputCtrl::draw()
 		refreshHealth();
 	}
 	LLComboBox::draw();
+}
+
+void LLLocationInputCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLComboBox::reshape(width, height, called_from_parent);
+
+	// Setting cursor to 0  to show the left edge of the text. See EXT-4967.
+	mTextEntry->setCursor(0);
+	if (mTextEntry->hasSelection())
+	{
+		// Deselecting because selection position is changed together with
+		// cursor position change.
+		mTextEntry->deselect();
+	}
+
+	if (isHumanReadableLocationVisible)
+	{
+		positionMaturityIcon();
+	}
 }
 
 void LLLocationInputCtrl::onInfoButtonClicked()
@@ -650,8 +693,8 @@ void LLLocationInputCtrl::refreshLocation()
 {
 	// Is one of our children focused?
 	if (LLUICtrl::hasFocus() || mButton->hasFocus() || mList->hasFocus() ||
-		(mTextEntry && mTextEntry->hasFocus()) || (mAddLandmarkBtn->hasFocus()))
-
+	    (mTextEntry && mTextEntry->hasFocus()) ||
+	    (mAddLandmarkBtn->hasFocus()))
 	{
 		llwarns << "Location input should not be refreshed when having focus" << llendl;
 		return;
@@ -671,6 +714,34 @@ void LLLocationInputCtrl::refreshLocation()
 	// store human-readable location to compare it in changeLocationPresentation()
 	mHumanReadableLocation = location_name;
 	setText(location_name);
+	isHumanReadableLocationVisible = true;
+
+	// Updating maturity rating icon.
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+		return;
+
+	U8 sim_access = region->getSimAccess();
+	switch(sim_access)
+	{
+	case SIM_ACCESS_PG:
+		mMaturityIcon->setValue(mIconMaturityGeneral->getName());
+		mMaturityIcon->setVisible(TRUE);
+		break;
+
+	case SIM_ACCESS_ADULT:
+		mMaturityIcon->setValue(mIconMaturityAdult->getName());
+		mMaturityIcon->setVisible(TRUE);
+		break;
+
+	default:
+		mMaturityIcon->setVisible(FALSE);
+	}
+
+	if (mMaturityIcon->getVisible())
+	{
+		positionMaturityIcon();
+	}
 }
 
 // returns new right edge
@@ -691,7 +762,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 {
 	// Our "cursor" moving right to left
 	S32 x = mAddLandmarkBtn->getRect().mLeft;
-	
+
 	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
 	if (show_properties)
 	{
@@ -761,7 +832,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		}
 		mDamageText->setVisible(false);
 	}
-	
+
 	S32 left_pad, right_pad;
 	mTextEntry->getTextPadding(&left_pad, &right_pad);
 	right_pad = mTextEntry->getRect().mRight - x;
@@ -782,6 +853,25 @@ void LLLocationInputCtrl::refreshHealth()
 			last_health = health;
 		}
 	}
+}
+
+void LLLocationInputCtrl::positionMaturityIcon()
+{
+	const LLFontGL* font = mTextEntry->getFont();
+	if (!font)
+		return;
+
+	S32 left_pad, right_pad;
+	mTextEntry->getTextPadding(&left_pad, &right_pad);
+
+	// Calculate the right edge of rendered text + a whitespace.
+	left_pad = left_pad + font->getWidth(mTextEntry->getText()) + font->getWidth(" ");
+
+	LLRect rect = mMaturityIcon->getRect();
+	mMaturityIcon->setRect(rect.setOriginAndSize(left_pad, rect.mBottom, rect.getWidth(), rect.getHeight()));
+
+	// Hide icon if it text area is not width enough to display it, show otherwise.
+	mMaturityIcon->setVisible(rect.mRight < mTextEntry->getRect().getWidth() - right_pad);
 }
 
 void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
@@ -884,16 +974,23 @@ void LLLocationInputCtrl::updateWidgetlayout()
 
 void LLLocationInputCtrl::changeLocationPresentation()
 {
-	//change location presentation only if user does not  select/past anything and 
-	//human-readable region name  is being displayed
+	if (!mTextEntry)
+		return;
+
+	//change location presentation only if user does not select/paste anything and 
+	//human-readable region name is being displayed
 	std::string text = mTextEntry->getText();
 	LLStringUtil::trim(text);
-	if(mTextEntry && !mTextEntry->hasSelection() && text == mHumanReadableLocation )
+	if(!mTextEntry->hasSelection() && text == mHumanReadableLocation)
 	{
 		//needs unescaped one
 		mTextEntry->setText(LLAgentUI::buildSLURL(false));
 		mTextEntry->selectAll();
-	}	
+
+		mMaturityIcon->setVisible(FALSE);
+
+		isHumanReadableLocationVisible = false;
+	}
 }
 
 void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)

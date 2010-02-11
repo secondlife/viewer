@@ -40,6 +40,7 @@
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
 #include "llerrorcontrol.h"
+#include "lleventtimer.h"
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
@@ -1353,9 +1354,6 @@ bool LLAppViewer::cleanup()
 
 	llinfos << "Cache files removed" << llendflush;
 
-
-	cleanup_menus();
-
 	// Wait for any pending VFS IO
 	while (1)
 	{
@@ -1681,7 +1679,7 @@ bool LLAppViewer::initThreads()
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && false);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
 	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
@@ -1935,7 +1933,6 @@ bool LLAppViewer::initConfiguration()
 //	LLFirstUse::addConfigVariable("FirstSandbox");
 //	LLFirstUse::addConfigVariable("FirstFlexible");
 //	LLFirstUse::addConfigVariable("FirstDebugMenus");
-//	LLFirstUse::addConfigVariable("FirstStreamingMedia");
 //	LLFirstUse::addConfigVariable("FirstSculptedPrim");
 //	LLFirstUse::addConfigVariable("FirstVoice");
 //	LLFirstUse::addConfigVariable("FirstMedia");
@@ -2364,9 +2361,6 @@ bool LLAppViewer::initWindow()
 
 	// store setting in a global for easy access and modification
 	gNoRender = gSavedSettings.getBOOL("DisableRendering");
-
-	// Hide the splash screen
-	LLSplashScreen::hide();
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
@@ -3010,7 +3004,7 @@ bool LLAppViewer::initCache()
 	// Purge cache if it belongs to an old version
 	else
 	{
-		static const S32 cache_version = 5;
+		static const S32 cache_version = 6;
 		if (gSavedSettings.getS32("LocalCacheVersion") != cache_version)
 		{
 			mPurgeCache = true;

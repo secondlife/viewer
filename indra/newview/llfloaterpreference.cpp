@@ -110,8 +110,6 @@
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
-const S32 ASPECT_RATIO_STR_LEN = 100;
-
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
 public:
@@ -283,7 +281,6 @@ void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 }
 // static
 std::string LLFloaterPreference::sSkin = "";
-F32 LLFloaterPreference::sAspectRatio = 0.0;
 //////////////////////////////////////////////
 // LLFloaterPreference
 
@@ -324,11 +321,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",     boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));	
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::onUpdateSliderText,this, _1,_2));	
-	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
 	mCommitCallbackRegistrar.add("Pref.ParcelMediaAutoPlayEnable",       boost::bind(&LLFloaterPreference::onCommitParcelMediaAutoPlayEnable, this));	
 	mCommitCallbackRegistrar.add("Pref.MediaEnabled",           boost::bind(&LLFloaterPreference::onCommitMediaEnabled, this));	
 	mCommitCallbackRegistrar.add("Pref.MusicEnabled",           boost::bind(&LLFloaterPreference::onCommitMusicEnabled, this));	
-	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
@@ -359,12 +354,7 @@ BOOL LLFloaterPreference::postBuild()
 LLFloaterPreference::~LLFloaterPreference()
 {
 	// clean up user data
-	LLComboBox* ctrl_aspect_ratio = getChild<LLComboBox>( "aspect_ratio");
 	LLComboBox* ctrl_window_size = getChild<LLComboBox>("windowsize combo");
-	for (S32 i = 0; i < ctrl_aspect_ratio->getItemCount(); i++)
-	{
-		ctrl_aspect_ratio->setCurrentByIndex(i);
-	}
 	for (S32 i = 0; i < ctrl_window_size->getItemCount(); i++)
 	{
 		ctrl_window_size->setCurrentByIndex(i);
@@ -514,8 +504,6 @@ void LLFloaterPreference::cancel()
 	
 	LLFloaterReg::hideInstance("pref_voicedevicesettings");
 	
-	gSavedSettings.setF32("FullScreenAspectRatio", sAspectRatio);
-
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -571,6 +559,16 @@ void LLFloaterPreference::setHardwareDefaults()
 {
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
 	refreshEnabledGraphics();
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+	child_list_t::const_iterator end = tabcontainer->getChildList()->end();
+	for ( ; iter != end; ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
+		if (panel)
+			panel->setHardwareDefaults();
+	}
 }
 
 //virtual
@@ -592,7 +590,7 @@ void LLFloaterPreference::onBtnOK()
 	if (hasFocus())
 	{
 		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus->acceptsTextInput())
+		if (cur_focus && cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
 		}
@@ -625,7 +623,7 @@ void LLFloaterPreference::onBtnApply( )
 	if (hasFocus())
 	{
 		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus->acceptsTextInput())
+		if (cur_focus && cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
 		}
@@ -642,7 +640,7 @@ void LLFloaterPreference::onBtnCancel()
 	if (hasFocus())
 	{
 		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus->acceptsTextInput())
+		if (cur_focus && cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
 		}
@@ -958,37 +956,6 @@ void LLFloaterPreference::disableUnavailableSettings()
 	}
 }
 
-void LLFloaterPreference::onCommitAutoDetectAspect()
-{
-	BOOL auto_detect = getChild<LLCheckBoxCtrl>("aspect_auto_detect")->get();
-	F32 ratio;
-	
-	if (auto_detect)
-	{
-		S32 numerator = 0;
-		S32 denominator = 0;
-		
-		// clear any aspect ratio override
-		gViewerWindow->mWindow->setNativeAspectRatio(0.f);
-		fractionFromDecimal(gViewerWindow->mWindow->getNativeAspectRatio(), numerator, denominator);
-		
-		std::string aspect;
-		if (numerator != 0)
-		{
-			aspect = llformat("%d:%d", numerator, denominator);
-		}
-		else
-		{
-			aspect = llformat("%.3f", gViewerWindow->mWindow->getNativeAspectRatio());
-		}
-		
-		getChild<LLComboBox>( "aspect_ratio")->setLabel(aspect);
-		
-		ratio = gViewerWindow->mWindow->getNativeAspectRatio();
-		gSavedSettings.setF32("FullScreenAspectRatio", ratio);
-	}
-}
-
 void LLFloaterPreference::onCommitParcelMediaAutoPlayEnable()
 {
 	BOOL autoplay = getChild<LLCheckBoxCtrl>("autoplay_enabled")->get();
@@ -1256,56 +1223,9 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	}
 }
 
-void LLFloaterPreference::onKeystrokeAspectRatio()
-{
-	getChild<LLCheckBoxCtrl>("aspect_auto_detect")->set(FALSE);
-}
-
 void LLFloaterPreference::applyResolution()
 {
-	LLComboBox* ctrl_aspect_ratio = getChild<LLComboBox>( "aspect_ratio");
 	gGL.flush();
-	char aspect_ratio_text[ASPECT_RATIO_STR_LEN];		/*Flawfinder: ignore*/
-	if (ctrl_aspect_ratio->getCurrentIndex() == -1)
-	{
-		// *Can't pass const char* from c_str() into strtok
-		strncpy(aspect_ratio_text, ctrl_aspect_ratio->getSimple().c_str(), sizeof(aspect_ratio_text) -1);	/*Flawfinder: ignore*/
-		aspect_ratio_text[sizeof(aspect_ratio_text) -1] = '\0';
-		char *element = strtok(aspect_ratio_text, ":/\\");
-		if (!element)
-		{
-			sAspectRatio = 0.f; // will be clamped later
-		}
-		else
-		{
-			LLLocale locale(LLLocale::USER_LOCALE);
-			sAspectRatio = (F32)atof(element);
-		}
-		
-		// look for denominator
-		element = strtok(NULL, ":/\\");
-		if (element)
-		{
-			LLLocale locale(LLLocale::USER_LOCALE);
-			
-			F32 denominator = (F32)atof(element);
-			if (denominator != 0.f)
-			{
-				sAspectRatio /= denominator;
-			}
-		}
-	}
-	else
-	{
-		sAspectRatio = (F32)ctrl_aspect_ratio->getValue().asReal();
-	}
-	
-	// presumably, user entered a non-numeric value if aspect_ratio == 0.f
-	if (sAspectRatio != 0.f)
-	{
-		sAspectRatio = llclamp(sAspectRatio, 0.2f, 5.f);
-		gSavedSettings.setF32("FullScreenAspectRatio", sAspectRatio);
-	}
 	
 	// Screen resolution
 	S32 num_resolutions;
@@ -1382,48 +1302,6 @@ BOOL LLPanelPreference::postBuild()
 	{
 		childSetText("email_address",getString("log_in_to_change") );
 //		childSetText("busy_response", getString("log_in_to_change"));		
-	}
-
-
-	if(hasChild("aspect_ratio"))
-	{
-		// We used to set up fullscreen resolution and window size
-		// controls here, see LLFloaterWindowSize::initWindowSizeControls()
-		
-		if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))
-		{
-			LLFloaterPreference::sAspectRatio = gViewerWindow->getDisplayAspectRatio();
-		}
-		else
-		{
-			LLFloaterPreference::sAspectRatio = gSavedSettings.getF32("FullScreenAspectRatio");
-		}
-
-		getChild<LLComboBox>("aspect_ratio")->setTextEntryCallback(boost::bind(&LLPanelPreference::setControlFalse, this, LLSD("FullScreenAutoDetectAspectRatio") ));	
-		
-
-		S32 numerator = 0;
-		S32 denominator = 0;
-		fractionFromDecimal(LLFloaterPreference::sAspectRatio, numerator, denominator);		
-		
-		LLUIString aspect_ratio_text = getString("aspect_ratio_text");
-		if (numerator != 0)
-		{
-			aspect_ratio_text.setArg("[NUM]", llformat("%d",  numerator));
-			aspect_ratio_text.setArg("[DEN]", llformat("%d",  denominator));
-		}	
-		else
-		{
-			aspect_ratio_text = llformat("%.3f", LLFloaterPreference::sAspectRatio);
-		}
-		
-		LLComboBox* ctrl_aspect_ratio = getChild<LLComboBox>( "aspect_ratio");
-		//mCtrlAspectRatio->setCommitCallback(onSelectAspectRatio, this);
-		// add default aspect ratios
-		ctrl_aspect_ratio->add(aspect_ratio_text, &LLFloaterPreference::sAspectRatio, ADD_TOP);
-		ctrl_aspect_ratio->setCurrentByIndex(0);
-		
-		refresh();
 	}
 	
 	//////////////////////PanelPrivacy ///////////////////
@@ -1524,4 +1402,94 @@ void LLPanelPreference::setControlFalse(const LLSD& user_data)
 	
 	if (control)
 		control->set(LLSD(FALSE));
+}
+
+static LLRegisterPanelClassWrapper<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
+
+BOOL LLPanelPreferenceGraphics::postBuild()
+{
+	return LLPanelPreference::postBuild();
+}
+void LLPanelPreferenceGraphics::draw()
+{
+	LLPanelPreference::draw();
+	
+	LLButton* button_apply = findChild<LLButton>("Apply");
+	
+	if(button_apply && button_apply->getVisible())
+	{
+		bool enable = hasDirtyChilds();
+
+		button_apply->setEnabled(enable);
+
+	}
+}
+bool LLPanelPreferenceGraphics::hasDirtyChilds()
+{
+	std::list<LLView*> view_stack;
+	view_stack.push_back(this);
+	while(!view_stack.empty())
+	{
+		// Process view on top of the stack
+		LLView* curview = view_stack.front();
+		view_stack.pop_front();
+
+		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+		if (ctrl)
+		{
+			if(ctrl->isDirty())
+				return true;
+		}
+		// Push children onto the end of the work stack
+		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+			 iter != curview->getChildList()->end(); ++iter)
+		{
+			view_stack.push_back(*iter);
+		}
+	}	
+	return false;
+}
+
+void LLPanelPreferenceGraphics::resetDirtyChilds()
+{
+	std::list<LLView*> view_stack;
+	view_stack.push_back(this);
+	while(!view_stack.empty())
+	{
+		// Process view on top of the stack
+		LLView* curview = view_stack.front();
+		view_stack.pop_front();
+
+		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+		if (ctrl)
+		{
+			ctrl->resetDirty();
+		}
+		// Push children onto the end of the work stack
+		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+			 iter != curview->getChildList()->end(); ++iter)
+		{
+			view_stack.push_back(*iter);
+		}
+	}	
+}
+void LLPanelPreferenceGraphics::apply()
+{
+	resetDirtyChilds();
+	LLPanelPreference::apply();
+}
+void LLPanelPreferenceGraphics::cancel()
+{
+	resetDirtyChilds();
+	LLPanelPreference::cancel();
+}
+void LLPanelPreferenceGraphics::saveSettings()
+{
+	resetDirtyChilds();
+	LLPanelPreference::saveSettings();
+}
+void LLPanelPreferenceGraphics::setHardwareDefaults()
+{
+	resetDirtyChilds();
+	LLPanelPreference::setHardwareDefaults();
 }

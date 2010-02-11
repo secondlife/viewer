@@ -57,13 +57,13 @@
          label="My Inventory"
          layout="topleft"
          name="Inventory"
-         shortcut="control|shift|I">
+         shortcut="control|I">
             <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="inventory" />
+             function="SidetrayPanelVisible"
+             parameter="sidepanel_inventory" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="inventory" />
+             function="ShowSidetrayPanel"
+             parameter="sidepanel_inventory" />
         </menu_item_check>
         <menu_item_call
          label="Show Inventory in Side Tray"
@@ -1594,6 +1594,17 @@
          name="Shortcuts"
          tear_off="true"
          visible="false">
+          <menu_item_call
+             label="Image (L$[COST])..."
+             layout="topleft"
+             name="Upload Image"
+             shortcut="control|U">
+            <menu_item_call.on_click
+               function="File.UploadImage"
+               parameter="" />
+            <menu_item_call.on_enable
+               function="File.EnableUpload" />
+            </menu_item_call>
             <menu_item_check
                label="Search"
                layout="topleft"
@@ -1997,6 +2008,18 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleHUDInfo"
                  parameter="fov" />
+            </menu_item_check>
+            <menu_item_check
+             label="Badge"
+             layout="topleft"
+             name="Badge"
+			 shortcut="alt|control|shift|h">
+                <menu_item_check.on_check
+                 function="Advanced.CheckHUDInfo"
+                 parameter="badge" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleHUDInfo"
+                 parameter="badge" />
             </menu_item_check>
         </menu>
         <menu

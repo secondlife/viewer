@@ -41,6 +41,7 @@
 #include "llfloateruipreview.h"			// Own header
 
 // Internal utility
+#include "lleventtimer.h"
 #include "llrender.h"
 #include "llsdutil.h"
 #include "llxmltree.h"
@@ -91,7 +92,6 @@ static std::string get_xui_dir()
 }
 
 // Forward declarations to avoid header dependencies
-class LLEventTimer;
 class LLColor;
 class LLScrollListCtrl;
 class LLComboBox;
@@ -362,8 +362,7 @@ BOOL LLFadeEventTimer::tick()
 
 	if(NULL == mParent)	// no more need to tick, so suicide
 	{
-		delete this;
-		return FALSE;
+		return TRUE;
 	}
 
 	// Set up colors

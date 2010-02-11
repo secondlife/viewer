@@ -143,12 +143,12 @@ with the same filename but different name
 
   <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
 
-  <texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Over" file_name="widgets/DropDown_Over.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+  <texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Over" file_name="widgets/DropDown_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
@@ -265,8 +265,8 @@ with the same filename but different name
   <texture name="Linden_Dollar_Alert" file_name="widgets/Linden_Dollar_Alert.png"/>
   <texture name="Linden_Dollar_Background" file_name="widgets/Linden_Dollar_Background.png"/>
 
-  <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" />
-  <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" />
+  <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" scale.left="2" scale.bottom="2" scale.top="22" scale.right="278" />
+  <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" scale.left="2" scale.bottom="2" scale.top="22" scale.right="278" />
 
   <texture name="Lock" file_name="icons/Lock.png" preload="false" />
   <texture name="Lock2" file_name="navbar/Lock.png" preload="false" />
@@ -368,7 +368,7 @@ with the same filename but different name
 
  <texture name="Parcel_Build_Dark" file_name="icons/Parcel_Build_Dark.png" preload="false" />
  <texture name="Parcel_BuildNo_Dark" file_name="icons/Parcel_BuildNo_Dark.png" preload="false" />
- <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Health_Dark.png" preload="false" />
+ <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Damage_Dark.png" preload="false" />
  <texture name="Parcel_DamageNo_Dark" file_name="icons/Parcel_DamageNo_Dark.png" preload="false" />
  <texture name="Parcel_Evry_Dark" file_name="icons/Parcel_Evry_Dark.png" preload="false" />
  <texture name="Parcel_Exp_Dark" file_name="icons/Parcel_Exp_Dark.png" preload="false" />
@@ -376,6 +376,7 @@ with the same filename but different name
  <texture name="Parcel_FlyNo_Dark" file_name="icons/Parcel_FlyNo_Dark.png" preload="false" />
  <texture name="Parcel_ForSale_Dark" file_name="icons/Parcel_ForSale_Dark.png" preload="false" />
  <texture name="Parcel_ForSaleNo_Dark" file_name="icons/Parcel_ForSaleNo_Dark.png" preload="false" />
+ <texture name="Parcel_Health_Dark" file_name="icons/Parcel_Health_Dark.png" preload="false" />
  <texture name="Parcel_M_Dark" file_name="icons/Parcel_M_Dark.png" preload="false" />
  <texture name="Parcel_PG_Dark" file_name="icons/Parcel_PG_Dark.png" preload="false" />
  <texture name="Parcel_Push_Dark" file_name="icons/Parcel_Push_Dark.png" preload="false" />
@@ -514,6 +515,7 @@ with the same filename but different name
   <texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" />
 
   <texture name="SL_Logo" file_name="icons/SL_Logo.png" preload="true" />
+  <texture name="OBJECT_Icon" file_name="icons/object_icon.png" preload="true" />
 
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />

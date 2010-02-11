@@ -21,7 +21,7 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<button label="" label_selected="" name="buycurrency" tool_tip="私の残高"/>
+	<button label="" label_selected="" name="buycurrency" tool_tip="所持金"/>
 	<button label="L$ の購入" name="buyL" tool_tip="クリックして L$ を購入します"/>
 	<text name="TimeText" tool_tip="現在時刻（太平洋）">
 		12：00 AM

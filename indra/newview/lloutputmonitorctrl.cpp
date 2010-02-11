@@ -249,6 +249,11 @@ void LLOutputMonitorCtrl::draw()
 
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)
 {
+	if (speaker_id.isNull() && mSpeakerId.notNull())
+	{
+		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
+	}
+
 	if (speaker_id.isNull() || speaker_id == mSpeakerId) return;
 
 	if (mSpeakerId.notNull())
@@ -256,6 +261,7 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)
 		// Unregister previous registration to avoid crash. EXT-4782.
 		LLSpeakingIndicatorManager::unregisterSpeakingIndicator(mSpeakerId, this);
 	}
+
 	mSpeakerId = speaker_id;
 	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this);
 

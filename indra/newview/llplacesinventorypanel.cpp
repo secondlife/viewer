@@ -118,6 +118,7 @@ BOOL LLPlacesInventoryPanel::postBuild()
 	mScroller->addChild(mFolders);
 
 	mFolders->setScrollContainer(mScroller);
+	mFolders->addChild(mFolders->mStatusTextBox);
 
 
 	// cut subitems
@@ -173,6 +174,15 @@ S32	LLPlacesInventoryPanel::notify(const LLSD& info)
 //////////////////////////////////////////////////////////////////////////
 //  PUBLIC METHODS
 //////////////////////////////////////////////////////////////////////////
+
+LLPlacesFolderView::LLPlacesFolderView(const LLFolderView::Params& p)
+: LLFolderView(p)
+{
+	// we do not need auto select functionality in places landmarks, so override default behavior.
+	// this disables applying of the LLSelectFirstFilteredItem in LLFolderView::doIdle.
+	// Fixed issues: EXT-1631, EXT-4994.
+	mAutoSelectOverride = TRUE;
+}
 
 BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {

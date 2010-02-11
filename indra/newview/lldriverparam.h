@@ -34,6 +34,7 @@
 #define LL_LLDRIVERPARAM_H
 
 #include "llviewervisualparam.h"
+#include "llwearabledictionary.h"
 
 class LLVOAvatar;
 class LLWearable;
@@ -93,6 +94,7 @@ public:
 
 	void					setWearable(LLWearable *wearablep);
 	void					setAvatar(LLVOAvatar *avatarp);
+	void					updateCrossDrivenParams(EWearableType driven_type);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
@@ -112,6 +114,7 @@ public:
 	/*virtual*/ LLVector3			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
 	/*virtual*/ const LLVector3*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
 	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
+
 protected:
 	F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
 	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake);

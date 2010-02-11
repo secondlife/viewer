@@ -84,10 +84,10 @@
 			<text name="DayCycleText3">
 				プレビュー：
 			</text>
-			<button label="再生" label_selected="再生" name="WLAnimSky" />
+			<button label="再生" label_selected="再生" name="WLAnimSky" left_delta="70"/>
 			<button label="停止!" label_selected="停止" name="WLStopAnimSky" />
 			<button label="不動産の時刻を使用"
-			     label_selected="不動産の時刻に変更" name="WLUseLindenTime" />
+			     label_selected="不動産の時刻に変更" name="WLUseLindenTime" width="140"/>
 			<button label="デイ・テストを保存"
 			     label_selected="デイ・テストを保存" name="WLSaveDayCycle" />
 			<button label="デイ・テストをロード"

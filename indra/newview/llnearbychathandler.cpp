@@ -274,6 +274,13 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 			toast->setRect(toast_rect);
 			toast->setIsHidden(false);
 			toast->setVisible(TRUE);
+
+			if(!toast->hasFocus())
+			{
+				// Fixing Z-order of toasts (EXT-4862)
+				// Next toast will be positioned under this one.
+				gFloaterView->sendChildToBack(toast);
+			}
 			
 			bottom = toast->getRect().mTop;
 		}		
@@ -338,8 +345,10 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
 	}
 	nearby_chat->addMessage(chat_msg, true, args);
-	if(nearby_chat->getVisible())
-		return;//no need in toast if chat is visible
+	if( nearby_chat->getVisible()
+		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
+			&& gSavedSettings.getBOOL("UseChatBubbles") ) )
+		return;//no need in toast if chat is visible or if bubble chat is enabled
 
 	// Handle irc styled messages for toast panel
 	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)

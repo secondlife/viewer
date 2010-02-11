@@ -148,8 +148,8 @@ public:
 		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
 
 		mParcelId(LLUUID()),
-		mGotParcelMemoryUsed(FALSE),
-		mGotParcelMemoryMax(FALSE),
+		mGotParcelMemoryUsed(false),
+		mGotParcelMemoryMax(false),
 		mParcelMemoryMax(0),
 		mParcelMemoryUsed(0) {};
 
@@ -173,21 +173,21 @@ public:
 	void returnObjects();
 
 private:
-	void onNameCache(	 const LLUUID& id,
+	void onNameCache(const LLUUID& id,
 						 const std::string& name);
 
 	LLSD mContent;
 	LLUUID mParcelId;
-	BOOL mGotParcelMemoryUsed;
-	BOOL mGotParcelMemoryUsedDetails;
-	BOOL mGotParcelMemoryMax;
+	bool mGotParcelMemoryUsed;
+	bool mGotParcelMemoryUsedDetails;
+	bool mGotParcelMemoryMax;
 	S32 mParcelMemoryMax;
 	S32 mParcelMemoryUsed;
 	S32 mParcelMemoryUsedDetails;
 	
-	BOOL mGotParcelURLsUsed;
-	BOOL mGotParcelURLsUsedDetails;
-	BOOL mGotParcelURLsMax;
+	bool mGotParcelURLsUsed;
+	bool mGotParcelURLsUsedDetails;
+	bool mGotParcelURLsMax;
 	S32 mParcelURLsMax;
 	S32 mParcelURLsUsed;
 	S32 mParcelURLsUsedDetails;
@@ -215,7 +215,21 @@ class LLPanelScriptLimitsAttachment : public LLPanelScriptLimitsInfo
 	
 public:
 	LLPanelScriptLimitsAttachment()
-		:	LLPanelScriptLimitsInfo() {};
+		:	LLPanelScriptLimitsInfo(),
+		mGotAttachmentMemoryUsed(false),
+		mGotAttachmentMemoryUsedDetails(false),
+		mGotAttachmentMemoryMax(false),
+		mAttachmentMemoryMax(0),
+		mAttachmentMemoryUsed(0),
+		mAttachmentMemoryUsedDetails(0),
+		mGotAttachmentURLsUsed(false),
+		mGotAttachmentURLsUsedDetails(false),
+		mGotAttachmentURLsMax(false),
+		mAttachmentURLsMax(0),
+		mAttachmentURLsUsed(0),
+		mAttachmentURLsUsedDetails(0)
+		{};
+
 	~LLPanelScriptLimitsAttachment()
 	{
 	};
@@ -231,16 +245,16 @@ public:
 
 private:
 
-	BOOL mGotAttachmentMemoryUsed;
-	BOOL mGotAttachmentMemoryUsedDetails;
-	BOOL mGotAttachmentMemoryMax;
+	bool mGotAttachmentMemoryUsed;
+	bool mGotAttachmentMemoryUsedDetails;
+	bool mGotAttachmentMemoryMax;
 	S32 mAttachmentMemoryMax;
 	S32 mAttachmentMemoryUsed;
 	S32 mAttachmentMemoryUsedDetails;
 	
-	BOOL mGotAttachmentURLsUsed;
-	BOOL mGotAttachmentURLsUsedDetails;
-	BOOL mGotAttachmentURLsMax;
+	bool mGotAttachmentURLsUsed;
+	bool mGotAttachmentURLsUsedDetails;
+	bool mGotAttachmentURLsMax;
 	S32 mAttachmentURLsMax;
 	S32 mAttachmentURLsUsed;
 	S32 mAttachmentURLsUsedDetails;

@@ -11,15 +11,15 @@
 			</text>
 			<check_box label="Startbereich Einleitung" name="check prelude" tool_tip="Diese Region zu einem Startbereich machen."/>
 			<check_box label="Sonne fest" name="check fixed sun" tool_tip="Fixiert den Sonnenstand (wie in „Region/Grundstück“ &gt; „Terrain“."/>
-			<check_box height="32" label="Zuhause auf Teleport  zurücksetzen" name="check reset home" tool_tip="Wenn Einwohner weg teleportieren, ihr Zuhause auf Zielposition setzen."/>
-			<check_box bottom_delta="-32" label="Sichtbar" name="check visible" tool_tip="Diese Region für Nicht-Götter sichtbar machen."/>
+			<check_box label="Zuhause auf Teleport zurücksetzen" name="check reset home" tool_tip="Wenn Einwohner weg teleportieren, ihr Zuhause auf Zielposition setzen."/>
+			<check_box label="Sichtbar" name="check visible" tool_tip="Diese Region für Nicht-Götter sichtbar machen."/>
 			<check_box label="Schaden" name="check damage" tool_tip="Schaden in dieser Region aktivieren."/>
 			<check_box label="Trafficüberwachung blockieren" name="block dwell" tool_tip="In dieser Region die Traffic-Berechnung abschalten."/>
 			<check_box label="Terraformen blockieren" name="block terraform" tool_tip="Das Terraformen von Land verbieten (Benutzen Sie dies um Leuten das Terraformen ihres Landes zu verbieten)"/>
 			<check_box label="Sandkasten" name="is sandbox" tool_tip="Sandkastenregion ein-/ausschalten."/>
-			<button label="Terrain formen" label_selected="Terrain formen" name="Bake Terrain" tool_tip="Das aktuelle Terrain als Standard speichern." width="118"/>
-			<button label="Terrain zurücksetzen" label_selected="Terrain zurücksetzen" name="Revert Terrain" tool_tip="Das aktuelle Terrain mit dem Standard ersetzen." width="118"/>
-			<button label="Terrain tauschen" label_selected="Terrain tauschen" name="Swap Terrain" tool_tip="Aktuelles Terrain gegen Standard austauschen." width="118"/>
+			<button label="Terrain formen" label_selected="Terrain formen" name="Bake Terrain" tool_tip="Das aktuelle Terrain als Standard speichern." width="120"/>
+			<button label="Terrain zurücksetzen" label_selected="Terrain zurücksetzen" name="Revert Terrain" tool_tip="Das aktuelle Terrain mit dem Standard ersetzen." width="120"/>
+			<button label="Terrain tauschen" label_selected="Terrain tauschen" name="Swap Terrain" tool_tip="Aktuelles Terrain gegen Standard austauschen." width="120"/>
 			<text name="estate id">
 				Grundstücks-ID:
 			</text>
@@ -32,11 +32,11 @@
 			</text>
 			<line_editor left_delta="110" name="gridposx" tool_tip="Die X-Rasterposition dieser Region" width="35"/>
 			<line_editor left_delta="45" name="gridposy" tool_tip="Die Y-Rasterposition dieser Region" width="35"/>
-			<text name="Redirect to Grid: ">
+			<text name="Redirect to Grid: " width="110">
 				Auf Raster umleiten:
 			</text>
-			<line_editor left_delta="110" name="redirectx" width="35"/>
-			<line_editor left_delta="45" name="redirecty" width="35"/>
+			<line_editor left_delta="110" name="redirectx" width="35" left_pad="0"/>
+			<line_editor left_delta="45" name="redirecty" width="35" />
 			<text font="SansSerifSmall" name="billable factor text">
 				Abrechnungsfaktor:
 			</text>
@@ -45,8 +45,8 @@
 			</text>
 			<button label="Aktualisieren" label_selected="Aktualisieren" name="Refresh" tool_tip="Klicken Sie hier, um die obigen Informationen zu aktualisieren."/>
 			<button label="Übernehmen" label_selected="Übernehmen" name="Apply" tool_tip="Klicken Sie hier, um die obigen Änderungen zu übernehmen."/>
-			<button label="Region auswählen" label_selected="Region auswählen" left="136" name="Select Region" tool_tip="Die gesamte Region mit dem Landwerkzeug auswählen." width="130"/>
-			<button label="Automatisch speichern" label_selected="Automatisch speichern" left="136" name="Autosave now" tool_tip="gzipped-Status im Autosave-Verzeichnis speichern." width="130"/>
+			<button label="Region auswählen" label_selected="Region auswählen" left="136" name="Select Region" tool_tip="Die gesamte Region mit dem Landwerkzeug auswählen." width="132"/>
+			<button label="Automatisch speichern" label_selected="Automatisch speichern" left="136" name="Autosave now" tool_tip="gzipped-Status im Autosave-Verzeichnis speichern." width="132"/>
 		</panel>
 		<panel label="Objekte" name="objects">
 			<panel.string name="no_target">

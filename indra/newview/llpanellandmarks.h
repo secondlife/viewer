@@ -110,7 +110,7 @@ private:
 	void initMyInventoryPanel();
 	void initLibraryInventoryPanel();
 	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
-	void initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list);
+	void initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list, bool expand_tab);
 	void onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list);
 	void deselectOtherThan(const LLPlacesInventoryPanel* inventory_list);
 

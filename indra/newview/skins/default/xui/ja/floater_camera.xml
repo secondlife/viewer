@@ -11,7 +11,7 @@
 	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に動かします"/>
-		<panel name="zoom" tool_tip="向いてる方法にカメラをズーム">
+		<panel name="zoom" tool_tip="向いている方法にカメラをズーム">
 			<slider_bar name="zoom_slider" tool_tip="向いている方向にカメラをズーム"/>
 		</panel>
 		<joystick_rotate name="cam_rotate_stick" tool_tip="自分を軸にカメラを回す"/>

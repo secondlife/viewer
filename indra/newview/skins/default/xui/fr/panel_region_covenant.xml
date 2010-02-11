@@ -18,7 +18,7 @@
 	<text name="estate_cov_lbl">
 		Règlement :
 	</text>
-	<text name="covenant_timestamp_text">
+	<text name="covenant_timestamp_text" width="350">
 		Dernière modification le mercredi 31 décembre 1969 16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
@@ -27,8 +27,8 @@
 	</text_editor>
 	<button label="Réinitialiser" name="reset_covenant"/>
 	<text name="covenant_help_text">
-		Les changements apportés au règlement apparaîtront sur toutes
-      les parcelles du domaine.
+		Les changements apportés au règlement apparaîtront sur
+toutes les parcelles du domaine.
 	</text>
 	<text bottom_delta="-31" name="covenant_instructions">
 		Faire glisser une note pour changer le règlement de ce domaine.

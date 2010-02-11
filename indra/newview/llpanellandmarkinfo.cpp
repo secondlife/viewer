@@ -413,21 +413,24 @@ void LLPanelLandmarkInfo::populateFoldersList()
 
 	// Put the "Landmarks" folder first in list.
 	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-	const LLViewerInventoryCategory* cat = gInventory.getCategory(landmarks_id);
-	if (!cat)
+	const LLViewerInventoryCategory* lmcat = gInventory.getCategory(landmarks_id);
+	if (!lmcat)
 	{
 		llwarns << "Cannot find the landmarks folder" << llendl;
 	}
-	std::string cat_full_name = getFullFolderName(cat);
-	mFolderCombo->add(cat_full_name, cat->getUUID());
+	else
+	{
+		std::string cat_full_name = getFullFolderName(lmcat);
+		mFolderCombo->add(cat_full_name, lmcat->getUUID());
+	}
 
 	typedef std::vector<folder_pair_t> folder_vec_t;
 	folder_vec_t folders;
 	// Sort the folders by their full name.
 	for (S32 i = 0; i < cats.count(); i++)
 	{
-		cat = cats.get(i);
-		cat_full_name = getFullFolderName(cat);
+		const LLViewerInventoryCategory* cat = cats.get(i);
+		std::string cat_full_name = getFullFolderName(cat);
 		folders.push_back(folder_pair_t(cat->getUUID(), cat_full_name));
 	}
 	sort(folders.begin(), folders.end(), cmp_folders);

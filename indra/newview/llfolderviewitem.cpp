@@ -1339,10 +1339,6 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			if (folder->getFiltered() || folder->hasFilteredDescendants(filter.getMinRequiredGeneration()))
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
-				if (getRoot()->needsAutoSelect() && autoopen_folders)
-				{
-					folder->setOpenArrangeRecursively(TRUE);
-				}
 			}
 			// just skip it, it has already been filtered
 			continue;
@@ -2548,8 +2544,12 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 		{
 			// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
 			// or to LLInvFVBridge
-			S32 a_sort = (static_cast<const LLItemBridge*>(a->getListener()))->getItem()->getSortField();
-			S32 b_sort = (static_cast<const LLItemBridge*>(b->getListener()))->getItem()->getSortField();
+			LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a->getListener()))->getItem();
+			LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b->getListener()))->getItem();
+			if (!aitem || !bitem)
+				return false;
+			S32 a_sort = aitem->getSortField();
+			S32 b_sort = bitem->getSortField();
 			return a_sort < b_sort;
 		}
 	}

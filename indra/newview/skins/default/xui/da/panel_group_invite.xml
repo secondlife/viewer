@@ -1,31 +1,30 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Invitér et medlem" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Er du sikker på, at du vil invitere ny(e) ejer(e)? Denne handling er permanent!
+	</panel.string>
+	<panel.string name="loading">
+		(indlæser...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Nogen af avatarerne var allerede i gruppen og blev ikke inviteret
+	</panel.string>
 	<text name="help_text">
 		Du kan invitere flere beboere ad 
 gangen til at blive medlem af din 
 gruppe. Klik &apos;Åben personvælger&apos; for 
 at begynde.
 	</text>
-	<button label="Åben personvælger" name="add_button" bottom_delta="-30"/>
-	<name_list name="invitee_list"
-	     tool_tip="Hold Ctrl-tasten nede og klik på beboere for at vælge flere." />
-	<button label="Fjern valgte fra listen" name="remove_button"
-	     tool_tip="Fjerner beboere, der er valgt på ovenstående invitationsliste." />
+	<button bottom_delta="-30" label="Åben personvælger" name="add_button"/>
+	<name_list name="invitee_list" tool_tip="Hold Ctrl knappen nede og klik på beboer navne for at vælge flere"/>
+	<button label="Fjern valgte fra listen" name="remove_button" tool_tip="Fjern beboere valgt ovenfor fra invitationslisten"/>
 	<text name="role_text">
 		Vælg hvilken rolle, du vil tildele dem:
 	</text>
-	<combo_box name="role_name"
-	     tool_tip="Vælg fra listen med roller, du har tilladelse til at tildele medlemmerne." />
-	<button label="Send invitationer" name="ok_button" />
-	<button label="Annullér" name="cancel_button" />
-	<string name="confirm_invite_owner_str">
-		Er du sikker på, at du vil invitere ny(e) ejer(e)? Denne handling er permanent!
-	</string>
-	<!--button bottom="25" font="SansSerifSmall" halign="center" height="20"
-	     label="Send invitationer" left="65" name="ok_button" width="140" />
-	<button bottom_delta="-22" font="SansSerifSmall" halign="center" height="20"
-	     label="Annull&#233;r" left_delta="0" name="cancel_button" width="140" /-->
-	<string name="loading">
-		(indlæser...)
+	<combo_box name="role_name" tool_tip="Vælg fra en liste med roller du har ret til at tildele medlemmer"/>
+	<button label="Send invitationer" name="ok_button"/>
+	<button label="Annullér" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Gruppe invitation
 	</string>
 </panel>

@@ -41,6 +41,7 @@
 #include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
+#include "llviewercontrol.h"
 
 #define PICKER_SECOND_LIFE "2nd_life_pic"
 #define PICKER_FIRST_LIFE "real_world_pic"
@@ -69,6 +70,18 @@ BOOL LLPanelMe::postBuild()
 void LLPanelMe::onOpen(const LLSD& key)
 {
 	LLPanelProfile::onOpen(key);
+
+	// Force Edit My Profile if this is the first time when user is opening Me Panel (EXT-5068)
+	bool opened = gSavedSettings.getBOOL("MePanelOpened");
+	// In some cases Side Tray my call onOpen() twice, check getCollapsed() to be sure this
+	// is the last time onOpen() is called
+	if( !opened && !LLSideTray::getInstance()->getCollapsed() )
+	{
+		buildEditPanel();
+		openPanel(mEditPanel, getAvatarId());
+
+		gSavedSettings.setBOOL("MePanelOpened", true);
+	}
 }
 
 bool LLPanelMe::notifyChildren(const LLSD& info)

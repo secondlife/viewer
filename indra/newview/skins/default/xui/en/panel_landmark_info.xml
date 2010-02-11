@@ -71,7 +71,7 @@
      layout="topleft"
      left_pad="10"
      name="title"
-     text_color="white"
+     text_color="LtGray"
      top="0"
      use_ellipses="true"
      value="Place Profile"
@@ -269,6 +269,7 @@
                  name="notes_editor"
                  read_only="true"
                  text_readonly_color="white"
+                 text_type="ascii"
                  top_pad="5"
                  width="290"
                  wrap="true" />

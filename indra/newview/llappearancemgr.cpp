@@ -48,6 +48,31 @@
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
+LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name)
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLNameCategoryCollector has_name(name);
+	gInventory.collectDescendentsIf(parent_id,
+									cat_array,
+									item_array,
+									LLInventoryModel::EXCLUDE_TRASH,
+									has_name);
+	if (0 == cat_array.count())
+		return LLUUID();
+	else
+	{
+		LLViewerInventoryCategory *cat = cat_array.get(0);
+		if (cat)
+			return cat->getUUID();
+		else
+		{
+			llwarns << "null cat" << llendl;
+			return LLUUID();
+		}
+	}
+}
+
 // support for secondlife:///app/appearance SLapps
 class LLAppearanceHandler : public LLCommandHandler
 {
@@ -321,7 +346,7 @@ public:
 	~LLWearableHoldingPattern();
 
 	bool pollCompletion();
-	bool isDone();
+	bool isFetchCompleted();
 	bool isTimedOut();
 	
 	typedef std::list<LLFoundData> found_list_t;
@@ -330,10 +355,12 @@ public:
 	LLInventoryModel::item_array_t mGestItems;
 	S32 mResolved;
 	LLTimer mWaitTime;
+	bool mFired;
 };
 
 LLWearableHoldingPattern::LLWearableHoldingPattern():
-	mResolved(0)
+	mResolved(0),
+	mFired(false)
 {
 }
 
@@ -341,31 +368,34 @@ LLWearableHoldingPattern::~LLWearableHoldingPattern()
 {
 }
 
-bool LLWearableHoldingPattern::isDone()
+bool LLWearableHoldingPattern::isFetchCompleted()
 {
-	if (mResolved >= (S32)mFoundList.size())
-		return true; // have everything we were waiting for
-	else if (isTimedOut())
-	{
-		llwarns << "Exceeded max wait time, updating appearance based on what has arrived" << llendl;
-		return true;
-	}
-	return false;
-
+	return (mResolved >= (S32)mFoundList.size()); // have everything we were waiting for?
 }
 
 bool LLWearableHoldingPattern::isTimedOut()
 {
-	static F32 max_wait_time = 15.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
+	static F32 max_wait_time = 20.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
 	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
 }
 
 bool LLWearableHoldingPattern::pollCompletion()
 {
-	bool done = isDone();
-	llinfos << "polling, done status: " << done << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+	bool completed = isFetchCompleted();
+	bool timed_out = isTimedOut();
+	bool done = completed || timed_out;
+	
+	llinfos << "polling, done status: " << completed << " timed out? " << timed_out << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+
 	if (done)
 	{
+		mFired = true;
+		
+		if (timed_out)
+		{
+			llwarns << "Exceeded max wait time for wearables, updating appearance based on what has arrived" << llendl;
+		}
+
 		// Activate all gestures in this folder
 		if (mGestItems.count() > 0)
 		{
@@ -397,7 +427,11 @@ bool LLWearableHoldingPattern::pollCompletion()
 			LLAgentWearables::userUpdateAttachments(mObjItems);
 		}
 
-		delete this;
+		if (completed)
+		{
+			// Only safe to delete if all wearable callbacks completed.
+			delete this;
+		}
 	}
 	return done;
 }
@@ -432,7 +466,11 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 static void onWearableAssetFetch(LLWearable* wearable, void* data)
 {
 	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
-	
+	if (holder->mFired)
+	{
+		llwarns << "called after holder fired" << llendl;
+	}
+
 	if(wearable)
 	{
 		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
@@ -506,8 +544,32 @@ void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, boo
 	LLAppearanceManager::instance().updateCOF(category,append);
 }
 
+// Create a copy of src_id + contents as a subfolder of dst_id.
 void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 											  LLPointer<LLInventoryCallback> cb)
+{
+	LLInventoryCategory *src_cat = gInventory.getCategory(src_id);
+	if (!src_cat)
+	{
+		llwarns << "folder not found for src " << src_id.asString() << llendl;
+		return;
+	}
+	LLUUID parent_id = dst_id;
+	if(parent_id.isNull())
+	{
+		parent_id = gInventory.getRootFolderID();
+	}
+	LLUUID subfolder_id = gInventory.createNewCategory( parent_id,
+														LLFolderType::FT_NONE,
+														src_cat->getName());
+	shallowCopyCategoryContents(src_id, subfolder_id, cb);
+
+	gInventory.notifyObservers();
+}
+
+// Copy contents of src_id to dst_id.
+void LLAppearanceManager::shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
+													  LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -604,6 +666,11 @@ void LLAppearanceManager::filterWearableItems(
 		if (!item->isWearableType())
 			continue;
 		EWearableType type = item->getWearableType();
+		if(type < 0 || type >= WT_COUNT)
+		{
+			LL_WARNS("Appearance") << "Invalid wearable type. Inventory type does not match wearable flag bitfield." << LL_ENDL;
+			continue;
+		}
 		items_by_type[type].push_back(item);
 	}
 
@@ -1340,6 +1407,11 @@ BOOL LLAppearanceManager::getIsInCOF(const LLUUID& obj_id) const
 BOOL LLAppearanceManager::getIsProtectedCOFItem(const LLUUID& obj_id) const
 {
 	if (!getIsInCOF(obj_id)) return FALSE;
+
+	// For now, don't allow direct deletion from the COF.  Instead, force users
+	// to choose "Detach" or "Take Off".
+	return TRUE;
+	/*
 	const LLInventoryObject *obj = gInventory.getObject(obj_id);
 	if (!obj) return FALSE;
 
@@ -1350,4 +1422,5 @@ BOOL LLAppearanceManager::getIsProtectedCOFItem(const LLUUID& obj_id) const
 	if (obj->getActualType() == LLAssetType::AT_LINK_FOLDER) return TRUE;
 
 	return FALSE;
+	*/
 }

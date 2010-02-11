@@ -149,27 +149,6 @@ void LLPanelMediaSettingsPermissions::clearValues( void* userdata, bool editable
 void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& media_settings ,  bool editable)
 {
     LLPanelMediaSettingsPermissions *self =(LLPanelMediaSettingsPermissions *)userdata;
-
-	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
-	{
-		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
-		{
-			self->clearValues(self, editable);
-			// only show multiple 
-			return;
-		}
-		
-	}
-	else
-	{
-		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
-		{
-			self->clearValues(self, editable);
-			// only show multiple 
-			return;
-		}			
-		
-	}
     std::string base_key( "" );
     std::string tentative_key( "" );
 
@@ -216,6 +195,28 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
         };
     };
 
+	// *NOTE: If any of a particular flavor is tentative, we have to disable 
+	// them all because of an architectural issue: namely that we represent 
+	// these as a bit field, and we can't selectively apply only one bit to all selected
+	// faces if they don't match.  Also see the *NOTE below.
+	if ( self->mPermsOwnerInteract->getTentative() ||
+		 self->mPermsGroupInteract->getTentative() ||
+		 self->mPermsWorldInteract->getTentative())
+	{
+		self->mPermsOwnerInteract->setEnabled(false);
+		self->mPermsGroupInteract->setEnabled(false);
+		self->mPermsWorldInteract->setEnabled(false);
+	}	
+	if ( self->mPermsOwnerControl->getTentative() ||
+		 self->mPermsGroupControl->getTentative() ||
+		 self->mPermsWorldControl->getTentative())
+	{
+		self->mPermsOwnerControl->setEnabled(false);
+		self->mPermsGroupControl->setEnabled(false);
+		self->mPermsWorldControl->setEnabled(false);
+	}
+	
+	
 	self->childSetEnabled("media_perms_label_owner", editable );
 	self->childSetText("media_perms_label_owner",  LLTrans::getString("Media Perms Owner") );
 	self->childSetEnabled("media_perms_label_group", editable );
@@ -233,10 +234,10 @@ void LLPanelMediaSettingsPermissions::preApply()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in )
+void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in, bool include_tentative )
 {
 	// moved over from the 'General settings' tab
-	fill_me_in[LLMediaEntry::CONTROLS_KEY] = (LLSD::Integer)mControls->getCurrentIndex();
+	if (include_tentative || !mControls->getTentative()) fill_me_in[LLMediaEntry::CONTROLS_KEY] = (LLSD::Integer)mControls->getCurrentIndex();
 
     // *NOTE: For some reason, gcc does not like these symbol references in the 
     // expressions below (inside the static_casts).  I have NO idea why :(.
@@ -254,8 +255,26 @@ void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in )
 		(mPermsOwnerInteract->getValue() ? owner: none  ) |
 		(mPermsGroupInteract->getValue() ? group : none ) |
 		(mPermsWorldInteract->getValue() ? anyone : none ));
+	
+	// *TODO: This will fill in the values of all permissions values, even if
+	// one or more is tentative.  This is not quite the user expectation...what
+	// it should do is only change the bit that was made "untentative", but in
+	// a multiple-selection situation, this isn't possible given the architecture
+	// for how settings are applied.
+	if (include_tentative || 
+		!mPermsOwnerControl->getTentative() || 
+		!mPermsGroupControl->getTentative() || 
+		!mPermsWorldControl->getTentative())
+	{
     fill_me_in[LLMediaEntry::PERMS_CONTROL_KEY] = control;
+	}
+	if (include_tentative || 
+		!mPermsOwnerInteract->getTentative() || 
+		!mPermsGroupInteract->getTentative() || 
+		!mPermsWorldInteract->getTentative())
+	{
     fill_me_in[LLMediaEntry::PERMS_INTERACT_KEY] = interact;
+}
 }
 
 

@@ -36,7 +36,7 @@
 				2. 特定の人に販売：
 			</text>
 			<text name="sell_to_text" right="-6">
-				販売先の指定なしか、特定の人に販売するか選択してください。
+				販売先の指定なしか、特定の人に販売するかを選択してください。
 			</text>
 			<combo_box name="sell_to">
 				<combo_box.item label="- 1つ選択 -" name="--selectone--"/>

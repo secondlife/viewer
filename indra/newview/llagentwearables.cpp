@@ -310,21 +310,24 @@ void LLAgentWearables::addWearabletoAgentInventoryDone(const S32 type,
 		return;
 
 	LLUUID old_item_id = getWearableItemID((EWearableType)type,index);
+
 	if (wearable)
 	{
 		wearable->setItemID(item_id);
+
+		if (old_item_id.notNull())
+		{	
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
+			setWearable((EWearableType)type,index,wearable);
+		}
+		else
+		{
+			pushWearable((EWearableType)type,wearable);
+		}
 	}
 
-	if (old_item_id.notNull())
-	{	
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
-		setWearable((EWearableType)type,index,wearable);
-	}
-	else
-	{
-		pushWearable((EWearableType)type,wearable);
-	}
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+
 	LLViewerInventoryItem* item = gInventory.getItem(item_id);
 	if (item && wearable)
 	{
@@ -761,6 +764,8 @@ void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 	wearable->refreshName();
 	wearable->setLabelUpdated();
 
+	wearable->pullCrossWearableValues();
+
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
 	// then force a re-save of this wearable after slamming the version number to 22.
 	// This number was incorrectly incremented for internal builds before release, and
@@ -927,13 +932,6 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (mInitialWearablesUpdateReceived)
 		return;
 	mInitialWearablesUpdateReceived = true;
-	
-	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
-	// then auto-populate outfits from the library into the My Outfits folder.
-	if (LLInventoryModel::getIsFirstTimeInViewer2() || gSavedSettings.getBOOL("MyOutfitsAutofill"))
-	{
-		gAgentWearables.populateMyOutfitsFolder();
-	}
 
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
@@ -1292,25 +1290,29 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 							j,
 							new_wearable,
 							todo);
-					if (isWearableCopyable((EWearableType)type, j))
+					llassert(item);
+					if (item)
 					{
-						copy_inventory_item(
-							gAgent.getID(),
-							item->getPermissions().getOwner(),
-							item->getUUID(),
-							folder_id,
-							new_name,
-							cb);
-					}
-					else
-					{
-						move_inventory_item(
-							gAgent.getID(),
-							gAgent.getSessionID(),
-							item->getUUID(),
-							folder_id,
-							new_name,
-							cb);
+						if (isWearableCopyable((EWearableType)type, j))
+						{
+							copy_inventory_item(
+									    gAgent.getID(),
+									    item->getPermissions().getOwner(),
+									    item->getUUID(),
+									    folder_id,
+									    new_name,
+									    cb);
+						}
+						else
+						{
+							move_inventory_item(
+									    gAgent.getID(),
+									    gAgent.getSessionID(),
+									    item->getUUID(),
+									    folder_id,
+									    new_name,
+									    cb);
+						}
 					}
 				}
 			}
@@ -1417,7 +1419,7 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		new_folder_name);
 
 	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
-	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, cb);
+	LLAppearanceManager::instance().shallowCopyCategoryContents(LLAppearanceManager::instance().getCOF(),folder_id, cb);
 	LLAppearanceManager::instance().createBaseOutfitLink(folder_id, cb);
 
 	return folder_id;
@@ -1623,8 +1625,10 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		}
 
 		if (new_wearable)
+		{
 			new_wearable->setItemID(new_item->getUUID());
-		setWearable(type,0,new_wearable);
+			setWearable(type,0,new_wearable);
+		}
 	}
 
 	std::vector<LLWearable*> wearables_being_removed;
@@ -2334,7 +2338,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 			LLUUID folder_id = gInventory.createNewCategory(mImportedClothingID,
 															LLFolderType::FT_NONE,
 															iter->second);
-			LLAppearanceManager::getInstance()->shallowCopyCategory(iter->first, folder_id, copy_waiter);
+			LLAppearanceManager::getInstance()->shallowCopyCategoryContents(iter->first, folder_id, copy_waiter);
 		}
 	}
 	else

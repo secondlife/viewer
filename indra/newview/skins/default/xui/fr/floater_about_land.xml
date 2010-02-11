@@ -12,7 +12,7 @@
 	<floater.string name="Remaining">
 		restantes
 	</floater.string>
-	<tab_container name="landtab">
+	<tab_container name="landtab" tab_min_width="60">
 		<panel label="GÉNÉRAL" name="land_general_panel">
 			<panel.string name="new users only">
 				Nouveaux utilisateurs uniquement
@@ -128,10 +128,10 @@
 			<text name="DwellText">
 				0
 			</text>
-			<button label="Acheter du terrain" label_selected="Acheter le terrain..." left="130" name="Buy Land..." width="125"/>
-			<button label="Infos sur les scripts" name="Scripts..."/>
+			<button label="Acheter du terrain" label_selected="Acheter le terrain..." left_delta="60" name="Buy Land..." width="125"/>
+			<button label="Infos sur les scripts" name="Scripts..." width="110"/>
 			<button label="Acheter pour le groupe" label_selected="Acheter pour le groupe..." name="Buy For Group..."/>
-			<button label="Acheter un pass" label_selected="Acheter un pass..." left="130" name="Buy Pass..." tool_tip="Un pass vous donne un accès temporaire à ce terrain." width="125"/>
+			<button label="Acheter un pass" label_selected="Acheter un pass..." left_delta="-127" name="Buy Pass..." tool_tip="Un pass vous donne un accès temporaire à ce terrain." width="125"/>
 			<button label="Abandonner le terrain" label_selected="Abandonner le terrain..." name="Abandon Land..."/>
 			<button label="Récupérer le terrain" label_selected="Redemander le terrain…" name="Reclaim Land..."/>
 			<button label="Vente Linden" label_selected="Vente Linden..." name="Linden Sale..." tool_tip="Le terrain doit être la propriété d&apos;un résident, avoir un contenu défini et ne pas être aux enchères."/>
@@ -252,13 +252,13 @@ ou divisé.
 			</text>
 			<button label="Afficher" label_selected="Afficher" name="ShowOther" right="-135" width="60"/>
 			<button label="Retour" label_selected="Renvoyer..." name="ReturnOther..." right="-10" tool_tip="Renvoyer les objets à leurs propriétaires." width="119"/>
-			<text left="14" name="Selected / sat upon:" width="193">
+			<text left="14" name="Selected / sat upon:" width="220">
 				Sélectionnées/où quelqu&apos;un est assis :
 			</text>
-			<text left="214" name="selected_objects_text" width="48">
+			<text left_delta="214" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="412">
+			<text left="4" name="Autoreturn" width="440">
 				Renvoi automatique des objets d&apos;autres résidents (minutes, 0 pour désactiver) :
 			</text>
 			<line_editor name="clean other time" right="-6" width="36"/>
@@ -270,9 +270,9 @@ ou divisé.
 			<name_list label="Plus récents" name="owner list">
 				<name_list.columns label="Type" name="type"/>
 				<name_list.columns name="online_status"/>
-				<name_list.columns label="Nom" name="name"/>
-				<name_list.columns label="Nombre" name="count"/>
-				<name_list.columns label="Plus récents" name="mostrecent"/>
+				<name_list.columns label="Nom" name="name" width="100"/>
+				<name_list.columns label="Nombre" name="count" width="100"/>
+				<name_list.columns label="Plus récents" name="mostrecent" width="120"/>
 			</name_list>
 		</panel>
 		<panel label="OPTIONS" name="land_options_panel">
@@ -317,7 +317,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<check_box label="Tous" left="285" name="edit objects check"/>
 			<check_box label="Groupe" left="395" name="edit group objects check"/>
-			<text left="152" name="allow_label3" width="134">
+			<text left="152" name="allow_label3" width="150">
 				Laisser entrer des objets :
 			</text>
 			<check_box label="Tous" left="285" name="all object entry check"/>
@@ -402,7 +402,8 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<line_editor left="97" name="url_description" tool_tip="Texte affiché à côté du bouton Jouer/Charger"/>
 			<text name="Media texture:">
-				Remplacer la texture :
+				Remplacer la 
+texture :
 			</text>
 			<texture_picker label="" left="97" name="media texture" tool_tip="Cliquez pour sélectionner une image"/>
 			<text name="replace_texture_help">
@@ -423,8 +424,9 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<check_box label="En boucle" name="media_loop" tool_tip="Jouer le média en boucle. Lorsque le média aura fini de jouer, il recommencera."/>
 		</panel>
 		<panel label="SON" name="land_audio_panel">
-			<text name="MusicURL:">
-				URL de la musique :
+			<text name="MusicURL:" bottom_delta="-28" >
+				URL de la 
+musique :
 			</text>
 			<text name="Sound:">
 				Son :
@@ -455,7 +457,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<check_box label="Vérification de l&apos;âge [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Bannir les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
 			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
 			<check_box label="Vendre des pass à :" name="PassCheck" tool_tip="Autoriser un accès temporaire à cette parcelle"/>
-			<combo_box name="pass_combo">
+			<combo_box name="pass_combo" width="110">
 				<combo_box.item label="Tout le monde" name="Anyone"/>
 				<combo_box.item label="Groupe" name="Group"/>
 			</combo_box>

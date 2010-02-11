@@ -1137,6 +1137,7 @@ void LLTextBase::reflow()
 			line_list_t::iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), start_index, line_end_compare());
 			line_start_index = iter->mDocIndexStart;
 			line_count = iter->mLineNum;
+			cur_top = iter->mRect.mTop;
 			getSegmentAndOffset(iter->mDocIndexStart, &seg_iter, &seg_offset);
 			mLineInfoList.erase(iter, mLineInfoList.end());
 		}
@@ -1577,7 +1578,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 					// Text will be replaced during rendering with the icon,
 					// but string cannot be empty or the segment won't be
 					// added (or drawn).
-					appendAndHighlightText(" ", prepend_newline, part, icon);
+					appendAndHighlightText("   ", prepend_newline, part, icon);
 					prepend_newline = false;
 				}
 			}
@@ -2311,7 +2312,7 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 			image->draw(draw_rect.mLeft, image_bottom, 
 				style_image_width, style_image_height, color);
 			
-			const S32 IMAGE_HPAD = 2;
+			const S32 IMAGE_HPAD = 3;
 			return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
 		}
 

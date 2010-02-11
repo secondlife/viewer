@@ -666,8 +666,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mCheckCopyCenters) mCheckCopyCenters	->setVisible( create_visible );
 	if (mCheckCopyRotates) mCheckCopyRotates	->setVisible( create_visible );
 
-	if (mCheckCopyCenters) mCheckCopyCenters->setEnabled( mCheckCopySelection->get() );
-	if (mCheckCopyRotates) mCheckCopyRotates->setEnabled( mCheckCopySelection->get() );
+	if (mCheckCopyCenters && mCheckCopySelection) mCheckCopyCenters->setEnabled( mCheckCopySelection->get() );
+	if (mCheckCopyRotates && mCheckCopySelection) mCheckCopyRotates->setEnabled( mCheckCopySelection->get() );
 
 	// Land buttons
 	BOOL land_visible = (tool == LLToolBrushLand::getInstance() || tool == LLToolSelectLand::getInstance() );
@@ -1321,7 +1321,7 @@ bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& re
 	switch( option )
 	{
 		case 0:  // "Yes"
-			LLSelectMgr::getInstance()->selectionSetMedia( 0 );
+			LLSelectMgr::getInstance()->selectionSetMedia( 0, LLSD() );
 			if(LLFloaterReg::instanceVisible("media_settings"))
 			{
 				LLFloaterReg::hideInstance("media_settings");

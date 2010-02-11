@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="groups">
 	<scroll_list bottom="50" name="group list"/>
-	<text bottom="16" height="32" name="groupdesc" width="268">
+	<text name="groupdesc">
 		Le groupe actif est en gras.
 	</text>
-	<text bottom="3" name="groupcount">
+	<text name="groupcount" width="280">
 		Vous appartenez à [COUNT] groupes ([MAX] max).
 	</text>
 	<button label="IM/Appel" name="IM" tool_tip="Ouvrir une session de messagerie instantanée"/>

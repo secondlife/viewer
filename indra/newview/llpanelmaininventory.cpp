@@ -1071,7 +1071,11 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 			{
 				const LLUUID &item_id = (*iter);
 				LLFolderViewItem *item = folder->getItemByID(item_id);
-				can_delete &= item->getListener()->isItemRemovable();
+				const LLFolderViewEventListener *listener = item->getListener();
+				llassert(listener);
+				if (!listener) return FALSE;
+				can_delete &= listener->isItemRemovable();
+				can_delete &= !listener->isItemInTrash();
 			}
 			return can_delete;
 		}

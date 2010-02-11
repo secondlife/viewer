@@ -237,13 +237,17 @@ private:
 ///////////////////////////////////////////////////////////////////
 LLTextEditor::Params::Params()
 :	default_text("default_text"),
+	prevalidate_callback("prevalidate_callback"),
 	embedded_items("embedded_items", false),
 	ignore_tab("ignore_tab", true),
 	handle_edit_keys_directly("handle_edit_keys_directly", false),
 	show_line_numbers("show_line_numbers", false),
 	default_color("default_color"),
-    commit_on_focus_lost("commit_on_focus_lost", false)
-{}
+    commit_on_focus_lost("commit_on_focus_lost", false),
+	show_context_menu("show_context_menu")
+{
+	addSynonym(prevalidate_callback, "text_type");
+}
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	LLTextBase(p),
@@ -258,7 +262,9 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mTabsToNextField(p.ignore_tab),
-	mContextMenu(NULL)
+	mPrevalidateFunc(p.prevalidate_callback()),
+	mContextMenu(NULL),
+	mShowContextMenu(p.show_context_menu)
 {
 	mDefaultFont = p.font;
 
@@ -318,6 +324,17 @@ LLTextEditor::~LLTextEditor()
 
 void LLTextEditor::setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params)
 {
+	// validate incoming text if necessary
+	if (mPrevalidateFunc)
+	{
+		LLWString test_text = utf8str_to_wstring(utf8str);
+		if (!mPrevalidateFunc(test_text))
+		{
+			// not valid text, nothing to do
+			return;
+		}
+	}
+
 	blockUndo();
 	deselect();
 
@@ -720,7 +737,10 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if (!LLTextBase::handleRightMouseDown(x, y, mask))
 	{
-		showContextMenu(x, y);
+		if(getShowContextMenu())
+		{
+			showContextMenu(x, y);
+		}
 	}
 	return TRUE;
 }
@@ -906,6 +926,21 @@ S32 LLTextEditor::execute( TextCmd* cmd )
 		// Push the new command is now on the top (front) of the undo stack.
 		mUndoStack.push_front(cmd);
 		mLastCmd = cmd;
+
+		bool need_to_rollback = mPrevalidateFunc 
+								&& !mPrevalidateFunc(getViewModel()->getDisplay());
+		if (need_to_rollback)
+		{
+			// get rid of this last command and clean up undo stack
+			undo();
+
+			// remove any evidence of this command from redo history
+			mUndoStack.pop_front();
+			delete cmd;
+
+			// failure, nothing changed
+			delta = 0;
+		}
 	}
 	else
 	{
@@ -1029,7 +1064,21 @@ S32 LLTextEditor::addChar(S32 pos, llwchar wc)
 	if (mLastCmd && mLastCmd->canExtend(pos))
 	{
 		S32 delta = 0;
+		if (mPrevalidateFunc)
+		{
+			// get a copy of current text contents
+			LLWString test_string(getViewModel()->getDisplay());
+
+			// modify text contents as if this addChar succeeded
+			llassert(pos <= (S32)test_string.size());
+			test_string.insert(pos, 1, wc);
+			if (!mPrevalidateFunc( test_string))
+			{
+				return 0;
+			}
+		}
 		mLastCmd->extendAndExecute(this, pos, wc, &delta);
+
 		return delta;
 	}
 	else

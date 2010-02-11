@@ -859,10 +859,10 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			std::string full_name;
 			if (!gCacheName->getFullName(hover_object->getID(), full_name))
 			{
-				LLNameValue* firstname = hover_object->getNVPair("FirstName");
-				LLNameValue* lastname =  hover_object->getNVPair("LastName");
-				if (firstname && lastname)
-				{
+			LLNameValue* firstname = hover_object->getNVPair("FirstName");
+			LLNameValue* lastname =  hover_object->getNVPair("LastName");
+			if (firstname && lastname)
+			{
 					full_name = LLCacheName::buildFullName(
 						firstname->getString(), lastname->getString());
 				}
@@ -880,7 +880,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			{
 				final_name = full_name;
 			}
-
+			
 			// *HACK: We may select this object, so pretend it was clicked
 			mPick = mHoverPick;
 			LLInspector::Params p;
@@ -1500,6 +1500,12 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			while( object && object->isAttachment())
 			{
 				object = (LLViewerObject*)object->getParent();
+				llassert(object);
+			}
+
+			if (!object)
+			{
+				return TRUE; // unexpected, but escape
 			}
 
 			// Object is an avatar, so check for mute by id.

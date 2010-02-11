@@ -34,7 +34,6 @@
 
 #include "llfavoritesbar.h"
 
-#include "llbutton.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llinventory.h"
@@ -48,7 +47,6 @@
 #include "llclipboard.h"
 #include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
-#include "llinventorymodel.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"
@@ -298,6 +296,20 @@ public:
 	{
 		*accept = ACCEPT_NO;
 		return TRUE;
+	}
+
+	void setVisible(BOOL b)
+	{
+		// Overflow menu shouldn't hide when it still has focus. See EXT-4217.
+		if (!b && hasFocus())
+			return;
+		LLToggleableMenu::setVisible(b);
+		setFocus(b);
+	}
+
+	void onFocusLost()
+	{
+		setVisible(FALSE);
 	}
 
 protected:
@@ -630,8 +642,8 @@ void LLFavoritesBarCtrl::draw()
 
 	if (mShowDragMarker)
 	{
-		S32 w = mImageDragIndication->getWidth() / 2;
-		S32 h = mImageDragIndication->getHeight() / 2;
+		S32 w = mImageDragIndication->getWidth();
+		S32 h = mImageDragIndication->getHeight();
 
 		if (mLandingTab)
 		{
@@ -674,7 +686,14 @@ void LLFavoritesBarCtrl::updateButtons()
 	{
 		return;
 	}
-
+	if(mItems.empty())
+	{
+		mBarLabel->setVisible(TRUE);
+	}
+	else
+	{
+		mBarLabel->setVisible(FALSE);
+	}
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
 	int first_changed_item_index = 0;
@@ -720,14 +739,22 @@ void LLFavoritesBarCtrl::updateButtons()
 			}
 		}
 		// we have to remove ChevronButton to make sure that the last item will be LandmarkButton to get the right aligning
+		// keep in mind that we are cutting all buttons in space between the last visible child of favbar and ChevronButton
 		if (mChevronButton->getParent() == this)
 		{
 			removeChild(mChevronButton);
 		}
 		int last_right_edge = 0;
+		//calculate new buttons offset
 		if (getChildList()->size() > 0)
 		{
-			last_right_edge = getChildList()->back()->getRect().mRight;
+			//find last visible child to get the rightest button offset
+			child_list_const_reverse_iter_t last_visible_it = std::find_if(childs->rbegin(), childs->rend(), 
+					std::mem_fun(&LLView::getVisible));
+			if(last_visible_it != childs->rend())
+			{
+				last_right_edge = (*last_visible_it)->getRect().mRight;
+			}
 		}
 		//last_right_edge is saving coordinates
 		LLButton* last_new_button = NULL;
@@ -763,6 +790,15 @@ void LLFavoritesBarCtrl::updateButtons()
 			addChild(mChevronButton);
 			mChevronButton->setRect(rect);
 			mChevronButton->setVisible(TRUE);
+		}
+		// Update overflow menu
+		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mPopupMenuHandle.get());
+		if (overflow_menu && overflow_menu->getVisible())
+		{
+			overflow_menu->setFocus(FALSE);
+			overflow_menu->setVisible(FALSE);
+			if (mUpdateDropDownItems)
+				showDropDownMenu();
 		}
 	}
 	else
@@ -879,6 +915,8 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 	if (menu)
 	{
+		// Release focus to allow changing of visibility.
+		menu->setFocus(FALSE);
 		if (!menu->toggleVisibility())
 			return;
 
@@ -1226,8 +1264,11 @@ LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLIn
 void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem)
 {
 	LLViewerInventoryItem* beforeItem = gInventory.getItem(beforeItemId);
-
-	items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+	llassert(beforeItem);
+	if (beforeItem)
+	{
+		items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+	}
 }
 
 // EOF

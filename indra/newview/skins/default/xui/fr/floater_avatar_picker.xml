@@ -20,7 +20,7 @@
 	</string>
 	<tab_container name="ResidentChooserTabs">
 		<panel label="Rechercher" name="SearchPanel">
-			<text name="InstructSearchResidentName">
+			<text name="InstructSearchResidentName" width="240">
 				Saisissez une partie du nom du résident :
 			</text>
 			<button label="OK" label_selected="OK" name="Find"/>
