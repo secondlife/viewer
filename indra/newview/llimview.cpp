@@ -1665,6 +1665,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	{
 	case LLVoiceChannel::STATE_CALL_STARTED :
 		getChild<LLTextBox>("calling")->setVisible(true);
+		getChild<LLButton>("Cancel")->setVisible(true);
 		if(show_oldchannel)
 		{
 			getChild<LLTextBox>("leaving")->setVisible(true);
