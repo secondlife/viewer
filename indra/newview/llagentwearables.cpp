@@ -299,6 +299,10 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	{
 		gAgentWearables.makeNewOutfitDone(mType, mIndex);
 	}
+	if (mTodo & CALL_WEARITEM)
+	{
+		LLAppearanceManager::instance().addCOFItemLink(inv_item, true);
+	}
 }
 
 void LLAgentWearables::addWearabletoAgentInventoryDone(const S32 type,
@@ -510,7 +514,7 @@ void LLAgentWearables::saveWearableAs(const EWearableType type,
 			type,
 			index,
 			new_wearable,
-			addWearableToAgentInventoryCallback::CALL_UPDATE);
+			addWearableToAgentInventoryCallback::CALL_WEARITEM);
 	LLUUID category_id;
 	if (save_in_lost_and_found)
 	{
