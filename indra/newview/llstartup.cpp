@@ -123,7 +123,7 @@
 #include "llmutelist.h"
 #include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpanelevent.h"
+#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelplace.h"
@@ -2484,7 +2484,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
-	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
