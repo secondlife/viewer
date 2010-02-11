@@ -2555,7 +2555,7 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
-
+	
 	/*
 	// Old floater properties
 	LLFloaterReg::showInstance("inspect", LLSD());
@@ -5599,6 +5599,19 @@ void handle_buy_currency()
 	LLFloaterBuyCurrency::buyCurrency();
 }
 
+class LLFloaterVisible : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string floater_name = userdata.asString();
+		bool new_value = false;
+		{
+			new_value = LLFloaterReg::instanceVisible(floater_name);
+		}
+		return new_value;
+	}
+};
+
 class LLShowHelp : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -8030,6 +8043,7 @@ void initialize_menus()
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
 	enable.add("VisibleBuild", boost::bind(&enable_object_build));
 
+	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSidetrayPanelVisible(), "SidetrayPanelVisible");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
