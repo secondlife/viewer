@@ -1485,6 +1485,12 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			while( object && object->isAttachment())
 			{
 				object = (LLViewerObject*)object->getParent();
+				llassert(object);
+			}
+
+			if (!object)
+			{
+				return TRUE; // unexpected, but escape
 			}
 
 			// Object is an avatar, so check for mute by id.

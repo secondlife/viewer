@@ -1355,6 +1355,7 @@ void LLPipeline::updateMoveNormalAsync(LLDrawable* drawablep)
 	if (!drawablep)
 	{
 		llerrs << "updateMove called with NULL drawablep" << llendl;
+		return;
 	}
 	if (drawablep->isState(LLDrawable::EARLY_MOVE))
 	{
