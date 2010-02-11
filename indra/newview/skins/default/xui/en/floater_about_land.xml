@@ -369,7 +369,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Sell with landowners objects in parcel."
-             top_pad="-3"
+             top_pad="-2"
              width="186">
                 Objects included in sale
             </text>
