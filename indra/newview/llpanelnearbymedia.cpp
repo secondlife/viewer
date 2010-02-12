@@ -83,20 +83,20 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 {
 	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING);
 
-	mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",		boost::bind(&LLFloaterNearbyMedia::onClickEnableAll, this));
-	mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",		boost::bind(&LLFloaterNearbyMedia::onClickDisableAll, this));
-	mCommitCallbackRegistrar.add("MediaListCtrl.GoMediaPrefs", boost::bind(&LLFloaterNearbyMedia::onAdvancedButtonClick, this));
-	mCommitCallbackRegistrar.add("MediaListCtrl.MoreLess", boost::bind(&LLFloaterNearbyMedia::onMoreLess, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.ParcelMediaVolume",		boost::bind(&LLFloaterNearbyMedia::onParcelMediaVolumeSlider, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.MuteParcelMedia",		boost::bind(&LLFloaterNearbyMedia::onClickMuteParcelMedia, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.EnableParcelMedia",		boost::bind(&LLFloaterNearbyMedia::onClickEnableParcelMedia, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.DisableParcelMedia",		boost::bind(&LLFloaterNearbyMedia::onClickDisableParcelMedia, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Play",		boost::bind(&LLFloaterNearbyMedia::onClickParcelMediaPlay, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Stop",		boost::bind(&LLFloaterNearbyMedia::onClickParcelMediaStop, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Pause",		boost::bind(&LLFloaterNearbyMedia::onClickParcelMediaPause, this));
-	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Play",		boost::bind(&LLFloaterNearbyMedia::onClickParcelAudioPlay, this));
-	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Stop",		boost::bind(&LLFloaterNearbyMedia::onClickParcelAudioStop, this));
-	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Pause",		boost::bind(&LLFloaterNearbyMedia::onClickParcelAudioPause, this));
+	mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",		boost::bind(&LLPanelNearByMedia::onClickEnableAll, this));
+	mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",		boost::bind(&LLPanelNearByMedia::onClickDisableAll, this));
+	mCommitCallbackRegistrar.add("MediaListCtrl.GoMediaPrefs", boost::bind(&LLPanelNearByMedia::onAdvancedButtonClick, this));
+	mCommitCallbackRegistrar.add("MediaListCtrl.MoreLess", boost::bind(&LLPanelNearByMedia::onMoreLess, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.ParcelMediaVolume",		boost::bind(&LLPanelNearByMedia::onParcelMediaVolumeSlider, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.MuteParcelMedia",		boost::bind(&LLPanelNearByMedia::onClickMuteParcelMedia, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.EnableParcelMedia",		boost::bind(&LLPanelNearByMedia::onClickEnableParcelMedia, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.DisableParcelMedia",		boost::bind(&LLPanelNearByMedia::onClickDisableParcelMedia, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Play",		boost::bind(&LLPanelNearByMedia::onClickParcelMediaPlay, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Stop",		boost::bind(&LLPanelNearByMedia::onClickParcelMediaStop, this));
+	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Pause",		boost::bind(&LLPanelNearByMedia::onClickParcelMediaPause, this));
+	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Play",		boost::bind(&LLPanelNearByMedia::onClickParcelAudioPlay, this));
+	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Stop",		boost::bind(&LLPanelNearByMedia::onClickParcelAudioStop, this));
+	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Pause",		boost::bind(&LLPanelNearByMedia::onClickParcelAudioPause, this));
 	LLUICtrlFactory::instance().buildPanel(this, "panel_nearby_media.xml");
 }
 
@@ -651,7 +651,7 @@ void LLPanelNearByMedia::onClickEnableAll()
 	onClickParcelAudioPlay();
 	}
 
-void LLFloaterNearbyMedia::onClickDisableAll()
+void LLPanelNearByMedia::onClickDisableAll()
 	{
 	LLViewerMedia::setAllMediaEnabled(false);
 	// Parcel Audio, too
@@ -799,7 +799,7 @@ bool LLPanelNearByMedia::shouldShow(LLViewerMediaImpl* impl)
 	return true;
 }
 
-void LLFloaterNearbyMedia::onAdvancedButtonClick()
+void LLPanelNearByMedia::onAdvancedButtonClick()
 {	
 	// bring up the prefs floater
 	LLFloaterPreference* prefsfloater = dynamic_cast<LLFloaterPreference*>(LLFloaterReg::showInstance("preferences"));
@@ -816,15 +816,18 @@ void LLFloaterNearbyMedia::onAdvancedButtonClick()
 	}
 }
 
-void LLFloaterNearbyMedia::onMoreLess()
+void LLPanelNearByMedia::onMoreLess()
 {
 	bool is_more = getChild<LLUICtrl>("more_less_btn")->getValue();
 	mNearbyMediaPanel->setVisible(is_more);
 
-//	S32 new_height = mOriginalHeight;
-//	if (!is_more) new_height -= mNearbyMediaPanelHeight;
-//
-//	reshape(getRect().getWidth(), new_height, false);
+	S32 new_height = mOriginalHeight;
+	if (!is_more) new_height -= mNearbyMediaPanelHeight;
+
+	LLRect new_rect = getRect();
+	new_rect.mBottom = new_rect.mTop - new_height;
+
+	setShape(new_rect);
 }
 
 // static
