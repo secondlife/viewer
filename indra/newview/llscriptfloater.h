@@ -84,11 +84,6 @@ public:
 
 	static std::string getObjectName(const LLUUID& notification_id);
 
-	/**
-	* Callback for notification toast buttons.
-	*/
-	static void onToastButtonClick(const LLSD&notification, const LLSD&response);
-
 	typedef boost::signals2::signal<void(const LLSD&)> object_signal_t;
 
 	boost::signals2::connection addNewObjectCallback(const object_signal_t::slot_type& cb) { return mNewObjectSignal.connect(cb); }
