@@ -43,12 +43,6 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 	return TRUE;
 }
 
-bool LLCacheName::getDisplayName(const LLUUID& id, std::string& display_name)
-{
-	display_name = "";
-	return false;
-}
-
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
 	group = "My Group";
