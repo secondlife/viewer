@@ -40,6 +40,12 @@ const std::string LLSLURL::PREFIX_SL_HELP		= "secondlife://app.";
 const std::string LLSLURL::PREFIX_SL			= "sl://";
 const std::string LLSLURL::PREFIX_SECONDLIFE	= "secondlife://";
 const std::string LLSLURL::PREFIX_SLURL_OLD		= "http://slurl.com/secondlife/";
+
+// For DnD - even though www.slurl.com redirects to slurl.com in a browser, you can copy and drag
+// text with www.slurl.com or a link explicitly pointing at www.slurl.com so testing for this
+// version is required also.
+const std::string LLSLURL::PREFIX_SLURL_WWW		= "http://www.slurl.com/secondlife/";
+
 const std::string LLSLURL::PREFIX_SLURL			= "http://maps.secondlife.com/secondlife/";
 
 const std::string LLSLURL::APP_TOKEN = "app/";
@@ -68,7 +74,10 @@ std::string LLSLURL::stripProtocol(const std::string& url)
 	{
 		stripped.erase(0, PREFIX_SLURL_OLD.length());
 	}
-
+	else if (matchPrefix(stripped, PREFIX_SLURL_WWW))
+	{
+		stripped.erase(0, PREFIX_SLURL_WWW.length());
+	}
 	
 	return stripped;
 }
@@ -81,6 +90,7 @@ bool LLSLURL::isSLURL(const std::string& url)
 	if (matchPrefix(url, PREFIX_SECONDLIFE))	return true;
 	if (matchPrefix(url, PREFIX_SLURL))			return true;
 	if (matchPrefix(url, PREFIX_SLURL_OLD))		return true;
+	if (matchPrefix(url, PREFIX_SLURL_WWW))		return true;
 	
 	return false;
 }
@@ -91,6 +101,7 @@ bool LLSLURL::isSLURLCommand(const std::string& url)
 	if (matchPrefix(url, PREFIX_SL + APP_TOKEN) ||
 		matchPrefix(url, PREFIX_SECONDLIFE + "/" + APP_TOKEN) ||
 		matchPrefix(url, PREFIX_SLURL + APP_TOKEN) ||
+		matchPrefix(url, PREFIX_SLURL_WWW + APP_TOKEN) ||
 		matchPrefix(url, PREFIX_SLURL_OLD + APP_TOKEN) )
 	{
 		return true;

@@ -982,7 +982,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		if (mLoadedDiscard < 0)
 		{
-			llerrs << "Decode entered with invalid mLoadedDiscard. ID = " << mID << llendl;
+			//llerrs << "Decode entered with invalid mLoadedDiscard. ID = " << mID << llendl;
+
+			//abort, don't decode
+			mState = DONE;
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			return true;
 		}
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		mRawImage = NULL;

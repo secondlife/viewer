@@ -51,6 +51,7 @@ public:
 	static const std::string PREFIX_SECONDLIFE;
 	static const std::string PREFIX_SLURL;
 	static const std::string PREFIX_SLURL_OLD;
+	static const std::string PREFIX_SLURL_WWW;
 
 	static const std::string APP_TOKEN;
 

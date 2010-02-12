@@ -113,6 +113,8 @@ public:
 protected:
 	~LLWearInventoryCategoryCallback()
 	{
+		llinfos << "done all inventory callbacks" << llendl;
+		
 		// Is the destructor called by ordinary dereference, or because the app's shutting down?
 		// If the inventory callback manager goes away, we're shutting down, no longer want the callback.
 		if( LLInventoryCallbackManager::is_instantiated() )
@@ -150,12 +152,15 @@ protected:
 
 void LLOutfitObserver::done()
 {
+	llinfos << "done 2nd stage fetch" << llendl;
 	gInventory.removeObserver(this);
 	doOnIdle(boost::bind(&LLOutfitObserver::doWearCategory,this));
 }
 
 void LLOutfitObserver::doWearCategory()
 {
+	llinfos << "starting" << llendl;
+	
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
 	if(mCopyItems)
@@ -244,6 +249,8 @@ void LLOutfitFetch::done()
 	// What we do here is get the complete information on the items in
 	// the library, and set up an observer that will wait for that to
 	// happen.
+	llinfos << "done first stage fetch" << llendl;
+	
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(mCompleteFolders.front(),
@@ -304,6 +311,8 @@ public:
 
 	virtual ~LLUpdateAppearanceOnDestroy()
 	{
+		llinfos << "done update appearance on destroy" << llendl;
+
 		if (!LLApp::isExiting())
 		{
 			LLAppearanceManager::instance().updateAppearanceFromCOF();
@@ -312,6 +321,7 @@ public:
 
 	/* virtual */ void fire(const LLUUID& inv_item)
 	{
+		llinfos << "callback fired" << llendl;
 		mFireCount++;
 	}
 private:
@@ -708,6 +718,8 @@ void LLAppearanceManager::linkAll(const LLUUID& category,
 
 void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 {
+	llinfos << "starting" << llendl;
+
 	const LLUUID cof = getCOF();
 
 	// Deactivate currently active gestures in the COF, if replacing outfit
@@ -765,6 +777,7 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	gInventory.notifyObservers();
 
 	// Create links to new COF contents.
+	llinfos << "creating LLUpdateAppearanceOnDestroy" << llendl;
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 
 	linkAll(cof, body_items, link_waiter);
@@ -777,6 +790,7 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	{
 		createBaseOutfitLink(category, link_waiter);
 	}
+	llinfos << "waiting for LLUpdateAppearanceOnDestroy" << llendl;
 }
 
 void LLAppearanceManager::updatePanelOutfitName(const std::string& name)
@@ -848,6 +862,8 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 {
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
+	llinfos << "starting" << llendl;
+
 	updateIsDirty();
 
 	dumpCat(getCOF(),"COF, start");
@@ -978,8 +994,9 @@ void LLAppearanceManager::wearInventoryCategory(LLInventoryCategory* category, b
 {
 	if(!category) return;
 
-	lldebugs << "wearInventoryCategory( " << category->getName()
+	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
+
 	// What we do here is get the complete information on the items in
 	// the inventory, and set up an observer that will wait for that to
 	// happen.
@@ -1008,7 +1025,8 @@ void LLAppearanceManager::wearInventoryCategoryOnAvatar( LLInventoryCategory* ca
 	// this up front to avoid having to deal with the case of multiple
 	// wearables being dirty.
 	if(!category) return;
-	lldebugs << "wearInventoryCategoryOnAvatar( " << category->getName()
+
+	llinfos << "wearInventoryCategoryOnAvatar( " << category->getName()
 			 << " )" << llendl;
 			 	
 	if( gFloaterCustomize )
@@ -1283,6 +1301,23 @@ void LLAppearanceManager::updateIsDirty()
 			mOutfitIsDirty = (outfit_set != cof_set);
 		}
 	}
+}
+
+void LLAppearanceManager::onFirstFullyVisible()
+{
+	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
+	// then auto-populate outfits from the library into the My Outfits folder.
+
+	llinfos << "avatar fully visible" << llendl;
+
+	static bool check_populate_my_outfits = true;
+	if (check_populate_my_outfits && 
+		(LLInventoryModel::getIsFirstTimeInViewer2() 
+		 || gSavedSettings.getBOOL("MyOutfitsAutofill")))
+	{
+		gAgentWearables.populateMyOutfitsFolder();
+	}
+	check_populate_my_outfits = false;
 }
 
 //#define DUMP_CAT_VERBOSE

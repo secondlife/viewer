@@ -244,7 +244,8 @@ private:
 			CALL_UPDATE = 1,
 			CALL_RECOVERDONE = 2,
 			CALL_CREATESTANDARDDONE = 4,
-			CALL_MAKENEWOUTFITDONE = 8
+			CALL_MAKENEWOUTFITDONE = 8,
+			CALL_WEARITEM = 16
 		};
 
 		// MULTI-WEARABLE: index is an EWearableType - more confusing usage.
