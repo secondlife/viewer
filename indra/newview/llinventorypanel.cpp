@@ -143,6 +143,7 @@ BOOL LLInventoryPanel::postBuild()
 		addChild(mScroller);
 		mScroller->addChild(mFolders);
 		mFolders->setScrollContainer(mScroller);
+		mFolders->addChild(mFolders->mStatusTextBox);
 	}
 
 	// Set up the callbacks from the inventory we're viewing, and then build everything.

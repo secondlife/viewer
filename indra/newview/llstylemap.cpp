@@ -49,6 +49,7 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 		if (source != LLUUID::null && source != gAgent.getID() )
 		{
 			style_params.color.control = "HTMLLinkColor";
+			style_params.readonly_color.control = "HTMLLinkColor";
 			style_params.link_href = 
 					LLSLURL::buildCommand("agent", source, "inspect");
 		}
@@ -56,6 +57,7 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 		{
 			// Make the resident's own name white and don't make the name clickable.
 			style_params.color = LLColor4::white;
+			style_params.readonly_color = LLColor4::white;
 		}
 
 		mMap[source] = style_params;
@@ -75,11 +77,13 @@ const LLStyle::Params &LLStyleMap::lookup(const LLUUID& id, const std::string& l
 		if (id != LLUUID::null && !link.empty())
 		{
 			style_params.color.control = "HTMLLinkColor";
+			style_params.readonly_color.control = "HTMLLinkColor";
 			style_params.link_href = link;
 		}
 		else
 		{
 			style_params.color = LLColor4::white;
+			style_params.readonly_color = LLColor4::white;
 		}
 		mMap[id] = style_params;
 	}

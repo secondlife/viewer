@@ -195,7 +195,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mCallbackRegistrar(NULL),
 	mParentPanel(p.parent_panel),
 	mUseEllipses(false),
-	mDraggingOverItem(NULL)
+	mDraggingOverItem(NULL),
+	mStatusTextBox(NULL)
 {
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
@@ -231,6 +232,18 @@ LLFolderView::LLFolderView(const Params& p)
 	mRenamer = LLUICtrlFactory::create<LLLineEditor> (params);
 	addChild(mRenamer);
 
+	// Textbox
+	LLTextBox::Params text_p;
+	LLRect new_r(5, 13-50, 300, 0-50);
+	text_p.name(std::string(p.name));
+	text_p.rect(new_r);
+	text_p.font(getLabelFontForStyle(mLabelStyle));
+	text_p.visible(false);
+	text_p.allow_html(true);
+	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
+	//addChild(mStatusTextBox);
+
+
 	// make the popup menu available
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (!menu)
@@ -253,6 +266,7 @@ LLFolderView::~LLFolderView( void )
 	mScrollContainer = NULL;
 	mRenameItem = NULL;
 	mRenamer = NULL;
+	mStatusTextBox = NULL;
 
 	if( gEditMenuHandler == this )
 	{
@@ -874,7 +888,7 @@ void LLFolderView::draw()
 			LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 	}
 
-	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+	//LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
 	// if cursor has moved off of me during drag and drop
 	// close all auto opened folders
@@ -911,19 +925,23 @@ void LLFolderView::draw()
 		|| mFilter->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
 		mStatusText.clear();
+		mStatusTextBox->setVisible( FALSE );
 	}
 	else
 	{
 		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
-			font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		else
 		{
 			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage());
-			font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
+		mStatusTextBox->setValue(mStatusText);
+		mStatusTextBox->setVisible( TRUE );
+		
 	}
 
 	LLFolderViewFolder::draw();

@@ -2434,7 +2434,10 @@ void LLFolderBridge::pasteFromClipboard()
 					//we have to update inventory locally too
 					LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
 					llassert(viitem);
-					changeItemParent(model, viitem, parent_id, FALSE);
+					if (viitem)
+					{
+						changeItemParent(model, viitem, parent_id, FALSE);
+					}
 				}
 				else
 				{

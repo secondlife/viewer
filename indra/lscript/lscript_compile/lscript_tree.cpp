@@ -10626,6 +10626,8 @@ LLScriptScript::LLScriptScript(LLScritpGlobalStorage *globals,
 		}
 		temp = temp->mNextp;
 	}
+
+	mClassName[0] = '\0';
 }
 
 void LLScriptScript::setBytecodeDest(const char* dst_filename)

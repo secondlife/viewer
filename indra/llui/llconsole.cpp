@@ -244,23 +244,6 @@ void LLConsole::draw()
 	}
 }
 
-void LLConsole::addLine(const std::string& utf8line)
-{
-	LLWString wline = utf8str_to_wstring(utf8line);
-	addLine(wline, 0.f, LLColor4(1.f, 1.f, 1.f, 1.f));
-}
-
-void LLConsole::addLine(const LLWString& wline)
-{
-	addLine(wline, 0.f, LLColor4(1.f, 1.f, 1.f, 1.f));
-}
-
-void LLConsole::addLine(const std::string& utf8line, F32 size, const LLColor4 &color)
-{
-	LLWString wline = utf8str_to_wstring(utf8line);
-	addLine(wline, size, color);
-}
-
 //Generate highlight color segments for this paragraph.  Pass in default color of paragraph.
 void LLConsole::Paragraph::makeParagraphColorSegments (const LLColor4 &color) 
 {
@@ -383,21 +366,45 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 
 //Pass in the string and the default color for this block of text.
 LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_time, const LLFontGL* font, F32 screen_width) 
-						: mParagraphText(str), mAddTime(add_time), mMaxWidth(-1)
+:	mParagraphText(str), mAddTime(add_time), mMaxWidth(-1)
 {
 	makeParagraphColorSegments(color);
 	updateLines( screen_width, font );
 }
 	
-void LLConsole::addLine(const LLWString& wline, F32 size, const LLColor4 &color)
+// called once per frame regardless of console visibility
+// static
+void LLConsole::updateClass()
 {	
-	Paragraph paragraph(wline, color, mTimer.getElapsedTimeF32(), mFont,  (F32)getRect().getWidth() );
-	
-	mParagraphs.push_back ( paragraph );
+	LLInstanceTrackerScopedGuard guard;
+
+	for (instance_iter it = guard.beginInstances(); it != guard.endInstances(); ++it)
+	{
+		it->update();
+	} 
+}
+
+void LLConsole::update()
+{
+	{
+		LLMutexLock lock(&mMutex);
+
+		while (!mLines.empty())
+		{
+			mParagraphs.push_back(
+				Paragraph(	mLines.front(), 
+							LLColor4::white, 
+							mTimer.getElapsedTimeF32(), 
+							mFont, 
+							(F32)getRect().getWidth()));
+			mLines.pop_front();
+		}
+	}
 
 	// remove old paragraphs which can't possibly be visible any more.  ::draw() will do something similar but more conservative - we do this here because ::draw() isn't guaranteed to ever be called!  (i.e. the console isn't visible)
-        while ((S32)mParagraphs.size() > llmax((S32)0, (S32)(mMaxLines)))
-        {
-                mParagraphs.pop_front();
-        }
+	while ((S32)mParagraphs.size() > llmax((S32)0, (S32)(mMaxLines)))
+	{
+			mParagraphs.pop_front();
+	}
 }
+

@@ -1876,7 +1876,7 @@ class LLScriptStateChange : public LLScriptStatement
 {
 public:
 	LLScriptStateChange(S32 line, S32 col, LLScriptIdentifier *identifier)
-		: LLScriptStatement(line, col, LSSMT_STATE_CHANGE), mIdentifier(identifier)
+		: LLScriptStatement(line, col, LSSMT_STATE_CHANGE), mIdentifier(identifier), mReturnType(LST_NULL)
 	{
 	}
 
@@ -2210,7 +2210,7 @@ class LLScriptState : public LLScriptFilePosition
 {
 public:
 	LLScriptState(S32 line, S32 col, LSCRIPTStateType type, LLScriptIdentifier *identifier, LLScriptEventHandler *event)
-		: LLScriptFilePosition(line, col), mType(type), mIdentifier(identifier), mEvent(event), mNextp(NULL)
+		: LLScriptFilePosition(line, col), mType(type), mIdentifier(identifier), mEvent(event), mNextp(NULL), mStateScope(NULL)
 	{
 	}
 

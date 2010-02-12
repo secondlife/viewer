@@ -37,7 +37,7 @@ halign="center"
      top_pad="4"
      width="305">
         <inventory_panel
-	border="false"
+	       border="false"
          follows="all"
          height="295"
          label="MY INVENTORY"
@@ -48,7 +48,7 @@ halign="center"
          top="16"
          width="290" />
         <inventory_panel
-	border="false"
+	       border="false"
          follows="all"
          height="295"
          label="RECENT"
@@ -67,7 +67,7 @@ halign="center"
      height="30"
      layout="bottomleft"
      left="0"
-	 visible="true"
+	   visible="true"
      name="bottom_panel"
      width="330">
         <button
@@ -118,7 +118,7 @@ halign="center"
      mouse_opaque="false"
      name="Inventory Menu"
      top="0"
-	 visible="true"
+	   visible="true"
      width="290">
         <menu
          height="101"

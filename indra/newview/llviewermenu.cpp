@@ -2555,7 +2555,7 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
-
+	
 	/*
 	// Old floater properties
 	LLFloaterReg::showInstance("inspect", LLSD());
@@ -5599,8 +5599,6 @@ void handle_buy_currency()
 	LLFloaterBuyCurrency::buyCurrency();
 }
 
-
-
 class LLFloaterVisible : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5643,6 +5641,25 @@ class LLShowSidetrayPanel : public view_listener_t
 		return true;
 	}
 };
+
+class LLSidetrayPanelVisible : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		// Toggle the panel
+		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
+	}
+};
+
 
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
@@ -8028,6 +8045,7 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
+	view_listener_t::addMenu(new LLSidetrayPanelVisible(), "SidetrayPanelVisible");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

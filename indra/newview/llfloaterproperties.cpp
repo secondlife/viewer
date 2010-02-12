@@ -880,7 +880,11 @@ void LLFloaterProperties::dirtyAll()
 		 iter != inst_list.end(); ++iter)
 	{
 		LLFloaterProperties* floater = dynamic_cast<LLFloaterProperties*>(*iter);
-		floater->dirty();
+		llassert(floater); // else cast failed - wrong type D:
+		if (floater)
+		{
+			floater->dirty();
+		}
 	}
 }
 

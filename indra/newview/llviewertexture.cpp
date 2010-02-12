@@ -1519,12 +1519,12 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		}
 		else if (!isJustBound() && mCachedRawImageReady)
 		{
-			if(mBoostLevel < BOOST_HIGH)
-			{
-				// We haven't rendered this in a while, de-prioritize it
-				desired_discard += 2;
-			}
-			else
+			//if(mBoostLevel < BOOST_HIGH)
+			//{
+			//	// We haven't rendered this in a while, de-prioritize it
+			//	desired_discard += 2;
+			//}
+			//else
 			{
 				// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
 				desired_discard = cur_discard;
@@ -2342,14 +2342,8 @@ void LLViewerFetchedTexture::setCachedRawImage()
 			{
 				--i ;
 			}
-			//if(mForSculpt)
-			//{
-			//	mRawImage->scaleDownWithoutBlending(w >> i, h >> i) ;
-			//}
-			//else
-			{
-				mRawImage->scale(w >> i, h >> i) ;
-			}
+			
+			mRawImage->scale(w >> i, h >> i) ;
 		}
 		mCachedRawImage = mRawImage ;
 		mCachedRawDiscardLevel = mRawDiscardLevel + i ;			
@@ -2699,7 +2693,7 @@ void LLViewerLODTexture::processTextureStats()
 		}
 		else
 		{
-			if(isLargeImage() && !isJustBound() && mAdditionalDecodePriority < 1.0f)
+			if(isLargeImage() && !isJustBound() && mAdditionalDecodePriority < 0.3f)
 			{
 				//if is a big image and not being used recently, nor close to the view point, do not load hi-res data.
 				mMaxVirtualSize = llmin(mMaxVirtualSize, (F32)LLViewerTexture::sMinLargeImageSize) ;
@@ -2885,12 +2879,11 @@ LLViewerMediaTexture::~LLViewerMediaTexture()
 
 void LLViewerMediaTexture::reinit(BOOL usemipmaps /* = TRUE */)
 {
-	mGLTexturep = NULL ;
-	init(false);
+	llassert(mGLTexturep.notNull()) ;
+
 	mUseMipMaps = usemipmaps ;
 	getLastReferencedTimer()->reset() ;
-
-	generateGLTexture() ;
+	mGLTexturep->setUseMipMaps(mUseMipMaps) ;
 	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 }
 
@@ -2995,6 +2988,10 @@ void LLViewerMediaTexture::initVirtualSize()
 
 void LLViewerMediaTexture::addMediaToFace(LLFace* facep) 
 {
+	if(facep)
+	{
+		facep->setHasMedia(true) ;
+	}
 	if(!mIsPlaying)
 	{
 		return ; //no need to add the face because the media is not in playing.
@@ -3005,14 +3002,16 @@ void LLViewerMediaTexture::addMediaToFace(LLFace* facep)
 	
 void LLViewerMediaTexture::removeMediaFromFace(LLFace* facep) 
 {
-	if(!mIsPlaying)
-	{
-		return ; //no need to remove the face because the media is not in playing.
-	}
 	if(!facep)
 	{
 		return ;
 	}
+	facep->setHasMedia(false) ;
+
+	if(!mIsPlaying)
+	{
+		return ; //no need to remove the face because the media is not in playing.
+	}	
 
 	mIsPlaying = FALSE ; //set to remove the media from the face.
 	switchTexture(facep) ;

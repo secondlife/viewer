@@ -16,6 +16,6 @@
 	  image_unselected="Search"
 	  image_selected="Search" />
   <clear_button label=""
-   image_unselected="Icon_Close_Foreground"
-   image_selected="Icon_Close_Press" />
+   image_unselected="Icon_Close_Toast"
+   image_selected="Icon_Close_Toast" />
 </filter_editor>

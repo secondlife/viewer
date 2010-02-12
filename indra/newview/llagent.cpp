@@ -5027,9 +5027,9 @@ void LLAgent::buildFullnameAndTitle(std::string& name) const
 	}
 }
 
-BOOL LLAgent::isInGroup(const LLUUID& group_id) const
+BOOL LLAgent::isInGroup(const LLUUID& group_id, BOOL ingnore_God_mod /* FALSE */) const
 {
-	if (isGodlike())
+	if (!ingnore_God_mod && isGodlike())
 		return true;
 
 	S32 count = mGroups.count();

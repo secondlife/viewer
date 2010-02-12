@@ -66,6 +66,8 @@ static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
+const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
+
 // support for secondlife:///app/objectim/{UUID}/ SLapps
 class LLObjectIMHandler : public LLCommandHandler
 {
@@ -257,7 +259,9 @@ public:
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
-		if(chat.mFromID.isNull())
+
+		//*TODO overly defensive thing, source type should be maintained out there
+		if(chat.mFromID.isNull() || chat.mFromName == SYSTEM_FROM)
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
@@ -267,16 +271,12 @@ public:
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
 		
-		if(!chat.mFromName.empty())
+		userName->setValue(chat.mFromName);
+		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
 		{
-			userName->setValue(chat.mFromName);
-			mFrom = chat.mFromName;
+			userName->setValue(LLTrans::getString("SECOND_LIFE"));
 		}
-		else
-		{
-			std::string SL = LLTrans::getString("SECOND_LIFE");
-			userName->setValue(SL);
-		}
+
 
 		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
@@ -287,20 +287,17 @@ public:
 		if(mSourceType != CHAT_SOURCE_AGENT)
 			icon->setDrawTooltip(false);
 
-		if(!chat.mFromID.isNull())
+		switch (mSourceType)
 		{
-			if(mSourceType != CHAT_SOURCE_AGENT)
-				icon->setValue(LLSD("OBJECT_Icon"));
-			else
+			case CHAT_SOURCE_AGENT:
 				icon->setValue(chat.mFromID);
-
-			
+				break;
+			case CHAT_SOURCE_OBJECT:
+				icon->setValue(LLSD("OBJECT_Icon"));
+				break;
+			case CHAT_SOURCE_SYSTEM:
+				icon->setValue(LLSD("SL_Logo"));
 		}
-		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
-		{
-			icon->setValue(LLSD("SL_Logo"));
-		}
-
 	}
 
 	/*virtual*/ void draw()
@@ -544,6 +541,7 @@ void LLChatHistory::clear()
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
+
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
@@ -609,6 +607,14 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		style_params.font.style = "ITALIC";
 	}
 
+	//*HACK we graying out chat history by graying out messages that contains full date in a time string
+	bool message_from_log = chat.mTimeStr.length() > LENGTH_OF_TIME_STR; 
+	if (message_from_log)
+	{
+		style_params.color(LLColor4::grey);
+		style_params.readonly_color(LLColor4::grey);
+	}
+
 	if (use_plain_text_chat_history)
 	{
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
@@ -644,10 +650,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
 									false, link_params);
 			}
-			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
-				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				// Convert the name to a hotlink and add to message.
 				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
 			}

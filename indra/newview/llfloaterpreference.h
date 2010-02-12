@@ -128,10 +128,8 @@ public:
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
-	void onKeystrokeAspectRatio();
 //	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
-	void onCommitAutoDetectAspect();
 	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
@@ -142,7 +140,6 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	static void cleanupBadSetting();
-	static F32 sAspectRatio;	
 private:
 	static std::string sSkin;
 	bool mGotPersonalInfo;

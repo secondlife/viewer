@@ -1805,7 +1805,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
+	<string name="InventoryNoMatchingItems">[secondlife:///app/search/groups No matching items found in inventory.Try "Search"?]</string>
   <string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">
 		You do not have a copy of
@@ -2129,7 +2129,7 @@ this texture in your inventory
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
   
   <!-- panel picks -->
-  <string name="NoPicksClassifiedsText">There are no picks/classifieds here</string>
+  <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
   <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->
