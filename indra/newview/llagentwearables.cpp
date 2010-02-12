@@ -1605,6 +1605,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		LLWearable* new_wearable = wearables[i];
 		LLPointer<LLInventoryItem> new_item = items[i];
 
+		llassert(new_wearable);
+		if (!new_wearable) continue;
+
 		const EWearableType type = new_wearable->getType();
 		wearables_to_remove[type] = FALSE;
 
