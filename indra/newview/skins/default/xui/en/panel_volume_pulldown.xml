@@ -4,7 +4,7 @@
  background_visible="false"
  border_visible="false"
  border="false"
- chrome="true" 
+ chrome="true"
  follows="bottom"
  height="150"
  layout="topleft"
@@ -13,7 +13,7 @@
   <!-- floater background image -->
   <icon
    height="150"
-   image_name="Inspector_Background"
+   image_name="Volume_Background"
    layout="topleft"
    left="0"
    name="normal_background"
