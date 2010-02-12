@@ -1515,8 +1515,8 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 		unlockQueue() ;
 
 		worker->lockWorkMutex();
-	worker->mActiveCount++;
-	worker->mNeedsAux = needs_aux;
+		worker->mActiveCount++;
+		worker->mNeedsAux = needs_aux;
 		worker->unlockWorkMutex();
 	}
 	
