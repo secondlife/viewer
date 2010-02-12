@@ -17,9 +17,11 @@
 		bevel_style="in"
 		bg_alpha_color="0 0 0 0"
 		bg_opaque_color="0 0 0 0.3"
-		follows="left|right|top"
+    bg_opaque_image="Toast_Background"  
+    follows="left|right|top"
 		top="0"
-		height="45"
+		height="30"
+    name="minimized_controls" 
 		left="0">
 	  <button
 		  name="all_nearby_media_disable_btn"

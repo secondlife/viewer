@@ -54,6 +54,7 @@ public:
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
 	/*virtual*/ void onTopLost ();
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 
 	// this is part of the nearby media *dialog* so we can track whether
 	// the user *implicitly* wants audio on or off via their *explicit*
@@ -151,8 +152,8 @@ private:
 	std::string			mDefaultParcelMediaName;
 	std::string			mPlayingString;
 	
-	S32					mOriginalHeight;
-	S32					mNearbyMediaPanelHeight;
+	S32					mMoreHeight;
+	S32					mLessHeight;
 	LLFrameTimer		mHoverTimer;
 };
 
