@@ -182,7 +182,6 @@ set(viewer_SOURCE_FILES
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloaternamedesc.cpp
-    llfloaternearbymedia.cpp
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
@@ -323,6 +322,7 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelme.cpp
+    llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
     llpaneloutfitsinventory.cpp
@@ -682,7 +682,6 @@ set(viewer_HEADER_FILES
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloaternamedesc.h
-    llfloaternearbymedia.h
     llfloaternotificationsconsole.h
     llfloateropenobject.h
     llfloaterparcel.h
@@ -818,6 +817,7 @@ set(viewer_HEADER_FILES
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelme.h
+    llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
     llpaneloutfitsinventory.h

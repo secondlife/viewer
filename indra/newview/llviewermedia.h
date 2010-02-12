@@ -385,7 +385,7 @@ private:
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
 	bool mMediaAutoPlay;
 	std::string mMediaEntryURL;
-	bool mInNearbyMediaList;	// used by LLFloaterNearbyMedia::refreshList() for performance reasons
+	bool mInNearbyMediaList;	// used by LLPanelNearbyMedia::refreshList() for performance reasons
 	bool mClearCache;
 	LLColor4 mBackgroundColor;
 	bool mNavigateSuspended;

@@ -96,7 +96,10 @@ void LLPanelVolumePulldown::handleVisibilityChange ( BOOL new_visibility )
 	else
 	{
 		mHoverTimer.stop();
-		gFocusMgr.setTopCtrl(NULL);
+		if (gFocusMgr.getTopCtrl() == this)
+		{
+			gFocusMgr.setTopCtrl(NULL);
+		}
 	}
 }
 

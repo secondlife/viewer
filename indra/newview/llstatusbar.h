@@ -48,6 +48,7 @@ class LLUUID;
 class LLFrameTimer;
 class LLStatGraph;
 class LLPanelVolumePulldown;
+class LLPanelNearByMedia;
 
 class LLStatusBar
 :	public LLPanel
@@ -87,6 +88,8 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
+	LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
+
 private:
 	// simple method to setup the part that holds the date
 	void setupDate();
@@ -94,7 +97,8 @@ private:
 	void onClickBuyCurrency();
 	void onVolumeChanged(const LLSD& newvalue);
 
-	static void onMouseEnterVolume(LLUICtrl* ctrl);
+	void onMouseEnterVolume();
+	void onMouseEnterNearbyMedia();
 	static void onClickStatGraph(void* data);
 
 private:
@@ -113,6 +117,7 @@ private:
 	LLFrameTimer*	mBalanceTimer;
 	LLFrameTimer*	mHealthTimer;
 	LLPanelVolumePulldown* mPanelVolumePulldown;
+	LLPanelNearByMedia*	mPanelNearByMedia;
 	static std::vector<std::string> sDays;
 	static std::vector<std::string> sMonths;
 	static const U32 MAX_DATE_STRING_LENGTH;
