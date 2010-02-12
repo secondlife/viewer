@@ -55,6 +55,7 @@
 #include "llfloaterbump.h"
 #include "llfloatercamera.h"
 #include "llfloaterdaycycle.h"
+#include "llfloaterevent.h"
 #include "llfloatersearch.h"
 #include "llfloaterenvsettings.h"
 #include "llfloaterfonttest.h"
@@ -160,6 +161,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("env_settings", "floater_env_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvSettings>);
 	LLFloaterReg::add("env_water", "floater_water.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWater>);
 	LLFloaterReg::add("env_windlight", "floater_windlight_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWindLight>);
+
+	LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
 	
 	LLFloaterReg::add("font_test", "floater_font_test.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFontTest>);
 
