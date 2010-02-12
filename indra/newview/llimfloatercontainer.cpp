@@ -93,7 +93,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLIconCtrl* icon = 0;
 
-	if(gAgent.isInGroup(session_id))
+	if(gAgent.isInGroup(session_id, TRUE))
 	{
 		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
 		icon_params.group_id = session_id;
