@@ -73,7 +73,7 @@
        width="310">
         Run by:
       </text>
-      <name_box
+      <text
         follows="left|top"
         height="20"
         initial_value="(retrieving)"
@@ -174,8 +174,7 @@
                height="106"
                layout="topleft"
                left="6"
-       name="event_desc"
-               value="Du waltz die spritz"
+               name="event_desc"
                width="313" />
     </layout_panel>
     <layout_panel
@@ -200,12 +199,26 @@
            tool_tip="Create Event"
            width="18" />
       <button
+       follows="left|top"
+           height="18"
+           image_selected="MinusItem_Press"
+           image_unselected="MinusItem_Off"
+           image_disabled="MinusItem_Disabled"
+           layout="topleft"
+           visible="false" 
+           left="6"
+           top_pad="-7" 
+          name="god_delete_event_btn"
+           picture_style="true"
+           tool_tip="Delete Event"
+           width="18" />
+      <button
    follows="left|top"
    height="23"
    label="Notify Me"
    layout="topleft"
    left_pad="3"
-   top_delta="-1"
+   top_delta="-12"
    name="notify_btn"
    width="100" />
       <button

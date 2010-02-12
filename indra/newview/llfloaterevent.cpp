@@ -45,11 +45,13 @@
 #include "llcommandhandler.h"	// secondlife:///app/chat/ support
 #include "lleventflags.h"
 #include "lleventnotifier.h"
+#include "llexpandabletextbox.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
 #include "llsecondlifeurls.h"
+#include "llslurl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lluiconstants.h"
@@ -109,7 +111,7 @@ BOOL LLFloaterEvent::postBuild()
 
 	mTBDuration = getChild<LLTextBox>("event_duration");
 
-	mTBDesc = getChild<LLTextEditor>("event_desc");
+	mTBDesc = getChild<LLExpandableTextBox>("event_desc");
 	mTBDesc->setEnabled(FALSE);
 
 	mTBRunBy = getChild<LLTextBox>("event_runby");
@@ -128,6 +130,9 @@ BOOL LLFloaterEvent::postBuild()
 	mCreateEventBtn = getChild<LLButton>( "create_event_btn");
 	mCreateEventBtn->setClickedCallback(onClickCreateEvent, this);
 
+	mGodDeleteEventBtn = getChild<LLButton>( "god_delete_event_btn");
+	mGodDeleteEventBtn->setClickedCallback(boost::bind(&LLFloaterEvent::onClickDeleteEvent, this));
+
 	return TRUE;
 }
 
@@ -143,6 +148,20 @@ void LLFloaterEvent::setEventID(const U32 event_id)
 	}
 }
 
+void LLFloaterEvent::onClickDeleteEvent()
+{
+	LLMessageSystem* msg = gMessageSystem;
+
+	msg->newMessageFast(_PREHASH_EventGodDelete);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlockFast(_PREHASH_EventData);
+	msg->addU32Fast(_PREHASH_EventID, mEventID);
+
+	gAgent.sendReliableMessage();
+}
 
 void LLFloaterEvent::sendEventInfoRequest()
 {
@@ -156,7 +175,6 @@ void LLFloaterEvent::sendEventInfoRequest()
 	msg->addU32Fast(_PREHASH_EventID, mEventID);
 	gAgent.sendReliableMessage();
 }
-
 
 //static 
 void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
@@ -174,6 +192,7 @@ void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		floater->mTBCategory->setText(floater->mEventInfo.mCategoryStr);
 		floater->mTBDate->setText(floater->mEventInfo.mTimeStr);
 		floater->mTBDesc->setText(floater->mEventInfo.mDesc);
+		floater->mTBRunBy->setText(LLSLURL::buildCommand("agent", floater->mEventInfo.mRunByID, "inspect"));
 
 		floater->mTBDuration->setText(llformat("%d:%.2d", floater->mEventInfo.mDuration / 60, floater->mEventInfo.mDuration % 60));
 
@@ -224,23 +243,33 @@ void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		{
 			floater->mNotifyBtn->setLabel(floater->getString("notify"));
 		}
+	
+		floater->mMapBtn->setEnabled(TRUE);
+		floater->mTeleportBtn->setEnabled(TRUE);
 	}
 }
 
 
 void LLFloaterEvent::draw()
 {
-	std::string name;
-	gCacheName->getFullName(mEventInfo.mRunByID, name);
-
-	mTBRunBy->setText(name);
+	mGodDeleteEventBtn->setVisible(gAgent.isGodlike());
 
 	LLPanel::draw();
 }
 
 void LLFloaterEvent::resetInfo()
 {
-	// Clear all of the text fields.
+	mTBName->setText(LLStringUtil::null);
+	mTBCategory->setText(LLStringUtil::null);
+	mTBDate->setText(LLStringUtil::null);
+	mTBDesc->setText(LLStringUtil::null);
+	mTBDuration->setText(LLStringUtil::null);
+	mTBCover->setText(LLStringUtil::null);
+	mTBLocation->setText(LLStringUtil::null);
+	mTBRunBy->setText(LLStringUtil::null);
+	mNotifyBtn->setEnabled(FALSE);
+	mMapBtn->setEnabled(FALSE);
+	mTeleportBtn->setEnabled(FALSE);
 }
 
 // static
@@ -271,32 +300,11 @@ void LLFloaterEvent::onClickMap(void* data)
 
 
 // static
-/*
-void LLPanelEvent::onClickLandmark(void* data)
-{
-	LLPanelEvent* self = (LLPanelEvent*)data;
-	//create_landmark(self->mTBName->getText(), "", self->mEventInfo.mPosGlobal);
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("CreateLandmarkForEvent");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_EventData);
-	msg->addU32Fast(_PREHASH_EventID, self->mEventID);
-	msg->nextBlockFast(_PREHASH_InventoryBlock);
-	LLUUID folder_id;
-	folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-	msg->addUUIDFast(_PREHASH_FolderID, folder_id);
-	msg->addStringFast(_PREHASH_Name, self->mTBName->getText());
-	gAgent.sendReliableMessage();
-}
-*/
-
-// static
 void LLFloaterEvent::onClickCreateEvent(void* data)
 {
 	LLNotificationsUtil::add("PromptGoToEventsPage");//, LLSD(), LLSD(), callbackCreateEventWebPage); 
 }
+
 
 // static
 void LLFloaterEvent::onClickNotify(void *data)
@@ -314,18 +322,3 @@ void LLFloaterEvent::onClickNotify(void *data)
 		self->mNotifyBtn->setLabel(self->getString("notify"));
 	}
 }
-/*
-// static
-bool LLPanelEvent::callbackCreateEventWebPage(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (0 == option)
-	{
-		llinfos << "Loading events page " <<  LLNotifications::instance().getGlobalString("EVENTS_URL") << llendl;
-
-		LLWeb::loadURL( LLNotifications::instance().getGlobalString("EVENTS_URL"));
-	}
-	return false;
-}
-*/
-

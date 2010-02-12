@@ -34,7 +34,6 @@
 #define LL_LLFLOATEREVENT_H
 
 #include "llfloater.h"
-
 #include "lleventinfo.h"
 #include "lluuid.h"
 #include "v3dmath.h"
@@ -42,6 +41,7 @@
 class LLTextBox;
 class LLTextEditor;
 class LLButton;
+class LLExpandableTextBox;
 class LLMessageSystem;
 
 class LLFloaterEvent : public LLFloater
@@ -68,6 +68,7 @@ protected:
 	//static void onClickLandmark(void*);
 	static void onClickCreateEvent(void*);
 	static void onClickNotify(void*);
+	void onClickDeleteEvent();
 
 //	static bool callbackCreateEventWebPage(const LLSD& notification, const LLSD& response);
 
@@ -79,7 +80,7 @@ protected:
 	LLTextBox*		mTBCategory;
 	LLTextBox*		mTBDate;
 	LLTextBox*		mTBDuration;
-	LLTextEditor*	mTBDesc;
+	LLExpandableTextBox*	mTBDesc;
 
 	LLTextBox*		mTBRunBy;
 	LLTextBox*		mTBLocation;
@@ -88,6 +89,7 @@ protected:
 	LLButton*		mTeleportBtn;
 	LLButton*		mMapBtn;
 	LLButton*		mCreateEventBtn;
+	LLButton*		mGodDeleteEventBtn;
 	LLButton*		mNotifyBtn;
 };
 
