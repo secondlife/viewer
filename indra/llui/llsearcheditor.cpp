@@ -60,6 +60,7 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	line_editor_params.keystroke_callback(boost::bind(&LLSearchEditor::handleKeystroke, this));
 
 	mSearchEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_params);
+	mSearchEditor->setPassDelete(TRUE);
 	addChild(mSearchEditor);
 
 	if (p.search_button_visible)
