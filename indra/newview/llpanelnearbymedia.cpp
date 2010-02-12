@@ -37,6 +37,7 @@
 #include "llaudioengine.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llresizebar.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
@@ -108,6 +109,15 @@ BOOL LLPanelNearByMedia::postBuild()
 {
 	LLPanel::postBuild();
 
+	const S32 RESIZE_BAR_THICKNESS = 6;
+	LLResizeBar::Params p;
+	p.rect = LLRect(0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0);
+	p.name = "resizebar_bottom";
+	p.min_size = getRect().getHeight();
+	p.side = LLResizeBar::BOTTOM;
+	p.resizing_view = this;
+	addChild( LLUICtrlFactory::create<LLResizeBar>(p) );
+
 	mNearbyMediaPanel = getChild<LLUICtrl>("nearby_media_panel");
 	mMediaList = getChild<LLScrollListCtrl>("media_list");
 	mEnableAllCtrl = getChild<LLUICtrl>("all_nearby_media_enable_btn");
@@ -144,8 +154,9 @@ BOOL LLPanelNearByMedia::postBuild()
 	refreshList();
 	updateColumns();
 	
-	mOriginalHeight = getRect().getHeight();
-	mNearbyMediaPanelHeight = mNearbyMediaPanel->getRect().getHeight();
+	LLView* minimized_controls = getChildView("minimized_controls");
+	mMoreHeight = getRect().getHeight();
+	mLessHeight = getRect().getHeight() - minimized_controls->getRect().mBottom;
 	getChild<LLUICtrl>("more_less_btn")->setValue(false);
 	onMoreLess();
 	
@@ -191,12 +202,33 @@ void LLPanelNearByMedia::onTopLost ()
 	setVisible(FALSE);
 }
 
+/*virtual*/
+void LLPanelNearByMedia::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+
+	LLButton* more_less_btn = getChild<LLButton>("more_less_btn");
+	if (more_less_btn->getValue().asBoolean())
+	{
+		mMoreHeight = getRect().getHeight();
+	}
+
+}
 
 const F32 AUTO_CLOSE_FADE_TIME_START= 4.0f;
 const F32 AUTO_CLOSE_FADE_TIME_END = 5.0f;
 
 void LLPanelNearByMedia::draw()
 {
+	// keep bottom of panel on screen
+	LLRect screen_rect = calcScreenRect();
+	if (screen_rect.mBottom < 0)
+	{
+		LLRect new_rect = getRect();
+		new_rect.mBottom += 0 - screen_rect.mBottom;
+		setShape(new_rect);
+	}
+
 	mItemCountText->setValue(llformat(getString("media_item_count_format").c_str(), mMediaList->getItemCount()));
 	
 //	refreshParcelMediaUI();
@@ -821,8 +853,10 @@ void LLPanelNearByMedia::onMoreLess()
 	bool is_more = getChild<LLUICtrl>("more_less_btn")->getValue();
 	mNearbyMediaPanel->setVisible(is_more);
 
-	S32 new_height = mOriginalHeight;
-	if (!is_more) new_height -= mNearbyMediaPanelHeight;
+	// enable resizing when expanded
+	getChildView("resizebar_bottom")->setEnabled(is_more);
+
+	S32 new_height = is_more ? mMoreHeight : mLessHeight;
 
 	LLRect new_rect = getRect();
 	new_rect.mBottom = new_rect.mTop - new_height;
