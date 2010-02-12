@@ -41,6 +41,7 @@
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterlagmeter.h"
+#include "llpanelnearbymedia.h"
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
@@ -191,7 +192,7 @@ BOOL LLStatusBar::postBuild()
 
 	mMediaToggle = getChild<LLButton>("media_toggle_btn");
 	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
-	mMediaToggle->setMouseEnterCallback(boost::bind(&LLFloaterReg::showInstance, "nearby_media", LLSD(), true));
+	mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -240,6 +241,9 @@ BOOL LLStatusBar::postBuild()
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
 
+	mPanelNearByMedia = new LLPanelNearByMedia();
+	addChild(mPanelNearByMedia);
+
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
 	volume_pulldown_rect.setLeftTopAndSize(volbtn->getRect().mLeft -
@@ -251,6 +255,21 @@ BOOL LLStatusBar::postBuild()
 	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
+
+	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
+	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
+	nearby_media_rect.setLeftTopAndSize(nearby_media_btn->getRect().mLeft -
+	     (volume_pulldown_rect.getWidth() - nearby_media_btn->getRect().getWidth())/2,
+			       nearby_media_btn->calcScreenRect().mBottom,
+			       nearby_media_rect.getWidth(),
+			       nearby_media_rect.getHeight());
+	// force onscreen
+	nearby_media_rect.translate(getRect().getWidth() - nearby_media_rect.mRight, 0);
+
+	mPanelNearByMedia->setShape(nearby_media_rect);
+	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelNearByMedia->setVisible(FALSE);
+	
 
 	return TRUE;
 }
@@ -515,12 +534,18 @@ static void onClickScriptDebug(void*)
 	LLFloaterScriptDebug::show(LLUUID::null);
 }
 
-//static
-void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
+void LLStatusBar::onMouseEnterVolume()
 {
 	// show the master volume pull-down
-	gStatusBar->mPanelVolumePulldown->setVisible(TRUE);
+	mPanelVolumePulldown->setVisible(TRUE);
 }
+
+void LLStatusBar::onMouseEnterNearbyMedia()
+{
+	// show the master volume pull-down
+	mPanelNearByMedia->setVisible(TRUE);
+}
+
 
 static void onClickVolume(void* data)
 {
