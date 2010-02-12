@@ -41,6 +41,7 @@
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterlagmeter.h"
+#include "llpanelnearbymedia.h"
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
@@ -61,6 +62,7 @@
 #include "llresmgr.h"
 #include "llworld.h"
 #include "llstatgraph.h"
+#include "llviewermedia.h"
 #include "llviewermenu.h"	// for gMenuBarView
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
@@ -130,7 +132,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	
 	// status bar can possible overlay menus?
 	setMouseOpaque(FALSE);
-	setIsChrome(TRUE);
 
 	// size of day of the weeks and year
 	sDays.reserve(7);
@@ -140,9 +141,39 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mHealthTimer = new LLFrameTimer();
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_status_bar.xml");
+}
 
-	// status bar can never get a tab
-	setFocusRoot(FALSE);
+LLStatusBar::~LLStatusBar()
+{
+	delete mBalanceTimer;
+	mBalanceTimer = NULL;
+
+	delete mHealthTimer;
+	mHealthTimer = NULL;
+
+	// LLView destructor cleans up children
+}
+
+//-----------------------------------------------------------------------
+// Overrides
+//-----------------------------------------------------------------------
+
+// virtual
+void LLStatusBar::draw()
+{
+	refresh();
+	LLPanel::draw();
+}
+
+BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	show_navbar_context_menu(this,x,y);
+	return TRUE;
+}
+
+BOOL LLStatusBar::postBuild()
+{
+	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	// build date necessary data (must do after panel built)
 	setupDate();
@@ -158,7 +189,10 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
 	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
-	mBtnVolume->setIsChrome(TRUE);
+
+	mMediaToggle = getChild<LLButton>("media_toggle_btn");
+	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
+	mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -207,6 +241,9 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
 
+	mPanelNearByMedia = new LLPanelNearByMedia();
+	addChild(mPanelNearByMedia);
+
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
 	volume_pulldown_rect.setLeftTopAndSize(volbtn->getRect().mLeft -
@@ -218,39 +255,21 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
-}
 
-LLStatusBar::~LLStatusBar()
-{
-	delete mBalanceTimer;
-	mBalanceTimer = NULL;
+	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
+	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
+	nearby_media_rect.setLeftTopAndSize(nearby_media_btn->getRect().mLeft -
+	     (volume_pulldown_rect.getWidth() - nearby_media_btn->getRect().getWidth())/2,
+			       nearby_media_btn->calcScreenRect().mBottom,
+			       nearby_media_rect.getWidth(),
+			       nearby_media_rect.getHeight());
+	// force onscreen
+	nearby_media_rect.translate(getRect().getWidth() - nearby_media_rect.mRight, 0);
 
-	delete mHealthTimer;
-	mHealthTimer = NULL;
-
-	// LLView destructor cleans up children
-}
-
-//-----------------------------------------------------------------------
-// Overrides
-//-----------------------------------------------------------------------
-
-// virtual
-void LLStatusBar::draw()
-{
-	refresh();
-	LLPanel::draw();
-}
-
-BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	show_navbar_context_menu(this,x,y);
-	return TRUE;
-}
-
-BOOL LLStatusBar::postBuild()
-{
-	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
+	mPanelNearByMedia->setShape(nearby_media_rect);
+	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelNearByMedia->setVisible(FALSE);
+	
 
 	return TRUE;
 }
@@ -356,6 +375,8 @@ void LLStatusBar::refresh()
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
+	
+	mMediaToggle->setValue(!LLViewerMedia::isAnyMediaShowing());
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -513,18 +534,32 @@ static void onClickScriptDebug(void*)
 	LLFloaterScriptDebug::show(LLUUID::null);
 }
 
-//static
-void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
+void LLStatusBar::onMouseEnterVolume()
 {
 	// show the master volume pull-down
-	gStatusBar->mPanelVolumePulldown->setVisible(TRUE);
+	mPanelVolumePulldown->setVisible(TRUE);
 }
+
+void LLStatusBar::onMouseEnterNearbyMedia()
+{
+	// show the master volume pull-down
+	mPanelNearByMedia->setVisible(TRUE);
+}
+
 
 static void onClickVolume(void* data)
 {
 	// toggle the master mute setting
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	LLAppViewer::instance()->setMasterSystemAudioMute(!mute_audio);	
+}
+
+//static 
+void LLStatusBar::onClickMediaToggle(void* data)
+{
+	LLStatusBar *status_bar = (LLStatusBar*)data;
+	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
+	LLViewerMedia::setAllMediaEnabled(! status_bar->mMediaToggle->getValue());
 }
 
 // sets the static variables necessary for the date
