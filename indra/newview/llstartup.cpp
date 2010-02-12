@@ -1891,17 +1891,6 @@ bool idle_startup()
 			}
 		}
 		
-		// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
-		// then auto-populate outfits from the library into the My Outfits folder.
-		static bool check_populate_my_outfits = true;
-		if (check_populate_my_outfits && 
-			(LLInventoryModel::getIsFirstTimeInViewer2() 
-			 || gSavedSettings.getBOOL("MyOutfitsAutofill")))
-		{
-			gAgentWearables.populateMyOutfitsFolder();
-		}
-		check_populate_my_outfits = false;
-
 		return TRUE;
 	}
 

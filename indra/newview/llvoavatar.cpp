@@ -2535,6 +2535,13 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 		if (isFullyLoaded() && isSelf())
 		{
 			llwarns << "BAP self isFullyLoaded" << llendl;
+
+			static bool first_fully_visible = true;
+			if (first_fully_visible)
+			{
+				first_fully_visible = false;
+				LLAppearanceManager::instance().onFirstFullyVisible();
+			}
 		}
 		if (isFullyLoaded())
 		{
