@@ -113,6 +113,9 @@ public:
 	// should only be necessary to do on initial login.
 	void updateIsDirty();
 
+	// Called when self avatar is first fully visible.
+	void onFirstFullyVisible();
+	
 protected:
 	LLAppearanceManager();
 	~LLAppearanceManager();

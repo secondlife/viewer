@@ -1855,10 +1855,9 @@ EInventorySortGroup LLFolderViewFolder::getSortGroup() const
 		return SG_TRASH_FOLDER;
 	}
 
-	// Folders that can't be moved are 'system' folders. 
 	if( mListener )
 	{
-		if( !(mListener->isItemMovable()) )
+		if(LLFolderType::lookupIsProtectedType(mListener->getPreferredType()))
 		{
 			return SG_SYSTEM_FOLDER;
 		}
