@@ -271,6 +271,7 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setRevertOnEsc( FALSE );
 	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
+	mInputEditor->setPassDelete( TRUE );
 
 	std::string session_name(LLIMModel::instance().getName(mSessionID));
 
