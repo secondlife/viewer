@@ -5614,19 +5614,31 @@ void LLVolumeFace::createBinormals()
 	}
 }
 
-void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& transform, LLMatrix4& norm_transform)
+void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat, LLMatrix4& norm_mat)
 {
+	U16 offset = mVertices.size();
+
+	
 	for (U32 i = 0; i < face.mVertices.size(); ++i)
 	{
 		VertexData v = face.mVertices[i];
-		v.mPosition *= mat;
-		v.mNormal *= norm_transform;
+		v.mPosition = v.mPosition*mat;
+		v.mNormal = v.mNormal * norm_mat;
 
 
 		mVertices.push_back(v);
+
+		if (offset == 0 && i == 0)
+		{
+			mExtents[0] = mExtents[1] = v.mPosition;
+		}
+		else
+		{
+			update_min_max(mExtents[0], mExtents[1], v.mPosition);
+		}
 	}
 
-	U16 offset = mIndices.size();
+	
 	for (U32 i = 0; i < face.mIndices.size(); ++i)
 	{
 		mIndices.push_back(face.mIndices[i]+offset);
