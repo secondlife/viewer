@@ -259,7 +259,9 @@ public:
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
-		if(chat.mFromID.isNull())
+
+		//*TODO overly defensive thing, source type should be maintained out there
+		if(chat.mFromID.isNull() || chat.mFromName == SYSTEM_FROM)
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
@@ -269,16 +271,12 @@ public:
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
 		
-		if(!chat.mFromName.empty())
+		userName->setValue(chat.mFromName);
+		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
 		{
-			userName->setValue(chat.mFromName);
-			mFrom = chat.mFromName;
+			userName->setValue(LLTrans::getString("SECOND_LIFE"));
 		}
-		else
-		{
-			std::string SL = LLTrans::getString("SECOND_LIFE");
-			userName->setValue(SL);
-		}
+
 
 		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
@@ -289,20 +287,17 @@ public:
 		if(mSourceType != CHAT_SOURCE_AGENT)
 			icon->setDrawTooltip(false);
 
-		if(!chat.mFromID.isNull())
+		switch (mSourceType)
 		{
-			if(mSourceType != CHAT_SOURCE_AGENT)
-				icon->setValue(LLSD("OBJECT_Icon"));
-			else
+			case CHAT_SOURCE_AGENT:
 				icon->setValue(chat.mFromID);
-
-			
+				break;
+			case CHAT_SOURCE_OBJECT:
+				icon->setValue(LLSD("OBJECT_Icon"));
+				break;
+			case CHAT_SOURCE_SYSTEM:
+				icon->setValue(LLSD("SL_Logo"));
 		}
-		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
-		{
-			icon->setValue(LLSD("SL_Logo"));
-		}
-
 	}
 
 	/*virtual*/ void draw()
