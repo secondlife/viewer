@@ -84,15 +84,23 @@ private:
 	};
 		
 	// Add/remove an LLViewerMediaImpl to/from the list
-	void addMediaItem(const LLUUID &id);
-	void updateMediaItem(LLScrollListItem* item, LLViewerMediaImpl* impl);
-	void removeMediaItem(const LLUUID &id);
+	LLScrollListItem* addListItem(const LLUUID &id);
+	void updateListItem(LLScrollListItem* item, LLViewerMediaImpl* impl);
+	void updateListItem(LLScrollListItem* item,
+						const std::string &item_name,
+						const std::string &item_tooltip,
+						S32 proximity,
+						bool is_disabled,
+						bool has_media,
+						bool is_time_based_and_playing,
+						MediaClass media_class,
+						const std::string &debug_str);
+	void removeListItem(const LLUUID &id);
 	
 	// Refresh the list in the UI
 	void refreshList();
 	
-	void refreshParcelMediaUI();
-	void refreshParcelAudioUI();
+	void refreshParcelItems();
 
 	// UI Callbacks 
 	void onClickEnableAll();
@@ -106,6 +114,7 @@ private:
 	void onClickParcelMediaPause();
 	void onClickParcelAudioPlay();
 	void onClickParcelAudioStop();
+	void onClickParcelAudioStart();
 	void onClickParcelAudioPause();
 	void onCheckAutoPlay();
 	void onAdvancedButtonClick();	
@@ -117,10 +126,8 @@ private:
 	
 private:
 	bool setDisabled(const LLUUID &id, bool disabled);
-	
-	static void getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName);
 
-	static std::string getParcelAudioURL();
+	static void getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName);
 	
 	void updateColumns();
 	
@@ -134,7 +141,6 @@ private:
 	LLButton*			mParcelMediaMuteCtrl;
 	LLUICtrl*			mEnableParcelMediaCtrl;
 	LLUICtrl*			mDisableParcelMediaCtrl;
-	LLTextBox*			mParcelMediaText;
 	LLTextBox*			mItemCountText;
 	LLUICtrl*			mParcelMediaCtrl;
 	LLUICtrl*			mParcelMediaPlayCtrl;
@@ -148,12 +154,15 @@ private:
 	bool				mDebugInfoVisible;
 	bool				mParcelAudioAutoStart;
 	std::string			mEmptyNameString;
-	std::string			mDefaultParcelMediaName;
 	std::string			mPlayingString;
+	std::string			mParcelMediaName;
+	std::string			mParcelAudioName;
 	
 	S32					mOriginalHeight;
 	S32					mNearbyMediaPanelHeight;
 	LLFrameTimer		mHoverTimer;
+	LLScrollListItem*	mParcelMediaItem;
+	LLScrollListItem*	mParcelAudioItem;
 };
 
 
