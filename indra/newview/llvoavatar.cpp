@@ -2534,7 +2534,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	{
 		if (isFullyLoaded() && isSelf())
 		{
-			llwarns << "BAP self isFullyLoaded" << llendl;
+			llinfos << "self isFullyLoaded" << llendl;
 
 			static bool first_fully_visible = true;
 			if (first_fully_visible)

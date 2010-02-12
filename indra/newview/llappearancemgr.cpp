@@ -113,7 +113,7 @@ public:
 protected:
 	~LLWearInventoryCategoryCallback()
 	{
-		llinfos << "BAP done all inventory callbacks" << llendl;
+		llinfos << "done all inventory callbacks" << llendl;
 		
 		// Is the destructor called by ordinary dereference, or because the app's shutting down?
 		// If the inventory callback manager goes away, we're shutting down, no longer want the callback.
@@ -152,14 +152,14 @@ protected:
 
 void LLOutfitObserver::done()
 {
-	llinfos << "BAP done 2nd stage fetch" << llendl;
+	llinfos << "done 2nd stage fetch" << llendl;
 	gInventory.removeObserver(this);
 	doOnIdle(boost::bind(&LLOutfitObserver::doWearCategory,this));
 }
 
 void LLOutfitObserver::doWearCategory()
 {
-	llinfos << "BAP start" << llendl;
+	llinfos << "starting" << llendl;
 	
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
@@ -249,7 +249,7 @@ void LLOutfitFetch::done()
 	// What we do here is get the complete information on the items in
 	// the library, and set up an observer that will wait for that to
 	// happen.
-	llinfos << "BAP done first stage fetch" << llendl;
+	llinfos << "done first stage fetch" << llendl;
 	
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
@@ -311,7 +311,7 @@ public:
 
 	virtual ~LLUpdateAppearanceOnDestroy()
 	{
-		llinfos << "BAP done update appearance on destroy" << llendl;
+		llinfos << "done update appearance on destroy" << llendl;
 
 		if (!LLApp::isExiting())
 		{
@@ -321,7 +321,7 @@ public:
 
 	/* virtual */ void fire(const LLUUID& inv_item)
 	{
-		llinfos << "BAP fire" << llendl;
+		llinfos << "callback fired" << llendl;
 		mFireCount++;
 	}
 private:
@@ -713,7 +713,7 @@ void LLAppearanceManager::linkAll(const LLUUID& category,
 
 void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 {
-	llinfos << "BAP updating cof" << llendl;
+	llinfos << "starting" << llendl;
 
 	const LLUUID cof = getCOF();
 
@@ -772,26 +772,20 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	gInventory.notifyObservers();
 
 	// Create links to new COF contents.
-	llinfos << "BAP creating LLUpdateAppearanceOnDestroy" << llendl;
+	llinfos << "creating LLUpdateAppearanceOnDestroy" << llendl;
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 
 	linkAll(cof, body_items, link_waiter);
-	llinfos << "BAP submitted all body_items link requests" << llendl;
 	linkAll(cof, wear_items, link_waiter);
-	llinfos << "BAP submitted all wear_items link requests" << llendl;
 	linkAll(cof, obj_items, link_waiter);
-	llinfos << "BAP submitted all obj link requests" << llendl;
 	linkAll(cof, gest_items, link_waiter);
-
-	llinfos << "BAP submitted all gest link requests" << llendl;
 
 	// Add link to outfit if category is an outfit. 
 	if (!append)
 	{
 		createBaseOutfitLink(category, link_waiter);
 	}
-	llinfos << "BAP submitted all link requests" << llendl;
-	llinfos << "BAP waiting for LLUpdateAppearanceOnDestroy" << llendl;
+	llinfos << "waiting for LLUpdateAppearanceOnDestroy" << llendl;
 }
 
 void LLAppearanceManager::updatePanelOutfitName(const std::string& name)
@@ -863,7 +857,7 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 {
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
-	llinfos << "BAP update appearance starts" << llendl;
+	llinfos << "starting" << llendl;
 
 	updateIsDirty();
 
@@ -995,9 +989,7 @@ void LLAppearanceManager::wearInventoryCategory(LLInventoryCategory* category, b
 {
 	if(!category) return;
 
-	llinfos << "BAP wearInventoryCategory" << llendl;
-	
-	lldebugs << "wearInventoryCategory( " << category->getName()
+	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
 	// What we do here is get the complete information on the items in
@@ -1028,9 +1020,8 @@ void LLAppearanceManager::wearInventoryCategoryOnAvatar( LLInventoryCategory* ca
 	// this up front to avoid having to deal with the case of multiple
 	// wearables being dirty.
 	if(!category) return;
-	llinfos << "BAP wearInventoryCategoryOnAvatar( " << category->getName()
-			 << " )" << llendl;
-	lldebugs << "wearInventoryCategoryOnAvatar( " << category->getName()
+
+	llinfos << "wearInventoryCategoryOnAvatar( " << category->getName()
 			 << " )" << llendl;
 			 	
 	if( gFloaterCustomize )
@@ -1311,6 +1302,9 @@ void LLAppearanceManager::onFirstFullyVisible()
 {
 	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
 	// then auto-populate outfits from the library into the My Outfits folder.
+
+	llinfos << "avatar fully visible" << llendl;
+
 	static bool check_populate_my_outfits = true;
 	if (check_populate_my_outfits && 
 		(LLInventoryModel::getIsFirstTimeInViewer2() 

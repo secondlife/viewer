@@ -2143,7 +2143,7 @@ void LLAgentWearables::updateServer()
 
 void LLAgentWearables::populateMyOutfitsFolder(void)
 {	
-	llinfos << "BAP starting populate" << llendl;
+	llinfos << "starting outfit populate" << llendl;
 
 	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch();
 	
