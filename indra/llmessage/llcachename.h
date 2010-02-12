@@ -82,12 +82,6 @@ public:
 	// Returns TRUE iff available.
 	BOOL getFullName(const LLUUID& id, std::string& full_name);
 
-	// IDEVO temporary code
-	// If available, copies display name (UTF-8) into string
-	// If not available, copies empty string
-	// Returns TRUE iff available
-	bool getDisplayName(const LLUUID& id, std::string& display_name);
-	
 	// Reverse lookup of UUID from name
 	BOOL getUUID(const std::string& first, const std::string& last, LLUUID& id);
 	BOOL getUUID(const std::string& fullname, LLUUID& id);
