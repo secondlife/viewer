@@ -2210,7 +2210,7 @@ class LLScriptState : public LLScriptFilePosition
 {
 public:
 	LLScriptState(S32 line, S32 col, LSCRIPTStateType type, LLScriptIdentifier *identifier, LLScriptEventHandler *event)
-		: LLScriptFilePosition(line, col), mType(type), mIdentifier(identifier), mEvent(event), mNextp(NULL)
+		: LLScriptFilePosition(line, col), mType(type), mIdentifier(identifier), mEvent(event), mNextp(NULL), mStateScope(NULL)
 	{
 	}
 
