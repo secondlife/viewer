@@ -35,6 +35,7 @@
 #include "llurlentry.h"
 #include "lluri.h"
 
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
@@ -312,26 +313,19 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 }
 
 // IDEVO demo code
-std::string LLUrlEntryAgent::buildName(const LLUUID& id, const std::string& full_name)
+std::string LLUrlEntryAgent::buildName(const LLUUID& id)
 {
-	std::string final;
-	std::string display_name;
-	if (gCacheName->getDisplayName(id, display_name))
-	{
-		final = display_name + " (" + full_name + ")";
-	}
-	else
-	{
-		final = full_name;
-	}
-	return final;
+	// JAMESDEBUG HACK: assume name is there
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(id, &av_name);
+	return av_name.mDisplayName + " (" + av_name.mSLID + ")";
 }
 
 void LLUrlEntryAgent::onNameCache(const LLUUID& id,
 								  const std::string& full_name,
 								  bool is_group)
 {
-	std::string final = buildName(id, full_name);
+	std::string final = buildName(id);
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), final);
 }
@@ -359,7 +353,7 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else if (gCacheName->getFullName(agent_id, full_name))
 	{
-		return buildName(agent_id, full_name);
+		return buildName(agent_id);
 	}
 	else
 	{

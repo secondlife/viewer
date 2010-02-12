@@ -39,6 +39,7 @@
 #include "llparcel.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
@@ -871,10 +872,10 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					full_name = LLTrans::getString("TooltipPerson");
 				}
 			}
-			std::string display_name;
-			if (gCacheName->getDisplayName(hover_object->getID(), display_name))
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
-				final_name = display_name + " (" + full_name + ")";
+				final_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
 			}
 			else
 			{

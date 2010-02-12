@@ -51,6 +51,7 @@
 #include "llagent.h" //  Get state values from here
 #include "llagentwearables.h"
 #include "llanimationstates.h"
+#include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llviewercontrol.h"
 #include "llcallingcard.h"		// IDEVO for LLAvatarTracker
@@ -2804,10 +2805,10 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 			line += "\n";
 		}
 
-		std::string display_name;
-		if (gCacheName->getDisplayName(getID(), display_name))
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(getID(), &av_name))
 		{
-			line += display_name;
+			line += av_name.mDisplayName;
 		}
 		else
 		{

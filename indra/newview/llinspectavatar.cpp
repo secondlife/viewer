@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llagentdata.h"
 #include "llavataractions.h"
+#include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "lldateutil.h"
@@ -603,24 +604,25 @@ void LLInspectAvatar::onVolumeChange(const LLSD& data)
 
 void LLInspectAvatar::onNameCache(
 	const LLUUID& id,
-	const std::string& name,
+	const std::string& full_name,
 	bool is_group)
 {
 	if (id == mAvatarID)
 	{
-		mAvatarName = name;
+		mAvatarName = full_name;
 
 		// IDEVO JAMESDEBUG - need to always display a display name
-		std::string display_name;
-		if (gCacheName->getDisplayName(mAvatarID, display_name))
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(mAvatarID, &av_name))
 		{
-			getChild<LLUICtrl>("user_name")->setValue(display_name);
+			getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
+			getChild<LLUICtrl>("user_slid")->setValue(av_name.mSLID);
 		}
 		else
 		{
-			getChild<LLUICtrl>("user_name")->setValue(name);
+			getChild<LLUICtrl>("user_name")->setValue(full_name);
+			getChild<LLUICtrl>("user_slid")->setValue(full_name);
 		}
-		getChild<LLUICtrl>("user_slid")->setValue(name);
 	}
 }
 

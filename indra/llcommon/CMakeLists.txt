@@ -32,6 +32,7 @@ set(llcommon_SOURCE_FILES
     llapp.cpp
     llapr.cpp
     llassettype.cpp
+    llavatarname.cpp
     llbase32.cpp
     llbase64.cpp
     llcommon.cpp
@@ -113,6 +114,7 @@ set(llcommon_HEADER_FILES
     llallocator.h
     llallocator_heap_profile.h
     llagentconstants.h
+    llavatarname.h
     llapp.h
     llapr.h
     llassettype.h

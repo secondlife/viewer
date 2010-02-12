@@ -22,10 +22,17 @@
 
 #include "llstring.h"
 #include "llfile.h"
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lluuid.h"
 
 #include <string>
+
+// Stub for LLAvatarNameCache
+bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
+{
+	return false;
+}
 
 //
 // Stub implementation for LLCacheName
