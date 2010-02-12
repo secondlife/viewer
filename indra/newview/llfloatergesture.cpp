@@ -223,9 +223,9 @@ BOOL LLFloaterGesture::postBuild()
 
 void LLFloaterGesture::refreshAll()
 {
-	buildGestureList();
-
 	if (!mGestureList) return;
+
+	buildGestureList();
 
 	if (mSelectedID.isNull())
 	{
