@@ -99,6 +99,7 @@ private:
 
 	void onMouseEnterVolume();
 	void onMouseEnterNearbyMedia();
+	void onClickScreen(S32 x, S32 y);
 	static void onClickStatGraph(void* data);
 
 	static void onClickMediaToggle(void* data);

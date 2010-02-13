@@ -184,22 +184,26 @@ void LLPanelNearByMedia::handleVisibilityChange ( BOOL new_visibility )
 	if (new_visibility)	
 	{
 		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-		gFocusMgr.setTopCtrl(this);
+		//gFocusMgr.setTopCtrl(this);
 	}
 	else
 	{
 		mHoverTimer.stop();
-		if (gFocusMgr.getTopCtrl() == this)
-		{
-			gFocusMgr.setTopCtrl(NULL);
-		}
+		//if (gFocusMgr.getTopCtrl() == this)
+		//{
+		//	gFocusMgr.setTopCtrl(NULL);
+		//}
 	}
 }
 
 /*virtual*/ 
 void LLPanelNearByMedia::onTopLost ()
 {
-	setVisible(FALSE);
+	//LLUICtrl* new_top = gFocusMgr.getTopCtrl();
+	//if (!new_top || !new_top->hasAncestor(this))
+	//{
+	//	setVisible(FALSE);
+	//}
 }
 
 /*virtual*/
@@ -220,6 +224,13 @@ const F32 AUTO_CLOSE_FADE_TIME_END = 5.0f;
 
 void LLPanelNearByMedia::draw()
 {
+	//LLUICtrl* new_top = gFocusMgr.getTopCtrl();
+	//if (new_top != this)
+	//{
+	//	// reassert top ctrl
+	//	gFocusMgr.setTopCtrl(this);
+	//}
+
 	// keep bottom of panel on screen
 	LLRect screen_rect = calcScreenRect();
 	if (screen_rect.mBottom < 0)

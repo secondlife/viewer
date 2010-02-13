@@ -50,6 +50,7 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llrootview.h"
 #include "llsd.h"
 #include "lltextbox.h"
 #include "llui.h"
@@ -242,7 +243,11 @@ BOOL LLStatusBar::postBuild()
 	addChild(mPanelVolumePulldown);
 
 	mPanelNearByMedia = new LLPanelNearByMedia();
-	addChild(mPanelNearByMedia);
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	popup_holder->addChild(mPanelNearByMedia);
+	gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(&LLStatusBar::onClickScreen, this, _1, _2));
+	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelNearByMedia->setVisible(FALSE);
 
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
@@ -255,21 +260,6 @@ BOOL LLStatusBar::postBuild()
 	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
-
-	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
-	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
-	nearby_media_rect.setLeftTopAndSize(nearby_media_btn->getRect().mLeft -
-	     (volume_pulldown_rect.getWidth() - nearby_media_btn->getRect().getWidth())/2,
-			       nearby_media_btn->calcScreenRect().mBottom,
-			       nearby_media_rect.getWidth(),
-			       nearby_media_rect.getHeight());
-	// force onscreen
-	nearby_media_rect.translate(getRect().getWidth() - nearby_media_rect.mRight, 0);
-
-	mPanelNearByMedia->setShape(nearby_media_rect);
-	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	mPanelNearByMedia->setVisible(FALSE);
-	
 
 	return TRUE;
 }
@@ -542,7 +532,20 @@ void LLStatusBar::onMouseEnterVolume()
 
 void LLStatusBar::onMouseEnterNearbyMedia()
 {
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
+	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
+	LLRect nearby_media_btn_rect = nearby_media_btn->calcScreenRect();
+	nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
+		(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
+		nearby_media_btn_rect.mBottom,
+		nearby_media_rect.getWidth(),
+		nearby_media_rect.getHeight());
+	// force onscreen
+	nearby_media_rect.translate(popup_holder->getRect().getWidth() - nearby_media_rect.mRight, 0);
+
 	// show the master volume pull-down
+	mPanelNearByMedia->setShape(nearby_media_rect);
 	mPanelNearByMedia->setVisible(TRUE);
 }
 
@@ -629,6 +632,18 @@ void LLStatusBar::setupDate()
 void LLStatusBar::onClickStatGraph(void* data)
 {
 	LLFloaterReg::showInstance("lagmeter");
+}
+
+void LLStatusBar::onClickScreen(S32 x, S32 y)
+{
+	if (mPanelNearByMedia->getVisible())
+	{
+		LLRect screen_rect = mPanelNearByMedia->calcScreenRect();
+		if (!screen_rect.pointInRect(x, y))
+		{
+			mPanelNearByMedia->setVisible(FALSE);
+		}
+	}
 }
 
 BOOL can_afford_transaction(S32 cost)
