@@ -93,7 +93,9 @@ static GLenum sGLBlendFactor[] =
 	GL_DST_ALPHA,
 	GL_SRC_ALPHA,
 	GL_ONE_MINUS_DST_ALPHA,
-	GL_ONE_MINUS_SRC_ALPHA
+	GL_ONE_MINUS_SRC_ALPHA,
+
+	GL_ZERO // 'BF_UNDEF'
 };
 
 LLTexUnit::LLTexUnit(S32 index)
@@ -765,8 +767,8 @@ LLRender::LLRender()
 	mCurrAlphaFuncVal = 0.01f;
 	mCurrSceneBlendType = BT_ALPHA;
 
-	mCurrBlendSFactor = BF_ONE;
-	mCurrBlendDFactor = BF_ZERO;
+	mCurrBlendSFactor = BF_UNDEF;
+	mCurrBlendDFactor = BF_UNDEF;
 }
 
 LLRender::~LLRender()
@@ -979,6 +981,8 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 
 void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 {
+	llassert(sfactor < BF_UNDEF);
+	llassert(dfactor < BF_UNDEF);
 	if (mCurrBlendSFactor != sfactor || mCurrBlendDFactor != dfactor)
 	{
 		mCurrBlendSFactor = sfactor;
