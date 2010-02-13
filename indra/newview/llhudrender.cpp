@@ -121,24 +121,24 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
-	gGL.pushMatrix();
+	
 	LLUI::pushMatrix();
 		
 	gl_state_for_2d(world_view_rect.getWidth(), world_view_rect.getHeight());
 	gViewerWindow->setup3DViewport();
-	
+	//gViewerWindow->setup2DRender();
+
 	winX -= world_view_rect.mLeft;
 	winY -= world_view_rect.mBottom;
 	LLUI::loadIdentity();
-	glLoadIdentity();
 	LLUI::translate((F32) winX*1.0f/LLFontGL::sScaleX, (F32) winY*1.0f/(LLFontGL::sScaleY), -(((F32) winZ*2.f)-1.f));
+	//glRotatef(angle * RAD_TO_DEG, axis.mV[VX], axis.mV[VY], axis.mV[VZ]);
+	//glScalef(right_scale, up_scale, 1.f);
 	F32 right_x;
 	
 	font.render(wstr, 0, 0, 0, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, wstr.length(), 1000, &right_x);
-
 	LLUI::popMatrix();
-	gGL.popMatrix();
-
+	
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

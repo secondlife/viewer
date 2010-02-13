@@ -151,16 +151,14 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		}
 	}
 
-	gGL.pushUIMatrix();
-
-	gGL.loadUIIdentity();
-	
-	gGL.translateUI(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
+	gGL.pushMatrix();
+	glLoadIdentity();
+	gGL.translatef(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
 
 	// this code snaps the text origin to a pixel grid to start with
 	F32 pixel_offset_x = llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
 	F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
-	gGL.translateUI(-pixel_offset_x, -pixel_offset_y, 0.f);
+	gGL.translatef(-pixel_offset_x, -pixel_offset_y, 0.f);
 
 	LLFastTimer t(FTM_RENDER_FONTS);
 
@@ -248,6 +246,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	}
 
 
+	// Remember last-used texture to avoid unnecesssary bind calls.
+	LLImageGL *last_bound_texture = NULL;
+
 	for (i = begin_offset; i < begin_offset + length; i++)
 	{
 		llwchar wch = wstr[i];
@@ -260,8 +261,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		}
 		// Per-glyph bitmap texture.
 		LLImageGL *image_gl = mFontFreetype->getFontBitmapCache()->getImageGL(fgi->mBitmapNum);
-		gGL.getTexUnit(0)->bind(image_gl);
-	
+		if (last_bound_texture != image_gl)
+		{
+			gGL.getTexUnit(0)->bind(image_gl);
+			last_bound_texture = image_gl;
+		}
+
 		if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))
 		{
 			// Not enough room for this character.
@@ -325,7 +330,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		
 		// recursively render ellipses at end of string
 		// we've already reserved enough room
-		gGL.pushUIMatrix();
+		gGL.pushMatrix();
+		//glLoadIdentity();
+		//gGL.translatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
+		//glScalef(sScaleX, sScaleY, 1.f);
 		renderUTF8(std::string("..."), 
 				0,
 				cur_x / sScaleX, (F32)y,
@@ -336,10 +344,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				S32_MAX, max_pixels,
 				right_x,
 				FALSE); 
-		gGL.popUIMatrix();
+		gGL.popMatrix();
 	}
 
-	gGL.popUIMatrix();
+	gGL.popMatrix();
 
 	return chars_drawn;
 }

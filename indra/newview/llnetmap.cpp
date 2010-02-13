@@ -153,18 +153,6 @@ void LLNetMap::draw()
 	// Prepare a scissor region
 	F32 rotation = 0;
 
-	gGL.pushMatrix();
-	gGL.pushUIMatrix();
-	
-	LLVector3 offset = gGL.getUITranslation();
-	LLVector3 scale = gGL.getUIScale();
-
-	glLoadIdentity();
-	gGL.loadUIIdentity();
-
-	glScalef(scale.mV[0], scale.mV[1], scale.mV[2]);
-	gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
-	
 	{
 		LLLocalClipRect clip(getLocalRect());
 		{
@@ -447,9 +435,6 @@ void LLNetMap::draw()
 		}
 	}
 	
-	gGL.popMatrix();
-	gGL.popUIMatrix();
-
 	LLUICtrl::draw();
 }
 
