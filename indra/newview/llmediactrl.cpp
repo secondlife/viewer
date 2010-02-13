@@ -724,14 +724,14 @@ void LLMediaCtrl::draw()
 		LLGLSUIDefault gls_ui;
 		LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
 
-		gGL.pushUIMatrix();
+		gGL.pushMatrix();
 		{
 			if (mIgnoreUIScale)
 			{
-				gGL.loadUIIdentity();
+				glLoadIdentity();
 				// font system stores true screen origin, need to scale this by UI scale factor
 				// to get render origin for this view (with unit scale)
-				gGL.translateUI(floorf(LLFontGL::sCurOrigin.mX * LLUI::sGLScaleFactor.mV[VX]), 
+				gGL.translatef(floorf(LLFontGL::sCurOrigin.mX * LLUI::sGLScaleFactor.mV[VX]), 
 							floorf(LLFontGL::sCurOrigin.mY * LLUI::sGLScaleFactor.mV[VY]), 
 							LLFontGL::sCurOrigin.mZ);
 			}
@@ -825,7 +825,7 @@ void LLMediaCtrl::draw()
 			gGL.end();
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		}
-		gGL.popUIMatrix();
+		gGL.popMatrix();
 	
 	}
 	else

@@ -476,10 +476,6 @@ public:
 			}
             ypos += y_inc;
 
-			addText(xpos, ypos, llformat("UI Verts/Calls: %d/%d", LLRender::sUIVerts, LLRender::sUICalls));
-			LLRender::sUICalls = LLRender::sUIVerts = 0;
-			ypos += y_inc;
-
 			addText(xpos,ypos, llformat("%d/%d Nodes visible", gPipeline.mNumVisibleNodes, LLSpatialGroup::sNodeCount));
 			
 			ypos += y_inc;
@@ -1847,15 +1843,12 @@ void LLViewerWindow::drawDebugText()
 {
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
-	gGL.pushUIMatrix();
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
-		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+		glScalef(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 		mDebugText->draw();
 	}
-	gGL.popUIMatrix();
 	gGL.popMatrix();
-
 	gGL.flush();
 }
 
@@ -1903,11 +1896,9 @@ void LLViewerWindow::draw()
 	// No translation needed, this view is glued to 0,0
 
 	gGL.pushMatrix();
-	LLUI::pushMatrix();
 	{
-		
 		// scale view by UI global scale factor and aspect ratio correction factor
-		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+		glScalef(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 
 		LLVector2 old_scale_factor = LLUI::sGLScaleFactor;
 		// apply camera zoom transform (for high res screenshots)
@@ -1973,7 +1964,6 @@ void LLViewerWindow::draw()
 
 		LLUI::sGLScaleFactor = old_scale_factor;
 	}
-	LLUI::popMatrix();
 	gGL.popMatrix();
 
 #if LL_DEBUG
