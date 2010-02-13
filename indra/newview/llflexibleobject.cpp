@@ -51,9 +51,6 @@
 
 /*static*/ F32 LLVolumeImplFlexible::sUpdateFactor = 1.0f;
 
-static LLFastTimer::DeclareTimer FTM_FLEXIBLE_REBUILD("Rebuild");
-static LLFastTimer::DeclareTimer FTM_DO_FLEXIBLE_UPDATE("Update");
-
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
 
 //-----------------------------------------------
@@ -196,6 +193,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 		}
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
@@ -365,7 +363,6 @@ inline S32 log2(S32 x)
 
 void LLVolumeImplFlexible::doFlexibleUpdate()
 {
-	LLFastTimer ftm(FTM_DO_FLEXIBLE_UPDATE);
 	LLVolume* volume = mVO->getVolume();
 	LLPath *path = &volume->getPath();
 	if (mSimulateRes == 0)
@@ -696,10 +693,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	}
 
 	volume->updateRelativeXform();
-	{
-		LLFastTimer t(FTM_DO_FLEXIBLE_UPDATE);
-		doFlexibleUpdate();
-	}
+	doFlexibleUpdate();
 	
 	// Object may have been rotated, which means it needs a rebuild.  See SL-47220
 	BOOL	rotated = FALSE;
@@ -716,10 +710,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 		volume->regenFaces();
 		volume->mDrawable->setState(LLDrawable::REBUILD_VOLUME);
 		volume->dirtySpatialGroup();
-		{
-			LLFastTimer t(FTM_FLEXIBLE_REBUILD);
-			doFlexibleRebuild();
-		}
+		doFlexibleRebuild();
 		volume->genBBoxes(isVolumeGlobal());
 	}
 	else if (!mUpdated || rotated)

@@ -897,21 +897,19 @@ void LLViewerObjectList::renderObjectBeacons()
 		S32 last_line_width = -1;
 		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
 		
-		BOOL flush = FALSE;
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
+		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
-			const LLDebugBeacon &debug_beacon = *iter;
+			const LLDebugBeacon &debug_beacon = mDebugBeacons[i];
 			LLColor4 color = debug_beacon.mColor;
 			color.mV[3] *= 0.25f;
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				if (flush)
+				if (i > 0)
 				{
 					gGL.end();
+					gGL.flush();
 				}
-				flush = TRUE;
-				gGL.flush();
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
 				gGL.begin(LLRender::LINES);
@@ -938,20 +936,18 @@ void LLViewerObjectList::renderObjectBeacons()
 		S32 last_line_width = -1;
 		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
 		
-		BOOL flush = FALSE;
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
+		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
-			const LLDebugBeacon &debug_beacon = *iter;
+			const LLDebugBeacon &debug_beacon = mDebugBeacons[i];
 
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				if (flush)
+				if (i > 0)
 				{
 					gGL.end();
+					gGL.flush();
 				}
-				flush = TRUE;
-				gGL.flush();
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
 				gGL.begin(LLRender::LINES);
@@ -973,9 +969,9 @@ void LLViewerObjectList::renderObjectBeacons()
 		gGL.flush();
 		glLineWidth(1.f);
 
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
+		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
-			LLDebugBeacon &debug_beacon = *iter;
+			LLDebugBeacon &debug_beacon = mDebugBeacons[i];
 			if (debug_beacon.mString == "")
 			{
 				continue;

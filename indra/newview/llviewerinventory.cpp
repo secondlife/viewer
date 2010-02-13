@@ -649,6 +649,8 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 
 void LLViewerInventoryCategory::determineFolderType()
 {
+	/* Do NOT uncomment this code.  This is for future 2.1 support of ensembles.
+	llassert(FALSE);
 	LLFolderType::EType original_type = getPreferredType();
 	if (LLFolderType::lookupIsProtectedType(original_type))
 		return;
@@ -692,6 +694,8 @@ void LLViewerInventoryCategory::determineFolderType()
 	{
 		changeType(LLFolderType::FT_NONE);
 	}
+	llassert(FALSE);
+	*/
 }
 
 void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)

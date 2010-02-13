@@ -272,7 +272,8 @@ public:
 	void shiftObjects(const LLVector3 &offset);
 
 	void setLight(LLDrawable *drawablep, BOOL is_light);
-	
+	void setActive(LLDrawable *drawablep, BOOL active);
+
 	BOOL hasRenderBatches(const U32 type) const;
 	LLCullResult::drawinfo_list_t::iterator beginRenderMap(U32 type);
 	LLCullResult::drawinfo_list_t::iterator endRenderMap(U32 type);
@@ -590,6 +591,8 @@ protected:
 
 	LLViewerObject::vobj_list_t		mCreateQ;
 		
+	LLDrawable::drawable_set_t		mActiveQ;
+	
 	LLDrawable::drawable_set_t		mRetexturedList;
 
 	class HighlightItem

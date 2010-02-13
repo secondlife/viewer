@@ -4,7 +4,7 @@
  * @date   2009-02-26
  * @brief  Tests of llareslistener.h.
  * 
- * $LicenseInfo:firstyear=2009&license=internal$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * Copyright (c) 2009, Linden Research, Inc.
  * $/LicenseInfo$
  */

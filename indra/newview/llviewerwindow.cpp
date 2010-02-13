@@ -486,10 +486,6 @@ public:
 			}
             ypos += y_inc;
 
-			addText(xpos, ypos, llformat("UI Verts/Calls: %d/%d", LLRender::sUIVerts, LLRender::sUICalls));
-			LLRender::sUICalls = LLRender::sUIVerts = 0;
-			ypos += y_inc;
-
 			addText(xpos,ypos, llformat("%d/%d Nodes visible", gPipeline.mNumVisibleNodes, LLSpatialGroup::sNodeCount));
 			
 			ypos += y_inc;
@@ -856,56 +852,71 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 
 					LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
 				
-					if (obj && obj->permModify() && !obj->getRegion()->getCapability("ObjectMedia").empty())
+					if (obj && !obj->getRegion()->getCapability("ObjectMedia").empty())
 					{
 						LLTextureEntry *te = obj->getTE(object_face);
 						if (te)
 						{
 							if (drop)
 							{
-								if (! te->hasMedia())
+								// object does NOT have media already
+								if ( ! te->hasMedia() )
 								{
-									// Create new media entry
-									LLSD media_data;
-									// XXX Should we really do Home URL too?
-									media_data[LLMediaEntry::HOME_URL_KEY] = url;
-									media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-									media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
-									obj->syncMediaData(object_face, media_data, true, true);
-									// XXX This shouldn't be necessary, should it ?!?
-									if (obj->getMediaImpl(object_face))
-										obj->getMediaImpl(object_face)->navigateReload();
-									obj->sendMediaDataUpdate();
-								
-									result = LLWindowCallbacks::DND_COPY;
-								}
-								else {
-									// Check the whitelist
-									if (te->getMediaData()->checkCandidateUrl(url))
+									// we are allowed to modify the object
+									if ( obj->permModify() )
 									{
-										// just navigate to the URL
+										// Create new media entry
+										LLSD media_data;
+										// XXX Should we really do Home URL too?
+										media_data[LLMediaEntry::HOME_URL_KEY] = url;
+										media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+										media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+										obj->syncMediaData(object_face, media_data, true, true);
+										// XXX This shouldn't be necessary, should it ?!?
 										if (obj->getMediaImpl(object_face))
+											obj->getMediaImpl(object_face)->navigateReload();
+										obj->sendMediaDataUpdate();
+
+										result = LLWindowCallbacks::DND_COPY;
+									}
+								}
+								else 
+								// object HAS media already
+								{
+									// URL passes the whitelist
+									if (te->getMediaData()->checkCandidateUrl( url ) )
+									{
+										// we are allowed to modify the object or we have navigate permissions
+										// NOTE: Design states you you can change the URL if you have media 
+										//       navigate permissions even if you do not have prim modify rights
+										if ( obj->permModify() || obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT ) )
 										{
-											obj->getMediaImpl(object_face)->navigateTo(url);
+											// just navigate to the URL
+											if (obj->getMediaImpl(object_face))
+											{
+												obj->getMediaImpl(object_face)->navigateTo(url);
+											}
+											else 
+											{
+												// This is very strange.  Navigation should
+												// happen via the Impl, but we don't have one.
+												// This sends it to the server, which /should/
+												// trigger us getting it.  Hopefully.
+												LLSD media_data;
+												media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+												obj->syncMediaData(object_face, media_data, true, true);
+												obj->sendMediaDataUpdate();
+											}
+											result = LLWindowCallbacks::DND_LINK;
 										}
-										else {
-											// This is very strange.  Navigation should
-											// happen via the Impl, but we don't have one.
-											// This sends it to the server, which /should/
-											// trigger us getting it.  Hopefully.
-											LLSD media_data;
-											media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-											obj->syncMediaData(object_face, media_data, true, true);
-											obj->sendMediaDataUpdate();
-										}
-										result = LLWindowCallbacks::DND_LINK;
 									}
 								}
 								LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 								mDragHoveredObject = NULL;
 							
 							}
-							else {
+							else 
+							{
 								// Check the whitelist, if there's media (otherwise just show it)
 								if (te->getMediaData() == NULL || te->getMediaData()->checkCandidateUrl(url))
 								{
@@ -1362,7 +1373,7 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gNoRender,
 		ignore_pixel_depth,
-		0); //gSavedSettings.getU32("RenderFSAASamples"));
+		gSavedSettings.getU32("RenderFSAASamples"));
 
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
@@ -1992,15 +2003,12 @@ void LLViewerWindow::drawDebugText()
 {
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
-	gGL.pushUIMatrix();
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
-		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+		glScalef(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 		mDebugText->draw();
 	}
-	gGL.popUIMatrix();
 	gGL.popMatrix();
-
 	gGL.flush();
 }
 
@@ -2048,11 +2056,9 @@ void LLViewerWindow::draw()
 	// No translation needed, this view is glued to 0,0
 
 	gGL.pushMatrix();
-	LLUI::pushMatrix();
 	{
-		
 		// scale view by UI global scale factor and aspect ratio correction factor
-		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+		glScalef(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 
 		LLVector2 old_scale_factor = LLUI::sGLScaleFactor;
 		// apply camera zoom transform (for high res screenshots)
@@ -2118,7 +2124,6 @@ void LLViewerWindow::draw()
 
 		LLUI::sGLScaleFactor = old_scale_factor;
 	}
-	LLUI::popMatrix();
 	gGL.popMatrix();
 
 #if LL_DEBUG
@@ -2471,9 +2476,6 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 // event processing.
 void LLViewerWindow::updateUI()
 {
-	static LLFastTimer::DeclareTimer ftm("Update UI");
-	LLFastTimer t(ftm);
-
 	static std::string last_handle_msg;
 
 	LLConsole::updateClass();
@@ -3055,6 +3057,7 @@ void LLViewerWindow::saveLastMouse(const LLCoordGL &point)
 // Must be called after displayObjects is called, which sets the mGLName parameter
 // NOTE: This function gets called 3 times:
 //  render_ui_3d: 			FALSE, FALSE, TRUE
+//  renderObjectsForSelect:	TRUE, pick_parcel_wall, FALSE
 //  render_hud_elements:	FALSE, FALSE, FALSE
 void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud )
 {
@@ -4585,9 +4588,8 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		return TRUE;
 	}
 
-	//U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
-	//U32 old_fsaa = mWindow->getFSAASamples();
-
+	U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
+	U32 old_fsaa = mWindow->getFSAASamples();
 	// going from windowed to windowed
 	if (!old_fullscreen && !fullscreen)
 	{
@@ -4597,7 +4599,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 			mWindow->setSize(size);
 		}
 
-		//if (fsaa == old_fsaa)
+		if (fsaa == old_fsaa)
 		{
 			return TRUE;
 		}
@@ -4626,13 +4628,13 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		gSavedSettings.setS32("WindowY", old_pos.mY);
 	}
 	
-	//mWindow->setFSAASamples(fsaa);
+	mWindow->setFSAASamples(fsaa);
 
 	result_first_try = mWindow->switchContext(fullscreen, size, disable_vsync);
 	if (!result_first_try)
 	{
 		// try to switch back
-		//mWindow->setFSAASamples(old_fsaa);
+		mWindow->setFSAASamples(old_fsaa);
 		result_second_try = mWindow->switchContext(old_fullscreen, old_size, disable_vsync);
 
 		if (!result_second_try)

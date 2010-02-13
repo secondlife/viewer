@@ -2310,13 +2310,13 @@ void LLViewerFetchedTexture::destroyRawImage()
 
 	if (mRawImage.notNull()) 
 	{
-		sRawCount--;
-		setCachedRawImage() ;
+		sRawCount--;		
 
 		if(mForceToSaveRawImage)
 		{
 			saveRawImage() ;
 		}		
+		setCachedRawImage() ;
 	}
 
 	mRawImage = NULL;
@@ -2406,7 +2406,8 @@ void LLViewerFetchedTexture::setCachedRawImage()
 			mRawImage->scale(w >> i, h >> i) ;
 		}
 		mCachedRawImage = mRawImage ;
-		mCachedRawDiscardLevel = mRawDiscardLevel + i ;			
+		mRawDiscardLevel += i ;
+		mCachedRawDiscardLevel = mRawDiscardLevel ;			
 	}
 }
 
@@ -2476,7 +2477,7 @@ BOOL LLViewerFetchedTexture::hasSavedRawImage() const
 	
 F32 LLViewerFetchedTexture::getElapsedLastReferencedSavedRawImageTime() const
 { 
-	return mLastReferencedSavedRawImageTime - sCurrentTime ;
+	return sCurrentTime - mLastReferencedSavedRawImageTime ;
 }
 //----------------------------------------------------------------------------------------------
 //atlasing
