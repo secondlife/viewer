@@ -1894,7 +1894,9 @@ namespace LLInitParam
 		blue("blue"),
 		alpha("alpha"),
 		control("")
-	{}
+	{
+		setBlockFromValue();
+	}
 
 	void TypedParam<LLUIColor>::setValueFromBlock() const
 	{
@@ -1940,6 +1942,7 @@ namespace LLInitParam
 		style("style")
 	{
 		addSynonym(name, "");
+		setBlockFromValue();
 	}
 
 	void TypedParam<const LLFontGL*>::setValueFromBlock() const
@@ -1979,7 +1982,9 @@ namespace LLInitParam
 		bottom("bottom"),
 		width("width"),
 		height("height")
-	{}
+	{
+		setBlockFromValue();
+	}
 
 	void TypedParam<LLRect>::setValueFromBlock() const
 	{
@@ -2064,6 +2069,7 @@ namespace LLInitParam
 		x("x"),
 		y("y")
 	{
+		setBlockFromValue();
 	}
 
 	void TypedParam<LLCoordGL>::setValueFromBlock() const
