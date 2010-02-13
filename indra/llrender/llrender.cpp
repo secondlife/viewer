@@ -765,7 +765,6 @@ LLRender::LLRender()
 
 	mCurrAlphaFunc = CF_DEFAULT;
 	mCurrAlphaFuncVal = 0.01f;
-	mCurrSceneBlendType = BT_ALPHA;
 
 	mCurrBlendSFactor = BF_UNDEF;
 	mCurrBlendDFactor = BF_UNDEF;
@@ -927,12 +926,6 @@ void LLRender::setColorMask(bool writeColorR, bool writeColorG, bool writeColorB
 
 void LLRender::setSceneBlendType(eBlendType type)
 {
-	if (mCurrSceneBlendType == type)
-	{
-		return;
-	}
-
-	flush();
 	switch (type) 
 	{
 		case BT_ALPHA:
@@ -960,7 +953,6 @@ void LLRender::setSceneBlendType(eBlendType type)
 			llerrs << "Unknown Scene Blend Type: " << type << llendl;
 			break;
 	}
-	mCurrSceneBlendType = type;
 }
 
 void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)

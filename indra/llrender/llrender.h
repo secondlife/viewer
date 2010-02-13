@@ -362,8 +362,6 @@ private:
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
-	U32				mCurrSceneBlendType;
-
 	F32				mMaxAnisotropy;
 
 	eBlendFactor mCurrBlendSFactor;
