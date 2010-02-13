@@ -891,6 +891,10 @@ void LLTabContainer::update_images(LLTabTuple* tuple, TabParams params, LLTabCon
 void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 {
 	LLPanel* child = panel.panel();
+
+	llassert(child);
+	if (!child) return;
+
 	const std::string& label = panel.label.isProvided() 
 			? panel.label() 
 			: panel.panel()->getLabel();

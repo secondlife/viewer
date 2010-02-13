@@ -139,12 +139,8 @@ S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr, U32 opti
 	case LLSD::TypeBoolean:
 		ostr << pre << "<boolean>";
 		if(mBoolAlpha ||
-#if( LL_WINDOWS || __GNUC__ > 2)
 		   (ostr.flags() & std::ios::boolalpha)
-#else
-		   (ostr.flags() & 0x0100)
-#endif
-			)
+		   )
 		{
 			ostr << (data.asBoolean() ? "true" : "false");
 		}
@@ -511,12 +507,7 @@ void LLSDXMLParser::Impl::reset()
 	
 	mSkipping = false;
 	
-#if( LL_WINDOWS || __GNUC__ > 2)
 	mCurrentKey.clear();
-#else
-	mCurrentKey = std::string();
-#endif
-
 	
 	XML_ParserReset(mParser, "utf-8");
 	XML_SetUserData(mParser, this);
@@ -644,11 +635,7 @@ void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Ch
 		LLSD& newElement = map[mCurrentKey];
 		mStack.push_back(&newElement);		
 
-#if( LL_WINDOWS || __GNUC__ > 2)
 		mCurrentKey.clear();
-#else
-		mCurrentKey = std::string();
-#endif
 	}
 	else if (mStack.back()->isArray())
 	{
