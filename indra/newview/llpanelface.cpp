@@ -265,10 +265,13 @@ void LLPanelFace::sendAlpha()
 
 void LLPanelFace::sendGlow()
 {
-	LLSpinCtrl*	mCtrlGlow = getChild<LLSpinCtrl>("glow");
-	F32 glow = mCtrlGlow->get();
-
-	LLSelectMgr::getInstance()->selectionSetGlow( glow );
+	LLSpinCtrl* mCtrlGlow = getChild<LLSpinCtrl>("glow");
+	llassert(mCtrlGlow);
+	if (mCtrlGlow)
+	{
+		F32 glow = mCtrlGlow->get();
+		LLSelectMgr::getInstance()->selectionSetGlow( glow );
+	}
 }
 
 struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
