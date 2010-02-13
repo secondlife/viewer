@@ -116,6 +116,7 @@ const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
+const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
 const S32 MAX_OFFSCREEN_GEOMETRY_CHANGES_PER_FRAME = 10;
 const U32 REFLECTION_MAP_RES = 128;
 
@@ -1410,26 +1411,38 @@ void LLPipeline::updateMove()
 
 	assertInitialized();
 
+	for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
+		 iter != mRetexturedList.end(); ++iter)
 	{
-		static LLFastTimer::DeclareTimer ftm("Retexture");
-		LLFastTimer t(ftm);
-
-		for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
-			 iter != mRetexturedList.end(); ++iter)
+		LLDrawable* drawablep = *iter;
+		if (drawablep && !drawablep->isDead())
 		{
-			LLDrawable* drawablep = *iter;
-			if (drawablep && !drawablep->isDead())
+			drawablep->updateTexture();
+		}
+	}
+	mRetexturedList.clear();
+
+	updateMovedList(mMovedList);
+
+	for (LLDrawable::drawable_set_t::iterator iter = mActiveQ.begin();
+		 iter != mActiveQ.end(); )
+	{
+		LLDrawable::drawable_set_t::iterator curiter = iter++;
+		LLDrawable* drawablep = *curiter;
+		if (drawablep && !drawablep->isDead()) 
+		{
+			if (drawablep->isRoot() && 
+				drawablep->mQuietCount++ > MAX_ACTIVE_OBJECT_QUIET_FRAMES && 
+				(!drawablep->getParent() || !drawablep->getParent()->isActive()))
 			{
-				drawablep->updateTexture();
+				drawablep->makeStatic(); // removes drawable and its children from mActiveQ
+				iter = mActiveQ.upper_bound(drawablep); // next valid entry
 			}
 		}
-		mRetexturedList.clear();
-	}
-
-	{
-		static LLFastTimer::DeclareTimer ftm("Moved List");
-		LLFastTimer t(ftm);
-		updateMovedList(mMovedList);
+		else
+		{
+			mActiveQ.erase(curiter);
+		}
 	}
 
 	//balance octrees
@@ -3045,6 +3058,12 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 	}
 
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
+	{
+		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderForSelect");
+		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getWindowRectScaled());
+	}
+	else
 	{
 		LLFastTimer t(FTM_POOLS);
 		
@@ -4778,6 +4797,10 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
 		llinfos << "In mRetexturedList" << llendl;
 	}
 	
+	if (mActiveQ.find(drawablep) != mActiveQ.end())
+	{
+		llinfos << "In mActiveQ" << llendl;
+	}
 	if (std::find(mBuildQ1.begin(), mBuildQ1.end(), drawablep) != mBuildQ1.end())
 	{
 		llinfos << "In mBuildQ1" << llendl;
@@ -4931,6 +4954,19 @@ void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 			drawablep->clearState(LLDrawable::LIGHT);
 			mLights.erase(drawablep);
 		}
+	}
+}
+
+void LLPipeline::setActive(LLDrawable *drawablep, BOOL active)
+{
+	assertInitialized();
+	if (active)
+	{
+		mActiveQ.insert(drawablep);
+	}
+	else
+	{
+		mActiveQ.erase(drawablep);
 	}
 }
 

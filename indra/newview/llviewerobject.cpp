@@ -2001,9 +2001,6 @@ BOOL LLViewerObject::isActive() const
 
 BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	static LLFastTimer::DeclareTimer ftm("Viewer Object");
-	LLFastTimer t(ftm);
-
 	if (mDead)
 	{
 		// It's dead.  Don't update it.

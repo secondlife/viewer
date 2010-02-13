@@ -597,9 +597,6 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	LLViewerObject::idleUpdate(agent, world, time);
 
-	static LLFastTimer::DeclareTimer ftm("Volume");
-	LLFastTimer t(ftm);
-
 	if (mDead || mDrawable.isNull())
 	{
 		return TRUE;
@@ -619,18 +616,6 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	if (mVolumeImpl)
 	{
 		mVolumeImpl->doIdleUpdate(agent, world, time);
-	}
-
-	const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
-
-	if (mDrawable->isActive())
-	{
-		if (mDrawable->isRoot() && 
-			mDrawable->mQuietCount++ > MAX_ACTIVE_OBJECT_QUIET_FRAMES && 
-			(!mDrawable->getParent() || !mDrawable->getParent()->isActive()))
-		{
-			mDrawable->makeStatic();
-		}
 	}
 
 	return TRUE;
@@ -1050,7 +1035,7 @@ BOOL LLVOVolume::calcLOD()
 	S32 cur_detail = 0;
 	
 	F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
-	F32 distance = mDrawable->mDistanceWRTCamera; //llmin(mDrawable->mDistanceWRTCamera, MAX_LOD_DISTANCE);
+	F32 distance = llmin(mDrawable->mDistanceWRTCamera, MAX_LOD_DISTANCE);
 	distance *= sDistanceFactor;
 			
 	F32 rampDist = LLVOVolume::sLODFactor * 2;

@@ -3599,15 +3599,13 @@ void LLAppViewer::idle()
 
 	{
 		// Handle pending gesture processing
-		static LLFastTimer::DeclareTimer ftm("Agent Position");
-		LLFastTimer t(ftm);
 		LLGestureManager::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}
 
 	{
-		LLFastTimer t(FTM_OBJECTLIST_UPDATE); 
+		LLFastTimer t(FTM_OBJECTLIST_UPDATE); // Actually "object update"
 		
         if (!(logoutRequestSent() && hasSavedFinalSnapshot()))
 		{
@@ -3641,8 +3639,6 @@ void LLAppViewer::idle()
 	//
 
 	{
-		static LLFastTimer::DeclareTimer ftm("HUD Effects");
-		LLFastTimer t(ftm);
 		LLSelectMgr::getInstance()->updateEffects();
 		LLHUDManager::getInstance()->cleanupEffects();
 		LLHUDManager::getInstance()->sendEffects();
@@ -3899,7 +3895,7 @@ void LLAppViewer::sendLogoutRequest()
 static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 #endif
 
-static LLFastTimer::DeclareTimer FTM_IDLE_NETWORK("Idle Network");
+static LLFastTimer::DeclareTimer FTM_IDLE_NETWORK("Network");
 
 void LLAppViewer::idleNetwork()
 {

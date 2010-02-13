@@ -386,6 +386,8 @@ void LLDrawable::makeActive()
 			mParent->makeActive();
 		}
 
+		gPipeline.setActive(this, TRUE);
+
 		//all child objects must also be active
 		llassert_always(mVObjp);
 		
@@ -432,6 +434,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 	if (isState(ACTIVE))
 	{
 		clearState(ACTIVE);
+		gPipeline.setActive(this, FALSE);
 
 		if (mParent.notNull() && mParent->isActive() && warning_enabled)
 		{

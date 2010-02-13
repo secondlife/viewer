@@ -84,9 +84,6 @@ BOOL LLVOTextBubble::isActive() const
 
 BOOL LLVOTextBubble::idleUpdate(LLAgent &agent, LLWorld	&world, const F64 &time)
 {
-	static LLFastTimer::DeclareTimer ftm("Text Bubble");
-	LLFastTimer t(ftm);
-
 	F32 dt = mUpdateTimer.getElapsedTimeF32();
 	// Die after a few seconds.
 	if (dt > 1.5f)
