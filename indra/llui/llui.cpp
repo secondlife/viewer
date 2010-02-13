@@ -710,19 +710,19 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 			v = LLVector3(offset_x, offset_y, 0.f) * quat;
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
-			gGL.vertex2i(v.mV[0], v.mV[1] );
+			gGL.vertex2i((GLint)v.mV[0], (GLint)v.mV[1] );
 
 			v = LLVector3(-offset_x, offset_y, 0.f) * quat;
 			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mTop);
-			gGL.vertex2i(v.mV[0], v.mV[1] );
+			gGL.vertex2i((GLint)v.mV[0], (GLint)v.mV[1] );
 
 			v = LLVector3(-offset_x, -offset_y, 0.f) * quat;
 			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
-			gGL.vertex2i(v.mV[0], v.mV[1] );
+			gGL.vertex2i((GLint)v.mV[0], (GLint)v.mV[1] );
 
 			v = LLVector3(offset_x, -offset_y, 0.f) * quat;
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
-			gGL.vertex2i(v.mV[0], v.mV[1] );
+			gGL.vertex2i((GLint)v.mV[0], (GLint)v.mV[1] );
 		}
 		gGL.end();
 		gGL.popUIMatrix();
