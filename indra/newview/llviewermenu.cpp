@@ -4842,9 +4842,10 @@ class LLToolsEnableUnlink : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLViewerObject* first_editable_object = LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject();
 		bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
-			LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() &&
-			!LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject()->isAttachment();
+			first_editable_object &&
+			!first_editable_object->isAttachment();
 		return new_value;
 	}
 };
