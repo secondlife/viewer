@@ -99,8 +99,7 @@ private:
 	void		drawOnePixelLines();
 	void		drawTwoPixelLines();
 	void		drawTextures();
-	void		drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32 start_x, F32 start_y );
-
+	
 	EBevel		mBevel;
 	EStyle		mStyle;
 	LLUIColor	mHighlightLight;
