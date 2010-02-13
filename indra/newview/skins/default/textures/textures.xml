@@ -410,6 +410,8 @@ with the same filename but different name
   <texture name="Pause_Off" file_name="icons/Pause_Off.png" preload="false" />
   <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />
   <texture name="Pause_Press" file_name="icons/Pause_Press.png" preload="false" />
+  <texture name="Person_Check" file_name="icons/Person_Check.png" preload="false" />
+  <texture name="Person_Star" file_name="icons/Person_Star.png" preload="false" />
   <texture name="Play_Off" file_name="icons/Play_Off.png" preload="false" />
   <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
   <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />

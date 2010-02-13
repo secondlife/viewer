@@ -1527,6 +1527,20 @@ std::string LLTextBase::getText() const
 	return getViewModel()->getValue().asString();
 }
 
+// IDEVO - icons can be UI image names or UUID sent from
+// server with avatar display name
+static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
+{
+	if (LLUUID::validate(icon_name))
+	{
+		return LLUI::getUIImageByID( LLUUID(icon_name) );
+	}
+	else
+	{
+		return LLUI::getUIImage(icon_name);
+	}
+}
+
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
@@ -1539,7 +1553,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 		LLUrlMatch match;
 		std::string text = new_text;
 		while ( LLUrlRegistry::instance().findUrl(text, match,
-		        boost::bind(&LLTextBase::replaceUrlLabel, this, _1, _2)) )
+		        boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -1570,15 +1584,18 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			// output an optional icon before the Url
 			if (! match.getIcon().empty())
 			{
-				LLUIImagePtr image = LLUI::getUIImage(match.getIcon());
+				LLUIImagePtr image = image_from_icon_name( match.getIcon() );
 				if (image)
 				{
-					LLStyle::Params icon;
-					icon.image = image;
+					LLStyle::Params icon_params;
+					icon_params.image = image;
+					// must refer to our link so we can update the icon later
+					// after name/group data is looked up
+					icon_params.link_href = match.getUrl();
 					// Text will be replaced during rendering with the icon,
 					// but string cannot be empty or the segment won't be
 					// added (or drawn).
-					appendAndHighlightText("   ", prepend_newline, part, icon);
+					appendAndHighlightText(" ", prepend_newline, part, icon_params);
 					prepend_newline = false;
 				}
 			}
@@ -1728,8 +1745,9 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 }
 
 
-void LLTextBase::replaceUrlLabel(const std::string &url,
-								   const std::string &label)
+void LLTextBase::replaceUrl(const std::string &url,
+							const std::string &label,
+							const std::string &icon)
 {
 	// get the full (wide) text for the editor so we can change it
 	LLWString text = getWText();
@@ -1757,6 +1775,21 @@ void LLTextBase::replaceUrlLabel(const std::string &url,
 			text = text.substr(0, start) + wlabel + text.substr(end, text.size() - end + 1);
 			seg->setEnd(start + wlabel.size());
 			modified = true;
+		}
+
+		// Icon might be updated when more avatar or group info
+		// becomes available
+		if (style->isImage() && style->getLinkHREF() == url)
+		{
+			LLUIImagePtr image = image_from_icon_name( icon );
+			if (image)
+			{
+				LLStyle::Params icon_params;
+				icon_params.image = image;
+				LLStyleConstSP new_style(new LLStyle(icon_params));
+				seg->setStyle(new_style);
+				modified = true;
+			}
 		}
 
 		// work out the character offset for the next segment

@@ -55,6 +55,12 @@ std::string LLUrlEntryBase::getUrl(const std::string &string) const
 	return escapeUrl(string);
 }
 
+//virtual
+std::string LLUrlEntryBase::getIcon(const std::string &url) const
+{
+	return mIcon;
+}
+
 std::string LLUrlEntryBase::getIDStringFromUrl(const std::string &url) const
 {
 	// return the id from a SLURL in the format /app/{cmd}/{id}/about
@@ -133,7 +139,9 @@ void LLUrlEntryBase::addObserver(const std::string &id,
 	}
 }
  
-void LLUrlEntryBase::callObservers(const std::string &id, const std::string &label)
+void LLUrlEntryBase::callObservers(const std::string &id,
+								   const std::string &label,
+								   const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
 	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
@@ -141,7 +149,7 @@ void LLUrlEntryBase::callObservers(const std::string &id, const std::string &lab
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
-		(*observer.signal)(it->second.url, label);
+		(*observer.signal)(it->second.url, label, icon);
 		// then remove the signal - we only need to call it once
 		delete observer.signal;
 		mObservers.erase(it++);
@@ -312,22 +320,18 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
-// IDEVO demo code
-std::string LLUrlEntryAgent::buildName(const LLUUID& id)
-{
-	// JAMESDEBUG HACK: assume name is there
-	LLAvatarName av_name;
-	LLAvatarNameCache::get(id, &av_name);
-	return av_name.mDisplayName + " (" + av_name.mSLID + ")";
-}
-
 void LLUrlEntryAgent::onNameCache(const LLUUID& id,
 								  const std::string& full_name,
 								  bool is_group)
 {
-	std::string final = buildName(id);
+	// IDEVO demo code
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(id, &av_name);
+	std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+	// use custom icon if available
+	std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
 	// received the agent name from the server - tell our observers
-	callObservers(id.asString(), final);
+	callObservers(id.asString(), label, icon);
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -353,7 +357,10 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else if (gCacheName->getFullName(agent_id, full_name))
 	{
-		return buildName(agent_id);
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(agent_id, &av_name);
+		std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+		return label;
 	}
 	else
 	{
@@ -365,6 +372,30 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 }
 
+
+std::string LLUrlEntryAgent::getIcon(const std::string &url) const
+{
+	std::string agent_id_string = getIDStringFromUrl(url);
+	if (agent_id_string.empty())
+	{
+		return mIcon;
+	}
+
+	LLUUID agent_id(agent_id_string);
+	if (agent_id.isNull())
+	{
+		return mIcon;
+	}
+
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(agent_id, &av_name);
+	if (av_name.mBadge.empty())
+	{
+		return mIcon;
+	}
+
+	return av_name.mBadge;
+}
 
 //
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
@@ -386,7 +417,7 @@ void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
 										  bool is_group)
 {
 	// received the group name from the server - tell our observers
-	callObservers(id.asString(), name);
+	callObservers(id.asString(), name, mIcon);
 }
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)

@@ -309,7 +309,10 @@ protected:
 	// misc
 	void							updateRects();
 	void							needsScroll() { mScrollNeeded = TRUE; }
-	void							replaceUrlLabel(const std::string &url, const std::string &label);
+
+	// Replace a URL with a new icon and label, for example, when
+	// avatar names are looked up.
+	void replaceUrl(const std::string &url, const std::string &label, const std::string& icon);
 
 protected:
 	// text segmentation and flow

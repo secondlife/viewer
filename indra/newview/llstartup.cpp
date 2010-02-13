@@ -52,6 +52,7 @@
 #endif
 
 #include "llares.h"
+#include "llavatarnamecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
@@ -1280,16 +1281,7 @@ bool idle_startup()
 
 		gXferManager->registerCallbacks(gMessageSystem);
 
-		if ( gCacheName == NULL )
-		{
-			gCacheName = new LLCacheName(gMessageSystem);
-			gCacheName->addObserver(&callback_cache_name);
-			gCacheName->LocalizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
-			gCacheName->LocalizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
-			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
-			// Load stored cache if possible
-            LLAppViewer::instance()->loadNameCache();
-		}
+		LLStartUp::initNameCache();
 
 		//gCacheName is required for nearby chat history loading
 		//so I just moved nearby history loading a few states further
@@ -2779,6 +2771,30 @@ void LLStartUp::fontInit()
 	display_startup();
 
 	LLFontGL::loadDefaultFonts();
+}
+
+void LLStartUp::initNameCache()
+{
+	// Can be called multiple times
+	if ( gCacheName ) return;
+
+	gCacheName = new LLCacheName(gMessageSystem);
+	gCacheName->addObserver(&callback_cache_name);
+	gCacheName->localizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
+	gCacheName->localizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
+	gCacheName->localizeCacheName("none", LLTrans::getString("GroupNameNone"));
+	// Load stored cache if possible
+	LLAppViewer::instance()->loadNameCache();
+
+	LLAvatarNameCache::initClass();
+}
+
+void LLStartUp::cleanupNameCache()
+{
+	LLAvatarNameCache::cleanupClass();
+
+	delete gCacheName;
+	gCacheName = NULL;
 }
 
 bool LLStartUp::dispatchURL()

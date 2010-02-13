@@ -35,6 +35,13 @@
 
 #include "llavatarname.h"
 
+LLAvatarName::LLAvatarName()
+:	mSLID(),
+	mDisplayName(),
+	mLastUpdate(0),
+	mBadge()
+{ }
+
 bool LLAvatarName::operator<(const LLAvatarName& rhs) const
 {
 	if (mSLID == rhs.mSLID)

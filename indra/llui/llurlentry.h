@@ -42,7 +42,8 @@
 #include <map>
 
 typedef boost::signals2::signal<void (const std::string& url,
-									  const std::string& label)> LLUrlLabelSignal;
+									  const std::string& label,
+									  const std::string& icon)> LLUrlLabelSignal;
 typedef LLUrlLabelSignal::slot_type LLUrlLabelCallback;
 
 ///
@@ -77,7 +78,7 @@ public:
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
 
 	/// Return an icon that can be displayed next to Urls of this type
-	std::string getIcon() const { return mIcon; }
+	virtual std::string getIcon(const std::string &url) const;
 
 	/// Return the color to render the displayed text
 	LLUIColor getColor() const { return mColor; }
@@ -101,7 +102,7 @@ protected:
 	std::string getLabelFromWikiLink(const std::string &url) const;
 	std::string getUrlFromWikiLink(const std::string &string) const;
 	void addObserver(const std::string &id, const std::string &url, const LLUrlLabelCallback &cb); 
-	void callObservers(const std::string &id, const std::string &label);
+	void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 
 	typedef struct {
 		std::string url;
@@ -168,10 +169,10 @@ class LLUrlEntryAgent : public LLUrlEntryBase
 public:
 	LLUrlEntryAgent();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getIcon(const std::string &url) const;
 
 private:
 	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
-	std::string buildName(const LLUUID& id);
 };
 
 ///

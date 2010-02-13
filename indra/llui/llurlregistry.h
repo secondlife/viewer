@@ -43,7 +43,9 @@
 #include <vector>
 
 /// This default callback for findUrl() simply ignores any label updates
-void LLUrlRegistryNullCallback(const std::string &url, const std::string &label);
+void LLUrlRegistryNullCallback(const std::string &url,
+							   const std::string &label,
+							   const std::string &icon);
 
 ///
 /// LLUrlRegistry is a singleton that contains a set of Url types that

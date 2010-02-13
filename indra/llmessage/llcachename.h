@@ -70,9 +70,6 @@ public:
 
 	boost::signals2::connection addObserver(const LLCacheNameCallback& callback);
 
-	// janky old format. Remove after a while. Phoenix. 2008-01-30
-	void importFile(LLFILE* fp);
-
 	// storing cache on disk; for viewer, in name.cache
 	bool importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
@@ -116,7 +113,7 @@ public:
 	void dumpStats();	// Dumps the sizes of the cache and associated queues.
 
 	static std::string getDefaultName();
-	static void LocalizeCacheName(std::string key, std::string value);
+	static void localizeCacheName(std::string key, std::string value);
 	static std::map<std::string, std::string> sCacheName;
 private:
 

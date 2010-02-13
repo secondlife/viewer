@@ -39,6 +39,8 @@
 class LL_COMMON_API LLAvatarName
 {
 public:
+	LLAvatarName();
+
 	bool operator<(const LLAvatarName& rhs) const;
 
 	// "bobsmith123" or "james.linden", US-ASCII only
@@ -48,6 +50,15 @@ public:
 	// Contains data whether or not user has explicitly set
 	// a display name; may duplicate their SLID.
 	std::string mDisplayName;
+
+	// Names can change, so need to keep track of when name was
+	// last checked.
+	// Unix time-from-epoch seconds
+	U32 mLastUpdate;
+
+	// Can be a viewer UI image name ("Person_Check") or a server-side
+	// image UUID, or empty string.
+	std::string mBadge;
 };
 
 #endif

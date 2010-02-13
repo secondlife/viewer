@@ -308,89 +308,10 @@ boost::signals2::connection LLCacheName::addObserver(const LLCacheNameCallback& 
 	return impl.mSignal.connect(callback);
 }
 
-void LLCacheName::importFile(LLFILE* fp)
-{
-	S32 count = 0;
-
-	const S32 BUFFER_SIZE = 1024;
-	char buffer[BUFFER_SIZE];	/*Flawfinder: ignore*/
-
-	// *NOTE: These buffer sizes are hardcoded into sscanf() below
-	char id_string[MAX_STRING]; /*Flawfinder: ignore*/
-	char firstname[MAX_STRING]; /*Flawfinder: ignore*/
-	char lastname[MAX_STRING]; /*Flawfinder: ignore*/
-	U32 create_time;
-
-	// This is OK if the first line is actually a name.  We just don't load it.
-	char* valid = fgets(buffer, BUFFER_SIZE, fp);
-	if (!valid) return;
-
-	// *NOTE: This buffer size is hardcoded into sscanf() below
-	char version_string[BUFFER_SIZE]; /*Flawfinder: ignore*/
-	S32 version = 0;
-	S32 match = sscanf(	/* Flawfinder: ignore */
-		buffer,
-		"%1023s %d",
-		version_string, &version);
-	if (   match != 2
-		|| strcmp(version_string, "version")
-		|| version != CN_FILE_VERSION)
-	{
-		llwarns << "Ignoring old cache name file format" << llendl;
-		return;
-	}
-
-	// We'll expire entries more than a week old
-	U32 now = (U32)time(NULL);
-	const U32 SECS_PER_DAY = 60 * 60 * 24;
-	U32 delete_before_time = now - (7 * SECS_PER_DAY);
-
-	while(!feof(fp))
-	{
-		valid = fgets(buffer, BUFFER_SIZE, fp);
-		if (!valid) break;
-
-		match = sscanf(	/* Flawfinder: ignore */
-			buffer,
-			"%254s %u %254s %254s",
-			id_string, 
-			&create_time,
-			firstname, 
-			lastname);
-		if (4 != match) continue;
-
-		LLUUID id(id_string);
-		if (id.isNull()) continue;
-
-		// undo trivial XOR
-		S32 i;
-		for (i = 0; i < UUID_BYTES; i++)
-		{
-			id.mData[i] ^= 0x33;
-		}
-
-		// Don't load entries that are more than a week old
-		if (create_time < delete_before_time) continue;
-
-		LLCacheNameEntry* entry = new LLCacheNameEntry();
-		entry->mIsGroup = false;
-		entry->mCreateTime = create_time;
-		entry->mFirstName = firstname;
-		entry->mLastName = lastname;
-		impl.mCache[id] = entry;
-		std::string fullname = entry->mFirstName + " " + entry->mLastName;
-		impl.mReverseCache[fullname] = id;
-		
-		count++;
-	}
-
-	llinfos << "LLCacheName loaded " << count << " names" << llendl;
-}
-
 bool LLCacheName::importFile(std::istream& istr)
 {
 	LLSD data;
-	if(LLSDSerialize::fromXML(data, istr) < 1)
+	if(LLSDSerialize::fromXMLDocument(data, istr) < 1)
 		return false;
 
 	// We'll expire entries more than a week old
@@ -512,7 +433,7 @@ BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::strin
 }
 
 // static
-void LLCacheName::LocalizeCacheName(std::string key, std::string value)
+void LLCacheName::localizeCacheName(std::string key, std::string value)
 {
 	if (key!="" && value!= "" )
 		sCacheName[key]=value;
