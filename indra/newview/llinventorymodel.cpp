@@ -1937,6 +1937,7 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
 	//llinfos << "LLInventoryModel::addItem()" << llendl;
 
+	llassert(item);
 	if(item)
 	{
 		// This can happen if assettype enums from llassettype.h ever change.
