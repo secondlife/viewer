@@ -93,7 +93,7 @@ extern LLPipeline	gPipeline;
 
 // Statics for object lookup tables.
 U32						LLViewerObjectList::sSimulatorMachineIndex = 1; // Not zero deliberately, to speed up index check.
-std::map<U64, U32>			LLViewerObjectList::sIPAndPortToIndex;
+LLMap<U64, U32>			LLViewerObjectList::sIPAndPortToIndex;
 std::map<U64, LLUUID>	LLViewerObjectList::sIndexAndLocalIDToUUID;
 
 LLViewerObjectList::LLViewerObjectList()
@@ -571,9 +571,10 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 
 void LLViewerObjectList::dirtyAllObjectInventory()
 {
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	S32 count = mObjects.count();
+	for(S32 i = 0; i < count; ++i)
 	{
-		(*iter)->dirtyInventory();
+		mObjects[i]->dirtyInventory();
 	}
 }
 
@@ -586,14 +587,14 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	S32 num_updates, max_value;
 	if (NUM_BINS - 1 == mCurBin)
 	{
-		num_updates = (S32) mObjects.size() - mCurLazyUpdateIndex;
-		max_value = (S32) mObjects.size();
+		num_updates = mObjects.count() - mCurLazyUpdateIndex;
+		max_value = mObjects.count();
 		gTextureList.setUpdateStats(TRUE);
 	}
 	else
 	{
-		num_updates = ((S32) mObjects.size() / NUM_BINS) + 1;
-		max_value = llmin((S32) mObjects.size(), mCurLazyUpdateIndex + num_updates);
+		num_updates = (mObjects.count() / NUM_BINS) + 1;
+		max_value = llmin(mObjects.count(), mCurLazyUpdateIndex + num_updates);
 	}
 
 
@@ -646,7 +647,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	}
 
 	mCurLazyUpdateIndex = max_value;
-	if (mCurLazyUpdateIndex == mObjects.size())
+	if (mCurLazyUpdateIndex == mObjects.count())
 	{
 		mCurLazyUpdateIndex = 0;
 	}
@@ -693,26 +694,20 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	
 	// Make a copy of the list in case something in idleUpdate() messes with it
 	std::vector<LLViewerObject*> idle_list;
-	
-	static LLFastTimer::DeclareTimer idle_copy("Idle Copy");
+	idle_list.reserve( mActiveObjects.size() );
 
+ 	for (std::set<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
+		active_iter != mActiveObjects.end(); active_iter++)
 	{
-		LLFastTimer t(idle_copy);
-		idle_list.reserve( mActiveObjects.size() );
-
- 		for (std::set<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
-			active_iter != mActiveObjects.end(); active_iter++)
+		objectp = *active_iter;
+		if (objectp)
 		{
-			objectp = *active_iter;
-			if (objectp)
-			{
-				idle_list.push_back( objectp );
-			}
-			else
-			{	// There shouldn't be any NULL pointers in the list, but they have caused
-				// crashes before.  This may be idleUpdate() messing with the list.
-				llwarns << "LLViewerObjectList::update has a NULL objectp" << llendl;
-			}
+			idle_list.push_back( objectp );
+		}
+		else
+		{	// There shouldn't be any NULL pointers in the list, but they have caused
+			// crashes before.  This may be idleUpdate() messing with the list.
+			llwarns << "LLViewerObjectList::update has a NULL objectp" << llendl;
 		}
 	}
 
@@ -812,7 +807,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	}
 	*/
 
-	LLViewerStats::getInstance()->mNumObjectsStat.addValue((S32) mObjects.size());
+	LLViewerStats::getInstance()->mNumObjectsStat.addValue(mObjects.count());
 	LLViewerStats::getInstance()->mNumActiveObjectsStat.addValue(num_active_objects);
 	LLViewerStats::getInstance()->mNumSizeCulledStat.addValue(mNumSizeCulled);
 	LLViewerStats::getInstance()->mNumVisCulledStat.addValue(mNumVisCulled);
@@ -820,9 +815,9 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 void LLViewerObjectList::clearDebugText()
 {
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	for (S32 i = 0; i < mObjects.count(); i++)
 	{
-		(*iter)->setDebugText("");
+		mObjects[i]->setDebugText("");
 	}
 }
 
@@ -861,7 +856,7 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 
 	if (objectp->isOnMap())
 	{
-		removeFromMap(objectp);
+		mMapObjects.removeObj(objectp);
 	}
 
 	// Don't clean up mObject references, these will be cleaned up more efficiently later!
@@ -918,10 +913,10 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 {
 	LLViewerObject *objectp;
 
-	
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	S32 i;
+	for (i = 0; i < mObjects.count(); i++)
 	{
-		objectp = *iter;
+		objectp = mObjects[i];
 		
 		if (objectp->mRegionp == regionp)
 		{
@@ -938,9 +933,10 @@ void LLViewerObjectList::killAllObjects()
 	// Used only on global destruction.
 	LLViewerObject *objectp;
 
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	for (S32 i = 0; i < mObjects.count(); i++)
 	{
-		objectp = *iter;
+		objectp = mObjects[i];
+		
 		killObject(objectp);
 		llassert(objectp->isDead());
 	}
@@ -949,7 +945,7 @@ void LLViewerObjectList::killAllObjects()
 
 	if(!mObjects.empty())
 	{
-		llwarns << "LLViewerObjectList::killAllObjects still has entries in mObjects: " << mObjects.size() << llendl;
+		llwarns << "LLViewerObjectList::killAllObjects still has entries in mObjects: " << mObjects.count() << llendl;
 		mObjects.clear();
 	}
 
@@ -974,15 +970,16 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 		return;
 	}
 
+	S32 i = 0;
 	S32 num_removed = 0;
 	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); )
+	while (i < mObjects.count())
 	{
 		// Scan for all of the dead objects and remove any "global" references to them.
-		objectp = *iter;
+		objectp = mObjects[i];
 		if (objectp->isDead())
 		{
-			iter = mObjects.erase(iter);
+			mObjects.remove(i);
 			num_removed++;
 
 			if (num_removed == mNumDeadObjects)
@@ -993,7 +990,8 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 		}
 		else
 		{
-			++iter;
+			// iterate, this isn't a dead object.
+			i++;
 		}
 	}
 
@@ -1043,11 +1041,12 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 	}
 
 	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	S32 i;
+	for (i = 0; i < mObjects.count(); i++)
 	{
-		objectp = *iter;
+		objectp = getObject(i);
 		// There could be dead objects on the object list, so don't update stuff if the object is dead.
-		if (!objectp->isDead())
+		if (objectp)
 		{
 			objectp->updatePositionCaches();
 
@@ -1077,9 +1076,9 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 
 	F32 max_radius = gSavedSettings.getF32("MiniMapPrimMaxRadius");
 
-	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != mMapObjects.end(); ++iter)
+	for (S32 i = 0; i < mMapObjects.count(); i++)
 	{
-		LLViewerObject* objectp = *iter;
+		LLViewerObject* objectp = mMapObjects[i];
 		if (!objectp->getRegion() || objectp->isOrphaned() || objectp->isAttachment())
 		{
 			continue;
@@ -1145,14 +1144,21 @@ void LLViewerObjectList::renderObjectBounds(const LLVector3 &center)
 {
 }
 
+void LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, const LLRect& screen_rect, BOOL pick_parcel_wall, BOOL render_transparent)
+{
+	generatePickList(camera);
+	renderPickList(screen_rect, pick_parcel_wall, render_transparent);
+}
+
 void LLViewerObjectList::generatePickList(LLCamera &camera)
 {
 		LLViewerObject *objectp;
 		S32 i;
 		// Reset all of the GL names to zero.
-		for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+		for (i = 0; i < mObjects.count(); i++)
 		{
-			(*iter)->mGLName = 0;
+			objectp = mObjects[i];
+			objectp->mGLName = 0;
 		}
 
 		mSelectPickList.clear();
@@ -1315,19 +1321,17 @@ void LLViewerObjectList::addDebugBeacon(const LLVector3 &pos_agent,
 										const LLColor4 &text_color,
 										S32 line_width)
 {
-	LLDebugBeacon beacon;
-	beacon.mPositionAgent = pos_agent;
-	beacon.mString = string;
-	beacon.mColor = color;
-	beacon.mTextColor = text_color;
-	beacon.mLineWidth = line_width;
-
-	mDebugBeacons.push_back(beacon);
+	LLDebugBeacon *beaconp = mDebugBeacons.reserve_block(1);
+	beaconp->mPositionAgent = pos_agent;
+	beaconp->mString = string;
+	beaconp->mColor = color;
+	beaconp->mTextColor = text_color;
+	beaconp->mLineWidth = line_width;
 }
 
 void LLViewerObjectList::resetObjectBeacons()
 {
-	mDebugBeacons.clear();
+	mDebugBeacons.reset();
 }
 
 LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp)
@@ -1345,7 +1349,7 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 
 	mUUIDObjectMap[fullid] = objectp;
 
-	mObjects.push_back(objectp);
+	mObjects.put(objectp);
 
 	updateActive(objectp);
 
@@ -1384,7 +1388,7 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 					gMessageSystem->getSenderIP(),
 					gMessageSystem->getSenderPort());
 
-	mObjects.push_back(objectp);
+	mObjects.put(objectp);
 
 	updateActive(objectp);
 
@@ -1407,11 +1411,11 @@ LLViewerObject *LLViewerObjectList::replaceObject(const LLUUID &id, const LLPCod
 S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 {
 	LLViewerObject *objectp;
+	S32 i;
 	S32 num_refs = 0;
-	
-	for (vobj_list_t::const_iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	for (i = 0; i < mObjects.count(); i++)
 	{
-		objectp = *iter;
+		objectp = mObjects[i];
 		if (objectp->mDrawable.notNull())
 		{
 			num_refs += objectp->mDrawable->findReferences(drawablep);
@@ -1456,15 +1460,15 @@ void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip
 	// Unknown parent, add to orpaned child list
 	U64 parent_info = getIndex(parent_id, ip, port);
 
-	if (std::find(mOrphanParents.begin(), mOrphanParents.end(), parent_info) == mOrphanParents.end())
+	if (-1 == mOrphanParents.find(parent_info))
 	{
-		mOrphanParents.push_back(parent_info);
+		mOrphanParents.put(parent_info);
 	}
 
 	LLViewerObjectList::OrphanInfo oi(parent_info, childp->mID);
-	if (std::find(mOrphanChildren.begin(), mOrphanChildren.end(), oi) == mOrphanChildren.end())
+	if (-1 == mOrphanChildren.find(oi))
 	{
-		mOrphanChildren.push_back(oi);
+		mOrphanChildren.put(oi);
 		mNumOrphans++;
 	}
 }
@@ -1487,29 +1491,28 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 	// See if we are a parent of an orphan.
 	// Note:  This code is fairly inefficient but it should happen very rarely.
 	// It can be sped up if this is somehow a performance issue...
-	if (mOrphanParents.empty())
+	if (0 == mOrphanParents.count())
 	{
 		// no known orphan parents
 		return;
 	}
-	if (std::find(mOrphanParents.begin(), mOrphanParents.end(), getIndex(objectp->mLocalID, ip, port)) == mOrphanParents.end())
+	if (-1 == mOrphanParents.find(getIndex(objectp->mLocalID, ip, port)))
 	{
 		// did not find objectp in OrphanParent list
 		return;
 	}
 
+	S32 i;
 	U64 parent_info = getIndex(objectp->mLocalID, ip, port);
 	BOOL orphans_found = FALSE;
 	// Iterate through the orphan list, and set parents of matching children.
-
-	for (std::vector<OrphanInfo>::iterator iter = mOrphanChildren.begin(); iter != mOrphanChildren.end(); )
-	{	
-		if (iter->mParentInfo != parent_info)
+	for (i = 0; i < mOrphanChildren.count(); i++)
+	{
+		if (mOrphanChildren[i].mParentInfo != parent_info)
 		{
-			++iter;
 			continue;
 		}
-		LLViewerObject *childp = findObject(iter->mChildInfo);
+		LLViewerObject *childp = findObject(mOrphanChildren[i].mChildInfo);
 		if (childp)
 		{
 			if (childp == objectp)
@@ -1543,35 +1546,29 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 
 			objectp->addChild(childp);
 			orphans_found = TRUE;
-			++iter;
 		}
 		else
 		{
 			llinfos << "Missing orphan child, removing from list" << llendl;
-
-			iter = mOrphanChildren.erase(iter);
+			mOrphanChildren.remove(i);
+			i--;
 		}
 	}
 
 	// Remove orphan parent and children from lists now that they've been found
+	mOrphanParents.remove(mOrphanParents.find(parent_info));
+
+	i = 0;
+	while (i < mOrphanChildren.count())
 	{
-		std::vector<U64>::iterator iter = std::find(mOrphanParents.begin(), mOrphanParents.end(), parent_info);
-		if (iter != mOrphanParents.end())
+		if (mOrphanChildren[i].mParentInfo == parent_info)
 		{
-			mOrphanParents.erase(iter);
-		}
-	}
-	
-	for (std::vector<OrphanInfo>::iterator iter = mOrphanChildren.begin(); iter != mOrphanChildren.end(); )
-	{
-		if (iter->mParentInfo == parent_info)
-		{
-			iter = mOrphanChildren.erase(iter);
+			mOrphanChildren.remove(i);
 			mNumOrphans--;
 		}
 		else
 		{
-			++iter;
+			i++;
 		}
 	}
 
