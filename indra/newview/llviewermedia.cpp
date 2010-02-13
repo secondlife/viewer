@@ -864,26 +864,9 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
 		total_cpu += pimpl->getCPUUsage();
 		
-		// Only set sAnyMedia​Showing if it isn't used in the UI. If it isn't 
-		// parcel media, do the normal "hasMedia()" check. If it is parcel media, 
-		// hasMedia() seems to always be true, so we do some other checks to see 
-		// if there actually is parcel media  showing
-		if (!pimpl->getUsedInUI())
+		if (!pimpl->getUsedInUI() && pimpl->hasMedia())
 		{
-			if (! pimpl->isParcelMedia())
-			{
-				if (pimpl->hasMedia())
-				{
-					sAnyMediaShowing = true;
-				}
-			}
-			else {
-				// Parcel media showing?
-				if (!LLViewerParcelMedia::getURL().empty() && LLViewerParcelMedia::getParcelMedia().notNull())
-				{
-					sAnyMediaShowing = true;
-				}
-			}
+			sAnyMediaShowing = true;
 		}
 
 	}
@@ -947,9 +930,84 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 	for(; iter != end; iter++)
 	{
 		LLViewerMediaImpl* pimpl = *iter;
-		if (!pimpl->getUsedInUI()) 
+		if (!pimpl->getUsedInUI())
+		{
 			pimpl->setDisabled(!val);
+		}
 	}
+	
+	// Also do Parcel Media and Parcel Audio
+	if (val)
+	{
+		if (!LLViewerMedia::isParcelMediaPlaying())
+		{	
+			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+		}
+		
+		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop)
+		{
+			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+		}
+	}
+	else {
+		// This actually unloads the impl, as opposed to "stop"ping the media
+		LLViewerParcelMedia::stop();
+		if (gAudiop) gAudiop->stopInternetStream();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isParcelMediaPlaying()
+{
+	return (LLViewerMedia::hasParcelMedia() && LLViewerParcelMedia::getParcelMedia() && LLViewerParcelMedia::getParcelMedia()->hasMedia());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isParcelAudioPlaying()
+{
+	return (LLViewerMedia::hasParcelAudio() && gAudiop && LLAudioEngine::AUDIO_PLAYING == gAudiop->isInternetStreamPlaying());
+}
+
+bool LLViewerMedia::hasInWorldMedia()
+{
+	if (! gSavedSettings.getBOOL("AudioStreamingMedia")) return false;
+	if (sInWorldMediaDisabled) return false;
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	// This should be quick, because there should be very few non-in-world-media impls
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if (!pimpl->getUsedInUI() && !pimpl->isParcelMedia())
+		{
+			// Found an in-world media impl
+			return true;
+		}
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::hasParcelMedia()
+{
+	return !LLViewerParcelMedia::getURL().empty();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::hasParcelAudio()
+{
+	return !LLViewerMedia::getParcelAudioURL().empty();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+std::string LLViewerMedia::getParcelAudioURL()
+{
+	return LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

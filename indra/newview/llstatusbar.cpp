@@ -366,7 +366,12 @@ void LLStatusBar::refresh()
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
 	
-	mMediaToggle->setValue(!LLViewerMedia::isAnyMediaShowing());
+	// Don't show media toggle if there's no media, parcel media, and no parcel audio
+	mMediaToggle->setVisible(LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
+	// Note the "sense" of the toggle is opposite whether media is playing or not
+	mMediaToggle->setValue(! (LLViewerMedia::isAnyMediaShowing() || 
+							  LLViewerMedia::isParcelMediaPlaying() ||
+							  LLViewerMedia::isParcelAudioPlaying()));
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -396,8 +401,8 @@ void LLStatusBar::setBalance(S32 balance)
 	LLButton* btn_buy_currency = getChild<LLButton>("buycurrency");
 	LLStringUtil::format_map_t string_args;
 	string_args["[AMT]"] = llformat("%s", money_str.c_str());
-	std::string labe_str = getString("buycurrencylabel", string_args);
-	btn_buy_currency->setLabel(labe_str);
+	std::string label_str = getString("buycurrencylabel", string_args);
+	btn_buy_currency->setLabel(label_str);
 
 	// Resize the balance button so that the label fits it, and the button expands to the left.
 	// *TODO: LLButton should have an option where to expand.
@@ -562,7 +567,8 @@ void LLStatusBar::onClickMediaToggle(void* data)
 {
 	LLStatusBar *status_bar = (LLStatusBar*)data;
 	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
-	LLViewerMedia::setAllMediaEnabled(! status_bar->mMediaToggle->getValue());
+	bool enable = ! status_bar->mMediaToggle->getValue();
+	LLViewerMedia::setAllMediaEnabled(enable);
 }
 
 // sets the static variables necessary for the date

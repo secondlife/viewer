@@ -73,60 +73,68 @@ class LLViewerMediaImpl;
 class LLViewerMedia
 {
 	LOG_CLASS(LLViewerMedia);
-	public:
-
-		// String to get/set media autoplay in gSavedSettings
-		static const char* AUTO_PLAY_MEDIA_SETTING;
-		static const char* SHOW_MEDIA_ON_OTHERS_SETTING;
-		static const char* SHOW_MEDIA_WITHIN_PARCEL_SETTING;
-		static const char* SHOW_MEDIA_OUTSIDE_PARCEL_SETTING;
+public:
 	
-		typedef std::vector<LLViewerMediaImpl*> impl_list;
-
-		typedef std::map<LLUUID, LLViewerMediaImpl*> impl_id_map;
-
-		// Special case early init for just web browser component
-		// so we can show login screen.  See .cpp file for details. JC
-
-		static viewer_media_t newMediaImpl(const LLUUID& texture_id,
-												S32 media_width = 0, 
-												S32 media_height = 0, 
-												U8 media_auto_scale = false,
-												U8 media_loop = false);
-
-		static viewer_media_t updateMediaImpl(LLMediaEntry* media_entry, const std::string& previous_url, bool update_from_self);
-		static LLViewerMediaImpl* getMediaImplFromTextureID(const LLUUID& texture_id);
-		static std::string getCurrentUserAgent();
-		static void updateBrowserUserAgent();
-		static bool handleSkinCurrentChanged(const LLSD& /*newvalue*/);
-		static bool textureHasMedia(const LLUUID& texture_id);
-		static void setVolume(F32 volume);
-
-		// Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
-		static bool isAnyMediaShowing();
-		// Set all media enabled or disabled, depending on val.   Does not include media in the UI.
-		static void setAllMediaEnabled(bool val);
+	// String to get/set media autoplay in gSavedSettings
+	static const char* AUTO_PLAY_MEDIA_SETTING;
+	static const char* SHOW_MEDIA_ON_OTHERS_SETTING;
+	static const char* SHOW_MEDIA_WITHIN_PARCEL_SETTING;
+	static const char* SHOW_MEDIA_OUTSIDE_PARCEL_SETTING;
 	
-		static void updateMedia(void* dummy_arg = NULL);
-
-		static void initClass();
-		static void cleanupClass();
-
-		static F32 getVolume();	
-		static void muteListChanged();
-		static void setInWorldMediaDisabled(bool disabled);
-		static bool getInWorldMediaDisabled();
-				
-		static bool isInterestingEnough(const LLVOVolume* object, const F64 &object_interest);
+	typedef std::vector<LLViewerMediaImpl*> impl_list;
 	
-		// Returns the priority-sorted list of all media impls.
-		static impl_list &getPriorityList();
-		
-		// This is the comparitor used to sort the list.
-		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
+	typedef std::map<LLUUID, LLViewerMediaImpl*> impl_id_map;
 	
-	private:
-		static void onTeleportFinished();
+	// Special case early init for just web browser component
+	// so we can show login screen.  See .cpp file for details. JC
+	
+	static viewer_media_t newMediaImpl(const LLUUID& texture_id,
+									   S32 media_width = 0, 
+									   S32 media_height = 0, 
+									   U8 media_auto_scale = false,
+									   U8 media_loop = false);
+	
+	static viewer_media_t updateMediaImpl(LLMediaEntry* media_entry, const std::string& previous_url, bool update_from_self);
+	static LLViewerMediaImpl* getMediaImplFromTextureID(const LLUUID& texture_id);
+	static std::string getCurrentUserAgent();
+	static void updateBrowserUserAgent();
+	static bool handleSkinCurrentChanged(const LLSD& /*newvalue*/);
+	static bool textureHasMedia(const LLUUID& texture_id);
+	static void setVolume(F32 volume);
+	
+	// Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
+	static bool isAnyMediaShowing();
+	// Set all media enabled or disabled, depending on val.   Does not include media in the UI.
+	static void setAllMediaEnabled(bool val);
+	
+	static void updateMedia(void* dummy_arg = NULL);
+	
+	static void initClass();
+	static void cleanupClass();
+	
+	static F32 getVolume();	
+	static void muteListChanged();
+	static void setInWorldMediaDisabled(bool disabled);
+	static bool getInWorldMediaDisabled();
+	
+	static bool isInterestingEnough(const LLVOVolume* object, const F64 &object_interest);
+	
+	// Returns the priority-sorted list of all media impls.
+	static impl_list &getPriorityList();
+	
+	// This is the comparitor used to sort the list.
+	static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
+	
+	// These are just helper functions for the convenience of others working with media
+	static bool hasInWorldMedia();
+	static std::string getParcelAudioURL();
+	static bool hasParcelMedia();
+	static bool hasParcelAudio();
+	static bool isParcelMediaPlaying();
+	static bool isParcelAudioPlaying();
+	
+private:
+	static void onTeleportFinished();
 };
 
 // Implementation functions not exported into header file
