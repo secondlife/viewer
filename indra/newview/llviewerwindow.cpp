@@ -1362,7 +1362,7 @@ LLViewerWindow::LLViewerWindow(
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gNoRender,
 		ignore_pixel_depth,
-		gSavedSettings.getU32("RenderFSAASamples"));
+		0); //gSavedSettings.getU32("RenderFSAASamples"));
 
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
@@ -4713,8 +4713,9 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		return TRUE;
 	}
 
-	U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
-	U32 old_fsaa = mWindow->getFSAASamples();
+	//U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
+	//U32 old_fsaa = mWindow->getFSAASamples();
+
 	// going from windowed to windowed
 	if (!old_fullscreen && !fullscreen)
 	{
@@ -4724,7 +4725,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 			mWindow->setSize(size);
 		}
 
-		if (fsaa == old_fsaa)
+		//if (fsaa == old_fsaa)
 		{
 			return TRUE;
 		}
@@ -4753,13 +4754,13 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		gSavedSettings.setS32("WindowY", old_pos.mY);
 	}
 	
-	mWindow->setFSAASamples(fsaa);
+	//mWindow->setFSAASamples(fsaa);
 
 	result_first_try = mWindow->switchContext(fullscreen, size, disable_vsync);
 	if (!result_first_try)
 	{
 		// try to switch back
-		mWindow->setFSAASamples(old_fsaa);
+		//mWindow->setFSAASamples(old_fsaa);
 		result_second_try = mWindow->switchContext(old_fullscreen, old_size, disable_vsync);
 
 		if (!result_second_try)
