@@ -182,6 +182,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 	mAtlasInfop = NULL ;
 	mUsingAtlas  = FALSE ;
+	mHasMedia = FALSE ;
 }
 
 
@@ -1348,11 +1349,12 @@ const F32 LEAST_IMPORTANCE_FOR_LARGE_IMAGE = 0.3f ;
 F32 LLFace::getTextureVirtualSize()
 {
 	F32 radius;
-	F32 cos_angle_to_view_dir;
-	mPixelArea = calcPixelArea(cos_angle_to_view_dir, radius);
+	F32 cos_angle_to_view_dir;	
+	BOOL in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
 
-	if (mPixelArea < 0.0001f)
+	if (mPixelArea < 0.0001f || !in_frustum)
 	{
+		setVirtualSize(0.f) ;
 		return 0.f;
 	}
 
@@ -1389,30 +1391,36 @@ F32 LLFace::getTextureVirtualSize()
 		}
 	}
 
+	setVirtualSize(face_area) ;
+
 	return face_area;
 }
 
-F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
+BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
 	//get area of circle around face
 	LLVector3 center = getPositionAgent();
 	LLVector3 size = (mExtents[1] - mExtents[0]) * 0.5f;	
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 
-	//if has media, check if the face is out of the view frustum.
-	BOOL has_media = hasMedia() ;
-	if(has_media && !camera->AABBInFrustum(center, size)) 
-	{
-		mImportanceToCamera = 0.f ;
-		return 0.f ;
-	}
-
 	F32 size_squared = size.lengthSquared() ;
 	LLVector3 lookAt = center - camera->getOrigin();
-	F32 dist = lookAt.normVec() ;
-	cos_angle_to_view_dir = lookAt * camera->getXAxis() ;	
-	if(has_media)
+	F32 dist = lookAt.normVec() ;	
+
+	//get area of circle around node
+	F32 app_angle = atanf(fsqrtf(size_squared) / dist);
+	radius = app_angle*LLDrawable::sCurPixelAngle;
+	mPixelArea = radius*radius * 3.14159f;
+	cos_angle_to_view_dir = lookAt * camera->getXAxis() ;
+
+	//if has media, check if the face is out of the view frustum.	
+	if(hasMedia())
 	{
+		if(!camera->AABBInFrustum(center, size)) 
+		{
+			mImportanceToCamera = 0.f ;
+			return false ;
+		}
 		if(cos_angle_to_view_dir > camera->getCosHalfFov()) //the center is within the view frustum
 		{
 			cos_angle_to_view_dir = 1.0f ;
@@ -1426,11 +1434,6 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 		}
 	}
 
-	//get area of circle around node
-	F32 app_angle = atanf(fsqrtf(size_squared) / dist);
-	radius = app_angle*LLDrawable::sCurPixelAngle;
-	F32 face_area = radius*radius * 3.14159f;
-
 	if(dist < mBoundingSphereRadius) //camera is very close
 	{
 		cos_angle_to_view_dir = 1.0f ;
@@ -1441,7 +1444,7 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 		mImportanceToCamera = LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist) ;
 	}
 
-	return face_area ;
+	return true ;
 }
 
 //the projection of the face partially overlaps with the screen

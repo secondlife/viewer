@@ -36,6 +36,7 @@
 #include "llnotificationhandler.h"
 
 #include "llnotifications.h"
+#include "llprogressview.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
@@ -115,6 +116,11 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		p.can_fade = false;
 		p.is_modal = mIsModal;
 		p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
+
+		// Show alert in middle of progress view (during teleport) (EXT-1093)
+		LLProgressView* progress = gViewerWindow->getProgressView();
+		LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
+		mChannel->updatePositionAndSize(rc, rc);
 
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 		if(channel)

@@ -294,6 +294,15 @@ void LLToastNotifyPanel::adjustPanelForTipNotice()
 
 	mControlPanel->setVisible(FALSE);
 	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight());
+
+	if (mNotification->getPayload().has("respond_on_mousedown")
+		&& mNotification->getPayload()["respond_on_mousedown"] )
+	{
+		mInfoPanel->setMouseDownCallback(
+			boost::bind(&LLNotification::respond,
+						mNotification,
+						mNotification->getResponseTemplate()));
+	}
 }
 
 // static

@@ -78,6 +78,8 @@ public:
 	 */
 	void setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus);
 
+	LLPlacesInventoryPanel* getLibraryInventoryPanel() { return mLibraryInventoryPanel; }
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
