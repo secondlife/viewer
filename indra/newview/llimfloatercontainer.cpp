@@ -145,4 +145,16 @@ LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
 }
 
+void LLIMFloaterContainer::setMinimized(BOOL b)
+{
+	LLMultiFloater::setMinimized(b);
+
+	if (isMinimized()) return;
+
+	if (getActiveFloater())
+	{
+		getActiveFloater()->setVisible(TRUE);
+	}
+}
+
 // EOF
