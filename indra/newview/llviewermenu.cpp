@@ -3554,9 +3554,15 @@ bool LLHaveCallingcard::operator()(LLInventoryCategory* cat,
 
 BOOL is_agent_mappable(const LLUUID& agent_id)
 {
-	return (LLAvatarActions::isFriend(agent_id) &&
-		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isOnline() &&
-		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
+	LLRelationship* buddy_info = NULL;
+	bool is_friend = LLAvatarActions::isFriend(agent_id);
+
+	if (is_friend)
+		buddy_info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
+
+	return (buddy_info &&
+		buddy_info->isOnline() &&
+		buddy_info->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
 		);
 }
 
