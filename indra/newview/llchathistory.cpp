@@ -68,6 +68,9 @@ const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
 const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
 
+const static std::string SLURL_APP_AGENT = "secondlife:///app/agent/";
+const static std::string SLURL_ABOUT = "/about";
+
 // support for secondlife:///app/objectim/{UUID}/ SLapps
 class LLObjectIMHandler : public LLCommandHandler
 {
@@ -779,6 +782,20 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	else
 	{
 		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+
+
+		//MESSAGE TEXT PROCESSING
+		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
+		if (use_plain_text_chat_history && gAgentID != chat.mFromID && chat.mFromID.notNull())
+		{
+			std::string slurl_about = SLURL_APP_AGENT + chat.mFromID.asString() + SLURL_ABOUT;
+			if (message.length() > slurl_about.length() && 
+				message.compare(0, slurl_about.length(), slurl_about) == 0)
+			{
+				message = message.substr(slurl_about.length(), message.length()-1);
+			}
+		}
+
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();
