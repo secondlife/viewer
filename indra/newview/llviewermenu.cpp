@@ -6408,7 +6408,6 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		else
 		{
 			llwarns << "Failed to generate LLFloaterScriptQueue with action: " << action << llendl;
-			delete queue;
 		}
 		return true;
 	}
