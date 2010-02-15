@@ -19,19 +19,22 @@
         <menu_item_call.on_click
          function="Profile.Share" />
     </menu_item_call>
-    <menu_item_check
-     label="Block/Unblock"
-     layout="topleft"
-     name="block_unblock">
-        <menu_item_check.on_click
-         function="Profile.BlockUnblock" />
-        <menu_item_check.on_check
-         function="Profile.CheckItem"
-         parameter="is_blocked" />
-        <menu_item_check.on_enable
-         function="Profile.EnableItem"
-         parameter="can_block" />
-    </menu_item_check>
+   <menu_item_call
+   label="Block"
+   name="block">
+    <menu_item_call.on_click
+     function="Profile.BlockUnblock"/>
+    <menu_item_call.on_visible
+     function="Profile.EnableBlock" />
+  </menu_item_call>
+  <menu_item_call
+   label="Unblock"
+   name="unblock">
+    <menu_item_call.on_click
+     function="Profile.BlockUnblock"/>
+    <menu_item_call.on_visible
+     function="Profile.EnableUnblock" />
+  </menu_item_call>
   <menu_item_call
    label="Kick"
    layout="topleft"

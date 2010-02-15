@@ -202,8 +202,8 @@ protected:
 	void unfreeze();
 	void csr();
 	
-	bool checkOverflowMenuItem(const LLSD& param);
-	bool enableOverflowMenuItem(const LLSD& param);
+	bool enableBlock();
+	bool enableUnblock();
 	bool enableGod();
 
 

@@ -507,8 +507,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
 	enable.add("Profile.EnableGod", boost::bind(&enable_god));
-	enable.add("Profile.CheckItem", boost::bind(&LLPanelAvatarProfile::checkOverflowMenuItem, this, _2));
-	enable.add("Profile.EnableItem", boost::bind(&LLPanelAvatarProfile::enableOverflowMenuItem, this, _2));
+	enable.add("Profile.EnableBlock", boost::bind(&LLPanelAvatarProfile::enableBlock, this));
+	enable.add("Profile.EnableUnblock", boost::bind(&LLPanelAvatarProfile::enableUnblock, this));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -685,26 +685,6 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
-bool LLPanelAvatarProfile::checkOverflowMenuItem(const LLSD& param)
-{
-    std::string item = param.asString();
-
-    if (item == "is_blocked")
-        return LLAvatarActions::isBlocked(getAvatarId());
-
-    return false;
-}
-
-bool LLPanelAvatarProfile::enableOverflowMenuItem(const LLSD& param)
-{
-    std::string item = param.asString();
-
-    if (item == "can_block")
-        return LLAvatarActions::canBlock(getAvatarId());
-
-    return false;
-}
-
 void LLPanelAvatarProfile::pay()
 {
 	LLAvatarActions::pay(getAvatarId());
@@ -718,6 +698,16 @@ void LLPanelAvatarProfile::share()
 void LLPanelAvatarProfile::toggleBlock()
 {
 	LLAvatarActions::toggleBlock(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableBlock()
+{
+	return LLAvatarActions::canBlock(getAvatarId()) && !LLAvatarActions::isBlocked(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableUnblock()
+{
+	return LLAvatarActions::isBlocked(getAvatarId());
 }
 
 void LLPanelAvatarProfile::kick()

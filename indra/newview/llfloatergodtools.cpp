@@ -213,6 +213,9 @@ void LLFloaterGodTools::showPanel(const std::string& panel_name)
 // static
 void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 {
+	llassert(msg);
+	if (!msg) return;
+
 	LLHost host = msg->getSender();
 	if (host != gAgent.getRegionHost())
 	{
@@ -270,8 +273,7 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
 	if ( gAgent.isGodlike()
 		&& LLFloaterReg::instanceVisible("god_tools")
 		&& god_tools->mPanelRegionTools
-		&& god_tools->mPanelObjectTools
-		&& msg )
+		&& god_tools->mPanelObjectTools)
 	{
 		LLPanelRegionTools* rtool = god_tools->mPanelRegionTools;
 		god_tools->mCurrentHost = host;
