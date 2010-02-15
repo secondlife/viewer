@@ -1228,12 +1228,15 @@ T* LLChicletPanel::findChiclet(const LLUUID& im_session_id)
 	{
 		LLChiclet* chiclet = *it;
 
+		llassert(chiclet);
+		if (!chiclet) continue;
 		if(chiclet->getSessionId() == im_session_id)
 		{
 			T* result = dynamic_cast<T*>(chiclet);
-			if(!result && chiclet)
+			if(!result)
 			{
 				llwarns << "Found chiclet but of wrong type " << llendl;
+				continue;
 			}
 			return result;
 		}

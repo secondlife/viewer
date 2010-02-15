@@ -304,7 +304,9 @@ void LLCallFloater::updateSession()
 	updateAgentModeratorState();
 
 	//show floater for voice calls & only in CONNECTED to voice channel state
-	if (!is_local_chat && LLVoiceChannel::STATE_CONNECTED == voice_channel->getState())
+	if (!is_local_chat &&
+	    voice_channel &&
+	    LLVoiceChannel::STATE_CONNECTED == voice_channel->getState())
 	{
 		LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 		bool show_me = !(im_floater && im_floater->getVisible());

@@ -1605,31 +1605,32 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		LLWearable* new_wearable = wearables[i];
 		LLPointer<LLInventoryItem> new_item = items[i];
 
-		const EWearableType type = new_wearable->getType();
-		wearables_to_remove[type] = FALSE;
-
-		// MULTI_WEARABLE: using 0th
-		LLWearable* old_wearable = getWearable(type, 0);
-		if (old_wearable)
-		{
-			const LLUUID& old_item_id = getWearableItemID(type, 0);
-			if ((old_wearable->getAssetID() == new_wearable->getAssetID()) &&
-				(old_item_id == new_item->getUUID()))
-			{
-				lldebugs << "No change to wearable asset and item: " << LLWearableDictionary::getInstance()->getWearableEntry(type) << llendl;
-				continue;
-			}
-
-			// Assumes existing wearables are not dirty.
-			if (old_wearable->isDirty())
-			{
-				llassert(0);
-				continue;
-			}
-		}
-
+		llassert(new_wearable);
 		if (new_wearable)
 		{
+			const EWearableType type = new_wearable->getType();
+			wearables_to_remove[type] = FALSE;
+
+			// MULTI_WEARABLE: using 0th
+			LLWearable* old_wearable = getWearable(type, 0);
+			if (old_wearable)
+			{
+				const LLUUID& old_item_id = getWearableItemID(type, 0);
+				if ((old_wearable->getAssetID() == new_wearable->getAssetID()) &&
+				    (old_item_id == new_item->getUUID()))
+				{
+					lldebugs << "No change to wearable asset and item: " << LLWearableDictionary::getInstance()->getWearableEntry(type) << llendl;
+					continue;
+				}
+				
+				// Assumes existing wearables are not dirty.
+				if (old_wearable->isDirty())
+				{
+					llassert(0);
+					continue;
+				}
+			}
+
 			new_wearable->setItemID(new_item->getUUID());
 			setWearable(type,0,new_wearable);
 		}
@@ -2151,6 +2152,8 @@ void LLAgentWearables::updateServer()
 
 void LLAgentWearables::populateMyOutfitsFolder(void)
 {	
+	llinfos << "starting outfit populate" << llendl;
+
 	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch();
 	
 	// Get the complete information on the items in the inventory and 

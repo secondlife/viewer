@@ -2434,7 +2434,10 @@ void LLFolderBridge::pasteFromClipboard()
 					//we have to update inventory locally too
 					LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
 					llassert(viitem);
-					changeItemParent(model, viitem, parent_id, FALSE);
+					if (viitem)
+					{
+						changeItemParent(model, viitem, parent_id, FALSE);
+					}
 				}
 				else
 				{
@@ -5093,12 +5096,18 @@ void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
 //static
 void LLInvFVBridgeAction::doAction(const LLUUID& uuid, LLInventoryModel* model)
 {
-	LLAssetType::EType asset_type = model->getItem(uuid)->getType();
-	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
-	if(action)
+	llassert(model);
+	LLViewerInventoryItem* item = model->getItem(uuid);
+	llassert(item);
+	if (item)
 	{
-		action->doIt();
-		delete action;
+		LLAssetType::EType asset_type = item->getType();
+		LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
+		if(action)
+		{
+			action->doIt();
+			delete action;
+		}
 	}
 }
 

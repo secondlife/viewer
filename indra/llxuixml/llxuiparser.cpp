@@ -324,33 +324,33 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
 	// add includes for all possible children
 	const std::type_info* type = *LLWidgetTypeRegistry::instance().getValue(type_name);
 	const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type);
-	
-	// add include declarations for all valid children
-	for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
-		it != widget_registryp->currentRegistrar().endItems();
-		++it)
-	{
-		std::string widget_name = it->first;
-		if (widget_name == type_name)
-		{
-			continue;
-		}
-		LLXMLNodePtr nodep = new LLXMLNode("xs:include", false);
-		nodep->createChild("schemaLocation", true)->setStringValue(widget_name + ".xsd");
-
-		// add to front of schema
-		mSchemaNode->addChild(nodep, mSchemaNode);
-	}
 
 	// add choices for valid children
 	if (widget_registryp)
 	{
+		// add include declarations for all valid children
+		for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
+		     it != widget_registryp->currentRegistrar().endItems();
+		     ++it)
+		{
+			std::string widget_name = it->first;
+			if (widget_name == type_name)
+			{
+				continue;
+			}
+			LLXMLNodePtr nodep = new LLXMLNode("xs:include", false);
+			nodep->createChild("schemaLocation", true)->setStringValue(widget_name + ".xsd");
+			
+			// add to front of schema
+			mSchemaNode->addChild(nodep, mSchemaNode);
+		}
+
 		for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
 			it != widget_registryp->currentRegistrar().endItems();
 			++it)
 		{
 			std::string widget_name = it->first;
-            //<xs:element name="widget_name" type="widget_name">
+			//<xs:element name="widget_name" type="widget_name">
 			LLXMLNodePtr widget_node = mElementNode->createChild("xs:element", false);
 			widget_node->createChild("name", true)->setStringValue(widget_name);
 			widget_node->createChild("type", true)->setStringValue(widget_name);
