@@ -40,7 +40,7 @@ background_visible="true"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back"
-     left="10"
+     left="8"
      tab_stop="false"
      top="2"
      width="23" />
@@ -48,14 +48,14 @@ background_visible="true"
      layout="topleft"
      name="group_name"
      value="(Loading...)"
-      font="SansSerifHuge"
-      height="20"
-      left_pad="5"
-     text_color="white"
-      top="3"
+      font="SansSerifHugeBold"
+      height="26"
+      left_pad="10"
+     text_color="LtGray"
+      top="0"
      use_ellipses="true"
-      width="270"
-      follows="top|left"
+      width="275"
+      follows="top|left|right"
       word_wrap="true"
       mouse_opaque="false"/>
     <line_editor
@@ -75,12 +75,16 @@ background_visible="true"
      name="layout"
      orientation="vertical"
       follows="all"
-     left="0"
+     left="8"
      top_pad="0"
-     height="537"
-     width="313"
+     height="536"
+     width="292"
      border_size="0">
    <layout_panel
+         bg_alpha_color="DkGray2"
+         bg_opaque_color="DkGray2"
+ background_visible="true"
+ background_opaque="true"
       name="group_accordions"
       follows="all"
       layout="topleft"
@@ -155,10 +159,11 @@ background_visible="true"
          </accordion>
    </layout_panel>
    <layout_panel
-         height="25"
+         height="30"
          layout="topleft"
          auto_resize="false"
          left="0"
+         top_pad="0"
    name="button_row"
    follows="bottom|left"
    width="313">
@@ -167,56 +172,52 @@ background_visible="true"
      height="23"
      image_overlay="Refresh_Off"
      layout="topleft"
-     left="5"
-     top="0"
+     left="0"
+     top="5"
      name="btn_refresh"
      width="23" />
-    <button
-    follows="bottom|left"
-                 height="18"
-                 image_selected="AddItem_Press"
-                 image_unselected="AddItem_Off"
-                 image_disabled="AddItem_Disabled"
-                 layout="topleft"
-                 left_pad="2"
-                 top_delta="3"
-     name="btn_create"
-               visible="true"
-                 tool_tip="Create a new Group"
-                 width="18" />
-   <!-- <button
-     left_pad="10"
-     height="20"
-     label="Cancel"
-     label_selected="Cancel"
-     name="btn_cancel"
-     visible="false"
-     width="65" />-->
      <button
       follows="bottom|left"
      label="Chat"
      name="btn_chat"
-     left_pad="2"     
+     left_pad="3"     
      height="23"
-     top_delta="-3"
-     width="60" />
+     width="82" />
      <button
          follows="bottom|left"
-         left_pad="2"
+         left_pad="3"
          height="23"
      name="btn_call"
      label="Group Call"
          layout="topleft"
          tool_tip="Call this group"
-         width="95" />
+         width="112" />
      <button
      follows="bottom|left"
      height="23"
      label="Save"
      label_selected="Save"
      name="btn_apply"
-     left_pad="2"
-     width="85" />
+     left_pad="3"
+     width="82" />
+    <button
+    follows="bottom|left"
+                 height="23"
+                 layout="topleft"
+                 left="0"
+                 label="Create Group"
+     name="btn_create"
+               visible="true"
+                 tool_tip="Create a new Group"
+                 width="103" />
+   <!--<button
+     left_pad="3"
+     height="23"
+     label="Cancel"
+     label_selected="Cancel"
+     name="btn_cancel"
+     visible="false"
+     width="65" />-->
      </layout_panel>
   </layout_stack>
 </panel>

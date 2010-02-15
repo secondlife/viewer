@@ -60,13 +60,13 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="492"
+         height="488"
          width="315"
          top="0">
           <panel
                 layout="topleft"
           follows="left|top|right"
-                height="492"
+                height="488"
                name="scroll_content_panel"
                 top="0"
                 left="0"
@@ -385,12 +385,12 @@
      user_resize="false" 
      auto_resize="false" 
      height="28"
-     width="313">
+     width="315">
         <button
          follows="bottom|right"
          height="23"
-         left="4"
-	 top="5"
+         left="6"
+	 top="1"
          label="Edit Profile"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
@@ -399,10 +399,10 @@
          follows="bottom|right"
          height="23"
          label="Edit Appearance"
-         left_pad="4"
+         left_pad="3"
          name="edit_appearance_btn"
          tool_tip="Create/edit your appearance: physical data, clothes and etc."
-         width="152" />
+         width="153" />
  </layout_panel>
 </layout_stack>
 </panel>

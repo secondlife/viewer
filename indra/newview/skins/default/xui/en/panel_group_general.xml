@@ -3,7 +3,7 @@
  label="General"
  follows="all"
  height="604"
- width="313"
+ width="303"
  class="panel_group_general"
  name="general_tab">
     <panel.string
@@ -179,9 +179,9 @@ Hover your mouse over the options for more help.
          top_pad="5"
          width="295" />
    <panel
-         background_visible="true"
-         bevel_style="in"
-         border="true"
+         background_visible="false"
+         bevel_style="none"
+         border="false"
          bg_alpha_color="FloaterUnfocusBorderColor"
          follows="left|top|right"
          height="140"

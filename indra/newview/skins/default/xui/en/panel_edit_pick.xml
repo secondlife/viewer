@@ -3,7 +3,7 @@
  background_visible="true"
  bevel_style="in"
  follows="left|top|right|bottom"
- height="570"
+ height="569"
  label="Edit Pick"
  layout="topleft"
  left="0"
@@ -18,7 +18,7 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
-     left="11"
+     left="12"
      tab_stop="false"
      top="2"
      width="23" />
@@ -41,11 +41,11 @@
      follows="all"
      height="502"
      layout="topleft"
-     left="9"
+     left="8"
      top_pad="10"
      name="profile_scroll"
      opaque="true"
-     width="310">
+     width="312">
     <panel
      name="scroll_content_panel"
      follows="left|top|right"
@@ -66,15 +66,15 @@
      left="11"
      name="pick_snapshot" />
           <icon
-           height="18"
-           image_name="AddItem_Off"
+           height="197"
+           image_name="spacer24.tga"
            layout="topleft"
-           right="-5"
            name="edit_icon"
            label=""
            tool_tip="Click to select an image"
-           top="17"
-           width="18" />
+           top="10"
+           left="11"
+           width="286" />
         <text
          type="string"
          length="1"
@@ -172,7 +172,7 @@
      height="23"
      label="bottom_panel"
      layout="topleft"
-     left="9"
+     left="8"
      name="bottom_panel"
      top_pad="5"
      width="303">
@@ -192,6 +192,6 @@
          layout="topleft"
          name="cancel_btn"
          left_pad="3"
-        width="152" />
+        width="153" />
     </panel>
 </panel>
