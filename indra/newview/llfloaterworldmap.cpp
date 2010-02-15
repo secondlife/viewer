@@ -788,7 +788,7 @@ void LLFloaterWorldMap::friendsChanged()
 	if(avatar_id.notNull())
 	{
 		LLCtrlSelectionInterface *iface = childGetSelectionInterface("friend combo");
-		LLRelationship* buddy_info = t.getBuddyInfo(avatar_id);
+		const LLRelationship* buddy_info = t.getBuddyInfo(avatar_id);
 		if(!iface ||
 		   !iface->setCurrentByID(avatar_id) || 
 		   (buddy_info && !buddy_info->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)) ||

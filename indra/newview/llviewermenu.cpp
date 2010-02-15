@@ -3554,7 +3554,7 @@ bool LLHaveCallingcard::operator()(LLInventoryCategory* cat,
 
 BOOL is_agent_mappable(const LLUUID& agent_id)
 {
-	LLRelationship* buddy_info = NULL;
+	const LLRelationship* buddy_info = NULL;
 	bool is_friend = LLAvatarActions::isFriend(agent_id);
 
 	if (is_friend)
