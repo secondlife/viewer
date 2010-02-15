@@ -1625,7 +1625,11 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{
-				setSelection(parent_folder, FALSE, TRUE);
+				// Don't change selectin to hidden folder. See EXT-5328.
+				if (!parent_folder->getHidden())
+				{
+					setSelection(parent_folder, FALSE, TRUE);
+				}
 			}
 			else
 			{
