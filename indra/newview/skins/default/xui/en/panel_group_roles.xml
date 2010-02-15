@@ -276,7 +276,7 @@ things in this group. There&apos;s a broad variety of Abilities.
     </tab_container>
     <panel
      height="350"
-     background_visible="true"
+     background_visible="false"
      bg_alpha_color="FloaterUnfocusBorderColor"
      layout="topleft"
      follows="top|left|right"
@@ -356,7 +356,7 @@ things in this group. There&apos;s a broad variety of Abilities.
     </panel>
     <panel
      height="550"
-     background_visible="true"
+     background_visible="false"
      bg_alpha_color="FloaterUnfocusBorderColor"
      layout="topleft"
      follows="top|left|right"
@@ -509,7 +509,7 @@ things in this group. There&apos;s a broad variety of Abilities.
     </panel>
    <panel
      height="424"
-     background_visible="true"
+     background_visible="false"
      bg_alpha_color="FloaterUnfocusBorderColor"
      layout="topleft"
      follows="top|left|right"
