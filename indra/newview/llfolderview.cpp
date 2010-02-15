@@ -234,7 +234,7 @@ LLFolderView::LLFolderView(const Params& p)
 
 	// Textbox
 	LLTextBox::Params text_p;
-	LLRect new_r(5, 13-50, 300, 0-50);
+	LLRect new_r(5, 40, 300, 40-13);
 	text_p.name(std::string(p.name));
 	text_p.rect(new_r);
 	text_p.font(getLabelFontForStyle(mLabelStyle));
