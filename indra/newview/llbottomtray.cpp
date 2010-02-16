@@ -60,6 +60,26 @@ namespace
 	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
 	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
 	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
+
+	S32 get_panel_min_width(LLLayoutStack* stack, LLPanel* panel)
+	{
+		S32 minimal_width = 0;
+		if ( panel && panel->getVisible() )
+		{
+			stack->getPanelMinSize(panel->getName(), &minimal_width, NULL);
+		}
+		return minimal_width;
+	}
+
+	S32 get_curr_width(LLUICtrl* ctrl)
+	{
+		S32 cur_width = 0;
+		if ( ctrl && ctrl->getVisible() )
+		{
+			cur_width = ctrl->getRect().getWidth();
+		}
+		return cur_width;
+	}
 }
 
 class LLBottomTrayLite
@@ -1094,58 +1114,131 @@ void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool vis
 
 	if (mDummiesMap.count(shown_object_type))
 	{
-		mDummiesMap[shown_object_type]->setVisible(visible);
+		// Hide/show layout panel for dummy icon.
+		mDummiesMap[shown_object_type]->getParent()->setVisible(visible);
 	}
 }
 
 void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification)
 {
-	bool can_be_set = true;
+	if (!setVisibleAndFitWidths(shown_object_type, visible) && visible && raise_notification)
+	{
+		LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
+								 LLSD(),
+								 LLSD(),
+								 LLNotificationFunctorRegistry::instance().DONOTHING);
+	}
+}
+
+bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible)
+{
+	LLPanel* cur_panel = mStateProcessedObjectMap[object_type];
+	if (NULL == cur_panel)
+	{
+		lldebugs << "There is no object to process for state: " << object_type << llendl;
+		return false;
+	}
+
+	const S32 dummy_width = mDummiesMap.count(object_type)
+		? mDummiesMap[object_type]->getParent()->getRect().getWidth()
+		: 0;
+
+	bool is_set = true;
 
 	if (visible)
 	{
-		LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
-		if (NULL == panel)
+		// Assume that only chiclet panel can be auto-resized and
+		// don't take into account width of dummy widgets
+		const S32 available_width =
+			mChicletPanel->getParent()->getRect().getWidth() -
+			mChicletPanel->getMinWidth() -
+			dummy_width;
+
+		S32 preferred_width = mObjectDefaultWidthMap[object_type];
+		S32 current_width = cur_panel->getRect().getWidth();
+		S32 result_width = 0;
+		bool decrease_width = false;
+
+		// Mark this button to be shown
+		mResizeState |= object_type;
+
+		if (preferred_width > 0 && available_width >= preferred_width)
 		{
-			lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
-			return;
+			result_width = preferred_width;
+		}
+		else if (available_width >= current_width)
+		{
+			result_width = current_width;
+		}
+		else
+		{
+			// Calculate the possible shrunk width as difference between current and minimal widths
+			const S32 chatbar_shrunk_width =
+				mNearbyChatBar->getRect().getWidth() - mNearbyChatBar->getMinWidth();
+
+			const S32 sum_of_min_widths =
+				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
+				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
+				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
+				get_panel_min_width(mToolbarStack, mSpeakPanel);
+
+			const S32 sum_of_curr_widths =
+				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
+				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
+				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
+				get_curr_width(mSpeakPanel);
+
+			const S32 possible_shrunk_width =
+				chatbar_shrunk_width + (sum_of_curr_widths - sum_of_min_widths);
+
+			// Minimal width of current panel
+			S32 minimal_width = 0;
+			mToolbarStack->getPanelMinSize(cur_panel->getName(), &minimal_width, NULL);
+
+			if ( (available_width + possible_shrunk_width) >= minimal_width)
+			{
+				// There is enough space for minimal width, but set the result_width
+				// to current_width so buttons widths decreasing will be done in predefined order
+				result_width = current_width;
+				decrease_width = true;
+			}
+			else
+			{
+				// Nothing can be done, give up...
+				return false;
+			}
 		}
 
-		const S32 dummy_width = mDummiesMap.count(shown_object_type) ? mDummiesMap[shown_object_type]->getRect().getWidth() : 0;
-
-		const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-		const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
-
-		const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
-		const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
-
-		const S32 available_width = (chatbar_panel_width - chatbar_panel_min_width)
-			+ (chiclet_panel_width - chiclet_panel_min_width);
-
-		const S32 required_width = panel->getRect().getWidth() + dummy_width;
-		can_be_set = available_width >= required_width;
-	}
-
-	if (can_be_set)
-	{
-		setTrayButtonVisible(shown_object_type, visible);
-
-		// if we hide the button mark it NOT to show while future bottom tray extending
-		if (!visible)
+		if (result_width != current_width)
 		{
-			mResizeState &= ~shown_object_type;
+			cur_panel->reshape(result_width, cur_panel->getRect().getHeight());
+			current_width = result_width;
+		}
+
+		is_set = processShowButton(object_type, &current_width);
+
+		// Shrink buttons if needed
+		if (is_set && decrease_width)
+		{
+			processWidthDecreased( -result_width - dummy_width );
 		}
 	}
 	else
 	{
-		// mark this button to show it while future bottom tray extending
-		mResizeState |= shown_object_type;
-		if ( raise_notification )
-			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
-									 LLSD(),
-									 LLSD(),
-									 LLNotificationFunctorRegistry::instance().DONOTHING);
+		const S32 delta_width = get_curr_width(cur_panel);
+
+		setTrayButtonVisible(object_type, false);
+
+		// Mark button NOT to show while future bottom tray extending
+		mResizeState &= ~object_type;
+
+		// Extend other buttons if need
+		if (delta_width)
+		{
+			processWidthIncreased(delta_width + dummy_width);
+		}
 	}
+	return is_set;
 }
 
 //EOF
