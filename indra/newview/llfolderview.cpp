@@ -236,9 +236,9 @@ LLFolderView::LLFolderView(const Params& p)
 	LLTextBox::Params text_p;
 	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 	LLRect new_r = LLRect(rect.mLeft + ICON_PAD,
-						  rect.mTop - TEXT_PAD,
-						  rect.mRight,
-						  rect.mTop - TEXT_PAD - font->getLineHeight());
+			      rect.mTop - TEXT_PAD,
+			      rect.mRight,
+			      rect.mTop - TEXT_PAD - llfloor(font->getLineHeight()));
 	text_p.rect(new_r);
 	text_p.name(std::string(p.name));
 	text_p.font(font);
