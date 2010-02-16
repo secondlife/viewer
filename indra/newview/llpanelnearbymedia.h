@@ -38,6 +38,7 @@
 class LLPanelNearbyMedia;
 class LLButton;
 class LLScrollListCtrl;
+class LLSlider;
 class LLSliderCtrl;
 class LLCheckBoxCtrl;
 class LLTextBox;
@@ -134,22 +135,36 @@ private:
 	
 	bool shouldShow(LLViewerMediaImpl* impl);
 	
+	void showBasicControls(bool playing, bool include_zoom, bool is_zoomed);
+	void showTimeBasedControls(bool playing, bool include_zoom, bool is_zoomed, bool muted, F32 volume);
+	void showDisabledControls();
+	void updateControls();
+	
+	void onClickSelectedMediaStop();
+	void onClickSelectedMediaPlay();
+	void onClickSelectedMediaPause();
+	void onClickSelectedMediaMute();
+	void onCommitSelectedMediaVolume();
+	void onClickSelectedMediaZoom();
+	void onClickSelectedMediaUnzoom();
+	
 	LLUICtrl*			mNearbyMediaPanel;
-	LLScrollListCtrl*	mMediaList;
+	LLTextBox*			mItemCountText;
+	LLScrollListCtrl*		mMediaList;
 	LLUICtrl*			mEnableAllCtrl;
 	LLUICtrl*			mDisableAllCtrl;
-	LLSliderCtrl*		mParcelMediaVolumeSlider;
-	LLButton*			mParcelMediaMuteCtrl;
-	LLUICtrl*			mEnableParcelMediaCtrl;
-	LLUICtrl*			mDisableParcelMediaCtrl;
-	LLTextBox*			mItemCountText;
-	LLUICtrl*			mParcelMediaCtrl;
-	LLUICtrl*			mParcelMediaPlayCtrl;
-	LLUICtrl*			mParcelMediaPauseCtrl;
-	LLUICtrl*			mParcelAudioCtrl;
-	LLUICtrl*			mParcelAudioPlayCtrl;
-	LLUICtrl*			mParcelAudioPauseCtrl;
 	LLComboBox*			mShowCtrl;
+	
+	// Dynamic (selection-dependent) controls
+	LLUICtrl*			mStopCtrl;
+	LLUICtrl*			mPlayCtrl;
+	LLUICtrl*			mPauseCtrl;
+	LLUICtrl*			mMuteCtrl;
+	LLUICtrl*			mVolumeSliderCtrl;
+	LLUICtrl*			mZoomCtrl;
+	LLUICtrl*			mUnzoomCtrl;
+	LLSlider*			mVolumeSlider;
+	LLButton*			mMuteBtn;
 	
 	bool				mAllMediaDisabled;
 	bool				mDebugInfoVisible;
@@ -159,11 +174,11 @@ private:
 	std::string			mParcelMediaName;
 	std::string			mParcelAudioName;
 	
-	S32					mMoreHeight;
-	S32					mLessHeight;
-	LLFrameTimer		mHoverTimer;
-	LLScrollListItem*	mParcelMediaItem;
-	LLScrollListItem*	mParcelAudioItem;
+	S32				mMoreHeight;
+	S32				mLessHeight;
+	LLFrameTimer			mHoverTimer;
+	LLScrollListItem*		mParcelMediaItem;
+	LLScrollListItem*		mParcelAudioItem;
 };
 
 

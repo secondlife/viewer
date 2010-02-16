@@ -230,7 +230,7 @@ public:
 	void setMediaFailed(bool val) { mMediaSourceFailed = val; }
 	void resetPreviousMediaState();
 	
-	void setDisabled(bool disabled);
+	void setDisabled(bool disabled, bool forcePlayOnEnable = false);
 	bool isMediaDisabled() const { return mIsDisabled; };
 	
 	void setInNearbyMediaList(bool in_list) { mInNearbyMediaList = in_list; }

@@ -41,6 +41,7 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
+#include "llslider.h"
 #include "llsliderctrl.h"
 #include "llagent.h"
 #include "llagentui.h"
@@ -75,28 +76,26 @@ static const LLUUID PARCEL_AUDIO_LIST_ITEM_UUID = LLUUID("DF4B020D-8A24-4B95-AB5
 LLPanelNearByMedia::LLPanelNearByMedia()
 :	mMediaList(NULL),
 	  mEnableAllCtrl(NULL),
-	  mEnableParcelMediaCtrl(NULL),	  
 	  mAllMediaDisabled(false),
 	  mDebugInfoVisible(false),
 	  mParcelMediaItem(NULL),
 	  mParcelAudioItem(NULL)
 {
-	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING);
+	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+							gSavedSettings.getBOOL("MediaTentativeAutoPlay");
 
 	mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",		boost::bind(&LLPanelNearByMedia::onClickEnableAll, this));
 	mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",		boost::bind(&LLPanelNearByMedia::onClickDisableAll, this));
 	mCommitCallbackRegistrar.add("MediaListCtrl.GoMediaPrefs", boost::bind(&LLPanelNearByMedia::onAdvancedButtonClick, this));
 	mCommitCallbackRegistrar.add("MediaListCtrl.MoreLess", boost::bind(&LLPanelNearByMedia::onMoreLess, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.ParcelMediaVolume",		boost::bind(&LLPanelNearByMedia::onParcelMediaVolumeSlider, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.MuteParcelMedia",		boost::bind(&LLPanelNearByMedia::onClickMuteParcelMedia, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.EnableParcelMedia",		boost::bind(&LLPanelNearByMedia::onClickEnableParcelMedia, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.DisableParcelMedia",		boost::bind(&LLPanelNearByMedia::onClickDisableParcelMedia, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Play",		boost::bind(&LLPanelNearByMedia::onClickParcelMediaPlay, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Stop",		boost::bind(&LLPanelNearByMedia::onClickParcelMediaStop, this));
-	mCommitCallbackRegistrar.add("ParcelMediaCtrl.Pause",		boost::bind(&LLPanelNearByMedia::onClickParcelMediaPause, this));
-	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Play",		boost::bind(&LLPanelNearByMedia::onClickParcelAudioPlay, this));
-	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Stop",		boost::bind(&LLPanelNearByMedia::onClickParcelAudioStop, this));
-	mCommitCallbackRegistrar.add("ParcelAudioCtrl.Pause",		boost::bind(&LLPanelNearByMedia::onClickParcelAudioPause, this));
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Stop",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaStop, this));	
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Play",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaPlay, this));
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Pause",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaPause, this));
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Mute",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaMute, this));
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Volume",	boost::bind(&LLPanelNearByMedia::onCommitSelectedMediaVolume, this));
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Zoom",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaZoom, this));
+	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Unzoom",	boost::bind(&LLPanelNearByMedia::onClickSelectedMediaUnzoom, this));
+	
 	LLUICtrlFactory::instance().buildPanel(this, "panel_nearby_media.xml");
 }
 
@@ -121,18 +120,19 @@ BOOL LLPanelNearByMedia::postBuild()
 	mMediaList = getChild<LLScrollListCtrl>("media_list");
 	mEnableAllCtrl = getChild<LLUICtrl>("all_nearby_media_enable_btn");
 	mDisableAllCtrl = getChild<LLUICtrl>("all_nearby_media_disable_btn");
-	mParcelMediaVolumeSlider = getChild<LLSliderCtrl>("parcel_media_volume");
-	mParcelMediaMuteCtrl = getChild<LLButton>("parcel_media_mute");
-	mEnableParcelMediaCtrl = getChild<LLUICtrl>("parcel_media_enable_btn");
-	mDisableParcelMediaCtrl = getChild<LLUICtrl>("parcel_media_disable_btn");
 	mItemCountText = getChild<LLTextBox>("media_item_count");
-	mParcelMediaPlayCtrl = getChild<LLButton>("parcel_media_play_btn");
-	mParcelMediaPauseCtrl = getChild<LLButton>("parcel_media_pause_btn");
-	mParcelMediaCtrl = getChild<LLUICtrl>("parcel_media_ctrls");
-	mParcelAudioPlayCtrl = getChild<LLButton>("parcel_audio_play_btn");
-	mParcelAudioPauseCtrl = getChild<LLButton>("parcel_audio_pause_btn");
-	mParcelAudioCtrl = getChild<LLUICtrl>("parcel_audio_ctrls");
 	mShowCtrl = getChild<LLComboBox>("show_combo");
+
+	// Dynamic (selection-dependent) controls
+	mStopCtrl = getChild<LLUICtrl>("stop");
+	mPlayCtrl = getChild<LLUICtrl>("play");
+	mPauseCtrl = getChild<LLUICtrl>("pause");
+	mMuteCtrl = getChild<LLUICtrl>("mute");
+	mVolumeSliderCtrl = getChild<LLUICtrl>("volume_slider_ctrl");
+	mZoomCtrl = getChild<LLUICtrl>("zoom");
+	mUnzoomCtrl = getChild<LLUICtrl>("unzoom");
+	mVolumeSlider = getChild<LLSlider>("volume_slider");
+	mMuteBtn = getChild<LLButton>("mute_btn");
 	
 	mEmptyNameString = getString("empty_item_text");
 	mParcelMediaName = getString("parcel_media_name");
@@ -142,7 +142,9 @@ BOOL LLPanelNearByMedia::postBuild()
 	mMediaList->setDoubleClickCallback(onZoomMedia, this);
 	mMediaList->sortByColumnIndex(PROXIMITY_COLUMN, TRUE);
 	mMediaList->sortByColumnIndex(VISIBILITY_COLUMN, FALSE);
+	
 	refreshList();
+	updateControls();
 	updateColumns();
 	
 	LLView* minimized_controls = getChildView("minimized_controls");
@@ -234,6 +236,7 @@ void LLPanelNearByMedia::draw()
 	mItemCountText->setValue(llformat(getString("media_item_count_format").c_str(), mMediaList->getItemCount()));
 	
 	refreshList();
+	updateControls();
 	
 	F32 alpha = mHoverTimer.getStarted() 
 		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), AUTO_CLOSE_FADE_TIME_START, AUTO_CLOSE_FADE_TIME_END, 1.f, 0.f)
@@ -527,10 +530,12 @@ void LLPanelNearByMedia::refreshParcelItems()
 			mMediaList->setNeedsSort(true);
 		}
 	}
-	else if (NULL != mParcelMediaItem) {
-		removeListItem(PARCEL_MEDIA_LIST_ITEM_UUID);
-		mParcelMediaItem = NULL;
-		mMediaList->setNeedsSort(true);	
+	else {
+		if (NULL != mParcelMediaItem) {
+			removeListItem(PARCEL_MEDIA_LIST_ITEM_UUID);
+			mParcelMediaItem = NULL;
+			mMediaList->setNeedsSort(true);	
+		}
 	}
 	
 	// ... then update it
@@ -538,7 +543,7 @@ void LLPanelNearByMedia::refreshParcelItems()
 	{
 		std::string name, url, tooltip;
 		getNameAndUrlHelper(LLViewerParcelMedia::getParcelMedia(), name, url, "");
-		if (name.empty())
+		if (name.empty() || name == url)
 		{
 			tooltip = url;
 		}
@@ -567,10 +572,12 @@ void LLPanelNearByMedia::refreshParcelItems()
 			mMediaList->setNeedsSort(true);
 		}
 	}
-	else if (NULL != mParcelAudioItem) {
-		removeListItem(PARCEL_AUDIO_LIST_ITEM_UUID);
-		mParcelAudioItem = NULL;
-		mMediaList->setNeedsSort(true);
+	else {
+		if (NULL != mParcelAudioItem) {
+			removeListItem(PARCEL_AUDIO_LIST_ITEM_UUID);
+			mParcelAudioItem = NULL;
+			mMediaList->setNeedsSort(true);
+		}
 	}
 	
 	// ... then update it
@@ -716,12 +723,14 @@ void LLPanelNearByMedia::updateColumns()
 {
 	if (!mDebugInfoVisible)
 	{
+		if (mMediaList->getColumn(CHECKBOX_COLUMN)) mMediaList->getColumn(VISIBILITY_COLUMN)->setWidth(-1);
 		if (mMediaList->getColumn(VISIBILITY_COLUMN)) mMediaList->getColumn(VISIBILITY_COLUMN)->setWidth(-1);
 		if (mMediaList->getColumn(PROXIMITY_COLUMN)) mMediaList->getColumn(PROXIMITY_COLUMN)->setWidth(-1);
 		if (mMediaList->getColumn(CLASS_COLUMN)) mMediaList->getColumn(CLASS_COLUMN)->setWidth(-1);
 		if (mMediaList->getColumn(DEBUG_COLUMN)) mMediaList->getColumn(DEBUG_COLUMN)->setWidth(-1);
 	}
 	else {
+		if (mMediaList->getColumn(CHECKBOX_COLUMN)) mMediaList->getColumn(VISIBILITY_COLUMN)->setWidth(20);
 		if (mMediaList->getColumn(VISIBILITY_COLUMN)) mMediaList->getColumn(VISIBILITY_COLUMN)->setWidth(20);
 		if (mMediaList->getColumn(PROXIMITY_COLUMN)) mMediaList->getColumn(PROXIMITY_COLUMN)->setWidth(30);
 		if (mMediaList->getColumn(CLASS_COLUMN)) mMediaList->getColumn(CLASS_COLUMN)->setWidth(20);
@@ -778,7 +787,7 @@ bool LLPanelNearByMedia::setDisabled(const LLUUID &row_id, bool disabled)
 		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(row_id);
 		if(impl)
 		{
-			impl->setDisabled(disabled);
+			impl->setDisabled(disabled, true);
 			return true;
 		}
 	}
@@ -792,23 +801,6 @@ void LLPanelNearByMedia::onZoomMedia(void* user_data)
 	LLUUID media_id = panelp->mMediaList->getValue().asUUID();
 	
 	LLViewerMediaFocus::getInstance()->focusZoomOnMedia(media_id);
-}
-
-void LLPanelNearByMedia::onClickMuteParcelMedia()
-{
-	if (LLViewerParcelMedia::getParcelMedia())
-	{
-		bool muted = mParcelMediaMuteCtrl->getValue();
-		LLViewerParcelMedia::getParcelMedia()->setVolume(muted ? (F32)0 : mParcelMediaVolumeSlider->getValueF32() );
-	}
-}
-
-void LLPanelNearByMedia::onParcelMediaVolumeSlider()
-{
-	if (LLViewerParcelMedia::getParcelMedia())
-	{
-		LLViewerParcelMedia::getParcelMedia()->setVolume(mParcelMediaVolumeSlider->getValueF32());
-	}
 }
 
 void LLPanelNearByMedia::onClickParcelMediaPlay()
@@ -941,7 +933,226 @@ void LLPanelNearByMedia::onMoreLess()
 
 	setShape(new_rect);
 }
+
+void LLPanelNearByMedia::updateControls()
+{
+	LLUUID selected_media_id = mMediaList->getValue().asUUID();
+	
+	if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
+	{
+		showTimeBasedControls(LLViewerMedia::isParcelAudioPlaying(),
+							  false, // include_zoom
+							  false, // is_zoomed
+							  gSavedSettings.getBOOL("MuteMusic"), 
+							  gSavedSettings.getF32("AudioLevelMusic") );
+	}
+	else if (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID)
+	{
+		if (!LLViewerMedia::hasParcelMedia())
+		{
+			// Shouldn't happen, but do this anyway
+			showDisabledControls();
+		}
+		else {
+			LLViewerMediaImpl* impl = LLViewerParcelMedia::getParcelMedia();
+			if (NULL == impl)
+			{
+				// Just means it hasn't started yet
+				showBasicControls(false, false, false);
+			}
+			else if (impl->isMediaTimeBased())
+			{
+				showTimeBasedControls(impl->isMediaPlaying(), 
+									  false, // include_zoom
+									  false, // is_zoomed
+									  impl->getVolume() == 0.0,
+									  impl->getVolume() );
+			}
+			else {
+				// non-time-based parcel media
+				showBasicControls(LLViewerMedia::isParcelMediaPlaying(), false, false);
+			}
+		}
+	}
+	else {
+		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
 		
+		if (NULL == impl)
+		{
+			showDisabledControls();
+		}
+		else {
+			if (impl->isMediaTimeBased())
+			{
+				showTimeBasedControls(impl->isMediaPlaying(), 
+									  ! impl->isParcelMedia(),  // include_zoom
+									  LLViewerMediaFocus::getInstance()->isZoomed(),
+									  impl->getVolume() == 0.0,
+									  impl->getVolume());
+			}
+			else {
+				showBasicControls(!impl->isMediaDisabled(), 
+								  ! impl->isParcelMedia(),  // include_zoom
+								  LLViewerMediaFocus::getInstance()->isZoomed());
+			}
+		}
+	}
+}
+
+void LLPanelNearByMedia::showBasicControls(bool playing, bool include_zoom, bool is_zoomed)
+{
+	mStopCtrl->setVisible(playing);
+	mPlayCtrl->setVisible(!playing);
+	mPauseCtrl->setVisible(false);
+	mMuteCtrl->setVisible(false);
+	mVolumeSliderCtrl->setVisible(false);
+	mZoomCtrl->setVisible(include_zoom && !is_zoomed);
+	mUnzoomCtrl->setVisible(include_zoom && is_zoomed);	
+	mStopCtrl->setEnabled(true);
+	mZoomCtrl->setEnabled(true);
+}
+
+void LLPanelNearByMedia::showTimeBasedControls(bool playing, bool include_zoom, bool is_zoomed, bool muted, F32 volume)
+{
+	mStopCtrl->setVisible(true);
+	mPlayCtrl->setVisible(!playing);
+	mPauseCtrl->setVisible(playing);
+	mMuteCtrl->setVisible(true);
+	mVolumeSliderCtrl->setVisible(true);
+	mZoomCtrl->setVisible(include_zoom);
+	mZoomCtrl->setVisible(include_zoom && !is_zoomed);
+	mUnzoomCtrl->setVisible(include_zoom && is_zoomed);	
+	mStopCtrl->setEnabled(true);
+	mZoomCtrl->setEnabled(true);
+	mMuteBtn->setValue(muted);
+	mVolumeSlider->setValue(volume);
+}
+
+void LLPanelNearByMedia::showDisabledControls()
+{
+	mStopCtrl->setVisible(true);
+	mPlayCtrl->setVisible(false);
+	mPauseCtrl->setVisible(false);
+	mMuteCtrl->setVisible(false);
+	mVolumeSliderCtrl->setVisible(false);
+	mZoomCtrl->setVisible(true);
+	mUnzoomCtrl->setVisible(false);	
+	mStopCtrl->setEnabled(false);
+	mZoomCtrl->setEnabled(false);
+}
+
+void LLPanelNearByMedia::onClickSelectedMediaStop()
+{
+	setDisabled(mMediaList->getValue().asUUID(), true);
+}
+
+void LLPanelNearByMedia::onClickSelectedMediaPlay()
+{
+	LLUUID selected_media_id = mMediaList->getValue().asUUID();
+	
+	// First enable it
+	setDisabled(selected_media_id, false);
+	
+	// Special code to make play "unpause" if time-based and playing
+	if (selected_media_id != PARCEL_AUDIO_LIST_ITEM_UUID)
+	{
+		LLViewerMediaImpl *impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
+			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
+		if (NULL != impl && impl->isMediaTimeBased() && impl->isMediaPaused())
+		{
+			// Aha!  It's really time-based media that's paused, so unpause
+			impl->play();
+			return;
+		}
+		else if (impl->isParcelMedia())
+		{
+			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+		}
+	}	
+}
+
+void LLPanelNearByMedia::onClickSelectedMediaPause()
+{
+	LLUUID selected_media_id = mMediaList->getValue().asUUID();
+	if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
+	{
+		onClickParcelAudioPause();
+	}
+	else if (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) 
+	{
+		onClickParcelMediaPause();
+	}
+	else {
+		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
+		if (NULL != impl && impl->isMediaTimeBased() && impl->isMediaPlaying())
+		{
+			impl->pause();
+		}
+	}
+}
+
+void LLPanelNearByMedia::onClickSelectedMediaMute()
+{
+	LLUUID selected_media_id = mMediaList->getValue().asUUID();
+	if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
+	{
+		gSavedSettings.setBOOL("MuteMusic", mMuteBtn->getValue());
+	}
+	else {
+		LLViewerMediaImpl* impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
+			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
+		if (NULL != impl && impl->isMediaTimeBased())
+		{
+			F32 volume = impl->getVolume();
+			if(volume > 0.0)
+			{
+				impl->setVolume(0.0);
+			}
+			else if (mVolumeSlider->getValueF32() == 0.0)
+			{
+				impl->setVolume(1.0);
+				mVolumeSlider->setValue(1.0);
+			}
+			else 
+			{
+				impl->setVolume(mVolumeSlider->getValueF32());
+			}
+		}
+	}
+}
+
+void LLPanelNearByMedia::onCommitSelectedMediaVolume()
+{
+	LLUUID selected_media_id = mMediaList->getValue().asUUID();
+	if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
+	{
+		F32 vol = mVolumeSlider->getValueF32();
+		gSavedSettings.setF32("AudioLevelMusic", vol);
+	}
+	else {
+		LLViewerMediaImpl* impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
+			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
+		if (NULL != impl && impl->isMediaTimeBased())
+		{
+			impl->setVolume(mVolumeSlider->getValueF32());
+		}
+	}
+}
+
+void LLPanelNearByMedia::onClickSelectedMediaZoom()
+{
+	LLUUID selected_media_id = mMediaList->getValue().asUUID();
+	if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID || selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID)
+		return;
+	LLViewerMediaFocus::getInstance()->focusZoomOnMedia(selected_media_id);
+}
+
+void LLPanelNearByMedia::onClickSelectedMediaUnzoom()
+{
+	LLViewerMediaFocus::getInstance()->unZoom();
+}
+
+
 // static
 void LLPanelNearByMedia::getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName)
 {

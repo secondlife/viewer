@@ -1800,7 +1800,8 @@ void optionally_start_music(const std::string& music_url)
 		     nearby_media_panel->getParcelAudioAutoStart()) ||
 		    // or they have expressed no opinion in the UI, but have autoplay on...
 		    (!nearby_media_panel &&
-		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING)))
+		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			 gSavedSettings.getBOOL("MediaTentativeAutoPlay")))
 		{
 			llinfos << "Starting parcel music " << music_url << llendl;
 			gAudiop->startInternetStream(music_url);

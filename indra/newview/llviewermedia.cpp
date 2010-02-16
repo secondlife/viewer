@@ -939,12 +939,12 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 	// Also do Parcel Media and Parcel Audio
 	if (val)
 	{
-		if (!LLViewerMedia::isParcelMediaPlaying())
+		if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
 		{	
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 		
-		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop)
+		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
 		{
 			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
 		}
@@ -2246,7 +2246,7 @@ void LLViewerMediaImpl::resetPreviousMediaState()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LLViewerMediaImpl::setDisabled(bool disabled)
+void LLViewerMediaImpl::setDisabled(bool disabled, bool forcePlayOnEnable)
 {
 	if(mIsDisabled != disabled)
 	{
@@ -2261,7 +2261,7 @@ void LLViewerMediaImpl::setDisabled(bool disabled)
 		else
 		{
 			// We just (re)enabled this media.  Do a navigate if auto-play is in order.
-			if(isAutoPlayable())
+			if(isAutoPlayable() || forcePlayOnEnable)
 			{
 				navigateTo(mMediaEntryURL, "", true, true);
 			}
