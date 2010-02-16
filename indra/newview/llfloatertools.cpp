@@ -1523,7 +1523,9 @@ void LLFloaterTools::updateMediaSettings()
     mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
 	
     // Auto play
-    value_bool = default_media_data.getAutoPlay();
+    //value_bool = default_media_data.getAutoPlay();
+	// set default to auto play TRUE -- angela  EXT-5172
+	value_bool = true;
     struct functor_getter_auto_play : public LLSelectedTEGetFunctor< bool >
     {
 		functor_getter_auto_play(const LLMediaEntry& entry)	: mMediaEntry(entry) {}	
@@ -1534,7 +1536,8 @@ void LLFloaterTools::updateMediaSettings()
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoPlay();
-            return mMediaEntry.getAutoPlay();
+            //return mMediaEntry.getAutoPlay(); set default to auto play TRUE -- angela  EXT-5172
+			return true;
         };
 		
 		const LLMediaEntry &mMediaEntry;
