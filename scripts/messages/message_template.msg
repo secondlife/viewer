@@ -1383,6 +1383,10 @@ version 2.0
 		{	AgentID			LLUUID	}
 		{	KickedFromEstateID	U32	}
 	}
+	{
+		AgentInfo	Single
+		{   AgentEffectiveMaturity U32  }
+	}
 }
 
 // DataHomeLocationReply data->sim

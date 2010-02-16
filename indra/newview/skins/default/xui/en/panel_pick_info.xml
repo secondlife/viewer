@@ -16,7 +16,7 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
-     left="11"
+     left="12"
      tab_stop="false"
      top="2"
      width="23" />
@@ -36,12 +36,12 @@
      color="DkGray2"
      opaque="true"
      follows="all"
-     height="502"
+     height="503"
      layout="topleft"
-     left="9"
+     left="8"
      top_pad="10"
      name="profile_scroll"
-     width="310">
+     width="312">
     <panel
      name="scroll_content_panel"
      follows="left|top|right"
@@ -116,7 +116,7 @@
      height="35"
      layout="topleft"
      top_pad="5"
-     left="9"
+     left="8"
      name="buttons">
         <button
          follows="bottom|left"

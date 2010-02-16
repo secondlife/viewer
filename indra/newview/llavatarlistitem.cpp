@@ -526,21 +526,30 @@ void LLAvatarListItem::updateChildren()
 LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_index)
 {
 	LLView* child_view = mAvatarName;
-	if (child_view_index < 0 || ALIC_COUNT <= child_view_index)
-	{
-		LL_WARNS("AvatarItemReshape") << "Child view index is out of range: " << child_view_index << LL_ENDL;
-		return child_view;
-	}
+
 	switch (child_view_index)
 	{
-	case ALIC_ICON:					child_view = mAvatarIcon; break;
-	case ALIC_NAME:					child_view = mAvatarName; break;
-	case ALIC_INTERACTION_TIME:		child_view = mLastInteractionTime; break;
-	case ALIC_SPEAKER_INDICATOR:	child_view = mSpeakingIndicator; break;
-	case ALIC_INFO_BUTTON:			child_view = mInfoBtn; break;
-	case ALIC_PROFILE_BUTTON:		child_view = mProfileBtn; break;
+	case ALIC_ICON:
+		child_view = mAvatarIcon;
+		break;
+	case ALIC_NAME:
+		child_view = mAvatarName;
+		break;
+	case ALIC_INTERACTION_TIME:
+		child_view = mLastInteractionTime;
+		break;
+	case ALIC_SPEAKER_INDICATOR:
+		child_view = mSpeakingIndicator; 
+		break;
+	case ALIC_INFO_BUTTON:
+		child_view = mInfoBtn;
+		break;
+	case ALIC_PROFILE_BUTTON:
+		child_view = mProfileBtn;
+		break;
 	default:
 		LL_WARNS("AvatarItemReshape") << "Unexpected child view index is passed: " << child_view_index << LL_ENDL;
+		// leave child_view untouched
 	}
 	
 	return child_view;
