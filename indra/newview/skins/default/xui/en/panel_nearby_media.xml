@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+	can_resize="true"
+	can_close="false"
+	background_opaque="true"
+	background_visible="true"
+	layout="topleft"
+	width="270"
+	height="325"
+	name="nearby_media"
+	help_topic="nearby_media">
+  <string name="media_item_count_format">(%ld media items)</string>
+  <string name="empty_item_text">&lt;empty&gt;</string>
+  <string name="parcel_media_name">Parcel Streaming Media</string>
+  <string name="parcel_audio_name">Parcel Streaming Audio</string>
+  <string name="playing_suffix">(playing)</string>
+  <panel
+	  bevel_style="in"
+	  bg_alpha_color="0 0 0 0"
+	  bg_opaque_color="0 0 0 0.3"
+	  bg_opaque_image="Toast_Background"  
+	  follows="left|right|top"
+	  top="0"
+	  height="30"
+	  name="minimized_controls" 
+	  left="0">
+	<button
+		name="all_nearby_media_disable_btn"
+		follows="left"
+		tool_tip="Turn all nearby media off"
+		left="15"
+		width="60"
+		height="22"
+		label="Stop All">
+	  <button.commit_callback
+		  function="MediaListCtrl.DisableAll" />
+	</button>
+	<button
+		name="all_nearby_media_enable_btn"
+		follows="left"
+		tool_tip="Turn all nearby media on"
+		left_pad="4"
+		width="60"
+		height="22"
+		label="Start All">
+	  <button.commit_callback
+		  function="MediaListCtrl.EnableAll" />
+	</button>
+	<button
+		name="open_prefs_btn"
+		image_overlay="Icon_Gear_Foreground"
+		image_disabled="PushButton_Disabled"
+		image_disabled_selected="PushButton_Disabled"
+		image_selected="PushButton_Selected"
+		image_unselected="PushButton_Off"
+		hover_glow_amount="0.15"
+		tool_tip = "Bring up media prefs"
+		top_delta="0"
+		left_pad="4"
+		height="22"
+		min_width="28"
+		width="28">
+	  <button.commit_callback
+		  function="MediaListCtrl.GoMediaPrefs" />
+	</button>
+	<button
+		name="more_less_btn"
+		follows="right"
+		tool_tip="Advanced Controls"
+		top_delta="0"
+		right="-10"
+		width="60"
+		height="22"
+		toggle="true"
+		label="More &gt;&gt;"
+		label_selected="Less &lt;&lt;">
+	  <button.commit_callback
+		  function="MediaListCtrl.MoreLess" />
+	</button>
+  </panel>
+  <panel
+	  name="nearby_media_panel"
+	  bevel_style="in"
+	  border_style="line"
+	  bg_alpha_color="0 0 0 0"
+	  bg_opaque_color="0 0 0 0.3"
+	  follows="left|right|top|bottom"
+	  top_delta="30"
+	  right="-1"
+	  left="0"
+	  height="295">
+	<text
+		type="string"
+		length="1"
+		follows="top|left"
+		font="SansSerif"
+		left="10"
+		width="100">
+	  Nearby Media
+	</text>
+	<!-- nix for now
+		 <text
+		 bottom_delta="1"
+		 type="string"
+		 follows="top|left|right"
+		 font="SansSerif"
+		 font.style="ITALIC"
+		 font.size="Small"
+		 name="media_item_count"
+		 left="115"
+		 right="-10">
+		 (?? media items)
+		 </text>
+	-->
+	<text
+		type="string"
+		length="1"
+		follows="top|left"
+		font="SansSerif"
+		top_pad="15"
+		left="10"
+		width="40">
+	  Show:
+	</text>
+	<combo_box
+		height="23"
+		left="50"
+		width="140"
+		top_delta="-5"
+		follows="left|top"
+		name="show_combo">
+	  <combo_box.item
+		  label="All"
+		  value="0"
+		  name="All" />
+	  <combo_box.item
+		  label="In this Parcel"
+		  value="2"
+		  name="WithinParcel" />
+	  <combo_box.item
+		  label="Outside this Parcel"
+		  value="3"
+		  name="OutsideParcel" />
+	  <combo_box.item
+		  label="On other Avatars"
+		  value="4"
+		  ame="OnOthers" />
+	</combo_box>
+	<scroll_list
+		follows="left|top|bottom|right"
+		column_padding="0"
+		height="100"
+		draw_heading="false"
+		draw_stripes="true"
+		bg_stripe_color="0.25 0.25 0.25 0.25"
+		top_pad="8"
+		left="10"
+		right="-10"
+		name="media_list">
+	  <scroll_list.columns
+		  type="checkbox"
+		  width="-1"
+		  label=""
+		  name="media_checkbox_ctrl" />
+	  <scroll_list.columns
+		  sort_column="media_proximity"
+		  width="-1"
+		  label="Proximity"
+		  name="media_proximity" />
+	  <scroll_list.columns
+		  sort_column="media_visibility"
+		  width="-1"
+		  label="Visible"
+		  name="media_visibility" />
+	  <scroll_list.columns
+		  sort_column="media_class"
+		  width="-1"
+		  label="Class"
+		  name="media_class" />
+	  <scroll_list.columns
+		  label="Name"
+		  name="media_name" />
+	  <scroll_list.columns
+		  sort_column="media_debug"
+		  width="-1"
+		  label="Debug"
+		  name="media_debug" />
+	</scroll_list>
+	<panel
+		bevel_style="in"
+		background_visible="true" 
+		bg_alpha_color="0.0 0.0 0.0 1.0"
+		bg_opaque_color="0 0 0 0.3"
+		follows="left|right|bottom"
+		top_pad="5"
+		height="30"
+		left="10"
+		right="-10">
+	  <layout_stack
+		  name="media_controls"
+		  follows="left|right|top"
+		  animate="false"
+		  height="75"
+		  layout="topleft"
+		  top="4"
+		  left="10"
+		  right="-10"
+		  border_size="0"
+		  mouse_opaque="false"
+		  orientation="horizontal">
+		<layout_panel
+			name="stop"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false"
+			layout="topleft"
+			top="0"
+			height="22"
+			min_width="22"
+			width="22">
+		  <button
+			  name="stop_btn"
+			  follows="top"
+			  image_overlay="Stop_Off"
+			  image_disabled="PushButton_Disabled"
+			  image_disabled_selected="PushButton_Disabled"
+			  image_selected="PushButton_Selected"
+			  image_unselected="PushButton_Off"
+			  hover_glow_amount="0.15"
+			  layout="topleft"
+			  tool_tip="Stop selected media"
+			  top="0"
+			  height="22"
+			  width="22">
+			<button.commit_callback
+				function="SelectedMediaCtrl.Stop" />
+		  </button>
+		</layout_panel>
+		<layout_panel
+			name="play"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false"
+			layout="topleft"
+			top="0"
+			height="22"
+			min_width="22"
+			width="22">
+		  <button
+			  name="play_btn"
+			  follows="top"
+			  image_overlay="Play_Off"
+			  image_disabled="PushButton_Disabled"
+			  image_disabled_selected="PushButton_Disabled"
+			  image_selected="PushButton_Selected"
+			  image_unselected="PushButton_Off"
+			  hover_glow_amount="0.15"
+			  layout="topleft"
+			  tool_tip = "Play selected media"
+			  top="0"
+			  height="22"
+			  width="22">
+			<button.commit_callback
+				function="SelectedMediaCtrl.Play" />
+		  </button>
+		</layout_panel>
+		<layout_panel
+			name="pause"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false"
+			layout="topleft"
+			top="0"
+			min_width="22"
+			width="22">
+		  <button
+			  name="pause_btn"
+			  follows="top"
+			  image_overlay="Pause_Off"
+			  image_disabled="PushButton_Disabled"
+			  image_disabled_selected="PushButton_Disabled"
+			  image_selected="PushButton_Selected"
+			  image_unselected="PushButton_Off"
+			  hover_glow_amount="0.15"
+			  layout="topleft"
+			  top="0"
+			  height="22"
+			  width="22"
+			  tool_tip = "Pause selected media">
+			<button.commit_callback
+				function="SelectedMediaCtrl.Pause" />
+		  </button>
+		</layout_panel>
+		<layout_panel
+			name="volume_slider_ctrl"
+			mouse_opaque="false"
+			auto_resize="true"
+			user_resize="false"
+			follows="left|right"
+			layout="topleft"
+			top="0"
+			height="22"
+			min_width="100"
+			width="200">
+		  <slider_bar
+			  name="volume_slider"
+			  follows="left|right|top"
+			  top="0"
+			  height="22"
+			  increment="0.01"
+			  initial_value="0.5"
+			  layout="topleft"
+			  tool_tip="Audio volume for selected media"
+			  width="200">
+			<slider_bar.commit_callback
+				function="SelectedMediaCtrl.Volume" />
+		  </slider_bar>
+		</layout_panel>
+		<layout_panel
+			name="mute"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false"
+			layout="topleft"
+			top="0"
+			height="72"
+			min_width="22"
+			width="22">
+		  <button
+			  name="mute_btn"
+			  follows="top"
+			  image_disabled="PushButton_Disabled"
+			  image_disabled_selected="PushButton_Disabled"
+			  image_selected="AudioMute_Off"
+			  image_unselected="Audio_Off"
+			  hover_glow_amount="0.15"
+			  is_toggle="true"
+			  layout="topleft"
+			  scale_image="false" 
+			  tool_tip="Mute audio on selected media"
+			  top="0"
+			  height="20"
+			  width="22" >
+			<button.commit_callback
+				function="SelectedMediaCtrl.Mute" />
+		  </button>
+		</layout_panel>
+		<layout_panel
+			name="zoom"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false"
+			layout="topleft"
+			top="0"
+			height="28"
+			min_width="22"
+			width="22">
+		  <button
+			  name="zoom_btn"
+			  follows="top"
+			  image_overlay="Zoom_Off"
+			  image_disabled="PushButton_Disabled"
+			  image_disabled_selected="PushButton_Disabled"
+			  image_selected="PushButton_Selected"
+			  image_unselected="PushButton_Off"
+			  hover_glow_amount="0.15"
+			  top="0"
+			  height="22"
+			  layout="topleft"
+			  tool_tip="Zoom into selected media"
+			  width="22">
+			<button.commit_callback
+				function="SelectedMediaCtrl.Zoom" />
+		  </button>
+		</layout_panel>
+		<layout_panel
+			name="unzoom"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false"
+			layout="topleft"
+			top="0"
+			min_width="21"
+			width="21" >
+		  <button
+			  name="unzoom_btn"
+			  follows="top"
+			  image_overlay="UnZoom_Off"
+			  image_disabled="PushButton_Disabled"
+			  image_disabled_selected="PushButton_Disabled"
+			  image_selected="PushButton_Selected"
+			  image_unselected="PushButton_Off"
+			  hover_glow_amount="0.15"
+			  top="0"
+			  height="22"
+			  layout="topleft"
+			  tool_tip ="Zoom back from selected media"
+			  top_delta="-4"
+			  width="21" >
+			<button.commit_callback
+				function="SelectedMediaCtrl.Unzoom" />
+		  </button>
+		</layout_panel>
+		<layout_panel
+			name="right_bookend"
+			width="0"
+			mouse_opaque="false"
+			user_resize="false" />
+	  </layout_stack>
+	</panel>
+	<panel
+		bevel_style="in"
+		background_visible="true" 
+		bg_alpha_color="0.0 0.0 0.0 1.0"
+		bg_opaque_color="0 0 0 0.3"
+		follows="left|right|bottom"
+		top_pad="5"
+		height="90"
+		left="10"
+		right="-10">
+	  <check_box
+		  name="media_enabled_btn"
+		  control_name="AudioStreamingMedia"
+		  value="true"
+		  follows="left|bottom|right"
+		  height="15"
+		  tool_tip="Check this to enable all media"
+		  label="All Media Enabled"
+		  top="10"
+		  left="10"/>
+	  <check_box
+		  name="media_auto_play_btn"
+		  control_name="ParcelMediaAutoPlayEnable"
+		  enabled_control="AudioStreamingMedia"
+		  value="true"
+		  follows="left|bottom|right"
+		  height="15"
+		  tool_tip="Check this to let media auto-play if it wants"
+		  label="Allow Media to auto-play"
+		  top_pad="5"
+		  left="10"/>
+	  <!--
+		  <check_box
+		  name="media_show_within_parcel_btn"
+		  control_name="MediaShowWithinParcel"
+		  enabled_control="AudioStreamingMedia"
+		  value="true"
+		  follows="left|bottom|right"
+		  height="15"
+		  tool_tip="Uncheck this to hide media within the parcel you are standing in"
+		  label="Show media within current parcel"
+		  left="10"/>
+	  -->
+	  <check_box
+		  name="media_show_outside_parcel_btn"
+		  control_name="MediaShowOutsideParcel"
+		  enabled_control="AudioStreamingMedia"
+		  value="true"
+		  follows="left|bottom|right"
+		  height="15"
+		  tool_tip="Uncheck this to hide media outside the parcel you are standing in"
+		  label="Show media outside current parcel"
+		  left="10"/>
+	  <check_box
+		  name="media_show_on_others_btn"
+		  control_name="MediaShowOnOthers"
+		  enabled_control="AudioStreamingMedia"
+		  value="true"
+		  follows="left|bottom|right"
+		  height="15"
+		  tool_tip="Uncheck this to hide media attached to other avatars nearby"
+		  label="Show media attached to other avatars"
+		  left="10"/>
+	</panel>
+  </panel>
+</panel>

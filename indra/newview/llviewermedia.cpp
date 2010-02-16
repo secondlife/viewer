@@ -50,6 +50,9 @@
 #include "llcallbacklist.h"
 #include "llparcel.h"
 #include "llaudioengine.h"  // for gAudiop
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
+#include "llviewerregion.h"
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -63,6 +66,10 @@
 #include <boost/signals2.hpp>
 
 /*static*/ const char* LLViewerMedia::AUTO_PLAY_MEDIA_SETTING = "ParcelMediaAutoPlayEnable";
+/*static*/ const char* LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING = "MediaShowOnOthers";
+/*static*/ const char* LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING = "MediaShowWithinParcel";
+/*static*/ const char* LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING = "MediaShowOutsideParcel";
+
 
 // Move this to its own file.
 
@@ -254,6 +261,8 @@ static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
 static F64 sLowestLoadableImplInterest = 0.0f;
+static bool sAnyMediaShowing = false;
+static boost::signals2::connection sTeleportFinishConnection;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -366,8 +375,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			// The current media URL is not empty.
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
-			bool auto_play = (media_impl->mMediaAutoPlay && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING));
-			
+			bool auto_play = media_impl->isAutoPlayable();			
 			if((was_loaded || auto_play) && !update_from_self)
 			{
 				needs_navigate = url_changed;
@@ -391,7 +399,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
 		media_impl->mMediaEntryURL = media_entry->getCurrentURL();
 		
-		if(media_impl->mMediaAutoPlay && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
+		if(media_impl->isAutoPlayable())
 		{
 			needs_navigate = true;
 		}
@@ -688,6 +696,7 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 // static
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
+	sAnyMediaShowing = false;
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
 
@@ -818,7 +827,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			
 			impl_count_total++;
 		}
-		
+
 		// Overrides if the window is minimized or we lost focus (taking care
 		// not to accidentally "raise" the priority either)
 		if (!gViewerWindow->getActive() /* viewer window minimized? */ 
@@ -840,7 +849,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 			}
 		}
-		
+					
 		pimpl->setPriority(new_priority);
 		
 		if(pimpl->getUsedInUI())
@@ -854,6 +863,12 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 		}
 
 		total_cpu += pimpl->getCPUUsage();
+		
+		if (!pimpl->getUsedInUI() && pimpl->hasMedia())
+		{
+			sAnyMediaShowing = true;
+		}
+
 	}
 
 	// Re-calculate this every time.
@@ -895,9 +910,113 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
+bool LLViewerMedia::isAnyMediaShowing()
+{
+	return sAnyMediaShowing;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::setAllMediaEnabled(bool val)
+{
+	// Set "tentative" autoplay first.  We need to do this here or else
+	// re-enabling won't start up the media below.
+	gSavedSettings.setBOOL("MediaTentativeAutoPlay", val);
+	
+	// Then 
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	
+	for(; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if (!pimpl->getUsedInUI())
+		{
+			pimpl->setDisabled(!val);
+		}
+	}
+	
+	// Also do Parcel Media and Parcel Audio
+	if (val)
+	{
+		if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
+		{	
+			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+		}
+		
+		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
+		{
+			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+		}
+	}
+	else {
+		// This actually unloads the impl, as opposed to "stop"ping the media
+		LLViewerParcelMedia::stop();
+		if (gAudiop) gAudiop->stopInternetStream();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isParcelMediaPlaying()
+{
+	return (LLViewerMedia::hasParcelMedia() && LLViewerParcelMedia::getParcelMedia() && LLViewerParcelMedia::getParcelMedia()->hasMedia());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isParcelAudioPlaying()
+{
+	return (LLViewerMedia::hasParcelAudio() && gAudiop && LLAudioEngine::AUDIO_PLAYING == gAudiop->isInternetStreamPlaying());
+}
+
+bool LLViewerMedia::hasInWorldMedia()
+{
+	if (! gSavedSettings.getBOOL("AudioStreamingMedia")) return false;
+	if (sInWorldMediaDisabled) return false;
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	// This should be quick, because there should be very few non-in-world-media impls
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if (!pimpl->getUsedInUI() && !pimpl->isParcelMedia())
+		{
+			// Found an in-world media impl
+			return true;
+		}
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::hasParcelMedia()
+{
+	return !LLViewerParcelMedia::getURL().empty();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::hasParcelAudio()
+{
+	return !LLViewerMedia::getParcelAudioURL().empty();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+std::string LLViewerMedia::getParcelAudioURL()
+{
+	return LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
 void LLViewerMedia::initClass()
 {
-	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);
+	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);	
+	sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -905,6 +1024,15 @@ void LLViewerMedia::initClass()
 void LLViewerMedia::cleanupClass()
 {
 	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
+	sTeleportFinishConnection.disconnect();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::onTeleportFinished()
+{
+	// On teleport, clear this setting (i.e. set it to true)
+	gSavedSettings.setBOOL("MediaTentativeAutoPlay", true);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2057,6 +2185,21 @@ void LLViewerMediaImpl::scaleMouse(S32 *mouse_x, S32 *mouse_y)
 #endif
 }
 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::isMediaTimeBased()
+{
+	bool result = false;
+	
+	if(mMediaSource)
+	{
+		result = mMediaSource->pluginSupportsMediaTime();
+	}
+	
+	return result;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::isMediaPlaying()
 {
@@ -2103,7 +2246,7 @@ void LLViewerMediaImpl::resetPreviousMediaState()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LLViewerMediaImpl::setDisabled(bool disabled)
+void LLViewerMediaImpl::setDisabled(bool disabled, bool forcePlayOnEnable)
 {
 	if(mIsDisabled != disabled)
 	{
@@ -2118,7 +2261,7 @@ void LLViewerMediaImpl::setDisabled(bool disabled)
 		else
 		{
 			// We just (re)enabled this media.  Do a navigate if auto-play is in order.
-			if(mMediaAutoPlay && gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING))
+			if(isAutoPlayable() || forcePlayOnEnable)
 			{
 				navigateTo(mMediaEntryURL, "", true, true);
 			}
@@ -2143,6 +2286,12 @@ bool LLViewerMediaImpl::isForcedUnloaded() const
 		{
 			return true;
 		}
+	}
+	
+	// If this media's class is not supposed to be shown, unload
+	if (!shouldShowBasedOnClass())
+	{
+		return true;
 	}
 	
 	return false;
@@ -2639,3 +2788,112 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isAutoPlayable() const
+{
+	return (mMediaAutoPlay && 
+			gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			gSavedSettings.getBOOL("MediaTentativeAutoPlay"));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::shouldShowBasedOnClass() const
+{
+	// If this is parcel media or in the UI, return true always
+	if (getUsedInUI() || isParcelMedia()) return true;
+	
+	bool attached_to_another_avatar = isAttachedToAnotherAvatar();
+	bool inside_parcel = isInAgentParcel();
+	
+	//	llinfos << " hasFocus = " << hasFocus() <<
+	//	" others = " << (attached_to_another_avatar && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING)) <<
+	//	" within = " << (inside_parcel && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING)) <<
+	//	" outside = " << (!inside_parcel && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING)) << llendl;
+	
+	// If it has focus, we should show it
+	if (hasFocus())
+		return true;
+	
+	// If it is attached to an avatar and the pref is off, we shouldn't show it
+	if (attached_to_another_avatar)
+		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING);
+	
+	if (inside_parcel)
+		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING);
+	else 
+		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isAttachedToAnotherAvatar() const
+{
+	bool result = false;
+	
+	std::list< LLVOVolume* >::const_iterator iter = mObjectList.begin();
+	std::list< LLVOVolume* >::const_iterator end = mObjectList.end();
+	for ( ; iter != end; iter++)
+	{
+		if (isObjectAttachedToAnotherAvatar(*iter))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//static
+bool LLViewerMediaImpl::isObjectAttachedToAnotherAvatar(LLVOVolume *obj)
+{
+	bool result = false;
+	LLXform *xform = obj;
+	// Walk up parent chain
+	while (NULL != xform)
+	{
+		LLViewerObject *object = dynamic_cast<LLViewerObject*> (xform);
+		if (NULL != object)
+		{
+			LLVOAvatar *avatar = object->asAvatar();
+			if (NULL != avatar && avatar != gAgent.getAvatarObject())
+			{
+				result = true;
+				break;
+			}
+		}
+		xform = xform->getParent();
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isInAgentParcel() const
+{
+	bool result = false;
+	
+	std::list< LLVOVolume* >::const_iterator iter = mObjectList.begin();
+	std::list< LLVOVolume* >::const_iterator end = mObjectList.end();
+	for ( ; iter != end; iter++)
+	{
+		LLVOVolume *object = *iter;
+		if (LLViewerMediaImpl::isObjectInAgentParcel(object))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+// static
+bool LLViewerMediaImpl::isObjectInAgentParcel(LLVOVolume *obj)
+{
+	return (LLViewerParcelMgr::getInstance()->inAgentParcel(obj->getPositionGlobal()));
+}

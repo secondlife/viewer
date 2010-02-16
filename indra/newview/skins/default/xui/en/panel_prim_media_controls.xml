@@ -71,7 +71,7 @@
 	  layout="topleft"
 	  top="0"
 	  left="0"
-	  border_size="1"
+	  border_size="0"
 	  mouse_opaque="false"
 	  orientation="horizontal">
 	<!-- outer layout_panels center the inner one -->
@@ -260,7 +260,7 @@
 		top="0"
 		height="22"
 		min_width="22"
-		width="24">
+		width="22">
 	  <button
 		  name="play_btn"
 		  follows="top"
@@ -272,7 +272,6 @@
 		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip = "Play media"
-		  left_delta="2"
 		  top="0"
 		  height="22"
 		  width="22">
@@ -288,7 +287,7 @@
 		layout="topleft"
 		top="0"
 		min_width="22"
-		width="24">
+		width="22">
 	  <button
 		  name="pause_btn"
 		  follows="top"
@@ -302,7 +301,6 @@
 		  top="0"
 		  height="22"
 		  width="22"
-		  left_delta="-1"
 		  tool_tip = "Pause media">
 		<button.commit_callback
 			function="MediaCtrl.Pause" />
