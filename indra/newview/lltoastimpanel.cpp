@@ -66,12 +66,13 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	std::string font_size = LLFontGL::sizeFromFont(fontp);
 	style_params.font.name(font_name);
 	style_params.font.size(font_size);
-	style_params.font.style = "UNDERLINE";
+	
 	
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
 	if (prefix == "/me " || prefix == "/me'")
 	{
+		//style_params.font.style = "UNDERLINE";
 		mMessage->clear();
 		
 		style_params.font.style ="ITALIC";
@@ -82,7 +83,8 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	}
 	else
 	{
-		mMessage->setValue(p.message);
+		style_params.font.style =  "NORMAL";
+		mMessage->setText(p.message, style_params);
 	}
 
 	mAvatarName->setValue(p.from);
