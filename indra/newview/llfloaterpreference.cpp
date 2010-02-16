@@ -666,7 +666,8 @@ void LLFloaterPreference::refreshEnabledGraphics()
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if(instance)
 	{
-		instance->refreshEnabledState();
+		instance->refresh();
+		//instance->refreshEnabledState();
 	}
 	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
 	if (hardware_settings)
