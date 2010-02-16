@@ -147,6 +147,8 @@ LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 
 void LLIMFloaterContainer::setMinimized(BOOL b)
 {
+	if (isMinimized() == b) return;
+	
 	LLMultiFloater::setMinimized(b);
 
 	if (isMinimized()) return;
