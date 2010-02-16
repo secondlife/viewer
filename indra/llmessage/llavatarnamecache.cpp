@@ -43,19 +43,20 @@ namespace LLAvatarNameCache
 	std::map<LLUUID, LLAvatarName> sCache;
 }
 
-static std::string slid_from_full_name(const std::string& full_name)
-{
-	std::string id = full_name;
-	std::string::size_type end = id.length();
-	for (std::string::size_type i = 0; i < end; ++i)
-	{
-		if (id[i] == ' ')
-			id[i] = '.';
-		else
-			id[i] = tolower(id[i]);
-	}
-	return id;
-}
+// JAMESDEBUG re-enable when display names are turned on
+//static std::string slid_from_full_name(const std::string& full_name)
+//{
+//	std::string id = full_name;
+//	std::string::size_type end = id.length();
+//	for (std::string::size_type i = 0; i < end; ++i)
+//	{
+//		if (id[i] == ' ')
+//			id[i] = '.';
+//		else
+//			id[i] = tolower(id[i]);
+//	}
+//	return id;
+//}
 
 void LLAvatarNameCache::initClass()
 {
