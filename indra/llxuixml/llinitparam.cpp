@@ -137,7 +137,7 @@ namespace LLInitParam
 	}
 
 
-	bool BaseBlock::validateBlock(bool silent) const
+	bool BaseBlock::validateBlock(bool emit_errors) const
 	{
 		const BlockDescriptor& block_data = getBlockDescriptor();
 		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
@@ -145,7 +145,7 @@ namespace LLInitParam
 			const Param* param = getParamFromHandle(it->first);
 			if (!it->second(param))
 			{
-				if (!silent)
+				if (emit_errors)
 				{
 					llwarns << "Invalid param \"" << getParamName(block_data, param) << "\"" << llendl;
 				}
@@ -458,7 +458,7 @@ namespace LLInitParam
 
 	// take all provided params from other and apply to self
 	// NOTE: this requires that "other" is of the same derived type as this
-	bool BaseBlock::overwriteFromImpl(BlockDescriptor& block_data, const BaseBlock& other)
+	bool BaseBlock::merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 	{
 		bool param_changed = false;
 		BlockDescriptor::all_params_list_t::const_iterator end_it = block_data.mAllParams.end();
@@ -471,27 +471,7 @@ namespace LLInitParam
 			if (merge_func)
 			{
 				Param* paramp = getParamFromHandle(it->mParamHandle);
-				param_changed |= merge_func(*paramp, *other_paramp, true);
-			}
-		}
-		return param_changed;
-	}
-
-	// take all provided params that are not already provided, and apply to self
-	bool BaseBlock::fillFromImpl(BlockDescriptor& block_data, const BaseBlock& other)
-	{
-		bool param_changed = false;
-		BlockDescriptor::all_params_list_t::const_iterator end_it = block_data.mAllParams.end();
-		for (BlockDescriptor::all_params_list_t::const_iterator it = block_data.mAllParams.begin();
-			it != end_it;
-			++it)
-		{
-			const Param* other_paramp = other.getParamFromHandle(it->mParamHandle);
-			ParamDescriptor::merge_func_t merge_func = it->mMergeFunc;
-			if (merge_func)
-			{
-				Param* paramp = getParamFromHandle(it->mParamHandle);
-				param_changed |= merge_func(*paramp, *other_paramp, false);
+				param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}
 		return param_changed;

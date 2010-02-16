@@ -109,6 +109,7 @@ namespace LLInitParam
 		TypedParam(BlockDescriptor& descriptor, const char* name, super_t::value_assignment_t value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
 		:	super_t(descriptor, name, value, func, min_count, max_count)
 		{
+			setBlockFromValue();
 		}
 
 		void setValueFromBlock() const;
