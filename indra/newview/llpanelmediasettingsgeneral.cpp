@@ -206,7 +206,7 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 {	
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
 	self->mAutoLoop->clear();
-	self->mAutoPlay->setValue(LLSD(TRUE)); // set default value for auto play to true;
+	self->mAutoPlay->clear();
 	self->mAutoScale->clear();
 	self->mAutoZoom ->clear();
 	self->mCurrentURL->clear();
