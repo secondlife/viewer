@@ -67,7 +67,7 @@ halign="center"
      height="30"
      layout="bottomleft"
      left="0"
-	   visible="true"
+     visible="true"
      name="bottom_panel"
      width="330">
         <button
@@ -118,7 +118,7 @@ halign="center"
      mouse_opaque="false"
      name="Inventory Menu"
      top="0"
-	   visible="true"
+     visible="true"
      width="290">
         <menu
          height="101"
@@ -171,6 +171,26 @@ halign="center"
                  name="Upload Animation">
                     <menu_item_call.on_click
                      function="File.UploadAnim"
+                     parameter="" />
+                    <menu_item_call.on_enable
+                     function="File.EnableUpload" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Model (L$[COST])..."
+                 layout="topleft"
+                 name="Upload Model">
+                    <menu_item_call.on_click
+                     function="File.UploadModel"
+                     parameter="" />
+                    <menu_item_call.on_enable
+                     function="File.EnableUpload" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Scene..."
+                 layout="topleft"
+                 name="Upload Scene">
+                    <menu_item_call.on_click
+                     function="File.UploadScene"
                      parameter="" />
                     <menu_item_call.on_enable
                      function="File.EnableUpload" />

@@ -657,6 +657,9 @@ void LLWorld::updateParticles()
 
 void LLWorld::updateClouds(const F32 dt)
 {
+	static LLFastTimer::DeclareTimer ftm("World Clouds");
+	LLFastTimer t(ftm);
+
 	if (gSavedSettings.getBOOL("FreezeTime") ||
 		!gSavedSettings.getBOOL("SkyUseClassicClouds"))
 	{
@@ -1024,9 +1027,11 @@ void LLWorld::disconnectRegions()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_ENABLE_SIMULATOR("Enable Sim");
 
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
+	LLFastTimer t(FTM_ENABLE_SIMULATOR);
 	// enable the appropriate circuit for this simulator and 
 	// add its values into the gSimulator structure
 	U64		handle;

@@ -794,7 +794,7 @@ BOOL LLViewerTexture::createGLTexture(S32 discard_level, const LLImageRaw* image
 	llassert(mGLTexturep.notNull()) ;	
 
 	BOOL ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category) ;
-	
+
 	if(ret)
 	{
 		mFullWidth = mGLTexturep->getCurrentWidth() ;
@@ -2612,7 +2612,7 @@ BOOL LLViewerFetchedTexture::insertToAtlas()
 	}
 
 	//process the waiting_list
-	for(ll_face_list_t::iterator iter = waiting_list.begin(); iter != waiting_list.end(); ++iter)
+	for(std::vector<LLFace*>::iterator iter = waiting_list.begin(); iter != waiting_list.end(); ++iter)
 	{
 		facep = (LLFace*)*iter ;	
 		groupp = facep->getDrawable()->getSpatialGroup() ;

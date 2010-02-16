@@ -555,7 +555,7 @@ void LLHUDText::renderText(BOOL for_select)
 		}
 	}
 	/// Reset the default color to white.  The renderer expects this to be the default. 
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 	if (for_select)
 	{
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
@@ -565,6 +565,18 @@ void LLHUDText::renderText(BOOL for_select)
 void LLHUDText::setStringUTF8(const std::string &wtext)
 {
 	setString(utf8str_to_wstring(wtext));
+}
+
+std::string LLHUDText::getString()
+{
+	std::ostringstream ostr;
+	for (U32 i = 0; i < mTextSegments.size(); ++i)
+	{
+		const std::string str = wstring_to_utf8str(mTextSegments[i].getText());
+		ostr << str;
+	}
+
+	return ostr.str();
 }
 
 void LLHUDText::setString(const LLWString &wtext)

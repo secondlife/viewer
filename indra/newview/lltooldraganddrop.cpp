@@ -385,6 +385,7 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 	addEntry(DAD_ANIMATION, 	new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,		&LLToolDragAndDrop::dad3dUpdateInventory,			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_GESTURE, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dActivateGesture,		&LLToolDragAndDrop::dad3dGiveInventory,		&LLToolDragAndDrop::dad3dUpdateInventory,			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_LINK, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,						&LLToolDragAndDrop::dad3dNULL));
+	addEntry(DAD_MESH, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,		&LLToolDragAndDrop::dad3dMeshObject,			&LLToolDragAndDrop::dad3dNULL));
 	// TODO: animation on self could play it?  edit it?
 	// TODO: gesture on self could play it?  edit it?
 };
@@ -1083,6 +1084,31 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	}
 	// send the update to the simulator
 	hit_obj->sendTEUpdate();
+}
+
+void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
+								 LLInventoryItem* item,
+								 LLToolDragAndDrop::ESource source,
+								 const LLUUID& src_id)
+{
+	if (!item)
+	{
+		llwarns << "no inventory item." << llendl;
+		return;
+	}
+	LLUUID asset_id = item->getAssetUUID();
+	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+	if(!success)
+	{
+		return;
+	}
+
+	LLSculptParams sculpt_params;
+	sculpt_params.setSculptTexture(asset_id);
+	sculpt_params.setSculptType(LL_SCULPT_TYPE_MESH);
+	hit_obj->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, TRUE);
+	
+	dialog_refresh_all();
 }
 
 /*
@@ -1906,6 +1932,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_ANIMATION:
 	case DAD_GESTURE:
 	case DAD_CALLINGCARD:
+	case DAD_MESH:
 	{
 		LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 		if(gInventory.getItem(inv_item->getUUID())
@@ -2200,10 +2227,10 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
 	return rv;
 }
 
-EAcceptance LLToolDragAndDrop::dad3dTextureObject(
-	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
+EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
+	LLViewerObject* obj, S32 face, MASK mask, BOOL drop, EDragAndDropType cargo_type)
 {
-	lldebugs << "LLToolDragAndDrop::dad3dTextureObject()" << llendl;
+	lldebugs << "LLToolDragAndDrop::dad3dApplyToObject()" << llendl;
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
@@ -2237,13 +2264,24 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 
 	if(drop && (ACCEPT_YES_SINGLE <= rv))
 	{
-		if((mask & MASK_SHIFT))
+		if (cargo_type == DAD_TEXTURE)
 		{
-			dropTextureAllFaces(obj, item, mSource, mSourceID);
+			if((mask & MASK_SHIFT))
+			{
+				dropTextureAllFaces(obj, item, mSource, mSourceID);
+			}
+			else
+			{
+				dropTextureOneFace(obj, face, item, mSource, mSourceID);
+			}
+		}
+		else if (cargo_type == DAD_MESH)
+		{
+			dropMesh(obj, item, mSource, mSourceID);
 		}
 		else
 		{
-			dropTextureOneFace(obj, face, item, mSource, mSourceID);
+			llwarns << "unsupported asset type" << llendl;
 		}
 		
 		// VEFFECT: SetTexture
@@ -2257,6 +2295,23 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 	// enable multi-drop, although last texture will win
 	return ACCEPT_YES_MULTI;
 }
+
+
+EAcceptance LLToolDragAndDrop::dad3dTextureObject(
+	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
+{
+	return dad3dApplyToObject(obj, face, mask, drop, DAD_TEXTURE);
+}
+
+EAcceptance LLToolDragAndDrop::dad3dMeshObject(
+	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
+{
+	return dad3dApplyToObject(obj, face, mask, drop, DAD_MESH);
+}
+
+
+
+
 /*
 EAcceptance LLToolDragAndDrop::dad3dTextureSelf(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)

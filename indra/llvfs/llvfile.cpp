@@ -428,7 +428,7 @@ bool LLVFile::isLocked(EVFSLock lock)
 
 void LLVFile::waitForLock(EVFSLock lock)
 {
-	LLFastTimer t(FTM_VFILE_WAIT);
+	//LLFastTimer t(FTM_VFILE_WAIT);
 	// spin until the lock clears
 	while (isLocked(lock))
 	{

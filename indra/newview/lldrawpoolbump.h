@@ -79,7 +79,7 @@ public:
 	void renderBump();
 	void endBump();
 
-	virtual S32 getNumDeferredPasses() { return 1; }
+	virtual S32 getNumDeferredPasses();
 	/*virtual*/ void beginDeferredPass(S32 pass);
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);

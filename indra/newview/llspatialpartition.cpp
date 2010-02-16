@@ -2294,7 +2294,6 @@ void pushVerts(LLFace* face, U32 mask)
 		U16 offset = face->getIndicesStart();
 		buffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
-
 }
 
 void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
@@ -3380,7 +3379,8 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mVSize(0.f),
 	mGroup(NULL),
 	mFace(NULL),
-	mDistance(0.f)
+	mDistance(0.f),
+	mDrawMode(LLRender::TRIANGLES)
 {
 	mDebugColor = (rand() << 16) + rand();
 	if (mStart >= mVertexBuffer->getRequestedVerts() ||
