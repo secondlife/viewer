@@ -234,7 +234,7 @@ LLFolderView::LLFolderView(const Params& p)
 
 	// Textbox
 	LLTextBox::Params text_p;
-	LLRect new_r(5, 13-50, 300, 0-50);
+	LLRect new_r(5, 40, 300, 40-13);
 	text_p.name(std::string(p.name));
 	text_p.rect(new_r);
 	text_p.font(getLabelFontForStyle(mLabelStyle));
@@ -1625,7 +1625,11 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{
-				setSelection(parent_folder, FALSE, TRUE);
+				// Don't change selectin to hidden folder. See EXT-5328.
+				if (!parent_folder->getHidden())
+				{
+					setSelection(parent_folder, FALSE, TRUE);
+				}
 			}
 			else
 			{
