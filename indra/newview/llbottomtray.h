@@ -94,6 +94,9 @@ public:
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
 
+	void toggleMovementControls();
+	void toggleCameraControls();
+
 	void onMouselookModeIn();
 	void onMouselookModeOut();
 
