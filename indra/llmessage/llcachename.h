@@ -113,6 +113,11 @@ public:
 	void dumpStats();	// Dumps the sizes of the cache and associated queues.
 
 	static std::string getDefaultName();
+
+	// Returns "Resident", the default last name for SLID-based accounts
+	// that have no last name.
+	static std::string getDefaultLastName();
+
 	static void localizeCacheName(std::string key, std::string value);
 	static std::map<std::string, std::string> sCacheName;
 private:

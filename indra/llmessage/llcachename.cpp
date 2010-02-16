@@ -672,6 +672,12 @@ std::string LLCacheName::getDefaultName()
 	return sCacheName["waiting"];
 }
 
+//static 
+std::string LLCacheName::getDefaultLastName()
+{
+	return "Resident";
+}
+
 void LLCacheName::Impl::processPendingAsks()
 {
 	LLMemType mt_ppa(LLMemType::MTYPE_CACHE_PROCESS_PENDING_ASKS);
