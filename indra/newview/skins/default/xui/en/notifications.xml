@@ -2297,6 +2297,9 @@ Display settings have been set to recommended levels based on your system config
    name="ErrorMessage"
    type="alertmodal">
 [ERROR_MESSAGE]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
