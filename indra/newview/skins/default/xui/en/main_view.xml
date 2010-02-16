@@ -162,6 +162,12 @@
                mouse_opaque="false"
                name="Menu Holder"
                width="1024"/>
+  <panel top="0"
+         follows="all"
+         height="768"
+         mouse_opaque="false"
+         name="popup_holder"
+         width="1024"/>
   <snapshot_floater_view enabled="false"
                          follows="all"
                          height="768"
