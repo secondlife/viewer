@@ -145,14 +145,15 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 		return true;
 	}
 
-	std::string full_name;
-	if (gCacheName->getFullName(agent_id, full_name))
-	{
-		av_name->mSLID = slid_from_full_name(full_name);
-		av_name->mDisplayName = full_name;
-		av_name->mBadge = "Generic_Person";
-		return true;
-	}
+	// JAMESDEBUG Enable when we turn on display names.
+	//std::string full_name;
+	//if (gCacheName->getFullName(agent_id, full_name))
+	//{
+	//	av_name->mSLID = slid_from_full_name(full_name);
+	//	av_name->mDisplayName = full_name;
+	//	av_name->mBadge = "Generic_Person";
+	//	return true;
+	//}
 
 	return false;
 }

@@ -326,12 +326,18 @@ void LLUrlEntryAgent::onNameCache(const LLUUID& id,
 {
 	// IDEVO demo code
 	LLAvatarName av_name;
-	LLAvatarNameCache::get(id, &av_name);
-	std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
-	// use custom icon if available
-	std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
-	// received the agent name from the server - tell our observers
-	callObservers(id.asString(), label, icon);
+	if (LLAvatarNameCache::get(id, &av_name))
+	{
+		std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+		// use custom icon if available
+		std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
+		// received the agent name from the server - tell our observers
+		callObservers(id.asString(), label, icon);
+	}
+	else
+	{
+		callObservers(id.asString(), full_name, mIcon);
+	}
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -358,9 +364,10 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	else if (gCacheName->getFullName(agent_id, full_name))
 	{
 		LLAvatarName av_name;
-		LLAvatarNameCache::get(agent_id, &av_name);
-		std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
-		return label;
+		if (LLAvatarNameCache::get(agent_id, &av_name))
+			return av_name.mDisplayName + " (" + av_name.mSLID + ")";
+		else
+			return full_name;
 	}
 	else
 	{
