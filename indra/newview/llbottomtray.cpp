@@ -64,7 +64,8 @@ namespace
 	S32 get_panel_min_width(LLLayoutStack* stack, LLPanel* panel)
 	{
 		S32 minimal_width = 0;
-		if ( panel && panel->getVisible() )
+		llassert(stack);
+		if ( stack && panel && panel->getVisible() )
 		{
 			stack->getPanelMinSize(panel->getName(), &minimal_width, NULL);
 		}
