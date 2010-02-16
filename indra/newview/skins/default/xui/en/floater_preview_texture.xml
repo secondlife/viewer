@@ -118,7 +118,7 @@
     <button
      follows="right|bottom"
      height="22"
-     label="Cancel"
+     label="Discard"
      layout="topleft"
      left_pad="5"
      name="Discard"
