@@ -5055,7 +5055,9 @@
     <map>
       <key>Comment</key>
       <string>Default width of buttons in the toast. 
-      Note if required width will be less then this one, a button will be reshaped to default size , otherwise to required</string>
+      Notes:
+      If required width will be less then this one, a button will be reshaped to default size , otherwise to required
+      Change of this parameter will affect the layout of buttons in notification toast.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

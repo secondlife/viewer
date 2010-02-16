@@ -489,7 +489,11 @@ void LLIMFloater::setVisible(BOOL visible)
 		channel->redrawToasts();
 	}
 
-	if (visible && mChatHistory && mInputEditor)
+	BOOL is_minimized = visible && isChatMultiTab()
+		? LLIMFloaterContainer::getInstance()->isMinimized()
+		: !visible;
+
+	if (!is_minimized && mChatHistory && mInputEditor)
 	{
 		//only if floater was construced and initialized from xml
 		updateMessages();
