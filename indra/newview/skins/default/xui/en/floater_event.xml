@@ -2,9 +2,11 @@
 <floater
  follows="all"
  height="350"
+ help_topic="event_details"
  label="Event"
  layout="topleft"
  name="Event"
+ title="EVENT DETAILS" 
  width="330">
   <floater.string
    name="none">
