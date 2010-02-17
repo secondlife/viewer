@@ -796,6 +796,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			}
 		}
 
+		if (irc_me && !use_plain_text_chat_history)
+		{
+			message = chat.mFromName + message;
+		}
+		
+
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();
