@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_voice_controls" title="Controles de Voz">
+	<string name="title_nearby">
+		CHAT DE VOZ
+	</string>
+	<string name="title_group">
+		Multiconferencia de voz con [GROUP]
+	</string>
+	<string name="title_adhoc">
+		Multiconferencia de voz
+	</string>
+	<string name="title_peer_2_peer">
+		Llamada: [NAME]
+	</string>
+	<string name="no_one_near">
+		No hay nadie cerca
+	</string>
+	<panel name="control_panel">
+		<layout_stack>
+			<layout_panel name="leave_btn_panel">
+				<button label="Colgar" name="leave_call_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</floater>
