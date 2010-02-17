@@ -25,10 +25,10 @@
 		Der Anruf wurde nicht entgegengenommen.   Bitte versuchen Sie es später erneut.
 	</text>
 	<text name="nearby">
-		Die Verbindung zu [VOICE_CHANNEL_NAME] wurde abgebrochen.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
+		Die Verbindung zu [VOICE_CHANNEL_NAME] wurde abgebrochen.  [RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P">
-		[VOICE_CHANNEL_NAME] hat den Anruf beendet.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
+		[VOICE_CHANNEL_NAME] hat den Anruf beendet.  [RECONNECT_NEARBY]
 	</text>
 	<text name="leaving">
 		[CURRENT_CHAT] wird verlassen.

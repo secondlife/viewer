@@ -2,7 +2,7 @@
 <panel label="もの" name="Outfits">
 	<tab_container name="appearance_tabs">
 		<inventory_panel label="マイ アウトフィット" name="outfitslist_tab"/>
-		<inventory_panel label="着用中" name="cof_accordionpanel"/>
+		<inventory_panel label="着用中" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="その他のオプションを表示します"/>

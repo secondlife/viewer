@@ -93,6 +93,10 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		Änderung an Kleidung/Körperteilen speichern?
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Nicht speichern" yestext="Alles speichern"/>
 	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		Leute, die nicht auf Ihrer Freundesliste stehen, werden nicht wissen, dass Sie deren Anrufe oder Sofortnachrichten ignoriert haben.
+		<usetemplate name="okbutton" yestext="Ja"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Wenn Sie einem anderen Einwohner, das die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
 Möchten Sie [FIRST_NAME] [LAST_NAME] die Erlaubnis zum Bearbeiten gewähren?
@@ -161,13 +165,15 @@ Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 Möchten Sie fortfahren?
 		<usetemplate ignoretext="Bestätigen, bevor Anhänge fallen gelassen werden" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
-	<notification name="ClickUnimplemented">
-		Leider ist diese Funktion noch nicht implementiert.
-	</notification>
 	<notification name="JoinGroupCanAfford">
 		Der Beitritt zu dieser Gruppe kostet [COST] L$.
 Fortfahren?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Beitreten"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		Sie treten der Gruppe [NAME] bei.
+Fortfahren?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Zusammenlegen"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Der Beitritt zu dieser Gruppe kostet [COST] L$.
@@ -336,6 +342,10 @@ Sind Sie sicher, dass Sie fortfahren wollen?
 		Änderung an Anzeige [NAME] speichern?
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Nicht speichern" yestext="Speichern"/>
 	</notification>
+	<notification name="ClassifiedInsufficientFunds">
+		Sie haben nicht genügend Geld, um eine Anzeige zu erstellen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeleteAvatarPick">
 		Auswahl [PICK] löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -431,18 +441,18 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 		Datei [[FILE]] kann nicht geschrieben werden
 	</notification>
 	<notification name="UnsupportedHardware">
-		Achtung: Ihr System erfüllt nicht die Mindestanforderungen von [APP_NAME]. Dies kann eine schlechte Darstellungsleistung in [APP_NAME] zur Folge haben. Bei nicht unterstützten Systemkonfigurationen kann Ihnen unsere [SUPPORT_SITE] leider nicht helfen.
+		Ihr Computer entspricht leider nicht den Mindestanforderungen von [APP_NAME]. Dies kann zur Folge haben, dass das Programm nicht sehr gut ausgeführt wird. Bei nicht unterstützten Systemkonfigurationen kann Ihnen unser [SUPPORT_SITE] leider nicht helfen.
 
 MINDESTANF.
-Die Seite [_URL] für weitere Informationen öffnen?
+Weitere Informationen finden Sie auf [_URL].
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=de
 		</url>
 		<usetemplate ignoretext="Meine Hardware wird nicht unterstützt" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="UnknownGPU">
-		Ihr System verwendet eine uns zurzeit unbekannte Grafikkarte.
-Dies passiert dann, wenn die neue Hardware noch nicht mit [APP_NAME] getestet wurde.  [APP_NAME] wird wahrscheinlich korrekt ausgeführt werden, jedoch sollten Sie Ihre Grafikeinstellungen anpassen, um eine bessere Darstellung zu erzielen.
+		Ihr System verwendet eine Grafikkarte, die [APP_NAME] nicht erkennt.
+Dies passiert dann, wenn die neue Hardware noch nicht mit [APP_NAME] getestet wurde.  Wahrscheinlich wird das Programm richtig ausgeführt, aber Sie müssen eventuell ein paar Grafikeinstellungen vornehmen.
 (Ich &gt; Einstellungen &gt; Grafik).
 		<form name="form">
 			<ignore name="ignore" text="Meine Grafikkarte konnte nicht identifiziert werden."/>
@@ -667,7 +677,7 @@ Ihre Suchanfrage: [FINALQUERY]
 Es wurde keine Suche durchgeführt.
 	</notification>
 	<notification name="CouldNotTeleportReason">
-		Teleport fehlgeschlagen.
+		Teleport ist fehlgeschlagen.
 [REASON]
 	</notification>
 	<notification name="invalid_tport">
@@ -767,14 +777,6 @@ Kann die Region nicht finden, in der sich dieses Land befindet.
 Mehrere Parzellen ausgewählt.
 
 Wählen Sie eine einzelne Parzelle.
-	</notification>
-	<notification name="ParcelCanPlayMedia">
-		Dieser Ort kann Streaming-Medien abspielen.
-Streaming-Medien erfordern eine schnelle Internet-Verbindung.
-
-Streaming-Medien abspielen, wenn verfügbar?
-(Sie können diese Option später unter Einstellungen &gt; Datenschutz ändern.)
-		<usetemplate name="okcancelbuttons" notext="Deaktivieren" yestext="Medien wiedergeben"/>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
 		Land kann nicht übertragen werden:
@@ -898,9 +900,8 @@ Land zusammenlegen?
 Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen Minuten noch einmal an und speichern Sie es erneut.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Sie wurden von [SECOND_LIFE] abgemeldet:
+		Es tut uns leid! Sie wurden von [SECOND_LIFE] abgemeldet.
             [MESSAGE]
-Klicken Sie auf „IM &amp; Chat anzeigen“, um vorhandene Nachrichten und Chat weiterhin anzuzeigen. Um [APP_NAME] zu schließen, auf „Beenden“ klicken.
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="IM &amp; Chat anzeigen"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1335,7 +1336,6 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 	<notification name="JoinedTooManyGroupsMember">
 		Sie haben die maximale Anzahl an Gruppen erreicht. Bitte verlassen Sie eine andere Gruppe, um dieser beitreten zu können oder lehnen Sie das Angebot ab.
 [NAME]  hat Sie eingeladen, einer Gruppe beizutreten.
-[INVITE]
 		<usetemplate name="okcancelbuttons" notext="Ablehnen" yestext="Beitreten"/>
 	</notification>
 	<notification name="JoinedTooManyGroups">
@@ -1403,7 +1403,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="TeleportFromLandmark">
-		Möchten Sie sich wirklich teleportieren?
+		Sind Sie sicher, dass Sie zu &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; teleportieren möchten?
 		<usetemplate ignoretext="Bestätigen, dass ich zu einer Landmarke teleportieren möchte" name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
 	</notification>
 	<notification name="TeleportToPick">
@@ -1730,7 +1730,7 @@ Inventarobjekt(e) verschieben?
 	<notification name="HelpReportAbuseEmailLL">
 		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] and [http://secondlife.com/corporate/cs.php Community-Standards] melden.
 
-Alle gemeldeten Verstöße werden bearbeitet. Sie können auf der Seite [http://secondlife.com/support/incidentreport.php Verstoßmeldungen] nachverfolgen, welche Verstoßmeldungen bearbeitet wurden.
+Alle gemeldeten Verstöße werden bearbeitet.
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Wählen Sie eine Missbrauchskategorie aus.
@@ -1936,10 +1936,10 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		Betreff: [SUBJECT], Nachricht: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] ist online
+		[NAME_SLURL] ist online
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] ist offline
+		[NAME_SLURL] ist offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Obwohl Sie ein sehr netter Mensch sind, können Sie sich nicht selbst als Freund hinzufügen.
@@ -2140,7 +2140,7 @@ Nicht transferierbare an die Gruppe übertragene Objekte wurden gelöscht.
 	</notification>
 	<notification name="ServerObjectMessage">
 		Nachricht von [NAME]:
-[MSG]
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
 	</notification>
 	<notification name="NotSafe">
 		Auf diesem Land ist Schaden aktiviert.
@@ -2320,7 +2320,6 @@ Versuchen Sie es in einigen Minuten erneut.
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
-			<button name="Send IM" text="IM senden"/>
 		</form>
 	</notification>
 	<notification name="FriendshipOffered">

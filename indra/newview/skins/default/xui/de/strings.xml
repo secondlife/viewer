@@ -227,9 +227,6 @@
 	<string name="AvatarNameMultiple">
 		(mehrere)
 	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
-	</string>
 	<string name="GroupNameNone">
 		(keiner)
 	</string>
@@ -592,6 +589,9 @@
 	</string>
 	<string name="hang_up">
 		Verbindung mit In-Welt-Voice-Chat getrennt
+	</string>
+	<string name="reconnect_nearby">
+		Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		Dem Objekt „[OBJECTNAME]“, ein Objekt von „[OWNERNAME]“, in [REGIONNAME] [REGIONPOS], wurde folgende Berechtigung erteilt: [PERMISSIONS].
@@ -1323,6 +1323,9 @@
 	</string>
 	<string name="ScriptLimitsRequestError">
 		Fehler bei Informationsabruf
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Keine Parzellen wurden ausgewählt
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
 		Fehler: Skriptinformationen sind nur für Ihre aktuelle Region verfügbar

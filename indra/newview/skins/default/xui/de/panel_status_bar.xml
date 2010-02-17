@@ -24,7 +24,7 @@
 	<button label="" label_selected="" name="buycurrency" tool_tip="Mein Kontostand"/>
 	<button label="L$ kaufen" name="buyL" tool_tip="Hier klicken, um mehr L$ zu kaufen"/>
 	<text name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)">
-		12:00
+		24:00 H PST
 	</text>
 	<button name="volume_btn" tool_tip="Steuerung der Gesamtlautstärke"/>
 </panel>

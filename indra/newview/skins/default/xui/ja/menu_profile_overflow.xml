@@ -2,6 +2,7 @@
 <toggleable_menu name="profile_overflow_menu">
 	<menu_item_call label="支払う" name="pay"/>
 	<menu_item_call label="共有" name="share"/>
+	<menu_item_check label="ブロック・ブロック解除" name="block_unblock"/>
 	<menu_item_call label="追放" name="kick"/>
 	<menu_item_call label="フリーズ" name="freeze"/>
 	<menu_item_call label="フリーズ解除" name="unfreeze"/>

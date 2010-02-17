@@ -40,8 +40,8 @@
 	<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
 	<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
 	<check_box label="Text-Chatverlauf aktivieren" name="plain_text_chat_history"/>
-	<radio_group name="chat_window" tool_tip="Zeigen sie Ihre Sofortnachrichten (Instant Messages) in einem anderen Fenster oder in einem einzigen Fenster mit viele Registerkarten an (Neustart erforderlich).">
-		<radio_item label="Mehrere Fenster" name="radio" value="0"/>
-		<radio_item label="Ein Fenster" name="radio2" value="1"/>
+	<radio_group name="chat_window" tool_tip="Zeigen Sie Ihre Sofortnachrichten (Instant Messages) in einem anderen Fenster oder in einem einzigen Fenster mit viele Registerkarten an (Neustart erforderlich).">
+		<radio_item label="Getrennte Fenster" name="radio" value="0"/>
+		<radio_item label="Registerkarten" name="radio2" value="1"/>
 	</radio_group>
 </panel>

@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		説明：
 	</text>
-	<button label="ワールド再生" label_selected="停止" name="Anim play btn" tool_tip="他人にも見えるように再生します"/>
+	<button label="インワールドで再生する" label_selected="停止" name="Anim play btn" tool_tip="他人にも見えるように再生します"/>
 	<button label="ローカル再生" label_selected="停止" name="Anim audition btn" tool_tip="自分だけが見えるように再生します"/>
 </floater>

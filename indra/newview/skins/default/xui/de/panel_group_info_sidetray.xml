@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Gruppeninfo" name="GroupInfo">
+<panel label="Gruppenprofil" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
-		In der aktuellen Registerkarte befinden sich ungesicherte Änderungen
+		Diese Änderungen wurden nicht gespeichert.
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Möchten Sie diese Änderungen speichern?
@@ -12,27 +12,24 @@
 	<panel.string name="group_join_free">
 		Kostenlos
 	</panel.string>
-	<text name="group_name" value="(Lädt...)"/>
-	<line_editor label="Geben Sie Ihren neuen Gruppennamen hier ein" name="group_name_editor"/>
-	<texture_picker label="" name="insignia" tool_tip="Klicken Sie, um ein Bild auszuwählen"/>
-	<text name="prepend_founded_by">
-		Gründer:
-	</text>
-	<name_box initial_value="(empfange)" name="founder_name"/>
-	<text name="join_cost_text">
-		Kostenlos
-	</text>
-	<button label="JETZT BEITRETEN!" name="btn_join"/>
-	<accordion name="groups_accordion">
-		<accordion_tab name="group_general_tab" title="Allgemein"/>
-		<accordion_tab name="group_roles_tab" title="Rollen"/>
-		<accordion_tab name="group_notices_tab" title="Mitteilungen"/>
-		<accordion_tab name="group_land_tab" title="Land/Kapital"/>
-	</accordion>
-	<panel name="button_row">
-		<button label="Erstellen" label_selected="Neue Gruppe" name="btn_create"/>
-		<button label="Gruppen-Chat" name="btn_chat"/>
-		<button label="Gruppe anrufen" name="btn_call"/>
-		<button label="Speichern" label_selected="Speichern" name="btn_apply"/>
+	<panel name="group_info_top">
+		<text name="group_name" value="(wird geladen...)"/>
+		<line_editor label="Neuen Gruppennamen hier eingeben" name="group_name_editor"/>
 	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="Allgemein"/>
+				<accordion_tab name="group_roles_tab" title="Rollen"/>
+				<accordion_tab name="group_notices_tab" title="Mitteilungen"/>
+				<accordion_tab name="group_land_tab" title="Land/Kapital"/>
+			</accordion>
+		</layout_panel>
+		<layout_panel name="button_row">
+			<button name="btn_create" tool_tip="Neue Gruppe erstellen"/>
+			<button label="Chat" name="btn_chat"/>
+			<button label="Gruppe anrufen" name="btn_call" tool_tip="Diese Gruppe anrufen"/>
+			<button label="Speichern" label_selected="Speichern" name="btn_apply"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

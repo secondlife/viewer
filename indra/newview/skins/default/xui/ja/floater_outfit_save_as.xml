@@ -3,9 +3,10 @@
 	<button label="保存" label_selected="保存" name="Save"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<text name="Save item as:">
-		アウトフィットを別名で保存：
+		着用しているものを
+新しいアウトフィットに保存：
 	</text>
 	<line_editor name="name ed">
-		[DESC]
+		[DESC] （新）
 	</line_editor>
 </floater>

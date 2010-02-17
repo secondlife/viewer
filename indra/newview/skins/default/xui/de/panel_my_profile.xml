@@ -30,11 +30,14 @@
 					</panel>
 					<text name="title_member_text" value="Einwohner seit:"/>
 					<text name="title_acc_status_text" value="Kontostatus:"/>
-					<text name="acc_status_text">
+					<text_editor name="acc_status_text">
 						Einwohner. Keine Zahlungsinfo archiviert.
               Linden.
-					</text>
+					</text_editor>
 					<text name="title_partner_text" value="Partner:"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(wird in Datenbank gesucht)" name="partner_text"/>
+					</panel>
 					<text name="title_groups_text" value="Gruppen:"/>
 				</panel>
 			</scroll_container>

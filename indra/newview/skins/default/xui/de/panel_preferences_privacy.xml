@@ -13,6 +13,7 @@
 	<check_box label="Cookies annehmen" name="cookies_enabled"/>
 	<check_box label="Medien aktiviert" name="media_enabled"/>
 	<check_box label="Automatische Wiedergabe zulassen" name="autoplay_enabled"/>
+	<check_box label="Musik aktiviert" name="music_enabled"/>
 	<text name="Logs:">
 		Protokolle:
 	</text>

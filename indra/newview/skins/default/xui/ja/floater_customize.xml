@@ -156,8 +156,8 @@
 		<panel label="シャツ" name="Shirt">
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しいシャツを作成" label_selected="新しいシャツを作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
+			<button label="新しいシャツを作成" label_selected="新しいシャツを作成" name="Create New"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
 			<button label="戻す" label_selected="戻す" name="Revert"/>
@@ -189,8 +189,8 @@
 		<panel label="パンツ" name="Pants">
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しいパンツを作成" label_selected="新しいパンツを作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
+			<button label="新しいパンツを作成" label_selected="新しいパンツを作成" name="Create New"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
 			<button label="戻す" label_selected="戻す" name="Revert"/>
@@ -238,6 +238,7 @@
 			<text name="not worn instructions">
 				あなたの持ち物からアバターにドラッグして、新しい靴を履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しい靴を作成" label_selected="新しい靴を作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -246,7 +247,6 @@
 			</text>
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しい靴を作成" label_selected="新しい靴を作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -271,6 +271,7 @@
 			<text name="not worn instructions">
 				あなたの持ち物からアバターにドラッグして、新しい靴下を履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しい靴下を作成" label_selected="新しい靴下を作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -279,7 +280,6 @@
 			</text>
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しい靴下を作成" label_selected="新しい靴下を作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -304,6 +304,7 @@
 			<text name="not worn instructions">
 				持ち物からあなたのアバターに1つドラッグして、新しいジャケットを着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しい上着を作成" label_selected="新しい上着を作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -313,7 +314,6 @@
 			<texture_picker label="上半身の生地" name="Upper Fabric" tool_tip="写真をクリックして選択"/>
 			<texture_picker label="下層生地" name="Lower Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しい上着を作成" label_selected="新しい上着を作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -338,6 +338,7 @@
 			<text name="not worn instructions">
 				あなたの持ち物からアバターにドラッグして、新しい手袋をつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しい手袋を作成" label_selected="新しい手袋を作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -346,7 +347,6 @@
 			</text>
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しい手袋を作成" label_selected="新しい手袋を作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -371,6 +371,7 @@
 			<text name="not worn instructions">
 				持ち物からあなたのアバターに1つドラッグして、新しい下着（上）を着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しい下着シャツを作成" label_selected="新しい下着シャツを作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -379,7 +380,6 @@
 			</text>
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しい下着シャツを作成" label_selected="新しい下着シャツを作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -404,6 +404,7 @@
 			<text name="not worn instructions">
 				あなたの持ち物からアバターにドラッグして、新しい下着（下）を履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しいパンツを作成" label_selected="新しいパンツを作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -412,7 +413,6 @@
 			</text>
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="新しいパンツを作成" label_selected="新しいパンツを作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -437,6 +437,7 @@
 			<text name="not worn instructions">
 				持ち物からあなたのアバターに1つドラッグして、新しいスカートを履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="スカートを作成" label_selected="スカートを作成" name="Create New"/>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
 			</text>
@@ -445,47 +446,10 @@
 			</text>
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<button label="スカートを作成" label_selected="スカートを作成" name="Create New"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
 			<button label="戻す" label_selected="戻す" name="Revert"/>
-		</panel>
-		<panel label="アルファ" name="Alpha">
-			<text name="title">
-				[DESC]
-			</text>
-			<text name="title_no_modify">
-				[DESC]： 修正不可
-			</text>
-			<text name="title_loading">
-				[DESC]： ローディング...
-			</text>
-			<text name="title_not_worn">
-				[DESC]： 未着用
-			</text>
-			<text name="path">
-				参照 [PATH]
-			</text>
-			<text name="not worn instructions">
-				あなたの持ち物からアバターにドラッグして、新しいアルファマスクをつけます。 代わりに、はじめから新しく作成して着用することもできます。
-			</text>
-			<text name="no modify instructions">
-				この着用物を修正する権限がありません。
-			</text>
-			<text name="Item Action Label">
-				アルファ：
-			</text>
-			<texture_picker label="アルファ（下）" name="Lower Alpha" tool_tip="クリックして写真を選択します"/>
-			<texture_picker label="アルファ（上）" name="Upper Alpha" tool_tip="クリックして写真を選択します"/>
-			<texture_picker label="頭部のアルファ" name="Head Alpha" tool_tip="クリックして写真を選択します"/>
-			<texture_picker label="目のアルファ" name="Eye Alpha" tool_tip="クリックして写真を選択します"/>
-			<texture_picker label="髪のアルファ" name="Hair Alpha" tool_tip="クリックして写真を選択します"/>
-			<button label="新しいアルファを作成" label_selected="新しいアルファを作成" name="Create New"/>
-			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
-			<button label="保存" label_selected="保存" name="Save"/>
-			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
-			<button label="元に戻す" label_selected="元に戻す" name="Revert"/>
 		</panel>
 		<panel label="タトゥ" name="Tattoo">
 			<text name="title">
@@ -506,6 +470,7 @@
 			<text name="not worn instructions">
 				あなたの持ち物からアバターにドラッグして、新しいタトゥをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
+			<button label="新しいタトゥを作成" label_selected="新しいタトゥを作成" name="Create New"/>
 			<text name="no modify instructions">
 				この着用物を修正する権限がありません。
 			</text>
@@ -515,14 +480,49 @@
 			<texture_picker label="頭部のタトゥー" name="Head Tattoo" tool_tip="クリックして写真を選択します"/>
 			<texture_picker label="上部のタトゥー" name="Upper Tattoo" tool_tip="クリックして写真を選択します"/>
 			<texture_picker label="下部のタトゥー" name="Lower Tattoo" tool_tip="クリックして写真を選択します"/>
-			<button label="新しいタトゥを作成" label_selected="新しいタトゥを作成" name="Create New"/>
+			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
+			<button label="保存" label_selected="保存" name="Save"/>
+			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
+			<button label="元に戻す" label_selected="元に戻す" name="Revert"/>
+		</panel>
+		<panel label="アルファ" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]： 修正不可
+			</text>
+			<text name="title_loading">
+				[DESC]： ローディング...
+			</text>
+			<text name="title_not_worn">
+				[DESC]： 未着用
+			</text>
+			<text name="path">
+				参照 [PATH]
+			</text>
+			<text name="not worn instructions">
+				あなたの持ち物からアバターにドラッグして、新しいアルファマスクをつけます。 代わりに、はじめから新しく作成して着用することもできます。
+			</text>
+			<button label="新しいアルファを作成" label_selected="新しいアルファを作成" name="Create New"/>
+			<text name="no modify instructions">
+				この着用物を修正する権限がありません。
+			</text>
+			<text name="Item Action Label">
+				アルファ：
+			</text>
+			<texture_picker label="アルファ（下）" name="Lower Alpha" tool_tip="クリックして写真を選択します"/>
+			<texture_picker label="アルファ（上）" name="Upper Alpha" tool_tip="クリックして写真を選択します"/>
+			<texture_picker label="頭部のアルファ" name="Head Alpha" tool_tip="クリックして写真を選択します"/>
+			<texture_picker label="目のアルファ" name="Eye Alpha" tool_tip="クリックして写真を選択します"/>
+			<texture_picker label="髪のアルファ" name="Hair Alpha" tool_tip="クリックして写真を選択します"/>
 			<button label="取り外す" label_selected="取り外す" name="Take Off"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
 			<button label="元に戻す" label_selected="元に戻す" name="Revert"/>
 		</panel>
 	</tab_container>
-	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info"/>
+	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info" tool_tip="あなたのアバターに付いているスクリプトを表示する"/>
 	<button label="アウトフィット作成" label_selected="アウトフィット作成" name="make_outfit_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

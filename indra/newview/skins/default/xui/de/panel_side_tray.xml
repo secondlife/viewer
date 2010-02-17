@@ -11,7 +11,7 @@
 	</sidetray_tab>
 	<sidetray_tab description="Freunde, Kontakte und Leute in Ihrer Nähe finden." name="sidebar_people" tab_title="Leute">
 		<panel_container name="panel_container">
-			<panel label="Gruppeninfo" name="panel_group_info_sidetray"/>
+			<panel label="Gruppenprofil" name="panel_group_info_sidetray"/>
 			<panel label="Ignorierte Einwohner &amp; Objekte" name="panel_block_list_sidetray"/>
 		</panel_container>
 	</sidetray_tab>
