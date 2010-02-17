@@ -36,6 +36,7 @@
 
 #include "llview.h"
 
+#include "llcachename.h"
 #include "llinventory.h"
 #include "llviewerinventory.h"
 #include "llinventoryfunctions.h"
@@ -532,6 +533,9 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getBOOL("Data","HasAttachment",has_attachment,i);
 		msg->getU8("Data","AssetType",asset_type,i);
 		msg->getU32("Data","Timestamp",timestamp,i);
+
+		// IDEVO clean up legacy "Resident" names
+		name = LLCacheName::cleanFullName(name);
 
 		LLSD row;
 		row["id"] = id;
