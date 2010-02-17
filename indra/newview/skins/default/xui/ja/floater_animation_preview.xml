@@ -106,6 +106,9 @@
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		エモート名を読みとれません。
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		ルートジョイント名が無効です。「hip」を使用してください。
+	</floater.string>
 	<text name="name_label">
 		名前：
 	</text>

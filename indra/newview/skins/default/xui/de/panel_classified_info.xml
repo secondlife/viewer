@@ -6,18 +6,19 @@
 	<panel.string name="type_pg">
 		Allgemeiner Inhalt
 	</panel.string>
+	<panel.string name="l$_price">
+		[PRICE] L$
+	</panel.string>
 	<text name="title" value="Anzeigen-Info"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="classified_name" value="[name]"/>
-			<text name="classified_location" value="[wird geladen...]"/>
-			<text name="content_type" value="[Inhalts-Art]"/>
-			<text name="category" value="[Kategorie]"/>
+			<text_editor name="classified_name" value="[name]"/>
+			<text_editor name="classified_location" value="[wird geladen...]"/>
+			<text_editor name="content_type" value="[Inhalts-Art]"/>
+			<text_editor name="category" value="[Kategorie]"/>
 			<check_box label="Jede Woche automatisch erneuern" name="auto_renew"/>
-			<text name="price_for_listing" tool_tip="Preis für Anzeige.">
-				[PRICE] L$
-			</text>
-			<text name="classified_desc" value="[description]"/>
+			<text_editor name="price_for_listing" tool_tip="Preis für Anzeige."/>
+			<text_editor name="classified_desc" value="[description]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

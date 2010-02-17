@@ -74,6 +74,7 @@
 		</menu>
 		<menu_item_call label="Verknüpfung" name="Link"/>
 		<menu_item_call label="Verknüpfung auflösen" name="Unlink"/>
+		<menu_item_check label="Verknüpfte Teile bearbeiten" name="Edit Linked Parts"/>
 		<menu_item_call label="Fokus auf Auswahl" name="Focus on Selection"/>
 		<menu_item_call label="Auf Auswahl zoomen" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
@@ -90,25 +91,18 @@
 			<menu_item_call label="Skripts auf nicht ausführen einstellen" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Optionen" name="Options">
-			<menu_item_check label="Verknüpfte Teile bearbeiten" name="Edit Linked Parts"/>
 			<menu_item_call label="Hochlade-Berechtigungen (Standard) festlegen" name="perm prefs"/>
 			<menu_item_check label="Erweiterte Berechtigungen anzeigen" name="DebugPermissions"/>
-			<menu label="Auswahl" name="Selection">
-				<menu_item_check label="Nur meine Objekte auswählen" name="Select Only My Objects"/>
-				<menu_item_check label="Nur bewegliche Objekte auswählen" name="Select Only Movable Objects"/>
-				<menu_item_check label="Nach Umgebung auswählen" name="Select By Surrounding"/>
-			</menu>
-			<menu label="Anzeigen" name="Show">
-				<menu_item_check label="Ausgeblendete Auswahl anzeigen" name="Show Hidden Selection"/>
-				<menu_item_check label="Lichtradius für Auswahl anzeigen" name="Show Light Radius for Selection"/>
-				<menu_item_check label="Auswahlstrahl anzeigen" name="Show Selection Beam"/>
-			</menu>
-			<menu label="Raster" name="Grid">
-				<menu_item_check label="An Raster ausrichten" name="Snap to Grid"/>
-				<menu_item_call label="Objekt-XY an Raster ausrichten" name="Snap Object XY to Grid"/>
-				<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
-				<menu_item_call label="Rasteroptionen" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="Nur meine Objekte auswählen" name="Select Only My Objects"/>
+			<menu_item_check label="Nur bewegliche Objekte auswählen" name="Select Only Movable Objects"/>
+			<menu_item_check label="Nach Umgebung auswählen" name="Select By Surrounding"/>
+			<menu_item_check label="Ausgeblendete Auswahl anzeigen" name="Show Hidden Selection"/>
+			<menu_item_check label="Lichtradius für Auswahl anzeigen" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Auswahlstrahl anzeigen" name="Show Selection Beam"/>
+			<menu_item_check label="An Raster ausrichten" name="Snap to Grid"/>
+			<menu_item_call label="Objekt-XY an Raster ausrichten" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
+			<menu_item_call label="Rasteroptionen" name="Grid Options"/>
 		</menu>
 		<menu label="Verknüpfte Teile auswählen" name="Select Linked Parts">
 			<menu_item_call label="Nächstes Teil auswählen" name="Select Next Part"/>
@@ -175,8 +169,8 @@
 		<menu_item_check label="Mehrer Threads ausführen" name="Run Multiple Threads"/>
 		<menu_item_call label="Gruppen-Cache löschen" name="ClearGroupCache"/>
 		<menu_item_check label="Weiche Mausbewegung" name="Mouse Smoothing"/>
-		<menu_item_check label="IMs im Chat in der Nähe anzeigen" name="IMInChat"/>
 		<menu label="Tastaturkürzel" name="Shortcuts">
+			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
 			<menu_item_check label="Suchen" name="Search"/>
 			<menu_item_call label="Tasten freigeben" name="Release Keys"/>
 			<menu_item_call label="UI-Größe auf Standard setzen" name="Set UI Size to Default"/>
@@ -219,6 +213,7 @@
 			<menu_item_check label="Kamera" name="Camera"/>
 			<menu_item_check label="Wind" name="Wind"/>
 			<menu_item_check label="FOV" name="FOV"/>
+			<menu_item_check label="Gütesiegel" name="Badge"/>
 		</menu>
 		<menu label="Info anzeigen" name="Display Info">
 			<menu_item_check label="Zeit anzeigen" name="Show Time"/>

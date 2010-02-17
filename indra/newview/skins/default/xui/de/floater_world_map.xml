@@ -62,6 +62,7 @@
 		</combo_box>
 		<search_editor label="Regionen nach Name" name="location" tool_tip="Geben Sie den Namen einer Region ein"/>
 		<button label="Suchen" name="DoSearch" tool_tip="Nach einer Region suchen"/>
+		<button name="Clear" tool_tip="Karte zurücksetzen"/>
 		<scroll_list name="search_results">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="sim_name"/>

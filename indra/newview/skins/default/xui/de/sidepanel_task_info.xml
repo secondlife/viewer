@@ -37,7 +37,7 @@
 		Mischverkauf
 	</panel.string>
 	<text name="title" value="Objektprofil"/>
-	<text name="where" value="(Inworld)"/>
+	<text name="where" value="(inworld)"/>
 	<panel label="">
 		<text name="Name:">
 			Name:

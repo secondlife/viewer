@@ -24,7 +24,7 @@
 	<button label="" label_selected="" name="buycurrency" tool_tip="所持金"/>
 	<button label="L$ の購入" name="buyL" tool_tip="クリックして L$ を購入します"/>
 	<text name="TimeText" tool_tip="現在時刻（太平洋）">
-		12：00 AM
+		24:00 AM PST
 	</text>
 	<button name="volume_btn" tool_tip="グローバル音量設定"/>
 </panel>

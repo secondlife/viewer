@@ -4,11 +4,11 @@
 		Anzeigen:
 	</text>
 	<check_box label="Wenn ich Geld ausgebe oder L$ erhalte" name="notify_money_change_checkbox"/>
-	<check_box label="Wenn meinen Freund sich an- oder abmelden" name="friends_online_notify_checkbox"/>
+	<check_box label="Wenn meine Freunde sich an- oder abmelden" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Diese Meldungen immer anzeigen:
+		Immer anzeigen:
 	</text>
 	<text name="dont_show_label">
-		Diese Meldungen nie anzeigen:
+		Niemals anzeigen:
 	</text>
 </panel>
