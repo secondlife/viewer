@@ -30,19 +30,19 @@ Vous pouvez désactiver la réception des notices dans l&apos;onglet Général.
 		<text name="lbl3">
 			Sujet :
 		</text>
-		<line_editor name="create_subject" />
-		<text  name="lbl4">
+		<line_editor name="create_subject"/>
+		<text name="lbl4">
 			Message :
 		</text>
 		<text_editor name="create_message"/>
-		<text name="lbl5" >
+		<text name="lbl5">
 			Pièce-jointe :
 		</text>
 		<line_editor name="create_inventory_name"/>
 		<text name="string">
 			Faire glisser l&apos;objet et le déposer ici pour le joindre :
 		</text>
-		<button label="Supprimer" label_selected="Supprimer pièce-jointe" name="remove_attachment"/>
+		<button label="Supprimer" label_selected="Supprimer pièce-jointe" name="remove_attachment" tool_tip="Supprimer la pièce jointe de votre notification"/>
 		<button label="Envoyer" label_selected="Envoyer" left="200" name="send_notice" width="100"/>
 		<group_drop_target name="drop_target" tool_tip="Faites glisser un objet de l&apos;inventaire jusqu&apos;à cette case pour l&apos;envoyer avec la notice. Vous devez avoir l&apos;autorisation de copier et transférer l&apos;objet pour pouvoir le joindre."/>
 	</panel>

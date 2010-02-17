@@ -71,6 +71,7 @@
 		</combo_box>
 		<search_editor label="Régions par nom" name="location" tool_tip="Saisissez le nom d&apos;une région" width="155"/>
 		<button label="Trouver" label_selected="&gt;" left_delta="160" name="DoSearch" tool_tip="Recherchez sur la carte" width="75"/>
+		<button name="Clear" tool_tip="Effacer les lignes de suivi et réinitialiser la carte"/>
 		<scroll_list left="-270" name="search_results" width="252">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="sim_name"/>

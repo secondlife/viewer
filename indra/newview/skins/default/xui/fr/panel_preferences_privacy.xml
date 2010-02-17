@@ -13,6 +13,7 @@
 	<check_box label="Accepter les cookies" name="cookies_enabled"/>
 	<check_box label="Média activé" name="media_enabled"/>
 	<check_box label="Autoriser la lecture automatique du média" name="autoplay_enabled"/>
+	<check_box label="Musique activée" name="music_enabled"/>
 	<text name="Logs:">
 		Journaux :
 	</text>

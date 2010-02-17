@@ -227,9 +227,6 @@
 	<string name="AvatarNameMultiple">
 		(multiple)
 	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
-	</string>
 	<string name="GroupNameNone">
 		(aucun)
 	</string>
@@ -592,6 +589,9 @@
 	</string>
 	<string name="hang_up">
 		Déconnecté du chat vocal
+	</string>
+	<string name="reconnect_nearby">
+		Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], a reçu le droit de : [PERMISSIONS].
@@ -1323,6 +1323,9 @@
 	</string>
 	<string name="ScriptLimitsRequestError">
 		Une erreur est survenue pendant la requête d&apos;informations.
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Aucune parcelle sélectionnée
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
 		Erreur : les informations de script ne sont disponibles que dans votre région actuelle.
