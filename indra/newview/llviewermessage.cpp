@@ -105,6 +105,7 @@
 #include "llpanelplaceprofile.h"
 
 #include <boost/algorithm/string/split.hpp> //
+#include <boost/regex.hpp>
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
@@ -2037,6 +2038,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				invite_bucket = (struct invite_bucket_t*) &binary_bucket[0];
 				S32 membership_fee = ntohl(invite_bucket->membership_fee);
+
+				// IDEVO Clean up legacy name "Resident" in message constructed in
+				// lldatagroups.cpp
+				U32 pos = message.find(" has invited you to join a group.\n");
+				if (pos != std::string::npos)
+				{
+					// use cleaned-up name from above
+					message = name + message.substr(pos);
+				}
 
 				LLSD payload;
 				payload["transaction_id"] = session_id;
@@ -4439,6 +4449,67 @@ void process_time_dilation(LLMessageSystem *msg, void **user_data)
 */
 
 
+static void show_money_balance_notification(const std::string& desc)
+{
+	// Intercept some messages constructed in lltransactionflags.cpp
+	// to fix avatar names and allow localization.
+	LLSD args;
+	LLSD payload;
+	std::string name;
+	boost::smatch match;
+	const char* notification_name = NULL;
+
+	// <name> paid you L$<amount> for <reason>.
+	static const boost::regex paid_you_for("(.+) paid you L\\$(\\d+) for (.*)\\.");
+	// <name> paid you L$<amount>.
+	static const boost::regex paid_you("(.+) paid you L\\$(\\d+)\\.");
+	// You paid <name> L$<amount> [for <reason>].
+	static const boost::regex you_paid("You paid (.*) L\\$(\\d+)(.+)\\.");
+
+	if (boost::regex_match(desc, match, paid_you_for))
+	{
+		name = match[1].str();
+		// IDEVO strip legacy "Resident" name
+		name = name.substr(0, name.find(" Resident"));
+		args["NAME"] = name;
+		args["AMOUNT"] = match[2].str();
+		args["REASON"] = match[3].str();
+		notification_name = "PaymentReceivedFor";
+	}
+	else if (boost::regex_match(desc, match, paid_you))
+	{
+		name = match[1].str();
+		// IDEVO strip legacy "Resident" name
+		name = name.substr(0, name.find(" Resident"));
+		args["NAME"] = name;
+		args["AMOUNT"] = match[2].str();
+		notification_name = "PaymentReceived";
+	}
+	else if (boost::regex_match(desc, match, you_paid))
+	{
+		name = match[1].str();
+		// IDEVO strip legacy "Resident" name
+		name = name.substr(0, name.find(" Resident"));
+		args["NAME"] = name;
+		args["AMOUNT"] = match[2].str();
+		args["REASON"] = match[3].str();
+		notification_name = "PaymentSent";
+	}
+
+	// if name extracted and name cache contains avatar id send loggable notification
+	LLUUID from_id;
+	if (notification_name != NULL
+		&& gCacheName->getUUID(name, from_id))
+	{
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add(notification_name, args, payload);
+	}
+	else
+	{
+		args["MESSAGE"] = desc;
+		LLNotificationsUtil::add("SystemMessage", args);
+	}
+}
 
 void process_money_balance_reply( LLMessageSystem* msg, void** )
 {
@@ -4483,33 +4554,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	if(!desc.empty() && gSavedSettings.getBOOL("NotifyMoneyChange")
 	   && (std::find(recent.rbegin(), recent.rend(), tid) == recent.rend()))
 	{
-		// Make the user confirm the transaction, since they might
-		// have missed something during an event.
-		// *TODO: Translate
-		LLSD args;
-		args["MESSAGE"] = desc;
-
-		// this is a marker to retrieve avatar name from server message:
-		// "<avatar name> paid you L$"
-		const std::string marker = "paid you L$";
-
-		// extract avatar name from system message
-		std::string name = desc.substr(0, desc.find(marker, 0));
-		LLStringUtil::trim(name);
-
-		// if name extracted and name cache contains avatar id send loggable notification
-		LLUUID from_id;
-		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
-		{
-			args["NAME"] = name;
-			LLSD payload;
-			payload["from_id"] = from_id;
-			LLNotificationsUtil::add("PaymentRecived", args, payload);
-		}
-		else
-		{
-			LLNotificationsUtil::add("SystemMessage", args);
-		}
+		show_money_balance_notification(desc);
 
 		// Once the 'recent' container gets large enough, chop some
 		// off the beginning.

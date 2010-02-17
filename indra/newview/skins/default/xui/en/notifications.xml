@@ -4621,11 +4621,25 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="PaymentRecived"
+   name="PaymentReceived"
    type="notify">
-[MESSAGE]
+[NAME] paid you L$[AMOUNT].
   </notification>
-  
+
+  <notification
+   icon="notify.tga"
+   name="PaymentReceivedFor"
+   type="notify">
+[NAME] paid you L$[AMOUNT] for [REASON].
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentSent"
+   type="notify">
+You paid [NAME] L$[AMOUNT][REASON].
+  </notification>
+
   <notification
    icon="notify.tga"
    name="EventNotification"
