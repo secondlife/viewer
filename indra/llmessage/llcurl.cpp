@@ -55,7 +55,6 @@
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llthread.h"
-#include "llvfile.h"
 
 //////////////////////////////////////////////////////////////////////////////
 /*

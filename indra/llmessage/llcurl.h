@@ -44,7 +44,6 @@
 #include <boost/intrusive_ptr.hpp>
 #include <curl/curl.h> // TODO: remove dependency
 
-#include "llassettype.h"
 #include "llbuffer.h"
 #include "lliopipe.h"
 #include "llsd.h"

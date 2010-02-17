@@ -41,7 +41,7 @@ if (WINDOWS)
       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /ZI /MD /MP"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /MD /MP"
+      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MD /MP"
       CACHE STRING "C++ compiler release options" FORCE)
 
   set(CMAKE_CXX_STANDARD_LIBRARIES "")
