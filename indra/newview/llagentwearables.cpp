@@ -1673,6 +1673,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	if (mAvatarObject)
 	{
 		mAvatarObject->updateVisualParams();
+		mAvatarObject->invalidateAll();
 	}
 
 	// Start rendering & update the server

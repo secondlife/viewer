@@ -78,43 +78,6 @@
      name="cookies_enabled"
      top_pad="10"
      width="350" />
-	<check_box
-     name="media_enabled"
-     control_name="AudioStreamingMedia"
-     height="16"
-     label="Media Enabled"
-     layout="topleft"
-     left="30"
-     top_pad="10"
-     width="350">
-       <check_box.commit_callback
-          function="Pref.MediaEnabled" />
-    </check_box>
-	<check_box
-	 enabled_control="AudioStreamingMedia"
-     control_name="ParcelMediaAutoPlayEnable"
-     height="16"
-     label="Allow Media to auto-play"
-     layout="topleft"
-     left="30"
-     name="autoplay_enabled"
-     top_pad="10"
-     width="350">
-       <check_box.commit_callback
-          function="Pref.ParcelMediaAutoPlayEnable" />
-    </check_box>
-	<check_box
-     control_name="AudioStreamingMusic"
-     height="16"
-     label="Music Enabled"
-     layout="topleft"
-     left="30"
-     name="music_enabled"
-     top_pad="10"
-     width="350">
-       <check_box.commit_callback
-          function="Pref.MusicEnabled" />
-    </check_box>
 	<text
       type="string"
     length="1"
