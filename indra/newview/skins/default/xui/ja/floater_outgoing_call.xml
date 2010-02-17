@@ -25,10 +25,10 @@
 		繋がりませんでした。  あとでもう一度お試しください。
 	</text>
 	<text name="nearby">
-		[VOICE_CHANNEL_NAME] への接続が切れました。  「近くのボイスチャット」に再接続されます。
+		[VOICE_CHANNEL_NAME] への接続が切れました。  [RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P">
-		[VOICE_CHANNEL_NAME] がコールを終了しました。  「近くのボイスチャット」に再接続されます。
+		[VOICE_CHANNEL_NAME] がコールを終了しました。  [RECONNECT_NEARBY]
 	</text>
 	<text name="leaving">
 		[CURRENT_CHAT] を終了します。

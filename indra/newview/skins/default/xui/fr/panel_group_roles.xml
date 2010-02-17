@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Membres et rôles" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		Certaines modifications sur cet onglet n&apos;ont pas été enregistrées.
+		Certaines modifications n&apos;ont pas été enregistrées.
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Voulez-vous enregistrer vos modifications ?
@@ -47,7 +47,7 @@ notamment les rôles Tous et Propriétaire.
 				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="Nouveau rôle" name="role_create"/>
-			<button label="Supprimer le rôle" width="120" name="role_delete"/>
+			<button label="Supprimer le rôle" name="role_delete" width="120"/>
 		</panel>
 		<panel height="148" label="POUVOIRS" name="actions_sub_tab" tool_tip="Vous pouvez afficher une description du pouvoir et voir quels membres et rôles peuvent s&apos;en servir.">
 			<panel.string name="help_text">

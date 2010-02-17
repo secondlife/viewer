@@ -1,65 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terrain et L$" name="land_money_tab">
-	<string name="help_text">
+	<panel.string name="help_text">
 		Un avertissement apparaît si la surface utilisée par le groupe est supérieure ou égale au total des contributions.
-	</string>
-	<button label="?" name="help_button"/>
-	<string name="cant_view_group_land_text">
+	</panel.string>
+	<panel.string name="cant_view_group_land_text">
 		Vous n&apos;avez pas la permission de voir quel terrain possède ce groupe
-	</string>
-	<string name="cant_view_group_accounting_text">
+	</panel.string>
+	<panel.string name="cant_view_group_accounting_text">
 		Vous n&apos;avez pas la permission d&apos;accéder aux informations financières de ce groupe.
-	</string>
-	<string name="loading_txt">
+	</panel.string>
+	<panel.string name="loading_txt">
 		Chargement...
-	</string>
-	<text name="group_land_heading">
-		Terrain du groupe
-	</text>
-	<scroll_list name="group_parcel_list" width="310">
-        <column	label="Parcelle" name="name" width="76" />
-        <column         label="Région"         name="location"         width="78" />
-        <column         label="Type"         name="type"         width="70" />
-        <column         label="Surface"         name="area"         width="50" />
-        <column         label=""         name="hidden"         width="-1" />
-    </scroll_list>
-	<button label="Carte" label_selected="Carte" name="map_button"/>
-	<text name="total_contributed_land_label">
-		Total des contributions :
-	</text>
-	<text name="total_contributed_land_value">
-		[AREA] m²
-	</text>
-	<text name="total_land_in_use_label">
-		Superficie déjà utilisée :
-	</text>
-	<text name="total_land_in_use_value">
-		[AREA] m²
-	</text>
-	<text name="land_available_label">
-		Superficie disponible :
-	</text>
-	<text name="land_available_value">
-		[AREA] m²
-	</text>
-	<text name="your_contribution_label">
-		Votre contribution :
-	</text>
-	<string name="land_contrib_error">
+	</panel.string>
+	<panel.string name="land_contrib_error">
 		Impossible de définir votre don de terrain
-	</string>
-	<text name="your_contribution_units">
-		m²
-	</text>
-	<text name="your_contribution_max_value">
-		([AMOUNT] max.)
-	</text>
-	<text name="group_over_limit_text">
-		Une contribution supplémentaire est requise pour prendre en charge le terrain utilisé
-	</text>
-	<text name="group_money_heading">
-		Finances
-	</text>
+	</panel.string>
+	<panel name="layout_panel_landmoney">
+		<scroll_list name="group_parcel_list">
+			<scroll_list.columns label="Parcelle" name="name"/>
+			<scroll_list.columns label="Région" name="location"/>
+			<scroll_list.columns label="Type" name="type"/>
+			<scroll_list.columns label="Surface" name="area"/>
+		</scroll_list>
+		<text name="total_contributed_land_label">
+			Total des contributions :
+		</text>
+		<text name="total_contributed_land_value">
+			[AREA] m²
+		</text>
+		<button label="Carte" label_selected="Carte" name="map_button"/>
+		<text name="total_land_in_use_label">
+			Superficie déjà utilisée :
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA] m²
+		</text>
+		<text name="land_available_label">
+			Superficie disponible :
+		</text>
+		<text name="land_available_value">
+			[AREA] m²
+		</text>
+		<text name="your_contribution_label">
+			Votre contribution :
+		</text>
+		<text name="your_contribution_units">
+			m²
+		</text>
+		<text name="your_contribution_max_value">
+			([AMOUNT] max.)
+		</text>
+		<text name="group_over_limit_text">
+			Une contribution supplémentaire est requise pour prendre en charge le terrain utilisé
+		</text>
+		<text name="group_money_heading">
+			Finances
+		</text>
+	</panel>
 	<tab_container name="group_money_tab_container">
 		<panel label="PLANIFICATION" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">

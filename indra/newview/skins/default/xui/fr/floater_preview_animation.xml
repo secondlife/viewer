@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Description :
 	</text>
-	<button label="Jouer dans le Monde" label_selected="Stop" left="20" name="Anim play btn" tool_tip="Lire cette animation de façon à ce que les autres puissent la voir" width="131"/>
+	<button label="Jouer dans Second Life" label_selected="Stop" left="20" name="Anim play btn" tool_tip="Lire cette animation de façon à ce que les autres puissent la voir" width="131"/>
 	<button label="Jouer localement" label_selected="Stop" left="162" name="Anim audition btn" tool_tip="Lire cette animation de façon à ce que vous soyez la seule personne à pouvoir la voir" width="125"/>
 </floater>

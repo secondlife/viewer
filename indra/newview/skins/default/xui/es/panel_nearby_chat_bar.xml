@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<string name="min_width">
+		192
+	</string>
+	<string name="max_width">
+		320
+	</string>
+	<line_editor label="Pulsa aquí para chatear." name="chat_box" tool_tip="Pulsa Enter para decirlo o Ctrl+Enter para gritarlo"/>
+	<button name="show_nearby_chat" tool_tip="Muestra o esconde el registro del chat"/>
+</panel>

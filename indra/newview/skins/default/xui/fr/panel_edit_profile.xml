@@ -42,18 +42,18 @@
 				<line_editor name="homepage_edit" value="http://"/>
 				<check_box label="Afficher dans les résultats de recherche" name="show_in_search_checkbox"/>
 				<text name="title_acc_status_text" value="Mon compte :"/>
+				<text_editor name="acc_status_text" value="Résident. Aucune info de paiement enregistrée."/>
 				<text name="my_account_link" value="[[URL] Accéder à ma Page d&apos;accueil]"/>
-				<text name="acc_status_text" value="Résident. Aucune info de paiement enregistrée."/>
 				<text name="title_partner_text" value="Mon partenaire :"/>
-				<text name="partner_edit_link" value="[[URL] Modifier]"/>
 				<panel name="partner_data_panel">
-					<name_box name="partner_text" value="[FIRST] [LAST]"/>
+					<name_box initial_value="(récupération en cours)" name="partner_text" value="[FIRST] [LAST]"/>
 				</panel>
+				<text name="partner_edit_link" value="[[URL] Modifier]"/>
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
-		<button label="Enregistrer les changements" width="166" name="save_btn"/>
+		<button label="Enregistrer les changements" name="save_btn" width="166"/>
 		<button label="Annuler" name="cancel_btn"/>
 	</panel>
 </panel>

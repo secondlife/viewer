@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="block_list_panel" width="300">
-	<text name="title_text" left_pad="5" width="260">
+	<text left_pad="5" name="title_text" width="260">
 		Liste der ignorierten Einwohner
 	</text>
 	<scroll_list name="blocked" tool_tip="Liste der zur Zeit ignorierten Einwohner" width="290"/>

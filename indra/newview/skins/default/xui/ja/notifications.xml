@@ -92,6 +92,10 @@
 		衣服／身体部位に対する変更をすべて保存しますか？
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="保存しない" yestext="すべて保存"/>
 	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		フレンド以外の人からのコールや、インスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
+		<usetemplate name="okbutton" yestext="はい"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。 この権限を与える際には十分に注意してください。
 [FIRST_NAME] [LAST_NAME] に修正権限を与えますか？
@@ -162,13 +166,15 @@
 続けますか？
 		<usetemplate ignoretext="アタッチメントを下に落とす前に確認する" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
-	<notification name="ClickUnimplemented">
-		申し訳ありませんが、まだ未実装です。
-	</notification>
 	<notification name="JoinGroupCanAfford">
 		このグループに参加するには、L$[COST]かかります。
 続行しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="参加"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		[NAME] というグループに入ろうとしています。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="参加"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		このグループに加入するには、L$[COST]必要です。
@@ -348,6 +354,10 @@ L$が不足しているのでこのグループに参加することができま
 		クラシファイド広告[NAME]への変更を保存しますか？
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="保存"/>
 	</notification>
+	<notification name="ClassifiedInsufficientFunds">
+		クラシファイド広告を出すには、資金が足りません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeleteAvatarPick">
 		ピック[PICK]を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
@@ -443,18 +453,18 @@ L$が不足しているのでこのグループに参加することができま
 		ファイル[[FILE]]を書き込めません。
 	</notification>
 	<notification name="UnsupportedHardware">
-		警告： お使いのシステムは [APP_NAME] の必要最低限の動作環境を満たしていません。 このまま [APP_NAME] を使用すると、パフォーマンスの低下を感じるかもしれません。 恐れ入りますが [SUPPORT_SITE] ではサポート対象外のシステムに関する技術的サポートは行っておりません。
+		お使いのコンピューターは [APP_NAME] の必要最低限の動作環境を満たしていません。 パフォーマンスの低下を感じるかもしれません。 恐れ入りますが [SUPPORT_SITE] ではサポート対象外のシステムに関する技術的サポートは行っておりません。
 
 最低動作環境
-[_URL] を開いて詳しい情報を確認しますか？
+[_URL] に移動して確認をしますか？
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=ja
 		</url>
 		<usetemplate ignoretext="使用しているコンピューターのハードウェアがサポートされていません" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="UnknownGPU">
-		お使いのシステムには、現在 [APP_NAME] が認識できないグラフィックカードが搭載されています。
-[APP_NAME] でまだテストされていない最新ハードウェアのためだと考えられます。  [APP_NAME] は正常に実行される可能性が高いですが、表示設定を調整する必要があるかもしれません。
+		お使いのシステムには、[APP_NAME] が認識できないグラフィックカードが搭載されています。
+[APP_NAME] でまだテストされていない最新ハードウェアのためだと考えられます。  問題ないとは思いますが、グラフィックの設定を調整する必要があるかもしれません。
 （ミー ＞ 環境設定 ＞ グラフィック）
 		<form name="form">
 			<ignore name="ignore" text="使用中のグラフックカードが認識されませんでした"/>
@@ -795,14 +805,6 @@ L$が不足しているのでこのグループに参加することができま
 
 これより1つの区画を選択してください。
 	</notification>
-	<notification name="ParcelCanPlayMedia">
-		この場所では、ストリーミングメディアの再生が可能です。
-ストリーミングメディアには、高速インターネット接続を要します。
-
-利用可能なときにストリーミングメディアを再生しますか？
-（このオプションは、「環境設定」 &gt; 「プライバシー」であとからでも変更できます。）
-		<usetemplate name="okcancelbuttons" notext="無効化" yestext="メディアを再生"/>
-	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
 		土地を譲渡できません：
 サーバーからの所有権情報を待っています。
@@ -929,9 +931,8 @@ L$は返金されません。
 通常これは一時的なエラーです。 数分後にもう一度着用物をカスタマイズ・保存してください。
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		[SECOND_LIFE] からログアウトしました：
+		しまった、 [SECOND_LIFE] からログアウトされてしまいました
             [MESSAGE]
-「IMとチャットを見る」をクリックすると、引き続き既に開いている IM とチャットを見ることができます。 「終了」をクリックすると [APP_NAME] をすぐに終了します。
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="IMとチャットを表示"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1382,7 +1383,6 @@ F1キーを押してください。
 	<notification name="JoinedTooManyGroupsMember">
 		加入できるグループの最大限に達しました。 このグループに加入するために他のグループを脱退するか、この申し入れを断ってください。
 [NAME] があなたをグループのメンバーとして勧誘しています。
-[INVITE]
 		<usetemplate name="okcancelbuttons" notext="辞退" yestext="参加"/>
 	</notification>
 	<notification name="JoinedTooManyGroups">
@@ -1450,7 +1450,7 @@ F1キーを押してください。
 		</form>
 	</notification>
 	<notification name="TeleportFromLandmark">
-		本当にテレポートしますか？
+		このまま &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; にテレポートしますか？
 		<usetemplate ignoretext="ランドマークにテレポートしたいか確認する" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
 	</notification>
 	<notification name="TeleportToPick">
@@ -1780,7 +1780,7 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 	<notification name="HelpReportAbuseEmailLL">
 		このツールを利用して [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] の違反を報告してください。
 
-報告された嫌がらせはすべて調査・解決されます。 解決されたものは [http://secondlife.com/support/incidentreport.php Incident Report] で見ることができます。
+報告された嫌がらせはすべて調査・解決されます。
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		嫌がらせ報告のカテゴリを選択してください。
@@ -1993,10 +1993,10 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		件名： [SUBJECT], ﾒｯｾｰｼﾞ： [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] はオンラインです。
+		[NAME_SLURL] はオンラインです
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] はオフラインです。
+		[NAME_SLURL] はオフラインです
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
@@ -2202,7 +2202,7 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 	</notification>
 	<notification name="ServerObjectMessage">
 		[NAME] からのメッセージ：
-[MSG]
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
 	</notification>
 	<notification name="NotSafe">
 		この土地ではダメージが有効です。
@@ -2383,7 +2383,6 @@ Webページにこれをリンクすると、他人がこの場所に簡単に�
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
-			<button name="Send IM" text="IMを送信"/>
 		</form>
 	</notification>
 	<notification name="FriendshipOffered">

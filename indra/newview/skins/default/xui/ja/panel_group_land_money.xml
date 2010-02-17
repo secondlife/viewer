@@ -1,65 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="土地とL$" name="land_money_tab">
-	<string name="help_text">
+	<panel.string name="help_text">
 		「土地利用の合計」が「寄付総額」以下、または同じになるまで警告が表示されます。
-	</string>
-	<button label="?" name="help_button"/>
-	<string name="cant_view_group_land_text">
+	</panel.string>
+	<panel.string name="cant_view_group_land_text">
 		グループ所有地を確認する権限がありません。
-	</string>
-	<string name="cant_view_group_accounting_text">
+	</panel.string>
+	<panel.string name="cant_view_group_accounting_text">
 		グループの会計情報を確認する権限がありません。
-	</string>
-	<string name="loading_txt">
+	</panel.string>
+	<panel.string name="loading_txt">
 		ロード中．．．
-	</string>
-	<text name="group_land_heading">
-		グループの保有地
-	</text>
-	<scroll_list name="group_parcel_list">
-		<column label="区画" name="name"/>
-		<column label="地域" name="location"/>
-		<column label="種類" name="type"/>
-		<column label="面積" name="area"/>
-		<column label="" name="hidden"/>
-	</scroll_list>
-	<button label="地図" label_selected="地図" name="map_button" width="60"/>
-	<text name="total_contributed_land_label">
-		寄付合計：
-	</text>
-	<text name="total_contributed_land_value" width="150">
-		[AREA] 平方メートル
-	</text>
-	<text name="total_land_in_use_label">
-		土地利用の合計：
-	</text>
-	<text name="total_land_in_use_value" width="150">
-		[AREA] 平方メートル
-	</text>
-	<text name="land_available_label">
-		利用可能の土地：
-	</text>
-	<text name="land_available_value" width="150">
-		[AREA] 平方メートル
-	</text>
-	<text name="your_contribution_label">
-		あなたの貢献：
-	</text>
-	<string name="land_contrib_error">
+	</panel.string>
+	<panel.string name="land_contrib_error">
 		土地の貢献を設定することができません
-	</string>
-	<text name="your_contribution_units" width="80">
-		平方メートル
-	</text>
-	<text name="your_contribution_max_value" width="100">
-		（最大 [AMOUNT]）
-	</text>
-	<text name="group_over_limit_text">
-		土地を使用するには、土地クレジットがもっと必要です
-	</text>
-	<text name="group_money_heading">
-		グループL$
-	</text>
+	</panel.string>
+	<panel name="layout_panel_landmoney">
+		<scroll_list name="group_parcel_list">
+			<scroll_list.columns label="区画" name="name"/>
+			<scroll_list.columns label="地域" name="location"/>
+			<scroll_list.columns label="種類" name="type"/>
+			<scroll_list.columns label="面積" name="area"/>
+		</scroll_list>
+		<text name="total_contributed_land_label">
+			寄付合計：
+		</text>
+		<text name="total_contributed_land_value">
+			[AREA] 平方メートル
+		</text>
+		<button label="地図" label_selected="地図" name="map_button"/>
+		<text name="total_land_in_use_label">
+			土地利用の合計：
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA] 平方メートル
+		</text>
+		<text name="land_available_label">
+			利用可能の土地：
+		</text>
+		<text name="land_available_value">
+			[AREA] 平方メートル
+		</text>
+		<text name="your_contribution_label">
+			あなたの貢献：
+		</text>
+		<text name="your_contribution_units">
+			平方メートル
+		</text>
+		<text name="your_contribution_max_value">
+			（最大 [AMOUNT]）
+		</text>
+		<text name="group_over_limit_text">
+			土地利用をサポートするための土地クレジットが足りません
+		</text>
+		<text name="group_money_heading">
+			グループの L$
+		</text>
+	</panel>
 	<tab_container name="group_money_tab_container">
 		<panel label="計画" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">

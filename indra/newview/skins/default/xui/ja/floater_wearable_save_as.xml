@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container" title=" ">
-	<button label="保存" label_selected="保存" name="Save" />
-	<button label="取り消し" label_selected="取り消し" name="Cancel" />
+	<button label="保存" label_selected="保存" name="Save"/>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
 	<text name="Save item as:">
-		アイテムを別名で保存：
+		アイテムを別名で持ち物に保存：
 	</text>
 	<line_editor name="name ed">
 		New [DESC]

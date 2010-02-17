@@ -1,48 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<panel name="advanced">
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
+<panel label="Avancées" name="advanced">
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<check_box label="Bulles de chat" name="bubble_text_chat"/>
-	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat"/>
-	<slider label="Opacité" name="bubble_chat_opacity"/>
-	<text width="140" name="AspectRatioLabel1" tool_tip="largeur/hauteur">
-		Rapport hauteur/largeur
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="largeur/hauteur">
-		<combo_box.item label="4:3 (Standard CRT)" name="item1"/>
-		<combo_box.item label="5:4 (1280 x 1024 LCD)" name="item2"/>
-		<combo_box.item label="8:5 (écran large)" name="item3"/>
-		<combo_box.item label="16:9 (plein écran)" name="item4"/>
-	</combo_box>
-	<check_box label="Détection automatique" name="aspect_auto_detect"/>
-	<text name="heading1">
-		Caméra :
-	</text>
 	<slider label="Angle de vue" name="camera_fov"/>
 	<slider label="Distance" name="camera_offset_scale"/>
 	<text name="heading2">
-		Positionnement automatique pour :
+		Positionnement automatique pour :
 	</text>
 	<check_box label="Construire/Éditer" name="edit_camera_movement" tool_tip="Utilisez le positionnement automatique de la caméra quand vous accédez au mode de modification et quand vous le quittez"/>
 	<check_box label="Apparence" name="appearance_camera_movement" tool_tip="Utiliser le positionnement automatique de la caméra quand je suis en mode Édition"/>
-	<text name="heading3">
-		Avatars :
-	</text>
 	<check_box label="Afficher en vue subjective" name="first_person_avatar_visible"/>
 	<check_box label="Les touches de direction me font toujours me déplacer" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Appuyer deux fois et maintenir enfoncé pour courir" name="tap_tap_hold_to_run"/>
 	<check_box label="Faire bouger les lèvres de l&apos;avatar quand il parle" name="enable_lip_sync"/>
-	<check_box label="Afficher les erreurs de script" name="show_script_errors"/>
+	<check_box label="Bulles de chat" name="bubble_text_chat"/>
+	<slider label="Opacité" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat"/>
+	<check_box label="Afficher les erreurs de script dans :" name="show_script_errors"/>
 	<radio_group name="show_location">
-		<radio_item label="En chat" name="0"/>
-		<radio_item label="Dans une fenêtre" name="1"/>
+		<radio_item label="Chat près de vous" name="0"/>
+		<radio_item label="Autre fenêtre" name="1"/>
 	</radio_group>
-	<check_box label="Basculer le mode micro quand j&apos;appuie sur la touche de contrôle de la fonction Parler :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n&apos;êtes pas en mode bascule, le micro ne diffuse votre voix que quand vous maintenez la touche de contrôle de la fonction enfoncée."/>
+	<check_box label="Activer/désactiver la fonction Parler quand j&apos;appuie sur :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n&apos;êtes pas en mode bascule, le micro ne diffuse votre voix que quand vous maintenez la touche de contrôle de la fonction enfoncée."/>
 	<line_editor label="Touche de contrôle de la fonction Appuyer pour parler" name="modifier_combo"/>
 	<button label="Définir la touche" name="set_voice_hotkey_button"/>
-	<button label="Bouton central de la souris" name="set_voice_middlemouse_button"/>
+	<button label="Bouton central de la souris" name="set_voice_middlemouse_button" tool_tip="Réinitialiser sur le bouton central de la souris"/>
 </panel>

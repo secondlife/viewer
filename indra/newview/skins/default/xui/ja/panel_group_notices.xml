@@ -39,7 +39,7 @@
 		<text name="string">
 			ここにアイテムをドラッグ＆ドロップして添付してください：
 		</text>
-		<button label="取り外す" label_selected="添付物を削除" name="remove_attachment"/>
+		<button label="取り外す" label_selected="添付物を削除" name="remove_attachment" tool_tip="あなたの通知から添付されたアイテムを削除します"/>
 		<button label="送信" label_selected="送信" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="持ち物のアイテムをこのボックスにドラッグして、通知と一緒に送ります。 添付するには、そのアイテムのコピーと再販・プレゼントの権限があなたにある必要があります。"/>
 	</panel>

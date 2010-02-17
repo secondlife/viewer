@@ -8,7 +8,7 @@
 		Compilé avec [COMPILER] version [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Vous êtes à [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] dans [REGION] se trouvant à [HOSTNAME] ([HOSTIP])
+		Vous êtes à [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] dans [REGION] se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
@@ -54,7 +54,7 @@ Pour réussir dans les affaires, soyez audacieux, créatif et différent. - Henr
 		</panel>
 		<panel label="Licences" name="licenses_panel">
 			<text_editor name="credits_editor">
-  3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
+				3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
   APR Copyright (C) 2000-2004 The Apache Software Foundation
   cURL Copyright (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
   expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.

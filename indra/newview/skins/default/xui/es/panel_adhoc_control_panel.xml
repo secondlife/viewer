@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<panel name="panel_call_buttons">
+		<button label="Llamar" name="call_btn"/>
+		<button label="Colgar" name="end_call_btn"/>
+		<button label="Controles de la voz" name="voice_ctrls_btn"/>
+	</panel>
+</panel>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Mitglieder und Rollen" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		Die Registerkarte enthält nicht gespeicherte Änderungen.
+		Diese Änderungen wurden nicht gespeichert.
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Möchten Sie Ihre Änderungen speichern?

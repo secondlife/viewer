@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory" title="INVENTAR">
+<floater name="Inventory" title="MEIN INVENTAR">
 	<floater.string name="Title">
-		Inventar
+		MEIN INVENTAR
 	</floater.string>
 	<floater.string name="TitleFetching">
-		Inventar ([ITEM_COUNT] Artikel werden abgerufen...) [FILTER]
+		MEIN INVENTAR ([ITEM_COUNT] Objekte werden abgerufen...) [FILTER]
 	</floater.string>
 	<floater.string name="TitleCompleted">
-		Inventar ([ITEM_COUNT] Artikel) [FILTER]
+		MEIN INVENTAR ([ITEM_COUNT] Objekte) [FILTER]
 	</floater.string>
 	<floater.string name="Fetched">
 		Abgerufen

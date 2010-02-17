@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="マイ プロフィール" name="panel_me">
+<panel label="My Profile!!!!!" name="panel_me">
 	<tab_container name="tabs">
-		<panel label="プロフィール" name="panel_profile"/>
-		<panel label="ピック" name="panel_picks"/>
+		<panel label="マイ プロフィール" name="panel_profile"/>
+		<panel label="マイ ピック" name="panel_picks"/>
 	</tab_container>
 </panel>

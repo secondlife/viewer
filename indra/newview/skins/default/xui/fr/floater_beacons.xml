@@ -2,7 +2,7 @@
 <floater name="beacons" title="BALISES">
 	<panel name="beacons_panel">
 		<text name="label_show">
-			Afficher :
+			Afficher :
 		</text>
 		<check_box label="Balises" name="beacons"/>
 		<check_box label="Surbrillances" name="highlights"/>
