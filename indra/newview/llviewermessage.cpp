@@ -2589,7 +2589,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	chat.mTime = LLFrameTimer::getElapsedSeconds();
 	
 	// IDEVO Correct for new-style "Resident" names
-	if (chat.mChatType == CHAT_SOURCE_AGENT)
+	if (chat.mSourceType == CHAT_SOURCE_AGENT)
 	{
 		chat.mFromName = LLCacheName::cleanFullName(from_name);
 	}
