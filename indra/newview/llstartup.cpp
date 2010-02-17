@@ -2899,8 +2899,8 @@ bool process_login_success_response()
 	text = response["agent_region_access"].asString();
 	if (!text.empty())
 	{
-		int preferredMaturity =
-			llmin(LLAgent::convertTextToMaturity(text[0]),
+		U32 preferredMaturity =
+			llmin((U32)LLAgent::convertTextToMaturity(text[0]),
 			      gSavedSettings.getU32("PreferredMaturity"));
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
