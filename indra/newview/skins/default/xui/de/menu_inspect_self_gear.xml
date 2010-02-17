@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu name="Gear Menu">
-	<menu_item_call label="Aufstehen" name="stand_up"/>
-	<menu_item_call label="Mein Aussehen" name="my_appearance"/>
-	<menu_item_call label="Mein Profil" name="my_profile"/>
-	<menu_item_call label="Meine Freunde" name="my_friends"/>
-	<menu_item_call label="Meine Gruppen" name="my_groups"/>
-</menu>

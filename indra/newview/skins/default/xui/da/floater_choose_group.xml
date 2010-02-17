@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="groups" title="GRUPPER">
-	<text name="groupdesc">
-		Vælg en gruppe:
-	</text>
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
-</floater>

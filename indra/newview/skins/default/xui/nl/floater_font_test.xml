@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="LETTERTYPETEST">
-	<text name="linea">
-		Overschrijf test, zou hier moeten verschijnen als Times (vanuit default/xui/en-us).
-	</text>
-</floater>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
-	<text name="media_label">
-		Indtast en URL eller et URL mønster for at tilføje til listen med godkendte domæner
-	</text>
-	<line_editor name="whitelist_entry" tool_tip="Indtast en URL eller et URL mønster for at godkende side(r)"/>
-	<button label="OK" name="ok_btn"/>
-	<button label="Annullér" name="cancel_btn"/>
-</floater>

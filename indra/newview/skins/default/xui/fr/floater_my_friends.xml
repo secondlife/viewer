@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_my_friends" title="CONTACTS">
-	<tab_container name="friends_and_groups">
-		<panel label="Amis" name="friends_panel"/>
-		<panel label="Groupes" name="groups_panel"/>
-	</tab_container>
-</floater>

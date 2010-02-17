@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<fonts>
-
-  <font name="OverrideTest"
-	comment="Name of font to test overriding">
-    <file>timesbd.ttf</file>
-  </font>
-
-</fonts>
