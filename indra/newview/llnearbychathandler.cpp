@@ -282,7 +282,7 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 				gFloaterView->sendChildToBack(toast);
 			}
 			
-			bottom = toast->getRect().mTop;
+			bottom = toast->getRect().mTop - toast->getTopPad();
 		}		
 	}
 }

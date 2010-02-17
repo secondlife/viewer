@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<flyout_button list_position="below">
+<flyout_button list_position="below" height="23">
   <action_button scale_image="true"
                 image_selected="SegmentedBtn_Left_Selected"
                 image_unselected="SegmentedBtn_Left_Off"

@@ -123,7 +123,7 @@
 	<button
      follows="top|left"
      height="20"
-     label="More"
+     label="Profile"
      layout="topleft"
      name="view_profile_btn"
      left_delta="96"

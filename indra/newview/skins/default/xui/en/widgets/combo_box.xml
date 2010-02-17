@@ -2,6 +2,7 @@
 <combo_box font="SansSerifSmall"
            list_position="below"
            max_chars="20"
+           height="23"
            follows="right|top">
   <combo_box.combo_button name="Combobox Button"
                           hover_glow_amount="0.15"

@@ -1550,7 +1550,9 @@ void LLFloaterTools::updateMediaSettings()
 	
 	
     // Auto scale
-    value_bool = default_media_data.getAutoScale();
+	// set default to auto scale TRUE -- angela  EXT-5172
+    //value_bool = default_media_data.getAutoScale();
+	value_bool = true;
     struct functor_getter_auto_scale : public LLSelectedTEGetFunctor< bool >
     {
 		functor_getter_auto_scale(const LLMediaEntry& entry): mMediaEntry(entry) {}	
@@ -1561,8 +1563,9 @@ void LLFloaterTools::updateMediaSettings()
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoScale();
-            return mMediaEntry.getAutoScale();;
-        };
+           // return mMediaEntry.getAutoScale();  set default to auto scale TRUE -- angela  EXT-5172
+			return true;
+		};
 		
 		const LLMediaEntry &mMediaEntry;
 		
