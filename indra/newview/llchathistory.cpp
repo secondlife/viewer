@@ -122,7 +122,7 @@ public:
 	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		LLTextBase* name = getChild<LLTextBase>("user_name");
-		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && SYSTEM_FROM != mFrom)
+		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && mFrom.size() && SYSTEM_FROM != mFrom)
 		{
 
 			// Spawn at right side of the name textbox.
@@ -179,12 +179,7 @@ public:
 		}
 		else if (level == "add")
 		{
-			std::string name;
-			name.assign(getFirstName());
-			name.append(" ");
-			name.append(getLastName());
-
-			LLAvatarActions::requestFriendshipDialog(getAvatarId(), name);
+			LLAvatarActions::requestFriendshipDialog(getAvatarId(), mFrom);
 		}
 		else if (level == "remove")
 		{
@@ -253,8 +248,6 @@ public:
 	}
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
-	const std::string&	getFirstName() const { return mFirstName; }
-	const std::string&	getLastName	() const { return mLastName; }
 
 	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
 	{
@@ -275,9 +268,11 @@ public:
 		userName->setColor(style_params.color());
 		
 		userName->setValue(chat.mFromName);
+		mFrom = chat.mFromName;
 		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
 		{
-			userName->setValue(LLTrans::getString("SECOND_LIFE"));
+			mFrom = LLTrans::getString("SECOND_LIFE");
+			userName->setValue(mFrom);
 		}
 
 
@@ -337,8 +332,7 @@ public:
 	{
 		if (id != mAvatarID)
 			return;
-		mFirstName = first;
-		mLastName = last;
+		mFrom = first + " " + last;
 	}
 protected:
 	static const S32 PADDING = 20;
@@ -423,8 +417,6 @@ protected:
 
 	LLUUID			    mAvatarID;
 	EChatSourceType		mSourceType;
-	std::string			mFirstName;
-	std::string			mLastName;
 	std::string			mFrom;
 	LLUUID				mSessionID;
 
