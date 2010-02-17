@@ -75,7 +75,9 @@ public:
 public:
 	bool mIsGroup;
 	U32 mCreateTime;	// unix time_t
-	std::string mFirstName;		// IDEVO TODO collapse to one field
+	// IDEVO TODO collapse names to one field, which will eliminate
+	// many string compares on "Resident"
+	std::string mFirstName;
 	std::string mLastName;
 	std::string mGroupName;
 };
@@ -337,7 +339,7 @@ bool LLCacheName::importFile(std::istream& istr)
 		entry->mFirstName = agent[FIRST].asString();
 		entry->mLastName = agent[LAST].asString();
 		impl.mCache[id] = entry;
-		std::string fullname = entry->mFirstName + " " + entry->mLastName;
+		std::string fullname = buildFullName(entry->mFirstName, entry->mLastName);
 		impl.mReverseCache[fullname] = id;
 
 		++count;
@@ -487,13 +489,13 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 
 BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
 {
-	std::string fullname = buildFullName(first, last);
-	return getUUID(fullname, id);
+	std::string full_name = buildFullName(first, last);
+	return getUUID(full_name, id);
 }
 
-BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
+BOOL LLCacheName::getUUID(const std::string& full_name, LLUUID& id)
 {
-	ReverseCache::iterator iter = impl.mReverseCache.find(fullname);
+	ReverseCache::iterator iter = impl.mReverseCache.find(full_name);
 	if (iter != impl.mReverseCache.end())
 	{
 		id = iter->second;
@@ -867,13 +869,6 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		{
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  entry->mLastName, i);
-
-			// IDEVO blank out last name for storage to reduce string compares on
-			// retrieval.  Eventually need to convert to single mName field.
-			if (entry->mLastName == "Resident")
-			{
-				entry->mLastName = "";
-			}
 		}
 		else
 		{	// is group
