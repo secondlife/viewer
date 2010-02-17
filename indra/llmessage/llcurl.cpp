@@ -710,6 +710,7 @@ LLCurlRequest::LLCurlRequest() :
 	mActiveRequestCount(0)
 {
 	mThreadID = LLThread::currentID();
+	mProcessing = FALSE;
 }
 
 LLCurlRequest::~LLCurlRequest()
@@ -744,6 +745,11 @@ LLCurl::Easy* LLCurlRequest::allocEasy()
 bool LLCurlRequest::addEasy(LLCurl::Easy* easy)
 {
 	llassert_always(mActiveMulti);
+	
+	if (mProcessing)
+	{
+		llerrs << "Posting to a LLCurlRequest instance from within a responder is not allowed (causes DNS timeouts)." << llendl;
+	}
 	bool res = mActiveMulti->addEasy(easy);
 	return res;
 }
@@ -801,12 +807,41 @@ bool LLCurlRequest::post(const std::string& url,
 	bool res = addEasy(easy);
 	return res;
 }
+
+bool LLCurlRequest::post(const std::string& url,
+						 const headers_t& headers,
+						 const std::string& data,
+						 LLCurl::ResponderPtr responder)
+{
+	LLCurl::Easy* easy = allocEasy();
+	if (!easy)
+	{
+		return false;
+	}
+	easy->prepRequest(url, headers, responder);
+
+	easy->getInput().write(data.data(), data.size());
+	S32 bytes = easy->getInput().str().length();
 	
+	easy->setopt(CURLOPT_POST, 1);
+	easy->setopt(CURLOPT_POSTFIELDS, (void*)NULL);
+	easy->setopt(CURLOPT_POSTFIELDSIZE, bytes);
+
+	easy->slist_append("Content-Type: application/octet-stream");
+	easy->setHeaders();
+
+	lldebugs << "POSTING: " << bytes << " bytes." << llendl;
+	bool res = addEasy(easy);
+	return res;
+}
+
 // Note: call once per frame
 S32 LLCurlRequest::process()
 {
 	llassert_always(mThreadID == LLThread::currentID());
 	S32 res = 0;
+
+	mProcessing = TRUE;
 	for (curlmulti_set_t::iterator iter = mMultiSet.begin();
 		 iter != mMultiSet.end(); )
 	{
@@ -820,6 +855,7 @@ S32 LLCurlRequest::process()
 			delete multi;
 		}
 	}
+	mProcessing = FALSE;
 	return res;
 }
 
