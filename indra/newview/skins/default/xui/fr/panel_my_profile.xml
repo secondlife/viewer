@@ -30,11 +30,14 @@
 					</panel>
 					<text name="title_member_text" value="Résident depuis :"/>
 					<text name="title_acc_status_text" value="Statut du compte :"/>
-					<text name="acc_status_text">
+					<text_editor name="acc_status_text">
 						Résident. Aucune info de paiement enregistrée.
               Linden.
-					</text>
+					</text_editor>
 					<text name="title_partner_text" value="Partenaire :"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(récupération en cours)" name="partner_text"/>
+					</panel>
 					<text name="title_groups_text" value="Groupes :"/>
 				</panel>
 			</scroll_container>

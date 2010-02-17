@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Propiedades del objeto">
+	<panel.string name="text deed continued">
+		Transfeir
+	</panel.string>
+	<panel.string name="text deed">
+		Transfeir
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Puedes modificar este objeto
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Puedes modificar estos objetos
+	</panel.string>
+	<panel.string name="text modify info 3">
+		No puedes modificar este objeto
+	</panel.string>
+	<panel.string name="text modify info 4">
+		No puedes modificar estos objetos
+	</panel.string>
+	<panel.string name="text modify warning">
+		Este objeto tiene partes enlazadas
+	</panel.string>
+	<panel.string name="Cost Default">
+		Precio: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Precio total: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Price Per: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Mixed Price
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Mixed Sale
+	</panel.string>
+	<panel label="">
+		<text name="Name:">
+			Nombre:
+		</text>
+		<text name="Description:">
+			Descripción:
+		</text>
+		<text name="Creator:">
+			Creador:
+		</text>
+		<text name="Owner:">
+			Propietario:
+		</text>
+		<text name="Group:">
+			Grupo:
+		</text>
+		<button name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
+		<name_box initial_value="Cargando..." name="Group Name Proxy"/>
+		<button label="Transfeir" label_selected="Transfeir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
+		<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+		<text name="label click action">
+			Al tocarlo:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Tocarlo (por defecto)" name="Touch/grab(default)"/>
+			<combo_box.item label="Sentarme en el objeto" name="Sitonobject"/>
+			<combo_box.item label="Comprar el objeto" name="Buyobject"/>
+			<combo_box.item label="Pagar al objeto" name="Payobject"/>
+			<combo_box.item label="Abrir" name="Open"/>
+		</combo_box>
+		<check_box label="En venta:" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Copiarlo" name="Copy"/>
+			<combo_box.item label="Contenidos" name="Contents"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Precio: L$" name="Edit Cost"/>
+		<check_box label="Mostrar en la búsqueda" name="search_check" tool_tip="Permitir que la gente vea este objetos en los resultados de la búsqueda"/>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Puedes modificar este objeto
+			</text>
+			<text name="Anyone can:">
+				Cualquiera:
+			</text>
+			<check_box label="Moverse" name="checkbox allow everyone move"/>
+			<check_box label="Copiarlo" name="checkbox allow everyone copy"/>
+			<text name="Next owner can:">
+				Próximo propietario:
+			</text>
+			<check_box label="Modificarlo" name="checkbox next owner can modify"/>
+			<check_box label="Copiarlo" name="checkbox next owner can copy"/>
+			<check_box label="Transferirlo" name="checkbox next owner can transfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
+			<text name="B:">
+				B:
+			</text>
+			<text name="O:">
+				O:
+			</text>
+			<text name="G:">
+				G:
+			</text>
+			<text name="E:">
+				E:
+			</text>
+			<text name="N:">
+				N:
+			</text>
+			<text name="F:">
+				F:
+			</text>
+		</panel>
+	</panel>
+	<panel name="button_panel">
+		<button label="Abrir" name="open_btn"/>
+		<button label="Pagar" name="pay_btn"/>
+		<button label="Comprar" name="buy_btn"/>
+		<button label="Cancelar" name="cancel_btn"/>
+		<button label="Guardar" name="save_btn"/>
+	</panel>
+</panel>

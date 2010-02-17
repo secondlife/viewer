@@ -2,7 +2,7 @@
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
 		<accordion_tab name="tab_favorites" title="お気に入りバー"/>
-		<accordion_tab name="tab_landmarks" title="ランドマーク"/>
+		<accordion_tab name="tab_landmarks" title="マイ ランドマーク"/>
 		<accordion_tab name="tab_inventory" title="持ち物"/>
 		<accordion_tab name="tab_library" title="ライブラリ"/>
 	</accordion>

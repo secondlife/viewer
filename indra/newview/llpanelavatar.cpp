@@ -455,18 +455,20 @@ void LLPanelProfileTab::onMapButtonClick()
 
 void LLPanelProfileTab::updateButtons()
 {
-	bool is_avatar_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
+	bool is_buddy_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
 	
 	if(LLAvatarActions::isFriend(getAvatarId()))
 	{
-		childSetEnabled("teleport", is_avatar_online);
+		childSetEnabled("teleport", is_buddy_online);
 	}
 	else
 	{
 		childSetEnabled("teleport", true);
 	}
 
-	bool enable_map_btn = is_avatar_online && gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+	bool enable_map_btn = (is_buddy_online &&
+			       is_agent_mappable(getAvatarId()))
+		|| gAgent.isGodlike();
 	childSetEnabled("show_on_map_btn", enable_map_btn);
 }
 

@@ -6,7 +6,7 @@
 	<string name="available" value="利用可"/>
 	<string name="allocated" value="割り当て済"/>
 	<string name="title_place" value="場所のプロフィール"/>
-	<string name="title_teleport_history" value="テレポート履歴の場所"/>
+	<string name="title_teleport_history" value="テレポートの履歴"/>
 	<string name="not_available" value="（該当なし）"/>
 	<string name="unknown" value="（不明）"/>
 	<string name="public" value="（公開）"/>
@@ -86,8 +86,7 @@
 						<button label="土地情報" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
-				<accordion_tab name="region_information_tab" title="リージョン（地域）
-				">
+				<accordion_tab name="region_information_tab" title="リージョン（地域）     ">
 					<panel>
 						<text name="region_name_label" value="地域:"/>
 						<text name="region_name" value="Mooseland"/>

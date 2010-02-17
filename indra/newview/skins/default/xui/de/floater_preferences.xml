@@ -8,8 +8,8 @@
 		<panel label="Privatsphäre" name="im"/>
 		<panel label="Sound" name="audio"/>
 		<panel label="Chat" name="chat"/>
-		<panel label="Benachrichtigungen" name="msgs"/>
-		<panel label="Setup" name="input"/>
+		<panel label="Meldungen" name="msgs"/>
+		<panel label="Konfiguration" name="input"/>
 		<panel label="Erweitert" name="advanced1"/>
 	</tab_container>
 </floater>

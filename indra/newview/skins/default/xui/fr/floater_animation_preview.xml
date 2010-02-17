@@ -106,6 +106,9 @@ La longueur maximale est de [MAX_LENGTH] secondes.
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		Impossible de lire le nom emote.
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		Nom de racine incorrect.
+	</floater.string>
 	<text name="name_label">
 		Nom :
 	</text>

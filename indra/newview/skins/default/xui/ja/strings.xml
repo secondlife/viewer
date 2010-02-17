@@ -227,9 +227,6 @@
 	<string name="AvatarNameMultiple">
 		（複数）
 	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
-	</string>
 	<string name="GroupNameNone">
 		（なし）
 	</string>
@@ -592,6 +589,9 @@
 	</string>
 	<string name="hang_up">
 		インワールドボイスチャットの通話が切断されました
+	</string>
+	<string name="reconnect_nearby">
+		「近くのボイスチャット」に再接続されます
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		[REGIONNAME]の[REGIONPOS]という場所にある「[OWNERNAME]」所有の「[OBJECTNAME]」というオブジェクトは、次の権限を許可しました： [PERMISSIONS]
@@ -1323,6 +1323,9 @@
 	</string>
 	<string name="ScriptLimitsRequestError">
 		情報のリクエスト中にエラーが発生しました
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		区画が選択されていません。
 	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
 		エラー： スクリプト情報は現在地のみ取得できます

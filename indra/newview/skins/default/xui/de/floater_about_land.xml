@@ -12,7 +12,7 @@
 	<floater.string name="Remaining">
 		Restzeit
 	</floater.string>
-	<tab_container name="landtab" width="489" tab_min_width="40">
+	<tab_container name="landtab" tab_min_width="40" width="489">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
 				Nur neue Benutzer
@@ -101,7 +101,7 @@
 			<text name="For sale to">
 				Zum Verkauf an: [BUYER]
 			</text>
-			<text name="Sell with landowners objects in parcel." left_delta="-50" width="240">
+			<text left_delta="-50" name="Sell with landowners objects in parcel." width="240">
 				Objekte sind im Verkauf eingeschlossen
 			</text>
 			<text name="Selling with no objects in parcel." width="260">
@@ -368,7 +368,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>
-			<button label="Festlegen" label_selected="Festlegen" left="234" right="-88" name="Set" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
+			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" right="-88" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
 			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
 			<text name="Teleport Routing: ">
 				Teleport-Route:
@@ -422,6 +422,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="MusicURL:">
 				Musik-URL:
 			</text>
+			<check_box label="URL ausblenden" name="hide_music_url" tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Musik-URL sehen können"/>
 			<text name="Sound:">
 				Sound:
 			</text>
@@ -431,7 +432,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</text>
 			<check_box label="Voice aktivieren" name="parcel_enable_voice_channel"/>
 			<check_box label="Voice aktivieren (vom Grundstück eingerichtet)" name="parcel_enable_voice_channel_is_estate_disabled"/>
-			<check_box label="Voice auf diese Parzelle beschränken" name="parcel_enable_voice_channel_parcel"/>
+			<check_box label="Voice auf diese Parzelle beschränken" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ZUGANG" name="land_access_panel">
 			<panel.string name="access_estate_defined">

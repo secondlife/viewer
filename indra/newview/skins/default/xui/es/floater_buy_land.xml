@@ -3,25 +3,25 @@
 	<text name="region_name_label">
 		Región:
 	</text>
-	<text name="region_name_text" left="565">
+	<text left="565" name="region_name_text">
 		(desconocida)
 	</text>
 	<text name="region_type_label">
 		Tipo:
 	</text>
-	<text name="region_type_text" left="565">
+	<text left="565" name="region_type_text">
 		(desconocido)
 	</text>
 	<text name="estate_name_label">
 		Estado:
 	</text>
-	<text name="estate_name_text" left="565">
+	<text left="565" name="estate_name_text">
 		(desconocido)
 	</text>
-	<text name="estate_owner_label" width="115" right="565">
+	<text name="estate_owner_label" right="565" width="115">
 		Propietario del estado:
 	</text>
-	<text name="estate_owner_text" left="565" >
+	<text left="565" name="estate_owner_text">
 		(desconocido)
 	</text>
 	<text name="resellable_changeable_label">
@@ -58,8 +58,8 @@
 	</text>
 	<text name="info_price">
 		1500 L$
-(1.1 L$/m²)
-incluyendo los objetos
+(1.1/m² L$)
+se vende con los objetos
 	</text>
 	<text name="info_action">
 		Al comprar este terreno:
@@ -75,16 +75,16 @@ incluyendo los objetos
 		Sólo pueden ser propietarios de terreno los miembros premium.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95 US$/mes, facturados mensualmente" />
-		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50 US$/mes, facturados cuatrimestralmente" />
-		<combo_box.item name="US$6.00/month,billedannually" label="6.00 US$/mes, facturados anualmente" />
+		<combo_box.item label="9.95 US$/mes, facturados mensualmente" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="7.50 US$/mes, facturados trimestralmente" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="6.00 US$/mes, facturados anualmente" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Aumenta su cuota mensual por uso de terreno a 40 US$/mes.
 	</text>
 	<text name="land_use_reason">
-		Usted posee 1309 m² de terreno. 
-Esta parcela mide 512 m².
+		Tienes 1309 m² de terreno.
+Esta parcela es de 512 m².
 	</text>
 	<text name="purchase_action">
 		Pagar al residente Joe 4.000 L$ por el terreno
@@ -99,12 +99,12 @@ Esta parcela mide 512 m².
 		1.000
 	</line_editor>
 	<text name="currency_est">
-		por, aprox., [AMOUNT2] US$
+		por, aprox., [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Tiene 2.100 L$.
 	</text>
-	<check_box label="Quitar [AMOUNT] m² de la contribución del grupo." name="remove_contribution"/>
+	<check_box label="Quitar [AMOUNT] m² de las contribuciones de grupo." name="remove_contribution"/>
 	<button label="Comprar" name="buy_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
 	<string name="can_resell">
@@ -181,22 +181,22 @@ Inténtelo seleccionando un área más pequeña.
 		Su cuenta puede poseer terreno.
 	</string>
 	<string name="land_holdings">
-		Usted tiene [BUYER] m² de terreno.
+		Tienes [BUYER] m² de terreno.
 	</string>
 	<string name="pay_to_for_land">
 		Pagar por este terreno [AMOUNT] L$ a [SELLER]
 	</string>
 	<string name="buy_for_US">
-		Comprar [AMOUNT] L$ por, aprox., [AMOUNT2] US$,
+		Comprar [AMOUNT] L$ por, aprox., [LOCAL_AMOUNT],
 	</string>
 	<string name="parcel_meters">
-		Esta parcela tiene [AMOUNT] m².
+		Este terreno tiene [AMOUNT] m²
 	</string>
 	<string name="premium_land">
-		Este terreno es premium, y se contará como de [AMOUNT] m².
+		Este terreno es &apos;premium&apos;, y se considerará como de [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		Este terreno tiene descuento, y se contará como de [AMOUNT] m².
+		Este terreno es &apos;discounted&apos;, y se considerará como de [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT] m²

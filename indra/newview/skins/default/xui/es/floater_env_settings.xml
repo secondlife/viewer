@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Environment Editor Floater" title="EDITOR DEL ENTORNO">
+	<floater.string name="timeStr">
+		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
+	</floater.string>
 	<text name="EnvTimeText">
 		Duración de
 un día
@@ -14,13 +17,12 @@ un día
 		Color del
 agua
 	</text>
-	<color_swatch label="" name="EnvWaterColor" tool_tip="Pulse para abrir el selector de color"/>
+	<color_swatch label="" name="EnvWaterColor" tool_tip="Pulsa para abrir el selector de color"/>
 	<text name="EnvWaterFogText">
 		Claridad del
 agua
 	</text>
 	<button bottom="-144" label="Usar el horario del estado" name="EnvUseEstateTimeButton" width="155"/>
-	<button label="Cielo avanzado" name="EnvAdvancedSkyButton" width="155" left="167" />
-	<button label="Agua avanzada" name="EnvAdvancedWaterButton" width="155" left="326"/>
-	<button label="?" name="EnvSettingsHelpButton"/>
+	<button label="Cielo avanzado" left="167" name="EnvAdvancedSkyButton" width="155"/>
+	<button label="Agua avanzada" left="326" name="EnvAdvancedWaterButton" width="155"/>
 </floater>

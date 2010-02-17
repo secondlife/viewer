@@ -5,6 +5,6 @@
 		<color_swatch label="Couleur/Teinte" name="Color/Tint" width="80" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
 	</panel>
 	<accordion name="wearable_accordion">
-		<accordion_tab name="underpants_main_tab" title="Sous-vêtements (femme)"/>
+		<accordion_tab name="underpants_main_tab" title="Caleçon"/>
 	</accordion>
 </panel>

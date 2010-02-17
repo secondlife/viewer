@@ -37,7 +37,7 @@
 		Vente mixte
 	</panel.string>
 	<text name="title" value="Profil de l&apos;objet"/>
-	<text name="where" value="(dans le monde virtuel)"/>
+	<text name="where" value="(dans Second Life)"/>
 	<panel label="">
 		<text name="Name:">
 			Nom :

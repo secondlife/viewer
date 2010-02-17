@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Seguridad" name="Media Settings Security">
+	<check_box initial_value="false" label="Permitir el acceso sólo a estas URL (según prefijo)" name="whitelist_enable"/>
+	<text name="home_url_fails_some_items_in_whitelist">
+		Están marcadas las entradas que la página web no admite:
+	</text>
+	<button label="Añadir" name="whitelist_add"/>
+	<button label="Borrar" name="whitelist_del"/>
+	<text name="home_url_fails_whitelist">
+		Atención: la página web especificada en la pestaña General no se admite en esta Lista Blanca. Se ha desactivado hasta que se añada una entrada correcta.
+	</text>
+</panel>

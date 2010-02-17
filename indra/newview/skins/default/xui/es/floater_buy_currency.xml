@@ -1,71 +1,66 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy currency" title="COMPRAR DINERO">
-	<text name="info_buying">
-		Comprando dinero:
+<floater name="buy currency" title="COMPRAR L$">
+	<floater.string name="buy_currency">
+		Comprar [LINDENS] L$ por, aprox., [LOCALAMOUNT]
+	</floater.string>
+	<text left="5" name="info_need_more" right="-5">
+		Necesitas más L$
 	</text>
-	<text name="info_cannot_buy" left="5" right="-5">
-		No puede comprar en este momento:
-	</text>
-	<text name="info_need_more" left="5" right="-5">
-		Necesita más dinero:
-	</text>
-	<text name="error_message">
-		Algo no va bien.
-	</text>
-	<button label="Ir al sitio web" name="error_web"/>
 	<text name="contacting">
 		Contactando con el LindeX...
 	</text>
-	<text name="buy_action_unknown" right="-5">
-		Comprar L$ en el sistema LindeX de cambio
-	</text>
-	<text name="buy_action">
-		[NAME] [PRICE] L$
-	</text>
-	<text name="currency_action" width="50">
-		Comprar 
-	</text>
-	<line_editor name="currency_amt" width="65" left_delta="50">
-		1234
-	</line_editor>
-	<text name="currency_est" width="138" left_delta="68">
-		por, aprox., [LOCALAMOUNT]
-	</text>
-	<text name="getting_data">
-		Obteniendo los datos...
+	<text name="info_buying">
+		Comprar L$
 	</text>
 	<text name="balance_label">
-		Actualmente, tiene
+		Tengo
 	</text>
 	<text name="balance_amount">
 		[AMT] L$
 	</text>
-	<text name="buying_label">
-		Está comprando
+	<text name="currency_action" width="50">
+		Quiero comprar
 	</text>
-	<text name="buying_amount">
-		[AMT] L$
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" left_delta="50" name="currency_amt" width="65">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		Al precio de
+	</text>
+	<text left_delta="68" name="currency_est" width="138">
+		aprox. [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Calculando...
+	</text>
+	<text name="buy_action">
+		[NAME] [PRICE] L$
 	</text>
 	<text name="total_label">
-		Su saldo será de
+		Mi nuevo saldo será
 	</text>
 	<text name="total_amount">
 		[AMT] L$
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php?lang=es-ES payment method] | [http://www.secondlife.com/my/account/currency.php?lang=es-ES currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=es-ES exchange rate]
+		[http://www.secondlife.com/ método de pago] | [http://www.secondlife.com/ moneda] | [http://www.secondlife.com/my/account/exchange_rates.php tipo de cambio]
+	</text>
+	<text name="exchange_rate_note">
+		Vuelve a escribir la cantidad para ver el tipo de cambio más reciente.
 	</text>
 	<text name="purchase_warning_repurchase" right="-10">
-		Confirmando esta compra sólo compra la moneda.
-Tendrá que intentar de nuevo la operación.
+		Confirmando que con esta compra sólo se compran L$, no el objeto.
 	</text>
 	<text name="purchase_warning_notenough">
-		No está comprando dinero suficiente.
-Aumente la cantidad a comprar.
+		No estás comprando suficientes L$. Por favor, aumenta la cantidad.
 	</text>
+	<button label="Comprar ahora" name="buy_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
-	<button label="Comprar" name="buy_btn"/>
-	<string name="buy_currency">
-		Compre [LINDENS] L$ por, aprox., [LOCALAMOUNT]
-	</string>
+	<text left="5" name="info_cannot_buy" right="-5">
+		No se pudo hacer la compra
+	</text>
+	<button label="Ir a la web" name="error_web"/>
 </floater>

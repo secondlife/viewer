@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script search" title="BUSCAR EN EL SCRIPT" width="320">
-	<check_box label="Indiferente mays./mins." name="case_text" left="75"/>
+<floater name="script search" title="BÚSQUEDA DE SCRIPTS" width="320">
+	<check_box label="Indiferente mays./mins." left="75" name="case_text"/>
 	<button label="Buscar" label_selected="Buscar" name="search_btn" width="85"/>
-	<button label="Reemplazar" label_selected="Reemplazar" name="replace_btn" left="100" width="85"/>
-	<button label="Reemplazar todos" label_selected="Reemplazar todos" name="replace_all_btn" left="190" width="122"/>
+	<button label="Reemplazar" label_selected="Reemplazar" left="100" name="replace_btn" width="85"/>
+	<button label="Reemplazar todos" label_selected="Reemplazar todos" left="190" name="replace_all_btn" width="122"/>
 	<text name="txt" width="65">
 		Buscar
 	</text>
 	<text name="txt2" width="65">
 		Reemplazar
 	</text>
-	<line_editor left="75" name="search_text" width="240" />
-	<line_editor left="75" name="replace_text" width="240" />
+	<line_editor left="75" name="search_text" width="240"/>
+	<line_editor left="75" name="replace_text" width="240"/>
 </floater>

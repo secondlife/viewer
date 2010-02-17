@@ -8,21 +8,21 @@
 		Antialiasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa" width="94">
-		<combo_box.item name="FSAADisabled" label="Desactivado"/>
-		<combo_box.item name="2x" label="2x"/>
-		<combo_box.item name="4x" label="4x"/>
-		<combo_box.item name="8x" label="8x"/>
-		<combo_box.item name="16x" label="16x"/>
+		<combo_box.item label="Desactivado" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
 	<spinner label="Gamma:" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
-		(brillo; menor es más brillante, 0=predeterminado)
+		(0 = brillo por defecto, más bajo = más brillo)
 	</text>
 	<text name="Enable VBO:">
 		Activar VBO:
 	</text>
-	<check_box label="Activar OpenGL Vertex Buffer Objects" name="vbo" tool_tip="En hardware moderno, habilitar esta opción mejora el rendimiento. Pero en hardware antiguo, el habilitarlo hace que, frecuentemente, se obtenga una implementación pobre de VBO, lo que puede provocarle caídas."/>
-	<slider label_width="150" left="10" width="300" label="Memoria para texturas (MB):" name="GrapicsCardTextureMemory" tool_tip="Cantidad de memoria asignada a las texturas. Por defecto es la memoria de la tarjeta de vídeo. Reducir esta cantidad puede mejorar el rendimiento, pero también puede hacer que las texturas se vean borrosas."/>
+	<check_box initial_value="true" label="Activar OpenGL Vertex Buffer Objects" name="vbo" tool_tip="En hardware moderno, habilitar esta opción mejora el rendimiento. Pero en hardware antiguo, el habilitarlo hace que, frecuentemente, se obtenga una implementación pobre de VBO, lo que puede provocarle caídas."/>
+	<slider label="Memoria para texturas (MB):" name="GraphicsCardTextureMemory" tool_tip="Cantidad de memoria asignada a las texturas. Por defecto es la memoria de la tarjeta de vídeo. Reducir esta cantidad puede mejorar el rendimiento, pero también hacer que las texturas se vean borrosas."/>
 	<spinner label="Intensidad de la niebla:" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

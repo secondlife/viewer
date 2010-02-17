@@ -28,11 +28,14 @@
 					</panel>
 					<text name="title_member_text" value="住人登録："/>
 					<text name="title_acc_status_text" value="アカウントの状態："/>
-					<text name="acc_status_text">
+					<text_editor name="acc_status_text">
 						住人。 支払情報未登録。
               リンデン。
-					</text>
+					</text_editor>
 					<text name="title_partner_text" value="パートナー："/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="（取得中）" name="partner_text"/>
+					</panel>
 					<text name="title_groups_text" value="グループ："/>
 				</panel>
 			</scroll_container>
@@ -43,6 +46,7 @@
 			<button label="コール" name="call" tool_tip="この住人にコールします"/>
 			<button label="地図" name="show_on_map_btn" tool_tip="住人を地図上で表示します"/>
 			<button label="テレポート" name="teleport" tool_tip="テレポートを送ります"/>
+			<button label="▼" name="overflow_btn" tool_tip="住人にお金を渡すか持ち物を共有します"/>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="プロフィールの編集" name="edit_profile_btn" tool_tip="個人的な情報を編集します"/>

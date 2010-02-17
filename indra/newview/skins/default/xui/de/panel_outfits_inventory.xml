@@ -2,7 +2,7 @@
 <panel label="Sonstiges" name="Outfits">
 	<tab_container name="appearance_tabs">
 		<inventory_panel label="MEINE OUTFITS" name="outfitslist_tab"/>
-		<inventory_panel label="AKTUELLES OUTFIT" name="cof_accordionpanel"/>
+		<inventory_panel label="AKTUELLES OUTFIT" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="Zusätzliche Optionen anzeigen"/>

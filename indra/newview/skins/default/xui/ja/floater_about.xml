@@ -8,9 +8,9 @@
 		コンパイラー [COMPILER] [COMPILER_VERSION] バージョン
 	</floater.string>
 	<floater.string name="AboutPosition">
-		You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at [HOSTNAME] ([HOSTIP])
+		あなたの現在地は、[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[[SERVER_RELEASE_NOTES_URL] [リリースノート]]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		CPU： [CPU]

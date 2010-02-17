@@ -74,6 +74,7 @@
 		</menu>
 		<menu_item_call label="Lien" name="Link"/>
 		<menu_item_call label="Annuler le lien" name="Unlink"/>
+		<menu_item_check label="Modifier les parties reliées" name="Edit Linked Parts"/>
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoomer sur la sélection" name="Zoom to Selection"/>
 		<menu label="Objet" name="Object">
@@ -90,25 +91,18 @@
 			<menu_item_call label="Définir les scripts sur Pas d&apos;exécution" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Options" name="Options">
-			<menu_item_check label="Modifier les parties reliées" name="Edit Linked Parts"/>
 			<menu_item_call label="Définir les droits de chargement par défaut" name="perm prefs"/>
 			<menu_item_check label="Afficher les droits avancés" name="DebugPermissions"/>
-			<menu label="Sélection" name="Selection">
-				<menu_item_check label="Sélectionner mes objets uniquement" name="Select Only My Objects"/>
-				<menu_item_check label="Sélectionner les objets déplaçables uniquement" name="Select Only Movable Objects"/>
-				<menu_item_check label="Sélectionner en entourant" name="Select By Surrounding"/>
-			</menu>
-			<menu label="Afficher" name="Show">
-				<menu_item_check label="Afficher la sélection masquée" name="Show Hidden Selection"/>
-				<menu_item_check label="Afficher le rayon lumineux pour la sélection" name="Show Light Radius for Selection"/>
-				<menu_item_check label="Afficher le faisceau de sélection lumineux" name="Show Selection Beam"/>
-			</menu>
-			<menu label="Grille" name="Grid">
-				<menu_item_check label="Fixer sur la grille" name="Snap to Grid"/>
-				<menu_item_call label="Fixer les coordonnées XY de l&apos;objet sur la grille" name="Snap Object XY to Grid"/>
-				<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
-				<menu_item_call label="Options de la grille" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="Sélectionner mes objets uniquement" name="Select Only My Objects"/>
+			<menu_item_check label="Sélectionner les objets déplaçables uniquement" name="Select Only Movable Objects"/>
+			<menu_item_check label="Sélectionner en entourant" name="Select By Surrounding"/>
+			<menu_item_check label="Afficher la sélection masquée" name="Show Hidden Selection"/>
+			<menu_item_check label="Afficher le rayon lumineux pour la sélection" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Afficher le faisceau de sélection lumineux" name="Show Selection Beam"/>
+			<menu_item_check label="Fixer sur la grille" name="Snap to Grid"/>
+			<menu_item_call label="Fixer les coordonnées XY de l’objet sur la grille" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
+			<menu_item_call label="Options de la grille" name="Grid Options"/>
 		</menu>
 		<menu label="Sélectionner les parties reliées" name="Select Linked Parts">
 			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
@@ -175,8 +169,8 @@
 		<menu_item_check label="Exécuter plusieurs threads" name="Run Multiple Threads"/>
 		<menu_item_call label="Effacer le cache du groupe" name="ClearGroupCache"/>
 		<menu_item_check label="Effet de lissage de la souris" name="Mouse Smoothing"/>
-		<menu_item_check label="Afficher les IM dans le chat près de vous" name="IMInChat"/>
 		<menu label="Raccourcis" name="Shortcuts">
+			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
 			<menu_item_check label="Rechercher" name="Search"/>
 			<menu_item_call label="Relâcher les touches" name="Release Keys"/>
 			<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
@@ -219,6 +213,7 @@
 			<menu_item_check label="Caméra" name="Camera"/>
 			<menu_item_check label="Vent" name="Wind"/>
 			<menu_item_check label="Angle de champ" name="FOV"/>
+			<menu_item_check label="Badge" name="Badge"/>
 		</menu>
 		<menu label="Afficher les infos" name="Display Info">
 			<menu_item_check label="Afficher l&apos;heure" name="Show Time"/>

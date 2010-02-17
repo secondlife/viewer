@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="notification_chiclet" title="NOTIFICATIONS">
 	<string name="title_im_well_window">
-		SESSIONS IM
+		CONVERSATIONS
 	</string>
 	<string name="title_notification_well_window">
 		NOTIFICATIONS

@@ -7,7 +7,7 @@
 		Läuft
 	</floater.string>
 	<floater.string name="Title">
-		Skript: [NAME]
+		SKRIPT: [NAME]
 	</floater.string>
 	<button label="Zurücksetzen" label_selected="Zurücksetzen" name="Reset"/>
 	<check_box initial_value="true" label="Läuft" name="running"/>
