@@ -100,4 +100,14 @@ void assign_defaults_and_show_upload_message(
 	const std::string& display_name,
 	std::string& description);
 
+LLSD generate_new_resource_upload_capability_body(
+	LLAssetType::EType asset_type,
+	const std::string& name,
+	const std::string& desc,
+	LLFolderType::EType destination_folder_type,
+	LLInventoryType::EType inv_type,
+	U32 next_owner_perms,
+	U32 group_perms,
+	U32 everyone_perms);
+
 #endif
