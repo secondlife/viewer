@@ -86,6 +86,10 @@ public:
 	// IDEVO Temporary code
 	// Clean up new-style "bobsmith123 Resident" names to "bobsmith123" for display
 	static std::string buildFullName(const std::string& first, const std::string& last);
+
+	// Clean up legacy "bobsmith123 Resident" to "bobsmith123"
+	// If name does not contain "Resident" returns it unchanged.
+	static std::string cleanFullName(const std::string& full_name);
 	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least

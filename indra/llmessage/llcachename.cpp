@@ -520,6 +520,12 @@ std::string LLCacheName::buildFullName(const std::string& first, const std::stri
 	return fullname;
 }
 
+//static
+std::string LLCacheName::cleanFullName(const std::string& full_name)
+{
+	return full_name.substr(0, full_name.find(" Resident"));
+}
+
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
 //  The reason it is a slot is so that the legacy get() function below can bind an old callback
 //  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior

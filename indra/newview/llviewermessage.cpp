@@ -1631,7 +1631,6 @@ static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("Ser
 // (rather than a script)
 static std::string clean_name_from_im(const std::string& name, EInstantMessage type)
 {
-	U32 pos = 0;
 	switch(type)
 	{
 	case IM_NOTHING_SPECIAL:
@@ -1674,8 +1673,7 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 	case IM_FRIENDSHIP_DECLINED_DEPRECATED:
 	//IM_TYPING_START
 	//IM_TYPING_STOP
-		pos = name.find(" Resident");
-		return name.substr(0, pos);
+		return LLCacheName::cleanFullName(name);
 	default:
 		return name;
 	}
@@ -2557,16 +2555,6 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 	LLNotificationsUtil::add("CallingCardDeclined");
 }
 
-static std::string clean_name_from_chat(const std::string& full_name, EChatSourceType type)
-{
-	if (type == CHAT_SOURCE_AGENT)
-	{
-		U32 pos = full_name.find(" Resident");
-		return full_name.substr(0, pos);
-	}
-	return full_name;
-}
-
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
 	LLChat	chat;
@@ -2582,7 +2570,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	LLViewerObject*	chatter;
 
 	msg->getString("ChatData", "FromName", from_name);
-	//chat.mFromName = from_name;
 	
 	msg->getUUID("ChatData", "SourceID", from_id);
 	chat.mFromID = from_id;
@@ -2602,7 +2589,14 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	chat.mTime = LLFrameTimer::getElapsedSeconds();
 	
 	// IDEVO Correct for new-style "Resident" names
-	chat.mFromName = clean_name_from_chat(from_name, chat.mSourceType);
+	if (chat.mChatType == CHAT_SOURCE_AGENT)
+	{
+		chat.mFromName = LLCacheName::cleanFullName(from_name);
+	}
+	else
+	{
+		chat.mFromName = from_name;
+	}
 
 	BOOL is_busy = gAgent.getBusy();
 
@@ -4470,7 +4464,7 @@ static void show_money_balance_notification(const std::string& desc)
 	{
 		name = match[1].str();
 		// IDEVO strip legacy "Resident" name
-		name = name.substr(0, name.find(" Resident"));
+		name = LLCacheName::cleanFullName(name);
 		args["NAME"] = name;
 		args["AMOUNT"] = match[2].str();
 		args["REASON"] = match[3].str();
@@ -4480,7 +4474,7 @@ static void show_money_balance_notification(const std::string& desc)
 	{
 		name = match[1].str();
 		// IDEVO strip legacy "Resident" name
-		name = name.substr(0, name.find(" Resident"));
+		name = LLCacheName::cleanFullName(name);
 		args["NAME"] = name;
 		args["AMOUNT"] = match[2].str();
 		notification_name = "PaymentReceived";
@@ -4489,7 +4483,7 @@ static void show_money_balance_notification(const std::string& desc)
 	{
 		name = match[1].str();
 		// IDEVO strip legacy "Resident" name
-		name = name.substr(0, name.find(" Resident"));
+		name = LLCacheName::cleanFullName(name);
 		args["NAME"] = name;
 		args["AMOUNT"] = match[2].str();
 		args["REASON"] = match[3].str();
