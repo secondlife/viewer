@@ -74,7 +74,7 @@ public:
 	
 public:
 	LLUUID		mID;	// agent or object id
-	std::string	mName;	// agent or object name
+	std::string	mName;	// agent or object name, does not store last name "Resident"
 	EType		mType;	// needed for UI display of existing mutes
 	U32			mFlags;	// flags pertaining to this mute entry
 };
