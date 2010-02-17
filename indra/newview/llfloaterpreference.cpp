@@ -321,9 +321,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",     boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));	
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::onUpdateSliderText,this, _1,_2));	
-	mCommitCallbackRegistrar.add("Pref.ParcelMediaAutoPlayEnable",       boost::bind(&LLFloaterPreference::onCommitParcelMediaAutoPlayEnable, this));	
-	mCommitCallbackRegistrar.add("Pref.MediaEnabled",           boost::bind(&LLFloaterPreference::onCommitMediaEnabled, this));	
-	mCommitCallbackRegistrar.add("Pref.MusicEnabled",           boost::bind(&LLFloaterPreference::onCommitMusicEnabled, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
@@ -955,29 +952,6 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_avatar_impostors->setEnabled(FALSE);
 		ctrl_avatar_impostors->setValue(FALSE);
 	}
-}
-
-void LLFloaterPreference::onCommitParcelMediaAutoPlayEnable()
-{
-	BOOL autoplay = getChild<LLCheckBoxCtrl>("autoplay_enabled")->get();
-		
-	gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, autoplay);
-
-	lldebugs << "autoplay now = " << int(autoplay) << llendl;
-}
-
-void LLFloaterPreference::onCommitMediaEnabled()
-{
-	LLCheckBoxCtrl *media_enabled_ctrl = getChild<LLCheckBoxCtrl>("media_enabled");
-	bool enabled = media_enabled_ctrl->get();
-	gSavedSettings.setBOOL("AudioStreamingMedia", enabled);
-}
-
-void LLFloaterPreference::onCommitMusicEnabled()
-{
-	LLCheckBoxCtrl *music_enabled_ctrl = getChild<LLCheckBoxCtrl>("music_enabled");
-	bool enabled = music_enabled_ctrl->get();
-	gSavedSettings.setBOOL("AudioStreamingMusic", enabled);
 }
 
 void LLFloaterPreference::refresh()
