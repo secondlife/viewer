@@ -222,6 +222,7 @@ public:
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 mask);
 	
 	virtual void	draw();
+	virtual void	drawShadow(LLPanel* panel);
 	
 	virtual void	onOpen(const LLSD& key) {}
 	virtual void	onClose(bool app_quitting) {}

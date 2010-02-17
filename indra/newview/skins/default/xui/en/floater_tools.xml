@@ -2785,6 +2785,9 @@ even though the user gets a free copy.
              name="button permissions"
              width="130" />
             <panel_inventory_object
+             border="true"
+             border_visible="true"
+             bevel_style="in"
              follows="left|top"
              height="325"
              layout="topleft"

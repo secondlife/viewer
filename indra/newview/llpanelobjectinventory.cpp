@@ -1568,7 +1568,7 @@ void LLPanelObjectInventory::reset()
 {
 	clearContents();
 
-	setBorderVisible(FALSE);
+	//setBorderVisible(FALSE);
 	
 	mCommitCallbackRegistrar.pushScope(); // push local callbacks
 	
