@@ -86,8 +86,6 @@ public:
 
 	// Toast handlers
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
 	//Fading
 
@@ -97,6 +95,7 @@ public:
 	/** Start fading timer */
 	virtual void startFading();
 
+	bool isHovered();
 
 	// Operating with toasts
 	// insert a panel to a toast
@@ -118,10 +117,22 @@ public:
 	virtual void draw();
 	//
 	virtual void setVisible(BOOL show);
+
+	/*virtual*/ void setBackgroundOpaque(BOOL b);
 	//
 	virtual void hide();
 
+	/*virtual*/ void onFocusLost();
 
+	/*virtual*/ void onFocusReceived();
+
+	/**
+	 * Returns padding between floater top and wrapper_panel top.
+	 * This padding should be taken into account when positioning or reshaping toasts
+	 */
+	S32 getTopPad();
+
+	S32 getRightPad();
 
 	// get/set Toast's flags or states
 	// get information whether the notification corresponding to the toast is valid or not
@@ -154,8 +165,14 @@ public:
 	toast_hover_check_signal_t mOnToastHoverSignal;	
 	boost::signals2::connection setOnToastHoverCallback(toast_hover_check_callback_t cb) { return mOnToastHoverSignal.connect(cb); }
 
+	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb ) { return mToastMouseEnterSignal.connect(cb); };
+	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) { return mToastMouseLeaveSignal.connect(cb); };
 
 private:
+
+	void onToastMouseEnter();
+
+	void onToastMouseLeave();
 
 	void handleTipToastClick(S32 x, S32 y, MASK mask);
 
@@ -167,6 +184,8 @@ private:
 	LLUUID				mNotificationID;
 	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
+
+	LLPanel* mWrapperPanel;
 
 	// timer counts a lifetime of a toast
 	LLTimer		mTimer;
@@ -184,6 +203,9 @@ private:
 	bool		mHideBtnPressed;
 	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 	bool		mIsTip;
+
+	commit_signal_t mToastMouseEnterSignal;
+	commit_signal_t mToastMouseLeaveSignal;
 };
 
 }
