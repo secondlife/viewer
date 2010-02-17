@@ -644,7 +644,7 @@ void LLDir::setSkinFolder(const std::string &skin_folder)
 	// e.g. c:\program files\secondlife\skins\default
 	mDefaultSkinDir = getSkinBaseDir();
 	mDefaultSkinDir += mDirDelimiter;	
-	mDefaultSkinDir += "default";
+	mDefaultSkinDir += "base";
 }
 
 bool LLDir::setCacheDir(const std::string &path)

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="notification" title="CONSOLE DE NOTIFICATIONS">
-	<text_editor name="payload">
-		Chargement...
-	</text_editor>
-	<combo_box label="Réponse" name="response"/>
-</floater>

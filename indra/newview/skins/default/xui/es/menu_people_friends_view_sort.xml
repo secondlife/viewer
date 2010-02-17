@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_check label="Ordenar alfabéticamente" name="sort_name"/>
-	<menu_item_check label="Ordenar por estatus" name="sort_status"/>
-	<menu_item_check label="Ver los iconos de la gente" name="view_icons"/>
-	<menu_item_call label="Ver la lista de Residentes y Objetos ignorados" name="show_blocked_list"/>
-</menu>
