@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="edit_tattoo_panel">
-	<panel name="avatar_tattoo_color_panel">
-		<texture_picker label="Tatuaje de la cabeza" name="Head Tattoo" tool_tip="Pulsa para elegir una imagen"/>
-		<texture_picker label="Tatuaje superior" name="Upper Tattoo" tool_tip="Pulsa para elegir una imagen"/>
-		<texture_picker label="Tatuaje inferior" name="Lower Tattoo" tool_tip="Pulsa para elegir una imagen"/>
-	</panel>
-</panel>

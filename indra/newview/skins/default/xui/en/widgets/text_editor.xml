@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<!-- Core parameters are in simple_text_editor.xml -->
-<text_editor
-  allow_html="false"
-  show_context_menu="true"/>

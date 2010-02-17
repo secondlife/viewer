@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Text editor context menu">
-	<menu_item_call label="Klip" name="Cut"/>
-	<menu_item_call label="Kopiér" name="Copy"/>
-	<menu_item_call label="Sæt ind" name="Paste"/>
-	<menu_item_call label="Slet" name="Delete"/>
-	<menu_item_call label="Vælg alt" name="Select All"/>
-</context_menu>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Popup">
-	<menu_item_call label="Over URL" name="about_url"/>
-	<menu_item_call label="Teleport naar URL" name="teleport_to_url"/>
-	<menu_item_call label="Toon op kaart" name="show_on_map"/>
-</menu>

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_gear_default">
-	<menu_item_call label="Remplacer la tenue actuelle" name="wear"/>
-	<menu_item_call label="Enlever de la tenue actuelle" name="remove"/>
-	<menu_item_call label="Renommer" name="rename"/>
-	<menu_item_call label="Supprimer le lien" name="remove_link"/>
-	<menu_item_call label="Supprimer la tenue" name="delete"/>
-</menu>

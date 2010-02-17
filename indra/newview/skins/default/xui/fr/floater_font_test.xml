@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="TEST DE POLICE">
-	<text name="linea">
-		OverrideTest, Times-BOLD doit être sélectionné ici. (De default/xui/fr)
-	</text>
-</floater>

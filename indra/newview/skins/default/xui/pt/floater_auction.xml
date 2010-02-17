@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_auction" title="INICIAR A VENDA DE TERRENOS DA LINDEN">
-	<check_box label="Incluir marcador de seleção amarelo" name="fence_check"/>
-	<button label="Foto" label_selected="Foto" name="snapshot_btn"/>
-	<button label="OK" label_selected="OK" name="ok_btn"/>
-	<text name="already for sale">
-		Você não pode leiloar terrenos que já estão configurados para venda.
-	</text>
-</floater>

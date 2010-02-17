@@ -1497,7 +1497,7 @@ struct UIImageDeclarations : public LLInitParam::Block<UIImageDeclarations>
 bool LLUIImageList::initFromFile()
 {
 	// construct path to canonical textures.xml in default skin dir
-	std::string base_file_path = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "default", "textures", "textures.xml");
+	std::string base_file_path = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "base", "textures", "textures.xml");
 
 	LLXMLNodePtr root;
 
