@@ -83,7 +83,7 @@
          left="10"
          name="move up btn"
          scale_image="false"
-         tool_tip="Fly up, press &quot;E&quot;"
+         tool_tip="Fly up, press E"
          top="14"
          width="25" />
         <button
@@ -96,7 +96,7 @@
          left_pad="45"
          name="move down btn"
          scale_image="false"
-         tool_tip="Fly down, press &quot;C&quot;"
+         tool_tip="Fly down, press C"
          top_delta="0"
          width="20" />
         <joystick_turn
