@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		Anmelden, um Änderungen vorzunehmen
 	</panel.string>
-	<button label="Verlauf leeren" name="clear_cache"/>
+	<button label="Cache leeren" name="clear_cache"/>
 	<text name="cache_size_label_l">
 		(Standorte, Bilder, Web, Suchverlauf)
 	</text>
@@ -20,7 +20,7 @@
 	<check_box label="IM Protokolle auf meinem Computer speichern" name="log_instant_messages"/>
 	<check_box label="Zeitstempel hinzufügen" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
-		Speicherort für Protokolle:
+		Protokolle speichern in:
 	</text>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="log_path_button"/>
 	<button label="Ignorierte Einwohner/Objekte" name="block_list" width="180"/>

@@ -318,7 +318,7 @@ Sie benötigen ein Benutzerkonto, um [SECOND_LIFE] betreten zu können. Möchten
 	<notification name="AddClassified">
 		Anzeigen werden im Suchverzeichnis im Abschnitt „Anzeigen&quot; und auf [http://secondlife.com/community/classifieds secondlife.com] für eine Woche angezeigt.
 Füllen Sie Ihre Anzeige aus und klicken Sie auf &apos;Veröffentlichen...&apos;, um sie zum Verzeichnis hinzuzufügen.
-Sie werden gebeten, einen Preis zu bezahlen, wenn Sie auf &apos;Veröffentlichen&apos; klicken.
+Sie werden gebeten für die Anzeige zu bezahlen, wenn Sie auf &apos;Veröffentlichen&apos; klicken.
 Wenn Sie mehr bezahlen, erscheint Ihre Anzeige weiter oben in der Liste, ebenso wenn ein Benutzer nach Ihren Suchbegriffen sucht.
 		<usetemplate ignoretext="So wird eine neue Anzeige erstellt" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
@@ -1068,9 +1068,9 @@ Sie wurden zur nächstgelegenen Region teleportiert.
 Sie wurden zur nächstgelegenen Region teleportiert.
 	</notification>
 	<notification name="AvatarMovedHome">
-		Ihr Heimatort ist zurzeit nicht verfügbar.
+		Ihr Zuhause ist zurzeit nicht verfügbar.
 Sie wurden zur nächstgelegenen Region teleportiert.
-Sie müssen eventuell einen neuen Heimatort festlegen.
+Sie müssen eventuell ein neues Zuhause festlegen.
 	</notification>
 	<notification name="ClothingLoading">
 		Ihre Kleidung wird noch heruntergeladen.
@@ -2600,7 +2600,7 @@ Sollte das Problem fortbestehen, finden Sie weitere Hilfestellung unter [SUPPORT
 		- Ihr Arbeitsspeicher entspricht nicht den Mindestanforderungen.
 	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
-		Wenn Sie ein Stück Land besitzen, können Sie dies als Ihren Heimatort festlegen.
+		Wenn Sie ein Stück Land besitzen, können Sie dies als Ihr Zuhause festlegen.
 Ansonsten können Sie auf der Karte nachsehen und dort Ort suchen, die als „Infohub“ gekennzeichnet sind.
 	</global>
 </notifications>

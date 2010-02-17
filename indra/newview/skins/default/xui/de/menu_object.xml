@@ -20,6 +20,6 @@
 		<menu_item_call label="Löschen" name="Delete"/>
 	</context_menu>
 	<menu_item_call label="Kopie nehmen" name="Take Copy"/>
-	<menu_item_call label="Zahlen" name="Pay..."/>
+	<menu_item_call label="Bezahlen" name="Pay..."/>
 	<menu_item_call label="Kaufen" name="Buy..."/>
 </context_menu>
