@@ -6,7 +6,7 @@
 	background_visible="true"
 	layout="topleft"
 	width="270"
-	height="325"
+	height="235"
 	name="nearby_media"
 	help_topic="nearby_media">
   <string name="media_item_count_format">(%ld media items)</string>
@@ -88,7 +88,7 @@
 	  top_delta="30"
 	  right="-1"
 	  left="0"
-	  height="295">
+	  height="200">
 	<text
 		type="string"
 		length="1"
@@ -149,7 +149,7 @@
 	<scroll_list
 		follows="left|top|bottom|right"
 		column_padding="0"
-		height="100"
+		height="105"
 		draw_heading="false"
 		draw_stripes="true"
 		bg_stripe_color="0.25 0.25 0.25 0.25"
@@ -200,7 +200,7 @@
 		  name="media_controls"
 		  follows="left|right|top"
 		  animate="false"
-		  height="75"
+		  height="26"
 		  layout="topleft"
 		  top="4"
 		  left="10"
@@ -407,70 +407,6 @@
 			mouse_opaque="false"
 			user_resize="false" />
 	  </layout_stack>
-	</panel>
-	<panel
-		bevel_style="in"
-		background_visible="true" 
-		bg_alpha_color="0.0 0.0 0.0 1.0"
-		bg_opaque_color="0 0 0 0.3"
-		follows="left|right|bottom"
-		top_pad="5"
-		height="90"
-		left="10"
-		right="-10">
-	  <check_box
-		  name="media_enabled_btn"
-		  control_name="AudioStreamingMedia"
-		  value="true"
-		  follows="left|bottom|right"
-		  height="15"
-		  tool_tip="Check this to enable all media"
-		  label="All Media Enabled"
-		  top="10"
-		  left="10"/>
-	  <check_box
-		  name="media_auto_play_btn"
-		  control_name="ParcelMediaAutoPlayEnable"
-		  enabled_control="AudioStreamingMedia"
-		  value="true"
-		  follows="left|bottom|right"
-		  height="15"
-		  tool_tip="Check this to let media auto-play if it wants"
-		  label="Allow Media to auto-play"
-		  top_pad="5"
-		  left="10"/>
-	  <!--
-		  <check_box
-		  name="media_show_within_parcel_btn"
-		  control_name="MediaShowWithinParcel"
-		  enabled_control="AudioStreamingMedia"
-		  value="true"
-		  follows="left|bottom|right"
-		  height="15"
-		  tool_tip="Uncheck this to hide media within the parcel you are standing in"
-		  label="Show media within current parcel"
-		  left="10"/>
-	  -->
-	  <check_box
-		  name="media_show_outside_parcel_btn"
-		  control_name="MediaShowOutsideParcel"
-		  enabled_control="AudioStreamingMedia"
-		  value="true"
-		  follows="left|bottom|right"
-		  height="15"
-		  tool_tip="Uncheck this to hide media outside the parcel you are standing in"
-		  label="Show media outside current parcel"
-		  left="10"/>
-	  <check_box
-		  name="media_show_on_others_btn"
-		  control_name="MediaShowOnOthers"
-		  enabled_control="AudioStreamingMedia"
-		  value="true"
-		  follows="left|bottom|right"
-		  height="15"
-		  tool_tip="Uncheck this to hide media attached to other avatars nearby"
-		  label="Show media attached to other avatars"
-		  left="10"/>
 	</panel>
   </panel>
 </panel>
