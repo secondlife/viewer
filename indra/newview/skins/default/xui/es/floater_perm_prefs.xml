@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="perm prefs" title="PERMISOS DE SUBIDA POR DEFECTO">
+<floater name="perm prefs" title="PERMISOS POR DEFECTO DE SUBIDA">
 	<panel label="Permisos" name="permissions">
 		<button label="?" label_selected="?" name="help"/>
 		<check_box label="Compartir con el grupo" name="share_with_group"/>

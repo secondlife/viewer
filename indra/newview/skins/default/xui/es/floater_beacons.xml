@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="beacons" title="BALIZAS">
 	<panel name="beacons_panel">
-		<check_box label="Objetos con script sólo al tocarlos" name="touch_only"/>
-		<check_box label="Objetos con script" name="scripted"/>
-		<check_box label="Objetos materiales" name="physical"/>
-		<check_box label="Fuentes de sonido" name="sounds"/>
-		<check_box label="Fuentes de partículas" name="particles"/>
-		<check_box label="Activar los realzados" name="highlights"/>
-		<check_box label="Activar las balizas" name="beacons"/>
-		<text name="beacon_width_label">
-			Ancho de la baliza:
+		<text name="label_show">
+			Mostrar:
 		</text>
+		<check_box label="Balizas" name="beacons"/>
+		<check_box label="Realzados" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="Ancho de la baliza">
+			Ancho:
+		</text>
+		<text name="label_objects">
+			Para estos objetos:
+		</text>
+		<check_box label="Materiales" name="physical"/>
+		<check_box label="Con scripts" name="scripted"/>
+		<check_box label="Sólo tocar" name="touch_only"/>
+		<check_box label="Origen de sonidos" name="sounds"/>
+		<check_box label="Origen de partículas" name="particles"/>
 	</panel>
 </floater>

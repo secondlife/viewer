@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Audio y Vídeo" name="Preference Media panel">
-	<slider label="General" name="System Volume"/>
+<panel label="Sonidos" name="Preference Media panel">
+	<slider label="Volumen general" name="System Volume"/>
+	<check_box initial_value="true" label="Silenciar al minimizar" name="mute_when_minimized"/>
 	<slider label="Ambiental" name="Wind Volume"/>
-	<slider label="Sonidos" name="SFX Volume"/>
-	<slider label="Media" name="Media Volume"/>
-	<slider label="Interfaz" name="UI Volume"/>
-	<slider label="Música" name="Music Volume"/>
+	<slider label="Botones" name="UI Volume"/>
+	<slider label="Medios de comunicación" name="Media Volume"/>
+	<slider label="Efectos sonoros" name="SFX Volume"/>
+	<slider label="Música en streaming" name="Music Volume"/>
+	<check_box label="Voz" name="enable_voice_check"/>
 	<slider label="Voz" name="Voice Volume"/>
-	<text_editor name="voice_unavailable">
-		El chat de voz no está disponible
-	</text_editor>
-	<check_box label="Activar el chat de voz" name="enable_voice_check"/>
+	<text name="Listen from">
+		Oír desde:
+	</text>
 	<radio_group name="ear_location">
-		<radio_item name="0" label="Oír el chat desde la posición de la cámara." />
-		<radio_item name="1" label="Oír el chat desde la posición del avatar." />
+		<radio_item label="La posición de la cámara" name="0"/>
+		<radio_item label="La posición del avatar" name="1"/>
 	</radio_group>
-	<button label="Configuración de los dispositivos" name="device_settings_btn" width="210" />
-	<text name="muting_text">
-		Volumen:
-	</text>
-	<text name="streaming_prefs_text">
-		Preferencias multimedia:
-	</text>
-	<text name="audio_prefs_text">
-		Preferencias de sonido:
-	</text>
-	<panel label="Volumen" name="Volume Panel"/>
-	<check_box label="Si hay música, reproducirla en streaming" name="streaming_music"/>
-	<check_box label="Si hay media, reproducirlos en streaming" name="streaming_video"/>
-	<check_box label="Reproducir automáticamente los media" name="auto_streaming_video"/>
-	<check_box label="Silenciar el sonido al minimizar la ventana" name="mute_when_minimized"/>
-	<slider label="Efecto Doppler" name="Doppler Effect" label_width="140" width="270" />
-	<slider label="Distancia de escucha" name="Distance Factor" label_width="140" width="270" />
-	<slider label="Nivel de atenuación" name="Rolloff Factor" label_width="140" width="270" />
-	<spinner label="Avisar de transacción de L$ desde" name="L$ Change Threshold" label_width="195" width="259"/>
-	<spinner label="Avisar del estado de la vida desde" name="Health Change Threshold" label_width="195" width="259"/>
+	<button label="Dispositivos de entrada y salida" name="device_settings_btn" width="210"/>
+	<panel label="Configuración de dispositivos" name="device_settings_panel">
+		<panel.string name="default_text">
+			Por defecto
+		</panel.string>
+		<text name="Input">
+			Entrada
+		</text>
+		<text name="My volume label">
+			Mi volumen:
+		</text>
+		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Cambia el volumen usando este deslizable"/>
+		<text name="wait_text">
+			Por favor, espera
+		</text>
+		<text name="Output">
+			Salida
+		</text>
+	</panel>
 </panel>
