@@ -6,7 +6,7 @@
 	<panel.string name="type_pg">
 		Allgemeiner Inhalt
 	</panel.string>
-	<text name="title" value="Informationen über Anzeige"/>
+	<text name="title" value="Anzeigen-Info"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="classified_name" value="[name]"/>

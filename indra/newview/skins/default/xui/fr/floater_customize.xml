@@ -352,7 +352,7 @@
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
-		<panel label="Sous-vêtements (haut)" name="Undershirt">
+		<panel label="Débardeur" name="Undershirt">
 			<text name="title">
 				[DESC]
 			</text>
@@ -363,30 +363,29 @@
 				[DESC]: en cours de chargement...
 			</text>
 			<text name="title_not_worn">
-				[DESC]: non portés
+				[DESC]: non porté
 			</text>
 			<text name="path">
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de sous-vêtements (homme), faites-en glisser à partir de votre inventaire. Vous pouvez aussi en créer de nouveaux et les porter.
+				Pour changer de débardeur, faites-en glisser un à partir de votre inventaire. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text bottom="-470" name="Item Action Label" right="92">
-				Sous-vêtements
-(haut) :
+				Débardeur :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
-			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New"/>
+			<button label="Créer un débardeur" label_selected="Créer un débardeur" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
-		<panel label="Sous-vêtements (bas)" name="Underpants">
+		<panel label="Caleçon" name="Underpants">
 			<text name="title">
 				[DESC]
 			</text>
@@ -397,24 +396,23 @@
 				[DESC]: en cours de chargement...
 			</text>
 			<text name="title_not_worn">
-				[DESC]: non portés
+				[DESC]: non porté
 			</text>
 			<text name="path">
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de sous-vêtements (femme), faites-en glisser à partir de votre inventaire. Vous pouvez aussi en créer de nouveaux et les porter.
+				Pour changer de caleçon, faites-en glisser un à partir de votre inventaire. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text bottom="-470" name="Item Action Label" right="92">
-				Sous-vêtements
-(bas) :
+				Caleçon :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
-			<button label="Créer des sous-vêtements" label_selected="Créer des sous-vêtements" name="Create New"/>
+			<button label="Créer un caleçon" label_selected="Créer un caleçon" name="Create New"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>

@@ -22,13 +22,13 @@
 	<menu label="Unterhalten" name="Communicate">
 		<menu_item_call label="Meine Freunde" name="My Friends"/>
 		<menu_item_call label="Meine Gruppen" name="My Groups"/>
-		<menu_item_check label="Lokaler Chat" name="Nearby Chat"/>
+		<menu_item_check label="Chat in der Nähe" name="Nearby Chat"/>
 		<menu_item_call label="Leute in der Nähe" name="Active Speakers"/>
 		<menu_item_check label="Medien in der Nähe" name="Nearby Media"/>
 	</menu>
 	<menu label="Welt" name="World">
 		<menu_item_check label="Minikarte" name="Mini-Map"/>
-		<menu_item_check label="Weltkarte" name="World Map"/>
+		<menu_item_check label="Karte" name="World Map"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
 		<menu label="Ortsprofil" name="Land">
@@ -175,7 +175,7 @@
 		<menu_item_check label="Mehrer Threads ausführen" name="Run Multiple Threads"/>
 		<menu_item_call label="Gruppen-Cache löschen" name="ClearGroupCache"/>
 		<menu_item_check label="Weiche Mausbewegung" name="Mouse Smoothing"/>
-		<menu_item_check label="IMs in lokalem Chat anzeigen" name="IMInChat"/>
+		<menu_item_check label="IMs im Chat in der Nähe anzeigen" name="IMInChat"/>
 		<menu label="Tastaturkürzel" name="Shortcuts">
 			<menu_item_check label="Suchen" name="Search"/>
 			<menu_item_call label="Tasten freigeben" name="Release Keys"/>

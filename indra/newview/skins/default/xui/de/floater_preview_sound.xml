@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Beschreibung:
 	</text>
-	<button label="In Welt abspielen" label_selected="In Welt abspielen" name="Sound play btn" tool_tip="Gibt diesen Sound so wieder, dass andere ihn hören können."/>
-	<button label="Lokal wiedergeben" label_selected="Lokal wiedergeben" name="Sound audition btn" tool_tip="Gibt diesen Sound so wieder, dass nur Sie ihn hören."/>
+	<button label="Inworld abspielen" label_selected="Inworld abspielen" name="Sound play btn" tool_tip="Gibt diesen Sound so wieder, dass andere ihn hören können."/>
+	<button label="Lokal abspielen" label_selected="Lokal abspielen" name="Sound audition btn" tool_tip="Gibt diesen Sound so wieder, dass nur Sie ihn hören."/>
 </floater>

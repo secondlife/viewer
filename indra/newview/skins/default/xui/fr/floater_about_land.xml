@@ -71,7 +71,7 @@
 				Catégorie :
 			</text>
 			<text name="ContentRatingText">
-				Adult
+				Adulte
 			</text>
 			<text name="Owner:">
 				Propriétaire :
@@ -99,7 +99,7 @@
 				Prix : [PRICE] L$ ([PRICE_PER_SQM] L$/m²)
 			</text>
 			<text name="SalePending"/>
-			<button label="Vendez du terrain" label_selected="Vendre le terrain..." name="Sell Land..."/>
+			<button label="Vendre le terrain" label_selected="Vendre le terrain..." name="Sell Land..."/>
 			<text name="For sale to">
 				À vendre à : [BUYER]
 			</text>

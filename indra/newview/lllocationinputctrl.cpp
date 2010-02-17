@@ -833,10 +833,13 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mDamageText->setVisible(false);
 	}
 
-	S32 left_pad, right_pad;
-	mTextEntry->getTextPadding(&left_pad, &right_pad);
-	right_pad = mTextEntry->getRect().mRight - x;
-	mTextEntry->setTextPadding(left_pad, right_pad);
+	if (mTextEntry)
+	{
+		S32 left_pad, right_pad;
+		mTextEntry->getTextPadding(&left_pad, &right_pad);
+		right_pad = mTextEntry->getRect().mRight - x;
+		mTextEntry->setTextPadding(left_pad, right_pad);
+	}
 }
 
 void LLLocationInputCtrl::refreshHealth()

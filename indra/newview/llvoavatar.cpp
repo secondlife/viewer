@@ -2540,11 +2540,11 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	{
 		if (isFullyLoaded() && isSelf())
 		{
-			llinfos << "self isFullyLoaded" << llendl;
-
 			static bool first_fully_visible = true;
 			if (first_fully_visible)
 			{
+				llinfos << "self isFullyLoaded, first_fully_visible" << llendl;
+
 				first_fully_visible = false;
 				LLAppearanceManager::instance().onFirstFullyVisible();
 			}

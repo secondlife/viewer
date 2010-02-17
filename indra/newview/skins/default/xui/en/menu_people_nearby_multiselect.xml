@@ -14,6 +14,16 @@
          parameter="can_add" />
     </menu_item_call>
     <menu_item_call
+     label="Remove Friends"
+     layout="topleft"
+     name="Remove Friend">
+        <menu_item_call.on_click
+         function="Avatar.RemoveFriend" />
+        <menu_item_call.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_delete" />
+    </menu_item_call>
+    <menu_item_call
      label="IM"
      layout="topleft"
      name="IM">

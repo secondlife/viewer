@@ -122,7 +122,7 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="Öffnen" name="open_btn"/>
-		<button label="Zahlen" name="pay_btn"/>
+		<button label="Bezahlen" name="pay_btn"/>
 		<button label="Kaufen" name="buy_btn"/>
 	</panel>
 </panel>

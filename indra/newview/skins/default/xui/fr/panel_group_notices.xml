@@ -10,7 +10,7 @@ Vous pouvez désactiver la réception des notices dans l&apos;onglet Général.
 	</panel.string>
 	<text name="lbl2">
 		Les notices sont conservées pendant 14 jours.
-200 maximum par groupe et par jour
+200 max. par groupe et par jour.
 	</text>
 	<scroll_list name="notice_list">
 		<scroll_list.columns label="" name="icon"/>

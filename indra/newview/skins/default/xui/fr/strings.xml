@@ -642,7 +642,7 @@
 		Modéré
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Adult
+		Adulte
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		Hors ligne
@@ -741,10 +741,10 @@
 		Gants
 	</string>
 	<string name="undershirt">
-		Sous-vêtements (homme)
+		Débardeur
 	</string>
 	<string name="underpants">
-		Sous-vêtements (femme)
+		Caleçon
 	</string>
 	<string name="skirt">
 		Jupe
@@ -1706,7 +1706,7 @@
 		Appartenant aux Lindens
 	</string>
 	<string name="Adult">
-		Adult
+		Adulte
 	</string>
 	<string name="Arts&amp;Culture">
 		Arts et culture
@@ -1897,7 +1897,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Mèches de derrière
 	</string>
 	<string name="Baggy">
-		Cernés
+		Plus
 	</string>
 	<string name="Bangs">
 		Frange
@@ -1924,7 +1924,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Volume : Haut
 	</string>
 	<string name="Big Head">
-		Grosse tête
+		Plus
 	</string>
 	<string name="Big Pectorals">
 		Gros pectoraux
@@ -1960,13 +1960,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Grains de beauté
 	</string>
 	<string name="Body Thick">
-		Corps épais
+		Plus
 	</string>
 	<string name="Body Thickness">
 		Épaisseur du corps
 	</string>
 	<string name="Body Thin">
-		Corps mince
+		Moins
 	</string>
 	<string name="Bow Legged">
 		Jambes arquées
@@ -2098,7 +2098,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Déviation du nez
 	</string>
 	<string name="Cuff Flare">
-		Jambe
+		Jambes
 	</string>
 	<string name="Dark">
 		Sombre
@@ -2215,7 +2215,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Jambes larges
 	</string>
 	<string name="Flat">
-		Plat
+		Moins
 	</string>
 	<string name="Flat Butt">
 		Fesses plates
@@ -2380,7 +2380,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Saillie de la mâchoire
 	</string>
 	<string name="Jaw Shape">
-		Forme de la mâchoire
+		Mâchoire
 	</string>
 	<string name="Join">
 		Rapprochés
@@ -2461,7 +2461,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fente labiale
 	</string>
 	<string name="Lip Cleft Depth">
-		Profondeur fente labiale
+		Fente labiale
 	</string>
 	<string name="Lip Fullness">
 		Volume des lèvres
@@ -2488,7 +2488,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Couleur du rouge à lèvres
 	</string>
 	<string name="Long">
-		Long
+		Plus
 	</string>
 	<string name="Long Head">
 		Tête longue
@@ -2587,7 +2587,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus
 	</string>
 	<string name="More Lower Lip">
-		Plus
+		Inférieure plus grosse
 	</string>
 	<string name="More Muscles">
 		Plus
@@ -2611,7 +2611,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus
 	</string>
 	<string name="More Upper Lip">
-		Plus
+		Supérieure plus grosse
 	</string>
 	<string name="More Vertical">
 		Plus
@@ -2647,7 +2647,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Couleur du vernis
 	</string>
 	<string name="Narrow">
-		Étroit
+		Moins
 	</string>
 	<string name="Narrow Back">
 		Arrière étroit
@@ -2827,7 +2827,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plateforme (largeur)
 	</string>
 	<string name="Pointy">
-		Pointu
+		Pointue
 	</string>
 	<string name="Pointy Heels">
 		Talons pointus
@@ -2845,10 +2845,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Œil droit saillant
 	</string>
 	<string name="Puffy">
-		Gonflées
+		Plus
 	</string>
 	<string name="Puffy Eyelids">
-		Paupières
+		Cernes
 	</string>
 	<string name="Rainbow Color">
 		Couleur arc en ciel
@@ -3013,10 +3013,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Petites mains
 	</string>
 	<string name="Small Head">
-		Petite tête
+		Moins
 	</string>
 	<string name="Smooth">
-		Lisses
+		Moins
 	</string>
 	<string name="Smooth Hair">
 		Cheveux lisses
@@ -3034,7 +3034,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Mèches en pointe
 	</string>
 	<string name="Square">
-		Carré
+		Carrée
 	</string>
 	<string name="Square Toe">
 		Orteil carré
@@ -3145,7 +3145,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Menton supérieur
 	</string>
 	<string name="Upper Eyelid Fold">
-		Paupière supérieure
+		Paupière sup.
 	</string>
 	<string name="Upturned">
 		En trompette
@@ -3163,7 +3163,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Cheveux blancs
 	</string>
 	<string name="Wide">
-		Large
+		Plus
 	</string>
 	<string name="Wide Back">
 		Derrière large

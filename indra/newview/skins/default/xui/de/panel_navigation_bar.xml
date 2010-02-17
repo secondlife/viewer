@@ -3,7 +3,7 @@
 	<panel name="navigation_panel">
 		<button name="back_btn" tool_tip="Zurück zum vorherigen Standort gehen"/>
 		<button name="forward_btn" tool_tip="Um einen Standort weiter gehen"/>
-		<button name="home_btn" tool_tip="Zu meinem Heimatort teleportieren"/>
+		<button name="home_btn" tool_tip="Zu meinem Zuhause teleportieren"/>
 		<location_input label="Standort" name="location_combo"/>
 		<search_combo_box label="Suche" name="search_combo_box" tool_tip="Suche">
 			<combo_editor label="[SECOND_LIFE] durchsuchen" name="search_combo_editor"/>

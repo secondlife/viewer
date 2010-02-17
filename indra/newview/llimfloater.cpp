@@ -489,11 +489,19 @@ void LLIMFloater::setVisible(BOOL visible)
 		channel->redrawToasts();
 	}
 
-	if (visible && mChatHistory && mInputEditor)
+	BOOL is_minimized = visible && isChatMultiTab()
+		? LLIMFloaterContainer::getInstance()->isMinimized()
+		: !visible;
+
+	if (!is_minimized && mChatHistory && mInputEditor)
 	{
 		//only if floater was construced and initialized from xml
 		updateMessages();
-		mInputEditor->setFocus(TRUE);
+		//prevent steal focus when IM opened in multitab mode
+		if (!isChatMultiTab())
+		{
+			mInputEditor->setFocus(TRUE);
+		}
 	}
 
 	if(!visible)
@@ -514,6 +522,13 @@ BOOL LLIMFloater::getVisible()
 		
 		// Treat inactive floater as invisible.
 		bool is_active = im_container->getActiveFloater() == this;
+	
+		//torn off floater is always inactive
+		if (!is_active && getHost() != im_container)
+		{
+			return LLTransientDockableFloater::getVisible();
+		}
+
 		// getVisible() returns TRUE when Tabbed IM window is minimized.
 		return is_active && !im_container->isMinimized() && im_container->getVisible();
 	}

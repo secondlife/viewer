@@ -20,7 +20,7 @@
                               image_pressed="DropDown_Press" 
                               image_pressed_selected="DropDown_Press"
                               image_disabled="DropDown_Disabled" />
-  <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor"
+  <combo_box.combo_list bg_writeable_color="ComboListBgColor"
                         background_visible="true"
                          />
   <!-- Text is "tentative" if you have typed in a string that does not match

@@ -51,10 +51,10 @@
 		Mes effets :
 	</text>
 	<text name="title_afk_text">
-		Délai d&apos;absence :
+		Me montrer absent après :
 	</text>
 	<color_swatch label="" name="effect_color_swatch" tool_tip="Cliquer pour ouvrir le sélecteur de couleurs"/>
-	<combo_box label="Délai d&apos;absence :" name="afk">
+	<combo_box label="Me montrer absent après :" name="afk">
 		<combo_box.item label="2 minutes" name="item0"/>
 		<combo_box.item label="5 minutes" name="item1"/>
 		<combo_box.item label="10 minutes" name="item2"/>

@@ -53,7 +53,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloatergroups.h"
-#include "llfloaternearbymedia.h"
+#include "llpanelnearbymedia.h"
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
 #include "llparcelselection.h"
@@ -1795,12 +1795,13 @@ void optionally_start_music(const std::string& music_url)
 	{
 		// only play music when you enter a new parcel if the UI control for this
 		// was not *explicitly* stopped by the user. (part of SL-4878)
-		LLFloaterNearbyMedia *nearby_media_floater = LLFloaterReg::findTypedInstance<LLFloaterNearbyMedia>("nearby_media");
-		if ((nearby_media_floater &&
-		     nearby_media_floater->getParcelAudioAutoStart()) ||
+		LLPanelNearByMedia* nearby_media_panel = gStatusBar->getNearbyMediaPanel();;
+		if ((nearby_media_panel &&
+		     nearby_media_panel->getParcelAudioAutoStart()) ||
 		    // or they have expressed no opinion in the UI, but have autoplay on...
-		    (!nearby_media_floater &&
-		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING)))
+		    (!nearby_media_panel &&
+		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			 gSavedSettings.getBOOL("MediaTentativeAutoPlay")))
 		{
 			llinfos << "Starting parcel music " << music_url << llendl;
 			gAudiop->startInternetStream(music_url);

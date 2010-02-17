@@ -5,7 +5,7 @@
 	</floater.string>
 	<check_box label="Utiliser cette capture d&apos;écran" name="screen_check"/>
 	<text name="reporter_title" width="60">
-		Déposant :
+		Témoin :
 	</text>
 	<text name="reporter_field">
 		Loremipsum Dolorsitamut Longnamez
