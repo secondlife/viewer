@@ -22,5 +22,6 @@
         hover_glow_amount="0.15"
         halign="center"
         pad_bottom="3" 
+        height="23"
         scale_image="true">
 </button>
