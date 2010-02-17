@@ -301,32 +301,26 @@ void LLOutfitFetch::done()
 	delete this;
 }
 
-class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
+LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy():
+	mFireCount(0)
 {
-public:
-	LLUpdateAppearanceOnDestroy():
-		mFireCount(0)
-	{
-	}
+}
 
-	virtual ~LLUpdateAppearanceOnDestroy()
+LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
+{
+	llinfos << "done update appearance on destroy" << llendl;
+	
+	if (!LLApp::isExiting())
 	{
-		llinfos << "done update appearance on destroy" << llendl;
-
-		if (!LLApp::isExiting())
-		{
-			LLAppearanceManager::instance().updateAppearanceFromCOF();
-		}
+		LLAppearanceManager::instance().updateAppearanceFromCOF();
 	}
+}
 
-	/* virtual */ void fire(const LLUUID& inv_item)
-	{
-		llinfos << "callback fired" << llendl;
-		mFireCount++;
-	}
-private:
-	U32 mFireCount;
-};
+void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
+{
+	llinfos << "callback fired" << llendl;
+	mFireCount++;
+}
 
 struct LLFoundData
 {

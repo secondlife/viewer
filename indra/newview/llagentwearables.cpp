@@ -286,6 +286,7 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	}
 	if (mTodo & CALL_RECOVERDONE)
 	{
+		LLAppearanceManager::instance().addCOFItemLink(inv_item,false);
 		gAgentWearables.recoverMissingWearableDone();
 	}
 	/*
@@ -1038,8 +1039,10 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 	{
 		return;
 	}
-
-	if (wearable)
+// BAP RESTORE TMP
+	if (wearable && type != WT_SHAPE) // force failure for shape to test recovery path.
+		
+//	if (wearable)
 	{
 		llassert(type == wearable->getType());
 		wearable->setItemID(wear_data->mItemID);
@@ -1057,6 +1060,7 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 		// Somehow the asset doesn't exist in the database.
 		gAgentWearables.recoverMissingWearable(type,index);
 	}
+	
 
 	gInventory.notifyObservers();
 
@@ -2484,7 +2488,7 @@ class LLFetchAndLinkObserver: public LLInventoryFetchObserver
 public:
 	LLFetchAndLinkObserver(LLInventoryFetchObserver::item_ref_t& ids):
 		m_ids(ids),
-		LLInventoryFetchObserver(true)
+		LLInventoryFetchObserver(true) // retry for missing items
 	{
 	}
 	~LLFetchAndLinkObserver()
@@ -2493,7 +2497,9 @@ public:
 	virtual void done()
 	{
 		gInventory.removeObserver(this);
+
 		// Link to all fetched items in COF.
+		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 		for (LLInventoryFetchObserver::item_ref_t::iterator it = m_ids.begin();
 			 it != m_ids.end();
 			 ++it)
@@ -2505,8 +2511,13 @@ public:
 				llwarns << "fetch failed!" << llendl;
 				continue;
 			}
-			link_inventory_item(gAgent.getID(), item->getLinkedUUID(), LLAppearanceManager::instance().getCOF(), item->getName(),
-								LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
+
+			link_inventory_item(gAgent.getID(),
+								item->getLinkedUUID(),
+								LLAppearanceManager::instance().getCOF(),
+								item->getName(),
+								LLAssetType::AT_LINK,
+								link_waiter);
 		}
 	}
 private:
@@ -2529,11 +2540,13 @@ void LLInitialWearablesFetch::processWearablesMessage()
 #ifdef USE_CURRENT_OUTFIT_FOLDER
 				ids.push_back(wearable_data->mItemID);
 #endif
-				// Fetch the wearables
-				LLWearableList::instance().getAsset(wearable_data->mAssetID,
-													LLStringUtil::null,
-													LLWearableDictionary::getAssetType(wearable_data->mType),
-													LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));
+#if 0
+// 				// Fetch the wearables
+// 				LLWearableList::instance().getAsset(wearable_data->mAssetID,
+// 													LLStringUtil::null,
+// 													LLWearableDictionary::getAssetType(wearable_data->mType),
+// 													LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));
+#endif
 			}
 			else
 			{
