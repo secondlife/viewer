@@ -711,6 +711,7 @@ LLCurlRequest::LLCurlRequest() :
 	mActiveRequestCount(0)
 {
 	mThreadID = LLThread::currentID();
+	mProcessing = FALSE;
 }
 
 LLCurlRequest::~LLCurlRequest()
@@ -745,6 +746,11 @@ LLCurl::Easy* LLCurlRequest::allocEasy()
 bool LLCurlRequest::addEasy(LLCurl::Easy* easy)
 {
 	llassert_always(mActiveMulti);
+	
+	if (mProcessing)
+	{
+		llerrs << "Posting to a LLCurlRequest instance from within a responder is not allowed (causes DNS timeouts)." << llendl;
+	}
 	bool res = mActiveMulti->addEasy(easy);
 	return res;
 }
@@ -835,6 +841,8 @@ S32 LLCurlRequest::process()
 {
 	llassert_always(mThreadID == LLThread::currentID());
 	S32 res = 0;
+
+	mProcessing = TRUE;
 	for (curlmulti_set_t::iterator iter = mMultiSet.begin();
 		 iter != mMultiSet.end(); )
 	{
@@ -848,6 +856,7 @@ S32 LLCurlRequest::process()
 			delete multi;
 		}
 	}
+	mProcessing = FALSE;
 	return res;
 }
 

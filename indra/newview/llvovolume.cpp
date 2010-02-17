@@ -920,6 +920,8 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 
 	S32 lod = mLOD;
 
+	BOOL is404 = FALSE;
+
 	if (isSculpted())
 	{
 		// if it's a mesh
@@ -932,6 +934,11 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
 
 			lod = gMeshRepo.getActualMeshLOD(volume_params, lod);
+			if (lod == -1)
+			{
+				is404 = TRUE;
+				lod = 0;
+			}
 		}
 	}
 
@@ -962,7 +969,10 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 		}
 	}
 	
-	
+	if (is404)
+	{
+		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", TRUE, LLViewerTexture::BOOST_UI));
+	}
 
 	if ((LLPrimitive::setVolume(volume_params, lod, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
 	{
@@ -995,10 +1005,9 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 			}
 			else // otherwise is sculptie
 			{
-
 				if (mSculptTexture.notNull())
 				{
-				sculpt();
+					sculpt();
 				}
 			}
 		}
