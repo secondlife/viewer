@@ -18,7 +18,7 @@
 	</text>
 	<check_box label="Sauvegarder les chats près de moi sur mon ordinateur" name="log_nearby_chat"/>
 	<check_box label="Sauvegarder les IM sur mon ordinateur" name="log_instant_messages"/>
-	<check_box label="Inclure les heures" name="show_timestamps_check_im"/>
+	<check_box label="Inclure les dates et heures" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
 		Emplacement :
 	</text>
