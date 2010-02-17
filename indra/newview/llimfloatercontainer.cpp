@@ -39,6 +39,7 @@
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
 #include "llagent.h"
+#include "lltransientfloatermgr.h"
 
 //
 // LLIMFloaterContainer
@@ -47,9 +48,13 @@ LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed)
 {
 	mAutoResize = FALSE;
+	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 }
 
-LLIMFloaterContainer::~LLIMFloaterContainer(){}
+LLIMFloaterContainer::~LLIMFloaterContainer()
+{
+	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
+}
 
 BOOL LLIMFloaterContainer::postBuild()
 {

@@ -41,6 +41,7 @@
 #include "llpanelmaininventory.h"
 #include "llresmgr.h"
 #include "llviewerfoldertype.h"
+#include "lltransientfloatermgr.h"
 
 ///----------------------------------------------------------------------------
 /// LLFloaterInventory
@@ -49,10 +50,12 @@
 LLFloaterInventory::LLFloaterInventory(const LLSD& key)
 	: LLFloater(key)
 {
+	LLTransientFloaterMgr::getInstance()->addControlView(this);
 }
 
 LLFloaterInventory::~LLFloaterInventory()
 {
+	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 BOOL LLFloaterInventory::postBuild()
