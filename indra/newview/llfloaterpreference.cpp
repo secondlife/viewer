@@ -514,7 +514,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// if we have no agent, we can't let them choose anything
 	// if we have an agent, then we only let them choose if they have a choice
 	bool can_choose_maturity =
-		gAgent.getID().notNull() &&	(gAgent.isMature() || gAgent.isGodlike());
+		gAgent.getID().notNull() &&
+		(gAgent.isMature() || gAgent.isGodlike());
 	
 	LLComboBox* maturity_combo = getChild<LLComboBox>("maturity_desired_combobox");
 	

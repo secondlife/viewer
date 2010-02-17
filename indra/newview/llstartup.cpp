@@ -2899,7 +2899,9 @@ bool process_login_success_response()
 	text = response["agent_region_access"].asString();
 	if (!text.empty())
 	{
-		int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
+		int preferredMaturity =
+			llmin(LLAgent::convertTextToMaturity(text[0]),
+			      gSavedSettings.getU32("PreferredMaturity"));
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
 	// During the AO transition, this flag will be true. Then the flag will
