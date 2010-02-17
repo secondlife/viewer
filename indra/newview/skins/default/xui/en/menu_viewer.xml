@@ -299,8 +299,7 @@
              function="Floater.Visible"
              parameter="moveview" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="moveview" />
+             function="World.Toggle.MovementControls" />
         </menu_item_check>
         <menu_item_check
          label="View Controls"
@@ -310,8 +309,7 @@
              function="Floater.Visible"
              parameter="camera" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="camera" />
+             function="World.Toggle.CameraControls" />
         </menu_item_check>
           <menu_item_check
              label="Ban Lines"
