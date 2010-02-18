@@ -260,6 +260,10 @@ private:
 	 * @see sOnCurrentChannelChanged()
 	 */
 	static LLVoiceChannel* sCurrentVoiceCanel;
+
+	/* virtual */
+	LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
+
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
 

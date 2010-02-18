@@ -120,6 +120,7 @@ private:
 	void onClickTeleport();
 	void onClickInviteToGroup();
 	void onClickPay();
+	void onClickShare();
 	void onToggleMute();
 	void onClickReport();
 	void onClickFreeze();
@@ -213,6 +214,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Share",	boost::bind(&LLInspectAvatar::onClickShare, this));
 	mCommitCallbackRegistrar.add("InspectAvatar.ToggleMute",	boost::bind(&LLInspectAvatar::onToggleMute, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Freeze",
 		boost::bind(&LLInspectAvatar::onClickFreeze, this));	
@@ -675,6 +677,12 @@ void LLInspectAvatar::onClickInviteToGroup()
 void LLInspectAvatar::onClickPay()
 {
 	LLAvatarActions::pay(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickShare()
+{
+	LLAvatarActions::share(mAvatarID);
 	closeFloater();
 }
 
