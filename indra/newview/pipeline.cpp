@@ -2788,10 +2788,8 @@ void render_hud_elements()
 		LLViewerParcelMgr::getInstance()->render();
 		LLViewerParcelMgr::getInstance()->renderParcelCollision();
 	
-		// Render debugging beacons.
-		//gObjectList.renderObjectBeacons();
-		//LLHUDObject::renderAll();
-		//gObjectList.resetObjectBeacons();
+		// Render name tags.
+		LLHUDObject::renderAll();
 	}
 	else if (gForceRenderLandFence)
 	{
@@ -3202,7 +3200,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	{
 		// Render debugging beacons.
 		gObjectList.renderObjectBeacons();
-		LLHUDObject::renderAll();
 		gObjectList.resetObjectBeacons();
 	}
 
@@ -3434,7 +3431,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	{
 		// Render debugging beacons.
 		gObjectList.renderObjectBeacons();
-		LLHUDObject::renderAll();
 		gObjectList.resetObjectBeacons();
 	}
 

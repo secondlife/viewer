@@ -1129,7 +1129,6 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 
 	{
-		
 		gGL.color4f(1,1,1,1);
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 		{
