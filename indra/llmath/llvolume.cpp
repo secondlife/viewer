@@ -5619,6 +5619,10 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat, LLMatrix
 {
 	U16 offset = mVertices.size();
 
+	if (face.mVertices.size() + mVertices.size() > 65536)
+	{
+		llerrs << "Cannot append face -- 16-bit overflow will occur." << llendl;
+	}
 	
 	for (U32 i = 0; i < face.mVertices.size(); ++i)
 	{
