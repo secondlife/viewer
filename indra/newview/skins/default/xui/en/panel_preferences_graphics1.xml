@@ -366,10 +366,7 @@
 		min_val="64"
 		name="DrawDistance"
 		top="3"
-		width="255">
-			<slider.commit_callback
-			function="Pref.UpdateMeterText" />
-		</slider>
+		width="255" />
 		<text
 		type="string"
 		length="1"

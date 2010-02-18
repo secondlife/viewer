@@ -12,7 +12,7 @@
  can_minimize="true"
  visible="true" 
  width="520"
- can_resize="true"
+ can_resize="false"
  min_width="350"
  min_height="369">
 </floater>

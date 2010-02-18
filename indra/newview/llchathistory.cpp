@@ -721,22 +721,26 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			notify_box->setFollowsRight();
 			notify_box->setFollowsTop();
 
-			LLButton* accept_button = notify_box->getChild<LLButton> ("Accept",
-					TRUE);
-			if (accept_button != NULL)
+			ctrl_list_t ctrls = notify_box->getControlPanel()->getCtrlList();
+			S32 offset = 0;
+			for (ctrl_list_t::iterator it = ctrls.begin(); it != ctrls.end(); it++)
 			{
-				accept_button->setFollowsNone();
-				accept_button->setOrigin(2*HPAD, accept_button->getRect().mBottom);
-			}
-
-			LLButton* decline_button = notify_box->getChild<LLButton> (
-					"Decline", TRUE);
-			if (accept_button != NULL && decline_button != NULL)
-			{
-				decline_button->setFollowsNone();
-				decline_button->setOrigin(4*HPAD
-						+ accept_button->getRect().getWidth(),
-						decline_button->getRect().mBottom);
+				LLButton * button = dynamic_cast<LLButton*> (*it);
+				if (button != NULL)
+				{
+					button->setOrigin( offset,
+							button->getRect().mBottom);
+					button->setLeftHPad(2 * HPAD);
+					button->setRightHPad(2 * HPAD);
+					// set zero width before perform autoResize()
+					button->setRect(LLRect(button->getRect().mLeft,
+							button->getRect().mTop, button->getRect().mLeft,
+							button->getRect().mBottom));
+					button->setAutoResize(true);
+					button->autoResize();
+					offset += 2 * HPAD + button->getRect().getWidth();
+					button->setFollowsNone();
+				}
 			}
 
 			LLTextEditor* text_editor = notify_box->getChild<LLTextEditor>("text_editor_box", TRUE);
