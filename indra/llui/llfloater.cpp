@@ -2373,7 +2373,11 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			new_width = llmax(new_width, min_width);
 			new_height = llmax(new_height, min_height);
 
-			floater->reshape( new_width, new_height, TRUE );
+			LLRect new_rect;
+			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
+
+			floater->setShape(new_rect);
+
 			if (floater->followsRight())
 			{
 				floater->translate(old_width - new_width, 0);
