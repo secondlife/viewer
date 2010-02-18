@@ -251,7 +251,7 @@ void audio_update_wind(bool force_update)
 		{
 			// initialize wind volume (force_update) by using large volume_delta
 			// which is sufficient to completely turn off or turn on wind noise
-			volume_delta = max_wind_volume;
+			volume_delta = 1.f;
 		}
 
 		// mute wind when not flying
