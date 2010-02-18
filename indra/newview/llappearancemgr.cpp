@@ -712,7 +712,8 @@ void LLAppearanceManager::linkAll(const LLUUID& category,
 
 void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 {
-	llinfos << "starting" << llendl;
+	LLViewerInventoryCategory *pcat = gInventory.getCategory(category);
+	llinfos << "starting, cat " << (pcat ? pcat->getName() : "[UNKNOWN]") << llendl;
 
 	const LLUUID cof = getCOF();
 

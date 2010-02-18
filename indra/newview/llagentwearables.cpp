@@ -1040,9 +1040,9 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 		return;
 	}
 // BAP RESTORE TMP
-	if (wearable && type != WT_SHAPE) // force failure for shape to test recovery path.
+//	if (wearable && type != WT_SHAPE) // force failure for shape to test recovery path.
 		
-//	if (wearable)
+	if (wearable)
 	{
 		llassert(type == wearable->getType());
 		wearable->setItemID(wear_data->mItemID);
@@ -1580,7 +1580,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 										 const LLDynamicArray< LLWearable* >& wearables,
 										 BOOL remove)
 {
-	lldebugs << "setWearableOutfit() start" << llendl;
+	llinfos << "setWearableOutfit() start" << llendl;
 
 	BOOL wearables_to_remove[WT_COUNT];
 	wearables_to_remove[WT_SHAPE]		= FALSE;
