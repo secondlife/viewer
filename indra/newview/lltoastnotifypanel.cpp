@@ -346,4 +346,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		response[button_name] = true;
 	}
 	self->mNotification->respond(response);
+
+	// disable all buttons
+	self->mControlPanel->setEnabled(FALSE);
 }

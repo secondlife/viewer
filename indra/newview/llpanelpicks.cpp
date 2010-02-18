@@ -351,7 +351,14 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 
 	if (mNoPicks && mNoClassifieds)
 	{
-		childSetValue("picks_panel_text", LLTrans::getString("NoPicksClassifiedsText"));
+		if(getAvatarId() == gAgentID)
+		{
+			childSetValue("picks_panel_text", LLTrans::getString("NoPicksClassifiedsText"));
+		}
+		else
+		{
+			childSetValue("picks_panel_text", LLTrans::getString("NoAvatarPicksClassifiedsText"));
+		}
 	}
 }
 
