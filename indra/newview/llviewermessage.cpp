@@ -2212,7 +2212,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["owner_id"] = from_id;
 				args["slurl"] = location;
-				nearby_chat->addMessage(chat, true, args);
+				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
+				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 			}
 
 
