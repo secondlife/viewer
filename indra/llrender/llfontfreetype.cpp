@@ -270,6 +270,14 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
 	return (F32)mFontBitmapCachep->getMaxCharWidth();
 }
 
+F32 LLFontFreetype::getXAdvance(const LLFontGlyphInfo* glyph) const
+{
+	if (mFTFace == NULL)
+		return 0.0;
+
+	return glyph->mXAdvance;
+}
+
 F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 {
 	if (mFTFace == NULL)
@@ -280,6 +288,21 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 	U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
 	// Kern this puppy.
 	LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right);
+	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
+
+	FT_Vector  delta;
+
+	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
+
+	return delta.x*(1.f/64.f);
+}
+
+F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
+{
+	if (mFTFace == NULL)
+		return 0.0;
+
+	U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
 	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
 	FT_Vector  delta;
