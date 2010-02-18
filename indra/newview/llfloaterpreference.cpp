@@ -315,7 +315,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
-	mCommitCallbackRegistrar.add("Pref.UpdateMeterText",		boost::bind(&LLFloaterPreference::updateMeterText, this, _1));	
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",     boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));	
@@ -674,21 +673,6 @@ void LLFloaterPreference::refreshEnabledGraphics()
 	{
 		hardware_settings->refreshEnabledState();
 	}
-}
-
-void LLFloaterPreference::updateMeterText(LLUICtrl* ctrl)
-{
-	// get our UI widgets
-	LLSliderCtrl* slider = (LLSliderCtrl*) ctrl;
-
-	LLTextBox* m1 = getChild<LLTextBox>("DrawDistanceMeterText1");
-	LLTextBox* m2 = getChild<LLTextBox>("DrawDistanceMeterText2");
-
-	// toggle the two text boxes based on whether we have 1 or two digits
-	F32 val = slider->getValueF32();
-	bool two_digits = val < 100;
-	m1->setVisible(two_digits);
-	m2->setVisible(!two_digits);
 }
 
 void LLFloaterPreference::onClickBrowserClearCache()
