@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ height="201"
+ layout="topleft"
+ left="100"
+ mouse_opaque="false"
+ name="hide_camera_move_controls_menu"
+ top="624"
+ visible="false"
+ width="128">
+    <menu_item_check
+         label="Gesture button"
+         layout="topleft"
+         name="ShowGestureButton">
+           <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="ShowGestureButton" /> 
+             <menu_item_check.on_check
+             function="CheckControl"
+             parameter="ShowGestureButton" />
+    </menu_item_check>
+    <menu_item_check
+         label="Move button"
+         layout="topleft"
+         name="ShowMoveButton">
+           <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="ShowMoveButton" />
+             <menu_item_check.on_check
+             function="CheckControl"
+             parameter="ShowMoveButton" />
+    </menu_item_check>
+    <menu_item_check
+         label="View button"
+         layout="topleft"
+         name="ShowCameraButton">
+           <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="ShowCameraButton" />
+             <menu_item_check.on_check
+             function="CheckControl"
+             parameter="ShowCameraButton" />
+    </menu_item_check>        
+    <menu_item_check
+         label="Snapshot button"
+         layout="topleft"
+         name="ShowSnapshotButton">
+           <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="ShowSnapshotButton" />
+             <menu_item_check.on_check
+             function="CheckControl"
+             parameter="ShowSnapshotButton" />
+    </menu_item_check>        
+    <menu_item_separator
+     name="Separator" />
+    <menu_item_call
+     label="Cut"
+     name="NearbyChatBar_Cut">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="cut" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_cut" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy"
+     name="NearbyChatBar_Copy">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="copy" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     name="NearbyChatBar_Paste">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="paste" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete"
+     name="NearbyChatBar_Delete">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="delete" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_delete" />
+    </menu_item_call>
+    <menu_item_call
+     label="Select All"
+     name="NearbyChatBar_Select_All">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="select_all" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_select_all" />
+    </menu_item_call>
+
+</menu>

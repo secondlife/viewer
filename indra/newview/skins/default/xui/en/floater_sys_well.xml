@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ legacy_header_height="18"
+ bevel_style="in"
+ left="0"
+ top="0"
+ follows="right|bottom"
+ layout="topleft"
+ name="sys_well_window"
+ help_topic="notification_chiclet"
+ save_rect="true"
+ title="NOTIFICATIONS"
+ width="320"
+ min_width="320"
+ height="23"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="true"
+ can_drag_on_left="false"
+ can_dock="true"
+ save_visibility="true"
+ single_instance="true"
+>
+    <string
+     name="title_im_well_window">
+        CONVERSATIONS
+    </string>
+    <string
+     name="title_notification_well_window">
+        NOTIFICATIONS
+    </string>
+
+    <flat_list_view
+	    color="FloaterDefaultBackgroundColor"
+	    follows="all"
+	    layout="topleft"
+	    name="notification_list"
+	    left="1"
+	    top="20"
+	    height="0"
+	    width="318"/>
+</floater>

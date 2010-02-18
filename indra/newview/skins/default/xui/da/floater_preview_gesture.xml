@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<floater.string name="step_anim">
+		Animation til afspilning:
+	</floater.string>
+	<floater.string name="step_sound">
+		Lyd til afspilning:
+	</floater.string>
+	<floater.string name="step_chat">
+		Sig:
+	</floater.string>
+	<floater.string name="step_wait">
+		Vent:
+	</floater.string>
+	<floater.string name="stop_txt">
+		Stop
+	</floater.string>
+	<floater.string name="preview_txt">
+		Vis
+	</floater.string>
+	<floater.string name="none_text">
+		-- Intet --
+	</floater.string>
+	<floater.string name="Title">
+		Bevægelse: [NAME]
+	</floater.string>
+	<text name="desc_label">
+		Beskrivelse:
+	</text>
+	<text name="trigger_label">
+		Udløser:
+	</text>
+	<text name="replace_text" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!">
+		Erstat med:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"/>
+	<text name="key_label">
+		Genvejstast:
+	</text>
+	<combo_box label="Ingen" name="modifier_combo" width="60"/>
+	<combo_box label="Ingen" left_delta="70" name="key_combo" width="60"/>
+	<text name="library_label">
+		Type:
+	</text>
+	<scroll_list name="library_list"/>
+	<button label="Tilføj &gt;&gt;" name="add_btn"/>
+	<text name="steps_label">
+		Trin:
+	</text>
+	<button label="Op" name="up_btn"/>
+	<button label="Ned" name="down_btn"/>
+	<button label="Fjern" name="delete_btn"/>
+	<radio_group name="animation_trigger_type">
+		<radio_item label="Start" name="start"/>
+		<radio_item label="Stop" name="stop"/>
+	</radio_group>
+	<check_box label="Indtil animation er færdig" name="wait_anim_check"/>
+	<check_box label="tid i sekunder" name="wait_time_check"/>
+	<text name="help_label">
+		Alle trin vil ske samtidigt, medmindre du tilføjer vente trin.
+	</text>
+	<check_box label="Aktiv" name="active_check" tool_tip="Aktive bevægelser kan blive aktiveret ved at skrive deress udløser tekst eller ved at trykke på genvejstaste. Bevægelser vil normalt være inaktive hvis der allerede findes en tilsvarende genvejstaste."/>
+	<button label="Vis" name="preview_btn"/>
+	<button label="Gem" name="save_btn"/>
+</floater>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="REDIGERING AF OMGIVELSER">
+	<floater.string name="timeStr">
+		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
+	</floater.string>
+	<text name="EnvTimeText">
+		Tid på dagen
+	</text>
+	<text name="EnvTimeText2">
+		00:00
+	</text>
+	<slider label="" name="EnvTimeSlider"/>
+	<text name="EnvCloudText">
+		Skydække
+	</text>
+	<slider label="" name="EnvCloudSlider"/>
+	<text name="EnvWaterColorText">
+		Farve på vand
+	</text>
+	<color_swatch label="" name="EnvWaterColor" tool_tip="Klik for at åbne farvevælger"/>
+	<text name="EnvWaterFogText">
+		Tåge på vand
+	</text>
+	<slider label="" name="EnvWaterFogSlider"/>
+	<button label="Benyt tid fra estate" name="EnvUseEstateTimeButton"/>
+	<button label="Avanceret himmel" name="EnvAdvancedSkyButton"/>
+	<button label="Avanceret vand" name="EnvAdvancedWaterButton"/>
+</floater>

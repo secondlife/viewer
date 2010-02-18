@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="left|top|right|bottom"
+ height="305"
+ layout="topleft"
+ name="block_list_panel"
+ help_topic="blocked_list"
+ min_height="350"
+ min_width="240"
+ width="280">
+        <button
+     follows="top|left"
+     height="25"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back"
+     left="10"
+     tab_stop="false"
+     top="0"
+     width="25"/>
+    <text
+     follows="top|left|right"
+     font="SansSerifLargeBold"
+     height="20"
+     layout="topleft"
+     left_pad="10"
+     name="title_text"
+     text_color="white"
+     top="5"
+     width="250">
+        Block List
+     </text>
+    <scroll_list
+     follows="all"
+     height="190"
+     layout="topleft"
+     left="5"
+     name="blocked"
+     tool_tip="List of currently blocked Residents"
+     top="30"
+     width="270" />
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Block person"
+     layout="topleft"
+     left_delta="0"
+     name="Block resident..."
+     tool_tip="Pick a Resident to block"
+     top_pad="4"
+     width="210">
+        <button.commit_callback
+         function="Block.ClickPick" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Block object by name"
+     layout="topleft"
+     left_delta="0"
+     name="Block object by name..."
+     tool_tip="Pick an object to block by name"
+     top_pad="4"
+     width="210" >
+        <button.commit_callback
+         function="Block.ClickBlockByName" />
+    </button>
+    <button
+     enabled="false"
+     follows="left|bottom"
+     height="23"
+     label="Unblock"
+     layout="topleft"
+     left_delta="0"
+     name="Unblock"
+     tool_tip="Remove Resident or object from blocked list"
+     top_pad="4"
+     width="210" >
+        <button.commit_callback
+         function="Block.ClickRemove" />
+    </button>
+</panel>

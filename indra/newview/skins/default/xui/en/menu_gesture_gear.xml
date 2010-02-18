@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ layout="topleft"
+ mouse_opaque="false"
+ name="menu_gesture_gear"
+ visible="false">
+    <menu_item_call
+     font="SansSerifBold"
+     label="Add/Remove from Favorites"
+     layout="topleft"
+     name="activate">
+        <on_click
+         function="Gesture.Action.ToogleActiveState" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy"
+     layout="topleft"
+     name="copy_gesture">
+        <on_click
+         function="Gesture.Action.CopyPaste"
+         parameter="copy_gesture" />
+        <on_enable
+         function="Gesture.EnableAction"
+         parameter="copy_gesture" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     layout="topleft"
+     name="paste">
+        <on_click
+         function="Gesture.Action.CopyPaste"
+         parameter="paste" />
+        <on_enable
+         function="Gesture.EnableAction"
+         parameter="paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy UUID"
+     layout="topleft"
+     name="copy_uuid">
+        <on_click
+         function="Gesture.Action.CopyPaste"
+         parameter="copy_uuid" />
+        <on_enable
+         function="Gesture.EnableAction"
+         parameter="copy_uuid" />
+    </menu_item_call>
+    <menu_item_call
+     label="Save to current outfit"
+     layout="topleft"
+     name="save_to_outfit">
+        <on_click
+         function="Gesture.Action.SaveToCOF" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit_gesture">
+        <on_click
+         function="Gesture.Action.ShowPreview" />
+        <on_enable
+         function="Gesture.EnableAction"
+         parameter="edit_gesture" />
+    </menu_item_call>
+</menu>

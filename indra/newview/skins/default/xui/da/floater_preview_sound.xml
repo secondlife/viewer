@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_sound">
+	<floater.string name="Title">
+		Lyd: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Beskrivelse:
+	</text>
+	<button label="Afspil i verden" label_selected="Afspil i verden" name="Sound play btn" tool_tip="Afspil denne lyd så alle kan høre den"/>
+	<button label="Afspil lokalt" label_selected="Afspil lokalt" name="Sound audition btn" tool_tip="Afspil denne lyd så kun du kan høre den"/>
+</floater>

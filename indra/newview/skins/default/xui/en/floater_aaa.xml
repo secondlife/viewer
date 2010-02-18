@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="true"
+ can_drag_on_left="false"
+ can_close="true"
+ can_dock="true"
+ bevel_style="in"
+ height="300"
+ layout="topleft"
+ name="Test Floater"
+ save_rect="true"
+ title="TEST FLOATER"
+ save_dock_state="true"
+ save_visibility="true"
+ single_instance="true" 
+ width="320">
+  <string name="nudge_parabuild" translate="false">Nudge 1</string>
+  <string name="test_the_vlt">This string CHANGE2 is extracted.</string>
+  <string name="testing_eli">Just a test. changes.</string>
+  <chat_history
+   allow_html="true"
+   bg_readonly_color="ChatHistoryBgColor"
+   bg_writeable_color="ChatHistoryBgColor" 
+   border_visible="false"
+   follows="all"
+   font="SansSerif" 
+	 left="1"
+   top="20"
+   layout="topleft"
+	 height="260"
+   name="chat_history"
+   parse_highlights="true"
+   text_color="ChatHistoryTextColor"
+   text_readonly_color="ChatHistoryTextColor"
+   translate="false"
+   width="320">
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+Really long line that is long enough to wrap once with jyg descenders.
+  </chat_history>
+</floater>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="RASTER-OPTIONEN">
+	<spinner label="Raster-Einheiten (Meter)" name="GridResolution"/>
+	<spinner label="Rastergröße (Meter)" name="GridDrawSize"/>
+	<check_box label="Einrasten von Untereinheiten aktivieren" name="GridSubUnit"/>
+	<check_box label="Überschneidungen anzeigen" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Raster-Deckkraft">
+		Deckkraft:
+	</text>
+	<slider label="Rasterdeckkraft" name="GridOpacity"/>
+</floater>

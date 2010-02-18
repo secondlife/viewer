@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Main Menu">
+	<menu label="Mig" name="Me">
+		<menu_item_call label="Indstillinger" name="Preferences"/>
+		<menu_item_call label="Mit instrumentpanel" name="Manage My Account"/>
+		<menu_item_call label="Køb L$" name="Buy and Sell L$"/>
+		<menu_item_call label="Profil" name="Profile"/>
+		<menu_item_call label="Udseende" name="Appearance"/>
+		<menu_item_check label="Beholdning" name="Inventory"/>
+		<menu_item_call label="Vis beholdning i sidebakke" name="ShowSidetrayInventory"/>
+		<menu_item_call label="Mine bevægelser" name="Gestures"/>
+		<menu label="Min status" name="Status">
+			<menu_item_call label="Væk" name="Set Away"/>
+			<menu_item_call label="Optaget" name="Set Busy"/>
+		</menu>
+		<menu_item_call label="Anmod om administrator status" name="Request Admin Options"/>
+		<menu_item_call label="Stop administrator status" name="Leave Admin Options"/>
+		<menu_item_call label="Afslut [APP_NAME]" name="Quit"/>
+	</menu>
+	<menu label="Kommunikér" name="Communicate">
+		<menu_item_call label="Venner" name="My Friends"/>
+		<menu_item_call label="Grupper" name="My Groups"/>
+		<menu_item_check label="Chat i nærheden" name="Nearby Chat"/>
+		<menu_item_call label="Personer tæt på" name="Active Speakers"/>
+		<menu_item_check label="Media i nærheden" name="Nearby Media"/>
+	</menu>
+	<menu label="Verden" name="World">
+		<menu_item_check label="Flyt" name="Movement Controls"/>
+		<menu_item_check label="Vis" name="Camera Controls"/>
+		<menu_item_call label="Om land" name="About Land"/>
+		<menu_item_call label="Region/Estate" name="Region/Estate"/>
+		<menu_item_call label="Køb land" name="Buy Land"/>
+		<menu_item_call label="Mit land" name="My Land"/>
+		<menu label="Vis" name="Land">
+			<menu_item_check label="Ban Lines" name="Ban Lines"/>
+			<menu_item_check label="Pejlelys" name="beacons"/>
+			<menu_item_check label="Parcel skel" name="Property Lines"/>
+			<menu_item_check label="Land-ejere" name="Land Owners"/>
+		</menu>
+		<menu label="Landemærker" name="Landmarks">
+			<menu_item_call label="Opret landemærke her" name="Create Landmark Here"/>
+			<menu_item_call label="Sæt hjem til her" name="Set Home to Here"/>
+		</menu>
+		<menu_item_call label="Hjem" name="Teleport Home"/>
+		<menu_item_check label="Mini-kort" name="Mini-Map"/>
+		<menu_item_check label="Verdenskort" name="World Map"/>
+		<menu_item_call label="Foto" name="Take Snapshot"/>
+		<menu label="Sol" name="Environment Settings">
+			<menu_item_call label="Solopgang" name="Sunrise"/>
+			<menu_item_call label="Middag" name="Noon"/>
+			<menu_item_call label="Solnedgang" name="Sunset"/>
+			<menu_item_call label="Midnat" name="Midnight"/>
+			<menu_item_call label="Benyt tid fra estate" name="Revert to Region Default"/>
+			<menu_item_call label="Redigering af omgivelser" name="Environment Editor"/>
+		</menu>
+	</menu>
+	<menu label="Byg" name="BuildTools">
+		<menu_item_check label="Byg" name="Show Build Tools"/>
+		<menu label="Vælg byggerværktøj" name="Select Tool">
+			<menu_item_call label="Fokus værktøj" name="Focus"/>
+			<menu_item_call label="Flyt værktøj" name="Move"/>
+			<menu_item_call label="Redigeringsværktøj" name="Edit"/>
+			<menu_item_call label="Byg værktøj" name="Create"/>
+			<menu_item_call label="Land værktøj" name="Land"/>
+		</menu>
+		<menu label="Redigér" name="Edit">
+			<menu_item_call label="Fortryd" name="Undo"/>
+			<menu_item_call label="Gendan" name="Redo"/>
+			<menu_item_call label="Klip" name="Cut"/>
+			<menu_item_call label="Kopiér" name="Copy"/>
+			<menu_item_call label="Sæt ind" name="Paste"/>
+			<menu_item_call label="Slet" name="Delete"/>
+			<menu_item_call label="Duplikér" name="Duplicate"/>
+			<menu_item_call label="Vælg alt" name="Select All"/>
+			<menu_item_call label="Fravælg" name="Deselect"/>
+		</menu>
+		<menu_item_call label="Sammenkæde" name="Link"/>
+		<menu_item_call label="Adskil" name="Unlink"/>
+		<menu_item_call label="Fokusér på valgte" name="Focus on Selection"/>
+		<menu_item_call label="Zoom til valgte" name="Zoom to Selection"/>
+		<menu label="Objekt" name="Object">
+			<menu_item_call label="Køb" name="Menu Object Take"/>
+			<menu_item_call label="Tag kopi" name="Take Copy"/>
+			<menu_item_call label="Opdatér ændringer til beholdning" name="Save Object Back to My Inventory"/>
+			<menu_item_call label="Opdater ændringer i indhold til objekt" name="Save Object Back to Object Contents"/>
+		</menu>
+		<menu label="Scripts" name="Scripts">
+			<menu_item_call label="Rekompilér scripts (Mono)" name="Mono"/>
+			<menu_item_call label="Genoversæt scripts (LSL)" name="LSL"/>
+			<menu_item_call label="Genstart scripts" name="Reset Scripts"/>
+			<menu_item_call label="sæt scripts til &quot;Running&quot;" name="Set Scripts to Running"/>
+			<menu_item_call label="Sæt scripts til &quot;Not Running&quot;" name="Set Scripts to Not Running"/>
+		</menu>
+		<menu label="Valg" name="Options">
+			<menu_item_check label="Redigér sammenlænkede dele" name="Edit Linked Parts"/>
+			<menu_item_call label="Sæt standard rettigheder" name="perm prefs"/>
+			<menu_item_check label="Vis avancerede rettigheder" name="DebugPermissions"/>
+			<menu label="Selektion" name="Selection">
+				<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
+				<menu_item_check label="Vælg kun flytbare objekter" name="Select Only Movable Objects"/>
+				<menu_item_check label="Vælg ved at omkrandse" name="Select By Surrounding"/>
+			</menu>
+			<menu label="Vis" name="Show">
+				<menu_item_check label="Vis skjult selektion" name="Show Hidden Selection"/>
+				<menu_item_check label="Vis lys-radius for valgte" name="Show Light Radius for Selection"/>
+				<menu_item_check label="Vis udvælgelses stråle" name="Show Selection Beam"/>
+			</menu>
+			<menu label="Gitter" name="Grid">
+				<menu_item_check label="Ret ind til gitter" name="Snap to Grid"/>
+				<menu_item_call label="Ret XY for objekt ind til gitter" name="Snap Object XY to Grid"/>
+				<menu_item_call label="Benyt valgte som grundlag for gitter" name="Use Selection for Grid"/>
+				<menu_item_call label="Gitter valg" name="Grid Options"/>
+			</menu>
+		</menu>
+		<menu label="Vis lænkede dele" name="Select Linked Parts">
+			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
+			<menu_item_call label="Vælg forrige del" name="Select Previous Part"/>
+			<menu_item_call label="Inkludér næste valg" name="Include Next Part"/>
+			<menu_item_call label="Inkludér forrige del" name="Include Previous Part"/>
+		</menu>
+	</menu>
+	<menu label="Hjælp" name="Help">
+		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
+		<menu_item_call label="Tutorial" name="Tutorial"/>
+		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
+		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
+	</menu>
+	<menu label="Avanceret" name="Advanced">
+		<menu_item_check label="Sæt til &quot;væk&quot; efter 30 minutter" name="Go Away/AFK When Idle"/>
+		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
+		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
+		<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
+		<menu_item_check label="Begræns valg afstand" name="Limit Select Distance"/>
+		<menu_item_check label="Fjern kamerabegrænsninger" name="Disable Camera Distance"/>
+		<menu_item_check label="Højopløsningsfoto" name="HighResSnapshot"/>
+		<menu_item_check label="Lydløse foto&apos;s til disk" name="QuietSnapshotsToDisk"/>
+		<menu_item_check label="Komprimér fotos til disk" name="CompressSnapshotsToDisk"/>
+		<menu label="Værktøjer til ydelse" name="Performance Tools">
+			<menu_item_call label="Lag meter" name="Lag Meter"/>
+			<menu_item_check label="Statistik bjælke" name="Statistics Bar"/>
+			<menu_item_check label="Vis avatarers gengivelsesbelastning" name="Avatar Rendering Cost"/>
+		</menu>
+		<menu label="Fremhævninger og  and sigtbarhed" name="Highlighting and Visibility">
+			<menu_item_check label="Pejlelys blink effekt" name="Cheesy Beacon"/>
+			<menu_item_check label="Skjul partikler" name="Hide Particles"/>
+			<menu_item_check label="Skjul valgte" name="Hide Selected"/>
+			<menu_item_check label="Fremhæv gennemsigtigt" name="Highlight Transparent"/>
+			<menu_item_check label="Vis HUD vedhæftninger" name="Show HUD Attachments"/>
+			<menu_item_check label="Vis muse-sigte" name="ShowCrosshairs"/>
+			<menu_item_check label="Vis tips om land" name="Land Tips"/>
+		</menu>
+		<menu label="Gengivelsestyper" name="Rendering Types">
+			<menu_item_check label="Simpel" name="Simple"/>
+			<menu_item_check label="Alpha" name="Alpha"/>
+			<menu_item_check label="Træer" name="Tree"/>
+			<menu_item_check label="Avatarer" name="Character"/>
+			<menu_item_check label="SurfacePath" name="SurfacePath"/>
+			<menu_item_check label="Himmel" name="Sky"/>
+			<menu_item_check label="Vand" name="Water"/>
+			<menu_item_check label="Jord" name="Ground"/>
+			<menu_item_check label="Volume" name="Volume"/>
+			<menu_item_check label="Græs" name="Grass"/>
+			<menu_item_check label="Skyer" name="Clouds"/>
+			<menu_item_check label="Partikler" name="Particles"/>
+			<menu_item_check label="Bump" name="Bump"/>
+		</menu>
+		<menu label="Gengivelsesegenskaber" name="Rendering Features">
+			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="Valgte" name="Selected"/>
+			<menu_item_check label="Fremhævede" name="Highlighted"/>
+			<menu_item_check label="Dynamiske teksturer" name="Dynamic Textures"/>
+			<menu_item_check label="Fod skygger" name="Foot Shadows"/>
+			<menu_item_check label="Tåge" name="Fog"/>
+			<menu_item_check label="Fleksible objekter" name="Flexible Objects"/>
+		</menu>
+		<menu_item_check label="Kør flere tråde" name="Run Multiple Threads"/>
+		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
+		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
+		<menu_item_check label="Vis IM&apos;s i lokal chat" name="IMInChat"/>
+		<menu label="Shortcuts" name="Shortcuts">
+			<menu_item_check label="Søg" name="Search"/>
+			<menu_item_call label="Frigør taster" name="Release Keys"/>
+			<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
+			<menu_item_check label="Løb altid" name="Always Run"/>
+			<menu_item_check label="Flyv" name="Fly"/>
+			<menu_item_call label="Luk vindue" name="Close Window"/>
+			<menu_item_call label="Luk alle vinduer" name="Close All Windows"/>
+			<menu_item_call label="Foto til disk" name="Snapshot to Disk"/>
+			<menu_item_call label="Første person" name="Mouselook"/>
+			<menu_item_check label="&quot;Joystick Flycam&quot;" name="Joystick Flycam"/>
+			<menu_item_call label="Nulstil udsyn" name="Reset View"/>
+			<menu_item_call label="Se på den sidste der chattede" name="Look at Last Chatter"/>
+			<menu label="Vælg byggeværktøj" name="Select Tool">
+				<menu_item_call label="Fokuseringsværktøj" name="Focus"/>
+				<menu_item_call label="Flyt værktøj" name="Move"/>
+				<menu_item_call label="Redigeringsværktøj" name="Edit"/>
+				<menu_item_call label="Opret værktøj" name="Create"/>
+				<menu_item_call label="Land værktøj" name="Land"/>
+			</menu>
+			<menu_item_call label="Zoom ind" name="Zoom In"/>
+			<menu_item_call label="Zoom standard" name="Zoom Default"/>
+			<menu_item_call label="Zoom ud" name="Zoom Out"/>
+			<menu_item_call label="Skift fuld-skærm" name="Toggle Fullscreen"/>
+		</menu>
+		<menu_item_call label="Vis debug valg" name="Debug Settings"/>
+		<menu_item_check label="Vis udviklingsmenu" name="Debug Mode"/>
+	</menu>
+	<menu label="Udvikling" name="Develop">
+		<menu label="Konsoller" name="Consoles">
+			<menu_item_check label="Tekstur konsol" name="Texture Console"/>
+			<menu_item_check label="Debug konsol" name="Debug Console"/>
+			<menu_item_call label="Konsol med notifikationer" name="Notifications"/>
+			<menu_item_check label="Tekstur størrelse konsol" name="Texture Size"/>
+			<menu_item_check label="Konsol med tekstur kategorier" name="Texture Category"/>
+			<menu_item_check label="Hurtig-timere" name="Fast Timers"/>
+			<menu_item_check label="Hukommelse" name="Memory"/>
+			<menu_item_call label="Vis Regionsinfo i debug-konsol" name="Region Info to Debug Console"/>
+			<menu_item_check label="Kamera" name="Camera"/>
+			<menu_item_check label="Vind" name="Wind"/>
+		</menu>
+		<menu label="Vis info" name="Display Info">
+			<menu_item_check label="Vis tid" name="Show Time"/>
+			<menu_item_check label="Vis gengivelses information" name="Show Render Info"/>
+			<menu_item_check label="Vis farve under cursor" name="Show Color Under Cursor"/>
+			<menu_item_check label="Vis opdateringer på objekter" name="Show Updates"/>
+		</menu>
+		<menu label="Fremtving en fejl" name="Force Errors">
+			<menu_item_call label="Sæt breakpoint" name="Force Breakpoint"/>
+			<menu_item_call label="Gennemtving LLError og crash" name="Force LLError And Crash"/>
+			<menu_item_call label="Fremtving &quot;Bad Memory Access&quot;" name="Force Bad Memory Access"/>
+			<menu_item_call label="Fremtving en uendelig løkke" name="Force Infinite Loop"/>
+			<menu_item_call label="Gennemtving drivernedbrud" name="Force Driver Carsh"/>
+			<menu_item_call label="Gennemtving software &quot;exception&quot;" name="Force Software Exception"/>
+			<menu_item_call label="Fremtving mistet forbindelse" name="Force Disconnect Viewer"/>
+			<menu_item_call label="Simulér et memory leak" name="Memory Leaking Simulation"/>
+		</menu>
+		<menu label="Gengivelses tests" name="Render Tests">
+			<menu_item_check label="Kamera offset" name="Camera Offset"/>
+			<menu_item_check label="Tilfældige framerates" name="Randomize Framerate"/>
+			<menu_item_check label="Frame test" name="Frame Test"/>
+		</menu>
+		<menu label="Gengivelse" name="Rendering">
+			<menu_item_check label="Akser" name="Axes"/>
+			<menu_item_check label="Wireframe" name="Wireframe"/>
+			<menu_item_check label="Global oplysning" name="Global Illumination"/>
+			<menu_item_check label="Animationsteksturer" name="Animation Textures"/>
+			<menu_item_check label="Slå teksturer fra" name="Disable Textures"/>
+			<menu_item_check label="Gengiv vedhæftede lys" name="Render Attached Lights"/>
+			<menu_item_check label="Gengiv vedhæftede partikler" name="Render Attached Particles"/>
+			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
+		</menu>
+		<menu label="Netværk" name="Network">
+			<menu_item_check label="Pause avatar" name="AgentPause"/>
+			<menu_item_call label="Mist en netværkspakke" name="Drop a Packet"/>
+		</menu>
+		<menu_item_call label="Stød, skub &amp; slag" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu label="Verden" name="World">
+			<menu_item_check label="Vælg anden sol end region" name="Sim Sun Override"/>
+			<menu_item_check label="Pejlelys blink effekt" name="Cheesy Beacon"/>
+			<menu_item_check label="Fast vejr" name="Fixed Weather"/>
+			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
+		</menu>
+		<menu label="UI (brugerflade)" name="UI">
+			<menu_item_call label="Test web browser" name="Web Browser Test"/>
+			<menu_item_call label="Print info om valgt objekt" name="Print Selected Object Info"/>
+			<menu_item_call label="Hukommelse statistik" name="Memory Stats"/>
+			<menu_item_check label="Dobbelt-klik auto-pilot" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="Debug klik" name="Debug Clicks"/>
+			<menu_item_check label="Debug muse-hændelser" name="Debug Mouse Events"/>
+		</menu>
+		<menu label="XUI" name="XUI">
+			<menu_item_call label="Genindlæs farveopsætning" name="Reload Color Settings"/>
+			<menu_item_call label="Vis font test" name="Show Font Test"/>
+			<menu_item_call label="Hent fra XML" name="Load from XML"/>
+			<menu_item_call label="Gem til XML" name="Save to XML"/>
+			<menu_item_check label="Vis XUI navne" name="Show XUI Names"/>
+			<menu_item_call label="Send testbeskeder (IM)" name="Send Test IMs"/>
+		</menu>
+		<menu label="Avatar" name="Character">
+			<menu label="Grab Baked Texture" name="Grab Baked Texture">
+				<menu_item_call label="Iris" name="Iris"/>
+				<menu_item_call label="Hovede" name="Head"/>
+				<menu_item_call label="Overkrop" name="Upper Body"/>
+				<menu_item_call label="Underkrop" name="Lower Body"/>
+				<menu_item_call label="Nederdel" name="Skirt"/>
+			</menu>
+			<menu label="Avatar tests" name="Character Tests">
+				<menu_item_call label="Skift avatar geometri" name="Toggle Character Geometry"/>
+				<menu_item_check label="Tillad at udvælge avatar" name="Allow Select Avatar"/>
+			</menu>
+			<menu_item_call label="Tving værdier til standard" name="Force Params to Default"/>
+			<menu_item_check label="Animationsinfo" name="Animation Info"/>
+			<menu_item_check label="Slow motion animationer" name="Slow Motion Animations"/>
+			<menu_item_check label="Slå &quot;Level Of Detail&quot; fra" name="Disable LOD"/>
+			<menu_item_check label="Vis kollision skelet" name="Show Collision Skeleton"/>
+			<menu_item_check label="Vis avatar center" name="Display Agent Target"/>
+			<menu_item_call label="Debug avatar teksturer" name="Debug Avatar Textures"/>
+		</menu>
+		<menu_item_check label="HTTP teksturer" name="HTTP Textures"/>
+		<menu_item_check label="Benyt consol vindue ved næste opstart" name="Console Window"/>
+		<menu_item_check label="Vis administrationsmenu" name="View Admin Options"/>
+		<menu_item_call label="Anmod om administrator status" name="Request Admin Options"/>
+		<menu_item_call label="Forlad administrationsstatus" name="Leave Admin Options"/>
+	</menu>
+	<menu label="Administrér" name="Admin">
+		<menu label="Object">
+			<menu_item_call label="Tag kopi" name="Take Copy"/>
+			<menu_item_call label="Gennemtving ejer til mig" name="Force Owner To Me"/>
+			<menu_item_call label="Gennemtving ejer tolerance" name="Force Owner Permissive"/>
+			<menu_item_call label="Slet" name="Delete"/>
+			<menu_item_call label="Lås" name="Lock"/>
+		</menu>
+		<menu label="Parcel" name="Parcel">
+			<menu_item_call label="Sæt ejer til &quot;mig&quot;" name="Owner To Me"/>
+			<menu_item_call label="Sat til Linden indhold" name="Set to Linden Content"/>
+			<menu_item_call label="Kræv offentligt land" name="Claim Public Land"/>
+		</menu>
+		<menu label="Region" name="Region">
+			<menu_item_call label="Dump Temporary Asset Data" name="Dump Temp Asset Data"/>
+			<menu_item_call label="Gem regions &quot;State&quot;" name="Save Region State"/>
+		</menu>
+		<menu_item_call label="&quot;God Tools&quot;" name="God Tools"/>
+	</menu>
+</menu_bar>

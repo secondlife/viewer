@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_voice_controls" title="Voice-Steuerung">
+	<string name="title_nearby">
+		VOICE IN DER NÄHE
+	</string>
+	<string name="title_group">
+		Gruppengespräch mit [GROUP]
+	</string>
+	<string name="title_adhoc">
+		Konferenzgespräch
+	</string>
+	<string name="title_peer_2_peer">
+		Gespräch mit [NAME]
+	</string>
+	<string name="no_one_near">
+		Es ist niemand in der Nähe, der Voice aktiviert hat.
+	</string>
+	<layout_stack name="my_call_stack">
+		<layout_panel name="leave_call_btn_panel">
+			<button label="Anruf beenden" name="leave_call_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

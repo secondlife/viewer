@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ auto_tile="true"
+ can_resize="true"
+ default_tab_group="1"
+ follows="left|top"
+ height="361"
+ layout="topleft"
+ min_height="243"
+ min_width="234"
+ name="preview notecard"
+ help_topic="preview_notecard"
+ title="NOTECARD:"
+ width="400">
+    <floater.string
+     name="no_object">
+        Unable to find object containing this notecard.
+    </floater.string>
+    <floater.string
+     name="not_allowed">
+        You do not have permission to view this notecard.
+    </floater.string>
+    <floater.string
+     name="Title">
+        Notecard: [NAME]
+    </floater.string>
+    <floater.string
+     name="Save">
+        Save
+    </floater.string>
+    <icon
+     follows="top|right"
+     height="18"
+     image_name="Lock"
+     layout="topleft"
+     left="322"
+     mouse_opaque="true"
+     name="lock"
+     top="4"
+     width="18" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left="10"
+     name="desc txt"
+     top="22"
+     width="90">
+        Description:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="22"
+     layout="topleft"
+     left_pad="0"
+     max_length="127"
+     name="desc"
+     width="296" />
+    <text_editor
+     type="string"
+     length="1"
+     embedded_items="true"
+     follows="left|top|right|bottom"
+     font="SansSerif"
+     height="281"
+     ignore_tab="false"
+     layout="topleft"
+     left="4"
+     max_length="65536"
+     name="Notecard Editor"
+     allow_html="false" 
+     handle_edit_keys_directly="true"
+     tab_group="1"
+     top="46"
+     width="392"
+     word_wrap="true">
+        Loading...
+    </text_editor>
+    <button
+     follows="right|bottom"
+     height="22"
+     label="Save"
+     label_selected="Save"
+     layout="topleft"
+     left="288"
+     name="Save"
+     top="332"
+     width="100" />
+</floater>

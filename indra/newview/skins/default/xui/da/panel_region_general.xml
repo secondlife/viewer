@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Region" name="General">
+	<text name="region_text_lbl">
+		Region:
+	</text>
+	<text name="region_text">
+		ukendt
+	</text>
+	<text name="version_channel_text_lbl">
+		Version:
+	</text>
+	<text name="version_channel_text">
+		ukendt
+	</text>
+	<text name="region_type_lbl">
+		Type:
+	</text>
+	<text name="region_type">
+		ukendt
+	</text>
+	<check_box label="Blokér for redigering af terræn" name="block_terraform_check"/>
+	<button label="?" name="terraform_help"/>
+	<check_box label="Blokér for flyvning" name="block_fly_check"/>
+	<button label="?" name="fly_help"/>
+	<check_box label="Tillad skader" name="allow_damage_check"/>
+	<button label="?" name="damage_help"/>
+	<check_box label="Begræns skubning" name="restrict_pushobject"/>
+	<button label="?" name="restrict_pushobject_help"/>
+	<check_box label="Tillad at sælge land" name="allow_land_resell_check"/>
+	<button label="?" name="land_resell_help"/>
+	<check_box label="Tillad at samle/dele land" name="allow_parcel_changes_check"/>
+	<button label="?" name="parcel_changes_help"/>
+	<check_box label="Blokér visning af land i Søgning" name="block_parcel_search_check" tool_tip="Lad beboere se denne region og dens parceller i søgeresultater"/>
+	<button label="?" name="parcel_search_help"/>
+	<spinner label="Max besøgende" name="agent_limit_spin"/>
+	<button label="?" name="agent_limit_help"/>
+	<spinner label="Objekt bonus" name="object_bonus_spin"/>
+	<button label="?" name="object_bonus_help"/>
+	<text label="Indhold" name="access_text">
+		Rating:
+	</text>
+	<combo_box label="Mature" name="access_combo">
+		<combo_box.item label="Adult" name="Adult"/>
+		<combo_box.item label="Mature" name="Mature"/>
+		<combo_box.item label="PG" name="PG"/>
+	</combo_box>
+	<button label="?" name="access_help"/>
+	<button label="Gem" name="apply_btn"/>
+	<button label="Send en beboer hjem ..." name="kick_btn"/>
+	<button label="Send alle beboere hjem..." name="kick_all_btn"/>
+	<button label="Send besked til region..." name="im_btn"/>
+	<button label="Vedligehold telehub..." name="manage_telehub_btn"/>
+</panel>

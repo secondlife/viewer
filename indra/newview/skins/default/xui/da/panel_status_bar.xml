@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="status">
+	<panel.string name="StatBarDaysOfWeek">
+		Søndag:Mandag:Tirsdag:Onsdag:Torsdag:Fredag:Lørdag
+	</panel.string>
+	<panel.string name="StatBarMonthsOfYear">
+		Januar:Februar:Marts:April:Maj:Juni:Juli:August:September:Oktober:November:December
+	</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Packet Loss
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Båndbredde
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<button label="" label_selected="" name="buycurrency" tool_tip="My Balance: Click to buy more L$"/>
+	<text name="TimeText" tool_tip="Nuværende tid (Pacific)">
+		12:00
+	</text>
+	<button name="volume_btn" tool_tip="Kontrol for generel lydstyrke"/>
+</panel>
