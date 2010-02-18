@@ -477,8 +477,6 @@ void LLPipeline::cleanup()
 
 	releaseGLBuffers();
 
-	mBloomImagep = NULL;
-	mBloomImage2p = NULL;
 	mFaceSelectImagep = NULL;
 
 	mMovedBridge.clear();

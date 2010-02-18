@@ -676,8 +676,6 @@ protected:
 	std::vector<LLFace*>		mSelectedFaces;
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
-	LLPointer<LLViewerTexture>	mBloomImagep;
-	LLPointer<LLViewerTexture>	mBloomImage2p;
 	
 	U32						mLightMask;
 	U32						mLightMovingMask;
