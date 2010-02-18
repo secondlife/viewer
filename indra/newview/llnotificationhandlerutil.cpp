@@ -266,6 +266,7 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 	offer["from_id"] = notification->getPayload()["from_id"];
 	offer["from"] = name;
 	offer["time"] = LLLogChat::timestamp(true);
+	offer["index"] = (LLSD::Integer)session->mMsgs.size();
 	session->mMsgs.push_front(offer);
 
 	LLIMFloater::show(session_id);
