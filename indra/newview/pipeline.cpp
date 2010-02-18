@@ -2794,6 +2794,9 @@ void render_hud_elements()
 		LLWorld::getInstance()->renderPropertyLines();
 		LLViewerParcelMgr::getInstance()->render();
 		LLViewerParcelMgr::getInstance()->renderParcelCollision();
+	
+		// Render name tags.
+		LLHUDObject::renderAll();
 	}
 	else if (gForceRenderLandFence)
 	{
@@ -3197,10 +3200,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
 		// Render debugging beacons.
-		gObjectList.renderObjectBeacons();	
+		gObjectList.renderObjectBeacons();
 		gObjectList.resetObjectBeacons();
-		// Render name tags
-		LLHUDObject::renderAll();
 	}
 
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
@@ -6922,8 +6923,6 @@ void LLPipeline::renderDeferredLighting()
 			// Render debugging beacons.
 			gObjectList.renderObjectBeacons();
 			gObjectList.resetObjectBeacons();
-			// Render name tags
-			LLHUDObject::renderAll();
 		}
 	}
 
