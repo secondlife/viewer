@@ -117,7 +117,7 @@ public:
 		if (gAgent.cameraMouselook())
 		{
 			LLBottomTray::getInstance()->setVisible(FALSE);
-}
+		}
 	}
 
 	LLNearbyChatBar*	mNearbyChatBar;
@@ -319,7 +319,7 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 }
 
 void LLBottomTray::onMouselookModeOut()
-	{
+{
 	mIsInLiteMode = false;
 	mBottomTrayLite->setVisible(FALSE);
 	mNearbyChatBar->getChatBox()->setText(mBottomTrayLite->mNearbyChatBar->getChatBox()->getText());
@@ -350,10 +350,10 @@ void LLBottomTray::setVisible(BOOL visible)
 	{
 		mBottomTrayLite->setVisible(visible);
 	}
-			else 
-			{
+	else 
+	{
 		LLPanel::setVisible(visible);
-			}
+	}
 	if(visible)
 		gFloaterView->setSnapOffsetBottom(getRect().getHeight());
 	else
@@ -566,7 +566,7 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 		{
 			BOOL saved_anim = mToolbarStack->getAnimate();
 			// Set chiclet panel to be autoresized by default.
-		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
+			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
 			// Disable animation to prevent layout updating in several frames.
 			mToolbarStack->setAnimate(FALSE);
 			// Force the updating of layout to reset panels collapse factor.
@@ -1208,10 +1208,10 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 				// Nothing can be done, give up...
 				return false;
 			}
-	}
+		}
 
 		if (result_width != current_width)
-	{
+		{
 			cur_panel->reshape(result_width, cur_panel->getRect().getHeight());
 			current_width = result_width;
 		}
