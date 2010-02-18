@@ -257,6 +257,8 @@ public:
 
 	void		setForcePressedState(bool b) { mForcePressedState = b; }
 	
+	void 		setAutoResize(bool auto_resize) { mAutoResize = auto_resize; }
+
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
 	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }

@@ -94,7 +94,8 @@ bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 // static
 bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
 {
-	return OFFER_FRIENDSHIP == notification->getName();
+	return OFFER_FRIENDSHIP == notification->getName()
+					|| USER_GIVE_ITEM == notification->getName();
 }
 
 
@@ -268,28 +269,4 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 	session->mMsgs.push_front(offer);
 
 	LLIMFloater::show(session_id);
-}
-
-// static
-void LLHandlerUtil::reloadIMFloaterMessages(
-		const LLNotificationPtr& notification)
-{
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
-			"impanel", session_id);
-	if (im_floater != NULL)
-	{
-		LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
-				session_id);
-		if(session != NULL)
-		{
-			session->mMsgs.clear();
-			std::list<LLSD> chat_history;
-			LLLogChat::loadAllHistory(session->mHistoryFileName, chat_history);
-			session->addMessagesFromHistory(chat_history);
-		}
-
-		im_floater->reloadMessages();
-	}
 }
