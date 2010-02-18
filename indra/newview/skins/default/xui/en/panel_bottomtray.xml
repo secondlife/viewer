@@ -73,6 +73,11 @@
            name="talk"
            top="5"
           width="100">
+  <speak_button
+    name="speak_btn"
+    label="Speak"
+    label_selected="Speak"
+    />
               <show_button>
                   <show_button.init_callback
                    function="Button.SetDockableFloaterToggle"
