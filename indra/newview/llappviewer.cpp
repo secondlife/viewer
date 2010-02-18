@@ -613,7 +613,7 @@ bool LLAppViewer::init()
 	gDirUtilp->initAppDirs("SecondLife");
 	// set skin search path to default, will be overridden later
 	// this allows simple skinned file lookups to work
-	gDirUtilp->setSkinFolder("default");
+	gDirUtilp->setSkinFolder("base");
 
 	initLogging();
 	
@@ -2149,7 +2149,7 @@ bool LLAppViewer::initConfiguration()
     {   
 		// hack to force the skin to default.
         //gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
-		gDirUtilp->setSkinFolder("default");
+		gDirUtilp->setSkinFolder("base");
     }
 
     mYieldTime = gSavedSettings.getS32("YieldTime");

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry" title="ENTRÉE DE LA LISTE BLANCHE">
-	<text name="media_label">
-		Saisissez une URL ou un style d&apos;URL à ajouter à la liste des domaines autorisés
-	</text>
-	<line_editor name="whitelist_entry" tool_tip="Saisissez une URL ou un style d&apos;URL à ajouter à la liste blanche"/>
-	<button label="OK" name="ok_btn"/>
-	<button label="Annuler" name="cancel_btn"/>
-</floater>

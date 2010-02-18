@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="modal container" title="">
-	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<text name="Save item as:">
-		Pulsa una tecla para configurarla como tu botón para hablar.
-	</text>
-</floater>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="media_settings" title="メディアの設定">
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
-	<button label="適用" label_selected="適用" name="Apply"/>
-</floater>

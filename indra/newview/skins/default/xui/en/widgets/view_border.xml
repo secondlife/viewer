@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<view_border highlight_light_color="DefaultHighlightLight"
-             highlight_dark_color="DefaultHighlightDark"
-             shadow_light_color="DefaultShadowLight"
-             shadow_dark_color="DefaultShadowDark"
-             border_thickness="1"
-             border_style="line"
-             bevel_style="out"/>
