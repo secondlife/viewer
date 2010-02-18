@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="450" name="inspect" title="オブジェクトのチェック">
+	<floater.string name="timeStamp">
+		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</floater.string>
+	<scroll_list name="object_list" tool_tip="リストからオブジェクトを選択し、インワールドで強調表示します。">
+		<scroll_list.columns label="名前" name="object_name"/>
+		<scroll_list.columns label="所有者名" name="owner_name"/>
+		<scroll_list.columns label="制作者名" name="creator_name"/>
+		<scroll_list.columns label="作成日" name="creation_date"/>
+	</scroll_list>
+	<button label="所有者のプロフィールを表示..." name="button owner" tool_tip="選択したオブジェクトの所有者のプロフィールを表示します" width="180"/>
+	<button label="制作者のプロフィールを表示..." name="button creator" tool_tip="選択したオブジェクトの制作者のプロフィールを表示します" width="180"/>
+</floater>

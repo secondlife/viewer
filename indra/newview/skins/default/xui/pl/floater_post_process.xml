@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Post-Process Floater" title="USTAWIENIA PRZETWARZANIA KOŃCOWEGO">
+	<tab_container name="Post-Process Tabs">
+		<panel label="Kolor Filtru" name="wmiColorFilterPanel">
+			<check_box label="Udostępnij" name="wmiColorFilterToggle" />
+			<text name="wmiColorFilterBrightnessText">
+				Jasność
+			</text>
+			<slider label="" name="wmiColorFilterBrightness" />
+			<text name="wmiColorFilterSaturationText">
+				Nasycenie
+			</text>
+			<slider label="" name="wmiColorFilterSaturation" />
+			<text name="wmiColorFilterContrastText">
+				Kontrast
+			</text>
+			<slider label="" name="wmiColorFilterContrast" />
+			<text name="wmiColorFilterBaseText">
+				Kontrast Koloru Podstawowego
+			</text>
+			<slider label="R" name="wmiColorFilterBaseR" />
+			<slider label="G" name="wmiColorFilterBaseG" />
+			<slider label="B" name="wmiColorFilterBaseB" />
+			<slider label="I" name="wmiColorFilterBaseI" />
+		</panel>
+		<panel label="Wizja Nocna" name="wmiNightVisionPanel">
+			<check_box label="Udostępnij" name="wmiNightVisionToggle" />
+			<text name="wmiNightVisionBrightMultText">
+				Wielokrotne Wzmocnienie Światła
+			</text>
+			<slider label="" name="wmiNightVisionBrightMult" />
+			<text name="wmiNightVisionNoiseSizeText">
+				Rozmiar Szumu
+			</text>
+			<slider label="" name="wmiNightVisionNoiseSize" />
+			<text name="wmiNightVisionNoiseStrengthText">
+				Moc Szumu
+			</text>
+			<slider label="" name="wmiNightVisionNoiseStrength" />
+		</panel>
+		<panel label="Bloom" name="wmiBloomPanel">
+			<check_box label="Udostępnij" name="wmiBloomToggle" />
+			<text name="wmiBloomExtractText">
+				Ekstracja Luminacji
+			</text>
+			<slider label="" name="wmiBloomExtract" />
+			<text name="wmiBloomSizeText">
+				Rozmiar Rozmazania Obrazu
+			</text>
+			<slider label="" name="wmiBloomSize" />
+			<text name="wmiBloomStrengthText">
+				Moc Rozmazania Obrazu
+			</text>
+			<slider label="" name="wmiBloomStrength" />
+		</panel>
+		<panel label="Dodatki" name="Extras">
+			<button label="ZaładujEfekt" label_selected="ZaładujEfekt" name="PPLoadEffect" />
+			<button label="ZapiszEfekt" label_selected="ZapiszEfekt" name="PPSaveEffect" />
+			<line_editor label="Nazwa Efektu" name="PPEffectNameEditor" />
+		</panel>
+	</tab_container>
+</floater>

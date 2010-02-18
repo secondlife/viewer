@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="MediaControls">
+	<string name="control_background_image_name">
+		Inspector_Background
+	</string>
+	<string name="skip_step">
+		0.2
+	</string>
+	<layout_stack name="progress_indicator_area">
+		<panel name="media_progress_indicator">
+			<progress_bar name="media_progress_bar" tool_tip="Medien werden geladen"/>
+		</panel>
+	</layout_stack>
+	<layout_stack name="media_controls">
+		<layout_panel name="back">
+			<button name="back_btn" tool_tip="Rückwärts"/>
+		</layout_panel>
+		<layout_panel name="fwd">
+			<button name="fwd_btn" tool_tip="Vorwärts"/>
+		</layout_panel>
+		<layout_panel name="home">
+			<button name="home_btn" tool_tip="Startseite"/>
+		</layout_panel>
+		<layout_panel name="media_stop">
+			<button name="media_stop_btn" tool_tip="Medienwiedergabe stoppen"/>
+		</layout_panel>
+		<layout_panel name="reload">
+			<button name="reload_btn" tool_tip="Neu laden"/>
+		</layout_panel>
+		<layout_panel name="stop">
+			<button name="stop_btn" tool_tip="Ladevorgang stoppen"/>
+		</layout_panel>
+		<layout_panel name="play">
+			<button name="play_btn" tool_tip="Medien wiedergeben"/>
+		</layout_panel>
+		<layout_panel name="pause">
+			<button name="pause_btn" tool_tip="Medien pausieren"/>
+		</layout_panel>
+		<layout_panel name="media_address">
+			<line_editor name="media_address_url" tool_tip="Medien URL"/>
+			<layout_stack name="media_address_url_icons">
+				<layout_panel>
+					<icon name="media_whitelist_flag" tool_tip="Whitelist aktiviert"/>
+				</layout_panel>
+				<layout_panel>
+					<icon name="media_secure_lock_flag" tool_tip="Sicheres Browsen"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="media_play_position">
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Fortschritt der Filmwiedergabe"/>
+		</layout_panel>
+		<layout_panel name="skip_back">
+			<button name="skip_back_btn" tool_tip="Rückwärts"/>
+		</layout_panel>
+		<layout_panel name="skip_forward">
+			<button name="skip_forward_btn" tool_tip="Vorwärts"/>
+		</layout_panel>
+		<layout_panel name="media_volume">
+			<button name="media_mute_button" tool_tip="Stummschalten"/>
+			<slider name="volume_slider" tool_tip="Lautstärke"/>
+		</layout_panel>
+		<layout_panel name="zoom_frame">
+			<button name="zoom_frame_btn" tool_tip="Auf Medien zoomen"/>
+		</layout_panel>
+		<layout_panel name="close">
+			<button name="close_btn" tool_tip="Herauszoomen"/>
+		</layout_panel>
+		<layout_panel name="new_window">
+			<button name="new_window_btn" tool_tip="URL in Browser öffnen"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

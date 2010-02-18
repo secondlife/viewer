@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<split_button
+ font="SansSerifSmall"
+ arrow_position="left"
+ follows="right|top">
+    <split_button.items_panel
+     background_visible="true"
+     border="true"
+     bg_alpha_color="1 1 1 1"
+     bg_opaq_color="1 1 1 1"
+     scale_image="false"
+     image_selected="SegmentedBtn_Left_Selected"
+     image_unselected="SegmentedBtn_Left_Off"
+     layout="topleft"
+     name="item_buttons"
+    />
+    <split_button.arrow_button
+     name="Arrow Button"
+     label=""
+     font="SansSerifSmall"
+     scale_image="false"
+     image_selected="SegmentedBtn_Right_Selected"
+     image_unselected="SegmentedBtn_Right_Off"
+     />
+</split_button>

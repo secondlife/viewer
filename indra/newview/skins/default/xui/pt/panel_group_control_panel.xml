@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<button label="Perfil do grupo" name="group_info_btn"/>
+	<panel name="panel_call_buttons">
+		<button label="Ligar para o grupo" name="call_btn"/>
+		<button label="Desligar" name="end_call_btn"/>
+		<button label="Abrir controles de voz" name="voice_ctrls_btn"/>
+	</panel>
+</panel>

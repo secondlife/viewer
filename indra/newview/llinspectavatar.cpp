@@ -51,6 +51,7 @@
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 #include "llviewerobjectlist.h"
+#include "lltransientfloatermgr.h"
 
 // Linden libraries
 #include "llfloater.h"
@@ -71,7 +72,7 @@ class LLFetchAvatarData;
 // Avatar Inspector, a small information window used when clicking
 // on avatar names in the 2D UI and in the ambient inspector widget for
 // the 3D world.
-class LLInspectAvatar : public LLInspect
+class LLInspectAvatar : public LLInspect, LLTransientFloater
 {
 	friend class LLFloaterReg;
 	
@@ -97,6 +98,8 @@ public:
 	// gear menu is not open
 	/* virtual */ void onMouseLeave(S32 x, S32 y, MASK mask);
 	
+	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
+
 private:
 	// Make network requests for all the data to display in this view.
 	// Used on construction and if avatar id changes.
@@ -120,6 +123,7 @@ private:
 	void onClickTeleport();
 	void onClickInviteToGroup();
 	void onClickPay();
+	void onClickShare();
 	void onToggleMute();
 	void onClickReport();
 	void onClickFreeze();
@@ -213,6 +217,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Share",	boost::bind(&LLInspectAvatar::onClickShare, this));
 	mCommitCallbackRegistrar.add("InspectAvatar.ToggleMute",	boost::bind(&LLInspectAvatar::onToggleMute, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Freeze",
 		boost::bind(&LLInspectAvatar::onClickFreeze, this));	
@@ -235,6 +240,9 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
+
+	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::GLOBAL, this);
+	LLTransientFloater::init(this);
 }
 
 LLInspectAvatar::~LLInspectAvatar()
@@ -243,6 +251,8 @@ LLInspectAvatar::~LLInspectAvatar()
 	// view
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
+
+	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 /*virtual*/
@@ -675,6 +685,12 @@ void LLInspectAvatar::onClickInviteToGroup()
 void LLInspectAvatar::onClickPay()
 {
 	LLAvatarActions::pay(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickShare()
+{
+	LLAvatarActions::share(mAvatarID);
 	closeFloater();
 }
 

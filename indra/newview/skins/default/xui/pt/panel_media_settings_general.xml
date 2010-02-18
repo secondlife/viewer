@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Público geral" name="Media Settings General">
+	<text name="home_label">
+		Página web:
+	</text>
+	<text name="home_fails_whitelist_label">
+		(Esta página não atende à lista de páginas aprovadas)
+	</text>
+	<line_editor name="home_url" tool_tip="Website desta mídia"/>
+	<text name="preview_label">
+		Visualizar
+	</text>
+	<text name="current_url_label">
+		Página atual:
+	</text>
+	<text name="current_url" tool_tip="Website desta mídia" value=""/>
+	<button label="Redefinir" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="Loop contínuo" name="auto_loop"/>
+	<check_box initial_value="false" label="Interagir no primeiro clique" name="first_click_interact"/>
+	<check_box initial_value="false" label="Zoom automático" name="auto_zoom"/>
+	<check_box initial_value="false" label="Mídia auto-executável" name="auto_play"/>
+	<text name="media_setting_note">
+		Nota: Residentes podem redefinir a configuração.
+	</text>
+	<check_box initial_value="false" label="Dimensionamento automático na frente do objeto" name="auto_scale"/>
+	<text name="size_label">
+		Tamanho:
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

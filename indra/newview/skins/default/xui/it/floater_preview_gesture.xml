@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<floater.string name="step_anim">
+		Animazione da riprodurre:
+	</floater.string>
+	<floater.string name="step_sound">
+		Suono da riprodurre:
+	</floater.string>
+	<floater.string name="step_chat">
+		Scrivi in chat per dire:
+	</floater.string>
+	<floater.string name="step_wait">
+		Attendi:
+	</floater.string>
+	<floater.string name="stop_txt">
+		Stop
+	</floater.string>
+	<floater.string name="preview_txt">
+		Anteprima
+	</floater.string>
+	<floater.string name="none_text">
+		-- Nulla --
+	</floater.string>
+	<floater.string name="Title">
+		Gesture: [NAME]
+	</floater.string>
+	<text name="desc_label">
+		Descrizione:
+	</text>
+	<text name="trigger_label">
+		Parole chiave:
+	</text>
+	<text left="208" name="replace_text" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!">
+		Sostituisci con:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!"/>
+	<text name="key_label">
+		Scorciatoia da tastiera:
+	</text>
+	<combo_box label="Nessuno" left="156" name="modifier_combo" width="76"/>
+	<combo_box label="Nessuno" left_delta="80" name="key_combo" width="76"/>
+	<text name="library_label">
+		Libreria:
+	</text>
+	<scroll_list name="library_list"/>
+	<button label="Aggiungi &gt;&gt;" name="add_btn"/>
+	<text name="steps_label">
+		Fasi:
+	</text>
+	<button label="Sù" name="up_btn"/>
+	<button label="Giù" name="down_btn"/>
+	<button label="Elimina" name="delete_btn"/>
+	<radio_group name="animation_trigger_type">
+		<radio_item label="Inizia" name="start"/>
+		<radio_item label="Stop" name="stop"/>
+	</radio_group>
+	<check_box label="finché le animazioni sono eseguite" left="226" name="wait_anim_check"/>
+	<check_box label="tempo in secondi" name="wait_time_check"/>
+	<line_editor left_delta="114" name="wait_time_editor"/>
+	<text name="help_label">
+		Tutte le fasi avvengono simultaneamente, a meno che non aggiungi una fase attendi.
+	</text>
+	<check_box label="Attiva" name="active_check" tool_tip="Le gesture attivate possono essere eseguite scrivendo in chat la parola chiave o premendo i tasti chiave. Le gesture generalmente si disattivano quando c&apos;è un conflitto nei relativi tasti."/>
+	<button label="Anteprima" name="preview_btn"/>
+	<button label="Salva" name="save_btn"/>
+</floater>

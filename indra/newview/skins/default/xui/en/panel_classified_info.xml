@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="570"
+ layout="topleft"
+ left="0"
+ min_height="350"
+ name="panel_classified_info"
+ help_topic="profile_classified_info"
+ top="0"
+ width="333">
+ <panel.string
+  name="type_mature">
+    Moderate
+ </panel.string>
+ <panel.string
+  name="type_pg">
+    General Content
+ </panel.string>
+ <panel.string
+  name="l$_price">
+    L$[PRICE]
+ </panel.string>
+    <button
+     follows="top|right"
+     height="23"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back_btn"
+     picture_style="true"
+     left="11"
+     tab_stop="false"
+     top="2"
+     width="23" />
+    <text
+     follows="top|left|right"
+     font="SansSerifHugeBold"
+     height="26"
+     layout="topleft"
+     left_pad="10"
+     name="title"
+     text_color="LtGray"
+     top="0"
+     value="Classified Info"
+     use_ellipses="true"
+     width="275" />
+    <scroll_container
+     color="DkGray2"
+     opaque="true"
+     follows="all"
+     height="502"
+     layout="topleft"
+     left="9"
+     top_pad="10"
+     name="profile_scroll"
+     reserve_scroll_corner="false"
+     width="310">
+    <panel
+     name="scroll_content_panel"
+     follows="left|top"
+     min_height="300"
+     layout="topleft"
+     top="0"
+     background_visible="false"
+     height="500"
+     left="0"
+     width="285">
+        <texture_picker
+         enabled="false"
+         follows="left|top|right"
+         height="197"
+         layout="topleft"
+         left="11"
+         name="classified_snapshot"
+         top="10"
+         width="286" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top|right"
+         h_pad="0"
+         height="35"
+         width="290"
+         layout="topleft"
+         font="SansSerifBig"
+         font.style="BOLD"
+         left="10"
+         top_pad="10"
+         name="classified_name"
+         read_only="true"
+         text_color="white"
+         v_pad="0"
+         value="[name]"
+         use_ellipses="true" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top"
+         h_pad="0"
+         height="25"
+         layout="topleft"
+         left="10"
+         name="classified_location"
+         read_only="true"
+         width="290"
+         word_wrap="true"
+         v_pad="0"
+         value="[loading...]" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top|right"
+         h_pad="0"
+         height="18"
+         layout="topleft"
+         left="10"
+         name="content_type"
+         read_only="true"
+         width="290"
+         top_pad="5"
+         v_pad="0"
+         value="[content type]" />
+        <text_editor
+         allow_html="true"
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top|right"
+         h_pad="0"
+         height="18"
+         layout="topleft"
+         left="10"
+         name="category"
+         read_only="true"
+         width="290"
+         top_pad="5"
+         v_pad="0"
+         value="[category]" />
+        <check_box
+         enabled="false"
+         height="16"
+         label="Auto renew each week"
+         layout="topleft"
+         left="10"
+         name="auto_renew"
+         top_pad="5"
+         v_pad="0"
+         width="290" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top"
+         h_pad="0"
+         halign="left"
+         height="16"
+         layout="topleft"
+         left="10"
+         name="price_for_listing"
+         read_only="true"
+         top_pad="5"
+         tool_tip="Price for listing."
+         v_pad="0"
+         width="105" />
+        <text_editor
+         allow_html="true"
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top|right"
+         h_pad="0"
+         height="200"
+         layout="topleft"
+         left="10"
+         max_length="1023"
+         name="classified_desc"
+         read_only="true"
+         width="290"
+         v_pad="0"
+         value="[description]"
+         word_wrap="true" />
+    </panel>
+    </scroll_container>
+    <panel
+     follows="left|right|bottom"
+     height="35"
+     layout="topleft"
+     top_pad="5"
+     left="9"
+     name="buttons">
+        <button
+         follows="bottom|left"
+         height="23"
+         label="Teleport"
+         layout="topleft"
+         left="0"
+         name="teleport_btn"
+         top="0"
+         width="101" />
+        <button
+         follows="bottom|left"
+         height="23"
+         label="Map"
+         layout="topleft"
+         left_pad="3"
+         name="show_on_map_btn"
+         width="100" />
+        <button
+         follows="bottom|left"
+         height="23"
+         label="Edit"
+         layout="topleft"
+         name="edit_btn"
+         left_pad="3"
+         width="101" />
+    </panel>
+</panel>

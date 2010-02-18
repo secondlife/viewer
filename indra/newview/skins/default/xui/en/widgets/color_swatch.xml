@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<color_swatch alpha_background_image="color_swatch_alpha.tga"
+              border_color="ColorSwatchBorderColor"
+              name="color_swatch">
+  <color_swatch.caption_text name="caption"
+                             halign="center"
+                             follows="left|right|bottom"/>
+</color_swatch>

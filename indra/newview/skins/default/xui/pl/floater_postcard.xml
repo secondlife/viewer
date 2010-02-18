@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Postcard" title="WYŚLIJ POCZTÓWKĘ">
+	<text name="to_label">
+		Email Odbiorcy:
+	</text>
+	<text name="from_label">
+		Twój Email:
+	</text>
+	<text name="name_label">
+		Twoje Dane:
+	</text>
+	<text name="subject_label">
+		Temat:
+	</text>
+	<line_editor label="Wpisz treść tematu tutaj" name="subject_form"/>
+	<text name="msg_label">
+		Treść:
+	</text>
+	<text_editor name="msg_form">
+		Wpisz treść swojej wiadomości tutaj
+	</text_editor>
+	<text name="fine_print">
+		Jeżeli odbiorca tej pocztówki dołączy do [SECOND_LIFE], otrzymasz bonusa.
+	</text>
+	<button label="Anuluj" name="cancel_btn"/>
+	<button label="Wyślij" name="send_btn"/>
+	<string name="default_subject">
+		Pocztówki z [SECOND_LIFE]
+	</string>
+	<string name="default_message">
+		Sprawdź i przekonaj się sam!
+	</string>
+	<string name="upload_message">
+		Wysyłanie...
+	</string>
+</floater>

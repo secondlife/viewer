@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Anzeige bearbeiten" name="panel_edit_classified">
+	<panel.string name="location_notice">
+		(wird nach Speichern aktualisiert)
+	</panel.string>
+	<text name="title">
+		Anzeige bearbeiten
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<text name="Name:">
+				Titel:
+			</text>
+			<text name="description_label">
+				Beschreibung:
+			</text>
+			<text name="location_label">
+				Standort:
+			</text>
+			<text name="classified_location">
+				wird geladen...
+			</text>
+			<button label="Aktuellen Standort verwenden" name="set_to_curr_location_btn"/>
+			<combo_box name="content_type">
+				<combo_item name="mature_ci">
+					Moderater Inhalt
+				</combo_item>
+				<combo_item name="pg_ci">
+					Allgemeiner Inhalt
+				</combo_item>
+			</combo_box>
+			<spinner label="L$" name="price_for_listing" tool_tip="Preis für Anzeige." value="50"/>
+			<check_box label="Jede Woche automatisch erneuern" name="auto_renew"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<button label="Speichern" name="save_changes_btn"/>
+		<button label="Abbrechen" name="cancel_btn"/>
+	</panel>
+</panel>

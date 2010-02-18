@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="TESTE DE FONTE">
+	<text name="linea">
+		OverrideTest, deveria aparecer aqui como Times. (De default/xui/en-us)
+	</text>
+</floater>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ legacy_header_height="25"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background" 
+ can_close="false"
+ can_minimize="false"
+ height="158"
+ layout="topleft"
+ name="inspect_group"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="228">
+  <string name="PrivateGroup">Private group</string>
+  <string name="FreeToJoin">Free to join</string>
+  <string name="CostToJoin">L$[AMOUNT] to join</string>
+  <string name="YouAreMember">You are a member</string>
+  <text
+     follows="all"
+     font="SansSerifLarge"
+     height="16"
+     left="8"
+     name="group_name"
+     top="10"
+     text_color="White"
+     use_ellipses="true"
+     width="175"
+     word_wrap="false">
+    Grumpity&apos;s Grumpy Group of Moose
+  </text>
+  <text
+   follows="all"
+   font="SansSerifSmall"
+   text_color="White"
+   height="16"
+   left="8"
+   name="group_subtitle"
+   use_ellipses="true"
+   width="175">
+    123 members
+  </text>
+  <text
+   follows="all"
+   height="45"
+   left="8"
+   name="group_details"
+   use_ellipses="true"
+   top_pad="6"
+   width="220"
+   word_wrap="true">
+A group of folks charged with creating a room with a moose.
+Fear the moose!  Fear it!  And the mongoose too!
+  </text>
+  <text
+   follows="all"
+   height="13"
+   left="8"
+   name="group_cost"
+   top_pad="13"
+   width="220">
+L$123 to join
+  </text>
+  <icon
+     follows="all"
+     height="38"
+     right="-10"
+     mouse_opaque="true"
+     name="group_icon"
+     top="10"
+     width="38"
+     bevel_style="in" />
+  <button
+   follows="bottom|left"
+   height="23"
+   label="Join"
+   left="8"
+   top="286"
+   name="join_btn"
+   width="103"
+   commit_callback.function="InspectGroup.Join"/>
+  <button
+   follows="bottom|left"
+   height="23"
+   label="Leave"
+   left="8"
+   top="286"
+   name="leave_btn"
+   width="103"
+   commit_callback.function="InspectGroup.Leave"/>
+  <button
+     follows="bottom|left"
+     height="23"
+     label="View Profile"
+     name="view_profile_btn"
+     top="286"
+     left="117"
+     width="103"
+     commit_callback.function="InspectGroup.ViewProfile" />
+</floater>

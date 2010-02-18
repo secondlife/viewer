@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Geral" name="general_tab">
+	<panel.string name="help_text">
+		A guia Geral contém informações gerais sobre o grupo, uma lista de membros, preferências do grupo e opções para membros.
+
+Para obter mais ajuda, passe o mouse sobre as opções.
+	</panel.string>
+	<panel.string name="group_info_unchanged">
+		Informações gerais do grupo modificadas.
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		Recuperando dados do membro
+	</panel.string>
+	<text_editor name="charter">
+		Declaração do grupo
+	</text_editor>
+	<name_list name="visible_members">
+		<name_list.columns label="Membro" name="name"/>
+		<name_list.columns label="Título" name="title"/>
+	</name_list>
+	<text name="active_title_label">
+		Meu cargo
+	</text>
+	<combo_box name="active_title" tool_tip="Define o cargo que é exibido com o nome do seu avatar quando o grupo está ativo."/>
+	<check_box label="Receber avisos do grupo" name="receive_notices" tool_tip="Define o seu recebimento de avisos deste grupo.  Desmarque esta opção se o grupo envia spam."/>
+	<check_box label="Mostrar no meu perfil" name="list_groups_in_profile" tool_tip="Define se você deseja incluir este grupo no seu perfil."/>
+	<panel name="preferences_container">
+		<check_box label="Adesão aberta" name="open_enrollement" tool_tip="Controla a entrada de novos membros, com ou sem convite."/>
+		<check_box label="Taxa de associação" name="check_enrollment_fee" tool_tip="Controla a cobrança de uma taxa de associação ao grupo."/>
+		<spinner label="L$" left_delta="120" name="spin_enrollment_fee" tool_tip="Se a opção &apos;Taxa de associação&apos; estiver marcada, novos membros precisam pagar o valor definido para entrar no grupo." width="60"/>
+		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature." width="170">
+			<combo_box.item label="Conteúdo PG" name="pg"/>
+			<combo_box.item label="Conteúdo Mature" name="mature"/>
+		</combo_box>
+		<check_box initial_value="true" label="Mostre na busca" name="show_in_group_list" tool_tip="Incluir o grupo nos resultados de busca"/>
+	</panel>
+</panel>

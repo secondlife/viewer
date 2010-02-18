@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview notecard" title="ノートカード：">
+	<floater.string name="no_object">
+		このノートカードが含まれたオブジェクトが見つかりません。
+	</floater.string>
+	<floater.string name="not_allowed">
+		このノートを見る権限がありません。
+	</floater.string>
+	<floater.string name="Title">
+		ノートカード： [NAME]
+	</floater.string>
+	<floater.string label="保存" label_selected="保存" name="Save">
+		保存
+	</floater.string>
+	<text name="desc txt">
+		説明：
+	</text>
+	<text_editor name="Notecard Editor">
+		ローディング．．．
+	</text_editor>
+	<button label="保存" label_selected="保存" name="Save"/>
+</floater>

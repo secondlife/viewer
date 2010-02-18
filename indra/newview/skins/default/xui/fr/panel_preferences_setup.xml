@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Configuration" name="Input panel">
+	<button label="Autres accessoires" name="joystick_setup_button" width="175"/>
+	<text name="Mouselook:">
+		Vue subjective :
+	</text>
+	<text name=" Mouse Sensitivity">
+		Sensibilité de la souris
+	</text>
+	<check_box label="Inverser" name="invert_mouse"/>
+	<text name="Network:">
+		Réseau :
+	</text>
+	<text name="Maximum bandwidth">
+		Bande passante maximale
+	</text>
+	<text name="text_box2">
+		kbps
+	</text>
+	<check_box label="Port de connexion personnalisé" name="connection_port_enabled"/>
+	<spinner label="Numéro de port :" name="connection_port"/>
+	<text name="cache_size_label_l">
+		Taille de la mémoire
+	</text>
+	<text name="text_box5">
+		Mo
+	</text>
+	<text name="Cache location">
+		Emplacement du cache :
+	</text>
+	<button label="Parcourir" label_selected="Parcourir" name="set_cache"/>
+	<button label="Réinitialiser" label_selected="Réinitialiser" name="reset_cache"/>
+	<text name="Web:">
+		Web :
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Utiliser le navigateur intégré" name="internal" tool_tip="Utilisez le navigateur intégré pour obtenir de l&apos;aide, ouvrir des liens, etc. Ce navigateur s&apos;ouvre dans [APP_NAME]." value="0"/>
+		<radio_item label="Utiliser mon navigateur (IE, Firefox, Safari)" name="external" tool_tip="Utiliser le navigateur web système par défaut pour l&apos;aide, les liens etc. Non recommandé en mode plein écran." value="1"/>
+	</radio_group>
+	<check_box initial_value="false" label="Activer le proxy Web" name="web_proxy_enabled"/>
+	<text name="Proxy location">
+		Emplacement du proxy :
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Le nom ou adresse IP du proxy que vous souhaitez utiliser"/>
+	<spinner label="Numéro de port :" label_width="95" name="web_proxy_port" width="170"/>
+</panel>

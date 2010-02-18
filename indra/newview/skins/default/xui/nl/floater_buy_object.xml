@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="KOOP EEN KOPIE VAN OBJECT">
+	<text name="contents_text">
+		en zijn inhoud:
+	</text>
+	<text name="buy_text">
+		Koop voor L$[AMOUNT] van [NAME]?
+	</text>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn"/>
+	<button label="Koop" label_selected="Koop" name="buy_btn"/>
+	<string name="title_buy_text">
+		Koop
+	</string>
+	<string name="title_buy_copy_text">
+		Koop een kopie van
+	</string>
+	<string name="no_copy_text">
+		(niet kopiëren)
+	</string>
+	<string name="no_modify_text">
+		(niet wijzigen)
+	</string>
+	<string name="no_transfer_text">
+		(niet overdragen)
+	</string>
+</floater>

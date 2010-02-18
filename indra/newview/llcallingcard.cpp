@@ -682,17 +682,24 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		}
 		BOOL notify = FALSE;
 		LLSD args;
+		LLSD payload;
 		for(S32 i = 0; i < count; ++i)
 		{
 			msg->getUUIDFast(_PREHASH_AgentBlock, _PREHASH_AgentID, agent_id, i);
+			payload["FROM_ID"] = agent_id;
 			info = getBuddyInfo(agent_id);
 			if(info)
 			{
 				setBuddyOnline(agent_id,online);
 				if(chat_notify)
 				{
-					notify = TRUE;
-					args["NAME_SLURL"] = LLSLURL::buildCommand("agent", agent_id, "about");
+					std::string first, last;
+					if(gCacheName->getName(agent_id, first, last))
+					{
+						notify = TRUE;
+						args["FIRST"] = first;
+						args["LAST"] = last;
+					}
 				}
 			}
 			else
@@ -719,13 +726,13 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				notification =
 					LLNotificationsUtil::add("FriendOnline",
 											 args,
-											 LLSD().with("respond_on_mousedown", TRUE),
+											 payload.with("respond_on_mousedown", TRUE),
 											 boost::bind(&LLAvatarActions::startIM, agent_id));
 			}
 			else
 			{
 				notification =
-					LLNotificationsUtil::add("FriendOffline", args);
+					LLNotificationsUtil::add("FriendOffline", args, payload);
 			}
 
 			// If there's an open IM session with this agent, send a notification there too.

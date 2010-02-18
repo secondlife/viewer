@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<teleport_messages>
+	<message_set name="errors">
+		<message name="invalid_tport">
+			Przepraszamy, ale pojawił się błąd podczas Twojej próby teleportacji. By ponowić teleportację, wyloguj się i zaloguj ponownie.
+Jeżeli nadal otrzymujesz komunikat błędu teleportacji, sprawdź [SUPPORT_SITE].
+		</message>
+		<message name="invalid_region_handoff">
+			Przepraszamy, ale pojawił się błąd podczas próby zmiany regionu. By ponowić próbę przejścia na drugi region, wyloguj się i zaloguj ponownie.
+Jeżeli nadal otrzymujesz komunikat błędu podczas przejścia na drugi region, sprawdź [SUPPORT_SITE].
+		</message>
+		<message name="blocked_tport">
+			Przepraszamy, teleportacja jest chwilowo niedostępna. Spróbuj jeszcze raz.
+Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
+		</message>
+		<message name="nolandmark_tport">
+			Przepraszamy, ale nie możemy znaleźć miejsca docelowego.
+		</message>
+		<message name="timeout_tport">
+			Przepraszamy, ale nie udało się przeprowadzić teleportacji. Spróbuj jeszcze raz.
+		</message>
+		<message name="noaccess_tport">
+			Przepraszamy, ale nie masz dostępu do miejsca docelowego.
+		</message>
+		<message name="missing_attach_tport">
+			Czekamy na Twoje akcesoria. Możesz poczekać kilka minut lub zrobić relog przed następną próbą teleportacji.
+		</message>
+		<message name="too_many_uploads_tport">
+			Obecnie ten region ma problemy z ładowaniem obiektów w związku z czym teleportacja bardzo sie opóznia.
+Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego miejsca.
+		</message>
+		<message name="expired_tport">
+			Przepraszamy, ale nie udało się przeprowadzić teleportacji wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
+		</message>
+		<message name="expired_region_handoff">
+			Przepraszamy, ale nie udało się przeprowadzić zmiany regionu wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
+		</message>
+		<message name="no_host">
+			Nie możemy znaleść miejsca docelowego. To miejsce może być chwilowo nieosiągalne albo przestało istnieć.
+Spróbuj jeszcze raz za kilka minut.
+		</message>
+		<message name="no_inventory_host">
+			Szafa chwilowo nie działa.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			Wysyłanie do celu.
+		</message>
+		<message name="redirecting">
+			Wysyłanie do innego miejsca.
+		</message>
+		<message name="relaying">
+			Przenoszenie do celu.
+		</message>
+		<message name="sending_home">
+			Wysyłanie do miejsca startu.
+		</message>
+		<message name="sending_landmark">
+			Lokalizowanie zapamiętanego miejsca (LM).
+		</message>
+		<message name="completing">
+			Finalizowanie teleportacji.
+		</message>
+		<message name="resolving">
+			Namierzanie celu.
+		</message>
+		<message name="contacting">
+			Łączenie z nowym regionem.
+		</message>
+		<message name="arriving">
+			Docieranie do celu...
+		</message>
+		<message name="requesting">
+			Start teleportacji...
+		</message>
+	</message_set>
+</teleport_messages>

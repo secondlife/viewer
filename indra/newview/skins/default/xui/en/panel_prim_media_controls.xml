@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+	follows="left|right|top|bottom"
+	name="MediaControlsPanel"
+	background_visible="false"
+	height="200"
+	layout="topleft"
+	help_topic="prim_media_controls"
+	mouse_opaque="false"
+	min_width="300"
+	width="800">
+  <string name="control_background_image_name">Inspector_Background</string>
+  <string name="skip_step">0.2</string>
+  <string name="min_width">300</string>
+  <string name="min_height">75</string>
+  <string name="zoom_near_padding">1.0</string>
+  <string name="zoom_medium_padding">1.1</string>
+  <string name="zoom_far_padding">1.5</string>
+  <string name="top_world_view_avoid_zone">50</string>
+  <layout_stack
+	  name="progress_indicator_area"
+	  follows="left|right|top"
+	  height="8"
+	  layout="topleft"
+	  animate="false"
+	  left="0"
+	  orientation="horizontal"
+	  top="22">
+	<!-- outer layout_panels center the inner one -->
+	<layout_panel
+		width="0"
+		name="left_bookend_bottom"
+		mouse_opaque="false"
+		layout="topleft"
+		user_resize="false" />
+	<panel
+		name="media_progress_indicator"
+		mouse_opaque="false"
+		follows="left|right|top"
+		height="8"
+		layout="topleft"
+		left="0"
+		top="0"
+		auto_resize="false"
+		user_resize="false"
+		min_width="100"
+		width="200">
+	  <progress_bar
+		  name="media_progress_bar"
+		  color_bg="1 1 1 1"
+		  color_bar="1 1 1 0.96"
+		  follows="left|right|top"
+		  height="8"
+		  layout="topleft"
+		  top="0"
+		  left="0"
+		  tool_tip="Media is Loading"/>
+	</panel>
+	<layout_panel
+		name="right_bookend_bottom"
+		width="0"
+		mouse_opaque="false"
+		layout="topleft"
+		user_resize="false" />
+  </layout_stack>
+  <layout_stack
+	  name="media_controls"
+	  follows="left|right|top"
+	  animate="false"
+	  height="75"
+	  layout="topleft"
+	  top="0"
+	  left="0"
+	  border_size="0"
+	  mouse_opaque="false"
+	  orientation="horizontal">
+	<!-- outer layout_panels center the inner one -->
+	<layout_panel
+		name="left_bookend"
+		top="0"
+		width="0"
+		mouse_opaque="false"
+		layout="topleft"
+		user_resize="false" />
+	<layout_panel
+		name="back"
+		top="0"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		mouse_opaque="false"
+		min_width="22"
+		width="22">
+	  <button
+		  name="back_btn"
+		  follows="top"
+		  image_overlay="Arrow_Left_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  auto_resize="false"
+		  layout="topleft"
+		  tool_tip="Navigate back"
+		  top="0"
+		  left="0"
+		  width="22"
+		  height="22">
+		<button.commit_callback
+			function="MediaCtrl.Back" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="fwd"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="22"
+		top="0"
+		height="22"
+		width="22">
+	  <button
+		  name="fwd_btn"
+		  follows="top"
+		  image_overlay="Arrow_Right_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  top="0"
+		  height="22"
+		  width="22"
+		  layout="topleft"
+		  tool_tip="Navigate forward">
+		<button.commit_callback
+			function="MediaCtrl.Forward" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="home"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="22"
+		min_width="22"
+		width="22">
+	  <button
+		  name="home_btn"
+		  follows="top"
+		  image_overlay="Home_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  layout="topleft"
+		  tool_tip="Home page"
+		  top="0"
+		  height="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Home" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="media_stop"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="22"
+		min_width="22"
+		width="22">
+	  <button
+		  name="media_stop_btn"
+		  follows="top"
+		  image_overlay="Stop_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  layout="topleft"
+		  tool_tip="Stop media"
+		  top="0"
+		  height="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.MediaStop" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="reload"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="22"
+		min_width="22"
+		width="22">
+	  <button
+		  name="reload_btn"
+		  follows="top"
+		  image_overlay="Refresh_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  layout="topleft"
+		  tool_tip="Reload"
+		  top="0"
+		  height="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Reload" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="stop"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="22"
+		min_width="22"
+		width="22">
+	  <button
+		  name="stop_btn"
+		  follows="top"
+		  image_overlay="StopReload_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  layout="topleft"
+		  tool_tip = "Stop loading"
+		  top="0"
+		  height="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Stop" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="play"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="22"
+		min_width="22"
+		width="22">
+	  <button
+		  name="play_btn"
+		  follows="top"
+		  image_overlay="Play_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  layout="topleft"
+		  tool_tip = "Play media"
+		  top="0"
+		  height="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Play" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="pause"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		min_width="22"
+		width="22">
+	  <button
+		  name="pause_btn"
+		  follows="top"
+		  image_overlay="Pause_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  layout="topleft"
+		  top="0"
+		  height="22"
+		  width="22"
+		  tool_tip = "Pause media">
+		<button.commit_callback
+			function="MediaCtrl.Pause" />
+	  </button>
+	</layout_panel>
+	<!-- media URL entry  -->
+	<layout_panel
+		name="media_address"
+		mouse_opaque="false"
+		auto_resize="true"
+		user_resize="false"
+		height="24"
+		follows="left|right|bottom"
+		layout="topleft"
+		top="0"
+		width="190"
+		min_width="90">
+	  <line_editor 
+		  name="media_address_url"
+		  max_length="1024"
+		  follows="top|left|right" 
+		  height="22"
+		  top="0"
+		  tool_tip="Media URL"
+		  text_pad_right="16"> 
+		<line_editor.commit_callback
+			function="MediaCtrl.CommitURL"/>
+	  </line_editor>
+	  <layout_stack
+		  name="media_address_url_icons"
+		  animate="false"
+		  follows="top|right"
+		  height="20"
+		  width="38"
+		  top="0"
+		  right="-1"
+		  border_size="0"
+		  mouse_opaque="false"
+		  orientation="horizontal">
+		<layout_panel
+			layout="topleft"
+			width="16"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false">
+		  <icon
+			  name="media_whitelist_flag"
+			  follows="top|right"
+			  height="16"
+			  image_name="Flag"
+			  layout="topleft"
+			  tool_tip="White List enabled"
+			  width="16" />
+		</layout_panel>
+		<layout_panel
+			layout="topleft"
+			width="16"
+			mouse_opaque="false"
+			auto_resize="false"
+			user_resize="false">
+		  <icon
+			  name="media_secure_lock_flag"
+			  height="16"
+			  image_name="Lock2"
+			  layout="topleft"
+			  tool_tip="Secured Browsing"
+			  width="16" />
+		</layout_panel>
+	  </layout_stack>
+	</layout_panel>
+	<layout_panel
+		name="media_play_position"
+		mouse_opaque="false"
+		auto_resize="true"
+		user_resize="false"
+		follows="left|right"
+		layout="topleft"
+		top="0"
+		height="22"
+		min_width="100"
+		width="200">
+	  <slider_bar
+		  name="media_play_slider"
+		  follows="left|right|top"
+		  top="0"
+		  height="22"
+		  increment="0.01"
+		  initial_value="0.5"
+		  layout="topleft"
+		  tool_tip="Movie play progress"
+		  width="200">
+		<slider_bar.commit_callback
+			function="MediaCtrl.JumpProgress" />
+	  </slider_bar>
+	</layout_panel>
+	<layout_panel
+		name="skip_back"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		min_width="22"
+		width="22">
+	  <button
+		  name="skip_back_btn"
+		  follows="top"
+		  image_overlay="SkipBackward_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  auto_resize="false"
+		  height="22"
+		  layout="topleft"
+		  tool_tip="Step back"
+		  top="0"
+		  width="22"
+		  left="0">
+		<button.commit_callback
+			function="MediaCtrl.SkipBack" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="skip_forward"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		min_width="22"
+		width="22">
+	  <button
+		  name="skip_forward_btn"
+		  follows="top"
+		  image_overlay="SkipForward_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  height="22"
+		  layout="topleft"
+		  tool_tip="Step forward"
+		  top="0"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.SkipForward" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="media_volume"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="72"
+		min_width="22"
+		width="22">
+	  <!-- Note: this is not quite right either...the mute button is not the -->
+	  <!-- same as the others because it cannot have the "image_overlay" be  -->
+	  <!-- two different images.  -->
+	  <!-- Note also: the button and the slider must overlap! -->
+	  <button
+		  name="media_mute_button"
+		  follows="top"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="AudioMute_Off"
+		  image_unselected="Audio_Off"
+		  hover_glow_amount="0.15"
+		  is_toggle="true"
+		  layout="topleft"
+		  scale_image="false" 
+		  tool_tip="Mute This Media"
+		  top="0"
+		  height="20"
+		  width="22" >
+		<button.commit_callback
+			function="MediaCtrl.ToggleMute" />
+		<button.mouseenter_callback
+			function="MediaCtrl.ShowVolumeSlider" />
+		<button.mouseleave_callback
+			function="MediaCtrl.HideVolumeSlider" />
+	  </button>
+	  <slider
+		  orientation="vertical"
+		  left="0"
+		  top="16"
+		  height="50"
+		  layout="topleft"
+		  increment="0.01"
+		  initial_value="0.5"
+		  name="volume_slider"
+		  tool_tip="Media Volume"
+		  show_text="false"
+		  volume="true">
+		<slider.commit_callback
+			function="MediaCtrl.Volume"/>
+		<slider.mouseenter_callback
+			function="MediaCtrl.ShowVolumeSlider" />
+		<slider.mouseleave_callback
+			function="MediaCtrl.HideVolumeSlider" />
+	  </slider>
+	</layout_panel>
+	<layout_panel
+		name="zoom_frame"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		height="28"
+		min_width="22"
+		width="22">
+	  <button
+		  name="zoom_frame_btn"
+		  follows="top"
+		  image_overlay="Zoom_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  top="0"
+		  height="22"
+		  layout="topleft"
+		  tool_tip="Zoom into media"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Zoom" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="close"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		min_width="21"
+		width="21" >
+	  <button
+		  name="close_btn"
+		  follows="top"
+		  image_overlay="UnZoom_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  top="0"
+		  height="22"
+		  layout="topleft"
+		  tool_tip ="Zoom Back"
+		  top_delta="-4"
+		  width="21" >
+		<button.commit_callback
+			function="MediaCtrl.Close" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="new_window"
+		mouse_opaque="false"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="0"
+		min_width="22"
+		width="22">
+	  <button
+		  name="new_window_btn"
+		  follows="top"
+		  image_overlay="ExternalBrowser_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  height="22"
+		  layout="topleft"
+		  tool_tip = "Open URL in browser"
+		  top="0"
+		  width="24" >
+		<button.commit_callback
+			function="MediaCtrl.Open" />
+	  </button>
+	</layout_panel>
+	<!-- bookend panel -->
+	<layout_panel
+		name="right_bookend"
+		mouse_opaque="false"
+		top="0"
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+  </layout_stack>
+  <panel
+	  name="media_region"
+	  height="100"
+	  follows="left|right|top|bottom"
+	  layout="topleft"
+	  mouse_opaque="false"
+	  top="30" />
+</panel>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ auto_tile="true"
+ can_minimize="false"
+ can_resize="true"
+ height="380"
+ layout="topleft"
+ min_height="380"
+ min_width="450"
+ name="Postcard"
+ help_topic="postcard"
+ title="EMAIL SNAPSHOT"
+ width="450">
+    <floater.string
+     name="default_subject">
+        Postcard from [SECOND_LIFE].
+    </floater.string>
+    <floater.string
+     name="default_message">
+        Check this out!
+    </floater.string>
+    <floater.string
+     name="upload_message">
+        Sending...
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     bottom="35"
+     follows="top|left"
+     font="SansSerif"
+     layout="topleft"
+     left="12"
+     name="to_label">
+        Recipient&apos;s Email:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="108"
+     name="to_form"
+     top_delta="-4"
+     width="150" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="23"
+     follows="top|left"
+     font="SansSerif"
+     layout="topleft"
+     left="12"
+     name="from_label">
+        Your Email:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="108"
+     name="from_form"
+     top_delta="-4"
+     width="150" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="23"
+     follows="top|left"
+     font="SansSerif"
+     layout="topleft"
+     left="12"
+     name="name_label">
+        Your Name:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="108"
+     max_length="100"
+     name="name_form"
+     top_delta="-4"
+     width="150" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="23"
+     follows="top|left"
+     font="SansSerif"
+     layout="topleft"
+     left="12"
+     name="subject_label">
+        Subject:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     label="Type your subject here."
+     layout="topleft"
+     left_delta="108"
+     max_length="100"
+     name="subject_form"
+     top_delta="-4"
+     width="150" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="23"
+     follows="top|left"
+     font="SansSerif"
+     layout="topleft"
+     left="12"
+     name="msg_label">
+        Message:
+    </text>
+    <text_editor
+     type="string"
+     length="1"
+     follows="left|top|right|bottom"
+     height="140"
+     layout="topleft"
+     left_delta="0"
+     max_length="700"
+     name="msg_form"
+     word_wrap="true" 
+     top_pad="10"
+     width="420">
+        Type your message here.
+    </text_editor>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     right="-10"
+     top="350"
+     width="100" />
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Send"
+     layout="topleft"
+     left_delta="-106"
+     name="send_btn"
+     top_delta="0"
+     width="100" />
+</floater>

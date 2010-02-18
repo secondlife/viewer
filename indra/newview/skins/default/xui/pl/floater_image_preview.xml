@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Image Preview" title="">
+	<text name="name_label">
+		Nazwa:
+	</text>
+	<text name="description_label">
+		Opis:
+	</text>
+	<text name="preview_label">
+		Wyświetl obraz jako:
+	</text>
+	<combo_box label="Rodzaj Ubrania" name="clothing_type_combo">
+		<combo_box.item name="Image" label="Obraz" />
+		<combo_box.item name="Hair" label="Włosy" />
+		<combo_box.item name="FemaleHead" label="Damska Głowa" />
+		<combo_box.item name="FemaleUpperBody" label="Damska Górna Część Ciała" />
+		<combo_box.item name="FemaleLowerBody" label="Damska Górna Część Ciała" />
+		<combo_box.item name="MaleHead" label="Męska Głowa" />
+		<combo_box.item name="MaleUpperBody" label="Męska Górna Część Ciała" />
+		<combo_box.item name="MaleLowerBody" label="Męska Dolna Część Ciała" />
+		<combo_box.item name="Skirt" label="Spódnica" />
+		<combo_box.item name="SculptedPrim" label="Sculpt" />
+	</combo_box>
+	<text name="bad_image_text">
+		Nie można wczytać obrazu.
+
+Spróbuj zapisać obraz jako 24 bitową Targa (.tga).
+	</text>
+	<check_box label="Użyj kompresji bez strat" name="lossless_check" />
+	<button label="Anuluj" name="cancel_btn" />
+	<button label="Załaduj ([AMOUNT]L$)" name="ok_btn" />
+</floater>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="top|left"
+ height="360"
+ label="Region"
+ layout="topleft"
+ left="0"
+ name="General"
+ top="360"
+ width="280">
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="region_text_lbl"
+     top="10"
+     width="100">
+        Region:
+    </text>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_delta="50"
+     name="region_text"
+     top_delta="0"
+     width="200">
+        unknown
+    </text>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="version_channel_text_lbl"
+     top="30"
+     width="100">
+        Version:
+    </text>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_delta="50"
+     name="version_channel_text"
+     top_delta="0"
+     width="200">
+        unknown
+    </text>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="region_type_lbl"
+     top="50"
+     width="100">
+        Type:
+    </text>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_delta="50"
+     name="region_type"
+     top_delta="0"
+     width="200">
+        unknown
+    </text>
+    <check_box
+     height="20"
+     label="Block Terraform"
+     layout="topleft"
+     left="10"
+     name="block_terraform_check"
+     top="70"
+     width="80" />
+    <check_box
+     height="20"
+     label="Block Fly"
+     layout="topleft"
+     left="10"
+     name="block_fly_check"
+     top="90"
+     width="80" />
+    <check_box
+     height="20"
+     label="Allow Damage"
+     layout="topleft"
+     left="10"
+     name="allow_damage_check"
+     top="110"
+     width="80" />
+    <check_box
+     height="20"
+     label="Restrict Pushing"
+     layout="topleft"
+     left="10"
+     name="restrict_pushobject"
+     top="130"
+     width="80" />
+    <check_box
+     height="20"
+     label="Allow Land Resell"
+     layout="topleft"
+     left="10"
+     name="allow_land_resell_check"
+     top="160"
+     width="80" />
+    <check_box
+     height="20"
+     label="Allow Land Join/Divide"
+     layout="topleft"
+     left="10"
+     name="allow_parcel_changes_check"
+     top="180"
+     width="80" />
+    <check_box
+     height="20"
+     label="Block Land Show in Search"
+     layout="topleft"
+     left="10"
+     name="block_parcel_search_check"
+     tool_tip="Let people see this region and its parcels in search results"
+     top="200"
+     width="80" />
+    <spinner
+     follows="left|top"
+     height="20"
+     increment="1"
+     label="Agent Limit"
+     label_width="97"
+     layout="topleft"
+     left="10"
+     max_val="100"
+     min_val="1"
+     name="agent_limit_spin"
+     top="240"
+     width="170" />
+    <spinner
+     follows="left|top"
+     height="20"
+     increment="0.5"
+     label="Object Bonus"
+     label_width="97"
+     layout="topleft"
+     left="10"
+     max_val="10"
+     min_val="1"
+     name="object_bonus_spin"
+     top="260"
+     width="170" />
+    <text
+     follows="left|top"
+     height="20"
+     label="Maturity"
+     layout="topleft"
+     left="10"
+     name="access_text"
+     top="290"
+     width="100">
+        Rating:
+    </text>
+    <combo_box
+     height="20"
+     label="Moderate"
+     layout="topleft"
+     left_delta="100"
+     name="access_combo"
+     top_delta="0"
+     width="85">
+        <combo_box.item
+         label="Adult"
+         name="Adult"
+         value="42" />
+        <combo_box.item
+         label="Moderate"
+         name="Mature"
+         value="21" />
+        <combo_box.item
+         label="General"
+         name="PG"
+         value="13" />
+    </combo_box> 
+    <button
+     enabled="false"
+     follows="left|top"
+     height="20"
+     label="Apply"
+     layout="topleft"
+     left="108"
+     name="apply_btn"
+     top="320"
+     width="100"/>
+   <button
+     follows="left|top"
+     height="20"
+     label="Teleport Home One User..."
+     layout="topleft"
+     left="10"
+     name="kick_btn"
+     top_pad="10"
+     width="250" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Teleport Home All Users..."
+     layout="topleft"
+     left_delta="0"
+     name="kick_all_btn"
+     top_pad="3"
+     width="250" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Send Message To Region..."
+     layout="topleft"
+     left_delta="0"
+     name="im_btn"
+     top_pad="20"
+     width="200" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Manage Telehub..."
+     layout="topleft"
+     left_delta="0"
+     name="manage_telehub_btn"
+     top_pad="20"
+     width="150" >
+		<button.commit_callback
+         function="RegionInfo.ManageTelehub" />
+    </button> 
+</panel>

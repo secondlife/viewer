@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Chat de texto" name="chat">
+	<radio_group name="chat_font_size">
+		<radio_item label="Disminuir" name="radio"/>
+		<radio_item label="Media" name="radio2"/>
+		<radio_item label="Aumentar" name="radio3"/>
+	</radio_group>
+	<color_swatch label="Usted" name="user"/>
+	<text name="text_box1">
+		Yo
+	</text>
+	<color_swatch label="Otros" name="agent"/>
+	<text name="text_box2">
+		Otros
+	</text>
+	<color_swatch label="MI" name="im"/>
+	<text name="text_box3">
+		MI
+	</text>
+	<color_swatch label="Sistema" name="system"/>
+	<text name="text_box4">
+		Sistema
+	</text>
+	<color_swatch label="Errores de script" name="script_error"/>
+	<text name="text_box5">
+		Errores de script
+	</text>
+	<color_swatch label="Objetos" name="objects"/>
+	<text name="text_box6">
+		Objetos
+	</text>
+	<color_swatch label="Propietario" name="owner"/>
+	<text name="text_box7">
+		Propietario
+	</text>
+	<color_swatch label="URL" name="links"/>
+	<text name="text_box9">
+		URL
+	</text>
+	<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
+	<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>
+	<radio_group name="chat_window" tool_tip="Ver tus mensajes instantáneos en ventanas separadas o en una sola con varias pestañas (requiere volverse a conectar)">
+		<radio_item label="Varias ventanas" name="radio"/>
+		<radio_item label="Una ventana" name="radio2"/>
+	</radio_group>
+</panel>

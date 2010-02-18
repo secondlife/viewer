@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="WindLight floater" title="EDITOR DE CÉU AVANÇADO">
+	<text name="KeyFramePresetsText" width="130">
+		Pré-definições de Céu:
+	</text>
+	<combo_box left_delta="130" name="WLPresetsCombo"/>
+	<button label="Novo" label_selected="Novo" name="WLNewPreset"/>
+	<button label="Salvar" label_selected="Salvar" name="WLSavePreset" left_delta="72"/>
+	<button label="Deletar" label_selected="Deletar" name="WLDeletePreset" left_delta="72"/>
+	<button label="Editor de Ciclos do Dia" label_selected="Editor de Ciclos do Dia" name="WLDayCycleMenuButton" width="150" left_delta="84" />
+	<tab_container name="WindLight Tabs">
+		<panel label="Atmosfera" name="Atmosphere">
+			<text name="BHText">
+				Horizonte Azul
+			</text>
+			<button label="?" name="WLBlueHorizonHelp"/>
+			<text name="BHText2">
+				R
+			</text>
+			<text name="BHText3">
+				G
+			</text>
+			<text name="BHText4">
+				B
+			</text>
+			<text name="BHText5">
+				I
+			</text>
+			<text name="BDensText">
+				Horizonte da Neblina
+			</text>
+			<button label="?" name="WLHazeHorizonHelp"/>
+			<text name="BDensText2">
+				Densidade de Azul
+			</text>
+			<button label="?" name="WLBlueDensityHelp"/>
+			<text name="BHText6">
+				R
+			</text>
+			<text name="BHText7">
+				G
+			</text>
+			<text name="BHText8">
+				B
+			</text>
+			<text name="BHText9">
+				I
+			</text>
+			<text name="HDText">
+				Densidade da Neblina
+			</text>
+			<button label="?" name="WLHazeDensityHelp"/>
+			<text name="DensMultText">
+				Multiplicador de Densidade
+			</text>
+			<button label="?" name="WLDensityMultHelp" left="635"/>
+			<text name="WLDistanceMultText">
+				Multiplicador de Distância
+			</text>
+			<button label="?" name="WLDistanceMultHelp" left="635"/>
+			<text name="MaxAltText">
+				Altitude Máxima
+			</text>
+			<button label="?" name="WLMaxAltitudeHelp" left="635"/>
+		</panel>
+		<panel label="Iluminação" name="Lighting">
+			<text name="SLCText">
+				Cor do Sol/Lua
+			</text>
+			<button label="?" name="WLSunlightColorHelp"/>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				G
+			</text>
+			<text name="BHText3">
+				B
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="TODText">
+				Posição do Sol/Lua
+			</text>
+			<button label="?" name="WLTimeOfDayHelp"/>
+			<text name="WLAmbientText">
+				Ambiente
+			</text>
+			<button label="?" name="WLAmbientHelp"/>
+			<text name="BHText5">
+				R
+			</text>
+			<text name="BHText6">
+				G
+			</text>
+			<text name="BHText7">
+				B
+			</text>
+			<text name="BHText8">
+				I
+			</text>
+			<text name="WLEastAngleText">
+				Ângulo Leste
+			</text>
+			<button label="?" name="WLEastAngleHelp"/>
+			<text name="SunGlowText">
+				Brilho do Sol
+			</text>
+			<button label="?" name="WLSunGlowHelp"/>
+			<slider label="Foco" name="WLGlowB"/>
+			<slider label="Tamanho" name="WLGlowR"/>
+			<text name="SceneGammaText">
+				Gamma da Cena
+			</text>
+			<button label="?" name="WLSceneGammaHelp"/>
+			<text name="WLStarText">
+				Brilho da Estrela
+			</text>
+			<button label="?" name="WLStarBrightnessHelp"/>
+		</panel>
+		<panel label="Nuvens" name="Clouds">
+			<text name="WLCloudColorText">
+				Cor da Nuvem
+			</text>
+			<button label="?" name="WLCloudColorHelp"/>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				G
+			</text>
+			<text name="BHText3">
+				B
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="WLCloudColorText2">
+				Densidade/ XY da Nuvem
+			</text>
+			<button label="?" name="WLCloudDensityHelp"/>
+			<text name="BHText5">
+				X
+			</text>
+			<text name="BHText6">
+				Y
+			</text>
+			<text name="BHText7">
+				D
+			</text>
+			<text name="WLCloudCoverageText">
+				Cobertura da Nuvem
+			</text>
+			<button label="?" name="WLCloudCoverageHelp"/>
+			<text name="WLCloudScaleText">
+				Escala da Nuvem
+			</text>
+			<button label="?" name="WLCloudScaleHelp"/>
+			<text name="WLCloudDetailText" font="SansSerifSmall">
+				Detalhe da Nuvem (XY/Densidade)
+			</text>
+			<button label="?" name="WLCloudDetailHelp" left="421"/>
+			<text name="BHText8">
+				X
+			</text>
+			<text name="BHText9">
+				Y
+			</text>
+			<text name="BHText10">
+				D
+			</text>
+			<text name="WLCloudScrollXText">
+				Rolagem X da Nuvem
+			</text>
+			<button label="?" name="WLCloudScrollXHelp"/>
+			<check_box label="Travar" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Rolagem Y da Nuvem
+			</text>
+			<button label="?" name="WLCloudScrollYHelp"/>
+			<check_box label="Travar" name="WLCloudLockY"/>
+			<check_box label="Desenhar Nuvens Clássicas" name="DrawClassicClouds"/>
+			<button label="?" name="WLClassicCloudsHelp" left="645"/>
+		</panel>
+	</tab_container>
+</floater>

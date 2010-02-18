@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="queue" title="NULSTIL FREMSKRIDT">
+	<floater.string name="Starting">
+		Starter [START] af [COUNT] genstande.
+	</floater.string>
+	<floater.string name="Done">
+		Færdig.
+	</floater.string>
+	<floater.string name="Resetting">
+		Nulstiller
+	</floater.string>
+	<floater.string name="Running">
+		Running
+	</floater.string>
+	<floater.string name="NotRunning">
+		Not running
+	</floater.string>
+	<button label="Luk" label_selected="Luk" name="close"/>
+</floater>

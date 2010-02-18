@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="IMChiclet Group Menu">
+	<menu_item_call label="Informazioni gruppo" name="Show Profile"/>
+	<menu_item_call label="Mostra sessione" name="Chat"/>
+	<menu_item_call label="Fine sessione" name="End Session"/>
+</menu>

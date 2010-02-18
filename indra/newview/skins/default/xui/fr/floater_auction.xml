@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="COMMENCER LA VENTE DE TERRAINS LINDEN">
+	<floater.string name="already for sale">
+		Vous ne pouvez pas mettre aux enchères des parcelles déjà en vente.
+	</floater.string>
+	<check_box initial_value="true" label="Inclure le marquage de sélection jaune" name="fence_check"/>
+	<button label="Capture d&apos;écran" label_selected="Capture d&apos;écran" name="snapshot_btn" width="110"/>
+	<button label="Vendre à n&apos;importe qui" label_selected="Vendre à n&apos;importe qui" name="sell_to_anyone_btn"/>
+	<button label="Effacer les paramètres" label_selected="Effacer les paramètres" name="reset_parcel_btn"/>
+	<button label="Commencer les enchères" label_selected="Commencer les enchères" name="start_auction_btn"/>
+</floater>

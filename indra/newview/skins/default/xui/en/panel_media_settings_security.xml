@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel 
+ border="true" 
+ enabled="true" 
+ follows="left|top|right|bottom"
+ height="500" 
+ label="Security" 
+ left="102" 
+ mouse_opaque="true"
+ name="Media Settings Security" 
+ help_topic = "media_settings_security"
+ width="365">
+  <check_box 
+   bottom_delta="-40" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Only Allow Access to Specified URL patterns" 
+   left="10" 
+   mouse_opaque="true"
+   name="whitelist_enable" 
+   radio_style="false" 
+   width="250" />
+  <scroll_list 
+   follows="top|left" 
+   height="200" 
+   left="30" 
+   name="whitelist" 
+   width="315" 
+   enabled="true" />
+  <icon
+   bottom_delta="-23"
+   right="-35"
+   width="16"
+   height="16"
+   image_name="Parcel_Exp_Color"
+   mouse_opaque="true"
+   follows="top|left"
+   name="Parcel_Exp_Color"
+   />
+  <text
+   visible="true"
+   follows="top|left"
+   height="15"
+   left="30"
+   bottom_delta="0"
+   text_color="0.4 0.4 0.4 1.0" 
+   name="home_url_fails_some_items_in_whitelist">
+    Entries that the home page fails against are marked:
+  </text>
+  <button 
+   bottom_delta="-36" 
+   follows="top|left" 
+   height="20" 
+   label="Add"
+   left="30" 
+   name="whitelist_add" 
+   width="70" 
+   enabled="true"> 
+     <button.commit_callback
+	     function="Media.whitelistAdd"/>
+  </button>
+  <button 
+   bottom_delta="0" 
+   follows="top|left" 
+   height="20" 
+   label="Delete"
+   left="275" 
+   name="whitelist_del" 
+   width="70" 
+   enabled="true"> 
+     <button.commit_callback
+	     function="Media.whitelistDelete"/>
+  </button>
+  <text
+   visible="true"
+   bottom_delta="-75"
+   follows="top|left"
+   height="40"
+   left="30"
+   text_color="0.6 0.0 0.0 1.0"
+   word_wrap="true" 
+   name="home_url_fails_whitelist">
+Warning: the home page specified in the General tab fails to pass this whitelist. It has been disabled until a valid entry has been added.
+  </text>
+
+</panel>

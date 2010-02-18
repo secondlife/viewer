@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="script panel">
+	<panel.string name="loading">
+		Chargement...
+	</panel.string>
+	<panel.string name="can_not_view">
+		Ce script ne peut pas être copié, visualisé ou modifié. Pour visualiser ou modifier un script à l&apos;intérieur d&apos;un objet, vous devez avoir les permissions requises.
+	</panel.string>
+	<panel.string name="public_objects_can_not_run">
+		Les objets publics ne peuvent pas exécuter de scripts
+	</panel.string>
+	<panel.string name="script_running">
+		Exécution en cours
+	</panel.string>
+	<panel.string name="Title">
+		Script : [NAME]
+	</panel.string>
+	<text_editor name="Script Editor">
+		Chargement...
+	</text_editor>
+	<button label="Enregistrer" label_selected="Enregistrer" name="Save_btn"/>
+	<combo_box label="Insérer..." name="Insert..."/>
+	<menu_bar name="script_menu">
+		<menu label="Fichier" name="File">
+			<menu_item_call label="Enregistrer" name="Save"/>
+			<menu_item_call label="Annuler tous les changements" name="Revert All Changes"/>
+		</menu>
+		<menu label="Éditer" name="Edit">
+			<menu_item_call label="Annuler" name="Undo"/>
+			<menu_item_call label="Refaire" name="Redo"/>
+			<menu_item_call label="Couper" name="Cut"/>
+			<menu_item_call label="Copier" name="Copy"/>
+			<menu_item_call label="Coller" name="Paste"/>
+			<menu_item_call label="Tout sélectionner" name="Select All"/>
+			<menu_item_call label="Désélectionner" name="Deselect"/>
+			<menu_item_call label="Rechercher / Remplacer..." name="Search / Replace..."/>
+		</menu>
+		<menu label="Aide" name="Help">
+			<menu_item_call label="Aide..." name="Help..."/>
+			<menu_item_call label="Aide par mots-clés..." name="Keyword Help..."/>
+		</menu>
+	</menu_bar>
+</panel>

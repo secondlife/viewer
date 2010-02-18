@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Estado" name="Estate">
+	<text name="estate_help_text">
+		Los cambios en las configuraciones de esta 
+pestaña afectarán a todas las regiones del estado.
+	</text>
+	<text name="estate_text">
+		Estado:
+	</text>
+	<text name="estate_name">
+		(desconocido)
+	</text>
+	<text name="owner_text">
+		Propietario del Estado:
+	</text>
+	<text name="estate_owner">
+		(desconocido)
+	</text>
+	<check_box label="Usar el horario global" name="use_global_time_check"/>
+	<button label="?" name="use_global_time_help"/>
+	<check_box label="Fijar el Sol" name="fixed_sun_check"/>
+	<button label="?" name="fixed_sun_help"/>
+	<slider label="Fase" name="sun_hour_slider"/>
+	<check_box label="Permitir el acceso público" name="externally_visible_check"/>
+	<button label="?" name="externally_visible_help"/>
+	<text name="Only Allow">
+		Acceso restringido a cuentas verificadas por:
+	</text>
+	<check_box label="Información de pago aportada" name="limit_payment" tool_tip="Expulsar a los residentes no identificados"/>
+	<check_box label="Verificación de la edad" name="limit_age_verified" tool_tip="Prohibir el acceso a residentes que no hayan verificado su edad. Para más información, ver [SUPPORT_SITE]."/>
+	<check_box label="Permitir el chat de voz" name="voice_chat_check"/>
+	<button label="?" name="voice_chat_help"/>
+	<check_box label="Permitir el teleporte a cualquier punto" name="allow_direct_teleport"/>
+	<button label="?" name="allow_direct_teleport_help"/>
+	<text name="abuse_email_text" width="260">
+		Dirección de correo-e para infracciones:
+	</text>
+	<string name="email_unsupported">
+		Característica no disponible
+	</string>
+	<button label="?" name="abuse_email_address_help"/>
+	<button label="Aplicar" name="apply_btn"/>
+	<button label="Echar usuarios del estado..." name="kick_user_from_estate_btn"/>
+	<button label="Enviar un mensaje al estado..." name="message_estate_btn"/>
+	<text name="estate_manager_label">
+		Administradores del estado:
+	</text>
+	<button label="?" name="estate_manager_help"/>
+	<button label="Quitar..." name="remove_estate_manager_btn"/>
+	<button label="Añadir..." name="add_estate_manager_btn"/>
+	<text name="allow_resident_label">
+		Residentes autorizados:
+	</text>
+	<button label="?" name="allow_resident_help"/>
+	<button label="Quitar..." name="remove_allowed_avatar_btn"/>
+	<button label="Añadir..." name="add_allowed_avatar_btn"/>
+	<text name="allow_group_label">
+		Grupos autorizados:
+	</text>
+	<button label="?" name="allow_group_help"/>
+	<button label="Quitar..." name="remove_allowed_group_btn"/>
+	<button label="Añadir..." name="add_allowed_group_btn"/>
+	<text name="ban_resident_label">
+		Residentes con el acceso prohibido:
+	</text>
+	<button label="?" name="ban_resident_help" right="476"/>
+	<button label="Quitar..." name="remove_banned_avatar_btn"/>
+	<button label="Añadir..." name="add_banned_avatar_btn"/>
+</panel>

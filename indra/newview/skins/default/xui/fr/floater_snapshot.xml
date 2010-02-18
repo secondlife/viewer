@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="APERÇU DE LA PHOTO" width="247">
+	<text name="type_label">
+		Destination de la photo
+	</text>
+	<radio_group label="Type de photo" name="snapshot_type_radio" width="228">
+		<radio_item label="E-mail" name="postcard"/>
+		<radio_item label="Mon inventaire ([AMOUNT] L$)" name="texture"/>
+		<radio_item label="Enregistrer sur mon ordinateur" name="local"/>
+	</radio_group>
+	<button label="Plus" name="more_btn" tool_tip="Options avancées"/>
+	<button label="Moins" name="less_btn" tool_tip="Options avancées"/>
+	<text name="type_label2">
+		Taille
+	</text>
+	<text name="format_label">
+		Format
+	</text>
+	<combo_box label="Résolution" name="postcard_size_combo">
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="Personnaliser" name="Custom"/>
+	</combo_box>
+	<combo_box label="Résolution" name="texture_size_combo">
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="Petite (128 x 128)" name="Small(128x128)"/>
+		<combo_box.item label="Moyenne (256 x 256)" name="Medium(256x256)"/>
+		<combo_box.item label="Grande (512 x 512)" name="Large(512x512)"/>
+		<combo_box.item label="Personnaliser" name="Custom"/>
+	</combo_box>
+	<combo_box label="Résolution" name="local_size_combo">
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="320 x 240" name="320x240"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
+		<combo_box.item label="1280 x 1024" name="1280x1024"/>
+		<combo_box.item label="1600 x 1200" name="1600x1200"/>
+		<combo_box.item label="Personnaliser" name="Custom"/>
+	</combo_box>
+	<combo_box label="Format" name="local_format_combo">
+		<combo_box.item label="PNG" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP" name="BMP"/>
+	</combo_box>
+	<spinner label="Largeur" label_width="44" name="snapshot_width" width="101"/>
+	<spinner label="Hauteur" label_width="46" left="121" name="snapshot_height" width="101"/>
+	<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
+	<text name="layer_type_label">
+		Capturer :
+	</text>
+	<combo_box label="Couches de l&apos;image" name="layer_types">
+		<combo_box.item label="Couleurs" name="Colors"/>
+		<combo_box.item label="Profondeur" name="Depth"/>
+		<combo_box.item label="Matte des objets" name="ObjectMattes"/>
+	</combo_box>
+	<text name="file_size_label">
+		[SIZE] Ko
+	</text>
+	<check_box label="Interface" name="ui_check"/>
+	<check_box label="HUD" name="hud_check"/>
+	<check_box label="Garder ouvert après enregistrement" name="keep_open_check"/>
+	<check_box label="Contraindre les proportions" name="keep_aspect_check"/>
+	<check_box label="Arrêt sur image (plein écran)" name="freeze_frame_check"/>
+	<button label="Rafraîchir" name="new_snapshot_btn"/>
+	<check_box label="Rafraîchissement automatique" name="auto_snapshot_check"/>
+	<button label="Enregistrer ([AMOUNT] L$)" name="upload_btn" width="118"/>
+	<button label="Envoyer" name="send_btn" width="118"/>
+	<flyout_button label="Enregistrer" name="save_btn" tool_tip="Enregistrer l&apos;image dans un fichier" width="118">
+		<flyout_button.item label="Enregistrer" name="save_item"/>
+		<flyout_button.item label="Enregistrer sous..." name="saveas_item"/>
+	</flyout_button>
+	<button label="Annuler" left="133" name="discard_btn" width="72"/>
+	<string name="unknown">
+		inconnu
+	</string>
+</floater>

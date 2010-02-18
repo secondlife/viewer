@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sell land" title="VENDRE DU TERRAIN">
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="info_parcel_label">
+				Parcelle :
+			</text>
+			<text name="info_parcel" left="70">
+				NOM DE LA PARCELLE
+			</text>
+			<text name="info_size_label">
+				Taille :
+			</text>
+			<text name="info_size" left="70">
+				[AREA] m²
+			</text>
+			<text bottom_delta="-60" name="info_action">
+				Pour vendre cette parcelle :
+			</text>
+			<text name="price_label">
+				1. Votre prix de vente :
+			</text>
+			<text name="price_text">
+				Fixez un prix convenable.
+			</text>
+			<text name="price_ld">
+				L$
+			</text>
+			<line_editor name="price">
+				0
+			</line_editor>
+			<text name="price_per_m">
+				([PER_METER] L$/m²)
+			</text>
+			<text name="sell_to_label">
+				2. Vos acheteurs :
+			</text>
+			<text name="sell_to_text">
+				Vendez votre terrain à n&apos;importe qui ou uniquement à un acheteur spécifique.
+			</text>
+			<combo_box bottom_delta="-32" name="sell_to">
+				<combo_box.item label="- Sélectionnez -" name="--selectone--"/>
+				<combo_box.item label="Tout le monde" name="Anyone"/>
+				<combo_box.item label="Personne spécifique :" name="Specificuser:"/>
+			</combo_box>
+			<button label="Sélectionner" name="sell_to_select_agent" width="100"/>
+			<text name="sell_objects_label">
+				3. Vendez-vous les objets avec ce terrain ?
+			</text>
+			<text name="sell_objects_text">
+				Les objets transférables se trouvant sur la parcelle changeront de propriétaire.
+			</text>
+			<radio_group bottom_delta="-54" name="sell_objects" right="430">
+				<radio_item label="Non, rester le propriétaire des objets" name="no"/>
+				<radio_item label="Oui, vendre les objets avec le terrain" name="yes"/>
+			</radio_group>
+			<button label="Afficher les objets" name="show_objects" right="420" width="120"/>
+			<text bottom_delta="-30" name="nag_message_label">
+				Rappel : Toutes les ventes sont définitives.
+			</text>
+			<button label="Indiquer le terrain à vendre" name="sell_btn" width="165"/>
+			<button label="Annuler" name="cancel_btn"/>
+		</panel>
+	</scroll_container>
+</floater>

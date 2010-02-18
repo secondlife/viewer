@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<multi_floater name="im_floater" title="Instant Message">
+	<string name="only_user_message">
+		U bent de enige gebruiker in deze sessie.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] is offline.
+	</string>
+	<string name="invite_message">
+		Klik de [BUTTON NAME] knop om deze voicechat te accepteren/verbinden.
+	</string>
+	<string name="muted_message">
+		U heeft deze inwoner genegeerd. Door het sturen van een bericht zal deze automatisch van de negeerlijst verwijderd worden.
+	</string>
+	<string name="generic_request_error">
+		Fout tijdens het maken van het verzoek, probeer het later nog een keer.
+	</string>
+	<string name="insufficient_perms_error">
+		U heeft niet voldoende permissies.
+	</string>
+	<string name="session_does_not_exist_error">
+		De sessie bestaat niet meer
+	</string>
+	<string name="no_ability_error">
+		U beschikt niet over die mogelijkheid.
+	</string>
+	<string name="not_a_mod_error">
+		U bent geen sessie moderateur
+	</string>
+	<string name="muted_error">
+		Een groepsmoderator heeft uw textchat uitgeschakeld.
+	</string>
+	<string name="add_session_event">
+		Kan geen gebruikers toevoegen aan chatsessie met [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Kan uw bericht niet versturen naar de chatsessie met [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		U bent verwijderd uit de groep.
+	</string>
+	<string name="close_on_no_ability">
+		U heeft niet langer de mogelijkheid om in deze chatsessie te zijn.
+	</string>
+</multi_floater>

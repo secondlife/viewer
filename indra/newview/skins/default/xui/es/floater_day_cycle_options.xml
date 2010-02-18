@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Day Cycle Floater" title="EDITOR DEL CICLO DE UN DÍA">
+	<tab_container name="Day Cycle Tabs">
+		<panel label="Ciclo de un día" name="Day Cycle">
+			<button label="?" name="WLDayCycleHelp"/>
+			<text name="WL12am">
+				12 am
+			</text>
+			<text name="WL3am">
+				3 am
+			</text>
+			<text name="WL6am">
+				6 am
+			</text>
+			<text name="WL9amHash">
+				9 am
+			</text>
+			<text name="WL12pmHash">
+				12 pm
+			</text>
+			<text name="WL3pm">
+				3 pm
+			</text>
+			<text name="WL6pm">
+				6 pm
+			</text>
+			<text name="WL9pm">
+				9 pm
+			</text>
+			<text name="WL12am2">
+				12 am
+			</text>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL3amHash">
+				I
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL9amHash2">
+				I
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL3pmHash">
+				I
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL9pmHash">
+				I
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<button font="SansSerifSmall" width="96" left="546" label="Añadir un punto" label_selected="Añadir un punto" name="WLAddKey"/>
+			<button font="SansSerifSmall" width="96" left="546" label="Quitar un punto" label_selected="Quitar un punto" name="WLDeleteKey"/>
+			<text font="SansSerifSmall" name="WLCurKeyFrameText" width="190">
+				Configuración del fotograma clave:
+			</text>
+			<text name="WLCurKeyTimeText">
+				Hora clave:
+			</text>
+			<spinner label="Hora" name="WLCurKeyHour"/>
+			<spinner label="Min." name="WLCurKeyMin"/>
+			<text name="WLCurKeyTimeText2">
+				Modelo predefinido:
+			</text>
+			<combo_box label="Predefinido" name="WLKeyPresets"/>
+			<text name="DayCycleText">
+				Intervalo:
+			</text>
+			<combo_box label="5 min." name="WLSnapOptions"/>
+			<text name="DayCycleText2">
+				Duración del ciclo:
+			</text>
+			<spinner label="Hora" name="WLLengthOfDayHour"/>
+			<spinner label="Min." name="WLLengthOfDayMin"/>
+			<spinner label="Seg." name="WLLengthOfDaySec"/>
+			<text name="DayCycleText3">
+				Vista previa:
+			</text>
+			<button label="Probar" label_selected="Probar" name="WLAnimSky"/>
+			<button label="Parar" label_selected="Parar" name="WLStopAnimSky"/>
+			<button width="150" font="SansSerifSmall" label="Usar el horario del estado" label_selected="Ir al horario del estado" name="WLUseLindenTime"/>
+			<button left="440" width="180" font="SansSerifSmall" label="Guardar este tipo de día" label_selected="Guardar este tipo de día" name="WLSaveDayCycle"/>
+			<button left="440" width="180" font="SansSerifSmall" label="Cargar y probar un tipo de día" label_selected="Cargar y probar un tipo de día" name="WLLoadDayCycle"/>
+		</panel>
+	</tab_container>
+</floater>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Graphiques" name="Display panel">
+	<text name="WindowSizeLabel">
+		Taille de la fenêtre :
+	</text>
+	<check_box label="Utiliser le plein écran" name="windowed mode"/>
+	<combo_box name="windowsize combo">
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="720 x 480 (NTSC)" name="720x480"/>
+		<combo_box.item label="768 x 576 (PAL)" name="768x576"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
+	</combo_box>
+	<text name="UI Size:">
+		Taille de l&apos;interface :
+	</text>
+	<text name="QualitySpeed">
+		Qualité et vitesse :
+	</text>
+	<text left="35" name="FasterText">
+		Plus rapide
+	</text>
+	<text name="BetterText">
+		Meilleure
+	</text>
+	<text name="ShadersPrefText">
+		Faible
+	</text>
+	<text name="ShadersPrefText2">
+		Moyen
+	</text>
+	<text name="ShadersPrefText3">
+		Élevé
+	</text>
+	<text name="ShadersPrefText4">
+		Ultra
+	</text>
+	<panel label="Graphiques personnalisés" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Effets :
+		</text>
+		<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
+		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
+		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Reflets dans l&apos;eau" name="Reflections"/>
+		<text name="ReflectionDetailText">
+			Objets reflétés :
+		</text>
+		<radio_group name="ReflectionDetailRadio">
+			<radio_item label="Terrain et arbres" name="0"/>
+			<radio_item label="Tous les objets statiques" name="1"/>
+			<radio_item label="Tous les objets et avatars" name="2"/>
+			<radio_item label="Tout" name="3"/>
+		</radio_group>
+		<text name="AvatarRenderingText">
+			Rendu de l&apos;avatar :
+		</text>
+		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Mouvement des habits" name="AvatarCloth"/>
+		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
+		<text name="DrawDistanceMeterText2">
+			m
+		</text>
+		<slider label="Nombre de particules max. :" label_width="147" name="MaxParticleCount"/>
+		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
+		<text name="MeshDetailText">
+			Détails des rendus :
+		</text>
+		<slider label="  Objets :" name="ObjectMeshDetail"/>
+		<slider label="  Flexiprims :" name="FlexibleMeshDetail"/>
+		<slider label="  Arbres :" name="TreeMeshDetail"/>
+		<slider label="  Avatars :" name="AvatarMeshDetail"/>
+		<slider label="  Relief :" name="TerrainMeshDetail"/>
+		<slider label="  Ciel :" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Faible
+		</text>
+		<text name="ObjectMeshDetailText">
+			Faible
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Faible
+		</text>
+		<text name="TreeMeshDetailText">
+			Faible
+		</text>
+		<text name="AvatarMeshDetailText">
+			Faible
+		</text>
+		<text name="TerrainMeshDetailText">
+			Faible
+		</text>
+		<text name="SkyMeshDetailText">
+			Faible
+		</text>
+		<text name="LightingDetailText">
+			Sources lumineuses :
+		</text>
+		<radio_group name="LightingDetailRadio">
+			<radio_item label="Soleil et lune uniquement" name="SunMoon"/>
+			<radio_item label="Lumières à proximité" name="LocalLights"/>
+		</radio_group>
+		<text left="380" name="TerrainDetailText">
+			Rendu du terrain :
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Bas" name="0"/>
+			<radio_item label="Haut" name="2"/>
+		</radio_group>
+	</panel>
+	<button label="Appliquer" label_selected="Appliquer" name="Apply"/>
+	<button label="Réinitialiser" name="Defaults"/>
+	<button label="Avancé" name="Advanced"/>
+	<button label="Matériel" label_selected="Matériel" name="GraphicsHardwareButton"/>
+</panel>

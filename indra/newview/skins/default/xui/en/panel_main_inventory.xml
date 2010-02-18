@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="400"
+ label="Things"
+ layout="topleft"
+ min_height="350"
+ min_width="240"
+ name="main inventory panel"
+ width="330">
+    <panel.string
+     name="Title">
+        Things
+    </panel.string>
+    <filter_editor
+     text_pad_left="14"
+     follows="left|top|right"
+	height="23"
+     label="Filter Inventory"
+     layout="topleft"
+     left="15"
+max_length="300"
+     name="inventory search editor"
+     top="26"
+     width="303" />
+    <tab_container
+follows="all"
+halign="center"
+     height="300"
+     layout="topleft"
+     left_delta="-4"
+     name="inventory filter tabs"
+     tab_height="30"
+     tab_position="top"
+     tab_min_width="100"
+     top_pad="4"
+     width="305">
+        <inventory_panel
+	       border="false"
+         follows="all"
+         height="295"
+         label="MY INVENTORY"
+         help_topic="my_inventory_tab"
+         layout="topleft"
+         left="0"
+         name="All Items"
+         top="16"
+         width="290" />
+        <inventory_panel
+	       border="false"
+         follows="all"
+         height="295"
+         label="RECENT"
+         help_topic="recent_inventory_tab"
+         layout="topleft"
+         left_delta="0"
+         name="Recent Items"
+         width="290" />
+    </tab_container>
+
+    <panel
+     background_visible="true"
+     bevel_style="none"
+     bottom="0"
+     follows="left|right|bottom"
+     height="30"
+     layout="bottomleft"
+     left="0"
+	   visible="true"
+     name="bottom_panel"
+     width="330">
+        <button
+         follows="bottom|left"
+         tool_tip="Show additional options"
+         height="18"
+         image_disabled="OptionsMenu_Disabled"
+         image_selected="OptionsMenu_Press"
+         image_unselected="OptionsMenu_Off"
+         layout="topleft"
+         left="10"
+         name="options_gear_btn"
+         picture_style="true"
+         top="6"
+         width="18" />
+        <button
+         follows="bottom|left"
+         height="18"
+         image_selected="AddItem_Press"
+         image_unselected="AddItem_Off"
+         image_disabled="AddItem_Disabled"
+         layout="topleft"
+         left_pad="5"
+         name="add_btn"
+         picture_style="true"
+         tool_tip="Add new item"
+         width="18" />
+        <dnd_button
+         follows="bottom|right"
+         height="18"
+         image_selected="TrashItem_Press"
+         image_unselected="TrashItem_Off"
+         layout="topleft"
+         right="-5"
+         name="trash_btn"
+         picture_style="true"
+         tool_tip="Remove selected item"
+         top="6"
+         width="18" />
+    </panel>
+
+    <menu_bar
+     bg_visible="false"
+     follows="left|top|right"
+     height="20"
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     name="Inventory Menu"
+     top="0"
+	   visible="true"
+     width="290">
+        <menu
+         height="101"
+         label="File"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="File"
+         tear_off="true"
+         top="-117"
+         width="128">
+            <menu_item_call
+             label="Open"
+             layout="topleft"
+             name="Open">
+                <menu_item_call.on_click
+                 function="Inventory.DoToSelected"
+                 parameter="open" />
+            </menu_item_call>
+            <menu
+             create_jump_keys="true"
+             label="Upload"
+             layout="topleft"
+             name="upload"
+             tear_off="true">
+                <menu_item_call
+                 label="Image (L$[COST])..."
+                 layout="topleft"
+                 name="Upload Image"
+                 shortcut="control|U">
+                    <menu_item_call.on_click
+                     function="File.UploadImage"
+                     parameter="" />
+                    <menu_item_call.on_enable
+                     function="File.EnableUpload" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Sound (L$[COST])..."
+                 layout="topleft"
+                 name="Upload Sound">
+                    <menu_item_call.on_click
+                     function="File.UploadSound"
+                     parameter="" />
+                    <menu_item_call.on_enable
+                     function="File.EnableUpload" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Animation (L$[COST])..."
+                 layout="topleft"
+                 name="Upload Animation">
+                    <menu_item_call.on_click
+                     function="File.UploadAnim"
+                     parameter="" />
+                    <menu_item_call.on_enable
+                     function="File.EnableUpload" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Bulk (L$[COST] per file)..."
+                 layout="topleft"
+                 name="Bulk Upload">
+                    <menu_item_call.on_click
+                     function="File.UploadBulk"
+                     parameter="" />
+                </menu_item_call>
+                <menu_item_separator
+                 layout="topleft" />
+            </menu>
+            <menu_item_separator
+             layout="topleft" />
+            <menu_item_call
+             label="New Window"
+             layout="topleft"
+             name="New Window">
+                <menu_item_call.on_click
+                 function="Inventory.NewWindow" />
+            </menu_item_call>
+            <menu_item_separator
+             layout="topleft"
+             name="separator2" />
+            <menu_item_call
+             label="Show Filters"
+             layout="topleft"
+             name="Show Filters">
+                <menu_item_call.on_click
+                 function="Inventory.ShowFilters" />
+            </menu_item_call>
+            <menu_item_call
+             label="Reset Filters"
+             layout="topleft"
+             name="Reset Current">
+                <menu_item_call.on_click
+                 function="Inventory.ResetFilters" />
+            </menu_item_call>
+            <menu_item_call
+             label="Close All Folders"
+             layout="topleft"
+             name="Close All Folders">
+                <menu_item_call.on_click
+                 function="Inventory.CloseAllFolders" />
+            </menu_item_call>
+            <menu_item_separator
+             layout="topleft"
+             name="separator3" />
+            <menu_item_call
+             label="Empty Trash"
+             layout="topleft"
+             name="Empty Trash">
+                <menu_item_call.on_click
+                 function="Inventory.EmptyTrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Empty Lost And Found"
+             layout="topleft"
+             name="Empty Lost And Found">
+                <menu_item_call.on_click
+                 function="Inventory.EmptyLostAndFound" />
+            </menu_item_call>
+        </menu>
+        <menu
+         height="121"
+         label="Create"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="Create"
+         tear_off="true"
+         top="-201"
+         width="121">
+            <menu_item_call
+             label="New Folder"
+             layout="topleft"
+             name="New Folder">
+                <menu_item_call.on_click
+                 function="Inventory.DoCreate"
+                 parameter="category" />
+            </menu_item_call>
+            <menu_item_call
+             label="New Script"
+             layout="topleft"
+             name="New Script">
+                <menu_item_call.on_click
+                 function="Inventory.DoCreate"
+                 parameter="lsl" />
+            </menu_item_call>
+            <menu_item_call
+             label="New Notecard"
+             layout="topleft"
+             name="New Note">
+                <menu_item_call.on_click
+                 function="Inventory.DoCreate"
+                 parameter="notecard" />
+            </menu_item_call>
+            <menu_item_call
+             label="New Gesture"
+             layout="topleft"
+             name="New Gesture">
+                <menu_item_call.on_click
+                 function="Inventory.DoCreate"
+                 parameter="gesture" />
+            </menu_item_call>
+            <menu
+             height="175"
+             label="New Clothes"
+             layout="topleft"
+             left_delta="0"
+             mouse_opaque="false"
+             name="New Clothes"
+             top_pad="514"
+             width="125">
+                <menu_item_call
+                 label="New Shirt"
+                 layout="topleft"
+                 name="New Shirt">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="shirt" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Pants"
+                 layout="topleft"
+                 name="New Pants">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="pants" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Shoes"
+                 layout="topleft"
+                 name="New Shoes">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="shoes" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Socks"
+                 layout="topleft"
+                 name="New Socks">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="socks" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Jacket"
+                 layout="topleft"
+                 name="New Jacket">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="jacket" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Skirt"
+                 layout="topleft"
+                 name="New Skirt">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="skirt" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Gloves"
+                 layout="topleft"
+                 name="New Gloves">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="gloves" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Undershirt"
+                 layout="topleft"
+                 name="New Undershirt">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="undershirt" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Underpants"
+                 layout="topleft"
+                 name="New Underpants">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="underpants" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Alpha"
+                 layout="topleft"
+                 name="New Alpha">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="alpha" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Tattoo"
+                 layout="topleft"
+                 name="New Tattoo">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="tattoo" />
+                </menu_item_call>
+            </menu>
+            <menu
+             height="85"
+             label="New Body Parts"
+             layout="topleft"
+             left_delta="0"
+             mouse_opaque="false"
+             name="New Body Parts"
+             top_pad="514"
+             width="118">
+                <menu_item_call
+                 label="New Shape"
+                 layout="topleft"
+                 name="New Shape">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="shape" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Skin"
+                 layout="topleft"
+                 name="New Skin">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="skin" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Hair"
+                 layout="topleft"
+                 name="New Hair">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="hair" />
+                </menu_item_call>
+                <menu_item_call
+                 label="New Eyes"
+                 layout="topleft"
+                 name="New Eyes">
+                    <menu_item_call.on_click
+                     function="Inventory.DoCreate"
+                     parameter="eyes" />
+                </menu_item_call>
+            </menu>
+        </menu>
+        <menu
+         height="49"
+         label="Sort"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="Sort"
+         tear_off="true"
+         top="-113"
+         width="118">
+            <menu_item_check
+             control_name="Inventory.SortByName"
+             label="By Name"
+             layout="topleft"
+             name="By Name">
+                <menu_item_check.on_click
+                 function="Inventory.SetSortBy"
+                 parameter="name" />
+            </menu_item_check>
+            <menu_item_check
+             control_name="Inventory.SortByDate"
+             label="By Date"
+             layout="topleft"
+             name="By Date">
+                <menu_item_check.on_click
+                 function="Inventory.SetSortBy"
+                 parameter="date" />
+            </menu_item_check>
+            <menu_item_separator
+             layout="topleft" />
+            <menu_item_check
+             control_name="Inventory.FoldersAlwaysByName"
+             label="Folders Always By Name"
+             layout="topleft"
+             name="Folders Always By Name">
+                <menu_item_check.on_click
+                 function="Inventory.SetSortBy"
+                 parameter="foldersalwaysbyname" />
+            </menu_item_check>
+            <menu_item_check
+             control_name="Inventory.SystemFoldersToTop"
+             label="System Folders To Top"
+             layout="topleft"
+             name="System Folders To Top">
+                <menu_item_check.on_click
+                 function="Inventory.SetSortBy"
+                 parameter="systemfolderstotop" />
+            </menu_item_check>
+        </menu>
+    </menu_bar>
+</panel>

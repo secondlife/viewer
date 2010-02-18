@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu name="menu_group_plus"
+     left="0" bottom="0" visible="false"
+     mouse_opaque="false" opaque="true" color="MenuDefaultBgColor" drop_shadow="false">
+  <menu_item_check
+   label="Sort by Most Recent"
+   name="sort_most">
+      <menu_item_check.on_click
+       function="People.Recent.ViewSort.Action"
+       parameter="sort_recent" />
+      <menu_item_check.on_check
+       function="People.Recent.ViewSort.CheckItem"
+       parameter="sort_recent" />
+  </menu_item_check>
+  <menu_item_check
+   label="Sort by Name"
+   name="sort_name">
+      <menu_item_check.on_click
+       function="People.Recent.ViewSort.Action"
+       parameter="sort_name" />
+      <menu_item_check.on_check
+       function="People.Recent.ViewSort.CheckItem"
+       parameter="sort_name" />
+  </menu_item_check>
+  <menu_item_separator layout="topleft" />
+  <menu_item_check name="view_icons" label="View People Icons">
+    <menu_item_check.on_click
+     function="People.Recent.ViewSort.Action"
+     parameter="view_icons" />
+    <menu_item_check.on_check
+     function="CheckControl"
+     parameter="RecentListShowIcons" />
+  </menu_item_check>
+  <menu_item_separator layout="topleft" />
+  <menu_item_call name="show_blocked_list" label="Show Blocked Residents &amp; Objects">
+    <menu_item_call.on_click function="SideTray.ShowPanel" userdata="panel_block_list_sidetray" />
+  </menu_item_call>
+</menu>

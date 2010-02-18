@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="queue" title="ZURÜCKSETZEN">
+	<floater.string name="Starting">
+		[START] von [COUNT] Artikeln.
+	</floater.string>
+	<floater.string name="Done">
+		Fertig.
+	</floater.string>
+	<floater.string name="Resetting">
+		Wird zurückgesetzt
+	</floater.string>
+	<floater.string name="Running">
+		Läuft
+	</floater.string>
+	<floater.string name="NotRunning">
+		Läuft nicht
+	</floater.string>
+	<button label="Schließen" label_selected="Schließen" left="215" name="close" width="72"/>
+</floater>

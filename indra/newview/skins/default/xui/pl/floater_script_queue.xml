@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="queue" title="ZRESETUJ PRACĘ W TOKU">
+	<button label="Zamknij" label_selected="Zamknij" name="close" />
+</floater>

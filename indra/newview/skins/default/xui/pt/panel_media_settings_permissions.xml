@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Customizar" name="Media settings for controls">
+	<text name="controls_label">
+		Controles:
+	</text>
+	<combo_box name="controls">
+		<combo_item name="Standard">
+			Padrão
+		</combo_item>
+		<combo_item name="Mini">
+			Mini
+		</combo_item>
+	</combo_box>
+	<check_box initial_value="false" label="Permitir navegação &amp; interatividade" name="perms_owner_interact"/>
+	<check_box initial_value="false" label="Exibir barra de controle" name="perms_owner_control"/>
+	<check_box initial_value="false" label="Permitir navegação &amp; interatividade" name="perms_group_interact"/>
+	<check_box initial_value="false" label="Exibir barra de controle" name="perms_group_control"/>
+	<check_box initial_value="false" label="Permitir navegação &amp; interatividade" name="perms_anyone_interact"/>
+	<check_box initial_value="false" label="Exibir barra de controle" name="perms_anyone_control"/>
+</panel>

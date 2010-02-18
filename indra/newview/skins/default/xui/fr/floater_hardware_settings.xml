@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Hardware Settings Floater" title="PARAMÈTRES MATÉRIELS">
+	<text name="Filtering:">
+		Filtres :
+	</text>
+	<check_box label="Filtre anisotrope (plus lent si activé)" name="ani"/>
+	<text name="Antialiasing:">
+		Anti-aliasing :
+	</text>
+	<combo_box label="Anti-aliasing" name="fsaa" width="84">
+		<combo_box.item label="Désactivé" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<spinner label="Gamma :" name="gamma"/>
+	<text left="217" name="(brightness, lower is brighter)">
+		(0 = défaut, valeur faible = plus lumineux)
+	</text>
+	<text name="Enable VBO:">
+		Activer le VBO :
+	</text>
+	<check_box initial_value="true" label="Activer OpenGL Vertex Buffer Objects" name="vbo" tool_tip="Sur un matériel moderne, cette option permet une meilleure performance. Par contre, sur un matériel plus ancien, les VBO sont souvent mal implémentés et peuvent causer des crashs lorsqu&apos;ils sont activés."/>
+	<slider label="Mémoire textures (Mo) :" name="GraphicsCardTextureMemory" tool_tip="Quantité de mémoire à affecter aux textures. Utilise la mémoire de la carte vidéo par défaut. Si vous réduisez ce paramètre, cela peut améliorer les performances, mais les textures risquent d&apos;être floues."/>
+	<spinner label="Indice du brouillard :" name="fog"/>
+	<button label="OK" label_selected="OK" name="OK"/>
+</floater>

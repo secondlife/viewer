@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Członkowie" name="roles_tab">
+	<panel.string name="default_needs_apply_text">
+		Zakładka zawiera niezapisane zmiany
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Czy chcesz zapisać zmiany?
+	</panel.string>
+	<tab_container name="roles_tab_container">
+		<panel label="CZŁONKOWIE" name="members_sub_tab" tool_tip="Członkowie">
+			<panel.string name="help_text">
+				Możesz dodawać i usuwać Funkcje przypisane do Członków.
+Możesz wybrać wielu Członków naciskając Ctrl i klikając na ich imionach.
+			</panel.string>
+			<filter_editor label="Filtruj Członków" name="filter_input"/>
+			<name_list name="member_list">
+				<name_list.columns label="Członek" name="name"/>
+				<name_list.columns label="Dotacje" name="donated"/>
+				<name_list.columns label="Ostatnio w SL" name="online"/>
+			</name_list>
+			<button label="Zaproś do Grupy" name="member_invite"/>
+			<button label="Usuń z Grupy" name="member_eject"/>
+		</panel>
+		<panel label="FUNKCJE" name="roles_sub_tab">
+			<panel.string name="help_text">
+				Wszystkie funkcje mają tytuł oraz przypisane do niego przywileje
+które umożliwiają wykonywanie danej funckji. Każdy członek może pełnić
+jedną lub wiele funkcji. Każda grupa może posiadać maksymalnie 10 funkcji,
+łącznie z funkcją Każdy i Właściciel.
+			</panel.string>
+			<panel.string name="cant_delete_role">
+				Specjalne Funkcje Każdy i Właściciel nie mogą zostać usunięte.
+			</panel.string>
+			<panel.string name="power_folder_icon">
+				Inv_FolderClosed
+			</panel.string>
+			<filter_editor label="Filtruj Funkcje" name="filter_input"/>
+			<scroll_list name="role_list">
+				<scroll_list.columns label="Funkcja" name="name"/>
+				<scroll_list.columns label="Tytuł" name="title"/>
+				<scroll_list.columns label="Liczba" name="members"/>
+			</scroll_list>
+			<button label="Stwórz Nową Funkcję" name="role_create"/>
+			<button label="Usuń Funkcję" name="role_delete"/>
+		</panel>
+		<panel label="PRZYWILEJE" name="actions_sub_tab" tool_tip="Możesz sprawdzić szczegóły dotyczące dangego przywileju oraz jakie funkcje oraz jacy członkowie posiadają prawo korzystania z niego.">
+			<panel.string name="help_text">
+				Przywileje pozwalają Członkom przypisanym do Funkcji na wykonywanie różnych zadań.
+Istnieje wiele Przywilei.
+			</panel.string>
+			<filter_editor label="Filtruj Przywileje" name="filter_input"/>
+			<scroll_list name="action_list" tool_tip="Wybierz przywilej by zobaczyć szczegóły">
+				<scroll_list.columns label="" name="icon"/>
+				<scroll_list.columns label="" name="action"/>
+			</scroll_list>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Funkcje
+		</text>
+		<scroll_list name="member_assigned_roles">
+			<scroll_list.columns label="" name="checkbox"/>
+			<scroll_list.columns label="" name="role"/>
+		</scroll_list>
+		<text name="static2">
+			Przywileje
+		</text>
+		<scroll_list name="member_allowed_actions" tool_tip="By zobaczyć szczegóły, wybierz zakładkę Przywileje">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="action"/>
+		</scroll_list>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Nazwa
+		</text>
+		<line_editor name="role_name">
+			Liczba
+		</line_editor>
+		<text name="static3">
+			Tytuł
+		</text>
+		<line_editor name="role_title">
+			(proszę czekać)
+		</line_editor>
+		<text name="static2">
+			Opis
+		</text>
+		<text_editor name="role_description">
+			(proszę czekać)
+		</text_editor>
+		<text name="static4">
+			Przypisane Funkcje
+		</text>
+		<check_box label="Opcja widoczności jest aktywna" name="role_visible_in_list" tool_tip="Opcja ta pozwala określić widoczność członków pełniących tę funkcję dla ludzi spoza Grupy."/>
+		<text name="static5" tool_tip="Przywileje przypisane do wybranej Funkcji.">
+			Przypisane Przywileje
+		</text>
+		<scroll_list name="role_allowed_actions" tool_tip="By zobaczyć szczegóły dozwolonych przywilejów wybierz zakładkę Przywileje">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="checkbox"/>
+			<scroll_list.columns label="" name="action"/>
+		</scroll_list>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			Opis Przywileju
+		</text>
+		<text_editor name="action_description">
+			Przywilej &apos;Usuń Członka z Grupy&apos;. Tylko Właściciel może usunąć innego Właściciela.
+		</text_editor>
+		<text name="static2">
+			Funkcje z tym przywilejem
+		</text>
+		<text name="static3">
+			Członkowie z tym przywilejem
+		</text>
+	</panel>
+</panel>

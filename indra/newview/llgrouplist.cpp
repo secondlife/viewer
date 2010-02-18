@@ -287,7 +287,7 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 		return gAgent.getGroupID() != selected_group_id;
 
 	if (userdata.asString() == "call")
-		return LLVoiceClient::voiceEnabled()&&gVoiceClient->voiceWorking();
+		return real_group_selected && LLVoiceClient::voiceEnabled()&&gVoiceClient->voiceWorking();
 
 	return real_group_selected;
 }

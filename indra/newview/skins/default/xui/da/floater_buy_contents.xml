@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_buy_contents" title="KØB INDHOLD">
+	<text name="contains_text">
+		[NAME] indeholder:
+	</text>
+	<text name="buy_text">
+		Køb for L$[AMOUNT] fra [NAME]?
+	</text>
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
+	<button label="Køb" label_selected="Køb" name="buy_btn"/>
+	<check_box label="Tag tøj på nu" name="wear_check"/>
+	<string name="no_copy_text">
+		(kopiér ej)
+	</string>
+	<string name="no_modify_text">
+		(ændre ej)
+	</string>
+	<string name="no_transfer_text">
+		(videregiv ej)
+	</string>
+</floater>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Notícias" name="notices_tab">
+	<panel.string name="help_text">
+		As notícias são uma maneira rápida de comunicar-se através de um grupo transmitindo uma mensagem e entregando um item anexo, opcionalmente. As notícias vão apenas a membros do grupo que têm a função habilitada para receber notícias. Você pode desligar Notícias na aba Geral.
+	</panel.string>
+	<panel.string name="no_notices_text">
+		Não há nenhum aviso antigo
+	</panel.string>
+	<text name="lbl2">
+		Cada aviso é armazenado por 14 dias.
+Cada grupo pode enviar no máximo 200 avisos/dia
+	</text>
+	<scroll_list name="notice_list">
+		<scroll_list.columns label="Assunto" name="subject"/>
+		<scroll_list.columns label="Para" name="from"/>
+		<scroll_list.columns label="Data" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Nenhum resultado foi encontrado.
+	</text>
+	<button label="Criar um novo aviso" label_selected="Criar nova notícia" name="create_new_notice" tool_tip="Criar um novo aviso"/>
+	<button label="Atualizar" label_selected="Atualizar Lista" name="refresh_notices" tool_tip="Atualizar lista de avisos"/>
+	<panel label="Criar nova notícia" name="panel_create_new_notice">
+		<text name="lbl">
+			Criar uma notícia
+		</text>
+		<text left="20" name="lbl3">
+			Assunto:
+		</text>
+		<line_editor left_delta="61" name="create_subject" width="251"/>
+		<text left="15" name="lbl4" width="60">
+			Mensagem:
+		</text>
+		<text_editor left_delta="66" name="create_message" width="330"/>
+		<text name="lbl5" width="68">
+			Anexo:
+		</text>
+		<line_editor left_delta="74" name="create_inventory_name" width="190"/>
+		<text name="string">
+			Arrastar e soltar o item aqui para anexá-lo:
+		</text>
+		<button label="Tirar" label_selected="Remover o anexo" name="remove_attachment"/>
+		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Arrastar um item do inventário para a caixa para enviá-lo com o aviso. É preciso ter autorização de cópia e transferência do item para anexá-lo ao aviso."/>
+	</panel>
+	<panel label="Visualizar Notícia Anterior" name="panel_view_past_notice">
+		<text name="lbl">
+			Notícia arquivada
+		</text>
+		<text name="lbl2">
+			Para enviar um novo aviso, clique no botão +
+		</text>
+		<text name="lbl3">
+			Asunto:
+		</text>
+		<text name="lbl4">
+			Mensagem:
+		</text>
+		<button label="Abrir anexo" label_selected="Abrir o anexo" name="open_attachment"/>
+	</panel>
+</panel>

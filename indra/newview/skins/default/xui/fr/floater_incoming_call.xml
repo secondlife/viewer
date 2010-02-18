@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="incoming call" title="APPEL D&apos;UN(E)INCONNU(E)">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Chat vocal près de vous
+	</floater.string>
+	<floater.string name="anonymous">
+		anonyme
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		appelle.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		a rejoint un chat vocal avec conférence.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		a rejoint un chat vocal avec le groupe [GROUP].
+	</floater.string>
+	<text name="question">
+		Voulez-vous quitter [CURRENT_CHAT] et rejoindre ce chat vocal ?
+	</text>
+	<button label="Accepter" label_selected="Accepter" name="Accept"/>
+	<button label="Refuser" label_selected="Refuser" name="Reject"/>
+	<button label="Lancer IM" name="Start IM"/>
+</floater>

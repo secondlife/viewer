@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+
+<panel
+  name="nearby_chat"  visible="true" width="250" height="480" background_opaque="false"
+  background_visible="true" bevel_style="in" follows="left|top" bg_alpha_color="0.3 0.3 0.3 1.0">
+	<panel bottom="380" width="250" height="30" background_visible="true" background_opaque="false" bg_alpha_color="0.0 0.0 0.0 1.0" name="chat_caption">
+    	<text
+        	width="140" left="25" height="20" follows="left|right|top"
+        	font="SansSerifBigBold" text_color="white" word_wrap="true"
+        	mouse_opaque="true" name="sender_name" >NEARBY CHAT  </text>
+    	<icon top="25" left="180"
+      			width="20" height="20" follows="top|right"
+		      	color="1 1 1 1" enabled="true" image_name="icn_voice-groupfocus.tga"
+      			mouse_opaque="true" name="nearby_speakers_btn"/>
+    	<icon top="25" left="205"
+      		width="20" height="20" follows="top|right"
+      		color="1 1 1 1" enabled="true" image_name="inv_item_landmark_visited.tga"
+      		mouse_opaque="true" name="tearoff_btn"/>
+    	<icon top="22" left="230"
+      		width="15" height="15" follows="top|right"
+      		color="1 1 1 1" enabled="true" image_name="closebox.tga"
+      		name="close_btn"/>
+	</panel>
+  <chat_history_view bottom="0" width="250" height="320" follows="left|right|top|bottom" name="chat_scroll" />    
+</panel>
+

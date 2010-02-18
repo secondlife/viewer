@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="top|left|right"
+ height="85"
+ layout="topleft"
+ left="0"
+ name="classified_item"
+ top="0"
+ width="313">
+    <icon
+     follows="all"
+     height="85"
+     image_name="ListItem_Over"
+     right="-2"
+     mouse_opaque="false"
+     name="hovered_icon"
+     top="1"
+     scale_image="true"
+     visible="false"
+     width="308"/>
+    <icon
+     follows="all"
+     height="85"
+     image_name="ListItem_Select"
+     right="-2"
+     mouse_opaque="false"
+     name="selected_icon"
+     top="1"
+     scale_image="true"
+     visible="false"
+     width="308"/>
+    <texture_picker
+     allow_no_texture="true"
+     border_enabled="true"
+     default_image_name="TabIcon_Places_Large"
+     enabled="false"
+     follows="left|top"
+     height="80"
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     name="picture"
+     tab_stop="false"
+     top="10"
+     top_pad="10"
+     width="90" />
+    <text
+     follows="top|left|right"
+     font="SansSerifSmall"
+     height="15"
+     layout="topleft"
+     left="110"
+     name="name"
+     text_color="white"
+     top="9"
+     use_ellipses="true"
+     width="193"
+     word_wrap="false" />
+    <expandable_text
+     follows="top|left|right"
+     font="SansSerifSmall"
+     height="55"
+     layout="topleft"
+     left="103"
+     name="description"
+     textbox.show_context_menu="false" 
+     top_pad="0"
+     width="178"
+     word_wrap="true" />
+    <button
+     follows="right"
+     height="20"
+     image_overlay="ForwardArrow_Off"
+     layout="topleft"
+     left_pad="5"
+     right="-8"
+     name="info_chevron"
+     top_delta="24"
+     width="20" />
+</panel>

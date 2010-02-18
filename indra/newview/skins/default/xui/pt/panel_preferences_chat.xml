@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Chat" name="chat">
+	<radio_group name="chat_font_size">
+		<radio_item label="Pequeno" name="radio"/>
+		<radio_item label="Média" name="radio2"/>
+		<radio_item label="Grande" name="radio3"/>
+	</radio_group>
+	<color_swatch label="Você" name="user"/>
+	<text name="text_box1">
+		Eu
+	</text>
+	<color_swatch label="Outros" name="agent"/>
+	<text name="text_box2">
+		Outros
+	</text>
+	<color_swatch label="MI" name="im"/>
+	<text name="text_box3">
+		MI
+	</text>
+	<color_swatch label="Sistema" name="system"/>
+	<text name="text_box4">
+		Sistema
+	</text>
+	<color_swatch label="Erros" name="script_error"/>
+	<text name="text_box5">
+		Erros
+	</text>
+	<color_swatch label="Objetos" name="objects"/>
+	<text name="text_box6">
+		Objetos
+	</text>
+	<color_swatch label="Dono" name="owner"/>
+	<text name="text_box7">
+		Dono
+	</text>
+	<color_swatch label="URLs" name="links"/>
+	<text name="text_box9">
+		URLs
+	</text>
+	<check_box initial_value="true" label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
+	<check_box label="Envie MIs por email quando eu estiver desconectado" name="send_im_to_email"/>
+	<radio_group name="chat_window" tool_tip="Exibir cada bate-papo em uma janela ou em uma única janela com uma aba para cada pessoa (requer reinício)">
+		<radio_item label="Janelas diferentes" name="radio"/>
+		<radio_item label="Uma janela" name="radio2"/>
+	</radio_group>
+</panel>

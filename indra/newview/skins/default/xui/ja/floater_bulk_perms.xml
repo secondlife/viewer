@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floaterbulkperms" title="中身の権限の編集">
+	<floater.string name="nothing_to_modify_text">
+		選択した中に編集できないものが含まれています
+	</floater.string>
+	<floater.string name="status_text">
+		[NAME]に権限を設定中です。
+	</floater.string>
+	<floater.string name="start_text">
+		権限変更リクエストをしています
+	</floater.string>
+	<floater.string name="done_text">
+		権限変更リクエストが完了しました
+	</floater.string>
+	<check_box label="アニメーション" name="check_animation"/>
+	<icon name="icon_animation" tool_tip="アニメーション"/>
+	<check_box label="身体部位" name="check_bodypart"/>
+	<icon name="icon_bodypart" tool_tip="身体部位"/>
+	<check_box label="服" name="check_clothing"/>
+	<icon name="icon_clothing" tool_tip="衣類"/>
+	<check_box label="ジェスチャー" name="check_gesture"/>
+	<icon name="icon_gesture" tool_tip="ジェスチャー"/>
+	<check_box label="ノートカード" name="check_notecard"/>
+	<icon name="icon_notecard" tool_tip="ノートカード"/>
+	<check_box label="オブジェクト" name="check_object"/>
+	<icon name="icon_object" tool_tip="オブジェクト"/>
+	<check_box label="スクリプト" name="check_script"/>
+	<icon name="icon_script" tool_tip="スクリプト"/>
+	<check_box label="サウンド" name="check_sound"/>
+	<icon name="icon_sound" tool_tip="サウンド"/>
+	<check_box label="テクスチャ" name="check_texture"/>
+	<icon name="icon_texture" tool_tip="テクスチャ"/>
+	<button label="すべてに √" label_selected="全て" name="check_all"/>
+	<button label="クリア" label_selected="なし" name="check_none"/>
+	<text name="newperms">
+		新しい中身の権限
+	</text>
+	<text name="GroupLabel">
+		グループ：
+	</text>
+	<check_box label="共有" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		全員：
+	</text>
+	<check_box label="コピー" name="everyone_copy"/>
+	<text name="NextOwnerLabel" left="160">
+		次の所有者：
+	</text>
+	<check_box label="修正" name="next_owner_modify"/>
+	<check_box label="コピー" name="next_owner_copy"/>
+	<check_box initial_value="true" label="再販・プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+	<button label="OK" name="apply"/>
+	<button label="キャンセル" name="close"/>
+</floater>

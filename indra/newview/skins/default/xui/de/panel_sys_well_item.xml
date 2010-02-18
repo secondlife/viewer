@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+<panel name="sys_well_item" title="sys_well_item">
+	<text name="title">
+		Achtung Forelle! ACHTUNG! DIE! FORELLE!
+	</text>
+</panel>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Navbar Menu">
+	<menu_item_check label="Voir les coordonnées" name="Show Coordinates"/>
+	<menu_item_check label="Afficher les propriétés de la parcelle" name="Show Parcel Properties"/>
+	<menu_item_call label="Repère" name="Landmark"/>
+	<menu_item_call label="Couper" name="Cut"/>
+	<menu_item_call label="Copier" name="Copy"/>
+	<menu_item_call label="Coller" name="Paste"/>
+	<menu_item_call label="Supprimer" name="Delete"/>
+	<menu_item_call label="Tout sélectionner" name="Select All"/>
+</menu>

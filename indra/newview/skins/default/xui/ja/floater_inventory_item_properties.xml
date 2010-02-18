@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="持ち物アイテムのプロパティ">
+	<floater.string name="unknown">
+		(不明）
+	</floater.string>
+	<floater.string name="public">
+		(公共)
+	</floater.string>
+	<floater.string name="you_can">
+		できること：
+	</floater.string>
+	<floater.string name="owner_can">
+		オーナーは次のことができます：
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</floater.string>
+	<text name="LabelItemNameTitle">
+		名前：
+	</text>
+	<text name="LabelItemDescTitle">
+		説明：
+	</text>
+	<text name="LabelCreatorTitle">
+		クリエーター
+	</text>
+	<text name="LabelCreatorName">
+		Nicole Linden
+	</text>
+	<button label="情報" label_selected="" name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+		オーナー：
+	</text>
+	<text name="LabelOwnerName">
+		Thrax Linden
+	</text>
+	<button label="情報" label_selected="" name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+		入手日時：
+	</text>
+	<text name="LabelAcquiredDate">
+		2006年5月24日水曜日12:50:46
+	</text>
+	<text name="OwnerLabel">
+		あなた：
+	</text>
+	<check_box label="編集" name="CheckOwnerModify"/>
+	<check_box label="コピー" name="CheckOwnerCopy"/>
+	<check_box label="再販・プレゼント" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		全員：
+	</text>
+	<check_box label="コピー" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		グループ：
+	</text>
+	<check_box label="共有" name="CheckShareWithGroup"/>
+	<text name="NextOwnerLabel" width="158">
+		次の所有者：
+	</text>
+	<check_box label="編集" name="CheckNextOwnerModify"/>
+	<check_box label="コピー" name="CheckNextOwnerCopy"/>
+	<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer"/>
+	<check_box label="売り出し中" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="コピー" name="Copy"/>
+		<combo_box.item label="オリジナル" name="Original"/>
+	</combo_box>
+	<spinner label="価格：" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
+</floater>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<panel.string name="real_url">
+		http://secondlife.com/app/login/
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php
+	</panel.string>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="first_name_text">
+				Fornavn:
+			</text>
+			<line_editor label="Fornavn" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
+			<line_editor label="Efternavn" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
+			<check_box label="Husk" name="remember_check"/>
+			<text name="start_location_text">
+				Start ved:
+			</text>
+			<combo_box name="start_location_combo">
+				<combo_box.item label="Hjem" name="MyHome"/>
+			</combo_box>
+			<button label="Log på" name="connect_btn"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				Opret bruger
+			</text>
+			<text name="login_help">
+				Hjælp til login
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

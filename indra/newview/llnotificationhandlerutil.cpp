@@ -94,7 +94,8 @@ bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 // static
 bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
 {
-	return OFFER_FRIENDSHIP == notification->getName();
+	return OFFER_FRIENDSHIP == notification->getName()
+					|| USER_GIVE_ITEM == notification->getName();
 }
 
 
@@ -220,6 +221,7 @@ void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChat
 	{
 		LLChat chat_msg(notification->getMessage());
 		chat_msg.mSourceType = type;
+		chat_msg.mFromName = SYSTEM_FROM;
 		nearby_chat->addMessage(chat_msg);
 	}
 }
@@ -264,31 +266,8 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 	offer["from_id"] = notification->getPayload()["from_id"];
 	offer["from"] = name;
 	offer["time"] = LLLogChat::timestamp(true);
+	offer["index"] = (LLSD::Integer)session->mMsgs.size();
 	session->mMsgs.push_front(offer);
 
 	LLIMFloater::show(session_id);
-}
-
-// static
-void LLHandlerUtil::reloadIMFloaterMessages(
-		const LLNotificationPtr& notification)
-{
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
-			"impanel", session_id);
-	if (im_floater != NULL)
-	{
-		LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
-				session_id);
-		if(session != NULL)
-		{
-			session->mMsgs.clear();
-			std::list<LLSD> chat_history;
-			LLLogChat::loadAllHistory(session->mHistoryFileName, chat_history);
-			session->addMessagesFromHistory(chat_history);
-		}
-
-		im_floater->reloadMessages();
-	}
 }

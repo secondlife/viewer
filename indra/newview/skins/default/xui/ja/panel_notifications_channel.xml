@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="notifications_panel">
+	<layout_stack name="stack1">
+		<scroll_list name="notifications_list">
+			<column label="名前" name="name"/>
+			<column label="コンテンツ" name="content"/>
+			<column label="日付" name="date"/>
+		</scroll_list>
+		<scroll_list name="notification_rejects_list">
+			<column label="名前" name="name"/>
+			<column label="コンテンツ" name="content"/>
+			<column label="日付" name="date"/>
+		</scroll_list>
+	</layout_stack>
+</panel>

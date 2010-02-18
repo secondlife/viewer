@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="settings_debug" title="DEBUG-EINSTELLUNGEN">
+	<combo_box name="boolean_combo">
+		<combo_box.item label="WAHR" name="TRUE"/>
+		<combo_box.item label="FALSCH" name="FALSE"/>
+	</combo_box>
+	<color_swatch label="Farbe" name="val_color_swatch"/>
+	<spinner label="x" name="val_spinner_1"/>
+	<spinner label="x" name="val_spinner_2"/>
+	<spinner label="x" name="val_spinner_3"/>
+	<spinner label="x" name="val_spinner_4"/>
+	<button label="Standard wiederherstellen" name="default_btn" width="170"/>
+</floater>

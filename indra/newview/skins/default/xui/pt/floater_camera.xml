@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="camera_floater" title="">
+	<floater.string name="rotate_tooltip">
+		Girar a Câmera ao redor do Foco
+	</floater.string>
+	<floater.string name="zoom_tooltip">
+		Aproximar a Câmera in direção ao Foco
+	</floater.string>
+	<floater.string name="move_tooltip">
+		Mover a Câmera para Cima e para Baixo, para a Esquerda e para a Direita
+	</floater.string>
+	<panel name="controls">
+		<joystick_track name="cam_track_stick" tool_tip="Move a câmera para cima e para baixo, direita e esquerda"/>
+		<panel name="zoom" tool_tip="Aproximar a Câmera in direção ao Foco">
+			<slider_bar name="zoom_slider" tool_tip="Zoom de câmera para focalizar"/>
+		</panel>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="Órbita em torno do foco da câmera"/>
+		<panel name="camera_presets">
+			<button name="rear_view" tool_tip="Vista de trás"/>
+			<button name="group_view" tool_tip="Visualizar grupo"/>
+			<button name="front_view" tool_tip="Vista frontal"/>
+			<button name="mouselook_view" tool_tip="Visâo do mouse"/>
+		</panel>
+	</panel>
+	<panel name="buttons">
+		<button label="" name="orbit_btn" tool_tip="Câmera orbital"/>
+		<button label="" name="pan_btn" tool_tip="Câmera Pan"/>
+		<button label="" name="avatarview_btn" tool_tip="ver como o avatar"/>
+		<button label="" name="freecamera_btn" tool_tip="Visualizar objeto"/>
+	</panel>
+</floater>

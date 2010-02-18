@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sons" name="Preference Media panel">
+	<slider label="Volume principal" name="System Volume"/>
+	<check_box initial_value="true" label="Couper le son si minimisé" name="mute_when_minimized"/>
+	<slider label="Ambiant" name="Wind Volume"/>
+	<slider label="Boutons" name="UI Volume"/>
+	<slider label="Média" name="Media Volume"/>
+	<slider label="Effets sonores" name="SFX Volume"/>
+	<slider label="Flux musical" name="Music Volume"/>
+	<check_box label="Activer le chat vocal" name="enable_voice_check"/>
+	<slider label="Chat vocal" name="Voice Volume"/>
+	<text name="Listen from">
+		Écouter à partir de :
+	</text>
+	<radio_group name="ear_location">
+		<radio_item label="Position de la caméra" name="0"/>
+		<radio_item label="Position de l&apos;avatar" name="1"/>
+	</radio_group>
+	<button label="Périphériques d&apos;entrée/de sortie" name="device_settings_btn"/>
+	<panel label="Paramètres du matériel" name="device_settings_panel">
+		<panel.string name="default_text">
+			Défaut
+		</panel.string>
+		<text name="Input">
+			Entrée
+		</text>
+		<text name="My volume label">
+			Mon volume :
+		</text>
+		<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Régler le volume avec le curseur"/>
+		<text name="wait_text">
+			Veuillez patienter
+		</text>
+		<text name="Output">
+			Sortie
+		</text>
+	</panel>
+</panel>

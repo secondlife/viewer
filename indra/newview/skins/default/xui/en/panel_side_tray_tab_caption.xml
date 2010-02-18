@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ bottom="0"
+ follows="left|top|right"
+ height="30"
+ width="333"
+ layout="topleft"
+ left="0"
+ name="sidetray_tab_panel">
+    <text
+     follows="left|top"
+     font="SansSerifHuge"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="sidetray_tab_title"
+     text_color="white"
+     top="4"
+     value="Side Panel"
+     width="255" />
+     <button
+     follows="left|right|top"
+     height="16"
+     image_selected="Icon_Help_Press"
+     image_unselected="Icon_Help_Foreground"
+     image_disabled="Icon_Help_Press"
+     layout="topleft"
+     name="show_help"
+     top="10"
+     right="-11"
+     width="16"
+     tool_tip="Show Help">
+        <button.commit_callback
+         function="Button.ShowHelp" />
+    </button>
+</panel>

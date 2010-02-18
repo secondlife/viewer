@@ -115,7 +115,7 @@ TestImageProvider gTestImageProvider;
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
-	return gDirUtilp->getSkinBaseDir() + delim + "base" + delim + "xui" + delim;
+	return gDirUtilp->getSkinBaseDir() + delim + "default" + delim + "xui" + delim;
 }
 
 void init_llui()
@@ -127,7 +127,7 @@ void init_llui()
 	const char* newview_path = "../../../newview";
 #endif
 	gDirUtilp->initAppDirs("SecondLife", newview_path);
-	gDirUtilp->setSkinFolder("base");
+	gDirUtilp->setSkinFolder("default");
 	
 	// colors are no longer stored in a LLControlGroup file
 	LLUIColorTable::instance().loadFromSettings();
