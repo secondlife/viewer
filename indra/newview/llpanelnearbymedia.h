@@ -174,11 +174,11 @@ private:
 	std::string			mParcelMediaName;
 	std::string			mParcelAudioName;
 	
-	S32				mMoreHeight;
-	S32				mLessHeight;
-	LLFrameTimer			mHoverTimer;
-	LLScrollListItem*		mParcelMediaItem;
-	LLScrollListItem*		mParcelAudioItem;
+	LLRect				mMoreRect;
+	LLRect				mLessRect;
+	LLFrameTimer		mHoverTimer;
+	LLScrollListItem*	mParcelMediaItem;
+	LLScrollListItem*	mParcelAudioItem;
 };
 
 
