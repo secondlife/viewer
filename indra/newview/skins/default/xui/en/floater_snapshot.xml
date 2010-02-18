@@ -354,10 +354,6 @@
          label="Depth"
          name="Depth"
          value="depth" />
-        <combo_box.item
-         label="Object Mattes"
-         name="ObjectMattes"
-         value="objects" />
     </combo_box>
     <check_box
      label="Interface"
