@@ -374,7 +374,7 @@ void LLHUDText::renderText(BOOL for_select)
 			{
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				S32 name = mSourceObject->mGLName;
-				LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
+				LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name, 0);
 				gGL.color4ubv(coloru.mV);
 				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
 				LLUI::popMatrix();

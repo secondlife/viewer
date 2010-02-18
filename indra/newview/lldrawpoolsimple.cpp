@@ -71,7 +71,11 @@ void LLDrawPoolGlow::render(S32 pass)
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setColorMask(false, true);
 	renderTexture(LLRenderPass::PASS_GLOW, getVertexDataMask());
-	
+
+	// Render name tags invisibly, zero-ing glow (alpha) where they exist (EXT-5389)
+	gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ZERO); // LLHUDText::renderText(true) might clobber this, but right now it doesn't.
+	LLHUDObject::renderAllForSelect(); // we slightly abuse renderForSelect() because it happens to do the right thing for our needs
+
 	gGL.setColorMask(true, false);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	
