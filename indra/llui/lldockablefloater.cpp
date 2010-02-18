@@ -95,7 +95,7 @@ void LLDockableFloater::toggleInstance(const LLSD& sdname)
 	LLDockableFloater* instance =
 			dynamic_cast<LLDockableFloater*> (LLFloaterReg::findInstance(name));
 	// if floater closed or docked
-	if (instance == NULL || instance != NULL && instance->isDocked())
+	if (instance == NULL || (instance && instance->isDocked()))
 	{
 		LLFloaterReg::toggleInstance(name, key);
 		// restore button toggle state

@@ -1941,6 +1941,7 @@ namespace LLInitParam
 		size("size"),
 		style("style")
 	{
+		setBlockFromValue();
 		addSynonym(name, "");
 		setBlockFromValue();
 	}

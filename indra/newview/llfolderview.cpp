@@ -222,7 +222,7 @@ LLFolderView::LLFolderView(const Params& p)
 	// Escape is handled by reverting the rename, not commiting it (default behavior)
 	LLLineEditor::Params params;
 	params.name("ren");
-	params.rect(getRect());
+	params.rect(rect);
 	params.font(getLabelFontForStyle(LLFontGL::NORMAL));
 	params.max_length_bytes(DB_INV_ITEM_NAME_STR_LEN);
 	params.commit_callback.function(boost::bind(&LLFolderView::commitRename, this, _2));
@@ -234,13 +234,19 @@ LLFolderView::LLFolderView(const Params& p)
 
 	// Textbox
 	LLTextBox::Params text_p;
-	LLRect new_r(5, 13-50, 300, 0-50);
-	text_p.name(std::string(p.name));
+	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+	LLRect new_r = LLRect(rect.mLeft + ICON_PAD,
+			      rect.mTop - TEXT_PAD,
+			      rect.mRight,
+			      rect.mTop - TEXT_PAD - llfloor(font->getLineHeight()));
 	text_p.rect(new_r);
-	text_p.font(getLabelFontForStyle(mLabelStyle));
+	text_p.name(std::string(p.name));
+	text_p.font(font);
 	text_p.visible(false);
 	text_p.allow_html(true);
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
+	mStatusTextBox->setFollowsLeft();
+	mStatusTextBox->setFollowsTop();
 	//addChild(mStatusTextBox);
 
 
@@ -1625,7 +1631,11 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{
-				setSelection(parent_folder, FALSE, TRUE);
+				// Don't change selectin to hidden folder. See EXT-5328.
+				if (!parent_folder->getHidden())
+				{
+					setSelection(parent_folder, FALSE, TRUE);
+				}
 			}
 			else
 			{

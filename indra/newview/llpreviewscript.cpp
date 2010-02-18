@@ -955,8 +955,12 @@ BOOL LLPreviewLSL::postBuild()
 {
 	const LLInventoryItem* item = getItem();	
 
+	llassert(item);
+	if (item)
+	{
+		childSetText("desc", item->getDescription());
+	}
 	childSetCommitCallback("desc", LLPreview::onText, this);
-	childSetText("desc", item->getDescription());
 	childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 
 	return LLPreview::postBuild();

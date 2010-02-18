@@ -68,6 +68,9 @@ const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
 const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
 
+const static std::string SLURL_APP_AGENT = "secondlife:///app/agent/";
+const static std::string SLURL_ABOUT = "/about";
+
 // support for secondlife:///app/objectim/{UUID}/ SLapps
 class LLObjectIMHandler : public LLCommandHandler
 {
@@ -119,7 +122,7 @@ public:
 	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		LLTextBase* name = getChild<LLTextBase>("user_name");
-		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && SYSTEM_FROM != mFrom)
+		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && mFrom.size() && SYSTEM_FROM != mFrom)
 		{
 
 			// Spawn at right side of the name textbox.
@@ -176,12 +179,7 @@ public:
 		}
 		else if (level == "add")
 		{
-			std::string name;
-			name.assign(getFirstName());
-			name.append(" ");
-			name.append(getLastName());
-
-			LLAvatarActions::requestFriendshipDialog(getAvatarId(), name);
+			LLAvatarActions::requestFriendshipDialog(getAvatarId(), mFrom);
 		}
 		else if (level == "remove")
 		{
@@ -250,8 +248,6 @@ public:
 	}
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
-	const std::string&	getFirstName() const { return mFirstName; }
-	const std::string&	getLastName	() const { return mLastName; }
 
 	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
 	{
@@ -261,7 +257,7 @@ public:
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
 
 		//*TODO overly defensive thing, source type should be maintained out there
-		if(chat.mFromID.isNull() || chat.mFromName == SYSTEM_FROM)
+		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM)
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
@@ -272,9 +268,11 @@ public:
 		userName->setColor(style_params.color());
 		
 		userName->setValue(chat.mFromName);
+		mFrom = chat.mFromName;
 		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
 		{
-			userName->setValue(LLTrans::getString("SECOND_LIFE"));
+			mFrom = LLTrans::getString("SECOND_LIFE");
+			userName->setValue(mFrom);
 		}
 
 
@@ -334,8 +332,7 @@ public:
 	{
 		if (id != mAvatarID)
 			return;
-		mFirstName = first;
-		mLastName = last;
+		mFrom = first + " " + last;
 	}
 protected:
 	static const S32 PADDING = 20;
@@ -420,8 +417,6 @@ protected:
 
 	LLUUID			    mAvatarID;
 	EChatSourceType		mSourceType;
-	std::string			mFirstName;
-	std::string			mLastName;
 	std::string			mFrom;
 	LLUUID				mSessionID;
 
@@ -779,6 +774,26 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	else
 	{
 		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+
+
+		//MESSAGE TEXT PROCESSING
+		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
+		if (use_plain_text_chat_history && gAgentID != chat.mFromID && chat.mFromID.notNull())
+		{
+			std::string slurl_about = SLURL_APP_AGENT + chat.mFromID.asString() + SLURL_ABOUT;
+			if (message.length() > slurl_about.length() && 
+				message.compare(0, slurl_about.length(), slurl_about) == 0)
+			{
+				message = message.substr(slurl_about.length(), message.length()-1);
+			}
+		}
+
+		if (irc_me && !use_plain_text_chat_history)
+		{
+			message = chat.mFromName + message;
+		}
+		
+
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();

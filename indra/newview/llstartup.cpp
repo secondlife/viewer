@@ -123,7 +123,7 @@
 #include "llmutelist.h"
 #include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpanelevent.h"
+#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelplace.h"
@@ -2473,7 +2473,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
-	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
@@ -2899,7 +2899,9 @@ bool process_login_success_response()
 	text = response["agent_region_access"].asString();
 	if (!text.empty())
 	{
-		int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
+		U32 preferredMaturity =
+			llmin((U32)LLAgent::convertTextToMaturity(text[0]),
+			      gSavedSettings.getU32("PreferredMaturity"));
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
 	// During the AO transition, this flag will be true. Then the flag will

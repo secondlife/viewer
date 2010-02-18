@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="持ち物アイテムを表示" name="show_item"/>
-	<menu_item_call label="名前をクリップボードにコピー" name="url_copy_label"/>
-	<menu_item_call label="SLurl をクリップボードにコピー" name="url_copy"/>
-</context_menu>

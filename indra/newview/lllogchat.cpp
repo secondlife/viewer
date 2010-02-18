@@ -69,6 +69,8 @@ const static std::string MULTI_LINE_PREFIX(" ");
  *  Katar Ivercourt is Offline
  *  [3:00]  Katar Ivercourt is Offline
  *  [2009/11/20 3:01]  Corba ProductEngine is Offline
+ *
+ * Note: "You" was used as an avatar names in viewers of previous versions
  */
 const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]\\s+|\\[\\d{1,2}:\\d{2}\\]\\s+)?(.*)$");
 
@@ -77,6 +79,9 @@ const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+
  *  "You", "Second Life", "Igor ProductEngine", "Object", "Mega House"
  */
 const static boost::regex NAME_AND_TEXT("(You:|Second Life:|[^\\s:]+\\s*[:]{1}|\\S+\\s+[^\\s:]+[:]{1})?(\\s*)(.*)");
+
+//is used to parse complex object names like "Xstreet SL Terminal v2.2.5 st"
+const static std::string NAME_TEXT_DIVIDER(": ");
 
 const static int IDX_TIMESTAMP = 1;
 const static int IDX_STUFF = 2;
@@ -160,9 +165,18 @@ void LLLogChat::saveHistory(const std::string& filename,
 	if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
 		 item["time"] = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
 
-	item["from"]	= from;
 	item["from_id"]	= from_id;
 	item["message"]	= line;
+
+	//adding "Second Life:" for all system messages to make chat log history parsing more reliable
+	if (from.empty() && from_id.isNull())
+	{
+		item["from"] = SYSTEM_FROM; 
+	}
+	else
+	{
+		item["from"] = from;
+	}
 
 	file << LLChatLogFormatter(item) << std::endl;
 
@@ -396,6 +410,18 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 		//name is optional too
 		im[IM_FROM] = SYSTEM_FROM;
 		im[IM_FROM_ID] = LLUUID::null;
+	}
+
+	//possibly a case of complex object names consisting of 3+ words
+	if (!has_name)
+	{
+		U32 divider_pos = stuff.find(NAME_TEXT_DIVIDER);
+		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
+		{
+			im[IM_FROM] = stuff.substr(0, divider_pos);
+			im[IM_TEXT] = stuff.substr(divider_pos + NAME_TEXT_DIVIDER.length());
+			return true;
+		}
 	}
 
 	if (!has_name)

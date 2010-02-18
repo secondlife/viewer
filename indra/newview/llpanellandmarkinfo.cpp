@@ -376,21 +376,31 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 // static
 std::string LLPanelLandmarkInfo::getFullFolderName(const LLViewerInventoryCategory* cat)
 {
-	std::string name = cat->getName();
+	std::string name;
 	LLUUID parent_id;
 
-	// translate category name, if it's right below the root
-	// FIXME: it can throw notification about non existent string in strings.xml
-	if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
+	llassert(cat);
+	if (cat)
 	{
-		LLTrans::findString(name, "InvFolder " + name);
-	}
+		name = cat->getName();
 
-	// we don't want "My Inventory" to appear in the name
-	while ((parent_id = cat->getParentUUID()).notNull() && parent_id != gInventory.getRootFolderID())
-	{
-		cat = gInventory.getCategory(parent_id);
-		name = cat->getName() + "/" + name;
+		// translate category name, if it's right below the root
+		// FIXME: it can throw notification about non existent string in strings.xml
+		if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
+		{
+			LLTrans::findString(name, "InvFolder " + name);
+		}
+
+		// we don't want "My Inventory" to appear in the name
+		while ((parent_id = cat->getParentUUID()).notNull() && parent_id != gInventory.getRootFolderID())
+		{
+			cat = gInventory.getCategory(parent_id);
+			llassert(cat);
+			if (cat)
+			{
+				name = cat->getName() + "/" + name;
+			}
+		}
 	}
 
 	return name;

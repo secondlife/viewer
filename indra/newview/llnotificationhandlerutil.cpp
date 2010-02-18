@@ -220,6 +220,7 @@ void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChat
 	{
 		LLChat chat_msg(notification->getMessage());
 		chat_msg.mSourceType = type;
+		chat_msg.mFromName = SYSTEM_FROM;
 		nearby_chat->addMessage(chat_msg);
 	}
 }

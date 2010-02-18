@@ -293,12 +293,27 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	LLMessageSystem* msg = gMessageSystem;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = NULL;
-	LLViewerInventoryCategory* cat = NULL;
 	std::vector<LLUUID> move_ids;
 	LLInventoryModel::update_map_t update;
 	bool start_new_message = true;
 	S32 count = batch.count();
 	S32 i;
+
+	// first, hide any 'preview' floaters that correspond to the items
+	// being deleted.
+	for(i = 0; i < count; ++i)
+	{
+		bridge = (LLInvFVBridge*)(batch.get(i));
+		if(!bridge || !bridge->isItemRemovable()) continue;
+		item = (LLViewerInventoryItem*)model->getItem(bridge->getUUID());
+		if(item)
+		{
+			LLPreview::hide(item->getUUID());
+		}
+	}
+
+	// do the inventory move to trash
+
 	for(i = 0; i < count; ++i)
 	{
 		bridge = (LLInvFVBridge*)(batch.get(i));
@@ -308,7 +323,6 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 		{
 			if(item->getParentUUID() == trash_id) continue;
 			move_ids.push_back(item->getUUID());
-			LLPreview::hide(item->getUUID());
 			--update[item->getParentUUID()];
 			++update[trash_id];
 			if(start_new_message)
@@ -340,11 +354,12 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 		gInventory.accountForUpdate(update);
 		update.clear();
 	}
+
 	for(i = 0; i < count; ++i)
 	{
 		bridge = (LLInvFVBridge*)(batch.get(i));
 		if(!bridge || !bridge->isItemRemovable()) continue;
-		cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
+		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
 		if(cat)
 		{
 			if(cat->getParentUUID() == trash_id) continue;
@@ -5096,12 +5111,18 @@ void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
 //static
 void LLInvFVBridgeAction::doAction(const LLUUID& uuid, LLInventoryModel* model)
 {
-	LLAssetType::EType asset_type = model->getItem(uuid)->getType();
-	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
-	if(action)
+	llassert(model);
+	LLViewerInventoryItem* item = model->getItem(uuid);
+	llassert(item);
+	if (item)
 	{
-		action->doIt();
-		delete action;
+		LLAssetType::EType asset_type = item->getType();
+		LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
+		if(action)
+		{
+			action->doIt();
+			delete action;
+		}
 	}
 }
 

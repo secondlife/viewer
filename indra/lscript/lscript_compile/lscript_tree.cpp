@@ -9805,6 +9805,9 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
+			llassert(mEventp);
+			if (!mEventp) return;
+
 			// order for event handler
 			// set jump table value
 			S32 jumpoffset;
@@ -9818,13 +9821,11 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			chunk->addBytes(4);
 
 			// null terminated event name and null terminated parameters
-			if (mEventp)
-			{
-				LLScriptByteCodeChunk	*event = new LLScriptByteCodeChunk(FALSE);
-				mEventp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, event, heap, stacksize, entry, entrycount, NULL);
-				chunk->addBytes(event->mCodeChunk, event->mCurrentOffset);
-				delete event;
-			}
+			LLScriptByteCodeChunk	*event = new LLScriptByteCodeChunk(FALSE);
+			mEventp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, event, heap, stacksize, entry, entrycount, NULL);
+			chunk->addBytes(event->mCodeChunk, event->mCurrentOffset);
+			delete event;
+		
 			chunk->addBytes(1);
 
 			// now we're at the first opcode
