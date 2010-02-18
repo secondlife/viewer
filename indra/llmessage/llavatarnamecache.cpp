@@ -86,8 +86,8 @@ void LLAvatarNameResponder::result(const LLSD& content)
 		const LLSD& row = *it;
 
 		LLAvatarName av_name;
-		av_name.mSLID = row["slid"];
-		av_name.mDisplayName = row["display_name"];
+		av_name.mSLID = row["slid"].asString();
+		av_name.mDisplayName = row["display_name"].asString();
 		av_name.mLastUpdate = now;
 
 		// HACK for pretty stars
@@ -100,13 +100,13 @@ void LLAvatarNameResponder::result(const LLSD& content)
 		if (av_name.mDisplayName.empty())
 		{
 			// make up a display name
-			std::string first_name = row["first_name"];
-			std::string last_name = row["last_name"];
+			std::string first_name = row["first_name"].asString();
+			std::string last_name = row["last_name"].asString();
 			av_name.mDisplayName =
 				LLCacheName::buildFullName(first_name, last_name);
 		}
 
-		LLUUID agent_id = row["agent_id"];
+		LLUUID agent_id = row["agent_id"].asUUID();
 		LLAvatarNameCache::sCache[agent_id] = av_name;
 
 		LLAvatarNameCache::sPendingQueue.erase(agent_id);
