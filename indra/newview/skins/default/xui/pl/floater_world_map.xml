@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="MAPA ŚWIATA">
+	<tab_container name="maptab">
+		<panel label="Obiekty" name="objects_mapview"/>
+		<panel label="Teren" name="terrain_mapview"/>
+	</tab_container>
+	<text name="you_label">
+		Ty
+	</text>
+	<icon left="1058" name="home"/>
+	<text name="home_label">
+		Start
+	</text>
+	<text name="auction_label">
+		Aukcja
+	</text>
+	<text name="land_for_sale_label">
+		Na Sprzedaż
+	</text>
+	<button width="122" left="1116" label="Teleportuj do Start" label_selected="Teleportuj do Start" name="Go Home" tool_tip="Teleportuj się do miejsca startowego"/>
+	<check_box label="Rezydent" name="people_chk"/>
+	<check_box label="Infohub" name="infohub_chk"/>
+	<check_box label="Telehub" name="telehubchk"/>
+	<check_box label="Posiadłość na &#10;sprzedaż" name="land_for_sale_chk"/>
+	<text name="events_label">
+		Wydarzenia:
+	</text>
+	<check_box label="&apos;PG&apos;" name="event_chk"/>
+	<check_box label="&apos;Mature&apos;" name="event_mature_chk"/>
+	<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
+	<icon bottom="-196" name="avatar_icon"/>
+	<combo_box label="Dostępni Znajomi" name="friend combo" tool_tip="Znajomi na mapie">
+		<combo_box.item name="item1" label="Dostępni Znajomi" />
+	</combo_box>
+	<combo_box label="Zapisane Miejsca" name="landmark combo" tool_tip="Zapisane miejsca na mapie">
+		<combo_box.item name="item1" label="Zapisane Miejsca" />
+	</combo_box>
+	<line_editor label="Szukaj po nazwie regionu" name="location" tool_tip="Wpisz nazwę regionu"/>
+	<button label="Szukaj" name="DoSearch" tool_tip="Wyszukiwaie regionu"/>
+	<text name="search_label">
+		Wyniki wyszukiwania:
+	</text>
+	<scroll_list name="search_results" bottom_delta="-310" height="304" >
+		<column label="" name="icon"/>
+		<column label="" name="sim_name"/>
+	</scroll_list>
+	<text name="location_label">
+		Położenie:
+	</text>
+	<spinner name="spin x" tool_tip="współrzędne X na mapie"/>
+	<spinner name="spin y" tool_tip="współrzędne Y na mapie"/>
+	<spinner name="spin z" tool_tip="współrzędne Z na mapie"/>
+	<button label="Teleportuj" label_selected="Teleportuj" name="Teleport" tool_tip="Teleportuj do wybranego miejsca"/>
+	<button label="Pokaż Cel" label_selected="Pokaż Cel" name="Show Destination" tool_tip="Wycentruj miejsce celu na mapie"/>
+	<button label="Wyczyść" label_selected="Wyczyść" name="Clear" tool_tip="Stop tracking"/>
+	<button label="Pokaż moje miejsce" label_selected="Pokaż moje miejsce" name="Show My Location" tool_tip="Wycentruj pozcję awatara na mapie"/>
+	<button label="Kopiuj SLurl do schowka" name="copy_slurl" tool_tip="Kopie SLurl obecnego miejsca będę mogły zostać użyte na stronie internetowej."/>
+	<slider label="Skala" name="zoom slider"/>
+</floater>

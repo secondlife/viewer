@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="all"
+ height="347"
+ layout="topleft"
+ left="280"
+ name="groups"
+ top="24"
+ width="350">
+    <scroll_list
+     bottom="302"
+     follows="left|top|right|bottom"
+     layout="topleft"
+     left="10"
+     name="group list"
+     top="10"
+     width="240">
+        <scroll_list.columns
+         label=""
+         name="name"
+         width="248" />
+    </scroll_list>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="16"
+     layout="topleft"
+     left_delta="2"
+     mouse_opaque="false"
+     name="groupdesc"
+     top_pad="7"
+     width="248">
+        Your currently active group is displayed in bold.
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     mouse_opaque="false"
+     name="groupcount"
+     top_pad="1"
+     width="248">
+        You belong to [COUNT] groups (of [MAX] maximum).
+    </text>
+    <locate
+     height="0"
+     layout="topleft"
+     left="-90"
+     top="7"
+     width="1" />
+    <button
+     follows="top|right"
+     height="22"
+     label="IM/Call"
+     layout="topleft"
+     left_delta="0"
+     name="IM"
+     tool_tip="Open Instant Message session"
+     top_pad="3"
+     width="80" />
+    <button
+     follows="top|right"
+     height="22"
+     label="Info"
+     layout="topleft"
+     left_delta="0"
+     name="Info"
+     top_pad="3"
+     width="80" />
+    <button
+     follows="top|right"
+     height="22"
+     label="Activate"
+     layout="topleft"
+     left_delta="0"
+     name="Activate"
+     top_pad="3"
+     width="80" />
+    <button
+     follows="top|right"
+     height="22"
+     label="Leave"
+     layout="topleft"
+     left_delta="0"
+     name="Leave"
+     top_pad="3"
+     width="80" />
+    <button
+     follows="top|right"
+     height="22"
+     label="Create..."
+     layout="topleft"
+     left_delta="0"
+     name="Create"
+     top_pad="13"
+     width="80" />
+    <button
+     follows="top|right"
+     height="22"
+     label="Search..."
+     layout="topleft"
+     left_delta="0"
+     name="Search..."
+     top_pad="3"
+     width="80" />
+</panel>

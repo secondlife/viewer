@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="着用可能なもの" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		シェイプを編集中
+	</string>
+	<string name="edit_skin_title">
+		スキンを編集中
+	</string>
+	<string name="edit_hair_title">
+		髪を編集中
+	</string>
+	<string name="edit_eyes_title">
+		目を編集中
+	</string>
+	<string name="edit_shirt_title">
+		シャツを編集中
+	</string>
+	<string name="edit_pants_title">
+		パンツを編集中
+	</string>
+	<string name="edit_shoes_title">
+		靴を編集中
+	</string>
+	<string name="edit_socks_title">
+		靴下を編集中
+	</string>
+	<string name="edit_jacket_title">
+		ジャケットを編集中
+	</string>
+	<string name="edit_skirt_title">
+		スカートを編集中
+	</string>
+	<string name="edit_gloves_title">
+		手袋を編集中
+	</string>
+	<string name="edit_undershirt_title">
+		下着（上）を編集中
+	</string>
+	<string name="edit_underpants_title">
+		下着（下）を編集中
+	</string>
+	<string name="edit_alpha_title">
+		アルファマスクを編集中
+	</string>
+	<string name="edit_tattoo_title">
+		タトゥーを編集中
+	</string>
+	<string name="shape_desc_text">
+		シェイプ：
+	</string>
+	<string name="skin_desc_text">
+		スキン：
+	</string>
+	<string name="hair_desc_text">
+		髪：
+	</string>
+	<string name="eyes_desc_text">
+		目：
+	</string>
+	<string name="shirt_desc_text">
+		シャツ：
+	</string>
+	<string name="pants_desc_text">
+		パンツ：
+	</string>
+	<string name="shoes_desc_text">
+		靴：
+	</string>
+	<string name="socks_desc_text">
+		靴下：
+	</string>
+	<string name="jacket_desc_text">
+		ジャケット：
+	</string>
+	<string name="skirt_skirt_desc_text">
+		スカート：
+	</string>
+	<string name="gloves_desc_text">
+		手袋：
+	</string>
+	<string name="undershirt_desc_text">
+		下着シャツ：
+	</string>
+	<string name="underpants_desc_text">
+		下着パンツ：
+	</string>
+	<string name="alpha_desc_text">
+		アルファマスク：
+	</string>
+	<string name="tattoo_desc_text">
+		タトゥ：
+	</string>
+	<text name="edit_wearable_title" value="シェイプを編集中"/>
+	<panel label="シャツ" name="wearable_type_panel">
+		<text name="description_text" value="シェイプ："/>
+	</panel>
+	<panel name="button_panel">
+		<button label="別名で保存" name="save_as_button"/>
+		<button label="元に戻す" name="revert_button"/>
+	</panel>
+</panel>

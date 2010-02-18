@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="move_floater">
+	<string name="walk_forward_tooltip">
+		Cammina in avanti (premi Freccia Sù o W)
+	</string>
+	<string name="walk_back_tooltip">
+		Cammina indietro (premi Freccia Giù o S)
+	</string>
+	<string name="run_forward_tooltip">
+		Corri in avanti (premi Freccia Sù o W)
+	</string>
+	<string name="run_back_tooltip">
+		Corri indietro (premi Freccia Giù o S)
+	</string>
+	<string name="fly_forward_tooltip">
+		Vola in avanti (premi Freccia Sù o W)
+	</string>
+	<string name="fly_back_tooltip">
+		Vola indietro (premi Freccia Giù o S)
+	</string>
+	<panel name="panel_actions">
+		<button label="" label_selected="" name="turn left btn" tool_tip="Gira a sinistra (premi Freccia Sinistra o A)"/>
+		<button label="" label_selected="" name="turn right btn" tool_tip="Gira a destra (premi Freccia Destra o D)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Vola in alto, premi &quot;E&quot;"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Vola in basso, premi &quot;C&quot;"/>
+		<joystick_turn name="forward btn" tool_tip="Cammina in avanti (premi Freccia Sù o W)"/>
+		<joystick_turn name="backward btn" tool_tip="Cammina indietro (premi Freccia Giù o S)"/>
+	</panel>
+	<panel name="panel_modes">
+		<button label="" name="mode_walk_btn" tool_tip="Modalità per camminare"/>
+		<button label="" name="mode_run_btn" tool_tip="Modalità per correre"/>
+		<button label="" name="mode_fly_btn" tool_tip="Modalità di volo"/>
+		<button label="Ferma il volo" name="stop_fly_btn" tool_tip="Ferma il volo"/>
+	</panel>
+</floater>

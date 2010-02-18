@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Vertrag" name="Covenant">
+	<text name="estate_section_lbl">
+		Grundstück
+	</text>
+	<text name="estate_name_lbl">
+		Name:
+	</text>
+	<text name="estate_name_text">
+		Mainland
+	</text>
+	<text name="estate_owner_lbl">
+		Eigentümer:
+	</text>
+	<text name="estate_owner_text">
+		(keiner)
+	</text>
+	<text name="estate_cov_lbl">
+		Vertrag:
+	</text>
+	<text name="covenant_timestamp_text" width="320">
+		Letzte Änderung am Mittwoch, den 31. Dez. 1969, 16:00:00
+	</text>
+	<button label="?" name="covenant_help"/>
+	<text_editor bottom="-247" height="162" name="covenant_editor">
+		Für dieses Grundstück fehlt der Vertrag.
+	</text_editor>
+	<button label="Zurücksetzen" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Änderungen am Vertrag werden für alle Parzellen auf dem 
+Grundstück übernommen.
+	</text>
+	<text bottom_delta="-36" name="covenant_instructions">
+		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für dieses Grundstück zu ändern.
+	</text>
+	<text bottom_delta="-36" name="region_section_lbl">
+		Region
+	</text>
+	<text name="region_name_lbl">
+		Name:
+	</text>
+	<text name="region_name_text">
+		Erica
+	</text>
+	<text name="region_landtype_lbl">
+		Typ:
+	</text>
+	<text name="region_landtype_text">
+		Mainland / Homestead
+	</text>
+	<text name="region_maturity_lbl">
+		Einstufung:
+	</text>
+	<text name="region_maturity_text">
+		Adult
+	</text>
+	<text name="resellable_lbl">
+		Wiederverkauf:
+	</text>
+	<text name="resellable_clause">
+		Land in dieser Region kann nicht wiederverkauft werden.
+	</text>
+	<text name="changeable_lbl">
+		Unterteilen:
+	</text>
+	<text name="changeable_clause" width="366">
+		Land in dieser Region kann nicht zusammengelegt/geteilt werden.
+	</text>
+	<string name="can_resell">
+		Gekauftes Land in dieser Region kann wiederverkauft werden.
+	</string>
+	<string name="can_not_resell">
+		Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
+	</string>
+	<string name="can_change">
+		Gekauftes Land in dieser Region kann zusammengelegt und
+geteilt werden.
+	</string>
+	<string name="can_not_change">
+		Gekauftes Land in dieser Region kann nicht zusammengelegt
+und geteilt werden.
+	</string>
+</panel>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+  bg_opaque_color="InventoryBackgroundColor"
+  background_visible="true"
+  background_opaque="true"
+  />

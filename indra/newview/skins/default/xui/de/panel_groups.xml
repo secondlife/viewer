@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="groups">
+	<text name="groupdesc" width="300">
+		Die derzeit aktive Gruppe ist fett hervorgehoben.
+	</text>
+	<text name="groupcount" width="360">
+		Sie sind Mitglied bei [COUNT] Gruppen (von max. [MAX]).
+	</text>
+	<button label="IM/Anruf" name="IM" tool_tip="Beginnt eine Instant Message-Sitzung" />
+	<button label="Info" name="Info" />
+	<button label="Aktivieren" name="Activate" />
+	<button label="Verlassen" name="Leave" />
+	<button label="Erstellen..." name="Create" />
+	<button label="Suchen..." name="Search..." />
+</panel>

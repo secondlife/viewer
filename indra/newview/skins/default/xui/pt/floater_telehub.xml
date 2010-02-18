@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater height="310" min_height="310" name="telehub" title="TELEHUB" width="286">
+	<text name="status_text_connected">
+		Telehub conectado ao objeto [OBJECT]
+	</text>
+	<text name="status_text_not_connected">
+		Sem telehub conectado.
+	</text>
+	<text name="help_text_connected">
+		Para remover, clique em Desconectar.
+	</text>
+	<text name="help_text_not_connected">
+		Selecione um objeto e clique em Conectar Telehub.
+	</text>
+	<button label="Conectar Telehub" name="connect_btn"/>
+	<button label="Desconectar" name="disconnect_btn"/>
+	<text name="spawn_points_text" width="265">
+		Pontos de Nascimento (posições, não objetos):
+	</text>
+	<scroll_list name="spawn_points_list" width="265"/>
+	<button label="Adicionar Nascimento" name="add_spawn_point_btn" width="135"/>
+	<button label="Remover Nascimento" left="150" name="remove_spawn_point_btn" width="130"/>
+	<text name="spawn_point_help">
+		Selecione o objeto e clique em &apos;Adicionar spawn&apos; para especificar a posição. 
+O objeto pode ser excluído ou movido posteriormente. 
+As posições são definidas em relação ao centro do telehub. 
+Selecione um item da lista para realçá-lo inworld.
+	</text>
+</floater>

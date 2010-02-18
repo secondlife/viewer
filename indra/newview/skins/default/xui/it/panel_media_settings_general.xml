@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Generale" name="Media Settings General">
+	<text name="home_label">
+		Home Page:
+	</text>
+	<text name="home_fails_whitelist_label">
+		(Questa pagina non passa la lista bianca specifica)
+	</text>
+	<line_editor name="home_url" tool_tip="La home page per questa fonte media"/>
+	<text name="preview_label">
+		Anteprima
+	</text>
+	<text name="current_url_label">
+		Pagina attuale:
+	</text>
+	<text name="current_url" tool_tip="La pagina attuale per questa fonte media" value=""/>
+	<button label="Resetta" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="Auto Loop" name="auto_loop"/>
+	<check_box initial_value="false" label="Primo Click Interagisce" name="first_click_interact"/>
+	<check_box initial_value="false" label="Auto Zoom" name="auto_zoom"/>
+	<check_box initial_value="false" label="Auto Play Media" name="auto_play"/>
+	<text name="media_setting_note">
+		Nota: I Residenti possono annullare questa impostazione
+	</text>
+	<check_box initial_value="false" label="Auto Scale Media on Face of Object" name="auto_scale"/>
+	<text name="size_label">
+		Misura:
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

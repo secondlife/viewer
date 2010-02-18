@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="100"
+ layout="topleft"
+ name="notifications_panel"
+ translate="false"
+ width="100">
+    <layout_stack
+     follows="left|right|top|bottom"
+     height="78"
+     layout="topleft"
+     left="0"
+     name="stack1"
+     orientation="horizontal"
+     top="20"
+     width="100">
+        <scroll_list
+         draw_heading="true"
+         follows="left|right|top|bottom"
+         height="78"
+         layout="topleft"
+         left="0"
+         name="notifications_list"
+         sort_ascending="false"
+         sort_column="2"
+         top="-78"
+         user_resize="true"
+         width="100">
+            <scroll_list.columns
+             label="Name"
+             name="name"
+             width="100" />
+            <scroll_list.columns
+             label="Content"
+             name="content"
+             width="150" />
+            <scroll_list.columns
+             label="Date"
+             name="date"
+             width="150" />
+        </scroll_list>
+        <scroll_list
+         draw_heading="true"
+         follows="left|right|top|bottom"
+         height="78"
+         layout="topleft"
+         left="0"
+         name="notification_rejects_list"
+         sort_ascending="false"
+         sort_column="2"
+         top="-78"
+         user_resize="true"
+         width="100">
+            <scroll_list.columns
+             label="Name"
+             name="name"
+             width="100" />
+            <scroll_list.columns
+             label="Content"
+             name="content"
+             width="150" />
+            <scroll_list.columns
+             label="Date"
+             name="date"
+             width="150" />
+        </scroll_list>
+    </layout_stack>
+    <button
+     follows="left|right|top"
+     height="20"
+     is_toggle="true"
+     layout="topleft"
+     left_delta="0"
+     name="header"
+     top_delta="-20"
+     width="100" />
+</panel>

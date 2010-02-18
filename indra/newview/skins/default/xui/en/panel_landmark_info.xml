@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="570"
+ layout="topleft"
+ left="0"
+ min_height="350"
+ name="landmark_info"
+ top="20"
+ width="330">
+    <string
+     name="title_create_landmark"
+     value="Create Landmark" />
+    <string
+     name="title_edit_landmark"
+     value="Edit Landmark" />
+    <string
+     name="title_landmark"
+     value="Landmark" />
+    <string
+     name="not_available"
+     value="(N\A)" />
+    <string
+     name="unknown"
+     value="(unknown)" />
+    <string
+     name="public"
+     value="(public)" />
+    <string
+     name="server_update_text">
+        Place information not available without server update.
+    </string>
+    <string
+     name="server_error_text">
+        Information about this location is unavailable at this time, please try again later.
+    </string>
+    <string
+     name="server_forbidden_text">
+        Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
+    </string>
+    <string
+     name="acquired_date">
+        [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+    </string>
+    <!-- Texture names for rating icons -->
+    <string
+     name="icon_PG"
+     value="Parcel_PG_Dark" />
+    <string
+     name="icon_M"
+     value="Parcel_M_Dark" />
+    <string
+     name="icon_R"
+     value="Parcel_R_Dark" />
+    <button
+     follows="top|right"
+     height="23"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     left="10"
+     name="back_btn"
+     tool_tip="Back"
+     tab_stop="false"
+     top="0"
+     width="23" />
+    <text
+     follows="top|left|right"
+     font="SansSerifHugeBold"
+     height="26"
+     layout="topleft"
+     left_pad="10"
+     name="title"
+     text_color="LtGray"
+     top="0"
+     use_ellipses="true"
+     value="Place Profile"
+     width="275" />
+    <scroll_container
+     color="DkGray2"
+     follows="all"
+     height="533"
+     layout="topleft"
+     left="10"
+     name="place_scroll"
+     opaque="true"
+     top_pad="5"
+     width="313">
+        <panel
+         bg_alpha_color="DkGray2"
+         follows="left|top|right"
+         height="610"
+         layout="topleft"
+         left="0"
+         min_height="300"
+         name="scrolling_panel"
+         top="0"
+         width="313">
+            <texture_picker
+             enabled="false"
+             follows="top|left"
+             height="190"
+             layout="topleft"
+             left="10"
+             name="logo"
+             top="10"
+             width="290" />
+            <text
+             follows="left|top|right"
+             font="SansSerifLarge"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="region_title"
+             text_color="white"
+             top_pad="5"
+             use_ellipses="true"
+             value="SampleRegion"
+             width="290" />
+            <text
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="parcel_title"
+             top_pad="4"
+             use_ellipses="true"
+             value="SampleParcel, Name Long (145, 228, 26)"
+             width="285" />
+            <expandable_text
+             follows="left|top|right"
+             height="50"
+             layout="topleft"
+             left="5"
+             name="description"
+             top_pad="10"
+             value="Du waltz die spritz"
+             width="300" />
+            <icon
+             follows="top|left"
+             height="16"
+             image_name="unknown"
+             layout="topleft"
+             left="10"
+             name="maturity_icon"
+             top_pad="10"
+             width="18" />
+            <text
+             follows="left|top|right"
+             height="16"
+             layout="topleft"
+             left_pad="8"
+             name="maturity_value"
+             top_delta="0"
+             value="unknown"
+             width="268" />
+            <panel
+             follows="left|top|right"
+             height="55"
+             layout="topleft"
+             left="10"
+             name="landmark_info_panel"
+             top_pad="10"
+             width="290">
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="owner_label"
+                 top_pad="10"
+                 value="Owner:"
+                 width="90" />
+                <text
+                 follows="left|top|right"
+                 height="15"
+                 layout="topleft"
+                 left="70"
+                 name="owner"
+                 top_delta="0"
+                 width="200" />
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="creator_label"
+                 value="Creator:"
+                 width="90" />
+                <text
+                 follows="left|top|right"
+                 height="15"
+                 layout="topleft"
+                 left="70"
+                 name="creator"
+                 top_delta="0"
+                 width="200" />
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="created_label"
+                 value="Created:"
+                 width="50" />
+                <text
+                 follows="left|top|right"
+                 height="15"
+                 layout="topleft"
+                 left="70"
+                 name="created"
+                 top_delta="0"
+                 width="200" />
+            </panel>
+            <panel
+             follows="left|top|right"
+             height="210"
+             layout="topleft"
+             left="10"
+             name="landmark_edit_panel"
+             width="290">
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="title_label"
+                 top_pad="10"
+                 value="Title:"
+                 width="290" />
+                <text
+                 allow_html="false"
+                 follows="left|top"
+                 height="22"
+                 layout="topleft"
+                 left="0"
+                 name="title_value"
+                 text_color="white"
+                 top_pad="5"
+                 use_ellipses="true"
+                 width="290" /> 
+                <line_editor
+                 follows="left|top|right"
+                 height="22"
+                 layout="topleft"
+                 left="0"
+                 max_length="63"
+                 name="title_editor"
+                 prevalidate_callback="ascii"
+                 text_readonly_color="white"
+                 top_delta="0"
+                 width="290" />
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="notes_label"
+                 top_pad="10"
+                 value="My notes:"
+                 width="290" />
+                <text_editor
+                 bg_readonly_color="DkGray2"
+                 follows="all"
+                 height="70"
+                 layout="topleft"
+                 left="0"
+                 max_length="127"
+                 name="notes_editor"
+                 read_only="true"
+                 text_readonly_color="white"
+                 text_type="ascii"
+                 top_pad="5"
+                 width="290"
+                 wrap="true" />
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="folder_label"
+                 top_pad="15"
+                 value="Landmark location:"
+                 width="290" />
+                <combo_box
+                 follows="bottom|left|right"
+                 height="20"
+                 layout="topleft"
+                 left="0"
+                 name="folder_combo"
+                 top_pad="5"
+                 width="200" />
+            </panel>
+        </panel>
+    </scroll_container>
+</panel>

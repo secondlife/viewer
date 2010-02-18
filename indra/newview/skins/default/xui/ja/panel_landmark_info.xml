@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="ランドマークを作成"/>
+	<string name="title_edit_landmark" value="ランドマークを編集"/>
+	<string name="title_landmark" value="ランドマーク"/>
+	<string name="not_available" value="（該当なし）"/>
+	<string name="unknown" value="（不明）"/>
+	<string name="public" value="（公開）"/>
+	<string name="server_update_text">
+		場所の情報はサーバーがアップデートされるまでご利用いただけません。
+	</string>
+	<string name="server_error_text">
+		この位置の情報は現在ご利用いただけません。あとでもう一度お試しください。
+	</string>
+	<string name="server_forbidden_text">
+		この位置の情報は、アクセス制限のためご利用いただけません。  許可については区画所有者にお問い合わせください。
+	</string>
+	<string name="acquired_date">
+		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</string>
+	<string name="icon_PG" value="parcel_drk_PG"/>
+	<string name="icon_M" value="parcel_drk_M"/>
+	<string name="icon_R" value="parcel_drk_R"/>
+	<button name="back_btn" tool_tip="戻る"/>
+	<text name="title" value="場所のプロフィール"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="SampleRegion"/>
+			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="maturity_value" value="不明"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="所有者："/>
+				<text name="creator_label" value="制作者："/>
+				<text name="created_label" value="制作日："/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="タイトル："/>
+				<text name="notes_label" value="メモ："/>
+				<text name="folder_label" value="ランドマークの位置："/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="258"
+ layout="topleft"
+ name="groups"
+ help_topic="groups"
+ title="GROUPS"
+ width="280">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="12"
+     name="groupdesc"
+     top="24"
+     width="248">
+        Choose a group:
+    </text>
+    <scroll_list
+     height="160"
+     layout="topleft"
+     left_delta="0"
+     name="group list"
+     top_pad="8"
+     width="248">
+        <scroll_list.columns
+         name="name"
+         width="248" />
+    </scroll_list>
+    <button
+     height="20"
+     label="OK"
+     label_selected="OK"
+     layout="topleft"
+     left_delta="0"
+     name="OK"
+     top_pad="8"
+     width="80" />
+    <button
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="8"
+     name="Cancel"
+     top_delta="0"
+     width="80" />
+</floater>

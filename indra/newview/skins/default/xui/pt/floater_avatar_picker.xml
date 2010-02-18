@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="285" name="avatarpicker" title="SELECIONE O RESIDENTE" width="285">
+	<floater.string name="not_found">
+		&apos;[TEXT]&apos; não encontrado
+	</floater.string>
+	<floater.string name="no_one_near">
+		Ninguém por perto
+	</floater.string>
+	<floater.string name="no_results">
+		Nenhum resultado
+	</floater.string>
+	<floater.string name="searching">
+		Buscando...
+	</floater.string>
+	<string label="Selecionar" label_selected="Selecionar" name="Select">
+		Selecionar
+	</string>
+	<string name="Close">
+		Fechar
+	</string>
+	<tab_container name="ResidentChooserTabs" width="275">
+		<panel label="Buscar" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Digite parte do nome de alguém:
+			</text>
+			<button label="OK" label_selected="OK" name="Find"/>
+		</panel>
+		<panel label="Amigos" name="FriendsPanel">
+			<text name="InstructSelectFriend">
+				Selecione alguém:
+			</text>
+		</panel>
+		<panel label="Próximo a Mim" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Selecione alguém por perto:
+			</text>
+			<slider bottom_delta="-36" label="Faixa" name="near_me_range"/>
+			<text name="meters">
+				Metros
+			</text>
+			<button font="SansSerifSmall" label="Atualizar Lista" label_selected="Atualizar Lista" left_delta="1" name="Refresh" width="115"/>
+			<scroll_list bottom_delta="-169" height="159" name="NearMe"/>
+		</panel>
+	</tab_container>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn"/>
+</floater>

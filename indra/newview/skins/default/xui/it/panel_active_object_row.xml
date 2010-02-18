@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_activeim_row">
+	<string name="unknown_obj">
+		Oggetto sconosciuto
+	</string>
+	<text name="object_name">
+		Oggetto senza nome
+	</text>
+</panel>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Regio" name="General">
+	<text name="region_text_lbl">
+		Regio:
+	</text>
+	<text name="region_text">
+		onbekend
+	</text>
+	<text name="version_channel_text_lbl">
+		Versie:
+	</text>
+	<text name="version_channel_text">
+		onbekend
+	</text>
+	<text name="region_type_lbl">
+		Type:
+	</text>
+	<text name="region_type">
+		onbekend
+	</text>
+	<check_box label="Blokkeer terreinbewerking" name="block_terraform_check"/>
+	<button label="?" name="terraform_help"/>
+	<check_box label="Blokkeer vliegen" name="block_fly_check"/>
+	<button label="?" name="fly_help"/>
+	<check_box label="Letsel toestaan" name="allow_damage_check"/>
+	<button label="?" name="damage_help"/>
+	<check_box label="Duwen Uitschakelen" name="restrict_pushobject"/>
+	<button label="?" name="restrict_pushobject_help"/>
+	<check_box label="Landverkoop toestaan" name="allow_land_resell_check"/>
+	<button label="?" name="land_resell_help"/>
+	<check_box label="Samenvoegen/opsplitsen land toestaan" name="allow_parcel_changes_check"/>
+	<button label="?" name="parcel_changes_help" left="240"/>
+	<check_box label="Blokkeer zichtbaarheid land in zoeken" name="block_parcel_search_check" tool_tip="Laat mensen deze regio en zijn percelen in zoekresultaten zien"/>
+	<button label="?" name="parcel_search_help" left="240"/>
+	<spinner label="Agent limiet" name="agent_limit_spin"/>
+	<button label="?" name="agent_limit_help"/>
+	<spinner label="Object bonus" name="object_bonus_spin"/>
+	<button label="?" name="object_bonus_help"/>
+	<text label="Volwassenheid" name="access_text">
+		Inhoudscategorie:
+	</text>
+	<combo_box label="Mature" name="access_combo">
+		<combo_box.item label="Adult" name="Adult"/>
+		<combo_box.item label="Mature" name="Mature"/>
+		<combo_box.item label="PG" name="PG"/>
+	</combo_box>
+	<button label="?" name="access_help"/>
+	<button label="Toepassen" name="apply_btn"/>
+	<button label="Teleport één gebruiker naar thuislocatie…" name="kick_btn"/>
+	<button label="Teleport alle gebruikers naar thuislocatie…" name="kick_all_btn"/>
+	<button label="Zend bericht naar regio…" name="im_btn"/>
+	<button label="Beheer telehub…" name="manage_telehub_btn"/>
+</panel>

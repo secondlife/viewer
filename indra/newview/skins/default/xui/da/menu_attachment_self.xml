@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Attachment Pie">
+	<menu_item_call label="Berør" name="Attachment Object Touch"/>
+	<menu_item_call label="Redigér" name="Edit..."/>
+	<menu_item_call label="Tag af" name="Detach"/>
+	<menu_item_call label="Smid" name="Drop"/>
+	<menu_item_call label="Stå op" name="Stand Up"/>
+	<menu_item_call label="Udseende" name="Appearance..."/>
+	<menu_item_call label="Venner" name="Friends..."/>
+	<menu_item_call label="Grupper" name="Groups..."/>
+	<menu_item_call label="Profil" name="Profile..."/>
+</context_menu>

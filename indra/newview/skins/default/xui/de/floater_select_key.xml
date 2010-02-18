@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container">
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<text name="Save item as:">
+		Eine Taste drücken, um die Auslösetaste zum Sprechen festzulegen.
+	</text>
+</floater>

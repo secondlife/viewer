@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="mute by name" title="名前でオブジェクトをブロック">
+	<text name="message">
+		オブジェクトをブロックします：
+	</text>
+	<line_editor name="object_name">
+		オブジェクト名
+	</line_editor>
+	<text name="note">
+		* ブロックされるのはオブジェクトの文字だけで、音はブロックされません。
+	</text>
+	<button label="OK" name="OK"/>
+	<button label="ｷｬﾝｾﾙ" name="Cancel"/>
+</floater>

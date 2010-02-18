@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ auto_tile="true"
+ can_resize="true"
+ height="563"
+ layout="topleft"
+ min_height="150"
+ min_width="240"
+ name="Inventory"
+ help_topic="inventory"
+ save_rect="true"
+ save_visibility="true"
+ single_instance="false"
+ title="MY INVENTORY"
+ width="467">
+    <floater.string
+     name="Title">
+        MY INVENTORY
+    </floater.string>
+    <floater.string
+     name="TitleFetching">
+        MY INVENTORY (Fetching [ITEM_COUNT] Items...) [FILTER]
+    </floater.string>
+    <floater.string
+     name="TitleCompleted">
+        MY INVENTORY ([ITEM_COUNT] Items) [FILTER]
+    </floater.string>
+    <floater.string
+     name="Fetched">
+        Fetched
+    </floater.string>
+    <panel
+     bottom="560"
+	 class="panel_main_inventory"
+	 filename="panel_main_inventory.xml"
+	 follows="all"
+	 layout="topleft"
+	 left="0"
+	 label="Inventory Panel"
+	 name="Inventory Panel"
+	 top="15"
+	 width="467" />
+</floater>

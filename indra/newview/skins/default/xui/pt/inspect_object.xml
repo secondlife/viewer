@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_object">
+	<string name="Creator">
+		Autor: [CREATOR]
+	</string>
+	<string name="CreatorAndOwner">
+		Autor: [CREATOR]
+Proprietário: [OWNER]
+	</string>
+	<string name="Price">
+		L$[AMOUNT]
+	</string>
+	<string name="PriceFree">
+		Grátis!
+	</string>
+	<string name="Touch">
+		Tocar
+	</string>
+	<string name="Sit">
+		Sentar
+	</string>
+	<button label="Comprar" name="buy_btn"/>
+	<button label="Pagar" name="pay_btn"/>
+	<button label="Pegar uma cópia" name="take_free_copy_btn"/>
+	<button label="Tocar" name="touch_btn"/>
+	<button label="Sentar" name="sit_btn"/>
+	<button label="Abrir" name="open_btn"/>
+	<icon name="secure_browsing" tool_tip="Navegação segura"/>
+	<button label="Mais" name="more_info_btn"/>
+</floater>

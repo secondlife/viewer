@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+bg_opaque_color="DkGray2"
+       background_visible="true"
+       background_opaque="true"
+ follows="all"
+ height="547"
+ label="Picks"
+ layout="topleft"
+ left="0"
+ name="panel_picks"
+ top="0"
+ width="313">
+ <string
+  name="no_picks"
+  value="No Picks" />
+ <string
+  name="no_classifieds"
+  value="No Classifieds" />
+ <text
+  type="string"
+  follows="all"
+  height="535"
+  layout="topleft"
+  left="6"
+  name="picks_panel_text"
+  wrap="true"
+  top="10"
+  width="313"/>
+ <accordion
+  fit_parent="true" 
+  follows="all"
+  height="470"
+  layout="topleft"
+  left="0"
+  name="accordion"
+  top="0"
+  single_expansion="true"
+  width="313">
+    <accordion_tab
+     can_resize="false"
+     layout="topleft"
+     height="235"
+     min_height="150"
+     name="tab_picks"
+     title="Picks"
+     visible="false">
+ <flat_list_view
+         color="DkGray2"
+         follows="all"
+         layout="topleft"
+         left="0"
+         name="picks_list"
+         opaque="true"
+         top="0"
+         width="313" />
+    </accordion_tab>
+    <accordion_tab
+     can_resize="false"
+     layout="topleft"
+     height="235"
+     name="tab_classifieds"
+     title="Classifieds"
+     visible="false">
+            <flat_list_view
+             color="DkGray2"
+             follows="all"
+             layout="topleft"
+             left="0"
+             name="classifieds_list"
+             opaque="true"
+             top="0"
+             width="313" />
+    </accordion_tab>
+ </accordion>
+   <panel
+bg_opaque_color="DkGray2"
+       background_visible="true"
+       background_opaque="true"
+         bevel_style="none"
+         enabled="false"
+         auto_resize="false"
+         follows="bottom"
+         left="1"
+         height="27"
+         label="bottom_panel"
+         layout="topleft"
+         name="edit_panel"
+         top_pad="-2"
+         width="313">
+            <button
+             enabled="false"
+             follows="bottom|left"
+             height="18"
+             image_selected="OptionsMenu_Press"
+             image_unselected="OptionsMenu_Off"
+              image_disabled="OptionsMenu_Disabled"
+             layout="topleft"
+             left="10"
+             name="gear_menu_btn"
+             top="9"
+             width="18" />
+            <button
+             follows="bottom|left"
+             height="18"
+             image_disabled="AddItem_Disabled"
+             image_selected="AddItem_Press"
+             image_unselected="AddItem_Off"
+             layout="topleft"
+             left_pad="15"
+             name="new_btn"
+             tool_tip="Create a new pick or classified at the current location"
+             top="9"
+             width="18" />
+            <button
+             follows="bottom|right"
+             height="18"
+             image_disabled="TrashItem_Disabled"
+             image_selected="TrashItem_Press"
+             image_unselected="TrashItem_Off"
+             layout="topleft"
+             name="trash_btn"
+             right="-10"
+             top="9"
+             width="18" />
+        </panel>
+        <panel
+ bg_opaque_color="DkGray"
+       background_visible="true"
+       background_opaque="true"
+         layout="topleft"
+         left="0"
+         height="40"
+         top="502"
+         name="buttons_cucks"
+         width="313">
+       <button
+         enabled="false"
+         follows="bottom|left"
+         height="23"
+         label="Info"
+         layout="topleft"
+         left="2"
+         name="info_btn"
+         tab_stop="false"
+         tool_tip="Show pick information"
+         top="5"
+         width="95" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         height="23"
+         label="Teleport"
+         layout="topleft"
+         left_pad="3"
+         name="teleport_btn"
+         tab_stop="false"
+         tool_tip="Teleport to the corresponding area"
+         width="117" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         height="23"
+         label="Map"
+         layout="topleft"
+         left_pad="3"
+         name="show_on_map_btn"
+         tab_stop="false"
+         tool_tip="Show the corresponding area on the World Map"
+         width="90" />
+        </panel>
+</panel>

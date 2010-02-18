@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="MemLeak" title="GEHEUGENLEK SIMULATIE">
+	<spinner label="Leksnelheid (bytes per frame):" name="leak_speed"/>
+	<spinner label="Max gelekt geheugen (MB):" name="max_leak"/>
+	<text name="total_leaked_label">
+		Huidig gelekt geheugen: [SIZE] KB
+	</text>
+	<text name="note_label_1">
+		[NOTE1]
+	</text>
+	<text name="note_label_2">
+		[NOTE2]
+	</text>
+	<button label="Start" name="start_btn"/>
+	<button label="Stop" name="stop_btn"/>
+	<button label="Vrijgeven" name="release_btn"/>
+	<button label="Sluiten" name="close_btn"/>
+</floater>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_skin_panel">
+	<panel name="avatar_skin_color_panel">
+		<texture_picker label="Hoved tatoveringer" name="Head Tattoos" tool_tip="Klik for at vælge et bilede"/>
+		<texture_picker label="Øvre tatoveringer" name="Upper Tattoos" tool_tip="Klik for at vælge et bilede"/>
+		<texture_picker label="Nedre tatoveringer" name="Lower Tattoos" tool_tip="Klik for at vælge et bilede"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="skin_color_tab" title="Hudfarve"/>
+		<accordion_tab name="skin_face_tab" title="Ansigtsdetaljer"/>
+		<accordion_tab name="skin_makeup_tab" title="Makeup"/>
+		<accordion_tab name="skin_body_tab" title="Kropsdetaljer"/>
+	</accordion>
+</panel>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray cannot show background because it is always
+	partially on screen to hold tab buttons. -->
+<side_tray name="sidebar">
+	<sidetray_tab description="Casa." name="sidebar_home" tab_title="Home">
+		<panel label="casa" name="panel_home"/>
+	</sidetray_tab>
+	<sidetray_tab description="Encontre seus amigos, contatos e pessoas nas proximidades." name="sidebar_people" tab_title="People">
+		<panel_container name="panel_container">
+			<panel label="Info de grupo" name="panel_group_info_sidetray"/>
+			<panel label="Residentes&amp; Objetos bloqueados" name="panel_block_list_sidetray"/>
+		</panel_container>
+	</sidetray_tab>
+	<sidetray_tab description="Encontre lugares para ir e lugares que você ja visitou." label="Lugares" name="sidebar_places" tab_title="Places">
+		<panel label="Lugares" name="panel_places"/>
+	</sidetray_tab>
+	<sidetray_tab description="Editar seu perfil público e destaques ." name="sidebar_me" tab_title="My Profile">
+		<panel label="Eu" name="panel_me"/>
+	</sidetray_tab>
+	<sidetray_tab description="Muda sua aparência e visual atual." name="sidebar_appearance" tab_title="My Appearance">
+		<panel label="Editar aparência" name="sidepanel_appearance"/>
+	</sidetray_tab>
+	<sidetray_tab description="Busca no seu inventário." name="sidebar_inventory" tab_title="My Inventory">
+		<panel label="Editar inventário" name="sidepanel_inventory"/>
+	</sidetray_tab>
+</side_tray>

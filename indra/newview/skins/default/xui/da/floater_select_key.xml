@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title="">
+	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
+	<text name="Save item as:">
+		Tryk på en taste for at sætte din &quot;Tale&quot; knap udløser.
+	</text>
+</floater>

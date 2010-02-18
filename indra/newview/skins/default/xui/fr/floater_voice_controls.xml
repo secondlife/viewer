@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_voice_controls" title="Contrôles vocaux">
+	<string name="title_nearby">
+		CHAT VOCAL PRÈS DE VOUS
+	</string>
+	<string name="title_group">
+		Appel de groupe avec [GROUP]
+	</string>
+	<string name="title_adhoc">
+		Téléconférence
+	</string>
+	<string name="title_peer_2_peer">
+		Appel avec [NAME]
+	</string>
+	<string name="no_one_near">
+		Il n&apos;y a personne près de vous avec le chat vocal activé
+	</string>
+	<layout_stack name="my_call_stack">
+		<layout_panel name="leave_call_btn_panel">
+			<button label="Quitter l&apos;appel" name="leave_call_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

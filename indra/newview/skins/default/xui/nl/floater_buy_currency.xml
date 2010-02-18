@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="KOOP VALUTA">
+	<text name="info_buying">
+		Valuta kopen
+	</text>
+	<text name="info_cannot_buy">
+		Kan nu niet kopen
+	</text>
+	<text name="info_need_more">
+		U heeft meer valuta nodig:
+	</text>
+	<text name="error_message">
+		Er klopt iets niet.
+	</text>
+	<button label="Ga naar website" name="error_web"/>
+	<text name="contacting">
+		Contact maken met Lindex…
+	</text>
+	<text name="buy_action_unknown">
+		Koop L$ op de LindeX valutabeurs
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
+	</text>
+	<text name="currency_action" width="48">
+		Koop L$
+	</text>
+	<line_editor name="currency_amt" left_delta="53" width="75">
+		1234
+	</line_editor>
+	<text name="currency_est" left_delta="80">
+		voor ong. [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Data ophalen…
+	</text>
+	<text name="balance_label">
+		U heeft momenteel
+	</text>
+	<text name="balance_amount">
+		L$ [AMT]
+	</text>
+	<text name="buying_label">
+		U koopt
+	</text>
+	<text name="buying_amount">
+		L$ [AMT]
+	</text>
+	<text name="total_label">
+		Uw saldo zal zijn:
+	</text>
+	<text name="total_amount">
+		L$ [AMT]
+	</text>
+	<text name="purchase_warning_repurchase" right="-8">
+		Het bevestigen van deze aankoop zal alleen de valuta
+kopen. U dient de bewerking opnieuw uit te voeren.
+	</text>
+	<text name="purchase_warning_notenough" right="-8">
+		U koopt niet voldoende valuta.
+Verhoog de hoeveelheid die gekocht moet worden.
+	</text>
+	<button label="Annuleren" name="cancel_btn"/>
+	<button label="Kopen" name="buy_btn"/>
+	<string name="buy_currency">
+		Koop L$ [LINDENS] voor ong. [LOCALAMOUNT]
+	</string>
+</floater>

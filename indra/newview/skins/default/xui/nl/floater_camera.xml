@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="camera_floater" title="">
+	<floater.string name="rotate_tooltip">
+		Roteer camera rond focus
+	</floater.string>
+	<floater.string name="zoom_tooltip">
+		Zoom camera naar focus
+	</floater.string>
+	<floater.string name="move_tooltip">
+		Beweeg camera omhoog en omlaag, links en rechts
+	</floater.string>
+	<panel name="controls">
+		<joystick_track name="cam_track_stick" tool_tip="Beweeg camera omhoog en omlaag, links en rechts"/>
+		<joystick_zoom name="zoom" tool_tip="Zoom camera naar focus"/>
+	</panel>
+</floater>

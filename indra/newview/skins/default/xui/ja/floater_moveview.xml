@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="move_floater">
+	<string name="walk_forward_tooltip">
+		前に進む（上矢印か W を押す）
+	</string>
+	<string name="walk_back_tooltip">
+		後ろに歩く（下矢印か S を押す）
+	</string>
+	<string name="run_forward_tooltip">
+		前に走る（上矢印か W を押す）
+	</string>
+	<string name="run_back_tooltip">
+		後ろに走る（下矢印か S を押す）
+	</string>
+	<string name="fly_forward_tooltip">
+		前に飛ぶ（上矢印か W を押す）
+	</string>
+	<string name="fly_back_tooltip">
+		後ろに飛ぶ（下矢印か S を押す）
+	</string>
+	<panel name="panel_actions">
+		<button label="" label_selected="" name="turn left btn" tool_tip="左を向く（左矢印か A を押す）"/>
+		<button label="" label_selected="" name="turn right btn" tool_tip="右を向く（右矢印か D を押す）"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="飛ぶ・E を押す"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="着地・C を押す"/>
+		<joystick_turn name="forward btn" tool_tip="前に進む（上矢印か W を押す）"/>
+		<joystick_turn name="backward btn" tool_tip="後ろに歩く（下矢印か S を押す）"/>
+	</panel>
+	<panel name="panel_modes">
+		<button label="" name="mode_walk_btn" tool_tip="歩行モード"/>
+		<button label="" name="mode_run_btn" tool_tip="走行モード"/>
+		<button label="" name="mode_fly_btn" tool_tip="飛行モード"/>
+		<button label="飛行停止" name="stop_fly_btn" tool_tip="飛行停止"/>
+	</panel>
+</floater>

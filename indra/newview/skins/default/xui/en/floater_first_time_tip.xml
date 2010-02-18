@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_close="true"
+ can_minimize="false"
+ height="250"
+ layout="topleft"
+ name="set_name_in_the_cladd"
+ help_topic="set_name_in_the_cladd"
+ save_rect="true"
+ width="300">
+    <check_box
+     height="20"
+     follows="left|bottom|right"
+     label="Turn off Quick Tips"
+     layout="topleft"
+     left="5"
+     name="DontShowFirstTimeTip_checkbox"
+     text_enabled_color="white"
+     top="225"
+     width="200" />
+</floater>

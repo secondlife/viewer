@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatar_texture_debug" title="AVATAR TEKSTURER">
+	<floater.string name="InvalidAvatar">
+		UGYLDING AVATAR
+	</floater.string>
+	<text name="composite_label">
+		Blandede teksturer
+	</text>
+	<button label="Drop" label_selected="Dump" name="Dump"/>
+	<texture_picker label="Hår" name="hair_grain"/>
+	<texture_picker label="Alpha - hår" name="hair_alpha"/>
+	<texture_picker label="Makeup" name="head_bodypaint"/>
+	<texture_picker label="Alpha - hoved" name="head_alpha"/>
+	<texture_picker label="Tatovering hovede" name="head_tattoo"/>
+	<texture_picker label="Øje" name="eyes_iris"/>
+	<texture_picker label="Alpha - øjne" name="eyes_alpha"/>
+	<texture_picker label="Bodypaint - overkrop" name="upper_bodypaint"/>
+	<texture_picker label="Undertrøje" name="upper_undershirt"/>
+	<texture_picker label="Handsker" name="upper_gloves"/>
+	<texture_picker label="Trøje" name="upper_shirt"/>
+	<texture_picker label="Øvre jakke" name="upper_jacket"/>
+	<texture_picker label="Alpha - øvre" name="upper_alpha"/>
+	<texture_picker label="Øvre tatovering" name="upper_tattoo"/>
+	<texture_picker label="Bodypaint - underkrop" name="lower_bodypaint"/>
+	<texture_picker label="Undertøj" name="lower_underpants"/>
+	<texture_picker label="Strømper" name="lower_socks"/>
+	<texture_picker label="Sko" name="lower_shoes"/>
+	<texture_picker label="Bukser" name="lower_pants"/>
+	<texture_picker label="Jakke" name="lower_jacket"/>
+	<texture_picker label="Alpha - nedre" name="lower_alpha"/>
+	<texture_picker label="Nedre tatovering" name="lower_tattoo"/>
+</floater>

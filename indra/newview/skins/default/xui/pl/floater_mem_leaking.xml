@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="MemLeak" title="SYMULACJA PRZECIEKÓW ALOKACJI PAMIĘCI">
+	<spinner label="Prędkość Przecieków (byty na klatkę):" name="leak_speed" />
+	<spinner label="Max Przecieki (MB):" name="max_leak" />
+	<text name="total_leaked_label">
+		Przeciekło: [SIZE] KB
+	</text>
+	<text name="note_label_1">
+		[NOTE1]
+	</text>
+	<text name="note_label_2">
+		[NOTE2]
+	</text>
+	<button label="Start" name="start_btn" />
+	<button label="Stop" name="stop_btn" />
+	<button label="Uwolnij" name="release_btn" />
+	<button label="Zamknij" name="close_btn" />
+</floater>

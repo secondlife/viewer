@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<multi_floater name="im_floater" title="Instant Message">
+	<string name="only_user_message">
+		Sie sind der einzige Benutzer in dieser Sitzung.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] ist offline.
+	</string>
+	<string name="invite_message">
+		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
+	</string>
+	<string name="muted_message">
+		Sie haben diesen Einwohner ignoriert. Wenn Sie eine Nachricht senden, wird dieser freigeschaltet.
+	</string>
+	<string name="generic_request_error">
+		Fehler bei Anfrage, bitte versuchen Sie es später.
+	</string>
+	<string name="insufficient_perms_error">
+		Sie sind dazu nicht berechtigt.
+	</string>
+	<string name="session_does_not_exist_error">
+		Die Sitzung ist abgelaufen
+	</string>
+	<string name="no_ability_error">
+		Sie besitzen diese Fähigkeit nicht.
+	</string>
+	<string name="not_a_mod_error">
+		Sie sind kein Sitzungsmoderator.
+	</string>
+	<string name="muted_error">
+		Ein Gruppenmoderator hat Ihren Text-Chat deaktiviert.
+	</string>
+	<!-- ALL of the event strings should have [RECIPIENT] in them -->
+	<string name="add_session_event">
+		Es konnten keine Benutzer zur Chat-Sitzung mit [RECIPIENT] hinzugefügt werden.
+	</string>
+	<string name="message_session_event">
+		Ihre Nachricht konnte nicht an die Chat-Sitzung mit [RECIPIENT] gesendet werden.
+	</string>
+	<string name="removed_from_group">
+		Sie wurden von der Gruppe ausgeschlossen.
+	</string>
+	<string name="close_on_no_ability">
+		Sie haben nicht mehr die Berechtigung an der Chat-Sitzung teilzunehmen.
+	</string>
+</multi_floater>

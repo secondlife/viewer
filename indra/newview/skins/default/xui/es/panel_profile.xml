@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Perfil" name="panel_profile">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=es-ES
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=es
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/my/account/index.php?lang=es-ES"/>
+	<string name="no_partner_text" value="Ninguno"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="second_life_image_panel">
+				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+			</panel>
+			<panel name="first_life_image_panel">
+				<text name="title_rw_descr_text" value="Mundo real:"/>
+			</panel>
+			<text name="me_homepage_text">
+				Web:
+			</text>
+			<text name="title_member_text" value="Miembro desde:"/>
+			<text name="title_acc_status_text" value="Estado de la cuenta:"/>
+			<text name="acc_status_text" value="Residente. No ha aportado información de pago."/>
+			<text name="title_partner_text" value="Compañero/a:"/>
+			<text name="title_groups_text" value="Grupos:"/>
+		</panel>
+	</scroll_container>
+	<panel name="profile_buttons_panel">
+		<button label="Añadir como amigo" name="add_friend" tool_tip="Ofrecer amistad al residente"/>
+		<button label="MI" name="im" tool_tip="Abrir un mensaje instantáneo"/>
+		<button label="Llamada" name="call" tool_tip="Llamar a este residente"/>
+		<button label="Mapa" name="show_on_map_btn" tool_tip="Ver al residente en el mapa"/>
+		<button label="Teleportarse" name="teleport" tool_tip="Ofrecer teleporte"/>
+		<button label="▼" name="overflow_btn" tool_tip="Pagar dinero o dar algo del inventario al residente"/>
+	</panel>
+	<panel name="profile_me_buttons_panel">
+		<button label="Editar el perfil" name="edit_profile_btn"/>
+		<button label="Modificar la apariencia" name="edit_appearance_btn"/>
+	</panel>
+</panel>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Post-Process Floater" title="AJUSTES DE PÓS-PROCESSAMENTO">
+	<tab_container name="Post-Process Tabs">
+		<panel label="Filtro de Cor" name="wmiColorFilterPanel">
+			<check_box label="Habilitar" name="wmiColorFilterToggle"/>
+			<text name="wmiColorFilterBrightnessText">
+				Brilho
+			</text>
+			<text name="wmiColorFilterSaturationText">
+				Saturação
+			</text>
+			<text name="wmiColorFilterContrastText">
+				Contraste
+			</text>
+			<text name="wmiColorFilterBaseText">
+				Cor Base do Contraste
+			</text>
+			<slider label="R" name="wmiColorFilterBaseR"/>
+			<slider label="G" name="wmiColorFilterBaseG"/>
+			<slider label="B" name="wmiColorFilterBaseB"/>
+			<slider label="I" name="wmiColorFilterBaseI"/>
+		</panel>
+		<panel label="visão Noturna" name="wmiNightVisionPanel">
+			<check_box label="Habilitar" name="wmiNightVisionToggle"/>
+			<text name="wmiNightVisionBrightMultText">
+				Múltiplo de Amplificação de Luz
+			</text>
+			<text name="wmiNightVisionNoiseSizeText">
+				Tamanho de Ruído
+			</text>
+			<text name="wmiNightVisionNoiseStrengthText">
+				Intensidade de Ruído
+			</text>
+		</panel>
+		<panel label="Florescência" name="wmiBloomPanel">
+			<check_box label="Habilitar" name="wmiBloomToggle"/>
+			<text name="wmiBloomExtractText">
+				Extração de Luminosidade
+			</text>
+			<text name="wmiBloomSizeText">
+				Tamanho da florescência
+			</text>
+			<text name="wmiBloomStrengthText">
+				Inensidade da florescência
+			</text>
+		</panel>
+		<panel label="Extras" name="Extras">
+			<button label="CarregaEfeito" label_selected="CarregaEfeito" name="PPLoadEffect"/>
+			<button label="SalvaEfeito" label_selected="SalvaEfeito" name="PPSaveEffect"/>
+			<line_editor label="Nome do Efeito" name="PPEffectNameEditor"/>
+		</panel>
+	</tab_container>
+</floater>

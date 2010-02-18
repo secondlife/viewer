@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="VÆLG: TEKSTUR">
+	<string name="choose_picture">
+		Klik for at vælge et billede
+	</string>
+	<text name="Multiple">
+		Flere teksturer
+	</text>
+	<text name="unknown">
+		Størrelse: [DIMENSIONS]
+	</text>
+	<button label="Standard" label_selected="Standard" name="Default"/>
+	<button label="Ingen" label_selected="Ingen" name="None"/>
+	<button label="Blank" label_selected="Blank" name="Blank"/>
+	<check_box label="Vis mapper" name="show_folders_check"/>
+	<search_editor label="Filtrér teksturer" name="inventory search editor"/>
+	<check_box label="Benyt ny" name="apply_immediate_check"/>
+	<button label="" label_selected="" name="Pipette"/>
+	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
+	<button label="Ok" label_selected="Ok" name="Select"/>
+	<string name="pick title">
+		Vælg:
+	</string>
+</floater>

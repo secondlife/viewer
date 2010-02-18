@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="objectcontents" title="OBJEKT INDHOLD">
+	<text name="object_name">
+		[DESC]:
+	</text>
+	<button label="Kopiér til beholdning" label_selected="Kopiér til beholdning" name="copy_to_inventory_button"/>
+	<button label="Kopiér og tag på" label_selected="Kopiér og tag på" name="copy_and_wear_button"/>
+</floater>

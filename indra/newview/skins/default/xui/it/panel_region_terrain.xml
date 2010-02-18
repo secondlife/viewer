@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Terreno" name="Terrain">
+	<text name="region_text_lbl">
+		Regione:
+	</text>
+	<text name="region_text">
+		sconosciuto
+	</text>
+	<spinner label="Altezza dell&apos;acqua" name="water_height_spin"/>
+	<button label="?" name="water_height_help"/>
+	<spinner label="Limite di altezza del &#10;terreno" name="terrain_raise_spin"/>
+	<button label="?" name="terrain_raise_help"/>
+	<spinner label="Limite di abbassamento &#10;del terreno" name="terrain_lower_spin" bottom_delta="-34"/>
+	<button label="?" name="terrain_lower_help"/>
+	<check_box label="Usa il sole della regione" name="use_estate_sun_check"/>
+	<button label="?" name="use_estate_sun_help"/>
+	<check_box label="Sole fisso" name="fixed_sun_check"/>
+	<button label="?" name="fixed_sun_help"/>
+	<slider label="Fase" name="sun_hour_slider"/>
+	<button label="Applica" name="apply_btn"/>
+	<button label="Scarica terreno RAW..." name="download_raw_btn" tool_tip="Disponibile solo per i proprietari del terreno, non per i manager"/>
+	<button label="?" name="download_raw_help"/>
+	<button label="Carica terreno RAW..." name="upload_raw_btn" tool_tip="Disponibile solo per i proprietari del terreno, non per i manager"/>
+	<button label="?" name="upload_raw_help"/>
+	<button width="170" label="Trasforma il terreno" name="bake_terrain_btn" tool_tip="Imposta il terreno corrente come punto medio per i limiti di innalzamento/abbassamento"/>
+	<button left="190" label="?" name="bake_terrain_help"/>
+</panel>

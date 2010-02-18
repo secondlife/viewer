@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Sound Preview" title="SOUND.WAV">
+	<text name="name_label">
+		名前：
+	</text>
+	<text name="description_label">
+		説明：
+	</text>
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
+	<button label="アップロード　（L$[AMOUNT]）" label_selected="アップロード　（L$[AMOUNT]）" name="ok_btn"/>
+	<text name="text">
+		ビットレート(kbps)：
+	</text>
+	<radio_group name="bitrate">
+		<radio_item label="32" name="32"/>
+		<radio_item label="64" name="64"/>
+		<radio_item label="96" name="96"/>
+		<radio_item label="128" name="128"/>
+	</radio_group>
+</floater>

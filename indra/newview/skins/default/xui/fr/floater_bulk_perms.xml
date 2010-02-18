@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floaterbulkperms" title="MODIFIER LES DROITS RELATIFS AU CONTENU">
+	<floater.string name="nothing_to_modify_text">
+		La sélection contient des contenus non modifiables.
+	</floater.string>
+	<floater.string name="status_text">
+		Permissions paramétrées sur [NAME]
+	</floater.string>
+	<floater.string name="start_text">
+		Demande de changement des droits lancée...
+	</floater.string>
+	<floater.string name="done_text">
+		Demande de changement des droits finie.
+	</floater.string>
+	<check_box label="Animation" name="check_animation"/>
+	<icon name="icon_animation" tool_tip="Animation"/>
+	<check_box label="Parties du corps" name="check_bodypart"/>
+	<icon name="icon_bodypart" tool_tip="Parties du corps"/>
+	<check_box label="Habits" name="check_clothing"/>
+	<icon name="icon_clothing" tool_tip="Habits"/>
+	<check_box label="Gestes" name="check_gesture"/>
+	<icon name="icon_gesture" tool_tip="Gestes"/>
+	<check_box label="Notes" name="check_notecard"/>
+	<icon name="icon_notecard" tool_tip="Notes"/>
+	<check_box label="Objets" name="check_object"/>
+	<icon name="icon_object" tool_tip="Objets"/>
+	<check_box label="Scripts" name="check_script"/>
+	<icon name="icon_script" tool_tip="Scripts"/>
+	<check_box label="Sons" name="check_sound"/>
+	<icon name="icon_sound" tool_tip="Sons"/>
+	<check_box label="Textures" name="check_texture"/>
+	<icon name="icon_texture" tool_tip="Textures"/>
+	<button label="√ Tout" label_selected="Tout" name="check_all"/>
+	<button label="Effacer" label_selected="Aucun" name="check_none"/>
+	<text name="newperms">
+		Nouvelles permissions
+	</text>
+	<text name="GroupLabel">
+		Groupe :
+	</text>
+	<check_box label="Partager" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		N&apos;importe qui :
+	</text>
+	<check_box label="Copier" name="everyone_copy"/>
+	<text name="NextOwnerLabel">
+		Le prochain propriétaire :
+	</text>
+	<check_box label="Modifier" name="next_owner_modify"/>
+	<check_box label="Copier" name="next_owner_copy"/>
+	<check_box initial_value="true" label="Transférer" name="next_owner_transfer" tool_tip="Le prochain propriétaire peut donner ou revendre cet objet"/>
+	<button label="OK" name="apply"/>
+	<button label="Annuler" name="close"/>
+</floater>

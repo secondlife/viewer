@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="INICIAR VENDA DE TERRENO LINDEN START">
+	<floater.string name="already for sale">
+		Você não pode leiloar terrenos que já estão configurados para venda.
+	</floater.string>
+	<check_box initial_value="true" label="Incluir marcador de seleção amarelo" name="fence_check"/>
+	<button label="Foto" label_selected="Foto" name="snapshot_btn"/>
+	<button label="Vender a qualquer um" label_selected="Vender a qualquer um" name="sell_to_anyone_btn"/>
+	<button label="Clear Settings" label_selected="Limpar configurações" name="reset_parcel_btn"/>
+	<button label="Iniciar Leilão" label_selected="Iniciar Leilão" name="start_auction_btn"/>
+</floater>

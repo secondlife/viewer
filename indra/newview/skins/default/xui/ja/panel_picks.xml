@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="ピック" name="panel_picks">
+	<string name="no_picks" value="ピックなし"/>
+	<string name="no_classifieds" value="クラシファイド広告なし"/>
+	<accordion name="accordion">
+		<accordion_tab name="tab_picks" title="ピック"/>
+		<accordion_tab name="tab_classifieds" title="クラシファイド広告"/>
+	</accordion>
+	<panel label="bottom_panel" name="edit_panel">
+		<button name="new_btn" tool_tip="現在地の新しいピック、またはクラシファイド広告を作成します"/>
+	</panel>
+	<panel name="buttons_cucks">
+		<button label="情報" name="info_btn" tool_tip="ピックの情報を表示します"/>
+		<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートします"/>
+		<button label="地図" name="show_on_map_btn" tool_tip="世界地図に該当するエリアを表示します"/>
+	</panel>
+</panel>

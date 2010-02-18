@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="一般" name="general_tab">
+	<panel.string name="help_text">
+		「一般」タブには、メンバー一覧、設定、メンバーのオプションなど、このグループに関する一般的な情報が記されています。
+
+オプションにマウスカーソルを当てると詳しい説明が表示されます。
+	</panel.string>
+	<panel.string name="group_info_unchanged">
+		一般的なグループ情報が変更されました。
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		メンバーのデータを検索
+	</panel.string>
+	<panel name="group_info_top">
+		<texture_picker label="" name="insignia" tool_tip="クリックして写真を選択します"/>
+		<text name="prepend_founded_by">
+			創始者：
+		</text>
+		<name_box initial_value="（取得中）" name="founder_name"/>
+		<text name="join_cost_text">
+			無料
+		</text>
+		<button label="参加します！" name="btn_join"/>
+	</panel>
+	<text_editor name="charter">
+		グループの理念、指針を記入してください
+	</text_editor>
+	<name_list name="visible_members">
+		<name_list.columns label="メンバー" name="name"/>
+		<name_list.columns label="タイトル" name="title"/>
+		<name_list.columns label="ログイン" name="status"/>
+	</name_list>
+	<text name="my_group_settngs_label">
+		個人の設定
+	</text>
+	<text name="active_title_label">
+		私のタイトル：
+	</text>
+	<combo_box name="active_title" tool_tip="このグループをアクティブにしたときに、アバター名の上に表示されるタイトルを設定します。"/>
+	<check_box label="グループ通知を受信" name="receive_notices" tool_tip="このグループからの通知を受信するかどうかの設定を行います。  グループからスパムが送られてくる場合はこのボックスのチェックを外してください。"/>
+	<check_box label="プロフィールに表示" name="list_groups_in_profile" tool_tip="あなたのプロフィールにこのグループを表示するかどうかの設定を行います。"/>
+	<panel name="preferences_container">
+		<text name="group_settngs_label">
+			グループの設定
+		</text>
+		<check_box label="誰でも入会できます" name="open_enrollement" tool_tip="招待されなくても新規メンバーが加入できるかどうかを設定します。"/>
+		<check_box label="入会費がかかります" name="check_enrollment_fee" tool_tip="入会費が必要かどうかを設定します。"/>
+		<spinner label="L$" name="spin_enrollment_fee" tool_tip="「入会費」にチェックが入っている場合、新規メンバーは指定された入会費を支払わなければグループに入れません。"/>
+		<combo_box name="group_mature_check" tool_tip="あなたのグループに「控えめ」にレート設定された情報があるかどうかを設定します">
+			<combo_box.item label="一般コンテンツ" name="pg"/>
+			<combo_box.item label="控えめコンテンツ" name="mature"/>
+		</combo_box>
+		<check_box initial_value="true" label="検索に表示" name="show_in_group_list" tool_tip="このグループを検索結果に表示させます"/>
+	</panel>
+</panel>

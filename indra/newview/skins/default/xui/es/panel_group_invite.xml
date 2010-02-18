@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Invitar a un miembro" name="invite_panel" width="224">
+	<panel.string name="confirm_invite_owner_str">
+		¿Está seguro de que quiere invitar a un nuevo propietario/s? ¡Esta acción es permanente!
+	</panel.string>
+	<panel.string name="loading">
+		(cargando...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		No se invitará a algunos avatares porque ya están en el grupo.
+	</panel.string>
+	<text bottom_delta="-96" height="72" name="help_text" width="214">
+		Puede seleccionar a varios residentes
+para invitarles a su grupo. Para
+empezar, pulse &apos;Abrir el selector de
+residentes&apos;.
+	</text>
+	<button bottom_delta="-10" label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
+	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Apretando la tecla Ctrl, pulsa en los nombres de los residentes para elegir a varios"/>
+	<button label="Eliminar de la lista a los seleccionados" left_delta="-7" name="remove_button" tool_tip="Quitar a los residentes seleccionados de la lista de invitaciones" width="214"/>
+	<text name="role_text">
+		Elegir qué rol asignarles:
+	</text>
+	<combo_box name="role_name" tool_tip="Elige el rol de entre la lista de aquellos que estás autorizado a asignar"/>
+	<button label="Enviar las invitaciones" name="ok_button"/>
+	<button label="Cancelar" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Invitar al grupo
+	</string>
+</panel>

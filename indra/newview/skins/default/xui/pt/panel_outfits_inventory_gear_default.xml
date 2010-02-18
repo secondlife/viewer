@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_gear_default">
+	<menu_item_call label="Substituir look atual" name="wear"/>
+	<menu_item_call label="Adicionar ao look atual" name="add"/>
+	<menu_item_call label="Tirar do look atual" name="remove"/>
+	<menu_item_call label="Renomear" name="rename"/>
+	<menu_item_call label="Tirar" name="remove_link"/>
+	<menu_item_call label="Excluir" name="delete"/>
+</menu>

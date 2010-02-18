@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Covenant" name="Covenant">
+	<text name="estate_section_lbl">
+		Estate
+	</text>
+	<text name="estate_name_lbl">
+		Navn:
+	</text>
+	<text name="estate_name_text">
+		mainland
+	</text>
+	<text name="estate_owner_lbl">
+		Ejer:
+	</text>
+	<text name="estate_owner_text">
+		(ingen)
+	</text>
+	<text name="covenant_timestamp_text">
+		Sidst ændret Ons Dec 31 16:00:00 1969
+	</text>
+	<button label="?" name="covenant_help"/>
+	<text_editor name="covenant_editor">
+		Der er ikke angivet nogen regler for denne estate.
+	</text_editor>
+	<button label="Reset" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Ændringer i regler vil blive vist i alle parceller til denne estate.
+	</text>
+	<text name="covenant_instructions">
+		Træk og slip en note for at ændre regler for denne estate.
+	</text>
+	<text name="region_section_lbl">
+		Region
+	</text>
+	<text name="region_name_lbl">
+		Navn:
+	</text>
+	<text name="region_name_text">
+		leyla
+	</text>
+	<text name="region_landtype_lbl">
+		Type:
+	</text>
+	<text name="region_landtype_text">
+		Mainland / Homestead
+	</text>
+	<text name="region_maturity_lbl">
+		Rating:
+	</text>
+	<text name="region_maturity_text">
+		Adult
+	</text>
+	<text name="resellable_lbl">
+		Videresalg:
+	</text>
+	<text name="resellable_clause">
+		Land i denne region må ikke sælges videre.
+	</text>
+	<text name="changeable_lbl">
+		Opdel:
+	</text>
+	<text name="changeable_clause">
+		Land i denne region må ikke deles eller samles.
+	</text>
+	<string name="can_resell">
+		Købt land i denne region må sælges videre
+	</string>
+	<string name="can_not_resell">
+		Købt land i denne region må ikke sælges videre
+	</string>
+	<string name="can_change">
+		Købt land i denne region må deles eller samles.
+	</string>
+	<string name="can_not_change">
+		Købt land i denne region må ikke deles eller samles.
+	</string>
+</panel>

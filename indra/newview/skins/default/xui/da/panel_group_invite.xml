@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Invitér et medlem" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Er du sikker på, at du vil invitere ny(e) ejer(e)? Denne handling er permanent!
+	</panel.string>
+	<panel.string name="loading">
+		(indlæser...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Nogen af avatarerne var allerede i gruppen og blev ikke inviteret
+	</panel.string>
+	<text name="help_text">
+		Du kan invitere flere beboere ad 
+gangen til at blive medlem af din 
+gruppe. Klik &apos;Åben personvælger&apos; for 
+at begynde.
+	</text>
+	<button bottom_delta="-30" label="Åben personvælger" name="add_button"/>
+	<name_list name="invitee_list" tool_tip="Hold Ctrl knappen nede og klik på beboer navne for at vælge flere"/>
+	<button label="Fjern valgte fra listen" name="remove_button" tool_tip="Fjern beboere valgt ovenfor fra invitationslisten"/>
+	<text name="role_text">
+		Vælg hvilken rolle, du vil tildele dem:
+	</text>
+	<combo_box name="role_name" tool_tip="Vælg fra en liste med roller du har ret til at tildele medlemmer"/>
+	<button label="Send invitationer" name="ok_button"/>
+	<button label="Annullér" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Gruppe invitation
+	</string>
+</panel>
