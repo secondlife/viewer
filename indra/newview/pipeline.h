@@ -694,6 +694,7 @@ public:
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);
+void render_hud_elements();
 
 extern LLPipeline gPipeline;
 extern BOOL gRenderForSelect;

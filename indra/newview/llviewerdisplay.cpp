@@ -113,7 +113,6 @@ void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
-void render_hud_elements();
 
 void display_startup()
 {
@@ -990,6 +989,7 @@ void render_hud_attachments()
 		LLSpatialGroup::sNoDelete = FALSE;
 
 		render_hud_elements();
+
 		//restore type mask
 		gPipeline.setRenderTypeMask(mask);
 		if (has_ui)
