@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="notification_chiclet" title="通知">
-	<string name="title_im_well_window">
-		換算
-	</string>
-	<string name="title_notification_well_window">
-		通知
-	</string>
-</floater>

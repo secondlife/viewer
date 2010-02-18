@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="instant_message" name="panel_group_notify">
-	<panel label="header" name="header">
-		<text name="title" value="Afsender navn / Gruppe navn"/>
-	</panel>
-	<text name="attachment" value="Bilag"/>
-	<button label="Ok" name="btn_ok"/>
-</panel>

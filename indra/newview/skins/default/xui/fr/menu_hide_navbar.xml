@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="hide_navbar_menu">
-	<menu_item_check label="Afficher la barre de navigation" name="ShowNavbarNavigationPanel"/>
-	<menu_item_check label="Afficher la barre des Favoris" name="ShowNavbarFavoritesPanel"/>
-</menu>

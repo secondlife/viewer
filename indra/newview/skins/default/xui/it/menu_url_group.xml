@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="Mostra info gruppo" name="show_group"/>
-	<menu_item_call label="Copia gruppo negli appunti" name="url_copy_label"/>
-	<menu_item_call label="Copia SLurl negli appunti" name="url_copy"/>
-</context_menu>

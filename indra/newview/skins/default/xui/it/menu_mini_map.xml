@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="popup">
-	<menu_item_call label="Zoom ravvicinato" name="Zoom Close"/>
-	<menu_item_call label="Zoom Medio" name="Zoom Medium"/>
-	<menu_item_call label="Zoom Distante" name="Zoom Far"/>
-	<menu_item_check label="Ruota la mappa" name="Rotate Map"/>
-	<menu_item_call label="Ferma il puntamento" name="Stop Tracking"/>
-	<menu_item_call label="Mappa del mondo" name="World Map"/>
-</menu>

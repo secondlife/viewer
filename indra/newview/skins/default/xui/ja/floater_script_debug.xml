@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<multi_floater name="script debug floater" title="スクリプト警告／エラー">
-	<tab_container name="Preview Tabs">
-		<floater label="スクリプト" name="all_scripts" title="[ALL SCRIPTS]" />
-	</tab_container>
-</multi_floater>

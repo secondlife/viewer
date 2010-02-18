@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<!-- Menu items for the back button drop-down menu of locations.
-  Based on menu_item_call.xml -->
-<teleport_history_menu_item
-  back_item_font="SansSerif"
-  current_item_font="SansSerifBold"
-  forward_item_font="SansSerif"
-  />

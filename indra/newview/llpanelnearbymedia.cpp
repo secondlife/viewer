@@ -614,6 +614,8 @@ void LLPanelNearByMedia::refreshList()
 
 		// Clear all items so the list gets regenerated.
 		mMediaList->deleteAllItems();
+		mParcelAudioItem = NULL;
+		mParcelMediaItem = NULL;
 		all_items_deleted = true;
 		
 		updateColumns();

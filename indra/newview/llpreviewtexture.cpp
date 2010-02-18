@@ -116,7 +116,8 @@ BOOL LLPreviewTexture::postBuild()
 	}
 	
 	childSetAction("save_tex_btn", LLPreviewTexture::onSaveAsBtn, this);
-	childSetVisible("save_tex_btn", canSaveAs());
+	childSetVisible("save_tex_btn", true);
+	childSetEnabled("save_tex_btn", canSaveAs());
 	
 	if (!mCopyToInv) 
 	{
@@ -469,7 +470,7 @@ void LLPreviewTexture::loadAsset()
 	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	updateDimensions();
-	childSetVisible("save_tex_btn", canSaveAs());
+	childSetEnabled("save_tex_btn", canSaveAs());
 }
 
 LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
@@ -487,7 +488,12 @@ void LLPreviewTexture::updateImageID()
 	if(item)
 	{
 		mImageID = item->getAssetUUID();
-		mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
+
+		// here's the old logic...
+		//mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
+		// here's the new logic... 'cos we hate disappearing buttons.
+		mShowKeepDiscard = TRUE;
+
 		mCopyToInv = FALSE;
 		mIsCopyable = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
 	}

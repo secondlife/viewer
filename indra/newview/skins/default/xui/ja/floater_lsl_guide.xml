@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="LSL レファレンス">
-	<check_box label="カーソルを追う" name="lock_check"/>
-	<combo_box label="ロック" name="history_combo"/>
-	<button label="戻る" name="back_btn"/>
-	<button label="進む" name="fwd_btn"/>
-</floater>
