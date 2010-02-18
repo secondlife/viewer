@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="false"
+ follows="all"
+ height="238"
+ name="panel_im_control_panel"
+ width="150">
+    <layout_stack
+     mouse_opaque="false"
+     border_size="0"
+     clip="false"
+     follows="all"
+     height="238"
+     layout="topleft"
+     left="5"
+     name="vertical_stack"
+     orientation="vertical"
+     top="0"
+     width="145">
+        <layout_panel
+         auto_resize="true"
+         follows="top|left"
+         height="100"
+         layout="topleft"
+         min_height="0"
+         mouse_opaque="false"
+         width="145"
+         top="0"
+         name="speakers_list_panel"
+         user_resize="false">
+            <avatar_list
+             color="DkGray2"
+             follows="all"
+             height="100"
+             ignore_online_status="true"
+             layout="topleft"
+             name="speakers_list"
+             opaque="false"
+             show_info_btn="false"
+             show_profile_btn="false"
+             show_speaking_indicator="false"
+             width="145" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="top|left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         width="130"
+         name="group_info_btn_panel"
+         user_resize="false">
+            <button
+             follows="left|right|bottom"
+             height="23"
+             label="Group Profile"
+             name="group_info_btn"
+             use_ellipses="true"
+             top="5"
+             width="130" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="top|left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         width="130"
+         name="call_btn_panel"
+         user_resize="false">
+            <button
+             follows="all"
+             height="23"
+             label="Call Group"
+             name="call_btn"
+             use_ellipses="true" 
+             width="130" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="top|left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         width="130"
+         name="end_call_btn_panel"
+         user_resize="false"
+         visible="false">
+            <button
+             follows="all"
+             height="23"
+             label="Leave Call"
+             name="end_call_btn"
+             use_ellipses="true" />
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="top|left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         width="130"
+         name="voice_ctrls_btn_panel"
+         user_resize="false"
+         visible="false">
+            <button
+             follows="all"
+             height="23"
+             label="Open Voice Controls"
+             name="voice_ctrls_btn"
+             use_ellipses="true" />
+        </layout_panel>
+    </layout_stack>
+</panel>

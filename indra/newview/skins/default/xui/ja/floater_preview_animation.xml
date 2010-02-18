@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_anim">
+	<floater.string name="Title">
+		アニメーション： [NAME]
+	</floater.string>
+	<text name="desc txt">
+		説明：
+	</text>
+	<button label="インワールドで再生する" label_selected="停止" name="Anim play btn" tool_tip="他人にも見えるように再生します"/>
+	<button label="ローカル再生" label_selected="停止" name="Anim audition btn" tool_tip="自分だけが見えるように再生します"/>
+</floater>

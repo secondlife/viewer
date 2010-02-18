@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Avatar Icon Menu">
+	<menu_item_call label="Vedi profilo" name="Show Profile"/>
+	<menu_item_call label="Manda IM..." name="Send IM"/>
+	<menu_item_call label="Chiedi amicizia..." name="Add Friend"/>
+	<menu_item_call label="Togli amicizia..." name="Remove Friend"/>
+</menu>

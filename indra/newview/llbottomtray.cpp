@@ -422,6 +422,18 @@ void LLBottomTray::showSnapshotButton(BOOL visible)
 	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, visible);
 }
 
+void LLBottomTray::toggleMovementControls()
+{
+	if (mMovementButton)
+		mMovementButton->onCommit();
+}
+
+void LLBottomTray::toggleCameraControls()
+{
+	if (mCamButton)
+		mCamButton->onCommit();
+}
+
 BOOL LLBottomTray::postBuild()
 {
 

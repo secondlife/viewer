@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<teleport_messages>
+	<message_set name="errors">
+		<message name="invalid_tport">
+			Er is een probleem opgetreden bij het verwerken van uw verzoek voor een teleport. U dient wellicht opnieuw in te loggen voor uw kunt teleporteren. Wanneer u deze boodschap blijft ontvangen, controleert u dan alstublieft de Tech Support FAQ op:
+www.secondlife.com/support
+		</message>
+		<message name="invalid_region_handoff">
+			Er is een probleem opgetreden bij het oversteken naar een andere regio. U dient wellicht opnieuw in te loggen voor uw kunt oversteken naar andere regio&apos;s. Wanneer u deze boodschap blijft ontvangen, controleert u dan alstublieft de Tech Support FAQ op:
+www.secondlife.com/support
+		</message>
+		<message name="blocked_tport">
+			Sorry, teleport is momenteel geblokkeerd. Probeer het zo meteen opnieuw. Indien u nog steeds niet kunt teleporteren, log dan alstublieft uit en weer in om het probleem te verhelpen.
+		</message>
+		<message name="nolandmark_tport">
+			Sorry, het systeem was niet in staat de bestemming van  de landmarkering te vinden.
+		</message>
+		<message name="timeout_tport">
+			Sorry, het systeem was niet in staat om de teleport verbinding af te ronden. Probeer het zo meteen nog een keer.
+		</message>
+		<message name="noaccess_tport">
+			Sorry, u heeft geen toegang tot die teleportbestemming.
+		</message>
+		<message name="missing_attach_tport">
+			Uw bevestigingen zijn nog niet gearriveerd. Probeer nog een aantal seconden te wachten of log uit en weer in voor u probeert te teleporteren.
+		</message>
+		<message name="too_many_uploads_tport">
+			De assetwachtrij in deze regio is momenteel volgelopen, dus uw teleportverzoek zal niet tijdig afgerond kunnen worden. Probeer het alstublieft opnieuw over een aantal minuten of ga naar een minder druk gebied.
+		</message>
+		<message name="expired_tport">
+			Sorry, het systeem was niet in staat uw teleportverzoek tijdig af te ronden. Probeer het alstublieft opnieuw over een aantal minuten.
+		</message>
+		<message name="expired_region_handoff">
+			Sorry, het systeem was niet in staat om het oversteken naar een andere regio tijdig af te ronden. Probeer het alstublieft opnieuw over een aantal minuten.
+		</message>
+		<message name="no_host">
+			Kan teleportbestemming niet vinden. De bestemming is mogelijk tijdelijk niet beschikbaar of bestaat niet meer. Probeer het alstublieft opnieuw over een aantal minuten.
+		</message>
+		<message name="no_inventory_host">
+			Het inventarissysteem is momenteel niet beschikbaar.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			Verzenden naar bestemming
+		</message>
+		<message name="redirecting">
+			U wordt doorverwezen naar andere locatie.
+		</message>
+		<message name="relaying">
+			Omschakelen naar bestemming.
+		</message>
+		<message name="sending_home">
+			Thuislocatieverzoek verzenden
+		</message>
+		<message name="sending_landmark">
+			Landmarkeringlocatieverzoek verzenden
+		</message>
+		<message name="completing">
+			Teleport voltooien
+		</message>
+		<message name="resolving">
+			Bestemming bepalen.
+		</message>
+		<message name="contacting">
+			Contact maken met nieuwe regio.
+		</message>
+		<message name="arriving">
+			Arriveren…
+		</message>
+		<message name="requesting">
+			Teleport aanvragen…
+		</message>
+	</message_set>
+</teleport_messages>

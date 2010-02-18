@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Object Pie">
+	<menu_item_call label="Berør" name="Object Touch"/>
+	<menu_item_call label="Redigér" name="Edit..."/>
+	<menu_item_call label="Byg" name="Build"/>
+	<menu_item_call label="Åben" name="Open"/>
+	<menu_item_call label="Sid her" name="Object Sit"/>
+	<menu_item_call label="Objekt profil" name="Object Inspect"/>
+	<context_menu label="Sæt på &gt;" name="Put On">
+		<menu_item_call label="Tag på" name="Wear"/>
+		<context_menu label="Vedhæft &gt;" name="Object Attach"/>
+		<context_menu label="Vedhæft HUD &gt;" name="Object Attach HUD"/>
+	</context_menu>
+	<context_menu label="Fjern &gt;" name="Remove">
+		<menu_item_call label="Tag" name="Pie Object Take"/>
+		<menu_item_call label="Rapportér misbrug" name="Report Abuse..."/>
+		<menu_item_call label="Blokér" name="Object Mute"/>
+		<menu_item_call label="Returnér" name="Return..."/>
+		<menu_item_call label="Slet" name="Delete"/>
+	</context_menu>
+	<menu_item_call label="Tag kopi" name="Take Copy"/>
+	<menu_item_call label="Betal" name="Pay..."/>
+	<menu_item_call label="Køb" name="Buy..."/>
+</context_menu>

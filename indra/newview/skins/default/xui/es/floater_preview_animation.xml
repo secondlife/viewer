@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_anim">
+	<floater.string name="Title">
+		Animación: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Descripción:
+	</text>
+	<button label="Ejecutarla en el mundo" label_selected="Parar" left="12" name="Anim play btn" tool_tip="Ejecutar esta animación de modo que puedan verla los demás" width="142"/>
+	<button label="Ejecutarla para usted" label_selected="Parar" left="156" name="Anim audition btn" tool_tip="Ejecutar esta animación de modo que sólo la vea yo" width="136"/>
+</floater>

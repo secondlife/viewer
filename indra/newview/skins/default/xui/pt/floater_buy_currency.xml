@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="Comprar L$">
+	<floater.string name="buy_currency">
+		Compre L$ [LINDENS] por aprox. [LOCALAMOUNT]
+	</floater.string>
+	<text name="info_need_more">
+		Você precisa de mais L$
+	</text>
+	<text name="contacting">
+		Contatando LindeX...
+	</text>
+	<text name="info_buying">
+		Comprar L$
+	</text>
+	<text name="balance_label">
+		Tenho
+	</text>
+	<text name="balance_amount">
+		L$ [AMT]
+	</text>
+	<text name="currency_action" width="60">
+		Comprar
+	</text>
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" left_delta="65" name="currency_amt" width="70">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		O preço é
+	</text>
+	<text left_delta="72" name="currency_est">
+		aprox. [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Calculando...
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
+	</text>
+	<text name="total_label">
+		Saldo resultante:
+	</text>
+	<text name="total_amount">
+		L$ [AMT]
+	</text>
+	<text name="currency_links">
+		[http://www.secondlife.com/ payment method] | [http://www.secondlife.com/ currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+	</text>
+	<text name="exchange_rate_note">
+		Digite o valor novamente para ver o câmbio atual.
+	</text>
+	<text name="purchase_warning_repurchase">
+		Confirmar esta transação compra somente L$, não o objeto.
+	</text>
+	<text name="purchase_warning_notenough">
+		O valor da transação não é suficiente.  Aumente o volume da compra.
+	</text>
+	<button label="Comprar já!" name="buy_btn"/>
+	<button label="Fechar" name="cancel_btn"/>
+	<text name="info_cannot_buy">
+		Transação incompleta
+	</text>
+	<button label="Prosseguir para a web" name="error_web"/>
+</floater>

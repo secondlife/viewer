@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_alpha_panel" width="320">
+	<panel name="avatar_alpha_color_panel" width="300">
+		<texture_picker label="Alpha: Unten" name="Lower Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken" width="70"/>
+		<texture_picker label="Alpha: Oben" name="Upper Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken" width="66"/>
+		<texture_picker label="Kopf: Alpha" name="Head Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+		<texture_picker label="Alpha: Augen" name="Eye Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken" width="72"/>
+		<texture_picker label="Alpha: Haare" name="Hair Alpha" tool_tip="Zum Auswählen eines Bildes hier klicken" width="70"/>
+	</panel>
+</panel>

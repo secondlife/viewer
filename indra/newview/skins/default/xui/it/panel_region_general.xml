@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Regione" name="General">
+	<text name="region_text_lbl">
+		Regione:
+	</text>
+	<text name="region_text" left="70">
+		sconosciuta
+	</text>
+	<text name="version_channel_text_lbl">
+		Versione:
+	</text>
+	<text name="version_channel_text" left="70">
+		sconosciuta
+	</text>
+	<text name="region_type_lbl">
+		Tipo:
+	</text>
+	<text name="region_type" left="70">
+		sconosciuto
+	</text>
+	<check_box label="Proibisci la modifica del terreno" name="block_terraform_check"/>
+	<button label="?" name="terraform_help"/>
+	<check_box label="Impedisci il volo" name="block_fly_check"/>
+	<button label="?" name="fly_help"/>
+	<check_box label="Abilita i danni" name="allow_damage_check"/>
+	<button label="?" name="damage_help"/>
+	<check_box label="Limita gli urti" name="restrict_pushobject"/>
+	<button label="?" name="restrict_pushobject_help"/>
+	<check_box label="Abilita la rivendita del terreno" name="allow_land_resell_check"/>
+	<button label="?" name="land_resell_help" left="260"/>
+	<check_box label="Abilita unione/suddivisione del terreno" name="allow_parcel_changes_check"/>
+	<button label="?" name="parcel_changes_help" left="260" />
+	<check_box label="Proibisci che il terreno appaia nelle ricerche" name="block_parcel_search_check" tool_tip="Permetti che le persone vedano questa regione e le sue suddivisioni nei risultati delle ricerche"/>
+	<button label="?" name="parcel_search_help" left="260"/>
+	<spinner label="Limite massimo di avatar" name="agent_limit_spin" label_width="135" width="190"/>
+	<button label="?" name="agent_limit_help"/>
+	<spinner label="Bonus di oggetti" name="object_bonus_spin" label_width="135" width="190"/>
+	<button label="?" name="object_bonus_help"/>
+	<text label="Maturità" name="access_text" width="120">
+		Categoria di accesso:
+	</text>
+	<combo_box label="Mature" name="access_combo" left="126" width="74">
+		<combo_box.item label="Adult" name="Adult"/>
+		<combo_box.item label="Mature" name="Mature"/>
+		<combo_box.item label="PG" name="PG"/>
+	</combo_box>
+	<button label="?" name="access_help"/>
+	<button label="Applica" name="apply_btn"/>
+	<button label="Teletrasporta a casa un utente..." name="kick_btn"/>
+	<button label="Teletrasporta a casa tutti gli utenti..." name="kick_all_btn"/>
+	<button label="Invia messaggio alla regione..." name="im_btn"/>
+	<button label="Gestisci snodo di teleport..." name="manage_telehub_btn" width="210"/>
+</panel>

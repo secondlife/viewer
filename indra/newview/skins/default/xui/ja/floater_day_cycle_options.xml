@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Day Cycle Floater" title="デイ・サイクル編集">
+	<tab_container name="Day Cycle Tabs">
+		<panel label="デイ・サイクル" name="Day Cycle">
+			<button label="?" name="WLDayCycleHelp" />
+			<text name="WL12am">
+				深夜 12時
+			</text>
+			<text name="WL3am">
+				午前 3時
+			</text>
+			<text name="WL6am">
+				午前 6時
+			</text>
+			<text name="WL9amHash">
+				午前 9時
+			</text>
+			<text name="WL12pmHash">
+				正午 12時
+			</text>
+			<text name="WL3pm">
+				午後 3時
+			</text>
+			<text name="WL6pm">
+				午後 6時
+			</text>
+			<text name="WL9pm">
+				午後 9時
+			</text>
+			<text name="WL12am2">
+				深夜 12時
+			</text>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL3amHash">
+				I
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL9amHash2">
+				I
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL3pmHash">
+				I
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL9pmHash">
+				I
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<button label="キーの追加" label_selected="キーの追加" name="WLAddKey" />
+			<button label="キーの削除" label_selected="キーの削除" name="WLDeleteKey" />
+			<text name="WLCurKeyFrameText">
+				キーフレームの設定：
+			</text>
+			<text name="WLCurKeyTimeText">
+				キー・タイム：
+			</text>
+			<spinner label="時間" name="WLCurKeyHour" />
+			<spinner label="分" name="WLCurKeyMin" />
+			<text name="WLCurKeyTimeText2">
+				キーの事前設定：
+			</text>
+			<combo_box label="事前設定" name="WLKeyPresets" />
+			<text name="DayCycleText">
+				スナップ：
+			</text>
+			<combo_box label="5 分" name="WLSnapOptions" />
+			<text name="DayCycleText2">
+				サイクルの長さ：
+			</text>
+			<spinner label="時間" name="WLLengthOfDayHour" />
+			<spinner label="分" name="WLLengthOfDayMin" />
+			<spinner label="秒" name="WLLengthOfDaySec" />
+			<text name="DayCycleText3">
+				プレビュー：
+			</text>
+			<button label="再生" label_selected="再生" name="WLAnimSky" left_delta="70"/>
+			<button label="停止!" label_selected="停止" name="WLStopAnimSky" />
+			<button label="不動産の時刻を使用"
+			     label_selected="不動産の時刻に変更" name="WLUseLindenTime" width="140"/>
+			<button label="デイ・テストを保存"
+			     label_selected="デイ・テストを保存" name="WLSaveDayCycle" />
+			<button label="デイ・テストをロード"
+			     label_selected="デイ・テストをロード" name="WLLoadDayCycle" />
+		</panel>
+	</tab_container>
+</floater>

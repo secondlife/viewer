@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_target_profile">
+	<string name="status_online">
+		Conectado/a
+	</string>
+	<string name="status_offline">
+		Desconectado/a
+	</string>
+	<text_editor name="user_name" value="(Cargando...)"/>
+	<text name="status" value="Conectado/a"/>
+	<tab_container name="tabs">
+		<panel label="PERFIL" name="panel_profile"/>
+		<panel label="DESTACADOS" name="panel_picks"/>
+		<panel label="NOTAS Y PRIVACIDAD" name="panel_notes"/>
+	</tab_container>
+</panel>

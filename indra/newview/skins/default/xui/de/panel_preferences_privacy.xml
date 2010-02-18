@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Kommunikation" name="im">
+	<panel.string name="log_in_to_change">
+		Anmelden, um Änderungen vorzunehmen
+	</panel.string>
+	<button label="Cache leeren" name="clear_cache"/>
+	<text name="cache_size_label_l">
+		(Standorte, Bilder, Web, Suchverlauf)
+	</text>
+	<check_box label="Nur Freunde und Gruppen wissen, dass ich online bin" name="online_visibility"/>
+	<check_box label="Nur Freunde und Gruppen können mich anrufen oder mir eine IM schicken" name="voice_call_friends_only_check"/>
+	<check_box label="Mikrofon ausschalten, wenn Anrufe beendet werden" name="auto_disengage_mic_check"/>
+	<check_box label="Cookies annehmen" name="cookies_enabled"/>
+	<check_box label="Medien aktiviert" name="media_enabled"/>
+	<check_box label="Automatische Wiedergabe zulassen" name="autoplay_enabled"/>
+	<check_box label="Musik aktiviert" name="music_enabled"/>
+	<text name="Logs:">
+		Protokolle:
+	</text>
+	<check_box label="Protokolle von Gesprächen in der Nähe auf meinem Computer speichern" name="log_nearby_chat"/>
+	<check_box label="IM Protokolle auf meinem Computer speichern" name="log_instant_messages"/>
+	<check_box label="Zeitstempel hinzufügen" name="show_timestamps_check_im"/>
+	<text name="log_path_desc">
+		Protokolle speichern in:
+	</text>
+	<button label="Durchsuchen" label_selected="Durchsuchen" name="log_path_button"/>
+	<button label="Ignorierte Einwohner/Objekte" name="block_list" width="180"/>
+</panel>

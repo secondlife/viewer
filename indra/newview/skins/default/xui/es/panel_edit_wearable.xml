@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Se puede poner" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		Modificando la anatomía
+	</string>
+	<string name="edit_skin_title">
+		Modificando la piel
+	</string>
+	<string name="edit_hair_title">
+		Modificando el pelo
+	</string>
+	<string name="edit_eyes_title">
+		Modificando los ojos
+	</string>
+	<string name="edit_shirt_title">
+		Modificando la camisa
+	</string>
+	<string name="edit_pants_title">
+		Modificando los pantalones
+	</string>
+	<string name="edit_shoes_title">
+		Modificando los zapatos
+	</string>
+	<string name="edit_socks_title">
+		Modificando los calcetines
+	</string>
+	<string name="edit_jacket_title">
+		Modificando la chaqueta
+	</string>
+	<string name="edit_skirt_title">
+		Modificando la falda
+	</string>
+	<string name="edit_gloves_title">
+		Modificando los guantes
+	</string>
+	<string name="edit_undershirt_title">
+		Modificando la camiseta
+	</string>
+	<string name="edit_underpants_title">
+		Modificando la ropa interior
+	</string>
+	<string name="edit_alpha_title">
+		Modificando la capa Alfa
+	</string>
+	<string name="edit_tattoo_title">
+		Modificando los tatuajes
+	</string>
+	<string name="shape_desc_text">
+		Anatomía:
+	</string>
+	<string name="skin_desc_text">
+		Piel:
+	</string>
+	<string name="hair_desc_text">
+		Pelo:
+	</string>
+	<string name="eyes_desc_text">
+		Ojos:
+	</string>
+	<string name="shirt_desc_text">
+		Camisa:
+	</string>
+	<string name="pants_desc_text">
+		Pantalones:
+	</string>
+	<string name="shoes_desc_text">
+		Zapatos:
+	</string>
+	<string name="socks_desc_text">
+		Calcetines:
+	</string>
+	<string name="jacket_desc_text">
+		Chaqueta:
+	</string>
+	<string name="skirt_skirt_desc_text">
+		Falda:
+	</string>
+	<string name="gloves_desc_text">
+		Guantes:
+	</string>
+	<string name="undershirt_desc_text">
+		Camiseta:
+	</string>
+	<string name="underpants_desc_text">
+		Ropa interior:
+	</string>
+	<string name="alpha_desc_text">
+		Capa alfa:
+	</string>
+	<string name="tattoo_desc_text">
+		Tatuaje:
+	</string>
+	<text name="edit_wearable_title" value="Modificando la anatomía"/>
+	<panel label="Camisa" name="wearable_type_panel">
+		<text name="description_text" value="Anatomía:"/>
+	</panel>
+	<panel name="button_panel">
+		<button label="Guardar como" name="save_as_button"/>
+		<button label="Revertir" name="revert_button"/>
+	</panel>
+</panel>

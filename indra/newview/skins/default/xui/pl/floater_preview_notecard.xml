@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="preview notecard" title="NOTA:">
+	<button label="Zapisz" label_selected="Zapisz" name="Save" />
+	<text name="desc txt">
+		Opis:
+	</text>
+	<text_editor name="Notecard Editor">
+		Ładowanie...
+	</text_editor>
+	<string name="no_object">
+		Nie można znaleść obiektu zawierającego tą notkę.
+	</string>
+	<string name="not_allowed">
+		Nie masz pozwolenia na zobaczenie tej notki.
+	</string>
+</floater>

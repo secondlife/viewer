@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray panel -->
+<panel label="Pessoas" name="people_panel">
+	<string name="no_people" value="Nenhuma pessoa"/>
+	<string name="no_one_near" value="Ninguém por perto"/>
+	<string name="no_friends_online" value="Nenhum amigo online"/>
+	<string name="no_friends" value="Nenhum amigo"/>
+	<string name="no_groups" value="Nenhum grupo"/>
+	<string name="people_filter_label" value="Filtro de pessoas"/>
+	<string name="groups_filter_label" value="Filtro de grupos"/>
+	<filter_editor label="Filtro" name="filter_input"/>
+	<tab_container name="tabs">
+		<panel label="PROXIMIDADE" name="nearby_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="nearby_view_sort_btn" tool_tip="Opções"/>
+				<button name="add_friend_btn" tool_tip="Adicionar o residente selecionado para sua lista de amigos"/>
+			</panel>
+		</panel>
+		<panel label="AMIGOS" name="friends_panel">
+			<accordion name="friends_accordion">
+				<accordion_tab name="tab_online" title="Online"/>
+				<accordion_tab name="tab_all" title="Todos"/>
+			</accordion>
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="friends_viewsort_btn" tool_tip="Opções"/>
+				<button name="add_btn" tool_tip="Oferecer amizade para o residente"/>
+				<button name="del_btn" tool_tip="Remover a pessoa selecionada da sua lista de amigos"/>
+			</panel>
+		</panel>
+		<panel label="GRUPOS" name="groups_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="groups_viewsort_btn" tool_tip="Opções"/>
+				<button name="plus_btn" tool_tip="Ingressar em um grupo/Criar novo grupo"/>
+				<button name="activate_btn" tool_tip="Ativar o grupo selecionado"/>
+			</panel>
+		</panel>
+		<panel label="RECENTE" name="recent_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="recent_viewsort_btn" tool_tip="Opções"/>
+				<button name="add_friend_btn" tool_tip="Adicionar o residente selecionado para sua lista de amigos"/>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="button_bar">
+		<button label="Perfil" name="view_profile_btn" tool_tip="Exibir fotografia, grupos e outras informações dos residentes"/>
+		<button label="MI" name="im_btn" tool_tip="Abrir sessão de mensagem instantânea"/>
+		<button label="Chamada" name="call_btn" tool_tip="Chamar este residente"/>
+		<button label="Compartilhar" name="share_btn"/>
+		<button label="Teletransporte" name="teleport_btn" tool_tip="Oferecer teletransporte"/>
+		<button label="Perfil do grupo" name="group_info_btn" tool_tip="Exibir informação de grupo"/>
+		<button label="Bate- papo de grupo" name="chat_btn" tool_tip="abrir sessão de bate- papo"/>
+	</panel>
+</panel>

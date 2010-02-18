@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<slider name="slider" 
+        can_edit_text="false" 
+        font="SansSerifSmall"
+        volume="false"
+        mouse_opaque="true" 
+        show_text="true" 
+        text_color="LabelTextColor" 
+        text_disabled_color="LabelDisabledColor">
+  <slider.value_editor name="slider editor" 
+                       max_length="10" 
+                       follows="left|bottom"/>
+  <slider.value_text name="slider text" 
+                     follows="left|bottom"/>
+  <slider.slider_label name="slider label"/>
+</slider>

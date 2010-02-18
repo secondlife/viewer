@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sell land" title="VENDER TERRENO">
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="info_parcel_label">
+				Lote:
+			</text>
+			<text name="info_parcel">
+				NOME DO LOTE
+			</text>
+			<text name="info_size_label">
+				Tamanho:
+			</text>
+			<text name="info_size">
+				[AREA] m²
+			</text>
+			<text bottom_delta="-67" name="info_action">
+				Para vender este terreno:
+			</text>
+			<text name="price_label">
+				1. Preço:
+			</text>
+			<text name="price_text">
+				Determine o preço adequado.
+			</text>
+			<text name="price_ld">
+				L$
+			</text>
+			<line_editor name="price">
+				0
+			</line_editor>
+			<text name="price_per_m">
+				(L$[PER_METER] por m²)
+			</text>
+			<text name="sell_to_label">
+				2. Vender para:
+			</text>
+			<text name="sell_to_text">
+				Vender para qualquer pessoa ou determinado comprador.
+			</text>
+			<combo_box bottom_delta="-32" name="sell_to">
+				<combo_box.item label="- Selecione -" name="--selectone--"/>
+				<combo_box.item label="Todos" name="Anyone"/>
+				<combo_box.item label="Pessoa específica:" name="Specificuser:"/>
+			</combo_box>
+			<button label="Selecionar" name="sell_to_select_agent"/>
+			<text name="sell_objects_label">
+				3. Vender o terreno com os objetos?
+			</text>
+			<text name="sell_objects_text">
+				O objetos transferíveis do terreno passam a ser do novo dono.
+			</text>
+			<radio_group bottom_delta="-58" name="sell_objects">
+				<radio_item label="Não, os objetos continuam sendo meus" name="no"/>
+				<radio_item label="Sim, vender o terreno com os objetos" name="yes"/>
+			</radio_group>
+			<button label="Mostrar objetos" name="show_objects"/>
+			<text name="nag_message_label">
+				LEMBRE-SE: Qualquer transação de compra e venda é irreversível.
+			</text>
+			<button label="Colocar terreno à venda" name="sell_btn"/>
+			<button label="Cancelar" name="cancel_btn"/>
+		</panel>
+	</scroll_container>
+</floater>

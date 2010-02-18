@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="url_entry" title="">
+	<text name="media_label">
+		URL Media:
+	</text>
+	<button label="OK" name="ok_btn"/>
+	<button label="Annulla" name="cancel_btn"/>
+	<button label="Elimina" name="clear_btn"/>
+	<text name="loading_label">
+		In caricamento...
+	</text>
+</floater>

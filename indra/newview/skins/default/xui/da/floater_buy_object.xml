@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="KØB KOPI AF OBJEKT">
+	<text name="contents_text">
+		Indeholder:
+	</text>
+	<text name="buy_text">
+		Køb for L$[AMOUNT] fra [NAME]?
+	</text>
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
+	<button label="Køb" label_selected="Køb" name="buy_btn"/>
+	<string name="title_buy_text">
+		Køb
+	</string>
+	<string name="title_buy_copy_text">
+		Køb en kopi af
+	</string>
+	<string name="no_copy_text">
+		(kopiér ej)
+	</string>
+	<string name="no_modify_text">
+		(ændre ej)
+	</string>
+	<string name="no_transfer_text">
+		(videregiv ej)
+	</string>
+</floater>

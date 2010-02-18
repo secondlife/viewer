@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="MemLeak" title="SIMULÉR MEMORY LEAK">
+	<spinner label="Leaking Speed (bytes per frame):" name="leak_speed"/>
+	<spinner label="Max Leaked Memory (MB):" name="max_leak"/>
+	<text name="total_leaked_label">
+		Current leaked memory: [SIZE] KB
+	</text>
+	<text name="note_label_1">
+		[NOTE1]
+	</text>
+	<text name="note_label_2">
+		[NOTE2]
+	</text>
+	<button label="Start" name="start_btn"/>
+	<button label="Stop" name="stop_btn"/>
+	<button label="Slip" name="release_btn"/>
+	<button label="Luk" name="close_btn"/>
+</floater>

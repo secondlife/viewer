@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="DESTAQUE DE COR">
+	<text name="r_val_text">
+		Vermelho:
+	</text>
+	<text name="g_val_text">
+		Verde:
+	</text>
+	<text name="b_val_text">
+		Azul:
+	</text>
+	<text name="h_val_text">
+		Matiz:
+	</text>
+	<text name="s_val_text">
+		Sat:
+	</text>
+	<text name="l_val_text">
+		Lum:
+	</text>
+	<check_box label="inscrever-se agora" name="apply_immediate"/>
+	<button left_delta="150" name="color_pipette"/>
+	<button label="Cancelar" label_selected="Cancelar" left_delta="55" name="cancel_btn"/>
+	<button label="Ok" label_selected="Ok" name="select_btn"/>
+	<text name="Current color:">
+		Cor atual:
+	</text>
+	<text name="(Drag below to save.)">
+		(Arrastar abaixo para salvar)
+	</text>
+</floater>

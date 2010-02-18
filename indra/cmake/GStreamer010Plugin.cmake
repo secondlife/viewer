@@ -24,7 +24,6 @@ elseif (LINUX)
       gmodule-2.0
       dl
       gthread-2.0
-      rt
       glib-2.0
       )
 endif (STANDALONE)

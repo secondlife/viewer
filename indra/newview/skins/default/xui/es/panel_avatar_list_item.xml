@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="avatar_list_item">
+	<string name="FormatSeconds">
+		[COUNT] seg.
+	</string>
+	<string name="FormatMinutes">
+		[COUNT] min.
+	</string>
+	<string name="FormatHours">
+		[COUNT] h.
+	</string>
+	<string name="FormatDays">
+		[COUNT] d.
+	</string>
+	<string name="FormatWeeks">
+		[COUNT] sem.
+	</string>
+	<string name="FormatMonths">
+		[COUNT] mes/es
+	</string>
+	<string name="FormatYears">
+		[COUNT] año/s
+	</string>
+	<text name="avatar_name" value="Desconocido"/>
+</panel>

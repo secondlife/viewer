@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Règlement" name="Covenant">
+	<text name="estate_section_lbl">
+		Domaine
+	</text>
+	<text bottom_delta="-19" name="estate_name_lbl">
+		Nom :
+	</text>
+	<text name="estate_name_text">
+		continent
+	</text>
+	<text bottom_delta="-19" name="estate_owner_lbl">
+		Propriétaire :
+	</text>
+	<text name="estate_owner_text">
+		(aucun)
+	</text>
+	<text name="estate_cov_lbl">
+		Règlement :
+	</text>
+	<text name="covenant_timestamp_text" width="350">
+		Dernière modification le mercredi 31 décembre 1969 16:00:00
+	</text>
+	<button label="?" name="covenant_help"/>
+	<text_editor bottom="-263" height="178" name="covenant_editor">
+		Il n&apos;y a aucun règlement pour ce domaine.
+	</text_editor>
+	<button label="Réinitialiser" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Les changements apportés au règlement apparaîtront sur
+toutes les parcelles du domaine.
+	</text>
+	<text bottom_delta="-31" name="covenant_instructions">
+		Faire glisser une note pour changer le règlement de ce domaine.
+	</text>
+	<text name="region_section_lbl">
+		Région
+	</text>
+	<text name="region_name_lbl">
+		Nom :
+	</text>
+	<text name="region_name_text">
+		Erica
+	</text>
+	<text name="region_landtype_lbl">
+		Type :
+	</text>
+	<text name="region_landtype_text">
+		Continent / Homestead
+	</text>
+	<text name="region_maturity_lbl">
+		Catégorie :
+	</text>
+	<text name="region_maturity_text">
+		Adult
+	</text>
+	<text name="resellable_lbl">
+		Revendre :
+	</text>
+	<text name="resellable_clause">
+		Le terrain dans cette région ne peut être revendu.
+	</text>
+	<text name="changeable_lbl">
+		Sous-diviser :
+	</text>
+	<text name="changeable_clause">
+		Le terrain dans cette région ne peut être fusionné/divisé.
+	</text>
+	<string name="can_resell">
+		Le terrain acheté dans cette région peut être revendu.
+	</string>
+	<string name="can_not_resell">
+		Le terrain acheté dans cette région ne peut pas être revendu.
+	</string>
+	<string name="can_change">
+		Le terrain acheté dans cette région peut être fusionné ou divisé.
+	</string>
+	<string name="can_not_change">
+		Le terrain acheté dans cette région ne peut pas être fusionné ou
+divisé.
+	</string>
+</panel>

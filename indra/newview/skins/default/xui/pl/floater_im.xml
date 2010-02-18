@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater name="im_floater" title="Wiadomość (IM)">
+	<string name="only_user_message">
+		Jesteś jedyną osobą w tej konferencji.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] - ta osoba jest obecnie niedostępna.
+	</string>
+	<string name="invite_message">
+		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
+	</string>
+	<string name="muted_message">
+		Ten Rezydent jest przez Ciebie wyciszony. Wysyłanie wiadomości automatycznie wyłączy tryb wyciszenia.
+	</string>
+	<string name="generic_request_error">
+		Błąd. Spróbuj ponownie za kilka minut.
+	</string>
+	<string name="insufficient_perms_error">
+		Nie posiadasz praw do kontynuacji.
+	</string>
+	<string name="session_does_not_exist_error">
+		Ta konferencja jest już zakończona.
+	</string>
+	<string name="no_ability_error">
+		Nie posiadesz tego przywileju.
+	</string>
+	<string name="not_a_mod_error">
+		Nie jesteś moderatorem konferencji.
+	</string>
+	<string name="muted_error">
+		Moderator wyciszył Cię.
+	</string>
+	<string name="add_session_event">
+		Nie można dodać nikogo do czatu z [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Nie można wysłać Twojej wiadomości do sesji czatu z [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Usunięto Cię z grupy.
+	</string>
+	<string name="close_on_no_ability">
+		Nie posiadasz praw by uczestniczyć w tej konferencji.
+	</string>
+</multi_floater>

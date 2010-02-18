@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Map" title="ミニマップ">
+	<floater.string name="mini_map_north">
+		北
+	</floater.string>
+	<floater.string name="mini_map_east">
+		東
+	</floater.string>
+	<floater.string name="mini_map_west">
+		西
+	</floater.string>
+	<floater.string name="mini_map_south">
+		南
+	</floater.string>
+	<floater.string name="mini_map_southeast">
+		南東
+	</floater.string>
+	<floater.string name="mini_map_northeast">
+		北東
+	</floater.string>
+	<floater.string name="mini_map_southwest">
+		南西
+	</floater.string>
+	<floater.string name="mini_map_northwest">
+		北西
+	</floater.string>
+	<floater.string name="ToolTipMsg">
+		[AGENT][REGION] （ダブルクリックで地図を開きます）
+	</floater.string>
+	<text label="北" name="floater_map_north" text="北">
+		北
+	</text>
+	<text label="東" name="floater_map_east" text="東">
+		東
+	</text>
+	<text label="西" name="floater_map_west" text="西">
+		西
+	</text>
+	<text label="南" name="floater_map_south" text="南">
+		南
+	</text>
+	<text label="南東" name="floater_map_southeast" text="南東">
+		南東
+	</text>
+	<text label="北東" name="floater_map_northeast" text="北東">
+		北東
+	</text>
+	<text label="南西" name="floater_map_southwest" text="南西">
+		南西
+	</text>
+	<text label="北西" name="floater_map_northwest" text="北西">
+		北西
+	</text>
+</floater>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<panel.string name="create_account_url">
+		http://join.secondlife.com/
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=pt
+	</panel.string>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="first_name_text">
+				Primeiro nome:
+			</text>
+			<line_editor label="Nome" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
+			<line_editor label="Sobrenome" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
+			<check_box label="Lembrar" name="remember_check"/>
+			<text name="start_location_text">
+				Começar em:
+			</text>
+			<combo_box name="start_location_combo">
+				<combo_box.item label="Minha casa" name="MyHome"/>
+			</combo_box>
+			<button label="conectar" name="connect_btn"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				Cadastre-se
+			</text>
+			<text name="login_help">
+				Precisa de ajuda ao conectar?
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

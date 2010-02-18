@@ -1,0 +1,3051 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notifications>
+	<global name="skipnexttime">
+		Toon mij dit niet meer.
+	</global>
+	<global name="alwayschoose">
+		Kies altijd deze optie
+	</global>
+	<global name="implicitclosebutton">
+		Sluiten
+	</global>
+  <template name="okbutton">
+    <form>
+      <button
+       name="OK"
+       text="$yestext"/>
+    </form>
+  </template>
+
+  <template name="okignore">
+    <form>
+      <button
+       name="OK"
+       text="$yestext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
+
+  <template name="okcancelbuttons">
+    <form>
+      <button
+       name="OK"
+       text="$yestext"/>
+      <button
+       name="Cancel"
+       text="$notext"/>
+    </form>
+  </template>
+
+  <template name="okcancelignore">
+    <form>
+      <button
+       name="OK"
+       text="$yestext"/>
+      <button
+       name="Cancel"
+       text="$notext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
+
+  <template name="okhelpbuttons">
+    <form>
+      <button
+       name="OK"
+       text="$yestext"/>
+      <button
+       name="Help"
+       text="$helptext"/>
+    </form>
+  </template>
+
+  <template name="yesnocancelbuttons">
+    <form>
+      <button
+       name="Yes"
+       text="$yestext"/>
+      <button
+       name="No"
+       text="$notext"/>
+      <button
+       name="Cancel"
+       text="$canceltext"/>
+    </form>
+  </template>
+	<notification functor="GenericAcknowledge" label="Onbekende waarschuwingsboodschap" name="MissingAlert">
+		Uw versie van [APP_NAME] weet niet hoe het de waarschuwingsboodschap die zojuist ontvangen is moet weergeven. 
+
+Foutdetails: De waarschuwing genaamd &apos;[_NAME]&apos; is niet gevonden in notifications.xml.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FloaterNotFound">
+		Reële waarde fout: Kon de volgende controllers niet vinden:
+
+[CONTROLS]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TutorialNotFound">
+		Er is momenteel geen handleiding beschikbaar.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GenericAlert">
+		[MESSAGE]
+	</notification>
+	<notification name="GenericAlertYesCancel">
+		[MESSAGE]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ja"/>
+	</notification>
+	<notification name="BadInstallation">
+		Er is een fout opgetreden tijdens het bijwerken van [APP_NAME]. Download alstublieft de meest recente versie van secondlife.com
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+	</notification>
+	<notification name="LoginFailedNoNetwork">
+		Netwerkfout: Kan geen verbinding opzetten.
+&apos;[DIAGNOSTIC]&apos;
+Controleer alstublieft uw netwerkverbinding.
+	<usetemplate
+     name="okbutton"
+     yestext="OK"/>
+	</notification>
+	<notification name="MessageTemplateNotFound">
+		Berichtsjabloon [PATH] niet gevonden.
+	<usetemplate
+     name="okbutton"
+     yestext="OK"/>
+	</notification>
+	<notification name="WearableSave">
+		Wijzigingen aan huidig kledingstuk/lichaamsdeel opslaan?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Niet Opslaan" yestext="Opslaan"/>
+	</notification>
+	<notification name="CompileQueueSaveText">
+		Er was een probleem met het uploaden van de tekst van een script vanwege de volgende reden: [REASON]. Probeer het alstublieft later nog eens.
+	</notification>
+	<notification name="CompileQueueSaveBytecode">
+		Er was een probleem met het uploaden van het gecompileerde script vanwege de volgende reden: [REASON]. Probeer het alstublieft later nog eens.
+	</notification>
+	<notification name="WriteAnimationFail">
+		Er was een probleem met het wegschrijven van animatie gegevens.  Probeer het alstublieft later nog eens.
+	</notification>
+	<notification name="UploadAuctionSnapshotFail">
+		Er was een probleem met het uploaden van de veiling foto vanwege de volgende reden: [REASON]
+	</notification>
+	<notification name="UnableToViewContentsMoreThanOne">
+		Het is niet mogelijk om de inhoud van meer dan één item tegelijk te zien.
+Kies alstublieft slechts één item en probeer het opnieuw.
+	</notification>
+	<notification name="SaveClothingBodyChanges">
+		Wijzigingen aan kledingstuk/lichaamsdeel opslaan?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Niet Opslaan" yestext="Alles Opslaan"/>
+	</notification>
+	<notification name="GrantModifyRights">
+		Het geven van wijzigingsrechten aan een andere inwoner, maakt het voor hun mogelijk om elk willekeurig object te wijzigen, te verwijderen of om WILLEKEURIGE objecten die u in wereld heeft terug te nemen. Wees HEEL voorzichtig met het uitgeven van dit recht.
+Wilt u wijzigingsrechten aan [FIRST_NAME] [LAST_NAME] geven?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="GrantModifyRightsMultiple">
+		Het geven van wijzigingsrechten aan een andere inwoner, maakt het voor hun mogelijk elk WILLEKEURIG object te wijzigen die u in wereld heeft. Wees HEEL voorzichtig met het uitgeven van dit recht.
+Wilt u wijzigingsrechten aan de geselecteerde inwoners geven?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="RevokeModifyRights">
+		Wilt u de wijzigingsrechten voor [FIRST_NAME] [LAST_NAME] terugnemen?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="RevokeModifyRightsMultiple">
+		Wilt u de wijzigingsrechten voor de geselecteerde inwoners terugnemen?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="UnableToCreateGroup">
+		Kan geen groep aanmaken.
+[MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PanelGroupApply">
+		[NEEDS_APPLY_MESSAGE]
+[WANT_APPLY_MESSAGE]
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Wijzigingen Negeren" yestext="Wijzigingen Toepassen"/>
+	</notification>
+	<notification name="MustSpecifyGroupNoticeSubject">
+		U moet een onderwerp opgeven om dit bericht te kunnen versturen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AddGroupOwnerWarning">
+		U staat op het punt groepsleden de rol [ROLE_NAME] te geven.
+Leden kunnen niet van die groep worden verwijderd.
+De leden moeten zichzelf ontheffen uit deze rol.
+Weet u zeker dat u door wilt gaan?
+		<usetemplate ignoretext="Wanneer u groepsleden toevoegt aan de eigenaren rol" name="okcancelignore" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="AssignDangerousActionWarning">
+		U staat op het punt de Bekwaamheid &apos;[ACTION_NAME]&apos; aan de Rol &apos;[ROLE_NAME]&apos; toe te voegen.
+
+ *WAARSCHUWING*
+ Elk lid in de Rol met deze Bekwaamheid kan zichzelf - en elk ander lid - Rollen geven die meer mogelijkheden hebben dan waar zij nu over beschikken, zichzelf daarmee verheffend tot bijna eigenaar mogelijkheden. Weet zeker waar u mee bezig bent alvorens deze Bekwaamheid toe te kennen.
+
+Deze Bekwaamheid toevoegen aan &apos;[ROLE_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="AssignDangerousAbilityWarning">
+		U staat op het punt de Bekwaamheid &apos;[ACTION_NAME]&apos; aan de Rol &apos;[ROLE_NAME]&apos; toe te voegen.
+
+ *WAARSCHUWING*
+ Elk lid in de Rol met deze Bekwaamheid kan zichzelf - en elk ander lid - alle Bekwaamheden geven, zich daarmee verheffend tot bijna Eigenaar mogelijkheden.
+
+Deze Bekwaamheid toevoegen aan &apos;[ROLE_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="ClickPublishHelpLand">
+		Het selecteren van de &quot;Publiceer in Zoeken&quot; optie
+Het aan vinken van deze optie zal:
+- dit perceel weergeven in de zoek resultaten
+- de publieke objecten van dit perceel weergeven
+- dit perceel in web zoeken weergeven
+	</notification>
+	<notification name="ClickSoundHelpLand">
+		Media en muziek kunnen alleen binnen het perceel ervaren worden. Geluid- en voice-opties kunnen worden beperkt tot het perceel of zullen worden gehoord door inwoners buiten het perceel, gebaseerd op hun inhoudscategorie. Ga naar de kennisbank om meer te leren over hoe deze opties ingesteld kunnen worden.
+		<url name="url">
+			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=5046
+		</url>
+    <usetemplate
+     name="okcancelbuttons"
+     yestext="Ga naar kennisbank"
+	 notext="Sluiten" />
+	</notification>
+	<notification name="ClickSearchHelpAll">
+		Zoekresultaten zijn georganiseerd op basis van het tabblad waar u zich in bevindt, uw inhoudscategorie, de gekozen categorie en andere factoren. Kijk alstublieft in de kennisbank voor meer details.
+		<url name="url">
+			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=4722
+		</url>
+    <usetemplate
+     name="okcancelbuttons"
+     yestext="Ga naar kennisbank"
+	 notext="Sluiten" />
+	</notification>
+	<notification name="ClickPublishHelpLandDisabled">
+		U kunt dit perceel niet zichtbaar maken in zoeken omdat het zich in een regio bevindt dat dit niet toelaat
+	</notification>
+	<notification name="ClickPublishHelpAvatar">
+		Het selecteren van &quot;Weergeven in Zoeken&quot; zal weergeven:
+- mijn profiel in de zoek resultaten
+- een link naar mijn profiel in de publieke groep pagina&apos;s
+	</notification>
+	<notification name="ClickPartnerHelpAvatar">
+		U kunt een andere Inwoner ten huwelijk vragen of een bestaand partner schap verbreken via de [SECOND_LIFE] website.
+
+Naar de [SECOND_LIFE] website gaan voor meer informatie over partner schap?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ga naar Pagina"/>
+	</notification>
+	<notification name="ClickUploadHelpPermissions">
+		Uw standaard permissies werken mogelijk niet in oudere regio&apos;s.
+	</notification>
+	<notification name="ClickWebProfileHelpAvatar">
+		Als een Inwoner een web profiel URL heeft ingesteld:
+* Klik op &apos;Laden&apos; om de pagina in deze web tab te zien.
+* Klik op Laden &gt; &apos;In externe browser&apos; om de pagina in uw standaard browser te zien
+* Klik op Laden &gt; &apos;Thuis pagina URL&apos; om terug te keren naar het web profiel van deze Inwoner indien U verder genavigeerd bent.
+
+Indien u uw eigen profiel bekijkt, kunt U elke willekeurige URL opgeven als uw web profiel en op OK klikken om het in te stellen.
+Andere Inwoners kunnen de door U opgegeven URL bezoeken indien zij uw profiel bekijken.
+	</notification>
+	<notification name="JoinGroupCanAfford">
+		Deelname aan deze groep kost L$[COST].
+Wilt u doorgaan?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Deelnemen"/>
+	</notification>
+	<notification name="JoinGroupCannotAfford">
+		Deelname aan deze groep kost L$[COST].
+U heeft niet genoeg L$ om deel te kunnen nemen aan deze groep.
+	</notification>
+	<notification name="LandBuyPass">
+		Voor L$[COST] krijgt u toegang tot het land (&apos;[PARCEL_NAME]&apos;) voor de duur van [TIME] uur.
+
+Een pas kopen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="SalePriceRestriction">
+		De verkoopprijs moet ingesteld staan op meer dan L$0 indien u aan iemand verkoopt.
+Kies een individu indien u het voor L$0 verkoopt.
+	</notification>
+	<notification name="ConfirmLandSaleChange">
+		De geselecteerde [LAND_SIZE] m² land is te koop gezet.
+Uw verkoopprijs is L$[SALE_PRICE] en zal geautoriseerd worden voor verkoop door [NAME].
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmLandSaleToAnyoneChange">
+		ATTENTIE: Het aanklikken van &apos;verkoop aan iedereen&apos; zal uw land beschikbaar maken aan de gehele [SECOND_LIFE] gemeenschap, zo ook diegenen niet in deze regio!
+
+De geselecteerde [LAND_SIZE] m² land is te koop gezet.
+Uw verkoopprijs is L$[SALE_PRICE] en zal geautoriseerd worden voor verkoop door [NAME].
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnObjectsDeededToGroup">
+		Weet u zeker dat u alle met de groep &apos;[NAME]&apos; gedeelde objecten van dit perceel wilt retourneren naar de inventaris van hun vorige eigenaren?
+
+*WAARSCHUWING* Dit zal alle niet-overdraagbare aan de groep toegekende objecten verwijderen!
+
+Objecten: [N]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnObjectsOwnedByUser">
+		Weet u zeker dat u alle objecten van Inwoner &apos;[NAME]&apos; op dit perceel wilt retourneren naar hun inventaris?
+
+Objecten: [N]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnObjectsOwnedBySelf">
+		Weet u zeker dat u al uw eigen objecten op dit perceel wilt retourneren naar uw inventaris?
+
+Objecten: [N]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnObjectsNotOwnedBySelf">
+		Weet u zeker dat u alle objecten op dit perceel die geen eigendom van u zijn wilt retourneren naar de inventaris van hun eigenaren?
+Overdraagbare objecten toegekend aan de groep zullen worden geretourneerd naar de oorspronkelijke eigenaren.
+
+*WAARSCHUWING* Dit zal alle niet-overdraagbare aan de groep toegekende objecten verwijderen!
+
+Objecten: [N]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnObjectsNotOwnedByUser">
+		Weet u zeker dat u alle objecten op dit perceel die GEEN eigendom zijn van [NAME] wilt retourneren naar de inventaris van hun eigenaar? Overdraagbare objecten toegekend aan de groep zullen worden geretourneerd naar de oorspronkelijke eigenaren.
+
+*WAARSCHUWING* Dit zal alle niet-overdraagbare aan de groep toegekende objecten verwijderen!
+
+Objecten: [N]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnAllTopObjects">
+		Weet u zeker dat u alle weergegeven objecten wilt retourneren naar de inventaris van hun eigenaar?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="DisableAllTopObjects">
+		Weet u zeker dat u alle objecten in deze regio uit wilt schakelen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ReturnObjectsNotOwnedByGroup">
+		Alle objecten op dit perceel die NIET gedeeld worden met de groep [NAME] retourneren naar hun eigenaren?
+
+Objecten: [N]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="UnableToDisableOutsideScripts">
+		Kan scripts niet uitschakelen.
+Voor de hele regio is letsel ingeschakeld.
+Scripts moeten toegestaan worden om wapens te kunnen laten werken.
+	</notification>
+	<notification name="MustBeInParcel">
+		U moet binnen een perceel staan om het Landings Punt in te stellen.
+	</notification>
+	<notification name="PromptRecipientEmail">
+		Geef alstublieft een geldig email adres op van de ontvanger(s).
+	</notification>
+	<notification name="PromptSelfEmail">
+		Voer uw email adres in.
+	</notification>
+	<notification name="PromptMissingSubjMsg">
+		Foto e-mailen met het standaard onderwerp of bericht?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ErrorProcessingSnapshot">
+		Fout opgetreden met het verwerken van de foto gegevens
+	</notification>
+	<notification name="ErrorEncodingSnapshot">
+		Fout opgetreden met het coderen van de foto.
+	</notification>
+	<notification name="ErrorUploadingPostcard">
+		Er is een probleem met het verzenden van de foto vanwege de volgende reden: [REASON]
+	</notification>
+	<notification name="ErrorUploadingReportScreenshot">
+		Er is een probleem met het uploaden van de rapport foto vanwege de volgende reden: [REASON]
+	</notification>
+	<notification name="MustAgreeToLogIn">
+		U moet akkoord gaan met de Voorwaarden van Dienstverlening (Terms of Service) om in te kunnen loggen in [SECOND_LIFE].
+	</notification>
+	<notification name="CouldNotPutOnOutfit">
+		Kon de outfit niet aan doen.
+De outfit folder bevat geen kleding, lichaamsdelen of externe bevestigingen.
+	</notification>
+	<notification name="CannotWearTrash">
+		U kunt geen kleding of lichaamsdelen aan trekken die zich in de vuilnisbak bevinden.
+	</notification>
+	<notification name="CannotWearInfoNotComplete">
+		U kunt dat item niet aantrekken omdat het nog niet geladen is. Probeer het over een minuut opnieuw.
+	</notification>
+	<notification name="MustHaveAccountToLogIn">
+		Oeps! Iets is nog leeg.
+U moet zowel de voornaam als de achternaam van uw avatar opgeven.
+
+U heeft een account nodig om [SECOND_LIFE] binnen te gaan. Wilt u er nu een maken?
+		<url name="url">
+			https://join.secondlife.com/index.php?lang=nl-NL
+		</url>
+		<usetemplate name="okcancelbuttons" notext="Probeer het opnieuw" yestext="Maak een nieuw account"/>
+	</notification>
+	<notification name="AddClassified">
+		Geclassificeerde advertenties verschijnen een week lang in de &apos;Advertentie&apos; sectie van de Zoek gids en op www.secondlife.com.
+Vul uw advertentie in en klik op &apos;Publiceer...&apos; om het toe te voegen aan de gids.
+Er zal u om een prijs worden gevraagd als u deze gaat publiceren.
+Indien u meer betaald zal uw advertentie hoger in de lijst verschijnen en ook hoger als men op sleutelwoorden zoekt.
+		<usetemplate ignoretext="Indien u een advertentie toevoegt" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="DeleteClassified">
+		Advertentie &apos;[NAME]&apos; verwijderen?
+Betaalde advertentiekosten zullen niet worden terug gestort.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ClassifiedSave">
+		Wijzigingen in advertentie [NAME] opslaan?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Niet Opslaan" yestext="Opslaan"/>
+	</notification>
+	<notification name="DeleteAvatarPick">
+		Favoriet [PICK] verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="PromptGoToEventsPage">
+		Naar de [SECOND_LIFE] evenementen web pagina gaan?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="SelectProposalToView">
+		Kies alstublieft een voorstel om in te zien.
+	</notification>
+	<notification name="SelectHistoryItemToView">
+		Kies alstublieft een geschiedenis item om in te zien.
+	</notification>
+	<notification name="ResetShowNextTimeDialogs">
+		Wilt u alle Pop-Up&apos;s opnieuw inschakelen die u eerder aanmerkte als &apos;Laat mij niet opnieuw zien&apos;?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="SkipShowNextTimeDialogs">
+		Wilt u alle Pop-Up&apos;s uitschakelen die overgeslagen kunnen worden?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="CacheWillClear">
+		De cache zal geleegd worden als u [APP_NAME] opnieuw start.
+	</notification>
+	<notification name="CacheWillBeMoved">
+		De cache zal verplaatst worden als u [APP_NAME] opnieuw start.
+Opmerking: Dit zal de Cache legen.
+	</notification>
+	<notification name="ChangeConnectionPort">
+		Poort instelling zullen effect hebben nadat u [APP_NAME] opnieuw start.
+	</notification>
+	<notification name="ChangeSkin">
+		De nieuwe skin zal verschijnen nadat u [APP_NAME] opnieuw start.
+	</notification>
+	<notification name="GoToAuctionPage">
+		Ga naar de [SECOND_LIFE] web pagina om de veiling details te zien of een bod uit te brengen.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="SaveChanges">
+		Wijzigingen Opslaan?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Niet Opslaan" yestext="Opslaan"/>
+	</notification>
+	<notification name="GestureSaveFailedTooManySteps">
+		Gebaar opslaan is niet gelukt.
+Dit gebaar heeft te veel stappen.
+Probeer enkele stappen te verwijderen en opnieuw op te slaan.
+	</notification>
+	<notification name="GestureSaveFailedTryAgain">
+		Gebaar opslaan is niet gelukt. Probeer het over enkele ogenblikken opnieuw.
+	</notification>
+	<notification name="GestureSaveFailedObjectNotFound">
+		Kon het gebaar niet opslaan omdat het object of bijbehorende object niet in de inventaris kon worden gevonden.
+
+Het object kan buiten bereik of mogelijk verwijderd zijn.
+	</notification>
+	<notification name="GestureSaveFailedReason">
+		Er was een probleem met het opslaan van het gebaar vanwege de volgende reden: [REASON].  Probeert u het gebaar later nogmaals op te slaan.
+	</notification>
+	<notification name="SaveNotecardFailObjectNotFound">
+		Kon de notitiekaart niet opslaan omdat het object of bijbehorende object niet in de inventaris kon worden gevonden.
+
+Het object kan buiten bereik of mogelijk verwijderd zijn.
+	</notification>
+	<notification name="SaveNotecardFailReason">
+		Er was een probleem met het opslaan van de notitiekaart vanwege de volgende reden: [REASON].  Probeert u de notitiekaart later nogmaals op te slaan.
+	</notification>
+	<notification name="ScriptCannotUndo">
+		Kon niet alle wijzigingen ongedaan maken in uw versie van het script.
+Wilt u de laatst op de server opgeslagen versie laden?
+(**Waarschuwing** Deze operatie kan niet ongedaan gemaakt worden.)
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="SaveScriptFailReason">
+		Er was een probleem met het opslaan van een script vanwege de volgende reden: [REASON].  Probeert u het script later nogmaals op te slaan.
+	</notification>
+	<notification name="SaveScriptFailObjectNotFound">
+		Kon het script niet opslaan omdat het object waar het in zit niet gevonden kon worden.
+Het object kan buiten bereik of mogelijk verwijderd zijn.
+	</notification>
+	<notification name="SaveBytecodeFailReason">
+		Er was een probleem met het opslaan van een gecompileerd script vanwege de volgende reden: [REASON].  Probeert u het script later nogmaals op te slaan.
+	</notification>
+	<notification name="CouldNotStartStopScript">
+		Kon het script niet starten of stoppen omdat het object wat het in zit niet gevonden kon worden.
+Het object kan buiten bereik of mogelijk verwijderd zijn.
+	</notification>
+	<notification name="CannotDownloadFile">
+		Kon het bestand niet downloaden
+	</notification>
+	<notification name="CannotWriteFile">
+		Kan niet naar bestand [[FILE]] schrijven
+	</notification>
+	<notification name="UnsupportedHardware">
+		Waarschuwing: Uw systeem voldoet niet aan de [APP_NAME] minimum systeem eisen. Indien u [APP_NAME] gebruikt, ervaart u mogelijk slechte prestaties. Helaas kunnen we geen technische ondersteuning geven voor niet ondersteunde configuraties.
+
+MINSPECS
+Wilt u [_URL] bezoeken voor meer informatie?
+		<url name="url" option="0">
+			http://secondlife.com/support/sysreqs.php?lang=nl
+		</url>
+		<usetemplate ignoretext="Indien niet ondersteunde hardware gedetecteerd" name="okcancelignore" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="UnknownGPU">
+		Uw systeem heeft een grafische kaart die bij ons nog niet bekend is op dit moment.
+
+Dit is vaak het geval met nieuwe hardware waarbij wij nog niet de kans gehad hebben om het te testen. [APP_NAME] zal mogelijk naar behoren functioneren, doch het kan zijn dat u uw grafische instellingen naar geschiktere waarden zult moeten instellen.
+(Bewerken menu &gt; Voorkeuren &gt; Grafisch).
+		<form name="form">
+			<ignore name="ignore" text="Indien een onbekende grafische kaart gedetecteerd"/>
+		</form>
+	</notification>
+	<notification name="DisplaySettingsNoShaders">
+		[APP_NAME] is gestopt bij het initialiseren van de grafische stuurprogramma&apos;s.
+Grafische kwaliteit zal op zijn laagst worden ingesteld om veel voorkomende fouten met stuurprogramma&apos;s te vermijden.
+Dit zal sommige grafische opties uitschakelen.
+Wij adviseren u de stuurprogramma&apos;s van uw grafische kaart bij te werken.
+Grafische kwaliteit kan verhoogd worden in Voorkeuren &gt; Grafisch.
+	</notification>
+	<notification name="RegionNoTerraforming">
+		De regio [REGION] staat geen land aanpassingen toe.
+	</notification>
+	<notification name="CannotCopyWarning">
+		U heeft geen permissie dit item te kopiëren en zult het kwijtraken als u het weg geeft. Wilt u dit item echt aanbieden?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="CannotGiveItem">
+		Kan inventaris item niet geven.
+	</notification>
+	<notification name="TransactionCancelled">
+		Transactie afgebroken.
+	</notification>
+	<notification name="TooManyItems">
+		Kan niet meer dan 42 items in één enkele inventaris overdracht geven.
+	</notification>
+	<notification name="NoItems">
+		U heeft geen permissie de geselecteerde items over te dragen.
+	</notification>
+	<notification name="CannotCopyCountItems">
+		U heeft geen permissie om [COUNT] geselecteerde items te kopiëren. U zult deze items uit uw inventaris kwijtraken.
+Weet u zeker dat u deze items wilt geven?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="CannotGiveCategory">
+		U heeft geen permissie de geselecteerde map over te dragen.
+	</notification>
+	<notification name="FreezeAvatar">
+		Avatar bevriezen?
+Hij of zij zal zich tijdelijk niet kunnen bewegen, praten of interactie kunnen hebben met de wereld.
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Ontdooien" yestext="Bevriezen"/>
+	</notification>
+	<notification name="FreezeAvatarFullname">
+		Bevries [AVATAR_NAME]?
+Hij of zij zal zich tijdelijk niet kunnen bewegen, praten of interactie kunnen hebben met de wereld.
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Ontdooien" yestext="Bevriezen"/>
+	</notification>
+	<notification name="EjectAvatarFullname">
+		[AVATAR_NAME] van uw land verwijderen?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Verwijderen en Bannen" yestext="Verwijderen"/>
+	</notification>
+	<notification name="EjectAvatarNoBan">
+		Deze avatar van u land verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Verwijder"/>
+	</notification>
+	<notification name="EjectAvatarFullnameNoBan">
+		[AVATAR_NAME] van uw land verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Verwijder"/>
+	</notification>
+	<notification name="AcquireErrorTooManyObjects">
+		VERWERVINGS FOUT: Te veel objecten geselecteerd
+	</notification>
+	<notification name="AcquireErrorObjectSpan">
+		VERWERVINGS FOUT: Objecten beslaan meer dan één regio.
+Verplaats alstublieft alle objecten die u wilt verwerven naar dezelfde regio.
+	</notification>
+	<notification name="PromptGoToCurrencyPage">
+		[EXTRA]
+
+Naar [_URL] gaan voor informatie over de aankoop L$?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="UnableToLinkObjects">
+		Kon deze [COUNT] objecten niet linken.
+U kunt maximaal [MAX] objecten linken.
+	</notification>
+	<notification name="CannotLinkIncompleteSet">
+		U kunt alleen complete sets van objecten linken en moet meer dan één object selecteren.
+	</notification>
+	<notification name="CannotLinkModify">
+		Kon niet linken omdat u geen wijziging permissies heeft op alle objecten.
+
+Wees er van overtuigd dat er geen enkele geblokkeerd is en dat ze allen uw eigendom zijn.
+	</notification>
+	<notification name="CannotLinkDifferentOwners">
+		Kon niet linken omdat niet alle objecten dezelfde eigenaar hebben.
+
+Wees er van overtuigd dat alle objecten uw eigendom zijn.
+	</notification>
+	<notification name="NoFileExtension">
+		Geen bestandsextensie voor het bestand: &apos;[FILE]&apos;
+
+Zorg dat het bestand de juiste bestandsextensie heeft.
+	</notification>
+	<notification name="InvalidFileExtension">
+		Ongeldige bestandsextensie [EXTENSION]
+Verwacht [VALIDS]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="CannotUploadSoundFile">
+		Kon het geüploade geluidsbestand niet openen om te lezen:
+[FILE]
+	</notification>
+	<notification name="SoundFileNotRIFF">
+		Het bestand lijkt geen RIFF WAVE bestand te zijn:
+[FILE]
+	</notification>
+	<notification name="SoundFileNotPCM">
+		Het bestand lijkt geen PCM WAVE audio bestand te zijn:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidChannelCount">
+		Het bestand heeft een ongeldig aantal kanalen (moet mono of stereo zijn):
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidSampleRate">
+		Het bestand lijkt geen ondersteund sample rate te hebben (moet 44.1k zijn):
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidWordSize">
+		Het bestand lijkt geen ondersteund word size te hebben (moet 8 of 16 bit zijn):
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidHeader">
+		Kon geen &apos;data&apos; chunk in WAV header vinden:
+[FILE]
+	</notification>
+	<notification name="SoundFileInvalidTooLong">
+		Audio bestand is te lang (10 seconden maximum):
+[FILE]
+	</notification>
+	<notification name="ProblemWithFile">
+		Probleem met bestand [FILE]:
+
+[ERROR]
+	</notification>
+	<notification name="CannotOpenTemporarySoundFile">
+		Kon geen tijdelijk gecomprimeerd geluidsbestand openen om naar toe te schrijven: [FILE]
+	</notification>
+	<notification name="UnknownVorbisEncodeFailure">
+		Onbekende Vorbis codeer fout in: [FILE]
+	</notification>
+	<notification name="CannotEncodeFile">
+		Kan bestand niet coderen: [FILE]
+	</notification>
+	<notification name="CorruptResourceFile">
+		Beschadigd bron bestand: [FILE]
+	</notification>
+	<notification name="UnknownResourceFileVersion">
+		Onbekende Linden bronbestandsversie in bestand: [FILE]
+	</notification>
+	<notification name="UnableToCreateOutputFile">
+		Niet mogelijk om uitvoerbestand te maken: [FILE]
+	</notification>
+	<notification name="DoNotSupportBulkAnimationUpload">
+		Wij ondersteunen momenteel geen bulk upload van animatie bestanden.
+	</notification>
+	<notification name="CannotUploadReason">
+		Niet mogelijk om bestand [FILE] te uploaden vanwege de volgende reden: [REASON]
+Probeer het later opnieuw.
+	</notification>
+	<notification name="CannotCreateLandmarkNotOwner">
+		U kunt hier geen land markering maken omdat de eigenaar van het land dit niet toestaat.
+	</notification>
+	<notification name="CannotRecompileSelectObjectsNoScripts">
+		Niet mogelijk om te &apos;her compileren&apos;.
+Selecteer een object met een script.
+	</notification>
+	<notification name="CannotRecompileSelectObjectsNoPermission">
+		Niet mogelijk om te &apos;hercompileren&apos;.
+
+Selecteer objecten met scripts waarvan u permissie heeft deze aan te passen.
+	</notification>
+	<notification name="CannotResetSelectObjectsNoScripts">
+		Kan geen &apos;Opnieuw instellen&apos; uitvoeren.
+
+Selecteer objecten met scripts.
+	</notification>
+	<notification name="CannotResetSelectObjectsNoPermission">
+		Kan geen &apos;Opnieuw instellen&apos; uitvoeren.
+
+Selecte objecten met scripts waarvan u permissie heeft deze aan te passen.
+	</notification>
+	<notification name="CannotSetRunningSelectObjectsNoScripts">
+		Kan geen enkele scripts instellen op &apos;Uitvoeren&apos;.
+
+Selecteer objecten met scripts.
+	</notification>
+	<notification name="CannotSetRunningNotSelectObjectsNoScripts">
+		Kan geen enkele scripts instellen op &apos;Niet uitvoeren&apos;.
+
+Selecteer objecten met scripts.
+	</notification>
+	<notification name="NoFrontmostFloater">
+		Geen voorgaande floating waarde om op te slaan.
+	</notification>
+	<notification name="SeachFilteredOnShortWords">
+		Uw zoek opdracht was aangepast en de woorden die te kort waren zijn verwijderd.
+
+Gezocht naar: [FINALQUERY]
+	</notification>
+	<notification name="SeachFilteredOnShortWordsEmpty">
+		Uw zoek termen waren te kort en er is geen zoekopdracht uitgevoerd.
+	</notification>
+	<notification name="CouldNotTeleportReason">
+		Kon niet Teleporteren.
+[REASON]
+	</notification>
+
+  <notification name="invalid_tport">
+Er is een probleem opgetreden bij het verwerken van uw verzoek voor een teleport. U dient wellicht opnieuw in te loggen voor uw kunt teleporteren. Wanneer u deze boodschap blijft ontvangen, controleert u dan alstublieft de Tech Support FAQ op:
+www.secondlife.com/support
+  </notification>
+  <notification name="invalid_region_handoff">
+Er is een probleem opgetreden bij het oversteken naar een andere regio. U dient wellicht opnieuw in te loggen voor uw kunt oversteken naar andere regio&apos;s. Wanneer u deze boodschap blijft ontvangen, controleert u dan alstublieft de Tech Support FAQ op:
+www.secondlife.com/support
+  </notification>
+  <notification name="blocked_tport">
+Sorry, teleport is momenteel geblokkeerd. Probeer het zo meteen opnieuw. Indien u nog steeds niet kunt teleporteren, log dan alstublieft uit en weer in om het probleem te verhelpen.
+  </notification>
+  <notification name="nolandmark_tport">
+Sorry, het systeem was niet in staat de bestemming van  de landmarkering te vinden.
+  </notification>
+  <notification name="timeout_tport">
+Sorry, het systeem was niet in staat om de teleport verbinding af te ronden. Probeer het zo meteen nog een keer.
+  </notification>
+  <notification name="noaccess_tport">
+Sorry, u heeft geen toegang tot die teleportbestemming.
+  </notification>
+  <notification name="missing_attach_tport">
+Uw bevestigingen zijn nog niet gearriveerd. Probeer nog een aantal seconden te wachten of log uit en weer in voor u probeert te teleporteren.
+  </notification>
+  <notification name="too_many_uploads_tport">
+De assetwachtrij in deze regio is momenteel volgelopen, dus uw teleportverzoek zal niet tijdig afgerond kunnen worden. Probeer het alstublieft opnieuw over een aantal minuten of ga naar een minder druk gebied.
+  </notification>
+  <notification name="expired_tport">
+Sorry, het systeem was niet in staat uw teleportverzoek tijdig af te ronden. Probeer het alstublieft opnieuw over een aantal minuten.
+  </notification>
+  <notification name="expired_region_handoff">
+Sorry, het systeem was niet in staat om het oversteken naar een andere regio tijdig af te ronden. Probeer het alstublieft opnieuw over een aantal minuten.
+  </notification>
+  <notification name="no_host">
+Kan teleportbestemming niet vinden. De bestemming is mogelijk tijdelijk niet beschikbaar of bestaat niet meer. Probeer het alstublieft opnieuw over een aantal minuten.
+  </notification>
+  <notification name="no_inventory_host">
+Het inventarissysteem is momenteel niet beschikbaar.
+  </notification>
+
+	<notification name="CannotSetLandOwnerNothingSelected">
+		Kan landeigenaar niet instellen:
+Geen perceel geselecteerd.
+	</notification>
+	<notification name="CannotSetLandOwnerMultipleRegions">
+		Kon geen land eigendom forceren omdat de selectie meerder regio&apos;s omvat.
+Selecteer alstublieft een kleiner gebied en probeer het opnieuw.
+	</notification>
+	<notification name="ForceOwnerAuctionWarning">
+		Dit perceel staat voor veiling aangemerkt. Eigendom forceren zal de veiling afbreking en kan potentieel een aantal inwoners niet erg blij maken als het bieden al is begonnen. Eigendom forceren?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="CannotContentifyNothingSelected">
+		Unable to contentify:
+Geen perceel geselecteerd.
+	</notification>
+	<notification name="CannotContentifyNoRegion">
+		Unable to contentify:
+Geen regio geselecteerd.
+	</notification>
+	<notification name="CannotReleaseLandNothingSelected">
+		Kan land niet afstaan:
+Geen perceel geselecteerd.
+	</notification>
+	<notification name="CannotReleaseLandNoRegion">
+		Kan land niet afstaan:
+kan de regio niet vinden.
+	</notification>
+	<notification name="CannotBuyLandNothingSelected">
+		Kan land niet kopen:
+Geen perceel geselecteerd.
+	</notification>
+	<notification name="CannotBuyLandNoRegion">
+		Kan land niet kopen:
+Kan de regio niet vinden waar dit land zich bevind.
+	</notification>
+	<notification name="CannotCloseFloaterBuyLand">
+		U kunt het Koop Land venster niet sluiten totdat [APP_NAME] de prijs van de transactie geschat heeft.
+	</notification>
+	<notification name="CannotDeedLandNothingSelected">
+		Kan land niet toekennen:
+Geen perceel geselecteerd.
+	</notification>
+	<notification name="CannotDeedLandNoGroup">
+		Kan land niet toekennen:
+Geen groep geselecteerd.
+	</notification>
+	<notification name="CannotDeedLandNoRegion">
+		Kan land niet toekennen:
+Kan de regio niet vinden waar dit land zich bevind.
+	</notification>
+	<notification name="CannotDeedLandMultipleSelected">
+		Kan land niet toekennen:
+Meerder percelen geselecteerd.
+
+Probeer één enkel perceel te selecteren.
+	</notification>
+	<notification name="ParcelCanPlayMedia">
+		Deze locatie van streaming media afspelen.
+
+Streaming media vereisen een snelle internet verbinding.
+
+Streaming media afspelen wanneer beschikbaar?
+(U kunt deze optie later wijzigen onder Preferenties &gt; Audio &amp; Video.)
+		<usetemplate name="okcancelbuttons" notext="Uitschakelen" yestext="Media Afspelen"/>
+	</notification>
+	<notification name="CannotDeedLandWaitingForServer">
+		Kan land niet toekennen:
+Wacht op de server om eigendom te rapporteren.
+
+Probeer het alstublieft opnieuw.
+	</notification>
+	<notification name="CannotDeedLandNoTransfer">
+		Kan land niet toekennen:
+De regio [REGION] staat geen overdracht van land toe.
+	</notification>
+	<notification name="CannotReleaseLandWatingForServer">
+		Kan land niet afstaan:
+Wacht op server om de perceel informatie bij te werken.
+
+Probeer het over enkele ogenblikken opnieuw.
+	</notification>
+	<notification name="CannotReleaseLandSelected">
+		Kan land niet afstaan:
+Niet alle geselecteerde percelen zijn uw eigendom.
+
+Kies alstublieft één perceel.
+	</notification>
+	<notification name="CannotReleaseLandDontOwn">
+		Kan land niet afstaan:
+U heeft geen permissie dit perceel vrij te geven.
+Percelen in uw eigendom verschijnen in groen.
+	</notification>
+	<notification name="CannotReleaseLandRegionNotFound">
+		Kan land niet afstaan:
+Kan de regio niet vinden waar dit land zich bevind.
+	</notification>
+	<notification name="CannotReleaseLandNoTransfer">
+		Kan land niet afstaan:
+De regio [REGION] staat geen overdracht van land toe.
+	</notification>
+	<notification name="CannotReleaseLandPartialSelection">
+		Kan land niet afstaan:
+U moet het gehele perceel selecteren om het vrij te kunnen geven.
+
+Selecteer het gehele perceel of deel het eerst op.
+	</notification>
+	<notification name="ReleaseLandWarning">
+		U staat op het punt om [AREA] m² land af te staan.
+Met het afstaan van dit perceel zal het uit uw land houderschapsoverzicht verdwijnen, maar zal u geen L$ toekennen.
+
+Dit land afstaan?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="CannotDivideLandNothingSelected">
+		Kan land niet opdelen:
+
+Geen percelen geselecteerd.
+	</notification>
+	<notification name="CannotDivideLandPartialSelection">
+		Kan land niet opdelen:
+
+U heeft het gehele perceel geselecteerd.
+Probeer een deel van het perceel te selecteren.
+	</notification>
+	<notification name="LandDivideWarning">
+		Opdelen zal het perceel in twee delen verdelen en elk perceel kan zijn eigen instellingen hebben. Sommige instellingen zullen naar de standaard waarden terugkeren als de operatie voltooid is.
+
+Land opdelen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="CannotDivideLandNoRegion">
+		Kan het land niet opdelen:
+Kan de regio niet vinden waar dit land zich bevind.
+	</notification>
+	<notification name="CannotJoinLandNoRegion">
+		Kan land niet verbinden:
+Kan de regio niet vinden waar dit land zich bevind.
+	</notification>
+	<notification name="CannotJoinLandNothingSelected">
+		Kan land niet verbinden:
+Geen perceel geselecteerd.
+	</notification>
+	<notification name="CannotJoinLandEntireParcelSelected">
+		Kan land niet verbinden:
+U heeft slechts één perceel geselecteerd.
+
+Selecteer land over beide percelen.
+	</notification>
+	<notification name="CannotJoinLandSelection">
+		Kan land niet verbinden:
+U moet meer dan één perceel selecteren.
+
+Selecteer land over beide percelen.
+	</notification>
+	<notification name="JoinLandWarning">
+		Het verbinding van dit land zal één groot perceel opleveren uit alle percelen die de rechthoek doorkruisen.
+U zult de naam en opties van het nieuwe perceel opnieuw in moeten stellen.
+
+Land verbinden?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ShowOwnersHelp">
+		Toon eigenaren: 
+Kleur percelen om het eigenaarstype te tonen.
+
+Groen = Uw land
+Aqua = Land van uw groep
+Rood = Eigendom van anderen
+Geel = Te koop
+Paars = Ter veiling
+Grijs = Openbaar
+	</notification>
+	<notification name="ConfirmNotecardSave">
+		Deze notitiekaart zal moet worden opgeslagen voordat het item kan worden gekopieerd of bekeken. Notitiekaart opslaan?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmItemCopy">
+		Dit item naar uw inventaris kopiëren?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Kopiëren"/>
+	</notification>
+	<notification name="ResolutionSwitchFail">
+		Mislukt om resolutie te verwisselen van [RESX] naar [RESY]
+	</notification>
+	<notification name="ErrorUndefinedGrasses">
+		Fout: Onbekend gras: [SPECIES]
+	</notification>
+	<notification name="ErrorUndefinedTrees">
+		Fout: Onbekende bomen: [SPECIES]
+	</notification>
+	<notification name="CannotSaveWearableOutOfSpace">
+		Kon &apos;[NAME]&apos; niet opslaan voor draagbaar item. U zult wat ruimte moeten maken op uw computer en het draagbare item opnieuw op moeten slaan.
+	</notification>
+	<notification name="CannotSaveToAssetStore">
+		Kon [NAME] niet opslaan in centrale (asset) opslag.
+Meestal is dit een tijdelijk probleem.
+Wijzig en sla het draagbaar item over een paar minuten opnieuw op.
+	</notification>
+	<notification name="YouHaveBeenLoggedOut">
+		U bent uitgelogd uit [SECOND_LIFE]:
+[MESSAGE]
+U kunt uw bestaande IM en chat bekijken door te klikken op &apos;Toon IM &amp; Chat&apos;. Anders, klik op Afsluiten om [APP_NAME] direct te verlaten.
+		<usetemplate name="okcancelbuttons" notext="Afsluiten" yestext="Toon IM &amp; Chat"/>
+	</notification>
+	<notification name="OnlyOfficerCanBuyLand">
+		Kan land niet voor de groep kopen:
+U heeft geen permissie land te kopen voor de actieve groep.
+	</notification>
+	<notification label="Vriend Toevoegen" name="AddFriend">
+		Vrienden kunnen elkaar permissie geven om elkaar te volgen op de Kaart en om Online status updates te verkrijgen.
+
+Vriendschap aanbieden aan [NAME]?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification label="Vriend Toevoegen" name="AddFriendWithMessage">
+		Vrienden kunnen elkaar permissie geven om elkaar te volgen op de Kaart en om Online status updates te verkrijgen.
+
+Vriendschap aanbieden aan [NAME]?
+		<form name="form">
+			<input name="message">
+				Wilt U mijn vriend zijn?
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="RemoveFromFriends">
+		Wilt u [FIRST_NAME] [LAST_NAME] van uw Vriend lijst verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="RemoveMultipleFromFriends">
+		Wilt u meerder vrienden van uw Vrienden lijst verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="GodDeleteAllScriptedPublicObjectsByUser">
+		Weet u zeker dat u alle gescripte objecten wilt verwijderen eigendom van
+** [AVATAR_NAME] **
+op allen hun land in deze sim?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="GodDeleteAllScriptedObjectsByUser">
+		Weet u zeker dat u ALLE gescripte objecten wilt VERWIJDEREN eigendom van
+** [AVATAR_NAME] **
+op AL het land in deze sim?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="GodDeleteAllObjectsByUser">
+		Weet u zeker, dat u ALLE objecten (gescript of niet) wilt VERWIJDEREN eigendom van
+** [AVATAR_NAME] **
+op AL het LAND in deze sim?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BlankClassifiedName">
+		U moet een naam opgeven voor uw advertentie.
+	</notification>
+	<notification name="MinClassifiedPrice">
+		De prijs voor weergave moet minimaal L$[MIN_PRICE] zijn.
+
+Voor alstublieft een hoger bedrag in.
+	</notification>
+	<notification name="ConfirmObjectDeleteLock">
+		Ten minste één van de geselecteerde items is geblokkeerd.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteNoCopy">
+		Ten minste één van de geselecteerde items is niet kopieerbaar.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteNoOwn">
+		Tenminste één van de geselecteerde items is niet uw eigendom.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLockNoCopy">
+		Ten minste één item is geblokkeerd.
+Ten minste één item is niet kopieerbaar.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLockNoOwn">
+		Ten minste één item is geblokkeerd.
+Tenminste één object is niet uw eigendom.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
+		Ten minste één object is niet kopieerbaar.
+Tenminste één object is niet uw eigendom.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
+		Ten minste één item is geblokkeerd.
+Ten minste één item is niet kopieerbaar.
+Tenminste één object is niet uw eigendom.
+
+Weet u zeker dat u deze items wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectTakeLock">
+		Ten minste één object is geblokkeerd.
+
+Weet u zeker dat u deze items terug wilt nemen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectTakeNoOwn">
+		Niet alle objecten die u terug neemt zijn uw eigendom.
+Indien u verder gaat, worden de permissies van de volgende eigenaar er op toegepast en beperkt het u mogelijk het aan te passen of te kopiëren.
+
+Weet u zeker dat u deze items terug wilt nemen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmObjectTakeLockNoOwn">
+		Ten minste één object is geblokkeerd.
+Niet alle objecten die u terug neemt zijn uw eigendom.
+Indien u verder gaat, worden de permissies van de volgende eigenaar er op toegepast en beperkt het u mogelijk het aan te passen of te kopiëren.
+Echter, U kunt de huidige selectie wel terugnemen.
+
+Weet u zeker dat u deze items terug wilt nemen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="CantBuyLandAcrossMultipleRegions">
+		Kan het land niet kopen omdat het meerder regio&apos;s omvat.
+
+Kiest u alstublieft een kleiner gebied en probeer het opnieuw.
+	</notification>
+	<notification name="DeedLandToGroup">
+		Voor het overdragen van dit perceel zal de groep voldoen land gebruikscredit moeten hebben en onderhouden.
+Het aankoop bedrag zal niet naar de eigenaar worden terug gestort.
+Indien een overgedragen perceel wordt verkocht, zal het verkoop bedrag gelijkmatig over de groepsleden worden verdeeld.
+
+Deze [AREA] m² land overdragen aan de groep &apos;[GROUP_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="DeedLandToGroupWithContribution">
+		Voor het overdragen van dit perceel zal de groep voldoen land gebruikscredit moeten hebben en onderhouden.
+De overdracht zal een simultane land contributie verlangen van de groep van &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+Het aankoop bedrag zal niet naar de eigenaar worden terug gestort.
+Indien een overgedragen perceel wordt verkocht, zal het verkoop bedrag gelijkmatig over de groepsleden worden verdeeld.
+
+Deze [AREA] m² land overdragen aan de groep &apos;[GROUP_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="DisplaySetToSafe">
+		Weergave instellingen zijn op veilige waarden ingesteld omdat u de -save optie op heeft gegeven.
+	</notification>
+	<notification name="DisplaySetToRecommended">
+		Weergave instellingen zijn ingesteld op geadviseerde waarden, gebaseerd op uw systeem configuratie.
+	</notification>
+	<notification name="ErrorMessage">
+		[ERROR_MESSAGE]
+	</notification>
+	<notification name="AvatarMoved">
+		Uw [TYPE] locatie is momenteel niet beschikbaar. 
+[HELP]
+U bent naar een nabij gelegen regio verplaatst.
+	</notification>
+	<notification name="ClothingLoading">
+		Uw kleding wordt nog steeds geladen.
+U kunt [SECOND_LIFE] normaal gebruiken en anderen zullen u correct zien.
+		<form name="form">
+			<ignore name="ignore" text="Indien kleding een erg lange tijd in beslag neemt om de laden"/>
+		</form>
+	</notification>
+	<notification name="FirstRun">
+		[APP_NAME] installatie compleet.
+
+Als dit de eerste keer is dat u [SECOND_LIFE] gebruikt, zult u een account aan moeten maken voordat u in kan loggen.
+Terugkeren naar [https://join.secondlife.com/index.php?lang=nl-NL secondlife.com] om een nieuw account aan te maken?
+		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Nieuw Account..."/>
+	</notification>
+	<notification name="LoginPacketNeverReceived">
+		Wij hebben problemen verbinding te maken. Er zou een probleem kunnen zijn met uw internet verbinding of met de [SECOND_LIFE] servers.
+
+U kunt uw internet verbinding controleren en het over een paar minuten opnieuw proberen, op Help klikken om verbinding te maken met onze support website, of klik op Teleporteren om een poging te doen naar uw thuis locatie te teleporteren.
+		<form name="form">
+			<button name="OK" text="OK"/>
+			<button name="Help" text="Help"/>
+			<button name="Teleport" text="Teleport"/>
+		</form>
+	</notification>
+	<notification name="WelcomeChooseSex">
+		Uw avatar zal over enkele ogenblikken verschijnen.
+
+Gebruik de pijltjestoetsen om te lopen.
+Druk op elk gewenst moment op F1 voor Help en om meer te leren over [SECOND_LIFE].
+Kies alstublieft een mannelijk of vrouwelijke avatar. U kunt later nog van gedachten veranderen.
+		<usetemplate name="okcancelbuttons" notext="Vrouw" yestext="Man"/>
+	</notification>
+	<notification name="NotEnoughCurrency">
+		[NAME] L$ [PRICE] U heeft niet genoeg L$ om dit te doen.
+	</notification>
+	<notification name="GrantedModifyRights">
+		U heeft het recht verkregen om objecten van [FIRST_NAME] [LAST_NAME] te wijzigen.
+	</notification>
+	<notification name="RevokedModifyRights">
+		Uw recht om objecten van [FIRST_NAME] [LAST_NAME] is ingetrokken.
+	</notification>
+	<notification name="FlushMapVisibilityCaches">
+		Dit zal de Kaart cache van deze regio opschonen.
+
+Dit is eigenlijk alleen nuttig voor debugging.
+(In productie, wacht 5 minuten, dan zal de Kaart van iedereen bijgewerkt worden als ze opnieuw verbinden.)
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BuyOneObjectOnly">
+		Kan niet meer dan één object tegelijkertijd kopen. Selecteer alstublieft slechts één object en probeer opnieuw.
+	</notification>
+	<notification name="OnlyCopyContentsOfSingleItem">
+		Kan niet de inhoud van meer dan één item per keer kopiëren.
+Kies alstublieft slechts één object en probeer het opnieuw.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="KickUsersFromRegion">
+		Alle Inwoners in deze regio naar de thuis locatie Teleporteren?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="EstateObjectReturn">
+		Weet u zeker dat u alle objecten wilt retourneren eigendom van [USER_NAME] ?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="InvalidTerrainBitDepth">
+		Kon de regio textuur niet plaatsen:
+Terrein textuur [TEXTURE_NUM] heeft een ongeldige bit diepte van [TEXTURE_BIT_DEPTH].
+
+Vervang de textuur [TEXTURE_NUM] met een 24-bit 512x512 of een kleinere afbeelding, klik dan op opnieuw op &quot;Toepassen&quot;.
+	</notification>
+	<notification name="InvalidTerrainSize">
+		Kon de regio textuur niet plaatsen:
+Terrein textuur [TEXTURE_NUM] is te groot met [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
+
+Vervang de textuur [TEXTURE_NUM] met een 24-bit 512x512 of een kleinere afbeelding, klik dan op opnieuw op &quot;Toepassen&quot;.
+	</notification>
+	<notification name="RawUploadStarted">
+		Upload gestart. Het kan tot twee minuten duren, afhankelijk van u verbindings snelheid.
+	</notification>
+	<notification name="ConfirmBakeTerrain">
+		Wilt u werkelijk het huidige terrein &apos;baken&apos;, dit als middelpunt voor de verhoog/verlaag limieten instellen en als standaard instellen voor het &apos;Herstel&apos; gereedschap?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="MaxAllowedAgentOnRegion">
+		U kunt slechts [MAX_AGENTS] Toegestane Inwoners hebben.
+	</notification>
+	<notification name="MaxBannedAgentsOnRegion">
+		U kunt slechts [MAX_BANNED] Verbannen Inwoners hebben.
+	</notification>
+	<notification name="MaxAgentOnRegionBatch">
+		Een poging [NUM_ADDED] agents toe te voegen is mislukt:
+Overstijgt de [MAX_AGENTS] [LIST_TYPE] limiet met [NUM_EXCESS].
+	</notification>
+	<notification name="MaxAllowedGroupsOnRegion">
+		U kunt slechts [MAX_GROUPS] Toegestane Groepen hebben.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Bake"/>
+	</notification>
+	<notification name="MaxManagersOnRegion">
+		U kunt slechts [MAX_MANAGER] Estate Beheerders hebben.
+	</notification>
+	<notification name="OwnerCanNotBeDenied">
+		Kan de estate eigenaar niet aan de Verbannen lijst van het estate toe voegen.
+	</notification>
+	<notification name="CanNotChangeAppearanceUntilLoaded">
+		Kan het Uiterlijk niet veranderen totdat kleding en Postuur geladen zijn.
+	</notification>
+	<notification name="ClassifiedMustBeAlphanumeric">
+		De naam van uw advertentie moet beginnen met een letter van A tot Z of een nummer.
+Leestekens zijn niet toegestaan.
+	</notification>
+	<notification name="CantSetBuyObject">
+		Kan Koop Object niet instellen omdat het object niet te koop is.
+Zet het object alstublieft te koop en probeer het opnieuw.
+	</notification>
+	<notification name="FinishedRawDownload">
+		Download van raw terrein bestand geëindigd naar:
+[DOWNLOAD_PATH].
+	</notification>
+	<notification name="DownloadWindowsMandatory">
+		Een nieuwe versie van [APP_NAME] is beschikbaar.
+[MESSAGE]
+U moet deze update downloaden om [APP_NAME] te kunnen gebruiken.
+		<usetemplate name="okcancelbuttons" notext="Afsluiten" yestext="Download"/>
+	</notification>
+	<notification name="DownloadWindows">
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
+[MESSAGE]
+Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
+		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
+	</notification>
+	<notification name="DownloadWindowsReleaseForDownload">
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
+[MESSAGE]
+Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
+		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
+	</notification>
+	<notification name="DownloadMacMandatory">
+		Een nieuwe versie van [APP_NAME] is beschikbaar.
+[MESSAGE]
+U moet deze update downloaden om [APP_NAME] te kunnen gebruiken.
+
+Downloaden naar uw Applicatie Data map?
+		<usetemplate name="okcancelbuttons" notext="Afsluiten" yestext="Download"/>
+	</notification>
+	<notification name="DownloadMac">
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
+[MESSAGE]
+Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
+
+Downloaden naar uw Applicatie Data map?
+		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
+	</notification>
+	<notification name="DownloadMacReleaseForDownload">
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
+[MESSAGE]
+Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
+
+Downloaden naar uw Applicatie Data map?
+		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
+	</notification>
+	<notification name="DeedObjectToGroup">
+		Dit object overdragen aan de groep zal de groep:
+* L$ ontvangen als betaald in het object
+		<usetemplate ignoretext="Bij objecten die overgedragen worden aan groepen" name="okcancelignore" notext="Annuleren" yestext="Overdragen"/>
+	</notification>
+	<notification name="WebLaunchExternalTarget">
+		Uw systeem browser openen om deze inhoud te bekijken?
+		<usetemplate ignoretext="Bij openen van systeem browser om de webpagina te bekijken" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchJoinNow">
+		Naar www.secondlife.com gaan om uw account te beheren?
+		<usetemplate ignoretext="Bij openen van webbrowser om uw account te beheren" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchSecurityIssues">
+		Bezoek de [SECOND_LIFE] Wiki voor details over hoe een Veiligheids Probleem (Security Issue) te rapporteren.
+		<usetemplate ignoretext="Bij openen webbrowser om de Veiligheids Problemen Wiki (Security Issues Wiki) te bekijken" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchQAWiki">
+		Bezoek de [SECOND_LIFE] QA Wiki (Kwaliteitsbeheersing Wiki).
+		<usetemplate ignoretext="Bij openen webbrowser om de QA Wiki (Kwaliteitsbeheersing Wiki) te bekijken" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchPublicIssue">
+		Bezoek de [SECOND_LIFE] Publieke problemenlijst, waar u Bugs en andere Problemen kunt rapporteren.
+		<usetemplate ignoretext="Bij openen webbrowser om de Publieke problemenlijst te bekijken" name="okcancelignore" notext="Annuleren" yestext="Ga naar pagina"/>
+	</notification>
+	<notification name="WebLaunchPublicIssueHelp">
+		Bezoek de [SECOND_LIFE] Wiki voor informatie over het gebruik van de Publieke problemenlijst.
+		<usetemplate ignoretext="Bij openen webbrowser om de Publieke problemenlijst Wiki te bekijken" name="okcancelignore" notext="Annuleren" yestext="Ga naar pagina"/>
+	</notification>
+	<notification name="WebLaunchSupportWiki">
+		Ga naar de Officiële Linden Blog voor het laatste Nieuws en Informatie.
+		<usetemplate ignoretext="Bij openen webbrowser om de blog te bekijken" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchLSLGuide">
+		Naar de Script Gids gaan voor hulp met scripten?
+		<usetemplate ignoretext="Bij openen webbrowser om de Script Gids te bekijken" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="WebLaunchLSLWiki">
+		Naar de LSL Portaal gaan voor hulp met scripten?
+		<usetemplate ignoretext="Bij openen webbrowser om de LSL Portal te bekijken" name="okcancelignore" notext="Annuleren" yestext="Ga naar pagina"/>
+	</notification>
+	<notification name="ReturnToOwner">
+		Weet u zeker dat u de geselecteerde objecten wilt retourneren naar de eigenaren?
+Overdraagbare toegekende objecten zullen naar de oorspronkelijke eigenaren worden geretourneerd.
+
+*WAARSCHUWING* Niet overdraagbare toegekende objecten zullen worden verwijderd!
+		<usetemplate ignoretext="Bij retourneren objecten naar de eigenaren" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="GroupLeaveConfirmMember">
+		U bent momenteel een lid van de groep [GROUP].
+Groep Verlaten?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmKick">
+		Weet u HEEL ZEKER dat u alle gebruikers uit het grid wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Verwijder Alle Gebruikers"/>
+	</notification>
+	<notification name="MuteLinden">
+		Sorry, u kunt geen Linden Negeren
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="CannotStartAuctionAlreadyForSale">
+		U kunt geen veiling starten op een perceel dat al te koop is gezet. Schakel de landverkoop uit wanneer u zeker bent dat u een veiling wil starten.
+	</notification>
+	<notification label="Negeren van object mislukt" name="MuteByNameFailed">
+		U heeft deze naam al genegeerd.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveItemWarn">
+		Alhoewel toegestaan, verwijderen van de inhoud kan het object beschadigen. Wilt u dit item verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="CantOfferCallingCard">
+		Kan op dit moment geen visitekaart aanbieden. Probeer het alstublieft later opnieuw.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="CantOfferFriendship">
+		Kan op dit moment geen vriendschap aanbieden. Probeer het alstublieft later opnieuw.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BusyModeSet">
+		Niet Storen modus ingesteld.
+
+Chat and instant messages zullen verborgen blijven. Instant messages zullen uw Niet Storen melding krijgen. Alle teleport aanbiedingen zullen worden afgewezen. Alle inventaris aanbiedingen zullen in uw Vuilnisbak terecht komen.
+		<usetemplate ignoretext="Bij instellen Niet Storen modus" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="JoinedTooManyGroupsMember">
+		U ben lid van teveel groepen om lid te worden van een andere. Verlaat op zijn minst één groep alvorens lid te worden van een andere of weiger de lidmaatschap aanbieding.
+Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;Bewerken&apos; menu.
+
+[NAME] heeft u uitgenodigd om lid te worden van de groep als algemeen lid.
+
+[INVITE]
+		<usetemplate name="okcancelbuttons" notext="Afslaan" yestext="Lid worden"/>
+	</notification>
+	<notification name="KickUser">
+		Verwijder deze gebruiker met welk bericht?
+		<form name="form">
+			<input name="message">
+				Een administrator heeft u uitgelogd.
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="KickAllUsers">
+		Verwijder iedereen momenteel op het grid met welk bericht?
+		<form name="form">
+			<input name="message">
+				Een administrator heeft u uitgelogd.
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="FreezeUser">
+		Bevries deze gebruiker met welk bericht?
+		<form name="form">
+			<input name="message">
+				U bent bevroren. U kunt zich niet verplaatsen of praten. Een administrator zal contact met u opnemen via instant message (IM).
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="UnFreezeUser">
+		Ontdooi deze gebruiker met welk bericht?
+		<form name="form">
+			<input name="message">
+				U bent niet langer bevroren.
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="OfferTeleport">
+		Een Teleport aanbieden naar uw locatie met welk bericht?
+		<form name="form">
+			<input name="message">
+				Voeg u bij mij in [REGION]
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="OfferTeleportFromGod">
+		God beveel gebruiker naar uw locatie?
+		<form name="form">
+			<input name="message">
+				Voeg u bij mij in [REGION]
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="TeleportFromLandmark">
+		Weet u zeker dat u wilt teleporteren?
+		<usetemplate ignoretext="Bij teleporteren via een landmarkering in inventaris" name="okcancelignore" notext="Annuleren" yestext="Teleporteren"/>
+	</notification>
+	<notification label="Bericht iedereen in uw Estate" name="MessageEstate">
+		Type een kort bericht om naar iedereen sturen die momenteel in uw Estate aanwezig is.
+		<form name="form">
+			<input name="message"/>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification label="Wijzig Linden Estate" name="ChangeLindenEstate">
+		U staat op het punt een Linden beheerde Estate te wijzigen mainland, teen grid, orientation, etc.).
+
+Dit is EXTREEM GEVAARLIJK om het fundamenteel de gebruikers ervaring kan aantasten.
+Op het mainland zal het duizenden regionen wijzigen en de spaceserver kan storingen vertonen.
+
+Doorgaan?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification label="Wijzig Linden Estate Toegang" name="ChangeLindenAccess">
+		U staat op het punt de toegangslijst van een Linden Estate eigendom aan te passen (mainland, teen grid, orientation, etc.).
+
+Dit is GEVAARLIJK en zou alleen gedaan moeten worden om de hack toe te staan om objecten/L$ over te dragen in/uit het grid.
+Het zal het duizenden regionen wijzigen en de spaceserver kan storingen vertonen.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateAllowedAgentAdd">
+		Alleen aan toegangslijst voor dit Estate toevoegen of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateAllowedAgentRemove">
+		Verwijderen van toegangslijst voor alleen dit Estate of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateAllowedGroupAdd">
+		Alleen aan groeps toegangslijst voor dit Estate toevoegen of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateAllowedGroupRemove">
+		Verwijderen van groeps toegangslijst voor alleen dit Estate of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateBannedAgentAdd">
+		Weiger toegang voor alleen dit Estate of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateBannedAgentRemove">
+		Deze Inwoner van de ban lijst voor toegang voor alleen dit Estate verwijderen of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateManagerAdd">
+		Estate beheerder toevoegen voor alleen dit Estate of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Selecteer Estate" name="EstateManagerRemove">
+		Estate beheerder verwijderen voor alleen dit Estate of voor [ALL_ESTATES]?
+		<usetemplate canceltext="Annuleren" name="yesnocancelbuttons" notext="Alle Estates" yestext="Dit Estate"/>
+	</notification>
+	<notification label="Bevestig Verwijderen" name="EstateKickUser">
+		Verwijder [EVIL_USER] van deze Estate?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="EstateChangeCovenant">
+		Weet u zeker dat u de Estate Convenant wilt wijzigen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="RegionEntryAccessBlocked">
+		U wordt niet in die regio toegelaten vanwege uw inhoudscategorie. Dit kan het gevolg zijn van een gebrek aan informatie die uw leeftijd valideert. 
+
+Verifieer alstublieft dat u de nieuwste viewer heeft geïnstalleerd en ga naar de kennisbank voor details over het betreden van gebieden met deze inhoudscategorie.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+	</notification>
+	<notification name="RegionEntryAccessBlocked_KB">
+		U wordt niet in die regio toegelaten vanwege uw inhoudscategorie.
+
+Ga naar de kennisbank voor meer informatie over inhoudscategorieën?
+		<url name="url">
+			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		</url>
+    <usetemplate
+     name="okcancelignore"
+     yestext="Ga naar kennisbank"
+	 notext="Sluiten"
+	 ignoretext="Wanneer regiotoegang wordt geblokkeerd vanwege de inhoudscategorie"/>
+	</notification>
+	<notification name="RegionEntryAccessBlocked_Notify">
+		U wordt niet in die regio toegelaten vanwege uw inhoudscategorie.
+	</notification>
+	<notification name="RegionEntryAccessBlocked_Change">
+		U wordt niet in die regio toegelaten vanwege uw inhoudscategorie.
+
+U kunt klikken op &apos;Wijzig voorkeur&apos; om uw inhoudscategorie voorkeur nu te verhogen en toegelaten te worden. U zult in staat zijn om [REGIONMATURITY] inhoud te zoeken en benaderen vanaf dit moment. Wanneer u later deze instelling wilt wijzigen, ga dan naar Bewerken &gt; Voorkeuren... &gt; Algemeen.
+	 <form name="form">
+      <button
+       name="OK"
+       text="Wijzig voorkeur"/>
+      <button
+       default="true"
+       name="Cancel"
+       text="Sluiten"/>
+       <ignore name="ignore" text="Wanneer regiotoegang wordt geblokkeerd vanwege de inhoudscategorie voorkeur"/>
+    </form>
+	</notification>
+	<notification name="LandClaimAccessBlocked">
+		U kunt dit land niet opeisen vanwege uw inhoudscategorie. Dit kan het gevolg zijn van een gebrek aan informatie die uw leeftijd valideert. 
+
+Verifieer alstublieft dat u de nieuwste viewer heeft geïnstalleerd en ga naar de kennisbank voor details over het betreden van gebieden met deze inhoudscategorie.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+	</notification>
+	<notification name="LandClaimAccessBlocked_KB">
+		U kunt dit land niet opeisen vanwege uw inhoudscategorie.
+
+Ga naar de kennisbank voor meer informatie over inhoudscategorieën?
+		<url name="url">
+			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		</url>
+    <usetemplate
+     name="okcancelignore"
+     yestext="Ga naar kennisbank"
+	 notext="Sluiten"
+	 ignoretext="Wanneer het opeisen van land wordt geblokkeerd vanwege de inhoudscategorie"/>
+	</notification>
+	<notification name="LandClaimAccessBlocked_Notify">
+		U kunt dit land niet opeisen vanwege uw inhoudscategorie.
+	</notification>
+	<notification name="LandClaimAccessBlocked_Change">
+		U kunt dit land niet opeisen vanwege uw inhoudscategorie voorkeur. 
+
+U kunt klikken op &apos;Wijzig voorkeur&apos; om uw inhoudscategorie voorkeur nu te verhogen en toegang te krijgen om binnen te treden. U zult in staat zijn om [REGIONMATURITY] inhoud vanaf nu te zoeken en benaderen. Wanneer u deze instelling later terug wilt zetten, gaat u naar Bewerken &gt; Voorkeuren... &gt; Algemeen.
+    <usetemplate
+     name="okcancelignore"
+     yestext="Wijzig voorkeur"
+	 notext="Sluiten"
+	 ignoretext="Wanneer het opeisen van land wordt geblokkeerd vanwege de inhoudscategorie voorkeur"/>
+	</notification>
+	<notification name="LandBuyAccessBlocked">
+		U kunt dit land niet kopen vanwege uw inhoudscategorie. Dit kan het gevolg zijn van een gebrek aan informatie die uw leeftijd valideert. 
+
+Verifieer alstublieft of u de nieuwste viewer heeft geïnstalleerd en ga naar de kennisbank voor details over het betreden van gebieden met deze inhoudscategorie.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+	</notification>
+	<notification name="LandBuyAccessBlocked_KB">
+		U kunt dit land niet kopen vanwege uw inhoudscategorie. 
+
+Ga naar de kennisbank voor meer informatie over inhoudscategorieën?
+		<url name="url">
+			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		</url>
+    <usetemplate
+     name="okcancelignore"
+     yestext="Ga naar kennisbank"
+	 notext="Sluiten"
+	 ignoretext="Wanneer een landaankoop wordt geblokkeerd vanwege de inhoudscategorie"/>
+	</notification>
+	<notification name="LandBuyAccessBlocked_Notify">
+		U kunt dit land niet kopen vanwege uw inhoudscategorie.
+	</notification>
+	<notification name="LandBuyAccessBlocked_Change">
+		U kunt dit land niet kopen vanwege uw inhoudscategorie voorkeur. 
+
+U kunt klikken op &apos;Wijzig voorkeur&apos; om uw inhoudscategorie voorkeur nu te verhogen en toegang te krijgen om binnen te treden. U zult in staat zijn om [REGIONMATURITY] inhoud vanaf nu te zoeken en benaderen. Wanneer u deze instelling later terug wilt zetten, gaat u naar Bewerken &gt; Voorkeuren... &gt; Algemeen.
+    <usetemplate
+     name="okcancelignore"
+     yestext="Wijzig voorkeur"
+	 notext="Sluiten"
+	 ignoretext="Wanneer een landaankoop wordt geblokkeerd vanwege de inhoudscategorie voorkeur"/>
+	</notification>
+	<notification name="TooManyPrimsSelected">
+		&quot;Er zijn teveel prims geselecteerd. Selecteer alstublieft [MAX_PRIM_COUNT] of minder prims en probeer opnieuw.&quot;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ProblemImportingEstateCovenant">
+		Probleem met importeren Estate Convenant.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ProblemAddingEstateManager">
+		Problemen met het toevoegen van een Estate beheerder. Eén of meer Estates kunnen een volle beheerders lijst hebben.
+	</notification>
+	<notification name="ProblemAddingEstateGeneric">
+		Problemen met toevoegen aan deze Estate lijst. Eén of meer Estates kunnen een volle lijst hebben.
+	</notification>
+	<notification name="UnableToLoadNotecardAsset">
+		Kan de asset van de notitiekaart op dit moment niet laden.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NotAllowedToViewNotecard">
+		Onvoldoende rechten om de notitiekaart in te zien geassocieerd met het opgevraagde asset ID.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MissingNotecardAssetID">
+		Asset ID voor de notitiekaart ontbreekt in de database.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PublishClassified">
+		Bedenk: kosten voor advertenties worden niet terugbetaald.
+
+Advertentie nu Publiceren voor L$[AMOUNT]?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="SetClassifiedMature">
+		Bevat deze advertentie Mature inhoud?
+    <usetemplate
+     canceltext="Annuleren"
+     name="yesnocancelbuttons"
+     notext="Nee"
+     yestext="Ja"/>
+	</notification>
+	<notification name="SetGroupMature">
+		Bevat deze groep Mature inhoud?
+    <usetemplate
+     canceltext="Annuleren"
+     name="yesnocancelbuttons"
+     notext="Nee"
+     yestext="Ja"/>
+	</notification>
+	<notification label="Bevestig herstart" name="ConfirmRestart">
+		Wilt u deze regio echt binnen 2 minuten herstarten?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification label="Bericht iedereen in deze regio" name="MessageRegion">
+		Type een kort bericht om naar iedereen sturen die momenteel in regio aanwezig is.
+		<form name="form">
+			<input name="message"/>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification label="Weiger Land aanpassingen" name="HelpRegionBlockTerraform">
+		Indien dit aan gevinkt kunnen landeigenaren geen terrein bewerkingen doen op hun land, ongeacht de per perceel ingestelde waarde voor &apos;Wijzig Terrein&apos;
+
+Standaard: uitgeschakeld
+	</notification>
+	<notification label="Blokkeer Vliegen" name="HelpRegionBlockFly">
+		Indien dit is aan gevinkt kunnen personen niet vliegen in deze regio ongeacht de per perceel ingestelde waarde &apos;Vliegen&apos;
+
+Standaard: uitgeschakeld
+	</notification>
+	<notification label="Bulkwijzigen Inhoudpermissies" name="HelpBulkPermission">
+		Het Bulkpermissiesgereedschap helpt u om snel de permissies op meerdere items in de inhoud van het geselecteerde object te wijzigen. Let echter op dat u alleen de permissies op de items in de Inhoud van de geselecteerde objecten instelt -- niet de permissies van het containerobject zelf. 
+
+Merk ook op dat de permissies niet worden toegepast op de geneste inhoud van de items in Inhoud. Uw verzoek werkt alleen op items precies één niveau diep. 
+
+U kunt selectief kiezen welke soorten objecten te wijzigen door gebruik te maken van de checklist onder &apos;Inhoud Types&apos; hier. Foto&apos;s worden opgenomen wanneer u Texturen selecteert.
+
+* Dit gereedschap is alleen succesvol in het wijzigen van permissies op objecten die u mag wijzigen. 
+* U kunt geen &apos;Volgende Eigenaar&apos; permissies toekennen die u niet al bezit. 
+* De &apos;Volgende Eigenaar&apos; permissies zijn slechts verzoeken. Indien een item niet alle nieuwe permissies kan overnemen, zal geen van zijn permissies wijzigen. 
+
+Wanneer u klaar bent om de permissies in bulk te wijzigen, klik dan &apos;Toepassen&apos; en wacht tot de resultaten worden weergegeven. 
+
+Indien u het Bulkpermissies venster sluit terwijl permissies gewijzigd worden, zal de verwerking gestopt worden. 
+	</notification>
+	<notification label="Sta Letsel Toe" name="HelpRegionAllowDamage">
+		Indien dit is aan gevinkt stelt het Letsel systeem in voor alle percelen, ongeacht de individuele instellingen op de percelen. Indien uitgeschakeld, kunnen perceel eigenaren het Letsel systeem op hun perceel activeren.
+
+Standaard: uitgeschakeld
+	</notification>
+	<notification label="Agent Limiet" name="HelpRegionAgentLimit">
+		Stelt het maximale aantal toegestane avatars in voor deze regio.
+De prestaties kunnen variëren afhankelijk van het aantal aanwezige avatars.
+
+Standaard: 40
+	</notification>
+	<notification label="Object Bonus" name="HelpRegionObjectBonus">
+		De Object Bonus is een vermeerderaar voor primitieven op een willekeurig perceel.
+Het bereik is van 1 tot 10. Ingesteld op &apos;1&apos; kan elk 512m² perceel 117 objecten bevatten. Ingesteld op &apos;2&apos; kan elk 512m² perceel 234 objecten bevatten, enzovoort. Het maximale aantal objecten blijft 15.000, ongeacht wat de Object Bonus is. Denk er aan, dat eenmaal ingesteld, het verlagen van de Object Bonus het retourneren of verwijderen van objecten tot gevolg kan hebben.
+
+Standaard: 1.0
+	</notification>
+	<notification label="Inhoudscategorie:" name="HelpRegionMaturity">
+		Stelt de inhoudscategorie van de regio in, zoals getoond in de menubalk bovenaan de viewer van elke inwoner en in tooltips op de wereldkaart wanneer de aanwijzer boven deze regio zweeft. Deze instelling heeft ook invloed op de toegang tot deze regio en zoekresultaten. Andere inwoners kunnen alleen regio&apos;s binnengaan of zoekresultaten zien met dezelfde inhoudscategorie als die zij zelf hebben gekozen in hun voorkeuren. 
+
+Het kan enige tijd duren voordat deze wijziging zichtbaar is op de wereldkaart.
+	</notification>
+	<notification label="Beperk Duwen" name="HelpRegionRestrictPushObject">
+		Deze instelling stelt de hele regio in op beperkte duwen permissies.
+Indien aan gevinkt kunnen Inwoners alleen door hun zelf geduwd worden of door de perceel eigenaar.
+
+(Push (Duwen) verwijst naar de llPushObject() LSL functie)
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Perceel Samenvoegen/Opsplitsen" name="HelpParcelChanges">
+		Deze instelling stel in of percelen die niet van de estate eigenaar zijn kunnen worden samengevoegd of opgesplitst.
+
+Indien niet aan gevinkt:
+ * Alleen Estate eigenaren of beheerders kunnen percelen samenvoegen op opsplitsen.
+ * Zij kunnen alleen percelen samenvoegen of opsplitsen die eigendom zijn van de eigenaar of van een groep met de juiste bevoegdheden.
+
+Indien aan gevinkt:
+ * Alle perceel eigenaren kunnen percelen samenvoegen of opsplitsen die zij bezitten.
+ * Voor percelen in Groep eigendom, kunnen alleen zij met de juiste rechten percelen samenvoegen of opsplitsen.
+
+Standaard: Ingeschakeld
+	</notification>
+	<notification label="Niet in Zoeken tonen" name="HelpRegionSearch">
+		Deze optie aan vinken zal perceel eigenaren blokkeren hun perceel in Zoeken te tonen.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Regio Volwassenen Gewijzigd" name="RegionMaturityChange">
+		De Volwassen instelling voor deze regio is bijgewerkt.
+Het kan enige tijd duren voordat de wijziging zichtbaar is op de Kaart.
+	</notification>
+	<notification label="Land Herverkoop" name="HelpRegionLandResell">
+		Estate eigenaren en beheerders kunnen elk stuk land verkopen in eigendom van de Estate eigenaar.
+
+Indien deze optie niet is aan gevinkt, kunnen kopers hun land in deze regio niet verkopen.
+Indien deze optie is aan gevinkt, kunnen kopers hun land in deze regio verkopen.
+
+Standaard: Niet toestaan
+	</notification>
+	<notification label="Scripts Uitschakelen" name="HelpRegionDisableScripts">
+		Indien de sim prestaties slecht zijn, kan een script de oorzaak zijn. Open de Statistieken balk (Ctrl+Shift+1). Kijk naar de Simulator Fysieke FPS. Indien het lager is dan 45, open dan het Tijd paneel onderaan de Statistieken balk. Indien de Script Tijd 25 ms of hoger is, klik dan op de Top Scripts knop. U krijgt dan een naam en lokatie van scripts die mogelijk de slechte prestaties veroorzaken.
+
+Het aan vinken van Scripts Uitschakelen en vervolgens op de Toepassen knop drukken, zal tijdelijk alle scripts in deze regio uitschakelen. U zult dit mogelijk moeten doen om naar de lokatie te gaan van het &apos;top script&apos;. Eenmaal aangekomen, onderzoek dan of het script het probleem veroorzaakt. U zult mogelijk de eigenaar willen contacteren of het object willen retourneren c.q. verwijderen.
+Verwijder het vinkje van Scripts Uitschakelen en klik op Toepassen om scripts weer te reactiveren in de regio.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Botsingen Uitschakelen" name="HelpRegionDisableCollisions">
+		Indien de sim prestaties slecht zijn, kunnen fysieke objecten de oorzaak zijn. Open de Statistieken balk (Ctrl+Shift+1). Kijk naar de Simulator Fysieke FPS. Indien het lager is dan 45, open dan het Tijd paneel onderaan de Statistieken balk. Indien de Sim Tijd (Fysiek) 20 ms of hoger is, klik dan op de Toon Top Botsingen knop. U krijgt dan een naam en lokatie van de fysieke objecten die mogelijk de slecht prestaties veroorzaken.
+
+Het aan vinken van de Botsingen Uitschakelen knop en vervolgens op de Toepassen knop drukken, zal tijdelijk object-object botsingen uitschakelen. U zult dit mogelijk moeten doen om naar de lokatie te gaan van de &apos;top botsingen&apos;. Eenmaal aangekomen, onderzoek dan het object. Botst het constant met andere objecten? U zult mogelijk de eigenaar willen contacteren of het object willen retourneren c.q. verwijderen.
+Verwijder het vinkje van Botsingen Uitschakelen en klik op Toepassen om botsingen weer te reactiveren in de regio.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Fysiek Uitschakelen" name="HelpRegionDisablePhysics">
+		Fysiek Uitschakelen is gelijkwaardig aan Botsingen Uitschakelen, alleen alle fysieke simulatie is uitgeschakeld. Dit betekend dat niet alleen alle objecten zullen stoppen met botsen, maar ook dat avatars zich niet meer kunnen bewegen.
+
+Dit zou alleen gebruikt moeten worden als het uitschakelen van Botsingen niet genoeg prestatie winst geeft om een fysiek probleem of top botsingen te onderzoeken.
+
+Indien u klaar bent, wees er dan zeker van Fysiek weer in te schakelen, anders kunnen avatars zich niet meer bewegen.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Top Botsingen" name="HelpRegionTopColliders">
+		Toon een lijst van objecten van het grootste aantal potentiële object-object botsingen.
+Deze objecten kunnen een trage prestatie veroorzaken. Selecteer Beeld &gt; Statistieken Balk en kijk onder Simulator &gt; Tijd &gt; Sim Tijd (Fysiek) om te zien of meer dan 20 ms wordt gespendeerd aan fysiek.
+	</notification>
+	<notification label="Top Scripts" name="HelpRegionTopScripts">
+		Toon een lijst van objecten die de meeste tijd besteden aan het uitvoeren van LSL scripts.
+Deze objecten kunnen een trage prestatie veroorzaken. Selecteer Beeld &gt; Statistieken Balk en kijk onder Simulator &gt; Tijd &gt; Script Tijd om te zien of meer dan 25 ms wordt gespendeerd aan scripts.
+	</notification>
+	<notification label="Herstart Regio" name="HelpRegionRestart">
+		Herstart het server proces van de regio na een twee minuten waarschuwing.
+Alle Inwoners van de regio zullen de verbinding kwijt raken. De regio zal alle gegevens bewaren en zou binnen 90 seconden weer operabel moeten zijn.
+
+De regio herstarten zou de meeste prestatie problemen moeten verhelpen en zou normaal gesproken alleen gebruikt moeten worden indien aangegeven.
+	</notification>
+	<notification label="Water Hoogte" name="HelpRegionWaterHeight">
+		Dit is de hoogte in meters waarop het water verschijnt.
+Als deze instelling anders is dan 20 en u heeft water aan de rand van de wereld of u heeft &apos;ontbrekend&apos; water, zal er een gat zichtbaar zijn.
+
+Standaard: 20
+	</notification>
+	<notification label="Terrein Ophogen" name="HelpRegionTerrainRaise">
+		Dit is de hoogte in meters dat perceel eigenaren hun terrein kunnen verhogen boven de standaard &apos;baked&apos; terrein hoogte.
+
+Standaard: 4
+	</notification>
+	<notification label="Terrein Verlagen" name="HelpRegionTerrainLower">
+		Dit is de hoogte in meters dat perceel eigenaren hun terrein kunnen verlagen onder de standaard &apos;baked&apos; terrein hoogte.
+
+Standaard: -4
+	</notification>
+	<notification label="Upload RAW Terrein" name="HelpRegionUploadRaw">
+		Deze knop upload een .RAW bestand naar de regio waar u zich bevindt.
+Het bestand moet de juiste afmetingen hebben (RGB, 256x256) en 13 kanalen.
+De beste manier om een terrein bestand te maken is het downloaden van een bestaand RAW bestand. Een goede eerste stap is om het rode kanaal (land hoogte) aan te passen en dat te uploaden.
+
+De upload kan tot 45 seconden in beslag nemen. Bedenk dat het uploaden van een terrein bestand de objecten reeds aanwezig op het land *niet* zal verplaatsen, alleen het terrein zelf en de permissies geassocieerd met de percelen. Dit kan resulteren in objecten die ondergronds gaan.
+
+Voor meer informatie over het wijzigen van de hoogte velden, raadpleeg F1 Help.
+	</notification>
+	<notification label="Download RAW Terrein" name="HelpRegionDownloadRaw">
+		Deze knop download een bestand welke de hoogte veld gegevens, perceel afmetingen, perceel te koop status en sommige perceel permissies bevat voor deze regio.
+Indien u het bestand opent in een programma als Photoshop, moet u de document afmetingen opgeven, welk RGB, 256x256 met 13 kanalen is. Dit terrein bestand kan op geen enkele andere manier worden geopend.
+
+Voor meer informatie over het wijzigen van de hoogte velden, raadpleeg F1 Help.
+	</notification>
+	<notification label="Gebruik Estate Zon" name="HelpRegionUseEstateSun">
+		Dit aan vinken zorgt er voor dat de zon positie overeen komt met de zon positie in de rest van het Estate.
+
+Standaard: Ingeschakeld
+	</notification>
+	<notification label="Vaste Zon" name="HelpRegionFixedSun">
+		Dit aan vinken stelt de zon in op de positie van de Fase schuif knop en stopt het verder bewegen van de zon.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Bake Terrein" name="HelpRegionBakeTerrain">
+		Deze knop slaat de huidige vorm van het terrein op als nieuwe standaard voor de regio. Eenmaal baked, kan het land terugkeren naar de opgeslagen vorm wanneer u of anderen gebruik maken van de Wijzig Terrein &apos;Terugkeer&apos; optie. Het baked terrein is ook het uitgangspunt voor de terrein verhogings- en verlagingslimieten.
+	</notification>
+	<notification label="Estate Beheerders" name="HelpEstateEstateManager">
+		Een Estate Beheerder is een Inwoner aan wie u de controle over de regio en estate instellingen heeft uitbesteed. De Estate Beheerder kan de instellingen wijzigen in deze panels, behalve het uploaden, downloaden en terrein bakken. In bijzonder kunnen zij Inwoners toestaan of verbannen van het Estate.
+
+Estate Beheerders kunnen alleen toegevoegd of verwijderd worden door de eigenaar van het Estate, niet door elkaar. Gebruik alstublieft alleen Inwoners die u kunt vertrouwen als Estate Beheerders, omdat uiteindelijk u verantwoordelijk bent voor hun acties.
+	</notification>
+	<notification label="Gebruik Globale Tijd" name="HelpEstateUseGlobalTime">
+		Dit aan vinken zorgt ervoor dat de zon in uw estate dezelfde positie volgt als in Linden-eigendom &apos;mainland&apos; Estates.
+
+Standaard: aan
+	</notification>
+	<notification label="Vaste Zon" name="HelpEstateFixedSun">
+		Dit aan vinken stelt de zon in op de positie van de Fase schuif knop en stopt het verder bewegen van de zon.
+	</notification>
+	<notification label="Publieke Toegang" name="HelpEstateExternallyVisible">
+		Dit aan vinken geeft aan dat Inwoners die in andere Estates zijn, deze Estate kunnen bezoeken zonder op de Toegangs lijst te staan.
+
+Standaard: Ingeschakeld
+	</notification>
+	<notification label="Direct Teleporteren Toestaan" name="HelpEstateAllowDirectTeleport">
+		Indien aan gevinkt staat het Inwoners toe om direct te Teleporteren naar elke plek in uw Estate. Indien niet aan gevinkt kunnen Inwoners Teleporteren naar de dichtstbijzijnde telehub.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Toegang Toestaan" name="HelpEstateAllowResident">
+		Toegang tot dit Estate zal gelimiteerd zijn tot Inwoners in deze lijst en onderstaande groepen. Deze instelling is allen beschikbaar indien Publieke Toegang niet is aan gevinkt.
+	</notification>
+	<notification label="Groeps Toegang Toestaan" name="HelpEstateAllowGroup">
+		Toegang tot dit Estate zal gelimiteerd worden tot groepen in deze lijst en elke Inwoner bovenaan. Deze Instelling is alleen beschikbaar als Publieke Toegang niet is aan gevinkt.
+	</notification>
+	<notification label="Misbruik Email Adres" name="HelpEstateAbuseEmailAddress">
+		Dit instellen met een geldig email adres zal misbruik rapporten op dit Estate doen versturen naar dat adres.
+Indien u het leeg laat, zullen misbruik rapporten alleen verzonden worden naar Linden Lab.
+	</notification>
+	<notification label="Toegang Weigeren" name="HelpEstateBanResident">
+		Inwoners in deze lijst zijn de toegang geweigerd in uw Estate, ongeacht elke andere instelling.
+	</notification>
+	<notification label="Voice Chat Toestaan" name="HelpEstateVoiceChat">
+		Percelen in dit Estate kunnen hun eigen Voice kanalen hebben waarin Inwoners die in de buurt van elkaar zijn, elkaar kunnen horen en met elkaar kunnen praten.
+
+Standaard: Uitgeschakeld
+	</notification>
+	<notification label="Voice Versie Ongelijkheid" name="VoiceVersionMismatch">
+		Deze versie van [APP_NAME] is niet compatibel met de Voice spraak optie in deze regio. Om Voice Chat goed te laten functioneren, moet u [APP_NAME] bijwerken.
+	</notification>
+	<notification label="Estate Convenant" name="HelpEstateCovenant">
+		Het instellen van een Estate Convenant maakt het u mogelijk om percelen in het Estate te verkopen. Indien de Convenant niet is ingesteld kunt u het niet verkopen. Een notitiekaart voor uw Convenant kan leeg zijn indien u geen regels wilt instellen, advies aan kopers wilt geven of iets anders in relatie tot het land wilt mededelen voor als men het koopt.
+
+Een Convenant kan gebruikt worden als u regels wilt mededelen, richtlijnen, culturele informatie of simpelweg uw eigen verwachtingen aan prospect kopers.
+Dit kan zoneren bevatten, bouw reglementen, betaal opties of elke andere vorm van informatie waarvan u het belangrijk vind dat de nieuwe eigenaar het heeft gezien en mee akkoord is gegaan alvorens het te kopen.
+
+De koper moet instemmen met de Convenant middels het aan vinken van het kadertje alvorens zij de aankoop af kunnen ronden. Estate Overeenkomsten zijn altijd zichtbaar in het Over Land dialoog venster voor elk perceel dat er eentje ingesteld heeft staan.
+	</notification>
+	<notification label="Kan Geen Objecten Kopen" name="BuyObjectOneOwner">
+		Kan geen objecten van verschillende eigenaren tegelijk kopen.
+
+Kies alstublieft slechts één object en probeer het opnieuw.
+	</notification>
+	<notification label="Kan Inhoud Niet Kopen" name="BuyContentsOneOnly">
+		Kan geen inhoud kopen van meer dan één object tegelijk.
+
+Kies alstublieft slechts één object en probeer het opnieuw.
+	</notification>
+	<notification label="Kan Inhoud Niet Kopen" name="BuyContentsOneOwner">
+		Kan geen inhoud kopen van verschillende eigenaren tegelijk.
+
+Kies alstublieft slechts één object en probeer het opnieuw.
+	</notification>
+	<notification name="BuyOriginal">
+		Koop originele object van [OWNER] voor L$[PRICE]?
+U zult de eigenaar worden van dit object.
+U kunt het dan:
+ Wijzigen: [MODIFYPERM]
+ Kopiëren: [COPYPERM]
+ Verkopen of Weggeven: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BuyOriginalNoOwner">
+		Koop originele object voor L$[PRICE]?
+U zult de eigenaar worden van dit object.
+U kunt het dan:
+ Wijzigen: [MODIFYPERM]
+ Kopiëren: [COPYPERM]
+ Verkopen of Weggeven: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BuyCopy">
+		Koop een kopie van [OWNER] voor L$[PRICE]?
+Het object zal gekopieerd worden naar uw inventaris.
+U kunt het dan:
+ Wijzigen: [MODIFYPERM]
+ Kopiëren: [COPYPERM]
+ Verkopen of Weggeven: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BuyCopyNoOwner">
+		Koop een kopie voor L$[PRICE]?
+Het object zal gekopieerd worden naar uw inventaris.
+U kunt het dan:
+ Wijzigen: [MODIFYPERM]
+ Kopiëren: [COPYPERM]
+ Verkopen of Weggeven: [RESELLPERM]
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BuyContents">
+		Koop de inhoud van [OWNER] voor L$[PRICE]?
+De inhoud zal naar uw inventaris gekopieerd worden.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="BuyContentsNoOwner">
+		Koop de inhoud voor L$[PRICE]?
+De inhoud zal naar uw inventaris gekopieerd worden.
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmPurchase">
+		Deze transactie zal:
+[ACTION]
+
+Weet u zeker dat u verder wilt gaan met deze aankoop?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmPurchasePassword">
+		Deze transactie zal:
+[ACTION]
+
+Weet u zeker dat u verder wilt gaan met deze aankoop?
+Voer alstublieft opnieuw uw wachtwoord in en klik op OK.
+		<form name="form">
+			<input name="message"/>
+			<button name="ConfirmPurchase" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="SetPickLocation">
+		Opmerking:
+
+U heeft de locatie van deze Favoriet bijgewerkt, maar andere details blijven ongewijzigd.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MoveInventoryFromObject">
+		U heeft &apos;niet kopieerbare&apos; items geselecteerd.
+Deze items zullen worden verplaatst naar uw inventaris, niet gekopieerd.
+
+Verplaats de inventaris item(s)?
+		<usetemplate ignoretext="Wanneer niet kopieerbare inventaris uit objecten verplaatst wordt" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="MoveInventoryFromScriptedObject">
+		U heeft &apos;niet kopieerbare&apos; inventaris items geselecteerd.
+Deze items zullen verplaatst worden naar uw inventaris, niet gekopieerd.
+Omdat deze objecten scripts bevatten, kan het verplaatsen naar uw inventaris er voor zorgen dat het object niet meer werkt.
+inventaris item(s) verplaatsen?
+		<usetemplate ignoretext="Indien verplaatsen &apos;niet kopieerbare&apos; inventaris van gescripte objecten" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ClickActionNotPayable">
+		Waarschuwing: Het &apos;Betaal object&apos; aan klik actie is ingesteld, maar het zal alleen werken als er een script is toegevoegd met een money() event.
+		<form name="form">
+			<ignore name="ignore" text="Indien instellen &apos;Betaal&apos; op objecten zonder money() events"/>
+		</form>
+	</notification>
+	<notification name="OpenObjectCannotCopy">
+		Er zitten geen items in dit object die u kunt kopiëren.
+	</notification>
+	<notification name="WebLaunchAccountHistory">
+		Naar de [SECOND_LIFE] web site gaan om uw account geschiedenis te bekijken?
+		<usetemplate ignoretext="Bij laden van de account geschiedenis webpagina" name="okcancelignore" notext="Annuleren" yestext="Ga naar pagina"/>
+	</notification>
+	<notification name="ClickOpenF1Help">
+		De [SECOND_LIFE] Support Web site bezoeken?
+		<usetemplate ignoretext="Bij bezoeken van de [SECOND_LIFE] Support Website." name="okcancelignore" notext="Annuleren" yestext="Ga"/>
+	</notification>
+	<notification name="ConfirmQuit">
+		Weet u zeker dat u wilt afsluiten?
+		<usetemplate ignoretext="Bij afsluiten [APP_NAME]." name="okcancelignore" notext="Doorgaan" yestext="Afsluiten"/>
+	</notification>
+	<notification name="HelpReportAbuseEmailLL">
+		Gebruik dit gereedschap om overtredingen van de Voorwaarden voor Service (Terms of Service) en Gemeenschaps Standaarden (Community Standards)te rapporteren. Zie:
+
+http://secondlife.com/corporate/tos.php
+http://secondlife.com/corporate/cs.php
+
+Alle gerapporteerde misbruiken van de Voorwaarden voor Service en Gemeenschaps Standaarden zullen worden onderzocht en opgelost. U kunt de incident oplossing in de Incidenten Rapportage zien op:
+
+http://secondlife.com/support/incidentreport.php
+	</notification>
+	<notification name="HelpReportAbuseEmailEO">
+		BELANGRIJK: Dit rapport zal naar de eigenaar van deze regio gaan en niet naar Linden Lab!
+
+Als een service aan Inwoners en bezoekers heeft de eigenaar van deze regio er voor gekozen om rapporten vanuit deze regio zelf te ontvangen en af te handelen. Linden Lab zal geen onderzoek doen naar rapporten die u indient vanaf deze locatie.
+
+De regio eigenaar zal de rapporten afhandelen op basis van de regels geldend voor deze regio zoals weergegeven in het Estate Convenant (Bekijk Convenants door naar Wereld te gaan in het menu en te kiezen voor Over Land).
+
+De afhandeling van dit rapport is alleen van toepassing op deze regio.
+Toegang van Inwoners tot andere gebieden van [SECOND_LIFE] zullen niet beïnvloed worden door de uitkomst van dit rapport. Alleen Linden Lab kan de toegang tot geheel [SECOND_LIFE] beperken.
+	</notification>
+	<notification name="HelpReportAbuseSelectCategory">
+		Selecteer alstublieft een categorie voor dit misbruik rapport.
+
+Het selecteren van een categorie helpt ons met het archiveren en verwerken van misbruik rapporten.
+	</notification>
+	<notification name="HelpReportAbuseAbuserNameEmpty">
+		Geef alstublieft een naam op van de misbruiker.
+
+Een accurate waarde opgeven helpt ons met het archiveren en verwerken van misbruik rapporten.
+	</notification>
+	<notification name="HelpReportAbuseAbuserLocationEmpty">
+		Geef alstublieft een locatie op waar het misbruik plaats vond.
+
+Een accurate waarde opgeven helpt ons met het archiveren en verwerken van misbruik rapporten.
+	</notification>
+	<notification name="HelpReportAbuseSummaryEmpty">
+		Geef alstublieft een korte samenvatting op van het misbruik dat plaats vond.
+
+Een accurate waarde opgeven helpt ons met het archiveren en verwerken van misbruik rapporten.
+	</notification>
+	<notification name="HelpReportAbuseDetailsEmpty">
+		Geef alstublieft een gedetailleerde omschrijving van het misbruik dat plaats vond.
+
+Wees zo specifiek als mogelijk, inclusief namen en details van het incident waarover u rapporteert.
+
+Het opgeven van een accurate omschrijving helpt ons met het archiveren en verwerken van misbruik rapporten.
+	</notification>
+	<notification name="HelpReportAbuseContainsCopyright">
+		Beste Inwoner,
+
+Het lijkt er op dat u intellectueel eigendoms misbruik rapporteert. Wees er alstublieft van overtuigd dat u dit correct rapporteert:
+
+(1) Het Misbruik Proces. U kunt een misbruik rapport indienen als u er van overtuigd bent dat een Inwoner het [SECOND_LIFE] permissie systeem uitbuit, bijvoorbeeld door gebruik van CopyBot of soortgelijke gereedschappen, daarmee de intellectuele eigendoms rechten overtredend. Het Abuse Team onderzoekt en zal passende maatregelen uitvaardigen tegen gedrag dat de [SECOND_LIFE] Gemeenschaps Standaarden overtreedt. Echter, het Abuse Team zal geen actie ondernemen en niet reageren op verzoeken om inhoud te verwijderen uit de [SECOND_LIFE] wereld.
+
+(2) Het DMCA of Inhoud Verwijder Proces. Voor een verzoek tot verwijdering van inhoud in [SECOND_LIFE], MOET u een geldige berichtgeving van misbruik indienen zoals voorzien in onze DMCA beleid op http://secondlife.com/corporate/dmca.php.
+
+Indien u nog steeds door wilt gaan met het misbruik proces, sluit dan alstublieft dit venster en maak het indienen van uw rapport af. U zult mogelijk een specifieke catagorie moeten kiezen &apos;CopyBot of Permissie Uitbuiting&apos;.
+
+Dank U,
+Linden Lab
+	</notification>
+	<notification name="FailedRequirementsCheck">
+		De volgende vereiste componenten ontbreken van [FLOATER]:
+[COMPONENTS]
+	</notification>
+	<notification label="Vervang Bestaande Bevestiging" name="ReplaceAttachment">
+		Er is al een object bevestigd op dit punt aan uw lichaam.
+Wilt u dit vervangen met het geselecteerde object?
+		<form name="form">
+			<ignore name="ignore" save_option="true" text="Bij vervangen van bestaande bevestigingen"/>
+			<button name="Yes" text="OK"/>
+			<button name="No" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification label="Niet Storen Modus Waarschuwing" name="BusyModePay">
+		U bevind zich in Niet Storen Modus, hetgeen inhoudt dat u geen enkele items kunt ontvangen voor deze betaling.
+
+Wilt u de Niet Storen Modus verlaten voordat u deze transactie completeert?
+		<form name="form">
+			<ignore name="ignore" save_option="true" text="Bij betalen van een persoon of object in Niet Storen modus"/>
+			<button name="Yes" text="OK"/>
+			<button name="No" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="ConfirmEmptyTrash">
+		Weet u zeker dat u de inhoud van uw vuilnisbak map permanent wilt verwijderen?
+		<usetemplate ignoretext="Bij verwijderen van de inhoud uit de inventaris vuilnisbak map" name="okcancelignore" notext="Annuleren" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearBrowserCache">
+		Weet u zeker dat u uw browsercache wilt legen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ja"/>
+	</notification>
+	<notification name="ConfirmClearCookies">
+		Weet u zeker dat u al uw cookies wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ja"/>
+	</notification>
+	<notification name="ConfirmClearMediaUrlList">
+		Weet u zeker dat u uw lijst met al de opgeslagen URL&apos;s wilt verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ja"/>
+	</notification>
+	<notification name="ConfirmEmptyLostAndFound">
+		Weet u zeker dat u de inhoud van de Verloren en Gevonden map permanent wilt verwijderen?
+		<usetemplate ignoretext="Bij legen van uw inventaris Verloren en Gevonden map" name="okcancelignore" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="CopySLURL">
+		De volgende SLurl is gekopieerd naar uw klem bord:
+[SLURL]
+
+Plaats het in een web pagina om anderen eenvoudig toegang te verschaffen naar de locatie of test het zelf door het te plakken in de adres balk van uw web browser.
+		<form name="form">
+			<ignore name="ignore" text="Bij kopiëren van een SLurl naar het klem bord"/>
+		</form>
+	</notification>
+	<notification name="GraphicsPreferencesHelp">
+		Dit venster bepaald de venster afmetingen, resolutie en kwaliteit van de client&apos;s grafische weergave. De Voorkeuren &gt; Grafische interface laat u kiezen uit vier grafische niveaus: Laag, Middel, Hoog en Ultra. U kunt ook uw grafische instellingen aanpassen met het aan vinken van het Aangepast vakje en de volgende instellingen manipuleren:
+
+Shaders: In of uitschakelen van de verschillende typen pixel shaders.
+
+Reflectiedetail: Stelt het type objecten in hetgeen water kan reflecteren.
+
+Avatarweergave: Stelt de opties in die van invloed zijn op hoe de client een avatar zal renderen.
+
+Zichtbereik: Beïnvloed tot hoe ver objecten vanaf uw zichtpunt worden weergegeven in de scène.
+
+Maximaal Aantal Particles: Stelt het maximaal aantal particles in die u tegelijk kunt zien op uw scherm.
+
+Nabewerkingskwaliteit: Stelt de resolutie in waarmee Gloei wordt weergegeven.
+
+Maasdetail: Stelt de hoeveelheid detail of het aantal driehoeken in gebruikt voor de weergave van bepaalde objecten. Een hogere waarde zal langer nemen om weer te gegeven, maar zorgen voor objecten met meer detail.
+
+Lichtdetail: Bepaald welke typen lichten u wenst weer te geven.
+
+Terreindetail: Stelt de hoeveelheid detail in die u wilt zien voor het terrein textuur.
+	</notification>
+	<notification name="WLSavePresetAlert">
+		Wilt u de opgeslagen voor instellingen overschrijven?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="WLDeletePresetAlert">
+		Wilt u [SKY] verwijderen?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="WLNoEditDefault">
+		U kunt de standaard instellingen niet wijzigen of verwijderen.
+	</notification>
+	<notification name="WLMissingSky">
+		Dit dag cyclus bestand heeft een ontbrekend lucht bestand: [SKY].
+	</notification>
+	<notification name="PPSaveEffectAlert">
+		Voorbewerkingeffecten bestaan. Wilt u ze alsnog overschrijven?
+		<usetemplate name="okcancelbuttons" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="HelpEditSky">
+		Wijzig de WindLight schuif knoppen en maak en sla een set van luchten op.
+	</notification>
+	<notification name="HelpEditDayCycle">
+		Bepaald de luchten te gebruiken gedurende de dag.
+	</notification>
+	<notification name="EnvSettingsHelpButton">
+		Deze instelling bepalen hoe de omgeving er uit ziet op uw computer. Uw grafische kaart zal grafische shaders moeten ondersteunen om toegang te krijgen tot alle instellingen.
+
+Wijzig de &quot;Tijd van de Dag&quot; schuif knop om de fase van de dag lokaal in de viewer aan te passen.
+
+Wijzig de &quot;Wolken Dichtheid&quot; schuif knop om de hoeveelheid wolken die de lucht bedekken in te stellen.
+
+Kies een kleur in de &quot;Water Kleur&quot; kleuren kiezer om de kleur van het water aan te passen.
+
+Wijzig de &quot;Water Mist&quot; schuif knop om de dichtheid van de mist onder water in te stellen.
+
+Klik op &quot;Gebruik Estate Tijd&quot; om de tijd van de dag te herstellen naar de huidige tijd en die te volgen.
+
+Klik op &quot;Geavanceerde Lucht&quot; om de editor op te roepen voor geavanceerde instellingen voor de lucht.
+
+Klik op &quot;Geavanceerd Water&quot; om de editor op te roepen voor geavanceerde instellingen voor water.
+	</notification>
+	<notification name="HelpDayCycle">
+		De Dag Cyclus Editor geeft u controle over de lucht gedurende de [SECOND_LIFE]&apos;s dag/nacht cyclus. Dit is de cyclus die gebruikt wordt in de Basis Omgeving Editor&apos;s Tijd van de Dag schuif knop.
+
+De Dag Cyclus Editor werkt beter met het instellen van gemarkeerde frames. Dit zijn nodes (weergegeven als grijze blips in de tijd weergave) die Hemel voorinstelling met zich geassocieerd hebben. Als de Tijd van de Dag voortschrijdt, &quot;animeert&quot; de WindLight Hemel als het interpoleert tussen de gemarkeerde frames.
+
+De gele pijlen boven de tijdlijn representeert uw huidige zicht, gebaseerd op de Tijd van de Dag. Klik en sleep deze om te zien hoe uw dag zal animeren. U kunt gemarkeerde frames toe voegen of verwijderen middels het indrukken van de Frame Toevoegen of Frame Verwijderen knoppen, rechts van de tijdlijn.
+
+U kunt de tijds positie van een gemarkeerd frame instellen door het te slepen over de tijdlijn of middels het handmatig invullen van de Gemarkeerde Frame Instellingen. Binnen de Gemarkeerde Frame Instellingen krijgt u de mogelijkheid het gemarkeerde frame te associëren met de respectievelijke WindLight voorinstelling.
+
+De lengte van de Cyclus bepaald de totale tijdsduur van een &quot;dag&quot;. Stelt u dit in op een lage waarde (bijv. twee minuten) betekend dat uw volledig 24 uurs tijdlijn zal animeren in slechts twee minuten! Als u tevreden bent met uw tijdlijn en gemarkeerde frame cyclus, gebruik dan de Start en Stop knoppen om het resultaat voor te beschouwen. Onthoud dat u ook de gele tijd indicator pijl boven de tijdlijn kunt bewegen om de animatie cyclus interactief te bekijken. Het gebruik van de Estate Tijd knop zal de lengte en tijd van uw dag synchroniseren met de Estate&apos;s dag cyclus.
+
+Als u tevreden bent met uw Dag Cyclus, kunt het opslaan en laden met de Test Dag Opslaan en Laad Test Dag knoppen. Merk op, dat wij momenteel slechts één Dag Cyclus toestaan.
+	</notification>
+	<notification name="HelpBlueHorizon">
+		Gebruik de Rood/Groen/Blauw schuif knoppen om de kleur van de hemel aan te passen. U kunt de Intensiteit (I) schuif knop gebruiken om alle drie de schuif knoppen tegelijk te bewegen.
+	</notification>
+	<notification name="HelpHazeHorizon">
+		Nevel Horizon is één van de meest handige parameters voor de algehele belichting in de scène. Het is effectief om de vele belichting instellingen te simuleren, zoals wit-vlakken van de zon en donkere gesloten iris instellingen.
+	</notification>
+	<notification name="HelpBlueDensity">
+		Blauw Dichtheid beïnvloed de algehele kleur verzadiging van de hemel en mist. Indien u de Intensiteit (I) schuif knop naar rechts schuift, zullen de kleuren lichter en sprekender worden. Indien u het geheel naar links schuift, worden de kleuren doffer, uiteindelijk vervagend naar zwart en wit. Als u de hemel kleur nauwkeurig wilt uitbalanceren, kunt u de individuele elementen van verzadiging instellen door gebruik van de Rood/Groen/Blauw (RGB) schuif knoppen.
+	</notification>
+	<notification name="HelpHazeDensity">
+		Nevel Dichtheid bepaald de hoeveelheid dofheid, grijze nevel in de atmosfeer. Het is effectief om scènes met veel rook of zelf gemaakte vervuiling te simuleren. Het is ook effectief voor het simuleren van nevel en mist.
+	</notification>
+	<notification name="HelpDensityMult">
+		De Dichtheid Vermeerderaar kan gebruikt worden om de algehele dichtheid van de atmosfeer te beïnvloeden.
+Bij lagere instelling creëert het een gevoel van &quot;dunne lucht&quot; en met hogere instellingen een dik zwaar smog effect.
+	</notification>
+	<notification name="HelpDistanceMult">
+		Stelt de WindLight&apos;s waargenomen afstand in. Een waarde van nul stopt de invloed van WindLight op terrein en objecten. Waarden groter dan 1 simuleren grotere afstanden voor dikkere atmosferische effecten.
+	</notification>
+	<notification name="HelpMaxAltitude">
+		Maximale Hoogte bepaald de hoogte calculaties die WindLight uitvoert bij het berekenen van de atmosferische belichting. Later op de dag is het handig om de &quot;diepte&quot; van de zonsondergang weergave in te stellen.
+	</notification>
+	<notification name="HelpSunlightColor">
+		Stelt de kleur en intensiteit in van direct licht in de scène.
+	</notification>
+	<notification name="HelpSunAmbient">
+		Stelt de kleur en intensiteit in van het omgevings atmosferische licht in de scène.
+	</notification>
+	<notification name="HelpSunGlow">
+		De Afmeting schuif knop stelt de afmeting van de zon in.
+De Focus schuif knop bepaald de wazigheid van de zon aan de hemel.
+	</notification>
+	<notification name="HelpSceneGamma">
+		Wijzigt de verdeling van licht op het scherm in licht of donker.
+	</notification>
+	<notification name="HelpStarBrightness">
+		Wijzigt de helderheid van sterren aan de hemel.
+	</notification>
+	<notification name="HelpTimeOfDay">
+		Bepaald de locatie van de zon aan de hemel.
+Gelijkwaardig aan elevatie.
+	</notification>
+	<notification name="HelpEastAngle">
+		Bepaald de locatie van de zon aan de hemel.
+Gelijkwaardig aan azimut.
+	</notification>
+	<notification name="HelpCloudColor">
+		Wijzigt de kleur van de wolken. Het is algemeen aanbevolen deze wit-achtig te houden, maar hé, heb plezier als u dit wilt.
+	</notification>
+	<notification name="HelpCloudDetail">
+		Bepaald het detail plaatje als laag bovenop het basis wolken plaatje. X en Y bepalen de positie. D (Dichtheid) bepaald hoe wollig of verspreid de wolken verschijnen.
+	</notification>
+	<notification name="HelpCloudDensity">
+		Geeft u de mogelijkheid de positie van wolken met de X en Y schuif knoppen in te stellen en hoe dicht ze zijn met de D schuif knop.
+	</notification>
+	<notification name="HelpCloudCoverage">
+		Bepaald hoeveel de wolken de hemel bedekken.
+	</notification>
+	<notification name="HelpCloudScale">
+		Bepaald de schaal van het wolken plaatje op de hemelboog.
+	</notification>
+	<notification name="HelpCloudScrollX">
+		Bepaald de snelheid van de wolken terwijl zij in X richting bewegen.
+	</notification>
+	<notification name="HelpCloudScrollY">
+		Bepaald de snelheid van de wolken terwijl zij in Y richting bewegen.
+	</notification>
+	<notification name="HelpClassicClouds">
+		Vink dit aan voor weergave van [SECOND_LIFE]&apos;s oudere klassieke wolken als toevoeging op WindLight&apos;s wolken.
+	</notification>
+	<notification name="HelpWaterFogColor">
+		Kiest de kleur van de onder water nevel.
+	</notification>
+	<notification name="HelpWaterFogDensity">
+		Bepaald hoe dicht de water nevel is en hoe ver u kunt zien onder water.
+	</notification>
+	<notification name="HelpUnderWaterFogMod">
+		Past het effect aan van de Nevel Dichtheid Exponent om zo te bepalen hoe ver uw avatar onder water kan zien.
+	</notification>
+	<notification name="HelpWaterGlow">
+		Bepaald hoeveel het oppervlak van het water gloeit.
+	</notification>
+	<notification name="HelpWaterNormalScale">
+		Bepaald de schaling van de drie wavelets (golf patronen) die samen water vormen.
+	</notification>
+	<notification name="HelpWaterFresnelScale">
+		Bepaald hoeveel licht er wordt gereflecteerd onder verschillende hoeken.
+	</notification>
+	<notification name="HelpWaterFresnelOffset">
+		Bepaald de hoeveelheid licht intensiteit welke wordt gereflecteerd.
+	</notification>
+	<notification name="HelpWaterScaleAbove">
+		Bepaald hoeveel licht er wordt weerkaatst wanneer van bovenop het water oppervlak gezien.
+	</notification>
+	<notification name="HelpWaterScaleBelow">
+		Bepaald hoeveel licht er wordt weerkaatst wanneer van onder het water oppervlak gezien.
+	</notification>
+	<notification name="HelpWaterBlurMultiplier">
+		Bepaald hoe golven en reflectie worden ge mixed.
+	</notification>
+	<notification name="HelpWaterNormalMap">
+		Bepaald welke Normaal map gelaagd is over het water om de reflectie/weerkaatsing te bepalen.
+	</notification>
+	<notification name="HelpWaterWave1">
+		Bepaald waar en hoe snel de grote schaal versie van de Normaal map beweegt in X en Y richting.
+	</notification>
+	<notification name="HelpWaterWave2">
+		Bepaald waar en hoe snel de kleine schaal versie van de Normaal map beweegt in X en Y richting.
+	</notification>
+	<notification name="NewSkyPreset">
+		Geef een naam op voor de nieuwe lucht.
+		<form name="form">
+			<input name="message">
+				Nieuwe Voorinstelling
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="ExistsSkyPresetAlert">
+		Voorinstelling bestaat al!
+	</notification>
+	<notification name="NewWaterPreset">
+		Geef een naam voor de nieuwe voorinstelling van water.
+		<form name="form">
+			<input name="message">
+				Nieuwe Voorinstelling
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="ExistsWaterPresetAlert">
+		Voorinstelling bestaat al!
+	</notification>
+	<notification name="WaterNoEditDefault">
+		u kunt de standaard voorinstelling niet wijzigen of verwijderen.
+	</notification>
+	<notification name="ChatterBoxSessionStartError">
+		Kan geen nieuwe chat sessie starten met [RECIPIENT].
+[REASON]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ChatterBoxSessionEventError">
+		[EVENT]
+[REASON]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ForceCloseChatterBoxSession">
+		Uw chat sessie met [NAME] zal moeten worden gesloten.
+[REASON]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="Cannot_Purchase_an_Attachment">
+		Items kunnen niet worden gekocht indien ze deel uit maken van een Bevestiging.
+	</notification>
+	<notification label="Over verzoeken voor debet permissies" name="DebitPermissionDetails">
+		Toestemming geven aan dit script geeft het object een onbeperkte permissie om Linden dollars (L$) uit uw account te nemen!
+Om dit recht in te trekken, moet de object eigenaar het object verwijderen of de scripts in het object opnieuw instellen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AutoWearNewClothing">
+		Wilt u de kleding items die u maakt automatisch aantrekken?
+		<usetemplate ignoretext="Automatisch nieuwe kleding aantrekken" name="okcancelignore" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="NotAgeVerified">
+		U moet leeftijd geverifieerd zijn om toegang te verkrijgen tot dit perceel.
+Wilt u de [SECOND_LIFE] website bezoeken om uw leeftijd te verifiëren?
+
+[_URL]
+		<url name="url" option="0">
+			https://secondlife.com/account/verification.php
+		</url>
+		<usetemplate ignoretext="Waarschuw voor gebrek aan leeftijd verificatie" name="okcancelignore" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="Cannot enter parcel: no payment info on file">
+		Dit perceel verlangd dat u betaal informatie geregistreerd hebt staan alvorens toegang te verkrijgen.
+Wilt u de [SECOND_LIFE] website bezoeken om dit in te stellen?
+
+[_URL]
+		<url name="url" option="0">
+			https://secondlife.com/account/index.php?lang=nl
+		</url>
+		<usetemplate ignoretext="Waarschuw voor gebrek aan betaal informatie" name="okcancelignore" notext="Nee" yestext="Ja"/>
+	</notification>
+	<notification name="MissingString">
+		De tekst [STRING_NAME] ontbreekt in strings.xml
+	</notification>
+	<notification name="SystemMessageTip">
+		[MESSAGE]
+	</notification>
+	<notification name="Cancelled">
+		Geannuleerd
+	</notification>
+	<notification name="CancelledSit">
+		Zitten geannuleerd
+	</notification>
+	<notification name="CancelledAttach">
+		Bevestigen geannuleerd
+	</notification>
+	<notification name="ReplacedMissingWearable">
+		Missend kleding/lichaamsdeel is vervangen door standaard.
+	</notification>
+	<notification name="GroupNotice">
+		Onderwerp: [SUBJECT], Bericht: [MESSAGE]
+	</notification>
+	<notification name="FriendOnline">
+		[FIRST] [LAST] is Online
+	</notification>
+	<notification name="FriendOffline">
+		[FIRST] [LAST] is Offline
+	</notification>
+	<notification name="AddSelfFriend">
+		U kunt uzelf niet als vriend toevoegen.
+	</notification>
+	<notification name="UploadingAuctionSnapshot">
+		In-wereld en website foto&apos;s worden geüpload...
+(Duurt ongeveer 5 minuten.)
+	</notification>
+	<notification name="UploadPayment">
+		U heeft L$[AMOUNT] betaald om te uploaden.
+	</notification>
+	<notification name="UploadWebSnapshotDone">
+		Upload van website foto is gereed.
+	</notification>
+	<notification name="UploadSnapshotDone">
+		Upload van in-wereld foto is gereed.
+	</notification>
+	<notification name="TerrainDownloaded">
+		Terrain.raw gedownload
+	</notification>
+	<notification name="GestureMissing">
+		Gebaar [NAME] mist in de database.
+	</notification>
+	<notification name="UnableToLoadGesture">
+		Kan gebaar [NAME] niet laden. Probeer het a.u.b. opnieuw.
+	</notification>
+	<notification name="LandmarkMissing">
+		Landmarkering mist in de database.
+	</notification>
+	<notification name="UnableToLoadLandmark">
+		Kan landmarkering niet laden. Probeer het a.u.b. opnieuw.
+	</notification>
+	<notification name="CapsKeyOn">
+		Uw Caps Lock toets staat aan. Aangezien dit effect heeft op het wachtwoord dat u intypt, zult u het wellicht willen uitzetten.
+	</notification>
+	<notification name="NotecardMissing">
+		Notitiekaart mist in de database.
+	</notification>
+	<notification name="NotecardNoPermissions">
+		Onvoldoende permissies om de notitiekaart te bekijken.
+	</notification>
+	<notification name="RezItemNoPermissions">
+		Onvoldoende permissies om het object te rezzen.
+	</notification>
+	<notification name="UnableToLoadNotecard">
+		Kan op dit moment notitiekaart inhoud niet laden.
+	</notification>
+	<notification name="ScriptMissing">
+		Script mist in de database.
+	</notification>
+	<notification name="ScriptNoPermissions">
+		Onvoldoende permissies om het script te bekijken.
+	</notification>
+	<notification name="UnableToLoadScript">
+		Kan script niet laden. Probeer het a.u.b. opnieuw.
+	</notification>
+	<notification name="IncompleteInventory">
+		De complete inhoud die u aanbiedt is nog niet lokaal beschikbaar. Probeer die items over een minuut nogmaals aan te bieden.
+	</notification>
+	<notification name="CannotModifyProtectedCategories">
+		U kunt geen beschermde categorieën wijzigen.
+	</notification>
+	<notification name="CannotRemoveProtectedCategories">
+		U kunt geen beschermde categorieën verwijderen.
+	</notification>
+	<notification name="OfferedCard">
+		U heeft een visitekaartje aangeboden aan [FIRST] [LAST]
+	</notification>
+	<notification name="UnableToBuyWhileDownloading">
+		Niet mogelijk te kopen terwijl objectdata wordt gedownload. Probeer het alstublieft opnieuw.
+	</notification>
+	<notification name="UnableToLinkWhileDownloading">
+		Niet mogelijk om te koppelen terwijl objectdata wordt gedownload. Probeer het alstublieft opnieuw.
+	</notification>
+	<notification name="CannotBuyObjectsFromDifferentOwners">
+		Kan geen objecten van meerdere eigenaren op hetzelfde moment kopen. Selecteer alstublieft een enkel object.
+	</notification>
+	<notification name="ObjectNotForSale">
+		Object lijkt niet te koop.
+	</notification>
+	<notification name="EnteringGodMode">
+		God modus binnengaan, niveau [LEVEL]
+	</notification>
+	<notification name="LeavingGodMode">
+		God modus verlaten, niveau [LEVEL]
+	</notification>
+	<notification name="CopyFailed">
+		Kopiëren mislukt omdat u geen kopieerpermissie bezit.
+	</notification>
+	<notification name="InventoryAccepted">
+		[NAME] heeft uw inventarisaanbod geaccepteerd.
+	</notification>
+	<notification name="InventoryDeclined">
+		[NAME] heeft uw inventarisaanbod afgewezen.
+	</notification>
+	<notification name="ObjectMessage">
+		[NAME]: [MESSAGE]
+	</notification>
+	<notification name="CallingCardAccepted">
+		Uw visitekaartje is geaccepteerd.
+	</notification>
+	<notification name="CallingCardDeclined">
+		Uw visite kaart is afgewezen.
+	</notification>
+	<notification name="TeleportToLandmark">
+		Nu u het mainland bereikt heeft, kunt u teleporteren naar locaties als &apos;[NAME]&apos; door op de Inventaris knop rechtsonder in uw scherm te klikken en dan de Landmarkeringen map te selecteren. Dubbelklik op de landmarkering en klik op Teleport om ernaartoe te reizen.
+	</notification>
+	<notification name="TeleportToPerson">
+		Nu u het mainland bereikt heeft, kunt u contact opnemen met inwoners als &apos;[NAME]&apos; door op de Inventaris knop rechtsonder in uw scherm te klikken en dan de Visitekaartjes map te selecteren. Dubbelklik op het visitekaartje, klik op Instant Message en type een bericht.
+	</notification>
+	<notification name="CantSelectLandFromMultipleRegions">
+		Kan geen land selecteren over servergrenzen.
+Probeer een kleiner stuk land te selecteren.
+	</notification>
+	<notification name="SearchWordBanned">
+		Sommige termen in uw zoekopdracht werden uitgesloten vanwege inhoudbeperkingen zoals beschreven in de Gemeenschap Standaarden.
+	</notification>
+	<notification name="NoContentToSearch">
+		Selecteer alstublieft minstens een type inhoud om te zoeken (PG, Mature of Adult).
+	</notification>
+	<notification name="GroupVote">
+		[NAME] heeft voorgesteld om te stemmen over:
+[MESSAGE]
+		<form name="form">
+			<button name="VoteNow" text="Stem Nu"/>
+			<button name="Later" text="Later"/>
+		</form>
+	</notification>
+	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="EventNotification">
+		Evenement Bericht:
+
+[NAME]
+[DATE]
+		<form name="form">
+			<button name="Teleport" text="Teleport"/>
+			<button name="Description" text="Omschrijving"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="TransferObjectsHighlighted">
+		Alle objecten op dit perceel die zullen worden overgedragen aan de koper van dit perceel zijn nu opgelicht.
+
+* Bomen en grassen die worden overgedragen zijn niet opgelicht.
+		<form name="form">
+			<button name="Done" text="Gereed"/>
+		</form>
+	</notification>
+	<notification name="DeactivatedGesturesTrigger">
+		Deactiveren van gebaren met dezelfde trigger:
+[NAMES]
+	</notification>
+	<notification name="NoQuickTime">
+		De QuickTime software van Apple schijnt niet op uw systeem geïnstalleerd te zijn.
+Indien u streaming media wilt zien op percelen die dit ondersteunen, dient u naar de QuickTime webpagina te gaan (http://www.apple.com/QuickTime) en de QuickTime Player te installeren.
+	</notification>
+	<notification name="OwnedObjectsReturned">
+		De objecten die uw eigendom zijn op het geselecteerde perceel zijn geretourneerd naar uw inventaris.
+	</notification>
+	<notification name="OtherObjectsReturned">
+		De objecten op het geselecteerde perceel dat het eigendom is van [FIRST] [LAST], zijn geretourneerd naar zijn of haar inventaris.
+	</notification>
+	<notification name="OtherObjectsReturned2">
+		De objecten op het geselecteerde perceel dat het eigendom is van inwoner &apos;[NAME]&apos;, zijn geretourneerd naar hun eigenaar.
+	</notification>
+	<notification name="GroupObjectsReturned">
+		De objecten op het geselecteerde perceel dat gedeeld is met de groep [GROUPNAME] zijn geretourneerd naar de inventaris van hun eigenaar.
+Overdraagbare objecten die eigendom zijn van de groep zijn geretourneerd naar hun voormalige eigenaren.
+Niet-overdraagbare objecten die eigendom zijn van de groep zijn verwijderd.
+	</notification>
+	<notification name="UnOwnedObjectsReturned">
+		De objecten op het geselecteerde perceel die NIET uw eigendom zijn, zijn geretourneerd naar hun eigenaren.
+	</notification>
+	<notification name="NotSafe">
+		Op dit land is letsel ingeschakeld (&apos;niet veilig&apos;).
+U kunt hier letsel oplopen. Indien u sterft, zult u naar uw thuis locatie worden geteleporteerd.
+	</notification>
+	<notification name="NoFly">
+		Op dit land is vliegen uitgeschakeld (&apos;niet vliegen&apos;).
+U kunt hier niet vliegen.
+	</notification>
+	<notification name="PushRestricted">
+		Dit land is &apos;Niet Duwen&apos;.
+U kunt geen anderen duwen, tenzij u het land bezit.
+	</notification>
+	<notification name="NoVoice">
+		Op dit land is voice uitgeschakeld.
+	</notification>
+	<notification name="NoBuild">
+		Op dit land is bouwen uitgeschakeld (&apos;niet bouwen&apos;).
+U kunt hier geen objecten creëren.
+	</notification>
+	<notification name="ScriptsStopped">
+		Een beheerder heeft scripts in deze regio tijdelijk gestopt.
+	</notification>
+	<notification name="ScriptsNotRunning">
+		In deze regio worden geen scripts uitgevoerd.
+	</notification>
+	<notification name="NoOutsideScripts">
+		Op dit land zijn externe scripts uitgeschakeld (geen externe scripts).
+Geen scripts zullen worden uitgevoerd, behalve scripts die toebehoren aan de landeigenaar.
+	</notification>
+	<notification name="ClaimPublicLand">
+		Kan alleen publiek land claimen in de regio waar u aanwezig bent.
+	</notification>
+	<notification name="RegionTPAccessBlocked">
+		U bent niet toegestaan in die regio vanwege uw inhoudscategorie. Wellicht dient u uw leeftijd te valideren en/of de nieuwste viewer te installeren. 
+
+Gaat u alstublieft naar de kennisbank voor details over het betreden van gebieden met deze inhoudscategorie.
+	</notification>
+	<notification name="URBannedFromRegion">
+		U bent uit deze regio verbannen.
+	</notification>
+	<notification name="NoTeenGridAccess">
+		Uw account kan geen verbinding maken met deze teen grid regio.
+	</notification>
+	<notification name="NoHelpIslandTP">
+		U kunt niet terug teleporteren naar Help Island. Ga naar &apos;Help Island Public&apos; om de handleiding te herhalen.
+	</notification>
+	<notification name="ImproperPaymentStatus">
+		U heeft niet de juiste betalingstatus om deze regio binnen te gaan.
+	</notification>
+	<notification name="MustGetAgeRegion">
+		U moet leeftijd geverifieerd zijn om deze regio binnen te gaan.
+	</notification>
+	<notification name="MustGetAgeParcel">
+		U moet leeftijd geverifieerd zijn om dit perceel binnen te gaan.
+	</notification>
+	<notification name="NoDestRegion">
+		Geen bestemmingsregio gevonden.
+	</notification>
+	<notification name="NotAllowedInDest">
+		U wordt niet op de bestemming toegelaten.
+	</notification>
+	<notification name="RegionParcelBan">
+		Kan niet naar de regio oversteken in een verbannen perceel. Probeer het op een andere manier.
+	</notification>
+	<notification name="TelehubRedirect">
+		U bent doorverwezen naar een telehub.
+	</notification>
+	<notification name="CouldntTPCloser">
+		Kan niet dichter bij bestemming teleporteren.
+	</notification>
+	<notification name="TPCancelled">
+		Teleport geannuleerd.
+	</notification>
+	<notification name="FullRegionTryAgain">
+		De regio die u probeert binnen te gaan is momenteel vol. 
+Probeer het alstublieft opnieuw over enkele ogenblikken.
+	</notification>
+	<notification name="GeneralFailure">
+		Algemene fout.
+	</notification>
+	<notification name="RoutedWrongRegion">
+		Gerouteerd naar de verkeerde regio. Probeer het alstublieft opnieuw.
+	</notification>
+	<notification name="NoValidAgentID">
+		Geen geldige agent ID.
+	</notification>
+	<notification name="NoValidSession">
+		Geen geldige sessie ID.
+	</notification>
+	<notification name="NoValidCircuit">
+		Geen geldige circuit code.
+	</notification>
+	<notification name="NoValidTimestamp">
+		Geen geldige tijdstempel.
+	</notification>
+	<notification name="NoPendingConnection">
+		Kan wachtende verbinding niet maken.
+	</notification>
+	<notification name="InternalUsherError">
+		Er is een interne fout opgetreden terwijl geprobeerd werd u naar uw teleportbestemming te begeleiden. [SECOND_LIFE] heeft op dit moment mogelijk problemen met de dienstverlening.
+	</notification>
+	<notification name="NoGoodTPDestination">
+		Kan geen goede teleportbestemming vinden in deze regio.
+	</notification>
+	<notification name="InternalErrorRegionResolver">
+		Er is een interne fout opgetreden terwijl de globale coördinaten voor uw teleportverzoek werden bepaald. [SECOND_LIFE] heeft op dit moment mogelijk problemen met de dienstverlening.
+	</notification>
+	<notification name="NoValidLanding">
+		Er kon geen geldig landingspunt worden gevonden.
+	</notification>
+	<notification name="NoValidParcel">
+		Geen geldig perceel kon gevonden worden.
+	</notification>
+	<notification name="ObjectGiveItem">
+		Een object genaamd [OBJECTFROMNAME], eigendom van [FIRST] [LAST], heeft u een [OBJECTTYPE] genaamd [OBJECTNAME] gegeven.
+		<form name="form">
+			<button name="Keep" text="Behouden"/>
+			<button name="Discard" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="ObjectGiveItemUnknownUser">
+		Een object genaamd [OBJECTFROMNAME], eigendom van (een onbekende gebruiker), heeft u een [OBJECTTYPE] genaamd [OBJECTNAME] gegeven.
+		<form name="form">
+			<button name="Keep" text="Behouden"/>
+			<button name="Discard" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="UserGiveItem">
+		[NAME] heeft u een [OBJECTTYPE] genaamd &apos;[OBJECTNAME]&apos; gegeven.
+		<form name="form">
+			<button name="Keep" text="Behouden"/>
+			<button name="Discard" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="GodMessage">
+		[NAME]
+[MESSAGE]
+	</notification>
+	<notification name="JoinGroup">
+		[MESSAGE]
+		<form name="form">
+			<button name="Join" text="Deelnemen"/>
+			<button name="Decline" text="Afwijzen"/>
+			<button name="Info" text="Info"/>
+		</form>
+	</notification>
+	<notification name="TeleportOffered">
+		[NAME] heeft aangeboden u te teleporteren naar zijn of haar locatie:
+
+[MESSAGE]
+		<form name="form">
+			<button name="Teleport" text="Teleport"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="GotoURL">
+		[MESSAGE]
+[URL]
+		<form name="form">
+			<button name="Later" text="Later"/>
+			<button name="GoNow..." text="Ga Nu..."/>
+		</form>
+	</notification>
+	<notification name="OfferFriendship">
+		[NAME] biedt vriendschap aan.
+
+[MESSAGE]
+
+(Standaard zult u in staat zijn om elkaars online status te zien.)
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+		</form>
+	</notification>
+	<notification name="OfferFriendshipNoMessage">
+		[NAME] biedt vriendschap aan.
+
+(Standaard zult u in staat zijn om elkaars online status te zien.)
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+		</form>
+	</notification>
+	<notification name="FriendshipAccepted">
+		[NAME] heeft uw vriendschapsaanbod geaccepteerd.
+	</notification>
+	<notification name="FriendshipDeclined">
+		[NAME] heeft uw vriendschapsaanbod afgewezen.
+	</notification>
+	<notification name="OfferCallingCard">
+		[FIRST] [LAST] biedt zijn/haar visitekaartje aan.
+Dit zal een bladwijzer in uw inventaris toevoegen zodat u deze inwoner snel kunt een IM kunt sturen.
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+		</form>
+	</notification>
+	<notification name="RegionRestartMinutes">
+		De regio zal over [MINUTES] minuten herstarten.
+Indien u in deze regio blijft, zult u worden uitgelogd.
+	</notification>
+	<notification name="RegionRestartSeconds">
+		De regio zal over [SECONDS] seconden herstarten.
+Indien u in deze regio blijft, zult u worden uitgelogd.
+	</notification>
+	<notification name="LoadWebPage">
+		Laad webpagina [URL]?
+
+[MESSAGE]
+
+Van object: [OBJECTNAME], eigenaar: [NAME]?
+		<form name="form">
+			<button name="Gotopage" text="Laden"/>
+			<button name="Cancel" text="Annuleren"/>
+		</form>
+	</notification>
+	<notification name="FailedToFindWearableUnnamed">
+		Kon [TYPE] niet in de database vinden.
+	</notification>
+	<notification name="FailedToFindWearable">
+		Kon [TYPE] genaamd [DESC] niet in de database vinden.
+	</notification>
+	<notification name="InvalidWearable">
+		Het item dat u probeert te dragen gebruikt een kenmerk dat uw viewer niet kan lezen. Upgrade u alstublieft uw versie van [APP_NAME] om dit item te dragen.
+	</notification>
+	<notification name="ScriptQuestion">
+		[OBJECTNAME]&apos;, een object van &apos;[NAME]&apos;, wil graag:
+
+[QUESTIONS]
+Is dit OK?
+		<form name="form">
+			<button name="Yes" text="Ja"/>
+			<button name="No" text="Nee"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="ScriptQuestionCaution">
+		[OBJECTNAME]&apos;, een object van &apos;[NAME]&apos;, wil graag
+
+[QUESTIONS]
+Indien u dit object en zijn maker niet vertrouwt, zou u het verzoek moeten weigeren. Klik de Details knop voor additionele informatie.
+
+Dit verzoek inwilligen?
+		<form name="form">
+			<button name="Grant" text="Inwilligen"/>
+			<button name="Deny" text="Weigeren"/>
+			<button name="Details" text="Details..."/>
+		</form>
+	</notification>
+	<notification name="ScriptDialog">
+		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+[MESSAGE]
+		<form name="form">
+			<button name="Ignore" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="ScriptDialogGroup">
+		[GROUPNAME]&apos;s &apos;[TITLE]&apos;
+[MESSAGE]
+		<form name="form">
+			<button name="Ignore" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="FirstBalanceIncrease">
+		U heeft zojuist L$[AMOUNT] ontvangen.
+Objecten en andere gebruikers kunnen u L$ geven.
+Uw saldo wordt in de rechterbovenhoek van het scherm getoond.
+	</notification>
+	<notification name="FirstBalanceDecrease">
+		U heeft zojuist L$[AMOUNT] betaald.
+Uw saldo wordt in de rechterbovenhoek van het scherm getoond.
+	</notification>
+	<notification name="FirstSit">
+		U zit.
+Gebruik de pijltjestoetsen (of AWSD) of uw gezichtsveld te wijzigen.
+Klik de &apos;Sta Op&apos; knop om op te staan.
+	</notification>
+	<notification name="FirstMap">
+		Klik en sleep om de kaart te verplaatsen.
+Dubbelklik om te teleporteren.
+Gebruik de bedieningselementen aan de rechterkant om dingen te vinden en verschillende achtergronden te tonen.
+	</notification>
+	<notification name="FirstBuild">
+		U kunt nieuwe objecten bouwen in sommige gebieden van [SECOND_LIFE].
+Gebruik de gereedschappen in de linkerbovenhoek om te bouwen en probeer Ctrl en Alt ingedrukt te houden om snel tussen gereedschappen te wisselen.
+Druk Esc om te stoppen met bouwen.
+	</notification>
+	<notification name="FirstLeftClickNoHit">
+		Links-klikken werkt in op speciale objecten.
+Indien de muisaanwijzer verandert in een hand, kunt u interacteren met het object.
+Rechts-klikken toont altijd een menu van dingen die u kunt doen.
+	</notification>
+	<notification name="FirstTeleport">
+		Deze regio staat geen point-to-point teleport toe, dus u bent naar de dichtstbijzijnde telehub getransporteerd.
+Uw bestemming is gemarkeerd met een groot baken.
+Volg de rode pijl naar het baken, of klik de pijl om het baken te verwijderen.
+	</notification>
+	<notification name="FirstOverrideKeys">
+		Uw bewegingstoetsen worden nu door een object afgehandeld.
+Probeer de pijltjestoetsen of AWSD om te zien wat ze doen.
+Sommige objecten (zoals geweren) vereisen dat u in mouselook gaat om ze te gebruiken.
+Druk &apos;M&apos; om dit te doen.
+	</notification>
+	<notification name="FirstAppearance">
+		U bent uw uiterlijk aan het bewerken.
+Gebruik de pijltjestoetsen om uw gezichtsveld te draaien en te zoomen.
+Druk &apos;Alles Opslaan&apos; om uw uiterlijk op te slaan wanneer u klaar bent.
+U kunt uw uiterlijk zo vaak als u wil bewerken.
+	</notification>
+	<notification name="FirstInventory">
+		Dit is uw inventaris, die objecten, notitiekaarten, kleding en andere eigendommen bevat.
+* Om een object of een kleding-map te dragen, sleep het op uzelf.
+* Om een object in de wereld te brengen, sleep het op de grond.
+* Om een notitiekaart te lezen, dubbelklik erop.
+	</notification>
+	<notification name="FirstSandbox">
+		Dit is een zandbak regio.
+Objecten die u hier bouwt, kunnen worden verwijderd nadat u het gebied verlaat. Zandbakken schonen op regelmatige basis, kijk alstublieft naar de informatie aan de bovenkant van het scherm, naast de regionaam.
+
+Zandbak regio&apos;s zijn ongewoon en gemarkeerd met borden.
+	</notification>
+	<notification name="FirstFlexible">
+		Dit object is flexibel.
+Flexibele objecten mogen niet fysiek zijn en moeten fantoom zijn tot de &apos;flexibel&apos; checkbox wordt uitgezet.
+	</notification>
+	<notification name="FirstDebugMenus">
+		U heeft het menu Geavanceerd geactiveerd.
+Dit menu bevat opties die handig zijn voor ontwikkelaars tijdens het debuggen van [SECOND_LIFE].
+Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl+Alt+D. Met een Mac drukt u &#8997;&#8984;D.
+	</notification>
+	<notification name="FirstSculptedPrim">
+		U bent een sculpted prim aan het bewerken.
+Sculpted prims vereisen een speciaal textuur om hun vorm te bepalen.
+U kunt voorbeelden van sculpt-texturen in de inventaris bibliotheek vinden.
+	</notification>
+	<notification name="FirstMedia">
+		U bent begonnen met het afspelen van media. In het Voorkeurenvenster, onder Audio / Video, kan media worden ingesteld om automatisch te beginnen met afspelen. Let op dat dit een beveiligingsrisico kan zijn voor media sites die u niet vertrouwt.
+	</notification>
+	<notification name="MaxListSelectMessage">
+		U mag slecht maximaal [MAX_SELECT] items van deze lijst kiezen.
+	</notification>
+	<notification name="VoiceInviteP2P">
+		[NAME] nodigt u uit voor een Voice chat gesprek.
+Klik Accepteren om deel te nemen aan dit gesprek of Afwijzen om de uitnodiging af te wijzen. Klik Negeren om deze persoon te negeren.
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="AutoUnmuteByIM">
+		Er is een instant message naar [FIRST] [LAST] gestuurd, waardoor deze automatisch van de negeerlijst is gehaald.
+	</notification>
+	<notification name="AutoUnmuteByMoney">
+		Er is geld gegeven aan [FIRST] [LAST], waardoor deze automatisch van de negeerlijst is gehaald.
+	</notification>
+	<notification name="AutoUnmuteByInventory">
+		Er is inventaris aangeboden aan [FIRST] [LAST], waardoor deze automatisch van de negeerlijst is gehaald.
+	</notification>
+	<notification name="VoiceInviteGroup">
+		[NAME] doet nu mee met een Voice chat gesprek binnen de groep [GROUP].
+Klik Accepteren om deel te nemen aan het gesprek of Afwijzen om de uitnodiging af te wijzen. Klik Negeren om deze persoon te negeren.
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="VoiceInviteAdHoc">
+		[NAME] doet nu mee met een Voice chat gesprek binnen een conferentie chat.
+Klik Accepteren om deel te nemen aan het gesprek of Afwijzen om de uitnodiging af te wijzen. Klik Negeren om deze persoon te negeren.
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="InviteAdHoc">
+		[NAME] nodigt u uit voor een conferentie chat.
+Klik Accepteren om deel te nemen aan de chat of Afwijzen om de uitnodiging af te wijzen. Klik Negeren om deze persoon te negeren.
+		<form name="form">
+			<button name="Accept" text="Accepteren"/>
+			<button name="Decline" text="Afwijzen"/>
+			<button name="Mute" text="Negeren"/>
+		</form>
+	</notification>
+	<notification name="VoiceChannelFull">
+		Het voice gesprek waaraan u probeert deel te nemen, [VOICE_CHANNEL_NAME], heeft zijn maximale capaciteit bereikt. Probeert u het alstublieft later nog een keer.
+	</notification>
+	<notification name="ProximalVoiceChannelFull">
+		Onze excuses. Dit gebied heeft zijn maximale capaciteit voor voice conversaties bereikt. Probeert u alstublieft voice te gebruiken in een ander gebied.
+	</notification>
+	<notification name="VoiceChannelDisconnected">
+		U bent niet meer verbonden met [VOICE_CHANNEL_NAME].  U zult weer worden verbonden met spatiale voice chat.
+	</notification>
+	<notification name="VoiceChannelDisconnectedP2P">
+		[VOICE_CHANNEL_NAME] heeft het gesprek beëindigd. U zult weer worden verbonden met spatiale voice chat.
+	</notification>
+	<notification name="P2PCallDeclined">
+		[VOICE_CHANNEL_NAME] heeft uw oproep afgewezen. U zult weer worden verbonden met spatiale voice chat.
+	</notification>
+	<notification name="P2PCallNoAnswer">
+		[VOICE_CHANNEL_NAME] is niet beschikbaar om uw oproep aan te nemen. U zult weer worden verbonden met spatiale voice chat.
+	</notification>
+	<notification name="VoiceChannelJoinFailed">
+		Verbinden met [VOICE_CHANNEL_NAME] is mislukt, probeert u het later alstublieft nog een keer. U zult weer worden verbonden met spatiale voice chat.
+	</notification>
+	<notification name="VoiceLoginRetry">
+		We zijn bezig om een voice kanaal voor u te maken. Dit kan tot een minuut duren.
+	</notification>
+	<notification name="Cannot enter parcel: not a group member">
+		Kan het perceel niet betreden, u bent geen lid van de juiste groep.
+	</notification>
+	<notification name="Cannot enter parcel: banned">
+		Kan het perceel niet betreden, u bent verbannen.
+	</notification>
+	<notification name="Cannot enter parcel: not on access list">
+		Kan het perceel niet betreden, u staat niet op de toegangslijst.
+	</notification>
+	<notification name="VoiceNotAllowed">
+		U heeft geen permissie om met voice chat te verbinden voor [VOICE_CHANNEL_NAME].
+	</notification>
+	<notification name="VoiceCallGenericError">
+		Er is een fout opgetreden tijdens het verbinden met voice chat voor [VOICE_CHANNEL_NAME]. Probeert u het later alstublieft opnieuw.
+	</notification>
+	<notification name="ServerVersionChanged">
+		De regio die u bent binnengetreden wordt onder een andere simulatorversie uitgevoerd. Klik dit bericht voor meer details.
+	</notification>
+	<notification name="UnableToOpenCommandURL">
+		De URL die u heeft geklikt kan niet binnen deze webbrowser worden geopend.
+	</notification>
+	<global name="UnsupportedCPU">
+		- Uw Processor snelheid (CPU) voldoet niet aan de minimale eisen.
+	</global>
+	<global name="UnsupportedGLRequirements">
+		U heeft mogelijk niet de vereiste hardware voor [APP_NAME]. [APP_NAME] verlangd een OpenGL grafische kaart die multi-texture ondersteund. Indien dat het geval is, overtuig u er dan van dat u de laatste stuurprogramma&apos;s voor uw grafische kaart, service packs en patches voor uw Operating systeem heeft.
+
+Indien u problemen blijft houden, bezoek dan: http://www.secondlife.com/support
+	</global>
+	<global name="UnsupportedCPUAmount">
+		796
+	</global>
+	<global name="UnsupportedRAMAmount">
+		510
+	</global>
+	<global name="UnsupportedGPU">
+		- Uw grafische kaart voldoet niet aan de minimale eisen.
+	</global>
+	<global name="UnsupportedRAM">
+		- Uw systeem geheugen voldoet niet aan de minimale eisen.
+	</global>
+	<global name="PermYes">
+		Ja
+	</global>
+	<global name="PermNo">
+		Nee
+	</global>
+</notifications>

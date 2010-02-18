@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="block_list_panel">
+	<text name="title_text">
+		ブロックリスト
+	</text>
+	<scroll_list name="blocked" tool_tip="現在ブロックされている住人一覧"/>
+	<button label="アバターをブロック" label_selected="住人をブロック..." name="Block resident..." tool_tip="ブロックしたい住人を選んでください"/>
+	<button label="名前でオブジェクトをブロック..." label_selected="名前でオブジェクトをブロック..." name="Block object by name..." tool_tip="名前でブロックしたいオブジェクトを選んでください"/>
+	<button label="ブロック解除" label_selected="ブロック解除" name="Unblock" tool_tip="ブロックリストから住人・オブジェクトを削除"/>
+</panel>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="avatar_list_item">
+	<string name="FormatSeconds">
+		[COUNT]s
+	</string>
+	<string name="FormatMinutes">
+		[COUNT]m
+	</string>
+	<string name="FormatHours">
+		[COUNT]t
+	</string>
+	<string name="FormatDays">
+		[COUNT]d
+	</string>
+	<string name="FormatWeeks">
+		[COUNT]u
+	</string>
+	<string name="FormatMonths">
+		[COUNT]mån
+	</string>
+	<string name="FormatYears">
+		[COUNT]å
+	</string>
+	<text name="avatar_name" value="Ukendt"/>
+</panel>

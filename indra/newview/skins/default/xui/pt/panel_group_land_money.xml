@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Terra &amp; L$" name="land_money_tab">
+	<string name="help_text">
+		Será exibido um aviso até o Total de terrenos usados for igual ou inferior à contribuição total.
+	</string>
+	<button label="?" name="help_button"/>
+	<string name="cant_view_group_land_text">
+		Você não está autorizado a acessar terrenos de grupos
+	</string>
+	<string name="cant_view_group_accounting_text">
+		Você não está autorizado a acessar os dados de contabilidade do grupo.
+	</string>
+	<string name="loading_txt">
+		Carregando...
+	</string>
+	<text name="group_land_heading" width="250">
+		Terra percentente ao grupo
+	</text>
+	<scroll_list name="group_parcel_list">
+		<column label="Lote" name="name"/>
+		<column label="Região" name="location"/>
+		<column label="Tipo" name="type"/>
+		<column label="Área" name="area"/>
+	</scroll_list>
+	<button label="Mapa" label_selected="Mapa" left="282" name="map_button" width="130"/>
+	<text name="total_contributed_land_label">
+		Total contribuído:
+	</text>
+	<text name="total_contributed_land_value">
+		[AREA] m²
+	</text>
+	<text name="total_land_in_use_label">
+		Total em uso:
+	</text>
+	<text name="total_land_in_use_value">
+		[AREA] m²
+	</text>
+	<text name="land_available_label">
+		Disponíveis:
+	</text>
+	<text name="land_available_value">
+		[AREA] m²
+	</text>
+	<text name="your_contribution_label">
+		Sua contribuição:
+	</text>
+	<string name="land_contrib_error">
+		Não foi possível definir sua contribuição
+	</string>
+	<text name="your_contribution_units">
+		m²
+	</text>
+	<text name="your_contribution_max_value">
+		([AMOUNT] max)
+	</text>
+	<text name="group_over_limit_text">
+		O terreno em uso requer mais créditos
+	</text>
+	<text name="group_money_heading">
+		Grupo L$
+	</text>
+	<tab_container name="group_money_tab_container">
+		<panel label="PLANEJAMENTO" name="group_money_planning_tab">
+			<text_editor name="group_money_planning_text">
+				Carregando...
+			</text_editor>
+		</panel>
+		<panel label="DETALHES" name="group_money_details_tab">
+			<text_editor name="group_money_details_text">
+				Carregando...
+			</text_editor>
+			<button label="&lt; Mais Cedo" label_selected="&lt; Cedo" name="earlier_details_button" tool_tip="Atrás"/>
+			<button label="Mais Tarde &gt;" label_selected="Tarde &gt;" name="later_details_button" tool_tip="Próximo"/>
+		</panel>
+		<panel label="VENDAS" name="group_money_sales_tab">
+			<text_editor name="group_money_sales_text">
+				Carregando...
+			</text_editor>
+			<button label="&lt; Mais Cedo" label_selected="&lt; Mais Cedo" name="earlier_sales_button" tool_tip="Atrás"/>
+			<button label="Mais Tarde &gt;" label_selected="Mais Tarde &gt;" name="later_sales_button" tool_tip="Próximo"/>
+		</panel>
+	</tab_container>
+</panel>

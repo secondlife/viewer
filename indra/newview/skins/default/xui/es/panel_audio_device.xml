@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="device_settings">
+	<text name="Audio Devices">
+		Dispositivos de sonido
+	</text>
+	<text name="Input device (microphone):">
+		Dispositivo de entrada (micrófono):
+	</text>
+	<text name="Output device (speakers):">
+		Dispositivo de salida (altavoces):
+	</text>
+	<text name="Input level:">
+		Volumen de entrada
+	</text>
+	<text_editor name="voice_intro_text1">
+		Ajuste el deslizable para controlar el volumen con el que usted le sonará a otros residentes. Para probar el volumen de entrada, basta con que hable al micrófono.
+	</text_editor>
+	<volume_slider name="mic_volume_slider" tool_tip="Cambie el volumen usando este deslizable"/>
+	<text name="wait_text">
+		Por favor, espere
+	</text>
+	<string name="default_text">
+		Por defecto
+	</string>
+</panel>

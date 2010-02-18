@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="もの" name="objects panel">
+	<panel label="" name="sidepanel__inventory_panel">
+		<panel name="button_panel">
+			<button label="プロフィール" name="info_btn"/>
+			<button label="装着" name="wear_btn"/>
+			<button label="プレイ" name="play_btn"/>
+			<button label="テレポート" name="teleport_btn"/>
+		</panel>
+	</panel>
+</panel>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Avisos" name="notices_tab">
+	<panel.string name="help_text">
+		Los avisos son una forma rápida de comunicación dentro de un grupo, difundiendo un mensaje y, si se quiere, añadiéndole un ítem. Los avisos sólo los reciben los miembros del grupo cuyo rol tiene adjudicada tal habilidad. Puede desactivar los avisos en la pestaña General.
+	</panel.string>
+	<panel.string name="no_notices_text">
+		No hay avisos pasados
+	</panel.string>
+	<text name="lbl2">
+		Los avisos se mantienen durante 14 días.
+El máximo es de 200 por día y grupo.
+	</text>
+	<scroll_list name="notice_list">
+		<scroll_list.columns label="Asunto" name="subject"/>
+		<scroll_list.columns label="De" name="from"/>
+		<scroll_list.columns label="Fecha" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		No se han encontrado
+	</text>
+	<button label="Crear un aviso nuevo" label_selected="Crear un aviso nuevo" name="create_new_notice" tool_tip="Crear un aviso nuevo"/>
+	<button label="Actualizar" label_selected="Actualizar la lista" name="refresh_notices" tool_tip="Actualizar la lista de avisos"/>
+	<panel label="Crear un aviso nuevo" name="panel_create_new_notice">
+		<text name="lbl">
+			Crear un aviso
+		</text>
+		<text name="lbl3">
+			Asunto:
+		</text>
+		<text name="lbl4">
+			Mensaje:
+		</text>
+		<text name="lbl5">
+			Anexar:
+		</text>
+		<text name="string">
+			Arrastra y suelta aquí un ítem para adjuntarlo:
+		</text>
+		<button label="Quitar" label_selected="Remover lo anexado" name="remove_attachment"/>
+		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Para enviar un ítem con el aviso, arrástralo desde tu inventario hasta este cajetín. Para poder adjuntarlo, debes tener permiso para copiarlo y transferirlo."/>
+	</panel>
+	<panel label="Ver avisos pasados" name="panel_view_past_notice">
+		<text name="lbl">
+			Avisos archivados
+		</text>
+		<text name="lbl2">
+			Para enviar un aviso nuevo, pulsa el botón +
+		</text>
+		<text name="lbl3">
+			Asunto:
+		</text>
+		<text name="lbl4">
+			Mensaje:
+		</text>
+		<button label="Abrir el adjunto" label_selected="Abrir lo anexado" name="open_attachment"/>
+	</panel>
+</panel>

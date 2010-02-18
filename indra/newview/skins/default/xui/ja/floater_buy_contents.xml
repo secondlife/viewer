@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="340" name="floater_buy_contents" title="中身の購入" width="340">
+	<text name="contains_text" width="320">
+		[NAME]の中身：
+	</text>
+	<scroll_list name="item_list" width="310"/>
+	<text name="buy_text" width="320">
+		中身を[NAME]からL$[AMOUNT]で購入しますか？
+	</text>
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn" width="73"/>
+	<button label="購入" label_selected="購入" left_delta="-77" name="buy_btn" width="73"/>
+	<check_box label="今すぐ服を着る" left_delta="-125" name="wear_check"/>
+	<text name="no_copy_text">
+		(コピー不可)
+	</text>
+	<text name="no_modify_text">
+		(修正不可)
+	</text>
+	<text name="no_transfer_text">
+		(再販・プレゼント不可)
+	</text>
+</floater>

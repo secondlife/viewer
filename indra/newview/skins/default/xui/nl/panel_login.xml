@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<panel.string name="create_account_url">
+		http://join.secondlife.com/index.php?lang=nl-NL
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=nl-NL
+	</panel.string>
+<panel name="login_widgets">
+	<text name="first_name_text">
+		Voornaam:
+	</text>
+	<text name="last_name_text">
+		Achternaam:
+	</text>
+	<text name="password_text">
+		Wachtwoord:
+	</text>
+	<text name="start_location_text">
+		Startlocatie:
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_box.item name="MyHome" label="Mijn Thuis"/>
+		<combo_box.item name="MyLastLocation" label="Mijn Laatste Locatie"/>
+		<combo_box.item name="Typeregionname" label="&lt; Type regio naam &gt;"/>
+	</combo_box>
+	<check_box label="Onthoud wachtwoord" name="remember_check"/>
+	<button label="Inloggen" label_selected="Inloggen" name="connect_btn"/>
+	<text name="create_new_account_text">
+		Nieuw account maken
+	</text>
+	<text name="forgot_password_text">
+		Naam of wachtwoord vergeten?
+	</text>
+	<text name="channel_text">
+		[VERSION]
+	</text>
+</panel>
+</panel>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="SELETTORE di COLORE">
+	<text name="r_val_text">
+		Rosso:
+	</text>
+	<spinner left="84" name="rspin" width="47"/>
+	<text name="g_val_text">
+		Verde:
+	</text>
+	<spinner left="84" name="gspin" width="47"/>
+	<text name="b_val_text">
+		Blu:
+	</text>
+	<spinner left="84" name="bspin" width="47"/>
+	<text name="h_val_text">
+		Tonalità:
+	</text>
+	<spinner left="84" name="hspin" width="47"/>
+	<text name="s_val_text">
+		Saturazione:
+	</text>
+	<spinner left="84" name="sspin" width="47"/>
+	<text name="l_val_text">
+		Luminosità:
+	</text>
+	<spinner left="84" name="lspin" width="47"/>
+	<check_box label="Applica ora" name="apply_immediate"/>
+	<button left_delta="150" name="color_pipette"/>
+	<button label="Annulla" label_selected="Annulla" left_delta="55" name="cancel_btn"/>
+	<button label="Ok" label_selected="Ok" name="select_btn"/>
+	<text name="Current color:">
+		Colore attuale:
+	</text>
+	<text name="(Drag below to save.)">
+		(Trascina sotto per salvare)
+	</text>
+</floater>

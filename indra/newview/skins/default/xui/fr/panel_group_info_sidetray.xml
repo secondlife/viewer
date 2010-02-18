@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil du groupe" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		Certaines modifications n&apos;ont pas été enregistrées.
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Voulez-vous enregistrer ces modifications ?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Rejoindre ([AMOUNT] L$)...
+	</panel.string>
+	<panel.string name="group_join_free">
+		Gratuit
+	</panel.string>
+	<panel name="group_info_top">
+		<text name="group_name" value="(en cours de chargement...)"/>
+		<line_editor label="Saisissez le nom du groupe ici" name="group_name_editor"/>
+	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="Général"/>
+				<accordion_tab name="group_roles_tab" title="Rôles"/>
+				<accordion_tab name="group_notices_tab" title="Notices"/>
+				<accordion_tab name="group_land_tab" title="Terrain/Actifs"/>
+			</accordion>
+		</layout_panel>
+		<layout_panel name="button_row">
+			<button name="btn_create" tool_tip="Créer un groupe"/>
+			<button label="Chat" name="btn_chat"/>
+			<button label="Appel de groupe" name="btn_call" tool_tip="Appeler ce groupe"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="btn_apply"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

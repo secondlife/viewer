@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="WindLight floater" title="空の高度な編集">
+	<text name="KeyFramePresetsText">
+		空の事前設定：
+	</text>
+	<button label="新規" label_selected="新規" name="WLNewPreset"/>
+	<button label="保存" label_selected="保存" name="WLSavePreset"/>
+	<button label="削除" label_selected="削除" name="WLDeletePreset"/>
+	<button label="デイサイクル編集" label_selected="デイサイクル編集" name="WLDayCycleMenuButton"/>
+	<tab_container name="WindLight Tabs">
+		<panel label="大気" name="Atmosphere">
+			<text name="BHText">
+				空の配色
+			</text>
+			<button label="?" name="WLBlueHorizonHelp"/>
+			<text name="BHText2">
+				R
+			</text>
+			<text name="BHText3">
+				G
+			</text>
+			<text name="BHText4">
+				B
+			</text>
+			<text name="BHText5">
+				I
+			</text>
+			<text name="BDensText">
+				空と遠景の露光
+			</text>
+			<button label="?" name="WLHazeHorizonHelp"/>
+			<text name="BDensText2">
+				空の配色と濃度
+			</text>
+			<button label="?" name="WLBlueDensityHelp"/>
+			<text name="BHText6">
+				R
+			</text>
+			<text name="BHText7">
+				G
+			</text>
+			<text name="BHText8">
+				B
+			</text>
+			<text name="BHText9">
+				I
+			</text>
+			<text name="HDText">
+				大気の不透明度
+			</text>
+			<button label="?" name="WLHazeDensityHelp"/>
+			<text name="DensMultText">
+				大気の不透明度の増幅
+			</text>
+			<button label="?" name="WLDensityMultHelp"/>
+			<text name="WLDistanceMultText">
+				視界の増幅
+			</text>
+			<button label="?" name="WLDistanceMultHelp"/>
+			<text name="MaxAltText">
+				最大高度
+			</text>
+			<button label="?" name="WLMaxAltitudeHelp"/>
+		</panel>
+		<panel label="ライティング" name="Lighting">
+			<text name="SLCText">
+				太陽/月の色
+			</text>
+			<button label="?" name="WLSunlightColorHelp"/>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				G
+			</text>
+			<text name="BHText3">
+				B
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="TODText">
+				太陽/月の位置
+			</text>
+			<button label="?" name="WLTimeOfDayHelp"/>
+			<text name="WLAmbientText">
+				アンビエント
+			</text>
+			<button label="?" name="WLAmbientHelp"/>
+			<text name="BHText5">
+				R
+			</text>
+			<text name="BHText6">
+				G
+			</text>
+			<text name="BHText7">
+				B
+			</text>
+			<text name="BHText8">
+				I
+			</text>
+			<text name="WLEastAngleText">
+				東の角度
+			</text>
+			<button label="?" name="WLEastAngleHelp"/>
+			<text name="SunGlowText">
+				太陽の輝き
+			</text>
+			<button label="?" name="WLSunGlowHelp"/>
+			<slider label="フォーカス " name="WLGlowB"/>
+			<slider label="サイズ    " name="WLGlowR"/>
+			<text name="SceneGammaText">
+				風景ガンマ
+			</text>
+			<button label="?" name="WLSceneGammaHelp"/>
+			<text name="WLStarText">
+				星の輝き
+			</text>
+			<button label="?" name="WLStarBrightnessHelp"/>
+		</panel>
+		<panel label="雲" name="Clouds">
+			<text name="WLCloudColorText">
+				雲の色
+			</text>
+			<button label="?" name="WLCloudColorHelp"/>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				G
+			</text>
+			<text name="BHText3">
+				B
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="WLCloudColorText2">
+				雲の XY/密度
+			</text>
+			<button label="?" name="WLCloudDensityHelp"/>
+			<text name="BHText5">
+				X
+			</text>
+			<text name="BHText6">
+				Y
+			</text>
+			<text name="BHText7">
+				D
+			</text>
+			<text name="WLCloudCoverageText">
+				雲の量
+			</text>
+			<button label="?" name="WLCloudCoverageHelp"/>
+			<text name="WLCloudScaleText">
+				雲のスケール
+			</text>
+			<button label="?" name="WLCloudScaleHelp"/>
+			<text name="WLCloudDetailText">
+				雲の詳細 (XY/密度)
+			</text>
+			<button label="?" name="WLCloudDetailHelp"/>
+			<text name="BHText8">
+				X
+			</text>
+			<text name="BHText9">
+				Y
+			</text>
+			<text name="BHText10">
+				D
+			</text>
+			<text name="WLCloudScrollXText">
+				雲の移動速度 (X 方向)
+			</text>
+			<button label="?" name="WLCloudScrollXHelp"/>
+			<check_box label="ロック" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				雲の移動速度 (Y 方向)
+			</text>
+			<button label="?" name="WLCloudScrollYHelp"/>
+			<check_box label="ロック" name="WLCloudLockY"/>
+			<check_box label="従来の雲を描画" name="DrawClassicClouds"/>
+			<button label="?" name="WLClassicCloudsHelp"/>
+		</panel>
+	</tab_container>
+	<string name="WLDefaultSkyNames">
+		A-12AM:A-12PM:A-3AM:A-3PM:A-4.30PM:A-6AM:A-6PM:A-9AM:A-9PM:Barcelona:Blizzard:Blue Midday:Coastal Afternoon:Coastal Sunset:Default:Desert Sunset:Fine Day:Fluffy Big Clouds:Foggy:Funky Funky:Funky Funky Funky:Gelatto:Ghost:Incongruent Truths:Midday 1:Midday 2:Midday 3:Midday 4:Night:Pirate:Purple:Sailor&apos;s Delight:Sheer Sensuality
+	</string>
+</floater>

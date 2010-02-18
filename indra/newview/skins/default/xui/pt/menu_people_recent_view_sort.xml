@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_group_plus">
+	<menu_item_check label="Ordenar por mais recente" name="sort_most"/>
+	<menu_item_check label="Ordenar por nome" name="sort_name"/>
+	<menu_item_check label="Ver ícones de pessoas" name="view_icons"/>
+	<menu_item_call label="Ver residentes e objetos bloqueados" name="show_blocked_list"/>
+</menu>

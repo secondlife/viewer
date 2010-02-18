@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Debug" name="Debug">
+	<text name="region_text_lbl">
+		Regio:
+	</text>
+	<text name="region_text">
+		onbekend
+	</text>
+	<check_box label="Schakel scripts uit" name="disable_scripts_check" tool_tip="Schakel alle scripts in deze regio uit"/>
+	<button label="?" name="disable_scripts_help"/>
+	<check_box label="Schakel botsingen uit" name="disable_collisions_check" tool_tip="Schakel alle niet-avatar botsingen in deze regio uit"/>
+	<button label="?" name="disable_collisions_help"/>
+	<check_box label="Fysiek uitschakelen" name="disable_physics_check" tool_tip="Alle fysiek in deze regio uitschakelen"/>
+	<button label="?" name="disable_physics_help"/>
+	<button label="Toepassen" name="apply_btn"/>
+	<text name="objret_text_lbl">
+		Object retourneren
+	</text>
+	<text name="resident_text_lbl">
+		Inwoner:
+	</text>
+	<line_editor name="target_avatar_name">
+		(none)
+	</line_editor>
+	<button label="Kies..." name="choose_avatar_btn"/>
+	<text name="options_text_lbl">
+		Opties:
+	</text>
+	<check_box label="Retourneer alleen objecten die scripts bevatten." name="return_scripts" tool_tip="Retourneer alleen objecten met scripts."/>
+	<check_box label="Retourneer alleen die objecten op het land van iemand anders" name="return_other_land" tool_tip="Retourneer alleen objecten die zich op land bevinden dat aan iemand anders toebehoort"/>
+	<check_box label="Retourneer objecten in alle regio&apos;s van dit estate" name="return_estate_wide" tool_tip="Retourneer objecten in alle regio&apos;s van dit estate"/>
+	<button label="Retourneren" name="return_btn"/>
+	<button label="Toon top botsingen..." name="top_colliders_btn" tool_tip="Lijst met objecten die de meeste mogelijke botsingen ondergaan"/>
+	<button label="?" name="top_colliders_help"/>
+	<button label="Toon top scripts..." name="top_scripts_btn" tool_tip="Lijst met objecten die de meeste tijd besteden met het uitvoeren van scripts"/>
+	<button label="?" name="top_scripts_help"/>
+	<button label="Herstart regio" name="restart_btn" tool_tip="Geef een 2 minuten afteltijd en herstart de regio."/>
+	<button label="?" name="restart_help"/>
+	<button label="Vertraag herstart" name="cancel_restart_btn" tool_tip="Vertraag herstart met een uur"/>
+</panel>

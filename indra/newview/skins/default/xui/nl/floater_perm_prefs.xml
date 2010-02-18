@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perm prefs" title="STANDAARD UPLOAD PERMISSIES">
+	<panel label="Permissies" name="permissions">
+		<button label="?" label_selected="?" name="help"/>
+		<check_box label="Delen met groep" name="share_with_group"/>
+		<check_box label="Iedereen mag kopiëren" name="everyone_copy"/>
+		<text name="NextOwnerLabel">
+			Volgende eigenaar kan:
+		</text>
+		<check_box label="Wijzigen" name="next_owner_modify"/>
+		<check_box label="Kopiëren" name="next_owner_copy"/>
+		<check_box label="Verkopen/weggeven" name="next_owner_transfer" left_delta="80"/>
+	</panel>
+	<button label="OK" label_selected="OK" name="ok"/>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel"/>
+</floater>

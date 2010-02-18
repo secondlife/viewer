@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ auto_tile="true"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="queue"
+ help_topic="queue"
+ save_rect="true"
+ title="RESET PROGRESS"
+ width="300">
+    <floater.string
+     name="Starting">
+        Starting [START] of [COUNT] items.
+    </floater.string>
+    <floater.string
+     name="Done">
+        Done.
+    </floater.string>
+    <floater.string
+     name="Resetting">
+        Resetting
+    </floater.string>
+    <floater.string
+     name="Running">
+        Running
+    </floater.string>
+    <floater.string
+     name="NotRunning">
+        Not running
+    </floater.string>
+    <button
+     follows="right|bottom"
+     height="24"
+     label="Close"
+     label_selected="Close"
+     layout="topleft"
+     left="220"
+     name="close"
+     top="368"
+     width="64" />
+    <scroll_list
+     follows="left|top|right|bottom"
+     height="344"
+     layout="topleft"
+     left="4"
+     name="queue output"
+     top="20"
+     width="292" />
+</floater>

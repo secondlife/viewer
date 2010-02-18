@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="event_preview" title="INFORMAZIONI SULL&apos;EVENTO">
+	<floater.string name="Title">
+		Evento: [NAME]
+	</floater.string>
+</floater>

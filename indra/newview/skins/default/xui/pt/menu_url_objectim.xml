@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Mostrar informações sobre o objeto" name="show_object"/>
+	<menu_item_call label="Mostrar no mapa" name="show_on_map"/>
+	<menu_item_call label="Teletransportar para lugar do objeto" name="teleport_to_object"/>
+	<menu_item_call label="Copiar nome do objeto para área de transferência" name="url_copy_label"/>
+	<menu_item_call label="Copiar SLurl para área de transferência" name="url_copy"/>
+</context_menu>

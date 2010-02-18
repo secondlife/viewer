@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="チャット" name="chat">
+	<radio_group name="chat_font_size">
+		<radio_item label="小" name="radio" value="0"/>
+		<radio_item label="中" name="radio2" value="1"/>
+		<radio_item label="大" name="radio3" value="2"/>
+	</radio_group>
+	<color_swatch label="自分" name="user"/>
+	<text name="text_box1">
+		自分
+	</text>
+	<color_swatch label="その他" name="agent"/>
+	<text name="text_box2">
+		他人
+	</text>
+	<color_swatch label="IM" name="im"/>
+	<text name="text_box3">
+		IM
+	</text>
+	<color_swatch label="システム" name="system"/>
+	<text name="text_box4">
+		システム
+	</text>
+	<color_swatch label="エラー" name="script_error"/>
+	<text name="text_box5">
+		エラー
+	</text>
+	<color_swatch label="オブジェクト" name="objects"/>
+	<text name="text_box6">
+		オブジェクト
+	</text>
+	<color_swatch label="所有者" name="owner"/>
+	<text name="text_box7">
+		所有者
+	</text>
+	<color_swatch label="URL" name="links"/>
+	<text name="text_box9">
+		URL
+	</text>
+	<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
+	<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
+	<check_box label="チャット履歴に文字だけで表示する" name="plain_text_chat_history"/>
+	<radio_group name="chat_window" tool_tip="インスタントメッセージを別フローター、または1つのフローターに複数タブで表示します（要再起動）">
+		<radio_item label="別々のウィンドウ" name="radio" value="0"/>
+		<radio_item label="タブ" name="radio2" value="1"/>
+	</radio_group>
+</panel>

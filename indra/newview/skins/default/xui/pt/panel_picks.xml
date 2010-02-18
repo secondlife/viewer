@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Destaques" name="panel_picks">
+	<string name="no_picks" value="Sem destaques"/>
+	<string name="no_classifieds" value="Sem classificados"/>
+	<text name="empty_picks_panel_text">
+		Não ha nenhum destaque/ classificado aqui
+	</text>
+	<accordion name="accordion">
+		<accordion_tab name="tab_picks" title="Destaques"/>
+		<accordion_tab name="tab_classifieds" title="Classificados"/>
+	</accordion>
+	<panel label="bottom_panel" name="edit_panel">
+		<button name="new_btn" tool_tip="Criar um novo destaque ou classificado na localização atual"/>
+	</panel>
+	<panel name="buttons_cucks">
+		<button label="Info" name="info_btn" tool_tip="Exibir informação de destaque"/>
+		<button label="Teletransportar" name="teleport_btn" tool_tip="Teletransportar para a área correspondente"/>
+		<button label="Mapa" name="show_on_map_btn" tool_tip="Exibir a área correspondente no Mapa Mundi"/>
+	</panel>
+</panel>

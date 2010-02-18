@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Region" name="General">
+	<text name="region_text_lbl">
+		Region:
+	</text>
+	<text name="region_text">
+		unbekannt
+	</text>
+	<text name="version_channel_text_lbl">
+		Version:
+	</text>
+	<text name="version_channel_text">
+		unbekannt
+	</text>
+	<text name="region_type_lbl">
+		Typ:
+	</text>
+	<text name="region_type">
+		unbekannt
+	</text>
+	<check_box label="Terraformen blockieren" name="block_terraform_check"/>
+	<button label="?" name="terraform_help"/>
+	<check_box label="Fliegen blockieren" name="block_fly_check"/>
+	<button label="?" name="fly_help"/>
+	<check_box label="Schaden zulassen" name="allow_damage_check"/>
+	<button label="?" name="damage_help"/>
+	<check_box label="Stoßen beschränken" name="restrict_pushobject"/>
+	<button label="?" name="restrict_pushobject_help"/>
+	<check_box label="Landwiederverkauf zulassen" name="allow_land_resell_check"/>
+	<button label="?" name="land_resell_help"/>
+	<check_box label="Landumverteilung zulassen" name="allow_parcel_changes_check"/>
+	<button label="?" name="parcel_changes_help"/>
+	<check_box label="Landanzeige in Suche blockieren" name="block_parcel_search_check" tool_tip="Diese Region und ihre Parzellen in Suchergebnissen anzeigen"/>
+	<button label="?" name="parcel_search_help"/>
+	<spinner label="Avatar-Limit" name="agent_limit_spin"/>
+	<button label="?" name="agent_limit_help"/>
+	<spinner label="Objektbonus" name="object_bonus_spin"/>
+	<button label="?" name="object_bonus_help"/>
+	<text label="Alterseinstufung" name="access_text">
+		Einstufung:
+	</text>
+	<combo_box label="Moderat" name="access_combo">
+		<combo_box.item label="Adult" name="Adult"/>
+		<combo_box.item label="Moderat" name="Mature"/>
+		<combo_box.item label="Allgemein" name="PG"/>
+	</combo_box>
+	<button label="?" name="access_help"/>
+	<button label="Übernehmen" name="apply_btn"/>
+	<button label="Einen Benutzer nach Hause teleportieren..." name="kick_btn"/>
+	<button label="Alle Benutzer nach Hause teleportieren..." name="kick_all_btn"/>
+	<button label="Nachricht an Region senden..." name="im_btn"/>
+	<button label="Telehub verwalten..." name="manage_telehub_btn"/>
+</panel>

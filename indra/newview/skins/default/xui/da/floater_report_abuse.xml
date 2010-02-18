@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_report_abuse" title="RAPPORTÉR MISBRUG">
+	<floater.string name="Screenshot">
+		Screenshot
+	</floater.string>
+	<check_box label="Inkludér billede" name="screen_check"/>
+	<text name="reporter_title">
+		Anmelder:
+	</text>
+	<text name="reporter_field">
+		Loremipsum Dolorsitamut Longnamez
+	</text>
+	<text name="sim_title">
+		Region:
+	</text>
+	<text name="sim_field">
+		Region navn
+	</text>
+	<text name="pos_title">
+		Position:
+	</text>
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<text name="select_object_label">
+		Klik på knappen derefter objektet:
+	</text>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Objekt vælger - Identificér et objekt denne rapport omhandler"/>
+	<text name="object_name_label">
+		Navn:
+	</text>
+	<text left_delta="64" name="object_name" width="140">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name_label">
+		Ejer:
+	</text>
+	<text left_delta="64" name="owner_name">
+		Hendrerit Vulputate Kamawashi Longname
+	</text>
+	<combo_box name="category_combo" tool_tip="Kategori -- Vælg en kategori der passer bedst på denne rapport">
+		<combo_box.item label="Vælg kategori" name="Select_category"/>
+		<combo_box.item label="Alder &gt; Falsk alder" name="Age__Age_play"/>
+		<combo_box.item label="Alder &gt; Voksen beboer på Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="Alder &gt; Mindreårig beboer udenfor Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="Overfald &gt; Kamp sandkasse / Usikkert område" name="Assault__Combat_sandbox___unsafe_area"/>
+		<combo_box.item label="Overfald &gt; Sikkert område" name="Assault__Safe_area"/>
+		<combo_box.item label="Overfald &gt; Sandkasse til våbentest" name="Assault__Weapons_testing_sandbox"/>
+		<combo_box.item label="Handel &gt; Vare eller ydelse ikke leveret" name="Commerce__Failure_to_deliver_product_or_service"/>
+		<combo_box.item label="Offentliggørelse &gt; Om oplysninger i den virkelige verden" name="Disclosure__Real_world_information"/>
+		<combo_box.item label="Offentliggørelse &gt; Fjernaflytning af chat" name="Disclosure__Remotely_monitoring chat"/>
+		<combo_box.item label="Offentliggørelse &gt; Information/chat/IM fra Second Life" name="Disclosure__Second_Life_information_chat_IMs"/>
+		<combo_box.item label="Forstyrrelse af fred &gt; Unfair brug af region ressourcer" name="Disturbing_the_peace__Unfair_use_of_region_resources"/>
+		<combo_box.item label="Forstyrrelse af fred &gt; Overdreven brug af objekter med script" name="Disturbing_the_peace__Excessive_scripted_objects"/>
+		<combo_box.item label="Forstyrrelse af fred &gt; Object affald" name="Disturbing_the_peace__Object_littering"/>
+		<combo_box.item label="Forstyrring af fred &gt; Gentagen spam" name="Disturbing_the_peace__Repetitive_spam"/>
+		<combo_box.item label="Forstyrrelse af fred &gt; Uønsket reklame spam" name="Disturbing_the_peace__Unwanted_advert_spam"/>
+		<combo_box.item label="Bedrageri &gt; L$" name="Fraud__L$"/>
+		<combo_box.item label="Bedrageri &gt; Land" name="Fraud__Land"/>
+		<combo_box.item label="Bedrageri &gt; Pyramide spil eller kædebreve" name="Fraud__Pyramid_scheme_or_chain_letter"/>
+		<combo_box.item label="Bedrageri &gt; US$" name="Fraud__US$"/>
+		<combo_box.item label="Chikane &gt; reklame farm / billedeligt spam" name="Harassment__Advert_farms___visual_spam"/>
+		<combo_box.item label="Chikane &gt; Injurier/bagvask enkeltpersoner eller grupper" name="Harassment__Defaming_individuals_or_groups"/>
+		<combo_box.item label="Chikane &gt; Hindre bevægelse" name="Harassment__Impeding_movement"/>
+		<combo_box.item label="Chikane &gt; Sex chikane" name="Harassment__Sexual_harassment"/>
+		<combo_box.item label="Chikane &gt; Opfordrer/kræver at andre overtræder licensbetingelser" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Chikane &gt; Verbalt chikane" name="Harassment__Verbal_abuse"/>
+		<combo_box.item label="Uanstændighed &gt; Meget stødende indhold eller adfærd" name="Indecency__Broadly_offensive_content_or_conduct"/>
+		<combo_box.item label="Uanstændighed &gt; Upassende avatar navn" name="Indecency__Inappropriate_avatar_name"/>
+		<combo_box.item label="Usømmelighed &gt; Upassende inhold eller opførsel i en &apos;PG&apos; region" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Usømmelighed &gt; Upassende inhold eller opførsel i en &apos;Mature&apos; region" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="Krænkelse af intellektuelle ejendomsrettigheder &gt; Indholds fjernelse" name="Intellectual_property_infringement_Content_Removal"/>
+		<combo_box.item label="Krænkelse af intellektuelle ejendomsrettigheder &gt; CopyBot eller omgåelse af rettighedsbeskyttelse" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
+		<combo_box.item label="Intolerance" name="Intolerance"/>
+		<combo_box.item label="Land &gt; Misbrug af sandkasse resourcer" name="Land__Abuse_of_sandbox_resources"/>
+		<combo_box.item label="Land &gt; Overgreb &gt; Objekter/teksturer" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Land &gt; Overgreb &gt; Partikler" name="Land__Encroachment__Particles"/>
+		<combo_box.item label="Land &gt; Overgreb &gt; Træer/planter" name="Land__Encroachment__Trees_plants"/>
+		<combo_box.item label="Væddemål/gambling" name="Wagering_gambling"/>
+		<combo_box.item label="Andet" name="Other"/>
+	</combo_box>
+	<text name="abuser_name_title">
+		Udøvers navn:
+	</text>
+	<button label="Vælg beboer" label_selected="" name="select_abuser" tool_tip="Vælg navnet på udøveren fra denne liste"/>
+	<text name="abuser_name_title2">
+		Sted for misbrug/overgreb:
+	</text>
+	<text name="sum_title">
+		Opsummering:
+	</text>
+	<text name="dscr_title">
+		Detaljer:
+	</text>
+	<text name="bug_aviso">
+		Vær venligst så præcis som muligt
+	</text>
+	<text name="incomplete_title">
+		* Note: Ufuldstændige rapporter vil ikke blive undersøgt.
+	</text>
+	<button label="Rapporter misbrug" label_selected="Rapporter misbrug" name="send_btn"/>
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
+</floater>

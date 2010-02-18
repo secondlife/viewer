@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+         create_jump_keys="true"
+         layout="topleft"
+         mouse_opaque="false"
+         visible="false"
+         name="Gear Menu">
+  <menu_item_call
+   label="Stand Up"
+   enabled="true"
+   name="stand_up">
+    <menu_item_call.on_click
+     function="Self.StandUp"
+     parameter="" />
+    <menu_item_call.on_visible
+     function="Self.EnableStandUp" />
+  </menu_item_call>
+  <menu_item_call
+   label="My Appearance"
+   name="my_appearance">
+    <menu_item_call.on_click
+     function="CustomizeAvatar" />
+    <menu_item_call.on_enable
+     function="Edit.EnableCustomizeAvatar" />
+  </menu_item_call>
+  <menu_item_call
+   label="My Profile"
+   enabled="true" 
+   name="my_profile">
+    <menu_item_call.on_click
+     function="ShowAgentProfile"
+     parameter="agent" />
+  </menu_item_call>
+  <menu_item_call
+   label="My Friends"
+   name="my_friends">
+    <menu_item_call.on_click
+    function="SideTray.PanelPeopleTab"
+    parameter="friends_panel" />
+  </menu_item_call>
+  <menu_item_call
+   label="My Groups"
+   name="my_groups">
+    <menu_item_call.on_click
+     function="SideTray.PanelPeopleTab"
+     parameter="groups_panel" />
+  </menu_item_call>
+</menu>

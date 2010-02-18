@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="friends">
+	<string name="Multiple">
+		Znajomi...
+	</string>
+	<scroll_list name="friend_list"
+	     tool_tip="By wybrać wielu znajomych za jednym razem przetrzymaj klawisz shift lub control">
+		<column name="icon_online_status" tool_tip="Status dostępności" />
+		<column label="Imię" name="friend_name" tool_tip="Imię" />
+		<column name="icon_visible_online"
+		     tool_tip="Ta osoba może widzieć czy jesteś w Second Life" />
+		<column name="icon_visible_map"
+		     tool_tip="Ta osoba może zlokalizować Cię na mapie" />
+		<column name="icon_edit_mine"
+		     tool_tip="Ta osoba może edytować, usunąć lub wziąć Twoje obiekty" />
+		<column name="icon_edit_theirs" tool_tip="Możesz edytować obiekty tej osoby" />
+	</scroll_list>
+	<button label="Czat/IM" name="im_btn" tool_tip="Rozpocznij sesję czatu/IM" />
+	<button label="Profil" name="profile_btn"
+	     tool_tip="Pokaż zdjęcia, grupy i inne informacje" />
+	<button label="Teleportuj..." name="offer_teleport_btn"
+	     tool_tip="Zaoferuj teleportację do siebie" />
+	<button label="Zapłać..." name="pay_btn" tool_tip="Zapłać L$ tej osobie" />
+	<button label="Usuń..." name="remove_btn"
+	     tool_tip="Usuń tę osobę z listy znajomych" />
+	<button label="Dodaj..." name="add_btn" tool_tip="Zaproponuj znajomość" />
+</panel>

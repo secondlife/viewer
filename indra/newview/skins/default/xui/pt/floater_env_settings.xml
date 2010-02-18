@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="EDITOR DO AMBIENTE">
+	<floater.string name="timeStr">
+		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
+	</floater.string>
+	<text name="EnvTimeText">
+		Hora do Dia
+	</text>
+	<text name="EnvTimeText2">
+		12:00 PM
+	</text>
+	<text name="EnvCloudText">
+		Cobertura de
+Nuvens
+	</text>
+	<text name="EnvWaterColorText">
+		Cor da água
+	</text>
+	<color_swatch label="" name="EnvWaterColor" tool_tip="Selecionar a cor"/>
+	<text name="EnvWaterFogText">
+		Névoa da
+água
+	</text>
+	<button bottom="-144" label="Usar hora da propriedade" name="EnvUseEstateTimeButton" width="155"/>
+	<button label="Céu Avançado" left="167" name="EnvAdvancedSkyButton" width="155"/>
+	<button label="Água Avançada" left="326" name="EnvAdvancedWaterButton" width="155"/>
+</floater>

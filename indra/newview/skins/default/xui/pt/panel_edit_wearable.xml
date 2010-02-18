@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Vestível" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		Editando forma
+	</string>
+	<string name="edit_skin_title">
+		Editando pele
+	</string>
+	<string name="edit_hair_title">
+		Editando cabelo
+	</string>
+	<string name="edit_eyes_title">
+		Editando os olhos
+	</string>
+	<string name="edit_shirt_title">
+		Editando camisa
+	</string>
+	<string name="edit_pants_title">
+		Editando calças
+	</string>
+	<string name="edit_shoes_title">
+		Editando sapatos
+	</string>
+	<string name="edit_socks_title">
+		Editando meias
+	</string>
+	<string name="edit_jacket_title">
+		Editando jaqueta
+	</string>
+	<string name="edit_skirt_title">
+		Editando saia
+	</string>
+	<string name="edit_gloves_title">
+		Editando luvas
+	</string>
+	<string name="edit_undershirt_title">
+		Editando camiseta
+	</string>
+	<string name="edit_underpants_title">
+		Editando roupa de baixo
+	</string>
+	<string name="edit_alpha_title">
+		Editando máscara Alpha
+	</string>
+	<string name="edit_tattoo_title">
+		Editando tatuagem
+	</string>
+	<string name="shape_desc_text">
+		Forma:
+	</string>
+	<string name="skin_desc_text">
+		Pele:
+	</string>
+	<string name="hair_desc_text">
+		Cabelo:
+	</string>
+	<string name="eyes_desc_text">
+		Olhos:
+	</string>
+	<string name="shirt_desc_text">
+		Camisa:
+	</string>
+	<string name="pants_desc_text">
+		Calças:
+	</string>
+	<string name="shoes_desc_text">
+		Sapatos:
+	</string>
+	<string name="socks_desc_text">
+		Meias:
+	</string>
+	<string name="jacket_desc_text">
+		Jaqueta:
+	</string>
+	<string name="skirt_skirt_desc_text">
+		Saia:
+	</string>
+	<string name="gloves_desc_text">
+		Luvas:
+	</string>
+	<string name="undershirt_desc_text">
+		Camiseta:
+	</string>
+	<string name="underpants_desc_text">
+		Roupa de baixo:
+	</string>
+	<string name="alpha_desc_text">
+		Máscara alpha:
+	</string>
+	<string name="tattoo_desc_text">
+		Tatuagem:
+	</string>
+	<text name="edit_wearable_title" value="Editando forma"/>
+	<panel label="Camisa" name="wearable_type_panel">
+		<text name="description_text" value="Forma:"/>
+	</panel>
+	<panel name="button_panel">
+		<button label="Salvar como" name="save_as_button"/>
+		<button label="Reverter" name="revert_button"/>
+	</panel>
+</panel>
