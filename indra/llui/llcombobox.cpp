@@ -58,8 +58,6 @@
 #include "lltooltip.h"
 
 // Globals
-S32 LLCOMBOBOX_HEIGHT = 0;
-S32 LLCOMBOBOX_WIDTH = 0;
 S32 MAX_COMBO_WIDTH = 500;
 
 static LLDefaultChildRegistry::Register<LLComboBox> register_combo_box("combo_box");

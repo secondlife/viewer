@@ -85,6 +85,7 @@
 #include "llsecondlifeurls.h"
 
 // Linden library includes
+#include "llavatarnamecache.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -157,7 +158,6 @@
 // Included so that constants/settings might be initialized
 // in save_settings_to_globals()
 #include "llbutton.h"
-#include "llcombobox.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "llvosky.h"
@@ -398,9 +398,6 @@ static void settings_to_globals()
 
 	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
 	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
-
-	LLCOMBOBOX_HEIGHT	= BTN_HEIGHT - 2;
-	LLCOMBOBOX_WIDTH	= 128;
 
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
@@ -3897,6 +3894,8 @@ void LLAppViewer::idleNetwork()
 		
 		// deal with any queued name requests and replies.
 		gCacheName->processPending();
+		LLAvatarNameCache::idle();
+
 		llpushcallstacks ;
 		LLTimer check_message_timer;
 		//  Read all available packets from network 

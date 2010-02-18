@@ -43,6 +43,8 @@ namespace LLAvatarNameCache
 	void importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
+	// Periodically makes a batch request for display names not already in
+	// cache.  Call once per frame.
 	void idle();
 
 	// If name is in cache, returns true and fills in provided LLAvatarName
