@@ -1115,10 +1115,9 @@ public:
 	 * Gets stored external (vivox) volume level for specified speaker and
 	 * transforms it into internal (viewer) level.
 	 *
-	 * If specified user is not found default level will be returned. It is equivalent of 
-	 * external level 0.5 from the 0.0..1.0 range.
+	 * If specified user is not found -1 will be returned.
 	 * Internal level is calculated as: internal = 400 * external^2
-	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
+	 * Maps 0.0 to 1.0 to internal values 0-400
 	 *
 	 * @param[in] speaker_id - LLUUID of user to get his volume level
 	 */
@@ -1157,9 +1156,8 @@ void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 vo
 
 S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
 {
-	// default internal level of user voice.
-	const static LLUICachedControl<S32> DEFAULT_INTERNAL_VOLUME_LEVEL("VoiceDefaultInternalLevel", 100);
-	S32 ret_val = DEFAULT_INTERNAL_VOLUME_LEVEL;
+	// Return value of -1 indicates no level is stored for this speaker
+	S32 ret_val = -1;
 	speaker_data_map_t::const_iterator it = mSpeakersData.find(speaker_id);
 	
 	if (it != mSpeakersData.end())
@@ -5045,6 +5043,11 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(&(result->mAvatarID), result));
 
 		result->mUserVolume = LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID);
+		if (result->mUserVolume != -1)
+		{
+			result->mVolumeDirty = true;
+			mVolumeDirty = true;
+		}
 
 		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
