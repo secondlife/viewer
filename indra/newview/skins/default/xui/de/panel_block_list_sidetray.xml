@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="block_list_panel" width="300">
+	<text left_pad="5" name="title_text" width="260">
+		Liste der ignorierten Einwohner
+	</text>
+	<scroll_list name="blocked" tool_tip="Liste der zur Zeit ignorierten Einwohner" width="290"/>
+	<button label="Einwohner ignorieren" label_selected="Einwohner ignorieren..." name="Block resident..." tool_tip="Wählen Sie einen Einwohner, um ihn zu ignorieren"/>
+	<button label="Objekt nach Name ignorieren" label_selected="Objekt nach Name ignorieren..." name="Block object by name..." tool_tip="Ein Objekt auswählen, um nach Namen zu ignorieren."/>
+	<button label="Freischalten" label_selected="Freischalten" name="Unblock" tool_tip="Einwohner oder Objekt von der Liste der ignorierten Einwohner oder Objekte entfernen"/>
+</panel>

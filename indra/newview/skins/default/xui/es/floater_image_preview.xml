@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview" title="">
+	<text name="name_label">
+		Nombre:
+	</text>
+	<text name="description_label">
+		Descripción:
+	</text>
+	<text name="preview_label">
+		Previsualizar la
+imagen como:
+	</text>
+	<combo_box label="Tipo de ropa" left="100" name="clothing_type_combo" width="186">
+		<combo_box.item label="Imagen" name="Image"/>
+		<combo_box.item label="Pelo" name="Hair"/>
+		<combo_box.item label="Mujer: cabeza" name="FemaleHead"/>
+		<combo_box.item label="Mujer: parte superior del cuerpo" name="FemaleUpperBody"/>
+		<combo_box.item label="Mujer: parte inferior del cuerpo" name="FemaleLowerBody"/>
+		<combo_box.item label="Varón: cabeza" name="MaleHead"/>
+		<combo_box.item label="Varón: parte superior del cuerpo" name="MaleUpperBody"/>
+		<combo_box.item label="Varón: parte inferior del cuerpo" name="MaleLowerBody"/>
+		<combo_box.item label="Falda" name="Skirt"/>
+		<combo_box.item label="Prim sculpted" name="SculptedPrim"/>
+	</combo_box>
+	<text name="bad_image_text">
+		Imposible leer la imagen.
+
+Pruebe a guardar la imagen como Targa (.tga)
+de 24 bites.
+	</text>
+	<check_box label="Usar compresión sin pérdida" name="lossless_check"/>
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Subir ([AMOUNT]L$)" name="ok_btn"/>
+</floater>

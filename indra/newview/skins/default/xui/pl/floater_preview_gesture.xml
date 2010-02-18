@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<string name="stop_txt">
+		Stop
+	</string>
+	<string name="preview_txt">
+		Pokaż
+	</string>
+	<string name="none_text">
+		-- Brak --
+	</string>
+	<text name="desc_label">
+		Opis:
+	</text>
+	<text name="trigger_label">
+		Włączanie:
+	</text>
+	<text name="replace_text" tool_tip="Zmień włączającą frazę na inną. Na przykład zmiana &apos;witam&apos; na &apos;cześć&apos; zmieni czat &apos;Chciałem powiedzieć witam&apos; na &apos;Chciałem powiedzieć cześć&apos; i pokaże animację!">
+		Zamień na:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Zmień włączającą frazę na inną. Na przykład zmiana &apos;witam&apos; na &apos;cześć&apos; zmieni czat &apos;Chciałem powiedzieć witam&apos; na &apos;Chciałem powiedzieć cześć&apos; i pokaże animację!"/>
+	<text name="key_label">
+		Skrót:
+	</text>
+	<combo_box label="Brak" name="modifier_combo"/>
+	<combo_box label="Brak" name="key_combo"/>
+	<text name="library_label">
+		Zbiór:
+	</text>
+	<text name="steps_label">
+		Etapy:
+	</text>
+	<scroll_list name="library_list">
+		Animacja
+Dźwięk
+Czat
+Wstrzymaj
+	</scroll_list>
+	<button label="Dodaj &gt;&gt;" name="add_btn"/>
+	<button label="W Górę" name="up_btn"/>
+	<button label="W Dół" name="down_btn"/>
+	<button label="Usuń" name="delete_btn"/>
+	<text name="help_label">
+		Wszystkie etapy nastąpią razem, 
+chyba, że dodasz pauzy.
+	</text>
+	<radio_group name="animation_trigger_type">
+		<radio_item name="start" label="Start" />
+		<radio_item name="stop" label="Stop" />
+	</radio_group>
+	<check_box label="do końca animacji" name="wait_anim_check"/>
+	<check_box label="czas w sekundach" name="wait_time_check"/>
+	<check_box label="Aktywny" name="active_check" tool_tip="Aktywne gesty można włączać używając przypisanej frazy w czacie albo używając przypisanego klawisza skrótowego. W przypaku konfliktu przypisań gesty zazwyczaj nie będą działać."/>
+	<button label="Pokaż" name="preview_btn"/>
+	<button label="Zapisz" name="save_btn"/>
+</floater>

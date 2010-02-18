@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="ビーコン（標識）">
+	<panel name="beacons_panel">
+		<text name="label_show">
+			表示：
+		</text>
+		<check_box label="ビーコン（標識）" name="beacons"/>
+		<check_box label="ハイライト" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="ビーコン（標識）の幅">
+			幅：
+		</text>
+		<text name="label_objects">
+			対象オブジェクト：
+		</text>
+		<check_box label="物理的" name="physical"/>
+		<check_box label="スクリプト" name="scripted"/>
+		<check_box label="触れる" name="touch_only"/>
+		<check_box label="音源" name="sounds"/>
+		<check_box label="パーティクル源" name="particles"/>
+	</panel>
+</floater>

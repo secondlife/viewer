@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Beskeder" name="notices_tab">
+	<panel.string name="help_text">
+		Beskeder er en hurtig måde at kommunikere på 
+på tværs i gruppen ved at sende en meddelelse eller en 
+eventuel vedlagt genstand. beskeder sendes kun til
+gruppemedlemmer i roller som giver evnen til at 
+modtage dem. Du kan slå beskeder fra i 
+Generel-fanebladet.
+	</panel.string>
+	<panel.string name="no_notices_text">
+		Der er ikke nogen tidligere beskeder
+	</panel.string>
+	<text name="lbl2">
+		Beskeder gemmes i 14 dage.
+Maksimum er 200 pr. gruppe pr. dag
+	</text>
+	<scroll_list name="notice_list">
+		<scroll_list.columns label="" name="icon"/>
+		<scroll_list.columns label="Emne" name="subject"/>
+		<scroll_list.columns label="Fra" name="from"/>
+		<scroll_list.columns label="Dato" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Ingen fundet
+	</text>
+	<button label="Lav en ny besked" label_selected="Lav ny besked" name="create_new_notice" tool_tip="Lav en ny besked"/>
+	<button label="Genopfrisk" label_selected="Genopfrisk liste" name="refresh_notices" tool_tip="Genopfrisk beskedliste"/>
+	<panel label="Lav ny besked" name="panel_create_new_notice">
+		<text name="lbl">
+			Lav en besked
+		</text>
+		<text name="lbl3">
+			Emne:
+		</text>
+		<text name="lbl4">
+			Besked:
+		</text>
+		<text name="lbl5">
+			Vedhæft:
+		</text>
+		<text name="string">
+			Træk og slip en gensand for at vedhæfte den:
+		</text>
+		<button label="Fjern" label_selected="Fjern bilag" name="remove_attachment"/>
+		<button label="Send" label_selected="Send" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Træk en genstand fra din beholdning til dette felt for at sende den med denne besked. Du skal have rettigheder til at kopiere og overdrage denne genstand for at kunne vedhæfte den."/>
+	</panel>
+	<panel label="Se tidligere beskeder" name="panel_view_past_notice">
+		<text name="lbl">
+			Arkiverede beskeder
+		</text>
+		<text name="lbl2">
+			For at sende en ny besked, tryk på + knappen
+		</text>
+		<text name="lbl3">
+			Emne:
+		</text>
+		<text name="lbl4">
+			Besked:
+		</text>
+		<button label="Åben bilag" label_selected="åben bilag" name="open_attachment"/>
+	</panel>
+</panel>

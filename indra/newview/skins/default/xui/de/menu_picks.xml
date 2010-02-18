@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Picks">
+	<menu_item_call label="Info" name="pick_info"/>
+	<menu_item_call label="Bearbeiten" name="pick_edit"/>
+	<menu_item_call label="Teleportieren" name="pick_teleport"/>
+	<menu_item_call label="Karte" name="pick_map"/>
+	<menu_item_call label="Löschen" name="pick_delete"/>
+</context_menu>

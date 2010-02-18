@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="START LINDEN LAND VERKOOP">
+	<check_box label="Voeg geel selectie kader toe" name="fence_check"/>
+	<button label="Foto" label_selected="Foto" name="snapshot_btn"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<string name="already for sale">
+		U kunt geen percelen veilen die al te koop staan.
+	</string>
+</floater>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="OPTIONS DE LA GRILLE">
+	<spinner label="Unités (mètres)" name="GridResolution"/>
+	<spinner label="Mesures (mètres)" name="GridDrawSize"/>
+	<check_box label="Fixation des sous-unités" name="GridSubUnit"/>
+	<check_box label="Afficher les sections transversales" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Opacité de la grille">
+		Opacité :
+	</text>
+	<slider label="Opacité de la grille" name="GridOpacity"/>
+</floater>

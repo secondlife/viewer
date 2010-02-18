@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="立ち上がる" name="stand_up"/>
+	<menu_item_call label="容姿" name="my_appearance"/>
+	<menu_item_call label="プロフィール" name="my_profile"/>
+	<menu_item_call label="フレンド" name="my_friends"/>
+	<menu_item_call label="グループ" name="my_groups"/>
+</menu>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="リンデンランドの販売開始">
+	<floater.string name="already for sale">
+		売り出し中の区画は、オークションに出品できません。
+	</floater.string>
+	<check_box initial_value="true" label="黄色の選択フェンスを含める" name="fence_check"/>
+	<button label="スナップショット" label_selected="スナップショット" name="snapshot_btn"/>
+	<button label="誰にでも販売" label_selected="誰にでも販売" name="sell_to_anyone_btn"/>
+	<button label="設定をクリア" label_selected="設定をクリア" name="reset_parcel_btn"/>
+	<button label="オークション開始" label_selected="オークション開始" name="start_auction_btn"/>
+</floater>

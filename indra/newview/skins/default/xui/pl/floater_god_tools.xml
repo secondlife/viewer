@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="godtools floater" title="BOSKIE NARZĘDZIA">
+	<tab_container name="GodTools Tabs">
+		<panel label="Grid" name="grid">
+			<button width="205" label="Usuń wszystkich użytkowników" label_selected="Usuń wszystkich użytkowników" name="Kick all users"/>
+			<button width="285" label="Wyrównaj Widoczność Buforu Mapy Regionu" label_selected="Wyrównaj Widoczność Buforu Mapy Regionu" name="Flush This Region&apos;s Map Visibility Caches"/>
+		</panel>
+		<panel label="Region" name="region">
+			<text name="Sim Name:" width="100">
+				Nazwa Symulatora:
+			</text>
+			<line_editor left="115" name="region name" width="178" />
+			<line_editor name="region name"/>
+			<check_box label="Wstęp" name="check prelude" />
+			<check_box label="Korekta Słońca" name="check fixed sun" tool_tip="Skorektuj ustawienia pozycji słońca."/>
+			<check_box height="32" label="Zresetuj Pozycję &#10;Miejsca Startowego" name="check reset home" />
+			<check_box bottom_delta="-32" label="Widoczny" name="check visible" tool_tip="Wybierz tę opcję by ustawić region widocznym dla wszystkich."/>
+			<check_box label="Zniszczenia" name="check damage" tool_tip="Wybierz tę opcję by uruchomić opcję zniszczeń w regionie."/>
+			<check_box label="Zablokuj Monitorowanie Trafficu" name="block dwell" tool_tip="Wybierz tę opcję by zablokować monitorowanie trafficu w regionie."/>
+			<check_box label="Zablokuj Terraformowanie" name="block terraform" tool_tip="Wybierz tę opcję by zablokować terraforming w regionie"/>
+			<check_box label="Piaskownica" name="is sandbox" />
+			<button width="138" label="Ustal Teren" label_selected="Ustal Teren" name="Bake Terrain" tool_tip="Zapamiętaj obecny teren jako początkowy dla cofnięcia modyfikacji terenu."/>
+			<button width="138" label="Cofnięcie Modyfikacji" label_selected="Cofnięcie Modyfikacji" name="Revert Terrain" tool_tip="Przywróć Ustawienia Domyślne Regionu."/>
+			<button width="138" label="Zamień Teren" label_selected="Zamień Teren" name="Swap Terrain" />
+			<text name="estate id">
+				ID Regionu:
+			</text>
+			<line_editor name="estate"/>
+			<text name="parent id">
+				Parent ID:
+			</text>
+			<line_editor name="parentestate" tool_tip="This is the parent estate for this region"/>
+			<text name="Grid Pos: ">
+				Pozycje Gridu:
+			</text>
+			<line_editor name="gridposx" tool_tip="Pozycja x gridu dla regionu" left_delta="110" width="35" />
+			<line_editor name="gridposy" tool_tip="Pozycja y gridu dla regionu" left_delta="45" width="35" />
+			<text name="Redirect to Grid: ">
+				Przełącz do gridu:
+			</text>
+			<line_editor left_delta="110" name="redirectx" width="35" />
+			<line_editor left_delta="45" name="redirecty" width="35" />
+			<spinner name="billable factor"/>
+			<text name="billable factor text">
+				Czynnik Płatności:
+			</text>
+			<spinner name="land cost"/>
+			<text name="land cost text">
+				L$/m²:
+			</text>
+			<button label="Odśwież" label_selected="Odśwież" name="Refresh" />
+			<button label="Zastosuj" label_selected="Zastosuj" name="Apply" />
+			<button width="150" left="156" label="Wybierz Region" label_selected="Wybierz Region" name="Select Region" tool_tip="Wybierz cały region za pomocą narzędzi edycji terenu"/>
+			<button width="150" left="156" label="Automatyczne Zapisanie" label_selected="Automatyczne Zapisanie" name="Autosave now" />
+		</panel>
+		<panel label="Obiekty" name="objects">
+			<text name="Sim Name:" width="105">
+				Nazwa Symulatora:
+			</text>
+			<text name="region name" left_delta="110">
+				Welsh
+			</text>
+			<check_box label="Wyłącz Skrypty" name="disable scripts" />
+			<check_box label="Deaktywuj Kolizje" name="disable collisions" />
+			<check_box label="Wylącz Fizykę" name="disable physics" />
+			<button label="Zastosuj" label_selected="Zastosuj" name="Apply" />
+			<button label="Ustaw Cel" label_selected="Set Target" name="Set Target" />
+			<text name="target_avatar_name">
+				(brak)
+			</text>
+			<button label="Usuń cel z oskryptowanych obiektów na innych posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na innych posiadłościach" name="Delete Target&apos;s Scripted Objects On Others Land" />
+			<button label="Usuń cel z oskryptowanych obiektów na jakichkolwiek posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na jakichkolwiek posiadłościach" name="Delete Target&apos;s Scripted Objects On *Any* Land" />
+			<button label="Usuń wszystkie cele i obiekty" label_selected="Usuń wszystkie cele i obiekty" name="Delete *ALL* Of Target&apos;s Objects" />
+			<button label="Główne Kolizje" label_selected="Główne Kolizje" name="Get Top Colliders" />
+			<button label="Główne Skrypty" label_selected="Główne Skrypty" name="Get Top Scripts" />
+			<button label="Treść skryptów" label_selected="Treść skryptów" name="Scripts digest" tool_tip="Wyświetla listę wszystkich skryptów i liczbę ich zastosowań."/>
+		</panel>
+		<panel label="Zażądaj" name="request">
+			<text name="Destination:">
+				Cel:
+			</text>
+			<combo_box name="destination">
+				<combo_box.item name="item1" label="Selekcja" />
+				<combo_box.item name="item2" label="Agent Regionu" />
+			</combo_box>
+			<text name="Request:">
+				Żądanie:
+			</text>
+			<combo_box name="request">
+				<combo_box.item name="item1" label="kolidery &lt;kroki&gt;" />
+				<combo_box.item name="item2" label="skrypty &lt;policz&gt;,&lt;opcjonalnie powtórzenie&gt;" />
+				<combo_box.item name="item3" label="obiekty &lt;powtórzenia&gt;" />
+				<combo_box.item name="item4" label="rez &lt;asset_id&gt;" />
+			</combo_box>
+			<text name="Parameter:">
+				Parameter:
+			</text>
+			<line_editor name="parameter"/>
+			<button label="Zażądaj" label_selected="Zażądaj" name="Make Request"/>
+		</panel>
+	</tab_container>
+</floater>

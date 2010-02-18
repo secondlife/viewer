@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="friends">
+	<string name="Multiple">
+		Diversos amigos
+	</string>
+	<scroll_list name="friend_list" tool_tip="Aperte shift ou control enquanto clica para selecionar múltiplos amigos">
+		<column name="icon_online_status" tool_tip="Status Online"/>
+		<column label="Nome" name="friend_name" tool_tip="Nome"/>
+		<column name="icon_visible_online" tool_tip="Amigo pode ver quando você está online"/>
+		<column name="icon_visible_map" tool_tip="Amigo pode localizá-lo no mapa"/>
+		<column name="icon_edit_mine" tool_tip="Amigo pode editar, apagar ou pegar seus objetos"/>
+		<column name="icon_edit_theirs" tool_tip="Você pode editar os objetos deste amigo"/>
+	</scroll_list>
+	<button label="MI/Chamar" name="im_btn" tool_tip="Abrir sessão de Mensagem Instantânea" width="86"/>
+	<button label="Perfil" name="profile_btn" tool_tip="Mostrar foto, grupos e outras informações" width="86"/>
+	<button label="Teletransportar" name="offer_teleport_btn" tool_tip="Oferecer a este amigo o teletransporte para sua localização atual" width="86"/>
+	<button label="Pagar" name="pay_btn" tool_tip="Dar Linden dólares (L$) a este amigo" width="86"/>
+	<button label="Tirar" name="remove_btn" tool_tip="Remover esta pessoa de sua lista de amigos" width="86"/>
+	<button label="Adicionar" name="add_btn" tool_tip="Oferecer amizade a um residente" width="86"/>
+</panel>

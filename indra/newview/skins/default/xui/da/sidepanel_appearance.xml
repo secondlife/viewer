@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sæt" name="appearance panel">
+	<string name="No Outfit" value="Intet sæt"/>
+	<filter_editor label="Filtrér sæt" name="Filter"/>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Vis flere muligheder"/>
+		<button name="newlook_btn" tool_tip="Tilføj nyt sæt"/>
+		<dnd_button name="trash_btn" tool_tip="Fjern valgte del"/>
+		<button label="Bær" name="wear_btn"/>
+	</panel>
+</panel>

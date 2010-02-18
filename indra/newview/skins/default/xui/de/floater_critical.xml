@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="modal container" title=" ">
+	<button label="Weiter" label_selected="Weiter" name="Continue" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel" />
+	<text name="tos_title">
+		Kritische Nachricht
+	</text>
+	<text name="tos_heading">
+		Lesen Sie folgenden Text bitte sorgfältig durch.
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+</floater>

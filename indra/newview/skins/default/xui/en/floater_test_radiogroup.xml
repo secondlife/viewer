@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_radiogroup"
+ help_topic="floater_test_radiogroup"
+ translate="false"
+ width="400">
+    <radio_group
+     height="54"
+     layout="topleft"
+     left="10"
+     name="parcel_voice_channel"
+     top="46"
+     width="219">
+        <radio_item
+         height="16"
+         label="Use the Estate spatial channel"
+         layout="topleft"
+         left="3"
+         name="Estate"
+         top="3"
+         width="463" />
+        <radio_item
+         height="16"
+         label="Use a private spatial channel"
+         layout="topleft"
+         left_delta="0"
+         name="Private"
+         top_delta="16"
+         width="463" />
+        <radio_item
+         height="16"
+         label="Disable spatial audio on this parcel"
+         layout="topleft"
+         left_delta="0"
+         name="Disabled"
+         top_delta="16"
+         width="463" />
+    </radio_group>
+    <radio_group
+     height="50"
+     layout="topleft"
+     left_delta="0"
+     name="simple_radio_group"
+     top_pad="50"
+     width="150">
+        <radio_item
+         bottom="20"
+         height="16"
+         label="Label in label attribute"
+         layout="topleft"
+         name="label_radio_item" />
+        <radio_item
+         bottom_delta="20"
+         height="16"
+         label="Label in text contents"
+         layout="topleft"
+         name="contents_radio_item" />
+    </radio_group>
+    <radio_group
+     draw_border="false"
+     height="50"
+     layout="topleft"
+     left_delta="0"
+     name="no_border_radio_group"
+     top_pad="50"
+     width="150">
+        <radio_item
+         bottom="20"
+         height="16"
+         label="No Border Foo"
+         layout="topleft"
+         name="foo_radio_item" />
+        <radio_item
+         bottom_delta="20"
+         height="16"
+         label="No Border Bar"
+         layout="topleft"
+         name="bar_item" />
+    </radio_group>
+</floater>

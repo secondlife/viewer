@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarpicker" title="WYBIERZ REZYDENTA">
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Znajdź" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Wpisz imię Rezydenta:
+			</text>
+			<button label="Znajdź" label_selected="Znajdź" name="Find"/>
+		</panel>
+		<panel label="Wizytówka" name="CallingCardsPanel">
+			<text name="InstructSelectCallingCard">
+				Wybierz wizytówkę:
+			</text>
+		</panel>
+		<panel label="Obok mnie:" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Wybierz Rezydenta obok:
+			</text>
+			<button label="Odśwież" label_selected="Odśwież" name="Refresh"/>
+			<slider label="Zasięg" name="near_me_range"/>
+			<text name="meters">
+				Metry
+			</text>
+		</panel>
+	</tab_container>
+	<button label="Wybierz" label_selected="Wybierz" name="Select"/>
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
+	<string name="not_found">
+		&apos;[TEXT]&apos; nie zostało odnalezione
+	</string>
+	<string name="no_one_near">
+		Nikt w pobliżu
+	</string>
+	<string name="no_results">
+		Brak wyników
+	</string>
+	<string name="searching">
+		Wyszukiwanie...
+	</string>
+</floater>

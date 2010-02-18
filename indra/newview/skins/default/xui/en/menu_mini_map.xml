@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ height="101"
+ layout="topleft"
+ left="100"
+ mouse_opaque="false"
+ name="Popup"
+ top="724"
+ visible="false"
+ width="128">
+    <menu_item_call
+     label="Zoom Close"
+     name="Zoom Close">
+        <menu_item_call.on_click
+         function="Minimap.Zoom"
+         parameter="close" />
+    </menu_item_call>
+    <menu_item_call
+     label="Zoom Medium"
+     name="Zoom Medium">
+        <menu_item_call.on_click
+         function="Minimap.Zoom"
+         parameter="medium" />
+    </menu_item_call>
+    <menu_item_call
+     label="Zoom Far"
+     name="Zoom Far">
+        <menu_item_call.on_click
+         function="Minimap.Zoom"
+         parameter="far" />
+    </menu_item_call>
+    <menu_item_check
+       label="Rotate Map"
+       name="Rotate Map">
+          <menu_item_check.on_check
+             control="MiniMapRotate" />
+          <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="MiniMapRotate" />
+    </menu_item_check>
+    <menu_item_separator />
+    <menu_item_call
+     label="Stop Tracking"
+     name="Stop Tracking">
+        <menu_item_call.on_click
+         function="Minimap.Tracker"
+         parameter="task_properties" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
+     label="World Map"
+     name="World Map">
+        <menu_item_call.on_click
+         function="Floater.Show"
+         parameter="world_map" />
+    </menu_item_call>
+</menu>

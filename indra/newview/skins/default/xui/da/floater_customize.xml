@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater customize" title="UDSEENDE" width="509">
+	<tab_container name="customize tab container" width="507">
+		<placeholder label="Krops Dele" name="body_parts_placeholder"/>
+		<panel label="Kropsbygning" name="Shape">
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+			<button label="Krop" label_selected="Krop" name="Body"/>
+			<button label="Hoved" label_selected="Hoved" name="Head"/>
+			<button label="Øjne" label_selected="Øjne" name="Eyes"/>
+			<button label="Ører" label_selected="Ører" name="Ears"/>
+			<button label="Næse" label_selected="Næse" name="Nose"/>
+			<button label="Mund" label_selected="Mund" name="Mouth"/>
+			<button label="Kinder" label_selected="Kinder" name="Chin"/>
+			<button label="Overkrop" label_selected="Overkrop" name="Torso"/>
+			<button label="Ben" label_selected="Ben" name="Legs"/>
+			<radio_group name="sex radio">
+				<radio_item label="Kvinde" name="radio"/>
+				<radio_item label="Mand" name="radio2"/>
+			</radio_group>
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Vælg en ny krop ved at trække en sådan fra din beholdning
+over på din avatar. Du kan også oprette en fra bunden 
+og bagefter &apos;tage den på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Figur:
+			</text>
+			<button label="Lav ny krop" label_selected="Lav ny krop" name="Create New"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+		</panel>
+		<panel label="Hud" name="Skin">
+			<button label="Hudfarve" label_selected="Hudfarve" name="Skin Color"/>
+			<button label="Detaljer" label_selected="Detaljer" name="Face Detail"/>
+			<button label="Sminke" label_selected="Sminke" name="Makeup"/>
+			<button label="Kropsdetaljer" label_selected="Kropsdetaljer" name="Body Detail"/>
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag en ny hud på ved at trække en sådan fra din beholdning
+over på din avatar. Du kan også oprette en hud fra bunden 
+og bagefter &apos;tage den på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Hud:
+			</text>
+			<texture_picker label="Tatoveringer hoved" name="Head Tattoos" tool_tip="Klik for at vælge et billede" width="98"/>
+			<texture_picker label="Tatover. overkrop" name="Upper Tattoos" tool_tip="Klik for at vælge et billede" width="98"/>
+			<texture_picker label="Tatover. underkrop" name="Lower Tattoos" tool_tip="Klik for at vælge et billede" width="98"/>
+			<button label="Lav ny hud" label_selected="Lav nyt hud" name="Create New"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Hår" name="Hair">
+			<button label="Farve" label_selected="Farve" name="Color"/>
+			<button label="Stil" label_selected="Stil" name="Style"/>
+			<button label="Øjenbryn" label_selected="Øjenbryn" name="Eyebrows"/>
+			<button label="Skæg" label_selected="Skæg" name="Facial"/>
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag et ny hår på ved at trække et fra din beholdning
+over på din avatar. Du kan også oprette et nyt hår fra bunden 
+og bagefter &apos;tage det på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Hår:
+			</text>
+			<texture_picker label="Tekstur" name="Texture" tool_tip="Klik for at vælge et billede"/>
+			<button label="Lav nyt hår" label_selected="Lav nyt hår" name="Create New"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Øjne" name="Eyes">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag et ny sæt øjne på ved at trække et sæt fra din beholdning
+over på din avatar. Du kan også oprette et nyt sæt øjne fra bunden 
+og bagefter &apos;tage dem på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Øjne:
+			</text>
+			<texture_picker label="Iris" name="Iris" tool_tip="Klik for at vælge et billede"/>
+			<button label="Lav nye øjne" label_selected="Lav nye øjne" name="Create New"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<placeholder label="Tøje" name="clothes_placeholder"/>
+		<panel label="Trøje" name="Shirt">
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav ny trøje" label_selected="Lav ny trøje" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag en ny Tøje på ved at trække en fra din beholdning over på din avatar. 
+Du kan også oprette en ny Tøje fra bunden og bagefter &apos;tage den på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Trøje:
+			</text>
+		</panel>
+		<panel label="Bukser" name="Pants">
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav nye bukser" label_selected="Lav nye bukser" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag nyr bukser på ved at trække dem fra din beholdning over på
+din avatar. Du kan også oprette ny bukser fra bunden og bagefter
+&apos;tage dem på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Bukser:
+			</text>
+		</panel>
+		<panel label="Sko" name="Shoes">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag et ny par sko på ved at trække dem fra din beholdning
+over på din avatar. Du kan også oprette et nyt par sko fra bunden 
+og bagefter &apos;tage dem på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Sko:
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav nye sko" label_selected="Lav nye sko" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Strømper" name="Socks">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag et ny par Strømper på ved at trække dem fra din beholdning
+over på din avatar. Du kan også oprette et nyt par Strømper fra bunden 
+og bagefter &apos;tage dem på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Strømper:
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav nye strømper" label_selected="Lav nye strømper" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Jakke" name="Jacket">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag en ny jakke på ved at trække en fra din beholdning over på din avatar. 
+Du kan også oprette en ny jakke fra bunden og bagefter &apos;tage den på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Jakke:
+			</text>
+			<texture_picker label="Stof øverst" name="Upper Fabric" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Stof nederst" name="Lower Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav ny jakke" label_selected="Lav ny jakke" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Handsker" name="Gloves">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag nye handsker på ved at trække et par fra din beholdning over på
+din avatar. Du kan også oprette nye handsker fra bunden 
+og bagefter &apos;tage dem på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Handsker:
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav nye handsker" label_selected="Lav nye handsker" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Undertrøje" name="Undershirt">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag en ny undertrøje på ved at trække en fra din beholdning over på
+din avatar. Du kan også oprette en ny undertrøje fra bunden 
+og bagefter &apos;tage den på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Undertrøje:
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav ny undertrøje" label_selected="Lav ny undertrøje" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Underbukser" name="Underpants">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag nye underbukser på ved at trække dem fra din beholdning over på
+din avatar. Du kan også oprette en par nye underbukser fra bunden 
+og bagefter &apos;tage dem på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Underbukser:
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav nye underbukser" label_selected="Lav nye underbukser" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Nederdel" name="Skirt">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: Kan ikke redigeres
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Fundet i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Tag en ny nederdel på ved at trække en fra din beholdning over på
+din avatar. Du kan også oprette en ny nederdel fra bunden 
+og bagefter &apos;tage den på&apos;.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at redigere denne del.
+			</text>
+			<text name="Item Action Label">
+				Nederdel:
+			</text>
+			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+			<button label="Lav ny nederdel" label_selected="Lav ny nederdel" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Annullér" label_selected="Annullér" name="Revert"/>
+		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: kan ikke ændre
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Placeret i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Brug en ny &quot;alpha mask&quot; ved at trække en fra din beholding til din avatar.
+Alternativt kan du lave en fra bunden og bære denne.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at ændre denne.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Alpha - nedre" name="Lower Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øvre alpha" name="Upper Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - hoved" name="Head Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - øjne" name="Eye Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - hår" name="Hair Alpha" tool_tip="Klik for at vælge et billede"/>
+			<button label="Lav ny &quot;Alpha&quot;" label_selected="Lav ny &quot;Alpha&quot;" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
+		</panel>
+		<panel label="Tatovering" name="Tattoo">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: kan ikke ændre
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Placeret i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Brug en ny tatovering ved at trække en fra din beholding til din avatar.
+Alternativt kan du lave en fra bunden og bære denne.
+			</text>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at ændre denne.
+			</text>
+			<text name="Item Action Label">
+				Tatovering:
+			</text>
+			<texture_picker label="Tatovering - hovede" name="Head Tattoo" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øvre tatovering" name="Upper Tattoo" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Nedre tatovering" name="Lower Tattoo" tool_tip="Klik for at vælge et billede"/>
+			<button label="lav ny tatovering" label_selected="Lav ny tatovering" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
+		</panel>
+	</tab_container>
+	<scroll_container left="212" name="panel_container"/>
+	<button label="Lav sæt" label_selected="Lav sæt" name="make_outfit_btn"/>
+	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
+	<button label="OK" label_selected="OK" name="Ok"/>
+</floater>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="KLEURKIEZER">
+	<text name="r_val_text">
+		Rood:
+	</text>
+	<text name="g_val_text">
+		Groen:
+	</text>
+	<text name="b_val_text">
+		Blauw:
+	</text>
+	<text name="h_val_text">
+		Hue:
+	</text>
+	<text name="s_val_text">
+		Sat:
+	</text>
+	<text name="l_val_text">
+		Lum:
+	</text>
+	<check_box label="Direct toepassen" name="apply_immediate"/>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn"/>
+	<button label="Selecteer" label_selected="Selecteer" name="select_btn"/>
+	<text name="Current color:">
+		Huidige kleur:
+	</text>
+	<text name="(Drag below to save.)">
+		(Sleep naar beneden 
+ om op te slaan)
+	</text>
+</floater>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<teleport_messages name="">
+	<message_set name="errors">
+		<message name="invalid_tport">
+			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir vous téléporter.
+Si ce message persiste, veuillez consulter la page [SUPPORT_SITE].
+		</message>
+		<message name="invalid_region_handoff">
+			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir traverser des régions.
+Si ce message persiste, veuillez consulter la page [SUPPORT_SITE].
+		</message>
+		<message name="blocked_tport">
+			Désolé, la téléportation est bloquée actuellement. Veuillez réessayer dans un moment.
+Si vous ne parvenez toujours pas à être téléporté, déconnectez-vous puis reconnectez-vous pour résoudre le problème.
+		</message>
+		<message name="nolandmark_tport">
+			Désolé, le système n&apos;a pas réussi à localiser la destination de votre repère.
+		</message>
+		<message name="timeout_tport">
+			Désolé, la connexion vers votre lieu de téléportation n&apos;a pas abouti.
+Veuillez réessayer dans un moment.
+		</message>
+		<message name="noaccess_tport">
+			Désolé, vous n&apos;avez pas accès à cette destination.
+		</message>
+		<message name="missing_attach_tport">
+			Vos pieces-jointes ne sont pas encore arrivées. Attendez quelques secondes de plus ou déconnectez-vous puis reconnectez-vous avant d&apos;essayer de vous téléporter.
+		</message>
+		<message name="too_many_uploads_tport">
+			Le trafic vers cette région est bouché en ce moment. Votre téléportation ne pourra pas avoir lieu immédiatement. Veuillez réessayer dans quelques minutes ou bien aller dans une zone moins fréquentée.
+		</message>
+		<message name="expired_tport">
+			Désolé, votre demande de téléportation n&apos;a pas abouti assez rapidement. Veuillez réessayer dans quelques minutes.
+		</message>
+		<message name="expired_region_handoff">
+			Désolé, votre demande pour passer dans une autre région n&apos;a pas abouti assez rapidement. Veuillez réessayer dans quelques minutes.
+		</message>
+		<message name="no_host">
+			Impossible de trouver la destination de la téléportation. Il est possible que cette destination soit temporairement indisponible ou qu&apos;elle n&apos;existe plus. Veuillez réessayer dans quelques minutes.
+		</message>
+		<message name="no_inventory_host">
+			L&apos;inventaire est temporairement indisponible.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			Envoi vers la destination en cours.
+		</message>
+		<message name="redirecting">
+			Redirection vers un emplacement différent en cours.
+		</message>
+		<message name="relaying">
+			Relai vers la destination en cours.
+		</message>
+		<message name="sending_home">
+			Requête de la demande d&apos;envoi vers votre domicile en cours.
+		</message>
+		<message name="sending_landmark">
+			Requête de la demande d&apos;envoi vers le repère en cours.
+		</message>
+		<message name="completing">
+			Téléportation sur le point d&apos;aboutir.
+		</message>
+		<message name="resolving">
+			Destination en cours de résolution.
+		</message>
+		<message name="contacting">
+			Contact avec la nouvelle région en cours.
+		</message>
+		<message name="arriving">
+			Vous arrivez...
+		</message>
+		<message name="requesting">
+			Demande de téléportation en cours...
+		</message>
+	</message_set>
+</teleport_messages>

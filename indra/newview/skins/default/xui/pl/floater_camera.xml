@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="camera_floater" title="">
+	<floater.string name="rotate_tooltip">
+		Obracaj kamerę wokół obiektu
+	</floater.string>
+	<floater.string name="zoom_tooltip">
+		Najedź kamerą w kierunku obiektu
+	</floater.string>
+	<floater.string name="move_tooltip">
+		Poruszaj kamerą w dół/górę oraz w prawo/lewo
+	</floater.string>
+	<panel name="controls">
+		<joystick_track name="cam_track_stick" tool_tip="Poruszaj kamerą w dół/górę oraz w prawo/lewo"/>
+		<joystick_zoom name="zoom" tool_tip="Najedź kamerą w kierunku obiektu"/>
+	</panel>
+</floater>

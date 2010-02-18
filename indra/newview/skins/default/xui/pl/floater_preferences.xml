@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Preferences" title="USTAWIENIA">
+	<button label="OK" label_selected="OK" name="OK" />
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
+	<button label="Zastosuj" label_selected="Zastosuj" name="Apply" />
+	<button label="O Second Life" label_selected="O Second Life" name="About..." />
+	<button label="Pomoc" label_selected="Pomoc" name="Help" />
+</floater>

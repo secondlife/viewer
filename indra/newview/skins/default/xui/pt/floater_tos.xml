@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title=" ">
+	<button label="Continuar" label_selected="Continuar" name="Continue"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<check_box label="Eu concordo com os Termos do Serviço" name="agree_chk"/>
+	<text name="tos_heading">
+		Leia com atenção os Termos do Serviço.  Para continuar a entrar no [SECOND_LIFE], é preciso aceitar o contrato.
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+	<string name="real_url">
+		http://secondlife.com/app/tos/
+	</string>
+</floater>

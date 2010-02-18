@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Main Menu">
+	<menu label="Bestand" name="File">
+		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
+		<menu label="Upload" name="upload">
+			<menu_item_call label="Afbeelding (L$[COST])..." name="Upload Image"/>
+			<menu_item_call label="Geluid (L$[COST])..." name="Upload Sound"/>
+			<menu_item_call label="Animatie (L$[COST])..." name="Upload Animation"/>
+			<menu_item_call label="Bulk (L$[COST] per bestand)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Standaard permissies instellen..." name="perm prefs"/>
+		</menu>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Sluit venster" name="Close Window"/>
+		<menu_item_call label="Sluit alle vensters" name="Close All Windows"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Textuur opslaan als..." name="Save Texture As..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Maak foto" name="Take Snapshot"/>
+		<menu_item_call label="Foto naar harde schijf" name="Snapshot to Disk"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Afsluiten" name="Quit"/>
+	</menu>
+	<menu label="Bewerken" name="Edit">
+		<menu_item_call label="Ongedaan maken" name="Undo"/>
+		<menu_item_call label="Herhalen" name="Redo"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Knippen" name="Cut"/>
+		<menu_item_call label="Kopiëren" name="Copy"/>
+		<menu_item_call label="Plakken" name="Paste"/>
+		<menu_item_call label="Verwijderen" name="Delete"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Zoeken..." name="Search..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Alles selecteren" name="Select All"/>
+		<menu_item_call label="Deselecteren" name="Deselect"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Dupliceren" name="Duplicate"/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu label="Bevestig object" name="Attach Object"/>
+		<menu label="Object losmaken" name="Detach Object"/>
+		<menu label="Kleding uitdoen" name="Take Off Clothing">
+			<menu_item_call label="Hemd" name="Shirt"/>
+			<menu_item_call label="Broek" name="Pants"/>
+			<menu_item_call label="Schoenen" name="Shoes"/>
+			<menu_item_call label="Sokken" name="Socks"/>
+			<menu_item_call label="Jas" name="Jacket"/>
+			<menu_item_call label="Handschoenen" name="Gloves"/>
+			<menu_item_call label="Onderhemd" name="Menu Undershirt"/>
+			<menu_item_call label="Onderbroek" name="Menu Underpants"/>
+			<menu_item_call label="Rok" name="Skirt"/>
+			<menu_item_call label="Alle kleding" name="All Clothes"/>
+		</menu>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Gebaren..." name="Gestures..."/>
+		<menu_item_call label="Profiel..." name="Profile..."/>
+		<menu_item_call label="Uiterlijk..." name="Appearance..."/>
+		<menu_item_separator label="-----------" name="separator7"/>
+		<menu_item_check label="Vrienden..." name="Friends..."/>
+		<menu_item_call label="Groepen..." name="Groups..."/>
+		<menu_item_separator label="-----------" name="separator8"/>
+		<menu_item_call label="Voorkeuren..." name="Preferences..."/>
+	</menu>
+	<menu label="Weergave" name="View">
+		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
+		<menu_item_call label="Mouselook" name="Mouselook"/>
+		<menu_item_check label="Bouwen" name="Build"/>
+		<menu_item_check label="Joystick vliegcamera" name="Joystick Flycam"/>
+		<menu_item_call label="Weergave opnieuw instellen" name="Reset View"/>
+		<menu_item_call label="Kijk naar laatste geklets" name="Look at Last Chatter"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_check label="Werkbalk" name="Toolbar"/>
+		<menu_item_check label="Lokale chat" name="Chat History"/>
+		<menu_item_check label="Communiceren" name="Instant Message"/>
+		<menu_item_check label="Inventaris" name="Inventory"/>
+		<menu_item_check label="Actieve sprekers" name="Active Speakers"/>
+		<menu_item_check label="Negeerlijst" name="Mute List"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_check label="Camerabediening" name="Camera Controls"/>
+		<menu_item_check label="Bewegingsbediening" name="Movement Controls"/>
+		<menu_item_check label="Wereldkaart" name="World Map"/>
+		<menu_item_check label="Mini-kaart" name="Mini-Map"/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_check label="Statistiekenbalk" name="Statistics Bar"/>
+		<menu_item_check label="Eigendomlijnen" name="Property Lines"/>
+		<menu_item_check label="Banlijnen" name="Banlines"/>
+		<menu_item_check label="Landeigenaren" name="Land Owners"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu label="Tooltips" name="Hover Tips">
+			<menu_item_check label="Toon tips" name="Show Tips"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_check label="Land tips" name="Land Tips"/>
+			<menu_item_check label="Tips voor alle objecten" name="Tips On All Objects"/>
+		</menu>
+		<menu_item_check label="Markeer transparant" name="Highlight Transparent"/>
+		<menu_item_check label="Bakens" name="beacons"/>
+		<menu_item_check label="Verberg particles" name="Hide Particles"/>
+		<menu_item_check label="Toon HUD bevestigingen" name="Show HUD Attachments"/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu_item_call label="Inzoomen" name="Zoom In"/>
+		<menu_item_call label="Zoom standaard" name="Zoom Default"/>
+		<menu_item_call label="Uitzoomen" name="Zoom Out"/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Schakelen naar volledig scherm" name="Toggle Fullscreen"/>
+		<menu_item_call label="UI grootte naar standaard instellen" name="Set UI Size to Default"/>
+	</menu>
+	<menu label="Wereld" name="World">
+		<menu_item_call label="Chat" name="Chat"/>
+		<menu_item_check label="Altijd rennen" name="Always Run"/>
+		<menu_item_check label="Vliegen" name="Fly"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Maak hier landmarkering" name="Create Landmark Here"/>
+		<menu_item_call label="Thuis hier instellen" name="Set Home to Here"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Teleport naar huis" name="Teleport Home"/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Afwezig instellen" name="Set Away"/>
+		<menu_item_call label="Niet-storen instellen" name="Set Busy"/>
+		<menu_item_call label="Stop het animeren van mijn avatar" name="Stop Animating My Avatar"/>
+		<menu_item_call label="Toetsen vrijgeven" name="Release Keys"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Account geschiedenis..." name="Account History..."/>
+		<menu_item_call label="Beheer mijn account" name="Manage My Account..."/>
+		<menu_item_call label="Koop L$..." name="Buy and Sell L$..."/>
+		<menu_item_separator label="-----------" name="separator5"/>
+		<menu_item_call label="Mijn land..." name="My Land..."/>
+		<menu_item_call label="Over land..." name="About Land..."/>
+		<menu_item_call label="Koop land..." name="Buy Land..."/>
+		<menu_item_call label="Regio/Estate..." name="Region/Estate..."/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu label="Omgeving instellingen" name="Environment Settings">
+			<menu_item_call label="Zonsopgang" name="Sunrise"/>
+			<menu_item_call label="Middag" name="Noon"/>
+			<menu_item_call label="Zonsondergang" name="Sunset"/>
+			<menu_item_call label="Middernacht" name="Midnight"/>
+			<menu_item_call label="Herstel naar regiostandaard" name="Revert to Region Default"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Omgeving editor" name="Environment Editor"/>
+		</menu>
+	</menu>
+	<menu label="Gereedschappen" name="Tools">
+		<menu label="Selecteergereedschap" name="Select Tool">
+			<menu_item_call label="Focus" name="Focus"/>
+			<menu_item_call label="Verplaatsen" name="Move"/>
+			<menu_item_call label="Bewerken" name="Edit"/>
+			<menu_item_call label="Maak" name="Create"/>
+			<menu_item_call label="Land" name="Land"/>
+		</menu>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_check label="Selecteer alleen mijn objecten" name="Select Only My Objects"/>
+		<menu_item_check label="Selecteer alleen verplaatsbare objecten" name="Select Only Movable Objects"/>
+		<menu_item_check label="Selecteer op omgeving" name="Select By Surrounding"/>
+		<menu_item_check label="Toon verborgen selectie" name="Show Hidden Selection"/>
+		<menu_item_check label="Toon lichtradius voor selectie" name="Show Light Radius for Selection"/>
+		<menu_item_check label="Toon selectiestraal" name="Show Selection Beam"/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_check label="Snap aan grid" name="Snap to Grid"/>
+		<menu_item_call label="Snap object XY aan grid" name="Snap Object XY to Grid"/>
+		<menu_item_call label="Gebruik selectie voor grid" name="Use Selection for Grid"/>
+		<menu_item_call label="Gridopties..." name="Grid Options..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_check label="Bewerk gekoppelde delen" name="Edit Linked Parts"/>
+		<menu_item_call label="Koppel" name="Link"/>
+		<menu_item_call label="Ontkoppel" name="Unlink"/>
+		<menu_item_separator label="-----------" name="separator4"/>
+		<menu_item_call label="Focus op selectie" name="Focus on Selection"/>
+		<menu_item_call label="Zoom naar selectie" name="Zoom to Selection"/>
+		<menu_item_call label="Koop object" name="Menu Object Take">
+			<on_enable userdata="Koop,Neem" name="EnableBuyOrTake"/>
+		</menu_item_call>
+		<menu_item_call label="Neem kopie" name="Take Copy"/>
+		<menu_item_call label="Object terug opslaan in objectinhoud" name="Save Object Back to Object Contents"/>
+		<menu_item_separator label="-----------" name="separator6"/>
+		<menu_item_call label="Toon script waarschuwing/fout venster" name="Show Script Warning/Error Window"/>
+		<menu label="Hercompileer scripts in selectie" name="Recompile Scripts in Selection">
+			<menu_item_call label="Mono" name="Mono"/>
+			<menu_item_call label="LSL" name="LSL"/>
+		</menu>
+		<menu_item_call label="Scripts in selectie opnieuw instellen" name="Reset Scripts in Selection"/>
+		<menu_item_call label="Scripts in selectie instellen op uitvoeren" name="Set Scripts to Running in Selection"/>
+		<menu_item_call label="Scripts in selectie instellen op niet uitvoeren" name="Set Scripts to Not Running in Selection"/>
+	</menu>
+	<menu label="Help" name="Help">
+		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
+		<menu_item_call label="Handleiding" name="Tutorial"/>
+		<menu_item_separator label="-----------" name="separator"/>
+		<menu_item_call label="Officiële Linden blog..." name="Official Linden Blog..."/>
+		<menu_item_separator label="-----------" name="separator2"/>
+		<menu_item_call label="Scripting portaal..." name="Scripting Portal..."/>
+		<menu_item_separator label="-----------" name="separator3"/>
+		<menu_item_call label="Rapporteer misbruik..." name="Report Abuse..."/>
+		<menu_item_call label="Botsingen, duwen &amp; slaan" name="Bumps, Pushes &amp;amp; Hits..."/>
+		<menu_item_call label="Lag Meter" name="Lag Meter"/>
+		<menu_item_separator label="-----------" name="separator7"/>
+		<menu label="Bug rapporteren" name="Bug Reporting">
+			<menu_item_call label="Publieke problemenlijst..." name="Public Issue Tracker..."/>
+			<menu_item_call label="Publieke problemenlijst help" name="Publc Issue Tracker Help..."/>
+			<menu_item_separator label="-----------" name="separator7"/>
+			<menu_item_call label="Bug rapporteren 101" name="Bug Reporing 101..."/>
+			<menu_item_call label="Beveiligingsbevindingen..." name="Security Issues..."/>
+			<menu_item_call label="Kwaliteitsbeheersing Wiki..." name="QA Wiki..."/>
+			<menu_item_separator label="-----------" name="separator9"/>
+			<menu_item_call label="Rapporteer bug..." name="Report Bug..."/>
+		</menu>
+		<menu_item_call label="Over [APP_NAME]..." name="About Second Life..."/>
+	</menu>
+</menu_bar>

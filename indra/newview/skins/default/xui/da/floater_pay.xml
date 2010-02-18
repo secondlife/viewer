@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Give Money" title="">
+	<string name="payee_group">
+		Betal gruppe
+	</string>
+	<string name="payee_resident">
+		Betal beboer
+	</string>
+	<text left="5" name="payee_label" width="81">
+		Betal:
+	</text>
+	<icon name="icon_person" tool_tip="Person"/>
+	<text name="payee_name">
+		[FIRST] [LAST]
+	</text>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
+	<text left="4" name="amount text">
+		eler vælg beløb:
+	</text>
+	<button label="Betal" label_selected="Betal" name="pay btn"/>
+	<button label="Annullér" label_selected="Annullér" name="cancel btn"/>
+</floater>

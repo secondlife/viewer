@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="PROPRIEDADES DE ITEM NO INVENTÁRIO">
+	<floater.string name="unknown">
+		(desconhecido)
+	</floater.string>
+	<floater.string name="public">
+		(público)
+	</floater.string>
+	<floater.string name="you_can">
+		Você pode:
+	</floater.string>
+	<floater.string name="owner_can">
+		Proprietário pode :
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<text name="LabelItemNameTitle">
+		Nome:
+	</text>
+	<text name="LabelItemDescTitle">
+		Descrição:
+	</text>
+	<text name="LabelCreatorTitle">
+		Criador:
+	</text>
+	<text name="LabelCreatorName">
+		Nicole Linden
+	</text>
+	<button label="Perfil..." label_selected="" name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+		Dono:
+	</text>
+	<text name="LabelOwnerName">
+		Thrax Linden
+	</text>
+	<button label="Perfil..." label_selected="" name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+		Adquirido:
+	</text>
+	<text name="LabelAcquiredDate">
+		Qua Mai 24 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		Você:
+	</text>
+	<check_box label="Editar" name="CheckOwnerModify"/>
+	<check_box label="Copiar" name="CheckOwnerCopy"/>
+	<check_box label="Revender" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Todos:
+	</text>
+	<check_box label="Cortar" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Grupo:
+	</text>
+	<check_box label="Compartilhar" name="CheckShareWithGroup"/>
+	<text name="NextOwnerLabel" width="230">
+		Próximo proprietário:
+	</text>
+	<check_box label="Editar" name="CheckNextOwnerModify"/>
+	<check_box label="Copiar" name="CheckNextOwnerCopy"/>
+	<check_box label="Revender" name="CheckNextOwnerTransfer"/>
+	<check_box label="À venda" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Cortar" name="Copy"/>
+		<combo_box.item label="Original" name="Original"/>
+	</combo_box>
+	<spinner label="Preço:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
+</floater>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ follows="left|top"
+ height="175"
+ layout="topleft"
+ name="MemLeak"
+ help_topic="memleak"
+ title="SIMULATE A MEMORY LEAK"
+ width="350">
+    <spinner
+     decimal_digits="0"
+     follows="left|top"
+     height="20"
+     increment="256"
+     initial_value="512"
+     label="Leaking Speed (bytes per frame):"
+     label_width="220"
+     layout="topleft"
+     left="10"
+     max_val="4.29497e+009"
+     name="leak_speed"
+     top="30"
+     width="330">
+		<spinner.commit_callback
+		function="MemLeak.ChangeLeakingSpeed" />
+	</spinner>
+    <spinner
+     decimal_digits="0"
+     follows="left|top"
+     height="20"
+     increment="4"
+     initial_value="512"
+     label="Max Leaked Memory (MB):"
+     label_width="220"
+     layout="topleft"
+     left_delta="0"
+     max_val="4096"
+     name="max_leak"
+     top_pad="5"
+     width="330">
+		<spinner.commit_callback
+		function="MemLeak.ChangeMaxMemLeaking" />
+	</spinner>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="25"
+     layout="topleft"
+     left_delta="0"
+     name="total_leaked_label"
+     top_delta="20"
+     width="300">
+        Current leaked memory: [SIZE] KB
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="25"
+     layout="topleft"
+     left_delta="0"
+     name="note_label_1"
+     top_delta="25"
+     width="330">
+        [NOTE1]
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="25"
+     layout="topleft"
+     left_delta="0"
+     name="note_label_2"
+     top_delta="25"
+     width="330">
+        [NOTE2]
+    </text>
+    <button
+     follows="left|top"
+     height="20"
+     label="Start"
+     layout="topleft"
+     left_delta="0"
+     name="start_btn"
+     top_delta="20"
+     width="70">
+		<button.commit_callback
+		function="MemLeak.Start" />
+	</button>
+    <button
+     follows="left|top"
+     height="20"
+     label="Stop"
+     layout="topleft"
+     left_pad="7"
+     name="stop_btn"
+     top_delta="0"
+     width="70">
+		<button.commit_callback
+		function="MemLeak.Stop" />
+	</button>
+    <button
+     follows="left|top"
+     height="20"
+     label="Release"
+     layout="topleft"
+     left_pad="7"
+     name="release_btn"
+     top_delta="0"
+     width="70">
+		<button.commit_callback
+		function="MemLeak.Release" />
+	</button>
+    <button
+     follows="left|top"
+     height="20"
+     label="Close"
+     layout="topleft"
+     left_pad="36"
+     name="close_btn"
+     top_delta="0"
+     width="70">
+		<button.commit_callback
+		function="MemLeak.Close" />
+	</button>
+</floater>

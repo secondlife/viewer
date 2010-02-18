@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_hair_panel">
+	<panel name="avatar_hair_color_panel">
+		<texture_picker label="Tekstur" name="Texture" tool_tip="Klik for at vælge et billede"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="hair_color_tab" title="Farve"/>
+		<accordion_tab name="hair_style_tab" title="Stil"/>
+		<accordion_tab name="hair_eyebrows_tab" title="Øjenbryn"/>
+		<accordion_tab name="hair_facial_tab" title="Skæg"/>
+	</accordion>
+</panel>

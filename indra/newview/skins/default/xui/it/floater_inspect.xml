@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="450" name="inspect" title="ISPEZIONA OGGETTI">
+	<floater.string name="timeStamp">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<scroll_list name="object_list" tool_tip="Seleziona un oggetto da questo elenco per evidenziarlo inworld">
+		<scroll_list.columns label="Nome dell&apos;oggetto" name="object_name"/>
+		<scroll_list.columns label="Proprietario" name="owner_name"/>
+		<scroll_list.columns label="Creatore" name="creator_name"/>
+		<scroll_list.columns label="Data di creazione" name="creation_date"/>
+	</scroll_list>
+	<button label="Vedi il profilo del proprietario..." label_selected="" name="button owner" tool_tip="Vedi il profilo del proprietario dell&apos;oggetto evidenziato" width="185"/>
+	<button label="Vedi il profilo del creatore..." label_selected="" left="205" name="button creator" tool_tip="Vedi il profilo del creatore originale dell&apos;oggetto evidenziato" width="165"/>
+</floater>

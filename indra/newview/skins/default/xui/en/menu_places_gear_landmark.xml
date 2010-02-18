@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_ladmark_gear"
+ visible="false">
+    <menu_item_call
+     label="Teleport"
+     layout="topleft"
+     name="teleport">
+        <on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="teleport" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="teleport" />
+    </menu_item_call>
+    <menu_item_call
+     label="More Information"
+     layout="topleft"
+     name="more_info">
+        <on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="more_info" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="more_info" />
+    </menu_item_call>
+    <menu_item_call
+     label="Show on Map"
+     layout="topleft"
+     name="show_on_map">
+        <on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="show_on_map" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="show_on_map" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+     label="Add Landmark"
+     layout="topleft"
+     name="add_landmark">
+        <on_click
+         function="Places.LandmarksGear.Add.Action"
+         parameter="add_landmark" />
+    </menu_item_call>
+    <menu_item_call
+     label="Add Folder"
+     layout="topleft"
+     name="add_folder">
+        <on_click
+         function="Places.LandmarksGear.Add.Action"
+         parameter="category" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="category" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+     label="Cut"
+     layout="topleft"
+     name="cut">
+        <on_click
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="cut" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="cut" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy Landmark"
+     layout="topleft"
+     name="copy_landmark">
+        <on_click
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy SLurl"
+     layout="topleft"
+     name="copy_slurl">
+        <on_click
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="copy_slurl" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="copy_slurl" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     layout="topleft"
+     name="paste">
+        <on_click
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="paste" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Rename"
+     layout="topleft"
+     name="rename">
+        <on_click
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="rename" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="rename" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete"
+     layout="topleft"
+     name="delete">
+        <on_click
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="delete" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="delete" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+     label="Expand all folders"
+     layout="topleft"
+     name="expand_all">
+        <on_click
+         function="Places.LandmarksGear.Folding.Action"
+         parameter="expand_all" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="expand_all" />
+    </menu_item_call>
+    <menu_item_call
+     label="Collapse all folders"
+     layout="topleft"
+     name="collapse_all">
+        <on_click
+         function="Places.LandmarksGear.Folding.Action"
+         parameter="collapse_all" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="collapse_all" />
+    </menu_item_call>
+    <menu_item_check
+     label="Sort by Date"
+     layout="topleft"
+     name="sort_by_date">
+        <on_check
+         function="Places.LandmarksGear.Check"
+         parameter="sort_by_date" />
+        <on_click
+         function="Places.LandmarksGear.Folding.Action"
+         parameter="sort_by_date" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="sort_by_date" />
+    </menu_item_check>
+    <menu_item_call
+     label="Create Pick"
+     layout="topleft"
+     name="create_pick">
+        <on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="create_pick" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="create_pick" />
+    </menu_item_call>
+</menu>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Comprar" name="Task Buy"/>
+	<menu_item_call label="Abrir" name="Task Open"/>
+	<menu_item_call label="Ejecutar" name="Task Play"/>
+	<menu_item_call label="Propiedades" name="Task Properties"/>
+	<menu_item_call label="Renombrar" name="Task Rename"/>
+	<menu_item_call label="Borrar" name="Task Remove"/>
+	<menu_item_call label="Vaciar la papelera" name="Empty Trash"/>
+	<menu_item_call label="Vaciar Objetos Perdidos" name="Empty Lost And Found"/>
+	<menu_item_call label="Carpeta nueva" name="New Folder"/>
+	<menu_item_call label="Script nuevo" name="New Script"/>
+	<menu_item_call label="Nota nueva" name="New Note"/>
+	<menu_item_call label="Gesto nuevo" name="New Gesture"/>
+	<menu label="Ropas nuevas" name="New Clothes">
+		<menu_item_call label="Camisa nueva" name="New Shirt"/>
+		<menu_item_call label="Pantalones nuevos" name="New Pants"/>
+		<menu_item_call label="Zapatos nuevos" name="New Shoes"/>
+		<menu_item_call label="Calcetines nuevos" name="New Socks"/>
+		<menu_item_call label="Chaqueta nueva" name="New Jacket"/>
+		<menu_item_call label="Falda nueva" name="New Skirt"/>
+		<menu_item_call label="Guantes nuevos" name="New Gloves"/>
+		<menu_item_call label="Camiseta nueva" name="New Undershirt"/>
+		<menu_item_call label="Ropa interior nueva" name="New Underpants"/>
+		<menu_item_call label="Nueva capa Alpha" name="New Alpha Mask"/>
+		<menu_item_call label="Tatuaje nuevo" name="New Tattoo"/>
+	</menu>
+	<menu label="Nuevas partes del cuerpo" name="New Body Parts">
+		<menu_item_call label="Forma nueva" name="New Shape"/>
+		<menu_item_call label="Piel nueva" name="New Skin"/>
+		<menu_item_call label="Pelo nuevo" name="New Hair"/>
+		<menu_item_call label="Ojos nuevos" name="New Eyes"/>
+	</menu>
+	<menu label="Change Type" name="Change Type">
+		<menu_item_call label="Por defecto" name="Default"/>
+		<menu_item_call label="Guantes" name="Gloves"/>
+		<menu_item_call label="Chaqueta" name="Jacket"/>
+		<menu_item_call label="Pantalón" name="Pants"/>
+		<menu_item_call label="Forma" name="Shape"/>
+		<menu_item_call label="Zapatos" name="Shoes"/>
+		<menu_item_call label="Camisa" name="Shirt"/>
+		<menu_item_call label="Falda" name="Skirt"/>
+		<menu_item_call label="Ropa interior" name="Underpants"/>
+		<menu_item_call label="Camiseta" name="Undershirt"/>
+	</menu>
+	<menu_item_call label="Teleportar" name="Landmark Open"/>
+	<menu_item_call label="Abrir" name="Animation Open"/>
+	<menu_item_call label="Abrir" name="Sound Open"/>
+	<menu_item_call label="Eliminar el ítem" name="Purge Item"/>
+	<menu_item_call label="Restaurar el ítem" name="Restore Item"/>
+	<menu_item_call label="Ir al enlace" name="Goto Link"/>
+	<menu_item_call label="Abrir" name="Open"/>
+	<menu_item_call label="Propiedades" name="Properties"/>
+	<menu_item_call label="Renombrar" name="Rename"/>
+	<menu_item_call label="Copiar la UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="Copiar" name="Copy"/>
+	<menu_item_call label="Pegar" name="Paste"/>
+	<menu_item_call label="Pegar como enlace" name="Paste As Link"/>
+	<menu_item_call label="Borrar" name="Delete"/>
+	<menu_item_call label="Quitarse los ítems" name="Take Off Items"/>
+	<menu_item_call label="Añadir al vestuario" name="Add To Outfit"/>
+	<menu_item_call label="Reemplazar el vestuario" name="Replace Outfit"/>
+	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
+	<menu_item_call label="Escuchar" name="Sound Play"/>
+	<menu_item_call label="Acerca del hito" name="About Landmark"/>
+	<menu_item_call label="Ver en el mundo" name="Animation Play"/>
+	<menu_item_call label="Ejecutarla para usted" name="Animation Audition"/>
+	<menu_item_call label="Enviar un mensaje instantáneo" name="Send Instant Message"/>
+	<menu_item_call label="Ofrecer teleporte..." name="Offer Teleport..."/>
+	<menu_item_call label="Empezar multiconferencia" name="Conference Chat"/>
+	<menu_item_call label="Activar" name="Activate"/>
+	<menu_item_call label="Desactivar" name="Deactivate"/>
+	<menu_item_call label="Guardar como" name="Save As"/>
+	<menu_item_call label="Quitarse" name="Detach From Yourself"/>
+	<menu_item_call label="Ponerse" name="Object Wear"/>
+	<menu label="Anexar a" name="Attach To"/>
+	<menu label="Anexar como HUD" name="Attach To HUD"/>
+	<menu_item_call label="Editar" name="Wearable Edit"/>
+	<menu_item_call label="Ponerse" name="Wearable Wear"/>
+	<menu_item_call label="Quitarse" name="Take Off"/>
+	<menu_item_call label="--sin opciones--" name="--no options--"/>
+</menu>

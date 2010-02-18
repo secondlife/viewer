@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_sound">
+	<floater.string name="Title">
+		Son : [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Description :
+	</text>
+	<button label="Jouer dans Second Life" label_selected="Jouer dans Second Life" left_delta="-142" name="Sound play btn" tool_tip="Lire ce son de façon à ce que les autres puissent l&apos;entendre" width="131"/>
+	<button label="Jouer localement" label_selected="Jouer localement" left="162" name="Sound audition btn" tool_tip="Lire ce son de façon à ce que vous soyez la seule personne à pouvoir l&apos;entendre" width="125"/>
+</floater>

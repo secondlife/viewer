@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_about" title="メディアブラウザ">
+	<floater.string name="home_page_url">
+		http://jp.secondlife.com
+	</floater.string>
+	<floater.string name="support_page_url">
+		http://jp.secondlife.com/support
+	</floater.string>
+	<layout_stack name="stack1">
+		<layout_panel name="nav_controls">
+			<button label="戻る" name="back"/>
+			<button label="進む" name="forward"/>
+			<button label="更新" name="reload"/>
+			<button label="閲覧" name="go"/>
+		</layout_panel>
+		<layout_panel name="time_controls">
+			<button label="巻き戻し" name="rewind"/>
+			<button label="停止" name="stop"/>
+			<button label="早送り" name="seek"/>
+		</layout_panel>
+		<layout_panel name="parcel_owner_controls">
+			<button label="現在のページを区画に送る" name="assign"/>
+		</layout_panel>
+		<layout_panel name="external_controls">
+			<button label="外部Webブラウザで開く" name="open_browser"/>
+			<check_box label="常に外部のWebブラウザで開く" name="open_always"/>
+			<button label="閉じる" name="close"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

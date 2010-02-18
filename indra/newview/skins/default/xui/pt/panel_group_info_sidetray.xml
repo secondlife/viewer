@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sobre o grupo" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		As mudanças feitas nesta guia ainda não foram salvas
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Deseja salvar essas mudanças?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Entrar (L$[AMOUNT])
+	</panel.string>
+	<panel.string name="group_join_free">
+		Grátis
+	</panel.string>
+	<text name="group_name" value="Carregando..."/>
+	<line_editor label="Digite o nome do grupo aqui" name="group_name_editor"/>
+	<texture_picker label="" name="insignia" tool_tip="Selecionar imagem"/>
+	<text name="prepend_founded_by">
+		Fundador:
+	</text>
+	<name_box initial_value="(pesquisando)" name="founder_name"/>
+	<text name="join_cost_text">
+		Grátis
+	</text>
+	<button label="ENTRAR AGORA!" name="btn_join"/>
+	<accordion name="groups_accordion">
+		<accordion_tab name="group_general_tab" title="Público geral"/>
+		<accordion_tab name="group_roles_tab" title="Cargos"/>
+		<accordion_tab name="group_notices_tab" title="Avisos"/>
+		<accordion_tab name="group_land_tab" title="Terrenos/Bens"/>
+	</accordion>
+	<panel name="button_row">
+		<button label="Crie" label_selected="Novo grupo" name="btn_create"/>
+		<button label="Salvar" label_selected="Salvar" name="btn_apply"/>
+	</panel>
+</panel>

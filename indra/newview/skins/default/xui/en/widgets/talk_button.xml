@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Derives from LLUICtrl -->
+<talk_button>
+  <!-- To make speak button look green when selected set:
+    image_selected="SegmentedBtn_Left_Selected"
+    image_unselected="SegmentedBtn_Left_Off"
+  -->
+  <speak_button
+    follows="left|right" 
+                 image_selected="SegmentedBtn_Left_Selected_Press"
+                 image_unselected="SegmentedBtn_Left_Off"
+		 image_pressed="SegmentedBtn_Left_Selected_Press"
+		 image_pressed_selected="SegmentedBtn_Left_Selected_Press"
+    name="speak_btn"
+    label="Speak"
+    label_selected="Speak"
+    tab_stop="false"
+    />
+  <show_button
+    follows="right" 
+    name="speak_flyout_btn"
+    label=""
+    left="0"
+    top="0"
+    right="20"
+    bottom="0"
+    tab_stop="false"
+    is_toggle="true"
+                 image_selected="SegmentedBtn_Right_Selected_Press"
+                 image_unselected="SegmentedBtn_Right_Off"
+		 image_pressed="SegmentedBtn_Right_Press"
+		 image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+		 image_overlay="Arrow_Small_Up"
+    />
+  <monitor
+    follows="right" 
+    name="monitor"
+    left="0"
+    top="18"
+    right="18"
+    bottom="0"
+    />
+</talk_button>

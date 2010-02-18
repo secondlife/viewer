@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_checkbox"
+ help_topic="floater_test_checkbox"
+ translate="false"
+ width="400">
+    <check_box
+     control_name="ShowStartLocation"
+     height="15"
+     initial_value="true"
+     label="Oh look it's a checkbox!"
+     layout="topleft"
+     left="10"
+     name="show_location_checkbox"
+     top="28"
+     width="256" />
+    <check_box
+     height="15"
+     label="Minimal Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="minimal_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     enabled="false"
+     height="15"
+     label="Disabled Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="disabled_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     height="15"
+     label="Text Enabled Color"
+     layout="topleft"
+     left_delta="0"
+     name="text_enabled_color_checkbox"
+     text_enabled_color="EmphasisColor"
+     top_pad="14"
+     width="150" />
+    <check_box
+     enabled="false"
+     height="15"
+     label="Text Disabled Color"
+     layout="topleft"
+     left_delta="0"
+     name="text_disabled_color_checkbox"
+     text_disabled_color="EmphasisColor_35"
+     top_pad="14"
+     width="150" />
+    <check_box
+     height="15"
+     initial_value="true"
+     label="Initial Value Checked"
+     layout="topleft"
+     left_delta="0"
+     name="initial_value_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     font="Monospace"
+     height="15"
+     label="Font Monospace"
+     layout="topleft"
+     left_delta="0"
+     name="font_checkbox"
+     top_pad="14"
+     width="150" />
+</floater>

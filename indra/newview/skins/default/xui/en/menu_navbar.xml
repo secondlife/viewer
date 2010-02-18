@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ height="201"
+ layout="topleft"
+ left="100"
+ mouse_opaque="false"
+ name="Navbar Menu"
+ top="624"
+ visible="false"
+ width="128">
+    <menu_item_check
+         label="Show Coordinates"
+         name="Show Coordinates">
+           <menu_item_check.on_click
+             function="Navbar.Action"
+             parameter="show_coordinates" />
+             <menu_item_check.on_check
+             function="Navbar.EnableMenuItem"
+             parameter="show_coordinates" />
+    </menu_item_check>
+    <menu_item_check
+      label="Show Parcel Properties"
+      name="Show Parcel Properties">
+      <menu_item_check.on_click
+        function="Navbar.Action"
+        parameter="show_properties" />
+      <menu_item_check.on_check
+        control="NavBarShowParcelProperties" />
+    </menu_item_check>
+    <menu_item_separator
+     name="Separator" />
+    <!-- Label of 'Landmark' item is changing in runtime, 
+    see  AddLandmarkNavBarMenu/EditLandmarkNavBarMenu in strings.xml -->
+    <menu_item_call
+     label="Landmark"
+     name="Landmark">
+        <menu_item_call.on_click
+         function="Navbar.Action"
+         parameter="landmark" />
+    </menu_item_call>
+    <menu_item_separator
+     name="Separator" />
+    <menu_item_call
+     label="Cut"
+     name="Cut">
+        <menu_item_call.on_click
+         function="Navbar.Action"
+         parameter="cut" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_cut" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy"
+     name="Copy">
+        <menu_item_call.on_click
+         function="Navbar.Action"
+         parameter="copy" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     name="Paste">
+        <menu_item_call.on_click
+         function="Navbar.Action"
+         parameter="paste" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete"
+     name="Delete">
+        <menu_item_call.on_click
+         function="Navbar.Action"
+         parameter="delete" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_delete" />
+    </menu_item_call>
+    <menu_item_call
+     label="Select All"
+     name="Select All">
+        <menu_item_call.on_click
+         function="Navbar.Action"
+         parameter="select_all" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_select_all" />
+    </menu_item_call>
+</menu>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<string name="min_width">
+		192
+	</string>
+	<string name="max_width">
+		320
+	</string>
+	<line_editor label="ここをクリックしてチャットを開始します。" name="chat_box" tool_tip="Enter キーを押して発言し、Ctrl + Enter キーで叫びます。"/>
+	<button name="show_nearby_chat" tool_tip="近くのチャットログを表示・非表示"/>
+</panel>

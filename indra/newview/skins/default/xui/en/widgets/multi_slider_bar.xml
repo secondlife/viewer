@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_slider_bar track_color="MultiSliderTrackColor"
+                  thumb_disabled_color="MultiSliderDisabledThumbColor"
+                  thumb_outline_color="MultiSliderThumbOutlineColor"
+                  thumb_center_color="MultiSliderThumbCenterColor"
+                  thumb_center_selected_color="MultiSliderThumbCenterSelectedColor"
+                  triangle_color="MultiSliderTriangleColor"
+                  draw_track="true"
+                  use_triangle="false"
+                  thumb_width="8"/>
