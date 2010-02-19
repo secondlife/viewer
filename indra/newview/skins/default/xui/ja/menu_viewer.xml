@@ -9,7 +9,7 @@
 		<menu_item_call label="マイ プロフィール" name="Profile"/>
 		<menu_item_call label="マイ 容姿" name="Appearance"/>
 		<menu_item_check label="マイ 持ち物" name="Inventory"/>
-		<menu_item_call label="持ち物をサイドトレイに表示" name="ShowSidetrayInventory"/>
+		<menu_item_call label="マイ 持ち物" name="ShowSidetrayInventory"/>
 		<menu_item_call label="マイ ジェスチャー" name="Gestures"/>
 		<menu label="マイ ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>

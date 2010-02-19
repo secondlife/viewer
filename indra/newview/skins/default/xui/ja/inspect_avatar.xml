@@ -18,7 +18,7 @@
 	<slider name="volume_slider" tool_tip="ボイス音量" value="0.5"/>
 	<button label="フレンド登録" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
-	<button label="詳細" name="view_profile_btn"/>
+	<button label="プロフィール" name="view_profile_btn"/>
 	<panel name="moderator_panel">
 		<button label="ボイスを無効にする" name="disable_voice"/>
 		<button label="ボイスを有効にする" name="enable_voice"/>

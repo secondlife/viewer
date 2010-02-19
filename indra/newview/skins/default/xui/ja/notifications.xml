@@ -11,18 +11,29 @@
 	</global>
 	<template name="okbutton">
 		<form>
-			<button name="OK" text="$yestext"/>
+			<button name="OK_okbutton" text="$yestext"/>
 		</form>
 	</template>
-	<template name="okignore"/>
+	<template name="okignore">
+		<form>
+			<button name="OK_okignore" text="$yestext"/>
+		</form>
+	</template>
 	<template name="okcancelbuttons">
 		<form>
-			<button name="Cancel" text="$notext"/>
+			<button name="OK_okcancelbuttons" text="$yestext"/>
+			<button name="Cancel_okcancelbuttons" text="$notext"/>
 		</form>
 	</template>
-	<template name="okcancelignore"/>
+	<template name="okcancelignore">
+		<form>
+			<button name="OK_okcancelignore" text="$yestext"/>
+			<button name="Cancel_okcancelignore" text="$notext"/>
+		</form>
+	</template>
 	<template name="okhelpbuttons">
 		<form>
+			<button name="OK_okhelpbuttons" text="$yestext"/>
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
@@ -30,6 +41,7 @@
 		<form>
 			<button name="Yes" text="$yestext"/>
 			<button name="No" text="$notext"/>
+			<button name="Cancel_yesnocancelbuttons" text="$canceltext"/>
 		</form>
 	</template>
 	<notification functor="GenericAcknowledge" label="不明の通知メッセージ" name="MissingAlert">
@@ -1084,6 +1096,7 @@ L$ は返金されません。
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarMovedDesired">
 		目的地は現在ご利用いただけません。
@@ -1974,10 +1987,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		件名： [SUBJECT]、メッセージ： [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME_SLURL] はオンラインです
+		[FIRST] [LAST] はオンラインです
 	</notification>
 	<notification name="FriendOffline">
-		[NAME_SLURL] はオフラインです
+		[FIRST] [LAST] はオフラインです
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
