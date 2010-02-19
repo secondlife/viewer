@@ -1639,7 +1639,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 	}
 }
 
-void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
+void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 {
 	if(!mNeedsAlphaAndPickMask)
 	{
@@ -1647,24 +1647,64 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 	}
 
 	U32 length = w * h;
-	const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset ;
 	
-	S32 sample[16];
-	memset(sample, 0, sizeof(S32)*16);
+	U32 sample[16];
+	memset(sample, 0, sizeof(U32)*16);
 
-	for (U32 i = 0; i < length; i++)
+	// generate histogram of quantized alpha.
+	// also add-in the histogram of a 2x2 box-sampled version.  The idea is
+	// this will mid-skew the data (and thus increase the chances of not
+	// being used as a mask) from high-frequency alpha maps which
+	// suffer the worst from aliasing when used as alpha masks.
+	if (w >= 2 && h >= 2)
 	{
-		++sample[*current/16];
-		current += mAlphaStride ;
-	}
+		llassert(w%2 == 0);
+		llassert(h%2 == 0);
+		const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
+		for (U32 y = 0; y < h; y+=2)
+		{
+			const GLubyte* current = rowstart;
+			for (U32 x = 0; x < w; x+=2)
+			{
+				U32 s1 = current[0];
+				U32 s2 = current[w * mAlphaStride];
+				current += mAlphaStride;
+				U32 s3 = current[0];
+				U32 s4 = current[w * mAlphaStride];
+				current += mAlphaStride;
 
-	U32 total = 0;
+				++sample[s1/16];
+				++sample[s2/16];
+				++sample[s3/16];
+				++sample[s4/16];
+
+				sample[(s1+s2+s3+s4)/(16 * 4)] += 4;
+			}
+			
+			rowstart += 2 * w * mAlphaStride;
+		}
+		length += length;
+	}
+	else
+	{
+		const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
+		for (U32 i = 0; i < length; i++)
+		{
+			++sample[*current/16];
+			current += mAlphaStride;
+		}
+	}
+	
+	// if more than 1/16th of alpha samples are mid-range, this
+	// shouldn't be treated as a 1-bit mask
+
+	U32 midrangetotal = 0;
 	for (U32 i = 4; i < 11; i++)
 	{
-		total += sample[i];
+		midrangetotal += sample[i];
 	}
 
-	if (total > length/16)
+	if (midrangetotal > length/16)
 	{
 		mIsMask = FALSE;
 	}

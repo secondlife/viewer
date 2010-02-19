@@ -70,6 +70,7 @@
 #include "llgldbg.h"
 #include "llhudmanager.h"
 #include "lllightconstants.h"
+#include "llmeshrepository.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -103,6 +104,7 @@
 #include "llspatialpartition.h"
 #include "llmutelist.h"
 #include "lltoolpie.h"
+#include "llcurl.h"
 
 
 #ifdef _DEBUG
@@ -116,7 +118,6 @@ const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
-const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
 const S32 MAX_OFFSCREEN_GEOMETRY_CHANGES_PER_FRAME = 10;
 const U32 REFLECTION_MAP_RES = 128;
 
@@ -271,6 +272,7 @@ BOOL	LLPipeline::sDelayVBUpdate = TRUE;
 BOOL	LLPipeline::sFastAlpha = TRUE;
 BOOL	LLPipeline::sDisableShaders = FALSE;
 BOOL	LLPipeline::sRenderBump = TRUE;
+BOOL	LLPipeline::sUseTriStrips = TRUE;
 BOOL	LLPipeline::sUseFarClip = TRUE;
 BOOL	LLPipeline::sShadowRender = FALSE;
 BOOL	LLPipeline::sWaterReflections = FALSE;
@@ -359,6 +361,7 @@ void LLPipeline::init()
 
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
@@ -1139,9 +1142,15 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 }
 
 
+static LLFastTimer::DeclareTimer FTM_UNLINK("Unlink");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_MOVE_LIST("Movelist");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_SPATIAL_PARTITION("Spatial Partition");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_LIGHT_SET("Light Set");
+static LLFastTimer::DeclareTimer FTM_REMOVE_FROM_HIGHLIGHT_SET("Highlight Set");
+
 void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 {
-	LLFastTimer t(FTM_PIPELINE);
+	LLFastTimer t(FTM_UNLINK);
 
 	assertInitialized();
 
@@ -1150,6 +1159,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 	// Based on flags, remove the drawable from the queues that it's on.
 	if (drawablep->isState(LLDrawable::ON_MOVE_LIST))
 	{
+		LLFastTimer t(FTM_REMOVE_FROM_MOVE_LIST);
 		LLDrawable::drawable_vector_t::iterator iter = std::find(mMovedList.begin(), mMovedList.end(), drawablep);
 		if (iter != mMovedList.end())
 		{
@@ -1159,6 +1169,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 
 	if (drawablep->getSpatialGroup())
 	{
+		LLFastTimer t(FTM_REMOVE_FROM_SPATIAL_PARTITION);
 		if (!drawablep->getSpatialGroup()->mSpatialPartition->remove(drawablep, drawablep->getSpatialGroup()))
 		{
 #ifdef LL_RELEASE_FOR_DOWNLOAD
@@ -1169,18 +1180,23 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 		}
 	}
 
-	mLights.erase(drawablep);
-	for (light_set_t::iterator iter = mNearbyLights.begin();
-				iter != mNearbyLights.end(); iter++)
 	{
-		if (iter->drawable == drawablep)
+		LLFastTimer t(FTM_REMOVE_FROM_LIGHT_SET);
+		mLights.erase(drawablep);
+
+		for (light_set_t::iterator iter = mNearbyLights.begin();
+					iter != mNearbyLights.end(); iter++)
 		{
-			mNearbyLights.erase(iter);
-			break;
+			if (iter->drawable == drawablep)
+			{
+				mNearbyLights.erase(iter);
+				break;
+			}
 		}
 	}
 
 	{
+		LLFastTimer t(FTM_REMOVE_FROM_HIGHLIGHT_SET);
 		HighlightItem item(drawablep);
 		mHighlightSet.erase(item);
 
@@ -1410,38 +1426,26 @@ void LLPipeline::updateMove()
 
 	assertInitialized();
 
-	for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
-		 iter != mRetexturedList.end(); ++iter)
 	{
-		LLDrawable* drawablep = *iter;
-		if (drawablep && !drawablep->isDead())
-		{
-			drawablep->updateTexture();
-		}
-	}
-	mRetexturedList.clear();
+		static LLFastTimer::DeclareTimer ftm("Retexture");
+		LLFastTimer t(ftm);
 
-	updateMovedList(mMovedList);
-
-	for (LLDrawable::drawable_set_t::iterator iter = mActiveQ.begin();
-		 iter != mActiveQ.end(); )
-	{
-		LLDrawable::drawable_set_t::iterator curiter = iter++;
-		LLDrawable* drawablep = *curiter;
-		if (drawablep && !drawablep->isDead()) 
+		for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
+			 iter != mRetexturedList.end(); ++iter)
 		{
-			if (drawablep->isRoot() && 
-				drawablep->mQuietCount++ > MAX_ACTIVE_OBJECT_QUIET_FRAMES && 
-				(!drawablep->getParent() || !drawablep->getParent()->isActive()))
+			LLDrawable* drawablep = *iter;
+			if (drawablep && !drawablep->isDead())
 			{
-				drawablep->makeStatic(); // removes drawable and its children from mActiveQ
-				iter = mActiveQ.upper_bound(drawablep); // next valid entry
+				drawablep->updateTexture();
 			}
 		}
-		else
-		{
-			mActiveQ.erase(curiter);
-		}
+		mRetexturedList.clear();
+	}
+
+	{
+		static LLFastTimer::DeclareTimer ftm("Moved List");
+		LLFastTimer t(ftm);
+		updateMovedList(mMovedList);
 	}
 
 	//balance octrees
@@ -1795,6 +1799,8 @@ void LLPipeline::rebuildPriorityGroups()
 	
 	assertInitialized();
 
+	gMeshRepo.notifyLoadedMeshes();
+
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_list_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
@@ -1805,6 +1811,7 @@ void LLPipeline::rebuildPriorityGroups()
 	}
 
 	mGroupQ1.clear();
+
 }
 		
 void LLPipeline::rebuildGroups()
@@ -3055,12 +3062,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 	}
 
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
-	{
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderForSelect");
-		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getWindowRectScaled());
-	}
-	else
 	{
 		LLFastTimer t(FTM_POOLS);
 		
@@ -3420,26 +3421,14 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	gGLLastMatrix = NULL;
 	glLoadMatrixd(gGLModelView);
 
-	renderHighlights();
-	mHighlightFaces.clear();
-
-	renderDebug();
-
-	LLVertexBuffer::unbind();
-
-	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-	{
-		// Render debugging beacons.
-		gObjectList.renderObjectBeacons();
-		gObjectList.resetObjectBeacons();
-	}
-
 	if (occlude)
 	{
 		occlude = FALSE;
 		gGLLastMatrix = NULL;
 		glLoadMatrixd(gGLModelView);
 		doOcclusion(camera);
+		gGLLastMatrix = NULL;
+		glLoadMatrixd(gGLModelView);
 	}
 }
 
@@ -3509,9 +3498,19 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 }
 
 
-void LLPipeline::addTrianglesDrawn(S32 count)
+void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 {
 	assertInitialized();
+	S32 count = 0;
+	if (render_type == LLRender::TRIANGLE_STRIP)
+	{
+		count = index_count-2;
+	}
+	else
+	{
+		count = index_count/3;
+	}
+
 	mTrianglesDrawn += count;
 	mBatchCount++;
 	mMaxBatchSize = llmax(mMaxBatchSize, count);
@@ -4274,7 +4273,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		glLightf (GL_LIGHT1, GL_LINEAR_ATTENUATION, 	 0.0f);
 		glLightf (GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0f);
 		glLightf (GL_LIGHT1, GL_SPOT_EXPONENT, 		 0.0f);
-		glLightf (GL_LIGHT1, GL_SPOT_CUTOFF, 			 180.0f);
+		glLightf (GL_LIGHT1, GL_SPOT_CUTOFF,		 180.0f);
 	}
 	else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
 	{
@@ -4562,32 +4561,41 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			LLVector4 light_pos_gl(light_pos, 1.0f);
 	
 			F32 light_radius = llmax(light->getLightRadius(), 0.001f);
-			F32 atten, quad;
 
-#if 0 //1.9.1
-			if (pool->getVertexShaderLevel() > 0)
-			{
-				atten = light_radius;
-				quad = llmax(light->getLightFalloff(), 0.0001f);
-			}
-			else
-#endif
-			{
-				F32 x = (3.f * (1.f + light->getLightFalloff()));
-				atten = x / (light_radius); // % of brightness at radius
-				quad = 0.0f;
-			}
+			F32 x = (3.f * (1.f + light->getLightFalloff())); // why this magic?  probably trying to match a historic behavior.
+			float linatten = x / (light_radius); // % of brightness at radius
+
 			mHWLightColors[cur_light] = light_color;
 			S32 gllight = GL_LIGHT0+cur_light;
 			glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
 			glLightfv(gllight, GL_DIFFUSE,  light_color.mV);
 			glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
-			glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
-			glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
-			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
-			glLightf (gllight, GL_SPOT_EXPONENT,          0.0f);
-			glLightf (gllight, GL_SPOT_CUTOFF,            180.0f);
+			glLightf (gllight, GL_LINEAR_ATTENUATION,     linatten);
+			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  0.0f);
+			if (light->isLightSpotlight()) // directional (spot-)light
+			{
+				LLVector3 spotparams = light->getSpotLightParams();
+				LLQuaternion quat = light->getRenderRotation();
+				LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
+				at_axis *= quat;
+				//llinfos << "SPOT!!!!!!! fov: " << spotparams.mV[0] << " focus: " << spotparams.mV[1] << " dir: " << at_axis << llendl;
+				glLightfv(gllight, GL_SPOT_DIRECTION, at_axis.mV);
+				glLightf (gllight, GL_SPOT_EXPONENT,  2.0f); // 2.0 = good old dot product ^ 2
+				glLightf (gllight, GL_SPOT_CUTOFF,    90.0f); // hemisphere
+				const float specular[] = {0.f, 0.f, 0.f, 0.f};
+				glLightfv(gllight, GL_SPECULAR, specular);
+			}
+			else // omnidirectional (point) light
+			{
+				glLightf (gllight, GL_SPOT_EXPONENT, 0.0f);
+				glLightf (gllight, GL_SPOT_CUTOFF,   180.0f);
+
+				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
+				const float specular[] = {0.f, 0.f, 0.f, 1.f};
+				glLightfv(gllight, GL_SPECULAR, specular);
+				//llinfos << "boring light" << llendl;
+			}
 			cur_light++;
 			if (cur_light >= 8)
 			{
@@ -4603,7 +4611,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
 		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 	}
-
 	if (gAgent.getAvatarObject() &&
 		gAgent.getAvatarObject()->mSpecialRenderMode == 3)
 	{
@@ -4614,13 +4621,10 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		LLVector4 light_pos_gl(light_pos, 1.0f);
 
 		F32 light_radius = 16.f;
-		F32 atten, quad;
 
-		{
-			F32 x = 3.f;
-			atten = x / (light_radius); // % of brightness at radius
-			quad = 0.0f;
-		}
+		F32 x = 3.f;
+		float linatten = x / (light_radius); // % of brightness at radius
+
 		mHWLightColors[2] = light_color;
 		S32 gllight = GL_LIGHT2;
 		glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
@@ -4628,8 +4632,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
 		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 		glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
-		glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
-		glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
+		glLightf (gllight, GL_LINEAR_ATTENUATION,     linatten);
+		glLightf (gllight, GL_QUADRATIC_ATTENUATION,  0.0f);
 		glLightf (gllight, GL_SPOT_EXPONENT,          0.0f);
 		glLightf (gllight, GL_SPOT_CUTOFF,            180.0f);
 	}
@@ -4792,10 +4796,6 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
 		llinfos << "In mRetexturedList" << llendl;
 	}
 	
-	if (mActiveQ.find(drawablep) != mActiveQ.end())
-	{
-		llinfos << "In mActiveQ" << llendl;
-	}
 	if (std::find(mBuildQ1.begin(), mBuildQ1.end(), drawablep) != mBuildQ1.end())
 	{
 		llinfos << "In mBuildQ1" << llendl;
@@ -4949,19 +4949,6 @@ void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 			drawablep->clearState(LLDrawable::LIGHT);
 			mLights.erase(drawablep);
 		}
-	}
-}
-
-void LLPipeline::setActive(LLDrawable *drawablep, BOOL active)
-{
-	assertInitialized();
-	if (active)
-	{
-		mActiveQ.insert(drawablep);
-	}
-	else
-	{
-		mActiveQ.erase(drawablep);
 	}
 }
 
@@ -5380,6 +5367,7 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 void LLPipeline::resetVertexBuffers()
 {
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -5837,6 +5825,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		gGL.getTexUnit(0)->activate();
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+
+		if (LLRenderTarget::sUseFBO)
+		{ //copy depth buffer from mScreen to framebuffer
+			LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
+				0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		}
 	}
 	
 
@@ -6672,7 +6666,7 @@ void LLPipeline::renderDeferredLighting()
 					{ //draw box if camera is outside box
 						if (render_local)
 						{
-							if (volume->getLightTexture())
+							if (volume->isLightSpotlight())
 							{
 								drawablep->getVOVolume()->updateSpotLightPriority();
 								spot_lights.push_back(drawablep);
@@ -6689,7 +6683,7 @@ void LLPipeline::renderDeferredLighting()
 					}
 					else if (render_fullscreen)
 					{	
-						if (volume->getLightTexture())
+						if (volume->isLightSpotlight())
 						{
 							drawablep->getVOVolume()->updateSpotLightPriority();
 							fullscreen_spot_lights.push_back(drawablep);
@@ -6913,6 +6907,23 @@ void LLPipeline::renderDeferredLighting()
 		
 		renderGeomPostDeferred(*LLViewerCamera::getInstance());
 		mRenderTypeMask = render_mask;
+	}
+
+	{
+		//render highlights, etc.
+		renderHighlights();
+		mHighlightFaces.clear();
+
+		renderDebug();
+
+		LLVertexBuffer::unbind();
+
+		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		{
+			// Render debugging beacons.
+			gObjectList.renderObjectBeacons();
+			gObjectList.resetObjectBeacons();
+		}
 	}
 
 	mScreen.flush();
@@ -7263,7 +7274,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
 					stateSort(camera, ref_result);
-				}
+				}	
 				
 				ref_mask = mRenderTypeMask;
 				mRenderTypeMask = mask;

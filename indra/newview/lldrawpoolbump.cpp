@@ -560,8 +560,8 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 			params.mGroup->rebuildMesh();
 		}
 		params.mVertexBuffer->setBuffer(mask);
-		params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount/3);
+		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 	}
 }
 
@@ -699,6 +699,18 @@ void LLDrawPoolBump::endBump()
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+}
+
+S32 LLDrawPoolBump::getNumDeferredPasses()
+{ 
+	if (gSavedSettings.getBOOL("RenderObjectBump"))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void LLDrawPoolBump::beginDeferredPass(S32 pass)
@@ -1231,8 +1243,8 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 		params.mGroup->rebuildMesh();
 	}
 	params.mVertexBuffer->setBuffer(mask);
-	params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-	gPipeline.addTrianglesDrawn(params.mCount/3);
+	params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 	if (params.mTextureMatrix)
 	{
 		if (mShiny)
