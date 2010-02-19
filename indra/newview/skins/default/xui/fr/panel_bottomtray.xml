@@ -7,6 +7,11 @@
 		Affiche/Masque le panneau de contrôle vocal
 	</string>
 	<layout_stack name="toolbar_stack">
+		<layout_panel name="speak_panel">
+			<talk_button name="talk">
+				<speak_button label="Parler" label_selected="Parler" name="speak_btn"/>
+			</talk_button>
+		</layout_panel>
 		<layout_panel name="gesture_panel">
 			<gesture_combo_list label="Geste" name="Gesture" tool_tip="Affiche/Masque les gestes"/>
 		</layout_panel>

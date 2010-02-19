@@ -27,8 +27,11 @@
 	<text name="nearby">
 		Vous avez été déconnecté(e) de [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
 	</text>
-	<text name="nearby_P2P">
-		[VOICE_CHANNEL_NAME] a mis fin à l’appel.  [RECONNECT_NEARBY]
+	<text name="nearby_P2P_by_other">
+		[VOICE_CHANNEL_NAME] a mis fin à l&apos;appel.  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_agent">
+		Vous avez mis fin à l&apos;appel.  [RECONNECT_NEARBY]
 	</text>
 	<text name="leaving">
 		En train de quitter [CURRENT_CHAT].

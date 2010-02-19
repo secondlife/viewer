@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sons" name="Preference Media panel">
 	<slider label="Volume principal" name="System Volume"/>
-	<check_box initial_value="true" label="Couper le son si minimisé" name="mute_when_minimized"/>
-	<slider label="Ambiant" name="Wind Volume"/>
+	<check_box initial_value="true" label="Couper le son quand minimisé" name="mute_when_minimized"/>
 	<slider label="Boutons" name="UI Volume"/>
-	<slider label="Média" name="Media Volume"/>
+	<slider label="Ambiant" name="Wind Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>
 	<slider label="Flux musical" name="Music Volume"/>
-	<check_box label="Activer le chat vocal" name="enable_voice_check"/>
+	<check_box label="Activé" name="music_enabled"/>
+	<slider label="Média" name="Media Volume"/>
+	<check_box label="Activé" name="enable_media"/>
 	<slider label="Chat vocal" name="Voice Volume"/>
+	<check_box label="Activé" name="enable_voice_check"/>
+	<check_box label="Autoriser la lecture automatique du média" name="media_auto_play_btn" tool_tip="Cochez pour autoriser la lecture automatique du média" value="vrai"/>
+	<check_box label="Jouer le média aux autres avatars" name="media_show_on_others_btn" tool_tip="Décochez pour masquer le média aux autres avatars près de vous" value="vrai"/>
 	<text name="Listen from">
-		Écouter à partir de :
+		Paramètres du chat vocal
 	</text>
 	<radio_group name="ear_location">
 		<radio_item label="Position de la caméra" name="0"/>
