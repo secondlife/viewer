@@ -4598,7 +4598,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
   <key>MediaShowWithinParcel</key>
   <map>
@@ -10392,17 +10392,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>VoiceDefaultInternalLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Internal level of voice set by default. Is equivalent to 0.5 (from 0.0-1.0 range) external voice level (internal = 400 * external^2).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>100</integer>
     </map>
     <key>VoiceEarLocation</key>
     <map>

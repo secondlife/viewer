@@ -1318,6 +1318,9 @@ void LLViewerMediaImpl::loadURI()
 {
 	if(mMediaSource)
 	{
+		// trim whitespace from front and back of URL - fixes EXT-5363
+		LLStringUtil::trim( mMediaURL );
+
 		// *HACK: we don't know if the URI coming in is properly escaped
 		// (the contract doesn't specify whether it is escaped or not.
 		// but LLQtWebKit expects it to be, so we do our best to encode
