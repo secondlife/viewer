@@ -334,11 +334,6 @@ public:
 	 * Adds notification panel to the IM floater.
 	 */
 	static void addNotifPanelToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Reloads IM floater messages.
-	 */
-	static void reloadIMFloaterMessages(const LLNotificationPtr& notification);
 };
 
 }

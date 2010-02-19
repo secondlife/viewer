@@ -55,6 +55,7 @@ class LLToastNotifyPanel: public LLToastPanel
 public:
 	LLToastNotifyPanel(LLNotificationPtr&);
 	virtual ~LLToastNotifyPanel();
+	LLPanel * getControlPanel() { return mControlPanel; }
 
 protected:
 	LLButton* createButton(const LLSD& form_element, BOOL is_option);

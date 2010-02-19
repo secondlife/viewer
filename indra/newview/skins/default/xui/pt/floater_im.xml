@@ -10,7 +10,7 @@
 		Clique no botão [BUTTON NAME] para aceitar/ conectar a este bate-papo em voz.
 	</string>
 	<string name="muted_message">
-		Você emudeceu este residente. Enviar uma mensagem vai automaticamente reativá-lo novamente.
+		Você bloqueou este residente.  Se quiser retirar o bloqueio, basta enviar uma mensagem.
 	</string>
 	<string name="generic_request_error">
 		Erro na requisição, por favor, tente novamente.

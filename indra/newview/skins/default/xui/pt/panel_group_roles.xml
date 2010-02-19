@@ -1,146 +1,104 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Membros e Funções" name="roles_tab">
-	<string name="default_needs_apply_text">
-		Existem alterações não aplicadas na sub-aba atual.
-	</string>
-	<string name="want_apply_text">
-		Você quer submeter essas alterações?
-	</string>
-	<button label="?" name="help_button"/>
-	<panel name="members_header">
-		<text name="static">
-			Membros e Funções
-		</text>
-		<text name="static2">
-			São atribuídas funções com habilidades aos membros do grupo. 
-Estes ajustes podem ser facilmente customizados para uma flexibilidade
-e organização maiores.
-		</text>
-	</panel>
-	<panel name="roles_header">
-		<text name="static">
-			Funções
-		</text>
-		<text name="role_properties_modifiable">
-			Selecionar uma função abaixo. Você pode modificar o nome, a descrição
-e o título do membro.
-		</text>
-		<text name="role_properties_not_modifiable">
-			Selecione uma função abaixo para ver suas propriedades, membros e
-habilidades permitidas.
-		</text>
-		<text bottom_delta="-28" name="role_actions_modifiable">
-			Você também pode atribuir habilidades à função.
-		</text>
-		<text name="role_actions_not_modifiable">
-			Você pode ver, mas não pode alterar habilidades atribuídas.
-		</text>
-	</panel>
-	<panel name="actions_header">
-		<text name="static">
-			Habilidades
-		</text>
-		<text name="static2">
-			Você pode ver a descrição de uma habilidade e quais funções e membros
-podem executar essa habilidade.
-		</text>
-	</panel>
+	<panel.string name="default_needs_apply_text">
+		As mudanças feitas nesta guia ainda não foram salvas
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Deseja salvar essas mudanças?
+	</panel.string>
 	<tab_container height="164" name="roles_tab_container">
-		<panel height="148" label="Membros" name="members_sub_tab" tool_tip="Membros">
-			<line_editor bottom="127" name="search_text"/>
-			<button label="Pesquisar" name="search_button" width="75"/>
-			<button label="Mostrar todos" name="show_all_button" left_delta="80"/>
-			<name_list name="member_list" bottom_delta="-105" height="104" >
-				<column label="Nome do membro" name="name"/>
-				<column label="Tarifa doada" name="donated"/>
-				<column label="Último login" name="online"/>
-			</name_list>
-			<button label="Convidar Novo Membro..." name="member_invite" width="165"/>
-			<button label="Ejetar do Grupo" name="member_eject"/>
-			<string name="help_text">
+		<panel height="148" label="MEMBROS" name="members_sub_tab" tool_tip="Membros">
+			<panel.string name="help_text">
 				Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.
-			</string>
+			</panel.string>
+			<filter_editor label="Filtrar por membro" name="filter_input"/>
+			<name_list bottom_delta="-105" height="104" name="member_list">
+				<name_list.columns label="Membro" name="name"/>
+				<name_list.columns label="Doações" name="donated"/>
+				<name_list.columns label="Status" name="online"/>
+			</name_list>
+			<button label="Convidar" name="member_invite" width="165"/>
+			<button label="Ejetar" name="member_eject"/>
 		</panel>
-		<panel height="148" label="Funções" name="roles_sub_tab">
-			<line_editor bottom="127" name="search_text"/>
-			<button label="Busca" name="search_button" width="75"/>
-			<button label="Mostrar todos" name="show_all_button" left_delta="80"/>
-			<scroll_list name="role_list" bottom_delta="-104" height="104">
-				<column label="Nome da função" name="name"/>
-				<column label="Título" name="title"/>
-				<column label="Membro" name="members"/>
+		<panel height="148" label="CARGOS" name="roles_sub_tab">
+			<panel.string name="help_text">
+				Cada cargo tem um nome e uma lista das funções que membros designados podem desempenhar.
+ Os membros podem ter um ou mais cargos.
+ Cada grupo pode ter 10 cargos, incluindo Membro e Dono do Grupo.
+			</panel.string>
+			<panel.string name="cant_delete_role">
+				As funções &apos;Todos&apos; e &apos;Owners&apos; são especiais e não podem ser apagadas.
+			</panel.string>
+			<panel.string name="power_folder_icon">
+				Inv_FolderClosed
+			</panel.string>
+			<filter_editor label="Filtrar por cargo" name="filter_input"/>
+			<scroll_list bottom_delta="-104" height="104" name="role_list">
+				<scroll_list.columns label="Cargo" name="name"/>
+				<scroll_list.columns label="Título" name="title"/>
+				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
-			<button label="Criar nova função..." name="role_create"/>
+			<button label="Adicionar cargo" name="role_create"/>
 			<button label="Apagar função" name="role_delete"/>
-			<string name="help_text">
-				As funções têm um título e uma lista de habilidades
-permitidas que os membros podem executar. Os membros poderão ter um ou mais funções.
- Um grupo poderá ter até 10 funções, incluíndo as funções dos membros e do dono do grupo.
-			</string>
-			<string name="cant_delete_role">
-				As funções &apos;todos&apos; e &apos;donos&apos; são especiais e não podem ser deletadas.
-			</string>
 		</panel>
-		<panel height="148" label="Habilidades" name="actions_sub_tab">
-			<line_editor bottom="127" name="search_text"/>
-			<button label="Busca" name="search_button" width="75"/>
-			<button label="Mostrar todos" name="show_all_button" left_delta="80"/>
-			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Selecione uma habilidade para ver mais detalhes."/>
-			<string name="help_text">
+		<panel height="148" label="FUNÇÕES" name="actions_sub_tab" tool_tip="Você pode ver a descrição de uma função e quais cargos e membros podem desempenhá-la.">
+			<panel.string name="help_text">
 				As habilidades permitem que os membros nas funções façam coisas específicas dentro do grupo.
 Há uma grande variedade de habilidades.
-			</string>
+			</panel.string>
+			<filter_editor label="Filtrar por função" name="filter_input"/>
+			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Selecione uma função para ver mais detalhes"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Funções atribuídas
+			Membros atribuídos
 		</text>
 		<text name="static2">
 			Habilidades permitidas
 		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="Para detalhes de cada habilidade permitida, veja a aba Habilidades."/>
+		<scroll_list name="member_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			Nome
-		</text>
-		<text name="static2">
-			Descrição
+			Nome da função
 		</text>
 		<line_editor name="role_name">
 			Empregados
 		</line_editor>
 		<text name="static3">
-			Título
+			Título da função
 		</text>
 		<line_editor name="role_title">
 			(esperando)
 		</line_editor>
+		<text name="static2">
+			Descrição
+		</text>
 		<text_editor name="role_description">
 			(esperando)
 		</text_editor>
 		<text name="static4">
-			Membros atribuídos
+			Cargos desempenhados
 		</text>
+		<check_box label="Revelar membros" name="role_visible_in_list" tool_tip="Define se os membros dessa função são visíveis na guia geral para pessoas de fora do grupo."/>
 		<text name="static5" tool_tip="Uma lista de habilidades que a função selecionada atualmente pode executar.">
 			Habilidades permitidas
 		</text>
-		<check_box label="Membros estão visíveis" name="role_visible_in_list" tool_tip="Selecione se os membros desta função estarão visíveis na aba Diversos, para as pessoas de fora do grupo."/>
-		<scroll_list name="role_allowed_actions" tool_tip="Para ver detalhes de cada habilidade permitida, veja a aba correspondente."/>
+		<scroll_list name="role_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
 	</panel>
 	<panel name="actions_footer">
 		<text name="static">
-			Descrição
+			Descrição da função
 		</text>
 		<text_editor name="action_description">
 			Essa habilidade permite tirar alguem do grupo. Somente o dono do grupo poderá retirar outro dono do grupo.
 		</text_editor>
 		<text name="static2">
-			Funções com habilidades
+			Cargos com esta função
 		</text>
 		<text name="static3">
-			Membros com habilidades
+			Membros com esta função
 		</text>
 	</panel>
 </panel>

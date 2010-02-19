@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Gesture" title="ATALHO DE GESTO">
+	<text name="trigger_label">
+		Bate-papo:
+	</text>
+	<text name="key_label">
+		Tecla:
+	</text>
+	<combo_box label="Nenhum" name="modifier_combo"/>
+	<combo_box label="Nenhum" name="key_combo"/>
+	<text name="replace_text" tool_tip="Substituir a(s) palavra(s) de comando.   Por exemplo, substitua o comando &apos;olá&apos; por &apos;oi&apos; para trocar &apos;Olá, tudo bem&apos; por &apos;Oi tudo bem&apos;. O gesto também será executado.">
+		Trocar:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Substituir a(s) palavra(s) de comando.   Por exemplo, substitua o comando &apos;olá&apos; por &apos;oi&apos; para trocar &apos;Olá, tudo bem&apos; por &apos;Oi tudo bem&apos;. O gesto também será executado."/>
+</floater>

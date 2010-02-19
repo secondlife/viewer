@@ -1565,43 +1565,34 @@ void LLFloater::draw()
 	// draw background
 	if( isBackgroundVisible() )
 	{
+		drawShadow(this);
+
 		S32 left = LLPANEL_BORDER_WIDTH;
 		S32 top = getRect().getHeight() - LLPANEL_BORDER_WIDTH;
 		S32 right = getRect().getWidth() - LLPANEL_BORDER_WIDTH;
 		S32 bottom = LLPANEL_BORDER_WIDTH;
 
-		static LLUICachedControl<S32> shadow_offset_S32 ("DropShadowFloater", 0);
-		static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
-		LLColor4 shadow_color = shadow_color_cached;
-		F32 shadow_offset = (F32)shadow_offset_S32;
-
-		if (!isBackgroundOpaque())
-		{
-			shadow_offset *= 0.2f;
-			shadow_color.mV[VALPHA] *= 0.5f;
-		}
-		gl_drop_shadow(left, top, right, bottom, 
-			shadow_color % alpha, 
-			llround(shadow_offset));
-
 		LLUIImage* image = NULL;
 		LLColor4 color;
+		LLColor4 overlay_color;
 		if (isBackgroundOpaque())
 		{
 			// NOTE: image may not be set
 			image = getBackgroundImage();
 			color = getBackgroundColor();
+			overlay_color = getBackgroundImageOverlay();
 		}
 		else
 		{
 			image = getTransparentImage();
 			color = getTransparentColor();
+			overlay_color = getTransparentImageOverlay();
 		}
 
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), UI_VERTEX_COLOR % alpha);
+			image->draw(getLocalRect(), overlay_color % alpha);
 		}
 		else
 		{
@@ -1664,6 +1655,29 @@ void LLFloater::draw()
 			setCanTearOff(FALSE);
 		}
 	}
+}
+
+void	LLFloater::drawShadow(LLPanel* panel)
+{
+	F32 alpha = panel->getDrawContext().mAlpha;
+	S32 left = LLPANEL_BORDER_WIDTH;
+	S32 top = panel->getRect().getHeight() - LLPANEL_BORDER_WIDTH;
+	S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
+	S32 bottom = LLPANEL_BORDER_WIDTH;
+
+	static LLUICachedControl<S32> shadow_offset_S32 ("DropShadowFloater", 0);
+	static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
+	LLColor4 shadow_color = shadow_color_cached;
+	F32 shadow_offset = (F32)shadow_offset_S32;
+
+	if (!panel->isBackgroundOpaque())
+	{
+		shadow_offset *= 0.2f;
+		shadow_color.mV[VALPHA] *= 0.5f;
+	}
+	gl_drop_shadow(left, top, right, bottom, 
+		shadow_color % alpha, 
+		llround(shadow_offset));
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)

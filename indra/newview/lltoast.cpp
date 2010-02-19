@@ -68,11 +68,16 @@ LLToast::LLToast(const LLToast::Params& p)
 	mNotification(p.notification),
 	mIsHidden(false),
 	mHideBtnPressed(false),
-	mIsTip(p.is_tip)
+	mIsTip(p.is_tip),
+	mWrapperPanel(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
 
 	setCanDrag(FALSE);
+
+	mWrapperPanel = getChild<LLPanel>("wrapper_panel");
+	mWrapperPanel->setMouseEnterCallback(boost::bind(&LLToast::onToastMouseEnter, this));
+	mWrapperPanel->setMouseLeaveCallback(boost::bind(&LLToast::onToastMouseLeave, this));
 
 	if(mPanel)
 	{
@@ -83,6 +88,8 @@ LLToast::LLToast(const LLToast::Params& p)
 	{
 		mHideBtn = getChild<LLButton>("hide_btn");
 		mHideBtn->setClickedCallback(boost::bind(&LLToast::hide,this));
+		mHideBtn->setMouseEnterCallback(boost::bind(&LLToast::onToastMouseEnter, this));
+		mHideBtn->setMouseLeaveCallback(boost::bind(&LLToast::onToastMouseLeave, this));
 	}
 
 	// init callbacks if present
@@ -174,6 +181,42 @@ void LLToast::hide()
 	mOnFadeSignal(this); 
 }
 
+void LLToast::onFocusLost()
+{
+	if(mWrapperPanel && !isBackgroundVisible())
+	{
+		// Lets make wrapper panel behave like a floater
+		setBackgroundOpaque(FALSE);
+	}
+}
+
+void LLToast::onFocusReceived()
+{
+	if(mWrapperPanel && !isBackgroundVisible())
+	{
+		// Lets make wrapper panel behave like a floater
+		setBackgroundOpaque(TRUE);
+	}
+}
+
+S32 LLToast::getTopPad()
+{
+	if(mWrapperPanel)
+	{
+		return getRect().getHeight() - mWrapperPanel->getRect().getHeight();
+	}
+	return 0;
+}
+
+S32 LLToast::getRightPad()
+{
+	if(mWrapperPanel)
+	{
+		return getRect().getWidth() - mWrapperPanel->getRect().getWidth();
+	}
+	return 0;
+}
+
 //--------------------------------------------------------------------------
 void LLToast::setCanFade(bool can_fade) 
 { 
@@ -199,22 +242,21 @@ void LLToast::reshapeToPanel()
 	if(!panel)
 		return;
 
-	LLRect panel_rect;
+	LLRect panel_rect = panel->getRect();
 
-	panel_rect = panel->getRect();
-	reshape(panel_rect.getWidth(), panel_rect.getHeight());
 	panel_rect.setLeftTopAndSize(0, panel_rect.getHeight(), panel_rect.getWidth(), panel_rect.getHeight());
-	panel->setRect(panel_rect);
+	panel->setShape(panel_rect);
 	
 	LLRect toast_rect = getRect();
-	toast_rect.setLeftTopAndSize(toast_rect.mLeft,toast_rect.mTop,panel_rect.getWidth(), panel_rect.getHeight());
-	setRect(toast_rect);
 
+	toast_rect.setLeftTopAndSize(toast_rect.mLeft, toast_rect.mTop,
+		panel_rect.getWidth() + getRightPad(), panel_rect.getHeight() + getTopPad());
+	setShape(toast_rect);
 }
 
 void LLToast::insertPanel(LLPanel* panel)
 {
-	addChild(panel);	
+	mWrapperPanel->addChild(panel);	
 	reshapeToPanel();
 }
 
@@ -227,6 +269,19 @@ void LLToast::draw()
 	}
 
 	LLFloater::draw();
+
+	if(!isBackgroundVisible())
+	{
+		// Floater background is invisible, lets make wrapper panel look like a 
+		// floater - draw shadow.
+		drawShadow(mWrapperPanel);
+
+		// Shadow will probably overlap close button, lets redraw the button
+		if(mHideBtn)
+		{
+			drawChild(mHideBtn);
+		}
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -261,43 +316,78 @@ void LLToast::setVisible(BOOL show)
 	}
 }
 
-//--------------------------------------------------------------------------
-void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
+void LLToast::onToastMouseEnter()
 {
-	mOnToastHoverSignal(this, MOUSE_ENTER);
-
-	setBackgroundOpaque(TRUE);
-
-	//toasts fading is management by Screen Channel
-	
-	sendChildToFront(mHideBtn);
-	if(mHideBtn && mHideBtn->getEnabled())
-		mHideBtn->setVisible(TRUE);
-	mOnMouseEnterSignal(this);
-
-	LLModalDialog::onMouseEnter(x, y, mask);
-}
-
-//--------------------------------------------------------------------------
-void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
-{	
-	mOnToastHoverSignal(this, MOUSE_LEAVE);
-
-	//toasts fading is management by Screen Channel
-
-	if(mHideBtn && mHideBtn->getEnabled())
+	LLRect panel_rc = mWrapperPanel->calcScreenRect();
+	LLRect button_rc;
+	if(mHideBtn)
 	{
-		if( mHideBtnPressed )
-		{
-			mHideBtnPressed = false;
-			return;
-		}
-		mHideBtn->setVisible(FALSE);		
+		button_rc = mHideBtn->calcScreenRect();
 	}
 
-	LLModalDialog::onMouseLeave(x, y, mask);
+	S32 x, y;
+	LLUI::getMousePositionScreen(&x, &y);
+
+	if(panel_rc.pointInRect(x, y) || button_rc.pointInRect(x, y))
+	{
+		mOnToastHoverSignal(this, MOUSE_ENTER);
+
+		setBackgroundOpaque(TRUE);
+
+		//toasts fading is management by Screen Channel
+
+		sendChildToFront(mHideBtn);
+		if(mHideBtn && mHideBtn->getEnabled())
+		{
+			mHideBtn->setVisible(TRUE);
+		}
+		mOnMouseEnterSignal(this);
+		mToastMouseEnterSignal(this, getValue());
+	}
 }
 
+void LLToast::onToastMouseLeave()
+{
+	LLRect panel_rc = mWrapperPanel->calcScreenRect();
+	LLRect button_rc;
+	if(mHideBtn)
+	{
+		button_rc = mHideBtn->calcScreenRect();
+	}
+
+	S32 x, y;
+	LLUI::getMousePositionScreen(&x, &y);
+
+	if( !panel_rc.pointInRect(x, y) && !button_rc.pointInRect(x, y))
+	{
+		mOnToastHoverSignal(this, MOUSE_LEAVE);
+
+		//toasts fading is management by Screen Channel
+
+		if(mHideBtn && mHideBtn->getEnabled())
+		{
+			if( mHideBtnPressed )
+			{
+				mHideBtnPressed = false;
+				return;
+			}
+			mHideBtn->setVisible(FALSE);		
+		}
+		mToastMouseLeaveSignal(this, getValue());
+	}
+}
+
+void LLToast::setBackgroundOpaque(BOOL b)
+{
+	if(mWrapperPanel && !isBackgroundVisible())
+	{
+		mWrapperPanel->setBackgroundOpaque(b);
+	}
+	else
+	{
+		LLModalDialog::setBackgroundOpaque(b);
+	}
+}
 
 void LLNotificationsUI::LLToast::stopFading()
 {
@@ -313,6 +403,13 @@ void LLNotificationsUI::LLToast::startFading()
 	{
 		resetTimer();
 	}
+}
+
+bool LLToast::isHovered()
+{
+	S32 x, y;
+	LLUI::getMousePositionScreen(&x, &y);
+	return mWrapperPanel->calcScreenRect().pointInRect(x, y);
 }
 
 //--------------------------------------------------------------------------

@@ -1,31 +1,30 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<text name="payee_group" width="100" halign="left">
-		Pagar Grupo:
-	</text>
-	<text name="payee_resident" width="120" halign="left" >
-		Pagar residente:
-	</text>
-	<text name="payee_name" left="105">
+	<string halign="left" name="payee_group" width="100">
+		Pagar grupo
+	</string>
+	<string halign="left" name="payee_resident" width="120">
+		Pagar residente
+	</string>
+	<icon name="icon_person" tool_tip="Pessoa"/>
+	<text left="105" name="payee_name">
 		[FIRST] [LAST]
 	</text>
-	<text name="object_name_label" left="5" width="95" halign="left">
+	<text halign="left" left="5" name="object_name_label" width="95">
 		Via objeto:
 	</text>
-	<text name="object_name_text" left="105" >
+	<icon name="icon_object" tool_tip="Objects"/>
+	<text left="105" name="object_name_text">
 		...
 	</text>
-	<text name="fastpay text" width="115" halign="left">
-		Pagamento Rápido:
+	<button label="L$1" label_selected="L$1" left="125" name="fastpay 1" width="70"/>
+	<button label="L$5" label_selected="L$5" left="200" name="fastpay 5" width="70"/>
+	<button label="L$10" label_selected="L$10" left="125" name="fastpay 10" width="70"/>
+	<button label="L$20" label_selected="L$20" left="200" name="fastpay 20" width="70"/>
+	<text halign="left" left="5" name="amount text">
+		Outro valor:
 	</text>
-	<text name="amount text" left="5" halign="left">
-		Quantia:
-	</text>
-	<button label="L$1" label_selected="L$1" name="fastpay 1" left="125" width="70"/>
-	<button label="L$5" label_selected="L$5" name="fastpay 5"  left="200" width="70"/>
-	<button label="L$10" label_selected="L$10" name="fastpay 10" left="125" width="70"/>
-	<button label="L$20" label_selected="L$20" name="fastpay 20"  left="200" width="70"/>
-	<button label="Pagar" label_selected="Pagar" name="pay btn" />
-	<button label="Cancelar" label_selected="Cancelar" name="cancel btn" />
-	<line_editor left="60" name="amount" width="50" />
+	<line_editor left="60" name="amount" width="50"/>
+	<button label="Pagar" label_selected="Pagar" name="pay btn"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel btn"/>
 </floater>

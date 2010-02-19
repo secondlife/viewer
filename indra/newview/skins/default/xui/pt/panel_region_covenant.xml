@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Corretagem" name="Covenant">
 	<text name="estate_section_lbl">
-		Propriedade:
+		Propriedade
 	</text>
 	<text bottom_delta="-19" name="estate_name_lbl">
 		Nome:
@@ -22,7 +22,7 @@
 		Última modificação: Quarta, 31 de dezembro de 1969 às 16:00:00 horas
 	</text>
 	<button label="?" name="covenant_help"/>
-	<text_editor name="covenant_editor" bottom="-247" height="162" >
+	<text_editor bottom="-247" height="162" name="covenant_editor">
 		Não há nenhuma regra fornecida para esta Propriedade.
 	</text_editor>
 	<button label="Resetar" name="reset_covenant"/>
@@ -30,12 +30,11 @@
 		As mudanças das regras serão mostradas em todos os lotes
       da propriedade.
 	</text>
-	<text  bottom_delta="-36" name="covenant_instructions">
-		Arraste e solte um notecard, para mudar as Regras desta
-      Propriedade.
+	<text bottom_delta="-36" name="covenant_instructions">
+		Arrastar e soltar um notecard para alterar o Covenant para esta propriedade.
 	</text>
 	<text bottom_delta="-36" name="region_section_lbl">
-		Região:
+		Região
 	</text>
 	<text name="region_name_lbl">
 		Nome:

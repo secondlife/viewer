@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_sound">
+	<floater.string name="Title">
+		Som: [NAME]
+	</floater.string>
 	<text name="desc txt">
 		Descrição:
 	</text>
-	<button left_delta="-132" label="Executar in-World" label_selected="Executar in-World" name="Sound play btn" tool_tip="Executar este som para que todos possam ouvi-lo."/>
-	<button width="135" left="152" label="Executar Localmente" label_selected="Executar Localmente" name="Sound audition btn" tool_tip="Executar este som somente para você ouvir."/>
+	<button label="Executar in-World" label_selected="Executar in-World" left_delta="-132" name="Sound play btn" tool_tip="Tocar som para todos ouvirem"/>
+	<button label="Executar Localmente" label_selected="Executar Localmente" left="152" name="Sound audition btn" tool_tip="Tocar som de forma que apenas você possa ouvir" width="135"/>
 </floater>

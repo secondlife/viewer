@@ -155,7 +155,7 @@ void LLSearchEditor::setFocus( BOOL b )
 
 void LLSearchEditor::onClearButtonClick(const LLSD& data)
 {
-	setText(LLStringUtil::null);
+	mSearchEditor->selectAll();
 	mSearchEditor->doDelete(); // force keystroke callback
 }
 

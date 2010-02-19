@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="MemLeak" title="SIMULAÇÃO DE PERDA DE MEMÓRIA">
+<floater name="MemLeak" title="SIMULAR UM VAZAMENTO DE MEMÓRIA">
 	<spinner label="Velocidade da Perda (bytes por quadro):" name="leak_speed"/>
 	<spinner label="Máximo de Memória Perdida (MB):" name="max_leak"/>
 	<text name="total_leaked_label">

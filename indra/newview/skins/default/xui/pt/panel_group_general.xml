@@ -1,70 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Geral" name="general_tab">
-	<string name="help_text">
-		A aba Geral contém informações gerais sobre este grupo, a lista dos donos e membros visíveis, preferências gerais do grupo e opções dos membros. Passe o mouse sobre as opções para mais ajuda.
-	</string>
-	<string name="group_info_unchanged">
-		Informações gerais do grupo foram modificadas
-	</string>
-	<button label="?" label_selected="?" name="help_button"/>
-	<line_editor label="Digite o nome do seu novo grupo aqui" name="group_name_editor"/>
-	<text name="group_name">
-		Digite o nome do seu novo grupo aqui
-	</text>
-	<text name="prepend_founded_by">
-		Fundado por:
-	</text>
-	<text name="founder_name" left_delta="74" >
-		(espera)
-	</text>
-	<text name="group_charter_label">
-		Declaração do Grupo
-	</text>
-	<texture_picker label="Insígnia do Grupo" name="insignia" tool_tip="Clique para escolher uma imagem"/>
+	<panel.string name="help_text">
+		A guia Geral contém informações gerais sobre o grupo, uma lista de membros, preferências do grupo e opções para membros.
+
+Para obter mais ajuda, passe o mouse sobre as opções.
+	</panel.string>
+	<panel.string name="group_info_unchanged">
+		Informações gerais do grupo modificadas.
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		Recuperando dados do membro
+	</panel.string>
 	<text_editor name="charter">
 		Declaração do grupo
 	</text_editor>
-	<button label="Unir (L$0)" label_selected="Unir (L$0)" name="join_button"/>
-	<button label="Vista detalhada" label_selected="Vista detalhada" name="info_button"/>
-	<text name="text_owners_and_visible_members">
-		Proprietários &amp; Membros visíveis
-	</text>
-	<text name="text_owners_are_shown_in_bold">
-		(Proprietários são mostrados em negrito )
-	</text>
 	<name_list name="visible_members">
-		<name_list.columns label="Nome do membro" name="name"/>
+		<name_list.columns label="Membro" name="name"/>
 		<name_list.columns label="Título" name="title"/>
-		<name_list.columns label="Último login" name="online"/>
 	</name_list>
-	<text name="text_group_preferences">
-		Preferências do Grupo
+	<text name="active_title_label">
+		Meu cargo
 	</text>
+	<combo_box name="active_title" tool_tip="Define o cargo que é exibido com o nome do seu avatar quando o grupo está ativo."/>
+	<check_box label="Receber avisos do grupo" name="receive_notices" tool_tip="Define o seu recebimento de avisos deste grupo.  Desmarque esta opção se o grupo envia spam."/>
+	<check_box label="Mostrar no meu perfil" name="list_groups_in_profile" tool_tip="Define se você deseja incluir este grupo no seu perfil."/>
 	<panel name="preferences_container">
-		<check_box label="Mostre na busca" name="show_in_group_list" tool_tip="Deixe as pessoas verem este grupo nos resultados de busca."/>
-		<check_box label="Adesão aberta" name="open_enrollement" tool_tip="Definir se este grupo permite que novos membros entrem sem serem convidados"/>
-		<check_box label="Taxa de adesão:" name="check_enrollment_fee" tool_tip="Define se é necessária uma taxa de adesão para se unir ao grupo."/>
-		<spinner width="60" left_delta="120"  name="spin_enrollment_fee" tool_tip="Os novos membros devem pagar esta taxa para se unir ao grupo quando a Taxa de Adesão está marcada."/>
-		<combo_box width="170" name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature.">
-			<combo_box.item name="select_mature" label="- Selecionar Maturidade -"/>
-			<combo_box.item name="mature" label="Conteúdo Mature"/>
-			<combo_box.item name="pg" label="Conteúdo PG"/>
+		<check_box label="Adesão aberta" name="open_enrollement" tool_tip="Controla a entrada de novos membros, com ou sem convite."/>
+		<check_box label="Taxa de associação" name="check_enrollment_fee" tool_tip="Controla a cobrança de uma taxa de associação ao grupo."/>
+		<spinner label="L$" left_delta="120" name="spin_enrollment_fee" tool_tip="Se a opção &apos;Taxa de associação&apos; estiver marcada, novos membros precisam pagar o valor definido para entrar no grupo." width="60"/>
+		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature." width="170">
+			<combo_box.item label="Conteúdo PG" name="pg"/>
+			<combo_box.item label="Conteúdo Mature" name="mature"/>
 		</combo_box>
-		<panel name="title_container">
-			<text name="active_title_label">
-				Meu título ativo
-			</text>
-			<combo_box name="active_title" tool_tip="Define o título que aparece em seu avatar quando o grupo estiver ativo."/>
-		</panel>
-		<check_box label="Receber notícias do grupo" name="receive_notices" tool_tip="Define se Você deseja receber notícias deste grupo. Desmarque esta caixa se o grupo está lhe fazendo spam."/>
-		<check_box label="Listar grupo no meu perfil" name="list_groups_in_profile" tool_tip="Define se você deseja listar este grupo no seu Perfil"/>
+		<check_box initial_value="true" label="Mostre na busca" name="show_in_group_list" tool_tip="Incluir o grupo nos resultados de busca"/>
 	</panel>
-	<string name="incomplete_member_data_str">
-		Recuperando dados do membro
-	</string>
-	<string name="confirm_group_create_str">
-		Criar este grupo irá custar L$100. 
-Você está realmente, realmente, REALMENTE seguro que deseja gastar L$100 para criar este grupo? 
-Esteja consciente de que se ninguém mais se juntar a este grupo dentro de 48 horas, este será dissolvido e o nome não estará disponível para uso futuro.
-	</string>
 </panel>

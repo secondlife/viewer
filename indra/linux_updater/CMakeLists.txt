@@ -47,12 +47,5 @@ target_link_libraries(linux-updater
     ${LLCOMMON_LIBRARIES}
     )
 
-add_custom_command(
-    OUTPUT linux-updater-stripped
-    COMMAND strip
-    ARGS --strip-debug -o linux-updater-stripped linux-updater
-    DEPENDS linux-updater
-    )
-
-add_custom_target(linux-updater-strip-target ALL
-                  DEPENDS linux-updater-stripped)
+add_custom_target(linux-updater-target ALL
+                  DEPENDS linux-updater)

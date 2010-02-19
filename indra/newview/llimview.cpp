@@ -357,7 +357,7 @@ void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_
 	}
 }
 
-void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time)
+void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time, const bool is_history)
 {
 	LLSD message;
 	message["from"] = from;
@@ -365,6 +365,7 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 	message["message"] = utf8_text;
 	message["time"] = time; 
 	message["index"] = (LLSD::Integer)mMsgs.size(); 
+	message["is_history"] = is_history;
 
 	mMsgs.push_front(message); 
 
@@ -393,7 +394,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		std::string timestamp = msg[IM_TIME];
 		std::string text = msg[IM_TEXT];
 
-		addMessage(from, from_id, text, timestamp);
+		addMessage(from, from_id, text, timestamp, true);
 
 		it++;
 	}
@@ -407,11 +408,11 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
 
 	if (type == LLLogChat::LOG_LINE)
 	{
-		self->addMessage("", LLSD(), msg["message"].asString(), "");
+		self->addMessage("", LLSD(), msg["message"].asString(), "", true);
 	}
 	else if (type == LLLogChat::LOG_LLSD)
 	{
-		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString());
+		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true);
 	}
 }
 

@@ -6,6 +6,8 @@
 -->
 <panel bg_opaque_color="PanelFocusBackgroundColor"
        bg_alpha_color="PanelDefaultBackgroundColor"
+       bg_opaque_image_overlay="White"
+       bg_alpha_image_overlay="White"
        background_visible="false"
        background_opaque="false"
        chrome="false"/>

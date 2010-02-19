@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="SILENCIAR OBJETO PELO NOME">
+<floater name="mute by name" title="BLOQUEAR OBJETO POR NOME">
 	<text name="message">
-		Silenciar pelo nome afeta apenas conversa de objeto e MI,
-não sons. Você deve digitar o nome exato do objeto.
+		Bloquear o objeto:
 	</text>
 	<line_editor name="object_name">
 		Nome do objeto
 	</line_editor>
+	<text name="note">
+		* Bloquear apenas texto do objeto, não sons
+	</text>
 	<button label="OK" name="OK"/>
 	<button label="Cancelar" name="Cancel"/>
 </floater>
