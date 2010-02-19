@@ -505,7 +505,17 @@ void LLNavigationBar::onLocationSelection()
 				local_coords.set(x, y, z);
 		else
 			return;
-	}else
+	}
+	// we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too  
+	//but we need to know whether typed_location is a simple http url.
+	else if (LLUrlRegistry::instance().isUrl(typed_location)) 
+	{
+		// display http:// URLs in the media browser, or
+		// anything else is sent to the search floater
+		LLWeb::loadURL(typed_location);
+		return;
+	}
+	else
 	{
 		// assume that an user has typed the {region name} or possible {region_name, parcel}
 		region_name  = typed_location.substr(0,typed_location.find(','));
@@ -621,20 +631,7 @@ void LLNavigationBar::onRegionNameResponse(
 	// Invalid location?
 	if (!region_handle)
 	{
-		// handle any secondlife:// SLapps, or
-		// display http:// URLs in the media browser, or
-		// anything else is sent to the search floater
-		if (LLUrlRegistry::instance().isUrl(typed_location))
-		{
-			if (! LLURLDispatcher::dispatchFromTextEditor(typed_location))
-			{
-				LLWeb::loadURL(typed_location);
-			}
-		}
-		else
-		{
-			invokeSearch(typed_location);
-		}
+		invokeSearch(typed_location);
 		return;
 	}
 
