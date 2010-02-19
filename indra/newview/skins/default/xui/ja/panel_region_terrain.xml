@@ -18,13 +18,13 @@
 	<button label="?" name="fixed_sun_help" />
 	<slider label="段階" name="sun_hour_slider" />
 	<button label="適用" name="apply_btn" />
-	<button label="RAW地形ダウンロード..." name="download_raw_btn"
-	     tool_tip="不動産オーナーのみ利用可能、管理者は利用不可" />
+	<button label="RAW 地形ダウンロード..." name="download_raw_btn"
+	     tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です" />
 	<button label="?" name="download_raw_help" />
-	<button label="RAW地形アップロード..." name="upload_raw_btn"
-	     tool_tip="不動産オーナーのみ利用可能、管理者は利用不可" />
+	<button label="RAW 地形アップロード..." name="upload_raw_btn"
+	     tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です" />
 	<button label="?" name="upload_raw_help" />
 	<button label="地形の構築" name="bake_terrain_btn"
-	     tool_tip="現在の地形を上昇／下降範囲の中間点として設定" />
+	     tool_tip="現在の地形を上昇・下降範囲の中間点として設定します" />
 	<button label="?" name="bake_terrain_help" />
 </panel>

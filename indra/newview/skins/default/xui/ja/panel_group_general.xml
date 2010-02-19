@@ -14,7 +14,7 @@
 	<panel name="group_info_top">
 		<texture_picker label="" name="insignia" tool_tip="クリックして写真を選択します"/>
 		<text name="prepend_founded_by">
-			創始者：
+			創設者：
 		</text>
 		<name_box initial_value="（取得中）" name="founder_name"/>
 		<text name="join_cost_text">
