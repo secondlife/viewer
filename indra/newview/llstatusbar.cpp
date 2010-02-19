@@ -239,25 +239,17 @@ BOOL LLStatusBar::postBuild()
 
 	childSetActionTextbox("stat_btn", onClickStatGraph);
 
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
-	addChild(mPanelVolumePulldown);
+	popup_holder->addChild(mPanelVolumePulldown);
 
 	mPanelNearByMedia = new LLPanelNearByMedia();
-	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	popup_holder->addChild(mPanelNearByMedia);
 	gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(&LLStatusBar::onClickScreen, this, _1, _2));
 	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelNearByMedia->setVisible(FALSE);
 
-	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
-	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
-	volume_pulldown_rect.setLeftTopAndSize(volbtn->getRect().mLeft -
-	     (volume_pulldown_rect.getWidth() - volbtn->getRect().getWidth())/2,
-			       volbtn->calcScreenRect().mBottom,
-			       volume_pulldown_rect.getWidth(),
-			       volume_pulldown_rect.getHeight());
-
-	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
 
@@ -531,8 +523,21 @@ static void onClickScriptDebug(void*)
 
 void LLStatusBar::onMouseEnterVolume()
 {
+	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
+	LLRect vol_btn_screen_rect = volbtn->calcScreenRect();
+	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
+	volume_pulldown_rect.setLeftTopAndSize(vol_btn_screen_rect.mLeft -
+	     (volume_pulldown_rect.getWidth() - vol_btn_screen_rect.getWidth())/2,
+			       vol_btn_screen_rect.mBottom,
+			       volume_pulldown_rect.getWidth(),
+			       volume_pulldown_rect.getHeight());
+
+	mPanelVolumePulldown->setShape(volume_pulldown_rect);
+
+
 	// show the master volume pull-down
 	mPanelVolumePulldown->setVisible(TRUE);
+	mPanelNearByMedia->setVisible(FALSE);
 }
 
 void LLStatusBar::onMouseEnterNearbyMedia()
@@ -552,6 +557,7 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	// show the master volume pull-down
 	mPanelNearByMedia->setShape(nearby_media_rect);
 	mPanelNearByMedia->setVisible(TRUE);
+	mPanelVolumePulldown->setVisible(FALSE);
 }
 
 
