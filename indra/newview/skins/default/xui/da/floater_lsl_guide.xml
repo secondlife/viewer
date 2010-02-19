@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="LSL WIKI">
-	<check_box label="Følg markøreren" name="lock_check"/>
-	<combo_box label="Lås" left_delta="114" name="history_combo" width="70"/>
-	<button label="Tilbage" name="back_btn"/>
-	<button label="Frem" name="fwd_btn"/>
-</floater>

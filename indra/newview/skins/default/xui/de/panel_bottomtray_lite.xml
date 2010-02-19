@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="bottom_tray_lite">
-	<layout_stack name="toolbar_stack_lite">
-		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="Gesten" name="Gesture" tool_tip="Gesten anzeigen/ausblenden"/>
-		</layout_panel>
-	</layout_stack>
-</panel>

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel  border_thickness="2" visible ="true" name="splitter_drag"
-  width="100"
-  height="5"
-  left="50"
-  top="50"
-  follows="left|bottom|right" background_visible="true" label="splitter_drag" title="" translate="false">
-</panel>
