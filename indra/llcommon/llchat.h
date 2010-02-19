@@ -68,7 +68,8 @@ typedef enum e_chat_audible_level
 typedef enum e_chat_style
 {
 	CHAT_STYLE_NORMAL,
-	CHAT_STYLE_IRC
+	CHAT_STYLE_IRC,
+	CHAT_STYLE_HISTORY
 }EChatStyle;
 
 // A piece of chat

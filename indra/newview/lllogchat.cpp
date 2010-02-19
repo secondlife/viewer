@@ -39,11 +39,16 @@
 #include "llviewercontrol.h"
 
 #include "llinstantmessage.h"
+#include "llsingleton.h" // for LLSingleton
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
 #include <boost/regex/v4/match_results.hpp>
+
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/local_time_adjustor.hpp>
 
 const S32 LOG_RECALL_SIZE = 2048;
 
@@ -83,10 +88,92 @@ const static boost::regex NAME_AND_TEXT("(You:|Second Life:|[^\\s:]+\\s*[:]{1}|\
 //is used to parse complex object names like "Xstreet SL Terminal v2.2.5 st"
 const static std::string NAME_TEXT_DIVIDER(": ");
 
+// is used for timestamps adjusting
+const static char* DATE_FORMAT("%Y/%m/%d %H:%M");
+const static char* TIME_FORMAT("%H:%M");
+
 const static int IDX_TIMESTAMP = 1;
 const static int IDX_STUFF = 2;
 const static int IDX_NAME = 1;
 const static int IDX_TEXT = 3;
+
+using namespace boost::posix_time;
+using namespace boost::gregorian;
+
+class LLLogChatTimeScaner: public LLSingleton<LLLogChatTimeScaner>
+{
+public:
+	LLLogChatTimeScaner()
+	{
+		// Note, date/time facets will be destroyed by string streams
+		mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
+		mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_facet(TIME_FORMAT)));
+		mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_input_facet(DATE_FORMAT)));
+	}
+
+	date getTodayPacificDate()
+	{
+		typedef	boost::date_time::local_adjustor<ptime, -8, no_dst> pst;
+		typedef boost::date_time::local_adjustor<ptime, -7, no_dst> pdt;
+		time_t t_time = time(NULL);
+		ptime p_time = LLStringOps::getPacificDaylightTime()
+			? pdt::utc_to_local(from_time_t(t_time))
+			: pst::utc_to_local(from_time_t(t_time));
+		struct tm s_tm = to_tm(p_time);
+		return date_from_tm(s_tm);
+	}
+
+	void checkAndCutOffDate(std::string& time_str)
+	{
+		// Cuts off the "%Y/%m/%d" from string for todays timestamps.
+		// Assume that passed string has at least "%H:%M" time format.
+		date log_date(not_a_date_time);
+		date today(getTodayPacificDate());
+
+		// Parse the passed date
+		mDateStream.str(LLStringUtil::null);
+		mDateStream << time_str;
+		mDateStream >> log_date;
+		mDateStream.clear();
+
+		days zero_days(0);
+		days days_alive = today - log_date;
+
+		if ( days_alive == zero_days )
+		{
+			// Yep, today's so strip "%Y/%m/%d" info
+			ptime stripped_time(not_a_date_time);
+
+			mTimeStream.str(LLStringUtil::null);
+			mTimeStream << time_str;
+			mTimeStream >> stripped_time;
+			mTimeStream.clear();
+
+			time_str.clear();
+
+			mTimeStream.str(LLStringUtil::null);
+			mTimeStream << stripped_time;
+			mTimeStream >> time_str;
+			mTimeStream.clear();
+		}
+
+		LL_DEBUGS("LLChatLogParser")
+			<< " log_date: "
+			<< log_date
+			<< " today: "
+			<< today
+			<< " days alive: "
+			<< days_alive
+			<< " new time: "
+			<< time_str
+			<< LL_ENDL;
+	}
+
+
+private:
+	std::stringstream mDateStream;
+	std::stringstream mTimeStream;
+};
 
 //static
 std::string LLLogChat::makeLogFileName(std::string filename)
@@ -377,7 +464,8 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 		boost::trim(timestamp);
 		timestamp.erase(0, 1);
 		timestamp.erase(timestamp.length()-1, 1);
-		im[IM_TIME] = timestamp;	
+		LLLogChatTimeScaner::instance().checkAndCutOffDate(timestamp);
+		im[IM_TIME] = timestamp;
 	}
 	else
 	{
