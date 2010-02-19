@@ -674,6 +674,12 @@ void LLCacheName::dumpStats()
 			<< llendl;
 }
 
+void LLCacheName::clear()
+{
+	for_each(impl.mCache.begin(), impl.mCache.end(), DeletePairedPointer());
+	impl.mCache.clear();
+}
+
 //static 
 std::string LLCacheName::getDefaultName()
 {

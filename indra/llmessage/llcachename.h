@@ -115,6 +115,7 @@ public:
 	// Debugging
 	void dump();		// Dumps the contents of the cache
 	void dumpStats();	// Dumps the sizes of the cache and associated queues.
+	void clear();		// Deletes all entries from the cache
 
 	static std::string getDefaultName();
 
