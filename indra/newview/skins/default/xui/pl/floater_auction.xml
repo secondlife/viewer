@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_auction" title="ROZPOCZNIJ SPRZEDAŻ POSIADŁOŚCI">
+	<check_box label="Zawierając żółte ogrodzenie" name="fence_check" />
+	<button label="Zdjęce" label_selected="Zdjęce" name="snapshot_btn" />
+	<button label="OK" label_selected="OK" name="ok_btn" />
+	<string name="already for sale">
+		Nie możesz umieścić posiadłości na aukcji, jeżeli już została wystawiona na sprzedaż.
+	</string>
+</floater>

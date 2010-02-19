@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Login Menu">
+	<menu label="Yo" name="File">
+		<menu_item_call label="Preferencias" name="Preferences..."/>
+		<menu_item_call label="Salir" name="Quit"/>
+	</menu>
+	<menu label="Ayuda" name="Help">
+		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
+	</menu>
+	<menu label="Depurar" name="Debug">
+		<menu label="Editar" name="Edit">
+			<menu_item_call label="Deshacer" name="Undo"/>
+			<menu_item_call label="Rehacer" name="Redo"/>
+			<menu_item_call label="Cortar" name="Cut"/>
+			<menu_item_call label="Copiar" name="Copy"/>
+			<menu_item_call label="Pegar" name="Paste"/>
+			<menu_item_call label="Borrar" name="Delete"/>
+			<menu_item_call label="Duplicar" name="Duplicate"/>
+			<menu_item_call label="Seleccionar todo" name="Select All"/>
+			<menu_item_call label="Deseleccionar" name="Deselect"/>
+		</menu>
+		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
+		<menu_item_call label="Configuraciones del Visor/Color" name="UI/Color Settings"/>
+		<menu_item_call label="Mostrar el panel lateral" name="Show Side Tray"/>
+		<menu label="Pruebas de la interfaz" name="UI Tests"/>
+		<menu_item_call label="Mostrar los &apos;TOS&apos;" name="TOS"/>
+		<menu_item_call label="Mostrar mensaje crítico" name="Critical"/>
+		<menu_item_call label="Web Browser Test" name="Web Browser Test"/>
+	</menu>
+</menu_bar>

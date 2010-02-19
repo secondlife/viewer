@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="top_objects" title="ŁADOWANIE...">
+	<text name="title_text">
+		Ładowanie...
+	</text>
+	<scroll_list name="objects_list">
+		<column label="Wynik" name="score"/>
+		<column label="Nazwa" name="name"/>
+		<column label="Właściciel" name="owner"/>
+		<column label="Miejsce" name="location"/>
+		<column label="Czas" name="time"/>
+		<column label="Mono Time" name="mono_time"/>
+	</scroll_list>
+	<text name="id_text">
+		ID Obiektu:
+	</text>
+	<button label="Pokaż Emitery" name="show_beacon_btn"/>
+	<text name="obj_name_text">
+		Nazwa Obiektu:
+	</text>
+	<button label="Filtr" name="filter_object_btn"/>
+	<text name="owner_name_text">
+		Owner Name:
+	</text>
+	<button label="Filter" name="filter_owner_btn"/>
+	<button label="Zwróć Wybrane" name="return_selected_btn"/>
+	<button label="Zwróć Wszystko" name="return_all_btn"/>
+	<button label="Deaktywuj Wybrane" name="disable_selected_btn"/>
+	<button label="Deaktywuj Wszystko" name="disable_all_btn"/>
+	<button label="Odśwież" name="refresh_btn"/>
+	<string name="top_scripts_title">
+		Główne Skrypty
+	</string>
+	<string name="top_scripts_text">
+		[COUNT] skryptów działa w czasie [TIME] ms
+	</string>
+	<string name="scripts_score_label">
+		Czas
+	</string>
+	<string name="scripts_mono_time_label">
+		Mono Time
+	</string>
+	<string name="top_colliders_title">
+		Główne Kolizje
+	</string>
+	<string name="top_colliders_text">
+		[COUNT] obiektów odczuwa działanie wielu potencjalnych kolizji
+	</string>
+	<string name="colliders_score_label">
+		Wynik
+	</string>
+	<string name="none_descriptor">
+		Nie odnalezione
+	</string>
+</floater>

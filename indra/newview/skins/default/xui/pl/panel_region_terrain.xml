@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Teren" name="Terrain">
+	<text name="region_text_lbl">
+		Region:
+	</text>
+	<text name="region_text">
+		brak danych
+	</text>
+	<spinner label="Poziom Wody" name="water_height_spin" />
+	<button label="?" name="water_height_help" />
+	<spinner label="Górny Limit Terenu" name="terrain_raise_spin" />
+	<button label="?" name="terrain_raise_help" />
+	<spinner label="Dolny Limit Terenu" name="terrain_lower_spin" />
+	<button label="?" name="terrain_lower_help" />
+	<check_box label="Używaj Słońca Majątku" name="use_estate_sun_check" />
+	<button label="?" name="use_estate_sun_help" />
+	<check_box label="Stałe Słońce" name="fixed_sun_check" />
+	<button label="?" name="fixed_sun_help" />
+	<slider label="Pora Doby" name="sun_hour_slider" />
+	<button label="Zastosuj" name="apply_btn" />
+	<button label="Zapisz Surowy Teren..." name="download_raw_btn"
+	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
+	<button label="?" name="download_raw_help" />
+	<button label="Załaduj Surowy Teren..." name="upload_raw_btn"
+	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
+	<button label="?" name="upload_raw_help" />
+	<button label="Ustal Teren" name="bake_terrain_btn"
+	     tool_tip="Zapamiętaj obecny teren jako punkt odniesienia dla limitów podnoszenia i opuszczania" />
+	<button label="?" name="bake_terrain_help" />
+</panel>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="move_floater">
+<panel name="panel_actions">
+	<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda"/>
+	<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita"/>
+	<button label="" label_selected="" name="move up btn" tool_tip="Pular ou Voar"/>
+	<button label="" label_selected="" name="move down btn" tool_tip="Agaixar ou pousar"/>
+	<joystick_slide name="slide left btn" tool_tip="Mover para a esquerda"/>
+	<joystick_slide name="slide right btn" tool_tip="Mover para a direita"/>
+	<joystick_turn name="forward btn" tool_tip="Mover para a frente."/>
+	<joystick_turn name="backward btn" tool_tip="Mover para trás"/>
+</panel>
+</floater>

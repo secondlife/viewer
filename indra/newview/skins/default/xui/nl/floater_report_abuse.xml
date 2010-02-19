@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_report_abuse" title="MISBRUIK RAPPORTEREN">
+	<check_box label="Voeg schermafbeelding toe" name="screen_check"/>
+	<text name="reporter_title" width="110">
+		Rapporteur:
+	</text>
+	<text name="reporter_field" left_delta="70">
+		Loremipsum Dolorsitamut
+	</text>
+	<text name="sim_title">
+		Regio:
+	</text>
+	<text name="sim_field" left_delta="70">
+		Regionaam
+	</text>
+	<text name="pos_title">
+		Positie:
+	</text>
+	<text name="pos_field" left_delta="70">
+		{128.1, 128.1, 15.4}
+	</text>
+	<text name="select_object_label">
+		Klik de knop, daarna het object:
+	</text>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Objectkiezer - Identificeer een object als het onderwerp van dit rapport"/>
+	<text name="object_name_label">
+		Naam:
+	</text>
+	<text name="object_name" width="120">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name_label">
+		Eigenaar:
+	</text>
+	<text name="owner_name">
+		Hendrerit Vulputate
+	</text>
+	<combo_box name="category_combo" tool_tip="Categorie -- selecteer de categorie die dit rapport het best beschrijft">
+		<combo_box.item name="Select_category" label="Selecteer categorie"/>
+		<combo_box.item name="Age__Age_play" label="Leeftijd &gt; Leeftijd spelen"/>
+		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Leeftijd &gt; Volwassen inwoner in Teen Second Life"/>
+		<combo_box.item name="Age__Underage_resident_outside_of_Teen_Second_Life" label="Leeftijd &gt; Minderjarige inwoner buiten Teen Second Life"/>
+		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Aanval &gt; Gevechtszandbak / onveilig gebied"/>
+		<combo_box.item name="Assault__Safe_area" label="Aanval &gt; Veilig gebied"/>
+		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Aanval &gt; Zandbak voor het testen van wapens"/>
+		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="Handel &gt; Product of dienst is niet geleverd"/>
+		<combo_box.item name="Disclosure__Real_world_information" label="Openbaring &gt; Echte wereld informatie"/>
+		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="Openbaring &gt; Op afstand chat afluisteren"/>
+		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="Openbaring &gt; Second Life informatie/chat/IMs"/>
+		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="Vredebreuk &gt; Oneerlijk gebruik van regiomiddelen"/>
+		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="Vredebreuk &gt; Excessieve gescripte objecten"/>
+		<combo_box.item name="Disturbing_the_peace__Object_littering" label="Vredebreuk &gt; Objecten laten rondslingeren"/>
+		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="Vredebreuk &gt; Herhaalde spam"/>
+		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="Vredebreuk &gt; Ongewenste reclame-spam"/>
+		<combo_box.item name="Fraud__L$" label="Fraude &gt; L$"/>
+		<combo_box.item name="Fraud__Land" label="Fraude &gt; Land"/>
+		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="Fraude &gt; Piramideschema of kettingbrief"/>
+		<combo_box.item name="Fraud__US$" label="Fraude &gt; US$"/>
+		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="Intimidatie &gt; Reclameverzamelingen / visuele spam"/>
+		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="Intimidatie &gt; Individuen of groepen in diskrediet brengen"/>
+		<combo_box.item name="Harassment__Impeding_movement" label="Intimidatie &gt; Beweging verhinderen"/>
+		<combo_box.item name="Harassment__Sexual_harassment" label="Intimidatie &gt; Seksuele intimidatie"/>
+		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Intimidatie &gt; Anderen uitnodigen/aanzetten tot het schenden van de ToS"/>
+		<combo_box.item name="Harassment__Verbal_abuse" label="Intimidatie &gt; Verbaal misbruik"/>
+		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Onfatsoenlijkheid &gt; Globaal beledigende inhoud of gedrag"/>
+		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Onfatsoenlijkheid &gt; Ongepaste avatar naam"/>
+		<combo_box.item name="Indecency__Mature_content_in_PG_region" label="Onfatsoenlijkheid &gt; Ongepaste inhoud of gedrag in een PG regio"/>
+		<combo_box.item name="Indecency__Inappropriate_content_in_Mature_region" label="Onfatsoenlijkheid &gt; Ongepaste inhoud of gedrag in een Mature regio"/>
+		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Inbreuk op intellectueel eigendom &gt; Verwijderen van inhoud"/>
+		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Inbreuk op intellectueel eigendom &gt; CopyBot of misbruik van permissies"/>
+		<combo_box.item name="Intolerance" label="Intolerantie"/>
+		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="Land &gt; Misbruik van zandbakmiddelen"/>
+		<combo_box.item name="Land__Encroachment__Objects_textures" label="Land &gt; Indringing &gt; Objecten/texturen"/>
+		<combo_box.item name="Land__Encroachment__Particles" label="Land &gt; Indringing &gt; Particles"/>
+		<combo_box.item name="Land__Encroachment__Trees_plants" label="Land &gt; Indringing &gt; Bomen/planten"/>
+		<combo_box.item name="Wagering_gambling" label="Weddenschappen/gokken"/>
+		<combo_box.item name="Other" label="Anders"/>
+	</combo_box>
+	<text name="abuser_name_title">
+		Misbruikernaam:
+	</text>
+	<button label="Kies inwoner" label_selected="" name="select_abuser" tool_tip="Selecteer de naam van de misbruiker uit een lijst"/>
+	<check_box label="Naam van misbruiker onbekend" name="omit_abuser_name" tool_tip="Vink dit aan wanneer u niet in staat bent de naam van de misbruiker te geven"/>
+	<text name="abuser_name_title2">
+		Locatie van misbruik:
+	</text>
+	<text name="sum_title">
+		Samenvatting:
+	</text>
+	<text name="dscr_title">
+		Details:
+	</text>
+	<text name="bug_aviso">
+		Wees alstublieft zo specifiek mogelijk m.b.t. datum, locatie, 
+aard van het misbruik, relevante chat/IM tekst, en selecteer 
+het object indien mogelijk.
+	</text>
+	<text name="incomplete_title">
+		Let op: onvolledige rapporten zullen niet worden onderzocht.
+	</text>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn"/>
+	<button label="Misbruik rapporteren" label_selected="Misbruik rapporteren" name="send_btn"/>
+</floater>

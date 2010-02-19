@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="CONFIGURAÇÃO DO JOYSTICK">
+	<check_box name="enable_joystick" label="Habilitar Joystick:"/>
+	<text left="135" name="joystick_type" width="360"/>
+	<spinner label="Mapeamento: eixo X" name="JoystickAxis1" label_width="124" width="164"/>
+	<spinner label="Mapeamento: eixo Y" name="JoystickAxis2" label_width="124" width="164"/>
+	<spinner label="Mapeamento: eixo Z" name="JoystickAxis0" label_width="124" width="164"/>
+	<spinner label="Mapeamento: Elevação" name="JoystickAxis4" label_width="124" width="164"/>
+	<spinner label="Mapeamento: Guinada" name="JoystickAxis5" label_width="124" width="164"/>
+	<spinner label="Mapeamento: Rolagem" name="JoystickAxis3" label_width="124" width="164"/>
+	<spinner label="Mapeamento: Zoom" name="JoystickAxis6" label_width="124" width="164"/>
+	<check_box label="Zoom Direto" name="ZoomDirect" left="194"/>
+	<check_box label="Cursor 3D" name="Cursor3D"/>
+	<check_box label="Nível Automático" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Modos de Controle:
+	</text>
+	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
+	<check_box name="JoystickBuildEnabled" left="192" label="Construir"/>
+	<check_box name="JoystickFlycamEnabled" label="Camera aérea"/>
+	<text name="XScale">
+		Escala X
+	</text>
+	<text name="YScale">
+		Escala Y
+	</text>
+	<text name="ZScale">
+		Escala Z
+	</text>
+	<text name="PitchScale" left="3" width="115">
+		Escala de Elevação
+	</text>
+	<text name="YawScale" left="3" width="115">
+		Escala da Guinada
+	</text>
+	<text name="RollScale" left="3" width="115">
+		Escala de Rolagem
+	</text>
+	<text name="XDeadZone">
+		Zona Morta X
+	</text>
+	<text name="YDeadZone">
+		Zona Morta Y
+	</text>
+	<text name="ZDeadZone">
+		Zona Morta Z
+	</text>
+	<text name="PitchDeadZone" left="3" width="115">
+		Zona Morta: Elevação
+	</text>
+	<text name="YawDeadZone" left="3" width="115">
+		Zona Morta: Guinada
+	</text>
+	<text name="RollDeadZone" left="3" width="115">
+		Zona Morta: Rolagem
+	</text>
+	<text name="Feathering">
+		Alisar
+	</text>
+	<text name="ZoomScale2">
+		Escala de Zoom
+	</text>
+	<text name="ZoomDeadZone" width="110" left="4">
+		Zona Morta de Zoom
+	</text>
+	<button label="Padrões do SpaceNavigator" name="SpaceNavigatorDefaults" font="SansSerifSmall"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn"/>
+	<stat_view label="Monitor do Joystick" name="axis_view">
+		<stat_bar label="Eixo 0" name="axis0"/>
+		<stat_bar label="Eixo 1" name="axis1"/>
+		<stat_bar label="Eixo 2" name="axis2"/>
+		<stat_bar label="Eixo 3" name="axis3"/>
+		<stat_bar label="Eixo 4" name="axis4"/>
+		<stat_bar label="Eixo 5" name="axis5"/>
+	</stat_view>
+	<string name="NoDevice">
+		nenhum dispositivo detectado
+	</string>
+</floater>

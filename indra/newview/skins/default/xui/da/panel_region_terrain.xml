@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Terræn" name="Terrain">
+	<text name="region_text_lbl">
+		Region:
+	</text>
+	<text name="region_text">
+		ukendt
+	</text>
+	<spinner label="Vand højde" name="water_height_spin" />
+	<button label="?" name="water_height_help" />
+	<spinner label="Max. hævning af land" name="terrain_raise_spin" />
+	<button label="?" name="terrain_raise_help" />
+	<spinner label="Max sænkning af land" name="terrain_lower_spin" />
+	<button label="?" name="terrain_lower_help" />
+	<check_box label="Benyt solopsætning fra estate" name="use_estate_sun_check" />
+	<button label="?" name="use_estate_sun_help" left="430"/>
+	<check_box label="Fast sol-position" name="fixed_sun_check" />
+	<button label="?" name="fixed_sun_help" left="430"/>
+	<slider label="Fase" name="sun_hour_slider" />
+	<button label="Gem" name="apply_btn" />
+	<button label="Download RAW terræn fil..." name="download_raw_btn"
+	     tool_tip="Kun tilgængelig for ejer af estate - ikke for administratorer" />
+	<button label="?" name="download_raw_help" />
+	<button label="Upload RAW terræn fil..." name="upload_raw_btn"
+	     tool_tip="Kun tilgængelig for ejer af estate - ikke for administratorer" />
+	<button label="?" name="upload_raw_help" />
+	<button label="Gem terræn" name="bake_terrain_btn"
+	     tool_tip="Lav det nuværende terræn som base for begrænsning af fremtidige hævninger og sænkninger af terræn" />
+	<button label="?" name="bake_terrain_help" />
+</panel>

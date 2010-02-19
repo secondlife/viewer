@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<scroll_container color="black"
+                  opaque="false"
+                  min_auto_scroll_rate="120"
+                  max_auto_scroll_rate="500"/>

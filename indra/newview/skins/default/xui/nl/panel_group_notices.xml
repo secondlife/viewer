@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Berichten" name="notices_tab">
+	<string name="help_text">
+		Berichten vormen een snelle manier om met een groep te communiceren door een bericht en optioneel een bevestigd item af te leveren. Berichten gaan alleen naar groepsleden in rollen die de mogelijkheid hebben om berichten te ontvangen. U kunt berichten uitzetten in de tab Algemeen.
+	</string>
+	<string name="no_notices_text">
+		Er zijn geen oude berichten.
+	</string>
+	<button label="?" label_selected="?" name="help_button"/>
+	<text name="lbl">
+		Groepsberichtenarchief
+	</text>
+	<text name="lbl2">
+		Berichten worden 14 dagen bewaard. Berichtenlijsten zijn gelimiteerd tot 200 berichten groep per dag.
+	</text>
+	<scroll_list name="notice_list">
+		<column label="Onderwerp" name="subject"/>
+		<column label="Van" name="from"/>
+		<column label="Datum" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Geen gevonden.
+	</text>
+	<button label="Maak nieuw bericht" label_selected="Maak nieuw bericht" name="create_new_notice"/>
+	<button label="Verversen" label_selected="Ververs lijst" name="refresh_notices"/>
+	<panel label="Maak nieuw bericht" name="panel_create_new_notice">
+		<text name="lbl">
+			Maak een bericht
+		</text>
+		<text name="lbl2">
+			U kunt een enkel item aan een bericht toevoegen door het van uw inventaris naar dit paneel te slepen. Bevestigde items moeten kopieerbaar en overdraagbaar zijn en u kunt geen mappen versturen.
+		</text>
+		<text bottom_delta="-79" halign="right" left="10" name="lbl3" width="60">
+			Onderwerp:
+		</text>
+		<line_editor name="create_subject" width="331" left_delta="71"/>
+		<text bottom_delta="-18" halign="right" left="10" name="lbl4" width="60">
+			Bericht:
+		</text>
+		<text_editor name="create_message" bottom_delta="-90" height="104" left_delta="71" width="330"/>
+		<line_editor name="create_inventory_name" width="190" left_delta="71"/>
+		<text name="lbl5" left="10">
+			Bevestig:
+		</text>
+		<button label="Verwijder bevestiging" label_selected="Verwijder bevestiging" name="remove_attachment"/>
+		<button label="Verzend bericht" label_selected="Verzend bericht" name="send_notice"/>
+		<panel name="drop_target" tool_tip="Sleep een inventarisitem op het berichtvenster om het met het bericht mee te sturen. U dient permissie te hebben om het object te kopiëren en over te dragen wilt u het met het bericht mee kunnen sturen."/>
+	</panel>
+	<panel label="Bekijk oud bericht" name="panel_view_past_notice">
+		<text name="lbl">
+			Gearchiveerd bericht
+		</text>
+		<text name="lbl2">
+			Om een nieuw bericht te sturen, klik de &apos;Maak nieuw bericht&apos; knop hierboven.
+		</text>
+		<text name="lbl3">
+			Onderwerp:
+		</text>
+		<text name="lbl4">
+			Bericht:
+		</text>
+		<button label="Open bevestiging" label_selected="Open bevestiging" name="open_attachment" width="118"/>
+		<line_editor left="128" name="view_inventory_name" width="256"/>
+	</panel>
+</panel>

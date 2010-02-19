@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ border="false"
+ can_close="false"
+ can_minimize="false"
+ height="90"
+ layout="topleft"
+ name="modal container"
+ width="240">
+    <text
+     type="string"
+     halign="center"
+     length="1"
+     follows="left|top"
+     height="30"
+     layout="topleft"
+     left="30"
+     name="Save item as:"
+     top="25"
+     word_wrap="true"
+     width="180">
+        Press a key to set your Speak button trigger.
+    </text>
+    <button
+     height="23"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     right="-10"
+     name="Cancel"
+     top_pad="8"
+     width="100" />
+</floater>

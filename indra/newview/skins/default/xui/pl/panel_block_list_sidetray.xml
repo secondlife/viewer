@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="block_list_panel">
+	<text name="title_text">
+		Lista Blokad
+	</text>
+	<scroll_list name="blocked" tool_tip="Lista zablokowanych obecnie rezydentów"/>
+	<button label="Zablokuj Rezydenta..." label_selected="Zablokuj Rezydenta..." name="Block resident..." tool_tip="Wybierz rezydenta, którego chcesz zablokować"/>
+	<button label="Zablokuj obiekt według nazwy..." label_selected="Zablokuj obiekt według nazwy..." name="Block object by name..."/>
+	<button label="Odblokuj" label_selected="Odblokuj" name="Unblock" tool_tip="Usuń rezydenta lub obiekt z listy blokad"/>
+</panel>

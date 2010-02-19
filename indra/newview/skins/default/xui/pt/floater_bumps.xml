@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_bumps" title="COLISÕES, IMPULSOS E BATIDAS">
+	<text name="none_detected">
+		Nada detectado
+	</text>
+	<text name="bump">
+		[TIME]  [FIRST] [LAST] conflitou com você
+	</text>
+	<text name="llpushobject">
+		[TIME]  [FIRST] [LAST] empurrou você com um script
+	</text>
+	<text name="selected_object_collide">
+		[TIME]  [FIRST] [LAST] o atingiu com um objeto
+	</text>
+	<text name="scripted_object_collide">
+		[TIME]  [FIRST] [LAST] o atingiu com um objeto programado
+	</text>
+	<text name="physical_object_collide">
+		[TIME]  [FIRST] [LAST] o atingiu com um objeto físico
+	</text>
+</floater>

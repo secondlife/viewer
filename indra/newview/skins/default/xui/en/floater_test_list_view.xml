@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_list_view"
+ help_topic="floater_test_list_view"
+ translate="false"
+ width="400">
+ <!-- intentionally empty -->
+</floater>

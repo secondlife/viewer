@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="edit_profile_panel">
+   <string name="CaptionTextAcctInfo">
+       [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+   </string>
+   <string name="AcctTypeResident"
+    value="Residente" />
+   <string name="AcctTypeTrial"
+    value="Teste" />
+   <string name="AcctTypeCharterMember"
+    value="Estatuto do membro" />
+   <string name="AcctTypeEmployee"
+    value="Contratado da Linden Lab" />
+   <string name="PaymentInfoUsed"
+    value="Infor. de pagamento utilizadas" />
+   <string name="PaymentInfoOnFile"
+    value="Infor. de pagamento no arquivo" />
+   <string name="NoPaymentInfoOnFile"
+    value="Sem infor. de pagamento no arquivo" />
+   <string name="AgeVerified"
+    value="Idade Verificada" />
+   <string name="NotAgeVerified"
+    value="Idade não Verificada" />
+   <string name="partner_edit_link_url">
+       http://www.secondlife.com/account/partners.php?lang=pt
+   </string>
+    <panel name="scroll_content_panel">
+    <panel name="data_panel" >
+     <panel name="lifes_images_panel">
+          <panel name="second_life_image_panel">
+              <text name="second_life_photo_title_text">
+			[SECOND_LIFE]:
+              </text>
+          </panel>
+      </panel>
+        <text name="title_partner_text" value="Parceiro:"/>
+        <panel name="partner_data_panel">
+            <text name="partner_text" value="[FIRST] [LAST]"/>
+         </panel>
+      <text name="text_box3">
+	Resposta no Modo Ocupado:
+      </text>
+    </panel>
+    </panel>
+</panel>

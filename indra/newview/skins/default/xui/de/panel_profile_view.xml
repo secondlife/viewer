@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_target_profile">
+	<string name="status_online">
+		Online
+	</string>
+	<string name="status_offline">
+		Offline
+	</string>
+	<text_editor name="user_name" value="(wird geladen...)"/>
+	<text name="status" value="Online"/>
+	<tab_container name="tabs" tab_min_width="60">
+		<panel label="PROFIL" name="panel_profile"/>
+		<panel label="AUSWAHL" name="panel_picks"/>
+		<panel label="NOTIZEN &amp; PRIVATSPHÄRE" name="panel_notes"/>
+	</tab_container>
+</panel>

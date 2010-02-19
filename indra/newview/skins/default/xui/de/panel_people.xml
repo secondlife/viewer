@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray panel -->
+<panel label="Leute" name="people_panel">
+	<string name="no_people" value="Keine Leute"/>
+	<string name="no_one_near" value="Keiner in der Nähe"/>
+	<string name="no_friends_online" value="Keine Freunde online"/>
+	<string name="no_friends" value="Keine Freunde"/>
+	<string name="people_filter_label" value="Nach Leuten filtern"/>
+	<string name="groups_filter_label" value="Nach Gruppen filtern"/>
+	<filter_editor label="Filter" name="filter_input"/>
+	<tab_container name="tabs">
+		<panel label="IN DER NÄHE" name="nearby_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="nearby_view_sort_btn" tool_tip="Optionen"/>
+				<button name="add_friend_btn" tool_tip="Ausgewählten Einwohner zur Freundeliste hinzufügen"/>
+			</panel>
+		</panel>
+		<panel label="MEINE FREUNDE" name="friends_panel">
+			<accordion name="friends_accordion">
+				<accordion_tab name="tab_online" title="Online"/>
+				<accordion_tab name="tab_all" title="Alle"/>
+			</accordion>
+			<text name="no_friends_msg">
+				Verwenden Sie [secondlife:///app/search/people die globale Suche], um Freunde hinzuzufügen. Oder klicken Sie auf einen Einwohner und fügen Sie diesen als Freund hinzu.
+Wenn Sie nach Orten suchen, an denen sich Leute befinden, verwenden Sie [secondlife:///app/worldmap die Karte].
+			</text>
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="friends_viewsort_btn" tool_tip="Optionen"/>
+				<button name="add_btn" tool_tip="Bieten Sie einem Einwohner die Freundschaft an"/>
+				<button name="del_btn" tool_tip="Ausgewählte Person von Ihrer Freundesliste entfernen"/>
+			</panel>
+		</panel>
+		<panel label="MEINE GRUPPEN" name="groups_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="groups_viewsort_btn" tool_tip="Optionen"/>
+				<button name="plus_btn" tool_tip="Gruppe beitreten/Neue Gruppe erstellen"/>
+				<button name="activate_btn" tool_tip="Ausgewählte Gruppe aktivieren"/>
+			</panel>
+		</panel>
+		<panel label="AKTUELL" name="recent_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="recent_viewsort_btn" tool_tip="Optionen"/>
+				<button name="add_friend_btn" tool_tip="Ausgewählten Einwohner zur Freundeliste hinzufügen"/>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="button_bar">
+		<button label="Profil" name="view_profile_btn" tool_tip="Bilder, Gruppen und andere Einwohner-Informationen anzeigen"/>
+		<button label="IM" name="im_btn" tool_tip="Instant Messenger öffnen"/>
+		<button label="Anrufen" name="call_btn" tool_tip="Diesen Einwohner anrufen"/>
+		<button label="Teilen" name="share_btn"/>
+		<button label="Teleportieren" name="teleport_btn" tool_tip="Teleport anbieten"/>
+		<button label="Gruppenprofil" name="group_info_btn" tool_tip="Gruppeninformationen anzeigen"/>
+		<button label="Gruppen-Chat" name="chat_btn" tool_tip="Chat öffnen"/>
+		<button label="Gruppe anrufen" name="group_call_btn" tool_tip="Diese Gruppe anrufen"/>
+	</panel>
+</panel>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Width and height of this panel should be synchronized with "panel_modes" in the floater_moveview.xml-->
+<panel
+ height="25"
+ layout="topleft"
+ name="panel_stand_stop_flying"
+ mouse_opaque="false"
+ visible="true"
+ width="115">
+    <button
+     follows="left|bottom"
+     height="19"
+     label="Stand"
+     layout="topleft"
+     name="stand_btn"
+     tool_tip="Click here to stand up."
+     top="2"
+     visible="false"
+     width="115" />
+    <button
+     follows="left|bottom"
+     height="19"
+     label="Stop Flying"
+     layout="topleft"
+     name="stop_fly_btn"
+     tool_tip="Stop flying"
+     top="2"
+     visible="false"
+     width="115" />
+</panel>

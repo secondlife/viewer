@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="300"
+ layout="topleft"
+ min_height="300"
+ min_width="400"
+ name="inspect"
+ help_topic="inspect"
+ save_rect="true"
+ title="INSPECT OBJECTS"
+ width="400">
+    <floater.string
+     name="timeStamp">
+        [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+    </floater.string>
+    <scroll_list
+     bottom="270"
+     column_padding="0"
+     draw_heading="true"
+     follows="top|right|left|bottom"
+     layout="topleft"
+     left="10"
+     name="object_list"
+     right="-10"
+     tool_tip="Select an object from this list to highlight it in-world"
+     top="20">
+        <scroll_list.columns
+         dynamic_width="true"
+         label="Object Name"
+         name="object_name" />
+        <scroll_list.columns
+         dynamic_width="true"
+         label="Owner Name"
+         name="owner_name" />
+        <scroll_list.columns
+         dynamic_width="true"
+         label="Creator Name"
+         name="creator_name" />
+        <scroll_list.columns
+         label="Creation Date"
+         name="creation_date"
+         width="150" />
+		 <scroll_list.commit_callback
+		   function="Inspect.SelectObject" />
+    </scroll_list>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="See Owner Profile..."
+     layout="topleft"
+     left_delta="0"
+     name="button owner"
+     tool_tip="See profile of the highlighted object&apos;s owner"
+     top_pad="5"
+     width="150">
+		<button.commit_callback
+		function="Inspect.OwnerProfile" />
+	</button>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="See Creator Profile..."
+     layout="topleft"
+     left_pad="10"
+     name="button creator"
+     tool_tip="See profile of the highlighted object&apos;s original creator"
+     top_delta="0"
+     width="150">
+		<button.commit_callback
+		function="Inspect.CreatorProfile" />
+	</button>
+</floater>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perm prefs" title="STANDARD-BERECHTIGUNGEN FÜR HOCHLADEN">
+	<panel label="Berechtigungen" name="permissions">
+		<button label="?" label_selected="?" name="help"/>
+		<check_box label="Mit Gruppe teilen" name="share_with_group"/>
+		<check_box label="Kopieren allen erlauben" name="everyone_copy"/>
+		<text name="NextOwnerLabel">
+			Nächster Eigentümer kann:
+		</text>
+		<check_box label="Bearbeiten" name="next_owner_modify"/>
+		<check_box label="Kopieren" name="next_owner_copy"/>
+		<check_box label="Verkaufen/Weggeben" left_delta="80" name="next_owner_transfer"/>
+	</panel>
+	<button label="OK" label_selected="OK" name="ok"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel"/>
+</floater>

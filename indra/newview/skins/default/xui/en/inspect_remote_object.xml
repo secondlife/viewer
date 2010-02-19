@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ legacy_header_height="18"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background"
+ can_close="false"
+ can_minimize="false"
+ height="130"
+ layout="topleft"
+ name="inspect_remote_object"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="300">
+  <text
+   follows="all"
+   font="SansSerifLarge"
+   font_style="BOLD"
+   height="30"
+   left="8"
+   name="object_name"
+   text_color="White"
+   top="5"
+   use_ellipses="true"
+   word_wrap="true"
+   width="291">
+     Test Object Name That Is Really Long OMG so long I can't believe how long the name of this object is, I mean really.
+  </text>
+  <text
+   follows="top|left"
+   font="SansSerifSmall"
+   height="16"
+   left="8"
+   name="object_owner_label"
+   width="55"
+   top_pad="12">
+     Owner:
+  </text>
+  <text
+   follows="top|left"
+   height="16"
+   left_pad="5"
+   name="object_owner"
+   use_ellipses="true"
+   width="230"
+   word_wrap="false">
+     Longavatarname Johnsonlongstonnammer
+  </text>
+  <!--<text
+   follows="top|left"
+   height="16"
+   left="8"
+   name="object_slurl_label"
+   top_pad="5"
+   width="55">
+     Location:
+  </text>-->
+  <text
+   follows="top|left"
+   height="16"
+   left="8"
+   name="object_slurl"
+   width="290"
+   use_ellipses="true"
+   word_wrap="false">
+     http://slurl.com/Ahern/50/50/50
+  </text>
+  <button
+   follows="top|left"
+   height="23"
+   label="Map"
+   left="8"
+   top_pad="8"
+   name="map_btn"
+   width="90" />
+  <button
+   follows="top|left"
+   height="23"
+   label="Block"
+   left_pad="8"
+   name="block_btn"
+   width="90" />
+  <button
+   follows="top|left"
+   height="23"
+   label="Close"
+   right="-8"
+   name="close_btn"
+   left_pad="5"
+   width="90" />
+</floater>

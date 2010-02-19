@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Comunicación" name="im">
+	<panel.string name="log_in_to_change">
+		Conéctate para que cambie
+	</panel.string>
+	<button label="Limpiar el historial" name="clear_cache"/>
+	<text name="cache_size_label_l">
+		(Localizaciones, imágenes, web, historial de búsqueda)
+	</text>
+	<check_box label="Sólo saben si estoy conectado mis amigos y grupos" name="online_visibility"/>
+	<check_box label="Sólo pueden llamarme o mandarme un MI mis amigos y grupos" name="voice_call_friends_only_check"/>
+	<check_box label="Desconectar el micrófono cuando finalicen las llamadas" name="auto_disengage_mic_check"/>
+	<check_box label="Aceptar las &apos;cookies&apos;" name="cookies_enabled"/>
+	<check_box label="Permitir la ejecución automática de los media" name="autoplay_enabled"/>
+	<text name="Logs:">
+		Registros:
+	</text>
+	<check_box label="Guardar en mi ordenador registros del chat" name="log_nearby_chat"/>
+	<check_box label="Guardar en mi ordenador registros de los MI" name="log_instant_messages"/>
+	<check_box label="Añadir fecha y hora" name="show_timestamps_check_im"/>
+	<line_editor left="278" name="log_path_string" right="-20"/>
+	<text name="log_path_desc">
+		Ruta de los registros
+	</text>
+	<button label="Elegir" label_selected="Elegir" name="log_path_button" width="120"/>
+	<button label="Lista de ignorados" name="block_list"/>
+</panel>

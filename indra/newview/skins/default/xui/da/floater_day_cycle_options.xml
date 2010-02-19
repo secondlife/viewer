@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Day Cycle Floater" title="DAG CYKLUS OPSÆTNING">
+	<tab_container name="Day Cycle Tabs">
+		<panel label="Dag cyklus" name="Day Cycle">
+			<button label="?" name="WLDayCycleHelp" />
+			<multi_slider label="" name="WLTimeSlider" />
+			<multi_slider label="" name="WLDayCycleKeys" />
+			<text name="WL12am">
+				00:00
+			</text>
+			<text name="WL3am">
+				03:00
+			</text>
+			<text name="WL6am">
+				06:00
+			</text>
+			<text name="WL9amHash">
+				09:00
+			</text>
+			<text name="WL12pmHash">
+				12:00
+			</text>
+			<text name="WL3pm">
+				15:00
+			</text>
+			<text name="WL6pm">
+				18:00
+			</text>
+			<text name="WL9pm">
+				21:00
+			</text>
+			<text name="WL12am2">
+				00:00
+			</text>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL3amHash">
+				I
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL9amHash2">
+				I
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL3pmHash">
+				I
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL9pmHash">
+				I
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<button label="Tilføj key" label_selected="Tilføj key" name="WLAddKey" />
+			<button label="Slet key" label_selected="Slet key" name="WLDeleteKey" />
+			<text name="WLCurKeyFrameText">
+				Key-frame indstillinger:
+			</text>
+			<text name="WLCurKeyTimeText">
+				Key tid:
+			</text>
+			<spinner label="Timer" name="WLCurKeyHour" />
+			<spinner label="Min." name="WLCurKeyMin" />
+			<text name="WLCurKeyTimeText2">
+				Key fast indstilling:
+			</text>
+			<combo_box label="Faste" name="WLKeyPresets" />
+			<text name="DayCycleText">
+				Snap:
+			</text>
+			<combo_box label="5 min" name="WLSnapOptions" />
+			<text name="DayCycleText2">
+				Cycluslængde:
+			</text>
+			<spinner label="Timer" name="WLLengthOfDayHour" />
+			<spinner label="Min." name="WLLengthOfDayMin" />
+			<spinner label="Sek." name="WLLengthOfDaySec" />
+			<text name="DayCycleText3">
+				Vis:
+			</text>
+			<button label="Afspil" label_selected="Afspil" name="WLAnimSky" />
+			<button label="Stop!" label_selected="Stop" name="WLStopAnimSky" />
+			<button label="Benyt estate tid" label_selected="Gå til estate tid"
+			     name="WLUseLindenTime" />
+			<button label="Gem test-dag" label_selected="Gem test-dag" name="WLSaveDayCycle" />
+			<button label="Hent test-dag" label_selected="Hent test-dag" name="WLLoadDayCycle" />
+		</panel>
+	</tab_container>
+</floater>

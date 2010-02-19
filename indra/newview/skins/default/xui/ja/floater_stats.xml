@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Statistics" title="統計">
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view label="ベーシック" name="basic">
+				<stat_bar label="FPS" name="fps"/>
+				<stat_bar label="帯域幅" name="bandwidth"/>
+				<stat_bar label="パケットロス" name="packet_loss"/>
+				<stat_bar label="Pingシム" name="ping"/>
+			</stat_view>
+			<stat_view label="アドバンス" name="advanced">
+				<stat_view label="描画" name="render">
+					<stat_bar label="KTris 描画" name="ktrisframe"/>
+					<stat_bar label="KTris 描画" name="ktrissec"/>
+					<stat_bar label="オブジェクト合計" name="objs"/>
+					<stat_bar label="新規オブジェクト" name="newobjs"/>
+				</stat_view>
+				<stat_view label="テクスチャ" name="texture">
+					<stat_bar label="カウント" name="numimagesstat"/>
+					<stat_bar label="Raw カウント" name="numrawimagesstat"/>
+					<stat_bar label="GL メモリ" name="gltexmemstat"/>
+					<stat_bar label="フォーマット済メモリ" name="formattedmemstat"/>
+					<stat_bar label="Raw メモリ" name="rawmemstat"/>
+					<stat_bar label="統合メモリ" name="glboundmemstat"/>
+				</stat_view>
+				<stat_view label="ネットワーク" name="network">
+					<stat_bar label="パケットイン" name="packetsinstat"/>
+					<stat_bar label="パケットアウト" name="packetsoutstat"/>
+					<stat_bar label="オブジェクト" name="objectkbitstat"/>
+					<stat_bar label="テクスチャ" name="texturekbitstat"/>
+					<stat_bar label="アセット" name="assetkbitstat"/>
+					<stat_bar label="レイヤー" name="layerskbitstat"/>
+					<stat_bar label="実際の受信" name="actualinkbitstat"/>
+					<stat_bar label="実際の送信" name="actualoutkbitstat"/>
+					<stat_bar label="VFS 保留中の操作" name="vfspendingoperations"/>
+				</stat_view>
+			</stat_view>
+			<stat_view label="シミュレーター" name="sim">
+				<stat_bar label="時間の遅れ" name="simtimedilation"/>
+				<stat_bar label="シム FPS" name="simfps"/>
+				<stat_bar label="物理作用 FPS" name="simphysicsfps"/>
+				<stat_view label="物理作用の詳細" name="physicsdetail">
+					<stat_bar label="ピン留めオブジェクト" name="physicspinnedtasks"/>
+					<stat_bar label="低 LOD オブジェクト" name="physicslodtasks"/>
+					<stat_bar label="メモリ配分" name="physicsmemoryallocated"/>
+				</stat_view>
+				<stat_bar label="エージェントの更新/秒" name="simagentups"/>
+				<stat_bar label="メインエージェント" name="simmainagents"/>
+				<stat_bar label="チャイルドエージェント" name="simchildagents"/>
+				<stat_bar label="オブジェクト" name="simobjects"/>
+				<stat_bar label="アクティブなオブジェクト" name="simactiveobjects"/>
+				<stat_bar label="アクティブなスクリプト" name="simactivescripts"/>
+				<stat_bar label="スクリプトイベント" name="simscripteps"/>
+				<stat_bar label="パケットイン" name="siminpps"/>
+				<stat_bar label="パケットアウト" name="simoutpps"/>
+				<stat_bar label="保留中のダウンロード" name="simpendingdownloads"/>
+				<stat_bar label="保留中のアップロード" name="simpendinguploads"/>
+				<stat_bar label="未送信バイト合計" name="simtotalunackedbytes"/>
+				<stat_view label="時間（ms）" name="simperf">
+					<stat_bar label="フレーム時間合計" name="simframemsec"/>
+					<stat_bar label="総時間数" name="simnetmsec"/>
+					<stat_bar label="物理的作用時間" name="simsimphysicsmsec"/>
+					<stat_bar label="シミュレーション時間" name="simsimothermsec"/>
+					<stat_bar label="エージェント時間" name="simagentmsec"/>
+					<stat_bar label="イメージ時間" name="simimagesmsec"/>
+					<stat_bar label="スクリプト時間" name="simscriptmsec"/>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

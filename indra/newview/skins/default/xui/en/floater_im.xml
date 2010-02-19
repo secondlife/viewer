@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater
+ legacy_header_height="18" 
+ can_resize="true"
+ follows="left|bottom"
+ height="422"
+ layout="topleft"
+ min_height="130"
+ min_width="350"
+ name="im_floater"
+ help_topic="im_floater"
+ save_rect="true"
+ title="Instant Message"
+ width="419">
+    <multi_floater.string
+     name="only_user_message">
+        You are the only user in this session.
+    </multi_floater.string>
+    <multi_floater.string
+     name="offline_message">
+        [FIRST] [LAST] is offline.
+    </multi_floater.string>
+    <multi_floater.string
+     name="invite_message">
+        Click the [BUTTON NAME] button to accept/connect to this voice chat.
+    </multi_floater.string>
+    <multi_floater.string
+     name="muted_message">
+        You have blocked this Resident. Sending a message will automatically unblock them.
+    </multi_floater.string>
+    <multi_floater.string
+     name="generic_request_error">
+        Error making request, please try again later.
+    </multi_floater.string>
+    <multi_floater.string
+     name="insufficient_perms_error">
+        You do not have sufficient permissions.
+    </multi_floater.string>
+    <multi_floater.string
+     name="session_does_not_exist_error">
+        The session no longer exists
+    </multi_floater.string>
+    <multi_floater.string
+     name="no_ability_error">
+        You do not have that ability.
+    </multi_floater.string>
+    <multi_floater.string
+     name="not_a_mod_error">
+        You are not a session moderator.
+    </multi_floater.string>
+    <multi_floater.string
+     name="muted_error">
+        A group moderator disabled your text chat.
+    </multi_floater.string>
+    <multi_floater.string
+     name="add_session_event">
+        Unable to add users to chat session with [RECIPIENT].
+    </multi_floater.string>
+    <multi_floater.string
+     name="message_session_event">
+        Unable to send your message to the chat session with [RECIPIENT].
+    </multi_floater.string>
+    <multi_floater.string
+     name="removed_from_group">
+        You have been removed from the group.
+    </multi_floater.string>
+    <multi_floater.string
+     name="close_on_no_ability">
+        You no longer have the ability to be in the chat session.
+    </multi_floater.string>
+    <tab_container
+     follows="left|top|right|bottom"
+     height="406"
+     layout="topleft"
+     left="1"
+     name="Preview Tabs"
+     tab_position="bottom"
+     top="16"
+     width="417" />
+</multi_floater>

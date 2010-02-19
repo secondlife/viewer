@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu name="menu_group_plus"
+     left="0" bottom="0" visible="false"
+     mouse_opaque="false" opaque="true" color="MenuDefaultBgColor" drop_shadow="false">
+  <menu_item_call name="item_join" label="Join Group...">
+    <menu_item_call.on_click function="People.Group.Plus.Action" userdata="join_group" />
+  </menu_item_call>
+  <menu_item_call name="item_new" label="New Group...">
+    <menu_item_call.on_click function="People.Group.Plus.Action" userdata="new_group" />
+  </menu_item_call>
+</menu>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<texture_picker border_color="DefaultHighlightLight">
+  <multiselect_text font="SansSerifSmall"/>
+  <caption_text text="Multiple" 
+                halign="center" 
+                font="SansSerifSmall"/>
+  <border bevel_style="in"/>
+</texture_picker>
+

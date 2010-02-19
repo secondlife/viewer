@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ name="avatar_tag_notification"
+ top="10"
+ width="250"
+ height="100"
+ follows="all">
+  <panel
+     width="240"
+     height="24"
+     left="5"
+     background_visible="true"
+     background_opaque="false"
+     follows="left|top|right"
+     top="-5"
+     bg_alpha_color="black"
+     name="msg_caption">
+  	<avatar_icon
+         top="-3"
+         left="3"
+         width="18"
+         image_name="Generic_Person"
+         height="18"
+         follows="left|top"
+         enabled="true"
+         name="avatar_tag_icon" />
+    	<text
+         width="160"
+         top="-8"
+         left="30"
+         height="20"
+         follows="left|right|top"
+	 font.style="BOLD"
+         text_color="white"
+         word_wrap="true"
+         mouse_opaque="true"
+         name="sender_tag_name">
+	      Angela Tester
+    	</text>
+	<text
+        font="SansSerifSmall"
+         follows="right"
+         height="13"
+         layout="topleft"
+	 halign="right"
+         right="-5"
+         name="tag_time"
+         top="8"
+         value="23:30"
+         width="50" />
+	</panel>
+ <text_editor
+ bg_readonly_color="DkGray"
+     font="SansSerifSmall"
+     top="65"
+     left="5"
+     right="-5"
+     height="100"
+     follows="all"
+     read_only="true"
+     word_wrap="true"
+     mouse_opaque="true"
+     name="msg_text">
+     The quick brown fox jumps over the lazy dog.
+    </text_editor>
+</panel>

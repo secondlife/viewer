@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ follows="left|top"
+ height="155"
+ layout="topleft"
+ name="Gesture"
+ help_topic="gesture"
+ save_rect="true"
+ title="GESTURE SHORTCUT"
+ width="260">
+    <scroll_list
+     follows="top|left"
+     height="110"
+     layout="topleft"
+     left="10"
+     name="step_list"
+     top_pad="10"
+     width="240" />
+    <!--text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifSmall"
+     height="60"
+     layout="topleft"
+     left="10"
+     name="help_label"
+     top_pad="10"
+     width="200">
+        All steps happen simultaneously, 
+unless you add wait steps.
+    </text-->
+    <!--text
+     follows="top|left"
+     height="60"
+     layout="topleft"
+     left="10"
+     name="options_text"
+     top_pad="10"
+     width="205" /-->
+    <!--combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="10"
+     name="animation_list"
+     top_pad="10"
+     width="100" />
+    <combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="sound_list"
+     top_delta="10"
+     width="100" />
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     max_length="127"
+     name="chat_editor"
+     top_pad="10"
+     width="100" />
+    <radio_group
+     draw_border="false"
+     follows="top|left"
+     height="40"
+     layout="topleft"
+     left_pad="8"
+     name="animation_trigger_type"
+     top_pad="10"
+     width="80">
+        <radio_item
+         height="16"
+         label="Start"
+         layout="topleft"
+         left="3"
+         name="start"
+         top="-11"
+         width="80" />
+        <radio_item
+         height="16"
+         label="Stop"
+         layout="topleft"
+         left_delta="0"
+         name="stop"
+         top_pad="10"
+         width="80" />
+    </radio_group>
+    <check_box
+     follows="top|left"
+     height="20"
+     label="until animations are done"
+     layout="topleft"
+     left="16"
+     name="wait_anim_check"
+     top_pad="10"
+     width="100" />
+    <check_box
+     follows="top|left"
+     height="20"
+     label="time in seconds"
+     layout="topleft"
+     left_delta="0"
+     name="wait_time_check"
+     top_pad="10"
+     width="100" />
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     max_length="15"
+     name="wait_time_editor"
+     top_pad="10"
+     width="50" /-->   
+
+
+
+    <!--For pop out floater-->
+    <!--scroll_list
+     follows="top|left"
+     height="110"
+     layout="topleft"
+     left="10"
+     name="library_list"
+     top_pad="10"
+     width="260">
+        <scroll_list.rows
+         value="Animation" />
+        <scroll_list.rows
+         value="Sound" />
+        <scroll_list.rows
+         value="Chat" />
+        <scroll_list.rows
+         value="Wait" />
+    </scroll_list>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifSmall"
+     height="60"
+     layout="topleft"
+     left="10"
+     name="help_label"
+     top_pad="10"
+     width="200">
+        All steps happen simultaneously, 
+unless you add wait steps.
+    </text>
+    <text
+     follows="top|left"
+     height="60"
+     layout="topleft"
+     left="10"
+     name="options_text"
+     top_pad="10"
+     width="205" />
+    <combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="10"
+     name="animation_list"
+     top_pad="10"
+     width="100" />
+    <combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="sound_list"
+     top_delta="0"
+     width="100" />
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     max_length="127"
+     name="chat_editor"
+     top_delta="0"
+     width="100" />
+    <radio_group
+     draw_border="false"
+     follows="top|left"
+     height="40"
+     layout="topleft"
+     left_pad="8"
+     name="animation_trigger_type"
+     top="445"
+     width="80">
+        <radio_item
+         height="16"
+         label="Start"
+         layout="topleft"
+         left="3"
+         name="start"
+         top="-11"
+         width="80" />
+        <radio_item
+         height="16"
+         label="Stop"
+         layout="topleft"
+         left_delta="0"
+         name="stop"
+         top_pad="10"
+         width="80" />
+    </radio_group>
+    <check_box
+     follows="top|left"
+     height="20"
+     label="until animations are done"
+     layout="topleft"
+     left="16"
+     name="wait_anim_check"
+     top="430"
+     width="100" />
+    <check_box
+     follows="top|left"
+     height="20"
+     label="time in seconds"
+     layout="topleft"
+     left_delta="0"
+     name="wait_time_check"
+     top_delta="20"
+     width="100" />
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     max_length="15"
+     name="wait_time_editor"
+     top_delta="0"
+     width="50" /-->   
+</floater>

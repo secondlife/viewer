@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="クラシファイド広告の編集" name="panel_edit_classified">
+	<panel.string name="location_notice">
+		（掲載後更新）
+	</panel.string>
+	<text name="title">
+		クラシファイド広告の編集
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="クリックして画像を選択"/>
+			<text name="Name:">
+				タイトル：
+			</text>
+			<text name="description_label">
+				説明：
+			</text>
+			<text name="location_label">
+				位置：
+			</text>
+			<text name="classified_location">
+				ローディング...
+			</text>
+			<button label="現在地に設定" name="set_to_curr_location_btn"/>
+			<combo_box name="content_type">
+				<combo_item name="mature_ci">
+					控えめコンテンツ
+				</combo_item>
+				<combo_item name="pg_ci">
+					一般コンテンツ
+				</combo_item>
+			</combo_box>
+			<spinner label="L$" name="price_for_listing" tool_tip="掲載価格" value="50"/>
+			<check_box label="毎週自動更新" name="auto_renew"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<button label="保存" name="save_changes_btn"/>
+		<button label="キャンセル" name="cancel_btn"/>
+	</panel>
+</panel>

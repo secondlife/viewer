@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="Landmarken erstellen"/>
+	<string name="title_edit_landmark" value="Landmarke bearbeiten"/>
+	<string name="title_landmark" value="Landmarke"/>
+	<string name="not_available" value="k.A."/>
+	<string name="unknown" value="(unbekannt)"/>
+	<string name="public" value="(öffentlich)"/>
+	<string name="server_update_text">
+		Ohne Serverupdate sind keine Ortsinformationen verfügbar.
+	</string>
+	<string name="server_error_text">
+		Zur Zeit gibt es keine Informationen zu diesem Standort. Bitte versuchen Sie es später.
+	</string>
+	<string name="server_forbidden_text">
+		Die Informationen über diesen Standort sind zugriffsbeschränkt.  Bitte wenden Sie sich bezüglich Ihrer Berechtigungen an den Eigentümer der Parzelle.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<string name="icon_PG" value="parcel_drk_PG"/>
+	<string name="icon_M" value="parcel_drk_M"/>
+	<string name="icon_R" value="parcel_drk_R"/>
+	<button name="back_btn" tool_tip="Hinten"/>
+	<text name="title" value="Ortsprofil"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="SampleRegion"/>
+			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="maturity_value" value="unbekannt"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="Eigentümer:"/>
+				<text name="creator_label" value="Ersteller:"/>
+				<text name="created_label" value="Erstellt:"/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="Titel:"/>
+				<text name="notes_label" value="Meine Notizen:"/>
+				<text name="folder_label" value="Landmarken-Position:"/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

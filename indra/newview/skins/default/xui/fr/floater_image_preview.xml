@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview" title="">
+	<text name="name_label">
+		Nom :
+	</text>
+	<text name="description_label">
+		Description :
+	</text>
+	<text name="preview_label">
+		Prévisualiser comme :
+	</text>
+	<combo_box label="Habits" left="126" name="clothing_type_combo">
+		<combo_box.item label="Image" name="Image"/>
+		<combo_box.item label="Cheveux" name="Hair"/>
+		<combo_box.item label="Tête de femme" name="FemaleHead"/>
+		<combo_box.item label="Corps de femme (haut)" name="FemaleUpperBody"/>
+		<combo_box.item label="Corps de femme (bas)" name="FemaleLowerBody"/>
+		<combo_box.item label="Tête d&apos;homme" name="MaleHead"/>
+		<combo_box.item label="Corps d&apos;homme (haut)" name="MaleUpperBody"/>
+		<combo_box.item label="Corps d&apos;homme (bas)" name="MaleLowerBody"/>
+		<combo_box.item label="Jupe" name="Skirt"/>
+		<combo_box.item label="Sculptie" name="SculptedPrim"/>
+	</combo_box>
+	<text name="bad_image_text">
+		Impossible de lire l&apos;image.
+
+Sauvegardez en Targa 24 bit (.tga).
+	</text>
+	<check_box label="Utiliser une compression sans perte" name="lossless_check"/>
+	<button label="Annuler" name="cancel_btn"/>
+	<button label="Charger ([AMOUNT] L$)" name="ok_btn"/>
+</floater>

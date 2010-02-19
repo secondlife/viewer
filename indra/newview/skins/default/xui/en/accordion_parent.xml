@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+  <panel  border_thickness="0" name="splitter_parent"
+    background_visible="true"
+       label="splitter_parent"
+       title=""
+       translate="false"
+    >
+  </panel>

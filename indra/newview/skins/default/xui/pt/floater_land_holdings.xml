@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="land holdings floater" title="MEU TERRENO">
+	<scroll_list name="parcel list">
+		<column label="Nome do Lote" name="name"/>
+		<column label="Região" name="location"/>
+		<column label="Tipo" name="type"/>
+		<column label="Área" name="area"/>
+	</scroll_list>
+	<button label="Teletransporte" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para o centro do terreno."/>
+	<button width="130" label="Mostrar no mapa" label_selected="Mostrar no mapa" name="Show on Map" tool_tip="Mostrar esse terreno no mapa do mundo."/>
+	<text name="contrib_label">
+		Contribuições para os seus grupos:
+	</text>
+	<scroll_list name="grant list">
+		<column label="Grupo" name="group"/>
+		<column label="Área" name="area"/>
+	</scroll_list>
+	<text name="allowed_label" width="380">
+		Propriedades de terreno permitidas com o plano de pagamento atual:
+	</text>
+	<text name="allowed_text" left_delta="390">
+		[AREA] m²
+	</text>
+	<text name="current_label">
+		Propriedades de terrenos atuais:
+	</text>
+	<text name="current_text" left_delta="390">
+		[AREA] m²
+	</text>
+	<text name="available_label">
+		Disponível para compra de terras:
+	</text>
+	<text name="available_text" left_delta="390">
+		[AREA] m²
+	</text>
+	<string name="area_string">
+		[AREA] m²
+	</string>
+</floater>

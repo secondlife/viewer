@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="MAPA DEL MUNDO">
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			Leyenda
+		</text>
+	</panel>
+	<panel>
+		<button label="Mostrar mi posición" label_selected="Mostrar mi posición" name="Show My Location" tool_tip="Centrar el mapa en la posición de mi avatar"/>
+		<text name="person_label">
+			Yo
+		</text>
+		<check_box label="Residente" name="people_chk"/>
+		<check_box label="Punto de Info" name="infohub_chk"/>
+		<text name="infohub_label">
+			Punto de Info
+		</text>
+		<check_box label="Terreno en venta" name="land_for_sale_chk"/>
+		<text name="land_sale_label">
+			Venta de terreno
+		</text>
+		<text name="auction_label">
+			por el propietario
+		</text>
+		<button label="Ir a la Base" label_selected="Ir a la Base" name="Go Home" tool_tip="Teleportar a mi Base"/>
+		<text name="Home_label">
+			Base
+		</text>
+		<text name="events_label">
+			Eventos:
+		</text>
+		<check_box label="&apos;PG&apos;" name="event_chk"/>
+		<check_box initial_value="true" label="&apos;Mature&apos;" name="event_mature_chk"/>
+		<text name="mature_label">
+			Mature
+		</text>
+		<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
+	</panel>
+	<panel>
+		<text name="find_on_map_label">
+			Encontrar en el mapa
+		</text>
+	</panel>
+	<panel>
+		<combo_box label="Amigos conectados" name="friend combo" tool_tip="Ver a los amigos en el mapa">
+			<combo_box.item label="Mis amigos conectados" name="item1"/>
+		</combo_box>
+		<combo_box label="Mis hitos" name="landmark combo" tool_tip="Hito a ver en el mapa">
+			<combo_box.item label="Mis hitos" name="item1"/>
+		</combo_box>
+		<search_editor label="Regiones alfabéticamente" name="location" tool_tip="Escriba el nombre de una región"/>
+		<button label="Encontrar" name="DoSearch" tool_tip="Buscar una región"/>
+		<scroll_list name="search_results">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="sim_name"/>
+		</scroll_list>
+		<button label="Teleportar" label_selected="Teleportar" name="Teleport" tool_tip="Teleportarse a la localización elegida"/>
+		<button label="Copiar la SLurl" name="copy_slurl" tool_tip="Copiar la SLurl de esta posición para usarla en una web."/>
+		<button label="Ver lo elegido" label_selected="Mostrar el destino" name="Show Destination" tool_tip="Centrar el mapa en la localización elegida"/>
+	</panel>
+	<panel>
+		<text name="zoom_label">
+			Zoom
+		</text>
+	</panel>
+	<panel>
+		<slider label="Zoom" name="zoom slider"/>
+	</panel>
+</floater>

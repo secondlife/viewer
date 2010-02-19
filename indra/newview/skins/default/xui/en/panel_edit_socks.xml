@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+ <panel
+	 follows="all"
+	 height="400"
+	 layout="topleft"
+	 left="10"
+	 name="edit_socks_panel"
+	 top_pad="10"
+	 width="313" >
+	 <panel
+	  border="true"
+	  follows="left|top|right" 
+	  height="100" 
+	  left="10" 
+	  layout="topleft" 
+	  name="avatar_socks_color_panel"
+	  top="0"
+	  width="293" >
+       <texture_picker
+        can_apply_immediately="true"
+        default_image_name="Default"
+        follows="left|top"
+        height="80"
+        label="Fabric"
+        layout="topleft"
+        left="10"
+        name="Fabric"
+        tool_tip="Click to choose a picture"
+        top="10"
+        width="64" />
+       <color_swatch
+        can_apply_immediately="true"
+        follows="left|top"
+        height="80"
+        label="Color/Tint"
+        layout="topleft"
+        left_pad="10"
+        name="Color/Tint"
+        tool_tip="Click to open color picker"
+        top="10"
+        width="64" />
+	 </panel>
+	 <accordion
+		follows="left|top|right|bottom"
+		height ="340"
+		left="10"
+		name="wearable_accordion"
+		top_pad="10"
+		width="303">
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="socks_main_tab"
+			title="Socks">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="socks_main_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+	</accordion>
+</panel>
+

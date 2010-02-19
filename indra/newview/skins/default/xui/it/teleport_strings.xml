@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<teleport_messages>
+	<message_set name="errors">
+		<message name="invalid_tport">
+			C&apos;è stato un problema nell&apos;elaborare la tua richiesta di teleport. Potresti aver bisogno di ricollegarti prima di poter usare il teleport. Se continui ad avere problemi, controlla per favore le FAQ del Supporto Tecnico a:
+www.secondlife.com/support.
+		</message>
+		<message name="invalid_region_handoff">
+			C&apos;è stato un problema nell&apos;elaborare il cambio di regione. Potresti aver bisogno di ricollegarti prima di poterlo effetuare. Se continui ad avere problemi, controlla per favore le FAQ del Supporto Tecnico a:
+www.secondlife.com/support.
+		</message>
+		<message name="blocked_tport">
+			Spiacenti, il teletrasporto è bloccato al momento. Prova di nuovo tra pochi istanti. Se ancora non potrai teletrasportarti, per favore scollegati e ricollegati per risolvere il problema.
+		</message>
+		<message name="nolandmark_tport">
+			Spiacenti, ma il sistema non riesce a localizzare la destinazione del landmark
+		</message>
+		<message name="timeout_tport">
+			Spiacenti, il sistema non riesce a completare il teletrasporto. Riprova tra un attimo.
+		</message>
+		<message name="noaccess_tport">
+			Spiacenti, ma non hai accesso nel luogo di destinazione richiesto.
+		</message>
+		<message name="missing_attach_tport">
+			Gli oggetti da te indossati non sono ancoa arrivati. Attendi ancora qualche secondo o scollegati e ricollegati prima di provare a teleportarti.
+		</message>
+		<message name="too_many_uploads_tport">
+			Il server della regione è al momento occupato e la tua richiesta di teletrasporto non può essere soddisfatta entro breve tempo. Per favore prova di nuovo tra qualche minuto o spostati in un&apos;area meno affollata.
+		</message>
+		<message name="expired_tport">
+			Spiacenti, il sistema non riesce a soddisfare la tua richiesta di teletrasporto entro un tempo ragionevole. Riprova tra qualche minuto.
+		</message>
+		<message name="expired_region_handoff">
+			Spiacenti, il sistema non riesce a completare il cambio di regione entro un tempo ragionevole. Riprova tra qualche minuto.
+		</message>
+		<message name="no_host">
+			Impossibile trovare la destinazione del teletrasporto; potrebbe essere temporaneamente non accessibile o non esistere più. Riprovaci tra qualche minuto.
+		</message>
+		<message name="no_inventory_host">
+			L&apos;inventario è temporaneamente inaccessibile.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			In invio a destinazione.
+		</message>
+		<message name="redirecting">
+			In reindirizzamento ad una nuova destinazione.
+		</message>
+		<message name="relaying">
+			In reinvio a destinazione.
+		</message>
+		<message name="sending_home">
+			In invio verso la destinazione casa.
+		</message>
+		<message name="sending_landmark">
+			In invio verso la destinazione del landmark.
+		</message>
+		<message name="completing">
+			Teletrasporto completato
+		</message>
+		<message name="resolving">
+			Elaborazione della destinazione in corso...
+		</message>
+		<message name="contacting">
+			Contattando la nuova regione.
+		</message>
+		<message name="arriving">
+			In arrivo a destinazione...
+		</message>
+		<message name="requesting">
+			Avvio teletrasporto....
+		</message>
+	</message_set>
+</teleport_messages>
