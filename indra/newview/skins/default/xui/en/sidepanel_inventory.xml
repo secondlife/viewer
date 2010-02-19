@@ -32,10 +32,10 @@
 			 width="330" />
 		<panel
 			 height="25"
-			 layout="bottomright"
+			 layout="topleft"
 			 name="button_panel"
-			 left="5"
-			 bottom="5"
+			 left="9"
+			 top_pad="-2"
 			 width="313">
 			<button
 				 enabled="true"
@@ -46,17 +46,17 @@
 				 left="0"
 				 name="info_btn"
 				 top="0"
-				 width="100" />
+				 width="153" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
 				 height="23"
 				 label="Wear"
 				 layout="topleft"
-				 left="130"
+				 left="156"
 				 name="wear_btn"
 				 top="0"
-				 width="100" />
+				 width="152" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
@@ -64,19 +64,19 @@
 				 label="Play"
 				 layout="topleft"
 				 name="play_btn"
-				 left="130"
+				 left="156"
 				 top="0"
-				 width="80" />
+				 width="152" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
 				 height="23"
 				 label="Teleport"
 				 layout="topleft"
-				 left="130"
+				 left="156"
 				 name="teleport_btn"
 				 top="0"
-				 width="100" />
+				 width="152" />
 		</panel>
 	</panel>
 
