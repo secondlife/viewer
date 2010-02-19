@@ -316,7 +316,7 @@
      height="20"
      layout="topleft"
      left="25"
-     name="Listen from"
+     name="voice_chat_settings"
      width="200"
      top="210">
 	  Voice Chat Settings
