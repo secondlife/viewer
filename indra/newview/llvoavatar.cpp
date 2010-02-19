@@ -3000,10 +3000,10 @@ LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 		(projected_vec(local_camera_at * root_rot, camera_to_av));
 	name_position += pixel_up_vec * 15.f;
 	return name_position;
-	}
+}
 
 void LLVOAvatar::idleUpdateNameTagColor(BOOL new_name, F32 alpha)
-	{
+{
 	llassert(mNameText);
 
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
@@ -3011,7 +3011,22 @@ void LLVOAvatar::idleUpdateNameTagColor(BOOL new_name, F32 alpha)
 		|| alpha != mNameAlpha
 		|| is_friend != mNameFriend)
 	{
-		const char* color_name = (is_friend ? "AvatarNameFriendColor" : "AvatarNameColor");
+		const char* color_name = "AvatarNameColor";
+		if (is_friend)
+		{
+			color_name = "AvatarNameFriendColor";
+		}
+		else
+		{
+			// IDEVO can we avoid doing this lookup repeatedly?
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::useDisplayNames()
+				&& LLAvatarNameCache::get(getID(), &av_name)
+				&& av_name.mIsLegacy)
+			{
+				color_name = "AvatarNameLegacyColor";
+			}
+		}
 		LLColor4 avatar_name_color =
 			LLUIColorTable::getInstance()->getColor( color_name );
 		avatar_name_color.setAlpha(alpha);
