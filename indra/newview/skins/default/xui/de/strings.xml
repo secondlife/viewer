@@ -825,7 +825,7 @@
 		ESC drücken, um zur Normalansicht zurückzukehren
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Im Inventar wurden keine passenden Objekte gefunden.
+		Im Inventar wurden keine passenden Objekte gefunden.  Versuchen Sie es mit [secondlife:///app/search/groups „Suche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Hier eine Landmarke hin ziehen, um diese zu Ihrem Favoriten hinzuzufügen.
@@ -1504,7 +1504,7 @@
 		(wird nach Veröffentlichung aktualisiert)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Es wurde keine Auswahl getroffen/keine Anzeigen ausgewählt
+		Sie haben keine Auswahl oder Anzeigen erstelllt. Klicken Sie auf die „Plus&quot;-Schaltfläche, um eine Auswahl oder Anzeige zu erstellen.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Wird geladen...
