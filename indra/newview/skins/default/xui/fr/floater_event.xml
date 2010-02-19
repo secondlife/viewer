@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Événement" name="Event" title="DÉTAILS SUR L&apos;ÉVÉNEMENT">
+	<floater.string name="none">
+		aucun
+	</floater.string>
+	<floater.string name="notify">
+		Prévenir
+	</floater.string>
+	<floater.string name="dont_notify">
+		Ne pas prévenir
+	</floater.string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<text name="event_name">
+				Nameless Event...of Doom! De doom! Doom doom.
+			</text>
+			<text name="event_category">
+				(pas de catégorie)
+			</text>
+			<text name="event_runby_label">
+				Organisé par :
+			</text>
+			<text initial_value="(récupération en cours)" name="event_runby"/>
+			<text name="event_date">
+				10/10/2010
+			</text>
+			<text name="event_duration">
+				1 heure
+			</text>
+			<text name="event_cover">
+				Gratuit
+			</text>
+			<text name="event_location_label">
+				Lieu :
+			</text>
+			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<text name="rating_label" value="Catégorie :"/>
+			<text name="rating_value" value="inconnu"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<button name="create_event_btn" tool_tip="Créer un événement"/>
+			<button name="god_delete_event_btn" tool_tip="Supprimer l&apos;événement"/>
+			<button label="Me prévenir" name="notify_btn"/>
+			<button label="Téléporter" name="teleport_btn"/>
+			<button label="Carte" name="map_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>
