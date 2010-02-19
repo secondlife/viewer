@@ -2,25 +2,31 @@
  * @file llimagegl.cpp
  * @brief Generic GL image handler
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -99,24 +105,15 @@ void check_all_images()
 	}
 }
 
-void LLImageGL::checkTexSize(bool forced) const
+void LLImageGL::checkTexSize() const
 {
-	if ((forced || gDebugGL) && mTarget == GL_TEXTURE_2D)
+	if (gDebugGL && mTarget == GL_TEXTURE_2D)
 	{
-		{
-			//check viewport
-			GLint vp[4] ;
-			glGetIntegerv(GL_VIEWPORT, vp) ;
-			llcallstacks << "viewport: " << vp[0] << " : " << vp[1] << " : " << vp[2] << " : " << vp[3] << llcallstacksendl ;
-		}
-
 		GLint texname;
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
 		BOOL error = FALSE;
 		if (texname != mTexName)
 		{
-			llinfos << "Bound: " << texname << " Should bind: " << mTexName << " Default: " << LLImageGL::sDefaultGLTexture->getTexName() << llendl;
-
 			error = TRUE;
 			if (gDebugSession)
 			{
@@ -132,8 +129,6 @@ void LLImageGL::checkTexSize(bool forced) const
 		glGetTexLevelParameteriv(mTarget, 0, GL_TEXTURE_WIDTH, (GLint*)&x);
 		glGetTexLevelParameteriv(mTarget, 0, GL_TEXTURE_HEIGHT, (GLint*)&y) ;
 		stop_glerror() ;
-		llcallstacks << "w: " << x << " h: " << y << llcallstacksendl ;
-
 		if(!x || !y)
 		{
 			return ;
@@ -143,13 +138,11 @@ void LLImageGL::checkTexSize(bool forced) const
 			error = TRUE;
 			if (gDebugSession)
 			{
-				gFailLog << "wrong texture size and discard level!" << 
-					mWidth << " Height: " << mHeight << " Current Level: " << mCurrentDiscardLevel << std::endl;
+				gFailLog << "wrong texture size and discard level!" << std::endl;
 			}
 			else
 			{
-				llerrs << "wrong texture size and discard level: width: " << 
-					mWidth << " Height: " << mHeight << " Current Level: " << mCurrentDiscardLevel << llendl ;
+				llerrs << "wrong texture size and discard level!" << llendl ;
 			}
 		}
 
@@ -1051,9 +1044,7 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 {
 	if (gGL.getTexUnit(0)->bind(this, false, true))
 	{
-		checkTexSize(true) ;
-		llcallstacks << fb_x << " : " << fb_y << " : " << x_pos << " : " << y_pos << " : " << width << " : " << height << llcallstacksendl ;
-
+		//checkTexSize() ;
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, fb_x, fb_y, x_pos, y_pos, width, height);
 		mGLTextureCreated = true;
 		stop_glerror();
@@ -1648,7 +1639,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 	}
 }
 
-void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
+void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 {
 	if(!mNeedsAlphaAndPickMask)
 	{
@@ -1656,24 +1647,64 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 	}
 
 	U32 length = w * h;
-	const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset ;
 	
-	S32 sample[16];
-	memset(sample, 0, sizeof(S32)*16);
+	U32 sample[16];
+	memset(sample, 0, sizeof(U32)*16);
 
-	for (U32 i = 0; i < length; i++)
+	// generate histogram of quantized alpha.
+	// also add-in the histogram of a 2x2 box-sampled version.  The idea is
+	// this will mid-skew the data (and thus increase the chances of not
+	// being used as a mask) from high-frequency alpha maps which
+	// suffer the worst from aliasing when used as alpha masks.
+	if (w >= 2 && h >= 2)
 	{
-		++sample[*current/16];
-		current += mAlphaStride ;
-	}
+		llassert(w%2 == 0);
+		llassert(h%2 == 0);
+		const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
+		for (U32 y = 0; y < h; y+=2)
+		{
+			const GLubyte* current = rowstart;
+			for (U32 x = 0; x < w; x+=2)
+			{
+				U32 s1 = current[0];
+				U32 s2 = current[w * mAlphaStride];
+				current += mAlphaStride;
+				U32 s3 = current[0];
+				U32 s4 = current[w * mAlphaStride];
+				current += mAlphaStride;
 
-	U32 total = 0;
+				++sample[s1/16];
+				++sample[s2/16];
+				++sample[s3/16];
+				++sample[s4/16];
+
+				sample[(s1+s2+s3+s4)/(16 * 4)] += 4;
+			}
+			
+			rowstart += 2 * w * mAlphaStride;
+		}
+		length += length;
+	}
+	else
+	{
+		const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
+		for (U32 i = 0; i < length; i++)
+		{
+			++sample[*current/16];
+			current += mAlphaStride;
+		}
+	}
+	
+	// if more than 1/16th of alpha samples are mid-range, this
+	// shouldn't be treated as a 1-bit mask
+
+	U32 midrangetotal = 0;
 	for (U32 i = 4; i < 11; i++)
 	{
-		total += sample[i];
+		midrangetotal += sample[i];
 	}
 
-	if (total > length/16)
+	if (midrangetotal > length/16)
 	{
 		mIsMask = FALSE;
 	}
@@ -1741,27 +1772,15 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 	if (mPickMask)
 	{
-		F32 u,v;
-		if (LL_LIKELY(tc.isFinite()))
-		{
-			u = tc.mV[0] - floorf(tc.mV[0]);
-			v = tc.mV[1] - floorf(tc.mV[1]);
-		}
-		else
-		{
-			LL_WARNS_ONCE("render") << "Ugh, non-finite u/v in mask pick" << LL_ENDL;
-			u = v = 0.f;
-			// removing assert per EXT-4388
-			// llassert(false);
-		}
+		F32 u = tc.mV[0] - floorf(tc.mV[0]);
+		F32 v = tc.mV[1] - floorf(tc.mV[1]);
 
 		if (LL_UNLIKELY(u < 0.f || u > 1.f ||
 				v < 0.f || v > 1.f))
 		{
 			LL_WARNS_ONCE("render") << "Ugh, u/v out of range in image mask pick" << LL_ENDL;
 			u = v = 0.f;
-			// removing assert per EXT-4388
-			// llassert(false);
+			llassert(false);
 		}
 
 		S32 x = llfloor(u * mPickMaskWidth);
