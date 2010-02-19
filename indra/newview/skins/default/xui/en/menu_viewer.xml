@@ -354,6 +354,24 @@
                function="ToggleControl"
                parameter="ShowParcelOwners" />
           </menu_item_check>
+          <menu_item_check
+             label="Coordinates"
+             name="Coordinates">
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="NavBarShowCoordinates" />
+            <menu_item_check.on_check
+               control="NavBarShowCoordinates" />
+          </menu_item_check>
+          <menu_item_check
+             label="Parcel Properties"
+             name="Parcel Properties">
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="NavBarShowParcelProperties" />
+            <menu_item_check.on_check
+               control="NavBarShowParcelProperties" />
+          </menu_item_check>
         </menu>
         <menu_item_separator
          layout="topleft" />

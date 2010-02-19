@@ -303,6 +303,7 @@ void LLNearbyChat::loadHistory()
 		chat.mFromID = from_id;
 		chat.mText = msg[IM_TEXT].asString();
 		chat.mTimeStr = msg[IM_TIME].asString();
+		chat.mChatStyle = CHAT_STYLE_HISTORY;
 		addMessage(chat, true, do_not_log);
 
 		it++;

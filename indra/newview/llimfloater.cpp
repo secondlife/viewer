@@ -633,12 +633,14 @@ void LLIMFloater::updateMessages()
 			LLUUID from_id = msg["from_id"].asUUID();
 			std::string from = msg["from"].asString();
 			std::string message = msg["message"].asString();
+			bool is_history = msg["is_history"].asBoolean();
 
 			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mSessionID = mSessionID;
 			chat.mFromName = from;
 			chat.mTimeStr = time;
+			chat.mChatStyle = is_history ? CHAT_STYLE_HISTORY : chat.mChatStyle;
 
 			// process offer notification
 			if (msg.has("notification_id"))

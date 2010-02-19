@@ -43,7 +43,7 @@
 
 using namespace LLNotificationsUI;
 
-class LLOnalineStatusToast : public LLToastPanel
+class LLOnlineStatusToast : public LLToastPanel
 {
 public:
 
@@ -56,9 +56,9 @@ public:
 		Params() {}
 	};
 
-	LLOnalineStatusToast(Params& p) : LLToastPanel(p.notification)
+	LLOnlineStatusToast(Params& p) : LLToastPanel(p.notification)
 	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_online_status.xml");
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_online_status_toast.xml");
 
 		childSetValue("avatar_icon", p.avatar_id);
 		childSetValue("message", p.message);
@@ -148,11 +148,11 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		LLToastPanel* notify_box = NULL;
 		if("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
 		{
-			LLOnalineStatusToast::Params p;
+			LLOnlineStatusToast::Params p;
 			p.notification = notification;
 			p.message = notification->getMessage();
 			p.avatar_id = notification->getPayload()["FROM_ID"];
-			notify_box = new LLOnalineStatusToast(p);
+			notify_box = new LLOnlineStatusToast(p);
 		}
 		else
 		{

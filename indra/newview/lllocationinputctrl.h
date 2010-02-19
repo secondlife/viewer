@@ -174,6 +174,8 @@ private:
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
 	LLParcelChangeObserver*		mParcelChangeObserver;
 
+	boost::signals2::connection	mCoordinatesControlConnection;
+	boost::signals2::connection	mParcelPropertiesControlConnection;
 	boost::signals2::connection	mParcelMgrConnection;
 	boost::signals2::connection	mLocationHistoryConnection;
 	LLUIImage* mLandmarkImageOn;

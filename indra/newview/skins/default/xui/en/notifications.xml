@@ -5205,7 +5205,21 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    type="notify">
 [NAME] declined your friendship offer.
   </notification>
+  
+    <notification
+   icon="notify.tga"
+   name="FriendshipAcceptedByMe"
+   type="offer">
+Friend request accepted.
+  </notification>
 
+  <notification
+   icon="notify.tga"
+   name="FriendshipDeclinedByMe"
+   type="offer">
+Friend request declined.
+  </notification>
+  
   <notification
    icon="notify.tga"
    name="OfferCallingCard"

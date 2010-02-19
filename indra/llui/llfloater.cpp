@@ -1574,22 +1574,25 @@ void LLFloater::draw()
 
 		LLUIImage* image = NULL;
 		LLColor4 color;
+		LLColor4 overlay_color;
 		if (isBackgroundOpaque())
 		{
 			// NOTE: image may not be set
 			image = getBackgroundImage();
 			color = getBackgroundColor();
+			overlay_color = getBackgroundImageOverlay();
 		}
 		else
 		{
 			image = getTransparentImage();
 			color = getTransparentColor();
+			overlay_color = getTransparentImageOverlay();
 		}
 
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), UI_VERTEX_COLOR % alpha);
+			image->draw(getLocalRect(), overlay_color % alpha);
 		}
 		else
 		{
