@@ -5216,7 +5216,7 @@ Friend request accepted.
   <notification
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
-   type="notify">
+   type="offer">
 Friend request declined.
   </notification>
   
