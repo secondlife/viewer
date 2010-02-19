@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_media">
+	<string name="media_item_count_format">
+		（メディアアイテム %ld ）
+	</string>
+	<string name="empty_item_text">
+		&lt;空&gt;
+	</string>
+	<string name="parcel_media_name">
+		区画ストリーミングメディア
+	</string>
+	<string name="parcel_audio_name">
+		区画ストリーミングオーディオ
+	</string>
+	<string name="playing_suffix">
+		（再生中）
+	</string>
+	<panel name="minimized_controls">
+		<button label="すべて停止" name="all_nearby_media_disable_btn" tool_tip="近くのメディアをすべてオフにします"/>
+		<button label="すべて開始" name="all_nearby_media_enable_btn" tool_tip="近くのメディアをすべてオンにします"/>
+		<button name="open_prefs_btn" tool_tip="メディアの設定を開きます"/>
+		<button label="詳細 &gt;&gt;" label_selected="簡易 &lt;&lt;" name="more_less_btn" tool_tip="アドバンスコントロール"/>
+	</panel>
+	<panel name="nearby_media_panel">
+		<combo_box name="show_combo">
+			<combo_box.item label="すべて" name="All"/>
+			<combo_box.item label="この区画内" name="WithinParcel"/>
+			<combo_box.item label="この区画外" name="OutsideParcel"/>
+		</combo_box>
+		<scroll_list name="media_list">
+			<scroll_list.columns label="近接" name="media_proximity"/>
+			<scroll_list.columns label="表示" name="media_visibility"/>
+			<scroll_list.columns label="クラス" name="media_class"/>
+			<scroll_list.columns label="名前" name="media_name"/>
+			<scroll_list.columns label="デバッグ" name="media_debug"/>
+		</scroll_list>
+		<panel>
+			<layout_stack name="media_controls">
+				<layout_panel name="stop">
+					<button name="stop_btn" tool_tip="選択したメディアを停止"/>
+				</layout_panel>
+				<layout_panel name="play">
+					<button name="play_btn" tool_tip="選択したメディアを再生"/>
+				</layout_panel>
+				<layout_panel name="pause">
+					<button name="pause_btn" tool_tip="選択したメディアを一時停止"/>
+				</layout_panel>
+				<layout_panel name="volume_slider_ctrl">
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="選択したメディアの音量"/>
+				</layout_panel>
+				<layout_panel name="mute">
+					<button name="mute_btn" tool_tip="選択したメディアの音をミュート"/>
+				</layout_panel>
+				<layout_panel name="zoom">
+					<button name="zoom_btn" tool_tip="選択したメディアに近づく"/>
+				</layout_panel>
+				<layout_panel name="unzoom">
+					<button name="unzoom_btn" tool_tip="選択したメディアから遠ざかる"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>
