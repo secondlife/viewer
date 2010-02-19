@@ -9,8 +9,8 @@
 		<menu_item_call label="Mein Profil" name="Profile"/>
 		<menu_item_call label="Mein Aussehen" name="Appearance"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
-		<menu_item_call label="Mein Inventar" name="ShowSidetrayInventory"/>
-		<menu_item_call label="Meine Gesten" name="Gestures"/>
+		<menu_item_check label="Mein Inventar" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Meine Gesten" name="Gestures"/>
 		<menu label="Mein Status" name="Status">
 			<menu_item_call label="Abwesend" name="Set Away"/>
 			<menu_item_call label="Beschäftigt" name="Set Busy"/>
@@ -24,7 +24,6 @@
 		<menu_item_call label="Meine Gruppen" name="My Groups"/>
 		<menu_item_check label="Chat in der Nähe" name="Nearby Chat"/>
 		<menu_item_call label="Leute in der Nähe" name="Active Speakers"/>
-		<menu_item_check label="Medien in der Nähe" name="Nearby Media"/>
 	</menu>
 	<menu label="Welt" name="World">
 		<menu_item_check label="Minikarte" name="Mini-Map"/>
@@ -40,6 +39,10 @@
 		<menu label="Anzeigen" name="LandShow">
 			<menu_item_check label="Bewegungssteuerung" name="Movement Controls"/>
 			<menu_item_check label="Ansichtsteuerung" name="Camera Controls"/>
+			<menu_item_check label="Bannlinien" name="Ban Lines"/>
+			<menu_item_check label="Strahlen" name="beacons"/>
+			<menu_item_check label="Grundstücksgrenzen" name="Property Lines"/>
+			<menu_item_check label="Landeigentümer" name="Land Owners"/>
 		</menu>
 		<menu_item_call label="Teleport nach Hause" name="Teleport Home"/>
 		<menu_item_call label="Hier als Zuhause wählen" name="Set Home to Here"/>
