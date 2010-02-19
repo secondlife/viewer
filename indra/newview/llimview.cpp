@@ -34,6 +34,7 @@
 
 #include "llimview.h"
 
+#include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -1940,6 +1941,13 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 					{
 						if (gCacheName->getFullName(caller_id, correct_session_name))
 						{
+							// IDEVO really should be using callbacks here
+							LLAvatarName av_name;
+							if (LLAvatarNameCache::useDisplayNames()
+								&& LLAvatarNameCache::get(caller_id, &av_name))
+							{
+								correct_session_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+							}
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
 					}

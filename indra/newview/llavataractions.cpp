@@ -35,11 +35,11 @@
 
 #include "llavataractions.h"
 
+#include "llavatarnamecache.h"	// IDEVO
 #include "llsd.h"
 #include "lldarray.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-
 #include "roles_constants.h"    // for GP_MEMBER_INVITE
 
 #include "llagent.h"
@@ -187,6 +187,14 @@ void LLAvatarActions::startIM(const LLUUID& id)
 		return;
 	}
 
+	// IDEVO
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(id, &av_name))
+	{
+		name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+	}
+
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
 	if (session_id != LLUUID::null)
 	{
@@ -218,6 +226,13 @@ void LLAvatarActions::startCall(const LLUUID& id)
 
 	std::string name;
 	gCacheName->getFullName(id, name);
+	// IDEVO
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(id, &av_name))
+	{
+		name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+	}
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id, true);
 	if (session_id != LLUUID::null)
 	{

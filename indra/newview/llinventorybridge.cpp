@@ -31,7 +31,10 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llinventorybridge.h"
+
+#include "llavatarnamecache.h"	// IDEVO
 
 #include "llagent.h"
 #include "llagentwearables.h"
@@ -3555,6 +3558,13 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 		{
 			std::string callingcard_name;
 			gCacheName->getFullName(item->getCreatorUUID(), callingcard_name);
+			// IDEVO
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::useDisplayNames()
+				&& LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
+			{
+				callingcard_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+			}
 			LLUUID session_id = gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
 			if (session_id != LLUUID::null)
 			{
