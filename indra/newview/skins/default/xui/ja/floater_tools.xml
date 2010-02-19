@@ -7,16 +7,16 @@
 		選択した側をクリックし、ドラッグして引き伸ばす
 	</floater.string>
 	<floater.string name="status_move">
-		移動：ﾄﾞﾗｯｸﾞ、コピー：Shiftを押しながらﾄﾞﾗｯｸﾞ
+		移動：ドラッグ、コピー：Shift + ドラッグ
 	</floater.string>
 	<floater.string name="status_modifyland">
 		土地をクリックし、ボタンを押したまま入力して修正変更
 	</floater.string>
 	<floater.string name="status_camera">
-		クリック・ドラッグで視界移動
+		クリック + ドラッグで視界移動
 	</floater.string>
 	<floater.string name="status_grab">
-		ドラッグで移動、Ctrlで持ち上げ、Ctrl+Shiftで回転
+		ドラッグで移動、Ctrlで持ち上げ、Ctrl + Shiftで回転
 	</floater.string>
 	<floater.string name="status_place">
 		インワールドでクリックして作成
@@ -31,10 +31,10 @@
 		ローカル
 	</floater.string>
 	<floater.string name="grid_world_text">
-		世界
+		インワールド
 	</floater.string>
 	<floater.string name="grid_reference_text">
-		参照
+		レファレンス
 	</floater.string>
 	<floater.string name="grid_attachment_text">
 		アタッチメント
@@ -50,12 +50,12 @@
 	<radio_group name="focus_radio_group">
 		<radio_item label="ズーム" name="radio zoom"/>
 		<radio_item label="軌跡（Ctrl）" name="radio orbit"/>
-		<radio_item label="水平・垂直移動 (Ctrl+Shift)" name="radio pan"/>
+		<radio_item label="水平・垂直移動 (Ctrl + Shift)" name="radio pan"/>
 	</radio_group>
 	<radio_group name="move_radio_group">
 		<radio_item label="移動" name="radio move"/>
 		<radio_item label="持ち上げる（Ctrl）" name="radio lift"/>
-		<radio_item label="回転 (Ctrl+Shift)" name="radio spin"/>
+		<radio_item label="回転 (Ctrl + Shift)" name="radio spin"/>
 	</radio_group>
 	<radio_group name="edit_radio_group">
 		<radio_item label="移動" name="radio position"/>
@@ -68,14 +68,14 @@
 		þ: [COUNT]
 	</text>
 	<check_box label="両側を引伸ばす" left="116" name="checkbox uniform"/>
-	<check_box initial_value="true" label="テクスチャーを引伸ばす" name="checkbox stretch textures"/>
+	<check_box initial_value="true" label="テクスチャを引伸ばす" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="グリッドポイントにスナップ" left_delta="27" name="checkbox snap to grid"/>
 	<combo_box left_delta="60" name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択" width="76">
-		<combo_box.item label="ワールドグリッド" name="World"/>
+		<combo_box.item label="インワールドグリッド" name="World"/>
 		<combo_box.item label="ローカルグリッド" name="Local"/>
 		<combo_box.item label="リファレンスグリッド" name="Reference"/>
 	</combo_box>
-	<button label="オプション" label_selected="オプション" name="Options..." tool_tip="グリッドオプションをもっと見る"/>
+	<button label="オプション" label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="キューブ"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="プリズム"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="ピラミッド"/>
@@ -150,7 +150,7 @@
 				合計： L$
 			</panel.string>
 			<panel.string name="Cost Per Unit">
-				Price Per: L$
+				単価： L$
 			</panel.string>
 			<panel.string name="Cost Mixed">
 				混合価格
@@ -165,7 +165,7 @@
 				説明：
 			</text>
 			<text name="Creator:">
-				クリエーター
+				制作者：
 			</text>
 			<text name="Creator Name">
 				Esbee Linden
@@ -201,7 +201,7 @@
 				<combo_box.item label="オリジナル" name="Original"/>
 			</combo_box>
 			<spinner label="価格： L$" name="Edit Cost"/>
-			<check_box label="検索に表示" name="search_check" tool_tip="検索結果で、このオブジェクトを人に見せる"/>
+			<check_box label="検索に表示" name="search_check" tool_tip="検索結果にこのオブジェクトを表示します"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
 					あなたはこのオブジェクトを修正できます
@@ -216,7 +216,7 @@
 				</text>
 				<check_box label="修正" name="checkbox next owner can modify"/>
 				<check_box label="コピー" name="checkbox next owner can copy"/>
-				<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+				<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
 				<text name="B:">
 					B:
 				</text>
@@ -238,7 +238,7 @@
 			</panel>
 		</panel>
 		<panel label="形状" name="Object">
-			<check_box label="ロック済み" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。 この機能を使うと、構築中に意図しない編集を防ぐことができます。"/>
+			<check_box label="ロック済み" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。 この機能を使うと、制作中の意図せぬ編集を防ぐことができます。"/>
 			<check_box label="物理" name="Physical Checkbox Ctrl" tool_tip="オブジェクトに対する重力の作用と影響を有効にします"/>
 			<check_box label="臨時" name="Temporary Checkbox Ctrl" tool_tip="制作後 1 分でオブジェクトは削除されます"/>
 			<check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクト同士の衝突またはオブジェクトとアバターの衝突を回避します"/>
@@ -280,7 +280,7 @@
 				<combo_box.item label="ゴム" name="Rubber"/>
 			</combo_box>
 			<text name="text cut">
-				パスカット (始点・終点)
+				パスカット（始点と終点）
 			</text>
 			<spinner label="B" name="cut begin"/>
 			<spinner label="E" name="cut end"/>
@@ -300,7 +300,7 @@
 				<combo_box.item label="三角形" name="Triangle"/>
 			</combo_box>
 			<text name="text twist">
-				ひねり (始点・終点)
+				ひねり（始点と終点）
 			</text>
 			<spinner label="B" name="Twist Begin"/>
 			<spinner label="E" name="Twist End"/>
@@ -318,13 +318,13 @@
 			<spinner label="X" name="Shear X"/>
 			<spinner label="Y" name="Shear Y"/>
 			<text name="advanced_cut">
-				プロフィールカット (始点・終点)
+				プロフィールカット（始点と終点）
 			</text>
 			<text name="advanced_dimple">
-				くぼみ (始点・終点)
+				くぼみ（始点と終点）
 			</text>
 			<text name="advanced_slice">
-				切り取り (始点・終点)
+				切り取り（始点と終点）
 			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
@@ -339,7 +339,7 @@
 			<text name="text revolutions">
 				回転体
 			</text>
-			<texture_picker label="スカルプトテクスチャー" name="sculpt texture control" tool_tip="クリックして写真を選択してください。"/>
+			<texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして写真を選択してください。"/>
 			<check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムを X 軸上で反転させます"/>
 			<check_box label="裏返し" name="sculpt invert control" tool_tip="スカルプトプリムを反転させて裏返します"/>
 			<text name="label sculpt type">
@@ -355,20 +355,20 @@
 		</panel>
 		<panel label="特徴" name="Features">
 			<text name="select_single">
-				プリムを1つだけ選択して編集してください
+				プリムを 1 つだけ選択して編集してください
 			</text>
 			<text name="edit_object">
 				オブジェクトの特徴を編集：
 			</text>
-			<check_box label="フレキシブル・パス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
+			<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
 			<spinner label="柔軟性" label_width="72" name="FlexNumSections" width="135"/>
 			<spinner label="重力" label_width="72" name="FlexGravity" width="135"/>
 			<spinner label="ドラッグ" label_width="72" name="FlexFriction" width="135"/>
 			<spinner label="風" label_width="72" name="FlexWind" width="135"/>
 			<spinner label="緊張" label_width="72" name="FlexTension" width="135"/>
-			<spinner label="X軸方向の力" label_width="72" name="FlexForceX" width="135"/>
-			<spinner label="Y軸方向の力" label_width="72" name="FlexForceY" width="135"/>
-			<spinner label="Z軸方向の力" label_width="72" name="FlexForceZ" width="135"/>
+			<spinner label="X 軸方向の力" label_width="72" name="FlexForceX" width="135"/>
+			<spinner label="Y 軸方向の力" label_width="72" name="FlexForceY" width="135"/>
+			<spinner label="Z 軸方向の力" label_width="72" name="FlexForceZ" width="135"/>
 			<check_box label="光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します"/>
 			<color_swatch label="" left_delta="74" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択します（遅延レンダリング有効時のみ）"/>
@@ -456,7 +456,7 @@
 				<button name="add_media" tool_tip="メディアを追加します"/>
 				<button name="delete_media" tool_tip="このメディアテクスチャを削除します"/>
 				<button name="edit_media" tool_tip="このメディアを編集します"/>
-				<button label="揃える" label_selected="メディアを一列に揃える" name="button align" tool_tip="メディアテクスチャを一列に揃えます（最初に読み込む必要があります）"/>
+				<button label="揃える" label_selected="メディアを一列に揃えます" name="button align" tool_tip="メディアテクスチャを一列に揃えます（最初に読み込む必要があります）"/>
 			</panel>
 		</panel>
 		<panel label="中身" name="Contents">

@@ -37,7 +37,7 @@ Maximal 200 pro Gruppe täglich
 			Anhängen:
 		</text>
 		<text name="string">
-			Das Objekt hierin ziehen und ablegen, um es anzuhängen:
+			Das Objekt hierhin ziehen und ablegen, um es anzuhängen:
 		</text>
 		<button label="Entfernen" label_selected="Anhang entfernen" name="remove_attachment" tool_tip="Anhang von Ihrer Benachrichtigung entfernen"/>
 		<button label="Senden" label_selected="Senden" name="send_notice"/>

@@ -1256,7 +1256,7 @@
 		（不明）
 	</string>
 	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
-	<string name="NextStipendDay" value="次回のお小遣い支給日は"/>
+	<string name="NextStipendDay" value="です。次回のお小遣い支給日："/>
 	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
 	<string name="Balance">
 		残高
@@ -1316,10 +1316,10 @@
 		区画のスクリプトURL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		使用されたURL： [MAX] 中 [COUNT] ：[AVAILABLE] 利用可
+		使用された URL： [MAX] 中 [COUNT] ：[AVAILABLE] 利用可
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		使用されたURL： [COUNT]
+		使用された URL： [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
 		情報のリクエスト中にエラーが発生しました
@@ -1433,13 +1433,13 @@
 		HUD（中央 2）
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		HUD右上
+		HUD（右上）
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
 		HUD（上・中央）
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		HUD 左上
+		HUD（左上）
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
 		HUD（中央 1）
@@ -3307,7 +3307,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		[FIRST] [LAST]はオフラインです。
 	</string>
 	<string name="invite_message">
-		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
+		このボイスチャットに応答/接続する場合は、[BUTTON NAME] をクリックしてください。
 	</string>
 	<string name="muted_message">
 		この住人をブロックしています。 メッセージを送ると、ブロックが自動的に解除されます。
@@ -3331,7 +3331,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		あなたにはその能力がありません。
 	</string>
 	<string name="not_a_mod_error">
-		あなたはセッション・モデレータではありません。
+		あなたはセッションモデレータではありません。
 	</string>
 	<string name="muted">
 		グループのモデレーターが、あなたのテキストチャットを禁止しました。
@@ -3340,13 +3340,13 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		グループモデレータがあなたのテキストチャットを無効化しました
 	</string>
 	<string name="add_session_event">
-		[RECIPIENT] とのチャット・セッションにユーザーを追加することができません
+		[RECIPIENT] とのチャットセッションにユーザーを追加することができません
 	</string>
 	<string name="message">
 		[RECIPIENT] とのチャットセッションに、メッセージを送信することができません。
 	</string>
 	<string name="message_session_event">
-		[RECIPIENT] とのチャット・セッションにメッセージを送ることができません
+		[RECIPIENT] とのチャットセッションにメッセージを送ることができません
 	</string>
 	<string name="mute">
 		モデレート中にエラーが発生しました。
@@ -3358,7 +3358,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		あなたはグループから削除されました。
 	</string>
 	<string name="close_on_no_ability">
-		このチャット・セッションを継続することはできません
+		このチャットセッションを継続することはできません
 	</string>
 	<string name="unread_chat_single">
 		[SOURCES] は何か新しいことを言いました。
