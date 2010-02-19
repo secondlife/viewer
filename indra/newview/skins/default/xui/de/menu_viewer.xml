@@ -9,7 +9,7 @@
 		<menu_item_call label="Mein Profil" name="Profile"/>
 		<menu_item_call label="Mein Aussehen" name="Appearance"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
-		<menu_item_call label="Inventar auf Seitenleiste anzeigen" name="ShowSidetrayInventory"/>
+		<menu_item_call label="Mein Inventar" name="ShowSidetrayInventory"/>
 		<menu_item_call label="Meine Gesten" name="Gestures"/>
 		<menu label="Mein Status" name="Status">
 			<menu_item_call label="Abwesend" name="Set Away"/>
