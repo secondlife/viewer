@@ -100,10 +100,10 @@ const static int IDX_TEXT = 3;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
-class LLLogChatTimeScaner: public LLSingleton<LLLogChatTimeScaner>
+class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
 {
 public:
-	LLLogChatTimeScaner()
+	LLLogChatTimeScanner()
 	{
 		// Note, date/time facets will be destroyed by string streams
 		mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
@@ -464,7 +464,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im)
 		boost::trim(timestamp);
 		timestamp.erase(0, 1);
 		timestamp.erase(timestamp.length()-1, 1);
-		LLLogChatTimeScaner::instance().checkAndCutOffDate(timestamp);
+		LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
 		im[IM_TIME] = timestamp;
 	}
 	else
