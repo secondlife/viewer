@@ -374,7 +374,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		ピック [PICK] を削除しますか？
+		ピック「 [PICK] 」を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -1878,7 +1878,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="WLDeletePresetAlert">
-		[SKY] を削除しますか？
+		「 [SKY] 」を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="WLNoEditDefault">

@@ -6,7 +6,7 @@
 				<panel name="profile_scroll_panel">
 					<text name="status_message" value="個人的メモ："/>
 					<text name="status_message2" value="この人に許可："/>
-					<check_box label="オンライン状況の確認" name="status_check"/>
+					<check_box label="オンライン状態の確認" name="status_check"/>
 					<check_box label="地図で居場所を確認" name="map_check"/>
 					<check_box label="私のオブジェクトの編集・削除・取得" name="objects_check"/>
 				</panel>

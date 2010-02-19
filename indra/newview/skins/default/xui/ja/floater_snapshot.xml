@@ -65,8 +65,8 @@
 	</text>
 	<combo_box label="画像レイヤー" name="layer_types">
 		<combo_box.item label="色" name="Colors"/>
-		<combo_box.item label="深さ" name="Depth"/>
-		<combo_box.item label="オグジェクトのつや消し" name="ObjectMattes"/>
+		<combo_box.item label="色深度" name="Depth"/>
+		<combo_box.item label="マットオブジェクト" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="インターフェース" name="ui_check"/>
 	<check_box label="HUD" name="hud_check"/>
