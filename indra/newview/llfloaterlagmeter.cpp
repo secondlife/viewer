@@ -64,7 +64,7 @@ BOOL LLFloaterLagMeter::postBuild()
 	setIsChrome(TRUE);
 	
 	// were we shrunk last time?
-	if (gSavedSettings.getBOOL("LagMeterShrunk"))
+	if (isShrunk())
 	{
 		onClickShrink();
 	}
@@ -122,7 +122,7 @@ BOOL LLFloaterLagMeter::postBuild()
 	mStringArgs["[SERVER_FRAME_RATE_WARNING]"] = getString("server_frame_rate_warning_fps");
 
 //	childSetAction("minimize", onClickShrink, this);
-	updateControls(gSavedSettings.getBOOL("LagMeterShrunk")); // If expanded append colon to the labels (EXT-4079)
+	updateControls(isShrunk()); // if expanded append colon to the labels (EXT-4079)
 
 	return TRUE;
 }
@@ -131,7 +131,7 @@ LLFloaterLagMeter::~LLFloaterLagMeter()
 	// save shrunk status for next time
 //	gSavedSettings.setBOOL("LagMeterShrunk", mShrunk);
 	// expand so we save the large window rectangle
-	if (gSavedSettings.getBOOL("LagMeterShrunk"))
+	if (isShrunk())
 	{
 		onClickShrink();
 	}
@@ -369,9 +369,14 @@ void LLFloaterLagMeter::updateControls(bool shrink)
 //	self->mShrunk = !self->mShrunk;
 }
 
+BOOL LLFloaterLagMeter::isShrunk()
+{
+	return gSavedSettings.getBOOL("LagMeterShrunk");
+}
+
 void LLFloaterLagMeter::onClickShrink()  // toggle "LagMeterShrunk"
 {
-	bool shrunk = gSavedSettings.getBOOL("LagMeterShrunk");
+	bool shrunk = isShrunk();
 	updateControls(!shrunk);
 	gSavedSettings.setBOOL("LagMeterShrunk", !shrunk);
 }
