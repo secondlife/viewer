@@ -326,7 +326,8 @@ void LLUrlEntryAgent::onNameCache(const LLUUID& id,
 {
 	// IDEVO demo code
 	LLAvatarName av_name;
-	if (LLAvatarNameCache::get(id, &av_name))
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(id, &av_name))
 	{
 		std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
 		// use custom icon if available
@@ -364,7 +365,8 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	else if (gCacheName->getFullName(agent_id, full_name))
 	{
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(agent_id, &av_name))
+		if (LLAvatarNameCache::useDisplayNames()
+			&& LLAvatarNameCache::get(agent_id, &av_name))
 			return av_name.mDisplayName + " (" + av_name.mSLID + ")";
 		else
 			return full_name;

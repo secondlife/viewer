@@ -613,7 +613,8 @@ void LLInspectAvatar::onNameCache(
 
 		// IDEVO JAMESDEBUG - need to always display a display name
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(mAvatarID, &av_name))
+		if (LLAvatarNameCache::useDisplayNames()
+			&& LLAvatarNameCache::get(mAvatarID, &av_name))
 		{
 			getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
 			getChild<LLUICtrl>("user_slid")->setValue(av_name.mSLID);

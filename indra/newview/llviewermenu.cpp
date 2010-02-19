@@ -34,6 +34,7 @@
 #include "llviewermenu.h" 
 
 // linden library includes
+#include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
 #include "llcombobox.h"
 #include "llinventorypanel.h"
@@ -7716,6 +7717,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
 	view_listener_t::addMenu(new LLAdvancedCheckConsole(), "Advanced.CheckConsole");
 	view_listener_t::addMenu(new LLAdvancedDumpInfoToConsole(), "Advanced.DumpInfoToConsole");
+	
+	// IDEVO
+	commit.add("IDEVO.ToggleDisplayNames", boost::bind(&LLAvatarNameCache::toggleDisplayNames));
+	enable.add("IDEVO.CheckDisplayNames", boost::bind(&LLAvatarNameCache::useDisplayNames));
+	
 	// Advanced > HUD Info
 	view_listener_t::addMenu(new LLAdvancedToggleHUDInfo(), "Advanced.ToggleHUDInfo");
 	view_listener_t::addMenu(new LLAdvancedCheckHUDInfo(), "Advanced.CheckHUDInfo");

@@ -34,6 +34,11 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 	return false;
 }
 
+bool LLAvatarNameCache::useDisplayNames()
+{
+	return false;
+}
+
 //
 // Stub implementation for LLCacheName
 //

@@ -44,8 +44,7 @@
 
 namespace LLAvatarNameCache
 {
-	// base URL for name lookup service
-	std::string sNameServiceURL;
+	bool sUseDisplayNames = false;
 
 	// accumulated agent IDs for next query against service
 	typedef std::set<LLUUID> ask_queue_t;
@@ -299,4 +298,16 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 
 void LLAvatarNameCache::get(const LLUUID& agent_id, name_cache_callback_t callback)
 {
+}
+
+void LLAvatarNameCache::toggleDisplayNames()
+{
+	sUseDisplayNames = !sUseDisplayNames;
+	// flush our cache
+	sCache.clear();
+}
+
+bool LLAvatarNameCache::useDisplayNames()
+{
+	return sUseDisplayNames;
 }

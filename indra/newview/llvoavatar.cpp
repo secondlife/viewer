@@ -2805,50 +2805,62 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 			line += "\n";
 		}
 
+		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
+		static LLUICachedControl<bool> show_slids("NameTagShowSLIDs");
+
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(getID(), &av_name))
+		if (LLAvatarNameCache::useDisplayNames()
+			&& LLAvatarNameCache::get(getID(), &av_name))
 		{
-			line += av_name.mDisplayName;
+			if (show_display_names)
+			{
+				line += av_name.mDisplayName;
+				line += "\n";
+			}
+			if (show_slids)
+			{
+				line += "(";
+				line += av_name.mSLID;
+				line += ")\n";
+			}
 		}
 		else
 		{
-			line += LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
+			if (show_display_names || show_slids)
+			{
+				line += LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
+				line += "\n";
+			}
 		}
 
-		BOOL need_comma = FALSE;
-
-		if (is_away || is_muted || is_busy)
+		static LLUICachedControl<bool> show_status("NameTagShowStatus");
+		if (show_status
+			&& (is_away || is_muted || is_busy || is_appearance) )
 		{
-			line += " (";
+			//line += "(";
 			if (is_away)
 			{
 				line += LLTrans::getString("AvatarAway");
-				need_comma = TRUE;
+				line += ", ";
 			}
 			if (is_busy)
 			{
-				if (need_comma)
-				{
-					line += ", ";
-				}
 				line += LLTrans::getString("AvatarBusy");
-				need_comma = TRUE;
+				line += ", ";
 			}
 			if (is_muted)
 			{
-				if (need_comma)
-				{
-					line += ", ";
-				}
 				line += LLTrans::getString("AvatarMuted");
-				need_comma = TRUE;
+				line += ", ";
 			}
-			line += ")";
-		}
-		if (is_appearance)
-		{
-			line += "\n";
-			line += LLTrans::getString("AvatarEditingAppearance");
+			if (is_appearance)
+			{
+				line += LLTrans::getString("AvatarEditingAppearance");
+				line += ", ";
+			}
+			// trim last ", "
+			line.resize( line.length() - 2 );
+			//line += ")";
 		}
 		mNameAway = is_away;
 		mNameBusy = is_busy;

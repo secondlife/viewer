@@ -55,6 +55,10 @@ namespace LLAvatarNameCache
 	// If name information is in cache, callback will be called immediately.
 	typedef void (*name_cache_callback_t)(const LLUUID& agent_id, const LLAvatarName& av_name);
 	void get(const LLUUID& agent_id, name_cache_callback_t callback);
+	
+	// HACK: turn display names on and off
+	void toggleDisplayNames();
+	bool useDisplayNames();
 }
 
 #endif
