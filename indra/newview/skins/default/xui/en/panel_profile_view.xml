@@ -45,8 +45,19 @@
      height="13"
      layout="topleft"
      left="45"
+     name="user_slid"
+     text_color="LtGray"
+     value=""
+     width="150" />
+    <text
+     follows="top|left"
+     halign="right" 
+     height="13"
+     layout="topleft"
+     left="150"
      name="status"
      text_color="LtGray_50"
+     top_delta="0" 
      value="Online"
      width="150" />
     <tab_container

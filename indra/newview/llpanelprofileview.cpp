@@ -32,10 +32,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llavatarconstants.h"
-#include "lluserrelations.h"
-
 #include "llpanelprofileview.h"
+
+#include "llavatarconstants.h"
+#include "llavatarnamecache.h"	// IDEVO
+#include "lluserrelations.h"
 
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
@@ -201,7 +202,19 @@ void LLPanelProfileView::processOnlineStatus(bool online)
 void LLPanelProfileView::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	llassert(getAvatarId() == id);
-	getChild<LLUICtrl>("user_name", FALSE)->setValue(full_name);
+	// IDEVO
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(id, &av_name))
+	{
+		getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+		getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_name")->setValue(full_name);
+		getChild<LLUICtrl>("user_slid")->setValue("");
+	}
 }
 
 // EOF
