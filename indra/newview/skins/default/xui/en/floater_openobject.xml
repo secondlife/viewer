@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ default_tab_group="1"
+ height="350"
+ layout="topleft"
+ min_height="160"
+ min_width="270"
+ name="objectcontents"
+ help_topic="objectcontents"
+ save_rect="true"
+ title="OBJECT CONTENTS"
+ width="300">
+   <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     text_color="White"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="object_name"
+     top="20"
+     width="284">
+        [DESC]:
+    </text>
+    <panel_inventory_object
+     background_visible="false"
+     draw_border="false"
+     follows="all"
+     height="276"
+     layout="topleft"
+     left="10"
+     name="object_contents"
+     top_pad="0"
+     width="284" />
+    <button
+     follows="bottom|left"
+     height="23"
+     label="Copy To Inventory"
+     label_selected="Copy To Inventory"
+     layout="topleft"
+     left="20"
+     name="copy_to_inventory_button"
+     tab_group="1"
+     top_pad="5"
+     width="120">
+        <button.commit_callback
+         function="OpenObject.MoveToInventory" />
+    </button>
+    <button
+     follows="bottom|left"
+     height="23"
+     label="Copy And Wear"
+     label_selected="Copy And Wear"
+     layout="topleft"
+     left_pad="10"
+     name="copy_and_wear_button"
+     width="120">
+        <button.commit_callback
+         function="OpenObject.MoveAndWear" />
+    </button>
+</floater>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Post-Process Floater" title="NABEWERKINGINSTELLINGEN">
+	<tab_container name="Post-Process Tabs">
+		<panel label="Kleurfilter" name="wmiColorFilterPanel">
+			<check_box label="Inschakelen" name="wmiColorFilterToggle"/>
+			<text name="wmiColorFilterBrightnessText">
+				Helderheid
+			</text>
+			<text name="wmiColorFilterSaturationText">
+				Verzadiging
+			</text>
+			<text name="wmiColorFilterContrastText">
+				Contrast
+			</text>
+			<text name="wmiColorFilterBaseText">
+				Contrastbasiskleur
+			</text>
+			<slider label="R" name="wmiColorFilterBaseR"/>
+			<slider label="G" name="wmiColorFilterBaseG"/>
+			<slider label="B" name="wmiColorFilterBaseB"/>
+			<slider label="I" name="wmiColorFilterBaseI"/>
+		</panel>
+		<panel label="Nachtvisie" name="wmiNightVisionPanel">
+			<check_box label="Inschakelen" name="wmiNightVisionToggle"/>
+			<text name="wmiNightVisionBrightMultText">
+				Lichtversterking
+			</text>
+			<text name="wmiNightVisionNoiseSizeText">
+				Ruisgrootte
+			</text>
+			<text name="wmiNightVisionNoiseStrengthText">
+				Ruissterkte
+			</text>
+		</panel>
+		<panel label="Bloom" name="wmiBloomPanel">
+			<check_box label="Inschakelen" name="wmiBloomToggle"/>
+			<text name="wmiBloomExtractText">
+				Lichtsterkte extractie
+			</text>
+			<text name="wmiBloomSizeText">
+				Bloom-grootte
+			</text>
+			<text name="wmiBloomStrengthText">
+				Bloom-sterkte
+			</text>
+		</panel>
+		<panel label="Extra&apos;s" name="Extras">
+			<button label="LaadEffect" label_selected="LaadEffect" name="PPLoadEffect"/>
+			<button label="Effect opslaan" label_selected="Effect opslaan" name="PPSaveEffect"/>
+			<line_editor label="Effectnaam" name="PPEffectNameEditor"/>
+		</panel>
+	</tab_container>
+</floater>

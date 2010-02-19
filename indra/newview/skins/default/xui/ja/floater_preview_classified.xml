@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="classified_preview" title="クラシファイド広告情報">
+	<floater.string name="Title">
+		クラシファイド広告： [NAME]
+	</floater.string>
+</floater>

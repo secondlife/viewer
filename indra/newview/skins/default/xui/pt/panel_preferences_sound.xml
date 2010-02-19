@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Áudio &amp; Vídeo" name="Preference Media panel">
+	<slider label="Mestre" name="System Volume"/>
+	<slider label="Ambiente" name="Wind Volume"/>
+	<slider label="Sons" name="SFX Volume"/>
+	<slider label="Mídia" name="Media Volume"/>
+	<slider label="UI" name="UI Volume"/>
+	<slider label="Música" name="Music Volume"/>
+	<slider label="Voz" name="Voice Volume"/>
+	<text_editor name="voice_unavailable">
+		Bate-papo de Voz nâo está disponível
+	</text_editor>
+	<check_box label="Habilitar bate-papo de Voz" name="enable_voice_check"/>
+	<radio_group name="ear_location">
+		<radio_item name="0" label="Ouvir o bate-papo de voz pela posição de câmera" />
+		<radio_item name="1" label="Ouvir o bate-papo de voz pela posição do avatar" />
+	</radio_group>
+	<button label="Configurações do dispositivo" name="device_settings_btn" width="180"/>
+	<text name="muting_text">
+		Volume:
+	</text>
+	<text name="streaming_prefs_text">
+		Preferências de 
+Streaming:
+	</text>
+	<text name="audio_prefs_text">
+		Preferências de Áudio:
+	</text>
+	<panel label="Volume" name="Volume Panel"/>
+	<check_box label="Tocar música em streaming" name="streaming_music"/>
+	<check_box label="Tocar streaming de Mídia" name="streaming_video"/>
+	<check_box label="Tocar mídia automaticamente" name="auto_streaming_video"/>
+	<check_box label="Silenciar Áudio quando minimizar janela" name="mute_when_minimized"/>
+	<slider label="Efeito Doppler" name="Doppler Effect"/>
+	<slider label="Fator Distância" name="Distance Factor"/>
+	<slider label="Fator Rolloff" name="Rolloff Factor"/>
+	<spinner label="Mudar nível de alerta de L$" name="L$ Change Threshold" label_width="165" width="229"/>
+	<spinner label="Mudar nível de alerta de Saúde" name="Health Change Threshold" label_width="165" width="229"/>
+</panel>

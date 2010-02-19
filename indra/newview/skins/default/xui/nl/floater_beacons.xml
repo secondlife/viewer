@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="BAKENS">
+	<panel name="beacons_panel">
+		<check_box label="Gescripte objecten met alleen Aanraken" name="touch_only"/>
+		<check_box label="Gescripte objecten" name="scripted"/>
+		<check_box label="Fysieke objecten" name="physical"/>
+		<check_box label="Geluidsbronnen" name="sounds"/>
+		<check_box label="Particlebronnen" name="particles"/>
+		<check_box label="Markeringen weergeven" name="highlights"/>
+		<check_box label="Bakens weergeven" name="beacons"/>
+		<text name="beacon_width_label">
+			Bakenbreedte:
+		</text>
+	</panel>
+</floater>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gestures" title="ACTIEVE GEBAREN">
+	<text name="help_label">
+		Dubbelklik een gebaar om animaties en geluiden af te spelen
+	</text>
+	<scroll_list name="gesture_list">
+		<column label="Trigger" name="trigger"/>
+		<column label="Toets" name="shortcut"/>
+		<column label="Naam" name="name"/>
+	</scroll_list>
+	<button label="Nieuw" name="new_gesture_btn"/>
+	<button label="Bewerken" name="edit_btn"/>
+	<button label="Afspelen" name="play_btn"/>
+	<button label="Stop" name="stop_btn"/>
+</floater>

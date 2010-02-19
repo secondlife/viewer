@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+ <panel
+	 follows="all"
+	 height="400"
+	 layout="topleft"
+	 left="10"
+	 name="edit_hair_panel"
+	 top_pad="10"
+	 width="313" >
+	 <panel
+	  border="true"
+	  follows="left|top|right" 
+	  height="100" 
+	  left="10" 
+	  layout="topleft" 
+	  name="avatar_hair_color_panel"
+	  top="0"
+	  width="293" > 
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="80"
+             label="Texture"
+             layout="topleft"
+             left="8"
+             name="Texture"
+             tool_tip="Click to choose a picture"
+             top="10"
+             width="64" />
+	 </panel>
+   <accordion 
+		follows="left|top|right|bottom"
+		height ="340"
+		left="10"
+		name="wearable_accordion"
+		top_pad="10"
+		width="303">
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="hair_color_tab"
+			title="Color">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="hair_color_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="hair_style_tab"
+			title="Style">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="hair_style_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="hair_eyebrows_tab"
+			title="Eyebrows">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="hair_eyebrows_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="hair_facial_tab"
+			title="Facial">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="hair_facial_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+	</accordion>
+</panel>
+

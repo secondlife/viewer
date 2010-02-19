@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Chat" name="chat">
+	<text name="text_box">
+		Tamanho da Fonte 
+do Chat:
+	</text>
+	<radio_group name="chat_font_size">
+		<radio_item name="radio" label="Pequeno" />
+		<radio_item name="radio2" label="Médio" />
+		<radio_item name="radio3" label="Grande" />
+	</radio_group>
+	<color_swatch label="Você" name="user"/>
+	<text name="text_box1">
+		Você
+	</text>
+	<color_swatch label="Outros" name="agent"/>
+	<text name="text_box2">
+		Outros
+	</text>
+	<color_swatch label="MI" name="im"/>
+	<text name="text_box3">
+		MI
+	</text>
+	<color_swatch label="Sistema" name="system"/>
+	<text name="text_box4">
+		Sistema
+	</text>
+	<color_swatch label="Erros" name="script_error"/>
+	<text name="text_box5">
+		Erros
+	</text>
+	<color_swatch label="Objetos" name="objects"/>
+	<text name="text_box6">
+		Objetos
+	</text>
+	<color_swatch label="Dono" name="owner"/>
+	<text name="text_box7">
+		Dono
+	</text>
+	<color_swatch label="Bolha" name="background"/>
+	<text name="text_box8">
+		Bolha
+	</text>
+	<color_swatch label="URLs" name="links"/>
+	<text name="text_box9">
+		URLs
+	</text>
+	<check_box label="Mostrar Erros de Script e avisos como chat comum" name="script_errors_as_chat"/>
+	<spinner label="Ocultar Chat depois" label_width="108" name="fade_chat_time" width="160"/>
+	<spinner left="373" name="max_chat_count"/>
+	<slider label="Opacidade" name="console_opacity"/>
+	<check_box label="Use a largura total da tela (Precisa reiniciar)" name="chat_full_width_check"/>
+	<check_box label="Feche a barra de conversa após pressionar retornar" name="close_chat_on_return_check"/>
+	<check_box label="Teclas de Setas sempre movem o avatar durante a conversa" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Mostrar a hora na conversa local" name="show_timestamps_check"/>
+	<check_box label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
+	<check_box label="Mostrar bolhas do chat" name="bubble_text_chat"/>
+	<slider label="Opacidade" name="bubble_chat_opacity"/>
+</panel>

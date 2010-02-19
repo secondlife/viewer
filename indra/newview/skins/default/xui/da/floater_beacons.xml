@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="PEJLELYS">
+	<panel name="beacons_panel">
+		<text name="label_show">
+			Vis:
+		</text>
+		<check_box label="Pejlelys" name="beacons"/>
+		<check_box label="Fremhævninger" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="Pejlelys bredde">
+			Bredde:
+		</text>
+		<text name="label_objects">
+			For disse objekter:
+		</text>
+		<check_box label="Fysisk" name="physical"/>
+		<check_box label="Scriptet" name="scripted"/>
+		<check_box label="Kun berøring" name="touch_only"/>
+		<check_box label="Lydkilder" name="sounds"/>
+		<check_box label="Partikel kilder" name="particles"/>
+	</panel>
+</floater>

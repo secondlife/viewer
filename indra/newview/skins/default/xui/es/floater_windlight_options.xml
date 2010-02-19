@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="WindLight floater" title="EDITOR AVANZADO DEL CIELO">
+	<text name="KeyFramePresetsText">
+		Cielos definidos:
+	</text>
+	<button label="Nuevo" label_selected="Nuevo" name="WLNewPreset"/>
+	<button label="Guardar" label_selected="Guardar" name="WLSavePreset"/>
+	<button label="Borrar" label_selected="Borrar" name="WLDeletePreset"/>
+	<button font="SansSerifSmall" width="150" left_delta="90" label="Editor del ciclo de un día" label_selected="Editor del ciclo de un día" name="WLDayCycleMenuButton"/>
+	<tab_container name="WindLight Tabs">
+		<panel label="Atmósfera" name="Atmosphere">
+			<text name="BHText">
+				Coloración
+			</text>
+			<button label="?" name="WLBlueHorizonHelp"/>
+			<text name="BHText2">
+				R
+			</text>
+			<text name="BHText3">
+				V
+			</text>
+			<text name="BHText4">
+				A
+			</text>
+			<text name="BHText5">
+				I
+			</text>
+			<text name="BDensText">
+				Cantidad de bruma
+			</text>
+			<button label="?" name="WLHazeHorizonHelp"/>
+			<text name="BDensText2">
+				Saturación
+			</text>
+			<button label="?" name="WLBlueDensityHelp"/>
+			<text name="BHText6">
+				R
+			</text>
+			<text name="BHText7">
+				V
+			</text>
+			<text name="BHText8">
+				A
+			</text>
+			<text name="BHText9">
+				I
+			</text>
+			<text name="HDText">
+				Densidad de la bruma
+			</text>
+			<button label="?" name="WLHazeDensityHelp"/>
+			<text name="DensMultText">
+				Densidad
+			</text>
+			<button label="?" name="WLDensityMultHelp"/>
+			<text name="WLDistanceMultText">
+				Distancia
+			</text>
+			<button label="?" name="WLDistanceMultHelp"/>
+			<text name="MaxAltText">
+				Altitud máx.
+			</text>
+			<button label="?" name="WLMaxAltitudeHelp"/>
+		</panel>
+		<panel label="Iluminación" name="Lighting">
+			<text name="SLCText">
+				Color del Sol y de la Luna
+			</text>
+			<button label="?" name="WLSunlightColorHelp"/>
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				V
+			</text>
+			<text name="BHText3">
+				A
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="TODText">
+				Posición del Sol y la Luna
+			</text>
+			<button label="?" name="WLTimeOfDayHelp"/>
+			<text name="WLAmbientText">
+				Ambiental
+			</text>
+			<button label="?" name="WLAmbientHelp"/>
+			<text name="BHText5">
+				R
+			</text>
+			<text name="BHText6">
+				V
+			</text>
+			<text name="BHText7">
+				A
+			</text>
+			<text name="BHText8">
+				I
+			</text>
+			<text name="WLEastAngleText">
+				Ángulo de elevación
+			</text>
+			<button label="?" name="WLEastAngleHelp"/>
+			<text name="SunGlowText">
+				Resplandor del Sol
+			</text>
+			<button label="?" name="WLSunGlowHelp"/>
+			<slider label="Visión" name="WLGlowB"/>
+			<slider label="Tamaño" name="WLGlowR"/>
+			<text name="SceneGammaText">
+				Gamma de la escena
+			</text>
+			<button label="?" name="WLSceneGammaHelp"/>
+			<text name="WLStarText">
+				Brillo de las estrellas
+			</text>
+			<button label="?" name="WLStarBrightnessHelp"/>
+		</panel>
+		<panel label="Nubes" name="Clouds">
+			<text name="WLCloudColorText">
+				Color de las nubes
+			</text>
+			<button label="?" name="WLCloudColorHelp" left="190" />
+			<text name="BHText">
+				R
+			</text>
+			<text name="BHText2">
+				V
+			</text>
+			<text name="BHText3">
+				A
+			</text>
+			<text name="BHText4">
+				I
+			</text>
+			<text name="WLCloudColorText2">
+				Posición/Densidad de las nubes
+			</text>
+			<button label="?" name="WLCloudDensityHelp" left="190"/>
+			<text name="BHText5">
+				X
+			</text>
+			<text name="BHText6">
+				Y
+			</text>
+			<text name="BHText7">
+				D
+			</text>
+			<text name="WLCloudCoverageText">
+				Nubosidad
+			</text>
+			<button label="?" name="WLCloudCoverageHelp"/>
+			<text name="WLCloudScaleText">
+				Altitud de las nubes
+			</text>
+			<button label="?" name="WLCloudScaleHelp"/>
+			<text name="WLCloudDetailText" font="SansSerifSmall">
+				Detalle de las nubes
+(Posición/Densidad)
+			</text>
+			<button label="?" name="WLCloudDetailHelp"/>
+			<text name="BHText8" bottom="-113">
+				X
+			</text>
+			<text name="BHText9">
+				Y
+			</text>
+			<text name="BHText10">
+				D
+			</text>
+			<slider bottom="-127" name="WLCloudDetailX"/>
+			<text name="WLCloudScrollXText">
+				Velocidad de X
+			</text>
+			<button label="?" name="WLCloudScrollXHelp"/>
+			<check_box label="Bloquear" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Velocidad de Y
+			</text>
+			<button label="?" name="WLCloudScrollYHelp"/>
+			<check_box label="Bloquear" name="WLCloudLockY"/>
+			<check_box label="Incluir nubes clásicas" name="DrawClassicClouds"/>
+			<button label="?" name="WLClassicCloudsHelp" left="618"/>
+		</panel>
+	</tab_container>
+	<string name="WLDefaultSkyNames">
+		A-12AM:A-12PM:A-3AM:A-3PM:A-4.30PM:A-6AM:A-6PM:A-9AM:A-9PM:Barcelona:Blizzard:Blue Midday:Coastal Afternoon:Coastal Sunset:Default:Desert Sunset:Fine Day:Fluffy Big Clouds:Foggy:Funky Funky:Funky Funky Funky:Gelatto:Ghost:Incongruent Truths:Midday 1:Midday 2:Midday 3:Midday 4:Night:Pirate:Purple:Sailor&apos;s Delight:Sheer Sensuality
+	</string>
+</floater>

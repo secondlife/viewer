@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Inventory" title="INVENTÁRIO">
+	<search_editor label="Escreva aqui para busca" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Todos os Itens" name="All Items"/>
+		<inventory_panel label="Itens Recentes" name="Recent Items"/>
+	</tab_container>
+	<menu_bar name="Inventory Menu">
+		<menu label="Arquivo" name="File">
+			<menu_item_call label="Abrir" name="Open"/>
+			<menu_item_call label="Nova Janela" name="New Window"/>
+			<menu_item_call label="Mostrar Filtros" name="Show Filters"/>
+			<menu_item_call label="Redefinir Filtros" name="Reset Current"/>
+			<menu_item_call label="Fechar Todas as Pastas" name="Close All Folders"/>
+			<menu_item_call label="Limpar Lixeira" name="Empty Trash"/>
+		</menu>
+		<menu label="Criar" name="Create">
+			<menu_item_call label="Nova Pasta" name="New Folder"/>
+			<menu_item_call label="Novo Script" name="New Script"/>
+			<menu_item_call label="Nova Nota" name="New Note"/>
+			<menu_item_call label="Novo Gesto" name="New Gesture"/>
+			<menu label="Nova Roupa" name="New Clothes">
+				<menu_item_call label="Nova Camisa" name="New Shirt"/>
+				<menu_item_call label="Nova Calça" name="New Pants"/>
+				<menu_item_call label="Novos Sapatos" name="New Shoes"/>
+				<menu_item_call label="Novas Meias" name="New Socks"/>
+				<menu_item_call label="Nova Jaqueta" name="New Jacket"/>
+				<menu_item_call label="Nova Saia" name="New Skirt"/>
+				<menu_item_call label="Novas Luvas" name="New Gloves"/>
+				<menu_item_call label="Nova Anágua" name="New Undershirt"/>
+				<menu_item_call label="Novas Roupas de Baixo" name="New Underpants"/>
+			</menu>
+			<menu label="Parte do corpo" name="New Body Parts">
+				<menu_item_call label="Nova Forma" name="New Shape"/>
+				<menu_item_call label="Nova Pele" name="New Skin"/>
+				<menu_item_call label="Novo Cabelo" name="New Hair"/>
+				<menu_item_call label="Novos Olhos" name="New Eyes"/>
+			</menu>
+		</menu>
+		<menu label="Ordenar" name="Sort">
+			<menu_item_check label="Por Nome" name="By Name"/>
+			<menu_item_check label="Por Data" name="By Date"/>
+			<menu_item_check label="Pastas Sempre por Nome" name="Folders Always By Name"/>
+			<menu_item_check label="Pastas do sistema primeiro" name="System Folders To Top"/>
+		</menu>
+	</menu_bar>
+</floater>

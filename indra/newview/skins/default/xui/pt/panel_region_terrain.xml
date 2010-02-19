@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Terreno" name="Terrain">
+	<text name="region_text_lbl">
+		Região:
+	</text>
+	<text name="region_text">
+		nenhum
+	</text>
+	<spinner label="Altura da água" name="water_height_spin"/>
+	<button label="?" name="water_height_help"/>
+	<spinner label="Limite do aumento do &#10;terreno" name="terrain_raise_spin"/>
+	<button label="?" name="terrain_raise_help"/>
+	<spinner label="Limite mais baixo do &#10;terreno" name="terrain_lower_spin" bottom_delta="-34"/>
+	<button label="?" name="terrain_lower_help"/>
+	<check_box label="Usar o sol da propriedade" name="use_estate_sun_check"/>
+	<button label="?" name="use_estate_sun_help"/>
+	<check_box label="Sol fixo" name="fixed_sun_check"/>
+	<button label="?" name="fixed_sun_help"/>
+	<slider label="Fase" name="sun_hour_slider"/>
+	<button label="Aplicar" name="apply_btn"/>
+	<button label="Download de terreno RAW..." name="download_raw_btn" tool_tip="Não disponível aos gerentes, somente aos proprietários."/>
+	<button label="?" name="download_raw_help"/>
+	<button label="Upload de terreno RAW..." name="upload_raw_btn" tool_tip="Não disponível aos gerentes, somente aos proprietários."/>
+	<button label="?" name="upload_raw_help"/>
+	<button width="170" label="Nivelar o terreno" name="bake_terrain_btn" tool_tip="Ajustar terreno atual como o ponto médio para os limites de aumento/decréscimo"/>
+	<button left="190" label="?" name="bake_terrain_help"/>
+</panel>

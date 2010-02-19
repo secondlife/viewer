@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ bottom="825"
+ layout="topleft"
+ name="Popup"
+ visible="false">
+    <menu_item_call
+     label="Teleport"
+     layout="topleft"
+     name="Teleport To Landmark">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="open" />
+    </menu_item_call>
+    <menu_item_call
+     label="View/Edit Landmark"
+     layout="topleft"
+     name="Landmark Open">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="about" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy SLurl"
+     layout="topleft"
+     name="Copy slurl">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="copy_slurl" />
+    </menu_item_call>
+    <menu_item_call
+     label="Show on Map"
+     layout="topleft"
+     name="Show On Map">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="show_on_map" />
+    </menu_item_call>
+
+    <menu_item_separator
+     layout="topleft" />
+
+    <menu_item_call
+     label="Copy"
+     layout="topleft"
+     name="Landmark Copy">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     layout="topleft"
+     name="Landmark Paste">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="paste" />
+        <menu_item_call.on_enable
+         function="Favorites.EnableSelected"
+         parameter="can_paste" />
+    </menu_item_call>
+
+    <menu_item_separator
+     layout="topleft" />
+
+    <menu_item_call
+     label="Delete"
+     layout="topleft"
+     name="Delete">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="delete" />
+    </menu_item_call>
+</menu>

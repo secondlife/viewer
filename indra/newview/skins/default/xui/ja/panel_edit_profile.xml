@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="プロフィールの編集" name="edit_profile_panel">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<string name="AcctTypeResident" value="住人"/>
+	<string name="AcctTypeTrial" value="トライアル"/>
+	<string name="AcctTypeCharterMember" value="創立メンバー"/>
+	<string name="AcctTypeEmployee" value="Linden Lab 従業員"/>
+	<string name="PaymentInfoUsed" value="支払情報使用履歴あり"/>
+	<string name="PaymentInfoOnFile" value="支払情報登録済"/>
+	<string name="NoPaymentInfoOnFile" value="支払情報未登録"/>
+	<string name="AgeVerified" value="年齢確認済"/>
+	<string name="NotAgeVerified" value="年齢未確認"/>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=ja
+	</string>
+	<string name="my_account_link_url">
+		http://jp.secondlife.com/my
+	</string>
+	<string name="no_partner_text" value="なし"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="data_panel">
+				<panel name="lifes_images_panel">
+					<panel name="second_life_image_panel">
+						<text name="second_life_photo_title_text" value="[SECOND_LIFE]："/>
+					</panel>
+					<icon label="" name="2nd_life_edit_icon" tool_tip="クリックして画像を選択"/>
+				</panel>
+				<panel name="first_life_image_panel">
+					<text name="real_world_photo_title_text" value="現実世界："/>
+				</panel>
+				<icon label="" name="real_world_edit_icon" tool_tip="クリックして画像を選択"/>
+				<text name="title_homepage_text">
+					Web サイト：
+				</text>
+				<line_editor name="homepage_edit" value="http://"/>
+				<check_box label="検索結果に表示" name="show_in_search_checkbox"/>
+				<text name="title_acc_status_text" value="マイアカウント："/>
+				<text_editor name="acc_status_text" value="住人。 支払情報未登録。"/>
+				<text name="my_account_link" value="[[URL] マイアカウントに移動]"/>
+				<text name="title_partner_text" value="マイパートナー："/>
+				<panel name="partner_data_panel">
+					<name_box initial_value="（取得中）" name="partner_text" value="[FIRST] [LAST]"/>
+				</panel>
+				<text name="partner_edit_link" value="[[URL] 編集]" width="100"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<panel name="profile_me_buttons_panel">
+		<button label="変更を保存" name="save_btn"/>
+		<button label="キャンセル" name="cancel_btn"/>
+	</panel>
+</panel>

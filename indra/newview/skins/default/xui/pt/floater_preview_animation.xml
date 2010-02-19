@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_anim">
+	<text name="desc txt">
+		Descrição:
+	</text>
+	<button label="Executar in World" label_selected="Parar" left="20" name="Anim play btn" tool_tip="Executar esta animação para que outros vejam." width="131"/>
+	<button label="Executar localmente" label_selected="Parar" left="162" name="Anim audition btn" tool_tip="Executar esta animação somente para você ver." width="125"/>
+</floater>

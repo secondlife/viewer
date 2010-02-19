@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+ <panel
+	 follows="all"
+	 height="400"
+	 layout="topleft"
+	 left="10"
+	 name="edit_shape_panel"
+	 top_pad="10"
+	 width="313" >
+	 <panel
+		 border="true"
+		 follows="top|left"
+		 height="50"
+		 left="10"
+		 layout="topleft"
+		 name="avatar_sex_panel"
+		 top="10"
+		 width="293" >
+   			<text 
+			 follows="top|left"
+			 height="16"
+			 layout="topleft"
+			 left="10"
+			 name="gender_text"
+			 width="303">
+				Gender:
+			</text>
+		   <radio_group
+			 follows="all"
+			 left="10"
+             height="34"
+             layout="topleft"
+             name="sex_radio"
+			 top_pad="3"
+			 width="200" >
+                <radio_item
+					follows="all"
+                 height="16"
+                 label="Female"
+                 layout="topleft"
+                 left="10"
+                 name="radio"
+                 width="82" />
+                <radio_item
+					follows="all"
+                 height="16"
+                 label="Male"
+                 layout="topleft"
+                 left_pad="10"
+                 name="radio2"
+                 width="82" />
+            </radio_group>
+	 </panel>
+	 <accordion
+		follows="left|top|right|bottom"
+		height ="330"
+		left="10"
+		name="wearable_accordion"
+		top_pad="10"
+		width="303">
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_body_tab"
+			title="Body">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_body_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_head_tab"
+			title="Head">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_head_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_eyes_tab"
+			title="Eyes">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_eyes_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_ears_tab"
+			title="Ears">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_ears_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_nose_tab"
+			title="Nose">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_nose_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_mouth_tab"
+			title="Mouth">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_mouth_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_chin_tab"
+			title="Chin">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_chin_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_torso_tab"
+			title="Torso">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_torso_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+		<accordion_tab
+			layout="topleft"
+			min_height="150"
+			name="shape_legs_tab"
+			title="Legs">
+			<scrolling_panel_list
+				follows="all"
+				left="0"
+				name="shape_legs_param_list"
+				top="0"
+				width="303" />
+		</accordion_tab>
+	</accordion>
+</panel>
+

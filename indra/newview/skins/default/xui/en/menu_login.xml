@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu_bar
+ follows="left|top|right"
+ height="18"
+ layout="topleft"
+ left_delta="0"
+ name="Login Menu"
+ top_delta="0"
+ width="802">
+    <menu
+     create_jump_keys="true"
+     label="Me"
+     tear_off="true"
+     name="File">
+        <menu_item_call
+         label="Preferences"
+         name="Preferences..."
+         shortcut="control|P">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="preferences" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="Quit [APP_NAME]"
+         name="Quit"
+         shortcut="control|Q">
+            <menu_item_call.on_click
+             function="File.Quit" />
+        </menu_item_call>
+    </menu>
+<!-- Edit menu merged into the Me menu above
+    <menu
+     create_jump_keys="true"
+     label="Edit"
+     name="Edit"
+     width="153">
+    </menu>
+-->
+    <menu
+     create_jump_keys="true"
+     label="Help"
+     tear_off="true"
+     name="Help">
+        <menu_item_call
+         label="[SECOND_LIFE] Help"
+         name="Second Life Help"
+         shortcut="F1">
+            <menu_item_call.on_click
+             function="ShowHelp"
+             parameter="f1_help" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="About [APP_NAME]"
+         name="About Second Life">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="sl_about" />
+        </menu_item_call>
+    </menu>
+    <menu
+      visible="false"
+     create_jump_keys="true"
+     label="Debug"
+     name="Debug"
+     tear_off="true">
+      <!-- Need a copy of the edit menu here so keyboard shortcuts like
+           control-C work to copy text at login screen and About dialog (for QA)
+      -->
+      <menu
+       create_jump_keys="true"
+       label="Edit"
+       name="Edit"
+       tear_off="true">
+        <menu_item_call
+         label="Undo"
+         name="Undo"
+         shortcut="control|Z">
+          <menu_item_call.on_click
+           function="Edit.Undo" />
+          <menu_item_call.on_enable
+           function="Edit.EnableUndo" />
+        </menu_item_call>
+        <menu_item_call
+         label="Redo"
+         name="Redo"
+         shortcut="control|Y">
+          <menu_item_call.on_click
+           function="Edit.Redo" />
+          <menu_item_call.on_enable
+           function="Edit.EnableRedo" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="Cut"
+         name="Cut"
+         shortcut="control|X">
+          <menu_item_call.on_click
+           function="Edit.Cut" />
+          <menu_item_call.on_enable
+           function="Edit.EnableCut" />
+        </menu_item_call>
+        <menu_item_call
+         label="Copy"
+         name="Copy"
+         shortcut="control|C">
+          <menu_item_call.on_click
+           function="Edit.Copy" />
+          <menu_item_call.on_enable
+           function="Edit.EnableCopy" />
+        </menu_item_call>
+        <menu_item_call
+         label="Paste"
+         name="Paste"
+         shortcut="control|V">
+          <menu_item_call.on_click
+           function="Edit.Paste" />
+          <menu_item_call.on_enable
+           function="Edit.EnablePaste" />
+        </menu_item_call>
+        <menu_item_call
+         label="Delete"
+         name="Delete"
+         shortcut="Del">
+          <menu_item_call.on_click
+           function="Edit.Delete" />
+          <menu_item_call.on_enable
+           function="Edit.EnableDelete" />
+        </menu_item_call>
+        <menu_item_call
+         label="Duplicate"
+         name="Duplicate"
+         shortcut="control|D">
+          <menu_item_call.on_click
+           function="Edit.Duplicate" />
+          <menu_item_call.on_enable
+           function="Edit.EnableDuplicate" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="Select All"
+         name="Select All"
+         shortcut="control|A">
+          <menu_item_call.on_click
+           function="Edit.SelectAll" />
+          <menu_item_call.on_enable
+           function="Edit.EnableSelectAll" />
+        </menu_item_call>
+        <menu_item_call
+         label="Deselect"
+         name="Deselect"
+         shortcut="control|E">
+          <menu_item_call.on_click
+           function="Edit.Deselect" />
+          <menu_item_call.on_enable
+           function="Edit.EnableDeselect" />
+        </menu_item_call>
+      </menu>
+      <menu_item_separator />
+      <menu_item_call
+         label="Show Debug Settings"
+         name="Debug Settings">
+            <menu_item_call.on_click
+             function="Advanced.ShowDebugSettings"
+             parameter="all" />
+        </menu_item_call>
+        <menu_item_call
+         label="UI/Color Settings"
+         name="UI/Color Settings">
+            <menu_item_call.on_click
+             function="Advanced.ShowDebugSettings"
+             parameter="skin" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="XUI Preview Tool"
+         name="UI Preview Tool"
+         shortcut="control|T">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="ui_preview" />
+        </menu_item_call>
+      <menu_item_separator />
+      <!-- Broken
+      <menu_item_call
+         label="Show Side Tray"
+         name="Show Side Tray">
+        <menu_item_call.on_click
+         function="Advanced.ShowSideTray" />
+      </menu_item_call>
+      -->
+      <menu
+       label="UI Tests"
+       name="UI Tests"
+       tear_off="true">
+        <menu_item_call
+         label="Textbox"
+         name="Textbox"
+         translate="false"
+         shortcut="control|1">
+          <menu_item_call.on_click
+           function="Floater.Show"
+           parameter="test_textbox" />
+        </menu_item_call>
+        <menu_item_call
+         label="Text Editor"
+         name="Text Editor"
+         translate="false"
+         shortcut="control|2">
+          <menu_item_call.on_click
+           function="Floater.Show"
+           parameter="test_text_editor" />
+        </menu_item_call>
+        <menu_item_call
+         label="Widgets"
+         name="Widgets"
+         translate="false"
+         shortcut="control|shift|T">
+          <menu_item_call.on_click
+           function="Floater.Show"
+           parameter="test_widgets" />
+        </menu_item_call>
+        <menu_item_call
+         label="Inspectors"
+         translate="false"
+         name="Inspectors">
+          <menu_item_call.on_click
+           function="Floater.Show"
+           parameter="test_inspectors" />
+        </menu_item_call>
+      </menu>
+<!--
+      <menu_item_check
+         label="Reg In Client Test (restart)"
+         name="Reg In Client Test (restart)">
+            <menu_item_check.on_check
+               control="RegInClient" />
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="RegInClient" />
+      </menu_item_check>
+-->
+      <menu_item_separator />
+      <menu_item_call
+       label="Set Window Size..."
+       name="Set Window Size...">
+        <menu_item_call.on_click
+         function="Floater.Show"
+         parameter="window_size" />
+      </menu_item_call>
+        <menu_item_call
+         label="Show TOS"
+         name="TOS">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="message_tos" />
+        </menu_item_call>
+        <menu_item_call
+         label="Show Critical Message"
+         name="Critical">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="message_critical" />
+        </menu_item_call>
+        <menu_item_call
+         label="Web Browser Test"
+         name="Web Browser Test">
+          <menu_item_call.on_click
+           function="Advanced.WebBrowserTest"
+           parameter="http://join.secondlife.com/"/>
+        </menu_item_call>
+    </menu>
+</menu_bar>

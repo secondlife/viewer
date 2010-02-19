@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="camera_floater">
+	<floater.string name="rotate_tooltip">
+		Faire tourner la caméra autour du point central
+	</floater.string>
+	<floater.string name="zoom_tooltip">
+		Zoomer en direction du point central
+	</floater.string>
+	<floater.string name="move_tooltip">
+		Déplacer la caméra vers le haut et le bas, la gauche et la droite
+	</floater.string>
+	<panel name="controls">
+		<joystick_track name="cam_track_stick" tool_tip="Déplacer la caméra vers le haut et le bas, la gauche et la droite"/>
+		<panel name="zoom" tool_tip="Zoomer en direction du point central">
+			<slider_bar name="zoom_slider" tool_tip="Zoomer en direction du point central"/>
+		</panel>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="Faire tourner la caméra autour du point central"/>
+		<panel name="camera_presets">
+			<button name="rear_view" tool_tip="Vue arrière"/>
+			<button name="group_view" tool_tip="Vue Groupe"/>
+			<button name="front_view" tool_tip="Vue frontale"/>
+			<button name="mouselook_view" tool_tip="Vue subjective"/>
+		</panel>
+	</panel>
+	<panel name="buttons">
+		<button label="" name="orbit_btn" tool_tip="Faire tourner la caméra"/>
+		<button label="" name="pan_btn" tool_tip="Faire un panoramique"/>
+		<button label="" name="avatarview_btn" tool_tip="Vue subjective"/>
+		<button label="" name="freecamera_btn" tool_tip="Voir l&apos;objet"/>
+	</panel>
+</floater>

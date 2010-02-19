@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Nodig een lid uit" name="invite_panel">
+	<text name="help_text">
+		U kunt meerdere inwoners selecteren 
+om voor uw groep uit te nodigen. Klik 
+&apos;Open inwonerkiezer&apos; om te starten.
+	</text>
+	<button label="Open inwonerkiezer" name="add_button" tool_tip=""/>
+	<name_list name="invitee_list" tool_tip="Houd de Ctrl-toets vast en klik de namen van de inwoners om meerdere te selecteren."/>
+	<button label="Verwijder geselecteerden van lijst" name="remove_button" tool_tip="Verwijderd hierboven geselecteerde inwoners van de uitnodigingslijst."/>
+	<text name="role_text">
+		Kies welke rol aan hen wordt 
+toegewezen:
+	</text>
+	<combo_box name="role_name" tool_tip="Kies uit de lijst met rollen waarvoor u toestemming heeft om leden toe te wijzen." bottom_delta="-30"/>
+	<button label="Verzend uitnodigingen" name="ok_button"/>
+	<button label="Annuleren" name="cancel_button"/>
+	<string name="confirm_invite_owner_str">
+		Weet u zeker dat u een (een) nieuwe eigenaar(s) wilt uitnodigen? Deze actie is permanent!
+	</string>
+	<string name="loading">
+		(laden...)
+	</string>
+</panel>

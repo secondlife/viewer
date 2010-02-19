@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<role_actions>
+	<action_set description="これらの能力には、グループ・メンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
+		<action description="このグループに人を招待" longdescription="「役割」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
+		<action description="メンバーをこのグループから追放" longdescription="「役割」セクションの「メンバー」タブ内にある「追放」ボタンを押して、このグループからメンバーを追放します。 「オーナー」は、他の「オーナー」以外は誰でも追放できます。 「オーナー」ではない人が「全員（Everyone）」にしか役割がない場合、メンバーはグループから追放されることがあります。 「役割」からメンバーを削除するには、「役割からメンバーを削除」の能力が与えられている必要があります。" name="member eject" value="2"/>
+		<action description="「自由参加」と「入会費」の切り替え" longdescription="「自由参加」に切り替えると、招待されなくても新しいメンバーが入会できます。「入会費」は「一般」セクションで変更します。" name="member options" value="3"/>
+	</action_set>
+	<action_set description="これらの能力には、グループ内の役割を追加、削除、変更し、役割にメンバーを追加、削除し、さらに役割へ能力を割り当てる権限が含まれます。" name="Roles">
+		<action description="新しい役割を作成" longdescription="新しい「役割」は、「役割」セクション &gt; 「役割」タブで作成します。" name="role create" value="4"/>
+		<action description="役割を削除" longdescription="「役割」は、「役割」セクション &gt; 「役割」タブで削除できます。" name="role delete" value="5"/>
+		<action description="「役割」の名前、肩書き、説明、メンバー公開の有無を変更" longdescription="「役割」の名前、肩書き、説明、メンバー公開の有無を変更します。 「役割」を選択後に、「役割」セクション &gt; 「役割」タブ の下で設定できます。" name="role properties" value="6"/>
+		<action description="メンバーを割り当て人の役割に割り当てる" longdescription="「割り当てられた役割」（「役割」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「役割」に割り当てます。 この能力があるメンバーは、割り当てる人が既に所属する「役割」にのみメンバーを追加できます。" name="role assign member limited" value="7"/>
+		<action description="メンバーを任意の役割に割り当てる" longdescription="「割り当てられた役割」（「役割」セクション &gt; 「メンバー」タブ）のリストで、メンバーをどの「役割」にも割り当てることができます。 *警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「オーナー」以外のメンバーを現在以上の権限のある「役割」に割り当てることができます。つまり、「オーナー」以外の人が「オーナー」に近い力を持つよう設定できることになります。 この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role assign member" value="8"/>
+		<action description="役割からメンバーを解除" longdescription="「割り当てられた役割」（「役割」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「役割」から削除します。 「オーナー」は削除できません。" name="role remove member" value="9"/>
+		<action description="役割の能力の割り当てと解除" longdescription="「許可された能力」（「役割」セクション &gt; 「役割」タブ）のリストにある、各「役割」の「能力」を割り当てたり、削除します。 *警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「オーナー」以外のメンバーをすべての「能力」」に割り当てることができます。つまり、「オーナー」以外の人が「オーナー」に近い権限を持つよう設定できることになります。 この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role change actions" value="10"/>
+	</action_set>
+	<action_set description="これらの能力には、グループの公開性や理念、記章の変更といった、グループのアイデンティティを修正する権限が含まれます。" name="Group Identity">
+		<action description="理念、記章、「Web上で公開」、およびグループ情報内で公開のメンバーを変更。" longdescription="理念、記章、「検索に表示」の変更をします。 「一般」セクションで行えます。" name="group change identity" value="11"/>
+	</action_set>
+	<action_set description="これらの「能力」には、このグループの所有地の譲渡、修正、販売をする権限があります。 「土地情報」ウィンドウを見るには、地面を右クリックして「土地情報」を選ぶか、ナビゲーションバーの「i」アイコンをクリックします。" name="Parcel Management">
+		<action description="グループ用の土地の譲渡と購入" longdescription="グループ用の土地の譲渡と購入を行います。 この操作には、土地情報画面 ＞ 一般タブを使います。" name="land deed" value="12"/>
+		<action description="Linden総督に土地を明け渡す" longdescription="Linden総督に土地を明け渡します。 *警告* この能力を持つ役割のメンバーは、「土地情報」＞「一般」でグループ所有の土地を放棄して、売り上げなしでLinden総督に明け渡すことができます。 この能力の割り当ては、そのことを理解した上で行ってください。" name="land release" value="13"/>
+		<action description="売り地情報の設定" longdescription="売り地情報を設定します。 *警告* この能力を持つ役割のメンバーは、「土地情報」＞「一般」タブでグループ所有の土地を自分の思いどおりに販売することができます。 この能力の割り当ては、そのことを理解した上で行ってください。" name="land set sale info" value="14"/>
+		<action description="区画の再分割と統合" longdescription="区画を再分割、統合します。 地面を右クリックして「地形を編集」を選び、マウスを土地の上でドラッグして範囲を選択します。 再分割するには、分割対象を選んで「再分割」をクリックします。 統合するには、2つ以上の隣接する区画を選んで「統合」をクリックします。" name="land divide join" value="15"/>
+	</action_set>
+	<action_set description="これらの能力には、区画名、公開設定、検索ディレクトリへの登録、着地点ならびにTPルートのオプションを変更する権限が含まれます。" name="Parcel Identity">
+		<action description="「場所検索に表示」を切り替えカテゴリを設定" longdescription="「場所検索に表示」に切り替え、「土地情報」 &gt; 「オプション」タブで区画のカテゴリを設定します。" name="land find places" value="17"/>
+		<action description="区画名、説明、「場所検索に表示」の設定を変更" longdescription="区画名、説明、「場所検索に表示」の設定を変更します。 「土地情報」 &gt; 「オプション」タブで行います。" name="land change identity" value="18"/>
+		<action description="着地点およびテレポート・ルートを設定" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上で着地点を設定することにより外部からのテレポートの到着位置を指定できると共に、テレポート・ルートを設定して細かく制御することができます。 この操作は、「土地情報」＞「オプション」タブで行います。" name="land set landing point" value="19"/>
+	</action_set>
+	<action_set description="これらの能力には、「オブジェクトを作成」、「地形を編集」、音楽とメディアの設定など、区画のオプションに関連する権限が含まれます。" name="Parcel Settings">
+		<action description="音楽とメディアの設定を変更" longdescription="ストリーミング・ミュージックと動画の設定を変更するには、「土地情報」 ＞ 「メディア」タブを使います。" name="land change media" value="20"/>
+		<action description="「地形を編集」に切り替え" longdescription="「地形を編集」に切り替えます。 *警告* 「土地情報」＞「オプション」＞「地形を編集」の順で進むと、誰でもあなたの土地の形の整備や、リンデンプラントの設置、移動ができます。  この能力を割り振る前に、このことをよく理解しておいてください。 「土地情報」＞「オプション」タブから「地形を編集」に切り替えられます。" name="land edit" value="21"/>
+		<action description="「土地情報」＞「オプション」タブ内のさまざまな設定を切り替え" longdescription="「安全（ダメージなし）」、「飛行」を切り替え、住人に以下を許可します： グループ所有地の「土地情報」 &gt; 「オプション」タブ内の、「地形を編集」、「制作」、「ランドマークの作成」、「スクリプトの実行」。" name="land options" value="22"/>
+	</action_set>
+	<action_set description="これらの能力には、グループ所有の区画に関する規制を迂回することを、メンバーに許可する権限が含まれます。" name="Parcel Powers">
+		<action description="常に「地形を編集」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上で地形を編集することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、地形の編集が可能です。" name="land allow edit land" value="23"/>
+		<action description="常に「飛行」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上を飛行することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、飛行が可能です。" name="land allow fly" value="24"/>
+		<action description="常に「オブジェクト作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にオブジェクトを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、オブジェクトの作成が可能です。" name="land allow create" value="25"/>
+		<action description="常に「ランドマークを作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にランドマークを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、ランドマークの作成が可能です。" name="land allow landmark" value="26"/>
+		<action description="グループの土地への「ホーム設定」を許可" longdescription="この「役割」を持つメンバーは、このグループに譲渡された区画上で「世界」メニュー &gt; ランドマーク &gt; 現在地をホームに設定 を使用して、ホームの設定を行うことができます。" name="land allow set home" value="28"/>
+	</action_set>
+	<action_set description="これらの能力には、住人の凍結や追放を含む、グループ所有の区画へのアクセスを許可、制限する権限が含まれます。" name="Parcel Access">
+		<action description="区画アクセス・リストの管理" longdescription="区画アクセス・リストの管理は、「土地情報」＞「アクセス」タブで行います。" name="land manage allowed" value="29"/>
+		<action description="区画禁止リストの管理" longdescription="「土地情報」 &gt; 「アクセス」タブの、区画の禁止リストの管理ができます。" name="land manage banned" value="30"/>
+		<action description="「入場許可を販売」の設定を変更" longdescription="「土地情報」 &gt; 「アクセス」タブで、区画の「入場許可を販売」の設定を変更します。" name="land manage passes" value="31"/>
+		<action description="区画上の住人の追放と凍結" longdescription="この「能力」を持つ「役割」のメンバーは、グループ所有地にいて欲しくない住人を右クリックし、「追放」や「フリーズ」を選んで対応できます。" name="land admin" value="32"/>
+	</action_set>
+	<action_set description="これらの能力には、オブジェクトの返却、リンデンプラントの設置や移動を、メンバーに許可する権限が含まれます。 これはメンバーがゴミ処理や景観作成をする際に便利ですが、返却したオブジェクトは元に戻せないので、注意して行いましょう。" name="Parcel Content">
+		<action description="グループ所有オブジェクトの返却" longdescription="グループ所有の区画上のオブジェクトのうち、グループ所有のオブジェクトを返却するには、「土地情報」＞「オブジェクト」タブを使います。" name="land return group owned" value="48"/>
+		<action description="グループに設定されているオブジェクトを返却" longdescription="グループ所有の区画上のオブジェクトのうち、グループに設定されているオブジェクトを返却するには、「土地情報」＞「オブジェクト」タブを使います。" name="land return group set" value="33"/>
+		<action description="非グループ・オブジェクトの返却" longdescription="グループ所有の区画上のオブジェクトのうち、グループ以外のオブジェクトを返却するには、「土地情報」＞「オブジェクト」タブを使います。" name="land return non group" value="34"/>
+		<action description="Linden製の植物を使用して景観作成" longdescription="リンデン製の樹木、植物、草を植える、景観づくりの能力です。 これらの植物はあなたの持ち物内の「ライブラリ」 &gt; 「オブジェクト」フォルダにあります。「制作」メニューで作成することもできます。" name="land gardening" value="35"/>
+	</action_set>
+	<action_set description="これらの「能力」には、グループ所有のオブジェクトを譲渡、修正、販売する権限が含まれます。 変更は「制作ツール」 &gt; 「一般」タブで行います。 オブジェクトを右クリックして「編集」を開くと設定内容を確認できます。" name="Object Management">
+		<action description="グループにオブジェクトを譲渡" longdescription="「制作ツール」 &gt; 「一般」タブで、オブジェクトをグループに譲渡します。" name="object deed" value="36"/>
+		<action description="グループ所有オブジェクトの操作（移動、コピー、修正）" longdescription="「制作ツール」 &gt; 「一般」タブで、グループ所有のオブジェクトを操作（移動、コピー、修正）します。" name="object manipulate" value="38"/>
+		<action description="グループ所有オブジェクトを販売可能に設定" longdescription="「制作ツール」 &gt; 「一般」タブで、グループ所有のオブジェクトを販売対象に設定します。" name="object set sale" value="39"/>
+	</action_set>
+	<action_set description="これらの能力には、メンバーに、グループの負債の支払いと利子受け取りを要求する権限、グループ口座履歴へのアクセスを制限する権限が含まれます。" name="Accounting">
+		<action description="グループ負債の返済とグループ配当の受領" longdescription="この能力を持つ役割のメンバーについては、グループ負債の支払いとグループ配当の受け取りが自動的に行われます。 つまり、これらのメンバーは、毎日配当されるグループ所有の土地の売り上げ金の一部を受け取ると共に、区画の広告費などを負担することになります。" name="accounting accountable" value="40"/>
+	</action_set>
+	<action_set description="これらの能力には、グループ通知の送信、受信、表示をメンバーに許可する権限が含まれます。" name="Notices">
+		<action description="通知を送信" longdescription="この「能力」を持つ「役割」のメンバーは、「グループ」 &gt; 「通知」セクションから通知を送信できます。" name="notices send" value="42"/>
+		<action description="通知の受信と過去の通知の閲覧" longdescription="この「能力」を持つ「役割」のメンバーは、「グループ」 &gt; 「通知」セクションで通知を受信したり過去の通知を見ることができます。" name="notices receive" value="43"/>
+	</action_set>
+	<action_set description="これらの能力には、提案の作成と投票、投票履歴の表示をメンバーに許可する権限が含まれます。" name="Proposals">
+		<action description="提案を作成" longdescription="この能力を持つ役割のメンバーは、投票の対象となる問題提起を「グループ情報」＞「問題提起」タブ上で作成することができます。" name="proposal start" value="44"/>
+		<action description="問題提起に投票する" longdescription="この能力を持つ役割のメンバーは、グループ情報＞提案タブで提案に投票することができます。" name="proposal vote" value="45"/>
+	</action_set>
+	<action_set description=" これらのアビリティには、グループ・チャット・セッションやグループ・ボイス・チャットへのアクセスの許可や制限の権限が含まれます。 " name="Chat">
+		<action description="グループ・チャットに参加する" longdescription=" このアビリティを持つ役割のメンバーは、グループ・チャット・セッションにテキストおよびボイスで参加できます。 " name="join group chat"/>
+		<action description="グループ・ボイス・チャットに参加する" longdescription=" このアビリティを持つ役割のメンバーは、グループ・ボイス・チャット・セッションに参加できます。  注： ボイス・チャット・セッションにアクセスするには、グループ・チャットに参加するアビリティが必要です。 " name="join voice chat"/>
+		<action description="グループ・チャットを管理する" longdescription=" このアビリティを持つ役割のメンバーは、グループ・ボイス・チャット・セッションおよびグループ・テキスト・チャット・セッションへのアクセスや参加をコントロールすることができます。 " name="moderate group chat"/>
+	</action_set>
+</role_actions>

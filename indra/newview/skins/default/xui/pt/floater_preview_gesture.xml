@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<string name="stop_txt">
+		Parar
+	</string>
+	<string name="preview_txt">
+		Prévia
+	</string>
+	<string name="none_text">
+		-- Nenhum --
+	</string>
+	<text name="desc_label">
+		Descrição:
+	</text>
+	<text name="trigger_label">
+		Gatilho:
+	</text>
+	<text name="replace_text" tool_tip="Substituir a(s) palavra(s) de gatilho por estas palavras. Por exemplo, o gatilho &apos;oi&apos; substituído por &apos;olá&apos;, mudará a conversa de &apos;Eu digo oi&apos; para &apos;Eu digo olá&apos; e também executando o gesto!">
+		Substituir por:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Substituir a(s) palavra(s) gatilho por estas palavras.Por exemplo, o gatilho &apos;oi&apos; substituído por &apos;olá&apos;, mudará a conversa de &apos;Eu digo oi&apos; para &apos;Eu digo olá&apos; e também executando o gesto!"/>
+	<text name="key_label">
+		Tecla de Atalho:
+	</text>
+	<combo_box label="Nenhum" name="modifier_combo" left="116" width="76"/>
+	<combo_box label="Nenhum" name="key_combo" width="76" left_delta="80"/>
+	<text name="library_label">
+		Biblioteca:
+	</text>
+	<text name="steps_label">
+		Passos:
+	</text>
+	<scroll_list name="library_list" width="84">
+		Animação
+Som
+Bate Papo
+Esperar
+	</scroll_list>
+	<button label="Incluir" name="add_btn" left="118" width="87"/>
+	<button label="Mover Para Cima" name="up_btn" width="114" left_delta="-13"/>
+	<button label="Mover Para Baixo" name="down_btn" width="114"/>
+	<button label="Remover" name="delete_btn" width="84" left_delta="13"/>
+	<scroll_list left="226" name="step_list" width="205" />
+	<text name="help_label">
+		Todos os passos acontecem
+simultaneamente, a menos que
+você inclua passos de espera.
+	</text>
+	<radio_group name="animation_trigger_type">
+		<radio_item name="start" label="Iniciar" />
+		<radio_item name="stop" label="Parar" />
+	</radio_group>
+	<check_box bottom_delta="34" label="até que as animações estejam &#10;concluídas" name="wait_anim_check"/>
+	<check_box bottom_delta="-30" label="tempo em segundos" name="wait_time_check"/>
+	<line_editor left_delta="130" name="wait_time_editor" />
+	<check_box label="Ativar" name="active_check" tool_tip="Gestos ativos podem ser gatilhados escrevendo suas frases de gatilho no chat ou através de suas teclas de atalho. Gestos normalmente ficam inativos quando existe um conflito nas teclas de atalho."/>
+	<button label="Prévia" name="preview_btn"/>
+	<button label="Salvar" name="save_btn"/>
+</floater>

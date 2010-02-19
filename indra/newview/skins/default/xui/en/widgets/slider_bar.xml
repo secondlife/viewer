@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<slider_bar track_color="SliderTrackColor"
+            thumb_outline_color="SliderThumbOutlineColor"
+            thumb_center_color="SliderThumbCenterColor"
+            thumb_image="SliderThumb_Off"
+            thumb_image_pressed="SliderThumb_Press"
+            thumb_image_disabled="SliderThumb_Disabled"
+            track_image_horizontal="SliderTrack_Horiz"
+            track_image_vertical="SliderTrack_Vert"
+            track_highlight_horizontal_image="SliderTrack_Horiz"
+            track_highlight_vertical_image="SliderTrack_Vert"
+         font="SansSerif"  />

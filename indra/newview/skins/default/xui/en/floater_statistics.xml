@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ follows="right|top"
+ height="392"
+ layout="topleft"
+ mouse_opaque="false"
+ name="stats floater"
+ help_topic="stats_floater"
+ title="STATISTICS"
+ width="250" />

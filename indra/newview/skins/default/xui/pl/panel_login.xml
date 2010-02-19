@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<panel.string name="real_url">
+		http://secondlife.com/app/login/
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php
+	</panel.string>
+	<panel name="login_widgets">
+		<text name="first_name_text">
+			Imię:
+		</text>
+		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] Imię"/>
+		<text name="last_name_text">
+			Nazwisko
+		</text>
+		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] Nazwisko"/>
+		<text name="password_text">
+			Hasło:
+		</text>
+		<button label="Zaloguj" label_selected="Zaloguj" name="connect_btn"/>
+		<text name="start_location_text">
+			Miejsce Startu:
+		</text>
+		<combo_box name="start_location_combo">
+			<combo_box.item label="Moje Ostatnie Miejsce" name="MyLastLocation"/>
+			<combo_box.item label="Moje Miejsce Startu" name="MyHome"/>
+			<combo_box.item label="&lt;Wpisz nazwę regionu&gt;" name="Typeregionname"/>
+		</combo_box>
+		<check_box label="Zapamiętaj Hasło" name="remember_check"/>
+		<text name="create_new_account_text">
+			Załóż Nowe Konto
+		</text>
+		<text name="forgot_password_text">
+			Nie pamiętasz swojego imienia lub hasła?
+		</text>
+	</panel>
+</panel>

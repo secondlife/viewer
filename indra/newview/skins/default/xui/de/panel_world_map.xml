@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="world_map">
+	<panel.string name="Loading">
+		Wird geladen...
+	</panel.string>
+	<panel.string name="InvalidLocation">
+		Ungültige Position
+	</panel.string>
+	<panel.string name="world_map_north">
+		N
+	</panel.string>
+	<panel.string name="world_map_east">
+		O
+	</panel.string>
+	<panel.string name="world_map_west">
+		W
+	</panel.string>
+	<panel.string name="world_map_south">
+		S
+	</panel.string>
+	<panel.string name="world_map_southeast">
+		SO
+	</panel.string>
+	<panel.string name="world_map_northeast">
+		NO
+	</panel.string>
+	<panel.string name="world_map_southwest">
+		SW
+	</panel.string>
+	<panel.string name="world_map_northwest">
+		NW
+	</panel.string>
+	<text label="N" name="floater_map_north" text="N">
+		N
+	</text>
+	<text label="O" name="floater_map_east" text="O">
+		O
+	</text>
+	<text label="W" name="floater_map_west" text="W">
+		W
+	</text>
+	<text label="S" name="floater_map_south" text="S">
+		S
+	</text>
+	<text label="SO" name="floater_map_southeast" text="SO">
+		SO
+	</text>
+	<text label="NO" name="floater_map_northeast" text="NO">
+		NO
+	</text>
+	<text label="SW" name="floater_map_southwest" text="SW">
+		SW
+	</text>
+	<text label="NW" name="floater_map_northwest" text="NW">
+		NW
+	</text>
+</panel>

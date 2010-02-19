@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="KØB L$">
+	<floater.string name="buy_currency">
+		Køb L$ [LINDENS] for ca. [LOCALAMOUNT]
+	</floater.string>
+	<text name="info_need_more">
+		Du skal bruge flere L$
+	</text>
+	<text name="contacting">
+		Kontakter LindeX...
+	</text>
+	<text name="info_buying">
+		Køb L$
+	</text>
+	<text name="balance_label">
+		Jeg har
+	</text>
+	<text name="balance_amount">
+		L$ [AMT]
+	</text>
+	<text name="currency_action">
+		Jeg ønsker at købe
+	</text>
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" name="currency_amt">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		Til prisen
+	</text>
+	<text name="currency_est">
+		ca. [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Estimerer...
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
+	</text>
+	<text name="total_label">
+		Min nye beholdning vil være
+	</text>
+	<text name="total_amount">
+		L$ [AMT]
+	</text>
+	<text name="currency_links">
+		[http://www.secondlife.com/ payment method] | [http://www.secondlife.com/ currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+	</text>
+	<text name="exchange_rate_note">
+		Indtast beløbet for at se nyeste valutakurs.
+	</text>
+	<text name="purchase_warning_repurchase">
+		Bekræftelse af dette køb medfører kun køb af L$, ikke objektet.
+	</text>
+	<text name="purchase_warning_notenough">
+		Du køber ikke nok L$. Forøg venligst beløbet.
+	</text>
+	<button label="Køb nu" name="buy_btn"/>
+	<button label="Annullér" name="cancel_btn"/>
+	<text name="info_cannot_buy">
+		Kan ikke købe
+	</text>
+	<button label="Fortsæt til web" name="error_web"/>
+</floater>

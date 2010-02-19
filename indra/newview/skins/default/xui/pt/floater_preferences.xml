@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Preferences" title="PREFERÊNCIAS" min_width="332" width="628">
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<button label="Aplicar" label_selected="Aplicar" name="Apply"/>
+	<button label="Sobre" label_selected="Sobre" name="About..."/>
+	<button label="Ajuda" label_selected="Ajuda" name="Help"/>
+	<tab_container name="pref core" tab_width="128" width="628" />
+</floater>

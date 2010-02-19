@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title=" ">
+	<button label="続行" label_selected="続行" name="Continue"/>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<radio_group name="tos_agreement">
+		<radio_item label="利用規約に同意しません" name="radio_disagree"/>
+		<radio_item label="利用規約に同意します" name="radio_agree"/>
+	</radio_group>
+	<text name="tos_title">
+		利用規約
+	</text>
+	<check_box label="利用規約に同意します" name="agree_chk"/>
+	<text name="tos_heading">
+		次の利用規約をよくお読みください。 [SECOND_LIFE] へのログインを続けるには、規約に同意する必要があります。
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+	<text name="real_url">
+		http://secondlife.com/app/tos/
+	</text>
+</floater>

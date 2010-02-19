@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="telehub" title="TELEHUB">
+	<text name="status_text_connected">
+		Telehub forbundet til objekt [OBJECT]
+	</text>
+	<text name="status_text_not_connected">
+		Ingen telehub forbundet.
+	</text>
+	<text name="help_text_connected">
+		For at fjerne, tryk &apos;Afslut&apos;.
+	</text>
+	<text name="help_text_not_connected">
+		230;lg objekt og klik &apos;Forbind telehub&apos;.
+	</text>
+	<button label="Forbind telehub" name="connect_btn"/>
+	<button label="Afslut" name="disconnect_btn"/>
+	<text name="spawn_points_text" width="300">
+		Ankomst punkter (positioner, ikke objekter):
+	</text>
+	<button label="Tilføj punkt" name="add_spawn_point_btn"/>
+	<button label="Fjern punkt" name="remove_spawn_point_btn"/>
+	<text name="spawn_point_help">
+		Vælg objekt og klik på &apos;Tilføj punkt&apos; for at angive position. Du kan derefter flytte eller slette objektet. Positioner er i forhold til telehub center. Vælg emne i listen for at vise position i verden.
+	</text>
+</floater>

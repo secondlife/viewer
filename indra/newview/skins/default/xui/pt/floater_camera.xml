@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="camera_floater" title="">
+	<floater.string name="rotate_tooltip">
+		Girar a Câmera ao redor do Foco
+	</floater.string>
+	<floater.string name="zoom_tooltip">
+		Aproximar a Câmera in direção ao Foco
+	</floater.string>
+	<floater.string name="move_tooltip">
+		Mover a Câmera para Cima e para Baixo, para a Esquerda e para a Direita
+	</floater.string>
+	<panel name="controls">
+		<joystick_track name="cam_track_stick" tool_tip="Mover a Câmera para Cima e para Baixo, para a Esquerda e para a Direita"/>
+		<joystick_zoom name="zoom" tool_tip="Aproximar a Câmera in direção ao Foco"/>
+	</panel>
+</floater>

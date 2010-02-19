@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="inspect" title="INSPECIONAR OBJETO" min_width="450">
+	<scroll_list name="object_list" tool_tip="Selecione um objeto nesta lista para destacá-lo in-world">
+		<column label="Nome do Objeto" name="object_name"/>
+		<column label="Proprietário" name="owner_name"/>
+		<column label="Criador" name="creator_name"/>
+		<column label="Data de Criação" name="creation_date"/>
+	</scroll_list>
+	<button width="185" label="Ver Perfil do Proprietário..." label_selected="" name="button owner" tool_tip="Veja o perfil do proprietário do objeto destacado"/>
+	<button width="165" left="205" label="Ver perfil do criador..." label_selected="" name="button creator" tool_tip="Veja o perfil do criador original do objeto destacado"/>
+</floater>

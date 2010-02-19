@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_remote_object">
+	<text name="object_owner_label">
+		Propietario:
+	</text>
+	<button label="Mapa" name="map_btn"/>
+	<button label="Ignorar" name="block_btn"/>
+	<button label="Cerrar" name="close_btn"/>
+</floater>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="AUSWÄHLEN: TEXTUR">
+	<string name="choose_picture">
+		Zum Auswählen eines Bildes hier klicken
+	</string>
+	<text name="Multiple">
+		Mehrer Texturen
+	</text>
+	<text name="unknown">
+		Größe: [DIMENSIONS]
+	</text>
+	<button label="Standard" label_selected="Standard" name="Default"/>
+	<button label="Keine" label_selected="Keine" name="None"/>
+	<button label="Leer" label_selected="Leer" name="Blank"/>
+	<check_box label="Ordner anzeigen" name="show_folders_check"/>
+	<search_editor label="Texturen filtern" name="inventory search editor"/>
+	<check_box label="Jetzt übernehmen" name="apply_immediate_check"/>
+	<button label="" label_selected="" name="Pipette"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+	<button label="OK" label_selected="OK" name="Select"/>
+	<text name="pick title">
+		Auswählen:
+	</text>
+</floater>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Login Menu">
+	<menu label="Ich" name="File">
+		<menu_item_call label="Einstellungen" name="Preferences..."/>
+		<menu_item_call label="[APP_NAME] schließen" name="Quit"/>
+	</menu>
+	<menu label="Hilfe" name="Help">
+		<menu_item_call label="[SECOND_LIFE]-Hilfe" name="Second Life Help"/>
+		<menu_item_call label="INFO ÜBER [APP_NAME]" name="About Second Life"/>
+	</menu>
+	<menu label="Debug" name="Debug">
+		<menu label="Bearbeiten" name="Edit">
+			<menu_item_call label="Rückgängig" name="Undo"/>
+			<menu_item_call label="Wiederherstellen" name="Redo"/>
+			<menu_item_call label="Ausschneiden" name="Cut"/>
+			<menu_item_call label="Kopieren" name="Copy"/>
+			<menu_item_call label="Einfügen" name="Paste"/>
+			<menu_item_call label="Löschen" name="Delete"/>
+			<menu_item_call label="Duplizieren" name="Duplicate"/>
+			<menu_item_call label="Alle auswählen" name="Select All"/>
+			<menu_item_call label="Auswahl aufheben" name="Deselect"/>
+		</menu>
+		<menu_item_call label="Debug-Einstellungen anzeigen" name="Debug Settings"/>
+		<menu_item_call label="UI/Farb-Einstellungen" name="UI/Color Settings"/>
+		<menu_item_call label="XUI-Editor" name="UI Preview Tool"/>
+		<menu label="UI-Tests" name="UI Tests"/>
+		<menu_item_call label="Fenstergröße einstellen..." name="Set Window Size..."/>
+		<menu_item_call label="Servicebedingungen anzeigen" name="TOS"/>
+		<menu_item_call label="Wichtige Meldung anzeigen" name="Critical"/>
+		<menu_item_call label="Web-Browser-Test" name="Web Browser Test"/>
+	</menu>
+</menu_bar>

@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.
+     It is only for those strings which do not belong in a floater.
+     For example, the strings used in avatar chat bubbles, and strings 
+     that are returned from one component and may appear in many places-->
+<strings>
+	<string name="create_account_url">http://join.secondlife.com/index.php?lang=pt-BR</string>
+	<string name="LoginInProgress">
+		Fazendo Login. [APP_NAME] pode parecer congelado. Por favor, aguarde.
+	</string>
+	<string name="LoginAuthenticating">
+		Autenticando
+	</string>
+	<string name="LoginMaintenance">
+		Executando manutenção da conta...
+	</string>
+	<string name="LoginAttempt">
+		Falha na tentativa anterior de login. Fazendo Login, tentativa [NUMBER]
+	</string>
+	<string name="LoginPrecaching">
+		Carregando mundo...
+	</string>
+	<string name="LoginInitializingBrowser">
+		Inicializando navegador embutido...
+	</string>
+	<string name="LoginInitializingMultimedia">
+		Inicializando multimídia...
+	</string>
+	<string name="LoginVerifyingCache">
+		Verificando arquivos no cache (pode levar 60-90 segundos)...
+	</string>
+	<string name="LoginProcessingResponse">
+		Processando Resposta...
+	</string>
+	<string name="LoginInitializingWorld">
+		Inicializando Mundo...
+	</string>
+	<string name="LoginDecodingImages">
+		Decodificando imagens...
+	</string>
+	<string name="LoginInitializingQuicktime">
+		Inicializando o QuickTime...
+	</string>
+	<string name="LoginQuicktimeNotFound">
+		O QuickTime não foi encontrado - incapaz de inicializar.
+	</string>
+	<string name="LoginQuicktimeOK">
+		O QuickTime foi inicializado com sucesso.
+	</string>
+	<string name="LoginWaitingForRegionHandshake">
+		Aguardando o handshake com a região...
+	</string>
+	<string name="LoginConnectingToRegion">
+		Conectando à região...
+	</string>
+	<string name="LoginDownloadingClothing">
+		Baixando roupas...
+	</string>
+	<string name="AgentLostConnection">
+		Esta região pode estar passando por problemas. Por favor, verifique sua conexão com a internet.
+	</string>
+	<string name="TooltipPerson">
+		Pessoa
+	</string>
+	<string name="TooltipNoName">
+		(sem nome)
+	</string>
+	<string name="TooltipOwner">
+		Proprietário:
+	</string>
+	<string name="TooltipPublic">
+		Público
+	</string>
+	<string name="TooltipIsGroup">
+		(Grupo)
+	</string>
+	<string name="TooltipFlagScript">
+		Script
+	</string>
+	<string name="TooltipFlagPhysics">
+		Física
+	</string>
+	<string name="TooltipFlagTouch">
+		Toque
+	</string>
+	<string name="TooltipFlagL$">
+		L$
+	</string>
+	<string name="TooltipFlagDropInventory">
+		Dar Inventário
+	</string>
+	<string name="TooltipFlagPhantom">
+		Imaterial
+	</string>
+	<string name="TooltipFlagTemporary">
+		Temporário
+	</string>
+	<string name="TooltipFlagRightClickMenu">
+		(Clique com o botão direito para acessar o menu)
+	</string>
+	<string name="TooltipFreeToCopy">
+		Cópia Permitida
+	</string>
+	<string name="TooltipForSaleL$">
+		À venda: L$[AMOUNT]
+	</string>
+	<string name="TooltipForSaleMsg">
+		À venda: [MESSAGE]
+	</string>
+	<string name="TooltipFlagGroupBuild">
+		Construído por Grupo
+	</string>
+	<string name="TooltipFlagNoBuild">
+		Não é Permitido Construir
+	</string>
+	<string name="TooltipFlagNoEdit">
+		Construído por Grupo
+	</string>
+	<string name="TooltipFlagNotSafe">
+		Não é Seguro
+	</string>
+	<string name="TooltipFlagNoFly">
+		Não é Permitido Voar
+	</string>
+	<string name="TooltipFlagGroupScripts">
+		Scripts de Grupo
+	</string>
+	<string name="TooltipFlagNoScripts">
+		Não são Permitidos Scripts
+	</string>
+	<string name="TooltipLand">
+		Terreno:
+	</string>
+	<string name="TooltipMustSingleDrop">
+		Apenas um item único pode ser arrastado para este local
+	</string>
+	<string name="RetrievingData">
+		Buscando...
+	</string>
+	<string name="ReleaseNotes">
+		Notas de Distribuição
+	</string>
+	<string name="LoadingData">
+		Carregando...
+	</string>
+	<string name="AvatarNameNobody">
+		(ninguém)
+	</string>
+	<string name="AvatarNameWaiting">
+		(aguardando)
+	</string>
+	<string name="AvatarNameHippos">
+		(hippos)
+	</string>
+	<string name="GroupNameNone">
+		(nenhum)
+	</string>
+	<string name="AssetErrorNone">
+		Nenhum erro
+	</string>
+	<string name="AssetErrorRequestFailed">
+		Item pedido falhou
+	</string>
+	<string name="AssetErrorNonexistentFile">
+		Item pedido: arquivo inexistente
+	</string>
+	<string name="AssetErrorNotInDatabase">
+		Item pedido: item não encontrado na base de dados.
+	</string>
+	<string name="AssetErrorEOF">
+		Fim do arquivo
+	</string>
+	<string name="AssetErrorCannotOpenFile">
+		Não é possível abrir arquivo
+	</string>
+	<string name="AssetErrorFileNotFound">
+		Arquivo não encontrado
+	</string>
+	<string name="AssetErrorTCPTimeout">
+		Tempo de transferência de arquivo expirado
+	</string>
+	<string name="AssetErrorCircuitGone">
+		Circuito caiu
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Visualizador e servidor não concordam no preço
+	</string>
+	<string name="AssetErrorUnknownStatus">
+		Status desconhecido
+	</string>
+	<string name="AvatarEditingApparance">
+		(Editando Aparência)
+	</string>
+	<string name="AvatarAway">
+		Distante
+	</string>
+	<string name="AvatarBusy">
+		Ocupado
+	</string>
+	<string name="AvatarMuted">
+		Mudo
+	</string>
+	<string name="anim_express_afraid">
+		Temeroso
+	</string>
+	<string name="anim_express_anger">
+		Bravo
+	</string>
+	<string name="anim_away">
+		Distante
+	</string>
+	<string name="anim_backflip">
+		Virar para trás
+	</string>
+	<string name="anim_express_laugh">
+		Rir segurando a barriga
+	</string>
+	<string name="anim_express_toothsmile">
+		Sorriso largo
+	</string>
+	<string name="anim_blowkiss">
+		Mandar beijo
+	</string>
+	<string name="anim_express_bored">
+		Entediado
+	</string>
+	<string name="anim_bow">
+		Saudar curvando
+	</string>
+	<string name="anim_clap">
+		Aplaudir
+	</string>
+	<string name="anim_courtbow">
+		Saudação formal
+	</string>
+	<string name="anim_express_cry">
+		Chorar
+	</string>
+	<string name="anim_dance1">
+		Dança 1
+	</string>
+	<string name="anim_dance2">
+		Dança 2
+	</string>
+	<string name="anim_dance3">
+		Dança 3
+	</string>
+	<string name="anim_dance4">
+		Dança 4
+	</string>
+	<string name="anim_dance5">
+		Dança 5
+	</string>
+	<string name="anim_dance6">
+		Dança 6
+	</string>
+	<string name="anim_dance7">
+		Dança 7
+	</string>
+	<string name="anim_dance8">
+		Dança 8
+	</string>
+	<string name="anim_express_disdain">
+		Desdém
+	</string>
+	<string name="anim_drink">
+		Beber
+	</string>
+	<string name="anim_express_embarrased">
+		Envergonhado
+	</string>
+	<string name="anim_angry_fingerwag">
+		Negar com o dedo.
+	</string>
+	<string name="anim_fist_pump">
+		Vibrar provocando
+	</string>
+	<string name="anim_yoga_float">
+		Levitar Yoga
+	</string>
+	<string name="anim_express_frown">
+		Careta
+	</string>
+	<string name="anim_impatient">
+		Impaciente
+	</string>
+	<string name="anim_jumpforjoy">
+		Pular de Alegria
+	</string>
+	<string name="anim_kissmybutt">
+		Beije meu Bumbum
+	</string>
+	<string name="anim_express_kiss">
+		Beijar
+	</string>
+	<string name="anim_laugh_short">
+		Rir
+	</string>
+	<string name="anim_musclebeach">
+		Exibir músculos
+	</string>
+	<string name="anim_no_unhappy">
+		Não (descontente)
+	</string>
+	<string name="anim_no_head">
+		Não
+	</string>
+	<string name="anim_nyanya">
+		Nya-nya-nya
+	</string>
+	<string name="anim_punch_onetwo">
+		Soco Um-Dois
+	</string>
+	<string name="anim_express_open_mouth">
+		Abrir a boca
+	</string>
+	<string name="anim_peace">
+		Paz
+	</string>
+	<string name="anim_point_you">
+		Apontar para o outro
+	</string>
+	<string name="anim_point_me">
+		Apontar para si
+	</string>
+	<string name="anim_punch_l">
+		Socar Esquerda
+	</string>
+	<string name="anim_punch_r">
+		Socar Direita
+	</string>
+	<string name="anim_rps_countdown">
+		RPS contar
+	</string>
+	<string name="anim_rps_paper">
+		RPS papel
+	</string>
+	<string name="anim_rps_rock">
+		RPS pedra
+	</string>
+	<string name="anim_rps_scissors">
+		RPS tesoura
+	</string>
+	<string name="anim_express_repulsed">
+		Repulsa
+	</string>
+	<string name="anim_kick_roundhouse_r">
+		Chute giratório
+	</string>
+	<string name="anim_express_sad">
+		Triste
+	</string>
+	<string name="anim_salute">
+		Saúde
+	</string>
+	<string name="anim_shout">
+		Gritar
+	</string>
+	<string name="anim_express_shrug">
+		Encolher ombros
+	</string>
+	<string name="anim_express_smile">
+		Sorrir
+	</string>
+	<string name="anim_smoke_idle">
+		Fumar à toa
+	</string>
+	<string name="anim_smoke_inhale">
+		Inalar Fumaça
+	</string>
+	<string name="anim_smoke_throw_down">
+		Expelir Fumaça
+	</string>
+	<string name="anim_express_surprise">
+		Surpresa
+	</string>
+	<string name="anim_sword_strike_r">
+		Golpe de Espada
+	</string>
+	<string name="anim_angry_tantrum">
+		Enraivecer
+	</string>
+	<string name="anim_express_tongue_out">
+		Mostrar a língua
+	</string>
+	<string name="anim_hello">
+		Onda
+	</string>
+	<string name="anim_whisper">
+		Sussurrar
+	</string>
+	<string name="anim_whistle">
+		Assobiar
+	</string>
+	<string name="anim_express_wink">
+		Piscar
+	</string>
+	<string name="anim_wink_hollywood">
+		Piscar (Hollywood)
+	</string>
+	<string name="anim_express_worry">
+		Preocupar-se
+	</string>
+	<string name="anim_yes_happy">
+		Sim (Feliz)
+	</string>
+	<string name="anim_yes_head">
+		Sim
+	</string>
+	<string name="texture_loading">
+		Carregando...
+	</string>
+	<string name="worldmap_offline">
+		Desconectado
+	</string>
+	<string name="whisper">
+		sussurra:
+	</string>
+	<string name="shout">
+		grita:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Desconectado
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Desconhecido
+	</string>
+	<string name="land_type_unknown">
+		(desconhecido)
+	</string>
+	<string name="covenant_never_modified">Última modificação: (nunca)</string>
+	<string name="covenant_modified">Última modificação: </string>
+	<string name="all_files">
+		Todos os Arquivos
+	</string>
+	<string name="sound_files">
+		Sons
+	</string>
+	<string name="animation_files">
+		Animações
+	</string>
+	<string name="image_files">
+		Imagens
+	</string>
+	<string name="save_file_verb">
+		Salvar
+	</string>
+	<string name="load_file_verb">
+		Carregar
+	</string>
+	<string name="targa_image_files">
+		Imagens Targa
+	</string>
+	<string name="bitmap_image_files">
+		Imagens Bitmap
+	</string>
+	<string name="avi_movie_file">
+		Arquivo de filme AVI
+	</string>
+	<string name="xaf_animation_file">
+		Arquivo de Animação XAF
+	</string>
+	<string name="xml_file">
+		Arquivo XML
+	</string>
+	<string name="dot_raw_file">
+		Arquivo RAW
+	</string>
+	<string name="compressed_image_files">
+		Imagens Compactadas
+	</string>
+	<string name="load_files">
+		Carregar Arquivos
+	</string>
+	<string name="choose_the_directory">
+		Escolher Diretório
+	</string>
+	<string name="accel-mac-control">
+		&#8963;
+	</string>
+	<string name="accel-mac-command">
+		&#8984;
+	</string>
+	<string name="accel-mac-option">
+		&#8997;
+	</string>
+	<string name="accel-mac-shift">
+		&#8679;
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Shift+
+	</string>
+	<string name="GraphicsQualityLow">
+		Baixo
+	</string>
+	<string name="GraphicsQualityMid">
+		Meio
+	</string>
+	<string name="GraphicsQualityHigh">
+		Alto
+	</string>
+
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Locação Linden</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">Artes e Cultura</string>
+	<string name="Business">Negócios</string>
+	<string name="Educational">Educacional</string>
+	<string name="Gaming">Jogos</string>
+	<string name="Hangout">Moradia</string>
+	<string name="Newcomer Friendly">Amigável a Novos Usuários</string>
+	<string name="Parks&amp;Nature">Parques &amp; Natureza</string>
+	<string name="Residential">Residencial</string>
+	<string name="Shopping">Compras</string>
+	<string name="Other">Outros</string>
+	<string name="ringing">
+		Conectando à conversa de Voz no mundo
+	</string>
+	<string name="connected">
+		Conectado
+	</string>
+	<string name="unavailable">
+		Voz não disponível na sua localização atual
+	</string>
+	<string name="hang_up">
+		Desconectado da conversa de Voz no mundo
+	</string>
+  <string name="ScriptQuestionCautionChatGranted">
+	&apos;[OBJECTNAME]&apos;, um objeto de  &apos;[OWNERNAME]&apos;, localizado em [REGIONNAME] a [REGIONPOS], obteve permissão para: [PERMISSIONS].
+  </string>
+  <string name="ScriptQuestionCautionChatDenied">
+	&apos;[OBJECTNAME]&apos;, um objeto de  &apos;[OWNERNAME]&apos;, localizado em [REGIONNAME] a [REGIONPOS], teve permissão negada para: [PERMISSIONS].
+  </string>
+  <string name="ScriptTakeMoney">
+	Tomar linden dólares (L$) de você
+  </string>
+  <string name="ActOnControlInputs">
+	Atue nas suas entradas de controle
+  </string>
+  <string name="RemapControlInputs">
+	Remapeie suas entradas de controle
+  </string>
+  <string name="AnimateYourAvatar">
+	Faça uma animação para o seu avatar
+  </string>
+  <string name="AttachToYourAvatar">
+	Anexe ao seu avatar
+  </string>
+  <string name="ReleaseOwnership">
+	Libere a propriedade e torne-a pública
+  </string>
+  <string name="LinkAndDelink">
+	Una e desuna de outros objetos
+  </string>
+  <string name="AddAndRemoveJoints">
+	Adicione e remova junções com outros objetos
+  </string>
+  <string name="ChangePermissions">
+	Modifique as permissões
+  </string>
+  <string name="TrackYourCamera">
+	Acompanhe sua câmera
+  </string>
+  <string name="ControlYourCamera">
+	Controle sua camera
+  </string>
+	<string name="only_user_message">
+		Você é o único usuário desta sessão.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] está offline.
+	</string>
+	<string name="invite_message">
+		Clique no botão [BUTTON NAME] para aceitar/ conectar a este bate-papo em voz.
+	</string>
+	<string name="generic_request_error">
+		Erro na requisição, por favor, tente novamente.
+	</string>
+	<string name="insufficient_perms_error">
+		Você não tem permissões suficientes.
+	</string>
+	<string name="session_does_not_exist_error">
+		A sessão deixou de existir
+	</string>
+	<string name="no_ability_error">
+		Você não possui esta habilidade.
+	</string>
+	<string name="no_ability">
+		Você não possui esta habilidade.
+	</string>
+	<string name="not_a_mod_error">
+		Você não é um moderador de sessão.
+	</string>
+	<string name="muted_error">
+		Um moderador do grupo desabilitou seu bate-papo em texto.
+	</string>
+	<string name="add_session_event">
+		Não foi possível adicionar usuários na sessão de bate-papo com [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Não foi possível enviar sua mensagem na sessão de bate- papo com [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Você foi removido do grupo.
+	</string>
+	<string name="close_on_no_ability">
+		Você não possui mais a habilidade de estar na sessão de bate-papo.
+	</string>
+			<string name="AcctTypeResident">
+				Residente
+			</string>
+			<string name="AcctTypeTrial">
+				Teste
+			</string>
+			<string name="AcctTypeCharterMember">
+				Estatuto do membro
+			</string>
+			<string name="AcctTypeEmployee">
+				Contratado da Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Infor. de pagamento utilizadas
+			</string>
+			<string name="PaymentInfoOnFile">
+				Infor. de pagamento no arquivo
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Sem infor. de pagamento no arquivo
+			</string>
+			<string name="AgeVerified">
+				Idade Verificada
+			</string>
+			<string name="NotAgeVerified">
+				Idade não Verificada
+			</string>
+</strings>

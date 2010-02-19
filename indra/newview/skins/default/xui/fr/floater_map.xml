@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Map" title="Mini-carte">
+	<floater.string name="mini_map_north">
+		N
+	</floater.string>
+	<floater.string name="mini_map_east">
+		E
+	</floater.string>
+	<floater.string name="mini_map_west">
+		O
+	</floater.string>
+	<floater.string name="mini_map_south">
+		S
+	</floater.string>
+	<floater.string name="mini_map_southeast">
+		SE
+	</floater.string>
+	<floater.string name="mini_map_northeast">
+		NE
+	</floater.string>
+	<floater.string name="mini_map_southwest">
+		SO
+	</floater.string>
+	<floater.string name="mini_map_northwest">
+		NO
+	</floater.string>
+	<floater.string name="ToolTipMsg">
+		[AGENT][REGION](Double-cliquez pour ouvrir la carte)
+	</floater.string>
+	<text label="N" name="floater_map_north" text="N">
+		N
+	</text>
+	<text label="E" name="floater_map_east" text="E">
+		E
+	</text>
+	<text label="O" name="floater_map_west" text="O">
+		O
+	</text>
+	<text label="S" name="floater_map_south" text="S">
+		S
+	</text>
+	<text label="SE" name="floater_map_southeast" text="SE">
+		SE
+	</text>
+	<text label="NE" name="floater_map_northeast" text="NE">
+		NE
+	</text>
+	<text label="SO" name="floater_map_southwest" text="SO">
+		SO
+	</text>
+	<text label="NO" name="floater_map_northwest" text="NO">
+		NO
+	</text>
+</floater>

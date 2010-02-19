@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="queue" title="RESETAR PROGRESSO">
+	<button label="Fechar" label_selected="Fechar" name="close"/>
+</floater>

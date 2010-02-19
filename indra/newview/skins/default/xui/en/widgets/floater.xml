@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- See also settings.xml UIFloater* settings for configuration -->
+<floater 
+ name="floater"
+ bg_opaque_color="FloaterFocusBackgroundColor"
+ bg_alpha_color="FloaterDefaultBackgroundColor"
+ bg_opaque_image="Window_Foreground" 
+ bg_alpha_image="Window_Background" 
+ background_visible="true"
+ background_opaque="false"
+ header_height="25"
+ close_image="Icon_Close_Foreground"
+ restore_image="Icon_Restore_Foreground"
+ minimize_image="Icon_Minimize_Foreground"
+ tear_off_image="tearoffbox.tga"
+ dock_image="Icon_Dock_Foreground"
+ help_image="Icon_Help_Foreground"
+ close_pressed_image="Icon_Close_Press"
+ restore_pressed_image="Icon_Restore_Press"
+ minimize_pressed_image="Icon_Minimize_Press"
+ tear_off_pressed_image="tearoff_pressed.tga"
+ dock_pressed_image="Icon_Dock_Press"
+ help_pressed_image="Icon_Help_Press"
+  />

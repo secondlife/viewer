@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="toolbox floater" title="" short_title="BOUWEN" width="288">
+	<button label="" label_selected="" name="button focus" tool_tip="Focus"/>
+	<button label="" label_selected="" name="button move" tool_tip="Verplaats"/>
+	<button label="" label_selected="" name="button edit" tool_tip="Bewerk"/>
+	<button label="" label_selected="" name="button create" tool_tip="Maak"/>
+	<button label="" label_selected="" name="button land" tool_tip="Land"/>
+	<radio_group name="focus_radio_group">
+		<radio_item label="Zoom" name="radio zoom"/>
+		<radio_item label="Roteren (Ctrl)" name="radio orbit"/>
+		<radio_item label="Verplaatsen (Ctrl-Shift)" name="radio pan"/>
+	</radio_group>
+	<radio_group name="move_radio_group">
+		<radio_item label="Verplaatsen" name="radio move"/>
+		<radio_item label="Optillen (Ctrl)" name="radio lift"/>
+		<radio_item label="Roteren (Ctrl-Shift)" name="radio spin"/>
+	</radio_group>
+	<radio_group name="edit_radio_group">
+		<radio_item label="Positie" name="radio position"/>
+		<radio_item label="Roteren (Ctrl)" name="radio rotate"/>
+		<radio_item label="Uitrekken (Ctrl-Shift)" name="radio stretch"/>
+		<radio_item label="Selecteer textuur" name="radio select face"/>
+	</radio_group>
+	<check_box label="Bewerk gekoppelde onderdelen" name="checkbox edit linked parts"/>
+	<text name="text ruler mode">
+		Liniaal:
+	</text>
+	<combo_box name="combobox grid mode" width="78" left_delta="38">
+		<combo_box.item name="World" label="Wereld"
+		/>
+		<combo_box.item name="Local" label="Lokaal"
+		/>
+		<combo_box.item name="Reference" label="Referentie"
+		/>
+	</combo_box>
+	<check_box left="136" label="Beide zijden uitrekken" name="checkbox uniform"/>
+	<check_box left="136" label="Texturen uitrekken" name="checkbox stretch textures"/>
+	<check_box left="136" label="Gebruik grid" name="checkbox snap to grid"/>
+	<button label="Opties..." label_selected="Opties..." name="Options..." height="18" bottom_delta="-15"/>
+	<text name="text status" width="280">
+		Sleep om te verplaatsen, Shift-slepen om te kopiëren
+	</text>
+	<button label="" label_selected="" name="ToolCube" tool_tip="Kubus"/>
+	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
+	<button label="" label_selected="" name="ToolPyramid" tool_tip="Piramide"/>
+	<button label="" label_selected="" name="ToolTetrahedron" tool_tip="Tetrahedron"/>
+	<button label="" label_selected="" name="ToolCylinder" tool_tip="Cilinder"/>
+	<button label="" label_selected="" name="ToolHemiCylinder" tool_tip="Halve cilinder"/>
+	<button label="" label_selected="" name="ToolCone" tool_tip="Kegel"/>
+	<button label="" label_selected="" name="ToolHemiCone" tool_tip="Halve kegel"/>
+	<button label="" label_selected="" name="ToolSphere" tool_tip="Bol"/>
+	<button label="" label_selected="" name="ToolHemiSphere" tool_tip="Halve bol"/>
+	<button label="" label_selected="" name="ToolTorus" tool_tip="Torus"/>
+	<button label="" label_selected="" name="ToolTube" tool_tip="Buis"/>
+	<button label="" label_selected="" name="ToolRing" tool_tip="Ring"/>
+	<button label="" label_selected="" name="ToolTree" tool_tip="Boom"/>
+	<button label="" label_selected="" name="ToolGrass" tool_tip="Gras"/>
+	<check_box label="Behoud geselecteerd" name="checkbox sticky"/>
+	<check_box label="Kopiëer Selectie" name="checkbox copy selection"/>
+	<check_box label="Middelpunt" name="checkbox copy centers"/>
+	<check_box label="Roteer" name="checkbox copy rotates"/>
+	<radio_group name="land_radio_group">
+		<radio_item label="Selecteer land" name="radio select land"/>
+		<radio_item label="Vlak maken" name="radio flatten"/>
+		<radio_item label="Verhogen" name="radio raise"/>
+		<radio_item label="Verlagen" name="radio lower"/>
+		<radio_item label="Egaliseren" name="radio smooth"/>
+		<radio_item label="Opruwen" name="radio noise"/>
+		<radio_item label="Herstellen" name="radio revert"/>
+	</radio_group>
+	<button label="Toepassen" label_selected="Toepassen" name="button apply to selection" tool_tip="Wijzig geselecteerd land"/>
+	<text name="Bulldozer:">
+		Bulldozer:
+	</text>
+	<text name="Dozer Size:">
+		Grootte
+	</text>
+	<text name="Strength:">
+		Sterkte
+	</text>
+	<text name="obj_count" left="134">
+		Geselecteerde objecten: [COUNT]
+	</text>
+	<text name="prim_count" left="134">
+		primitieven: [COUNT]
+	</text>
+	<tab_container name="Object Info Tabs" tab_max_width="62" tab_min_width="30" width="288">
+		<panel label="Algemeen" name="General">
+			<text name="Name:">
+				Naam:
+			</text>
+			<text name="Description:">
+				Omschrijving:
+			</text>
+			<text name="Creator:">
+				Maker:
+			</text>
+			<text name="Creator Name">
+				Thrax Linden
+			</text>
+			<button label="Profiel..." label_selected="Profiel..." name="button creator profile"/>
+			<text name="Owner:">
+				Eigenaar:
+			</text>
+			<text name="Owner Name">
+				Thrax Linden
+			</text>
+			<button label="Profiel..." label_selected="Profiel..." name="button owner profile"/>
+			<text name="Group:">
+				Groep:
+			</text>
+			<text name="Group Name Proxy">
+				De Lindens
+			</text>
+			<button label="Instellen..." label_selected="Instellen..." name="button set group"/>
+			<text name="Permissions:">
+				Permissies:
+			</text>
+
+			<check_box label="Deel met groep" name="checkbox share with group" tool_tip="Alle leden van de ingestelde groep toestaan om te delen en uw permissies voor dit object te gebruiken. U moet &apos;Overdragen&apos; om rolbeperkingen in te schakelen."/>
+			<string name="text deed continued">
+				Overdragen...
+			</string>
+			<string name="text deed">
+				Overdragen
+			</string>
+			<button label="Overdragen..." label_selected="Overdragen..." name="button deed" tool_tip="Groepgedeelde objecten kunnen door een groepofficier worden overgedragen"/>
+			<check_box label="Iedereen mag verplaatsen" name="checkbox allow everyone move"/>
+			<check_box label="Iedereen mag kopiëren" name="checkbox allow everyone copy"/>
+			<check_box label="Toon in zoeken" name="search_check" tool_tip="Laat mensen dit object zien in zoekresultaten"/>
+			<check_box label="Te koop" name="checkbox for sale"/>
+			<text name="Cost">
+				Prijs: L$
+			</text>
+			<combo_box name="sale type">
+				<combo_box.item label="Kopie" name="Copy"/>
+				<combo_box.item label="Inhoud" name="Contents"/>
+				<combo_box.item label="Origineel" name="Original"/>
+			</combo_box>
+
+			<text name="label click action">
+				Wanneer links-geklikt:
+			</text>
+			<combo_box name="clickaction" width="178">
+				<combo_box.item name="Touch/grab(default)" label="Aanraken/pakken (standaard)"
+				/>
+				<combo_box.item name="Sitonobject" label="Zit op object"
+				/>
+				<combo_box.item name="Buyobject" label="Koop object"
+				/>
+				<combo_box.item name="Payobject" label="Betaal object"
+				/>
+				<combo_box.item name="Open" label="Open"
+				/>
+				<combo_box.item name="Play" label="Perceelmedia afspelen"
+				/>
+				<combo_box.item name="Opemmedia" label="Perceelmedia openen"
+				/>
+			</combo_box>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				U kunt dit object wijzigen
+			</text>
+			<text name="B:">
+				B:
+			</text>
+			<text name="O:">
+				O:
+			</text>
+			<text name="G:">
+				G:
+			</text>
+			<text name="E:">
+				E:
+			</text>
+			<text name="N:">
+				N:
+			</text>
+			<text name="F:">
+				F:
+			</text>
+			<text name="Next owner can:">
+				Volgende eigenaar kan:
+			</text>
+			<check_box label="Wijzigen" name="checkbox next owner can modify"/>
+			<check_box label="Kopiëren" name="checkbox next owner can copy" left_delta="80"/>
+			<check_box name="checkbox next owner can transfer" left_delta="67"/>
+		</panel>
+			<string name="text modify info 1">
+				U kunt dit object wijzigen
+			</string>
+			<string name="text modify info 2">
+				U kunt deze objecten wijzigen
+			</string>
+			<string name="text modify info 3">
+				U kunt dit object niet wijzigen
+			</string>
+			<string name="text modify info 4">
+				U kunt deze objecten niet wijzigen
+			</string>
+			<string name="text modify warning">
+				U moet het hele object selecteren om permissies in te stellen
+			</string>
+			<string name="Cost Default">
+				Prijs: L$
+			</string>
+			<string name="Cost Total">
+				Totale Prijs: L$
+			</string>
+			<string name="Cost Per Unit">
+				Prijs per: L$
+			</string>
+			<string name="Cost Mixed">
+				Gemengde prijs
+			</string>
+			<string name="Sale Mixed">
+				Gemengde verkoop
+			</string>
+		</panel>
+		<panel label="Object" name="Object">
+			<text name="select_single">
+				Selecteer slechts één primitief om parameters te bewerken
+			</text>
+			<text name="edit_object">
+				Bewerk object parameters:
+			</text>
+			<check_box label="Vergrendeld" name="checkbox locked" tool_tip="Voorkomt het verplaatsen of verwijderen van objecten. Regelmatig handig tijdens het bouwen om onbedoelde bewerkingen te voorkomen."/>
+			<check_box label="Fysiek" name="Physical Checkbox Ctrl" tool_tip="Staat toe dat objecten geduwd worden en worden beïnvloed door de zwaartekracht"/>
+			<check_box label="Tijdelijk" name="Temporary Checkbox Ctrl" tool_tip="Zorgt ervoor dat het object 1 minuut na creatie wordt verwijderd."/>
+			<check_box label="Fantoom" name="Phantom Checkbox Ctrl" tool_tip="Zorgt ervoor dat objecten niet kunnen botsen met andere objecten of avatars"/>
+			<text name="label position">
+				Positie (meters)
+			</text>
+			<spinner label="X" name="Pos X"/>
+			<spinner label="Y" name="Pos Y"/>
+			<spinner label="Z" name="Pos Z"/>
+			<text name="label size">
+				Grootte (meters)
+			</text>
+			<spinner label="X" name="Scale X"/>
+			<spinner label="Y" name="Scale Y"/>
+			<spinner label="Z" name="Scale Z"/>
+			<text name="label rotation">
+				Rotatie (graden)
+			</text>
+			<spinner label="X" name="Rot X"/>
+			<spinner label="Y" name="Rot Y"/>
+			<spinner label="Z" name="Rot Z"/>
+			<text name="label material">
+				Materiaal
+			</text>
+			<combo_box name="material">
+				<combo_box.item name="Stone" label="Steen"
+				/>
+				<combo_box.item name="Metal" label="Metaal"
+				/>
+				<combo_box.item name="Glass" label="Glas"
+				/>
+				<combo_box.item name="Wood" label="Hout"
+				/>
+				<combo_box.item name="Flesh" label="Vlees"
+				/>
+				<combo_box.item name="Plastic" label="Plastic"
+				/>
+				<combo_box.item name="Rubber" label="Rubber"
+				/>
+			</combo_box>
+			<text name="label basetype">
+				Bouwbloktype
+			</text>
+			<combo_box name="comboBaseType">
+				<combo_box.item name="Box" label="Kubus"
+				/>
+				<combo_box.item name="Cylinder" label="Cilinder"
+				/>
+				<combo_box.item name="Prism" label="Prisma"
+				/>
+				<combo_box.item name="Sphere" label="Bol"
+				/>
+				<combo_box.item name="Torus" label="Torus"
+				/>
+				<combo_box.item name="Tube" label="Buis"
+				/>
+				<combo_box.item name="Ring" label="Ring"
+				/>
+				<combo_box.item name="Sculpted" label="Sculpted"
+				/>
+			</combo_box>
+			<text name="text cut">
+				Uitsnede begin en einde
+			</text>
+			<spinner label="B" name="cut begin"/>
+			<spinner label="E" name="cut end"/>
+			<text name="text hollow">
+				Hol
+			</text>
+			<text name="text skew">
+				Verschuiven
+			</text>
+			<text name="Hollow Shape">
+				Holtevorm
+			</text>
+			<combo_box name="hole">
+				<combo_box.item name="Default" label="Standaard"
+				/>
+				<combo_box.item name="Circle" label="Cirkel"
+				/>
+				<combo_box.item name="Square" label="Vierkant"
+				/>
+				<combo_box.item name="Triangle" label="Driehoek"
+				/>
+			</combo_box>
+			<text name="text twist">
+				Verdraai begin en einde
+			</text>
+			<spinner label="B" name="Twist Begin"/>
+			<spinner label="E" name="Twist End"/>
+			<text name="scale_taper">
+				Knijpen
+			</text>
+			<text name="scale_hole">
+				Gatgrootte
+			</text>
+			<spinner label="X" name="Taper Scale X"/>
+			<spinner label="Y" name="Taper Scale Y"/>
+			<text name="text topshear">
+				Bovenkant verschuiven
+			</text>
+			<spinner label="X" name="Shear X"/>
+			<spinner label="Y" name="Shear Y"/>
+			<text name="advanced_cut">
+				Profielsnede begin en einde
+			</text>
+			<text name="advanced_dimple">
+				Deuk begin en einde
+			</text>
+			<text name="advanced_slice">
+				Uitsnede begin en einde
+			</text>
+			<spinner label="B" name="Path Limit Begin"/>
+			<spinner label="E" name="Path Limit End"/>
+			<text name="text taper2">
+				Knijpen
+			</text>
+			<spinner label="X" name="Taper X"/>
+			<spinner label="Y" name="Taper Y"/>
+			<text name="text radius delta">
+				Straal
+			</text>
+			<text name="text revolutions" width="84">
+				Omwentelingen
+			</text>
+			<texture_picker label="Sculpt textuur" name="sculpt texture control" tool_tip="Klik om een afbeelding te kiezen"/>
+			<check_box label="Spiegelen" name="sculpt mirror control" tool_tip="Spiegelt de sculpted prim om de X-as"/>
+			<check_box label="Binnenstebuiten" name="sculpt invert control" tool_tip="Inverteert de normalen van de sculpted prim, zodat deze binnenstebuiten verschijnt."/>
+			<text name="label sculpt type">
+				Hechtingstype
+			</text>
+			<combo_box name="sculpt type control">
+				<combo_box.item name="None" label="(geen)"
+				/>
+				<combo_box.item name="Sphere" label="Bol"
+				/>
+				<combo_box.item name="Torus" label="Torus"
+				/>
+				<combo_box.item name="Plane" label="Vlak"
+				/>
+				<combo_box.item name="Cylinder" label="Cilinder"
+				/>
+			</combo_box>
+		</panel>
+		<panel label="Kenmerken" name="Features">
+			<text name="select_single">
+				Selecteer slechts één primitief om kenmerken te bewerken
+			</text>
+			<text name="edit_object">
+				Bewerk objectkenmerken:
+			</text>
+			<check_box label="Flexibiliteit" name="Flexible1D Checkbox Ctrl" tool_tip="Staat toe dat objecten kunnen buigen om de Z-as. (alleen aan de client kant)"/>
+			<spinner label="Zachtheid" name="FlexNumSections" width="143" label_width="80"/>
+			<spinner label="Zwaartekracht" name="FlexGravity" width="143" label_width="80"/>
+			<spinner label="Slepen" name="FlexFriction" width="143" label_width="80"/>
+			<spinner label="Wind" name="FlexWind" width="143" label_width="80"/>
+			<spinner label="Spanning" name="FlexTension" width="143" label_width="80"/>
+			<spinner label="Kracht X" name="FlexForceX" width="143" label_width="80"/>
+			<spinner label="Kracht Y" name="FlexForceY" width="143" label_width="80"/>
+			<spinner label="Kracht Z" name="FlexForceZ" width="143" label_width="80"/>
+			<check_box label="Licht" name="Light Checkbox Ctrl" tool_tip="Zorgt dat het object licht uitstraalt"/>
+			<text name="label color">
+				Kleur
+			</text>
+			<color_swatch label="" name="colorswatch" tool_tip="Klik om kleurkiezer to openen"/>
+			<spinner label="Intensiteit" name="Light Intensity"/>
+			<spinner label="Straal" name="Light Radius"/>
+			<spinner label="Uitstraling" name="Light Falloff"/>
+		</panel>
+		<panel label="Textuur" name="Texture">
+			<texture_picker label="Textuur" name="texture control" tool_tip="Klik om een afbeelding te kiezen"/>
+			<color_swatch label="Kleur" name="colorswatch" tool_tip="Klik om kleurkiezer to openen"/>
+			<text name="color trans" width="100">
+				Transparantie %
+			</text>
+			<text name="glow label">
+				Gloed
+			</text>
+			<check_box label="Volledige &#10;helderheid" name="checkbox fullbright" bottom_delta="-21"/>
+			<text name="tex gen">
+				Mapping
+			</text>
+			<combo_box name="combobox texgen">
+				<combo_box.item name="Default" label="Standaard"
+				/>
+				<combo_box.item name="Planar" label="Vlak"
+				/>
+			</combo_box>
+			<text name="label shininess">
+				Glans
+			</text>
+			<combo_box name="combobox shininess">
+				<combo_box.item name="None" label="Geen"
+				/>
+				<combo_box.item name="Low" label="Laag"
+				/>
+				<combo_box.item name="Medium" label="Middel"
+				/>
+				<combo_box.item name="High" label="Hoog"
+				/>
+			</combo_box>
+			<text name="label bumpiness">
+				Bumpiness
+			</text>
+			<combo_box name="combobox bumpiness">
+				<combo_box.item name="None" label="Geen"
+				/>
+				<combo_box.item name="Brightness" label="Helderheid"
+				/>
+				<combo_box.item name="Darkness" label="Donkerheid"
+				/>
+				<combo_box.item name="woodgrain" label="Houtnerf"
+				/>
+				<combo_box.item name="bark" label="Schors"
+				/>
+				<combo_box.item name="bricks" label="Stenen"
+				/>
+				<combo_box.item name="checker" label="Dambord"
+				/>
+				<combo_box.item name="concrete" label="Beton"
+				/>
+				<combo_box.item name="crustytile" label="gebarsten tegels"
+				/>
+				<combo_box.item name="cutstone" label="natuursteen"
+				/>
+				<combo_box.item name="discs" label="schijven"
+				/>
+				<combo_box.item name="gravel" label="grind"
+				/>
+				<combo_box.item name="petridish" label="petrischaal"
+				/>
+				<combo_box.item name="siding" label="wandpaneel"
+				/>
+				<combo_box.item name="stonetile" label="plavuizen"
+				/>
+				<combo_box.item name="stucco" label="stucwerk"
+				/>
+				<combo_box.item name="suction" label="zuignappen"
+				/>
+				<combo_box.item name="weave" label="weven"
+				/>
+			</combo_box>
+			<text name="tex scale">
+				Herhalingen per zijde
+			</text>
+			<spinner label="Horizontaal (U)" name="TexScaleU"/>
+			<check_box label="Omkeren" name="checkbox flip s"/>
+			<spinner label="Verticaal (V)" name="TexScaleV"/>
+			<check_box label="Omkeren" name="checkbox flip t"/>
+			<text name="tex rotate">
+				Rotatie (graden)
+			</text>
+			<string name="string repeats per meter">
+				Herhalingen per meter
+			</string>
+			<string name="string repeats per face">
+				Herhalingen per zijde
+			</string>
+			<text name="rpt">
+				Herhalingen per m
+			</text>
+			<button label="Toepassen" label_selected="Toepassen" name="button apply"/>
+			<text name="tex offset">
+				Verplaatsing
+			</text>
+			<spinner label="Horizontaal (U)" name="TexOffsetU"/>
+			<spinner label="Verticaal (V)" name="TexOffsetV"/>
+			<text name="textbox autofix">
+				Mediatextuur uitlijnen
+(moet eerst laden)
+			</text>
+			<button label="Uitlijnen" label_selected="Uitlijnen" name="button align" left="155" />
+		</panel>
+		<panel label="Inhoud" name="Contents">
+			<button label="Nieuw script" label_selected="Nieuw script" name="button new script"/>
+			<button label="Permissies" name="button permissions"/>
+		<panel name="ContentsInventory" width="272" />
+		</panel>
+	</tab_container>
+	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Perceel Informatie
+		</text>
+		<text name="label_area_price">
+			Prijs: L$[PRICE] voor [AREA] m².
+		</text>
+		<text name="label_area">
+			Gebied: [AREA] m².
+		</text>
+		<button label="Over land..." label_selected="Over land..." name="button about land"/>
+		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom:  &#10;&#10;Groen = Uw land &#10;Aqua = Land van uw groep &#10;Rood = Eigendom van anderen &#10;Geel = Te koop &#10;Paars = Ter veiling &#10;Grijs = Openbaar"/>
+		<button label="?" label_selected="?" name="button show owners help" left_delta="105"/>
+		<text name="label_parcel_modify">
+			Wijzig Perceel
+		</text>
+		<button label="Opdelen" label_selected="Opdelen" name="button subdivide land"/>
+		<button label="Samenvoegen" label_selected="Samenvoegen" name="button join land"/>
+		<text name="label_parcel_trans">
+			Landtransacties
+		</text>
+		<button label="Koop land" label_selected="Koop land" name="button buy land"/>
+		<button label="Land Afstaan" label_selected="Land Afstaan" name="button abandon land"/>
+	</panel>
+	<floater.string name="status_rotate">
+		Sleep de gekleurde banden om het object te roteren
+	</floater.string>
+	<floater.string name="status_scale">
+		Klik en sleep om de geselecteerde zijde uit te rekken.
+	</floater.string>
+	<floater.string name="status_move">
+		Sleep om te verplaatsen, Shift-slepen om te kopiëren
+	</floater.string>
+	<floater.string name="status_modifyland">
+		Klik en houd vast om land te wijzigen
+	</floater.string>
+	<floater.string name="status_camera">
+		Klik en sleep om beeld te wijzigen
+	</floater.string>
+	<floater.string name="status_grab">
+		Sleep om te verplaatsen, Ctrl om op te tillen, Ctrl-Shift om te roteren.
+	</floater.string>
+	<floater.string name="status_place">
+		Klik in-wereld om te bouwen
+	</floater.string>
+	<floater.string name="status_selectland">
+		Klik en sleep om land te selecteren
+	</floater.string>
+	<floater.string name="grid_screen_text">
+		Scherm
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Lokaal
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Wereld
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referentie
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Bevestiging
+	</floater.string>
+</floater>

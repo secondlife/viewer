@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_inventory_add">
+	<menu label="Hochladen" name="upload">
+		<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
+		<menu_item_call label="Sound ([COST] L$)..." name="Upload Sound"/>
+		<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
+		<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
+	</menu>
+	<menu_item_call label="Neuer Ordner" name="New Folder"/>
+	<menu_item_call label="Neues Skript" name="New Script"/>
+	<menu_item_call label="Neue Notizkarte" name="New Note"/>
+	<menu_item_call label="Neue Geste" name="New Gesture"/>
+	<menu label="Neue Kleider" name="New Clothes">
+		<menu_item_call label="Neues Hemd" name="New Shirt"/>
+		<menu_item_call label="Neue Hose" name="New Pants"/>
+		<menu_item_call label="Neue Schuhe" name="New Shoes"/>
+		<menu_item_call label="Neue Socken" name="New Socks"/>
+		<menu_item_call label="Neue Jacke" name="New Jacket"/>
+		<menu_item_call label="Neuer Rock" name="New Skirt"/>
+		<menu_item_call label="Neue Handschuhe" name="New Gloves"/>
+		<menu_item_call label="Neues Unterhemd" name="New Undershirt"/>
+		<menu_item_call label="Neue Unterhose" name="New Underpants"/>
+		<menu_item_call label="Alpha: Neu" name="New Alpha"/>
+		<menu_item_call label="Neue Tätowierung" name="New Tattoo"/>
+	</menu>
+	<menu label="Neue Körperteile" name="New Body Parts">
+		<menu_item_call label="Neue Form/Gestalt" name="New Shape"/>
+		<menu_item_call label="Neue Haut" name="New Skin"/>
+		<menu_item_call label="Neues Haar" name="New Hair"/>
+		<menu_item_call label="Neue Augen" name="New Eyes"/>
+	</menu>
+</menu>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater
+ can_resize="true"
+ height="233"
+ layout="topleft"
+ name="script debug floater"
+ help_topic="script_debug_floater"
+ save_rect="true"
+ title="Script Warning/Error"
+ width="450">
+    <tab_container
+     follows="left|top|right|bottom"
+     height="217"
+     layout="topleft"
+     left="1"
+     name="Preview Tabs"
+     tab_position="bottom"
+     top="16"
+     width="448" />
+</multi_floater>

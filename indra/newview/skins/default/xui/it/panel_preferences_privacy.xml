@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Comunicazione" name="im">
+	<panel.string name="log_in_to_change">
+		log in per cambiare
+	</panel.string>
+	<button label="Pulisci la cronologia" name="clear_cache"/>
+	<text name="cache_size_label_l">
+		(Luoghi, immagini, web, cronologia del search)
+	</text>
+	<check_box label="Solo amici e gruppi mi vedono online" name="online_visibility"/>
+	<check_box label="Solo amici e gruppi possono chiamarmi o mandarmi IM" name="voice_call_friends_only_check"/>
+	<check_box label="Spegnere il microfono quando chiudi le chiamate" name="auto_disengage_mic_check"/>
+	<check_box label="Accetta cookies" name="cookies_enabled"/>
+	<check_box label="Permettere Media Autoplay" name="autoplay_enabled"/>
+	<text name="Logs:">
+		Logs:
+	</text>
+	<check_box label="Salvare le ultime chat logs nel mio computer" name="log_nearby_chat"/>
+	<check_box label="Salvare gli IM logs nel mio computer" name="log_instant_messages"/>
+	<check_box label="Aggiungere orario" name="show_timestamps_check_im"/>
+	<line_editor left="288" name="log_path_string" right="-20"/>
+	<text name="log_path_desc">
+		Luoghi delle logs
+	</text>
+	<button label="Browse" label_selected="Browse" name="log_path_button" width="130"/>
+	<button label="Bloccare lista" name="block_list"/>
+</panel>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_group">
+	<string name="PrivateGroup">
+		Groupe privé
+	</string>
+	<string name="FreeToJoin">
+		Inscription gratuite
+	</string>
+	<string name="CostToJoin">
+		Inscription : [AMOUNT] L$
+	</string>
+	<string name="YouAreMember">
+		Vous êtes membre
+	</string>
+	<text name="group_name">
+		Groupe grognon des Orignaux Grumpity
+	</text>
+	<text name="group_subtitle">
+		123 membres
+	</text>
+	<text name="group_details">
+		Un groupe chargé de créer une pièce avec un orignal.
+Méfiez-vous de l&apos;orignal ! Méfiez-vous ! Et de la mangouste aussi !
+	</text>
+	<text name="group_cost">
+		Inscription : 123 L$
+	</text>
+	<button label="Vous inscrire" name="join_btn"/>
+	<button label="Quitter" name="leave_btn"/>
+	<button label="Voir le profil" name="view_profile_btn"/>
+</floater>

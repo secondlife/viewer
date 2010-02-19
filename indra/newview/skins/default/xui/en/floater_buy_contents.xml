@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="290"
+ layout="topleft"
+ min_height="150"
+ min_width="200"
+ name="floater_buy_contents"
+ help_topic="floater_buy_contents"
+ save_rect="true"
+ title="BUY CONTENTS"
+ width="280">
+    <floater.string
+     name="no_copy_text">
+        (no copy)
+    </floater.string>
+    <floater.string
+     name="no_modify_text">
+        (no modify)
+    </floater.string>
+    <floater.string
+     name="no_transfer_text">
+        (no transfer)
+    </floater.string>
+       <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="16"
+     top="22"
+     left="10"
+     layout="topleft"
+     name="contains_text"
+     width="276">
+        [NAME] contains:
+    </text>
+    <scroll_list
+     background_visible="true"
+     draw_border="false"
+     follows="all"
+     height="163"
+     layout="topleft"
+     left="10"
+     name="item_list"
+     top_pad="4"
+     width="260">
+        <scroll_list.columns
+         name="icon"
+         width="16" />
+        <scroll_list.columns
+         name="text"
+         relative_width="1" />
+    </scroll_list>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="buy_text"
+     text_color="white"
+     top="220"
+     width="260">
+        Buy for L$[AMOUNT] from [NAME]?
+    </text>
+    <check_box
+     follows="left|bottom"
+     height="16"
+     label="Wear clothing now"
+     layout="topleft"
+     left="10"
+     name="wear_check"
+     width="250" />
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Buy"
+     label_selected="Buy"
+     layout="topleft"
+     left="65"
+     name="buy_btn"
+     top_pad="5"
+     width="100" />
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
+     width="100" />
+</floater>

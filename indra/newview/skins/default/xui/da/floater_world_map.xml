@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="VERDENSKORT">
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			Forklaring
+		</text>
+	</panel>
+	<panel>
+		<button label="Vis min position" label_selected="Vis min position" name="Show My Location" tool_tip="Centrér kort om min avatars position"/>
+		<text name="person_label">
+			Mig
+		</text>
+		<check_box label="Beboer" name="people_chk"/>
+		<check_box label="Infohub" name="infohub_chk"/>
+		<text name="infohub_label">
+			Infohub
+		</text>
+		<check_box label="Land til salg" name="land_for_sale_chk"/>
+		<text name="land_sale_label">
+			Land til salg
+		</text>
+		<text name="auction_label">
+			af ejer
+		</text>
+		<button label="Tag hjem" label_selected="Tag hjem" name="Go Home" tool_tip="Teleportér til min hjemmelokation"/>
+		<text name="Home_label">
+			Hjem
+		</text>
+		<text name="events_label">
+			Events:
+		</text>
+		<check_box label="PG" name="event_chk"/>
+		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
+		<text name="mature_label">
+			Mature
+		</text>
+		<check_box label="Adult" name="event_adult_chk"/>
+	</panel>
+	<panel>
+		<text name="find_on_map_label">
+			Find på kort
+		</text>
+	</panel>
+	<panel>
+		<combo_box label="Venner online" name="friend combo" tool_tip="Vis venner på kort">
+			<combo_box.item label="Mine venner online" name="item1"/>
+		</combo_box>
+		<combo_box label="Mine landemærker" name="landmark combo" tool_tip="Landemærke der skal vises på kort">
+			<combo_box.item label="Mine landemærker" name="item1"/>
+		</combo_box>
+		<search_editor label="Regioner efter navn" name="location" tool_tip="Skriv navnet på en region"/>
+		<button label="Find" name="DoSearch" tool_tip="Søg efter en region"/>
+		<scroll_list name="search_results">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="sim_name"/>
+		</scroll_list>
+		<button label="Teleport" label_selected="Teleport" name="Teleport" tool_tip="Teleportér til den valgte lokation"/>
+		<button label="Kopiér SLurl" name="copy_slurl" tool_tip="Kopierer denne lokation som SLurl der kan bruges på web."/>
+		<button label="Vis selektion" label_selected="Vis destination" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>
+	</panel>
+	<panel>
+		<text name="zoom_label">
+			Zoom
+		</text>
+	</panel>
+	<panel>
+		<slider label="Zoom" name="zoom slider"/>
+	</panel>
+</floater>

@@ -1,0 +1,931 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="570"
+ layout="topleft"
+ left="0"
+ min_height="350"
+ name="place_profile"
+ top="20"
+ width="333">
+    <string
+     name="on"
+     value="On" />
+    <string
+     name="off"
+     value="Off" />
+    <string
+     name="anyone"
+     value="Anyone" />
+    <string
+     name="available"
+     value="available" />
+    <string
+     name="allocated"
+     value="allocated" />
+    <string
+     name="title_place"
+     value="Place Profile" />
+    <string
+     name="title_teleport_history"
+     value="Teleport History" />
+    <string
+     name="not_available"
+     value="(N\A)" />
+    <string
+     name="unknown"
+     value="(unknown)" />
+    <string
+     name="public"
+     value="(public)" />
+    <string
+     name="none_text"
+     value="(none)" />
+    <string
+     name="sale_pending_text"
+     value="(Sale Pending)" />
+    <string
+     name="group_owned_text"
+     value="(Group Owned)" />
+    <string
+     name="price_text"
+     value="L$" />
+    <string
+     name="area_text"
+     value="m²" />
+    <string
+     name="all_residents_text"
+     value="All Residents" />
+    <string
+     name="group_text"
+     value="Group" />
+    <string
+     name="can_resell">
+        Purchased land in this region may be resold.
+    </string>
+    <string
+     name="can_not_resell">
+        Purchased land in this region may not be resold.
+    </string>
+    <string
+     name="can_change">
+        Purchased land in this region may be joined or subdivided.
+    </string>
+    <string
+     name="can_not_change">
+        Purchased land in this region may not be joined or subdivided.
+    </string>
+    <string
+     name="server_update_text">
+        Place information not available without server update.
+    </string>
+    <string
+     name="server_error_text">
+        Information about this location is unavailable at this time, please try again later.
+    </string>
+    <string
+     name="server_forbidden_text">
+        Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
+    </string>
+    <string
+     name="acquired_date">
+        [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+    </string>
+    <!-- Texture names for parcel permissions icons -->
+    <string
+     name="icon_PG"
+     value="Parcel_PG_Dark" />
+    <string
+     name="icon_M"
+     value="Parcel_M_Dark" />
+    <string
+     name="icon_R"
+     value="Parcel_R_Dark" />
+    <string
+     name="icon_Voice"
+     value="Parcel_Voice_Dark" />
+    <string
+     name="icon_VoiceNo"
+     value="Parcel_VoiceNo_Dark" />
+    <string
+     name="icon_Fly"
+     value="Parcel_Fly_Dark" />
+    <string
+     name="icon_FlyNo"
+     value="Parcel_FlyNo_Dark" />
+    <string
+     name="icon_Push"
+     value="Parcel_Push_Dark" />
+    <string
+     name="icon_PushNo"
+     value="Parcel_PushNo_Dark" />
+    <string
+     name="icon_Build"
+     value="Parcel_Build_Dark" />
+    <string
+     name="icon_BuildNo"
+     value="Parcel_BuildNo_Dark" />
+    <string
+     name="icon_Scripts"
+     value="Parcel_Scripts_Dark" />
+    <string
+     name="icon_ScriptsNo"
+     value="Parcel_ScriptsNo_Dark" />
+    <string
+     name="icon_Damage"
+     value="Parcel_Damage_Dark" />
+    <string
+     name="icon_DamageNo"
+     value="Parcel_DamageNo_Dark" />
+    <button
+     follows="top|right"
+     height="23"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     left="11"
+     name="back_btn"
+     tool_tip="Back"
+     tab_stop="false"
+     top="4"
+     width="23" />
+    <text
+     follows="top|left|right"
+     font="SansSerifHugeBold"
+     height="26"
+     layout="topleft"
+     left_pad="10"
+     name="title"
+     text_color="LtGray"
+     top="2"
+     use_ellipses="true"
+     value="Place Profile"
+     width="280" />
+    <scroll_container
+     color="DkGray2"
+     follows="all"
+     height="532"
+     layout="topleft"
+     left="9"
+     name="place_scroll"
+     opaque="true"
+     top_pad="10"
+     width="310">
+        <panel
+         bg_alpha_color="DkGray2"
+         follows="left|top|right"
+         height="700"
+         layout="topleft"
+         left="0"
+         min_height="300"
+         name="scrolling_panel"
+         top="0"
+         width="285">
+            <texture_picker
+             enabled="false"
+         follows="left|top|right"
+             height="197"
+             layout="topleft"
+             left="11"
+             name="logo"
+             top="10"
+             width="290" />
+            <layout_stack
+             border_size="0"
+             clip="false"
+             follows="left|top|right"
+             height="50"
+             layout="topleft"
+             mouse_opaque="false"
+             name="panel_stack"
+             orientation="horizontal"
+             top_pad="-65"
+             width="100">
+                <layout_panel
+                 follows="left|right"
+                 height="50"
+                 layout="topleft"
+                 left="0"
+                 min_height="50"
+                 min_width="50"
+                 mouse_opaque="false"
+                 name="here_panel"
+                 top="0"
+                 user_resize="false"
+                 width="60">
+                    <icon
+                     follows="top|left"
+                     height="50"
+                     image_name="YouAreHere_Badge"
+                     layout="topleft"
+                     left="0"
+                     name="icon_you_are_here"
+                     top="0"
+                     width="50" />
+                </layout_panel>
+                <layout_panel
+                 follows="left|right"
+                 height="60"
+                 layout="topleft"
+                 min_height="50"
+                 min_width="60"
+                 mouse_opaque="false"
+                 name="for_sale_panel"
+                 top="0"
+                 user_resize="false"
+                 width="60">
+                    <icon
+                     follows="top|left"
+                     height="50"
+                     image_name="ForSale_Badge"
+                     layout="topleft"
+                     left="10"
+                     name="icon_for_sale"
+                     top="0"
+                     width="50" />
+                </layout_panel>
+            </layout_stack>
+            <text
+             allow_html="false"
+             follows="left|top|right"
+             font="SansSerifLarge"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="region_title"
+             text_color="white"
+             top_pad="5"
+             use_ellipses="true"
+             value="SampleRegion"
+             width="290" />
+            <text
+             allow_html="false"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="parcel_title"
+             top_pad="4"
+             use_ellipses="true"
+             value="SampleParcel, Name Long (145, 228, 26)"
+             width="285" />
+            <expandable_text
+             follows="left|top|right"
+             height="50"
+             layout="topleft"
+             left="5"
+             name="description"
+             top_pad="10"
+             value="Du waltz die spritz"
+             width="300" />
+            <text
+             follows="left|top"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="owner_label"
+             text_color="White"
+             top_pad="0"
+             value="Owner:"
+             width="90" />
+         <!--TODO: HOOK THIS NAME UP WITH AN INSPECTOR  -->
+            <text
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left_pad="1"
+             name="owner_value"
+             top_delta="0"
+             value="Alex Superduperlongenamenton"
+             width="205" />
+            <icon
+             follows="top|left"
+             height="16"
+             image_name="unknown"
+             layout="topleft"
+             left="10"
+             name="maturity_icon"
+             top_delta="0"
+             width="18" />
+            <text
+             follows="left|top|right"
+             height="16"
+             layout="topleft"
+             left_pad="8"
+             name="maturity_value"
+             top_delta="0"
+             value="unknown"
+             width="268" />
+            <accordion
+             follows="all"
+             height="230"
+             layout="topleft"
+             left="0"
+             name="advanced_info_accordion"
+             top_pad="10"
+             width="313">
+                <accordion_tab
+                 layout="topleft"
+                 name="parcel_characteristics_tab"
+                 title="Parcel">
+                    <panel
+                     follows="all"
+                     height="160"
+                     layout="topleft"
+                     left="0"
+                     top="0"
+                     width="275">
+                        <icon
+                         follows="top|left"
+                         height="16"
+                         image_name="Parcel_PG_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="rating_icon"
+                         top="0"
+                         width="18" />
+                        <text
+                         follows="left|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="12"
+                         name="rating_label"
+                         value="Rating:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="0"
+                         name="rating_value"
+                         top_delta="0"
+                         value="unknown"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_Voice_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="voice_icon"
+                         top_pad="5"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="18"
+                         layout="topleft"
+                         left_pad="8"
+                         name="voice_label"
+                         top_delta="0"
+                         value="Voice:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="18"
+                         layout="topleft"
+                         left_pad="0"
+                         name="voice_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_Fly_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="fly_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="8"
+                         name="fly_label"
+                         value="Fly:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="0"
+                         name="fly_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_Push_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="push_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="push_label"
+                         value="Push:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="push_value"
+                         top_delta="0"
+                         value="Off"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_Build_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="build_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="build_label"
+                         value="Build:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="build_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_Scripts_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="scripts_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="scripts_label"
+                         value="Scripts:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="scripts_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="Parcel_Damage_Dark"
+                         layout="topleft"
+                         left="10"
+                         name="damage_icon"
+                         top_pad="7"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="damage_label"
+                         value="Damage:"
+                         width="60" />
+                        <text
+                         follows="left|right|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="damage_value"
+                         top_delta="0"
+                         value="Off"
+                         width="60" />
+                        <button
+                         follows="bottom|right"
+                         height="23"
+                         label="About Land"
+                         layout="topleft"
+                         name="about_land_btn"
+                         right="-5"
+                         tab_stop="false"
+                         top="138"
+                         width="90">
+                            <click_callback
+                             function="Floater.Show"
+                             parameter="about_land" />
+                        </button>
+                    </panel>
+                </accordion_tab>
+                <accordion_tab
+                 expanded="false"
+                 layout="topleft"
+                 name="region_information_tab"
+                 title="Region">
+                    <panel
+                     follows="all"
+                     height="125"
+                     layout="topleft"
+                     left="0"
+                     top="0"
+                     width="290">
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="region_name_label"
+                         top_pad="5"
+                         value="Region:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="region_name"
+                         top_delta="0"
+                         value="Mooseland"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="region_type_label"
+                         top_pad="5"
+                         value="Type:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="region_type"
+                         top_delta="0"
+                         value="Moose"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="region_rating_label"
+                         top_pad="7"
+                         value="Rating:"
+                         width="90" />
+                        <icon
+                         follows="top|left"
+                         height="16"
+                         image_name="Parcel_PG_Dark"
+                         layout="topleft"
+                         left_pad="0"
+                         name="region_rating_icon"
+                         width="18" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="10"
+                         name="region_rating"
+                         value="Adult"
+                         width="159" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="region_owner_label"
+                         top_pad="5"
+                         value="Owner:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="region_owner"
+                         top_delta="0"
+                         value="moose Van Moose"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="region_group_label"
+                         top_pad="5"
+                         value="Group:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="region_group"
+                         top_delta="0"
+                         use_ellipses="true"
+                         width="187">
+                            The Mighty Moose of mooseville soundvillemoose
+                        </text>
+                        <button
+                         follows="bottom|right"
+                         height="23"
+                         label="Region/Estate"
+                         layout="topleft"
+                         name="region_info_btn"
+                         right="-5"
+                         tab_stop="false"
+                         width="105">
+                            <click_callback
+                             function="Floater.Show"
+                             parameter="region_info" />
+                        </button>
+                    </panel>
+                </accordion_tab>
+                <accordion_tab
+                 expanded="false"
+                 layout="topleft"
+                 name="estate_information_tab"
+                 title="Estate">
+                    <panel
+                     follows="all"
+                     height="189"
+                     layout="topleft"
+                     left="0"
+                     top="0"
+                     width="290">
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="estate_name_label"
+                         top_pad="5"
+                         value="Estate:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="estate_name"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="estate_rating_label"
+                         top_pad="5"
+                         value="Rating:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="estate_rating"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="estate_owner_label"
+                         top_pad="5"
+                         value="Owner:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="estate_owner"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="covenant_label"
+                         top_pad="5"
+                         value="Covenant:"
+                         width="277" />
+                        <text_editor
+                         bg_focus_color="DkGray2"
+                         bg_readonly_color="DkGray2"
+                         follows="left|top|right"
+                         handle_edit_keys_directly="true"
+                         height="90"
+                         layout="topleft"
+                         left="10"
+                         max_length="65535"
+                         name="covenant"
+                         read_only="true"
+                         top_pad="0"
+                         width="277"
+                         word_wrap="true" />
+                    </panel>
+                </accordion_tab>
+                <accordion_tab
+                 expanded="false"
+                 layout="topleft"
+                 name="sales_tab"
+                 title="For Sale">
+                    <panel
+                     follows="all"
+                     height="300"
+                     layout="topleft"
+                     left="0"
+                     top="0"
+                     width="290">
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="sales_price_label"
+                         top_pad="5"
+                         value="Price:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="sales_price"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="area_label"
+                         top_pad="5"
+                         value="Area:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="area"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="traffic_label"
+                         top_pad="5"
+                         value="Traffic:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="traffic"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="primitives_label"
+                         top_pad="5"
+                         value="Primitives:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="primitives"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="parcel_scripts_label"
+                         top_pad="5"
+                         value="Scripts:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="parcel_scripts"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="terraform_limits_label"
+                         top_pad="5"
+                         value="Terraform limits:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="terraform_limits"
+                         top_delta="0"
+                         width="187" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="subdivide_label"
+                         top_pad="5"
+                         value="Subdivide/Join ability:"
+                         width="277" />
+                        <text_editor
+                         bg_focus_color="DkGray2"
+                         bg_readonly_color="DkGray2"
+                         follows="left|top|right"
+                         height="45"
+                         layout="topleft"
+                         left="10"
+                         max_length="65535"
+                         name="subdivide"
+                         read_only="true"
+                         top_pad="5"
+                         width="277"
+                         word_wrap="true" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="resale_label"
+                         top_pad="5"
+                         value="ReSale ability:"
+                         width="277" />
+                        <text_editor
+                         bg_focus_color="DkGray2"
+                         bg_readonly_color="DkGray2"
+                         follows="left|top|right"
+                         height="45"
+                         layout="topleft"
+                         left="10"
+                         max_length="65535"
+                         name="resale"
+                         read_only="true"
+                         top_pad="5"
+                         width="277"
+                         word_wrap="true" />
+                        <text
+                         follows="left|top"
+                         height="15"
+                         layout="topleft"
+                         left="10"
+                         name="sale_to_label"
+                         top_pad="5"
+                         value="For sale to:"
+                         width="90" />
+                        <text
+                         follows="left|top|right"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="sale_to"
+                         top_delta="0"
+                         width="187" />
+                    </panel>
+                </accordion_tab>
+            </accordion>
+        </panel>
+    </scroll_container>
+</panel>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Koop" name="Task Buy"/>
+	<menu_item_call label="Open" name="Task Open"/>
+	<menu_item_call label="Afspelen" name="Task Play"/>
+	<menu_item_call label="Eigenschappen" name="Task Properties"/>
+	<menu_item_call label="Hernoemen" name="Task Rename"/>
+	<menu_item_call label="Verwijderen" name="Task Remove"/>
+	<menu_item_call label="Prullenbak legen" name="Empty Trash"/>
+	<menu_item_call label="Verloren en gevonden leegmaken" name="Empty Lost And Found"/>
+	<menu_item_call label="Nieuwe map" name="New Folder"/>
+	<menu_item_call label="Nieuw script" name="New Script"/>
+	<menu_item_call label="Nieuwe notitie" name="New Note"/>
+	<menu_item_call label="Nieuw gebaar" name="New Gesture"/>
+	<menu name="New Clothes" label="Nieuwe Kleding">
+		<menu_item_call label="Nieuw shirt" name="New Shirt"/>
+		<menu_item_call label="Nieuwe broek" name="New Pants"/>
+		<menu_item_call label="Nieuwe schoenen" name="New Shoes"/>
+		<menu_item_call label="Nieuwe sokken" name="New Socks"/>
+		<menu_item_call label="Nieuwe jas" name="New Jacket"/>
+		<menu_item_call label="Nieuwe rok" name="New Skirt"/>
+		<menu_item_call label="Nieuwe handschoenen" name="New Gloves"/>
+		<menu_item_call label="Nieuw onderhemd" name="New Undershirt"/>
+		<menu_item_call label="Nieuwe onderbroek" name="New Underpants"/>
+	</menu>
+	<menu name="New Body Parts" label="Nieuwe Lichaamsdelen">
+		<menu_item_call label="Nieuwe postuur" name="New Shape"/>
+		<menu_item_call label="Nieuwe huid" name="New Skin"/>
+		<menu_item_call label="Nieuw haar" name="New Hair"/>
+		<menu_item_call label="Nieuwe ogen" name="New Eyes"/>
+	</menu>
+	<menu_item_call label="Teleport" name="Landmark Open"/>
+	<menu_item_call label="Open" name="Animation Open"/>
+	<menu_item_call label="Open" name="Sound Open"/>
+	<menu_item_call label="Verwijderen item" name="Purge Item"/>
+	<menu_item_call label="Herstellen item" name="Restore Item"/>
+	<menu_item_call label="Open" name="Open"/>
+	<menu_item_call label="Eigenschappen" name="Properties"/>
+	<menu_item_call label="Hernoemen" name="Rename"/>
+	<menu_item_call label="Kopieer asset UUID" name="Copy Asset UUID"/>
+	<menu_item_call label="Kopiëren" name="Copy"/>
+	<menu_item_call label="Plakken" name="Paste"/>
+	<menu_item_call label="Verwijderen" name="Delete"/>
+	<menu_item_call label="Items uitdoen" name="Take Off Items"/>
+	<menu_item_call label="Voeg toe aan kleding" name="Add To Outfit"/>
+	<menu_item_call label="Vervang kleding" name="Replace Outfit"/>
+	<menu_item_call label="Start conferentie chat" name="Conference Chat Folder"/>
+	<menu_item_call label="Afspelen" name="Sound Play"/>
+	<menu_item_call label="Over landmarkering" name="Teleport To Landmark"/>
+	<menu_item_call label="In wereld afspelen" name="Animation Play"/>
+	<menu_item_call label="Lokaal afspelen" name="Animation Audition"/>
+	<menu_item_call label="Stuur instant message" name="Send Instant Message"/>
+	<menu_item_call label="Bied teleport aan…" name="Offer Teleport..."/>
+	<menu_item_call label="Start conferentie chat" name="Conference Chat"/>
+	<menu_item_call label="Activeren" name="Activate"/>
+	<menu_item_call label="Deactiveren" name="Deactivate"/>
+	<menu_item_call label="Losmaken van jezelf" name="Detach From Yourself"/>
+	<menu_item_call label="Herstellen naar laatste positie" name="Restore to Last Position"/>
+	<menu_item_call label="Dragen" name="Object Wear"/>
+	<menu label="Bevestigen aan" name="Attach To"/>
+	<menu label="Bevestigen aan HUD" name="Attach To HUD"/>
+	<menu_item_call label="Bewerken" name="Wearable Edit"/>
+	<menu_item_call label="Dragen" name="Wearable Wear"/>
+	<menu_item_call label="Uitdoen" name="Take Off"/>
+	<menu_item_call label="--geen opties--" name="--no options--"/>
+</menu>

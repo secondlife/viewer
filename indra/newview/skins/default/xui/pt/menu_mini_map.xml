@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="popup">
+	<menu_item_call label="Zoom Perto" name="Zoom Close"/>
+	<menu_item_call label="Zoom Médio" name="Zoom Medium"/>
+	<menu_item_call label="Zoom Longe" name="Zoom Far"/>
+	<menu_item_call label="Parar Acompanhamento" name="Stop Tracking"/>
+	<menu_item_call label="Perfil..." name="Profile"/>
+</menu>

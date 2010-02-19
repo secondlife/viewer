@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gestures" title="GESTOS ATIVOS">
+	<text name="help_label">
+		Clicar duas vezes no gesto para executar animações e sons.
+	</text>
+	<scroll_list name="gesture_list">
+		<column label="Acionar" name="trigger"/>
+		<column label="Chave" name="shortcut"/>
+		<column label="Nome" name="name"/>
+	</scroll_list>
+	<button label="Novo" name="new_gesture_btn"/>
+	<button label="Editar" name="edit_btn"/>
+	<button label="Executar" name="play_btn"/>
+	<button label="Parar" name="stop_btn"/>
+</floater>

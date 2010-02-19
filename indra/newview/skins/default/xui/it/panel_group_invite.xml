@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Invita una persona" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Sei sicuro di voler invitare nuovi capogruppo? Questa azione è irrevocabile!
+	</panel.string>
+	<panel.string name="loading">
+		(Attendi...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Alcuni avatars sono già nel gruppo e non erano stati invitati.
+	</panel.string>
+	<text name="help_text">
+		Puoi selezionare più di un residente 
+da invitare nel tuo gruppo. Clicca su
+&apos;Scelta residenti&apos; per iniziare.
+	</text>
+	<button label="Scelta residenti" name="add_button" tool_tip=""/>
+	<name_list name="invitee_list" tool_tip="Tieni premuto il tasto Ctrl e clicca il nome dei residenti per una multi-selezione"/>
+	<button label="Rimuovi i selezionati dall&apos;elenco" name="remove_button" tool_tip="Rimuovi i residenti selezionati dalla lista invito"/>
+	<text name="role_text">
+		Scegli che ruolo assegnare loro:
+	</text>
+	<combo_box name="role_name" tool_tip="Choose from the list of Roles you are allowed to assign members to"/>
+	<button label="Manda gli inviti" name="ok_button"/>
+	<button label="Annulla" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Invito del Gruppo
+	</string>
+</panel>

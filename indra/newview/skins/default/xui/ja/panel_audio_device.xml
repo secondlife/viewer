@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="device_settings">
+	<text name="Audio Devices">
+		オーディオ機器
+	</text>
+	<text name="Output device (speakers):">
+		出力機器 (スピーカー):
+	</text>
+	<text name="Input device (microphone):">
+		入力機器(マイクロフォン)：
+	</text>
+	<text name="Input level:">
+		入力レベル
+	</text>
+	<text_editor name="voice_intro_text1">
+		スライダを調節して、他の住人に聞こえるあなたの音量を制御します。マイクロフォンに向かって話すだけで、入力レベルをテストできます。
+	</text_editor>
+	<volume_slider name="mic_volume_slider"
+	     tool_tip="このスライダーを使用して、ボリュームを変えてください。" />
+	<text name="wait_text">
+		お待ちください
+	</text>
+	<text name="default_text">
+		デフォルト
+	</text>
+</panel>

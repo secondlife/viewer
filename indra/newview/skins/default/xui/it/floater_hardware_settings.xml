@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Hardware Settings Floater" title="OPZIONI HARDWARE">
+	<text name="Filtering:">
+		Filtraggio:
+	</text>
+	<check_box label="Filtraggio Anisotropico (rallenta se attivato)" name="ani"/>
+	<text name="Antialiasing:">
+		Antialiasing:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa" width="94">
+		<combo_box.item label="Disattivato" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<spinner label="Gamma:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(0 = luminosità default, più basso = più luminoso)
+	</text>
+	<text name="Enable VBO:">
+		Attiva VBO:
+	</text>
+	<check_box initial_value="true" label="Attiva oggetti OpenGL Vertex Buffer" name="vbo" tool_tip="Attivandolo su un hardware moderno aumenta la performance.  Ma, su un vecchio hardware, spesso l&apos;implementazione dei VBO è scarsa e potresti avere dei crash quando è attivato."/>
+	<slider label="Texture Memory (MB):" name="GraphicsCardTextureMemory" tool_tip="Spazio di memoria da ssegnare alle textures. Memoria della scheda video in Defaults. Ridurre questa impostazione potrebbe migliorare il rendimento ma potrebbe anche rendere le textures poco definite."/>
+	<spinner label="Indice della distanza 
+della nebbia:" name="fog"/>
+	<button label="OK" label_selected="OK" name="OK"/>
+</floater>

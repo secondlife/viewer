@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater height="310" min_height="310" name="telehub" title="TELEHUB" width="286">
+	<text name="status_text_connected">
+		Telehub connesso all&apos;oggetto [OBJECT]
+	</text>
+	<text name="status_text_not_connected">
+		Nessun telehub connesso.
+	</text>
+	<text name="help_text_connected">
+		Per rimuovere, clicca Disconnetti.
+	</text>
+	<text name="help_text_not_connected">
+		Seleziona l&apos;oggetto e clicca Connetti Telehub.
+	</text>
+	<button label="Connetti Telehub" name="connect_btn"/>
+	<button label="Disconnetti" name="disconnect_btn"/>
+	<text name="spawn_points_text" width="265">
+		Rigenera i punti (posizioni, non oggetti):
+	</text>
+	<scroll_list name="spawn_points_list" width="265"/>
+	<button label="Aggiungi punti rigenerazione" name="add_spawn_point_btn" width="165"/>
+	<button label="Rimuovi punti" left="175" name="remove_spawn_point_btn" width="105"/>
+	<text name="spawn_point_help">
+		Seleziona un oggetto e click &quot;Aggiungi Spawn&quot; per specificare la posizione.
+Ora puoi spostare o cancellare l&apos;oggetto.
+Le Posizioni sono relative al centro del telehub.
+Seleziona un oggetto nella lista per evidenziarlo nel mondo.
+	</text>
+</floater>

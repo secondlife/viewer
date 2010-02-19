@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="JOYSTICK CONFIGURATIE">
+	<check_box name="enable_joystick" width="80" label="Joystick inschakelen:"/>
+	<text left="146" name="joystick_type" width="360"/>
+	<spinner label="X-as mapping" name="JoystickAxis1"/>
+	<spinner label="Y-as mapping" name="JoystickAxis2"/>
+	<spinner label="Z-as mapping" name="JoystickAxis0"/>
+	<spinner label="Stampen mapping" name="JoystickAxis4"/>
+	<spinner label="Gieren mapping" name="JoystickAxis5"/>
+	<spinner label="Rollen mapping" name="JoystickAxis3"/>
+	<spinner label="Zoom mapping" name="JoystickAxis6"/>
+	<check_box label="Directe zoom" name="ZoomDirect"/>
+	<check_box label="3D Cursor" name="Cursor3D"/>
+	<check_box label="Automatisch niveau" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Besturingsmodi:
+	</text>
+	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
+	<check_box name="JoystickBuildEnabled" label="Bouwen"/>
+	<check_box name="JoystickFlycamEnabled" label="Vliegcamera"/>
+	<text name="XScale">
+		X schaal
+	</text>
+	<text name="YScale">
+		Y schaal
+	</text>
+	<text name="ZScale">
+		Z schaal
+	</text>
+	<text name="PitchScale">
+		Stampen schaal
+	</text>
+	<text name="YawScale">
+		Gieren schaal
+	</text>
+	<text name="RollScale">
+		Rollen schaal
+	</text>
+	<text name="XDeadZone">
+		X dode zone
+	</text>
+	<text name="YDeadZone">
+		Y dode zone
+	</text>
+	<text name="ZDeadZone">
+		Z dode zone
+	</text>
+	<text name="PitchDeadZone" left="4" width="110">
+		Stampen dode zone
+	</text>
+	<text name="YawDeadZone">
+		Gieren dode zone
+	</text>
+	<text name="RollDeadZone">
+		Rollen dode zone
+	</text>
+	<text name="Feathering">
+		Feathering
+	</text>
+	<text name="ZoomScale2">
+		Zoomschaal
+	</text>
+	<text name="ZoomDeadZone">
+		Zoom dode zone
+	</text>
+	<button label="SpaceNavigator standaardwaarden" name="SpaceNavigatorDefaults" width="200" font="SansSerifSmall"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn" left_delta="110"/>
+	<stat_view label="Joystick monitor" name="axis_view">
+		<stat_bar label="As 0" name="axis0"/>
+		<stat_bar label="As 1" name="axis1"/>
+		<stat_bar label="As 2" name="axis2"/>
+		<stat_bar label="As 3" name="axis3"/>
+		<stat_bar label="As 4" name="axis4"/>
+		<stat_bar label="As 5" name="axis5"/>
+	</stat_view>
+	<string name="NoDevice">
+		Geen apparaat gedetecteerd
+	</string>
+</floater>

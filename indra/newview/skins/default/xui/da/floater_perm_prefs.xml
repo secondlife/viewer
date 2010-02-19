@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perm prefs" title="STANDARD RETTIGHEDER">
+	<panel label="Tilladelser" name="permissions">
+		<button label="?" label_selected="?" name="help"/>
+		<check_box label="Del med gruppe" name="share_with_group"/>
+		<check_box label="Tillad enhver at kopiere" name="everyone_copy"/>
+		<text name="NextOwnerLabel">
+			Næste ejer kan:
+		</text>
+		<check_box label="Redigere" name="next_owner_modify"/>
+		<check_box label="Kopiére" name="next_owner_copy"/>
+		<check_box label="Sælge/Give væk" name="next_owner_transfer"/>
+	</panel>
+	<button label="OK" label_selected="OK" name="ok"/>
+	<button label="Annullér" label_selected="Annullér" name="cancel"/>
+</floater>

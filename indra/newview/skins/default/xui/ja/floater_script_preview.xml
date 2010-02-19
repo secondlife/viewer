@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview lsl text" title="スクリプト： 回転スクリプト">
+	<floater.string name="Title">
+		スクリプト： [NAME]
+	</floater.string>
+	<text name="desc txt">
+		説明：
+	</text>
+</floater>

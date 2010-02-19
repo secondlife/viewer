@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Choses" name="Outfits">
+	<tab_container name="appearance_tabs">
+		<inventory_panel label="MES TENUES" name="outfitslist_tab"/>
+		<inventory_panel label="TENUE" name="cof_tab"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Afficher d&apos;autres options"/>
+		<dnd_button name="trash_btn" tool_tip="Supprimer l&apos;objet sélectionné"/>
+		<button label="Enregistrer la tenue" name="make_outfit_btn" tool_tip="Enregistrer l&apos;apparence comme tenue"/>
+		<button label="Porter" name="wear_btn" tool_tip="Porter la tenue sélectionnée"/>
+		<button label="M" name="look_edit_btn"/>
+	</panel>
+</panel>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="status">
+	<text name="ParcelNameText" tool_tip="Naam van het landperceel waar u staat. Klik voor &apos;Over land&apos;.">
+		Hier komt de naam van het perceel
+	</text>
+	<text name="BalanceText" tool_tip="Account saldo">
+		Laden...
+	</text>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Koop valuta"/>
+	<text name="TimeText" tool_tip="Huidige tijd (Pacifisch)">
+		-3
+	</text>
+	<string name="StatBarDaysOfWeek">
+		Zondag:Maandag:Dinsdag:Woensdag:Donderdag:Vrijdag:Zaterdag
+	</string>
+	<string name="StatBarMonthsOfYear">
+		Januari:Februari:Maart:April:Mei:Juni:Juli:Augustus:September:Oktober:November:December
+	</string>
+	<button label="" label_selected="" name="scriptout" tool_tip="Script waarschuwingen en fouten"/>
+	<button label="" label_selected="" name="health" tool_tip="Letsel"/>
+	<text name="HealthText" tool_tip="Letsel">
+		1
+	</text>
+	<button label="" label_selected="" name="no_fly" tool_tip="Vliegen niet toegestaan"/>
+	<button label="" label_selected="" name="no_build" tool_tip="Bouwen/rezzen niet toegestaan"/>
+	<button label="" label_selected="" name="no_scripts" tool_tip="Scripts niet toegestaan"/>
+	<button label="" label_selected="" name="restrictpush" tool_tip="Niet duwen"/>
+	<button label="" label_selected="" name="status_no_voice" tool_tip="Voice is niet beschikbaar hier"/>
+	<button label="" label_selected="" name="buyland" tool_tip="Koop dit perceel"/>
+	<line_editor label="Zoeken" name="search_editor" tool_tip="Doorzoek [SECOND_LIFE]"/>
+	<button label="" label_selected="" name="search_btn" tool_tip="Doorzoek [SECOND_LIFE]"/>
+	<string name="packet_loss_tooltip">
+		Pakketten verlies
+	</string>
+	<string name="bandwidth_tooltip">
+		Bandbreedte
+	</string>
+</panel>

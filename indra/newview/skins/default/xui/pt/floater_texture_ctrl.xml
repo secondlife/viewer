@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="PEGAR: TEXTURA">
+	<string name="choose_picture">
+		Clique para escolher uma imagem
+	</string>
+	<text name="Multiple">
+		Multiplo
+	</text>
+	<text name="unknown">
+		Dimensões: [DIMENSIONS]
+	</text>
+	<button label="Padrão" label_selected="Padrão" name="Default"/>
+	<button label="Nenhum" label_selected="Nenhum" name="None"/>
+	<button label="Branco" label_selected="Branco" name="Blank"/>
+	<check_box label="Mostrar Pastas" name="show_folders_check"/>
+	<search_editor label="Clique aqui para buscar" name="inventory search editor"/>
+	<check_box label="Aplicar Imediatamente" name="apply_immediate_check"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<button label="Selecionar" label_selected="Selecionar" name="Select"/>
+	<string name="pick title">
+		Pegar:
+	</string>
+</floater>

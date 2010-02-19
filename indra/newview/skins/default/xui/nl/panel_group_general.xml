@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Algemeen" name="general_tab">
+	<string name="help_text">
+		Het tabblad Algemeen bevat algemene informatie over deze groep, een lijst met eigenaren en zichtbare leden, algemene groepsvoorkeuren en ledenopties. 
+
+Laat uw muis boven de opties zweven voor meer help.
+	</string>
+	<string name="group_info_unchanged">
+		Algemene groepsinformatie is gewijzigd.
+	</string>
+	<button label="?" label_selected="?" name="help_button"/>
+	<line_editor label="Typ uw nieuwe groepsnaam hier" name="group_name_editor"/>
+	<text name="group_name">
+		Typ uw nieuwe groepsnaam hier
+	</text>
+	<text name="prepend_founded_by">
+		Opgericht door
+	</text>
+	<text name="founder_name" left_delta="84">
+		(wachten)
+	</text>
+	<text name="group_charter_label" width="244">
+		Groepcharter
+	</text>
+	<texture_picker label="Groepinsigne" name="insignia" tool_tip="Klik om een afbeelding te kiezen"/>
+	<text_editor name="charter" width="244">
+		Groepcharter
+	</text_editor>
+	<button label="Deelnemen (L$0)" label_selected="Deelnemen (L$0)" name="join_button"/>
+	<button label="Gedetailleerde weergave" label_selected="Gedetailleerde weergave" name="info_button" width="154"/>
+	<text name="text_owners_and_visible_members">
+		Eigenaren en zichtbare leden
+	</text>
+	<text name="text_owners_are_shown_in_bold">
+		(Eigenaren worden vet getoond)
+	</text>
+	<name_list name="visible_members">
+		<name_list.columns label="Lidnaam" name="name"/>
+		<name_list.columns label="Titel" name="title"/>
+		<name_list.columns label="Laatste login" name="online"/>
+	</name_list>
+	<text name="text_group_preferences">
+		Groepvoorkeuren
+	</text>
+	<panel name="preferences_container">
+		<check_box label="Toon in zoeken" name="show_in_group_list" tool_tip="Stelt in of deze groep zichtbaar is in de zoekresultaten."/>
+		<check_box label="Vrije toegang" name="open_enrollement" tool_tip="Stelt in of deze groep toestaat dat nieuwe leden lid kunnen worden zonder uitgenodigd te zijn."/>
+		<check_box label="Contributiebijdrage:" name="check_enrollment_fee" tool_tip="Stelt in of er een contributiebijdrage vereist is om lid te worden van de groep."/>
+		<spinner name="spin_enrollment_fee" tool_tip="Nieuwe leden moeten deze bijdrage betalen om deel te nemen aan de groep wanneer &quot;Contributie bijdrage&quot; is aangevinkt." width="58" left_delta="142"/>
+		<combo_box name="group_mature_check" tool_tip="Stelt in of uw groepsinformatie als mature beschouwd wordt.">
+			<combo_box.item name="select_mature" label="- Selecteer -"/>
+			<combo_box.item name="mature" label="Mature inhoud"/>
+			<combo_box.item name="pg" label="PG inhoud"/>
+		</combo_box>
+		<panel name="title_container">
+			<text name="active_title_label">
+				Mijn actieve titel
+			</text>
+			<combo_box name="active_title" tool_tip="Stelt de titel in die in uw avatar&apos;s naamlabel verschijnt wanneer deze groep actief is."/>
+		</panel>
+		<check_box label="Ontvang groepsberichten" name="receive_notices" tool_tip="Stelt in of u berichten van deze groep wilt ontvangen. Verwijder het vinkje wanneer u spam ontvangt van deze groep." left_delta="-4"/>
+		<check_box label="Toon deze groep in mijn profiel" name="list_groups_in_profile" tool_tip="Stelt in of u deze groep in uw profiel wil laten zien"/>
+	</panel>
+	<string name="incomplete_member_data_str">
+		Ledendata ophalen
+	</string>
+	<string name="confirm_group_create_str">
+		Het maken van deze groep zal u L$ 100 kosten. Weet u ECHT héél zeker dat u L$ 100 wilt betalen om deze groep te maken?
+
+WEES U ER VAN BEWUST, dat als er niemand binnen 48 uur lid wordt van deze groep, deze weer ontmanteld zal worden. Hierbij zal ook de groepsnaam onbeschikbaar blijven voor toekomstig gebruik!
+	</string>
+</panel>

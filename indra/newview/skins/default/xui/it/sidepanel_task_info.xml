@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Caratteristiche dell&apos;oggetto">
+	<panel.string name="text deed continued">
+		Intesta
+	</panel.string>
+	<panel.string name="text deed">
+		Intesta
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Puoi modificare questo oggetto
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Puoi modificare questi oggetti
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Non puoi modificare questo oggetto
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Non puoi modificare questi oggetti
+	</panel.string>
+	<panel.string name="text modify warning">
+		Questo oggetto ha parti unite
+	</panel.string>
+	<panel.string name="Cost Default">
+		Prezzo: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Prezzo Totale: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Prezzo Per: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Prezzo assortito
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Vendita assortita
+	</panel.string>
+	<panel label="">
+		<text name="Name:">
+			Nome:
+		</text>
+		<text name="Description:">
+			Descrizione:
+		</text>
+		<text name="Creator:">
+			Creatore:
+		</text>
+		<text name="Owner:">
+			Proprietario:
+		</text>
+		<text name="Group:">
+			Gruppo:
+		</text>
+		<button name="button set group" tool_tip="Scegli un gruppo per condividere i permessi di questo oggetto"/>
+		<name_box initial_value="Caricando..." name="Group Name Proxy"/>
+		<button label="Intesta" label_selected="Intesta" name="button deed" tool_tip="Intestando questo oggetto lo passa con i permessi del prossimo proprietario. Gli oggetti condivisi dal Gruppo possono essere intestati solo da un Officer del gruppo."/>
+		<check_box label="Condividi" name="checkbox share with group" tool_tip="Permetti a tutti i Membri del gruppo impostato di condividere la tua modifica ai permessi di questo oggetto. Tu devi Intestare per consentire le restrizioni al ruolo."/>
+		<text name="label click action">
+			Clicca per:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Tocca (default)" name="Touch/grab(default)"/>
+			<combo_box.item label="Siedi sull&apos;oggetto" name="Sitonobject"/>
+			<combo_box.item label="Compra l&apos;oggetto" name="Buyobject"/>
+			<combo_box.item label="Paga l&apos;ogggetto" name="Payobject"/>
+			<combo_box.item label="Apri" name="Open"/>
+		</combo_box>
+		<check_box label="In Vendita:" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Copia" name="Copy"/>
+			<combo_box.item label="Contenuti" name="Contents"/>
+			<combo_box.item label="Originale" name="Original"/>
+		</combo_box>
+		<spinner label="Prezzo: L$" name="Edit Cost"/>
+		<check_box label="Mostra nella ricerca" name="search_check" tool_tip="Mostra questo oggetto nei risultati della ricerca"/>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Puoi modificare questo oggetto
+			</text>
+			<text name="Anyone can:">
+				Chiunque:
+			</text>
+			<check_box label="Sposta" name="checkbox allow everyone move"/>
+			<check_box label="Copia" name="checkbox allow everyone copy"/>
+			<text name="Next owner can:">
+				Prossimo Proprietario:
+			</text>
+			<check_box label="Modifica" name="checkbox next owner can modify"/>
+			<check_box label="Copia" name="checkbox next owner can copy"/>
+			<check_box label="Transfer" name="checkbox next owner can transfer" tool_tip="Prossimo proprietario può regalare o rivendere questo oggetto"/>
+			<text name="B:">
+				B:
+			</text>
+			<text name="O:">
+				O:
+			</text>
+			<text name="G:">
+				G:
+			</text>
+			<text name="E:">
+				E:
+			</text>
+			<text name="N:">
+				N:
+			</text>
+			<text name="F:">
+				F:
+			</text>
+		</panel>
+	</panel>
+	<panel name="button_panel">
+		<button label="Apri" name="open_btn"/>
+		<button label="Paga" name="pay_btn"/>
+		<button label="Compra" name="buy_btn"/>
+		<button label="Cancella" name="cancel_btn"/>
+		<button label="Salva" name="save_btn"/>
+	</panel>
+</panel>

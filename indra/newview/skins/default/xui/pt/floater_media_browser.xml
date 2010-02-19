@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="477" name="floater_about" title="NAVEGADOR DE MÍDIA" width="570">
+	<floater.string name="home_page_url">
+		http://br.secondlife.com
+	</floater.string>
+	<floater.string name="support_page_url">
+		http://br.secondlife.com/support
+	</floater.string>
+	<layout_stack name="stack1" width="550">
+		<layout_panel name="nav_controls">
+			<button label="Para trás" name="back" width="75"/>
+			<button label="Para a frente" left_delta="75" name="forward" width="90"/>
+			<button label="Recarregar" left_delta="95" name="reload" width="76"/>
+			<combo_box left_delta="80" name="address" width="500"/>
+			<button label="Ir" left_delta="505" name="go" width="35"/>
+		</layout_panel>
+		<layout_panel name="parcel_owner_controls">
+			<button label="Enviar a URL atual para o terreno" name="assign"/>
+		</layout_panel>
+		<layout_panel name="external_controls">
+			<button label="Abrir no meu Navegador de Web" name="open_browser" width="196"/>
+			<check_box label="Sempre abrir no meu Navegador de Web" left_delta="201" name="open_always"/>
+			<button label="Fechar" name="close"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="modal container" title=" ">
+	<button label="続行" label_selected="続行" name="Continue" />
+	<button label="取り消し" label_selected="取り消し" name="Cancel" />
+	<text name="tos_title">
+		クリティカルメッセージ
+	</text>
+	<text name="tos_heading">
+		次のメッセージを注意してよくお読みください。
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+</floater>

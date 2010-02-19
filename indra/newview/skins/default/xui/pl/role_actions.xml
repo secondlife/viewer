@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<role_actions>
+	<action_set
+	     description="Przywileje pozwajające na dodawanie i usuwanie Członków oraz pozwalają nowym Członkom na dodawanie się bez zaproszenia."
+	     name="Membership">
+		<action description="Zapraszanie do Grupy"
+		     longdescription="Zapraszanie nowych Ludzi do Grupy używając &apos;Zaproś Nową Osobę...&apos; pod Członkowie &gt; Członkowie."
+		     name="member invite" />
+		<action description="Usuwanie z Grupy"
+		     longdescription="Usuwanie Członków z Grupy używając &apos;Usuń z Grupy&apos; pod Członkowie &gt; Członkowie. Właściciel może usunąć każdego za wyjątkiem innego Właściciela. Jeżeli nie jesteś Właścicielem możesz tylko usuwać Członków w Funkcji Każdy i tylko wtedy kiedy nie mają żadnej innej Funkcji. Aby odebrać Członkowi Funkcję musisz mieć Przywilej &apos;Odbieranie Funkcji&apos;."
+		     name="member eject" />
+		<action
+		     description="Selekcja opcji &apos;Wolne Zapisy&apos; i wybór &apos;Opłaty Wstępnej&apos;"
+		     longdescription="Selekcja opcji &apos;Wolne Zapisy&apos; (pozwola nowym Członkom na dodawanie sie bez zaproszenia) i wybiór &apos;Opłaty Wstępnej&apos; w Ustawieniach Grupy w sekcji Ogólne."
+		     name="member options" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na dodawanie, usuwanie i edycję Funkcji w Grupie, oraz na nadawanie i odbieranie Funkcji, oraz na przypisywanie Przywilejów do Funkcji."
+	     name="Roles">
+		<action description="Dodawanie Funkcji"
+		     longdescription="Dodawanie nowych Funkcji pod Członkowie &gt; Funkcje."
+		     name="role create" />
+		<action description="Usuwanie Funkcji"
+		     longdescription="Usuwanie Funkcji pod Członkowie &gt; Funkcje."
+		     name="role delete" />
+		<action description="Zmiany nazw Funkcji, Tytułów i Opisów"
+		     longdescription="Zmiany nazw Funkcji, Tytułów i Opisów w dolnej części Członkowie &gt; Funkcje po wybraniu Funkcje."
+		     name="role properties" />
+		<action description="Przypisywanie Członków do posiadanych Funkcji"
+		     longdescription="Przypisywanie Członków do Funkcji w sekcji Przypisane Funkcje pod Członkowie &gt; Członkowie. Członek z tym Przywilejem może dodawać Członków do Funkcji które sam już posiada."
+		     name="role assign member limited" />
+		<action description="Przypisywanie Członków do wszystkich Funkcji"
+		     longdescription="Przypisywanie Członków do wszystkich Funkcji w sekcji Przypisane Funkcje pod Członkowie &gt; Członkowie. *UWAGA* Członek w Funkcji z tym Przywilejem może przypisać siebie i innych Członków nie będących Właścicielami do Funkcji dających więcej Przywilejów niż posiadane obecnie potencjalnie dające możliwości zbliżone do możliwości Właściciela. Udzielaj tego Przywileju z rozwagą."
+		     name="role assign member" />
+		<action description="Odbieranie Funkcji"
+		     longdescription="Odbieranie Funkcji w sekcji Przypisane Funkcje pod Członkowie &gt; Członkowie. Funkcja Właściciela nie może być odebrana."
+		     name="role remove member" />
+		<action description="Dodawanie i Usuwanie Przywilejów z Funkcji"
+		     longdescription="Dodawanie i Usuwanie Przywilejów z Funkcji w sekcji Przwileje pod Członkowie &gt; Funkcje. *UWAGA* Członek w Funkcji z tym Przywilejem może przypisać sobie i innychm Członkom nie będącym Właścicielami wszystkie Przywileje potencjalnie dające możliwości zbliżone do możliwości Właściciela. Udzielaj tego Przywileju z rozwagą."
+		     name="role change actions" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na edycję atrybutów Grupy takich jak widoczność w wyszukiwarce, status i insygnia."
+	     name="Group Identity">
+		<action
+		     description="Zmiany Statusu Grupy, Insygniów, &apos;Widoczność w Wyszukiwarce&apos; i widoczność Członków w Informacjach o Grupie."
+		     longdescription="Zmiany Statusu Grupy, Insygniów, &apos;Widoczność w Wyszukiwarce&apos; i widoczność Członków w Informacjach o Grupie. Dostęp poprzez ustawienia Ogólne."
+		     name="group change identity" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na przypisywanie, modyfikacje i sprzedaż Posiadłości Grupy. Aby zobaczyć okno O Posiadlości wybierz grunt prawym klawiszem myszki i wybierz &apos;O Posiadlości&apos; albo wybierz O Posiadłości w głównym menu."
+	     name="Parcel Management">
+		<action description="Przypisywanie i kupowanie Posiadłości dla Grupy"
+		     longdescription="Przypisywanie i kupowanie Posiadłości dla Grupy. Dostęp poprzez O Posiadlości &gt; ustawienia Ogólne."
+		     name="land deed" />
+		<action description="Oddawanie Posiadłości do Linden Lab"
+		     longdescription="Oddawanie Posiadłości do Linden Lab. *UWAGA* Członek w Funkcji z tym Przywilejem może porzucać Posiadlości Grupy poprzez O Posiadlości &gt; ustawienia Ogólne oddając Posiadłości za darmo do Linden Labs! Udzielaj tego Przywileju z rozwagą."
+		     name="land release" />
+		<action description="Sprzedaż Posiadłości"
+		     longdescription="Sprzedaż Posiadłości. *UWAGA* Członek w Funkcji z tym Przywilejem może sprzedawać Posiadlości Grupy poprzez O Posiadlości &gt; ustawienia Ogólne! Udzielaj tego Przywileju z rozwagą."
+		     name="land set sale info" />
+		<action description="Podział i Łączenie Posiadłości"
+		     longdescription="Podział i Łączenie Posiadłości. Dostęp poprzez wybranie gruntu prawym klawiszem myszki, &apos;Edycja Terenu&apos;, i przesuwanie myszką po gruncie wybierając obszar. Aby podzielić wybierz obszar i naciśnij &apos;Podziel...&apos;. Aby połączyć wybierz dwie albo więcej sąsiadujące Posiadłości i naciśnij &apos;Połącz...&apos;."
+		     name="land divide join" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na zmianę nazwy Posiadłości, widoczność w wyszukiwarce, widoczność w wyszukiwarce, wybór miejsce lądowania i zmianę ustawień teleportacji (TP)."
+	     name="Parcel Identity">
+		<action
+		     description="Selekcja opcji &apos;Pokazuj w szukaniu miejsc&apos; i wybór kategorii"
+		     longdescription="Selekcja opcji &apos;Pokazuj w szukaniu miejsc&apos; i wybór kategorii Posiadłości pod O Posiadłości &gt; Opcje."
+		     name="land find places" />
+		<action
+		     description="Zmiany nazwy Posiadłości, opisu i selekcja &apos;Widoczność w Wyszukiwarce&apos;"
+		     longdescription="Zmiany nazwy Posiadłości, opisu i selekcja &apos;Widoczność w Wyszukiwarce&apos;. Dostęp poprzez O Posiadłości &gt; Opcje."
+		     name="land change identity" />
+		<action description="Wybór miejsca lądowania i ustawienia teleportacji (TP)"
+		     longdescription="Na Posiadłości Grupy Członek w Funkcji z tym Przywilejem może wybrać miejsce gdzie teleportujące się osoby będą ladować oraz może ustalić dodatkowe parametry teleportacji (TP).  Dostęp poprzez O Posiadłości &gt; Opcje."
+		     name="land set landing point" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na zmianę opcji Posiadłości takich jak &apos;Tworzenie Obiektów&apos;, &apos;Edycja Terenu&apos; i zmianę ustawień muzyki &amp; mediów."
+	     name="Parcel Settings">
+		<action description="Zmiany ustawień muzyki &amp; mediów"
+		     longdescription="Zmiany ustawień muzyki &amp; mediów pod O Posiadłości &gt; Media."
+		     name="land change media" />
+		<action description="Selekcja opcji &apos;Edycja Terenu&apos;"
+		     longdescription="Selekcja opcji &apos;Edycja Terenu&apos;. *UWAGA* O Posiadłości &gt; Opcje &gt; Edycja Terenu pozwala każdemu na formowanie gruntów Twojej Posiadłości oraz na przemieszczanie roślin z Linden Labs. Udzielaj tego Przywileju z rozwagą. Selekcja opcji Edycji Terenu jest dostępna poprzez O Posiadłości &gt; Opcje."
+		     name="land edit" />
+		<action description="Dodatkowe ustawienia O Posiadłości &gt; Opcje"
+		     longdescription="Selekcja opcji &apos;Bezpieczeństwo (brak uszkodzeń)&apos;, &apos;Latanie&apos;, opcje dla innych Rezydentów: &apos;Tworzenie Obiektów&apos;, &apos;Edycja Terenu&apos;, &apos;Zapamiętywanie Miejsca (LM)&apos;, &apos;Skrypty&apos; na Posiadłościach Grupy pod O Posiadłości &gt; Opcje."
+		     name="land options" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające Członkom na omijanie ograniczeń na Posiadłościach Grupy."
+	     name="Parcel Powers">
+		<action description="Pozwól na Edycję Terenu"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze edytować teren na Posiadłościach Grupy."
+		     name="land allow edit land" />
+		<action description="Pozwól na Latanie"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze latać na Posiadłościach Grupy."
+		     name="land allow fly" />
+		<action description="Pozwól na Tworzenie Obiektów"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze tworzyć obiekty na Posiadłościach Grupy."
+		     name="land allow create" />
+		<action description="Pozwól na Zapamiętywanie Miejsc (LM)"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze zapamiętywać miejsca (LM) na Posiadłościach Grupy."
+		     name="land allow landmark" />
+		<action description="Pozwól na wybór Miejsca Startu na Posiadłościach Grupy"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zawsze wybrać Miejsce Startu na Posiadłościach Grupy."
+		     name="land allow set home" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na dawanie i odbieranie dostępu do Posiadłości Grupy zawierające możliwości unieruchomiania i wyrzucania Rezydentów."
+	     name="Parcel Access">
+		<action description="Zarządzanie Listą Dostępu do Posiadłości"
+		     longdescription="Zarządzanie Listą Dostępu do Posiadłości pod O Posiadłości &gt; Dostęp."
+		     name="land manage allowed" />
+		<action description="Zarządzanie Listą Usuniętych z Posiadłości (Bany)"
+		     longdescription="Zarządzanie Listą Usuniętych z Posiadłości (Bany) pod O Posiadlości &gt; Usuwanie."
+		     name="land manage banned" />
+		<action description="Selekcja opcji &apos;Wstęp Płatny...&apos;"
+		     longdescription="Selekcja opcji &apos;Wstęp Płatny...&apos; pod O Posiadłości &gt; Dostęp."
+		     name="land manage passes" />
+		<action description="Wyrzucanie i unieruchamianie Rezydentów na Posiadłościach"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą wpływać na niepożądanych na Posiadłościach Grupy Rezydentów wybierając ich prawym klawiszem myszki i wybierając Więcej &gt; &apos;Wyrzuć...&apos; albo &apos;Unieruchom...&apos;."
+		     name="land admin" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na odsyłanie obiektów i przemieszczanie roślin z Linden Lab. Użyteczne przy porządkowaniu i przemieszczaniu roślinności. *UWAGA* Odsyłanie obiektów jest nieodwracalne."
+	     name="Parcel Content">
+		<action description="Odsyłanie obiektów należących do Grupy"
+		     longdescription="Odsyłanie obiektów należących do Grupy pod O Posiadłości &gt; Obiekty."
+		     name="land return group owned" />
+		<action description="Odsyłanie obiektów przypisanych do Grupy"
+		     longdescription="Odsyłanie obiektów przypisanych do Grupy pod O Posiadłości &gt; Obiekty."
+		     name="land return group set" />
+		<action description="Odsyłanie obiektów nie przypisanych do Grupy"
+		     longdescription="Odsyłanie obiektów nie przypisanych do Grupy pod O Posiadłości &gt; Obiekty."
+		     name="land return non group" />
+		<action description="Ogrodnictwo używając roślin z Linden Lab"
+		     longdescription="Ogrodnictwo pozwala na umieszczanie i przemieszczanie drzew, roślin i trawy z Linden Lab. Te obiekty znajdują się w Twojej Szafie pod Zbiór &gt; Obiekty, mogą też być stworzone używając przycisku Buduj."
+		     name="land gardening" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na przypisywanie, modyfikacje i sprzedaż obiektów należących do Grupy. Dostęp poprzez Narzędzia Edycji &gt; Ogólne. Wybierz obiekt prawym klawiszem myszki i wybierz Edycja żeby zobaczyć ustawienia."
+	     name="Object Management">
+		<action description="Przypisywanie obiektów do Grupy"
+		     longdescription="Przypisywanie obiektów do Grupy pod Narzędzia Edycji &gt; Ogólne."
+		     name="object deed" />
+		<action
+		     description="Manipulowanie (wklejanie, kopiowanie, modyfikacja) obiektami należącymi do Grupy"
+		     longdescription="Manipulowanie (wklejanie, kopiowanie, modyfikacja) obiektami należącymi do Grupy pod Narzędzia Edycji &gt; Ogólne."
+		     name="object manipulate" />
+		<action description="Sprzedaż obiektów należących do Grupy"
+		     longdescription="Sprzedaż obiektów należących do Grupy pod Narzędzia Edycji &gt; Ogólne."
+		     name="object set sale" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na wybór opłat grupowych, otrzymywanie dochodu i ograniczanie dostępu do historii konta grupy."
+	     name="Accounting">
+		<action description="Opłaty grupowe i dochód grupowy"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem będą automatycznie wnosić opłaty grupowe i będą otrzymywać dochód grupowy. Tzn. będą codziennie otrzymywać część dochodu ze sprzedaży Posiadłości Grupy oraz będą partycypować w kosztach ogłoszeń itp."
+		     name="accounting accountable" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na wysyłanie, odbieranie i czytanie Notek Grupy."
+	     name="Notices">
+		<action description="Wysyłanie Notek"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą wysyłać Notki wybierając O Grupie &gt; Notek."
+		     name="notices send" />
+		<action description="Odbieranie Notek i dostęp do dawniejszych Notek"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą odbierać nowe i czytać dawniejsze Notki wybierając O Grupie &gt; Notki."
+		     name="notices receive" />
+	</action_set>
+	<action_set
+	     description="Przywileje pozwalające na zgłaszanie Propozycji, głosowanie nad Propozycjami i śledzenie historii głosowania."
+	     name="Proposals">
+		<action description="Zgłaszanie Propozycji"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą zgłaszać Propozycje do głosowania wybierając O Grupie &gt; Propozycje."
+		     name="proposal start" />
+		<action description="Głosowanie nad Propozycjami"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą głosować nad Propozycjami zgłoszonymi do głosowania wybierając O Grupie &gt; Propozycje."
+		     name="proposal vote" />
+	</action_set>
+	<action_set description="Przywileje kontrolujące czat i rozmowy grupowe." name="Chat">
+		<action description="Dostęp do Czatu Grupowego"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą uczestniczyć w czacie i rozmowach grupowych."
+		     name="join group chat" />
+		<action description="Dostęp do Rozmów Grupowych"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą uczestniczyć w rozmowach grupowych. UWAGA: Dostęp do Czatu Grupowego jest wymagany dla rozmów grupowych."
+		     name="join voice chat" />
+		<action description="Moderator Czatu Grupowego"
+		     longdescription="Członkowie w Funkcji z tym Przywilejem mogą kontrolować dostęp do czatu i rozmów grupowych."
+		     name="moderate group chat" />
+	</action_set>
+</role_actions>

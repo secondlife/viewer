@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Geral" name="general_panel">
+	<combo_box name="start_location_combo">
+		<combo_box.item name="MyHome" tool_tip="Como padrão, registrar na minha casa." label="Minha Casa"/>
+		<combo_box.item name="MyLastLocation" tool_tip="Por padrão, registrar na minha última localidade." label="Minha Última Localidade"/>
+	</combo_box>
+	<check_box label="Mostrar Posição Inicial na Tela de Login" name="show_location_checkbox"/>
+	<combo_box name="fade_out_combobox">
+		<combo_box.item name="Never" label="Nunca"/>
+		<combo_box.item name="Show Temporarily" label="Mostrar Temporariamente"/>
+		<combo_box.item name="Always" label="Sempre"/>
+	</combo_box>
+	<check_box label="Avatar com Nomes Pequenos" name="small_avatar_names_checkbox"/>
+	<check_box label="Ocultar meu Nome na minha Tela" name="show_my_name_checkbox"/>
+	<text name="group_titles_textbox">
+		Títulos dos Grupos:
+	</text>
+	<check_box label="Ocultar todos os Títulos de Grupos" name="show_all_title_checkbox"/>
+	<check_box label="Ocultar meu Título no Grupo" name="show_my_title_checkbox"/>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="Clique para abrir o seletor de cores"/>
+	<text name="UI Size:">
+		Tamanho da UI:
+	</text>
+	<check_box label="Usar escala independente da resolução" name="ui_auto_scale"/>
+	<spinner label="Tempo para ficar Ausente:" name="afk_timeout_spinner"/>
+	<check_box label="Avisar quando receber ou gastar Linden dollars (L$)" name="notify_money_change_checkbox"/>
+	<text name="maturity_desired_label">
+		Classificação:
+	</text>
+	<text name="maturity_desired_prompt">
+		Eu quero acessar conteúdo classificado:
+	</text>
+	<combo_box name="maturity_desired_combobox">
+		<combo_box.item name="Desired_Adult" label="PG, Mature e Adult"/>
+		<combo_box.item name="Desired_Mature" label="PG e Mature"/>
+		<combo_box.item name="Desired_PG" label="PG"/>
+	</combo_box>
+	<text name="maturity_desired_textbox">
+		PG
+	</text>
+	<text name="start_location_textbox">
+		Posição Inicial:
+	</text>
+	<text name="show_names_textbox">
+		Mostrar Nomes:
+	</text>
+	<text name="effects_color_textbox">
+		Cores para Meus Efeitos:
+	</text>
+	<text name="seconds_textbox">
+		segundos
+	</text>
+	<text name="crash_report_textbox">
+		Relatórios de Falhas:
+	</text>
+	<text name="language_textbox">
+		Linguagem:
+	</text>
+	<text name="language_textbox2">
+		(Precisa de reinício para efetivar)
+	</text>
+	<string name="region_name_prompt">
+		Digite o nome da Região
+	</string>
+	<combo_box name="crash_behavior_combobox">
+		<combo_box.item name="Askbeforesending" label="Perguntar antes de enviar"/>
+		<combo_box.item name="Alwayssend" label="Sempre enviar"/>
+		<combo_box.item name="Neversend" label="Nunca Enviar"/>
+	</combo_box>
+	<combo_box name="language_combobox">
+		<combo_box.item name="System Default Language" label="Padrão do Sistema"/>
+		<combo_box.item name="English" label="English (Inglês)"/>
+		<combo_box.item name="Danish" label="Dansk (Dinamarquês) - Beta"/>
+		<combo_box.item name="Deutsch(German)" label="Deutsch (Alemão) - Beta"/>
+		<combo_box.item name="Spanish" label="Español (Espanhol) - Beta"/>
+		<combo_box.item name="French" label="Français (Francês) - Beta"/>
+		<combo_box.item name="Italian" label="Italiano - Beta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Húngaro) - Beta"/>
+		<combo_box.item name="Dutch" label="Nederlands (Holandês) - Beta"/>
+		<combo_box.item name="Polish" label="Polski (Polonês) - Beta"/>
+		<combo_box.item name="Portugese" label="Português - Beta"/>
+		<combo_box.item name="Russian" label="Русский (Russo) - Beta"/>
+		<combo_box.item name="Turkish" label="Türkçe (Turco) - Beta"/>
+		<combo_box.item name="Ukrainian" label="Українська (Ucraniano) - Beta"/>
+		<combo_box.item name="Chinese" label="中文 (简体) (Chinês) - Beta"/>
+		<combo_box.item name="(Japanese)" label="日本語 (Japonês) - Beta"/>
+		<combo_box.item name="(Korean)" label="한국어 (Coreano) - Beta"/>
+	</combo_box>
+	<check_box label="Compartilhar a linguagem com objetos" name="language_is_public" tool_tip="Isto permite que os objetos no mundo conheçam sua linguagem preferida."/>
+</panel>

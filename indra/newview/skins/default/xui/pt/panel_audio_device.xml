@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="device_settings">
+	<text name="Audio Devices">
+		Dispositivos de Áudio
+	</text>
+	<text name="Input device (microphone):">
+		Dispositivo de entrada (microfone):
+	</text>
+	<text name="Output device (speakers):">
+		Dispositivo de saída (falantes):
+	</text>
+	<text name="Input level:">
+		Nível de Entrada
+	</text>
+	<text_editor name="voice_intro_text1">
+		Ajuste a barra para controlar o volume de som para os outros residentes. Para testar o nível de entrada, basta falar em seu microfone.
+	</text_editor>
+	<volume_slider name="mic_volume_slider" tool_tip="Altere o volume usando este controle gradual"/>
+	<text name="wait_text">
+		Por Favor aguarde
+	</text>
+	<string name="default_text">
+		Padrão
+	</string>
+</panel>

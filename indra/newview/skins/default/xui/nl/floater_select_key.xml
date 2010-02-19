@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title="">
+	<button label="Annuleren" label_selected="Annuleren" name="Cancel"/>
+	<text name="Save item as:" left="12" width="220">
+		Druk op een toets om die te selecteren
+	</text>
+</floater>

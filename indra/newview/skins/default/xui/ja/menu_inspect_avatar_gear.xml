@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="プロフィールの表示" name="view_profile"/>
+	<menu_item_call label="フレンド登録" name="add_friend"/>
+	<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="コール" name="call"/>
+	<menu_item_call label="テレポート" name="teleport"/>
+	<menu_item_call label="グループに招待" name="invite_to_group"/>
+	<menu_item_call label="ブロック" name="block"/>
+	<menu_item_call label="ブロック解除" name="unblock"/>
+	<menu_item_call label="報告" name="report"/>
+	<menu_item_call label="フリーズ" name="freeze"/>
+	<menu_item_call label="追放" name="eject"/>
+	<menu_item_call label="デバッグ" name="debug"/>
+	<menu_item_call label="地図で探す" name="find_on_map"/>
+	<menu_item_call label="ズームイン" name="zoom_in"/>
+	<menu_item_call label="支払う" name="pay"/>
+</menu>

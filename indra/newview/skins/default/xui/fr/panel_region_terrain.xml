@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Terrain" name="Terrain">
+	<text name="region_text_lbl">
+		Région :
+	</text>
+	<text name="region_text">
+		(inconnue)
+	</text>
+	<spinner label="Niveau de l&apos;eau" name="water_height_spin"/>
+	<button label="?" name="water_height_help"/>
+	<spinner label="Limite d&apos;élévation du &#10;terrain" name="terrain_raise_spin"/>
+	<button label="?" name="terrain_raise_help"/>
+	<spinner label="Limite d&apos;abaissement &#10;du terrain" name="terrain_lower_spin" bottom_delta="-34"/>
+	<button label="?" name="terrain_lower_help"/>
+	<check_box label="Utiliser le soleil du domaine" name="use_estate_sun_check"/>
+	<button label="?" name="use_estate_sun_help"/>
+	<check_box label="Soleil fixe" name="fixed_sun_check"/>
+	<button label="?" name="fixed_sun_help"/>
+	<slider label="Phase" name="sun_hour_slider"/>
+	<button label="Appliquer" name="apply_btn"/>
+	<button label="Télécharger le terrain au format RAW..." name="download_raw_btn" tool_tip="Réservé aux propriétaires de domaine, pas aux gérants" width="230"/>
+	<button label="?" name="download_raw_help" left="246" />
+	<button label="Charger le terrain au format RAW..." name="upload_raw_btn" tool_tip="Réservé aux propriétaires de domaine, pas aux gérants" width="230"/>
+	<button label="?" name="upload_raw_help" left="246" />
+	<button label="Figer le terrain" name="bake_terrain_btn" tool_tip="Définir le terrain actuel comme point central pour les limites d&apos;élévation/abaissement"/>
+	<button label="?" name="bake_terrain_help"/>
+</panel>

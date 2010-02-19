@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="GRID OPTIONS">
+	<spinner label="Grid Units (meters)" label_width="192" name="GridResolution" width="250"/>
+	<spinner label="Estensione della griglia (metri)" label_width="192" name="GridDrawSize" width="250"/>
+	<check_box label="Usa allineamento sub-unitario" name="GridSubUnit"/>
+	<check_box label="Guarda le cross-sections" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Opacità della Grid">
+		Opacità:
+	</text>
+	<slider label="Trasparenza della griglia" name="GridOpacity" width="250"/>
+</floater>
