@@ -204,6 +204,7 @@ void LLHandlerUtil::logGroupNoticeToIMGroup(
 		llwarns
 						<< "Group notice for unkown group: "
 								<< payload["group_id"].asUUID() << llendl;
+		return;
 	}
 
 	const std::string group_name = groupData.mName;
