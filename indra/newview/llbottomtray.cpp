@@ -926,13 +926,12 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 		}
 		else
 		{
-			//
-			mSpeakBtn->setLabelVisible(false);
 			S32 panel_width = mSpeakPanel->getRect().getWidth();
 			S32 possible_shrink_width = panel_width - panel_min_width;
 
 			if (possible_shrink_width > 0)
 			{
+				mSpeakBtn->setLabelVisible(false);
 				mSpeakPanel->reshape(panel_width - possible_shrink_width, mSpeakPanel->getRect().getHeight());
 
 				*required_width += possible_shrink_width;
@@ -1007,11 +1006,11 @@ void LLBottomTray::processExtendButtons(S32* available_width)
 
 	if (*available_width > 0)
 	{
-		processExtendButton(RS_BUTTON_CAMERA, available_width);
+		processExtendButton(RS_BUTTON_MOVEMENT, available_width);
 	}
 	if (*available_width > 0)
 	{
-		processExtendButton(RS_BUTTON_MOVEMENT, available_width);
+		processExtendButton(RS_BUTTON_CAMERA, available_width);
 	}
 	if (*available_width > 0)
 	{
@@ -1211,8 +1210,8 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 			if ( (available_width + possible_shrunk_width) >= minimal_width)
 			{
 				// There is enough space for minimal width, but set the result_width
-				// to current_width so buttons widths decreasing will be done in predefined order
-				result_width = current_width;
+				// to preferred_width so buttons widths decreasing will be done in predefined order
+				result_width = (preferred_width > 0) ? preferred_width : current_width;
 				decrease_width = true;
 			}
 			else
