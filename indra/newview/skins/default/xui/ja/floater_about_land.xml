@@ -27,13 +27,13 @@
 				[AREA] 平方メートル
 			</panel.string>
 			<panel.string name="auction_id_text">
-				オークションID： [ID]
+				オークション ID： [ID]
 			</panel.string>
 			<panel.string name="need_tier_to_modify">
 				この土地を修正変更するには、購入を承認する必要があります。
 			</panel.string>
 			<panel.string name="group_owned_text">
-				(グループ所有)
+				（グループ所有）
 			</panel.string>
 			<panel.string name="profile_text">
 				プロフィール
@@ -42,13 +42,13 @@
 				情報
 			</panel.string>
 			<panel.string name="public_text">
-				(公共)
+				（公共）
 			</panel.string>
 			<panel.string name="none_text">
 				（なし）
 			</panel.string>
 			<panel.string name="sale_pending_text">
-				(購入審査中)
+				（購入審査中）
 			</panel.string>
 			<panel.string name="no_selection_text">
 				区画が選択されていません。
@@ -95,7 +95,7 @@
 				販売対象外
 			</text>
 			<text name="For Sale: Price L$[PRICE].">
-				価格： L$[PRICE] （L$[PRICE_PER_SQM]/平方メートル）
+				価格： L$ [PRICE] （L$ [PRICE_PER_SQM] / 平方メートル）
 			</text>
 			<button label="土地を売る" label_selected="土地を販売..." name="Sell Land..." width="100"/>
 			<text name="For sale to">
@@ -132,7 +132,7 @@
 			<button label="入場許可を購入" label_selected="入場許可を購入..." left="130" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="100"/>
 			<button label="土地の放棄" label_selected="土地を放棄..." name="Abandon Land..."/>
 			<button label="土地を取り戻す" label_selected="土地の返還を要求..." name="Reclaim Land..."/>
-			<button label="リンデンセール" label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
+			<button label="リンデンセール" label_selected="Linden セール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -155,7 +155,7 @@
 				メインランド
 			</text>
 			<text name="estate_owner_lbl">
-				オーナー：
+				所有者：
 			</text>
 			<text name="estate_owner_text">
 				（なし）
@@ -188,7 +188,7 @@
 				再販：
 			</text>
 			<text name="resellable_clause">
-				この地域（リージョン）にある土地は再販できません。
+				このリージョン（地域）にある土地は再販できません。
 			</text>
 			<text name="changeable_lbl">
 				再分割：
@@ -200,10 +200,10 @@
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
 			<panel.string left="200" name="objects_available_text">
-				[MAX]の内[COUNT]（[AVAILABLE]利用可能）
+				[MAX] の内 [COUNT]（[AVAILABLE] 利用可能）
 			</panel.string>
 			<panel.string left="200" name="objects_deleted_text">
-				[MAX]の内[COUNT]（[DELETED]を削除）
+				[MAX] の内 [COUNT]（[DELETED] を削除）
 			</panel.string>
 			<text name="parcel_object_bonus">
 				オブジェクトボーナス: [BONUS]
@@ -212,7 +212,7 @@
 				プリム使用状況：
 			</text>
 			<text left="200" name="objects_available">
-				[MAX]の内[COUNT]（[AVAILABLE]利用可能）
+				[MAX] の内 [COUNT] （[AVAILABLE] 利用可能）
 			</text>
 			<text name="Primitives parcel supports:" width="200">
 				区画でサポートされるプリム数：
@@ -227,7 +227,7 @@
 				[COUNT]
 			</text>
 			<text name="Owned by parcel owner:" width="300">
-				区画オーナーによる所有：
+				区画所有者の所有物：
 			</text>
 			<text left="200" name="owner_objects_text">
 				[COUNT]
@@ -243,7 +243,7 @@
 			<button label="表示" label_selected="表示" name="ShowGroup" right="-145"/>
 			<button label="返却" label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
 			<text name="Owned by others:">
-				他人による所有：
+				他人の所有物：
 			</text>
 			<text left="200" name="other_objects_text">
 				[COUNT]
@@ -251,17 +251,17 @@
 			<button label="表示" label_selected="表示" name="ShowOther" right="-145"/>
 			<button label="返却" label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
 			<text name="Selected / sat upon:">
-				選択済み／決定済み：
+				選択済み・決定済み：
 			</text>
 			<text left="200" name="selected_objects_text">
 				[COUNT]
 			</text>
 			<text name="Autoreturn" width="500">
-				他人のオブジェクトを自動返却（分単位、0で自動返却なし）：
+				他人のオブジェクトを自動返却（分単位、0 で自動返却なし）：
 			</text>
 			<line_editor left_delta="5" name="clean other time" right="-80"/>
 			<text name="Object Owners:" width="150">
-				オブジェクトのオーナー：
+				オブジェクトの所有者：
 			</text>
 			<button label="リスト更新" label_selected="リスト更新" left="146" name="Refresh List" tool_tip="オブジェクトのリストを更新します"/>
 			<button label="オブジェクトを返却する" label_selected="オブジェクトの返却..." left="256" name="Return objects..."/>
@@ -278,7 +278,7 @@
 				この区画を検索結果に表示する
 			</panel.string>
 			<panel.string name="search_disabled_small_tooltip">
-				区画面積が128平方メートルかそれ以下のため、このオプションは無効です。
+				区画面積が 128 平方メートルかそれ以下のため、このオプションは無効です。
 大きな区画のみ検索に表示させることが可能です。
 			</panel.string>
 			<panel.string name="search_disabled_permissions_tooltip">
@@ -330,11 +330,11 @@
 			</text>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシングを制限" name="PushRestrictCheck" tool_tip="スクリプトによるプッシングを制限します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。"/>
-			<check_box label="検索に区画を表示（週 L$30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します"/>
+			<check_box label="検索に区画を表示（週 L$ 30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します"/>
 			<combo_box name="land category with adult">
 				<combo_box.item label="全カテゴリ" name="item0"/>
-				<combo_box.item label="Linden所在地" name="item1"/>
-				<combo_box.item label="Adult" name="item2"/>
+				<combo_box.item label="Linden 所在地" name="item1"/>
+				<combo_box.item label="アダルト" name="item2"/>
 				<combo_box.item label="アートとカルチャー" name="item3"/>
 				<combo_box.item label="ビジネス" name="item4"/>
 				<combo_box.item label="教育的" name="item5"/>
@@ -348,7 +348,7 @@
 			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="全カテゴリー" name="item0"/>
-				<combo_box.item label="Linden所在地" name="item1"/>
+				<combo_box.item label="Linden 所在地" name="item1"/>
 				<combo_box.item label="アート&amp;カルチャー" name="item3"/>
 				<combo_box.item label="ビジネス" name="item4"/>
 				<combo_box.item label="教育的" name="item5"/>
@@ -402,7 +402,7 @@
 			</text>
 			<texture_picker label="" left="120" name="media texture" tool_tip="写真をクリックして選択"/>
 			<text name="replace_texture_help" width="290">
-				このテクスチャを使用するオブジェクトのプレイをクリックすると、ムービーや Web ページを表示します。  テクスチャを変更するにはサムネイルを選択してください。
+				このテクスチャを使用するオブジェクトの「再生」をクリックすると、動画や Web ページを表示します。  テクスチャを変更するにはサムネイルを選択してください。
 			</text>
 			<check_box label="スケールを自動設定" name="media_auto_scale" tool_tip="このオプションをチェックすると、この区画のコンテンツのスケールが自動的に設定されます。 動作速度と画質が少し低下することがありますが、他のテクスチャーのスケーリングや整列が必要になることはありません。"/>
 			<text name="media_size" tool_tip="レンダリングするWebメディアのサイズです。デフォルトの 0 のままにします。">
@@ -439,7 +439,7 @@
 				（エステートに限定）
 			</panel.string>
 			<panel.string name="estate_override">
-				1つ以上のオプションが、不動産レベルで設定されています。
+				1 つ以上のオプションが、不動産レベルで設定されています。
 			</panel.string>
 			<text name="Limit access to this parcel to:">
 				この区画へのアクセス
@@ -450,7 +450,7 @@
 			</text>
 			<check_box label="支払情報登録済 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="未確認の住人の立入を禁止します。"/>
 			<check_box label="年齢確認 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人の立入を禁止します。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
-			<check_box label="グループのアクセスを許可：[GROUP]" name="GroupCheck" tool_tip="[一般]タブで、グループを選択してください。"/>
+			<check_box label="グループのアクセスを許可：[GROUP]" name="GroupCheck" tool_tip="「一般」タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="誰でも" name="Anyone"/>
