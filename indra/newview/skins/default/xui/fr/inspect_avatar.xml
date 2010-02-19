@@ -18,7 +18,7 @@
 	<slider name="volume_slider" tool_tip="Volume de la voix" value="0.5"/>
 	<button label="Devenir amis" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
-	<button label="Plus" name="view_profile_btn"/>
+	<button label="Profil" name="view_profile_btn"/>
 	<panel name="moderator_panel">
 		<button label="Désactiver le chat vocal" name="disable_voice"/>
 		<button label="Activer le chat vocal" name="enable_voice"/>

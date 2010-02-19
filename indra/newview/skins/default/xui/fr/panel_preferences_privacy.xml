@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		se connecter pour changer
 	</panel.string>
-	<button label="Vider le cache" name="clear_cache"/>
+	<button label="Vider le cache" name="clear_cache" tool_tip="Effacer l&apos;image de connexion, le dernier lieu, l&apos;historique des téléportations et la texture du cache."/>
 	<text name="cache_size_label_l">
 		(Endroits, images, web, historique des recherches)
 	</text>
@@ -11,9 +11,6 @@
 	<check_box label="Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM" name="voice_call_friends_only_check"/>
 	<check_box label="Fermer le micro à la fin d&apos;un appel" name="auto_disengage_mic_check"/>
 	<check_box label="Accepter les cookies" name="cookies_enabled"/>
-	<check_box label="Média activé" name="media_enabled"/>
-	<check_box label="Autoriser la lecture automatique du média" name="autoplay_enabled"/>
-	<check_box label="Musique activée" name="music_enabled"/>
 	<text name="Logs:">
 		Journaux :
 	</text>
