@@ -121,6 +121,9 @@
      name="AvatarNameFriendColor"
      reference="Green" />
     <color
+     name="AvatarNameLegacyColor"
+     reference="Yellow" />
+    <color
      name="AvatarListItemIconDefaultColor"
      reference="White" />
     <color
