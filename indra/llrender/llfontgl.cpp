@@ -247,10 +247,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		}
 	}
 
-
-	// Remember last-used texture to avoid unnecesssary bind calls.
-	LLImageGL *last_bound_texture = NULL;
-
 	const LLFontGlyphInfo* next_glyph = NULL;
 
 	for (i = begin_offset; i < begin_offset + length; i++)
