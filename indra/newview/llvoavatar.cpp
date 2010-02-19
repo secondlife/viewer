@@ -660,6 +660,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameFriend(false),
 	mNameAlpha(0.f),
 	mRenderGroupTitles(sRenderGroupTitles),
+	mUseDisplayNames( LLAvatarNameCache::useDisplayNames() ),
 	mFirstTEMessageReceived( FALSE ),
 	mFirstAppearanceMessageReceived( FALSE ),
 	mCulled( FALSE ),
@@ -2692,6 +2693,13 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	if (sRenderGroupTitles != mRenderGroupTitles)
 	{
 		mRenderGroupTitles = sRenderGroupTitles;
+		new_name = TRUE;
+	}
+
+	// IDEVO HACK to force refresh
+	if (LLAvatarNameCache::useDisplayNames() != mUseDisplayNames)
+	{
+		mUseDisplayNames = LLAvatarNameCache::useDisplayNames();
 		new_name = TRUE;
 	}
 

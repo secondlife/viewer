@@ -831,6 +831,7 @@ private:
 	bool			mNameFriend;
 	F32				mNameAlpha;
 	BOOL      		mRenderGroupTitles;
+	bool			mUseDisplayNames; // IDEVO HACK to force refresh
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)
