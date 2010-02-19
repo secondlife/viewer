@@ -825,7 +825,7 @@
 		ESC キーを押してワールドビューに戻る
 	</string>
 	<string name="InventoryNoMatchingItems">
-		一致するアイテムが持ち物にありませんでした
+		一致するアイテムが持ち物にありませんでした。  [secondlife:///app/search/groups 「検索」] をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		ここにランドマークをドラッグして、お気に入りに追加します。
@@ -1504,7 +1504,7 @@
 		（掲載後更新）
 	</string>
 	<string name="NoPicksClassifiedsText">
-		ここにはピック・クラシファイド広告はありません。
+		ピックやクラシファイド広告を作成していません。 作成するには、下にある「プラス」ボタンをクリックします。
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		ローディング...

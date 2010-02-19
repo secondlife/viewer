@@ -26,10 +26,10 @@
 			</accordion>
 		</layout_panel>
 		<layout_panel name="button_row">
-			<button name="btn_create" tool_tip="新しいグループを作成"/>
 			<button label="チャット" name="btn_chat"/>
 			<button label="グループコール" name="btn_call" tool_tip="このグループにコールする"/>
 			<button label="保存" label_selected="保存" name="btn_apply"/>
+			<button label="グループを作成" name="btn_create" tool_tip="新しいグループを作成"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

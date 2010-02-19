@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		ログインして変更
 	</panel.string>
-	<button label="履歴を消去" name="clear_cache"/>
+	<button label="履歴を消去" name="clear_cache" tool_tip="ログイン画像、最後にいた場所、テレポート履歴、Web、テクスチャキャッシュを削除します"/>
 	<text name="cache_size_label_l">
 		（位置、画像、web、検索履歴）
 	</text>
@@ -11,9 +11,6 @@
 	<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
 	<check_box label="コールが終了したら自動的にマイクのスイッチを切る" name="auto_disengage_mic_check"/>
 	<check_box label="Cookie を受け入れる" name="cookies_enabled"/>
-	<check_box label="メディアを有効にする" name="media_enabled"/>
-	<check_box label="メディアを自動再生する" name="autoplay_enabled"/>
-	<check_box label="音楽を有効にする" name="music_enabled"/>
 	<text name="Logs:">
 		ログ：
 	</text>

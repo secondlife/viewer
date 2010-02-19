@@ -6,7 +6,7 @@
 		<panel label="一般" name="general"/>
 		<panel label="グラフィック" name="display"/>
 		<panel label="プライバシー" name="im"/>
-		<panel label="サウンド" name="audio"/>
+		<panel label="サウンドとメディア" name="audio"/>
 		<panel label="チャット" name="chat"/>
 		<panel label="メッセージ" name="msgs"/>
 		<panel label="セットアップ" name="input"/>
