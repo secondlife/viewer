@@ -193,9 +193,16 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		msg->nextBlockFast(_PREHASH_FolderData);
 		msg->addUUIDFast(_PREHASH_FolderID, fid);
 		msg->sendReliable(LLHost(payload["sender"].asString()));
+
+		LLNotificationsUtil::add("FriendshipAcceptedByMe",
+				notification["substitutions"], notification["payload"]);
 		break;
 	}
 	case 1: // Decline
+	{
+		LLNotificationsUtil::add("FriendshipDeclinedByMe",
+				notification["substitutions"], notification["payload"]);
+	}
 	case 2: // Send IM - decline and start IM session
 		{
 			// decline
