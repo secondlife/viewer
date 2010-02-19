@@ -44,7 +44,7 @@
 
 namespace LLAvatarNameCache
 {
-	bool sUseDisplayNames = false;
+	bool sUseDisplayNames = true;
 
 	// accumulated agent IDs for next query against service
 	typedef std::set<LLUUID> ask_queue_t;
