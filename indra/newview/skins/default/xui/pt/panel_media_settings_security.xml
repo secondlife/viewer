@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Segurança" name="Media Settings Security">
+	<check_box initial_value="false" label="Acesso restrito a URLs especificados (pelo prefixo)" name="whitelist_enable"/>
+	<text name="home_url_fails_some_items_in_whitelist">
+		URLs com falha de acesso na página inicial são indicados com um:
+	</text>
+	<button label="Adicionar" name="whitelist_add"/>
+	<button label="Excluir" name="whitelist_del"/>
+	<text name="home_url_fails_whitelist">
+		Aviso: A página inicial especificada na aba Geral não consta na lista de acesso. Seu acesso será autorizado quando a lista for retificada.
+	</text>
+</panel>

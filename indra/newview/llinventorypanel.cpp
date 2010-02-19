@@ -290,8 +290,12 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				if(bridge)
 				{	// Clear the display name first, so it gets properly re-built during refresh()
 					bridge->clearDisplayName();
+
+					view_item->refresh();
+
+					// Set the new tooltip with the new display name.
+					view_item->setToolTip(bridge->getDisplayName());
 				}
-				view_item->refresh();
 			}
 		}
 

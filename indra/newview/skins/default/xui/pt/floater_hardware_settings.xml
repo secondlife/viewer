@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Hardware Settings Floater" title="AJUSTES DE HARDWARE">
+<floater name="Hardware Settings Floater" title="CONFIGURAÇÃO DO HARDWARE">
 	<text name="Filtering:">
 		Filtragem:
 	</text>
@@ -8,21 +8,21 @@
 		Suavização:
 	</text>
 	<combo_box label="Suavização" name="fsaa" width="94">
-		<combo_box.item name="FSAADisabled" label="Desabilitado"/>
-		<combo_box.item name="2x" label="2x"/>
-		<combo_box.item name="4x" label="4x"/>
-		<combo_box.item name="8x" label="8x"/>
-		<combo_box.item name="16x" label="16x"/>
+		<combo_box.item label="Desativado" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
 	<spinner label="Gama:" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
-		(brilho, quanto menor, mais brilho, 0=usar padrão)
+		(0 = brilho padrão, menor = mais brilho)
 	</text>
 	<text name="Enable VBO:">
 		Habilitar VBO:
 	</text>
-	<check_box label="Habilitar Objetos com Armazenamento de Vértices" name="vbo" tool_tip="Habilitando-o em máquinas novas, ele oferece um ganho de performance. Contudo, as máquinas antigas tem freqüentemente implementações pobres de VBOs e você pode ter travamentos quando esta opção é habilitada."/>
-	<slider label="Memória de Textura (MB):" name="GrapicsCardTextureMemory" tool_tip="Quantidade de memória a se reservar para texturas. Usa por padrão, a  Memória da Placa de Vídeo. Sua redução pode aumentar a performance mas pode também deixar as texturas borradas."/>
-	<spinner label="Relação de Distância de &#10;Nevoeiro:" name="fog"/>
+	<check_box initial_value="true" label="Habilitar Objetos com Armazenamento de Vértices" name="vbo" tool_tip="Habilitando-o em máquinas novas, ele oferece um ganho de performance. Contudo, as máquinas antigas tem freqüentemente implementações pobres de VBOs e você pode ter travamentos quando esta opção é habilitada."/>
+	<slider label="Memória de texturas (MB):" name="GraphicsCardTextureMemory" tool_tip="Quanto da memória deve ser alocado para texturas.  O padrão é definido pela memória da placa de vídeo.  Reduzir este valor pode melhorar o desempenho, mas as texturas podem fica fora de foco."/>
+	<spinner label="Relação de Distância de  Nevoeiro:" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

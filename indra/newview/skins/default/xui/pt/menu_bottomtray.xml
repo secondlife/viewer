@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="hide_camera_move_controls_menu">
+	<menu_item_check label="Botão de gestos" name="ShowGestureButton"/>
+	<menu_item_check label="Botão de movimento" name="ShowMoveButton"/>
+	<menu_item_check label="Botão de ver" name="ShowCameraButton"/>
+	<menu_item_check label="Botão de fotos" name="ShowSnapshotButton"/>
+	<menu_item_call label="Cortar" name="NearbyChatBar_Cut"/>
+	<menu_item_call label="Copiar" name="NearbyChatBar_Copy"/>
+	<menu_item_call label="Colar" name="NearbyChatBar_Paste"/>
+	<menu_item_call label="Excluir" name="NearbyChatBar_Delete"/>
+	<menu_item_call label="Selecionar tudo" name="NearbyChatBar_Select_All"/>
+</menu>

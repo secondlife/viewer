@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="PRÉVIA DA FOTO">
+<floater name="Snapshot" title="VER FOTO">
 	<text name="type_label">
 		Destino da foto
 	</text>
 	<radio_group label="Tipo de Foto" name="snapshot_type_radio">
-		<radio_item name="postcard" label="Enviar por email" />
-		<radio_item name="texture" label="Salvar no seu inventário (L$[AMOUNT])" />
-		<radio_item name="local" label="Salvar no seu disco rígido" />
+		<radio_item label="Enviar por email" name="postcard"/>
+		<radio_item label="Salvar no seu inventário (L$[AMOUNT])" name="texture"/>
+		<radio_item label="Salvar no seu disco rígido" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
 		Tamanho do arquivo: [SIZE] KB
@@ -15,12 +15,12 @@
 	<button label="Enviar" name="send_btn"/>
 	<button label="Salvar (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
-    <flyout_button.item name="save_item" label="Salvar"/>
-    <flyout_button.item name="saveas_item" label="Salvar como..."/>
+		<flyout_button.item label="Salvar" name="save_item"/>
+		<flyout_button.item label="Salvar como..." name="saveas_item"/>
 	</flyout_button>
 	<button label="Cancelar" name="discard_btn"/>
-	<button label="Mais &gt;" name="more_btn" tool_tip="Opções Avançadas"/>
-	<button label="&lt; Menos" name="less_btn" tool_tip="Opções Avançadas"/>
+	<button label="Mais &gt;" name="more_btn" tool_tip="Opções avançadas"/>
+	<button label="&lt; Menos" name="less_btn" tool_tip="Opções avançadas"/>
 	<text name="type_label2">
 		Tamanho
 	</text>
@@ -28,50 +28,50 @@
 		Formato
 	</text>
 	<combo_box label="Resolução" name="postcard_size_combo">
-		<combo_box.item name="CurrentWindow" label="Janela Atual" />
-		<combo_box.item name="640x480" label="640x480" />
-		<combo_box.item name="800x600" label="800x600" />
-		<combo_box.item name="1024x768" label="1024x768" />
-		<combo_box.item name="Custom" label="Customizado" />
+		<combo_box.item label="Janela Atual" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="Customizado" name="Custom"/>
 	</combo_box>
 	<combo_box label="Resolução" name="texture_size_combo">
-		<combo_box.item name="CurrentWindow" label="Janela Atual" />
-		<combo_box.item name="Small(128x128)" label="Pequeno (128x128)" />
-		<combo_box.item name="Medium(256x256)" label="Médio (256x256)" />
-		<combo_box.item name="Large(512x512)" label="Grande (512x512)" />
-		<combo_box.item name="Custom" label="Customizado" />
+		<combo_box.item label="Janela Atual" name="CurrentWindow"/>
+		<combo_box.item label="Pequeno (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Médio (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Customizado" name="Custom"/>
 	</combo_box>
 	<combo_box label="Resolução" name="local_size_combo">
-		<combo_box.item name="CurrentWindow" label="Janela Atual" />
-		<combo_box.item name="320x240" label="320x240" />
-		<combo_box.item name="640x480" label="640x480" />
-		<combo_box.item name="800x600" label="800x600" />
-		<combo_box.item name="1024x768" label="1024x768" />
-		<combo_box.item name="1280x1024" label="1280x1024" />
-		<combo_box.item name="1600x1200" label="1600x1200" />
-		<combo_box.item name="Custom" label="Customizado" />
+		<combo_box.item label="Janela Atual" name="CurrentWindow"/>
+		<combo_box.item label="320x240" name="320x240"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1280x1024" name="1280x1024"/>
+		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="Customizado" name="Custom"/>
 	</combo_box>
 	<combo_box label="Formato" name="local_format_combo">
-		<combo_box.item name="PNG" label="PNG" />
-		<combo_box.item name="JPEG" label="JPEG" />
-		<combo_box.item name="BMP" label="BMP" />
+		<combo_box.item label="PNG" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP" name="BMP"/>
 	</combo_box>
-	<spinner label="Largura" name="snapshot_width" label_width="41" width="101"/>
-	<spinner label="Altura" name="snapshot_height" label_width="31" width="91" left="119"/>
+	<spinner label="Largura" label_width="41" name="snapshot_width" width="101"/>
+	<spinner label="Altura" label_width="31" left="119" name="snapshot_height" width="91"/>
 	<check_box label="Restringir proporções" name="keep_aspect_check"/>
 	<slider label="Qualidade da Imagem" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Capturar:
 	</text>
 	<combo_box label="Camadas da Imagem" name="layer_types">
-		<combo_box.item name="Colors" label="Cores" />
-		<combo_box.item name="Depth" label="Formato" />
-		<combo_box.item name="ObjectMattes" label="Decoração do Objeto" />
+		<combo_box.item label="Cores" name="Colors"/>
+		<combo_box.item label="Formato" name="Depth"/>
+		<combo_box.item label="Decoração do Objeto" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="Mostrar interface na Foto" name="ui_check"/>
 	<check_box bottom_delta="-17" label="Mostrar Objetos HUD na Foto" name="hud_check"/>
 	<check_box bottom_delta="-17" label="Manter aberto após salvar" name="keep_open_check"/>
-	<check_box bottom_delta="-17" label="Quadro Congelado&#10; (prévia da tela inteira)" name="freeze_frame_check"/>
+	<check_box bottom_delta="-17" label="Quadro Congelado  (prévia da tela inteira)" name="freeze_frame_check"/>
 	<check_box bottom_delta="-29" label="Auto-atualizar" name="auto_snapshot_check"/>
 	<string name="unknown">
 		desconhecido

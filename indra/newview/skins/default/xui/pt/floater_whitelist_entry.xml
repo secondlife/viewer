@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="whitelist_entry">
+	<text name="media_label">
+		Digite um URL ou série de URLs para a lista de domínios permitidos
+	</text>
+	<line_editor name="whitelist_entry" tool_tip="Digite um URL ou série de URLs para a lista branca"/>
+	<button label="OK" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>
