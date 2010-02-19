@@ -17,7 +17,7 @@
      layout="topleft"
      left="0"
      name="landmarks_accordion"
-     top="2"
+     top="0"
      width="380">
         <accordion_tab
          layout="topleft"
@@ -107,7 +107,7 @@
          layout="topleft"
          left="10"
          name="options_gear_btn"
-         top="10"
+         top="14"
          width="18" />
         <button
          follows="bottom|left"
@@ -126,10 +126,10 @@
          image_selected="TrashItem_Press"
          image_unselected="TrashItem_Off"
          layout="topleft"
-         right="-10"
+         right="-8"
          name="trash_btn"
          tool_tip="Remove selected landmark"
-         top="10"
+         top="14"
          width="18" />
     </panel>
 </panel>

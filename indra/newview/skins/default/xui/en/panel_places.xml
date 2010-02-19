@@ -17,12 +17,12 @@ background_visible="true"
      name="teleport_history_tab_title"
      value="TELEPORT HISTORY" />
     <filter_editor
-     text_pad_left="14"
+     text_pad_left="10"
      follows="left|top|right"
      font="SansSerifSmall"
      height="23"
      layout="topleft"
-     left="15"
+     left="10"
      label="Filter My Places"
      max_length="300"
      name="Filter"
@@ -31,15 +31,15 @@ background_visible="true"
     <tab_container
      follows="all"
      halign="center"
-     height="500"
+     height="503"
      layout="topleft"
-     left="10"
+     left="6"
      name="Places Tabs"
      tab_min_width="80"
      tab_height="30"
      tab_position="top"
      top_pad="10"
-     width="313" />
+     width="315" />
     <panel
      class="panel_place_profile"
      filename="panel_place_profile.xml"
@@ -51,7 +51,7 @@ background_visible="true"
      name="panel_place_profile"
      top="5"
      visible="false"
-     width="313" />
+     width="315" />
     <panel
      class="panel_landmark_info"
      filename="panel_landmark_info.xml"
@@ -63,13 +63,13 @@ background_visible="true"
      name="panel_landmark_info"
      top="5"
      visible="false"
-     width="313" />
+     width="315" />
     <panel
      height="19"
      layout="topleft"
-     left="0"
+     left="4"
      name="button_panel"
-     width="313">
+     width="315">
         <button
          follows="bottom|left"
          height="23"
@@ -78,65 +78,58 @@ background_visible="true"
          left="5"
          name="teleport_btn"
          tool_tip="Teleport to the selected area"
-         top="0"
-         width="100" />
+         top="1"
+         width="108" />
         <button
          follows="bottom|left"
          height="23"
          label="Map"
          layout="topleft"
-         left_pad="5"
+         left_pad="3"
          name="map_btn"
-         top="0"
-         width="70" />
+         width="85" />
         <button
          follows="bottom|left"
          height="23"
          label="Edit"
          layout="topleft"
-         left_pad="5"
+         left_pad="3"
          name="edit_btn"
          tool_tip="Edit landmark information"
-         top="0"
-         width="70" />
+         width="83" />
         <button
          follows="bottom|right"
          height="23"
-         image_disabled="ForwardArrow_Off"
-         image_selected="ForwardArrow_Press"
-         image_unselected="ForwardArrow_Off"
+         label="▼"
          layout="topleft"
          name="overflow_btn"
          tool_tip="Show additional options"
-         right="-10"
-         top="0"
-         width="18" />
+         left_pad="3"
+         width="23" />
         <button
-         follows="bottom|right"
+         follows="bottom|left"
          height="23"
-         label="Close"
+         label="Save"
          layout="topleft"
-         name="close_btn"
-         right="-10"
-         top="0"
-         width="60" />
+         name="save_btn"
+         left="5"
+         top_pad="-23"
+         width="152" />
         <button
          follows="bottom|right"
          height="23"
          label="Cancel"
          layout="topleft"
          name="cancel_btn"
-         right="-10"
-         top="0"
-         width="60" />
+         left_pad="3"
+         width="153" />
         <button
          follows="bottom|right"
          height="23"
-         label="Save"
+         label="Close"
          layout="topleft"
-         name="save_btn"
-         right="-75"
-         top="0"
+         name="close_btn"
+         left_pad="3"
          width="60" />
     </panel>
 </panel>

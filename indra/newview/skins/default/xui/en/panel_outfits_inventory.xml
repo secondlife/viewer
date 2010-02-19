@@ -11,15 +11,15 @@
  border="false">
    <tab_container
      follows="all"
-     height="500"
+     height="490"
      layout="topleft"
-     left="10"
+     left="6"
      name="appearance_tabs"
      tab_min_width="140"
      tab_height="30"
      tab_position="top"
      halign="center"
-     width="313">
+     width="315">
          <inventory_panel
            background_visible="true"
            background_opaque="true"
@@ -49,39 +49,51 @@
            start_folder="Current Outfit"
            width="313" />
    </tab_container>
+	 <panel
+            bg_opaque_color="DkGray2"
+       bg_alpha_color="DkGray2"
+       background_visible="true"
+       background_opaque="true"
+     follows="left|right|bottom"
+	  height="38"
+	  layout="topleft"
+	  left="9"
+	  visible="true"
+	  top_pad="-1"
+     width="310" />
 	<panel
-	  background_visible="true"
+	  background_visible="false"
 	  follows="bottom|left"
 	  height="50"
 	  layout="topleft"
-	  left="0"
+	  left="9"
 	  visible="true"
 	  name="bottom_panel"
-	  top_pad="10"
-	  width="313">
-		 <button
-		  follows="bottom|left"
-		  tool_tip="Show additional options"
-		  height="18"
-		  image_disabled="OptionsMenu_Disabled"
-		  image_selected="OptionsMenu_Press"
-		  image_unselected="OptionsMenu_Off"
-		  layout="topleft"
-		  left="10"
-		  name="options_gear_btn"
-		  top="6"
-		  width="18" />
-         <dnd_button
-		  follows="bottom|left"
-		  height="18"
-		  image_selected="TrashItem_Press"
-		  image_unselected="TrashItem_Off"
-		  layout="topleft"
-		  right="-5"
-		  name="trash_btn"
-		  tool_tip="Remove selected item"
-		  top="6"
-		  width="18" />
+	  top_pad="-38"
+	  width="310">
+        <button
+         follows="bottom|left"
+         tool_tip="Show additional options"
+         height="18"
+         image_disabled="OptionsMenu_Disabled"
+         image_selected="OptionsMenu_Press"
+         image_unselected="OptionsMenu_Off"
+         layout="topleft"
+         left="8"
+         name="options_gear_btn"
+         top="14"
+         width="18" />
+        <dnd_button
+         follows="bottom|right"
+         height="18"
+         image_selected="TrashItem_Press"
+         image_unselected="TrashItem_Off"
+         layout="topleft"
+         right="-9"
+         name="trash_btn"
+         tool_tip="Remove selected item"
+         top="14"
+         width="18" />
 	 <button
 	  follows="bottom|left"
 		height="23" 
@@ -89,20 +101,19 @@
       layout="topleft"
       name="make_outfit_btn"
       tool_tip="Save appearance as an outfit"
-       top="26"
-       left='10'
-      width="120" />
+       top="43"
+       left="0"
+      width="153" />
      <button
       follows="bottom|right" 
       height="23" 
       label="Wear"
       layout="topleft"
       name="wear_btn"
-      right="-10"
-      left_pad="10"
-       top="26"
+      left_pad="3"
+       top="43"
       tool_tip="Wear selected outfit"
-      width="120" />
+      width="152" />
 	 <button
 	  follows="bottom|left"
 		height="23" 
@@ -114,4 +125,5 @@
         visible="false" 
 		width="20" />
 	 </panel>
+       
 </panel>

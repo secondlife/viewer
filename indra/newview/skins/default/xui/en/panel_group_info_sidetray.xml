@@ -56,7 +56,7 @@ background_visible="true"
      use_ellipses="true"
       width="275"
       follows="top|left|right"
-      word_wrap="true"
+      word_wrap="false"
       mouse_opaque="false"/>
     <line_editor
      follows="left|top"
