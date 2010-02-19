@@ -122,6 +122,7 @@ BOOL LLFloaterLagMeter::postBuild()
 	mStringArgs["[SERVER_FRAME_RATE_WARNING]"] = getString("server_frame_rate_warning_fps");
 
 //	childSetAction("minimize", onClickShrink, this);
+	updateControls(gSavedSettings.getBOOL("LagMeterShrunk")); // If expanded append colon to the labels (EXT-4079)
 
 	return TRUE;
 }
@@ -312,17 +313,15 @@ void LLFloaterLagMeter::determineServer()
 	}
 }
 
-
-void LLFloaterLagMeter::onClickShrink()  // toggle "LagMeterShrunk"
+void LLFloaterLagMeter::updateControls(bool shrink)
 {
 //	LLFloaterLagMeter * self = (LLFloaterLagMeter*)data;
 
 	LLButton * button = getChild<LLButton>("minimize");
 	S32 delta_width = mMaxWidth -mMinWidth;
 	LLRect r = getRect();
-	bool shrunk = gSavedSettings.getBOOL("LagMeterShrunk");
 
-	if(shrunk)
+	if(!shrink)
 	{
 		setTitle(getString("max_title_msg", mStringArgs) );
 		// make left edge appear to expand
@@ -368,5 +367,11 @@ void LLFloaterLagMeter::onClickShrink()  // toggle "LagMeterShrunk"
 //	self->childSetVisible("server_help", self->mShrunk);
 
 //	self->mShrunk = !self->mShrunk;
-	gSavedSettings.setBOOL("LagMeterShrunk", !gSavedSettings.getBOOL("LagMeterShrunk"));
+}
+
+void LLFloaterLagMeter::onClickShrink()  // toggle "LagMeterShrunk"
+{
+	bool shrunk = gSavedSettings.getBOOL("LagMeterShrunk");
+	updateControls(!shrunk);
+	gSavedSettings.setBOOL("LagMeterShrunk", !shrunk);
 }
