@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="WERELDKAART">
+	<tab_container name="maptab">
+		<panel label="Objecten" name="objects_mapview"/>
+		<panel label="Terrein" name="terrain_mapview"/>
+	</tab_container>
+	<text name="you_label">
+		U
+	</text>
+	<icon left="1058" name="home"/>
+	<text name="home_label">
+		Thuis
+	</text>
+	<text name="auction_label">
+		Veiling
+	</text>
+	<text name="land_for_sale_label">
+		Land te koop
+	</text>
+	<button width="122" left="1116" label="Ga naar Thuislocatie" label_selected="Ga naar Thuislocatie" name="Go Home" tool_tip="Teleport naar uw thuislocatie"/>
+	<check_box label="Inwoner" name="people_chk"/>
+	<check_box label="Infohub" name="infohub_chk"/>
+	<check_box label="Telehub" name="telehubchk"/>
+	<check_box label="Land te koop" name="land_for_sale_chk"/>
+	<text name="events_label">
+		Evenementen:
+	</text>
+	<check_box label="PG" name="event_chk"/>
+	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box label="Adult" name="event_adult_chk"/>
+	<combo_box label="Online vrienden" name="friend combo" tool_tip="Vriend die op kaart getoond wordt">
+		<combo_box.item name="item1" label="Online vrienden"/>
+	</combo_box>
+	<combo_box label="Landmarkeringen" name="landmark combo" tool_tip="Landmarkering die op kaart getoond wordt">
+		<combo_box.item name="item1" label="Landmarkeringen"/>
+	</combo_box>
+	<line_editor label="Zoek op regionaam" name="location" tool_tip="Type de naam van een regio"/>
+	<button label="Zoeken" name="DoSearch" tool_tip="Zoek naar regio"/>
+	<text name="search_label">
+		Zoekresultaten
+	</text>
+	<text name="location_label">
+		Locatie:
+	</text>
+	<spinner name="spin x" tool_tip="X coördinaat van de locatie die op de kaart getoond wordt"/>
+	<spinner name="spin y" tool_tip="Y coördinaat van de locatie die op de kaart getoond wordt"/>
+	<spinner name="spin z" tool_tip="Z coördinaat van de locatie die op de kaart getoond wordt"/>
+	<button label="Teleport" label_selected="Teleport" name="Teleport" tool_tip="Teleport naar geselecteerde locatie"/>
+	<button label="Toon bestemming" label_selected="Toon bestemming" name="Show Destination" tool_tip="Centreer kaart op geselecteerde locatie"/>
+	<button label="Verwijder" label_selected="Verwijder" name="Clear" tool_tip="Stop volgen"/>
+	<button label="Toon mijn locatie" label_selected="Toon mijn locatie" name="Show My Location" tool_tip="Centreer kaart op de locatie van uw avatar"/>
+	<button label="Kopieer SLurl naar klembord" name="copy_slurl" tool_tip="Kopieert huidige locatie als SLurl, zodat deze op het web gebruikt kan worden."/>
+	<slider label="Zoom" name="zoom slider"/>
+</floater>

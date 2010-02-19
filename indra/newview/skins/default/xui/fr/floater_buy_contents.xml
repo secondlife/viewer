@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_buy_contents" title="ACHETER DES CONTENUS">
+	<text name="contains_text">
+		[NAME] contient :
+	</text>
+	<text name="buy_text">
+		Acheter [AMOUNT] L$ à [NAME] ?
+	</text>
+	<button label="Annuler" label_selected="Annuler" name="cancel_btn"/>
+	<button label="Acheter" label_selected="Acheter" name="buy_btn"/>
+	<check_box label="Porter maintenant" name="wear_check"/>
+	<string name="no_copy_text">
+		(pas de copie)
+	</string>
+	<string name="no_modify_text">
+		(pas de modification)
+	</string>
+	<string name="no_transfer_text">
+		(pas de transfert)
+	</string>
+</floater>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+	name="floater_activeim"
+	help_topic="floater_activeim"
+	title="ACTIVE IM"
+	top="26"
+	left="0"
+	height="22"
+	width="320"
+	follows="right|bottom"
+	background_visible="true"
+	can_close="true"
+	can_dock="true"
+	can_minimize="false"
+	visible="true"
+	bg_alpha_color="0 0 0 0">
+	<scroll_container
+		follows="top|bottom"
+		layout="topleft"
+		top="20"
+		left="1"
+		width="320"
+		height="2"
+		name="panel_list_container">
+		<scrolling_panel_list
+			follows="left|right"
+			layout="topleft"
+      left="1"      
+			name="chiclet_row_panel_list"
+			width="318"/>
+	</scroll_container>
+</floater>

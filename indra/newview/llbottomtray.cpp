@@ -350,7 +350,7 @@ void LLBottomTray::setVisible(BOOL visible)
 	{
 		mBottomTrayLite->setVisible(visible);
 	}
-	else
+	else 
 	{
 		LLPanel::setVisible(visible);
 	}

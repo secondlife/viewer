@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Sound Preview" title="SOUND.WAV">
+	<text name="name_label">
+		Navn:
+	</text>
+	<text name="description_label">
+		Beskrivelse:
+	</text>
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
+	<button label="Hent (L$[AMOUNT])" label_selected="Hent (L$[AMOUNT])" name="ok_btn"/>
+</floater>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Entrada e câmera" name="Input panel">
+	<button bottom_delta="-40" label="Outros dispositivos" name="joystick_setup_button" width="165"/>
+	<text name="Mouselook:">
+		Visão subjetiva:
+	</text>
+	<text name=" Mouse Sensitivity">
+		Sensibilidade do mouse
+	</text>
+	<check_box label="Inverter" name="invert_mouse"/>
+	<text name="Network:">
+		Rede:
+	</text>
+	<text name="Maximum bandwidth">
+		Largura de banda máxima
+	</text>
+	<text name="text_box2">
+		kbps
+	</text>
+	<check_box label="Personalizar porta" name="connection_port_enabled"/>
+	<spinner label="Número da porta:" name="web_proxy_port"/>
+	<text name="cache_size_label_l">
+		Tamanho do cache
+	</text>
+	<text name="text_box5">
+		MB
+	</text>
+	<button label="Navegar" label_selected="Navegar" name="set_cache"/>
+	<button label="Redefinir" label_selected="Definir" name="reset_cache"/>
+	<text name="Cache location">
+		Localização do cache
+	</text>
+	<text name="Web:">
+		Web:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Usar navegador incluso" name="internal" tool_tip="Use este navegador para consultar a ajuda, abrir links da web, etc. As janelas abrem dentro do [APP_NAME]."/>
+		<radio_item label="Usar meu navegador (IE, Firefox)" name="external" tool_tip="Use o navegador incluso para consultar a ajuda, abrir links da web, etc. Uso em tela inteira não recomendado."/>
+	</radio_group>
+	<check_box initial_value="false" label="Proxy web" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="O nome ou endereço IP do proxy da sua preferência"/>
+	<button label="Navegar" label_selected="Navegar" name="set_proxy"/>
+	<text name="Proxy location">
+		Localização do proxy
+	</text>
+</panel>

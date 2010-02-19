@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="telehub" title="テレハブ">
+	<text name="status_text_connected">
+		物体[OBJECT]に接続されたテレハブ
+	</text>
+	<text name="status_text_not_connected">
+		テレハブ未接続
+	</text>
+	<text name="help_text_connected">
+		「切断」をクリックして削除します。
+	</text>
+	<text name="help_text_not_connected">
+		物体を選択して「テレハブの接続」をクリックしてください。
+	</text>
+	<button label="テレハブの接続" name="connect_btn"/>
+	<button label="切断" name="disconnect_btn"/>
+	<text name="spawn_points_text">
+		出現地点（物体ではなく位置）
+	</text>
+	<button label="出現位置を追加" name="add_spawn_point_btn"/>
+	<button label="出現地点を削除" name="remove_spawn_point_btn"/>
+	<text name="spawn_point_help">
+		オブジェクトを選び、「出現地点を追加」をクリックして位置を指定します。そうするとそのオブジェクトを移動させたり削除できます。位置はテレハブセンターに関連します。リストのアイテムを選択してインワールドでハイライトさせます。
+	</text>
+</floater>

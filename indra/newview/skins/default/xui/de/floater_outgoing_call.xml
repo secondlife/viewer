@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="outgoing call" title="ANRUF">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Voice-Chat in der Nähe
+	</floater.string>
+	<floater.string name="anonymous">
+		Anonym
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		ruft an.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		ist einem Voice-Konferenz-Chat beigetreten.
+	</floater.string>
+	<text name="connecting">
+		Verbindung mit [CALLEE_NAME] wird hergestellt.
+	</text>
+	<text name="calling">
+		[CALLEE_NAME] wird angerufen
+	</text>
+	<text name="noanswer">
+		Der Anruf wurde nicht entgegengenommen.   Bitte versuchen Sie es später erneut.
+	</text>
+	<text name="nearby">
+		Die Verbindung zu [VOICE_CHANNEL_NAME] wurde abgebrochen.  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_other">
+		[VOICE_CHANNEL_NAME] hat den Anruf beendet.  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_agent">
+		Sie haben das Gespräch beendet.  [RECONNECT_NEARBY]
+	</text>
+	<text name="leaving">
+		[CURRENT_CHAT] wird verlassen.
+	</text>
+	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
+</floater>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_buy_contents" title="KOOP INHOUD">
+	<text name="contains_text">
+		[NAME] bevat:
+	</text>
+	<text name="buy_text">
+		Koop voor L$[AMOUNT] van [NAME]?
+	</text>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn" width="73"/>
+	<button label="Koop" label_selected="Koop" name="buy_btn"/>
+	<check_box label="Draag kleding nu" name="wear_check"/>
+	<string name="no_copy_text">
+		(niet kopiëren)
+	</string>
+	<string name="no_modify_text">
+		(niet wijzigen)
+	</string>
+	<string name="no_transfer_text">
+		(niet overdragen)
+	</string>
+</floater>

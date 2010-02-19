@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="friends">
+	<string name="Multiple">
+		複数のフレンド
+	</string>
+	<scroll_list name="friend_list" tool_tip="複数のフレンドを選択するには、Shift キーまたは Ctrl キーを押しながら名前をクリックします。">
+		<column name="icon_online_status" tool_tip="オンライン状態"/>
+		<column label="名前" name="friend_name" tool_tip="名前"/>
+		<column name="icon_visible_online" tool_tip="フレンドは、あなたがオンラインかどうか確認することができます。"/>
+		<column name="icon_visible_map" tool_tip="フレンドは、地図であなたの居場所を見つけることができます。"/>
+		<column name="icon_edit_mine" tool_tip="フレンドは、オブジェクトを編集、削除、または取得することができます。"/>
+		<column name="icon_edit_theirs" tool_tip="あなたは、このフレンドのオブジェクトを編集することができます。"/>
+	</scroll_list>
+	<panel name="rights_container">
+		<text name="friend_name_label" right="-10">
+			フレンドを選択して権利を変更...
+		</text>
+		<check_box label="オンライン状態の確認を許可する" name="online_status_cb" tool_tip="コーリングカードあるいはフレンドリストでこのフレンドがオンライン状態を確認できるよう設定します"/>
+		<check_box label="世界地図上であなたの居場所を検索可能にする" name="map_status_cb" tool_tip="このフレンドが地図で私の位置を発見できるように設定します"/>
+		<check_box label="オブジェクトの修正を許可する" name="modify_status_cb" tool_tip="このフレンドに私のオブジェクトを改造する許可を与えます"/>
+		<text name="process_rights_label">
+			権利変更をプロセス中...
+		</text>
+	</panel>
+	<pad left="-95"/>
+	<button label="IM・コール" name="im_btn" tool_tip="インスタントメッセージセッションを開きます。" width="90"/>
+	<button label="プロフィール" name="profile_btn" tool_tip="写真、グループ、およびその他の情報を表示します。" width="90"/>
+	<button label="テレポート" name="offer_teleport_btn" tool_tip="このフレンドに、あなたの現在地へのテレポートを申し出ます。" width="90"/>
+	<button label="支払う" name="pay_btn" tool_tip="リンデンドル (L$) をこのフレンドにあげます。" width="90"/>
+	<button label="削除" name="remove_btn" tool_tip="この人物をフレンドリストから外します。" width="90"/>
+	<button label="追加" name="add_btn" tool_tip="フレンド登録を申し出ます。" width="90"/>
+</panel>

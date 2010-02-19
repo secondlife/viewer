@@ -355,7 +355,6 @@ class LLMenuGL
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLHandle<LLFloater> >	parent_floater;
 		Optional<KEY>					jump_key;
 		Optional<bool>					horizontal_layout,
 										can_tear_off,
@@ -430,7 +429,7 @@ public:
 	void setBackgroundColor( const LLUIColor& color ) { mBackgroundColor = color; }
 	const LLUIColor& getBackgroundColor() const { return mBackgroundColor; }
 	void setBackgroundVisible( BOOL b )	{ mBgVisible = b; }
-	void setCanTearOff(BOOL tear_off, LLHandle<LLFloater> parent_floater_handle = LLHandle<LLFloater>());
+	void setCanTearOff(BOOL tear_off);
 
 	// add a separator to this menu
 	virtual BOOL addSeparator();
@@ -553,7 +552,6 @@ private:
 	class LLMenuItemTearOffGL* mTearOffItem;
 	class LLMenuItemBranchGL* mSpilloverBranch;
 	LLMenuGL*		mSpilloverMenu;
-	LLHandle<LLFloater>	mParentFloaterHandle;
 	KEY				mJumpKey;
 	BOOL			mCreateJumpKeys;
 	S32				mShortcutPad;
@@ -814,7 +812,6 @@ class LLMenuItemTearOffGL : public LLMenuItemGL
 public:
 	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
 	{
-		Optional<LLHandle<LLFloater> > parent_floater_handle;
 		Params()
 		{
 			name = "tear off";
@@ -823,13 +820,12 @@ public:
 	};
 
 	LLMenuItemTearOffGL( const Params& );
-
+	
 	virtual void onCommit(void);
 	virtual void draw(void);
 	virtual U32 getNominalHeight() const;
 
-private:
-	LLHandle<LLFloater> mParentHandle;
+	LLFloater* getParentFloater();
 };
 
 

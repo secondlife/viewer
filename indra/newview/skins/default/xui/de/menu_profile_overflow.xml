@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="profile_overflow_menu">
+	<menu_item_call label="Bezahlen" name="pay"/>
+	<menu_item_call label="Teilen" name="share"/>
+	<menu_item_call label="Ignorieren" name="block"/>
+	<menu_item_call label="Freischalten" name="unblock"/>
+	<menu_item_call label="Hinauswerfen" name="kick"/>
+	<menu_item_call label="Einfrieren" name="freeze"/>
+	<menu_item_call label="Auftauen" name="unfreeze"/>
+	<menu_item_call label="CSR" name="csr"/>
+</toggleable_menu>

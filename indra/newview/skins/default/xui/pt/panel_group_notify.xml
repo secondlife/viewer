@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="instant_message" name="panel_group_notify">
+	<panel label="header" name="header">
+		<text name="title" value="Nome do remetente / grupo"/>
+	</panel>
+	<text name="attachment" value="Anexo"/>
+	<button label="OK" name="btn_ok"/>
+</panel>

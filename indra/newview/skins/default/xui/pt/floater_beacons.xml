@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="BALIZAS">
+	<panel name="beacons_panel">
+		<text name="label_show">
+			Mostrar:
+		</text>
+		<check_box label="Balizas" name="beacons"/>
+		<check_box label="Realce" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="Largura da baliza">
+			Largura:
+		</text>
+		<text name="label_objects">
+			Para estes objetos:
+		</text>
+		<check_box label="Físicos" name="physical"/>
+		<check_box label="Com script" name="scripted"/>
+		<check_box label="Só tocar" name="touch_only"/>
+		<check_box label="Fontes de som" name="sounds"/>
+		<check_box label="Fontes de partículas" name="particles"/>
+	</panel>
+</floater>

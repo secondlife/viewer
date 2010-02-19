@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="place_profile">
+	<string name="on" value="Ein"/>
+	<string name="off" value="Aus"/>
+	<string name="anyone" value="Jeder"/>
+	<string name="available" value="verfügbar"/>
+	<string name="allocated" value="vergeben"/>
+	<string name="title_place" value="Ortsprofil"/>
+	<string name="title_teleport_history" value="Teleport-Liste"/>
+	<string name="not_available" value="k.A."/>
+	<string name="unknown" value="(unbekannt)"/>
+	<string name="public" value="(öffentlich)"/>
+	<string name="none_text" value="(keiner)"/>
+	<string name="sale_pending_text" value="(Wird verkauft)"/>
+	<string name="group_owned_text" value="(In Gruppenbesitz)"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="m²"/>
+	<string name="all_residents_text" value="Alle Einwohner"/>
+	<string name="group_text" value="Gruppe"/>
+	<string name="can_resell">
+		Gekauftes Land in dieser Region kann wiederverkauft werden.
+	</string>
+	<string name="can_not_resell">
+		Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
+	</string>
+	<string name="can_change">
+		Gekauftes Land in dieser Region kann zusammengelegt und geteilt werden.
+	</string>
+	<string name="can_not_change">
+		Gekauftes Land in dieser Region kann nicht zusammengelegt und geteilt werden.
+	</string>
+	<string name="server_update_text">
+		Ohne Serverupdate sind keine Ortsinformationen verfügbar.
+	</string>
+	<string name="server_error_text">
+		Zur Zeit gibt es keine Informationen zu diesem Standort. Bitte versuchen Sie es später.
+	</string>
+	<string name="server_forbidden_text">
+		Die Informationen über diesen Standort sind zugriffsbeschränkt.  Bitte wenden Sie sich bezüglich Ihrer Berechtigungen an den Eigentümer der Parzelle.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<string name="icon_PG" value="parcel_drk_PG"/>
+	<string name="icon_M" value="parcel_drk_M"/>
+	<string name="icon_R" value="parcel_drk_R"/>
+	<string name="icon_Voice" value="parcel_drk_Voice"/>
+	<string name="icon_VoiceNo" value="parcel_drk_VoiceNo"/>
+	<string name="icon_Fly" value="parcel_drk_Fly"/>
+	<string name="icon_FlyNo" value="parcel_drk_FlyNo"/>
+	<string name="icon_Push" value="parcel_drk_Push"/>
+	<string name="icon_PushNo" value="parcel_drk_PushNo"/>
+	<string name="icon_Build" value="parcel_drk_Build"/>
+	<string name="icon_BuildNo" value="parcel_drk_BuildNo"/>
+	<string name="icon_Scripts" value="parcel_drk_Scripts"/>
+	<string name="icon_ScriptsNo" value="parcel_drk_ScriptsNo"/>
+	<string name="icon_Damage" value="parcel_drk_Damage"/>
+	<string name="icon_DamageNo" value="parcel_drk_DamageNo"/>
+	<button name="back_btn" tool_tip="Hinten"/>
+	<text name="title" value="Ortsprofil"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="SampleRegion"/>
+			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="owner_label" value="Eigentümer:"/>
+			<text name="owner_value" value="Alex Superduperlongenamenton"/>
+			<text name="maturity_value" value="unbekannt"/>
+			<accordion name="advanced_info_accordion">
+				<accordion_tab name="parcel_characteristics_tab" title="Parzelle">
+					<panel>
+						<text name="rating_label" value="Einstufung:"/>
+						<text name="rating_value" value="unbekannt"/>
+						<text name="voice_label" value="Voice:"/>
+						<text name="voice_value" value="Ein"/>
+						<text name="fly_label" value="Fliegen:"/>
+						<text name="fly_value" value="Ein"/>
+						<text name="push_label" value="Stoßen:"/>
+						<text name="push_value" value="Aus"/>
+						<text name="build_label" value="Bauen:"/>
+						<text name="build_value" value="Ein"/>
+						<text name="scripts_label" value="Skripts:"/>
+						<text name="scripts_value" value="Ein"/>
+						<text name="damage_label" value="Schaden:"/>
+						<text name="damage_value" value="Aus"/>
+						<button label="Über Land" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="Region">
+					<panel>
+						<text name="region_name_label" value="Region:"/>
+						<text name="region_name" value="Mooseland"/>
+						<text name="region_type_label" value="Typ:"/>
+						<text name="region_type" value="Moose"/>
+						<text name="region_rating_label" value="Einstufung:"/>
+						<text name="region_rating" value="Adult"/>
+						<text name="region_owner_label" value="Eigentümer:"/>
+						<text name="region_owner" value="moose Van Moose"/>
+						<text name="region_group_label" value="Gruppe:"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
+						<button label="Region/Grundstück" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="Grundstück">
+					<panel>
+						<text name="estate_name_label" value="Grundstück:"/>
+						<text name="estate_rating_label" value="Einstufung:"/>
+						<text name="estate_owner_label" value="Eigentümer:"/>
+						<text name="covenant_label" value="Vertrag:"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="Zum Verkauf">
+					<panel>
+						<text name="sales_price_label" value="Preis:"/>
+						<text name="area_label" value="Gebiet:"/>
+						<text name="traffic_label" value="Traffic:"/>
+						<text name="primitives_label" value="Primitive:"/>
+						<text name="parcel_scripts_label" value="Skripts:"/>
+						<text name="terraform_limits_label" value="Terraform-Begrenzungen:"/>
+						<text name="subdivide_label" value="Teilen/Zusammenlegen:"/>
+						<text name="resale_label" value="Wiederverkaufen:"/>
+						<text name="sale_to_label" value="Zum Verkauf an:"/>
+					</panel>
+				</accordion_tab>
+			</accordion>
+		</panel>
+	</scroll_container>
+</panel>

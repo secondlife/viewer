@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<text name="avatar_name" value="Inconnu"/>
+	<layout_stack name="button_stack">
+		<layout_panel name="view_profile_btn_panel">
+			<button label="Profil" name="view_profile_btn"/>
+		</layout_panel>
+		<layout_panel name="add_friend_btn_panel">
+			<button label="Devenir amis" name="add_friend_btn"/>
+		</layout_panel>
+		<layout_panel name="teleport_btn_panel">
+			<button label="Téléporter" name="teleport_btn" tool_tip="Proposer de téléporter cette personne"/>
+		</layout_panel>
+		<layout_panel name="share_btn_panel">
+			<button label="Partager" name="share_btn"/>
+		</layout_panel>
+		<layout_panel name="share_btn_panel">
+			<button label="Payer" name="pay_btn"/>
+		</layout_panel>
+		<layout_panel name="call_btn_panel">
+			<button label="Appeler" name="call_btn"/>
+		</layout_panel>
+		<layout_panel name="end_call_btn_panel">
+			<button label="Quitter l&apos;appel" name="end_call_btn"/>
+		</layout_panel>
+		<layout_panel name="voice_ctrls_btn_panel">
+			<button label="Contrôles vocaux" name="voice_ctrls_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

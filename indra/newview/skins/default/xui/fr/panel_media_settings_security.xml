@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sécurité" name="Media Settings Security">
+	<check_box initial_value="false" label="Autoriser l&apos;accès aux styles d&apos;URL spécifiés uniquement" name="whitelist_enable"/>
+	<text name="home_url_fails_some_items_in_whitelist">
+		Les entrées par lesquelles la page 
+d&apos;accueil est rejetée sont indiquées :
+	</text>
+	<button label="Ajouter" name="whitelist_add"/>
+	<button label="Supprimer" name="whitelist_del"/>
+	<text name="home_url_fails_whitelist">
+		Avertissement : la page d&apos;accueil spécifiée dans l&apos;onglet Général a été rejetée par la liste blanche. Elle sera désactivée jusqu&apos;à l&apos;ajout d&apos;une entrée valide.
+	</text>
+</panel>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy land" title="KOOP LAND">
+	<text name="region_name_label">
+		Regio:
+	</text>
+	<text name="region_name_text">
+		(onbekend)
+	</text>
+	<text name="region_type_label">
+		Type:
+	</text>
+	<text name="region_type_text">
+		(onbekend)
+	</text>
+	<text name="estate_name_label">
+		Estate:
+	</text>
+	<text name="estate_name_text">
+		(onbekend)
+	</text>
+	<text name="estate_owner_label">
+		Estate eigenaar:
+	</text>
+	<text name="estate_owner_text">
+		(onbekend)
+	</text>
+	<text name="resellable_changeable_label">
+		Aangekocht land in deze regio:
+	</text>
+	<text name="resellable_clause">
+		Mag niet worden doorverkocht
+	</text>
+	<text name="changeable_clause">
+		Mag niet worden samengevoegd/opgesplitst
+	</text>
+	<text name="covenant_text">
+		U moet instemmen met het estate convenant:
+	</text>
+	<text left="470" name="covenant_timestamp_text"/>
+	<text_editor name="covenant_editor">
+		Laden...
+	</text_editor>
+	<check_box label="Ik ga akkoord met het hierboven &#10;beschreven convenant." name="agree_covenant"/>
+	<text name="info_parcel_label">
+		Perceel:
+	</text>
+	<text name="info_parcel">
+		Scotopteryx 138,204
+	</text>
+	<text name="info_size_label">
+		Grootte:
+	</text>
+	<text name="info_size">
+		1024 m²
+	</text>
+	<text name="info_price_label">
+		Prijs:
+	</text>
+	<text name="info_price">
+		L$ 1500
+(L$ 1.1/m²)
+verkocht met objecten
+	</text>
+	<text name="info_action">
+		Het kopen van dit land zal:
+	</text>
+	<text name="error_message">
+		Er is iets niet in orde.
+	</text>
+	<button label="Ga naar website" name="error_web"/>
+	<text name="account_action">
+		U upgraden naar een premium lidmaatschap
+	</text>
+	<text name="account_reason">
+		Alleen premiumleden kunnen land bezitten.
+	</text>
+	<combo_box name="account_level">
+		<combo_box.item name="US$9.95/month,billedmonthly" label="US$9.95/maand, gefactureerd per maand"/>
+		<combo_box.item name="US$7.50/month,billedquarterly" label="US$7.50/maand, gefactureerd per kwartaal"/>
+		<combo_box.item name="US$6.00/month,billedannually" label="US$6.00/maand, gefactureerd per jaar"/>
+	</combo_box>
+	<text name="land_use_action">
+		Verhoog uw maandelijkse landgebruikskosten tot US$ 40/maand
+	</text>
+	<text name="land_use_reason">
+		U bezit 1309 m² land. 
+Dit perceel omvat 512 m² land.
+	</text>
+	<text name="purchase_action">
+		Betaal Joe Resident L$4000 voor het land
+	</text>
+	<text name="currency_reason">
+		U heeft L$2,100.
+	</text>
+	<text name="currency_action">
+		Koop extra L$
+	</text>
+	<line_editor name="currency_amt">
+		1000
+	</line_editor>
+	<text name="currency_est">
+		voor ong. US$ [AMOUNT2]
+	</text>
+	<text name="currency_balance">
+		U heeft L$2,100.
+	</text>
+	<check_box label="Verwijder [AMOUNT] vierkante meters van uw groepsbijdrage." name="remove_contribution"/>
+	<button label="Aankopen" name="buy_btn"/>
+	<button label="Annuleren" name="cancel_btn"/>
+	<string name="can_resell">
+		Mag worden doorverkocht.
+	</string>
+	<string name="can_not_resell">
+		Mag niet worden doorverkocht.
+	</string>
+	<string name="can_change">
+		Mag worden samengevoegd of opgedeeld.
+	</string>
+	<string name="can_not_change">
+		Mag niet worden samengevoegd of opgedeeld.
+	</string>
+	<string name="cant_buy_for_group">
+		U heeft geen permissie om land te kopen voor uw actieve groep.
+	</string>
+	<string name="no_land_selected">
+		Geen land geselecteerd
+	</string>
+	<string name="multiple_parcels_selected">
+		Meerdere verschillende percelen geselecteerd. Probeer een kleiner gebied te selecteren.
+	</string>
+	<string name="no_permission">
+		U heeft geen permissie om land te kopen voor uw actieve groep.
+	</string>
+	<string name="parcel_not_for_sale">
+		Het geselecteerde perceel is niet te koop.
+	</string>
+	<string name="group_already_owns">
+		De groep is al eigenaar van het perceel.
+	</string>
+	<string name="you_already_own">
+		U bent al eigenaar van het perceel
+	</string>
+	<string name="set_to_sell_to_other">
+		Het geselecteerde perceel staat te koop voor een andere partij.
+	</string>
+	<string name="no_public_land">
+		Het geselecteerde gebied heeft geen publiek land.
+	</string>
+	<string name="not_owned_by_you">
+		Land dat het eigendom is van een andere gebruiker is geselecteerd. Probeer een kleiner gebied te selecteren.
+	</string>
+	<string name="processing">
+		Uw aankoop wordt verwerkt... 
+
+(Dit kan een minuut of twee duren.)
+	</string>
+	<string name="fetching_error">
+		Er is een fout opgetreden tijdens het ophalen van informatie over het kopen van het land.
+	</string>
+	<string name="buying_will">
+		Het kopen van dit land zal:
+	</string>
+	<string name="buying_for_group">
+		Land voor groep kopen zal:
+	</string>
+	<string name="cannot_buy_now">
+		Kan nu niet kopen:
+	</string>
+	<string name="not_for_sale">
+		Niet te koop:
+	</string>
+	<string name="none_needed">
+		geen benodigd
+	</string>
+	<string name="must_upgrade">
+		Uw account moet geüpgrade worden om land te bezitten.
+	</string>
+	<string name="cant_own_land">
+		Uw account kan land bezitten.
+	</string>
+	<string name="land_holdings">
+		U bezit [BUYER] vierkante meters land.
+	</string>
+	<string name="pay_to_for_land">
+		Betaal L$ [AMOUNT] aan [SELLER] voor dit land
+	</string>
+	<string name="buy_for_US">
+		Koop L$ [AMOUNT] voor ong. US$ [AMOUNT2],
+	</string>
+	<string name="parcel_meters">
+		Dit perceel is [AMOUNT] vierkante meters.
+	</string>
+	<string name="premium_land">
+		Dit land is premium, en zal worden belast als [AMOUNT] vierkante meters.
+	</string>
+	<string name="discounted_land">
+		Dit land is gedisconteerd, en zal worden belast als [AMOUNT] vierkante meters.
+	</string>
+	<string name="meters_supports_object">
+		[AMOUNT] vierkante meter
+ondersteunt [AMOUNT2] objecten
+	</string>
+	<string name="sold_with_objects">
+		verkocht met objecten
+	</string>
+	<string name="sold_without_objects">
+		objecten niet inbegrepen
+	</string>
+	<string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
+	</string>
+	<string name="insufficient_land_credits">
+		De groep [GROUP] heeft voldoende bijdrage van landgebruikcredits nodig om dit perceel te dekken voordat de aankoop kan worden afgerond.
+	</string>
+	<string name="have_enough_lindens">
+		U heeft L$ [AMOUNT], wat genoeg is om dit land te kopen.
+	</string>
+	<string name="not_enough_lindens">
+		U heeft slechts L$ [AMOUNT], en hebt L$ [AMOUNT2] meer nodig.
+	</string>
+	<string name="balance_left">
+		Na de aankoop zult u nog L$ [AMOUNT] over hebben.
+	</string>
+	<string name="balance_needed">
+		U dient minstens L$ [AMOUNT] te kopen om dit land te kunnen veroorloven.
+	</string>
+	<string name="no_parcel_selected">
+		(geen perceel geselecteerd)
+	</string>
+	<string name="buy_currency">
+		Koop L$ [AMOUNT] voor ong. US$ [USD]
+	</string>
+</floater>

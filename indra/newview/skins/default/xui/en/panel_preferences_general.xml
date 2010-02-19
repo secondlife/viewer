@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="left|top|right|bottom"
+ height="408"
+ label="General"
+ layout="topleft"
+ left="102"
+ name="general_panel"
+ top="1"
+ width="517">
+   <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="30"
+     name="language_textbox"
+     top="10"
+     width="400">
+        Language:
+    </text>
+    <combo_box
+     control_name="Language"
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     left="50"
+     max_chars="135"
+     name="language_combobox"
+     width="200">
+        <combo_box.item
+         enabled="true"
+         label="System default"
+         name="System Default Language"
+         value="default" />
+        <combo_box.item
+         enabled="true"
+         label="English"
+         name="English"
+         value="en" />
+        <combo_box.item
+         enabled="true"
+         label="Dansk (Danish) - Beta"
+         name="Danish"
+         value="da" />
+        <combo_box.item
+         enabled="true"
+         label="Deutsch (German) - Beta"
+         name="Deutsch(German)"
+         value="de" />
+        <combo_box.item
+         enabled="true"
+         label="Español (Spanish) - Beta"
+         name="Spanish"
+         value="es" />
+        <combo_box.item
+         enabled="true"
+         label="Français (French) - Beta"
+         name="French"
+         value="fr" />
+        <combo_box.item
+         enabled="true"
+         label="Italiano (Italian) - Beta"
+         name="Italian"
+         value="it" />
+        <combo_box.item
+         enabled="true"
+         label="Nederlands (Dutch) - Beta"
+         name="Dutch"
+         value="nl" />
+        <combo_box.item
+         enabled="true"
+         label="Polski (Polish) - Beta"
+         name="Polish"
+         value="pl" />
+        <combo_box.item
+         enabled="true"
+         label="Portugués (Portuguese) - Beta"
+         name="Portugese"
+         value="pt" />
+        <combo_box.item
+         enabled="true"
+         label="日本語 (Japanese) - Beta"
+         name="(Japanese)"
+         value="ja" />
+    </combo_box>
+    <text
+ font="SansSerifSmall"
+     type="string"
+     text_color="White_50"
+     length="1"
+     follows="left|top"
+     height="18"
+     layout="topleft"
+     left_pad="10"
+     name="language_textbox2"
+     width="200">
+        (Requires restart)
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="30"
+     top_pad="15"
+     name="maturity_desired_prompt"
+     width="200">
+        I want to access content rated:
+    </text>
+	<text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left_pad="5"
+     name="maturity_desired_textbox"
+     width="200">
+    </text>
+    <combo_box
+     control_name="PreferredMaturity"
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     left="50"
+     name="maturity_desired_combobox"
+     width="200">
+        <combo_box.item
+         label="General, Moderate, Adult"
+         name="Desired_Adult"
+         value="42" />
+        <combo_box.item
+         label="General and Moderate"
+         name="Desired_Mature"
+         value="21" />
+        <combo_box.item
+         label="General"
+         name="Desired_PG"
+         value="13" />
+    </combo_box>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="30"
+     name="start_location_textbox"
+     top_pad="10"
+     width="394">
+        Start location:
+    </text>
+    <combo_box
+     control_name="LoginLocation"
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     name="start_location_combo"
+     left="50"
+     width="200">
+        <combo_box.item
+         label="My Last Location"
+         name="MyLastLocation"
+         value="last" />
+        <combo_box.item
+         label="My Home"
+         name="MyHome"
+         value="home" />
+    </combo_box>
+    <check_box
+     control_name="ShowStartLocation"
+     height="16"
+     initial_value="true"
+     label="Show on login"
+     layout="topleft"
+     left_pad="5"
+     name="show_location_checkbox"
+     top_delta="5"
+     width="256" />
+   <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="15"
+    layout="topleft"
+    left="30"
+    name="name_tags_textbox"
+    top_pad="15"
+    width="400">
+       Name tags:
+   </text>
+   <radio_group
+     control_name="AvatarNameTagMode"
+     height="20"
+     layout="topleft"
+     left="50"
+     name="Name_Tag_Preference">
+        <radio_item
+         label="Off"
+         layout="topleft"
+         name="radio"
+         value="0"
+         width="75" />
+        <radio_item
+         label="On"
+         layout="topleft"
+         left_pad="12"
+         name="radio2"
+         value="1"
+         width="75" />
+        <radio_item
+         label="Show briefly"
+         layout="topleft"
+         left_pad="12"
+         name="radio3"
+         value="2"
+         width="160" />
+    </radio_group>
+    <check_box
+	 enabled_control="AvatarNameTagMode"
+     control_name="RenderNameShowSelf"
+     height="16"
+     label="Show my name"
+     layout="topleft"
+     left="50"
+     name="show_my_name_checkbox1"
+     width="300" />
+    <check_box
+	 enabled_control="AvatarNameTagMode"
+     control_name="SmallAvatarNames"
+     height="16"
+     initial_value="true"
+     label="Small name tags"
+     layout="topleft"
+     left_delta="175"
+     name="small_avatar_names_checkbox"
+     width="200" />
+   <check_box
+	 enabled_control="AvatarNameTagMode"
+     control_name="RenderShowGroupTitleAll"
+     height="16"
+     label="Show group titles"
+     layout="topleft"
+     left_delta="-175"
+     name="show_all_title_checkbox1"
+     top_pad="5"
+     width="300" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="30"
+     name="effects_color_textbox"
+     top_pad="15"
+     width="200">
+        My effects:
+    </text>
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="13"
+      layout="topleft"
+      left_pad="5"
+      name="title_afk_text"
+      width="190">
+    Away timeout:
+    </text>
+    <color_swatch
+	 can_apply_immediately="true"
+     follows="left|top"
+     height="50"
+     layout="topleft"
+     left="50"
+     name="effect_color_swatch"
+     tool_tip="Click to open Color Picker"
+     width="38">
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="EffectColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="EffectColor" />
+	</color_swatch>
+  <combo_box
+            height="23"
+            layout="topleft"
+            control_name="AFKTimeout"
+            left_pad="160"
+            label="Away timeout:"
+            top_delta="0"
+            name="afk"
+            width="130">
+    <combo_box.item
+     label="2 minutes"
+     name="item0"
+     value="120" />
+    <combo_box.item
+     label="5 minutes"
+     name="item1"
+     value="300" />
+    <combo_box.item
+     label="10 minutes"
+     name="item2"
+     value="600" />
+    <combo_box.item
+     label="30 minutes"
+     name="item3"
+     value="1800" />
+    <combo_box.item
+     label="never"
+     name="item4"
+     value="0" />
+  </combo_box>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="13"
+     layout="topleft"
+     left="30"
+     mouse_opaque="false"
+     name="text_box3"
+     top_pad="10"
+     width="240">
+       Busy mode response:
+    </text>
+    <text_editor
+     control_name="BusyModeResponse2"
+      text_readonly_color="LabelDisabledColor"
+      bg_writeable_color="LtGray"
+      use_ellipses="false"
+      hover="false"
+     commit_on_focus_lost = "true"
+     follows="left|top"
+     height="60"
+     layout="topleft"
+     left="50"
+     name="busy_response"
+     width="440"
+     word_wrap="true">
+       log_in_to_change
+    </text_editor>
+
+</panel>

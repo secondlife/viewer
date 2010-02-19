@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="bottom_tray">
+	<string name="SpeakBtnToolTip">
+		Liga e desliga o microfone
+	</string>
+	<string name="VoiceControlBtnToolTip">
+		Mostra/oculta os controles de voz
+	</string>
+	<layout_stack name="toolbar_stack">
+		<layout_panel name="gesture_panel">
+			<gesture_combo_box label="Gesto" name="Gesture" tool_tip="Mostra/oculta os gestos"/>
+		</layout_panel>
+		<layout_panel name="movement_panel">
+			<button label="Movimentar" name="movement_btn" tool_tip="Mostra/oculta os controles de movimento"/>
+		</layout_panel>
+		<layout_panel name="cam_panel">
+			<button label="Exibir" name="camera_btn" tool_tip="Mostra/oculta os controles da câmera"/>
+		</layout_panel>
+		<layout_panel name="snapshot_panel">
+			<button label="" name="snapshots" tool_tip="Tirar foto"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

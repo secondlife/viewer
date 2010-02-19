@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<floater.string name="step_anim">
+		Animation abspielen:
+	</floater.string>
+	<floater.string name="step_sound">
+		Sound abspielen:
+	</floater.string>
+	<floater.string name="step_chat">
+		Chat sprechen:
+	</floater.string>
+	<floater.string name="step_wait">
+		Warten:
+	</floater.string>
+	<floater.string name="stop_txt">
+		Stopp
+	</floater.string>
+	<floater.string name="preview_txt">
+		Vorschau
+	</floater.string>
+	<floater.string name="none_text">
+		– Keine –
+	</floater.string>
+	<floater.string name="Title">
+		Gesten: [NAME]
+	</floater.string>
+	<text name="name_text">
+		Name:
+	</text>
+	<text name="desc_label">
+		Beschreibung:
+	</text>
+	<text name="trigger_label">
+		Auslöser:
+	</text>
+	<text name="replace_text" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt.">
+		Ersetzen mit:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Ersetzt den Auslösertext mit diesem Text. Wenn Sie zum Beispiel den Auslöser „hallo“ durch „wie geht&apos;s“ ersetzen, erscheint im Chat anstelle von „Ich wollte nur hallo sagen“ der Text „Ich wollte nur wie geht&apos;s sagen“ und die zugehörige Geste wird abgespielt." left_delta="94" width="160"/>
+	<text name="key_label">
+		Tastenkürzel:
+	</text>
+	<combo_box label="Keine" name="modifier_combo"/>
+	<combo_box label="Keine" name="key_combo"/>
+	<text name="library_label">
+		Bibliothek:
+	</text>
+	<scroll_list name="library_list" width="166"/>
+	<button label="Hinzufügen &gt;&gt;" name="add_btn" left_pad="6" width="94"/>
+	<text name="steps_label">
+		Schritte:
+	</text>
+	<button label="Nach oben" name="up_btn"/>
+	<button label="Nach unten" name="down_btn"/>
+	<button label="Entfernen" name="delete_btn"/>
+	<radio_group name="animation_trigger_type">
+		<radio_item label="Start" name="start"/>
+		<radio_item label="Stopp" name="stop"/>
+	</radio_group>
+	<check_box label="bis alle Animationen beendet sind" name="wait_anim_check"/>
+	<check_box label="Zeit in Sekunden" name="wait_time_check"/>
+	<text name="help_label">
+		Alle Schritte werden gleichzeitig ausgeführt, wenn keine Pausen hinzugefügt wurden.
+	</text>
+	<check_box label="Aktiv" name="active_check" tool_tip="Aktive Gesten werden durch Chat-Eingabe ihrer Auslösephrasen oder Drücken von Tastenkürzeln ausgelöst.  Bei doppelten Tastenzuweisungen funktionieren Gesten in der Regel nicht."/>
+	<button label="Vorschau" name="preview_btn"/>
+	<button label="Speichern" name="save_btn"/>
+</floater>

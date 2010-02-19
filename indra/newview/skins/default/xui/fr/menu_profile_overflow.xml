@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="profile_overflow_menu">
+	<menu_item_call label="Payer" name="pay"/>
+	<menu_item_call label="Partager" name="share"/>
+	<menu_item_call label="Ignorer" name="block"/>
+	<menu_item_call label="Ne plus ignorer" name="unblock"/>
+	<menu_item_call label="Éjecter" name="kick"/>
+	<menu_item_call label="Geler" name="freeze"/>
+	<menu_item_call label="Dégeler" name="unfreeze"/>
+	<menu_item_call label="Représentant du service consommateur" name="csr"/>
+</toggleable_menu>

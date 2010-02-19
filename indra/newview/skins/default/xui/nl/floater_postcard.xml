@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Postcard" title="EMAIL FOTO">
+	<text name="to_label">
+		Ontvanger e-mail:
+	</text>
+	<text name="from_label">
+		Uw e-mail:
+	</text>
+	<text name="name_label">
+		Uw naam:
+	</text>
+	<text name="subject_label">
+		Onderwerp:
+	</text>
+	<line_editor label="Type hier uw onderwerp." name="subject_form"/>
+	<text name="msg_label">
+		Bericht:
+	</text>
+	<text_editor name="msg_form">
+		Type hier uw bericht.
+	</text_editor>
+	<text name="fine_print">
+		Indien uw ontvanger deelneemt aan SL, zult u een verwijzingsbonus ontvangen.
+	</text>
+	<button label="Annuleren" name="cancel_btn"/>
+	<button label="Verzenden" name="send_btn"/>
+	<string name="default_subject">
+		Ansichtkaart uit [SECOND_LIFE]
+	</string>
+	<string name="default_message">
+		Kom dit zien!
+	</string>
+	<string name="upload_message">
+		Verzenden...
+	</string>
+</floater>

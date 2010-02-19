@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="FONT TEST">
+	<text name="linea">
+		OverrideTest, skal vises her som fonten &apos;Times&apos;. (Fra default/xui/en-us)
+	</text>
+</floater>

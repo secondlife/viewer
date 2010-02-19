@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<accordion_tab
+    header_bg_color="DkGray2"
+    header_collapse_img="Accordion_ArrowClosed_Off"
+    header_collapse_img_pressed="Accordion_ArrowClosed_Press"
+    header_expand_img="Accordion_ArrowOpened_Off"
+    header_expand_img_pressed="Accordion_ArrowOpened_Press"
+    header_image="Accordion_Off"
+    header_image_over="Accordion_Over"
+    header_image_pressed="Accordion_Press"
+    header_image_focused="Accordion_Selected"
+    header_text_color="LtGray"
+    font="SansSerif"
+    />

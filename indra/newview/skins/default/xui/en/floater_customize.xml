@@ -1,0 +1,3389 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ follows="left|top"
+ height="583"
+ layout="topleft"
+ left_delta="-3"
+ name="floater customize"
+ help_topic="floater_customize"
+ save_rect="true"
+ title="APPEARANCE"
+ top_delta="-185"
+ width="524">
+    <tab_container
+     height="517"
+     layout="topleft"
+     left="10"
+     name="customize tab container"
+     tab_min_width="96"
+     tab_position="left"
+     tab_height="50"
+     top="26"
+     width="506">
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="5"
+             name="body_parts_placeholder"
+	     font="SansSerifSmallBold"
+             top="10"
+             width="100">
+                Body Parts
+            </text>
+	    <placeholder />
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Shape"
+         layout="topleft"
+         name="Shape"
+         help_topic="customize_shape_tab"
+         width="400">
+            <icon
+             follows="top|right"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="315"
+             mouse_opaque="true"
+             name="square"
+             top="4"
+             width="18" />
+            <icon
+             height="16"
+	     top="10"
+	     left="10"
+             layout="topleft"
+             mouse_opaque="true"
+             width="16" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Body"
+             label_selected="Body"
+             layout="topleft"
+             left="10"
+             name="Body"
+             top="63"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Head"
+             label_selected="Head"
+             layout="topleft"
+             left_delta="0"
+             name="Head"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Eyes"
+             label_selected="Eyes"
+             layout="topleft"
+             left_delta="0"
+             name="Eyes"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Ears"
+             label_selected="Ears"
+             layout="topleft"
+             left_delta="0"
+             name="Ears"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Nose"
+             label_selected="Nose"
+             layout="topleft"
+             left_delta="0"
+             name="Nose"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Mouth"
+             label_selected="Mouth"
+             layout="topleft"
+             left_delta="0"
+             name="Mouth"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Chin"
+             label_selected="Chin"
+             layout="topleft"
+             left_delta="0"
+             name="Chin"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Torso"
+             label_selected="Torso"
+             layout="topleft"
+             left_delta="0"
+             name="Torso"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Legs"
+             label_selected="Legs"
+             layout="topleft"
+             left_delta="0"
+             name="Legs"
+             top_pad="4"
+             width="82" />
+            <radio_group
+             control_name="AvatarSex"
+             height="34"
+             layout="topleft"
+             name="sex radio"
+	     top_pad="10"
+             width="82">
+                <radio_item
+                 height="16"
+                 label="Female"
+                 layout="topleft"
+                 name="radio"
+                 value="0"
+                 width="82" />
+                <radio_item
+                 height="16"
+                 label="Male"
+                 layout="topleft"
+                 name="radio2"
+                 value="1"
+                 width="82" />
+            </radio_group>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new shape by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             top="488"
+             follows="left|top|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="topleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Shape:
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Shape"
+             label_selected="Create New Shape"
+             layout="topleft"
+             left="10"
+             name="Create New"
+             top="104"
+             width="160" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             name="Save"
+             right="218"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             name="Save As"
+             top="477"
+             right="304"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Skin"
+         layout="topleft"
+         name="Skin"
+         help_topic="customize_skin_tab"
+         width="400">
+            <icon
+             follows="top|right"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="315"
+             mouse_opaque="true"
+             name="square"
+             top="4"
+             width="18" />
+            <icon
+             height="16"
+	     top="10"
+	     left="10"
+             layout="topleft"
+             mouse_opaque="true"
+             width="16" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Skin Color"
+             label_selected="Skin Color"
+             layout="topleft"
+             left="10"
+             name="Skin Color"
+             top="63"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Face Detail"
+             label_selected="Face Detail"
+             layout="topleft"
+             left_delta="0"
+             name="Face Detail"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Makeup"
+             label_selected="Makeup"
+             layout="topleft"
+             left_delta="0"
+             name="Makeup"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Body Detail"
+             label_selected="Body Detail"
+             layout="topleft"
+             left_delta="0"
+             name="Body Detail"
+             top_pad="4"
+             width="82" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new skin by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             top="488"
+             follows="left|top|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="topleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Skin:
+            </text>
+            <texture_picker
+             allow_no_texture="true"
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Head Tattoos"
+             layout="topleft"
+             left="10"
+             name="Head Tattoos"
+             tool_tip="Click to choose a picture"
+             top="176"
+             width="82" />
+            <texture_picker
+             allow_no_texture="true"
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Upper Tattoos"
+             layout="topleft"
+             left_delta="0"
+             name="Upper Tattoos"
+             tool_tip="Click to choose a picture"
+             top_delta="102"
+             width="82" />
+            <texture_picker
+             allow_no_texture="true"
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Lower Tattoos"
+             layout="topleft"
+             left_delta="0"
+             name="Lower Tattoos"
+             tool_tip="Click to choose a picture"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Skin"
+             label_selected="Create New Skin"
+             layout="topleft"
+             left_delta="0"
+             name="Create New"
+             top_delta="-249"
+             width="160" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Hair"
+         layout="topleft"
+         name="Hair"
+         help_topic="customize_hair_tab"
+         width="400">
+            <icon
+             follows="top|right"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="315"
+             mouse_opaque="true"
+             name="square"
+             top="4"
+             width="18" />
+            <icon
+             height="16"
+	     top="10"
+	     left="10"
+             layout="topleft"
+             mouse_opaque="true"
+             width="16" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Color"
+             label_selected="Color"
+             layout="topleft"
+             left="10"
+             name="Color"
+             top="63"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Style"
+             label_selected="Style"
+             layout="topleft"
+             left_delta="0"
+             name="Style"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Eyebrows"
+             label_selected="Eyebrows"
+             layout="topleft"
+             name="Eyebrows"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Facial"
+             label_selected="Facial"
+             layout="topleft"
+             name="Facial"
+             top_pad="4"
+             width="82" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new hair by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             top="488"
+             follows="left|top|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="topleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Hair:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Texture"
+             layout="topleft"
+             left="10"
+             name="Texture"
+             tool_tip="Click to choose a picture"
+             top="176"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Hair"
+             label_selected="Create New Hair"
+             layout="topleft"
+             left_delta="0"
+             name="Create New"
+             top_delta="-89"
+             width="160" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Eyes"
+         layout="topleft"
+         name="Eyes"
+         help_topic="customize_eyes_tab"
+         width="400">
+            <icon
+             follows="top|right"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="315"
+             mouse_opaque="true"
+             name="square"
+             top="4"
+             width="18" />
+            <icon
+             height="16"
+	     top="10"
+	     left="10"
+             layout="topleft"
+             mouse_opaque="true"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new set of eyes by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Eyes:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Iris"
+             layout="topleft"
+             left="10"
+             name="Iris"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Eyes"
+             label_selected="Create New Eyes"
+             layout="topleft"
+             name="Create New"
+             top="66"
+             width="160" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="5"
+             name="clothes_placeholder"
+	     font="SansSerifSmallBold"
+             top="125"
+             width="100">
+                Clothes
+            </text>
+	    <placeholder />
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Shirt"
+         layout="topleft"
+         name="Shirt"
+         help_topic="customize_shirt_tab"
+         top_delta="0"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+	     top="10"
+	     left="10"
+             layout="topleft"
+             mouse_opaque="true"
+             width="16" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Shirt"
+             label_selected="Create New Shirt"
+             layout="topleft"
+             name="Create New"
+             top="66"
+             width="160" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new shirt by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Shirt:
+            </text>
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Pants"
+         layout="topleft"
+         name="Pants"
+         help_topic="customize_pants_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Pants"
+             label_selected="Create New Pants"
+             layout="topleft"
+             name="Create New"
+             top="66"
+             width="160" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on new pants by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Pants:
+            </text>
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Shoes"
+         layout="topleft"
+         name="Shoes"
+         help_topic="customize_shoes_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new pair of shoes by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Shoes"
+             label_selected="Create New Shoes"
+             layout="topleft"
+             name="Create New"
+             top_pad="18"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Shoes:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Socks"
+         layout="topleft"
+         name="Socks"
+         help_topic="customize_socks_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on new socks by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Socks"
+             label_selected="Create New Socks"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Socks:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Jacket"
+         layout="topleft"
+         name="Jacket"
+         help_topic="customize_jacket_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new jacket by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Jacket"
+             label_selected="Create New Jacket"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Jacket:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Upper Fabric"
+             layout="topleft"
+             left="10"
+             name="Upper Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Lower Fabric"
+             layout="topleft"
+             name="Lower Fabric"
+             tool_tip="Click to choose a picture"
+             top_delta="102"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Gloves"
+         layout="topleft"
+         name="Gloves"
+         help_topic="customize_gloves_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on new gloves by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Gloves"
+             label_selected="Create New Gloves"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Gloves:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Undershirt"
+         layout="topleft"
+         name="Undershirt"
+         help_topic="customize_undershirt_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new undershirt by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Undershirt"
+             label_selected="Create New Undershirt"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Undershirt:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Underpants"
+         layout="topleft"
+         name="Underpants"
+         help_topic="customize_underpants_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on new underpants by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Underpants"
+             label_selected="Create New Underpants"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Underpants:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Skirt"
+         layout="topleft"
+         name="Skirt"
+         help_topic="customize_skirt_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new skirt by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Skirt"
+             label_selected="Create New Skirt"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Skirt:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Fabric"
+             layout="topleft"
+             left="10"
+             name="Fabric"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <color_swatch
+             can_apply_immediately="true"
+             follows="left|top"
+             height="108"
+             label="Color/Tint"
+             layout="topleft"
+             name="Color/Tint"
+             tool_tip="Click to open color picker"
+             top_delta="102"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Tattoo"
+         layout="topleft"
+         name="Tattoo"
+         help_topic="customize_tattoo_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new tattoo by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Tattoo"
+             label_selected="Create New Tattoo"
+             layout="topleft"
+             name="Create New"
+             top_pad="7"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Tattoo:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Head Tattoo"
+             layout="topleft"
+             left="10"
+             name="Head Tattoo"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Upper Tattoo"
+             layout="topleft"
+             name="Upper Tattoo"
+             tool_tip="Click to choose a picture"
+             left_delta="90"
+             width="82" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Lower Tattoo"
+             layout="topleft"
+             name="Lower Tattoo"
+             tool_tip="Click to choose a picture"
+             left_delta="90"
+             width="82" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             top_pad="4"
+             left="10"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+        <panel
+         border="false"
+ background_visible="true"
+ bg_alpha_color="DkGray2"
+         follows="left|top|right|bottom"
+         height="508"
+         label="Alpha"
+         layout="topleft"
+         name="Alpha"
+         help_topic="customize_alpha_tab"
+         width="400">
+            <icon
+             follows="top|left"
+             height="18"
+             image_name="Lock"
+             layout="topleft"
+             left="10"
+             mouse_opaque="true"
+             name="square"
+             top="10"
+             width="18" />
+            <icon
+             height="16"
+             layout="topleft"
+	     left="10"
+             mouse_opaque="true"
+	     top="10"
+             width="16" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title"
+             top="10"
+             width="355">
+                [DESC]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_no_modify"
+             top="10"
+             width="355">
+                [DESC]: cannot modify
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_loading"
+             top="10"
+             width="355">
+                [DESC]: loading...
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="31"
+             name="title_not_worn"
+             top="10"
+             width="355">
+                [DESC]: not worn
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="path"
+             top="36"
+             width="373">
+                Located in [PATH]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="not worn instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                Put on a new alpha mask by dragging one from your inventory to your avatar. Alternately, you create a new one from scratch and wear it.
+            </text>
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Alpha"
+             label_selected="Create New Alpha"
+             layout="topleft"
+             name="Create New"
+             top_pad="18"
+             width="160" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top|right"
+             height="28"
+             layout="topleft"
+             left="10"
+             name="no modify instructions"
+             top="31"
+             word_wrap="true"
+             width="373">
+                You do not have permission to modify this wearable.
+            </text>
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom|right"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             right="132"
+             width="100">
+                Alpha:
+            </text>
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Lower Alpha"
+             layout="topleft"
+             left="10"
+             name="Lower Alpha"
+             tool_tip="Click to choose a picture"
+             top="66"
+             width="82" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Upper Alpha"
+             layout="topleft"
+             name="Upper Alpha"
+             tool_tip="Click to choose a picture"
+             left_delta="90"
+             width="82" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Head Alpha"
+             layout="topleft"
+             name="Head Alpha"
+             tool_tip="Click to choose a picture"
+             left_delta="90"
+             width="82" />
+            <check_box
+             control_name="LowerAlphaTextureInvisible"
+             follows="left"
+             height="16"
+             layout="topleft"
+             left="43"
+             name="lower alpha texture invisible"
+             top_delta="96"
+             width="16" />
+            <check_box
+             control_name="UpperAlphaTextureInvisible"
+             follows="left"
+             height="16"
+             layout="topleft"
+             left_pad="72"
+             name="upper alpha texture invisible"
+             width="16" />
+            <check_box
+             control_name="HeadAlphaTextureInvisible"
+             follows="left"
+             height="16"
+             layout="topleft"
+             left_pad="72"
+             name="head alpha texture invisible"
+             width="16" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Eye Alpha"
+             layout="topleft"
+             name="Eye Alpha"
+             tool_tip="Click to choose a picture"
+             left="10"
+             top_pad="20"
+             width="82" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="108"
+             label="Hair Alpha"
+             layout="topleft"
+             name="Hair Alpha"
+             left_delta="90"
+             tool_tip="Click to choose a picture"
+             width="82" />
+            <check_box
+             control_name="Eye AlphaTextureInvisible"
+             follows="left"
+             height="16"
+             layout="topleft"
+             left="43"
+             name="eye alpha texture invisible"
+             top_delta="96"
+             width="16" />
+            <check_box
+             control_name="HairAlphaTextureInvisible"
+             follows="left"
+             height="16"
+             layout="topleft"
+             left_pad="72"
+             name="hair alpha texture invisible"
+             width="16" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Take Off"
+             label_selected="Take Off"
+             layout="topleft"
+             name="Take Off"
+             left="10"
+             top_pad="20"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save"
+             label_selected="Save"
+             layout="topleft"
+             right="218"
+             name="Save"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Save As..."
+             label_selected="Save As..."
+             layout="topleft"
+             right="304"
+             name="Save As"
+             top="477"
+             width="82" />
+            <button
+             follows="right|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             right="390"
+             name="Revert"
+             top="477"
+             width="82" />
+        </panel>
+    </tab_container>
+    <scroll_container
+     follows="left|top|right|bottom"
+     height="409"
+     layout="topleft"
+     left="211"
+     mouse_opaque="false"
+     name="panel_container"
+     top="92"
+     width="292">
+        <scrolling_panel_list
+         follows="left|bottom"
+         layout="topleft"
+         name="panel_list" />
+    </scroll_container>
+    <button
+     bottom="460"
+     follows="right|left"
+     height="23"
+     label="Script Info"
+     label_selected="Script Info"
+     layout="topleft"
+     name="script_info"
+     tool_tip="Show scripts attached to your avatar"
+     left="13"
+     width="90" />
+    <button
+     bottom="574"
+     follows="right|bottom"
+     height="23"
+     label="Make Outfit"
+     label_selected="Make Outfit"
+     layout="topleft"
+     name="make_outfit_btn"
+     right="-218"
+     width="100" />
+    <button
+     bottom="574"
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     name="Cancel"
+     right="-10"
+     width="100" />
+    <button
+     bottom="574"
+     follows="right|bottom"
+     height="23"
+     label="OK"
+     label_selected="OK"
+     layout="topleft"
+     name="Ok"
+     right="-114"
+     width="100" />
+</floater>

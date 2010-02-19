@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[AGE]
+	</string>
+	<string name="Details">
+		[SL_PROFILE]
+	</string>
+	<text name="user_name" value="Grumpity ProductEngine"/>
+	<text name="user_subtitle" value="11 Monate und 3 Tage alt"/>
+	<text name="user_details">
+		Dies ist meine Beschreibung und ich finde sie wirklich gut!
+	</text>
+	<slider name="volume_slider" tool_tip="Lautstärke" value="0.5"/>
+	<button label="Freund hinzufügen" name="add_friend_btn" width="110"/>
+	<button label="IM" name="im_btn"/>
+	<button label="Profil" left_delta="120" name="view_profile_btn" width="44"/>
+	<panel name="moderator_panel">
+		<button label="Voice deaktivieren" name="disable_voice"/>
+		<button label="Voice aktivieren" name="enable_voice"/>
+	</panel>
+</floater>

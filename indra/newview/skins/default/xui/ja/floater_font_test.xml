@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="フォントのテスト">
+	<text name="linea">
+		オーバーライドテスト - Times Romanでここに表示されます。 （default/xui/en-us フォルダー内）
+	</text>
+</floater>

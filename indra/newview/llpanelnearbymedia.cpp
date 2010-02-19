@@ -38,6 +38,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llresizebar.h"
+#include "llresizehandle.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
@@ -116,6 +117,20 @@ BOOL LLPanelNearByMedia::postBuild()
 	p.resizing_view = this;
 	addChild( LLUICtrlFactory::create<LLResizeBar>(p) );
 
+	p.rect = LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0);
+	p.name = "resizebar_left";
+	p.min_size = getRect().getWidth();
+	p.side = LLResizeBar::LEFT;
+	addChild( LLUICtrlFactory::create<LLResizeBar>(p) );
+	
+	LLResizeHandle::Params resize_handle_p;
+	resize_handle_p.rect = LLRect( 0, RESIZE_HANDLE_HEIGHT, RESIZE_HANDLE_WIDTH, 0 );
+	resize_handle_p.mouse_opaque(false);
+	resize_handle_p.min_width(getRect().getWidth());
+	resize_handle_p.min_height(getRect().getHeight());
+	resize_handle_p.corner(LLResizeHandle::LEFT_BOTTOM);
+	addChild(LLUICtrlFactory::create<LLResizeHandle>(resize_handle_p));
+
 	mNearbyMediaPanel = getChild<LLUICtrl>("nearby_media_panel");
 	mMediaList = getChild<LLScrollListCtrl>("media_list");
 	mEnableAllCtrl = getChild<LLUICtrl>("all_nearby_media_enable_btn");
@@ -148,8 +163,10 @@ BOOL LLPanelNearByMedia::postBuild()
 	updateColumns();
 	
 	LLView* minimized_controls = getChildView("minimized_controls");
-	mMoreHeight = getRect().getHeight();
-	mLessHeight = getRect().getHeight() - minimized_controls->getRect().mBottom;
+	mMoreRect = getRect();
+	mLessRect = getRect();
+	mLessRect.mBottom = minimized_controls->getRect().mBottom;
+
 	getChild<LLUICtrl>("more_less_btn")->setValue(false);
 	onMoreLess();
 	
@@ -207,7 +224,7 @@ void LLPanelNearByMedia::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLButton* more_less_btn = getChild<LLButton>("more_less_btn");
 	if (more_less_btn->getValue().asBoolean())
 	{
-		mMoreHeight = getRect().getHeight();
+		mMoreRect = getRect();
 	}
 
 }
@@ -928,10 +945,8 @@ void LLPanelNearByMedia::onMoreLess()
 	// enable resizing when expanded
 	getChildView("resizebar_bottom")->setEnabled(is_more);
 
-	S32 new_height = is_more ? mMoreHeight : mLessHeight;
-
-	LLRect new_rect = getRect();
-	new_rect.mBottom = new_rect.mTop - new_height;
+	LLRect new_rect = is_more ? mMoreRect : mLessRect;
+	new_rect.translate(getRect().mRight - new_rect.mRight, getRect().mTop - new_rect.mTop);
 
 	setShape(new_rect);
 }

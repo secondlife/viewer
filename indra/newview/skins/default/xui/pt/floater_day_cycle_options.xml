@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Day Cycle Floater" title="EDITOR DE CICLO DE DIA">
+	<tab_container name="Day Cycle Tabs">
+		<panel label="Ciclo do dia" name="Day Cycle">
+			<button label="?" name="WLDayCycleHelp"/>
+			<text name="WL12am">
+				0:00
+			</text>
+			<text name="WL3am">
+				3:00
+			</text>
+			<text name="WL6am">
+				6:00
+			</text>
+			<text name="WL9amHash">
+				9:00
+			</text>
+			<text name="WL12pmHash">
+				12:00
+			</text>
+			<text name="WL3pm">
+				15:00
+			</text>
+			<text name="WL6pm">
+				18:00
+			</text>
+			<text name="WL9pm">
+				21:00
+			</text>
+			<text name="WL12am2">
+				24:00
+			</text>
+			<button font="SansSerifSmall" width="96" left="546" label="Adicionar chave" label_selected="Adicionar chave" name="WLAddKey"/>
+			<button font="SansSerifSmall" width="96" left="546" label="Apagar chave" label_selected="Apagar chave" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText" width="190" left="17">
+				Configurações de Quadro-chave:
+			</text>
+			<text name="WLCurKeyTimeText">
+				Tempo-chave:
+			</text>
+			<spinner label="Hora" name="WLCurKeyHour"/>
+			<spinner label="Minutos" name="WLCurKeyMin"/>
+			<text name="WLCurKeyTimeText2">
+				Ajuste-chave:
+			</text>
+			<combo_box label="Ajuste" name="WLKeyPresets"/>
+			<text name="DayCycleText">
+				Grudar:
+			</text>
+			<combo_box label="5 minutos" name="WLSnapOptions" width="85"/>
+			<text name="DayCycleText2">
+				Duração do Ciclo:
+			</text>
+			<spinner label="Hora" name="WLLengthOfDayHour"/>
+			<spinner label="Minuto" name="WLLengthOfDayMin"/>
+			<spinner label="Segundo" name="WLLengthOfDaySec"/>
+			<text name="DayCycleText3">
+				Prévia:
+			</text>
+			<button label="Tocar" label_selected="Tocar" name="WLAnimSky"/>
+			<button label="Pare!" label_selected="Pare" name="WLStopAnimSky"/>
+			<button width="175" font="SansSerifSmall" label="Usar o horário da Propriedade" label_selected="Ir para o horário da Propriedade" name="WLUseLindenTime"/>
+			<button label="Salvar o Dia teste" label_selected="Salvar o Dia teste" name="WLSaveDayCycle"/>
+			<button label="Carregar o Dia teste" label_selected="Carregar o Dia teste" name="WLLoadDayCycle"/>
+		</panel>
+	</tab_container>
+</floater>

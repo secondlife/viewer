@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="スナップショットのプレビュー">
+	<text name="type_label">
+		スナップショットの送り先
+	</text>
+	<radio_group label="スナップショット・タイプ" name="snapshot_type_radio">
+		<radio_item label="メール" name="postcard"/>
+		<radio_item label="私の持ち物（L$[AMOUNT]）" name="texture"/>
+		<radio_item label="コンピューターに保存" name="local"/>
+	</radio_group>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
+	<button label="スナップショットを更新" name="new_snapshot_btn"/>
+	<button label="送信" name="send_btn"/>
+	<button label="保存（L$[AMOUNT]）" name="upload_btn"/>
+	<flyout_button label="保存" name="save_btn" tool_tip="画像をファイルに保存">
+		<flyout_button.item label="保存" name="save_item"/>
+		<flyout_button.item label="名前を付けて保存" name="saveas_item"/>
+	</flyout_button>
+	<button label="キャンセル" name="discard_btn"/>
+	<button label="全表示" name="more_btn" tool_tip="詳しい設定"/>
+	<button label="簡易" name="less_btn" tool_tip="詳しい設定"/>
+	<text name="type_label2">
+		サイズ
+	</text>
+	<text name="format_label" width="75">
+		形式
+	</text>
+	<combo_box label="解像度" name="postcard_size_combo">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="カスタム" name="Custom"/>
+	</combo_box>
+	<combo_box label="解像度" name="texture_size_combo">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="小（128x128）" name="Small(128x128)"/>
+		<combo_box.item label="中（256x256）" name="Medium(256x256)"/>
+		<combo_box.item label="大（512x512）" name="Large(512x512)"/>
+		<combo_box.item label="カスタム" name="Custom"/>
+	</combo_box>
+	<combo_box label="解像度" name="local_size_combo">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="320x240" name="320x240"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1280x1024" name="1280x1024"/>
+		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="カスタム" name="Custom"/>
+	</combo_box>
+	<combo_box label="形式" name="local_format_combo">
+		<combo_box.item label="PNG" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP" name="BMP"/>
+	</combo_box>
+	<spinner label="幅" label_width="25" name="snapshot_width" width="90"/>
+	<spinner label="高さ" label_width="30" left="115" name="snapshot_height" width="90"/>
+	<check_box label="縦横比の固定" name="keep_aspect_check"/>
+	<slider label="画質" name="image_quality_slider"/>
+	<text name="layer_type_label">
+		キャプチャ：
+	</text>
+	<combo_box label="画像レイヤー" name="layer_types">
+		<combo_box.item label="色" name="Colors"/>
+		<combo_box.item label="色深度" name="Depth"/>
+		<combo_box.item label="マットオブジェクト" name="ObjectMattes"/>
+	</combo_box>
+	<check_box label="インターフェース" name="ui_check"/>
+	<check_box label="HUD" name="hud_check"/>
+	<check_box label="保存後も開いた状態を保持" name="keep_open_check"/>
+	<check_box label="画面全体を静止" name="freeze_frame_check"/>
+	<check_box label="自動更新" name="auto_snapshot_check"/>
+	<string name="unknown">
+		未知
+	</string>
+</floater>

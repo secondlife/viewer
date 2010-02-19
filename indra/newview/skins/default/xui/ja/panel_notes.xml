@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="メモとプライバシー" name="panel_notes">
+	<layout_stack name="layout">
+		<layout_panel name="notes_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<text name="status_message" value="個人的メモ："/>
+					<text name="status_message2" value="この人に許可："/>
+					<check_box label="オンライン状態の確認" name="status_check"/>
+					<check_box label="地図で居場所を確認" name="map_check"/>
+					<check_box label="私のオブジェクトの編集・削除・取得" name="objects_check"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="notes_buttons_panel">
+			<button label="フレンド登録" name="add_friend" tool_tip="フレンド登録を申し出ます"/>
+			<button label="IM" name="im" tool_tip="インスタントメッセージを開きます"/>
+			<button label="コール" name="call" tool_tip="この住人にコールします"/>
+			<button label="地図" name="show_on_map_btn" tool_tip="住人を地図上で表示します"/>
+			<button label="テレポート" name="teleport" tool_tip="テレポートを送ります"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

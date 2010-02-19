@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="NearBy Chat Menu">
+	<menu_item_call label="Vis personer tæt på..." name="nearby_people"/>
+	<menu_item_check label="Vis blokeret tekst" name="muted_text"/>
+	<menu_item_check label="Vis venne-ikoner" name="show_buddy_icons"/>
+	<menu_item_check label="Vis navne" name="show_names"/>
+	<menu_item_check label="Vis ikoner og navne" name="show_icons_and_names"/>
+	<menu_item_call label="Font størrelse" name="font_size"/>
+</menu>

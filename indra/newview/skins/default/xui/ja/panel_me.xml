@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="マイ プロフィール" name="panel_me">
+	<tab_container name="tabs">
+		<panel label="マイ プロフィール" name="panel_profile"/>
+		<panel label="マイ ピック" name="panel_picks"/>
+	</tab_container>
+</panel>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Teleport History Item Context Menu">
+    <menu_item_call
+     label="Teleport"
+     layout="topleft"
+     name="Teleport">
+        <menu_item_call.on_click
+         function="TeleportHistory.Teleport" />
+    </menu_item_call>
+    <menu_item_call
+     label="More Information"
+     layout="topleft"
+     name="More Information">
+        <menu_item_call.on_click
+         function="TeleportHistory.MoreInformation" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy to Clipboard"
+     layout="topleft"
+     name="CopyToClipboard">
+        <menu_item_call.on_click
+         function="TeleportHistory.CopyToClipboard" />
+    </menu_item_call>
+</context_menu>

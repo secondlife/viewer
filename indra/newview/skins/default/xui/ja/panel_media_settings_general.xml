@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="一般" name="Media Settings General">
+	<text name="home_label">
+		ホームページ：
+	</text>
+	<text name="home_fails_whitelist_label">
+		（このページは指定したホワイトリストをパスしません）
+	</text>
+	<line_editor name="home_url" tool_tip="このメディアソースのホームページ"/>
+	<text name="preview_label">
+		プレビュー
+	</text>
+	<text name="current_url_label">
+		現在のページ：
+	</text>
+	<text name="current_url" tool_tip="メディアソースの現在のページ" value=""/>
+	<button label="リセット" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="ループ再生" name="auto_loop"/>
+	<check_box initial_value="false" label="最初にクリックしたときの動作" name="first_click_interact"/>
+	<check_box initial_value="false" label="自動ズーム" name="auto_zoom"/>
+	<check_box initial_value="false" label="自動メディア再生" name="auto_play"/>
+	<text name="media_setting_note">
+		注意： 住人はこの設定を無視できます
+	</text>
+	<check_box initial_value="false" label="オブジェクトの表面サイズに合わせて自動調整" name="auto_scale"/>
+	<text name="size_label">
+		サイズ：
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

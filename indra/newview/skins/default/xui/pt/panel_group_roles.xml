@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Membros e Funções" name="roles_tab">
+	<panel.string name="default_needs_apply_text">
+		As mudanças feitas nesta guia ainda não foram salvas
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Deseja salvar essas mudanças?
+	</panel.string>
+	<tab_container height="164" name="roles_tab_container">
+		<panel height="148" label="MEMBROS" name="members_sub_tab" tool_tip="Membros">
+			<panel.string name="help_text">
+				Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.
+			</panel.string>
+			<filter_editor label="Filtrar por membro" name="filter_input"/>
+			<name_list bottom_delta="-105" height="104" name="member_list">
+				<name_list.columns label="Membro" name="name"/>
+				<name_list.columns label="Doações" name="donated"/>
+				<name_list.columns label="Status" name="online"/>
+			</name_list>
+			<button label="Convidar" name="member_invite" width="165"/>
+			<button label="Ejetar" name="member_eject"/>
+		</panel>
+		<panel height="148" label="CARGOS" name="roles_sub_tab">
+			<panel.string name="help_text">
+				Cada cargo tem um nome e uma lista das funções que membros designados podem desempenhar.
+ Os membros podem ter um ou mais cargos.
+ Cada grupo pode ter 10 cargos, incluindo Membro e Dono do Grupo.
+			</panel.string>
+			<panel.string name="cant_delete_role">
+				As funções &apos;Todos&apos; e &apos;Owners&apos; são especiais e não podem ser apagadas.
+			</panel.string>
+			<panel.string name="power_folder_icon">
+				Inv_FolderClosed
+			</panel.string>
+			<filter_editor label="Filtrar por cargo" name="filter_input"/>
+			<scroll_list bottom_delta="-104" height="104" name="role_list">
+				<scroll_list.columns label="Cargo" name="name"/>
+				<scroll_list.columns label="Título" name="title"/>
+				<scroll_list.columns label="#" name="members"/>
+			</scroll_list>
+			<button label="Adicionar cargo" name="role_create"/>
+			<button label="Apagar função" name="role_delete"/>
+		</panel>
+		<panel height="148" label="FUNÇÕES" name="actions_sub_tab" tool_tip="Você pode ver a descrição de uma função e quais cargos e membros podem desempenhá-la.">
+			<panel.string name="help_text">
+				As habilidades permitem que os membros nas funções façam coisas específicas dentro do grupo.
+Há uma grande variedade de habilidades.
+			</panel.string>
+			<filter_editor label="Filtrar por função" name="filter_input"/>
+			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Selecione uma função para ver mais detalhes"/>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Membros atribuídos
+		</text>
+		<text name="static2">
+			Habilidades permitidas
+		</text>
+		<scroll_list name="member_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Nome da função
+		</text>
+		<line_editor name="role_name">
+			Empregados
+		</line_editor>
+		<text name="static3">
+			Título da função
+		</text>
+		<line_editor name="role_title">
+			(esperando)
+		</line_editor>
+		<text name="static2">
+			Descrição
+		</text>
+		<text_editor name="role_description">
+			(esperando)
+		</text_editor>
+		<text name="static4">
+			Cargos desempenhados
+		</text>
+		<check_box label="Revelar membros" name="role_visible_in_list" tool_tip="Define se os membros dessa função são visíveis na guia geral para pessoas de fora do grupo."/>
+		<text name="static5" tool_tip="Uma lista de habilidades que a função selecionada atualmente pode executar.">
+			Habilidades permitidas
+		</text>
+		<scroll_list name="role_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
+	</panel>
+	<panel name="actions_footer">
+		<text name="static">
+			Descrição da função
+		</text>
+		<text_editor name="action_description">
+			Essa habilidade permite tirar alguem do grupo. Somente o dono do grupo poderá retirar outro dono do grupo.
+		</text_editor>
+		<text name="static2">
+			Cargos com esta função
+		</text>
+		<text name="static3">
+			Membros com esta função
+		</text>
+	</panel>
+</panel>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="land holdings floater" title="MIT LAND">
+	<scroll_list name="parcel list">
+		<column label="Parcel" name="name"/>
+		<column label="Region" name="location"/>
+		<column label="Type" name="type"/>
+		<column label="Område" name="area"/>
+		<column label="" name="hidden"/>
+	</scroll_list>
+	<button label="Teleport" label_selected="Teleport" name="Teleport" tool_tip="Teleport til centrum på dette land."/>
+	<button label="Kort" label_selected="Kort" name="Show on Map" tool_tip="Vis dette land i verdenskortet"/>
+	<text name="contrib_label">
+		Bidrag til dine grupper:
+	</text>
+	<scroll_list name="grant list">
+		<column label="Gruppe" name="group"/>
+		<column label="Område" name="area"/>
+	</scroll_list>
+	<text name="allowed_label">
+		Tilladt land ifølge nuværende betalingsaftale:
+	</text>
+	<text name="allowed_text">
+		[AREA] m²
+	</text>
+	<text name="current_label">
+		Nuværende besiddelser:
+	</text>
+	<text name="current_text">
+		[AREA] m²
+	</text>
+	<text name="available_label">
+		Antal m² der kan købes:
+	</text>
+	<text name="available_text">
+		[AREA] m²
+	</text>
+	<string name="area_string">
+		[AREA] m²
+	</string>
+</floater>

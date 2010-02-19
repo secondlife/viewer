@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_buy_contents" title="COMPRA I CONTENUTI">
+	<text name="contains_text">
+		[NAME] contiene:
+	</text>
+	<text name="buy_text">
+		Compra per [AMOUNT]L$ da [NAME]?
+	</text>
+	<button label="Annulla" label_selected="Annulla" name="cancel_btn" width="73"/>
+	<button label="Compra" label_selected="Compra" left_delta="-77" name="buy_btn" width="73"/>
+	<check_box bottom="-234" label="Indossa adesso 
+l&apos;indumento" left_delta="-125" name="wear_check"/>
+	<string name="no_copy_text">
+		(non copiabile)
+	</string>
+	<string name="no_modify_text">
+		(non modificabile)
+	</string>
+	<string name="no_transfer_text">
+		(non traferibile)
+	</string>
+</floater>

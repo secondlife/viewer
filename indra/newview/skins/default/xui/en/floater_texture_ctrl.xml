@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ can_resize="true"
+ height="290"
+ layout="topleft"
+ min_height="290"
+ min_width="410"
+ name="texture picker"
+ help_topic="texture_picker"
+ title="PICK: TEXTURE"
+ width="410">
+    <floater.string
+     name="choose_picture">
+        Click to choose a picture
+    </floater.string>
+    <floater.string
+     name="pick title">
+        Pick:
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     text_color="White"
+     font="SansSerifBig"
+     halign="center"
+     height="17"
+     layout="topleft"
+     left="4"
+     name="Multiple"
+     top="96"
+     width="163">
+        Multiple textures
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="14"
+     layout="topleft"
+     left_delta="0"
+     name="unknown"
+     top_pad="80"
+     width="163">
+        Size: [DIMENSIONS]
+    </text>
+    <button
+     enabled="false"
+     follows="left|bottom"
+     height="20"
+     label="Default"
+     label_selected="Default"
+     layout="topleft"
+     left_delta="0"
+     name="Default"
+     top_pad="4"
+     width="80" />
+    <button
+     enabled="false"
+     follows="left|bottom"
+     height="20"
+     label="None"
+     label_selected="None"
+     layout="topleft"
+     left_pad="4"
+     name="None"
+     top_delta="0"
+     width="80" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Blank"
+     label_selected="Blank"
+     layout="topleft"
+     left="4"
+     name="Blank"
+     top_pad="5"
+     width="80" />
+         <button
+     follows="left|bottom"
+     height="28"
+     image_selected="eye_button_active.tga"
+     image_unselected="eye_button_inactive.tga"
+     layout="topleft"
+     left_pad="50"
+     top_delta="3"
+     name="Pipette"
+     width="28" />
+   <check_box
+     follows="left|bottom"
+     height="20"
+     initial_value="true"
+     label="Apply now"
+     layout="topleft"
+     left="4"
+     name="apply_immediate_check"
+     top="262"
+     width="120" />
+    <filter_editor
+     follows="left|top|right"
+     height="23"
+     label="Filter Textures"
+     layout="topleft"
+     left="175"
+     name="inventory search editor"
+     top="20"
+     width="231" />
+    <inventory_panel
+     allow_multi_select="false"
+     bg_visible="true"
+     bg_alpha_color="DkGray2"
+     border="false"
+     follows="all"
+     height="200"
+     layout="topleft"
+     left_delta="0"
+     name="inventory panel"
+     top_pad="4"
+     width="231" />
+     <check_box
+     height="14"
+     initial_value="false"
+     label="Show folders"
+     layout="topleft"
+     name="show_folders_check"
+     top_pad="0"
+     left_delta="-3"
+     width="200" />
+         <button
+     follows="right|bottom"
+     height="20"
+     label="OK"
+     label_selected="OK"
+     layout="topleft"
+     right="-120"
+     name="Select"
+     width="100" />
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     right="-10"
+     left_pad="5"
+     name="Cancel"
+     width="100" />
+</floater>

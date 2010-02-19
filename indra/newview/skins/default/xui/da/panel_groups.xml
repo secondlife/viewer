@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="groups">
+	<scroll_list name="group list">
+		<column label="" name="name" />
+	</scroll_list>
+	<text name="groupdesc" width="300">
+		Din nuværende aktive gruppe er fremhævet i listen.
+	</text>
+	<text name="groupcount" width="300">
+		Du er medlem i [COUNT] grupper (ud af maksimalt [MAX]).
+	</text>
+	<button label="IM/Opkald" name="IM" tool_tip="Åbner IM session" />
+	<button label="Info" name="Info" />
+	<button label="Aktivér" name="Activate" />
+	<button label="Forlad" name="Leave" />
+	<button label="Opret..." name="Create" />
+	<button label="Søg..." name="Search..." />
+</panel>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Login Menu">
+	<menu label="Ja" name="File">
+		<menu_item_call label="Ustawienia" name="Preferences..."/>
+		<menu_item_call label="Wyłącz Program" name="Quit"/>
+	</menu>
+	<menu label="Pomoc" name="Help">
+		<menu_item_call label="[SECOND_LIFE]: Pomoc" name="Second Life Help"/>
+	</menu>
+	<menu label="Debug" name="Debug">
+		<menu label="Edytuj" name="Edit">
+			<menu_item_call label="Cofnij" name="Undo"/>
+			<menu_item_call label="Powtórz" name="Redo"/>
+			<menu_item_call label="Wytnij" name="Cut"/>
+			<menu_item_call label="Kopiuj" name="Copy"/>
+			<menu_item_call label="Wklej" name="Paste"/>
+			<menu_item_call label="Usuń" name="Delete"/>
+			<menu_item_call label="Powiel" name="Duplicate"/>
+			<menu_item_call label="Zaznacz Wszystko" name="Select All"/>
+			<menu_item_call label="Odznacz" name="Deselect"/>
+		</menu>
+		<menu_item_call label="Ustawienia Debugowania" name="Debug Settings"/>
+		<menu_item_call label="Ustawienia UI/Kolor" name="UI/Color Settings"/>
+		<menu_item_call label="Pokaż schowek" name="Show Side Tray"/>
+		<menu label="UI Testy" name="UI Tests"/>
+		<menu_item_call label="Wyświetl TOS" name="TOS"/>
+		<menu_item_call label="Wyświetl Wiadomość Krytyczną" name="Critical"/>
+		<menu_item_call label="Test Przeglądarki Internetowej" name="Web Browser Test"/>
+	</menu>
+</menu_bar>

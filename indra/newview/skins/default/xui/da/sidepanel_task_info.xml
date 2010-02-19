@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Egenskaber for objekt">
+	<panel.string name="text deed continued">
+		Dedikér
+	</panel.string>
+	<panel.string name="text deed">
+		Dedikér
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Du kan modificere dette objekt
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Du kan modificere disse objekter
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Du kan ikke modificere dette objekt
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Du kan ikke modificere disse objekter
+	</panel.string>
+	<panel.string name="text modify warning">
+		Dette objekt har linkede dele
+	</panel.string>
+	<panel.string name="Cost Default">
+		Pris: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Total pris: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Pris pr.: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Blandet pris
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Blandet salg
+	</panel.string>
+	<panel label="">
+		<text name="Name:">
+			Navn:
+		</text>
+		<text name="Description:">
+			Beskrivelse:
+		</text>
+		<text name="Creator:">
+			Skaber:
+		</text>
+		<text name="Owner:">
+			Ejer:
+		</text>
+		<text name="Group:">
+			Gruppe:
+		</text>
+		<button name="button set group" tool_tip="Vælg en gruppe der skal dele dette objekts rettigheder"/>
+		<name_box initial_value="Henter..." name="Group Name Proxy"/>
+		<button label="Dedikér" label_selected="Dedikér" name="button deed" tool_tip="Dedikering giver denne genstand væk med næste ejers rettigheder. Gruppedelte genstande kan dedikeres af en gruppeadministrator."/>
+		<check_box label="Del" name="checkbox share with group" tool_tip="Tillad alle medlemmer i den angivne gruppe at videregive dine &quot;redigere&quot; rettigheder for dette objekt. Du må dedikere for at tillade rolle begrænsninger."/>
+		<text name="label click action">
+			Klik for at:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Røre  (standard)" name="Touch/grab(default)"/>
+			<combo_box.item label="Sidde på objekt" name="Sitonobject"/>
+			<combo_box.item label="Købe objekt" name="Buyobject"/>
+			<combo_box.item label="Betale til objekt" name="Payobject"/>
+			<combo_box.item label="Åbne" name="Open"/>
+		</combo_box>
+		<check_box label="Til salg:" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Kopi" name="Copy"/>
+			<combo_box.item label="Indhold" name="Contents"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Pris: L$" name="Edit Cost"/>
+		<check_box label="Vis i søgning" name="search_check" tool_tip="Lad personer se dette objekt i søgeresultater"/>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Du kan redigere dette objekt
+			</text>
+			<text name="Anyone can:">
+				Enhver:
+			</text>
+			<check_box label="Flytte" name="checkbox allow everyone move"/>
+			<check_box label="Kopiere" name="checkbox allow everyone copy"/>
+			<text name="Next owner can:">
+				Næste ejer:
+			</text>
+			<check_box label="Redigere" name="checkbox next owner can modify"/>
+			<check_box label="Kopiere" name="checkbox next owner can copy"/>
+			<check_box label="Overfør" name="checkbox next owner can transfer" tool_tip="Næste ejer kan sælge eller give dette objekt væk"/>
+			<text name="B:">
+				B:
+			</text>
+			<text name="O:">
+				Å:
+			</text>
+			<text name="G:">
+				O:
+			</text>
+			<text name="E:">
+				R:
+			</text>
+			<text name="N:">
+				N:
+			</text>
+			<text name="F:">
+				F:
+			</text>
+		</panel>
+	</panel>
+	<panel name="button_panel">
+		<button label="Åben" name="open_btn"/>
+		<button label="Betal" name="pay_btn"/>
+		<button label="Køb" name="buy_btn"/>
+		<button label="Annullér" name="cancel_btn"/>
+		<button label="Gem" name="save_btn"/>
+	</panel>
+</panel>

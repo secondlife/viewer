@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Post-Process Floater" title="ポストプロセス設定">
+	<tab_container name="Post-Process Tabs">
+		<panel label="カラー・フィルター" name="wmiColorFilterPanel">
+			<check_box label="有効" name="wmiColorFilterToggle" />
+			<text name="wmiColorFilterBrightnessText">
+				明るさ
+			</text>
+			<text name="wmiColorFilterSaturationText">
+				彩度
+			</text>
+			<text name="wmiColorFilterContrastText">
+				コントラスト
+			</text>
+			<text name="wmiColorFilterBaseText">
+				コントラストの基本色
+			</text>
+			<slider label="R" name="wmiColorFilterBaseR" />
+			<slider label="G" name="wmiColorFilterBaseG" />
+			<slider label="B" name="wmiColorFilterBaseB" />
+			<slider label="I" name="wmiColorFilterBaseI" />
+		</panel>
+		<panel label="ナイトビジョン" name="wmiNightVisionPanel">
+			<check_box label="有効" name="wmiNightVisionToggle" />
+			<text name="wmiNightVisionBrightMultText">
+				光の増幅（マルチ）
+			</text>
+			<text name="wmiNightVisionNoiseSizeText">
+				ノイズ・サイズ
+			</text>
+			<text name="wmiNightVisionNoiseStrengthText">
+				ノイズ強度
+			</text>
+		</panel>
+		<panel label="ブルーム" name="wmiBloomPanel">
+			<check_box label="有効" name="wmiBloomToggle" />
+			<text name="wmiBloomExtractText">
+				明度の抽出
+			</text>
+			<text name="wmiBloomSizeText">
+				ブルーム・サイズ
+			</text>
+			<text name="wmiBloomStrengthText">
+				ブルーム強度
+			</text>
+		</panel>
+		<panel label="その他" name="Extras">
+			<button label="効果読み込み" label_selected="効果読み込み"
+			     name="PPLoadEffect" />
+			<button label="効果保存" label_selected="効果保存" name="PPSaveEffect" />
+			<line_editor label="効果名" name="PPEffectNameEditor" />
+		</panel>
+	</tab_container>
+</floater>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Preferences" title="環境設定">
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<tab_container name="pref core">
+		<panel label="一般" name="general"/>
+		<panel label="グラフィック" name="display"/>
+		<panel label="プライバシー" name="im"/>
+		<panel label="サウンドとメディア" name="audio"/>
+		<panel label="チャット" name="chat"/>
+		<panel label="メッセージ" name="msgs"/>
+		<panel label="セットアップ" name="input"/>
+		<panel label="詳細" name="advanced1"/>
+	</tab_container>
+</floater>

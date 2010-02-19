@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="url_entry">
+	<text name="media_label">
+		メディア URL：
+	</text>
+	<combo_box name="media_entry"/>
+	<button label="OK" name="ok_btn" width="38"/>
+	<button label="キャンセル" name="cancel_btn" width="80"/>
+	<button label="クリア" name="clear_btn" left_pad="76"/>
+	<text name="loading_label" left="140">
+		ロード中．．．
+	</text>
+</floater>

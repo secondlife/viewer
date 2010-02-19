@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="modal container" title="">
+	<button label="Fortsæt" label_selected="Fortsæt" name="Continue" />
+	<button label="Annullér" label_selected="Annullér" name="Cancel" />
+	<text name="tos_heading">
+		Læs venligst den følgende besked grundigt.
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+</floater>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="url_entry" title="">
+	<text name="media_label">
+		URL da Mídia:
+	</text>
+	<combo_box left="100" name="media_entry" width="360" />
+	<button label="OK" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Limpar" name="clear_btn"/>
+	<text name="loading_label">
+		Carregando..
+	</text>
+</floater>

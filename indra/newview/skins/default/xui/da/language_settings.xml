@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- This file contains strings that used to be hardcoded in the source.-->
+<strings>
+
+	<!-- Locale Information -->
+	<string name="MicrosoftLocale">english</string>
+	<string name="DarwinLocale">C</string>
+	<string name="LinuxLocale">C</string>
+	
+	<!-- 
+	datetimeToCodes["wkday"]	= "%a";		// Thu
+	datetimeToCodes["weekday"]	= "%A";		// Thursday
+	datetimeToCodes["year4"]	= "%Y";		// 2009
+	datetimeToCodes["year"]		= "%Y";		// 2009
+	datetimeToCodes["year2"]	= "%y";		// 09
+	datetimeToCodes["mth"]		= "%b";		// Aug
+	datetimeToCodes["month"]	= "%B";		// August
+	datetimeToCodes["mthnum"]	= "%m";		// 08
+	datetimeToCodes["day"]		= "%d";		// 31
+	datetimeToCodes["hour24"]	= "%H";		// 14
+	datetimeToCodes["hour"]		= "%H";		// 14
+	datetimeToCodes["hour12"]	= "%I";		// 02
+	datetimeToCodes["min"]		= "%M";		// 59
+	datetimeToCodes["ampm"]		= "%p";		// AM
+	datetimeToCodes["second"]	= "%S";		// 59
+	datetimeToCodes["timezone"]	= "%Z";		// PST	
+	-->
+
+	<string name="TimeHour">hour,datetime,slt</string>
+	<string name="TimeMin">min,datetime,slt</string>	
+	<string name="TimeYear">year,datetime,slt</string>	
+	<string name="TimeDay">day,datetime,slt</string>	
+	<string name="TimeMonth">mthnum,datetime,slt</string>	
+	<string name="TimeWeek">wkday,datetime,slt</string>
+	<string name="TimeAMPM">ampm,datetime,slt</string>
+	<string name="TimeHour12">hour12,datetime,slt</string>	
+
+	<string name="LTimeMthNum">mthnum,datetime,local</string>
+	<string name="LTimeWeek">wkday,datetime,local</string>
+	<string name="LTimeMonth">mth,datetime,local</string>	
+	<string name="LTimeDay">day,datetime,local</string>	
+	<string name="LTimeSec">second,datetime,local</string>
+	<string name="LTimeHour">hour,datetime,local</string>
+	<string name="LTimeMin">min,datetime,local</string>	
+	<string name="LTimeYear">year,datetime,local</string>	
+	
+	<string name="UTCTimeWeek">weekday,datetime,utc</string>
+	<string name="UTCTimeDay">day,datetime,utc</string>
+	<string name="UTCTimeMth">mth,datetime,utc</string>
+	<string name="UTCTimeYr">year,datetime,utc</string>
+	<string name="UTCTimeHr">hour,datetime,utc</string>
+	<string name="UTCTimeMin">min,datetime,utc</string>
+	<string name="UTCTimeSec">second,datetime,utc</string>
+	<string name="UTCTimeTimezone">timezone,datetime,utc</string>							
+</strings>

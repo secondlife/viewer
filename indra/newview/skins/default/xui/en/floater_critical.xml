@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_close="false"
+ can_minimize="false"
+ height="500"
+ layout="topleft"
+ name="modal container"
+ width="600">
+    <button
+     height="20"
+     label="Continue"
+     label_selected="Continue"
+     layout="topleft"
+     left="484"
+     name="Continue"
+     top="465"
+     width="100" />
+    <button
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_delta="-468"
+     name="Cancel"
+     top_delta="0"
+     width="100" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_delta="4"
+     name="tos_heading"
+     top_delta="-450"
+     width="552">
+        Please read the following message carefully.
+    </text>
+    <text_editor
+     type="string"
+     length="1"
+     bg_readonly_color="1 1 1 1"
+     bottom="455"
+     follows="left|top"
+     font="SansSerif"
+     layout="topleft"
+     left="20"
+     max_length="65536"
+     name="tos_text"
+     right="-20"
+     text_readonly_color="0 0 0 1"
+     top="45"
+     word_wrap="true">
+        TOS_TEXT
+    </text_editor>
+</floater>

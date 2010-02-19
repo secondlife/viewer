@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ auto_tile="true"
+ height="85"
+ layout="topleft"
+ name="preview_sound"
+ help_topic="preview_sound"
+ width="280">
+    <floater.string
+     name="Title">
+        Sound: [NAME]
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left="10"
+     top="22"
+     name="desc txt"
+     width="90">
+        Description:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left_pad="0"
+     max_length="127"
+     name="desc"
+     width="170" />
+    <button
+     follows="left|top"
+     height="22"
+     label="Play Inworld"
+     label_selected="Play Inworld"
+     layout="topleft"
+     name="Sound play btn"
+     sound_flags="0"
+     top="55"
+     left="10"
+     tool_tip="Play this sound so that others can hear it"
+     width="125" />
+    <button
+     follows="left|top"
+     height="22"
+     label="Play Locally"
+     label_selected="Play Locally"
+     layout="topleft"
+     name="Sound audition btn"
+     sound_flags="0"
+     tool_tip="Play this sound so that only you can hear it"
+     left_pad="10"
+     width="125" />
+
+</floater>

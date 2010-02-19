@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[AGE]
+	</string>
+	<string name="Details">
+		[SL_PROFILE]
+	</string>
+	<text name="user_name" value="Grumpity ProductEngine"/>
+	<text name="user_subtitle" value="11 Months, 3 days old"/>
+	<text name="user_details">
+		This is my second life description and I really think it is great.
+	</text>
+	<slider name="volume_slider" tool_tip="ボイス音量" value="0.5"/>
+	<button label="フレンド登録" name="add_friend_btn"/>
+	<button label="IM" name="im_btn"/>
+	<button label="プロフィール" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="ボイスを無効にする" name="disable_voice"/>
+		<button label="ボイスを有効にする" name="enable_voice"/>
+	</panel>
+</floater>

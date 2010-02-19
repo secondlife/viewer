@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="260"
+ layout="topleft"
+ name="floater_device_settings"
+ help_topic="floater_device_settings"
+ title="VOICE CHAT DEVICE SETTINGS"
+ width="405">
+    <panel
+     bottom="260"
+     filename="panel_audio_device.xml"
+     layout="topleft"
+     left="2"
+     name="device_settings"
+     right="-5"
+     top="20" />
+</floater>

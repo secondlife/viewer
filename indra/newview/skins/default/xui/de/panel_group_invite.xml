@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Mitglied einladen" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Möchten Sie wirklich (einen) neue(n) Eigentümer einladen? Dies kann nicht rückgängig gemacht werden!
+	</panel.string>
+	<panel.string name="loading">
+		(wird geladen...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Einige der ausgewählten Einwohner sind bereits Gruppenmitglieder und haben aus diesem Grund keine Einladung erhalten.
+	</panel.string>
+	<text name="help_text" top="10">
+		Sie können mehrere Einwohner auswählen, um diese in Ihre Gruppe einzuladen. Klicken Sie hierzu auf „Einwohnerliste öffnen“.
+	</text>
+	<button label="Einwohnerliste öffnen" name="add_button" tool_tip="" top_delta="62"/>
+	<name_list name="invitee_list" tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Namen."/>
+	<button label="Auswahl aus Liste löschen" name="remove_button" tool_tip="Die oben ausgewählten Einwohner von der Einladungsliste entfernen."/>
+	<text name="role_text">
+		Wählen Sie eine Rolle aus:
+	</text>
+	<combo_box name="role_name" tool_tip="Wählen Sie aus der Liste der Rollen, die Sie an Mitglieder vergeben dürfen."/>
+	<button label="Einladungen versenden" name="ok_button" width="136"/>
+	<button label="Abbrechen" name="cancel_button" width="66"/>
+	<string name="GroupInvitation">
+		Gruppeneinladung
+	</string>
+</panel>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="ACHETER DES L$">
+	<floater.string name="buy_currency">
+		Achetez [LINDENS] L$ pour environ [LOCALAMOUNT]
+	</floater.string>
+	<text left="5" name="info_need_more" right="-5">
+		Vous avez besoin de plus de L$
+	</text>
+	<text name="contacting">
+		En train de contacter 
+le Lindex...
+	</text>
+	<text left="5" name="info_buying">
+		Acheter des L$
+	</text>
+	<text name="balance_label">
+		J&apos;ai
+	</text>
+	<text name="balance_amount">
+		[AMT] L$
+	</text>
+	<text name="currency_action">
+		Je veux acheter
+	</text>
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" name="currency_amt" width="65">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		Pour
+	</text>
+	<text left_delta="68" name="currency_est" width="138">
+		environ [LOCALAMOUNT]
+	</text>
+	<text name="getting_data" width="138">
+		Estimation en cours...
+	</text>
+	<text name="buy_action">
+		[NAME] L$ [PRICE]
+	</text>
+	<text name="total_label">
+		Mon nouveau solde sera de
+	</text>
+	<text name="total_amount">
+		[AMT] L$
+	</text>
+	<text name="currency_links">
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=fr-FR mode de paiement] | [http://www.secondlife.com/my/account/currency.php?lang=fr-FR devise] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=fr-FR taux de change]
+	</text>
+	<text name="exchange_rate_note">
+		Saisissez à nouveau le montant pour voir le taux de change actuel.
+	</text>
+	<text name="purchase_warning_repurchase">
+		La confirmation de cet achat n&apos;achète que des L$, pas l&apos;objet.
+	</text>
+	<text bottom_delta="16" name="purchase_warning_notenough">
+		Vous n&apos;achetez pas assez de L$. Veuillez augmenter le montant.
+	</text>
+	<button label="Acheter" name="buy_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
+	<text left="5" name="info_cannot_buy" width="200" right="-5">
+		Achat impossible
+	</text>
+	<button label="Accéder au Web" name="error_web"/>
+</floater>

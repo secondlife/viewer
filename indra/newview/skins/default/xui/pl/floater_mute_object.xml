@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater height="160" min_height="160" name="mute by name" title="ZABLOKUJ OBIEKT WEDŁUG NAZWY">
+	<text name="message">
+		Zablokuj obiekt:
+	</text>
+	<line_editor bottom_delta="-60" name="object_name">
+		Nazwa Obiektu
+	</line_editor>
+	<text name="note">
+		* Zablokuj jedynie tekst obiektu, bez dźwięku
+	</text>
+	<button label="Ok" name="OK"/>
+	<button label="Anuluj" name="Cancel"/>
+</floater>

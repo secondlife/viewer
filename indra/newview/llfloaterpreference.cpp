@@ -1252,7 +1252,7 @@ BOOL LLPanelPreference::postBuild()
 		// if skin is set to a skin that no longer exists (silver) set back to default
 		if (getChild<LLRadioGroup>("skin_selection")->getSelectedIndex() < 0)
 		{
-			gSavedSettings.setString("SkinCurrent", "base");
+			gSavedSettings.setString("SkinCurrent", "default");
 			LLFloaterPreference::refreshSkin(this);
 		}
 

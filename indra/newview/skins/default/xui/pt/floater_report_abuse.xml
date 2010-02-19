@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_report_abuse" title="REPORTAR ABUSO">
+	<floater.string name="Screenshot">
+		Captura de tela
+	</floater.string>
+	<check_box label="Usar esta captura de tela" name="screen_check"/>
+	<text name="reporter_title">
+		Denunciador:
+	</text>
+	<text name="reporter_field">
+		Loremipsum Dolorsitamut Longnamez
+	</text>
+	<text name="sim_title">
+		Região:
+	</text>
+	<text name="sim_field">
+		Nome da Região
+	</text>
+	<text name="pos_title">
+		Posição:
+	</text>
+	<text name="pos_field">
+		{128.1, 128.1, 15.4}
+	</text>
+	<text name="select_object_label">
+		Clique no botão e em seguida no objeto abusivo:
+	</text>
+	<button label="" label_selected="" name="pick_btn" tool_tip="Object Picker - Identifica um objeto como o assunto deste report"/>
+	<text name="object_name_label">
+		Objeto:
+	</text>
+	<text name="object_name">
+		Consetetur Sadipscing
+	</text>
+	<text name="owner_name_label">
+		Proprietário:
+	</text>
+	<text name="owner_name">
+		Hendrerit Vulputate Kamawashi Longname
+	</text>
+	<combo_box name="category_combo" tool_tip="Categoria -- Selecione a categoria que melhor descreve este report">
+		<combo_box.item label="Selecionar categoria" name="Select_category"/>
+		<combo_box.item label="Idade &gt; Idade no jogo" name="Age__Age_play"/>
+		<combo_box.item label="Idade &gt; Residente adulto no Second Life Jovem" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="Idade &gt; Residente menor de idade fora do Second Life Teen" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="Assalto &gt; Sandbox de combate / área não segura" name="Assault__Combat_sandbox___unsafe_area"/>
+		<combo_box.item label="Assalto &gt; Área segura" name="Assault__Safe_area"/>
+		<combo_box.item label="Assalto &gt; Testando armas em sandbox" name="Assault__Weapons_testing_sandbox"/>
+		<combo_box.item label="Comércio &gt; Falha em enviar produto ou serviço" name="Commerce__Failure_to_deliver_product_or_service"/>
+		<combo_box.item label="Revelar &gt; Informação do mundo real" name="Disclosure__Real_world_information"/>
+		<combo_box.item label="Revelar &gt; Conversa monitorada remotamente" name="Disclosure__Remotely_monitoring chat"/>
+		<combo_box.item label="Revelar &gt; Informação do Second Life/conversa/MIs" name="Disclosure__Second_Life_information_chat_IMs"/>
+		<combo_box.item label="Distúrbio da paz &gt; Uso injusto dos recursos da região" name="Disturbing_the_peace__Unfair_use_of_region_resources"/>
+		<combo_box.item label="Distúrbio da paz  &gt; Objetos com excesso de scripts" name="Disturbing_the_peace__Excessive_scripted_objects"/>
+		<combo_box.item label="Distúrbio da paz  &gt; Objeto despejando lixo" name="Disturbing_the_peace__Object_littering"/>
+		<combo_box.item label="Distúrbio da paz &gt; Spam repetitivo" name="Disturbing_the_peace__Repetitive_spam"/>
+		<combo_box.item label="Distúrbio da paz &gt; Spam de anúncio indesejado" name="Disturbing_the_peace__Unwanted_advert_spam"/>
+		<combo_box.item label="Fraude &gt; L$" name="Fraud__L$"/>
+		<combo_box.item label="Fraude &gt; Terra" name="Fraud__Land"/>
+		<combo_box.item label="Fraude &gt; Esquema de pirâmide ou cartas encadeadas" name="Fraud__Pyramid_scheme_or_chain_letter"/>
+		<combo_box.item label="Fraude &gt; R$" name="Fraud__US$"/>
+		<combo_box.item label="Perturbação &gt; Fazendas de Anúncios / spam visual" name="Harassment__Advert_farms___visual_spam"/>
+		<combo_box.item label="Perturbação &gt; Difamação de indivíduos ou grupos" name="Harassment__Defaming_individuals_or_groups"/>
+		<combo_box.item label="Perturbação &gt; Impedindo movimentos" name="Harassment__Impeding_movement"/>
+		<combo_box.item label="Perturbação &gt; Perturbação sexual" name="Harassment__Sexual_harassment"/>
+		<combo_box.item label="Perturbação &gt; Solicitando/incitando outros a violarem o ToS" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Perturbação &gt; Abuso verbal" name="Harassment__Verbal_abuse"/>
+		<combo_box.item label="Indecência &gt; Conteúdo ou conduta amplamente ofensivos" name="Indecency__Broadly_offensive_content_or_conduct"/>
+		<combo_box.item label="Indecência &gt; Nome de avatar inapropriado" name="Indecency__Inappropriate_avatar_name"/>
+		<combo_box.item label="Indecência &gt; Conduta ou conteúdo inapropriados numa região PG" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Indecência &gt; Conduta ou conteúdo inapropriados numa região Mature" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="Violação de propriedade intelectual &gt; Remoção de Conteúdo" name="Intellectual_property_infringement_Content_Removal"/>
+		<combo_box.item label="Violação de Propriedade intelectual  &gt; Cópia Ilegal ou  Aproveitar-se de Permissões" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
+		<combo_box.item label="Intolerância" name="Intolerance"/>
+		<combo_box.item label="Terra &gt; Abuso dos recursos da sandbox" name="Land__Abuse_of_sandbox_resources"/>
+		<combo_box.item label="Terra &gt; Invasão &gt; Objetos/texturas" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Terra &gt; Invasão &gt; Partículas" name="Land__Encroachment__Particles"/>
+		<combo_box.item label="Terra &gt; Violação &gt; Árvores/plantas" name="Land__Encroachment__Trees_plants"/>
+		<combo_box.item label="Apostas/jogos de azar" name="Wagering_gambling"/>
+		<combo_box.item label="Outro" name="Other"/>
+	</combo_box>
+	<text name="abuser_name_title">
+		Nome do Denunciado:
+	</text>
+	<button label="Selecionar" label_selected="" name="select_abuser" tool_tip="Selecione o nome do Denunciado numa lista"/>
+	<text name="abuser_name_title2">
+		Local do Abuso:
+	</text>
+	<text name="sum_title">
+		Resumo:
+	</text>
+	<text name="dscr_title">
+		Detalhes:
+	</text>
+	<text name="bug_aviso">
+		Seja o mais específico possível
+	</text>
+	<text name="incomplete_title">
+		* Denúncias incompletas não serão investigadas
+	</text>
+	<button label="Reportar Abuso" label_selected="Reportar Abuso" name="send_btn"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn"/>
+</floater>

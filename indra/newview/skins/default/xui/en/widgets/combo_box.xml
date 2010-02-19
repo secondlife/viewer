@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<combo_box font="SansSerifSmall"
+           list_position="below"
+           max_chars="20"
+           height="23"
+           follows="right|top">
+  <combo_box.combo_button name="Combobox Button"
+                          hover_glow_amount="0.15"
+                          font="SansSerifSmall"
+                          scale_image="false"
+                          image_unselected="ComboButton_Off"
+                          image_selected="ComboButton_Selected"
+                          image_disabled="ComboButton_Disabled" />
+  <combo_box.drop_down_button name="Drop Down Button"
+                              hover_glow_amount="0.15"
+                              font="SansSerifSmall"
+                              scale_image="true"
+                              pad_right="24"
+                              image_unselected="DropDown_Off"
+                              image_selected="DropDown_On"
+                              image_pressed="DropDown_Press" 
+                              image_pressed_selected="DropDown_Press"
+                              image_disabled="DropDown_Disabled" />
+  <combo_box.combo_list bg_writeable_color="ComboListBgColor"
+                        background_visible="true"
+                         />
+  <!-- Text is "tentative" if you have typed in a string that does not match
+    any item in the list, but we usually don't care, so use the same color
+    as normal text. -->
+  <combo_box.combo_editor name="Combo Text Entry"
+                          select_on_focus="true"
+                          font="SansSerifSmall" 
+                          text_tentative_color="TextFgColor" />
+</combo_box>

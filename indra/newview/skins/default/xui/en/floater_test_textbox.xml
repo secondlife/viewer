@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="600"
+ layout="topleft"
+ name="floater_test_textbox"
+ help_topic="floater_test_textbox"
+ translate="false"
+ width="800">
+    <text
+     type="string"
+     length="1"
+     height="90"
+     layout="topleft"
+     left="10"
+     top_pad="30"
+     width="300">
+        First line of multiple lines
+Second line of multiple lines
+Third line of multiple lines
+Fourth line of multiple lines
+Fifth line of multiple lines
+    </text>
+  <text
+    clip_partial="true"
+    top_pad="10"
+    left="10"
+    width="267"
+    height="28"
+    layout="topleft"
+    follows="right|left"
+    text_color="white"
+    use_ellipses="true"
+    word_wrap="true"
+    mouse_opaque="false"
+    name="title" >
+    This text has word_wrap set true, use_ellipses set true, and clip_partial set true, so it should wrap around, spilling over to the last line, then clip the last partial line and show ellipses to indicate there is more text
+  </text>
+
+  <text
+   font="SansSerif"
+   font.style="BOLD"
+   height="10"
+   layout="topleft"
+   left_delta="0"
+   top_pad="10"
+   width="300">
+    SansSerif BOLD
+  </text>
+  <text
+   font="SansSerif"
+   font.style="BOLD|UNDERLINE"
+   height="10"
+   layout="topleft"
+   left_delta="0"
+   top_pad="10"
+   width="300">
+    SansSerif BOLD UNDERLINE
+  </text>
+  <text
+ bottom="390"
+ left="10"
+ name="right_aligned_text"
+ width="300"
+ halign="right"
+ top_pad="10">
+    Right aligned text
+  </text>
+  <text
+ bottom="390"
+ left="10"
+ name="centered_text"
+ width="300"
+ halign="center"
+ top_pad="10">
+    Centered text
+  </text>
+  <text
+ left="10"
+ name="left_aligned_text"
+ width="300"
+ halign="left"
+ top_pad="10">
+    Left aligned text
+  </text>
+  <text
+ left="10"
+ name="v_pad_text"
+ height="40"
+ width="300"
+ halign="left"
+ top_pad="10"
+ v_pad="10">
+    v_pad = 10, height = 40
+  </text>
+  <text
+ left="10"
+ name="v_pad_text"
+ height="40"
+ width="300"
+ halign="left"
+ top_pad="10"
+ h_pad="30">
+    h_pad = 30, height = 40
+  </text>
+  <text
+ top_pad="10"
+ left="10"
+ right="-10"
+ height="20"
+ follows="top|left"
+ font.name="SansSerifSmall"
+ name="test_text10"
+ tool_tip="text">
+    SansSerifSmall
+    The 华文细黑 brown fox ヒラキjumped over the lazy dog.
+  </text>
+  <text
+   top_pad="10"
+   left="10"
+   right="-10"
+   height="25"
+   follows="top|left"
+   font.name="SansSerifMedium"
+   name="test_text11"
+   tool_tip="text">
+    SansSerif
+    The 华文细黑 brown fox ヒラキjumped over the lazy dog.
+  </text>
+  <text
+   top_pad="10"
+   left="10"
+   right="-10"
+   follows="top|left"
+   height="26"
+   font.name="SansSerifLarge"
+   name="test_text12"
+   tool_tip="text">
+    SansSerifLarge
+    The 华文细黑 brown fox ヒラキjumped over the lazy dog.
+  </text>
+  <text
+   top_pad="10"
+   left="10"
+   height="35"
+   right="-10"
+   follows="top|left"
+   font.name="SansSerifHuge"
+   name="test_text13"
+   tool_tip="text">
+    SansSerifHuge
+    The 华文细黑 brown fox ヒラキjumped over the lazy dog.
+  </text>
+  
+<!-- next column -->
+  <text_editor
+ height="50"
+ follows="top|left|bottom"
+ left="400"
+ name="test_text_editor"
+ tool_tip="text editor"
+ top="25"
+ width="200">
+    Text Editor
+  </text_editor>
+  <text_editor
+ height="50"
+ follows="top|left|bottom"
+ left_delta="0"
+ name="long_text_editor"
+ tool_tip="text editor"
+ top_pad="10"
+ width="200">
+Text Editor
+with multiple
+lines of text
+and hence a
+scroll bar
+  </text_editor>
+  <text_editor
+ height="50"
+ follows="top|left|bottom"
+ left_delta="0"
+ max_length="65536" 
+ name="blob_text_editor"
+ tool_tip="text editor"
+ top_pad="10"
+ width="200"
+ word_wrap="true">
+Second Life is brought to you by Philip, Tessa, Andrew, Cory, James, Ben, Char, Charlie, Colin, Dan, Daniel, Doug, Eric, Hamlet, Haney, Eve, Hunter, Ian, Jeff, Jennifer, Jim, John, Lee, Mark, Peter, Phoenix, Richard, Robin, Xenon, Steve, Tanya, Eddie, Avi, Frank, Bruce, Aaron, Alice, Bob, Debra, Eileen, Helen, Janet, Louie, Leviathania, Stefan, Ray, Kevin, Tom, Mikeb, MikeT, Burgess, Elena, Tracy, Bill, Todd, Ryan, Zach, Sarah, Nova, Tim, Stephanie, Michael, Evan, Nicolas, Catherine, Rachelle, Dave, Holly, Bub, Kelly, Magellan, Ramzi, Don, Sabin, Jill, Rheya, Jeska, Torley, Kona, Callum, Charity, Ventrella, Jack, Vektor, Iris, Chris, Nicole, Mick, Reuben, Blue, Babbage, Yedwab, Deana, Lauren, Brent, Pathfinder, Chadrick, Altruima, Jesse, Teeny, Monroe, Icculus, David, Tess, Lizzie, Patsy, Isaac, Lawrence, Cyn, Bo, Gia, Annette, Marius, Tbone, Jonathan, Karen, Ginsu, Satoko, Yuko, Makiko, Thomas, Harry, Seth, Alexei, Brian, Guy, Runitai, Ethan, Data, Cornelius, Kenny, Swiss, Zero, Natria, Wendy, Stephen, Teeple, Thumper, Lucy, Dee, Mia, Liana, Warren, Branka, Aura, beez, Milo, Hermia, Red, Thrax, Joe, Sally, Magenta, Mogura, Paul, Jose, Rejean, Henrik, Lexie, Amber, Logan, Xan, Nora, Morpheus, Donovan, Leyla, MichaelFrancis, Beast, Cube, Bucky, Joshua, Stryfe, Harmony, Teresa, Claudia, Walker, Glenn, Fritz, Fordak, June, Cleopetra, Jean, Ivy, Betsy, Roosevelt, Spike, Ken, Which, Tofu, Chiyo, Rob, Zee, dustin, George, Del, Matthew, Cat, Jacqui, Lightfoot, Adrian, Viola, Alfred, Noel, Irfan, Sunil, Yool, Rika, Jane, Xtreme, Frontier, a2, Neo, Siobhan, Yoz, Justin, Elle, Qarl, Benjamin, Isabel, Gulliver, Everett, Christopher, Izzy, Stephany, Garry, Sejong, Sean, Tobin, Iridium, Meta, Anthony, Jeremy, JP, Jake, Maurice, Madhavi, Leopard, Kyle, Joon, Kari, Bert, Belinda, Jon, Kristi, Bridie, Pramod, KJ, Socrates, Maria, Ivan, Aric, Yamasaki, Adreanne, Jay, MitchK, Ceren, Coco, Durl, Jenny, Periapse, Kartic, Storrs, Lotte, Sandy, Rohn, Colossus, Zen, BigPapi, Brad, Pastrami, Kurz, Mani, Neuro, Jaime, MJ, Rowan, Sgt, Elvis, Gecko, Samuel, Sardonyx, Leo, Bryan, Niko, Soft, Poppy, Rachel, Aki, Angelo, Banzai, Alexa, Sue, CeeLo, Bender, CG, Gillian, Pelle, Nick, Echo, Zara, Christine, Shamiran, Emma, Blake, Keiko, Plexus, Joppa, Sidewinder, Erica, Ashlei, Twilight, Kristen, Brett, Q, Enus, Simon, Bevis, Kraft, Kip, Chandler, Ron, LauraP, Ram, KyleJM, Scouse, Prospero, Melissa, Marty, Nat, Hamilton, Kend, Lordan, Jimmy, Kosmo, Seraph, Green, Ekim, Wiggo, JT, Rome, Doris, Miz, Benoc, Whump, Trinity, Patch, Kate, TJ, Bao, Joohwan, Christy, Sofia, Matias, Cogsworth, Johan, Oreh, Cheah, Angela, Brandy, Mango, Lan, Aleks, Gloria, Heidy, Mitchell, Space, Colton, Bambers, Einstein, Maggie, Malbers, Rose, Winnie, Stella, Milton, Rothman, Niall, Marin, Allison, Katie, Dawn, Katt, Dusty, Kalpana, Judy, Andrea, Ambroff, Infinity, Gail, Rico, Raymond, Yi, William, Christa, M, Teagan, Scout, Molly, Dante, Corr, Dynamike, Usi, Kaylee, Vidtuts, Lil, Danica, Sascha, Kelv, Jacob, Nya, Rodney, Brandon, Elsie, Blondin, Grant, Katrin, Nyx, Gabriel, Locklainn, Claire, Devin, Minerva, Monty, Austin, Bradford, Si, Keira, H, Caitlin, Dita, Makai, Jenn, Ann, Meredith, Clare, Joy, Praveen, Cody, Edmund, Ruthe, Sirena, Gayathri, Spider, FJ, Davidoff, Tian, Jennie, Louise, Oskar, Landon, Noelle, Jarv, Ingrid, Al, Sommer, Doc, Aria, Huin, Gray, Lili, Vir, DJ, Yang, T, Simone, Maestro, Scott, Charlene, Quixote, Amanda, Susan, Zed, Anne, Enkidu, Esbee, Joroan, Katelin, Roxie, Tay, Scarlet, Kevin, Johnny, Wolfgang, Andren, Bob, Howard, Merov, Rand, Ray, Michon, Newell, Galen, Dessie, Les and many others.
+  </text_editor>
+    <text_editor
+ height="50"
+ follows="top|left|bottom"
+ font="Monospace"
+ left_delta="0"
+ name="monospace_text_editor"
+ tool_tip="text editor"
+ top_pad="10"
+ width="200">
+Text Editor
+with multiple
+lines of text
+and hence a
+scroll bar gjyrrr
+  </text_editor>
+    <text_editor
+      border_visible="true"
+      height="50"
+      follows="top|left|bottom"
+      font="Monospace"
+ left_delta="0"
+ name="monospace_text_editor"
+ tool_tip="text editor"
+ top_pad="10"
+ width="200">
+Text Editor
+with multiple
+lines of text
+and hence a
+scroll bar gjyrrr
+  </text_editor>
+    <text_editor
+ height="50"
+ follows="top|left|bottom"
+ font="SansSerif"
+ left_delta="0"
+ name="sansserif_text_editor"
+ tool_tip="text editor"
+ top_pad="10"
+ width="200">
+Text Editor
+with multiple
+lines of text
+and hence a
+scroll bar gjyrrr
+  </text_editor>
+
+  <text
+   height="40"
+   follows="top|left|bottom"
+   layout="topleft"
+   name="test_text_box"
+   tool_tip="text box"
+   top_pad="5"
+   width="200">
+Text box
+with
+multiple lines
+and too many lines
+to actually fit
+  </text>
+</floater>

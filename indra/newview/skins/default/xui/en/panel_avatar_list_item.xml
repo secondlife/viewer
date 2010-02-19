@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|right|left"
+ height="24"
+ layout="topleft"
+ left="0"
+ name="avatar_list_item"
+ top="0"
+ width="320">
+    <!-- 
+    Strings used to localize last interaction time.
+    See last_interaction textbox below.
+    -->
+    <string name="FormatSeconds">[COUNT]s</string>
+    <string name="FormatMinutes">[COUNT]m</string>
+    <string name="FormatHours">[COUNT]h</string>
+    <string name="FormatDays">[COUNT]d</string>
+    <string name="FormatWeeks">[COUNT]w</string>
+    <string name="FormatMonths">[COUNT]mon</string>
+    <string name="FormatYears">[COUNT]y</string>
+ 
+    <icon
+     follows="top|right|left"
+     height="24"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="320" />
+    <icon
+     height="24"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="320" />
+    <avatar_icon
+     follows="top|left"
+     height="20"
+     default_icon_name="Generic_Person"
+     layout="topleft"
+     left="5"
+     mouse_opaque="true"
+     top="2"
+     width="20" />
+    <text
+     follows="left|right"
+     font="SansSerifSmall"
+     height="15"
+     layout="topleft"
+     left_pad="5"
+     name="avatar_name"
+     top="6"
+     use_ellipses="true"
+     value="Unknown"
+     width="180" />
+    <text
+     follows="right"
+     font="SansSerifSmall"
+     height="15"
+     layout="topleft"
+     left_pad="5"
+     right="-72"
+     name="last_interaction"
+     text_color="LtGray_50"
+     value="0s"
+     width="24" />
+    <button
+     follows="right"
+     height="16"
+     image_pressed="Info_Press"
+     image_unselected="Info_Over"
+     layout="topleft"
+     left_pad="3"
+     right="-53"
+     name="info_btn"
+     top_delta="-2"
+     width="16" />
+    <button
+     follows="right"
+     height="20"
+     image_overlay="ForwardArrow_Off"
+     layout="topleft"
+     left_pad="5"
+     right="-28"
+     name="profile_btn"
+     tool_tip="View profile"
+     top_delta="-2"
+     width="20" />
+    <output_monitor
+     auto_update="true"
+     follows="right"
+     draw_border="false"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     right="-3"
+     mouse_opaque="true"
+     name="speaking_indicator"
+     visible="true"
+     width="20" />
+</panel>

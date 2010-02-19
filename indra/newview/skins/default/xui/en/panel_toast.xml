@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+
+<!-- Don't remove floater's height! It is needed for Overflow and Start-Up toasts!-->
+
+<!-- 
+     This floater is invisible. To make toast look like a floater we render wrapper_panel
+     like a floater(draw shadows and so on). This is done with one purpose - make close button
+     look like it is positioned out of floater and able to accept mouse clicks (see EXT-4246)
+-->
+
+<floater
+ legacy_header_height="0"
+ header_height="0"
+ name="toast"
+ title=""
+ visible="false"
+ layout="topleft"
+ height="47"  
+ width="310"
+ left="0"
+ top="0"
+ follows="right|bottom"
+ background_visible="false"
+ bg_opaque_image="Toast_Over"
+ bg_alpha_image="Toast_Background"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="false"
+ can_drag_on_left="false"
+ can_close="false"
+ can_dock="false"
+ border_visible = "false"
+ border_drop_shadow_visible = "false"
+ drop_shadow_visible = "false"
+ border = "false"
+>
+ <panel
+  background_opaque="false"
+  border_visible="false"
+  background_visible="true"
+  bg_opaque_image="Toast_Over"
+  bg_alpha_image="Toast_Background"
+  label="wrapper_panel"
+  layout="topleft"
+  left="0"
+  name="wrapper_panel"
+  top="7"
+  height="40"
+  follows="all" 
+  translate="false"
+  width="305">
+  <!-- Don't remove this wiget! It is needed for Overflow and Start-Up toasts!-->
+  <text
+    clip_partial="true" 
+   visible="false"
+   follows="left|top|right|bottom"
+   font="SansSerifBold"
+   height="20"
+   layout="topleft"
+   left="20"
+   name="toast_text"
+   word_wrap="true"
+   text_color="white"
+   top="5"
+   translate="false"
+   v_pad="5" 
+   use_ellipses="true"
+   width="260">
+    Toast text;
+  </text>
+ </panel>
+  <button
+    layout="topleft"
+    top="0"
+    right="310"
+    width="17"
+    height="17"
+    follows="top|right"
+    visible="false"
+    enabled="true"
+    mouse_opaque="false"
+    name="hide_btn"
+    label=""
+    tab_stop="false"
+    image_unselected="Toast_CloseBtn"
+    image_selected="Toast_CloseBtn"
+  />
+</floater>
