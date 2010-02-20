@@ -927,7 +927,7 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 		else
 		{
 			//
-			mSpeakBtn->setLabelVisible(false);
+			//mSpeakBtn->setLabelVisible(false); // HACK: this button doesn't change size so label should not be turned off
 			S32 panel_width = mSpeakPanel->getRect().getWidth();
 			S32 possible_shrink_width = panel_width - panel_min_width;
 
@@ -1018,7 +1018,7 @@ void LLBottomTray::processExtendButtons(S32* available_width)
 		S32 panel_max_width = mObjectDefaultWidthMap[RS_BUTTON_SPEAK];
 		S32 panel_width = mSpeakPanel->getRect().getWidth();
 		S32 possible_extend_width = panel_max_width - panel_width;
-		if (possible_extend_width > 0 && possible_extend_width <= *available_width)
+		if (possible_extend_width >= 0 && possible_extend_width <= *available_width)  // HACK: this button doesn't change size so possible_extend_width will be 0
 		{
 			mSpeakBtn->setLabelVisible(true);
 			mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
