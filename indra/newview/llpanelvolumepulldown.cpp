@@ -91,15 +91,10 @@ void LLPanelVolumePulldown::handleVisibilityChange ( BOOL new_visibility )
 	if (new_visibility)	
 	{
 		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-		gFocusMgr.setTopCtrl(this);
 	}
 	else
 	{
 		mHoverTimer.stop();
-		if (gFocusMgr.getTopCtrl() == this)
-		{
-			gFocusMgr.setTopCtrl(NULL);
-		}
 	}
 }
 

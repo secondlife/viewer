@@ -1095,6 +1095,8 @@ void LLVOVolume::sculpt()
 		
 		if(!raw_image)
 		{
+			llassert(discard_level < 0) ;
+
 			sculpt_width = 0;
 			sculpt_height = 0;
 			sculpt_data = NULL ;
@@ -1126,7 +1128,6 @@ void LLVOVolume::sculpt()
 			if (volume != this && volume->getVolume() == getVolume())
 			{
 				gPipeline.markRebuild(volume->mDrawable, LLDrawable::REBUILD_GEOMETRY, FALSE);
-				volume->mSculptChanged = TRUE;
 			}
 		}
 	}

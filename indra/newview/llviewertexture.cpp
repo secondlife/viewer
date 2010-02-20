@@ -293,6 +293,8 @@ void LLViewerTextureManager::init()
 		}
 	}
 	imagep->createGLTexture(0, image_raw);
+	//cache the raw image
+	imagep->setCachedRawImage(0, image_raw) ;
 	image_raw = NULL;
 #else
  	LLViewerFetchedTexture::sDefaultImagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLViewerTexture::BOOST_UI);
@@ -799,10 +801,16 @@ BOOL LLViewerTexture::createGLTexture(S32 discard_level, const LLImageRaw* image
 	{
 		mFullWidth = mGLTexturep->getCurrentWidth() ;
 		mFullHeight = mGLTexturep->getCurrentHeight() ; 
-		mComponents = mGLTexturep->getComponents() ;
+		mComponents = mGLTexturep->getComponents() ;		
 	}
 
 	return ret ;
+}
+
+//virtual
+void LLViewerTexture::setCachedRawImage(S32 discard_level, LLImageRaw* imageraw)
+{
+	//nothing here.
 }
 
 void LLViewerTexture::setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes)
@@ -2351,6 +2359,18 @@ void LLViewerFetchedTexture::switchToCachedImage()
 		mRawDiscardLevel = mCachedRawDiscardLevel ;
 		gTextureList.mCreateTextureList.insert(this);
 		mNeedsCreateTexture = TRUE;		
+	}
+}
+
+//cache the imageraw forcefully.
+//virtual 
+void LLViewerFetchedTexture::setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) 
+{
+	if(imageraw != mRawImage.get())
+	{
+		mCachedRawImage = imageraw ;
+		mCachedRawDiscardLevel = discard_level ;
+		mCachedRawImageReady = TRUE ;
 	}
 }
 
