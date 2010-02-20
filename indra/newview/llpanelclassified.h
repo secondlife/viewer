@@ -55,6 +55,7 @@ class LLTextEditor;
 class LLTextureCtrl;
 class LLUICtrl;
 class LLMessageSystem;
+class LLScrollContainer;
 
 // *TODO deprecated, should be removed.
 // New class implemented in ticket EXT-2095
@@ -253,6 +254,8 @@ public:
 
 	void setEditClassifiedCallback(const commit_callback_t& cb);
 
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
 protected:
 
 	LLPanelClassifiedInfo();
@@ -277,6 +280,12 @@ private:
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
 	bool mInfoLoaded;
+
+	LLScrollContainer*		mScrollContainer;
+	LLPanel*				mScrollingPanel;
+
+	S32 mScrollingPanelMinHeight;
+	S32 mScrollingPanelWidth;
 };
 
 class LLPanelClassifiedEdit : public LLPanelClassifiedInfo

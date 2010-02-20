@@ -72,6 +72,7 @@
 #include "llviewerwindow.h"	// for window width, height
 #include "llappviewer.h"	// abortQuit()
 #include "lltrans.h"
+#include "llscrollcontainer.h"
 #include "llstatusbar.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
@@ -1173,6 +1174,12 @@ BOOL LLPanelClassifiedInfo::postBuild()
 	childSetAction("show_on_map_btn", boost::bind(&LLPanelClassifiedInfo::onMapClick, this));
 	childSetAction("teleport_btn", boost::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
 
+	mScrollingPanel = getChild<LLPanel>("scroll_content_panel");
+	mScrollContainer = getChild<LLScrollContainer>("profile_scroll");
+
+	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
+	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
+
 	return TRUE;
 }
 
@@ -1184,6 +1191,26 @@ void LLPanelClassifiedInfo::setExitCallback(const commit_callback_t& cb)
 void LLPanelClassifiedInfo::setEditClassifiedCallback(const commit_callback_t& cb)
 {
 	getChild<LLButton>("edit_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedInfo::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+
+	if (!mScrollContainer || !mScrollingPanel)
+		return;
+
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	S32 scroll_height = mScrollContainer->getRect().getHeight();
+	if (mScrollingPanelMinHeight >= scroll_height)
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth, mScrollingPanelMinHeight);
+	}
+	else
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
+	}
 }
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)

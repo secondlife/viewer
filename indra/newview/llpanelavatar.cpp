@@ -352,8 +352,10 @@ LLPanelAvatarNotes::~LLPanelAvatarNotes()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-		if(LLVoiceClient::getInstance())
+		if(LLVoiceClient::instanceExists())
+		{
 			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
+		}
 	}
 }
 
@@ -795,8 +797,10 @@ LLPanelAvatarProfile::~LLPanelAvatarProfile()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-		if(LLVoiceClient::getInstance())
+		if(LLVoiceClient::instanceExists())
+		{
 			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
+		}
 	}
 }
 

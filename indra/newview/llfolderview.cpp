@@ -419,6 +419,11 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	S32 total_width = LEFT_PAD;
 	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
 	S32 target_height = running_height;
+	if(!mHasVisibleChildren)// is there any filtered items ?		
+	{
+		//Nope. We need to display status textbox, let's reserve some place for it 
+		target_height += mStatusTextBox->getTextPixelHeight();
+	}
 	S32 parent_item_height = getRect().getHeight();
 
 	for (folders_t::iterator iter = mFolders.begin();

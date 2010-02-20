@@ -664,7 +664,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 				value["item_type"] = TELEPORT_HISTORY;
 				value["global_pos"] = result->mGlobalPos.getValue();
 				std::string region_name = result->mTitle.substr(0, result->mTitle.find(','));
-				//TODO*: add Surl to teleportitem or parse region name from title
+				//TODO*: add slurl to teleportitem or parse region name from title
 				value["tooltip"] = LLSLURL::buildSLURLfromPosGlobal(region_name,
 						result->mGlobalPos,	false);
 				add(result->getTitle(), value); 
@@ -914,7 +914,7 @@ void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
 		LLSD value;
 		value["tooltip"] = it->getToolTip();
 		//location history can contain only typed locations
-		value["item_type"] = TYPED_REGION_SURL;
+		value["item_type"] = TYPED_REGION_SLURL;
 		value["global_pos"] = it->mGlobalPos.getValue();
 		add(it->getLocation(), value);
 	}

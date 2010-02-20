@@ -61,11 +61,11 @@
      background_visible="false"
      height="600"
      left="0"
-     width="295">
+     width="285">
     <texture_picker
      follows="left|top|right"
      height="197"
-     width="286"
+     width="272"
      layout="topleft"
      top="10"
      left="11"
@@ -92,7 +92,7 @@
          top="215"
          name="Name:"
          text_color="white"
-         width="290">
+         width="280">
             Title:
         </text>
         <line_editor
@@ -106,7 +106,7 @@
          name="classified_name"
          prevalidate_callback="ascii"
          text_color="black"
-         width="290" />
+         width="273" />
         <text
          type="string"
          length="1"
@@ -119,13 +119,13 @@
          top_pad="20"
          name="description_label"
          text_color="white"
-         width="290">
+         width="280">
             Description:
         </text>
         <text_editor
          follows="left|top|right"
          height="100"
-         width="290"
+         width="273"
          hide_scrollbar="false"
          layout="topleft"
          left="10"
@@ -146,7 +146,7 @@
          name="location_label"
          text_color="white"
          top_pad="20"
-         width="290">
+         width="280">
             Location:
         </text>
         <text
@@ -159,7 +159,7 @@
          name="classified_location"
          right="-10"
          top_pad="2"
-         width="290"
+         width="280"
          word_wrap="true">
             loading...
         </text>
