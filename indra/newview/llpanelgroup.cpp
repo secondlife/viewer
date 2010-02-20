@@ -102,8 +102,10 @@ LLPanelGroup::LLPanelGroup()
 LLPanelGroup::~LLPanelGroup()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
-	if(LLVoiceClient::getInstance())
+	if(LLVoiceClient::instanceExists())
+	{
 		LLVoiceClient::getInstance()->removeObserver(this);
+	}
 }
 
 void LLPanelGroup::onOpen(const LLSD& key)

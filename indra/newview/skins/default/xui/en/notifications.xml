@@ -5210,14 +5210,14 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
    type="offer">
-Friend request accepted.
+Friendship offer accepted.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
    type="offer">
-Friend request declined.
+Friendship offer declined.
   </notification>
   
   <notification
