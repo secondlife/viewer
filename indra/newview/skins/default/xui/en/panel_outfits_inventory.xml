@@ -64,7 +64,7 @@
 	<panel
 	  background_visible="false"
 	  follows="bottom|left"
-	  height="50"
+	  height="73"
 	  layout="topleft"
 	  left="9"
 	  visible="true"
