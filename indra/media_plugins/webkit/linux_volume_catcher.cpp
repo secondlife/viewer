@@ -53,6 +53,95 @@
 
 ////////////////////////////////////////////////////
 
+#define DEBUGMSG(...) do {} while(0)
+#define INFOMSG(...) do {} while(0)
+#define WARNMSG(...) do {} while(0)
+
+#define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) RTN (*ll##PASYM)(__VA_ARGS__) = NULL
+#include "linux_volume_catcher_pa_syms.inc"
+#undef LL_PA_SYM
+
+static bool sSymsGrabbed = false;
+static apr_pool_t *sSymPADSOMemoryPool = NULL;
+static apr_dso_handle_t *sSymPADSOHandleG = NULL;
+
+bool grab_pa_syms(std::string pa_dso_name)
+{
+	if (sSymsGrabbed)
+	{
+		// already have grabbed good syms
+		return true;
+	}
+
+	bool sym_error = false;
+	bool rtn = false;
+	apr_status_t rv;
+	apr_dso_handle_t *sSymPADSOHandle = NULL;
+
+#define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll##PASYM, sSymPADSOHandle, #PASYM); if (rv != APR_SUCCESS) {INFOMSG("Failed to grab symbol: %s", #PASYM); if (REQUIRED) sym_error = true;} else DEBUGMSG("grabbed symbol: %s from %p", #PASYM, (void*)ll##PASYM);}while(0)
+
+	//attempt to load the shared library
+	apr_pool_create(&sSymPADSOMemoryPool, NULL);
+  
+	if ( APR_SUCCESS == (rv = apr_dso_load(&sSymPADSOHandle,
+					       pa_dso_name.c_str(),
+					       sSymPADSOMemoryPool) ))
+	{
+		INFOMSG("Found DSO: %s", pa_dso_name.c_str());
+
+#include "linux_volume_catcher_pa_syms.inc"
+      
+		if ( sSymPADSOHandle )
+		{
+			sSymPADSOHandleG = sSymPADSOHandle;
+			sSymPADSOHandle = NULL;
+		}
+      
+		rtn = !sym_error;
+	}
+	else
+	{
+		INFOMSG("Couldn't load DSO: %s", pa_dso_name.c_str());
+		rtn = false; // failure
+	}
+
+	if (sym_error)
+	{
+		WARNMSG("Failed to find necessary symbols in PulseAudio libraries.");
+	}
+#undef LL_PA_SYM
+
+	sSymsGrabbed = rtn;
+	return rtn;
+}
+
+
+void ungrab_pa_syms()
+{ 
+	// should be safe to call regardless of whether we've
+	// actually grabbed syms.
+
+	if ( sSymPADSOHandleG )
+	{
+		apr_dso_unload(sSymPADSOHandleG);
+		sSymPADSOHandleG = NULL;
+	}
+	
+	if ( sSymPADSOMemoryPool )
+	{
+		apr_pool_destroy(sSymPADSOMemoryPool);
+		sSymPADSOMemoryPool = NULL;
+	}
+	
+	// NULL-out all of the symbols we'd grabbed
+#define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{ll##PASYM = NULL;}while(0)
+#include "linux_volume_catcher_pa_syms.inc"
+#undef LL_PA_SYM
+
+	sSymsGrabbed = false;
+}
+////////////////////////////////////////////////////
+
 // PulseAudio requires a chain of callbacks with C linkage
 extern "C" {
 	void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info *i, int eol, void *userdata);
@@ -72,7 +161,7 @@ public:
 
 	// for internal use - can't be private because used from our C callbacks
 
-	bool loadsyms();
+	bool loadsyms(std::string pulse_dso_name, std::string pulse_glib_dso_name);
 	void init();
 	void cleanup();
 
@@ -104,11 +193,20 @@ LinuxVolumeCatcherImpl::~LinuxVolumeCatcherImpl()
 	cleanup();
 }
 
+bool LinuxVolumeCatcherImpl::loadsyms(std::string pulse_dso_name,
+				      std::string pulse_glib_dso_name)
+{
+	return grab_pa_syms(pulse_dso_name, pulse_glib_dso_name);
+}
+
 void LinuxVolumeCatcherImpl::init()
 {
 	// try to be as defensive as possible because PA's interface is a
 	// bit fragile and (for our purposes) we'd rather simply not function
 	// than crash
+
+	mGotSyms = loadsyms("libpulse.so.0", "libpulse-mainloop-glib.so.0");
+
 	mMainloop = llpa_glib_mainloop_new(g_main_context_default());
 	if (mMainloop)
 	{
