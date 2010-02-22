@@ -1075,15 +1075,18 @@ void LLPanelNearByMedia::onClickSelectedMediaPlay()
 	{
 		LLViewerMediaImpl *impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
 			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl && impl->isMediaTimeBased() && impl->isMediaPaused())
+		if (NULL != impl)
 		{
-			// Aha!  It's really time-based media that's paused, so unpause
-			impl->play();
-			return;
-		}
-		else if (impl->isParcelMedia())
-		{
-			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+			if (impl->isMediaTimeBased() && impl->isMediaPaused())
+			{
+				// Aha!  It's really time-based media that's paused, so unpause
+				impl->play();
+				return;
+			}
+			else if (impl->isParcelMedia())
+			{
+				LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+			}
 		}
 	}	
 }
