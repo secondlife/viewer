@@ -206,7 +206,8 @@ void LinuxVolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
 	const pa_cvolume *cvolumep = &cvol;
 	pa_context_success_cb_t cb = NULL; // okay as null
 	void *userdata = NULL; // okay as null
-	
+
+	pa_operation *op;
 	if ((op = pa_context_set_sink_input_volume(c, idx, cvolumep, cb, userdata)))
 	{
 		pa_operation_unref(op);
@@ -216,7 +217,7 @@ void LinuxVolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
 
 void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info *sii, int eol, void *userdata)
 {
-	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>(userdata);
+	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>((LinuxVolumeCatcherImpl*)userdata);
 	llassert(impl);
 
 	if (0 == eol)
@@ -249,7 +250,7 @@ void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info
 
 void callback_subscription_alert(pa_context *context, pa_subscription_event_type_t t, uint32_t index, void *userdata)
 {
-	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>(userdata);
+	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>((LinuxVolumeCatcherImpl*)userdata);
 	llassert(impl);
 
 	switch (t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK) {
@@ -267,7 +268,7 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 			pa_operation *op;
 			if ((op = pa_context_get_sink_input_info(impl->mPAContext, index, callback_discovered_sinkinput, impl)))
 			{
-				pa_operation_unref(o);
+				pa_operation_unref(op);
 			}
 		}
 		break;
@@ -278,14 +279,14 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 
 void callback_context_state(pa_context *context, void *userdata)
 {
-	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>(userdata);
+	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>((LinuxVolumeCatcherImpl*)userdata);
 	llassert(impl);
 	
-	switch (pa_context_get_state(c))
+	switch (pa_context_get_state(context))
 	{
 	case PA_CONTEXT_READY:
 		impl->mConnected = true;
-		impl->connected_okay(c);
+		impl->connected_okay();
 		break;
 	case PA_CONTEXT_TERMINATED:
 		impl->mConnected = false;
@@ -304,7 +305,7 @@ LinuxVolumeCatcher::LinuxVolumeCatcher()
 	pimpl = new LinuxVolumeCatcherImpl();
 }
 
-LinuxVolumeCatcher::LinuxVolumeCatcher~()
+LinuxVolumeCatcher::~LinuxVolumeCatcher()
 {
 	delete pimpl;
 	pimpl = NULL;
