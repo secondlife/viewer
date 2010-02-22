@@ -3008,17 +3008,16 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 
 	if (mWorldViewRectRaw != new_world_rect)
 	{
-		LLRect old_world_rect = mWorldViewRectRaw;
 		mWorldViewRectRaw = new_world_rect;
 		gResizeScreenTexture = TRUE;
 		LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
 		LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
 
+		LLRect old_world_rect_scaled = mWorldViewRectScaled;
 		mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
 
 		// sending a signal with a new WorldView rect
-		old_world_rect = calcScaledRect(old_world_rect, mDisplayScale);
-		mOnWorldViewRectUpdated(old_world_rect, mWorldViewRectScaled);
+		mOnWorldViewRectUpdated(old_world_rect_scaled, mWorldViewRectScaled);
 	}
 }
 

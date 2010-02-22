@@ -442,7 +442,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 	static S32 right_padding = 0;
 	if (right_padding == 0)
 	{
