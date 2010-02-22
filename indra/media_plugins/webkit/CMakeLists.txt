@@ -14,10 +14,12 @@ include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
 include(FindOpenGL)
+include(PulseAudio)
 
 include(WebKitLibPlugin)
 
 include_directories(
+    ${PULSEAUDIO_INCLUDE_DIRS}
     ${LLPLUGIN_INCLUDE_DIRS}
     ${MEDIA_PLUGIN_BASE_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -40,6 +42,7 @@ set(media_plugin_webkit_LINK_LIBRARIES
   ${LLCOMMON_LIBRARIES}
   ${WEBKIT_PLUGIN_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
+  ${PULSEAUDIO_LIBRARIES}
 )
 
 if (LINUX)

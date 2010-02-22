@@ -298,6 +298,25 @@
           </map>
         </map>
       </map>
+      <key>pulseaudio</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2004-2006 Lennart Poettering, Copyright 2006 Pierre Ossman (ossman@cendio.se) for Cendio AB</string>
+        <key>description</key>
+        <string>pulseaudio: headers only</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>30cb00069fe2a545fbf7be1070386236</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/linux-pulse-headers-0.9.14.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
