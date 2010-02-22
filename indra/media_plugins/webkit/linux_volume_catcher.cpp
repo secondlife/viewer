@@ -103,7 +103,7 @@ LinuxVolumeCatcherImpl::~LinuxVolumeCatcherImpl()
 
 void LinuxVolumeCatcherImpl::init()
 {
-	// try to be as robust as possible because PA's interface is a
+	// try to be as defensive as possible because PA's interface is a
 	// bit fragile and (for our purposes) we'd rather simply not function
 	// than crash
 	mMainloop = pa_glib_mainloop_new(g_main_context_default());
