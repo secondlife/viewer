@@ -39,6 +39,7 @@
 #include "llpanelpeoplemenus.h"
 
 // newview
+#include "llagent.h"
 #include "llagentdata.h"			// for gAgentID
 #include "llavataractions.h"
 #include "llviewermenu.h"			// for gMenuHolder
@@ -125,7 +126,7 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startIM,					id));
 		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startCall,				id));
 		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
-		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
+		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::showOnMap,				id));
 		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::share,					id));
 		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
 		registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				id));
@@ -217,6 +218,13 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	else if (item == std::string("can_call"))
 	{
 		return LLAvatarActions::canCall();
+	}
+	else if (item == std::string("can_show_on_map"))
+	{
+		const LLUUID& id = mUUIDs.front();
+
+		return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
+					|| gAgent.isGodlike();
 	}
 	return false;
 }

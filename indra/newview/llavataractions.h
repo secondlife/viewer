@@ -99,6 +99,11 @@ public:
 	static void showProfile(const LLUUID& id);
 
 	/**
+	 * Show avatar on world map.
+	 */
+	static void showOnMap(const LLUUID& id);
+
+	/**
 	 * Give money to the avatar.
 	 */
 	static void pay(const LLUUID& id);
