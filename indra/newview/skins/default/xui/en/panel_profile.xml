@@ -284,10 +284,11 @@
              width="300" />
             <expandable_text
             follows="all"
-            height="113"
+            height="103"
             layout="topleft"
             left="7"
             name="sl_groups"
+            textbox.max_length="512"
             top_pad="0"
             translate="false"
             width="290"
