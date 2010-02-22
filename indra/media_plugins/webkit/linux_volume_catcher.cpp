@@ -158,7 +158,8 @@ void LinuxVolumeCatcherImpl::setVol(F32 volume)
 
 void LinuxVolumeCatcherImpl::pump()
 {
-	g_main_context_iteration(g_main_context_default());
+	gboolean may_block = FALSE;
+	g_main_context_iteration(g_main_context_default(), may_block);
 }
 
 void LinuxVolumeCatcherImpl::connected_okay()
@@ -166,9 +167,9 @@ void LinuxVolumeCatcherImpl::connected_okay()
 	pa_operation *op;
 
 	// fetch global list of existing sinkinputs
-	if (op = pa_context_get_sink_input_info_list(mPAContext,
+	if ((op = pa_context_get_sink_input_info_list(mPAContext,
 						     callback_discovered_sinkinput,
-						     this))
+						      this)))
 	{
 		pa_operation_unref(op);
 	}
@@ -177,9 +178,9 @@ void LinuxVolumeCatcherImpl::connected_okay()
 	pa_context_set_subscribe_callback(mPAContext,
 					  callback_subscription_alert,
 					  this);
-	if (op =  pa_context_subscribe(mPAContext, (pa_subscription_mask_t)
+	if ((op = pa_context_subscribe(mPAContext, (pa_subscription_mask_t)
 				       (PA_SUBSCRIPTION_MASK_SINK_INPUT),
-				       NULL, NULL))
+				       NULL, NULL)))
 	{
 		pa_operation_unref(op);
 	}
@@ -202,11 +203,11 @@ void LinuxVolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
 	
 	pa_context *c = mPAContext;
 	uint32_t idx = index;
-	const pa_cvolume *volume = &cvol;
+	const pa_cvolume *cvolumep = &cvol;
 	pa_context_success_cb_t cb = NULL; // okay as null
 	void *userdata = NULL; // okay as null
 	
-	if (op = pa_context_set_sink_input_volume(c, idx, volume, cb, userdata))
+	if ((op = pa_context_set_sink_input_volume(c, idx, cvolumep, cb, userdata)))
 	{
 		pa_operation_unref(op);
 	}
@@ -264,7 +265,7 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 		{
 			// ask for more info about this new sinkinput
 			pa_operation *op;
-			if (op = pa_context_get_sink_input_info(impl->mPAContext, index, callback_discovered_sinkinput, impl))
+			if ((op = pa_context_get_sink_input_info(impl->mPAContext, index, callback_discovered_sinkinput, impl)))
 			{
 				pa_operation_unref(o);
 			}
