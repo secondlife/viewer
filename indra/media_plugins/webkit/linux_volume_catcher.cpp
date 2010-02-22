@@ -42,12 +42,17 @@
 
 #include "linden_common.h"
 
+extern "C" {
 #include <glib.h>
 
 #include <pulse/introspect.h>
 #include <pulse/context.h>
 #include <pulse/subscribe.h>
 #include <pulse/glib-mainloop.h> // There's no special reason why we want the *glib* PA mainloop, but the generic polling implementation seems broken.
+
+#include "apr_pools.h"
+#include "apr_dso.h"
+}
 
 #include "linux_volume_catcher.h"
 
@@ -59,13 +64,14 @@
 
 #define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) RTN (*ll##PASYM)(__VA_ARGS__) = NULL
 #include "linux_volume_catcher_pa_syms.inc"
+#include "linux_volume_catcher_paglib_syms.inc"
 #undef LL_PA_SYM
 
 static bool sSymsGrabbed = false;
 static apr_pool_t *sSymPADSOMemoryPool = NULL;
 static apr_dso_handle_t *sSymPADSOHandleG = NULL;
 
-bool grab_pa_syms(std::string pa_dso_name)
+bool grab_pa_syms(std::string pulse_dso_name)
 {
 	if (sSymsGrabbed)
 	{
@@ -84,12 +90,13 @@ bool grab_pa_syms(std::string pa_dso_name)
 	apr_pool_create(&sSymPADSOMemoryPool, NULL);
   
 	if ( APR_SUCCESS == (rv = apr_dso_load(&sSymPADSOHandle,
-					       pa_dso_name.c_str(),
+					       pulse_dso_name.c_str(),
 					       sSymPADSOMemoryPool) ))
 	{
-		INFOMSG("Found DSO: %s", pa_dso_name.c_str());
+		INFOMSG("Found DSO: %s", pulse_dso_name.c_str());
 
 #include "linux_volume_catcher_pa_syms.inc"
+#include "linux_volume_catcher_paglib_syms.inc"
       
 		if ( sSymPADSOHandle )
 		{
@@ -101,7 +108,7 @@ bool grab_pa_syms(std::string pa_dso_name)
 	}
 	else
 	{
-		INFOMSG("Couldn't load DSO: %s", pa_dso_name.c_str());
+		INFOMSG("Couldn't load DSO: %s", pulse_dso_name.c_str());
 		rtn = false; // failure
 	}
 
@@ -136,6 +143,7 @@ void ungrab_pa_syms()
 	// NULL-out all of the symbols we'd grabbed
 #define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{ll##PASYM = NULL;}while(0)
 #include "linux_volume_catcher_pa_syms.inc"
+#include "linux_volume_catcher_paglib_syms.inc"
 #undef LL_PA_SYM
 
 	sSymsGrabbed = false;
@@ -161,7 +169,7 @@ public:
 
 	// for internal use - can't be private because used from our C callbacks
 
-	bool loadsyms(std::string pulse_dso_name, std::string pulse_glib_dso_name);
+	bool loadsyms(std::string pulse_dso_name);
 	void init();
 	void cleanup();
 
@@ -193,10 +201,9 @@ LinuxVolumeCatcherImpl::~LinuxVolumeCatcherImpl()
 	cleanup();
 }
 
-bool LinuxVolumeCatcherImpl::loadsyms(std::string pulse_dso_name,
-				      std::string pulse_glib_dso_name)
+bool LinuxVolumeCatcherImpl::loadsyms(std::string pulse_dso_name)
 {
-	return grab_pa_syms(pulse_dso_name, pulse_glib_dso_name);
+	return grab_pa_syms(pulse_dso_name);
 }
 
 void LinuxVolumeCatcherImpl::init()
@@ -205,7 +212,12 @@ void LinuxVolumeCatcherImpl::init()
 	// bit fragile and (for our purposes) we'd rather simply not function
 	// than crash
 
-	mGotSyms = loadsyms("libpulse.so.0", "libpulse-mainloop-glib.so.0");
+	// we cheat and rely upon libpulse-mainloop-glib.so.0 to pull-in
+	// libpulse.so.0 - this isn't a great assumption, and the two DSOs should
+	// probably be loaded separately.  Our Linux DSO framework needs refactoring,
+	// we do this sort of thing a lot...
+	mGotSyms = loadsyms("libpulse-mainloop-glib.so.0");
+	if (!mGotSyms) return;
 
 	mMainloop = llpa_glib_mainloop_new(g_main_context_default());
 	if (mMainloop)
@@ -251,24 +263,26 @@ void LinuxVolumeCatcherImpl::cleanup()
 {
 	mConnected = false;
 
-	if (mPAContext)
+	if (mGotSyms && mPAContext)
 	{
 		llpa_context_disconnect(mPAContext);
 		llpa_context_unref(mPAContext);
-		mPAContext = NULL;
 	}
+	mPAContext = NULL;
 
-	if (mMainloop)
+	if (mGotSyms && mMainloop)
 	{
 		llpa_glib_mainloop_free(mMainloop);
-		mMainloop = NULL;
 	}
+	mMainloop = NULL;
 }
 
 void LinuxVolumeCatcherImpl::setVolume(F32 volume)
 {
 	mDesiredVolume = volume;
 	
+	if (!mGotSyms) return;
+
 	if (mConnected && mPAContext)
 	{
 		update_all_volumes(mDesiredVolume);
