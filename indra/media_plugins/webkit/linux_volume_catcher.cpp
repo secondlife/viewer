@@ -31,6 +31,15 @@
  * @endcond
  */
 
+/*
+  The high-level design is as follows:
+  1) Connect to the PulseAudio daemon
+  2) Watch for the creation of new audio players connecting to the daemon (this includes ALSA clients running on the PulseAudio emulation layer, such as Flash plugins)
+  3) Examine the audio player's PID to see if it belongs to our own process
+  4) If so, tell PA to adjust the volume of that audio player ('sink input' in PA parlance)
+  5) Keep a list of all living audio players that we care about, adjust the volumes of all of them when we get a new setVolume() call
+ */
+
 #include "linden_common.h"
 
 #include <glib.h>
