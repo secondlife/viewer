@@ -424,8 +424,32 @@ static	void updatePosition(void);
 		void deleteAllAutoAcceptRules(void);
 		void addAutoAcceptRule(const std::string &autoAcceptMask, const std::string &autoAddAsBuddy);
 		void accountListBlockRulesResponse(int statusCode, const std::string &statusString);						
-		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);						
-		
+		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);
+
+		struct voiceFontEntry
+		{
+			voiceFontEntry(const std::string &id);
+			// *TODO: Decide which of these we don't need to store
+			std::string mID;
+			std::string mName;
+			std::string mDescription;
+			std::string mExpirationDate;
+			bool		mHasExpired;
+			std::string mFontType;
+			std::string mFontStatus;
+		};
+
+		typedef std::map<const std::string*, voiceFontEntry*, stringMapComparitor> voiceFontMap;
+
+		voiceFontEntry *addSessionFont(const std::string &id,
+									   const std::string &name,
+									   const std::string &description,
+									   const std::string &expirationDate,
+									   const bool hasExpired,
+									   const std::string &fontType,
+									   const std::string &fontStatus);
+		void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
+
 		/////////////////////////////
 		// session control messages
 		void connectorCreate();
@@ -447,12 +471,15 @@ static	void updatePosition(void);
 
 		void accountListBlockRulesSendMessage();
 		void accountListAutoAcceptRulesSendMessage();
-		
+
+		void accountGetSessionFontsSendMessage();
+
 		void sessionGroupCreateSendMessage();
 		void sessionCreateSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
 		void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
+		void sessionSetVoiceFontSendMessage(sessionState *session, const std::string &fontId);
 		void sessionTerminateSendMessage(sessionState *session);
 		void sessionGroupTerminateSendMessage(sessionState *session);
 		void sessionMediaDisconnectSendMessage(sessionState *session);
@@ -653,7 +680,10 @@ static	void updatePosition(void);
 		bool mBlockRulesListReceived;
 		bool mAutoAcceptRulesListReceived;
 		buddyListMap mBuddyListMap;
-		
+
+		bool mSessionFontsReceived;
+		voiceFontMap mSessionFontMap;
+
 		deviceList mCaptureDevices;
 		deviceList mRenderDevices;
 
