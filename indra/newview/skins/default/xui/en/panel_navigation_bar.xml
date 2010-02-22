@@ -151,7 +151,6 @@
                width="590">
         <label
          follows="left|top"
-         font.style="BOLD"
          height="15"
          layout="topleft"
          left="10"
