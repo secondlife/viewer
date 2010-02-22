@@ -42,6 +42,11 @@
 
 #include "linden_common.h"
 
+#include "linux_volume_catcher.h"
+
+
+#if LL_PULSEAUDIO_ENABLED
+
 extern "C" {
 #include <glib.h>
 
@@ -53,8 +58,6 @@ extern "C" {
 #include "apr_pools.h"
 #include "apr_dso.h"
 }
-
-#include "linux_volume_catcher.h"
 
 ////////////////////////////////////////////////////
 
@@ -456,3 +459,25 @@ void LinuxVolumeCatcher::pump()
 	pimpl->pump();
 }
 
+#else // !LL_PULSEAUDIO_ENABLED
+
+// stub.
+
+LinuxVolumeCatcher::LinuxVolumeCatcher()
+{
+	pimpl = NULL;
+}
+
+LinuxVolumeCatcher::~LinuxVolumeCatcher()
+{
+}
+
+void LinuxVolumeCatcher::setVolume(F32 volume)
+{
+}
+
+void LinuxVolumeCatcher::pump()
+{
+}
+
+#endif // LL_PULSEAUDIO_ENABLED
