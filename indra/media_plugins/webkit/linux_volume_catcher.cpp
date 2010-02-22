@@ -215,7 +215,7 @@ void LinuxVolumeCatcherImpl::init()
 	// we cheat and rely upon libpulse-mainloop-glib.so.0 to pull-in
 	// libpulse.so.0 - this isn't a great assumption, and the two DSOs should
 	// probably be loaded separately.  Our Linux DSO framework needs refactoring,
-	// we do this sort of thing a lot...
+	// we do this sort of thing a lot with practically identical logic...
 	mGotSyms = loadsyms("libpulse-mainloop-glib.so.0");
 	if (!mGotSyms) return;
 
