@@ -58,7 +58,7 @@ public:
 	LinuxVolumeCatcherImpl();
 	~LinuxVolumeCatcherImpl();
 
-	void setVol(F32 volume);
+	void setVolume(F32 volume);
 	void pump(void);
 
 	// for internal use - can't be private because used from our C callbacks
@@ -144,7 +144,7 @@ void LinuxVolumeCatcherImpl::cleanup()
 	mConnected = false;
 }
 
-void LinuxVolumeCatcherImpl::setVol(F32 volume)
+void LinuxVolumeCatcherImpl::setVolume(F32 volume)
 {
 	mDesiredVolume = volume;
 	
@@ -311,10 +311,10 @@ LinuxVolumeCatcher::~LinuxVolumeCatcher()
 	pimpl = NULL;
 }
 
-void LinuxVolumeCatcher::setVol(F32 volume)
+void LinuxVolumeCatcher::setVolume(F32 volume)
 {
 	llassert(pimpl);
-	pimpl->setVol(volume);
+	pimpl->setVolume(volume);
 }
 
 void LinuxVolumeCatcher::pump()
