@@ -43,9 +43,8 @@
 class LinuxVolumeCatcherImpl
 {
 public:
-	//void setVol(F32 volume); // 0.0-1.0
-	//void pump(void);
-	//LinuxVolumeCatcherImpl *impl;
+	void setVol(F32 volume);
+	void pump(void);
 
 private:
 	F32 mDesiredVolume;
