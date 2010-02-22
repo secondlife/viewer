@@ -34,14 +34,19 @@
 #include <pulse/introspect.h>
 #include <pulse/context.h>
 #include <pulse/subscribe.h>
-#include <pulse/glib-mainloop.h> // There's no special reason why we want the *glib* PA mainloop, but the generic non-glib implementation seems broken.
+#include <pulse/glib-mainloop.h> // There's no special reason why we want the *glib* PA mainloop, but the generic polling implementation seems broken.
 
 class LinuxVolumeCatcherImpl
 {
 public:
-	setVol(F32 volume); // 0.0-1.0
+	//void setVol(F32 volume); // 0.0-1.0
+	//LinuxVolumeCatcherImpl *impl;
 
 private:
-	F32 mLastDesiredVolume;
-	pa_glib_mainloop
+	F32 mDesiredVolume;
+	pa_glib_mainloop *mMainloop;
+	pa_context *mLastContext;
+	bool connected;
+	std::set<U32> mSinkInputIndices;
+	std::map<U32,U32> mSinkInputNumChannels;
 }
