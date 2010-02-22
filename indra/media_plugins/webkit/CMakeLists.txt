@@ -50,6 +50,8 @@ set(media_plugin_webkit_LINK_LIBRARIES
 if (LINUX)
   list(APPEND media_plugin_webkit_LINK_LIBRARIES
        ${UI_LIBRARIES}     # for glib/GTK
+       pulse
+       pulse-mainloop-glib
        )
 endif (LINUX)
 
