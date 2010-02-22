@@ -826,6 +826,8 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					
 				if (slurl_dnd_enabled)
 				{
+					// isValidSLURL() call was added here to make sure that dragged SLURL is valid (EXT-4964)
+					if ( LLSLURL::isSLURL( data ) && LLSLURL::isValidSLURL( data ) )
 					// special case SLURLs
 					if ( LLSLURL::isSLURL( data ) )
 					{
