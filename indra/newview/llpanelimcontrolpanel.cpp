@@ -112,8 +112,10 @@ void LLPanelChatControlPanel::updateButtons(bool is_call_started)
 LLPanelChatControlPanel::~LLPanelChatControlPanel()
 {
 	mVoiceChannelStateChangeConnection.disconnect();
-	if(LLVoiceClient::getInstance())
+	if(LLVoiceClient::instanceExists())
+	{
 		LLVoiceClient::getInstance()->removeObserver(this);
+	}
 }
 
 BOOL LLPanelChatControlPanel::postBuild()

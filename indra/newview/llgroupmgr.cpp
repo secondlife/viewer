@@ -1728,7 +1728,6 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(ejected_member_id);
 		if (mit != group_datap->mMembers.end())
 		{
-			LLGroupMemberData* member_data = (*mit).second;
 			// Add them to the message
 			if (start_message)
 			{
@@ -1750,6 +1749,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 				start_message = true;
 			}
 
+			LLGroupMemberData* member_data = (*mit).second;
+
 			// Clean up groupmgr
 			for (LLGroupMemberData::role_list_t::iterator rit = member_data->roleBegin();
 				 rit != member_data->roleEnd(); ++rit)
@@ -1762,6 +1763,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			
 			group_datap->mMembers.erase(ejected_member_id);
 			
+			// member_data was introduced and is used here instead of (*mit).second to avoid crash because of invalid iterator
+			// It becomes invalid after line with erase above. EXT-4778
 			delete member_data;
 		}
 	}

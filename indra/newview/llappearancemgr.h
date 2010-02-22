@@ -151,6 +151,18 @@ public:
 	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
 };
 
+class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
+{
+public:
+	LLUpdateAppearanceOnDestroy();
+	virtual ~LLUpdateAppearanceOnDestroy();
+	/* virtual */ void fire(const LLUUID& inv_item);
+
+private:
+	U32 mFireCount;
+};
+
+
 #define SUPPORT_ENSEMBLES 0
 
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);

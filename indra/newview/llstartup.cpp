@@ -200,10 +200,6 @@
 #include "lldxhardware.h"
 #endif
 
-#if (LL_LINUX || LL_SOLARIS) && LL_GTK
-#include <glib/gspawn.h>
-#endif
-
 //
 // exported globals
 //

@@ -10,7 +10,7 @@
  top="0"
  can_dock="true"
  can_minimize="true"
- visible="true" 
+ visible="false" 
  width="520"
  can_resize="false"
  min_width="350"

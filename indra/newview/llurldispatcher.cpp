@@ -223,17 +223,6 @@ void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const std::strin
 	S32 z = 0;
 	LLURLSimString::parse(sim_string, &region_name, &x, &y, &z);
 
-	// Invalid location? EXT-5380
-	if (!region_handle)
-	{
-		if(!region_name.empty() && !LLStringOps::isDigit(region_name.c_str()[0]))// it is no sense to search an empty region_name or when the  region_name  starts with digits
-		{
-			// may be an user types incorrect region name, let's help him to find a correct one 
-			LLFloaterReg::showInstance("search", LLSD().with("category", "places").with("id", LLSD(region_name)));
-		}
-		//*TODO: add notification about invalid region_name 
-		return;
-	}
 	LLVector3 local_pos;
 	local_pos.mV[VX] = (F32)x;
 	local_pos.mV[VY] = (F32)y;

@@ -15,7 +15,7 @@ Life itself - please see <http://www.secondlife.com/whatis/>.
    5.3. Blank window after minimizing it
    5.4. Audio
    5.5. 'Alt' key for camera controls doesn't work
-   5.6. In-world streaming movie/music playback
+   5.6. In-world streaming movie, music and Flash playback
 6. Advanced Troubleshooting
    6.1. Audio
    6.2. OpenGL
@@ -169,12 +169,15 @@ SOLUTION:- Some window managers eat the Alt key for their own purposes; you
    example, the 'Windows' key!) which will allow the Alt key to function
    properly with mouse actions in Second Life and other applications.
 
-PROBLEM 6:- In-world movie and/or music playback doesn't work for me.
+PROBLEM 6:- In-world movie, music, or Flash playback doesn't work for me.
 SOLUTION:- You need to have a working installation of GStreamer 0.10; this
    is usually an optional package for most versions of Linux.  If you have
    installed GStreamer 0.10 and you can play some music/movies but not others
    then you need to install a wider selection of GStreamer plugins, either
-   from your vendor or an appropriate third party.
+   from your vendor (i.e. the 'Ugly' plugins) or an appropriate third party.
+   For Flash playback, you need to have Flash 10 installed for your normal
+   web browser (for example, Firefox).  PulseAudio is required for Flash
+   volume control / muting to fully function inside Second Life.
 
 
 6. ADVANCED TROUBLESHOOTING
