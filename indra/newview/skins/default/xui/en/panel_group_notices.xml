@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- follows="all"
  height="530"
  label="Notices"
  layout="topleft"
  left="0"
  name="notices_tab"
  top="0"
- width="313">
+ width="304">
     <panel.string
      name="help_text">
         Notices let you send a message and an optionally attached item.
@@ -44,7 +43,7 @@ Maximum 200 per group daily
      right="-1"
      name="notice_list"
      top_pad="0"
-     width="313">
+     width="304">
         <scroll_list.columns
          label=""
          name="icon"
