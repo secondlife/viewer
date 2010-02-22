@@ -17,7 +17,7 @@
      increment="0.05"
      initial_value="0.5"
      label="Master volume"
-	 label_width="120"
+	   label_width="120"
      layout="topleft"
      left="0"
      name="System Volume"

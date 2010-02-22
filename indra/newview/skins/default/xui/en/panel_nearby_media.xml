@@ -14,7 +14,9 @@
   <string name="media_item_count_format">(%ld media items)</string>
   <string name="empty_item_text">&lt;empty&gt;</string>
   <string name="parcel_media_name">Parcel Streaming Media</string>
+  <string name="parcel_media_name_disabled">Parcel Streaming Media (Disabled)</string>  
   <string name="parcel_audio_name">Parcel Streaming Audio</string>
+  <string name="parcel_audio_name_disabled">Parcel Streaming Audio (Disabled)</string>  
   <string name="playing_suffix">(playing)</string>
   <panel
 	  bevel_style="in"

@@ -568,11 +568,20 @@ void LLPanelNearByMedia::refreshParcelItems()
 			tooltip = name + " : " + url;
 		}
 		LLViewerMediaImpl *impl = LLViewerParcelMedia::getParcelMedia();
+		bool is_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
+		if(is_enabled)
+		{
+			mParcelMediaName = getString("parcel_media_name");
+		}
+		else
+		{
+			mParcelMediaName = getString("parcel_media_name_disabled");
+		}
 		updateListItem(mParcelMediaItem,
 					   mParcelMediaName,
 					   tooltip,
 					   -2, // Proximity closer than anything else, before Parcel Audio
-					   impl == NULL || impl->isMediaDisabled(),
+					   impl == NULL || impl->isMediaDisabled() || (!is_enabled),
 					   impl != NULL && !LLViewerParcelMedia::getURL().empty(),
 					   impl != NULL && impl->isMediaTimeBased() &&	impl->isMediaPlaying(),
 					   MEDIA_CLASS_ALL,
@@ -601,11 +610,20 @@ void LLPanelNearByMedia::refreshParcelItems()
 	if (NULL != mParcelAudioItem)
 	{
 		bool is_playing = LLViewerMedia::isParcelAudioPlaying();
+		bool is_enabled = gSavedSettings.getBOOL("AudioStreamingMusic");
+		if(is_enabled)
+		{
+			mParcelAudioName = getString("parcel_audio_name");
+		}
+		else
+		{
+			mParcelAudioName = getString("parcel_audio_name_disabled");
+		}
 		updateListItem(mParcelAudioItem,
 					   mParcelAudioName,
 					   LLViewerMedia::getParcelAudioURL(),
 					   -1, // Proximity after Parcel Media, but closer than anything else
-					   !is_playing,
+					   (!is_playing) && is_enabled,
 					   is_playing,
 					   is_playing,
 					   MEDIA_CLASS_ALL,
@@ -824,7 +842,10 @@ void LLPanelNearByMedia::onZoomMedia(void* user_data)
 
 void LLPanelNearByMedia::onClickParcelMediaPlay()
 {
-	LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+	if (gSavedSettings.getBOOL("AudioStreamingMedia"))
+	{
+		LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+	}
 }
 
 void LLPanelNearByMedia::onClickParcelMediaStop()
@@ -844,14 +865,18 @@ void LLPanelNearByMedia::onClickParcelMediaPause()
 
 void LLPanelNearByMedia::onClickParcelAudioStart()
 {
-	// User *explicitly* started the internet stream, so keep the stream
-	// playing and updated as they cross to other parcels etc.
-	mParcelAudioAutoStart = true;
+	//only do this when it's audio streaming is enabled
+	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
+	{
+		// User *explicitly* started the internet stream, so keep the stream
+		// playing and updated as they cross to other parcels etc.
+		mParcelAudioAutoStart = true;
+		
+		if (!gAudiop)
+			return;
 	
-	if (!gAudiop)
-		return;
-	
-	gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+		gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+	}
 }
 
 void LLPanelNearByMedia::onClickParcelAudioPlay()
@@ -1081,7 +1106,7 @@ void LLPanelNearByMedia::onClickSelectedMediaPlay()
 			impl->play();
 			return;
 		}
-		else if (impl->isParcelMedia())
+		else if (NULL != impl && impl->isParcelMedia())
 		{
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
