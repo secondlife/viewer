@@ -174,7 +174,7 @@ SOLUTION:- You need to have a working installation of GStreamer 0.10; this
    is usually an optional package for most versions of Linux.  If you have
    installed GStreamer 0.10 and you can play some music/movies but not others
    then you need to install a wider selection of GStreamer plugins, either
-   from your vendor or an appropriate third party.
+   from your vendor (i.e. the 'Ugly' plugins) or an appropriate third party.
    For Flash playback, you need to have Flash 10 installed for your normal
    web browser (for example, Firefox).  PulseAudio is required for Flash
    volume control / muting to fully function inside Second Life.
