@@ -233,7 +233,6 @@ void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info
 	{
 		pa_proplist *proplist = sii->proplist;
 		pid_t sinkpid = atoll(pa_proplist_gets(proplist, PA_PROP_APPLICATION_PROCESS_ID));
-		fprintf(stderr, "Found sinkinput #%d, name=%s, pid=%d\t", sii->index, sii->name, int(sinkpid));
 		
 		if (sinkpid == getpid()) // does the discovered sinkinput belong to this process?
 		{
