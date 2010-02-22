@@ -45,7 +45,7 @@
 
 #if LL_LINUX
 # include "linux_volume_catcher.h"
-#endif
+#endif // LL_LINUX
 
 #if LL_WINDOWS
 # include <direct.h>
@@ -108,7 +108,7 @@ private:
 	
 #if LL_LINUX
 	LinuxVolumeCatcher mLinuxVolumeCatcher;
-#endif
+#endif // LL_LINUX
 
 	void setInitState(int state)
 	{
@@ -124,7 +124,7 @@ private:
 		
 #if LL_LINUX
 		mLinuxVolumeCatcher.pump();
-#endif
+#endif // LL_LINUX
 
 		checkEditState();
 		
@@ -1023,7 +1023,7 @@ void MediaPluginWebKit::setVolume(F32 volume)
 {
 #if LL_LINUX
 	mLinuxVolumeCatcher.setVolume(volume);
-#endif
+#endif // LL_LINUX
 }
 
 int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data)
