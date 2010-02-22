@@ -865,7 +865,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 {
 	std::string command_name = userdata.asString();
 
-	LLPlacesFolderView* rootFolderView = mCurrentSelectedList ?
+	LLPlacesFolderView* root_folder_view = mCurrentSelectedList ?
 		static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder()) : NULL;
 
 	if ("collapse_all" == command_name)
@@ -917,7 +917,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			return false;
 		}
 	}
-	else if (!rootFolderView)
+	else if (!root_folder_view)
 	{
 		return false;
 	}
@@ -940,7 +940,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
-		if (rootFolderView->getSelectedCount() > 1)
+		if (root_folder_view->getSelectedCount() > 1)
 		{
 			return false;
 		}
