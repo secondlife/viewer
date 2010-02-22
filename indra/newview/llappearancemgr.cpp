@@ -648,14 +648,14 @@ static void onWearableAssetFetch(LLWearable* wearable, void* data)
 {
 	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
 	holder->mResolved += 1;  // just counting callbacks, not successes.
-	llinfos << "onWearableAssetFetch, resolved " << holder->mResolved << " requested " << holder->mFoundList.size() << llendl;
+	llinfos << "onWearableAssetFetch, resolved count " << holder->mResolved << " of requested " << holder->mFoundList.size() << llendl;
 	if (wearable)
 	{
-		llinfos << "wearable type " << wearable->getType() << llendl;
+		llinfos << "wearable found, type " << wearable->getType() << " asset " << wearable->getAssetID() << llendl;
 	}
 	else
 	{
-		llinfos << "wearable: NONE" << llendl;
+		llwarns << "no wearable found" << llendl;
 	}
 
 	if (holder->mFired)
@@ -666,17 +666,8 @@ static void onWearableAssetFetch(LLWearable* wearable, void* data)
 
 	if (!wearable)
 	{
-		llwarns << "no wearable found" << llendl;
 		return;
 	}
-
-#if 0
-	if ((wearable->getType() == WT_SHAPE) || (wearable->getType() == WT_JACKET))
-	{
-		llwarns << "Forcing failure for type " << wearable->getType() << llendl;
-		return;
-	}
-#endif
 
 	for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
 		 iter != holder->mFoundList.end(); ++iter)
@@ -1118,7 +1109,8 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	// callback will be called (and this object deleted)
 	// before the final getNextData().
 
-	// BAP cleanup - no point having found_container when mFoundList already has all the info.
+	// BAP future cleanup - no point having found_container when
+	// mFoundList already has all the info.
 	LLDynamicArray<LLFoundData> found_container;
 	for(S32 i = 0; i  < wear_items.count(); ++i)
 	{
@@ -1133,8 +1125,10 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 							  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
 				);
 
-#if 1
-			// BAP REMOVEME Force failure to test handling
+#if 0
+			// Fault injection: uncomment this block to test asset
+			// fetch failures (should be replaced by new defaults in
+			// lost&found).
 			if (found.mWearableType == WT_SHAPE || found.mWearableType == WT_JACKET)
 			{
 				found.mAssetID.generate(); // Replace with new UUID, guaranteed not to exist in DB

@@ -1039,8 +1039,6 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 	{
 		return;
 	}
-// BAP RESTORE TMP
-//	if (wearable && type != WT_SHAPE) // force failure for shape to test recovery path.
 		
 	if (wearable)
 	{
