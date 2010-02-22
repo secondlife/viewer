@@ -429,7 +429,6 @@ static	void updatePosition(void);
 		struct voiceFontEntry
 		{
 			voiceFontEntry(const std::string &id);
-			// *TODO: Decide which of these we don't need to store
 			std::string mID;
 			std::string mName;
 			std::string mDescription;
@@ -584,6 +583,7 @@ static	void updatePosition(void);
 			stateNeedsLogin,			// send login request
 			stateLoggingIn,				// waiting for account handle
 			stateLoggedIn,				// account handle received
+			stateFontListReceived,		// List of available voice fonts received
 			stateCreatingSessionGroup,	// Creating the main session group
 			stateNoChannel,				// 
 			stateJoiningSession,		// waiting for session handle

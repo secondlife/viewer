@@ -1622,6 +1622,7 @@ std::string LLVoiceClient::state2string(LLVoiceClient::state inState)
 		CASE(stateNeedsLogin);
 		CASE(stateLoggingIn);
 		CASE(stateLoggedIn);
+		CASE(stateFontListReceived);
 		CASE(stateCreatingSessionGroup);
 		CASE(stateNoChannel);
 		CASE(stateJoiningSession);
@@ -2231,6 +2232,11 @@ void LLVoiceClient::stateMachine()
 					writeString(stream.str());
 				}
 			}
+
+			// accountGetSessionFontsResponse() will transition from here to stateFontListReceived.
+
+		//MARK: stateFontListReceived
+		case stateFontListReceived:		// font list received
 			
 #if USE_SESSION_GROUPS			
 			// create the main session group
@@ -7092,6 +7098,11 @@ void LLVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::st
 {
 	// Session font list entries were updated via addSessionFont() during parsing.  Just flag that we're done.
 	mSessionFontsReceived = true;
+
+	if(getState() == stateLoggedIn)
+	{
+		setState(stateFontListReceived);
+	}
 }
 
 void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
