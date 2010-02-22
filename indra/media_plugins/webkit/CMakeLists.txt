@@ -46,8 +46,6 @@ if (LINUX)
   list(APPEND media_plugin_webkit_SOURCE_FILES linux_volume_catcher.cpp)
   list(APPEND media_plugin_webkit_LINK_LIBRARIES
        ${UI_LIBRARIES}     # for glib/GTK
-       pulse
-       pulse-mainloop-glib
        )
 endif (LINUX)
 
