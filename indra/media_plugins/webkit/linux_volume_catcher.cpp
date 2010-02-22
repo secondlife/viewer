@@ -148,9 +148,20 @@ void LinuxVolumeCatcherImpl::init()
 
 void LinuxVolumeCatcherImpl::cleanup()
 {
-	// there's some cleanup we could do, but do nothing... for now.
-
 	mConnected = false;
+
+	if (mPAContext)
+	{
+		pa_context_disconnect(mPAContext);
+		pa_context_unref(mPAContext);
+		mPAContext = NULL;
+	}
+
+	if (mMainloop)
+	{
+		pa_glib_mainloop_free(mMainloop);
+		mMainloop = NULL;
+	}
 }
 
 void LinuxVolumeCatcherImpl::setVolume(F32 volume)
