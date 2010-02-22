@@ -214,7 +214,8 @@ LLTabContainer::Params::Params()
 	last_tab("last_tab"),
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
-	use_ellipses("use_ellipses")
+	use_ellipses("use_ellipses"),
+	font_halign("halign")
 {
 	name(std::string("tab_container"));
 	mouse_opaque = false;

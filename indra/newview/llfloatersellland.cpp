@@ -170,6 +170,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 	childSetAction("sell_btn", doSellLand, this);
 	childSetAction("show_objects", doShowObjects, this);
 	center();
+	getChild<LLUICtrl>("profile_scroll")->setTabStop(true);
 	return TRUE;
 }
 

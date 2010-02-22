@@ -300,7 +300,8 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 	S32 paragraph_offset = 0;			//Offset into the paragraph text.
 
 	// Wrap lines that are longer than the view is wide.
-	while( paragraph_offset < (S32)mParagraphText.length() )
+	while( paragraph_offset < (S32)mParagraphText.length() &&
+		   mParagraphText[paragraph_offset] != 0)
 	{
 		S32 skip_chars; // skip '\n'
 		// Figure out if a word-wrapped line fits here.

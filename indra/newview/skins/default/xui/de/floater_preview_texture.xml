@@ -42,6 +42,6 @@
 		</combo_item>
 	</combo_box>
 	<button label="OK" name="Keep"/>
-	<button label="Abbrechen" name="Discard"/>
+	<button label="Verwerfen" name="Discard"/>
 	<button label="Speichern unter" name="save_tex_btn"/>
 </floater>

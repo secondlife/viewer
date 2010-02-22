@@ -1583,10 +1583,16 @@ void LLPanelObjectInventory::reset()
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
+	if (hasFocus())
+	{
+		LLEditMenuHandler::gEditMenuHandler = mFolders;
+	}
+
 	LLRect scroller_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	LLScrollContainer::Params scroll_p;
 	scroll_p.name("task inventory scroller");
 	scroll_p.rect(scroller_rect);
+	scroll_p.tab_stop(true);
 	scroll_p.follows.flags(FOLLOWS_ALL);
 	mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroll_p);
 	addChild(mScroller);

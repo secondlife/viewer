@@ -47,7 +47,7 @@
          min_height="23"
          width="310"
          top="4"
-         min_width="188"
+         min_width="216"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml" />
@@ -60,7 +60,7 @@
          min_height="28"
          width="100"
          top_delta="0"
-         min_width="54"
+         min_width="100"
          name="speak_panel"
          user_resize="false">
           <talk_button
@@ -73,6 +73,11 @@
            name="talk"
            top="5"
           width="100">
+  <speak_button
+    name="speak_btn"
+    label="Speak"
+    label_selected="Speak"
+    />
               <show_button>
                   <show_button.init_callback
                    function="Button.SetDockableFloaterToggle"
@@ -100,7 +105,7 @@
          min_height="28"
          width="82"
          top_delta="0"
-         min_width="52"
+         min_width="62"
          name="gesture_panel"
          user_resize="false">
          <gesture_combo_list
@@ -252,7 +257,7 @@
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="110"
+         min_width="60"
          user_resize="false"
          auto_resize="true">
 <!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
@@ -263,7 +268,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              height="24"
              layout="topleft"
              left="1"
-             min_width="110"
+             min_width="60"
              name="chiclet_list"
              top="7"
              chiclet_padding="4"

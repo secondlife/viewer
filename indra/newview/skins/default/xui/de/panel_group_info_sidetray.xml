@@ -26,10 +26,10 @@
 			</accordion>
 		</layout_panel>
 		<layout_panel name="button_row">
-			<button name="btn_create" tool_tip="Neue Gruppe erstellen"/>
 			<button label="Chat" name="btn_chat"/>
 			<button label="Gruppe anrufen" name="btn_call" tool_tip="Diese Gruppe anrufen"/>
 			<button label="Speichern" label_selected="Speichern" name="btn_apply"/>
+			<button label="Gruppe erstellen" name="btn_create" tool_tip="Neue Gruppe erstellen"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

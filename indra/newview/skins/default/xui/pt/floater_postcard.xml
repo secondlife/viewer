@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Postcard" title="FOTO POR EMAIL">
+<floater name="Postcard" title="ENVIAR FOTO VIA EMAIL">
 	<text name="to_label" width="135">
 		Email do Destinatário:
 	</text>
-	<line_editor name="to_form" left="143" width="127" />
+	<line_editor left="143" name="to_form" width="127"/>
 	<text name="from_label">
 		Seu Email:
 	</text>
-	<line_editor name="from_form" left="143" width="127" />
+	<line_editor left="143" name="from_form" width="127"/>
 	<text name="name_label">
 		Seu nome:
 	</text>
-	<line_editor name="name_form" left="143" width="127" />
+	<line_editor left="143" name="name_form" width="127"/>
 	<text name="subject_label">
 		Assunto:
 	</text>
-	<line_editor name="subject_form" left="143" width="127" />
+	<line_editor left="143" name="subject_form" width="127"/>
 	<line_editor label="Digite seu assunto aqui." name="subject_form"/>
 	<text name="msg_label">
 		Mensagem:
@@ -29,7 +29,7 @@
 	<button label="Cancelar" name="cancel_btn"/>
 	<button label="Enviar" name="send_btn"/>
 	<string name="default_subject">
-		Cartão postal do [SECOND_LIFE]
+		Postal do [SECOND_LIFE].
 	</string>
 	<string name="default_message">
 		Dá uma olhada nisto!

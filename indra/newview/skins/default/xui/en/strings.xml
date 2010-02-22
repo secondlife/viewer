@@ -2127,6 +2127,7 @@ Clears (deletes) the media and all params from the given face.
   
   <!-- panel picks -->
   <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
+  <string name="NoAvatarPicksClassifiedsText">User has no picks or classfields</string>
   <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->

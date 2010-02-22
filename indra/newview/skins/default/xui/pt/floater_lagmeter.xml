@@ -1,155 +1,154 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_lagmeter" title="MEDIDOR DE ATRASO">
+<floater name="floater_lagmeter" title="LAG - Índice">
+	<floater.string name="max_title_msg">
+		Medidor de Atraso
+	</floater.string>
+	<floater.string name="max_width_px">
+		360
+	</floater.string>
+	<floater.string name="min_title_msg">
+		Atraso
+	</floater.string>
+	<floater.string name="min_width_px">
+		90
+	</floater.string>
+	<floater.string name="client_text_msg">
+		Cliente
+	</floater.string>
+	<floater.string name="client_frame_rate_critical_fps">
+		10
+	</floater.string>
+	<floater.string name="client_frame_rate_warning_fps">
+		15
+	</floater.string>
+	<floater.string name="client_frame_time_window_bg_msg">
+		Normal, janela por baixo
+	</floater.string>
+	<floater.string name="client_frame_time_critical_msg">
+		Taxa de quadros do Cliente abaixo de [CLIENT_FRAME_RATE_CRITICAL]
+	</floater.string>
+	<floater.string name="client_frame_time_warning_msg">
+		Taxa de quadros do Cliente entre [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
+	</floater.string>
+	<floater.string name="client_frame_time_normal_msg">
+		Normal
+	</floater.string>
+	<floater.string name="client_draw_distance_cause_msg">
+		Causa possível: Distância de desenho ajustada muito alta
+	</floater.string>
+	<floater.string name="client_texture_loading_cause_msg">
+		Causa possível: Carregamento de Imagens
+	</floater.string>
+	<floater.string name="client_texture_memory_cause_msg">
+		Causa possível: Muitas imagens na memória
+	</floater.string>
+	<floater.string name="client_complex_objects_cause_msg">
+		Causa possível: Muitos objetos complexos na cena
+	</floater.string>
+	<floater.string name="network_text_msg">
+		Rede
+	</floater.string>
+	<floater.string name="network_packet_loss_critical_pct">
+		10
+	</floater.string>
+	<floater.string name="network_packet_loss_warning_pct">
+		5
+	</floater.string>
+	<floater.string name="network_packet_loss_critical_msg">
+		Conexão está caindo para cerca de [NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
+	</floater.string>
+	<floater.string name="network_packet_loss_warning_msg">
+		Conexão está caindo [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
+	</floater.string>
+	<floater.string name="network_performance_normal_msg">
+		Normal
+	</floater.string>
+	<floater.string name="network_ping_critical_ms">
+		600
+	</floater.string>
+	<floater.string name="network_ping_warning_ms">
+		300
+	</floater.string>
+	<floater.string name="network_ping_critical_msg">
+		Tempo de conexão de ping é cerca de  [NETWORK_PING_CRITICAL] ms
+	</floater.string>
+	<floater.string name="network_ping_warning_msg">
+		Tempo de conexão de ping é [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
+	</floater.string>
+	<floater.string name="network_packet_loss_cause_msg">
+		Possível conexão ruim ou &apos;Largura de Banda&apos; escolhida muito alta.
+	</floater.string>
+	<floater.string name="network_ping_cause_msg">
+		Possível conexão ruim ou aplicativos compartilhando arquivos.
+	</floater.string>
+	<floater.string name="server_text_msg">
+		Servidor
+	</floater.string>
+	<floater.string name="server_frame_rate_critical_fps">
+		20
+	</floater.string>
+	<floater.string name="server_frame_rate_warning_fps">
+		30
+	</floater.string>
+	<floater.string name="server_single_process_max_time_ms">
+		20
+	</floater.string>
+	<floater.string name="server_frame_time_critical_msg">
+		Taxa de quadros abaixo de [SERVER_FRAME_RATE_CRITICAL]
+	</floater.string>
+	<floater.string name="server_frame_time_warning_msg">
+		Taxa de quadros entre [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
+	</floater.string>
+	<floater.string name="server_frame_time_normal_msg">
+		Normal
+	</floater.string>
+	<floater.string name="server_physics_cause_msg">
+		Causa possível: Muitos objetos físicos
+	</floater.string>
+	<floater.string name="server_scripts_cause_msg">
+		Causa possível: Muitos objetos com scripts
+	</floater.string>
+	<floater.string name="server_net_cause_msg">
+		Causa possível: Muito tráfego na rede
+	</floater.string>
+	<floater.string name="server_agent_cause_msg">
+		Causa possível: Muitas pessoas se movendo na região
+	</floater.string>
+	<floater.string name="server_images_cause_msg">
+		Causa possível: Muitos cálculos de imagem
+	</floater.string>
+	<floater.string name="server_generic_cause_msg">
+		Causa possível: Carga no simulador muito pesada
+	</floater.string>
+	<floater.string name="smaller_label">
+		&gt;&gt;
+	</floater.string>
+	<floater.string name="bigger_label">
+		&lt;&lt;
+	</floater.string>
 	<button label="" label_selected="" name="client_lagmeter" tool_tip="Status de atraso no Cliente"/>
-	<text left="30" name="client_lag_cause" right="-10" />
-	<text left="30" name="network_lag_cause" right="-10" />
-	<text left="30" name="server_lag_cause" right="-32" />
 	<text name="client">
-		Cliente:
+		Cliente
 	</text>
-	<text name="client_text" font="SansSerifSmall">
+	<text font="SansSerifSmall" name="client_text">
 		Normal
 	</text>
+	<text left="30" name="client_lag_cause" right="-10"/>
 	<button label="" label_selected="" name="network_lagmeter" tool_tip="Status de atraso na rede"/>
 	<text name="network">
-		Rede:
+		Rede
 	</text>
-	<text name="network_text" font="SansSerifSmall">
+	<text font="SansSerifSmall" name="network_text">
 		Normal
 	</text>
+	<text left="30" name="network_lag_cause" right="-10"/>
 	<button label="" label_selected="" name="server_lagmeter" tool_tip="Status de atraso no servidor"/>
 	<text name="server">
-		Servidor:
-	</text>
-	<text name="server_text" font="SansSerifSmall">
-		Normal
-	</text>
-	<button label="?" name="server_help"/>
-	<button label="&gt;&gt;" name="minimize"/>
-	<string name="max_title_msg">
-		Medidor de Atraso
-	</string>
-	<string name="max_width_px">
-		360
-	</string>
-	<string name="min_title_msg">
-		Atraso
-	</string>
-	<string name="min_width_px">
-		90
-	</string>
-	<string name="client_text_msg">
-		Cliente
-	</string>
-	<string name="client_frame_rate_critical_fps">
-		10
-	</string>
-	<string name="client_frame_rate_warning_fps">
-		15
-	</string>
-	<string name="client_frame_time_window_bg_msg">
-		Normal, janela por baixo
-	</string>
-	<string name="client_frame_time_critical_msg">
-		Taxa de quadros do Cliente abaixo de [CLIENT_FRAME_RATE_CRITICAL]
-	</string>
-	<string name="client_frame_time_warning_msg">
-		Taxa de quadros do Cliente entre [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
-	</string>
-	<string name="client_frame_time_normal_msg">
-		Normal
-	</string>
-	<string name="client_draw_distance_cause_msg">
-		Causa possível: Distância de desenho ajustada muito alta
-	</string>
-	<string name="client_texture_loading_cause_msg">
-		Causa possível: Carregamento de Imagens
-	</string>
-	<string name="client_texture_memory_cause_msg">
-		Causa possível: Muitas imagens na memória
-	</string>
-	<string name="client_complex_objects_cause_msg">
-		Causa possível: Muitos objetos complexos na cena
-	</string>
-	<string name="network_text_msg">
-		Rede
-	</string>
-	<string name="network_packet_loss_critical_pct">
-		10
-	</string>
-	<string name="network_packet_loss_warning_pct">
-		5
-	</string>
-	<string name="network_packet_loss_critical_msg">
-		Conexão está caindo para cerca de [NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
-	</string>
-	<string name="network_packet_loss_warning_msg">
-		Conexão está caindo [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
-	</string>
-	<string name="network_performance_normal_msg">
-		Normal
-	</string>
-	<string name="network_ping_critical_ms">
-		600
-	</string>
-	<string name="network_ping_warning_ms">
-		300
-	</string>
-	<string name="network_ping_critical_msg">
-		Tempo de conexão de ping é cerca de  [NETWORK_PING_CRITICAL] ms
-	</string>
-	<string name="network_ping_warning_msg">
-		Tempo de conexão de ping é [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
-	</string>
-	<string name="network_packet_loss_cause_msg">
-		Possível conexão ruim ou &apos;Largura de Banda&apos; escolhida muito alta.
-	</string>
-	<string name="network_ping_cause_msg">
-		Possível conexão ruim ou aplicativos compartilhando arquivos.
-	</string>
-	<string name="server_text_msg">
 		Servidor
-	</string>
-	<string name="server_frame_rate_critical_fps">
-		20
-	</string>
-	<string name="server_frame_rate_warning_fps">
-		30
-	</string>
-	<string name="server_single_process_max_time_ms">
-		20
-	</string>
-	<string name="server_frame_time_critical_msg">
-		Taxa de quadros abaixo de [SERVER_FRAME_RATE_CRITICAL]
-	</string>
-	<string name="server_frame_time_warning_msg">
-		Taxa de quadros entre [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
-	</string>
-	<string name="server_frame_time_normal_msg">
+	</text>
+	<text font="SansSerifSmall" name="server_text">
 		Normal
-	</string>
-	<string name="server_physics_cause_msg">
-		Causa possível: Muitos objetos físicos
-	</string>
-	<string name="server_scripts_cause_msg">
-		Causa possível: Muitos objetos com scripts
-	</string>
-	<string name="server_net_cause_msg">
-		Causa possível: Muito tráfego na rede
-	</string>
-	<string name="server_agent_cause_msg">
-		Causa possível: Muitas pessoas se movendo na região
-	</string>
-	<string name="server_images_cause_msg">
-		Causa possível: Muitos cálculos de imagem
-	</string>
-	<string name="server_generic_cause_msg">
-		Causa possível: Carga no simulador muito pesada
-	</string>
-	<string name="smaller_label">
-		&gt;&gt;
-	</string>
-	<string name="bigger_label">
-		&lt;&lt;
-	</string>
+	</text>
+	<text left="30" name="server_lag_cause" right="-32"/>
+	<button label="&gt;&gt;" name="minimize" tool_tip="Alternar o tamanho da janela"/>
 </floater>

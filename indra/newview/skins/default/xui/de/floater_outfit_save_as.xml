@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="modal container">
+<floater name="modal container" title="Outfit speichern">
 	<button label="Speichern" label_selected="Speichern" name="Save"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel"/>
 	<text name="Save item as:">

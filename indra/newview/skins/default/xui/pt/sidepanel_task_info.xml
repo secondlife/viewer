@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Propriedades do objeto">
+	<panel.string name="text deed continued">
+		Doar
+	</panel.string>
+	<panel.string name="text deed">
+		Doar
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Você pode modificar este objeto
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Você pode modificar estes objetos
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Você não pode modificar este objeto
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Você não pode modificar estes objetos
+	</panel.string>
+	<panel.string name="text modify warning">
+		O objeto contém links ligando suas partes
+	</panel.string>
+	<panel.string name="Cost Default">
+		Preço: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Preço total: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Preço unitário: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Preço misto
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Venda mista
+	</panel.string>
+	<panel label="">
+		<text name="Name:">
+			Nome:
+		</text>
+		<text name="Description:">
+			Descrição:
+		</text>
+		<text name="Creator:">
+			Criador:
+		</text>
+		<text name="Owner:">
+			Proprietário:
+		</text>
+		<text name="Group:">
+			Grupo:
+		</text>
+		<button name="button set group" tool_tip="Selecione o grupo que terá acesso à autorização do objeto"/>
+		<name_box initial_value="Carregando..." name="Group Name Proxy"/>
+		<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
+		<check_box label="Compartilhar" name="checkbox share with group" tool_tip="Permitir que todos os membros do grupo tenhas suas permissões de modificação para este objeto.  Faça uma doação para ativar restrições de função."/>
+		<text name="label click action">
+			Clique para:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Tocar (padrão)" name="Touch/grab(default)"/>
+			<combo_box.item label="Sentar em objeto" name="Sitonobject"/>
+			<combo_box.item label="Comprar objeto" name="Buyobject"/>
+			<combo_box.item label="Pagar por objeto" name="Payobject"/>
+			<combo_box.item label="Abrir" name="Open"/>
+		</combo_box>
+		<check_box label="À venda" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Copiar" name="Copy"/>
+			<combo_box.item label="Conteúdo" name="Contents"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Preço: L$" name="Edit Cost"/>
+		<check_box label="Mostrar nos resultados de busca" name="search_check" tool_tip="Incluir o objeto nos resultados de busca"/>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Você pode modificar este objeto
+			</text>
+			<text name="Anyone can:">
+				Todos:
+			</text>
+			<check_box label="Movimentar" name="checkbox allow everyone move"/>
+			<check_box label="Copiar" name="checkbox allow everyone copy"/>
+			<text name="Next owner can:">
+				Próximo proprietário:
+			</text>
+			<check_box label="Modificar" name="checkbox next owner can modify"/>
+			<check_box label="Copiar" name="checkbox next owner can copy"/>
+			<check_box label="Transferir" name="checkbox next owner can transfer" tool_tip="O próximo dono poderá revender ou dar este objeto"/>
+			<text name="B:">
+				B:
+			</text>
+			<text name="O:">
+				O:
+			</text>
+			<text name="G:">
+				G:
+			</text>
+			<text name="E:">
+				E:
+			</text>
+			<text name="N:">
+				N:
+			</text>
+			<text name="F:">
+				F:
+			</text>
+		</panel>
+	</panel>
+	<panel name="button_panel">
+		<button label="Abrir" name="open_btn"/>
+		<button label="Pagar" name="pay_btn"/>
+		<button label="Comprar" name="buy_btn"/>
+		<button label="Cancelar" name="cancel_btn"/>
+		<button label="Salvar" name="save_btn"/>
+	</panel>
+</panel>

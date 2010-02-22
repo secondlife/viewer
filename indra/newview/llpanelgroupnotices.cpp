@@ -652,6 +652,9 @@ void LLPanelGroupNotices::setGroupID(const LLUUID& id)
 	LLGroupDropTarget* target = getChild<LLGroupDropTarget> ("drop_target");
 	target->setPanel (this);
 	target->setGroup (mGroupID);
+
+	if(mViewMessage) 
+		mViewMessage->clear();
 	
 	activate();
 }

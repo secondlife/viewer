@@ -358,6 +358,20 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	getTextEntry()->setRightMouseUpCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked,this,_2,_3,_4));
 	updateWidgetlayout();
 
+	// Connecting signal for updating location on "Show Coordinates" setting change.
+	LLControlVariable* coordinates_control = gSavedSettings.getControl("NavBarShowCoordinates").get();
+	if (coordinates_control)
+	{
+		mCoordinatesControlConnection = coordinates_control->getSignal()->connect(boost::bind(&LLLocationInputCtrl::refreshLocation, this));
+	}
+
+	// Connecting signal for updating parcel icons on "Show Parcel Properties" setting change.
+	LLControlVariable* parcel_properties_control = gSavedSettings.getControl("NavBarShowParcelProperties").get();
+	if (parcel_properties_control)
+	{
+		mParcelPropertiesControlConnection = parcel_properties_control->getSignal()->connect(boost::bind(&LLLocationInputCtrl::refreshParcelIcons, this));
+	}
+
 	// - Make the "Add landmark" button updated when either current parcel gets changed
 	//   or a landmark gets created or removed from the inventory.
 	// - Update the location string on parcel change.
@@ -391,6 +405,8 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
 	LLViewerParcelMgr::getInstance()->removeObserver(mParcelChangeObserver);
 	delete mParcelChangeObserver;
 
+	mCoordinatesControlConnection.disconnect();
+	mParcelPropertiesControlConnection.disconnect();
 	mParcelMgrConnection.disconnect();
 	mLocationHistoryConnection.disconnect();
 }
@@ -648,7 +664,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 				value["item_type"] = TELEPORT_HISTORY;
 				value["global_pos"] = result->mGlobalPos.getValue();
 				std::string region_name = result->mTitle.substr(0, result->mTitle.find(','));
-				//TODO*: add Surl to teleportitem or parse region name from title
+				//TODO*: add slurl to teleportitem or parse region name from title
 				value["tooltip"] = LLSLURL::buildSLURLfromPosGlobal(region_name,
 						result->mGlobalPos,	false);
 				add(result->getTitle(), value); 
@@ -763,8 +779,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	// Our "cursor" moving right to left
 	S32 x = mAddLandmarkBtn->getRect().mLeft;
 
-	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
-	if (show_properties)
+	if (gSavedSettings.getBOOL("NavBarShowParcelProperties"))
 	{
 		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
 
@@ -899,7 +914,7 @@ void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
 		LLSD value;
 		value["tooltip"] = it->getToolTip();
 		//location history can contain only typed locations
-		value["item_type"] = TYPED_REGION_SURL;
+		value["item_type"] = TYPED_REGION_SLURL;
 		value["global_pos"] = it->mGlobalPos.getValue();
 		add(it->getLocation(), value);
 	}
@@ -1008,7 +1023,6 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 	{
 		gSavedSettings.setBOOL("NavBarShowParcelProperties",
 			!gSavedSettings.getBOOL("NavBarShowParcelProperties"));
-		refreshParcelIcons();
 	}
 	else if (item == "landmark")
 	{

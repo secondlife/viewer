@@ -232,6 +232,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	if(sim_string.empty())
 	{
 		LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
+		sim_string = LLURLSimString::sInstance.mSimString;
 	}
 
 	if (!sim_string.empty())

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Coisas" name="objects panel">
+	<panel label="" name="sidepanel__inventory_panel">
+		<panel name="button_panel">
+			<button label="Perfil" name="info_btn"/>
+			<button label="Vestir" name="wear_btn"/>
+			<button label="Tocar" name="play_btn"/>
+			<button label="Teletransportar" name="teleport_btn"/>
+		</panel>
+	</panel>
+</panel>

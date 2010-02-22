@@ -41,11 +41,13 @@
 #include <boost/function.hpp>
 
 class LLSD;
-
+/**
+ * This enum is responsible for identifying of history item.
+ */
 enum ELocationType {
-	 TYPED_REGION_SURL//region name or surl 
-	,LANDMARK  // name of landmark
-	,TELEPORT_HISTORY 
+	 TYPED_REGION_SLURL//item added after the user had typed a region name or slurl 
+	,LANDMARK  // item has been loaded from landmark folder
+	,TELEPORT_HISTORY // item from session teleport history
 	};
 class LLLocationHistoryItem {
 			

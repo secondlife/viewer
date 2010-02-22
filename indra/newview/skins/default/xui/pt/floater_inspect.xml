@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="inspect" title="INSPECIONAR OBJETO" min_width="450">
+<floater min_width="450" name="inspect" title="EXAMINAR OBJETOS">
+	<floater.string name="timeStamp">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
 	<scroll_list name="object_list" tool_tip="Selecione um objeto nesta lista para destacá-lo in-world">
-		<column label="Nome do Objeto" name="object_name"/>
-		<column label="Proprietário" name="owner_name"/>
-		<column label="Criador" name="creator_name"/>
-		<column label="Data de Criação" name="creation_date"/>
+		<scroll_list.columns label="Nome do Objeto" name="object_name"/>
+		<scroll_list.columns label="Proprietário" name="owner_name"/>
+		<scroll_list.columns label="Criador" name="creator_name"/>
+		<scroll_list.columns label="Data de Criação" name="creation_date"/>
 	</scroll_list>
-	<button width="185" label="Ver Perfil do Proprietário..." label_selected="" name="button owner" tool_tip="Veja o perfil do proprietário do objeto destacado"/>
-	<button width="165" left="205" label="Ver perfil do criador..." label_selected="" name="button creator" tool_tip="Veja o perfil do criador original do objeto destacado"/>
+	<button label="Ver Perfil do Proprietário..." label_selected="" name="button owner" tool_tip="Veja o perfil do proprietário do objeto destacado" width="185"/>
+	<button label="Ver perfil do criador..." label_selected="" left="205" name="button creator" tool_tip="Veja o perfil do criador original do objeto destacado" width="165"/>
 </floater>

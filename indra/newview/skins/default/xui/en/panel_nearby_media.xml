@@ -2,7 +2,9 @@
 <panel
 	can_resize="true"
 	can_close="false"
-	background_opaque="true"
+ bg_opaque_image="Volume_Background" 
+ bg_alpha_image="Volume_Background" 
+  background_opaque="true"
 	background_visible="true"
 	layout="topleft"
 	width="270"
@@ -16,9 +18,7 @@
   <string name="playing_suffix">(playing)</string>
   <panel
 	  bevel_style="in"
-	  bg_alpha_color="0 0 0 0"
-	  bg_opaque_color="0 0 0 0.3"
-	  bg_opaque_image="Toast_Background"  
+    background_visible="false" 
 	  follows="left|right|top"
 	  top="0"
 	  height="30"
@@ -188,9 +188,7 @@
 	</scroll_list>
 	<panel
 		bevel_style="in"
-		background_visible="true" 
-		bg_alpha_color="0.0 0.0 0.0 1.0"
-		bg_opaque_color="0 0 0 0.3"
+		background_visible="false" 
 		follows="left|right|bottom"
 		top_pad="5"
 		height="30"

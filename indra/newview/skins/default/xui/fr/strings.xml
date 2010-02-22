@@ -825,7 +825,7 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aucun objet correspondant dans l&apos;inventaire.
+		Aucun objet correspondant dans l&apos;inventaire.  Essayer la [secondlife:///app/search/groups &quot;Recherche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1504,7 +1504,7 @@
 		(mise à jour après la publication)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Il n&apos;y a pas de préférences/petites annonces ici
+		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...

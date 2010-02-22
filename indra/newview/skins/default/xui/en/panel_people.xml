@@ -29,6 +29,7 @@
      name="groups_filter_label"
      value="Filter Groups" />
     <filter_editor
+     text_pad_left="10"
      follows="left|top|right"
      height="23"
      layout="topleft"

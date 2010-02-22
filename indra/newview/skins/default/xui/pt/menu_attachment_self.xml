@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Attachment Pie">
+	<menu_item_call label="Tocar" name="Attachment Object Touch"/>
+	<menu_item_call label="Editar" name="Edit..."/>
+	<menu_item_call label="Tirar" name="Detach"/>
+	<menu_item_call label="Largar" name="Drop"/>
+	<menu_item_call label="Ficar de pé" name="Stand Up"/>
+	<menu_item_call label="Minha aparência" name="Appearance..."/>
+	<menu_item_call label="Meus amigos" name="Friends..."/>
+	<menu_item_call label="Meus grupos" name="Groups..."/>
+	<menu_item_call label="Meu perfil" name="Profile..."/>
+</context_menu>

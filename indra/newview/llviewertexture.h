@@ -198,6 +198,7 @@ public:
 	LLGLuint   getTexName() const ;		
 	BOOL       createGLTexture() ;
 	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLViewerTexture::OTHER);
+	virtual void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 
 	void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
 	void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
@@ -423,6 +424,7 @@ public:
 
 	LLImageRaw* reloadRawImage(S8 discard_level) ;
 	void destroyRawImage();
+	/*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 
 	const std::string& getUrl() const {return mUrl;}
 	//---------------

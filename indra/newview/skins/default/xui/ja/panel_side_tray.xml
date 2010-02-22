@@ -7,7 +7,9 @@
 		<panel label="ホーム" name="panel_home"/>
 	</sidetray_tab>
 	<sidetray_tab description="あなたの公開プロフィールとピックを編集してください。" name="sidebar_me" tab_title="マイ プロフィール">
-		<panel label="ミー" name="panel_me"/>
+		<panel_container name="panel_container">
+			<panel label="ミー" name="panel_me"/>
+		</panel_container>
 	</sidetray_tab>
 	<sidetray_tab description="フレンド、連絡先、近くの人を探してください。" name="sidebar_people" tab_title="人">
 		<panel_container name="panel_container">

@@ -2,12 +2,12 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Problema encontrado ao processar seu pedido de Teletransporte. Você pode tentar reiniciar  antes de tentar teletransportar-se. Se você continuar a receber esta mensagem, por favor verifique a FAQ do Suporte Técnico em: 
-www.secondlife.com/support
+			Houve um problema ao processar o teletransporte. Talvez seja preciso sair e entrar do Second Life para fazer o teletransporte.
+Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
-			Problema encontrado ao processar a passagem de regiões. Você pode tentar reiniciar antes de tentar atravessar regiões novamente. Se você continuar a receber esta mensagem, por favor verifique a FAQ do Suporte Técnico em:
-www.secondlife.com/support
+			Problema encontrado ao processar a passagem de regiões. Talvez seja preciso sair e entrar do Second Life atravessar regiões novamente.
+Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Desculpe, teletransportes estão atualmente bloqueados. Tente novamente dentro de alguns instantes. Se você continuar com problemas de teletransporte, por favor tente deslogar e relogar para resolver o problema.

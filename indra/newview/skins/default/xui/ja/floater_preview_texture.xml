@@ -42,6 +42,6 @@
 		</combo_item>
 	</combo_box>
 	<button label="OK" name="Keep"/>
-	<button label="キャンセル" name="Discard"/>
+	<button label="処分する" name="Discard"/>
 	<button label="別名で保存" name="save_tex_btn"/>
 </floater>

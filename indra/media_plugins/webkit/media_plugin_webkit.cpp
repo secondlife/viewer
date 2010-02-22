@@ -43,11 +43,15 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
+#if LL_LINUX
+# include "linux_volume_catcher.h"
+#endif // LL_LINUX
+
 #if LL_WINDOWS
-#include <direct.h>
+# include <direct.h>
 #else
-#include <unistd.h>
-#include <stdlib.h>
+# include <unistd.h>
+# include <stdlib.h>
 #endif
 
 #if LL_WINDOWS
@@ -102,6 +106,10 @@ private:
 	F32 mBackgroundG;
 	F32 mBackgroundB;
 	
+#if LL_LINUX
+	LinuxVolumeCatcher mLinuxVolumeCatcher;
+#endif // LL_LINUX
+
 	void setInitState(int state)
 	{
 //		std::cerr << "changing init state to " << state << std::endl;
@@ -114,6 +122,10 @@ private:
 	{
 		LLQtWebKit::getInstance()->pump( milliseconds );
 		
+#if LL_LINUX
+		mLinuxVolumeCatcher.pump();
+#endif // LL_LINUX
+
 		checkEditState();
 		
 		if(mInitState == INIT_STATE_NAVIGATE_COMPLETE)
@@ -281,6 +293,7 @@ private:
 		return false;
 	};
 
+	void setVolume(F32 vol);
 
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
@@ -732,6 +745,14 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 //				std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
 			}
 		}
+                else if(message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME)
+		{
+			if(message_name == "set_volume")
+			{
+				F32 volume = message_in.getValueReal("volume");
+				setVolume(volume);
+			}
+		}
 		else if(message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
 		{
 			if(message_name == "size_change")
@@ -996,6 +1017,13 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 //			std::cerr << "MediaPluginWebKit::receiveMessage: unknown message class: " << message_class << std::endl;
 		};
 	}
+}
+
+void MediaPluginWebKit::setVolume(F32 volume)
+{
+#if LL_LINUX
+	mLinuxVolumeCatcher.setVolume(volume);
+#endif // LL_LINUX
 }
 
 int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data)

@@ -1574,22 +1574,25 @@ void LLFloater::draw()
 
 		LLUIImage* image = NULL;
 		LLColor4 color;
+		LLColor4 overlay_color;
 		if (isBackgroundOpaque())
 		{
 			// NOTE: image may not be set
 			image = getBackgroundImage();
 			color = getBackgroundColor();
+			overlay_color = getBackgroundImageOverlay();
 		}
 		else
 		{
 			image = getTransparentImage();
 			color = getTransparentColor();
+			overlay_color = getTransparentImageOverlay();
 		}
 
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), UI_VERTEX_COLOR % alpha);
+			image->draw(getLocalRect(), overlay_color % alpha);
 		}
 		else
 		{
@@ -2387,10 +2390,17 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			LLRect new_rect;
 			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
 
-			floater->reshape( new_width, new_height, TRUE );
-			floater->setRect(new_rect);
+			floater->setShape(new_rect);
 
-			floater->translateIntoRect( getLocalRect(), false );
+			if (floater->followsRight())
+			{
+				floater->translate(old_width - new_width, 0);
+			}
+
+			if (floater->followsTop())
+			{
+				floater->translate(0, old_height - new_height);
+			}
 		}
 	}
 

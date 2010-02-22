@@ -38,16 +38,16 @@
 		認証しています...
 	</string>
 	<string name="LoginMaintenance">
-		アカウント・メンテナンスを実行しています...
+		アカウントのメンテナンスを実行しています...
 	</string>
 	<string name="LoginAttempt">
-		前回のログインに失敗しました。 ログイン中です([NUMBER]回目)
+		前回のログインに失敗しました。 ログイン中です（[NUMBER] 回目）
 	</string>
 	<string name="LoginPrecaching">
-		ワールドをロードしています...
+		ワールドを読み込んでいます...
 	</string>
 	<string name="LoginInitializingBrowser">
-		埋め込みWebブラウザを初期化しています...
+		内蔵 Web ブラウザを初期化しています...
 	</string>
 	<string name="LoginInitializingMultimedia">
 		マルチメディアを初期化しています...
@@ -56,7 +56,7 @@
 		フォントをローディング中...
 	</string>
 	<string name="LoginVerifyingCache">
-		キャッシュ・ファイルを検証しています(所要時間は60～90秒)...
+		キャッシュファイルを検証しています（所要時間は 60 ～ 90 秒）...
 	</string>
 	<string name="LoginProcessingResponse">
 		応答を処理しています...
@@ -68,22 +68,22 @@
 		画像をデコードしています...
 	</string>
 	<string name="LoginInitializingQuicktime">
-		QuickTimeを初期化しています...
+		QuickTime を初期化しています...
 	</string>
 	<string name="LoginQuicktimeNotFound">
-		QuickTimeが見つかりません。初期化に失敗しました。
+		QuickTime が見つかりません。初期化に失敗しました。
 	</string>
 	<string name="LoginQuicktimeOK">
-		QuickTimeが正常に初期化されました。
+		QuickTime が正常に初期化されました。
 	</string>
 	<string name="LoginWaitingForRegionHandshake">
-		地域のハンドシェイクを待っています...
+		リージョンのハンドシェイクを待っています...
 	</string>
 	<string name="LoginConnectingToRegion">
-		地域に接続しています...
+		リージョンに接続しています...
 	</string>
 	<string name="LoginDownloadingClothing">
-		服をダウンロードしています...
+		衣類をダウンロードしています...
 	</string>
 	<string name="LoginFailedNoNetwork">
 		ネットワークエラー： 接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
@@ -101,19 +101,19 @@
 		人
 	</string>
 	<string name="TooltipNoName">
-		(名前なし)
+		（名前なし）
 	</string>
 	<string name="TooltipOwner">
-		オーナー:
+		所有者:
 	</string>
 	<string name="TooltipPublic">
 		公共
 	</string>
 	<string name="TooltipIsGroup">
-		(グループ)
+		（グループ）
 	</string>
 	<string name="TooltipForSaleL$">
-		売り出し中:L$[AMOUNT]
+		売り出し中:L$ [AMOUNT]
 	</string>
 	<string name="TooltipFlagGroupBuild">
 		グループ作成
@@ -131,7 +131,7 @@
 		飛行禁止
 	</string>
 	<string name="TooltipFlagGroupScripts">
-		グループ・スクリプト
+		グループスクリプト
 	</string>
 	<string name="TooltipFlagNoScripts">
 		スクリプトなし
@@ -140,42 +140,42 @@
 		土地:
 	</string>
 	<string name="TooltipMustSingleDrop">
-		1つのアイテムのみをここにドラッグできます
+		アイテムは 1 つだけここにドラッグできます
 	</string>
 	<string name="TooltipHttpUrl">
-		クリックしてこのWebページを見る
+		クリックしてこの Web ページを見ます
 	</string>
 	<string name="TooltipSLURL">
-		クリックしてこの場所の情報を見る
+		クリックしてこの場所の情報を見ます
 	</string>
 	<string name="TooltipAgentUrl">
-		クリックしてこの住人のプロフィールを見る
+		クリックしてこの住人のプロフィールを見ます
 	</string>
 	<string name="TooltipGroupUrl">
-		クリックしてこのグループの説明文を見る
+		クリックしてこのグループの説明文を見ます
 	</string>
 	<string name="TooltipEventUrl">
-		クリックしてこのグループの説明文を見る
+		クリックしてこのグループの説明文を見ます
 	</string>
 	<string name="TooltipClassifiedUrl">
-		クリックしてこのクラシファイド広告を見る
+		クリックしてこのクラシファイド広告を見ます
 	</string>
 	<string name="TooltipParcelUrl">
-		クリックしてこの区画の説明文を見る
+		クリックしてこの区画の説明文を見ます
 	</string>
 	<string name="TooltipTeleportUrl">
-		クリックしてこの場所にテレポートする
+		クリックしてこの場所にテレポートします
 	</string>
 	<string name="TooltipObjectIMUrl">
-		クリックしてこのオブジェクトの説明文を見る
+		クリックしてこのオブジェクトの説明文を見ます
 	</string>
 	<string name="TooltipMapUrl">
-		クリックしてこの場所を地図に表示する
+		クリックしてこの場所を地図に表示します
 	</string>
 	<string name="TooltipSLAPP">
-		クリックして secondlife:// コマンドを出す
+		クリックして secondlife:// コマンドを出します
 	</string>
-	<string name="CurrentURL" value=" 現在のURL： [CurrentURL]"/>
+	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]"/>
 	<string name="SLurlLabelTeleport">
 		テレポート
 	</string>
@@ -384,28 +384,28 @@
 		泣く
 	</string>
 	<string name="anim_dance1">
-		ダンス1
+		ダンス 1
 	</string>
 	<string name="anim_dance2">
-		ダンス2
+		ダンス 2
 	</string>
 	<string name="anim_dance3">
-		ダンス3
+		ダンス 3
 	</string>
 	<string name="anim_dance4">
-		ダンス4
+		ダンス 4
 	</string>
 	<string name="anim_dance5">
-		ダンス5
+		ダンス 5
 	</string>
 	<string name="anim_dance6">
-		ダンス6
+		ダンス 6
 	</string>
 	<string name="anim_dance7">
-		ダンス7
+		ダンス 7
 	</string>
 	<string name="anim_dance8">
-		ダンス8
+		ダンス 8
 	</string>
 	<string name="anim_express_disdain">
 		侮蔑
@@ -594,10 +594,10 @@
 		「近くのボイスチャット」に再接続されます
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		[REGIONNAME]の[REGIONPOS]という場所にある「[OWNERNAME]」所有の「[OBJECTNAME]」というオブジェクトは、次の権限を許可しました： [PERMISSIONS]
+		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を許可しました： [PERMISSIONS]
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		[REGIONNAME]の[REGIONPOS]という場所にある「[OWNERNAME]」所有の「[OBJECTNAME]」というオブジェクトは、次の権限を拒否しました： [PERMISSIONS]
+		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を拒否しました： [PERMISSIONS]
 	</string>
 	<string name="ScriptTakeMoney">
 		リンデンドル（L$）を支払う
@@ -672,22 +672,22 @@
 		ロード
 	</string>
 	<string name="targa_image_files">
-		Targa画像
+		Targa 画像
 	</string>
 	<string name="bitmap_image_files">
 		ビットマップ画像
 	</string>
 	<string name="avi_movie_file">
-		AVIムービーファイル
+		AVI ムービーファイル
 	</string>
 	<string name="xaf_animation_file">
-		XAFアニメーションファイル
+		XAF アニメーションファイル
 	</string>
 	<string name="xml_file">
-		XMLファイル
+		XML ファイル
 	</string>
 	<string name="dot_raw_file">
-		RAWファイル
+		RAW ファイル
 	</string>
 	<string name="compressed_image_files">
 		圧縮画像
@@ -792,7 +792,7 @@
 		不在中に新しい通知が届きました。
 	</string>
 	<string name="OverflowInfoChannelString">
-		You have %d more notification
+		あなたにはさらに %d 通の通知があります
 	</string>
 	<string name="BodyPartsRightArm">
 		右腕
@@ -822,16 +822,16 @@
 		高
 	</string>
 	<string name="LeaveMouselook">
-		ESC キーを押してワールドビューに戻る
+		ESC キーを押してワールドビューに戻ります
 	</string>
 	<string name="InventoryNoMatchingItems">
-		一致するアイテムが持ち物にありませんでした
+		一致するアイテムが持ち物にありませんでした。  [secondlife:///app/search/groups 「検索」] をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		ここにランドマークをドラッグして、お気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
-		持ち物内にこのテクスチャのコピーがありません
+		「持ち物」内にこのテクスチャのコピーがありません
 	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
@@ -910,7 +910,7 @@
 		新規フォルダ
 	</string>
 	<string name="InvFolder Inventory">
-		インベントリ
+		持ち物
 	</string>
 	<string name="InvFolder Uncompressed Images">
 		圧縮されていない画像
@@ -1256,7 +1256,7 @@
 		（不明）
 	</string>
 	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
-	<string name="NextStipendDay" value="次回のお小遣い支給日は"/>
+	<string name="NextStipendDay" value="です。次回のお小遣い支給日："/>
 	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
 	<string name="Balance">
 		残高
@@ -1316,10 +1316,10 @@
 		区画のスクリプトURL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		使用されたURL： [MAX] 中 [COUNT] ：[AVAILABLE] 利用可
+		使用された URL： [MAX] 中 [COUNT] ：[AVAILABLE] 利用可
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		使用されたURL： [COUNT]
+		使用された URL： [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
 		情報のリクエスト中にエラーが発生しました
@@ -1433,13 +1433,13 @@
 		HUD（中央 2）
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		HUD右上
+		HUD（右上）
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
 		HUD（上・中央）
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		HUD 左上
+		HUD（左上）
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
 		HUD（中央 1）
@@ -1504,7 +1504,7 @@
 		（掲載後更新）
 	</string>
 	<string name="NoPicksClassifiedsText">
-		ここにはピック・クラシファイド広告はありません。
+		ピックやクラシファイド広告を作成していません。 作成するには、下にある「プラス」ボタンをクリックします。
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		ローディング...
@@ -1682,7 +1682,7 @@
 		土地のレンタル
 	</string>
 	<string name="Property Rental">
-		建物のレンタル
+		プロパティのレンタル
 	</string>
 	<string name="Special Attraction">
 		特別アトラクション
@@ -1852,13 +1852,13 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ピクセル形式情報が見つかりません
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] を実行するには、True Color（32ビット）が必要です。
+		[APP_NAME] を実行するには、True Color （32ビット）が必要です。
 お使いのコンピューターの「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （32 ビット)」に設定してください。
 	</string>
 	<string name="MBAlpha">
 		[APP_NAME] は 8 ビットのアルファチャンネルを取得できないため実行できません。  通常ビデオカードのドライバの問題で起こります。
 お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
-また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （32ビット）」に設定されていることもご確認ください。
+また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （32 ビット）」に設定されていることもご確認ください。
 このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 	</string>
 	<string name="MBPixelFmtSetErr">
@@ -1871,7 +1871,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		GL レンダーコンテキストをアクティベートできません
 	</string>
 	<string name="MBVideoDrvErr">
-		お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME] は実行できません。 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
+		お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME]  は実行できません。 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
 
 このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 	</string>
@@ -3295,7 +3295,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		アドホックコンファレンス
 	</string>
 	<string name="inventory_item_offered-im">
-		持ち物アイテムが送られてきました
+		持ち物アイテムを送りました
 	</string>
 	<string name="share_alert">
 		持ち物からここにアイテムをドラッグします
@@ -3304,10 +3304,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		このセッションにいるユーザーはあなただけです。
 	</string>
 	<string name="offline_message">
-		[FIRST] [LAST]はオフラインです。
+		[FIRST] [LAST] はオフラインです。
 	</string>
 	<string name="invite_message">
-		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
+		このボイスチャットに応答・接続する場合は、[BUTTON NAME] をクリックしてください。
 	</string>
 	<string name="muted_message">
 		この住人をブロックしています。 メッセージを送ると、ブロックが自動的に解除されます。
@@ -3331,7 +3331,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		あなたにはその能力がありません。
 	</string>
 	<string name="not_a_mod_error">
-		あなたはセッション・モデレータではありません。
+		あなたはセッションモデレータではありません。
 	</string>
 	<string name="muted">
 		グループのモデレーターが、あなたのテキストチャットを禁止しました。
@@ -3340,13 +3340,13 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		グループモデレータがあなたのテキストチャットを無効化しました
 	</string>
 	<string name="add_session_event">
-		[RECIPIENT] とのチャット・セッションにユーザーを追加することができません
+		[RECIPIENT] とのチャットセッションにユーザーを追加することができません
 	</string>
 	<string name="message">
 		[RECIPIENT] とのチャットセッションに、メッセージを送信することができません。
 	</string>
 	<string name="message_session_event">
-		[RECIPIENT] とのチャット・セッションにメッセージを送ることができません
+		[RECIPIENT] とのチャットセッションにメッセージを送ることができません
 	</string>
 	<string name="mute">
 		モデレート中にエラーが発生しました。
@@ -3358,7 +3358,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		あなたはグループから削除されました。
 	</string>
 	<string name="close_on_no_ability">
-		このチャット・セッションを継続することはできません
+		このチャットセッションを継続することはできません
 	</string>
 	<string name="unread_chat_single">
 		[SOURCES] は何か新しいことを言いました。

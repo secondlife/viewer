@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- follows="all"
  height="680"
  label="Members &amp; Roles"
  layout="topleft"
  left="0"
  top="0"
  name="roles_tab"
- width="313">
+ width="304">
     <panel.string
      name="default_needs_apply_text">
         There are unsaved changes
@@ -31,7 +30,7 @@
      tab_height="22"
      tab_min_width="90"
      top="0"
-     width="313">
+     width="304">
         <panel
          border="false"
          follows="all"

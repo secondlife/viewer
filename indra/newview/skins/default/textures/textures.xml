@@ -679,6 +679,7 @@ with the same filename but different name
   <texture name="silhouette.j2c" use_mips="true" />
   <texture name="foot_shadow.j2c" use_mips="true" />
   <texture name="cloud-particle.j2c" use_mips="true" />
+  <texture name="transparent.j2c" use_mips="true" />
 
   <!--WARNING OLD ART BELOW *do not use*-->
   <texture name="icn_chatbar.tga" />

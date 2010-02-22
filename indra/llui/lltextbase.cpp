@@ -1445,10 +1445,10 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 }
 
 // Finds the text segment (if any) at the give local screen position
-LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos( S32 x, S32 y )
+LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_end_of_line)
 {
 	// Find the cursor position at the requested local screen position
-	S32 offset = getDocIndexFromLocalCoord( x, y, FALSE );
+	S32 offset = getDocIndexFromLocalCoord( x, y, FALSE, hit_past_end_of_line);
 	segment_set_t::iterator seg_iter = getSegIterContaining(offset);
 	if (seg_iter != mSegments.end())
 	{
@@ -1788,7 +1788,7 @@ const LLWString& LLTextBase::getWText() const
 // will be put to its right.  If round is false, the cursor will always be put to the
 // character's left.
 
-S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const
+S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line) const
 {
 	// Figure out which line we're nearest to.
 	LLRect visible_region = getVisibleDocumentRect();
@@ -1817,7 +1817,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round 
 		S32 text_width, text_height;
 		segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
 		if (local_x < start_x + text_width						// cursor to left of right edge of text
-			|| segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)	// or this segment wraps to next line
+			|| (hit_past_end_of_line && (segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)))	// or this segment wraps to next line
 		{
 			// Figure out which character we're nearest to.
 			S32 offset;
@@ -2402,8 +2402,12 @@ BOOL LLNormalTextSegment::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
-		LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
-		return TRUE;
+		// Only process the click if it's actually in this segment, not to the right of the end-of-line.
+		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
+		{
+			LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -2412,8 +2416,12 @@ BOOL LLNormalTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
-		mEditor.createUrlContextMenu(x, y, getStyle()->getLinkHREF());
-		return TRUE;
+		// Only process the click if it's actually in this segment, not to the right of the end-of-line.
+		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
+		{
+			mEditor.createUrlContextMenu(x, y, getStyle()->getLinkHREF());
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -2422,8 +2430,12 @@ BOOL LLNormalTextSegment::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
-		// eat mouse down event on hyperlinks, so we get the mouse up
-		return TRUE;
+		// Only process the click if it's actually in this segment, not to the right of the end-of-line.
+		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
+		{
+			// eat mouse down event on hyperlinks, so we get the mouse up
+			return TRUE;
+		}
 	}
 
 	return FALSE;
@@ -2433,8 +2445,12 @@ BOOL LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
-		LLUrlAction::clickAction(getStyle()->getLinkHREF());
-		return TRUE;
+		// Only process the click if it's actually in this segment, not to the right of the end-of-line.
+		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
+		{
+			LLUrlAction::clickAction(getStyle()->getLinkHREF());
+			return TRUE;
+		}
 	}
 
 	return FALSE;

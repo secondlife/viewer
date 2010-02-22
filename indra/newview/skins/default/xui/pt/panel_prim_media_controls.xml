@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="MediaControls">
+	<layout_stack name="media_controls">
+		<layout_panel name="media_address">
+			<line_editor name="media_address_url" tool_tip="URL da mídia"/>
+			<layout_stack name="media_address_url_icons">
+				<layout_panel>
+					<icon name="media_whitelist_flag" tool_tip="Lista ativada"/>
+				</layout_panel>
+				<layout_panel>
+					<icon name="media_secure_lock_flag" tool_tip="Navegação segura"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="media_play_position">
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Andamento do vídeo"/>
+		</layout_panel>
+		<layout_panel name="media_volume">
+			<button name="media_mute_button" tool_tip="Silenciar esta mídia"/>
+			<slider name="volume_slider" tool_tip="Volume"/>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack>
+		<panel name="media_progress_indicator">
+			<progress_bar name="media_progress_bar" tool_tip="Carregando mídia"/>
+		</panel>
+	</layout_stack>
+</panel>

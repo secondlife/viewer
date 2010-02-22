@@ -193,16 +193,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>84821102cb819257a66c8f38732647fc</string>
+            <string>5ff1e212bb9bcde21cb174228e2437f6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20100119.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-darwin-20100219.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>ee8e1b4bbcf137a84d6a85a1c51386ff</string>
+            <string>9d4cbaac12d0068b3bb8ee73fcfbe9d7</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100119.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100219.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -214,9 +214,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>acbf7a4165a917a4e087879d1756b355</string>
+            <string>94fd43f534e2055858d524086384907d</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20100119.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20100219.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -295,6 +295,25 @@
             <string>eb25444142d4102b0ce1b7ffaadb071e</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>pulseaudio</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2004-2006 Lennart Poettering, Copyright 2006 Pierre Ossman (ossman@cendio.se) for Cendio AB</string>
+        <key>description</key>
+        <string>pulseaudio: headers only</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>30cb00069fe2a545fbf7be1070386236</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/linux-pulse-headers-0.9.14.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -436,9 +455,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>978ad7c67fe4a2419bfc841e2956ff9f</string>
+            <string>9de3f44be65645c7f6af236139596942</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-20090521c.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-2010-02-19a-nommap.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>

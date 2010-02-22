@@ -66,8 +66,6 @@ static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
-const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
-
 const static std::string SLURL_APP_AGENT = "secondlife:///app/agent/";
 const static std::string SLURL_ABOUT = "/about";
 
@@ -435,7 +433,8 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 	mTopSeparatorPad(p.top_separator_pad),
 	mBottomSeparatorPad(p.bottom_separator_pad),
 	mTopHeaderPad(p.top_header_pad),
-	mBottomHeaderPad(p.bottom_header_pad)
+	mBottomHeaderPad(p.bottom_header_pad),
+	mIsLastMessageFromLog(false)
 {
 	LLTextEditor::Params editor_params(p);
 	editor_params.rect = getLocalRect();
@@ -602,8 +601,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		style_params.font.style = "ITALIC";
 	}
 
-	//*HACK we graying out chat history by graying out messages that contains full date in a time string
-	bool message_from_log = chat.mTimeStr.length() > LENGTH_OF_TIME_STR; 
+	bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;
+	// We graying out chat history by graying out messages that contains full date in a time string
 	if (message_from_log)
 	{
 		style_params.color(LLColor4::grey);
@@ -672,7 +671,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			&& mLastFromID == chat.mFromID
 			&& mLastMessageTime.notNull() 
 			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
-			&& mLastMessageTimeStr.size() == chat.mTimeStr.size())  //*HACK to distinguish between current and previous chat session's histories
+			&& mIsLastMessageFromLog == message_from_log)  //distinguish between current and previous chat session's histories
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -706,7 +705,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
-		mLastMessageTimeStr = chat.mTimeStr;
+		mIsLastMessageFromLog = message_from_log;
 	}
 
    if (chat.mNotifId.notNull())
@@ -721,22 +720,26 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			notify_box->setFollowsRight();
 			notify_box->setFollowsTop();
 
-			LLButton* accept_button = notify_box->getChild<LLButton> ("Accept",
-					TRUE);
-			if (accept_button != NULL)
+			ctrl_list_t ctrls = notify_box->getControlPanel()->getCtrlList();
+			S32 offset = 0;
+			for (ctrl_list_t::iterator it = ctrls.begin(); it != ctrls.end(); it++)
 			{
-				accept_button->setFollowsNone();
-				accept_button->setOrigin(2*HPAD, accept_button->getRect().mBottom);
-			}
-
-			LLButton* decline_button = notify_box->getChild<LLButton> (
-					"Decline", TRUE);
-			if (accept_button != NULL && decline_button != NULL)
-			{
-				decline_button->setFollowsNone();
-				decline_button->setOrigin(4*HPAD
-						+ accept_button->getRect().getWidth(),
-						decline_button->getRect().mBottom);
+				LLButton * button = dynamic_cast<LLButton*> (*it);
+				if (button != NULL)
+				{
+					button->setOrigin( offset,
+							button->getRect().mBottom);
+					button->setLeftHPad(2 * HPAD);
+					button->setRightHPad(2 * HPAD);
+					// set zero width before perform autoResize()
+					button->setRect(LLRect(button->getRect().mLeft,
+							button->getRect().mTop, button->getRect().mLeft,
+							button->getRect().mBottom));
+					button->setAutoResize(true);
+					button->autoResize();
+					offset += 2 * HPAD + button->getRect().getWidth();
+					button->setFollowsNone();
+				}
 			}
 
 			LLTextEditor* text_editor = notify_box->getChild<LLTextEditor>("text_editor_box", TRUE);
