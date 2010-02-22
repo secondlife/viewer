@@ -31,6 +31,10 @@
  * @endcond
  */
 
+#include "linden_common.h"
+
+#include <glib.h>
+
 #include <pulse/introspect.h>
 #include <pulse/context.h>
 #include <pulse/subscribe.h>
@@ -40,6 +44,7 @@ class LinuxVolumeCatcherImpl
 {
 public:
 	//void setVol(F32 volume); // 0.0-1.0
+	//void pump(void);
 	//LinuxVolumeCatcherImpl *impl;
 
 private:
@@ -50,3 +55,5 @@ private:
 	std::set<U32> mSinkInputIndices;
 	std::map<U32,U32> mSinkInputNumChannels;
 }
+
+
