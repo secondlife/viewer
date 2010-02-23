@@ -33,11 +33,14 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanelprofile.h"
+
 #include "llavatarconstants.h"
+#include "llavatarnamecache.h"	// IDEVO
 #include "llpanelme.h"
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "lliconctrl.h"
+#include "llnotificationsutil.h"	// IDEVO
 #include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
@@ -228,6 +231,21 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 	//{
 	//	childSetTextArg("name_text", "[NAME]", full_name);
 	//}
+	std::string full_name;
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(avatar_data->avatar_id, &av_name))
+	{
+		getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+		getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
+	}
+	else if (gCacheName->getFullName(avatar_data->avatar_id, full_name))
+	{
+		getChild<LLUICtrl>("user_name")->setValue(full_name);
+		getChild<LLUICtrl>("user_slid")->setValue("");
+	}
+
+	getChild<LLUICtrl>("set_name")->setVisible( LLAvatarNameCache::useDisplayNames() );
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()
@@ -236,6 +254,9 @@ BOOL LLPanelMyProfileEdit::postBuild()
 
 	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
 	childSetTextArg("my_account_link", "[URL]", getString("my_account_link_url"));
+
+	getChild<LLUICtrl>("set_name")->setCommitCallback(
+		boost::bind(&LLPanelMyProfileEdit::onClickSetName, this));
 
 	return LLPanelAvatarProfile::postBuild();
 }
@@ -275,6 +296,45 @@ void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
 void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 {
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
+}
+
+static void set_name_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		LLUUID agent_id = notification["payload"]["agent_id"];
+		if (agent_id.isNull()) return;
+
+		std::string display_name = response["display_name"].asString();
+		LLAvatarNameCache::setDisplayName(agent_id, display_name);
+	}
+}
+
+void LLPanelMyProfileEdit::onClickSetName()
+{
+	// IDEVO
+	LLUUID agent_id = getAvatarId();
+	std::string display_name;
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(agent_id, &av_name))
+	{
+		display_name = av_name.mDisplayName;
+	}
+	else
+	{
+		gCacheName->getFullName(agent_id, display_name);
+	}
+
+	if (!display_name.empty())
+	{
+		LLSD args;
+		args["DISPLAY_NAME"] = display_name;
+		LLSD payload;
+		payload["agent_id"] = agent_id;
+		LLNotificationsUtil::add("SetDisplayName", args, payload, set_name_callback);
+	}
 }
 
 void LLPanelMyProfileEdit::enableEditing(bool enable)

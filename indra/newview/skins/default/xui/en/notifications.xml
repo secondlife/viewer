@@ -3032,6 +3032,27 @@ You are no longer frozen.
 
   <notification
    icon="alertmodal.tga"
+   name="SetDisplayName"
+   type="alertmodal">
+Change your display name?
+    <form name="form">
+      <input name="display_name" type="text">
+[DISPLAY_NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="Change"
+       text="Change"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OfferTeleport"
    type="alertmodal">
 Offer a teleport to your location with the following message?

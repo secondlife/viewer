@@ -87,12 +87,42 @@
      min_height="300"
          left="0"
          width="290">
-     <panel
+      <text
+       follows="top|left"
+       font="SansSerifHuge"
+       height="13"
+       layout="topleft"
+       left="10"
+       name="user_name"
+       text_color="LtGray"
+       top="0"
+       value="James Linden"
+       width="150" />
+      <button
+       follows="top|left"
+       height="23"
+       label="Set Name..."
+       left="170"
+       name="set_name"
+       top="0"
+       visible="false" 
+       width="110" />
+      <text
+       follows="top|left"
+       height="13"
+       layout="topleft"
+       left="10"
+       name="user_slid"
+       text_color="LtGray"
+       top_pad="4"
+       value="(james.linden)"
+       width="150" />
+      <panel
        name="lifes_images_panel"
          follows="left|top|right"
          height="244"
          layout="topleft"
-         top="0"
+         top="37"
          left="0"
          width="290">
 	 <panel
@@ -145,7 +175,7 @@
        height="102"
        layout="topleft"
        left="123"
-       top="25"
+       top="62"
        max_length="512"
        name="sl_description_edit"
        width="157"
@@ -201,7 +231,7 @@
        layout="topleft"
        left="123"
        max_length="512"
-       top="157"
+       top="195"
        name="fl_description_edit"
        width="157"
        word_wrap="true">

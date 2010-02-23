@@ -241,6 +241,39 @@ void LLAvatarNameCache::get(const LLUUID& agent_id, name_cache_callback_t callba
 {
 }
 
+class LLSetNameResponder : public LLHTTPClient::Responder
+{
+public:
+	LLUUID mAgentID;
+
+	LLSetNameResponder(const LLUUID& agent_id) : mAgentID(agent_id) { }
+
+	/*virtual*/ void result(const LLSD& content)
+	{
+		// force re-fetch
+		LLAvatarNameCache::sCache.erase(mAgentID);
+		llinfos << "JAMESDEBUG set names worked" << llendl;
+	}
+
+	/*virtual*/ void error(U32 status, const std::string& reason)
+	{
+		llinfos << "JAMESDEBUG set names failed " << status
+			<< " reason " << reason << llendl;
+	}
+};
+
+void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, const std::string& display_name)
+{
+	LLSD body;
+	body["display_name"] = display_name;
+
+	// *TODO: configure the base URL for this
+	std::string url = "http://pdp15.lindenlab.com:8050/my-service/agent/";
+	url += agent_id.asString();
+	url += "/set-display-name/";
+	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id));
+}
+
 void LLAvatarNameCache::toggleDisplayNames()
 {
 	sUseDisplayNames = !sUseDisplayNames;

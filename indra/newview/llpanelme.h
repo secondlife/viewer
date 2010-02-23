@@ -95,6 +95,7 @@ private:
 	void initTexturePickerMouseEvents();
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
+	void onClickSetName();
 
 	/**
 	 * Enabled/disables controls to prevent overwriting edited data upon receiving

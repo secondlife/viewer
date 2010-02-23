@@ -56,6 +56,9 @@ namespace LLAvatarNameCache
 	typedef void (*name_cache_callback_t)(const LLUUID& agent_id, const LLAvatarName& av_name);
 	void get(const LLUUID& agent_id, name_cache_callback_t callback);
 	
+	// Sends an update to the server
+	void setDisplayName(const LLUUID& agent_id, const std::string& display_name);
+
 	// HACK: turn display names on and off
 	void toggleDisplayNames();
 	bool useDisplayNames();
