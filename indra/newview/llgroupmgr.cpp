@@ -838,7 +838,8 @@ static void formatDateString(std::string &date_string)
 		std::string day = result[2];
 
 		// ISO 8601 date format
-		date_string = llformat("%02s/%02s/%04s", month.c_str(), day.c_str(), year.c_str());
+		//date_string = llformat("%02s/%02s/%04s", month.c_str(), day.c_str(), year.c_str());
+		date_string = llformat("%04s/%02s/%04s", year.c_str(), month.c_str(), day.c_str());
 	}
 }
 

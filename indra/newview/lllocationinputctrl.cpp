@@ -788,15 +788,19 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	// Our "cursor" moving right to left
 	S32 x = mAddLandmarkBtn->getRect().mLeft;
 
+	LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
+
+	LLViewerRegion* agent_region = gAgent.getRegion();
+	LLParcel* agent_parcel = vpm->getAgentParcel();
+	if (!agent_region || !agent_parcel)
+		return;
+
+	mForSaleBtn->setVisible(vpm->canAgentBuyParcel(agent_parcel, false));
+
+	x = layout_widget(mForSaleBtn, x);
+
 	if (gSavedSettings.getBOOL("NavBarShowParcelProperties"))
 	{
-		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
-
-		LLViewerRegion* agent_region = gAgent.getRegion();
-		LLParcel* agent_parcel = vpm->getAgentParcel();
-		if (!agent_region || !agent_parcel)
-			return;
-
 		LLParcel* current_parcel;
 		LLViewerRegion* selection_region = vpm->getSelectionRegion();
 		LLParcel* selected_parcel = vpm->getParcelSelection()->getParcel();
@@ -816,7 +820,6 @@ void LLLocationInputCtrl::refreshParcelIcons()
 			current_parcel = agent_parcel;
 		}
 
-		bool allow_buy      = vpm->canAgentBuyParcel(current_parcel, false);
 		bool allow_voice	= vpm->allowAgentVoice(agent_region, current_parcel);
 		bool allow_fly		= vpm->allowAgentFly(agent_region, current_parcel);
 		bool allow_push		= vpm->allowAgentPush(agent_region, current_parcel);
@@ -825,7 +828,6 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		bool allow_damage	= vpm->allowAgentDamage(agent_region, current_parcel);
 
 		// Most icons are "block this ability"
-		mForSaleBtn->setVisible(allow_buy);
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
 		mParcelIcon[FLY_ICON]->setVisible(     !allow_fly );
 		mParcelIcon[PUSH_ICON]->setVisible(    !allow_push );
@@ -833,11 +835,10 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
 		mDamageText->setVisible(allow_damage);
-		
-		x = layout_widget(mForSaleBtn, x);
+
 		// Padding goes to left of both landmark star and for sale btn
 		x -= mAddLandmarkHPad;
-		
+
 		// Slide the parcel icons rect from right to left, adjusting rectangles
 		for (S32 i = 0; i < ICON_COUNT; ++i)
 		{
@@ -849,7 +850,6 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	}
 	else
 	{
-		mForSaleBtn->setVisible(false);
 		for (S32 i = 0; i < ICON_COUNT; ++i)
 		{
 			mParcelIcon[i]->setVisible(false);
