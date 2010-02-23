@@ -102,7 +102,7 @@
      left_pad="15"
      top="2"
      name="media_toggle_btn"
-     tool_tip="Click to toggle media"
+     tool_tip="Start/Stop All Media (Music, Video, Web pages)"
      width="16" >
     </button>
     <button
