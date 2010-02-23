@@ -105,6 +105,9 @@ public:
 	void	reset		();
 
 private:
+	void	arrangeSinge();
+	void	arrangeMultiple();
+
 	// Calc Splitter's height that is necessary to display all child content
 	S32		calcRecuiredHeight();
 	S32		getRecuiredHeight() const { return mInnerRect.getHeight(); }
