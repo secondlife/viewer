@@ -674,6 +674,15 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 									_1, filter));
 		}
 	}
+	if(mList->isEmpty())
+	{
+		/**
+		 * Add a couple of empty items for a better view.
+		 * EXT-5194 
+		 */
+		for(int i = 0; i < NUMBER_OF_EMPTY_ITEMS; i++ )
+			add("", LLSD());
+	}
 	sortByName();
 	
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
