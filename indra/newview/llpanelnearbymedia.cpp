@@ -953,15 +953,29 @@ void LLPanelNearByMedia::onMoreLess()
 
 void LLPanelNearByMedia::updateControls()
 {
+	if (! gSavedSettings.getBOOL("AudioStreamingMedia"))
+	{
+		// Just show disabled controls
+		showDisabledControls();
+		return;
+	}
+	
 	LLUUID selected_media_id = mMediaList->getValue().asUUID();
 	
 	if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
 	{
-		showTimeBasedControls(LLViewerMedia::isParcelAudioPlaying(),
+		if (!LLViewerMedia::hasParcelAudio())
+		{
+			// Shouldn't happen, but do this anyway
+			showDisabledControls();
+		}
+		else {
+			showTimeBasedControls(LLViewerMedia::isParcelAudioPlaying(),
 							  false, // include_zoom
 							  false, // is_zoomed
 							  gSavedSettings.getBOOL("MuteMusic"), 
 							  gSavedSettings.getF32("AudioLevelMusic") );
+		}
 	}
 	else if (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID)
 	{
