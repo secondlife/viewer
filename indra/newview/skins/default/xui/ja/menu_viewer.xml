@@ -9,8 +9,8 @@
 		<menu_item_call label="マイ プロフィール" name="Profile"/>
 		<menu_item_call label="マイ 容姿" name="Appearance"/>
 		<menu_item_check label="マイ 持ち物" name="Inventory"/>
-		<menu_item_call label="持ち物をサイドトレイに表示" name="ShowSidetrayInventory"/>
-		<menu_item_call label="マイ ジェスチャー" name="Gestures"/>
+		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
+		<menu_item_check label="マイ ジェスチャー" name="Gestures"/>
 		<menu label="マイ ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
@@ -24,7 +24,6 @@
 		<menu_item_call label="所属グループ" name="My Groups"/>
 		<menu_item_check label="近くのチャット" name="Nearby Chat"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
-		<menu_item_check label="近くのメディア" name="Nearby Media"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
@@ -40,6 +39,10 @@
 		<menu label="表示" name="LandShow">
 			<menu_item_check label="移動コントロール" name="Movement Controls"/>
 			<menu_item_check label="コントロールを表示" name="Camera Controls"/>
+			<menu_item_check label="立入禁止ライン" name="Ban Lines"/>
+			<menu_item_check label="ビーコン（標識）" name="beacons"/>
+			<menu_item_check label="プロパティ境界線" name="Property Lines"/>
+			<menu_item_check label="土地所有者" name="Land Owners"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -95,12 +98,12 @@
 			<menu_item_check label="権限の詳細を表示" name="DebugPermissions"/>
 			<menu_item_check label="私のオブジェクトだけを選択" name="Select Only My Objects"/>
 			<menu_item_check label="動的オブジェクトのみ選択" name="Select Only Movable Objects"/>
-			<menu_item_check label="環境で選択" name="Select By Surrounding"/>
-			<menu_item_check label="非表示の選択を表示" name="Show Hidden Selection"/>
+			<menu_item_check label="範囲内を選択" name="Select By Surrounding"/>
+			<menu_item_check label="隠れた位置の選択も表示" name="Show Hidden Selection"/>
 			<menu_item_check label="選択した光の半径範囲を表示" name="Show Light Radius for Selection"/>
-			<menu_item_check label="選択したビームを表示" name="Show Selection Beam"/>
+			<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
 			<menu_item_check label="グリッドポイントにスナップ" name="Snap to Grid"/>
-			<menu_item_call label="オブジェクトのXY軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
+			<menu_item_call label="オブジェクトの XY 軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
 			<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
 			<menu_item_call label="グリッドオプション" name="Grid Options"/>
 		</menu>
@@ -121,7 +124,7 @@
 		<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		<menu_item_call label="テクスチャのリベーク" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
-		<menu_item_call label="ウィンドウのサイズの設定：" name="Set Window Size..."/>
+		<menu_item_call label="ウィンドウのサイズを設定..." name="Set Window Size..."/>
 		<menu_item_check label="遠くのオブジェクトを選択しない" name="Limit Select Distance"/>
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
@@ -353,7 +356,7 @@
 			<menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
-		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
+		<menu_item_check label="HTTP テクスチャ" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示" name="Console Window"/>
