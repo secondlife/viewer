@@ -944,7 +944,10 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 		
-		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
+		if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+			!LLViewerMedia::isParcelAudioPlaying() &&
+			gAudiop && 
+			LLViewerMedia::hasParcelAudio())
 		{
 			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
 		}
