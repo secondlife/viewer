@@ -96,9 +96,7 @@ public:
 	};
 
 	
-	//typedef boost::signals2::signal<void (S32,const LLScrollListItem*,const LLScrollListItem*),maximum<S32>> sort_signal_t;
-	//typedef boost::signals2::signal<void (S32,const LLScrollListItem*,const LLScrollListItem*)> sort_signal_t;
-	typedef boost::signals2::signal<S32 (S32,const LLScrollListItem*,const LLScrollListItem*),maximum<S32>> sort_signal_t;
+	typedef boost::signals2::signal<S32 (S32,const LLScrollListItem*,const LLScrollListItem*),maximum<S32> > sort_signal_t;
 	
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
