@@ -851,7 +851,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			}
 		}
 		// update the audio stream here as well
-		if(!inworld_audio_enabled)
+		if(!inworld_media_enabled || !inworld_audio_enabled)
 		{
 			if(LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
 			{
@@ -947,12 +947,12 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 	// Also do Parcel Media and Parcel Audio
 	if (val)
 	{
-		if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia()&& gSavedSettings.getBOOL("AudioStreamingMedia"))
+		if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
 		{	
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 		
-		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio()&& gSavedSettings.getBOOL("AudioStreamingMusic"))
+		if (!LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
 		{
 			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
 		}
@@ -980,7 +980,6 @@ bool LLViewerMedia::isParcelAudioPlaying()
 
 bool LLViewerMedia::hasInWorldMedia()
 {
-	if (! gSavedSettings.getBOOL("AudioStreamingMedia")) return false;
 	if (sInWorldMediaDisabled) return false;
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
