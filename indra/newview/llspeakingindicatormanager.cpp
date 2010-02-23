@@ -152,6 +152,8 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 
 	ensureInstanceDoesNotExist(speaking_indicator);
 
+	speaking_indicator->setTargetSessionID(session_id);
+
 	speaking_indicator_value_t value_type(speaker_id, speaking_indicator);
 	mSpeakingIndicators.insert(value_type);
 
@@ -222,6 +224,13 @@ void SpeakingIndicatorManager::onChange()
 
 void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, BOOL switch_on)
 {
+	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	LLUUID session_id;
+	if (voice_channel)
+	{
+		session_id = voice_channel->getSessionID();
+	}
+
 	speaker_ids_t::const_iterator it_uuid = speakers_uuids.begin(); 
 	for (; it_uuid != speakers_uuids.end(); ++it_uuid)
 	{
@@ -233,13 +242,24 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 		{
 			was_found = true;
 			LLSpeakingIndicator* indicator = (*it_indicator).second;
-			indicator->switchIndicator(switch_on);
+
+			BOOL switch_current_on = switch_on;
+
+			// we should show indicator for specified voice session only if this is current channel. EXT-5562.
+			if (switch_current_on && indicator->getTargetSessionID().notNull())
+			{
+				switch_current_on = indicator->getTargetSessionID() == session_id;
+			}
+
+			indicator->switchIndicator(switch_current_on);
 		}
 
 		if (was_found)
 		{
 			LL_DEBUGS("SpeakingIndicator") << mSpeakingIndicators.count(*it_uuid) << " indicators where found" << LL_ENDL;
 
+			// *TODO: it is possible non of the registered indicators are in the target session
+			// we can avoid of storing such UUID in the mSwitchedIndicatorsOn map in this case.
 			if (switch_on)
 			{
 				// store switched on indicator to be able switch it off

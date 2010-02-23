@@ -38,7 +38,18 @@
 class LLSpeakingIndicator
 {
 public:
+	virtual ~LLSpeakingIndicator(){}
 	virtual void switchIndicator(bool switch_on) = 0;
+	void setTargetSessionID(const LLUUID& session_id) { mTargetSessionID = session_id; }
+	const LLUUID& getTargetSessionID() { return mTargetSessionID; }
+
+private:
+	/**
+	 * session UUID for which indicator should be shown only.
+	 *		If it is set, registered indicator will be shown only in voice channel
+	 *		which has the same session id (EXT-5562).
+	 */
+	LLUUID mTargetSessionID;
 };
 
 // See EXT-3976.
