@@ -31,7 +31,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewerwindow.h"
 
 #if LL_WINDOWS
@@ -45,6 +44,7 @@
 #include <algorithm>
 
 #include "llfloaterreg.h"
+#include "llmeshrepository.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
@@ -318,7 +318,7 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		U32 xpos = mWindow->getWindowWidthScaled() - 350;
+		U32 xpos = mWindow->getWorldViewWidthScaled() - 350;
 		U32 ypos = 64;
 		const U32 y_inc = 20;
 
@@ -580,6 +580,22 @@ public:
 			if (LLPipeline::getRenderSoundBeacons(NULL))
 			{
 				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
+		}
+
+		//temporary hack to give feedback on mesh upload progress
+		if (!gMeshRepo.mUploads.empty())
+		{
+			for (std::vector<LLMeshUploadThread*>::iterator iter = gMeshRepo.mUploads.begin(); 
+				iter != gMeshRepo.mUploads.end(); ++iter)
+			{
+				LLMeshUploadThread* thread = *iter;
+
+				addText(xpos, ypos, llformat("Mesh Upload -- price quote: %d:%d | upload: %d:%d | create: %d", 
+								thread->mPendingConfirmations, thread->mUploadQ.size(),
+								thread->mPendingUploads, thread->mConfirmedQ.size(),
+								thread->mCompletedQ.size()));
 				ypos += y_inc;
 			}
 		}

@@ -5630,6 +5630,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat, LLMatrix
 		v.mPosition = v.mPosition*mat;
 		v.mNormal = v.mNormal * norm_mat;
 
+		v.mNormal.normalize();
 
 		mVertices.push_back(v);
 
