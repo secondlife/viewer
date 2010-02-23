@@ -129,7 +129,8 @@ background_visible="true"
          label="Close"
          layout="topleft"
          name="close_btn"
-         left_pad="3"
+         right="-10"
+         top="1"
          width="60" />
     </panel>
 </panel>

@@ -61,6 +61,11 @@ public:
 	static bool isSLURL(const std::string& url);
 
 	/**
+	 * Returns true if url is proven valid by regexp check from LLUrlRegistry
+	 */
+	static bool isValidSLURL(const std::string& url);
+
+	/**
 	 * Is this a special secondlife://app/ URL?
 	 */
 	static bool isSLURLCommand(const std::string& url);

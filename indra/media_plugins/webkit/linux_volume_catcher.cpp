@@ -398,7 +398,8 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 			impl->mSinkInputIndices.erase(index);
 			impl->mSinkInputNumChannels.erase(index);
 		}
-		else
+		else if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) ==
+			 PA_SUBSCRIPTION_EVENT_NEW)
 		{
 			// ask for more info about this new sinkinput
 			pa_operation *op;
@@ -406,6 +407,10 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 			{
 				llpa_operation_unref(op);
 			}
+		}
+		else
+		{
+			// property change on this sinkinput - we don't care.
 		}
 		break;
 		
