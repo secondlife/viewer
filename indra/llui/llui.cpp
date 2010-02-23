@@ -1943,6 +1943,7 @@ namespace LLInitParam
 	{
 		setBlockFromValue();
 		addSynonym(name, "");
+		setBlockFromValue();
 	}
 
 	void TypedParam<const LLFontGL*>::setValueFromBlock() const
