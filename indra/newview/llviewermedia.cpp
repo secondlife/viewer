@@ -993,14 +993,14 @@ bool LLViewerMedia::hasInWorldMedia()
 // static
 bool LLViewerMedia::hasParcelMedia()
 {
-	return !LLViewerParcelMedia::getURL().empty();
+	return gSavedSettings.getBOOL("AudioStreamingMedia") && !LLViewerParcelMedia::getURL().empty();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 bool LLViewerMedia::hasParcelAudio()
 {
-	return !LLViewerMedia::getParcelAudioURL().empty();
+	return gSavedSettings.getBOOL("AudioStreamingMedia") && !LLViewerMedia::getParcelAudioURL().empty();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
