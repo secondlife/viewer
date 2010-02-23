@@ -358,8 +358,10 @@ void LLStatusBar::refresh()
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
 	
-	// Don't show media toggle if there's no media, parcel media, and no parcel audio
-	mMediaToggle->setEnabled(LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
+	// Disable media toggle if there's no media, parcel media, and no parcel audio
+	// (or if media is disabled)
+	mMediaToggle->setEnabled(gSavedSettings.getBOOL("AudioStreamingMedia") && 
+							 (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio()));
 	// Note the "sense" of the toggle is opposite whether media is playing or not
 	mMediaToggle->setValue(! (LLViewerMedia::isAnyMediaShowing() || 
 							  LLViewerMedia::isParcelMediaPlaying() ||

@@ -972,7 +972,6 @@ bool LLViewerMedia::isParcelAudioPlaying()
 
 bool LLViewerMedia::hasInWorldMedia()
 {
-	if (! gSavedSettings.getBOOL("AudioStreamingMedia")) return false;
 	if (sInWorldMediaDisabled) return false;
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
@@ -993,14 +992,14 @@ bool LLViewerMedia::hasInWorldMedia()
 // static
 bool LLViewerMedia::hasParcelMedia()
 {
-	return gSavedSettings.getBOOL("AudioStreamingMedia") && !LLViewerParcelMedia::getURL().empty();
+	return !LLViewerParcelMedia::getURL().empty();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 bool LLViewerMedia::hasParcelAudio()
 {
-	return gSavedSettings.getBOOL("AudioStreamingMedia") && !LLViewerMedia::getParcelAudioURL().empty();
+	return !LLViewerMedia::getParcelAudioURL().empty();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
