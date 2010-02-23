@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
- follows="all"
  height="500"
  label="Land &amp; L$"
  layout="topleft"
  left="0"
  name="land_money_tab"
  top="0"
- width="313">
+ width="304">
     <panel.string
      name="help_text">
    A warning appears until the Total Land in Use is less than or = to the Total Contribution.
