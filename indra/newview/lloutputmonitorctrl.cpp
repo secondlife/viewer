@@ -247,7 +247,7 @@ void LLOutputMonitorCtrl::draw()
 		gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
 }
 
-void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)
+void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/)
 {
 	if (speaker_id.isNull() && mSpeakerId.notNull())
 	{

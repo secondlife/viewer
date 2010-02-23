@@ -65,8 +65,12 @@ public:
 	 *
 	 * @param speaker_id LLUUID of an avatar whose speaking indicator is registered.
 	 * @param speaking_indicator instance of the speaking indicator to be registered.
+	 * @param session_id session UUID for which indicator should be shown only.
+	 *		If this parameter is set registered indicator will be shown only in voice channel
+	 *		which has the same session id (EXT-5562).
 	 */
-	void registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator);
+	void registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator,
+		const LLUUID& session_id = LLUUID::null);
 
 	/**
 	 * Removes passed speaking indicator from observing.
@@ -138,7 +142,8 @@ private:
 //////////////////////////////////////////////////////////////////////////
 // PUBLIC SECTION
 //////////////////////////////////////////////////////////////////////////
-void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator)
+void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator,
+														 const LLUUID& session_id)
 {
 	// do not exclude agent's indicators. They should be processed in the same way as others. See EXT-3889.
 
@@ -274,9 +279,10 @@ void SpeakingIndicatorManager::ensureInstanceDoesNotExist(LLSpeakingIndicator* c
 /*         LLSpeakingIndicatorManager namespace implementation          */
 /************************************************************************/
 
-void LLSpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator)
+void LLSpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator,
+														   const LLUUID& session_id/* = LLUUID::null*/)
 {
-	SpeakingIndicatorManager::instance().registerSpeakingIndicator(speaker_id, speaking_indicator);
+	SpeakingIndicatorManager::instance().registerSpeakingIndicator(speaker_id, speaking_indicator, session_id);
 }
 
 void LLSpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator)

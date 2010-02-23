@@ -52,8 +52,12 @@ namespace LLSpeakingIndicatorManager
 	 *
 	 * @param speaker_id LLUUID of an avatar whose speaker indicator is registered.
 	 * @param speaking_indicator instance of the speaker indicator to be registered.
+	 * @param session_id session UUID for which indicator should be shown only.
+	 *		If this parameter is set registered indicator will be shown only in voice channel
+	 *		which has the same session id (EXT-5562).
 	 */
-	void registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator);
+	void registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator,
+								   const LLUUID& session_id = LLUUID::null);
 
 	/**
 	 * Removes passed speaking indicator from observing.
