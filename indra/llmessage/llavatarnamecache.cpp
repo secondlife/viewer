@@ -55,6 +55,13 @@ namespace LLAvatarNameCache
 	typedef std::map<LLUUID, F32> pending_queue_t;
 	pending_queue_t sPendingQueue;
 
+	// Callbacks to fire when we received a name.
+	// May have multiple callbacks for a single ID, which are
+	// represented as multiple slots bound to the signal.
+	// Avoid copying signals via pointers.
+	typedef std::map<LLUUID, callback_signal_t*> signal_map_t;
+	signal_map_t sSignalMap;
+
 	// names we know about
 	typedef std::map<LLUUID, LLAvatarName> cache_t;
 	cache_t sCache;
@@ -63,6 +70,7 @@ namespace LLAvatarNameCache
 	LLFrameTimer sRequestTimer;
 
 	bool isRequestPending(const LLUUID& agent_id);
+	void processResult(const LLSD& row);
 }
 
 class LLAvatarNameResponder : public LLHTTPClient::Responder
@@ -78,46 +86,66 @@ void LLAvatarNameResponder::result(const LLSD& content)
 	//LLSDSerialize::toPrettyXML(content, debug);
 	//llinfos << "JAMESDEBUG " << debug.str() << llendl;
 
-	U32 now = (U32)LLFrameTimer::getTotalSeconds();
 	LLSD::array_const_iterator it = content.beginArray();
 	for ( ; it != content.endArray(); ++it)
 	{
 		const LLSD& row = *it;
-
-		LLAvatarName av_name;
-		av_name.mSLID = row["slid"].asString();
-		av_name.mDisplayName = row["display_name"].asString();
-		av_name.mLastUpdate = now;
-
-		// HACK for pretty stars
-		if (row["last_name"].asString() == "Linden")
-		{
-			av_name.mBadge = "Person_Star";
-		}
-
-		// Some avatars don't have explicit display names set
-		if (av_name.mDisplayName.empty())
-		{
-			// make up a display name
-			std::string first_name = row["first_name"].asString();
-			std::string last_name = row["last_name"].asString();
-			av_name.mDisplayName =
-				LLCacheName::buildFullName(first_name, last_name);
-			av_name.mIsLegacy = true;
-		}
-
-		LLUUID agent_id = row["agent_id"].asUUID();
-		LLAvatarNameCache::sCache[agent_id] = av_name;
-
-		LLAvatarNameCache::sPendingQueue.erase(agent_id);
-
-		llinfos << "JAMESDEBUG fetched " << av_name.mDisplayName << llendl;
+		LLAvatarNameCache::processResult(row);
 	}
 }
 
 void LLAvatarNameResponder::error(U32 status, const std::string& reason)
 {
 	llinfos << "JAMESDEBUG error " << status << " " << reason << llendl;
+}
+
+void LLAvatarNameCache::processResult(const LLSD& row)
+{
+	U32 now = (U32)LLFrameTimer::getTotalSeconds();
+
+	LLAvatarName av_name;
+	av_name.mSLID = row["slid"].asString();
+	av_name.mDisplayName = row["display_name"].asString();
+	av_name.mLastUpdate = now;
+
+	// HACK for pretty stars
+	if (row["last_name"].asString() == "Linden")
+	{
+		av_name.mBadge = "Person_Star";
+	}
+
+	// Some avatars don't have explicit display names set
+	if (av_name.mDisplayName.empty())
+	{
+		// make up a display name
+		std::string first_name = row["first_name"].asString();
+		std::string last_name = row["last_name"].asString();
+		av_name.mDisplayName =
+			LLCacheName::buildFullName(first_name, last_name);
+		av_name.mIsLegacy = true;
+	}
+
+	// add to cache
+	LLUUID agent_id = row["agent_id"].asUUID();
+	sCache[agent_id] = av_name;
+
+	sPendingQueue.erase(agent_id);
+
+	// signal everyone waiting on this name
+	signal_map_t::iterator sig_it =	sSignalMap.find(agent_id);
+	if (sig_it != sSignalMap.end())
+	{
+		llinfos << "JAMESDEBUG firing signal" << llendl;
+		callback_signal_t* signal = sig_it->second;
+		(*signal)(agent_id, av_name);
+
+		sSignalMap.erase(agent_id);
+
+		delete signal;
+		signal = NULL;
+	}
+
+	llinfos << "JAMESDEBUG fetched " << av_name.mDisplayName << llendl;
 }
 
 // JAMESDEBUG re-enable when display names are turned on???
@@ -215,30 +243,47 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 		return true;
 	}
 
-	// JAMESDEBUG Enable when we turn on display names???
-	//std::string full_name;
-	//if (gCacheName->getFullName(agent_id, full_name))
-	//{
-	//	av_name->mSLID = slid_from_full_name(full_name);
-	//	av_name->mDisplayName = full_name;
-	//	av_name->mBadge = "Generic_Person";
-	//	return true;
-	//}
-
 	if (!isRequestPending(agent_id))
 	{
-		std::pair<ask_queue_t::iterator,bool> found = sAskQueue.insert(agent_id);
-		if (found.second)
-		{
-			LL_INFOS("JAMESDEBUG") << "added to ask queue " << agent_id << LL_ENDL;
-		}
+		sAskQueue.insert(agent_id);
 	}
 
 	return false;
 }
 
-void LLAvatarNameCache::get(const LLUUID& agent_id, name_cache_callback_t callback)
+void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 {
+	std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
+	if (it != sCache.end())
+	{
+		// ...name already exists in cache, fire callback now
+		callback_signal_t signal;
+		signal.connect(slot);
+		signal(agent_id, it->second);
+		return;
+	}
+
+	// schedule a request
+	if (!isRequestPending(agent_id))
+	{
+		sAskQueue.insert(agent_id);
+	}
+
+	// always store additional callback, even if request is pending
+	signal_map_t::iterator sig_it = sSignalMap.find(agent_id);
+	if (sig_it == sSignalMap.end())
+	{
+		// ...new callback for this id
+		callback_signal_t* signal = new callback_signal_t();
+		signal->connect(slot);
+		sSignalMap[agent_id] = signal;
+	}
+	else
+	{
+		// ...existing callback, bind additional slot
+		callback_signal_t* signal = sig_it->second;
+		signal->connect(slot);
+	}
 }
 
 class LLSetNameResponder : public LLHTTPClient::Responder

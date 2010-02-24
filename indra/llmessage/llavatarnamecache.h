@@ -35,6 +35,8 @@
 
 #include "llavatarname.h"	// for convenience
 
+#include <boost/signals2.hpp>
+
 namespace LLAvatarNameCache
 {
 	void initClass();
@@ -51,10 +53,14 @@ namespace LLAvatarNameCache
 	// otherwise returns false
 	bool get(const LLUUID& agent_id, LLAvatarName *av_name);
 
+	typedef boost::signals2::signal<
+		void (const LLUUID& agent_id, const LLAvatarName& av_name)>
+			callback_signal_t;
+	typedef callback_signal_t::slot_type callback_slot_t;
+
 	// Fetches name information and calls callback.
 	// If name information is in cache, callback will be called immediately.
-	typedef void (*name_cache_callback_t)(const LLUUID& agent_id, const LLAvatarName& av_name);
-	void get(const LLUUID& agent_id, name_cache_callback_t callback);
+	void get(const LLUUID& agent_id, callback_slot_t slot);
 	
 	// Sends an update to the server
 	void setDisplayName(const LLUUID& agent_id, const std::string& display_name);
