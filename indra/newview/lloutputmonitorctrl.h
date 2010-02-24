@@ -86,7 +86,15 @@ public:
 
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
-	void			setSpeakerId(const LLUUID& speaker_id);
+	/**
+	 * Sets avatar UUID to interact with voice channel.
+	 *
+	 * @param speaker_id LLUUID of an avatar whose voice level is displayed.
+	 * @param session_id session UUID for which indicator should be shown only. Passed to LLSpeakingIndicatorManager
+	 *		If this parameter is set registered indicator will be shown only in voice channel
+	 *		which has the same session id (EXT-5562).
+	 */
+	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null);
 
 	//called by mute list
 	virtual void onChange();
