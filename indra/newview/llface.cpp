@@ -1065,14 +1065,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
 		if (LLPipeline::sUseTriStrips)
 		{
-			for (U32 i = 0; i < num_indices; i++)
+			for (U32 i = 0; i < (U32) num_indices; i++)
 			{
 				*indicesp++ = vf.mTriStrip[i] + index_offset;
 			}
 		}
 		else
 		{
-			for (U32 i = 0; i < num_indices; i++)
+			for (U32 i = 0; i < (U32) num_indices; i++)
 			{
 				*indicesp++ = vf.mIndices[i] + index_offset;
 			}
