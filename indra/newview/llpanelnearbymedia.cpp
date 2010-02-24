@@ -135,7 +135,6 @@ BOOL LLPanelNearByMedia::postBuild()
 	mMediaList = getChild<LLScrollListCtrl>("media_list");
 	mEnableAllCtrl = getChild<LLUICtrl>("all_nearby_media_enable_btn");
 	mDisableAllCtrl = getChild<LLUICtrl>("all_nearby_media_disable_btn");
-	mItemCountText = getChild<LLTextBox>("media_item_count");
 	mShowCtrl = getChild<LLComboBox>("show_combo");
 
 	// Dynamic (selection-dependent) controls
@@ -232,6 +231,7 @@ void LLPanelNearByMedia::reshape(S32 width, S32 height, BOOL called_from_parent)
 const F32 AUTO_CLOSE_FADE_TIME_START= 4.0f;
 const F32 AUTO_CLOSE_FADE_TIME_END = 5.0f;
 
+/*virtual*/
 void LLPanelNearByMedia::draw()
 {
 	//LLUICtrl* new_top = gFocusMgr.getTopCtrl();
@@ -250,8 +250,6 @@ void LLPanelNearByMedia::draw()
 		setShape(new_rect);
 	}
 
-	mItemCountText->setValue(llformat(getString("media_item_count_format").c_str(), mMediaList->getItemCount()));
-	
 	refreshList();
 	updateControls();
 	
@@ -266,6 +264,21 @@ void LLPanelNearByMedia::draw()
 	{
 		setVisible(false);
 	}
+}
+
+/*virtual*/
+BOOL LLPanelNearByMedia::handleHover(S32 x, S32 y, MASK mask)
+{
+	LLPanel::handleHover(x, y, mask);
+	
+	// If we are hovering over this panel, make sure to clear any hovered media
+	// ID.  Note that the more general solution would be to clear this ID when
+	// the mouse leaves the in-scene view, but that proved to be problematic.
+	// See EXT-5517
+	LLViewerMediaFocus::getInstance()->clearHover();
+		
+	// Always handle
+	return true;
 }
 
 bool LLPanelNearByMedia::getParcelAudioAutoStart()
