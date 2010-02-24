@@ -4961,7 +4961,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 			if (mTypeMask & TOP_MASK)
 			{
 				mTriStrip.push_back(0);
-				for (S32 i = 1; i <= j; ++i)
+				for (S32 i = 0; i <= j; ++i)
 				{
 					mTriStrip.push_back(i);
 					if (i != j)
@@ -4974,7 +4974,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 			else
 			{
 				mTriStrip.push_back(j);
-				for (S32 i = 1; i <= j; ++i)
+				for (S32 i = 0; i <= j; ++i)
 				{
 					if (i != j)
 					{
