@@ -209,6 +209,8 @@ public:
 
 	void showInspector()
 	{
+		if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType) return;
+		
 		if (mSourceType == CHAT_SOURCE_OBJECT)
 		{
 			LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", mAvatarID));
@@ -279,6 +281,9 @@ public:
 				break;
 			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
+				break;
+			case CHAT_SOURCE_UNKNOWN: 
+				icon->setValue(LLSD("Unknown_Icon"));
 		}
 	}
 
@@ -325,9 +330,9 @@ protected:
 	{
 		if(mSourceType == CHAT_SOURCE_SYSTEM)
 			showSystemContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_AGENT)
+		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
+		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
 			showObjectContextMenu(x,y);
 	}
 
@@ -632,7 +637,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-			if ( chat.mSourceType == CHAT_SOURCE_OBJECT )
+			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
 				// for object IMs, create a secondlife:///app/objectim SLapp
 				std::string url = LLSLURL::buildCommand("objectim", chat.mFromID, "");

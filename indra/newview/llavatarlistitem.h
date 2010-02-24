@@ -100,7 +100,7 @@ public:
 	void setName(const std::string& name);
 	void setHighlight(const std::string& highlight);
 	void setState(EItemState item_style);
-	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
+	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
 	void setShowProfileBtn(bool show);

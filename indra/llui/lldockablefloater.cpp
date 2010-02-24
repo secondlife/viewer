@@ -202,10 +202,6 @@ void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)
 			translate(0, UNDOCK_LEAP_HEIGHT);
 		}
 	}
-	else
-	{
-		docked = false;
-	}
 
 	LLFloater::setDocked(docked, pop_on_undock);
 }
@@ -223,10 +219,10 @@ void LLDockableFloater::draw()
 	LLFloater::draw();
 }
 
-void LLDockableFloater::setDockControl(LLDockControl* dockControl, bool docked /* = true */)
+void LLDockableFloater::setDockControl(LLDockControl* dockControl)
 {
 	mDockControl.reset(dockControl);
-	setDocked(docked && mDockControl.get() != NULL && mDockControl.get()->isDockVisible());
+	setDocked(isDocked());
 }
 
 const LLUIImagePtr& LLDockableFloater::getDockTongue()

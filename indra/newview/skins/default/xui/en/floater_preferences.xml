@@ -46,6 +46,7 @@
      tab_group="1"
      tab_position="left"
      tab_width="115"
+     tab_padding_right="5"
      top="21"
      width="620">
         <panel

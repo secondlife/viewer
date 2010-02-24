@@ -34,6 +34,7 @@
 
 #include "llnearbychathandler.h"
 
+#include "llbottomtray.h"
 #include "llchatitemscontainerctrl.h"
 #include "llnearbychat.h"
 #include "llrecentpeople.h"
@@ -319,9 +320,9 @@ LLNearbyChatHandler::~LLNearbyChatHandler()
 void LLNearbyChatHandler::initChannel()
 {
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLView* chat_box = LLBottomTray::getInstance()->getChildView("chat_box");
 	S32 channel_right_bound = nearby_chat->getRect().mRight;
-	S32 channel_width = nearby_chat->getRect().mRight; 
-	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+	mChannel->init(chat_box->getRect().mLeft, channel_right_bound);
 }
 
 
