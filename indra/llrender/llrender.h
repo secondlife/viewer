@@ -286,6 +286,14 @@ public:
 	void pushMatrix();
 	void popMatrix();
 
+	void translateUI(F32 x, F32 y, F32 z);
+	void scaleUI(F32 x, F32 y, F32 z);
+	void pushUIMatrix();
+	void popUIMatrix();
+	void loadUIIdentity();
+	LLVector3 getUITranslation();
+	LLVector3 getUIScale();
+
 	void flush();
 
 	void begin(const GLuint& mode);
@@ -333,7 +341,9 @@ public:
 	};
 
 public:
-
+	static U32 sUICalls;
+	static U32 sUIVerts;
+	
 private:
 	bool				mDirty;
 	U32				mCount;
@@ -350,7 +360,13 @@ private:
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
+	U32				mCurrSceneBlendType;
+
 	F32				mMaxAnisotropy;
+
+	std::list<LLVector3> mUIOffset;
+	std::list<LLVector3> mUIScale;
+
 };
 
 extern F64 gGLModelView[16];
