@@ -2479,6 +2479,9 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 // event processing.
 void LLViewerWindow::updateUI()
 {
+	static LLFastTimer::DeclareTimer ftm("Update UI");
+	LLFastTimer t(ftm);
+
 	static std::string last_handle_msg;
 
 	LLConsole::updateClass();
@@ -3059,7 +3062,6 @@ void LLViewerWindow::saveLastMouse(const LLCoordGL &point)
 // Must be called after displayObjects is called, which sets the mGLName parameter
 // NOTE: This function gets called 3 times:
 //  render_ui_3d: 			FALSE, FALSE, TRUE
-//  renderObjectsForSelect:	TRUE, pick_parcel_wall, FALSE
 //  render_hud_elements:	FALSE, FALSE, FALSE
 void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud )
 {
