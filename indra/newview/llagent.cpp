@@ -3062,7 +3062,7 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	LLFloaterCamera* camera_floater = LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
+	LLFloaterCamera* camera_floater = LLFloaterCamera::findInstance();
 	if (camera_floater)
 	{
 		camera_floater->mRotate->setToggleState(
