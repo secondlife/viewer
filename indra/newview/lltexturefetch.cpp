@@ -491,7 +491,7 @@ U32 LLTextureFetchWorker::calcWorkPriority()
  	//llassert_always(mImagePriority >= 0 && mImagePriority <= LLViewerFetchedTexture::maxDecodePriority());
 	static const F32 PRIORITY_SCALE = (F32)LLWorkerThread::PRIORITY_LOWBITS / LLViewerFetchedTexture::maxDecodePriority();
 
-	mWorkPriority = (U32)(mImagePriority * PRIORITY_SCALE);
+	mWorkPriority = llmin((U32)LLWorkerThread::PRIORITY_LOWBITS, (U32)(mImagePriority * PRIORITY_SCALE));
 	return mWorkPriority;
 }
 
