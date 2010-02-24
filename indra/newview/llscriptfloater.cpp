@@ -283,7 +283,9 @@ void LLScriptFloater::dockToChiclet(bool dock)
 		setSavePosition(false);
 
 		setDockControl(new LLDockControl(chiclet, this, getDockTongue(),
-			LLDockControl::TOP,  boost::bind(&LLScriptFloater::getAllowedRect, this, _1)), dock);
+			LLDockControl::TOP,  boost::bind(&LLScriptFloater::getAllowedRect, this, _1)));
+
+		setDocked(dock);
 
 		// Restore saving
 		setSavePosition(save);
