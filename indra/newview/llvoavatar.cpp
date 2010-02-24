@@ -2755,6 +2755,11 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
 	mNameText->setPositionAgent(name_position);
 	
+	idleUpdateNameTagText(new_name);
+}
+
+void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
+{
 	LLNameValue *title = getNVPair("Title");
 	LLNameValue* firstname = getNVPair("FirstName");
 	LLNameValue* lastname = getNVPair("LastName");
@@ -2816,10 +2821,18 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
 		static LLUICachedControl<bool> show_slids("NameTagShowSLIDs");
 
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::useDisplayNames()
-			&& LLAvatarNameCache::get(getID(), &av_name))
+		if (LLAvatarNameCache::useDisplayNames())
 		{
+			LLAvatarName av_name;
+			if (!LLAvatarNameCache::get(getID(), &av_name))
+			{
+				// ...call this function back when the name arrives
+				// and force a rebuild
+				LLAvatarNameCache::get(getID(),
+					boost::bind(&LLVOAvatar::idleUpdateNameTagText, this, TRUE));
+			}
+
+			// Might be blank if name not available yet, that's OK
 			if (show_display_names)
 			{
 				line += av_name.mDisplayName;
@@ -2880,7 +2893,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		new_name = TRUE;
 	}
 
-	if (visible_chat)
+	if (mVisibleChat)
 	{
 		mNameText->setDropShadow(TRUE);
 		mNameText->setFont(LLFontGL::getFontSansSerif());

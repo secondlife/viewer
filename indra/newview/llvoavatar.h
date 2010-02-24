@@ -210,6 +210,7 @@ public:
 	void 			idleUpdateLoadingEffect();
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagText(BOOL new_name);
 	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagColor(BOOL new_name, F32 alpha);
 	void 			idleUpdateRenderCost();
