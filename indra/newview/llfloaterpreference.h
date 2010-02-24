@@ -128,10 +128,8 @@ public:
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
-	void onKeystrokeAspectRatio();
 //	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
-	void onCommitAutoDetectAspect();
 	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
@@ -142,7 +140,6 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	static void cleanupBadSetting();
-	static F32 sAspectRatio;	
 private:
 	static std::string sSkin;
 	bool mGotPersonalInfo;
@@ -161,6 +158,7 @@ public:
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
+	virtual void setHardwareDefaults(){};
 
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
@@ -175,6 +173,21 @@ private:
 
 	typedef std::map<std::string, LLColor4> string_color_map_t;
 	string_color_map_t mSavedColors;
+};
+
+class LLPanelPreferenceGraphics : public LLPanelPreference
+{
+public:
+	BOOL postBuild();
+	void draw();
+	void apply();
+	void cancel();
+	void saveSettings();
+	void setHardwareDefaults();
+protected:
+	bool hasDirtyChilds();
+	void resetDirtyChilds();
+	
 };
 
 #endif  // LL_LLPREFERENCEFLOATER_H

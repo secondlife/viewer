@@ -18,29 +18,29 @@
 		kbit/s
 	</text>
 	<check_box label="Eigener Port" name="connection_port_enabled"/>
-	<spinner label="Portnummer:" name="web_proxy_port"/>
+	<spinner label="Port-Nummer:" name="connection_port"/>
 	<text name="cache_size_label_l">
 		Cachegröße
 	</text>
 	<text name="text_box5">
 		MB
 	</text>
-	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_cache"/>
-	<button label="Zurücksetzen" label_selected="Zurücksetzen" name="reset_cache"/>
 	<text name="Cache location">
 		Cache-Ordner:
 	</text>
+	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_cache"/>
+	<button label="Zurücksetzen" label_selected="Zurücksetzen" name="reset_cache"/>
 	<text name="Web:">
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Integrierten Webbrowser verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Dieser Browser öffnet als neues Fenster innerhalb von [APP_NAME]."/>
-		<radio_item label="Meinen Browser verwenden (IE, Firefox)" name="external" tool_tip="Standard Webbrowser des Systems verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Bei Vollbildmodus nicht empfohlen."/>
+		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Integrierten Webbrowser verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Dieser Browser öffnet als neues Fenster innerhalb von [APP_NAME]." value="0"/>
+		<radio_item label="Meinen Browser verwenden (IE, Firefox, Safari)" name="external" tool_tip="Standard Webbrowser des Systems verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Bei Vollbildmodus nicht empfohlen." value="1"/>
 	</radio_group>
-	<check_box initial_value="false" label="Web Proxy" name="web_proxy_enabled"/>
-	<line_editor name="web_proxy_editor" tool_tip="Name oder IP Adresse des Proxyservers, den Sie benutzen möchten"/>
-	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_proxy"/>
+	<check_box initial_value="false" label="Web-Proxy aktivieren" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Proxy-Standort:
 	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Name oder IP Adresse des Proxyservers, den Sie benutzen möchten"/>
+	<spinner label="Portnummer:" name="web_proxy_port"/>
 </panel>

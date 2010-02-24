@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="FOTO-ANZEIGE">
+<floater name="Snapshot" title="FOTO-VORSCHAU">
 	<text name="type_label">
 		Zweck des Fotos
 	</text>
 	<radio_group label="Fototyp" name="snapshot_type_radio">
-		<radio_item label="Email-Adresse" name="postcard"/>
+		<radio_item label="Emailen" name="postcard"/>
 		<radio_item label="Mein Inventar ([AMOUNT] L$)" name="texture"/>
 		<radio_item label="Auf meinem Computer speichern" name="local"/>
 	</radio_group>
@@ -60,7 +60,7 @@
 	<spinner label="Höhe" name="snapshot_height"/>
 	<check_box label="Seitenverhältnis beibehalten" name="keep_aspect_check"/>
 	<slider label="Bildqualität" name="image_quality_slider"/>
-	<text name="layer_type_label" width="63">
+	<text name="layer_type_label" width="66">
 		Aufnehmen:
 	</text>
 	<combo_box label="Bildlayer" left="73" name="layer_types" width="132">
@@ -68,7 +68,7 @@
 		<combo_box.item label="Tiefe" name="Depth"/>
 		<combo_box.item label="Objektmasken" name="ObjectMattes"/>
 	</combo_box>
-	<check_box label="Schnittstelle" name="ui_check"/>
+	<check_box label="Oberfläche" name="ui_check"/>
 	<check_box label="HUDs" name="hud_check"/>
 	<check_box label="Nach dem Speichern offen lassen" name="keep_open_check"/>
 	<check_box label="Frame einfrieren (Vollbild)" name="freeze_frame_check"/>

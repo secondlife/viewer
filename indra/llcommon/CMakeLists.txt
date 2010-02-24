@@ -50,6 +50,7 @@ set(llcommon_SOURCE_FILES
     lleventdispatcher.cpp
     lleventfilter.cpp
     llevents.cpp
+    lleventtimer.cpp
     llfasttimer_class.cpp
     llfile.cpp
     llfindlocale.cpp
@@ -163,7 +164,6 @@ set(llcommon_HEADER_FILES
     llheartbeat.h
     llhttpstatuscodes.h
     llindexedqueue.h
-    llinstancetracker.h
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h

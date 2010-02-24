@@ -3,20 +3,18 @@
 	<text name="script_memory">
 		区画スクリプトメモリ
 	</text>
-	<text name="parcels_listed">
-		区画所有者：
-	</text>
-	<text name="memory_used">
-		使用されたメモリ：
-	</text>
+	<text name="parcels_listed"/>
+	<text name="memory_used"/>
 	<text name="loading_text">
 		ローディング...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="サイズ （kb）" name="size"/>
+		<scroll_list.columns label="サイズ （kb）" name="size" width="90"/>
+		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
-		<scroll_list.columns label="オブジェクトの所有者" name="owner"/>
-		<scroll_list.columns label="区画・位置" name="location"/>
+		<scroll_list.columns label="オブジェクトの所有者" name="owner" width="120"/>
+		<scroll_list.columns label="区画" name="parcel"/>
+		<scroll_list.columns label="場所" name="location"/>
 	</scroll_list>
 	<button label="リスト更新" name="refresh_list_btn"/>
 	<button label="ハイライト" name="highlight_btn"/>

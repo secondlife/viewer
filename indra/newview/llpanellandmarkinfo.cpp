@@ -376,21 +376,31 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 // static
 std::string LLPanelLandmarkInfo::getFullFolderName(const LLViewerInventoryCategory* cat)
 {
-	std::string name = cat->getName();
+	std::string name;
 	LLUUID parent_id;
 
-	// translate category name, if it's right below the root
-	// FIXME: it can throw notification about non existent string in strings.xml
-	if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
+	llassert(cat);
+	if (cat)
 	{
-		LLTrans::findString(name, "InvFolder " + name);
-	}
+		name = cat->getName();
 
-	// we don't want "My Inventory" to appear in the name
-	while ((parent_id = cat->getParentUUID()).notNull() && parent_id != gInventory.getRootFolderID())
-	{
-		cat = gInventory.getCategory(parent_id);
-		name = cat->getName() + "/" + name;
+		// translate category name, if it's right below the root
+		// FIXME: it can throw notification about non existent string in strings.xml
+		if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
+		{
+			LLTrans::findString(name, "InvFolder " + name);
+		}
+
+		// we don't want "My Inventory" to appear in the name
+		while ((parent_id = cat->getParentUUID()).notNull() && parent_id != gInventory.getRootFolderID())
+		{
+			cat = gInventory.getCategory(parent_id);
+			llassert(cat);
+			if (cat)
+			{
+				name = cat->getName() + "/" + name;
+			}
+		}
 	}
 
 	return name;
@@ -406,21 +416,24 @@ void LLPanelLandmarkInfo::populateFoldersList()
 
 	// Put the "Landmarks" folder first in list.
 	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-	const LLViewerInventoryCategory* cat = gInventory.getCategory(landmarks_id);
-	if (!cat)
+	const LLViewerInventoryCategory* lmcat = gInventory.getCategory(landmarks_id);
+	if (!lmcat)
 	{
 		llwarns << "Cannot find the landmarks folder" << llendl;
 	}
-	std::string cat_full_name = getFullFolderName(cat);
-	mFolderCombo->add(cat_full_name, cat->getUUID());
+	else
+	{
+		std::string cat_full_name = getFullFolderName(lmcat);
+		mFolderCombo->add(cat_full_name, lmcat->getUUID());
+	}
 
 	typedef std::vector<folder_pair_t> folder_vec_t;
 	folder_vec_t folders;
 	// Sort the folders by their full name.
 	for (S32 i = 0; i < cats.count(); i++)
 	{
-		cat = cats.get(i);
-		cat_full_name = getFullFolderName(cat);
+		const LLViewerInventoryCategory* cat = cats.get(i);
+		std::string cat_full_name = getFullFolderName(cat);
 		folders.push_back(folder_pair_t(cat->getUUID(), cat_full_name));
 	}
 	sort(folders.begin(), folders.end(), cmp_folders);

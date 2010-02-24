@@ -5,12 +5,12 @@
 		<menu_item_call label="マイアカウント" name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
-		<menu_item_call label="L$の購入" name="Buy and Sell L$"/>
+		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
 		<menu_item_call label="マイ プロフィール" name="Profile"/>
 		<menu_item_call label="マイ 容姿" name="Appearance"/>
 		<menu_item_check label="マイ 持ち物" name="Inventory"/>
-		<menu_item_call label="持ち物をサイドトレイに表示" name="ShowSidetrayInventory"/>
-		<menu_item_call label="マイ ジェスチャー" name="Gestures"/>
+		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
+		<menu_item_check label="マイ ジェスチャー" name="Gestures"/>
 		<menu label="マイ ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
@@ -24,7 +24,6 @@
 		<menu_item_call label="所属グループ" name="My Groups"/>
 		<menu_item_check label="近くのチャット" name="Nearby Chat"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
-		<menu_item_check label="近くのメディア" name="Nearby Media"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
@@ -40,6 +39,10 @@
 		<menu label="表示" name="LandShow">
 			<menu_item_check label="移動コントロール" name="Movement Controls"/>
 			<menu_item_check label="コントロールを表示" name="Camera Controls"/>
+			<menu_item_check label="立入禁止ライン" name="Ban Lines"/>
+			<menu_item_check label="ビーコン（標識）" name="beacons"/>
+			<menu_item_check label="プロパティ境界線" name="Property Lines"/>
+			<menu_item_check label="土地所有者" name="Land Owners"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -49,12 +52,12 @@
 			<menu_item_call label="日没" name="Sunset"/>
 			<menu_item_call label="深夜" name="Midnight"/>
 			<menu_item_call label="エステートタイム" name="Revert to Region Default"/>
-			<menu_item_call label="環境編集" name="Environment Editor"/>
+			<menu_item_call label="自然環境エディター" name="Environment Editor"/>
 		</menu>
 	</menu>
 	<menu label="制作" name="BuildTools">
 		<menu_item_check label="制作" name="Show Build Tools"/>
-		<menu label="制作ツールを選択" name="Select Tool">
+		<menu label="制作ツールを選択する" name="Select Tool">
 			<menu_item_call label="フォーカスツール" name="Focus"/>
 			<menu_item_call label="移動ツール" name="Move"/>
 			<menu_item_call label="編集ツール" name="Edit"/>
@@ -74,12 +77,13 @@
 		</menu>
 		<menu_item_call label="リンク" name="Link"/>
 		<menu_item_call label="リンクを外す" name="Unlink"/>
+		<menu_item_check label="リンクした部分を編集" name="Edit Linked Parts"/>
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
-			<menu_item_call label="買う" name="Menu Object Take"/>
+			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
-			<menu_item_call label="「マイ 持ち物」に保存" name="Save Object Back to My Inventory"/>
+			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="オブジェクトの中身に保存" name="Save Object Back to Object Contents"/>
 		</menu>
 		<menu label="スクリプト" name="Scripts">
@@ -90,25 +94,18 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="オプション" name="Options">
-			<menu_item_check label="リンク部位を編集" name="Edit Linked Parts"/>
 			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
 			<menu_item_check label="権限の詳細を表示" name="DebugPermissions"/>
-			<menu label="選択" name="Selection">
-				<menu_item_check label="私のオブジェクトだけを選択" name="Select Only My Objects"/>
-				<menu_item_check label="動的オブジェクトのみ選択" name="Select Only Movable Objects"/>
-				<menu_item_check label="環境で選択" name="Select By Surrounding"/>
-			</menu>
-			<menu label="表示" name="Show">
-				<menu_item_check label="非表示の選択を表示" name="Show Hidden Selection"/>
-				<menu_item_check label="選択した光の半径範囲を表示" name="Show Light Radius for Selection"/>
-				<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
-			</menu>
-			<menu label="グリッド" name="Grid">
-				<menu_item_check label="グリッドポイントにスナップ" name="Snap to Grid"/>
-				<menu_item_call label="オブジェクトのXY軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
-				<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
-				<menu_item_call label="グリッドオプション" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="私のオブジェクトだけを選択" name="Select Only My Objects"/>
+			<menu_item_check label="動的オブジェクトのみ選択" name="Select Only Movable Objects"/>
+			<menu_item_check label="範囲内を選択" name="Select By Surrounding"/>
+			<menu_item_check label="隠れた位置の選択も表示" name="Show Hidden Selection"/>
+			<menu_item_check label="選択した光の半径範囲を表示" name="Show Light Radius for Selection"/>
+			<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
+			<menu_item_check label="グリッドポイントにスナップ" name="Snap to Grid"/>
+			<menu_item_call label="オブジェクトの XY 軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
+			<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
+			<menu_item_call label="グリッドオプション" name="Grid Options"/>
 		</menu>
 		<menu label="リンクした部分を選択" name="Select Linked Parts">
 			<menu_item_call label="次の部位を選択" name="Select Next Part"/>
@@ -119,15 +116,15 @@
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
-		<menu_item_call label="嫌がらせを報告" name="Report Abuse"/>
-		<menu_item_call label="バグ報告" name="Report Bug"/>
+		<menu_item_call label="嫌がらせを報告する" name="Report Abuse"/>
+		<menu_item_call label="バグを報告する" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
 		<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		<menu_item_call label="テクスチャのリベーク" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
-		<menu_item_call label="ウィンドウのサイズの設定：" name="Set Window Size..."/>
+		<menu_item_call label="ウィンドウのサイズを設定..." name="Set Window Size..."/>
 		<menu_item_check label="遠くのオブジェクトを選択しない" name="Limit Select Distance"/>
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
@@ -175,8 +172,8 @@
 		<menu_item_check label="マルチスレッド処理" name="Run Multiple Threads"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
-		<menu_item_check label="近くのチャットに IM を表示" name="IMInChat"/>
 		<menu label="ショートカット" name="Shortcuts">
+			<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
 			<menu_item_check label="検索" name="Search"/>
 			<menu_item_call label="キーをリリース" name="Release Keys"/>
 			<menu_item_call label="UI のサイズをデフォルトに設定" name="Set UI Size to Default"/>
@@ -219,6 +216,7 @@
 			<menu_item_check label="カメラ" name="Camera"/>
 			<menu_item_check label="風" name="Wind"/>
 			<menu_item_check label="FOV" name="FOV"/>
+			<menu_item_check label="バッジ" name="Badge"/>
 		</menu>
 		<menu label="情報を表示" name="Display Info">
 			<menu_item_check label="時間を表示" name="Show Time"/>
@@ -276,7 +274,7 @@
 			<menu_item_check label="テクスチャアトラス" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
-			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
+			<menu_item_check label="マウスオーバーで強調表示" name="Hover Glow Objects"/>
 		</menu>
 		<menu label="ネットワーク" name="Network">
 			<menu_item_check label="エージェントを一時停止" name="AgentPause"/>
@@ -358,7 +356,7 @@
 			<menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
-		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
+		<menu_item_check label="HTTP テクスチャ" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示" name="Console Window"/>

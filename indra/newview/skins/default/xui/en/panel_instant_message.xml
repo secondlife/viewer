@@ -45,16 +45,17 @@
          name="group_icon"
          top="3"
          width="18" />
-        <!--<icon
+        <avatar_icon
+         color="Green"
          follows="right"
-         height="20"
-         image_name=""
+         height="18"
+         image_name="Generic_Person"
          layout="topleft"
          left="3"
-         mouse_opaque="true"
-         name="sys_msg_icon"
-         top="0"
-         width="20" />-->
+         mouse_opaque="false"
+         name="adhoc_icon"
+         top="3"
+         width="18" />
         <text
          follows="left|right"
          font.style="BOLD"

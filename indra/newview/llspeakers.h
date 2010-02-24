@@ -34,6 +34,7 @@
 #define LL_LLSPEAKERS_H
 
 #include "llevent.h"
+#include "lleventtimer.h"
 #include "llspeakers.h"
 #include "llvoicechannel.h"
 
@@ -155,6 +156,13 @@ public:
 	 */
 	virtual BOOL tick();
 
+	/**
+	 * Clears the callback.
+	 *
+	 * Use this instead of deleteing this object. 
+	 * The next call to tick() will return true and that will destroy this object.
+	 */
+	void unset();
 private:
 	action_callback_t	mActionCallback;
 	LLUUID				mSpeakerId;
@@ -176,7 +184,7 @@ public:
 	void setActionTimer(const LLUUID& speaker_id);
 
 	/**
-	 * Removes stored LLSpeakerActionTimer for passed speaker UUID from internal map and deletes it.
+	 * Removes stored LLSpeakerActionTimer for passed speaker UUID from internal map and optionally deletes it.
 	 *
 	 * @see onTimerActionCallback()
 	 */
@@ -188,7 +196,6 @@ private:
 	 * Callback of the each instance of LLSpeakerActionTimer.
 	 *
 	 * Unsets an appropriate timer instance and calls action callback for specified speacker_id.
-	 * It always returns false to not use LLEventTimer::updateClass functionality of timer deleting.
 	 *
 	 * @see unsetActionTimer()
 	 */

@@ -542,9 +542,9 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 
 	if (! gDirUtilp->fileExists(expanded_filename))
 	{
-		if (language != "en-us")
+		if (language != "en")
 		{
-			expanded_filename = gDirUtilp->findSkinnedFilename("html", "en-us", filename);
+			expanded_filename = gDirUtilp->findSkinnedFilename("html", "en", filename);
 			if (! gDirUtilp->fileExists(expanded_filename))
 			{
 				llwarns << "File " << subdir << delim << filename_in << "not found" << llendl;
@@ -982,16 +982,20 @@ void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 	U32 target_type = self->getClickTargetType();
 	
 	// is there is a target specified for the link?
-	if (gSavedSettings.getBOOL("UseExternalBrowser") || target_type == LLPluginClassMedia::TARGET_EXTERNAL)
+	if (target_type == LLPluginClassMedia::TARGET_EXTERNAL ||
+		target_type == LLPluginClassMedia::TARGET_BLANK )
 	{
-		LLSD payload;
-		payload["url"] = url;
-		payload["target_type"] = LLSD::Integer(target_type);
-		LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
-	}
-	else if (target_type == LLPluginClassMedia::TARGET_BLANK)
-	{
-		clickLinkWithTarget(url, target_type);
+		if (gSavedSettings.getBOOL("UseExternalBrowser"))
+		{
+			LLSD payload;
+			payload["url"] = url;
+			payload["target_type"] = LLSD::Integer(target_type);
+			LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
+		}
+		else
+		{
+			clickLinkWithTarget(url, target_type);
+		}
 	}
 	else {
 		const std::string protocol1( "http://" );
@@ -1042,7 +1046,7 @@ bool LLMediaCtrl::onClickLinkExternalTarget(const LLSD& notification, const LLSD
 // static 
 void LLMediaCtrl::clickLinkWithTarget(const std::string& url, const S32& target_type )
 {
-	if (gSavedSettings.getBOOL("UseExternalBrowser") || target_type == LLPluginClassMedia::TARGET_EXTERNAL)
+	if (target_type == LLPluginClassMedia::TARGET_EXTERNAL)
 	{
 		// load target in an external browser
 		LLWeb::loadURLExternal(url);

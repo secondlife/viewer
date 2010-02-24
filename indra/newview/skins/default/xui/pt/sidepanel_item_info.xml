@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="Propriedaded do item de inventário">
+	<panel.string name="unknown">
+		(desconhecido)
+	</panel.string>
+	<panel.string name="public">
+		(público)
+	</panel.string>
+	<panel.string name="you_can">
+		você pode:
+	</panel.string>
+	<panel.string name="owner_can">
+		Proprietário pode:
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</panel.string>
+	<text name="title" value="Propriedade do item"/>
+	<panel label="">
+		<text name="LabelItemNameTitle">
+			Nome:
+		</text>
+		<text name="LabelItemDescTitle">
+			Descrição:
+		</text>
+		<text name="LabelCreatorTitle">
+			Criador:
+		</text>
+		<button label="Perfil..." name="BtnCreator"/>
+		<text name="LabelOwnerTitle">
+			Proprietário:
+		</text>
+		<button label="Perfil..." name="BtnOwner"/>
+		<text name="LabelAcquiredTitle">
+			Adquirido:
+		</text>
+		<text name="LabelAcquiredDate">
+			Quarta 24 de Maio 12:50:46 2006
+		</text>
+		<text name="OwnerLabel">
+			Você:
+		</text>
+		<check_box label="Editar" name="CheckOwnerModify"/>
+		<check_box label="Copiar" name="CheckOwnerCopy"/>
+		<check_box label="Revender" name="CheckOwnerTransfer"/>
+		<text name="AnyoneLabel">
+			Qualquer um:
+		</text>
+		<check_box label="Copiar" name="CheckEveryoneCopy"/>
+		<text name="GroupLabel">
+			Grupo:
+		</text>
+		<check_box label="Compartilhar" name="CheckShareWithGroup"/>
+		<text name="NextOwnerLabel">
+			Próximo proprietário:
+		</text>
+		<check_box label="Editar" name="CheckNextOwnerModify"/>
+		<check_box label="Copiar" name="CheckNextOwnerCopy"/>
+		<check_box label="Revender" name="CheckNextOwnerTransfer"/>
+		<check_box label="À venda" name="CheckPurchase"/>
+		<combo_box name="combobox sale copy">
+			<combo_box.item label="Copiar" name="Copy"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Preço:" name="Edit Cost"/>
+		<text name="CurrencySymbol">
+			L$
+		</text>
+	</panel>
+</panel>

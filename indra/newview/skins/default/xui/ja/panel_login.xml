@@ -19,16 +19,16 @@
 			<text name="password_text">
 				パスワード：
 			</text>
-			<check_box label="記憶する" name="remember_check"/>
+			<check_box label="パスワードを記憶" name="remember_check"/>
 			<text name="start_location_text">
 				開始地点：
 			</text>
-			<combo_box name="start_location_combo">
+			<combo_box name="start_location_combo" width="160">
 				<combo_box.item label="最後にログアウトした場所" name="MyLastLocation"/>
 				<combo_box.item label="ホーム" name="MyHome"/>
 				<combo_box.item label="＜地域名を入力＞" name="Typeregionname"/>
 			</combo_box>
-			<button label="ログイン" name="connect_btn"/>
+			<button label="ログイン" left_pad="30" name="connect_btn" width="60"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_new_account_text">

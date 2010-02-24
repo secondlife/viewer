@@ -5,7 +5,7 @@
 	</floater.string>
 	<check_box label="Utiliser cette capture d&apos;écran" name="screen_check"/>
 	<text name="reporter_title" width="60">
-		Déposant :
+		Témoin :
 	</text>
 	<text name="reporter_field">
 		Loremipsum Dolorsitamut Longnamez
@@ -29,13 +29,13 @@
 	<text name="object_name_label">
 		Objet :
 	</text>
-	<text left_delta="70" name="object_name" width="105">
+	<text left_pad="26" name="object_name" width="105">
 		Consetetur Sadipscing
 	</text>
-	<text name="owner_name_label" width="66">
+	<text name="owner_name_label" width="100">
 		Propriétaire :
 	</text>
-	<text left_delta="70" name="owner_name" width="105">
+	<text left_delta="120" name="owner_name" width="105">
 		Hendrerit Vulputate Kamawashi Longname
 	</text>
 	<combo_box name="category_combo" tool_tip="Choisissez la catégorie qui décrit le mieux ce rapport">

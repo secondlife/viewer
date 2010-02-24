@@ -66,7 +66,7 @@ public:
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
 		void addMessagesFromHistory(const std::list<LLSD>& history);
-		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
+		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time, const bool is_history = false);
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
 		
 		/** @deprecated */
@@ -452,7 +452,7 @@ public:
 
 	static void initClass();
 	static void onVoiceChannelChanged(const LLUUID &session_id);
-	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
+	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent);
 
 protected:
 	static std::string sPreviousSessionlName;
@@ -472,6 +472,7 @@ public:
 
 	// check timer state
 	/*virtual*/ void draw();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 protected:
 	// lifetime timer for a notification
@@ -528,16 +529,6 @@ public:
 private:
 	// hide all text boxes
 	void hideAllText();
-};
-
-class LLCallInfoDialog : public LLCallDialog
-{
-public:
-	LLCallInfoDialog(const LLSD& payload);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	static void show(const std::string& status_name, const LLSD& args);
 };
 
 // Globals

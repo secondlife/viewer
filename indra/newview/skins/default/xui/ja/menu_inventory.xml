@@ -62,13 +62,13 @@
 	<menu_item_call label="リンクを外す" name="Remove Link"/>
 	<menu_item_call label="削除" name="Delete"/>
 	<menu_item_call label="システムフォルダを削除する" name="Delete System Folder"/>
-	<menu_item_call label="会議チャット開始" name="Conference Chat Folder"/>
+	<menu_item_call label="コンファレンスチャットを開始" name="Conference Chat Folder"/>
 	<menu_item_call label="再生" name="Sound Play"/>
 	<menu_item_call label="ランドマークの情報" name="About Landmark"/>
-	<menu_item_call label="世界で再生" name="Animation Play"/>
-	<menu_item_call label="ローカルに再生" name="Animation Audition"/>
-	<menu_item_call label="インスタント・メッセージを送信" name="Send Instant Message"/>
-	<menu_item_call label="テレポートを贈る..." name="Offer Teleport..."/>
+	<menu_item_call label="インワールドで再生する" name="Animation Play"/>
+	<menu_item_call label="ローカル再生" name="Animation Audition"/>
+	<menu_item_call label="インスタントメッセージを送信" name="Send Instant Message"/>
+	<menu_item_call label="テレポートを送る..." name="Offer Teleport..."/>
 	<menu_item_call label="会議チャット開始" name="Conference Chat"/>
 	<menu_item_call label="アクティブ" name="Activate"/>
 	<menu_item_call label="非アクティブ" name="Deactivate"/>

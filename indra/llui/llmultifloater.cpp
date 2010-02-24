@@ -92,14 +92,6 @@ void LLMultiFloater::draw()
 	}
 	else
 	{
-		for (S32 i = 0; i < mTabContainer->getTabCount(); i++)
-		{
-			LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(i);
-			if (floaterp->getShortTitle() != mTabContainer->getPanelTitle(i))
-			{
-				mTabContainer->setPanelTitle(i, floaterp->getShortTitle());
-			}
-		}
 		LLFloater::draw();
 	}
 }

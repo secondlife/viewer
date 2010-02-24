@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="地面テクスチャー" name="Textures">
+<panel label="地面テクスチャ" name="Textures">
 	<text name="region_text_lbl">
 		地域：
 	</text>
@@ -7,7 +7,7 @@
 		未知
 	</text>
 	<text name="detail_texture_text">
-		地形のテクスチャー (512x512、24ビット .tgaファイルが必要)
+		地形のテクスチャ （512x512、24ビット .tgaファイルが必要です）
 	</text>
 	<text name="height_text_lbl">
 		1（低）
@@ -19,10 +19,10 @@
 		3
 	</text>
 	<text name="height_text_lbl4">
-		4(高)
+		4（高）
 	</text>
 	<text name="height_text_lbl5">
-		テクスチャー標高範囲
+		テクスチャ標高範囲
 	</text>
 	<text name="height_text_lbl6">
 		南西
@@ -48,10 +48,11 @@
 		数値は上のテクスチャのブレンド範囲を示します。
 	</text>
 	<text name="height_text_lbl11">
-		計測単位はメートルで、「低」の値は、1番のテクスチャの高さの「最大値」です。「高」の値は、4番のテクスチャの高さの「最低値」です。
+		計測単位はメートルで、「低」の値は、1番のテクスチャの高さの
+「最大値」です。「高」の値は、4番のテクスチャの高さの「最低値」です。
 	</text>
 	<text name="height_text_lbl12">
-		そして「高」の値はテクスチャー#4の高さの下限となります。
+		そして「高」の値はテクスチャ#4の高さの下限となります。
 	</text>
 	<button label="適用" name="apply_btn"/>
 </panel>

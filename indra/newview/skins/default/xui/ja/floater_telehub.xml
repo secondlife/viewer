@@ -10,7 +10,7 @@
 		「切断」をクリックして削除します。
 	</text>
 	<text name="help_text_not_connected">
-		物体を選択し「テレハブの接続」をクリックする
+		物体を選択して「テレハブの接続」をクリックしてください。
 	</text>
 	<button label="テレハブの接続" name="connect_btn"/>
 	<button label="切断" name="disconnect_btn"/>
@@ -20,9 +20,6 @@
 	<button label="出現位置を追加" name="add_spawn_point_btn"/>
 	<button label="出現地点を削除" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
-		オブジェクトを選び、「出現地点を追加」をクリックして位置を指定します。
-そうするとそのオブジェクトを移動させたり削除できます。
-位置はテレハブセンターに関連します。
-リストのアイテムを選択してインワールドでハイライトさせます。
+		オブジェクトを選び、「出現地点を追加」をクリックして位置を指定します。そうするとそのオブジェクトを移動させたり削除できます。位置はテレハブセンターに関連します。リストのアイテムを選択してインワールドでハイライトさせます。
 	</text>
 </floater>

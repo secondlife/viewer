@@ -62,7 +62,7 @@ BOOL LLSidepanelInventory::postBuild()
 	// UI elements from inventory panel
 	{
 		mInventoryPanel = getChild<LLPanel>("sidepanel__inventory_panel");
-		
+
 		mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
 		mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
 		
@@ -83,6 +83,14 @@ BOOL LLSidepanelInventory::postBuild()
 		
 		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+
+		/* 
+		   EXT-4846 : "Can we suppress the "Landmarks" and "My Favorites" folder since they have their own Task Panel?"
+		   Deferring this until 2.1.
+		LLInventoryPanel *my_inventory_panel = mPanelMainInventory->getChild<LLInventoryPanel>("All Items");
+		my_inventory_panel->addHideFolderType(LLFolderType::FT_LANDMARK);
+		my_inventory_panel->addHideFolderType(LLFolderType::FT_FAVORITE);
+		*/
 	}
 
 	// UI elements from item panel
@@ -164,7 +172,21 @@ void LLSidepanelInventory::onWearButtonClicked()
 
 void LLSidepanelInventory::onPlayButtonClicked()
 {
-	performActionOnSelection("activate");
+	const LLInventoryItem *item = getSelectedItem();
+	if (!item)
+	{
+		return;
+	}
+
+	switch(item->getInventoryType())
+	{
+	case LLInventoryType::IT_GESTURE:
+		performActionOnSelection("play");
+		break;
+	default:
+		performActionOnSelection("open");
+		break;
+	}
 }
 
 void LLSidepanelInventory::onTeleportButtonClicked()

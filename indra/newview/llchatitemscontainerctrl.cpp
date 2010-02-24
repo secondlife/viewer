@@ -258,8 +258,12 @@ BOOL	LLNearbyChatToastPanel::handleMouseDown	(S32 x, S32 y, MASK mask)
 
 BOOL	LLNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
 {
+	/*
+	fix for request  EXT-4780
+	leaving this commented since I don't remember why ew block those messages...
 	if(mSourceType != CHAT_SOURCE_AGENT)
 		return LLPanel::handleMouseUp(x,y,mask);
+    */
 
 	LLChatMsgBox* text_box = getChild<LLChatMsgBox>("msg_text", false);
 	S32 local_x = x - text_box->getRect().mLeft;
@@ -317,7 +321,10 @@ void LLNearbyChatToastPanel::draw()
 		if(icon)
 		{
 			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
-			icon->setValue(mFromID);
+			if(mSourceType == CHAT_SOURCE_AGENT)
+				icon->setValue(mFromID);
+			else
+				icon->setValue(LLSD("OBJECT_Icon"));
 		}
 		mIsDirty = false;
 	}

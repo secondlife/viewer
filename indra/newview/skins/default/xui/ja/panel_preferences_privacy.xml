@@ -3,22 +3,20 @@
 	<panel.string name="log_in_to_change">
 		ログインして変更
 	</panel.string>
-	<button label="履歴の消去" name="clear_cache"/>
+	<button label="履歴を消去" name="clear_cache" tool_tip="ログイン画像、最後にいた場所、テレポート履歴、Web、テクスチャキャッシュを削除します"/>
 	<text name="cache_size_label_l">
 		（位置、画像、web、検索履歴）
 	</text>
-	<check_box label="私のオンライン状況を確認できるのは、フレンドとグループだけ" name="online_visibility"/>
-	<check_box label="フレンドとグループ以外からはコールとIMを受信しない" name="voice_call_friends_only_check"/>
-	<check_box label="コールが終了したらマイクのスイッチを切る" name="auto_disengage_mic_check"/>
-	<check_box label="Cookieを受け入れる" name="cookies_enabled"/>
-	<check_box label="メディアが有効です" name="media_enabled"/>
-	<check_box label="メディアを自動再生する" name="autoplay_enabled"/>
+	<check_box label="私のオンライン状態を確認できるのは、フレンドとグループだけ" name="online_visibility"/>
+	<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
+	<check_box label="コールが終了したら自動的にマイクのスイッチを切る" name="auto_disengage_mic_check"/>
+	<check_box label="Cookie を受け入れる" name="cookies_enabled"/>
 	<text name="Logs:">
 		ログ：
 	</text>
-	<check_box label="コンピューターに近くのチャットログを保存する" name="log_nearby_chat"/>
-	<check_box label="コンピューターに IM ログを保存する" name="log_instant_messages"/>
-	<check_box label="タイムスタンプを追加する" name="show_timestamps_check_im"/>
+	<check_box label="近くのチャットログをコンピューターに保存する" name="log_nearby_chat"/>
+	<check_box label="IM ログをコンピューターに保存する" name="log_instant_messages"/>
+	<check_box label="日時を入れる" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
 		ログの保存場所：
 	</text>

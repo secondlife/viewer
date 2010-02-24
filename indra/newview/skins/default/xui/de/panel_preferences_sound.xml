@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sounds" name="Preference Media panel">
 	<slider label="Master-Lautstärke" name="System Volume"/>
-	<check_box initial_value="true" label="Stummschalten, wenn verkleinert" name="mute_when_minimized"/>
-	<slider label="Umgebung" name="Wind Volume"/>
+	<check_box initial_value="true" label="Stummschalten, wenn minimiert" name="mute_when_minimized"/>
 	<slider label="Schaltflächen" name="UI Volume"/>
-	<slider label="Medien" name="Media Volume"/>
+	<slider label="Umgebung" name="Wind Volume"/>
 	<slider label="Soundeffekte" name="SFX Volume"/>
 	<slider label="Musik wird gestreamt" name="Music Volume"/>
-	<check_box label="Voice aktivieren" name="enable_voice_check"/>
-	<slider label="Sprache" name="Voice Volume"/>
+	<check_box label="Aktiviert" name="music_enabled"/>
+	<slider label="Medien" name="Media Volume"/>
+	<check_box label="Aktiviert" name="enable_media"/>
+	<slider label="Voice-Chat" name="Voice Volume"/>
+	<check_box label="Aktiviert" name="enable_voice_check"/>
+	<check_box label="Automatische Wiedergabe zulassen" name="media_auto_play_btn" tool_tip="Hier aktivieren, um Medien automatisch wiederzugeben." value="wahr"/>
+	<check_box label="Medien, die an andere Avatare angehängt sind, wiedergeben." name="media_show_on_others_btn" tool_tip="Diese Option deaktivieren, um Medien für andere Avataren, die sich in der Nähe befinden, auszublenden." value="wahr"/>
 	<text name="Listen from">
-		Zuhören von:
+		Voice-Chat-Einstellungen
 	</text>
 	<radio_group name="ear_location">
 		<radio_item label="Kameraposition" name="0"/>

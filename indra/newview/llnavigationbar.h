@@ -34,12 +34,54 @@
 #define LL_LLNAVIGATIONBAR_H
 
 #include "llpanel.h"
+#include "llbutton.h"
 
-class LLButton;
 class LLLocationInputCtrl;
 class LLMenuGL;
 class LLSearchEditor;
 class LLSearchComboBox;
+
+/**
+ * This button is able to handle click-dragging mouse event.
+ * It has appropriated signal for this event.
+ * Dragging direction can be set from xml attribute called 'direction'
+ * 
+ * *TODO: move to llui?  
+ */
+
+class LLPullButton: public LLButton
+{
+	LOG_CLASS(LLPullButton);
+
+public:
+	struct Params: public LLInitParam::Block<Params, LLButton::Params>
+	{
+		Optional<std::string> direction; // left, right, down, up
+
+		Params() 
+		:	direction("direction", "down")
+		{
+		}
+	};
+	
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+
+	boost::signals2::connection setClickDraggingCallback(const commit_signal_t::slot_type& cb);
+
+protected:
+	friend class LLUICtrlFactory;
+	// convert string name into direction vector
+	void setDirectionFromName(const std::string& name);
+	LLPullButton(const LLPullButton::Params& params);
+
+	commit_signal_t mClickDraggingSignal;
+	LLVector2 mLastMouseDown;
+	LLVector2 mDraggingDirection;
+};
 
 /**
  * Web browser-like navigation bar.
@@ -70,13 +112,14 @@ public:
 private:
 
 	void rebuildTeleportHistoryMenu();
-	void showTeleportHistoryMenu();
+	void showTeleportHistoryMenu(LLUICtrl* btn_ctrl);
 	void invokeSearch(std::string search_text);
 	// callbacks
 	void onTeleportHistoryMenuItemClicked(const LLSD& userdata);
 	void onTeleportHistoryChanged();
 	void onBackButtonClicked();
-	void onBackOrForwardButtonHeldDown(const LLSD& param);
+	void onBackOrForwardButtonHeldDown(LLUICtrl* ctrl, const LLSD& param);
+	void onNavigationButtonHeldUp(LLButton* nav_button);
 	void onForwardButtonClicked();
 	void onHomeButtonClicked();
 	void onLocationSelection();
@@ -94,8 +137,8 @@ private:
 	void fillSearchComboBox();
 
 	LLMenuGL*					mTeleportHistoryMenu;
-	LLButton*					mBtnBack;
-	LLButton*					mBtnForward;
+	LLPullButton*				mBtnBack;
+	LLPullButton*				mBtnForward;
 	LLButton*					mBtnHome;
 	LLSearchComboBox*			mSearchComboBox;
 	LLLocationInputCtrl*		mCmbLocation;
@@ -103,6 +146,7 @@ private:
 	LLRect						mDefaultFpRect;
 	boost::signals2::connection	mTeleportFailedConnection;
 	boost::signals2::connection	mTeleportFinishConnection;
+	boost::signals2::connection	mHistoryMenuConnection;
 	bool						mPurgeTPHistoryItems;
 	// if true, save location to location history when teleport finishes
 	bool						mSaveToLocationHistory;

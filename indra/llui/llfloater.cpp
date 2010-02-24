@@ -1565,43 +1565,34 @@ void LLFloater::draw()
 	// draw background
 	if( isBackgroundVisible() )
 	{
+		drawShadow(this);
+
 		S32 left = LLPANEL_BORDER_WIDTH;
 		S32 top = getRect().getHeight() - LLPANEL_BORDER_WIDTH;
 		S32 right = getRect().getWidth() - LLPANEL_BORDER_WIDTH;
 		S32 bottom = LLPANEL_BORDER_WIDTH;
 
-		static LLUICachedControl<S32> shadow_offset_S32 ("DropShadowFloater", 0);
-		static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
-		LLColor4 shadow_color = shadow_color_cached;
-		F32 shadow_offset = (F32)shadow_offset_S32;
-
-		if (!isBackgroundOpaque())
-		{
-			shadow_offset *= 0.2f;
-			shadow_color.mV[VALPHA] *= 0.5f;
-		}
-		gl_drop_shadow(left, top, right, bottom, 
-			shadow_color % alpha, 
-			llround(shadow_offset));
-
 		LLUIImage* image = NULL;
 		LLColor4 color;
+		LLColor4 overlay_color;
 		if (isBackgroundOpaque())
 		{
 			// NOTE: image may not be set
 			image = getBackgroundImage();
 			color = getBackgroundColor();
+			overlay_color = getBackgroundImageOverlay();
 		}
 		else
 		{
 			image = getTransparentImage();
 			color = getTransparentColor();
+			overlay_color = getTransparentImageOverlay();
 		}
 
 		if (image)
 		{
 			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), UI_VERTEX_COLOR % alpha);
+			image->draw(getLocalRect(), overlay_color % alpha);
 		}
 		else
 		{
@@ -1650,24 +1641,8 @@ void LLFloater::draw()
 	}
 	else
 	{
-		//FIXME: get rid of this hack
-		// draw children
-		LLView* focused_child = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
-		BOOL focused_child_visible = FALSE;
-		if (focused_child && focused_child->getParent() == this)
-		{
-			focused_child_visible = focused_child->getVisible();
-			focused_child->setVisible(FALSE);
-		}
-
 		// don't call LLPanel::draw() since we've implemented custom background rendering
 		LLView::draw();
-
-		if (focused_child_visible)
-		{
-			focused_child->setVisible(TRUE);
-		}
-		drawChild(focused_child);
 	}
 
 	// update tearoff button for torn off floaters
@@ -1680,6 +1655,29 @@ void LLFloater::draw()
 			setCanTearOff(FALSE);
 		}
 	}
+}
+
+void	LLFloater::drawShadow(LLPanel* panel)
+{
+	F32 alpha = panel->getDrawContext().mAlpha;
+	S32 left = LLPANEL_BORDER_WIDTH;
+	S32 top = panel->getRect().getHeight() - LLPANEL_BORDER_WIDTH;
+	S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
+	S32 bottom = LLPANEL_BORDER_WIDTH;
+
+	static LLUICachedControl<S32> shadow_offset_S32 ("DropShadowFloater", 0);
+	static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
+	LLColor4 shadow_color = shadow_color_cached;
+	F32 shadow_offset = (F32)shadow_offset_S32;
+
+	if (!panel->isBackgroundOpaque())
+	{
+		shadow_offset *= 0.2f;
+		shadow_color.mV[VALPHA] *= 0.5f;
+	}
+	gl_drop_shadow(left, top, right, bottom, 
+		shadow_color % alpha, 
+		llround(shadow_offset));
 }
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
@@ -2392,10 +2390,17 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			LLRect new_rect;
 			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
 
-			floater->reshape( new_width, new_height, TRUE );
-			floater->setRect(new_rect);
+			floater->setShape(new_rect);
 
-			floater->translateIntoRect( getLocalRect(), false );
+			if (floater->followsRight())
+			{
+				floater->translate(old_width - new_width, 0);
+			}
+
+			if (floater->followsTop())
+			{
+				floater->translate(0, old_height - new_height);
+			}
 		}
 	}
 
@@ -2579,6 +2584,8 @@ void LLFloaterView::pushVisibleAll(BOOL visible, const skip_list_t& skip_list)
 			view->pushVisible(visible);
 		}
 	}
+
+	LLFloaterReg::blockShowFloaters(true);
 }
 
 void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
@@ -2596,6 +2603,8 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 			view->popVisible();
 		}
 	}
+
+	LLFloaterReg::blockShowFloaters(false);
 }
 
 void LLFloater::setInstanceName(const std::string& name)

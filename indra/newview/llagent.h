@@ -982,7 +982,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	// Checks against all groups in the entire agent group list.
-	BOOL 			isInGroup(const LLUUID& group_id) const;
+	BOOL 			isInGroup(const LLUUID& group_id, BOOL ingnore_God_mod = FALSE) const;
 protected:
 	// Only used for building titles.
 	BOOL			isGroupMember() const 		{ return !mGroupID.isNull(); } 

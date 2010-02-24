@@ -48,6 +48,15 @@ class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
 	// know how script notifications should look like.
 public:
 
+	typedef enum e_object_type
+	{
+		OBJ_SCRIPT,
+		OBJ_GIVE_INVENTORY,
+		OBJ_LOAD_URL,
+
+		OBJ_UNKNOWN
+	}EObjectType;
+
 	/**
 	 * Handles new notifications.
 	 * Saves notification and object ids, removes old notification if needed, creates script chiclet
@@ -62,11 +71,6 @@ public:
 	void onRemoveNotification(const LLUUID& notification_id);
 
 	/**
-	 * Wrapper for onRemoveNotification, removes notification by object id.
-	 */
-	void removeNotificationByObjectId(const LLUUID& object_id);
-
-	/**
 	 * Toggles script floater.
 	 * Removes "new message" icon from chiclet and removes notification toast.
 	 */
@@ -76,38 +80,47 @@ public:
 
 	LLUUID findNotificationId(const LLUUID& object_id);
 
-	LLUUID findNotificationToastId(const LLUUID& object_id);
+	static EObjectType getObjectType(const LLUUID& notification_id);
 
-	/**
-	 * Associate notification toast id with object id.
-	 */
-	void setNotificationToastId(const LLUUID& object_id, const LLUUID& notification_id);
-
-	/**
-	* Callback for notification toast buttons.
-	*/
-	static void onToastButtonClick(const LLSD&notification, const LLSD&response);
+	static std::string getObjectName(const LLUUID& notification_id);
 
 	typedef boost::signals2::signal<void(const LLSD&)> object_signal_t;
 
 	boost::signals2::connection addNewObjectCallback(const object_signal_t::slot_type& cb) { return mNewObjectSignal.connect(cb); }
 	boost::signals2::connection addToggleObjectFloaterCallback(const object_signal_t::slot_type& cb) { return mToggleFloaterSignal.connect(cb); }
 
-private:
-
-	struct LLNotificationData
+	struct FloaterPositionInfo
 	{
-		LLUUID notification_id;
-		LLUUID toast_notification_id;
+		LLRect mRect;
+		bool mDockState;
 	};
 
-	// <object_id, notification_data>
-	typedef std::map<LLUUID, LLNotificationData> script_notification_map_t;
+	void saveFloaterPosition(const LLUUID& object_id, const FloaterPositionInfo& fpi);
+
+	bool getFloaterPosition(const LLUUID& object_id, FloaterPositionInfo& fpi);
+
+protected:
+
+	typedef std::map<std::string, EObjectType> object_type_map;
+
+	static object_type_map initObjectTypeMap();
+
+	// <notification_id, object_id>
+	typedef std::map<LLUUID, LLUUID> script_notification_map_t;
+
+	script_notification_map_t::const_iterator findUsingObjectId(const LLUUID& object_id);
+
+private:
 
 	script_notification_map_t mNotifications;
 
 	object_signal_t mNewObjectSignal;
 	object_signal_t mToggleFloaterSignal;
+
+	// <object_id, floater position>
+	typedef std::map<LLUUID, FloaterPositionInfo> floater_position_map_t;
+
+	floater_position_map_t mFloaterPositions;
 };
 
 /**
@@ -136,9 +149,9 @@ public:
 	 */
 	static LLScriptFloater* show(const LLUUID& object_id);
 
-	const LLUUID& getObjectId() { return mObjectId; }
+	const LLUUID& getNotificationId() { return mNotificationId; }
 
-	void setObjectId(const LLUUID& id) { mObjectId = id; }
+	void setNotificationId(const LLUUID& id);
 
 	/**
 	 * Close notification if script floater is closed.
@@ -154,6 +167,14 @@ public:
 	 * Hide all notification toasts when we show dockable floater
 	 */
 	/*virtual*/ void setVisible(BOOL visible);
+
+	bool getSavePosition() { return mSaveFloaterPosition; }
+
+	void setSavePosition(bool save) { mSaveFloaterPosition = save; }
+
+	void savePosition();
+
+	void restorePosition();
 
 protected:
 
@@ -178,9 +199,13 @@ protected:
 	
 	/*virtual*/ void onFocusReceived();
 
+	void dockToChiclet(bool dock);
+
 private:
 	LLToastNotifyPanel* mScriptForm;
+	LLUUID mNotificationId;
 	LLUUID mObjectId;
+	bool mSaveFloaterPosition;
 };
 
 #endif //LL_SCRIPTFLOATER_H

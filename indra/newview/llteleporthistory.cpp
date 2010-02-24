@@ -173,6 +173,8 @@ void LLTeleportHistory::purgeItems()
 	// reset the count
 	mRequestedItem = -1;
 	mCurrentItem = 0;
+
+	onHistoryChanged();
 }
 
 // static

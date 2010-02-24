@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="CARREGANDO...">
+<floater name="top_objects" title="Principais objetos:">
 	<text name="title_text">
 		Carregando...
 	</text>
@@ -16,20 +16,20 @@
 	</text>
 	<button label="Mostrar Avisos" name="show_beacon_btn"/>
 	<text name="obj_name_text">
-		Nome do Objeto:
+		Nome do objeto:
 	</text>
 	<button label="Filtro" name="filter_object_btn"/>
 	<text name="owner_name_text" width="130">
-		Nome do Proprietário:
+		Proprietário:
 	</text>
 	<line_editor font="SansSerifSmall" left="140" name="id_editor" width="280"/>
 	<line_editor font="SansSerifSmall" left="140" name="object_name_editor" width="280"/>
 	<line_editor font="SansSerifSmall" left="140" name="owner_name_editor" width="280"/>
 	<button label="Filtro" name="filter_owner_btn"/>
 	<button label="Retornar Selecionado" name="return_selected_btn" width="170"/>
-	<button label="Retornar Tudo" name="return_all_btn" left="190"/>
+	<button label="Retornar Tudo" left="190" name="return_all_btn"/>
 	<button label="Desabilitar Selecionado" name="disable_selected_btn" width="170"/>
-	<button label="Desabilitar Tudo" name="disable_all_btn" left="190"/>
+	<button label="Desabilitar Tudo" left="190" name="disable_all_btn"/>
 	<button label="Atualizar" name="refresh_btn"/>
 	<string name="top_scripts_title">
 		Principais Scripts

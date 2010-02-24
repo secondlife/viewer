@@ -63,7 +63,9 @@ public:
 	struct Params 
 	:	public LLInitParam::Block<Params, LLComboBox::Params>
 	{
-		Optional<LLUIImage*>				add_landmark_image_enabled,
+		Optional<LLUIImage*>				icon_maturity_general,
+											icon_maturity_adult,
+											add_landmark_image_enabled,
 											add_landmark_image_disabled,
 											add_landmark_image_hover,
 											add_landmark_image_selected;
@@ -72,7 +74,8 @@ public:
 		Optional<LLButton::Params>			add_landmark_button,
 											for_sale_button,
 											info_button;
-		Optional<LLIconCtrl::Params>		voice_icon,
+		Optional<LLIconCtrl::Params>		maturity_icon,
+											voice_icon,
 											fly_icon,
 											push_icon,
 											build_icon,
@@ -89,6 +92,7 @@ public:
 	/*virtual*/ void		onFocusReceived();
 	/*virtual*/ void		onFocusLost();
 	/*virtual*/ void		draw();
+	/*virtual*/ void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	//========================================================================
 
 	// LLUICtrl interface
@@ -116,6 +120,13 @@ private:
 		ICON_COUNT
 	};
 
+    /**
+     * This  constant holds number of empty dropdown items, which will be displayed  instead of doing nothing when the list is empty.
+     * Added due to EXT-5194 
+     */
+    static const S32 NUMBER_OF_EMPTY_ITEMS = 3;
+    
+
 	friend class LLUICtrlFactory;
 	LLLocationInputCtrl(const Params&);
 	virtual ~LLLocationInputCtrl();
@@ -131,6 +142,7 @@ private:
 	void					refreshParcelIcons();
 	// Refresh the value in the health percentage text field
 	void					refreshHealth();
+	void					positionMaturityIcon();
 	
 	void					rebuildLocationHistory(std::string filter = "");
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
@@ -160,7 +172,8 @@ private:
 	LLButton*				mInfoBtn;
 	S32						mIconHPad;			// pad between all icons
 	S32						mAddLandmarkHPad;	// pad to left of landmark star
-	
+
+	LLIconCtrl*	mMaturityIcon;
 	LLIconCtrl*	mParcelIcon[ICON_COUNT];
 	LLTextBox* mDamageText;
 
@@ -168,15 +181,20 @@ private:
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
 	LLParcelChangeObserver*		mParcelChangeObserver;
 
+	boost::signals2::connection	mCoordinatesControlConnection;
+	boost::signals2::connection	mParcelPropertiesControlConnection;
 	boost::signals2::connection	mParcelMgrConnection;
 	boost::signals2::connection	mLocationHistoryConnection;
 	LLUIImage* mLandmarkImageOn;
 	LLUIImage* mLandmarkImageOff;
+	LLUIImage* mIconMaturityGeneral;
+	LLUIImage* mIconMaturityAdult;
 
 	std::string mAddLandmarkTooltip;
 	std::string mEditLandmarkTooltip;
 	// this field holds a human-readable form of the location string, it is needed to be able to compare copy-pated value and real location
 	std::string mHumanReadableLocation;
+	bool isHumanReadableLocationVisible;
 };
 
 #endif

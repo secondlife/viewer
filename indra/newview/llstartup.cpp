@@ -67,6 +67,7 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
+#include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
@@ -120,9 +121,8 @@
 #include "lllogininstance.h" // Host the login module.
 #include "llpanellogin.h"
 #include "llmutelist.h"
-#include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpanelevent.h"
+#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelplace.h"
@@ -134,13 +134,14 @@
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llsidetray.h"
 #include "llstatview.h"
-#include "lltrans.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
 #include "llsurface.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "lltoolmgr.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llurldispatcher.h"
 #include "llurlsimstring.h"
@@ -196,10 +197,6 @@
 #if LL_WINDOWS
 #include "llwindebug.h"
 #include "lldxhardware.h"
-#endif
-
-#if (LL_LINUX || LL_SOLARIS) && LL_GTK
-#include <glib/gspawn.h>
 #endif
 
 //
@@ -799,6 +796,9 @@ bool idle_startup()
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 
+		// Hide the splash screen
+		LLSplashScreen::hide();
+
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
 		display_startup();
@@ -904,7 +904,8 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//good as place as any to create user windlight directories
+
+		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
 		LLFile::mkdir(user_windlight_path_name.c_str());		
 
@@ -1196,6 +1197,7 @@ bool idle_startup()
 
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
+		
 		return FALSE;
 	}
 
@@ -1282,6 +1284,14 @@ bool idle_startup()
 			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
 			// Load stored cache if possible
             LLAppViewer::instance()->loadNameCache();
+		}
+
+		//gCacheName is required for nearby chat history loading
+		//so I just moved nearby history loading a few states further
+		if (!gNoRender && gSavedPerAccountSettings.getBOOL("LogShowHistory"))
+		{
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
+			if (nearby_chat) nearby_chat->loadHistory();
 		}
 
 		// *Note: this is where gWorldMap used to be initialized.
@@ -1690,6 +1700,13 @@ bool idle_startup()
 					<< " kbps" << LL_ENDL;
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
+
+			// Set the show start location to true, now that the user has logged
+			// on with this install.
+			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+			
+			LLSideTray::getInstance()->showPanel("panel_home", LLSD());
+
 		}
 
 		// We're successfully logged in.
@@ -1849,21 +1866,6 @@ bool idle_startup()
 			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
 		}
 
-
-		// We now have an inventory skeleton, so if this is a user's first
-		// login, we can start setting up their clothing and avatar 
-		// appearance.  This helps to avoid the generic "Ruth" avatar in
-		// the orientation island tutorial experience. JC
-		if (gAgent.isFirstLogin()
-			&& !sInitialOutfit.empty()    // registration set up an outfit
-			&& !sInitialOutfitGender.empty() // and a gender
-			&& gAgent.getAvatarObject()	  // can't wear clothes without object
-			&& !gAgent.isGenderChosen() ) // nothing already loading
-		{
-			// Start loading the wearables, textures, gestures
-			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
-		}
-
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
 		   || (timeout_frac > 3.f))
@@ -1883,7 +1885,7 @@ bool idle_startup()
 				LLViewerShaderMgr::instance()->setShaders();
 			}
 		}
-
+		
 		return TRUE;
 	}
 
@@ -2466,7 +2468,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
-	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
@@ -2526,6 +2528,13 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
+	llinfos << "starting" << llendl;
+
+	// Not going through the processAgentInitialWearables path, so need to set this here.
+	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
+	// Initiate creation of COF, since we're also bypassing that.
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	
 	S32 gender = 0;
 	std::string gestures;
 	if (gender_name == "male")
@@ -2541,24 +2550,53 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	// try to find the outfit - if not there, create some default
 	// wearables.
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	LLNameCategoryCollector has_name(outfit_folder_name);
-	gInventory.collectDescendentsIf(LLUUID::null,
-									cat_array,
-									item_array,
-									LLInventoryModel::EXCLUDE_TRASH,
-									has_name);
-	if (0 == cat_array.count())
+	LLUUID cat_id = findDescendentCategoryIDByName(
+		gInventory.getLibraryRootFolderID(),
+		outfit_folder_name);
+	if (cat_id.isNull())
 	{
 		gAgentWearables.createStandardWearables(gender);
 	}
 	else
 	{
-		LLAppearanceManager::instance().wearOutfitByName(outfit_folder_name);
+		bool do_copy = true;
+		bool do_append = false;
+		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
-	LLAppearanceManager::instance().wearOutfitByName(gestures);
-	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);
+
+	// Copy gestures
+	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
+	LLPointer<LLInventoryCallback> cb(NULL);
+	LLAppearanceManager *app_mgr = &(LLAppearanceManager::instance());
+
+	// - Copy gender-specific gestures.
+	LLUUID gestures_cat_id = findDescendentCategoryIDByName( 
+		gInventory.getLibraryRootFolderID(),
+		gestures);
+	if (gestures_cat_id.notNull())
+	{
+		callAfterCategoryFetch(gestures_cat_id,
+							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+										   app_mgr,
+										   gestures_cat_id,
+										   dst_id,
+										   cb));
+	}
+
+	// - Copy common gestures.
+	LLUUID common_gestures_cat_id = findDescendentCategoryIDByName( 
+		gInventory.getLibraryRootFolderID(),
+		COMMON_GESTURES_FOLDER);
+	if (common_gestures_cat_id.notNull())
+	{
+		callAfterCategoryFetch(common_gestures_cat_id,
+							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+										   app_mgr,
+										   common_gestures_cat_id,
+										   dst_id,
+										   cb));
+	}
 
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
@@ -2856,7 +2894,9 @@ bool process_login_success_response()
 	text = response["agent_region_access"].asString();
 	if (!text.empty())
 	{
-		int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
+		U32 preferredMaturity =
+			llmin((U32)LLAgent::convertTextToMaturity(text[0]),
+			      gSavedSettings.getU32("PreferredMaturity"));
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
 	// During the AO transition, this flag will be true. Then the flag will

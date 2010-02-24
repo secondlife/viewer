@@ -72,6 +72,7 @@
 #include "llviewerwindow.h"	// for window width, height
 #include "llappviewer.h"	// abortQuit()
 #include "lltrans.h"
+#include "llscrollcontainer.h"
 #include "llstatusbar.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
@@ -242,7 +243,7 @@ BOOL LLPanelClassified::postBuild()
 	mNameEditor->setCommitOnFocusLost(TRUE);
 	mNameEditor->setFocusReceivedCallback(boost::bind(focusReceived, _1, this));
 	mNameEditor->setCommitCallback(onCommitAny, this);
-	mNameEditor->setPrevalidate( LLLineEditor::prevalidateASCII );
+	mNameEditor->setPrevalidate( LLTextValidate::validateASCII );
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
@@ -1072,7 +1073,7 @@ BOOL LLFloaterPriceForListing::postBuild()
 	LLLineEditor* edit = getChild<LLLineEditor>("price_edit");
 	if (edit)
 	{
-		edit->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
+		edit->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 		std::string min_price = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
 		edit->setText(min_price);
 		edit->selectAll();
@@ -1173,6 +1174,12 @@ BOOL LLPanelClassifiedInfo::postBuild()
 	childSetAction("show_on_map_btn", boost::bind(&LLPanelClassifiedInfo::onMapClick, this));
 	childSetAction("teleport_btn", boost::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
 
+	mScrollingPanel = getChild<LLPanel>("scroll_content_panel");
+	mScrollContainer = getChild<LLScrollContainer>("profile_scroll");
+
+	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
+	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
+
 	return TRUE;
 }
 
@@ -1184,6 +1191,26 @@ void LLPanelClassifiedInfo::setExitCallback(const commit_callback_t& cb)
 void LLPanelClassifiedInfo::setEditClassifiedCallback(const commit_callback_t& cb)
 {
 	getChild<LLButton>("edit_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedInfo::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+
+	if (!mScrollContainer || !mScrollingPanel)
+		return;
+
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	S32 scroll_height = mScrollContainer->getRect().getHeight();
+	if (mScrollingPanelMinHeight >= scroll_height)
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth, mScrollingPanelMinHeight);
+	}
+	else
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
+	}
 }
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)
@@ -1231,12 +1258,14 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			static std::string mature_str = getString("type_mature");
 			static std::string pg_str = getString("type_pg");
+			static LLUIString  price_str = getString("l$_price");
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
 			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
 
-			childSetTextArg("price_for_listing", "[PRICE]", llformat("%d", c_info->price_for_listing));
+			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
+			childSetValue("price_for_listing", LLSD(price_str));
 
 			setInfoLoaded(true);
 		}

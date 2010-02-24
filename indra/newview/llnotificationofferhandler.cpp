@@ -155,10 +155,6 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
-			if (LLHandlerUtil::canAddNotifPanelToIM(notification))
-			{
-				LLHandlerUtil::reloadIMFloaterMessages(notification);
-			}
 			mChannel->killToastByNotificationID(notification->getID());
 		}
 	}

@@ -7,6 +7,7 @@ include(Boost)
 include(BuildVersion)
 include(DBusGlib)
 include(DirectX)
+include(DragDrop)
 include(ELFIO)
 include(FMOD)
 include(OPENAL)
@@ -160,6 +161,7 @@ set(viewer_SOURCE_FILES
     llfloatercustomize.cpp
     llfloaterdaycycle.cpp
     llfloaterenvsettings.cpp
+    llfloaterevent.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
@@ -181,7 +183,6 @@ set(viewer_SOURCE_FILES
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloaternamedesc.cpp
-    llfloaternearbymedia.cpp
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
@@ -299,7 +300,6 @@ set(viewer_SOURCE_FILES
     llpanelclassified.cpp
     llpanelcontents.cpp
     llpaneleditwearable.cpp
-    llpanelevent.cpp
     llpanelface.cpp
     llpanelgroup.cpp
     llpanelgroupgeneral.cpp
@@ -322,6 +322,7 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelme.cpp
+    llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
     llpaneloutfitsinventory.cpp
@@ -660,6 +661,7 @@ set(viewer_HEADER_FILES
     llfloatercustomize.h
     llfloaterdaycycle.h
     llfloaterenvsettings.h
+    llfloaterevent.h
     llfloaterfonttest.h
     llfloatergesture.h
     llfloatergodtools.h
@@ -681,7 +683,6 @@ set(viewer_HEADER_FILES
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloaternamedesc.h
-    llfloaternearbymedia.h
     llfloaternotificationsconsole.h
     llfloateropenobject.h
     llfloaterparcel.h
@@ -794,7 +795,6 @@ set(viewer_HEADER_FILES
     llpanelclassified.h
     llpanelcontents.h
     llpaneleditwearable.h
-    llpanelevent.h
     llpanelface.h
     llpanelgroup.h
     llpanelgroupgeneral.h
@@ -817,6 +817,7 @@ set(viewer_HEADER_FILES
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelme.h
+    llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
     llpaneloutfitsinventory.h
@@ -1623,13 +1624,6 @@ set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
 
 
 if (LINUX)
-  add_custom_command(
-      OUTPUT secondlife-stripped
-      COMMAND strip
-      ARGS --strip-debug -o secondlife-stripped ${VIEWER_BINARY_NAME}
-      DEPENDS ${VIEWER_BINARY_NAME}
-      )
-
   set(product SecondLife-${ARCH}-${viewer_VERSION})
 
   add_custom_command(
@@ -1649,15 +1643,15 @@ if (LINUX)
         --login_channel=${VIEWER_LOGIN_CHANNEL}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
-      DEPENDS secondlife-stripped ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_gstreamer010 media_plugin_webkit)
 
   if (NOT INSTALL)
     add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
-    add_dependencies(package linux-crash-logger-strip-target)
-    add_dependencies(package linux-updater-strip-target)
+    add_dependencies(package linux-crash-logger-target)
+    add_dependencies(package linux-updater-target)
     check_message_template(package)
   endif (NOT INSTALL)
 endif (LINUX)

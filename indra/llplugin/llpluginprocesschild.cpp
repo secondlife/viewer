@@ -43,6 +43,7 @@ static const F32 PLUGIN_IDLE_SECONDS = 1.0f / 100.0f;  // Each call to idle will
 
 LLPluginProcessChild::LLPluginProcessChild()
 {
+	mState = STATE_UNINITIALIZED;
 	mInstance = NULL;
 	mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
 	mSleepTime = PLUGIN_IDLE_SECONDS;	// default: send idle messages at 100Hz
@@ -277,14 +278,21 @@ bool LLPluginProcessChild::isDone(void)
 
 void LLPluginProcessChild::sendMessageToPlugin(const LLPluginMessage &message)
 {
-	std::string buffer = message.generate();
-
-	LL_DEBUGS("Plugin") << "Sending to plugin: " << buffer << LL_ENDL;
-	LLTimer elapsed;
-	
-	mInstance->sendMessage(buffer);
-
-	mCPUElapsed += elapsed.getElapsedTimeF64();
+	if (mInstance)
+	{
+		std::string buffer = message.generate();
+		
+		LL_DEBUGS("Plugin") << "Sending to plugin: " << buffer << LL_ENDL;
+		LLTimer elapsed;
+		
+		mInstance->sendMessage(buffer);
+		
+		mCPUElapsed += elapsed.getElapsedTimeF64();
+	}
+	else
+	{
+		LL_WARNS("Plugin") << "mInstance == NULL" << LL_ENDL;
+	}
 }
 
 void LLPluginProcessChild::sendMessageToParent(const LLPluginMessage &message)

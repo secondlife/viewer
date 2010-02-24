@@ -48,6 +48,7 @@
 
 class LLContextMenu;
 class LLTextSegment;
+class LLNormalTextSegment;
 
 typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 
@@ -61,6 +62,9 @@ class LLTextBase
 	protected LLEditMenuHandler
 {
 public:
+	friend class LLTextSegment;
+	friend class LLNormalTextSegment;
+
 	struct LineSpacingParams : public LLInitParam::Choice<LineSpacingParams>
 	{
 		Alternative<F32>	multiple;
@@ -122,6 +126,7 @@ public:
 	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
 	/*virtual*/ void		setColor( const LLColor4& c );
 	virtual     void 		setReadOnlyColor(const LLColor4 &c);
+	virtual	    void		handleVisibilityChange( BOOL new_visibility );
 
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
@@ -145,11 +150,11 @@ public:
 
 	// wide-char versions
 	void					setWText(const LLWString& text);
-	LLWString       		getWText() const;
+	const LLWString&       	getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 	// force reflow of text
-	void					needsReflow() { mReflowNeeded = TRUE; }
+	void					needsReflow(S32 index = 0);
 
 	S32						getLength() const { return getWText().length(); }
 	S32						getLineCount() const { return mLineInfoList.size(); }
@@ -164,7 +169,7 @@ public:
 	S32						getVPad() { return mVPad; }
 	S32						getHPad() { return mHPad; }
 
-	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
+	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line = true) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
 	LLRect					getDocRectFromDocIndex(S32 pos) const;
 
@@ -185,7 +190,6 @@ public:
 	bool					scrolledToEnd();
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
-	LLStyle::Params			getDefaultStyle();
 
 public:
 	// Fired when a URL link is clicked
@@ -275,14 +279,15 @@ protected:
 	// manage segments 
 	void                			getSegmentAndOffset( S32 startpos, segment_set_t::const_iterator* seg_iter, S32* offsetp ) const;
 	void                			getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg_iter, S32* offsetp );
-	LLTextSegmentPtr    			getSegmentAtLocalPos( S32 x, S32 y );
+	LLTextSegmentPtr    			getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_end_of_line = true);
 	segment_set_t::iterator			getSegIterContaining(S32 index);
 	segment_set_t::const_iterator	getSegIterContaining(S32 index) const;
 	void                			clearSegments();
 	void							createDefaultSegment();
 	virtual void					updateSegments();
 	void							insertSegment(LLTextSegmentPtr segment_to_insert);
-	
+	LLStyle::Params					getDefaultStyleParams();
+
 	//  manage lines
 	S32								getLineStart( S32 line ) const;
 	S32								getLineEnd( S32 line ) const;
@@ -291,7 +296,7 @@ protected:
 	S32								getFirstVisibleLine() const;
 	std::pair<S32, S32>				getVisibleLines(bool fully_visible = false);
 	S32								getLeftOffset(S32 width);
-	void							reflow(S32 start_index = 0);
+	void							reflow();
 
 	// cursor
 	void							updateCursorXPos();
@@ -361,7 +366,7 @@ protected:
 	class LLScrollContainer*	mScroller;
 
 	// transient state
-	bool						mReflowNeeded;		// need to reflow text because of change to text contents or display region
+	S32							mReflowIndex;		// index at which to start reflow.  S32_MAX indicates no reflow needed.
 	bool						mScrollNeeded;		// need to change scroll region because of change to cursor position
 	S32							mScrollIndex;		// index of first character to keep visible in scroll region
 
@@ -389,9 +394,9 @@ public:
 	virtual void				linkToDocument(class LLTextBase* editor);
 
 	virtual const LLColor4&		getColor() const;
-	virtual void 				setColor(const LLColor4 &color);
-	virtual const LLStyleSP		getStyle() const;
-	virtual void 				setStyle(const LLStyleSP &style);
+	//virtual void 				setColor(const LLColor4 &color);
+	virtual LLStyleConstSP		getStyle() const;
+	virtual void 				setStyle(LLStyleConstSP style);
 	virtual void				setToken( LLKeywordToken* token );
 	virtual LLKeywordToken*		getToken() const;
 	virtual void				setToolTip(const std::string& tooltip);
@@ -427,7 +432,7 @@ protected:
 class LLNormalTextSegment : public LLTextSegment
 {
 public:
-	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor );
+	LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
 	~LLNormalTextSegment();
 
@@ -437,9 +442,8 @@ public:
 	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
 	/*virtual*/ bool				canEdit() const { return true; }
 	/*virtual*/ const LLColor4&		getColor() const					{ return mStyle->getColor(); }
-	/*virtual*/ void 				setColor(const LLColor4 &color)		{ mStyle->setColor(color); }
-	/*virtual*/ const LLStyleSP		getStyle() const					{ return mStyle; }
-	/*virtual*/ void 				setStyle(const LLStyleSP &style)	{ mStyle = style; }
+	/*virtual*/ LLStyleConstSP		getStyle() const					{ return mStyle; }
+	/*virtual*/ void 				setStyle(LLStyleConstSP style)	{ mStyle = style; }
 	/*virtual*/ void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	/*virtual*/ LLKeywordToken*		getToken() const					{ return mToken; }
 	/*virtual*/ BOOL				getToolTip( std::string& msg ) const;
@@ -457,7 +461,7 @@ protected:
 
 protected:
 	class LLTextBase&	mEditor;
-	LLStyleSP			mStyle;
+	LLStyleConstSP		mStyle;
 	S32					mFontHeight;
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;

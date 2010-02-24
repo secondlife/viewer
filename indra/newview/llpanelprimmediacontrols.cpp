@@ -724,10 +724,10 @@ void LLPanelPrimMediaControls::draw()
 	mMediaControlsStack->updateLayout();
 	
 	// adjust for layout stack spacing
-	S32 space = mMediaControlsStack->getPanelSpacing() + 1;
+	S32 space = mMediaControlsStack->getPanelSpacing() + 2;
 	LLRect controls_bg_area = mMediaControlsStack->getRect();
 	
-	controls_bg_area.mTop += space;
+	controls_bg_area.mTop += space + 2;
 	
 	// adjust to ignore space from volume slider
 	controls_bg_area.mBottom += mVolumeSliderCtrl->getRect().getHeight();
@@ -736,7 +736,7 @@ void LLPanelPrimMediaControls::draw()
 	controls_bg_area.mLeft += mLeftBookend->getRect().getWidth() - space;
 	
 	// ignore space from right bookend padding
-	controls_bg_area.mRight -= mRightBookend->getRect().getWidth() - space;
+	controls_bg_area.mRight -= mRightBookend->getRect().getWidth() - space - 2;
 		
 	// draw control background UI image
 	mBackgroundImage->draw( controls_bg_area, UI_VERTEX_COLOR % alpha);
@@ -1036,8 +1036,9 @@ void LLPanelPrimMediaControls::updateZoom()
 	}
 
 	if (zoom_padding > 0.0f)
-	{
-		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding);
+	{	
+		// since we only zoom into medium for now, always set zoom_in constraint to true
+		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding, true);
 	}
 	
 	// Remember the object ID/face we zoomed into, so we can update the zoom icon appropriately

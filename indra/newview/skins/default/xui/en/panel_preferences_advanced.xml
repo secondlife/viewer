@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <panel
  border="true"
- follows="left|top|right|bottom"
+ follows="all"
  height="408"
+ label="Advanced"
  layout="topleft"
  left="102"
  name="advanced"
@@ -13,130 +13,29 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-    <check_box
-     control_name="UseChatBubbles"
-     follows="left|top"
-     height="16"
-     label="Bubble chat"
-     layout="topleft"
-     left="30"
-     top="10"
-     name="bubble_text_chat"
-     width="150" />
-    <color_swatch
-     can_apply_immediately="true"
-     color="0 0 0 1"
-     control_name="BackgroundChatColor"
-     follows="left|top"
-     height="47"
-     layout="topleft"
-     left_delta="280"
-     name="background"
-     tool_tip="Choose color for bubble chat"
-     top_delta="1"
-     width="44">
-        <color_swatch.init_callback
-		     function="Pref.getUIColor"
-		     parameter="BackgroundChatColor" />
-		    <color_swatch.commit_callback
-		     function="Pref.applyUIColor"
-		     parameter="BackgroundChatColor" />
-    </color_swatch>
-    <slider
-     control_name="ChatBubbleOpacity"
-     follows="left|top"
-     height="16"
-     increment="0.05"
-     initial_value="1"
-     label="Opacity"
-     layout="topleft"
-     left_delta="-230"
-     top_pad="-28"
-     label_width="50"
-     name="bubble_chat_opacity"
-     width="200" />
-    <text
-     follows="left|top"
-     type="string"
-     length="1"
-     height="25"
-     layout="topleft"
-     left="30"
-     top_pad="5"
-     name="AspectRatioLabel1"
-     tool_tip="width / height"
-     label_width="50"
-     width="120">
-        Aspect ratio
-    </text>
-    <combo_box
-     allow_text_entry="true"
-     height="23"
-     follows="left|top"
-     layout="topleft"
-     left_pad="0"
-     max_chars="100"
-     name="aspect_ratio"
-     tool_tip="width / height"
-     top_delta="0"
-     width="150">
-        <combo_box.item
-         enabled="true"
-         label=" 4:3 (Standard CRT)"
-         name="item1"
-         value="1.333333" />
-        <combo_box.item
-         enabled="true"
-         label=" 5:4 (1280x1024 LCD)"
-         name="item2"
-         value="1.25" />
-        <combo_box.item
-         enabled="true"
-         label=" 8:5 (Widescreen)"
-         name="item3"
-         value="1.6" />
-        <combo_box.item
-         enabled="true"
-         label=" 16:9 (Widescreen)"
-         name="item4"
-         value="1.7777777" />
-    </combo_box>
-    <check_box
-     control_name="FullScreenAutoDetectAspectRatio"
-     follows="left|top"
-     height="25"
-     label="Auto-detect"
-     layout="topleft"
-     left_pad="10"
-     name="aspect_auto_detect"
-     width="256">
-        <check_box.commit_callback
-         function="Pref.AutoDetectAspect" />
-    </check_box>
-     <text
-     follows="left|top"
-     type="string"
-     length="1"
-     height="10"
-     left="30"
-     name="heading1"
-     top_pad="5"
-     width="270">
-Camera:
-	</text>
+         <icon
+	 follows="left|top"
+	 height="18"
+	 image_name="Cam_FreeCam_Off"
+         layout="topleft"
+	 name="camera_icon"
+	 mouse_opaque="false"
+	 visible="true"
+	 width="18"
+         left="30"
+         top="10"/>
     <slider
      can_edit_text="true"
-	 control_name="CameraAngle"
+     control_name="CameraAngle"
      decimal_digits="2"
-     top_pad="5"
      follows="left|top"
      height="16"
      increment="0.025"
      initial_value="1.57"
      layout="topleft"
      label_width="100"
-     label="View Angle"
-     left_delta="50"
+     label="View angle"
+     left_pad="30"
      max_val="2.97"
      min_val="0.17"
      name="camera_fov"
@@ -165,11 +64,11 @@ Camera:
      type="string"
      length="1"
      height="10"
-     left="30"
+     left="80"
      name="heading2"
      width="270"
      top_pad="5">
-Automatic positioning for:
+Automatic position for:
 	</text>
         <check_box
      control_name="EditCameraMovement"
@@ -177,7 +76,7 @@ Automatic positioning for:
      follows="left|top"
      label="Build/Edit"
      layout="topleft"
-     left_delta="50"
+     left_delta="30"
      name="edit_camera_movement"
      tool_tip="Use automatic camera positioning when entering and exiting edit mode"
      width="280"
@@ -191,27 +90,27 @@ Automatic positioning for:
      name="appearance_camera_movement"
      tool_tip="Use automatic camera positioning while in edit mode"
      width="242" />
-     <text
-     follows="left|top"
-     type="string"
-     length="1"
-     height="10"
-     left="30"
-     name="heading3"
-     top_pad="5"
-     width="270">
-Avatars:
-	</text>
+     	<icon
+	 follows="left|top"
+	 height="18"
+	 image_name="Move_Walk_Off"
+         layout="topleft"
+	 name="avatar_icon"
+	 mouse_opaque="false"
+	 visible="true"
+	 width="18"
+         top_pad="2"
+         left="30"
+         />
     <check_box
      control_name="FirstPersonAvatarVisible"
      follows="left|top"
      height="20"
      label="Show me in Mouselook"
      layout="topleft"
-     left_delta="50"
+     left_pad="30"
      name="first_person_avatar_visible"
-     width="256"
-     top_pad="0"/>
+     width="256" />
     <check_box
      control_name="ArrowKeysAlwaysMove"
      follows="left|top"
@@ -242,22 +141,61 @@ Avatars:
      name="enable_lip_sync"
      width="237"
      top_pad="0" />
+        <check_box
+     control_name="UseChatBubbles"
+     follows="left|top"
+     height="16"
+     label="Bubble chat"
+     layout="topleft"
+     left="78"
+     top_pad="6"
+     name="bubble_text_chat"
+     width="150" />
+    <slider
+     control_name="ChatBubbleOpacity"
+     follows="left|top"
+     height="16"
+     increment="0.05"
+     initial_value="1"
+     label="Opacity"
+     layout="topleft"
+     left="80"
+     label_width="50"
+     name="bubble_chat_opacity"
+     width="200" />
+    <color_swatch
+     can_apply_immediately="true"
+     color="0 0 0 1"
+     control_name="BackgroundChatColor"
+     follows="left|top"
+     height="50"
+     layout="topleft"
+     left_pad="10"
+     name="background"
+     tool_tip="Choose color for bubble chat"
+     width="38">
+        <color_swatch.init_callback
+		     function="Pref.getUIColor"
+		     parameter="BackgroundChatColor" />
+		    <color_swatch.commit_callback
+		     function="Pref.applyUIColor"
+		     parameter="BackgroundChatColor" />
+    </color_swatch>
     <check_box
      control_name="ShowScriptErrors"
      follows="left|top"
      height="20"
-     label="Show script errors"
+     label="Show script errors in:"
      layout="topleft"
      left="30"
      name="show_script_errors"
-     width="256"
-     top_pad="5"/>
+     width="256" />
     <radio_group
      enabled_control="ShowScriptErrors"
      control_name="ShowScriptErrorsLocation"
      follows="top|left"
      draw_border="false"
-     height="40"
+     height="16"
      layout="topleft"
      left_delta="50"
      name="show_location"
@@ -265,7 +203,7 @@ Avatars:
      width="364">
         <radio_item
          height="16"
-         label="In chat"
+         label="Nearby chat"
          layout="topleft"
          left="3"
          name="0"
@@ -273,7 +211,7 @@ Avatars:
          width="315" />
         <radio_item
          height="16"
-         label="In a window"
+         label="Separate window"
          layout="topleft"
          left_delta="175"
          name="1"
@@ -284,49 +222,47 @@ Avatars:
      follows="top|left"
      enabled_control="EnableVoiceChat"
      control_name="PushToTalkToggle"
-     height="20"
-     label="Toggle mode for microphone when I press the Speak trigger key:"
+     height="15"
+     label="Toggle speak on/off when I press:"
      layout="topleft"
      left="30"
      name="push_to_talk_toggle_check"
      width="237"
-     top_pad="-25"
      tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."/>
     <line_editor
      follows="top|left"
      control_name="PushToTalkButton"
-     enabled="false" 
+     enabled="false"
      enabled_control="EnableVoiceChat"
-     height="19"
-     left_delta="50"
-     max_length="254"
+     height="23"
+     left="80"
+     max_length="200"
      name="modifier_combo"
      label="Push-to-Speak trigger"
-     top_pad="0"
-     width="280" />
+     top_pad="5"
+     width="200" />
     <button
      follows="top|left"
      enabled_control="EnableVoiceChat"
      height="23"
      label="Set Key"
-     left_delta="0"
+     left_pad="5"
      name="set_voice_hotkey_button"
-     width="115"
-     top_pad="5">
+     width="100">
           <button.commit_callback
           function="Pref.VoiceSetKey" />
     </button>
     <button
-     bottom_delta="0"
      enabled_control="EnableVoiceChat"
-     follows="left"
+     follows="top|left"
      halign="center"
      height="23"
-     label="Middle Mouse Button"
-     left_delta="120"
+     image_overlay="Refresh_Off"
+     tool_tip="Reset to Middle Mouse Button"
      mouse_opaque="true"
      name="set_voice_middlemouse_button"
-     width="160">
+     left_pad="5"
+     width="25">
           <button.commit_callback
           function="Pref.VoiceSetMiddleMouse" />
     </button>

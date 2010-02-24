@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="queue" title="REINICIO">
+<floater name="queue" title="PROGRESO DEL REINICIO">
+	<floater.string name="Starting">
+		Empezando [START] de [COUNT] ítems.
+	</floater.string>
+	<floater.string name="Done">
+		Hecho.
+	</floater.string>
+	<floater.string name="Resetting">
+		Reiniciando
+	</floater.string>
+	<floater.string name="Running">
+		Ejecutándose
+	</floater.string>
+	<floater.string name="NotRunning">
+		Sin ejecutarse
+	</floater.string>
 	<button label="Cerrar" label_selected="Cerrar" name="close"/>
 </floater>

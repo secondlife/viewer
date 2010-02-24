@@ -114,16 +114,16 @@
      left="6"
      name="Keep"
      top_pad="5"
-     width="100" />
+     width="110" />
     <button
      follows="right|bottom"
      height="22"
-     label="Cancel"
+     label="Discard"
      layout="topleft"
      left_pad="5"
      name="Discard"
      top_delta="0"
-     width="100" />
+     width="110" />
     <button
      follows="right|bottom"
      height="22"
@@ -132,5 +132,5 @@
      left_pad="5"
      name="save_tex_btn"
      top_delta="0"
-     width="100" />
+     width="110" />
 </floater>

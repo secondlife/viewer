@@ -60,6 +60,7 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	line_editor_params.keystroke_callback(boost::bind(&LLSearchEditor::handleKeystroke, this));
 
 	mSearchEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_params);
+	mSearchEditor->setPassDelete(TRUE);
 	addChild(mSearchEditor);
 
 	if (p.search_button_visible)
@@ -79,10 +80,12 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	if (p.clear_button_visible)
 	{
 		// Set up clear button.
-		S32 clr_btn_width = getRect().getHeight(); // button is square, and as tall as search editor
-		LLRect clear_btn_rect(getRect().getWidth() - clr_btn_width, getRect().getHeight(), getRect().getWidth(), 0);
 		LLButton::Params clr_btn_params(p.clear_button);
 		clr_btn_params.name(std::string("clear button"));
+		S32 clr_btn_top = clr_btn_params.rect.bottom + clr_btn_params.rect.height;
+		S32 clr_btn_right = getRect().getWidth() - clr_btn_params.pad_right;
+		S32 clr_btn_left = clr_btn_right - clr_btn_params.rect.width;
+		LLRect clear_btn_rect(clr_btn_left, clr_btn_top, clr_btn_right, p.clear_button.rect.bottom);
 		clr_btn_params.rect(clear_btn_rect) ;
 		clr_btn_params.follows.flags(FOLLOWS_RIGHT|FOLLOWS_TOP);
 		clr_btn_params.tab_stop(false);
@@ -153,7 +156,7 @@ void LLSearchEditor::setFocus( BOOL b )
 void LLSearchEditor::onClearButtonClick(const LLSD& data)
 {
 	setText(LLStringUtil::null);
-	mSearchEditor->doDelete(); // force keystroke callback
+	mSearchEditor->onCommit(); // force keystroke callback
 }
 
 void LLSearchEditor::handleKeystroke()

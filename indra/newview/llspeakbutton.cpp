@@ -66,6 +66,16 @@ void LLSpeakButton::draw()
 	mOutputMonitor->setIsMuted(!voiceenabled);
 	LLUICtrl::draw();
 }
+void LLSpeakButton::setSpeakBtnEnabled(bool enabled)
+{
+	LLButton* speak_btn = getChild<LLButton>("speak_btn");
+	speak_btn->setEnabled(enabled);
+}
+void LLSpeakButton::setFlyoutBtnEnabled(bool enabled)
+{
+	LLButton* show_btn = getChild<LLButton>("speak_flyout_btn");
+	show_btn->setEnabled(enabled);
+}
 
 LLSpeakButton::LLSpeakButton(const Params& p)
 : LLUICtrl(p)

@@ -271,6 +271,7 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setRevertOnEsc( FALSE );
 	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
+	mInputEditor->setPassDelete( TRUE );
 
 	std::string session_name(LLIMModel::instance().getName(mSessionID));
 
@@ -407,12 +408,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 			}
 		}
 
-		if (floater_container)
-		{
-			//selecting the panel resets a chiclet's counter
-			floater_container->selectFloater(floater);
-			floater_container->setVisible(TRUE);
-		}
+		floater->openFloater(floater->getKey());
 	}
 	else
 	{
@@ -446,7 +442,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 	static S32 right_padding = 0;
 	if (right_padding == 0)
 	{
@@ -493,11 +489,19 @@ void LLIMFloater::setVisible(BOOL visible)
 		channel->redrawToasts();
 	}
 
-	if (visible && mChatHistory && mInputEditor)
+	BOOL is_minimized = visible && isChatMultiTab()
+		? LLIMFloaterContainer::getInstance()->isMinimized()
+		: !visible;
+
+	if (!is_minimized && mChatHistory && mInputEditor)
 	{
 		//only if floater was construced and initialized from xml
 		updateMessages();
-		mInputEditor->setFocus(TRUE);
+		//prevent steal focus when IM opened in multitab mode
+		if (!isChatMultiTab())
+		{
+			mInputEditor->setFocus(TRUE);
+		}
 	}
 
 	if(!visible)
@@ -515,8 +519,18 @@ BOOL LLIMFloater::getVisible()
 	if(isChatMultiTab())
 	{
 		LLIMFloaterContainer* im_container = LLIMFloaterContainer::getInstance();
-		// Tabbed IM window is "visible" when we minimize it.
-		return !im_container->isMinimized() && im_container->getVisible();
+		
+		// Treat inactive floater as invisible.
+		bool is_active = im_container->getActiveFloater() == this;
+	
+		//torn off floater is always inactive
+		if (!is_active && getHost() != im_container)
+		{
+			return LLTransientDockableFloater::getVisible();
+		}
+
+		// getVisible() returns TRUE when Tabbed IM window is minimized.
+		return is_active && !im_container->isMinimized() && im_container->getVisible();
 	}
 	else
 	{
@@ -572,6 +586,12 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 		setKey(im_session_id);
 		mControlPanel->setSessionId(im_session_id);
 	}
+
+	// updating "Call" button from group control panel here to enable it without placing into draw() (EXT-4796)
+	if(gAgent.isInGroup(im_session_id))
+	{
+		mControlPanel->updateCallButton();
+	}
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
@@ -613,12 +633,14 @@ void LLIMFloater::updateMessages()
 			LLUUID from_id = msg["from_id"].asUUID();
 			std::string from = msg["from"].asString();
 			std::string message = msg["message"].asString();
+			bool is_history = msg["is_history"].asBoolean();
 
 			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mSessionID = mSessionID;
 			chat.mFromName = from;
 			chat.mTimeStr = time;
+			chat.mChatStyle = is_history ? CHAT_STYLE_HISTORY : chat.mChatStyle;
 
 			// process offer notification
 			if (msg.has("notification_id"))

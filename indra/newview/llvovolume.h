@@ -179,8 +179,10 @@ public:
 	/*virtual*/ BOOL 	setMaterial(const U8 material);
 
 				void	setTexture(const S32 face);
-
+				S32     getIndexInTex() const {return mIndexInTex ;}
 	/*virtual*/ BOOL	setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
+				void	updateSculptTexture();
+				void    setIndexInTex(S32 index) { mIndexInTex = index ;}
 				void	sculpt();
 				void	updateRelativeXform();
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
@@ -303,7 +305,7 @@ private:
 	LLPointer<LLViewerFetchedTexture> mLightTexture;
 	media_list_t mMediaImplList;
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
-	
+	S32 mIndexInTex;
 	// statics
 public:
 	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop 

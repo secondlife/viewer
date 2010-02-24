@@ -2,6 +2,6 @@
 <floater name="modal container" title="">
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 	<text name="Save item as:">
-		Pulse una tecla para seleccionarla
+		Pulsa una tecla para configurarla como tu botón para hablar.
 	</text>
 </floater>

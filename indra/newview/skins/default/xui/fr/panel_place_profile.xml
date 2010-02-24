@@ -6,7 +6,7 @@
 	<string name="available" value="disponible"/>
 	<string name="allocated" value="affecté"/>
 	<string name="title_place" value="Profil du lieu"/>
-	<string name="title_teleport_history" value="Emplacement de l&apos;historique des téléportations"/>
+	<string name="title_teleport_history" value="Historique des téléportations"/>
 	<string name="not_available" value="(s/o)"/>
 	<string name="unknown" value="(inconnu)"/>
 	<string name="public" value="(public)"/>

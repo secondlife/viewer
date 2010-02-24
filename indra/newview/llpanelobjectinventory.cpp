@@ -117,7 +117,7 @@ public:
 	virtual BOOL isItemRenameable() const;
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemMovable() const;
-	virtual BOOL isItemRemovable();
+	virtual BOOL isItemRemovable() const;
 	virtual BOOL removeItem();
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
 	virtual void move(LLFolderViewEventListener* parent_listener);
@@ -412,9 +412,9 @@ BOOL LLTaskInvFVBridge::isItemMovable() const
 	return TRUE;
 }
 
-BOOL LLTaskInvFVBridge::isItemRemovable()
+BOOL LLTaskInvFVBridge::isItemRemovable() const
 {
-	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
+	const LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 	if(object
 	   && (object->permModify() || object->permYouOwner()))
 	{
@@ -710,7 +710,7 @@ public:
 	virtual BOOL isItemRenameable() const;
 	// virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL renameItem(const std::string& new_name);
-	virtual BOOL isItemRemovable();
+	virtual BOOL isItemRemovable() const;
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL hasChildren() const;
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
@@ -742,7 +742,7 @@ BOOL LLTaskCategoryBridge::renameItem(const std::string& new_name)
 	return FALSE;
 }
 
-BOOL LLTaskCategoryBridge::isItemRemovable()
+BOOL LLTaskCategoryBridge::isItemRemovable() const
 {
 	return FALSE;
 }
@@ -1568,7 +1568,7 @@ void LLPanelObjectInventory::reset()
 {
 	clearContents();
 
-	setBorderVisible(FALSE);
+	//setBorderVisible(FALSE);
 	
 	mCommitCallbackRegistrar.pushScope(); // push local callbacks
 	
@@ -1583,10 +1583,16 @@ void LLPanelObjectInventory::reset()
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
+	if (hasFocus())
+	{
+		LLEditMenuHandler::gEditMenuHandler = mFolders;
+	}
+
 	LLRect scroller_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	LLScrollContainer::Params scroll_p;
 	scroll_p.name("task inventory scroller");
 	scroll_p.rect(scroller_rect);
+	scroll_p.tab_stop(true);
 	scroll_p.follows.flags(FOLLOWS_ALL);
 	mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroll_p);
 	addChild(mScroller);

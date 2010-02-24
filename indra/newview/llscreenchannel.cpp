@@ -79,17 +79,12 @@ LLScreenChannelBase::~LLScreenChannelBase()
 
 bool  LLScreenChannelBase::isHovering()
 {
-	bool res = mHoveredToast != NULL;
-	if (!res)
+	if (!mHoveredToast)
 	{
-		return res;
+		return false;
 	}
 
-	S32 x, y;
-	mHoveredToast->screenPointToLocal(gViewerWindow->getCurrentMouseX(),
-			gViewerWindow->getCurrentMouseY(), &x, &y);
-	res = mHoveredToast->pointInView(x, y) == TRUE;
-	return res;
+	return mHoveredToast->isHovered();
 }
 
 void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
@@ -479,7 +474,8 @@ void LLScreenChannel::showToastsBottom()
 	{
 		if(it != mToastList.rbegin())
 		{
-			bottom = (*(it-1)).toast->getRect().mTop;
+			LLToast* toast = (*(it-1)).toast;
+			bottom = toast->getRect().mTop - toast->getTopPad();
 			toast_margin = gSavedSettings.getS32("ToastGap");
 		}
 
@@ -487,10 +483,21 @@ void LLScreenChannel::showToastsBottom()
 		toast_rect.setOriginAndSize(getRect().mLeft, bottom + toast_margin, toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
-		// don't show toasts if there is not enough space
 		if(floater && floater->overlapsScreenChannel())
 		{
+			if(it == mToastList.rbegin())
+			{
+				// move first toast above docked floater
+				S32 shift = floater->getRect().getHeight();
+				if(floater->getDockControl())
+				{
+					shift += floater->getDockControl()->getTongueHeight();
+				}
+				(*it).toast->translate(0, shift);
+			}
+
 			LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+			// don't show toasts if there is not enough space
 			if(toast_rect.mTop > world_rect.mTop)
 			{
 				break;
@@ -522,9 +529,13 @@ void LLScreenChannel::showToastsBottom()
 			// HACK
 			// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
 			(*it).toast->setVisible(TRUE);
-			// Show toast behind floaters. (EXT-3089)
-			gFloaterView->sendChildToBack((*it).toast);
 		}		
+		if(!(*it).toast->hasFocus())
+		{
+			// Fixing Z-order of toasts (EXT-4862)
+			// Next toast will be positioned under this one.
+			gFloaterView->sendChildToBack((*it).toast);
+		}
 	}
 
 	if(it != mToastList.rend())
@@ -762,23 +773,16 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 {
 	// because of LLViewerWindow::updateUI() that NOT ALWAYS calls onMouseEnter BEFORE onMouseLeave
 	// we must check hovering directly to prevent incorrect setting for hovering in a channel
-	S32 x,y;
 	if (mouse_enter)
 	{
-		toast->screenPointToLocal(gViewerWindow->getCurrentMouseX(),
-				gViewerWindow->getCurrentMouseY(), &x, &y);
-		bool hover = toast->pointInView(x, y) == TRUE;
-		if (hover)
+		if (toast->isHovered())
 		{
 			mHoveredToast = toast;
 		}
 	}
 	else if (mHoveredToast != NULL)
 	{
-		mHoveredToast->screenPointToLocal(gViewerWindow->getCurrentMouseX(),
-				gViewerWindow->getCurrentMouseY(), &x, &y);
-		bool hover = mHoveredToast->pointInView(x, y) == TRUE;
-		if (!hover)
+		if (!mHoveredToast->isHovered())
 		{
 			mHoveredToast = NULL;
 		}
@@ -801,16 +805,6 @@ void LLScreenChannel::updateShowToastsState()
 
 	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 	LLRect this_rect = getRect();
-
-	// adjust channel's height
-	if(floater->overlapsScreenChannel())
-	{
-		channel_bottom += floater->getRect().getHeight();
-		if(floater->getDockControl())
-		{
-			channel_bottom += floater->getDockControl()->getTongueHeight();
-		}
-	}
 
 	if(channel_bottom != this_rect.mBottom)
 	{

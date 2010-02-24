@@ -74,7 +74,7 @@ public:
 		
 	/*virtual*/ BOOL postBuild();
 	
-	void setObjectID(const LLUUID& object_id);
+	virtual void setObjectID(const LLUUID& object_id);
 	void setItem( LLInventoryItem* item );
 	
 	void setAssetId(const LLUUID& asset_id);

@@ -62,6 +62,12 @@
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
+const static std::string IM_TIME("time");
+const static std::string IM_TEXT("message");
+const static std::string IM_FROM("from");
+const static std::string IM_FROM_ID("from_id");
+
+
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
 	: LLDockableFloater(NULL, false, false, key)
 	,mChatHistory(NULL)
@@ -195,6 +201,16 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 		if(mMessageArchive.size()>200)
 			mMessageArchive.erase(mMessageArchive.begin());
 	}
+
+	if (args["do_not_log"].asBoolean()) 
+	{
+		return;
+	}
+
+	if (gSavedPerAccountSettings.getBOOL("LogChat")) 
+	{
+		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+	}
 }
 
 void LLNearbyChat::onNearbySpeakers()
@@ -262,6 +278,43 @@ void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 		nearby_chat->updateChatHistoryStyle();
 }
 
+void LLNearbyChat::loadHistory()
+{
+	LLSD do_not_log;
+	do_not_log["do_not_log"] = true;
+
+	std::list<LLSD> history;
+	LLLogChat::loadAllHistory("chat", history);
+
+	std::list<LLSD>::const_iterator it = history.begin();
+	while (it != history.end())
+	{
+		const LLSD& msg = *it;
+
+		std::string from = msg[IM_FROM];
+		LLUUID from_id = LLUUID::null;
+		if (msg[IM_FROM_ID].isUndefined())
+		{
+			gCacheName->getUUID(from, from_id);
+		}
+
+		LLChat chat;
+		chat.mFromName = from;
+		chat.mFromID = from_id;
+		chat.mText = msg[IM_TEXT].asString();
+		chat.mTimeStr = msg[IM_TIME].asString();
+		chat.mChatStyle = CHAT_STYLE_HISTORY;
+		addMessage(chat, true, do_not_log);
+
+		it++;
+	}
+}
+
+//static
+LLNearbyChat* LLNearbyChat::getInstance()
+{
+	return LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -278,3 +331,4 @@ void LLNearbyChat::onFocusLost()
 	setBackgroundOpaque(false);
 	LLPanel::onFocusLost();
 }
+

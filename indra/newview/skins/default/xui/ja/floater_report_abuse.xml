@@ -25,7 +25,7 @@
 	<text name="select_object_label">
 		ボタンをクリックしてから、悪意のあるオブジェクトをクリック：
 	</text>
-	<button label="" label_selected="" name="pick_btn" tool_tip="オブジェクト・ピッカー - この報告の主題となるオブジェクトを特定"/>
+	<button label="" label_selected="" name="pick_btn" tool_tip="オブジェクトピッカー - 報告対象のオブジェクトを選択してください"/>
 	<text name="object_name_label">
 		オブジェクト：
 	</text>
@@ -33,13 +33,13 @@
 		Consetetur Sadipscing
 	</text>
 	<text name="owner_name_label">
-		ｵｰﾅｰ：
+		所有者：
 	</text>
 	<text name="owner_name">
 		Hendrerit Vulputate Kamawashi Longname
 	</text>
-	<combo_box name="category_combo" tool_tip="カテゴリー -- この報告に最も適したカテゴリーを選択してください">
-		<combo_box.item label="カテゴリーを選択" name="Select_category"/>
+	<combo_box name="category_combo" tool_tip="カテゴリ -- この報告に最も適したカテゴリを選択してください">
+		<combo_box.item label="カテゴリを選択してください" name="Select_category"/>
 		<combo_box.item label="年齢＞年齢偽証" name="Age__Age_play"/>
 		<combo_box.item label="年齢 &gt; 成人の住人が Teen Second Life にいる" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="年齢 &gt; 未成年の住人がTeen Second Life の外にいる" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
@@ -92,7 +92,7 @@
 	<text name="dscr_title">
 		詳細：
 	</text>
-	<text name="bug_aviso">
+	<text name="bug_aviso" width="210">
 		できるだけ具体的に詳しく記入してください。
 	</text>
 	<text name="incomplete_title">

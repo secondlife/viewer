@@ -1339,10 +1339,6 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			if (folder->getFiltered() || folder->hasFilteredDescendants(filter.getMinRequiredGeneration()))
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
-				if (getRoot()->needsAutoSelect() && autoopen_folders)
-				{
-					folder->setOpenArrangeRecursively(TRUE);
-				}
 			}
 			// just skip it, it has already been filtered
 			continue;
@@ -1859,10 +1855,9 @@ EInventorySortGroup LLFolderViewFolder::getSortGroup() const
 		return SG_TRASH_FOLDER;
 	}
 
-	// Folders that can't be moved are 'system' folders. 
 	if( mListener )
 	{
-		if( !(mListener->isItemMovable()) )
+		if(LLFolderType::lookupIsProtectedType(mListener->getPreferredType()))
 		{
 			return SG_SYSTEM_FOLDER;
 		}
@@ -2540,18 +2535,20 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 	{
 
 		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-		static const LLUUID& landmarks_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 		LLUUID a_uuid = a->getParentFolder()->getListener()->getUUID();
 		LLUUID b_uuid = b->getParentFolder()->getListener()->getUUID();
 
-		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id) ||
-			(a_uuid == landmarks_folder_id && b_uuid == landmarks_folder_id))
+		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
 		{
 			// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
 			// or to LLInvFVBridge
-			S32 a_sort = (static_cast<const LLItemBridge*>(a->getListener()))->getItem()->getSortField();
-			S32 b_sort = (static_cast<const LLItemBridge*>(b->getListener()))->getItem()->getSortField();
+			LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a->getListener()))->getItem();
+			LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b->getListener()))->getItem();
+			if (!aitem || !bitem)
+				return false;
+			S32 a_sort = aitem->getSortField();
+			S32 b_sort = bitem->getSortField();
 			return a_sort < b_sort;
 		}
 	}

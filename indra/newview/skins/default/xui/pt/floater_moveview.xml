@@ -1,13 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="move_floater">
-<panel name="panel_actions">
-	<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda"/>
-	<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita"/>
-	<button label="" label_selected="" name="move up btn" tool_tip="Pular ou Voar"/>
-	<button label="" label_selected="" name="move down btn" tool_tip="Agaixar ou pousar"/>
-	<joystick_slide name="slide left btn" tool_tip="Mover para a esquerda"/>
-	<joystick_slide name="slide right btn" tool_tip="Mover para a direita"/>
-	<joystick_turn name="forward btn" tool_tip="Mover para a frente."/>
-	<joystick_turn name="backward btn" tool_tip="Mover para trás"/>
-</panel>
+	<string name="walk_forward_tooltip">
+		Andar para frente (flecha para cima ou W)
+	</string>
+	<string name="walk_back_tooltip">
+		Andar para trás (flecha para baixo ou S)
+	</string>
+	<string name="run_forward_tooltip">
+		Correr para frente (flecha para cima ou W)
+	</string>
+	<string name="run_back_tooltip">
+		Correr para trás (flecha para baixo ou S)
+	</string>
+	<string name="fly_forward_tooltip">
+		Voar para frente (flecha para cima ou W)
+	</string>
+	<string name="fly_back_tooltip">
+		Voar para trás (flecha para baixo ou S)
+	</string>
+	<panel name="panel_actions">
+		<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda (flecha ESQ ou A)"/>
+		<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita (flecha DIR ou D)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Voar para o alto (tecla E)"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Voar para baixo (tecla C)"/>
+		<joystick_turn name="forward btn" tool_tip="Andar para frente (flecha para cima ou W)"/>
+		<joystick_turn name="backward btn" tool_tip="Andar para trás (flecha para baixo ou S)"/>
+	</panel>
+	<panel name="panel_modes">
+		<button label="" name="mode_walk_btn" tool_tip="Modo caminhar"/>
+		<button label="" name="mode_run_btn" tool_tip="Modo correr"/>
+		<button label="" name="mode_fly_btn" tool_tip="Modo voar"/>
+		<button label="Parar de voar" name="stop_fly_btn" tool_tip="Parar de voar"/>
+	</panel>
 </floater>

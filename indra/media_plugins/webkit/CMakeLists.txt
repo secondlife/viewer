@@ -9,14 +9,17 @@ include(LLPlugin)
 include(LLMath)
 include(LLRender)
 include(LLWindow)
+include(UI)
 include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
 include(FindOpenGL)
+include(PulseAudio)
 
 include(WebKitLibPlugin)
 
 include_directories(
+    ${PULSEAUDIO_INCLUDE_DIRS}
     ${LLPLUGIN_INCLUDE_DIRS}
     ${MEDIA_PLUGIN_BASE_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -33,18 +36,28 @@ set(media_plugin_webkit_SOURCE_FILES
     media_plugin_webkit.cpp
     )
 
-add_library(media_plugin_webkit
-    SHARED
-    ${media_plugin_webkit_SOURCE_FILES}
-)
-
-target_link_libraries(media_plugin_webkit
+set(media_plugin_webkit_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
   ${WEBKIT_PLUGIN_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
+  ${PULSEAUDIO_LIBRARIES}
 )
+
+if (LINUX)
+  list(APPEND media_plugin_webkit_SOURCE_FILES linux_volume_catcher.cpp)
+  list(APPEND media_plugin_webkit_LINK_LIBRARIES
+       ${UI_LIBRARIES}     # for glib/GTK
+       )
+endif (LINUX)
+
+add_library(media_plugin_webkit
+    SHARED
+    ${media_plugin_webkit_SOURCE_FILES}
+)
+
+target_link_libraries(media_plugin_webkit ${media_plugin_webkit_LINK_LIBRARIES})
 
 add_dependencies(media_plugin_webkit
   ${LLPLUGIN_LIBRARIES}
@@ -80,3 +93,4 @@ if (DARWIN)
     )
     
 endif (DARWIN)
+

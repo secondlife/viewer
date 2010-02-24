@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPCIONES DE LA CUADRÍCULA">
-	<spinner label="Unidad de la cuadrícula (metros)" name="GridResolution" width="250" label_width="192"/>
-	<spinner label="Graduación de la cuadrícula (metros)" name="GridDrawSize" width="250" label_width="192"/>
+	<spinner label="Unidad de la cuadrícula (metros)" label_width="192" name="GridResolution" width="250"/>
+	<spinner label="Graduación de la cuadrícula (metros)" label_width="192" name="GridDrawSize" width="250"/>
 	<check_box label="Activar subunidades" name="GridSubUnit"/>
 	<check_box label="Ver la sección transversal" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Opacidad de la cuadrícula">
+		Opacidad:
+	</text>
 	<slider label="Opacidad de la cuadrícula" name="GridOpacity" width="250"/>
 </floater>

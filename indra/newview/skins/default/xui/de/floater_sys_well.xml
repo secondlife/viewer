@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="notification_chiclet" title="MELDUNGEN">
 	<string name="title_im_well_window">
-		IM-SITZUNGEN
+		GESPRÄCHE
 	</string>
 	<string name="title_notification_well_window">
 		BENACHRICHTIGUNGEN

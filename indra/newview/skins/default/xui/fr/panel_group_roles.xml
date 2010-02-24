@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Membres et rôles" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		Certaines modifications sur cet onglet n&apos;ont pas été enregistrées.
+		Certaines modifications n&apos;ont pas été enregistrées.
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Voulez-vous enregistrer vos modifications ?
 	</panel.string>
-	<tab_container height="164" name="roles_tab_container">
-		<panel height="148" label="MEMBRES" name="members_sub_tab" tool_tip="Membres">
+	<tab_container name="roles_tab_container">
+		<panel label="MEMBRES" name="members_sub_tab" tool_tip="Membres">
 			<panel.string name="help_text">
 				Vous pouvez ajouter ou supprimer les rôles assignés aux membres.
 Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la touche Ctrl enfoncée.
 			</panel.string>
 			<filter_editor label="Filtrer les membres" name="filter_input"/>
-			<name_list bottom_delta="-105" height="104" name="member_list">
+			<name_list name="member_list">
 				<name_list.columns label="Membre" name="name"/>
 				<name_list.columns label="Donation" name="donated" width="116"/>
 				<name_list.columns label="Statut" name="online" width="136"/>
@@ -21,7 +21,7 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			<button label="Inviter" name="member_invite" width="165"/>
 			<button label="Expulser" name="member_eject"/>
 		</panel>
-		<panel height="148" label="RÔLES" name="roles_sub_tab">
+		<panel label="RÔLES" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Chaque rôle possède un titre et des
 pouvoirs. Les membres peuvent avoir
@@ -41,13 +41,13 @@ notamment les rôles Tous et Propriétaire.
 				Checkbox_Off
 			</panel.string>
 			<filter_editor label="Filtrer les rôles" name="filter_input"/>
-			<scroll_list bottom_delta="-104" height="104" name="role_list">
+			<scroll_list name="role_list">
 				<scroll_list.columns label="Rôle" name="name"/>
 				<scroll_list.columns label="Titre" name="title"/>
 				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="Nouveau rôle" name="role_create"/>
-			<button label="Supprimer le rôle" name="role_delete"/>
+			<button label="Supprimer le rôle" name="role_delete" width="120"/>
 		</panel>
 		<panel height="148" label="POUVOIRS" name="actions_sub_tab" tool_tip="Vous pouvez afficher une description du pouvoir et voir quels membres et rôles peuvent s&apos;en servir.">
 			<panel.string name="help_text">

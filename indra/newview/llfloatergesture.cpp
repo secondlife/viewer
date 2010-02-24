@@ -203,12 +203,12 @@ BOOL LLFloaterGesture::postBuild()
 	gInventory.addObserver(this);
 	fetchDescendents(folders);
 
-	buildGestureList();
-	
-	mGestureList->setFocus(TRUE);
-
 	if (mGestureList)
 	{
+		buildGestureList();
+	
+		mGestureList->setFocus(TRUE);
+
 		const BOOL ascending = TRUE;
 		mGestureList->sortByColumn(std::string("name"), ascending);
 		mGestureList->selectFirstItem();
@@ -223,9 +223,9 @@ BOOL LLFloaterGesture::postBuild()
 
 void LLFloaterGesture::refreshAll()
 {
-	buildGestureList();
-
 	if (!mGestureList) return;
+
+	buildGestureList();
 
 	if (mSelectedID.isNull())
 	{
@@ -427,8 +427,13 @@ void LLFloaterGesture::onClickPlay()
 		BOOL inform_server = TRUE;
 		BOOL deactivate_similar = FALSE;
 		LLGestureManager::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));
-		LLGestureManager::instance().activateGestureWithAsset(item_id, gInventory.getItem(item_id)->getAssetUUID(), inform_server, deactivate_similar);
-		LL_DEBUGS("Gesture")<< "Activating gesture with inventory ID: " << item_id <<LL_ENDL;
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		llassert(item);
+		if (item)
+		{
+			LLGestureManager::instance().activateGestureWithAsset(item_id, item->getAssetUUID(), inform_server, deactivate_similar);
+			LL_DEBUGS("Gesture")<< "Activating gesture with inventory ID: " << item_id <<LL_ENDL;
+		}
 	}
 	else
 	{
@@ -510,15 +515,16 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);
+		llassert(gesture_dir);
 		LLPointer<GestureCopiedCallback> cb = new GestureCopiedCallback(this);
 
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
-			LLStringUtil::format_map_t string_args;
-			string_args["[COPY_NAME]"] = item->getName();
-			if(item && item->getInventoryType() == LLInventoryType::IT_GESTURE)
+			if(gesture_dir && item && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
+				LLStringUtil::format_map_t string_args;
+				string_args["[COPY_NAME]"] = item->getName();
 				LL_DEBUGS("Gesture")<< "Copying gesture " << item->getName() << "  "<< item->getUUID() << " into "
 										<< gesture_dir->getName() << "  "<< gesture_dir->getUUID() << LL_ENDL;
 				copy_inventory_item(gAgent.getID(), item->getPermissions().getOwner(), item->getUUID(), 

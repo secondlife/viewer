@@ -583,7 +583,8 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item)
+	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item 
+		|| "can_pay" == item)
 	{
 		return mUUIDs.front() != gAgentID;
 	}
@@ -618,7 +619,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 
 		for (;id != uuids_end; ++id)
 		{
-			if ( LLAvatarActions::isFriend(*id) )
+			if ( *id == gAgentID || LLAvatarActions::isFriend(*id) )
 			{
 				result = false;
 				break;

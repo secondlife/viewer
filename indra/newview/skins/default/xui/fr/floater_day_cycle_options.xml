@@ -59,14 +59,14 @@
 			</text>
 			<button label="Ajouter clé" label_selected="Ajouter clé" name="WLAddKey" width="89" bottom="-45" />
 			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey" width="89" bottom="-70" />
-			<text name="WLCurKeyFrameText">
+			<text name="WLCurKeyFrameText" width="170">
 				Réglages des images-clés :
 			</text>
-			<text name="WLCurKeyTimeText">
+			<text name="WLCurKeyTimeText" width="170">
 				Heure de la clé :
 			</text>
-			<spinner label="Heure" name="WLCurKeyHour" />
-			<spinner label="Min" name="WLCurKeyMin" />
+			<spinner label="Heure" name="WLCurKeyHour" label_width="80" width="74"/>
+			<spinner label="Min" name="WLCurKeyMin" label_width="80"/>
 			<text name="WLCurKeyTimeText2">
 				Préréglages clés :
 			</text>
@@ -78,13 +78,13 @@
 			<text name="DayCycleText2">
 				Durée du cycle :
 			</text>
-			<spinner label="Heure" name="WLLengthOfDayHour" />
+			<spinner label="Heure" name="WLLengthOfDayHour" label_width="80" width="74" />
 			<spinner label="Min" name="WLLengthOfDayMin" />
-			<spinner label="S" name="WLLengthOfDaySec" label_width="10" width="50" left_delta="75"/>
-			<text name="DayCycleText3">
+			<spinner label="S" name="WLLengthOfDaySec" label_width="10" width="50" left_delta="95"/>
+			<text name="DayCycleText3" left="280" width="200">
 				Prévisualiser :
 			</text>
-			<button label="Jouer" label_selected="Jouer" name="WLAnimSky" />
+			<button label="Jouer" label_selected="Jouer" name="WLAnimSky" left_delta="90"/>
 			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky" />
 			<button label="Utiliser heure domaine" label_selected="Aller heure domaine"
 			     name="WLUseLindenTime" />

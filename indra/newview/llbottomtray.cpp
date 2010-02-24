@@ -60,6 +60,27 @@ namespace
 	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
 	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
 	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
+
+	S32 get_panel_min_width(LLLayoutStack* stack, LLPanel* panel)
+	{
+		S32 minimal_width = 0;
+		llassert(stack);
+		if ( stack && panel && panel->getVisible() )
+		{
+			stack->getPanelMinSize(panel->getName(), &minimal_width, NULL);
+		}
+		return minimal_width;
+	}
+
+	S32 get_curr_width(LLUICtrl* ctrl)
+	{
+		S32 cur_width = 0;
+		if ( ctrl && ctrl->getVisible() )
+		{
+			cur_width = ctrl->getRect().getWidth();
+		}
+		return cur_width;
+	}
 }
 
 class LLBottomTrayLite
@@ -80,6 +101,14 @@ public:
 	{
 		mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
 		mGesturePanel = getChild<LLPanel>("gesture_panel");
+
+		// Hide "show_nearby_chat" button 
+		LLLineEditor* chat_box = mNearbyChatBar->getChatBox();
+		LLUICtrl* show_btn = mNearbyChatBar->getChild<LLUICtrl>("show_nearby_chat");
+		S32 delta_width = show_btn->getRect().getWidth();
+		show_btn->setVisible(FALSE);
+		chat_box->reshape(chat_box->getRect().getWidth() + delta_width, chat_box->getRect().getHeight());
+
 		return TRUE;
 	}
 
@@ -280,7 +309,13 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 		break;
 	}
 
-	mSpeakBtn->setEnabled(enable);
+	// We have to enable/disable right and left parts of speak button separately (EXT-4648)
+	mSpeakBtn->setSpeakBtnEnabled(enable);
+	// skipped to avoid button blinking
+	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
+	{
+		mSpeakBtn->setFlyoutBtnEnabled(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
+	}
 }
 
 void LLBottomTray::onMouselookModeOut()
@@ -315,7 +350,7 @@ void LLBottomTray::setVisible(BOOL visible)
 	{
 		mBottomTrayLite->setVisible(visible);
 	}
-	else
+	else 
 	{
 		LLPanel::setVisible(visible);
 	}
@@ -387,6 +422,18 @@ void LLBottomTray::showSnapshotButton(BOOL visible)
 	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, visible);
 }
 
+void LLBottomTray::toggleMovementControls()
+{
+	if (mMovementButton)
+		mMovementButton->onCommit();
+}
+
+void LLBottomTray::toggleCameraControls()
+{
+	if (mCamButton)
+		mCamButton->onCommit();
+}
+
 BOOL LLBottomTray::postBuild()
 {
 
@@ -410,9 +457,10 @@ BOOL LLBottomTray::postBuild()
 	mSpeakPanel = getChild<LLPanel>("speak_panel");
 	mSpeakBtn = getChild<LLSpeakButton>("talk");
 
-	// Speak button should be initially disabled because
+	// Both parts of speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
-	mSpeakBtn->setEnabled(FALSE);
+	mSpeakBtn->setSpeakBtnEnabled(false);
+	mSpeakBtn->setFlyoutBtnEnabled(false);
 
 	// Localization tool doesn't understand custom buttons like <talk_button>
 	mSpeakBtn->setSpeakToolTip( getString("SpeakBtnToolTip") );
@@ -425,6 +473,8 @@ BOOL LLBottomTray::postBuild()
 	mObjectDefaultWidthMap[RS_BUTTON_MOVEMENT] = mMovementPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_CAMERA]   = mCamPanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
+
+	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
 
 	return TRUE;
 }
@@ -474,6 +524,7 @@ void LLBottomTray::onContextMenuItemClicked(const LLSD& userdata)
 	else if (item == "paste")
 	{
 		edit_box->paste();
+		edit_box->setFocus(TRUE);
 	}
 	else if (item == "delete")
 	{
@@ -875,13 +926,12 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 		}
 		else
 		{
-			//
-			mSpeakBtn->setLabelVisible(false);
 			S32 panel_width = mSpeakPanel->getRect().getWidth();
 			S32 possible_shrink_width = panel_width - panel_min_width;
 
 			if (possible_shrink_width > 0)
 			{
+				mSpeakBtn->setLabelVisible(false);
 				mSpeakPanel->reshape(panel_width - possible_shrink_width, mSpeakPanel->getRect().getHeight());
 
 				*required_width += possible_shrink_width;
@@ -956,18 +1006,18 @@ void LLBottomTray::processExtendButtons(S32* available_width)
 
 	if (*available_width > 0)
 	{
-		processExtendButton(RS_BUTTON_CAMERA, available_width);
+		processExtendButton(RS_BUTTON_MOVEMENT, available_width);
 	}
 	if (*available_width > 0)
 	{
-		processExtendButton(RS_BUTTON_MOVEMENT, available_width);
+		processExtendButton(RS_BUTTON_CAMERA, available_width);
 	}
 	if (*available_width > 0)
 	{
 		S32 panel_max_width = mObjectDefaultWidthMap[RS_BUTTON_SPEAK];
 		S32 panel_width = mSpeakPanel->getRect().getWidth();
 		S32 possible_extend_width = panel_max_width - panel_width;
-		if (possible_extend_width > 0 && possible_extend_width <= *available_width)
+		if (possible_extend_width >= 0 && possible_extend_width <= *available_width)  // HACK: this button doesn't change size so possible_extend_width will be 0
 		{
 			mSpeakBtn->setLabelVisible(true);
 			mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
@@ -1076,58 +1126,131 @@ void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool vis
 
 	if (mDummiesMap.count(shown_object_type))
 	{
-		mDummiesMap[shown_object_type]->setVisible(visible);
+		// Hide/show layout panel for dummy icon.
+		mDummiesMap[shown_object_type]->getParent()->setVisible(visible);
 	}
 }
 
 void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification)
 {
-	bool can_be_set = true;
+	if (!setVisibleAndFitWidths(shown_object_type, visible) && visible && raise_notification)
+	{
+		LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
+								 LLSD(),
+								 LLSD(),
+								 LLNotificationFunctorRegistry::instance().DONOTHING);
+	}
+}
+
+bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible)
+{
+	LLPanel* cur_panel = mStateProcessedObjectMap[object_type];
+	if (NULL == cur_panel)
+	{
+		lldebugs << "There is no object to process for state: " << object_type << llendl;
+		return false;
+	}
+
+	const S32 dummy_width = mDummiesMap.count(object_type)
+		? mDummiesMap[object_type]->getParent()->getRect().getWidth()
+		: 0;
+
+	bool is_set = true;
 
 	if (visible)
 	{
-		LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
-		if (NULL == panel)
+		// Assume that only chiclet panel can be auto-resized and
+		// don't take into account width of dummy widgets
+		const S32 available_width =
+			mChicletPanel->getParent()->getRect().getWidth() -
+			mChicletPanel->getMinWidth() -
+			dummy_width;
+
+		S32 preferred_width = mObjectDefaultWidthMap[object_type];
+		S32 current_width = cur_panel->getRect().getWidth();
+		S32 result_width = 0;
+		bool decrease_width = false;
+
+		// Mark this button to be shown
+		mResizeState |= object_type;
+
+		if (preferred_width > 0 && available_width >= preferred_width)
 		{
-			lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
-			return;
+			result_width = preferred_width;
+		}
+		else if (available_width >= current_width)
+		{
+			result_width = current_width;
+		}
+		else
+		{
+			// Calculate the possible shrunk width as difference between current and minimal widths
+			const S32 chatbar_shrunk_width =
+				mNearbyChatBar->getRect().getWidth() - mNearbyChatBar->getMinWidth();
+
+			const S32 sum_of_min_widths =
+				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
+				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
+				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
+				get_panel_min_width(mToolbarStack, mSpeakPanel);
+
+			const S32 sum_of_curr_widths =
+				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
+				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
+				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
+				get_curr_width(mSpeakPanel);
+
+			const S32 possible_shrunk_width =
+				chatbar_shrunk_width + (sum_of_curr_widths - sum_of_min_widths);
+
+			// Minimal width of current panel
+			S32 minimal_width = 0;
+			mToolbarStack->getPanelMinSize(cur_panel->getName(), &minimal_width, NULL);
+
+			if ( (available_width + possible_shrunk_width) >= minimal_width)
+			{
+				// There is enough space for minimal width, but set the result_width
+				// to preferred_width so buttons widths decreasing will be done in predefined order
+				result_width = (preferred_width > 0) ? preferred_width : current_width;
+				decrease_width = true;
+			}
+			else
+			{
+				// Nothing can be done, give up...
+				return false;
+			}
 		}
 
-		const S32 dummy_width = mDummiesMap.count(shown_object_type) ? mDummiesMap[shown_object_type]->getRect().getWidth() : 0;
-
-		const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-		const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
-
-		const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
-		const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
-
-		const S32 available_width = (chatbar_panel_width - chatbar_panel_min_width)
-			+ (chiclet_panel_width - chiclet_panel_min_width);
-
-		const S32 required_width = panel->getRect().getWidth() + dummy_width;
-		can_be_set = available_width >= required_width;
-	}
-
-	if (can_be_set)
-	{
-		setTrayButtonVisible(shown_object_type, visible);
-
-		// if we hide the button mark it NOT to show while future bottom tray extending
-		if (!visible)
+		if (result_width != current_width)
 		{
-			mResizeState &= ~shown_object_type;
+			cur_panel->reshape(result_width, cur_panel->getRect().getHeight());
+			current_width = result_width;
+		}
+
+		is_set = processShowButton(object_type, &current_width);
+
+		// Shrink buttons if needed
+		if (is_set && decrease_width)
+		{
+			processWidthDecreased( -result_width - dummy_width );
 		}
 	}
 	else
 	{
-		// mark this button to show it while future bottom tray extending
-		mResizeState |= shown_object_type;
-		if ( raise_notification )
-			LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown",
-									 LLSD(),
-									 LLSD(),
-									 LLNotificationFunctorRegistry::instance().DONOTHING);
+		const S32 delta_width = get_curr_width(cur_panel);
+
+		setTrayButtonVisible(object_type, false);
+
+		// Mark button NOT to show while future bottom tray extending
+		mResizeState &= ~object_type;
+
+		// Extend other buttons if need
+		if (delta_width)
+		{
+			processWidthIncreased(delta_width + dummy_width);
+		}
 	}
+	return is_set;
 }
 
 //EOF

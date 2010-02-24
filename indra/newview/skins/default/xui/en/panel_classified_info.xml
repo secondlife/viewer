@@ -18,6 +18,10 @@
   name="type_pg">
     General Content
  </panel.string>
+ <panel.string
+  name="l$_price">
+    L$[PRICE]
+ </panel.string>
     <button
      follows="top|right"
      height="23"
@@ -25,7 +29,7 @@
      layout="topleft"
      name="back_btn"
      picture_style="true"
-     left="10"
+     left="11"
      tab_stop="false"
      top="2"
      width="23" />
@@ -36,7 +40,7 @@
      layout="topleft"
      left_pad="10"
      name="title"
-     text_color="white"
+     text_color="LtGray"
      top="0"
      value="Classified Info"
      use_ellipses="true"
@@ -45,13 +49,13 @@
      color="DkGray2"
      opaque="true"
      follows="all"
-     height="500"
+     height="502"
      layout="topleft"
-     left="10"
+     left="9"
      top_pad="10"
      name="profile_scroll"
      reserve_scroll_corner="false"
-     width="313">
+     width="310">
     <panel
      name="scroll_content_panel"
      follows="left|top"
@@ -61,18 +65,21 @@
      background_visible="false"
      height="500"
      left="0"
-     width="295">
+     width="285">
         <texture_picker
          enabled="false"
-         follows="left|top"
+         follows="left|top|right"
          height="197"
          layout="topleft"
-         left="10"
+         left="11"
          name="classified_snapshot"
-         top="20"
-         width="290" />
-        <text
+         top="10"
+         width="286" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="35"
          width="290"
          layout="topleft"
@@ -81,35 +88,53 @@
          left="10"
          top_pad="10"
          name="classified_name"
+         read_only="true"
          text_color="white"
+         v_pad="0"
          value="[name]"
          use_ellipses="true" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top"
+         h_pad="0"
          height="25"
          layout="topleft"
          left="10"
          name="classified_location"
+         read_only="true"
          width="290"
          word_wrap="true"
+         v_pad="0"
          value="[loading...]" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="18"
          layout="topleft"
          left="10"
          name="content_type"
+         read_only="true"
          width="290"
          top_pad="5"
+         v_pad="0"
          value="[content type]" />
-        <text
+        <text_editor
+         allow_html="true"
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="18"
          layout="topleft"
          left="10"
          name="category"
+         read_only="true"
          width="290"
          top_pad="5"
+         v_pad="0"
          value="[category]" />
         <check_box
          enabled="false"
@@ -119,63 +144,72 @@
          left="10"
          name="auto_renew"
          top_pad="5"
+         v_pad="0"
          width="290" />
-        <text
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top"
+         h_pad="0"
          halign="left"
          height="16"
          layout="topleft"
          left="10"
          name="price_for_listing"
+         read_only="true"
          top_pad="5"
          tool_tip="Price for listing."
-         width="105">
-         L$[PRICE]
-        </text>
-        <text
+         v_pad="0"
+         width="105" />
+        <text_editor
+         allow_html="true"
+         allow_scroll="false"
+         bg_visible="false"
          follows="left|top|right"
+         h_pad="0"
          height="200"
          layout="topleft"
          left="10"
+         max_length="1023"
          name="classified_desc"
+         read_only="true"
          width="290"
+         v_pad="0"
          value="[description]"
          word_wrap="true" />
     </panel>
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="20"
+     height="35"
      layout="topleft"
-     top_pad="8"
-     left="10"
+     top_pad="5"
+     left="9"
      name="buttons">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Teleport"
          layout="topleft"
          left="0"
          name="teleport_btn"
          top="0"
-         width="90" />
+         width="101" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Map"
          layout="topleft"
-         left_pad="10"
+         left_pad="3"
          name="show_on_map_btn"
-         top="0"
-         width="90" />
+         width="100" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Edit"
          layout="topleft"
-         right="-1"
          name="edit_btn"
-         top="0"
-         width="90" />
+         left_pad="3"
+         width="101" />
     </panel>
 </panel>

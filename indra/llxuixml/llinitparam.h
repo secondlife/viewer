@@ -407,7 +407,7 @@ namespace LLInitParam
 	class BaseBlock
 	{
 	public:
-		// "Multiple" constraint types
+		// "Multiple" constraint types, put here in root class to avoid ambiguity during use
 		struct AnyAmount
 		{
 			static U32 minCount() { return 0; }
@@ -452,7 +452,7 @@ namespace LLInitParam
 		bool submitValue(const Parser::name_stack_t& name_stack, Parser& p, bool silent=false);
 
 		param_handle_t getHandleFromParam(const Param* param) const;
-		bool validateBlock(bool silent = false) const;
+		bool validateBlock(bool emit_errors = true) const;
 
 		Param* getParamFromHandle(const param_handle_t param_handle)
 		{
@@ -472,7 +472,6 @@ namespace LLInitParam
 		// Blocks can override this to do custom tracking of changes
 		virtual void setLastChangedParam(const Param& last_param, bool user_provided);
 
-		const Param* getLastChangedParam() const { return mLastChangedParam ? getParamFromHandle(mLastChangedParam) : NULL; }
 		S32 getLastChangeVersion() const { return mChangeVersion; }
 		bool isDefault() const { return mChangeVersion == 0; }
 
@@ -501,13 +500,9 @@ namespace LLInitParam
 
 
 		// take all provided params from other and apply to self
-		bool overwriteFromImpl(BlockDescriptor& block_data, const BaseBlock& other);
-
-		// take all provided params that are not already provided, and apply to self
-		bool fillFromImpl(BlockDescriptor& block_data, const BaseBlock& other);
+		bool merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
 
 		// can be updated in getters
-		mutable param_handle_t	mLastChangedParam;
 		mutable S32				mChangeVersion;
 
 		BlockDescriptor*		mBlockDescriptor;	// most derived block descriptor
@@ -807,7 +802,7 @@ namespace LLInitParam
 			if (Param::getProvided() && mData.mValidatedVersion < T::getLastChangeVersion())
 			{
 				// a sub-block is "provided" when it has been filled in enough to be valid
-				mData.mValidated = T::validateBlock(true);
+				mData.mValidated = T::validateBlock(false);
 				mData.mValidatedVersion = T::getLastChangeVersion();
 			}
 			return Param::getProvided() && mData.mValidated;
@@ -1238,7 +1233,7 @@ namespace LLInitParam
 				it != mValues.end();
 				++it)
 			{
-				if(it->validateBlock(true)) count++;
+				if(it->validateBlock(false)) count++;
 			}
 			return count;
 		}
@@ -1288,7 +1283,7 @@ namespace LLInitParam
 		bool overwriteFrom(const self_t& other)
 		{
 			mCurChoice = other.mCurChoice;
-			return BaseBlock::overwriteFromImpl(blockDescriptor(), other);
+			return BaseBlock::merge(blockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
@@ -1415,13 +1410,13 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return BaseBlock::overwriteFromImpl(blockDescriptor(), other);
+			return BaseBlock::merge(blockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return BaseBlock::fillFromImpl(blockDescriptor(), other);
+			return BaseBlock::merge(blockDescriptor(), other, false);
 		}
 	protected:
 		Block()
@@ -1712,7 +1707,7 @@ namespace LLInitParam
 			// if cached value is stale, regenerate from params
 			if (Param::getProvided() && mData.mLastParamVersion < BaseBlock::getLastChangeVersion())
 			{
-				if (block_t::validateBlock(true))
+				if (block_t::validateBlock(false))
 				{
 					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					// clear stale keyword associated with old value
@@ -1734,6 +1729,7 @@ namespace LLInitParam
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
+			
 			// set param version number to be up to date, so we ignore block contents
 			mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
 
@@ -1770,7 +1766,7 @@ namespace LLInitParam
 			if (Param::getProvided() && (mData.mLastParamVersion < BaseBlock::getLastChangeVersion()))
 			{
 				// go ahead and issue warnings at this point if any param is invalid
-				if(block_t::validateBlock(false))
+				if(block_t::validateBlock(true))
 				{
 					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					mData.clearKey();
@@ -1798,25 +1794,23 @@ namespace LLInitParam
 	private:
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
-			const self_t& src_param = static_cast<const self_t&>(src);
+			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
 
-			if (src_param.isProvided()
+			if (src_typed_param.isProvided()
 				&& (overwrite || !dst_typed_param.isProvided()))
 			{
 				// assign individual parameters
-				if (overwrite)
-				{
-					dst_typed_param.BaseBlock::overwriteFromImpl(block_t::blockDescriptor(), src_param);
-				}
-				else
-				{
-					dst_typed_param.BaseBlock::fillFromImpl(block_t::blockDescriptor(), src_param);
-				}
+				dst_typed_param.BaseBlock::merge(block_t::blockDescriptor(), src_typed_param, overwrite);
+
 				// then copy actual value
-				dst_typed_param.mData.mValue = src_param.get();
+				dst_typed_param.mData.mValue = src_typed_param.get();
 				dst_typed_param.mData.clearKey();
 				dst_typed_param.setProvided(true);
+
+				// Propagate value back to block params since the value was updated during this merge.
+				// This will result in mData.mValue and the block params being in sync.
+				static_cast<DERIVED&>(dst_typed_param).setBlockFromValue();
 				return true;
 			}
 			return false;

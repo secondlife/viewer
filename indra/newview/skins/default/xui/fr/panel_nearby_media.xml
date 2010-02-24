@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_media">
+	<string name="media_item_count_format">
+		(%ld articles de média)
+	</string>
+	<string name="empty_item_text">
+		&lt;vide&gt;
+	</string>
+	<string name="parcel_media_name">
+		Flux de média de la parcelle
+	</string>
+	<string name="parcel_audio_name">
+		Flux audio de la parcelle
+	</string>
+	<string name="playing_suffix">
+		(lecture en cours)
+	</string>
+	<panel name="minimized_controls">
+		<button label="Tout arrêter" name="all_nearby_media_disable_btn" tool_tip="Désactiver tous les médias près de vous"/>
+		<button label="Tout lancer" name="all_nearby_media_enable_btn" tool_tip="Activer tous les médias près de vous"/>
+		<button name="open_prefs_btn" tool_tip="Ouvrir les préférences de média"/>
+		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="more_less_btn" tool_tip="Options avancées"/>
+	</panel>
+	<panel name="nearby_media_panel">
+		<combo_box name="show_combo">
+			<combo_box.item label="Tout" name="All"/>
+			<combo_box.item label="Dans cette parcelle" name="WithinParcel"/>
+			<combo_box.item label="En dehors de la parcelle" name="OutsideParcel"/>
+		</combo_box>
+		<scroll_list name="media_list">
+			<scroll_list.columns label="Proximité" name="media_proximity"/>
+			<scroll_list.columns label="Visible" name="media_visibility"/>
+			<scroll_list.columns label="Classe" name="media_class"/>
+			<scroll_list.columns label="Nom" name="media_name"/>
+			<scroll_list.columns label="Débogage" name="media_debug"/>
+		</scroll_list>
+		<panel>
+			<layout_stack name="media_controls">
+				<layout_panel name="stop">
+					<button name="stop_btn" tool_tip="Arrêter le média sélectionné"/>
+				</layout_panel>
+				<layout_panel name="play">
+					<button name="play_btn" tool_tip="Jouer le média sélectionné"/>
+				</layout_panel>
+				<layout_panel name="pause">
+					<button name="pause_btn" tool_tip="Pauser le média sélectionné"/>
+				</layout_panel>
+				<layout_panel name="volume_slider_ctrl">
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volume audio pour le média sélectionné"/>
+				</layout_panel>
+				<layout_panel name="mute">
+					<button name="mute_btn" tool_tip="Couper l&apos;audio sur le média sélectionné"/>
+				</layout_panel>
+				<layout_panel name="zoom">
+					<button name="zoom_btn" tool_tip="Zoomer en avant sur le média sélectionné"/>
+				</layout_panel>
+				<layout_panel name="unzoom">
+					<button name="unzoom_btn" tool_tip="Zoomer en arrière sur le média sélectionné"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>

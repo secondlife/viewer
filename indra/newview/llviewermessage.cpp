@@ -38,6 +38,7 @@
 #include "llavataractions.h"
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
+#include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
 #include "llregionhandle.h"
@@ -192,9 +193,20 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		msg->nextBlockFast(_PREHASH_FolderData);
 		msg->addUUIDFast(_PREHASH_FolderID, fid);
 		msg->sendReliable(LLHost(payload["sender"].asString()));
+
+		LLSD payload = notification["payload"];
+		payload["SUPPRESS_TOAST"] = true;
+		LLNotificationsUtil::add("FriendshipAcceptedByMe",
+				notification["substitutions"], payload);
 		break;
 	}
 	case 1: // Decline
+	{
+		LLSD payload = notification["payload"];
+		payload["SUPPRESS_TOAST"] = true;
+		LLNotificationsUtil::add("FriendshipDeclinedByMe",
+				notification["substitutions"], payload);
+	}
 	case 2: // Send IM - decline and start IM session
 		{
 			// decline
@@ -860,28 +872,15 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		 ++item_iter)
 	{
 		const LLUUID& item_id = (*item_iter);
-		LLInventoryItem* item = gInventory.getItem(item_id);
-		if(!item)
+		if(!highlight_offered_item(item_id))
 		{
-			LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
 			continue;
 		}
 
-		////////////////////////////////////////////////////////////////////////////////
-		// Don't highlight if it's in certain "quiet" folders which don't need UI 
-		// notification (e.g. trash, cof, lost-and-found).
-		const BOOL user_is_away = gAwayTimer.getStarted();
-		if(!user_is_away)
-		{
-			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
-			if (parent)
-			{
-				const LLFolderType::EType parent_type = parent->getPreferredType();
-				if (LLViewerFolderType::lookupIsQuietType(parent_type))
-				{
-					continue;
-				}
-			}
+		LLInventoryItem* item = gInventory.getItem(item_id);
+		llassert(item);
+		if (!item) {
+			continue;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////
@@ -929,13 +928,15 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						LLPanelPlaces *places_panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->getPanel("panel_places"));
 						if (places_panel)
 						{
-							// we are creating a landmark
-							if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
-							{
-								places_panel->setItem(item);
-							}
+							// Landmark creation handling is moved to LLPanelPlaces::showAddedLandmarkInfo()
+							// TODO* LLPanelPlaces dependency is going to be removed. See EXT-4347.
+							//if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
+							//{
+							//	places_panel->setItem(item);
+							//}
+							//else
 							// we are opening a group notice attachment
-							else
+							if("create_landmark" != places_panel->getPlaceInfoType())
 							{
 								LLSD args;
 								args["type"] = "landmark";
@@ -980,6 +981,34 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
+}
+
+bool highlight_offered_item(const LLUUID& item_id)
+{
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if(!item)
+	{
+		LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Don't highlight if it's in certain "quiet" folders which don't need UI
+	// notification (e.g. trash, cof, lost-and-found).
+	if(!gAgent.getAFK())
+	{
+		const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
+		if (parent)
+		{
+			const LLFolderType::EType parent_type = parent->getPreferredType();
+			if (LLViewerFolderType::lookupIsQuietType(parent_type))
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
@@ -1249,10 +1278,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gInventory.addObserver(opener);
 	}
 
-	// Remove script dialog because there is no need in it no more.
-	LLUUID object_id = notification["payload"]["object_id"].asUUID();
-	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
-
 	delete this;
 	return false;
 }
@@ -1292,13 +1317,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
 	LLInventoryObserver* opener = NULL;
-	LLViewerInventoryCategory* catp = NULL;
-	catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
-	LLViewerInventoryItem* itemp = NULL;
-	if(!catp)
-	{
-		itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
-	}
 	
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
@@ -1426,10 +1444,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		gInventory.addObserver(opener);
 	}
 
-	// Remove script dialog because there is no need in it no more.
-	LLUUID object_id = notification["payload"]["object_id"].asUUID();
-	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
-
 	delete this;
 	return false;
 }
@@ -1466,6 +1480,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 	// Strip any SLURL from the message display. (DEV-2754)
 	std::string msg = info->mDesc;
 	int indx = msg.find(" ( http://slurl.com/secondlife/");
+	if(indx == std::string::npos)
+	{
+		// try to find new slurl host
+		indx = msg.find(" ( http://maps.secondlife.com/secondlife/");
+	}
 	if(indx >= 0)
 	{
 		LLStringUtil::truncate(msg, indx);
@@ -1575,7 +1594,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		{
 			payload["give_inventory_notification"] = TRUE;
 			LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
-			LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
 		}
 	}
 }
@@ -1832,6 +1850,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
+				/*
+				EXT-5099
+				currently there is no way to store in history only...
+				using  LLNotificationsUtil::add will add message to Nearby Chat
+
 				// muted user, so don't start an IM session, just record line in chat
 				// history.  Pretend the chat is from a local agent,
 				// so it will go into the history but not be shown on screen.
@@ -1839,6 +1862,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["MESSAGE"] = buffer;
 				LLNotificationsUtil::add("SystemMessageTip", args);
+				*/
 			}
 		}
 		break;
@@ -2169,6 +2193,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mFromID = from_id ^ gAgent.getSessionID();
 			}
 
+			if(SYSTEM_FROM == name)
+			{
+				// System's UUID is NULL (fixes EXT-4766)
+				chat.mFromID = from_id = LLUUID::null;
+			}
+
 			LLSD query_string;
 			query_string["owner"] = from_id;
 			query_string["slurl"] = location;
@@ -2190,7 +2220,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 			if(nearby_chat)
 			{
-				nearby_chat->addMessage(chat);
+				LLSD args;
+				args["owner_id"] = from_id;
+				args["slurl"] = location;
+				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
+				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 			}
 
 

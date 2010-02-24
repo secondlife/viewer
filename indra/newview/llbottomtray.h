@@ -94,6 +94,9 @@ public:
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
 
+	void toggleMovementControls();
+	void toggleCameraControls();
+
 	void onMouselookModeIn();
 	void onMouselookModeOut();
 
@@ -172,6 +175,14 @@ private:
 	 *    it will be shown while extending.
 	 */
 	void setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification = true);
+
+	/**
+	 * Sets passed visibility to required button and fit widths of shown
+	 * buttons(notice that method can shrink widths to
+	 * allocate needed room in bottom tray).
+	 * Returns true if visibility of required button was set.
+	 */
+	bool setVisibleAndFitWidths(EResizeState object_type, bool visible);
 
 	MASK mResizeState;
 

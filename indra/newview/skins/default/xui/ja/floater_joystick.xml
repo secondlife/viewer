@@ -71,7 +71,7 @@
 	<spinner left="135" name="AvatarAxisDeadZone0" width="50"/>
 	<spinner left="205" name="BuildAxisDeadZone0" width="50"/>
 	<spinner left="275" name="FlycamAxisDeadZone0" width="50"/>
-	<text left="0" name="PitchDeadZone" width="135">
+	<text left="0" name="PitchDeadZone" width="125">
 		ピッチ・デッド・ゾーン
 	</text>
 	<spinner left="135" name="AvatarAxisDeadZone4" width="50"/>
@@ -83,7 +83,7 @@
 	<spinner left="135" name="AvatarAxisDeadZone5" width="50"/>
 	<spinner left="205" name="BuildAxisDeadZone5" width="50"/>
 	<spinner left="275" name="FlycamAxisDeadZone5" width="50"/>
-	<text left="0" name="RollDeadZone" width="135">
+	<text left="0" name="RollDeadZone" width="125">
 		ロール・デッド・ゾーン
 	</text>
 	<spinner left="205" name="BuildAxisDeadZone3" width="50"/>

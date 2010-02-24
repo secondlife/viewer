@@ -7,11 +7,11 @@
 		desconocida
 	</text>
 	<check_box label="Desactivar los scripts" name="disable_scripts_check" tool_tip="Descativar todos los scripts en esta región"/>
-	<button label="?" name="disable_scripts_help" left="215"/>
+	<button label="?" left="215" name="disable_scripts_help"/>
 	<check_box label="Desactivar las colisiones" name="disable_collisions_check" tool_tip="Desactiva las colisiones (no las de avatares) en esta región"/>
-	<button label="?" name="disable_collisions_help" left="215"/>
+	<button label="?" left="215" name="disable_collisions_help"/>
 	<check_box label="Desactivar las propiedades físicas" name="disable_physics_check" tool_tip="Desactiva toda la física en esta región"/>
-	<button label="?" name="disable_physics_help" left="215"/>
+	<button label="?" left="215" name="disable_physics_help"/>
 	<button label="Aplicar" name="apply_btn"/>
 	<text name="objret_text_lbl" width="130">
 		Devolver el objeto
@@ -22,18 +22,18 @@
 	<line_editor name="target_avatar_name">
 		(nadie)
 	</line_editor>
-	<button label="Elegir..." name="choose_avatar_btn"/>
+	<button label="Elegir" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		Opciones:
 	</text>
-	<check_box label="Devolver sólo los objetos con scripts" name="return_scripts" tool_tip="Devolver sólo los objetos que tengan scripts."/>
-	<check_box label="Devolver sólo los objetos que están en terreno de otro" name="return_other_land" tool_tip="Devolver sólo los objetos que están en terreno de otro"/>
-	<check_box label="Devolver los objetos de cualquier región de este estado" name="return_estate_wide" tool_tip="Devolver los objetos de todas las regiones que forman este estado"/>
+	<check_box label="Con scripts" name="return_scripts" tool_tip="Devolver sólo los objetos con scripts"/>
+	<check_box label="En el terreno de otros" name="return_other_land" tool_tip="Devolver sólo los objetos que están en terreno de otro"/>
+	<check_box label="En cada región de este estado" name="return_estate_wide" tool_tip="Devolver los objetos de todas las regiones que forman este estado"/>
 	<button label="Devolver" name="return_btn"/>
-	<button width="280" label="Listar los objetos que colisionan..." name="top_colliders_btn" tool_tip="Lista de los objetos con más posibles colisiones potenciales"/>
-	<button label="?" name="top_colliders_help" left="297"/>
-	<button width="280" label="Listar los scripts según su uso..." name="top_scripts_btn" tool_tip="Lista de los objetos que más tiempo emplean ejecutando scripts"/>
-	<button label="?" name="top_scripts_help" left="297"/>
+	<button label="Listar los objetos que colisionan..." name="top_colliders_btn" tool_tip="Lista de los objetos con más posibles colisiones potenciales" width="280"/>
+	<button label="?" left="297" name="top_colliders_help"/>
+	<button label="Listar los scripts según su uso..." name="top_scripts_btn" tool_tip="Lista de los objetos que más tiempo emplean ejecutando scripts" width="280"/>
+	<button label="?" left="297" name="top_scripts_help"/>
 	<button label="Reiniciar la región" name="restart_btn" tool_tip="Cuenta atrás de 2 minutos y reiniciar la región"/>
 	<button label="?" name="restart_help"/>
 	<button label="Retrasar el reinicio" name="cancel_restart_btn" tool_tip="Retrasar una hora el reinicio de la región"/>

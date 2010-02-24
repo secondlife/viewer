@@ -177,17 +177,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>FirstStreamingMedia</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstStreamingMedia warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>FirstTeleport</key>
     <map>
       <key>Comment</key>

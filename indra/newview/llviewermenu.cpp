@@ -44,6 +44,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
+#include "llbottomtray.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
@@ -603,6 +604,10 @@ class LLAdvancedToggleHUDInfo : public view_listener_t
 		{
 			gDisplayFOV = !(gDisplayFOV);
 		}
+		else if ("badge" == info_type)
+		{
+			gDisplayBadge = !(gDisplayBadge);
+		}
 		return true;
 	}
 };
@@ -624,6 +629,10 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 		else if ("fov" == info_type)
 		{
 			new_value = gDisplayFOV;
+		}
+		else if ("badge" == info_type)
+		{
+			new_value = gDisplayBadge;
 		}
 		return new_value;
 	}
@@ -2547,7 +2556,7 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
-
+	
 	/*
 	// Old floater properties
 	LLFloaterReg::showInstance("inspect", LLSD());
@@ -3546,9 +3555,15 @@ bool LLHaveCallingcard::operator()(LLInventoryCategory* cat,
 
 BOOL is_agent_mappable(const LLUUID& agent_id)
 {
-	return (LLAvatarActions::isFriend(agent_id) &&
-		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isOnline() &&
-		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
+	const LLRelationship* buddy_info = NULL;
+	bool is_friend = LLAvatarActions::isFriend(agent_id);
+
+	if (is_friend)
+		buddy_info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
+
+	return (buddy_info &&
+		buddy_info->isOnline() &&
+		buddy_info->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
 		);
 }
 
@@ -4834,9 +4849,10 @@ class LLToolsEnableUnlink : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLViewerObject* first_editable_object = LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject();
 		bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
-			LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() &&
-			!LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject()->isAttachment();
+			first_editable_object &&
+			!first_editable_object->isAttachment();
 		return new_value;
 	}
 };
@@ -5324,7 +5340,7 @@ class LLWorldCreateLandmark : public view_listener_t
 
 void handle_look_at_selection(const LLSD& param)
 {
-	const F32 PADDING_FACTOR = 2.f;
+	const F32 PADDING_FACTOR = 1.75f;
 	BOOL zoom = (param.asString() == "zoom");
 	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
@@ -5344,14 +5360,19 @@ void handle_look_at_selection(const LLSD& param)
 		}
 		if (zoom)
 		{
+			// Make sure we are not increasing the distance between the camera and object
+			LLVector3d orig_distance = gAgent.getCameraPositionGlobal() - LLSelectMgr::getInstance()->getSelectionCenterGlobal();
+			distance = llmin(distance, (F32) orig_distance.length());
+				
 			gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
-											LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
-											object_id );
+										LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
+										object_id );
+			
 		}
 		else
 		{
 			gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
-		}
+		}	
 	}
 }
 
@@ -5586,8 +5607,6 @@ void handle_buy_currency()
 	LLFloaterBuyCurrency::buyCurrency();
 }
 
-
-
 class LLFloaterVisible : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5617,18 +5636,38 @@ class LLShowSidetrayPanel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
-		// Open up either the sidepanel or new floater.
-		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		// Toggle the panel
+		if (!LLSideTray::getInstance()->isPanelActive(panel_name))
 		{
-			LLFloaterInventory::showAgentInventory();
+			// LLFloaterInventory::showAgentInventory();
+			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
 		}
 		else
 		{
-			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+			LLSideTray::getInstance()->collapseSideBar();
 		}
 		return true;
 	}
 };
+
+class LLSidetrayPanelVisible : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		// Toggle the panel
+		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
+	}
+};
+
 
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
@@ -6370,7 +6409,6 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		else
 		{
 			llwarns << "Failed to generate LLFloaterScriptQueue with action: " << action << llendl;
-			delete queue;
 		}
 		return true;
 	}
@@ -6859,7 +6897,8 @@ class LLToolsEditLinkedParts : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		BOOL select_individuals = gSavedSettings.getBOOL("EditLinkedParts");
+		BOOL select_individuals = !gSavedSettings.getBOOL("EditLinkedParts");
+		gSavedSettings.setBOOL( "EditLinkedParts", select_individuals );
 		if (select_individuals)
 		{
 			LLSelectMgr::getInstance()->demoteSelectionToIndividuals();
@@ -7179,25 +7218,7 @@ void handle_buy_currency_test(void*)
 	LLStringUtil::format_map_t replace;
 	replace["[AGENT_ID]"] = gAgent.getID().asString();
 	replace["[SESSION_ID]"] = gAgent.getSecureSessionID().asString();
-
-	// *TODO: Replace with call to LLUI::getLanguage() after windows-setup
-	// branch merges in. JC
-	std::string language = "en";
-	language = gSavedSettings.getString("Language");
-	if (language.empty() || language == "default")
-	{
-		language = gSavedSettings.getString("InstallLanguage");
-	}
-	if (language.empty() || language == "default")
-	{
-		language = gSavedSettings.getString("SystemLanguage");
-	}
-	if (language.empty() || language == "default")
-	{
-		language = "en";
-	}
-
-	replace["[LANGUAGE]"] = language;
+	replace["[LANGUAGE]"] = LLUI::getLanguage();
 	LLStringUtil::format(url, replace);
 
 	llinfos << "buy currency url " << url << llendl;
@@ -7612,6 +7633,24 @@ class LLWorldDayCycle : public view_listener_t
 	}
 };
 
+class LLWorldToggleMovementControls : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLBottomTray::getInstance()->toggleMovementControls();
+		return true;
+	}
+};
+
+class LLWorldToggleCameraControls : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLBottomTray::getInstance()->toggleCameraControls();
+		return true;
+	}
+};
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7730,6 +7769,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldWaterSettings(), "World.WaterSettings");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
+
+	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
+	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -8032,6 +8074,7 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
+	view_listener_t::addMenu(new LLSidetrayPanelVisible(), "SidetrayPanelVisible");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

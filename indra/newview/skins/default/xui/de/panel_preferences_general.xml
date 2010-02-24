@@ -19,7 +19,7 @@
 	<text name="language_textbox2">
 		(Erfordert Neustart)
 	</text>
-	<text name="maturity_desired_prompt">
+	<text name="maturity_desired_prompt" width="350">
 		Ich möchte auf Inhalt mit folgender Alterseinstufung zugreifen:
 	</text>
 	<text name="maturity_desired_textbox"/>
@@ -33,7 +33,7 @@
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_box.item label="Mein letzter Standort" name="MyLastLocation" tool_tip="Als Standardeinstellung in letztem Standort anmelden."/>
-		<combo_box.item label="Mein Heimatort" name="MyHome" tool_tip="Als Standardeinstellung in Zuhauseposition anmelden."/>
+		<combo_box.item label="Mein Zuhause" name="MyHome" tool_tip="Als Standardeinstellung in Zuhauseposition anmelden."/>
 	</combo_box>
 	<check_box initial_value="true" label="Beim Anmelden anzeigen" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
@@ -42,7 +42,7 @@
 	<radio_group name="Name_Tag_Preference">
 		<radio_item label="Aus" name="radio" value="0"/>
 		<radio_item label="An" name="radio2" value="1"/>
-		<radio_item label="Vorübergehend anzeigen" name="radio3" value="2"/>
+		<radio_item label="Kurz anzeigen" name="radio3" value="2"/>
 	</radio_group>
 	<check_box label="Meinen Namen anzeigen" name="show_my_name_checkbox1"/>
 	<check_box initial_value="true" label="Kleine Avatarnamen" name="small_avatar_names_checkbox"/>

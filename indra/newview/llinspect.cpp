@@ -32,8 +32,10 @@
 
 #include "llinspect.h"
 
+#include "lltooltip.h"
 #include "llcontrol.h"	// LLCachedControl
 #include "llui.h"		// LLUI::sSettingsGroups
+#include "llviewermenu.h"
 
 LLInspect::LLInspect(const LLSD& key)
 :	LLFloater(key),
@@ -103,8 +105,51 @@ BOOL LLInspect::handleHover(S32 x, S32 y, MASK mask)
 	return LLView::handleHover(x, y, mask);
 }
 
+BOOL LLInspect::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = FALSE;
+
+
+	//delegate handling of tooltip to the hovered child
+	LLView* child_handler = childFromPoint(x,y);
+	if (child_handler && !child_handler->getToolTip().empty())// show tooltip if a view has non-empty tooltip message
+	{
+		//build LLInspector params to get correct tooltip setting, etc. background image
+		LLInspector::Params params;
+		params.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+		params.message = child_handler->getToolTip();
+		//set up delay if there is no visible tooltip at this moment
+		params.delay_time =  LLToolTipMgr::instance().toolTipVisible() ? 0.f : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
+		LLToolTipMgr::instance().show(params);
+		handled = TRUE;
+	}
+	return handled;
+}
 // virtual
 void LLInspect::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mOpenTimer.unpause();
+}
+
+bool LLInspect::childHasVisiblePopupMenu()
+{
+	// Child text-box may spawn a pop-up menu, if mouse is over the menu, Inspector 
+	// will hide(which is not expected).
+	// This is an attempt to find out if child control has spawned a menu.
+
+	LLView* child_menu = gMenuHolder->getVisibleMenu();
+	if(child_menu)
+	{
+		LLRect floater_rc = calcScreenRect();
+		LLRect menu_screen_rc = child_menu->calcScreenRect();
+		S32 mx, my;
+		LLUI::getMousePositionScreen(&mx, &my);
+
+		// This works wrong if we spawn a menu near Inspector and menu overlaps Inspector.
+		if(floater_rc.overlaps(menu_screen_rc) && menu_screen_rc.pointInRect(mx, my))
+		{
+			return true;
+		}
+	}
+	return false;
 }

@@ -42,6 +42,6 @@
 	<check_box label="Activer l&apos;historique des chats en texte brut" name="plain_text_chat_history"/>
 	<radio_group name="chat_window" tool_tip="Afficher vos messages instantanés dans plusieurs fenêtres ou dans une seule fenêtre avec plusieurs onglets (redémarrage requis)">
 		<radio_item label="Plusieurs fenêtres" name="radio" value="0"/>
-		<radio_item label="Une fenêtre" name="radio2" value="1"/>
+		<radio_item label="Onglets" name="radio2" value="1"/>
 	</radio_group>
 </panel>

@@ -34,6 +34,8 @@
 
 #include "llnavigationbar.h"
 
+#include "v2math.h"
+
 #include "llregionhandle.h"
 
 #include "llfloaterreg.h"
@@ -181,6 +183,84 @@ void LLTeleportHistoryMenuItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	mArrowIcon->setVisible(FALSE);
 }
 
+static LLDefaultChildRegistry::Register<LLPullButton> menu_button("pull_button");
+
+LLPullButton::LLPullButton(const LLPullButton::Params& params) :
+	LLButton(params)
+{
+	setDirectionFromName(params.direction);
+}
+boost::signals2::connection LLPullButton::setClickDraggingCallback(const commit_signal_t::slot_type& cb)
+{
+	return mClickDraggingSignal.connect(cb);
+}
+
+/*virtual*/
+void LLPullButton::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLButton::onMouseLeave(x, y, mask);
+
+	if (mMouseDownTimer.getStarted()) //an user have done a mouse down, if the timer started. see LLButton::handleMouseDown for details
+	{
+		const LLVector2 cursor_direction = LLVector2(F32(x), F32(y)) - mLastMouseDown;
+		/* For now cursor_direction points to the direction of mouse movement
+		 * Need to decide whether should we fire a signal. 
+		 * We fire if angle between mDraggingDirection and cursor_direction is less that 45 degree
+		 * Note:
+		 * 0.5 * F_PI_BY_TWO equals to PI/4 radian that equals to angle of 45 degrees
+		 */
+		if (angle_between(mDraggingDirection, cursor_direction) < 0.5 * F_PI_BY_TWO)//call if angle < pi/4 
+		{
+			mClickDraggingSignal(this, LLSD());
+		}
+	}
+
+}
+
+/*virtual*/
+BOOL LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLButton::handleMouseDown(x, y, mask);
+	if (handled)
+	{
+		//if mouse down was handled by button, 
+		//capture mouse position to calculate the direction of  mouse move  after mouseLeave event 
+		mLastMouseDown.set(F32(x), F32(y));
+	}
+	return handled;
+}
+
+/*virtual*/
+BOOL LLPullButton::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	// reset data to get ready for next circle 
+	mLastMouseDown.clear();
+	return LLButton::handleMouseUp(x, y, mask);
+}
+/**
+ * this function is setting up dragging direction vector. 
+ * Last one is just unit vector. It points to direction of mouse drag that we need to handle   
+ */
+void LLPullButton::setDirectionFromName(const std::string& name)
+{
+	if (name == "left")
+	{
+		mDraggingDirection.set(F32(-1), F32(0));
+	}
+	else if (name == "right")
+	{
+		mDraggingDirection.set(F32(0), F32(1));
+	}
+	else if (name == "down")
+	{
+		mDraggingDirection.set(F32(0), F32(-1));
+	}
+	else if (name == "up")
+	{
+		mDraggingDirection.set(F32(0), F32(1));
+	}
+}
+
 //-- LNavigationBar ----------------------------------------------------------
 
 /*
@@ -215,8 +295,8 @@ LLNavigationBar::~LLNavigationBar()
 
 BOOL LLNavigationBar::postBuild()
 {
-	mBtnBack	= getChild<LLButton>("back_btn");
-	mBtnForward	= getChild<LLButton>("forward_btn");
+	mBtnBack	= getChild<LLPullButton>("back_btn");
+	mBtnForward	= getChild<LLPullButton>("forward_btn");
 	mBtnHome	= getChild<LLButton>("home_btn");
 	
 	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo"); 
@@ -224,20 +304,15 @@ BOOL LLNavigationBar::postBuild()
 
 	fillSearchComboBox();
 
-	if (!mBtnBack || !mBtnForward || !mBtnHome ||
-		!mCmbLocation || !mSearchComboBox)
-	{
-		llwarns << "Malformed navigation bar" << llendl;
-		return FALSE;
-	}
-	
 	mBtnBack->setEnabled(FALSE);
 	mBtnBack->setClickedCallback(boost::bind(&LLNavigationBar::onBackButtonClicked, this));
-	mBtnBack->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _2));
-
+	mBtnBack->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this,_1, _2));
+	mBtnBack->setClickDraggingCallback(boost::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
+	
 	mBtnForward->setEnabled(FALSE);
 	mBtnForward->setClickedCallback(boost::bind(&LLNavigationBar::onForwardButtonClicked, this));
-	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _2));
+	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _1, _2));
+	mBtnForward->setClickDraggingCallback(boost::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
@@ -332,10 +407,10 @@ void LLNavigationBar::onBackButtonClicked()
 	LLTeleportHistory::getInstance()->goBack();
 }
 
-void LLNavigationBar::onBackOrForwardButtonHeldDown(const LLSD& param)
+void LLNavigationBar::onBackOrForwardButtonHeldDown(LLUICtrl* ctrl, const LLSD& param)
 {
 	if (param["count"].asInteger() == 0)
-		showTeleportHistoryMenu();
+		showTeleportHistoryMenu(ctrl);
 }
 
 void LLNavigationBar::onForwardButtonClicked()
@@ -374,8 +449,14 @@ void LLNavigationBar::onLocationSelection()
 	// Will not teleport to empty location.
 	if (typed_location.empty())
 		return;
-
+	//get selected item from combobox item
 	LLSD value = mCmbLocation->getSelectedValue();
+	/* since navbar list support autocompletion it contains several types of item: landmark, teleport hystory item,
+	 * typed by user slurl or region name. Let's find out which type of item the user has selected 
+	 * to make decision about adding this location into typed history. see mSaveToLocationHistory
+	 * Note:
+	 * Only TYPED_REGION_SLURL item will be added into LLLocationHistory 
+	 */  
 	
 	if(value.has("item_type"))
 	{
@@ -405,7 +486,7 @@ void LLNavigationBar::onLocationSelection()
 			
 		case TELEPORT_HISTORY:
 			//in case of teleport item was selected, teleport by position too.
-		case TYPED_REGION_SURL:
+		case TYPED_REGION_SLURL:
 			if(value.has("global_pos"))
 			{
 				gAgent.teleportViaLocation(LLVector3d(value["global_pos"]));
@@ -417,7 +498,7 @@ void LLNavigationBar::onLocationSelection()
 			break;		
 		}
 	}
-	//Let's parse surl or region name
+	//Let's parse slurl or region name
 	
 	std::string region_name;
 	LLVector3 local_coords(128, 128, 0);
@@ -430,7 +511,17 @@ void LLNavigationBar::onLocationSelection()
 				local_coords.set(x, y, z);
 		else
 			return;
-	}else
+	}
+	// we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too  
+	//but we need to know whether typed_location is a simple http url.
+	else if (LLUrlRegistry::instance().isUrl(typed_location)) 
+	{
+		// display http:// URLs in the media browser, or
+		// anything else is sent to the search floater
+		LLWeb::loadURL(typed_location);
+		return;
+	}
+	else
 	{
 		// assume that an user has typed the {region name} or possible {region_name, parcel}
 		region_name  = typed_location.substr(0,typed_location.find(','));
@@ -456,7 +547,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 		return;
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 
-	//TODO*: do we need convert surl into readable format?
+	//TODO*: do we need convert slurl into readable format?
 	std::string location;
 	/*NOTE:
 	 * We can't use gAgent.getPositionAgent() in case of local teleport to build location.
@@ -468,7 +559,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 	std::string tooltip (LLSLURL::buildSLURLfromPosGlobal(gAgent.getRegion()->getName(), global_agent_pos, false));
 	
 	LLLocationHistoryItem item (location,
-			global_agent_pos, tooltip,TYPED_REGION_SURL);// we can add into history only TYPED location
+			global_agent_pos, tooltip,TYPED_REGION_SLURL);// we can add into history only TYPED location
 	//Touch it, if it is at list already, add new location otherwise
 	if ( !lh->touchItem(item) ) {
 		lh->addItem(item);
@@ -546,20 +637,7 @@ void LLNavigationBar::onRegionNameResponse(
 	// Invalid location?
 	if (!region_handle)
 	{
-		// handle any secondlife:// SLapps, or
-		// display http:// URLs in the media browser, or
-		// anything else is sent to the search floater
-		if (LLUrlRegistry::instance().isUrl(typed_location))
-		{
-			if (! LLURLDispatcher::dispatchFromTextEditor(typed_location))
-			{
-				LLWeb::loadURL(typed_location);
-			}
-		}
-		else
-		{
-			invokeSearch(typed_location);
-		}
+		invokeSearch(typed_location);
 		return;
 	}
 
@@ -571,7 +649,7 @@ void LLNavigationBar::onRegionNameResponse(
 	gAgent.teleportViaLocation(global_pos);
 }
 
-void	LLNavigationBar::showTeleportHistoryMenu()
+void	LLNavigationBar::showTeleportHistoryMenu(LLUICtrl* btn_ctrl)
 {
 	// Don't show the popup if teleport history is empty.
 	if (LLTeleportHistory::getInstance()->isEmpty())
@@ -585,14 +663,43 @@ void	LLNavigationBar::showTeleportHistoryMenu()
 	if (mTeleportHistoryMenu == NULL)
 		return;
 	
-	// *TODO: why to draw/update anything before showing the menu?
-	mTeleportHistoryMenu->buildDrawLabels();
 	mTeleportHistoryMenu->updateParent(LLMenuGL::sMenuContainer);
 	const S32 MENU_SPAWN_PAD = -1;
-	LLMenuGL::showPopup(mBtnBack, mTeleportHistoryMenu, 0, MENU_SPAWN_PAD);
-
+	LLMenuGL::showPopup(btn_ctrl, mTeleportHistoryMenu, 0, MENU_SPAWN_PAD);
+	LLButton* nav_button = dynamic_cast<LLButton*>(btn_ctrl);
+	if(nav_button)
+	{
+		if(mHistoryMenuConnection.connected())
+		{
+			LL_WARNS("Navgationbar")<<"mHistoryMenuConnection should be disconnected at this moment."<<LL_ENDL;
+			mHistoryMenuConnection.disconnect();
+		}
+		mHistoryMenuConnection = gMenuHolder->setMouseUpCallback(boost::bind(&LLNavigationBar::onNavigationButtonHeldUp, this, nav_button));
+		// pressed state will be update after mouseUp in  onBackOrForwardButtonHeldUp();
+		nav_button->setForcePressedState(true);
+	}
 	// *HACK pass the mouse capturing to the drop-down menu
-	gFocusMgr.setMouseCapture( NULL );
+	// it need to let menu handle mouseup event
+	gFocusMgr.setMouseCapture(gMenuHolder);
+}
+/**
+ * Taking into account the HACK above,  this callback-function is responsible for correct handling of mouseUp event in case of holding-down the navigation buttons..
+ * We need to process this case separately to update a pressed state of navigation button.
+ */
+void LLNavigationBar::onNavigationButtonHeldUp(LLButton* nav_button)
+{
+	if(nav_button)
+	{
+		nav_button->setForcePressedState(false);
+	}
+	if(gFocusMgr.getMouseCapture() == gMenuHolder)
+	{
+		// we had passed mouseCapture in  showTeleportHistoryMenu()
+		// now we MUST release mouseCapture to continue a proper mouseevent workflow. 
+		gFocusMgr.setMouseCapture(NULL);
+	}
+	//gMenuHolder is using to display bunch of menus. Disconnect signal to avoid unnecessary calls.    
+	mHistoryMenuConnection.disconnect();
 }
 
 void LLNavigationBar::handleLoginComplete()

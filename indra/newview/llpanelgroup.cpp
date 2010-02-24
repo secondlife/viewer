@@ -90,6 +90,7 @@ LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),
 	mSkipRefresh(FALSE),
+	mButtonJoin(NULL),
 	mShowingNotifyDialog(false)
 {
 	// Set up the factory callbacks.
@@ -101,8 +102,10 @@ LLPanelGroup::LLPanelGroup()
 LLPanelGroup::~LLPanelGroup()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
-	if(LLVoiceClient::getInstance())
+	if(LLVoiceClient::instanceExists())
+	{
 		LLVoiceClient::getInstance()->removeObserver(this);
+	}
 }
 
 void LLPanelGroup::onOpen(const LLSD& key)
@@ -159,10 +162,6 @@ BOOL LLPanelGroup::postBuild()
 	button = getChild<LLButton>("btn_chat");
 	button->setClickedCallback(onBtnGroupChatClicked, this);
 
-	button = getChild<LLButton>("btn_join");
-	button->setVisible(false);
-	button->setEnabled(true);
-
 	button = getChild<LLButton>("btn_cancel");
 	button->setVisible(false);	button->setEnabled(true);
 
@@ -174,7 +173,7 @@ BOOL LLPanelGroup::postBuild()
 	childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
 
 	childSetCommitCallback("btn_create",boost::bind(&LLPanelGroup::onBtnCreate,this),NULL);
-	childSetCommitCallback("btn_join",boost::bind(&LLPanelGroup::onBtnJoin,this),NULL);
+	
 	childSetCommitCallback("btn_cancel",boost::bind(&LLPanelGroup::onBtnCancel,this),NULL);
 
 	LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
@@ -188,7 +187,17 @@ BOOL LLPanelGroup::postBuild()
 	if(panel_land)		mTabs.push_back(panel_land);
 
 	if(panel_general)
+	{
 		panel_general->setupCtrls(this);
+		button = panel_general->getChild<LLButton>("btn_join");
+		button->setVisible(false);
+		button->setEnabled(true);
+		
+		mButtonJoin = button;
+		mButtonJoin->setCommitCallback(boost::bind(&LLPanelGroup::onBtnJoin,this));
+
+		mJoinText = panel_general->getChild<LLUICtrl>("join_cost_text");
+	}
 
 	gVoiceClient->addObserver(this);
 	
@@ -326,16 +335,13 @@ void LLPanelGroup::update(LLGroupChange gc)
 	{
 		childSetValue("group_name", gdatap->mName);
 		childSetToolTip("group_name",gdatap->mName);
-
-		LLButton* btn_join = getChild<LLButton>("btn_join");
-		LLUICtrl* join_text = getChild<LLUICtrl>("join_cost_text");
-
+		
 		LLGroupData agent_gdatap;
-		bool is_member = gAgent.getGroupData(mID,agent_gdatap);
+		bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlike();
 		bool join_btn_visible = !is_member && gdatap->mOpenEnrollment;
 		
-		btn_join->setVisible(join_btn_visible);
-		join_text->setVisible(join_btn_visible);
+		mButtonJoin->setVisible(join_btn_visible);
+		mJoinText->setVisible(join_btn_visible);
 
 		if(join_btn_visible)
 		{
@@ -351,7 +357,7 @@ void LLPanelGroup::update(LLGroupChange gc)
 			{
 				fee_buff = getString("group_join_free", string_args);
 			}
-			childSetValue("join_cost_text",fee_buff);
+			mJoinText->setValue(fee_buff);
 		}
 	}
 }
@@ -380,7 +386,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
 	LLButton* button_refresh = findChild<LLButton>("btn_refresh");
 	LLButton* button_create = findChild<LLButton>("btn_create");
-	LLButton* button_join = findChild<LLButton>("btn_join");
+	
 	LLButton* button_cancel = findChild<LLButton>("btn_cancel");
 	LLButton* button_call = findChild<LLButton>("btn_call");
 	LLButton* button_chat = findChild<LLButton>("btn_chat");
@@ -417,8 +423,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	if(!tab_general || !tab_roles || !tab_notices || !tab_land)
 		return;
 	
-	if(button_join)
-		button_join->setVisible(false);
+	if(mButtonJoin)
+		mButtonJoin->setVisible(false);
 
 
 	if(is_null_group_id)//creating new group
@@ -460,7 +466,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		}
 
 		LLGroupData agent_gdatap;
-		bool is_member = gAgent.getGroupData(mID,agent_gdatap);
+		bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlike();
 		
 		tab_roles->setVisible(is_member);
 		tab_notices->setVisible(is_member);
@@ -478,6 +484,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	}
 
 	reposButtons();
+	update(GC_ALL);//show/hide "join" button if data is already ready
 }
 
 bool LLPanelGroup::apply(LLPanelGroupTab* tab)

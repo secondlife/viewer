@@ -5,6 +5,7 @@ label_pad_left - padding to the left of tab button labels
 -->
 <tab_container tab_min_width="60"
                tab_max_width="150"
+               use_custom_icon_ctrl="false"
                halign="center"
                font="SansSerifSmall" 
                tab_height="21"
@@ -14,18 +15,18 @@ label_pad_left - padding to the left of tab button labels
                tab_top_image_selected="TabTop_Left_Selected"
                tab_bottom_image_unselected="Toolbar_Left_Off"
                tab_bottom_image_selected="Toolbar_Left_Selected"
-               tab_left_image_unselected="TabTop_Middle_Off"
-               tab_left_image_selected="TabTop_Middle_Selected"/>
+               tab_left_image_unselected="SegmentedBtn_Left_Disabled"
+               tab_left_image_selected="SegmentedBtn_Left_Selected_Over"/>
   <middle_tab tab_top_image_unselected="TabTop_Middle_Off"
                tab_top_image_selected="TabTop_Middle_Selected"
                tab_bottom_image_unselected="Toolbar_Middle_Off"
                tab_bottom_image_selected="Toolbar_Middle_Selected"
                tab_left_image_unselected="SegmentedBtn_Left_Disabled"
-               tab_left_image_selected="SegmentedBtn_Left_Off"/>
+               tab_left_image_selected="SegmentedBtn_Left_Selected_Over"/>
   <last_tab tab_top_image_unselected="TabTop_Right_Off"
                tab_top_image_selected="TabTop_Right_Selected"
                tab_bottom_image_unselected="Toolbar_Right_Off"
                tab_bottom_image_selected="Toolbar_Right_Selected"
                tab_left_image_unselected="SegmentedBtn_Left_Disabled"
-               tab_left_image_selected="SegmentedBtn_Left_Off"/>
+               tab_left_image_selected="SegmentedBtn_Left_Selected_Over"/>
 </tab_container>

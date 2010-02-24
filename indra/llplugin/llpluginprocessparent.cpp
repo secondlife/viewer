@@ -50,6 +50,8 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	mOwner = owner;
 	mBoundPort = 0;
 	mState = STATE_UNINITIALIZED;
+	mSleepTime = 0.0;
+	mCPUUsage = 0.0;
 	mDisableTimeout = false;
 	mDebug = false;
 

@@ -33,7 +33,7 @@
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_box.item label="最後にログアウトした場所" name="MyLastLocation" tool_tip="常に最後にいた場所にログイン"/>
-		<combo_box.item label="自宅（ホーム）" name="MyHome" tool_tip="常に自宅（ホーム）にログイン"/>
+		<combo_box.item label="ホーム" name="MyHome" tool_tip="常にホーム（自宅）にログイン"/>
 	</combo_box>
 	<check_box initial_value="true" label="ログイン画面に表示する" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
@@ -48,7 +48,7 @@
 	<check_box initial_value="true" label="小さいアバター名" name="small_avatar_names_checkbox"/>
 	<check_box label="グループタイトルを表示" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
-		私のビームの色：
+		ビームの色：
 	</text>
 	<text name="title_afk_text">
 		一時退席までの時間：

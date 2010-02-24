@@ -55,6 +55,7 @@
 #include "llfloaterbump.h"
 #include "llfloatercamera.h"
 #include "llfloaterdaycycle.h"
+#include "llfloaterevent.h"
 #include "llfloatersearch.h"
 #include "llfloaterenvsettings.h"
 #include "llfloaterfonttest.h"
@@ -77,7 +78,6 @@
 #include "llfloatermap.h"
 #include "llfloatermemleak.h"
 #include "llfloaternamedesc.h"
-#include "llfloaternearbymedia.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloateropenobject.h"
 #include "llfloaterpay.h"
@@ -160,6 +160,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("env_settings", "floater_env_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvSettings>);
 	LLFloaterReg::add("env_water", "floater_water.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWater>);
 	LLFloaterReg::add("env_windlight", "floater_windlight_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWindLight>);
+
+	LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
 	
 	LLFloaterReg::add("font_test", "floater_font_test.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFontTest>);
 
@@ -194,13 +196,11 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("mute_object_by_name", "floater_mute_object.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGetBlockedObjectName>);
 	LLFloaterReg::add("mini_map", "floater_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMap>);
 
-	LLFloaterReg::add("nearby_media", "floater_nearby_media.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNearbyMedia>);
 	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);
 	LLFloaterReg::add("notification_well_window", "floater_sys_well.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNotificationWellWindow>);
 
 	LLFloaterReg::add("openobject", "floater_openobject.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOpenObject>);
 	LLFloaterReg::add("outgoing_call", "floater_outgoing_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutgoingCallDialog>);
-	LLFloaterReg::add("call_info", "floater_call_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallInfoDialog>);
 	LLFloaterReg::add("parcel_info", "floater_preview_url.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterParcelInfo>);
 	LLFloaterPayUtil::registerFloater();
 

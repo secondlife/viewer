@@ -58,7 +58,7 @@ public:
 		OUTGOING_CALL
 	} EDirection;
 
-	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction)> state_changed_signal_t;
+	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction, bool ended_by_agent)> state_changed_signal_t;
 
 	// on current channel changed signal
 	typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;
@@ -122,6 +122,8 @@ protected:
 	std::string	mSessionName;
 	LLSD mNotifyArgs;
 	LLSD mCallDialogPayload;
+	// true if call was ended by agent
+	bool mCallEndedByAgent;
 	BOOL		mIgnoreNextSessionLeave;
 	LLHandle<LLPanel> mLoginNotificationHandle;
 

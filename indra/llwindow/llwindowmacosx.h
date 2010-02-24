@@ -34,6 +34,7 @@
 #define LL_LLWINDOWMACOSX_H
 
 #include "llwindow.h"
+#include "llwindowcallbacks.h"
 
 #include "lltimer.h"
 
@@ -119,6 +120,10 @@ public:
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
+	// Provide native key event data
+	/*virtual*/ LLSD getNativeKeyData();
+
+
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
@@ -159,8 +164,15 @@ protected:
 	void adjustCursorDecouple(bool warpingMouse = false);
 	void fixWindowSize(void);
 	void stopDockTileBounce();
-
-
+	static MASK modifiersToMask(SInt16 modifiers);
+	
+#if LL_OS_DRAGDROP_ENABLED
+	static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
+									 void * handlerRefCon, DragRef theDrag);
+	static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
+	OSErr handleDragNDrop(DragRef theDrag, LLWindowCallbacks::DragNDropAction action);
+#endif // LL_OS_DRAGDROP_ENABLED
+	
 	//
 	// Platform specific variables
 	//
@@ -193,11 +205,13 @@ protected:
 	U32			mFSAASamples;
 	BOOL		mForceRebuild;
 	
+	S32			mDragOverrideCursor;
+	
 	F32			mBounceTime;
 	NMRec		mBounceRec;
 	LLTimer		mBounceTimer;
 
-	// Imput method management through Text Service Manager.
+	// Input method management through Text Service Manager.
 	TSMDocumentID	mTSMDocument;
 	BOOL		mLanguageTextInputAllowed;
 	ScriptCode	mTSMScriptCode;
@@ -208,6 +222,7 @@ protected:
 
 	friend class LLWindowManager;
 	static WindowRef sMediaWindow;
+	EventRef 	mRawKeyEvent;
 
 };
 

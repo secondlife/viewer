@@ -666,8 +666,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mCheckCopyCenters) mCheckCopyCenters	->setVisible( create_visible );
 	if (mCheckCopyRotates) mCheckCopyRotates	->setVisible( create_visible );
 
-	if (mCheckCopyCenters) mCheckCopyCenters->setEnabled( mCheckCopySelection->get() );
-	if (mCheckCopyRotates) mCheckCopyRotates->setEnabled( mCheckCopySelection->get() );
+	if (mCheckCopyCenters && mCheckCopySelection) mCheckCopyCenters->setEnabled( mCheckCopySelection->get() );
+	if (mCheckCopyRotates && mCheckCopySelection) mCheckCopyRotates->setEnabled( mCheckCopySelection->get() );
 
 	// Land buttons
 	BOOL land_visible = (tool == LLToolBrushLand::getInstance() || tool == LLToolSelectLand::getInstance() );
@@ -1321,7 +1321,7 @@ bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& re
 	switch( option )
 	{
 		case 0:  // "Yes"
-			LLSelectMgr::getInstance()->selectionSetMedia( 0 );
+			LLSelectMgr::getInstance()->selectionSetMedia( 0, LLSD() );
 			if(LLFloaterReg::instanceVisible("media_settings"))
 			{
 				LLFloaterReg::hideInstance("media_settings");
@@ -1523,7 +1523,9 @@ void LLFloaterTools::updateMediaSettings()
     mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
 	
     // Auto play
-    value_bool = default_media_data.getAutoPlay();
+    //value_bool = default_media_data.getAutoPlay();
+	// set default to auto play TRUE -- angela  EXT-5172
+	value_bool = true;
     struct functor_getter_auto_play : public LLSelectedTEGetFunctor< bool >
     {
 		functor_getter_auto_play(const LLMediaEntry& entry)	: mMediaEntry(entry) {}	
@@ -1534,7 +1536,8 @@ void LLFloaterTools::updateMediaSettings()
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoPlay();
-            return mMediaEntry.getAutoPlay();
+            //return mMediaEntry.getAutoPlay(); set default to auto play TRUE -- angela  EXT-5172
+			return true;
         };
 		
 		const LLMediaEntry &mMediaEntry;
@@ -1547,7 +1550,9 @@ void LLFloaterTools::updateMediaSettings()
 	
 	
     // Auto scale
-    value_bool = default_media_data.getAutoScale();
+	// set default to auto scale TRUE -- angela  EXT-5172
+    //value_bool = default_media_data.getAutoScale();
+	value_bool = true;
     struct functor_getter_auto_scale : public LLSelectedTEGetFunctor< bool >
     {
 		functor_getter_auto_scale(const LLMediaEntry& entry): mMediaEntry(entry) {}	
@@ -1558,8 +1563,9 @@ void LLFloaterTools::updateMediaSettings()
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoScale();
-            return mMediaEntry.getAutoScale();;
-        };
+           // return mMediaEntry.getAutoScale();  set default to auto scale TRUE -- angela  EXT-5172
+			return true;
+		};
 		
 		const LLMediaEntry &mMediaEntry;
 		

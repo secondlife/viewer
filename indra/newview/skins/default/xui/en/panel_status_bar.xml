@@ -3,6 +3,7 @@
  background_opaque="true"
  background_visible="true"
  bg_opaque_color="MouseGray"
+ chrome="true" 
  follows="top|right"
  height="19"
  layout="topleft"
@@ -10,6 +11,7 @@
  mouse_opaque="false"
  name="status"
  top="19"
+ tab_stop="false" 
  width="1000">
     <panel.string
      name="StatBarDaysOfWeek">
@@ -49,7 +51,7 @@
      image_unselected="spacer35.tga"
      image_pressed="spacer35.tga"
      height="16"
-     right="-228"
+     right="-204"
      label_shadow="false"
      name="buycurrency"
      tool_tip="My Balance"
@@ -69,15 +71,16 @@
      left_pad="0"
      label_shadow="false"
      name="buyL"
-     pad_right="20px"
+     pad_right="20"
+     pad_bottom="2"
      tool_tip="Click to buy more L$"
      top="2"
-     width="100" />
+     width="45" />
     <text
      type="string"
      font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
-     follows="right|bottom"
+     follows="right|top"
      halign="right"
      height="16"
      top="5"
@@ -85,23 +88,37 @@
      left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="85">
-        12:00 AM
+     width="80">
+        24:00 AM PST
     </text>
     <button
-     follows="right|bottom"
+     follows="right|top"
+     height="15"
+     image_selected="Pause_Off"
+     image_unselected="Play_Off"
+     image_pressed="Play_Press"
+     image_pressed_selected="Pause_Press"
+     is_toggle="true"
+     left_pad="15"
+     top="2"
+     name="media_toggle_btn"
+     tool_tip="Start/Stop All Media (Music, Video, Web pages)"
+     width="16" >
+    </button>
+    <button
+     follows="right|top"
      height="15"
      image_selected="AudioMute_Off"
      image_pressed="Audio_Press"
      image_unselected="Audio_Off"
      is_toggle="true"
-     left_pad="18"
+     left_pad="5"
      top="2"
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />
     <text
-     follows="right|bottom"
+     follows="right|top"
      halign="center"
      height="12"
      layout="topleft"

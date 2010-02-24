@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="queue" title="RESETAR PROGRESSO">
+	<floater.string name="Starting">
+		Iniciando [START] de [COUNT] items.
+	</floater.string>
+	<floater.string name="Done">
+		Pronto.
+	</floater.string>
+	<floater.string name="Resetting">
+		Redefinindo
+	</floater.string>
+	<floater.string name="Running">
+		Executando
+	</floater.string>
+	<floater.string name="NotRunning">
+		Inerte
+	</floater.string>
 	<button label="Fechar" label_selected="Fechar" name="close"/>
 </floater>

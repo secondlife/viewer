@@ -130,9 +130,9 @@ BOOL LLFloaterProperties::postBuild()
 {
 	// build the UI
 	// item name & description
-	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("LabelItemName",&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitName,this));
-	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("LabelItemDesc",&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLFloaterProperties:: onCommitDescription, this));
 	// Creator information
 	getChild<LLUICtrl>("BtnCreator")->setCommitCallback(boost::bind(&LLFloaterProperties::onClickCreator,this));
@@ -880,7 +880,11 @@ void LLFloaterProperties::dirtyAll()
 		 iter != inst_list.end(); ++iter)
 	{
 		LLFloaterProperties* floater = dynamic_cast<LLFloaterProperties*>(*iter);
-		floater->dirty();
+		llassert(floater); // else cast failed - wrong type D:
+		if (floater)
+		{
+			floater->dirty();
+		}
 	}
 }
 

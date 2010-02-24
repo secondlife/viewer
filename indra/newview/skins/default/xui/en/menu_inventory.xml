@@ -370,6 +370,14 @@
      layout="topleft"
      name="Outfit Separator" />
     <menu_item_call
+     label="Find Original"
+     layout="topleft"
+     name="Find Original">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="goto" />
+    </menu_item_call>
+    <menu_item_call
      label="Purge Item"
      layout="topleft"
      name="Purge Item">
@@ -384,14 +392,6 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="restore" />
-    </menu_item_call>
-    <menu_item_call
-     label="Find Original"
-     layout="topleft"
-     name="Find Original">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="goto" />
     </menu_item_call>
     <menu_item_call
      label="Open"
@@ -516,7 +516,7 @@
      layout="topleft" 
      name="Animation Separator" />
     <menu_item_call
-     label="Play in World"
+     label="Play Inworld"
      layout="topleft"
      name="Animation Play">
         <menu_item_call.on_click

@@ -12,6 +12,7 @@ project(llwindow)
 
 include(00-Common)
 include(DirectX)
+include(DragDrop)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
@@ -102,14 +103,17 @@ if (WINDOWS)
        llwindowwin32.cpp
        lldxhardware.cpp
        llkeyboardwin32.cpp
+       lldragdropwin32.cpp
        )
   list(APPEND llwindow_HEADER_FILES
        llwindowwin32.h
        lldxhardware.h
        llkeyboardwin32.h
+       lldragdropwin32.h
        )
   list(APPEND llwindow_LINK_LIBRARIES
        comdlg32     # Common Dialogs for ChooseColor
+       ole32
        )
 endif (WINDOWS)
 

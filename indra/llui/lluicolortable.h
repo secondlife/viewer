@@ -45,6 +45,10 @@ class LLUIColor;
 class LLUIColorTable : public LLSingleton<LLUIColorTable>
 {
 LOG_CLASS(LLUIColorTable);
+
+	// consider using sorted vector, can be much faster
+	typedef std::map<std::string, LLUIColor>  string_color_map_t;
+
 public:
 	struct ColorParams : LLInitParam::Choice<ColorParams>
 	{
@@ -91,10 +95,9 @@ public:
 	void saveUserSettings() const;
 
 private:
-	bool loadFromFilename(const std::string& filename);
+	bool loadFromFilename(const std::string& filename, string_color_map_t& table);
 
-	// consider using sorted vector, can be much faster
-	typedef std::map<std::string, LLColor4>  string_color_map_t;
+	void insertFromParams(const Params& p, string_color_map_t& table);
 	
 	void clearTable(string_color_map_t& table);
 	void setColor(const std::string& name, const LLColor4& color, string_color_map_t& table);

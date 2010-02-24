@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
+#include "llimview.h"
 #include "llnotifications.h"
 #include "llinstantmessage.h"
 #include "lltooltip.h"
@@ -52,9 +53,9 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
 
-	LLIconCtrl* sys_msg_icon = getChild<LLIconCtrl>("sys_msg_icon");
 	mGroupIcon = getChild<LLGroupIconCtrl>("group_icon");
 	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	mAdhocIcon = getChild<LLAvatarIconCtrl>("adhoc_icon");
 	mAvatarName = getChild<LLTextBox>("user_name");
 	mTime = getChild<LLTextBox>("time_box");
 	mMessage = getChild<LLTextBox>("message");
@@ -65,12 +66,13 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	std::string font_size = LLFontGL::sizeFromFont(fontp);
 	style_params.font.name(font_name);
 	style_params.font.size(font_size);
-	style_params.font.style = "UNDERLINE";
+	
 	
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
 	if (prefix == "/me " || prefix == "/me'")
 	{
+		//style_params.font.style = "UNDERLINE";
 		mMessage->clear();
 		
 		style_params.font.style ="ITALIC";
@@ -81,7 +83,8 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	}
 	else
 	{
-		mMessage->setValue(p.message);
+		style_params.font.style =  "NORMAL";
+		mMessage->setText(p.message, style_params);
 	}
 
 	mAvatarName->setValue(p.from);
@@ -90,27 +93,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mAvatarID = p.avatar_id;
 	mNotification = p.notification;
 
-	mAvatarIcon->setVisible(FALSE);
-	mGroupIcon->setVisible(FALSE);
-	sys_msg_icon->setVisible(FALSE);
-
-	if(p.from == SYSTEM_FROM)
-	{
-		sys_msg_icon->setVisible(TRUE);
-	}
-	else
-	{
-		if(LLGroupActions::isInGroup(mSessionID))
-		{
-			mGroupIcon->setVisible(TRUE);
-			mGroupIcon->setValue(p.session_id);
-		}
-		else
-		{
-			mAvatarIcon->setVisible(TRUE);
-			mAvatarIcon->setValue(p.avatar_id);
-		}
-	}
+	initIcon();
 
 	S32 maxLinesCount;
 	std::istringstream ss( getString("message_max_lines_count") );
@@ -160,18 +143,6 @@ BOOL LLToastIMPanel::handleToolTip(S32 x, S32 y, MASK mask)
 	return LLToastPanel::handleToolTip(x, y, mask);
 }
 
-void LLToastIMPanel::showInspector()
-{
-	if(LLGroupActions::isInGroup(mSessionID))
-	{
-		LLFloaterReg::showInstance("inspect_group", LLSD().with("group_id", mSessionID));
-	}
-	else
-	{
-		LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarID));
-	}
-}
-
 void LLToastIMPanel::spawnNameToolTip()
 {
 	// Spawn at right side of the name textbox.
@@ -181,7 +152,7 @@ void LLToastIMPanel::spawnNameToolTip()
 
 	LLToolTip::Params params;
 	params.background_visible(false);
-	params.click_callback(boost::bind(&LLToastIMPanel::showInspector, this));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", mAvatarID), FALSE));
 	params.delay_time(0.0f);		// spawn instantly on hover
 	params.image(LLUI::getUIImage("Info_Small"));
 	params.message("");
@@ -206,7 +177,7 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 
 	LLInspector::Params params;
 	params.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-	params.click_callback(boost::bind(&LLToastIMPanel::showInspector, this));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_group", LLSD().with("group_id", mSessionID), FALSE));
 	params.delay_time(0.100f);
 	params.image(LLUI::getUIImage("Info_Small"));
 	params.message(g_data.mName);
@@ -215,6 +186,49 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 	params.max_width(300);
 
 	LLToolTipMgr::getInstance()->show(params);
+}
+
+void LLToastIMPanel::initIcon()
+{
+	mAvatarIcon->setVisible(FALSE);
+	mGroupIcon->setVisible(FALSE);
+	mAdhocIcon->setVisible(FALSE);
+
+	if(mAvatarName->getValue().asString() == SYSTEM_FROM)
+	{
+		// "sys_msg_icon" was disabled by Erica in the changeset: 5109 (85181bc92cbe)
+		// and "dummy widget" warnings appeared in log.
+		// It does not make sense to have such image with empty name. Removed for EXT-5057.
+	}
+	else
+	{
+		LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionID);
+		if(!im_session)
+		{
+			llwarns << "Invalid IM session" << llendl;
+			return;
+		}
+
+		switch(im_session->mSessionType)
+		{
+		case LLIMModel::LLIMSession::P2P_SESSION:
+			mAvatarIcon->setVisible(TRUE);
+			mAvatarIcon->setValue(mAvatarID);
+			break;
+		case LLIMModel::LLIMSession::GROUP_SESSION:
+			mGroupIcon->setVisible(TRUE);
+			mGroupIcon->setValue(mSessionID);
+			break;
+		case LLIMModel::LLIMSession::ADHOC_SESSION:
+			mAdhocIcon->setVisible(TRUE);
+			mAdhocIcon->setValue(im_session->mOtherParticipantID);
+			mAdhocIcon->setToolTip(im_session->mName);
+			break;
+		default:
+			llwarns << "Unknown IM session type" << llendl;
+			break;
+		}
+	}
 }
 
 // EOF

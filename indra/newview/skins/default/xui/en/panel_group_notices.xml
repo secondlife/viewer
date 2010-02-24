@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- follows="all"
- height="463"
+ height="530"
  label="Notices"
  layout="topleft"
  left="0"
  name="notices_tab"
  top="0"
- width="310">
+ width="304">
     <panel.string
      name="help_text">
         Notices let you send a message and an optionally attached item.
@@ -23,26 +22,28 @@ You can turn off Notices on the General tab.
      type="string"
      word_wrap="true"
      height="24"
-     halign="right"
+     halign="left"
      layout="topleft"
+     text_color="White_50"
      left="5"
      name="lbl2"
+     right="-1"
      top="5"
      width="300">
      Notices are kept for 14 days.
 Maximum 200 per group daily
     </text>
     <scroll_list
-      follows="left|top"
+     follows="left|top|right"
      column_padding="0"
      draw_heading="true"
-     heading_height="16"
-     height="125"
+     height="175"
      layout="topleft"
-     left="2"
+     left="0"
+     right="-1"
      name="notice_list"
      top_pad="0"
-     width="300">
+     width="304">
         <scroll_list.columns
          label=""
          name="icon"
@@ -71,8 +72,8 @@ Maximum 200 per group daily
      visible="false">
         None found
     </text>
-         <button
-       follows="bottom|left"
+      <button
+       follows="top|left"
        height="18"
        image_selected="AddItem_Press"
        image_unselected="AddItem_Off"
@@ -85,24 +86,25 @@ Maximum 200 per group daily
        width="18" />
      <button
      follows="top|left"
-     height="22"
+     height="23"
      image_overlay="Refresh_Off"
      layout="topleft"
      name="refresh_notices"
-     right="-5"
+     left_pad="230"
      tool_tip="Refresh list of notices"
      top_delta="0"
      width="23" />
     <panel
-     follows="left|top"
+     follows="left|top|right"
      height="280"
      label="Create New Notice"
      layout="topleft"
      left="0"
+     right="-1"
      top_pad="0"
      visible="true"
      name="panel_create_new_notice"
-     width="300">
+         width="313">
         <text
          follows="left|top"
          type="string"
@@ -204,13 +206,16 @@ Maximum 200 per group daily
          width="72" />
         <button
          follows="left|top"
-         height="23"
-         label="Remove"
          layout="topleft"
-         left="70"
+         left="140"
          name="remove_attachment"
-         top_delta="45"
-         width="90" />
+         top_delta="50"
+                 height="18"
+                 image_selected="TrashItem_Press"
+                 image_unselected="TrashItem_Off"
+                 image_disabled="TrashItem_Disabled"
+                 tool_tip="Remove attachment from your notification"
+                 width="18" />
         <button
          follows="left|top"
          height="23"
@@ -231,18 +236,19 @@ Maximum 200 per group daily
          width="280" />
    </panel>
     <panel
-     follows="left|top"
+     follows="left|top|right"
      height="280"
      label="View Past Notice"
      layout="topleft"
      left="0"
+     right="-1"
      visible="false"
      name="panel_view_past_notice"
-     top="180"
-     width="300">
+     top="230"
+    width="313">
         <text
          type="string"
-         font="SansSerifBig"
+         font="SansSerifMedium"
          height="16"
          layout="topleft"
          left="10"
@@ -280,7 +286,7 @@ Maximum 200 per group daily
          border_style="line"
          border_thickness="1"
          enabled="false"
-         height="16"
+         height="20"
          layout="topleft"
          left_pad="3"
          max_length="63"
@@ -301,40 +307,35 @@ Maximum 200 per group daily
             Message:
         </text>
         <text_editor
+                     follows="top|left|right"
          enabled="false"
          height="160"
          layout="topleft"
-         left="10"
+         left="0"
+         right="-1"
          max_length="511"
          name="view_message"
-         top_delta="-35"
-         width="285"
+         top_delta="-40"
+         width="313"
          word_wrap="true" />
         <line_editor
          enabled="false"
-         height="16"
+         height="20"
          layout="topleft"
-         left_delta="0"
+         left="5"
          max_length="63"
          mouse_opaque="false"
          name="view_inventory_name"
          top_pad="8"
-         width="285" />
-        <icon
-         height="16"
-         layout="topleft"
-         left_delta="0"
-         name="view_inv_icon"
-         top_delta="0"
-         width="16" />
+         width="250"/>
         <button
          follows="left|top"
          height="23"
-         label="Open attachment"
+         label="Open Attachment"
          layout="topleft"
-         right="-10"
+         left="5"
          name="open_attachment"
          top_pad="5"
-         width="135" />
+         width="180" />
         </panel>
 </panel>

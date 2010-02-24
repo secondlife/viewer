@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="telehub" title="PUNTO DE TELEPORTE" min_height="310" height="310">
+<floater height="310" min_height="310" name="telehub" title="PUNTO DE TELEPORTE">
 	<text name="status_text_connected">
 		Punto de Teleporte conectado al objeto [OBJECT]
 	</text>
@@ -9,7 +9,7 @@
 	<text name="help_text_connected">
 		Para quitar, pulse Desconectar.
 	</text>
-	<text name="help_text_not_connected" height="38" bottom_delta="-18">
+	<text bottom_delta="-18" height="38" name="help_text_not_connected">
 		Seleccione el objeto y pulse Conectar el Punto
 de Teleporte.
 	</text>
@@ -21,12 +21,9 @@ de Teleporte.
 	<button label="Añadir sucursales" name="add_spawn_point_btn"/>
 	<button label="Quitar sucursales" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
-		Seleccione el objeto y pulse Añadir para
-especificar la posición.
-Hecho eso, puede mover o borrar el objeto.
-Las posiciones son relativas al centro del
-Punto de Teleporte.
-Seleccione un ítem de la lista para mostrar su
-posición en el mundo.
+		Selecciona el objeto y pulsa &quot;Añadir sucursal&quot; para especificar una posición.
+Luego, puedes mover o borrar el objeto.
+Las posiciones son relativas al centro del Punto de Teleporte.
+Elige un ítem de la lista para realzarlo en el mundo.
 	</text>
 </floater>

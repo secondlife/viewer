@@ -43,14 +43,14 @@
      height="23"
      image_overlay="BackArrow_Off"
      layout="topleft"
-     left="10"
+     left="14"
      name="back_btn"
      tab_stop="false"
-     top="0"
+     top="2"
      width="23" />
     <text
      follows="top|left|right"
-     font="SansSerifHuge"
+     font="SansSerifHugeBold"
      height="26"
      layout="topleft"
      left_pad="10"
@@ -71,10 +71,10 @@
      width="150" />
 	<panel
          follows="all"
-         height="490"
+         height="493"
          label=""
          layout="topleft"
-         left="10"
+         left="9"
          help_topic=""
          top="45"
          width="313"
@@ -161,13 +161,14 @@
 	     </text>
 	     <button
 			 follows="top|right"
-			 height="23"
-			 label="Profile"
+			 height="16"
+     image_selected="Inspector_I"
+     image_unselected="Inspector_I"
 			 layout="topleft"
-			 right="-1"
+			 right="-5"
 			 name="BtnCreator"
 			 top_delta="-6"
-			 width="78" />
+			 width="16" />
 	     <text
 			 type="string"
 			 length="1"
@@ -203,13 +204,14 @@
 	     </text>
 	     <button
 			 follows="top|right"
-			 height="23"
-			 label="Profile"
+			 height="16"
+     image_selected="Inspector_I"
+     image_unselected="Inspector_I"
 			 layout="topleft"
-			 right="-1"
+			 right="-5"
 			 name="BtnOwner"
 			 top_delta="-3"
-			 width="78" />
+			 width="16" />
 	     <text
 			 type="string"
 			 length="1"
@@ -239,8 +241,6 @@ top_pad="10"
          follows="left|top"
          layout="topleft"
          mouse_opaque="false"
-         background_visible="true"
-         bg_alpha_color="DkGray"
          name="perms_inv"
          left="0"
          top_pad="25"
@@ -400,7 +400,7 @@ top_pad="10"
    </panel>
     <panel
 		 height="30"
-		 layout="bottomright"
+		 layout="topleft"
 		 name="button_panel"
 		 left="5"
 		 bottom="2"

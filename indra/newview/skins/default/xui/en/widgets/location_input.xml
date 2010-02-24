@@ -4,6 +4,8 @@
        Currently that doesn't work because LLUIImage::getWidth/getHeight() return 1 for the images.
 -->
 <location_input font="SansSerifSmall"
+                icon_maturity_general="Parcel_PG_Light"
+                icon_maturity_adult="Parcel_R_Light"
                 add_landmark_image_enabled="Favorite_Star_Active"
                 add_landmark_image_disabled="Favorite_Star_Off"
                 add_landmark_image_hover="Favorite_Star_Over"
@@ -41,6 +43,13 @@
                           scale_image="false"
 			  top="19"
 			  left="-3" />
+  <maturity_icon
+    name="maturity_icon"
+    width="18"
+    height="16"
+    top="20"
+    follows="left|top"
+    />
   <for_sale_button
     name="for_sale_btn"
     image_unselected="Parcel_ForSale_Light"
@@ -96,17 +105,17 @@
     name="damage_icon"
     width="14"
     height="13"
-    top="21"
+    top="19"
     left="2"
     follows="right|top"
-    image_name="Parcel_Damage_Dark"
+    image_name="Parcel_Health_Dark"
     />
   <!-- Default text color is invisible on top of nav bar background -->
   <damage_text
     name="damage_text"
 	width="35"
 	height="18"
-	top="16"
+	top="17"
     follows="right|top"
 	halign="right"
 	font="SansSerifSmall"

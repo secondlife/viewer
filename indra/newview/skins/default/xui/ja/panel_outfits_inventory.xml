@@ -2,13 +2,13 @@
 <panel label="もの" name="Outfits">
 	<tab_container name="appearance_tabs">
 		<inventory_panel label="マイ アウトフィット" name="outfitslist_tab"/>
-		<inventory_panel label="着用中" name="cof_accordionpanel"/>
+		<inventory_panel label="着用中" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="その他のオプションを表示"/>
-		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除"/>
-		<button label="アウトフィットを保存する" name="make_outfit_btn" tool_tip="容姿をアウトフィットに保存する"/>
-		<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用する"/>
+		<button name="options_gear_btn" tool_tip="その他のオプションを表示します"/>
+		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除します"/>
+		<button label="アウトフィットを保存する" name="make_outfit_btn" tool_tip="容姿をアウトフィットに保存します" width="140"/>
+		<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用します"/>
 		<button label="M" name="look_edit_btn"/>
 	</panel>
 </panel>

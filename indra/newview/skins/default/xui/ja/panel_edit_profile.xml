@@ -42,13 +42,13 @@
 				<line_editor name="homepage_edit" value="http://"/>
 				<check_box label="検索結果に表示" name="show_in_search_checkbox"/>
 				<text name="title_acc_status_text" value="マイアカウント："/>
+				<text_editor name="acc_status_text" value="住人。 支払情報未登録。"/>
 				<text name="my_account_link" value="[[URL] マイアカウントに移動]"/>
-				<text name="acc_status_text" value="住人。 支払情報未登録。"/>
 				<text name="title_partner_text" value="マイパートナー："/>
-				<text name="partner_edit_link" value="[[URL] 編集]"/>
 				<panel name="partner_data_panel">
-					<name_box name="partner_text" value="[FIRST] [LAST]"/>
+					<name_box initial_value="（取得中）" name="partner_text" value="[FIRST] [LAST]"/>
 				</panel>
+				<text name="partner_edit_link" value="[[URL] 編集]" width="100"/>
 			</panel>
 		</panel>
 	</scroll_container>

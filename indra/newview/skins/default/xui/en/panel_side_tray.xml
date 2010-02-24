@@ -54,12 +54,19 @@
     mouse_opaque="false"
     background_visible="true"
   >
+    <panel_container
+      name="panel_container"
+      default_panel_name="panel_me"
+      width="333"
+    >
       <panel
         class="panel_me"
         name="panel_me"
         filename="panel_me.xml"
         label="Me"
       />
+
+    </panel_container>
   </sidetray_tab>
 
   <sidetray_tab
@@ -91,7 +98,7 @@
         class="panel_group_info_sidetray"
         name="panel_group_info_sidetray"
         filename="panel_group_info_sidetray.xml"
-        label="Group Info"
+        label="Group Profile"
         font="SansSerifBold"
       />
       <panel

@@ -8,7 +8,7 @@
 		Kompiliert mit [COMPILER] version [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Sie befinden sich in [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] auf [HOSTNAME] ([HOSTIP])
+		Sie befinden sich in [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
@@ -73,7 +73,8 @@ google-perftools Copyright (c) 2005, Google Inc.
 
 Alle Rechte vorbehalten. Details siehe licenses.txt.
 
-Voice-Chat-Audiocoding: Polycom(R) Siren14(TM) (ITU-T Empf.G.722.1 Anhang C)
+Voice-Chat-Audiocoding: Polycom(R) Siren14(TM)
+(ITU-T Empf.G.722.1 Anhang C)
 			</text_editor>
 		</panel>
 	</tab_container>

@@ -232,6 +232,10 @@ public:
 extern LLViewerObjectList gObjectList;
 
 // Inlines
+/**
+ * Note:
+ * it will return NULL for offline avatar_id 
+ */
 inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id)
 {
 	std::map<LLUUID, LLPointer<LLViewerObject> >::iterator iter = mUUIDObjectMap.find(id);

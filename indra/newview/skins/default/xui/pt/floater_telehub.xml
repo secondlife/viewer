@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="telehub" title="TELEHUB" min_height="310" height="310" width="286">
+<floater height="310" min_height="310" name="telehub" title="TELEHUB" width="286">
 	<text name="status_text_connected">
 		Telehub conectado ao objeto [OBJECT]
 	</text>
@@ -17,16 +17,13 @@
 	<text name="spawn_points_text" width="265">
 		Pontos de Nascimento (posições, não objetos):
 	</text>
-	<scroll_list name="spawn_points_list" width="265" />
-	<button width="135" label="Adicionar Nascimento" name="add_spawn_point_btn"/>
-	<button width="130" label="Remover Nascimento" name="remove_spawn_point_btn" left="150"/>
+	<scroll_list name="spawn_points_list" width="265"/>
+	<button label="Adicionar Nascimento" name="add_spawn_point_btn" width="135"/>
+	<button label="Remover Nascimento" left="150" name="remove_spawn_point_btn" width="130"/>
 	<text name="spawn_point_help">
-		Selecione um objeto e clique Adicionar para
-especificar a posição.
-Em seguida, você pode mover ou apagar o objeto.
-As posições são relativas ao centro do telehub.
-
-Selecione um item na lista para mostrar a posição
-in-world.
+		Selecione o objeto e clique em &apos;Adicionar spawn&apos; para especificar a posição. 
+O objeto pode ser excluído ou movido posteriormente. 
+As posições são definidas em relação ao centro do telehub. 
+Selecione um item da lista para realçá-lo inworld.
 	</text>
 </floater>

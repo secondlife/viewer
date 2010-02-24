@@ -12,19 +12,19 @@
  save_rect="true"
  save_visibility="true"
  single_instance="false"
- title="INVENTORY"
+ title="MY INVENTORY"
  width="467">
     <floater.string
      name="Title">
-        Inventory
+        MY INVENTORY
     </floater.string>
     <floater.string
      name="TitleFetching">
-        Inventory (Fetching [ITEM_COUNT] Items...) [FILTER]
+        MY INVENTORY (Fetching [ITEM_COUNT] Items...) [FILTER]
     </floater.string>
     <floater.string
      name="TitleCompleted">
-        Inventory ([ITEM_COUNT] Items) [FILTER]
+        MY INVENTORY ([ITEM_COUNT] Items) [FILTER]
     </floater.string>
     <floater.string
      name="Fetched">

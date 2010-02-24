@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ follows="all"
+ height="350"
+ help_topic="event_details"
+ label="Event"
+ layout="topleft"
+ name="Event"
+ title="EVENT DETAILS" 
+ width="330">
+  <floater.string
+   name="none">
+    none
+  </floater.string>
+  <floater.string
+   name="notify">
+    Notify
+  </floater.string>
+  <floater.string
+   name="dont_notify">
+    Don&apos;t Notify
+  </floater.string>
+  <layout_stack
+    name="layout"
+    orientation="vertical"
+    follows="all"
+    layout="topleft"
+    left="0"
+    top="0"
+    height="350"
+    width="330"
+    border_size="0">
+    <layout_panel
+       name="profile_stack"
+       follows="all"
+       layout="topleft"
+       top="0"
+       left="0"
+       height="305"
+       width="330">
+      <text
+       follows="top|left|right"
+       font="SansSerifLarge"
+       text_color="white"
+       height="17"
+       layout="topleft"
+       left="10"
+       name="event_name"
+       top="5"
+       use_ellipses="true"
+       width="310">
+        Nameless Event...of Doom! De doom! Doom doom.
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="top|left"
+        height="13"
+        text_color="LtGray_50"
+        layout="topleft"
+        left="25"
+        name="event_category"
+        width="300">
+        (no category)
+      </text>
+
+      <text
+       type="string"
+       length="1"
+       follows="top|left"
+       layout="topleft"
+       left="10"
+       top_pad="7"
+       name="event_runby_label"
+       width="310">
+        Run by:
+      </text>
+      <text
+        follows="left|top"
+        height="20"
+        initial_value="(retrieving)"
+        layout="topleft"
+        left="10"
+        link="true"
+        name="event_runby"
+        top_pad="2"
+        use_ellipses="true"
+        width="310" />
+      <text
+     type="string"
+     length="1"
+     left="10"
+     height="17"
+     font="SansSerifMedium"
+    text_color="EmphasisColor"
+     top_pad="5"
+     follows="top|left"
+     layout="topleft"
+     name="event_date"
+     width="310">
+        10/10/2010
+      </text>
+      <text
+       type="string"
+       height="14"
+       length="1"
+       left="10"
+       follows="top|left"
+       layout="topleft"
+       name="event_duration"
+       width="310">
+        1 hour
+      </text>
+      <text
+       font="SansSerifMedium"
+       text_color="EmphasisColor"
+        type="string"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+       left="10"
+       name="event_cover"
+        visible="true"
+        width="310">
+        Free
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="top|left"
+       layout="topleft"
+       left="10"
+       top_pad="5"
+       name="event_location_label">
+        Location:
+      </text>
+      <text
+       type="string"
+       length="1"
+       height="20"
+       left="10"
+       follows="top|left"
+       layout="topleft"
+       name="event_location"
+       use_ellipses="true"
+       value="SampleParcel, Name Long (145, 228, 26)"
+        width="310" />
+      <icon
+   follows="top|left"
+   height="16"
+   image_name="Parcel_PG_Dark"
+   layout="topleft"
+   left="10"
+   name="rating_icon"
+   width="18" />
+      <text
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left_pad="12"
+       name="rating_label"
+       top_delta="3"
+       value="Rating:"
+       width="60" />
+      <text
+       follows="left|right|top"
+       height="16"
+       layout="topleft"
+       left_pad="0"
+       name="rating_value"
+       top_delta="0"
+       value="unknown"
+       width="200" />
+      <expandable_text
+               follows="left|top|right"
+               height="106"
+               layout="topleft"
+               left="6"
+               name="event_desc"
+               width="313" />
+    </layout_panel>
+    <layout_panel
+               follows="left|right"
+               height="24"
+               layout="topleft"
+               mouse_opaque="false"
+               name="button_panel"
+               top="0"
+               left="0"
+               user_resize="false">
+      <button
+       follows="left|top"
+           height="18"
+           image_selected="AddItem_Press"
+           image_unselected="AddItem_Off"
+           image_disabled="AddItem_Disabled"
+           layout="topleft"
+           left="6"
+       name="create_event_btn"
+           picture_style="true"
+           tool_tip="Create Event"
+           width="18" />
+      <button
+       follows="left|top"
+           height="18"
+           image_selected="MinusItem_Press"
+           image_unselected="MinusItem_Off"
+           image_disabled="MinusItem_Disabled"
+           layout="topleft"
+           visible="false" 
+           left="6"
+           top_pad="-7" 
+          name="god_delete_event_btn"
+           picture_style="true"
+           tool_tip="Delete Event"
+           width="18" />
+      <button
+   follows="left|top"
+   height="23"
+   label="Notify Me"
+   layout="topleft"
+   left_pad="3"
+   top_delta="-12"
+   name="notify_btn"
+   width="100" />
+      <button
+       follows="left|top"
+       height="23"
+       label="Teleport"
+       layout="topleft"
+       left_pad="5"
+       name="teleport_btn"
+       width="100" />
+      <button
+       follows="left|top"
+       height="23"
+       label="Map"
+       layout="topleft"
+       left_pad="5"
+       name="map_btn"
+       width="85" />
+    </layout_panel>
+  </layout_stack>
+  </floater>
+

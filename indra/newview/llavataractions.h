@@ -99,6 +99,11 @@ public:
 	static void showProfile(const LLUUID& id);
 
 	/**
+	 * Show avatar on world map.
+	 */
+	static void showOnMap(const LLUUID& id);
+
+	/**
 	 * Give money to the avatar.
 	 */
 	static void pay(const LLUUID& id);
@@ -122,6 +127,11 @@ public:
 	 * @return true if the avatar is blocked
 	 */
 	static bool isBlocked(const LLUUID& id);
+
+	/**
+	 * @return true if you can block the avatar
+	 */
+	static bool canBlock(const LLUUID& id);
 
 	/**
 	 * Return true if the avatar is in a P2P voice call with a given user

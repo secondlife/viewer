@@ -2,5 +2,5 @@
 <menu name="Popup">
 	<menu_item_call label="Acerca de la URL" name="about_url"/>
 	<menu_item_call label="Teleportar a la URL" name="teleport_to_url"/>
-	<menu_item_call label="Mostrar en el mapa" name="show_on_map"/>
+	<menu_item_call label="Mapa" name="show_on_map"/>
 </menu>

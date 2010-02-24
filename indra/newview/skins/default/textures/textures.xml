@@ -143,12 +143,12 @@ with the same filename but different name
 
   <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
 
-  <texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Over" file_name="widgets/DropDown_Over.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+  <texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Over" file_name="widgets/DropDown_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
+  <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
@@ -265,8 +265,8 @@ with the same filename but different name
   <texture name="Linden_Dollar_Alert" file_name="widgets/Linden_Dollar_Alert.png"/>
   <texture name="Linden_Dollar_Background" file_name="widgets/Linden_Dollar_Background.png"/>
 
-  <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" />
-  <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" />
+  <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" scale.left="2" scale.bottom="2" scale.top="22" scale.right="278" />
+  <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" scale.left="2" scale.bottom="2" scale.top="22" scale.right="278" />
 
   <texture name="Lock" file_name="icons/Lock.png" preload="false" />
   <texture name="Lock2" file_name="navbar/Lock.png" preload="false" />
@@ -321,20 +321,35 @@ with the same filename but different name
   <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 
   <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
+  <texture name="Object_Cone_Selected" file_name="build/Object_Cone_Selected.png" preload="false" />
   <texture name="Object_Cube" file_name="build/Object_Cube.png" preload="false" />
+  <texture name="Object_Cube_Selected" file_name="build/Object_Cube_Selected.png" preload="false" />
   <texture name="Object_Cylinder" file_name="build/Object_Cylinder.png" preload="false" />
+  <texture name="Object_Cylinder_Selected" file_name="build/Object_Cylinder_Selected.png" preload="false" />
   <texture name="Object_Grass" file_name="build/Object_Grass.png" preload="false" />
+  <texture name="Object_Grass_Selected" file_name="build/Object_Grass_Selected.png" preload="false" />
   <texture name="Object_Hemi_Cone" file_name="build/Object_Hemi_Cone.png" preload="false" />
+  <texture name="Object_Hemi_Cone_Selected" file_name="build/Object_Hemi_Cone_Selected.png" preload="false" />
   <texture name="Object_Hemi_Cylinder" file_name="build/Object_Hemi_Cylinder.png" preload="false" />
+  <texture name="Object_Hemi_Cylinder_Selected" file_name="build/Object_Hemi_Cylinder_Selected.png" preload="false" />
   <texture name="Object_Hemi_Sphere" file_name="build/Object_Hemi_Sphere.png" preload="false" />
+  <texture name="Object_Hemi_Sphere_Selected" file_name="build/Object_Hemi_Sphere_Selected.png" preload="false" />
   <texture name="Object_Prism" file_name="build/Object_Prism.png" preload="false" />
+  <texture name="Object_Prism_Selected" file_name="build/Object_Prism_Selected.png" preload="false" />
   <texture name="Object_Pyramid" file_name="build/Object_Pyramid.png" preload="false" />
+  <texture name="Object_Pyramid_Selected" file_name="build/Object_Pyramid_Selected.png" preload="false" />
   <texture name="Object_Ring" file_name="build/Object_Ring.png" preload="false" />
+  <texture name="Object_Ring_Selected" file_name="build/Object_Ring_Selected.png" preload="false" />
   <texture name="Object_Sphere" file_name="build/Object_Sphere.png" preload="false" />
+  <texture name="Object_Sphere_Selected" file_name="build/Object_Sphere_Selected.png" preload="false" />
   <texture name="Object_Tetrahedron" file_name="build/Object_Tetrahedron.png" preload="false" />
+  <texture name="Object_Tetrahedron_Selected" file_name="build/Object_Tetrahedron_Selected.png" preload="false" />
   <texture name="Object_Torus" file_name="build/Object_Torus.png" preload="false" />
+  <texture name="Object_Torus_Selected" file_name="build/Object_Torus_Selected.png" preload="false" />
   <texture name="Object_Tree" file_name="build/Object_Tree.png" preload="false" />
+  <texture name="Object_Tree_Selected" file_name="build/Object_Tree_Selected.png" preload="false" />
   <texture name="Object_Tube" file_name="build/Object_Tube.png" preload="false" />
+  <texture name="Object_Tube_Selected" file_name="build/Object_Tube_Selected.png" preload="false" />
 
   <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Disabled.png" preload="false" />
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
@@ -353,7 +368,7 @@ with the same filename but different name
 
  <texture name="Parcel_Build_Dark" file_name="icons/Parcel_Build_Dark.png" preload="false" />
  <texture name="Parcel_BuildNo_Dark" file_name="icons/Parcel_BuildNo_Dark.png" preload="false" />
- <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Health_Dark.png" preload="false" />
+ <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Damage_Dark.png" preload="false" />
  <texture name="Parcel_DamageNo_Dark" file_name="icons/Parcel_DamageNo_Dark.png" preload="false" />
  <texture name="Parcel_Evry_Dark" file_name="icons/Parcel_Evry_Dark.png" preload="false" />
  <texture name="Parcel_Exp_Dark" file_name="icons/Parcel_Exp_Dark.png" preload="false" />
@@ -361,6 +376,7 @@ with the same filename but different name
  <texture name="Parcel_FlyNo_Dark" file_name="icons/Parcel_FlyNo_Dark.png" preload="false" />
  <texture name="Parcel_ForSale_Dark" file_name="icons/Parcel_ForSale_Dark.png" preload="false" />
  <texture name="Parcel_ForSaleNo_Dark" file_name="icons/Parcel_ForSaleNo_Dark.png" preload="false" />
+ <texture name="Parcel_Health_Dark" file_name="icons/Parcel_Health_Dark.png" preload="false" />
  <texture name="Parcel_M_Dark" file_name="icons/Parcel_M_Dark.png" preload="false" />
  <texture name="Parcel_PG_Dark" file_name="icons/Parcel_PG_Dark.png" preload="false" />
  <texture name="Parcel_Push_Dark" file_name="icons/Parcel_Push_Dark.png" preload="false" />
@@ -499,6 +515,7 @@ with the same filename but different name
   <texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" />
 
   <texture name="SL_Logo" file_name="icons/SL_Logo.png" preload="true" />
+  <texture name="OBJECT_Icon" file_name="icons/object_icon.png" preload="true" />
 
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
@@ -585,10 +602,15 @@ with the same filename but different name
            scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
 
   <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
+  <texture name="Tool_Create_Selected" file_name="build/Tool_Create_Selected.png" preload="false" />
   <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />
+  <texture name="Tool_Dozer_Selected" file_name="build/Tool_Dozer_Selected.png" preload="false" />
   <texture name="Tool_Face" file_name="build/Tool_Face.png" preload="false" />
+  <texture name="Tool_Face_Selected" file_name="build/Tool_Face_Selected.png" preload="false" />
   <texture name="Tool_Grab" file_name="build/Tool_Grab.png" preload="false" />
+  <texture name="Tool_Grab_Selected" file_name="build/Tool_Grab_Selected.png" preload="false" />
   <texture name="Tool_Zoom" file_name="build/Tool_Zoom.png" preload="false" />
+  <texture name="Tool_Zoom_Selected" file_name="build/Tool_Zoom_Selected.png" preload="false" />
 
   <texture name="Toolbar_Divider" file_name="containers/Toolbar_Divider.png" preload="false" />
   <texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="false" scale.left="5" scale.bottom="4" scale.top="24" scale.right="30" />
@@ -611,14 +633,17 @@ with the same filename but different name
   <texture name="Unread_Msg" file_name="bottomtray/Unread_Msg.png" preload="false" />
   <texture name="Unread_IM" file_name="bottomtray/Unread_IM.png" preload="false" />
 
-  <texture name="WellButton_Lit" file_name="bottomtray/WellButton_Lit.png"  preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
-  <texture name="WellButton_Lit_Selected" file_name="bottomtray/WellButton_Lit_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+    <texture name="Volume_Background" file_name="windows/Volume_Background.png" preload="false"
+           scale.left="6" scale.top="33" scale.right="63" scale.bottom="10" />
 
   <texture name="VoicePTT_Lvl1" file_name="bottomtray/VoicePTT_Lvl1.png" preload="false" />
   <texture name="VoicePTT_Lvl2" file_name="bottomtray/VoicePTT_Lvl2.png" preload="false" />
   <texture name="VoicePTT_Lvl3" file_name="bottomtray/VoicePTT_Lvl3.png" preload="false" />
   <texture name="VoicePTT_Off" file_name="bottomtray/VoicePTT_Off.png" preload="false" />
   <texture name="VoicePTT_On" file_name="bottomtray/VoicePTT_On.png" preload="false" />
+
+  <texture name="WellButton_Lit" file_name="bottomtray/WellButton_Lit.png"  preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="WellButton_Lit_Selected" file_name="bottomtray/WellButton_Lit_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 
   <texture name="WebBasedMediaBackground" file_name="windows/WebBasedMediaBackground.png" preload="false" />
 
@@ -654,6 +679,7 @@ with the same filename but different name
   <texture name="silhouette.j2c" use_mips="true" />
   <texture name="foot_shadow.j2c" use_mips="true" />
   <texture name="cloud-particle.j2c" use_mips="true" />
+  <texture name="transparent.j2c" use_mips="true" />
 
   <!--WARNING OLD ART BELOW *do not use*-->
   <texture name="icn_chatbar.tga" />

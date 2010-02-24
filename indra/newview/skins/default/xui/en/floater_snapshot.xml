@@ -46,8 +46,11 @@
   <ui_ctrl 
     height="90"
     width="90"
+    layout="topleft"
     name="thumbnail_placeholder"
     top_pad="6"
+    follows="left|top"
+    left="10"
     />
     <text
      type="string"
@@ -351,10 +354,6 @@
          label="Depth"
          name="Depth"
          value="depth" />
-        <combo_box.item
-         label="Object Mattes"
-         name="ObjectMattes"
-         value="objects" />
     </combo_box>
     <check_box
      label="Interface"

@@ -250,6 +250,12 @@ void LLFloaterMove::setSittingMode(BOOL bSitting)
 	else
 	{
 		LLPanelStandStopFlying::clearStandStopFlyingMode(LLPanelStandStopFlying::SSFM_STAND);
+
+		// show "Stop Flying" button if needed. EXT-871
+		if (gAgent.getFlying())
+		{
+			LLPanelStandStopFlying::setStandStopFlyingMode(LLPanelStandStopFlying::SSFM_STOP_FLYING);
+		}
 	}
 	enableInstance(!bSitting);
 }
@@ -684,10 +690,6 @@ void LLPanelStandStopFlying::onStandButtonClick()
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 
 	setFocus(FALSE); // EXT-482
-
-	BOOL fly = gAgent.getFlying();
-	mStopFlyingButton->setVisible(fly);
-	setVisible(fly);
 }
 
 void LLPanelStandStopFlying::onStopFlyingButtonClick()

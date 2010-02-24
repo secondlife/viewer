@@ -166,7 +166,8 @@ public:
 	/*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
+	/*virtual*/ LLWindowCallbacks::DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data);
+				void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ void handleMouseLeave(LLWindow *window);
 	/*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);
 	/*virtual*/ void handleFocus(LLWindow *window);
@@ -472,6 +473,10 @@ protected:
 	static std::string sSnapshotDir;
 
 	static std::string sMovieBaseName;
+	
+private:
+	// Object temporarily hovered over while dragging
+	LLPointer<LLViewerObject>	mDragHoveredObject;
 };	
 
 void toggle_flying(void*);
@@ -501,5 +506,6 @@ extern S32 CHAT_BAR_HEIGHT;
 extern BOOL			gDisplayCameraPos;
 extern BOOL			gDisplayWindInfo;
 extern BOOL			gDisplayFOV;
+extern BOOL			gDisplayBadge;
 
 #endif

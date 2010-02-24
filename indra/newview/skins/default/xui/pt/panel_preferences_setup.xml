@@ -1,33 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Câmera" name="Input panel">
-	<text name=" Mouselook Options:">
-		Mouselook:
+<panel label="Entrada e câmera" name="Input panel">
+	<button bottom_delta="-40" label="Outros dispositivos" name="joystick_setup_button" width="165"/>
+	<text name="Mouselook:">
+		Visão subjetiva:
 	</text>
-	<text name=" Mouse Sensitivity:">
-		Sensibilidade do Mouse:
+	<text name=" Mouse Sensitivity">
+		Sensibilidade do mouse
 	</text>
-	<check_box label="Inverter o  Mouse" name="invert_mouse"/>
-	<text name=" Auto Fly Options:">
-		Vôo Automático:
+	<check_box label="Inverter" name="invert_mouse"/>
+	<text name="Network:">
+		Rede:
 	</text>
-	<check_box label="Voar/Aterrissar pressionando teclas para cima/baixo" name="automatic_fly"/>
-	<text name=" Camera Options:">
-		Opções de Câmera:
+	<text name="Maximum bandwidth">
+		Largura de banda máxima
 	</text>
-	<text name="camera_fov_label" width="218">
-		Angulo de Visão da Câmera:
+	<text name="text_box2">
+		kbps
 	</text>
-	<slider bottom_delta="-6" width="128" left="360" name="camera_fov" />
-	<text name="Camera Follow Distance:" width="218">
-		Distância de Acompanhamento da Camêra:
+	<check_box label="Personalizar porta" name="connection_port_enabled"/>
+	<spinner label="Número da porta:" name="web_proxy_port"/>
+	<text name="cache_size_label_l">
+		Tamanho do cache
 	</text>
-	<slider bottom_delta="-6" width="128" left="360" name="camera_offset_scale" />
-	<check_box label="Edição automática do movimento da câmera" name="edit_camera_movement" tool_tip="Usar posicionamento automático da câmera quando entrar e sair do modo de edição"/>
-	<check_box label="Movimento Automático da Câmera na edição de aparência" name="appearance_camera_movement" tool_tip="Usar posicionamento automático da câmera em  modo de edição"/>
-	<text name="text2">
-		Opções de Exibição 
-do Avatar:
+	<text name="text_box5">
+		MB
 	</text>
-	<check_box label="Mostra o avatar em primeira pessoa" name="first_person_avatar_visible"/>
-	<button bottom_delta="-40" label="Configuração do Joystick" name="joystick_setup_button" width="165"/>
+	<button label="Navegar" label_selected="Navegar" name="set_cache"/>
+	<button label="Redefinir" label_selected="Definir" name="reset_cache"/>
+	<text name="Cache location">
+		Localização do cache
+	</text>
+	<text name="Web:">
+		Web:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Usar navegador incluso" name="internal" tool_tip="Use este navegador para consultar a ajuda, abrir links da web, etc. As janelas abrem dentro do [APP_NAME]."/>
+		<radio_item label="Usar meu navegador (IE, Firefox)" name="external" tool_tip="Use o navegador incluso para consultar a ajuda, abrir links da web, etc. Uso em tela inteira não recomendado."/>
+	</radio_group>
+	<check_box initial_value="false" label="Proxy web" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="O nome ou endereço IP do proxy da sua preferência"/>
+	<button label="Navegar" label_selected="Navegar" name="set_proxy"/>
+	<text name="Proxy location">
+		Localização do proxy
+	</text>
 </panel>

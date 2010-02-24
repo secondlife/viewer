@@ -3,26 +3,24 @@
  legacy_header_height="18"
  auto_tile="true"
  can_resize="true"
- height="550"
+ height="570"
  layout="topleft"
- left_delta="343"
  min_height="271"
  min_width="290"
  name="preview lsl text"
  help_topic="preview_lsl_text"
  save_rect="true"
  title="SCRIPT: ROTATION SCRIPT"
- top_delta="0"
- width="500">
+ width="508">
     <floater.string
      name="Title">
-        Script: [NAME]
+        SCRIPT: [NAME]
     </floater.string>
     <panel
      follows="left|top|right|bottom"
-     height="508"
+     height="522"
      layout="topleft"
-     left="0"
+     left="10"
      name="script panel"
      top="42"
      width="497" />

@@ -1,47 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory" title="BEHOLDNING">
-	<search_editor label="Skriv her for at søge" name="inventory search editor" />
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Alle ting" name="All Items" />
-		<inventory_panel label="Nye ting" name="Recent Items" />
-	</tab_container>
-	<menu_bar name="Inventory Menu">
-		<menu label="Filer" name="File">
-			<menu_item_call label="Åben" name="Open" />
-			<menu_item_call label="Nyt vindue" name="New Window" />
-			<menu_item_call label="Vis filtre" name="Show Filters" />
-			<menu_item_call label="Nulstil filtre" name="Reset Current" />
-			<menu_item_call label="Luk alle mapper" name="Close All Folders" />
-			<menu_item_call label="Tøm papirkurv" name="Empty Trash" />
-		</menu>
-		<menu label="Opret" name="Create">
-			<menu_item_call label="Ny mappe" name="New Folder" />
-			<menu_item_call label="Nyt script" name="New Script" />
-			<menu_item_call label="Ny note" name="New Note" />
-			<menu_item_call label="Ny bevægelse" name="New Gesture" />
-			<menu name="New Clothes">
-				<menu_item_call label="Ny trøje" name="New Shirt" />
-				<menu_item_call label="Nye bukser" name="New Pants" />
-				<menu_item_call label="Nye sko" name="New Shoes" />
-				<menu_item_call label="Nye strømper" name="New Socks" />
-				<menu_item_call label="Ny jakke" name="New Jacket" />
-				<menu_item_call label="Ny nederdel" name="New Skirt" />
-				<menu_item_call label="Nye handsker" name="New Gloves" />
-				<menu_item_call label="Ny undertrøje" name="New Undershirt" />
-				<menu_item_call label="Nye underbukser" name="New Underpants" />
-			</menu>
-			<menu name="New Body Parts">
-				<menu_item_call label="Ny figur" name="New Shape" />
-				<menu_item_call label="Ny hud" name="New Skin" />
-				<menu_item_call label="Nyt hår" name="New Hair" />
-				<menu_item_call label="Nye øjne" name="New Eyes" />
-			</menu>
-		</menu>
-		<menu label="Sortér" name="Sort">
-			<menu_item_check label="Efter navn" name="By Name" />
-			<menu_item_check label="Efter dato" name="By Date" />
-			<menu_item_check label="Altid mapper efter navn" name="Folders Always By Name" />
-			<menu_item_check label="System-mapper i toppen" name="System Folders To Top" />
-		</menu>
-	</menu_bar>
+	<floater.string name="Title">
+		Beholdning
+	</floater.string>
+	<floater.string name="TitleFetching">
+		Beholdning (henter [ITEM_COUNT] genstande...) [FILTER]
+	</floater.string>
+	<floater.string name="TitleCompleted">
+		Beholdning ([ITEM_COUNT] genstande) [FILTER]
+	</floater.string>
+	<floater.string name="Fetched">
+		Hentet
+	</floater.string>
+	<panel label="Beholdningspanel" name="Inventory Panel"/>
 </floater>

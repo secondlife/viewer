@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Comunicação" name="im">
-	<text name="text_box">
-		Minha situação online:
+	<panel.string name="log_in_to_change">
+		autentique-se para mudar
+	</panel.string>
+	<button label="Limpar histórico" name="clear_cache"/>
+	<text name="cache_size_label_l">
+		(Locações, imagens, web, histórico de busca)
 	</text>
-	<check_box label="Apenas meus Amigos e Grupos podem me ver online" name="online_visibility"/>
-	<text name="text_box2">
-		Opções MI:
+	<check_box label="Apenas amigos e grupos sabem que estou online" name="online_visibility"/>
+	<check_box label="Apenas amigos e grupos podem me chamar ou enviar MI" name="voice_call_friends_only_check"/>
+	<check_box label="Desligar o microfone quando terminar chamadas" name="auto_disengage_mic_check"/>
+	<check_box label="Aceitar  cookies" name="cookies_enabled"/>
+	<check_box label="Permitir toque automático da mídia" name="autoplay_enabled"/>
+	<text name="Logs:">
+		Logs:
 	</text>
-	<string name="log_in_to_change">
-		Logar para Alterar
-	</string>
-	<check_box label="Enviar MI para o e-mail ([EMAIL])" name="send_im_to_email"/>
-	<check_box label="Incluir MIs no console do chat" name="include_im_in_chat_console"/>
-	<check_box label="Mostrar data e hora na MI" name="show_timestamps_check"/>
-	<check_box label="Mostrar notificação de Amigo online" name="friends_online_notify_checkbox"/>
-	<text name="text_box3" width="134">
-		Resposta no Modo
-Ocupado:
-	</text>
-	<text name="text_box4">
-		Opções de Registro:
-	</text>
-	<check_box label="Salvar um registro das MIs em meu computador" name="log_instant_messages"/>
-	<check_box label="Mostrar a hora nas MIs" name="log_instant_messages_timestamp"/>
-	<check_box label="Mostrar o final da última conversa em MI" name="log_show_history"/>
-	<check_box label="Salvar um registro da Conversa local em meu computador" name="log_chat"/>
-	<check_box label="Mostrar a hora no registro da Conversa local" name="log_chat_timestamp"/>
-	<check_box label="Mostrar MIs recebidas no registro de Conversa local" name="log_chat_IM"/>
-	<check_box label="Incluir data e hora" name="log_date_timestamp"/>
-	<button label="Mudar Local" label_selected="Alterar Caminho" name="log_path_button" width="120"/>
+	<check_box label="Salvar logs de bate- papo das proximidades no meu computador" name="log_nearby_chat"/>
+	<check_box label="Salvar logs de MI no meu computador" name="log_instant_messages"/>
+	<check_box label="Adicionar timestamp" name="show_timestamps_check_im"/>
 	<line_editor left="278" name="log_path_string" right="-20"/>
+	<text name="log_path_desc">
+		Localização dos logs
+	</text>
+	<button label="Navegar" label_selected="Navegar" name="log_path_button" width="120"/>
+	<button label="Lista dos bloqueados" name="block_list"/>
 </panel>

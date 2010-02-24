@@ -115,9 +115,6 @@
   <!-- Avatar name: More than one avatar is selected/used here -->
   <string name="AvatarNameMultiple">(multiple)</string>
 
-  <!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
-	<string name="AvatarNameHippos">(hippos)</string>
-
 	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">(none)</string>
 
@@ -254,6 +251,7 @@
 	<string name="connected">Connected</string>
 	<string name="unavailable">Voice not available at your current location</string>
 	<string name="hang_up">Disconnected from in-world Voice Chat</string>
+  <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
 	<string name="ScriptTakeMoney">Take Linden dollars (L$) from you</string>
@@ -1807,12 +1805,9 @@ Clears (deletes) the media and all params from the given face.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
-  <string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
-	<string name="InventoryNoTexture">
-		You do not have a copy of
-this texture in your inventory
-	</string>
+	<string name="InventoryNoMatchingItems">No matching items found in inventory.  Try [secondlife:///app/search/groups "Search"].</string>
+	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
+	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
     <!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transfer)" />
 	<string name="no_modify"   value=" (no modify)" />
@@ -2051,6 +2046,7 @@ this texture in your inventory
 	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
 	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
 	<string name="ScriptLimitsRequestError">Error requesting information</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">No Parcel Selected</string>
 	<string name="ScriptLimitsRequestWrongRegion">Error: script information is only available in your current region</string>
 	<string name="ScriptLimitsRequestWaiting">Retrieving information...</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">You do not have permission to examine this parcel</string>
@@ -2130,7 +2126,8 @@ this texture in your inventory
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
   
   <!-- panel picks -->
-  <string name="NoPicksClassifiedsText">There are no picks/classifieds here</string>
+  <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
+  <string name="NoAvatarPicksClassifiedsText">User has no picks or classfields</string>
   <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->

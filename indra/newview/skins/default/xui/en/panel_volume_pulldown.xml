@@ -1,24 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_opaque="true"
- background_visible="false"
+ background_visible="true"
+ bg_opaque_image="Volume_Background" 
+ bg_alpha_image="Volume_Background" 
  border_visible="false"
  border="false"
- chrome="true" 
+ chrome="true"
  follows="bottom"
  height="150"
  layout="topleft"
  name="volumepulldown_floater"
  width="32">
-  <!-- floater background image -->
-  <icon
-   height="150"
-   image_name="Inspector_Background"
-   layout="topleft"
-   left="0"
-   name="normal_background"
-   top="0"
-   width="32" />
  <slider
   control_name="AudioLevelMaster"
   follows="left|top"

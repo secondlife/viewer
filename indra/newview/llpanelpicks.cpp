@@ -351,7 +351,14 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 
 	if (mNoPicks && mNoClassifieds)
 	{
-		childSetValue("picks_panel_text", LLTrans::getString("NoPicksClassifiedsText"));
+		if(getAvatarId() == gAgentID)
+		{
+			childSetValue("picks_panel_text", LLTrans::getString("NoPicksClassifiedsText"));
+		}
+		else
+		{
+			childSetValue("picks_panel_text", LLTrans::getString("NoAvatarPicksClassifiedsText"));
+		}
 	}
 }
 
@@ -843,10 +850,13 @@ void LLPanelPicks::onPanelClassifiedClose(LLPanelClassifiedInfo* panel)
 			{
 				LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(
 					mClassifiedsList->getItemByValue(values[n]));
-
-				c_item->setClassifiedName(panel->getClassifiedName());
-				c_item->setDescription(panel->getDescription());
-				c_item->setSnapshotId(panel->getSnapshotId());
+				llassert(c_item);
+				if (c_item)
+				{
+					c_item->setClassifiedName(panel->getClassifiedName());
+					c_item->setDescription(panel->getDescription());
+					c_item->setSnapshotId(panel->getSnapshotId());
+				}
 			}
 		}
 	}

@@ -47,6 +47,7 @@ public:
 	/*virtual*/ void draw();
 	
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 	
 	/// Start open animation
@@ -56,6 +57,9 @@ public:
 	/*virtual*/ void onFocusLost();
 	
 protected:
+
+	virtual bool childHasVisiblePopupMenu();
+
 	LLFrameTimer		mCloseTimer;
 	LLFrameTimer		mOpenTimer;
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="コンテンツ権限の編集">
+<floater name="floaterbulkperms" title="中身の権限の編集">
 	<floater.string name="nothing_to_modify_text">
-		選択した中に編集できないコンテンツが含まれています
+		選択した中に編集できないものが含まれています
 	</floater.string>
 	<floater.string name="status_text">
 		[NAME]に権限を設定中です。
@@ -28,12 +28,12 @@
 	<icon name="icon_script" tool_tip="スクリプト"/>
 	<check_box label="サウンド" name="check_sound"/>
 	<icon name="icon_sound" tool_tip="サウンド"/>
-	<check_box label="テクスチャー" name="check_texture"/>
+	<check_box label="テクスチャ" name="check_texture"/>
 	<icon name="icon_texture" tool_tip="テクスチャ"/>
 	<button label="すべてに √" label_selected="全て" name="check_all"/>
 	<button label="クリア" label_selected="なし" name="check_none"/>
 	<text name="newperms">
-		新しいコンテンツ権限
+		新しい中身の権限
 	</text>
 	<text name="GroupLabel">
 		グループ：
@@ -43,7 +43,7 @@
 		全員：
 	</text>
 	<check_box label="コピー" name="everyone_copy"/>
-	<text name="NextOwnerLabel">
+	<text name="NextOwnerLabel" left="160">
 		次の所有者：
 	</text>
 	<check_box label="修正" name="next_owner_modify"/>

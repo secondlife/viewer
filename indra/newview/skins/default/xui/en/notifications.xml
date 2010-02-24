@@ -19,7 +19,7 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okbutton"
        text="$yestext"/>
     </form>
   </template>
@@ -29,7 +29,7 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okignore"
        text="$yestext"/>
       <ignore text="$ignoretext"/>
     </form>
@@ -40,11 +40,11 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okcancelbuttons"
        text="$yestext"/>
       <button
        index="1"
-       name="Cancel"
+       name="Cancel_okcancelbuttons"
        text="$notext"/>
     </form>
   </template>
@@ -54,11 +54,11 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okcancelignore"
        text="$yestext"/>
       <button
        index="1"
-       name="Cancel"
+       name="Cancel_okcancelignore"
        text="$notext"/>
       <ignore text="$ignoretext"/>
     </form>
@@ -69,7 +69,7 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okhelpbuttons"
        text="$yestext"/>
       <button
        index="1"
@@ -91,7 +91,7 @@
        text="$notext"/>
       <button
        index="2"
-       name="Cancel"
+       name="Cancel_yesnocancelbuttons"
        text="$canceltext"/>
     </form>
   </template>
@@ -391,14 +391,6 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      notext="No"
      yestext="Yes"/>
   </notification>
-
-  <notification
-    icon="alertmodal.tga"
-    name="ClickUnimplemented"
-    type="alertmodal">
-Sorry, not implemented yet.
-  </notification>
-
   <notification
    icon="alertmodal.tga"
    name="JoinGroupCanAfford"
@@ -410,6 +402,19 @@ Do you wish to proceed?
      notext="Cancel"
      yestext="Join"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupNoCost"
+   type="alertmodal">
+You are joining group [NAME].
+Do you wish to proceed?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Join"/>
+  </notification>
+
 
   <notification
    icon="alertmodal.tga"
@@ -609,7 +614,7 @@ To place the media on only one face, choose Select Face and click on the desired
       notext="Cancel"
       yestext="OK"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="MustBeInParcel"
@@ -780,7 +785,7 @@ Save changes to classified [NAME]?
      notext="Don&apos;t Save"
      yestext="Save"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="ClassifiedInsufficientFunds"
@@ -831,7 +836,7 @@ Please select a proposal to view.
 Please select a history item to view.
   </notification>
 
-<!--   
+<!--
   <notification
    icon="alertmodal.tga"
    name="ResetShowNextTimeDialogs"
@@ -1029,10 +1034,10 @@ Unable to write file [[FILE]]
    icon="alertmodal.tga"
    name="UnsupportedHardware"
    type="alertmodal">
-Warning: Your system does not meet [APP_NAME]&apos;s minimum system requirements. If you continue using [APP_NAME], you may experience poor performance. Unfortunately, the [SUPPORT_SITE] cannot provide technical support for unsupported system configurations.
+Just so you know, your computer does not meet [APP_NAME]&apos;s minimum system requirements. You may experience poor performance. Unfortunately, the [SUPPORT_SITE] can't provide technical support for unsupported system configurations.
 
 MINSPECS
-Do you wish to visit [_URL] for more information?
+Visit [_URL] for more information?
     <url option="0" name="url">
 
 			http://www.secondlife.com/corporate/sysreqs.php
@@ -1048,8 +1053,8 @@ Do you wish to visit [_URL] for more information?
    icon="alertmodal.tga"
    name="UnknownGPU"
    type="alertmodal">
-Your system contains a graphics card that is unknown to [APP_NAME] at this time.
-This is often the case with new hardware that hasn&apos;t been tested yet with [APP_NAME].  [APP_NAME] will most likely run properly, but you may need to adjust your graphics settings to something more appropriate.
+Your system contains a graphics card that [APP_NAME] doesn't recognize.
+This is often the case with new hardware that hasn&apos;t been tested yet with [APP_NAME].  It will probably be ok, but you may need to adjust your graphics settings.
 (Me &gt; Preferences &gt; Graphics).
     <form name="form">
       <ignore name="ignore"
@@ -1527,7 +1532,7 @@ Your search terms were too short so no search was performed.
    icon="alertmodal.tga"
    name="CouldNotTeleportReason"
    type="alertmodal">
-Could not teleport.
+Teleport failed.
 [REASON]
   </notification>
 
@@ -1724,21 +1729,6 @@ Unable to deed land:
 Multiple parcels selected.
 
 Try selecting a single parcel.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="ParcelCanPlayMedia"
-   type="alertmodal">
-This location can play streaming media.
-Streaming media requires a fast Internet connection.
-
-Play streaming media when available?
-(You can change this option later under Preferences &gt; Privacy.)
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Disable"
-     yestext="Play Media"/>
   </notification>
 
   <notification
@@ -1980,9 +1970,8 @@ This is usually a temporary failure. Please customize and save the wearable agai
    icon="alertmodal.tga"
    name="YouHaveBeenLoggedOut"
    type="alertmodal">
-You have been logged out of [SECOND_LIFE]:
+Darn. You have been logged out of [SECOND_LIFE]
             [MESSAGE]
-You can still look at existing IM and chat by clicking &apos;View IM &amp; Chat&apos;. Otherwise, click &apos;Quit&apos; to exit [APP_NAME] immediately.
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -2308,6 +2297,9 @@ Display settings have been set to recommended levels based on your system config
    name="ErrorMessage"
    type="alertmodal">
 [ERROR_MESSAGE]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -3847,7 +3839,7 @@ Are you sure you want to quit?
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"
-   type="alertmodal">
+   type="alert">
 Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
 All reported abuses are investigated and resolved.
@@ -4643,7 +4635,7 @@ Please select at least one type of content to search (General, Moderate, or Adul
    type="notify">
 [MESSAGE]
   </notification>
-  
+
   <notification
    icon="notify.tga"
    name="EventNotification"
@@ -4759,7 +4751,7 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    name="ServerObjectMessage"
    type="notify">
 Message from [NAME]:
-[MSG]
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
   </notification>
 
   <notification
@@ -5173,7 +5165,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
        text="Decline"/>
     </form>
   </notification>
-  
+
   <notification
    icon="notify.tga"
    name="FriendshipOffered"
@@ -5213,7 +5205,21 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    type="notify">
 [NAME] declined your friendship offer.
   </notification>
+  
+    <notification
+   icon="notify.tga"
+   name="FriendshipAcceptedByMe"
+   type="offer">
+Friendship offer accepted.
+  </notification>
 
+  <notification
+   icon="notify.tga"
+   name="FriendshipDeclinedByMe"
+   type="offer">
+Friendship offer declined.
+  </notification>
+  
   <notification
    icon="notify.tga"
    name="OfferCallingCard"
@@ -5423,8 +5429,8 @@ Your L$ balance will be updated when processing completes. If processing takes m
 
 The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
   </notification>
-  
-<!-- 
+
+<!--
   <notification
    icon="notify.tga"
    name="FirstSit"
@@ -5451,7 +5457,7 @@ You have opened the Build Tools. Every object you see around you was created usi
   </notification>
 -->
 
-<!--  
+<!--
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
@@ -5537,7 +5543,7 @@ To toggle this menu,
    type="notify">
 You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
--->  
+-->
 
   <!--
   <notification
@@ -5826,7 +5832,7 @@ A SLurl was received from an untrusted browser and has been blocked for your sec
    priority="high"
    type="notifytip">
 Multiple SLurls were received from an untrusted browser within a short period.
-They will be blocked for a few seconds for your security. 
+They will be blocked for a few seconds for your security.
   </notification>
 
   <notification name="IMToast" type="notifytoast">

@@ -50,6 +50,8 @@ public:
 	static const std::string PREFIX_SL;
 	static const std::string PREFIX_SECONDLIFE;
 	static const std::string PREFIX_SLURL;
+	static const std::string PREFIX_SLURL_OLD;
+	static const std::string PREFIX_SLURL_WWW;
 
 	static const std::string APP_TOKEN;
 
@@ -57,6 +59,11 @@ public:
 	 * Is this any sort of secondlife:// or sl:// URL?
 	 */
 	static bool isSLURL(const std::string& url);
+
+	/**
+	 * Returns true if url is proven valid by regexp check from LLUrlRegistry
+	 */
+	static bool isValidSLURL(const std::string& url);
 
 	/**
 	 * Is this a special secondlife://app/ URL?

@@ -6,18 +6,19 @@
 	<panel.string name="type_pg">
 		一般コンテンツ
 	</panel.string>
+	<panel.string name="l$_price">
+		L$ [PRICE]
+	</panel.string>
 	<text name="title" value="クラシファイド広告情報"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="classified_name" value="[name]"/>
-			<text name="classified_location" value="[loading...]"/>
-			<text name="content_type" value="[content type]"/>
-			<text name="category" value="[category]"/>
+			<text_editor name="classified_name" value="[name]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
+			<text_editor name="content_type" value="[content type]"/>
+			<text_editor name="category" value="[category]"/>
 			<check_box label="毎週自動更新" name="auto_renew"/>
-			<text name="price_for_listing" tool_tip="掲載価格">
-				L$ [PRICE]
-			</text>
-			<text name="classified_desc" value="[description]"/>
+			<text_editor name="price_for_listing" tool_tip="掲載価格"/>
+			<text_editor name="classified_desc" value="[description]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

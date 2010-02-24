@@ -6,6 +6,7 @@
  layout="topleft"
  min_height="350"
  name="panel_target_profile"
+ left="0"
  width="333">
     <string
      name="status_online">
@@ -21,21 +22,23 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back"
-     left="10"
+     left="12"
      tab_stop="false"
      top="2"
      width="23" />
     <text_editor
+    	h_pad="0"
+    	v_pad="0"
       allow_scroll="false"
       bg_visible="false"
       read_only = "true"
       follows="top|left|right"
       font="SansSerifHugeBold"
-      height="29"
+      height="26"
       layout="topleft"
       left_pad="10"
       name="user_name"
-      text_color="white"
+      text_color="LtGray"
       top="0"
       value="(Loading...)"
       use_ellipses="true"
@@ -51,17 +54,17 @@
      width="150" />
     <tab_container
      follows="all"
-     height="535"
+     height="538"
      halign="center"
      layout="topleft"
-     left="10"
+     left="5"
      min_width="333"
      name="tabs"
      tab_min_width="80"
      tab_height="30"
      tab_position="top"
      top_pad="5"
-     width="313">
+     width="317">
         <panel
          class="panel_profile"
          filename="panel_profile.xml"

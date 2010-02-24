@@ -192,17 +192,21 @@ protected:
 	 */
 	void share();
 
+	/**
+	 * Add/remove resident to/from your block list.
+	 */
+	void toggleBlock();
+
 	void kick();
 	void freeze();
 	void unfreeze();
 	void csr();
 	
-
+	bool enableBlock();
+	bool enableUnblock();
 	bool enableGod();
 
 
-	void onUrlTextboxClicked(const std::string& url);
-	void onHomepageTextboxClicked();
 	void onAddFriendButtonClick();
 	void onIMButtonClick();
 	void onCallButtonClick();
@@ -253,8 +257,8 @@ private:
 };
 
 /**
-* Panel for displaying Avatar's notes and modifying friend's rights.
-*/
+ * Panel for displaying Avatar's notes and modifying friend's rights.
+ */
 class LLPanelAvatarNotes 
 	: public LLPanelProfileTab
 	, public LLFriendObserver
@@ -305,6 +309,7 @@ protected:
 	void onCallButtonClick();
 	void onTeleportButtonClick();
 	void onShareButtonClick();
+	void enableCheckboxes(bool enable);
 };
 
 #endif // LL_LLPANELAVATAR_H

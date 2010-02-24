@@ -107,10 +107,13 @@ public:
 		Optional<S32>			pad_bottom; // under text label
 		
 		//image overlay paddings
-		Optional<S32>			image_left_pad;
-		Optional<S32>			image_right_pad;
 		Optional<S32>			image_top_pad;
 		Optional<S32>			image_bottom_pad;
+
+		/**
+		 * Space between image_overlay and label
+		 */
+		Optional<S32>			imgoverlay_label_space;
 
 		// callbacks
 		Optional<CommitCallbackParam>	click_callback, // alias -> commit_callback
@@ -192,10 +195,6 @@ public:
 	void			setLeftHPad( S32 pad )					{ mLeftHPad = pad; }
 	void			setRightHPad( S32 pad )					{ mRightHPad = pad; }
 
-	void 			setImageOverlayLeftPad( S32 pad )			{ mImageOverlayLeftPad = pad; }
-	S32 			getImageOverlayLeftPad() const				{ return mImageOverlayLeftPad; }
-	void 			setImageOverlayRightPad( S32 pad )			{ mImageOverlayRightPad = pad; }
-	S32 			getImageOverlayRightPad() const				{ return mImageOverlayRightPad; }
 	void 			setImageOverlayTopPad( S32 pad )			{ mImageOverlayTopPad = pad; }
 	S32 			getImageOverlayTopPad() const				{ return mImageOverlayTopPad; }
 	void 			setImageOverlayBottomPad( S32 pad )			{ mImageOverlayBottomPad = pad; }
@@ -258,6 +257,8 @@ public:
 
 	void		setForcePressedState(bool b) { mForcePressedState = b; }
 	
+	void 		setAutoResize(bool auto_resize) { mAutoResize = auto_resize; }
+
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
 	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
@@ -328,10 +329,13 @@ private:
 	S32							mRightHPad;
 	S32							mBottomVPad;	// under text label
 
-	S32							mImageOverlayLeftPad;
-	S32							mImageOverlayRightPad;
 	S32							mImageOverlayTopPad;
 	S32							mImageOverlayBottomPad;
+
+	/*
+	 * Space between image_overlay and label
+	 */
+	S32							mImgOverlayLabelSpace;
 
 	F32							mHoverGlowStrength;
 	F32							mCurGlowStrength;

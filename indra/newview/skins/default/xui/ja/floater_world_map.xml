@@ -2,13 +2,13 @@
 <floater name="worldmap" title="世界地図">
 	<panel name="layout_panel_1">
 		<text name="events_label">
-			レジェンド
+			表記・記号
 		</text>
 	</panel>
 	<panel>
-		<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="マップを中央に表示する"/>
+		<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="アバターの位置を地図の中心に表示します"/>
 		<text name="me_label">
-			ミー
+			自分
 		</text>
 		<check_box label="住人" name="people_chk"/>
 		<text name="person_label">
@@ -23,12 +23,12 @@
 			土地販売
 		</text>
 		<text name="by_owner_label">
-			by owner
+			所有者の販売
 		</text>
 		<text name="auction_label">
 			土地オークション
 		</text>
-		<button label="ホームへ" label_selected="ホームへ" name="Go Home" tool_tip="「ホーム」にテレポート"/>
+		<button label="ホームへ" label_selected="ホームへ" name="Go Home" tool_tip="「ホーム」にテレポートします"/>
 		<text name="Home_label">
 			ホーム
 		</text>
@@ -50,25 +50,26 @@
 	</panel>
 	<panel>
 		<text name="find_on_map_label">
-			地図で探す
+			地図上で探す
 		</text>
 	</panel>
 	<panel>
-		<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="フレンドを地図に表示">
+		<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="フレンドを地図上に表示します">
 			<combo_box.item label="オンラインのフレンド" name="item1"/>
 		</combo_box>
-		<combo_box label="マイ ランドマーク" name="landmark combo" tool_tip="地図に表示するランドマーク">
+		<combo_box label="マイ ランドマーク" name="landmark combo" tool_tip="地図上に表示するランドマーク">
 			<combo_box.item label="マイ ランドマーク" name="item1"/>
 		</combo_box>
 		<search_editor label="リージョン名" name="location" tool_tip="地域名を入力してください。"/>
 		<button label="検索" name="DoSearch" tool_tip="地域検索"/>
+		<button name="Clear" tool_tip="追跡ラインをクリアして地図をリセットします"/>
 		<scroll_list name="search_results">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="sim_name"/>
 		</scroll_list>
-		<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="選択されたロケーションにテレポート"/>
-		<button label="SLurl をコピー" name="copy_slurl" tool_tip="現在地を SLurl としてコピーして、Webで使用します。"/>
-		<button label="選択したリージョンを表示する" label_selected="目的地を表示" name="Show Destination" tool_tip="選択したロケーションを地図の中心にする"/>
+		<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="選択した場所にテレポートします"/>
+		<button label="SLurl をコピー" name="copy_slurl" tool_tip="現在地を SLurl でコピーして Web で使用します。"/>
+		<button label="選択をを表示する" label_selected="目的地を表示" name="Show Destination" tool_tip="選択した場所を地図の中心に表示します"/>
 	</panel>
 	<panel>
 		<text name="zoom_label">

@@ -369,7 +369,7 @@ Leyla Linden               </text>
              layout="topleft"
              left_delta="0"
              name="Sell with landowners objects in parcel."
-             top_pad="-3"
+             top_pad="-2"
              width="186">
                 Objects included in sale
             </text>
@@ -1609,41 +1609,12 @@ Only large parcels can be listed in search.
              name="set_media_url"
              width="50"
              top_delta="0"/>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="20"
-             layout="topleft"
-             left="10"
-             name="CurrentURL:"
-             width="100"
-             top_pad="10">
-                Current Page:
-            </text>
-            <button
-             follows="top|right"
-             height="23"
-             image_overlay="Refresh_Off"
-             layout="topleft"
-             name="reset_media_url"
-             left_pad="0"
-             tool_tip="Refresh URL"
-             width="23"
-             top_delta="0"/>
-            <text
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left_pad="10"
-             name="current_url"
-             width="300" />
             <check_box
              follows="top|left"
              height="16"
              label="Hide URL"
              layout="topleft"
-             left_delta="-36"
+             left="110"
              name="hide_media_url"
              tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
              width="50"
@@ -1825,6 +1796,15 @@ Only large parcels can be listed in search.
              top_delta="0"
              right="-15"
              select_on_focus="true" />
+			<check_box
+             height="16"
+             label="Hide URL"
+             layout="topleft"
+             name="hide_music_url"
+			 tool_tip="Checking this option will hide the music url to any non-authorized viewers of this parcel information."
+			 left_delta="10"
+             top_pad="5"
+             width="292" /> 
             <text
              type="string"
              length="1"

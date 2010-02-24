@@ -56,7 +56,7 @@
          help_topic="preferences_general_tab"
          name="general" />
         <panel
-	 class="panel_preference"
+	 class="panel_preference_graphics"
          filename="panel_preferences_graphics1.xml"
          label="Graphics"
          layout="topleft"
@@ -72,7 +72,7 @@
         <panel
 		 class="panel_preference"
          filename="panel_preferences_sound.xml"
-         label="Sound"
+         label="Sound &amp; Media"
          layout="topleft"
          help_topic="preferences_audio_tab"
          name="audio" />

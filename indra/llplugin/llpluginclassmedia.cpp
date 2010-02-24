@@ -104,6 +104,8 @@ void LLPluginClassMedia::reset()
 	mSetMediaHeight = -1;
 	mRequestedMediaWidth = 0;
 	mRequestedMediaHeight = 0;
+	mRequestedTextureWidth = 0;
+	mRequestedTextureHeight = 0;
 	mFullMediaWidth = 0;
 	mFullMediaHeight = 0;
 	mTextureWidth = 0;
@@ -469,7 +471,7 @@ void LLPluginClassMedia::mouseEvent(EMouseEventType type, int button, int x, int
 	sendMessage(message);
 }
 
-bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifiers)
+bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data)
 {
 	bool result = true;
 	
@@ -526,6 +528,7 @@ bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifie
 		message.setValueS32("key", key_code);
 
 		message.setValue("modifiers", translateModifiers(modifiers));
+		message.setValueLLSD("native_key_data", native_key_data);
 		
 		sendMessage(message);
 	}
@@ -544,12 +547,13 @@ void LLPluginClassMedia::scrollEvent(int x, int y, MASK modifiers)
 	sendMessage(message);
 }
 	
-bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers)
+bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers, LLSD native_key_data)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "text_event");
 
 	message.setValue("text", text);
 	message.setValue("modifiers", translateModifiers(modifiers));
+	message.setValueLLSD("native_key_data", native_key_data);
 	
 	sendMessage(message);
 	
@@ -680,13 +684,13 @@ LLPluginClassMedia::ETargetType getTargetTypeFromLLQtWebkit(int target_type)
 	// so that we don't expose the llqtwebkit header in viewer code
 	switch (target_type)
 	{
-	case LinkTargetType::LTT_TARGET_NONE:
+	case LLQtWebKit::LTT_TARGET_NONE:
 		return LLPluginClassMedia::TARGET_NONE;
 
-	case LinkTargetType::LTT_TARGET_BLANK:
+	case LLQtWebKit::LTT_TARGET_BLANK:
 		return LLPluginClassMedia::TARGET_BLANK;
 
-	case LinkTargetType::LTT_TARGET_EXTERNAL:
+	case LLQtWebKit::LTT_TARGET_EXTERNAL:
 		return LLPluginClassMedia::TARGET_EXTERNAL;
 
 	default:

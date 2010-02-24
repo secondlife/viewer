@@ -51,6 +51,8 @@ private:
 	void determineClient();
 	void determineNetwork();
 	void determineServer();
+	void updateControls(bool shrink);
+	BOOL isShrunk();
 
 	void onClickShrink();
 

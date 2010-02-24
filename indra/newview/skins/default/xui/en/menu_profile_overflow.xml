@@ -19,6 +19,22 @@
         <menu_item_call.on_click
          function="Profile.Share" />
     </menu_item_call>
+   <menu_item_call
+   label="Block"
+   name="block">
+    <menu_item_call.on_click
+     function="Profile.BlockUnblock"/>
+    <menu_item_call.on_visible
+     function="Profile.EnableBlock" />
+  </menu_item_call>
+  <menu_item_call
+   label="Unblock"
+   name="unblock">
+    <menu_item_call.on_click
+     function="Profile.BlockUnblock"/>
+    <menu_item_call.on_visible
+     function="Profile.EnableUnblock" />
+  </menu_item_call>
   <menu_item_call
    label="Kick"
    layout="topleft"

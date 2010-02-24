@@ -476,8 +476,6 @@ void LLPipeline::cleanup()
 
 	releaseGLBuffers();
 
-	mBloomImagep = NULL;
-	mBloomImage2p = NULL;
 	mFaceSelectImagep = NULL;
 
 	mMovedBridge.clear();
@@ -1354,6 +1352,7 @@ void LLPipeline::updateMoveNormalAsync(LLDrawable* drawablep)
 	if (!drawablep)
 	{
 		llerrs << "updateMove called with NULL drawablep" << llendl;
+		return;
 	}
 	if (drawablep->isState(LLDrawable::EARLY_MOVE))
 	{
@@ -1957,7 +1956,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		if (root && root->getParent() && root->getVObj() && root->getVObj()->isAttachment())
 		{
 			LLVOAvatar* av = root->getParent()->getVObj()->asAvatar();
-			if (av->isImpostor())
+			if (av && av->isImpostor())
 			{
 				return;
 			}
@@ -2776,10 +2775,8 @@ void render_hud_elements()
 		LLViewerParcelMgr::getInstance()->render();
 		LLViewerParcelMgr::getInstance()->renderParcelCollision();
 	
-		// Render debugging beacons.
-		//gObjectList.renderObjectBeacons();
-		//LLHUDObject::renderAll();
-		//gObjectList.resetObjectBeacons();
+		// Render name tags.
+		LLHUDObject::renderAll();
 	}
 	else if (gForceRenderLandFence)
 	{
@@ -3184,7 +3181,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	{
 		// Render debugging beacons.
 		gObjectList.renderObjectBeacons();
-		LLHUDObject::renderAll();
 		gObjectList.resetObjectBeacons();
 	}
 
@@ -3416,7 +3412,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	{
 		// Render debugging beacons.
 		gObjectList.renderObjectBeacons();
-		LLHUDObject::renderAll();
 		gObjectList.resetObjectBeacons();
 	}
 

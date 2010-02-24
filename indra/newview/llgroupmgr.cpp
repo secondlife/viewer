@@ -677,9 +677,12 @@ void LLGroupMgrGroupData::sendRoleChanges()
 				break;
 			}
 			case RC_UPDATE_ALL:
+				// fall through
 			case RC_UPDATE_POWERS:
 				need_power_recalc = true;
+				// fall through
 			case RC_UPDATE_DATA:
+				// fall through
 			default: 
 			{
 				LLGroupRoleData* group_role_data = (*role_it).second;
@@ -762,7 +765,7 @@ void LLGroupMgr::addObserver(LLGroupMgrObserver* observer)
 		mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
 }
 
-void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupObserver* observer)
 {
 	if(group_id.notNull() && observer)
 	{
@@ -792,7 +795,7 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 	}
 }
 
-void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupObserver* observer)
 {
 	if(group_id.isNull() || !observer)
 	{
@@ -835,7 +838,8 @@ static void formatDateString(std::string &date_string)
 		std::string day = result[2];
 
 		// ISO 8601 date format
-		date_string = llformat("%02s/%02s/%04s", month.c_str(), day.c_str(), year.c_str());
+		//date_string = llformat("%02s/%02s/%04s", month.c_str(), day.c_str(), year.c_str());
+		date_string = llformat("%04s/%02s/%04s", year.c_str(), month.c_str(), day.c_str());
 	}
 }
 
@@ -1364,7 +1368,7 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 			gi->second->mChanged = FALSE;
 
 
-			// notify LLParticularGroupMgrObserver
+			// notify LLParticularGroupObserver
 		    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
 		    if(obs_it == mParticularObservers.end())
 		        return;
@@ -1708,17 +1712,21 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	bool start_message = true;
 	LLMessageSystem* msg = gMessageSystem;
 
+	
+
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap) return;
 
 	for (std::vector<LLUUID>::iterator it = member_ids.begin();
 		 it != member_ids.end(); ++it)
 	{
+		LLUUID& ejected_member_id = (*it);
+
 		// Can't use 'eject' to leave a group.
-		if ((*it) == gAgent.getID()) continue;
+		if (ejected_member_id == gAgent.getID()) continue;
 
 		// Make sure they are in the group, and we need the member data
-		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(*it);
+		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(ejected_member_id);
 		if (mit != group_datap->mMembers.end())
 		{
 			// Add them to the message
@@ -1734,7 +1742,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			}
 			
 			msg->nextBlock("EjectData");
-			msg->addUUID("EjecteeID",(*it));
+			msg->addUUID("EjecteeID",ejected_member_id);
 
 			if (msg->isSendFull())
 			{
@@ -1742,17 +1750,23 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 				start_message = true;
 			}
 
+			LLGroupMemberData* member_data = (*mit).second;
+
 			// Clean up groupmgr
-			for (LLGroupMemberData::role_list_t::iterator rit = (*mit).second->roleBegin();
-				 rit != (*mit).second->roleEnd(); ++rit)
+			for (LLGroupMemberData::role_list_t::iterator rit = member_data->roleBegin();
+				 rit != member_data->roleEnd(); ++rit)
 			{
-				if ((*rit).first.notNull())
+				if ((*rit).first.notNull() && (*rit).second!=0)
 				{
-					(*rit).second->removeMember(*it);
+					(*rit).second->removeMember(ejected_member_id);
 				}
 			}
-			delete (*mit).second;
-			group_datap->mMembers.erase(*it);
+			
+			group_datap->mMembers.erase(ejected_member_id);
+			
+			// member_data was introduced and is used here instead of (*mit).second to avoid crash because of invalid iterator
+			// It becomes invalid after line with erase above. EXT-4778
+			delete member_data;
 		}
 	}
 

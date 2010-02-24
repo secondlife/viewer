@@ -51,6 +51,7 @@
 #include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
 #include "llsafehandle.h"
+#include "llsidetray.h"
 #include "lltextbox.h"			// for description truncation
 #include "lltrans.h"
 #include "llui.h"				// positionViewNearMouse()
@@ -575,10 +576,17 @@ void LLInspectObject::updateSecureBrowsing()
 void LLInspectObject::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	LLMenuGL* gear_menu = getChild<LLMenuButton>("gear_btn")->getMenu();
-	if ( !(gear_menu && gear_menu->getVisible()))
+	if ( gear_menu && gear_menu->getVisible() )
 	{
-		mOpenTimer.unpause();
+		return;
 	}
+
+	if(childHasVisiblePopupMenu())
+	{
+		return;
+	}
+
+	mOpenTimer.unpause();
 }
 
 void LLInspectObject::onClickBuy()
@@ -636,8 +644,9 @@ void LLInspectObject::onClickOpen()
 
 void LLInspectObject::onClickMoreInfo()
 {
-	// *TODO: Show object info side panel, once that is implemented.
-	LLNotificationsUtil::add("ClickUnimplemented");
+	LLSD key;
+	key["task"] = "task";
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);	
 	closeFloater();
 }
 

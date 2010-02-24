@@ -227,9 +227,6 @@
 	<string name="AvatarNameMultiple">
 		(mehrere)
 	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
-	</string>
 	<string name="GroupNameNone">
 		(keiner)
 	</string>
@@ -593,6 +590,9 @@
 	<string name="hang_up">
 		Verbindung mit In-Welt-Voice-Chat getrennt
 	</string>
+	<string name="reconnect_nearby">
+		Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden
+	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		Dem Objekt „[OBJECTNAME]“, ein Objekt von „[OWNERNAME]“, in [REGIONNAME] [REGIONPOS], wurde folgende Berechtigung erteilt: [PERMISSIONS].
 	</string>
@@ -825,7 +825,7 @@
 		ESC drücken, um zur Normalansicht zurückzukehren
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Im Inventar wurden keine passenden Objekte gefunden.
+		Im Inventar wurden keine passenden Objekte gefunden.  Versuchen Sie es mit [secondlife:///app/search/groups „Suche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Hier eine Landmarke hin ziehen, um diese zu Ihrem Favoriten hinzuzufügen.
@@ -1324,6 +1324,9 @@
 	<string name="ScriptLimitsRequestError">
 		Fehler bei Informationsabruf
 	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Keine Parzellen wurden ausgewählt
+	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
 		Fehler: Skriptinformationen sind nur für Ihre aktuelle Region verfügbar
 	</string>
@@ -1501,7 +1504,7 @@
 		(wird nach Veröffentlichung aktualisiert)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Es wurde keine Auswahl getroffen/keine Anzeigen ausgewählt
+		Sie haben keine Auswahl oder Anzeigen erstelllt. Klicken Sie auf die „Plus&quot;-Schaltfläche, um eine Auswahl oder Anzeige zu erstellen.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Wird geladen...

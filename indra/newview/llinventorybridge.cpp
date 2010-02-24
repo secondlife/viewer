@@ -174,17 +174,21 @@ time_t LLInvFVBridge::getCreationDate() const
 }
 
 // Can be destroyed (or moved to trash)
-BOOL LLInvFVBridge::isItemRemovable()
+BOOL LLInvFVBridge::isItemRemovable() const
 {
 	const LLInventoryModel* model = getInventoryModel();
 	if(!model) 
 	{
 		return FALSE;
 	}
+
+	// Can't delete an item that's in the library.
 	if(!model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
 	{
 		return FALSE;
 	}
+
+	// Disable delete from COF folder; have users explicitly choose "detach/take off".
 	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
 	{
 		return FALSE;
@@ -289,12 +293,27 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	LLMessageSystem* msg = gMessageSystem;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = NULL;
-	LLViewerInventoryCategory* cat = NULL;
 	std::vector<LLUUID> move_ids;
 	LLInventoryModel::update_map_t update;
 	bool start_new_message = true;
 	S32 count = batch.count();
 	S32 i;
+
+	// first, hide any 'preview' floaters that correspond to the items
+	// being deleted.
+	for(i = 0; i < count; ++i)
+	{
+		bridge = (LLInvFVBridge*)(batch.get(i));
+		if(!bridge || !bridge->isItemRemovable()) continue;
+		item = (LLViewerInventoryItem*)model->getItem(bridge->getUUID());
+		if(item)
+		{
+			LLPreview::hide(item->getUUID());
+		}
+	}
+
+	// do the inventory move to trash
+
 	for(i = 0; i < count; ++i)
 	{
 		bridge = (LLInvFVBridge*)(batch.get(i));
@@ -304,7 +323,6 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 		{
 			if(item->getParentUUID() == trash_id) continue;
 			move_ids.push_back(item->getUUID());
-			LLPreview::hide(item->getUUID());
 			--update[item->getParentUUID()];
 			++update[trash_id];
 			if(start_new_message)
@@ -336,11 +354,12 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 		gInventory.accountForUpdate(update);
 		update.clear();
 	}
+
 	for(i = 0; i < count; ++i)
 	{
 		bridge = (LLInvFVBridge*)(batch.get(i));
 		if(!bridge || !bridge->isItemRemovable()) continue;
-		cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
+		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
 		if(cat)
 		{
 			if(cat->getParentUUID() == trash_id) continue;
@@ -461,10 +480,14 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 }
 
 void hide_context_entries(LLMenuGL& menu, 
-						const std::vector<std::string> &entries_to_show,
-						const std::vector<std::string> &disabled_entries)
+						const menuentry_vec_t &entries_to_show,
+						const menuentry_vec_t &disabled_entries)
 {
 	const LLView::child_list_t *list = menu.getChildList();
+
+	// For removing double separators or leading separator.  Start at true so that
+	// if the first element is a separator, it will not be shown.
+	BOOL is_previous_entry_separator = TRUE;
 
 	LLView::child_list_t::const_iterator itor;
 	for (itor = list->begin(); itor != list->end(); ++itor)
@@ -480,7 +503,7 @@ void hide_context_entries(LLMenuGL& menu,
 
 
 		bool found = false;
-		std::vector<std::string>::const_iterator itor2;
+		menuentry_vec_t::const_iterator itor2;
 		for (itor2 = entries_to_show.begin(); itor2 != entries_to_show.end(); ++itor2)
 		{
 			if (*itor2 == name)
@@ -488,6 +511,17 @@ void hide_context_entries(LLMenuGL& menu,
 				found = true;
 			}
 		}
+
+		// Don't allow multiple separators in a row (e.g. such as if there are no items
+		// between two separators).
+		if (found)
+		{
+			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(*itor) != NULL);
+			if (is_entry_separator && is_previous_entry_separator)
+				found = false;
+			is_previous_entry_separator = is_entry_separator;
+		}
+		
 		if (!found)
 		{
 			(*itor)->setVisible(FALSE);
@@ -508,8 +542,8 @@ void hide_context_entries(LLMenuGL& menu,
 
 // Helper for commonly-used entries
 void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
-										std::vector<std::string> &items,
-										std::vector<std::string> &disabled_items, U32 flags)
+										menuentry_vec_t &items,
+										menuentry_vec_t &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
 
@@ -565,8 +599,12 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	items.push_back(std::string("Paste"));
-	if (!isClipboardPasteable() || (flags & FIRST_SELECTED_ITEM) == 0)
+	// Don't allow items to be pasted directly into the COF.
+	if (!isCOFFolder())
+	{
+		items.push_back(std::string("Paste"));
+	}
+	if (!isClipboardPasteable() || ((flags & FIRST_SELECTED_ITEM) == 0))
 	{
 		disabled_items.push_back(std::string("Paste"));
 	}
@@ -582,16 +620,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	items.push_back(std::string("Paste Separator"));
 
-	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
-	{
-		items.push_back(std::string("Remove Link"));
-	}
-
-	items.push_back(std::string("Delete"));
-	if (!isItemRemovable())
-	{
-		disabled_items.push_back(std::string("Delete"));
-	}
+	addDeleteContextMenuOptions(items, disabled_items);
 
 	// If multiple items are selected, disable properties (if it exists).
 	if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -603,16 +632,11 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLInvFVBridge::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("PurgeItem"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("PurgeItem"));
-		}
-		items.push_back(std::string("RestoreItem"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -622,6 +646,53 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 	}
 	hide_context_entries(menu, items, disabled_items);
+}
+
+void LLInvFVBridge::addTrashContextMenuOptions(menuentry_vec_t &items,
+											   menuentry_vec_t &disabled_items)
+{
+	const LLInventoryObject *obj = getInventoryObject();
+	if (obj && obj->getIsLinkType())
+	{
+		items.push_back(std::string("Find Original"));
+		if (isLinkedObjectMissing())
+		{
+			disabled_items.push_back(std::string("Find Original"));
+		}
+	}
+	items.push_back(std::string("Purge Item"));
+	if (!isItemRemovable())
+	{
+		disabled_items.push_back(std::string("Purge Item"));
+	}
+	items.push_back(std::string("Restore Item"));
+}
+
+void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
+												menuentry_vec_t &disabled_items)
+{
+	// Don't allow delete as a direct option from COF folder.
+	if (isCOFFolder())
+	{
+		return;
+	}
+
+	const LLInventoryObject *obj = getInventoryObject();
+
+	// "Remove link" and "Delete" are the same operation.
+	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
+	{
+		items.push_back(std::string("Remove Link"));
+	}
+	else
+	{
+		items.push_back(std::string("Delete"));
+	}
+
+	if (!isItemRemovable())
+	{
+		disabled_items.push_back(std::string("Delete"));
+	}
 }
 
 // *TODO: remove this
@@ -670,7 +741,7 @@ LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 	return panel ? panel->getModel() : NULL;
 }
 
-BOOL LLInvFVBridge::isInTrash() const
+BOOL LLInvFVBridge::isItemInTrash() const
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
@@ -680,7 +751,7 @@ BOOL LLInvFVBridge::isInTrash() const
 
 BOOL LLInvFVBridge::isLinkedObjectInTrash() const
 {
-	if (isInTrash()) return TRUE;
+	if (isItemInTrash()) return TRUE;
 
 	const LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
@@ -731,7 +802,7 @@ void LLInvFVBridge::changeItemParent(LLInventoryModel* model,
 									 const LLUUID& new_parent_id,
 									 BOOL restamp)
 {
-	if(item->getParentUUID() != new_parent_id)
+	if (item->getParentUUID() != new_parent_id)
 	{
 		LLInventoryModel::update_list_t update;
 		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
@@ -1057,6 +1128,9 @@ void LLItemBridge::restoreItem()
 
 void LLItemBridge::restoreToWorld()
 {
+	//Similar functionality to the drag and drop rez logic
+	bool remove_from_inventory = false;
+
 	LLViewerInventoryItem* itemp = (LLViewerInventoryItem*)getItem();
 	if (itemp)
 	{
@@ -1069,23 +1143,20 @@ void LLItemBridge::restoreToWorld()
 		msg->nextBlockFast(_PREHASH_InventoryData);
 		itemp->packMessage(msg);
 		msg->sendReliable(gAgent.getRegion()->getHost());
-	}
 
-	//Similar functionality to the drag and drop rez logic
-	BOOL remove_from_inventory = FALSE;
-
-	//remove local inventory copy, sim will deal with permissions and removing the item
-	//from the actual inventory if its a no-copy etc
-	if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		remove_from_inventory = TRUE;
-	}
-
-	// Check if it's in the trash. (again similar to the normal rez logic)
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
-	{
-		remove_from_inventory = TRUE;
+		//remove local inventory copy, sim will deal with permissions and removing the item
+		//from the actual inventory if its a no-copy etc
+		if(!itemp->getPermissions().allowCopyBy(gAgent.getID()))
+		{
+			remove_from_inventory = true;
+		}
+		
+		// Check if it's in the trash. (again similar to the normal rez logic)
+		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		if(gInventory.isObjectDescendentOf(itemp->getUUID(), trash_id))
+		{
+			remove_from_inventory = true;
+		}
 	}
 
 	if(remove_from_inventory)
@@ -1412,7 +1483,7 @@ public:
 };
 
 // Can be destroyed (or moved to trash)
-BOOL LLFolderBridge::isItemRemovable()
+BOOL LLFolderBridge::isItemRemovable() const
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model)
@@ -1471,7 +1542,7 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	return TRUE;
+	return FALSE;
 }
 
 BOOL LLFolderBridge::copyToClipboard() const
@@ -1854,7 +1925,7 @@ bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
 	// - links to attachments
 	// - links to gestures
 	// - links to ensemble folders
-	LLViewerInventoryItem *linked_item = ((LLViewerInventoryItem*)item)->getLinkedItem(); // BAP - safe?
+	LLViewerInventoryItem *linked_item = ((LLViewerInventoryItem*)item)->getLinkedItem();
 	if (linked_item)
 	{
 		LLAssetType::EType type = linked_item->getType();
@@ -1865,7 +1936,7 @@ bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
 	}
 	else
 	{
-		LLViewerInventoryCategory *linked_category = ((LLViewerInventoryItem*)item)->getLinkedCategory(); // BAP - safe?
+		LLViewerInventoryCategory *linked_category = ((LLViewerInventoryItem*)item)->getLinkedCategory();
 		// BAP remove AT_NONE support after ensembles are fully working?
 		return (linked_category &&
 				((linked_category->getPreferredType() == LLFolderType::FT_NONE) ||
@@ -2176,7 +2247,10 @@ void LLFolderBridge::determineFolderType()
 	{
 		LLInventoryModel* model = getInventoryModel();
 		LLViewerInventoryCategory* category = model->getCategory(mUUID);
-		category->determineFolderType();
+		if (category)
+		{
+			category->determineFolderType();
+		}
 	}
 }
 
@@ -2373,7 +2447,12 @@ void LLFolderBridge::pasteFromClipboard()
 				{
 					// move_inventory_item() is not enough,
 					//we have to update inventory locally too
-					changeItemParent(model, dynamic_cast<LLViewerInventoryItem*>(item), parent_id, FALSE);
+					LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
+					llassert(viitem);
+					if (viitem)
+					{
+						changeItemParent(model, viitem, parent_id, FALSE);
+					}
 				}
 				else
 				{
@@ -2439,17 +2518,19 @@ void LLFolderBridge::staticFolderOptionsMenu()
 
 void LLFolderBridge::folderOptionsMenu()
 {
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t disabled_items;
 
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 
 	const LLInventoryCategory* category = model->getCategory(mUUID);
+	if(!category) return;
+
 	LLFolderType::EType type = category->getPreferredType();
-	const bool is_system_folder = category && LLFolderType::lookupIsProtectedType(type);
+	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
 	// BAP change once we're no longer treating regular categories as ensembles.
-	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
-										  LLFolderType::lookupIsEnsembleType(type));
+	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
+				  LLFolderType::lookupIsEnsembleType(type));
 
 	// calling card related functionality for folders.
 
@@ -2457,7 +2538,7 @@ void LLFolderBridge::folderOptionsMenu()
 	if (is_sidepanel)
 	{
 		mItems.push_back("Rename");
-		mItems.push_back("Delete");
+		addDeleteContextMenuOptions(mItems, disabled_items);
 	}
 
 	// Only enable calling-card related options for non-system folders.
@@ -2572,7 +2653,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
 
-//	std::vector<std::string> disabled_items;
+//	menuentry_vec_t disabled_items;
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -2589,17 +2670,11 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// This is the trash.
 		mItems.push_back(std::string("Empty Trash"));
 	}
-	else if(model->isObjectDescendentOf(mUUID, trash_id))
+	else if(isItemInTrash())
 	{
 		// This is a folder in the trash.
 		mItems.clear(); // clear any items that used to exist
-		mItems.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			mDisabledItems.push_back(std::string("Purge Item"));
-		}
-
-		mItems.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(mItems, mDisabledItems);
 	}
 	else if(isAgentInventory()) // do not allow creating in library
 	{
@@ -2617,24 +2692,27 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			mItems.push_back(std::string("New Gesture"));
 			mItems.push_back(std::string("New Clothes"));
 			mItems.push_back(std::string("New Body Parts"));
-			mItems.push_back(std::string("Change Type"));
 
-			LLViewerInventoryCategory *cat = getCategory();
+			// Changing folder types is just a debug feature; this is fairly unsupported
+			// and can lead to unexpected behavior if enabled.
+#if !LL_RELEASE_FOR_DOWNLOAD
+			mItems.push_back(std::string("Change Type"));
+			const LLViewerInventoryCategory *cat = getCategory();
 			if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 			{
 				mDisabledItems.push_back(std::string("Change Type"));
 			}
-
+#endif
 			getClipboardEntries(false, mItems, mDisabledItems, flags);
 		}
 		else
 		{
 			// Want some but not all of the items from getClipboardEntries for outfits.
-			if (cat && cat->getPreferredType()==LLFolderType::FT_OUTFIT)
+			if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
 			{
 				mItems.push_back(std::string("Rename"));
-				mItems.push_back(std::string("Delete"));
 
+				addDeleteContextMenuOptions(mItems, mDisabledItems);
 				// EXT-4030: disallow deletion of currently worn outfit
 				const LLViewerInventoryItem *base_outfit_link = LLAppearanceManager::instance().getBaseOutfitLink();
 				if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
@@ -2884,8 +2962,6 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 	LLViewerInventoryCategory* cat = getCategory();
 	if(!cat) return;
 
-	// BAP - was:
-	// wear_inventory_category_on_avatar( cat, append );
 	LLAppearanceManager::instance().wearInventoryCategory( cat, FALSE, append );
 }
 
@@ -2949,7 +3025,6 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	LLViewerObject* object = NULL;
 	if(LLToolDragAndDrop::SOURCE_AGENT == source)
 	{
-
 		BOOL is_movable = TRUE;
 		switch( inv_item->getActualType() )
 		{
@@ -2961,11 +3036,18 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 
 		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
+		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
 		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+		const BOOL move_is_outof_current_outfit = LLAppearanceManager::instance().getIsInCOF(inv_item->getUUID());
 
+		// Can't explicitly drag things out of the COF.
+		if (move_is_outof_current_outfit)
+		{
+			is_movable = FALSE;
+		}
+		
 		if(is_movable && move_is_into_trash)
 		{
 			is_movable = inv_item->getIsLinkType() || !get_is_item_worn(inv_item->getUUID());
@@ -3203,17 +3285,11 @@ bool LLTextureBridge::canSaveTexture(void)
 void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -3296,18 +3372,12 @@ void LLSoundBridge::openSoundPreview(void* which)
 void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLSoundBridge::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
 
-	if(isInTrash())
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -3344,19 +3414,13 @@ LLUIImagePtr LLLandmarkBridge::getIcon() const
 
 void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
 
 	lldebugs << "LLLandmarkBridge::buildContextMenu()" << llendl;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -3570,18 +3634,12 @@ void LLCallingCardBridge::openItem()
 void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLCallingCardBridge::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
 
-	if(isInTrash())
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -3592,9 +3650,13 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		LLInventoryItem* item = getItem();
 		BOOL good_card = (item
-						  && (LLUUID::null != item->getCreatorUUID())
-						  && (item->getCreatorUUID() != gAgent.getID()));
-		BOOL user_online = (LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()));
+				  && (LLUUID::null != item->getCreatorUUID())
+				  && (item->getCreatorUUID() != gAgent.getID()));
+		BOOL user_online = FALSE;
+		if (item)
+		{
+			user_online = (LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()));
+		}
 		items.push_back(std::string("Send Instant Message Separator"));
 		items.push_back(std::string("Send Instant Message"));
 		items.push_back(std::string("Offer Teleport..."));
@@ -3773,6 +3835,26 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 	}
+	else if("play" == action)
+	{
+		if(!LLGestureManager::instance().isGestureActive(mUUID))
+		{
+			// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
+			BOOL inform_server = TRUE;
+			BOOL deactivate_similar = FALSE;
+			LLGestureManager::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
+			LLViewerInventoryItem* item = gInventory.getItem(mUUID);
+			llassert(item);
+			if (item)
+			{
+				LLGestureManager::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
+			}
+		}
+		else
+		{
+			playGesture(mUUID);
+		}
+	}
 	else LLItemBridge::performAction(folder, model, action);
 }
 
@@ -3821,17 +3903,11 @@ BOOL LLGestureBridge::removeItem()
 void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLGestureBridge::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -3858,6 +3934,20 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
+// static
+void LLGestureBridge::playGesture(const LLUUID& item_id)
+{
+	if (LLGestureManager::instance().isGesturePlaying(item_id))
+	{
+		LLGestureManager::instance().stopGesture(item_id);
+	}
+	else
+	{
+		LLGestureManager::instance().playGesture(item_id);
+	}
+}
+
+
 // +=================================================+
 // |        LLAnimationBridge                        |
 // +=================================================+
@@ -3869,19 +3959,13 @@ LLUIImagePtr LLAnimationBridge::getIcon() const
 
 void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
 
 	lldebugs << "LLAnimationBridge::buildContextMenu()" << llendl;
-	if(isInTrash())
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -4007,12 +4091,13 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
 			gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
-		}
-		// this object might have been selected, so let the selection manager know it's gone now
-		LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
-		if (found_obj)
-		{
-			LLSelectMgr::getInstance()->remove(found_obj);
+
+			// this object might have been selected, so let the selection manager know it's gone now
+			LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
+			if (found_obj)
+			{
+				LLSelectMgr::getInstance()->remove(found_obj);
+			}
 		}
 	}
 	else LLItemBridge::performAction(folder, model, action);
@@ -4150,17 +4235,11 @@ static LLNotificationFunctorRegistration confirm_replace_attachment_rez_reg("Rep
 
 void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
@@ -4186,9 +4265,10 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 			if( get_is_item_worn( mUUID ) )
 			{
+				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else if (!isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
+			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4526,7 +4606,7 @@ void LLWearableBridge::openItem()
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
 	/*
-	if( isInTrash() )
+	if( isItemInTrash() )
 	{
 		LLNotificationsUtil::add("CannotWearTrash");
 	}
@@ -4566,17 +4646,11 @@ void LLWearableBridge::openItem()
 void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLWearableBridge::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-	if(isInTrash())
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{	// FWIW, it looks like SUPPRESS_OPEN_ITEM is not set anywhere
@@ -4634,6 +4708,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			{
 				case LLAssetType::AT_CLOTHING:
 					items.push_back(std::string("Take Off"));
+					// Fallthrough since clothing and bodypart share wear options
 				case LLAssetType::AT_BODYPART:
 					if (get_is_item_worn(item->getUUID()))
 					{
@@ -4883,8 +4958,12 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	}
 
 	// Find and remove this item from the COF.
+	// FIXME 2.1 - call removeCOFItemLinks in llappearancemgr instead.
 	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::instance().getCOF());
-	llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
+	if (items.size() != 1)
+	{
+		llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
+	}
 	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 		 iter != items.end();
 		 ++iter)
@@ -4920,7 +4999,10 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 		// Find and remove this item from the COF.
 		LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(
 			item_id, LLAppearanceManager::instance().getCOF());
-		llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
+		if (items.size() != 1)
+		{
+			llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
+		}
 		for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 			 iter != items.end();
 			 ++iter)
@@ -5027,12 +5109,18 @@ void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
 //static
 void LLInvFVBridgeAction::doAction(const LLUUID& uuid, LLInventoryModel* model)
 {
-	LLAssetType::EType asset_type = model->getItem(uuid)->getType();
-	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
-	if(action)
+	llassert(model);
+	LLViewerInventoryItem* item = model->getItem(uuid);
+	llassert(item);
+	if (item)
 	{
-		action->doIt();
-		delete action;
+		LLAssetType::EType asset_type = item->getType();
+		LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
+		if(action)
+		{
+			action->doIt();
+			delete action;
+		}
 	}
 }
 
@@ -5162,7 +5250,7 @@ void	LLLSLTextBridgeAction::doIt()
 }
 
 
-BOOL LLWearableBridgeAction::isInTrash() const
+BOOL LLWearableBridgeAction::isItemInTrash() const
 {
 	if(!mModel) return FALSE;
 	const LLUUID trash_id = mModel->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -5210,7 +5298,7 @@ void LLWearableBridgeAction::wearOnAvatar()
 //virtual
 void LLWearableBridgeAction::doIt()
 {
-	if(isInTrash())
+	if(isItemInTrash())
 	{
 		LLNotificationsUtil::add("CannotWearTrash");
 	}
@@ -5269,30 +5357,20 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	// *TODO: Translate
 	lldebugs << "LLLink::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
 
 	items.push_back(std::string("Find Original"));
 	disabled_items.push_back(std::string("Find Original"));
 	
-	if(isInTrash())
+	if(isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
 		items.push_back(std::string("Properties"));
-		items.push_back(std::string("Delete"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Delete"));
-		}
+		addDeleteContextMenuOptions(items, disabled_items);
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
@@ -5323,27 +5401,17 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	// *TODO: Translate
 	lldebugs << "LLLink::buildContextMenu()" << llendl;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
 
-	if(isInTrash())
+	if (isItemInTrash())
 	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
+		addTrashContextMenuOptions(items, disabled_items);
 	}
 	else
 	{
 		items.push_back(std::string("Find Original"));
-		items.push_back(std::string("Delete"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Delete"));
-		}
+		addDeleteContextMenuOptions(items, disabled_items);
 	}
 	hide_context_entries(menu, items, disabled_items);
 }

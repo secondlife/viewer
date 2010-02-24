@@ -8,9 +8,9 @@
 		コンパイラー [COMPILER] [COMPILER_VERSION] バージョン
 	</floater.string>
 	<floater.string name="AboutPosition">
-		You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at [HOSTNAME] ([HOSTIP])
+		あなたの現在地は、[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[[SERVER_RELEASE_NOTES_URL] [リリースノート]]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		CPU： [CPU]
@@ -61,7 +61,8 @@ Vivox バージョン： [VIVOX_VERSION]
   FreeType Copyright (C) 1996-2002, The FreeType Project (www.freetype.org).
   GL Copyright (C) 1999-2004 Brian Paul.
   Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
-  jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+  jpeg2000 Copyright (C) 2001, David Taubman, The University of New South 
+  Wales (UNSW)
   jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
   ogg/vorbis Copyright (C) 2001, Xiphophorus
   OpenSSL Copyright (C) 1998-2002 The OpenSSL Project.

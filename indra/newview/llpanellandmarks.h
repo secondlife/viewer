@@ -78,6 +78,8 @@ public:
 	 */
 	void setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus);
 
+	LLPlacesInventoryPanel* getLibraryInventoryPanel() { return mLibraryInventoryPanel; }
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
@@ -110,7 +112,7 @@ private:
 	void initMyInventoryPanel();
 	void initLibraryInventoryPanel();
 	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
-	void initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list);
+	void initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list, bool expand_tab);
 	void onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list);
 	void deselectOtherThan(const LLPlacesInventoryPanel* inventory_list);
 
@@ -153,14 +155,14 @@ private:
 	void doCreatePick(LLLandmark* landmark);
 
 private:
-	LLPlacesInventoryPanel*	mFavoritesInventoryPanel;
-	LLPlacesInventoryPanel*	mLandmarksInventoryPanel;
-	LLPlacesInventoryPanel*	mMyInventoryPanel;
-	LLPlacesInventoryPanel*	mLibraryInventoryPanel;
+	LLPlacesInventoryPanel*		mFavoritesInventoryPanel;
+	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
+	LLPlacesInventoryPanel*		mMyInventoryPanel;
+	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
 	LLMenuGL*					mGearLandmarkMenu;
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
-	LLPlacesInventoryPanel*	mCurrentSelectedList;
+	LLPlacesInventoryPanel*		mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;

@@ -8,7 +8,7 @@
 		Compilé avec [COMPILER] version [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Vous êtes à [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] dans [REGION] se trouvant à [HOSTNAME] ([HOSTIP])
+		Vous êtes à [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] dans [REGION] se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
@@ -49,7 +49,7 @@ Version Vivox : [VIVOX_VERSION]
 
 
 
-  Pour réussir dans les affaires, soyez audacieux, créatif et différent. - Henry Marchant
+Pour réussir dans les affaires, soyez audacieux, créatif et différent. - Henry Marchant
 			</text_editor>
 		</panel>
 		<panel label="Licences" name="licenses_panel">
@@ -61,7 +61,8 @@ Version Vivox : [VIVOX_VERSION]
   FreeType Copyright (C) 1996-2002, The FreeType Project (www.freetype.org).
   GL Copyright (C) 1999-2004 Brian Paul.
   Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
-  jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+  jpeg2000 Copyright (C) 2001, David Taubman, The University of New South 
+  Wales (UNSW)
   jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
   ogg/vorbis Copyright (C) 2001, Xiphophorus
   OpenSSL Copyright (C) 1998-2002 The OpenSSL Project.
@@ -73,7 +74,8 @@ Version Vivox : [VIVOX_VERSION]
   
   Tous droits réservés.  Voir licenses.txt pour plus de détails.
 
-  Codage Audio du chat vocal : Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+  Codage Audio du chat vocal : Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 
+  Annex C)
 			</text_editor>
 		</panel>
 	</tab_container>

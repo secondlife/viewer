@@ -5,5 +5,5 @@
 	</text>
 	<line_editor name="whitelist_entry" tool_tip="Eine URL oder URL-Patten in die Whitelist eingeben"/>
 	<button label="OK" name="ok_btn"/>
-	<button label="Abbrechen" name="cancel_btn"/>
+	<button label="Abbrechen" name="cancel_btn" width="80"/>
 </floater>

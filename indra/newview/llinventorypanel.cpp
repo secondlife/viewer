@@ -143,6 +143,7 @@ BOOL LLInventoryPanel::postBuild()
 		addChild(mScroller);
 		mScroller->addChild(mFolders);
 		mFolders->setScrollContainer(mScroller);
+		mFolders->addChild(mFolders->mStatusTextBox);
 	}
 
 	// Set up the callbacks from the inventory we're viewing, and then build everything.
@@ -289,8 +290,12 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				if(bridge)
 				{	// Clear the display name first, so it gets properly re-built during refresh()
 					bridge->clearDisplayName();
+
+					view_item->refresh();
+
+					// Set the new tooltip with the new display name.
+					view_item->setToolTip(bridge->getDisplayName());
 				}
-				view_item->refresh();
 			}
 		}
 
@@ -432,7 +437,26 @@ void LLInventoryPanel::initializeViews()
 	rebuildViewsFor(mStartFolderID);
 
 	mViewsInitialized = true;
+	
 	openStartFolderOrMyInventory();
+	
+	// Special case for new user login
+	if (gAgent.isFirstLogin())
+	{
+		// Auto open the user's library
+		LLFolderViewFolder* lib_folder = mFolders->getFolderByID(gInventory.getLibraryRootFolderID());
+		if (lib_folder)
+		{
+			lib_folder->setOpen(TRUE);
+		}
+		
+		// Auto close the user's my inventory folder
+		LLFolderViewFolder* my_inv_folder = mFolders->getFolderByID(gInventory.getRootFolderID());
+		if (my_inv_folder)
+		{
+			my_inv_folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
+		}
+	}
 }
 
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
@@ -503,6 +527,11 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				{
 					folderp->setHidden(TRUE);
 				}
+				const LLViewerInventoryCategory *cat = dynamic_cast<LLViewerInventoryCategory *>(objectp);
+				if (cat && getIsHiddenFolderType(cat->getPreferredType()))
+				{
+					folderp->setHidden(TRUE);
+				}
 			}
 		}
 		else 
@@ -534,6 +563,12 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		if (itemp)
 		{
 			itemp->addToFolder(parent_folder, mFolders);
+
+			// Don't add children of hidden folders unless this is the panel's root folder.
+			if (itemp->getHidden() && (id != mStartFolderID))
+			{
+				return;
+			}
 		}
 	}
 
@@ -934,4 +969,17 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	}
 
 	return NULL;
+}
+
+void LLInventoryPanel::addHideFolderType(LLFolderType::EType folder_type)
+{
+	if (!getIsHiddenFolderType(folder_type))
+	{
+		mHiddenFolderTypes.push_back(folder_type);
+	}
+}
+
+BOOL LLInventoryPanel::getIsHiddenFolderType(LLFolderType::EType folder_type) const
+{
+	return (std::find(mHiddenFolderTypes.begin(), mHiddenFolderTypes.end(), folder_type) != mHiddenFolderTypes.end());
 }

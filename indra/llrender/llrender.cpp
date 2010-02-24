@@ -737,8 +737,11 @@ void LLTexUnit::debugTextureUnit(void)
 
 
 LLRender::LLRender()
-: mDirty(false), mCount(0), mMode(LLRender::TRIANGLES),
-	mMaxAnisotropy(0.f) 
+  : mDirty(false),
+    mCount(0),
+    mMode(LLRender::TRIANGLES),
+    mCurrTextureUnitIndex(0),
+    mMaxAnisotropy(0.f) 
 {
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
 	mBuffer->allocateBuffer(4096, 0, TRUE);

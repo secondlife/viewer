@@ -41,6 +41,7 @@
 #include "llfloateruipreview.h"			// Own header
 
 // Internal utility
+#include "lleventtimer.h"
 #include "llrender.h"
 #include "llsdutil.h"
 #include "llxmltree.h"
@@ -91,7 +92,6 @@ static std::string get_xui_dir()
 }
 
 // Forward declarations to avoid header dependencies
-class LLEventTimer;
 class LLColor;
 class LLScrollListCtrl;
 class LLComboBox;
@@ -362,8 +362,7 @@ BOOL LLFadeEventTimer::tick()
 
 	if(NULL == mParent)	// no more need to tick, so suicide
 	{
-		delete this;
-		return FALSE;
+		return TRUE;
 	}
 
 	// Set up colors
@@ -1091,7 +1090,9 @@ void LLFloaterUIPreview::onClickEditFloater()
 		char *args2 = new char[args.size() + 1];	// Windows requires that the second parameter to CreateProcessA be a writable (non-const) string...
 		strcpy(args2, args.c_str());
 
-		if(!CreateProcessA(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, exe_dir.c_str(), &sinfo, &pinfo))
+		// we don't want the current directory to be the executable directory, since the file path is now relative. By using
+		// NULL for the current directory instead of exe_dir.c_str(), the path to the target file will work. 
+		if(!CreateProcessA(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, NULL, &sinfo, &pinfo))
 		{
 			// DWORD dwErr = GetLastError();
 			std::string warning = "Creating editor process failed!";

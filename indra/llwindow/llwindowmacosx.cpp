@@ -260,6 +260,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	mTSMScriptCode = 0;
 	mTSMLangCode = 0;
 	mPreeditor = NULL;
+	mRawKeyEvent = NULL;
 	mFSAASamples = fsaa_samples;
 	mForceRebuild = FALSE;
 	
@@ -278,6 +279,8 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	mMoveEventCampartorUPP = NewEventComparatorUPP(staticMoveEventComparator);
 	mGlobalHandlerRef = NULL;
 	mWindowHandlerRef = NULL;
+	
+	mDragOverrideCursor = -1;
 
 	// We're not clipping yet
 	SetRect( &mOldMouseClip, 0, 0, 0, 0 );
@@ -499,8 +502,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 		// Set up window event handlers (some window-related events ONLY go to window handlers.)
 		InstallStandardEventHandler(GetWindowEventTarget(mWindow));
-		InstallWindowEventHandler (mWindow, mEventHandlerUPP, GetEventTypeCount (WindowHandlerEventList), WindowHandlerEventList, (void*)this, &mWindowHandlerRef); // add event handler
-
+		InstallWindowEventHandler(mWindow, mEventHandlerUPP, GetEventTypeCount (WindowHandlerEventList), WindowHandlerEventList, (void*)this, &mWindowHandlerRef); // add event handler
+#if LL_OS_DRAGDROP_ENABLED
+		InstallTrackingHandler( dragTrackingHandler, mWindow, (void*)this );		
+		InstallReceiveHandler( dragReceiveHandler, mWindow, (void*)this );
+#endif // LL_OS_DRAGDROP_ENABLED
 	}
 
 	{
@@ -2135,10 +2141,11 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 				{
 					UInt32 modifiers = 0;
 
+
 					// First, process the raw event.
 					{
-						EventRef rawEvent;
-
+						EventRef rawEvent = NULL;
+						
 						// Get the original event and extract the modifier keys, so we can ignore command-key events.
 						if (GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL, sizeof(rawEvent), NULL, &rawEvent) == noErr)
 						{
@@ -2147,6 +2154,9 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 
 							// and call this function recursively to handle the raw key event.
 							eventHandler (myHandler, rawEvent);
+							
+							// save the raw event until we're done processing the unicode input as well.
+							mRawKeyEvent = rawEvent;
 						}
 					}
 
@@ -2174,11 +2184,8 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 						}
 						else
 						{
-							MASK mask = 0;
-							if(modifiers & shiftKey) { mask |= MASK_SHIFT; }
-							if(modifiers & (cmdKey | controlKey)) { mask |= MASK_CONTROL; }
-							if(modifiers & optionKey) { mask |= MASK_ALT; }
-
+							MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
+							
 							llassert( actualType == typeUnicodeText );
 
 							// The result is a UTF16 buffer.  Pass the characters in turn to handleUnicodeChar.
@@ -2200,6 +2207,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 						delete[] buffer;
 					}
 
+					mRawKeyEvent = NULL;
 					result = err;
 				}
 				break;
@@ -2273,6 +2281,9 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			// Some of these may fail for some event types.  That's fine.
 			GetEventParameter (event, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &keyCode);
 			GetEventParameter (event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(UInt32), NULL, &modifiers);
+
+			// save the raw event so getNativeKeyData can use it.
+			mRawKeyEvent = event;
 
 			//			printf("key event, key code = 0x%08x, char code = 0x%02x (%c), modifiers = 0x%08x\n", keyCode, charCode, (char)charCode, modifiers);
 			//			fflush(stdout);
@@ -2369,6 +2380,8 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 				result = eventNotHandledErr;
 				break;
 			}
+			
+			mRawKeyEvent = NULL;
 		}
 		break;
 
@@ -2795,6 +2808,14 @@ void LLWindowMacOSX::setCursor(ECursorType cursor)
 {
 	OSStatus result = noErr;
 
+	if (mDragOverrideCursor != -1) 
+	{
+		// A drag is in progress...remember the requested cursor and we'll
+		// restore it when it is done
+		mCurrentCursor = cursor;
+		return;
+	}
+		
 	if (cursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
@@ -3201,6 +3222,60 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url)
 	}
 }
 
+LLSD LLWindowMacOSX::getNativeKeyData()
+{
+	LLSD result = LLSD::emptyMap();
+	
+	if(mRawKeyEvent)
+	{
+		char char_code = 0;
+		UInt32 key_code = 0;
+		UInt32 modifiers = 0;
+		UInt32 keyboard_type = 0;
+		
+		GetEventParameter (mRawKeyEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(char), NULL, &char_code);
+		GetEventParameter (mRawKeyEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &key_code);
+		GetEventParameter (mRawKeyEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(UInt32), NULL, &modifiers);
+		GetEventParameter (mRawKeyEvent, kEventParamKeyboardType, typeUInt32, NULL, sizeof(UInt32), NULL, &keyboard_type);
+
+		result["char_code"] = (S32)char_code;
+		result["key_code"] = (S32)key_code;
+		result["modifiers"] = (S32)modifiers;
+		result["keyboard_type"] = (S32)keyboard_type;
+		
+#if 0
+		// This causes trouble for control characters -- apparently character codes less than 32 (escape, control-A, etc)
+		// cause llsd serialization to create XML that the llsd deserializer won't parse!
+		std::string unicode;
+		OSStatus err = noErr;
+		EventParamType actualType = typeUTF8Text;
+		UInt32 actualSize = 0;
+		char *buffer = NULL;
+		
+		err = GetEventParameter (mRawKeyEvent, kEventParamKeyUnicodes, typeUTF8Text, &actualType, 0, &actualSize, NULL);
+		if(err == noErr)
+		{
+			// allocate a buffer and get the actual data.
+			buffer = new char[actualSize];
+			err = GetEventParameter (mRawKeyEvent, kEventParamKeyUnicodes, typeUTF8Text, &actualType, actualSize, &actualSize, buffer);
+			if(err == noErr)
+			{
+				unicode.assign(buffer, actualSize);
+			}
+			delete[] buffer;
+		}
+		
+		result["unicode"] = unicode;
+#endif
+
+	}
+
+
+	lldebugs << "native key data is: " << result << llendl;
+	
+	return result;
+}
+
 
 BOOL LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
@@ -3379,3 +3454,174 @@ std::vector<std::string> LLWindowMacOSX::getDynamicFallbackFontList()
 	return std::vector<std::string>();
 }
 
+// static
+MASK LLWindowMacOSX::modifiersToMask(SInt16 modifiers)
+{
+	MASK mask = 0;
+	if(modifiers & shiftKey) { mask |= MASK_SHIFT; }
+	if(modifiers & (cmdKey | controlKey)) { mask |= MASK_CONTROL; }
+	if(modifiers & optionKey) { mask |= MASK_ALT; }
+	return mask;
+}	
+
+#if LL_OS_DRAGDROP_ENABLED
+
+OSErr LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
+						  void * handlerRefCon, DragRef drag)
+{
+	OSErr result = noErr;
+	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
+
+	lldebugs << "drag tracking handler, message = " << message << llendl;
+	
+	switch(message)
+	{
+		case kDragTrackingInWindow:
+			result = self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_TRACK);
+		break;
+		
+		case kDragTrackingEnterHandler:
+			result = self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_START_TRACKING);
+		break;
+		
+		case kDragTrackingLeaveHandler:
+			result = self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_STOP_TRACKING);
+		break;
+		
+		default:
+		break;
+	}
+	
+	return result;
+}
+
+OSErr LLWindowMacOSX::dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	
+										 DragRef drag)
+{	
+	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
+	return self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_DROPPED);
+
+}
+
+OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, LLWindowCallbacks::DragNDropAction action)
+{	
+	OSErr result = dragNotAcceptedErr;	// overall function result
+	OSErr err = noErr;	// for local error handling
+	
+	// Get the mouse position and modifiers of this drag.
+	SInt16 modifiers, mouseDownModifiers, mouseUpModifiers;
+	::GetDragModifiers(drag, &modifiers, &mouseDownModifiers, &mouseUpModifiers);
+	MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
+	
+	Point mouse_point;
+	// This will return the mouse point in global screen coords
+	::GetDragMouse(drag, &mouse_point, NULL);
+	LLCoordScreen screen_coords(mouse_point.h, mouse_point.v);
+	LLCoordGL gl_pos;
+	convertCoords(screen_coords, &gl_pos);
+	
+	// Look at the pasteboard and try to extract an URL from it
+	PasteboardRef   pasteboard;
+	if(GetDragPasteboard(drag, &pasteboard) == noErr)
+	{
+		ItemCount num_items = 0;
+		// Treat an error here as an item count of 0
+		(void)PasteboardGetItemCount(pasteboard, &num_items);
+		
+		// Only deal with single-item drags.
+		if(num_items == 1)
+		{
+			PasteboardItemID item_id = NULL;
+			CFArrayRef flavors = NULL;
+			CFDataRef data = NULL;
+			
+			err = PasteboardGetItemIdentifier(pasteboard, 1, &item_id); // Yes, this really is 1-based.
+			
+			// Try to extract an URL from the pasteboard
+			if(err == noErr)
+			{
+				err = PasteboardCopyItemFlavors( pasteboard, item_id, &flavors);
+			}
+			
+			if(err == noErr)
+			{
+				if(CFArrayContainsValue(flavors, CFRangeMake(0, CFArrayGetCount(flavors)), kUTTypeURL))
+				{
+					// This is an URL.
+					err = PasteboardCopyItemFlavorData(pasteboard, item_id, kUTTypeURL, &data);
+				}
+				else if(CFArrayContainsValue(flavors, CFRangeMake(0, CFArrayGetCount(flavors)), kUTTypeUTF8PlainText))
+				{
+					// This is a string that might be an URL.
+					err = PasteboardCopyItemFlavorData(pasteboard, item_id, kUTTypeUTF8PlainText, &data);
+				}
+				
+			}
+			
+			if(flavors != NULL)
+			{
+				CFRelease(flavors);
+			}
+
+			if(data != NULL)
+			{
+				std::string url;
+				url.assign((char*)CFDataGetBytePtr(data), CFDataGetLength(data));
+				CFRelease(data);
+				
+				if(!url.empty())
+				{
+					LLWindowCallbacks::DragNDropResult res = 
+						mCallbacks->handleDragNDrop(this, gl_pos, mask, action, url);
+					
+					switch (res) {
+						case LLWindowCallbacks::DND_NONE:		// No drop allowed
+							if (action == LLWindowCallbacks::DNDA_TRACK)
+							{
+								mDragOverrideCursor = kThemeNotAllowedCursor;
+							}
+							else {
+								mDragOverrideCursor = -1;
+							}
+							break;
+						case LLWindowCallbacks::DND_MOVE:		// Drop accepted would result in a "move" operation
+							mDragOverrideCursor = kThemePointingHandCursor;
+							result = noErr;
+							break;
+						case LLWindowCallbacks::DND_COPY:		// Drop accepted would result in a "copy" operation
+							mDragOverrideCursor = kThemeCopyArrowCursor;
+							result = noErr;
+							break;
+						case LLWindowCallbacks::DND_LINK:		// Drop accepted would result in a "link" operation:
+							mDragOverrideCursor = kThemeAliasArrowCursor;
+							result = noErr;
+							break;
+						default:
+							mDragOverrideCursor = -1;
+							break;
+					}
+					// This overrides the cursor being set by setCursor.
+					// This is a bit of a hack workaround because lots of areas
+					// within the viewer just blindly set the cursor.
+					if (mDragOverrideCursor == -1)
+					{
+						// Restore the cursor
+						ECursorType temp_cursor = mCurrentCursor;
+						// get around the "setting the same cursor" code in setCursor()
+						mCurrentCursor = UI_CURSOR_COUNT; 
+ 						setCursor(temp_cursor);
+					}
+					else {
+						// Override the cursor
+						SetThemeCursor(mDragOverrideCursor);
+					}
+
+				}
+			}
+		}
+	}
+	
+	return result;
+}
+
+#endif // LL_OS_DRAGDROP_ENABLED

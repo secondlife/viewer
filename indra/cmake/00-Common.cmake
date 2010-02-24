@@ -171,8 +171,8 @@ if (LINUX)
     if (NOT STANDALONE)
       # this stops us requiring a really recent glibc at runtime
       add_definitions(-fno-stack-protector)
-      # linking can be so slow - give us a chance to figure out why
-      set(CMAKE_CXX_LINK_FLAGS "-Wl,--stats,--no-keep-memory")
+      # linking can be very memory-hungry, especially the final viewer link
+      set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
     endif (NOT STANDALONE)
   endif (VIEWER)
 

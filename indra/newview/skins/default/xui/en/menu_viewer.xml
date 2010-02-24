@@ -55,9 +55,10 @@
         </menu_item_call>
         <menu_item_check
          label="My Inventory"
-         layout="topleft"
          name="Inventory"
-         shortcut="control|shift|I">
+         layout="topleft"
+         shortcut="control|shift|I"
+		 visible="false">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="inventory" />
@@ -65,24 +66,31 @@
              function="Floater.Toggle"
              parameter="inventory" />
         </menu_item_check>
-        <menu_item_call
-         label="Show Inventory in Side Tray"
+        <menu_item_check
+         label="My Inventory"
          name="ShowSidetrayInventory"
+         layout="topleft"
          shortcut="control|I"
-         visible="false">
-            <menu_item_call.on_click
+		 visible="true">
+            <menu_item_check.on_check
+             function="SidetrayPanelVisible"
+             parameter="sidepanel_inventory" />
+            <menu_item_check.on_click
              function="ShowSidetrayPanel"
              parameter="sidepanel_inventory" />
-        </menu_item_call>
-        <menu_item_call
+        </menu_item_check>
+        <menu_item_check
          label="My Gestures"
          layout="topleft"
          name="Gestures"
          shortcut="control|G">
-            <menu_item_call.on_click
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="gestures" />
+            <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="gestures" />
-        </menu_item_call>
+        </menu_item_check>
         <menu
          label="My Status"
          layout="topleft"
@@ -186,18 +194,6 @@
              function="SideTray.PanelPeopleTab"
              parameter="nearby_panel" />
             </menu_item_call>
-        <menu_item_check
-         label="Nearby Media"
-         layout="topleft"
-         name="Nearby Media"
-         shortcut="control|alt|N">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="nearby_media" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="nearby_media" />
-        </menu_item_check>
     </menu>
     <menu
      label="World"
@@ -303,8 +299,7 @@
              function="Floater.Visible"
              parameter="moveview" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="moveview" />
+             function="World.Toggle.MovementControls" />
         </menu_item_check>
         <menu_item_check
          label="View Controls"
@@ -314,8 +309,7 @@
              function="Floater.Visible"
              parameter="camera" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="camera" />
+             function="World.Toggle.CameraControls" />
         </menu_item_check>
           <menu_item_check
              label="Ban Lines"
@@ -359,6 +353,24 @@
             <menu_item_check.on_click
                function="ToggleControl"
                parameter="ShowParcelOwners" />
+          </menu_item_check>
+          <menu_item_check
+             label="Coordinates"
+             name="Coordinates">
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="NavBarShowCoordinates" />
+            <menu_item_check.on_check
+               control="NavBarShowCoordinates" />
+          </menu_item_check>
+          <menu_item_check
+             label="Parcel Properties"
+             name="Parcel Properties">
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="NavBarShowParcelProperties" />
+            <menu_item_check.on_check
+               control="NavBarShowParcelProperties" />
           </menu_item_check>
         </menu>
         <menu_item_separator
@@ -662,6 +674,18 @@
           <menu_item_call.on_enable
              function="Tools.EnableUnlink" />
         </menu_item_call>
+        <menu_item_check
+             label="Edit Linked Parts"
+             layout="topleft"
+             name="Edit Linked Parts">
+                <menu_item_check.on_check
+                 control="EditLinkedParts" />
+                <menu_item_check.on_click
+                 function="Tools.EditLinkedParts"
+                 parameter="EditLinkedParts" />
+                <menu_item_check.on_enable
+                 function="Tools.EnableToolNotPie" />
+            </menu_item_check>
         <menu_item_separator
            layout="topleft" />
         <menu_item_call
@@ -799,18 +823,6 @@
          layout="topleft"
          name="Options"
          tear_off="true">
-            <menu_item_check
-             label="Edit Linked Parts"
-             layout="topleft"
-             name="Edit Linked Parts">
-                <menu_item_check.on_check
-                 control="EditLinkedParts" />
-                <menu_item_check.on_click
-                 function="Tools.EditLinkedParts"
-                 parameter="EditLinkedParts" />
-                <menu_item_check.on_enable
-                 function="Tools.EnableToolNotPie" />
-            </menu_item_check>
             <menu_item_call
              label="Set Default Upload Permissions"
              layout="topleft"
@@ -819,10 +831,10 @@
                  function="Floater.Toggle"
                  parameter="perm_prefs" />
             </menu_item_call>
-			<menu_item_check
-			   label="Show Advanced Permissions"
-			   layout="topleft"
-			   name="DebugPermissions">
+	   <menu_item_check
+	       label="Show Advanced Permissions"
+	       layout="topleft"
+	       name="DebugPermissions">
 			  <menu_item_check.on_check
 				 function="CheckControl"
 				 parameter="DebugPermissions" />
@@ -832,13 +844,7 @@
 			</menu_item_check>
             <menu_item_separator
              layout="topleft" />
-            <menu
-             create_jump_keys="true"
-             label="Selection"
-             layout="topleft"
-             name="Selection"
-             tear_off="true">
-                <menu_item_check
+            <menu_item_check
                  label="Select Only My Objects"
                  layout="topleft"
                  name="Select Only My Objects">
@@ -866,14 +872,9 @@
                      control="RectangleSelectInclusive" />
                     <menu_item_check.on_click
                      function="Tools.SelectBySurrounding" />
-                </menu_item_check>
-            </menu>
-            <menu
-             create_jump_keys="true"
-             label="Show"
-             layout="topleft"
-             name="Show"
-             tear_off="true">
+            </menu_item_check>
+          <menu_item_separator
+           layout="topleft" />
                 <menu_item_check
                  label="Show Hidden Selection"
                  layout="topleft"
@@ -902,13 +903,8 @@
                      function="ToggleControl"
                      parameter="ShowSelectionBeam" />
                 </menu_item_check>
-            </menu>
-            <menu
-             create_jump_keys="true"
-             label="Grid"
-             layout="topleft"
-             name="Grid"
-             tear_off="true">
+        <menu_item_separator
+           layout="topleft" />
                 <menu_item_check
                  label="Snap to Grid"
                  layout="topleft"
@@ -953,7 +949,6 @@
                     <menu_item_call.on_enable
                      function="Tools.EnableToolNotPie" />
                 </menu_item_call>
-            </menu>
         </menu>
         <menu
          create_jump_keys="true"
@@ -1611,6 +1606,17 @@
          name="Shortcuts"
          tear_off="true"
          visible="false">
+          <menu_item_call
+             label="Image (L$[COST])..."
+             layout="topleft"
+             name="Upload Image"
+             shortcut="control|U">
+            <menu_item_call.on_click
+               function="File.UploadImage"
+               parameter="" />
+            <menu_item_call.on_enable
+               function="File.EnableUpload" />
+            </menu_item_call>
             <menu_item_check
                label="Search"
                layout="topleft"
@@ -2014,6 +2020,18 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleHUDInfo"
                  parameter="fov" />
+            </menu_item_check>
+            <menu_item_check
+             label="Badge"
+             layout="topleft"
+             name="Badge"
+			 shortcut="alt|control|shift|h">
+                <menu_item_check.on_check
+                 function="Advanced.CheckHUDInfo"
+                 parameter="badge" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleHUDInfo"
+                 parameter="badge" />
             </menu_item_check>
         </menu>
         <menu

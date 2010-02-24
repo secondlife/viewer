@@ -11,7 +11,7 @@ todas as regiões desta propriedade.
 		(desconhecido)
 	</text>
 	<text name="owner_text">
-		Proprietário:
+		Proprietário do imóvel:
 	</text>
 	<text name="estate_owner">
 		(desconhecido)
@@ -24,10 +24,10 @@ todas as regiões desta propriedade.
 	<check_box label="Permitir acesso público" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Acesso restrito a Residentes...
+		Restringir acesso a contas confirmardas por:
 	</text>
-	<check_box label="com info. de pagamento em arquivo" name="limit_payment" tool_tip="Banir residentes não identificados."/>
-	<check_box label="Adultos com idade verificada" name="limit_age_verified" tool_tip="Banir residentes que não tenham confirmado a sua idade. Ver support.secondlife.com para mais informações."/>
+	<check_box label="Dados de pagamento fornecidos" name="limit_payment" tool_tip="Banir residentes sem identificação"/>
+	<check_box label="Verificação de idade" name="limit_age_verified" tool_tip="Banir residentes que não comprovaram a idade. Consulte o [SUPPORT_SITE] para saber mais."/>
 	<check_box label="Permitir conversa de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir Tele-transporte direto" name="allow_direct_teleport"/>

@@ -17,13 +17,13 @@
 	<text left="105" name="object_name_text">
 		...
 	</text>
-	<button label="1 L$" label_selected="1 L$" left="105" name="fastpay 1"/>
-	<button label="5 L$" label_selected="5 L$" left="190" name="fastpay 5"/>
-	<button label="10 L$" label_selected="10 L$" left="105" name="fastpay 10"/>
-	<button label="20 L$" label_selected="20 L$" left="190" name="fastpay 20"/>
+	<button label="1 L$" label_selected="1 L$" name="fastpay 1"/>
+	<button label="5 L$" label_selected="5 L$" name="fastpay 5"/>
+	<button label="10 L$" label_selected="10 L$" name="fastpay 10"/>
+	<button label="20 L$" label_selected="20 L$" name="fastpay 20"/>
 	<text name="amount text">
 		Oder Betrag auswählen:
 	</text>
-	<button label="Zahlen" label_selected="Zahlen" name="pay btn"/>
+	<button label="Bezahlen" label_selected="Bezahlen" name="pay btn"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel btn" width="76"/>
 </floater>

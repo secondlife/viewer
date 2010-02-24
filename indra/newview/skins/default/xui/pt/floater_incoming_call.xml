@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="incoming call" title="LIGAÇÃO DE DESCONHECIDO">
+	<floater.string name="localchat">
+		Bate-papo local
+	</floater.string>
+	<floater.string name="anonymous">
+		anônimo
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		está ligando.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		entrou numa ligação de voz via conferência.
+	</floater.string>
+	<text name="question">
+		Sair do [CURRENT_CHAT] e entrar neste bate-papo?
+	</text>
+	<button label="Aceitar" label_selected="Aceitar" name="Accept"/>
+	<button label="Rejeitar" label_selected="Rejeitar" name="Reject"/>
+	<button label="Enviar MI" name="Start IM"/>
+</floater>

@@ -70,6 +70,7 @@
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
+#include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -105,22 +106,35 @@ private:
 	LLPanelPlaces*		mPlaces;
 };
 
-class LLPlacesInventoryObserver : public LLInventoryObserver
+class LLPlacesInventoryObserver : public LLInventoryAddedObserver
 {
 public:
 	LLPlacesInventoryObserver(LLPanelPlaces* places_panel) :
-		LLInventoryObserver(),
-		mPlaces(places_panel)
+		mPlaces(places_panel),
+		mTabsCreated(false)
 	{}
 
 	/*virtual*/ void changed(U32 mask)
 	{
-		if (mPlaces)
-			mPlaces->changedInventory(mask);
+		LLInventoryAddedObserver::changed(mask);
+
+		if (!mTabsCreated && mPlaces)
+		{
+			mPlaces->createTabs();
+			mTabsCreated = true;
+		}
+	}
+
+protected:
+	/*virtual*/ void done()
+	{
+		mPlaces->showAddedLandmarkInfo(mAdded);
+		mAdded.clear();
 	}
 
 private:
 	LLPanelPlaces*		mPlaces;
+	bool				mTabsCreated;
 };
 
 class LLPlacesRemoteParcelInfoObserver : public LLRemoteParcelInfoObserver
@@ -943,7 +957,7 @@ void LLPanelPlaces::changedParcelSelection()
 	updateVerbs();
 }
 
-void LLPanelPlaces::changedInventory(U32 mask)
+void LLPanelPlaces::createTabs()
 {
 	if (!(gInventory.isInventoryUsable() && LLTeleportHistory::getInstance()))
 		return;
@@ -979,16 +993,39 @@ void LLPanelPlaces::changedInventory(U32 mask)
 	// Filter applied to show all items.
 	if (mActivePanel)
 		mActivePanel->onSearchEdit(mActivePanel->getFilterSubString());
-
-	// we don't need to monitor inventory changes anymore,
-	// so remove the observer
-	gInventory.removeObserver(mInventoryObserver);
 }
 
 void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
 {
 	mPosGlobal = global_pos;
 	updateVerbs();
+}
+
+void LLPanelPlaces::showAddedLandmarkInfo(const std::vector<LLUUID>& items)
+{
+	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 ++item_iter)
+	{
+		const LLUUID& item_id = (*item_iter);
+		if(!highlight_offered_item(item_id))
+		{
+			continue;
+		}
+
+		LLInventoryItem* item = gInventory.getItem(item_id);
+
+		llassert(item);
+		if (item && (LLAssetType::AT_LANDMARK == item->getType()) )
+		{
+			// Created landmark is passed to Places panel to allow its editing.
+			// If the panel is closed we don't reopen it until created landmark is loaded.
+			if("create_landmark" == getPlaceInfoType() && !getItem())
+			{
+				setItem(item);
+			}
+		}
+	}
 }
 
 void LLPanelPlaces::updateVerbs()
@@ -1011,14 +1048,13 @@ void LLPanelPlaces::updateVerbs()
 
 	mTeleportBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mShowOnMapBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
-	mOverflowBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mOverflowBtn->setVisible(is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn);
 	mEditBtn->setVisible(mPlaceInfoType == LANDMARK_INFO_TYPE && !isLandmarkEditModeOn);
 	mSaveBtn->setVisible(isLandmarkEditModeOn);
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 
 	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
-	mOverflowBtn->setEnabled(is_place_info_visible && !is_create_landmark_visible);
 
 	if (is_place_info_visible)
 	{

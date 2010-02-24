@@ -64,7 +64,7 @@
 		<radio_item label="Fläche auswählen" name="radio select face"/>
 	</radio_group>
 	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts"/>
-	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für diesen Objekt">
+	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt">
 		þ: [COUNT]
 	</text>
 	<check_box label="Beide Seiten dehnen" name="checkbox uniform"/>
@@ -363,7 +363,7 @@
 			<text name="edit_object">
 				Objekteigenschaften bearbeiten:
 			</text>
-			<check_box label="Flexibler Weg" name="Flexible1D Checkbox Ctrl" tool_tip="Bewirkt, dass sich das Objekt um die Z-Achse biegen kann. (Nur Client-Seite)"/>
+			<check_box label="Flexibler Pfad" name="Flexible1D Checkbox Ctrl" tool_tip="Bewirkt, dass sich das Objekt um die Z-Achse biegen kann. (Nur Client-Seite)"/>
 			<spinner label="Weichheit" name="FlexNumSections"/>
 			<spinner label="Schwerkraft" name="FlexGravity"/>
 			<spinner label="Ziehen" name="FlexFriction"/>
