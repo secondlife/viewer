@@ -153,7 +153,7 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
 
 void LLAvatarNameCache::idle()
 {
-	const F32 SECS_BETWEEN_REQUESTS = 0.5f;  // JAMESDEBUG set to 0.1?
+	const F32 SECS_BETWEEN_REQUESTS = 0.2f;  // JAMESDEBUG set to 0.1?
 	if (sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
 	{
 		return;
