@@ -238,6 +238,7 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 		indicator_range_t it_range = mSpeakingIndicators.equal_range(*it_uuid);
 		indicator_const_iterator it_indicator = it_range.first;
 		bool was_found = false;
+		bool was_switched_on = false;
 		for (; it_indicator != it_range.second; ++it_indicator)
 		{
 			was_found = true;
@@ -251,17 +252,22 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 				switch_current_on = indicator->getTargetSessionID() == session_id;
 				LL_DEBUGS("SpeakingIndicator") << "Session: " << session_id << ", target: " << indicator->getTargetSessionID() << ", the same? = " << switch_current_on << LL_ENDL;
 			}
+			was_switched_on = was_switched_on || switch_current_on;
 
 			indicator->switchIndicator(switch_current_on);
+
 		}
 
 		if (was_found)
 		{
 			LL_DEBUGS("SpeakingIndicator") << mSpeakingIndicators.count(*it_uuid) << " indicators where found" << LL_ENDL;
 
-			// *TODO: it is possible non of the registered indicators are in the target session
-			// we can avoid of storing such UUID in the mSwitchedIndicatorsOn map in this case.
-			if (switch_on)
+			if (switch_on && !was_switched_on)
+			{
+				LL_DEBUGS("SpeakingIndicator") << "but non of them where switched on" << LL_ENDL;
+			}
+
+			if (was_switched_on)
 			{
 				// store switched on indicator to be able switch it off
 				mSwitchedIndicatorsOn.insert(*it_uuid);
