@@ -17,7 +17,7 @@
      increment="0.05"
      initial_value="0.5"
      label="Master volume"
-	 label_width="120"
+	   label_width="120"
      layout="topleft"
      left="0"
      name="System Volume"
@@ -38,7 +38,7 @@
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-	 left_pad="5"
+	   left_pad="5"
      name="mute_audio"
      tab_stop="false"
      width="16" />
@@ -49,7 +49,7 @@
      label="Mute when minimized"
      layout="topleft"
      name="mute_when_minimized"
-	 top_delta="3"
+	   top_delta="3"
      left_pad="5"
      width="215" />
 	<slider
@@ -177,14 +177,14 @@
 	</slider>
     <button
      control_name="MuteMusic"
-	 disabled_control="MuteAudio"
+	   disabled_control="MuteAudio"
      follows="top|left"
      height="16"
      image_selected="AudioMute_Off"
      image_unselected="Audio_Off"
      is_toggle="true"
      layout="topleft"
-	 left_pad="5"
+	   left_pad="5"
      name="mute_audio"
      tab_stop="false"
 	 width="16" />
@@ -326,8 +326,8 @@
      length="1"
      follows="left|top"
      layout="topleft"
-	 left="80"
-	 top_delta="16"
+	   left="80"
+	   top_delta="16"
      name="Listen from"
      width="80">
         Listen from:
@@ -521,7 +521,7 @@
              visible="true"
              width="22" />
     <text
-    font.style="BOLD"
+     font.style="BOLD"
      type="string"
      length="1"
      follows="left|top"

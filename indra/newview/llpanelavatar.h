@@ -207,8 +207,6 @@ protected:
 	bool enableGod();
 
 
-	void onUrlTextboxClicked(const std::string& url);
-	void onHomepageTextboxClicked();
 	void onAddFriendButtonClick();
 	void onIMButtonClick();
 	void onCallButtonClick();
