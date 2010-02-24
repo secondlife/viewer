@@ -32,19 +32,23 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelprofile.h"
-
-#include "llavatarconstants.h"
-#include "llavatarnamecache.h"	// IDEVO
 #include "llpanelme.h"
+
+// Viewer includes
+#include "llpanelprofile.h"
+#include "llavatarconstants.h"
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llsidetray.h"
+#include "llviewercontrol.h"
+
+// Linden libraries
+#include "llavatarnamecache.h"		// IDEVO
+#include "llchat.h"					// IDEVO HACK
 #include "lliconctrl.h"
 #include "llnotificationsutil.h"	// IDEVO
-#include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
-#include "llviewercontrol.h"
 
 #define PICKER_SECOND_LIFE "2nd_life_pic"
 #define PICKER_FIRST_LIFE "real_world_pic"
@@ -298,7 +302,10 @@ void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
 }
 
-static void set_name_callback(const LLSD& notification, const LLSD& response)
+// IDEVO HACK
+extern void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
+
+void LLPanelMyProfileEdit::callbackSetName(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
@@ -308,6 +315,11 @@ static void set_name_callback(const LLSD& notification, const LLSD& response)
 
 		std::string display_name = response["display_name"].asString();
 		LLAvatarNameCache::setDisplayName(agent_id, display_name);
+
+		// HACK: Use chat to invalidate names
+		send_chat_from_viewer("refreshname", CHAT_TYPE_NORMAL, 0);
+
+		getChild<LLUICtrl>("user_name")->setValue( display_name );
 	}
 }
 
@@ -333,7 +345,8 @@ void LLPanelMyProfileEdit::onClickSetName()
 		args["DISPLAY_NAME"] = display_name;
 		LLSD payload;
 		payload["agent_id"] = agent_id;
-		LLNotificationsUtil::add("SetDisplayName", args, payload, set_name_callback);
+		LLNotificationsUtil::add("SetDisplayName", args, payload, 
+			boost::bind(&LLPanelMyProfileEdit::callbackSetName, this, _1, _2));
 	}
 }
 

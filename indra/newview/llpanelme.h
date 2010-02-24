@@ -34,7 +34,7 @@
 #define LL_LLPANELMEPROFILE_H
 
 #include "llpanel.h"
-#include "llpanelavatar.h"
+#include "llpanelprofile.h"
 
 class LLPanelMyProfileEdit;
 class LLPanelProfile;
@@ -96,6 +96,7 @@ private:
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
 	void onClickSetName();
+	void callbackSetName(const LLSD& notification, const LLSD& response);
 
 	/**
 	 * Enabled/disables controls to prevent overwriting edited data upon receiving

@@ -33,9 +33,11 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
 
+// Linden libraries
 #include "llanimationstates.h"
 #include "llaudioengine.h" 
 #include "llavataractions.h"
+#include "llavatarnamecache.h"		// IDEVO HACK
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
 #include "lleventtimer.h"
@@ -82,6 +84,7 @@
 #include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerfoldertype.h"
+#include "llvoavatar.h"				// IDEVO HACK
 #include "lluri.h"
 #include "llviewergenericmessage.h"
 #include "llviewermenu.h"
@@ -2660,6 +2663,20 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			ircstyle = TRUE;
 		}
 		chat.mText = mesg;
+
+		// IDEVO HACK Use chat to invalidate names
+		if (chat.mSourceType == CHAT_SOURCE_AGENT
+			&& chat.mText == "refreshname")
+		{
+			LLAvatarNameCache::erase(chat.mFromID);
+
+			// force name tag to update
+			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(chatter);
+			if (avatar)
+			{
+				avatar->invalidateName();
+			}
+		}
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)

@@ -2829,7 +2829,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				// ...call this function back when the name arrives
 				// and force a rebuild
 				LLAvatarNameCache::get(getID(),
-					boost::bind(&LLVOAvatar::idleUpdateNameTagText, this, TRUE));
+					boost::bind(&LLVOAvatar::invalidateName, this));
 			}
 
 			// Might be blank if name not available yet, that's OK
@@ -7627,6 +7627,13 @@ std::string LLVOAvatar::getFullname() const
 	}
 
 	return name;
+}
+
+// IDEVO
+void LLVOAvatar::invalidateName()
+{
+	// force update by clearing name string
+	mNameString.clear();
 }
 
 LLHost LLVOAvatar::getObjectHost() const

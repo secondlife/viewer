@@ -308,3 +308,8 @@ bool LLAvatarNameCache::useDisplayNames()
 {
 	return sUseDisplayNames;
 }
+
+void LLAvatarNameCache::erase(const LLUUID& agent_id)
+{
+	sCache.erase(agent_id);
+}

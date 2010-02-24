@@ -68,6 +68,7 @@ namespace LLAvatarNameCache
 	// HACK: turn display names on and off
 	void toggleDisplayNames();
 	bool useDisplayNames();
+	void erase(const LLUUID& agent_id);
 }
 
 #endif

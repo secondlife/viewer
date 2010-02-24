@@ -819,6 +819,7 @@ private:
 
 public:
 	std::string		getFullname() const; // Returns "FirstName LastName"
+	void			invalidateName();	// force name to update
 protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	
