@@ -21,7 +21,7 @@
 				1. Preis festlegen:
 			</text>
 			<text name="price_text" >
-				Prei angeben
+				Preis eingeben
 			</text>
 			<text name="price_ld">
 				L$
@@ -58,7 +58,7 @@
 			<text name="nag_message_label">
 				ACHTUNG: Verkäufe sind endgültig.
 			</text>
-			<button label="Land zum Verkauf freigeben" name="sell_btn" width="180"/>
+			<button label="Zum Verkauf freigeben" name="sell_btn" width="180"/>
 			<button label="Abbrechen" name="cancel_btn"/>
 		</panel>
 	</scroll_container>

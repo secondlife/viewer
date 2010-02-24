@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_media">
-	<string name="media_item_count_format">
-		(%ld articles de média)
-	</string>
 	<string name="empty_item_text">
 		&lt;vide&gt;
 	</string>

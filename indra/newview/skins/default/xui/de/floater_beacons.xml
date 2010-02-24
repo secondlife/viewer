@@ -5,7 +5,7 @@
 			Anzeigen:
 		</text>
 		<check_box label="Strahlen" name="beacons"/>
-		<check_box label="Glanzlichter" name="highlights"/>
+		<check_box label="Hervorhebung" name="highlights"/>
 		<text name="beacon_width_label" tool_tip="Strahlbreite">
 			Breite:
 		</text>

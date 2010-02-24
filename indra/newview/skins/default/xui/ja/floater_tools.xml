@@ -386,7 +386,7 @@
 			<panel.string name="string repeats per face">
 				面ごとに繰り返す
 			</panel.string>
-			<texture_picker label="テクスチャー" name="texture control" tool_tip="写真をクリックして選択"/>
+			<texture_picker label="テクスチャ" name="texture control" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<text name="color trans">
 				透過度 %
