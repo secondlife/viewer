@@ -473,6 +473,7 @@ BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)
 void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
 {
 	KEY key = gKeyboard->currentKey();
+	MASK mask = gKeyboard->currentMask(TRUE);
 
 	if (line_editor->getText().empty())
 	{
@@ -480,7 +481,7 @@ void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
 		hideList();
 	}
 	// Typing? (moving cursor should not affect showing the list)
-	else if (key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+	else if (mask != MASK_CONTROL && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
 	{
 		prearrangeList(line_editor->getText());
 		if (mList->getItemCount() != 0)
