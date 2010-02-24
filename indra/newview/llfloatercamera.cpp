@@ -354,6 +354,8 @@ void LLFloaterCamera::updateState()
 	childSetVisible(ZOOM, CAMERA_CTRL_MODE_AVATAR_VIEW != mCurrMode);
 	childSetVisible(PRESETS, CAMERA_CTRL_MODE_AVATAR_VIEW == mCurrMode);
 
+	updateCameraPresetButtons();
+
 	//hiding or showing the panel with controls by reshaping the floater
 	bool showControls = CAMERA_CTRL_MODE_FREE_CAMERA != mCurrMode;
 	if (showControls == childIsVisible(CONTROLS)) return;
@@ -384,6 +386,16 @@ void LLFloaterCamera::updateState()
 	}
 }
 
+void LLFloaterCamera::updateCameraPresetButtons()
+{
+	ECameraPreset preset = (ECameraPreset) gSavedSettings.getU32("CameraPreset");
+	
+	childSetValue("rear_view",		preset == CAMERA_PRESET_REAR_VIEW);
+	childSetValue("group_view",		preset == CAMERA_PRESET_GROUP_VIEW);
+	childSetValue("front_view",		preset == CAMERA_PRESET_FRONT_VIEW);
+	childSetValue("mouselook_view",	gAgent.cameraMouselook());
+}
+
 void LLFloaterCamera::onClickCameraPresets(const LLSD& param)
 {
 	std::string name = param.asString();
@@ -405,4 +417,7 @@ void LLFloaterCamera::onClickCameraPresets(const LLSD& param)
 		gAgent.changeCameraToMouselook();
 	}
 
+	LLFloaterCamera* camera_floater = LLFloaterCamera::findInstance();
+	if (camera_floater)
+		camera_floater->updateCameraPresetButtons();
 }
