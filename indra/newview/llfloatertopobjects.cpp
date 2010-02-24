@@ -196,8 +196,9 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		LLSD element;
 
 		element["id"] = task_id;
-		element["object_name"] = name_buf;
-		element["owner_name"] = owner_buf;
+		// These cause parse warnings. JC
+		//element["object_name"] = name_buf;
+		//element["owner_name"] = owner_buf;
 		element["columns"][0]["column"] = "score";
 		element["columns"][0]["value"] = llformat("%0.3f", score);
 		element["columns"][0]["font"] = "SANSSERIF";
@@ -206,7 +207,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		element["columns"][1]["value"] = name_buf;
 		element["columns"][1]["font"] = "SANSSERIF";
 		element["columns"][2]["column"] = "owner";
-		element["columns"][2]["value"] = owner_buf;
+		element["columns"][2]["value"] = LLCacheName::cleanFullName(owner_buf);
 		element["columns"][2]["font"] = "SANSSERIF";
 		element["columns"][3]["column"] = "location";
 		element["columns"][3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
