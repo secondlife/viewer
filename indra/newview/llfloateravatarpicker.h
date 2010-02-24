@@ -58,6 +58,7 @@ public:
 	void setOkBtnEnableCb(validate_callback_t cb);
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
+	void processResponse(const LLUUID& query_id, const LLSD& content);
 
 private:
 	void editKeystroke(class LLLineEditor* caller, void* user_data);
