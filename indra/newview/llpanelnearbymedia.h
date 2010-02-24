@@ -149,7 +149,6 @@ private:
 	void onClickSelectedMediaUnzoom();
 	
 	LLUICtrl*			mNearbyMediaPanel;
-	LLTextBox*			mItemCountText;
 	LLScrollListCtrl*		mMediaList;
 	LLUICtrl*			mEnableAllCtrl;
 	LLUICtrl*			mDisableAllCtrl;

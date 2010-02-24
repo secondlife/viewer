@@ -135,7 +135,6 @@ BOOL LLPanelNearByMedia::postBuild()
 	mMediaList = getChild<LLScrollListCtrl>("media_list");
 	mEnableAllCtrl = getChild<LLUICtrl>("all_nearby_media_enable_btn");
 	mDisableAllCtrl = getChild<LLUICtrl>("all_nearby_media_disable_btn");
-	mItemCountText = getChild<LLTextBox>("media_item_count");
 	mShowCtrl = getChild<LLComboBox>("show_combo");
 
 	// Dynamic (selection-dependent) controls
@@ -250,8 +249,6 @@ void LLPanelNearByMedia::draw()
 		setShape(new_rect);
 	}
 
-	mItemCountText->setValue(llformat(getString("media_item_count_format").c_str(), mMediaList->getItemCount()));
-	
 	refreshList();
 	updateControls();
 	
