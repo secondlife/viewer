@@ -7,7 +7,7 @@
 		住人に支払う
 	</string>
 	<text name="payee_label">
-		支払い：
+		支払う：
 	</text>
 	<icon name="icon_person" tool_tip="住人"/>
 	<text name="payee_name">
