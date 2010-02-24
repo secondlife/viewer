@@ -147,7 +147,7 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 {
 	// do not exclude agent's indicators. They should be processed in the same way as others. See EXT-3889.
 
-	LL_DEBUGS("SpeakingIndicator") << "Registering indicator: " << speaker_id << "|"<< speaking_indicator << LL_ENDL;
+	LL_DEBUGS("SpeakingIndicator") << "Registering indicator: " << speaker_id << "|"<< speaking_indicator << ", session: " << session_id << LL_ENDL;
 
 
 	ensureInstanceDoesNotExist(speaking_indicator);
@@ -249,6 +249,7 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 			if (switch_current_on && indicator->getTargetSessionID().notNull())
 			{
 				switch_current_on = indicator->getTargetSessionID() == session_id;
+				LL_DEBUGS("SpeakingIndicator") << "Session: " << session_id << ", target: " << indicator->getTargetSessionID() << ", the same? = " << switch_current_on << LL_ENDL;
 			}
 
 			indicator->switchIndicator(switch_current_on);
@@ -300,7 +301,7 @@ void SpeakingIndicatorManager::ensureInstanceDoesNotExist(LLSpeakingIndicator* c
 /************************************************************************/
 
 void LLSpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator,
-														   const LLUUID& session_id/* = LLUUID::null*/)
+														   const LLUUID& session_id)
 {
 	SpeakingIndicatorManager::instance().registerSpeakingIndicator(speaker_id, speaking_indicator, session_id);
 }

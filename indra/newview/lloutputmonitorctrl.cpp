@@ -303,7 +303,7 @@ void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 	}
 
 	// otherwise remember necessary state and mark itself as dirty.
-	// State will be applied i next draw when parents chain became visible.
+	// State will be applied in next draw when parents chain becomes visible.
 	else
 	{
 		LL_DEBUGS("SpeakingIndicator") << "Indicator is not in visible chain, parent won't be notified: " << mSpeakerId << LL_ENDL;

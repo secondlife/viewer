@@ -35,15 +35,22 @@
 #ifndef LL_LLSPEAKINGINDICATORMANAGER_H
 #define LL_LLSPEAKINGINDICATORMANAGER_H
 
+class SpeakingIndicatorManager;
+
 class LLSpeakingIndicator
 {
 public:
 	virtual ~LLSpeakingIndicator(){}
 	virtual void switchIndicator(bool switch_on) = 0;
+
+private:
+	friend class SpeakingIndicatorManager;
+	// Accessors for target voice session UUID.
+	// They are intended to be used only from SpeakingIndicatorManager to ensure target session is 
+	// the same indicator was registered with.
 	void setTargetSessionID(const LLUUID& session_id) { mTargetSessionID = session_id; }
 	const LLUUID& getTargetSessionID() { return mTargetSessionID; }
 
-private:
 	/**
 	 * session UUID for which indicator should be shown only.
 	 *		If it is set, registered indicator will be shown only in voice channel
@@ -68,7 +75,7 @@ namespace LLSpeakingIndicatorManager
 	 *		which has the same session id (EXT-5562).
 	 */
 	void registerSpeakingIndicator(const LLUUID& speaker_id, LLSpeakingIndicator* const speaking_indicator,
-								   const LLUUID& session_id = LLUUID::null);
+								   const LLUUID& session_id);
 
 	/**
 	 * Removes passed speaking indicator from observing.
