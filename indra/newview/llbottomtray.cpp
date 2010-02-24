@@ -60,7 +60,6 @@ namespace
 	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
 	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
 	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
-	const S32 MAX_CHAT_BAR_WIDTH = 320;
 
 	S32 get_panel_min_width(LLLayoutStack* stack, LLPanel* panel)
 	{
@@ -71,6 +70,17 @@ namespace
 			stack->getPanelMinSize(panel->getName(), &minimal_width, NULL);
 		}
 		return minimal_width;
+	}
+
+	S32 get_panel_max_width(LLLayoutStack* stack, LLPanel* panel)
+	{
+		S32 max_width = 0;
+		llassert(stack);
+		if ( stack && panel && panel->getVisible() )
+		{
+			stack->getPanelMaxSize(panel->getName(), &max_width, NULL);
+		}
+		return max_width;
 	}
 
 	S32 get_curr_width(LLUICtrl* ctrl)
@@ -746,10 +756,11 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	if (delta_width <= 0) return;
 
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
-	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
+	static const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
 
 	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
+	static const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
+	static const S32 chatbar_panel_max_width = get_panel_max_width(mToolbarStack, mNearbyChatBar);
 
 	const S32 chatbar_available_shrink_width = chatbar_panel_width - chatbar_panel_min_width;
 	const S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
@@ -826,9 +837,9 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 
 	// how many space can nearby chatbar take?
 	S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
-	if (delta_width > 0 && chatbar_panel_width_ < MAX_CHAT_BAR_WIDTH)
+	if (delta_width > 0 && chatbar_panel_width_ < chatbar_panel_max_width)
 	{
-		S32 delta_panel_max = MAX_CHAT_BAR_WIDTH - chatbar_panel_width_;
+		S32 delta_panel_max = chatbar_panel_max_width - chatbar_panel_width_;
 		S32 delta_panel = llmin(delta_width, delta_panel_max);
 		lldebugs << "Unprocesed delta width: " << delta_width
 			<< ", can be applied to chatbar: " << delta_panel_max
