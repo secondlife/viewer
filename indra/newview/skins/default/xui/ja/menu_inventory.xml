@@ -6,8 +6,8 @@
 	<menu_item_call label="プロパティ" name="Task Properties"/>
 	<menu_item_call label="名前の変更" name="Task Rename"/>
 	<menu_item_call label="削除" name="Task Remove"/>
-	<menu_item_call label="ゴミ箱を空にする" name="Empty Trash"/>
-	<menu_item_call label="遺失物フォルダを空にする" name="Empty Lost And Found"/>
+	<menu_item_call label="ごみ箱を空にする" name="Empty Trash"/>
+	<menu_item_call label="紛失物フォルダを空にする" name="Empty Lost And Found"/>
 	<menu_item_call label="新しいフォルダ" name="New Folder"/>
 	<menu_item_call label="新しいスクリプト" name="New Script"/>
 	<menu_item_call label="新しいノートカード" name="New Note"/>
@@ -55,7 +55,7 @@
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="プロパティ" name="Properties"/>
 	<menu_item_call label="名前の変更" name="Rename"/>
-	<menu_item_call label="UUIDをコピー" name="Copy Asset UUID"/>
+	<menu_item_call label="UUID をコピー" name="Copy Asset UUID"/>
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="貼り付け" name="Paste"/>
 	<menu_item_call label="リンクの貼り付け" name="Paste As Link"/>
@@ -69,14 +69,14 @@
 	<menu_item_call label="ローカル再生" name="Animation Audition"/>
 	<menu_item_call label="インスタントメッセージを送信" name="Send Instant Message"/>
 	<menu_item_call label="テレポートを送る..." name="Offer Teleport..."/>
-	<menu_item_call label="会議チャット開始" name="Conference Chat"/>
+	<menu_item_call label="コンファレンスチャットを開始" name="Conference Chat"/>
 	<menu_item_call label="アクティブ" name="Activate"/>
 	<menu_item_call label="非アクティブ" name="Deactivate"/>
 	<menu_item_call label="別名で保存" name="Save As"/>
 	<menu_item_call label="自分から取り外す" name="Detach From Yourself"/>
 	<menu_item_call label="装着" name="Object Wear"/>
 	<menu label="装着先" name="Attach To"/>
-	<menu label="HUD装着先" name="Attach To HUD"/>
+	<menu label="HUD 装着先" name="Attach To HUD"/>
 	<menu_item_call label="編集" name="Wearable Edit"/>
 	<menu_item_call label="装着" name="Wearable Wear"/>
 	<menu_item_call label="取り外す" name="Take Off"/>
