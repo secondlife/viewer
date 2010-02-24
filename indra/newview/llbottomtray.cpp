@@ -60,6 +60,7 @@ namespace
 	const std::string& PANEL_MOVEMENT_NAME	= "movement_panel";
 	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
 	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
+	const S32 MAX_CHAT_BAR_WIDTH = 320;
 
 	S32 get_panel_min_width(LLLayoutStack* stack, LLPanel* panel)
 	{
@@ -672,7 +673,7 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	}
 
 	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
+	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
 	if (still_should_be_processed && chatbar_panel_width > chatbar_panel_min_width)
 	{
 		// we have some space to decrease chatbar panel
@@ -748,8 +749,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
 
 	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
-	const S32 chatbar_panel_max_width = mNearbyChatBar->getMaxWidth();
+	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
 
 	const S32 chatbar_available_shrink_width = chatbar_panel_width - chatbar_panel_min_width;
 	const S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
@@ -826,9 +826,9 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 
 	// how many space can nearby chatbar take?
 	S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
-	if (delta_width > 0 && chatbar_panel_width_ < chatbar_panel_max_width)
+	if (delta_width > 0 && chatbar_panel_width_ < MAX_CHAT_BAR_WIDTH)
 	{
-		S32 delta_panel_max = chatbar_panel_max_width - chatbar_panel_width_;
+		S32 delta_panel_max = MAX_CHAT_BAR_WIDTH - chatbar_panel_width_;
 		S32 delta_panel = llmin(delta_width, delta_panel_max);
 		lldebugs << "Unprocesed delta width: " << delta_width
 			<< ", can be applied to chatbar: " << delta_panel_max
@@ -1186,7 +1186,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		{
 			// Calculate the possible shrunk width as difference between current and minimal widths
 			const S32 chatbar_shrunk_width =
-				mNearbyChatBar->getRect().getWidth() - mNearbyChatBar->getMinWidth();
+				mNearbyChatBar->getRect().getWidth() - get_panel_min_width(mToolbarStack, mNearbyChatBar);
 
 			const S32 sum_of_min_widths =
 				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
