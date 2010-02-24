@@ -263,7 +263,7 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 	}
 
 	mSpeakerId = speaker_id;
-	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this);
+	LLSpeakingIndicatorManager::registerSpeakingIndicator(mSpeakerId, this, session_id);
 
 	//mute management
 	if (mAutoUpdate)
