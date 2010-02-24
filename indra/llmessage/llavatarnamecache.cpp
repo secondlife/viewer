@@ -34,17 +34,20 @@
 
 #include "llavatarnamecache.h"
 
-#include "llcachename.h"	// until we get our own web service
+#include "llcachename.h"	// *TODO: remove
 #include "llframetimer.h"
 #include "llhttpclient.h"
-#include "llsdserialize.h"	// JAMESDEBUG
 
-#include <cctype>	// tolower()
+#include <map>
 #include <set>
 
 namespace LLAvatarNameCache
 {
 	bool sUseDisplayNames = false;
+
+	// *TODO: configure the base URL for this in viewer with data
+	// from login.cgi
+	std::string sNameServiceBaseURL = "http://pdp15.lindenlab.com:8050/my-service/";
 
 	// accumulated agent IDs for next query against service
 	typedef std::set<LLUUID> ask_queue_t;
@@ -70,36 +73,29 @@ namespace LLAvatarNameCache
 	LLFrameTimer sRequestTimer;
 
 	bool isRequestPending(const LLUUID& agent_id);
-	void processResult(const LLSD& row);
+	void processNameFromService(const LLSD& row);
 }
 
 class LLAvatarNameResponder : public LLHTTPClient::Responder
 {
 public:
-	/*virtual*/ void result(const LLSD& content);
-	/*virtual*/ void error(U32 status, const std::string& reason);
+	/*virtual*/ void result(const LLSD& content)
+	{
+		LLSD::array_const_iterator it = content.beginArray();
+		for ( ; it != content.endArray(); ++it)
+		{
+			const LLSD& row = *it;
+			LLAvatarNameCache::processNameFromService(row);
+		}
+	}
+
+	/*virtual*/ void error(U32 status, const std::string& reason)
+	{
+		llinfos << "JAMESDEBUG error " << status << " " << reason << llendl;
+	}
 };
 
-void LLAvatarNameResponder::result(const LLSD& content)
-{
-	//std::ostringstream debug;
-	//LLSDSerialize::toPrettyXML(content, debug);
-	//llinfos << "JAMESDEBUG " << debug.str() << llendl;
-
-	LLSD::array_const_iterator it = content.beginArray();
-	for ( ; it != content.endArray(); ++it)
-	{
-		const LLSD& row = *it;
-		LLAvatarNameCache::processResult(row);
-	}
-}
-
-void LLAvatarNameResponder::error(U32 status, const std::string& reason)
-{
-	llinfos << "JAMESDEBUG error " << status << " " << reason << llendl;
-}
-
-void LLAvatarNameCache::processResult(const LLSD& row)
+void LLAvatarNameCache::processNameFromService(const LLSD& row)
 {
 	U32 now = (U32)LLFrameTimer::getTotalSeconds();
 
@@ -135,7 +131,6 @@ void LLAvatarNameCache::processResult(const LLSD& row)
 	signal_map_t::iterator sig_it =	sSignalMap.find(agent_id);
 	if (sig_it != sSignalMap.end())
 	{
-		llinfos << "JAMESDEBUG firing signal" << llendl;
 		callback_signal_t* signal = sig_it->second;
 		(*signal)(agent_id, av_name);
 
@@ -144,24 +139,7 @@ void LLAvatarNameCache::processResult(const LLSD& row)
 		delete signal;
 		signal = NULL;
 	}
-
-	llinfos << "JAMESDEBUG fetched " << av_name.mDisplayName << llendl;
 }
-
-// JAMESDEBUG re-enable when display names are turned on???
-//static std::string slid_from_full_name(const std::string& full_name)
-//{
-//	std::string id = full_name;
-//	std::string::size_type end = id.length();
-//	for (std::string::size_type i = 0; i < end; ++i)
-//	{
-//		if (id[i] == ' ')
-//			id[i] = '.';
-//		else
-//			id[i] = tolower(id[i]);
-//	}
-//	return id;
-//}
 
 void LLAvatarNameCache::initClass()
 {
@@ -202,12 +180,8 @@ void LLAvatarNameCache::idle()
 		agent_ids.append( LLSD( *it ) );
 	}
 
-	//std::ostringstream debug;
-	//LLSDSerialize::toPrettyXML(body, debug);
-	//LL_INFOS("JAMESDEBUG") << debug.str() << LL_ENDL;
-
 	// *TODO: configure the base URL for this
-	std::string url = "http://pdp15.lindenlab.com:8050/my-service/agent/display-names/";
+	std::string url = sNameServiceBaseURL + "agent/display-names/";
 	LLHTTPClient::post(url, body, new LLAvatarNameResponder());
 
 	// Move requests from Ask queue to Pending queue
@@ -297,7 +271,6 @@ public:
 	{
 		// force re-fetch
 		LLAvatarNameCache::sCache.erase(mAgentID);
-		llinfos << "JAMESDEBUG set names worked" << llendl;
 	}
 
 	/*virtual*/ void error(U32 status, const std::string& reason)
@@ -313,7 +286,7 @@ void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, const std::string
 	body["display_name"] = display_name;
 
 	// *TODO: configure the base URL for this
-	std::string url = "http://pdp15.lindenlab.com:8050/my-service/agent/";
+	std::string url = sNameServiceBaseURL + "agent/";
 	url += agent_id.asString();
 	url += "/set-display-name/";
 	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id));
