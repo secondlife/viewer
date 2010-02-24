@@ -22,7 +22,7 @@
 		<radio_item label="近くのチャット" name="0"/>
 		<radio_item label="別々のウィンドウ" name="1"/>
 	</radio_group>
-	<check_box label="押すとボイスのオン・オフを切り替えます：" name="push_to_talk_toggle_check" tool_tip="トグルモードの時にトリガーキーを1度押して放すと、マイクのオン・オフ設定を切り替えます。 トグルモードではないときは、トリガーキーを押した状態の時のみあなたの声が相手に聞こえます。"/>
+	<check_box label="ボイスのオン・オフ切り替えに使用するトリガーキー：" name="push_to_talk_toggle_check" tool_tip="トグルモードの時にトリガーキーを 1 度押して放すと、マイクのオン・オフ設定を切り替えます。 トグルモードではないときは、トリガーキーを押した状態の時のみあなたの声が相手に聞こえます。"/>
 	<line_editor label="プッシュ・トゥ・スピークのトリガー" name="modifier_combo"/>
 	<button label="キー設定" name="set_voice_hotkey_button"/>
 	<button label="マウスの中央ボタン" name="set_voice_middlemouse_button" tool_tip="マウスの中央ボタンにリセットします"/>
