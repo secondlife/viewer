@@ -2,6 +2,7 @@
 <panel
 	can_resize="true"
 	can_close="false"
+	mouse_opaque="true"
 	bg_opaque_image="Volume_Background" 
 	bg_alpha_image="Volume_Background" 
 	background_opaque="true"
@@ -132,6 +133,7 @@
 		  ame="OnOthers" />
 	</combo_box>
 	<scroll_list
+		name="media_list"
 		follows="left|top|bottom|right"
 		column_padding="0"
 		height="105"
@@ -140,8 +142,7 @@
 		bg_stripe_color="0.25 0.25 0.25 0.25"
 		top_pad="8"
 		left="10"
-		right="-10"
-		name="media_list">
+		right="-10">
 	  <scroll_list.columns
 		  type="checkbox"
 		  width="-1"
@@ -189,11 +190,9 @@
 		  left="10"
 		  right="-10"
 		  border_size="0"
-		  mouse_opaque="false"
 		  orientation="horizontal">
 		<layout_panel
 			name="stop"
-			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -221,7 +220,6 @@
 		</layout_panel>
 		<layout_panel
 			name="play"
-			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -249,7 +247,6 @@
 		</layout_panel>
 		<layout_panel
 			name="pause"
-			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -276,7 +273,6 @@
 		</layout_panel>
 		<layout_panel
 			name="volume_slider_ctrl"
-			mouse_opaque="false"
 			auto_resize="true"
 			user_resize="false"
 			follows="left|right"
@@ -301,7 +297,6 @@
 		</layout_panel>
 		<layout_panel
 			name="mute"
-			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -330,7 +325,6 @@
 		</layout_panel>
 		<layout_panel
 			name="zoom"
-			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -358,7 +352,6 @@
 		</layout_panel>
 		<layout_panel
 			name="unzoom"
-			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -387,7 +380,6 @@
 		<layout_panel
 			name="right_bookend"
 			width="0"
-			mouse_opaque="false"
 			user_resize="false" />
 	  </layout_stack>
 	</panel>
