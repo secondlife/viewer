@@ -359,7 +359,7 @@
      reference="White"/>
     <color
      name="GroupNotifyDimmedTextColor"
-     reference="DkGray" />
+     reference="LtGray" />
     <color
      name="GroupOverTierColor"
      value="0.43 0.06 0.06 1" />
