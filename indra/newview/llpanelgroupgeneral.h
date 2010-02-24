@@ -84,7 +84,6 @@ private:
 	static void openProfile(void* data);
 
 	S32		sortMembersList(S32,const LLScrollListItem*,const LLScrollListItem*);
-	//void		sortMembersList(S32 column);
 
     static bool joinDlgCB(const LLSD& notification, const LLSD& response);
 
