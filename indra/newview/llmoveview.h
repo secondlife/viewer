@@ -86,7 +86,6 @@ private:
 	void onWalkButtonClick();
 	void onRunButtonClick();
 	void onFlyButtonClick();
-	void onStopFlyingButtonClick();
 	void initMovementMode();
 	void setMovementMode(const EMovementMode mode);
 	void showFlyControls(bool bShow);
@@ -108,7 +107,6 @@ public:
 	LLButton*				mMoveUpButton;
 	LLButton*				mMoveDownButton;
 private:
-	LLButton*				mStopFlyingButton;
 	LLPanel*				mModeActionsPanel;
 	
 	typedef std::map<LLView*, std::string> control_tooltip_map_t;

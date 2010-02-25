@@ -77,7 +77,6 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 	mTurnRightButton(NULL),
 	mMoveUpButton(NULL),
 	mMoveDownButton(NULL),
-	mStopFlyingButton(NULL),
 	mModeActionsPanel(NULL),
 	mCurrentMode(MM_WALK)
 {
@@ -113,8 +112,6 @@ BOOL LLFloaterMove::postBuild()
 	mMoveDownButton->setHeldDownCallback(boost::bind(&LLFloaterMove::moveDown, this));
 
 
-	mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
-
 	mModeActionsPanel = getChild<LLPanel>("panel_modes");
 
 	LLButton* btn;
@@ -126,11 +123,6 @@ BOOL LLFloaterMove::postBuild()
 
 	btn = getChild<LLButton>("mode_fly_btn");
 	btn->setCommitCallback(boost::bind(&LLFloaterMove::onFlyButtonClick, this));
-
-	btn = getChild<LLButton>("stop_fly_btn");
-	btn->setCommitCallback(boost::bind(&LLFloaterMove::onStopFlyingButtonClick, this));
-
-
 
 	showFlyControls(false);
 
@@ -305,10 +297,6 @@ void LLFloaterMove::onFlyButtonClick()
 {
 	setMovementMode(MM_FLY);
 }
-void LLFloaterMove::onStopFlyingButtonClick()
-{
-	setMovementMode(gAgent.getAlwaysRun() ? MM_RUN : MM_WALK);
-}
 
 void LLFloaterMove::setMovementMode(const EMovementMode mode)
 {
@@ -361,10 +349,6 @@ void LLFloaterMove::showFlyControls(bool bShow)
 {
 	mMoveUpButton->setVisible(bShow);
 	mMoveDownButton->setVisible(bShow);
-
-	// *TODO: mantipov: mStopFlyingButton from the FloaterMove is not used now.
-	// It was not completly removed until functionality is reviewed by LL
-	mStopFlyingButton->setVisible(FALSE);
 }
 
 void LLFloaterMove::initModeTooltips()
