@@ -241,6 +241,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 BOOL LLFloaterCamera::postBuild()
 {
 	setIsChrome(TRUE);
+	setTitleVisible(TRUE); // restore title visibility after chrome applying
 
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
 	mZoom = getChild<LLPanelCameraZoom>(ZOOM);
@@ -293,6 +294,31 @@ void LLFloaterCamera::setMode(ECameraControlMode mode)
 	}
 	
 	updateState();
+}
+
+void LLFloaterCamera::setModeTitle(const ECameraControlMode mode)
+{
+	std::string title; 
+	switch(mode)
+	{
+	case CAMERA_CTRL_MODE_ORBIT:
+		title = getString("orbit_mode_title");
+		break;
+	case CAMERA_CTRL_MODE_PAN:
+		title = getString("pan_mode_title");
+		break;
+	case CAMERA_CTRL_MODE_AVATAR_VIEW:
+		title = getString("avatar_view_mode_title");
+		break;
+	case CAMERA_CTRL_MODE_FREE_CAMERA:
+		title = getString("free_mode_title");
+		break;
+	default:
+		// title should be provided for all modes
+		llassert(false);
+		break;
+	}
+	setTitle(title);
 }
 
 void LLFloaterCamera::switchMode(ECameraControlMode mode)
@@ -355,6 +381,8 @@ void LLFloaterCamera::updateState()
 	childSetVisible(PRESETS, CAMERA_CTRL_MODE_AVATAR_VIEW == mCurrMode);
 
 	updateCameraPresetButtons();
+	setModeTitle(mCurrMode);
+
 
 	//hiding or showing the panel with controls by reshaping the floater
 	bool showControls = CAMERA_CTRL_MODE_FREE_CAMERA != mCurrMode;
