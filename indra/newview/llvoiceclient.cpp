@@ -102,6 +102,13 @@ const F32 UPDATE_THROTTLE_SECONDS = 0.1f;
 const F32 LOGIN_RETRY_SECONDS = 10.0f;
 const int MAX_LOGIN_RETRIES = 12;
 
+// Defines the maximum number of times(in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine()
+// which is treated as normal. If this number is exceeded we suspect there is a problem with connection
+// to voice server (EXT-4313). When voice works correctly, there is from 1 to 15 times. 50 was chosen 
+// to make sure we don't make mistake when slight connection problems happen- situation when connection to server is 
+// blocked is VERY rare and it's better to sacrifice response time in this situation for the sake of stability.
+const int MAX_NORMAL_JOINING_SPATIAL_NUM = 50;
+
 static void setUUIDFromStringHash(LLUUID &uuid, const std::string &str)
 {
 	LLMD5 md5_uuid;
@@ -1221,6 +1228,7 @@ LLVoiceClient::LLVoiceClient() :
 	mRelogRequested(false),
 	mConnected(false),
 	mPump(NULL),
+	mSpatialJoiningNum(0),
 	
 	mTuningMode(false),
 	mTuningEnergy(0.0f),
@@ -2223,6 +2231,8 @@ void LLVoiceClient::stateMachine()
 					
 		//MARK: stateNoChannel
 		case stateNoChannel:
+			
+			mSpatialJoiningNum = 0;
 			// Do this here as well as inside sendPositionalUpdate().  
 			// Otherwise, if you log in but don't join a proximal channel (such as when your login location has voice disabled), your friends list won't sync.
 			sendFriendsListUpdates();
@@ -2279,6 +2289,23 @@ void LLVoiceClient::stateMachine()
 
 		//MARK: stateJoiningSession
 		case stateJoiningSession:		// waiting for session handle
+
+			// If this is true we have problem with connection to voice server (EXT-4313).
+			// See descriptions of mSpatialJoiningNum and MAX_NORMAL_JOINING_SPATIAL_NUM.
+			if(mSpatialJoiningNum == MAX_NORMAL_JOINING_SPATIAL_NUM) 
+			{
+				// Notify observers to let them know there is problem with voice
+				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
+				llwarns << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << llendl;
+			}
+
+			// Increase mSpatialJoiningNum only for spatial sessions- it's normal to reach this case for
+			// example for p2p many times while waiting for response, so it can't be used to detect errors
+			if(mAudioSession && mAudioSession->mIsSpatial)
+			{
+				mSpatialJoiningNum++;
+			}
+			
 			// joinedAudioSession() will transition from here to stateSessionJoined.
 			if(!mVoiceEnabled)
 			{
@@ -2302,6 +2329,8 @@ void LLVoiceClient::stateMachine()
 		
 		//MARK: stateSessionJoined
 		case stateSessionJoined:		// session handle received
+			
+			mSpatialJoiningNum = 0;
 			// It appears that I need to wait for BOTH the SessionGroup.AddSession response and the SessionStateChangeEvent with state 4
 			// before continuing from this state.  They can happen in either order, and if I don't wait for both, things can get stuck.
 			// For now, the SessionGroup.AddSession response handler sets mSessionHandle and the SessionStateChangeEvent handler transitions to stateSessionJoined.
@@ -5992,7 +6021,9 @@ bool LLVoiceClient::voiceEnabled()
 bool LLVoiceClient::voiceWorking()
 {
 	//Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
-	return (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
+	// Condition with joining spatial num was added to take into account possible problems with connection to voice
+	// server(EXT-4313). See bug descriptions and comments for MAX_NORMAL_JOINING_SPATIAL_NUM for more info.
+	return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
 }
 
 void LLVoiceClient::setLipSyncEnabled(BOOL enabled)

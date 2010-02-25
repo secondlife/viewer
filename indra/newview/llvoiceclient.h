@@ -586,6 +586,10 @@ static	void updatePosition(void);
 		state mState;
 		bool mSessionTerminateRequested;
 		bool mRelogRequested;
+		// Number of times (in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine().
+		// The larger it is the greater is possibility there is a problem with connection to voice server.
+		// Introduced while fixing EXT-4313.
+		int mSpatialJoiningNum;
 		
 		void setState(state inState);
 		state getState(void)  { return mState; };
