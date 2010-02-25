@@ -214,6 +214,17 @@ public:
 	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
 	std::string getClickTarget() const { return mClickTarget; };
 
+	typedef enum 
+	{
+		TARGET_NONE,        // empty href target string
+		TARGET_BLANK,       // target to open link in user's preferred browser
+		TARGET_EXTERNAL,    // target to open link in external browser
+		TARGET_OTHER        // nonempty and unsupported target type
+	}ETargetType;
+
+	// This is valid after MEDIA_EVENT_CLICK_LINK_HREF
+	ETargetType getClickTargetType() const { return mClickTargetType; };
+
 	std::string getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
@@ -344,6 +355,7 @@ protected:
 	std::string		mLocation;
 	std::string		mClickURL;
 	std::string		mClickTarget;
+	ETargetType     mClickTargetType;
 	
 	/////////////////////////////////////////
 	// media_time class

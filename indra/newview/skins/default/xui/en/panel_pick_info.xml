@@ -7,6 +7,7 @@
  left="0"
  min_height="350"
  name="panel_pick_info"
+ help_topic="profile_pick_info"
  top="0"
  width="333">
     <button
@@ -40,31 +41,30 @@
      left="10"
      top_pad="10"
      name="profile_scroll"
-     reserve_scroll_corner="false"
      width="313">
     <panel
      name="scroll_content_panel"
-     follows="left|top"
+     follows="left|top|right"
      min_height="300"
      layout="topleft"
      top="0"
      background_visible="false"
-     height="470"
+     height="400"
      left="0"
-     width="295">
+     width="285">
         <texture_picker
          enabled="false"
-         follows="left|top"
+         follows="left|top|right"
          height="197"
          layout="topleft"
          left="10"
          name="pick_snapshot"
          top="20"
-         width="290" />
+         width="280" />
         <text
          follows="left|top|right"
          height="35"
-         width="290"
+         width="280"
          layout="topleft"
          font="SansSerifBig"
          font.style="BOLD"
@@ -75,23 +75,29 @@
          value="[name]"
          use_ellipses="true" />
         <text
-         follows="left|top"
+         follows="left|top|right"
          height="25"
          layout="topleft"
          left="10"
          name="pick_location"
-         width="290"
+         width="280"
          word_wrap="true"
          value="[loading...]" />
-        <text
-         follows="left|top|right"
-         height="280"
+        <text_editor
+         bg_readonly_color="DkGray2"
+         follows="all"
+         height="100"
+         width="280"
+         hide_scrollbar="false"
          layout="topleft"
          left="10"
+         top_pad="2"
+         max_length="1023"
          name="pick_desc"
-         width="290"
+         read_only="true"
+         text_readonly_color="white"
          value="[description]"
-         word_wrap="true" />
+         wrap="true" />
     </panel>
     </scroll_container>
     <panel

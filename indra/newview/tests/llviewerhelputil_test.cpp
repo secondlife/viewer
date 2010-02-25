@@ -78,9 +78,21 @@ static void substitute_string(std::string &input, const std::string &search, con
 	}
 }
 
+class LLAgent
+{
+public:
+	LLAgent() {}
+	~LLAgent() {}
+	BOOL isGodlike() const { return FALSE; }
+private:
+	int dummy;
+};
+LLAgent gAgent;
+
 std::string LLWeb::expandURLSubstitutions(const std::string &url,
 										  const LLSD &default_subs)
 {
+	(void)gAgent.isGodlike(); // ref symbol to stop compiler from stripping it
 	std::string new_url = url;
 	substitute_string(new_url, "[TOPIC]", default_subs["TOPIC"].asString());
 	substitute_string(new_url, "[VERSION]", gVersion);
@@ -90,6 +102,7 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitute_string(new_url, "[OS]", gOS);
 	return new_url;
 }
+
 
 //----------------------------------------------------------------------------
 	

@@ -42,33 +42,52 @@
 #include "llspeakers.h"
 
 
-class LLGestureComboBox
-	: public LLComboBox
-	, public LLGestureManagerObserver
+class LLGestureComboList
+	: public LLGestureManagerObserver
+	, public LLUICtrl
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLComboBox::Params> { };
-protected:
-	LLGestureComboBox(const Params&);
-	friend class LLUICtrlFactory;
-public:
-	~LLGestureComboBox();
+	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<LLButton::Params>			combo_button;
+		Optional<LLScrollListCtrl::Params>	combo_list;
+		
+		Params();
+	};
 
+protected:
+	
+	friend class LLUICtrlFactory;
+	LLGestureComboList(const Params&);
+	std::vector<LLMultiGesture*> mGestures;
+	std::string mLabel;
+	LLSD::Integer mViewAllItemIndex;
+
+public:
+
+	~LLGestureComboList();
+
+	LLCtrlListInterface* getListInterface()		{ return (LLCtrlListInterface*)mList; };
+	virtual void	showList();
+	virtual void	hideList();
+	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+
+	S32				getCurrentIndex() const;
+	void			onItemSelected(const LLSD& data);
+	void			sortByName(bool ascending = true);
 	void refreshGestures();
 	void onCommitGesture();
-	virtual void draw();
+	void onButtonCommit();
+	virtual LLSD	getValue() const;
 
 	// LLGestureManagerObserver trigger
 	virtual void changed() { refreshGestures(); }
 
-protected:
+private:
 
-	virtual void showList();
-
-	LLFrameTimer mGestureLabelTimer;
-	std::vector<LLMultiGesture*> mGestures;
-	std::string mLabel;
-	LLSD::Integer mViewAllItemIndex;
+	LLButton*			mButton;
+	LLScrollListCtrl*	mList;
+	S32                 mLastSelectedIndex;
 };
 
 class LLNearbyChatBar

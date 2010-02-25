@@ -43,6 +43,7 @@
 
 class LLIconCtrl;
 class LLTextureCtrl;
+class LLScrollContainer;
 class LLMessageSystem;
 class LLAvatarPropertiesObserver;
 
@@ -68,6 +69,8 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
@@ -140,15 +143,6 @@ protected:
 	virtual LLVector3d& getPosGlobal() { return mPosGlobal; }
 
 	/**
-	 * Reshapes content panel to fit all elements.
-	 *
-	 * Assume that description text-box is the last element of panel.
-	 * Reshape text-box to fit text height and then reshape content panel to fit 
-	 * text-box bottom. EXT-1326
-	 */
-	void updateContentPanelRect();
-
-	/**
 	 * Callback for "Map" button, opens Map
 	 */
 	void onClickMap();
@@ -162,7 +156,11 @@ protected:
 
 protected:
 
-	LLTextureCtrl* mSnapshotCtrl;
+	S32						mScrollingPanelMinHeight;
+	S32						mScrollingPanelWidth;
+	LLScrollContainer*		mScrollContainer;
+	LLPanel*				mScrollingPanel;
+	LLTextureCtrl*			mSnapshotCtrl;
 
 	LLUUID mAvatarId;
 	LLVector3d mPosGlobal;

@@ -124,7 +124,6 @@
          height="25"
          top_pad="10"
          name="buttons_cucks"
-         help_topic="picks_button_tab"
          width="313">
        <button
          enabled="false"

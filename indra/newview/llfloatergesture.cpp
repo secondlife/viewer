@@ -415,7 +415,7 @@ void LLFloaterGesture::onClickPlay()
 	LL_DEBUGS("Gesture")<<" Trying to play gesture id: "<< item_id <<LL_ENDL;
 	if(!LLGestureManager::instance().isGestureActive(item_id))
 	{
-		// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboBox.
+		// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
 		BOOL inform_server = TRUE;
 		BOOL deactivate_similar = FALSE;
 		LLGestureManager::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));

@@ -110,8 +110,8 @@ public:
 	void onClickSetKey();
 	void setKey(KEY key);
 	void onClickSetMiddleMouse();
-	void onClickSkipDialogs();
-	void onClickResetDialogs();
+//	void onClickSkipDialogs();
+//	void onClickResetDialogs();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	
 	void resetAllIgnored();

@@ -52,10 +52,11 @@
 	<text name="total_amount">
 		[AMT]L$
 	</text>
-	<text name="purchase_warning_repurchase" height="48" bottom_delta="-64" right="-10">
-		Confermando questa operazione si acquisterà solo
-la valuta. Per acquistare il bene, dovrai riprovare
-l&apos;operazione nuovamente.
+	<text name="currency_links">
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=it-IT payment method] | [http://www.secondlife.com/my/account/currency.php?lang=it-IT currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=it-IT exchange rate]
+	</text>
+	<text name="purchase_warning_repurchase">
+		Confermando questa operazione si acquisterà solo la valuta. Per acquistare il bene, dovrai riprovare l&apos;operazione nuovamente.
 	</text>
 	<text name="purchase_warning_notenough" bottom_delta="16">
 		Non stai comprando abbastanza denaro.

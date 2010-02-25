@@ -280,6 +280,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
+	mListCommands->childSetVisible("wear_btn", wear_enabled);
 	mListCommands->childSetEnabled("make_outfit_btn", make_outfit_enabled);
 }
 

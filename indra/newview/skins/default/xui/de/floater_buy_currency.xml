@@ -46,7 +46,7 @@
 		[AMT] L$
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/ payment method] | [http://www.secondlife.com/ currency] | [http://www.secondlife.com exchange rate]
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=de-DE payment method] | [http://www.secondlife.com/my/account/currency.php?lang=de-DE currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=de-DE exchange rate]
 	</text>
 	<text name="exchange_rate_note">
 		Geben Sie den Betrag erneut ein, um die aktuellste Umtauschrate anzuzeigen.

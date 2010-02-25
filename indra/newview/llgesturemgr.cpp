@@ -417,6 +417,16 @@ BOOL LLGestureManager::isGesturePlaying(const LLUUID& item_id)
 	return gesture->mPlaying;
 }
 
+BOOL LLGestureManager::isGesturePlaying(LLMultiGesture* gesture)
+{
+	if(!gesture)
+	{
+		return FALSE;
+	}
+
+	return gesture->mPlaying;
+}
+
 void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);

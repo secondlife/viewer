@@ -326,6 +326,9 @@ public:
 	EMediaNavState getNavState() { return mMediaNavState; }
 	void setNavState(EMediaNavState state);
 	
+	void setNavigateSuspended(bool suspend);
+	bool isNavigateSuspended() { return mNavigateSuspended; };
+	
 	void cancelMimeTypeProbe();
 private:
 	// a single media url with some data and an impl.
@@ -372,6 +375,8 @@ private:
 	bool mInNearbyMediaList;	// used by LLFloaterNearbyMedia::refreshList() for performance reasons
 	bool mClearCache;
 	LLColor4 mBackgroundColor;
+	bool mNavigateSuspended;
+	bool mNavigateSuspendedDeferred;
 	
 private:
 	BOOL mIsUpdated ;

@@ -45,6 +45,7 @@
 #include "llappviewer.h"
 #include "lltracker.h"
 
+/*
 // static
 std::set<std::string> LLFirstUse::sConfigVariables;
 
@@ -75,7 +76,8 @@ void LLFirstUse::resetFirstUse()
 		gWarningSettings.setBOOL(*iter, TRUE);
 	}
 }
-
+*/
+/*
 
 // Called whenever the viewer detects that your balance went up
 void LLFirstUse::useBalanceIncrease(S32 delta)
@@ -145,6 +147,8 @@ void LLFirstUse::useBuild()
 		LLNotificationsUtil::add("FirstBuild");
 	}
 }
+ 
+ */
 /*
 // static
 void LLFirstUse::useLeftClickNoHit()
@@ -157,6 +161,7 @@ void LLFirstUse::useLeftClickNoHit()
 	}
 }
 */
+/*
 // static
 void LLFirstUse::useTeleport()
 {
@@ -171,7 +176,7 @@ void LLFirstUse::useTeleport()
 		}
 	}
 }
-
+*/
 // static
 void LLFirstUse::useOverrideKeys()
 {
@@ -187,7 +192,7 @@ void LLFirstUse::useOverrideKeys()
 		}
 	}
 }
-
+/*
 // static
 void LLFirstUse::useAttach()
 {
@@ -216,6 +221,7 @@ void LLFirstUse::useInventory()
 	}
 }
 
+*/
 
 // static
 void LLFirstUse::useSandbox()
@@ -230,7 +236,7 @@ void LLFirstUse::useSandbox()
 		LLNotificationsUtil::add("FirstSandbox", args);
 	}
 }
-
+/*
 // static
 void LLFirstUse::useFlexible()
 {
@@ -277,3 +283,4 @@ void LLFirstUse::useMedia()
 		//LLNotificationsUtil::add("FirstMedia");
 	}
 }
+*/

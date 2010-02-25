@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Kommunikation" name="im">
 	<panel.string name="log_in_to_change">
-		Zum Ändern anmelden
+		Anmelden, um Änderungen vorzunehmen
 	</panel.string>
-	<button label="Cache löschen" name="clear_cache"/>
+	<button label="Verlauf leeren" name="clear_cache"/>
 	<text name="cache_size_label_l">
-		(Positionen, Bilder, Internet, Suchverlauf)
+		(Standorte, Bilder, Web, Suchverlauf)
 	</text>
-	<check_box label="Nur Freunden und Gruppen meinen Online-Status mitteilen" name="online_visibility"/>
-	<check_box label="Nur IMs und Anrufe von Freunden oder Gruppen durchstellen" name="voice_call_friends_only_check"/>
-	<check_box label="Nach Beendigung von Anrufen Mikrofon abschalten." name="auto_disengage_mic_check"/>
+	<check_box label="Nur Freunde und Gruppen wissen, dass ich online bin" name="online_visibility"/>
+	<check_box label="Nur Freunde und Gruppen können mich anrufen oder mir eine IM schicken" name="voice_call_friends_only_check"/>
+	<check_box label="Mikrofon ausschalten, wenn Anrufe beendet werden" name="auto_disengage_mic_check"/>
 	<check_box label="Cookies annehmen" name="cookies_enabled"/>
-	<check_box label="Medien automatisch wiedergeben" name="autoplay_enabled"/>
-	<check_box label="Medien auf Parzelle automatisch wiedergeben" name="parcel_autoplay_enabled"/>
+	<check_box label="Automatisches Abspielen von Medien erlauben" name="autoplay_enabled"/>
+	<check_box label="Medien auf Parzellen automatisch abspielen" name="parcel_autoplay_enabled"/>
 	<text name="Logs:">
-		Logs:
+		Protokolle:
 	</text>
-	<check_box label="Protokoll von Chats &quot;in meiner Nähe&quot; auf meinem Computer speichern" name="log_nearby_chat"/>
-	<check_box label="IM-Protokolle auf meinem Computer speichern" name="log_instant_messages"/>
-	<check_box label="Zeitangabe hinzufügen" name="show_timestamps_check_im"/>
+	<check_box label="Protokolle von Gesprächen in der Nähe auf meinem Computer speichern" name="log_nearby_chat"/>
+	<check_box label="IM Protokolle auf meinem Computer speichern" name="log_instant_messages"/>
+	<check_box label="Zeitstempel hinzufügen" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
-		Speicherort für Protokolle
+		Speicherort der Protokolldateien
 	</text>
 	<button label="Durchsuchen" label_selected="Durchsuchen" name="log_path_button"/>
 	<button label="Ignorierte Einwohner/Objekte" name="block_list"/>

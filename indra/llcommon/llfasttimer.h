@@ -77,7 +77,7 @@ inline U32 get_cpu_clock_count_64()
 {																	
 	U64 x;
 	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
-	return x >> 8;
+	return x;
 }
 #endif
 

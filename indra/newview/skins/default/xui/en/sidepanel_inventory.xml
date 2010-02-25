@@ -33,7 +33,6 @@
 		<panel
 			 height="25"
 			 layout="bottomright"
-			 help_topic="item_button_tab"
 			 name="button_panel"
 			 left="5"
 			 bottom="5"
