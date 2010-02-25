@@ -34,7 +34,7 @@
 #include "llfloatersettingsdebug.h"
 #include "llfloater.h"
 #include "lluictrlfactory.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llcombobox.h"
 #include "llspinctrl.h"
 #include "llcolorswatch.h"

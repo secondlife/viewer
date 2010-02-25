@@ -35,7 +35,7 @@
 #include "llfloaterinventory.h"
 
 #include "llagent.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llinventorymodel.h"
 #include "llpanelmaininventory.h"
@@ -135,5 +135,5 @@ void LLFloaterInventory::cleanup()
 
 void LLFloaterInventory::onOpen(const LLSD& key)
 {
-	LLFirstUse::useInventory();
+	//LLFirstUse::useInventory();
 }

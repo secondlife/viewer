@@ -38,7 +38,7 @@
 // viewer headers
 #include "llbutton.h"
 #include "llviewercontrol.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloatertools.h"
 #include "llselectmgr.h"
 #include "llstatusbar.h"
@@ -188,7 +188,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 
 	if (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX)
 	{
-		LLFirstUse::useSandbox();
+		//LLFirstUse::useSandbox();
 	}
 
 	// Set params for new object based on its PCode.
@@ -491,7 +491,7 @@ BOOL LLToolPlacer::addDuplicate(S32 x, S32 y)
 	if (regionp
 		&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
 	{
-		LLFirstUse::useSandbox();
+		//LLFirstUse::useSandbox();
 	}
 
 	return TRUE;

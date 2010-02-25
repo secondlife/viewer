@@ -56,7 +56,7 @@
 #include "lldriverparam.h"
 #include "lleditingmotion.h"
 #include "llemote.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -5604,7 +5604,7 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 	if (isSelf())
 	{
 		// Might be first sit
-		LLFirstUse::useSit();
+		//LLFirstUse::useSit();
 
 		gAgent.setFlying(FALSE);
 		gAgent.setThirdPersonHeadOffset(LLVector3::zero);

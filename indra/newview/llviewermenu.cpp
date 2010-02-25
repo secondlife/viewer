@@ -48,7 +48,7 @@
 #include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llfloaterbuycurrency.h"
@@ -2491,7 +2491,7 @@ class LLObjectBuild : public view_listener_t
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 		return true;
 	}
 };
@@ -2536,7 +2536,7 @@ void handle_object_edit()
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
 	
 	// Could be first use
-	LLFirstUse::useBuild();
+	//LLFirstUse::useBuild();
 	return;
 }
 
@@ -2587,7 +2587,7 @@ class LLLandBuild : public view_listener_t
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
 		// Could be first use
-		LLFirstUse::useBuild();
+		//LLFirstUse::useBuild();
 		return true;
 	}
 };
@@ -2824,7 +2824,7 @@ bool handle_go_to()
 	}
 
 	// Could be first use
-	LLFirstUse::useGoTo();
+	//LLFirstUse::useGoTo();
 	return true;
 }
 
@@ -3626,7 +3626,7 @@ void near_sit_down_point(BOOL success, void *)
 		gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 
 		// Might be first sit
-		LLFirstUse::useSit();
+		//LLFirstUse::useSit();
 	}
 }
 
@@ -5144,7 +5144,7 @@ void toggle_debug_menus(void*)
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
 	if(visible)
 	{
-		LLFirstUse::useDebugMenus();
+		//LLFirstUse::useDebugMenus();
 	}
 	show_debug_menus();
 }

@@ -45,7 +45,7 @@
 #include "llagent.h"
 #include "llcallingcard.h"
 #include "llviewercontrol.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterchat.h"
 #include "llfloaterworldmap.h"
 #include "lllineeditor.h"

@@ -51,7 +51,7 @@
 #include "lldirpicker.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
@@ -244,7 +244,7 @@ bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFlo
 		if ( floater )
 		{
 			floater->setAllIgnored();
-			LLFirstUse::disableFirstUse();
+		//	LLFirstUse::disableFirstUse();
 			floater->buildPopupLists();
 		}
 	}
@@ -259,7 +259,7 @@ bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFl
 		if ( floater )
 		{
 			floater->resetAllIgnored();
-			LLFirstUse::resetFirstUse();
+			//LLFirstUse::resetFirstUse();
 			floater->buildPopupLists();
 		}
 	}

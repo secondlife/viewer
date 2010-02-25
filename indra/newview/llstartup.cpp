@@ -100,7 +100,7 @@
 #include "lleventnotifier.h"
 #include "llface.h"
 #include "llfeaturemanager.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterchat.h"
 #include "llfloaterhud.h"
 #include "llfloaterland.h"

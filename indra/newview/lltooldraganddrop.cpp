@@ -41,7 +41,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "lldictionary.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llgesturemgr.h"
@@ -1199,11 +1199,11 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	locateInventory(item, cat);
 	if(!item || !item->isComplete()) return;
 	
-	if (regionp
-		&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
-	{
-		LLFirstUse::useSandbox();
-	}
+	//if (regionp
+	//	&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
+	//{
+	//	LLFirstUse::useSandbox();
+	//}
 	// check if it cannot be copied, and mark as remove if it is -
 	// this will remove the object from inventory after rez. Only
 	// bother with this check if we would not normally remove from

@@ -40,7 +40,7 @@
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "llface.h"
-#include "llfirstuse.h"
+//#include "llfirstuse.h"
 #include "llfloatercustomize.h"
 #include "llfloatertools.h"
 #include "llresmgr.h"
@@ -143,7 +143,7 @@ void LLMorphView::setVisible(BOOL visible)
 			initialize();
 
 			// First run dialog
-			LLFirstUse::useAppearance();
+			//LLFirstUse::useAppearance();
 		}
 		else
 		{
