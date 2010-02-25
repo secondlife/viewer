@@ -154,7 +154,7 @@
      width="380">
         <button
          follows="bottom|left"
-         tool_tip="Show additional optioins"
+         tool_tip="Show additional options"
          height="18"
          image_disabled="OptionsMenu_Disabled"
          image_selected="OptionsMenu_Press"
