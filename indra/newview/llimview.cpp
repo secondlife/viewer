@@ -1813,6 +1813,11 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		caller_name = LLTextUtil::formatPhoneNumber(caller_name);
 	}
+	else
+	{
+		// IDEVO
+		caller_name = LLCacheName::cleanFullName(caller_name);
+	}
 
 	setTitle(caller_name + " " + call_type);
 
