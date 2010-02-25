@@ -962,9 +962,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b50db4fdb833111e1e679188e4cb5815</string>
+            <string>c41be1ba9728555ae5a2d2151c96dfe1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100104.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100115.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1367,23 +1367,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>6d2a56c9b335acb10615f230b98aab67</string>
+            <string>51f3fa1ab39563505df83b48ba432a3c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7832-darwin-20100113a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7852-darwin-20100115.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>0744cbe83bd6c2c030334d3c69b131cb</string>
+            <string>ab9573d6aa2acdd79a553c144c9ecb09</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7832-linux-20100113a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7852-linux-20100115.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e68ed9a04ec9a437016ad5c641406706</string>
+            <string>88ab785eebdc4f53a7dfc4e0b95f67ec</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7832-windows-20100113a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.7852-windows-20100115.tar.bz2</uri>
           </map>
         </map>
       </map>

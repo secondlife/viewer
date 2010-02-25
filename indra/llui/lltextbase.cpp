@@ -346,7 +346,8 @@ void LLTextBase::drawSelectionBackground()
 					S32 segment_line_start = segmentp->getStart() + segment_offset;
 					S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
 
-					S32 segment_width, segment_height;
+					S32 segment_width = 0;
+					S32 segment_height = 0;
 
 					// if selection after beginning of segment
 					if(selection_left >= segment_line_start)
@@ -433,7 +434,8 @@ void LLTextBase::drawCursor()
 
 			if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
 			{
-				S32 segment_width, segment_height;
+				S32 segment_width = 0;
+				S32 segment_height = 0;
 				segmentp->getDimensions(mCursorPos - segmentp->getStart(), 1, segment_width, segment_height);
 				S32 width = llmax(CURSOR_THICKNESS, segment_width);
 				cursor_rect.mRight = cursor_rect.mLeft + width;
@@ -2443,10 +2445,12 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
-	height = mFontHeight;
+	height = 0;
+	width = 0;
 	bool force_newline = false;
 	if (num_chars > 0)
 	{
+		height = mFontHeight;
 		LLWString text = mEditor.getWText();
 		// if last character is a newline, then return true, forcing line break
 		llwchar last_char = text[mStart + first_char + num_chars - 1];
@@ -2460,10 +2464,6 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		{
 			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 		}
-	}
-	else
-	{
-		width = 0;
 	}
 
 	LLUIImagePtr image = mStyle->getImage();

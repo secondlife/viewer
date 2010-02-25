@@ -229,10 +229,6 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 				mSwitchedIndicatorsOn.insert(*it_uuid);
 			}
 		}
-		else
-		{
-			LL_WARNS("SpeakingIndicator") << "indicator was not found among registered: " << *it_uuid << LL_ENDL;
-		}
 	}
 }
 

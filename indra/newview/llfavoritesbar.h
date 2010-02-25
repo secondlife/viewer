@@ -126,16 +126,7 @@ private:
 	// checks if the current order of the favorites items must be saved
 	BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
 
-	// saves current order of the favorites items
-	void saveItemsOrder(LLInventoryModel::item_array_t& items);
-
-	/*
-	 * changes favorites items order by insertion of the item identified by srcItemId
-	 * BEFORE the item identified by destItemId. both items must exist in items array.
-	 */
-	void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId);
-
-	/*
+	/**
 	 * inserts an item identified by insertedItemId BEFORE an item identified by beforeItemId.
 	 * this function assumes that an item identified by insertedItemId doesn't exist in items array.
 	 */

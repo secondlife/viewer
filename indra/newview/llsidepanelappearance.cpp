@@ -87,7 +87,7 @@ void LLWatchForOutfitRenameObserver::changed(U32 mask)
 		mPanel->refreshCurrentOutfitName();
 	}
 }
-	
+
 LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
@@ -255,7 +255,7 @@ void LLSidepanelAppearance::onNewOutfitButtonClicked()
 {
 	if (!mLookInfo->getVisible())
 	{
-		mPanelOutfitsInventory->onNew();
+		mPanelOutfitsInventory->onSave();
 	}
 }
 
@@ -321,15 +321,11 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
-		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
-		if (outfit_link)
+		std::string outfit_name;
+		if (LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
 		{
-			const LLViewerInventoryCategory *cat = outfit_link->getLinkedCategory();
-			if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
-			{
-				mCurrentLookName->setText(cat->getName());
+				mCurrentLookName->setText(outfit_name);
 				return;
-			}
 		}
 		mCurrentLookName->setText(getString("No Outfit"));
 		mOpenOutfitBtn->setEnabled(FALSE);

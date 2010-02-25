@@ -100,7 +100,7 @@ LLDir_Solaris::LLDir_Solaris()
 	mAppRODataDir = strdup(tmp_str);
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
-	mLindenUserDir = tmp_str;
+	mLindenUserDir = "";
 
 	char path [LL_MAX_PATH];	/* Flawfinder: ignore */ 
 

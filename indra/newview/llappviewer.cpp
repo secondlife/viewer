@@ -1356,7 +1356,7 @@ bool LLAppViewer::cleanup()
 	if( gViewerWindow)
 		gViewerWindow->shutdownViews();
 
-	llinfos << "Cleaning up Inevntory" << llendflush;
+	llinfos << "Cleaning up Inventory" << llendflush;
 	
 	// Cleanup Inventory after the UI since it will delete any remaining observers
 	// (Deleted observers should have already removed themselves)
@@ -1451,10 +1451,17 @@ bool LLAppViewer::cleanup()
 	
 	LLUIColorTable::instance().saveUserSettings();
 
-	// PerAccountSettingsFile should be empty if no use has been logged on.
+	// PerAccountSettingsFile should be empty if no user has been logged on.
 	// *FIX:Mani This should get really saved in a "logoff" mode. 
-	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
-	llinfos << "Saved settings" << llendflush;
+	if (gSavedSettings.getString("PerAccountSettingsFile").empty())
+	{
+		llinfos << "Not saving per-account settings; don't know the account name yet." << llendl;
+	}
+	else
+	{
+		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
+		llinfos << "Saved settings" << llendflush;
+	}
 
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	// save all settings, even if equals defaults

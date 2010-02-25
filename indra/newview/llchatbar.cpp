@@ -48,7 +48,6 @@
 #include "llcombobox.h"
 #include "llcommandhandler.h"	// secondlife:///app/chat/ support
 #include "llviewercontrol.h"
-#include "llfloaterchat.h"
 #include "llgesturemgr.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -548,7 +547,7 @@ void LLChatBar::onInputEditorFocusLost()
 // static
 void LLChatBar::onInputEditorGainFocus()
 {
-	LLFloaterChat::setHistoryCursorAndScrollToEnd();
+	//LLFloaterChat::setHistoryCursorAndScrollToEnd();
 }
 
 void LLChatBar::onClickSay( LLUICtrl* ctrl )

@@ -1190,8 +1190,12 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
-		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+		LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES,LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		
+		texture->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+		texture->forceToSaveRawImage(0) ;
+
+		mTexturep = texture;
 	}
 	else if (!mFallbackImageName.empty())
 	{

@@ -3,6 +3,6 @@
  background_visible="true"
  bg_alpha_color="black"
  follows="left|right|top"
- height="1"
+ height="0"
  layout="topleft"
  name="chat_separator_panel" />

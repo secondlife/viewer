@@ -35,6 +35,7 @@
 
 #include "llbutton.h"
 #include "llfloaterreg.h"
+#include "llnotificationsutil.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "llregionhandle.h"
@@ -632,8 +633,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 		if(landmark)
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", 
-								LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+			LLNotificationsUtil::add("LandmarkAlreadyExists");
 		}
 		else
 		{

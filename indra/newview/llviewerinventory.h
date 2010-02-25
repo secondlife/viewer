@@ -66,6 +66,7 @@ public:
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
+	static std::string getDisplayName(const std::string& name);
 	virtual S32 getSortField() const;
 	virtual void setSortField(S32 sortField);
 	virtual void rename(const std::string& new_name);
@@ -277,6 +278,18 @@ class CreateGestureCallback : public LLInventoryCallback
 {
 public:
 	void fire(const LLUUID& inv_item);
+};
+
+class AddFavoriteLandmarkCallback : public LLInventoryCallback
+{
+public:
+	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
+	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
+
+private:
+	void fire(const LLUUID& inv_item);
+
+	LLUUID mTargetLandmarkId;
 };
 
 // misc functions

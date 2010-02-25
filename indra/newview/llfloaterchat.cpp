@@ -37,8 +37,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterchat.h"
-
 // project include
 #include "llagent.h"
 #include "llappviewer.h"

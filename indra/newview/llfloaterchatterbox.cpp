@@ -38,7 +38,6 @@
 #include "llfloaterreg.h"
 #include "llfloaterchatterbox.h"
 #include "lluictrlfactory.h"
-#include "llfloaterchat.h"
 #include "llfloaterfriends.h"
 #include "llfloatergroups.h"
 #include "llviewercontrol.h"
@@ -134,22 +133,6 @@ BOOL LLFloaterChatterBox::postBuild()
 		addFloater(LLFloaterMyFriends::getInstance(), TRUE);
 	}
 
-	if (gSavedSettings.getBOOL("ChatHistoryTornOff"))
-	{
-		LLFloaterChat* floater_chat = LLFloaterChat::getInstance();
-		if(floater_chat)
-		{
-			// add then remove to set up relationship for re-attach
-			addFloater(floater_chat, FALSE);
-			removeFloater(floater_chat);
-			// reparent to floater view
-			gFloaterView->addChild(floater_chat);
-		}
-	}
-	else
-	{
-		addFloater(LLFloaterChat::getInstance(), FALSE);
-	}
 	mTabContainer->lockTabs();
 	return TRUE;
 }
@@ -230,8 +213,6 @@ void LLFloaterChatterBox::onOpen(const LLSD& key)
 	//*TODO:Skinning show the session id associated with key
 	if (key.asString() == "local")
 	{
-		LLFloaterChat* chat = LLFloaterReg::findTypedInstance<LLFloaterChat>("chat");
-		chat->openFloater();
 	}
 	else if (key.isDefined())
 	{
@@ -245,12 +226,6 @@ void LLFloaterChatterBox::onOpen(const LLSD& key)
 
 void LLFloaterChatterBox::onVisibilityChange ( const LLSD& new_visibility )
 {
-	// HACK: potentially need to toggle console
-	LLFloaterChat* instance = LLFloaterChat::getInstance();
-	if(instance)
-	{
-		instance->updateConsoleVisibility();
-	}
 }
 
 void LLFloaterChatterBox::removeFloater(LLFloater* floaterp)
@@ -349,8 +324,7 @@ LLFloater* LLFloaterChatterBox::getCurrentVoiceFloater()
 	}
 	if (LLVoiceChannelProximal::getInstance() == LLVoiceChannel::getCurrentVoiceChannel())
 	{
-		// show near me tab if in proximal channel
-		return LLFloaterChat::getInstance();
+		return NULL;
 	}
 	else
 	{

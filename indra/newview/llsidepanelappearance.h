@@ -61,6 +61,7 @@ public:
 	void fetchInventory();
 	void inventoryFetched();
 	void updateVerbs();
+	void onNewOutfitButtonClicked();
 
 private:
 	void onFilterEdit(const std::string& search_string);
@@ -68,7 +69,6 @@ private:
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 	void onEditButtonClicked();
-	void onNewOutfitButtonClicked();
 	void onBackButtonClicked();
 	void onEditWearBackClicked();
 	void toggleLookInfoPanel(BOOL visible);

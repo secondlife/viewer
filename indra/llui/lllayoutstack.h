@@ -93,6 +93,8 @@ public:
 	void updateLayout(BOOL force_resize = FALSE);
 	
 	S32 getPanelSpacing() const { return mPanelSpacing; }
+	BOOL getAnimate () const { return mAnimate; }
+	void setAnimate (BOOL animate) { mAnimate = animate; }
 	
 	static void updateClass();
 

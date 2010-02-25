@@ -668,6 +668,11 @@ void LLScrollContainer::scrollToShowRect(const LLRect& rect, const LLRect& const
 
 	// propagate scroll to document
 	updateScroll();
+
+	// In case we are in accordion tab notify parent to show selected rectangle
+	LLRect screen_rc;
+	localRectToScreen(rect_to_constrain, &screen_rc);
+	notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 }
 
 void LLScrollContainer::pageUp(S32 overlap)

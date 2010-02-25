@@ -577,23 +577,17 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 		view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
 
-		std::string header_text = "[" + chat.mTimeStr + "] ";
+		std::string widget_associated_text = "\n[" + chat.mTimeStr + "] ";
 		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
-			header_text += chat.mFromName + delimiter;
+			widget_associated_text += chat.mFromName + delimiter;
 
-		mEditor->appendWidget(p, header_text, false);
+		mEditor->appendWidget(p, widget_associated_text, false);
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
 	}
 
 	std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
-	if ( message.size() > 0 && !LLStringOps::isSpace(message[message.size() - 1]) )
-	{
-		// Ensure that message ends with NewLine, to avoid losing of new lines
-		// while copy/paste from text chat. See EXT-3263.
-		message += NEW_LINE;
-	}
 	mEditor->appendText(message, FALSE, style_params);
 	mEditor->blockUndo();
 

@@ -77,7 +77,7 @@ bool LLURLHistory::saveFile(const std::string& filename)
 	std::string temp_str = gDirUtilp->getLindenUserDir();
 	if( temp_str.empty() )
 	{
-		llwarns << "Can't save. No user directory set." << llendl;
+		llinfos << "Can't save URL history - no user directory set yet." << llendl;
 		return false;
 	}
 

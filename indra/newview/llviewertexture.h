@@ -384,8 +384,6 @@ public:
 	
 	void updateVirtualSize() ;
 
-	// setDesiredDiscardLevel is only used by LLViewerTextureList
-	void setDesiredDiscardLevel(S32 discard) { mDesiredDiscardLevel = discard; }
 	S32  getDesiredDiscardLevel()			 { return mDesiredDiscardLevel; }
 	void setMinDiscardLevel(S32 discard) 	{ mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
 

@@ -72,6 +72,9 @@ LLScriptFloater::LLScriptFloater(const LLSD& key)
 
 bool LLScriptFloater::toggle(const LLUUID& object_id)
 {
+	// Force chiclet toggle on here because first onFocusReceived() will not toggle it on.
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(object_id, true);
+
 	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(object_id);
 	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 
@@ -180,6 +183,15 @@ void LLScriptFloater::setVisible(BOOL visible)
 	LLDockableFloater::setVisible(visible);
 
 	hideToastsIfNeeded();
+
+	if(!visible)
+	{
+		LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(getObjectId());
+		if(chiclet)
+		{
+			chiclet->setToggleState(false);
+		}
+	}
 }
 
 void LLScriptFloater::onMouseDown()
@@ -196,6 +208,20 @@ void LLScriptFloater::onMouseDown()
 		{
 			chiclet->setShowNewMessagesIcon(false);
 		}
+	}
+}
+
+void LLScriptFloater::onFocusLost()
+{
+	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(getObjectId(), false);
+}
+
+void LLScriptFloater::onFocusReceived()
+{
+	// first focus will be received before setObjectId() call - don't toggle chiclet
+	if(getObjectId().notNull())
+	{
+		LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(getObjectId(), true);
 	}
 }
 

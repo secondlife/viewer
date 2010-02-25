@@ -63,7 +63,6 @@
 #include "llviewercamera.h"
 
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
-#include "llfloaterchat.h"		// for LLFloaterChat::addChat()
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
@@ -3905,9 +3904,6 @@ void LLVivoxVoiceClient::messageEvent(
 						LLVector3::zero,		// default arg
 						true);					// prepend name and make it a link to the user's profile
 
-				chat.mText = std::string("IM: ") + session->mName + std::string(": ") + message;
-				// If the chat should come in quietly (i.e. we're in busy mode), pretend it's from a local agent.
-				LLFloaterChat::addChat( chat, TRUE, quiet_chat );
 			}
 		}		
 	}

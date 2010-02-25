@@ -157,7 +157,6 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrency.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
-    llfloaterchat.cpp
     llfloaterchatterbox.cpp
     llfloatercolorpicker.cpp
     llfloatercustomize.cpp
@@ -669,7 +668,6 @@ set(viewer_HEADER_FILES
     llfloaterbuycurrency.h
     llfloaterbuyland.h
     llfloatercamera.h
-    llfloaterchat.h
     llfloaterchatterbox.h
     llfloatercolorpicker.h
     llfloatercustomize.h

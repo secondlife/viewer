@@ -232,7 +232,7 @@ class LLParticipantList
 		};
 
 	private:
-		void onAvatarListDoubleClicked(LLAvatarList* list);
+		void onAvatarListDoubleClicked(LLUICtrl* ctrl);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
 		/**

@@ -711,19 +711,12 @@ void LLFlatListView::selectLastItem		()
 
 void LLFlatListView::ensureSelectedVisible()
 {
-	LLRect visible_rc = getVisibleContentRect();
 	LLRect selected_rc = getLastSelectedItemRect();
 
-	if ( !visible_rc.contains (selected_rc) )
+	if ( selected_rc.isValid() )
 	{
-		// But scroll in Items panel coordinates
 		scrollToShowRect(selected_rc);
 	}
-
-	// In case we are in accordion tab notify parent to show selected rectangle
-	LLRect screen_rc;
-	localRectToScreen(selected_rc, &screen_rc);
-	notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 }
 
 

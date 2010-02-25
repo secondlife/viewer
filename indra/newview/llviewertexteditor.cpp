@@ -37,7 +37,6 @@
 #include "llagent.h"
 #include "llaudioengine.h"
 #include "llavataractions.h"
-#include "llfloaterchat.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"

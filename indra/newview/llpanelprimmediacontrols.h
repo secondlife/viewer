@@ -156,8 +156,6 @@ private:
 	LLUICtrl *mMediaPlaySliderCtrl;
 	LLUICtrl *mVolumeCtrl;
 	LLButton *mMuteBtn;
-	LLUICtrl *mVolumeUpCtrl;
-	LLUICtrl *mVolumeDownCtrl;
 	LLSliderCtrl *mVolumeSliderCtrl;
 	LLIconCtrl *mWhitelistIcon;
 	LLIconCtrl *mSecureLockIcon;

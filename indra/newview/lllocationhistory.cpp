@@ -123,6 +123,12 @@ void LLLocationHistory::save() const
 	// build filename for each user
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
 
+	if (resolved_filename.empty())
+	{
+		llinfos << "can't get path to location history filename - probably not logged in yet." << llendl;
+		return;
+	}
+
 	// open a file for writing
 	llofstream file (resolved_filename);
 	if (!file.is_open())

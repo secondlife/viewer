@@ -57,7 +57,7 @@ public:
 	virtual ~LLToastNotifyPanel();
 
 protected:
-	LLButton* addButton(std::string const &name, const std::string& label, BOOL is_option, BOOL is_default);
+	LLButton* createButton(const LLSD& form_element, BOOL is_option);
 
 	// Used for callbacks
 	struct InstanceAndS32
@@ -69,8 +69,11 @@ protected:
 
 private:
 
-	void adjustPanelForScriptNotice(const boost::shared_ptr<LLNotificationForm> form);
+	typedef std::pair<int,LLButton*> index_button_pair_t; 
+	void adjustPanelForScriptNotice(S32 max_width, S32 max_height);
 	void adjustPanelForTipNotice();
+	void addDefaultButton();
+	void updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 left_pad, S32 top);
 
 	// panel elements
 	LLTextBase*		mTextBox;

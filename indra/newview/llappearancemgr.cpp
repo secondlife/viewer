@@ -392,6 +392,21 @@ const LLViewerInventoryItem* LLAppearanceManager::getBaseOutfitLink()
 	return NULL;
 }
 
+bool LLAppearanceManager::getBaseOutfitName(std::string& name)
+{
+	const LLViewerInventoryItem* outfit_link = getBaseOutfitLink();
+	if(outfit_link)
+	{
+		const LLViewerInventoryCategory *cat = outfit_link->getLinkedCategory();
+		if (cat)
+		{
+			name = cat->getName();
+			return true;
+		}
+	}
+	return false;
+}
+
 // Update appearance from outfit folder.
 void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, bool append)
 {
@@ -630,6 +645,7 @@ void LLAppearanceManager::createBaseOutfitLink(const LLUUID& category, LLPointer
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
 		new_outfit_name = catp->getName();
 	}
+	
 	updatePanelOutfitName(new_outfit_name);
 }
 

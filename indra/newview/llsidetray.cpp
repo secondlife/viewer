@@ -639,6 +639,21 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	return NULL;
 }
 
+void LLSideTray::togglePanel(LLPanel* &sub_panel, const std::string& panel_name, const LLSD& params)
+{
+	if(!sub_panel)
+		return;
+
+	if (sub_panel->isInVisibleChain())
+	{
+		LLSideTray::getInstance()->collapseSideBar();
+	}
+	else
+	{
+		LLSideTray::getInstance()->showPanel(panel_name, params);
+	}
+}
+
 // This is just LLView::findChildView specialized to restrict the search to LLPanels.
 // Optimization for EXT-4068 to avoid searching down to the individual item level
 // when inventories are large.

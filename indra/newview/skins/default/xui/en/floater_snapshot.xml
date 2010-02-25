@@ -43,6 +43,12 @@
          layout="topleft"
          name="local" />
     </radio_group>
+  <ui_ctrl 
+    height="90"
+    width="90"
+    name="thumbnail_placeholder"
+    top_pad="6"
+    />
     <text
      type="string"
      font="SansSerifSmall"
@@ -54,7 +60,7 @@
      left_delta="0"
      halign="right"
      name="file_size_label"
-     top_pad="106"
+     top_pad="10"
      width="195">
         [SIZE] KB
     </text>

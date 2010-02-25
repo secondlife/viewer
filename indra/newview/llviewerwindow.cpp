@@ -101,7 +101,6 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
-#include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatercustomize.h"
 #include "llfloaterland.h"
@@ -1638,7 +1637,7 @@ void LLViewerWindow::shutdownGL()
 	LLViewerTextureManager::cleanup() ;
 	LLImageGL::cleanupClass() ;
 
-	llinfos << "All texturs and llimagegl images are destroyed!" << llendl ;
+	llinfos << "All textures and llimagegl images are destroyed!" << llendl ;
 
 	llinfos << "Cleaning up select manager" << llendl;
 	LLSelectMgr::getInstance()->cleanup();

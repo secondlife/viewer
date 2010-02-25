@@ -4,6 +4,13 @@
  name="im_group_chiclet"
  show_speaker="false"
  width="25">
+    <chiclet_im_group.chiclet_button 
+     height="25"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     name="chiclet_button"
+     tab_stop="false"
+     width="25"/>
     <chiclet_im_group.speaker
      auto_update="true"
      draw_border="false"
@@ -13,13 +20,14 @@
      visible="false"
      width="20" />
     <chiclet_im_group.group_icon
+     bottom="3"
      default_icon="Generic_Group"
      follows="left|top|bottom"
-     height="18"
-  bottom_pad="4"
-     mouse_opaque="true"
+     height="19"
+     left="3"
+     mouse_opaque="false"
      name="group_icon"
-     width="18" />
+     width="19" />
     <chiclet_im_group.unread_notifications
      height="25"
      font_halign="center"

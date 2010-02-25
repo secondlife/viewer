@@ -168,27 +168,30 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 	msg_text->setText(std::string(""));
 
-	std::string str_sender;
-	
-	str_sender = fromName;
-
-	str_sender+=" ";
-
-	//append user name
+	if ( notification["chat_style"].asInteger() != CHAT_STYLE_IRC )
 	{
-		LLStyle::Params style_params_name;
+		std::string str_sender;
 
-		LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
+		str_sender = fromName;
 
-		style_params_name.color(userNameColor);
-		
-		std::string font_name = LLFontGL::nameFromFont(messageFont);
-		std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
-		style_params_name.font.name(font_name);
-		style_params_name.font.size(font_style_size);
-		
-		msg_text->appendText(str_sender, FALSE, style_params_name);
-		
+		str_sender+=" ";
+
+		//append user name
+		{
+			LLStyle::Params style_params_name;
+
+			LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
+
+			style_params_name.color(userNameColor);
+
+			std::string font_name = LLFontGL::nameFromFont(messageFont);
+			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
+			style_params_name.font.name(font_name);
+			style_params_name.font.size(font_style_size);
+
+			msg_text->appendText(str_sender, FALSE, style_params_name);
+
+		}
 	}
 
 	//append text

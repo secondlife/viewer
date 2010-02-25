@@ -92,7 +92,10 @@ public:
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
-	
+
+	void onMouselookModeIn();
+	void onMouselookModeOut();
+
 	/**
 	 * Creates IM Chiclet based on session type (IM chat or Group chat)
 	 */
@@ -167,7 +170,14 @@ private:
 	 *  - if hidden via context menu button should be shown but there is no enough room for now
 	 *    it will be shown while extending.
 	 */
-	void setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible);
+	void setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification = true);
+
+	/**
+	 * Save and restore children shapes.
+	 * Used to avoid the LLLayoutStack resizing logic between mouse look mode switching.
+	 */
+	void savePanelsShape();
+	void restorePanelsShape();
 
 	MASK mResizeState;
 
@@ -176,6 +186,9 @@ private:
 
 	typedef std::map<EResizeState, S32> state_object_width_map_t;
 	state_object_width_map_t mObjectDefaultWidthMap;
+
+	typedef std::vector<LLRect> shape_list_t;
+	shape_list_t mSavedShapeList;
 
 protected:
 

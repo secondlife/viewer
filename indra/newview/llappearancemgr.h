@@ -63,6 +63,7 @@ public:
 
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
+	bool getBaseOutfitName(std::string &name);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);

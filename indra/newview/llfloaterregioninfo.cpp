@@ -1603,7 +1603,7 @@ std::string all_estates_text()
 	}
 	else if (region && region->getOwner() == gAgent.getID())
 	{
-		return LLTrans::getString("AllEstatesYouOwn");
+		return LLTrans::getString("RegionInfoAllEstatesYouOwn");
 	}
 	else if (region && region->isEstateManager())
 	{

@@ -109,7 +109,7 @@ private:
 	void					onNearbyViewSortButtonClicked();
 	void					onFriendsViewSortButtonClicked();
 	void					onGroupsViewSortButtonClicked();
-	void					onAvatarListDoubleClicked(LLAvatarList* list);
+	void					onAvatarListDoubleClicked(LLUICtrl* ctrl);
 	void					onAvatarListCommitted(LLAvatarList* list);
 	void					onGroupPlusButtonClicked();
 	void					onGroupMinusButtonClicked();

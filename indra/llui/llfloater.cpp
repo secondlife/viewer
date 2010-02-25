@@ -2362,7 +2362,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	LLRect::tCoordType screen_width = getSnapRect().getWidth();
 	LLRect::tCoordType screen_height = getSnapRect().getHeight();
 
-
+	
 	// only automatically resize non-minimized, resizable floaters
 	if( floater->isResizable() && !floater->isMinimized() )
 	{
@@ -2387,16 +2387,11 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			new_width = llmax(new_width, min_width);
 			new_height = llmax(new_height, min_height);
 
-			floater->reshape( new_width, new_height, TRUE );
-			if (floater->followsRight())
-			{
-				floater->translate(old_width - new_width, 0);
-			}
+			LLRect new_rect;
+			new_rect.setLeftTopAndSize(view_rect.mTop,view_rect.mLeft,new_width, new_height);
 
-			if (floater->followsTop())
-			{
-				floater->translate(0, old_height - new_height);
-			}
+			floater->reshape( new_width, new_height, TRUE );
+			floater->setRect(new_rect);
 		}
 	}
 

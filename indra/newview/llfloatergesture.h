@@ -99,7 +99,7 @@ private:
 	void onClickPlay();
 	void onClickNew();
 	void onCommitList();
-	void onCopyPastAction(const LLSD& command);
+	void onCopyPasteAction(const LLSD& command);
 	void onDeleteSelected();
 
 	LLUUID mSelectedID;
