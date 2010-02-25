@@ -174,13 +174,13 @@
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right"
-         height="700"
+         height="532"
          layout="topleft"
          left="0"
          min_height="300"
          name="scrolling_panel"
          top="0"
-         width="285">
+         width="310">
             <texture_picker
              enabled="false"
          follows="left|top|right"
