@@ -129,9 +129,9 @@ private:
 	 * @see updateChildren()
 	 */
 	typedef enum e_avatar_item_child {
+		ALIC_SPEAKER_INDICATOR,
 		ALIC_PROFILE_BUTTON,
 		ALIC_INFO_BUTTON,
-		ALIC_SPEAKER_INDICATOR,
 		ALIC_INTERACTION_TIME,
 		ALIC_NAME,
 		ALIC_ICON,

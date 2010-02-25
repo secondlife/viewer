@@ -37,12 +37,13 @@
 #include "llfloater.h"
 #include "lldockcontrol.h"
 #include "lldockablefloater.h"
+#include "lltransientfloatermgr.h"
 
 /**
  * Represents floater that can dock and managed by transient floater manager.
  * Transient floaters should be hidden if user click anywhere except defined view list.
  */
-class LLTransientDockableFloater : public LLDockableFloater
+class LLTransientDockableFloater : public LLDockableFloater, LLTransientFloater
 {
 public:
 	LOG_CLASS(LLTransientDockableFloater);
@@ -52,6 +53,7 @@ public:
 
 	/*virtual*/ void setVisible(BOOL visible);
 	/* virtual */void setDocked(bool docked, bool pop_on_undock = true);
+	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
 };
 
 #endif /* LL_TRANSIENTDOCKABLEFLOATER_H */

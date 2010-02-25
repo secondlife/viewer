@@ -51,6 +51,7 @@
 #include "llinventorymodel.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
+#include "llnotificationsutil.h"
 #include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
@@ -975,6 +976,10 @@ BOOL LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 void copy_slurl_to_clipboard_cb(std::string& slurl)
 {
 	gClipboard.copyFromString(utf8str_to_wstring(slurl));
+
+	LLSD args;
+	args["SLURL"] = slurl;
+	LLNotificationsUtil::add("CopySLURL", args);
 }
 
 

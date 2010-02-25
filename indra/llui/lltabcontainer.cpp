@@ -1507,6 +1507,37 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 	}
 }
 
+void LLTabContainer::setTabImage(LLPanel* child, const LLUUID& image_id, const LLColor4& color)
+{
+	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
+	LLTabTuple* tuple = getTabByPanel(child);
+	if( tuple )
+	{
+		tuple->mButton->setImageOverlay(image_id, LLFontGL::RIGHT, color);
+
+		if (!mIsVertical)
+		{
+			// remove current width from total tab strip width
+			mTotalTabWidth -= tuple->mButton->getRect().getWidth();
+
+			S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ?
+				tuple->mButton->getImageOverlay()->getImage()->getWidth(0) :
+				0;
+
+			tuple->mPadding = image_overlay_width;
+
+			tuple->mButton->setRightHPad(6);
+			tuple->mButton->reshape(llclamp(mFont->getWidth(tuple->mButton->getLabelSelected()) + tab_padding + tuple->mPadding, mMinTabWidth, mMaxTabWidth),
+									tuple->mButton->getRect().getHeight());
+			// add back in button width to total tab strip width
+			mTotalTabWidth += tuple->mButton->getRect().getWidth();
+
+			// tabs have changed size, might need to scroll to see current tab
+			updateMaxScrollPos();
+		}
+	}
+}
+
 void LLTabContainer::setTitle(const std::string& title)
 {	
 	if (mTitleBox)

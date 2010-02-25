@@ -1140,6 +1140,10 @@ LLTexLayerInterface::LLTexLayerInterface(const LLTexLayerInterface &layer, LLWea
 BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearable  ) // This sets mInfo and calls initialization functions
 {
 	//llassert(mInfo == NULL); // nyx says this is probably bogus but needs investigating
+        if (mInfo != NULL) // above llassert(), but softened into a warning
+        {
+                llwarns << "BAD STUFF!  mInfo != NULL" << llendl;
+        }
 	mInfo = info;
 	//mID = info->mID; // No ID
 

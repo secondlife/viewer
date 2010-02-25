@@ -4584,6 +4584,11 @@ BOOL LLVivoxVoiceClient::isOnlineSIP(const LLUUID &id)
 	return result;
 }
 
+bool LLVivoxVoiceClient::isVoiceWorking()
+{
+	return (stateLoggedIn <= mState) && (mState <= stateLeavingSession);
+}
+
 // Returns true if the indicated participant in the current audio session is really an SL avatar.
 // Currently this will be false only for PSTN callers into group chats, and PSTN p2p calls.
 BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)

@@ -80,7 +80,7 @@
              height="20"
              layout="topleft"
              left_pad="5"
-             max_chars="255"
+             max_chars="1024"
              name="address"
              top_delta="0"
              width="540">

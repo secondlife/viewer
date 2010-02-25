@@ -97,6 +97,8 @@ private:
 	void togglePickPanel(BOOL visible);
 	void togglePlaceInfoPanel(BOOL visible);
 
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+
 	void updateVerbs();
 
 	LLPanelPlaceInfo* getCurrentInfoPanel();

@@ -304,7 +304,7 @@ Re-enter amount to see the latest exchange rate.
     </text>
      <text
       type="string"
-      width="175"
+      width="176"
       height="125"
       top="60"
       left="165"

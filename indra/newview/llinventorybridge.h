@@ -448,7 +448,6 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data);
 	void refreshFolderViewItem();
-	BOOL removeItem();
 
 protected:
 	LLCallingCardBridge( LLInventoryPanel* inventory, const LLUUID& uuid );

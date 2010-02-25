@@ -237,15 +237,15 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 	messages.back()[IM_TEXT] = im_text;
 }
 
-void LLLogChat::loadAllHistory(const std::string& session_name, std::list<LLSD>& messages)
+void LLLogChat::loadAllHistory(const std::string& file_name, std::list<LLSD>& messages)
 {
-	if (session_name.empty())
+	if (file_name.empty())
 	{
 		llwarns << "Session name is Empty!" << llendl;
 		return ;
 	}
 
-	LLFILE* fptr = LLFile::fopen(makeLogFileName(session_name), "r");		/*Flawfinder: ignore*/
+	LLFILE* fptr = LLFile::fopen(makeLogFileName(file_name), "r");		/*Flawfinder: ignore*/
 	if (!fptr) return;	//No previous conversation with this name.
 
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="535"
+ height="540"
  label="Profile"
  layout="topleft"
  left="0"
@@ -284,7 +284,7 @@
       </layout_panel>
       <layout_panel
               follows="bottom|left"
-         height="28"
+         height="30"
          layout="topleft"
          name="profile_buttons_panel"
          auto_resize="false" 
@@ -355,7 +355,7 @@
         </layout_panel>
       <layout_panel
          follows="bottom|left"
-         height="28"
+         height="30"
          layout="topleft"
          name="profile_me_buttons_panel"
          visible="false"
@@ -364,7 +364,7 @@
          follows="bottom|right"
          height="23"
          left="20"
-	 top="0"
+         top="0"
          label="Edit Profile"
          name="edit_profile_btn"
          tool_tip="Edit your personal information"

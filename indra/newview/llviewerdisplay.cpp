@@ -483,7 +483,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Disconnected");
 		render_ui();
-		render_disconnected_background();
 	}
 	
 	//////////////////////////
@@ -1140,6 +1139,10 @@ void render_ui(F32 zoom_factor, int subfield)
 			{
 				render_ui_3d();
 				LLGLState::checkStates();
+			}
+			else
+			{
+				render_disconnected_background();
 			}
 
 			render_ui_2d();

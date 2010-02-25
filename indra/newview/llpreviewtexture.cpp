@@ -380,138 +380,53 @@ void LLPreviewTexture::updateDimensions()
 	
 	mUpdateDimensions = FALSE;
 	
-	S32 image_height = llmax(1, mImage->getFullHeight());
-	S32 image_width = llmax(1, mImage->getFullWidth());
-	// Attempt to make the image 1:1 on screen.
-	// If that fails, cut width by half.
-	S32 client_width = image_width;
-	S32 client_height = image_height;
-	S32 horiz_pad = 2 * (LLPANEL_BORDER_WIDTH + PREVIEW_PAD) + PREVIEW_RESIZE_HANDLE_SIZE;
-	S32 vert_pad = PREVIEW_HEADER_SIZE + 2 * CLIENT_RECT_VPAD + LLPANEL_BORDER_WIDTH;	
-	S32 max_client_width = gViewerWindow->getWindowWidthScaled() - horiz_pad;
-	S32 max_client_height = gViewerWindow->getWindowHeightScaled() - vert_pad;
-
-	if (mAspectRatio > 0.f)
-	{
-		client_height = llceil((F32)client_width / mAspectRatio);
-	}
-
-	while ((client_width > max_client_width) ||
-	       (client_height > max_client_height ))
-	{
-		client_width /= 2;
-		client_height /= 2;
-	}
-	
-	S32 view_width = client_width + horiz_pad;
-	S32 view_height = client_height + vert_pad;
-	
 	// set text on dimensions display (should be moved out of here and into a callback of some sort)
 	childSetTextArg("dimensions", "[WIDTH]", llformat("%d", mImage->getFullWidth()));
 	childSetTextArg("dimensions", "[HEIGHT]", llformat("%d", mImage->getFullHeight()));
-	
+
+	LLRect dim_rect;
+	childGetRect("dimensions", dim_rect);
+
+	S32 horiz_pad = 2 * (LLPANEL_BORDER_WIDTH + PREVIEW_PAD) + PREVIEW_RESIZE_HANDLE_SIZE;
+
 	// add space for dimensions and aspect ratio
-	S32 info_height = 0;
-	LLRect aspect_rect;
-	childGetRect("combo_aspect_ratio", aspect_rect);
-	S32 aspect_height = aspect_rect.getHeight();
-	info_height += aspect_height + CLIENT_RECT_VPAD;
-	view_height += info_height;
-	
-	S32 button_height = 0;
-	
-	// add space for buttons
-	view_height += 	(BTN_HEIGHT + CLIENT_RECT_VPAD) * 3;
-	button_height = (BTN_HEIGHT + PREVIEW_PAD) * 3;
+	S32 info_height = dim_rect.mTop + CLIENT_RECT_VPAD;
 
-	view_width = llmax(view_width, getMinWidth());
-	view_height = llmax(view_height, getMinHeight());
-	
-	if (view_height != mLastHeight || view_width != mLastWidth)
-	{
-		if (getHost())
-		{
-			getHost()->growToFit(view_width, view_height);
-			reshape( view_width, view_height );
-			setOrigin( 0, getHost()->getRect().getHeight() - (view_height + PREVIEW_HEADER_SIZE) );
-		}
-		else
-		{
-			S32 old_top = getRect().mTop;
-			S32 old_left = getRect().mLeft;
-			reshape( view_width, view_height );
-			S32 new_bottom = old_top - getRect().getHeight();
-			setOrigin( old_left, new_bottom );
-		}
-		
-		// Try to keep whole view onscreen, don't allow partial offscreen.
-		if (getHost())
-			gFloaterView->adjustToFitScreen(getHost(), FALSE);
-		else
-			gFloaterView->adjustToFitScreen(this, FALSE);
-		
-		if (image_height > 1 && image_width > 1)
-		{
-			// Resize until we know the image's height
-			mLastWidth = view_width;
-			mLastHeight = view_height;
-		}
-	}
-	
-	if (!mUserResized)
-	{
-		// clamp texture size to fit within actual size of floater after attempting resize
-		client_width = llmin(client_width, getRect().getWidth() - horiz_pad);
-		client_height = llmin(client_height, getRect().getHeight() - PREVIEW_HEADER_SIZE 
-						- (2 * CLIENT_RECT_VPAD) - LLPANEL_BORDER_WIDTH - info_height);
+	LLRect client_rect(horiz_pad, getRect().getHeight(), getRect().getWidth() - horiz_pad, 0);
+	client_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
+	client_rect.mBottom += PREVIEW_BORDER + CLIENT_RECT_VPAD + info_height ;
 
-		
-	}
-	else
-	{
-		client_width = getRect().getWidth() - horiz_pad;
-		if (mAspectRatio > 0)
-		{
-			client_height = llround(client_width / mAspectRatio);
-		}
-		else
-		{
-			client_height = getRect().getHeight() - vert_pad;
-		}
-	}
-
-	S32 max_height = getRect().getHeight() - PREVIEW_BORDER - button_height 
-		- CLIENT_RECT_VPAD - info_height - CLIENT_RECT_VPAD - PREVIEW_HEADER_SIZE;
+	S32 client_width = client_rect.getWidth();
+	S32 client_height = client_rect.getHeight();
 
 	if (mAspectRatio > 0.f)
 	{
-		max_height = llmax(max_height, 1);
-
-		if (client_height > max_height)
+		if(mAspectRatio > 1.f)
 		{
-			client_height = max_height;
-			client_width = llround(client_height * mAspectRatio);
+			client_height = llceil((F32)client_width / mAspectRatio);
+			if(client_height > client_rect.getHeight())
+			{
+				client_height = client_rect.getHeight();
+				client_width = llceil((F32)client_height * mAspectRatio);
+			}
+		}
+		else
+		{
+			client_width = llceil((F32)client_height * mAspectRatio);
+			if(client_width > client_rect.getWidth())
+			{
+				client_width = client_rect.getWidth();
+				client_height = llceil((F32)client_width / mAspectRatio);
+			}
 		}
 	}
-	else
-	{
-		S32 max_width = getRect().getWidth() - horiz_pad;
 
-		client_height = llclamp(client_height, 1, max_height);
-		client_width = llclamp(client_width, 1, max_width);
-	}
-	
-	LLRect window_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-	window_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
-	window_rect.mBottom += PREVIEW_BORDER + button_height + CLIENT_RECT_VPAD + info_height + CLIENT_RECT_VPAD;
+	mClientRect.setLeftTopAndSize(client_rect.getCenterX() - (client_width / 2), client_rect.getCenterY() +  (client_height / 2), client_width, client_height);	
 
-	mClientRect.setLeftTopAndSize(window_rect.getCenterX() - (client_width / 2), window_rect.mTop, client_width, client_height);	
-	
 	// Hide the aspect ratio label if the window is too narrow
 	// Assumes the label should be to the right of the dimensions
-	LLRect dim_rect, aspect_label_rect;
+	LLRect aspect_label_rect;
 	childGetRect("aspect_ratio", aspect_label_rect);
-	childGetRect("dimensions", dim_rect);
 	childSetVisible("aspect_ratio", dim_rect.mRight < aspect_label_rect.mLeft);
 }
 

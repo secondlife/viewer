@@ -73,6 +73,11 @@ public:
 	 */
 	void updateShowFolderState();
 
+	/**
+	 * Selects item with "obj_id" in one of accordion tabs.
+	 */
+	void setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus);
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
@@ -81,6 +86,17 @@ protected:
 	bool isReceivedFolderSelected() const;
 	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 	LLFolderViewItem* getCurSelectedItem() const;
+
+	/**
+	 * Selects item with "obj_id" in "inventory_list" and scrolls accordion
+	 * scrollbar to show the item.
+	 * Returns pointer to the item if it is found in "inventory_list", otherwise NULL.
+	 */
+	LLFolderViewItem* selectItemInAccordionTab(LLPlacesInventoryPanel* inventory_list,
+											   const std::string& tab_name,
+											   const LLUUID& obj_id,
+											   BOOL take_keyboard_focus) const;
+
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
 	//LLRemoteParcelInfoObserver interface

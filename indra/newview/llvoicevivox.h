@@ -82,7 +82,9 @@ public:
 	virtual const LLVoiceVersionInfo& getVersion();
 	
 	virtual void updateSettings(); // call after loading settings and whenever they change
-	
+
+	virtual bool isVoiceWorking(); // connected to a voice server and voice channel
+
 	/////////////////////
 	/// @name Tuning
 	//@{

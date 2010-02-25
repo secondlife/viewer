@@ -109,6 +109,8 @@ public:
 	
 	virtual void updateSettings()=0; // call after loading settings and whenever they change
 	
+	virtual bool isVoiceWorking()=0; // connected to a voice server and voice channel
+
 	virtual const LLVoiceVersionInfo& getVersion()=0;
 	
 	/////////////////////
@@ -274,6 +276,8 @@ static const F32 OVERDRIVEN_POWER_LEVEL;
 
 	void updateSettings(); // call after loading settings and whenever they change
 
+	bool isVoiceWorking(); // connected to a voice server and voice channel
+
 	// tuning
 	void tuningStart();
 	void tuningStop();
@@ -397,7 +401,6 @@ static const F32 OVERDRIVEN_POWER_LEVEL;
 protected:
 	LLVoiceModuleInterface* mVoiceModule;
 	LLPumpIO *m_servicePump;
-	
 };
 
 

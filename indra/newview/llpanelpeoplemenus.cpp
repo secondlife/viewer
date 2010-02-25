@@ -183,20 +183,7 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 	}
 	else if (item == std::string("can_call"))
 	{
-		bool result = false;
-		std::vector<LLUUID>::const_iterator
-			id = mUUIDs.begin(),
-			uuids_end = mUUIDs.end();
-
-		for (;id != uuids_end; ++id)
-		{
-			if (LLAvatarActions::canCall(*id))
-			{
-				result = true;
-				break;
-			}
-		}
-		return result;
+		return LLAvatarActions::canCall();
 	}
 	return false;
 }

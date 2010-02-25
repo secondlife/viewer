@@ -65,28 +65,18 @@
      height="15"
      layout="topleft"
      left_pad="5"
+     right="-72"
      name="last_interaction"
      text_color="LtGray_50"
      value="0s"
      width="24" />
-    <output_monitor
-     auto_update="true"
-     follows="right"
-     draw_border="false"
-     height="16"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="true"
-     name="speaking_indicator"
-     visible="true"
-     width="20" />
     <button
      follows="right"
      height="16"
      image_pressed="Info_Press"
      image_unselected="Info_Over"
      left_pad="3"
-     right="-31"
+     right="-53"
      name="info_btn"
      top_delta="-2"
      width="16" />
@@ -96,9 +86,21 @@
      image_overlay="ForwardArrow_Off"
      layout="topleft"
      left_pad="5"
-     right="-3"
+     right="-28"
      name="profile_btn"
      tool_tip="View profile"
      top_delta="-2"
+     width="20" />
+    <output_monitor
+     auto_update="true"
+     follows="right"
+     draw_border="false"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     right="-3"
+     mouse_opaque="true"
+     name="speaking_indicator"
+     visible="true"
      width="20" />
 </panel>

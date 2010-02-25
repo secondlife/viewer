@@ -58,8 +58,10 @@
      height="35"
      left="8"
      name="user_details"
+     right="-10"
      word_wrap="true"
      top_pad="6"
+     use_ellipses="true"
      width="220">This is my second life description and I really think it is great.
     </text>
     <slider

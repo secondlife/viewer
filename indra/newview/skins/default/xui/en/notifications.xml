@@ -773,9 +773,9 @@ Save changes to classified [NAME]?
   
   <notification
    icon="alertmodal.tga"
-   name="ClassifiedInsuffisientFunds"
+   name="ClassifiedInsufficientFunds"
    type="alertmodal">
-Insuffisient funds to create classified.
+Insufficient funds to create classified.
     <usetemplate
      name="okbutton"
      yestext="OK"/>

@@ -102,6 +102,18 @@ public:
 	void					handleLoginComplete();
 
 private:
+
+	enum EParcelIcon
+	{
+		VOICE_ICON = 0,
+		FLY_ICON,
+		PUSH_ICON,
+		BUILD_ICON,
+		SCRIPTS_ICON,
+		DAMAGE_ICON,
+		ICON_COUNT
+	};
+
 	friend class LLUICtrlFactory;
 	LLLocationInputCtrl(const Params&);
 	virtual ~LLLocationInputCtrl();
@@ -138,6 +150,7 @@ private:
 	// callbacks
 	bool					onLocationContextMenuItemEnabled(const LLSD& userdata);
 	void 					onLocationContextMenuItemClicked(const LLSD& userdata);
+	void					onParcelIconClick(EParcelIcon icon);
 
 	LLMenuGL*				mLocationContextMenu;
 	LLButton*				mAddLandmarkBtn;
@@ -146,16 +159,6 @@ private:
 	S32						mIconHPad;			// pad between all icons
 	S32						mAddLandmarkHPad;	// pad to left of landmark star
 	
-	enum EParcelIcon
-	{
-		VOICE_ICON = 0,
-		FLY_ICON,
-		PUSH_ICON,
-		BUILD_ICON,
-		SCRIPTS_ICON,
-		DAMAGE_ICON,
-		ICON_COUNT
-	};
 	LLIconCtrl*	mParcelIcon[ICON_COUNT];
 	LLTextBox* mDamageText;
 

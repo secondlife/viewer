@@ -1689,7 +1689,7 @@ void LLPanelClassifiedEdit::onSaveClick()
 	{
 		if(gStatusBar->getBalance() < getPriceForListing())
 		{
-			LLNotificationsUtil::add("ClassifiedInsuffisientFunds");
+			LLNotificationsUtil::add("ClassifiedInsufficientFunds");
 			return;
 		}
 	}

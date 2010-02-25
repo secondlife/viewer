@@ -1736,11 +1736,24 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 		if (u < 0.f || u > 1.f ||
 		    v < 0.f || v > 1.f)
 		{
-			llerrs << "WTF?" << llendl;
+			LL_WARNS_ONCE("render") << "Ugh, u/v out of range in image mask pick" << LL_ENDL;
+			u = v = 0.f;
+			llassert(false);
 		}
 		
 		S32 x = (S32)(u * width);
 		S32 y = (S32)(v * height);
+
+		if (x >= width)
+		{
+			LL_WARNS_ONCE("render") << "Ooh, width overrun on pick mask read, that coulda been bad." << LL_ENDL;
+			x = llmax(0, width-1);
+		}
+		if (y >= height)
+		{
+			LL_WARNS_ONCE("render") << "Ooh, height overrun on pick mask read, that woulda been bad." << LL_ENDL;
+			y = llmax(0, height-1);
+		}
 
 		S32 idx = y*width+x;
 		S32 offset = idx%8;

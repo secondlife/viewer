@@ -33,12 +33,17 @@
 #ifndef LL_LLIMFLOATERCONTAINER_H
 #define LL_LLIMFLOATERCONTAINER_H
 
+#include <map>
+#include <vector>
+
 #include "llfloater.h"
 #include "llmultifloater.h"
+#include "llavatarpropertiesprocessor.h"
+#include "llgroupmgr.h"
 
 class LLTabContainer;
 
-class LLIMFloaterContainer : public LLMultiFloater
+class LLIMFloaterContainer : public LLMultiFloater, public LLAvatarPropertiesObserver, public LLGroupMgrObserver
 {
 public:
 	LLIMFloaterContainer(const LLSD& seed);
@@ -51,15 +56,23 @@ public:
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
+	void processProperties(void* data, EAvatarProcessorType type);
+	void changed(LLGroupChange gc);
+
 	static LLFloater* getCurrentVoiceFloater();
 
 	static LLIMFloaterContainer* findInstance();
 
 	static LLIMFloaterContainer* getInstance();
 
-protected:
-	
-	LLFloater* mActiveVoiceFloater;
+private:
+	typedef std::map<LLUUID,LLPanel*> avatarID_panel_map_t;
+	avatarID_panel_map_t mSessions;
+
+	typedef std::vector<LLUUID> groupIDs_t;
+	groupIDs_t mGroupID;
+
+	void onCloseFloater(LLUUID avatar_id);
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H

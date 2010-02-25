@@ -1022,6 +1022,20 @@ void LLButton::setImageOverlay(const std::string& image_name, LLFontGL::HAlign a
 	}
 }
 
+void LLButton::setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignment, const LLColor4& color)
+{
+	if (image_id.isNull())
+	{
+		mImageOverlay = NULL;
+	}
+	else
+	{
+		mImageOverlay = LLUI::getUIImageByID(image_id);
+		mImageOverlayAlignment = alignment;
+		mImageOverlayColor = color;
+	}
+}
+
 void LLButton::onMouseCaptureLost()
 {
 	resetMouseDownTimer();

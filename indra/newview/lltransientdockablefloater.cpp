@@ -42,6 +42,7 @@ LLTransientDockableFloater::LLTransientDockableFloater(LLDockControl* dockContro
 		LLDockableFloater(dockControl, uniqueDocking, key, params)
 {
 	LLTransientFloaterMgr::getInstance()->registerTransientFloater(this);
+	LLTransientFloater::init(this);
 }
 
 LLTransientDockableFloater::~LLTransientDockableFloater()

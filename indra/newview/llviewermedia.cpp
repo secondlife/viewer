@@ -752,6 +752,11 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 			impl_count_interest_normal++;
 		}
+		else if(pimpl->isParcelMedia())
+		{
+			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+			impl_count_interest_normal++;
+		}
 		else
 		{
 			// Look at interest and CPU usage for instances that aren't in any of the above states.

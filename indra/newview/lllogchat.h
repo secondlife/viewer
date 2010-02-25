@@ -56,7 +56,7 @@ public:
 		                    void (*callback)(ELogLineType, const LLSD&, void*), 
 							void* userdata);
 
-	static void loadAllHistory(const std::string& session_name, std::list<LLSD>& messages);
+	static void loadAllHistory(const std::string& file_name, std::list<LLSD>& messages);
 private:
 	static std::string cleanFileName(std::string filename);
 };

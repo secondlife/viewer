@@ -35,6 +35,7 @@
 #include "llgroupmgr.h"
 #include "llpanel.h"
 #include "lltimer.h"
+#include "llvoiceclient.h"
 
 struct LLOfferInfo;
 
@@ -47,7 +48,8 @@ class LLAgent;
 
 
 class LLPanelGroup : public LLPanel,
-					 public LLGroupMgrObserver 
+					 public LLGroupMgrObserver,
+					 public LLVoiceClientStatusObserver
 {
 public:
 	LLPanelGroup();
@@ -63,6 +65,10 @@ public:
 
 	// Group manager observer trigger.
 	virtual void changed(LLGroupChange gc);
+
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 	void showNotice(const std::string& subject,
 					const std::string& message,

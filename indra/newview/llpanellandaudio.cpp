@@ -37,6 +37,7 @@
 // viewer includes
 #include "llmimetypes.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "lluictrlfactory.h"
 
 // library includes
@@ -83,8 +84,14 @@ BOOL LLPanelLandAudio::postBuild()
 	mCheckSoundLocal = getChild<LLCheckBoxCtrl>("check sound local");
 	childSetCommitCallback("check sound local", onCommitAny, this);
 
-	mRadioVoiceChat = getChild<LLRadioGroup>("parcel_voice_channel");
-	childSetCommitCallback("parcel_voice_channel", onCommitAny, this);
+	mCheckParcelEnableVoice = getChild<LLCheckBoxCtrl>("parcel_enable_voice_channel");
+	childSetCommitCallback("parcel_enable_voice_channel", onCommitAny, this);
+
+	// This one is always disabled so no need for a commit callback
+	mCheckEstateDisabledVoice = getChild<LLCheckBoxCtrl>("parcel_enable_voice_channel_is_estate_disabled");
+
+	mCheckParcelVoiceLocal = getChild<LLCheckBoxCtrl>("parcel_enable_voice_channel_local");
+	childSetCommitCallback("parcel_enable_voice_channel_local", onCommitAny, this);
 
 	mMusicURLEdit = getChild<LLLineEditor>("music_url");
 	childSetCommitCallback("music_url", onCommitAny, this);
@@ -118,19 +125,33 @@ void LLPanelLandAudio::refresh()
 		mMusicUrlCheck->set( parcel->getObscureMusic() );
 		mMusicUrlCheck->setEnabled( can_change_media );
 
-		if(parcel->getParcelFlagAllowVoice())
+		bool allow_voice = parcel->getParcelFlagAllowVoice();
+
+		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+		if (region && region->isVoiceEnabled())
 		{
-			if(parcel->getParcelFlagUseEstateVoiceChannel())
-				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
-			else
-				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatPrivate);
+			mCheckEstateDisabledVoice->setVisible(false);
+
+			mCheckParcelEnableVoice->setVisible(true);
+			mCheckParcelEnableVoice->setEnabled( can_change_media );
+			mCheckParcelEnableVoice->set(allow_voice);
+
+			mCheckParcelVoiceLocal->setEnabled( can_change_media && allow_voice );
 		}
 		else
 		{
-			mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatDisable);
+			// Voice disabled at estate level, overrides parcel settings
+			// Replace the parcel voice checkbox with a disabled one
+			// labelled with an explanatory message
+			mCheckEstateDisabledVoice->setVisible(true);
+
+			mCheckParcelEnableVoice->setVisible(false);
+			mCheckParcelEnableVoice->setEnabled(false);
+			mCheckParcelVoiceLocal->setEnabled(false);
 		}
 
-		mRadioVoiceChat->setEnabled( can_change_media );
+		mCheckParcelEnableVoice->set(allow_voice);
+		mCheckParcelVoiceLocal->set(!parcel->getParcelFlagUseEstateVoiceChannel());
 
 		mMusicURLEdit->setText(parcel->getMusicURL());
 		mMusicURLEdit->setEnabled( can_change_media );
@@ -149,30 +170,11 @@ void LLPanelLandAudio::onCommitAny(LLUICtrl*, void *userdata)
 
 	// Extract data from UI
 	BOOL sound_local		= self->mCheckSoundLocal->get();
-	int voice_setting		= self->mRadioVoiceChat->getSelectedIndex();
 	std::string music_url	= self->mMusicURLEdit->getText();
 	U8 obscure_music		= self->mMusicUrlCheck->get();
 
-
-	BOOL voice_enabled;
-	BOOL voice_estate_chan;
-
-	switch(voice_setting)
-	{
-		default:
-		case kRadioVoiceChatEstate:
-			voice_enabled = TRUE;
-			voice_estate_chan = TRUE;
-		break;
-		case kRadioVoiceChatPrivate:
-			voice_enabled = TRUE;
-			voice_estate_chan = FALSE;
-		break;
-		case kRadioVoiceChatDisable:
-			voice_enabled = FALSE;
-			voice_estate_chan = FALSE;
-		break;
-	}
+	BOOL voice_enabled = self->mCheckParcelEnableVoice->get();
+	BOOL voice_estate_chan = !self->mCheckParcelVoiceLocal->get();
 
 	// Remove leading/trailing whitespace (common when copying/pasting)
 	LLStringUtil::trim(music_url);

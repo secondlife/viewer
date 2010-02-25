@@ -552,6 +552,15 @@ std::string LLVoiceClient::getDisplayName(const LLUUID& id)
 	}
 }
 
+bool LLVoiceClient::isVoiceWorking()
+{
+	if (mVoiceModule) 
+	{
+		return mVoiceModule->isVoiceWorking();
+	}
+	return false;
+}
+
 BOOL LLVoiceClient::isParticipantAvatar(const LLUUID& id)
 {
 	if (mVoiceModule) 
