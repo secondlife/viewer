@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview notecard" title="REMARQUE :">
+<floater name="preview notecard" title="Remarque :">
 	<floater.string name="no_object">
 		Impossible de trouver l&apos;objet contenant cette note.
 	</floater.string>
@@ -7,7 +7,7 @@
 		Vous n&apos;avez pas le droit de voir cette note.
 	</floater.string>
 	<floater.string name="Title">
-		Note : [NAME]
+		Note : [NAME]
 	</floater.string>
 	<floater.string label="Enregistrer" label_selected="Enregistrer" name="Save">
 		Enregistrer

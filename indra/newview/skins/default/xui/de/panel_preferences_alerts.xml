@@ -1,24 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Popups" name="popups" title="Popups">
-	<text>
-		Popups nicht anzeigen:
+	<text name="tell_me_label">
+		Anzeigen:
+	</text>
+	<check_box label="Wenn ich Geld ausgebe oder L$ erhalte" name="notify_money_change_checkbox"/>
+	<check_box label="Wenn meinen Freund sich an- oder abmelden" name="friends_online_notify_checkbox"/>
+	<text name="show_label">
+		Diese Warnhinweise immer anzeigen:
 	</text>
 	<text name="dont_show_label">
-		Diese Popups nicht anzeigen:
+		Diese Warnhinweise immer anzeigen:
 	</text>
-	<button label="Dieses Popup aktivieren" name="enable_popup"/>
-	<text>
-		Popups anzeigen:
-	</text>
-	<text name="show_label">
-		Diese Popups anzeigen:
-	</text>
-	<text name="text_box2">
-		Anbieten von Notizkarten, Texturen und Landmarken:
-	</text>
-	<check_box label="Automatisch annehmen" name="accept_new_inventory"/>
-	<check_box label="Nach Annahme automatisch anzeigen" name="show_new_inventory"/>
-	<button width="200" label="Alle Popups aktivieren..." name="reset_dialogs_btn" tool_tip="Alle optionalen Popups und „Das erste Mal“-Meldungen aktivieren."/>
-	<button width="200" label="Alle diese Popups deaktivieren..." name="skip_dialogs_btn" tool_tip="Alle optionalen Popups und „Das erste Mal“-Meldungen deaktivieren."/>
-	<check_box label="Neue Objekte im Inventar automatisch anzeigen" name="show_in_inventory"/>
 </panel>

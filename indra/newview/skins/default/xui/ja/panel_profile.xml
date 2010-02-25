@@ -12,31 +12,47 @@
 	</string>
 	<string name="my_account_link_url" value="http://secondlife.com/my/account/index.php?lang=ja-JP"/>
 	<string name="no_partner_text" value="なし"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="second_life_image_panel">
 				<text name="title_sl_descr_text" value="[SECOND_LIFE]："/>
+				<expandable_text name="sl_description_edit">
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+				</expandable_text>
 			</panel>
 			<panel name="first_life_image_panel">
 				<text name="title_rw_descr_text" value="現実世界："/>
+				<expandable_text name="fl_description_edit">
+					Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+				</expandable_text>
 			</panel>
 			<text name="me_homepage_text">
-				Webサイト：
+				Web サイト：
 			</text>
 			<text name="title_member_text" value="メンバー登録："/>
+			<text name="register_date" value="05/31/1976"/>
 			<text name="title_acc_status_text" value="アカウントの状態："/>
+			<text name="acc_status_text" value="住人。 支払情報未登録"/>
 			<text name="title_partner_text" value="パートナー："/>
 			<panel name="partner_data_panel">
 				<text name="partner_text" value="[FIRST] [LAST]"/>
 			</panel>
 			<text name="title_groups_text" value="グループ："/>
+			<expandable_text name="sl_groups">
+				Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+			</expandable_text>
 		</panel>
 	</scroll_container>
 	<panel name="profile_buttons_panel">
 		<button label="フレンド登録" name="add_friend"/>
 		<button label="IM" name="im"/>
 		<button label="コール" name="call"/>
+		<button label="地図" name="show_on_map_btn"/>
 		<button label="テレポート" name="teleport"/>
+		<button label="▼" name="overflow_btn"/>
 	</panel>
 	<panel name="profile_me_buttons_panel">
 		<button label="プロフィールの編集" name="edit_profile_btn"/>

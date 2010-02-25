@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect" title="INSPECTER LES OBJETS">
-	<scroll_list name="object_list"
-	     tool_tip="Sélectionner un objet de la liste pour le mettre en surbrillance dans le Monde.">
-		<column label="Nom" name="object_name" />
-		<column label="Propriétaire" name="owner_name" />
-		<column label="Créateur" name="creator_name" />
-		<column label="Date de création" name="creation_date" />
+	<floater.string name="timeStamp">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<scroll_list name="object_list" tool_tip="Sélectionner un objet de la liste pour le mettre en surbrillance dans le Monde.">
+		<scroll_list.columns label="Nom" name="object_name"/>
+		<scroll_list.columns label="Propriétaire" name="owner_name"/>
+		<scroll_list.columns label="Créateur" name="creator_name"/>
+		<scroll_list.columns label="Date de création" name="creation_date"/>
 	</scroll_list>
-	<button label="Voir le profil du propriétaire..." name="button owner" width="172"
-	     tool_tip="Voir le profil du propriétaire de l&apos;objet en surbrillance" />
-	<button label="Voir le profil du créateur..." name="button creator" left="192" width="172"
-	     tool_tip="Voir le profil du créateur de l&apos;objet en surbrillance" />
+	<button label="Voir le profil du propriétaire..." name="button owner" tool_tip="Voir le profil du propriétaire de l&apos;objet en surbrillance" width="172"/>
+	<button label="Voir le profil du créateur..." left="192" name="button creator" tool_tip="Voir le profil du créateur de l&apos;objet en surbrillance" width="172"/>
 </floater>

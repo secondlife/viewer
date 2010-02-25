@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_buy_contents" title="コンテンツを購入" width="340" min_width="340">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="340" name="floater_buy_contents" title="コンテンツの購入" width="340">
 	<text name="contains_text" width="320">
 		[NAME]の内容：
 	</text>
@@ -8,8 +8,8 @@
 		コンテンツを[NAME]からL$[AMOUNT]で購入しますか？
 	</text>
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn" width="73"/>
-	<button label="購入" label_selected="購入" name="buy_btn" width="73" left_delta="-77"/>
-	<check_box label="今すぐ服を着る" name="wear_check" left_delta="-125"/>
+	<button label="購入" label_selected="購入" left_delta="-77" name="buy_btn" width="73"/>
+	<check_box label="今すぐ服を着る" left_delta="-125" name="wear_check"/>
 	<text name="no_copy_text">
 		(コピーなし)
 	</text>

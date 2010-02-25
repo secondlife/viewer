@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="スクリプト：新しいスクリプト">
+<floater name="script ed float" title="スクリプト： 新しいスクリプト">
 	<floater.string name="not_allowed">
-		このスクリプトは「コピー不可」のため、表示または編集することができません。 オブジェクト内のスクリプトの表示または編集には、全権限が必要です。
+		このスクリプトは「コピー不可」のため、表示・編集することができません。 オブジェクト内のスクリプトの表示・編集には、全権限が必要です。
 	</floater.string>
 	<floater.string name="script_running">
 		実行中

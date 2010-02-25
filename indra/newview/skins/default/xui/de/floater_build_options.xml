@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="build options floater" title="RASTEROPTIONEN">
+<floater name="build options floater" title="RASTER-OPTIONEN">
 	<spinner label="Rastereinheit (Meter)" name="GridResolution"/>
 	<spinner label="Rastergröße (Meter)" name="GridDrawSize"/>
 	<check_box label="An Untereinheiten ausrichten" name="GridSubUnit"/>

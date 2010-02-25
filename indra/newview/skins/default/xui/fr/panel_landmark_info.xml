@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="Créer un repère"/>
+	<string name="title_edit_landmark" value="Modifier le repère"/>
+	<string name="title_landmark" value="Repère"/>
+	<string name="not_available" value="(s/o)"/>
+	<string name="unknown" value="(inconnu)"/>
+	<string name="public" value="(public)"/>
+	<string name="server_update_text">
+		Les informations sur le lieu ne sont pas disponibles sans mise à jour du serveur.
+	</string>
+	<string name="server_error_text">
+		Aucune information sur ce lieu n&apos;est disponible actuellement, veuillez réessayer ultérieurement.
+	</string>
+	<string name="server_forbidden_text">
+		Les informations sur ce lieu ne sont pas disponibles car l&apos;accès y est restreint.  Veuillez vérifier vos permissions avec le propriétaire de la parcelle.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<string name="icon_PG" value="parcel_drk_PG"/>
+	<string name="icon_M" value="parcel_drk_M"/>
+	<string name="icon_R" value="parcel_drk_R"/>
+	<text name="title" value="Profil du lieu"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="SampleRegion"/>
+			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="maturity_value" value="(inconnu)"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="Propriétaire :"/>
+				<text name="creator_label" value="Créé par :"/>
+				<text name="created_label" value="Le :"/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="Titre :"/>
+				<text name="notes_label" value="Mes notes :"/>
+				<text name="folder_label" value="Emplacement du repère :"/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Gesture" title="RACCOURCI DU GESTE">
+	<text name="trigger_label">
+		Chat :
+	</text>
+	<text name="key_label">
+		Clavier :
+	</text>
+	<combo_box label="Aucun" name="modifier_combo"/>
+	<combo_box label="Aucun" name="key_combo"/>
+	<text name="replace_text" tool_tip="Remplacez le ou les mots-clés par ces mots. Par exemple, si vous remplacez le mot-clé &quot; bonjour &quot; par &quot; salut &quot;, le chat &quot; Je voulais te dire bonjour &quot; devient &quot; Je voulais te dire salut &quot; et le geste correspondant s&apos;affiche.">
+		Remplacer :
+	</text>
+	<line_editor name="replace_editor" tool_tip="Remplacez le ou les mots-clés par ces mots. Par exemple, si vous remplacez le mot-clé &quot; bonjour &quot; par &quot; salut &quot;, le chat &quot; Je voulais te dire bonjour &quot; devient &quot; Je voulais te dire salut &quot; et le geste correspondant s&apos;affiche."/>
+</floater>

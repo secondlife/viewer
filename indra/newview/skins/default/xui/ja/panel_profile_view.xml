@@ -6,10 +6,11 @@
 	<string name="status_offline">
 		オフライン
 	</string>
-	<text name="user_name" value="（ローディング...）"/>
+	<text_editor name="user_name" value="（ローディング...）"/>
 	<text name="status" value="オンライン"/>
 	<tab_container name="tabs">
 		<panel label="プロフィール" name="panel_profile"/>
 		<panel label="ピック" name="panel_picks"/>
+		<panel label="メモとプライバシー" name="panel_notes"/>
 	</tab_container>
 </panel>

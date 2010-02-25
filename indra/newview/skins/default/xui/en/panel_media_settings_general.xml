@@ -30,6 +30,7 @@
     (This page does not pass the specified whitelist)
   </text>
   <line_editor 
+   max_length="1024"
    bottom_delta="-24" 
    enabled="true" 
    follows="left|top" 
@@ -72,13 +73,15 @@
     Current Page:
   </text>
   <text 
+   name="current_url"
+   max_length="1024"
+   use_ellipses="true"
    bottom_delta="-20" 
    enabled="false" 
    follows="left|top" 
    font="SansSerif"
    height="20" 
    left="10" 
-   name="current_url"
    tool_tip="The current page for this media source"
    value="" 
    width="340" />

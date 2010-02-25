@@ -46,7 +46,7 @@
 #include "llaccordionctrltab.h"
 
 #include "llfloater.h" //for gFloaterView
-#include "lliconctrl.h"//for Home tab icon
+#include "lliconctrl.h"//for OpenClose tab icon
 #include "llsidetraypanelcontainer.h"
 #include "llwindow.h"//for SetCursor
 #include "lltransientfloatermgr.h"
@@ -214,7 +214,7 @@ LLPanel*	LLSideTrayTab::getPanel()
 LLSideTrayTab*  LLSideTrayTab::createInstance	()
 {
 	LLSideTrayTab::Params tab_params; 
-	tab_params.tab_title("Home");
+	tab_params.tab_title("openclose");
 
 	LLSideTrayTab* tab = LLUICtrlFactory::create<LLSideTrayTab>(tab_params);
 	return tab;
@@ -389,9 +389,8 @@ void	LLSideTray::createButtons	()
 
 		std::string name = sidebar_tab->getName();
 		
-		// The "home" button will open/close the whole panel, this will need to
-		// change if the home screen becomes its own tab.
-		if (name == "sidebar_home")
+		// The "OpenClose" button will open/close the whole panel
+		if (name == "sidebar_openclose")
 		{
 			mCollapseButton = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
@@ -427,7 +426,6 @@ void		LLSideTray::processTriState ()
 void		LLSideTray::onTabButtonClick(string name)
 {
 	LLSideTrayTab* side_bar = getTab(name);
-
 	if(side_bar == mActiveTab)
 	{
 		processTriState ();
@@ -443,7 +441,7 @@ void		LLSideTray::onToggleCollapse()
 	if(mCollapsed)
 	{
 		expandSideBar();
-		selectTabByName("sidebar_home");
+		//selectTabByName("sidebar_openclose");
 	}
 	else
 		collapseSideBar();
@@ -534,11 +532,11 @@ void LLSideTray::collapseSideBar()
 		}
 	}
 		
-	// Home tab doesn't put its button in mTabButtons
-	LLSideTrayTab* home_tab = getTab("sidebar_home");
-	if (home_tab)
+	// OpenClose tab doesn't put its button in mTabButtons
+	LLSideTrayTab* openclose_tab = getTab("sidebar_openclose");
+	if (openclose_tab)
 	{
-		mCollapseButton->setImageOverlay( home_tab->mImage );
+		mCollapseButton->setImageOverlay( openclose_tab->mImage );
 	}
 	//mActiveTab->setVisible(FALSE);
 	reflectCollapseChange();
@@ -549,10 +547,10 @@ void LLSideTray::collapseSideBar()
 void LLSideTray::expandSideBar()
 {
 	mCollapsed = false;
-	LLSideTrayTab* home_tab = getTab("sidebar_home");
-	if (home_tab)
+	LLSideTrayTab* openclose_tab = getTab("sidebar_openclose");
+	if (openclose_tab)
 	{
-		mCollapseButton->setImageOverlay( home_tab->mImageSelected );
+		mCollapseButton->setImageOverlay( openclose_tab->mImageSelected );
 	}
 	LLSD key;//empty
 	mActiveTab->onOpen(key);

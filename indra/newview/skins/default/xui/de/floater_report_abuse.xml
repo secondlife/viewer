@@ -8,7 +8,7 @@
 		Melder:
 	</text>
 	<text name="reporter_field">
-		Loremipsum Dolorsitamut
+		Loremipsum Dolorsitamut Longnamez
 	</text>
 	<text name="sim_title">
 		Region:
@@ -36,7 +36,7 @@
 		Eigentümer:
 	</text>
 	<text name="owner_name">
-		Hendrerit Vulputate
+		Hendrerit Vulputate Kamawashi Longname
 	</text>
 	<combo_box name="category_combo" tool_tip="Kategorie -- wählen Sie die Kategorie aus, die am besten auf diesen Bericht zutrifft">
 		<combo_box.item label="Kategorie auswählen" name="Select_category"/>
@@ -93,11 +93,11 @@
 		Details:
 	</text>
 	<text name="bug_aviso">
-		Bitte beschreiben Sie so genau wie möglich.
+		Bitte beschreiben Sie alles so genau wie möglich.
 	</text>
 	<text_editor bottom_delta="-136" height="130" name="details_edit"/>
 	<text bottom_delta="-20" name="incomplete_title">
-		Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
+		* Unvollständige Berichte werden nicht bearbeitet
 	</text>
 	<button label="Missbrauch melden" label_selected="Missbrauch melden" name="send_btn"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>

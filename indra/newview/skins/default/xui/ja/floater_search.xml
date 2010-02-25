@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_search" title="検索">
+	<floater.string name="loading_text">
+		ローディング...
+	</floater.string>
+	<floater.string name="done_text">
+		完了
+	</floater.string>
+</floater>

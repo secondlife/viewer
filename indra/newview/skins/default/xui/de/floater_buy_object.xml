@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="OBJEKTKOPIE KAUFEN">
+<floater name="contents" title="KOPIE DES OBJEKTES KAUFEN">
 	<text name="contents_text">
 		Inhalt:
 	</text>

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
+	<string name="payee_group">
+		Gruppe bezahlen
+	</string>
+	<string name="payee_resident">
+		Einwohner bezahlen
+	</string>
 	<text name="payee_label" width="130">
 		Zahlen:
 	</text>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="media_settings" title="PARAMÈTRES DES MÉDIAS">
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
+	<button label="Appliquer" label_selected="Appliquer" name="Apply"/>
+</floater>

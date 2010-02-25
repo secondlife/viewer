@@ -12,13 +12,27 @@
 	appearance up to tray panel header word like "Home".
 	Embedded panels are inset by a pixel and so their
 	backgrounds will not block the world fully. -->
+
+  <sidetray_tab
+    name="sidebar_openclose"
+    help_topic="sidebar_openclose"
+    tab_title="Toggle Sidebar"
+    description="Toggle Sidebar."
+    image="TabIcon_Open_Off"
+	image_selected="TabIcon_Close_Off"
+    mouse_opaque="false"
+    background_visible="true"
+  >
+    <panel /> <!-- dummy panel, never to actually be seen -->
+  </sidetray_tab>
+
   <sidetray_tab
     name="sidebar_home"
     help_topic="sidebar_home"
     tab_title="Home"
     description="Home."
-    image="TabIcon_Open_Off"
-	image_selected="TabIcon_Close_Off"
+    image="TabIcon_Home_Off"
+    image_selected="TabIcon_Home_Selected"
     mouse_opaque="false"
     background_visible="true"
   >

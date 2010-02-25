@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Règlement" name="Covenant">
 	<text name="estate_section_lbl">
-		Domaine :
+		Domaine
 	</text>
 	<text bottom_delta="-19" name="estate_name_lbl">
 		Nom :
@@ -34,13 +34,13 @@
 		Faire glisser une note pour changer le règlement de ce domaine.
 	</text>
 	<text name="region_section_lbl">
-		Région :
+		Région
 	</text>
 	<text name="region_name_lbl">
 		Nom :
 	</text>
 	<text name="region_name_text">
-		leyla
+		Erica
 	</text>
 	<text name="region_landtype_lbl">
 		Type :

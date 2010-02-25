@@ -8,9 +8,21 @@
 		[AGE]
 	</string>
 	<string name="Details">
-		[ACCTTYPE], [PAYMENTINFO]
-Profil : [SL_PROFILE]
+		[SL_PROFILE]
 	</string>
+	<string name="Partner">
+		Partenaire : [PARTNER]
+	</string>
+	<text name="user_name" value="Grumpity ProductEngine"/>
+	<text name="user_subtitle" value="11 mois, 3 jours"/>
+	<text name="user_details">
+		C&apos;est ma description second life et je la trouve vraiment géniale.
+	</text>
+	<text name="user_partner">
+		Erica Linden
+	</text>
 	<slider name="volume_slider" tool_tip="Volume de la voix" value="0.5"/>
 	<button label="Devenir amis" name="add_friend_btn"/>
+	<button label="IM" name="im_btn"/>
+	<button label="Plus" name="view_profile_btn"/>
 </floater>

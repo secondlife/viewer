@@ -7,7 +7,7 @@
 		(ローディング．．．)
 	</panel.string>
 	<panel.string name="already_in_group">
-		何人かのアバターは既にグループに入っているため招待されませんでした。
+		何人かのアバターは既にグループ加入済みのため、招待されませんでした。
 	</panel.string>
 	<text bottom_delta="-96" font="SansSerifSmall" height="72" name="help_text">
 		あなたのグループに一度に複数の
@@ -16,12 +16,12 @@
 をクリックしてください。
 	</text>
 	<button bottom_delta="-10" label="リストから住人を選択" name="add_button" tool_tip=""/>
-	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="複数の住人を選択するには、Ctrlキーを押しながら住人名をクリックします。"/>
-	<button label="リストから選択したものを削除" name="remove_button" tool_tip="上で選択した居住者を招待リストから削除します。"/>
+	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
+	<button label="リストから選択したものを削除" name="remove_button" tool_tip="招待リストから上で選択した住人を削除します"/>
 	<text name="role_text">
 		割り当て先の役割を選択：
 	</text>
-	<combo_box name="role_name" tool_tip="メンバーに割り当て可能な役割をリストから選択。"/>
+	<combo_box name="role_name" tool_tip="メンバーに割り当てたい役割をリストから選んください"/>
 	<button label="招待を送信" name="ok_button"/>
 	<button label="取り消し" name="cancel_button"/>
 	<string name="GroupInvitation">

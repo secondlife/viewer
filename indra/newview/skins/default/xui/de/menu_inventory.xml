@@ -22,6 +22,8 @@
 		<menu_item_call label="Neue Handschuhe" name="New Gloves"/>
 		<menu_item_call label="Neues Unterhemd" name="New Undershirt"/>
 		<menu_item_call label="Neue Unterhose" name="New Underpants"/>
+		<menu_item_call label="Neue Alpha-Maske" name="New Alpha Mask"/>
+		<menu_item_call label="Neue Tätowierung" name="New Tattoo"/>
 	</menu>
 	<menu label="Neue Körperteile" name="New Body Parts">
 		<menu_item_call label="Neue Form/Gestalt" name="New Shape"/>
@@ -46,18 +48,21 @@
 	<menu_item_call label="Öffnen" name="Sound Open"/>
 	<menu_item_call label="Objekt löschen" name="Purge Item"/>
 	<menu_item_call label="Objekt wiederherstellen" name="Restore Item"/>
+	<menu_item_call label="Original suchen" name="Find Original"/>
 	<menu_item_call label="Öffnen" name="Open"/>
 	<menu_item_call label="Eigenschaften" name="Properties"/>
 	<menu_item_call label="Umbenennen" name="Rename"/>
 	<menu_item_call label="Asset-UUID kopieren" name="Copy Asset UUID"/>
 	<menu_item_call label="Kopieren" name="Copy"/>
 	<menu_item_call label="Einfügen" name="Paste"/>
+	<menu_item_call label="Als Link einfügen" name="Paste As Link"/>
 	<menu_item_call label="Löschen" name="Delete"/>
-	<menu_item_call label="Objekte abnehmen" name="Take Off Items"/>
+	<menu_item_call label="Von Outfit entfernen" name="Remove From Outfit"/>
 	<menu_item_call label="Zum Outfit hinzufügen" name="Add To Outfit"/>
 	<menu_item_call label="Outfit ersetzen" name="Replace Outfit"/>
 	<menu_item_call label="Konferenz-Chat starten" name="Conference Chat Folder"/>
 	<menu_item_call label="Wiedergeben/Abspielen" name="Sound Play"/>
+	<menu_item_call label="Landmarken-Info" name="About Landmark"/>
 	<menu_item_call label="In Welt abspielen" name="Animation Play"/>
 	<menu_item_call label="Lokal wiedergeben" name="Animation Audition"/>
 	<menu_item_call label="Instant Message senden" name="Send Instant Message"/>
@@ -65,6 +70,7 @@
 	<menu_item_call label="Konferenz-Chat starten" name="Conference Chat"/>
 	<menu_item_call label="Aktivieren" name="Activate"/>
 	<menu_item_call label="Deaktivieren" name="Deactivate"/>
+	<menu_item_call label="Speichern unter" name="Save As"/>
 	<menu_item_call label="Von Körper abnehmen" name="Detach From Yourself"/>
 	<menu_item_call label="Anziehen" name="Object Wear"/>
 	<menu label="Anhängen an" name="Attach To"/>

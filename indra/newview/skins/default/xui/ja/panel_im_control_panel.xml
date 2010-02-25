@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_im_control_panel">
-	<button label="プロフィールの表示" name="view_profile_btn"/>
-	<button label="フレンドを追加" name="add_friend_btn"/>
+	<text name="avatar_name" value="不明"/>
+	<button label="プロフィール" name="view_profile_btn"/>
+	<button label="フレンド登録" name="add_friend_btn"/>
+	<button label="テレポート" name="teleport_btn"/>
 	<button label="共有" name="share_btn"/>
 	<panel name="panel_call_buttons">
 		<button label="コール" name="call_btn"/>
+		<button label="コール終了" name="end_call_btn"/>
+		<button label="ボイスコントロール" name="voice_ctrls_btn"/>
 	</panel>
 </panel>

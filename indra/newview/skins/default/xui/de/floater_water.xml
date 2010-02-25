@@ -1,66 +1,53 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="ERWEITERTER WASSER-EDITOR">
+	<floater.string name="WLDefaultWaterNames">
+		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
+	</floater.string>
 	<text name="KeyFramePresetsText">
 		Voreinstellungen:
 	</text>
-	<button label="Neu" label_selected="Neu" name="WaterNewPreset" />
-	<button label="Speichern" label_selected="Speichern" name="WaterSavePreset" />
-	<button label="Löschen" label_selected="Löschen" name="WaterDeletePreset" />
+	<button label="Neu" label_selected="Neu" name="WaterNewPreset"/>
+	<button label="Speichern" label_selected="Speichern" name="WaterSavePreset"/>
+	<button label="Löschen" label_selected="Löschen" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
 		<panel label="Einstellungen" name="Settings">
 			<text name="BHText">
 				Wassertrübungsfarbe
 			</text>
-			<button label=" ?" name="WaterFogColorHelp" left="175" />
-			<color_swatch name="WaterFogColor" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen" />
+			<color_swatch name="WaterFogColor" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
 			<text name="WaterFogDensText">
 				Wassertrübungsdichte
 			</text>
-			<button label=" ?" name="WaterFogDensityHelp" left="175" />
 			<text name="WaterUnderWaterFogModText">
 				Wassertrübungs-Modifikator
 			</text>
-			<button label=" ?" name="WaterUnderWaterFogModHelp" left="175" />
-			<slider bottom_delta="-34" name="WaterUnderWaterFogMod" />
+			<slider bottom_delta="-34" name="WaterUnderWaterFogMod"/>
 			<text name="BDensText">
 				Reflexionswellengröße
 			</text>
-			<button label=" ?" name="WaterNormalScaleHelp" />
-			<text name="BHText2">
-				1
-			</text>
-			<text name="BHText3">
-				2
-			</text>
-			<text name="BHText4">
-				3
-			</text>
+			<slider label="1" name="WaterNormalScaleX"/>
+			<slider label="2" name="WaterNormalScaleY"/>
+			<slider label="3" name="WaterNormalScaleZ"/>
 			<text name="HDText">
 				Fresnel-Skalierung
 			</text>
-			<button label=" ?" name="WaterFresnelScaleHelp" />
 			<text name="FresnelOffsetText">
 				Fresnel-Versatz
 			</text>
-			<button label=" ?" name="WaterFresnelOffsetHelp" />
 			<text name="DensMultText">
 				Brechungsstärke oben
 			</text>
-			<button label=" ?" name="WaterScaleAboveHelp" />
 			<text name="WaterScaleBelowText">
 				Brechungsstärke unten
 			</text>
-			<button label=" ?" name="WaterScaleBelowHelp" />
 			<text name="MaxAltText">
 				Mischungsmultiplikator
 			</text>
-			<button label=" ?" name="WaterBlurMultiplierHelp" />
 		</panel>
 		<panel label="Bild" name="Waves">
 			<text name="BHText">
 				Richtung große Welle
 			</text>
-			<button label=" ?" name="WaterWave1Help" />
 			<text name="WaterWave1DirXText">
 				X
 			</text>
@@ -70,7 +57,6 @@
 			<text name="BHText2">
 				Richtung kleine Welle
 			</text>
-			<button label=" ?" name="WaterWave2Help" />
 			<text name="WaterWave2DirXText">
 				X
 			</text>
@@ -80,10 +66,6 @@
 			<text name="BHText3">
 				Normal-Map
 			</text>
-			<button label=" ?" name="WaterNormalMapHelp" />
 		</panel>
 	</tab_container>
-	<string name="WLDefaultWaterNames">
-		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
-	</string>
 </floater>

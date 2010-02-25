@@ -19,9 +19,9 @@
      left="10"
      name="estate_help_text"
      top="14"
-     width="313">
-        Changes to settings on this tab will affect all
-regions in the estate.
+     word_wrap="true"
+     width="275">
+        Changes to settings on this tab will affect all regions in the estate.
     </text>
     <text
      type="string"
@@ -138,7 +138,7 @@ regions in the estate.
      name="Only Allow"
      top="250"
      width="278">
-        Restrict Access to Accounts Verified by:
+        Restrict Access to accounts verified by:
     </text>
     <check_box
      follows="top|left"
@@ -147,7 +147,7 @@ regions in the estate.
      layout="topleft"
      left_delta="0"
      name="limit_payment"
-     tool_tip="Ban unidentified residents"
+     tool_tip="Ban unidentified Residents"
      top_pad="2"
      width="278" />
     <check_box
@@ -157,7 +157,7 @@ regions in the estate.
      layout="topleft"
      left_delta="0"
      name="limit_age_verified"
-     tool_tip="Ban residents who have not verified their age. See the [SUPPORT_SITE] for more information."
+     tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."
      top_pad="2"
      width="278" />
     <check_box

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_inventory_add">
+	<menu label="アップロード" name="upload">
+		<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
+		<menu_item_call label="サウンド （L$[COST] ）..." name="Upload Sound"/>
+		<menu_item_call label="アニメーション （L$ [COST] ）..." name="Upload Animation"/>
+		<menu_item_call label="一括 （ファイルにつき L$[COST] ）..." name="Bulk Upload"/>
+	</menu>
+	<menu_item_call label="新規フォルダ" name="New Folder"/>
+	<menu_item_call label="新規スクリプト" name="New Script"/>
+	<menu_item_call label="新規ノート" name="New Note"/>
+	<menu_item_call label="新規ジェスチャー" name="New Gesture"/>
+	<menu label="新しい衣類" name="New Clothes">
+		<menu_item_call label="新しいシャツ" name="New Shirt"/>
+		<menu_item_call label="新しいパンツ" name="New Pants"/>
+		<menu_item_call label="新しい靴" name="New Shoes"/>
+		<menu_item_call label="新しい靴下" name="New Socks"/>
+		<menu_item_call label="新しいジャケット" name="New Jacket"/>
+		<menu_item_call label="新しいスカート" name="New Skirt"/>
+		<menu_item_call label="新しい手袋" name="New Gloves"/>
+		<menu_item_call label="新しい下着（上）" name="New Undershirt"/>
+		<menu_item_call label="新しい下着（下）" name="New Underpants"/>
+		<menu_item_call label="新しいアルファ" name="New Alpha"/>
+		<menu_item_call label="新しいタトゥー" name="New Tattoo"/>
+	</menu>
+	<menu label="新しい身体部位" name="New Body Parts">
+		<menu_item_call label="新しいシェイプ（体型）" name="New Shape"/>
+		<menu_item_call label="新しいスキン" name="New Skin"/>
+		<menu_item_call label="新しい髪" name="New Hair"/>
+		<menu_item_call label="新しい目" name="New Eyes"/>
+	</menu>
+</menu>

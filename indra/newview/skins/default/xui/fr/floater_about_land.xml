@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterland" title="À PROPOS DU TERRAIN">
+<floater name="floaterland" title="À PROPOS DES TERRAINS">
 	<floater.string name="Minutes">
 		[MINUTES] minutes
 	</floater.string>
@@ -8,6 +8,9 @@
 	</floater.string>
 	<floater.string name="Seconds">
 		[SECONDS] secondes
+	</floater.string>
+	<floater.string name="Remaining">
+		restantes
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="Général" name="land_general_panel">
@@ -83,7 +86,7 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 			</text>
 			<text name="GroupText"/>
 			<button label="Définir..." label_selected="Définir..." name="Set..."/>
-			<check_box label="Autoriser la cession au groupe" name="check deed" tool_tip="Un officier peut céder ce terrain au groupe. Il viendra alors s&apos;ajouter au patrimoine du groupe."/>
+			<check_box label="Autoriser la cession au groupe" name="check deed" tool_tip="Un officier du groupe peut céder ce terrain à ce groupe, afin qu&apos;il soit pris en charge par l&apos;allocation de terrains du groupe."/>
 			<button label="Céder..." label_selected="Céder..." name="Deed..." tool_tip="Vous ne pouvez céder le terrain que si vous avez un rôle d&apos;officier dans le groupe sélectionné."/>
 			<check_box label="Le propriétaire contribue en cédant du terrain" name="check contrib" tool_tip="Lorsqu&apos;un terrain est cédé au groupe, l&apos;ancien propriétaire fait également un don de terrain suffisant."/>
 			<text name="For Sale:">
@@ -93,7 +96,7 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				Pas à vendre
 			</text>
 			<text name="For Sale: Price L$[PRICE].">
-				Prix : [PRICE] L$ ([PRICE_PER_SQM] L$/m²).
+				Prix : [PRICE] L$ ([PRICE_PER_SQM] L$/m²).
 			</text>
 			<text name="SalePending"/>
 			<button label="Vendre le terrain..." label_selected="Vendre le terrain..." name="Sell Land..."/>
@@ -117,7 +120,7 @@ Allez dans le menu Monde &gt; À propos du terrain ou sélectionnez une autre pa
 				Superficie :
 			</text>
 			<text name="PriceText">
-				4048 m²
+				4 048 m²
 			</text>
 			<text name="Traffic:">
 				Trafic :
@@ -282,7 +285,7 @@ ou divisé.
 				Permettre aux autres résidents de voir cette parcelle dans les résultats de recherche
 			</panel.string>
 			<panel.string name="search_disabled_small_tooltip">
-				Cette option est désactivée car la superficie de cette parcelle est inférieure ou égale à 128 m².
+				Cette option est désactivée car la superficie de cette parcelle est inférieure ou égale à 128 m².
 Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</panel.string>
 			<panel.string name="search_disabled_permissions_tooltip">
@@ -373,11 +376,11 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Lieu d&apos;arrivée : [LANDING]
 			</text>
 			<button bottom="-323" label="Définir" label_selected="Définir" name="Set" tool_tip="Définit le point d&apos;arrivée des visiteurs. Définit l&apos;emplacement de votre avatar sur ce terrain."/>
-			<button bottom="-323" label="Annuler" label_selected="Annuler" name="Clear" tool_tip="Libérer le lieu d&apos;arrivée."/>
+			<button bottom="-323" label="Annuler" label_selected="Annuler" name="Clear" tool_tip="Effacer le lieu d&apos;arrivée"/>
 			<text bottom="-343" name="Teleport Routing: ">
 				Règles de téléportation :
 			</text>
-			<combo_box bottom="-343" left="140" name="landing type" tool_tip="Vous permet de paramétrer les téléportations sur votre terrain." width="140">
+			<combo_box bottom="-343" left="140" name="landing type" tool_tip="Règles de téléportation - Choisissez les règles de téléportation sur votre terrain" width="140">
 				<combo_box.item label="Bloqué" name="Blocked"/>
 				<combo_box.item label="Lieu d&apos;arrivée fixe" name="LandingPoint"/>
 				<combo_box.item label="Lieu d&apos;arrivée libre" name="Anywhere"/>
@@ -385,17 +388,17 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 		</panel>
 		<panel label="Médias" name="land_media_panel">
 			<text name="with media:" width="85">
-				Type :
+				Type :
 			</text>
 			<combo_box left="97" name="media type" tool_tip="Indiquez s&apos;il s&apos;agit de l&apos;URL d&apos;un film, d&apos;une page web ou autre"/>
 			<text name="mime_type"/>
 			<text name="at URL:" width="85">
-				URL du domicile :
+				URL du domicile :
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Définir..." label_selected="Définir..." name="set_media_url"/>
 			<text name="CurrentURL:">
-				URL actuelle :
+				URL actuelle :
 			</text>
 			<button label="Réinitialiser..." label_selected="Réinitialiser..." name="reset_media_url"/>
 			<check_box label="Masquer l&apos;URL" left="97" name="hide_media_url" tool_tip="Si vous cochez cette option, les personnes non autorisées à accéder aux infos de cette parcelle ne verront pas l&apos;URL du média. Cette option n&apos;est pas disponible pour les fichiers HTML."/>
@@ -415,7 +418,7 @@ Sélectionnez l&apos;image miniature pour choisir une texture différente.
 			</text>
 			<check_box label="Échelle automatique" left="97" name="media_auto_scale" tool_tip="Si vous sélectionnez cette option, le contenu de cette parcelle sera automatiquement mis à l&apos;échelle. La qualité visuelle sera peut-être amoindrie mais vous n&apos;aurez à faire aucune autre mise à l&apos;échelle ou alignement."/>
 			<text left="102" name="media_size" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut." width="105">
-				Taille :
+				Taille :
 			</text>
 			<spinner left_delta="89" name="media_size_width" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut."/>
 			<spinner name="media_size_height" tool_tip="Taille du média Web, laisser 0 pour la valeur par défaut."/>
@@ -423,20 +426,20 @@ Sélectionnez l&apos;image miniature pour choisir une texture différente.
 				pixels
 			</text>
 			<text name="Options:">
-				Options :
+				Options :
 			</text>
 			<check_box label="En boucle" name="media_loop" tool_tip="Jouer le média en boucle. Lorsque le média aura fini de jouer, il recommencera."/>
 		</panel>
 		<panel label="Audio" name="land_audio_panel">
 			<text name="MusicURL:">
-				URL de la musique :
+				URL de la musique :
 			</text>
 			<text name="Sound:">
-				Son :
+				Son :
 			</text>
 			<check_box label="Limiter les gestes et sons d&apos;objet à cette parcelle" name="check sound local"/>
 			<text name="Voice settings:">
-				Voix :
+				Voix :
 			</text>
 			<check_box label="Activer le chat vocal" name="parcel_enable_voice_channel"/>
 			<check_box label="Activer la voix (contrôlé par le domaine)" name="parcel_enable_voice_channel_is_estate_disabled"/>

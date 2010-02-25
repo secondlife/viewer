@@ -118,7 +118,7 @@
      layout="topleft"
      left_delta="0"
      name="add_btn"
-     tool_tip="Offer friendship to a resident"
+     tool_tip="Offer friendship to a Resident"
      top_pad="13"
      width="80" />
 </panel>

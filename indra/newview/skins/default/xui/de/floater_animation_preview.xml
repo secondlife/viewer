@@ -113,14 +113,14 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 	<text name="description_label">
 		Beschreibung:
 	</text>
-	<spinner label="Priorität" name="priority" tool_tip="Steuert, welche Animationen von dieser Animation überschrieben werden können."/>
-	<check_box bottom_delta="-18" label="Schleife" name="loop_check" tool_tip="Erzeugt eine Animationsschleife."/>
-	<spinner label="In (%)" name="loop_in_point" tool_tip="Anfang einer Animationsschleife festlegen."/>
-	<spinner label="Aus (%)" name="loop_out_point" tool_tip="Ende einer Animationsschleife festlegen."/>
+	<spinner label="Priorität" name="priority" tool_tip="Steuert, welche Animationen von dieser Animation überschrieben werden können"/>
+	<check_box bottom_delta="-18" label="Schleife" name="loop_check" tool_tip="Erzeugt eine Animationsschleife"/>
+	<spinner label="In (%)" name="loop_in_point" tool_tip="Anfang einer Animationsschleife festlegen"/>
+	<spinner label="Aus (%)" name="loop_out_point" tool_tip="Ende einer Animationsschleife festlegen"/>
 	<text name="hand_label">
 		Handhaltung
 	</text>
-	<combo_box label="" name="hand_pose_combo" tool_tip="Steuert während der Animation die Bewegung der Hände.">
+	<combo_box label="" name="hand_pose_combo" tool_tip="Steuert während der Animation die Bewegung der Hände">
 		<combo_box.item label="Dehnen" name="Spread"/>
 		<combo_box.item label="Entspannt" name="Relaxed"/>
 		<combo_box.item label="Beide zeigen" name="PointBoth"/>
@@ -138,8 +138,8 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 	<text name="emote_label">
 		Ausdruck
 	</text>
-	<combo_box label="" name="emote_combo" tool_tip="Steuert Gesichtsregungen während der Animation.">
-		<combo_box.item label="Keine]" name="[None]"/>
+	<combo_box label="" name="emote_combo" tool_tip="Steuert Gesichtsregungen während der Animation">
+		<combo_box.item label="(Keiner)" name="[None]"/>
 		<combo_box.item label="Aaaaah" name="Aaaaah"/>
 		<combo_box.item label="Ängstlich" name="Afraid"/>
 		<combo_box.item label="Verärgert" name="Angry"/>
@@ -152,7 +152,7 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 		<combo_box.item label="Küssen" name="Kiss"/>
 		<combo_box.item label="Lachen" name="Laugh"/>
 		<combo_box.item label="Bäääh" name="Plllppt"/>
-		<combo_box.item label="Zurückgestoßen" name="Repulsed"/>
+		<combo_box.item label="Angewidert" name="Repulsed"/>
 		<combo_box.item label="Traurig" name="Sad"/>
 		<combo_box.item label="Schulterzucken" name="Shrug"/>
 		<combo_box.item label="Lächeln" name="Smile"/>
@@ -167,11 +167,11 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 		<combo_box.item label="Stehend" name="Standing"/>
 		<combo_box.item label="Geht" name="Walking"/>
 		<combo_box.item label="Sitzt" name="Sitting"/>
-		<combo_box.item label="Fliegend" name="Flying"/>
+		<combo_box.item label="Fliegen" name="Flying"/>
 	</combo_box>
-	<spinner label="Eingang glätten (s)" label_width="105" name="ease_in_time" tool_tip="Einblendungsgeschwindigkeit von Animationen (in Sekunden)." width="175"/>
-	<spinner bottom_delta="-20" label="Ausgang glätten (s)" label_width="105" left="10" name="ease_out_time" tool_tip="Ausblendungsgeschwindigkeit von Animationen (in Sekunden)." width="175"/>
-	<button bottom_delta="-32" label="" name="play_btn" tool_tip="Animation stoppen/wiedergeben."/>
+	<spinner label="Eingang glätten (s)" label_width="105" name="ease_in_time" tool_tip="Einblendungsgeschwindigkeit von Animationen (in Sekunden)" width="175"/>
+	<spinner bottom_delta="-20" label="Ausgang glätten (s)" label_width="105" left="10" name="ease_out_time" tool_tip="Ausblendegeschwindigkeit von Animationen (in Sekunden)" width="175"/>
+	<button bottom_delta="-32" label="" name="play_btn" tool_tip="Animation stoppen/wiedergeben"/>
 	<button label="" name="stop_btn" tool_tip="Animation anhalten"/>
 	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">

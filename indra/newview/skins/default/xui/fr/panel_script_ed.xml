@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="script panel">
 	<panel.string name="loading">
-		Chargement…
+		Chargement...
 	</panel.string>
 	<panel.string name="can_not_view">
-		Ce scipt ne peut pas être copié, visualisé ou modifié.  Pour visualiser ou modifier un script à l&apos;intérieur d&apos;un objet, vous devez avoir les permissions requises.
+		Ce script ne peut pas être copié, visualisé ou modifié. Pour visualiser ou modifier un script à l&apos;intérieur d&apos;un objet, vous devez avoir les permissions requises.
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		Les objets publics ne peuvent pas exécuter de scripts
@@ -16,7 +16,7 @@
 		Script : [NAME]
 	</panel.string>
 	<text_editor name="Script Editor">
-		Chargement…
+		Chargement...
 	</text_editor>
 	<button label="Enregistrer" label_selected="Enregistrer" name="Save_btn"/>
 	<combo_box label="Insérer..." name="Insert..."/>

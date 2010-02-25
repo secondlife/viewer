@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Hardware Settings Floater" title="CONFIGURATION DU MATÉRIEL">
+<floater name="Hardware Settings Floater" title="PARAMÈTRES MATÉRIELS">
 	<text name="Filtering:">
 		Filtres :
 	</text>
@@ -21,8 +21,8 @@
 	<text name="Enable VBO:">
 		Activer le VBO :
 	</text>
-	<check_box label="Activer OpenGL Vertex Buffer Objects" name="vbo" tool_tip="Sur un matériel moderne, cette option permet une meilleure performance. Par contre, sur un matériel plus ancien, les VBO sont souvent mal implémentés et peuvent causer des crashs lorsqu&apos;ils sont activés."/>
-	<slider label="Mémoire vidéo (Mo) :" name="GrapicsCardTextureMemory" tool_tip="Total de la mémoire alloué aux textures. Mémoire de la carte vidéo par défaut. En réduisant cette valeur, vous pouvez accroître la performance mais les textures risquent de devenir floues."/>
+	<check_box initial_value="true" label="Activer OpenGL Vertex Buffer Objects" name="vbo" tool_tip="Sur un matériel moderne, cette option permet une meilleure performance. Par contre, sur un matériel plus ancien, les VBO sont souvent mal implémentés et peuvent causer des crashs lorsqu&apos;ils sont activés."/>
+	<slider label="Mémoire textures (Mo) :" name="GraphicsCardTextureMemory" tool_tip="Quantité de mémoire à affecter aux textures. Utilise la mémoire de la carte vidéo par défaut. Si vous réduisez ce paramètre, cela peut améliorer les performances, mais les textures risquent d&apos;être floues."/>
 	<spinner label="Indice du brouillard :" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Gruppeninfo" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		Die Registerkarte enthält nicht gespeicherte Änderungen.
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Diese Änderungen speichern?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Mitglied werden ([AMOUNT] L$)
+	</panel.string>
+	<panel.string name="group_join_free">
+		Kostenlos
+	</panel.string>
+	<text name="group_name" value="(wird geladen...)"/>
+	<line_editor label="Neuen Gruppennamen hier eingeben" name="group_name_editor"/>
+	<texture_picker label="" name="insignia" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+	<text name="prepend_founded_by">
+		Gründer:
+	</text>
+	<name_box initial_value="(wird in Datenbank gesucht)" name="founder_name"/>
+	<text name="join_cost_text">
+		Kostenlos
+	</text>
+	<button label="JETZT BEITRETEN!" name="btn_join"/>
+	<accordion name="groups_accordion">
+		<accordion_tab name="group_general_tab" title="Allgemein"/>
+		<accordion_tab name="group_roles_tab" title="Rollen"/>
+		<accordion_tab name="group_notices_tab" title="Mitteilungen"/>
+		<accordion_tab name="group_land_tab" title="Land/Vermögen"/>
+	</accordion>
+	<panel name="button_row">
+		<button label="Bauen" label_selected="Neue Gruppe" name="btn_create"/>
+		<button label="Speichern" label_selected="Speichern" name="btn_apply"/>
+	</panel>
+</panel>

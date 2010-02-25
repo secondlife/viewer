@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil du groupe" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		Certaines modifications sur cet onglet n&apos;ont pas été enregistrées.
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Voulez-vous enregistrer ces modifications ?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Rejoindre ([AMOUNT] L$)...
+	</panel.string>
+	<panel.string name="group_join_free">
+		Gratuit
+	</panel.string>
+	<text name="group_name" value="(en cours de chargement...)"/>
+	<line_editor label="Saisissez le nom du groupe ici" name="group_name_editor"/>
+	<texture_picker label="" name="insignia" tool_tip="Cliquez pour sélectionner une image"/>
+	<text name="prepend_founded_by">
+		Fondateur :
+	</text>
+	<name_box initial_value="(récupération en cours)" name="founder_name"/>
+	<text name="join_cost_text">
+		Gratuit
+	</text>
+	<button label="REJOINDRE" name="btn_join"/>
+	<accordion name="groups_accordion">
+		<accordion_tab name="group_general_tab" title="Général"/>
+		<accordion_tab name="group_roles_tab" title="Rôles"/>
+		<accordion_tab name="group_notices_tab" title="Notices"/>
+		<accordion_tab name="group_land_tab" title="Terrain/Actifs"/>
+	</accordion>
+	<panel name="button_row">
+		<button label="Créer" label_selected="Nouveau groupe" name="btn_create"/>
+		<button label="Enregistrer" label_selected="Enregistrer" name="btn_apply"/>
+	</panel>
+</panel>

@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット設定" name="im">
 	<panel.string name="log_in_to_change">
-		ログインして変更してください
+		ログインして変更
 	</panel.string>
 	<button label="履歴の消去" name="clear_cache"/>
 	<text name="cache_size_label_l">
 		（位置、画像、web、検索履歴）
 	</text>
-	<check_box label="フレンドとグループのみオンライン状況の確認可能" name="online_visibility"/>
-	<check_box label="フレンドとグループのみコールとIMの受信可能" name="voice_call_friends_only_check"/>
+	<check_box label="私のオンライン状況を確認できるのは、フレンドとグループだけ" name="online_visibility"/>
+	<check_box label="フレンドとグループ以外からはコールとIMを受信しない" name="voice_call_friends_only_check"/>
 	<check_box label="コールが終了したらマイクのスイッチを切る" name="auto_disengage_mic_check"/>
 	<check_box label="Cookieを受け入れる" name="cookies_enabled"/>
-	<check_box label="コンピューターにログを保存" name="log_instant_messages"/>
-	<radio_group name="ChatIMLogs">
-		<radio_item label="チャット" name="radio1"/>
-		<radio_item label="IM" name="radio2"/>
-	</radio_group>
-	<button label="ブラウズ" label_selected="ブラウズ" name="log_path_button"/>
+	<check_box label="メディアの自動再生を許可する" name="autoplay_enabled"/>
+	<check_box label="自動的に区画メディアを再生する" name="parcel_autoplay_enabled"/>
+	<text name="Logs:">
+		ログ：
+	</text>
+	<check_box label="コンピューターに近くのチャットログを保存する" name="log_nearby_chat"/>
+	<check_box label="コンピューターに IM ログを保存する" name="log_instant_messages"/>
+	<check_box label="タイムスタンプを追加する" name="show_timestamps_check_im"/>
+	<text name="log_path_desc">
+		ログの保存場所
+	</text>
+	<button label="参照" label_selected="参照" name="log_path_button"/>
+	<button label="ブロックリスト" name="block_list"/>
 </panel>

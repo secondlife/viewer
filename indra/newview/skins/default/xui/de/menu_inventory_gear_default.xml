@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_gear_default">
+	<menu_item_call label="Fenster: Neues Inventar" name="new_window"/>
+	<menu_item_call label="Nach Name sortieren" name="sort_by_name"/>
+	<menu_item_call label="Nach aktuellesten Objekten sortieren" name="sort_by_recent"/>
+	<menu_item_call label="Filter anzeigen" name="show_filters"/>
+	<menu_item_call label="Filter zurücksetzen" name="reset_filters"/>
+	<menu_item_call label="Alle Ordner schließen" name="close_folders"/>
+	<menu_item_call label="Papierkorb ausleeren" name="empty_trash"/>
+	<menu_item_call label="Fundbüro ausleeren" name="empty_lostnfound"/>
+	<menu_item_call label="Textur speichern als" name="Save Texture As"/>
+</menu>

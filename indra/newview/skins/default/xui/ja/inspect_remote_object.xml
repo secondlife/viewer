@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_remote_object">
+	<text name="object_name">
+		Test Object Name That Is Really Long
+	</text>
+	<text name="object_owner_label">
+		所有者：
+	</text>
+	<text name="object_owner">
+		Longavatarname Johnsonlongstonnammer
+	</text>
+	<text name="object_slurl_label">
+		位置：
+	</text>
+	<text name="object_slurl">
+		http://slurl.com/Ahern/50/50/50
+	</text>
+	<button label="地図" name="map_btn"/>
+	<button label="ブロック" name="block_btn"/>
+	<button label="閉じる" name="close_btn"/>
+</floater>

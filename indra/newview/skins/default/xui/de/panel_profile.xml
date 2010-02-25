@@ -12,31 +12,47 @@
 	</string>
 	<string name="my_account_link_url" value="http://secondlife.com/my/account/index.php?lang=de-DE"/>
 	<string name="no_partner_text" value="Keiner"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="second_life_image_panel">
 				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+				<expandable_text name="sl_description_edit">
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+				</expandable_text>
 			</panel>
 			<panel name="first_life_image_panel">
 				<text name="title_rw_descr_text" value="Echtes Leben:"/>
+				<expandable_text name="fl_description_edit">
+					Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+				</expandable_text>
 			</panel>
 			<text name="me_homepage_text">
 				Webseite:
 			</text>
 			<text name="title_member_text" value="Mitglied seit:"/>
+			<text name="register_date" value="05/31/1976"/>
 			<text name="title_acc_status_text" value="Kontostatus:"/>
+			<text name="acc_status_text" value="Einwohner. Keine Zahlungsinfo archiviert."/>
 			<text name="title_partner_text" value="Partner:"/>
 			<panel name="partner_data_panel">
 				<text name="partner_text" value="[FIRST] [LAST]"/>
 			</panel>
 			<text name="title_groups_text" value="Gruppen:"/>
+			<expandable_text name="sl_groups">
+				Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+			</expandable_text>
 		</panel>
 	</scroll_container>
 	<panel name="profile_buttons_panel">
 		<button label="Freund hinzufügen" name="add_friend"/>
 		<button label="IM" name="im"/>
 		<button label="Anrufen" name="call"/>
+		<button label="Karte" name="show_on_map_btn"/>
 		<button label="Teleportieren" name="teleport"/>
+		<button label="▼" name="overflow_btn"/>
 	</panel>
 	<panel name="profile_me_buttons_panel">
 		<button label="Profil bearbeiten" name="edit_profile_btn"/>

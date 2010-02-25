@@ -21,8 +21,8 @@
 	<text name="Enable VBO:">
 		VBO を有効化：
 	</text>
-	<check_box label="OpenGL Vertex Buffer Objectsを有効化" name="vbo" tool_tip="最新のハードウェアでこの設定を有効にすると、パフォーマンスが向上します。  しかし、旧型のハードウェアでは VBO の実装が貧弱な場合が多く、この設定を有効にすることでクラッシュにつながるおそれがあります。"/>
-	<slider label="テクスチャﾒﾓﾘ(MB)：" name="GrapicsCardTextureMemory" tool_tip="テクスチャーに割り当てるメモリの合計。 ビデオ・カード・メモリをデフォルトにします。 この数値を減らすと、パフォーマンスが改善されますが、テクスチャーがぼやけた感じになる場合があります。"/>
+	<check_box initial_value="true" label="OpenGL Vertex Buffer Objectsを有効化" name="vbo" tool_tip="最新のハードウェアでこの設定を有効にすると、パフォーマンスが向上します。  しかし、旧型のハードウェアでは VBO の実装が貧弱な場合が多く、この設定を有効にすることでクラッシュにつながるおそれがあります。"/>
+	<slider label="テクスチャメモリ（MB）：" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てられたメモリの量。 ビデオカードのメモリに既定。 数値を下げるとパフォーマンスが向上しますが、テクスチャの精度が落ちることがあります。"/>
 	<spinner label="フォグの距離比率：" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

@@ -12,10 +12,10 @@
 		<combo_box.item label="1024 x 768" name="1024x768"/>
 	</combo_box>
 	<text name="UI Size:">
-		Taille de l&apos;IU :
+		Taille de l&apos;UI :
 	</text>
 	<text name="QualitySpeed">
-		Qualité et vitesse :
+		Qualité et vitesse :
 	</text>
 	<text left="105" name="FasterText">
 		Plus rapide
@@ -35,37 +35,37 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<panel label="CustomGraphics" name="CustomGraphics Panel">
+	<panel label="Graphiques personnalisés" name="CustomGraphics Panel">
 		<text name="ShadersText">
 			Effets :
 		</text>
 		<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
-		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="Désactiver cette option peut empêcher certains drivers de cartes graphiques de planter."/>
+		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
 		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Reflets de l&apos;eau" name="Reflections"/>
+		<check_box initial_value="true" label="Reflets dans l&apos;eau" name="Reflections"/>
 		<text name="ReflectionDetailText">
-			Objets reflétés :
+			Objets reflétés :
 		</text>
 		<radio_group name="ReflectionDetailRadio">
-			<radio_item label="Terrain et Arbres" name="0"/>
-			<radio_item label="Objets statiques" name="1"/>
-			<radio_item label="Objets et avatars" name="2"/>
+			<radio_item label="Terrain et arbres" name="0"/>
+			<radio_item label="Tous les objets statiques" name="1"/>
+			<radio_item label="Tous les objets et avatars" name="2"/>
 			<radio_item label="Tout" name="3"/>
 		</radio_group>
 		<text name="AvatarRenderingText">
-			Rendu de l&apos;avatar :
+			Rendu de l&apos;avatar :
 		</text>
 		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Mouvement des habits" name="AvatarCloth"/>
-		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
+		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Nombre de particules max. :" label_width="143" name="MaxParticleCount"/>
-		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
+		<slider label="Nombre de particules max. :" label_width="143" name="MaxParticleCount"/>
+		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
-			Détails des rendus :
+			Détails des rendus :
 		</text>
 		<slider label="  Objets :" name="ObjectMeshDetail"/>
 		<slider label="  Flexiprims :" name="FlexibleMeshDetail"/>
@@ -95,7 +95,7 @@
 			Faible
 		</text>
 		<text name="LightingDetailText">
-			Sources lumineuses :
+			Sources lumineuses :
 		</text>
 		<radio_group name="LightingDetailRadio">
 			<radio_item label="Soleil et lune uniquement" name="SunMoon"/>
@@ -105,8 +105,8 @@
 			Rendu du terrain :
 		</text>
 		<radio_group name="TerrainDetailRadio">
-			<radio_item label="Faible" name="0"/>
-			<radio_item label="Élevé" name="2"/>
+			<radio_item label="Bas" name="0"/>
+			<radio_item label="Haut" name="2"/>
 		</radio_group>
 	</panel>
 	<button label="Appliquer" label_selected="Appliquer" name="Apply"/>

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="telehub" title="TELEHUB" min_height="310" height="310"  >
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater height="310" min_height="310" name="telehub" title="TELEHUB">
 	<text name="status_text_connected">
 		Telehub verbunden mit Objekt [OBJECT]
 	</text>
@@ -9,17 +9,17 @@
 	<text name="help_text_connected">
 		Klicken Sie zum Entfernen auf „Trennen“.
 	</text>
-	<text name="help_text_not_connected" height="38" bottom_delta="-18" >
+	<text bottom_delta="-18" height="38" name="help_text_not_connected">
 		Wählen Sie ein Objekt und klicken Sie auf
 „Mit Telehub verbinden“.
 	</text>
-	<button label="Mit Telehub verbinden" name="connect_btn" width="122" />
-	<button label="Trennen" name="disconnect_btn" left="142" width="98" />
+	<button label="Mit Telehub verbinden" name="connect_btn" width="122"/>
+	<button label="Trennen" left="142" name="disconnect_btn" width="98"/>
 	<text name="spawn_points_text" width="230">
 		Spawn-Punkte (Positionen, nicht Objekte):
 	</text>
-	<button label="Spawn hinzufügen" name="add_spawn_point_btn" />
-	<button label="Spawn entfernen" name="remove_spawn_point_btn" />
+	<button label="Spawn hinzufügen" name="add_spawn_point_btn"/>
+	<button label="Spawn entfernen" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
 		Wählen Sie ein Objekt und klicken zur
 Positionsangabe auf „Hinzufügen“. Anschließend

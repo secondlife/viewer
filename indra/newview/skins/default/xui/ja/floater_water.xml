@@ -1,66 +1,52 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="水の高度な編集">
+	<floater.string name="WLDefaultWaterNames">
+		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
+	</floater.string>
 	<text name="KeyFramePresetsText">
 		水の事前設定：
 	</text>
-	<button label="新規" label_selected="新規" name="WaterNewPreset" />
-	<button label="保存" label_selected="保存" name="WaterSavePreset" />
-	<button label="削除" label_selected="削除" name="WaterDeletePreset" />
+	<button label="新規" label_selected="新規" name="WaterNewPreset"/>
+	<button label="保存" label_selected="保存" name="WaterSavePreset"/>
+	<button label="削除" label_selected="削除" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
 		<panel label="設定" name="Settings">
 			<text name="BHText">
 				水中のフォグ効果の色
 			</text>
-			<button label="?" name="WaterFogColorHelp" />
-			<color_swatch name="WaterFogColor"
-			     tool_tip="カラー・ピッカーをクリックして開く" />
+			<color_swatch name="WaterFogColor" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<text name="WaterFogDensText">
 				水中の透明度指数
 			</text>
-			<button label="?" name="WaterFogDensityHelp" />
 			<text name="WaterUnderWaterFogModText">
 				水中のフォグ効果加減
 			</text>
-			<button label="?" name="WaterUnderWaterFogModHelp" />
 			<text name="BDensText">
 				さざ波の反射スケール
 			</text>
-			<button label="?" name="WaterNormalScaleHelp" />
-			<text name="BHText2">
-				1
-			</text>
-			<text name="BHText3">
-				2
-			</text>
-			<text name="BHText4">
-				3
-			</text>
+			<slider label="1" name="WaterNormalScaleX"/>
+			<slider label="2" name="WaterNormalScaleY"/>
+			<slider label="3" name="WaterNormalScaleZ"/>
 			<text name="HDText">
 				フレネル・スケール
 			</text>
-			<button label="?" name="WaterFresnelScaleHelp" />
 			<text name="FresnelOffsetText">
 				フレネル・オフセット
 			</text>
-			<button label="?" name="WaterFresnelOffsetHelp" />
 			<text name="DensMultText">
 				水面の屈折スケール
 			</text>
-			<button label="?" name="WaterScaleAboveHelp" />
 			<text name="WaterScaleBelowText">
 				水中の屈折スケール
 			</text>
-			<button label="?" name="WaterScaleBelowHelp" />
 			<text name="MaxAltText">
 				不透明度の増幅
 			</text>
-			<button label="?" name="WaterBlurMultiplierHelp" />
 		</panel>
 		<panel label="画像" name="Waves">
 			<text name="BHText">
 				大波の方向
 			</text>
-			<button label="?" name="WaterWave1Help" />
 			<text name="WaterWave1DirXText">
 				X
 			</text>
@@ -70,7 +56,6 @@
 			<text name="BHText2">
 				小波の方向
 			</text>
-			<button label="?" name="WaterWave2Help" />
 			<text name="WaterWave2DirXText">
 				X
 			</text>
@@ -80,10 +65,6 @@
 			<text name="BHText3">
 				ノーマル・マップ
 			</text>
-			<button label="?" name="WaterNormalMapHelp" />
 		</panel>
 	</tab_container>
-	<string name="WLDefaultWaterNames">
-		Default:Glassy:Pond:Murky:Second Plague:SNAKE!!!:Valdez
-	</string>
 </floater>

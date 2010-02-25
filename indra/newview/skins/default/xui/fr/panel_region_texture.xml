@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Textures du sol" name="Textures">
 	<text name="region_text_lbl">
 		Région :
@@ -44,6 +44,7 @@
 	</text>
 	<text name="height_text_lbl11">
 		En mètres, la valeur Bas correspond à la hauteur maximum de la texture n°1
+et la valeur Haut correspond à la hauteur minimum de la texture n°4.
 	</text>
 	<text name="height_text_lbl12">
 		et la valeur Haut correspond à la hauteur minimum de la texture n°4.
@@ -51,14 +52,14 @@
 	<text name="height_text_lbl13">
 		Nord-est
 	</text>
-	<spinner label="Bas" name="height_start_spin_0" />
-	<spinner label="Bas" name="height_start_spin_1" />
-	<spinner label="Bas" name="height_start_spin_2" />
-	<spinner label="Bas" name="height_start_spin_3" />
-	<spinner label="Haut" name="height_range_spin_0" />
-	<spinner label="Haut" name="height_range_spin_1" />
-	<spinner label="Haut" name="height_range_spin_2" />
-	<spinner label="Haut" name="height_range_spin_3" />
+	<spinner label="Bas" name="height_start_spin_0"/>
+	<spinner label="Bas" name="height_start_spin_1"/>
+	<spinner label="Bas" name="height_start_spin_2"/>
+	<spinner label="Bas" name="height_start_spin_3"/>
+	<spinner label="Haut" name="height_range_spin_0"/>
+	<spinner label="Haut" name="height_range_spin_1"/>
+	<spinner label="Haut" name="height_range_spin_2"/>
+	<spinner label="Haut" name="height_range_spin_3"/>
 	<text name="height_text_lbl14">
 		Ces valeurs représentent les limites de mélange pour les textures ci-dessus.
 	</text>
@@ -68,5 +69,5 @@
 	<text name="height_text_lbl16">
 		et la valeur HAUTE correspond à la hauteur MINIMUM de la Texture #4.
 	</text>
-	<button label="Appliquer" name="apply_btn" />
+	<button label="Appliquer" name="apply_btn"/>
 </panel>

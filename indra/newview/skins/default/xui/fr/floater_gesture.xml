@@ -1,18 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="GESTES UTILISÉS">
-	<text name="help_label">
-		Double-cliquez sur un geste pour jouer les animations
-et les sons.
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Lieux" name="gestures" title="GESTES">
+	<floater.string name="loading">
+		Chargement...
+	</floater.string>
+	<floater.string name="playing">
+		(lecture en cours)
+	</floater.string>
+	<floater.string name="copy_name">
+		Copie de [COPY_NAME]
+	</floater.string>
 	<scroll_list bottom_delta="-385" height="360" name="gesture_list">
-		<column label="Déclencheur" name="trigger" width="85" />
-		<column label="Touche" name="shortcut" />
-		<column label="" name="key" />
-		<column label="Nom" name="name" width="145"/>
+		<scroll_list.columns label="Nom" name="name" width="145"/>
+		<scroll_list.columns label="Chat" name="trigger" width="85"/>
+		<scroll_list.columns label="" name="key"/>
+		<scroll_list.columns label="Touche" name="shortcut"/>
 	</scroll_list>
-	<button label="Nouveau" name="new_gesture_btn" />
-	<button label="Inventaire" name="inventory_btn" />
-	<button label="Modifier" name="edit_btn" />
-	<button label="Jouer" name="play_btn" />
-	<button label="Stop" name="stop_btn" />
+	<panel label="bottom_panel" name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="Plus d&apos;options"/>
+		<button name="new_gesture_btn" tool_tip="Faire un nouveau geste"/>
+		<button name="activate_btn" tool_tip="Activer/désactiver le geste sélectionné"/>
+		<button name="del_btn" tool_tip="Supprimer ce geste"/>
+	</panel>
+	<button label="Modifier" name="edit_btn"/>
+	<button label="Jouer" name="play_btn"/>
+	<button label="Stop" name="stop_btn"/>
 </floater>

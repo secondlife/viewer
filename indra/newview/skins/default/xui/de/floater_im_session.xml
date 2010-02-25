@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="panel_im">
+	<layout_stack name="im_panels">
+		<layout_panel label="IM Steuerkonsole" name="panel_im_control_panel"/>
+		<layout_panel>
+			<line_editor label="Bis" name="chat_editor"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

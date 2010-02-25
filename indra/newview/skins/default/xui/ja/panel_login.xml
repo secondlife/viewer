@@ -7,13 +7,35 @@
 		http://secondlife.com/account/request.php?lang=ja
 	</panel.string>
 	<panel name="login_widgets">
-		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] ファーストネーム"/>
-		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] ラストネーム"/>
-		<text name="start_location_text">
-			開始位置：
+		<text name="first_name_text">
+			ファーストネーム：
 		</text>
+		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] ファーストネーム"/>
+		<text name="last_name_text">
+			ラストネーム：
+		</text>
+		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] ラストネーム"/>
+		<text name="password_text">
+			パスワード：
+		</text>
+		<button label="ログイン" label_selected="ログイン" name="connect_btn"/>
+		<text name="start_location_text">
+			ログイン位置：
+		</text>
+		<combo_box name="start_location_combo">
+			<combo_box.item label="最後にログアウトした場所" name="MyLastLocation"/>
+			<combo_box.item label="自宅（ホーム）" name="MyHome"/>
+			<combo_box.item label="＜地域名を入力＞" name="Typeregionname"/>
+		</combo_box>
+		<check_box label="パスワードを記憶" name="remember_check"/>
 		<text name="create_new_account_text">
 			新規アカウントを作成
+		</text>
+		<text name="forgot_password_text">
+			名前またはパスワードをお忘れですか？
+		</text>
+		<text name="channel_text">
+			[VERSION]
 		</text>
 	</panel>
 </panel>

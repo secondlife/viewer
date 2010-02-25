@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_buy_contents" title="INHALTE KAUFEN" min_width="300">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="300" name="floater_buy_contents" title="INHALT KAUFEN">
 	<text name="contains_text">
 		[NAME] enthält:
 	</text>
 	<text name="buy_text">
 		[AMOUNT] L$ von [NAME] kaufen?
 	</text>
-	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" width="73" />
-	<button label="Kaufen" label_selected="Kaufen" name="buy_btn" />
-	<check_box label="Kleidung jetzt anziehen" name="wear_check" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" width="73"/>
+	<button label="Kaufen" label_selected="Kaufen" name="buy_btn"/>
+	<check_box label="Kleidung jetzt anziehen" name="wear_check"/>
 	<text name="no_copy_text">
 		(kein Kopieren)
 	</text>

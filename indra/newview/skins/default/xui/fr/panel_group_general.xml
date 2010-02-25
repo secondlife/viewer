@@ -1,70 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Général" name="general_tab">
-	<string name="help_text">
-		L&apos;onglet Général contient les infos générales et les préférences du groupe ainsi que la liste des propriétaires et des membres visibles.
-	</string>
-	<string name="group_info_unchanged">
+	<panel.string name="help_text">
+		L&apos;onglet Général contient les informations générales et les préférences du groupe ainsi que la liste et les options des membres.
+
+Faites glisser le pointeur de la souris sur les options pour en savoir plus.
+	</panel.string>
+	<panel.string name="group_info_unchanged">
 		Le profil du groupe a changé.
-	</string>
-	<button label="?" label_selected="?" name="help_button"/>
-	<line_editor label="Saisissez le nom du groupe ici" name="group_name_editor"/>
-	<text name="group_name">
-		Saisissez le nom du groupe ici
-	</text>
-	<text name="prepend_founded_by">
-		Fondé par
-	</text>
-	<text left_delta="54" name="founder_name">
-		(en attente)
-	</text>
-	<text name="group_charter_label">
-		Charte du groupe
-	</text>
-	<texture_picker label="Logo du groupe" name="insignia" tool_tip="Cliquez pour sélectionner une image"/>
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		Extraction des données du résident en cours
+	</panel.string>
 	<text_editor name="charter">
 		Indiquez ici la charte de votre groupe
 	</text_editor>
-	<button label="Rejoindre (0L$)" label_selected="Rejoindre (0L$)" name="join_button"/>
-	<button label="Affichage détaillé" label_selected="Affichage détaillé" name="info_button"/>
-	<text name="text_owners_and_visible_members">
-		Propriétaires et membres visibles
-	</text>
-	<text name="text_owners_are_shown_in_bold">
-		(Les propriétaires apparaissent en gras)
-	</text>
 	<name_list name="visible_members">
-		<name_list.columns label="Nom du membre" name="name" relwidth="0.40"/>
+		<name_list.columns label="Membre" name="name" relwidth="0.40"/>
 		<name_list.columns label="Titre" name="title" relwidth="0.25"/>
-		<name_list.columns label="Dernière connexion" name="online" relwidth="0.35"/>
 	</name_list>
-	<text name="text_group_preferences">
-		Préférences
+	<text name="active_title_label">
+		Mon titre
 	</text>
+	<combo_box name="active_title" tool_tip="Indique le titre qui apparaît en face du nom de votre avatar lorsque votre groupe est actif."/>
+	<check_box label="Recevoir des notices" name="receive_notices" tool_tip="Indique si vous souhaitez recevoir les notices envoyées au groupe.  Décochez si ce groupe vous envoie des spams."/>
+	<check_box label="Afficher dans mon profil" name="list_groups_in_profile" tool_tip="Indique si vous voulez afficher ce groupe dans votre profil"/>
 	<panel name="preferences_container">
-		<check_box label="Afficher dans la recherche" name="show_in_group_list" tool_tip="Afficher ce groupe dans les résultats de recherche."/>
-		<check_box label="Inscription libre" name="open_enrollement" tool_tip="Indique si une invitation est nécessaire pour devenir membre de ce groupe."/>
-		<check_box label="Frais d&apos;inscription :" name="check_enrollment_fee" tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre."/>
-		<spinner name="spin_enrollment_fee" tool_tip="Si la case Frais d&apos;inscription est cochée, cela signifie qu&apos;il faut payer des frais pour devenir membre."/>
-		<combo_box name="group_mature_check" tool_tip="Indique si les informations sur votre groupe sont classées Mature." width="195">
-			<combo_box.item name="select_mature" label="- Type de public -"/>
-			<combo_box.item name="mature" label="Contenu Mature"/>
-			<combo_box.item name="pg" label="Contenu PG"/>
+		<check_box label="Inscription libre" name="open_enrollement" tool_tip="Indique si ce groupe autorise les nouveaux membres à le rejoindre sans y être invités."/>
+		<check_box label="Frais d&apos;inscription" name="check_enrollment_fee" tool_tip="Indique s&apos;il faut payer des frais d&apos;inscription pour rejoindre ce groupe"/>
+		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Les nouveaux membres doivent payer ces frais pour rejoindre le groupe quand l&apos;option Frais d&apos;inscription est cochée."/>
+		<check_box initial_value="true" label="Afficher dans la recherche" name="show_in_group_list" tool_tip="Permettre aux autres résidents de voir ce groupe dans les résultats de recherche"/>
+		<combo_box name="group_mature_check" tool_tip="Indique si les informations sur votre groupe sont classées Mature" width="195">
+			<combo_box.item label="Contenu PG" name="pg"/>
+			<combo_box.item label="Contenu Mature" name="mature"/>
 		</combo_box>
-		<panel name="title_container">
-			<text name="active_title_label">
-				Mon titre actuel
-			</text>
-			<combo_box name="active_title" tool_tip="Définit le titre qui apparaît près du nom de votre avatar lorsque ce groupe est actif."/>
-		</panel>
-		<check_box label="Recevoir les notices" name="receive_notices" tool_tip="Cochez si vous souhaitez recevoir les notices envoyées au groupe. Décochez si ce groupe vous envoie des spams."/>
-		<check_box label="Afficher dans mon profil" name="list_groups_in_profile" tool_tip="Indique si vous voulez que ce groupe apparaisse dans votre profil"/>
 	</panel>
-	<string name="incomplete_member_data_str">
-		Extraction des données du résident en cours
-	</string>
-	<string name="confirm_group_create_str">
-		La création de ce groupe coûte 100 L$. 
-Êtes-vous vraiment certain de vouloir dépenser 100 L$ pour créer ce groupe ?
-Sachez que si personne ne rejoint ce groupe sous 48h, il sera démantelé et ne pourra plus être utilisé.
-	</string>
 </panel>

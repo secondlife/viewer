@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="move_floater">
 	<string name="walk_forward_tooltip">
-		Vous déplacer vers l&apos;avant (appuyer sur la flèche vers le haut ou W)
+		Marcher en avant (appuyer sur la flèche vers le haut ou W)
 	</string>
 	<string name="walk_back_tooltip">
 		Marcher en arrière (appuyer sur la flèche vers le bas ou S)
@@ -21,15 +21,15 @@
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Tourner à gauche (appuyer sur la flèche de gauche ou sur A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Tourner à droite (appuyer sur la flèche de droite ou sur D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Vous envoler, appuyer sur E"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Atterrir, appuyer sur C"/>
-		<joystick_turn name="forward btn" tool_tip="Vous déplacer vers l&apos;avant (appuyer sur la flèche vers le haut ou W)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Voler vers le haut, appuyer sur E"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Voler vers le bas, appuyer sur C"/>
+		<joystick_turn name="forward btn" tool_tip="Marcher en avant (appuyer sur la flèche vers le haut ou W)"/>
 		<joystick_turn name="backward btn" tool_tip="Marcher en arrière (appuyer sur la flèche vers le bas ou S)"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="Mode marche"/>
-		<button label="" name="mode_run_btn" tool_tip="Mode courir"/>
-		<button label="" name="mode_fly_btn" tool_tip="Mode voler"/>
+		<button label="" name="mode_run_btn" tool_tip="Mode course"/>
+		<button label="" name="mode_fly_btn" tool_tip="Mode vol"/>
 		<button label="Atterrir" name="stop_fly_btn" tool_tip="Atterrir"/>
 	</panel>
 </floater>

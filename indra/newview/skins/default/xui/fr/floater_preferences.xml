@@ -1,9 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Preferences" title="PRÉFÉRENCES" min_width="330" width="626">
-	<button label="À propos" label_selected="À propos" name="About..." />
-	<button label="OK" label_selected="OK" name="OK" />
-	<button label="Annuler" label_selected="Annuler" name="Cancel" />
-	<button label="Appliquer" label_selected="Appliquer" name="Apply" />
-	<button label="Aide" label_selected="Aide" name="Help" />
-	<tab_container name="pref core" tab_width="126" width="626" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater min_width="330" name="Preferences" title="PRÉFÉRENCES" width="626">
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
+	<tab_container name="pref core" tab_width="126" width="626">
+		<panel label="Général" name="general"/>
+		<panel label="Graphiques" name="display"/>
+		<panel label="Confidentialité" name="im"/>
+		<panel label="Son" name="audio"/>
+		<panel label="Chat" name="chat"/>
+		<panel label="Alertes" name="msgs"/>
+		<panel label="Configuration" name="input"/>
+		<panel label="Avancées" name="advanced1"/>
+	</tab_container>
 </floater>

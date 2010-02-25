@@ -214,7 +214,10 @@ public:
 	// LLTabContainer
 	void childShowTab(const std::string& id, const std::string& tabname, bool visible = true);
 	LLPanel *childGetVisibleTab(const std::string& id) const;
+
+	// Find a child with a nonempty Help topic 
 	LLPanel *childGetVisibleTabWithHelp();
+	LLPanel *childGetVisiblePanelWithHelp();
 
 	// LLTextBox/LLTextEditor/LLLineEditor
 	void childSetText(const std::string& id, const LLStringExplicit& text) { childSetValue(id, LLSD(text)); }

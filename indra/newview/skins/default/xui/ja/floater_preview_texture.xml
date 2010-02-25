@@ -9,9 +9,38 @@
 	<text name="desc txt">
 		説明：
 	</text>
-	<button label="保存" name="Keep"/>
-	<button label="削除" name="Discard"/>
+	<button label="OK" name="Keep"/>
+	<button label="キャンセル" name="Discard"/>
 	<text name="dimensions">
 		[WIDTH]px x [HEIGHT]px
 	</text>
+	<text name="aspect_ratio">
+		縦横比のプレビュー
+	</text>
+	<combo_box name="combo_aspect_ratio" tool_tip="固定した縦横比のプレビュー">
+		<combo_item name="Unconstrained">
+			非拘束
+		</combo_item>
+		<combo_item name="1:1" tool_tip="グループ記章か現実世界のプロフィール">
+			1:1
+		</combo_item>
+		<combo_item name="4:3" tool_tip="[SECOND_LIFE] プロフィール">
+			4:3
+		</combo_item>
+		<combo_item name="10:7" tool_tip="クラシファイド広告、検索一覧、ランドマーク">
+			10:7
+		</combo_item>
+		<combo_item name="3:2" tool_tip="土地情報">
+			3:2
+		</combo_item>
+		<combo_item name="16:10">
+			16:10
+		</combo_item>
+		<combo_item name="16:9" tool_tip="プロフィールのピック">
+			16:9
+		</combo_item>
+		<combo_item name="2:1">
+			2:1
+		</combo_item>
+	</combo_box>
 </floater>

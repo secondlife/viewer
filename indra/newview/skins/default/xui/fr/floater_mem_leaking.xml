@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="MemLeak" title="Simuler une fuite de mémoire">
+<floater name="MemLeak" title="SIMULER UNE FUITE DE MÉMOIRE">
 	<spinner label="Vitesse de la fuite (octets) :" name="leak_speed"/>
 	<spinner label="Max mémoire perdue (Mo) :" name="max_leak"/>
 	<text name="total_leaked_label">

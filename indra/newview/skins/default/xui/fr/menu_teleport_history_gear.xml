@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Teleport History Gear Context Menu">
+	<menu_item_call label="Développer tous les dossiers" name="Expand all folders"/>
+	<menu_item_call label="Réduire tous les dossiers" name="Collapse all folders"/>
+	<menu_item_call label="Effacer l&apos;historique des téléportations" name="Clear Teleport History"/>
+</menu>

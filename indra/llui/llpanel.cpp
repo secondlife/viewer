@@ -898,6 +898,44 @@ LLPanel *LLPanel::childGetVisibleTabWithHelp()
 	return ::childGetVisibleTabWithHelp(this);
 }
 
+static LLPanel *childGetVisiblePanelWithHelp(LLView *parent)
+{
+	LLView *child;
+
+	// look through immediate children first for an active panel with help
+	for (child = parent->getFirstChild(); child; child = parent->findNextSibling(child))
+	{
+		// do we have a panel with a help topic?
+		LLPanel *panel = dynamic_cast<LLPanel *>(child);
+		if (panel && panel->getVisible() && !panel->getHelpTopic().empty())
+		{
+			return panel;
+		}
+	}
+
+	// then try a bit harder and recurse through all children
+	for (child = parent->getFirstChild(); child; child = parent->findNextSibling(child))
+	{
+		if (child->getVisible())
+		{
+			LLPanel* panel = ::childGetVisiblePanelWithHelp(child);
+			if (panel)
+			{
+				return panel;
+			}
+		}
+	}
+
+	// couldn't find any active panels with a help topic string
+	return NULL;
+}
+
+LLPanel *LLPanel::childGetVisiblePanelWithHelp()
+{
+	// find a visible tab with a help topic (to determine help context)
+	return ::childGetVisiblePanelWithHelp(this);
+}
+
 void LLPanel::childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) )
 {
 	LLLineEditor* child = findChild<LLLineEditor>(id);

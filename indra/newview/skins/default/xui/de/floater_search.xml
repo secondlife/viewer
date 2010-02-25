@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_search" title="SUCHEN">
+	<floater.string name="loading_text">
+		Wird geladen...
+	</floater.string>
+	<floater.string name="done_text">
+		Fertig
+	</floater.string>
+</floater>

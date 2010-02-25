@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="ColorPicker" title="カラー・ピッカー">
+<floater name="ColorPicker" title="カラーピッカー">
 	<text name="r_val_text">
 		赤：
 	</text>
@@ -21,11 +21,11 @@
 	<check_box label="今すぐ適用" name="apply_immediate"/>
 	<button label="" label_selected="" name="color_pipette"/>
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
-	<button label="OK" label_selected="選択" name="select_btn"/>
+	<button label="Ok" label_selected="Ok" name="select_btn"/>
 	<text name="Current color:">
 		現在の色：
 	</text>
 	<text name="(Drag below to save.)">
-		ドラッグして保存
+		（下にドラッグして保存）
 	</text>
 </floater>

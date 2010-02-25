@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Statistics" title="Statistik">
+<floater name="Statistics" title="STATISTIKEN">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view label="Basic" name="basic">
@@ -43,19 +43,19 @@
 					<stat_bar label="Eingerastete Objekte" name="physicspinnedtasks"/>
 					<stat_bar label="Niedrig LOD-Objekte" name="physicslodtasks"/>
 					<stat_bar label="Zugeordneter Speicher" name="physicsmemoryallocated"/>
-					<stat_bar label="Agent Updates/Sek" name="simagentups"/>
-					<stat_bar label="Haupt-Agenten" name="simmainagents"/>
-					<stat_bar label="Child-Agenten" name="simchildagents"/>
-					<stat_bar label="Objekte" name="simobjects"/>
-					<stat_bar label="Aktive Objekte" name="simactiveobjects"/>
-					<stat_bar label="Aktive Skripts" name="simactivescripts"/>
-					<stat_bar label="Skript-Events" name="simscripteps"/>
-					<stat_bar label="Paketeingang" name="siminpps"/>
-					<stat_bar label="Paketausgang" name="simoutpps"/>
-					<stat_bar label="Ausstehende Downloads" name="simpendingdownloads"/>
-					<stat_bar label="Ausstehende Uploads" name="simpendinguploads"/>
-					<stat_bar label="Gesamtanzahl „Unacked&quot; Bytes" name="simtotalunackedbytes"/>
 				</stat_view>
+				<stat_bar label="Agent-Aktualisierungen/Sek" name="simagentups"/>
+				<stat_bar label="Haupt-Agenten" name="simmainagents"/>
+				<stat_bar label="Child-Agenten" name="simchildagents"/>
+				<stat_bar label="Objekte" name="simobjects"/>
+				<stat_bar label="Aktive Objekte" name="simactiveobjects"/>
+				<stat_bar label="Aktive Skripts" name="simactivescripts"/>
+				<stat_bar label="Skript-Events" name="simscripteps"/>
+				<stat_bar label="Paketeingang" name="siminpps"/>
+				<stat_bar label="Paketausgang" name="simoutpps"/>
+				<stat_bar label="Ausstehende Downloads" name="simpendingdownloads"/>
+				<stat_bar label="Ausstehende Uploads" name="simpendinguploads"/>
+				<stat_bar label="Gesamtanzahl „Unacked&quot; Bytes" name="simtotalunackedbytes"/>
 				<stat_view label="Zeit (ms)" name="simperf">
 					<stat_bar label="Gesamtzeit Frame" name="simframemsec"/>
 					<stat_bar label="Netto-Zeit" name="simnetmsec"/>

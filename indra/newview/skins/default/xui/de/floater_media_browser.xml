@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_about" title="MEDIENBROWSER">
+<floater name="floater_about" title="MEDIEN-BROWSER">
 	<floater.string name="home_page_url">
 		http://de.secondlife.com
 	</floater.string>

@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_auction" title="LINDEN-LANDVERKAUF STARTEN">
-	<check_box label="Gelben Auswahlrahmen einschließen" name="fence_check" />
-	<button label="Foto" label_selected="Foto" name="snapshot_btn" />
-	<button label="OK" label_selected="OK" name="ok_btn" />
-	<text name="already for sale">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="LINDEN LAND VERKAUF STARTEN">
+	<floater.string name="already for sale">
 		Parzellen, die bereits zum Verkauf stehen, können nicht auktioniert werden.
-	</text>
+	</floater.string>
+	<check_box initial_value="true" label="Gelben Auswahlrahmen einschließen" name="fence_check"/>
+	<button label="Foto" label_selected="Foto" name="snapshot_btn"/>
+	<button label="An jeden verkaufen" label_selected="An jeden verkaufen" name="sell_to_anyone_btn"/>
+	<button label="Einstellungen löschen" label_selected="Einstellungen löschen" name="reset_parcel_btn"/>
+	<button label="Auktion beginnen" label_selected="Auktion beginnen" name="start_auction_btn"/>
 </floater>

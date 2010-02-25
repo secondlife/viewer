@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="BEACONS">
+<floater name="beacons" title="STRAHLEN">
 	<panel name="beacons_panel">
 		<text name="label_show">
 			Anzeigen:
 		</text>
-		<check_box label="Beacons" name="beacons"/>
+		<check_box label="Strahlen" name="beacons"/>
 		<check_box label="Glanzlichter" name="highlights"/>
-		<text name="beacon_width_label" tool_tip="Beacon-Breite">
+		<text name="beacon_width_label" tool_tip="Strahlbreite">
 			Breite:
 		</text>
 		<text name="label_objects">

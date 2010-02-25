@@ -213,7 +213,6 @@ set(viewer_SOURCE_FILES
     llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
-    llfloatervolumepulldown.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
@@ -349,6 +348,7 @@ set(viewer_SOURCE_FILES
     llpanelshower.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
+    llpanelvolumepulldown.cpp
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
@@ -855,6 +855,7 @@ set(viewer_HEADER_FILES
     llpanelshower.h
     llpanelteleporthistory.h
     llpanelvolume.h
+    llpanelvolumepulldown.h
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Domaine" name="Estate">
-	<text name="estate_help_text" bottom="-34">
+	<text bottom="-34" name="estate_help_text">
 		Les changements apportés aux paramètres
 de cet onglet auront des répercussions sur
 toutes les régions du domaine.
 	</text>
-	<text name="estate_text" bottom_delta="-34">
+	<text bottom_delta="-34" name="estate_text">
 		Domaine :
 	</text>
 	<text name="estate_name">
 		(inconnu)
 	</text>
 	<text name="owner_text">
-		Propriétaire :
+		Propriétaire :
 	</text>
 	<text name="estate_owner">
 		(inconnu)
@@ -20,8 +20,8 @@ toutes les régions du domaine.
 	<text name="Only Allow">
 		Limiter l&apos;accès aux résidents qui :
 	</text>
-	<check_box label="Ont enregistré leurs infos de paiement" name="limit_payment" tool_tip="Bannir les résidents non identifés."/>
-	<check_box label="Ont fait vérifier leur âge" name="limit_age_verified" tool_tip="Bannir les résidents dont l&apos;âge n&apos;a pas été vérifié. Pour plus d&apos;infos, consultez la page support.secondlife.com."/>
+	<check_box label="Ont enregistré leurs infos de paiement" name="limit_payment" tool_tip="Interdire les résidents non identifiés"/>
+	<check_box label="Ont fait vérifier leur âge" name="limit_age_verified" tool_tip="Interdire les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
 	<check_box label="Autoriser les chats vocaux" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">

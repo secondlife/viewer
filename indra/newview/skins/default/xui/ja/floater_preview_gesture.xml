@@ -1,14 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
-	<string name="stop_txt">
+	<floater.string name="step_anim">
+		プレイするアニメーション：
+	</floater.string>
+	<floater.string name="step_sound">
+		プレイするサウンド：
+	</floater.string>
+	<floater.string name="step_chat">
+		発言するチャット：
+	</floater.string>
+	<floater.string name="step_wait">
+		待機：
+	</floater.string>
+	<floater.string name="stop_txt">
 		止まる
-	</string>
-	<string name="preview_txt">
+	</floater.string>
+	<floater.string name="preview_txt">
 		プレビュー
-	</string>
-	<string name="none_text">
+	</floater.string>
+	<floater.string name="none_text">
 		-- なし --
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		ジェスチャー： [NAME]
+	</floater.string>
 	<text name="desc_label">
 		説明：
 	</text>
@@ -22,35 +37,28 @@
 	<text name="key_label">
 		ショートカット・キー：
 	</text>
-	<combo_box label="なし" name="modifier_combo" left="160"/>
+	<combo_box label="なし" left="160" name="modifier_combo"/>
 	<combo_box label="なし" name="key_combo"/>
 	<text name="library_label">
 		ライブラリ：
 	</text>
+	<scroll_list name="library_list"/>
+	<button label="追加＞＞" name="add_btn"/>
 	<text name="steps_label">
 		手順：
 	</text>
-	<scroll_list name="library_list">
-		アニメーション
-サウンド
-チャット
-待機
-	</scroll_list>
-	<button label="追加＞＞" name="add_btn"/>
-	<button label="上に移動" name="up_btn"/>
-	<button label="下に移動" name="down_btn"/>
+	<button label="上" name="up_btn"/>
+	<button label="下" name="down_btn"/>
 	<button label="削除" name="delete_btn"/>
-	<text name="help_label">
-		待機ステップを追加しない限り、
-すべてのステップが同時に行われ
-ます。
-	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start" label="開始" />
-		<radio_item name="stop" label="停止" />
+		<radio_item label="開始" name="start"/>
+		<radio_item label="停止" name="stop"/>
 	</radio_group>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="秒表示の時間" name="wait_time_check"/>
+	<text name="help_label">
+		待機ステップを入れない限りは、すべてのステップが同時に起こります。
+	</text>
 	<check_box label="アクティブ" left="120" name="active_check" tool_tip="アクティブ・ジェスチャーは、トリガー・フレーズを使うか、またはホット・キーを押すことによってトリガーできます。  1つのショートカット・キーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>

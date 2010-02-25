@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_buy_contents" title="ACHETER CE CONTENU">
+<floater name="floater_buy_contents" title="ACHETER DES CONTENUS">
 	<text name="contains_text">
 		[NAME] contient :
 	</text>

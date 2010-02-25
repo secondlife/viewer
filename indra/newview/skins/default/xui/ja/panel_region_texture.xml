@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="地面テクスチャー" name="Textures">
 	<text name="region_text_lbl">
 		地域：
@@ -36,22 +36,23 @@
 	<text name="height_text_lbl9">
 		北東
 	</text>
-	<spinner label="低" name="height_start_spin_0" />
-	<spinner label="低" name="height_start_spin_1" />
-	<spinner label="低" name="height_start_spin_2" />
-	<spinner label="低" name="height_start_spin_3" />
-	<spinner label="高" name="height_range_spin_0" />
-	<spinner label="高" name="height_range_spin_1" />
-	<spinner label="高" name="height_range_spin_2" />
-	<spinner label="高" name="height_range_spin_3" />
+	<spinner label="低" name="height_start_spin_0"/>
+	<spinner label="低" name="height_start_spin_1"/>
+	<spinner label="低" name="height_start_spin_2"/>
+	<spinner label="低" name="height_start_spin_3"/>
+	<spinner label="高" name="height_range_spin_0"/>
+	<spinner label="高" name="height_range_spin_1"/>
+	<spinner label="高" name="height_range_spin_2"/>
+	<spinner label="高" name="height_range_spin_3"/>
 	<text name="height_text_lbl10">
-		これらの数字は、上記のテクスチャーをブレンドする範囲を表します。
+		数値は上のテクスチャのブレンド範囲を示します
 	</text>
 	<text name="height_text_lbl11">
-		計測の単位はメートルで、「低」の値はテクスチャー#1の表示高さの最大値です。
+		計測単位はメートルで、「低」の値は 1 番のテクスチャの高さの最大値です。
+「高」の値は、4 番のテクスチャの高さの最低値です。
 	</text>
 	<text name="height_text_lbl12">
 		そして「高」の値はテクスチャー#4の高さの下限となります。
 	</text>
-	<button label="適用" name="apply_btn" />
+	<button label="適用" name="apply_btn"/>
 </panel>

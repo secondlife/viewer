@@ -260,7 +260,7 @@
      width="200">
         My effects:
     </text>
-  <text
+    <text
       type="string"
       length="1"
       follows="left|top"
@@ -270,16 +270,23 @@
       name="title_afk_text"
       width="190">
     Away timeout:
-  </text>
+    </text>
     <color_swatch
-     control_name="EffectColor"
+	 can_apply_immediately="true"
      follows="left|top"
      height="50"
      layout="topleft"
      left="50"
      name="effect_color_swatch"
      tool_tip="Click to open Color Picker"
-     width="38" />
+     width="38">
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="EffectColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="EffectColor" />
+	</color_swatch>
   <combo_box
             height="23"
             layout="topleft"

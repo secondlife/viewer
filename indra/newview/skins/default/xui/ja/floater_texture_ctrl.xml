@@ -1,23 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="texture picker" title="選択：テクスチャー">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="選択： テクスチャ">
 	<string name="choose_picture">
 		クリックして写真を選択
 	</string>
 	<text name="Multiple">
-		複数
+		複数のテクスチャ
 	</text>
 	<text name="unknown">
-		寸法: [DIMENSIONS]
+		サイズ： [DIMENSIONS]
 	</text>
-	<button label="ﾃﾞﾌｫﾙﾄ" label_selected="ﾃﾞﾌｫﾙﾄ" name="Default" />
-	<button label="なし" label_selected="なし" name="None" />
-	<button label="ブランク" label_selected="ブランク" name="Blank" />
-	<check_box label="フォルダを表示" name="show_folders_check" />
-	<search_editor label="ここにタイプして検索" name="inventory search editor" />
-	<check_box label="ただちに適用" name="apply_immediate_check" />
-	<button label="" label_selected="" name="Pipette" />
-	<button label="取り消し" label_selected="取り消し" name="Cancel" />
-	<button label="選択" label_selected="選択" name="Select" />
+	<button label="ﾃﾞﾌｫﾙﾄ" label_selected="ﾃﾞﾌｫﾙﾄ" name="Default"/>
+	<button label="なし" label_selected="なし" name="None"/>
+	<button label="ブランク" label_selected="ブランク" name="Blank"/>
+	<check_box label="フォルダを表示" name="show_folders_check"/>
+	<search_editor label="テクスチャをフィルター" name="inventory search editor"/>
+	<check_box label="今すぐ適用" name="apply_immediate_check"/>
+	<button label="" label_selected="" name="Pipette"/>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<button label="Ok" label_selected="Ok" name="Select"/>
 	<text name="pick title">
 		ピック:
 	</text>

@@ -3,4 +3,5 @@
 	<menu_item_call label="SLurl kopieren" name="copy"/>
 	<menu_item_call label="Löschen" name="delete"/>
 	<menu_item_call label="Auswahl erstellen" name="pick"/>
+	<menu_item_call label="Zu Favoritenleiste hinzufügen" name="add_to_favbar"/>
 </toggleable_menu>

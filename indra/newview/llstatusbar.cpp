@@ -42,7 +42,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
 #include "llfloaterlagmeter.h"
-#include "llfloatervolumepulldown.h"
+#include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
 #include "llhudicon.h"
@@ -204,6 +204,21 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	addChild(mSGPacketLoss);
 
 	childSetActionTextbox("stat_btn", onClickStatGraph);
+
+	mPanelVolumePulldown = new LLPanelVolumePulldown();
+	addChild(mPanelVolumePulldown);
+
+	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
+	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
+	volume_pulldown_rect.setLeftTopAndSize(volbtn->getRect().mLeft -
+	     (volume_pulldown_rect.getWidth() - volbtn->getRect().getWidth())/2,
+			       volbtn->calcScreenRect().mBottom,
+			       volume_pulldown_rect.getWidth(),
+			       volume_pulldown_rect.getHeight());
+
+	mPanelVolumePulldown->setShape(volume_pulldown_rect);
+	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelVolumePulldown->setVisible(FALSE);
 }
 
 LLStatusBar::~LLStatusBar()
@@ -501,7 +516,7 @@ static void onClickScriptDebug(void*)
 void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
 {
 	// show the master volume pull-down
-	LLFloaterReg::showInstance("volume_pulldown");
+	gStatusBar->mPanelVolumePulldown->setVisible(TRUE);
 }
 
 static void onClickVolume(void* data)

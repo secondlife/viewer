@@ -316,7 +316,7 @@
          left="0"
          mouse_opaque="false"
          name="add_friend"
-         tool_tip="Offer friendship to the resident"
+         tool_tip="Offer friendship to the Resident"
          top="5"
          width="80" />
         <button

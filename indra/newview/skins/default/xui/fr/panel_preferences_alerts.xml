@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Pop-ups" name="popups" title="Pop-ups">
-	<text name="text_box">
-		Ne pas afficher les pop-ups :
+	<text name="tell_me_label">
+		Me prévenir :
+	</text>
+	<check_box label="Quand je dépense ou que je reçois des L$" name="notify_money_change_checkbox"/>
+	<check_box label="Quand mes amis se connectent ou se déconnectent" name="friends_online_notify_checkbox"/>
+	<text name="show_label">
+		Toujours afficher ces alertes :
 	</text>
 	<text name="dont_show_label">
-		Ne pas afficher ces pop-ups :
+		Ne jamais afficher ces alertes :
 	</text>
-	<button label="Activer ce pop-up" label_selected="Autoriser ce pop-up" name="enable_popup"/>
-	<text name="show_label">
-		Afficher ces pop-ups :
-	</text>
-	<button label="Désactiver tous les pop-ups" name="skip_dialogs_btn" tool_tip="Désactiver tous les pop-ups et les notifications envoyées lors d&apos;un premier usage." width="185"/>
-	<text name="text_box2">
-		Offres de notes, textures et repères :
-	</text>
-	<button label="Activer tous les pop-ups" label_selected="Réinitialiser les dialogues &apos;Afficher la prochaine fois&apos;..." name="reset_dialogs_btn" tool_tip="Activer tous les pop-ups et les notifications envoyées lors d&apos;un premier usage." width="185"/>
-	<check_box label="Accepter automatiquement" name="accept_new_inventory"/>
-	<check_box label="Afficher après avoir accepté" name="show_new_inventory"/>
-	<check_box label="Ouvrir l&apos;inventaire et sélectionner les objets reçus" name="show_in_inventory"/>
 </panel>

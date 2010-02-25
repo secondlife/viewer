@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="容姿" name="appearance panel">
+	<string name="No Outfit" value="アウトフィットなし"/>
+	<panel name="panel_currentlook">
+		<button label="編集" name="editappearance_btn"/>
+		<text name="currentlook_title">
+			着用中のアウトフィット：
+		</text>
+		<text name="currentlook_name">
+			マイ アウトフィット
+		</text>
+	</panel>
+	<filter_editor label="フィルター" name="Filter"/>
+	<button label="装着" name="wear_btn"/>
+	<button label="新しいアウトフィット" name="newlook_btn"/>
+</panel>

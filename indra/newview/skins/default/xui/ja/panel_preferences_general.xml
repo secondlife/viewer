@@ -1,90 +1,68 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="一般" name="general_panel">
-	<combo_box name="start_location_combo">
-		<combo_box.item name="MyHome" tool_tip="常に自宅（ホーム）にログイン" label="自宅（ホーム）"/>
-		<combo_box.item name="MyLastLocation" tool_tip="常に最後にいた場所にログイン" label="最後にログアウトした場所"/>
-	</combo_box>
-	<check_box label="ログイン画面にログイン位置を表示" name="show_location_checkbox"/>
-	<combo_box name="fade_out_combobox">
-		<combo_box.item name="Never" label="なし"/>
-		<combo_box.item name="Show Temporarily" label="一時的に表示"/>
-		<combo_box.item name="Always" label="いつも"/>
-	</combo_box>
-	<check_box label="小さなアバター名" name="small_avatar_names_checkbox"/>
-	<check_box label="画面上で自分の名前を隠す" name="show_my_name_checkbox"/>
-	<text name="group_titles_textbox">
-		グループ・タイトル：
+	<text name="language_textbox">
+		言語：
 	</text>
-	<check_box label="グループ・タイトルをすべて非表示" name="show_all_title_checkbox"/>
-	<check_box label="画面上で自分のグループ・タイトルを隠す" name="show_my_title_checkbox"/>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="カラー・ピッカーをクリックして開く"/>
-	<text name="UI Size:">
-		UI サイズ：
-	</text>
-	<check_box label="解像度独立スケールを使用" name="ui_auto_scale"/>
-	<spinner label="退席までの時間：" name="afk_timeout_spinner"/>
-	<check_box label="リンデン・ドル（L$）の支払い/受け取りを通知" name="notify_money_change_checkbox"/>
-	<text name="maturity_desired_label">
-		レーティング区分：
+	<combo_box name="language_combobox">
+		<combo_box.item label="システムデフォルト" name="System Default Language"/>
+		<combo_box.item label="English （英語）" name="English"/>
+		<combo_box.item label="Dansk （デンマーク語） – ベータ" name="Danish"/>
+		<combo_box.item label="Deutsch （ドイツ語） – ベータ" name="Deutsch(German)"/>
+		<combo_box.item label="Español （スペイン語） – ベータ" name="Spanish"/>
+		<combo_box.item label="Français （フランス語） – ベータ" name="French"/>
+		<combo_box.item label="Italiano （イタリア語） - ベータ" name="Italian"/>
+		<combo_box.item label="Nederlands （オランダ語） - ベータ" name="Dutch"/>
+		<combo_box.item label="Polski （ポーランド語） - ベータ" name="Polish"/>
+		<combo_box.item label="Português （ポルトガル語） – ベータ" name="Portugese"/>
+		<combo_box.item label="日本語 – ベータ" name="(Japanese)"/>
+		<combo_box.item label="テスト言語" name="TestLanguage"/>
+	</combo_box>
+	<text name="language_textbox2">
+		（再起動後に反映）
 	</text>
 	<text name="maturity_desired_prompt">
 		アクセスしたいコンテンツ：
 	</text>
+	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item name="Desired_Adult" label="PG、Mature、Adult"/>
-		<combo_box.item name="Desired_Mature" label="PGとMature"/>
-		<combo_box.item name="Desired_PG" label="PG"/>
+		<combo_box.item label="PG、Mature、Adult" name="Desired_Adult"/>
+		<combo_box.item label="PGとMature" name="Desired_Mature"/>
+		<combo_box.item label="PG" name="Desired_PG"/>
 	</combo_box>
-	<text name="maturity_desired_textbox">
-		PG
-	</text>
 	<text name="start_location_textbox">
 		ログイン位置：
 	</text>
-	<text name="show_names_textbox">
-		名前を表示：
+	<combo_box name="start_location_combo">
+		<combo_box.item label="最後にログアウトした場所" name="MyLastLocation" tool_tip="常に最後にいた場所にログイン"/>
+		<combo_box.item label="自宅（ホーム）" name="MyHome" tool_tip="常に自宅（ホーム）にログイン"/>
+	</combo_box>
+	<check_box initial_value="true" label="ログイン画面に表示する" name="show_location_checkbox"/>
+	<text name="name_tags_textbox">
+		名前の表示：
 	</text>
+	<radio_group name="Name_Tag_Preference">
+		<radio_item label="オフ" name="radio"/>
+		<radio_item label="オン" name="radio2"/>
+		<radio_item label="一時的に表示" name="radio3"/>
+	</radio_group>
+	<check_box label="私の名前を表示" name="show_my_name_checkbox1"/>
+	<check_box initial_value="true" label="小さいアバター名" name="small_avatar_names_checkbox"/>
+	<check_box label="グループタイトルを表示" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
-		自分の効果の色：
+		私のビームの色：
 	</text>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="カラー・ピッカーをクリックして開く"/>
+	<text name="title_afk_text">
+		一時退席までの時間：
+	</text>
+	<spinner label="" name="afk_timeout_spinner"/>
 	<text name="seconds_textbox">
 		秒
 	</text>
-	<text name="crash_report_textbox">
-		クラッシュ報告：
+	<text name="text_box3">
+		取り込み中モード時の返事：
 	</text>
-	<text name="language_textbox">
-		言語：
-	</text>
-	<text name="language_textbox2">
-		（再起動にて反映）
-	</text>
-	<string name="region_name_prompt">
-		&lt;地域の名前入力&gt;
-	</string>
-	<combo_box name="crash_behavior_combobox">
-		<combo_box.item name="Askbeforesending" label="送る前に確認する"/>
-		<combo_box.item name="Alwayssend" label="常に送信"/>
-		<combo_box.item name="Neversend" label="送信しない"/>
-	</combo_box>
-	<combo_box name="language_combobox">
-		<combo_box.item name="System Default Language" label="システム・デフォルト"/>
-		<combo_box.item name="English" label="English （英語）"/>
-		<combo_box.item name="Danish" label="Dansk （デンマーク語） – ベータ"/>
-		<combo_box.item name="Deutsch(German)" label="Deutsch （ドイツ語） – ベータ"/>
-		<combo_box.item name="Spanish" label="Español （スペイン語） – ベータ"/>
-		<combo_box.item name="French" label="Français （フランス語） – ベータ"/>
-		<combo_box.item name="Italian" label="Italiano （イタリア語） - ベータ"/>
-		<combo_box.item name="Hungarian" label="Magyar （ハンガリー語） - ベータ"/>
-		<combo_box.item name="Dutch" label="Nederlands （オランダ語） - ベータ"/>
-		<combo_box.item name="Polish" label="Polski （ポーランド語） - ベータ"/>
-		<combo_box.item name="Portugese" label="Português （ポルトガル語） – ベータ"/>
-		<combo_box.item name="Russian" label="Русский （ロシア語） - ベータ"/>
-		<combo_box.item name="Turkish" label="Türkçe （トルコ語） - ベータ"/>
-		<combo_box.item name="Ukrainian" label="Українська （ウクライナ語） - ベータ"/>
-		<combo_box.item name="Chinese" label="中文 （简体） （中国語） - ベータ"/>
-		<combo_box.item name="(Japanese)" label="日本語 – ベータ"/>
-		<combo_box.item name="(Korean)" label="한국어 （韓国語） – ベータ"/>
-	</combo_box>
-	<check_box label="言語をオブジェクトと共有" name="language_is_public" tool_tip="優先言語をインワールドのオブジェクトが認識する"/>
+	<text_editor name="busy_response">
+		log_in_to_change
+	</text_editor>
 </panel>

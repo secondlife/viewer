@@ -120,7 +120,7 @@
          left="0"
          mouse_opaque="false"
          name="add_friend"
-         tool_tip="Offer friendship to the resident"
+         tool_tip="Offer friendship to the Resident"
          top="5"
          width="80" />
         <button
@@ -139,7 +139,7 @@
          label="Call"
          layout="topleft"
          name="call"
-         tool_tip="Call this resident"
+         tool_tip="Call this Resident"
          left_pad="3"
          top="5"
          width="45" />
@@ -150,7 +150,7 @@
          label="Map"
          layout="topleft"
          name="show_on_map_btn"
-         tool_tip="Show the resident on the map"
+         tool_tip="Show the Resident on the map"
          top="5"
          left_pad="3"
          width="45" />

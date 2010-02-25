@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Favoris" name="panel_picks">
+	<string name="no_picks" value="Pas de favoris"/>
+	<string name="no_classifieds" value="Pas de petites annonces"/>
+	<text name="empty_picks_panel_text">
+		Il n&apos;y a pas de favoris/petites annonces ici
+	</text>
+	<accordion name="accordion">
+		<accordion_tab name="tab_picks" title="Favoris"/>
+		<accordion_tab name="tab_classifieds" title="Petites annonces"/>
+	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
 		<button name="new_btn" tool_tip="Ajouter cet endroit à mes Favoris"/>
 	</panel>
 	<panel name="buttons_cucks">
+		<button label="Infos" name="info_btn"/>
+		<button label="Téléporter" name="teleport_btn"/>
 		<button label="Carte" name="show_on_map_btn"/>
+		<button label="▼" name="overflow_btn"/>
 	</panel>
 </panel>

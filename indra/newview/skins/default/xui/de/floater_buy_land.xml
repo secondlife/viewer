@@ -51,14 +51,14 @@
 		Größe:
 	</text>
 	<text name="info_size">
-		1024 qm.
+		1.024 m²
 	</text>
 	<text name="info_price_label">
 		Preis:
 	</text>
 	<text name="info_price">
 		1500 L$
-(L$ 1,1 L$/qm)
+(1,1 L$/m²)
 Objekte im Verkauf eingeschlossen
 	</text>
 	<text name="info_action">
@@ -75,16 +75,16 @@ Objekte im Verkauf eingeschlossen
 		Landbesitz ist Premium-Mitgliedern vorbehalten.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="9,95 US$/Monat, monatliche Abrechnung" />
-		<combo_box.item name="US$7.50/month,billedquarterly" label="7,50 US$/Monat, vierteljährliche Abrechnung" />
-		<combo_box.item name="US$6.00/month,billedannually" label="6,00 US$/Monat, jährliche Abrechnung" />
+		<combo_box.item label="9,95 US$/Monat, monatliche Abrechnung" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="7,50 US$/Monat, vierteljährliche Abrechnung" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="6,00 US$/Monat, jährliche Abrechnung" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Erhöhen Sie Ihre monatlichen Landnutzungsgebühren auf 40 US$/month.
 	</text>
 	<text name="land_use_reason">
-		Sie besitzen 1309 qm Land. 
-Diese Parzelle ist 512 qm groß.
+		Sie besitzen 1309 m² Land.
+Diese Parzelle ist 512 m² gross.
 	</text>
 	<text name="purchase_action">
 		Joe Resident 4000 L$ für das Land bezahlen
@@ -99,12 +99,12 @@ Diese Parzelle ist 512 qm groß.
 		1000
 	</line_editor>
 	<text name="currency_est">
-		für ca. [AMOUNT2] US$
+		für ca. [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Sie haben 2.100 L$.
 	</text>
-	<check_box label="[AMOUNT] Quadratmeter des Beitrags von Gruppe nehmen." name="remove_contribution"/>
+	<check_box label="[AMOUNT] m² Beitrag von der Gruppe entfernen." name="remove_contribution"/>
 	<button label="Kaufen" name="buy_btn"/>
 	<button label="Abbrechen" name="cancel_btn"/>
 	<string name="can_resell">
@@ -181,25 +181,25 @@ Verkleinern Sie Ihre Auswahl.
 		Mit Ihrem Konto können Sie Land kaufen.
 	</string>
 	<string name="land_holdings">
-		Sie besitzen [BUYER] qm Land.
+		Sie besitzen [BUYER] m² Land.
 	</string>
 	<string name="pay_to_for_land">
 		[SELLER] [AMOUNT] L$ für das Land bezahlen
 	</string>
 	<string name="buy_for_US">
-		[AMOUNT] L$ für circa [AMOUNT2] US$ kaufen,
+		Kaufen Sie [AMOUNT] L$ für ca. [LOCAL_AMOUNT],
 	</string>
 	<string name="parcel_meters">
-		Diese Parzelle ist [AMOUNT] qm groß.
+		Diese Parzelle ist [AMOUNT] m².
 	</string>
 	<string name="premium_land">
-		Dieses Land ist eine Premium-Immobilie. Es wird mit [AMOUNT] qm angesetzt.
+		Dieses Land ist eine Premium-Immobilie. Es wird mit [AMOUNT] m² angesetzt.
 	</string>
 	<string name="discounted_land">
-		Dieses Land ist im Angebot. Es wird mit [AMOUNT] qm angesetzt.
+		Dieses Land ist im Angebot. Es wird mit [AMOUNT] m² angesetzt.
 	</string>
 	<string name="meters_supports_object">
-		[AMOUNT] qm.
+		[AMOUNT] m²
 unterstützt [AMOUNT2] Objekte
 	</string>
 	<string name="sold_with_objects">
@@ -210,7 +210,7 @@ unterstützt [AMOUNT2] Objekte
 	</string>
 	<string name="info_price_string">
 		[PRICE] L$
-([PRICE_PER_SQM] L$/qm)
+([PRICE_PER_SQM] L$/m²)
 [SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">

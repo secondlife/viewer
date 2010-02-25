@@ -11,11 +11,18 @@
 	<check_box label="Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM" name="voice_call_friends_only_check"/>
 	<check_box label="Fermer le micro à la fin d&apos;un appel" name="auto_disengage_mic_check"/>
 	<check_box label="Accepter les cookies" name="cookies_enabled"/>
-	<check_box label="Sauvegarder les journaux sur mon ordinateur" name="log_instant_messages"/>
-	<radio_group name="ChatIMLogs">
-		<radio_item label="Chat" name="radio1"/>
-		<radio_item label="IM" name="radio2"/>
-	</radio_group>
+	<check_box label="Autoriser la lecture automatique des médias" name="autoplay_enabled"/>
+	<check_box label="Lire le média de la parcelle automatiquement" name="parcel_autoplay_enabled"/>
+	<text name="Logs:">
+		Journaux :
+	</text>
+	<check_box label="Sauvegarder les chats près de moi sur mon ordinateur" name="log_nearby_chat"/>
+	<check_box label="Sauvegarder les IM sur mon ordinateur" name="log_instant_messages"/>
+	<check_box label="Inclure les heures" name="show_timestamps_check_im"/>
 	<line_editor left="308" name="log_path_string" right="-20"/>
+	<text name="log_path_desc">
+		Emplacement des journaux
+	</text>
 	<button label="Parcourir" label_selected="Parcourir" name="log_path_button" width="150"/>
+	<button label="Liste des ignorés" name="block_list"/>
 </panel>

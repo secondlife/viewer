@@ -12,6 +12,9 @@
 	<floater.string name="owner_can">
 		オーナーは次のことができます：
 	</floater.string>
+	<floater.string name="acquiredDate">
+		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</floater.string>
 	<text name="LabelItemNameTitle">
 		名前：
 	</text>
@@ -63,5 +66,8 @@
 		<combo_box.item label="コピー" name="Copy"/>
 		<combo_box.item label="オリジナル" name="Original"/>
 	</combo_box>
-	<spinner label="価格： L$" name="Edit Cost"/>
+	<spinner label="価格：" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
 </floater>

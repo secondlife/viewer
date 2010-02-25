@@ -1,21 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="ポップアップ" name="popups" title="ポップアップ">
-	<text name="text_box">
-		ポップアップを表示しない：
+	<text name="tell_me_label">
+		知らせる：
+	</text>
+	<check_box label="リンデンドルを使用・受け取るとき" name="notify_money_change_checkbox"/>
+	<check_box label="フレンドがログアウト・ログインするとき" name="friends_online_notify_checkbox"/>
+	<text name="show_label" width="300">
+		常に表示する警告メッセージ：
 	</text>
 	<text name="dont_show_label">
-		次のポップアップは表示しない：
+		表示しない警告メッセージ：
 	</text>
-	<button label="これは表示する" label_selected="これは表示する" name="enable_popup"/>
-	<text name="show_label" width="300" >
-		次のポップアップは表示：
-	</text>
-	<text name="text_box2" width="280">
-		ノートカード、テクスチャ、ランドマークの提供：
-	</text>
-	<check_box label="自動的に承認" name="accept_new_inventory"/>
-	<check_box label="承認後、自動的に閲覧" name="show_new_inventory"/>
-	<button width="235" label="ポップアップ全てを有効化..." label_selected="「次回表示」ダイアログリセット..." name="reset_dialogs_btn" tool_tip="全てのオプショナルポップアップと「初回使用」通知を有効にしてください。"/>
-	<button width="235" label="これらのポップアップ全てを無効化..." name="skip_dialogs_btn" tool_tip="全てのオプショナルポップアップと「初回使用」通知を無効にしてください。"/>
-	<check_box label="新たに受け取ったオブジェクトを持ち物に自動的に表示" name="show_in_inventory"/>
 </panel>

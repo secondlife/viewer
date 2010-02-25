@@ -15,12 +15,12 @@
 Choisir un résident.
 	</text>
 	<button label="Choisir un résident" name="add_button" tool_tip=""/>
-	<name_list name="invitee_list" tool_tip="Pour sélectionner plusieurs noms, maintenez la touche Ctrl enfoncée en cliquant sur le nom des résidents."/>
-	<button label="Supprimer de la liste" name="remove_button" tool_tip="Supprime les résidents sélectionnés de la liste des invités."/>
+	<name_list name="invitee_list" tool_tip="Pour sélectionner plusieurs résidents, maintenez la touche Ctrl enfoncée et cliquez sur leurs noms"/>
+	<button label="Supprimer de la liste" name="remove_button" tool_tip="Supprime les résidents sélectionnés ci-dessus de la liste des invités"/>
 	<text name="role_text">
 		Assignez-leur un rôle :
 	</text>
-	<combo_box name="role_name" tool_tip="Choisissez des rôles à assigner aux membres dans la liste."/>
+	<combo_box name="role_name" tool_tip="Choisissez dans la liste de rôles que vous êtes autorisé(e) à attribuer aux membres"/>
 	<button label="Envoyer les invitations" name="ok_button"/>
 	<button label="Annuler" name="cancel_button"/>
 	<string name="GroupInvitation">

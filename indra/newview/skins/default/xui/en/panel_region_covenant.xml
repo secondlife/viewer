@@ -135,7 +135,8 @@
      left="120"
      name="covenant_help_text"
      top_pad="10"
-     width="460">
+     word_wrap="true"
+     width="360">
         Changes to the covenant will show on all parcels in the estate.
     </text>
     <text
@@ -145,9 +146,10 @@
      left_delta="0"
      name="covenant_instructions"
      top_pad="5"
-     width="465">
-        Drag and drop a notecard to change
-        the Covenant for this Estate.
+     word_wrap="true"
+     font.style="ITALIC"
+     width="360">
+        Drag and drop a notecard to change the Covenant for this estate.
     </text>
 
     <text

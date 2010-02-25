@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="instant_message" name="panel_group_notify">
+	<string name="message_max_lines_count" value="7"/>
+	<string name="subject_font" value="SANSSERIF_BIG"/>
+	<string name="date_font" value="SANSSERIF"/>
+	<panel label="en-tête" name="header">
+		<text name="title" value="Nom de l&apos;expéditeur / Nom du groupe"/>
+	</panel>
+	<text_editor name="message" value="message"/>
+	<text name="attachment" value="Pièce jointe"/>
+	<button label="Ok" name="btn_ok"/>
+</panel>

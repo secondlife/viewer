@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_hair_panel">
+	<panel name="avatar_hair_color_panel">
+		<texture_picker label="Textur" name="Texture" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="hair_color_tab" title="Farbe"/>
+		<accordion_tab name="hair_style_tab" title="Stil"/>
+		<accordion_tab name="hair_eyebrows_tab" title="Augenbrauen"/>
+		<accordion_tab name="hair_facial_tab" title="Gesicht"/>
+	</accordion>
+</panel>

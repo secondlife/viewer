@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="もの" name="main inventory panel">
+	<panel.string name="Title">
+		もの
+	</panel.string>
+	<filter_editor label="フィルター" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="すべて" name="All Items"/>
+		<inventory_panel label="最近の入手アイテム" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="その他のオプションを表示"/>
+		<button name="add_btn" tool_tip="新しいアイテムの追加"/>
+		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除"/>
+	</panel>
+	<menu_bar name="Inventory Menu">
+		<menu label="ファイル" name="File">
+			<menu_item_call label="開く" name="Open"/>
+			<menu label="アップロード" name="upload">
+				<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
+				<menu_item_call label="サウンド （L$[COST] ）..." name="Upload Sound"/>
+				<menu_item_call label="アニメーション （L$ [COST] ）..." name="Upload Animation"/>
+				<menu_item_call label="一括 （ファイルにつき L$[COST] ）..." name="Bulk Upload"/>
+			</menu>
+			<menu_item_call label="新しいウィンドウ" name="New Window"/>
+			<menu_item_call label="フィルターを表示" name="Show Filters"/>
+			<menu_item_call label="フィルターをリセット" name="Reset Current"/>
+			<menu_item_call label="すべてのフォルダを閉じる" name="Close All Folders"/>
+			<menu_item_call label="ごみ箱を空にする" name="Empty Trash"/>
+			<menu_item_call label="紛失物を空にする" name="Empty Lost And Found"/>
+		</menu>
+		<menu label="新規作成" name="Create">
+			<menu_item_call label="フォルダ" name="New Folder"/>
+			<menu_item_call label="スクリプト" name="New Script"/>
+			<menu_item_call label="ノート" name="New Note"/>
+			<menu_item_call label="ジェスチャー" name="New Gesture"/>
+			<menu label="衣類" name="New Clothes">
+				<menu_item_call label="シャツ" name="New Shirt"/>
+				<menu_item_call label="パンツ" name="New Pants"/>
+				<menu_item_call label="靴" name="New Shoes"/>
+				<menu_item_call label="靴下" name="New Socks"/>
+				<menu_item_call label="ジャケット" name="New Jacket"/>
+				<menu_item_call label="シャツ" name="New Skirt"/>
+				<menu_item_call label="手袋" name="New Gloves"/>
+				<menu_item_call label="下着（上）" name="New Undershirt"/>
+				<menu_item_call label="下着（下）" name="New Underpants"/>
+				<menu_item_call label="アルファ" name="New Alpha"/>
+				<menu_item_call label="タトゥ" name="New Tattoo"/>
+			</menu>
+			<menu label="身体部位" name="New Body Parts">
+				<menu_item_call label="シェイプ（体型）" name="New Shape"/>
+				<menu_item_call label="スキン" name="New Skin"/>
+				<menu_item_call label="髪" name="New Hair"/>
+				<menu_item_call label="目" name="New Eyes"/>
+			</menu>
+		</menu>
+		<menu label="並べ替え" name="Sort">
+			<menu_item_check label="名前順" name="By Name"/>
+			<menu_item_check label="日付順" name="By Date"/>
+			<menu_item_check label="フォルダを常に名前順に並べる" name="Folders Always By Name"/>
+			<menu_item_check label="システムフォルダを上に並べる" name="System Folders To Top"/>
+		</menu>
+	</menu_bar>
+</panel>

@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="WindLight floater" title="ÉDITEUR DE CIEL AVANCÉ" width="706">
 	<text name="KeyFramePresetsText">
 		Préréglages ciel :
 	</text>
-	<button label="Nouveau" label_selected="Nouveau" name="WLNewPreset" />
-	<button label="Enregistrer" label_selected="Enregistrer" name="WLSavePreset" width="75" left_delta="75"/>
-	<button label="Supprimer" label_selected="Supprimer" name="WLDeletePreset" left_delta="80"/>
-	<button label="Éditeur du cycle du jour" label_selected="Éditeur du cycle du jour"
-	     name="WLDayCycleMenuButton" width="150" left_delta="95" />
+	<button label="Nouveau" label_selected="Nouveau" name="WLNewPreset"/>
+	<button label="Enregistrer" label_selected="Enregistrer" left_delta="75" name="WLSavePreset" width="75"/>
+	<button label="Supprimer" label_selected="Supprimer" left_delta="80" name="WLDeletePreset"/>
+	<button label="Éditeur du cycle du jour" label_selected="Éditeur du cycle du jour" left_delta="95" name="WLDayCycleMenuButton" width="150"/>
 	<tab_container name="WindLight Tabs" width="706">
 		<panel label="Atmosphère" name="Atmosphere">
 			<text name="BHText">
 				Bleu de l&apos;horizon
 			</text>
-			<button label="?" name="WLBlueHorizonHelp" />
+			<button label="?" name="WLBlueHorizonHelp"/>
 			<text name="BHText2">
 				R
 			</text>
@@ -29,11 +28,11 @@
 			<text name="BDensText">
 				Quantité de brume
 			</text>
-			<button label="?" name="WLHazeHorizonHelp" />
+			<button label="?" name="WLHazeHorizonHelp"/>
 			<text name="BDensText2">
 				Densité du bleu
 			</text>
-			<button label="?" name="WLBlueDensityHelp" />
+			<button label="?" name="WLBlueDensityHelp"/>
 			<text name="BHText6">
 				R
 			</text>
@@ -49,25 +48,25 @@
 			<text name="HDText">
 				Densité de la brume
 			</text>
-			<button label="?" name="WLHazeDensityHelp" />
+			<button label="?" name="WLHazeDensityHelp"/>
 			<text name="DensMultText">
 				Multiplicateur de densité
 			</text>
-			<button label="?" name="WLDensityMultHelp" />
+			<button label="?" name="WLDensityMultHelp"/>
 			<text name="WLDistanceMultText">
 				Multiplicateur de distance
 			</text>
-			<button label="?" name="WLDistanceMultHelp" />
+			<button label="?" name="WLDistanceMultHelp"/>
 			<text name="MaxAltText">
 				Altitude maximum
 			</text>
-			<button label="?" name="WLMaxAltitudeHelp" />
+			<button label="?" name="WLMaxAltitudeHelp"/>
 		</panel>
 		<panel label="Éclairage" name="Lighting">
 			<text name="SLCText">
 				Couleur soleil/lune
 			</text>
-			<button label="?" name="WLSunlightColorHelp" />
+			<button label="?" name="WLSunlightColorHelp"/>
 			<text name="BHText">
 				R
 			</text>
@@ -83,11 +82,11 @@
 			<text name="TODText">
 				Position soleil/lune
 			</text>
-			<button label="?" name="WLTimeOfDayHelp" />
+			<button label="?" name="WLTimeOfDayHelp"/>
 			<text name="WLAmbientText">
 				Éclairage ambiant
 			</text>
-			<button label="?" name="WLAmbientHelp" />
+			<button label="?" name="WLAmbientHelp"/>
 			<text name="BHText5">
 				R
 			</text>
@@ -103,27 +102,27 @@
 			<text name="WLEastAngleText">
 				Angle du levant
 			</text>
-			<button label="?" name="WLEastAngleHelp" />
+			<button label="?" name="WLEastAngleHelp"/>
 			<text name="SunGlowText">
 				Rayonnement du soleil
 			</text>
-			<button label="?" name="WLSunGlowHelp" />
-			<slider label="Netteté " name="WLGlowB" />
-			<slider label="Taille    " name="WLGlowR" />
+			<button label="?" name="WLSunGlowHelp"/>
+			<slider label="Netteté " name="WLGlowB"/>
+			<slider label="Taille    " name="WLGlowR"/>
 			<text name="SceneGammaText">
 				Gamma de la scène
 			</text>
-			<button label="?" name="WLSceneGammaHelp" />
+			<button label="?" name="WLSceneGammaHelp"/>
 			<text name="WLStarText">
 				Éclat des étoiles
 			</text>
-			<button label="?" name="WLStarBrightnessHelp" />
+			<button label="?" name="WLStarBrightnessHelp"/>
 		</panel>
 		<panel label="Nuages" name="Clouds">
 			<text name="WLCloudColorText">
 				Couleur des nuages
 			</text>
-			<button label="?" name="WLCloudColorHelp" />
+			<button label="?" name="WLCloudColorHelp"/>
 			<text name="BHText">
 				R
 			</text>
@@ -139,7 +138,7 @@
 			<text name="WLCloudColorText2">
 				Nuages XY/densité
 			</text>
-			<button label="?" name="WLCloudDensityHelp" />
+			<button label="?" name="WLCloudDensityHelp"/>
 			<text name="BHText5">
 				X
 			</text>
@@ -152,15 +151,15 @@
 			<text name="WLCloudCoverageText">
 				Couverture nuageuse
 			</text>
-			<button label="?" name="WLCloudCoverageHelp" left="407"/>
+			<button label="?" left="407" name="WLCloudCoverageHelp"/>
 			<text name="WLCloudScaleText">
 				Altitude des nuages
 			</text>
-			<button label="?" name="WLCloudScaleHelp" left="407"/>
+			<button label="?" left="407" name="WLCloudScaleHelp"/>
 			<text name="WLCloudDetailText">
 				Détails nuages (XY/densité)
 			</text>
-			<button label="?" name="WLCloudDetailHelp" left="407" bottom_delta="-2" />
+			<button bottom_delta="-2" label="?" left="407" name="WLCloudDetailHelp"/>
 			<text name="BHText8">
 				X
 			</text>
@@ -173,15 +172,15 @@
 			<text name="WLCloudScrollXText">
 				Direction et vitesse X
 			</text>
-			<button label="?" name="WLCloudScrollXHelp" />
-			<check_box label="Verrouiller" name="WLCloudLockX" />
+			<button label="?" name="WLCloudScrollXHelp"/>
+			<check_box label="Verrouiller" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
 				Direction et vitesse Y
 			</text>
-			<button label="?" name="WLCloudScrollYHelp" />
-			<check_box label="Verrouiller" name="WLCloudLockY" />
-			<check_box label="Nuages classiques" name="DrawClassicClouds" />
-			<button label="?" name="WLClassicCloudsHelp" />
+			<button label="?" name="WLCloudScrollYHelp"/>
+			<check_box label="Verrouiller" name="WLCloudLockY"/>
+			<check_box label="Nuages classiques" name="DrawClassicClouds"/>
+			<button label="?" name="WLClassicCloudsHelp"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultSkyNames">

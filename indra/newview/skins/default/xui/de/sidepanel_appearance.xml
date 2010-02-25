@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Aussehen" name="appearance panel">
+	<string name="No Outfit" value="Kein Outfit"/>
+	<panel name="panel_currentlook">
+		<button label="Bearbeiten" name="editappearance_btn"/>
+		<text name="currentlook_title">
+			Aktuelles Outfit:
+		</text>
+		<text name="currentlook_name">
+			Mein Outfit
+		</text>
+	</panel>
+	<filter_editor label="Filter" name="Filter"/>
+	<button label="Anziehen" name="wear_btn"/>
+	<button label="Neues Outfit" name="newlook_btn"/>
+</panel>

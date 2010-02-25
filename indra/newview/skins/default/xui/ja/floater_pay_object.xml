@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
 	<string name="payee_group">
-		グループへの支払い：
+		グループに支払う
 	</string>
 	<string name="payee_resident">
-		住人への支払い：
+		住人に支払う
 	</string>
 	<icon name="icon_person" tool_tip="住人"/>
 	<text name="payee_name">

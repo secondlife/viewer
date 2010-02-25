@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Environment Editor Floater" title="環境編集">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="自然環境エディター">
+	<floater.string name="timeStr">
+		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
+	</floater.string>
 	<text name="EnvTimeText">
 		時刻
 	</text>
@@ -12,13 +15,11 @@
 	<text name="EnvWaterColorText">
 		水の色
 	</text>
-	<color_swatch name="EnvWaterColor"
-	     tool_tip="カラー・ピッカーをクリックして開く" />
+	<color_swatch name="EnvWaterColor" tool_tip="クリックしてカラーピッカーを開きます"/>
 	<text name="EnvWaterFogText">
 		水中照度
 	</text>
-	<button label="不動産の時刻を使用" name="EnvUseEstateTimeButton" />
-	<button label="空の高度な設定" name="EnvAdvancedSkyButton" />
-	<button label="水の高度な設定" name="EnvAdvancedWaterButton" />
-	<button label="?" name="EnvSettingsHelpButton" />
+	<button label="不動産の時刻を使用" name="EnvUseEstateTimeButton"/>
+	<button label="空の高度な設定" name="EnvAdvancedSkyButton"/>
+	<button label="水の高度な設定" name="EnvAdvancedWaterButton"/>
 </floater>

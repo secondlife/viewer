@@ -39,4 +39,5 @@
 	</text>
 	<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
 	<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
+	<check_box label="Text-Chatverlauf aktivieren" name="plain_text_chat_history"/>
 </panel>

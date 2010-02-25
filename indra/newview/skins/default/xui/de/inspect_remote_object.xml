@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_remote_object">
+	<text name="object_name">
+		Wirklich langen Objektnamen als Test eingeben
+	</text>
+	<text name="object_owner_label">
+		Eigentümer:
+	</text>
+	<text name="object_owner">
+		Langeravatarname Schmidtmeyermülllermuster
+	</text>
+	<text name="object_slurl_label">
+		Standort:
+	</text>
+	<text name="object_slurl">
+		http://slurl.com/Ahern/50/50/50
+	</text>
+	<button label="Karte" name="map_btn"/>
+	<button label="Ignorieren" name="block_btn"/>
+	<button label="Schließen" name="close_btn"/>
+</floater>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_texture">
 	<floater.string name="Title">
-		Texture : [NAME]
+		Texture : [NAME]
 	</floater.string>
 	<floater.string name="Copy">
 		Copier dans l&apos;inventaire
@@ -9,9 +9,38 @@
 	<text name="desc txt">
 		Description :
 	</text>
-	<button label="Enregistrer" name="Keep"/>
-	<button label="Supprimer" name="Discard"/>
+	<button label="OK" name="Keep"/>
+	<button label="Annuler" name="Discard"/>
 	<text name="dimensions">
-		[WIDTH]px x [HEIGHT]px
+		[WIDTH] px x [HEIGHT] px
 	</text>
+	<text name="aspect_ratio">
+		Aperçu du rapport hauteur/largeur
+	</text>
+	<combo_box name="combo_aspect_ratio" tool_tip="Aperçu avec un rapport hauteur/largeur fixe">
+		<combo_item name="Unconstrained">
+			Sans contraintes
+		</combo_item>
+		<combo_item name="1:1" tool_tip="Logo du groupe ou profil dans le monde physique">
+			1:1
+		</combo_item>
+		<combo_item name="4:3" tool_tip="Profil [SECOND_LIFE]">
+			4:3
+		</combo_item>
+		<combo_item name="10:7" tool_tip="Petites annonces, repères">
+			10:7
+		</combo_item>
+		<combo_item name="3:2" tool_tip="À propos des terrains">
+			3:2
+		</combo_item>
+		<combo_item name="16:10">
+			16:10
+		</combo_item>
+		<combo_item name="16:9" tool_tip="Favoris du profil">
+			16:9
+		</combo_item>
+		<combo_item name="2:1">
+			2:1
+		</combo_item>
+	</combo_box>
 </floater>

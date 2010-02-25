@@ -2,7 +2,6 @@
 
 <panel
  border="true"
- background_visible="true"
  follows="left|top|right|bottom"
  height="408"
  layout="topleft"

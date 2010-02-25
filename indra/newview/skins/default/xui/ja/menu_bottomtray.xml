@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="hide_camera_move_controls_menu">
+	<menu_item_check label="ジェスチャーボタン" name="ShowGestureButton"/>
+	<menu_item_check label="移動ボタン" name="ShowMoveButton"/>
+	<menu_item_check label="視界ボタン" name="ShowCameraButton"/>
+	<menu_item_check label="スナップショットボタン" name="ShowSnapshotButton"/>
+</menu>

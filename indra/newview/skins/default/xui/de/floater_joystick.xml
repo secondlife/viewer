@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="JOYSTICK-KONFIGURATION">
-	<check_box name="enable_joystick" width="80" label="Joystick aktivieren:"/>
+	<check_box label="Joystick aktivieren:" name="enable_joystick" width="80"/>
 	<text left="140" name="joystick_type" width="360"/>
 	<spinner label="X-Achse" name="JoystickAxis1"/>
 	<spinner label="Y-Achse" name="JoystickAxis2"/>
@@ -15,9 +15,9 @@
 	<text name="Control Modes:">
 		Steuermodi:
 	</text>
-	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
-	<check_box name="JoystickBuildEnabled" label="Bauen"/>
-	<check_box name="JoystickFlycamEnabled" label="Flycam"/>
+	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
+	<check_box label="Bauen" name="JoystickBuildEnabled"/>
+	<check_box label="Flycam" name="JoystickFlycamEnabled"/>
 	<text name="XScale">
 		X-Skala
 	</text>

@@ -39,40 +39,30 @@
 #define TIME_FAST_TIMERS 0
 
 #if LL_WINDOWS
+// because MS has different signatures for these functions in winnt.h
+// need to rename them to avoid conflicts
+#define _interlockedbittestandset _renamed_interlockedbittestandset
+#define _interlockedbittestandreset _renamed_interlockedbittestandreset
+#include <intrin.h>
+#undef _interlockedbittestandset
+#undef _interlockedbittestandreset
 
+#define LL_INLINE __forceinline
 // shift off lower 8 bits for lower resolution but longer term timing
 // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
 inline U32 get_cpu_clock_count_32()
 {
-	U32 ret_val;
-	__asm 
-	{
-        _emit   0x0f
-        _emit   0x31
-		shr eax,8
-		shl edx,24
-		or eax, edx
-		mov dword ptr [ret_val], eax
-	}
-    return ret_val;
+	U64 time_stamp = __rdtsc();
+	return (U32)(time_stamp >> 8);
 }
 
 // return full timer value, *not* shifted by 8 bits
 inline U64 get_cpu_clock_count_64()
 {
-	U64 ret_val;
-	__asm 
-	{
-        _emit   0x0f
-        _emit   0x31
-		mov eax,eax
-		mov edx,edx
-		mov dword ptr [ret_val+4], edx
-		mov dword ptr [ret_val], eax
-	}
-    return ret_val;
+	return __rdtsc();
 }
-
+#else
+#define LL_INLINE
 #endif // LL_WINDOWS
 
 #if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
@@ -113,10 +103,25 @@ class LLMutex;
 #include <queue>
 #include "llsd.h"
 
-
 class LL_COMMON_API LLFastTimer
 {
 public:
+
+	class NamedTimer;
+
+	struct LL_COMMON_API FrameState
+	{
+		FrameState(NamedTimer* timerp);
+
+		U32 				mSelfTimeCounter;
+		U32 				mCalls;
+		FrameState*			mParent;		// info for caller timer
+		FrameState*			mLastCaller;	// used to bootstrap tree construction
+		NamedTimer*			mTimer;
+		U16					mActiveCount;	// number of timers with this ID active on stack
+		bool				mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+	};
+
 	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
 	class LL_COMMON_API NamedTimer 
 	:	public LLInstanceTracker<NamedTimer>
@@ -149,23 +154,9 @@ public:
 
 		static NamedTimer& getRootNamedTimer();
 
-		struct FrameState
-		{
-			FrameState(NamedTimer* timerp);
-
-			U32 		mSelfTimeCounter;
-			U32 		mCalls;
-			FrameState*	mParent;		// info for caller timer
-			FrameState*	mLastCaller;	// used to bootstrap tree construction
-			NamedTimer*	mTimer;
-			U16			mActiveCount;	// number of timers with this ID active on stack
-			bool		mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
-		};
-
 		S32 getFrameStateIndex() const { return mFrameStateIndex; }
 
 		FrameState& getFrameState() const;
-
 
 	private: 
 		friend class LLFastTimer;
@@ -185,7 +176,6 @@ public:
 		static void buildHierarchy();
 		static void resetFrame();
 		static void reset();
-
 	
 		//
 		// members
@@ -207,58 +197,47 @@ public:
 		std::vector<NamedTimer*>	mChildren;
 		bool						mCollapsed;				// don't show children
 		bool						mNeedsSorting;			// sort children whenever child added
-
 	};
 
 	// used to statically declare a new named timer
 	class LL_COMMON_API DeclareTimer
 	:	public LLInstanceTracker<DeclareTimer>
 	{
+		friend class LLFastTimer;
 	public:
 		DeclareTimer(const std::string& name, bool open);
 		DeclareTimer(const std::string& name);
 
 		static void updateCachedPointers();
 
-		// convertable to NamedTimer::FrameState for convenient usage of LLFastTimer(declared_timer)
-		operator NamedTimer::FrameState&() { return *mFrameState; }
 	private:
-		NamedTimer&				mTimer;
-		NamedTimer::FrameState* mFrameState; 
+		NamedTimer&		mTimer;
+		FrameState*		mFrameState; 
 	};
 
-
 public:
-	static LLMutex* sLogLock;
-	static std::queue<LLSD> sLogQueue;
-	static BOOL sLog;
-	static BOOL sMetricLog;
+	LLFastTimer(LLFastTimer::FrameState* state);
 
-	typedef std::vector<NamedTimer::FrameState> info_list_t;
-	static info_list_t& getFrameStateList();
-
-	enum RootTimerMarker { ROOT };
-	LLFastTimer(RootTimerMarker);
-
-	LLFastTimer(NamedTimer::FrameState& timer)
-	:	mFrameState(&timer)
+	LL_INLINE LLFastTimer(LLFastTimer::DeclareTimer& timer)
+	:	mFrameState(timer.mFrameState)
 	{
 #if TIME_FAST_TIMERS
 		U64 timer_start = get_cpu_clock_count_64();
 #endif
 #if FAST_TIMER_ON
-		NamedTimer::FrameState* frame_state = &timer;
-		U32 cur_time = get_cpu_clock_count_32();
-		mStartSelfTime = cur_time;
-		mStartTotalTime = cur_time;
+		LLFastTimer::FrameState* frame_state = mFrameState;
+		mStartTime = get_cpu_clock_count_32();
 
 		frame_state->mActiveCount++;
 		frame_state->mCalls++;
 		// keep current parent as long as it is active when we are
 		frame_state->mMoveUpTree |= (frame_state->mParent->mActiveCount == 0);
 	
-		mLastTimer = sCurTimer;
-		sCurTimer = this;
+		LLFastTimer::CurTimerData* cur_timer_data = &LLFastTimer::sCurTimerData;
+		mLastTimerData = *cur_timer_data;
+		cur_timer_data->mCurTimer = this;
+		cur_timer_data->mFrameState = frame_state;
+		cur_timer_data->mChildTime = 0;
 #endif
 #if TIME_FAST_TIMERS
 		U64 timer_end = get_cpu_clock_count_64();
@@ -266,26 +245,26 @@ public:
 #endif
 	}
 
-	~LLFastTimer()
+	LL_INLINE ~LLFastTimer()
 	{
 #if TIME_FAST_TIMERS
 		U64 timer_start = get_cpu_clock_count_64();
 #endif
 #if FAST_TIMER_ON
-		NamedTimer::FrameState* frame_state = mFrameState;
-		U32 cur_time = get_cpu_clock_count_32();
-		frame_state->mSelfTimeCounter += cur_time - mStartSelfTime;
+		LLFastTimer::FrameState* frame_state = mFrameState;
+		U32 total_time = get_cpu_clock_count_32() - mStartTime;
 
+		frame_state->mSelfTimeCounter += total_time - LLFastTimer::sCurTimerData.mChildTime;
 		frame_state->mActiveCount--;
-		LLFastTimer* last_timer = mLastTimer;
-		sCurTimer = last_timer;
 
 		// store last caller to bootstrap tree creation
-		frame_state->mLastCaller = last_timer->mFrameState;
+		// do this in the destructor in case of recursion to get topmost caller
+		frame_state->mLastCaller = mLastTimerData.mFrameState;
 
 		// we are only tracking self time, so subtract our total time delta from parents
-		U32 total_time = cur_time - mStartTotalTime;
-		last_timer->mStartSelfTime += total_time;
+		mLastTimerData.mChildTime += total_time;
+
+		LLFastTimer::sCurTimerData = mLastTimerData;
 #endif
 #if TIME_FAST_TIMERS
 		U64 timer_end = get_cpu_clock_count_64();
@@ -294,7 +273,20 @@ public:
 #endif	
 	}
 
+public:
+	static LLMutex*			sLogLock;
+	static std::queue<LLSD> sLogQueue;
+	static BOOL				sLog;
+	static BOOL				sMetricLog;
+	static bool 			sPauseHistory;
+	static bool 			sResetHistory;
+	static U64				sTimerCycles;
+	static U32				sTimerCalls;
 
+	typedef std::vector<FrameState> info_list_t;
+	static info_list_t& getFrameStateList();
+
+	
 	// call this once a frame to reset timers
 	static void nextFrame();
 
@@ -312,23 +304,26 @@ public:
 	static void writeLog(std::ostream& os);
 	static const NamedTimer* getTimerByName(const std::string& name);
 
-public:
-	static bool 			sPauseHistory;
-	static bool 			sResetHistory;
-	static U64				sTimerCycles;
-	static U32				sTimerCalls;
-	
+	struct CurTimerData
+	{
+		LLFastTimer*	mCurTimer;
+		FrameState*		mFrameState;
+		U32				mChildTime;
+	};
+	static CurTimerData		sCurTimerData;
+
 private:
-	static LLFastTimer*		sCurTimer;
 	static S32				sCurFrameIndex;
 	static S32				sLastFrameIndex;
 	static U64				sLastFrameTime;
 	static info_list_t*		sTimerInfos;
 
-	U32						mStartSelfTime;	// start time + time of all child timers
-	U32						mStartTotalTime;	// start time + time of all child timers
-	NamedTimer::FrameState*	mFrameState;
-	LLFastTimer*			mLastTimer;
+	U32							mStartTime;
+	LLFastTimer::FrameState*	mFrameState;
+	LLFastTimer::CurTimerData	mLastTimerData;
+
 };
+
+typedef class LLFastTimer LLFastTimer;
 
 #endif // LL_LLFASTTIMER_H

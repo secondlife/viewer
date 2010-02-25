@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="set_name_in_the_cladd">
+	<check_box label="Désactiver les astuces" name="DontShowFirstTimeTip_checkbox"/>
+</floater>

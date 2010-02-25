@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="世界地図">
-	<tab_container name="maptab">
-		<panel label="オブジェクト" name="objects_mapview"/>
-		<panel label="地形" name="terrain_mapview"/>
-	</tab_container>
 	<text name="you_label">
 		あなた
 	</text>
@@ -20,19 +16,19 @@
 	<button label="ホームへ" label_selected="ホームへ" name="Go Home" tool_tip="自分のホームにテレポート"/>
 	<check_box label="住人" name="people_chk"/>
 	<check_box label="インフォハブ" name="infohub_chk"/>
-	<check_box label="テレハブ" name="telehubchk"/>
+	<check_box label="テレハブ" name="telehub_chk"/>
 	<check_box label="売り地" name="land_for_sale_chk"/>
 	<text name="events_label">
 		イベント：
 	</text>
 	<check_box label="PG" name="event_chk"/>
-	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
-	<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="地図に表示されたフレンド">
-		<combo_box.item name="item1" label="オンラインのフレンド" />
+	<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="地図に表示するフレンド">
+		<combo_box.item label="オンラインのフレンド" name="item1"/>
 	</combo_box>
-	<combo_box label="ランドマーク" name="landmark combo" tool_tip="地図に表示されたランドマーク">
-		<combo_box.item name="item1" label="ランドマーク" />
+	<combo_box label="ランドマーク" name="landmark combo" tool_tip="地図に表示するランドマーク">
+		<combo_box.item label="ランドマーク" name="item1"/>
 	</combo_box>
 	<line_editor label="地域名で検索" name="location" tool_tip="地域名を入力してください。"/>
 	<button label="検索" name="DoSearch" tool_tip="地域検索"/>
@@ -40,8 +36,8 @@
 		検索結果：
 	</text>
 	<scroll_list name="search_results">
-		<column label="" name="icon"/>
-		<column label="" name="sim_name"/>
+		<scroll_list.columns label="" name="icon"/>
+		<scroll_list.columns label="" name="sim_name"/>
 	</scroll_list>
 	<text name="location_label">
 		位置：
@@ -53,6 +49,6 @@
 	<button label="目的地を表示" label_selected="目的地を表示" name="Show Destination" tool_tip="選択したロケーションを地図の中心にする"/>
 	<button label="クリア" label_selected="クリア" name="Clear" tool_tip="トラッキングを停止"/>
 	<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="あなたのアバターのロケーションを地図の中心にする"/>
-	<button label="SLurlをクリップボードにコピー" name="copy_slurl" tool_tip="現在地をSLurlとしてコピーし、ウェブで使用"/>
+	<button label="SLurl をクリップボードにコピー" name="copy_slurl" tool_tip="現在地を SLurl としてコピーして、Webで使用します。"/>
 	<slider label="ズーム" name="zoom slider"/>
 </floater>

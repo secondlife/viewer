@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Vertrag" name="Covenant">
 	<text name="estate_section_lbl">
-		Grundstück:
+		Grundstück
 	</text>
 	<text name="estate_name_lbl">
 		Name:
@@ -31,17 +31,16 @@
       Grundstück übernommen.
 	</text>
 	<text bottom_delta="-36" name="covenant_instructions">
-		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für dieses
-      Grundstück zu ändern.
+		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für dieses Grundstück zu ändern.
 	</text>
 	<text bottom_delta="-36" name="region_section_lbl">
-		Region:
+		Region
 	</text>
 	<text name="region_name_lbl">
 		Name:
 	</text>
 	<text name="region_name_text">
-		leyla
+		Erica
 	</text>
 	<text name="region_landtype_lbl">
 		Typ:

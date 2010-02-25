@@ -878,9 +878,11 @@ void LLFloater::setSnappedTo(const LLView* snap_view)
 	else
 	{
 		//RN: assume it's a floater as it must be a sibling to our parent floater
-		LLFloater* floaterp = (LLFloater*)snap_view;
-		
-		setSnapTarget(floaterp->getHandle());
+		const LLFloater* floaterp = dynamic_cast<const LLFloater*>(snap_view);
+		if (floaterp)
+		{
+			setSnapTarget(floaterp->getHandle());
+		}
 	}
 }
 

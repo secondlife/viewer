@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Participant List Context Menu">
+	<menu_item_check label="Text stummschalten" name="MuteText"/>
+	<menu_item_check label="Text-Chat zulassen" name="AllowTextChat"/>
+</context_menu>

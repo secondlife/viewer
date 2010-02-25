@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="約款" name="Covenant">
 	<text font="SansSerifLarge" name="estate_section_lbl">
-		不動産：
+		エステート（不動産）
 	</text>
 	<text name="estate_name_lbl">
 		名前：
@@ -30,17 +30,16 @@
 		約款の変更は不動産全区画に適用となります。
 	</text>
 	<text name="covenant_instructions">
-		この不動産の約款の変更するには、
-ノートカードをドラッグ&amp;ドロップしてください。
+		この不動産約款の変更をする際は、ノートカードをドラッグ＆ドロップしてください。
 	</text>
 	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl">
-		地域：
+		リージョン（地域）
 	</text>
 	<text name="region_name_lbl">
 		名前：
 	</text>
 	<text name="region_name_text">
-		leyla
+		Erica
 	</text>
 	<text name="region_landtype_lbl">
 		種類：

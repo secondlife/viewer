@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Notizen &amp; Privatsphäre" name="panel_notes">
+	<layout_stack name="layout">
+		<panel name="notes_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<text name="status_message" value="Meine Notizen:"/>
+					<text name="status_message2" value="Diese Person kann:"/>
+					<check_box label="meinen Online-Status sehen." name="status_check"/>
+					<check_box label="mich auf der Karte sehen." name="map_check"/>
+					<check_box label="meine Objekte bearbeiten, löschen oder nehmen." name="objects_check"/>
+				</panel>
+			</scroll_container>
+		</panel>
+		<panel name="notes_buttons_panel">
+			<button label="Hinzufügen" name="add_friend"/>
+			<button label="IM" name="im"/>
+			<button label="Anrufen" name="call"/>
+			<button label="Karte" name="show_on_map_btn"/>
+			<button label="Teleportieren" name="teleport"/>
+		</panel>
+	</layout_stack>
+</panel>

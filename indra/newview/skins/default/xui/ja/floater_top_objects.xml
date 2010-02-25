@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="ロード中．．．">
+<floater name="top_objects" title="ローディング...">
 	<text name="title_text">
 		ロード中．．．
 	</text>

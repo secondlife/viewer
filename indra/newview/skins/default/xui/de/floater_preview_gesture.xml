@@ -1,14 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
-	<string name="stop_txt">
+	<floater.string name="step_anim">
+		Animation abspielen:
+	</floater.string>
+	<floater.string name="step_sound">
+		Sound abspielen:
+	</floater.string>
+	<floater.string name="step_chat">
+		Chat sprechen:
+	</floater.string>
+	<floater.string name="step_wait">
+		Warten:
+	</floater.string>
+	<floater.string name="stop_txt">
 		Stopp
-	</string>
-	<string name="preview_txt">
+	</floater.string>
+	<floater.string name="preview_txt">
 		Vorschau
-	</string>
-	<string name="none_text">
+	</floater.string>
+	<floater.string name="none_text">
 		– Keine –
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Gesten: [NAME]
+	</floater.string>
 	<text name="desc_label">
 		Beschreibung:
 	</text>
@@ -27,30 +42,23 @@
 	<text name="library_label">
 		Bibliothek:
 	</text>
+	<scroll_list name="library_list"/>
+	<button label="Hinzufügen &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Schritte:
 	</text>
-	<scroll_list name="library_list">
-		Animation
-Ton
-Chat
-Warten
-	</scroll_list>
-	<button label="Hinzufügen &gt;&gt;" name="add_btn"/>
 	<button label="Nach oben" name="up_btn"/>
 	<button label="Nach unten" name="down_btn"/>
 	<button label="Entfernen" name="delete_btn"/>
-	<text name="help_label">
-		Alle Schritte erfolgen zur selben
-Zeit, außer Sie fügen Warteschritte
-ein.
-	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start" label="Start" />
-		<radio_item name="stop" label="Stopp" />
+		<radio_item label="Start" name="start"/>
+		<radio_item label="Stopp" name="stop"/>
 	</radio_group>
 	<check_box label="bis alle Animationen beendet sind" name="wait_anim_check"/>
 	<check_box label="Zeit in Sekunden" name="wait_time_check"/>
+	<text name="help_label">
+		Alle Schritte werden gleichzeitig ausgeführt, wenn keine Pausen hinzugefügt wurden.
+	</text>
 	<check_box label="Aktiv" name="active_check" tool_tip="Aktive Gesten werden durch Chat-Eingabe ihrer Auslösephrasen oder Drücken von Tastenkürzeln ausgelöst.  Bei doppelten Tastenzuweisungen funktionieren Gesten in der Regel nicht."/>
 	<button label="Vorschau" name="preview_btn"/>
 	<button label="Speichern" name="save_btn"/>

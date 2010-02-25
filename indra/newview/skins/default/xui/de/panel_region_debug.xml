@@ -22,13 +22,13 @@
 	<line_editor name="target_avatar_name">
 		(keiner)
 	</line_editor>
-	<button label="Auswählen..." name="choose_avatar_btn"/>
+	<button label="Auswählen" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		Optionen:
 	</text>
-	<check_box label="Nur Objekte mit Skripten zurückgeben" name="return_scripts" tool_tip="Es werden nur die Objekte zurückgegeben, die über Skripte verfügen."/>
-	<check_box label="Nur Objekte auf dem Land eines anderen Einwohners zurückgeben" name="return_other_land" tool_tip="Es werden nur die Objekte zurückgegeben, die sich auf dem Land eines anderen Einwohners befinden"/>
-	<check_box label="Objekte in jeder Region dieses Grundstücks zurückgeben" name="return_estate_wide" tool_tip="Es werden die Objekte in allen Regionen dieses Grundstücks zurückgegeben"/>
+	<check_box label="Mit Skripten" name="return_scripts" tool_tip="Es werden nur die Objekte zurückgegeben, die über Skripte verfügen."/>
+	<check_box label="Auf dem Land von jemand anderem" name="return_other_land" tool_tip="Es werden nur die Objekte zurückgegeben, die sich auf dem Land eines anderen Einwohners befinden"/>
+	<check_box label="In jeder Region auf diesem Grundstück" name="return_estate_wide" tool_tip="Es werden die Objekte in allen Regionen dieses Grundstücks zurückgegeben"/>
 	<button label="Zurückgeben" name="return_btn" width="90"/>
 	<button label="Top-Kollisionsobjekte..." name="top_colliders_btn" tool_tip="Liste der Objekte mit den meisten potenziellen Kollisionen"/>
 	<button label="?" name="top_colliders_help"/>

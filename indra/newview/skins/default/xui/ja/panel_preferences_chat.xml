@@ -39,4 +39,5 @@
 	</text>
 	<check_box initial_value="true" label="チャット中はタイピング動作のアニメーションを再生" name="play_typing_animation"/>
 	<check_box label="オフライン時に受け取った IM をメールで送信" name="send_im_to_email"/>
+	<check_box label="文字チャットの履歴を有効にする" name="plain_text_chat_history"/>
 </panel>

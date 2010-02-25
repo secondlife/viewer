@@ -3,11 +3,11 @@
 	<message_set name="errors">
 		<message name="invalid_tport">
 			テレポート処理中に問題が発生しました。 ログインし直す必要があるかもしれません。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
 		</message>
 		<message name="invalid_region_handoff">
 			リージョン間の移動中に問題が発生しました。 ログインし直す必要があるかもしれません。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
 		</message>
 		<message name="blocked_tport">
 			申し訳ございません。テレポートは現在、ブロックされています。もう少し後でやり直してください。

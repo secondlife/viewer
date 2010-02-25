@@ -25,10 +25,10 @@
 	<text name="text_box5">
 		MB
 	</text>
-	<button label="ブラウズ" label_selected="ブラウズ" name="set_cache"/>
+	<button label="参照" label_selected="参照" name="set_cache"/>
 	<button label="リセット" label_selected="設定" name="reset_cache"/>
 	<text name="Cache location">
-		キャッシュの場所
+		キャッシュの保存場所
 	</text>
 	<text name="Web:">
 		Web：
@@ -39,7 +39,7 @@
 	</radio_group>
 	<check_box initial_value="false" label="Webプロキシ" name="web_proxy_enabled"/>
 	<line_editor name="web_proxy_editor" tool_tip="使用するプロキシ名またはIPアドレス"/>
-	<button label="ブラウズ" label_selected="ブラウズ" name="set_proxy"/>
+	<button label="参照" label_selected="参照" name="set_proxy"/>
 	<text name="Proxy location">
 		プロキシ
 	</text>

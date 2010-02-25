@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
 	<string name="payee_group" width="95">
-		Payer le groupe :
+		Payer le groupe
 	</string>
 	<string halign="left" name="payee_resident" width="100">
-		Payer le résident :
+		Payer le résident
 	</string>
 	<icon name="icon_person" tool_tip="Résident"/>
 	<text left="105" name="payee_name">
@@ -22,7 +22,7 @@
 	<button label="10 L$" label_selected="10 L$" left="105" name="fastpay 10"/>
 	<button label="20 L$" label_selected="20 L$" left="190" name="fastpay 20"/>
 	<text halign="left" left="5" name="amount text">
-		Ou choisissez un montant :
+		Ou choisissez un montant :
 	</text>
 	<line_editor left="65" name="amount" width="50"/>
 	<button label="Payer" label_selected="Payer" name="pay btn"/>
