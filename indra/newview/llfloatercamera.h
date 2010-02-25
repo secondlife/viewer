@@ -103,6 +103,9 @@ private:
 	/* updates the state (UI) according to the current mode */
 	void updateState();
 
+	/* update camera preset buttons toggle state according to the currently selected preset */
+	void updateCameraPresetButtons();
+
 	void onClickBtn(ECameraControlMode mode);
 	void assignButton2Mode(ECameraControlMode mode, const std::string& button_name);
 	
