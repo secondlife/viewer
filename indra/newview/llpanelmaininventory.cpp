@@ -435,7 +435,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 	}
 
 	// set new filter string
-	mActivePanel->setFilterSubString(mFilterSubString);
+	setFilterSubString(mFilterSubString);
 }
 
 
