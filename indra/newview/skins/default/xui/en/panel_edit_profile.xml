@@ -304,8 +304,10 @@
             <name_box
              follows="left|top|right"
              height="30"
+             initial_value="(retrieving)"
              layout="topleft"
              left="0"
+             link="true"
              name="partner_text"
              top="0"
              width="285"

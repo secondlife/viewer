@@ -222,6 +222,11 @@ protected:
 	void sendUpdate();
 
 	/**
+	 * Called when snapshot image changes.
+	 */
+	void onSnapshotChanged();
+	
+	/**
 	 * Callback for Pick snapshot, name and description changed event.
 	 */
 	void onPickChanged(LLUICtrl* ctrl);

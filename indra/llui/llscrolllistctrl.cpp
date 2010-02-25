@@ -142,6 +142,7 @@ LLScrollListCtrl::Params::Params()
 	contents(""),
 	scroll_bar_bg_visible("scroll_bar_bg_visible"),
 	scroll_bar_bg_color("scroll_bar_bg_color")
+	, border("border")
 {
 	name = "scroll_list";
 	mouse_opaque = true;
@@ -231,10 +232,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	if (p.has_border)
 	{
 		LLRect border_rect = getLocalRect();
-		LLViewBorder::Params params;
-		params.name("dig border");
+		LLViewBorder::Params params = p.border;
 		params.rect(border_rect);
-		params.bevel_style(LLViewBorder::BEVEL_IN);
 		mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 		addChild(mBorder);
 	}

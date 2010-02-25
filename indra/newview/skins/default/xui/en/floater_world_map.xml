@@ -77,7 +77,7 @@
      top_delta="6"
      left_pad="5"
      layout="topleft"
-     name="person_label"
+     name="me_label"
      width="90">
         Me
     </text>
@@ -196,7 +196,7 @@
      height="16"
      layout="topleft"
      left_pad="0"
-     name="auction_label"
+     name="by_owner_label"
      top_delta="3"
      width="100">
        by owner

@@ -15,4 +15,6 @@
              background_visible="true"
              heading_height="23"
              draw_border="false"
-             draw_heading="false" />
+             draw_heading="false"
+             border.name="dig border"
+             border.bevel_style="in" />

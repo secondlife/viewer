@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="18"
- border="true"
+ legacy_header_height="0"
  can_close="false"
  can_minimize="false"
  height="100"
@@ -9,7 +8,7 @@
  name="modal container"
  width="240">
     <button
-     height="20"
+     height="23"
      label="Save"
      label_selected="Save"
      layout="topleft"
@@ -18,7 +17,7 @@
      top="70"
      width="82" />
     <button
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
@@ -30,14 +29,14 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="16"
+     height="30"
      layout="topleft"
+     word_wrap="true"
      left="20"
      name="Save item as:"
      top="10"
      width="200">
-        Save item as:
+        Save item to my inventory as:
     </text>
     <line_editor
      type="string"
@@ -45,14 +44,13 @@
      border_style="line"
      border_thickness="1"
      follows="left|top"
-     font="SansSerif"
      handle_edit_keys_directly="true"
-     height="20"
+     height="23"
      layout="topleft"
      left_delta="0"
      max_length="63"
      name="name ed"
-     top_pad="4"
+     top_pad="0"
      width="200">
         New [DESC]
     </line_editor>

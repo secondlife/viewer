@@ -2388,10 +2388,12 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 			new_height = llmax(new_height, min_height);
 
 			LLRect new_rect;
-			new_rect.setLeftTopAndSize(view_rect.mTop,view_rect.mLeft,new_width, new_height);
+			new_rect.setLeftTopAndSize(view_rect.mLeft,view_rect.mTop,new_width, new_height);
 
 			floater->reshape( new_width, new_height, TRUE );
 			floater->setRect(new_rect);
+
+			floater->translateIntoRect( getLocalRect(), false );
 		}
 	}
 

@@ -64,7 +64,7 @@ std::string LLViewerHelpUtil::buildHelpURL( const std::string &topic)
 {
 	LLSD substitution;
 	substitution["TOPIC"] = helpURLEncode(topic);
-	substitution["DEBUG_MODE"] = gAgent.isGodlike() ? "debug" : "";
+	substitution["DEBUG_MODE"] = gAgent.isGodlike() ? "/debug" : "";
 	
 	// get the help URL and expand all of the substitutions
 	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)

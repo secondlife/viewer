@@ -330,6 +330,7 @@ public:
 	bool isNavigateSuspended() { return mNavigateSuspended; };
 	
 	void cancelMimeTypeProbe();
+	
 private:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;

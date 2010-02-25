@@ -185,6 +185,13 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 		region_z = llround(mPosRegion.mV[VZ]);
 	}
 
+	LLSD info;
+	info["update_verbs"] = true;
+	info["global_x"] = parcel_data.global_x;
+	info["global_y"] = parcel_data.global_y;
+	info["global_z"] = parcel_data.global_z;
+	notifyParent(info);
+
 	if (mInfoType == CREATE_LANDMARK)
 	{
 		if (parcel_data.name.empty())

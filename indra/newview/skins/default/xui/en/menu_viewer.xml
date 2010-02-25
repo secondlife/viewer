@@ -293,7 +293,7 @@
            create_jump_keys="true"
            label="Show"
            layout="topleft"
-           name="Land"
+           name="LandShow"
            tear_off="true">
          <menu_item_check
          label="Move Controls"
@@ -1602,17 +1602,6 @@
             <menu_item_check.on_click
              function="ToggleControl"
              parameter="MouseSmooth" />
-        </menu_item_check>
-        <menu_item_check
-         label="Show IMs in Nearby Chat"
-         layout="topleft"
-         name="IMInChat">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="IMInChat" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="IMInChat" />
         </menu_item_check>
         <menu_item_separator
          layout="topleft" />

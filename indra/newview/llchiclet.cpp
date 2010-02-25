@@ -47,6 +47,7 @@
 #include "llnotificationsutil.h"
 #include "lloutputmonitorctrl.h"
 #include "llscriptfloater.h"
+#include "llspeakers.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llgroupmgr.h"
@@ -1293,10 +1294,12 @@ void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 
 void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
 {
-	mScrollArea->removeChild(*it);
+	LLChiclet* chiclet = *it;
+	mScrollArea->removeChild(chiclet);
 	mChicletList.erase(it);
 	
 	arrange();
+	chiclet->die();
 }
 
 void LLChicletPanel::removeChiclet(S32 index)

@@ -325,7 +325,7 @@ public:
 	};
 
 	
-	/*virtual*/ ~LLIMChiclet() {};
+	virtual ~LLIMChiclet() {};
 
 	/**
 	 * Sets IM session name. This name will be displayed in chiclet tooltip.

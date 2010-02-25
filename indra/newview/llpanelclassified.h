@@ -340,6 +340,7 @@ protected:
 
 private:
 	bool mIsNew;
+	bool mCanClose;
 };
 
 #endif // LL_LLPANELCLASSIFIED_H

@@ -1134,7 +1134,8 @@ void LLFloaterTools::getMediaState()
 				}
 				// XXX DISABLE this for now, because when the fetch finally 
 				// does come in, the state of this floater doesn't properly
-				// update.  This needs more thought.
+				// update.  Re-selecting fixes the problem, but there is 
+				// contention as to whether this is a sufficient solution.
 //				if (object->isMediaDataBeingFetched())
 //				{
 //					LL_INFOS("LLFloaterTools: media")

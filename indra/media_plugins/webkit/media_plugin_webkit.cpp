@@ -175,6 +175,15 @@ private:
 		}
 		std::string application_dir = std::string( cwd );
 
+#if LL_DARWIN
+	// When running under the Xcode debugger, there's a setting called "Break on Debugger()/DebugStr()" which defaults to being turned on.
+	// This causes the environment variable USERBREAK to be set to 1, which causes these legacy calls to break into the debugger.
+	// This wouldn't cause any problems except for the fact that the current release version of the Flash plugin has a call to Debugger() in it
+	// which gets hit when the plugin is probed by webkit.
+	// Unsetting the environment variable here works around this issue.
+	unsetenv("USERBREAK");
+#endif
+
 #if LL_WINDOWS
 		//*NOTE:Mani - On windows, at least, the component path is the
 		// location of this dll's image file. 

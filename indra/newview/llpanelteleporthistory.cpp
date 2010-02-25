@@ -1036,7 +1036,7 @@ void LLTeleportHistoryPanel::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool
 bool LLTeleportHistoryPanel::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
 {
 	LLSD param = acc_tab->getValue();
-	if(!param.has("acc_collapsed"))
+	if(!param.has(COLLAPSED_BY_USER))
 	{
 		return false;
 	}

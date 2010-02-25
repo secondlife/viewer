@@ -569,8 +569,6 @@ void LLPanelOutfitsInventory::initTabPanels()
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	mTabPanels[1] = myoutfits_panel;
 
-	mActivePanel = mTabPanels[0];
-
 	for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
 		 iter != mTabPanels.end();
 		 ++iter)
@@ -581,6 +579,7 @@ void LLPanelOutfitsInventory::initTabPanels()
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
+	mActivePanel = (LLInventoryPanel*)mAppearanceTabs->getCurrentPanel();
 }
 
 void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_offer
- height="25"
+ height="23"
  name="offer_chiclet"
  width="25">
  <chiclet_offer.chiclet_button 
-  height="25"
+  height="23"
   image_selected="PushButton_Selected"
   image_unselected="PushButton_Off"
   name="chiclet_button"
   tab_stop="false"
   width="25"/>
  <chiclet_offer.icon
-  bottom="3"
+  bottom="2"
   default_icon="Generic_Object_Small"
   follows="all"
-  height="19"
+  height="18"
   left="3"
   mouse_opaque="false"
   name="chiclet_icon"
