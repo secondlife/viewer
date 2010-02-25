@@ -1153,6 +1153,8 @@ void LLPanelClassified::setDefaultAccessCombo()
 LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  : LLPanel()
  , mInfoLoaded(false)
+ , mScrollingPanel(NULL)
+ , mScrollContainer(NULL)
 {
 }
 

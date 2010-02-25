@@ -5850,7 +5850,8 @@ Are you sure you want to close all IMs?
     <usetemplate
      name="okcancelignore"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="OK"
+     ignoretext="Confirm before I close all IMs"/>
   </notification>
 
   <notification icon="notifytip.tga"

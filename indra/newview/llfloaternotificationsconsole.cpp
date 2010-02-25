@@ -210,7 +210,7 @@ void LLFloaterNotificationConsole::addChannel(const std::string& name, bool open
 {
 	LLLayoutStack& stack = getChildRef<LLLayoutStack>("notification_channels");
 	LLNotificationChannelPanel* panelp = new LLNotificationChannelPanel(name);
-	stack.addPanel(panelp, 0, NOTIFICATION_PANEL_HEADER_HEIGHT, TRUE, TRUE, LLLayoutStack::ANIMATE);
+	stack.addPanel(panelp, 0, NOTIFICATION_PANEL_HEADER_HEIGHT, S32_MAX, S32_MAX, TRUE, TRUE, LLLayoutStack::ANIMATE);
 
 	LLButton& header_button = panelp->getChildRef<LLButton>("header");
 	header_button.setToggleState(!open);

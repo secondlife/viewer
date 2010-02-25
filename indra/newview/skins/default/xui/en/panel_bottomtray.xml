@@ -47,6 +47,7 @@
          min_height="23"
          width="310"
          top="4"
+         max_width="320"
          min_width="216"
          name="chat_bar"
          user_resize="false"

@@ -5,7 +5,7 @@
 	</text>
 	<scroll_list name="item_list" width="310"/>
 	<text name="buy_text" width="320">
-		中身を[NAME] から L$[AMOUNT] で購入しますか？
+		中身を [NAME] から L$[AMOUNT] で購入しますか？
 	</text>
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn" width="73"/>
 	<button label="購入" label_selected="購入" left_delta="-77" name="buy_btn" width="73"/>
