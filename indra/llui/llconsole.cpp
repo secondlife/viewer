@@ -180,7 +180,7 @@ void LLConsole::draw()
 	// draw remaining lines
 	F32 y_pos = 0.f;
 
-	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
+	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
 
 //	F32 console_opacity = llclamp(gSavedSettings.getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
 	F32 console_opacity = llclamp(LLUI::sSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);

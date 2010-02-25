@@ -247,14 +247,7 @@ void LLPanelGroups::enableButtons()
 		childDisable("IM");
 		childDisable("Leave");
 	}
-	if(gAgent.mGroups.count() < MAX_AGENT_GROUPS)
-	{
-		childEnable("Create");
-	}
-	else
-	{
-		childDisable("Create");
-	}
+	childSetEnabled("Create", gAgent.canJoinGroups());
 }
 
 

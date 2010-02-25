@@ -88,6 +88,11 @@ void LLSpeaker::onAvatarNameLookup(const LLUUID& id, const std::string& first, c
 	mDisplayName = first + " " + last;
 }
 
+bool LLSpeaker::isInVoiceChannel()
+{
+	return mStatus == LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
+}
+
 LLSpeakerUpdateModeratorEvent::LLSpeakerUpdateModeratorEvent(LLSpeaker* source)
 : LLEvent(source, "Speaker add moderator event"),
   mSpeakerID (source->mID),
@@ -343,9 +348,10 @@ void LLSpeakerMgr::updateSpeakerList()
 	// are we bound to the currently active voice channel?
 	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive()))
 	{
-		std::vector<LLUUID> participants = LLVoiceClient::getInstance()->getParticipantList();
+	        std::set<LLUUID> participants;
+	        LLVoiceClient::getInstance()->getParticipantList(participants);
 		// add new participants to our list of known speakers
-		for (std::vector<LLUUID>::iterator participant_it = participants.begin();
+		for (std::set<LLUUID>::iterator participant_it = participants.begin();
 			 participant_it != participants.end(); 
 			 ++participant_it)
 		{

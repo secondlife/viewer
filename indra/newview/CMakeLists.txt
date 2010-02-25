@@ -251,6 +251,7 @@ set(viewer_SOURCE_FILES
     llinspectgroup.cpp
     llinspectobject.cpp
     llinspectremoteobject.cpp
+    llinspecttoast.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
@@ -388,6 +389,7 @@ set(viewer_SOURCE_FILES
     llspatialpartition.cpp
     llspeakbutton.cpp
     llspeakers.cpp
+    llspeakingindicatormanager.cpp
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
@@ -759,6 +761,7 @@ set(viewer_HEADER_FILES
     llinspectgroup.h
     llinspectobject.h
     llinspectremoteobject.h
+    llinspecttoast.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
@@ -894,6 +897,7 @@ set(viewer_HEADER_FILES
     llspatialpartition.h
     llspeakbutton.h
     llspeakers.h
+    llspeakingindicatormanager.h
     llsplitbutton.h
     llsprite.h
     llstartup.h
@@ -1502,6 +1506,7 @@ if (WINDOWS)
         --actions=copy
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
+        --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         --grid=${GRID}
@@ -1572,6 +1577,7 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --artwork=${ARTWORK_DIR}
           --build=${CMAKE_CURRENT_BINARY_DIR}
+          --buildtype=${CMAKE_BUILD_TYPE}
           --channel=${VIEWER_CHANNEL}
           --configuration=${CMAKE_CFG_INTDIR}
           --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
@@ -1655,6 +1661,7 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
+        --buildtype=${CMAKE_BUILD_TYPE}
         --channel=${VIEWER_CHANNEL}
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
@@ -1700,6 +1707,7 @@ if (DARWIN)
       --actions=copy
       --artwork=${ARTWORK_DIR}
       --build=${CMAKE_CURRENT_BINARY_DIR}
+      --buildtype=${CMAKE_BUILD_TYPE}
       --configuration=${CMAKE_CFG_INTDIR}
       --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
       --grid=${GRID}
@@ -1720,6 +1728,7 @@ if (DARWIN)
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --grid=${GRID}
+          --buildtype=${CMAKE_BUILD_TYPE}
           --configuration=${CMAKE_CFG_INTDIR}
           --channel=${VIEWER_CHANNEL}
           --login_channel=${VIEWER_LOGIN_CHANNEL}
@@ -1739,6 +1748,7 @@ if (DARWIN)
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --grid=${GRID}
+          --buildtype=${CMAKE_BUILD_TYPE}
           --configuration=${CMAKE_CFG_INTDIR}
           --channel=${VIEWER_CHANNEL}
           --login_channel=${VIEWER_LOGIN_CHANNEL}
@@ -1759,6 +1769,7 @@ if (INSTALL)
 endif (INSTALL)
 
 if (LL_TESTS)
+else (LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
   include(LLAddBuildTest)

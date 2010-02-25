@@ -641,19 +641,46 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	return NULL;
 }
 
-LLPanel*	LLSideTray::getPanel		(const std::string& panel_name)
+// This is just LLView::findChildView specialized to restrict the search to LLPanels.
+// Optimization for EXT-4068 to avoid searching down to the individual item level
+// when inventories are large.
+LLPanel *findChildPanel(LLPanel *panel, const std::string& name, bool recurse)
 {
-	child_vector_const_iter_t child_it;
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	for (LLView::child_list_const_iter_t child_it = panel->beginChild();
+		 child_it != panel->endChild(); ++child_it)
 	{
-		LLView* view = (*child_it)->findChildView(panel_name,true);
-		if(view)
+		LLPanel *child_panel = dynamic_cast<LLPanel*>(*child_it);
+		if (!child_panel)
+			continue;
+		if (child_panel->getName() == name)
+			return child_panel;
+	}
+	if (recurse)
+	{
+		for (LLView::child_list_const_iter_t child_it = panel->beginChild();
+			 child_it != panel->endChild(); ++child_it)
 		{
-			LLPanel* panel = dynamic_cast<LLPanel*>(view);
-			if(panel)
+			LLPanel *child_panel = dynamic_cast<LLPanel*>(*child_it);
+			if (!child_panel)
+				continue;
+			LLPanel *found_panel = findChildPanel(child_panel,name,recurse);
+			if (found_panel)
 			{
-				return panel;
+				return found_panel;
 			}
+		}
+	}
+	return NULL;
+}
+
+LLPanel* LLSideTray::getPanel(const std::string& panel_name)
+{
+	for ( child_vector_const_iter_t child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	{
+		LLPanel *panel = findChildPanel(*child_it,panel_name,true);
+		if(panel)
+		{
+			return panel;
 		}
 	}
 	return NULL;

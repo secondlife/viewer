@@ -83,6 +83,9 @@ LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 	// This forces using of halign from xml, since LLComboBox
 	// sets it to LLFontGL::LEFT, if text entry is disabled
 	mButton->setHAlign(p.drop_down_button.font_halign);
+
+	// Pressing Gesture button by SPACE/ENTER key should open gestures list
+	mButton->setCommitCallback(boost::bind(&LLComboBox::onButtonMouseDown, this));
 }
 
 LLGestureComboBox::~LLGestureComboBox()

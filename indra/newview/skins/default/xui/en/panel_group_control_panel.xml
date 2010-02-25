@@ -4,7 +4,7 @@
  follows="all"
  height="238"
  name="panel_im_control_panel"
- width="180">
+ width="150">
     <layout_stack
      mouse_opaque="false"
      border_size="0"
@@ -16,7 +16,7 @@
      name="vertical_stack"
      orientation="vertical"
      top="0"
-     width="175">
+     width="145">
         <layout_panel
          auto_resize="true"
          follows="top|left"
@@ -24,7 +24,7 @@
          layout="topleft"
          min_height="0"
          mouse_opaque="false"
-         width="180"
+         width="145"
          top="0"
          name="speakers_list_panel"
          user_resize="false">
@@ -39,7 +39,7 @@
              show_info_btn="false"
              show_profile_btn="false"
              show_speaking_indicator="false"
-             width="180" />
+             width="145" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -47,7 +47,7 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="160"
+         width="130"
          name="group_info_btn_panel"
          user_resize="false">
             <button
@@ -57,7 +57,7 @@
              name="group_info_btn"
              use_ellipses="true"
              top="5"
-             width="160" />
+             width="130" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -65,7 +65,7 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="160"
+         width="130"
          name="call_btn_panel"
          user_resize="false">
             <button
@@ -74,7 +74,7 @@
              label="Call Group"
              name="call_btn"
              use_ellipses="true" 
-             width="160" />
+             width="130" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -82,7 +82,7 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="160"
+         width="130"
          name="end_call_btn_panel"
          user_resize="false"
          visible="false">
@@ -99,7 +99,7 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="160"
+         width="130"
          name="voice_ctrls_btn_panel"
          user_resize="false"
          visible="false">

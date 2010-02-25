@@ -98,6 +98,9 @@ private:
 	int mLastMouseX;
 	int mLastMouseY;
 	bool mFirstFocus;
+	F32 mBackgroundR;
+	F32 mBackgroundG;
+	F32 mBackgroundB;
 	
 	void setInitState(int state)
 	{
@@ -237,8 +240,9 @@ private:
 			// don't flip bitmap
 			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
 			
-			// set background color to be black - mostly for initial login page
-			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, 0x00, 0x00, 0x00 );
+			// set background color
+			// convert background color channels from [0.0, 1.0] to [0, 255];
+			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, int(mBackgroundR * 255.0f), int(mBackgroundG * 255.0f), int(mBackgroundB * 255.0f) );
 
 			// Set state _before_ starting the navigate, since onNavigateBegin might get called before this call returns.
 			setInitState(INIT_STATE_NAVIGATING);
@@ -246,7 +250,21 @@ private:
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
 			// FIXME: Re-added this because navigating to a "page" initializes things correctly - especially
 			// for the HTTP AUTH dialog issues (DEV-41731). Will fix at a later date.
-			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
+			// Build a data URL like this: "data:text/html,%3Chtml%3E%3Cbody bgcolor=%22#RRGGBB%22%3E%3C/body%3E%3C/html%3E"
+			// where RRGGBB is the background color in HTML style
+			std::stringstream url;
+			
+			url << "data:text/html,%3Chtml%3E%3Cbody%20bgcolor=%22#";
+			// convert background color channels from [0.0, 1.0] to [0, 255];
+			url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundR * 255.0f);
+			url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundG * 255.0f);
+			url << std::setfill('0') << std::setw(2) << std::hex << int(mBackgroundB * 255.0f);
+			url << "%22%3E%3C/body%3E%3C/html%3E";
+			
+			lldebugs << "data url is: " << url.str() << llendl;
+						
+			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, url.str() );
+//			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
 
 			return true;
 		};
@@ -318,7 +336,9 @@ private:
 
 		if(mInitState == INIT_STATE_NAVIGATE_COMPLETE)
 		{
-			setInitState(INIT_STATE_WAIT_REDRAW);
+			// Skip the WAIT_REDRAW state now -- with the right background color set, it should no longer be necessary.
+//			setInitState(INIT_STATE_WAIT_REDRAW);
+			setInitState(INIT_STATE_WAIT_COMPLETE);
 		}
 		
 	}
@@ -704,7 +724,11 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				S32 height = message_in.getValueS32("height");
 				S32 texture_width = message_in.getValueS32("texture_width");
 				S32 texture_height = message_in.getValueS32("texture_height");
-				
+				mBackgroundR = message_in.getValueReal("background_r");
+				mBackgroundG = message_in.getValueReal("background_g");
+				mBackgroundB = message_in.getValueReal("background_b");
+//				mBackgroundA = message_in.setValueReal("background_a");		// Ignore any alpha
+								
 				if(!name.empty())
 				{
 					// Find the shared memory region with this name

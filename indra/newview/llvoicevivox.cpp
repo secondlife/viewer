@@ -4189,19 +4189,26 @@ void LLVivoxVoiceClient::sessionState::removeAllParticipants()
 	}
 }
 
-std::vector<LLUUID> LLVivoxVoiceClient::getParticipantList(void)
+void LLVivoxVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 {
-	std::vector<LLUUID> result;
 	if(mAudioSession)
 	{
 		for(participantUUIDMap::iterator iter = mAudioSession->mParticipantsByUUID.begin();
 			iter != mAudioSession->mParticipantsByUUID.end(); 
 			iter++)
 		{
-			result.push_back(iter->first);
+			participants.insert(iter->first);
 		}
 	}
-	return result;
+}
+
+bool LLVivoxVoiceClient::isParticipant(const LLUUID &speaker_id)
+{
+  if(mAudioSession)
+    {
+      return (mAudioSession->mParticipantsByUUID.find(speaker_id) != mAudioSession->mParticipantsByUUID.end());
+    }
+  return false;
 }
 
 

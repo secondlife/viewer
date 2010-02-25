@@ -27,7 +27,7 @@
      max_length="512"
      name="chat_box"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
-     top="1"
+     top="2"
      width="283" />
     <output_monitor
      auto_update="true"
@@ -45,7 +45,7 @@
      follows="right"
      is_toggle="true"
      width="20"
-     top="1"
+     top="2"
      layout="topleft"
      left_pad="4"
      image_disabled="ComboButton_UpOff"

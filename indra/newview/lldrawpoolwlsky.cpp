@@ -159,15 +159,10 @@ void LLDrawPoolWLSky::renderStars(void) const
 	// *NOTE: have to have bound the cloud noise texture already since register
 	// combiners blending below requires something to be bound
 	// and we might as well only bind once.
-	//gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	
 	gPipeline.disableLights();
-
-	if (!LLPipeline::sReflectionRender)
-	{
-		glPointSize(2.f);
-	}
-
+	
 	// *NOTE: we divide by two here and GL_ALPHA_SCALE by two below to avoid
 	// clamping and allow the star_alpha param to brighten the stars.
 	bool error;
@@ -175,16 +170,20 @@ void LLDrawPoolWLSky::renderStars(void) const
 	star_alpha.mV[3] = LLWLParamManager::instance()->mCurParams.getFloat("star_brightness", error) / 2.f;
 	llassert_always(!error);
 
+	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
+
+	gGL.pushMatrix();
+	glRotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
 	// gl_FragColor.rgb = gl_Color.rgb;
 	// gl_FragColor.a = gl_Color.a * star_alpha.a;
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_PREV_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
+	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
 
 	gSky.mVOWLSkyp->drawStars();
 
-	glPointSize(1.f);
-
+	gGL.popMatrix();
+	
 	// and disable the combiner states
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }

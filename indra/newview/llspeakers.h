@@ -67,6 +67,8 @@ public:
 
 	void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
 
+	bool isInVoiceChannel();
+
 	ESpeakerStatus	mStatus;			// current activity status in speech group
 	F32				mLastSpokeTime;		// timestamp when this speaker last spoke
 	F32				mSpeechVolume;		// current speech amplitude (timea average rms amplitude?)

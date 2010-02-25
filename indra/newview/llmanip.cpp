@@ -436,7 +436,7 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 
 	glPushMatrix();
 	{
-		LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
+		LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
 		gViewerWindow->setup2DRender();
 		const LLVector2& display_scale = gViewerWindow->getDisplayScale();
 		glScalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);

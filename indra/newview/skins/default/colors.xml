@@ -292,7 +292,7 @@
      reference="White" />
      <color
      name="FilterBackgroundColor"
-     reference="MouseGray" />
+     reference="Black" />
     <color
      name="FilterTextColor"
      value="0.38 0.69 0.57 1" />
@@ -394,7 +394,10 @@
      reference="White" />
     <color
      name="InventoryBackgroundColor"
-     reference="Unused?" />
+     reference="DkGray2" />
+    <color
+     name="InventoryFocusOutlineColor"
+     reference="EmphasisColor" />
     <color
      name="InventoryItemSuffixColor"
      reference="White_25" />

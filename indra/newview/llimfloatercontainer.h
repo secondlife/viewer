@@ -52,7 +52,11 @@ public:
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
 	static LLFloater* getCurrentVoiceFloater();
-	
+
+	static LLIMFloaterContainer* findInstance();
+
+	static LLIMFloaterContainer* getInstance();
+
 protected:
 	
 	LLFloater* mActiveVoiceFloater;

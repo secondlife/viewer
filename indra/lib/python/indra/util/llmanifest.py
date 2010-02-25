@@ -119,6 +119,7 @@ ARGUMENTS=[
         On Linux this would try to use Linux_i686Manifest.""",
          default=""),
     dict(name='build', description='Build directory.', default=DEFAULT_SRCTREE),
+    dict(name='buildtype', description='Build type (i.e. Debug, Release, RelWithDebInfo).', default=None),
     dict(name='configuration',
          description="""The build configuration used.""",
          default="Release"),

@@ -176,7 +176,7 @@
      max_val="1024"
      min_val="32"
      name="cache_size"
-     top_delta="-1"
+     top_delta="-2"
      width="180" />
     <text
      type="string"
@@ -191,6 +191,18 @@
      width="40">
         MB
     </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="80"
+     name="Cache location"
+     top_delta="20"
+     width="300">
+        Cache location:
+    </text>
     <line_editor
      control_name="CacheLocationTopFolder"
      border_style="line"
@@ -199,12 +211,12 @@
      follows="left|top"
      font="SansSerif"
      handle_edit_keys_directly="true"
-     height="20"
+     height="23"
      layout="topleft"
      left="80"
      max_length="4096"
      name="cache_location"
-     top_pad="20"
+     top_pad="5"
      width="205" />
     <button
      follows="left|top"
@@ -232,20 +244,6 @@
         <button.commit_callback
          function="Pref.ResetCache" />
     </button>
-
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="80"
-     name="Cache location"
-     top_delta="20"
-     width="300"
-     text_color="LtGray_50">
-        Cache location
-    </text>
     <text
      type="string"
      length="1"
@@ -301,15 +299,28 @@
      mouse_opaque="true"
      name="web_proxy_enabled"
      radio_style="false"
-     width="400" />
+     width="400"
+     top_pad="5"/>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="1"
+     name="Proxy location"
+     top_delta="20"
+     width="300">
+        Proxy location:
+    </text>
     <line_editor
      control_name="BrowserProxyAddress"
      enabled_control="BrowserProxyEnabled"
 	 follows="left|top"
      font="SansSerif"
-     height="20"
+     height="23"
      layout="topleft"
-     left_delta="1"
+     left_delta="0"
      name="web_proxy_editor"
      tool_tip="The name or IP address of the proxy you would like to use"
      top_pad="4"
@@ -328,16 +339,4 @@
         <button.commit_callback
          function="Pref.SetCache" />
     </button>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_delta="-203"
-     name="Proxy location"
-     top_delta="20"
-     width="300"
-     text_color="LtGray_50">
-        Proxy location
-    </text></panel>
+  </panel>

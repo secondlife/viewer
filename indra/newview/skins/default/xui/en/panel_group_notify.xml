@@ -93,7 +93,7 @@
      bottom="85"
      follows="bottom"
      height="20"
-     label="Ok"
+     label="OK"
      layout="topleft"
      right="-10"
      name="btn_ok"

@@ -115,7 +115,9 @@ public:
 	virtual LLVoiceDeviceList& getRenderDevices();
 	//@}	
 	
-	virtual std::vector<LLUUID> getParticipantList(void);
+	virtual void getParticipantList(std::set<LLUUID> &participants);
+	virtual bool isParticipant(const LLUUID& speaker_id);
+
 	// Send a text message to the specified user, initiating the session if necessary.
 	virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message);
 	

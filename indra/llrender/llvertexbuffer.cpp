@@ -1061,17 +1061,20 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				}
 			}
 
-			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
-			if ((GLuint)buff != mGLIndices)
+			if (mGLIndices)
 			{
-				if (gDebugSession)
+				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
+				if ((GLuint)buff != mGLIndices)
 				{
-					error = TRUE;
-					gFailLog << "Invalid GL index buffer bound: " << buff <<  std::endl;
-				}
-				else
-				{
-					llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+					if (gDebugSession)
+					{
+						error = TRUE;
+						gFailLog << "Invalid GL index buffer bound: " << buff <<  std::endl;
+					}
+					else
+					{
+						llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+					}
 				}
 			}
 		}
@@ -1095,17 +1098,20 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 					}
 				}
 
-				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
-				if ((GLuint)buff != mGLIndices)
+				if (mGLIndices != 0)
 				{
-					if (gDebugSession)
+					glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
+					if ((GLuint)buff != mGLIndices)
 					{
-						error = TRUE;
-						gFailLog << "Invalid GL index buffer bound: "<< std::endl;
-					}
-					else
-					{
-						llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+						if (gDebugSession)
+						{
+							error = TRUE;
+							gFailLog << "Invalid GL index buffer bound: "<< std::endl;
+						}
+						else
+						{
+							llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+						}
 					}
 				}
 			}

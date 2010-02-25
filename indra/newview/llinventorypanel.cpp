@@ -98,10 +98,6 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&LLInventoryPanel::attachObject, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
 	
-	setBackgroundColor(LLUIColorTable::instance().getColor("InventoryBackgroundColor"));
-	setBackgroundVisible(TRUE);
-	setBackgroundOpaque(TRUE);
-	
 	if (mStartFolderString != "")
 	{
 		mBuildDefaultHierarchy = false;

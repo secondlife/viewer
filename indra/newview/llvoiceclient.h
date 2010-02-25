@@ -142,7 +142,8 @@ public:
 	virtual LLVoiceDeviceList& getCaptureDevices()=0;
 	virtual LLVoiceDeviceList& getRenderDevices()=0;
 	
-	virtual std::vector<LLUUID> getParticipantList(void)=0;
+	virtual void getParticipantList(std::set<LLUUID> &participants)=0;
+	virtual bool isParticipant(const LLUUID& speaker_id)=0;
 	//@}
 	
 	////////////////////////////
@@ -368,7 +369,8 @@ static const F32 OVERDRIVEN_POWER_LEVEL;
 	/////////////////////////////
 	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
 													  // Use this to determine whether to show a "no speech" icon in the menu bar.
-	std::vector<LLUUID> getParticipantList(void);
+	void getParticipantList(std::set<LLUUID> &participants);
+	bool isParticipant(const LLUUID& speaker_id);
 	
 	//////////////////////////
 	/// @name text chat

@@ -253,17 +253,27 @@ const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
 //--------------------------------------------------
 // participants
 
-std::vector<LLUUID> LLVoiceClient::getParticipantList(void)
+void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 {
 	if (mVoiceModule) 
 	{
-		return mVoiceModule->getParticipantList();
+	  mVoiceModule->getParticipantList(participants);
 	}
 	else
 	{
-		return std::vector<LLUUID>();
+	  participants = std::set<LLUUID>();
 	}
 }
+
+bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
+{
+  if(mVoiceModule)
+    {
+      return mVoiceModule->isParticipant(speaker_id);
+    }
+  return false;
+}
+
 
 //--------------------------------------------------
 // text chat

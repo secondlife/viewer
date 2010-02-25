@@ -24,6 +24,7 @@ top="600"
 </panel.string>
 <!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
 <web_browser
+bg_opaque_color="Black"
 border_visible="false"
 bottom="600"
 follows="all"

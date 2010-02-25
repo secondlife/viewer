@@ -481,9 +481,10 @@ void LLCallFloater::updateAgentModeratorState()
 static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-	std::vector<LLUUID> participants = LLVoiceClient::getInstance()->getParticipantList();
+       std::set<LLUUID> participants;
+       LLVoiceClient::getInstance()->getParticipantList(participants);
 	
-	for (std::vector<LLUUID>::const_iterator iter = participants.begin();
+	for (std::set<LLUUID>::const_iterator iter = participants.begin();
 		 iter != participants.end(); ++iter)
 	{
 		speakers_uuids.push_back(*iter);

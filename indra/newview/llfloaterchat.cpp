@@ -190,7 +190,14 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {	
 	if (log_to_file && (gSavedPerAccountSettings.getBOOL("LogChat"))) 
 	{
-		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		if (chat.mChatType != CHAT_TYPE_WHISPER && chat.mChatType != CHAT_TYPE_SHOUT)
+		{
+			LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		}
+		else
+		{
+			LLLogChat::saveHistory("chat", "", chat.mFromID, chat.mFromName + " " + chat.mText);
+		}
 	}
 	
 	LLColor4 color = get_text_color(chat);
@@ -311,8 +318,10 @@ void LLFloaterChat::addChat(const LLChat& chat, BOOL from_instant_message, BOOL 
 	triggerAlerts(chat.mText);
 
 	// Add the sender to the list of people with which we've recently interacted.
-	if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
-		LLRecentPeople::instance().add(chat.mFromID);
+	// this is not the best place to add _all_ messages to recent list
+	// comment this for now, may remove later on code cleanup
+	//if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
+	//	LLRecentPeople::instance().add(chat.mFromID);
 	
 	bool add_chat = true;
 	bool log_chat = true;

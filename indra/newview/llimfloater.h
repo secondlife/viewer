@@ -64,7 +64,6 @@ public:
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
-	/*virtual*/ void setTornOff(bool torn_off);
 
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
@@ -74,6 +73,8 @@ public:
 	static bool toggle(const LLUUID& session_id);
 
 	static LLIMFloater* findInstance(const LLUUID& session_id);
+
+	static LLIMFloater* getInstance(const LLUUID& session_id);
 
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
@@ -112,6 +113,8 @@ public:
 
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
+
+	static void onIMChicletCreated(const LLUUID& session_id);
 
 private:
 	// process focus events to set a currently active session

@@ -146,6 +146,12 @@ void LLGroupActions::startCall(const LLUUID& group_id)
 // static
 void LLGroupActions::join(const LLUUID& group_id)
 {
+	if (!gAgent.canJoinGroups())
+	{
+		LLNotificationsUtil::add("JoinedTooManyGroups");
+		return;
+	}
+
 	LLGroupMgrGroupData* gdatap = 
 		LLGroupMgr::getInstance()->getGroupData(group_id);
 
@@ -226,7 +232,9 @@ void LLGroupActions::activate(const LLUUID& group_id)
 
 static bool isGroupUIVisible()
 {
-	LLPanel* panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
+	static LLPanel* panel = 0;
+	if(!panel)
+		panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
 	if(!panel)
 		return false;
 	return panel->isInVisibleChain();

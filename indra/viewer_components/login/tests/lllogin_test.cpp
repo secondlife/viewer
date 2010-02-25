@@ -441,8 +441,8 @@ namespace tut
 		// Testing normal login procedure.
 		LLEventStream llaresPump("LLAres"); // Dummy LLAres pump.
 
-		// LLAresListener dummyLLAres("dummy_llares");
-		// dummyLLAres.listenTo(llaresPump);
+		LLAresListener dummyLLAres("dummy_llares");
+		dummyLLAres.listenTo(llaresPump);
 
 		LLLogin login;
 		LoginListener listener("test_ear");
@@ -470,6 +470,12 @@ namespace tut
 		// the original URI.
 		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 		ensure_equals("Attempt", listener.lastEvent()["data"]["attempt"].asInteger(), 1); 
-		ensure_equals("URI", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.bar.com"); 
+		ensure_equals("URI", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.bar.com");
+
+		// EXT-4193: if the SRV reply isn't lost but merely late, and if it
+		// arrives just at the moment we're expecting the XMLRPC reply, the
+		// original code got confused and crashed. Drive that case here. We
+		// observe that without the fix, this call DOES repro.
+		dummyLLAres.sendReply();
 	}
 }

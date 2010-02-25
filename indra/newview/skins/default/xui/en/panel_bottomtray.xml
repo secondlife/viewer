@@ -33,10 +33,10 @@
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
-         min_width="4"
+         min_width="2"
          left="0"
          top="0"
-         width="4" />
+         width="2" />
         <layout_panel
  	mouse_opaque="false"
          auto_resize="false"
@@ -71,7 +71,7 @@
            layout="topleft"
            left="0"
            name="talk"
-           top="4"
+           top="5"
           width="100">
               <show_button>
                   <show_button.init_callback
@@ -110,7 +110,7 @@
           layout="topleft"
           name="Gesture"
           left="0"
-          top="4"
+          top="5"
           width="82"
           tool_tip="Shows/hides gestures">
              <gesture_combo_box.drop_down_button
@@ -153,7 +153,7 @@
              layout="topleft"
              name="movement_btn"
              tool_tip="Shows/hides movement controls"
-             top="4"
+             top="5"
              width="80">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
@@ -195,7 +195,7 @@
              layout="topleft"
              left="0"
              tool_tip="Shows/hides camera controls"
-             top="4"
+             top="5"
              name="camera_btn"
              width="80">
                 <button.init_callback
@@ -235,7 +235,7 @@
              layout="topleft"
              name="snapshots"
              width="36"
-             top="4"
+             top="5"
              is_toggle="true"
              image_overlay="Snapshot_Off"
              tool_tip="Take snapshot">
@@ -338,7 +338,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              layout="topleft"
              left="0"
              name="im_well"
-             top="4"
+             top="5"
              width="35">
              <!--
 Emulate 4 states of button by background images, see details in EXT-3147. The same should be for notification_well button
@@ -362,8 +362,6 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  label_color="Black"
                  left="0"
                  name="Unread IM messages"
-                 pad_left="0"
-                 pad_right="0"
                  tool_tip="Conversations"
                  width="35" >
                     <button.init_callback
@@ -381,8 +379,8 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
          top="0"
          left_pad="3"
          name="notification_well_panel"
-         width="35"
-         min_width="35"
+         width="40"
+         min_width="40"
          user_resize="false">
             <chiclet_notification
              flash_period="0.25"
@@ -392,7 +390,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
              left="0"
              max_displayed_count="99"
              name="notification_well"
-             top="4"
+             top="5"
              width="35">
               <button
                  bottom_pad="3"
@@ -405,11 +403,11 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                follows="right"
                flash_color="ChicletFlashColor"
                 label_color="Black"
-               left="5"
+               left="0"
                name="Unread"
                image_overlay="Notices_Unread"
                image_overlay_alignment="center"
-               pad_right="5"
+               pad_right="15"
                tool_tip="Notifications"
                width="35" >
                   <button.init_callback
@@ -418,16 +416,5 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
               </button>
 	    </chiclet_notification>
         </layout_panel>
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         min_width="4"
-         right="-1"
-         top="0"
-         width="4"/>
     </layout_stack>
 </panel>

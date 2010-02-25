@@ -1149,14 +1149,14 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			if (!LLPipeline::sRenderDeferred)
 			{
 				bump->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
-				bump->createGLTexture(bump->getDiscardLevel(), dst_image);
+				bump->createGLTexture(0, dst_image);
 			}
 			else
 			{
 				LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
 				generateNormalMapFromAlpha(src, nrm_image);
 				bump->setExplicitFormat(GL_RGBA, GL_RGBA);
-				bump->createGLTexture(bump->getDiscardLevel(), nrm_image);
+				bump->createGLTexture(0, nrm_image);
 			}
 
 			

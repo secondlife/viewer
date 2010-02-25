@@ -54,7 +54,7 @@
                      color="LoginProgressBoxCenterColor"
                      follows="left|right|bottom|top"
                      height="250"
-                     image_name="rounded_square.tga"
+                     image_name="Rounded_Square"
                      layout="topleft"
                      left="0"
                      top="0"

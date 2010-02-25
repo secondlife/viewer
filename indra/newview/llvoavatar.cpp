@@ -2535,6 +2535,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 		if (isFullyLoaded())
 		{
 			deleteParticleSource();
+			updateLOD();
 		}
 		else
 		{
@@ -6822,7 +6823,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 ++local_tex_iter)
 			{
-				setBakedReady(*local_tex_iter, TRUE);
+				if (isSelf()) setBakedReady(*local_tex_iter, TRUE);
 			}
 
 			// ! BACKWARDS COMPATIBILITY !

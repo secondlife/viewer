@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llimfloatercontainer.h"
+#include "llfloaterreg.h"
 
 //
 // LLIMFloaterContainer
@@ -91,6 +92,16 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	{
 		mTabContainer->setTabImage(floaterp, "active_voice_tab.tga");	
 	}
+}
+
+LLIMFloaterContainer* LLIMFloaterContainer::findInstance()
+{
+	return LLFloaterReg::findTypedInstance<LLIMFloaterContainer>("im_container");
+}
+
+LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
+{
+	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
 }
 
 // EOF

@@ -62,6 +62,7 @@ public:
 	{
 		mPanel->inventoryFetched();
 		gInventory.removeObserver(this);
+		delete this;
 	}
 private:
 	LLSidepanelAppearance *mPanel;
@@ -94,14 +95,12 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mLookInfo(NULL),
 	mCurrOutfitPanel(NULL)
 {
-	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_appearance.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
-	mFetchWorn = new LLCurrentlyWornFetchObserver(this);
-	
-	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
 {
+	gInventory.removeObserver(mOutfitRenameWatcher);
+	delete mOutfitRenameWatcher;
 }
 
 // virtual
@@ -156,6 +155,7 @@ BOOL LLSidepanelAppearance::postBuild()
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
+	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 	gInventory.addObserver(mOutfitRenameWatcher);
 
 	return TRUE;
@@ -389,16 +389,17 @@ void LLSidepanelAppearance::fetchInventory()
 		}
 	}
 
-	mFetchWorn->fetchItems(ids);
+	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
+	fetch_worn->fetchItems(ids);
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
-	if (mFetchWorn->isEverythingComplete())
+	if (fetch_worn->isEverythingComplete())
 	{
-		mFetchWorn->done();
+		fetch_worn->done();
 	}
 	else
 	{
-		gInventory.addObserver(mFetchWorn);
+		gInventory.addObserver(fetch_worn);
 	}
 }
 
