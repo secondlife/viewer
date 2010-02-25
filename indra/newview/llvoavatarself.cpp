@@ -1653,8 +1653,11 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 {
 	BOOL loading = FALSE;
 
-	// do we have a shape?
-	if (visualParamWeightsAreDefault())
+	// do we have our body parts?
+	if (gAgentWearables.getWearableCount(WT_SHAPE) == 0 ||
+		gAgentWearables.getWearableCount(WT_HAIR) == 0 ||
+		gAgentWearables.getWearableCount(WT_EYES) == 0 ||
+		gAgentWearables.getWearableCount(WT_SKIN) == 0)	
 	{
 		loading = TRUE;
 	}
