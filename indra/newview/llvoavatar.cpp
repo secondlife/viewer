@@ -7634,6 +7634,8 @@ void LLVOAvatar::invalidateName()
 {
 	// force update by clearing name string
 	mNameString.clear();
+	// and force color update by tweaking alpha
+	mNameAlpha = F32_MAX;
 }
 
 LLHost LLVOAvatar::getObjectHost() const
