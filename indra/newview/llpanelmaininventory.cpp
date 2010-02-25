@@ -420,10 +420,8 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 
 	gInventory.startBackgroundFetch();
 
-	std::string uppercase_search_string = search_string;
-	LLStringUtil::toUpper(uppercase_search_string);
-	mFilterSubString = uppercase_search_string;
-	if (mActivePanel->getFilterSubString().empty() && uppercase_search_string.empty())
+	mFilterSubString = search_string;
+	if (mActivePanel->getFilterSubString().empty() && mFilterSubString.empty())
 	{
 			// current filter and new filter empty, do nothing
 			return;
