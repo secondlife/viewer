@@ -1021,7 +1021,7 @@ void LLVOVolume::updateSculptTexture()
 {
 	LLPointer<LLViewerFetchedTexture> old_sculpt = mSculptTexture;
 
-	if (isSculpted())
+	if (isSculpted() && !isMesh())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID id =  sculpt_params->getSculptTexture(); 
