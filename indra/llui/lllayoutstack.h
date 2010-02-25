@@ -74,7 +74,7 @@ public:
 		ANIMATE
 	} EAnimate;
 
-	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize, EAnimate animate = NO_ANIMATE, S32 index = S32_MAX);
+	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, S32 max_width, S32 max_height, BOOL auto_resize, BOOL user_resize, EAnimate animate = NO_ANIMATE, S32 index = S32_MAX);
 	void removePanel(LLPanel* panel);
 	void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
 	S32 getNumPanels() { return mPanels.size(); }
@@ -89,6 +89,14 @@ public:
 	 * @returns true if specified by panel_name internal panel exists, false otherwise.
 	 */
 	bool getPanelMinSize(const std::string& panel_name, S32* min_widthp, S32* min_heightp);
+
+	/**
+	 * Gets maximal width and/or height of the specified by name panel.
+	 *
+	 * If it is necessary to get only the one dimension pass NULL for another one.
+	 * @returns true if specified by panel_name internal panel exists, false otherwise.
+	 */
+	bool getPanelMaxSize(const std::string& panel_name, S32* max_width, S32* max_height);
 	
 	void updateLayout(BOOL force_resize = FALSE);
 	
