@@ -2098,8 +2098,6 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
 			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
 
-			F32 scale = llclamp((F32) mdl[i]["Scale"].asReal(), 1.f, 10.f);
-
 			LLVector3 pos_range = max_pos - min_pos;
 			LLVector2 tc_range = max_tc - min_tc;
 
@@ -2116,8 +2114,6 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					(F32) v[0] / 65535.f * pos_range.mV[0] + min_pos.mV[0],
 					(F32) v[1] / 65535.f * pos_range.mV[1] + min_pos.mV[1],
 					(F32) v[2] / 65535.f * pos_range.mV[2] + min_pos.mV[2]);
-
-				face.mVertices[j].mPosition *= scale;
 
 				if (j == 0)
 				{

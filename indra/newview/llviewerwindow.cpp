@@ -599,6 +599,20 @@ public:
 				ypos += y_inc;
 			}
 		}
+
+		S32 pending = (S32) gMeshRepo.mPendingRequests.size();
+		S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
+		S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
+
+		if (pending + header + lod + LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests != 0)
+		{
+			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
+												pending,
+												LLMeshRepoThread::sActiveHeaderRequests, header,
+												LLMeshRepoThread::sActiveLODRequests, lod));
+
+			ypos += y_inc;
+		}
 	}
 
 	void draw()
