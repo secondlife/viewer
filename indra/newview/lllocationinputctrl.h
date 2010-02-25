@@ -36,6 +36,7 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"		// Params
 #include "lltextbox.h"		// Params
+#include "lllocationhistory.h"
 
 class LLLandmark;
 
@@ -137,7 +138,7 @@ private:
 	void					refreshHealth();
 	void					positionMaturityIcon();
 	
-	void					rebuildLocationHistory(std::string filter = "");
+	void					rebuildLocationHistory(const std::string& filter = LLStringUtil::null);
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
 	void					setText(const LLStringExplicit& text);
 	void					updateAddLandmarkButton();
@@ -147,7 +148,7 @@ private:
 	void					changeLocationPresentation();
 
 	void					onInfoButtonClicked();
-	void					onLocationHistoryLoaded();
+	void					onLocationHistoryChanged(LLLocationHistory::EChangeType event);
 	void					onLocationPrearrange(const LLSD& data);
 	void 					onTextEditorRightClicked(S32 x, S32 y, MASK mask);
 	void					onLandmarkLoaded(LLLandmark* lm);

@@ -52,7 +52,6 @@
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
-#include "lllocationhistory.h"
 #include "llteleporthistory.h"
 #include "llsidetray.h"
 #include "llslurl.h"
@@ -377,9 +376,10 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	// - Update the location string on parcel change.
 	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
-
-	mLocationHistoryConnection = LLLocationHistory::getInstance()->setLoadedCallback(
-			boost::bind(&LLLocationInputCtrl::onLocationHistoryLoaded, this));
+	// LLLocationHistory instance is being created before the location input control, so we have to update initial state of button manually.
+	mButton->setEnabled(LLLocationHistory::instance().getItemCount() > 0);
+	mLocationHistoryConnection = LLLocationHistory::getInstance()->setChangedCallback(
+			boost::bind(&LLLocationInputCtrl::onLocationHistoryChanged, this,_1));
 
 	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
 	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
@@ -620,9 +620,13 @@ void LLLocationInputCtrl::onLandmarkLoaded(LLLandmark* lm)
 	updateAddLandmarkButton();
 }
 
-void LLLocationInputCtrl::onLocationHistoryLoaded()
+void LLLocationInputCtrl::onLocationHistoryChanged(LLLocationHistory::EChangeType event)
 {
-	rebuildLocationHistory();
+	if(event == LLLocationHistory::LOAD)
+	{
+		rebuildLocationHistory();
+	}
+	mButton->setEnabled(LLLocationHistory::instance().getItemCount() > 0);
 }
 
 void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
@@ -893,7 +897,7 @@ void LLLocationInputCtrl::positionMaturityIcon()
 	mMaturityIcon->setVisible(rect.mRight < mTextEntry->getRect().getWidth() - right_pad);
 }
 
-void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
+void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 {
 	LLLocationHistory::location_list_t filtered_items;
 	const LLLocationHistory::location_list_t* itemsp = NULL;
