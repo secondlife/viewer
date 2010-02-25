@@ -55,6 +55,7 @@
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llthread.h"
+#include "lltimer.h"
 
 //////////////////////////////////////////////////////////////////////////////
 /*
@@ -256,7 +257,12 @@ public:
 	
 	void resetState();
 
+	static CURL* allocEasyHandle();
+	static void releaseEasyHandle(CURL* handle);
+
 private:	
+	friend class LLCurl;
+
 	CURL*				mCurlEasyHandle;
 	struct curl_slist*	mHeaders;
 	
@@ -271,7 +277,61 @@ private:
 	std::vector<char*>	mStrings;
 	
 	ResponderPtr		mResponder;
+
+	static std::set<CURL*> sFreeHandles;
+	static std::set<CURL*> sActiveHandles;
+	static LLMutex* sHandleMutex;
 };
+
+std::set<CURL*> LLCurl::Easy::sFreeHandles;
+std::set<CURL*> LLCurl::Easy::sActiveHandles;
+LLMutex* LLCurl::Easy::sHandleMutex = NULL;
+
+
+//static
+CURL* LLCurl::Easy::allocEasyHandle()
+{
+	CURL* ret = NULL;
+	LLMutexLock lock(sHandleMutex);
+	if (sFreeHandles.empty())
+	{
+		ret = curl_easy_init();
+	}
+	else
+	{
+		ret = *(sFreeHandles.begin());
+		sFreeHandles.erase(ret);
+		curl_easy_reset(ret);
+	}
+
+	if (ret)
+	{
+		sActiveHandles.insert(ret);
+	}
+
+	return ret;
+}
+
+//static
+void LLCurl::Easy::releaseEasyHandle(CURL* handle)
+{
+	if (!handle)
+	{
+		llerrs << "handle cannot be NULL!" << llendl;
+	}
+
+	LLMutexLock lock(sHandleMutex);
+	
+	if (sActiveHandles.find(handle) != sActiveHandles.end())
+	{
+		sActiveHandles.erase(handle);
+		sFreeHandles.insert(handle);
+	}
+	else
+	{
+		llerrs << "Invalid handle." << llendl;
+	}
+}
 
 LLCurl::Easy::Easy()
 	: mHeaders(NULL),
@@ -283,11 +343,12 @@ LLCurl::Easy::Easy()
 LLCurl::Easy* LLCurl::Easy::getEasy()
 {
 	Easy* easy = new Easy();
-	easy->mCurlEasyHandle = curl_easy_init();
+	easy->mCurlEasyHandle = allocEasyHandle(); 
+	
 	if (!easy->mCurlEasyHandle)
 	{
 		// this can happen if we have too many open files (fails in c-ares/ares_init.c)
-		llwarns << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
+		llwarns << "allocEasyHandle() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
 		delete easy;
 		return NULL;
 	}
@@ -301,7 +362,7 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 
 LLCurl::Easy::~Easy()
 {
-	curl_easy_cleanup(mCurlEasyHandle);
+	releaseEasyHandle(mCurlEasyHandle);
 	--gCurlEasyCount;
 	curl_slist_free_all(mHeaders);
 	for_each(mStrings.begin(), mStrings.end(), DeletePointerArray());
@@ -543,6 +604,7 @@ LLCurl::Multi::Multi()
 	  mErrorCount(0)
 {
 	mCurlMultiHandle = curl_multi_init();
+	
 	if (!mCurlMultiHandle)
 	{
 		llwarns << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
@@ -1078,6 +1140,8 @@ void LLCurl::initClass()
 	// - http://curl.haxx.se/libcurl/c/curl_global_init.html
 	curl_global_init(CURL_GLOBAL_ALL);
 	
+	Easy::sHandleMutex = new LLMutex(NULL);
+
 #if SAFE_SSL
 	S32 mutex_count = CRYPTO_num_locks();
 	for (S32 i=0; i<mutex_count; i++)
@@ -1095,5 +1159,22 @@ void LLCurl::cleanupClass()
 	CRYPTO_set_locking_callback(NULL);
 	for_each(sSSLMutex.begin(), sSSLMutex.end(), DeletePointer());
 #endif
+
+	delete Easy::sHandleMutex;
+	Easy::sHandleMutex = NULL;
+
+	for (std::set<CURL*>::iterator iter = Easy::sFreeHandles.begin(); iter != Easy::sFreeHandles.end(); ++iter)
+	{
+		CURL* curl = *iter;
+		curl_easy_cleanup(curl);
+	}
+
+	Easy::sFreeHandles.clear();
+
+	if (!Easy::sActiveHandles.empty())
+	{
+		llerrs << "CURL easy handles not cleaned up on shutdown!" << llendl;
+	}
+
 	curl_global_cleanup();
 }
