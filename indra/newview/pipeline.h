@@ -270,15 +270,14 @@ public:
 	void shiftObjects(const LLVector3 &offset);
 
 	void setLight(LLDrawable *drawablep, BOOL is_light);
-	void setActive(LLDrawable *drawablep, BOOL active);
-
+	
 	BOOL hasRenderBatches(const U32 type) const;
 	LLCullResult::drawinfo_list_t::iterator beginRenderMap(U32 type);
 	LLCullResult::drawinfo_list_t::iterator endRenderMap(U32 type);
 	LLCullResult::sg_list_t::iterator beginAlphaGroups();
 	LLCullResult::sg_list_t::iterator endAlphaGroups();
 	
-	void addTrianglesDrawn(S32 count);
+	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
 	BOOL hasRenderType(const U32 type) const				{ return (type && (mRenderTypeMask & (1<<type))) ? TRUE : FALSE; }
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
 	BOOL hasRenderDebugMask(const U32 mask) const			{ return (mRenderDebugMask & mask) ? TRUE : FALSE; }
@@ -448,7 +447,7 @@ public:
 	static BOOL				sFastAlpha;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
-	static BOOL				sUseFBO;
+	static BOOL				sUseTriStrips;
 	static BOOL				sUseFarClip;
 	static BOOL				sShadowRender;
 	static BOOL				sWaterReflections;
@@ -589,8 +588,6 @@ protected:
 
 	LLViewerObject::vobj_list_t		mCreateQ;
 		
-	LLDrawable::drawable_set_t		mActiveQ;
-	
 	LLDrawable::drawable_set_t		mRetexturedList;
 
 	class HighlightItem

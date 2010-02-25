@@ -64,7 +64,7 @@
 		<radio_item label="Fläche auswählen" name="radio select face"/>
 	</radio_group>
 	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts"/>
-	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für diesen Objekt">
+	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt">
 		þ: [COUNT]
 	</text>
 	<check_box label="Beide Seiten dehnen" name="checkbox uniform"/>

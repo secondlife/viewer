@@ -155,14 +155,14 @@ private:
 	void doCreatePick(LLLandmark* landmark);
 
 private:
-	LLPlacesInventoryPanel*	mFavoritesInventoryPanel;
-	LLPlacesInventoryPanel*	mLandmarksInventoryPanel;
-	LLPlacesInventoryPanel*	mMyInventoryPanel;
-	LLPlacesInventoryPanel*	mLibraryInventoryPanel;
+	LLPlacesInventoryPanel*		mFavoritesInventoryPanel;
+	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
+	LLPlacesInventoryPanel*		mMyInventoryPanel;
+	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
 	LLMenuGL*					mGearLandmarkMenu;
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
-	LLPlacesInventoryPanel*	mCurrentSelectedList;
+	LLPlacesInventoryPanel*		mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;

@@ -4,7 +4,7 @@
 		色の付いたバンドをドラッグしてオブジェクトを回転
 	</floater.string>
 	<floater.string name="status_scale">
-		選択した側をクリックし、ドラッグして引き伸ばす
+		選択した側をクリックし、ドラッグで引き伸ばす
 	</floater.string>
 	<floater.string name="status_move">
 		移動：ドラッグ、コピー：Shift + ドラッグ
@@ -70,7 +70,7 @@
 	<check_box label="両側を引伸ばす" left="116" name="checkbox uniform"/>
 	<check_box initial_value="true" label="テクスチャを引伸ばす" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="グリッドポイントにスナップ" left_delta="27" name="checkbox snap to grid"/>
-	<combo_box left_delta="60" name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択" width="76">
+	<combo_box left_delta="60" name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します" width="76">
 		<combo_box.item label="インワールドグリッド" name="World"/>
 		<combo_box.item label="ローカルグリッド" name="Local"/>
 		<combo_box.item label="リファレンスグリッド" name="Reference"/>
@@ -113,7 +113,7 @@
 	<text name="Strength:">
 		強度
 	</text>
-	<button label="適用" label_selected="適用" name="button apply to selection" tool_tip="選択した土地を修正"/>
+	<button label="適用" label_selected="適用" name="button apply to selection" tool_tip="選択した土地を修正します"/>
 	<text name="obj_count">
 		オブジェクト： [COUNT]
 	</text>
@@ -179,20 +179,20 @@
 			<text name="Group:">
 				グループ：
 			</text>
-			<button label="設定..." label_selected="設定..." name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択"/>
+			<button label="設定..." label_selected="設定..." name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します"/>
 			<name_box initial_value="ローディング..." name="Group Name Proxy"/>
-			<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
-			<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません。"/>
+			<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます"/>
+			<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません"/>
 			<text name="label click action">
 				クリックで：
 			</text>
 			<combo_box name="clickaction">
 				<combo_box.item label="触る（デフォルト）" name="Touch/grab(default)"/>
 				<combo_box.item label="オブジェクトに座る" name="Sitonobject"/>
-				<combo_box.item label="オブジェクトを購入" name="Buyobject"/>
-				<combo_box.item label="オブジェクトへの支払い" name="Payobject"/>
+				<combo_box.item label="オブジェクトを購入する" name="Buyobject"/>
+				<combo_box.item label="オブジェクトに支払う" name="Payobject"/>
 				<combo_box.item label="開く" name="Open"/>
-				<combo_box.item label="ズーム" name="Zoom"/>
+				<combo_box.item label="ズームする" name="Zoom"/>
 			</combo_box>
 			<check_box label="販売対象：" name="checkbox for sale"/>
 			<combo_box name="sale type">
@@ -216,7 +216,7 @@
 				</text>
 				<check_box label="修正" name="checkbox next owner can modify"/>
 				<check_box label="コピー" name="checkbox next owner can copy"/>
-				<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
+				<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次に所有する人は、このオブジェクトを他人にあげたり再販できます"/>
 				<text name="B:">
 					B:
 				</text>
@@ -238,7 +238,7 @@
 			</panel>
 		</panel>
 		<panel label="形状" name="Object">
-			<check_box label="ロック済み" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。 この機能を使うと、制作中の意図せぬ編集を防ぐことができます。"/>
+			<check_box label="ロック" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。 この機能を使うと、制作中の意図せぬ編集を防ぐことができます"/>
 			<check_box label="物理" name="Physical Checkbox Ctrl" tool_tip="オブジェクトに対する重力の作用と影響を有効にします"/>
 			<check_box label="臨時" name="Temporary Checkbox Ctrl" tool_tip="制作後 1 分でオブジェクトは削除されます"/>
 			<check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクト同士の衝突またはオブジェクトとアバターの衝突を回避します"/>
@@ -339,7 +339,7 @@
 			<text name="text revolutions">
 				回転体
 			</text>
-			<texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして写真を選択してください。"/>
+			<texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして写真を選択してください"/>
 			<check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムを X 軸上で反転させます"/>
 			<check_box label="裏返し" name="sculpt invert control" tool_tip="スカルプトプリムを反転させて裏返します"/>
 			<text name="label sculpt type">
@@ -386,7 +386,7 @@
 			<panel.string name="string repeats per face">
 				面ごとに繰り返す
 			</panel.string>
-			<texture_picker label="テクスチャー" name="texture control" tool_tip="写真をクリックして選択"/>
+			<texture_picker label="テクスチャ" name="texture control" tool_tip="写真をクリックして選択します"/>
 			<color_swatch label="色" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<text name="color trans">
 				透過度 %

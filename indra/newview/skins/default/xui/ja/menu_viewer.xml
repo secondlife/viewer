@@ -9,8 +9,8 @@
 		<menu_item_call label="マイ プロフィール" name="Profile"/>
 		<menu_item_call label="マイ 容姿" name="Appearance"/>
 		<menu_item_check label="マイ 持ち物" name="Inventory"/>
-		<menu_item_call label="持ち物をサイドトレイに表示" name="ShowSidetrayInventory"/>
-		<menu_item_call label="マイ ジェスチャー" name="Gestures"/>
+		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
+		<menu_item_check label="マイ ジェスチャー" name="Gestures"/>
 		<menu label="マイ ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
@@ -24,7 +24,6 @@
 		<menu_item_call label="所属グループ" name="My Groups"/>
 		<menu_item_check label="近くのチャット" name="Nearby Chat"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
-		<menu_item_check label="近くのメディア" name="Nearby Media"/>
 	</menu>
 	<menu label="世界" name="World">
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
@@ -39,7 +38,11 @@
 		<menu_item_call label="自分の土地" name="My Land"/>
 		<menu label="表示" name="LandShow">
 			<menu_item_check label="移動コントロール" name="Movement Controls"/>
-			<menu_item_check label="コントロールを表示" name="Camera Controls"/>
+			<menu_item_check label="カメラコントロール" name="Camera Controls"/>
+			<menu_item_check label="立入禁止ライン" name="Ban Lines"/>
+			<menu_item_check label="ビーコン（標識）" name="beacons"/>
+			<menu_item_check label="プロパティ境界線" name="Property Lines"/>
+			<menu_item_check label="土地所有者" name="Land Owners"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -58,7 +61,7 @@
 			<menu_item_call label="フォーカスツール" name="Focus"/>
 			<menu_item_call label="移動ツール" name="Move"/>
 			<menu_item_call label="編集ツール" name="Edit"/>
-			<menu_item_call label="クリエーションツール" name="Create"/>
+			<menu_item_call label="作成ツール" name="Create"/>
 			<menu_item_call label="土地ツール" name="Land"/>
 		</menu>
 		<menu label="編集" name="Edit">
@@ -91,24 +94,24 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="オプション" name="Options">
-			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
-			<menu_item_check label="権限の詳細を表示" name="DebugPermissions"/>
-			<menu_item_check label="私のオブジェクトだけを選択" name="Select Only My Objects"/>
-			<menu_item_check label="動的オブジェクトのみ選択" name="Select Only Movable Objects"/>
-			<menu_item_check label="環境で選択" name="Select By Surrounding"/>
-			<menu_item_check label="非表示の選択を表示" name="Show Hidden Selection"/>
-			<menu_item_check label="選択した光の半径範囲を表示" name="Show Light Radius for Selection"/>
-			<menu_item_check label="選択したビームを表示" name="Show Selection Beam"/>
-			<menu_item_check label="グリッドポイントにスナップ" name="Snap to Grid"/>
-			<menu_item_call label="オブジェクトのXY軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
-			<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
+			<menu_item_call label="デフォルトのアップロード権限を設定する" name="perm prefs"/>
+			<menu_item_check label="権限の詳細を表示する" name="DebugPermissions"/>
+			<menu_item_check label="私のオブジェクトだけを選択する" name="Select Only My Objects"/>
+			<menu_item_check label="動的オブジェクトだけを選択する" name="Select Only Movable Objects"/>
+			<menu_item_check label="範囲内を選択する" name="Select By Surrounding"/>
+			<menu_item_check label="隠れた位置の選択も表示する" name="Show Hidden Selection"/>
+			<menu_item_check label="選択した光の半径範囲を表示する" name="Show Light Radius for Selection"/>
+			<menu_item_check label="選択ビームを表示する" name="Show Selection Beam"/>
+			<menu_item_check label="グリッドポイントにスナップする" name="Snap to Grid"/>
+			<menu_item_call label="オブジェクトの XY 軸をグリッドにスナップする" name="Snap Object XY to Grid"/>
+			<menu_item_call label="選択をグリッドに使用する" name="Use Selection for Grid"/>
 			<menu_item_call label="グリッドオプション" name="Grid Options"/>
 		</menu>
-		<menu label="リンクした部分を選択" name="Select Linked Parts">
-			<menu_item_call label="次の部位を選択" name="Select Next Part"/>
-			<menu_item_call label="前回の部位を選択" name="Select Previous Part"/>
-			<menu_item_call label="次の部位を含める" name="Include Next Part"/>
-			<menu_item_call label="前回の部位を含める" name="Include Previous Part"/>
+		<menu label="リンクした部分を選択する" name="Select Linked Parts">
+			<menu_item_call label="次の部分を選択する" name="Select Next Part"/>
+			<menu_item_call label="前回の部分を選択する" name="Select Previous Part"/>
+			<menu_item_call label="次の部分を含める" name="Include Next Part"/>
+			<menu_item_call label="前回の部分を含める" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="ヘルプ" name="Help">
@@ -118,28 +121,28 @@
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
-		<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
-		<menu_item_call label="テクスチャのリベーク" name="Rebake Texture"/>
+		<menu_item_call label="自分のアニメーションを停止する" name="Stop Animating My Avatar"/>
+		<menu_item_call label="テクスチャのリベークをする" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
-		<menu_item_call label="ウィンドウのサイズの設定：" name="Set Window Size..."/>
+		<menu_item_call label="ウィンドウのサイズを設定する" name="Set Window Size..."/>
 		<menu_item_check label="遠くのオブジェクトを選択しない" name="Limit Select Distance"/>
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
-		<menu_item_check label="シャッター音とアニメーションなしでスナップショットをディスクに保存" name="QuietSnapshotsToDisk"/>
+		<menu_item_check label="シャッター音とアニメーションなしでスナップショットをディスクに保存する" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="圧縮してスナップショットをディスクに保存する" name="CompressSnapshotsToDisk"/>
 		<menu label="パフォーマンスツール" name="Performance Tools">
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>
-			<menu_item_check label="アバターのレンダリングコストを表示" name="Avatar Rendering Cost"/>
+			<menu_item_check label="アバターのレンダリングコストを表示する" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="ハイライトと目に見えるもの" name="Highlighting and Visibility">
 			<menu_item_check label="チージービーコン" name="Cheesy Beacon"/>
 			<menu_item_check label="パーティクルを非表示にする" name="Hide Particles"/>
 			<menu_item_check label="選択したものを非表示にする" name="Hide Selected"/>
-			<menu_item_check label="透明部分をハイライト" name="Highlight Transparent"/>
-			<menu_item_check label="HUD を表示" name="Show HUD Attachments"/>
-			<menu_item_check label="一人称視点のときに十字線を表示" name="ShowCrosshairs"/>
-			<menu_item_check label="土地のツールチップを表示" name="Land Tips"/>
+			<menu_item_check label="透明部分をハイライトする" name="Highlight Transparent"/>
+			<menu_item_check label="HUD を表示する" name="Show HUD Attachments"/>
+			<menu_item_check label="一人称視点のときに十字線を表示する" name="ShowCrosshairs"/>
+			<menu_item_check label="土地のツールチップを表示する" name="Land Tips"/>
 		</menu>
 		<menu label="レンダリング（種類）" name="Rendering Types">
 			<menu_item_check label="シンプル" name="Simple"/>
@@ -173,17 +176,17 @@
 			<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
 			<menu_item_check label="検索" name="Search"/>
 			<menu_item_call label="キーをリリース" name="Release Keys"/>
-			<menu_item_call label="UI のサイズをデフォルトに設定" name="Set UI Size to Default"/>
+			<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
-			<menu_item_check label="飛行" name="Fly"/>
+			<menu_item_check label="飛行する" name="Fly"/>
 			<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
 			<menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows"/>
-			<menu_item_call label="スナップショットをディスクに保存" name="Snapshot to Disk"/>
+			<menu_item_call label="スナップショットをディスクに保存する" name="Snapshot to Disk"/>
 			<menu_item_call label="一人称視点" name="Mouselook"/>
-			<menu_item_check label="ジョイスティック・フライカム" name="Joystick Flycam"/>
-			<menu_item_call label="表示をリセット" name="Reset View"/>
+			<menu_item_check label="ジョイスティックフライカム" name="Joystick Flycam"/>
+			<menu_item_call label="表示をリセットする" name="Reset View"/>
 			<menu_item_call label="最後の発言者を見る" name="Look at Last Chatter"/>
-			<menu label="制作ツールを選択" name="Select Tool">
+			<menu label="制作ツールを選択する" name="Select Tool">
 				<menu_item_call label="焦点ツール" name="Focus"/>
 				<menu_item_call label="移動ツール" name="Move"/>
 				<menu_item_call label="編集ツール" name="Edit"/>
@@ -191,12 +194,12 @@
 				<menu_item_call label="土地ツール" name="Land"/>
 			</menu>
 			<menu_item_call label="ズームイン" name="Zoom In"/>
-			<menu_item_call label="ズーム・デフォルト" name="Zoom Default"/>
+			<menu_item_call label="ズーム（デフォルト）" name="Zoom Default"/>
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
 			<menu_item_call label="全画面表示" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="デバッグ設定を表示する" name="Debug Settings"/>
-		<menu_item_check label="開発メニューを表示" name="Debug Mode"/>
+		<menu_item_check label="開発メニューを表示する" name="Debug Mode"/>
 	</menu>
 	<menu label="開発" name="Develop">
 		<menu label="コンソール" name="Consoles">
@@ -204,7 +207,7 @@
 			<menu_item_check label="デバッグコンソール" name="Debug Console"/>
 			<menu_item_call label="通知コンソール" name="Notifications"/>
 			<menu_item_check label="テクスチャサイズのコンソール" name="Texture Size"/>
-			<menu_item_check label="テクスチャカテゴリ・コンソール" name="Texture Category"/>
+			<menu_item_check label="テクスチャカテゴリのコンソール" name="Texture Category"/>
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
@@ -216,21 +219,21 @@
 			<menu_item_check label="バッジ" name="Badge"/>
 		</menu>
 		<menu label="情報を表示" name="Display Info">
-			<menu_item_check label="時間を表示" name="Show Time"/>
-			<menu_item_check label="描画情報を表示" name="Show Render Info"/>
-			<menu_item_check label="マトリックスを表示" name="Show Matrices"/>
-			<menu_item_check label="カーソルを乗せた場所の色を表示" name="Show Color Under Cursor"/>
-			<menu_item_check label="オブジェクトのアップデートを表示" name="Show Updates"/>
+			<menu_item_check label="時間を表示する" name="Show Time"/>
+			<menu_item_check label="描画情報を表示する" name="Show Render Info"/>
+			<menu_item_check label="マトリックスを表示する" name="Show Matrices"/>
+			<menu_item_check label="カーソルを乗せた場所の色を表示する" name="Show Color Under Cursor"/>
+			<menu_item_check label="オブジェクトのアップデートを表示する" name="Show Updates"/>
 		</menu>
-		<menu label="エラーを実行" name="Force Errors">
+		<menu label="エラー実行" name="Force Errors">
 			<menu_item_call label="ブレークポイント" name="Force Breakpoint"/>
-			<menu_item_call label="LLError とクラッシュを実行" name="Force LLError And Crash"/>
-			<menu_item_call label="バッドメモリアクセスを実行" name="Force Bad Memory Access"/>
+			<menu_item_call label="LLError とクラッシュを実行する" name="Force LLError And Crash"/>
+			<menu_item_call label="バッドメモリアクセスを実行する" name="Force Bad Memory Access"/>
 			<menu_item_call label="無限ループ" name="Force Infinite Loop"/>
-			<menu_item_call label="ドライバのクラッシュを実行" name="Force Driver Carsh"/>
-			<menu_item_call label="ソフトウェア例外エラーの実行" name="Force Software Exception"/>
-			<menu_item_call label="ビューワの接続遮断を実行" name="Force Disconnect Viewer"/>
-			<menu_item_call label="メモリリークのシミュレート" name="Memory Leaking Simulation"/>
+			<menu_item_call label="ドライバのクラッシュを実行する" name="Force Driver Carsh"/>
+			<menu_item_call label="ソフトウェア例外エラーの実行する" name="Force Software Exception"/>
+			<menu_item_call label="ビューワの接続遮断を実行する" name="Force Disconnect Viewer"/>
+			<menu_item_call label="メモリリークをシミュレートする" name="Memory Leaking Simulation"/>
 		</menu>
 		<menu label="レンダーテスト" name="Render Tests">
 			<menu_item_check label="カメラオフセット" name="Camera Offset"/>
@@ -247,10 +250,10 @@
 			<menu_item_check label="アニメーション部分をテクスチャで表示" name="Texture Anim"/>
 			<menu_item_check label="テクスチャ優先度" name="Texture Priority"/>
 			<menu_item_check label="テクスチャの範囲" name="Texture Area"/>
-			<menu_item_check label="Face Area" name="Face Area"/>
+			<menu_item_check label="側面" name="Face Area"/>
 			<menu_item_check label="光" name="Lights"/>
 			<menu_item_check label="骨組みの衝突判定" name="Collision Skeleton"/>
-			<menu_item_check label="Raycast" name="Raycast"/>
+			<menu_item_check label="レイキャスト" name="Raycast"/>
 		</menu>
 		<menu label="レンダリング" name="Rendering">
 			<menu_item_check label="軸" name="Axes"/>
@@ -258,10 +261,10 @@
 			<menu_item_call label="選択したテクスチャ情報基底" name="Selected Texture Info Basis"/>
 			<menu_item_check label="ワイヤーフレーム" name="Wireframe"/>
 			<menu_item_check label="オブジェクト間オクルージョン" name="Object-Object Occlusion"/>
-			<menu_item_check label="フレームバッファ・オブジェクト" name="Framebuffer Objects"/>
+			<menu_item_check label="フレームバッファオブジェクト" name="Framebuffer Objects"/>
 			<menu_item_check label="遅延レンダリング" name="Deferred Rendering"/>
 			<menu_item_check label="グローバルイルミネーション" name="Global Illumination"/>
-			<menu_item_check label="GLデバッグ" name="Debug GL"/>
+			<menu_item_check label="GL デバッグ" name="Debug GL"/>
 			<menu_item_check label="経路をデバッグ" name="Debug Pipeline"/>
 			<menu_item_check label="ファーストアルファ" name="Fast Alpha"/>
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
@@ -271,10 +274,10 @@
 			<menu_item_check label="テクスチャアトラス" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
-			<menu_item_check label="マウスオーバーで強調表示" name="Hover Glow Objects"/>
+			<menu_item_check label="マウスオーバーで強調表示する" name="Hover Glow Objects"/>
 		</menu>
 		<menu label="ネットワーク" name="Network">
-			<menu_item_check label="エージェントを一時停止" name="AgentPause"/>
+			<menu_item_check label="エージェントを一時停止する" name="AgentPause"/>
 			<menu_item_call label="メッセージログを有効にする" name="Enable Message Log"/>
 			<menu_item_call label="メッセージログを使用不可にする" name="Disable Message Log"/>
 			<menu_item_check label="速力が挿入されたオブジェクト" name="Velocity Interpolate Objects"/>
@@ -292,9 +295,9 @@
 		</menu>
 		<menu label="世界" name="World">
 			<menu_item_check label="シムの太陽の設定を無視する" name="Sim Sun Override"/>
-			<menu_item_check label="ビーコンの強調表示" name="Cheesy Beacon"/>
+			<menu_item_check label="ビーコンを強調表示する" name="Cheesy Beacon"/>
 			<menu_item_check label="固定された天気" name="Fixed Weather"/>
-			<menu_item_call label="リージョンオブジェクトのキャッシュをダンプ" name="Dump Region Object Cache"/>
+			<menu_item_call label="リージョンオブジェクトのキャッシュをダンプする" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
 			<menu_item_call label="Web ブラウザのテスト" name="Web Browser Test"/>
@@ -305,7 +308,7 @@
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
 			<menu_item_call label="エージェント情報をプリント" name="Print Agent Info"/>
 			<menu_item_call label="メモリ使用状況" name="Memory Stats"/>
-			<menu_item_check label="ダブルクリックした場所に自動操作で移動" name="Double-ClickAuto-Pilot"/>
+			<menu_item_check label="ダブルクリックした場所に自動操作で移動する" name="Double-ClickAuto-Pilot"/>
 			<menu_item_check label="SelectMgr のデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>
@@ -315,15 +318,15 @@
 			<menu_item_check label="WindowProc のデバッグ" name="Debug WindowProc"/>
 		</menu>
 		<menu label="XUI" name="XUI">
-			<menu_item_call label="色の設定を更新" name="Reload Color Settings"/>
-			<menu_item_call label="フォントテストを表示" name="Show Font Test"/>
+			<menu_item_call label="色の設定を更新する" name="Reload Color Settings"/>
+			<menu_item_call label="フォントテストを表示する" name="Show Font Test"/>
 			<menu_item_call label="XML から読み込む" name="Load from XML"/>
-			<menu_item_call label="XML で保存" name="Save to XML"/>
-			<menu_item_check label="XUI ネームを表示" name="Show XUI Names"/>
-			<menu_item_call label="テスト用 IM を送信" name="Send Test IMs"/>
+			<menu_item_call label="XML で保存する" name="Save to XML"/>
+			<menu_item_check label="XUI ネームを表示する" name="Show XUI Names"/>
+			<menu_item_call label="テスト用 IM を送信する" name="Send Test IMs"/>
 		</menu>
 		<menu label="アバター" name="Character">
-			<menu label="ベークドテクスチャを取得" name="Grab Baked Texture">
+			<menu label="ベークドテクスチャを取得する" name="Grab Baked Texture">
 				<menu_item_call label="瞳" name="Iris"/>
 				<menu_item_call label="頭" name="Head"/>
 				<menu_item_call label="上半身" name="Upper Body"/>
@@ -331,23 +334,23 @@
 				<menu_item_call label="スカート" name="Skirt"/>
 			</menu>
 			<menu label="キャラクターテスト" name="Character Tests">
-				<menu_item_call label="容姿を XML に保存" name="Appearance To XML"/>
+				<menu_item_call label="容姿を XML に保存する" name="Appearance To XML"/>
 				<menu_item_call label="キャラクタジオメトリの切り替え" name="Toggle Character Geometry"/>
 				<menu_item_call label="男性アバターのテスト" name="Test Male"/>
 				<menu_item_call label="女性アバターのテスト" name="Test Female"/>
 				<menu_item_call label="PG のトグル" name="Toggle PG"/>
 				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
 			</menu>
-			<menu_item_call label="Params をデフォルトに実行" name="Force Params to Default"/>
+			<menu_item_call label="Params をデフォルトで実行する" name="Force Params to Default"/>
 			<menu_item_check label="アニメーション情報" name="Animation Info"/>
-			<menu_item_check label="アニメーションをスローモーション" name="Slow Motion Animations"/>
+			<menu_item_check label="スローモーションのアニメーション" name="Slow Motion Animations"/>
 			<menu_item_check label="見ているものを表示する" name="Show Look At"/>
 			<menu_item_check label="クリックした場所を表示する" name="Show Point At"/>
 			<menu_item_check label="結合部のアップデートのデバッグ" name="Debug Joint Updates"/>
 			<menu_item_check label="LOD を無効にする" name="Disable LOD"/>
 			<menu_item_check label="キャラクター Vis のデバッグ" name="Debug Character Vis"/>
-			<menu_item_check label="骨組みの衝突判定を表示" name="Show Collision Skeleton"/>
-			<menu_item_check label="エージェントのターゲットを表示" name="Display Agent Target"/>
+			<menu_item_check label="骨組みの衝突判定を表示する" name="Show Collision Skeleton"/>
+			<menu_item_check label="エージェントのターゲットを表示する" name="Display Agent Target"/>
 			--&gt;
 			<menu_item_call label="アタッチメントをダンプ" name="Dump Attachments"/>
 			<menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures"/>
@@ -356,8 +359,8 @@
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
-		<menu_item_check label="次回の起動時にコンソールウィンドウを表示" name="Console Window"/>
-		<menu_item_check label="管理者メニューを表示" name="View Admin Options"/>
+		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
+		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
 	</menu>
@@ -365,19 +368,19 @@
 		<menu label="Object">
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
 			<menu_item_call label="私を所有者にする" name="Force Owner To Me"/>
-			<menu_item_call label="所有者権限の実行" name="Force Owner Permissive"/>
+			<menu_item_call label="所有者権限を実行する" name="Force Owner Permissive"/>
 			<menu_item_call label="削除" name="Delete"/>
 			<menu_item_call label="ロック" name="Lock"/>
-			<menu_item_call label="アセット ID を取得" name="Get Assets IDs"/>
+			<menu_item_call label="アセット ID を取得する" name="Get Assets IDs"/>
 		</menu>
 		<menu label="区画" name="Parcel">
 			<menu_item_call label="私を所有者にする" name="Owner To Me"/>
-			<menu_item_call label="リンデンコンテンツに設定" name="Set to Linden Content"/>
-			<menu_item_call label="パブリックの土地を取得" name="Claim Public Land"/>
+			<menu_item_call label="リンデンコンテンツに設定する" name="Set to Linden Content"/>
+			<menu_item_call label="パブリックの土地を取得する" name="Claim Public Land"/>
 		</menu>
 		<menu label="リージョン/地域" name="Region">
 			<menu_item_call label="一時アセットデータをダンプ" name="Dump Temp Asset Data"/>
-			<menu_item_call label="リージョンの状態を保存" name="Save Region State"/>
+			<menu_item_call label="リージョンの状態を保存する" name="Save Region State"/>
 		</menu>
 		<menu_item_call label="グリッドツール" name="God Tools"/>
 	</menu>

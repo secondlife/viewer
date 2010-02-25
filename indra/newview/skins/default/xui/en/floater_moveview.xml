@@ -12,6 +12,7 @@
  help_topic="move_floater"
  save_rect="true"
  save_visibility="true"
+ save_dock_state="true"
  width="115">
     <string
      name="walk_forward_tooltip">

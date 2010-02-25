@@ -358,8 +358,10 @@ void LLStatusBar::refresh()
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
 	
-	// Don't show media toggle if there's no media, parcel media, and no parcel audio
-	mMediaToggle->setVisible(LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
+	// Disable media toggle if there's no media, parcel media, and no parcel audio
+	// (or if media is disabled)
+	mMediaToggle->setEnabled(gSavedSettings.getBOOL("AudioStreamingMedia") && 
+							 (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio()));
 	// Note the "sense" of the toggle is opposite whether media is playing or not
 	mMediaToggle->setValue(! (LLViewerMedia::isAnyMediaShowing() || 
 							  LLViewerMedia::isParcelMediaPlaying() ||
@@ -547,13 +549,13 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
 	LLRect nearby_media_btn_rect = nearby_media_btn->calcScreenRect();
 	nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
-		(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
-		nearby_media_btn_rect.mBottom,
-		nearby_media_rect.getWidth(),
-		nearby_media_rect.getHeight());
+										(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
+										nearby_media_btn_rect.mBottom,
+										nearby_media_rect.getWidth(),
+										nearby_media_rect.getHeight());
 	// force onscreen
 	nearby_media_rect.translate(popup_holder->getRect().getWidth() - nearby_media_rect.mRight, 0);
-
+	
 	// show the master volume pull-down
 	mPanelNearByMedia->setShape(nearby_media_rect);
 	mPanelNearByMedia->setVisible(TRUE);

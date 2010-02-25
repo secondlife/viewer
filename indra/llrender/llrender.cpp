@@ -49,6 +49,9 @@ F64 gGLLastProjection[16];
 F64 gGLProjection[16];
 S32	gGLViewport[4];
 
+U32 LLRender::sUICalls = 0;
+U32 LLRender::sUIVerts = 0;
+
 static const U32 LL_NUM_TEXTURE_LAYERS = 16; 
 
 static GLenum sGLTextureType[] =
@@ -90,7 +93,9 @@ static GLenum sGLBlendFactor[] =
 	GL_DST_ALPHA,
 	GL_SRC_ALPHA,
 	GL_ONE_MINUS_DST_ALPHA,
-	GL_ONE_MINUS_SRC_ALPHA
+	GL_ONE_MINUS_SRC_ALPHA,
+
+	GL_ZERO // 'BF_UNDEF'
 };
 
 LLTexUnit::LLTexUnit(S32 index)
@@ -255,10 +260,9 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		return false ;
 	}
 
-	gGL.flush();
-
 	if ((mCurrTexture != texture->getTexName()) || forceBind)
 	{
+		gGL.flush();
 		activate();
 		enable(texture->getTarget());
 		mCurrTexture = texture->getTexName();
@@ -444,6 +448,8 @@ void LLTexUnit::setTextureBlendType(eTextureBlendType type)
 	{
 		return;
 	}
+
+	gGL.flush();
 
 	activate();
 	mCurrBlendType = type;
@@ -759,6 +765,8 @@ LLRender::LLRender()
 
 	mCurrAlphaFunc = CF_DEFAULT;
 	mCurrAlphaFuncVal = 0.01f;
+	mCurrBlendSFactor = BF_UNDEF;
+	mCurrBlendDFactor = BF_UNDEF;
 }
 
 LLRender::~LLRender()
@@ -821,6 +829,80 @@ void LLRender::popMatrix()
 	glPopMatrix();
 }
 
+void LLRender::translateUI(F32 x, F32 y, F32 z)
+{
+	if (mUIOffset.empty())
+	{
+		llerrs << "Need to push a UI translation frame before offsetting" << llendl;
+	}
+
+	mUIOffset.front().mV[0] += x;
+	mUIOffset.front().mV[1] += y;
+	mUIOffset.front().mV[2] += z;
+}
+
+void LLRender::scaleUI(F32 x, F32 y, F32 z)
+{
+	if (mUIScale.empty())
+	{
+		llerrs << "Need to push a UI transformation frame before scaling." << llendl;
+	}
+
+	mUIScale.front().scaleVec(LLVector3(x,y,z));
+}
+
+void LLRender::pushUIMatrix()
+{
+	mUIOffset.push_front(mUIOffset.front());
+	if (mUIScale.empty())
+	{
+		mUIScale.push_front(LLVector3(1,1,1));
+	}
+	else
+	{
+		mUIScale.push_front(mUIScale.front());
+	}
+}
+
+void LLRender::popUIMatrix()
+{
+	if (mUIOffset.empty())
+	{
+		llerrs << "UI offset stack blown." << llendl;
+	}
+	mUIOffset.pop_front();
+	mUIScale.pop_front();
+}
+
+LLVector3 LLRender::getUITranslation()
+{
+	if (mUIOffset.empty())
+	{
+		llerrs << "UI offset stack empty." << llendl;
+	}
+	return mUIOffset.front();
+}
+
+LLVector3 LLRender::getUIScale()
+{
+	if (mUIScale.empty())
+	{
+		llerrs << "UI scale stack empty." << llendl;
+	}
+	return mUIScale.front();
+}
+
+
+void LLRender::loadUIIdentity()
+{
+	if (mUIOffset.empty())
+	{
+		llerrs << "Need to push UI translation frame before clearing offset." << llendl;
+	}
+	mUIOffset.front().setVec(0,0,0);
+	mUIScale.front().setVec(1,1,1);
+}
+
 void LLRender::setColorMask(bool writeColor, bool writeAlpha)
 {
 	setColorMask(writeColor, writeColor, writeColor, writeAlpha);
@@ -843,29 +925,28 @@ void LLRender::setColorMask(bool writeColorR, bool writeColorG, bool writeColorB
 
 void LLRender::setSceneBlendType(eBlendType type)
 {
-	flush();
 	switch (type) 
 	{
 		case BT_ALPHA:
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			blendFunc(BF_SOURCE_ALPHA, BF_ONE_MINUS_SOURCE_ALPHA);
 			break;
 		case BT_ADD:
-			glBlendFunc(GL_ONE, GL_ONE);
+			blendFunc(BF_ONE, BF_ONE);
 			break;
 		case BT_ADD_WITH_ALPHA:
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			blendFunc(BF_SOURCE_ALPHA, BF_ONE);
 			break;
 		case BT_MULT:
-			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			blendFunc(BF_DEST_COLOR, BF_ZERO);
 			break;
 		case BT_MULT_ALPHA:
-			glBlendFunc(GL_DST_ALPHA, GL_ZERO);
+			blendFunc(BF_DEST_ALPHA, BF_ZERO);
 			break;
 		case BT_MULT_X2:
-			glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+			blendFunc(BF_DEST_COLOR, BF_SOURCE_COLOR);
 			break;
 		case BT_REPLACE:
-			glBlendFunc(GL_ONE, GL_ZERO);
+			blendFunc(BF_ONE, BF_ZERO);
 			break;
 		default:
 			llerrs << "Unknown Scene Blend Type: " << type << llendl;
@@ -891,8 +972,15 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 
 void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 {
-	flush();
-	glBlendFunc(sGLBlendFactor[sfactor], sGLBlendFactor[dfactor]);
+	llassert(sfactor < BF_UNDEF);
+	llassert(dfactor < BF_UNDEF);
+	if (mCurrBlendSFactor != sfactor || mCurrBlendDFactor != dfactor)
+	{
+		mCurrBlendSFactor = sfactor;
+		mCurrBlendDFactor = dfactor;
+		flush();
+		glBlendFunc(sGLBlendFactor[sfactor], sGLBlendFactor[dfactor]);
+	}
 }
 
 LLTexUnit* LLRender::getTexUnit(U32 index)
@@ -1012,6 +1100,12 @@ void LLRender::flush()
 		}
 #endif
 				
+		if (!mUIOffset.empty())
+		{
+			sUICalls++;
+			sUIVerts += mCount;
+		}
+
 		mBuffer->setBuffer(immediate_mask);
 		mBuffer->drawArrays(mMode, 0, mCount);
 		
@@ -1031,7 +1125,16 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 		return;
 	}
 
-	mVerticesp[mCount] = LLVector3(x,y,z);
+	if (mUIOffset.empty())
+	{
+		mVerticesp[mCount] = LLVector3(x,y,z);
+	}
+	else
+	{
+		LLVector3 vert = (LLVector3(x,y,z)+mUIOffset.front()).scaledVec(mUIScale.front());
+		mVerticesp[mCount] = vert;
+	}
+
 	mCount++;
 	if (mCount < 4096)
 	{

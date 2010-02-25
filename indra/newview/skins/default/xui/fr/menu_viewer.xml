@@ -9,8 +9,8 @@
 		<menu_item_call label="Mon profil" name="Profile"/>
 		<menu_item_call label="Mon apparence" name="Appearance"/>
 		<menu_item_check label="Mon inventaire" name="Inventory"/>
-		<menu_item_call label="Mon inventaire" name="ShowSidetrayInventory"/>
-		<menu_item_call label="Mes gestes" name="Gestures"/>
+		<menu_item_check label="Mon inventaire" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Mes gestes" name="Gestures"/>
 		<menu label="Mon statut" name="Status">
 			<menu_item_call label="Absent" name="Set Away"/>
 			<menu_item_call label="Occupé" name="Set Busy"/>
@@ -24,7 +24,6 @@
 		<menu_item_call label="Mes groupes" name="My Groups"/>
 		<menu_item_check label="Chat près de vous" name="Nearby Chat"/>
 		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
-		<menu_item_check label="Média près de vous" name="Nearby Media"/>
 	</menu>
 	<menu label="Monde" name="World">
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
@@ -39,7 +38,11 @@
 		<menu_item_call label="Mes terrains" name="My Land"/>
 		<menu label="Afficher" name="LandShow">
 			<menu_item_check label="Contrôles de mouvement" name="Movement Controls"/>
-			<menu_item_check label="Contrôles d&apos;affichage" name="Camera Controls"/>
+			<menu_item_check label="Contrôles d’affichage" name="Camera Controls"/>
+			<menu_item_check label="Lignes d&apos;interdiction" name="Ban Lines"/>
+			<menu_item_check label="Balises" name="beacons"/>
+			<menu_item_check label="Limites du terrain" name="Property Lines"/>
+			<menu_item_check label="Propriétaires de terrains" name="Land Owners"/>
 		</menu>
 		<menu_item_call label="Me téléporter chez moi" name="Teleport Home"/>
 		<menu_item_call label="Définir le domicile ici" name="Set Home to Here"/>
@@ -100,7 +103,7 @@
 			<menu_item_check label="Afficher le rayon lumineux pour la sélection" name="Show Light Radius for Selection"/>
 			<menu_item_check label="Afficher le faisceau de sélection lumineux" name="Show Selection Beam"/>
 			<menu_item_check label="Fixer sur la grille" name="Snap to Grid"/>
-			<menu_item_call label="Fixer les coordonnées XY de l’objet sur la grille" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Fixer les coordonnées XY de l&apos;objet sur la grille" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
 			<menu_item_call label="Options de la grille" name="Grid Options"/>
 		</menu>
@@ -121,7 +124,7 @@
 		<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
 		<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
-		<menu_item_call label="Définir la taille de la fenêtre..." name="Set Window Size..."/>
+		<menu_item_call label="Définir la taille de la fenêtre…" name="Set Window Size..."/>
 		<menu_item_check label="Limiter la distance de sélection" name="Limit Select Distance"/>
 		<menu_item_check label="Désactiver les contraintes de la caméra" name="Disable Camera Distance"/>
 		<menu_item_check label="Photo haute résolution" name="HighResSnapshot"/>
@@ -170,7 +173,7 @@
 		<menu_item_call label="Effacer le cache du groupe" name="ClearGroupCache"/>
 		<menu_item_check label="Effet de lissage de la souris" name="Mouse Smoothing"/>
 		<menu label="Raccourcis" name="Shortcuts">
-			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
 			<menu_item_check label="Rechercher" name="Search"/>
 			<menu_item_call label="Relâcher les touches" name="Release Keys"/>
 			<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>

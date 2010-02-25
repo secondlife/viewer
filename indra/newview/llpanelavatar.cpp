@@ -47,8 +47,6 @@
 #include "lltooldraganddrop.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-#include "llweb.h"
-#include "llfloaterworldmap.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llvoiceclient.h"
@@ -449,10 +447,7 @@ void LLPanelProfileTab::scrollToTop()
 
 void LLPanelProfileTab::onMapButtonClick()
 {
-	std::string name;
-	gCacheName->getFullName(getAvatarId(), name);
-	gFloaterWorldMap->trackAvatar(getAvatarId(), name);
-	LLFloaterReg::showInstance("world_map");
+	LLAvatarActions::showOnMap(getAvatarId());
 }
 
 void LLPanelProfileTab::updateButtons()
@@ -490,7 +485,6 @@ LLPanelAvatarProfile::LLPanelAvatarProfile()
 
 BOOL LLPanelAvatarProfile::postBuild()
 {
-	childSetActionTextbox("homepage_edit", boost::bind(&LLPanelAvatarProfile::onHomepageTextboxClicked, this));
 	childSetCommitCallback("add_friend",(boost::bind(&LLPanelAvatarProfile::onAddFriendButtonClick,this)),NULL);
 	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
 	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
@@ -734,20 +728,6 @@ void LLPanelAvatarProfile::csr()
 	std::string name;
 	gCacheName->getFullName(getAvatarId(), name);
 	LLAvatarActions::csr(getAvatarId(), name);
-}
-
-void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
-{
-	LLWeb::loadURL(url);
-}
-
-void LLPanelAvatarProfile::onHomepageTextboxClicked()
-{
-	std::string url = childGetValue("homepage_edit").asString();
-	if(!url.empty())
-	{
-		onUrlTextboxClicked(url);
-	}
 }
 
 void LLPanelAvatarProfile::onAddFriendButtonClick()

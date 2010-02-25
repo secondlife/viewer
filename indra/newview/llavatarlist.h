@@ -78,6 +78,8 @@ public:
 	bool contains(const LLUUID& id);
 
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
+	void setSessionID(const LLUUID& session_id) { mSessionID = session_id; }
+	const LLUUID& getSessionID() { return mSessionID; }
 
 	void toggleIcons();
 	void setSpeakingIndicatorsVisible(bool visible);
@@ -119,6 +121,7 @@ private:
 	std::string				mIconParamName;
 	std::string				mNameFilter;
 	uuid_vector_t			mIDs;
+	LLUUID					mSessionID;
 
 	LLAvatarListItem::ContextMenu* mContextMenu;
 

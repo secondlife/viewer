@@ -45,6 +45,9 @@
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
          parameter="copy" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="copy" />
     </menu_item_call>
     <menu_item_call
      label="Paste"
@@ -88,6 +91,9 @@
         <on_click
          function="Places.LandmarksGear.Folding.Action"
          parameter="expand" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="expand" />
     </menu_item_call>
     <menu_item_call
      label="Collapse"
@@ -95,6 +101,9 @@
      name="collapse">
         <on_click
          function="Places.LandmarksGear.Folding.Action"
+         parameter="collapse" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
          parameter="collapse" />
     </menu_item_call>
     <menu_item_call

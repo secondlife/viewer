@@ -4422,35 +4422,22 @@ bool visible_take_object()
 	return !is_selection_buy_not_take() && enable_take();
 }
 
+bool tools_visible_buy_object()
+{
+	return is_selection_buy_not_take();
+}
+
+bool tools_visible_take_object()
+{
+	return !is_selection_buy_not_take();
+}
+
 class LLToolsEnableBuyOrTake : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool is_buy = is_selection_buy_not_take();
 		bool new_value = is_buy ? enable_buy_object() : enable_take();
-
-		// Update label
-		std::string label;
-		std::string buy_text;
-		std::string take_text;
-		std::string param = userdata.asString();
-		std::string::size_type offset = param.find(",");
-		if (offset != param.npos)
-		{
-			buy_text = param.substr(0, offset);
-			take_text = param.substr(offset+1);
-		}
-		if (is_buy)
-		{
-			label = buy_text;
-		}
-		else
-		{
-			label = take_text;
-		}
-		gMenuHolder->childSetText("Pie Object Take", label);
-		gMenuHolder->childSetText("Menu Object Take", label);
-
 		return new_value;
 	}
 };
@@ -7802,11 +7789,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
+	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
+	enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
 	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
-
-	/*view_listener_t::addMenu(new LLToolsVisibleBuyObject(), "Tools.VisibleBuyObject");
-	view_listener_t::addMenu(new LLToolsVisibleTakeObject(), "Tools.VisibleTakeObject");*/
 
 	// Help menu
 	// most items use the ShowFloater method

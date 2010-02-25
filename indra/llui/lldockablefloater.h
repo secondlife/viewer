@@ -127,7 +127,7 @@ private:
 	void resetInstance();
 
 protected:
-	void setDockControl(LLDockControl* dockControl, bool docked = true);
+	void setDockControl(LLDockControl* dockControl);
 	const LLUIImagePtr& getDockTongue();
 
 private:

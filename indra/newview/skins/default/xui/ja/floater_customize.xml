@@ -35,7 +35,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				持ち物からあなたのアバターに1つドラッグして、新しいシェイプをつけます。 代わりに、はじめから新しく作成して着用することもできます。
+				持ち物からあなたのアバターに 1 つドラッグして、新しいシェイプをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -68,7 +68,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				持ち物からあなたのアバターに1つドラッグして、新しいスキンをつけます。 代わりに、はじめから新しく作成して着用することもできます。
+				持ち物からあなたのアバターに 1 つドラッグして、新しいスキンをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -105,7 +105,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				持ち物からあなたのアバターに1つドラッグして、新しい髪をつけます。 代わりに、はじめから新しく作成して着用することもできます。
+				持ち物からあなたのアバターに 1 つドラッグして、新しい髪をつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -113,7 +113,7 @@
 			<text name="Item Action Label">
 				髪型：
 			</text>
-			<texture_picker label="テクスチャー" name="Texture" tool_tip="写真をクリックして選択"/>
+			<texture_picker label="テクスチャ" name="Texture" tool_tip="写真をクリックして選択"/>
 			<button label="新しい髪を作成" label_selected="新しい髪を作成" name="Create New"/>
 			<button label="保存" label_selected="保存" name="Save"/>
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
@@ -177,7 +177,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				持ち物からあなたのアバターに1つドラッグして、新しいシャツを着ます。 代わりに、はじめから新しく作成して着用することもできます。
+				持ち物からあなたのアバターに 1 つドラッグして、新しいシャツを着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -302,7 +302,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				持ち物からあなたのアバターに1つドラッグして、新しいジャケットを着ます。 代わりに、はじめから新しく作成して着用することもできます。
+				持ち物からあなたのアバターに 1 つドラッグして、新しいジャケットを着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<button label="新しい上着を作成" label_selected="新しい上着を作成" name="Create New"/>
 			<text name="no modify instructions">
@@ -435,7 +435,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				持ち物からあなたのアバターに1つドラッグして、新しいスカートを履きます。 代わりに、はじめから新しく作成して着用することもできます。
+				持ち物からあなたのアバターに 1 つドラッグして、新しいスカートを履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<button label="スカートを作成" label_selected="スカートを作成" name="Create New"/>
 			<text name="no modify instructions">
@@ -522,7 +522,7 @@
 			<button label="元に戻す" label_selected="元に戻す" name="Revert"/>
 		</panel>
 	</tab_container>
-	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info" tool_tip="あなたのアバターに付いているスクリプトを表示する"/>
+	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info" tool_tip="あなたのアバターに付いているスクリプトを表示します"/>
 	<button label="アウトフィット作成" label_selected="アウトフィット作成" name="make_outfit_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

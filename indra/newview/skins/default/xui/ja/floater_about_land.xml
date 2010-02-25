@@ -73,7 +73,7 @@
 				Adult
 			</text>
 			<text name="Owner:">
-				オーナー：
+				所有者：
 			</text>
 			<text name="OwnerText">
 				Leyla Linden
@@ -85,9 +85,9 @@
 				Leyla Linden
 			</text>
 			<button label="設定" label_selected="設定..." name="Set..."/>
-			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。そうするとグループの土地割り当てによってサポートされます。"/>
-			<button label="譲渡" label_selected="譲渡..." name="Deed..." tool_tip="選択されたグループのオフィサーであるときのみ、土地を譲渡できます。"/>
-			<check_box label="オーナーが譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
+			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>
+			<button label="譲渡" label_selected="譲渡..." name="Deed..." tool_tip="選択したグループのオフィサーのみ、土地を譲渡できます。"/>
+			<check_box label="所有者が譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
 			<text name="For Sale:">
 				販売の有無：
 			</text>
@@ -136,16 +136,16 @@
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<panel.string name="can_resell">
-				この地域で購入した土地は、再販できます。
+				このリージョン（地域）で購入した土地は、再販できます。
 			</panel.string>
 			<panel.string name="can_not_resell">
-				この地域で購入した土地は、再販できないことがあります。
+				このリージョン（地域）で購入した土地は、再販できないことがあります。
 			</panel.string>
 			<panel.string name="can_change">
-				この地域で購入した土地は、統合または再分割できます。
+				このリージョン（地域）で購入した土地は、統合または再分割できます。
 			</panel.string>
 			<panel.string name="can_not_change">
-				この地域で購入した土地は、統合／再分割できないことが
+				このリージョン（地域）で購入した土地は、統合・再分割できないことがあります。
 あります。
 			</panel.string>
 			<text font="SansSerifLarge" name="estate_section_lbl">
@@ -194,8 +194,7 @@
 				再分割：
 			</text>
 			<text name="changeable_clause">
-				この地域（リージョン）にある土地は統合または分割ができ
-ません。
+				このリージョン（地域）にある土地は統合または分割ができないことがあります。
 			</text>
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
@@ -233,7 +232,7 @@
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOwner" right="-145"/>
-			<button label="返却" label_selected="返却..." name="ReturnOwner..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
+			<button label="返却" label_selected="返却..." name="ReturnOwner..." right="-15" tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Set to group:">
 				グループに設定：
 			</text>
@@ -241,7 +240,7 @@
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowGroup" right="-145"/>
-			<button label="返却" label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
+			<button label="返却" label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Owned by others:">
 				他人の所有物：
 			</text>
@@ -249,7 +248,7 @@
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOther" right="-145"/>
-			<button label="返却" label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
+			<button label="返却" label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Selected / sat upon:">
 				選択済み・決定済み：
 			</text>
@@ -269,7 +268,7 @@
 				<name_list.columns label="タイプ" name="type"/>
 				<name_list.columns name="online_status"/>
 				<name_list.columns label="名前" name="name"/>
-				<name_list.columns label="カウント" name="count"/>
+				<name_list.columns label="数" name="count"/>
 				<name_list.columns label="最新" name="mostrecent"/>
 			</name_list>
 		</panel>
@@ -288,13 +287,13 @@
 				控えめコンテンツ
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				Adultコンテンツ
+				アダルトコンテンツ
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				あなたの区画情報及びコンテンツは控えめとされています。
+				あなたの区画情報及びコンテンツは「控えめ」とされています。
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				あなたの区画情報及びコンテンツはAdultとされています。
+				あなたの区画情報及びコンテンツは「アダルト」とされています。
 			</panel.string>
 			<panel.string name="landing_point_none">
 				（なし）
@@ -303,7 +302,7 @@
 				プッシングを制限
 			</panel.string>
 			<panel.string name="push_restrict_region_text">
-				プッシングを制限 (地域優先)
+				プッシングを制限 （地域設定優先）
 			</panel.string>
 			<text name="allow_label">
 				他の住人への許可：
@@ -383,7 +382,7 @@
 			<text name="with media:">
 				種類：
 			</text>
-			<combo_box name="media type" tool_tip="URL が動画、Webページ、その他のメディアの場合に指定します"/>
+			<combo_box name="media type" tool_tip="URL が動画、Web ページ、その他のメディアかを指定します"/>
 			<text name="at URL:">
 				ホームページ：
 			</text>
@@ -391,7 +390,7 @@
 			<text name="CurrentURL:">
 				現在のページ：
 			</text>
-			<button label="リセット..." label_selected="リセット..." name="reset_media_url" tool_tip="URLを更新"/>
+			<button label="リセット..." label_selected="リセット..." name="reset_media_url" tool_tip="URL を更新"/>
 			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：
@@ -404,12 +403,12 @@
 			<text name="replace_texture_help" width="290">
 				このテクスチャを使用するオブジェクトの「再生」をクリックすると、動画や Web ページを表示します。  テクスチャを変更するにはサムネイルを選択してください。
 			</text>
-			<check_box label="スケールを自動設定" name="media_auto_scale" tool_tip="このオプションをチェックすると、この区画のコンテンツのスケールが自動的に設定されます。 動作速度と画質が少し低下することがありますが、他のテクスチャーのスケーリングや整列が必要になることはありません。"/>
-			<text name="media_size" tool_tip="レンダリングするWebメディアのサイズです。デフォルトの 0 のままにします。">
+			<check_box label="スケールを自動設定" name="media_auto_scale" tool_tip="このオプションをチェックすると、この区画のコンテンツのスケールが自動的に設定されます。 動作速度と画質が少し低下することがありますが、他のテクスチャのスケーリングや整列が必要になることはありません。"/>
+			<text name="media_size" tool_tip="レンダリングする Web メディアのサイズです。デフォルトの 0 のままにします。">
 				サイズ：
 			</text>
-			<spinner name="media_size_width" tool_tip="レンダリングするWebメディアのサイズです。デフォルトの 0 のままにします。"/>
-			<spinner name="media_size_height" tool_tip="レンダリングするWebメディアのサイズです。デフォルトの 0 のままにします。"/>
+			<spinner name="media_size_width" tool_tip="レンダリングする Web メディアのサイズです。デフォルトの 0 のままにします。"/>
+			<spinner name="media_size_height" tool_tip="レンダリングする Web メディアのサイズです。デフォルトの 0 のままにします。"/>
 			<text name="pixels">
 				ピクセル
 			</text>
@@ -422,7 +421,7 @@
 			<text name="MusicURL:">
 				音楽 URL：
 			</text>
-			<check_box label="URL を非表示にする" name="hide_music_url" tool_tip="このオプションにチェックを入れると、権限のない人が区画情報を見たときに音楽のURLが隠れます。"/>
+			<check_box label="URL を非表示にする" name="hide_music_url" tool_tip="このオプションにチェックを入れると、権限のない人が区画情報を見たときに音楽の URL が隠れます。"/>
 			<text name="Sound:">
 				サウンド：
 			</text>
@@ -451,7 +450,7 @@
 			<check_box label="支払情報登録済 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="未確認の住人の立入を禁止します。"/>
 			<check_box label="年齢確認 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人の立入を禁止します。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
 			<check_box label="グループのアクセスを許可：[GROUP]" name="GroupCheck" tool_tip="「一般」タブで、グループを選択してください。"/>
-			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します"/>
+			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します。"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="誰でも" name="Anyone"/>
 				<combo_box.item label="グループ" name="Group"/>
