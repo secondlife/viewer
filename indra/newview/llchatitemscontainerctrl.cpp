@@ -144,6 +144,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	std::string		messageText = notification["message"].asString();		// UTF-8 line of text
 	std::string		fromName = notification["from"].asString();	// agent or object name
 	mFromID = notification["from_id"].asUUID();		// agent id or object id
+	mFromName = fromName;
 	
 	int sType = notification["source"].asInteger();
     mSourceType = (EChatSourceType)sType;
