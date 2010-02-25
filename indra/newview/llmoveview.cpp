@@ -87,6 +87,7 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 BOOL LLFloaterMove::postBuild()
 {
 	setIsChrome(TRUE);
+	setTitleVisible(TRUE); // restore title visibility after chrome applying
 	
 	LLDockableFloater::postBuild();
 	
@@ -353,6 +354,7 @@ void LLFloaterMove::updateButtonsWithMovementMode(const EMovementMode newMode)
 	showFlyControls(MM_FLY == newMode);
 	setModeTooltip(newMode);
 	setModeButtonToggleState(newMode);
+	setModeTitle(newMode);
 }
 
 void LLFloaterMove::showFlyControls(bool bShow)
@@ -420,11 +422,30 @@ void LLFloaterMove::setModeTooltip(const EMovementMode mode)
 	}
 }
 
+void LLFloaterMove::setModeTitle(const EMovementMode mode)
+{
+	std::string title; 
+	switch(mode)
+	{
+	case MM_WALK:
+		title = getString("walk_title");
+		break;
+	case MM_RUN:
+		title = getString("run_title");
+		break;
+	case MM_FLY:
+		title = getString("fly_title");
+		break;
+	default:
+		// title should be provided for all modes
+		llassert(false);
+		break;
+	}
+	setTitle(title);
+}
+
 /**
  * Updates position of the floater to be center aligned with Move button.
- * 
- * Because Tip floater created as dependent floater this method 
- * must be called before "showQuickTips()" to get Tip floater be positioned at the right side of the floater
  */
 void LLFloaterMove::updatePosition()
 {

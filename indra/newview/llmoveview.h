@@ -92,7 +92,7 @@ private:
 	void showFlyControls(bool bShow);
 	void initModeTooltips();
 	void setModeTooltip(const EMovementMode mode);
-	void showQuickTips(const EMovementMode mode);
+	void setModeTitle(const EMovementMode mode);
 	void initModeButtonMap();
 	void setModeButtonToggleState(const EMovementMode mode);
 	void updateButtonsWithMovementMode(const EMovementMode newMode);
