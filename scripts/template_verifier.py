@@ -103,7 +103,7 @@ MESSAGE_TEMPLATE = 'message_template.msg'
 PRODUCTION_ACCEPTABLE = (compatibility.Same, compatibility.Newer)
 DEVELOPMENT_ACCEPTABLE = (
     compatibility.Same, compatibility.Newer,
-    compatibility.Older, compatibility.Mixed)	
+    compatibility.Older, compatibility.Mixed)
 
 MAX_MASTER_AGE = 60 * 60 * 4   # refresh master cache every 4 hours
 
