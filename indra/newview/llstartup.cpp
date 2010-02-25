@@ -2554,7 +2554,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	LLUUID cat_id = findDescendentCategoryIDByName(
 		gInventory.getLibraryRootFolderID(),
 		outfit_folder_name);
-	if (true || (cat_id.isNull()))
+	if (cat_id.isNull())
 	{
 		gAgentWearables.createStandardWearables(gender);
 	}
