@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llspeakingindicatormanager.h
  * @author Mike Antipov
  * @brief Interfeace of LLSpeackerIndicator class to be processed depend on avatars are in the same voice channel.
