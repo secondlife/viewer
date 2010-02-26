@@ -121,7 +121,6 @@
 #include "lllogininstance.h" // Host the login module.
 #include "llpanellogin.h"
 #include "llmutelist.h"
-#include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterevent.h"
 #include "llpanelclassified.h"

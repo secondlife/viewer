@@ -719,16 +719,26 @@
          name="Object"
          tear_off="true">
           <menu_item_call
-			 label="Buy"
-			 layout="topleft"
-			 name="Menu Object Take"
-			 visible="true">
-			<menu_item_call.on_click
-               function="Tools.BuyOrTake" />
-			<menu_item_call.on_enable
-               function="Tools.EnableBuyOrTake"
-               name="EnableBuyOrTake"
-               parameter="Buy,Take" />
+             label="Buy"
+             layout="topleft"
+             name="Menu Object Buy">
+            <menu_item_call.on_click
+               function="Tools.BuyOrTake"/>
+            <menu_item_call.on_visible
+               function="Tools.VisibleBuyObject"/>
+            <menu_item_call.on_enable
+               function="Tools.EnableBuyOrTake"/>
+          </menu_item_call>
+          <menu_item_call
+             label="Take"
+             layout="topleft"
+             name="Menu Object Take">
+            <menu_item_call.on_click
+               function="Tools.BuyOrTake"/>
+            <menu_item_call.on_visible
+               function="Tools.VisibleTakeObject"/>
+            <menu_item_call.on_enable
+               function="Tools.EnableBuyOrTake"/>
           </menu_item_call>
           <menu_item_call
 			 label="Take Copy"

@@ -34,6 +34,7 @@
 
 #include "llnearbychathandler.h"
 
+#include "llbottomtray.h"
 #include "llchatitemscontainerctrl.h"
 #include "llnearbychat.h"
 #include "llrecentpeople.h"
@@ -175,10 +176,11 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	if(m_active_toasts.size())
 	{
 		LLUUID fromID = notification["from_id"].asUUID();		// agent id or object id
+		std::string from = notification["from"].asString();
 		LLToast* toast = m_active_toasts[0];
 		LLNearbyChatToastPanel* panel = dynamic_cast<LLNearbyChatToastPanel*>(toast->getPanel());
 
-		if(panel && panel->messageID() == fromID && panel->canAddText())
+		if(panel && panel->messageID() == fromID && panel->getFromName() == from && panel->canAddText())
 		{
 			panel->addMessage(notification);
 			toast->reshapeToPanel();
@@ -319,9 +321,9 @@ LLNearbyChatHandler::~LLNearbyChatHandler()
 void LLNearbyChatHandler::initChannel()
 {
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLView* chat_box = LLBottomTray::getInstance()->getChildView("chat_box");
 	S32 channel_right_bound = nearby_chat->getRect().mRight;
-	S32 channel_width = nearby_chat->getRect().mRight; 
-	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+	mChannel->init(chat_box->getRect().mLeft, channel_right_bound);
 }
 
 

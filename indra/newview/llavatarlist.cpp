@@ -329,7 +329,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
 	item->setName(name);
-	item->setAvatarId(id, mIgnoreOnlineStatus);
+	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 

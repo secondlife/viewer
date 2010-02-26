@@ -83,6 +83,8 @@ private:
 	static void onReceiveNotices(LLUICtrl* ctrl, void* data);
 	static void openProfile(void* data);
 
+	S32		sortMembersList(S32,const LLScrollListItem*,const LLScrollListItem*);
+
     static bool joinDlgCB(const LLSD& notification, const LLSD& response);
 
 	void updateMembers();

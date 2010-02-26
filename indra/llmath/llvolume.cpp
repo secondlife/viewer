@@ -4521,15 +4521,65 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 	if (!partial_build)
 	{
-		int idxs[] = {0,1,(grid_size+1)+1,(grid_size+1)+1,(grid_size+1),0};
-		for(int gx = 0;gx<grid_size;gx++){
-			for(int gy = 0;gy<grid_size;gy++){
-				if (mTypeMask & TOP_MASK){
-					for(int i=5;i>=0;i--)mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
-				}else{
-					for(int i=0;i<6;i++)mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
+		mTriStrip.clear();
+		S32 idxs[] = {0,1,(grid_size+1)+1,(grid_size+1)+1,(grid_size+1),0};
+		for(S32 gx = 0;gx<grid_size;gx++)
+		{
+			
+			for(S32 gy = 0;gy<grid_size;gy++)
+			{
+				if (mTypeMask & TOP_MASK)
+				{
+					for(S32 i=5;i>=0;i--)
+					{
+						mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
+					}
+					
+					if (gy == 0)
+					{
+						mTriStrip.push_back((gx+1)*(grid_size+1));
+						mTriStrip.push_back((gx+1)*(grid_size+1));
+						mTriStrip.push_back(gx*(grid_size+1));
+					}
+
+					mTriStrip.push_back(gy+1+(gx+1)*(grid_size+1));
+					mTriStrip.push_back(gy+1+gx*(grid_size+1));
+					
+					
+					if (gy == grid_size-1)
+					{
+						mTriStrip.push_back(gy+1+gx*(grid_size+1));
+					}
+				}
+				else
+				{
+					for(S32 i=0;i<6;i++)
+					{
+						mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
+					}
+
+					if (gy == 0)
+					{
+						mTriStrip.push_back(gx*(grid_size+1));
+						mTriStrip.push_back(gx*(grid_size+1));
+						mTriStrip.push_back((gx+1)*(grid_size+1));
+					}
+
+					mTriStrip.push_back(gy+1+gx*(grid_size+1));
+					mTriStrip.push_back(gy+1+(gx+1)*(grid_size+1));
+					
+					if (gy == grid_size-1)
+					{
+						mTriStrip.push_back(gy+1+(gx+1)*(grid_size+1));
+					}
 				}
 			}
+			
+		}
+
+		if (mTriStrip.size()%2 == 1)
+		{
+			mTriStrip.push_back(mTriStrip[mTriStrip.size()-1]);
 		}
 	}
 		
@@ -4771,6 +4821,8 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 					pt2--;
 				}
 			}
+
+			makeTriStrip();
 		}
 		else
 		{
@@ -4875,65 +4927,106 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 					pt2--;
 				}
 			}
+
+			makeTriStrip();
 		}
 	}
 	else
 	{
 		// Not hollow, generate the triangle fan.
+		U16 v1 = 2;
+		U16 v2 = 1;
+
 		if (mTypeMask & TOP_MASK)
 		{
-			if (mTypeMask & OPEN_MASK)
-			{
-				// SOLID OPEN TOP
-				// Generate indices
-				// This is a tri-fan, so we reuse the same first point for all triangles.
-				for (S32 i = 0; i < (num_vertices - 2); i++)
-				{
-					mIndices[3*i] = num_vertices - 1;
-					mIndices[3*i+1] = i;
-					mIndices[3*i+2] = i + 1;
-				}
-			}
-			else
-			{
-				// SOLID CLOSED TOP
-				for (S32 i = 0; i < (num_vertices - 2); i++)
-				{				
-					//MSMSM fix these caps but only for the un-cut case
-					mIndices[3*i] = num_vertices - 1;
-					mIndices[3*i+1] = i;
-					mIndices[3*i+2] = i + 1;
-				}
-			}
+			v1 = 1;
+			v2 = 2;
+		}
+
+		for (S32 i = 0; i < (num_vertices - 2); i++)
+		{
+			mIndices[3*i] = num_vertices - 1;
+			mIndices[3*i+v1] = i;
+			mIndices[3*i+v2] = i + 1;
+		}
+
+		//make tri strip
+		if (mTypeMask & OPEN_MASK)
+		{
+			makeTriStrip();
 		}
 		else
 		{
-			if (mTypeMask & OPEN_MASK)
+			S32 j = num_vertices-2;
+			if (mTypeMask & TOP_MASK)
 			{
-				// SOLID OPEN BOTTOM
-				// Generate indices
-				// This is a tri-fan, so we reuse the same first point for all triangles.
-				for (S32 i = 0; i < (num_vertices - 2); i++)
+				mTriStrip.push_back(0);
+				for (S32 i = 0; i <= j; ++i)
 				{
-					mIndices[3*i] = num_vertices - 1;
-					mIndices[3*i+1] = i + 1;
-					mIndices[3*i+2] = i;
+					mTriStrip.push_back(i);
+					if (i != j)
+					{
+						mTriStrip.push_back(j);
+					}
+					--j;
 				}
 			}
 			else
 			{
-				// SOLID CLOSED BOTTOM
-				for (S32 i = 0; i < (num_vertices - 2); i++)
+				mTriStrip.push_back(j);
+				for (S32 i = 0; i <= j; ++i)
 				{
-					//MSMSM fix these caps but only for the un-cut case
-					mIndices[3*i] = num_vertices - 1;
-					mIndices[3*i+1] = i + 1;
-					mIndices[3*i+2] = i;
+					if (i != j)
+					{
+						mTriStrip.push_back(j);
+					}
+					mTriStrip.push_back(i);
+					--j;
 				}
+			}
+			
+			mTriStrip.push_back(mTriStrip[mTriStrip.size()-1]);
+
+			if (mTriStrip.size()%2 == 1)
+			{
+				mTriStrip.push_back(mTriStrip[mTriStrip.size()-1]);
 			}
 		}
 	}
+		
 	return TRUE;
+}
+
+void LLVolumeFace::makeTriStrip()
+{
+	for (U32 i = 0; i < mIndices.size(); i+=3)
+	{
+		U16 i0 = mIndices[i];
+		U16 i1 = mIndices[i+1];
+		U16 i2 = mIndices[i+2];
+
+		if ((i/3)%2 == 1)
+		{
+			mTriStrip.push_back(i0);
+			mTriStrip.push_back(i0);
+			mTriStrip.push_back(i1);
+			mTriStrip.push_back(i2);
+			mTriStrip.push_back(i2);
+		}
+		else
+		{
+			mTriStrip.push_back(i2);
+			mTriStrip.push_back(i2);
+			mTriStrip.push_back(i1);
+			mTriStrip.push_back(i0);
+			mTriStrip.push_back(i0);
+		}
+	}
+
+	if (mTriStrip.size()%2 == 1)
+	{
+		mTriStrip.push_back(mTriStrip[mTriStrip.size()-1]);
+	}
 }
 
 void LLVolumeFace::createBinormals()
@@ -5136,9 +5229,14 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 	if (!partial_build)
 	{
+		mTriStrip.clear();
+
 		// Now we generate the indices.
 		for (t = 0; t < (mNumT-1); t++)
 		{
+			//prepend terminating index to strip
+			mTriStrip.push_back(mNumS*t);
+
 			for (s = 0; s < (mNumS-1); s++)
 			{	
 				mIndices[cur_index++] = s   + mNumS*t;			//bottom left
@@ -5148,6 +5246,14 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				mIndices[cur_index++] = s+1 + mNumS*t;			//bottom right
 				mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
 
+				if (s == 0)
+				{
+					mTriStrip.push_back(s+mNumS*t);
+					mTriStrip.push_back(s+mNumS*(t+1));
+				}
+				mTriStrip.push_back(s+1+mNumS*t);
+				mTriStrip.push_back(s+1+mNumS*(t+1));
+				
 				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2+1;						//bottom left/top right neighbor face 
 				if (t < mNumT-2) {												//top right/top left neighbor face 
 					mEdge[cur_edge++] = (mNumS-1)*2*(t+1)+s*2+1;
@@ -5188,6 +5294,13 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 				}
 				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
 			}
+			//append terminating vertex to strip
+			mTriStrip.push_back(mNumS-1+mNumS*(t+1));
+		}
+
+		if (mTriStrip.size()%2 == 1)
+		{
+			mTriStrip.push_back(mTriStrip[mTriStrip.size()-1]);
 		}
 	}
 

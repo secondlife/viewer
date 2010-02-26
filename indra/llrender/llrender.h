@@ -270,7 +270,9 @@ public:
 		BF_DEST_ALPHA,
 		BF_SOURCE_ALPHA,
 		BF_ONE_MINUS_DEST_ALPHA,
-		BF_ONE_MINUS_SOURCE_ALPHA
+		BF_ONE_MINUS_SOURCE_ALPHA,
+
+		BF_UNDEF
 	} eBlendFactor;
 
 	LLRender();
@@ -285,6 +287,14 @@ public:
 	void scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
 	void pushMatrix();
 	void popMatrix();
+
+	void translateUI(F32 x, F32 y, F32 z);
+	void scaleUI(F32 x, F32 y, F32 z);
+	void pushUIMatrix();
+	void popUIMatrix();
+	void loadUIIdentity();
+	LLVector3 getUITranslation();
+	LLVector3 getUIScale();
 
 	void flush();
 
@@ -333,7 +343,9 @@ public:
 	};
 
 public:
-
+	static U32 sUICalls;
+	static U32 sUIVerts;
+	
 private:
 	bool				mDirty;
 	U32				mCount;
@@ -350,7 +362,14 @@ private:
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
+	eBlendFactor mCurrBlendSFactor;
+	eBlendFactor mCurrBlendDFactor;
+
 	F32				mMaxAnisotropy;
+
+	std::list<LLVector3> mUIOffset;
+	std::list<LLVector3> mUIScale;
+
 };
 
 extern F64 gGLModelView[16];

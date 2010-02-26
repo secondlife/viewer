@@ -211,6 +211,8 @@ BOOL LLVOAvatarSelf::buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info)
 	LLVector3 scale(1.f, aspect, 1.f);
 	mScreenp->setScale(scale);
 	mScreenp->setWorldPosition(LLVector3::zero);
+	// need to update screen agressively when sidebar opens/closes, for example
+	mScreenp->mUpdateXform = TRUE;
 	return TRUE;
 }
 

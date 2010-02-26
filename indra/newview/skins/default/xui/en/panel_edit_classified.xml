@@ -59,7 +59,7 @@
      layout="topleft"
      top="0"
      background_visible="false"
-     height="600"
+     height="610"
      left="0"
      width="285">
     <texture_picker

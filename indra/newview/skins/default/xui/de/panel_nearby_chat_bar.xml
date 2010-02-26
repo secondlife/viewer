@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="chat_bar">
-	<string name="min_width">
-		192
-	</string>
-	<string name="max_width">
-		320
-	</string>
 	<line_editor label="Zum Chatten hier klicken." name="chat_box" tool_tip="Eingabe drücken, um zu sprechen, Strg-Eingabe drücken, um zu Rufen."/>
 	<button name="show_nearby_chat" tool_tip="Protokoll des Chats in der Nähe anzeigen/ausblenden"/>
 </panel>

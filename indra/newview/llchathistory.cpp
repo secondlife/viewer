@@ -116,34 +116,6 @@ public:
 		return LLPanel::handleMouseUp(x,y,mask);
 	}
 
-	//*TODO remake it using mouse enter/leave and static LLHandle<LLIconCtrl> to add/remove as a child
-	BOOL handleToolTip(S32 x, S32 y, MASK mask)
-	{
-		LLTextBase* name = getChild<LLTextBase>("user_name");
-		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && mFrom.size() && SYSTEM_FROM != mFrom)
-		{
-
-			// Spawn at right side of the name textbox.
-			LLRect sticky_rect = name->calcScreenRect();
-			S32 icon_x = llmin(sticky_rect.mLeft + name->getTextBoundingRect().getWidth() + 7, sticky_rect.mRight - 3);
-
-			LLToolTip::Params params;
-			params.background_visible(false);
-			params.click_callback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, 0, 0, 0));
-			params.delay_time(0.0f);		// spawn instantly on hover
-			params.image(LLUI::getUIImage("Info_Small"));
-			params.message("");
-			params.padding(0);
-			params.pos(LLCoordGL(icon_x, sticky_rect.mTop - 2));
-			params.sticky_rect(sticky_rect);
-
-			LLToolTipMgr::getInstance()->show(params);
-			return TRUE;
-		}
-
-		return LLPanel::handleToolTip(x, y, mask);
-	}
-
 	void onObjectIconContextMenuItemClicked(const LLSD& userdata)
 	{
 		std::string level = userdata.asString();
@@ -198,7 +170,10 @@ public:
 		menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		mPopupMenuHandleObject = menu->getHandle();
 
-		setDoubleClickCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
+		setDoubleClickCallback(boost::bind(&LLChatHistoryHeader::showInspector, this));
+
+		setMouseEnterCallback(boost::bind(&LLChatHistoryHeader::showInfoCtrl, this));
+		setMouseLeaveCallback(boost::bind(&LLChatHistoryHeader::hideInfoCtrl, this));
 
 		return LLPanel::postBuild();
 	}
@@ -232,8 +207,10 @@ public:
 		return LLPanel::handleRightMouseDown(x,y,mask);
 	}
 
-	void onHeaderPanelClick(S32 x, S32 y, MASK mask)
+	void showInspector()
 	{
+		if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType) return;
+		
 		if (mSourceType == CHAT_SOURCE_OBJECT)
 		{
 			LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", mAvatarID));
@@ -244,6 +221,17 @@ public:
 		}
 		//if chat source is system, you may add "else" here to define behaviour.
 	}
+
+	static void onClickInfoCtrl(LLUICtrl* info_ctrl)
+	{
+		if (!info_ctrl) return;
+
+		LLChatHistoryHeader* header = dynamic_cast<LLChatHistoryHeader*>(info_ctrl->getParent());	
+		if (!header) return;
+
+		header->showInspector();
+	}
+
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
 
@@ -293,6 +281,9 @@ public:
 				break;
 			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
+				break;
+			case CHAT_SOURCE_UNKNOWN: 
+				icon->setValue(LLSD("Unknown_Icon"));
 		}
 	}
 
@@ -339,9 +330,9 @@ protected:
 	{
 		if(mSourceType == CHAT_SOURCE_SYSTEM)
 			showSystemContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_AGENT)
+		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
+		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
 			showObjectContextMenu(x,y);
 	}
 
@@ -385,6 +376,33 @@ protected:
 		}
 	}
 
+	void showInfoCtrl()
+	{
+		if (mAvatarID.isNull() || mFrom.empty() || SYSTEM_FROM == mFrom) return;
+				
+		if (!sInfoCtrl)
+		{
+			sInfoCtrl = LLUICtrlFactory::createFromFile<LLUICtrl>("inspector_info_ctrl.xml", NULL, LLPanel::child_registry_t::instance());
+			sInfoCtrl->setCommitCallback(boost::bind(&LLChatHistoryHeader::onClickInfoCtrl, sInfoCtrl));
+		}
+
+		LLTextBase* name = getChild<LLTextBase>("user_name");
+		LLRect sticky_rect = name->getRect();
+		S32 icon_x = llmin(sticky_rect.mLeft + name->getTextBoundingRect().getWidth() + 7, sticky_rect.mRight - 3);
+		sInfoCtrl->setOrigin(icon_x, sticky_rect.getCenterY() - sInfoCtrl->getRect().getHeight() / 2 ) ;
+		addChild(sInfoCtrl);
+	}
+
+	void hideInfoCtrl()
+	{
+		if (!sInfoCtrl) return;
+
+		if (sInfoCtrl->getParent() == this)
+		{
+			removeChild(sInfoCtrl);
+		}
+	}
+
 private:
 	void setTimeField(const LLChat& chat)
 	{
@@ -413,6 +431,8 @@ protected:
 	LLHandle<LLView>	mPopupMenuHandleAvatar;
 	LLHandle<LLView>	mPopupMenuHandleObject;
 
+	static LLUICtrl*	sInfoCtrl;
+
 	LLUUID			    mAvatarID;
 	EChatSourceType		mSourceType;
 	std::string			mFrom;
@@ -421,6 +441,7 @@ protected:
 	S32					mMinUserNameWidth;
 };
 
+LLUICtrl* LLChatHistoryHeader::sInfoCtrl = NULL;
 
 LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 :	LLUICtrl(p),
@@ -470,7 +491,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	panel_p.background_visible = false;
 	panel_p.has_border = false;
 	panel_p.mouse_opaque = false;
-	stackp->addPanel(LLUICtrlFactory::create<LLPanel>(panel_p), 0, 30, true, false, LLLayoutStack::ANIMATE);
+	stackp->addPanel(LLUICtrlFactory::create<LLPanel>(panel_p), 0, 30, S32_MAX, S32_MAX, true, false, LLLayoutStack::ANIMATE);
 
 	panel_p.name = "new_text_notice_holder";
 	LLRect new_text_notice_rect = getLocalRect();
@@ -488,7 +509,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	mMoreChatText = LLUICtrlFactory::create<LLTextBox>(text_p, mMoreChatPanel);
 	mMoreChatText->setClickedCallback(boost::bind(&LLChatHistory::onClickMoreText, this));
 
-	stackp->addPanel(mMoreChatPanel, 0, 0, false, false, LLLayoutStack::ANIMATE);
+	stackp->addPanel(mMoreChatPanel, 0, 0, S32_MAX, S32_MAX, false, false, LLLayoutStack::ANIMATE);
 }
 
 
@@ -616,7 +637,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-			if ( chat.mSourceType == CHAT_SOURCE_OBJECT )
+			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
 				// for object IMs, create a secondlife:///app/objectim SLapp
 				std::string url = LLSLURL::buildCommand("objectim", chat.mFromID, "");
