@@ -2166,7 +2166,7 @@ void LLFolderView::doIdle()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (mAutoSelectOverride && mFilter->getFilterSubString() != "")
+		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
 		{
 			LLOpenFilteredFolders filter;
 			applyFunctorRecursively(filter);
