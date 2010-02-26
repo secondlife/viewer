@@ -31,6 +31,8 @@
 	</accordion>
 	<panel name="button_row">
 		<button label="Créer" label_selected="Nouveau groupe" name="btn_create"/>
+		<button label="Chat de groupe" name="btn_chat"/>
+		<button label="Appel de groupe" name="btn_call"/>
 		<button label="Enregistrer" label_selected="Enregistrer" name="btn_apply"/>
 	</panel>
 </panel>

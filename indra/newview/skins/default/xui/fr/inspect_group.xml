@@ -31,4 +31,5 @@ Méfiez-vous de l&apos;orignal ! Méfiez-vous ! Et de la mangouste aussi !
 	</text>
 	<button label="Vous inscrire" name="join_btn"/>
 	<button label="Quitter" name="leave_btn"/>
+	<button label="Voir le profil" name="view_profile_btn"/>
 </floater>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_skirt_panel">
+	<panel name="avatar_skirt_color_panel">
+		<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere una fotografia"/>
+		<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="skirt_main_tab" title="Gonna"/>
+	</accordion>
+</panel>

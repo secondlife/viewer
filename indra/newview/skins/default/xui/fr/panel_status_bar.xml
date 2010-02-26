@@ -21,7 +21,8 @@
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
 	</panel.string>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Mon solde : Cliquez pour acheter plus de L$"/>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Mon solde"/>
+	<button label="Acheter des L$" name="buyL" tool_tip="Cliquez pour acheter plus de L$"/>
 	<text name="TimeText" tool_tip="Heure actuelle (Pacifique)">
 		midi
 	</text>

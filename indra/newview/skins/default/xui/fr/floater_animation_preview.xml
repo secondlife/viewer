@@ -172,7 +172,8 @@ pendant
 	</combo_box>
 	<spinner label="Transition début (s)" name="ease_in_time" tool_tip="Durée (en secondes) de l&apos;entrée en fondu de l&apos;animation"/>
 	<spinner label="Transition fin (s)" name="ease_out_time" tool_tip="Durée (en secondes) de la sortie en fondu de l&apos;animation"/>
-	<button label="" name="play_btn" tool_tip="Lire/pauser votre animation"/>
+	<button label="" name="play_btn" tool_tip="Lire votre animation"/>
+	<button name="pause_btn" tool_tip="Pauser votre animation"/>
 	<button label="" name="stop_btn" tool_tip="Arrêter le playback"/>
 	<slider label="" name="playback_slider"/>
 	<text name="bad_animation_text">
@@ -180,6 +181,6 @@ pendant
 
 Nous recommandons les fichiers BVH extraits de Poser 4.
 	</text>
-	<button label="Annuler" name="cancel_btn"/>
 	<button label="Charger ([AMOUNT] L$)" name="ok_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
 </floater>

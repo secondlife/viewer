@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="IN CARICAMENTO...">
+<floater name="top_objects" title="Oggetti principali">
 	<text name="title_text">
 		In caricamento...
 	</text>
@@ -19,17 +19,17 @@
 	</text>
 	<button label="Mostra segnali luminosi" name="show_beacon_btn" width="150"/>
 	<text name="obj_name_text">
-		Nome oggetto:
+		Nome dell&apos;oggetto:
 	</text>
 	<button label="Filtro" name="filter_object_btn" width="150"/>
 	<text name="owner_name_text">
-		Nome oggetto:
+		Proprietario:
 	</text>
 	<button label="Filtro" name="filter_owner_btn" width="150"/>
 	<button label="Restituisci selezionato" name="return_selected_btn" width="150"/>
-	<button label="Restituisci tutti" name="return_all_btn" left="170"/>
+	<button label="Restituisci tutti" left="170" name="return_all_btn"/>
 	<button label="Disabilita selezionato" name="disable_selected_btn" width="150"/>
-	<button label="Disabilita per tutti" name="disable_all_btn" left="170"/>
+	<button label="Disabilita per tutti" left="170" name="disable_all_btn"/>
 	<button label="Aggiorna" name="refresh_btn" width="150"/>
 	<string name="top_scripts_title">
 		Script pesanti

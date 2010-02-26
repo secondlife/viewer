@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="COMPRA TERRA">
+<floater name="buy land" title="COMPRA LA TERRA">
 	<text name="region_name_label">
 		Regione:
 	</text>
@@ -18,10 +18,10 @@
 	<text name="estate_name_text">
 		(sconosciuto)
 	</text>
-	<text name="estate_owner_label" width="120" right="575">
+	<text name="estate_owner_label" right="575" width="120">
 		Proprietario della regione:
 	</text>
-	<text name="estate_owner_text" left="580" width="155">
+	<text left="580" name="estate_owner_text" width="155">
 		(sconosciuto)
 	</text>
 	<text name="resellable_changeable_label">
@@ -57,9 +57,9 @@
 		Prezzo:
 	</text>
 	<text name="info_price">
-		1500 L$
-(1.1 L$/m²)
-venduta con gli oggetti
+		L$ 1500
+(L$ 1.1/m²)
+sold with objects
 	</text>
 	<text name="info_action">
 		Comprando questa terra:
@@ -75,15 +75,16 @@ venduta con gli oggetti
 		Solo i membri premium possono possedere terra.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95 US$/mese, addebitati mensilmente"/>
-		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50 US$/mese, addebitati ogni quadrimestre"/>
-		<combo_box.item name="US$6.00/month,billedannually" label="6.00 US$/mese, addebitati annualmente"/>
+		<combo_box.item label="US$9.95/mese, addebitato mensilmente" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$7.50/mese, addebitato trimestralmente" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$6.00/mese, addebitato annualmente" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Aumenta il tasso di pagamento mensile delle tasse d&apos;uso della terra a 40 US$/mese.
 	</text>
 	<text name="land_use_reason">
-		Possiedi 1309 m² di terra. Questa porzione è 512 m² di terra.
+		Tu occupi 1309 m² di terreno.
+This parcel is 512 m² di terreno.
 	</text>
 	<text name="purchase_action">
 		Paga il residente Joe 4000 L$ per la terra
@@ -94,16 +95,16 @@ venduta con gli oggetti
 	<text name="currency_action" width="106">
 		Compra ulteriori L$
 	</text>
-	<line_editor name="currency_amt" left="174" width="80">
+	<line_editor left="174" name="currency_amt" width="80">
 		1000
 	</line_editor>
 	<text name="currency_est">
-		per circa [AMOUNT2] US$
+		per circa. [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Possiedi 2.100 L$.
 	</text>
-	<check_box label="Rimuovi [AMOUNT] metri quadri di contribuzione dal gruppo." name="remove_contribution"/>
+	<check_box label="Rimuovi [AMOUNT] m² di contribuzione dal gruppo." name="remove_contribution"/>
 	<button label="Compra" name="buy_btn"/>
 	<button label="Annulla" name="cancel_btn"/>
 	<string name="can_resell">
@@ -180,26 +181,26 @@ Prova a selezionare un&apos;area più piccola.
 		Il tuo account può possedere terra.
 	</string>
 	<string name="land_holdings">
-		Possiedi [BUYER] di metri quadri di terra.
+		Tu occupi [BUYER] m² di terreno.
 	</string>
 	<string name="pay_to_for_land">
 		Paga [AMOUNT] L$ a [SELLER] per questa terra
 	</string>
 	<string name="buy_for_US">
-		Comprare [AMOUNT] L$ per circa [AMOUNT2] US$,
+		Compra L$ [AMOUNT] per circa. [LOCAL_AMOUNT],
 	</string>
 	<string name="parcel_meters">
-		Questo terreno è di [AMOUNT] metri quadri.
+		Questo parcel è [AMOUNT] m²
 	</string>
 	<string name="premium_land">
-		Questa terra è premium, e sarà  addebitata come [AMOUNT] metri quadri.
+		Questo terreno è premium, e costerà [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		Questa terra è scontata, e sarà  addebitata come [AMOUNT] metri quadri.
+		Questo terreno è scontato, e costerà [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
-		[AMOUNT] metri quadri
-supporta [AMOUNT2] oggetti
+		[AMOUNT] m²
+mantiene [AMOUNT2] oggetti
 	</string>
 	<string name="sold_with_objects">
 		venduta con oggetti
@@ -208,9 +209,9 @@ supporta [AMOUNT2] oggetti
 		Oggetti non inclusi
 	</string>
 	<string name="info_price_string">
-		[PRICE] L$ 
-([PRICE_PER_SQM] L$/m²)
-[SOLD_WITH_OBJECTS]
+		L$ [PRICE]
+(L$ [PREZZO_PER_QM]/m²)
+[VENDUTO_CON_OGGETTI]
 	</string>
 	<string name="insufficient_land_credits">
 		Il gruppo [GROUP] avrà bisogno di contribuzioni anticipate, mediante crediti d&apos;uso terriero,

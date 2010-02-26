@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Land Pie">
+	<menu_item_call label="Om land" name="Place Information..."/>
+	<menu_item_call label="Sid her" name="Sit Here"/>
+	<menu_item_call label="Køb" name="Land Buy"/>
+	<menu_item_call label="Køb adgang" name="Land Buy Pass"/>
+	<menu_item_call label="Byg" name="Create"/>
+	<menu_item_call label="Tilpas terræn" name="Edit Terrain"/>
+</context_menu>

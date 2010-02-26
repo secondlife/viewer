@@ -83,11 +83,14 @@ public:
 	/// return the SL location that this Url describes, or "" if none.
 	std::string getLocation() const { return mLocation; }
 
+	/// is this a match for a URL that should not be hyperlinked?
+	bool isLinkDisabled() const { return mDisabledLink; }
+
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
 				   const LLUIColor& color, const std::string &menu, 
-				   const std::string &location);
+				   const std::string &location, bool disabled_link);
 
 private:
 	U32         mStart;
@@ -99,6 +102,7 @@ private:
 	std::string mMenuName;
 	std::string mLocation;
 	LLUIColor	mColor;
+	bool        mDisabledLink;
 };
 
 #endif

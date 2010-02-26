@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Pokaż Szczegóły o Miejscu" name="show_parcel"/>
+	<menu_item_call label="Pokaż na Mapie" name="show_on_map"/>
+	<menu_item_call label="Kopiuj SLurl do schowka" name="url_copy"/>
+</context_menu>

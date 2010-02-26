@@ -1591,6 +1591,14 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				instance->mTeleportInProgress = FALSE;
 				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal());
 			}
+
+			// HACK: This makes agents drop from the sky if they enter a parcel
+			// which is set to no fly.
+			BOOL was_flying = gAgent.getFlying();
+			if (was_flying && !parcel->getAllowFly())
+			{
+				gAgent.setFlying(gAgent.canFly());
+			}
 		}
 	}
 
@@ -1814,7 +1822,7 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 
 	if (parcel_id != parcel->getLocalID())
 	{
-		llwarns << "processParcelAccessListReply for parcel " << parcel_id
+		LL_WARNS_ONCE("") << "processParcelAccessListReply for parcel " << parcel_id
 			<< " which isn't the selected parcel " << parcel->getLocalID()<< llendl;
 		return;
 	}

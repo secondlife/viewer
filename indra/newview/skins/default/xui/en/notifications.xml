@@ -3004,7 +3004,6 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    type="alert">
 You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
-[INVITE]
     <usetemplate
      name="okcancelbuttons"
      notext="Decline"
@@ -3151,7 +3150,7 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="TeleportFromLandmark"
    type="alertmodal">
-Are you sure you want to teleport to [LOCATION]?
+Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
     <usetemplate
      ignoretext="Confirm that I want to teleport to a landmark"
      name="okcancelignore"
@@ -5220,7 +5219,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="alertmodal">
+   type="offer">
 [NAME] is offering friendship.
 
 [MESSAGE]
@@ -5235,10 +5234,6 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
        index="1"
        name="Decline"
        text="Decline"/>
-      <button
-       index="2"
-       name="Send IM"
-       text="Send IM"/>
     </form>
   </notification>
   

@@ -1,41 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafica" name="Display panel">
-	<button label="?" name="GraphicsPreferencesHelpButton"/>
-	<check_box label="Esegui Second Life in una finestra" name="windowed mode"/>
-	<text_editor name="FullScreenInfo" width="480">
-		Se deselezionato, all&apos;avvio il programma partirà a schermo intero.
-	</text_editor>
-	<text name="WindowSizeLabel">
-		Dimensione della finestra:
+	<text name="UI Size:">
+		misura UI:
 	</text>
-	<combo_box name="windowsize combo">
-		<combo_box.item name="640x480" label="640x480"/>
-		<combo_box.item name="800x600" label="800x600"/>
-		<combo_box.item name="720x480" label="720x480 (NTSC)"/>
-		<combo_box.item name="768x576" label="768x576 (PAL)"/>
-		<combo_box.item name="1024x768" label="1024x768"/>
-	</combo_box>
-	<text name="DisplayResLabel">
-		Risoluzione del monitor:
-	</text>
-	<text name="AspectRatioLabel1" tool_tip="larghezza/altezza">
-		Rapporto di visualizzazione:
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="larghezza/altezza">
-		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Monitor Standard)"/>
-		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)"/>
-		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)"/>
-		<combo_box.item name="16:9(Widescreen)" label="16:9 (Widescreen)"/>
-	</combo_box>
-	<check_box label="Autoconfigurazione" name="aspect_auto_detect"/>
-	<text name="HigherText">
-		Qualità e
-	</text>
-	<text name="QualityText">
-		Performance:
+	<text name="QualitySpeed">
+		Qualità e velocità:
 	</text>
 	<text name="FasterText">
 		Più veloce
+	</text>
+	<text name="BetterText">
+		Migliore
 	</text>
 	<text name="ShadersPrefText">
 		Basso
@@ -49,96 +24,82 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<text name="HigherText2">
-		Più alto
-	</text>
-	<text name="QualityText2">
-		Qualità
-	</text>
-	<check_box label="Personalizzate" name="CustomSettings"/>
-	<panel name="CustomGraphics Panel">
-	<text name="ShadersText">
-		Effetti grafici:
-	</text>
-	<check_box label="Piccoli rilievi e scintillii" name="BumpShiny"/>
-	<check_box label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
-	<check_box label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
-	<check_box label="Riflessi dell&apos;acqua" name="Reflections"/>
-	<text name="ReflectionDetailText">
-		Dettaglio dei riflessi
-	</text>
-	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0" label="Terreno ed alberi" />
-		<radio_item name="1" label="Tutti gli aggetti statici" />
-		<radio_item name="2" label="Tutti gli avatar e gli oggetti" />
-		<radio_item name="3" label="Tutto" />
-	</radio_group>
-	<text name="AvatarRenderingText">
-		Rendering dell&apos;avatar:
-	</text>
-	<check_box label="Avatar bidimensionali (Impostor)" name="AvatarImpostors"/>
-	<check_box label="Hardware Skinning" name="AvatarVertexProgram"/>
-	<check_box label="Abiti dell&apos;avatar" name="AvatarCloth"/>
-	<text name="DrawDistanceMeterText1">
-		m
-	</text>
-	<text name="DrawDistanceMeterText2">
-		m
-	</text>
-	<slider label="Distanza di disegno:" name="DrawDistance" label_width="158" width="255"/>
-	<slider label="Conteggio massimo particelle:" name="MaxParticleCount" label_width="158" width="262" />
-	<slider label="Qualità in post-produzione:" name="RenderPostProcess" label_width="158" width="223"/>
-	<text name="MeshDetailText">
-		Dettagli reticolo:
-	</text>
-	<slider label="  Oggetti:" name="ObjectMeshDetail"/>
-	<slider label="  Prims flessibili:" name="FlexibleMeshDetail"/>
-	<slider label="  Alberi:" name="TreeMeshDetail"/>
-	<slider label="  Avatar:" name="AvatarMeshDetail"/>
-	<slider label="  Terreno:" name="TerrainMeshDetail"/>
-	<slider label="  Cielo:" name="SkyMeshDetail"/>
-	<text name="PostProcessText">
-		Basso
-	</text>
-	<text name="ObjectMeshDetailText">
-		Basso
-	</text>
-	<text name="FlexibleMeshDetailText">
-		Basso
-	</text>
-	<text name="TreeMeshDetailText">
-		Basso
-	</text>
-	<text name="AvatarMeshDetailText">
-		Basso
-	</text>
-	<text name="TerrainMeshDetailText">
-		Basso
-	</text>
-	<text name="SkyMeshDetailText">
-		Basso
-	</text>
-	<text name="LightingDetailText">
-		Dettagli illuminazione:
-	</text>
-	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon" label="Solo il sole e la luna" />
-		<radio_item name="LocalLights" label="Luci locali" />
-	</radio_group>
-	<text name="TerrainDetailText">
-		Dettagli terreno:
-	</text>
-	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0" label="Bassi" />
-		<radio_item name="2" label="Alti" />
-	</radio_group>
+	<panel label="CustomGraphics" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Effetti grafici:
+		</text>
+		<check_box initial_value="true" label="Piccoli rilievi e scintillii" name="BumpShiny"/>
+		<check_box initial_value="true" label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
+		<check_box initial_value="true" label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Riflessi dell&apos;acqua" name="Reflections"/>
+		<text name="ReflectionDetailText">
+			Dettaglio dei riflessi
+		</text>
+		<radio_group name="ReflectionDetailRadio">
+			<radio_item label="Terreno e alberi" name="0"/>
+			<radio_item label="Tutti gli aggetti statici" name="1"/>
+			<radio_item label="Tutti gli avatar e gli oggetti" name="2"/>
+			<radio_item label="Tutto" name="3"/>
+		</radio_group>
+		<text name="AvatarRenderingText">
+			Rendering dell&apos;avatar:
+		</text>
+		<check_box initial_value="true" label="Avatar bidimensionali (Impostor)" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Abiti dell&apos;avatar" name="AvatarCloth"/>
+		<slider label="Distanza di disegno:" label_width="158" name="DrawDistance" width="255"/>
+		<text name="DrawDistanceMeterText2">
+			m
+		</text>
+		<slider label="Conteggio massimo particelle:" label_width="158" name="MaxParticleCount" width="262"/>
+		<slider label="Qualità in post-produzione:" label_width="158" name="RenderPostProcess" width="223"/>
+		<text name="MeshDetailText">
+			Dettagli reticolo:
+		</text>
+		<slider label="  Oggetti:" name="ObjectMeshDetail"/>
+		<slider label="  Prims flessibili:" name="FlexibleMeshDetail"/>
+		<slider label="  Alberi:" name="TreeMeshDetail"/>
+		<slider label="  Avatar:" name="AvatarMeshDetail"/>
+		<slider label="  Terreno:" name="TerrainMeshDetail"/>
+		<slider label="  Cielo:" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Basso
+		</text>
+		<text name="ObjectMeshDetailText">
+			Basso
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Basso
+		</text>
+		<text name="TreeMeshDetailText">
+			Basso
+		</text>
+		<text name="AvatarMeshDetailText">
+			Basso
+		</text>
+		<text name="TerrainMeshDetailText">
+			Basso
+		</text>
+		<text name="SkyMeshDetailText">
+			Basso
+		</text>
+		<text name="LightingDetailText">
+			Dettagli illuminazione:
+		</text>
+		<radio_group name="LightingDetailRadio">
+			<radio_item label="Solo il sole e la luna" name="SunMoon"/>
+			<radio_item label="Luci locali" name="LocalLights"/>
+		</radio_group>
+		<text name="TerrainDetailText">
+			Dettagli terreno:
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Basso" name="0"/>
+			<radio_item label="Alto" name="2"/>
+		</radio_group>
 	</panel>
-	<button label="Configurazione raccomandata" name="Defaults" left="110" width="190" />
-	<button label="Opzioni hardware" label_selected="Opzioni hardware" name="GraphicsHardwareButton"/>
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
-	<panel.string name="aspect_ratio_text">
-		[NUM]:[DEN]
-	</panel.string>
+	<button label="Applica" label_selected="Applica" name="Apply"/>
+	<button label="Resetta" left="110" name="Defaults" width="190"/>
+	<button label="Avanzato" name="Advanced"/>
+	<button label="Hardware" label_selected="Hardware" name="GraphicsHardwareButton"/>
 </panel>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Regolamento" name="Covenant">
 	<text name="estate_section_lbl">
-		Proprietà:
+		Proprietà immobiliare
 	</text>
 	<text name="estate_name_lbl">
 		Nome:
@@ -22,49 +22,48 @@
 		Ultima modifica Merc 31 Dic 1969 16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
-	<text_editor name="covenant_editor"  bottom="-247" height="162" >
+	<text_editor bottom="-247" height="162" name="covenant_editor">
 		Per questa proprietà non è stato emesso alcun regolamento.
 	</text_editor>
 	<button label="Ripristina" name="reset_covenant"/>
-	<text  bottom="-25" name="covenant_help_text">
+	<text bottom="-25" name="covenant_help_text">
 		Le modifiche nel regolamento saranno visibili su tutti i terreni
       della proprietà.
 	</text>
-	<text  bottom_delta="-36" name="covenant_instructions">
-		Trascina e rilascia una notecard per cambiare il regolamento di
-      questa proprietà.
+	<text bottom_delta="-36" name="covenant_instructions">
+		Trascina ed inserisci una notecard per cambiare i Covenant di questa proprietà immobiliare.
 	</text>
 	<text name="region_section_lbl">
-		Regione:
+		Regione
 	</text>
 	<text name="region_name_lbl">
 		Nome:
 	</text>
-	<text name="region_name_text" left="126">
+	<text left="126" name="region_name_text">
 		leyla
 	</text>
 	<text name="region_landtype_lbl">
 		Tipo:
 	</text>
-	<text name="region_landtype_text" left="126">
+	<text left="126" name="region_landtype_text">
 		Mainland / Homestead
 	</text>
 	<text name="region_maturity_lbl" width="115">
 		Categoria di accesso:
 	</text>
-	<text name="region_maturity_text" left="126">
+	<text left="126" name="region_maturity_text">
 		Adult
 	</text>
 	<text name="resellable_lbl">
 		Rivendita:
 	</text>
-	<text name="resellable_clause" left="126">
+	<text left="126" name="resellable_clause">
 		La terra in questa regione non può essere rivenduta.
 	</text>
 	<text name="changeable_lbl">
 		Suddividi:
 	</text>
-	<text name="changeable_clause" left="126">
+	<text left="126" name="changeable_clause">
 		La terra in questa regione non può essere unita/suddivisa.
 	</text>
 	<string name="can_resell">

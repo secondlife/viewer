@@ -25,6 +25,7 @@
  layout="topleft"
  name="floater_test_widgets"
  help_topic="floater_test_widgets"
+ translate="false"
  width="850">
 
   <!-- Strings are used by C++ code for localization.  They are not visible

@@ -6,4 +6,11 @@
 	<floater.string name="done_text">
 		Terminé
 	</floater.string>
+	<layout_stack name="stack1">
+		<layout_panel name="browser_layout">
+			<text name="refresh_search">
+				Relancer la recherche pour refléter le niveau divin actuel
+			</text>
+		</layout_panel>
+	</layout_stack>
 </floater>

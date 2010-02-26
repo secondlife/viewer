@@ -39,6 +39,7 @@
 #include "llbutton.h"
 #include "llavatariconctrl.h"
 
+class LLGroupIconCtrl;
 
 class LLToastIMPanel: public LLToastPanel 
 {
@@ -61,12 +62,17 @@ public:
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 private:
 	void showInspector();
+
+	void spawnNameToolTip();
+	void spawnGroupIconToolTip();
+
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
 	LLNotificationPtr	mNotification;
 	LLUUID				mSessionID;
 	LLUUID				mAvatarID;
 	LLAvatarIconCtrl*	mAvatarIcon;
+	LLGroupIconCtrl*	mGroupIcon;
 	LLTextBox*			mAvatarName;
 	LLTextBox*			mTime;
 	LLTextBox*			mMessage;

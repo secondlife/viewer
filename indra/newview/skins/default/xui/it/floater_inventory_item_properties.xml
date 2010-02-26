@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="item properties" title="PROPRIETÀ DELL&apos;OGGETTO NELL&apos;INVENTARIO">
+<floater name="item properties" title="CARATTERISTICHE DELL&apos;ARTICOLO IN INVENTARIO">
+	<floater.string name="unknown">
+		(sconosciuto)
+	</floater.string>
+	<floater.string name="public">
+		(pubblico)
+	</floater.string>
+	<floater.string name="you_can">
+		Tu puoi:
+	</floater.string>
+	<floater.string name="owner_can">
+		Il proprietario può:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
 	<text name="LabelItemNameTitle">
 		Nome:
 	</text>
@@ -27,55 +42,32 @@
 		Wed May 24 12:50:46 2006
 	</text>
 	<text name="OwnerLabel">
-		Tu puoi:
+		Tu:
 	</text>
-	<check_box label="Modificare" name="CheckOwnerModify"/>
-	<check_box left_delta="88" label="Copiare" name="CheckOwnerCopy"/>
-	<check_box label="Rivendere/Regalare" name="CheckOwnerTransfer"/>
-	<text name="BaseMaskDebug">
-		B:
+	<check_box label="Modifica" name="CheckOwnerModify"/>
+	<check_box label="Copiare" left_delta="88" name="CheckOwnerCopy"/>
+	<check_box label="Rivendi" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Chiunque:
 	</text>
-	<text name="OwnerMaskDebug">
-		O:
+	<check_box label="Copia" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Gruppo:
 	</text>
-	<text name="GroupMaskDebug">
-		G:
-	</text>
-	<text name="EveryoneMaskDebug">
-		E:
-	</text>
-	<text name="NextMaskDebug">
-		N:
-	</text>
-	<check_box label="Condividi con il gruppo" name="CheckShareWithGroup"/>
-	<check_box label="Permetti a tutti di copiare" name="CheckEveryoneCopy"/>
+	<check_box label="Condividi" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel" width="230">
-		Il prossimo proprietario può:
+		Prossimo Proprietario:
 	</text>
-	<check_box label="Modificare" name="CheckNextOwnerModify"/>
-	<check_box left_delta="88" label="Copiare" name="CheckNextOwnerCopy"/>
-	<check_box label="Rivendere/Regalare" name="CheckNextOwnerTransfer"/>
-	<text name="SaleLabel">
-		Metti l&apos;oggetto:
-	</text>
+	<check_box label="Modifica" name="CheckNextOwnerModify"/>
+	<check_box label="Copiare" left_delta="88" name="CheckNextOwnerCopy"/>
+	<check_box label="Rivendi" name="CheckNextOwnerTransfer"/>
 	<check_box label="In vendita" name="CheckPurchase"/>
-	<radio_group name="RadioSaleType" left_delta="88" >
-		<radio_item name="radio" label="Originale" />
-		<radio_item name="radio2" label="Copia" />
-	</radio_group>
-	<text name="TextPrice">
-		Prezzo:  L$
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Copia" name="Copy"/>
+		<combo_box.item label="Originale" name="Original"/>
+	</combo_box>
+	<spinner label="Prezzo:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
 	</text>
-	<string name="unknown">
-		(sconosciuto)
-	</string>
-	<string name="public">
-		(pubblico)
-	</string>
-	<string name="you_can">
-		Tu puoi:
-	</string>
-	<string name="owner_can">
-		Il proprietario può:
-	</string>
 </floater>

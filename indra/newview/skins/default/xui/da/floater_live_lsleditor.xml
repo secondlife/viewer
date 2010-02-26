@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="SCRIPT: NYT SCRIPT">
-	<button label="Nulstil" label_selected="Reset" name="Reset" />
-	<check_box label="Kører" name="running" />
-	<check_box label="Mono" name="mono" />
-	<string name="not_allowed">
-		Du har ikke rettigheder til at se dette script.
-	</string>
-	<string name="script_running">
+	<floater.string name="not_allowed">
+		Du kan ikke se eller redigere dette script, da det er sat til &quot;no copy&quot;. Du skal bruge fulde rettigheder for at kunne se og redigere et script i dette objekt.
+	</floater.string>
+	<floater.string name="script_running">
 		Kører
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Script: [NAME]
+	</floater.string>
+	<button label="Nulstil" label_selected="Reset" name="Reset"/>
+	<check_box initial_value="true" label="Kører" name="running"/>
+	<check_box initial_value="true" label="Mono" name="mono"/>
 </floater>

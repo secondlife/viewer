@@ -75,7 +75,6 @@ LLSD LLCredential::getLoginParams()
 
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
-
 LLGridManager::~LLGridManager()
 {
 }

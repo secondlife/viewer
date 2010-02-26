@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Propriétés des objets de l&apos;inventaire">
+<panel name="item properties" title="Profil de l&apos;objet">
 	<panel.string name="unknown">
 		(inconnu)
 	</panel.string>
@@ -15,6 +15,8 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
+	<text name="title" value="Profil de l&apos;objet"/>
+	<text name="where" value="(inventaire)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nom :
@@ -28,53 +30,50 @@
 		<text name="LabelCreatorName">
 			Nicole Linden
 		</text>
-		<button label="Profil..." name="BtnCreator"/>
+		<button label="Profil" name="BtnCreator"/>
 		<text name="LabelOwnerTitle">
 			Propriétaire :
 		</text>
 		<text name="LabelOwnerName">
 			Thrax Linden
 		</text>
-		<button label="Profil..." name="BtnOwner"/>
+		<button label="Profil" name="BtnOwner"/>
 		<text name="LabelAcquiredTitle">
 			Acquis :
 		</text>
 		<text name="LabelAcquiredDate">
 			Wed May 24 12:50:46 2006
 		</text>
-		<text name="OwnerLabel">
-			Vous :
-		</text>
-		<check_box label="Éditer" name="CheckOwnerModify"/>
-		<check_box label="Copier" name="CheckOwnerCopy"/>
-		<check_box label="Revendre" name="CheckOwnerTransfer"/>
-		<text name="AnyoneLabel">
-			N&apos;importe qui :
-		</text>
-		<check_box label="Copier" name="CheckEveryoneCopy"/>
-		<text name="GroupLabel">
-			Groupe :
-		</text>
-		<check_box label="Partager" name="CheckShareWithGroup"/>
-		<text name="NextOwnerLabel">
-			Le prochain propriétaire :
-		</text>
-		<check_box label="Éditer" name="CheckNextOwnerModify"/>
-		<check_box label="Copier" name="CheckNextOwnerCopy"/>
-		<check_box label="Revendre" name="CheckNextOwnerTransfer"/>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Vous pouvez :
+			</text>
+			<check_box label="Modifier" name="CheckOwnerModify"/>
+			<check_box label="Copier" name="CheckOwnerCopy"/>
+			<check_box label="Transférer" name="CheckOwnerTransfer"/>
+			<text name="AnyoneLabel">
+				N&apos;importe qui :
+			</text>
+			<check_box label="Copier" name="CheckEveryoneCopy"/>
+			<text name="GroupLabel">
+				Groupe :
+			</text>
+			<check_box label="Partager" name="CheckShareWithGroup" tool_tip="Autorisez tous les membres du groupe choisi à utiliser et à partager vos droits pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Transférer."/>
+			<text name="NextOwnerLabel">
+				Le prochain propriétaire :
+			</text>
+			<check_box label="Modifier" name="CheckNextOwnerModify"/>
+			<check_box label="Copier" name="CheckNextOwnerCopy"/>
+			<check_box label="Transférer" name="CheckNextOwnerTransfer" tool_tip="Le prochain propriétaire peut donner ou revendre cet objet"/>
+		</panel>
 		<check_box label="À vendre" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">
 			<combo_box.item label="Copier" name="Copy"/>
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
-		<spinner label="Prix :" name="Edit Cost"/>
-		<text name="CurrencySymbol">
-			L$
-		</text>
+		<spinner label="Prix : L$" name="Edit Cost"/>
 	</panel>
 	<panel name="button_panel">
-		<button label="Éditer" name="edit_btn"/>
 		<button label="Annuler" name="cancel_btn"/>
-		<button label="Enregistrer" name="save_btn"/>
 	</panel>
 </panel>

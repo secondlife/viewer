@@ -42,17 +42,20 @@ Hover your mouse over the options for more help.
      height="156"
      layout="topleft"
      left="0"
-     right="-1"
      name="visible_members"
      top_pad="2">
         <name_list.columns
          label="Member"
          name="name"
-         relative_width="0.6" />
+         relative_width="0.4" />
         <name_list.columns
          label="Title"
          name="title"
          relative_width="0.4" />
+        <name_list.columns
+         label="Status"
+         name="status"
+         relative_width="0.2" />
       </name_list>
          <text
          follows="left|top|right"

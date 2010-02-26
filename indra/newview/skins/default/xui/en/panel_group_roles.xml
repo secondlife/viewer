@@ -50,15 +50,15 @@ Select multiple Members by holding the Ctrl key and
 clicking on their names.
             </panel.string>
             <panel.string
-             name="power_folder_icon">
+             name="power_folder_icon" translate="false">
                 Inv_FolderClosed
             </panel.string>
             <panel.string
-             name="power_all_have_icon">
+             name="power_all_have_icon" translate="false">
                 Checkbox_On
             </panel.string>
             <panel.string
-             name="power_partial_icon">
+             name="power_partial_icon" translate="false">
                 Checkbox_Off
             </panel.string>
          <filter_editor
@@ -142,15 +142,15 @@ including the Everyone and Owner Roles.
                 The &apos;Everyone&apos; and &apos;Owners&apos; Roles are special and can't be deleted.
             </panel.string>
             <panel.string
-             name="power_folder_icon">
+             name="power_folder_icon" translate="false">
                 Inv_FolderClosed
             </panel.string>
             <panel.string
-             name="power_all_have_icon">
+             name="power_all_have_icon" translate="false">
                 Checkbox_On
             </panel.string>
             <panel.string
-             name="power_partial_icon">
+             name="power_partial_icon" translate="false">
                 Checkbox_Off
             </panel.string>
          <filter_editor
@@ -223,15 +223,15 @@ including the Everyone and Owner Roles.
 things in this group. There&apos;s a broad variety of Abilities.
             </panel.string>
             <panel.string
-             name="power_folder_icon">
+             name="power_folder_icon" translate="false">
                 Inv_FolderClosed
             </panel.string>
             <panel.string
-             name="power_all_have_icon">
+             name="power_all_have_icon" translate="false">
                 Checkbox_On
             </panel.string>
             <panel.string
-             name="power_partial_icon">
+             name="power_partial_icon" translate="false">
                 Checkbox_Off
             </panel.string>
          <filter_editor

@@ -248,6 +248,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 			if ( objectp->isAttachment() )
 			{
 				objectp = (LLViewerObject*)objectp->getRoot();
+				mObjectID = objectp->getID();
 			}
 
 			// correct the region and position information
@@ -277,7 +278,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 				{
 					object_owner.append("Unknown");
 				}
-				setFromAvatar(object_id, object_owner);
+				setFromAvatar(mObjectID, object_owner);
 			}
 			else
 			{

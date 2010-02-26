@@ -94,3 +94,8 @@ void LLNotificationsUtil::cancel(LLNotificationPtr pNotif)
 {
 	LLNotifications::instance().cancel(pNotif);
 }
+
+LLNotificationPtr LLNotificationsUtil::find(LLUUID uuid)
+{
+	return LLNotifications::instance().find(uuid);
+}

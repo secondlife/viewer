@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_tattoo_panel">
+	<panel name="avatar_tattoo_color_panel">
+		<texture_picker label="Hoved tatovering" name="Head Tattoo" tool_tip="Klik for at vælge et billede"/>
+		<texture_picker label="Øvre tatovering" name="Upper Tattoo" tool_tip="Klik for at vælge et billede"/>
+		<texture_picker label="Nedre tatovering" name="Lower Tattoo" tool_tip="Klik for at vælge et billede"/>
+	</panel>
+</panel>

@@ -87,8 +87,6 @@ public:
 	__attribute__ ((noinline))
 #endif
 	BOOL isGodlike() const { return FALSE; }
-private:
-	int dummy;
 };
 LLAgent gAgent;
 

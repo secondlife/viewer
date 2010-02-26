@@ -1,41 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
 	<panel.string name="create_account_url">
-		http://join.secondlife.com/index.php?lang=it-IT
+		http://join.secondlife.com/
 	</panel.string>
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=it
 	</panel.string>
-<panel name="login_widgets">
-	<text name="first_name_text" left="20">
-		Nome:
-	</text>
-	<line_editor left="20" name="first_name_edit" width="126" />
-	<text name="last_name_text" left="158">
-		Cognome:
-	</text>
-	<line_editor left="158" name="last_name_edit" width="126" />
-	<text name="password_text">
-		Password:
-	</text>
-	<text name="start_location_text" left="20" width="105">
-		Punto di partenza:
-	</text>
-	<combo_box name="start_location_combo" left_delta="105" width="160">
-		<combo_box.item name="MyHome" label="Casa Mia" />
-		<combo_box.item name="MyLastLocation" label="Ultimo luogo visitato" />
-		<combo_box.item name="Typeregionname" label="&lt;Scrivi la regione&gt;" />
-	</combo_box>
-	<check_box label="Ricorda password" name="remember_check" left_delta="168"/>
-	<button label="Log In" label_selected="Log In" name="connect_btn"/>
-	<text name="create_new_account_text">
-		Registra un account
-	</text>
-	<text name="forgot_password_text" left="-240" width="230">
-		Hai dimenticato il tuo nome o la password?
-	</text>
-	<text name="channel_text">
-		[VERSION]
-	</text>
-</panel>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="first_name_text">
+				Nome:
+			</text>
+			<line_editor label="Nome" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
+			<line_editor label="Cognome" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
+			<check_box label="Ricordare" name="remember_check"/>
+			<text name="start_location_text">
+				Iniziare presso:
+			</text>
+			<combo_box name="start_location_combo">
+				<combo_box.item label="Casa mia" name="MyHome"/>
+			</combo_box>
+			<button label="Log In" name="connect_btn"/>
+		</layout_panel>
+		<layout_panel name="links">
+			<text name="create_new_account_text">
+				Aderire
+			</text>
+			<text name="login_help">
+				Aiuto quando log in?
+			</text>
+		</layout_panel>
+	</layout_stack>
 </panel>

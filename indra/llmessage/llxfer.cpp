@@ -74,6 +74,7 @@ void LLXfer::init (S32 chunk_size)
 	
 	mCallback = NULL;
 	mCallbackDataHandle = NULL;
+	mCallbackResult = 0;
 
 	mBufferContainsEOF = FALSE;
 	mBuffer = NULL;

@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<text name="payee_group" width="100" halign="left">
-		Paga il gruppo:
-	</text>
-	<text name="payee_resident" width="120" halign="left">
-		Paga il residente:
-	</text>
-	<text name="payee_name" left="120">
+	<string halign="left" name="payee_group" width="100">
+		Paga Gruppo
+	</string>
+	<string halign="left" name="payee_resident" width="120">
+		Pags Residente
+	</string>
+	<icon name="icon_person" tool_tip="Persona"/>
+	<text left="120" name="payee_name">
 		[FIRST] [LAST]
 	</text>
-	<text name="object_name_label" left="5" width="110" halign="left">
+	<text halign="left" left="5" name="object_name_label" width="110">
 		Mediante l&apos;oggetto:
 	</text>
-	<text name="object_name_text" left="120" >
+	<icon name="icon_object" tool_tip="Oggetti"/>
+	<text left="120" name="object_name_text">
 		...
 	</text>
-	<text name="fastpay text" width="115" halign="left">
-		Pagamento diretto:
+	<button label="1 L$" label_selected="1 L$" left="125" name="fastpay 1" width="70"/>
+	<button label="5 L$" label_selected="5 L$" left="200" name="fastpay 5" width="70"/>
+	<button label="10 L$" label_selected="10 L$" left="125" name="fastpay 10" width="70"/>
+	<button label="20 L$" label_selected="20 L$" left="200" name="fastpay 20" width="70"/>
+	<text halign="left" left="5" name="amount text">
+		O, scegli importo:
 	</text>
-	<text name="amount text" left="5" halign="left">
-		Ammontare:
-	</text>
-	<button label="1 L$" label_selected="1 L$" name="fastpay 1" left="125" width="70"/>
-	<button label="5 L$" label_selected="5 L$" name="fastpay 5" left="200" width="70"/>
-	<button label="10 L$" label_selected="10 L$" name="fastpay 10" left="125" width="70"/>
-	<button label="20 L$" label_selected="20 L$" name="fastpay 20" left="200" width="70"/>
+	<line_editor left="74" name="amount" width="50"/>
 	<button label="Paga" label_selected="Paga" name="pay btn"/>
 	<button label="Cancella" label_selected="Cancella" name="cancel btn"/>
-	<line_editor left="74" name="amount" width="50" />
 </floater>

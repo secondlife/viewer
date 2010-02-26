@@ -1486,8 +1486,8 @@
 	<string name="covenant_last_modified">
 		Zuletzt geändert:
 	</string>
-	<string name="none_text" value=" (keiner)"/>
-	<string name="never_text" value=" (nie)"/>
+	<string name="none_text" value=" (keiner) "/>
+	<string name="never_text" value=" (nie) "/>
 	<string name="GroupOwned">
 		In Gruppenbesitz
 	</string>

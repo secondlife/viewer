@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="MASSE-ÆNDRING AF RETTIGHEDER PÅ INDHOLD">
-	<text name="applyto">
-		Indholdstyper
-	</text>
+<floater name="floaterbulkperms" title="REDIGÉR RETTIGHEDER FOR INDHOLD">
+	<floater.string name="nothing_to_modify_text">
+		Valgte indeholder ikke noget som kan redigeres.
+	</floater.string>
+	<floater.string name="status_text">
+		Sætter rettigheder på [NAME]
+	</floater.string>
+	<floater.string name="start_text">
+		Påbegynder forespørgsel på rettighedsændringer...
+	</floater.string>
+	<floater.string name="done_text">
+		Afsluttet forespørgsel på rettighedsændringer.
+	</floater.string>
 	<check_box label="Animationer" name="check_animation"/>
+	<icon name="icon_animation" tool_tip="Animation"/>
 	<check_box label="Kropsdele" name="check_bodypart"/>
+	<icon name="icon_bodypart" tool_tip="Kropsdele"/>
 	<check_box label="Tøj" name="check_clothing"/>
+	<icon name="icon_clothing" tool_tip="Tøj"/>
 	<check_box label="Bevægelser" name="check_gesture"/>
-	<check_box label="Landemærker" name="check_landmark"/>
+	<icon name="icon_gesture" tool_tip="Bevægelser"/>
 	<check_box label="Noter" name="check_notecard"/>
+	<icon name="icon_notecard" tool_tip="Noter"/>
 	<check_box label="Objekter" name="check_object"/>
+	<icon name="icon_object" tool_tip="Objekter"/>
 	<check_box label="Scripts" name="check_script"/>
+	<icon name="icon_script" tool_tip="Scripts"/>
 	<check_box label="Lyde" name="check_sound"/>
+	<icon name="icon_sound" tool_tip="Lyde"/>
 	<check_box label="Teksturer" name="check_texture"/>
-	<button label="Vælg alle" label_selected="Alle" name="check_all"/>
-	<button label="Fravælg alle" label_selected="Ingen" name="check_none"/>
+	<icon name="icon_texture" tool_tip="Teksturer"/>
+	<button label="√ Alle" label_selected="Alle" name="check_all"/>
+	<button label="Fjern" label_selected="Ingen" name="check_none"/>
 	<text name="newperms">
-		Nye rettigheder
+		Nye indholdsrettigheder
 	</text>
-	<check_box label="Del med gruppe" name="share_with_group"/>
-	<check_box label="Tillad enhver at kopiere" name="everyone_copy"/>
+	<text name="GroupLabel">
+		Gruppe:
+	</text>
+	<check_box label="Del" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		Enhver:
+	</text>
+	<check_box label="Kopiér" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
-		Næste ejer kan:
+		Næste ejer:
 	</text>
 	<check_box label="Redigere" name="next_owner_modify"/>
 	<check_box label="Kopiére" name="next_owner_copy"/>
-	<check_box label="Sælge/Give væk" name="next_owner_transfer"/>
-	<button label="Hjælp" name="help"/>
-	<button label="Gem" name="apply"/>
-	<button label="Luk" name="close"/>
-	<string name="nothing_to_modify_text">
-		Valgte indeholder ikke noget som kan redigeres.
-	</string>
-	<string name="status_text">
-		Sætter rettigheder på [NAME]
-	</string>
-	<string name="start_text">
-		Påbegynder forespørgsel på rettighedsændringer...
-	</string>
-	<string name="done_text">
-		Afsluttet forespørgsel på rettighedsændringer.
-	</string>
+	<check_box initial_value="true" label="Overfør" name="next_owner_transfer" tool_tip="Næste ejer kan sælge eller forære dette objekt væk"/>
+	<button label="Ok" name="apply"/>
+	<button label="Annullér" name="close"/>
 </floater>

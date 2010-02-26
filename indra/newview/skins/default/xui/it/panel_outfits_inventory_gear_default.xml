@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_gear_default">
+	<menu_item_call label="Sostituisci il Vestiario attuale" name="wear"/>
+	<menu_item_call label="Aggiungi al Vestiario attuale" name="add"/>
+	<menu_item_call label="Rimuovi dal Vestiario attuale" name="remove"/>
+	<menu_item_call label="Rinomina" name="rename"/>
+	<menu_item_call label="Rimuovi" name="remove_link"/>
+	<menu_item_call label="Cancella" name="delete"/>
+</menu>

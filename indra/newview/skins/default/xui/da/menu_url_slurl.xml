@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Vis information" name="show_place"/>
+	<menu_item_call label="Vis på kort" name="show_on_map"/>
+	<menu_item_call label="Teleportér til lokation" name="teleport_to_location"/>
+	<menu_item_call label="Kopiér SLurl til udklipsholder" name="url_copy"/>
+</context_menu>

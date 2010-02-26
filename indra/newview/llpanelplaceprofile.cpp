@@ -341,7 +341,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	std::string off = getString("off");
 
 	// Processing parcel characteristics
-	if (parcel->getParcelFlagAllowVoice())
+	if (region->isVoiceEnabled() && parcel->getParcelFlagAllowVoice())
 	{
 		mVoiceIcon->setValue(icon_voice);
 		mVoiceText->setText(on);
@@ -385,9 +385,9 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		mBuildText->setText(off);
 	}
 
-	if((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) ||
-	   (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
-	   !parcel->getAllowOtherScripts())
+	if ((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) ||
+	    (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
+	    !parcel->getAllowOtherScripts())
 	{
 		mScriptsIcon->setValue(icon_scripts_no);
 		mScriptsText->setText(off);

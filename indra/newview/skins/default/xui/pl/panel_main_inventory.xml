@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Rzeczy" name="main inventory panel">
+	<panel.string name="Title">
+		Rzeczy
+	</panel.string>
+	<filter_editor label="Filtr" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Wszystkie Obiekty" name="All Items"/>
+		<inventory_panel label="Ostatnio Dodane Obiekty" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Pokaż dodatkowe opcje"/>
+		<button name="add_btn" tool_tip="Dodaj nowy obiekt"/>
+		<dnd_button name="trash_btn" tool_tip="Usuń wybrany obiekt"/>
+	</panel>
+	<menu_bar name="Inventory Menu">
+		<menu label="Plik" name="File">
+			<menu_item_call label="Otwórz" name="Open"/>
+			<menu label="Załaduj" name="upload">
+				<menu_item_call label="Obraz (L$[COST])..." name="Upload Image"/>
+				<menu_item_call label="Dźwięk (L$[COST])..." name="Upload Sound"/>
+				<menu_item_call label="Animację (L$[COST])..." name="Upload Animation"/>
+				<menu_item_call label="Zbiór Plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
+			</menu>
+			<menu_item_call label="Nowe Okno" name="New Window"/>
+			<menu_item_call label="Pokaż Filtry" name="Show Filters"/>
+			<menu_item_call label="Zresetuj Filtry" name="Reset Current"/>
+			<menu_item_call label="Zamknij Wszystkie Foldery" name="Close All Folders"/>
+			<menu_item_call label="Opróżnij Kosz" name="Empty Trash"/>
+			<menu_item_call label="Opróżnij Folder Zgubione i Znalezione" name="Empty Lost And Found"/>
+		</menu>
+		<menu label="Stwórz" name="Create">
+			<menu_item_call label="Nowy Folder" name="New Folder"/>
+			<menu_item_call label="Nowy Skrypt" name="New Script"/>
+			<menu_item_call label="Nową Notę" name="New Note"/>
+			<menu_item_call label="Nową Gesturkę" name="New Gesture"/>
+			<menu label="Nowe Ubranie" name="New Clothes">
+				<menu_item_call label="Nową Koszulkę" name="New Shirt"/>
+				<menu_item_call label="Nowe Spodnie" name="New Pants"/>
+				<menu_item_call label="Nowe Buty" name="New Shoes"/>
+				<menu_item_call label="Nowe Skarpetki" name="New Socks"/>
+				<menu_item_call label="Nową Kurtkę" name="New Jacket"/>
+				<menu_item_call label="Nową Spódnicę" name="New Skirt"/>
+				<menu_item_call label="Nowe Rękawiczki" name="New Gloves"/>
+				<menu_item_call label="Nowy Podkoszulek" name="New Undershirt"/>
+				<menu_item_call label="Nową Bieliznę" name="New Underpants"/>
+				<menu_item_call label="Nowe Ubranie Przezroczyste" name="New Alpha"/>
+				<menu_item_call label="Nowy Tatuaż" name="New Tattoo"/>
+			</menu>
+			<menu label="Nową Część Ciała" name="New Body Parts">
+				<menu_item_call label="Nowy Kształt" name="New Shape"/>
+				<menu_item_call label="Nową Skórkę" name="New Skin"/>
+				<menu_item_call label="Nowe Włosy" name="New Hair"/>
+				<menu_item_call label="Nowe Oczy" name="New Eyes"/>
+			</menu>
+		</menu>
+		<menu label="Uporządkuj" name="Sort">
+			<menu_item_check label="Wegług Nazwy" name="By Name"/>
+			<menu_item_check label="Według Daty" name="By Date"/>
+			<menu_item_check label="Foldery zawsze według nazwy" name="Folders Always By Name"/>
+			<menu_item_check label="Foldery Systemowe od Góry" name="System Folders To Top"/>
+		</menu>
+	</menu_bar>
+</panel>

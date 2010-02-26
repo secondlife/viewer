@@ -43,6 +43,7 @@
 #include "lluiconstants.h"
 #include "llrect.h"
 #include "lltrans.h"
+#include "llnotificationsutil.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
 S32 BUTTON_WIDTH = 90;
@@ -235,6 +236,10 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 LLToastNotifyPanel::~LLToastNotifyPanel() 
 {
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
+	if (LLNotificationsUtil::find(mNotification->getID()) != NULL)
+	{
+		LLNotifications::getInstance()->cancel(mNotification);
+	}
 }
 void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 left_pad, S32 top)
 {

@@ -46,7 +46,7 @@
 		[AMT] L$
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php?lang=fr-FR payment method] | [http://www.secondlife.com/my/account/currency.php?lang=fr-FR currency] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=fr-FR exchange rate]
+		[http://www.secondlife.com/my/account/payment_method_management.php?lang=fr-FR mode de paiement] | [http://www.secondlife.com/my/account/currency.php?lang=fr-FR devise] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=fr-FR taux de change]
 	</text>
 	<text name="exchange_rate_note">
 		Saisissez à nouveau le montant pour voir le taux de change actuel.

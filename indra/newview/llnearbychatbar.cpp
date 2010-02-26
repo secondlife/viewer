@@ -97,9 +97,9 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 
 	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
 	
-	// *HACK: adding list as a child to NonSideTrayView to make it fully visible without
+	// *HACK: adding list as a child to FloaterViewHolder to make it fully visible without
 	// making it top control (because it would cause problems).
-	gViewerWindow->getNonSideTrayView()->addChild(mList);
+	gViewerWindow->getFloaterViewHolder()->addChild(mList);
 	mList->setVisible(FALSE);
 
 	//****************************Gesture Part********************************/

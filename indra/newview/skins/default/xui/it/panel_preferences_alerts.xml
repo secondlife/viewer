@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Pop-up" name="popups" title="Pop-up">
-	<text name="dont_show_label">
-		Non mostrare questi pop-up:
+	<text name="tell_me_label">
+		Dimmi:
 	</text>
-	<button label="Abilita questo pop-up" name="enable_popup"/>
-	<button  width="200" label="Abilita tutti i pop-up..." name="reset_dialogs_btn" tool_tip="Abilita tutti i pop-up opzionali e le notifiche da &apos;utilizzo per la prima volta&apos;."/>
+	<check_box label="Quando spendo o ottengo L$" name="notify_money_change_checkbox"/>
+	<check_box label="Quando i miei amici entrano o escono da SL" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Mostra questi pop-up:
+		Mostra sempre questi allarmi:
 	</text>
-	<button  width="200" label="Disabilita tutti questi pop-up..." name="skip_dialogs_btn" tool_tip="Disabilita tutti i pop-up opzionali e le notifiche da &apos;utilizzo per la prima volta&apos;."/>
-	<text name="text_box2">
-		Offerte di notecard, texture e landmark:
+	<text name="dont_show_label">
+		Non mostrare mai questi allarmi:
 	</text>
-	<check_box label="Accetta automaticamente" name="accept_new_inventory"/>
-	<check_box label="Apri automaticamente dopo aver accettato" name="show_new_inventory"/>
-	<check_box label="Mostra automaticamente nell&apos;inventario, gli oggetti appena accettati" name="show_in_inventory"/>
 </panel>

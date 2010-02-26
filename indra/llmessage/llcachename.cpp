@@ -81,6 +81,8 @@ public:
 };
 
 LLCacheNameEntry::LLCacheNameEntry()
+	: mIsGroup(false),
+	  mCreateTime(0)
 {
 }
 

@@ -8,7 +8,7 @@
 		<panel label="Confidentialité" name="im"/>
 		<panel label="Son" name="audio"/>
 		<panel label="Chat" name="chat"/>
-		<panel label="Alertes" name="msgs"/>
+		<panel label="Notifications" name="msgs"/>
 		<panel label="Configuration" name="input"/>
 		<panel label="Avancées" name="advanced1"/>
 	</tab_container>

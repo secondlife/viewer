@@ -11,6 +11,7 @@
   name="notification_panel"
   top="0"
   	height="140"
+  translate="false"
   width="305">
   <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel

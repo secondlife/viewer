@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="script panel">
+	<panel.string name="loading">
+		Caricando...
+	</panel.string>
+	<panel.string name="can_not_view">
+		Non puoi vedere o modificare questo script, perchè è impostato come &quot;no copy&quot;. Necesiti tutti i permessi per vedere o modificare lo script dentro un oggetto..
+	</panel.string>
+	<panel.string name="public_objects_can_not_run">
+		Oggetti Pubblici non possono attivare scripts
+	</panel.string>
+	<panel.string name="script_running">
+		Attivando
+	</panel.string>
+	<panel.string name="Title">
+		Script: [NAME]
+	</panel.string>
+	<text_editor name="Script Editor">
+		Caricando...
+	</text_editor>
+	<button label="Salva" label_selected="Salva" name="Save_btn"/>
+	<combo_box label="Inserire..." name="Insert..."/>
+	<menu_bar name="script_menu">
+		<menu label="File" name="File">
+			<menu_item_call label="Salva" name="Save"/>
+			<menu_item_call label="Annulla tutti i cambiamenti" name="Revert All Changes"/>
+		</menu>
+		<menu label="Modifica" name="Edit">
+			<menu_item_call label="Slaccia" name="Undo"/>
+			<menu_item_call label="Rifai" name="Redo"/>
+			<menu_item_call label="Taglia" name="Cut"/>
+			<menu_item_call label="Copia" name="Copy"/>
+			<menu_item_call label="Incolla" name="Paste"/>
+			<menu_item_call label="Seleziona Tutto" name="Select All"/>
+			<menu_item_call label="Deseleziona" name="Deselect"/>
+			<menu_item_call label="Cerca / Sostituisci..." name="Search / Replace..."/>
+		</menu>
+		<menu label="Aiuto" name="Help">
+			<menu_item_call label="Aiuto..." name="Help..."/>
+			<menu_item_call label="Aiuto nella tastiera..." name="Keyword Help..."/>
+		</menu>
+	</menu_bar>
+</panel>

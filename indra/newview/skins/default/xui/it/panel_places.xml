@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Luoghi" name="places panel">
+	<string name="landmarks_tab_title" value="MIEI LANDMARKS"/>
+	<string name="teleport_history_tab_title" value="TELEPORT PRECEDENTI"/>
+	<filter_editor label="Filtro Luoghi" name="Filter"/>
+	<panel name="button_panel">
+		<button label="Teleport" name="teleport_btn"/>
+		<button label="Mappa" name="map_btn"/>
+		<button label="Modifica" name="edit_btn"/>
+		<button label="Chiudi" name="close_btn"/>
+		<button label="Cancella" name="cancel_btn"/>
+		<button label="Salva" name="save_btn"/>
+	</panel>
+</panel>

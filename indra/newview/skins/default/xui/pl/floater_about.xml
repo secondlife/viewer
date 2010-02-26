@@ -1,20 +1,60 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="O [CAPITALIZED_APP_NAME]">
-<tab_container name="about_tab">
-	<panel name="credits_panel">
-	<text_editor name="credits_editor">
-		Second Life zostało stworzone dla Was przez: Philip, Tessa, Andrew, Cory, James, Ben, Char, Charlie, Colin, Dan, Daniel, Doug, Eric, Hamlet, Haney, Eve, Hunter, Ian, Jeff, Jennifer, Jim, John, Lee, Mark, Peter, Phoenix, Richard, Robin, Xenon, Steve, Tanya, Eddie, Avi, Frank, Bruce, Aaron, Alice, Bob, Debra, Eileen, Helen, Janet, Louie, Leviathania, Stefan, Ray, Kevin, Tom, Mikeb, MikeT, Burgess, Elena, Tracy, Bill, Todd, Ryan, Zach, Sarah, Nova, Tim, Stephanie, Michael, Evan, Nicolas, Catherine, Rachelle, Dave, Holly, Bub, Kelly, Magellan, Ramzi, Don, Sabin, Jill, Rheya, Jeska, Torley, Kona, Callum, Charity, Ventrella, Jack, Vektor, Iris, Chris, Nicole, Mick, Reuben, Blue, Babbage, Yedwab, Deana, Lauren, Brent, Pathfinder, Chadrick, Altruima, Jesse, Teeny, Monroe, Icculus, David, Tess, Lizzie, Patsy, Isaac, Lawrence, Cyn, Bo, Gia, Annette, Marius, Tbone, Jonathan, Karen, Ginsu, Satoko, Yuko, Makiko, Thomas, Harry, Seth, Alexei, Brian, Guy, Runitai, Ethan, Data, Cornelius, Kenny, Swiss, Zero, Natria, Wendy, Stephen, Teeple, Thumper, Lucy, Dee, Mia, Liana, Warren, Branka, Aura, beez, Milo, Hermia, Red, Thrax, Joe, Sally, Magenta, Mogura, Paul, Jose, Rejean, Henrik, Lexie, Amber, Logan, Xan, Nora, Morpheus, Donovan, Leyla, MichaelFrancis, Beast, Cube, Bucky, Joshua, Stryfe, Harmony, Teresa, Claudia, Walker, Glenn, Fritz, Fordak, June, Cleopetra, Jean, Ivy, Betsy, Roosevelt, Spike, Ken, Which, Tofu, Chiyo, Rob, Zee, dustin, George, Del, Matthew, Cat, Jacqui, Lightfoot, Adrian, Viola, Alfred, Noel, Irfan, Sunil, Yool, Rika, Jane, Xtreme, Frontier, a2, Neo, Siobhan, Yoz, Justin, Elle, Qarl, Benjamin, Isabel, Gulliver, Everett, Christopher, Izzy, Stephany, Garry, Sejong, Sean, Tobin, Iridium, Meta, Anthony, Jeremy, JP, Jake, Maurice, Madhavi, Leopard, Kyle, Joon, Kari, Bert, Belinda, Jon, Kristi, Bridie, Pramod, KJ, Socrates, Maria, Ivan, Aric, Yamasaki, Adreanne, Jay, MitchK, Ceren, Coco, Durl, Jenny, Periapse, Kartic, Storrs, Lotte, Sandy, Rohn, Colossus, Zen, BigPapi, Brad, Pastrami, Kurz, Mani, Neuro, Jaime, MJ, Rowan, Sgt, Elvis, Gecko, Samuel, Sardonyx, Leo, Bryan, Niko, Soft, Poppy, Rachel, Aki, Angelo, Banzai, Alexa, Sue, CeeLo, Bender, CG, Gillian, Pelle, Nick, Echo, Zara, Christine, Shamiran, Emma, Blake, Keiko, Plexus, Joppa, Sidewinder, Erica, Ashlei, Twilight, Kristen, Brett, Q, Enus, Simon, Bevis, Kraft, Kip, Chandler, Ron, LauraP, Ram, KyleJM, Scouse, Prospero, Melissa, Marty, Nat, Hamilton, Kend, Lordan, Jimmy, Kosmo, Seraph, Green, Ekim, Wiggo, JT, Rome, Doris, Miz, Benoc, Whump, Trinity, Patch, Kate, TJ, Bao, Joohwan, Christy, Sofia, Matias, Cogsworth, Johan, Oreh, Cheah, Angela, Brandy, Mango, Lan, Aleks, Gloria, Heidy, Mitchell, Space, Colton, Bambers, Einstein, Maggie, Malbers, Rose, Winnie, Stella, Milton, Rothman, Niall, Marin, Allison, Katie, Dawn, Katt, Dusty, Kalpana, Judy, Andrea, Ambroff, Infinity, Gail, Rico, Raymond, Yi, William, Christa, M, Teagan, Scout, Molly, Dante, Corr, Dynamike, Usi, Kaylee, Vidtuts, Lil, Danica, Sascha, Kelv, Jacob, Nya, Rodney, Brandon, Elsie, Blondin, Grant, Katrin, Nyx, Gabriel, Locklainn, Claire, Devin, Minerva, Monty, Austin, Bradford, Si, Keira, H, Caitlin, Dita, Makai, Jenn, Ann, Meredith, Clare, Joy, Praveen, Cody, Edmund, Ruthe, Sirena, Gayathri, Spider, FJ, Davidoff, Tian, Jennie, Louise, Oskar, Landon, Noelle, Jarv, Ingrid, Al, Sommer, Doc, Aria, Huin, Gray, Lili, Vir, DJ, Yang, T, Simone, Maestro, Scott, Charlene, Quixote, Amanda, Susan, Zed, Anne, Enkidu, Esbee, Joroan, Katelin, Roxie, Tay, Scarlet, Kevin, Johnny, Wolfgang, Andren, Bob, Howard, Merov, Rand, Ray, Michon, Newell, Galen, Dessie, Les, Michon, Jenelle, Geo, Siz, Shapiro, Pete, Calyle, Selene, Allen, Phoebe, Goldin, Kimmora, Dakota, Slaton, Lindquist, Zoey, Hari, Othello, Rohit, Sheldon, Petra, Viale, Gordon, Kaye, Pink, Ferny, Emerson, Davy, Bri, Chan, Juan, Robert, Terrence, Nathan, Carl i wielu innych.
+	<floater.string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</floater.string>
+	<floater.string name="AboutCompiler">
+		Buduj z [COMPILER] wersją [COMPILER_VERSION]
+	</floater.string>
+	<floater.string name="AboutPosition">
+		Znajdujesz się na pozycji [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] w [REGION] zlokalizowanym w [HOSTNAME] ([HOSTIP])
+[SERVER_VERSION]
+[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</floater.string>
+	<floater.string name="AboutSystem">
+		Procesor: [CPU]
+Pamięć: [MEMORY_MB] MB
+Wersja OS: [OS_VERSION]
+Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
+Karta Graficzna: [GRAPHICS_CARD]
+	</floater.string>
+	<floater.string name="AboutDriver">
+		Windows Sterownik Karty Graficznej: [GRAPHICS_DRIVER_VERSION]
+	</floater.string>
+	<floater.string name="AboutLibs">
+		Wersja OpenGL: [OPENGL_VERSION]
+
+Wersja libcurl: [LIBCURL_VERSION]
+Wersja Dekodera J2C: [J2C_VERSION]
+Wersja Sterownika Audio: [AUDIO_DRIVER_VERSION]
+Wersja Qt Webkit: [QT_WEBKIT_VERSION]
+Wersja Vivox: [VIVOX_VERSION]
+	</floater.string>
+	<floater.string name="none">
+		(żadne)
+	</floater.string>
+	<floater.string name="AboutTraffic">
+		Stracone Pakiety: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</floater.string>
+	<tab_container name="about_tab">
+		<panel label="Info" name="support_panel">
+			<button label="Kopiuj do Schowka" name="copy_btn"/>
+		</panel>
+		<panel label="Podziękowania" name="credits_panel">
+			<text_editor name="credits_editor">
+				Second Life zostało stworzone dla Was przez: Philip, Tessa, Andrew, Cory, James, Ben, Char, Charlie, Colin, Dan, Daniel, Doug, Eric, Hamlet, Haney, Eve, Hunter, Ian, Jeff, Jennifer, Jim, John, Lee, Mark, Peter, Phoenix, Richard, Robin, Xenon, Steve, Tanya, Eddie, Avi, Frank, Bruce, Aaron, Alice, Bob, Debra, Eileen, Helen, Janet, Louie, Leviathania, Stefan, Ray, Kevin, Tom, Mikeb, MikeT, Burgess, Elena, Tracy, Bill, Todd, Ryan, Zach, Sarah, Nova, Tim, Stephanie, Michael, Evan, Nicolas, Catherine, Rachelle, Dave, Holly, Bub, Kelly, Magellan, Ramzi, Don, Sabin, Jill, Rheya, Jeska, Torley, Kona, Callum, Charity, Ventrella, Jack, Vektor, Iris, Chris, Nicole, Mick, Reuben, Blue, Babbage, Yedwab, Deana, Lauren, Brent, Pathfinder, Chadrick, Altruima, Jesse, Teeny, Monroe, Icculus, David, Tess, Lizzie, Patsy, Isaac, Lawrence, Cyn, Bo, Gia, Annette, Marius, Tbone, Jonathan, Karen, Ginsu, Satoko, Yuko, Makiko, Thomas, Harry, Seth, Alexei, Brian, Guy, Runitai, Ethan, Data, Cornelius, Kenny, Swiss, Zero, Natria, Wendy, Stephen, Teeple, Thumper, Lucy, Dee, Mia, Liana, Warren, Branka, Aura, beez, Milo, Hermia, Red, Thrax, Joe, Sally, Magenta, Mogura, Paul, Jose, Rejean, Henrik, Lexie, Amber, Logan, Xan, Nora, Morpheus, Donovan, Leyla, MichaelFrancis, Beast, Cube, Bucky, Joshua, Stryfe, Harmony, Teresa, Claudia, Walker, Glenn, Fritz, Fordak, June, Cleopetra, Jean, Ivy, Betsy, Roosevelt, Spike, Ken, Which, Tofu, Chiyo, Rob, Zee, dustin, George, Del, Matthew, Cat, Jacqui, Lightfoot, Adrian, Viola, Alfred, Noel, Irfan, Sunil, Yool, Rika, Jane, Xtreme, Frontier, a2, Neo, Siobhan, Yoz, Justin, Elle, Qarl, Benjamin, Isabel, Gulliver, Everett, Christopher, Izzy, Stephany, Garry, Sejong, Sean, Tobin, Iridium, Meta, Anthony, Jeremy, JP, Jake, Maurice, Madhavi, Leopard, Kyle, Joon, Kari, Bert, Belinda, Jon, Kristi, Bridie, Pramod, KJ, Socrates, Maria, Ivan, Aric, Yamasaki, Adreanne, Jay, MitchK, Ceren, Coco, Durl, Jenny, Periapse, Kartic, Storrs, Lotte, Sandy, Rohn, Colossus, Zen, BigPapi, Brad, Pastrami, Kurz, Mani, Neuro, Jaime, MJ, Rowan, Sgt, Elvis, Gecko, Samuel, Sardonyx, Leo, Bryan, Niko, Soft, Poppy, Rachel, Aki, Angelo, Banzai, Alexa, Sue, CeeLo, Bender, CG, Gillian, Pelle, Nick, Echo, Zara, Christine, Shamiran, Emma, Blake, Keiko, Plexus, Joppa, Sidewinder, Erica, Ashlei, Twilight, Kristen, Brett, Q, Enus, Simon, Bevis, Kraft, Kip, Chandler, Ron, LauraP, Ram, KyleJM, Scouse, Prospero, Melissa, Marty, Nat, Hamilton, Kend, Lordan, Jimmy, Kosmo, Seraph, Green, Ekim, Wiggo, JT, Rome, Doris, Miz, Benoc, Whump, Trinity, Patch, Kate, TJ, Bao, Joohwan, Christy, Sofia, Matias, Cogsworth, Johan, Oreh, Cheah, Angela, Brandy, Mango, Lan, Aleks, Gloria, Heidy, Mitchell, Space, Colton, Bambers, Einstein, Maggie, Malbers, Rose, Winnie, Stella, Milton, Rothman, Niall, Marin, Allison, Katie, Dawn, Katt, Dusty, Kalpana, Judy, Andrea, Ambroff, Infinity, Gail, Rico, Raymond, Yi, William, Christa, M, Teagan, Scout, Molly, Dante, Corr, Dynamike, Usi, Kaylee, Vidtuts, Lil, Danica, Sascha, Kelv, Jacob, Nya, Rodney, Brandon, Elsie, Blondin, Grant, Katrin, Nyx, Gabriel, Locklainn, Claire, Devin, Minerva, Monty, Austin, Bradford, Si, Keira, H, Caitlin, Dita, Makai, Jenn, Ann, Meredith, Clare, Joy, Praveen, Cody, Edmund, Ruthe, Sirena, Gayathri, Spider, FJ, Davidoff, Tian, Jennie, Louise, Oskar, Landon, Noelle, Jarv, Ingrid, Al, Sommer, Doc, Aria, Huin, Gray, Lili, Vir, DJ, Yang, T, Simone, Maestro, Scott, Charlene, Quixote, Amanda, Susan, Zed, Anne, Enkidu, Esbee, Joroan, Katelin, Roxie, Tay, Scarlet, Kevin, Johnny, Wolfgang, Andren, Bob, Howard, Merov, Rand, Ray, Michon, Newell, Galen, Dessie, Les, Michon, Jenelle, Geo, Siz, Shapiro, Pete, Calyle, Selene, Allen, Phoebe, Goldin, Kimmora, Dakota, Slaton, Lindquist, Zoey, Hari, Othello, Rohit, Sheldon, Petra, Viale, Gordon, Kaye, Pink, Ferny, Emerson, Davy, Bri, Chan, Juan, Robert, Terrence, Nathan, Carl i wielu innych.
 
   Podziękowania dla następujących rezydentów za pomoc w pracy nad obecną wersją Second Life: able whitman, Adeon Writer, adonaira aabye, Aeron Kohime, Agathos Frascati, Aimee Trescothick, Aleric Inglewood, Alissa Sabre, Aminom Marvin, Angela Talamasca, Aralara Rajal, Armin Weatherwax, Ashrilyn Hayashida, Athanasius Skytower, Aura Dirval, Barney Boomslang, Biancaluce Robbiani, Biker Offcourse, Borg Capalini, Bulli Schumann, catherine pfeffer, Chalice Yao, Corre Porta, Court Goodman, Cummere Mayo, Dale Innis, Darien Caldwell, Darjeeling Schoonhoven, Daten Thielt, dimentox travanti, Dirk Talamasca, Drew Dwi, Duckless Vandyke, Elanthius Flagstaff, Electro Burnstein, emiley tomsen, Escort DeFarge, Eva Rau, Ezian Ecksol, Fire Centaur, Fluf Fredriksson, Francisco Koolhoven, Frontera Thor, Frungi Stastny, Gally Young, gearsawe stonecutter, Gigs Taggart, Gordon Wendt, Gudmund Shepherd, Gypsy Paz, Harleen Gretzky, Henri Beauchamp, Inma Rau, Irene Muni, Iskar Ariantho, Jacek Antonelli, JB Kraft, Jessicka Graves, Joeseph Albanese, Joshua Philgarlic, Khyota Wulluf, kirstenlee Cinquetti, Latif Khalifa, Lex Neva, Lilibeth Andree, Lisa Lowe, Lunita Savira, Loosey Demonia, lum pfohl, Marcos Fonzarelli, MartinRJ Fayray, Marusame Arai, Matthew Dowd, Maya Remblai, McCabe Maxsted, Meghan Dench, Melchoir Tokhes, Menos Short, Michelle2 Zenovka, Mimika Oh, Minerva Memel, Mm Alder, Ochi Wolfe, Omei Turnbull, Pesho Replacement, Phantom Ninetails, phoenixflames kukulcan, Polo Gufler, prez pessoa, princess niven, Prokofy Neva, Qie Niangao, Rem Beattie, RodneyLee Jessop, Saijanai Kuhn, Seg Baphomet, Sergen Davies, Shirley Marquez, SignpostMarv Martin, Sindy Tsure, Sira Arbizu, Skips Jigsaw, Sougent Harrop, Spritely Pixel, Squirrel Wood, StarSong Bright, Subversive Writer, Sugarcult Dagger, Sylumm Grigorovich, Tammy Nowotny, Tanooki Darkes, Tayra Dagostino, Theoretical Chemistry, Thickbrick Sleaford, valerie rosewood, Vex Streeter, Vixen Heron, Whoops Babii, Winter Ventura, Xiki Luik, Yann Dufaux, Yina Yao, Yukinoroh Kamachi, Zolute Infinity, Zwagoth Klaar
 
 
 
   I get by with a little help from my friends. --Richard Starkey
-	</text_editor>
-	</panel>
-	<panel name="licenses_panel">
-	<text_editor name="credits_editor">
-  3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
+			</text_editor>
+		</panel>
+		<panel label="Licencje" name="licenses_panel">
+			<text_editor name="credits_editor">
+				3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
   APR Copyright (C) 2000-2004 The Apache Software Foundation
   cURL Copyright (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
   expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
@@ -34,10 +74,7 @@
   Wszystkie prawa zastrzeżone.  Szczegóły w pliku licenses.txt.
 
   Programowanie dźwięku czatu: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
-	</text_editor>
-	</panel>
-</tab_container>
-	<string name="you_are_at">
-		Położenie: [POSITION]
-	</string>
+			</text_editor>
+		</panel>
+	</tab_container>
 </floater>

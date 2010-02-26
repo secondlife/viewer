@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Apparence" name="appearance panel">
+<panel label="Tenues" name="appearance panel">
 	<string name="No Outfit" value="Aucune tenue"/>
 	<panel name="panel_currentlook">
 		<button label="Éditer" name="editappearance_btn"/>
 		<text name="currentlook_title">
-			Tenue actuelle :
+			(non enregistré)
 		</text>
 		<text name="currentlook_name">
-			Ma tenue
+			Ma tenue avec un nom très long comme ORIGNAL
 		</text>
 	</panel>
-	<filter_editor label="Filtre" name="Filter"/>
+	<filter_editor label="Filtrer les tenues" name="Filter"/>
 	<button label="Porter" name="wear_btn"/>
 	<button label="Nouvelle tenue" name="newlook_btn"/>
 </panel>

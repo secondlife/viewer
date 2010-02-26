@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_eyes_panel">
+	<panel name="avatar_eye_color_panel">
+		<texture_picker label="Iride" name="Iris" tool_tip="Clicca per scegliere una fotografia"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="eyes_main_tab" title="Occhi"/>
+	</accordion>
+</panel>

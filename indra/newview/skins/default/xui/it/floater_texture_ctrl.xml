@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="PREFERITI: IMMAGINE">
+<floater name="texture picker" title="Foto: TEXTURE">
 	<string name="choose_picture">
 		Clicca per scegliere l&apos;immagine
 	</string>
 	<text name="Multiple">
-		Molteplice
+		Textures multiple
 	</text>
 	<text name="unknown">
-		Dimensioni: [DIMENSIONS]
+		Misura: [Dimensions]
 	</text>
 	<button label="Default" label_selected="Default" name="Default"/>
 	<button label="Niente" label_selected="Niente" name="None"/>
 	<button label="Vuoto" label_selected="Vuoto" name="Blank"/>
-	<check_box label="Visualizza Cartelle" name="show_folders_check"/>
-	<search_editor label="Scrivi qui per cercare" name="inventory search editor"/>
-	<check_box label="Applica Subito" name="apply_immediate_check"/>
+	<check_box label="Mostra cartelle" name="show_folders_check"/>
+	<search_editor label="Filtro Textures" name="inventory search editor"/>
+	<check_box label="Applica ora" name="apply_immediate_check"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
-	<button label="Seleziona" label_selected="Seleziona" name="Select"/>
+	<button label="Ok" label_selected="Ok" name="Select"/>
 	<string name="pick title">
 		Scegli:
 	</string>

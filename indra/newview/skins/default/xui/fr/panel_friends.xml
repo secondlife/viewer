@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="friends">
 	<string name="Multiple">
-		Amis multiples...
+		Amis multiples
 	</string>
 	<scroll_list name="friend_list" tool_tip="Pour sélectionner plusieurs amis, cliquez en maintenant la touche Maj ou Ctrl appuyée">
 		<column name="icon_online_status" tool_tip="Statut en ligne"/>
@@ -13,8 +13,8 @@
 	</scroll_list>
 	<button label="IM/Appel" name="im_btn" tool_tip="Envoyez un IM à ce résident"/>
 	<button label="Profil" name="profile_btn" tool_tip="Consultez le profil de ce résident (photos, groupes et autres infos)"/>
-	<button label="Téléporter..." name="offer_teleport_btn" tool_tip="Proposez à cet ami d&apos;être téléporté là où vous êtes"/>
-	<button label="Payer..." name="pay_btn" tool_tip="Donnez des L$ à cet ami"/>
-	<button label="Supprimer..." name="remove_btn" tool_tip="Supprimez ce résident de votre liste d&apos;amis"/>
-	<button label="Ajouter..." name="add_btn" tool_tip="Demandez à un résident de devenir votre ami"/>
+	<button label="Téléporter" name="offer_teleport_btn" tool_tip="Proposez à cet ami d&apos;être téléporté là où vous êtes"/>
+	<button label="Payer" name="pay_btn" tool_tip="Donnez des L$ à cet ami"/>
+	<button label="Supprimer" name="remove_btn" tool_tip="Supprimez ce résident de votre liste d&apos;amis"/>
+	<button label="Ajouter" name="add_btn" tool_tip="Proposer à ce résident de devenir votre ami"/>
 </panel>

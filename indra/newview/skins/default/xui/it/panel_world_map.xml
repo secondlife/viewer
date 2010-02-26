@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="world_map">
+	<panel.string name="Loading">
+		Sto Caricando...
+	</panel.string>
+	<panel.string name="InvalidLocation">
+		Luogo non valido
+	</panel.string>
 	<panel.string name="world_map_north">
 		N
 	</panel.string>

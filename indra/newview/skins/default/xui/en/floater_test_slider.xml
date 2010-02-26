@@ -6,6 +6,7 @@
  layout="topleft"
  name="floater_test_slider"
  help_topic="floater_test_slider"
+ translate="false"
  width="450">
     <slider
      height="20"

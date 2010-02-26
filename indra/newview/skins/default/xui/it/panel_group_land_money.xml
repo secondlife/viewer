@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terra &amp; L$" name="land_money_tab">
 	<string name="help_text">
-		I terreni di proprietà del gruppo sono elencati insieme ai dettagli delle contribuzioni. Un avviso viene visualizzato se la superficie totale in uso è inferiore o pari al totale delle contribuzioni. Le schede: Pianificazione, Dettagli e Vendite forniscono informazioni sulle finanze del gruppo.
+		Appare un avviso fino a quando la Terra Totale in Uso è meno o = alla Contribuzione Totale.
 	</string>
 	<button label="?" name="help_button"/>
 	<string name="cant_view_group_land_text">
-		Non hai i permessi necessari per visualizzare la terra posseduta dal gruppo.
+		Non hai i permessi per vedere la terra posseduta dal gruppo
 	</string>
 	<string name="cant_view_group_accounting_text">
-		Non hai i permessi necessari per visualizzare i movimenti finanziari del gruppo.
+		Non hai i permessi per vedere le informazioni sulla contabilità del gruppo.
 	</string>
 	<string name="loading_txt">
 		Attendi...
@@ -17,14 +17,14 @@
 		Terra posseduta dal gruppo
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Nome dell&apos;appezzamento" name="name"/>
+		<column label="Parcel" name="name"/>
 		<column label="Regione" name="location"/>
 		<column label="Tipo" name="type"/>
 		<column label="Area" name="area"/>
 	</scroll_list>
-	<button label="Mostra sulla mappa" label_selected="Mostra sulla mappa" name="map_button" left="282" width="130"/>
+	<button label="Mappa" label_selected="Mappa" left="282" name="map_button" width="130"/>
 	<text name="total_contributed_land_label">
-		Total Contribution:
+		Contribuzione Totale:
 	</text>
 	<text name="total_contributed_land_value">
 		[AREA] m²
@@ -36,49 +36,48 @@
 		[AREA] m²
 	</text>
 	<text name="land_available_label">
-		Terra disponibile:
+		Terreno disponibile:
 	</text>
 	<text name="land_available_value">
 		[AREA] m²
 	</text>
 	<text name="your_contribution_label">
-		Il tuo contributo:
+		La tua contribuzione:
 	</text>
 	<string name="land_contrib_error">
-		Non è possibile impostare i tuoi contributi in terra.
+		Incapace di impostare la tua contribuzione di terreno
 	</string>
 	<text name="your_contribution_units">
-		( m² )
+		m²
 	</text>
 	<text name="your_contribution_max_value">
-		([AMOUNT] massimo)
+		([IMPORTO] max)
 	</text>
 	<text name="group_over_limit_text">
-		I membri del gruppo devono contribuire con più crediti per mantenere
-la quantità  di terra in uso.
+		Sono necessari maggiori crediti di terreno per mantenere la terra in uso
 	</text>
 	<text name="group_money_heading">
 		L$ del gruppo
 	</text>
 	<tab_container name="group_money_tab_container">
-		<panel label="Pianificazione" name="group_money_planning_tab">
+		<panel label="PIANIFICAZIONE" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">
-				Conteggio...
+				Caricando...
 			</text_editor>
 		</panel>
-		<panel label="Dettagli" name="group_money_details_tab">
+		<panel label="DETTAGLI" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
-				Calcolo...
+				Caricando...
 			</text_editor>
-			<button width="90" label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_details_button" tool_tip="Vai ai dettagli precedenti"/>
-			<button left_delta="260" width="90" label="Successivo &gt;" label_selected="Successivo &gt;" name="later_details_button" tool_tip="Vai ai dettagli successivi"/>
+			<button label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_details_button" tool_tip="Indietro" width="90"/>
+			<button label="Successivo &gt;" label_selected="Successivo &gt;" left_delta="260" name="later_details_button" tool_tip="Prossimo" width="90"/>
 		</panel>
-		<panel label="Vendite" name="group_money_sales_tab">
+		<panel label="VENDITE" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
-				Calcolo...
+				Caricando...
 			</text_editor>
-			<button width="90" label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_sales_button" tool_tip="Vai ai dettagli precedenti"/>
-			<button left_delta="260" width="90" label="Successivo &gt;" label_selected="Successivo &gt;" name="later_sales_button" tool_tip="Vai ai dettagli successivi"/>
+			<button label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_sales_button" tool_tip="Indietro" width="90"/>
+			<button label="Successivo &gt;" label_selected="Successivo &gt;" left_delta="260" name="later_sales_button" tool_tip="Prossimo" width="90"/>
 		</panel>
 	</tab_container>
 </panel>

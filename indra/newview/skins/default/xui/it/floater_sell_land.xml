@@ -1,65 +1,65 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="sell land" title="VENDI TERRA">
-    <scroll_container name="profile_scroll">
-    <panel name="scroll_content_panel">
-	<text name="info_parcel_label">
-		Terreno:
-	</text>
-	<text name="info_parcel" left="82">
-		NOME APPEZZAMENTO
-	</text>
-	<text name="info_size_label">
-		Dimensioni:
-	</text>
-	<text name="info_size" left="82">
-		[AREA] m²
-	</text>
-	<text height="28" name="info_action" bottom_delta="-57">
-		Per vendere questo
-terreno:
-	</text>
-	<icon bottom_delta="-86" name="step_price" />
-	<text name="price_label">
-		Imposta prezzo:
-	</text>
-	<text name="price_text">
-		Scegli un prezzo appropriato per questa terra.
-	</text>
-	<text name="price_ld">
-		L$
-	</text>
-	<text name="price_per_m">
-		([PER_METER] L$ per metro quadro)
-	</text>
-	<text name="sell_to_label">
-		Vendi la terra a:
-	</text>
-	<text name="sell_to_text">
-		Scegli se vendere a tutti o ad un compratore in particolare.
-	</text>
-	<combo_box name="sell_to">
-		<combo_box.item name="--selectone--" label="selezionane uno --"/>
-		<combo_box.item name="Anyone" label="Chiunque"/>
-		<combo_box.item name="Specificuser:" label="Utente specifico:"/>
-	</combo_box>
-	<button label="Seleziona..." name="sell_to_select_agent"/>
-	<text name="sell_objects_label">
-		Vendi gli oggetti con la terra?
-	</text>
-	<text name="sell_objects_text">
-		Gli oggetti trasferibili del proprietario della terra sul terreno
-cambieranno proprietario.
-	</text>
-	<radio_group name="sell_objects" bottom_delta="-58" >
-		<radio_item name="no" label="No, voglio mantenere la proprietà degli oggetti" />
-		<radio_item name="yes" label="Si, vendi gli oggetti con la terra" />
-	</radio_group>
-	<button label="Mostra oggetti" name="show_objects"/>
-	<text name="nag_message_label">
-		RICORDA: tutte le vendite sono definitive.
-	</text>
-	<button label="Metti la terra in vendita" name="sell_btn"/>
-	<button label="Annulla" name="cancel_btn"/>
-    </panel>
-    </scroll_container>
+<floater name="sell land" title="VENDI LA TERRA">
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="info_parcel_label">
+				Parcel:
+			</text>
+			<text left="82" name="info_parcel">
+				NOME DEL PARCEL
+			</text>
+			<text name="info_size_label">
+				Misura:
+			</text>
+			<text left="82" name="info_size">
+				[AREA] m²
+			</text>
+			<text bottom_delta="-57" height="28" name="info_action">
+				Vendere questo parcel:
+			</text>
+			<text name="price_label">
+				1. Imposta un prezzo:
+			</text>
+			<text name="price_text">
+				Scegli un prezzo adeguato.
+			</text>
+			<text name="price_ld">
+				L$
+			</text>
+			<line_editor name="price">
+				0
+			</line_editor>
+			<text name="price_per_m">
+				(L$[PER_METER] per m²)
+			</text>
+			<text name="sell_to_label">
+				2. Vendi la terra a:
+			</text>
+			<text name="sell_to_text">
+				Scegli se vendere a chiunque o ad un specifico compratore.
+			</text>
+			<combo_box name="sell_to">
+				<combo_box.item label="- Seleziona uno -" name="--selectone--"/>
+				<combo_box.item label="Chiunque" name="Anyone"/>
+				<combo_box.item label="Persona Specifica:" name="Specificuser:"/>
+			</combo_box>
+			<button label="Seleziona" name="sell_to_select_agent"/>
+			<text name="sell_objects_label">
+				3. Vendi gli oggetti con la terra?
+			</text>
+			<text name="sell_objects_text">
+				Gli oggetti trasferibili del proprietaio della Terra cambieranno proprietà.
+			</text>
+			<radio_group bottom_delta="-58" name="sell_objects">
+				<radio_item label="No, mantieni la proprietà sugli oggetti" name="no"/>
+				<radio_item label="Si, vendi gli oggetti con la terra" name="yes"/>
+			</radio_group>
+			<button label="Mostra Oggetti" name="show_objects"/>
+			<text name="nag_message_label">
+				RICORDA: Tutte le vendite sono definitive.
+			</text>
+			<button label="Imposta Terra in Vendita" name="sell_btn"/>
+			<button label="Cancella" name="cancel_btn"/>
+		</panel>
+	</scroll_container>
 </floater>

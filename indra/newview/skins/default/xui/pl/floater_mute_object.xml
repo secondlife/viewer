@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="mute by name" title="WYCISZ OBIEKT WEDŁUG NAZWY" height="160" min_height="160" >
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater height="160" min_height="160" name="mute by name" title="ZABLOKUJ OBIEKT WEDŁUG NAZWY">
 	<text name="message">
-		Wyciszenie obiektu jest skuteczne jedynie na czacie oraz w
-wiadomościach IM. Nie obejmuje natomiast dźwięków.
-By wyciszyć obiekt musisz wpisać dokładnie jego nazwę.
+		Zablokuj obiekt:
 	</text>
-	<line_editor name="object_name" bottom_delta="-60">
+	<line_editor bottom_delta="-60" name="object_name">
 		Nazwa Obiektu
 	</line_editor>
-	<button label="Ok" name="OK" />
-	<button label="Anuluj" name="Cancel" />
+	<text name="note">
+		* Zablokuj jedynie tekst obiektu, bez dźwięku
+	</text>
+	<button label="Ok" name="OK"/>
+	<button label="Anuluj" name="Cancel"/>
 </floater>

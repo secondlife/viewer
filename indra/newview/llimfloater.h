@@ -80,6 +80,7 @@ public:
 
 	// get new messages from LLIMModel
 	void updateMessages();
+	void reloadMessages();
 	static void onSendMsg( LLUICtrl*, void*);
 	void sendMsg();
 

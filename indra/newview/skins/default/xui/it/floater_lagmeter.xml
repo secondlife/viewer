@@ -1,155 +1,154 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_lagmeter" title="MISURATORE DEL LAG">
+<floater name="floater_lagmeter" title="LAG METER">
+	<floater.string name="max_title_msg">
+		Misuratore del lag
+	</floater.string>
+	<floater.string name="max_width_px">
+		360
+	</floater.string>
+	<floater.string name="min_title_msg">
+		Lag
+	</floater.string>
+	<floater.string name="min_width_px">
+		90
+	</floater.string>
+	<floater.string name="client_text_msg">
+		Programma in locale
+	</floater.string>
+	<floater.string name="client_frame_rate_critical_fps">
+		10
+	</floater.string>
+	<floater.string name="client_frame_rate_warning_fps">
+		15
+	</floater.string>
+	<floater.string name="client_frame_time_window_bg_msg">
+		Normale, finestra sullo sfondo
+	</floater.string>
+	<floater.string name="client_frame_time_critical_msg">
+		Velocità dei frame al di sotto di [CLIENT_FRAME_RATE_CRITICAL]
+	</floater.string>
+	<floater.string name="client_frame_time_warning_msg">
+		Velocità dei frame tra [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
+	</floater.string>
+	<floater.string name="client_frame_time_normal_msg">
+		Normale
+	</floater.string>
+	<floater.string name="client_draw_distance_cause_msg">
+		Possibile causa: Campo visivo impostato troppo alto
+	</floater.string>
+	<floater.string name="client_texture_loading_cause_msg">
+		Possibile causa: Caricamento immagini
+	</floater.string>
+	<floater.string name="client_texture_memory_cause_msg">
+		Possibile causa: Troppe immagini in memoria
+	</floater.string>
+	<floater.string name="client_complex_objects_cause_msg">
+		Possibile causa: Troppi oggetti complessi intorno
+	</floater.string>
+	<floater.string name="network_text_msg">
+		Network
+	</floater.string>
+	<floater.string name="network_packet_loss_critical_pct">
+		10
+	</floater.string>
+	<floater.string name="network_packet_loss_warning_pct">
+		5
+	</floater.string>
+	<floater.string name="network_packet_loss_critical_msg">
+		La connessione sta calando al di sotto del [NETWORK_PACKET_LOSS_CRITICAL]% di pacchetti
+	</floater.string>
+	<floater.string name="network_packet_loss_warning_msg">
+		La connessione sta calando tra il [NETWORK_PACKET_LOSS_WARNING]% e il [NETWORK_PACKET_LOSS_CRITICAL]% di pacchetti
+	</floater.string>
+	<floater.string name="network_performance_normal_msg">
+		Normale
+	</floater.string>
+	<floater.string name="network_ping_critical_ms">
+		600
+	</floater.string>
+	<floater.string name="network_ping_warning_ms">
+		300
+	</floater.string>
+	<floater.string name="network_ping_critical_msg">
+		Il tempo di ping della connessione è al di sopra di [NETWORK_PING_CRITICAL] ms
+	</floater.string>
+	<floater.string name="network_ping_warning_msg">
+		Il tempo di ping della connessione è tra [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
+	</floater.string>
+	<floater.string name="network_packet_loss_cause_msg">
+		Possibile cattiva connessione o la larghezza di banda impostata nelle preferenze troppo alta.
+	</floater.string>
+	<floater.string name="network_ping_cause_msg">
+		Possibile cattiva connessione o l&apos;apertura di un programma di scambio files.
+	</floater.string>
+	<floater.string name="server_text_msg">
+		Server
+	</floater.string>
+	<floater.string name="server_frame_rate_critical_fps">
+		20
+	</floater.string>
+	<floater.string name="server_frame_rate_warning_fps">
+		30
+	</floater.string>
+	<floater.string name="server_single_process_max_time_ms">
+		20
+	</floater.string>
+	<floater.string name="server_frame_time_critical_msg">
+		Velocità dei frame al di sotto di [SERVER_FRAME_RATE_CRITICAL]
+	</floater.string>
+	<floater.string name="server_frame_time_warning_msg">
+		Velocità dei frame tra [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
+	</floater.string>
+	<floater.string name="server_frame_time_normal_msg">
+		Normale
+	</floater.string>
+	<floater.string name="server_physics_cause_msg">
+		Possibile causa: troppi oggetti fisici
+	</floater.string>
+	<floater.string name="server_scripts_cause_msg">
+		Possibile causa: troppi oggetti scriptati
+	</floater.string>
+	<floater.string name="server_net_cause_msg">
+		Possibile causa: eccessivo traffico sulla rete
+	</floater.string>
+	<floater.string name="server_agent_cause_msg">
+		Possibile causa: troppi residenti in movimento nella regione
+	</floater.string>
+	<floater.string name="server_images_cause_msg">
+		Possibile causa: troppe elaborazioni di immagini
+	</floater.string>
+	<floater.string name="server_generic_cause_msg">
+		Possibile causa: carico eccessivo del simulatore
+	</floater.string>
+	<floater.string name="smaller_label">
+		&gt;&gt;
+	</floater.string>
+	<floater.string name="bigger_label">
+		&lt;&lt;
+	</floater.string>
 	<button label="" label_selected="" name="client_lagmeter" tool_tip="Stato del lag del programma in locale"/>
-	<text left="30" name="client_lag_cause" right="-10" />
-	<text left="30" name="network_lag_cause" right="-10" />
-	<text left="30" name="server_lag_cause" right="-32" />
 	<text name="client">
-		Programma in locale:
+		Client
 	</text>
-	<text name="client_text" left="145" font="SansSerifSmall">
+	<text font="SansSerifSmall" left="145" name="client_text">
 		Normale
 	</text>
+	<text left="30" name="client_lag_cause" right="-10"/>
 	<button label="" label_selected="" name="network_lagmeter" tool_tip="Stato del lag del network"/>
 	<text name="network">
-		Network:
+		Network
 	</text>
-	<text name="network_text" font="SansSerifSmall">
+	<text font="SansSerifSmall" name="network_text">
 		Normale
 	</text>
+	<text left="30" name="network_lag_cause" right="-10"/>
 	<button label="" label_selected="" name="server_lagmeter" tool_tip="Stato del lag del server"/>
 	<text name="server">
-		Server:
-	</text>
-	<text name="server_text" font="SansSerifSmall">
-		Normale
-	</text>
-	<button label="?" name="server_help"/>
-	<button label="&gt;&gt;" name="minimize"/>
-	<string name="max_title_msg">
-		Misuratore del lag
-	</string>
-	<string name="max_width_px">
-		360
-	</string>
-	<string name="min_title_msg">
-		Lag
-	</string>
-	<string name="min_width_px">
-		90
-	</string>
-	<string name="client_text_msg">
-		Programma in locale
-	</string>
-	<string name="client_frame_rate_critical_fps">
-		10
-	</string>
-	<string name="client_frame_rate_warning_fps">
-		15
-	</string>
-	<string name="client_frame_time_window_bg_msg">
-		Normale, finestra sullo sfondo
-	</string>
-	<string name="client_frame_time_critical_msg">
-		Velocità dei frame al di sotto di [CLIENT_FRAME_RATE_CRITICAL]
-	</string>
-	<string name="client_frame_time_warning_msg">
-		Velocità dei frame tra [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
-	</string>
-	<string name="client_frame_time_normal_msg">
-		Normale
-	</string>
-	<string name="client_draw_distance_cause_msg">
-		Possibile causa: Campo visivo impostato troppo alto
-	</string>
-	<string name="client_texture_loading_cause_msg">
-		Possibile causa: Caricamento immagini
-	</string>
-	<string name="client_texture_memory_cause_msg">
-		Possibile causa: Troppe immagini in memoria
-	</string>
-	<string name="client_complex_objects_cause_msg">
-		Possibile causa: Troppi oggetti complessi intorno
-	</string>
-	<string name="network_text_msg">
-		Network
-	</string>
-	<string name="network_packet_loss_critical_pct">
-		10
-	</string>
-	<string name="network_packet_loss_warning_pct">
-		5
-	</string>
-	<string name="network_packet_loss_critical_msg">
-		La connessione sta calando al di sotto del [NETWORK_PACKET_LOSS_CRITICAL]% di pacchetti
-	</string>
-	<string name="network_packet_loss_warning_msg">
-		La connessione sta calando tra il [NETWORK_PACKET_LOSS_WARNING]% e il [NETWORK_PACKET_LOSS_CRITICAL]% di pacchetti
-	</string>
-	<string name="network_performance_normal_msg">
-		Normale
-	</string>
-	<string name="network_ping_critical_ms">
-		600
-	</string>
-	<string name="network_ping_warning_ms">
-		300
-	</string>
-	<string name="network_ping_critical_msg">
-		Il tempo di ping della connessione è al di sopra di [NETWORK_PING_CRITICAL] ms
-	</string>
-	<string name="network_ping_warning_msg">
-		Il tempo di ping della connessione è tra [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
-	</string>
-	<string name="network_packet_loss_cause_msg">
-		Possibile cattiva connessione o la larghezza di banda impostata nelle preferenze troppo alta.
-	</string>
-	<string name="network_ping_cause_msg">
-		Possibile cattiva connessione o l&apos;apertura di un programma di scambio files.
-	</string>
-	<string name="server_text_msg">
 		Server
-	</string>
-	<string name="server_frame_rate_critical_fps">
-		20
-	</string>
-	<string name="server_frame_rate_warning_fps">
-		30
-	</string>
-	<string name="server_single_process_max_time_ms">
-		20
-	</string>
-	<string name="server_frame_time_critical_msg">
-		Velocità dei frame al di sotto di [SERVER_FRAME_RATE_CRITICAL]
-	</string>
-	<string name="server_frame_time_warning_msg">
-		Velocità dei frame tra [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
-	</string>
-	<string name="server_frame_time_normal_msg">
+	</text>
+	<text font="SansSerifSmall" name="server_text">
 		Normale
-	</string>
-	<string name="server_physics_cause_msg">
-		Possibile causa: troppi oggetti fisici
-	</string>
-	<string name="server_scripts_cause_msg">
-		Possibile causa: troppi oggetti scriptati
-	</string>
-	<string name="server_net_cause_msg">
-		Possibile causa: eccessivo traffico sulla rete
-	</string>
-	<string name="server_agent_cause_msg">
-		Possibile causa: troppi residenti in movimento nella regione
-	</string>
-	<string name="server_images_cause_msg">
-		Possibile causa: troppe elaborazioni di immagini
-	</string>
-	<string name="server_generic_cause_msg">
-		Possibile causa: carico eccessivo del simulatore
-	</string>
-	<string name="smaller_label">
-		&gt;&gt;
-	</string>
-	<string name="bigger_label">
-		&lt;&lt;
-	</string>
+	</text>
+	<text left="30" name="server_lag_cause" right="-32"/>
+	<button label="&gt;&gt;" name="minimize" tool_tip="Pulsante per minimizzare"/>
 </floater>

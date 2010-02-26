@@ -54,6 +54,7 @@ bool	operator!=(const LLUniqueID &a, const LLUniqueID &b)
 //-----------------------------------------------------------------------------
 LLStateDiagram::LLStateDiagram()
 {
+	mDefaultState = NULL;
 	mUseDefaultState = FALSE;
 }
 
@@ -305,6 +306,7 @@ LLStateMachine::LLStateMachine()
 	// we haven't received a starting state yet
 	mCurrentState = NULL;
 	mLastState = NULL;
+	mLastTransition = NULL;
 	mStateDiagram = NULL;
 }
 

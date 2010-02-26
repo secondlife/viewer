@@ -12,50 +12,41 @@
 	</string>
 	<string name="my_account_link_url" value="http://secondlife.com/my/account/index.php?lang=fr-FR"/>
 	<string name="no_partner_text" value="Aucun"/>
+	<string name="no_group_text" value="Aucun"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
-				<expandable_text name="sl_description_edit">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-				</expandable_text>
-			</panel>
-			<panel name="first_life_image_panel">
-				<text name="title_rw_descr_text" value="Monde physique :"/>
-				<expandable_text name="fl_description_edit">
-					Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-				</expandable_text>
-			</panel>
-			<text name="me_homepage_text">
-				Page d&apos;accueil :
-			</text>
-			<text name="title_member_text" value="Membre depuis :"/>
-			<text name="register_date" value="05/31/1976"/>
-			<text name="title_acc_status_text" value="Statut du compte :"/>
-			<text name="acc_status_text" value="Résident. Aucune info de paiement enregistrée."/>
-			<text name="title_partner_text" value="Partenaire :"/>
-			<panel name="partner_data_panel">
-				<text name="partner_text" value="[FIRST] [LAST]"/>
-			</panel>
-			<text name="title_groups_text" value="Groupes :"/>
-			<expandable_text name="sl_groups">
-				Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-			</expandable_text>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="Devenir amis" name="add_friend"/>
-		<button label="IM" name="im"/>
-		<button label="Appeler" name="call"/>
-		<button label="Carte" name="show_on_map_btn"/>
-		<button label="Téléporter" name="teleport"/>
-		<button label="▼" name="overflow_btn"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="Modifier le profil" name="edit_profile_btn"/>
-		<button label="Changer d&apos;apparence" name="edit_appearance_btn"/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<panel name="second_life_image_panel">
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<text name="title_rw_descr_text" value="Monde physique :"/>
+					</panel>
+					<text name="title_member_text" value="Résident depuis :"/>
+					<text name="title_acc_status_text" value="Statut du compte :"/>
+					<text name="acc_status_text">
+						Résident. Aucune info de paiement enregistrée.
+              Linden.
+					</text>
+					<text name="title_partner_text" value="Partenaire :"/>
+					<text name="title_groups_text" value="Groupes :"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_buttons_panel">
+			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à ce résident de devenir votre ami"/>
+			<button label="IM" name="im" tool_tip="Ouvrir une session IM"/>
+			<button label="Appeler" name="call" tool_tip="Appeler ce résident"/>
+			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
+			<button label="Téléporter" name="teleport" tool_tip="Proposez une téléportation"/>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="Modifier le profil" name="edit_profile_btn" tool_tip="Modifier vos informations personnelles"/>
+			<button label="Changer d&apos;apparence" name="edit_appearance_btn" tool_tip="Créer/modifier votre apparence : données physiques, habits, etc."/>
+		</layout_panel>
+	</layout_stack>
 </panel>

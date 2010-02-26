@@ -39,10 +39,10 @@
 	<text label="Maturité" name="access_text">
 		Catégorie :
 	</text>
-	<combo_box label="Mature" name="access_combo">
+	<combo_box label="Modéré" name="access_combo">
 		<combo_box.item label="Adult" name="Adult"/>
-		<combo_box.item label="Mature" name="Mature"/>
-		<combo_box.item label="PG" name="PG"/>
+		<combo_box.item label="Modéré" name="Mature"/>
+		<combo_box.item label="Général" name="PG"/>
 	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Appliquer" name="apply_btn"/>

@@ -187,9 +187,6 @@ public:
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
 	LLStyle::Params			getDefaultStyle();
 
-	// tell the text object to suppress auto highlighting of a specific URL
-	void                    addBlackListUrl(const std::string &url);
-
 public:
 	// Fired when a URL link is clicked
 	commit_signal_t mURLClickSignal;
@@ -312,7 +309,6 @@ protected:
 	void							updateRects();
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
-	bool                            isBlackListUrl(const std::string &url) const;
 
 protected:
 	// text segmentation and flow
@@ -363,9 +359,6 @@ protected:
 	LLContextMenu*				mPopupMenu;
 	LLView*						mDocumentView;
 	class LLScrollContainer*	mScroller;
-
-	// list of URLs to suppress from automatic hyperlinking
-	std::vector<std::string>    mBlackListUrls;
 
 	// transient state
 	bool						mReflowNeeded;		// need to reflow text because of change to text contents or display region

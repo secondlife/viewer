@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="place_overflow_menu">
+	<menu_item_call label="Opret et landemærke" name="landmark"/>
+	<menu_item_call label="Opret favorit" name="pick"/>
+	<menu_item_call label="Køb adgang" name="pass"/>
+	<menu_item_call label="Redigér" name="edit"/>
+</toggleable_menu>

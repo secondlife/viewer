@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="land holdings floater" title="IL MIO TERRENO">
+<floater name="land holdings floater" title="LA MIA TERRA">
 	<scroll_list name="parcel list">
-		<column label="Nome del terreno" name="name"/>
+		<column label="Parcel" name="name"/>
 		<column label="Regione" name="location"/>
 		<column label="Tipo" name="type"/>
 		<column label="Area" name="area"/>
 	</scroll_list>
 	<button label="Teletrasportati" label_selected="Teletrasportati" name="Teleport" tool_tip="Teletrasportati al centro di questo terreno."/>
-	<button width="130" label="Mostra sulla mappa" label_selected="Mostra sulla mappa" name="Show on Map" tool_tip="Mostra questo terreno sulla mappa."/>
+	<button label="Mappa" label_selected="Mappa" name="Show on Map" tool_tip="Mostra questa terra nella mappa del mondo" width="130"/>
 	<text name="contrib_label">
 		Contributi ai tuoi gruppi:
 	</text>

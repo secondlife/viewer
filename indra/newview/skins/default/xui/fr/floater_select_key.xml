@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container">
-	<button label="Annuler" label_selected="Annuler" name="Cancel" />
+	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
 	<text name="Save item as:">
-		Appuyer sur une touche pour choisir
+		Appuyez sur une touche pour définir la touche de contrôle de la fonction Parler.
 	</text>
 </floater>

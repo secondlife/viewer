@@ -3,10 +3,10 @@
 	<panel.string name="Title">
 		Choses
 	</panel.string>
-	<filter_editor label="Filtre" name="inventory search editor"/>
+	<filter_editor label="Filtrer l&apos;inventaire" name="inventory search editor"/>
 	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Tous les objets" name="All Items"/>
-		<inventory_panel label="Objets récents" name="Recent Items"/>
+		<inventory_panel label="MON INVENTAIRE" name="All Items"/>
+		<inventory_panel label="RÉCENT" name="Recent Items"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="Afficher d&apos;autres options"/>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Gesture" title="TASTO RAPIDO PER GESTURE">
+	<text name="trigger_label">
+		Chat:
+	</text>
+	<text name="key_label">
+		Tastiera:
+	</text>
+	<combo_box label="Nessuno" name="modifier_combo"/>
+	<combo_box label="Nessuno" name="key_combo"/>
+	<text name="replace_text" tool_tip="Sostituisci la parola chiave con queste parole. Per esempio, parola chiave &apos;ciao&apos; sostituendo con &apos;buongiorno&apos; cambierà la chat da &apos;Io dico ciao&apos; in &apos;Io dico buongiorno&apos; non appena attiverete la gesture!">
+		Sostituisci:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Sostituisci la parola chiave con queste parole. Per esempio, parola chiave &apos;ciao&apos; sostituendo con &apos;buongiorno&apos; cambierà la chat da &apos;Io dico ciao&apos; in &apos;Io dico buongiorno&apos; non appena attiverete la gesture"/>
+</floater>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="ColorPicker" title="FARVE VÆLGER">
 	<text name="r_val_text">
 		Rød:
@@ -18,14 +18,14 @@
 	<text name="l_val_text">
 		Lysstyrke:
 	</text>
-	<check_box label="Anvend straks" name="apply_immediate" />
-	<button label="" label_selected="" name="color_pipette" />
-	<button label="Annullér" label_selected="Annullér" name="cancel_btn" />
-	<button label="Vælg" label_selected="Vælg" name="select_btn" />
+	<check_box label="Benyt nu" name="apply_immediate"/>
+	<button label="" label_selected="" name="color_pipette"/>
+	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
+	<button label="Ok" label_selected="Ok" name="select_btn"/>
 	<text name="Current color:">
 		Nuværende Farve:
 	</text>
 	<text name="(Drag below to save.)">
-		(Træk ned og gem)
+		(Træk ned for at gemme)
 	</text>
 </floater>

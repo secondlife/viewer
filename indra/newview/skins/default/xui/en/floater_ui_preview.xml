@@ -10,6 +10,7 @@
  help_topic="gui_preview_tool"
  single_instance="true"
  title="XUI PREVIEW TOOL"
+ translate="false"
  width="750">
     <panel
      bottom="640"

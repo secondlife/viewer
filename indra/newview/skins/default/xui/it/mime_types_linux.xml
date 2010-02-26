@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<mimetypes name="default">
+	<widgetset name="web">
+		<label name="web_label">
+			Contenuto del Web
+		</label>
+		<tooltip name="web_tooltip">
+			Questo luogo ha un contenuto Web
+		</tooltip>
+		<playtip name="web_playtip">
+			Mostra il contenuto Web
+		</playtip>
+	</widgetset>
+	<widgetset name="movie">
+		<label name="movie_label">
+			Video
+		</label>
+		<tooltip name="movie_tooltip">
+			Qui c&apos;è un video da riprodurre
+		</tooltip>
+		<playtip name="movie_playtip">
+			Riproduci video
+		</playtip>
+	</widgetset>
+	<widgetset name="image">
+		<label name="image_label">
+			Immagine
+		</label>
+		<tooltip name="image_tooltip">
+			C&apos;è un immagine in questo luogo
+		</tooltip>
+		<playtip name="image_playtip">
+			Guarda l&apos;immagine di questo luogo
+		</playtip>
+	</widgetset>
+	<widgetset name="audio">
+		<label name="audio_label">
+			Audio
+		</label>
+		<tooltip name="audio_tooltip">
+			In questo luogo c&apos;è l&apos;audio
+		</tooltip>
+		<playtip name="audio_playtip">
+			Riproduci l&apos;audio in questo luogo
+		</playtip>
+	</widgetset>
+	<scheme name="rtsp">
+		<label name="rtsp_label">
+			Real Time Streaming
+		</label>
+	</scheme>
+	<mimetype name="blank">
+		<label name="blank_label">
+			- Vuoto -
+		</label>
+	</mimetype>
+	<mimetype name="none/none">
+		<label name="none/none_label">
+			- Vuoto -
+		</label>
+	</mimetype>
+	<mimetype name="audio/*">
+		<label name="audio2_label">
+			Audio
+		</label>
+	</mimetype>
+	<mimetype name="video/*">
+		<label name="video2_label">
+			Video
+		</label>
+	</mimetype>
+	<mimetype name="image/*">
+		<label name="image2_label">
+			Immagine
+		</label>
+	</mimetype>
+	<mimetype name="video/vnd.secondlife.qt.legacy">
+		<label name="vnd.secondlife.qt.legacy_label">
+			Video (QuickTime)
+		</label>
+	</mimetype>
+	<mimetype name="application/javascript">
+		<label name="application/javascript_label">
+			Javascript
+		</label>
+	</mimetype>
+	<mimetype name="application/ogg">
+		<label name="application/ogg_label">
+			Audio/Video Ogg
+		</label>
+	</mimetype>
+	<mimetype name="application/pdf">
+		<label name="application/pdf_label">
+			Documento PDF
+		</label>
+	</mimetype>
+	<mimetype name="application/postscript">
+		<label name="application/postscript_label">
+			Documento Postscript
+		</label>
+	</mimetype>
+	<mimetype name="application/rtf">
+		<label name="application/rtf_label">
+			Rich Text (RTF)
+		</label>
+	</mimetype>
+	<mimetype name="application/smil">
+		<label name="application/smil_label">
+			Synchronized Multimedia Integration Language (SMIL)
+		</label>
+	</mimetype>
+	<mimetype name="application/xhtml+xml">
+		<label name="application/xhtml+xml_label">
+			Pagina Web (XHTML)
+		</label>
+	</mimetype>
+	<mimetype name="application/x-director">
+		<label name="application/x-director_label">
+			Direttore Macromedia
+		</label>
+	</mimetype>
+	<mimetype name="audio/mid">
+		<label name="audio/mid_label">
+			Audio (MIDI)
+		</label>
+	</mimetype>
+	<mimetype name="audio/mpeg">
+		<label name="audio/mpeg_label">
+			Audio (MP3)
+		</label>
+	</mimetype>
+	<mimetype name="audio/x-aiff">
+		<label name="audio/x-aiff_label">
+			Audio (AIFF)
+		</label>
+	</mimetype>
+	<mimetype name="audio/x-wav">
+		<label name="audio/x-wav_label">
+			Audio (WAV)
+		</label>
+	</mimetype>
+	<mimetype name="image/bmp">
+		<label name="image/bmp_label">
+			Immagine (BMP)
+		</label>
+	</mimetype>
+	<mimetype name="image/gif">
+		<label name="image/gif_label">
+			Immagine (GIF)
+		</label>
+	</mimetype>
+	<mimetype name="image/jpeg">
+		<label name="image/jpeg_label">
+			Immagine (JPEG)
+		</label>
+	</mimetype>
+	<mimetype name="image/png">
+		<label name="image/png_label">
+			Immagine (PNG)
+		</label>
+	</mimetype>
+	<mimetype name="image/svg+xml">
+		<label name="image/svg+xml_label">
+			Immagine (SVG)
+		</label>
+	</mimetype>
+	<mimetype name="image/tiff">
+		<label name="image/tiff_label">
+			Immagine (TIFF)
+		</label>
+	</mimetype>
+	<mimetype name="text/html">
+		<label name="text/html_label">
+			Pagina Web
+		</label>
+	</mimetype>
+	<mimetype name="text/plain">
+		<label name="text/plain_label">
+			Testo
+		</label>
+	</mimetype>
+	<mimetype name="text/xml">
+		<label name="text/xml_label">
+			XML
+		</label>
+	</mimetype>
+	<mimetype name="video/mpeg">
+		<label name="video/mpeg_label">
+			Video (MPEG)
+		</label>
+	</mimetype>
+	<mimetype name="video/mp4">
+		<label name="video/mp4_label">
+			Video (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="video/quicktime">
+		<label name="video/quicktime_label">
+			Video (QuickTime)
+		</label>
+	</mimetype>
+	<mimetype name="video/x-ms-asf">
+		<label name="video/x-ms-asf_label">
+			Video (Windows Media ASF)
+		</label>
+	</mimetype>
+	<mimetype name="video/x-ms-wmv">
+		<label name="video/x-ms-wmv_label">
+			Video (Windows Media WMV)
+		</label>
+	</mimetype>
+	<mimetype name="video/x-msvideo">
+		<label name="video/x-msvideo_label">
+			Video (AVI)
+		</label>
+	</mimetype>
+</mimetypes>

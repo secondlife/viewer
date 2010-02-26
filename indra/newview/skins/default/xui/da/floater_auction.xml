@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_auction" title="START LINDEN LAND SALG">
-	<check_box label="Vis også gul aftegning af område" name="fence_check" />
-	<button label="Foto" label_selected="Foto" name="snapshot_btn" />
-	<button label="OK" label_selected="OK" name="ok_btn" />
-	<string name="already for sale">
+	<floater.string name="already for sale">
 		Du kan ikke sætte jord på auktion der allerede er sat til salg.
-	</string>
+	</floater.string>
+	<check_box initial_value="true" label="Vis også gul aftegning af område" name="fence_check"/>
+	<button label="Foto" label_selected="Foto" name="snapshot_btn"/>
+	<button label="Sælg til enhver" label_selected="Sælg til enhver" name="sell_to_anyone_btn"/>
+	<button label="Nulstil valg" label_selected="Nulstil valg" name="reset_parcel_btn"/>
+	<button label="Start auktion" label_selected="Start auktion" name="start_auction_btn"/>
 </floater>

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_auction" title="INIZIA A VENDERE TERRA LINDEN">
-	<check_box label="Includi barriere di selezione gialle" name="fence_check"/>
-	<button label="Fotografia" label_selected="Fotografia" name="snapshot_btn"/>
-	<button label="OK" label_selected="OK" name="ok_btn"/>
-	<string name="already for sale">
+<floater name="floater_auction" title="INIZIA LA VENDITA DI TERRA LINDEN">
+	<floater.string name="already for sale">
 		Non puoi mettere in asta terreni che sono già in vendita.
-	</string>
+	</floater.string>
+	<check_box initial_value="true" label="Includi barriere di selezione gialle" name="fence_check"/>
+	<button label="Fotografia" label_selected="Fotografia" name="snapshot_btn"/>
+	<button label="Vendi a chiunque" label_selected="Vendi a chiunque" name="sell_to_anyone_btn"/>
+	<button label="Annulla le Impostazioni" label_selected="Annulla le Impostazioni" name="reset_parcel_btn"/>
+	<button label="Inizia l&apos;Asta" label_selected="Inizia l&apos;Asta" name="start_auction_btn"/>
 </floater>

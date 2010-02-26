@@ -1,15 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Wystąpił problem z teleportacją. Wyloguj się i zaloguj ponownie.
-Jeśli nadal otrzymujesz ten komunikat sprawdź Pomoc Techniczną na stronie:
-www.secondlife.com/support.
+			Przepraszamy, ale pojawił się błąd podczas Twojej próby teleportacji. By ponowić teleportację, wyloguj się i zaloguj ponownie.
+Jeżeli nadal otrzymujesz komunikat błędu teleportacji, sprawdź [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
-			Wystąpił problem ze zmianą regionu. Wyloguj się i zaloguj ponownie.
-Jeśli nadal otrzymujesz ten komunikat sprawdź Pomoc Techniczną na stronie:
-www.secondlife.com/support.
+			Przepraszamy, ale pojawił się błąd podczas próby zmiany regionu. By ponowić próbę przejścia na drugi region, wyloguj się i zaloguj ponownie.
+Jeżeli nadal otrzymujesz komunikat błędu podczas przejścia na drugi region, sprawdź [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Przepraszamy, teleportacja jest chwilowo niedostępna. Spróbuj jeszcze raz.

@@ -39,8 +39,6 @@ class LLVOAvatar;
 
 class LLDrawPoolAvatar : public LLFacePool
 {
-protected:
-	S32					mNumFaces;
 public:
 	enum
 	{

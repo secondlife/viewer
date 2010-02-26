@@ -23,4 +23,5 @@
 	</string>
 	<text name="avatar_name" value="Inconnu"/>
 	<text name="last_interaction" value="0s"/>
+	<button name="profile_btn" tool_tip="Voir le profil"/>
 </panel>

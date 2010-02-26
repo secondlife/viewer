@@ -8,5 +8,5 @@
 	</panel>
 	<text_editor name="message" value="message"/>
 	<text name="attachment" value="Pièce jointe"/>
-	<button label="Ok" name="btn_ok"/>
+	<button label="OK" name="btn_ok"/>
 </panel>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Note &amp; Privacy" name="panel_notes">
+	<layout_stack name="layout">
+		<panel name="notes_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<text name="status_message" value="Le mie note private:"/>
+					<text name="status_message2" value="Permetti a questa persona di:"/>
+					<check_box label="Vedermi On-line" name="status_check"/>
+					<check_box label="Vedermi sull mappa" name="map_check"/>
+					<check_box label="Modificare, cancellare o prendere i miei oggetti" name="objects_check"/>
+				</panel>
+			</scroll_container>
+		</panel>
+		<panel name="notes_buttons_panel">
+			<button label="Aggiungi" name="add_friend" tool_tip="Offrire amicizia ad un residente"/>
+			<button label="IM" name="im" tool_tip="Apri una sessione di messaggio istantaneo"/>
+			<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
+			<button label="Mappa" name="show_on_map_btn" tool_tip="Mostra il residente sulla mappa"/>
+			<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>
+		</panel>
+	</layout_stack>
+</panel>

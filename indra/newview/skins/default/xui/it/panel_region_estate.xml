@@ -11,7 +11,7 @@ avranno effetto su tutte le regioni della proprietà.
 		(sconosciuto)
 	</text>
 	<text name="owner_text">
-		Proprietario:
+		Proprietario immobiliare:
 	</text>
 	<text name="estate_owner">
 		(sconosciuto)
@@ -24,10 +24,10 @@ avranno effetto su tutte le regioni della proprietà.
 	<check_box label="Permetti accesso pubblico" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Limita l&apos;accesso a residenti...
+		Accesso ristretto ai Residenti verificati con:
 	</text>
-	<check_box label="che hanno dato info. di pagamento" name="limit_payment" tool_tip="Blocca residenti non identificati."/>
-	<check_box label="Adulti con età verificata" name="limit_age_verified" tool_tip="Blocca residenti che non hanno verificato la loro età. Per maggiori informazioni vai a support.secondlife.com."/>
+	<check_box label="Informazioni di pagamento on File" name="limit_payment" tool_tip="Espelli residenti non identificati"/>
+	<check_box label="Verifica dell&apos;età" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno verificato l&apos;età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 	<check_box label="Permetti la chat voice" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permetti teleport diretto" name="allow_direct_teleport"/>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings_debug" title="CONFIGURAZIONI PER IL DEBUG">
+<floater name="settings_debug" title="DEBUG SETTINGS">
 	<combo_box name="boolean_combo">
-		<combo_box.item name="TRUE" label="VERO"/>
-		<combo_box.item name="FALSE" label="FALSO"/>
+		<combo_box.item label="VERO" name="TRUE"/>
+		<combo_box.item label="FALSO" name="FALSE"/>
 	</combo_box>
-	<color_swatch label="Colore" name="color_swatch"/>
+	<color_swatch label="Colore" name="val_color_swatch"/>
 	<spinner label="x" name="val_spinner_1"/>
 	<spinner label="x" name="val_spinner_2"/>
 	<spinner label="x" name="val_spinner_3"/>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="ASPETTO FISICO" width="551">
+<floater name="floater customize" title="ASPETTO" width="551">
 	<tab_container name="customize tab container" tab_min_width="120" width="549">
 		<placeholder label="Parti del corpo" name="body_parts_placeholder"/>
-		<panel label="Forma del corpo" name="Shape" left="124" width="389">
-			<button font="SansSerifSmall" width="120" left="267" label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+		<panel label="Forma del corpo" left="124" name="Shape" width="389">
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 			<button label="Corpo" label_selected="Corpo" name="Body"/>
 			<button label="Testa" label_selected="Testa" name="Head"/>
 			<button label="Occhi" label_selected="Occhi" name="Eyes"/>
@@ -14,8 +14,8 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Gambe" label_selected="Gambe" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item name="radio" label="Femmina" />
-				<radio_item name="radio2" label="Maschio" />
+				<radio_item label="Femmina" name="radio"/>
+				<radio_item label="Maschio" name="radio2"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -43,8 +43,8 @@ sul tuo avatar. In alternativa, puoi crearne una nuova ed indossarla.
 				Forma del corpo:
 			</text>
 			<button label="Crea una nuova forma del corpo" label_selected="Crea una nuova forma del corpo" name="Create New" width="190"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
 		</panel>
 		<panel label="Pelle" name="Skin">
 			<button label="Colore della pelle" label_selected="Colore della pelle" name="Skin Color" width="115"/>
@@ -76,13 +76,13 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 			<text name="Item Action Label" right="89">
 				Pelle:
 			</text>
-			<texture_picker width="96" label="Tatuaggi: testa" name="Head Tattoos" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<texture_picker width="96" label="Tatuaggi: superiori" name="Upper Tattoos" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<texture_picker width="96" label="Tatuaggi: inferiori" name="Lower Tattoos" tool_tip="Clicca per scegliere un&apos;immagine"/>
+			<texture_picker label="Tatuaggi: testa" name="Head Tattoos" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
+			<texture_picker label="Tatuaggi: superiori" name="Upper Tattoos" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
+			<texture_picker label="Tatuaggi: inferiori" name="Lower Tattoos" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
 			<button label="Crea una nuova pelle" label_selected="Crea una nuova pelle" name="Create New"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Capelli" name="Hair">
 			<button label="Capelli" label_selected="Colore" name="Color"/>
@@ -116,9 +116,9 @@ In alternativa, puoi crearne di nuovi da zero ed indossarli.
 			</text>
 			<texture_picker label="Texture" name="Texture" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<button label="Crea nuovi capelli" label_selected="Crea nuovi capelli" name="Create New"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267" label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Occhi" name="Eyes">
 			<text name="title">
@@ -148,19 +148,19 @@ In alternativa, puoi crearne di nuovi da zero ed indossarli.
 			</text>
 			<texture_picker label="Iride" name="Iris" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<button label="Crea nuovi occhi" label_selected="Crea nuovi occhi" name="Create New"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
-		<panel label="Vestiti" name="clothes_placeholder"/>
+		<placeholder label="Vestiti" name="clothes_placeholder"/>
 		<panel label="Camicia" name="Shirt">
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere un colore"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea una nuova camicia" label_selected="Crea una nuova camicia" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 			<text name="title">
 				[DESC]
 			</text>
@@ -189,12 +189,12 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 		</panel>
 		<panel label="Pantaloni" name="Pants">
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere un colore"/>
-			<button label="Crea nuovi pantaloni" label_selected="Crea nuovi pantaloni" name="Create New" />
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
+			<button label="Crea nuovi pantaloni" label_selected="Crea nuovi pantaloni" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 			<text name="title">
 				[DESC]
 			</text>
@@ -248,12 +248,12 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 				Scarpe:
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere un colore"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea nuove scarpe" label_selected="Crea nuove scarpe" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Calze" name="Socks">
 			<text name="title">
@@ -282,12 +282,12 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 				Calze:
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere un colore"/>
-			<button label="Crea nuove calze" label_selected="Crea nuove calze" name="Create New" />
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
+			<button label="Crea nuove calze" label_selected="Crea nuove calze" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Giacca" name="Jacket">
 			<text name="title">
@@ -315,14 +315,14 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 			<text name="Item Action Label" right="89">
 				Giacca:
 			</text>
-			<texture_picker width="96" label="Tessuto: superiore" name="Upper Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<texture_picker width="96" label="Tessuto: inferiore" name="Lower Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere il colore"/>
+			<texture_picker label="Tessuto: superiore" name="Upper Fabric" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
+			<texture_picker label="Tessuto: inferiore" name="Lower Fabric" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea una nuova giacca" label_selected="Crea una nuova giacca" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Guanti" name="Gloves">
 			<text name="title">
@@ -351,12 +351,12 @@ In alternativa, puoi crearne un paio nuovo da zero ed indossarlo.
 				Guanti:
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere il colore"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea nuovi guanti" label_selected="Crea nuovi guanti" name="Create New"/>
-			<button width="115" font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Canottiera" name="Undershirt">
 			<text name="title">
@@ -385,12 +385,12 @@ In alternativa, puoi crearne una nuovo da zero ed indossarla.
 				Canottiera:
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere il colore"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea una nuova canottiera" label_selected="Crea una nuova canottiera" name="Create New"/>
-			<button width="115" font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Mutande" name="Underpants">
 			<text name="title">
@@ -419,12 +419,12 @@ In alternativa, puoi crearne una paio nuovo da zero ed indossarlo.
 				Mutande:
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere il colore"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea nuove mutande" label_selected="Crea nuove mutande" name="Create New"/>
-			<button width="115" font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267"  label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
 		<panel label="Gonna" name="Skirt">
 			<text name="title">
@@ -453,16 +453,88 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 				Gonna:
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per scegliere il colore"/>
+			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<button label="Crea una nuova gonna" label_selected="Crea una nuova gonna" name="Create New"/>
-			<button width="115" font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off"/>
-			<button left="95" width="72" label="Salva" label_selected="Salva" name="Save"/>
-			<button left="171" label="Salva come..." label_selected="Salva come..." name="Save As"/>
-			<button font="SansSerifSmall" width="120" left="267" label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
+			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
+			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
+			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
+			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
+		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: non può essere modificato
+			</text>
+			<text name="title_loading">
+				[DESC]: caricando...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: non indossato
+			</text>
+			<text name="path">
+				Collocato in [PATH]
+			</text>
+			<text name="not worn instructions">
+				Metti una nuova alpha mask trascinandone una dall&apos;inventario del tuo avatar.
+In alternativa, creane una nuova partendo da zero e indossala.
+			</text>
+			<text name="no modify instructions">
+				Non hai i permessi per modificare questa vestibilità.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Alpha inferiore" name="Lower Alpha" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Clicca per scegliere una foto"/>
+			<texture_picker label="Alpha della testa" name="Head Alpha" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Alpha dell&apos;occhio" name="Eye Alpha" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Alpha dei capelli" name="Hair Alpha" tool_tip="Clicca per scegiere una fotografia"/>
+			<button label="Crea nuova alpha" label_selected="Crea nuova alpha" name="Create New"/>
+			<button label="Togli" label_selected="Togli" name="Take Off"/>
+			<button label="Salva" label_selected="Salva" name="Save"/>
+			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>
+			<button label="Ripristina" label_selected="Ripristina" name="Revert"/>
+		</panel>
+		<panel label="Tatuaggio" name="Tattoo">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: non può essere modificato
+			</text>
+			<text name="title_loading">
+				[DESC]: caricando...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: non indossato
+			</text>
+			<text name="path">
+				Collocato in [PATH]
+			</text>
+			<text name="not worn instructions">
+				Metti un nuovo tatuaggio trascinandone uno dall&apos;inventario del tuo avatar.
+In alternativa, creane uno nuovo partendo da zero e indossalo.
+			</text>
+			<text name="no modify instructions">
+				Non hai i permessi per moficare questa vestibilità.
+			</text>
+			<text name="Item Action Label">
+				Tatuaggio:
+			</text>
+			<texture_picker label="Tatuaggio della testa" name="Head Tattoo" tool_tip="Clicca per scegliere una foto"/>
+			<texture_picker label="Tatuaggio superiore" name="Upper Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Tatuaggio inferiore" name="Lower Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
+			<button label="Crea Nuovo tatuaggio" label_selected="Crea un nuovo tatuaggio" name="Create New"/>
+			<button label="Togli" label_selected="Togli" name="Take Off"/>
+			<button label="Salva" label_selected="Salva" name="Save"/>
+			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>
+			<button label="Ripristina" label_selected="Ripristina" name="Revert"/>
 		</panel>
 	</tab_container>
 	<scroll_container left="254" name="panel_container"/>
+	<button label="Crea vestiario" label_selected="Crea vestiario" name="make_outfit_btn"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
-	<button label="Crea Outfit..." label_selected="Crea Outfit..." name="Make Outfit" left="122" />
 </floater>

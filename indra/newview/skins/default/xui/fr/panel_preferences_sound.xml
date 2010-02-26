@@ -7,8 +7,8 @@
 	<slider label="Média" name="Media Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>
 	<slider label="Flux musical" name="Music Volume"/>
-	<check_box label="Voix" name="enable_voice_check"/>
-	<slider label="Voix" name="Voice Volume"/>
+	<check_box label="Activer le chat vocal" name="enable_voice_check"/>
+	<slider label="Chat vocal" name="Voice Volume"/>
 	<text name="Listen from">
 		Écouter à partir de :
 	</text>

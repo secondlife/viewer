@@ -42,8 +42,9 @@
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
 
-LLUrlEntryBase::LLUrlEntryBase()
-: mColor(LLUIColorTable::instance().getColor("HTMLLinkColor"))
+LLUrlEntryBase::LLUrlEntryBase() :
+	mColor(LLUIColorTable::instance().getColor("HTMLLinkColor")),
+	mDisabledLink(false)
 {
 }
 
@@ -207,7 +208,7 @@ LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 	mPattern = boost::regex("("
 				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
 				"|" // or
-				"(?<!@)\\b[^[:space:]:@/]+\\.(?:com|net|edu|org)([/:]\\S*)?\\b" // i.e. FOO.net
+				"(?<!@)\\b[^[:space:]:@/>]+\\.(?:com|net|edu|org)([/:][^[:space:]<]*)?\\b" // i.e. FOO.net
 				")",
 				boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
@@ -654,3 +655,20 @@ std::string LLUrlEntryWorldMap::getLocation(const std::string &url) const
 	// return the part of the Url after secondlife:///app/worldmap/ part
 	return ::getStringAfterToken(url, "app/worldmap/");
 }
+
+//
+// LLUrlEntryNoLink lets us turn of URL detection with <nolink>...</nolink> tags
+//
+LLUrlEntryNoLink::LLUrlEntryNoLink()
+{
+	mPattern = boost::regex("<nolink>[^[:space:]<]+</nolink>",
+							boost::regex::perl|boost::regex::icase);
+	mDisabledLink = true;
+}
+
+std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	// return the text between the <nolink> and </nolink> tags
+	return url.substr(8, url.size()-8-9);
+}
+

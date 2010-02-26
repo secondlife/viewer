@@ -49,5 +49,6 @@
 		<button label="Téléporter" name="teleport_btn" tool_tip="Proposez une téléportation"/>
 		<button label="Profil du groupe" name="group_info_btn" tool_tip="Voir le profil du groupe"/>
 		<button label="Chat de groupe" name="chat_btn" tool_tip="Ouvrir une session de chat"/>
+		<button label="Appel de groupe" name="group_call_btn" tool_tip="Appeler ce groupe"/>
 	</panel>
 </panel>

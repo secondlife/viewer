@@ -277,6 +277,11 @@ public:
 	static bool canSpawnIMSession(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks sufficient conditions to add notification toast panel IM floater.
+	 */
+	static bool canAddNotifPanelToIM(const LLNotificationPtr& notification);
+
+	/**
 	 * Checks if passed notification can create IM session and be written into it.
 	 *
 	 * This method uses canLogToIM() & canSpawnIMSession().
@@ -297,6 +302,11 @@ public:
 	static void logToIMP2P(const LLNotificationPtr& notification);
 
 	/**
+	 * Writes notification message to IM  p2p session.
+	 */
+	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only);
+
+	/**
 	 * Writes group notice notification message to IM  group session.
 	 */
 	static void logGroupNoticeToIMGroup(const LLNotificationPtr& notification);
@@ -309,7 +319,7 @@ public:
 	/**
 	 * Spawns IM session.
 	 */
-	static void spawnIMSession(const std::string& name, const LLUUID& from_id);
+	static LLUUID spawnIMSession(const std::string& name, const LLUUID& from_id);
 
 	/**
 	 * Returns name from the notification's substitution.
@@ -319,6 +329,16 @@ public:
 	 * @param notification - Notification which substitution's name will be returned.
 	 */
 	static std::string getSubstitutionName(const LLNotificationPtr& notification);
+
+	/**
+	 * Adds notification panel to the IM floater.
+	 */
+	static void addNotifPanelToIM(const LLNotificationPtr& notification);
+
+	/**
+	 * Reloads IM floater messages.
+	 */
+	static void reloadIMFloaterMessages(const LLNotificationPtr& notification);
 };
 
 }

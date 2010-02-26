@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_help_browser" title="HELP BROWSER">
+	<layout_stack name="stack1">
+		<layout_panel name="external_controls">
+			<button label="Apri nel mio Web Browser" name="open_browser"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

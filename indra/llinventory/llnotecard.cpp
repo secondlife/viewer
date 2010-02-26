@@ -35,7 +35,9 @@
 #include "llstreamtools.h"
 
 LLNotecard::LLNotecard(S32 max_text)
-: mMaxText(max_text)
+	: mMaxText(max_text),
+	  mVersion(0),
+	  mEmbeddedVersion(0)
 {
 }
 

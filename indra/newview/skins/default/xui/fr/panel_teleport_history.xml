@@ -11,5 +11,7 @@
 		<accordion_tab name="1_month_and_older" title="Il y a 1 mois ou plus"/>
 		<accordion_tab name="6_months_and_older" title="Il y a 6 mois ou plus"/>
 	</accordion>
-	<panel label="bottom_panel" name="bottom_panel"/>
+	<panel label="bottom_panel" name="bottom_panel">
+		<button name="gear_btn" tool_tip="Afficher d&apos;autres options"/>
+	</panel>
 </panel>

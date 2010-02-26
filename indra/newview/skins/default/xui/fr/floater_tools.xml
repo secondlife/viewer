@@ -451,12 +451,12 @@
 			<spinner label="Vertical (V)" name="TexOffsetV"/>
 			<panel name="Add_Media">
 				<text name="media_tex">
-					URL du média
+					Média
 				</text>
 				<button name="add_media" tool_tip="Ajouter un média"/>
 				<button name="delete_media" tool_tip="Supprimer cette texture de média"/>
 				<button name="edit_media" tool_tip="Modifier ce média"/>
-				<button label="Aligner" label_selected="Aligner le média" name="button align"/>
+				<button label="Aligner" label_selected="Aligner le média" name="button align" tool_tip="Ajuster la texture du média (le chargement doit d&apos;abord se terminer)"/>
 			</panel>
 		</panel>
 		<panel label="Contenu" name="Contents">
@@ -475,14 +475,7 @@
 			Surface : [AREA] m²
 		</text>
 		<button label="À propos des terrains" label_selected="À propos des terrains" name="button about land" width="142"/>
-		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorier les parcelles en fonction du type de leur propriétaire : 
-
-Vert = votre terrain 
-Turquoise = le terrain de votre groupe 
-Rouge = appartenant à d&apos;autres 
-Jaune = en vente 
-Mauve = aux enchères 
-Gris = public"/>
+		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorier les parcelles en fonction du type de leur propriétaire :   Vert = votre terrain  Turquoise = le terrain de votre groupe  Rouge = appartenant à d&apos;autres  Jaune = en vente  Mauve = aux enchères  Gris = public"/>
 		<text name="label_parcel_modify">
 			Modifier la parcelle
 		</text>

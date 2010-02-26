@@ -196,6 +196,7 @@
         <menu_item_call
          label="Textbox"
          name="Textbox"
+         translate="false"
          shortcut="control|1">
           <menu_item_call.on_click
            function="Floater.Show"
@@ -204,6 +205,7 @@
         <menu_item_call
          label="Text Editor"
          name="Text Editor"
+         translate="false"
          shortcut="control|2">
           <menu_item_call.on_click
            function="Floater.Show"
@@ -212,6 +214,7 @@
         <menu_item_call
          label="Widgets"
          name="Widgets"
+         translate="false"
          shortcut="control|shift|T">
           <menu_item_call.on_click
            function="Floater.Show"
@@ -219,6 +222,7 @@
         </menu_item_call>
         <menu_item_call
          label="Inspectors"
+         translate="false"
          name="Inspectors">
           <menu_item_call.on_click
            function="Floater.Show"

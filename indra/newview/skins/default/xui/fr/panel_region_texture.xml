@@ -43,8 +43,7 @@
 		Ces valeurs représentent les limites de mélange pour les textures ci-dessus.
 	</text>
 	<text name="height_text_lbl11">
-		En mètres, la valeur Bas correspond à la hauteur maximum de la texture n°1
-et la valeur Haut correspond à la hauteur minimum de la texture n°4.
+		En mètres, la valeur Bas correspond à la hauteur maximum de la texture n°1 et la valeur Haut correspond à la hauteur minimum de la texture n°4.
 	</text>
 	<text name="height_text_lbl12">
 		et la valeur Haut correspond à la hauteur minimum de la texture n°4.

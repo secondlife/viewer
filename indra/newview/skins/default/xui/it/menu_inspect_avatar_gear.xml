@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="Vedi profilo" name="view_profile"/>
+	<menu_item_call label="Chiedi amicizia" name="add_friend"/>
+	<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="Chiama" name="call"/>
+	<menu_item_call label="Teleport" name="teleport"/>
+	<menu_item_call label="Invita nel gruppo" name="invite_to_group"/>
+	<menu_item_call label="Blocca" name="block"/>
+	<menu_item_call label="Denuncia" name="report"/>
+	<menu_item_call label="Congela" name="freeze"/>
+	<menu_item_call label="Espelli" name="eject"/>
+	<menu_item_call label="Debug" name="debug"/>
+	<menu_item_call label="Trova sulla mappa" name="find_on_map"/>
+	<menu_item_call label="Avvicinati" name="zoom_in"/>
+	<menu_item_call label="Paga" name="pay"/>
+</menu>

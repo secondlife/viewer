@@ -144,6 +144,8 @@ LLPartSysCompressedPacket::LLPartSysCompressedPacket()
 		mData[i] = '\0';
 	}
 
+	mNumBytes = 0;
+
 	gSetInitDataDefaults(&mDefaults);
 }
 

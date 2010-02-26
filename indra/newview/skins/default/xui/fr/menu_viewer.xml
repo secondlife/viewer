@@ -9,7 +9,7 @@
 		<menu_item_call label="Mon profil" name="Profile"/>
 		<menu_item_call label="Mon apparence" name="Appearance"/>
 		<menu_item_check label="Mon inventaire" name="Inventory"/>
-		<menu_item_call label="Afficher l&apos;inventaire de la barre latérale" name="ShowSidetrayInventory"/>
+		<menu_item_call label="Afficher l&apos;inventaire dans le panneau latéral" name="ShowSidetrayInventory"/>
 		<menu_item_call label="Mes gestes" name="Gestures"/>
 		<menu label="Mon statut" name="Status">
 			<menu_item_call label="Absent" name="Set Away"/>
@@ -25,36 +25,30 @@
 		<menu_item_check label="Chat près de vous" name="Nearby Chat"/>
 		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
 		<menu_item_check label="Média près de vous" name="Nearby Media"/>
-		<menu_item_check label="(Ancienne version) Communiquer" name="Instant Message"/>
-		<menu_item_call label="(Temp) Télécommande média" name="Preferences"/>
 	</menu>
 	<menu label="Monde" name="World">
-		<menu_item_check label="Bouger" name="Movement Controls"/>
-		<menu_item_check label="Affichage" name="Camera Controls"/>
-		<menu_item_call label="À propos des terrains" name="About Land"/>
-		<menu_item_call label="Région/Domaine" name="Region/Estate"/>
-		<menu_item_call label="Acheter du terrain" name="Buy Land"/>
-		<menu_item_call label="Mes terrains" name="My Land"/>
-		<menu label="Afficher" name="Land">
-			<menu_item_check label="Lignes d&apos;interdiction" name="Ban Lines"/>
-			<menu_item_check label="Balises" name="beacons"/>
-			<menu_item_check label="Limites du terrain" name="Property Lines"/>
-			<menu_item_check label="Propriétaires de terrains" name="Land Owners"/>
-		</menu>
-		<menu label="Repères" name="Landmarks">
-			<menu_item_call label="Créer un repère ici" name="Create Landmark Here"/>
-			<menu_item_call label="Définir le domicile ici" name="Set Home to Here"/>
-		</menu>
-		<menu_item_call label="Domicile" name="Teleport Home"/>
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
 		<menu_item_check label="Carte du monde" name="World Map"/>
 		<menu_item_call label="Photo" name="Take Snapshot"/>
+		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
+		<menu label="Profil du lieu" name="Land">
+			<menu_item_call label="À propos des terrains" name="About Land"/>
+			<menu_item_call label="Région/Domaine" name="Region/Estate"/>
+		</menu>
+		<menu_item_call label="Acheter ce terrain" name="Buy Land"/>
+		<menu_item_call label="Mes terrains" name="My Land"/>
+		<menu label="Afficher" name="LandShow">
+			<menu_item_check label="Contrôles de mouvement" name="Movement Controls"/>
+			<menu_item_check label="Contrôles d&apos;affichage" name="Camera Controls"/>
+		</menu>
+		<menu_item_call label="Me téléporter chez moi" name="Teleport Home"/>
+		<menu_item_call label="Définir le domicile ici" name="Set Home to Here"/>
 		<menu label="Luminosité" name="Environment Settings">
 			<menu_item_call label="Aube" name="Sunrise"/>
 			<menu_item_call label="Milieu de journée" name="Noon"/>
 			<menu_item_call label="Coucher de soleil" name="Sunset"/>
 			<menu_item_call label="Minuit" name="Midnight"/>
-			<menu_item_call label="Utiliser l&apos;heure du domaine" name="Revert to Region Default"/>
+			<menu_item_call label="Heure du domaine" name="Revert to Region Default"/>
 			<menu_item_call label="Éditeur d&apos;environnement" name="Environment Editor"/>
 		</menu>
 	</menu>
@@ -125,21 +119,20 @@
 	</menu>
 	<menu label="Aide" name="Help">
 		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_call label="Didacticiel" name="Tutorial"/>
 		<menu_item_call label="Signaler une infraction" name="Report Abuse"/>
+		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
-		<menu_item_check label="Me mettre en mode absent après 30 minutes" name="Go Away/AFK When Idle"/>
 		<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
 		<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
+		<menu_item_call label="Définir la taille de la fenêtre..." name="Set Window Size..."/>
 		<menu_item_check label="Limiter la distance de sélection" name="Limit Select Distance"/>
 		<menu_item_check label="Désactiver les contraintes de la caméra" name="Disable Camera Distance"/>
 		<menu_item_check label="Photo haute résolution" name="HighResSnapshot"/>
 		<menu_item_check label="Photos discrètes sur disque" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="Compresser les photos sur disque" name="CompressSnapshotsToDisk"/>
-		<menu_item_call label="Enregistrer la texture sous" name="Save Texture As"/>
 		<menu label="Outils de performance" name="Performance Tools">
 			<menu_item_call label="Mesure du lag" name="Lag Meter"/>
 			<menu_item_check label="Barre de statistiques" name="Statistics Bar"/>
@@ -333,7 +326,6 @@
 			<menu_item_call label="Enregistrer en XML" name="Save to XML"/>
 			<menu_item_check label="Afficher les noms XUI" name="Show XUI Names"/>
 			<menu_item_call label="Envoyer des IM tests" name="Send Test IMs"/>
-			<menu_item_call label="Tests inspecteurs" name="Test Inspectors"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Récupérer la texture fixée" name="Grab Baked Texture">
@@ -366,6 +358,7 @@
 			<menu_item_call label="Débogage des textures des avatars" name="Debug Avatar Textures"/>
 			<menu_item_call label="Dump Local Textures" name="Dump Local Textures"/>
 		</menu>
+		<menu_item_check label="Textures HTTP" name="HTTP Textures"/>
 		<menu_item_call label="Compresser les images" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
@@ -383,7 +376,7 @@
 			<menu_item_call label="Obtenir les ID d&apos;actifs" name="Get Assets IDs"/>
 		</menu>
 		<menu label="Parcelle" name="Parcel">
-			<menu_item_call label="Propriétaire à moi" name="Owner To Me"/>
+			<menu_item_call label="Forcer le propriétaire sur moi" name="Owner To Me"/>
 			<menu_item_call label="Définir sur le contenu Linden" name="Set to Linden Content"/>
 			<menu_item_call label="Réclamer un terrain public" name="Claim Public Land"/>
 		</menu>
@@ -410,7 +403,6 @@
 			<menu_item_call label="Tatouage" name="Tattoo"/>
 			<menu_item_call label="Tous les habits" name="All Clothes"/>
 		</menu>
-		<menu_item_check label="Afficher la barre d&apos;outils" name="Show Toolbar"/>
 		<menu label="Aide" name="Help">
 			<menu_item_call label="Blog officiel des Linden" name="Official Linden Blog"/>
 			<menu_item_call label="Portail d&apos;écriture de scripts" name="Scripting Portal"/>

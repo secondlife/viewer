@@ -44,6 +44,7 @@ void LLUrlRegistryNullCallback(const std::string &url, const std::string &label)
 LLUrlRegistry::LLUrlRegistry()
 {
 	// Urls are matched in the order that they were registered
+	registerUrl(new LLUrlEntryNoLink());
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
@@ -176,7 +177,8 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 						match_entry->getIcon(),
 						match_entry->getColor(),
 						match_entry->getMenuName(),
-						match_entry->getLocation(url));
+						match_entry->getLocation(url),
+						match_entry->isLinkDisabled());
 		return true;
 	}
 
@@ -204,9 +206,13 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 		S32 end = start + wurl.size() - 1;
 
 		match.setValues(start, end, match.getUrl(), 
-			match.getLabel(), match.getTooltip(),
-			match.getIcon(), match.getColor(),
-			match.getMenuName(), match.getLocation());
+						match.getLabel(),
+						match.getTooltip(),
+						match.getIcon(),
+						match.getColor(),
+						match.getMenuName(),
+						match.getLocation(),
+						match.isLinkDisabled());
 		return true;
 	}
 	return false;

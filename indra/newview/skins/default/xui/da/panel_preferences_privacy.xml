@@ -1,33 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Kommunikation" name="im">
-	<text name="text_box">
-		Min online status:
+	<panel.string name="log_in_to_change">
+		log på for at ændre
+	</panel.string>
+	<button label="Nulstil historik" name="clear_cache"/>
+	<text name="cache_size_label_l">
+		(Lokationer, billeder, web, søge historik)
 	</text>
-	<check_box label="Kun mine venner og grupper kan se når jeg er online"
-	     name="online_visibility" />
-	<text name="text_box2">
-		IM valg:
+	<check_box label="Kun venner og grupper ved jeg er online" name="online_visibility"/>
+	<check_box label="Kun venner og grupper kan sende besked til mig" name="voice_call_friends_only_check"/>
+	<check_box label="Slå mikrofon fra når opkald slutter" name="auto_disengage_mic_check"/>
+	<check_box label="Acceptér cookies" name="cookies_enabled"/>
+	<check_box label="Tillad media autoplay" name="autoplay_enabled"/>
+	<text name="Logs:">
+		Logs:
 	</text>
-	<string name="log_in_to_change">
-		Log ind for at ændre
-	</string>
-	<check_box label="Send IM til E-mail ([EMAIL])" name="send_im_to_email" />
-	<check_box label="Inkludér IM i chat vindue" name="include_im_in_chat_console" />
-	<check_box label="Vis tidslinje i private beskeder (IM)" name="show_timestamps_check" />
-	<check_box label="Vis når venner logger på" name="friends_online_notify_checkbox" />
-	<text name="text_box3">
-		Optaget autosvar:
+	<check_box label="Gem en log med lokal chat på min computer" name="log_nearby_chat"/>
+	<check_box label="Gem en log med private beskeder (IM) på min computer" name="log_instant_messages"/>
+	<check_box label="Tilføj tidsstempel" name="show_timestamps_check_im"/>
+	<text name="log_path_desc">
+		Placering af logfiler
 	</text>
-	<text name="text_box4">
-		Log funktioner:
-	</text>
-	<check_box label="Gem en log af privat beskeder (IM) på min computer"
-	     name="log_instant_messages" />
-	<check_box label="Vis klokkeslæt i log" name="log_instant_messages_timestamp" />
-	<check_box label="Vis slutningen af sidste samtale i beskeder" name="log_show_history" />
-	<check_box label="Gem log af lokal chat på min computer" name="log_chat" />
-	<check_box label="Vis klokkeslæt i lokat chat log" name="log_chat_timestamp" />
-	<check_box label="Vis indkommende IM i lokal chat log" name="log_chat_IM" />
-	<check_box label="Inkludér dato med klokkeslæt" name="log_date_timestamp" />
-	<button label="Ændre sti" label_selected="Ændre sti" name="log_path_button" left="150"/>
+	<button label="Ændre sti" label_selected="Ændre sti" left="150" name="log_path_button"/>
+	<button label="Liste med blokeringer" name="block_list"/>
 </panel>

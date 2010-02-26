@@ -174,8 +174,7 @@
     </text>    
     <line_editor
      bottom="366"
-     control_name="InstantMessageLogFolder"
-     enabled="false"
+     control_name="InstantMessageLogPath"
      follows="top|left|right"
      halign="right"
      height="23"

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Apri pagina web" name="url_open"/>
+	<menu_item_call label="Apri nel browser interno" name="url_open_internal"/>
+	<menu_item_call label="Apri nel browser esterno" name="url_open_external"/>
+	<menu_item_call label="Copia URL negli appunti" name="url_copy"/>
+</context_menu>

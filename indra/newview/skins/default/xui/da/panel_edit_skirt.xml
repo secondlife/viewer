@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_skirt_panel">
+	<panel name="avatar_skirt_color_panel">
+		<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
+		<color_swatch label="Farve/Nuance" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="skirt_main_tab" title="Nederdel"/>
+	</accordion>
+</panel>

@@ -9,8 +9,6 @@
 	<text name="desc txt">
 		Description :
 	</text>
-	<button label="OK" name="Keep"/>
-	<button label="Annuler" name="Discard"/>
 	<text name="dimensions">
 		[WIDTH] px x [HEIGHT] px
 	</text>
@@ -43,4 +41,7 @@
 			2:1
 		</combo_item>
 	</combo_box>
+	<button label="OK" name="Keep"/>
+	<button label="Annuler" name="Discard"/>
+	<button label="Enregistrer sous" name="save_tex_btn"/>
 </floater>

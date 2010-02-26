@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu name="Gear Menu">
+	<menu_item_call label="Tocca" name="touch"/>
+	<menu_item_call label="Siedi" name="sit"/>
+	<menu_item_call label="Paga" name="pay"/>
+	<menu_item_call label="Compra" name="buy"/>
+	<menu_item_call label="Prendi" name="take"/>
+	<menu_item_call label="Prendi copia" name="take_copy"/>
+	<menu_item_call label="Apri" name="open"/>
+	<menu_item_call label="Modifica" name="edit"/>
+	<menu_item_call label="Indossa" name="wear"/>
+	<menu_item_call label="Denuncia" name="report"/>
+	<menu_item_call label="Blocca" name="block"/>
+	<menu_item_call label="Avvicinati" name="zoom_in"/>
+	<menu_item_call label="Cancella" name="remove"/>
+	<menu_item_call label="Più info" name="more_info"/>
+</menu>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="APPARENCE" width="548">
 	<tab_container name="customize tab container" tab_min_width="150" width="546">
-		<placeholder label="Parties du corps" name="body_parts_placeholder"/>
+		<text label="Parties du corps" name="body_parts_placeholder">
+			Parties du corps
+		</text>
 		<panel label="Silhouette" left="154" name="Shape" width="389">
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 			<button label="Corps" label_selected="Corps" name="Body"/>
@@ -14,8 +16,8 @@
 			<button label="Torse" label_selected="Torse" name="Torso"/>
 			<button label="Jambes" label_selected="Jambes" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item label="Femme" name="radio"/>
-				<radio_item label="Homme" name="radio2"/>
+				<radio_item label="Femme" name="radio" value="0"/>
+				<radio_item label="Homme" name="radio2" value="1"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -33,9 +35,7 @@
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de silhouette, faites-en glisser une à partir de votre
-inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle 
-et de la porter.
+				Pour changer de silhouette, faites-en glisser une de votre inventaire à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -68,8 +68,7 @@ et de la porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de peau, faites-en glisser une à partir de votre inventaire.
-Vous pouvez aussi en créer une nouvelle et la porter.
+				Pour changer de peau, faites-en glisser une à partir de votre inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -106,9 +105,7 @@ Vous pouvez aussi en créer une nouvelle et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de chevelure, faites-en glisser une de votre inventaire
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle
-et la porter.
+				Pour changer de cheveux, faites-en glisser à partir de votre inventaire. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -139,8 +136,7 @@ et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer vos yeux, faites-les glisser de votre inventaire jusqu&apos;à
-votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
+				Pour changer d&apos;yeux, faites-en glisser une paire de votre inventaire à votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -154,7 +150,9 @@ votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
-		<placeholder label="Habits" name="clothes_placeholder"/>
+		<text label="Habits" name="clothes_placeholder">
+			Habits
+		</text>
 		<panel label="Chemise" name="Shirt">
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
@@ -179,8 +177,7 @@ votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter une nouvelle chemise, faites-en glisser une de votre inventaire
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
+				Pour changer de chemise, faites-en glisser une à partir de votre inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -213,8 +210,7 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porte
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter un nouveau pantalon, faites-en glisser un de votre inventaire
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
+				Pour changer de pantalon, faites-en glisser un à partir de votre inventaire. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -240,9 +236,7 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter de nouvelles chaussures, faites-en glisser une paire de votre
-inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
-nouvelle paire et la porter.
+				Pour changer de chaussures, faites-en glisser une paire de votre inventaire à votre avatar. Vous pouvez aussi en créer des nouvelles et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -275,9 +269,7 @@ nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter de nouvelles chaussettes, faites-en glisser une paire de votre
-inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
-nouvelle paire et la porter.
+				Pour changer de chaussettes, faites-en glisser une paire à partir de votre inventaire. Vous pouvez aussi en créer des nouvelles et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -310,8 +302,7 @@ nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter une nouvelle veste, faites-en glisser une de votre inventaire 
-jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
+				Pour changer de veste, faites-en glisser une à partir de votre inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -345,8 +336,7 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porte
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter de nouveaux gants, faites-les glisser à partir de votre
-inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
+				Pour changer de gants, faites-en glisser une paire à partir de votre inventaire. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -379,8 +369,7 @@ inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter de nouveaux sous-vêtements, faites-les glisser à partir de
-votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
+				Pour changer de sous-vêtements (homme), faites-en glisser à partir de votre inventaire. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -414,8 +403,7 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter de nouveaux sous-vêtements, faites-les glisser à partir de
-votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
+				Pour changer de sous-vêtements (femme), faites-en glisser à partir de votre inventaire. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -449,8 +437,7 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 				Emplacement : [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour porter une nouvelle jupe, faites-en glisser une à partir de votre 
-inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
+				Pour changer de jupe, faites-en glisser une à partir de votre inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -483,8 +470,7 @@ inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 				Dans [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de masque alpha, faites-en glisser un de votre inventaire à votre avatar.
-Vous pouvez aussi en créer un nouveau et le porter.
+				Pour changer de masque alpha, faites-en glisser un de votre inventaire à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas le droit de modifier cet objet.
@@ -520,8 +506,7 @@ Vous pouvez aussi en créer un nouveau et le porter.
 				Dans [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pour changer de tatouage, faites-en glisser un de votre inventaire à votre avatar.
-Vous pouvez aussi en créer un nouveau et le porter.
+				Pour changer de tatouage, faites-en glisser un de votre inventaire à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 			<text name="no modify instructions">
 				Vous n&apos;avez pas le droit de modifier cet objet.
@@ -540,6 +525,7 @@ Vous pouvez aussi en créer un nouveau et le porter.
 		</panel>
 	</tab_container>
 	<scroll_container left="251" name="panel_container"/>
+	<button label="Infos sur les scripts" label_selected="Infos sur les scripts" name="script_info"/>
 	<button label="Créer tenue" label_selected="Créer une tenue..." name="make_outfit_btn"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

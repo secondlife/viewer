@@ -85,7 +85,8 @@ namespace LLInitParam
 	//
 	BaseBlock::BaseBlock()
 	:	mLastChangedParam(0),
-		mChangeVersion(0)
+		mChangeVersion(0),
+		mBlockDescriptor(NULL)
 	{}
 
 	BaseBlock::~BaseBlock()
