@@ -4593,7 +4593,8 @@ BOOL LLVivoxVoiceClient::isOnlineSIP(const LLUUID &id)
 
 bool LLVivoxVoiceClient::isVoiceWorking()
 {
-	return (stateLoggedIn <= mState) && (mState <= stateLeavingSession);
+  //Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
+  return (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
 }
 
 // Returns true if the indicated participant in the current audio session is really an SL avatar.

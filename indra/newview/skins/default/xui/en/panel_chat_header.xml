@@ -21,19 +21,20 @@
          width="18" />
     <text_editor
       allow_scroll="false"
-      v_pad = "0"
+      v_pad = "7"
       read_only = "true"
       follows="left|right"
       font.style="BOLD"
-      height="12"
+      height="24"
       layout="topleft"
       left_pad="5"
       right="-120"
       name="user_name"
       text_color="white"
       bg_readonly_color="black"
-      top="8"
+      top="0"
       use_ellipses="true"
+      valign="bottom" 
       value="Ericag Vader" />
     <text
             font="SansSerifSmall"

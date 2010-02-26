@@ -3773,6 +3773,21 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 	}
+	else if("play" == action)
+	{
+		if(!LLGestureManager::instance().isGestureActive(mUUID))
+		{
+			// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
+			BOOL inform_server = TRUE;
+			BOOL deactivate_similar = FALSE;
+			LLGestureManager::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
+			LLGestureManager::instance().activateGestureWithAsset(mUUID, gInventory.getItem(mUUID)->getAssetUUID(), inform_server, deactivate_similar);
+		}
+		else
+		{
+			playGesture(mUUID);
+		}
+	}
 	else LLItemBridge::performAction(folder, model, action);
 }
 
@@ -3857,6 +3872,20 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
+
+// static
+void LLGestureBridge::playGesture(const LLUUID& item_id)
+{
+	if (LLGestureManager::instance().isGesturePlaying(item_id))
+	{
+		LLGestureManager::instance().stopGesture(item_id);
+	}
+	else
+	{
+		LLGestureManager::instance().playGesture(item_id);
+	}
+}
+
 
 // +=================================================+
 // |        LLAnimationBridge                        |

@@ -203,6 +203,11 @@ void process_initiate_download(LLMessageSystem* msg, void**);
 void start_new_inventory_observer();
 void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name);
 
+// Returns true if item is not in certain "quiet" folder which don't need UI
+// notification (e.g. trash, cof, lost-and-found) and agent is not AFK, false otherwise.
+// Returns false if item is not found.
+bool highlight_offered_item(const LLUUID& item_id);
+
 struct LLOfferInfo
 {
         LLOfferInfo()

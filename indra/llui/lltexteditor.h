@@ -149,7 +149,6 @@ public:
 	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
 	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
 	void			replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive);
-	void			replaceUrlLabel(const std::string &url, const std::string &label);
 	
 	// Undo/redo stack
 	void			blockUndo();

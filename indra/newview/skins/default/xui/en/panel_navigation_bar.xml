@@ -39,8 +39,9 @@
 	 layout="topleft"
 	 name="navigation_panel"
 	 width="600">
-	     <button
+	     <pull_button
 	     follows="left|top"
+	     direction="down"
 	     height="23"
 	     image_overlay="Arrow_Left_Off"
 	     layout="topleft"
@@ -49,8 +50,9 @@
 	     tool_tip="Go back to previous location"
 	     top="2"
 	     width="31" />
-	    <button
+	    <pull_button
 	     follows="left|top"
+	     direction="down"
 	     height="23"
 	     image_overlay="Arrow_Right_Off"
 	     layout="topleft"

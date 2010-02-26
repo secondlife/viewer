@@ -2,10 +2,13 @@
 <expandable_text
  max_height="300" >
  <textbox
-   more_label="More" 
+  allow_html="true"
+  allow_scroll="true"
+  bg_visible="false"
+  more_label="More" 
   follows="left|top|right"
   name="text"
-   allow_scroll="true" 
+  read_only="true"
   use_ellipses="true"
   word_wrap="true"
   tab_stop="true"

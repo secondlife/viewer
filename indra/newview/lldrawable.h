@@ -44,7 +44,6 @@
 #include "llquaternion.h"
 #include "xform.h"
 #include "llmemtype.h"
-#include "llprimitive.h"
 #include "lldarray.h"
 #include "llviewerobject.h"
 #include "llrect.h"

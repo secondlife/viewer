@@ -491,6 +491,8 @@ public:
 
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 
+	static void playGesture(const LLUUID& item_id);
+
 protected:
 	LLGestureBridge(LLInventoryPanel* inventory, const LLUUID& uuid)
 	:	LLItemBridge(inventory, uuid) {}

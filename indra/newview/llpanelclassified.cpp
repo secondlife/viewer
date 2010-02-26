@@ -1231,12 +1231,14 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			static std::string mature_str = getString("type_mature");
 			static std::string pg_str = getString("type_pg");
+			static LLUIString  price_str = getString("l$_price");
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
 			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
 
-			childSetTextArg("price_for_listing", "[PRICE]", llformat("%d", c_info->price_for_listing));
+			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
+			childSetValue("price_for_listing", LLSD(price_str));
 
 			setInfoLoaded(true);
 		}

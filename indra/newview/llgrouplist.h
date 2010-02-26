@@ -53,6 +53,15 @@ class LLGroupList: public LLFlatListView, public LLOldEvents::LLSimpleListener
 public:
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
+		/**
+		 * Contains a message for empty list when user is not a member of any group
+		 */
+		Optional<std::string>	no_groups_msg;
+
+		/**
+		 * Contains a message for empty list when all groups don't match passed filter
+		 */
+		Optional<std::string>	no_filtered_groups_msg;
 		Params();
 	};
 
@@ -80,6 +89,8 @@ private:
 	bool mShowIcons;
 	bool mDirty;
 	std::string mNameFilter;
+	std::string mNoFilteredGroupsMsg;
+	std::string mNoGroupsMsg;
 };
 
 class LLButton;

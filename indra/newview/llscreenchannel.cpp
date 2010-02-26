@@ -487,10 +487,21 @@ void LLScreenChannel::showToastsBottom()
 		toast_rect.setOriginAndSize(getRect().mLeft, bottom + toast_margin, toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
-		// don't show toasts if there is not enough space
 		if(floater && floater->overlapsScreenChannel())
 		{
+			if(it == mToastList.rbegin())
+			{
+				// move first toast above docked floater
+				S32 shift = floater->getRect().getHeight();
+				if(floater->getDockControl())
+				{
+					shift += floater->getDockControl()->getTongueHeight();
+				}
+				(*it).toast->translate(0, shift);
+			}
+
 			LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+			// don't show toasts if there is not enough space
 			if(toast_rect.mTop > world_rect.mTop)
 			{
 				break;
@@ -801,16 +812,6 @@ void LLScreenChannel::updateShowToastsState()
 
 	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 	LLRect this_rect = getRect();
-
-	// adjust channel's height
-	if(floater->overlapsScreenChannel())
-	{
-		channel_bottom += floater->getRect().getHeight();
-		if(floater->getDockControl())
-		{
-			channel_bottom += floater->getDockControl()->getTongueHeight();
-		}
-	}
 
 	if(channel_bottom != this_rect.mBottom)
 	{

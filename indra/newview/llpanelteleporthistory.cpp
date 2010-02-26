@@ -940,6 +940,9 @@ bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notificati
 
 	if (0 == option)
 	{
+		// order does matter, call this first or teleport history will contain one record(current location)
+		LLTeleportHistory::getInstance()->purgeItems();
+
 		LLTeleportHistoryStorage *th = LLTeleportHistoryStorage::getInstance();
 		th->purgeItems();
 		th->save();

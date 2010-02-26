@@ -33,7 +33,7 @@
 	 top_delta="18"
 	 visible="true"
 	 width="480">
-		Parcels Owned:
+	 
 	</text>
 	<text
 	 type="string"
@@ -45,7 +45,19 @@
 	 name="memory_used"
 	 top_delta="18"
 	 width="480">
-		Memory used:
+	</text>
+	
+	<text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="16"
+	 layout="topleft"
+	 left="30"
+	 name="urls_used"
+	 top_delta="18"
+	 width="480">
+	 
 	</text>
 	<text
      type="string"
@@ -55,7 +67,7 @@
      layout="topleft"
      left="10"
      name="loading_text"
-     top_delta="32"
+     top_delta="12"
      text_color="EmphasisColor"
      width="480">
         Loading...
@@ -73,7 +85,11 @@
         <scroll_list.columns
          label="Size (kb)"
          name="size"
-         width="70" />
+         width="72" />
+        <scroll_list.columns
+         label="URLs"
+         name="urls"
+         width="48" />
         <scroll_list.columns
          label="Object Name"
          name="name"
@@ -83,11 +99,13 @@
          name="owner"
          width="100" />
         <scroll_list.columns
-         label="Parcel / Location"
-         name="location"
+         label="Parcel"
+         name="parcel"
          width="130" />
-<!--		<scroll_list.commit_callback
-          function="TopObjects.CommitObjectsList" />-->
+        <scroll_list.columns
+         label="Location"
+         name="location"
+         width="80" />
     </scroll_list>
     <button
      follows="bottom|left"
@@ -102,8 +120,8 @@
     <button
      follows="bottom|right"
      height="19"
-	 visible="false"
      label="Highlight"
+	 visible="false"
      layout="bottomright"
      left="370"
      name="highlight_btn"
@@ -112,8 +130,8 @@
     <button
      follows="bottom|right"
      height="19"
-	 visible="false"
      label="Return"
+	 visible="false"
      layout="bottomright"
      name="return_btn"
      top="34"

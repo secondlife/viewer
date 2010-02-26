@@ -9,7 +9,44 @@
  name="script_limits_my_avatar_panel"
  top="0"
  width="480">
-    <text
+	<text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="16"
+	 layout="topleft"
+	 left="10"
+	 name="script_memory"
+	 top_pad="24"
+	 text_color="White"
+	 width="480">
+		Avatar Script Usage
+	</text>
+	<text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="16"
+	 layout="topleft"
+	 left="30"
+	 name="memory_used"
+	 top_delta="18"
+	 width="480">
+
+	</text>
+	<text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="16"
+	 layout="topleft"
+	 left="30"
+	 name="urls_used"
+	 top_delta="18"
+	 width="480">
+
+	</text>
+	<text
      type="string"
      length="1"
      follows="left|top"
@@ -17,7 +54,7 @@
      layout="topleft"
      left="10"
      name="loading_text"
-     top="10"
+     top="80"
      text_color="EmphasisColor"
      width="480">
         Loading...
@@ -25,12 +62,12 @@
     <scroll_list
      draw_heading="true"
      follows="all"
-     height="500"
+     height="415"
      layout="topleft"
      left_delta="0"
      multi_select="true"
      name="scripts_list"
-     top_delta="17"
+     top="100"
      width="460">
         <scroll_list.columns
          label="Size (kb)"

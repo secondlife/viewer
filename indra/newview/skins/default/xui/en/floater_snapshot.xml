@@ -46,8 +46,11 @@
   <ui_ctrl 
     height="90"
     width="90"
+    layout="topleft"
     name="thumbnail_placeholder"
     top_pad="6"
+    follows="left|top"
+    left="10"
     />
     <text
      type="string"

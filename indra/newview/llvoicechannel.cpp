@@ -395,13 +395,16 @@ void LLVoiceChannel::setState(EState state)
 	switch(state)
 	{
 	case STATE_RINGING:
-		LLCallInfoDialog::show("ringing", mNotifyArgs);
+		//TODO: remove or redirect this call status notification
+//		LLCallInfoDialog::show("ringing", mNotifyArgs);
 		break;
 	case STATE_CONNECTED:
-		LLCallInfoDialog::show("connected", mNotifyArgs);
+		//TODO: remove or redirect this call status notification
+//		LLCallInfoDialog::show("connected", mNotifyArgs);
 		break;
 	case STATE_HUNG_UP:
-		LLCallInfoDialog::show("hang_up", mNotifyArgs);
+		//TODO: remove or redirect this call status notification
+//		LLCallInfoDialog::show("hang_up", mNotifyArgs);
 		break;
 	default:
 		break;
@@ -640,7 +643,8 @@ void LLVoiceChannelGroup::setState(EState state)
 	case STATE_RINGING:
 		if ( !mIsRetrying )
 		{
-			LLCallInfoDialog::show("ringing", mNotifyArgs);
+			//TODO: remove or redirect this call status notification
+//			LLCallInfoDialog::show("ringing", mNotifyArgs);
 		}
 
 		doSetState(state);
@@ -705,7 +709,8 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 		//skip showing "Voice not available at your current location" when agent voice is disabled (EXT-4749)
 		if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
 		{
-			LLCallInfoDialog::show("unavailable", mNotifyArgs);
+			//TODO: remove or redirect this call status notification
+//			LLCallInfoDialog::show("unavailable", mNotifyArgs);
 		}
 		return;
 	default:
@@ -905,7 +910,8 @@ void LLVoiceChannelP2P::setState(EState state)
 		// so provide a special purpose message here
 		if (mReceivedCall && state == STATE_RINGING)
 		{
-			LLCallInfoDialog::show("answering", mNotifyArgs);
+			//TODO: remove or redirect this call status notification
+//			LLCallInfoDialog::show("answering", mNotifyArgs);
 			doSetState(state);
 			return;
 		}

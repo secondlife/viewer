@@ -83,7 +83,8 @@ public:
 	
 	virtual void updateSettings(); // call after loading settings and whenever they change
 
-	virtual bool isVoiceWorking(); // connected to a voice server and voice channel
+	// Returns true if vivox has successfully logged in and is not in error state	
+	virtual bool isVoiceWorking();
 
 	/////////////////////
 	/// @name Tuning

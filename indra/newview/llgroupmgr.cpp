@@ -1714,6 +1714,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	for (std::vector<LLUUID>::iterator it = member_ids.begin();
 		 it != member_ids.end(); ++it)
 	{
+		LLUUID& ejected_member_id = (*it);
+		
 		// Can't use 'eject' to leave a group.
 		if ((*it) == gAgent.getID()) continue;
 
@@ -1734,7 +1736,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			}
 			
 			msg->nextBlock("EjectData");
-			msg->addUUID("EjecteeID",(*it));
+			msg->addUUID("EjecteeID",ejected_member_id);
 
 			if (msg->isSendFull())
 			{
@@ -1746,13 +1748,15 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			for (LLGroupMemberData::role_list_t::iterator rit = (*mit).second->roleBegin();
 				 rit != (*mit).second->roleEnd(); ++rit)
 			{
-				if ((*rit).first.notNull())
+				if ((*rit).first.notNull() && (*rit).second!=0)
 				{
-					(*rit).second->removeMember(*it);
+					(*rit).second->removeMember(ejected_member_id);
 				}
 			}
-			delete (*mit).second;
+			
 			group_datap->mMembers.erase(*it);
+			
+			delete (*mit).second;
 		}
 	}
 
