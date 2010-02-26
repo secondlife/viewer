@@ -43,7 +43,15 @@ class LLMessageSystem;
 class LLEventInfo
 {
 public:
-	LLEventInfo() {}
+        LLEventInfo() :
+	mID(0),
+	mDuration(0),
+	mUnixTime(0),
+	mHasCover(FALSE),
+	mCover(0),
+	mEventFlags(0),
+	mSelected(FALSE)
+	{}
 
 	void unpack(LLMessageSystem *msg);
 

@@ -46,10 +46,21 @@
 
 void encode_character(std::ostream& ostr, std::string::value_type val)
 {
-	ostr << "%" << std::uppercase << std::hex << std::setw(2) << std::setfill('0') 
+	ostr << "%"
+
+	     << std::uppercase
+	     << std::hex
+	     << std::setw(2)
+	     << std::setfill('0') 
+
 	     // VWR-4010 Cannot cast to U32 because sign-extension on 
 	     // chars > 128 will result in FFFFFFC3 instead of F3.
-	     << static_cast<S32>(static_cast<U8>(val));
+	     << static_cast<S32>(static_cast<U8>(val))
+
+		// reset stream state
+	     << std::nouppercase
+	     << std::dec
+	     << std::setfill(' ');
 }
 
 // static

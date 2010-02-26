@@ -463,10 +463,6 @@ BOOL LLTaskInvFVBridge::removeItem()
 			}
 			else
 			{
-				remove_data_t* data = new remove_data_t;
-				data->first = mPanel;
-				data->second.first = mPanel->getTaskUUID();
-				data->second.second.push_back(mUUID);
 				LLSD payload;
 				payload["task_id"] = mPanel->getTaskUUID();
 				payload["inventory_ids"].append(mUUID);

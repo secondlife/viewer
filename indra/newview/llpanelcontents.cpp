@@ -50,7 +50,6 @@
 
 // project includes
 #include "llagent.h"
-#include "llfloaterbulkpermission.h"
 #include "llpanelobjectinventory.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
@@ -60,6 +59,7 @@
 #include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
+#include "llviewerinventory.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"

@@ -126,7 +126,10 @@ public:
 	/**
 	 * Return true if the avatar is in a P2P voice call with a given user
 	 */
-	static bool isCalling(const LLUUID &id);
+	/* AD *TODO: Is this function needed any more?
+		I fixed it a bit(added check for canCall), but it appears that it is not used
+		anywhere. Maybe it should be removed?
+	static bool isCalling(const LLUUID &id);*/
 
 	/**
 	 * @return true if call to the resident can be made

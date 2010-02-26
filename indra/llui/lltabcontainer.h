@@ -228,6 +228,7 @@ private:
 
 	// updates tab button images given the tuple, tab position and the corresponding params
 	void update_images(LLTabTuple* tuple, TabParams params, LLTabContainer::TabPosition pos);
+	void reshape_tuple(LLTabTuple* tuple);
 
 	// Variables
 	

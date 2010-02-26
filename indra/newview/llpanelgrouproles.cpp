@@ -867,7 +867,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	for (itor = selection.begin();
 		 itor != selection.end(); ++itor)
 	{
-		LLUUID member_id = (*itor)->getValue()["uuid"];
+		LLUUID member_id = (*itor)->getUUID();
 
 		selected_members.push_back( member_id );
 		// Get this member's power mask including any unsaved changes
@@ -1093,7 +1093,7 @@ void LLPanelGroupMembersSubTab::handleEjectMembers()
 	for (itor = selection.begin() ; 
 		 itor != selection.end(); ++itor)
 	{
-		LLUUID member_id = (*itor)->getValue()["uuid"];
+		LLUUID member_id = (*itor)->getUUID();
 		selected_members.push_back( member_id );
 	}
 
@@ -1151,7 +1151,7 @@ void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 		 itor != selection.end(); ++itor)
 	{
 
-		member_id = (*itor)->getValue()["uuid"];
+		member_id = (*itor)->getUUID();
 
 		//see if we requested a change for this member before
 		if ( mMemberRoleChangeData.find(member_id) == mMemberRoleChangeData.end() )
@@ -1242,7 +1242,7 @@ void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
 	LLScrollListItem* selected = mMembersList->getFirstSelected();
 	if (selected)
 	{
-		LLUUID member_id = selected->getValue()["uuid"];
+		LLUUID member_id = selected->getUUID();
 		LLAvatarActions::showProfile( member_id );
 	}
 }
@@ -1632,7 +1632,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 			LLScrollListItem* member = mMembersList->addElement(row);//, ADD_SORTED);
 
-			LLUUID id = member->getValue()["uuid"];
+			LLUUID id = member->getUUID();
 			mHasMatch = TRUE;
 		}
 	}

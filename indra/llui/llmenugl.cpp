@@ -1651,6 +1651,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mBackgroundColor( p.bg_color() ),
 	mBgVisible( p.bg_visible ),
 	mDropShadowed( p.drop_shadow ),
+	mHasSelection(false),
 	mHorizontalLayout( p.horizontal_layout ),
 	mScrollable(mHorizontalLayout ? FALSE : p.scrollable), // Scrolling is supported only for vertical layout
 	mMaxScrollableItems(p.max_scrollable_items),
@@ -1875,17 +1876,21 @@ void LLMenuGL::scrollItemsDown()
 
 	item_list_t::iterator next_item_iter;
 
-	for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
+	if (cur_item_iter != mItems.end())
 	{
-		if( (*next_item_iter)->getVisible())
+		for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
 		{
-			break;
+			if( (*next_item_iter)->getVisible())
+			{
+				break;
+			}
 		}
-	}
-
-	if ((*next_item_iter)->getVisible())
-	{
-		mFirstVisibleItem = *next_item_iter;
+		
+		if (next_item_iter != mItems.end() &&
+		    (*next_item_iter)->getVisible())
+		{
+			mFirstVisibleItem = *next_item_iter;
+		}
 	}
 	
 	mNeedsArrange = TRUE;
@@ -2809,7 +2814,7 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 					((LLMenuItemGL*)viewp)->setHighlight(TRUE);
 					LLMenuGL::setKeyboardMode(FALSE);
 				}
-				mHasSelection = TRUE;
+				mHasSelection = true;
 			}
 		}
 	}
@@ -2888,7 +2893,7 @@ void LLMenuGL::setVisible(BOOL visible)
 		}
 		else
 		{
-			mHasSelection = FALSE;
+			mHasSelection = true;
 			mFadeTimer.stop();
 		}
 

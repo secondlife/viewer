@@ -6,4 +6,11 @@
 	<floater.string name="done_text">
 		完了
 	</floater.string>
+	<layout_stack name="stack1">
+		<layout_panel name="browser_layout">
+			<text name="refresh_search">
+				現在のゴッドレベルに反映させるため検索をやり直してください
+			</text>
+		</layout_panel>
+	</layout_stack>
 </floater>

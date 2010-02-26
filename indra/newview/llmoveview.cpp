@@ -589,8 +589,16 @@ void LLPanelStandStopFlying::setVisible(BOOL visible)
 		updatePosition();
 	}
 
-	//change visibility of parent layout_panel to animate in/out
-	if (getParent()) getParent()->setVisible(visible);
+	// do not change parent visibility in case panel is attached into Move Floater: EXT-3632, EXT-4646
+	if (!mAttached) 
+	{
+		//change visibility of parent layout_panel to animate in/out. EXT-2504
+		if (getParent()) getParent()->setVisible(visible);
+	}
+
+	// also change own visibility to avoid displaying the panel in mouselook (broken when EXT-2504 was implemented).
+	// See EXT-4718.
+	LLPanel::setVisible(visible);
 }
 
 BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
@@ -614,7 +622,7 @@ void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
 	LLPanel* parent = dynamic_cast<LLPanel*>(getParent());
 	if (!parent)
 	{
-		llwarns << "Stand/stop flying panel parent is unset" << llendl;
+		llwarns << "Stand/stop flying panel parent is unset, already attached?: " << mAttached << ", new parent: " << (move_view == NULL ? "NULL" : "Move Floater") << llendl;
 		return;
 	}
 
@@ -643,6 +651,9 @@ void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
 		// Detach from movement controls. 
 		parent->removeChild(this);
 		mOriginalParent.get()->addChild(this);
+		// update parent with self visibility (it is changed in setVisible()). EXT-4743
+		mOriginalParent.get()->setVisible(getVisible());
+
 		mAttached = false;
 		updatePosition(); // don't defer until next draw() to avoid flicker
 	}
@@ -684,6 +695,7 @@ void LLPanelStandStopFlying::onStopFlyingButtonClick()
 	gAgent.setFlying(FALSE);
 
 	setFocus(FALSE); // EXT-482
+	setVisible(FALSE);
 }
 
 /**

@@ -279,7 +279,7 @@
       width="480" />
     <radio_item
       height="20"
-      label="Use my browser (IE, Firefox)"
+      label="Use my browser (IE, Firefox, Safari)"
       layout="topleft"
       left_delta="0"
       name="external"

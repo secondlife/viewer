@@ -179,7 +179,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 
 	if (!parcel) return;
 
-	if (!gSavedSettings.getBOOL("AudioStreamingMedia") || !gSavedSettings.getBOOL("AudioStreamingVideo"))
+	if (!gSavedSettings.getBOOL("AudioStreamingMedia"))
 		return;
 
 	std::string media_url = parcel->getMediaURL();

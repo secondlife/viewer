@@ -114,7 +114,7 @@ public:
 	LLLocalTextureObject* getLocalTextureObject(S32 index);
 	const LLLocalTextureObject* getConstLocalTextureObject(S32 index) const;
 
-	void				setLocalTextureObject(S32 index, LLLocalTextureObject *lto);
+	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
 	void				addVisualParam(LLVisualParam *param);
 	void				setVisualParams();
 	void 				setVisualParamWeight(S32 index, F32 value, BOOL upload_bake);

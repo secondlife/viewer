@@ -142,6 +142,8 @@ public:
 	void setMeshID( S32 id ) {mMeshID = id;}
 
 protected:
+	void init();
+
 	BOOL		mValid;
 	U32			mComponents;
 	F32			mMinPixelArea;

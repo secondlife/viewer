@@ -59,7 +59,12 @@ private:
 	};
 	struct Entry
 	{
-		Entry() {}
+        	Entry() :
+		        mBodySize(0),
+			mImageSize(0),
+			mTime(0)
+		{
+		}
 		Entry(const LLUUID& id, S32 imagesize, S32 bodysize, U32 time) :
 			mID(id), mImageSize(imagesize), mBodySize(bodysize), mTime(time) {}
 		void init(const LLUUID& id, U32 time) { mID = id, mImageSize = 0; mBodySize = 0; mTime = time; }

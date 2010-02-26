@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_classified_info">
 	<panel.string name="type_mature">
-		Mature
+		控えめ
 	</panel.string>
 	<panel.string name="type_pg">
-		PG コンテンツ
+		一般コンテンツ
 	</panel.string>
 	<text name="title" value="クラシファイド広告情報"/>
 	<scroll_container name="profile_scroll">

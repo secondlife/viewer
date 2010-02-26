@@ -403,6 +403,10 @@ LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
 		{
 			mMessages.push_back(templatep);
 		}
+		else
+		{
+			delete templatep;
+		}
 	}
 
 	if(!tokens.wantEOF())

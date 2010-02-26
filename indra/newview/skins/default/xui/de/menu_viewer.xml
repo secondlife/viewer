@@ -9,7 +9,7 @@
 		<menu_item_call label="Mein Profil" name="Profile"/>
 		<menu_item_call label="Mein Aussehen" name="Appearance"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
-		<menu_item_call label="Inventar in Seitenleiste anzeigen" name="ShowSidetrayInventory"/>
+		<menu_item_call label="Inventar auf Seitenleiste anzeigen" name="ShowSidetrayInventory"/>
 		<menu_item_call label="Meine Gesten" name="Gestures"/>
 		<menu label="Mein Status" name="Status">
 			<menu_item_call label="Abwesend" name="Set Away"/>
@@ -23,38 +23,32 @@
 		<menu_item_call label="Meine Freunde" name="My Friends"/>
 		<menu_item_call label="Meine Gruppen" name="My Groups"/>
 		<menu_item_check label="Lokaler Chat" name="Nearby Chat"/>
-		<menu_item_call label="Leute in dern Nähe" name="Active Speakers"/>
+		<menu_item_call label="Leute in der Nähe" name="Active Speakers"/>
 		<menu_item_check label="Medien in der Nähe" name="Nearby Media"/>
-		<menu_item_check label="(Legacy) Kommunikation" name="Instant Message"/>
-		<menu_item_call label="(Temp) Mediensteuerung" name="Preferences"/>
 	</menu>
 	<menu label="Welt" name="World">
-		<menu_item_check label="Bewegen" name="Movement Controls"/>
-		<menu_item_check label="Ansicht" name="Camera Controls"/>
-		<menu_item_call label="Über Land" name="About Land"/>
-		<menu_item_call label="Region/Grundstück" name="Region/Estate"/>
-		<menu_item_call label="Land kaufen" name="Buy Land"/>
-		<menu_item_call label="Mein Land" name="My Land"/>
-		<menu label="Anzeigen" name="Land">
-			<menu_item_check label="Bannlinien" name="Ban Lines"/>
-			<menu_item_check label="Strahlen" name="beacons"/>
-			<menu_item_check label="Grundstücksgrenzen" name="Property Lines"/>
-			<menu_item_check label="Landeigentümer" name="Land Owners"/>
-		</menu>
-		<menu label="Landmarken" name="Landmarks">
-			<menu_item_call label="Landmarke hier setzen" name="Create Landmark Here"/>
-			<menu_item_call label="Hier als Zuhause wählen" name="Set Home to Here"/>
-		</menu>
-		<menu_item_call label="Startseite" name="Teleport Home"/>
 		<menu_item_check label="Minikarte" name="Mini-Map"/>
 		<menu_item_check label="Weltkarte" name="World Map"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
+		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
+		<menu label="Ortsprofil" name="Land">
+			<menu_item_call label="Land-Info" name="About Land"/>
+			<menu_item_call label="Region/Grundstück" name="Region/Estate"/>
+		</menu>
+		<menu_item_call label="Dieses Land kaufen" name="Buy Land"/>
+		<menu_item_call label="Mein Land" name="My Land"/>
+		<menu label="Anzeigen" name="LandShow">
+			<menu_item_check label="Bewegungssteuerung" name="Movement Controls"/>
+			<menu_item_check label="Ansichtsteuerung" name="Camera Controls"/>
+		</menu>
+		<menu_item_call label="Teleport nach Hause" name="Teleport Home"/>
+		<menu_item_call label="Hier als Zuhause wählen" name="Set Home to Here"/>
 		<menu label="Sonne" name="Environment Settings">
 			<menu_item_call label="Sonnenaufgang" name="Sunrise"/>
 			<menu_item_call label="Mittag" name="Noon"/>
 			<menu_item_call label="Sonnenuntergang" name="Sunset"/>
 			<menu_item_call label="Mitternacht" name="Midnight"/>
-			<menu_item_call label="Grundstückszeit verwenden" name="Revert to Region Default"/>
+			<menu_item_call label="Grundstückszeit" name="Revert to Region Default"/>
 			<menu_item_call label="Umwelt-Editor" name="Environment Editor"/>
 		</menu>
 	</menu>
@@ -125,21 +119,20 @@
 	</menu>
 	<menu label="Hilfe" name="Help">
 		<menu_item_call label="[SECOND_LIFE]-Hilfe" name="Second Life Help"/>
-		<menu_item_call label="Tutorial" name="Tutorial"/>
 		<menu_item_call label="Missbrauch melden" name="Report Abuse"/>
+		<menu_item_call label="Fehler melden" name="Report Bug"/>
 		<menu_item_call label="INFO ÜBER [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Erweitert" name="Advanced">
-		<menu_item_check label="Nach 30 Min auf Abwesend stellen" name="Go Away/AFK When Idle"/>
 		<menu_item_call label="Animation meines Avatars stoppen" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Textur neu laden" name="Rebake Texture"/>
 		<menu_item_call label="UI-Größe auf Standard setzen" name="Set UI Size to Default"/>
+		<menu_item_call label="Fenstergröße einstellen..." name="Set Window Size..."/>
 		<menu_item_check label="Auswahldistanz einschränken" name="Limit Select Distance"/>
 		<menu_item_check label="Kamerabeschränkungen deaktivieren" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto (hohe Auflösung)" name="HighResSnapshot"/>
 		<menu_item_check label="Fotos auf Festplatte leise speichern" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="Fotos auf Festplatte komprimieren" name="CompressSnapshotsToDisk"/>
-		<menu_item_call label="Textur speichern als" name="Save Texture As"/>
 		<menu label="Performance Tools" name="Performance Tools">
 			<menu_item_call label="Lag-Anzeige" name="Lag Meter"/>
 			<menu_item_check label="Statistikleiste" name="Statistics Bar"/>
@@ -215,7 +208,7 @@
 		<menu label="Konsolen" name="Consoles">
 			<menu_item_check label="Textur" name="Texture Console"/>
 			<menu_item_check label="Fehler beseitigen" name="Debug Console"/>
-			<menu_item_call label="Konsole: Meldungen" name="Notifications"/>
+			<menu_item_call label="Meldungen" name="Notifications"/>
 			<menu_item_check label="Texturgröße" name="Texture Size"/>
 			<menu_item_check label="Texture-Kategorie" name="Texture Category"/>
 			<menu_item_check label="Schnelle Timer" name="Fast Timers"/>
@@ -288,7 +281,7 @@
 		<menu label="Netzwerk" name="Network">
 			<menu_item_check label="Agent pausieren" name="AgentPause"/>
 			<menu_item_call label="Meldungsprotokoll aktivieren" name="Enable Message Log"/>
-			<menu_item_call label="Meldungs-Protokoll deaktivieren" name="Disable Message Log"/>
+			<menu_item_call label="Meldungsprotokoll deaktivieren" name="Disable Message Log"/>
 			<menu_item_check label="Objektposition laut Geschwindigkeit interpolieren" name="Velocity Interpolate Objects"/>
 			<menu_item_check label="Positionen der interpolierten Objekte anfragen" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Ein Paket fallenlassen" name="Drop a Packet"/>
@@ -333,7 +326,6 @@
 			<menu_item_call label="Als XML speichern" name="Save to XML"/>
 			<menu_item_check label="XUI-Namen anzeigen" name="Show XUI Names"/>
 			<menu_item_call label="Test-IMs senden" name="Send Test IMs"/>
-			<menu_item_call label="Inspektoren testen" name="Test Inspectors"/>
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Geladene Textur nehmen" name="Grab Baked Texture">
@@ -366,6 +358,7 @@
 			<menu_item_call label="Fehler in Avatar-Texturen beseitigen" name="Debug Avatar Textures"/>
 			<menu_item_call label="Lokale Texturen ausgeben" name="Dump Local Textures"/>
 		</menu>
+		<menu_item_check label="HTTP-Texturen" name="HTTP Textures"/>
 		<menu_item_call label="Bilder komprimieren" name="Compress Images"/>
 		<menu_item_check label="Ausgabe Fehlerbeseitigung ausgeben" name="Output Debug Minidump"/>
 		<menu_item_check label="Bei nächster Ausführung Fenster öffnen" name="Console Window"/>
@@ -383,7 +376,7 @@
 			<menu_item_call label="Asset-ID zulassen" name="Get Assets IDs"/>
 		</menu>
 		<menu label="Parzelle" name="Parcel">
-			<menu_item_call label="Besitzer zu mir" name="Owner To Me"/>
+			<menu_item_call label="Besitzer zu mir zwingen" name="Owner To Me"/>
 			<menu_item_call label="Auf Linden-Inhalt festlegen" name="Set to Linden Content"/>
 			<menu_item_call label="Öffentiches Land in Besitz nehmen" name="Claim Public Land"/>
 		</menu>
@@ -410,7 +403,6 @@
 			<menu_item_call label="Tätowierung" name="Tattoo"/>
 			<menu_item_call label="Alle Kleider" name="All Clothes"/>
 		</menu>
-		<menu_item_check label="Werkzeugleiste anzeigen" name="Show Toolbar"/>
 		<menu label="Hilfe" name="Help">
 			<menu_item_call label="Offizielles Linden-Blog" name="Official Linden Blog"/>
 			<menu_item_call label="Scripting-Portal" name="Scripting Portal"/>

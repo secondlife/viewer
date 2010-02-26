@@ -316,11 +316,14 @@ BOOL	LLPanelObject::postBuild()
 
 LLPanelObject::LLPanelObject()
 :	LLPanel(),
+	mComboMaterialItemCount(0),
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
 	mCastShadows(TRUE),
-	mSelectedType(MI_BOX)
+	mSelectedType(MI_BOX),
+	mSculptTextureRevert(LLUUID::null),
+	mSculptTypeRevert(0)
 {
 }
 

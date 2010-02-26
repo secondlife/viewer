@@ -180,6 +180,7 @@ LLManipScale::LLManipScale( LLToolComposite* composite )
 	mScaleSnapUnit2(1.f),
 	mSnapRegimeOffset(0.f),
 	mSnapGuideLength(0.f),
+	mInSnapRegime(FALSE),
 	mScaleSnapValue(0.f)
 { 
 	mManipulatorScales = new F32[NUM_MANIPULATORS];

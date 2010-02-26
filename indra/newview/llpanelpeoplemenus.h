@@ -45,7 +45,7 @@ class ContextMenu : public LLAvatarListItem::ContextMenu
 {
 public:
 	ContextMenu();
-	virtual ~ContextMenu() {}
+	virtual ~ContextMenu();
 
 	/**
 	 * Show the menu at specified coordinates.
@@ -62,6 +62,7 @@ protected:
 
 	std::vector<LLUUID>	mUUIDs;
 	LLContextMenu*		mMenu;
+	LLHandle<LLView>	mMenuHandle;
 };
 
 /**

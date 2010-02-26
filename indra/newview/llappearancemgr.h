@@ -35,11 +35,11 @@
 
 #include "llsingleton.h"
 #include "llinventorymodel.h"
-#include "llviewerinventory.h"
 #include "llcallbacklist.h"
 
 class LLWearable;
 class LLWearableHoldingPattern;
+class LLInventoryCallback;
 
 class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
 {

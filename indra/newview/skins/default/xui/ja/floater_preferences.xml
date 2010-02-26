@@ -8,7 +8,7 @@
 		<panel label="プライバシー" name="im"/>
 		<panel label="サウンド" name="audio"/>
 		<panel label="チャット" name="chat"/>
-		<panel label="警告" name="msgs"/>
+		<panel label="通知" name="msgs"/>
 		<panel label="セットアップ" name="input"/>
 		<panel label="詳細" name="advanced1"/>
 	</tab_container>

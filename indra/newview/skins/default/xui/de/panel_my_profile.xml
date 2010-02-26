@@ -4,52 +4,44 @@
 		[ACCTTYPE]
 [PAYMENTINFO] [AGEVERIFICATION]
 	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=de-DE
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=de
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/my/account/index.php?lang=de-DE"/>
 	<string name="no_partner_text" value="Keiner"/>
+	<string name="no_group_text" value="Keiner"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<icon label="" name="2nd_life_edit_icon" tool_tip="Klicken Sie unten auf die Schaltfläche Profil bearbeiten, um das Bild zu ändern."/>
-				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
-				<expandable_text name="sl_description_edit">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-				</expandable_text>
-			</panel>
-			<panel name="first_life_image_panel">
-				<icon label="" name="real_world_edit_icon" tool_tip="Klicken Sie unten auf die Schaltfläche Profil bearbeiten, um das Bild zu ändern."/>
-				<text name="title_rw_descr_text" value="Echtes Leben:"/>
-				<expandable_text name="fl_description_edit">
-					Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-				</expandable_text>
-			</panel>
-			<text name="me_homepage_text">
-				Webseite:
-			</text>
-			<text name="title_member_text" value="Mitglied seit:"/>
-			<text name="register_date" value="05/31/1976"/>
-			<text name="title_acc_status_text" value="Kontostatus:"/>
-			<text name="acc_status_text" value="Einwohner. Keine Zahlungsinfo archiviert."/>
-			<text name="title_partner_text" value="Partner:"/>
-			<panel name="partner_data_panel">
-				<text name="partner_text" value="[FIRST] [LAST]"/>
-			</panel>
-			<text name="title_groups_text" value="Gruppen:"/>
-			<expandable_text name="sl_groups">
-				Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-			</expandable_text>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="Freund hinzufügen" name="add_friend"/>
-		<button label="IM" name="im"/>
-		<button label="Anrufen" name="call"/>
-		<button label="Karte" name="show_on_map_btn"/>
-		<button label="Teleportieren" name="teleport"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="Profil bearbeiten" name="edit_profile_btn"/>
-		<button label="Aussehen bearbeiten" name="edit_appearance_btn"/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="scroll_content_panel">
+					<panel name="second_life_image_panel">
+						<icon label="" name="2nd_life_edit_icon" tool_tip="Klicken Sie unten auf die Schaltfläche Profil bearbeiten, um das Bild zu ändern."/>
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<icon label="" name="real_world_edit_icon" tool_tip="Klicken Sie unten auf die Schaltfläche Profil bearbeiten, um das Bild zu ändern."/>
+						<text name="title_rw_descr_text" value="Echtes Leben:"/>
+					</panel>
+					<text name="title_member_text" value="Einwohner seit:"/>
+					<text name="title_acc_status_text" value="Kontostatus:"/>
+					<text name="acc_status_text">
+						Einwohner. Keine Zahlungsinfo archiviert.
+              Linden.
+					</text>
+					<text name="title_partner_text" value="Partner:"/>
+					<text name="title_groups_text" value="Gruppen:"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="Profil bearbeiten" name="edit_profile_btn" tool_tip="Ihre persönlichen Informationen bearbeiten"/>
+			<button label="Aussehen bearbeiten" name="edit_appearance_btn" tool_tip="Ihr Aussehen bearbeiten: Körpermaße, Bekleidung, usw."/>
+		</layout_panel>
+	</layout_stack>
 </panel>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sicherheit" name="Media Settings Security">
-	<check_box initial_value="false" label="Zugang nur für bestimmte URLs ermöglichen (mittels Präfix)" name="whitelist_enable"/>
+	<check_box initial_value="false" label="Nur Zugriff auf festgelegte URL-Muster zulassen" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
-		Einträge, die auf ungültige Home-URLs hinweisen, sind markiert:
+		Einträge, die für die Startseite nicht akzeptiert werden, sind markiert:
 	</text>
 	<button label="Hinzufügen" name="whitelist_add"/>
 	<button label="Löschen" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
-		Warnung: Die Home-URL, die in der Registerkarte &quot;Allgemein&quot; angegeben wurde, entspricht nicht den Einträgen auf der Whitelist. Sie wurde deaktiviert, bis ein gültiger Eintrag angegeben wird.
+		Achtung: Die auf der Registerkarte Allgemein festgelegte Startseite wird von der Whitelist nicht akzeptiert. Sie wurde deaktiviert bis ein gültiger Eintrag hinzugefügt wurde.
 	</text>
 </panel>

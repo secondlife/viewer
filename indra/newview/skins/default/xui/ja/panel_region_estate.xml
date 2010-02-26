@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="不動産" name="Estate">
 	<text name="estate_help_text">
-		このタブの設定を変更するとこの不動産内
-の全ての地域に影響を与えます。
+		このタブの設定への変更は、エステート内のすべてのリージョンに影響されます。
 	</text>
 	<text name="estate_text">
 		不動産：
@@ -17,10 +16,10 @@
 		（不明）
 	</text>
 	<text name="Only Allow">
-		次へのアクセスを制限：
+		次のアカウントのアクセス禁止：
 	</text>
-	<check_box label="支払い情報登録済みの住人" name="limit_payment" tool_tip="未確認の住人の立入を禁止します"/>
-	<check_box label="年齢確認済みの成人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を立入禁止にします。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
+	<check_box label="支払情報登録済" name="limit_payment" tool_tip="未確認の住人の立入を禁止します"/>
+	<check_box label="年齢確認" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人の立入を禁止します。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
 	<check_box label="ボイスチャットを許可" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">

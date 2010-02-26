@@ -55,12 +55,27 @@
 #define LL_BIG_ENDIAN 1
 #endif
 
+
 // Per-compiler switches
+
 #ifdef __GNUC__
 #define LL_FORCE_INLINE inline __attribute__((always_inline))
 #else
 #define LL_FORCE_INLINE __forceinline
 #endif
+
+// Mark-up expressions with branch prediction hints.  Do NOT use
+// this with reckless abandon - it's an obfuscating micro-optimization
+// outside of inner loops or other places where you are OVERWHELMINGLY
+// sure which way an expression almost-always evaluates.
+#if __GNUC__ >= 3
+# define LL_LIKELY(EXPR) __builtin_expect (!!(EXPR), true)
+# define LL_UNLIKELY(EXPR) __builtin_expect (!!(EXPR), false)
+#else
+# define LL_LIKELY(EXPR) (EXPR)
+# define LL_UNLIKELY(EXPR) (EXPR)
+#endif
+
 
 // Figure out differences between compilers
 #if defined(__GNUC__)

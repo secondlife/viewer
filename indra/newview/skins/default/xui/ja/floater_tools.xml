@@ -451,12 +451,12 @@
 			<spinner label="垂直（V）" name="TexOffsetV"/>
 			<panel name="Add_Media">
 				<text name="media_tex">
-					メディア URL
+					メディア
 				</text>
 				<button name="add_media" tool_tip="メディアを追加"/>
 				<button name="delete_media" tool_tip="このメディアテクスチャを削除"/>
 				<button name="edit_media" tool_tip="このメディアを編集"/>
-				<button label="揃える" label_selected="メディアを一列に揃える" name="button align"/>
+				<button label="揃える" label_selected="メディアを一列に揃える" name="button align" tool_tip="メディアテクスチャを一列に揃える（最初に読み込む必要があります）"/>
 			</panel>
 		</panel>
 		<panel label="中身" name="Contents">
@@ -475,14 +475,7 @@
 			面積： [AREA] 平方メートル
 		</text>
 		<button label="土地情報" label_selected="土地情報" name="button about land"/>
-		<check_box label="オーナーを表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけ： 
-
-緑 = あなたの土地 
-アクア = あなたのグループ所有地 
-赤 = 他人が所有する土地 
-黄色 = 売り出し中 
-紫 = オークション 
-グレー = パブリック"/>
+		<check_box label="オーナーを表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけ：   緑 = あなたの土地  アクア = あなたのグループ所有地  赤 = 他人が所有する土地  黄色 = 売り出し中  紫 = オークション  グレー = パブリック"/>
 		<text name="label_parcel_modify">
 			区画の編集
 		</text>

@@ -39,10 +39,10 @@
 	<text label="Alterseinstufung" name="access_text">
 		Einstufung:
 	</text>
-	<combo_box label="Mature" name="access_combo">
+	<combo_box label="Moderat" name="access_combo">
 		<combo_box.item label="Adult" name="Adult"/>
-		<combo_box.item label="Mature" name="Mature"/>
-		<combo_box.item label="PG" name="PG"/>
+		<combo_box.item label="Moderat" name="Mature"/>
+		<combo_box.item label="Allgemein" name="PG"/>
 	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Übernehmen" name="apply_btn"/>

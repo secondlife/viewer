@@ -2,11 +2,12 @@
 <panel label="場所" name="places panel">
 	<string name="landmarks_tab_title" value="マイ ランドマーク"/>
 	<string name="teleport_history_tab_title" value="テレポートの履歴"/>
-	<filter_editor label="フィルター" name="Filter"/>
+	<filter_editor label="場所をフィルター" name="Filter"/>
 	<panel name="button_panel">
-		<button label="テレポート" name="teleport_btn"/>
+		<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートします"/>
 		<button label="地図" name="map_btn"/>
-		<button label="編集" name="edit_btn"/>
+		<button label="編集" name="edit_btn" tool_tip="ランドマークの情報を編集します"/>
+		<button name="overflow_btn" tool_tip="その他のオプションを表示"/>
 		<button label="閉じる" name="close_btn"/>
 		<button label="キャンセル" name="cancel_btn"/>
 		<button label="保存" name="save_btn"/>

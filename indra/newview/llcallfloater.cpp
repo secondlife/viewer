@@ -163,6 +163,8 @@ BOOL LLCallFloater::postBuild()
 	//chrome="true" hides floater caption 
 	if (mDragHandle)
 		mDragHandle->setTitleVisible(TRUE);
+	
+	updateSession();
 
 	return TRUE;
 }
@@ -245,8 +247,7 @@ void LLCallFloater::updateSession()
 		}
 	}
 
-	const LLUUID& session_id = voice_channel->getSessionID();
-	LL_DEBUGS("Voice") << "Set speaker manager for session: " << session_id << LL_ENDL;
+	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (im_session)
@@ -566,33 +567,46 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		if (!found)
 		{
-			// If an avatarID is not found in a speakers list from VoiceClient and
-			// a panel with this ID has a JOINED status this means that this person
-			// HAS LEFT the call.
-			if ((getState(participant_id) == STATE_JOINED))
+			updateNotInVoiceParticipantState(item);
+		}
+	}
+}
+
+void LLCallFloater::updateNotInVoiceParticipantState(LLAvatarListItem* item)
+{
+	LLUUID participant_id = item->getAvatarId();
+	ESpeakerState current_state = getState(participant_id);
+
+	switch (current_state)
+	{
+	case STATE_JOINED:
+		// If an avatarID is not found in a speakers list from VoiceClient and
+		// a panel with this ID has a JOINED status this means that this person
+		// HAS LEFT the call.
+		setState(item, STATE_LEFT);
+
+		{
+			LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(participant_id);
+			if (speaker.notNull())
 			{
-				setState(item, STATE_LEFT);
-
-				LLPointer<LLSpeaker> speaker = mSpeakerManager->findSpeaker(item->getAvatarId());
-				if (speaker.isNull())
-				{
-					continue;
-				}
-
 				speaker->mHasLeftCurrentCall = TRUE;
 			}
-			// If an avatarID is not found in a speakers list from VoiceClient and
-			// a panel with this ID has a LEFT status this means that this person
-			// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
-			else if ((getState(participant_id) != STATE_LEFT))
-			{
-				setState(item, STATE_INVITED);
-			}
-			else
-			{
-				llwarns << "Unsupported (" << getState(participant_id) << ") state: " << item->getAvatarName()  << LL_ENDL;
-			}
 		}
+		break;
+	case STATE_INVITED:
+	case STATE_LEFT:
+		// nothing to do. These states should not be changed.
+		break;
+	case STATE_UNKNOWN:
+		// If an avatarID is not found in a speakers list from VoiceClient and
+		// a panel with this ID has an UNKNOWN status this means that this person
+		// HAS ENTERED session but it is not in voice chat yet. So, set INVITED status
+		setState(item, STATE_INVITED);
+		break;
+	default:
+		// for possible new future states.
+		llwarns << "Unsupported (" << getState(participant_id) << ") state for: " << item->getAvatarName()  << llendl;
+		break;
 	}
 }
 

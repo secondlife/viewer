@@ -38,7 +38,6 @@
 #include "llassetstorage.h"
 #include "llagent.h"
 #include "llvoavatar.h"
-#include "llviewerinventory.h"
 #include "llviewerstats.h"
 #include "llnotificationsutil.h"
 #include "llinventorymodel.h"

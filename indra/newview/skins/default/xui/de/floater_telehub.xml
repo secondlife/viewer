@@ -21,12 +21,9 @@
 	<button label="Spawn hinzufügen" name="add_spawn_point_btn"/>
 	<button label="Spawn entfernen" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
-		Wählen Sie ein Objekt und klicken zur
-Positionsangabe auf „Hinzufügen“. Anschließend
-können sie das Objekt verschieben oder löschen.
-Positionsangaben sind relativ zum
-Telehub-Mittelpunkt.
-Wählen Sie ein Objekt aus, um seine Position in
-der Welt anzuzeigen.
+		Wählen Sie ein Objekt und klicken zur Positionsangabe auf Spawn hinzufügen.
+Anschließend können Sie das Objekt verschieben oder löschen.
+Positionsangaben sind relativ zum Telehub-Mittelpunkt.
+Wählen Sie ein Objekt aus der Liste aus, um dieses inworld zu markieren.
 	</text>
 </floater>

@@ -41,6 +41,7 @@
      height="20"
      layout="topleft"
      left_pad="5"
+     allow_html="false"
      use_ellipses="true"
      name="region"
      text_color="white"

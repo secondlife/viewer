@@ -11,7 +11,7 @@
 			</text>
 			<check_box label="準備" name="check prelude" tool_tip="この設定により、この地域の準備をします。"/>
 			<check_box label="太陽固定" name="check fixed sun" tool_tip="太陽位置を固定（[地域／不動産]＞[地形]の場合と同様）"/>
-			<check_box label="テレポートのホームをリセット" name="check reset home" tool_tip="住人がテレポートで去ったとき、彼らのホームを目的地にリセットする。"/>
+			<check_box label="テレポートのホームをリセット" name="check reset home" tool_tip="住人がテレポートで外に出たら、ホームを目的地にリセットします。"/>
 			<check_box label="可視" name="check visible" tool_tip="この設定により、この地域をゴッド・モード以外でも可視にします。"/>
 			<check_box label="ダメージ" name="check damage" tool_tip="この設定により、この地域内でダメージを有効化します。"/>
 			<check_box label="トラフィック・トラッキングをブロック" name="block dwell" tool_tip="この設定により、この地域内のトラフィック計算をオフにします。"/>

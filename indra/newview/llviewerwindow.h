@@ -126,9 +126,6 @@ private:
 	void			updateXYCoords();
 
 	BOOL			mWantSurfaceInfo;   // do we populate mUVCoord, mNormal, mBinormal?
-	U8				mPickBuffer[PICK_DIAMETER * PICK_DIAMETER * 4];
-	F32				mPickDepthBuffer[PICK_DIAMETER * PICK_DIAMETER];
-	BOOL			mPickParcelWall;
 
 };
 

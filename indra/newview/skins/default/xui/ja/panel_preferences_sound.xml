@@ -7,7 +7,7 @@
 	<slider label="メディア" name="Media Volume"/>
 	<slider label="効果音" name="SFX Volume"/>
 	<slider label="ストリーミング音楽" name="Music Volume"/>
-	<check_box label="ボイス" name="enable_voice_check"/>
+	<check_box label="ボイスを有効にする" name="enable_voice_check"/>
 	<slider label="ボイス" name="Voice Volume"/>
 	<text name="Listen from">
 		方向：

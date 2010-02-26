@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MEIN AVATAR" name="script_limits_my_avatar_panel">
+	<text name="loading_text">
+		Wird geladen...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Größe (KB)" name="size"/>
+		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="Objektname" name="name"/>
+		<scroll_list.columns label="Ort" name="location"/>
+	</scroll_list>
+	<button label="Liste aktualisieren" name="refresh_list_btn"/>
+</panel>

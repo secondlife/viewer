@@ -23,4 +23,5 @@
 	</string>
 	<text name="avatar_name" value="不明"/>
 	<text name="last_interaction" value="0 秒"/>
+	<button name="profile_btn" tool_tip="プロフィールの表示"/>
 </panel>

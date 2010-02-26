@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview notecard" title="メモ：">
+<floater name="preview notecard" title="ノートカード：">
 	<floater.string name="no_object">
-		このノートを含んだオブジェクトが見つかりません。
+		このノートカードが含まれたオブジェクトが見つかりません。
 	</floater.string>
 	<floater.string name="not_allowed">
 		このノートを見る権限がありません。

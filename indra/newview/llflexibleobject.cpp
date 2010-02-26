@@ -66,6 +66,7 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 	mInitializedRes = -1;
 	mSimulateRes = 0;
 	mFrameNum = 0;
+	mCollisionSphereRadius = 0.f;
 	mRenderRes = 1;
 
 	if(mVO->mDrawable.notNull())

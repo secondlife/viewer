@@ -66,7 +66,7 @@ public:
 	bool onNotification(const LLSD& notification);
 
 	// this method reacts on chat notifications and calls an appropriate handler
-	void onChat(const LLChat& msg,ENotificationType type);
+	void onChat(const LLChat& msg, const LLSD &args);
 
 	// get a handler for a certain type of notification
 	LLEventHandler* getHandlerForNotification(std::string notification_type);

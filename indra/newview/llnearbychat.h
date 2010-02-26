@@ -47,7 +47,7 @@ public:
 	~LLNearbyChat();
 
 	BOOL	postBuild			();
-	void	addMessage			(const LLChat& message,bool archive = true);	
+	void	addMessage			(const LLChat& message,bool archive = true, const LLSD &args = LLSD());	
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 

@@ -41,8 +41,8 @@
 	<combo_box name="category_combo" tool_tip="カテゴリー -- この報告に最も適したカテゴリーを選択してください">
 		<combo_box.item label="カテゴリーを選択" name="Select_category"/>
 		<combo_box.item label="年齢＞年齢偽証" name="Age__Age_play"/>
-		<combo_box.item label="年齢＞成人の住人がTeen Second Life上にいる" name="Age__Adult_resident_on_Teen_Second_Life"/>
-		<combo_box.item label="年齢＞未成年な住人がTeen Second Lifeの外にいる" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="年齢 &gt; 成人の住人が Teen Second Life にいる" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="年齢 &gt; 未成年の住人がTeen Second Life の外にいる" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="攻撃＞コンバット・サンドボックス/危険なエリア" name="Assault__Combat_sandbox___unsafe_area"/>
 		<combo_box.item label="攻撃＞安全なエリア" name="Assault__Safe_area"/>
 		<combo_box.item label="攻撃＞武器テスト用サンドボックス" name="Assault__Weapons_testing_sandbox"/>
@@ -68,7 +68,7 @@
 		<combo_box.item label="わいせつ＞著しく不快であると見なされるコンテンツまたは行為" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="わいせつ＞不適切なアバター名" name="Indecency__Inappropriate_avatar_name"/>
 		<combo_box.item label="わいせつ＞PG地域での不適切なコンテンツまたは行為" name="Indecency__Mature_content_in_PG_region"/>
-		<combo_box.item label="わいせつ＞Mature地域での不適切なコンテンツまたは行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="わいせつ &gt; 控えめ指定の地域での不適切なコンテンツまたは行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="知的財産の侵害＞コンテンツの撤去" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="知的財産の侵害＞コピーBot及び権限の悪用" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="不寛容" name="Intolerance"/>

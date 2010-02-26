@@ -135,7 +135,8 @@ LLFloaterPay::LLFloaterPay(const LLSD& key)
 	  mCallback(NULL),
 	  mObjectNameText(NULL),
 	  mTargetUUID(key.asUUID()),
-	  mTargetIsGroup(FALSE)
+	  mTargetIsGroup(FALSE),
+	  mHaveName(FALSE)
 {
 }
 

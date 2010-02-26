@@ -46,6 +46,7 @@
 LLViewerVisualParamInfo::LLViewerVisualParamInfo()
 	:
 	mWearableType( WT_INVALID ),
+	mCrossWearable(FALSE),
 	mCamDist( 0.5f ),
 	mCamAngle( 0.f ),
 	mCamElevation( 0.f ),

@@ -107,16 +107,17 @@ bool LLNotificationManager::onNotification(const LLSD& notify)
 }
 
 //--------------------------------------------------------------------------
-void LLNotificationManager::onChat(const LLChat& msg,ENotificationType type)
+void LLNotificationManager::onChat(const LLChat& msg, const LLSD &args)
 {
-	switch(type)
+	// check ENotificationType argument
+	switch(args["type"].asInteger())
 	{
 	case NT_NEARBYCHAT:
 		{
 			LLNearbyChatHandler* handle = dynamic_cast<LLNearbyChatHandler*>(mNotifyHandlers["nearbychat"].get());
 
 			if(handle)
-				handle->processChat(msg);
+				handle->processChat(msg, args);
 		}
 		break;
 	default: 	//no need to handle all enum types

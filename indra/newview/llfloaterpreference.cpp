@@ -327,6 +327,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
 	mCommitCallbackRegistrar.add("Pref.ParcelMediaAutoPlayEnable",       boost::bind(&LLFloaterPreference::onCommitParcelMediaAutoPlayEnable, this));	
 	mCommitCallbackRegistrar.add("Pref.MediaEnabled",           boost::bind(&LLFloaterPreference::onCommitMediaEnabled, this));	
+	mCommitCallbackRegistrar.add("Pref.MusicEnabled",           boost::bind(&LLFloaterPreference::onCommitMusicEnabled, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
@@ -1001,12 +1002,14 @@ void LLFloaterPreference::onCommitMediaEnabled()
 {
 	LLCheckBoxCtrl *media_enabled_ctrl = getChild<LLCheckBoxCtrl>("media_enabled");
 	bool enabled = media_enabled_ctrl->get();
-	gSavedSettings.setBOOL("AudioStreamingVideo", enabled);
-	gSavedSettings.setBOOL("AudioStreamingMusic", enabled);
 	gSavedSettings.setBOOL("AudioStreamingMedia", enabled);
-	media_enabled_ctrl->setTentative(false);
-	// Update enabled state of the "autoplay" checkbox
-	getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(enabled);
+}
+
+void LLFloaterPreference::onCommitMusicEnabled()
+{
+	LLCheckBoxCtrl *music_enabled_ctrl = getChild<LLCheckBoxCtrl>("music_enabled");
+	bool enabled = music_enabled_ctrl->get();
+	gSavedSettings.setBOOL("AudioStreamingMusic", enabled);
 }
 
 void LLFloaterPreference::refresh()
@@ -1424,18 +1427,16 @@ BOOL LLPanelPreference::postBuild()
 	}
 	
 	//////////////////////PanelPrivacy ///////////////////
-	if(hasChild("media_enabled"))
+	if (hasChild("media_enabled"))
 	{
-		bool video_enabled = gSavedSettings.getBOOL("AudioStreamingVideo");
-		bool music_enabled = gSavedSettings.getBOOL("AudioStreamingMusic");
 		bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-		bool enabled = video_enabled || music_enabled || media_enabled;
-		
-		LLCheckBoxCtrl *media_enabled_ctrl = getChild<LLCheckBoxCtrl>("media_enabled");	
-		media_enabled_ctrl->set(enabled);
-		media_enabled_ctrl->setTentative(!(video_enabled == music_enabled == media_enabled));
-		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(enabled);
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+		getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
+		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
+	}
+	if (hasChild("music_enabled"))
+	{
+		getChild<LLCheckBoxCtrl>("music_enabled")->set(gSavedSettings.getBOOL("AudioStreamingMusic"));
 	}
 	
 	apply();

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="容姿">
 	<tab_container name="customize tab container">
-		<placeholder label="身体部位" name="body_parts_placeholder"/>
+		<text label="身体部位" name="body_parts_placeholder">
+			身体部位
+		</text>
 		<panel label="シェイプ" name="Shape">
 			<button label="戻す" label_selected="戻す" name="Revert"/>
 			<button label="身体" label_selected="身体" name="Body"/>
@@ -14,8 +16,8 @@
 			<button label="胴体" label_selected="胴体" name="Torso"/>
 			<button label="両脚" label_selected="両脚" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item label="女性" name="radio"/>
-				<radio_item label="男性" name="radio2"/>
+				<radio_item label="女性" name="radio" value="0"/>
+				<radio_item label="男性" name="radio2" value="1"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -33,8 +35,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しいシェイプ(体型)を持ち物からアバターにドラッグして装着しま
-しょう。完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しいシェイプをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -67,8 +68,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しいスキンを持ち物からアバターにドラッグして装着しましょう。
- 				完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しいスキンをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -105,8 +105,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい髪型を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しい髪をつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -137,8 +136,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい眼を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				あなたの持ち物からアバターにドラッグして、新しい目をつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -152,7 +150,9 @@
 			<button label="別名で保存..." label_selected="別名で保存..." name="Save As"/>
 			<button label="戻す" label_selected="戻す" name="Revert"/>
 		</panel>
-		<placeholder label="服" name="clothes_placeholder"/>
+		<text label="服" name="clothes_placeholder">
+			衣類
+		</text>
 		<panel label="シャツ" name="Shirt">
 			<texture_picker label="生地" name="Fabric" tool_tip="写真をクリックして選択"/>
 			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
@@ -177,8 +177,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しいシャツを持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しいシャツを着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -211,8 +210,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しいズボンを持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				あなたの持ち物からアバターにドラッグして、新しいパンツを履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -238,8 +236,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい靴を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				あなたの持ち物からアバターにドラッグして、新しい靴を履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -272,8 +269,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい靴下を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				あなたの持ち物からアバターにドラッグして、新しい靴下を履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -306,8 +302,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい上着を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しいジャケットを着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -341,8 +336,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい手袋を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				あなたの持ち物からアバターにドラッグして、新しい手袋をつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -375,8 +369,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しい下着を持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しい下着（上）を着ます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -409,8 +402,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しいパンツを持ち物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				あなたの持ち物からアバターにドラッグして、新しい下着（下）を履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -443,8 +435,7 @@
 				[PATH] に所在
 			</text>
 			<text name="not worn instructions">
-				新しいスカートを持物からアバターにドラッグして装着しましょう。
- 完全に新規の状態から作成して装着することもできます。
+				持ち物からあなたのアバターに1つドラッグして、新しいスカートを履きます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				あなたはこの服の修正を許されていません。
@@ -477,8 +468,7 @@
 				参照 [PATH]
 			</text>
 			<text name="not worn instructions">
-				あなたの持ち物からアバターにドラッグして、新しいアルファマスクをつけます。
-代わりに、はじめから新しく作成して着用できます。
+				あなたの持ち物からアバターにドラッグして、新しいアルファマスクをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				この着用物を修正する権限がありません。
@@ -514,8 +504,7 @@
 				参照 [PATH]
 			</text>
 			<text name="not worn instructions">
-				あなたの持ち物からアバターにドラッグして、新しいタトゥをつけます。
-代わりに、はじめから新しく作成して着用できます。
+				あなたの持ち物からアバターにドラッグして、新しいタトゥをつけます。 代わりに、はじめから新しく作成して着用することもできます。
 			</text>
 			<text name="no modify instructions">
 				この着用物を修正する権限がありません。
@@ -533,6 +522,7 @@
 			<button label="元に戻す" label_selected="元に戻す" name="Revert"/>
 		</panel>
 	</tab_container>
+	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info"/>
 	<button label="アウトフィット作成" label_selected="アウトフィット作成" name="make_outfit_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

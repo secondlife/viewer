@@ -45,7 +45,7 @@ public:
 	virtual ~LLNearbyChatHandler();
 
 
-	virtual void processChat(const LLChat& chat_msg);
+	virtual void processChat(const LLChat& chat_msg, const LLSD &args);
 
 protected:
 	virtual void onDeleteToast(LLToast* toast);

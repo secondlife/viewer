@@ -9,7 +9,7 @@
 		<menu_item_call label="マイ プロフィール" name="Profile"/>
 		<menu_item_call label="マイ 容姿" name="Appearance"/>
 		<menu_item_check label="マイ 持ち物" name="Inventory"/>
-		<menu_item_call label="サイドトレイで持ち物を表示" name="ShowSidetrayInventory"/>
+		<menu_item_call label="持ち物をサイドトレイに表示" name="ShowSidetrayInventory"/>
 		<menu_item_call label="マイ ジェスチャー" name="Gestures"/>
 		<menu label="マイ ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
@@ -25,36 +25,30 @@
 		<menu_item_check label="近くのチャット" name="Nearby Chat"/>
 		<menu_item_call label="近くにいる人" name="Active Speakers"/>
 		<menu_item_check label="近くのメディア" name="Nearby Media"/>
-		<menu_item_check label="（レガシー） コミュニケーション" name="Instant Message"/>
-		<menu_item_call label="（一時）メディアリモコン" name="Preferences"/>
 	</menu>
 	<menu label="世界" name="World">
-		<menu_item_check label="移動" name="Movement Controls"/>
-		<menu_item_check label="視界" name="Camera Controls"/>
-		<menu_item_call label="土地について" name="About Land"/>
-		<menu_item_call label="地域 / 不動産" name="Region/Estate"/>
-		<menu_item_call label="土地の購入" name="Buy Land"/>
-		<menu_item_call label="自分の土地" name="My Land"/>
-		<menu label="表示" name="Land">
-			<menu_item_check label="立入禁止ライン" name="Ban Lines"/>
-			<menu_item_check label="ビーコン（標識）" name="beacons"/>
-			<menu_item_check label="敷地境界線" name="Property Lines"/>
-			<menu_item_check label="土地所有者" name="Land Owners"/>
-		</menu>
-		<menu label="ランドマーク" name="Landmarks">
-			<menu_item_call label="ここのランドマークを作成" name="Create Landmark Here"/>
-			<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
-		</menu>
-		<menu_item_call label="ホーム" name="Teleport Home"/>
 		<menu_item_check label="ミニマップ" name="Mini-Map"/>
 		<menu_item_check label="世界地図" name="World Map"/>
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
+		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
+		<menu label="場所のプロフィール" name="Land">
+			<menu_item_call label="土地情報" name="About Land"/>
+			<menu_item_call label="地域 / 不動産" name="Region/Estate"/>
+		</menu>
+		<menu_item_call label="この土地を購入" name="Buy Land"/>
+		<menu_item_call label="自分の土地" name="My Land"/>
+		<menu label="表示" name="LandShow">
+			<menu_item_check label="移動コントロール" name="Movement Controls"/>
+			<menu_item_check label="コントロールを表示" name="Camera Controls"/>
+		</menu>
+		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
+		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
 		<menu label="太陽" name="Environment Settings">
 			<menu_item_call label="日の出" name="Sunrise"/>
 			<menu_item_call label="正午" name="Noon"/>
 			<menu_item_call label="日没" name="Sunset"/>
 			<menu_item_call label="深夜" name="Midnight"/>
-			<menu_item_call label="エステートタイムを使用" name="Revert to Region Default"/>
+			<menu_item_call label="エステートタイム" name="Revert to Region Default"/>
 			<menu_item_call label="環境編集" name="Environment Editor"/>
 		</menu>
 	</menu>
@@ -125,21 +119,20 @@
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
-		<menu_item_call label="チュートリアル" name="Tutorial"/>
 		<menu_item_call label="嫌がらせを報告" name="Report Abuse"/>
+		<menu_item_call label="バグ報告" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
-		<menu_item_check label="30分経過で AFK に設定" name="Go Away/AFK When Idle"/>
 		<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		<menu_item_call label="テクスチャのリベーク" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
+		<menu_item_call label="ウィンドウのサイズの設定：" name="Set Window Size..."/>
 		<menu_item_check label="遠くのオブジェクトを選択しない" name="Limit Select Distance"/>
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
 		<menu_item_check label="シャッター音とアニメーションなしでスナップショットをディスクに保存" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="圧縮してスナップショットをディスクに保存する" name="CompressSnapshotsToDisk"/>
-		<menu_item_call label="別名でテクスチャを保存" name="Save Texture As"/>
 		<menu label="パフォーマンスツール" name="Performance Tools">
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>
@@ -333,7 +326,6 @@
 			<menu_item_call label="XML で保存" name="Save to XML"/>
 			<menu_item_check label="XUI ネームを表示" name="Show XUI Names"/>
 			<menu_item_call label="テスト用 IM を送信" name="Send Test IMs"/>
-			<menu_item_call label="インスペクターテスト" name="Test Inspectors"/>
 		</menu>
 		<menu label="アバター" name="Character">
 			<menu label="ベークドテクスチャを取得" name="Grab Baked Texture">
@@ -366,6 +358,7 @@
 			<menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
+		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示" name="Console Window"/>
@@ -410,7 +403,6 @@
 			<menu_item_call label="タトゥ" name="Tattoo"/>
 			<menu_item_call label="すべての衣類" name="All Clothes"/>
 		</menu>
-		<menu_item_check label="ツールバーを表示" name="Show Toolbar"/>
 		<menu label="ヘルプ" name="Help">
 			<menu_item_call label="リンデン公式ブログ" name="Official Linden Blog"/>
 			<menu_item_call label="スクリプトポータル" name="Scripting Portal"/>

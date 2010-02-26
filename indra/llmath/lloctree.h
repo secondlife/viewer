@@ -183,7 +183,6 @@ public:
 		{
 			mMax.mdV[i] = mCenter.mdV[i] + mSize.mdV[i];
 			mMin.mdV[i] = mCenter.mdV[i] - mSize.mdV[i];
-			mCenter.mdV[i] = mCenter.mdV[i];
 		}
 	}
 

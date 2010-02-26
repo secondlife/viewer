@@ -1058,6 +1058,7 @@ LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelN
 	if(p == mChannels.end())
 	{
 		llerrs << "Did not find channel named " << channelName << llendl;
+		return LLNotificationChannelPtr();
 	}
 	return p->second;
 }

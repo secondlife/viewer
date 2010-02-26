@@ -10,7 +10,7 @@
 	<menu_item_call label="Fundstücke ausleeren" name="Empty Lost And Found"/>
 	<menu_item_call label="Neuer Ordner" name="New Folder"/>
 	<menu_item_call label="Neues Skript" name="New Script"/>
-	<menu_item_call label="Neue Notiz" name="New Note"/>
+	<menu_item_call label="Neue Notizkarte" name="New Note"/>
 	<menu_item_call label="Neue Geste" name="New Gesture"/>
 	<menu label="Neue Kleider" name="New Clothes">
 		<menu_item_call label="Neues Hemd" name="New Shirt"/>
@@ -46,6 +46,9 @@
 	<menu_item_call label="Teleportieren" name="Landmark Open"/>
 	<menu_item_call label="Öffnen" name="Animation Open"/>
 	<menu_item_call label="Öffnen" name="Sound Open"/>
+	<menu_item_call label="Aktuelles Outfit ersetzen" name="Replace Outfit"/>
+	<menu_item_call label="Zum aktuellen Outfit hinzufügen" name="Add To Outfit"/>
+	<menu_item_call label="Vom aktuellen Outfit entfernen" name="Remove From Outfit"/>
 	<menu_item_call label="Objekt löschen" name="Purge Item"/>
 	<menu_item_call label="Objekt wiederherstellen" name="Restore Item"/>
 	<menu_item_call label="Original suchen" name="Find Original"/>
@@ -56,10 +59,9 @@
 	<menu_item_call label="Kopieren" name="Copy"/>
 	<menu_item_call label="Einfügen" name="Paste"/>
 	<menu_item_call label="Als Link einfügen" name="Paste As Link"/>
+	<menu_item_call label="Link entfernen" name="Remove Link"/>
 	<menu_item_call label="Löschen" name="Delete"/>
-	<menu_item_call label="Von Outfit entfernen" name="Remove From Outfit"/>
-	<menu_item_call label="Zum Outfit hinzufügen" name="Add To Outfit"/>
-	<menu_item_call label="Outfit ersetzen" name="Replace Outfit"/>
+	<menu_item_call label="Systemordner löschen" name="Delete System Folder"/>
 	<menu_item_call label="Konferenz-Chat starten" name="Conference Chat Folder"/>
 	<menu_item_call label="Wiedergeben/Abspielen" name="Sound Play"/>
 	<menu_item_call label="Landmarken-Info" name="About Landmark"/>

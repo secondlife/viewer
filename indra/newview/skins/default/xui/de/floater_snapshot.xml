@@ -4,12 +4,12 @@
 		Zweck des Fotos
 	</text>
 	<radio_group label="Fototyp" name="snapshot_type_radio">
-		<radio_item label="Per E-Mail senden" name="postcard"/>
-		<radio_item label="Im Inventar speichern ([AMOUNT] L$)" name="texture"/>
-		<radio_item label="Auf Festplatte speichern" name="local"/>
+		<radio_item label="Email-Adresse" name="postcard"/>
+		<radio_item label="Mein Inventar ([AMOUNT] L$)" name="texture"/>
+		<radio_item label="Auf meinem Computer speichern" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
-		Dateigröße: [SIZE] KB
+		[SIZE] KB
 	</text>
 	<button label="Foto aktualisieren" name="new_snapshot_btn"/>
 	<button label="Senden" name="send_btn"/>
@@ -19,8 +19,8 @@
 		<flyout_button_item label="Speichern unter..." name="saveas_item"/>
 	</flyout_button>
 	<button label="Abbrechen" name="discard_btn"/>
-	<button label="Mehr &gt;&gt;" name="more_btn" tool_tip="Erweiterte Optionen"/>
-	<button label="&lt;&lt; Weniger" name="less_btn" tool_tip="Erweiterte Optionen"/>
+	<button label="Mehr" name="more_btn" tool_tip="Erweiterte Optionen"/>
+	<button label="Weniger" name="less_btn" tool_tip="Erweiterte Optionen"/>
 	<text name="type_label2">
 		Größe
 	</text>
@@ -68,10 +68,10 @@
 		<combo_box.item label="Tiefe" name="Depth"/>
 		<combo_box.item label="Objektmasken" name="ObjectMattes"/>
 	</combo_box>
-	<check_box label="Interface auf Foto anzeigen" name="ui_check"/>
-	<check_box label="HUD-Objekte auf Foto anzeigen" name="hud_check"/>
+	<check_box label="Schnittstelle" name="ui_check"/>
+	<check_box label="HUDs" name="hud_check"/>
 	<check_box label="Nach dem Speichern offen lassen" name="keep_open_check"/>
-	<check_box label="Frame einfrieren (Vollbildvorschau)" name="freeze_frame_check"/>
+	<check_box label="Frame einfrieren (Vollbild)" name="freeze_frame_check"/>
 	<check_box label="Automatisch aktualisieren" name="auto_snapshot_check"/>
 	<string name="unknown">
 		unbekannt

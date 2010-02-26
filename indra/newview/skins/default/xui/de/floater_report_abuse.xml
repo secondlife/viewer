@@ -41,7 +41,7 @@
 	<combo_box name="category_combo" tool_tip="Kategorie -- wählen Sie die Kategorie aus, die am besten auf diesen Bericht zutrifft">
 		<combo_box.item label="Kategorie auswählen" name="Select_category"/>
 		<combo_box.item label="Alter&gt; Age-Play" name="Age__Age_play"/>
-		<combo_box.item label="Alter&gt; Erwachsener Einwohner in Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="Alter &gt; Erwachsener Einwohner in Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Alter &gt; Minderjähriger Einwohner außerhalb Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Angriff&gt; Kampf-Sandbox / unsichere Region" name="Assault__Combat_sandbox___unsafe_area"/>
 		<combo_box.item label="Angriff&gt; Sichere Region" name="Assault__Safe_area"/>
@@ -68,7 +68,7 @@
 		<combo_box.item label="Unanständigkeit &gt; Anstößige Inhalte oder Handlungen in der Öffentlichkeit" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Unanständigkeit &gt; Anstößiger Avatarname" name="Indecency__Inappropriate_avatar_name"/>
 		<combo_box.item label="Unanständigkeit &gt; Unangemessener Inhalt oder unangemessenes Verhalten in PG-Region" name="Indecency__Mature_content_in_PG_region"/>
-		<combo_box.item label="Unanständigkeit &gt; Unangemessener Inhalt oder unangemessenes Verhalten in Mature-Region" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="Unanständigkeit &gt; Unangemessener Inhalt oder unangemessenes Verhalten in moderater Region" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Urheberrechtsverletzung &gt; Entfernen von Inhalten" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Urheberrechtsverletzung &gt; CopyBot oder Berechtigungs-Exploit" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Intoleranz" name="Intolerance"/>

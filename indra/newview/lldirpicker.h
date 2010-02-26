@@ -97,7 +97,7 @@ private:
 
 	std::string* mFileName;
 	std::string  mDir;
-	BOOL mLocked;
+	bool mLocked;
 
 	static LLDirPicker sInstance;
 	

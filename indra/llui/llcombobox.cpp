@@ -103,7 +103,8 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
 	mListPosition(p.list_position),
-	mLastSelectedIndex(-1)
+	mLastSelectedIndex(-1),
+	mLabel(p.label)
 {
 	// Text label button
 
@@ -490,6 +491,7 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		params.handle_edit_keys_directly(true);
 		params.commit_on_focus_lost(false);
 		params.follows.flags(FOLLOWS_ALL);
+		params.label(mLabel);
 		mTextEntry = LLUICtrlFactory::create<LLLineEditor> (params);
 		mTextEntry->setText(cur_label);
 		mTextEntry->setIgnoreTab(TRUE);
@@ -505,7 +507,8 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		mButton->setRect(rect);
 		mButton->setTabStop(TRUE);
 		mButton->setHAlign(LLFontGL::LEFT);
-
+		mButton->setLabel(mLabel.getString());
+		
 		if (mTextEntry)
 		{
 			mTextEntry->setVisible(FALSE);
@@ -633,7 +636,7 @@ void LLComboBox::hideList()
 			if(mLastSelectedIndex >= 0)
 				mList->selectNthItem(mLastSelectedIndex);
 		}
-		else
+		else if(mLastSelectedIndex >= 0)
 			mList->selectNthItem(mLastSelectedIndex);
 
 		mButton->setToggleState(FALSE);

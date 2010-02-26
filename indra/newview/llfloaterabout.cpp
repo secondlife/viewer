@@ -187,6 +187,12 @@ BOOL LLFloaterAbout::postBuild()
 		support << '\n' << getString("AboutTraffic", args);
 	}
 
+	// don't make the sim hostname be a hyperlink
+	if (info.has("HOSTNAME"))
+	{
+		support_widget->addBlackListUrl(info["HOSTNAME"].asString());
+	}
+	
 	support_widget->appendText(support.str(), 
 								FALSE, 
 								LLStyle::Params()

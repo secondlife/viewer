@@ -11,8 +11,7 @@
 			</text>
 			<check_box label="Startbereich Einleitung" name="check prelude" tool_tip="Diese Region zu einem Startbereich machen."/>
 			<check_box label="Sonne fest" name="check fixed sun" tool_tip="Fixiert den Sonnenstand (wie in „Region/Grundstück“ &gt; „Terrain“."/>
-			<check_box height="32" label="Zuhause auf Teleport 
-zurücksetzen" name="check reset home" tool_tip="Wenn Einwohner wegteleportieren, ihr Zuhause auf Zielposition setzen."/>
+			<check_box height="32" label="Zuhause auf Teleport  zurücksetzen" name="check reset home" tool_tip="Wenn Einwohner weg teleportieren, ihr Zuhause auf Zielposition setzen."/>
 			<check_box bottom_delta="-32" label="Sichtbar" name="check visible" tool_tip="Diese Region für Nicht-Götter sichtbar machen."/>
 			<check_box label="Schaden" name="check damage" tool_tip="Schaden in dieser Region aktivieren."/>
 			<check_box label="Trafficüberwachung blockieren" name="block dwell" tool_tip="In dieser Region die Traffic-Berechnung abschalten."/>
@@ -59,10 +58,8 @@ zurücksetzen" name="check reset home" tool_tip="Wenn Einwohner wegteleportieren
 			<text name="region name">
 				Welsh
 			</text>
-			<check_box label="Skripts 
-deaktivieren" name="disable scripts" tool_tip="Skripts in dieser Region komplett abschalten"/>
-			<check_box label="Kollisionen 
-deaktivieren" name="disable collisions" tool_tip="Nicht-Avatar-Kollisionen in dieser Region komplett abschalten"/>
+			<check_box label="Skripts  deaktivieren" name="disable scripts" tool_tip="Skripts in dieser Region komplett abschalten"/>
+			<check_box label="Kollisionen  deaktivieren" name="disable collisions" tool_tip="Nicht-Avatar-Kollisionen in dieser Region komplett abschalten"/>
 			<check_box label="Physik deaktivieren" name="disable physics" tool_tip="Die Physik in dieser Region komplett abschalten"/>
 			<button label="Übernehmen" label_selected="Übernehmen" name="Apply" tool_tip="Klicken Sie hier, um die obigen Änderungen zu übernehmen."/>
 			<button label="Ziel festlegen" label_selected="Ziel festlegen" name="Set Target" tool_tip="Den Ziel-Avatar für das Löschen von Objekten auswählen."/>

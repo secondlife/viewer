@@ -113,6 +113,7 @@ void LLDragHandleTop::setTitle(const std::string& title)
 		params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 		params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
 		params.use_ellipses = true;
+		params.allow_html = false; //cancel URL replacement in floater title
 		mTitleBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild( mTitleBox );
 	}

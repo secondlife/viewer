@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Allgemein" name="Media Settings General">
 	<text name="home_label">
-		Home-URL:
+		Homepage:
 	</text>
 	<text name="home_fails_whitelist_label">
-		(Diese URL befindet sich nicht auf der festgelegten Whitelist)
+		(Diese Seite wird von der angegebenen Whiteliste nicht zugelassen)
 	</text>
-	<line_editor name="home_url" tool_tip="Die Home-URL für diese Medienquelle"/>
+	<line_editor name="home_url" tool_tip="Die Start-URL für diese Medienquelle"/>
 	<text name="preview_label">
 		Vorschau
 	</text>
 	<text name="current_url_label">
-		Derzeitige URL:
+		Aktuelle Seite:
 	</text>
-	<text name="current_url" tool_tip="Die derzeitige URL für diese Medienquelle" value=""/>
+	<text name="current_url" tool_tip="Die aktuelle Seite für diese Medienquelle" value=""/>
 	<button label="Zurücksetzen" name="current_url_reset_btn"/>
 	<check_box initial_value="false" label="Automatisch wiederholen" name="auto_loop"/>
 	<check_box initial_value="false" label="Interaktion beim ersten Anklicken" name="first_click_interact"/>

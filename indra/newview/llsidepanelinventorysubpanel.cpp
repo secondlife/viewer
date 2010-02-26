@@ -44,7 +44,6 @@
 #include "lllineeditor.h"
 #include "llradiogroup.h"
 #include "llviewercontrol.h"
-#include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
 
 

@@ -19,6 +19,9 @@
 	<string name="partner_edit_link_url">
 		http://www.secondlife.com/account/partners.php?lang=de
 	</string>
+	<string name="my_account_link_url">
+		http://de.secondlife.com/my
+	</string>
 	<string name="no_partner_text" value="Keiner"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
@@ -44,7 +47,7 @@
 				<text name="title_partner_text" value="Mein Partner:"/>
 				<text name="partner_edit_link" value="[[URL] bearbeiten]"/>
 				<panel name="partner_data_panel">
-					<text name="partner_text" value="[FIRST] [LAST]"/>
+					<name_box name="partner_text" value="[FIRST] [LAST]"/>
 				</panel>
 			</panel>
 		</panel>

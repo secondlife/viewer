@@ -4,4 +4,9 @@
 	<menu_item_check label="Schaltfläche Bewegungssteuerung" name="ShowMoveButton"/>
 	<menu_item_check label="Schaltfläche Ansicht" name="ShowCameraButton"/>
 	<menu_item_check label="Schaltfläche Foto" name="ShowSnapshotButton"/>
+	<menu_item_call label="Ausschneiden" name="NearbyChatBar_Cut"/>
+	<menu_item_call label="Kopieren" name="NearbyChatBar_Copy"/>
+	<menu_item_call label="Einfügen" name="NearbyChatBar_Paste"/>
+	<menu_item_call label="Löschen" name="NearbyChatBar_Delete"/>
+	<menu_item_call label="Alle auswählen" name="NearbyChatBar_Select_All"/>
 </menu>

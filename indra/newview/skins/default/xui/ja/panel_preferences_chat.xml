@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
 	<radio_group name="chat_font_size">
-		<radio_item label="小" name="radio"/>
-		<radio_item label="中" name="radio2"/>
-		<radio_item label="大" name="radio3"/>
+		<radio_item label="小" name="radio" value="0"/>
+		<radio_item label="中" name="radio2" value="1"/>
+		<radio_item label="大" name="radio3" value="2"/>
 	</radio_group>
 	<color_swatch label="自分" name="user"/>
 	<text name="text_box1">
@@ -40,4 +40,8 @@
 	<check_box initial_value="true" label="チャット中はタイピング動作のアニメーションを再生" name="play_typing_animation"/>
 	<check_box label="オフライン時に受け取った IM をメールで送信" name="send_im_to_email"/>
 	<check_box label="文字チャットの履歴を有効にする" name="plain_text_chat_history"/>
+	<radio_group name="chat_window" tool_tip="インスタントメッセージを別ウィンドウ、または1つのウィンドウに複数タブで表示（要再起動）">
+		<radio_item label="複数ウィンドウ" name="radio" value="0"/>
+		<radio_item label="1つのウィンドウ" name="radio2" value="1"/>
+	</radio_group>
 </panel>

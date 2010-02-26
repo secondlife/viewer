@@ -4,52 +4,44 @@
 		[ACCTTYPE]
 [PAYMENTINFO] [AGEVERIFICATION]
 	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=ja
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/billing.php?lang=ja
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
 	<string name="no_partner_text" value="なし"/>
+	<string name="no_group_text" value="なし"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<icon label="" name="2nd_life_edit_icon" tool_tip="下の「プロフィールの編集」ボタンを押して画像を変更します"/>
-				<text name="title_sl_descr_text" value="[SECOND_LIFE]："/>
-				<expandable_text name="sl_description_edit">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-				</expandable_text>
-			</panel>
-			<panel name="first_life_image_panel">
-				<icon label="" name="real_world_edit_icon" tool_tip="下の「プロフィールの編集」ボタンを押して画像を変更します"/>
-				<text name="title_rw_descr_text" value="現実世界："/>
-				<expandable_text name="fl_description_edit">
-					Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-				</expandable_text>
-			</panel>
-			<text name="me_homepage_text">
-				Web サイト：
-			</text>
-			<text name="title_member_text" value="メンバー登録："/>
-			<text name="register_date" value="05/31/1976"/>
-			<text name="title_acc_status_text" value="アカウントの状態："/>
-			<text name="acc_status_text" value="住人。 支払情報未登録。"/>
-			<text name="title_partner_text" value="パートナー："/>
-			<panel name="partner_data_panel">
-				<text name="partner_text" value="[FIRST] [LAST]"/>
-			</panel>
-			<text name="title_groups_text" value="グループ："/>
-			<expandable_text name="sl_groups">
-				Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-			</expandable_text>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="フレンド登録" name="add_friend"/>
-		<button label="IM" name="im"/>
-		<button label="コール" name="call"/>
-		<button label="地図" name="show_on_map_btn"/>
-		<button label="テレポート" name="teleport"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="プロフィールの編集" name="edit_profile_btn"/>
-		<button label="容姿の編集" name="edit_appearance_btn"/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="scroll_content_panel">
+					<panel name="second_life_image_panel">
+						<icon label="" name="2nd_life_edit_icon" tool_tip="下の「プロフィールの編集」ボタンを押して画像を変更します"/>
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]："/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<icon label="" name="real_world_edit_icon" tool_tip="下の「プロフィールの編集」ボタンを押して画像を変更します"/>
+						<text name="title_rw_descr_text" value="現実世界："/>
+					</panel>
+					<text name="title_member_text" value="住人となった日："/>
+					<text name="title_acc_status_text" value="アカウントの状態："/>
+					<text name="acc_status_text">
+						住人。 支払情報未登録。
+              リンデン。
+					</text>
+					<text name="title_partner_text" value="パートナー："/>
+					<text name="title_groups_text" value="グループ："/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="プロフィールの編集" name="edit_profile_btn" tool_tip="個人的な情報を編集します"/>
+			<button label="容姿の編集" name="edit_appearance_btn" tool_tip="見た目を作成・編集します： （身体的データ、衣類など）"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

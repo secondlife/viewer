@@ -15,7 +15,6 @@
 		<combo_box.item label="Polski （ポーランド語） - ベータ" name="Polish"/>
 		<combo_box.item label="Português （ポルトガル語） – ベータ" name="Portugese"/>
 		<combo_box.item label="日本語 – ベータ" name="(Japanese)"/>
-		<combo_box.item label="テスト言語" name="TestLanguage"/>
 	</combo_box>
 	<text name="language_textbox2">
 		（再起動後に反映）
@@ -25,9 +24,9 @@
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="PG、Mature、Adult" name="Desired_Adult"/>
-		<combo_box.item label="PGとMature" name="Desired_Mature"/>
-		<combo_box.item label="PG" name="Desired_PG"/>
+		<combo_box.item label="一般、控えめ、アダルト" name="Desired_Adult"/>
+		<combo_box.item label="一般と控えめ" name="Desired_Mature"/>
+		<combo_box.item label="一般" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		ログイン位置：
@@ -41,9 +40,9 @@
 		名前の表示：
 	</text>
 	<radio_group name="Name_Tag_Preference">
-		<radio_item label="オフ" name="radio"/>
-		<radio_item label="オン" name="radio2"/>
-		<radio_item label="一時的に表示" name="radio3"/>
+		<radio_item label="オフ" name="radio" value="0"/>
+		<radio_item label="オン" name="radio2" value="1"/>
+		<radio_item label="一時的に表示" name="radio3" value="2"/>
 	</radio_group>
 	<check_box label="私の名前を表示" name="show_my_name_checkbox1"/>
 	<check_box initial_value="true" label="小さいアバター名" name="small_avatar_names_checkbox"/>
@@ -51,14 +50,17 @@
 	<text name="effects_color_textbox">
 		私のビームの色：
 	</text>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="カラー・ピッカーをクリックして開く"/>
 	<text name="title_afk_text">
 		一時退席までの時間：
 	</text>
-	<spinner label="" name="afk_timeout_spinner"/>
-	<text name="seconds_textbox">
-		秒
-	</text>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="カラー・ピッカーをクリックして開く"/>
+	<combo_box label="一時退席までの時間：" name="afk">
+		<combo_box.item label="2分" name="item0"/>
+		<combo_box.item label="5分" name="item1"/>
+		<combo_box.item label="10分" name="item2"/>
+		<combo_box.item label="30分" name="item3"/>
+		<combo_box.item label="一時退席設定なし" name="item4"/>
+	</combo_box>
 	<text name="text_box3">
 		取り込み中モード時の返事：
 	</text>

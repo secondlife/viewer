@@ -762,6 +762,14 @@ void LLGroupMgr::addObserver(LLGroupMgrObserver* observer)
 		mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
 }
 
+void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+{
+	if(group_id.notNull() && observer)
+	{
+		mParticularObservers[group_id].insert(observer);
+	}
+}
+
 void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 {
 	if (!observer)
@@ -782,6 +790,23 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 			++it;
 		}
 	}
+}
+
+void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+{
+	if(group_id.isNull() || !observer)
+	{
+		return;
+	}
+
+    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
+    if(obs_it == mParticularObservers.end())
+        return;
+
+    obs_it->second.erase(observer);
+
+    if (obs_it->second.size() == 0)
+    	mParticularObservers.erase(obs_it);
 }
 
 LLGroupMgrGroupData* LLGroupMgr::getGroupData(const LLUUID& id)
@@ -1325,6 +1350,7 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 		LLUUID group_id = gi->first;
 		if (gi->second->mChanged)
 		{
+			// notify LLGroupMgrObserver
 			// Copy the map because observers may remove themselves on update
 			observer_multimap_t observers = mObservers;
 
@@ -1336,6 +1362,18 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 				oi->second->changed(gc);
 			}
 			gi->second->mChanged = FALSE;
+
+
+			// notify LLParticularGroupMgrObserver
+		    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
+		    if(obs_it == mParticularObservers.end())
+		        return;
+
+		    observer_set_t& obs = obs_it->second;
+		    for (observer_set_t::iterator ob_it = obs.begin(); ob_it != obs.end(); ++ob_it)
+		    {
+		        (*ob_it)->changed(group_id, gc);
+		    }
 		}
 	}
 }

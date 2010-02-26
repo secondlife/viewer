@@ -23,10 +23,8 @@
 		<menu_item_call label="デバッグ設定を表示" name="Debug Settings"/>
 		<menu_item_call label="UI/色の設定" name="UI/Color Settings"/>
 		<menu_item_call label="XUI プレビューツール" name="UI Preview Tool"/>
-		<menu_item_call label="サイドトレイを表示" name="Show Side Tray"/>
-		<menu_item_call label="ウィジェットテスト" name="Widget Test"/>
-		<menu_item_call label="インスペクターテスト" name="Inspectors Test"/>
-		<menu_item_check label="Reg In Client Test (restart)" name="Reg In Client Test (restart)"/>
+		<menu label="UI テスト" name="UI Tests"/>
+		<menu_item_call label="ウィンドウのサイズの設定..." name="Set Window Size..."/>
 		<menu_item_call label="利用規約を表示" name="TOS"/>
 		<menu_item_call label="クリティカルメッセージを表示" name="Critical"/>
 		<menu_item_call label="Web ブラウザのテスト" name="Web Browser Test"/>

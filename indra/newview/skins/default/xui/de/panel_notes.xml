@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notizen &amp; Privatsphäre" name="panel_notes">
 	<layout_stack name="layout">
-		<panel name="notes_stack">
+		<layout_panel name="notes_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="profile_scroll_panel">
 					<text name="status_message" value="Meine Notizen:"/>
@@ -11,13 +11,13 @@
 					<check_box label="meine Objekte bearbeiten, löschen oder nehmen." name="objects_check"/>
 				</panel>
 			</scroll_container>
-		</panel>
-		<panel name="notes_buttons_panel">
-			<button label="Hinzufügen" name="add_friend"/>
-			<button label="IM" name="im"/>
-			<button label="Anrufen" name="call"/>
-			<button label="Karte" name="show_on_map_btn"/>
-			<button label="Teleportieren" name="teleport"/>
-		</panel>
+		</layout_panel>
+		<layout_panel name="notes_buttons_panel">
+			<button label="Freund hinzufügen" name="add_friend" tool_tip="Bieten Sie dem Einwohner die Freundschaft an"/>
+			<button label="IM" name="im" tool_tip="Instant Messenger öffnen"/>
+			<button label="Anrufen" name="call" tool_tip="Diesen Einwohner anrufen"/>
+			<button label="Karte" name="show_on_map_btn" tool_tip="Einwohner auf Karte anzeigen"/>
+			<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
+		</layout_panel>
 	</layout_stack>
 </panel>

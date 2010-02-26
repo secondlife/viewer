@@ -61,7 +61,9 @@ LLDirPicker LLDirPicker::sInstance;
 //
 #if LL_WINDOWS
 
-LLDirPicker::LLDirPicker() 
+LLDirPicker::LLDirPicker() :
+	mFileName(NULL),
+	mLocked(false)
 {
 }
 
@@ -125,7 +127,9 @@ std::string LLDirPicker::getDirName()
 /////////////////////////////////////////////DARWIN
 #elif LL_DARWIN
 
-LLDirPicker::LLDirPicker() 
+LLDirPicker::LLDirPicker() :
+	mFileName(NULL),
+	mLocked(false)
 {
 	reset();
 
@@ -262,13 +266,15 @@ std::string LLDirPicker::getDirName()
 
 void LLDirPicker::reset()
 {
-	mLocked = FALSE;
+	mLocked = false;
 	mDir.clear();
 }
 
 #elif LL_LINUX || LL_SOLARIS
 
-LLDirPicker::LLDirPicker() 
+LLDirPicker::LLDirPicker() :
+	mFileName(NULL),
+	mLocked(false)
 {
 	mFilePicker = new LLFilePicker();
 	reset();

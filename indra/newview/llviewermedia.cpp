@@ -940,7 +940,6 @@ bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& respo
 	{
 		// user has elected to automatically play media.
 		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, TRUE);
-		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
 		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
 		gSavedSettings.setBOOL("AudioStreamingMedia", TRUE);
 
@@ -961,7 +960,6 @@ bool LLViewerMedia::firstRunCallback(const LLSD& notification, const LLSD& respo
 	{
 		gSavedSettings.setBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING, FALSE);
 		gSavedSettings.setBOOL("AudioStreamingMedia", FALSE);
-		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
 		gSavedSettings.setBOOL("AudioStreamingMusic", FALSE);
 	}
 	return false;
@@ -1813,11 +1811,6 @@ void LLViewerMediaImpl::navigateStop()
 bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
 	bool result = false;
-	// *NOTE:Mani - if this doesn't exist llmozlib goes crashy in the debug build.
-	// LLMozlib::init wants to write some files to <exe_dir>/components
-	std::string debug_init_component_dir( gDirUtilp->getExecutableDir() );
-	debug_init_component_dir += "/components";
-	LLAPRFile::makeDir(debug_init_component_dir.c_str()); 
 	
 	if (mMediaSource)
 	{

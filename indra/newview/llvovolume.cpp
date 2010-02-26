@@ -180,8 +180,10 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mRelativeXform.setIdentity();
 	mRelativeXformInvTrans.setIdentity();
 
+	mFaceMappingChanged = FALSE;
 	mLOD = MIN_LOD;
 	mTextureAnimp = NULL;
+	mVolumeChanged = FALSE;
 	mVObjRadius = LLVector3(1,1,0.5f).length();
 	mNumFaces = 0;
 	mLODChanged = FALSE;

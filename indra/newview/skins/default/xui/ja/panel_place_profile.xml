@@ -56,6 +56,7 @@
 	<string name="icon_ScriptsNo" value="parcel_drk_ScriptsNo"/>
 	<string name="icon_Damage" value="parcel_drk_Damage"/>
 	<string name="icon_DamageNo" value="parcel_drk_DamageNo"/>
+	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
@@ -92,7 +93,7 @@
 						<text name="region_type_label" value="種類："/>
 						<text name="region_type" value="Moose"/>
 						<text name="region_rating_label" value="レーティング区分："/>
-						<text name="region_rating" value="Explicit"/>
+						<text name="region_rating" value="アダルト"/>
 						<text name="region_owner_label" value="所有者："/>
 						<text name="region_owner" value="moose Van Moose"/>
 						<text name="region_group_label" value="グループ："/>

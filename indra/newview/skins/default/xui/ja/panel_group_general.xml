@@ -22,16 +22,16 @@
 		私のタイトル
 	</text>
 	<combo_box name="active_title" tool_tip="このグループをアクティブにしたときに、アバター名の上に表示されるタイトルを設定します。"/>
-	<check_box label="通知を受信" name="receive_notices" tool_tip="このグループからの通知を受信するかどうかの設定を行います。  グループからスパムが送られてくる場合はこのボックスのチェックを外してください。"/>
+	<check_box label="グループ通知を受信" name="receive_notices" tool_tip="このグループからの通知を受信するかどうかの設定を行います。  グループからスパムが送られてくる場合はこのボックスのチェックを外してください。"/>
 	<check_box label="プロフィールに表示" name="list_groups_in_profile" tool_tip="あなたのプロフィールにこのグループを表示するかどうかの設定を行います。"/>
 	<panel name="preferences_container">
 		<check_box label="会員募集" name="open_enrollement" tool_tip="招待されなくても新規メンバーが加入できるかどうかを設定します。"/>
 		<check_box label="入会費" name="check_enrollment_fee" tool_tip="入会費が必要かどうかを設定します。"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="「入会費」にチェックが入っている場合、新規メンバーは指定された入会費を支払わなければグループに入れません。"/>
 		<check_box initial_value="true" label="検索に表示" name="show_in_group_list" tool_tip="このグループを検索結果に表示させます"/>
-		<combo_box name="group_mature_check" tool_tip="グループ情報が Mature 向けかどうかの設定をします。">
-			<combo_box.item label="PGコンテンツ" name="pg"/>
-			<combo_box.item label="Matureコンテンツ" name="mature"/>
+		<combo_box name="group_mature_check" tool_tip="あなたのグループに「控えめ」にレート設定された情報があるかどうかを設定します">
+			<combo_box.item label="一般コンテンツ" name="pg"/>
+			<combo_box.item label="控えめコンテンツ" name="mature"/>
 		</combo_box>
 	</panel>
 </panel>

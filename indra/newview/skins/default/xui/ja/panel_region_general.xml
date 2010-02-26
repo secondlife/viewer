@@ -39,10 +39,10 @@
 	<text label="成人指定" name="access_text">
 		区分：
 	</text>
-	<combo_box label="Mature" name="access_combo">
+	<combo_box label="控えめ" name="access_combo">
 		<combo_box.item label="Adult" name="Adult"/>
-		<combo_box.item label="Mature" name="Mature"/>
-		<combo_box.item label="PG" name="PG"/>
+		<combo_box.item label="控えめ" name="Mature"/>
+		<combo_box.item label="一般" name="PG"/>
 	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="適用" name="apply_btn"/>

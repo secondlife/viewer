@@ -101,7 +101,6 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
-#include "llfloaterchatterbox.h"
 #include "llfloatercustomize.h"
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
@@ -128,7 +127,6 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "lloverlaybar.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
@@ -147,7 +145,6 @@
 #include "lltexturefetch.h"
 #include "lltextureview.h"
 #include "lltool.h"
-#include "lltoolbar.h"
 #include "lltoolcomp.h"
 #include "lltooldraganddrop.h"
 #include "lltoolface.h"
@@ -1463,10 +1460,6 @@ void LLViewerWindow::initWorldUI()
 	bottom_tray_container->addChild(bottom_tray);
 	bottom_tray_container->setVisible(TRUE);
 
-	// Pre initialize instance communicate instance;
-	//  currently needs to happen before initializing chat or IM
-	LLFloaterReg::getInstance("communicate");
-
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
 	morph_view_rect.mTop = full_window.mTop - 32;
@@ -1659,6 +1652,9 @@ LLViewerWindow::~LLViewerWindow()
 {
 	llinfos << "Destroying Window" << llendl;
 	destroyWindow();
+
+	delete mDebugText;
+	mDebugText = NULL;
 }
 
 
@@ -2266,15 +2262,18 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::moveCursorToCenter()
 {
-	S32 x = getWorldViewWidthScaled() / 2;
-	S32 y = getWorldViewHeightScaled() / 2;
+	if (! gSavedSettings.getBOOL("DisableMouseWarp"))
+	{
+		S32 x = getWorldViewWidthScaled() / 2;
+		S32 y = getWorldViewHeightScaled() / 2;
 	
-	//on a forced move, all deltas get zeroed out to prevent jumping
-	mCurrentMousePoint.set(x,y);
-	mLastMousePoint.set(x,y);
-	mCurrentMouseDelta.set(0,0);	
+		//on a forced move, all deltas get zeroed out to prevent jumping
+		mCurrentMousePoint.set(x,y);
+		mLastMousePoint.set(x,y);
+		mCurrentMouseDelta.set(0,0);	
 
-	LLUI::setMousePositionScreen(x, y);	
+		LLUI::setMousePositionScreen(x, y);	
+	}
 }
 
 
@@ -4846,10 +4845,10 @@ LLPickInfo::LLPickInfo()
 }
 
 LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos, 
-						MASK keyboard_mask, 
-						BOOL pick_transparent,
-						BOOL pick_uv_coords,
-						void (*pick_callback)(const LLPickInfo& pick_info))
+		       MASK keyboard_mask, 
+		       BOOL pick_transparent,
+		       BOOL pick_uv_coords,
+		       void (*pick_callback)(const LLPickInfo& pick_info))
 	: mMousePt(mouse_pos),
 	  mKeyMask(keyboard_mask),
 	  mPickCallback(pick_callback),

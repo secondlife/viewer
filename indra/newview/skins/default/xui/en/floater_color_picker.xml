@@ -181,7 +181,7 @@
      image_unselected="eye_button_inactive.tga"
      layout="topleft"
      left_pad="50"
-     name="Pipette"
+     name="color_pipette"
      width="28" />
     <button
      follows="right|bottom"

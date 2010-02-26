@@ -77,6 +77,7 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         {
             LL_ERRS("LLViewerWindowListener") << "LLViewerWindowListener::saveSnapshot(): "
                                               << "unrecognized type " << event["type"] << LL_ENDL;
+	    return;
         }
         type = found->second;
     }

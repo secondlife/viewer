@@ -598,6 +598,7 @@ void LLIMFloater::updateMessages()
 
 			LLChat chat;
 			chat.mFromID = from_id;
+			chat.mSessionID = mSessionID;
 			chat.mFromName = from;
 			chat.mText = message;
 			chat.mTimeStr = time;

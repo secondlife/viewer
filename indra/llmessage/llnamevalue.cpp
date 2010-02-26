@@ -963,6 +963,7 @@ std::ostream&		operator<<(std::ostream& s, const LLNameValue &a)
 			U64_to_str(*a.mNameValueReference.u64, u64_string, sizeof(u64_string));
 			s << u64_string;
 		}
+		break;
 	case NVT_VEC3:
 		s << *(a.mNameValueReference.vec3);
 		break;

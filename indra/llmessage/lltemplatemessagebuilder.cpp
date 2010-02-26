@@ -737,10 +737,14 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 		}
 
 		--block_count;
-		++block_iter;
+		
 		if (block_iter != message_data->mMemberBlocks.end())
 		{
-			mbci = block_iter->second;
+			++block_iter;
+			if (block_iter != message_data->mMemberBlocks.end())
+			{
+				mbci = block_iter->second;
+			}
 		}
 	}
 

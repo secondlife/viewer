@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Orte" name="places panel">
 	<string name="landmarks_tab_title" value="MEINE LANDMARKEN"/>
-	<string name="teleport_history_tab_title" value="TELEPORT-VERLAUF"/>
-	<filter_editor label="Filter" name="Filter"/>
+	<string name="teleport_history_tab_title" value="TELEPORT-LISTE"/>
+	<filter_editor label="Orte filtern" name="Filter"/>
 	<panel name="button_panel">
-		<button label="Teleportieren" name="teleport_btn"/>
+		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu ausgewähltem Standort teleportieren"/>
 		<button label="Karte" name="map_btn"/>
-		<button label="Bearbeiten" name="edit_btn"/>
+		<button label="Bearbeiten" name="edit_btn" tool_tip="Landmarken-Info bearbeiten"/>
+		<button name="overflow_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
 		<button label="Schließen" name="close_btn"/>
 		<button label="Abbrechen" name="cancel_btn"/>
 		<button label="Speichern" name="save_btn"/>

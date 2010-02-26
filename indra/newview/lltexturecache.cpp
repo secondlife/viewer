@@ -1617,20 +1617,20 @@ bool LLTextureCache::writeComplete(handle_t handle, bool abort)
 {
 	lockWorkers();
 	handle_map_t::iterator iter = mWriters.find(handle);
-	llassert_always(iter != mWriters.end());
-	LLTextureCacheWorker* worker = iter->second;
-	if (worker->complete() || abort)
+	llassert(iter != mWriters.end());
+	if (iter != mWriters.end())
 	{
-		mWriters.erase(handle);
-		unlockWorkers();
-		worker->scheduleDelete();
-		return true;
+		LLTextureCacheWorker* worker = iter->second;
+		if (worker->complete() || abort)
+		{
+			mWriters.erase(handle);
+			unlockWorkers();
+			worker->scheduleDelete();
+			return true;
+		}
 	}
-	else
-	{
-		unlockWorkers();
-		return false;
-	}
+	unlockWorkers();
+	return false;
 }
 
 void LLTextureCache::prioritizeWrite(handle_t handle)

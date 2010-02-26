@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call" title="ANRUF VON UNBEKANNT">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		Voice-Chat in der Nähe
 	</floater.string>
@@ -11,6 +14,9 @@
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		ist einem Voice-Konferenz-Chat beigetreten.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		ist einem Voice-Chat mit der Gruppe [GROUP] beigetreten.
 	</floater.string>
 	<text name="question">
 		Möchten Sie [CURRENT_CHAT] verlassen und diesem Voice-Chat beitreten?

@@ -113,21 +113,24 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
         ++j;
 
         while(j != line_elems.end() && j->empty()) { ++j; } // skip any separator tokens
-        llassert_always(j != line_elems.end());
-        ++j; // skip the '@'
+	llassert(j != line_elems.end());
+        if (j != line_elems.end())
+	{
+		++j; // skip the '@'
 
-        mLines.push_back(line(live_count, live_size, tot_count, tot_size));
-        line & current_line = mLines.back();
-
-        for(; j != line_elems.end(); ++j)
-        {
-            if(!j->empty()) {
-                U32 marker = boost::lexical_cast<U32>(*j);
-                current_line.mTrace.push_back(marker);
-            }
-        }
+		mLines.push_back(line(live_count, live_size, tot_count, tot_size));
+		line & current_line = mLines.back();
+		
+		for(; j != line_elems.end(); ++j)
+		{
+			if(!j->empty())
+			{
+				U32 marker = boost::lexical_cast<U32>(*j);
+				current_line.mTrace.push_back(marker);
+			}
+		}
+	}
     }
-
     // *TODO - parse MAPPED_LIBRARIES section here if we're ever interested in it
 }
 

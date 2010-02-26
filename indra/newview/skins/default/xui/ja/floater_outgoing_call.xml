@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="outgoing call" title="コール中">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		近くのボイスチャット
 	</floater.string>
@@ -20,6 +23,12 @@
 	</text>
 	<text name="noanswer">
 		繋がりませんでした。  あとでもう一度お試しください。
+	</text>
+	<text name="nearby">
+		[VOICE_CHANNEL_NAME] への接続が切れました。  「近くのボイスチャット」に再接続されます。
+	</text>
+	<text name="nearby_P2P">
+		[VOICE_CHANNEL_NAME] がコールを終了しました。  「近くのボイスチャット」に再接続されます。
 	</text>
 	<text name="leaving">
 		[CURRENT_CHAT] を終了します。

@@ -50,7 +50,17 @@
 #include "llsliderctrl.h"
 
 LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
-  : LLFloater(key)
+	: LLFloater(key),
+
+	  // these should be set on imminent refresh() call,
+	  // but init them anyway
+	  mUseVBO(0),
+	  mUseAniso(0),
+	  mFSAASamples(0),
+	  mGamma(0.0),
+	  mVideoCardMem(0),
+	  mFogRatio(0.0),
+	  mProbeHardwareOnStartup(FALSE)
 {
 	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
 }

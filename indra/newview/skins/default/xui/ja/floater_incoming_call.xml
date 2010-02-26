@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call" title="不明のユーザーからのコール">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		近くのボイスチャット
 	</floater.string>
@@ -11,6 +14,9 @@
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		がコンファレンスチャットで、ボイスチャットに参加しました。
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		は [GROUP]. のボイスチャットコールに参加しました。
 	</floater.string>
 	<text name="question">
 		[CURRENT_CHAT] を退席して、このボイスチャットに参加しますか？

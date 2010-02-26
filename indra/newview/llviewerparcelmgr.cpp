@@ -69,7 +69,6 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llworld.h"
-#include "lloverlaybar.h"
 #include "roles_constants.h"
 #include "llweb.h"
 
@@ -706,8 +705,8 @@ bool LLViewerParcelMgr::allowAgentScripts() const
 bool LLViewerParcelMgr::allowAgentDamage() const
 {
 	LLViewerRegion* region = gAgent.getRegion();
-	return region && region->getAllowDamage()
-		&& mAgentParcel && mAgentParcel->getAllowDamage();
+	return (region && region->getAllowDamage())
+		|| (mAgentParcel && mAgentParcel->getAllowDamage());
 }
 
 BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const

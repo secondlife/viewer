@@ -112,6 +112,7 @@ BOOL LLFloaterMap::postBuild()
 	sendChildToBack(getDragHandle());
 
 	setIsChrome(TRUE);
+	getDragHandle()->setTitleVisible(TRUE);
 	
 	// keep onscreen
 	gFloaterView->adjustToFitScreen(this, FALSE);

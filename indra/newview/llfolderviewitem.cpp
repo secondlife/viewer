@@ -40,7 +40,6 @@
 #include "llinventoryfilter.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
-#include "llviewerinventory.h"
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes

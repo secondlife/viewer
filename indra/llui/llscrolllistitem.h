@@ -95,7 +95,7 @@ public:
 	void	setUserdata( void* userdata )	{ mUserdata = userdata; }
 	void*	getUserdata() const 			{ return mUserdata; }
 
-	LLUUID	getUUID() const					{ return mItemValue.asUUID(); }
+	virtual LLUUID	getUUID() const			{ return mItemValue.asUUID(); }
 	LLSD	getValue() const				{ return mItemValue; }
 	
 	void	setRect(LLRect rect)			{ mRectangle = rect; }

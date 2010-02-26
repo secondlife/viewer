@@ -1,41 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="friends">
 	<string name="Multiple">
-		Mehrere Freunde...
+		Mehrere Freunde
 	</string>
-	<scroll_list name="friend_list"
-	     tool_tip="Halten Sie die Tasten „Umschalt“ oder „Strg“ gedrückt, um durch Klicken mehrere Freunde auszuwählen.">
-		<column name="icon_online_status" tool_tip="Online-Status" />
-		<column label="Name" name="friend_name" tool_tip="Name" />
-		<column name="icon_visible_online" tool_tip="Freund kann sehen, wenn Sie online sind" />
-		<column name="icon_visible_map" tool_tip="Freund kann Sie auf der Karte finden" />
-		<column name="icon_edit_mine"
-		     tool_tip="Freunde können Objekte bearbeiten, löschen und an sich nehmen" />
-		<column name="icon_edit_theirs"
-		     tool_tip="Sie können die Objekte dieses Freunds bearbeiten" />
+	<scroll_list name="friend_list" tool_tip="Halten Sie die Tasten „Umschalt“ oder „Strg“ gedrückt, um durch Klicken mehrere Freunde auszuwählen.">
+		<column name="icon_online_status" tool_tip="Online-Status"/>
+		<column label="Name" name="friend_name" tool_tip="Name"/>
+		<column name="icon_visible_online" tool_tip="Freund kann sehen, wenn Sie online sind"/>
+		<column name="icon_visible_map" tool_tip="Freund kann Sie auf der Karte finden"/>
+		<column name="icon_edit_mine" tool_tip="Freunde können Objekte bearbeiten, löschen und an sich nehmen"/>
+		<column name="icon_edit_theirs" tool_tip="Sie können die Objekte dieses Freunds bearbeiten"/>
 	</scroll_list>
 	<panel name="rights_container">
 		<text name="friend_name_label">
 			Wählen Sie den/die Freund(e) aus, dessen/deren Rechte Sie ändern möchten...
 		</text>
-		<check_box label="Kann meinen Online-Status sehen" name="online_status_cb"
-		     tool_tip="Festlegen, ob dieser Freund meinen Online-Status auf seiner Freundesliste oder Visitenkarte einsehen kann" />
-		<check_box label="Kann mich auf der Weltkarte sehen" name="map_status_cb"
-		     tool_tip="Festlegen, ob dieser Freund auf seiner Karte meinen Standort sehen kann" />
-		<check_box label="Kann meine Objekte verändern" name="modify_status_cb"
-		     tool_tip="Festlegen, ob dieser Freund meine Objekte verändern kann" />
+		<check_box label="Kann meinen Online-Status sehen" name="online_status_cb" tool_tip="Festlegen, ob dieser Freund meinen Online-Status auf seiner Freundesliste oder Visitenkarte einsehen kann"/>
+		<check_box label="Kann mich auf der Weltkarte sehen" name="map_status_cb" tool_tip="Festlegen, ob dieser Freund auf seiner Karte meinen Standort sehen kann"/>
+		<check_box label="Kann meine Objekte verändern" name="modify_status_cb" tool_tip="Festlegen, ob dieser Freund meine Objekte verändern kann"/>
 		<text name="process_rights_label">
 			Rechte werden geändert...
 		</text>
 	</panel>
-	<button label="IM/Anruf" name="im_btn" tool_tip="Beginnt eine Instant Message-Sitzung" />
-	<button label="Profil" name="profile_btn"
-	     tool_tip="Bilder, Gruppen und andere Informationen anzeigen" />
-	<button label="Teleport" name="offer_teleport_btn"
-	     tool_tip="Bieten Sie diesem Freund einen Teleport an Ihre Position an" />
-	<button label="Zahlen" name="pay_btn" tool_tip="Diesem Freund Linden-Dollar (L$) geben" />
-	<button label="Entfernen" name="remove_btn"
-	     tool_tip="Diese Person von Ihrer Freundesliste entfernen" />
-	<button label="Hinzufügen" name="add_btn"
-	     tool_tip="Bieten Sie einem Einwohner die Freundschaft an" />
+	<button label="IM/Anruf" name="im_btn" tool_tip="Beginnt eine Instant Message-Sitzung"/>
+	<button label="Profil" name="profile_btn" tool_tip="Bilder, Gruppen und andere Informationen anzeigen"/>
+	<button label="Teleportieren" name="offer_teleport_btn" tool_tip="Bieten Sie diesem Freund einen Teleport an Ihre Position an"/>
+	<button label="Zahlen" name="pay_btn" tool_tip="Diesem Freund Linden-Dollar (L$) geben"/>
+	<button label="Entfernen" name="remove_btn" tool_tip="Diese Person von Ihrer Freundesliste entfernen"/>
+	<button label="Hinzufügen" name="add_btn" tool_tip="Bieten Sie einem Einwohner die Freundschaft an"/>
 </panel>

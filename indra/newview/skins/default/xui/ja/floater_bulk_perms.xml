@@ -49,6 +49,6 @@
 	<check_box label="修正" name="next_owner_modify"/>
 	<check_box label="コピー" name="next_owner_copy"/>
 	<check_box initial_value="true" label="再販・プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
-	<button label="Ok" name="apply"/>
+	<button label="OK" name="apply"/>
 	<button label="キャンセル" name="close"/>
 </floater>

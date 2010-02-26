@@ -122,12 +122,31 @@ public:
 	/*virtual*/ void updateColumns();
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
-	static LLUUID getItemId(LLScrollListItem* item);
 
 private:
 	S32    			mNameColumnIndex;
 	std::string		mNameColumn;
 	BOOL			mAllowCallingCardDrop;
+};
+
+/**
+ * LLNameListCtrl item
+ * 
+ * We don't use LLScrollListItem to be able to override getUUID(), which is needed
+ * because the name list item value is not simply an UUID but a map (uuid, is_group).
+ */
+class LLNameListItem : public LLScrollListItem
+{
+public:
+	LLUUID	getUUID() const		{ return getValue()["uuid"].asUUID(); }
+
+protected:
+	friend class LLNameListCtrl;
+
+	LLNameListItem( const LLScrollListItem::Params& p )
+	:	LLScrollListItem(p)
+	{
+	}
 };
 
 #endif

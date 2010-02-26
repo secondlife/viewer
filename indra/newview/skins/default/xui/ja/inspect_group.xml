@@ -31,4 +31,5 @@ Fear the moose!  Fear it!  And the mongoose too!
 	</text>
 	<button label="参加" name="join_btn"/>
 	<button label="脱退" name="leave_btn"/>
+	<button label="プロフィールの表示" name="view_profile_btn"/>
 </floater>

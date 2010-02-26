@@ -135,7 +135,8 @@ LLGLSLShader			gLuminanceGatherProgram;
 GLint				gAvatarMatrixParam;
 
 LLViewerShaderMgr::LLViewerShaderMgr() :
-	mVertexShaderLevel(SHADER_COUNT, 0)
+	mVertexShaderLevel(SHADER_COUNT, 0),
+	mMaxAvatarShaderLevel(0)
 {	
 	/// Make sure WL Sky is the first program
 	mShaderList.push_back(&gWLSkyProgram);

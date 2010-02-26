@@ -81,6 +81,7 @@ F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, LLVector2 scale)
 LLViewerPart::LLViewerPart() :
 	mPartID(0),
 	mLastUpdateTime(0.f),
+	mSkipOffset(0.f),
 	mVPCallback(NULL),
 	mImagep(NULL)
 {

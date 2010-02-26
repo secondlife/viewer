@@ -154,6 +154,7 @@ bool LLPrimitive::cleanupVolumeManager()
 //===============================================================
 LLPrimitive::LLPrimitive()
 :	mTextureList(),
+	mNumTEs(0),
 	mMiscFlags(0)
 {
 	mPrimitiveCode = 0;

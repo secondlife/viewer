@@ -2,20 +2,16 @@
 <panel label="Auswahl" name="panel_picks">
 	<string name="no_picks" value="Keine Auswahl"/>
 	<string name="no_classifieds" value="Keine Anzeigen"/>
-	<text name="empty_picks_panel_text">
-		Es wurde keine Auswahl getroffen/keine Anzeigen ausgewählt
-	</text>
 	<accordion name="accordion">
 		<accordion_tab name="tab_picks" title="Auswahl"/>
 		<accordion_tab name="tab_classifieds" title="Anzeigen"/>
 	</accordion>
 	<panel label="bottom_panel" name="edit_panel">
-		<button name="new_btn" tool_tip="Aktuellen Standort zur Auswahl hinzufügen"/>
+		<button name="new_btn" tool_tip="An aktuellem Standort neue Auswahl oder Anzeige erstellen"/>
 	</panel>
 	<panel name="buttons_cucks">
-		<button label="Info" name="info_btn"/>
-		<button label="Teleportieren" name="teleport_btn"/>
-		<button label="Karte" name="show_on_map_btn"/>
-		<button label="▼" name="overflow_btn"/>
+		<button label="Info" name="info_btn" tool_tip="Auswahl-Information anzeigen"/>
+		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu entsprechendem Standort teleportieren"/>
+		<button label="Karte" name="show_on_map_btn" tool_tip="Den entsprechenden Standort auf der Karte anzeigen"/>
 	</panel>
 </panel>

@@ -2,9 +2,9 @@
 <floater
  legacy_header_height="13"
  can_resize="true"
- height="646"
+ height="546"
  layout="topleft"
- min_height="646"
+ min_height="546"
  min_width="670"
  name="floater_search"
  help_topic="floater_search"
@@ -21,7 +21,7 @@
         Done
     </floater.string>
     <layout_stack
-     bottom="641"
+     bottom="541"
      follows="left|right|top|bottom"
      layout="topleft"
      left="10"
@@ -42,7 +42,7 @@
              left="0"
              name="browser"
              top="0"
-             height="600"
+             height="500"
              width="650" />
             <text
              follows="bottom|left"

@@ -818,16 +818,13 @@ const LLLocalTextureObject* LLWearable::getConstLocalTextureObject(S32 index) co
 	return NULL;
 }
 
-void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject *lto)
+void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)
 {
 	if( mTEMap.find(index) != mTEMap.end() )
 	{
 		mTEMap.erase(index);
 	}
-	if( lto )
-	{
-		mTEMap[index] = new LLLocalTextureObject(*lto);
-	}
+	mTEMap[index] = new LLLocalTextureObject(lto);
 }
 
 

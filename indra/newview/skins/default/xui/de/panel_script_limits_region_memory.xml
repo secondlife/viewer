@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="REGIONSSPEICHER" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Parzellenskript-Speicher
+	</text>
+	<text name="parcels_listed">
+		Parzelleneigentümer:
+	</text>
+	<text name="memory_used">
+		Verwendeter Speicher:
+	</text>
+	<text name="loading_text">
+		Wird geladen...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Größe (KB)" name="size"/>
+		<scroll_list.columns label="Objektname" name="name"/>
+		<scroll_list.columns label="Objekteigentümer" name="owner"/>
+		<scroll_list.columns label="Parzelle / Standort" name="location"/>
+	</scroll_list>
+	<button label="Liste aktualisieren" name="refresh_list_btn"/>
+	<button label="Markieren" name="highlight_btn"/>
+	<button label="Zurückgeben" name="return_btn"/>
+</panel>

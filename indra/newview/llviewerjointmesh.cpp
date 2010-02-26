@@ -147,6 +147,7 @@ LLViewerJointMesh::LLViewerJointMesh()
 	mTexture( NULL ),
 	mLayerSet( NULL ),
 	mTestImageName( 0 ),
+	mFaceIndexCount(0),
 	mIsTransparent(FALSE)
 {
 

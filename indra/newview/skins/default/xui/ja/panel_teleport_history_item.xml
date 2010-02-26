@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="teleport_history_item">
 	<text name="region" value="..."/>
+	<button name="profile_btn" tool_tip="アイテム情報を表示"/>
 </panel>

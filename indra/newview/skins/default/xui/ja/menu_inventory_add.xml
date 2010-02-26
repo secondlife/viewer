@@ -8,7 +8,7 @@
 	</menu>
 	<menu_item_call label="新規フォルダ" name="New Folder"/>
 	<menu_item_call label="新規スクリプト" name="New Script"/>
-	<menu_item_call label="新規ノート" name="New Note"/>
+	<menu_item_call label="新しいノートカード" name="New Note"/>
 	<menu_item_call label="新規ジェスチャー" name="New Gesture"/>
 	<menu label="新しい衣類" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
