@@ -51,7 +51,7 @@ protected:
 public:
 	enum ETransientGroup
 	{
-		GLOBAL, IM
+		GLOBAL, DOCKED, IM
 	};
 
 	void registerTransientFloater(LLTransientFloater* floater);

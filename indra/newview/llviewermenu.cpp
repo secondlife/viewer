@@ -6099,7 +6099,8 @@ class LLAttachmentEnableDrop : public view_listener_t
 		LLViewerJointAttachment*     attachment     = NULL;
 		LLInventoryItem*             item           = NULL;
 
-		if (object)
+		// Do not enable drop if all faces of object are not enabled
+		if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
 		{
     		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getState());
 			attachment = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
@@ -6141,8 +6142,14 @@ class LLAttachmentEnableDrop : public view_listener_t
 BOOL enable_detach(const LLSD&)
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if (!object) return FALSE;
-	if (!object->isAttachment()) return FALSE;
+	
+	// Only enable detach if all faces of object are selected
+	if (!object ||
+		!object->isAttachment() ||
+		!LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
+	{
+		return FALSE;
+	}
 
 	// Find the avatar who owns this attachment
 	LLViewerObject* avatar = object;

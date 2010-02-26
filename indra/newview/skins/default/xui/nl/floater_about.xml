@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_about" title="OVER [APP_NAME]">
+<floater name="floater_about" title="OVER [CAPITALIZED_APP_NAME]">
 <tab_container name="about_tab">
 	<panel name="credits_panel">
 	<text_editor name="credits_editor">

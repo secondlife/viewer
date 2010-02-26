@@ -59,6 +59,11 @@ class LLFolderDictionary : public LLSingleton<LLFolderDictionary>,
 {
 public:
 	LLFolderDictionary();
+protected:
+	virtual LLFolderType::EType notFound() const
+	{
+		return LLFolderType::FT_NONE;
+	}
 };
 
 LLFolderDictionary::LLFolderDictionary()

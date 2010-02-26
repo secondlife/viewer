@@ -11,6 +11,6 @@
 	<tab_container name="tabs">
 		<panel label="PROFIL" name="panel_profile"/>
 		<panel label="FAVORIS" name="panel_picks"/>
-		<panel label="NOTES ET VIE PRIVÉE" name="panel_notes"/>
+		<panel label="NOTES/PERSO" name="panel_notes"/>
 	</tab_container>
 </panel>

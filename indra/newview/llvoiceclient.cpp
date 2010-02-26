@@ -38,6 +38,8 @@
 #include "llviewernetwork.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
+#include "llui.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -778,6 +780,80 @@ class LLViewerParcelVoiceInfo : public LLHTTPNode
 		}
 	}
 };
+
+
+const std::string LLSpeakerVolumeStorage::SETTINGS_FILE_NAME = "volume_settings.xml";
+
+LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
+{
+	load();
+}
+
+LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
+{
+	save();
+}
+
+void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, S32 volume)
+{
+	mSpeakersData[speaker_id] = volume;
+}
+
+S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
+{
+	// default internal level of user voice.
+	const static LLUICachedControl<S32> DEFAULT_INTERNAL_VOLUME_LEVEL("VoiceDefaultInternalLevel", 100);
+	S32 ret_val = DEFAULT_INTERNAL_VOLUME_LEVEL;
+	speaker_data_map_t::const_iterator it = mSpeakersData.find(speaker_id);
+	
+	if (it != mSpeakersData.end())
+	{
+		ret_val = it->second;
+	}
+	return ret_val;
+}
+
+void LLSpeakerVolumeStorage::load()
+{
+	// load per-resident voice volume information
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SETTINGS_FILE_NAME);
+
+	LLSD settings_llsd;
+	llifstream file;
+	file.open(filename);
+	if (file.is_open())
+	{
+		LLSDSerialize::fromXML(settings_llsd, file);
+	}
+
+	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
+		iter != settings_llsd.endMap(); ++iter)
+	{
+		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+	}
+}
+
+void LLSpeakerVolumeStorage::save()
+{
+	// If we quit from the login screen we will not have an SL account
+	// name.  Don't try to save, otherwise we'll dump a file in
+	// C:\Program Files\SecondLife\ or similar. JC
+	std::string user_dir = gDirUtilp->getLindenUserDir();
+	if (!user_dir.empty())
+	{
+		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SETTINGS_FILE_NAME);
+		LLSD settings_llsd;
+
+		for(speaker_data_map_t::const_iterator iter = mSpeakersData.begin(); iter != mSpeakersData.end(); ++iter)
+		{
+			settings_llsd[iter->first.asString()] = iter->second;
+		}
+
+		llofstream file;
+		file.open(filename);
+		LLSDSerialize::toPrettyXML(settings_llsd, file);
+	}
+}
 
 BOOL LLViewerRequiredVoiceVersion::sAlertedUser = FALSE;
 

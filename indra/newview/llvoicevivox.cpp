@@ -4110,6 +4110,8 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 		}
 		
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(result->mAvatarID, result));
+
+		result->mUserVolume = LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID);
 		
 		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
@@ -5363,6 +5365,9 @@ void LLVivoxVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 			participant->mUserVolume = llclamp(ivol, 0, 400);
 			participant->mVolumeDirty = TRUE;
 			mAudioSession->mVolumeDirty = TRUE;
+
+			// store this volume setting for future sessions
+			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, participant->mUserVolume);
 		}
 	}
 }

@@ -142,8 +142,8 @@
      left="0"
      name="favorite"
      image_drag_indication="Accordion_ArrowOpened_Off"
-   bottom="55"
-   width="590">
+     bottom="55"
+     width="590">
     <chevron_button name=">>"
                      image_unselected="TabIcon_Close_Off"
                      image_selected="TabIcon_Close_Off"

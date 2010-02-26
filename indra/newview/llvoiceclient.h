@@ -403,6 +403,48 @@ protected:
 	LLPumpIO *m_servicePump;
 };
 
+/**
+ * Speaker volume storage helper class
+ **/
+
+class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
+{
+	LOG_CLASS(LLSpeakerVolumeStorage);
+public:
+
+	/**
+	 * Sets internal voluem level for specified user.
+	 *
+	 * @param[in] speaker_id - LLUUID of user to store volume level for
+	 * @param[in] volume - internal volume level to be stored for user.
+	 */
+	void storeSpeakerVolume(const LLUUID& speaker_id, S32 volume);
+
+	/**
+	 * Gets stored internal volume level for specified speaker.
+	 *
+	 * If specified user is not found default level will be returned. It is equivalent of 
+	 * external level 0.5 from the 0.0..1.0 range.
+	 * Default internal level is calculated as: internal = 400 * external^2
+	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
+	 *
+	 * @param[in] speaker_id - LLUUID of user to get his volume level
+	 */
+	S32 getSpeakerVolume(const LLUUID& speaker_id);
+
+private:
+	friend class LLSingleton<LLSpeakerVolumeStorage>;
+	LLSpeakerVolumeStorage();
+	~LLSpeakerVolumeStorage();
+
+	const static std::string SETTINGS_FILE_NAME;
+
+	void load();
+	void save();
+
+	typedef std::map<LLUUID, S32> speaker_data_map_t;
+	speaker_data_map_t mSpeakersData;
+};
 
 #endif //LL_VOICE_CLIENT_H
 

@@ -38,15 +38,15 @@
 	</combo_box>
 	<check_box initial_value="true" label="Afficher à la connexion" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
-		Étiquettes :
+		Affichage des noms :
 	</text>
 	<radio_group name="Name_Tag_Preference">
-		<radio_item label="Désactivée" name="radio"/>
-		<radio_item label="Activée" name="radio2"/>
+		<radio_item label="Désactivé" name="radio"/>
+		<radio_item label="Activé" name="radio2"/>
 		<radio_item label="Afficher brièvement" name="radio3"/>
 	</radio_group>
 	<check_box label="Afficher mon nom" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Étiquettes courtes" name="small_avatar_names_checkbox"/>
+	<check_box initial_value="true" label="Affichage en petit" name="small_avatar_names_checkbox"/>
 	<check_box label="Afficher les titres de groupe" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
 		Mes effets :

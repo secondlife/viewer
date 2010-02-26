@@ -384,6 +384,10 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	// Otherwise stop using land selection and deselect land.
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
+		// We don't know if we are already added to LLViewerParcelMgr observers list
+		// so try to remove observer not to add an extra one.
+		parcel_mgr->removeObserver(mParcelObserver);
+
 		parcel_mgr->addObserver(mParcelObserver);
 		parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
 	}
@@ -898,6 +902,8 @@ void LLPanelPlaces::changedParcelSelection()
 	if (!region || !parcel)
 		return;
 
+	LLVector3d prev_pos_global = mPosGlobal;
+
 	// If agent is inside the selected parcel show agent's region<X, Y, Z>,
 	// otherwise show region<X, Y, Z> of agent's selection point.
 	bool is_current_parcel = is_agent_in_selected_parcel(parcel);
@@ -914,7 +920,13 @@ void LLPanelPlaces::changedParcelSelection()
 		}
 	}
 
-	mPlaceProfile->resetLocation();
+	// Reset location info only if global position is changed
+	// to reduce unnecessary text and icons updates.
+	if (prev_pos_global != mPosGlobal)
+	{
+		mPlaceProfile->resetLocation();
+	}
+
 	mPlaceProfile->displaySelectedParcelInfo(parcel, region, mPosGlobal, is_current_parcel);
 
 	updateVerbs();

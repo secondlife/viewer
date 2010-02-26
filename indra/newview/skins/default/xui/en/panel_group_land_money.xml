@@ -2,7 +2,7 @@
 <panel
  border="false"
  follows="all"
- height="380"
+ height="420"
  label="Land &amp; L$"
  layout="topleft"
  left="0"
@@ -237,7 +237,7 @@
     </text>
     <tab_container
      follows="all"
-     height="173"
+     height="180"
      halign="center"
      layout="topleft"
      left="0"
@@ -250,7 +250,7 @@
         <panel
          border="false"
          follows="all"
-         height="173"
+         height="180"
          label="PLANNING"
          layout="topleft"
          left="0"
@@ -275,7 +275,7 @@
       <panel
          border="false"
          follows="all"
-         height="173"
+         height="180"
          label="DETAILS"
          layout="topleft"
          left="0"
@@ -296,41 +296,44 @@
              word_wrap="true">
                 Loading...
             </text_editor>
+
+          <button
+             height="20"
+             image_overlay="Arrow_Left_Off"
+             layout="topleft"
+             left="5"
+             name="earlier_details_button"
+             tool_tip="Go back in time"
+             top_pad="10"
+             width="25" />
             <button
-	     follows="left|top"
-	     height="18"
-	     image_overlay="Arrow_Left_Off"
-	     layout="topleft"
-	     name="earlier_details_button"
-	     tool_tip="Back"
-             right="-45"
-             bottom="0"
-	     width="25" />
-             <button
-	     follows="left|top"
-	     height="18"
-	     image_overlay="Arrow_Right_Off"
-	     layout="topleft"
-	     left_pad="10"
-       name="later_details_button"
-	     tool_tip="Next"
-	     width="25" />
-        </panel>
+             height="20"
+             image_overlay="Arrow_Right_Off"
+             layout="topleft"
+             left_pad="5"
+             name="later_details_button"
+             tool_tip="Go forward in time"
+             top_delta="0"
+             width="25" />  
+
+
+      </panel>
       <panel
          border="false"
          follows="all"
-         height="173"
+         height="180"
          label="SALES"
          layout="topleft"
          left_delta="0"
          help_topic="group_money_sales_tab"
+         mouse_opaque="false"
          name="group_money_sales_tab"
          top="0"
          width="300">
             <text_editor
              type="string"
              follows="all"
-             height="140"
+             height="130"
              layout="topleft"
              left="0"
              max_length="4096"
@@ -340,25 +343,24 @@
              word_wrap="true">
                 Loading...
             </text_editor>
-                         <button
-             bottom="0"
-	     follows="left|top"
-	     height="18"
-	     image_overlay="Arrow_Left_Off"
-	     layout="topleft"
-	     name="earlier_sales_button"
-	     tool_tip="Back"
-         right="-45"
-	     width="25" />
-             <button
-	     follows="left|top"
-	     height="18"
-	     image_overlay="Arrow_Right_Off"
-	     layout="topleft"
-	     left_pad="10"
-         name="later_sales_button"
-	     tool_tip="Next"
-	     width="25" />
+            <button
+             height="20"
+             image_overlay="Arrow_Left_Off"
+             layout="topleft"
+             left="5"
+             name="earlier_sales_button"
+             tool_tip="Go back in time"
+             top_pad="10"
+             width="25" />
+            <button
+             height="20"
+             image_overlay="Arrow_Right_Off"
+             layout="topleft"
+             left_pad="5"
+             name="later_sales_button"
+             tool_tip="Go forward in time"
+             top_delta="0"
+             width="25" />
         </panel>
     </tab_container>
 </panel>

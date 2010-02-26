@@ -10,7 +10,7 @@
 	<string name="groups_filter_label" value="Filtrer les groupes"/>
 	<filter_editor label="Filtre" name="filter_input"/>
 	<tab_container name="tabs">
-		<panel label="PROCHES" name="nearby_panel">
+		<panel label="PRÈS DE VOUS" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="nearby_view_sort_btn" tool_tip="Options"/>
 				<button name="add_friend_btn" tool_tip="Ajouter le résident sélectionné à votre liste d&apos;amis"/>

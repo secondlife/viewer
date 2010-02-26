@@ -46,6 +46,7 @@ LLTransientFloaterMgr::LLTransientFloaterMgr()
 			&LLTransientFloaterMgr::leftMouseClickCallback, this, _1, _2, _3));
 
 	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(GLOBAL, std::set<LLView*>()));
+	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(DOCKED, std::set<LLView*>()));
 	mGroupControls.insert(std::pair<ETransientGroup, std::set<LLView*> >(IM, std::set<LLView*>()));
 }
 
@@ -132,7 +133,8 @@ void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
 		return;
 	}
 
-	bool hide = isControlClicked(mGroupControls.find(GLOBAL)->second, x, y);
+	bool hide = isControlClicked(mGroupControls.find(DOCKED)->second, x, y)
+			&& isControlClicked(mGroupControls.find(GLOBAL)->second, x, y);
 	if (hide)
 	{
 		hideTransientFloaters(x, y);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat écrit" name="chat">
 	<radio_group name="chat_font_size">
-		<radio_item label="Petite" name="radio"/>
+		<radio_item label="Moins" name="radio"/>
 		<radio_item label="Moyenne" name="radio2"/>
-		<radio_item label="Grande" name="radio3"/>
+		<radio_item label="Plus" name="radio3"/>
 	</radio_group>
 	<color_swatch label="Vous" name="user"/>
 	<text name="text_box1">

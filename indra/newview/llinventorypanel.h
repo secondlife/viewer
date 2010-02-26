@@ -123,7 +123,7 @@ public:
 	// Call this method to set the selection.
 	void openAllFolders();
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
-	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
+	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb);
 	void clearSelection();
 	LLInventoryFilter* getFilter();
 	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);

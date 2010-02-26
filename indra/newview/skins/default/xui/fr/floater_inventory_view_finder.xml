@@ -13,8 +13,7 @@
 	<check_box label="Photos" name="check_snapshot"/>
 	<button label="Tout" label_selected="Tout" name="All" width="70"/>
 	<button bottom_delta="0" label="Aucun" label_selected="Aucun" left="83" name="None" width="70"/>
-	<check_box bottom_delta="-20" label="Toujours montrer 
-les dossiers" name="check_show_empty"/>
+	<check_box bottom_delta="-20" label="Toujours montrer  les dossiers" name="check_show_empty"/>
 	<check_box bottom_delta="-36" label="Depuis la déconnexion" name="check_since_logoff"/>
 	<text name="- OR -">
 		Ou il y a...

@@ -76,11 +76,16 @@ public:
 				return dictionary_iter->first;
 			}
 		}
-		llassert(false);
-		return Index(-1);
+		return notFound();
 	}
 
 protected:
+	virtual Index notFound() const
+	{
+		// default is to assert
+		llassert(false);
+		return Index(-1);
+	}
 	void addEntry(Index index, Entry *entry)
 	{
 		if (lookup(index))

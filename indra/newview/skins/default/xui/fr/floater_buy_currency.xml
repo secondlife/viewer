@@ -28,7 +28,7 @@
 		1234
 	</line_editor>
 	<text name="buying_label">
-		Pour le prix
+		Pour
 	</text>
 	<text left_delta="68" name="currency_est" width="138">
 		environ [LOCALAMOUNT]
@@ -57,7 +57,7 @@
 	<text bottom_delta="16" name="purchase_warning_notenough">
 		Vous n&apos;achetez pas assez de L$. Veuillez augmenter le montant.
 	</text>
-	<button label="Acheter maintenant" name="buy_btn"/>
+	<button label="Acheter" name="buy_btn"/>
 	<button label="Annuler" name="cancel_btn"/>
 	<text left="5" name="info_cannot_buy" right="-5">
 		Achat impossible

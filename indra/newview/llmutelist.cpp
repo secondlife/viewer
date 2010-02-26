@@ -52,23 +52,15 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "llcrc.h"
-#include "lldir.h"
 #include "lldispatcher.h"
-#include "llsdserialize.h"
 #include "llxfermanager.h"
-#include "message.h"
 
 #include "llagent.h"
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
-#include "llviewerwindow.h"
 #include "llworld.h" //for particle system banning
-#include "llchat.h"
 #include "llimpanel.h"
 #include "llimview.h"
 #include "llnotifications.h"
-#include "lluistring.h"
-#include "llviewerobject.h" 
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
@@ -219,36 +211,9 @@ LLMuteList* LLMuteList::getInstance()
 // LLMuteList()
 //-----------------------------------------------------------------------------
 LLMuteList::LLMuteList() :
-	mIsLoaded(FALSE),
-	mUserVolumesLoaded(FALSE)
+	mIsLoaded(FALSE)
 {
 	gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
-}
-
-void LLMuteList::loadUserVolumes()
-{
-	// call once, after LLDir::setLindenUserDir() has been called
-	if (mUserVolumesLoaded)
-		return;
-	mUserVolumesLoaded = TRUE;
-	
-	// load per-resident voice volume information
-	// conceptually, this is part of the mute list information, although it is only stored locally
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "volume_settings.xml");
-
-	LLSD settings_llsd;
-	llifstream file;
-	file.open(filename);
-	if (file.is_open())
-	{
-		LLSDSerialize::fromXML(settings_llsd, file);
-	}
-
-	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
-		 iter != settings_llsd.endMap(); ++iter)
-	{
-		mUserVolumeSettings.insert(std::make_pair(LLUUID(iter->first), (F32)iter->second.asReal()));
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -256,24 +221,7 @@ void LLMuteList::loadUserVolumes()
 //-----------------------------------------------------------------------------
 LLMuteList::~LLMuteList()
 {
-	// If we quit from the login screen we will not have an SL account
-	// name.  Don't try to save, otherwise we'll dump a file in
-	// C:\Program Files\SecondLife\ or similar. JC
-	std::string user_dir = gDirUtilp->getLindenUserDir();
-	if (!user_dir.empty())
-	{
-		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "volume_settings.xml");
-		LLSD settings_llsd;
 
-		for(user_volume_map_t::iterator iter = mUserVolumeSettings.begin(); iter != mUserVolumeSettings.end(); ++iter)
-		{
-			settings_llsd[iter->first.asString()] = iter->second;
-		}
-
-		llofstream file;
-		file.open(filename);
-		LLSDSerialize::toPrettyXML(settings_llsd, file);
-	}
 }
 
 BOOL LLMuteList::isLinden(const std::string& name) const
@@ -715,8 +663,6 @@ BOOL LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) c
 //-----------------------------------------------------------------------------
 void LLMuteList::requestFromServer(const LLUUID& agent_id)
 {
-	loadUserVolumes();
-	
 	std::string agent_id_string;
 	std::string filename;
 	agent_id.toString(agent_id_string);
@@ -750,26 +696,6 @@ void LLMuteList::cache(const LLUUID& agent_id)
 		saveToFile(filename);
 	}
 }
-
-void LLMuteList::setSavedResidentVolume(const LLUUID& id, F32 volume)
-{
-	// store new value in volume settings file
-	mUserVolumeSettings[id] = volume;
-}
-
-F32 LLMuteList::getSavedResidentVolume(const LLUUID& id)
-{
-	const F32 DEFAULT_VOLUME = 0.5f;
-
-	user_volume_map_t::iterator found_it = mUserVolumeSettings.find(id);
-	if (found_it != mUserVolumeSettings.end())
-	{
-		return found_it->second;
-	}
-	//FIXME: assumes default, should get this from somewhere
-	return DEFAULT_VOLUME;
-}
-
 
 //-----------------------------------------------------------------------------
 // Static message handlers

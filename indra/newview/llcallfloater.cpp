@@ -43,6 +43,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
+#include "lldraghandle.h"
 #include "llimfloater.h"
 #include "llfloaterreg.h"
 #include "llparticipantlist.h"
@@ -157,6 +158,11 @@ BOOL LLCallFloater::postBuild()
 
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
+
+	setIsChrome(true);
+	//chrome="true" hides floater caption 
+	if (mDragHandle)
+		mDragHandle->setTitleVisible(TRUE);
 
 	return TRUE;
 }

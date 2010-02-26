@@ -33,7 +33,7 @@
 	<button label="√ Tout" label_selected="Tout" name="check_all"/>
 	<button label="Effacer" label_selected="Aucun" name="check_none"/>
 	<text name="newperms">
-		Nouvelles permissions relatives au contenu
+		Nouvelles permissions
 	</text>
 	<text name="GroupLabel">
 		Groupe :

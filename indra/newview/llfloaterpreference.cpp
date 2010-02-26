@@ -1435,6 +1435,7 @@ BOOL LLPanelPreference::postBuild()
 		media_enabled_ctrl->set(enabled);
 		media_enabled_ctrl->setTentative(!(video_enabled == music_enabled == media_enabled));
 		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(enabled);
+		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
 	}
 	
 	apply();
@@ -1483,6 +1484,14 @@ void LLPanelPreference::saveSettings()
 			view_stack.push_back(*iter);
 		}
 	}	
+}
+
+void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& value)
+{
+	if (checkbox && checkbox->getValue())
+	{
+		LLNotificationsUtil::add("FriendsAndGroupsOnly");
+	}
 }
 
 void LLPanelPreference::cancel()
