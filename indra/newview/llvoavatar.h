@@ -212,7 +212,10 @@ public:
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagText(BOOL new_name);
 	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
-	void			idleUpdateNameTagColor(BOOL new_name, F32 alpha);
+	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
+	LLColor4		getNameTagColor(bool is_friend);
+	void			clearNameTag();
+	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
 	void 			idleUpdateTractorBeam();
 	void 			idleUpdateBelowWater();
@@ -819,12 +822,11 @@ private:
 
 public:
 	std::string		getFullname() const; // Returns "FirstName LastName"
-	void			invalidateName();	// force name to update
 protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	
 private:
-	LLWString 		mNameString;
+	std::string		mNameString;		// UTF-8 title + name + status
 	std::string  	mTitle;
 	bool	  		mNameAway;
 	bool	  		mNameBusy;

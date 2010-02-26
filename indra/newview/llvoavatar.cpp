@@ -2749,13 +2749,13 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		sNumVisibleChatBubbles++;
 		new_name = TRUE;
 	}
-				
-	idleUpdateNameTagColor(new_name, alpha);
-
+	
 	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
 	mNameText->setPositionAgent(name_position);
 	
 	idleUpdateNameTagText(new_name);
+
+	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
@@ -2779,6 +2779,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	{
 		is_muted = LLMuteList::getInstance()->isMuted(getID());
 	}
+	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 
 	// Rebuild name tag if state change detected
 	if (mNameString.empty()
@@ -2788,34 +2789,20 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_away != mNameAway 
 		|| is_busy != mNameBusy 
 		|| is_muted != mNameMute
-		|| is_appearance != mNameAppearance)
+		|| is_appearance != mNameAppearance
+		|| is_friend != mNameFriend)
 	{
-		std::string line;
-		// IDEVO JAMESDEBUG
-		//if (!sRenderGroupTitles)
-		//{
-		//	// If all group titles are turned off, stack first name
-		//	// on a line above last name
-		//	line += firstname->getString();
-		//	line += "\n";
-		//}
-		//else if (title && title->getString() && title->getString()[0] != '\0')
-		//{
-		//	line += title->getString();
-		//	LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
-		//	line += "\n";
-		//	line += firstname->getString();
-		//}
-		//else
-		//{
-		//	line += firstname->getString();
-		//}
+		LLColor4 name_tag_color = getNameTagColor(is_friend);
+
+		clearNameTag();
+
 		if (sRenderGroupTitles
 			&& title && title->getString() && title->getString()[0] != '\0')
 		{
-			line += title->getString();
-			LLStringFn::replace_ascii_controlchars(line,LL_UNKNOWN_CHAR);
-			line += "\n";
+			std::string title_str = title->getString();
+			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
+			addNameTagLine(title_str, name_tag_color, LLFontGL::ITALIC,
+				LLFontGL::getFontSansSerifSmall());
 		}
 
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
@@ -2829,28 +2816,28 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				// ...call this function back when the name arrives
 				// and force a rebuild
 				LLAvatarNameCache::get(getID(),
-					boost::bind(&LLVOAvatar::invalidateName, this));
+					boost::bind(&LLVOAvatar::clearNameTag, this));
 			}
 
 			// Might be blank if name not available yet, that's OK
 			if (show_display_names)
 			{
-				line += av_name.mDisplayName;
-				line += "\n";
+				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
+					LLFontGL::getFontSansSerifBig());
 			}
 			if (show_slids)
 			{
-				line += "(";
-				line += av_name.mSLID;
-				line += ")\n";
+				addNameTagLine(av_name.mSLID, LLColor4::red, LLFontGL::NORMAL,
+					LLFontGL::getFontSansSerif());
 			}
 		}
 		else
 		{
 			if (show_display_names || show_slids)
 			{
-				line += LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
-				line += "\n";
+				std::string full_name =
+					LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
+				addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, NULL);
 			}
 		}
 
@@ -2858,7 +2845,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		if (show_status
 			&& (is_away || is_muted || is_busy || is_appearance) )
 		{
-			//line += "(";
+			std::string line;
 			if (is_away)
 			{
 				line += LLTrans::getString("AvatarAway");
@@ -2881,15 +2868,17 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			//line += ")";
+			addNameTagLine(line, LLColor4::blue, LLFontGL::NORMAL,
+				LLFontGL::getFontSansSerifSmall());
 		}
 		mNameAway = is_away;
 		mNameBusy = is_busy;
 		mNameMute = is_muted;
 		mNameAppearance = is_appearance;
+		mNameFriend = is_friend;
 		mTitle = title ? title->getString() : "";
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
-		mNameString = utf8str_to_wstring(line);
+//		mNameString = utf8str_to_wstring(line);
 		new_name = TRUE;
 	}
 
@@ -2899,10 +2888,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_LEFT);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
-		if (new_name)
-		{
-			mNameText->setLabel(mNameString);
-		}
+//		if (new_name)
+//		{
+//			mNameText->setLabel(mNameString);
+//		}
 	
 		char line[MAX_STRING];		/* Flawfinder: ignore */
 		line[0] = '\0';
@@ -2936,17 +2925,17 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			if (chat_fade_amt < 1.f)
 			{
 				F32 u = clamp_rescale(chat_fade_amt, 0.9f, 1.f, 0.f, 1.f);
-				mNameText->addLine(utf8str_to_wstring(chat_iter->mText), lerp(new_chat, normal_chat, u), style);
+				mNameText->addLine(chat_iter->mText, lerp(new_chat, normal_chat, u), style);
 			}
 			else if (chat_fade_amt < 2.f)
 			{
 				F32 u = clamp_rescale(chat_fade_amt, 1.9f, 2.f, 0.f, 1.f);
-				mNameText->addLine(utf8str_to_wstring(chat_iter->mText), lerp(normal_chat, old_chat, u), style);
+				mNameText->addLine(chat_iter->mText, lerp(normal_chat, old_chat, u), style);
 			}
 			else if (chat_fade_amt < 3.f)
 			{
 				// *NOTE: only remove lines down to minimum number
-				mNameText->addLine(utf8str_to_wstring(chat_iter->mText), old_chat, style);
+				mNameText->addLine(chat_iter->mText, old_chat, style);
 			}
 		}
 		mNameText->setVisibleOffScreen(TRUE);
@@ -2971,6 +2960,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	else
 	{
+		// ...not using chat bubbles, just names
 		static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
 		if (small_avatar_names)
 		{
@@ -2983,11 +2973,36 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
 		mNameText->setVisibleOffScreen(FALSE);
-		if (new_name)
-		{
-			mNameText->setLabel("");
-			mNameText->setString(mNameString);
-		}
+//		if (new_name)
+//		{
+//			mNameText->setLabel("");
+//			mNameText->setString(mNameString);
+//		}
+	}
+}
+
+void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font)
+{
+	llassert(mNameText);
+	if (mVisibleChat)
+	{
+		mNameText->addLabel(line);
+	}
+	else
+	{
+		mNameText->addLine(line, color, (LLFontGL::StyleFlags)style, font);
+	}
+	mNameString += line;
+	mNameString += '\n';
+}
+
+void LLVOAvatar::clearNameTag()
+{
+	mNameString.clear();
+	if (mNameText)
+	{
+		mNameText->setLabel( "" );
+		mNameText->setString( "" );
 	}
 }
 
@@ -3015,39 +3030,37 @@ LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	return name_position;
 }
 
-void LLVOAvatar::idleUpdateNameTagColor(BOOL new_name, F32 alpha)
+void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 {
 	llassert(mNameText);
 
-	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	if (new_name
-		|| alpha != mNameAlpha
-		|| is_friend != mNameFriend)
+		|| alpha != mNameAlpha)
 	{
-		const char* color_name = "AvatarNameColor";
-		if (is_friend)
-		{
-			color_name = "AvatarNameFriendColor";
-		}
-		else
-		{
-			// IDEVO can we avoid doing this lookup repeatedly?
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::useDisplayNames()
-				&& LLAvatarNameCache::get(getID(), &av_name)
-				&& av_name.mIsLegacy)
-			{
-				color_name = "AvatarNameLegacyColor";
-			}
-		}
-		LLColor4 avatar_name_color =
-			LLUIColorTable::getInstance()->getColor( color_name );
-		avatar_name_color.setAlpha(alpha);
-		mNameText->setColor(avatar_name_color);
-
-		mNameFriend = is_friend;
+		mNameText->setAlpha(alpha);
 		mNameAlpha = alpha;
 	}
+}
+
+LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
+{
+	const char* color_name = "AvatarNameColor";
+	if (is_friend)
+	{
+		color_name = "AvatarNameFriendColor";
+	}
+	else
+	{
+		// IDEVO can we avoid doing this lookup repeatedly?
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::useDisplayNames()
+			&& LLAvatarNameCache::get(getID(), &av_name)
+			&& av_name.mIsLegacy)
+		{
+			color_name = "AvatarNameLegacyColor";
+		}
+	}
+	return LLUIColorTable::getInstance()->getColor( color_name );
 }
 
 //--------------------------------------------------------------------
@@ -7627,15 +7640,6 @@ std::string LLVOAvatar::getFullname() const
 	}
 
 	return name;
-}
-
-// IDEVO
-void LLVOAvatar::invalidateName()
-{
-	// force update by clearing name string
-	mNameString.clear();
-	// and force color update by tweaking alpha
-	mNameAlpha = F32_MAX;
 }
 
 LLHost LLVOAvatar::getObjectHost() const

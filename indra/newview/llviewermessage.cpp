@@ -2674,7 +2674,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(chatter);
 			if (avatar)
 			{
-				avatar->invalidateName();
+				avatar->clearNameTag();
 			}
 		}
 
