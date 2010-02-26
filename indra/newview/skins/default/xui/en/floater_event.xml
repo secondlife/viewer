@@ -20,6 +20,22 @@
    name="dont_notify">
     Don&apos;t Notify
   </floater.string>
+  <floater.string
+   name="moderate">
+    Moderate
+  </floater.string>
+  <floater.string
+   name="adult">
+    Adult
+  </floater.string>
+  <floater.string
+   name="general">
+    General
+  </floater.string>
+  <floater.string
+   name="unknown">
+    Unknown
+  </floater.string>
   <layout_stack
     name="layout"
     orientation="vertical"
@@ -144,15 +160,33 @@
        name="event_location"
        use_ellipses="true"
        value="SampleParcel, Name Long (145, 228, 26)"
-        width="310" />
+       width="310" />
       <icon
-   follows="top|left"
-   height="16"
-   image_name="Parcel_PG_Dark"
-   layout="topleft"
-   left="10"
-   name="rating_icon"
-   width="18" />
+       follows="top|left"
+       height="16"
+       image_name="Parcel_PG_Dark"
+       layout="topleft"
+       left="10"
+       name="rating_icon_pg"
+       width="18" />
+      <icon
+       follows="top|left"
+       height="16"
+       image_name="Parcel_M_Dark"
+       layout="topleft"
+       left="10"
+       name="rating_icon_m"
+       top_delta="0"
+       width="18" />
+      <icon
+       follows="top|left"
+       height="16"
+       image_name="Parcel_R_Dark"
+       layout="topleft"
+       left="10"
+       name="rating_icon_r"
+       top_delta="0"
+       width="18" />
       <text
        follows="left|top"
        height="16"
