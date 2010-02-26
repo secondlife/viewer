@@ -107,7 +107,7 @@
     </button>
     <button
      follows="right|top"
-     height="15"
+     height="16"
      image_selected="AudioMute_Off"
      image_pressed="Audio_Press"
      image_unselected="Audio_Off"
