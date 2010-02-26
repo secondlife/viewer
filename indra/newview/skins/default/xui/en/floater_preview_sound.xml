@@ -38,8 +38,8 @@
     <button
      follows="left|top"
      height="22"
-     label="Play in World"
-     label_selected="Play in World"
+     label="Play Inworld"
+     label_selected="Play Inworld"
      layout="topleft"
      name="Sound play btn"
      sound_flags="0"

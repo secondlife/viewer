@@ -270,13 +270,19 @@ void LLSpinCtrl::clear()
 	mbHasBeenSet = FALSE;
 }
 
-
+void LLSpinCtrl::updateLabelColor()
+{
+	if( mLabelBox )
+	{
+		mLabelBox->setColor( getEnabled() ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+	}
+}
 
 void LLSpinCtrl::updateEditor()
 {
 	LLLocale locale(LLLocale::USER_LOCALE);
 
-	// Don't display very small negative values as -0.000
+	// Don't display very small negative valu	es as -0.000
 	F32 displayed_value = clamp_precision((F32)getValue().asReal(), mPrecision);
 
 //	if( S32( displayed_value * pow( 10, mPrecision ) ) == 0 )
@@ -339,10 +345,7 @@ void LLSpinCtrl::setEnabled(BOOL b)
 {
 	LLView::setEnabled( b );
 	mEditor->setEnabled( b );
-	if( mLabelBox )
-	{
-		mLabelBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
-	}
+	updateLabelColor();
 }
 
 
@@ -390,6 +393,7 @@ void LLSpinCtrl::setLabel(const LLStringExplicit& label)
 	{
 		llwarns << "Attempting to set label on LLSpinCtrl constructed without one " << getName() << llendl;
 	}
+	updateLabelColor();
 }
 
 void LLSpinCtrl::setAllowEdit(BOOL allow_edit)

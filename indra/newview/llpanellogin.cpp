@@ -223,7 +223,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 
-	if(!LLStartUp::getStartSLURL().isValid())
+	if(!LLStartUp::getStartSLURL().isLocation())
 	{
 		LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
 	}

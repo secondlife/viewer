@@ -1693,11 +1693,11 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 		return;
 	}
 
-	U32 pick_width = width/2;
-	U32 pick_height = height/2;
+	U32 pick_width = width/2 + 1;
+	U32 pick_height = height/2 + 1;
 
-	U32 size = llmax(pick_width, (U32) 1) * llmax(pick_height, (U32) 1);
-	size = size/8 + 1;
+	U32 size = pick_width * pick_height;
+	size = (size + 7) / 8; // pixelcount-to-bits
 	mPickMask = new U8[size];
 	mPickMaskWidth = pick_width;
 	mPickMaskHeight = pick_height;
@@ -1745,8 +1745,8 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 		llassert(mPickMaskWidth > 0 && mPickMaskHeight > 0);
 		
-		S32 x = (S32)(u * mPickMaskWidth);
-		S32 y = (S32)(v * mPickMaskHeight);
+		S32 x = llfloor(u * mPickMaskWidth);
+		S32 y = llfloor(v * mPickMaskHeight);
 
 		if (LL_UNLIKELY(x >= mPickMaskWidth))
 		{

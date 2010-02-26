@@ -146,7 +146,7 @@ void LLDockableFloater::setVisible(BOOL visible)
 
 	if (visible)
 	{
-		LLFloater::setFrontmost(TRUE);
+		LLFloater::setFrontmost(getAutoFocus());
 	}
 	LLFloater::setVisible(visible);
 }

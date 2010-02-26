@@ -139,11 +139,12 @@
      font="SansSerifSmall"
      height="15"
      layout="topleft"
-     left="0"
+     left="102"
      name="favorite"
      image_drag_indication="Accordion_ArrowOpened_Off"
      bottom="55"
-     width="590">
+     tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
+               width="590">
     <chevron_button name=">>"
                      image_unselected="TabIcon_Close_Off"
                      image_selected="TabIcon_Close_Off"
@@ -154,4 +155,15 @@
 		     top="15"
                      height="15"/>
   </favorites_bar>
+     <text
+               follows="left|top"
+         font.style="BOLD"
+               height="15"
+               layout="topleft"
+               left="10"
+               top_pad="-12"
+               name="favorites_bar_label"
+               text_color="LtGray"
+               tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
+               width="102">Favorites Bar</text>
 </panel>

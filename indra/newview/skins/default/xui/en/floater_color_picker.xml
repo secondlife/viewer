@@ -13,20 +13,19 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="10"
+     height="20"
      layout="topleft"
-     left="12"
+     left="10"
      mouse_opaque="false"
      name="r_val_text"
-     top="35"
+     top="25"
      width="413">
         Red:
     </text>
     <spinner
      decimal_digits="0"
      follows="left"
-     height="16"
+     height="20"
      increment="1"
      initial_value="128"
      layout="topleft"
@@ -39,20 +38,18 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="10"
+     height="20"
      layout="topleft"
-     left="12"
+     left="10"
      mouse_opaque="false"
      name="g_val_text"
-     top="56"
      width="413">
         Green:
     </text>
     <spinner
      decimal_digits="0"
      follows="left"
-     height="16"
+     height="20"
      increment="1"
      initial_value="128"
      layout="topleft"
@@ -65,20 +62,18 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="10"
+     height="20"
      layout="topleft"
-     left="12"
+     left="10"
      mouse_opaque="false"
      name="b_val_text"
-     top="77"
      width="413">
         Blue:
     </text>
     <spinner
      decimal_digits="0"
      follows="left"
-     height="16"
+     height="20"
      increment="1"
      initial_value="128"
      layout="topleft"
@@ -91,20 +86,18 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="10"
+     height="20"
      layout="topleft"
-     left="12"
+     left="10"
      mouse_opaque="false"
      name="h_val_text"
-     top="108"
      width="413">
         Hue:
     </text>
     <spinner
      decimal_digits="0"
      follows="left"
-     height="16"
+     height="20"
      increment="1"
      initial_value="180"
      layout="topleft"
@@ -117,20 +110,18 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="10"
+     height="20"
      layout="topleft"
-     left="12"
+     left="10"
      mouse_opaque="false"
      name="s_val_text"
-     top="129"
      width="413">
         Sat:
     </text>
     <spinner
      decimal_digits="0"
      follows="left"
-     height="16"
+     height="20"
      increment="1"
      initial_value="50"
      layout="topleft"
@@ -143,20 +134,18 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     height="10"
+     height="20"
      layout="topleft"
-     left="12"
+     left="10"
      mouse_opaque="false"
      name="l_val_text"
-     top="150"
      width="413">
         Lum:
     </text>
     <spinner
      decimal_digits="0"
      follows="left"
-     height="16"
+     height="20"
      increment="1"
      initial_value="50"
      layout="topleft"
@@ -170,11 +159,11 @@
      height="20"
      label="Apply now"
      layout="topleft"
-     left="12"
+     left="10"
      name="apply_immediate"
      top_pad="185"
      width="100" />
-         <button
+    <button
      follows="left|bottom"
      height="28"
      image_selected="eye_button_active.tga"
@@ -185,7 +174,7 @@
      width="28" />
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="OK"
      label_selected="OK"
      layout="topleft"
@@ -195,7 +184,7 @@
      width="100" />
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
@@ -209,7 +198,7 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left="12"
+     left="10"
      name="Current color:"
      top="172"
      width="110">
@@ -221,7 +210,7 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left="12"
+     left="10"
      name="(Drag below to save.)"
      top_pad="66"
      width="130">

@@ -2588,7 +2588,7 @@ void LLVivoxVoiceClient::buildLocalAudioUpdates(std::ostringstream &stream)
 
 	if(mSpeakerMuteDirty)
 	{
-		const char *muteval = ((mSpeakerVolume == 0)?"true":"false");
+	  const char *muteval = ((mSpeakerVolume <= scale_speaker_volume(0))?"true":"false");
 
 		mSpeakerMuteDirty = false;
 
@@ -5149,7 +5149,8 @@ void LLVivoxVoiceClient::setVoiceVolume(F32 volume)
 
 	if(scaled_volume != mSpeakerVolume)
 	{
-		if((scaled_volume == 0) || (mSpeakerVolume == 0))
+	  int min_volume = scale_speaker_volume(0);
+		if((scaled_volume == min_volume) || (mSpeakerVolume == min_volume))
 		{
 			mSpeakerMuteDirty = true;
 		}

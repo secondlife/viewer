@@ -38,6 +38,7 @@
 
 // LLWindow library includes
 #include "llkeyboardwin32.h"
+#include "lldragdropwin32.h"
 #include "llpreeditor.h"
 #include "llwindowcallbacks.h"
 
@@ -52,6 +53,7 @@
 #include <mapi.h>
 #include <process.h>	// for _spawn
 #include <shellapi.h>
+#include <fstream>
 #include <Imm.h>
 
 // Require DirectInput version 8
@@ -383,6 +385,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	gKeyboard = new LLKeyboardWin32();
 	gKeyboard->setCallbacks(callbacks);
 
+	// Initialize the Drag and Drop functionality
+	mDragDrop = new LLDragDropWin32;
+
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (user's) default settings.
 	allowLanguageTextInput(mPreeditor, FALSE);
@@ -620,6 +625,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 LLWindowWin32::~LLWindowWin32()
 {
+	delete mDragDrop;
+
 	delete [] mWindowTitle;
 	mWindowTitle = NULL;
 
@@ -670,6 +677,8 @@ void LLWindowWin32::close()
 	{
 		return;
 	}
+
+	mDragDrop->reset();
 
 	// Make sure cursor is visible and we haven't mangled the clipping state.
 	setMouseClipping(FALSE);
@@ -1349,6 +1358,11 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	}
 
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
+
+	// register this window as handling drag/drop events from the OS
+	DragAcceptFiles( mWindowHandle, TRUE );
+
+	mDragDrop->init( mWindowHandle );
 	
 	//register joystick timer callback
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
@@ -2354,11 +2368,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_COPYDATA:
-			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_COPYDATA");
-			// received a URL
-			PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT) l_param;
-			window_imp->mCallbacks->handleDataCopy(window_imp, myCDS->dwData, myCDS->lpData);
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_COPYDATA");
+				// received a URL
+				PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT) l_param;
+				window_imp->mCallbacks->handleDataCopy(window_imp, myCDS->dwData, myCDS->lpData);
+			};
 			return 0;			
+
+			break;
 		}
 
 	window_imp->mCallbacks->handlePauseWatchdog(window_imp);	
@@ -3526,6 +3544,13 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 
 	*offset = start;
 	return wtext.substr(start, end - start);
+}
+
+// final stage of handling drop requests - both from WM_DROPFILES message
+// for files and via IDropTarget interface requests.
+LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url )
+{
+	return mCallbacks->handleDragNDrop( this, gl_coord, mask, action, url );
 }
 
 // Handle WM_IME_REQUEST message.

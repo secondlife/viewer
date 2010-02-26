@@ -662,6 +662,18 @@
           <menu_item_call.on_enable
              function="Tools.EnableUnlink" />
         </menu_item_call>
+        <menu_item_check
+             label="Edit Linked Parts"
+             layout="topleft"
+             name="Edit Linked Parts">
+                <menu_item_check.on_check
+                 control="EditLinkedParts" />
+                <menu_item_check.on_click
+                 function="Tools.EditLinkedParts"
+                 parameter="EditLinkedParts" />
+                <menu_item_check.on_enable
+                 function="Tools.EnableToolNotPie" />
+            </menu_item_check>
         <menu_item_separator
            layout="topleft" />
         <menu_item_call
@@ -799,18 +811,6 @@
          layout="topleft"
          name="Options"
          tear_off="true">
-            <menu_item_check
-             label="Edit Linked Parts"
-             layout="topleft"
-             name="Edit Linked Parts">
-                <menu_item_check.on_check
-                 control="EditLinkedParts" />
-                <menu_item_check.on_click
-                 function="Tools.EditLinkedParts"
-                 parameter="EditLinkedParts" />
-                <menu_item_check.on_enable
-                 function="Tools.EnableToolNotPie" />
-            </menu_item_check>
             <menu_item_call
              label="Set Default Upload Permissions"
              layout="topleft"
@@ -819,10 +819,10 @@
                  function="Floater.Toggle"
                  parameter="perm_prefs" />
             </menu_item_call>
-			<menu_item_check
-			   label="Show Advanced Permissions"
-			   layout="topleft"
-			   name="DebugPermissions">
+	   <menu_item_check
+	       label="Show Advanced Permissions"
+	       layout="topleft"
+	       name="DebugPermissions">
 			  <menu_item_check.on_check
 				 function="CheckControl"
 				 parameter="DebugPermissions" />
@@ -832,13 +832,7 @@
 			</menu_item_check>
             <menu_item_separator
              layout="topleft" />
-            <menu
-             create_jump_keys="true"
-             label="Selection"
-             layout="topleft"
-             name="Selection"
-             tear_off="true">
-                <menu_item_check
+            <menu_item_check
                  label="Select Only My Objects"
                  layout="topleft"
                  name="Select Only My Objects">
@@ -866,14 +860,9 @@
                      control="RectangleSelectInclusive" />
                     <menu_item_check.on_click
                      function="Tools.SelectBySurrounding" />
-                </menu_item_check>
-            </menu>
-            <menu
-             create_jump_keys="true"
-             label="Show"
-             layout="topleft"
-             name="Show"
-             tear_off="true">
+            </menu_item_check>
+          <menu_item_separator
+           layout="topleft" />
                 <menu_item_check
                  label="Show Hidden Selection"
                  layout="topleft"
@@ -902,13 +891,8 @@
                      function="ToggleControl"
                      parameter="ShowSelectionBeam" />
                 </menu_item_check>
-            </menu>
-            <menu
-             create_jump_keys="true"
-             label="Grid"
-             layout="topleft"
-             name="Grid"
-             tear_off="true">
+        <menu_item_separator
+           layout="topleft" />
                 <menu_item_check
                  label="Snap to Grid"
                  layout="topleft"
@@ -953,7 +937,6 @@
                     <menu_item_call.on_enable
                      function="Tools.EnableToolNotPie" />
                 </menu_item_call>
-            </menu>
         </menu>
         <menu
          create_jump_keys="true"

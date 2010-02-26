@@ -107,7 +107,8 @@ public:
 
 	// New functions
     /// Get the stored value in string form
-    LLWString getDisplay() const { return mDisplay; }
+    const LLWString& getDisplay() const { return mDisplay; }
+
     /**
      * Set the display string directly (see LLTextEditor). What the user is
      * editing is actually the LLWString value rather than the underlying

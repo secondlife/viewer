@@ -38,7 +38,7 @@
         <accordion_tab
          layout="topleft"
          name="tab_landmarks"
-         title="Landmarks">
+         title="My Landmarks">
             <places_inventory_panel
              allow_multi_select="true"
              border="false"

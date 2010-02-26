@@ -246,7 +246,7 @@ public:
 		return FALSE; 
 	}
 
-	/*virtual*/ const LLStyleSP		getStyle() const { return mStyle; }
+	/*virtual*/ LLStyleConstSP		getStyle() const { return mStyle; }
 
 private:
 	LLUIImagePtr	mImage;

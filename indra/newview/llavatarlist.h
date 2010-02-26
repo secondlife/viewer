@@ -57,11 +57,11 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
-		Optional<bool> ignore_online_status; // show all items as online
-		Optional<bool> show_last_interaction_time; // show most recent interaction time. *HACK: move this to a derived class
-		Optional<bool> show_info_btn;
-		Optional<bool> show_profile_btn;
-		Optional<bool> show_speaking_indicator;
+		Optional<bool>	ignore_online_status, // show all items as online
+						show_last_interaction_time, // show most recent interaction time. *HACK: move this to a derived class
+						show_info_btn,
+						show_profile_btn,
+						show_speaking_indicator;
 		Params();
 	};
 

@@ -22,11 +22,11 @@ class LLUIColor
 {
 public:
 	LLUIColor();
-	LLUIColor(const LLColor4* color);
 	LLUIColor(const LLColor4& color);
+	LLUIColor(const LLUIColor* color);
 
 	void set(const LLColor4& color);
-	void set(const LLColor4* color);
+	void set(const LLUIColor* color);
 
 	const LLColor4& get() const;
 
@@ -38,7 +38,7 @@ public:
 private:
 	friend struct LLInitParam::ParamCompare<LLUIColor, false>;
 
-	const LLColor4* mColorPtr;
+	const LLUIColor* mColorPtr;
 	LLColor4 mColor;
 };
 
@@ -47,7 +47,7 @@ namespace LLInitParam
 	template<>
 	struct ParamCompare<LLUIColor, false>
 	{
-		static bool equals(const class LLUIColor& a, const class LLUIColor& b);
+		static bool equals(const LLUIColor& a, const LLUIColor& b);
 	};
 }
 

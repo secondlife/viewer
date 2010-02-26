@@ -114,6 +114,13 @@ private:
 	void switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, BOOL switch_on);
 
 	/**
+	 * Ensures that passed instance of Speaking Indicator does not exist among registered ones.
+	 * If yes, it will be removed.
+	 */
+	void ensureInstanceDoesNotExist(LLSpeakingIndicator* const speaking_indicator);
+
+
+	/**
 	 * Multimap with all registered speaking indicators
 	 */
 	speaking_indicators_mmap_t mSpeakingIndicators;
@@ -135,7 +142,11 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 {
 	// do not exclude agent's indicators. They should be processed in the same way as others. See EXT-3889.
 
-	LL_DEBUGS("SpeakingIndicator") << "Registering indicator: " << speaker_id << LL_ENDL;
+	LL_DEBUGS("SpeakingIndicator") << "Registering indicator: " << speaker_id << "|"<< speaking_indicator << LL_ENDL;
+
+
+	ensureInstanceDoesNotExist(speaking_indicator);
+
 	speaking_indicator_value_t value_type(speaker_id, speaking_indicator);
 	mSpeakingIndicators.insert(value_type);
 
@@ -148,12 +159,14 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 
 void SpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speaker_id, const LLSpeakingIndicator* const speaking_indicator)
 {
+	LL_DEBUGS("SpeakingIndicator") << "Unregistering indicator: " << speaker_id << "|"<< speaking_indicator << LL_ENDL;
 	speaking_indicators_mmap_t::iterator it;
 	it = mSpeakingIndicators.find(speaker_id);
 	for (;it != mSpeakingIndicators.end(); ++it)
 	{
 		if (it->second == speaking_indicator)
 		{
+			LL_DEBUGS("SpeakingIndicator") << "Unregistered." << LL_ENDL;
 			mSpeakingIndicators.erase(it);
 			break;
 		}
@@ -230,6 +243,32 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
 		}
 	}
 }
+
+void SpeakingIndicatorManager::ensureInstanceDoesNotExist(LLSpeakingIndicator* const speaking_indicator)
+{
+	LL_DEBUGS("SpeakingIndicator") << "Searching for an registered indicator instance: " << speaking_indicator << LL_ENDL;
+	speaking_indicators_mmap_t::iterator it = mSpeakingIndicators.begin();
+	for (;it != mSpeakingIndicators.end(); ++it)
+	{
+		if (it->second == speaking_indicator)
+		{
+			LL_DEBUGS("SpeakingIndicator") << "Found" << LL_ENDL;
+			break;
+		}
+	}
+
+	// It is possible with LLOutputMonitorCtrl the same instance of indicator is registered several
+	// times with different UUIDs. This leads to crash after instance is destroyed because the
+	// only one (specified by UUID in unregisterSpeakingIndicator()) is removed from the map.
+	// So, using stored deleted pointer leads to crash. See EXT-4782.
+	if (it != mSpeakingIndicators.end())
+	{
+		llwarns << "The same instance of indicator has already been registered, removing it: " << it->first << "|"<< speaking_indicator << llendl;
+		llassert(it == mSpeakingIndicators.end());
+		mSpeakingIndicators.erase(it);
+	}
+}
+
 
 /************************************************************************/
 /*         LLSpeakingIndicatorManager namespace implementation          */

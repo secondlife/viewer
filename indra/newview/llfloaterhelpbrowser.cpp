@@ -85,13 +85,22 @@ void LLFloaterHelpBrowser::onClose(bool app_quitting)
 
 void LLFloaterHelpBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
-	if(event == MEDIA_EVENT_LOCATION_CHANGED)
+	switch (event) 
 	{
+	case MEDIA_EVENT_LOCATION_CHANGED:
 		setCurrentURL(self->getLocation());
-	}
-	else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
-	{
-		// nothing yet
+		break;
+
+	case MEDIA_EVENT_NAVIGATE_BEGIN:
+		childSetText("status_text", getString("loading_text"));
+		break;
+		
+	case MEDIA_EVENT_NAVIGATE_COMPLETE:
+		childSetText("status_text", getString("done_text"));
+		break;
+
+	default:
+		break;
 	}
 }
 

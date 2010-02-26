@@ -162,7 +162,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 				localRectToScreen(cell_rect, &sticky_rect);
 
 				// Spawn at right side of cell
-				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop );
+				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop + (sticky_rect.getHeight()-16)/2 );
 				LLPointer<LLUIImage> icon = LLUI::getUIImage("Info_Small");
 
 				// Should we show a group or an avatar inspector?

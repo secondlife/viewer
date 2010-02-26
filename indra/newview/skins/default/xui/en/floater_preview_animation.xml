@@ -38,7 +38,7 @@
      width="170" />
     <button
      height="20"
-     label="Play in World"
+     label="Play Inworld"
      label_selected="Stop"
      layout="topleft"
      left="10"

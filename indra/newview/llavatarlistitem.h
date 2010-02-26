@@ -46,6 +46,18 @@ class LLAvatarIconCtrl;
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		Optional<LLStyle::Params>	default_style,
+									voice_call_invited_style,
+									voice_call_joined_style,
+									voice_call_left_style,
+									online_style,
+									offline_style;
+
+		Params();
+	};
+
 	typedef enum e_item_state_type {
 		IS_DEFAULT,
 		IS_VOICE_INVITED,
@@ -142,9 +154,6 @@ private:
 	void onNameCache(const std::string& first_name, const std::string& last_name);
 
 	std::string formatSeconds(U32 secs);
-
-	typedef std::map<EItemState, LLStyle::Params> item_style_map_t;
-	static item_style_map_t& getItemStylesParams();
 
 	typedef std::map<EItemState, LLColor4> icon_color_map_t;
 	static icon_color_map_t& getItemIconColorMap();
