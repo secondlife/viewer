@@ -89,24 +89,15 @@
          width="290">
       <text
        follows="top|left"
-       font="SansSerifHuge"
-       height="13"
+       font="SansSerifBigBold"
+       height="20"
        layout="topleft"
        left="10"
        name="user_name"
-       text_color="LtGray"
-       top="0"
-       value="James Linden"
-       width="150" />
-      <button
-       follows="top|left"
-       height="23"
-       label="Set Name..."
-       left="170"
-       name="set_name"
-       top="0"
-       visible="false" 
-       width="110" />
+       text_color="white"
+       top="4"
+       value="Hamilton Hitchings"
+       width="280" />
       <text
        follows="top|left"
        height="13"
@@ -114,9 +105,18 @@
        left="10"
        name="user_slid"
        text_color="LtGray"
-       top_pad="4"
-       value="(james.linden)"
+       top_pad="5"
+       value="(hamilton.linden)"
        width="150" />
+      <button
+       follows="top|left"
+       height="20"
+       label="Set Name..."
+       left="170"
+       name="set_name"
+       top_delta="-4"
+       visible="false" 
+       width="110" />
       <panel
        name="lifes_images_panel"
          follows="left|top|right"

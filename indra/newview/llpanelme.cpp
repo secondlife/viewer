@@ -289,8 +289,10 @@ void LLPanelMyProfileEdit::resetData()
 {
 	LLPanelMyProfile::resetData();
 
-	childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
-	childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	getChild<LLUICtrl>("user_name")->setValue( LLSD() );
+	getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
 }
 
 void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
