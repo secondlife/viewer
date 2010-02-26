@@ -135,28 +135,28 @@
      width="210" />
     <button
      follows="left|top"
-     height="20"
+     height="23"
      label="Use Estate Time"
      layout="topleft"
-     left="8"
+     left="10"
      name="EnvUseEstateTimeButton"
      top="120"
      width="137" />
     <button
      follows="left|top"
-     height="20"
+     height="23"
      label="Advanced Sky"
      layout="topleft"
-     left_pad="9"
+     left_pad="3"
      name="EnvAdvancedSkyButton"
      top_delta="0"
      width="137" />
     <button
      follows="left|top"
-     height="20"
+     height="23"
      label="Advanced Water"
      layout="topleft"
-     left_pad="9"
+     left_pad="3"
      name="EnvAdvancedWaterButton"
      top_delta="0"
      width="137" />
