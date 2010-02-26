@@ -22,8 +22,8 @@
 	<menu label="Communiquer" name="Communicate">
 		<menu_item_call label="Mes amis" name="My Friends"/>
 		<menu_item_call label="Mes groupes" name="My Groups"/>
-		<menu_item_check label="Chat près de vous" name="Nearby Chat"/>
-		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_check label="Chat près de moi" name="Nearby Chat"/>
+		<menu_item_call label="Personnes près de moi" name="Active Speakers"/>
 	</menu>
 	<menu label="Monde" name="World">
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
@@ -31,7 +31,7 @@
 		<menu_item_call label="Photo" name="Take Snapshot"/>
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
 		<menu label="Profil du lieu" name="Land">
-			<menu_item_call label="À propos des terrains" name="About Land"/>
+			<menu_item_call label="À propos du terrain" name="About Land"/>
 			<menu_item_call label="Région/Domaine" name="Region/Estate"/>
 		</menu>
 		<menu_item_call label="Acheter ce terrain" name="Buy Land"/>
