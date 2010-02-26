@@ -2121,10 +2121,6 @@ static LLFastTimer::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
 //------------------------------------------------------------------------
 BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	if (isSelf())
-	{
-		llinfos << "self idle update" << llendl;
-	}
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	LLFastTimer t(FTM_AVATAR_UPDATE);
 
@@ -2539,10 +2535,6 @@ void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 
 void LLVOAvatar::idleUpdateLoadingEffect()
 {
-	if (isSelf())
-	{
-		llinfos << "self idle update loading effect" << llendl;
-	}
 	// update visibility when avatar is partially loaded
 	if (updateIsFullyLoaded()) // changed?
 	{
@@ -5891,10 +5883,6 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 
 BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 {
-	if (isSelf())
-	{
-		llinfos << "isSelf, loading " << loading << llendl;
-	}
 	// we wait a little bit before giving the all clear,
 	// to let textures settle down
 	const F32 PAUSE = 1.f;
