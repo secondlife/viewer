@@ -2801,7 +2801,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			addNameTagLine(title_str, name_tag_color, LLFontGL::ITALIC,
+			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
@@ -2827,7 +2827,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			if (show_slids)
 			{
-				addNameTagLine(av_name.mSLID, LLColor4::red, LLFontGL::NORMAL,
+				addNameTagLine(av_name.mSLID, name_tag_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerif());
 			}
 		}
@@ -2835,9 +2835,13 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			if (show_display_names || show_slids)
 			{
+				
+				static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
+				const LLFontGL* font =
+					(small_avatar_names ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifBig() );
 				std::string full_name =
 					LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
-				addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, NULL);
+				addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
 			}
 		}
 
@@ -2868,7 +2872,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			addNameTagLine(line, LLColor4::blue, LLFontGL::NORMAL,
+			addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 		mNameAway = is_away;
@@ -2961,15 +2965,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	else
 	{
 		// ...not using chat bubbles, just names
-		static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
-		if (small_avatar_names)
-		{
-			mNameText->setFont(LLFontGL::getFontSansSerif());
-		}
-		else
-		{
-			mNameText->setFont(LLFontGL::getFontSansSerifBig());
-		}
 		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
 		mNameText->setVisibleOffScreen(FALSE);
