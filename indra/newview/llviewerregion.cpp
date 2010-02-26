@@ -49,6 +49,7 @@
 #include "llagent.h"
 #include "llcallingcard.h"
 #include "llcaphttpsender.h"
+#include "llcommandhandler.h"
 #include "lldir.h"
 #include "lleventpoll.h"
 #include "llfloatergodtools.h"
@@ -58,6 +59,7 @@
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "lltrans.h"
+#include "llurldispatcher.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
 #include "llvlmanager.h"
@@ -81,6 +83,45 @@ extern BOOL gNoRender;
 
 const F32 WATER_TEXTURE_SCALE = 8.f;			//  Number of times to repeat the water texture across a region
 const S16 MAX_MAP_DIST = 10;
+
+// support for secondlife:///app/region/{REGION} SLapps
+// N.B. this is defined to work exactly like the classic secondlife://{REGION}
+// However, the later syntax cannot support spaces in the region name because
+// spaces (and %20 chars) are illegal in the hostname of an http URL. Some
+// browsers let you get away with this, but some do not (such as Qt's Webkit).
+// Hence we introduced the newer secondlife:///app/region alternative.
+class LLRegionHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLRegionHandler() : LLCommandHandler("region", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		// make sure that we at least have a region name
+		int num_params = params.size();
+		if (num_params < 1)
+		{
+			return false;
+		}
+
+		// build a secondlife://{PLACE} SLurl from this SLapp
+		std::string url = "secondlife://";
+		for (int i = 0; i < num_params; i++)
+		{
+			if (i > 0)
+			{
+				url += "/";
+			}
+			url += params[i].asString();
+		}
+
+		// Process the SLapp as if it was a secondlife://{PLACE} SLurl
+		LLURLDispatcher::dispatch(url, web, true);
+		return true;
+	}
+};
+LLRegionHandler gRegionHandler;
 
 class BaseCapabilitiesComplete : public LLHTTPClient::Responder
 {

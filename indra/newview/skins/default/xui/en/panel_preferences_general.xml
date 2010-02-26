@@ -141,7 +141,34 @@
          label="General"
          name="Desired_PG"
          value="13" />
+        <combo_box.commit_callback
+		 function="Pref.MaturitySettings"/>
     </combo_box>
+    <icon
+     follows="left|top"
+     height="16"
+     image_name="Parcel_PG_Dark"
+     layout="topleft"
+     left_pad="5"
+     name="rating_icon_general"
+     top_delta="3"
+     width="18"/>
+    <icon
+     follows="left|top"
+     height="16"
+     image_name="Parcel_M_Dark"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_moderate"
+     width="18"/>
+    <icon
+     follows="left|top"
+     height="16"
+     image_name="Parcel_R_Dark"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_adult"
+     width="18"/>
     <text
      type="string"
      length="1"
