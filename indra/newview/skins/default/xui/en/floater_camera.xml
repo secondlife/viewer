@@ -27,6 +27,22 @@
      name="move_tooltip">
         Move Camera Up and Down, Left and Right
     </floater.string>
+    <floater.string
+     name="orbit_mode_title">
+        Orbit
+    </floater.string>
+    <floater.string
+     name="pan_mode_title">
+        Pan
+    </floater.string>
+    <floater.string
+     name="avatar_view_mode_title">
+        Presets
+    </floater.string>
+    <floater.string
+     name="free_mode_title">
+        View Object
+    </floater.string>
     <panel
      border="false"
      height="110"
@@ -232,7 +248,7 @@
          image_selected="PushButton_Selected_Press"
          name="avatarview_btn"
          tab_stop="false"
-         tool_tip="See as avatar"
+         tool_tip="Presets"
          width="25">
         </button>
         <button

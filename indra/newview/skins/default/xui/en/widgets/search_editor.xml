@@ -3,6 +3,7 @@
   clear_button_visible="false"
   search_button_visible="true"
   text_pad_left="6" 
+  text_pad_right="6" 
   select_on_focus="true"
   text_tentative_color="TextFgTentativeColor"
   background_image="TextField_Search_Off"
@@ -21,5 +22,6 @@
    image_unselected="Icon_Close_Foreground"
    image_selected="Icon_Close_Press"
    pad_right="4"
+   pad_left="4"
    width="16" />
 </search_editor>
