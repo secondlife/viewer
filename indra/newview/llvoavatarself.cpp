@@ -1761,14 +1761,8 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 				// search for full permissions version
 				for (S32 i = 0; i < items.count(); i++)
 				{
-					LLInventoryItem* itemp = items[i];
-					LLPermissions item_permissions = itemp->getPermissions();
-					if ( item_permissions.allowOperationBy(
-								PERM_MODIFY, gAgent.getID(), gAgent.getGroupID()) &&
-						 item_permissions.allowOperationBy(
-								PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
-						 item_permissions.allowOperationBy(
-								PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()) )
+					LLViewerInventoryItem* itemp = items[i];
+                                        if (itemp->getIsFullPerm())
 					{
 						can_grab = TRUE;
 						break;

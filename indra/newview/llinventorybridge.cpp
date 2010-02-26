@@ -1065,9 +1065,9 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 	else if ("copy_uuid" == action)
 	{
 		// Single item only
-		LLInventoryItem* item = model->getItem(mUUID);
+		LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 		if(!item) return;
-		LLUUID asset_id = item->getAssetUUID();
+		LLUUID asset_id = item->getProtectedAssetUUID();
 		std::string buffer;
 		asset_id.toString(buffer);
 
@@ -1107,7 +1107,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 
 void LLItemBridge::selectItem()
 {
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
+	LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 	if(item && !item->isComplete())
 	{
 		item->fetchFromServer();
@@ -1116,7 +1116,7 @@ void LLItemBridge::selectItem()
 
 void LLItemBridge::restoreItem()
 {
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
+	LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 	if(item)
 	{
 		LLInventoryModel* model = getInventoryModel();
@@ -1131,7 +1131,7 @@ void LLItemBridge::restoreToWorld()
 	//Similar functionality to the drag and drop rez logic
 	bool remove_from_inventory = false;
 
-	LLViewerInventoryItem* itemp = (LLViewerInventoryItem*)getItem();
+	LLViewerInventoryItem* itemp = static_cast<LLViewerInventoryItem*>(getItem());
 	if (itemp)
 	{
 		LLMessageSystem* msg = gMessageSystem;
@@ -1424,11 +1424,7 @@ BOOL LLItemBridge::isItemPermissive() const
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		U32 mask = item->getPermissions().getMaskBase();
-		if((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-		{
-			return TRUE;
-		}
+		return item->getIsFullPerm();
 	}
 	return FALSE;
 }
