@@ -19,7 +19,7 @@
 	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat"/>
 	<check_box label="Afficher les erreurs de script dans :" name="show_script_errors"/>
 	<radio_group name="show_location">
-		<radio_item label="Chat près de vous" name="0"/>
+		<radio_item label="Chat près de moi" name="0"/>
 		<radio_item label="Autre fenêtre" name="1"/>
 	</radio_group>
 	<check_box label="Activer/désactiver la fonction Parler quand j&apos;appuie sur :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n&apos;êtes pas en mode bascule, le micro ne diffuse votre voix que quand vous maintenez la touche de contrôle de la fonction enfoncée."/>

@@ -1977,7 +1977,7 @@ Cela risque d&apos;impacter votre mot de passe.
 		Vous n&apos;avez pas le droit de consulter cette note.
 	</notification>
 	<notification name="RezItemNoPermissions">
-		Permissions insuffisantes pour rezzer l&apos;objet.
+		Droits insuffisants pour rezzer l&apos;objet.
 	</notification>
 	<notification name="UnableToLoadNotecard">
 		Impossible de lire les données de la note actuellement.
@@ -1986,7 +1986,7 @@ Cela risque d&apos;impacter votre mot de passe.
 		Script absent de la base de données.
 	</notification>
 	<notification name="ScriptNoPermissions">
-		Permissions insuffisantes pour voir le script.
+		Droits insuffisants pour voir le script.
 	</notification>
 	<notification name="UnableToLoadScript">
 		Impossible de charger le script. Merci de réessayer.
