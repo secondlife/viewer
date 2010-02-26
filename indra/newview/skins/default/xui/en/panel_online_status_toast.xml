@@ -7,8 +7,7 @@
  left="0"
  name="friend_online_status"
  top="0"
- width="305"
- translate="false">
+ width="305">
     <avatar_icon
 	 follows="top|left"
 	 height="18"
