@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="groups" title="グループ">
-	<text name="groupdesc">
-		グループを選択：
-	</text>
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
-</floater>

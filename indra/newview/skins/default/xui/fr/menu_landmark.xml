@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="landmark_overflow_menu">
-	<menu_item_call label="Copier la SLurl" name="copy"/>
-	<menu_item_call label="Supprimer" name="delete"/>
-	<menu_item_call label="Créer une préférence" name="pick"/>
-	<menu_item_call label="Ajouter à la barre des Favoris" name="add_to_favbar"/>
-</toggleable_menu>

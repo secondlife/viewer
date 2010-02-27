@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="notifications_console" title="CONSOLE DE NOTIFICATIONS">
-	<combo_box label="Sélectionner le type de notification" name="notification_types" width="412"/>
-	<button label="Ajouter" left="417" name="add_notification" width="78"/>
-</floater>

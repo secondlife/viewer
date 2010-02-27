@@ -114,12 +114,12 @@ public:
 		KEY_EVENT_REPEAT
 	}EKeyEventType;
 	
-	bool keyEvent(EKeyEventType type, int key_code, MASK modifiers);
+	bool keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data);
 
 	void scrollEvent(int x, int y, MASK modifiers);
 	
 	// Text may be unicode (utf8 encoded)
-	bool textInput(const std::string &text, MASK modifiers);
+	bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 	
 	void loadURI(const std::string &uri);
 	

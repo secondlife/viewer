@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="panel_im_control_panel">
-	<panel name="panel_call_buttons">
-		<button label="Chiama" name="call_btn"/>
-		<button label="Abbandona Chiamata" name="end_call_btn"/>
-		<button label="Voice Controls" name="voice_ctrls_btn"/>
-	</panel>
-</panel>

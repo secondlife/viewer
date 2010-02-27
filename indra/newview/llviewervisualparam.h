@@ -111,6 +111,7 @@ public:
 	F32					getSimpleMax() const		{ return getInfo()->mSimpleMax; }
 
 	BOOL				getCrossWearable() const 	{ return getInfo()->mCrossWearable; }
+
 };
 
 #endif // LL_LLViewerVisualParam_H

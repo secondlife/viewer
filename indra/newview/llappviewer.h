@@ -36,6 +36,7 @@
 #include "llallocator.h"
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
+#include "lltimer.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;

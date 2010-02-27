@@ -128,6 +128,7 @@ public:
 
 	void				revertValues();
 	void				saveValues();
+	void				pullCrossWearableValues();		
 
 	BOOL				isOnTop() const;
 
@@ -145,7 +146,7 @@ private:
 	void 				createLayers(S32 te);
 	void 				createVisualParams();
 	void				syncImages(te_map_t &src, te_map_t &dst);
-	void				destroyTextures();			
+	void				destroyTextures();	
 
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.
 	S32					mDefinitionVersion;			// Depends on the state of the avatar_lad.xml when this asset was created.

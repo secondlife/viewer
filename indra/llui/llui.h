@@ -426,8 +426,8 @@ namespace LLInitParam
 	{
         typedef BlockValue<const LLFontGL*> super_t;
 	public:
-		Mandatory<std::string>	name;
-		Optional<std::string>	size,
+		Optional<std::string>	name,
+								size,
 								style;
 
 		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);

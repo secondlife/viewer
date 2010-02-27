@@ -67,7 +67,7 @@ private:
 class LLPlacesFolderView : public LLFolderView
 {
 public:
-	LLPlacesFolderView(const LLFolderView::Params& p) : LLFolderView(p) {};
+	LLPlacesFolderView(const LLFolderView::Params& p);
 	/**
 	 *	Handles right mouse down
 	 *

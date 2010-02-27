@@ -104,9 +104,9 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
 	childSetCommitCallback("Object Name",						LLSidepanelTaskInfo::onCommitName,this);
-	childSetPrevalidate("Object Name",							LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("Object Name",							LLTextValidate::validateASCIIPrintableNoPipe);
 	childSetCommitCallback("Object Description",				LLSidepanelTaskInfo::onCommitDesc,this);
-	childSetPrevalidate("Object Description",					LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("Object Description",					LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLSidepanelTaskInfo::onClickGroup,this));
 	childSetCommitCallback("checkbox share with group",			&LLSidepanelTaskInfo::onCommitGroupShare,this);
 	childSetAction("button deed",								&LLSidepanelTaskInfo::onClickDeedToGroup,this);

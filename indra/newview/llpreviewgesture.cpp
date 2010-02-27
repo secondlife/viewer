@@ -472,7 +472,7 @@ BOOL LLPreviewGesture::postBuild()
 	edit = getChild<LLLineEditor>("wait_time_editor");
 	edit->setEnabled(FALSE);
 	edit->setVisible(FALSE);
-	edit->setPrevalidate(LLLineEditor::prevalidateFloat);
+	edit->setPrevalidate(LLTextValidate::validateFloat);
 //	edit->setKeystrokeCallback(onKeystrokeCommit, this);
 	edit->setCommitOnFocusLost(TRUE);
 	edit->setCommitCallback(onCommitWaitTime, this);
@@ -504,10 +504,10 @@ BOOL LLPreviewGesture::postBuild()
 	if (item) 
 	{
 		childSetText("desc", item->getDescription());
-		childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+		childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 		
 		childSetText("name", item->getName());
-		childSetPrevalidate("name", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+		childSetPrevalidate("name", &LLTextValidate::validateASCIIPrintableNoPipe);
 	}
 
 	return LLPreview::postBuild();

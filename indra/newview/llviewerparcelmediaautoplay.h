@@ -33,7 +33,7 @@
 #ifndef LLVIEWERPARCELMEDIAAUTOPLAY_H
 #define LLVIEWERPARCELMEDIAAUTOPLAY_H
 
-#include "lltimer.h"
+#include "lleventtimer.h"
 #include "lluuid.h"
 
 // timer to automatically play media

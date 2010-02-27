@@ -50,7 +50,8 @@ class LLDragDropWin32Target:
 		LLDragDropWin32Target( HWND  hWnd ) :
 			mRefCount( 1 ),
 			mAppWindowHandle( hWnd ),
-			mAllowDrop( false)
+			mAllowDrop(false),
+			mIsSlurl(false)
 		{
 		};
 

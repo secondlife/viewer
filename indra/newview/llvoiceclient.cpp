@@ -800,9 +800,8 @@ void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 vo
 
 S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
 {
-	// default internal level of user voice.
-	const static LLUICachedControl<S32> DEFAULT_INTERNAL_VOLUME_LEVEL("VoiceDefaultInternalLevel", 100);
-	S32 ret_val = DEFAULT_INTERNAL_VOLUME_LEVEL;
+	// Return value of -1 indicates no level is stored for this speaker
+	S32 ret_val = -1;
 	speaker_data_map_t::const_iterator it = mSpeakersData.find(speaker_id);
 	
 	if (it != mSpeakersData.end())

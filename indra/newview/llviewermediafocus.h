@@ -66,7 +66,7 @@ public:
 
 	void update();
 	
-	static void setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor);
+	static void setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only = false);
 	static F32 getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& normal, F32* height, F32* width, F32* depth);
 
 	bool isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face);
@@ -85,6 +85,9 @@ public:
 	
 	// Try to focus/zoom on the specified media (if it's on an object in world).
 	void focusZoomOnMedia(LLUUID media_id);
+	// Are we zoomed in?
+	bool isZoomed() const;
+	void unZoom();
 	
 	// Return the ID of the media instance the controls are currently attached to (either focus or hover).
 	LLUUID getControlsMediaID();

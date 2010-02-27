@@ -126,7 +126,7 @@ BOOL LLPreviewTexture::postBuild()
 		{
 			childSetCommitCallback("desc", LLPreview::onText, this);
 			childSetText("desc", item->getDescription());
-			childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+			childSetPrevalidate("desc", &LLTextValidate::validateASCIIPrintableNoPipe);
 		}
 	}
 	
@@ -304,12 +304,12 @@ void LLPreviewTexture::openToSave()
 
 // static
 void LLPreviewTexture::onFileLoadedForSave(BOOL success, 
-											LLViewerFetchedTexture *src_vi,
-											LLImageRaw* src, 
-											LLImageRaw* aux_src, 
-											S32 discard_level,
-											BOOL final,
-											void* userdata)
+					   LLViewerFetchedTexture *src_vi,
+					   LLImageRaw* src, 
+					   LLImageRaw* aux_src, 
+					   S32 discard_level,
+					   BOOL final,
+					   void* userdata)
 {
 	LLUUID* item_uuid = (LLUUID*) userdata;
 

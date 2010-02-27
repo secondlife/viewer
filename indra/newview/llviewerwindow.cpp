@@ -846,56 +846,71 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 
 					LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
 				
-					if (obj && obj->permModify() && !obj->getRegion()->getCapability("ObjectMedia").empty())
+					if (obj && !obj->getRegion()->getCapability("ObjectMedia").empty())
 					{
 						LLTextureEntry *te = obj->getTE(object_face);
 						if (te)
 						{
 							if (drop)
 							{
-								if (! te->hasMedia())
+								// object does NOT have media already
+								if ( ! te->hasMedia() )
 								{
-									// Create new media entry
-									LLSD media_data;
-									// XXX Should we really do Home URL too?
-									media_data[LLMediaEntry::HOME_URL_KEY] = url;
-									media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-									media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
-									obj->syncMediaData(object_face, media_data, true, true);
-									// XXX This shouldn't be necessary, should it ?!?
-									if (obj->getMediaImpl(object_face))
-										obj->getMediaImpl(object_face)->navigateReload();
-									obj->sendMediaDataUpdate();
-								
-									result = LLWindowCallbacks::DND_COPY;
-								}
-								else {
-									// Check the whitelist
-									if (te->getMediaData()->checkCandidateUrl(url))
+									// we are allowed to modify the object
+									if ( obj->permModify() )
 									{
-										// just navigate to the URL
+										// Create new media entry
+										LLSD media_data;
+										// XXX Should we really do Home URL too?
+										media_data[LLMediaEntry::HOME_URL_KEY] = url;
+										media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+										media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+										obj->syncMediaData(object_face, media_data, true, true);
+										// XXX This shouldn't be necessary, should it ?!?
 										if (obj->getMediaImpl(object_face))
+											obj->getMediaImpl(object_face)->navigateReload();
+										obj->sendMediaDataUpdate();
+
+										result = LLWindowCallbacks::DND_COPY;
+									}
+								}
+								else 
+								// object HAS media already
+								{
+									// URL passes the whitelist
+									if (te->getMediaData()->checkCandidateUrl( url ) )
+									{
+										// we are allowed to modify the object or we have navigate permissions
+										// NOTE: Design states you you can change the URL if you have media 
+										//       navigate permissions even if you do not have prim modify rights
+										if ( obj->permModify() || obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT ) )
 										{
-											obj->getMediaImpl(object_face)->navigateTo(url);
+											// just navigate to the URL
+											if (obj->getMediaImpl(object_face))
+											{
+												obj->getMediaImpl(object_face)->navigateTo(url);
+											}
+											else 
+											{
+												// This is very strange.  Navigation should
+												// happen via the Impl, but we don't have one.
+												// This sends it to the server, which /should/
+												// trigger us getting it.  Hopefully.
+												LLSD media_data;
+												media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+												obj->syncMediaData(object_face, media_data, true, true);
+												obj->sendMediaDataUpdate();
+											}
+											result = LLWindowCallbacks::DND_LINK;
 										}
-										else {
-											// This is very strange.  Navigation should
-											// happen via the Impl, but we don't have one.
-											// This sends it to the server, which /should/
-											// trigger us getting it.  Hopefully.
-											LLSD media_data;
-											media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-											obj->syncMediaData(object_face, media_data, true, true);
-											obj->sendMediaDataUpdate();
-										}
-										result = LLWindowCallbacks::DND_LINK;
 									}
 								}
 								LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 								mDragHoveredObject = NULL;
 							
 							}
-							else {
+							else 
+							{
 								// Check the whitelist, if there's media (otherwise just show it)
 								if (te->getMediaData() == NULL || te->getMediaData()->checkCandidateUrl(url))
 								{
@@ -976,6 +991,7 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
 	// Note: we won't get this if we have captured the mouse.
 	llassert( gFocusMgr.getMouseCapture() == NULL );
 	mMouseInWindow = FALSE;
+	LLToolTipMgr::instance().blockToolTips();
 }
 
 BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
@@ -1720,7 +1736,11 @@ void LLViewerWindow::shutdownViews()
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	delete LLNavigationBar::getInstance();
-	
+
+	// destroy menus after instantiating navbar above, as it needs
+	// access to gMenuHolder
+	cleanup_menus();
+
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
@@ -2452,6 +2472,8 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 void LLViewerWindow::updateUI()
 {
 	static std::string last_handle_msg;
+
+	LLConsole::updateClass();
 
 	// animate layout stacks so we have up to date rect for world view
 	LLLayoutStack::updateClass();

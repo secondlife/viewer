@@ -37,6 +37,7 @@
 #include "llcoord.h"
 #include "llstring.h"
 #include "llcursortypes.h"
+#include "llsd.h"
 
 class LLSplashScreen;
 class LLPreeditor;
@@ -162,6 +163,9 @@ public:
 	virtual void spawnWebBrowser(const std::string& escaped_url) {};
 
 	static std::vector<std::string> getDynamicFallbackFontList();
+	
+	// Provide native key event data
+	virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
 
 protected:
 	LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags);

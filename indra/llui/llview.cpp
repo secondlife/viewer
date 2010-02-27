@@ -1720,6 +1720,7 @@ LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 	for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
 		LLView* childp = *child_it;
+		llassert(childp);
 		if (childp->getName() == name)
 		{
 			return childp;
@@ -1731,6 +1732,7 @@ LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* childp = *child_it;
+			llassert(childp);
 			LLView* viewp = childp->findChildView(name, recurse);
 			if ( viewp )
 			{

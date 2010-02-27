@@ -1388,6 +1388,8 @@ void LLScrollListCtrl::drawItems()
 
 	LLGLSUIDefault gls_ui;
 	
+	F32 alpha = getDrawContext().mAlpha;
+
 	{
 		LLLocalClipRect clip(mItemListRect);
 
@@ -1463,7 +1465,7 @@ void LLScrollListCtrl::drawItems()
 					bg_color = mBgReadOnlyColor.get();
 				}
 
-				item->draw(item_rect, fg_color, bg_color, highlight_color, mColumnPadding);
+				item->draw(item_rect, fg_color % alpha, bg_color% alpha, highlight_color % alpha, mColumnPadding);
 
 				cur_y -= mLineHeight;
 			}

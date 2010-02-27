@@ -62,6 +62,7 @@ class LLLineEditor;
 class LLMenuGL;
 class LLScrollContainer;
 class LLUICtrl;
+class LLTextBox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderViewFunctor
@@ -327,7 +328,7 @@ protected:
 	
 	LLUUID							mSelectThisID; // if non null, select this item
 	
-	LLPanel*				mParentPanel;
+	LLPanel*						mParentPanel;
 
 	/**
 	 * Is used to determine if we need to cut text In LLFolderViewItem to avoid horizontal scroll.
@@ -344,6 +345,8 @@ protected:
 	
 public:
 	static F32 sAutoOpenTime;
+	LLTextBox*						mStatusTextBox;
+
 };
 
 bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b);

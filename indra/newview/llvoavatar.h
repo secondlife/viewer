@@ -565,7 +565,7 @@ public:
 	void 			updateMeshData();
 protected:
 	void 			releaseMeshData();
-	/*virtual*/ void restoreMeshData();
+	virtual void restoreMeshData();
 private:
 	BOOL 			mDirtyMesh;
 	BOOL			mMeshTexturesDirty;

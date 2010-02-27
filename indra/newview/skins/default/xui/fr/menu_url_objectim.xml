@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="Afficher les informations sur l&apos;objet" name="show_object"/>
-	<menu_item_call label="Voir sur la carte" name="show_on_map"/>
-	<menu_item_call label="Me téléporter à l&apos;emplacement de l&apos;objet" name="teleport_to_object"/>
-	<menu_item_call label="Copier le nom de l&apos;objet dans le presse-papiers" name="url_copy_label"/>
-	<menu_item_call label="Copier la SLurl dans le presse-papiers" name="url_copy"/>
-</context_menu>

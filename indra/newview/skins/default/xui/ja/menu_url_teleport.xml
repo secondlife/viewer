@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="この場所にテレポート" name="teleport"/>
-	<menu_item_call label="地図に表示" name="show_on_map"/>
-	<menu_item_call label="SLurl をクリップボードにコピー" name="url_copy"/>
-</context_menu>

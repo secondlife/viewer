@@ -41,6 +41,7 @@
 #include "llfloateruipreview.h"			// Own header
 
 // Internal utility
+#include "lleventtimer.h"
 #include "llrender.h"
 #include "llsdutil.h"
 #include "llxmltree.h"
@@ -87,11 +88,10 @@ static LLDefaultChildRegistry::Register<LLOverlapPanel> register_overlap_panel("
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
-	return gDirUtilp->getSkinBaseDir() + delim + "default" + delim + "xui" + delim;
+	return gDirUtilp->getSkinBaseDir() + delim + "base" + delim + "xui" + delim;
 }
 
 // Forward declarations to avoid header dependencies
-class LLEventTimer;
 class LLColor;
 class LLScrollListCtrl;
 class LLComboBox;
@@ -362,8 +362,7 @@ BOOL LLFadeEventTimer::tick()
 
 	if(NULL == mParent)	// no more need to tick, so suicide
 	{
-		delete this;
-		return FALSE;
+		return TRUE;
 	}
 
 	// Set up colors

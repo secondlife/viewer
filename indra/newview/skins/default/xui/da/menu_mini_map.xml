@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="popup">
-	<menu_item_call label="Zoom tæt" name="Zoom Close"/>
-	<menu_item_call label="Zoom mellem" name="Zoom Medium"/>
-	<menu_item_call label="Zoom langt" name="Zoom Far"/>
-	<menu_item_check label="Rotér kort" name="Rotate Map"/>
-	<menu_item_call label="Stop Tracking" name="Stop Tracking"/>
-	<menu_item_call label="Verdenskort" name="World Map"/>
-</menu>

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="im_header" name="im_header">
-	<text_editor name="user_name" value="Ericag Vader"/>
-	<text name="time_box" value="23:30"/>
-</panel>

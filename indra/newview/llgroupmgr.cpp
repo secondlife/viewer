@@ -677,9 +677,12 @@ void LLGroupMgrGroupData::sendRoleChanges()
 				break;
 			}
 			case RC_UPDATE_ALL:
+				// fall through
 			case RC_UPDATE_POWERS:
 				need_power_recalc = true;
+				// fall through
 			case RC_UPDATE_DATA:
+				// fall through
 			default: 
 			{
 				LLGroupRoleData* group_role_data = (*role_it).second;
@@ -762,7 +765,7 @@ void LLGroupMgr::addObserver(LLGroupMgrObserver* observer)
 		mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
 }
 
-void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+void LLGroupMgr::addObserver(const LLUUID& group_id, LLParticularGroupObserver* observer)
 {
 	if(group_id.notNull() && observer)
 	{
@@ -792,7 +795,7 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 	}
 }
 
-void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupMgrObserver* observer)
+void LLGroupMgr::removeObserver(const LLUUID& group_id, LLParticularGroupObserver* observer)
 {
 	if(group_id.isNull() || !observer)
 	{
@@ -1364,7 +1367,7 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 			gi->second->mChanged = FALSE;
 
 
-			// notify LLParticularGroupMgrObserver
+			// notify LLParticularGroupObserver
 		    observer_map_t::iterator obs_it = mParticularObservers.find(group_id);
 		    if(obs_it == mParticularObservers.end())
 		        return;
@@ -1718,15 +1721,14 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	{
 		LLUUID& ejected_member_id = (*it);
 
-		llwarns << "LLGroupMgr::sendGroupMemberEjects -- ejecting member" << ejected_member_id << llendl;
-		
 		// Can't use 'eject' to leave a group.
-		if ((*it) == gAgent.getID()) continue;
+		if (ejected_member_id == gAgent.getID()) continue;
 
 		// Make sure they are in the group, and we need the member data
-		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(*it);
+		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(ejected_member_id);
 		if (mit != group_datap->mMembers.end())
 		{
+			LLGroupMemberData* member_data = (*mit).second;
 			// Add them to the message
 			if (start_message)
 			{
@@ -1749,21 +1751,18 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			}
 
 			// Clean up groupmgr
-			for (LLGroupMemberData::role_list_t::iterator rit = (*mit).second->roleBegin();
-				 rit != (*mit).second->roleEnd(); ++rit)
+			for (LLGroupMemberData::role_list_t::iterator rit = member_data->roleBegin();
+				 rit != member_data->roleEnd(); ++rit)
 			{
 				if ((*rit).first.notNull() && (*rit).second!=0)
 				{
 					(*rit).second->removeMember(ejected_member_id);
-
-					llwarns << "LLGroupMgr::sendGroupMemberEjects - removing member from role " << llendl;
 				}
 			}
 			
-			group_datap->mMembers.erase(*it);
+			group_datap->mMembers.erase(ejected_member_id);
 			
-			llwarns << "LLGroupMgr::sendGroupMemberEjects - deleting memnber data " << llendl;
-			delete (*mit).second;
+			delete member_data;
 		}
 	}
 
@@ -1771,8 +1770,6 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	{
 		gAgent.sendReliableMessage();
 	}
-
-	llwarns << "LLGroupMgr::sendGroupMemberEjects - done " << llendl;
 }
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)

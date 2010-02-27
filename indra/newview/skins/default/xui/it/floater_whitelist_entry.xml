@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
-	<text name="media_label">
-		Inserisci un URL o una configurazione URL da aggiungere alla lista dei domini permessi
-	</text>
-	<line_editor name="whitelist_entry" tool_tip="Inserisci un URL o una configurazione URL alla lista bianca"/>
-	<button label="OK" name="ok_btn"/>
-	<button label="Cancella" name="cancel_btn"/>
-</floater>

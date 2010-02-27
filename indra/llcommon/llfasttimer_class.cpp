@@ -218,9 +218,10 @@ LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name)
 // static
 void LLFastTimer::DeclareTimer::updateCachedPointers()
 {
+	DeclareTimer::LLInstanceTrackerScopedGuard guard;
 	// propagate frame state pointers to timer declarations
-	for (DeclareTimer::instance_iter it = DeclareTimer::beginInstances();
-		it != DeclareTimer::endInstances();
+	for (DeclareTimer::instance_iter it = guard.beginInstances();
+		it != guard.endInstances();
 		++it)
 	{
 		// update cached pointer
@@ -371,20 +372,23 @@ void LLFastTimer::NamedTimer::buildHierarchy()
 	if (sCurFrameIndex < 0 ) return;
 
 	// set up initial tree
-    for (instance_iter it = NamedTimer::beginInstances();
-		it != endInstances();
-		++it)
 	{
-		NamedTimer& timer = *it;
-		if (&timer == NamedTimerFactory::instance().getRootTimer()) continue;
-
-		// bootstrap tree construction by attaching to last timer to be on stack
-		// when this timer was called
-		if (timer.getFrameState().mLastCaller && timer.mParent == NamedTimerFactory::instance().getRootTimer())
+		NamedTimer::LLInstanceTrackerScopedGuard guard;
+		for (instance_iter it = guard.beginInstances();
+		     it != guard.endInstances();
+		     ++it)
 		{
-			timer.setParent(timer.getFrameState().mLastCaller->mTimer);
-			// no need to push up tree on first use, flag can be set spuriously
-			timer.getFrameState().mMoveUpTree = false;
+			NamedTimer& timer = *it;
+			if (&timer == NamedTimerFactory::instance().getRootTimer()) continue;
+			
+			// bootstrap tree construction by attaching to last timer to be on stack
+			// when this timer was called
+			if (timer.getFrameState().mLastCaller && timer.mParent == NamedTimerFactory::instance().getRootTimer())
+			{
+				timer.setParent(timer.getFrameState().mLastCaller->mTimer);
+				// no need to push up tree on first use, flag can be set spuriously
+				timer.getFrameState().mMoveUpTree = false;
+			}
 		}
 	}
 
@@ -486,18 +490,21 @@ void LLFastTimer::NamedTimer::resetFrame()
 		F64 total_time = 0;
 		LLSD sd;
 
-		for (NamedTimer::instance_iter it = NamedTimer::beginInstances();
-					it != NamedTimer::endInstances();
-					++it)
 		{
-			NamedTimer& timer = *it;
-			FrameState& info = timer.getFrameState();
-			sd[timer.getName()]["Time"] = (LLSD::Real) (info.mSelfTimeCounter*iclock_freq);	
-			sd[timer.getName()]["Calls"] = (LLSD::Integer) info.mCalls;
-			
-			// computing total time here because getting the root timer's getCountHistory
-			// doesn't work correctly on the first frame
-			total_time = total_time + info.mSelfTimeCounter * iclock_freq;
+			NamedTimer::LLInstanceTrackerScopedGuard guard;
+			for (NamedTimer::instance_iter it = guard.beginInstances();
+			     it != guard.endInstances();
+			     ++it)
+			{
+				NamedTimer& timer = *it;
+				FrameState& info = timer.getFrameState();
+				sd[timer.getName()]["Time"] = (LLSD::Real) (info.mSelfTimeCounter*iclock_freq);	
+				sd[timer.getName()]["Calls"] = (LLSD::Integer) info.mCalls;
+				
+				// computing total time here because getting the root timer's getCountHistory
+				// doesn't work correctly on the first frame
+				total_time = total_time + info.mSelfTimeCounter * iclock_freq;
+			}
 		}
 
 		sd["Total"]["Time"] = (LLSD::Real) total_time;
@@ -531,21 +538,24 @@ void LLFastTimer::NamedTimer::resetFrame()
 	DeclareTimer::updateCachedPointers();
 
 	// reset for next frame
-	for (NamedTimer::instance_iter it = NamedTimer::beginInstances();
-		it != NamedTimer::endInstances();
-		++it)
 	{
-		NamedTimer& timer = *it;
-
-		FrameState& info = timer.getFrameState();
-		info.mSelfTimeCounter = 0;
-		info.mCalls = 0;
-		info.mLastCaller = NULL;
-		info.mMoveUpTree = false;
-		// update parent pointer in timer state struct
-		if (timer.mParent)
+		NamedTimer::LLInstanceTrackerScopedGuard guard;
+		for (NamedTimer::instance_iter it = guard.beginInstances();
+		     it != guard.endInstances();
+		     ++it)
 		{
-			info.mParent = &timer.mParent->getFrameState();
+			NamedTimer& timer = *it;
+			
+			FrameState& info = timer.getFrameState();
+			info.mSelfTimeCounter = 0;
+			info.mCalls = 0;
+			info.mLastCaller = NULL;
+			info.mMoveUpTree = false;
+			// update parent pointer in timer state struct
+			if (timer.mParent)
+			{
+				info.mParent = &timer.mParent->getFrameState();
+			}
 		}
 	}
 
@@ -575,20 +585,23 @@ void LLFastTimer::NamedTimer::reset()
 	}
 
 	// reset all history
-	for (NamedTimer::instance_iter it = NamedTimer::beginInstances();
-		it != NamedTimer::endInstances();
-		++it)
 	{
-		NamedTimer& timer = *it;
-		if (&timer != NamedTimerFactory::instance().getRootTimer()) 
+		NamedTimer::LLInstanceTrackerScopedGuard guard;
+		for (NamedTimer::instance_iter it = guard.beginInstances();
+		     it != guard.endInstances();
+		     ++it)
 		{
-			timer.setParent(NamedTimerFactory::instance().getRootTimer());
+			NamedTimer& timer = *it;
+			if (&timer != NamedTimerFactory::instance().getRootTimer()) 
+			{
+				timer.setParent(NamedTimerFactory::instance().getRootTimer());
+			}
+			
+			timer.mCountAverage = 0;
+			timer.mCallAverage = 0;
+			memset(timer.mCountHistory, 0, sizeof(U32) * HISTORY_NUM);
+			memset(timer.mCallHistory, 0, sizeof(U32) * HISTORY_NUM);
 		}
-
-		timer.mCountAverage = 0;
-		timer.mCallAverage = 0;
-		memset(timer.mCountHistory, 0, sizeof(U32) * HISTORY_NUM);
-		memset(timer.mCallHistory, 0, sizeof(U32) * HISTORY_NUM);
 	}
 
 	sLastFrameIndex = 0;

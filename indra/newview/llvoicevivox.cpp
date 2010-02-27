@@ -4450,25 +4450,26 @@ LLVivoxVoiceClient::sessionState* LLVivoxVoiceClient::startUserIMSession(const L
 		// No session with user, need to start one.
 		std::string uri = sipURIFromID(uuid);
 		session = addSession(uri);
+
+		llassert(session);
+		if (!session) return NULL;
+
 		session->mIsSpatial = false;
 		session->mReconnect = false;	
 		session->mIsP2P = true;
 		session->mCallerID = uuid;
 	}
 	
-	if(session)
-	{
-		if(session->mHandle.empty())
-		{
-			// Session isn't active -- start it up.
-			sessionCreateSendMessage(session, false, true);
-		}
-		else
-		{	
-			// Session is already active -- start up text.
-			sessionTextConnectSendMessage(session);
-		}
-	}
+	if(session->mHandle.empty())
+	  {
+	    // Session isn't active -- start it up.
+	    sessionCreateSendMessage(session, false, true);
+	  }
+	else
+	  {	
+	    // Session is already active -- start up text.
+	    sessionTextConnectSendMessage(session);
+	  }
 	
 	return session;
 }

@@ -152,6 +152,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 		if (avatar_id.notNull())
 		{
 			// ...valid avatar id
+
 			LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
 			if (hit_cell)
 			{
@@ -162,8 +163,8 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 				localRectToScreen(cell_rect, &sticky_rect);
 
 				// Spawn at right side of cell
-				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop + (sticky_rect.getHeight()-16)/2 );
 				LLPointer<LLUIImage> icon = LLUI::getUIImage("Info_Small");
+				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop - (sticky_rect.getHeight() - icon->getHeight())/2 );
 
 				// Should we show a group or an avatar inspector?
 				bool is_group = hit_item->getValue()["is_group"].asBoolean();
@@ -338,8 +339,7 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& first,
 		LLScrollListItem* item = *iter;
 		if (item->getUUID() == id)
 		{
-			LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(0);
-			cell = item->getColumn(mNameColumnIndex);
+			LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
 			if (cell)
 			{
 				cell->setValue(fullname);
@@ -355,8 +355,9 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& first,
 void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& first,
 								const std::string& last, BOOL is_group)
 {
+	LLInstanceTrackerScopedGuard guard;
 	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
-	for (it = beginInstances(); it != endInstances(); ++it)
+	for (it = guard.beginInstances(); it != guard.endInstances(); ++it)
 	{
 		LLNameListCtrl& ctrl = *it;
 		ctrl.refresh(id, first, last, is_group);

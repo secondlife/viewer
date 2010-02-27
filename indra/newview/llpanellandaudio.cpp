@@ -153,6 +153,13 @@ void LLPanelLandAudio::refresh()
 		mCheckParcelEnableVoice->set(allow_voice);
 		mCheckParcelVoiceLocal->set(!parcel->getParcelFlagUseEstateVoiceChannel());
 
+		// don't display urls if you're not able to change it
+		// much requested change in forums so people can't 'steal' urls
+		// NOTE: bug#2009 means this is still vunerable - however, bug
+		// should be closed since this bug opens up major security issues elsewhere.
+		bool obscure_music = ! can_change_media && parcel->getObscureMusic();
+		
+		mMusicURLEdit->setDrawAsterixes(obscure_music);
 		mMusicURLEdit->setText(parcel->getMusicURL());
 		mMusicURLEdit->setEnabled( can_change_media );
 	}

@@ -426,7 +426,7 @@ void LLCurrencyUIManager::Impl::prepare()
 	LLLineEditor* lindenAmount = mPanel.getChild<LLLineEditor>("currency_amt");
 	if (lindenAmount)
 	{
-		lindenAmount->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
+		lindenAmount->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 		lindenAmount->setKeystrokeCallback(onCurrencyKey, this);
 	}
 }

@@ -510,8 +510,12 @@ BOOL LLVOAvatarSelf::buildMenus()
 
 LLVOAvatarSelf::~LLVOAvatarSelf()
 {
-	gAgent.setAvatarObject(NULL);
-	gAgentWearables.setAvatarObject(NULL);
+	// gAgents pointer might have been set to a different Avatar Self, don't get rid of it if so.
+	if (gAgent.getAvatarObject() == this)
+	{
+		gAgent.setAvatarObject(NULL);
+		gAgentWearables.setAvatarObject(NULL);
+	}
 	delete mScreenp;
 	mScreenp = NULL;
 }
@@ -928,6 +932,13 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type, BOOL upload_result )
 	{
 		const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
 		const LLVOAvatarDefines::EBakedTextureIndex index = baked_iter->first;
+
+		// if we're editing our appearance, ensure that we're not using baked textures
+		// The baked texture for alpha masks is set explicitly when you hit "save"
+		if (gAgent.cameraCustomizeAvatar())
+		{
+			setNewBakedTexture(index,IMG_DEFAULT_AVATAR);
+		}
 		if (baked_dict)
 		{
 			for (LLVOAvatarDefines::wearables_vec_t::const_iterator type_iter = baked_dict->mWearables.begin();
@@ -1966,6 +1977,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 
 	// Don't know if this is needed
 	updateMeshTextures();
+
 }
 
 //-----------------------------------------------------------------------------

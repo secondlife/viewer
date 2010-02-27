@@ -56,8 +56,6 @@ public:
 	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
 
-	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-
 	void drawStickyRect();
 
 	/*virtual*/ void draw();
@@ -129,7 +127,8 @@ private:
 class LLInspector : public LLToolTip
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLToolTip::Params> {};
+	struct Params : public LLInitParam::Block<Params, LLToolTip::Params> 
+	{};
 };
 
 class LLToolTipMgr : public LLSingleton<LLToolTipMgr>

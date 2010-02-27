@@ -58,7 +58,7 @@
 #include "llmenucommands.h"
 #include "llviewercontrol.h"
 #include "llviewermessage.h"
-#include "lltimer.h"
+#include "lleventtimer.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 

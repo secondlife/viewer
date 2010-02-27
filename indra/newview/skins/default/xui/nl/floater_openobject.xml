@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="objectcontents" title="OBJECT INHOUD">
-	<text name="object_name">
-		[DESC]:
-	</text>
-	<button label="Kopiëren naar inventaris" label_selected="Kopiëren naar inventaris" name="copy_to_inventory_button" width="140"/>
-	<button label="Kopiëren en dragen" label_selected="Kopiëren en dragen" name="copy_and_wear_button" left="164"/>
-</floater>

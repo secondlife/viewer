@@ -167,8 +167,8 @@ void LLTexLayerSetBuffer::popProjection() const
 BOOL LLTexLayerSetBuffer::needsRender()
 {
 	const LLVOAvatarSelf* avatar = mTexLayerSet->getAvatar();
-	BOOL upload_now = mNeedsUpload && mTexLayerSet->isLocalTextureDataFinal();
-	BOOL needs_update = gAgentQueryManager.hasNoPendingQueries() && (mNeedsUpdate || upload_now) && !avatar->mAppearanceAnimating;
+	BOOL upload_now = mNeedsUpload && mTexLayerSet->isLocalTextureDataFinal() && gAgentQueryManager.hasNoPendingQueries();
+	BOOL needs_update = (mNeedsUpdate || upload_now) && !avatar->mAppearanceAnimating;
 	if (needs_update)
 	{
 		BOOL invalid_skirt = avatar->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !avatar->isWearingWearableType(WT_SKIRT);

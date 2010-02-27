@@ -226,7 +226,7 @@ public:
 	std::string childGetText(const std::string& id) const { return childGetValue(id).asString(); }
 
 	// LLLineEditor
-	void childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) );
+	void childSetPrevalidate(const std::string& id, bool (*func)(const LLWString &) );
 
 	// LLButton
 	void childSetAction(const std::string& id, boost::function<void(void*)> function, void* value = NULL);

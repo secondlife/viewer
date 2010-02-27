@@ -157,7 +157,6 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 			mFocusedObjectFace = 0;
 		}
 	}
-	
 }
 
 void LLViewerMediaFocus::clearFocus()
@@ -198,7 +197,7 @@ bool LLViewerMediaFocus::getFocus()
 }
 
 // This function selects an ideal viewing distance based on the focused object, pick normal, and padding value
-void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor)
+void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only)
 {
 	if (object)
 	{
@@ -269,7 +268,16 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
             camera_pos += 0.01 * len * delta;
         }
 
+		// If we are not allowing zooming out and the old camera position is closer to 
+		// the center then the new intended camera position, don't move camera and return
+		if (zoom_in_only &&
+		    (dist_vec_squared(gAgent.getCameraPositionGlobal(), target_pos) < dist_vec_squared(camera_pos, target_pos)))
+		{
+			return;
+		}
+
 		gAgent.setCameraPosAndFocusGlobal(camera_pos, target_pos, object->getID() );
+
 	}
 	else
 	{
@@ -549,6 +557,19 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
 			}
 		}
 	}
+}
+
+void LLViewerMediaFocus::unZoom()
+{
+	if(mMediaControls.get())
+	{
+		mMediaControls.get()->resetZoomLevel();
+	}
+}
+
+bool LLViewerMediaFocus::isZoomed() const
+{
+	return (mMediaControls.get() && mMediaControls.get()->getZoomLevel() != LLPanelPrimMediaControls::ZOOM_NONE);
 }
 
 LLUUID LLViewerMediaFocus::getControlsMediaID()

@@ -586,7 +586,7 @@ void LLFloaterColorPicker::draw()
 	gl_triangle_2d ( startX, startY,
 			startX + mLumMarkerSize, startY - mLumMarkerSize,
 				startX + mLumMarkerSize, startY + mLumMarkerSize,
-					LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ), TRUE );
+					LLColor4 ( 0.75f, 0.75f, 0.75f, 1.0f ), TRUE );
 
 	// draw luminance slider outline
 	gl_rect_2d ( mLumRegionLeft,

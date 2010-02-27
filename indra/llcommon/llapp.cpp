@@ -41,7 +41,7 @@
 #include "lllivefile.h"
 #include "llmemory.h"
 #include "llstl.h" // for DeletePointer()
-#include "lltimer.h"
+#include "lleventtimer.h"
 
 //
 // Signal handling

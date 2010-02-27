@@ -111,25 +111,76 @@ void LLCheckFolderState::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
+// Functor searching and opening a folder specified by UUID
+// in a folder view tree.
+class LLOpenFolderByID : public LLFolderViewFunctor
+{
+public:
+	LLOpenFolderByID(const LLUUID& folder_id)
+	:	mFolderID(folder_id)
+	,	mIsFolderOpen(false)
+	{}
+	virtual ~LLOpenFolderByID() {}
+	/*virtual*/ void doFolder(LLFolderViewFolder* folder);
+	/*virtual*/ void doItem(LLFolderViewItem* item) {}
+
+	bool isFolderOpen() { return mIsFolderOpen; }
+
+private:
+	bool	mIsFolderOpen;
+	LLUUID	mFolderID;
+};
+
+// virtual
+void LLOpenFolderByID::doFolder(LLFolderViewFolder* folder)
+{
+	if (folder->getListener() && folder->getListener()->getUUID() == mFolderID)
+	{
+		if (!folder->isOpen())
+		{
+			folder->setOpen(TRUE);
+			mIsFolderOpen = true;
+		}
+	}
+}
+
 /**
  * Bridge to support knowing when the inventory has changed to update Landmarks tab
  * ShowFolderState filter setting to show all folders when the filter string is empty and
  * empty folder message when Landmarks inventory category has no children.
+ * Ensures that "Landmarks" folder in the Library is open on strart up.
  */
 class LLLandmarksPanelObserver : public LLInventoryObserver
 {
 public:
-	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
+	LLLandmarksPanelObserver(LLLandmarksPanel* lp)
+	:	mLP(lp),
+	 	mIsLibraryLandmarksOpen(false)
+	{}
 	virtual ~LLLandmarksPanelObserver() {}
 	/*virtual*/ void changed(U32 mask);
 
 private:
 	LLLandmarksPanel* mLP;
+	bool mIsLibraryLandmarksOpen;
 };
 
 void LLLandmarksPanelObserver::changed(U32 mask)
 {
 	mLP->updateShowFolderState();
+
+	LLPlacesInventoryPanel* library = mLP->getLibraryInventoryPanel();
+	if (!mIsLibraryLandmarksOpen && library)
+	{
+		// Search for "Landmarks" folder in the Library and open it once on start up. See EXT-4827.
+		const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
+		if (landmarks_cat.notNull())
+		{
+			LLOpenFolderByID opener(landmarks_cat);
+			library->getRootFolder()->applyFunctorRecursively(opener);
+			mIsLibraryLandmarksOpen = opener.isFolderOpen();
+		}
+	}
 }
 
 LLLandmarksPanel::LLLandmarksPanel()
@@ -171,8 +222,6 @@ BOOL LLLandmarksPanel::postBuild()
 	initLandmarksInventoryPanel();
 	initMyInventoryPanel();
 	initLibraryInventoryPanel();
-	getChild<LLAccordionCtrlTab>("tab_favorites")->setDisplayChildren(true);
-	getChild<LLAccordionCtrlTab>("tab_landmarks")->setDisplayChildren(true);
 
 	return TRUE;
 }
@@ -462,7 +511,7 @@ void LLLandmarksPanel::initFavoritesInventoryPanel()
 	initLandmarksPanel(mFavoritesInventoryPanel);
 	mFavoritesInventoryPanel->getFilter()->setEmptyLookupMessage("FavoritesNoMatchingItems");
 
-	initAccordion("tab_favorites", mFavoritesInventoryPanel);
+	initAccordion("tab_favorites", mFavoritesInventoryPanel, true);
 }
 
 void LLLandmarksPanel::initLandmarksInventoryPanel()
@@ -481,7 +530,7 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
 	// subscribe to have auto-rename functionality while creating New Folder
 	mLandmarksInventoryPanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mLandmarksInventoryPanel, _1, _2));
 
-	initAccordion("tab_landmarks", mLandmarksInventoryPanel);
+	initAccordion("tab_landmarks", mLandmarksInventoryPanel, true);
 }
 
 void LLLandmarksPanel::initMyInventoryPanel()
@@ -490,7 +539,7 @@ void LLLandmarksPanel::initMyInventoryPanel()
 
 	initLandmarksPanel(mMyInventoryPanel);
 
-	initAccordion("tab_inventory", mMyInventoryPanel);
+	initAccordion("tab_inventory", mMyInventoryPanel, false);
 }
 
 void LLLandmarksPanel::initLibraryInventoryPanel()
@@ -499,7 +548,15 @@ void LLLandmarksPanel::initLibraryInventoryPanel()
 
 	initLandmarksPanel(mLibraryInventoryPanel);
 
-	initAccordion("tab_library", mLibraryInventoryPanel);
+	// We want to fetch only "Landmarks" category from the library.
+	const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
+	if (landmarks_cat.notNull())
+	{
+		gInventory.startBackgroundFetch(landmarks_cat);
+	}
+
+	// Expanding "Library" tab for new users who have no landmarks in "My Inventory".
+	initAccordion("tab_library", mLibraryInventoryPanel, true);
 }
 
 void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list)
@@ -520,20 +577,21 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 	{
 		root_folder->setupMenuHandle(LLInventoryType::IT_CATEGORY, mGearFolderMenu->getHandle());
 		root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
+
+		root_folder->setParentLandmarksPanel(this);
 	}
 
-	root_folder->setParentLandmarksPanel(this);
 	inventory_list->saveFolderState();
 }
 
-void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list)
+void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list,	bool expand_tab)
 {
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>(accordion_tab_name);
 
 	mAccordionTabs.push_back(accordion_tab);
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLLandmarksPanel::onAccordionExpandedCollapsed, this, _2, inventory_list));
-	accordion_tab->setDisplayChildren(false);
+	accordion_tab->setDisplayChildren(expand_tab);
 }
 
 void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list)

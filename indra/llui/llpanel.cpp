@@ -397,6 +397,12 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 		if (!panelp)
 		{
 			panelp = LLUICtrlFactory::getInstance()->createFactoryPanel(name);
+			llassert(panelp);
+			
+			if (!panelp)
+			{
+				return NULL; // :(
+			}
 		}
 
 	}
@@ -414,7 +420,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 	panelp->mCommitCallbackRegistrar.popScope();
 	panelp->mEnableCallbackRegistrar.popScope();
 
-	if (panelp && !panelp->getFactoryMap().empty())
+	if (!panelp->getFactoryMap().empty())
 	{
 		LLUICtrlFactory::instance().popFactoryFunctions();
 	}
@@ -936,7 +942,7 @@ LLPanel *LLPanel::childGetVisiblePanelWithHelp()
 	return ::childGetVisiblePanelWithHelp(this);
 }
 
-void LLPanel::childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWString &) )
+void LLPanel::childSetPrevalidate(const std::string& id, bool (*func)(const LLWString &) )
 {
 	LLLineEditor* child = findChild<LLLineEditor>(id);
 	if (child)

@@ -175,6 +175,11 @@ BOOL LLSpeakerActionTimer::tick()
 	return TRUE;
 }
 
+void LLSpeakerActionTimer::unset()
+{
+	mActionCallback = 0;
+}
+
 LLSpeakersDelayActionsStorage::LLSpeakersDelayActionsStorage(LLSpeakerActionTimer::action_callback_t action_cb, F32 action_delay)
 : mActionCallback(action_cb)
 , mActionDelay(action_delay)
@@ -205,7 +210,7 @@ void LLSpeakersDelayActionsStorage::setActionTimer(const LLUUID& speaker_id)
 	}
 }
 
-void LLSpeakersDelayActionsStorage::unsetActionTimer(const LLUUID& speaker_id, bool delete_it)
+void LLSpeakersDelayActionsStorage::unsetActionTimer(const LLUUID& speaker_id)
 {
 	if (mActionTimersMap.size() == 0) return;
 
@@ -213,10 +218,7 @@ void LLSpeakersDelayActionsStorage::unsetActionTimer(const LLUUID& speaker_id, b
 
 	if (it_speaker != mActionTimersMap.end())
 	{
-		if (delete_it)
-		{
-			delete it_speaker->second;
-		}
+		it_speaker->second->unset();
 		mActionTimersMap.erase(it_speaker);
 	}
 }
@@ -233,8 +235,7 @@ void LLSpeakersDelayActionsStorage::removeAllTimers()
 
 bool LLSpeakersDelayActionsStorage::onTimerActionCallback(const LLUUID& speaker_id)
 {
-	bool delete_it = false; // we're *in* this timer, return true to delete it, don't manually delete it
-	unsetActionTimer(speaker_id, delete_it);
+	unsetActionTimer(speaker_id);
 
 	if (mActionCallback)
 	{
@@ -293,9 +294,7 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 		}
 	}
 
-	bool delete_it = true;
-	mSpeakerDelayRemover->unsetActionTimer(speakerp->mID, delete_it);
-
+	mSpeakerDelayRemover->unsetActionTimer(speakerp->mID);
 	return speakerp;
 }
 

@@ -98,7 +98,10 @@ private:
 		mKey = key; 
 		getMap_()[key] = static_cast<T*>(this); 
 	}
-	void remove_() { getMap_().erase(mKey); }
+	void remove_()
+	{
+		getMap_().erase(mKey);
+	}
 
     static InstanceMap& getMap_()
     {
@@ -129,31 +132,65 @@ public:
 
 	/// for completeness of analogy with the generic implementation
 	static T* getInstance(T* k) { return k; }
-	static key_iter beginKeys() { return getSet_().begin(); }
-	static key_iter endKeys()   { return getSet_().end(); }
-	static instance_iter beginInstances() { return instance_iter(getSet_().begin()); }
-	static instance_iter endInstances()   { return instance_iter(getSet_().end()); }
 	static S32 instanceCount() { return getSet_().size(); }
 
+	// Instantiate this to get access to iterators for this type.  It's a 'guard' in the sense
+	// that it treats deletes of this type as errors as long as there is an instance of
+	// this class alive in scope somewhere (i.e. deleting while iterating is bad).
+	class LLInstanceTrackerScopedGuard
+	{
+	public:
+		LLInstanceTrackerScopedGuard()
+		{
+			++sIterationNestDepth;
+		}
+
+		~LLInstanceTrackerScopedGuard()
+		{
+			--sIterationNestDepth;
+		}
+
+		static instance_iter beginInstances() {	return instance_iter(getSet_().begin()); }
+		static instance_iter endInstances() { return instance_iter(getSet_().end()); }
+		static key_iter beginKeys() { return getSet_().begin(); }
+		static key_iter endKeys()   { return getSet_().end(); }
+	};
+
 protected:
-	LLInstanceTracker() { getSet_().insert(static_cast<T*>(this)); }
-	virtual ~LLInstanceTracker() { getSet_().erase(static_cast<T*>(this)); }
+	LLInstanceTracker()
+	{
+		// it's safe but unpredictable to create instances of this type while all instances are being iterated over.  I hate unpredictable.  This assert will probably be turned on early in the next development cycle.
+		//llassert(sIterationNestDepth == 0);
+		getSet_().insert(static_cast<T*>(this));
+	}
+	virtual ~LLInstanceTracker()
+	{
+		// it's unsafe to delete instances of this type while all instances are being iterated over.
+		llassert(sIterationNestDepth == 0);
+		getSet_().erase(static_cast<T*>(this));
+	}
 
-	LLInstanceTracker(const LLInstanceTracker& other) { getSet_().insert(static_cast<T*>(this)); }
+	LLInstanceTracker(const LLInstanceTracker& other)
+	{
+		//llassert(sIterationNestDepth == 0);
+		getSet_().insert(static_cast<T*>(this));
+	}
 
-    static InstanceSet& getSet_()   // called after getReady() but before go()
-    {
-        if (! sInstances)
-        {
-            sInstances = new InstanceSet;
-        }
-        return *sInstances;
-    }
+	static InstanceSet& getSet_()
+	{
+		if (! sInstances)
+		{
+			sInstances = new InstanceSet;
+		}
+		return *sInstances;
+	}
 
 	static InstanceSet* sInstances;
+	static S32 sIterationNestDepth;
 };
 
 template <typename T, typename KEY> typename LLInstanceTracker<T, KEY>::InstanceMap* LLInstanceTracker<T, KEY>::sInstances = NULL;
 template <typename T> typename LLInstanceTracker<T, T*>::InstanceSet* LLInstanceTracker<T, T*>::sInstances = NULL;
+template <typename T> S32 LLInstanceTracker<T, T*>::sIterationNestDepth = 0;
 
 #endif

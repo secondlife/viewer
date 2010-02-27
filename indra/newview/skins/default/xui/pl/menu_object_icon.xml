@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Object Icon Menu">
-	<menu_item_call label="Sprawdź..." name="Object Profile"/>
-	<menu_item_call label="Zablokuj..." name="Block"/>
-</menu>

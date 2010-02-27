@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Teleport History Gear Context Menu">
-	<menu_item_call label="Udvid alle mapper" name="Expand all folders"/>
-	<menu_item_call label="Luk alle mapper" name="Collapse all folders"/>
-	<menu_item_call label="Nulstil teleport historik" name="Clear Teleport History"/>
-</menu>

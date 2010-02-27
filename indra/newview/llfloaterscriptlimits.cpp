@@ -744,13 +744,13 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	{
 		mParcelMemoryUsed = content["summary"]["used"][0]["amount"].asInteger() / SIZE_OF_ONE_KB;
 		mParcelMemoryMax = content["summary"]["available"][0]["amount"].asInteger() / SIZE_OF_ONE_KB;
-		mGotParcelMemoryUsed = TRUE;
+		mGotParcelMemoryUsed = true;
 	}
 	else if(content["summary"]["used"][1]["type"].asString() == std::string("memory"))
 	{
 		mParcelMemoryUsed = content["summary"]["used"][1]["amount"].asInteger() / SIZE_OF_ONE_KB;
 		mParcelMemoryMax = content["summary"]["available"][1]["amount"].asInteger() / SIZE_OF_ONE_KB;
-		mGotParcelMemoryUsed = TRUE;
+		mGotParcelMemoryUsed = true;
 	}
 	else
 	{
@@ -762,13 +762,13 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	{
 		mParcelURLsUsed = content["summary"]["used"][0]["amount"].asInteger();
 		mParcelURLsMax = content["summary"]["available"][0]["amount"].asInteger();
-		mGotParcelURLsUsed = TRUE;
+		mGotParcelURLsUsed = true;
 	}
 	else if(content["summary"]["used"][1]["type"].asString() == std::string("urls"))
 	{
 		mParcelURLsUsed = content["summary"]["used"][1]["amount"].asInteger();
 		mParcelURLsMax = content["summary"]["available"][1]["amount"].asInteger();
-		mGotParcelURLsUsed = TRUE;
+		mGotParcelURLsUsed = true;
 	}
 	else
 	{
@@ -902,10 +902,10 @@ void LLPanelScriptLimitsRegionMemory::clearList()
 		list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	}
 
-	mGotParcelMemoryUsed = FALSE;
-	mGotParcelMemoryMax = FALSE;
-	mGotParcelURLsUsed = FALSE;
-	mGotParcelURLsMax = FALSE;
+	mGotParcelMemoryUsed = false;
+	mGotParcelMemoryMax = false;
+	mGotParcelURLsUsed = false;
+	mGotParcelURLsMax = false;
 	
 	LLStringUtil::format_map_t args_parcel_memory;
 	std::string msg_empty_string("");
@@ -1208,13 +1208,13 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 	{
 		mAttachmentMemoryUsed = content["summary"]["used"][0]["amount"].asInteger() / SIZE_OF_ONE_KB;
 		mAttachmentMemoryMax = content["summary"]["available"][0]["amount"].asInteger() / SIZE_OF_ONE_KB;
-		mGotAttachmentMemoryUsed = TRUE;
+		mGotAttachmentMemoryUsed = true;
 	}
 	else if(content["summary"]["used"][1]["type"].asString() == std::string("memory"))
 	{
 		mAttachmentMemoryUsed = content["summary"]["used"][1]["amount"].asInteger() / SIZE_OF_ONE_KB;
 		mAttachmentMemoryMax = content["summary"]["available"][1]["amount"].asInteger() / SIZE_OF_ONE_KB;
-		mGotAttachmentMemoryUsed = TRUE;
+		mGotAttachmentMemoryUsed = true;
 	}
 	else
 	{
@@ -1226,13 +1226,13 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 	{
 		mAttachmentURLsUsed = content["summary"]["used"][0]["amount"].asInteger();
 		mAttachmentURLsMax = content["summary"]["available"][0]["amount"].asInteger();
-		mGotAttachmentURLsUsed = TRUE;
+		mGotAttachmentURLsUsed = true;
 	}
 	else if(content["summary"]["used"][1]["type"].asString() == std::string("urls"))
 	{
 		mAttachmentURLsUsed = content["summary"]["used"][1]["amount"].asInteger();
 		mAttachmentURLsMax = content["summary"]["available"][1]["amount"].asInteger();
-		mGotAttachmentURLsUsed = TRUE;
+		mGotAttachmentURLsUsed = true;
 	}
 	else
 	{

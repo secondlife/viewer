@@ -36,6 +36,7 @@
 #include "llfloaterreg.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
+#include "lleventtimer.h"
 #include "llfiltereditor.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"

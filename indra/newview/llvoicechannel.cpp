@@ -122,7 +122,8 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 	mState(STATE_NO_CHANNEL_INFO), 
 	mSessionName(session_name),
 	mCallDirection(OUTGOING_CALL),
-	mIgnoreNextSessionLeave(FALSE)
+	mIgnoreNextSessionLeave(FALSE),
+	mCallEndedByAgent(false)
 {
 	mNotifyArgs["VOICE_CHANNEL_NAME"] = mSessionName;
 
@@ -418,7 +419,7 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 	EState old_state = mState;
 	mState = new_state;
 	if (!mStateChangedCallback.empty())
-		mStateChangedCallback(old_state, mState, mCallDirection);
+		mStateChangedCallback(old_state, mState, mCallDirection, mCallEndedByAgent);
 }
 
 //static
@@ -783,7 +784,8 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 			}
 			else
 			{
-				// other user hung up				
+				// other user hung up, so we didn't end the call				
+				mCallEndedByAgent = false;			
 			}
 			deactivate();
 		}
@@ -813,6 +815,9 @@ void LLVoiceChannelP2P::handleError(EStatusType type)
 void LLVoiceChannelP2P::activate()
 {
 	if (callStarted()) return;
+
+	//call will be counted as ended by user unless this variable is changed in handleStatusChange()
+	mCallEndedByAgent = true;
 
 	LLVoiceChannel::activate();
 

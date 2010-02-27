@@ -202,12 +202,12 @@ void LLAudioEngine::updateInternetStream()
 }
 
 // virtual
-int LLAudioEngine::isInternetStreamPlaying()
+LLAudioEngine::LLAudioPlayState LLAudioEngine::isInternetStreamPlaying()
 {
 	if (mStreamingAudioImpl)
-		return mStreamingAudioImpl->isPlaying();
+		return (LLAudioEngine::LLAudioPlayState) mStreamingAudioImpl->isPlaying();
 
-	return 0; // Stopped
+	return LLAudioEngine::AUDIO_STOPPED; // Stopped
 }
 
 

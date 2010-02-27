@@ -159,6 +159,27 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 	// Make sure we know which tab is selected, update the filter,
 	// and update verbs.
 	onTabChange();
+	
+	// Auto open the first outfit newly created so new users can see sample outfit contents
+	static bool should_open_outfit = true;
+	if (should_open_outfit && gAgent.isFirstLogin())
+	{
+		LLInventoryPanel* outfits_panel = getChild<LLInventoryPanel>(OUTFITS_TAB_NAME);
+		if (outfits_panel)
+		{
+			LLUUID my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+			LLFolderViewFolder* my_outfits_folder = outfits_panel->getRootFolder()->getFolderByID(my_outfits_id);
+			if (my_outfits_folder)
+			{
+				LLFolderViewFolder* first_outfit = dynamic_cast<LLFolderViewFolder*>(my_outfits_folder->getFirstChild());
+				if (first_outfit)
+				{
+					first_outfit->setOpen(TRUE);
+				}
+			}
+		}
+	}
+	should_open_outfit = false;
 }
 
 void LLPanelOutfitsInventory::updateVerbs()

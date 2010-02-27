@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="notifications_console" title="通知コンソール">
-	<combo_box label="種類を選択" name="notification_types"/>
-	<button label="追加" name="add_notification"/>
-</floater>

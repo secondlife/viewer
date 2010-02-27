@@ -242,7 +242,7 @@ BOOL LLPanelClassified::postBuild()
 	mNameEditor->setCommitOnFocusLost(TRUE);
 	mNameEditor->setFocusReceivedCallback(boost::bind(focusReceived, _1, this));
 	mNameEditor->setCommitCallback(onCommitAny, this);
-	mNameEditor->setPrevalidate( LLLineEditor::prevalidateASCII );
+	mNameEditor->setPrevalidate( LLTextValidate::validateASCII );
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
@@ -1072,7 +1072,7 @@ BOOL LLFloaterPriceForListing::postBuild()
 	LLLineEditor* edit = getChild<LLLineEditor>("price_edit");
 	if (edit)
 	{
-		edit->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
+		edit->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 		std::string min_price = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
 		edit->setText(min_price);
 		edit->selectAll();

@@ -139,6 +139,8 @@ public:
 
 	LLPanel*	getButtonsPanel() { return mButtonsPanel; }
 
+	bool		getCollapsed() { return mCollapsed; }
+
 public:
 	virtual ~LLSideTray(){};
 

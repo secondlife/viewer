@@ -141,7 +141,7 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 			line_p.rect.setIfNotProvided(text_rect);
 			line_p.font.setIfNotProvided(p.font);
 			line_p.commit_callback.function(&LLSliderCtrl::onEditorCommit);
-			line_p.prevalidate_callback(&LLLineEditor::prevalidateFloat);
+			line_p.prevalidate_callback(&LLTextValidate::validateFloat);
 			mEditor = LLUICtrlFactory::create<LLLineEditor>(line_p);
 
 			mEditor->setFocusReceivedCallback( boost::bind(&LLSliderCtrl::onEditorGainFocus, _1, this ));

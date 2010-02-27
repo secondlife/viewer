@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<multi_slider text_color="LabelTextColor"
-                  text_disabled_color="LabelDisabledColor"
-                  draw_track="true"
-                  use_triangle="false"
-                  font="SansSerifSmall"/>

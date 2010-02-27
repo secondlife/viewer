@@ -134,7 +134,9 @@ public:
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
 
-	typedef std::vector<LLFace*> ll_face_list_t ;
+	typedef std::vector<LLFace*> ll_face_list_t;
+	typedef std::vector<LLVOVolume*> ll_volume_list_t;
+
 
 protected:
 	virtual ~LLViewerTexture();
@@ -177,6 +179,11 @@ public:
 	virtual void removeFace(LLFace* facep) ; 
 	S32 getNumFaces() const;
 	const ll_face_list_t* getFaceList() const {return &mFaceList;}
+
+	virtual void addVolume(LLVOVolume* volumep);
+	virtual void removeVolume(LLVOVolume* volumep);
+	S32 getNumVolumes() const;
+	const ll_volume_list_t* getVolumeList() const { return &mVolumeList; }
 
 	void generateGLTexture() ;
 	void destroyGLTexture() ;
@@ -242,7 +249,7 @@ protected:
 	void cleanup() ;
 	void init(bool firstinit) ;	
 	void reorganizeFaceList() ;
-
+	void reorganizeVolumeList() ;
 private:
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
@@ -268,6 +275,10 @@ protected:
 	ll_face_list_t    mFaceList ; //reverse pointer pointing to the faces using this image as texture
 	U32               mNumFaces ;
 	LLFrameTimer      mLastFaceListUpdateTimer ;
+
+	ll_volume_list_t  mVolumeList;
+	U32					mNumVolumes;
+	LLFrameTimer	  mLastVolumeListUpdateTimer;
 
 	//do not use LLPointer here.
 	LLViewerMediaTexture* mParcelMedia ;

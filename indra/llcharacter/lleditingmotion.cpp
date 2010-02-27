@@ -221,7 +221,7 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 	if (!target.isFinite())
 	{
 		llerrs << "Non finite target in editing motion with target distance of " << target_dist << 
-			" and focus point " << focus_pt << " and pointAtPt: " << *pointAtPt << llendl;
+			" and focus point " << focus_pt << llendl;
 	}
 	
 	mTarget.setPosition( target + mParentJoint.getPosition());

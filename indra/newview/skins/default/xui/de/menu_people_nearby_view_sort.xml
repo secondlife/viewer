@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_check label="Nach letzten Sprechern sortieren" name="sort_by_recent_speakers"/>
-	<menu_item_check label="Nach Name sortieren" name="sort_name"/>
-	<menu_item_check label="Nach Entfernung sortieren" name="sort_distance"/>
-	<menu_item_check label="Profilbilder anzeigen" name="view_icons"/>
-	<menu_item_call label="Zeige geblockte Einwohner &amp; Objekte" name="show_blocked_list"/>
-</menu>

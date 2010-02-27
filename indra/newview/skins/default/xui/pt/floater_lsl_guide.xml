@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="script ed float" title="LSL WIKI">
-	<check_box label="Seguir o Cursor" name="lock_check" />
-	<combo_box label="Bloquear" name="history_combo"  left_delta="120" width="70"/>
-	<button label="Anterior" name="back_btn"  left_delta="75"/>
-	<button label="Posterior" name="fwd_btn" />
-</floater>

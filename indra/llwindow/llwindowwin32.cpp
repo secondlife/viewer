@@ -378,6 +378,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mMousePositionModified = FALSE;
 	mInputProcessingPaused = FALSE;
 	mPreeditor = NULL;
+	mKeyCharCode = 0;
+	mKeyScanCode = 0;
+	mKeyVirtualKey = 0;
 	mhDC = NULL;
 	mhRC = NULL;
 
@@ -1872,6 +1875,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			// allow system keys, such as ALT-F4 to be processed by Windows
 			eat_keystroke = FALSE;
 		case WM_KEYDOWN:
+			window_imp->mKeyCharCode = 0; // don't know until wm_char comes in next
+			window_imp->mKeyScanCode = ( l_param >> 16 ) & 0xff;
+			window_imp->mKeyVirtualKey = w_param;
+
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYDOWN");
 			{
 				if (gDebugWindowProc)
@@ -1891,6 +1898,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			eat_keystroke = FALSE;
 		case WM_KEYUP:
 		{
+			window_imp->mKeyScanCode = ( l_param >> 16 ) & 0xff;
+			window_imp->mKeyVirtualKey = w_param;
+
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYUP");
 			LLFastTimer t2(FTM_KEYHANDLER);
 
@@ -1976,6 +1986,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_CHAR:
+			window_imp->mKeyCharCode = w_param;
+
 			// Should really use WM_UNICHAR eventually, but it requires a specific Windows version and I need
 			// to figure out how that works. - Doug
 			//
@@ -3051,6 +3063,19 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
 	*/
 }
 
+/*
+	Make the raw keyboard data available - used to poke through to LLQtWebKit so
+	that Qt/Webkit has access to the virtual keycodes etc. that it needs
+*/
+LLSD LLWindowWin32::getNativeKeyData()
+{
+	LLSD result = LLSD::emptyMap();
+
+	result["scan_code"] = (S32)mKeyScanCode;
+	result["virtual_key"] = (S32)mKeyVirtualKey;
+
+	return result;
+}
 
 BOOL LLWindowWin32::dialogColorPicker( F32 *r, F32 *g, F32 *b )
 {

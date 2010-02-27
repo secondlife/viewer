@@ -105,15 +105,6 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			std::string mediaUrl = std::string ( parcel->getMediaURL () );
 			std::string mediaCurrentUrl = std::string( parcel->getMediaCurrentURL());
 
-			// First use warning
-			if( (!mediaUrl.empty() ||
-			     !parcel->getMusicURL().empty())
-			    && LLViewerMedia::needsMediaFirstRun())
-			{
-				LLViewerMedia::displayMediaFirstRun();
-				return;
-			}
-
 			// if we have a current (link sharing) url, use it instead
 			if (mediaCurrentUrl != "" && parcel->getMediaType() == "text/html")
 			{

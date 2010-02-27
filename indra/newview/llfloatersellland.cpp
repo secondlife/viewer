@@ -163,7 +163,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 {
 	childSetCommitCallback("sell_to", onChangeValue, this);
 	childSetCommitCallback("price", onChangeValue, this);
-	childSetPrevalidate("price", LLLineEditor::prevalidateNonNegativeS32);
+	childSetPrevalidate("price", LLTextValidate::validateNonNegativeS32);
 	childSetCommitCallback("sell_objects", onChangeValue, this);
 	childSetAction("sell_to_select_agent", boost::bind( &LLFloaterSellLandUI::doSelectAgent, this));
 	childSetAction("cancel_btn", doCancel, this);
@@ -268,7 +268,7 @@ void LLFloaterSellLandUI::refreshUI()
 
 	std::string price_str = childGetValue("price").asString();
 	bool valid_price = false;
-	valid_price = (price_str != "") && LLLineEditor::prevalidateNonNegativeS32(utf8str_to_wstring(price_str));
+	valid_price = (price_str != "") && LLTextValidate::validateNonNegativeS32(utf8str_to_wstring(price_str));
 
 	if (valid_price && mParcelActualArea > 0)
 	{

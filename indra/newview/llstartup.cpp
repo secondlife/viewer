@@ -123,7 +123,7 @@
 #include "llmutelist.h"
 #include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpanelevent.h"
+#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelplace.h"
@@ -135,13 +135,14 @@
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llsidetray.h"
 #include "llstatview.h"
-#include "lltrans.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
 #include "llsurface.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "lltoolmgr.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llurldispatcher.h"
 #include "llslurl.h"
@@ -736,6 +737,8 @@ bool idle_startup()
 			}     
 			LLPanelLogin::giveFocus();
 
+			gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
+
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
@@ -760,6 +763,9 @@ bool idle_startup()
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
+
+		// Hide the splash screen
+		LLSplashScreen::hide();
 
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
@@ -1194,6 +1200,7 @@ bool idle_startup()
 
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
+		
 		return FALSE;
 	}
 
@@ -1696,6 +1703,13 @@ bool idle_startup()
 					<< " kbps" << LL_ENDL;
 				gViewerThrottle.setMaxBandwidth(FAST_RATE_BPS / 1024.f);
 			}
+
+			// Set the show start location to true, now that the user has logged
+			// on with this install.
+			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
+			
+			LLSideTray::getInstance()->showPanel("panel_home", LLSD());
+
 		}
 
 		// We're successfully logged in.
@@ -1875,7 +1889,7 @@ bool idle_startup()
 				LLViewerShaderMgr::instance()->setShaders();
 			}
 		}
-
+		
 		return TRUE;
 	}
 
@@ -1993,9 +2007,6 @@ bool idle_startup()
 		// LLUserAuth::getInstance()->reset();
 
 		LLStartUp::setStartupState( STATE_STARTED );
-
-		// Mark that we have successfully logged in at least once
-		gSavedSettings.setBOOL("HadFirstSuccessfulLogin", TRUE);
 
 		// Unmute audio if desired and setup volumes.
 		// Unmute audio if desired and setup volumes.
@@ -2311,7 +2322,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
-	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
@@ -2373,6 +2384,8 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
+	llinfos << "starting" << llendl;
+
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
@@ -2393,27 +2406,53 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	// try to find the outfit - if not there, create some default
 	// wearables.
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	LLNameCategoryCollector has_name(outfit_folder_name);
-	gInventory.collectDescendentsIf(gInventory.getLibraryRootFolderID(),
-									cat_array,
-									item_array,
-									LLInventoryModel::EXCLUDE_TRASH,
-									has_name);
-	if (0 == cat_array.count())
+	LLUUID cat_id = findDescendentCategoryIDByName(
+		gInventory.getLibraryRootFolderID(),
+		outfit_folder_name);
+	if (cat_id.isNull())
 	{
 		gAgentWearables.createStandardWearables(gender);
 	}
 	else
 	{
-		LLInventoryCategory* cat = cat_array.get(0);
 		bool do_copy = true;
 		bool do_append = false;
+		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
-	LLAppearanceManager::instance().wearOutfitByName(gestures);
-	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);
+
+	// Copy gestures
+	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
+	LLPointer<LLInventoryCallback> cb(NULL);
+	LLAppearanceManager *app_mgr = &(LLAppearanceManager::instance());
+
+	// - Copy gender-specific gestures.
+	LLUUID gestures_cat_id = findDescendentCategoryIDByName( 
+		gInventory.getLibraryRootFolderID(),
+		gestures);
+	if (gestures_cat_id.notNull())
+	{
+		callAfterCategoryFetch(gestures_cat_id,
+							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+										   app_mgr,
+										   gestures_cat_id,
+										   dst_id,
+										   cb));
+	}
+
+	// - Copy common gestures.
+	LLUUID common_gestures_cat_id = findDescendentCategoryIDByName( 
+		gInventory.getLibraryRootFolderID(),
+		COMMON_GESTURES_FOLDER);
+	if (common_gestures_cat_id.notNull())
+	{
+		callAfterCategoryFetch(common_gestures_cat_id,
+							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+										   app_mgr,
+										   common_gestures_cat_id,
+										   dst_id,
+										   cb));
+	}
 
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC

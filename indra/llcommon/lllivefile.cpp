@@ -33,7 +33,7 @@
 
 #include "lllivefile.h"
 #include "llframetimer.h"
-#include "lltimer.h"
+#include "lleventtimer.h"
 
 const F32 DEFAULT_CONFIG_FILE_REFRESH = 5.0f;
 

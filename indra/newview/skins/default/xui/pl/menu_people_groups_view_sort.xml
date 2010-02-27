@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_check label="Wyświetlaj Ikonki Grupy" name="Display Group Icons"/>
-	<menu_item_call label="Opuść Zaznaczone Grupy" name="Leave Selected Group"/>
-</menu>

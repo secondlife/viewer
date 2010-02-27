@@ -211,7 +211,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 
 #if !USE_VIEWER_AUTH
-	childSetPrevalidate("username_edit", LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("username_edit", LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
@@ -927,8 +927,7 @@ void LLPanelLogin::loadLoginPage()
 	{
 		oStr << "&auto_login=TRUE";
 	}
-	if (gSavedSettings.getBOOL("ShowStartLocation")
-		&& gSavedSettings.getBOOL("HadFirstSuccessfulLogin"))
+	if (gSavedSettings.getBOOL("ShowStartLocation"))
 	{
 		oStr << "&show_start_location=TRUE";
 	}	

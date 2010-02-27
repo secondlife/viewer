@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="landmark_overflow_menu">
-	<menu_item_call label="Kopiér SLurl" name="copy"/>
-	<menu_item_call label="Slet" name="delete"/>
-	<menu_item_call label="Opret favorit" name="pick"/>
-	<menu_item_call label="Tilføj til favorit bjælke" name="add_to_favbar"/>
-</toggleable_menu>

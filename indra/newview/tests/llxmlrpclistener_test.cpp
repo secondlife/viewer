@@ -4,7 +4,7 @@
  * @date   2009-03-20
  * @brief  Test for llxmlrpclistener.
  * 
- * $LicenseInfo:firstyear=2009&license=internal$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * Copyright (c) 2009, Linden Research, Inc.
  * $/LicenseInfo$
  */

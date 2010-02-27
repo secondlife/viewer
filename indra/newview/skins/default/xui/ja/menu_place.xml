@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="place_overflow_menu">
-	<menu_item_call label="ランドマークを作成" name="landmark"/>
-	<menu_item_call label="ピックを作成" name="pick"/>
-	<menu_item_call label="入場許可を購入" name="pass"/>
-	<menu_item_call label="編集" name="edit"/>
-</toggleable_menu>

@@ -77,13 +77,15 @@ def find_vc_dir():
 
 def find_mt_path():
     vc_dir = find_vc_dir()
-    mt_path = '\"%sbin\\mt.exe\"' % vc_dir
+    print "Found vc_dir: %s" % vc_dir
+    mt_path = '\"%s\\VC\\bin\\mt.exe\"' % vc_dir
     return mt_path
     
 def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     print "checking %s dependency %s..." % (src_filename, assembly_name)
 
     (tmp_file_fd, tmp_file_name) = tempfile.mkstemp(suffix='.xml')
+    print tmp_file_name
     tmp_file = os.fdopen(tmp_file_fd)
     tmp_file.close()
 

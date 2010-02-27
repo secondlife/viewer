@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview_texture">
-	<text name="desc txt">
-		Descripción:
-	</text>
-	<text name="dimensions">
-		Tamaño: [WIDTH] x [HEIGHT]
-	</text>
-</floater>

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="picks_plus_menu">
-	<menu_item_call label="Nuovo luogo consigliato" name="create_pick"/>
-	<menu_item_call label="Nuovo Annuncio" name="create_classified"/>
-</toggleable_menu>

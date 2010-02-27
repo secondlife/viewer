@@ -66,6 +66,11 @@ static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
+const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
+
+const static std::string SLURL_APP_AGENT = "secondlife:///app/agent/";
+const static std::string SLURL_ABOUT = "/about";
+
 // support for secondlife:///app/objectim/{UUID}/ SLapps
 class LLObjectIMHandler : public LLCommandHandler
 {
@@ -116,7 +121,7 @@ public:
 	//*TODO remake it using mouse enter/leave and static LLHandle<LLIconCtrl> to add/remove as a child
 	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
-		LLViewerTextEditor* name = getChild<LLViewerTextEditor>("user_name");
+		LLTextBase* name = getChild<LLTextBase>("user_name");
 		if (name && name->parentPointInView(x, y) && mAvatarID.notNull() && SYSTEM_FROM != mFrom)
 		{
 
@@ -257,26 +262,24 @@ public:
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
-		if(chat.mFromID.isNull())
+
+		//*TODO overly defensive thing, source type should be maintained out there
+		if(chat.mFromID.isNull() || chat.mFromName == SYSTEM_FROM)
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-		LLTextEditor* userName = getChild<LLTextEditor>("user_name");
+		LLTextBox* userName = getChild<LLTextBox>("user_name");
 
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
 		
-		if(!chat.mFromName.empty())
+		userName->setValue(chat.mFromName);
+		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
 		{
-			userName->setValue(chat.mFromName);
-			mFrom = chat.mFromName;
+			userName->setValue(LLTrans::getString("SECOND_LIFE"));
 		}
-		else
-		{
-			std::string SL = LLTrans::getString("SECOND_LIFE");
-			userName->setValue(SL);
-		}
+
 
 		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
@@ -287,20 +290,22 @@ public:
 		if(mSourceType != CHAT_SOURCE_AGENT)
 			icon->setDrawTooltip(false);
 
-		if(!chat.mFromID.isNull())
+		switch (mSourceType)
 		{
-			icon->setValue(chat.mFromID);
+			case CHAT_SOURCE_AGENT:
+				icon->setValue(chat.mFromID);
+				break;
+			case CHAT_SOURCE_OBJECT:
+				icon->setValue(LLSD("OBJECT_Icon"));
+				break;
+			case CHAT_SOURCE_SYSTEM:
+				icon->setValue(LLSD("SL_Logo"));
 		}
-		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
-		{
-			icon->setValue(LLSD("SL_Logo"));
-		}
-
 	}
 
 	/*virtual*/ void draw()
 	{
-		LLTextEditor* user_name = getChild<LLTextEditor>("user_name");
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
 
 		LLRect user_name_rect = user_name->getRect();
@@ -444,6 +449,7 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 	editor_params.rect = getLocalRect();
 	editor_params.follows.flags = FOLLOWS_ALL;
 	editor_params.enabled = false; // read only
+	editor_params.show_context_menu = "true";
 	mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
 }
 
@@ -538,6 +544,7 @@ void LLChatHistory::clear()
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
+
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
@@ -585,15 +592,30 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	bool irc_me = prefix == "/me " || prefix == "/me'";
 
 	// Delimiter after a name in header copy/past and in plain text mode
-	std::string delimiter = (chat.mChatType != CHAT_TYPE_SHOUT && chat.mChatType != CHAT_TYPE_WHISPER)
-		? ": "
-		: " ";
+	std::string delimiter = ": ";
+	std::string shout = LLTrans::getString("shout");
+	std::string whisper = LLTrans::getString("whisper");
+	if (chat.mChatType == CHAT_TYPE_SHOUT || 
+		chat.mChatType == CHAT_TYPE_WHISPER ||
+		chat.mText.compare(0, shout.length(), shout) == 0 ||
+		chat.mText.compare(0, whisper.length(), whisper) == 0)
+	{
+		delimiter = " ";
+	}
 
 	// Don't add any delimiter after name in irc styled messages
 	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
 	{
 		delimiter = LLStringUtil::null;
 		style_params.font.style = "ITALIC";
+	}
+
+	//*HACK we graying out chat history by graying out messages that contains full date in a time string
+	bool message_from_log = chat.mTimeStr.length() > LENGTH_OF_TIME_STR; 
+	if (message_from_log)
+	{
+		style_params.color(LLColor4::grey);
+		style_params.readonly_color(LLColor4::grey);
 	}
 
 	if (use_plain_text_chat_history)
@@ -630,10 +652,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
 									false, link_params);
 			}
-			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
-				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				// Convert the name to a hotlink and add to message.
 				mEditor->appendText(chat.mFromName + delimiter, false, link_params);
 			}
@@ -759,6 +781,20 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	else
 	{
 		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+
+
+		//MESSAGE TEXT PROCESSING
+		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
+		if (use_plain_text_chat_history && gAgentID != chat.mFromID && chat.mFromID.notNull())
+		{
+			std::string slurl_about = SLURL_APP_AGENT + chat.mFromID.asString() + SLURL_ABOUT;
+			if (message.length() > slurl_about.length() && 
+				message.compare(0, slurl_about.length(), slurl_about) == 0)
+			{
+				message = message.substr(slurl_about.length(), message.length()-1);
+			}
+		}
+
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();
