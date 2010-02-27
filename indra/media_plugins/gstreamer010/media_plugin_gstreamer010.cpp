@@ -690,7 +690,7 @@ MediaPluginGStreamer010::load()
 
 	// get a visualizer element (bonus feature!)
 	char* vis_name = getenv("LL_GST_VIS_NAME");
-	if (!visname ||
+	if (!vis_name ||
 	    (vis_name && std::string(vis_name)!="none"))
 	{
 		if (vis_name)
