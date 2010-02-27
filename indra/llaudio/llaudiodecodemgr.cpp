@@ -181,6 +181,8 @@ LLVorbisDecodeState::LLVorbisDecodeState(const LLUUID &uuid, const std::string &
 	mFileHandle = LLLFSThread::nullHandle();
 #endif
 	// No default value for mVF, it's an ogg structure?
+	// Hey, let's zero it anyway, for predictability.
+	memset(&mVF, 0, sizeof(mVF));
 }
 
 LLVorbisDecodeState::~LLVorbisDecodeState()

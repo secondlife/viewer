@@ -416,16 +416,16 @@ public:
 	 * Sets internal voluem level for specified user.
 	 *
 	 * @param[in] speaker_id - LLUUID of user to store volume level for
-	 * @param[in] volume - internal volume level to be stored for user.
+	 * @param[in] volume - external volume level to be stored for user.
 	 */
-	void storeSpeakerVolume(const LLUUID& speaker_id, S32 volume);
+	void storeSpeakerVolume(const LLUUID& speaker_id, F32 volume);
 
 	/**
-	 * Gets stored internal volume level for specified speaker.
+	 * Gets stored external volume level for specified speaker.
 	 *
 	 * If specified user is not found default level will be returned. It is equivalent of 
 	 * external level 0.5 from the 0.0..1.0 range.
-	 * Default internal level is calculated as: internal = 400 * external^2
+	 * Default external level is calculated as: internal = 400 * external^2
 	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
 	 *
 	 * @param[in] speaker_id - LLUUID of user to get his volume level

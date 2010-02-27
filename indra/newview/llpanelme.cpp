@@ -69,6 +69,20 @@ BOOL LLPanelMe::postBuild()
 void LLPanelMe::onOpen(const LLSD& key)
 {
 	LLPanelProfile::onOpen(key);
+
+	if(key.isUndefined() || key.has("edit_my_profile"))
+	{
+		// Open Edit My Profile panel by default (through Side Tray -> My Profile) (EXT-4823)
+		buildEditPanel();
+		openPanel(mEditPanel, getAvatarId());
+	}
+	else if(mEditPanel)
+	{
+		// When opening Me Panel through Side Tray LLPanelMe::onOpen() is called twice.
+		// First time key can be undefined and second time - key may contain some data.
+		// Lets close Edit Panel if key does contain some data on second call.
+		closePanel(mEditPanel);
+	}
 }
 
 bool LLPanelMe::notifyChildren(const LLSD& info)

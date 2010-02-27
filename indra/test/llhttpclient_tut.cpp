@@ -269,6 +269,7 @@ namespace tut
 	template<> template<>
 	void HTTPClientTestObject::test<2>()
 	{
+		skip("error test depends on dev's local ISP not supplying \"helpful\" search page");
 		LLHTTPClient::get("http://www.invalid", newResult());
 		runThePump();
 		ensureStatusError();

@@ -66,6 +66,8 @@ private:
 	void spawnNameToolTip();
 	void spawnGroupIconToolTip();
 
+	void initIcon();
+
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
 	LLNotificationPtr	mNotification;
@@ -73,6 +75,7 @@ private:
 	LLUUID				mAvatarID;
 	LLAvatarIconCtrl*	mAvatarIcon;
 	LLGroupIconCtrl*	mGroupIcon;
+	LLAvatarIconCtrl*	mAdhocIcon;
 	LLTextBox*			mAvatarName;
 	LLTextBox*			mTime;
 	LLTextBox*			mMessage;

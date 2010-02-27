@@ -2333,8 +2333,6 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 	LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
 
-	font = mStyle->getFont();
-
   	if( selection_start > seg_start )
 	{
 		// Draw normally

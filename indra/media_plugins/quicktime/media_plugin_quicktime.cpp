@@ -724,8 +724,8 @@ private:
 			return false;
 
 		// allocate some space and grab it
-		UInt8* item_data = new UInt8( size + 1 );
-		memset( item_data, 0, ( size + 1 ) * sizeof( UInt8* ) );
+		UInt8* item_data = new UInt8[ size + 1 ];
+		memset( item_data, 0, ( size + 1 ) * sizeof( UInt8 ) );
 		result = QTMetaDataGetItemValue( media_data_ref, item, item_data, size, NULL );
 		if ( noErr != result ) 
 		{

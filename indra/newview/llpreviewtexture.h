@@ -69,6 +69,8 @@ public:
 	void 				openToSave();
 	
 	static void			onSaveAsBtn(void* data);
+
+	/*virtual*/ void setObjectID(const LLUUID& object_id);
 protected:
 	void				init();
 	/* virtual */ BOOL	postBuild();
@@ -76,6 +78,7 @@ protected:
 	static void			onAspectRatioCommit(LLUICtrl*,void* userdata);
 	
 private:
+	void				updateImageID(); // set what image is being uploaded.
 	void				updateDimensions();
 	LLUUID				mImageID;
 	LLPointer<LLViewerFetchedTexture>		mImage;

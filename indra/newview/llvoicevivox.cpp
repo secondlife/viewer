@@ -5367,14 +5367,14 @@ void LLVivoxVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 		participantState *participant = findParticipantByID(id);
 		if (participant)
 		{
+			// store this volume setting for future sessions
+			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, volume);
 			// volume can amplify by as much as 4x!
 			S32 ivol = (S32)(400.f * volume * volume);
 			participant->mUserVolume = llclamp(ivol, 0, 400);
 			participant->mVolumeDirty = TRUE;
 			mAudioSession->mVolumeDirty = TRUE;
 
-			// store this volume setting for future sessions
-			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, participant->mUserVolume);
 		}
 	}
 }

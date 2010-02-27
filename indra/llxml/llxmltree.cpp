@@ -510,7 +510,8 @@ LLXmlTreeParser::LLXmlTreeParser(LLXmlTree* tree)
 	: mTree(tree),
 	  mRoot( NULL ),
 	  mCurrent( NULL ),
-	  mDump( FALSE )
+	  mDump( FALSE ),
+	  mKeepContents(FALSE)
 {
 }
 

@@ -43,7 +43,8 @@ const char* LLSLURL::SLURL_HTTP_SCHEME			= "http";
 const char* LLSLURL::SLURL_HTTPS_SCHEME			= "https";
 const char* LLSLURL::SLURL_SECONDLIFE_SCHEME	= "secondlife";
 const char* LLSLURL::SLURL_SECONDLIFE_PATH	= "secondlife";
-const char* LLSLURL::SLURL_COM		            = "slurl.com";	
+const char* LLSLURL::SLURL_COM		            = "slurl.com";
+const char* LLSLURL::MAPS_SECONDLIFE_COM	 = "maps.secondlife.com";	
 const char* LLSLURL::SLURL_X_GRID_LOCATION_INFO_SCHEME = "x-grid-location-info";
 const char* LLSLURL::SLURL_APP_PATH             = "app";
 const char* LLSLURL::SLURL_REGION_PATH          = "region";
@@ -181,7 +182,8 @@ LLSLURL::LLSLURL(const std::string& slurl)
 		   (slurl_uri.scheme() == LLSLURL::SLURL_X_GRID_LOCATION_INFO_SCHEME))
 		{
 		    // We're dealing with either a nebraska style slurl or slurl.com slurl
-		    if (slurl_uri.hostName() == LLSLURL::SLURL_COM)
+		  if ((slurl_uri.hostName() == LLSLURL::SLURL_COM) ||
+		      (slurl_uri.hostName() == LLSLURL::MAPS_SECONDLIFE_COM))
 			{
 				// slurl.com implies maingrid
 				mGrid = MAINGRID;

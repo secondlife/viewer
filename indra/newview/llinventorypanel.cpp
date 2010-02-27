@@ -432,7 +432,26 @@ void LLInventoryPanel::initializeViews()
 	rebuildViewsFor(mStartFolderID);
 
 	mViewsInitialized = true;
+	
 	openStartFolderOrMyInventory();
+	
+	// Special case for new user login
+	if (gAgent.isFirstLogin())
+	{
+		// Auto open the user's library
+		LLFolderViewFolder* lib_folder = mFolders->getFolderByID(gInventory.getLibraryRootFolderID());
+		if (lib_folder)
+		{
+			lib_folder->setOpen(TRUE);
+		}
+		
+		// Auto close the user's my inventory folder
+		LLFolderViewFolder* my_inv_folder = mFolders->getFolderByID(gInventory.getRootFolderID());
+		if (my_inv_folder)
+		{
+			my_inv_folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
+		}
+	}
 }
 
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)

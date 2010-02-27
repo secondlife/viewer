@@ -104,6 +104,8 @@ void LLPluginClassMedia::reset()
 	mSetMediaHeight = -1;
 	mRequestedMediaWidth = 0;
 	mRequestedMediaHeight = 0;
+	mRequestedTextureWidth = 0;
+	mRequestedTextureHeight = 0;
 	mFullMediaWidth = 0;
 	mFullMediaHeight = 0;
 	mTextureWidth = 0;

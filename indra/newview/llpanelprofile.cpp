@@ -197,11 +197,7 @@ void LLPanelProfile::togglePanel(LLPanel* panel, const LLSD& key)
 	}
 	else 
 	{
-		panel->setVisible(FALSE);
-		if (panel->getParent() == this) 
-		{
-			removeChild(panel);
-		}
+		closePanel(panel);
 
 		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
 	}
@@ -246,6 +242,16 @@ void LLPanelProfile::openPanel(LLPanel* panel, const LLSD& params)
 	panel->reshape(new_rect.getWidth(), new_rect.getHeight());
 	new_rect.setLeftTopAndSize(0, new_rect.getHeight(), new_rect.getWidth(), new_rect.getHeight());
 	panel->setRect(new_rect);
+}
+
+void LLPanelProfile::closePanel(LLPanel* panel)
+{
+	panel->setVisible(FALSE);
+
+	if (panel->getParent() == this) 
+	{
+		removeChild(panel);
+	}
 }
 
 S32 LLPanelProfile::notifyParent(const LLSD& info)

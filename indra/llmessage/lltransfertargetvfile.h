@@ -68,7 +68,6 @@ protected:
 	LLTTVFCompleteCallback	mCompleteCallback;
 	void*					mUserDatap;
 	S32						mErrCode;
-	LLVFSThread::handle_t	mHandle;
 };
 
 

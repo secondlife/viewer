@@ -178,8 +178,8 @@
      follows="top|left"
      height="16"
      halign="right"
-     left="150"
-     width="170"
+     left="140"
+     width="180"
      layout="topleft"
      name="buy_action">
         [NAME] L$ [PRICE]

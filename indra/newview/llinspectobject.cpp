@@ -51,6 +51,7 @@
 #include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
 #include "llsafehandle.h"
+#include "llsidetray.h"
 #include "lltextbox.h"			// for description truncation
 #include "lltrans.h"
 #include "llui.h"				// positionViewNearMouse()
@@ -643,8 +644,9 @@ void LLInspectObject::onClickOpen()
 
 void LLInspectObject::onClickMoreInfo()
 {
-	// *TODO: Show object info side panel, once that is implemented.
-	LLNotificationsUtil::add("ClickUnimplemented");
+	LLSD key;
+	key["task"] = "task";
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);	
 	closeFloater();
 }
 

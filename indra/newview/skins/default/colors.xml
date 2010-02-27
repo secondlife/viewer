@@ -290,7 +290,7 @@
      reference="Black" />
     <color
      name="ContextSilhouetteColor"
-     value="0.94 0.61 0 1" />
+     reference="EmphasisColor" />
     <color
      name="DefaultHighlightDark"
      reference="White_10" />
@@ -602,7 +602,7 @@
      value="0.39 0.39 0.39 1" />
     <color
      name="ScriptErrorColor"
-     value="Red" />
+     reference="Red" />
     <color
      name="ScrollBGStripeColor"
      reference="Transparent" />

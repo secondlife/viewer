@@ -85,7 +85,12 @@ void LLPanelChatControlPanel::updateCallButton()
 	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
-	if (!session) return;
+	
+	if (!session) 
+	{
+		childSetEnabled("call_btn", false);
+		return;
+	}
 
 	bool session_initialized = session->mSessionInitialized;
 	bool callback_enabled = session->mCallBackEnabled;

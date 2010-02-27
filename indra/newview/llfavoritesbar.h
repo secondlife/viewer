@@ -35,6 +35,7 @@
 
 #include "llbutton.h"
 #include "lluictrl.h"
+#include "lltextbox.h"
 
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
@@ -46,6 +47,7 @@ public:
 	{
 		Optional<LLUIImage*> image_drag_indication;
 		Optional<LLButton::Params> chevron_button;
+		Optional<LLTextBox::Params> label;
 		Params();
 	};
 
@@ -139,6 +141,7 @@ private:
 	LLUICtrl* mLandingTab;
 	LLUICtrl* mLastTab;
 	LLButton* mChevronButton;
+	LLTextBox* mBarLabel;
 
 	LLUUID mDragItemId;
 	BOOL mStartDrag;

@@ -799,7 +799,6 @@ LLSLURL LLPanelLogin::getLocation()
 	}
 }
 
-
 // static
 void LLPanelLogin::closePanel()
 {
@@ -929,7 +928,7 @@ void LLPanelLogin::loadLoginPage()
 		oStr << "&auto_login=TRUE";
 	}
 	if (gSavedSettings.getBOOL("ShowStartLocation")
-		&& !gSavedSettings.getBOOL("FirstRunThisInstall"))
+		&& gSavedSettings.getBOOL("HadFirstSuccessfulLogin"))
 	{
 		oStr << "&show_start_location=TRUE";
 	}	

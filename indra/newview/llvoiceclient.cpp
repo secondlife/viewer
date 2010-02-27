@@ -781,7 +781,6 @@ class LLViewerParcelVoiceInfo : public LLHTTPNode
 	}
 };
 
-
 const std::string LLSpeakerVolumeStorage::SETTINGS_FILE_NAME = "volume_settings.xml";
 
 LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
@@ -794,7 +793,7 @@ LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
 	save();
 }
 
-void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, S32 volume)
+void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 volume)
 {
 	mSpeakersData[speaker_id] = volume;
 }
@@ -808,7 +807,10 @@ S32 LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id)
 	
 	if (it != mSpeakersData.end())
 	{
-		ret_val = it->second;
+		F32 f_val = it->second;
+		// volume can amplify by as much as 4x!
+		S32 ivol = (S32)(400.f * f_val * f_val);
+		ret_val = llclamp(ivol, 0, 400);
 	}
 	return ret_val;
 }
@@ -829,7 +831,7 @@ void LLSpeakerVolumeStorage::load()
 	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
 		iter != settings_llsd.endMap(); ++iter)
 	{
-		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+		mSpeakersData.insert(std::make_pair(LLUUID(iter->first), (F32)iter->second.asReal()));
 	}
 }
 

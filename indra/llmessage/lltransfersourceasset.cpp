@@ -226,7 +226,10 @@ void LLTransferSourceAsset::responderCallback(LLVFS *vfs, const LLUUID& uuid, LL
 
 
 
-LLTransferSourceParamsAsset::LLTransferSourceParamsAsset() : LLTransferSourceParams(LLTST_ASSET)
+LLTransferSourceParamsAsset::LLTransferSourceParamsAsset()
+	: LLTransferSourceParams(LLTST_ASSET),
+
+	  mAssetType(LLAssetType::AT_NONE)
 {
 }
 

@@ -131,6 +131,8 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
 	mPrecision(rhs.mPrecision),
 	mType(rhs.mType),
 	mEncoding(rhs.mEncoding),
+	mLineNumber(0),
+	mParser(NULL),
 	mParent(NULL),
 	mChildren(NULL),
 	mAttributes(),

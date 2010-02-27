@@ -13,11 +13,11 @@
          function="Self.EnableStandUp" />
     </menu_item_call>
     <context_menu
-     label="Take Off &gt;"
+     label="Take Off  ▶"
      layout="topleft"
      name="Take Off &gt;">
         <context_menu
-         label="Clothes &gt;"
+         label="Clothes  ▶"
          layout="topleft"
          name="Clothes &gt;">
             <menu_item_call
@@ -151,7 +151,7 @@
                     <menu_item_call.on_enable
                      function="Edit.EnableTakeOff"
                      parameter="alpha" />
-                </menu_item_call>				
+                </menu_item_call>
                 <menu_item_separator
                  layout="topleft" />
                 <menu_item_call
@@ -164,11 +164,11 @@
                 </menu_item_call>
         </context_menu>
         <context_menu
-         label="HUD &gt;"
+         label="HUD  ▶"
          layout="topleft"
          name="Object Detach HUD" />
         <context_menu
-         label="Detach &gt;"
+         label="Detach  ▶"
          layout="topleft"
          name="Object Detach" />
         <menu_item_call

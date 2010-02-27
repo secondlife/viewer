@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="true"
- height="500"
+ height="408"
  label="Popups"
  layout="topleft"
  left="0"
@@ -14,7 +14,7 @@
      follows="top|left"
      height="12"
      layout="topleft"
-     left="30"
+     left="10"
      name="tell_me_label"
      top="10"
      width="300">
@@ -32,7 +32,7 @@
     <check_box
      control_name="ChatOnlineNotification"
      height="16"
-     label="When my friends log out or in"
+     label="When my friends log in or out"
      layout="topleft"
      left_delta="0"
      name="friends_online_notify_checkbox"
@@ -42,38 +42,33 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerifBold"
      height="12"
      layout="topleft"
-     left="30"
+     left="10"
      name="show_label"
-     top_pad="14"
+     top_pad="8"
      width="450">
-        Always show these notifications:
+        Always show:
     </text>
     <scroll_list
      follows="top|left"
-     height="92"
+     height="140"
      layout="topleft"
      left="10"
-     multi_select="true" 
+     multi_select="true"
      name="enabled_popups"
      width="475" />
 	 <button
 	 enabled_control="FirstSelectedDisabledPopups"
      follows="top|left"
      height="23"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled"
      image_overlay="Arrow_Up"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
      hover_glow_amount="0.15"
      layout="topleft"
-     left_delta="137"
+     left="180"
      name="enable_this_popup"
-     top_pad="10"
-     width="43">
+     top_pad="5"
+     width="40">
         <button.commit_callback
          function="Pref.ClickEnablePopup" />
     </button>
@@ -81,17 +76,13 @@
 	 enabled_control="FirstSelectedEnabledPopups"
 	 follows="top|left"
      height="23"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled"
      image_overlay="Arrow_Down"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
      hover_glow_amount="0.15"
      layout="topleft"
-     left_pad="50"
+     left_pad="40"
      name="disable_this_popup"
      top_delta="0"
-     width="43">
+     width="40">
         <button.commit_callback
          function="Pref.ClickDisablePopup" />
     </button>
@@ -99,21 +90,20 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerifBold"
      height="12"
      layout="topleft"
-     left="30"
+     left="10"
      name="dont_show_label"
-     top_pad="10"
+     top_pad="-10"
      width="450">
-        Never show these notifications:
+        Never show:
     </text>
     <scroll_list
      follows="top|left"
-     height="92"
+     height="140"
      layout="topleft"
      left="10"
-     multi_select="true" 
+     multi_select="true"
      name="disabled_popups"
      width="475" />
 </panel>

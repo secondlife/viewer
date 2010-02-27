@@ -34,7 +34,6 @@
 
 #include "llfavoritesbar.h"
 
-#include "llbutton.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llinventory.h"
@@ -48,7 +47,6 @@
 #include "llclipboard.h"
 #include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
-#include "llinventorymodel.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"
@@ -370,7 +368,8 @@ struct LLFavoritesSort
 
 LLFavoritesBarCtrl::Params::Params()
 : image_drag_indication("image_drag_indication"),
-  chevron_button("chevron_button")
+  chevron_button("chevron_button"),
+  label("label")
 {
 }
 
@@ -401,6 +400,10 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	chevron_button_params.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));     
 	mChevronButton = LLUICtrlFactory::create<LLButton> (chevron_button_params);
 	addChild(mChevronButton); 
+
+	LLTextBox::Params label_param(p.label);
+	mBarLabel = LLUICtrlFactory::create<LLTextBox> (label_param);
+	addChild(mBarLabel);
 }
 
 LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
@@ -669,7 +672,14 @@ void LLFavoritesBarCtrl::updateButtons()
 	{
 		return;
 	}
-
+	if(mItems.empty())
+	{
+		mBarLabel->setVisible(TRUE);
+	}
+	else
+	{
+		mBarLabel->setVisible(FALSE);
+	}
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
 	int first_changed_item_index = 0;
@@ -715,14 +725,22 @@ void LLFavoritesBarCtrl::updateButtons()
 			}
 		}
 		// we have to remove ChevronButton to make sure that the last item will be LandmarkButton to get the right aligning
+		// keep in mind that we are cutting all buttons in space between the last visible child of favbar and ChevronButton
 		if (mChevronButton->getParent() == this)
 		{
 			removeChild(mChevronButton);
 		}
 		int last_right_edge = 0;
+		//calculate new buttons offset
 		if (getChildList()->size() > 0)
 		{
-			last_right_edge = getChildList()->back()->getRect().mRight;
+			//find last visible child to get the rightest button offset
+			child_list_const_reverse_iter_t last_visible_it = std::find_if(childs->rbegin(), childs->rend(), 
+					std::mem_fun(&LLView::getVisible));
+			if(last_visible_it != childs->rend())
+			{
+				last_right_edge = (*last_visible_it)->getRect().mRight;
+			}
 		}
 		//last_right_edge is saving coordinates
 		LLButton* last_new_button = NULL;

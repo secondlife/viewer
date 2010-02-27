@@ -114,7 +114,11 @@ static timer_tree_dfs_iterator_t end_timer_tree()
 class NamedTimerFactory : public LLSingleton<NamedTimerFactory>
 {
 public:
-	NamedTimerFactory() 
+	NamedTimerFactory()
+		: mActiveTimerRoot(NULL),
+		  mTimerRoot(NULL),
+		  mAppTimer(NULL),
+		  mRootFrameState(NULL)
 	{}
 
 	/*virtual */ void initSingleton()

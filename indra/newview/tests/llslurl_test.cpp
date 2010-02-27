@@ -10,7 +10,7 @@
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
- * to you under the terms of the GNU General Public License, version 2.0
+ * to you under the terms of the GNU General Public License, version maps.secondlife.com2.0
  * ("GPL"), unless you have obtained a separate licensing agreement
  * ("Other License"), formally executed by you and Linden Lab.  Terms of
  * the GPL can be found in doc/GPL-license.txt in this distribution, or
@@ -119,37 +119,37 @@ namespace tut
 		slurl = LLSLURL("http://slurl.com/secondlife/myregion");
 		ensure_equals("slurl.com slurl, region only - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("slurl.com slurl, region only", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/myregion/128/128/0");
+					  "http://maps.secondlife.com/secondlife/myregion/128/128/0");
 		
-		slurl = LLSLURL("http://slurl.com/secondlife/myregion/1/2/3");
-		ensure_equals("slurl.com slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
-		ensure_equals("slurl.com slurl, region + coords", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/myregion/1/2/3");
+		slurl = LLSLURL("http://maps.secondlife.com/secondlife/myregion/1/2/3");
+		ensure_equals("maps.secondlife.com slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
+		ensure_equals("maps.secondlife.com slurl, region + coords", slurl.getSLURLString(), 
+					  "http://maps.secondlife.com/secondlife/myregion/1/2/3");
 
 		slurl = LLSLURL("secondlife://myregion");
 		ensure_equals("secondlife: slurl, region only - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("secondlife: slurl, region only", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/myregion/128/128/0");
+					  "http://maps.secondlife.com/secondlife/myregion/128/128/0");
 		
 		slurl = LLSLURL("secondlife://myregion/1/2/3");
 		ensure_equals("secondlife: slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("secondlife slurl, region + coords", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/myregion/1/2/3");
+					  "http://maps.secondlife.com/secondlife/myregion/1/2/3");
 		
 		slurl = LLSLURL("/myregion");
 		ensure_equals("/region slurl, region- type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("/region slurl, region ", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/myregion/128/128/0");
+					  "http://maps.secondlife.com/secondlife/myregion/128/128/0");
 		
 		slurl = LLSLURL("/myregion/1/2/3");
 		ensure_equals("/: slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("/ slurl, region + coords", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/myregion/1/2/3");	
+					  "http://maps.secondlife.com/secondlife/myregion/1/2/3");	
 		
 		slurl = LLSLURL("my region/1/2/3");
 		ensure_equals(" slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals(" slurl, region + coords", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/my%20region/1/2/3");	
+					  "http://maps.secondlife.com/secondlife/my%20region/1/2/3");	
 		
 		slurl = LLSLURL("https://my.grid.com/region/my%20region/1/2/3");
 		ensure_equals("grid slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
@@ -240,7 +240,7 @@ namespace tut
 		slurl = LLSLURL("my region", LLVector3(1,2,3));
 		ensure_equals("default grid/region/vector - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals(" default grid/region/vector", slurl.getSLURLString(), 
-					  "http://slurl.com/secondlife/my%20region/1/2/3");	
+					  "http://maps.secondlife.com/secondlife/my%20region/1/2/3");	
 		
 	}
 	// Accessors

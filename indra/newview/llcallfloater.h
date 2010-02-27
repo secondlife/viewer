@@ -220,7 +220,7 @@ private:
 	 *
 	 * Clears all data from the latest voice session.
 	 */
-	void reset();
+	void reset(const LLVoiceChannel::EState& new_state);
 
 private:
 	speaker_state_map_t mSpeakerStateMap;

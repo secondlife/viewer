@@ -332,6 +332,8 @@ LLGLManager::LLGLManager() :
 	mHasFragmentShader(FALSE),
 	mHasOcclusionQuery(FALSE),
 	mHasPointParameters(FALSE),
+	mHasDrawBuffers(FALSE),
+	mHasTextureRectangle(FALSE),
 
 	mHasAnisotropic(FALSE),
 	mHasARBEnvCombine(FALSE),
@@ -671,7 +673,7 @@ void LLGLManager::initExtensions()
 	llinfos << "initExtensions() checking shell variables to adjust features..." << llendl;
 	// Our extension support for the Linux Client is very young with some
 	// potential driver gotchas, so offer a semi-secret way to turn it off.
-	if (getenv("LL_GL_NOEXT"))	/* Flawfinder: ignore */
+	if (getenv("LL_GL_NOEXT"))
 	{
 		//mHasMultitexture = FALSE; // NEEDED!
 		mHasARBEnvCombine = FALSE;

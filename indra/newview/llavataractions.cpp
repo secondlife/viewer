@@ -612,3 +612,13 @@ bool LLAvatarActions::isBlocked(const LLUUID& id)
 	gCacheName->getFullName(id, name);
 	return LLMuteList::getInstance()->isMuted(id, name);
 }
+
+// static
+bool LLAvatarActions::canBlock(const LLUUID& id)
+{
+	std::string firstname, lastname;
+	gCacheName->getName(id, firstname, lastname);
+	bool is_linden = !LLStringUtil::compareStrings(lastname, "Linden");
+	bool is_self = id == gAgentID;
+	return !is_self && !is_linden;
+}

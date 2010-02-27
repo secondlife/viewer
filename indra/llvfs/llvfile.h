@@ -88,7 +88,6 @@ protected:
 	S32		mMode;
 	LLVFS	*mVFS;
 	F32		mPriority;
-	BOOL	mOnReadQueue;
 
 	S32		mBytesRead;
 	LLVFSThread::handle_t mHandle;

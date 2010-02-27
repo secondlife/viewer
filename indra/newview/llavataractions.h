@@ -124,6 +124,11 @@ public:
 	static bool isBlocked(const LLUUID& id);
 
 	/**
+	 * @return true if you can block the avatar
+	 */
+	static bool canBlock(const LLUUID& id);
+
+	/**
 	 * Return true if the avatar is in a P2P voice call with a given user
 	 */
 	/* AD *TODO: Is this function needed any more?

@@ -176,11 +176,11 @@ public:
 	void setActionTimer(const LLUUID& speaker_id);
 
 	/**
-	 * Removes stored LLSpeakerActionTimer for passed speaker UUID from internal map and deletes it.
+	 * Removes stored LLSpeakerActionTimer for passed speaker UUID from internal map and optionally deletes it.
 	 *
 	 * @see onTimerActionCallback()
 	 */
-	void unsetActionTimer(const LLUUID& speaker_id);
+	void unsetActionTimer(const LLUUID& speaker_id, bool delete_it);
 
 	void removeAllTimers();
 private:

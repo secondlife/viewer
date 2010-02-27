@@ -608,6 +608,9 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mFirstFocus = true;
+	mBackgroundR = 0.0f;
+	mBackgroundG = 0.0f;
+	mBackgroundB = 0.0f;
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()

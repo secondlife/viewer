@@ -65,7 +65,7 @@
   </menu_item_call>
 <menu_item_separator layout="topleft" />
    <context_menu
-         label="Put On &gt;"
+         label="Put On  ▶"
          name="Put On" >
    <menu_item_call
       enabled="false"
@@ -77,15 +77,25 @@
              function="Object.EnableWear" />
    </menu_item_call>
    <context_menu
-         label="Attach &gt;"
+         label="Attach  ▶"
          name="Object Attach" />
    <context_menu
-         label="Attach HUD &gt;"
+         label="Attach HUD  ▶"
          name="Object Attach HUD" />
    </context_menu>
    <context_menu
-         label="Remove &gt;"
+         label="Remove  ▶"
          name="Remove">
+   <menu_item_call
+     enabled="false"
+     label="Take"
+     name="Pie Object Take">
+        <menu_item_call.on_click
+         function="Tools.BuyOrTake" />
+        <menu_item_call.on_enable
+         function="Tools.EnableBuyOrTake"
+         parameter="Buy,Take" />
+    </menu_item_call>
    <menu_item_call
          enabled="false"
          label="Report Abuse"
@@ -124,16 +134,6 @@
     </menu_item_call>
     </context_menu>
    <menu_item_separator layout="topleft" />
-    <menu_item_call
-     enabled="false"
-     label="Take"
-     name="Pie Object Take">
-        <menu_item_call.on_click
-         function="Tools.BuyOrTake" />
-        <menu_item_call.on_enable
-         function="Tools.EnableBuyOrTake"
-         parameter="Buy,Take" />
-    </menu_item_call>
    <menu_item_call
    enabled="false"
    label="Take Copy"

@@ -5,4 +5,12 @@
  item_pad="0"
  keep_one_selected="true"
  multi_select="false"
- opaque="true" />
+ opaque="true">
+    <flat_list_view.no_items_text
+     follows="all"
+     name="no_items_msg"
+     v_pad="10"
+     h_pad="10"
+     value="There are no any items in the list"
+     wrap="true" />
+</flat_list_view>

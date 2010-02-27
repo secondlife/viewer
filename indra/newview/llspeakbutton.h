@@ -61,6 +61,10 @@ public:
 
 	/*virtual*/ ~LLSpeakButton();
 	/*virtual*/ void draw();
+	
+	// methods for enabling/disabling right and left parts of speak button separately(EXT-4648)
+	void setSpeakBtnEnabled(bool enabled);
+	void setFlyoutBtnEnabled(bool enabled);
 
 	// *HACK: Need to put tooltips in a translatable location,
 	// the panel that contains this button.
