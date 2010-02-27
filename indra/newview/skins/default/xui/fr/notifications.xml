@@ -316,7 +316,7 @@ La limite de [MAX_ATTACHMENTS] objets joints a été dépassée. Veuillez commen
 		Vous ne pouvez pas porter cet article car il n&apos;a pas encore été chargé. Veuillez réessayer dans une minute.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		Oups! Vous avez oublié de fournir certaines informations.
+		Zut ! Vous avez oublié de fournir certaines informations.
 Vous devez saisir le nom et le prénom de votre avatar.
 
 Pour entrer dans [SECOND_LIFE], vous devez avoir un compte. Voulez-vous en créer un maintenant ?
@@ -1566,7 +1566,7 @@ En cliquant sur Modifier les préférences, vous pourrez changer votre catégori
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NotAllowedToViewNotecard">
-		Permissions pour afficher la note insuffisantes.
+		Droits pour afficher la note insuffisants.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MissingNotecardAssetID">

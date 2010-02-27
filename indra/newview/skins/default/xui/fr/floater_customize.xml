@@ -483,7 +483,7 @@
 			<button label="Enlever" label_selected="Enlever" name="Take Off"/>
 			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
-			<button label="Annuler modification" label_selected="Annuler modification" name="Revert"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Alpha" name="Alpha">
 			<text name="title">
@@ -519,7 +519,7 @@
 			<button label="Enlever" label_selected="Enlever" name="Take Off"/>
 			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
-			<button label="Annuler modification" label_selected="Annuler modification" name="Revert"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 	</tab_container>
 	<scroll_container left="251" name="panel_container"/>

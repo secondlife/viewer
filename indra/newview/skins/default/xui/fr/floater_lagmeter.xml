@@ -25,16 +25,16 @@
 		Normal, fenêtre en arrière-plan
 	</floater.string>
 	<floater.string name="client_frame_time_critical_msg">
-		Taux de défilement client ci-dessous [CLIENT_FRAME_RATE_CRITICAL]
+		Taux de défilement [CLIENT_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
-		Taux de défilement client entre [CLIENT_FRAME_RATE_CRITICAL] et [CLIENT_FRAME_RATE_WARNING]
+		Taux de défilement entre [CLIENT_FRAME_RATE_CRITICAL] et [CLIENT_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
 		Normal
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		Cause possible : la limite d&apos;affichage est trop élevée
+		Cause possible : limite d&apos;affichage trop élevée
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
 		Cause possible : images en cours de chargement
@@ -43,7 +43,7 @@
 		Cause possible : trop d&apos;images en mémoire
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		Cause possible : trop d&apos;objets complexes dans la scène
+		Cause possible : trop d&apos;objets complexes
 	</floater.string>
 	<floater.string name="network_text_msg">
 		Réseau
@@ -70,10 +70,10 @@
 		300
 	</floater.string>
 	<floater.string name="network_ping_critical_msg">
-		Temps de connexion ping supérieur à [NETWORK_PING_CRITICAL] ms
+		Connexion ping > [NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_ping_warning_msg">
-		Temps de connexion ping entre [NETWORK_PING_WARNING] et [NETWORK_PING_CRITICAL] ms
+		Connexion ping entre [NETWORK_PING_WARNING] et [NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_packet_loss_cause_msg">
 		Mauvaise connexion possible ou réglage de la bande passante trop élevé.
@@ -94,10 +94,10 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		Taux de défilement du simulateur au dessous de [SERVER_FRAME_RATE_CRITICAL]
+		Défilement du simulateur < [SERVER_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		Taux de défilement du simulateur entre [SERVER_FRAME_RATE_CRITICAL] et [SERVER_FRAME_RATE_WARNING]
+		Défilement simulateur entre [SERVER_FRAME_RATE_CRITICAL] et [SERVER_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
 		Normal
@@ -112,7 +112,7 @@
 		Cause possible : trop de trafic réseau
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		Cause possible : trop de personnes en mouvement dans la région
+		Cause possible : trop de personnes en mouvement
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
 		Cause possible : trop de calculs d&apos;images
