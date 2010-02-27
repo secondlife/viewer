@@ -46,9 +46,10 @@
 	<menu_item_call label="Teleportar" name="Landmark Open"/>
 	<menu_item_call label="Abrir" name="Animation Open"/>
 	<menu_item_call label="Abrir" name="Sound Open"/>
+	<menu_item_call label="Reemplazar el vestuario" name="Replace Outfit"/>
+	<menu_item_call label="Añadir al vestuario" name="Add To Outfit"/>
 	<menu_item_call label="Eliminar el ítem" name="Purge Item"/>
 	<menu_item_call label="Restaurar el ítem" name="Restore Item"/>
-	<menu_item_call label="Ir al enlace" name="Goto Link"/>
 	<menu_item_call label="Abrir" name="Open"/>
 	<menu_item_call label="Propiedades" name="Properties"/>
 	<menu_item_call label="Renombrar" name="Rename"/>
@@ -57,13 +58,11 @@
 	<menu_item_call label="Pegar" name="Paste"/>
 	<menu_item_call label="Pegar como enlace" name="Paste As Link"/>
 	<menu_item_call label="Borrar" name="Delete"/>
-	<menu_item_call label="Quitarse los ítems" name="Take Off Items"/>
-	<menu_item_call label="Añadir al vestuario" name="Add To Outfit"/>
-	<menu_item_call label="Reemplazar el vestuario" name="Replace Outfit"/>
+	<menu_item_call label="Borrar carpeta del sistema" name="Delete System Folder"/>
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
 	<menu_item_call label="Escuchar" name="Sound Play"/>
 	<menu_item_call label="Acerca del hito" name="About Landmark"/>
-	<menu_item_call label="Ver en el mundo" name="Animation Play"/>
+	<menu_item_call label="Ejecutarla en el mundo" name="Animation Play"/>
 	<menu_item_call label="Ejecutarla para usted" name="Animation Audition"/>
 	<menu_item_call label="Enviar un mensaje instantáneo" name="Send Instant Message"/>
 	<menu_item_call label="Ofrecer teleporte..." name="Offer Teleport..."/>

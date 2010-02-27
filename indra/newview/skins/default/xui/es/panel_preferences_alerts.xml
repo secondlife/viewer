@@ -4,11 +4,11 @@
 		Avisarme:
 	</text>
 	<check_box label="Cuando gaste o consiga L$" name="notify_money_change_checkbox"/>
-	<check_box label="Cuando mis amigos se conecten o desconecten" name="friends_online_notify_checkbox"/>
+	<check_box label="Cuando mis amigos se conectan o desconectan" name="friends_online_notify_checkbox"/>
 	<text name="show_label" width="300">
-		Mostrar siempre estos avisos:
+		Mostrar siempre:
 	</text>
 	<text name="dont_show_label">
-		No mostrar nunca estos avisos:
+		No mostrar nunca:
 	</text>
 </panel>

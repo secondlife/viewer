@@ -24,6 +24,9 @@
 	<floater.string name="Title">
 		Gesto: [NAME]
 	</floater.string>
+	<text name="name_text">
+		Nombre:
+	</text>
 	<text name="desc_label">
 		Descripción:
 	</text>
@@ -55,8 +58,7 @@
 		<radio_item label="Empezar" name="start"/>
 		<radio_item label="Parar" name="stop"/>
 	</radio_group>
-	<check_box bottom_delta="34" label="hasta que las animaciones 
-estén hechas" name="wait_anim_check"/>
+	<check_box bottom_delta="34" label="hasta que las animaciones  estén hechas" name="wait_anim_check"/>
 	<check_box bottom_delta="-30" label="tiempo en segundos" name="wait_time_check"/>
 	<line_editor left_delta="130" name="wait_time_editor"/>
 	<text name="help_label">

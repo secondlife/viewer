@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_im_control_panel">
-	<text name="avatar_name" value="Desconocido"/>
-	<button label="Perfil" name="view_profile_btn"/>
-	<button label="Añadir como amigo" name="add_friend_btn"/>
-	<button label="Teleportarse" name="teleport_btn"/>
-	<button label="Compartir" name="share_btn"/>
-	<panel name="panel_call_buttons">
-		<button label="Llamada" name="call_btn"/>
-		<button label="Colgar" name="end_call_btn"/>
-		<button label="Controles de Voz" name="voice_ctrls_btn"/>
-	</panel>
+	<layout_stack name="button_stack">
+		<layout_panel name="view_profile_btn_panel">
+			<button label="Perfil" name="view_profile_btn"/>
+		</layout_panel>
+		<layout_panel name="add_friend_btn_panel">
+			<button label="Añadir como amigo" name="add_friend_btn"/>
+		</layout_panel>
+		<layout_panel name="teleport_btn_panel">
+			<button label="Teleportar" name="teleport_btn" tool_tip="Ofrecer teleporte a esta persona"/>
+		</layout_panel>
+		<layout_panel name="share_btn_panel">
+			<button label="Compartir" name="share_btn"/>
+		</layout_panel>
+		<layout_panel name="share_btn_panel">
+			<button label="Pagar" name="pay_btn"/>
+		</layout_panel>
+		<layout_panel name="call_btn_panel">
+			<button label="Llamar" name="call_btn"/>
+		</layout_panel>
+		<layout_panel name="end_call_btn_panel">
+			<button label="Colgar" name="end_call_btn"/>
+		</layout_panel>
+		<layout_panel name="voice_ctrls_btn_panel">
+			<button label="Controles de la voz" name="voice_ctrls_btn"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

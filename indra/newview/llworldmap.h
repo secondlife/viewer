@@ -123,6 +123,7 @@ public:
 	bool isName(const std::string& name) const;
 	bool isDown() { return (mAccess == SIM_ACCESS_DOWN); }
 	bool isPG() { return (mAccess <= SIM_ACCESS_PG); }
+	bool isAdult() { return (mAccess == SIM_ACCESS_ADULT); }
 
 	// Debug only
 	void dump() const;	// Print the region info to the standard output

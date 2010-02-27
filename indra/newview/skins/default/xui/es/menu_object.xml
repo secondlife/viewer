@@ -6,18 +6,20 @@
 	<menu_item_call label="Abrir" name="Open"/>
 	<menu_item_call label="Sentarse aquí" name="Object Sit"/>
 	<menu_item_call label="Perfil del objeto" name="Object Inspect"/>
-	<context_menu label="Poner &gt;" name="Put On">
+	<menu_item_call label="Acercar el zoom" name="Zoom In"/>
+	<context_menu label="Ponerse  ▶" name="Put On">
 		<menu_item_call label="Ponerse" name="Wear"/>
-		<context_menu label="Anexar &gt;" name="Object Attach"/>
-		<context_menu label="Anexar el HUD &gt;" name="Object Attach HUD"/>
+		<context_menu label="Anexar  ▶" name="Object Attach"/>
+		<context_menu label="Anexar como HUD  ▶" name="Object Attach HUD"/>
 	</context_menu>
-	<context_menu label="Quitar &gt;" name="Remove">
-		<menu_item_call label="Tomar" name="Pie Object Take"/>
+	<context_menu label="Quitarse  ▶" name="Remove">
 		<menu_item_call label="Denunciar una infracción" name="Report Abuse..."/>
 		<menu_item_call label="Ignorar" name="Object Mute"/>
 		<menu_item_call label="Devolver" name="Return..."/>
 		<menu_item_call label="Eliminar" name="Delete"/>
 	</context_menu>
+	<menu_item_call label="Comprar" name="Pie Object Bye"/>
+	<menu_item_call label="Tomar" name="Pie Object Take"/>
 	<menu_item_call label="Coger una copia" name="Take Copy"/>
 	<menu_item_call label="Pagar" name="Pay..."/>
 	<menu_item_call label="Comprar" name="Buy..."/>
