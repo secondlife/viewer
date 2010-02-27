@@ -94,7 +94,7 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		Défilement du simulateur < [SERVER_FRAME_RATE_CRITICAL]
+		Défilement du simulateur &lt; [SERVER_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
 		Défilement simulateur entre [SERVER_FRAME_RATE_CRITICAL] et [SERVER_FRAME_RATE_WARNING]
