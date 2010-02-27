@@ -2882,7 +2882,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameFriend = is_friend;
 		mTitle = title ? title->getString() : "";
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
-//		mNameString = utf8str_to_wstring(line);
 		new_name = TRUE;
 	}
 
@@ -2892,10 +2891,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_LEFT);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
-//		if (new_name)
-//		{
-//			mNameText->setLabel(mNameString);
-//		}
 	
 		char line[MAX_STRING];		/* Flawfinder: ignore */
 		line[0] = '\0';
@@ -2968,11 +2963,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
 		mNameText->setVisibleOffScreen(FALSE);
-//		if (new_name)
-//		{
-//			mNameText->setLabel("");
-//			mNameText->setString(mNameString);
-//		}
 	}
 }
 
