@@ -67,6 +67,7 @@
 #include "llface.h"
 #include "llfloaterproperties.h"
 #include "llfollowcam.h"
+#include "llhudtext.h"
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
