@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Estado" name="Estate">
 	<text name="estate_help_text">
-		Los cambios en las configuraciones de esta 
-pestaña afectarán a todas las regiones del estado.
+		En esta pestaña, los cambios en la configuración afectarán a todas las regiones del estado.
 	</text>
 	<text name="estate_text">
 		Estado:
@@ -24,10 +23,10 @@ pestaña afectarán a todas las regiones del estado.
 	<check_box label="Permitir el acceso público" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Acceso restringido a cuentas verificadas por:
+		Restringir el acceso a cuentas verificadas por:
 	</text>
-	<check_box label="Información de pago aportada" name="limit_payment" tool_tip="Expulsar a los residentes no identificados"/>
-	<check_box label="Verificación de la edad" name="limit_age_verified" tool_tip="Prohibir el acceso a residentes que no hayan verificado su edad. Para más información, ver [SUPPORT_SITE]."/>
+	<check_box label="Información de pago aportada" name="limit_payment" tool_tip="Expulsar a los Residentes no identificados."/>
+	<check_box label="Verificación de la edad" name="limit_age_verified" tool_tip="Expulsa a los Residentes que no hayan verificado su edad. Para más información, véase [SUPPORT_SITE].."/>
 	<check_box label="Permitir el chat de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir el teleporte a cualquier punto" name="allow_direct_teleport"/>

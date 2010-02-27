@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="General" name="Media Settings General">
 	<text name="home_label">
-		Web:
+		Página inicial:
 	</text>
 	<text name="home_fails_whitelist_label">
-		(La Lista Blanca especificada no aprueba esta página)
+		(Esta página no supera la lista blanca especificada)
 	</text>
-	<line_editor name="home_url" tool_tip="Página inicial para el origen de este media"/>
+	<line_editor name="home_url" tool_tip="La página inicial para el origen de este media"/>
 	<text name="preview_label">
 		Vista previa
 	</text>

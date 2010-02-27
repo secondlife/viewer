@@ -7,7 +7,7 @@
 		Ejecutándose
 	</floater.string>
 	<floater.string name="Title">
-		Script: [NAME]
+		SCRIPT: [NAME]
 	</floater.string>
 	<button label="Reiniciar" label_selected="Reiniciar" name="Reset"/>
 	<check_box initial_value="true" label="Ejecutándose" left="4" name="running"/>

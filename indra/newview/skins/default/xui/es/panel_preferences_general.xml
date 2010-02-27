@@ -40,9 +40,9 @@
 		Etiquetas de los nombres:
 	</text>
 	<radio_group name="Name_Tag_Preference">
-		<radio_item label="Off" name="radio"/>
-		<radio_item label="On" name="radio2"/>
-		<radio_item label="Mostrar brevemente" name="radio3"/>
+		<radio_item label="Off" name="radio" value="0"/>
+		<radio_item label="On" name="radio2" value="1"/>
+		<radio_item label="Mostrar brevemente" name="radio3" value="2"/>
 	</radio_group>
 	<check_box label="Mostrar mi nombre" name="show_my_name_checkbox1"/>
 	<check_box initial_value="true" label="Etiquetas de los avatares en pequeño" name="small_avatar_names_checkbox"/>
@@ -50,14 +50,17 @@
 	<text name="effects_color_textbox">
 		Mis efectos:
 	</text>
-	<color_swatch label="" name="effect_color_swatch" tool_tip="Pulse para abrir el selector de color"/>
 	<text name="title_afk_text">
 		Ausente tras:
 	</text>
-	<spinner label="Ausente tras:" name="afk_timeout_spinner"/>
-	<text name="seconds_textbox">
-		segundos
-	</text>
+	<color_swatch label="" name="effect_color_swatch" tool_tip="Pulse para abrir el selector de color"/>
+	<combo_box label="Ausente tras:" name="afk">
+		<combo_box.item label="2 minutos" name="item0"/>
+		<combo_box.item label="5 minutos" name="item1"/>
+		<combo_box.item label="10 minutos" name="item2"/>
+		<combo_box.item label="30 minutos" name="item3"/>
+		<combo_box.item label="nunca" name="item4"/>
+	</combo_box>
 	<text name="text_box3">
 		Respuesta cuando estoy en el modo ocupado:
 	</text>

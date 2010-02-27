@@ -7,17 +7,14 @@
 		(cargando...)
 	</panel.string>
 	<panel.string name="already_in_group">
-		No se invitará a algunos avatares porque ya están en el grupo.
+		Alguno de los Residentes que has elegido ya están en el grupo: no se les enviará la invitación.
 	</panel.string>
 	<text bottom_delta="-96" height="72" name="help_text" width="214">
-		Puede seleccionar a varios residentes
-para invitarles a su grupo. Para
-empezar, pulse &apos;Abrir el selector de
-residentes&apos;.
+		Puedes elegir a varios Residentes para invitarles a tu grupo. Para empezar, pulsa &apos;Abrir el selector de residentes&apos;.
 	</text>
 	<button bottom_delta="-10" label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
-	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Apretando la tecla Ctrl, pulsa en los nombres de los residentes para elegir a varios"/>
-	<button label="Eliminar de la lista a los seleccionados" left_delta="-7" name="remove_button" tool_tip="Quitar a los residentes seleccionados de la lista de invitaciones" width="214"/>
+	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Para seleccionar a varios residentes, ve pulsando sus nombres mientras mantienes apretada la tecla Ctrl"/>
+	<button label="Eliminar de la lista a los seleccionados" left_delta="-7" name="remove_button" tool_tip="Quita de la lista a los Residentes seleccionados arriba" width="214"/>
 	<text name="role_text">
 		Elegir qué rol asignarles:
 	</text>
