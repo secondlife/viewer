@@ -888,7 +888,8 @@ private:
 	// God
 	//--------------------------------------------------------------------
 public:
-	BOOL			isGodlike() const;
+	bool			isGodlike() const;
+	bool			isGodlikeWithoutAdminMenuFakery() const;
 	U8				getGodLevel() const;
 	void			setAdminOverride(BOOL b);
 	void			setGodLevel(U8 god_level);

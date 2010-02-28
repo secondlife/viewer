@@ -451,6 +451,12 @@ void LLNavigationBar::onLocationSelection()
 		return;
 	//get selected item from combobox item
 	LLSD value = mCmbLocation->getSelectedValue();
+	if(value.isUndefined() && !mCmbLocation->getTextEntry()->isDirty())
+	{
+		// At this point we know that: there is no selected item in list and text field has NOT been changed
+		// So there is no sense to try to change the location
+		return;
+	}
 	/* since navbar list support autocompletion it contains several types of item: landmark, teleport hystory item,
 	 * typed by user slurl or region name. Let's find out which type of item the user has selected 
 	 * to make decision about adding this location into typed history. see mSaveToLocationHistory

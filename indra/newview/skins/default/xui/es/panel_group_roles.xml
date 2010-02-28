@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Miembros y Roles" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		En esta pestaña hay cambios sin guardar
+		Hay cambios sin guardar
 	</panel.string>
 	<panel.string name="want_apply_text">
 		¿Quieres guardar estos cambios?
@@ -56,7 +56,7 @@ incluyendo el de Todos y el de Propietarios.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Miembros asignados
+			Roles asignados
 		</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>

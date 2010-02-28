@@ -4839,9 +4839,14 @@ void LLAgent::onAnimStop(const LLUUID& id)
 	}
 }
 
-BOOL LLAgent::isGodlike() const
+bool LLAgent::isGodlike() const
 {
 	return mAgentAccess.isGodlike();
+}
+
+bool LLAgent::isGodlikeWithoutAdminMenuFakery() const
+{
+	return mAgentAccess.isGodlikeWithoutAdminMenuFakery();
 }
 
 U8 LLAgent::getGodLevel() const

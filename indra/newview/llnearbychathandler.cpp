@@ -176,10 +176,11 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	if(m_active_toasts.size())
 	{
 		LLUUID fromID = notification["from_id"].asUUID();		// agent id or object id
+		std::string from = notification["from"].asString();
 		LLToast* toast = m_active_toasts[0];
 		LLNearbyChatToastPanel* panel = dynamic_cast<LLNearbyChatToastPanel*>(toast->getPanel());
 
-		if(panel && panel->messageID() == fromID && panel->canAddText())
+		if(panel && panel->messageID() == fromID && panel->getFromName() == from && panel->canAddText())
 		{
 			panel->addMessage(notification);
 			toast->reshapeToPanel();

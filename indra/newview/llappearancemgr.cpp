@@ -565,6 +565,7 @@ public:
 	{
 		llinfos << "Recovered item for type " << mType << llendl;
 		LLViewerInventoryItem *itemp = gInventory.getItem(item_id);
+		mWearable->setItemID(item_id);
 		LLPointer<LLInventoryCallback> cb = new RecoveredItemLinkCB(mType,mWearable,mHolder);
 		mHolder->mTypesToRecover.erase(mType);
 		link_inventory_item( gAgent.getID(),

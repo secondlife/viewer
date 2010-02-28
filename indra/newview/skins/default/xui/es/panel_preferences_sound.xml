@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sonidos" name="Preference Media panel">
 	<slider label="Volumen general" name="System Volume"/>
-	<check_box initial_value="true" label="Silenciar al minimizar" name="mute_when_minimized"/>
-	<slider label="Ambiental" name="Wind Volume"/>
+	<check_box initial_value="true" label="Silenciar cuando minimice" name="mute_when_minimized"/>
 	<slider label="Botones" name="UI Volume"/>
-	<slider label="Medios de comunicación" name="Media Volume"/>
-	<slider label="Efectos sonoros" name="SFX Volume"/>
+	<slider label="Ambiental" name="Wind Volume"/>
+	<slider label="Efectos de sonido" name="SFX Volume"/>
 	<slider label="Música en streaming" name="Music Volume"/>
-	<check_box label="Voz" name="enable_voice_check"/>
-	<slider label="Voz" name="Voice Volume"/>
+	<check_box label="Activada" name="music_enabled"/>
+	<slider label="Medios de comunicación" name="Media Volume"/>
+	<check_box label="Activados" name="enable_media"/>
+	<slider label="Chat de voz" name="Voice Volume"/>
+	<check_box label="Activada" name="enable_voice_check"/>
+	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marca esto para permitir la ejecución automática de los media" value="Sí"/>
+	<check_box label="Ejecutar para otros avatares los media anexados" name="media_show_on_others_btn" tool_tip="Desmarcar esto esconderá los media anexados a otros avatares cercanos" value="Sí"/>
+	<text name="voice_chat_settings">
+		Configuración del chat de voz
+	</text>
 	<text name="Listen from">
 		Oír desde:
 	</text>

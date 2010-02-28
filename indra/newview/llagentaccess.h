@@ -48,6 +48,7 @@ public:
 
 	void setGodLevel(U8 god_level);
 	bool isGodlike() const;
+	bool isGodlikeWithoutAdminMenuFakery() const;
 	U8 getGodLevel() const;
 	
 	
