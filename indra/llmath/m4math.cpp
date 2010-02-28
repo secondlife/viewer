@@ -684,37 +684,6 @@ const LLMatrix4&  	LLMatrix4::initMatrix(const LLMatrix3 &mat, const LLVector4 &
 
 // LLMatrix4 Operators
 
-
-/* Not implemented to help enforce code consistency with the syntax of
-   row-major notation.  This is a Good Thing.
-LLVector4 operator*(const LLMatrix4 &a, const LLVector4 &b)
-{
-	// Operate "to the right" on column-vector b
-	LLVector4	vec;
-	vec.mV[VX] = a.mMatrix[VX][VX] * b.mV[VX] + 
-				 a.mMatrix[VY][VX] * b.mV[VY] + 
- 				 a.mMatrix[VZ][VX] * b.mV[VZ] +
-				 a.mMatrix[VW][VX] * b.mV[VW];
-
-	vec.mV[VY] = a.mMatrix[VX][VY] * b.mV[VX] + 
-				 a.mMatrix[VY][VY] * b.mV[VY] + 
-				 a.mMatrix[VZ][VY] * b.mV[VZ] +
-				 a.mMatrix[VW][VY] * b.mV[VW];
-
-	vec.mV[VZ] = a.mMatrix[VX][VZ] * b.mV[VX] + 
-			  	 a.mMatrix[VY][VZ] * b.mV[VY] + 
-				 a.mMatrix[VZ][VZ] * b.mV[VZ] +
-				 a.mMatrix[VW][VZ] * b.mV[VW];
-
-	vec.mV[VW] = a.mMatrix[VX][VW] * b.mV[VX] + 
-				 a.mMatrix[VY][VW] * b.mV[VY] + 
-				 a.mMatrix[VZ][VW] * b.mV[VZ] +
-				 a.mMatrix[VW][VW] * b.mV[VW];
-	return vec;
-}
-*/
-
-
 LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b)
 {
 	// Operate "to the left" on row-vector a

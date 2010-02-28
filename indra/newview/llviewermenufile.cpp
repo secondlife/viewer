@@ -92,6 +92,15 @@ class LLFileEnableUpload : public view_listener_t
 	}
 };
 
+class LLFileEnableUploadModel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = gAgent.getRegion() && !gAgent.getRegion()->getCapability("NewFileAgentInventoryVariablePrice").empty();
+		return new_value;
+	}
+};
+
 //============================================================================
 
 #if LL_WINDOWS
@@ -1283,6 +1292,7 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileQuit(), "File.Quit");
 
 	view_listener_t::addEnable(new LLFileEnableUpload(), "File.EnableUpload");
+	view_listener_t::addEnable(new LLFileEnableUploadModel(), "File.EnableUploadModel");
 	
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }
