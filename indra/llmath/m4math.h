@@ -226,10 +226,7 @@ public:
 	// Operators
 	//
 
-// Not implemented to enforce code that agrees with symbolic syntax
-//		friend LLVector4 operator*(const LLMatrix4 &a, const LLVector4 &b);		// Apply rotation a to vector b
-
-//	friend inline LLMatrix4 operator*(const LLMatrix4 &a, const LLMatrix4 &b);		// Return a * b
+	//	friend inline LLMatrix4 operator*(const LLMatrix4 &a, const LLMatrix4 &b);		// Return a * b
 	friend LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b);		// Return transform of vector a by matrix b
 	friend const LLVector3 operator*(const LLVector3 &a, const LLMatrix4 &b);		// Return full transform of a by matrix b
 	friend LLVector4 rotate_vector(const LLVector4 &a, const LLMatrix4 &b);	// Rotates a but does not translate

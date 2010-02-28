@@ -668,6 +668,12 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_ALLOCATE_BUFFER);
 		
+	if (nverts < 0 || nindices < 0 ||
+		nverts > 65536)
+	{
+		llerrs << "Bad vertex buffer allocation: " << nverts << " : " << nindices << llendl;
+	}
+
 	updateNumVerts(nverts);
 	updateNumIndices(nindices);
 	

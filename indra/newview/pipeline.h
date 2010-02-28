@@ -435,6 +435,10 @@ public:
 	S32						 mNumVisibleNodes;
 	S32						 mVerticesRelit;
 
+	S32						 mDebugTextureUploadCost;
+	S32						 mDebugSculptUploadCost;
+	S32						 mDebugMeshUploadCost;
+
 	S32						 mLightingChanges;
 	S32						 mGeometryChanges;
 
