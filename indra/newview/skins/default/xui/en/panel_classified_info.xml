@@ -163,7 +163,7 @@
          width="105" />
         <text_editor
          allow_html="true"
-         allow_scroll="false"
+         allow_scroll="true"
          bg_visible="false"
          follows="left|top|right"
          h_pad="0"
