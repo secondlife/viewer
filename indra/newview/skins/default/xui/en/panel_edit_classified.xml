@@ -42,16 +42,16 @@
         Edit Classified
     </text>
    <scroll_container
-     color="DkGray2"
-     follows="all"
-     height="502"
-     layout="topleft"
-     left="8"
-     top_pad="10"
-     name="profile_scroll"
-     reserve_scroll_corner="false"
-     opaque="true"
-     width="312">
+    color="DkGray2"
+    follows="all"
+    height="502"
+    layout="topleft"
+    left="8"
+    top_pad="10"
+    name="profile_scroll"
+    reserve_scroll_corner="false"
+    opaque="true"
+    width="312">
     <panel
      name="scroll_content_panel"
      follows="left|top"
@@ -62,14 +62,14 @@
      height="610"
      left="0"
      width="285">
-    <texture_picker
-     follows="left|top|right"
-     height="197"
-     width="272"
-     layout="topleft"
-     top="10"
-     left="11"
-     name="classified_snapshot" />
+      <texture_picker
+       follows="left|top|right"
+       height="197"
+       width="272"
+       layout="topleft"
+       top="10"
+       left="11"
+       name="classified_snapshot" />
           <icon
            height="197"
            image_name="spacer24.tga"
@@ -225,7 +225,7 @@
          name="auto_renew"
          top_pad="5"
          width="250" />
-    </panel>
+     </panel>
     </scroll_container>
     <panel
      follows="left|right|bottom"
