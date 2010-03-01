@@ -21,8 +21,8 @@
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Girar a la izq. (cursor izq. o A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Girar a la der. (cursor der. o D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Volar subiendo, pulsa &quot;E&quot;"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Volar bajando, pulsa &quot;C&quot;"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Volar: pulsa E para subir"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Volar: pulsa C para descender"/>
 		<joystick_turn name="forward btn" tool_tip="Caminar hacia adelante (cursor arriba o W)"/>
 		<joystick_turn name="backward btn" tool_tip="Caminar de espaldas (cursor abajo o S)"/>
 	</panel>

@@ -11,7 +11,7 @@
 	</panel>
 	<favorites_bar name="favorite" tool_tip="Faites glisser des repères ici pour un accès rapide à vos lieux favoris dans Second Life.">
 		<label name="favorites_bar_label" tool_tip="Faites glisser des repères ici pour un accès rapide à vos lieux favoris dans Second Life.">
-			Barre des Favoris
+			Favoris
 		</label>
 		<chevron_button name="&gt;&gt;" tool_tip="Afficher d&apos;avantage de Favoris"/>
 	</favorites_bar>

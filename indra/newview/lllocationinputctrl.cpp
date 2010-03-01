@@ -52,7 +52,6 @@
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
-#include "lllocationhistory.h"
 #include "llteleporthistory.h"
 #include "llsidetray.h"
 #include "llslurl.h"
@@ -377,9 +376,10 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	// - Update the location string on parcel change.
 	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
-
-	mLocationHistoryConnection = LLLocationHistory::getInstance()->setLoadedCallback(
-			boost::bind(&LLLocationInputCtrl::onLocationHistoryLoaded, this));
+	// LLLocationHistory instance is being created before the location input control, so we have to update initial state of button manually.
+	mButton->setEnabled(LLLocationHistory::instance().getItemCount() > 0);
+	mLocationHistoryConnection = LLLocationHistory::getInstance()->setChangedCallback(
+			boost::bind(&LLLocationInputCtrl::onLocationHistoryChanged, this,_1));
 
 	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
 	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
@@ -577,7 +577,7 @@ void LLLocationInputCtrl::reshape(S32 width, S32 height, BOOL called_from_parent
 
 	if (isHumanReadableLocationVisible)
 	{
-		positionMaturityIcon();
+		refreshMaturityIcon();
 	}
 }
 
@@ -620,9 +620,13 @@ void LLLocationInputCtrl::onLandmarkLoaded(LLLandmark* lm)
 	updateAddLandmarkButton();
 }
 
-void LLLocationInputCtrl::onLocationHistoryLoaded()
+void LLLocationInputCtrl::onLocationHistoryChanged(LLLocationHistory::EChangeType event)
 {
-	rebuildLocationHistory();
+	if(event == LLLocationHistory::LOAD)
+	{
+		rebuildLocationHistory();
+	}
+	mButton->setEnabled(LLLocationHistory::instance().getItemCount() > 0);
 }
 
 void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
@@ -733,32 +737,7 @@ void LLLocationInputCtrl::refreshLocation()
 	setText(location_name);
 	isHumanReadableLocationVisible = true;
 
-	// Updating maturity rating icon.
-	LLViewerRegion* region = gAgent.getRegion();
-	if (!region)
-		return;
-
-	U8 sim_access = region->getSimAccess();
-	switch(sim_access)
-	{
-	case SIM_ACCESS_PG:
-		mMaturityIcon->setValue(mIconMaturityGeneral->getName());
-		mMaturityIcon->setVisible(TRUE);
-		break;
-
-	case SIM_ACCESS_ADULT:
-		mMaturityIcon->setValue(mIconMaturityAdult->getName());
-		mMaturityIcon->setVisible(TRUE);
-		break;
-
-	default:
-		mMaturityIcon->setVisible(FALSE);
-	}
-
-	if (mMaturityIcon->getVisible())
-	{
-		positionMaturityIcon();
-	}
+	refreshMaturityIcon();
 }
 
 // returns new right edge
@@ -874,6 +853,36 @@ void LLLocationInputCtrl::refreshHealth()
 	}
 }
 
+void LLLocationInputCtrl::refreshMaturityIcon()
+{
+	// Updating maturity rating icon.
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+		return;
+
+	U8 sim_access = region->getSimAccess();
+	switch(sim_access)
+	{
+	case SIM_ACCESS_PG:
+		mMaturityIcon->setValue(mIconMaturityGeneral->getName());
+		mMaturityIcon->setVisible(TRUE);
+		break;
+
+	case SIM_ACCESS_ADULT:
+		mMaturityIcon->setValue(mIconMaturityAdult->getName());
+		mMaturityIcon->setVisible(TRUE);
+		break;
+
+	default:
+		mMaturityIcon->setVisible(FALSE);
+	}
+
+	if (mMaturityIcon->getVisible())
+	{
+		positionMaturityIcon();
+	}
+}
+
 void LLLocationInputCtrl::positionMaturityIcon()
 {
 	const LLFontGL* font = mTextEntry->getFont();
@@ -893,7 +902,7 @@ void LLLocationInputCtrl::positionMaturityIcon()
 	mMaturityIcon->setVisible(rect.mRight < mTextEntry->getRect().getWidth() - right_pad);
 }
 
-void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
+void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 {
 	LLLocationHistory::location_list_t filtered_items;
 	const LLLocationHistory::location_list_t* itemsp = NULL;

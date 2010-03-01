@@ -86,7 +86,7 @@ public:
 #ifdef __GNUC__
 	__attribute__ ((noinline))
 #endif
-	BOOL isGodlike() const { return FALSE; }
+	bool isGodlike() const { return FALSE; }
 };
 LLAgent gAgent;
 

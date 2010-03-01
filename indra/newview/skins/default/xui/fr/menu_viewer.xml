@@ -22,8 +22,8 @@
 	<menu label="Communiquer" name="Communicate">
 		<menu_item_call label="Mes amis" name="My Friends"/>
 		<menu_item_call label="Mes groupes" name="My Groups"/>
-		<menu_item_check label="Chat près de vous" name="Nearby Chat"/>
-		<menu_item_call label="Personnes près de vous" name="Active Speakers"/>
+		<menu_item_check label="Chat près de moi" name="Nearby Chat"/>
+		<menu_item_call label="Personnes près de moi" name="Active Speakers"/>
 	</menu>
 	<menu label="Monde" name="World">
 		<menu_item_check label="Mini-carte" name="Mini-Map"/>
@@ -31,7 +31,7 @@
 		<menu_item_call label="Photo" name="Take Snapshot"/>
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
 		<menu label="Profil du lieu" name="Land">
-			<menu_item_call label="À propos des terrains" name="About Land"/>
+			<menu_item_call label="À propos du terrain" name="About Land"/>
 			<menu_item_call label="Région/Domaine" name="Region/Estate"/>
 		</menu>
 		<menu_item_call label="Acheter ce terrain" name="Buy Land"/>
@@ -77,7 +77,7 @@
 		</menu>
 		<menu_item_call label="Lien" name="Link"/>
 		<menu_item_call label="Annuler le lien" name="Unlink"/>
-		<menu_item_check label="Modifier les parties reliées" name="Edit Linked Parts"/>
+		<menu_item_check label="Modifier les parties liées" name="Edit Linked Parts"/>
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoomer sur la sélection" name="Zoom to Selection"/>
 		<menu label="Objet" name="Object">
@@ -107,7 +107,7 @@
 			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
 			<menu_item_call label="Options de la grille" name="Grid Options"/>
 		</menu>
-		<menu label="Sélectionner les parties reliées" name="Select Linked Parts">
+		<menu label="Sélectionner les parties liées" name="Select Linked Parts">
 			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
 			<menu_item_call label="Sélectionner la partie précédente" name="Select Previous Part"/>
 			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
@@ -149,7 +149,7 @@
 			<menu_item_check label="Alpha" name="Alpha"/>
 			<menu_item_check label="Arbre" name="Tree"/>
 			<menu_item_check label="Avatars" name="Character"/>
-			<menu_item_check label="SurfacePath" name="SurfacePath"/>
+			<menu_item_check label="SurfacePath" name="Surface"/>
 			<menu_item_check label="Ciel" name="Sky"/>
 			<menu_item_check label="Eau" name="Water"/>
 			<menu_item_check label="Sol" name="Ground"/>

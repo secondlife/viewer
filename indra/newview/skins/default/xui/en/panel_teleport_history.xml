@@ -53,7 +53,7 @@
              top="0"
              width="380">
 	        </flat_list_view>
-	    </accordion_tab>5
+	    </accordion_tab>
         <accordion_tab
          layout="topleft"
          name="3_days_ago"
@@ -154,7 +154,7 @@
      width="380">
         <button
          follows="bottom|left"
-         tool_tip="Show additional optioins"
+         tool_tip="Show additional options"
          height="18"
          image_disabled="OptionsMenu_Disabled"
          image_selected="OptionsMenu_Press"

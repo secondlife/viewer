@@ -70,7 +70,7 @@
              text_color="white"
              top="4"
              use_ellipses="true"
-             value="Mya Avatar:"
+             value="My Avatar:"
              width="210" />
             <output_monitor
              auto_update="true"
