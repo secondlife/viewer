@@ -284,16 +284,16 @@
 				あなたはこの区画の設定編集ができないため、このオプションは無効です。
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				控えめコンテンツ
+				「Moderate」コンテンツ
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				アダルトコンテンツ
+				「Adult」コンテンツ
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				あなたの区画情報及びコンテンツは「控えめ」とされています。
+				あなたの区画情報及びコンテンツは「Moderate」とされています。
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				あなたの区画情報及びコンテンツは「アダルト」とされています。
+				あなたの区画情報及びコンテンツは「Adult」とされています。
 			</panel.string>
 			<panel.string name="landing_point_none">
 				（なし）
@@ -333,7 +333,7 @@
 			<combo_box name="land category with adult">
 				<combo_box.item label="全カテゴリ" name="item0"/>
 				<combo_box.item label="Linden 所在地" name="item1"/>
-				<combo_box.item label="アダルト" name="item2"/>
+				<combo_box.item label="Adult" name="item2"/>
 				<combo_box.item label="アートとカルチャー" name="item3"/>
 				<combo_box.item label="ビジネス" name="item4"/>
 				<combo_box.item label="教育的" name="item5"/>
@@ -359,7 +359,7 @@
 				<combo_box.item label="ショッピング" name="item11"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
-			<check_box label="控えめコンテンツ" name="MatureCheck" tool_tip=""/>
+			<check_box label="「Moderate」コンテンツ" name="MatureCheck" tool_tip=""/>
 			<text name="Snapshot:">
 				スナップショット：
 			</text>
