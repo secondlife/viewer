@@ -329,7 +329,7 @@
 	   left="80"
 	   top_delta="16"
      name="Listen from"
-     width="80">
+     width="110">
         Listen from:
     </text>
 	<icon
