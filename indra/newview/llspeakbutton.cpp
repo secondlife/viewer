@@ -59,9 +59,9 @@ LLSpeakButton::Params::Params()
 
 void LLSpeakButton::draw()
 {
-	// gVoiceClient is the authoritative global source of info regarding our open-mic state, we merely reflect that state.
-	bool openmic = gVoiceClient->getUserPTTState();
-	bool voiceenabled = gVoiceClient->voiceEnabled();
+	// LLVoiceClient::getInstance() is the authoritative global source of info regarding our open-mic state, we merely reflect that state.
+	bool openmic = LLVoiceClient::getInstance()->getUserPTTState();
+	bool voiceenabled = LLVoiceClient::getInstance()->voiceEnabled();
 	mSpeakBtn->setToggleState(openmic && voiceenabled);
 	mOutputMonitor->setIsMuted(!voiceenabled);
 	LLUICtrl::draw();
@@ -176,11 +176,11 @@ void LLSpeakButton::setLabelVisible(bool visible)
 void LLSpeakButton::onMouseDown_SpeakBtn()
 {
 	bool down = true;
-	gVoiceClient->inputUserControlState(down); // this method knows/care about whether this translates into a toggle-to-talk or down-to-talk
+	LLVoiceClient::getInstance()->inputUserControlState(down); // this method knows/care about whether this translates into a toggle-to-talk or down-to-talk
 }
 void LLSpeakButton::onMouseUp_SpeakBtn()
 {
 	bool down = false;
-	gVoiceClient->inputUserControlState(down);
+	LLVoiceClient::getInstance()->inputUserControlState(down);
 }
 

@@ -35,12 +35,13 @@
 #include "llloginhandler.h"
 
 // viewer includes
+#include "llsecapi.h"
 #include "llpanellogin.h"			// save_password_to_disk()
 #include "llstartup.h"				// getStartupState()
-#include "llurlsimstring.h"
+#include "llslurl.h"
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llviewernetwork.h"		// EGridInfo
-#include "llviewerwindow.h"			// getWindow()
+#include "llviewerwindow.h"                    // getWindow()
 
 // library includes
 #include "llmd5.h"
@@ -59,109 +60,33 @@ bool LLLoginHandler::parseDirectLogin(std::string url)
 	LLURI uri(url);
 	parse(uri.queryMap());
 
-	if (/*mWebLoginKey.isNull() ||*/
-		mFirstName.empty() ||
-		mLastName.empty())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	// NOTE: Need to add direct login as per identity evolution
+	return true;
 }
-
 
 void LLLoginHandler::parse(const LLSD& queryMap)
 {
-	//mWebLoginKey = queryMap["web_login_key"].asUUID();
-	mFirstName = queryMap["first_name"].asString();
-	mLastName = queryMap["last_name"].asString();
 	
-	EGridInfo grid_choice = GRID_INFO_NONE;
-	if (queryMap["grid"].asString() == "aditi")
+	if (queryMap.has("grid"))
 	{
-		grid_choice = GRID_INFO_ADITI;
+	  LLGridManager::getInstance()->setGridChoice(queryMap["grid"].asString());
 	}
-	else if (queryMap["grid"].asString() == "agni")
-	{
-		grid_choice = GRID_INFO_AGNI;
-	}
-	else if (queryMap["grid"].asString() == "siva")
-	{
-		grid_choice = GRID_INFO_SIVA;
-	}
-	else if (queryMap["grid"].asString() == "damballah")
-	{
-		grid_choice = GRID_INFO_DAMBALLAH;
-	}
-	else if (queryMap["grid"].asString() == "durga")
-	{
-		grid_choice = GRID_INFO_DURGA;
-	}
-	else if (queryMap["grid"].asString() == "shakti")
-	{
-		grid_choice = GRID_INFO_SHAKTI;
-	}
-	else if (queryMap["grid"].asString() == "soma")
-	{
-		grid_choice = GRID_INFO_SOMA;
-	}
-	else if (queryMap["grid"].asString() == "ganga")
-	{
-		grid_choice = GRID_INFO_GANGA;
-	}
-	else if (queryMap["grid"].asString() == "vaak")
-	{
-		grid_choice = GRID_INFO_VAAK;
-	}
-	else if (queryMap["grid"].asString() == "uma")
-	{
-		grid_choice = GRID_INFO_UMA;
-	}
-	else if (queryMap["grid"].asString() == "mohini")
-	{
-		grid_choice = GRID_INFO_MOHINI;
-	}
-	else if (queryMap["grid"].asString() == "yami")
-	{
-		grid_choice = GRID_INFO_YAMI;
-	}
-	else if (queryMap["grid"].asString() == "nandi")
-	{
-		grid_choice = GRID_INFO_NANDI;
-	}
-	else if (queryMap["grid"].asString() == "mitra")
-	{
-		grid_choice = GRID_INFO_MITRA;
-	}
-	else if (queryMap["grid"].asString() == "radha")
-	{
-		grid_choice = GRID_INFO_RADHA;
-	}
-	else if (queryMap["grid"].asString() == "ravi")
-	{
-		grid_choice = GRID_INFO_RAVI;
-	}
-	else if (queryMap["grid"].asString() == "aruna")
-	{
-		grid_choice = GRID_INFO_ARUNA;
-	}
-
-	if(grid_choice != GRID_INFO_NONE)
-	{
-		LLViewerLogin::getInstance()->setGridChoice(grid_choice);
-	}
-
+	
+	
 	std::string startLocation = queryMap["location"].asString();
-
+	
 	if (startLocation == "specify")
 	{
-		LLURLSimString::setString(queryMap["region"].asString());
+	  LLStartUp::setStartSLURL(LLSLURL(LLGridManager::getInstance()->getGridLoginID(),
+					   queryMap["region"].asString()));
 	}
-	else if (!startLocation.empty()) // "last" or "home" or ??? (let LLURLSimString figure it out)
+	else if (startLocation == "home")
 	{
-		LLURLSimString::setString(startLocation);
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+	}
+	else if (startLocation == "last")
+	{
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
 	}
 }
 
@@ -212,40 +137,65 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 		return true;
 	}
 	
-	std::string password = query_map["password"].asString();
-
-	if (!password.empty())
+	if  (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)  //on splash page         
 	{
-		gSavedSettings.setBOOL("RememberPassword", TRUE);
-
-		if (password.substr(0,3) != "$1$")
-		{
-			LLMD5 pass((unsigned char*)password.c_str());
-			char md5pass[33];		/* Flawfinder: ignore */
-			pass.hex_digest(md5pass);
-			std::string hashed_password = ll_safe_string(md5pass, 32);
-			LLStartUp::savePasswordToDisk(hashed_password);
-		}
-	}
-			
-
-	if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)  //on splash page
-	{
-		if (!mFirstName.empty() || !mLastName.empty())
-		{
-			// Fill in the name, and maybe the password
-			LLPanelLogin::setFields(mFirstName, mLastName, password);
-		}
-
-		//if (mWebLoginKey.isNull())
-		//{
-		//	LLPanelLogin::loadLoginPage();
-		//}
-		//else
-		//{
-		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
-		//}
-		LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+	  // as the login page may change from grid to grid, as well as
+	  // things like username/password/etc, we simply refresh the
+	  // login page to make sure everything is set up correctly
+	  LLPanelLogin::loadLoginPage();
+	  LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 	}
 	return true;
+}
+
+
+
+//  Initialize the credentials                                                                                              
+// If the passed in URL contains login info, parse                                                                          
+// that into a credential and web login key.  Otherwise                                                                     
+// check the command line.  If the command line                                                                             
+// does not contain any login creds, load the last saved                                                                    
+// ones from the protected credential store.                                                                                
+// This always returns with a credential structure set in the                                                               
+// login handler                                                                                                            
+LLPointer<LLCredential> LLLoginHandler::initializeLoginInfo()                                         
+{                                                                                                                           
+	LLPointer<LLCredential> result = NULL;                                                                               
+	// so try to load it from the UserLoginInfo                                                                          
+	result = loadSavedUserLoginInfo();                                                                                   
+	if (result.isNull())                                                                                                 
+	{                                                                                                                    
+		result =  gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());                       
+	}                                                                                                                    
+	
+	return result;                                                                                                       
+} 
+
+
+LLPointer<LLCredential> LLLoginHandler::loadSavedUserLoginInfo()
+{
+  // load the saved user login info into a LLCredential.
+  // perhaps this should be moved.
+	LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
+	if (cmd_line_login.size() == 3) 
+	{
+	
+		LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
+		char md5pass[33];               /* Flawfinder: ignore */
+		pass.hex_digest(md5pass);
+		LLSD identifier = LLSD::emptyMap();
+		identifier["type"] = "agent";
+		identifier["first_name"] = cmd_line_login[0];
+		identifier["last_name"] = cmd_line_login[1];
+		
+		LLSD authenticator = LLSD::emptyMap();
+		authenticator["type"] = "hash";
+		authenticator["algorithm"] = "md5";
+		authenticator["secret"] = md5pass;
+		// yuck, we'll fix this with mani's changes.
+		gSavedSettings.setBOOL("AutoLogin", TRUE);
+		return gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), 
+													   identifier, authenticator);
+	}
+	return NULL;
 }

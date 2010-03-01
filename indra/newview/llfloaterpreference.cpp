@@ -611,7 +611,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 
@@ -628,7 +628,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 

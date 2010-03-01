@@ -166,7 +166,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
 		chat.mFromID != LLUUID::null)
 	{
-		chat.mURL = LLSLURL::buildCommand("agent", chat.mFromID, "inspect");
+		chat.mURL = LLSLURL("agent", chat.mFromID, "inspect").getSLURLString();
 	}
 
 	// If the chat line has an associated url, link it up to the name.

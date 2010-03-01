@@ -2434,7 +2434,7 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
 	
 	if (identical)
 	{
-		name = LLSLURL::buildCommand("agent", first_id, "inspect");
+		name = LLSLURL("agent", first_id, "inspect").getSLURLString();
 	}
 	else
 	{
@@ -2493,11 +2493,11 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull() && !first_group_owned);
 		if (first_group_owned)
 		{
-			name = LLSLURL::buildCommand("group", first_id, "inspect");
+			name = LLSLURL("group", first_id, "inspect").getSLURLString();
 		}
 		else if(!public_owner)
 		{
-			name = LLSLURL::buildCommand("agent", first_id, "inspect");
+			name = LLSLURL("agent", first_id, "inspect").getSLURLString();
 		}
 		else
 		{
@@ -2557,7 +2557,7 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull());
 		if(!public_owner)
 		{
-			name = LLSLURL::buildCommand("agent", first_id, "inspect");
+			name = LLSLURL("agent", first_id, "inspect").getSLURLString();
 		}
 		else
 		{

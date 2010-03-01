@@ -1576,10 +1576,15 @@ void LLInventoryModel::bulkFetch(std::string url)
 				    folder_sd["fetch_folders"]	= TRUE; //(LLSD::Boolean)sFullFetchStarted;
 				    folder_sd["fetch_items"]	= (LLSD::Boolean)TRUE;
 				    
-				    if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
-					    body_lib["folders"].append(folder_sd);
-				    else
+				    if (gAgent.getID() == cat->getOwnerID())
+				    {
 					    body["folders"].append(folder_sd);
+				    }
+				    else
+				    {
+					    body_lib["folders"].append(folder_sd);
+				    }
+
 				    folder_count++;
 			    }
 			    if (sMyInventoryFetchStarted ||

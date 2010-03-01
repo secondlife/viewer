@@ -36,7 +36,8 @@
 #include "llurlrequest.h"
 
 #include <algorithm>
-
+#include <openssl/x509_vfy.h>
+#include <openssl/ssl.h>
 #include "llcurl.h"
 #include "llioutil.h"
 #include "llmemtype.h"
@@ -56,6 +57,8 @@ const std::string CONTEXT_TRANSFERED_BYTES("transfered_bytes");
 
 static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user);
 
+
+
 /**
  * class LLURLRequestDetail
  */
@@ -72,6 +75,7 @@ public:
 	U32 mBodyLimit;
 	S32 mByteAccumulator;
 	bool mIsBodyLimitSet;
+	LLURLRequest::SSLCertVerifyCallback mSSLVerifyCallback;
 };
 
 LLURLRequestDetail::LLURLRequestDetail() :
@@ -80,7 +84,8 @@ LLURLRequestDetail::LLURLRequestDetail() :
 	mLastRead(NULL),
 	mBodyLimit(0),
 	mByteAccumulator(0),
-	mIsBodyLimitSet(false)
+	mIsBodyLimitSet(false),
+    mSSLVerifyCallback(NULL)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCurlRequest = new LLCurlEasyRequest();
@@ -94,6 +99,36 @@ LLURLRequestDetail::~LLURLRequestDetail()
 	mLastRead = NULL;
 }
 
+void LLURLRequest::setSSLVerifyCallback(SSLCertVerifyCallback callback, void *param)
+{
+	mDetail->mSSLVerifyCallback = callback;
+	mDetail->mCurlRequest->setSSLCtxCallback(LLURLRequest::_sslCtxCallback, (void *)this);
+	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, true);
+	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, 2);	
+}
+
+
+// _sslCtxFunction
+// Callback function called when an SSL Context is created via CURL
+// used to configure the context for custom cert validation
+
+CURLcode LLURLRequest::_sslCtxCallback(CURL * curl, void *sslctx, void *param)
+{	
+	LLURLRequest *req = (LLURLRequest *)param;
+	if(req == NULL || req->mDetail->mSSLVerifyCallback == NULL)
+	{
+		SSL_CTX_set_cert_verify_callback((SSL_CTX *)sslctx, NULL, NULL);
+		return CURLE_OK;
+	}
+	SSL_CTX * ctx = (SSL_CTX *) sslctx;
+	// disable any default verification for server certs
+	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+	// set the verification callback.
+	SSL_CTX_set_cert_verify_callback(ctx, req->mDetail->mSSLVerifyCallback, (void *)req);
+	// the calls are void
+	return CURLE_OK;
+	
+}
 
 /**
  * class LLURLRequest
@@ -148,6 +183,11 @@ void LLURLRequest::setURL(const std::string& url)
 	mDetail->mURL = url;
 }
 
+std::string LLURLRequest::getURL() const
+{
+	return mDetail->mURL;
+}
+
 void LLURLRequest::addHeader(const char* header)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
@@ -158,13 +198,6 @@ void LLURLRequest::setBodyLimit(U32 size)
 {
 	mDetail->mBodyLimit = size;
 	mDetail->mIsBodyLimitSet = true;
-}
-
-void LLURLRequest::checkRootCertificate(bool check)
-{
-	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, (check? TRUE : FALSE));
-	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, (check? 2 : 0));
-	mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 }
 
 void LLURLRequest::setCallback(LLURLRequestComplete* callback)

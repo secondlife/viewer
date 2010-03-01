@@ -89,10 +89,6 @@ S32 gCurlMultiCount = 0;
 std::vector<LLMutex*> LLCurl::sSSLMutex;
 std::string LLCurl::sCAPath;
 std::string LLCurl::sCAFile;
-// Verify SSL certificates by default (matches libcurl default). The ability
-// to alter this flag is only to allow us to suppress verification if it's
-// broken for some reason.
-bool LLCurl::sSSLVerify = true;
 
 //static
 void LLCurl::setCAPath(const std::string& path)
@@ -104,18 +100,6 @@ void LLCurl::setCAPath(const std::string& path)
 void LLCurl::setCAFile(const std::string& file)
 {
 	sCAFile = file;
-}
-
-//static
-void LLCurl::setSSLVerify(bool verify)
-{
-	sSSLVerify = verify;
-}
-
-//static
-bool LLCurl::getSSLVerify()
-{
-	return sSSLVerify;
 }
 
 //static
@@ -481,8 +465,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	setErrorBuffer();
 	setCA();
 
-	setopt(CURLOPT_SSL_VERIFYPEER, LLCurl::getSSLVerify());
-	setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify()? 2 : 0);
+	setopt(CURLOPT_SSL_VERIFYPEER, true);
 	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
 
 	setoptString(CURLOPT_URL, url);
@@ -912,6 +895,15 @@ void LLCurlEasyRequest::setReadCallback(curl_read_callback callback, void* userd
 	}
 }
 
+void LLCurlEasyRequest::setSSLCtxCallback(curl_ssl_ctx_callback callback, void* userdata)
+{
+	if (mEasy)
+	{
+		mEasy->setopt(CURLOPT_SSL_CTX_FUNCTION, (void*)callback);
+		mEasy->setopt(CURLOPT_SSL_CTX_DATA, userdata);
+	}
+}
+
 void LLCurlEasyRequest::slist_append(const char* str)
 {
 	if (mEasy)
@@ -1061,3 +1053,4 @@ void LLCurl::cleanupClass()
 #endif
 	curl_global_cleanup();
 }
+

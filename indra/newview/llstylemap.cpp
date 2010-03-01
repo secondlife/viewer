@@ -51,7 +51,7 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 			style_params.color.control = "HTMLLinkColor";
 			style_params.readonly_color.control = "HTMLLinkColor";
 			style_params.link_href = 
-					LLSLURL::buildCommand("agent", source, "inspect");
+					LLSLURL("agent", source, "inspect").getSLURLString();
 		}
 		else
 		{
