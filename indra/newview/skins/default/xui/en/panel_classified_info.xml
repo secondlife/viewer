@@ -118,7 +118,7 @@
          name="content_type"
          read_only="true"
          width="290"
-         top_pad="5"
+         top_pad="15"
          v_pad="0"
          value="[content type]" />
         <text_editor
