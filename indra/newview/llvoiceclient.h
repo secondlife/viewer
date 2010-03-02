@@ -442,7 +442,7 @@ private:
 	void load();
 	void save();
 
-	typedef std::map<LLUUID, S32> speaker_data_map_t;
+	typedef std::map<LLUUID, F32> speaker_data_map_t;
 	speaker_data_map_t mSpeakersData;
 };
 
