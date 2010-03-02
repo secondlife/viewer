@@ -50,7 +50,7 @@
 		<panel label="Haut" name="Skin">
 			<button label="Hautfarbe" label_selected="Hautfarbe" left="2" name="Skin Color" width="92"/>
 			<button label="Gesichtsdetails" label_selected="Gesichtsdetails" left="2" name="Face Detail" width="92"/>
-			<button label="Make-Uup" label_selected="Make-Uup" left="2" name="Makeup" width="92"/>
+			<button label="Make-Up" label_selected="Make-Up" left="2" name="Makeup" width="92"/>
 			<button label="Körperdetails" label_selected="Körperdetails" left="2" name="Body Detail" width="92"/>
 			<text name="title">
 				[DESC]
