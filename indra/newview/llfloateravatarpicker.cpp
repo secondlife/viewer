@@ -520,6 +520,7 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 	}
 
 	childEnable("ok_btn");
+	search_results->setEnabled(true);
 	search_results->selectFirstItem();
 	onList();
 	search_results->setFocus(TRUE);
