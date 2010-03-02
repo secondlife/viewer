@@ -825,6 +825,7 @@ void LLVivoxVoiceClient::stateMachine()
 						// SLIM SDK: these arguments are no longer necessary.
 //						std::string args = " -p tcp -h -c";
 						std::string args;
+						std::string cmd;
 						std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
 						
 						if(loglevel.empty())
@@ -839,20 +840,18 @@ void LLVivoxVoiceClient::stateMachine()
 
 #if LL_WINDOWS
 						PROCESS_INFORMATION pinfo;
-						STARTUPINFOW sinfo;
+						STARTUPINFOA sinfo;
 						
 						memset(&sinfo, 0, sizeof(sinfo));
 						
-						std::string exe_dir = gDirUtilp->getExecutableDir();
-						
-						llutf16string exe_path16 = utf8str_to_utf16str(exe_path);
-						llutf16string exe_dir16 = utf8str_to_utf16str(exe_dir);
-						llutf16string args16 = utf8str_to_utf16str(args);
-						// Create a writeable copy to keep Windows happy.                               
-						U16 *argscpy_16 = new U16[args16.size() + 1];
-						wcscpy_s(argscpy_16,args16.size()+1,args16.c_str());
+						std::string exe_dir = gDirUtilp->getAppRODataDir();
+						cmd = "SLVoice.exe";
+						cmd += args;
 
-						if(!CreateProcessW(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, exe_dir.c_str(), &sinfo, &pinfo))
+						// So retarded.  Windows requires that the second parameter to CreateProcessA be writable (non-const) string...
+						char *args2 = new char[args.size() + 1];
+						strcpy(args2, args.c_str());
+						if(!CreateProcessA(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, exe_dir.c_str(), &sinfo, &pinfo))
 						{
 //							DWORD dwErr = GetLastError();
 						}
@@ -864,7 +863,7 @@ void LLVivoxVoiceClient::stateMachine()
 							CloseHandle(pinfo.hThread); // stops leaks - nothing else
 						}		
 						
-						delete[] argscpy_16;
+						delete[] args2;
 #else	// LL_WINDOWS
 						// This should be the same for mac and linux
 						{
