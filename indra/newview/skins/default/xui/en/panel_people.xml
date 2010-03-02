@@ -373,7 +373,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
          layout="topleft"
          name="view_profile_btn"
          tool_tip="Show picture, groups, and other Residents information"
-         width="64" />
+         width="70" />
         <button
          follows="bottom|left"
          left_pad="3"

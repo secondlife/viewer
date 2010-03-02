@@ -1155,6 +1155,8 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  , mInfoLoaded(false)
  , mScrollingPanel(NULL)
  , mScrollContainer(NULL)
+ , mScrollingPanelMinHeight(0)
+ , mScrollingPanelWidth(0)
 {
 }
 

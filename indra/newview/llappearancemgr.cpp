@@ -528,22 +528,29 @@ public:
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
 
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
-			
-		if (item && linked_item)
+		if (linked_item)
 		{
-			LLFoundData found(linked_item->getUUID(),
-							  linked_item->getAssetUUID(),
-							  linked_item->getName(),
-							  linked_item->getType(),
-							  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
-				);
-			found.mWearable = mWearable;
-			mHolder->mFoundList.push_front(found);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
+			
+			if (item)
+			{
+				LLFoundData found(linked_item->getUUID(),
+						  linked_item->getAssetUUID(),
+						  linked_item->getName(),
+						  linked_item->getType(),
+						  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
+						  );
+				found.mWearable = mWearable;
+				mHolder->mFoundList.push_front(found);
+			}
+			else
+			{
+				llwarns << "inventory item not found for recovered wearable" << llendl;
+			}
 		}
 		else
 		{
-			llwarns << "inventory item or link not found for recovered wearable" << llendl;
+			llwarns << "inventory link not found for recovered wearable" << llendl;
 		}
 	}
 private:
@@ -568,12 +575,16 @@ public:
 		mWearable->setItemID(item_id);
 		LLPointer<LLInventoryCallback> cb = new RecoveredItemLinkCB(mType,mWearable,mHolder);
 		mHolder->mTypesToRecover.erase(mType);
-		link_inventory_item( gAgent.getID(),
-							 item_id,
-							 LLAppearanceManager::instance().getCOF(),
-							 itemp->getName(),
-							 LLAssetType::AT_LINK,
-							 cb);
+		llassert(itemp);
+		if (itemp)
+		{
+			link_inventory_item( gAgent.getID(),
+					     item_id,
+					     LLAppearanceManager::instance().getCOF(),
+					     itemp->getName(),
+					     LLAssetType::AT_LINK,
+					     cb);
+		}
 	}
 private:
 	LLWearableHoldingPattern* mHolder;

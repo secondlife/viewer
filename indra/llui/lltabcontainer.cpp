@@ -1649,7 +1649,7 @@ void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
 		if(mCustomIconCtrlUsed)
 		{
 			LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
-			LLIconCtrl* icon_ctrl = button->getIconCtrl();
+			LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
 			image_overlay_width = icon_ctrl ? icon_ctrl->getRect().getWidth() : 0;
 		}
 		else
