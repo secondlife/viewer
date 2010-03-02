@@ -1367,8 +1367,15 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 			mOrigWidth = mRawImage->getWidth();
 			mOrigHeight = mRawImage->getHeight();
 
-			// leave black border, do not scale image content
-			mRawImage->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
+			
+			if (mBoostLevel == BOOST_PREVIEW)
+			{ 
+				mRawImage->biasedScaleToPowerOfTwo(1024);
+			}
+			else
+			{ // leave black border, do not scale image content
+				mRawImage->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
+			}
 			
 			mFullWidth = mRawImage->getWidth();
 			mFullHeight = mRawImage->getHeight();

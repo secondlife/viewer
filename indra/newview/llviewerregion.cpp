@@ -1553,19 +1553,7 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 		return "";
 	}
 
-	std::string http_url = iter->second;
-
-	std::string ip_string = mHost.getIPString();
-	std::string host_string = mHost.getHostName();
-
-	std::string::size_type idx = http_url.find(host_string);
-
-	if (!ip_string.empty() && !host_string.empty() && idx != std::string::npos)
-	{
-		http_url.replace(idx, host_string.length(), ip_string);
-	}
-
-	return http_url;
+	return iter->second;
 }
 
 void LLViewerRegion::logActiveCapabilities() const
