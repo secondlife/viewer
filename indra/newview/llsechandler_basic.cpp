@@ -387,7 +387,7 @@ std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value)
 	
 	std::stringstream result;
 	result << std::hex << std::setprecision(2);
-	for (unsigned int i=0; i < value->length; i++)
+	for (int i=0; i < value->length; i++)
 	{
 		if (i != 0) 
 		{

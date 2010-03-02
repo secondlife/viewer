@@ -310,7 +310,7 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 {
 	llinfos << "done update appearance on destroy" << llendl;
 	
-	if (!LLApp::isExiting())
+	if (!LLApp::isExiting() && !LLApp::isStopped())
 	{
 		LLAppearanceManager::instance().updateAppearanceFromCOF();
 	}
