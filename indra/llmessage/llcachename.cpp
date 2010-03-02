@@ -388,7 +388,8 @@ void LLCacheName::exportFile(std::ostream& ostr)
 		// store it
 		LLUUID id = iter->first;
 		std::string id_str = id.asString();
-		if(!entry->mFirstName.empty() /* && !entry->mLastName.empty() */ )  // IDEVO save SLIDs
+		// IDEVO TODO: Should we store SLIDs with last name "Resident" or not?
+		if(!entry->mFirstName.empty() && !entry->mLastName.empty())
 		{
 			data[AGENTS][id_str][FIRST] = entry->mFirstName;
 			data[AGENTS][id_str][LAST] = entry->mLastName;
