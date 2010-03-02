@@ -96,8 +96,7 @@ class LLFileEnableUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gAgent.getRegion() && !gAgent.getRegion()->getCapability("NewFileAgentInventoryVariablePrice").empty();
-		return new_value;
+		return true;
 	}
 };
 
