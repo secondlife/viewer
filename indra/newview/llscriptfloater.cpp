@@ -135,7 +135,7 @@ void LLScriptFloater::setNotificationId(const LLUUID& id)
 
 void LLScriptFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLScriptFloater::createForm(const LLUUID& notification_id)
