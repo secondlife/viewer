@@ -1682,6 +1682,23 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 	}
 }
 
+static std::string clean_name_from_task_im(const std::string& msg)
+{
+	boost::smatch match;
+	static const boost::regex returned_exp(
+		"(.*been returned to your inventory lost and found folder by )(.+)( (from|near).*)");
+	if (boost::regex_match(msg, match, returned_exp))
+	{
+		// match objects are 1-based for groups
+		std::string final = match[1].str();
+		std::string name = match[2].str();
+		final += LLCacheName::cleanFullName(name);
+		final += match[3].str();
+		return final;
+	}
+	return msg;
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -2233,6 +2250,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// System's UUID is NULL (fixes EXT-4766)
 				chat.mFromID = from_id = LLUUID::null;
 			}
+
+			// IDEVO Some messages have embedded resident names
+			message = clean_name_from_task_im(message);
 
 			LLSD query_string;
 			query_string["owner"] = from_id;
