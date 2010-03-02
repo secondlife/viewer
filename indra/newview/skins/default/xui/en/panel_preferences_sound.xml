@@ -51,7 +51,7 @@
      name="mute_when_minimized"
 	   top_delta="3"
      left_pad="5"
-     width="215" />
+     width="235" />
 	<slider
 		control_name="AudioLevelUI"
 		disabled_control="MuteAudio"
@@ -329,7 +329,7 @@
 	   left="80"
 	   top_delta="16"
      name="Listen from"
-     width="80">
+     width="142">
         Listen from:
     </text>
 	<icon
