@@ -1155,6 +1155,8 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  , mInfoLoaded(false)
  , mScrollingPanel(NULL)
  , mScrollContainer(NULL)
+ , mScrollingPanelMinHeight(0)
+ , mScrollingPanelWidth(0)
 {
 }
 
@@ -1292,11 +1294,13 @@ void LLPanelClassifiedInfo::resetControls()
 	{
 		childSetEnabled("edit_btn", TRUE);
 		childSetVisible("edit_btn", TRUE);
+		childSetVisible("auto_renew", TRUE);
 	}
 	else
 	{
 		childSetEnabled("edit_btn", FALSE);
 		childSetVisible("edit_btn", FALSE);
+		childSetVisible("auto_renew", FALSE);
 	}
 }
 

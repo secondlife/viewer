@@ -17,8 +17,8 @@
 	<text name="text_box2">
 		kbps
 	</text>
-	<check_box label="Port de connexion personnalisé" name="connection_port_enabled"/>
-	<spinner label="Numéro de port :" name="connection_port"/>
+	<check_box label="Port de connexion" name="connection_port_enabled"/>
+	<spinner label="Numéro :" name="connection_port"/>
 	<text name="cache_size_label_l">
 		Taille de la mémoire
 	</text>

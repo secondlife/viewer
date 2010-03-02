@@ -16,7 +16,7 @@
 			<texture_picker label="Haare" name="hair_grain"/>
 			<texture_picker label="Alpha: Haare" name="hair_alpha"/>
 			<texture_picker label="Kopf" name="head-baked"/>
-			<texture_picker label="Make-Uup" name="head_bodypaint"/>
+			<texture_picker label="Make-Up" name="head_bodypaint"/>
 			<texture_picker label="Kopf: Alpha" name="head_alpha"/>
 			<texture_picker label="Kopftattoo" name="head_tattoo"/>
 			<texture_picker label="Augen" name="eyes-baked"/>
