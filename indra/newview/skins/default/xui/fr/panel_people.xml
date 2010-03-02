@@ -26,7 +26,7 @@ Si vous voulez rencontrer d&apos;autres résidents, ouvrez la [secondlife:///app
 			</text>
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="friends_viewsort_btn" tool_tip="Options"/>
-				<button name="add_btn" tool_tip="Proposer à ce résident de devenir votre ami"/>
+				<button name="add_btn" tool_tip="Proposer à un résident de devenir votre ami"/>
 				<button name="del_btn" tool_tip="Supprimer le résident sélectionné de votre liste d&apos;amis"/>
 			</panel>
 		</panel>
