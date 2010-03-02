@@ -64,6 +64,7 @@
      layout="topleft"
      left="103"
      name="picture_descr"
+     textbox.max_length="1024"
      textbox.show_context_menu="false" 
      top_pad="0"
      width="178"

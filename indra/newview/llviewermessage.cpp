@@ -207,6 +207,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		LLNotificationsUtil::add("FriendshipDeclinedByMe",
 				notification["substitutions"], payload);
 	}
+	// fall-through
 	case 2: // Send IM - decline and start IM session
 		{
 			// decline
