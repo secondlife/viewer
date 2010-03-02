@@ -575,12 +575,16 @@ public:
 		mWearable->setItemID(item_id);
 		LLPointer<LLInventoryCallback> cb = new RecoveredItemLinkCB(mType,mWearable,mHolder);
 		mHolder->mTypesToRecover.erase(mType);
-		link_inventory_item( gAgent.getID(),
-							 item_id,
-							 LLAppearanceManager::instance().getCOF(),
-							 itemp->getName(),
-							 LLAssetType::AT_LINK,
-							 cb);
+		llassert(itemp);
+		if (itemp)
+		{
+			link_inventory_item( gAgent.getID(),
+					     item_id,
+					     LLAppearanceManager::instance().getCOF(),
+					     itemp->getName(),
+					     LLAssetType::AT_LINK,
+					     cb);
+		}
 	}
 private:
 	LLWearableHoldingPattern* mHolder;
