@@ -13,11 +13,7 @@ set(LLCOMMON_INCLUDE_DIRS
     ${Boost_INCLUDE_DIRS}
     )
 
-if (WINDOWS)
-   set(LLCOMMON_LIBRARIES llcommon iphlpapi)
-else (WINDOWS)
-   set(LLCOMMON_LIBRARIES llcommon)
-endif (WINDOWS)
+set(LLCOMMON_LIBRARIES llcommon)
 
 add_definitions(${TCMALLOC_FLAG})
 

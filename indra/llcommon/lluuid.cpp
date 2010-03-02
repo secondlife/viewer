@@ -36,6 +36,8 @@
 #undef WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
+// ugh, this is ugly.  We need to straighten out our linking for this library
+#pragma comment(lib, "IPHLPAPI.lib")
 #include <iphlpapi.h>
 #endif
 
