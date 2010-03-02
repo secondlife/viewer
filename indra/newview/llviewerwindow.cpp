@@ -588,11 +588,11 @@ public:
 		if (gSavedSettings.getBOOL("DebugShowUploadCost"))
 		{
 			addText(xpos, ypos, llformat("       Meshes: L$%d", gPipeline.mDebugMeshUploadCost));
-			ypos += y_inc/2.f;
+			ypos += y_inc/2;
 			addText(xpos, ypos, llformat("    Sculpties: L$%d", gPipeline.mDebugSculptUploadCost));
-			ypos += y_inc/2.f;
+			ypos += y_inc/2;
 			addText(xpos, ypos, llformat("     Textures: L$%d", gPipeline.mDebugTextureUploadCost));
-			ypos += y_inc/2.f;
+			ypos += y_inc/2;
 			addText(xpos, ypos, "Upload Cost: ");
 						
 			ypos += y_inc;
