@@ -37,7 +37,7 @@
 		Mixed Sale
 	</panel.string>
 	<text name="title" value="オブジェクトのプロフィール"/>
-	<text name="where" value="（ワールド内）"/>
+	<text name="where" value="（インワールド）"/>
 	<panel label="">
 		<text name="Name:">
 			名前：

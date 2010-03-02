@@ -67,6 +67,7 @@ LLUUID notification_id_to_object_id(const LLUUID& notification_id)
 LLScriptFloater::LLScriptFloater(const LLSD& key)
 : LLDockableFloater(NULL, true, key)
 , mScriptForm(NULL)
+, mSaveFloaterPosition(false)
 {
 	setMouseDownCallback(boost::bind(&LLScriptFloater::onMouseDown, this));
 	setOverlapsScreenChannel(true);
@@ -105,25 +106,27 @@ LLScriptFloater* LLScriptFloater::show(const LLUUID& notification_id)
 	LLScriptFloater* floater = LLFloaterReg::getTypedInstance<LLScriptFloater>("script_floater", notification_id);
 	floater->setNotificationId(notification_id);
 	floater->createForm(notification_id);
-	LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, TRUE);
 
-	if (floater->getDockControl() == NULL)
+	if(LLScriptFloaterManager::OBJ_SCRIPT == LLScriptFloaterManager::getObjectType(notification_id))
 	{
-		LLChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLChiclet>(notification_id);
-		if (chiclet == NULL)
-		{
-			llerror("Dock chiclet for LLScriptFloater doesn't exist", 0);
-		}
-		else
-		{
-			LLBottomTray::getInstance()->getChicletPanel()->scrollToChiclet(chiclet);
-		}
-
-		floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
-			LLDockControl::TOP,  boost::bind(&LLScriptFloater::getAllowedRect, floater, _1)));
+		floater->setSavePosition(true);
+		floater->restorePosition();
+	}
+	else
+	{
+		floater->dockToChiclet(true);
 	}
 
+	LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, TRUE);
+
 	return floater;
+}
+
+void LLScriptFloater::setNotificationId(const LLUUID& id)
+{
+	mNotificationId = id;
+	// Lets save object id now while notification exists
+	mObjectId = notification_id_to_object_id(id);
 }
 
 void LLScriptFloater::getAllowedRect(LLRect& rect)
@@ -162,6 +165,8 @@ void LLScriptFloater::createForm(const LLUUID& notification_id)
 
 void LLScriptFloater::onClose(bool app_quitting)
 {
+	savePosition();
+
 	if(getNotificationId().notNull())
 	{
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(getNotificationId());
@@ -171,6 +176,8 @@ void LLScriptFloater::onClose(bool app_quitting)
 void LLScriptFloater::setDocked(bool docked, bool pop_on_undock /* = true */)
 {
 	LLDockableFloater::setDocked(docked, pop_on_undock);
+
+	savePosition();
 
 	hideToastsIfNeeded();
 }
@@ -208,6 +215,33 @@ void LLScriptFloater::onMouseDown()
 	}
 }
 
+void LLScriptFloater::savePosition()
+{
+	if(getSavePosition() && mObjectId.notNull())
+	{
+		LLScriptFloaterManager::FloaterPositionInfo fpi = {getRect(), isDocked()};
+		LLScriptFloaterManager::getInstance()->saveFloaterPosition(mObjectId, fpi);
+	}
+}
+
+void LLScriptFloater::restorePosition()
+{
+	LLScriptFloaterManager::FloaterPositionInfo fpi;
+	if(LLScriptFloaterManager::getInstance()->getFloaterPosition(mObjectId, fpi))
+	{
+		dockToChiclet(fpi.mDockState);
+		if(!fpi.mDockState)
+		{
+			// Un-docked floater is opened in 0,0, now move it to saved position
+			translate(fpi.mRect.mLeft - getRect().mLeft, fpi.mRect.mTop - getRect().mTop);
+		}
+	}
+	else
+	{
+		dockToChiclet(true);
+	}
+}
+
 void LLScriptFloater::onFocusLost()
 {
 	if(getNotificationId().notNull())
@@ -222,6 +256,33 @@ void LLScriptFloater::onFocusReceived()
 	if(getNotificationId().notNull())
 	{
 		LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(getNotificationId(), true);
+	}
+}
+
+void LLScriptFloater::dockToChiclet(bool dock)
+{
+	if (getDockControl() == NULL)
+	{
+		LLChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLChiclet>(getNotificationId());
+		if (chiclet == NULL)
+		{
+			llwarns << "Dock chiclet for LLScriptFloater doesn't exist" << llendl;
+			return;
+		}
+		else
+		{
+			LLBottomTray::getInstance()->getChicletPanel()->scrollToChiclet(chiclet);
+		}
+
+		// Stop saving position while we dock floater
+		bool save = getSavePosition();
+		setSavePosition(false);
+
+		setDockControl(new LLDockControl(chiclet, this, getDockTongue(),
+			LLDockControl::TOP,  boost::bind(&LLScriptFloater::getAllowedRect, this, _1)), dock);
+
+		// Restore saving
+		setSavePosition(save);
 	}
 }
 
@@ -326,6 +387,7 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 	if(floater)
 	{
+		floater->savePosition();
 		floater->setNotificationId(LLUUID::null);
 		floater->closeFloater();
 	}
@@ -443,6 +505,29 @@ LLScriptFloaterManager::script_notification_map_t::const_iterator LLScriptFloate
 		}
 	}
 	return mNotifications.end();
+}
+
+void LLScriptFloaterManager::saveFloaterPosition(const LLUUID& object_id, const FloaterPositionInfo& fpi)
+{
+	if(object_id.notNull())
+	{
+		LLScriptFloaterManager::getInstance()->mFloaterPositions[object_id] = fpi;
+	}
+	else
+	{
+		llwarns << "Invalid object id" << llendl;
+	}
+}
+
+bool LLScriptFloaterManager::getFloaterPosition(const LLUUID& object_id, FloaterPositionInfo& fpi)
+{
+	floater_position_map_t::const_iterator it = mFloaterPositions.find(object_id);
+	if(LLScriptFloaterManager::getInstance()->mFloaterPositions.end() != it)
+	{
+		fpi = it->second;
+		return true;
+	}
+	return false;
 }
 
 // EOF

@@ -2556,7 +2556,7 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
-
+	
 	/*
 	// Old floater properties
 	LLFloaterReg::showInstance("inspect", LLSD());
@@ -3502,9 +3502,15 @@ bool LLHaveCallingcard::operator()(LLInventoryCategory* cat,
 
 BOOL is_agent_mappable(const LLUUID& agent_id)
 {
-	return (LLAvatarActions::isFriend(agent_id) &&
-		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isOnline() &&
-		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
+	const LLRelationship* buddy_info = NULL;
+	bool is_friend = LLAvatarActions::isFriend(agent_id);
+
+	if (is_friend)
+		buddy_info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
+
+	return (buddy_info &&
+		buddy_info->isOnline() &&
+		buddy_info->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
 		);
 }
 
@@ -4786,9 +4792,10 @@ class LLToolsEnableUnlink : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLViewerObject* first_editable_object = LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject();
 		bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
-			LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() &&
-			!LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject()->isAttachment();
+			first_editable_object &&
+			!first_editable_object->isAttachment();
 		return new_value;
 	}
 };
@@ -5542,6 +5549,19 @@ void handle_buy_currency()
 {
 	LLFloaterBuyCurrency::buyCurrency();
 }
+
+class LLFloaterVisible : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string floater_name = userdata.asString();
+		bool new_value = false;
+		{
+			new_value = LLFloaterReg::instanceVisible(floater_name);
+		}
+		return new_value;
+	}
+};
 
 class LLShowHelp : public view_listener_t
 {
@@ -6332,7 +6352,6 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		else
 		{
 			llwarns << "Failed to generate LLFloaterScriptQueue with action: " << action << llendl;
-			delete queue;
 		}
 		return true;
 	}
@@ -7978,6 +7997,7 @@ void initialize_menus()
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
 	enable.add("VisibleBuild", boost::bind(&enable_object_build));
 
+	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSidetrayPanelVisible(), "SidetrayPanelVisible");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");

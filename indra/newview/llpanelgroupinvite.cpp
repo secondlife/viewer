@@ -36,6 +36,7 @@
 #include "llagent.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h"
+#include "llcallingcard.h"
 #include "llcombobox.h"
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
@@ -426,10 +427,44 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 				names.push_back("(Unknown)");
 			}
 		}
+		else
+		{
+			//looks like user try to invite offline friend
+			//for offline avatar_id gObjectList.findObject() will return null
+			//so we need to do this additional search in avatar tracker, see EXT-4732
+			if (LLAvatarTracker::instance().isBuddy(agent_id))
+			{
+				if (!gCacheName->getFullName(agent_id, fullname))
+				{
+					// actually it should happen, just in case
+					gCacheName->get(LLUUID(agent_id), false, boost::bind(
+							&LLPanelGroupInvite::addUserCallback, this, _1, _2,
+							_3));
+					// for this special case!
+					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
+					// removed id will be added in callback
+					agent_ids.erase(agent_ids.begin() + i);
+				}
+				else
+				{
+					names.push_back(fullname);
+				}
+			}
+		}
 	}
 	mImplementation->addUsers(names, agent_ids);
 }
 
+void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const std::string& first_name, const std::string& last_name)
+{
+	std::vector<std::string> names;
+	std::vector<LLUUID> agent_ids;
+	std::string full_name = first_name + " " + last_name;
+	agent_ids.push_back(id);
+	names.push_back(first_name + " " + last_name);
+
+	mImplementation->addUsers(names, agent_ids);
+}
 void LLPanelGroupInvite::draw()
 {
 	LLPanel::draw();

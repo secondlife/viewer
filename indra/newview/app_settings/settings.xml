@@ -3607,7 +3607,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs.viewer-sidebar.secondlife.com.s3.amazonaws.com/sidebar.html?p=[AUTH_TOKEN]&amp;lang=[LANGUAGE]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]</string>
+      <string>https://viewer-sidebar.secondlife.com/sidebar.html?p=[AUTH_TOKEN]&amp;lang=[LANGUAGE]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;firstlogin=[FIRST_LOGIN]</string>
     </map>
     <key>SearchURL</key>
     <map>
@@ -4578,6 +4578,50 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MediaShowOnOthers</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show media on other avatars</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaShowOutsideParcel</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show media from outside the current parcel</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaShowWithinParcel</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show media within the current parcel</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaTentativeAutoPlay</key>
+  <map>
+    <key>Comment</key>
+    <string>This is a tentative flag that may be temporarily set off by the user, until she teleports</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>MemoryLogFrequency</key>
         <map>
         <key>Comment</key>
@@ -5055,7 +5099,9 @@
     <map>
       <key>Comment</key>
       <string>Default width of buttons in the toast. 
-      Note if required width will be less then this one, a button will be reshaped to default size , otherwise to required</string>
+      Notes:
+      If required width will be less then this one, a button will be reshaped to default size , otherwise to required
+      Change of this parameter will affect the layout of buttons in notification toast.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5314,7 +5360,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>PerAccountSettingsFile</key>
     <map>
@@ -10379,17 +10425,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>VoiceDefaultInternalLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Internal level of voice set by default. Is equivalent to 0.5 (from 0.0-1.0 range) external voice level (internal = 400 * external^2).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>100</integer>
     </map>
     <key>VoiceEarLocation</key>
     <map>

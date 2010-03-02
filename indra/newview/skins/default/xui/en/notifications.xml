@@ -19,7 +19,7 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okbutton"
        text="$yestext"/>
     </form>
   </template>
@@ -29,7 +29,7 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okignore"
        text="$yestext"/>
       <ignore text="$ignoretext"/>
     </form>
@@ -40,11 +40,11 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okcancelbuttons"
        text="$yestext"/>
       <button
        index="1"
-       name="Cancel"
+       name="Cancel_okcancelbuttons"
        text="$notext"/>
     </form>
   </template>
@@ -54,11 +54,11 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okcancelignore"
        text="$yestext"/>
       <button
        index="1"
-       name="Cancel"
+       name="Cancel_okcancelignore"
        text="$notext"/>
       <ignore text="$ignoretext"/>
     </form>
@@ -69,7 +69,7 @@
       <button
        default="true"
        index="0"
-       name="OK"
+       name="OK_okhelpbuttons"
        text="$yestext"/>
       <button
        index="1"
@@ -91,7 +91,7 @@
        text="$notext"/>
       <button
        index="2"
-       name="Cancel"
+       name="Cancel_yesnocancelbuttons"
        text="$canceltext"/>
     </form>
   </template>
@@ -2297,6 +2297,9 @@ Display settings have been set to recommended levels based on your system config
    name="ErrorMessage"
    type="alertmodal">
 [ERROR_MESSAGE]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification

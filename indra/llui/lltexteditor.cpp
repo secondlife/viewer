@@ -2524,9 +2524,9 @@ void LLTextEditor::loadKeywords(const std::string& filename,
 
 void LLTextEditor::updateSegments()
 {
-	LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
-	if (mKeywords.isLoaded())
+	if (mReflowIndex < S32_MAX && mKeywords.isLoaded())
 	{
+		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
 		// HACK:  No non-ascii keywords for now
 		segment_vec_t segment_list;
 		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);

@@ -24,6 +24,6 @@
 	<text name="amount text">
 		Oder Betrag auswählen:
 	</text>
-	<button label="Zahlen" label_selected="Zahlen" name="pay btn"/>
+	<button label="Bezahlen" label_selected="Bezahlen" name="pay btn"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel btn" width="76"/>
 </floater>

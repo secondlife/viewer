@@ -68,6 +68,9 @@ const static std::string NEW_LINE(rawstr_to_utf8("\n"));
 
 const static U32 LENGTH_OF_TIME_STR = std::string("12:00").length();
 
+const static std::string SLURL_APP_AGENT = "secondlife:///app/agent/";
+const static std::string SLURL_ABOUT = "/about";
+
 // support for secondlife:///app/objectim/{UUID}/ SLapps
 class LLObjectIMHandler : public LLCommandHandler
 {
@@ -254,7 +257,9 @@ public:
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
 		gCacheName->get(mAvatarID, false, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3));
-		if(chat.mFromID.isNull())
+
+		//*TODO overly defensive thing, source type should be maintained out there
+		if(chat.mFromID.isNull() || chat.mFromName == SYSTEM_FROM)
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
@@ -264,16 +269,12 @@ public:
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
 		
-		if(!chat.mFromName.empty())
-		{
 			userName->setValue(chat.mFromName);
-			mFrom = chat.mFromName;
-		}
-		else
+		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
 		{
-			std::string SL = LLTrans::getString("SECOND_LIFE");
-			userName->setValue(SL);
+			userName->setValue(LLTrans::getString("SECOND_LIFE"));
 		}
+
 
 		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
@@ -284,20 +285,17 @@ public:
 		if(mSourceType != CHAT_SOURCE_AGENT)
 			icon->setDrawTooltip(false);
 
-		if(!chat.mFromID.isNull())
+		switch (mSourceType)
 		{
-			if(mSourceType != CHAT_SOURCE_AGENT)
+			case CHAT_SOURCE_AGENT:
+				icon->setValue(chat.mFromID);
+				break;
+			case CHAT_SOURCE_OBJECT:
 				icon->setValue(LLSD("OBJECT_Icon"));
-			else
-			icon->setValue(chat.mFromID);
-
-			
-		}
-		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
-		{
+				break;
+			case CHAT_SOURCE_SYSTEM:
 			icon->setValue(LLSD("SL_Logo"));
 		}
-
 	}
 
 	/*virtual*/ void draw()
@@ -777,6 +775,20 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	else
 	{
 		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+
+
+		//MESSAGE TEXT PROCESSING
+		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
+		if (use_plain_text_chat_history && gAgentID != chat.mFromID && chat.mFromID.notNull())
+		{
+			std::string slurl_about = SLURL_APP_AGENT + chat.mFromID.asString() + SLURL_ABOUT;
+			if (message.length() > slurl_about.length() && 
+				message.compare(0, slurl_about.length(), slurl_about) == 0)
+			{
+				message = message.substr(slurl_about.length(), message.length()-1);
+			}
+		}
+
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();

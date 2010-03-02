@@ -11,18 +11,29 @@
 	</global>
 	<template name="okbutton">
 		<form>
-			<button name="OK" text="$yestext"/>
+			<button name="OK_okbutton" text="$yestext"/>
 		</form>
 	</template>
-	<template name="okignore"/>
+	<template name="okignore">
+		<form>
+			<button name="OK_okignore" text="$yestext"/>
+		</form>
+	</template>
 	<template name="okcancelbuttons">
 		<form>
-			<button name="Cancel" text="$notext"/>
+			<button name="OK_okcancelbuttons" text="$yestext"/>
+			<button name="Cancel_okcancelbuttons" text="$notext"/>
 		</form>
 	</template>
-	<template name="okcancelignore"/>
+	<template name="okcancelignore">
+		<form>
+			<button name="OK_okcancelignore" text="$yestext"/>
+			<button name="Cancel_okcancelignore" text="$notext"/>
+		</form>
+	</template>
 	<template name="okhelpbuttons">
 		<form>
+			<button name="OK_okhelpbuttons" text="$yestext"/>
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
@@ -30,6 +41,7 @@
 		<form>
 			<button name="Yes" text="$yestext"/>
 			<button name="No" text="$notext"/>
+			<button name="Cancel_yesnocancelbuttons" text="$canceltext"/>
 		</form>
 	</template>
 	<notification functor="GenericAcknowledge" label="Message de notification inconnu" name="MissingAlert">
@@ -93,6 +105,10 @@ Veuillez ne sélectionner qu&apos;un seul objet.
 		Enregistrer tous les changements dans les habits/parties du corps ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Ne pas enregistrer" yestext="Tout enregistrer"/>
 	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		Les résidents qui ne sont pas vos amis ne sauront pas que vous avez choisi d&apos;ignorer leurs appels et leurs messages instantanés.
+		<usetemplate name="okbutton" yestext="Oui"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Lorsque vous accordez des droits d&apos;édition à un autre résident, vous lui permettez de changer, supprimer ou prendre n&apos;importe lequel de vos objets dans le Monde. Réfléchissez bien avant d&apos;accorder ces droits.
 Souhaitez-vous accorder des droits d&apos;édition à [FIRST_NAME] [LAST_NAME] ?
@@ -154,13 +170,15 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 Voulez-vous vraiment continuer ?
 		<usetemplate ignoretext="Confirmez avant d&apos;abandonner les éléments joints." name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
-	<notification name="ClickUnimplemented">
-		Désolés, pas encore mis en œuvre.
-	</notification>
 	<notification name="JoinGroupCanAfford">
 		Rejoindre ce groupe coûte [COST] L$.
 Voulez-vous continuer ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Rejoindre"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		Vous vous apprêtez à rejoindre le groupe [NAME].
+Voulez-vous continuer ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Fusionner"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Rejoindre ce groupe coûte [COST] L$.
@@ -328,6 +346,10 @@ Voulez-vous vraiment continuer ?
 		Enregistrer les changements dans l&apos;annonce [NAME] ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Ne pas enregistrer" yestext="Enregistrer"/>
 	</notification>
+	<notification name="ClassifiedInsufficientFunds">
+		Fonds insuffisants pour créer la petite annonce.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeleteAvatarPick">
 		Supprimer le favori [PICK] ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -423,18 +445,18 @@ L&apos;objet est peut-être inaccessible ou a peut-être été supprimé.
 		Impossible d&apos;écrire le fichier [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Avertissement : vous n&apos;avez pas la configuration système requise pour utiliser [APP_NAME]. Si vous continuez à utiliser [APP_NAME], votre performance risque d&apos;être moindre. Malheureusement, la page [SUPPORT_SITE] n&apos;offre aucune assistance pour les problèmes de configuration système.
+		Votre ordinateur ne satisfait pas la configuration système requise pour [APP_NAME]. Les performances risquent d&apos;être médiocres. Malheureusement, la page [SUPPORT_SITE] n’offre aucune assistance pour les problèmes de configuration système.
 
 MINSPECS
-Voulez-vous visiter [_URL] pour plus d&apos;informations ?
+Consulter [_URL] pour en savoir plus ?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=fr
 		</url>
 		<usetemplate ignoretext="Mon matériel n&apos;est pas pris en charge" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="UnknownGPU">
-		Votre système contient une carte graphique que [APP_NAME] ne reconnaît pas actuellement.
-Cela est souvent le cas avec le nouveau matériel qui n&apos;a pas encore été testé avec [APP_NAME]. Vous pourrez probablement utiliser [APP_NAME] sans problème, mais vous devrez peut-être ajuster les paramètres de vos graphiques.
+		Votre système contient une carte graphique que [APP_NAME] ne reconnaît pas.
+Cela est souvent le cas avec le nouveau matériel qui n&apos;a pas encore été testé avec [APP_NAME].  Cela ne posera probablement pas de problème, mais vous devrez peut-être ajuster vos paramètres graphiques.
 (Moi &gt; Préférences &gt; Graphiques).
 		<form name="form">
 			<ignore name="ignore" text="Ma carte graphique ne peut être identifiée"/>
@@ -657,7 +679,7 @@ Recherche effectuée : [FINALQUERY]
 		Vos termes de recherche étaient trop courts et aucune recherche n&apos;a été effectuée.
 	</notification>
 	<notification name="CouldNotTeleportReason">
-		Impossible de téléporter.
+		Échec de la téléportation.
 [REASON]
 	</notification>
 	<notification name="invalid_tport">
@@ -756,14 +778,6 @@ la région dans laquelle il est situé est introuvable.
 plusieurs parcelles sélectionnées.
 
 Essayez de ne sélectionner qu&apos;une seule parcelle.
-	</notification>
-	<notification name="ParcelCanPlayMedia">
-		Cet emplacement propose des flux de média.
-Pour jouer des flux de média, il faut avoir une connexion Internet rapide.
-
-Jouer les flux de média lorsqu&apos;ils sont disponibles ?
-(Vous pourrez modifier cette option ultérieurement sous Préférences &gt; Confidentialité.)
-		<usetemplate name="okcancelbuttons" notext="Désactiver" yestext="Jouer le média"/>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
 		Cession du terrain impossible :
@@ -886,9 +900,8 @@ Fusionner le terrain ?
 Cette erreur est généralement temporaire. Veuillez éditer et sauvegarder l&apos;élément endossable à nouveau d&apos;ici quelques minutes.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Vous avez été déconnecté(e) de [SECOND_LIFE] :
+		Zut. Vous avez été déconnecté(e) de [SECOND_LIFE]
             [MESSAGE]
-Vous pouvez afficher vos messages instantanés et votre chat en cliquant sur Afficher IM et chat. Sinon, cliquez sur Quitter pour quitter immédiatement [APP_NAME].
 		<usetemplate name="okcancelbuttons" notext="Quitter" yestext="Afficher IM et chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1038,6 +1051,7 @@ Céder ces [AREA] m² de terrain au groupe [GROUP_NAME] ?
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarMovedDesired">
 		La destination que vous avez choisie n&apos;est pas disponible actuellement.
@@ -1316,7 +1330,6 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 	<notification name="JoinedTooManyGroupsMember">
 		Vous avez atteint le nombre de groupes maximum. Avant de pouvoir rejoindre ce groupe, vous devez en quitter un ou refuser cette offre.
 [NAME] vous invite à rejoindre un groupe.
-[INVITE]
 		<usetemplate name="okcancelbuttons" notext="Refuser" yestext="Rejoindre"/>
 	</notification>
 	<notification name="JoinedTooManyGroups">
@@ -1384,7 +1397,7 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		</form>
 	</notification>
 	<notification name="TeleportFromLandmark">
-		Êtes-vous certain de vouloir être téléporté ?
+		Souhaitez-vous vraiment vous téléporter vers &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; ?
 		<usetemplate ignoretext="Confirmer que je veux me téléporter à un repère" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
 	</notification>
 	<notification name="TeleportToPick">
@@ -1708,9 +1721,9 @@ Déplacer les objets de l&apos;inventaire ?
 		<usetemplate ignoretext="Confirmer avant de quitter" name="okcancelignore" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Utilisez cet outil pour signaler des infractions aux [http://secondlife.com/corporate/tos.php Conditions d&apos;utilisation] et aux [http://secondlife.com/corporate/cs.php Règles communautaires].
+		Utilisez cet outil pour signaler des infractions aux [http://secondlife.com/corporate/tos.php Conditions d’utilisation] et aux [http://secondlife.com/corporate/cs.php Règles communautaires].
 
-Lorsqu&apos;elles sont signalées, toutes les infractions font l&apos;objet d&apos;une enquête et sont résolues. Vous pouvez consulter les détails de la résolution d&apos;un incident dans le [http://secondlife.com/support/incidentreport.php Rapport d&apos;incident].
+Lorsqu&apos;elles sont signalées, toutes les infractions font l&apos;objet d&apos;une enquête et sont résolues.
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Veuillez choisir une catégorie pour ce rapport d&apos;infraction.
@@ -2121,8 +2134,8 @@ Les objets non transférables donnés au groupe ont étés supprimés.
 		Les objets sélectionnés sur la parcelle et qui ne sont pas à vous ont été rendus à leurs propriétaires.
 	</notification>
 	<notification name="ServerObjectMessage">
-		Message de [NAME] :
-[MSG]
+		Message de [NAME] :
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
 	</notification>
 	<notification name="NotSafe">
 		Les dégâts sont autorisés sur ce terrain.
@@ -2302,7 +2315,6 @@ Veuillez réessayer dans quelques minutes.
 		<form name="form">
 			<button name="Accept" text="Accepter"/>
 			<button name="Decline" text="Refuser"/>
-			<button name="Send IM" text="Envoyer IM"/>
 		</form>
 	</notification>
 	<notification name="FriendshipOffered">

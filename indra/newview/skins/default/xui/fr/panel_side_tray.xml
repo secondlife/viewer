@@ -7,7 +7,9 @@
 		<panel label="domicile" name="panel_home"/>
 	</sidetray_tab>
 	<sidetray_tab description="Modifiez votre profil public et vos Favoris." name="sidebar_me" tab_title="Mon profil">
-		<panel label="Moi" name="panel_me"/>
+		<panel_container name="panel_container">
+			<panel label="Moi" name="panel_me"/>
+		</panel_container>
 	</sidetray_tab>
 	<sidetray_tab description="Trouvez vos amis, vos contacts et les personnes se trouvant près de vous." name="sidebar_people" tab_title="Personnes">
 		<panel_container name="panel_container">

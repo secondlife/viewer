@@ -6,18 +6,19 @@
 	<panel.string name="type_pg">
 		Contenu Général
 	</panel.string>
+	<panel.string name="l$_price">
+		[PRICE] L$
+	</panel.string>
 	<text name="title" value="Infos sur la petite annonce"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="classified_name" value="[name]"/>
-			<text name="classified_location" value="[loading...]"/>
-			<text name="content_type" value="[content type]"/>
-			<text name="category" value="[category]"/>
+			<text_editor name="classified_name" value="[name]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
+			<text_editor name="content_type" value="[content type]"/>
+			<text_editor name="category" value="[category]"/>
 			<check_box label="Renouvellement automatique toutes les semaines" name="auto_renew"/>
-			<text name="price_for_listing" tool_tip="Coût de l&apos;annonce.">
-				[PRICE] L$
-			</text>
-			<text name="classified_desc" value="[description]"/>
+			<text_editor name="price_for_listing" tool_tip="Coût de l&apos;annonce."/>
+			<text_editor name="classified_desc" value="[description]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

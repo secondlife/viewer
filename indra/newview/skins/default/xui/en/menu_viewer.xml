@@ -64,9 +64,23 @@
         </menu_item_call>
         <menu_item_check
          label="My Inventory"
-         layout="topleft"
          name="Inventory"
-         shortcut="control|I">
+         layout="topleft"
+         shortcut="control|shift|I"
+		 visible="false">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="inventory" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="inventory" />
+        </menu_item_check>
+        <menu_item_check
+         label="My Inventory"
+         name="ShowSidetrayInventory"
+         layout="topleft"
+         shortcut="control|I"
+		 visible="true">
             <menu_item_check.on_check
              function="SidetrayPanelVisible"
              parameter="sidepanel_inventory" />
@@ -74,24 +88,18 @@
              function="ShowSidetrayPanel"
              parameter="sidepanel_inventory" />
         </menu_item_check>
-        <menu_item_call
-         label="Show Inventory in Side Tray"
-         name="ShowSidetrayInventory"
-         shortcut="control|I"
-         visible="false">
-            <menu_item_call.on_click
-             function="ShowSidetrayPanel"
-             parameter="sidepanel_inventory" />
-        </menu_item_call>
-        <menu_item_call
+        <menu_item_check
          label="My Gestures"
          layout="topleft"
          name="Gestures"
          shortcut="control|G">
-            <menu_item_call.on_click
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="gestures" />
+            <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="gestures" />
-        </menu_item_call>
+        </menu_item_check>
         <menu
          label="My Status"
          layout="topleft"
@@ -195,18 +203,6 @@
              function="SideTray.PanelPeopleTab"
              parameter="nearby_panel" />
             </menu_item_call>
-        <menu_item_check
-         label="Nearby Media"
-         layout="topleft"
-         name="Nearby Media"
-         shortcut="control|alt|N">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="nearby_media" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="nearby_media" />
-        </menu_item_check>
     </menu>
     <menu
      label="World"

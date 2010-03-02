@@ -1,43 +1,170 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="LAND KAUFEN">
+	<floater.string name="can_resell">
+		Verkauf möglich.
+	</floater.string>
+	<floater.string name="can_not_resell">
+		Verkauf nicht möglich.
+	</floater.string>
+	<floater.string name="can_change">
+		Zusammenlegen/unterteilen möglich.
+	</floater.string>
+	<floater.string name="can_not_change">
+		Zusammenlegen/unterteilen nicht möglich.
+	</floater.string>
+	<floater.string name="cant_buy_for_group">
+		Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
+	</floater.string>
+	<floater.string name="no_land_selected">
+		Kein Land ausgewählt.
+	</floater.string>
+	<floater.string name="multiple_parcels_selected">
+		Mehrere unterschiedliche Parzellen ausgewählt. 
+Verkleinern Sie Ihre Auswahl.
+	</floater.string>
+	<floater.string name="no_permission">
+		Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
+	</floater.string>
+	<floater.string name="parcel_not_for_sale">
+		Die ausgewählte Parzelle steht nicht zum Verkauf.
+	</floater.string>
+	<floater.string name="group_already_owns">
+		Die Parzelle befindet sich bereits in Gruppenbesitz.
+	</floater.string>
+	<floater.string name="you_already_own">
+		Die Parzelle gehört Ihnen bereits.
+	</floater.string>
+	<floater.string name="set_to_sell_to_other">
+		Die ausgewählte Parzelle steht zum Verkauf an Dritte.
+	</floater.string>
+	<floater.string name="no_public_land">
+		Das ausgewählte Land beinhaltet kein öffentliches Land.
+	</floater.string>
+	<floater.string name="not_owned_by_you">
+		Sie haben Land ausgewählt, das einer anderen Person gehört. 
+Verkleinern Sie Ihre Auswahl.
+	</floater.string>
+	<floater.string name="processing">
+		Kauf wird abgewickelt...
+ 
+(Dies kann 1 bis 2 Minuten dauern.)
+	</floater.string>
+	<floater.string name="fetching_error">
+		Fehler bei Abfrage der Landkauf-Informationen.
+	</floater.string>
+	<floater.string name="buying_will">
+		Bei Landkauf:
+	</floater.string>
+	<floater.string name="buying_for_group">
+		Landkauf für Gruppe:
+	</floater.string>
+	<floater.string name="cannot_buy_now">
+		Kaufen jetzt nicht möglich:
+	</floater.string>
+	<floater.string name="not_for_sale">
+		Nicht zu verkaufen:
+	</floater.string>
+	<floater.string name="none_needed">
+		nicht benötigt
+	</floater.string>
+	<floater.string name="must_upgrade">
+		Sie müssen Ihr Konto upgraden, um Land kaufen zu können.
+	</floater.string>
+	<floater.string name="cant_own_land">
+		Mit Ihrem Konto können Sie Land kaufen.
+	</floater.string>
+	<floater.string name="land_holdings">
+		Sie besitzen [BUYER] m² Land.
+	</floater.string>
+	<floater.string name="pay_to_for_land">
+		[SELLER] [AMOUNT] L$ für das Land bezahlen
+	</floater.string>
+	<floater.string name="buy_for_US">
+		Kaufen Sie [AMOUNT] L$ für ca. [LOCAL_AMOUNT],
+	</floater.string>
+	<floater.string name="parcel_meters">
+		Diese Parzelle ist [AMOUNT] m².
+	</floater.string>
+	<floater.string name="premium_land">
+		Dieses Land ist eine Premium-Immobilie. Es wird mit [AMOUNT] m² angesetzt.
+	</floater.string>
+	<floater.string name="discounted_land">
+		Dieses Land ist im Angebot. Es wird mit [AMOUNT] m² angesetzt.
+	</floater.string>
+	<floater.string name="meters_supports_object">
+		[AMOUNT] m²
+unterstützt [AMOUNT2] Objekte
+	</floater.string>
+	<floater.string name="sold_with_objects">
+		mit Objekten verkauft
+	</floater.string>
+	<floater.string name="sold_without_objects">
+		Objekte nicht im Verkauf mit eingeschlossen
+	</floater.string>
+	<floater.string name="info_price_string">
+		[PRICE] L$
+([PRICE_PER_SQM] L$/m²)
+[SOLD_WITH_OBJECTS]
+	</floater.string>
+	<floater.string name="insufficient_land_credits">
+		Die Gruppe [GROUP] benötigt ausreichende gespendete Landnutzungsrechte, um die Parzelle abzudecken, bevor der Kauf abgeschlossen werden kann.
+	</floater.string>
+	<floater.string name="have_enough_lindens">
+		Sie haben [AMOUNT] L$, genug zum Kauf dieses Landes.
+	</floater.string>
+	<floater.string name="not_enough_lindens">
+		Sie haben nur [AMOUNT] L$, brauchen aber mindestens [AMOUNT2] L$.
+	</floater.string>
+	<floater.string name="balance_left">
+		Nach dem Einkauf verbleiben Ihnen noch [AMOUNT] L$.
+	</floater.string>
+	<floater.string name="balance_needed">
+		Für dieses Land müssen Sie mindestens [AMOUNT] L$ kaufen.
+	</floater.string>
+	<floater.string name="no_parcel_selected">
+		(keine Parzelle ausgewählt)
+	</floater.string>
+	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
+	<floater.string name="icon_M" value="Parcel_M_Dark"/>
+	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		Region:
 	</text>
-	<text left="680" name="region_name_text" left_delta="140">
+	<text left="680" left_delta="140" name="region_name_text">
 		(unbekannt)
 	</text>
 	<text name="region_type_label">
 		Typ:
 	</text>
-	<text left="680" name="region_type_text" left_delta="140">
+	<text left="680" left_delta="140" name="region_type_text">
 		(unbekannt)
 	</text>
 	<text name="estate_name_label">
 		Grundstück:
 	</text>
-	<text left="680" name="estate_name_text" left_delta="140">
+	<text left="680" left_delta="140" name="estate_name_text">
 		(unbekannt)
 	</text>
 	<text name="estate_owner_label" right="600" width="200">
 		Grundstückseigentümer:
 	</text>
-	<text left="680" name="estate_owner_text" left_delta="140">
+	<text left="680" left_delta="140" name="estate_owner_text">
 		(unbekannt)
 	</text>
-	<text name="resellable_changeable_label" left="410">
+	<text left="410" name="resellable_changeable_label">
 		Gekauftes Land in dieser Region:
 	</text>
-	<text name="resellable_clause" left="410">
+	<text left="410" name="resellable_clause">
 		Wiederverkauf möglich oder nicht möglich.
 	</text>
-	<text name="changeable_clause" left="410">
+	<text left="410" name="changeable_clause">
 		Darft oder darf nicht zusammengelegt/unterteilt werden.
 	</text>
-	<text name="covenant_text" left="410">
+	<text left="410" name="covenant_text">
 		Sie müssen dem Grundstücksvertrag zustimmen:
 	</text>
 	<text left="470" name="covenant_timestamp_text"/>
-	<text_editor name="covenant_editor" left="470">
+	<text_editor left="470" name="covenant_editor">
 		Wird geladen...
 	</text_editor>
 	<check_box label="Ich stimme dem obigen Vertrag zu." name="agree_covenant"/>
@@ -79,7 +206,7 @@ Objekte im Verkauf eingeschlossen
 		<combo_box.item label="7,50 US$/Monat, vierteljährliche Abrechnung" name="US$7.50/month,billedquarterly"/>
 		<combo_box.item label="6,00 US$/Monat, jährliche Abrechnung" name="US$6.00/month,billedannually"/>
 	</combo_box>
-	<text name="land_use_action" top="270" height="36">
+	<text height="36" name="land_use_action" top="270">
 		Erhöhen Sie Ihre monatlichen Landnutzungsgebühren 
 auf 40 US$/month.
 	</text>
@@ -108,131 +235,4 @@ Diese Parzelle ist 512 m² gross.
 	<check_box label="[AMOUNT] m² Beitrag von der Gruppe entfernen." name="remove_contribution"/>
 	<button label="Kaufen" name="buy_btn"/>
 	<button label="Abbrechen" name="cancel_btn"/>
-	<string name="can_resell">
-		Verkauf möglich.
-	</string>
-	<string name="can_not_resell">
-		Verkauf nicht möglich.
-	</string>
-	<string name="can_change">
-		Zusammenlegen/unterteilen möglich.
-	</string>
-	<string name="can_not_change">
-		Zusammenlegen/unterteilen nicht möglich.
-	</string>
-	<string name="cant_buy_for_group">
-		Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
-	</string>
-	<string name="no_land_selected">
-		Kein Land ausgewählt.
-	</string>
-	<string name="multiple_parcels_selected">
-		Mehrere unterschiedliche Parzellen ausgewählt. 
-Verkleinern Sie Ihre Auswahl.
-	</string>
-	<string name="no_permission">
-		Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
-	</string>
-	<string name="parcel_not_for_sale">
-		Die ausgewählte Parzelle steht nicht zum Verkauf.
-	</string>
-	<string name="group_already_owns">
-		Die Parzelle befindet sich bereits in Gruppenbesitz.
-	</string>
-	<string name="you_already_own">
-		Die Parzelle gehört Ihnen bereits.
-	</string>
-	<string name="set_to_sell_to_other">
-		Die ausgewählte Parzelle steht zum Verkauf an Dritte.
-	</string>
-	<string name="no_public_land">
-		Das ausgewählte Land beinhaltet kein öffentliches Land.
-	</string>
-	<string name="not_owned_by_you">
-		Sie haben Land ausgewählt, das einer anderen Person gehört. 
-Verkleinern Sie Ihre Auswahl.
-	</string>
-	<string name="processing">
-		Kauf wird abgewickelt...
- 
-(Dies kann 1 bis 2 Minuten dauern.)
-	</string>
-	<string name="fetching_error">
-		Fehler bei Abfrage der Landkauf-Informationen.
-	</string>
-	<string name="buying_will">
-		Bei Landkauf:
-	</string>
-	<string name="buying_for_group">
-		Landkauf für Gruppe:
-	</string>
-	<string name="cannot_buy_now">
-		Kaufen jetzt nicht möglich:
-	</string>
-	<string name="not_for_sale">
-		Nicht zu verkaufen:
-	</string>
-	<string name="none_needed">
-		nicht benötigt
-	</string>
-	<string name="must_upgrade">
-		Sie müssen Ihr Konto upgraden, um Land kaufen zu können.
-	</string>
-	<string name="cant_own_land">
-		Mit Ihrem Konto können Sie Land kaufen.
-	</string>
-	<string name="land_holdings">
-		Sie besitzen [BUYER] m² Land.
-	</string>
-	<string name="pay_to_for_land">
-		[SELLER] [AMOUNT] L$ für das Land bezahlen
-	</string>
-	<string name="buy_for_US">
-		Kaufen Sie [AMOUNT] L$ für ca. [LOCAL_AMOUNT],
-	</string>
-	<string name="parcel_meters">
-		Diese Parzelle ist [AMOUNT] m².
-	</string>
-	<string name="premium_land">
-		Dieses Land ist eine Premium-Immobilie. Es wird mit [AMOUNT] m² angesetzt.
-	</string>
-	<string name="discounted_land">
-		Dieses Land ist im Angebot. Es wird mit [AMOUNT] m² angesetzt.
-	</string>
-	<string name="meters_supports_object">
-		[AMOUNT] m²
-unterstützt [AMOUNT2] Objekte
-	</string>
-	<string name="sold_with_objects">
-		mit Objekten verkauft
-	</string>
-	<string name="sold_without_objects">
-		Objekte nicht im Verkauf mit eingeschlossen
-	</string>
-	<string name="info_price_string">
-		[PRICE] L$
-([PRICE_PER_SQM] L$/m²)
-[SOLD_WITH_OBJECTS]
-	</string>
-	<string name="insufficient_land_credits">
-		Die Gruppe [GROUP] benötigt ausreichende gespendete Landnutzungsrechte, um die Parzelle abzudecken, bevor der Kauf abgeschlossen werden kann.
-	</string>
-	<string name="have_enough_lindens">
-		Sie haben [AMOUNT] L$, genug zum Kauf dieses Landes.
-	</string>
-	<string name="not_enough_lindens">
-		Sie haben nur [AMOUNT] L$, brauchen aber mindestens [AMOUNT2] L$.
-	</string>
-	<string name="balance_left">
-		Nach dem Einkauf verbleiben Ihnen noch [AMOUNT] L$.
-	</string>
-	<string name="balance_needed">
-		Für dieses Land müssen Sie mindestens [AMOUNT] L$ kaufen.
-	</string>
-	<string name="no_parcel_selected">
-		(keine Parzelle ausgewählt)
-	</string>
-	<string name="buy_currency">
-		[LINDENS] L$ für ca. [USD] US$ kaufen
-	</string>
 </floater>

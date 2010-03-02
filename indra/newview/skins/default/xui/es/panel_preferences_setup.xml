@@ -1,32 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Dispositivos y Cámara" name="Input panel">
-	<text name=" Mouselook Options:">
+	<button bottom_delta="-40" label="Otros dispositivos" name="joystick_setup_button"/>
+	<text name="Mouselook:">
 		Vista subjetiva:
 	</text>
-	<text name=" Mouse Sensitivity:">
-		Sensibilidad del ratón:
+	<text name=" Mouse Sensitivity">
+		Sensibilidad del ratón
 	</text>
-	<check_box label="Invertir el ratón" name="invert_mouse"/>
-	<text name=" Auto Fly Options:">
-		Vuelo:
+	<check_box label="Invertir" name="invert_mouse"/>
+	<text name="Network:">
+		Red:
 	</text>
-	<check_box label="Despegar/Aterrizar pulsando RePág/AvPág" name="automatic_fly"/>
-	<text name=" Camera Options:">
-		Opciones de la cámara:
+	<text name="Maximum bandwidth">
+		Ancho de banda máximo
 	</text>
-	<text name="camera_fov_label" width="218">
-		Ángulo de vista de la cámara:
+	<text name="text_box2">
+		kbps
 	</text>
-	<slider bottom_delta="-6" width="128" left="326" name="camera_fov" />
-	<text name="Camera Follow Distance:" width="218">
-		Distancia a la que sigue la cámara:
+	<check_box label="Personalizar el puerto" name="connection_port_enabled"/>
+	<spinner label="Número de puerto:" name="web_proxy_port"/>
+	<text name="cache_size_label_l">
+		Tamaño de la caché
 	</text>
-	<slider bottom_delta="-6" width="128" left="326" name="camera_offset_scale" />
-	<check_box label="Reorientar la cámara al editar" name="edit_camera_movement" tool_tip="Usar la reorientación automática de la cámara al entrar y salir del modo de edición"/>
-	<check_box label="Reorientar la cámara al modificar la apariencia" name="appearance_camera_movement" tool_tip="Usar la reorientación automática de la cámara mientras se modifica la apariencia"/>
-	<text name="text2">
-		Visualización del avatar:
+	<text name="text_box5">
+		MB
 	</text>
-	<check_box label="Ver el avatar en vista subjetiva" name="first_person_avatar_visible"/>
-	<button bottom_delta="-40" label="Configurar el joystick" name="joystick_setup_button"/>
+	<button label="Elegir" label_selected="Elegir" name="set_cache"/>
+	<button label="Recuperar" label_selected="Configurar" name="reset_cache"/>
+	<text name="Cache location">
+		Ruta de la caché
+	</text>
+	<text name="Web:">
+		Web:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Usar el navegador incorporado" name="internal" tool_tip="Usa el navegador incorporado para ayuda, enlaces web, etc. Este navegador se abre en una nueva ventana dentro de [APP_NAME]."/>
+		<radio_item label="Usar mi navegador (IE, Firefox)" name="external" tool_tip="Usa tu navegador por defecto para ayuda, enlaces web, etc. No es aconsejable si estás a pantalla completa."/>
+	</radio_group>
+	<check_box initial_value="false" label="Web proxy" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="Nombre o dirección IP del proxy que quieres usar"/>
+	<button label="Buscar" label_selected="Buscar" name="set_proxy"/>
+	<text name="Proxy location">
+		Localización del proxy
+	</text>
 </panel>

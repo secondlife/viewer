@@ -1938,23 +1938,26 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
 	//llinfos << "LLInventoryModel::addItem()" << llendl;
 
-	// This can happen if assettype enums from llassettype.h ever change.
-	// For example, there is a known backwards compatibility issue in some viewer prototypes prior to when 
-	// the AT_LINK enum changed from 23 to 24.
-	if ((item->getType() == LLAssetType::AT_NONE)
-		|| LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
-	{
-		llwarns << "Got bad asset type for item [ name: " << item->getName() << " type: " << item->getType() << " inv-type: " << item->getInventoryType() << " ], ignoring." << llendl;
-		return;
-	}
+	llassert(item);
 	if(item)
 	{
+		// This can happen if assettype enums from llassettype.h ever change.
+		// For example, there is a known backwards compatibility issue in some viewer prototypes prior to when 
+		// the AT_LINK enum changed from 23 to 24.
+		if ((item->getType() == LLAssetType::AT_NONE)
+		    || LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
+		{
+			llwarns << "Got bad asset type for item [ name: " << item->getName() << " type: " << item->getType() << " inv-type: " << item->getInventoryType() << " ], ignoring." << llendl;
+			return;
+		}
+
 		// This condition means that we tried to add a link without the baseobj being in memory.
 		// The item will show up as a broken link.
 		if (item->getIsBrokenLink())
 		{
 			llinfos << "Adding broken link [ name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
 		}
+
 		mItemMap[item->getUUID()] = item;
 	}
 }

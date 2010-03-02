@@ -48,6 +48,7 @@
 
 class LLContextMenu;
 class LLTextSegment;
+class LLNormalTextSegment;
 
 typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 
@@ -61,6 +62,9 @@ class LLTextBase
 	protected LLEditMenuHandler
 {
 public:
+	friend class LLTextSegment;
+	friend class LLNormalTextSegment;
+
 	struct LineSpacingParams : public LLInitParam::Choice<LineSpacingParams>
 	{
 		Alternative<F32>	multiple;
@@ -165,7 +169,7 @@ public:
 	S32						getVPad() { return mVPad; }
 	S32						getHPad() { return mHPad; }
 
-	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
+	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line = true) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
 	LLRect					getDocRectFromDocIndex(S32 pos) const;
 
@@ -275,7 +279,7 @@ protected:
 	// manage segments 
 	void                			getSegmentAndOffset( S32 startpos, segment_set_t::const_iterator* seg_iter, S32* offsetp ) const;
 	void                			getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg_iter, S32* offsetp );
-	LLTextSegmentPtr    			getSegmentAtLocalPos( S32 x, S32 y );
+	LLTextSegmentPtr    			getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_end_of_line = true);
 	segment_set_t::iterator			getSegIterContaining(S32 index);
 	segment_set_t::const_iterator	getSegIterContaining(S32 index) const;
 	void                			clearSegments();

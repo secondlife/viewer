@@ -124,7 +124,7 @@
 #include "llmutelist.h"
 #include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpanelevent.h"
+#include "llfloaterevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
 #include "llpanelplace.h"
@@ -1882,18 +1882,7 @@ bool idle_startup()
 				LLViewerShaderMgr::instance()->setShaders();
 			}
 		}
-
-		// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
-		// then auto-populate outfits from the library into the My Outfits folder.
-		static bool check_populate_my_outfits = true;
-		if (check_populate_my_outfits && 
-			(LLInventoryModel::getIsFirstTimeInViewer2() 
-			 || gSavedSettings.getBOOL("MyOutfitsAutofill")))
-		{
-			gAgentWearables.populateMyOutfitsFolder();
-		}
-		check_populate_my_outfits = false;
-
+		
 		return TRUE;
 	}
 
@@ -2476,7 +2465,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
 	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
-	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
+	msg->setHandlerFunc("EventInfoReply", LLFloaterEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
 //	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
@@ -2536,6 +2525,8 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
+	llinfos << "starting" << llendl;
+
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.

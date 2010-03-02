@@ -18,7 +18,7 @@
 			<text name="pick_location">
 				wird geladen...
 			</text>
-			<button label="Auf aktuelle Position einstellen" name="set_to_curr_location_btn"/>
+			<button label="Aktuellen Standort verwenden" name="set_to_curr_location_btn"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">

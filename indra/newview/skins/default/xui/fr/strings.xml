@@ -227,9 +227,6 @@
 	<string name="AvatarNameMultiple">
 		(multiple)
 	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
-	</string>
 	<string name="GroupNameNone">
 		(aucun)
 	</string>
@@ -593,6 +590,9 @@
 	<string name="hang_up">
 		Déconnecté du chat vocal
 	</string>
+	<string name="reconnect_nearby">
+		Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
+	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], a reçu le droit de : [PERMISSIONS].
 	</string>
@@ -642,7 +642,7 @@
 		Modéré
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Adult
+		Adulte
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		Hors ligne
@@ -741,10 +741,10 @@
 		Gants
 	</string>
 	<string name="undershirt">
-		Sous-vêtements (homme)
+		Débardeur
 	</string>
 	<string name="underpants">
-		Sous-vêtements (femme)
+		Caleçon
 	</string>
 	<string name="skirt">
 		Jupe
@@ -825,7 +825,7 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aucun objet correspondant dans l&apos;inventaire.
+		Aucun objet correspondant dans l&apos;inventaire.  Essayer la [secondlife:///app/search/groups &quot;Recherche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1324,6 +1324,9 @@
 	<string name="ScriptLimitsRequestError">
 		Une erreur est survenue pendant la requête d&apos;informations.
 	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Aucune parcelle sélectionnée
+	</string>
 	<string name="ScriptLimitsRequestWrongRegion">
 		Erreur : les informations de script ne sont disponibles que dans votre région actuelle.
 	</string>
@@ -1501,7 +1504,7 @@
 		(mise à jour après la publication)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Il n&apos;y a pas de préférences/petites annonces ici
+		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...
@@ -1706,7 +1709,7 @@
 		Appartenant aux Lindens
 	</string>
 	<string name="Adult">
-		Adult
+		Adulte
 	</string>
 	<string name="Arts&amp;Culture">
 		Arts et culture
@@ -1897,7 +1900,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Mèches de derrière
 	</string>
 	<string name="Baggy">
-		Cernés
+		Plus
 	</string>
 	<string name="Bangs">
 		Frange
@@ -1924,7 +1927,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Volume : Haut
 	</string>
 	<string name="Big Head">
-		Grosse tête
+		Plus
 	</string>
 	<string name="Big Pectorals">
 		Gros pectoraux
@@ -1960,13 +1963,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Grains de beauté
 	</string>
 	<string name="Body Thick">
-		Corps épais
+		Plus
 	</string>
 	<string name="Body Thickness">
 		Épaisseur du corps
 	</string>
 	<string name="Body Thin">
-		Corps mince
+		Moins
 	</string>
 	<string name="Bow Legged">
 		Jambes arquées
@@ -2098,7 +2101,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Déviation du nez
 	</string>
 	<string name="Cuff Flare">
-		Jambe
+		Jambes
 	</string>
 	<string name="Dark">
 		Sombre
@@ -2215,7 +2218,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Jambes larges
 	</string>
 	<string name="Flat">
-		Plat
+		Moins
 	</string>
 	<string name="Flat Butt">
 		Fesses plates
@@ -2380,7 +2383,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Saillie de la mâchoire
 	</string>
 	<string name="Jaw Shape">
-		Forme de la mâchoire
+		Mâchoire
 	</string>
 	<string name="Join">
 		Rapprochés
@@ -2461,7 +2464,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fente labiale
 	</string>
 	<string name="Lip Cleft Depth">
-		Profondeur fente labiale
+		Fente labiale
 	</string>
 	<string name="Lip Fullness">
 		Volume des lèvres
@@ -2488,7 +2491,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Couleur du rouge à lèvres
 	</string>
 	<string name="Long">
-		Long
+		Plus
 	</string>
 	<string name="Long Head">
 		Tête longue
@@ -2587,7 +2590,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus
 	</string>
 	<string name="More Lower Lip">
-		Plus
+		Inférieure plus grosse
 	</string>
 	<string name="More Muscles">
 		Plus
@@ -2611,7 +2614,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus
 	</string>
 	<string name="More Upper Lip">
-		Plus
+		Supérieure plus grosse
 	</string>
 	<string name="More Vertical">
 		Plus
@@ -2647,7 +2650,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Couleur du vernis
 	</string>
 	<string name="Narrow">
-		Étroit
+		Moins
 	</string>
 	<string name="Narrow Back">
 		Arrière étroit
@@ -2827,7 +2830,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plateforme (largeur)
 	</string>
 	<string name="Pointy">
-		Pointu
+		Pointue
 	</string>
 	<string name="Pointy Heels">
 		Talons pointus
@@ -2845,10 +2848,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Œil droit saillant
 	</string>
 	<string name="Puffy">
-		Gonflées
+		Plus
 	</string>
 	<string name="Puffy Eyelids">
-		Paupières
+		Cernes
 	</string>
 	<string name="Rainbow Color">
 		Couleur arc en ciel
@@ -3013,10 +3016,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Petites mains
 	</string>
 	<string name="Small Head">
-		Petite tête
+		Moins
 	</string>
 	<string name="Smooth">
-		Lisses
+		Moins
 	</string>
 	<string name="Smooth Hair">
 		Cheveux lisses
@@ -3034,7 +3037,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Mèches en pointe
 	</string>
 	<string name="Square">
-		Carré
+		Carrée
 	</string>
 	<string name="Square Toe">
 		Orteil carré
@@ -3145,7 +3148,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Menton supérieur
 	</string>
 	<string name="Upper Eyelid Fold">
-		Paupière supérieure
+		Paupière sup.
 	</string>
 	<string name="Upturned">
 		En trompette
@@ -3163,7 +3166,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Cheveux blancs
 	</string>
 	<string name="Wide">
-		Large
+		Plus
 	</string>
 	<string name="Wide Back">
 		Derrière large

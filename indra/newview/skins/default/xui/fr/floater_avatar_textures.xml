@@ -24,7 +24,7 @@
 			<texture_picker label="Alpha yeux" name="eyes_alpha"/>
 			<texture_picker label="Haut du corps" name="upper-baked"/>
 			<texture_picker label="Peinture corporelle &#10;haut" name="upper_bodypaint"/>
-			<texture_picker label="Sous-vêtements &#10;(homme)" name="upper_undershirt"/>
+			<texture_picker label="Débardeur" name="upper_undershirt"/>
 			<texture_picker label="Gants" name="upper_gloves"/>
 			<texture_picker label="Chemise" name="upper_shirt"/>
 			<texture_picker label="Veste (haut)" name="upper_jacket"/>
@@ -32,7 +32,7 @@
 			<texture_picker label="Tatouage haut" name="upper_tattoo"/>
 			<texture_picker label="Bas du corps" name="lower-baked"/>
 			<texture_picker label="Peinture corporelle bas" name="lower_bodypaint"/>
-			<texture_picker label="Sous-vêtements &#10;(femme)" name="lower_underpants"/>
+			<texture_picker label="Caleçon" name="lower_underpants"/>
 			<texture_picker label="Chaussettes" name="lower_socks"/>
 			<texture_picker label="Chaussures" name="lower_shoes"/>
 			<texture_picker label="Pantalon" name="lower_pants"/>

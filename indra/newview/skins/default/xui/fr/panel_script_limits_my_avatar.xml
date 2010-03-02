@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="MON AVATAR" name="script_limits_my_avatar_panel">
+	<text name="script_memory">
+		Utilisation des scripts d&apos;avatars
+	</text>
 	<text name="loading_text">
 		Chargement...
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="Taille (Ko)" width="80" name="size"/>
+		<scroll_list.columns label="Taille (Ko)" name="size" width="80"/>
 		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="Nom de l&apos;objet" name="name"/>
 		<scroll_list.columns label="Endroit" name="location"/>

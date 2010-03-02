@@ -454,18 +454,20 @@ void LLPanelProfileTab::onMapButtonClick()
 
 void LLPanelProfileTab::updateButtons()
 {
-	bool is_avatar_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
+	bool is_buddy_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
 	
 	if(LLAvatarActions::isFriend(getAvatarId()))
 	{
-		childSetEnabled("teleport", is_avatar_online);
+		childSetEnabled("teleport", is_buddy_online);
 	}
 	else
 	{
 		childSetEnabled("teleport", true);
 	}
 
-	bool enable_map_btn = is_avatar_online && gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+	bool enable_map_btn = (is_buddy_online &&
+			       is_agent_mappable(getAvatarId()))
+		|| gAgent.isGodlike();
 	childSetEnabled("show_on_map_btn", enable_map_btn);
 }
 
@@ -506,8 +508,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
 	enable.add("Profile.EnableGod", boost::bind(&enable_god));
-	enable.add("Profile.CheckItem", boost::bind(&LLPanelAvatarProfile::checkOverflowMenuItem, this, _2));
-	enable.add("Profile.EnableItem", boost::bind(&LLPanelAvatarProfile::enableOverflowMenuItem, this, _2));
+	enable.add("Profile.EnableBlock", boost::bind(&LLPanelAvatarProfile::enableBlock, this));
+	enable.add("Profile.EnableUnblock", boost::bind(&LLPanelAvatarProfile::enableUnblock, this));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -684,26 +686,6 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
-bool LLPanelAvatarProfile::checkOverflowMenuItem(const LLSD& param)
-{
-    std::string item = param.asString();
-
-    if (item == "is_blocked")
-        return LLAvatarActions::isBlocked(getAvatarId());
-
-    return false;
-}
-
-bool LLPanelAvatarProfile::enableOverflowMenuItem(const LLSD& param)
-{
-    std::string item = param.asString();
-
-    if (item == "can_block")
-        return LLAvatarActions::canBlock(getAvatarId());
-
-    return false;
-}
-
 void LLPanelAvatarProfile::pay()
 {
 	LLAvatarActions::pay(getAvatarId());
@@ -717,6 +699,16 @@ void LLPanelAvatarProfile::share()
 void LLPanelAvatarProfile::toggleBlock()
 {
 	LLAvatarActions::toggleBlock(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableBlock()
+{
+	return LLAvatarActions::canBlock(getAvatarId()) && !LLAvatarActions::isBlocked(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableUnblock()
+{
+	return LLAvatarActions::isBlocked(getAvatarId());
 }
 
 void LLPanelAvatarProfile::kick()

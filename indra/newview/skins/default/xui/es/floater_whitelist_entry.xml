@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="whitelist_entry">
+	<text name="media_label">
+		Escribe una URL o un rango de URL para añadirla a lista de dominios autorizados
+	</text>
+	<line_editor name="whitelist_entry" tool_tip="Añade una URL o un rango de URL a la Lista Blanca"/>
+	<button label="OK" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

@@ -106,6 +106,9 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		Emote-Name kann nicht gelesen werden.
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		Falscher Root-Joint-Name, &quot;hip&quot; verwenden.
+	</floater.string>
 	<text name="name_label">
 		Name:
 	</text>
@@ -181,5 +184,5 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 Wir empfehlen exportierte BVH-Dateien aus Poser 4.
 	</text>
 	<button label="Hochladen ([AMOUNT] L$)" name="ok_btn" width="160"/>
-	<button label="Abbrechen" name="cancel_btn" left="180" width="88"/>
+	<button label="Abbrechen" left="180" name="cancel_btn" width="88"/>
 </floater>

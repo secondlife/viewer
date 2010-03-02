@@ -5,7 +5,7 @@
 		<menu_item_call label="マイアカウント" name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
-		<menu_item_call label="L$の購入" name="Buy and Sell L$"/>
+		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
 		<menu_item_call label="マイ プロフィール" name="Profile"/>
 		<menu_item_call label="マイ 容姿" name="Appearance"/>
 		<menu_item_check label="マイ 持ち物" name="Inventory"/>
@@ -74,6 +74,7 @@
 		</menu>
 		<menu_item_call label="リンク" name="Link"/>
 		<menu_item_call label="リンクを外す" name="Unlink"/>
+		<menu_item_check label="リンクした部分を編集" name="Edit Linked Parts"/>
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
@@ -90,25 +91,18 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="オプション" name="Options">
-			<menu_item_check label="リンク部位を編集" name="Edit Linked Parts"/>
 			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
 			<menu_item_check label="権限の詳細を表示" name="DebugPermissions"/>
-			<menu label="選択" name="Selection">
-				<menu_item_check label="私のオブジェクトだけを選択" name="Select Only My Objects"/>
-				<menu_item_check label="動的オブジェクトのみ選択" name="Select Only Movable Objects"/>
-				<menu_item_check label="環境で選択" name="Select By Surrounding"/>
-			</menu>
-			<menu label="表示" name="Show">
-				<menu_item_check label="非表示の選択を表示" name="Show Hidden Selection"/>
-				<menu_item_check label="選択した光の半径範囲を表示" name="Show Light Radius for Selection"/>
-				<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
-			</menu>
-			<menu label="グリッド" name="Grid">
-				<menu_item_check label="グリッドポイントにスナップ" name="Snap to Grid"/>
-				<menu_item_call label="オブジェクトのXY軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
-				<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
-				<menu_item_call label="グリッドオプション" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="私のオブジェクトだけを選択" name="Select Only My Objects"/>
+			<menu_item_check label="動的オブジェクトのみ選択" name="Select Only Movable Objects"/>
+			<menu_item_check label="環境で選択" name="Select By Surrounding"/>
+			<menu_item_check label="非表示の選択を表示" name="Show Hidden Selection"/>
+			<menu_item_check label="選択した光の半径範囲を表示" name="Show Light Radius for Selection"/>
+			<menu_item_check label="選択したビームを表示" name="Show Selection Beam"/>
+			<menu_item_check label="グリッドポイントにスナップ" name="Snap to Grid"/>
+			<menu_item_call label="オブジェクトのXY軸をグリッドにスナップ" name="Snap Object XY to Grid"/>
+			<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
+			<menu_item_call label="グリッドオプション" name="Grid Options"/>
 		</menu>
 		<menu label="リンクした部分を選択" name="Select Linked Parts">
 			<menu_item_call label="次の部位を選択" name="Select Next Part"/>
@@ -175,8 +169,8 @@
 		<menu_item_check label="マルチスレッド処理" name="Run Multiple Threads"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
-		<menu_item_check label="近くのチャットに IM を表示" name="IMInChat"/>
 		<menu label="ショートカット" name="Shortcuts">
+			<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
 			<menu_item_check label="検索" name="Search"/>
 			<menu_item_call label="キーをリリース" name="Release Keys"/>
 			<menu_item_call label="UI のサイズをデフォルトに設定" name="Set UI Size to Default"/>
@@ -219,6 +213,7 @@
 			<menu_item_check label="カメラ" name="Camera"/>
 			<menu_item_check label="風" name="Wind"/>
 			<menu_item_check label="FOV" name="FOV"/>
+			<menu_item_check label="バッジ" name="Badge"/>
 		</menu>
 		<menu label="情報を表示" name="Display Info">
 			<menu_item_check label="時間を表示" name="Show Time"/>
@@ -276,7 +271,7 @@
 			<menu_item_check label="テクスチャアトラス" name="Texture Atlas"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
-			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
+			<menu_item_check label="マウスオーバーで強調表示" name="Hover Glow Objects"/>
 		</menu>
 		<menu label="ネットワーク" name="Network">
 			<menu_item_check label="エージェントを一時停止" name="AgentPause"/>

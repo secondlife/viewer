@@ -93,7 +93,7 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLIconCtrl* icon = 0;
 
-	if(gAgent.isInGroup(session_id))
+	if(gAgent.isInGroup(session_id, TRUE))
 	{
 		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
 		icon_params.group_id = session_id;
@@ -110,8 +110,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		icon_params.avatar_id = avatar_id;
 		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
 
-		mSessions[avatar_id] = floaterp;
-		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, avatar_id));
+		mSessions[session_id] = floaterp;
+		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
 	mTabContainer->setTabImage(floaterp, icon);
 }
@@ -123,7 +123,7 @@ void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
 
 void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
 {
-	LLUUID session_id = data["from_id"].asUUID();
+	LLUUID session_id = data["session_id"].asUUID();
 	LLFloater* floaterp = get_ptr_in_map(mSessions, session_id);
 	LLFloater* current_floater = LLMultiFloater::getActiveFloater();
 
@@ -143,6 +143,20 @@ LLIMFloaterContainer* LLIMFloaterContainer::findInstance()
 LLIMFloaterContainer* LLIMFloaterContainer::getInstance()
 {
 	return LLFloaterReg::getTypedInstance<LLIMFloaterContainer>("im_container");
+}
+
+void LLIMFloaterContainer::setMinimized(BOOL b)
+{
+	if (isMinimized() == b) return;
+	
+	LLMultiFloater::setMinimized(b);
+
+	if (isMinimized()) return;
+
+	if (getActiveFloater())
+	{
+		getActiveFloater()->setVisible(TRUE);
+	}
 }
 
 // EOF

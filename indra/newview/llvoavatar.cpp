@@ -2545,6 +2545,17 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	// update visibility when avatar is partially loaded
 	if (updateIsFullyLoaded()) // changed?
 	{
+		if (isFullyLoaded() && isSelf())
+		{
+			static bool first_fully_visible = true;
+			if (first_fully_visible)
+			{
+				llinfos << "self isFullyLoaded, first_fully_visible" << llendl;
+
+				first_fully_visible = false;
+				LLAppearanceManager::instance().onFirstFullyVisible();
+			}
+		}
 		if (isFullyLoaded())
 		{
 			deleteParticleSource();

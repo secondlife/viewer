@@ -4,7 +4,7 @@
  border="false"
  follows="all"
  height="570"
- label="My Profile!!!!!"
+ label="My Profile"
  layout="topleft"
  left="0"
  name="panel_me"
@@ -26,16 +26,16 @@
    </text> -->
     <tab_container
      follows="all"
-     height="570"
+     height="575"
      halign="center"
      layout="topleft"
-     left="6"
+     left="5"
      name="tabs"
      tab_min_width="95"
      tab_height="30"
      tab_position="top"
      top_pad="10"
-     width="315">
+     width="317">
       <panel
          class="panel_my_profile"
          filename="panel_my_profile.xml"

@@ -9,8 +9,8 @@
 		<menu_item_call label="Mein Profil" name="Profile"/>
 		<menu_item_call label="Mein Aussehen" name="Appearance"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
-		<menu_item_call label="Inventar auf Seitenleiste anzeigen" name="ShowSidetrayInventory"/>
-		<menu_item_call label="Meine Gesten" name="Gestures"/>
+		<menu_item_check label="Mein Inventar" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Meine Gesten" name="Gestures"/>
 		<menu label="Mein Status" name="Status">
 			<menu_item_call label="Abwesend" name="Set Away"/>
 			<menu_item_call label="Beschäftigt" name="Set Busy"/>
@@ -22,13 +22,12 @@
 	<menu label="Unterhalten" name="Communicate">
 		<menu_item_call label="Meine Freunde" name="My Friends"/>
 		<menu_item_call label="Meine Gruppen" name="My Groups"/>
-		<menu_item_check label="Lokaler Chat" name="Nearby Chat"/>
+		<menu_item_check label="Chat in der Nähe" name="Nearby Chat"/>
 		<menu_item_call label="Leute in der Nähe" name="Active Speakers"/>
-		<menu_item_check label="Medien in der Nähe" name="Nearby Media"/>
 	</menu>
 	<menu label="Welt" name="World">
 		<menu_item_check label="Minikarte" name="Mini-Map"/>
-		<menu_item_check label="Weltkarte" name="World Map"/>
+		<menu_item_check label="Karte" name="World Map"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
 		<menu label="Ortsprofil" name="Land">
@@ -40,6 +39,10 @@
 		<menu label="Anzeigen" name="LandShow">
 			<menu_item_check label="Bewegungssteuerung" name="Movement Controls"/>
 			<menu_item_check label="Ansichtsteuerung" name="Camera Controls"/>
+			<menu_item_check label="Bannlinien" name="Ban Lines"/>
+			<menu_item_check label="Strahlen" name="beacons"/>
+			<menu_item_check label="Grundstücksgrenzen" name="Property Lines"/>
+			<menu_item_check label="Landeigentümer" name="Land Owners"/>
 		</menu>
 		<menu_item_call label="Teleport nach Hause" name="Teleport Home"/>
 		<menu_item_call label="Hier als Zuhause wählen" name="Set Home to Here"/>
@@ -55,11 +58,11 @@
 	<menu label="Bauen" name="BuildTools">
 		<menu_item_check label="Bauen" name="Show Build Tools"/>
 		<menu label="Bauwerkzeug auswählen" name="Select Tool">
-			<menu_item_call label="Fokus-Werkzeug" name="Focus"/>
-			<menu_item_call label="Werkzeug „Bewegen“" name="Move"/>
+			<menu_item_call label="Fokus" name="Focus"/>
+			<menu_item_call label="Verschieben" name="Move"/>
 			<menu_item_call label="Bearbeiten" name="Edit"/>
-			<menu_item_call label="Werkzeug „Erstellen&quot;" name="Create"/>
-			<menu_item_call label="Land-Werkzeug" name="Land"/>
+			<menu_item_call label="Erstellen" name="Create"/>
+			<menu_item_call label="Land" name="Land"/>
 		</menu>
 		<menu label="Bearbeiten" name="Edit">
 			<menu_item_call label="Rückgängig" name="Undo"/>
@@ -74,6 +77,7 @@
 		</menu>
 		<menu_item_call label="Verknüpfung" name="Link"/>
 		<menu_item_call label="Verknüpfung auflösen" name="Unlink"/>
+		<menu_item_check label="Verknüpfte Teile bearbeiten" name="Edit Linked Parts"/>
 		<menu_item_call label="Fokus auf Auswahl" name="Focus on Selection"/>
 		<menu_item_call label="Auf Auswahl zoomen" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
@@ -90,25 +94,18 @@
 			<menu_item_call label="Skripts auf nicht ausführen einstellen" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Optionen" name="Options">
-			<menu_item_check label="Verknüpfte Teile bearbeiten" name="Edit Linked Parts"/>
 			<menu_item_call label="Hochlade-Berechtigungen (Standard) festlegen" name="perm prefs"/>
 			<menu_item_check label="Erweiterte Berechtigungen anzeigen" name="DebugPermissions"/>
-			<menu label="Auswahl" name="Selection">
-				<menu_item_check label="Nur meine Objekte auswählen" name="Select Only My Objects"/>
-				<menu_item_check label="Nur bewegliche Objekte auswählen" name="Select Only Movable Objects"/>
-				<menu_item_check label="Nach Umgebung auswählen" name="Select By Surrounding"/>
-			</menu>
-			<menu label="Anzeigen" name="Show">
-				<menu_item_check label="Ausgeblendete Auswahl anzeigen" name="Show Hidden Selection"/>
-				<menu_item_check label="Lichtradius für Auswahl anzeigen" name="Show Light Radius for Selection"/>
-				<menu_item_check label="Auswahlstrahl anzeigen" name="Show Selection Beam"/>
-			</menu>
-			<menu label="Raster" name="Grid">
-				<menu_item_check label="An Raster ausrichten" name="Snap to Grid"/>
-				<menu_item_call label="Objekt-XY an Raster ausrichten" name="Snap Object XY to Grid"/>
-				<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
-				<menu_item_call label="Rasteroptionen" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="Nur meine Objekte auswählen" name="Select Only My Objects"/>
+			<menu_item_check label="Nur bewegliche Objekte auswählen" name="Select Only Movable Objects"/>
+			<menu_item_check label="Nach Umgebung auswählen" name="Select By Surrounding"/>
+			<menu_item_check label="Ausgeblendete Auswahl anzeigen" name="Show Hidden Selection"/>
+			<menu_item_check label="Lichtradius für Auswahl anzeigen" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Auswahlstrahl anzeigen" name="Show Selection Beam"/>
+			<menu_item_check label="An Raster ausrichten" name="Snap to Grid"/>
+			<menu_item_call label="Objekt-XY an Raster ausrichten" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
+			<menu_item_call label="Rasteroptionen" name="Grid Options"/>
 		</menu>
 		<menu label="Verknüpfte Teile auswählen" name="Select Linked Parts">
 			<menu_item_call label="Nächstes Teil auswählen" name="Select Next Part"/>
@@ -175,8 +172,8 @@
 		<menu_item_check label="Mehrer Threads ausführen" name="Run Multiple Threads"/>
 		<menu_item_call label="Gruppen-Cache löschen" name="ClearGroupCache"/>
 		<menu_item_check label="Weiche Mausbewegung" name="Mouse Smoothing"/>
-		<menu_item_check label="IMs in lokalem Chat anzeigen" name="IMInChat"/>
 		<menu label="Tastaturkürzel" name="Shortcuts">
+			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
 			<menu_item_check label="Suchen" name="Search"/>
 			<menu_item_call label="Tasten freigeben" name="Release Keys"/>
 			<menu_item_call label="UI-Größe auf Standard setzen" name="Set UI Size to Default"/>
@@ -219,6 +216,7 @@
 			<menu_item_check label="Kamera" name="Camera"/>
 			<menu_item_check label="Wind" name="Wind"/>
 			<menu_item_check label="FOV" name="FOV"/>
+			<menu_item_check label="Gütesiegel" name="Badge"/>
 		</menu>
 		<menu label="Info anzeigen" name="Display Info">
 			<menu_item_check label="Zeit anzeigen" name="Show Time"/>
@@ -384,7 +382,7 @@
 			<menu_item_call label="Temp-Asset-Daten ausgeben" name="Dump Temp Asset Data"/>
 			<menu_item_call label="Regions-Status speichern" name="Save Region State"/>
 		</menu>
-		<menu_item_call label="Gott-Tools" name="God Tools"/>
+		<menu_item_call label="Gott-Werkzeuge" name="God Tools"/>
 	</menu>
 	<menu label="Admin" name="Deprecated">
 		<menu label="Objekt anhängen" name="Attach Object"/>

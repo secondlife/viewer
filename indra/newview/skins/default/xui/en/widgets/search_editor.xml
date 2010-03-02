@@ -15,7 +15,11 @@
     height="13" 
 	  image_unselected="Search"
 	  image_selected="Search" />
-  <clear_button 
+  <clear_button
+   bottom="4"
+   height="16"
    image_unselected="Icon_Close_Foreground"
-   image_selected="Icon_Close_Press" />
+   image_selected="Icon_Close_Press"
+   pad_right="4"
+   width="16" />
 </search_editor>

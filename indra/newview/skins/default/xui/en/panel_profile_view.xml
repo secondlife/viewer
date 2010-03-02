@@ -6,6 +6,7 @@
  layout="topleft"
  min_height="350"
  name="panel_target_profile"
+ left="0"
  width="333">
     <string
      name="status_online">
@@ -21,17 +22,19 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back"
-     left="10"
+     left="12"
      tab_stop="false"
      top="2"
      width="23" />
     <text_editor
+    	h_pad="0"
+    	v_pad="0"
       allow_scroll="false"
       bg_visible="false"
       read_only = "true"
       follows="top|left|right"
       font="SansSerifHugeBold"
-      height="29"
+      height="26"
       layout="topleft"
       left_pad="10"
       name="user_name"
@@ -62,7 +65,7 @@
      width="150" />
     <tab_container
      follows="all"
-     height="535"
+     height="538"
      halign="center"
      layout="topleft"
      left="5"

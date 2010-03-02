@@ -11,20 +11,20 @@
 			<text name="BHText">
 				Color del agua
 			</text>
-			<button label="?" name="WaterFogColorHelp" left="175" />
-			<color_swatch label="" name="WaterFogColor" tool_tip="Pulse para abrir el selector de color"/>
+			<button label="?" left="175" name="WaterFogColorHelp"/>
+			<color_swatch label="" name="WaterFogColor" tool_tip="Pulsa para abrir el selector de color"/>
 			<text name="WaterFogDensText">
 				Transparencia
 			</text>
-			<button label="?" name="WaterFogDensityHelp" left="175" />
+			<button label="?" left="175" name="WaterFogDensityHelp"/>
 			<text name="WaterUnderWaterFogModText">
 				Modificar la claridad del agua
 			</text>
-			<button label="?" name="WaterUnderWaterFogModHelp" left="175" />
+			<button label="?" left="175" name="WaterUnderWaterFogModHelp"/>
 			<text name="BDensText">
 				Tamaño de las ondulaciones
 			</text>
-			<button label="?" name="WaterNormalScaleHelp" left="405"/>
+			<button label="?" left="405" name="WaterNormalScaleHelp"/>
 			<text name="BHText2">
 				1
 			</text>
@@ -37,29 +37,29 @@
 			<text name="HDText">
 				Escala de Fresnel
 			</text>
-			<button label="?" name="WaterFresnelScaleHelp" left="405"/>
+			<button label="?" left="405" name="WaterFresnelScaleHelp"/>
 			<text name="FresnelOffsetText">
 				Coeficiente de reflexión
 			</text>
-			<button label="?" name="WaterFresnelOffsetHelp" left="405"/>
+			<button label="?" left="405" name="WaterFresnelOffsetHelp"/>
 			<text name="DensMultText">
 				Refracción de la superficie
 			</text>
-			<button label="?" name="WaterScaleAboveHelp" left="640"/>
+			<button label="?" left="640" name="WaterScaleAboveHelp"/>
 			<text name="WaterScaleBelowText">
 				Refracción bajo la superficie
 			</text>
-			<button label="?" name="WaterScaleBelowHelp" left="640"/>
+			<button label="?" left="640" name="WaterScaleBelowHelp"/>
 			<text name="MaxAltText">
 				Desenfoque
 			</text>
-			<button label="?" name="WaterBlurMultiplierHelp" left="640"/>
+			<button label="?" left="640" name="WaterBlurMultiplierHelp"/>
 		</panel>
 		<panel label="Imagen" name="Waves">
 			<text name="BHText">
 				Sentido de la onda grande
 			</text>
-			<button label="?" name="WaterWave1Help" left="170"/>
+			<button label="?" left="170" name="WaterWave1Help"/>
 			<text name="WaterWave1DirXText">
 				X
 			</text>
@@ -69,7 +69,7 @@
 			<text name="BHText2">
 				Sentido de la onda pequeña
 			</text>
-			<button label="?" name="WaterWave2Help" left="170"/>
+			<button label="?" left="170" name="WaterWave2Help"/>
 			<text name="WaterWave2DirXText">
 				X
 			</text>

@@ -4,7 +4,7 @@
 	<string name="subject_font" value="SANSSERIF_BIG"/>
 	<string name="date_font" value="SANSSERIF"/>
 	<panel label="Überschrift" name="header">
-		<text name="title" value="Name des Absenders / Gruppenname"/>
+		<text name="title" value="Absender/Gruppenname"/>
 	</panel>
 	<text_editor name="message" value="Nachricht"/>
 	<text name="attachment" value="Anhang"/>

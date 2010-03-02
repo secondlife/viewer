@@ -60,11 +60,11 @@
  <scroll_container
      color="DkGray2"
      follows="all"
-     height="493"
+     height="494"
      min_height="300"
      layout="topleft"
-     left="9"
-     width="290"
+     left="8"
+     width="292"
      name="profile_scroll"
      reserve_scroll_corner="true"
      opaque="true"
@@ -74,19 +74,19 @@
          follows="left|top|right"
          layout="topleft"
          top="0"
-     height="493"
+     height="494"
      min_height="300"
          left="0"
-         width="290">
+         width="292">
     <panel
      name="data_panel"
      follows="left|top|right"
          layout="topleft"
          top="0"
-     height="493"
+     height="494"
      min_height="300"
          left="0"
-         width="290">
+         width="292">
       <text
        follows="top|left"
        font="SansSerifBigBold"
@@ -117,14 +117,14 @@
        top_delta="-4"
        visible="false" 
        width="110" />
-      <panel
+     <panel
        name="lifes_images_panel"
          follows="left|top|right"
          height="244"
          layout="topleft"
          top="37"
          left="0"
-         width="290">
+         width="292">
 	 <panel
          follows="left|top"
          height="117"
@@ -132,7 +132,7 @@
          left="10"
          name="second_life_image_panel"
          top="0"
-         width="280">
+         width="282">
           <text
              follows="left|top|right"
 	     font.style="BOLD"
@@ -157,15 +157,15 @@
              width="102" />
           </panel>
            <icon
-           height="18"
-           image_name="AddItem_Off"
+           height="102"
+           image_name="spacer24.tga"
            layout="topleft"
            name="2nd_life_edit_icon"
            label=""
-           left="87"
+           left="11"
+           top_pad="-92"
            tool_tip="Click to select an image"
-           top="25"
-           width="18" />
+           width="102" />
       </panel>
       <text_editor
        type="string"
@@ -213,15 +213,15 @@
              width="102" />
           </panel>
            <icon
-           height="18"
-           image_name="AddItem_Off"
+           height="102"
+           image_name="spacer24.tga"
            layout="topleft"
            name="real_world_edit_icon"
            label=""
-           left="87"
+           left="11"
+           top_pad="-92"
            tool_tip="Click to select an image"
-           top="148"
-           width="18" />
+           width="102" />
        <text_editor
        type="string"
        length="1"
@@ -260,7 +260,7 @@
        top_pad="0"
        value="http://"
        name="homepage_edit"
-       width="270">
+       width="272">
       </line_editor>
       <check_box
        follows="left|top"
@@ -364,7 +364,7 @@
          height="23"
          label="Save Changes"
          layout="topleft"
-         left="9"
+         left="8"
          name="save_btn"
          top="5"
          width="152" />
@@ -373,8 +373,8 @@
          height="23"
          label="Cancel"
          layout="topleft"
-         left_pad="4"
+         left_pad="3"
          name="cancel_btn"
-         width="152" />
+         width="153" />
     </panel>
 </panel>

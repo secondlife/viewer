@@ -94,7 +94,7 @@ Objekt:
 		Details:
 	</text>
 	<text name="bug_aviso">
-		Bitte beschreiben Sie alles so genau wie möglich.
+		Detaillierte Beschreibung:
 	</text>
 	<text_editor bottom_delta="-136" height="70" name="details_edit"/>
 	<text bottom_delta="-20" name="incomplete_title">

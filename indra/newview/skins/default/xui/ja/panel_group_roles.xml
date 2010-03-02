@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーと役割" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		現在のタブには、保存されていない変更があります。
+		保存していない変更があります
 	</panel.string>
 	<panel.string name="want_apply_text">
 		変更を保存しますか？

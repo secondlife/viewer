@@ -1280,11 +1280,10 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 		return false;
 
 	LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : NULL;
-	
 	if(!mep)
 		return false;
 	
-	viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 
 	if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
 	{

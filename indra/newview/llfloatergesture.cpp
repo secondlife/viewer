@@ -203,12 +203,12 @@ BOOL LLFloaterGesture::postBuild()
 	gInventory.addObserver(this);
 	fetchDescendents(folders);
 
-	buildGestureList();
-	
-	mGestureList->setFocus(TRUE);
-
 	if (mGestureList)
 	{
+		buildGestureList();
+	
+		mGestureList->setFocus(TRUE);
+
 		const BOOL ascending = TRUE;
 		mGestureList->sortByColumn(std::string("name"), ascending);
 		mGestureList->selectFirstItem();
@@ -223,9 +223,9 @@ BOOL LLFloaterGesture::postBuild()
 
 void LLFloaterGesture::refreshAll()
 {
-	buildGestureList();
-
 	if (!mGestureList) return;
+
+	buildGestureList();
 
 	if (mSelectedID.isNull())
 	{

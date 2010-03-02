@@ -8,7 +8,7 @@
 		Kompiliert mit [COMPILER] version [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Sie befinden sich in [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] auf [HOSTNAME] ([HOSTIP])
+		Sie befinden sich in [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
 [[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>

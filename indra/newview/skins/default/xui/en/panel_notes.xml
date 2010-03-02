@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="540"
+ height="533"
  label="Notes &amp; Privacy"
  layout="topleft"
  left="0"
@@ -25,7 +25,7 @@
        layout="topleft"
        top="0"
        left="0"
-       height="475"
+       height="450"
        width="313">
         <scroll_container
          color="DkGray2"
@@ -34,7 +34,7 @@
          left="0"
          name="profile_scroll"
          opaque="true"
-         height="475"
+         height="450"
          width="313"
          top="0">
           <panel
@@ -46,35 +46,35 @@
            width="303">
             <text
              follows="left|top"
-             font="SansSerifBold"
+         font.style="BOLD"
              height="16"
              layout="topleft"
-             left="10"
+             left="11"
              name="status_message"
              text_color="white"
-             top="20"
+             top="10"
              value="My private notes:"
              width="293" />
             <text_editor
              follows="left|top"
              height="120"
              layout="topleft"
-             left="10"
+             left="12"
              max_length="1000"
              name="notes_edit"
              text_color="DkGray"
-             top_pad="10"
-             width="280"
+             top_pad="3"
+             width="288"
              word_wrap="true" />
             <text
              follows="left|top"
-             font="SansSerifBold"
+         font.style="BOLD"
              height="16"
              layout="topleft"
-             left="10"
+             left="11"
              name="status_message2"
              text_color="white"
-             top_pad="30"
+             top_pad="20"
              value="Allow this person to:"
              width="293" />
             <check_box
@@ -82,7 +82,7 @@
              height="16"
              label="See my online status"
              layout="topleft"
-             left="20"
+             left="10"
              name="status_check"
              width="293" />
             <check_box
@@ -90,7 +90,7 @@
              height="16"
              label="See me on the map"
              layout="topleft"
-             left="20"
+             left="10"
              name="map_check"
              width="293" />
             <check_box
@@ -98,7 +98,7 @@
              height="16"
              label="Edit, delete or take my objects"
              layout="topleft"
-             left="20"
+             left="10"
              name="objects_check"
              width="293" />
           </panel>
@@ -117,7 +117,7 @@
          height="23"
          label="Add Friend"
          layout="topleft"
-         left="0"
+         left="2"
          mouse_opaque="false"
          name="add_friend"
          tool_tip="Offer friendship to the Resident"
@@ -142,7 +142,7 @@
          tool_tip="Call this Resident"
          left_pad="3"
          top="5"
-         width="45" />
+         width="46" />
         <button
          enabled="false"
          follows="bottom|left"

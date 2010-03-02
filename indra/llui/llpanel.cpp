@@ -397,6 +397,12 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 		if (!panelp)
 		{
 			panelp = LLUICtrlFactory::getInstance()->createFactoryPanel(name);
+			llassert(panelp);
+			
+			if (!panelp)
+			{
+				return NULL; // :(
+			}
 		}
 
 	}
@@ -414,7 +420,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 	panelp->mCommitCallbackRegistrar.popScope();
 	panelp->mEnableCallbackRegistrar.popScope();
 
-	if (panelp && !panelp->getFactoryMap().empty())
+	if (!panelp->getFactoryMap().empty())
 	{
 		LLUICtrlFactory::instance().popFactoryFunctions();
 	}

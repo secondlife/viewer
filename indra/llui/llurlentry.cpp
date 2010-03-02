@@ -296,7 +296,7 @@ std::string LLUrlEntrySLURL::getLabel(const std::string &url, const LLUrlLabelCa
 std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 {
 	// return the part of the Url after slurl.com/secondlife/
-	const std::string search_string = "secondlife";
+	const std::string search_string = "/secondlife";
 	size_t pos = url.find(search_string);
 	if (pos == std::string::npos)
 	{

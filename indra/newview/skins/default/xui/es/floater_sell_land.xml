@@ -1,64 +1,65 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="sell land" title="VENDER EL TERRENO">
-    <scroll_container name="profile_scroll">
-    <panel name="scroll_content_panel">
-	<text name="info_parcel_label">
-		Parcela:
-	</text>
-	<text name="info_parcel">
-		NOMBRE DE LA PARCELA
-	</text>
-	<text name="info_size_label">
-		Tamaño:
-	</text>
-	<text name="info_size">
-		[AREA] m²
-	</text>
-	<text name="info_action">
-		Vender esta parcela:
-	</text>
-	<icon bottom_delta="-56" name="step_price" />
-	<text name="price_label">
-		Marque un precio:
-	</text>
-	<text name="price_text">
-		Elija un precio adecuado para esta parcela.
-	</text>
-	<text name="price_ld">
-		L$
-	</text>
-	<text name="price_per_m">
-		([PER_METER] L$ por metro cuadrado)
-	</text>
-	<text name="sell_to_label">
-		Vender este terreno a:
-	</text>
-	<text name="sell_to_text">
-		Elija si venderlo a cualquiera o a un comprador concreto.
-	</text>
-	<combo_box name="sell_to">
-		<combo_box.item name="--selectone--" label="seleccione --" />
-		<combo_box.item name="Anyone" label="Cualquiera" />
-		<combo_box.item name="Specificuser:" label="Un usuario concreto:" />
-	</combo_box>
-	<button label="Seleccionar..." name="sell_to_select_agent"/>
-	<text name="sell_objects_label">
-		¿Vender los objetos con el terreno?
-	</text>
-	<text name="sell_objects_text">
-		Los objetos transferibles del propietario del terreno cambiarán
-de propietario.
-	</text>
-	<radio_group name="sell_objects" bottom_delta="-58" >
-		<radio_item name="no" label="No, mantener la propiedad de los objetos" />
-		<radio_item name="yes" label="Sí, vender los objetos con el terreno" />
-	</radio_group>
-	<button label="Mostrar los objetos" name="show_objects" width="120"/>
-	<text name="nag_message_label">
-		RECUERDE: todas las ventas son definitivas.
-	</text>
-	<button label="Poner el terreno en venta" name="sell_btn"/>
-	<button label="Cancelar" name="cancel_btn"/>
-    </panel>
-    </scroll_container>
+<floater name="sell land" title="VENTA DE TERRENO">
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="info_parcel_label">
+				Parcela:
+			</text>
+			<text name="info_parcel">
+				NOMBRE DE LA PARCELA
+			</text>
+			<text name="info_size_label">
+				Tamaño:
+			</text>
+			<text name="info_size">
+				[AREA] m²
+			</text>
+			<text name="info_action">
+				Vender esta parcela:
+			</text>
+			<text name="price_label">
+				1. Marcar un precio:
+			</text>
+			<text name="price_text">
+				Elegir un precio adecuado.
+			</text>
+			<text name="price_ld">
+				L$
+			</text>
+			<line_editor name="price">
+				0
+			</line_editor>
+			<text name="price_per_m">
+				([PER_METER] L$ por m²)
+			</text>
+			<text name="sell_to_label">
+				2. Vender el terreno a:
+			</text>
+			<text name="sell_to_text">
+				Elige si venderlo a cualquiera o a un comprador concreto.
+			</text>
+			<combo_box name="sell_to">
+				<combo_box.item label="- Elegir a alguien -" name="--selectone--"/>
+				<combo_box.item label="Cualquiera" name="Anyone"/>
+				<combo_box.item label="Alguien concreto:" name="Specificuser:"/>
+			</combo_box>
+			<button label="Elegir" name="sell_to_select_agent"/>
+			<text name="sell_objects_label">
+				3. ¿Vender los objetos junto con el terreno?
+			</text>
+			<text name="sell_objects_text">
+				Los objetos transferibles del propietario del terreno que estén en la parcela cambiarán de propietario.
+			</text>
+			<radio_group bottom_delta="-58" name="sell_objects">
+				<radio_item label="No, mantener la propiedad de los objetos" name="no"/>
+				<radio_item label="Sí, vender los objetos con el terreno" name="yes"/>
+			</radio_group>
+			<button label="Mostrar los objetos" name="show_objects" width="120"/>
+			<text name="nag_message_label">
+				RECUERDA: todas las ventas son definitivas.
+			</text>
+			<button label="Poner en venta el terreno" name="sell_btn"/>
+			<button label="Cancelar" name="cancel_btn"/>
+		</panel>
+	</scroll_container>
 </floater>

@@ -111,25 +111,76 @@ void LLCheckFolderState::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
+// Functor searching and opening a folder specified by UUID
+// in a folder view tree.
+class LLOpenFolderByID : public LLFolderViewFunctor
+{
+public:
+	LLOpenFolderByID(const LLUUID& folder_id)
+	:	mFolderID(folder_id)
+	,	mIsFolderOpen(false)
+	{}
+	virtual ~LLOpenFolderByID() {}
+	/*virtual*/ void doFolder(LLFolderViewFolder* folder);
+	/*virtual*/ void doItem(LLFolderViewItem* item) {}
+
+	bool isFolderOpen() { return mIsFolderOpen; }
+
+private:
+	bool	mIsFolderOpen;
+	LLUUID	mFolderID;
+};
+
+// virtual
+void LLOpenFolderByID::doFolder(LLFolderViewFolder* folder)
+{
+	if (folder->getListener() && folder->getListener()->getUUID() == mFolderID)
+	{
+		if (!folder->isOpen())
+		{
+			folder->setOpen(TRUE);
+			mIsFolderOpen = true;
+		}
+	}
+}
+
 /**
  * Bridge to support knowing when the inventory has changed to update Landmarks tab
  * ShowFolderState filter setting to show all folders when the filter string is empty and
  * empty folder message when Landmarks inventory category has no children.
+ * Ensures that "Landmarks" folder in the Library is open on strart up.
  */
 class LLLandmarksPanelObserver : public LLInventoryObserver
 {
 public:
-	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
+	LLLandmarksPanelObserver(LLLandmarksPanel* lp)
+	:	mLP(lp),
+	 	mIsLibraryLandmarksOpen(false)
+	{}
 	virtual ~LLLandmarksPanelObserver() {}
 	/*virtual*/ void changed(U32 mask);
 
 private:
 	LLLandmarksPanel* mLP;
+	bool mIsLibraryLandmarksOpen;
 };
 
 void LLLandmarksPanelObserver::changed(U32 mask)
 {
 	mLP->updateShowFolderState();
+
+	LLPlacesInventoryPanel* library = mLP->getLibraryInventoryPanel();
+	if (!mIsLibraryLandmarksOpen && library)
+	{
+		// Search for "Landmarks" folder in the Library and open it once on start up. See EXT-4827.
+		const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
+		if (landmarks_cat.notNull())
+		{
+			LLOpenFolderByID opener(landmarks_cat);
+			library->getRootFolder()->applyFunctorRecursively(opener);
+			mIsLibraryLandmarksOpen = opener.isFolderOpen();
+		}
+	}
 }
 
 LLLandmarksPanel::LLLandmarksPanel()

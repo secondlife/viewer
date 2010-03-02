@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="CARGANDO...">
+<floater name="top_objects" title="Objetos superiores">
 	<text name="title_text">
 		Cargando...
 	</text>
@@ -23,13 +23,13 @@
 	</text>
 	<button label="Filtro" name="filter_object_btn" width="115"/>
 	<text name="owner_name_text" width="130">
-		Nombre del propietario:
+		Propietario:
 	</text>
 	<button label="Filtro" name="filter_owner_btn" width="115"/>
 	<button label="Devolver lo seleccionado" name="return_selected_btn" width="170"/>
-	<button label="Devolver todo" name="return_all_btn" left="190"/>
+	<button label="Devolver todo" left="190" name="return_all_btn"/>
 	<button label="Desactivar lo seleccionado" name="disable_selected_btn" width="170"/>
-	<button label="Desactivar todo" name="disable_all_btn" left="190"/>
+	<button label="Desactivar todo" left="190" name="disable_all_btn"/>
 	<button label="Actualizar" name="refresh_btn" width="115"/>
 	<string name="top_scripts_title">
 		Scripts según su uso
