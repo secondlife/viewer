@@ -4495,7 +4495,7 @@ static void show_money_balance_notification(const std::string& desc)
 	// <name> paid you L$<amount>.
 	static const boost::regex paid_you("(.+) paid you L\\$(\\d+)\\.");
 	// You paid <name> L$<amount> [for <reason>].
-	static const boost::regex you_paid("You paid (.*) L\\$(\\d+)(.+)\\.");
+	static const boost::regex you_paid("You paid (.*) L\\$(\\d+)(.*)\\.");
 
 	if (boost::regex_match(desc, match, paid_you_for))
 	{
