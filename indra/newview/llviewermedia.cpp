@@ -50,6 +50,7 @@
 #include "llcallbacklist.h"
 #include "llparcel.h"
 #include "llaudioengine.h"  // for gAudiop
+#include "llurldispatcher.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
@@ -2340,6 +2341,14 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 {
 	switch(event)
 	{
+		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
+		{
+			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
+			std::string url = plugin->getClickURL();
+			LLURLDispatcher::dispatch(url, NULL, false);
+
+		}
+		break;
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 		{
 			// The plugin failed to load properly.  Make sure the timer doesn't retry.
