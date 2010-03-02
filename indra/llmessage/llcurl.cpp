@@ -353,9 +353,10 @@ LLCurl::Easy* LLCurl::Easy::getEasy()
 		return NULL;
 	}
 	
-	// set no DMS caching as default for all easy handles. This prevents them adopting a
+	// set no DNS caching as default for all easy handles. This prevents them adopting a
 	// multi handles cache if they are added to one.
 	curl_easy_setopt(easy->mCurlEasyHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+
 	++gCurlEasyCount;
 	return easy;
 }
@@ -440,6 +441,7 @@ U32 LLCurl::Easy::report(CURLcode code)
 	{
 		responseCode = 499;
 		responseReason = strerror(code) + " : " + mErrorBuffer;
+		setopt(CURLOPT_FRESH_CONNECT, TRUE);
 	}
 		
 	if (mResponder)
@@ -526,7 +528,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	
 	if (post) setoptString(CURLOPT_ENCODING, "");
 
-//	setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
+	//setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
 	setopt(CURLOPT_NOSIGNAL, 1);
 
 	mOutput.reset(new LLBufferArray);
@@ -543,8 +545,11 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	setCA();
 
 	setopt(CURLOPT_SSL_VERIFYPEER, LLCurl::getSSLVerify());
-	setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify()? 2 : 0);
+	//setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify()? 2 : 0);
+	setopt(CURLOPT_SSL_VERIFYHOST, 0);
 	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
+
+	setopt(CURLOPT_FORBID_REUSE, TRUE);
 
 	setoptString(CURLOPT_URL, url);
 
