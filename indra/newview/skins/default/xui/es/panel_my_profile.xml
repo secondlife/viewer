@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Perfil" name="panel_profile">
 	<string name="no_partner_text" value="Ninguno/a"/>
+	<string name="no_group_text" value="Ninguno"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<icon label="" name="2nd_life_edit_icon" tool_tip="Pulsa el botón Editar el perfil para cambiar la imagen"/>
-			</panel>
-			<panel name="first_life_image_panel">
-				<icon label="" name="real_world_edit_icon" tool_tip="Pulsa el botón Editar el perfil para cambiar la imagen"/>
-				<text name="title_rw_descr_text" value="Mundo real:"/>
-			</panel>
-			<text name="me_homepage_text">
-				Página web:
-			</text>
-			<text name="title_member_text" value="Miembro desde:"/>
-			<text name="title_acc_status_text" value="Estado de la cuenta:"/>
-			<text name="acc_status_text" value="Residente. No ha aportado información de pago."/>
-			<text name="title_partner_text" value="Compañero/a:"/>
-			<text name="title_groups_text" value="Grupos:"/>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="Añadir como amigo" name="add_friend"/>
-		<button label="MI" name="im"/>
-		<button label="Llamada" name="call"/>
-		<button label="Mapa" name="show_on_map_btn"/>
-		<button label="Teleporte" name="teleport"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="Editar el perfil" name="edit_profile_btn" tool_tip="Edita tu información personal"/>
-		<button label="Editar la apariencia" name="edit_appearance_btn" tool_tip="Crea o edita tu apariencia: físico, ropas, etc."/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="scroll_content_panel">
+					<panel name="second_life_image_panel">
+						<icon label="" name="2nd_life_edit_icon" tool_tip="Pulsa el botón Editar el perfil para cambiar la imagen"/>
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<icon label="" name="real_world_edit_icon" tool_tip="Pulsa el botón Editar el perfil para cambiar la imagen"/>
+						<text name="title_rw_descr_text" value="Mundo real:"/>
+					</panel>
+					<text name="title_member_text" value="Residente desde:"/>
+					<text name="title_acc_status_text" value="Estado de la cuenta:"/>
+					<text name="title_partner_text" value="Compañero/a:"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(obteniendo)" name="partner_text"/>
+					</panel>
+					<text name="title_groups_text" value="Grupos:"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="Editar el perfil" name="edit_profile_btn" tool_tip="Modifica tu información personal"/>
+			<button label="Modificar la apariencia" name="edit_appearance_btn" tool_tip="Crea o modifica tu apariencia: tu físico, ropas, etc."/>
+		</layout_panel>
+	</layout_stack>
 </panel>

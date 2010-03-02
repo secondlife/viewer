@@ -69,12 +69,21 @@ bool LLAgentAccess::isGodlike() const
 #endif
 }
 
+bool LLAgentAccess::isGodlikeWithoutAdminMenuFakery() const
+{
+#ifdef HACKED_GODLIKE_VIEWER
+	return true;
+#else
+	return mGodLevel > GOD_NOT;
+#endif
+}
+
 U8 LLAgentAccess::getGodLevel() const
 {
 #ifdef HACKED_GODLIKE_VIEWER
 	return GOD_MAINTENANCE;
 #else
-	if(mAdminOverride) return GOD_FULL;
+	if(mAdminOverride) return GOD_FULL; // :(
 	return mGodLevel;
 #endif
 }

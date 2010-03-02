@@ -211,22 +211,25 @@ void LLSysWellWindow::reshapeWindow()
 	// it includes height from floater top to list top and from floater bottom and list bottom
 	static S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
 
-	S32 notif_list_height = mMessageList->getItemsRect().getHeight() + 2 * mMessageList->getBorderWidth();
-
-	LLRect curRect = getRect();
-
-	S32 new_window_height = notif_list_height + parent_list_delta_height;
-
-	if (new_window_height > MAX_WINDOW_HEIGHT)
+	if (isDocked()) // Don't reshape undocked Well window. See EXT-5715.
 	{
-		new_window_height = MAX_WINDOW_HEIGHT;
-	}
-	S32 newY = curRect.mTop + new_window_height - curRect.getHeight();
-	S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH
+		S32 notif_list_height = mMessageList->getItemsRect().getHeight() + 2 * mMessageList->getBorderWidth();
+
+		LLRect curRect = getRect();
+
+		S32 new_window_height = notif_list_height + parent_list_delta_height;
+
+		if (new_window_height > MAX_WINDOW_HEIGHT)
+		{
+			new_window_height = MAX_WINDOW_HEIGHT;
+		}
+		S32 newY = curRect.mTop + new_window_height - curRect.getHeight();
+		S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH
 			: curRect.getWidth();
-	curRect.setLeftTopAndSize(curRect.mLeft, newY, newWidth, new_window_height);
-	reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
-	setRect(curRect);
+		curRect.setLeftTopAndSize(curRect.mLeft, newY, newWidth, new_window_height);
+		reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
+		setRect(curRect);
+	}
 
 	// update notification channel state
 	// update on a window reshape is important only when a window is visible and docked

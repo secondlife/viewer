@@ -77,7 +77,6 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 	mTurnRightButton(NULL),
 	mMoveUpButton(NULL),
 	mMoveDownButton(NULL),
-	mStopFlyingButton(NULL),
 	mModeActionsPanel(NULL),
 	mCurrentMode(MM_WALK)
 {
@@ -87,6 +86,7 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 BOOL LLFloaterMove::postBuild()
 {
 	setIsChrome(TRUE);
+	setTitleVisible(TRUE); // restore title visibility after chrome applying
 	
 	LLDockableFloater::postBuild();
 	
@@ -112,8 +112,6 @@ BOOL LLFloaterMove::postBuild()
 	mMoveDownButton->setHeldDownCallback(boost::bind(&LLFloaterMove::moveDown, this));
 
 
-	mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
-
 	mModeActionsPanel = getChild<LLPanel>("panel_modes");
 
 	LLButton* btn;
@@ -125,11 +123,6 @@ BOOL LLFloaterMove::postBuild()
 
 	btn = getChild<LLButton>("mode_fly_btn");
 	btn->setCommitCallback(boost::bind(&LLFloaterMove::onFlyButtonClick, this));
-
-	btn = getChild<LLButton>("stop_fly_btn");
-	btn->setCommitCallback(boost::bind(&LLFloaterMove::onStopFlyingButtonClick, this));
-
-
 
 	showFlyControls(false);
 
@@ -304,10 +297,6 @@ void LLFloaterMove::onFlyButtonClick()
 {
 	setMovementMode(MM_FLY);
 }
-void LLFloaterMove::onStopFlyingButtonClick()
-{
-	setMovementMode(gAgent.getAlwaysRun() ? MM_RUN : MM_WALK);
-}
 
 void LLFloaterMove::setMovementMode(const EMovementMode mode)
 {
@@ -353,16 +342,13 @@ void LLFloaterMove::updateButtonsWithMovementMode(const EMovementMode newMode)
 	showFlyControls(MM_FLY == newMode);
 	setModeTooltip(newMode);
 	setModeButtonToggleState(newMode);
+	setModeTitle(newMode);
 }
 
 void LLFloaterMove::showFlyControls(bool bShow)
 {
 	mMoveUpButton->setVisible(bShow);
 	mMoveDownButton->setVisible(bShow);
-
-	// *TODO: mantipov: mStopFlyingButton from the FloaterMove is not used now.
-	// It was not completly removed until functionality is reviewed by LL
-	mStopFlyingButton->setVisible(FALSE);
 }
 
 void LLFloaterMove::initModeTooltips()
@@ -420,11 +406,30 @@ void LLFloaterMove::setModeTooltip(const EMovementMode mode)
 	}
 }
 
+void LLFloaterMove::setModeTitle(const EMovementMode mode)
+{
+	std::string title; 
+	switch(mode)
+	{
+	case MM_WALK:
+		title = getString("walk_title");
+		break;
+	case MM_RUN:
+		title = getString("run_title");
+		break;
+	case MM_FLY:
+		title = getString("fly_title");
+		break;
+	default:
+		// title should be provided for all modes
+		llassert(false);
+		break;
+	}
+	setTitle(title);
+}
+
 /**
  * Updates position of the floater to be center aligned with Move button.
- * 
- * Because Tip floater created as dependent floater this method 
- * must be called before "showQuickTips()" to get Tip floater be positioned at the right side of the floater
  */
 void LLFloaterMove::updatePosition()
 {

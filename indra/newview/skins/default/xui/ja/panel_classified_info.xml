@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_classified_info">
 	<panel.string name="type_mature">
-		控えめ
+		Moderate
 	</panel.string>
 	<panel.string name="type_pg">
-		一般コンテンツ
+		「General」コンテンツ
 	</panel.string>
 	<panel.string name="l$_price">
 		L$ [PRICE]

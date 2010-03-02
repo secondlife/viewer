@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sons" name="Preference Media panel">
 	<slider label="Volume principal" name="System Volume"/>
-	<check_box initial_value="true" label="Couper le son quand minimisé" name="mute_when_minimized"/>
+	<check_box initial_value="true" label="Couper quand minimisé" name="mute_when_minimized"/>
 	<slider label="Boutons" name="UI Volume"/>
 	<slider label="Ambiant" name="Wind Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>

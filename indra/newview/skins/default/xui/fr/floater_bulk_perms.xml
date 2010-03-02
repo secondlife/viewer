@@ -4,7 +4,7 @@
 		La sélection contient des contenus non modifiables.
 	</floater.string>
 	<floater.string name="status_text">
-		Permissions paramétrées sur [NAME]
+		Droits paramétrés sur [NAME]
 	</floater.string>
 	<floater.string name="start_text">
 		Demande de changement des droits lancée...
@@ -33,7 +33,7 @@
 	<button label="√ Tout" label_selected="Tout" name="check_all"/>
 	<button label="Effacer" label_selected="Aucun" name="check_none"/>
 	<text name="newperms">
-		Nouvelles permissions
+		Nouveaux droits
 	</text>
 	<text name="GroupLabel">
 		Groupe :

@@ -31,7 +31,7 @@
       del estado.
 	</text>
 	<text bottom_delta="-31" name="covenant_instructions">
-		Arrastra y suelta una nota para cambiar el contrato de este Estado.
+		Arrastra y suelta una nota para cambiar el contrato de este estado.
 	</text>
 	<text name="region_section_lbl">
 		Región

@@ -1201,10 +1201,10 @@
 		Problème lors du téléchargement
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		Permissions insuffisantes pour télécharger un script.
+		Droits insuffisants pour télécharger un script.
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
-		Permissions insuffisantes pour
+		Droits insuffisants pour
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Échec du téléchargement, erreur inconnue

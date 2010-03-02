@@ -316,7 +316,7 @@ La limite de [MAX_ATTACHMENTS] objets joints a été dépassée. Veuillez commen
 		Vous ne pouvez pas porter cet article car il n&apos;a pas encore été chargé. Veuillez réessayer dans une minute.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		Oups! Vous avez oublié de fournir certaines informations.
+		Zut ! Vous avez oublié de fournir certaines informations.
 Vous devez saisir le nom et le prénom de votre avatar.
 
 Pour entrer dans [SECOND_LIFE], vous devez avoir un compte. Voulez-vous en créer un maintenant ?
@@ -1566,7 +1566,7 @@ En cliquant sur Modifier les préférences, vous pourrez changer votre catégori
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NotAllowedToViewNotecard">
-		Permissions pour afficher la note insuffisantes.
+		Droits pour afficher la note insuffisants.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MissingNotecardAssetID">
@@ -1977,7 +1977,7 @@ Cela risque d&apos;impacter votre mot de passe.
 		Vous n&apos;avez pas le droit de consulter cette note.
 	</notification>
 	<notification name="RezItemNoPermissions">
-		Permissions insuffisantes pour rezzer l&apos;objet.
+		Droits insuffisants pour rezzer l&apos;objet.
 	</notification>
 	<notification name="UnableToLoadNotecard">
 		Impossible de lire les données de la note actuellement.
@@ -1986,7 +1986,7 @@ Cela risque d&apos;impacter votre mot de passe.
 		Script absent de la base de données.
 	</notification>
 	<notification name="ScriptNoPermissions">
-		Permissions insuffisantes pour voir le script.
+		Droits insuffisants pour voir le script.
 	</notification>
 	<notification name="UnableToLoadScript">
 		Impossible de charger le script. Merci de réessayer.

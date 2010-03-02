@@ -1,52 +1,37 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="godtools floater" title="HERRAMIENTAS DE DIOS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Red" name="grid">
-			<button label="Expulsar a todos los usuarios"
-			     label_selected="Expulsar a todos los usuarios" name="Kick all users" />
-			<button label="Vaciar los caches de visibilidad del mapa de la región"
-			     label_selected="Vaciar los caches de visibilidad del mapa de la región"
-			     name="Flush This Region&apos;s Map Visibility Caches" />
+			<button label="Expulsar a todos los usuarios" label_selected="Expulsar a todos los usuarios" name="Kick all users"/>
+			<button label="Vaciar los caches de visibilidad del mapa de la región" label_selected="Vaciar los caches de visibilidad del mapa de la región" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Región" name="region">
 			<text name="Sim Name:">
 				Nombre del Sim:
 			</text>
-			<check_box label="Preludio" name="check prelude"
-			     tool_tip="Defina esté para hacer un preludio de la región." />
-			<check_box label="Sol fijo" name="check fixed sun"
-			     tool_tip="Fijar la posición del sol (así como en Región/Propiedad &gt; Terreno." />
-			<check_box label="Restaurar casa en el teletransporte" name="check reset home"
-			     tool_tip="Cuando el residente sea teletransportado hacia fuera, restaurar su casa para la posición de destino." />
-			<check_box label="Visible" name="check visible"
-			     tool_tip="Defina esté para tornar la región visible a no dioses." />
-			<check_box label="Daño" name="check damage"
-			     tool_tip="Defina esté para activar el daño en esta región." />
-			<check_box label="Bloquear rastreo de tráfico" name="block dwell"
-			     tool_tip="Defina esté para hacer que una región no compute el tráfico." />
-			<check_box label="Bloquear formar terreno" name="block terraform"
-			     tool_tip="Defina esté para no permitir que personas muden la formación del terreno de ellas" />
-			<check_box label="Caja de arena" name="is sandbox"
-			     tool_tip="Activar/desactivar si ésta es una región caja de arena." />
-			<button label="Formar terreno" label_selected="Formar terreno" name="Bake Terrain"
-			     tool_tip="Guardar el terreno actual como patrón." />
-			<button label="Revertir terreno" label_selected="Revertir terreno"
-			     name="Revert Terrain"
-			     tool_tip="Sustituir el terreno actual por el patrón." />
-			<button label="Cambiar terreno" label_selected="Cambiar terreno" name="Swap Terrain"
-			     tool_tip="Cambiar terreno actual por el patrón." />
+			<check_box label="Preludio" name="check prelude" tool_tip="Defina esté para hacer un preludio de la región."/>
+			<check_box label="Sol fijo" name="check fixed sun" tool_tip="Fijar la posición del sol (así como en Región/Propiedad &gt; Terreno."/>
+			<check_box label="Restaurar casa en el teletransporte" name="check reset home" tool_tip="When Resident teleports out, reset their home to the destination position."/>
+			<check_box label="Visible" name="check visible" tool_tip="Defina esté para tornar la región visible a no dioses."/>
+			<check_box label="Daño" name="check damage" tool_tip="Defina esté para activar el daño en esta región."/>
+			<check_box label="Bloquear rastreo de tráfico" name="block dwell" tool_tip="Defina esté para hacer que una región no compute el tráfico."/>
+			<check_box label="Bloquear formar terreno" name="block terraform" tool_tip="Defina esté para no permitir que personas muden la formación del terreno de ellas"/>
+			<check_box label="Caja de arena" name="is sandbox" tool_tip="Activar/desactivar si ésta es una región caja de arena."/>
+			<button label="Formar terreno" label_selected="Formar terreno" name="Bake Terrain" tool_tip="Guardar el terreno actual como patrón."/>
+			<button label="Revertir terreno" label_selected="Revertir terreno" name="Revert Terrain" tool_tip="Sustituir el terreno actual por el patrón."/>
+			<button label="Cambiar terreno" label_selected="Cambiar terreno" name="Swap Terrain" tool_tip="Cambiar terreno actual por el patrón."/>
 			<text name="estate id">
 				ID de la propiedad:
 			</text>
 			<text name="parent id">
 				ID del padre:
 			</text>
-			<line_editor name="parentestate" tool_tip="Ésta es una propiedad padre para esta región" />
+			<line_editor name="parentestate" tool_tip="Ésta es una propiedad padre para esta región"/>
 			<text name="Grid Pos: ">
 				Red Pos:
 			</text>
-			<line_editor name="gridposx" tool_tip="Ésta es la posición x de la reja para esta región" />
-			<line_editor name="gridposy" tool_tip="Ésta es la posición y de la reja para esta región" />
+			<line_editor name="gridposx" tool_tip="Ésta es la posición x de la reja para esta región"/>
+			<line_editor name="gridposy" tool_tip="Ésta es la posición y de la reja para esta región"/>
 			<text name="Redirect to Grid: ">
 				Redireccionar para red:
 			</text>
@@ -56,16 +41,10 @@
 			<text name="land cost text">
 				L$ por m²:
 			</text>
-			<button label="Actualizar" label_selected="Actualizar" name="Refresh"
-			     tool_tip="Haga clic aquí para actualizar la información arriba." />
-			<button label="Aplicar" label_selected="Aplicar" name="Apply"
-			     tool_tip="Haga clic aquí para aplicar cualesquiera de las mudanzas arriba." />
-			<button label="Seleccionar región" label_selected="Seleccionar región"
-			     name="Select Region"
-			     tool_tip="Seleccione toda la región con esta herramienta de terreno." />
-			<button label="Guardado automático ahora" label_selected="Guardado automático ahora"
-			     name="Autosave now"
-			     tool_tip="Guardar estado con gzip en el directorio de guardado automático." />
+			<button label="Actualizar" label_selected="Actualizar" name="Refresh" tool_tip="Haga clic aquí para actualizar la información arriba."/>
+			<button label="Aplicar" label_selected="Aplicar" name="Apply" tool_tip="Haga clic aquí para aplicar cualesquiera de las mudanzas arriba."/>
+			<button label="Seleccionar región" label_selected="Seleccionar región" name="Select Region" tool_tip="Seleccione toda la región con esta herramienta de terreno."/>
+			<button label="Guardado automático ahora" label_selected="Guardado automático ahora" name="Autosave now" tool_tip="Guardar estado con gzip en el directorio de guardado automático."/>
 		</panel>
 		<panel label="Objetos" name="objects">
 			<text name="Sim Name:">
@@ -74,62 +53,42 @@
 			<text name="region name">
 				Galés
 			</text>
-			<check_box label="Desactivar scripts" name="disable scripts"
-			     tool_tip="Defina esté para desactivar todos los scripts en esta región" />
-			<check_box label="Desactivar colisiones" name="disable collisions"
-			     tool_tip="Defina esté para desactivar las colisiones entre no agentes en esta región" />
-			<check_box label="Desactivar física" name="disable physics"
-			     tool_tip="Defina esté para desactivar toda la física en esta región" />
-			<button label="Aplicar" label_selected="Aplicar" name="Apply"
-			     tool_tip="Haga clic aquí para aplicar cualesquiera de las mudanzas arriba." />
-			<button label="Definir blanco" label_selected="Definir blanco" name="Set Target"
-			     tool_tip="Ajuste el avatar del blanco para la exclusión del objeto." />
+			<check_box label="Desactivar scripts" name="disable scripts" tool_tip="Defina esté para desactivar todos los scripts en esta región"/>
+			<check_box label="Desactivar colisiones" name="disable collisions" tool_tip="Defina esté para desactivar las colisiones entre no agentes en esta región"/>
+			<check_box label="Desactivar física" name="disable physics" tool_tip="Defina esté para desactivar toda la física en esta región"/>
+			<button label="Aplicar" label_selected="Aplicar" name="Apply" tool_tip="Haga clic aquí para aplicar cualesquiera de las mudanzas arriba."/>
+			<button label="Definir blanco" label_selected="Definir blanco" name="Set Target" tool_tip="Ajuste el avatar del blanco para la exclusión del objeto."/>
 			<text name="target_avatar_name">
 				(sin blanco)
 			</text>
-			<button label="Borrar objetos con script del blanco en otros terrenos"
-			     label_selected="Borrar objetos con script del blanco en otros terrenos"
-			     name="Delete Target&apos;s Scripted Objects On Others Land"
-			     tool_tip="Borrar todos los objetos con script pertenecientes al blanco en el terreno que no pertenece a él. Objetos (sin copia) retornarán." />
-			<button label="Borrar objetos con script del blanco en *TODOS* los terrenos"
-			     label_selected="Borrar objetos con script del blanco en *TODOS* los terrenos"
-			     name="Delete Target&apos;s Scripted Objects On *Any* Land"
-			     tool_tip="Borrar todos los objetos con script pertenecientes al blanco en esta región. Objetos (sin copia) retornarán." />
-			<button label="Borrar *TODOS* los objetos del blanco"
-			     label_selected="Borrar *TODOS* los objetos del blanco"
-			     name="Delete *ALL* Of Target&apos;s Objects"
-			     tool_tip="Borrar todos los objetos pertenecientes al blanco en esta región. Objetos (sin copia) retornarán." />
-			<button label="Obtener top de colisionadores"
-			     label_selected="Obtener top de colisionadores" name="Get Top Colliders"
-			     tool_tip="Coger lista de objetos que están recibiendo narrowphase callbacks." />
-			<button label="Obtener top de scripts" label_selected="Obtener top de scripts"
-			     name="Get Top Scripts"
-			     tool_tip="Coger lista de objetos que están consumiendo más tiempo de ejecución de scripts." />
-			<button label="Compilador de scripts" label_selected="Compilador de scripts"
-			     name="Scripts digest"
-			     tool_tip="Coger una lista de todos los scripts y sus respectivos números de ocurrencia." />
+			<button label="Borrar objetos con script del blanco en otros terrenos" label_selected="Borrar objetos con script del blanco en otros terrenos" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Borrar todos los objetos con script pertenecientes al blanco en el terreno que no pertenece a él. Objetos (sin copia) retornarán."/>
+			<button label="Borrar objetos con script del blanco en *TODOS* los terrenos" label_selected="Borrar objetos con script del blanco en *TODOS* los terrenos" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Borrar todos los objetos con script pertenecientes al blanco en esta región. Objetos (sin copia) retornarán."/>
+			<button label="Borrar *TODOS* los objetos del blanco" label_selected="Borrar *TODOS* los objetos del blanco" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Borrar todos los objetos pertenecientes al blanco en esta región. Objetos (sin copia) retornarán."/>
+			<button label="Obtener top de colisionadores" label_selected="Obtener top de colisionadores" name="Get Top Colliders" tool_tip="Coger lista de objetos que están recibiendo narrowphase callbacks."/>
+			<button label="Obtener top de scripts" label_selected="Obtener top de scripts" name="Get Top Scripts" tool_tip="Coger lista de objetos que están consumiendo más tiempo de ejecución de scripts."/>
+			<button label="Compilador de scripts" label_selected="Compilador de scripts" name="Scripts digest" tool_tip="Coger una lista de todos los scripts y sus respectivos números de ocurrencia."/>
 		</panel>
 		<panel label="Requerir" name="request">
 			<text name="Destination:">
 				Destino:
 			</text>
 			<combo_box name="destination">
-				<combo_box.item name="item1" label="Selección" />
-				<combo_box.item name="item2" label="Agente de región" />
+				<combo_box.item label="Selección" name="item1"/>
+				<combo_box.item label="Agente de región" name="item2"/>
 			</combo_box>
 			<text name="Request:">
 				Exigencia:
 			</text>
 			<combo_box name="request">
-				<combo_box.item name="item1" label="colisionadores &lt;pasos&gt;" />
-				<combo_box.item name="item2" label="scripts &lt;contar&gt;,&lt;patrón opcional&gt;" />
-				<combo_box.item name="item3" label="objetos &lt;patrón&gt;" />
-				<combo_box.item name="item4" label="rez &lt;asset_id&gt;" />
+				<combo_box.item label="colisionadores &lt;pasos&gt;" name="item1"/>
+				<combo_box.item label="scripts &lt;contar&gt;,&lt;patrón opcional&gt;" name="item2"/>
+				<combo_box.item label="objetos &lt;patrón&gt;" name="item3"/>
+				<combo_box.item label="rez &lt;asset_id&gt;" name="item4"/>
 			</combo_box>
 			<text name="Parameter:">
 				Parámetro:
 			</text>
-			<button label="Hacer exigencia" label_selected="Hacer exigencia" name="Make Request" />
+			<button label="Hacer exigencia" label_selected="Hacer exigencia" name="Make Request"/>
 		</panel>
 	</tab_container>
 </floater>

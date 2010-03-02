@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="APARIENCIA" width="527">
 	<tab_container name="customize tab container" width="525">
-		<placeholder label="Partes del cuerpo" name="body_parts_placeholder"/>
+		<text label="Partes del cuerpo" name="body_parts_placeholder">
+			Partes del cuerpo
+		</text>
 		<panel label="Forma" name="Shape" width="389">
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 			<button label="Cuerpo" label_selected="Cuerpo" name="Body"/>
@@ -14,8 +16,8 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Piernas" label_selected="Piernas" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item label="Mujer" name="radio"/>
-				<radio_item label="Varón" name="radio2"/>
+				<radio_item label="Mujer" name="radio" value="0"/>
+				<radio_item label="Varón" name="radio2" value="1"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -33,8 +35,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase una forma nueva arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una anatomía nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -67,8 +68,7 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otra piel arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una piel nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -105,8 +105,7 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				Situado en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otro pelo arrastrando uno desde su inventario hasta su
-avatar. O parta de cero creando uno nueva y vistiéndolo.
+				Ponte un pelo nuevo arrastrándolo desde tu inventario hasta tu avatar. O bien crea uno nuevo partiendo de cero y vístetelo.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -137,8 +136,7 @@ avatar. O parta de cero creando uno nueva y vistiéndolo.
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otros ojos arrastrando unos desde su inventario hasta su
-avatar. O parta de cero creando unos nuevos y vistiéndoselos.
+				Ponte unos ojos nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -152,12 +150,14 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
-		<placeholder label="Ropa" name="clothes_placeholder"/>
+		<text label="Ropa" name="clothes_placeholder">
+			Ropas
+		</text>
 		<panel label="Camisa" name="Shirt">
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear una falda nueva" label_selected="Crear una falda nueva" name="Create New"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
+			<button label="Crear una falda nueva" label_selected="Crear una falda nueva" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
@@ -177,8 +177,7 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otra camisa arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una camisa nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -190,8 +189,8 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 		<panel label="Pantalones" name="Pants">
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear unos pantalones nuevos" label_selected="Crear unos pantalones nuevos" name="Create New" width="185"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
+			<button label="Crear unos pantalones nuevos" label_selected="Crear unos pantalones nuevos" name="Create New" width="185"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
@@ -211,8 +210,7 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otros pantalones arrastrando unos desde su inventario hasta su
-avatar. O parta de cero creando unos nuevos y vistiéndoselos.
+				Ponte unos pantalones nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -238,9 +236,9 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otros zapatos arrastrando unos desde su inventario hasta su
-avatar. O parta de cero creando unos nuevos y vistiéndoselos.
+				Ponte unos zapatos nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
 			</text>
+			<button label="Crear unos zapatos nuevos" label_selected="Crear unos zapatos nuevos" name="Create New"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -249,7 +247,6 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear unos zapatos nuevos" label_selected="Crear unos zapatos nuevos" name="Create New"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
@@ -272,9 +269,9 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otros calcetines arrastrando unos desde su inventario hasta su
-avatar. O parta de cero creando unos nuevos y vistiéndoselos.
+				Ponte unos calcetines nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
 			</text>
+			<button label="Crear unos calcetines nuevos" label_selected="Crear unos calcetines nuevos" name="Create New" width="185"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -283,7 +280,6 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear unos calcetines nuevos" label_selected="Crear unos calcetines nuevos" name="Create New" width="185"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
@@ -306,9 +302,9 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otra chaqueta arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una chaqueta nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
+			<button label="Crear una chaqueta nueva" label_selected="Crear una chaqueta nueva" name="Create New"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -318,7 +314,6 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<texture_picker label="Tela superior" name="Upper Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<texture_picker label="Tela inferior" name="Lower Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear una chaqueta nueva" label_selected="Crear una chaqueta nueva" name="Create New"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
@@ -341,9 +336,9 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otros guantes arrastrando unos desde su inventario hasta su
-avatar. O parta de cero creando unos nuevos y vistiéndoselos.
+				Ponte unos guantes nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
 			</text>
+			<button label="Crear unos guantes nuevos" label_selected="Crear unos guantes nuevos" name="Create New"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -352,7 +347,6 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear unos guantes nuevos" label_selected="Crear unos guantes nuevos" name="Create New"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
@@ -375,9 +369,9 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otra camiseta arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una camiseta nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
+			<button label="Crear una camiseta nueva" label_selected="Crear una camiseta nueva" name="Create New"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -386,7 +380,6 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear una camiseta nueva" label_selected="Crear una camiseta nueva" name="Create New"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
@@ -409,9 +402,9 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otra ropa interior arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una ropa interior nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
+			<button label="Crear una ropa interior nueva" label_selected="Crear una ropa interior nueva" name="Create New" width="185"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -420,7 +413,6 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear una ropa interior nueva" label_selected="Crear una ropa interior nueva" name="Create New" width="185"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
@@ -443,9 +435,9 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Póngase otra falda arrastrando una desde su inventario hasta su
-avatar. O parta de cero creando una nueva y vistiéndola.
+				Ponte una falda nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
 			</text>
+			<button label="Crear una falda nueva" label_selected="Crear una falda nueva" name="Create New"/>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
@@ -454,48 +446,10 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulse para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
-			<button label="Crear una falda nueva" label_selected="Crear una falda nueva" name="Create New"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
-		</panel>
-		<panel label="Alfa" name="Alpha">
-			<text name="title">
-				[DESC]
-			</text>
-			<text name="title_no_modify">
-				[DESC]: no modificable
-			</text>
-			<text name="title_loading">
-				[DESC]: cargando...
-			</text>
-			<text name="title_not_worn">
-				[DESC]: no puesto
-			</text>
-			<text name="path">
-				Situado en [PATH]
-			</text>
-			<text name="not worn instructions">
-				Pon una capa Alfa nueva arrastrándola desde tu inventario a tu avatar.
-O crea una nueva y vístetela.
-			</text>
-			<text name="no modify instructions">
-				No tienes permiso para modificar este artículo.
-			</text>
-			<text name="Item Action Label">
-				Alfa:
-			</text>
-			<texture_picker label="Alfa inferior" name="Lower Alpha" tool_tip="Pulsa para elegir una imagen"/>
-			<texture_picker label="Alfa superior" name="Upper Alpha" tool_tip="Pulsa para elegir una imagen"/>
-			<texture_picker label="Alfa de la cabeza" name="Head Alpha" tool_tip="Pulsa para elegir una imagen"/>
-			<texture_picker label="Alfa de los ojos" name="Eye Alpha" tool_tip="Pulsa para elegir una imagen"/>
-			<texture_picker label="Alfa del pelo" name="Hair Alpha" tool_tip="Pulsa para elegir una imagen"/>
-			<button label="Crear una capa Alfa nueva" label_selected="Crear una capa Alfa nueva" name="Create New"/>
-			<button label="Quitarme" label_selected="Quitarme" name="Take Off"/>
-			<button label="Guardar" label_selected="Guardar" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
-			<button label="Revertir" label_selected="Revertir" name="Revert"/>
 		</panel>
 		<panel label="Tatuaje" name="Tattoo">
 			<text name="title">
@@ -514,9 +468,9 @@ O crea una nueva y vístetela.
 				Situado en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Pon un tatuaje nuevo arrastrándolo desde tu inventario a tu avatar.
-O crea una nueva y vístetela.
+				Ponte un tatuaje nuevo arrastrándolo desde tu inventario hasta tu avatar. O bien crea uno nuevo partiendo de cero y vístetelo.
 			</text>
+			<button label="Crear un tatuaje nuevo" label_selected="Crear un tatuaje nuevo" name="Create New"/>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este artículo.
 			</text>
@@ -526,7 +480,42 @@ O crea una nueva y vístetela.
 			<texture_picker label="Tatuaje de la cabeza" name="Head Tattoo" tool_tip="Pulsa para elegir una imagen"/>
 			<texture_picker label="Tatuaje superior" name="Upper Tattoo" tool_tip="Pulsa para elegir una imagen"/>
 			<texture_picker label="Tatuaje inferior" name="Lower Tattoo" tool_tip="Pulsa para elegir una imagen"/>
-			<button label="Crear un tatuaje nuevo" label_selected="Crear un tatuaje nuevo" name="Create New"/>
+			<button label="Quitarme" label_selected="Quitarme" name="Take Off"/>
+			<button label="Guardar" label_selected="Guardar" name="Save"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
+			<button label="Revertir" label_selected="Revertir" name="Revert"/>
+		</panel>
+		<panel label="Alfa" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: no modificable
+			</text>
+			<text name="title_loading">
+				[DESC]: cargando...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: no puesto
+			</text>
+			<text name="path">
+				Situado en [PATH]
+			</text>
+			<text name="not worn instructions">
+				Ponte una capa Alfa nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+			</text>
+			<button label="Crear una capa Alfa nueva" label_selected="Crear una capa Alfa nueva" name="Create New"/>
+			<text name="no modify instructions">
+				No tienes permiso para modificar este artículo.
+			</text>
+			<text name="Item Action Label">
+				Alfa:
+			</text>
+			<texture_picker label="Alfa inferior" name="Lower Alpha" tool_tip="Pulsa para elegir una imagen"/>
+			<texture_picker label="Alfa superior" name="Upper Alpha" tool_tip="Pulsa para elegir una imagen"/>
+			<texture_picker label="Alfa de la cabeza" name="Head Alpha" tool_tip="Pulsa para elegir una imagen"/>
+			<texture_picker label="Alfa de los ojos" name="Eye Alpha" tool_tip="Pulsa para elegir una imagen"/>
+			<texture_picker label="Alfa del pelo" name="Hair Alpha" tool_tip="Pulsa para elegir una imagen"/>
 			<button label="Quitarme" label_selected="Quitarme" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" name="Save"/>
 			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
@@ -534,6 +523,7 @@ O crea una nueva y vístetela.
 		</panel>
 	</tab_container>
 	<scroll_container left="230" name="panel_container"/>
+	<button label="Información del script" label_selected="Información del script" name="script_info" tool_tip="Mostrar los scripts anexados a tu avatar"/>
 	<button label="Hacer un vestuario" label_selected="Hacer un vestuario" name="make_outfit_btn"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

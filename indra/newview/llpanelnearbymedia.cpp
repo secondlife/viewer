@@ -574,13 +574,16 @@ void LLPanelNearByMedia::refreshParcelItems()
 	if (NULL != mParcelMediaItem)
 	{
 		std::string name, url, tooltip;
-		getNameAndUrlHelper(LLViewerParcelMedia::getParcelMedia(), name, url, "");
-		if (name.empty() || name == url)
+		if (!LLViewerParcelMgr::getInstance()->getAgentParcel()->getObscureMedia())
 		{
-			tooltip = url;
-		}
-		else {
-			tooltip = name + " : " + url;
+			getNameAndUrlHelper(LLViewerParcelMedia::getParcelMedia(), name, url, "");
+			if (name.empty() || name == url)
+			{
+				tooltip = url;
+			}
+			else {
+				tooltip = name + " : " + url;
+			}
 		}
 		LLViewerMediaImpl *impl = LLViewerParcelMedia::getParcelMedia();
 		updateListItem(mParcelMediaItem,
@@ -617,9 +620,14 @@ void LLPanelNearByMedia::refreshParcelItems()
 	{
 		bool is_playing = LLViewerMedia::isParcelAudioPlaying();
 	
+		std::string url;
+		if (!LLViewerParcelMgr::getInstance()->getAgentParcel()->getObscureMusic())
+		{
+			url = LLViewerMedia::getParcelAudioURL();
+		}
 		updateListItem(mParcelAudioItem,
 					   mParcelAudioName,
-					   LLViewerMedia::getParcelAudioURL(),
+					   url,
 					   -1, // Proximity after Parcel Media, but closer than anything else
 					   (!is_playing),
 					   is_playing,

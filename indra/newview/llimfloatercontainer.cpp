@@ -96,29 +96,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLUUID session_id = floaterp->getKey();
 
-	LLIconCtrl* icon = 0;
-
-	if(gAgent.isInGroup(session_id, TRUE))
-	{
-		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
-		icon_params.group_id = session_id;
-		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
-
-		mSessions[session_id] = floaterp;
-		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
-	}
-	else
-	{
-		LLUUID avatar_id = LLIMModel::getInstance()->getOtherParticipantID(session_id);
-
-		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
-		icon_params.avatar_id = avatar_id;
-		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
-
-		mSessions[session_id] = floaterp;
-		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
-	}
-	mTabContainer->setTabImage(floaterp, icon);
+	floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
+	mSessions[session_id] = floaterp;
 }
 
 void LLIMFloaterContainer::onCloseFloater(LLUUID& id)

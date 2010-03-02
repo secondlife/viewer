@@ -106,6 +106,9 @@ La duración máxima de una animación es de [MAX_LENGTH] segundos.
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		No se puede leer el nombre del gesto.
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		Nombre incorrecto de &apos;root joint&apos;, usa &quot;hip&quot;.
+	</floater.string>
 	<text name="name_label">
 		Nombre:
 	</text>

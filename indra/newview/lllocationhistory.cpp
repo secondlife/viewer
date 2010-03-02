@@ -63,6 +63,7 @@ void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
 		mItems.erase(mItems.begin(), mItems.end()-max_items);
 	}
 	llassert((S32)mItems.size() <= max_items);
+	mChangedSignal(ADD);
 }
 
 /*
@@ -87,9 +88,10 @@ bool LLLocationHistory::touchItem(const LLLocationHistoryItem& item) {
 void LLLocationHistory::removeItems()
 {
 	mItems.clear();
+	mChangedSignal(CLEAR);
 }
 
-bool LLLocationHistory::getMatchingItems(std::string substring, location_list_t& result) const
+bool LLLocationHistory::getMatchingItems(const std::string& substring, location_list_t& result) const
 {
 	// *TODO: an STL algorithm would look nicer
 	result.clear();
@@ -160,7 +162,7 @@ void LLLocationHistory::load()
 		return;
 	}
 	
-	removeItems();
+	mItems.clear();// need to use a direct call of clear() method to avoid signal invocation
 	
 	// add each line in the file to the list
 	std::string line;
@@ -179,5 +181,5 @@ void LLLocationHistory::load()
 
 	file.close();
 	
-	mLoadedSignal();
+	mChangedSignal(LOAD);
 }

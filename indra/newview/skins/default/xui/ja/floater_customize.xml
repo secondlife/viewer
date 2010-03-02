@@ -522,7 +522,7 @@
 			<button label="元に戻す" label_selected="元に戻す" name="Revert"/>
 		</panel>
 	</tab_container>
-	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info" tool_tip="あなたのアバターに付いているスクリプトを表示する"/>
+	<button label="スクリプト情報" label_selected="スクリプト情報" name="script_info" tool_tip="あなたのアバターに付いているスクリプトを表示します"/>
 	<button label="アウトフィット作成" label_selected="アウトフィット作成" name="make_outfit_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

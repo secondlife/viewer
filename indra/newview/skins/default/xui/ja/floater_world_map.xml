@@ -37,15 +37,15 @@
 		</text>
 		<check_box label="PG" name="event_chk"/>
 		<text name="pg_label">
-			一般
+			General
 		</text>
 		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">
-			控えめ
+			Moderate
 		</text>
 		<check_box label="Adult" name="event_adult_chk"/>
 		<text name="adult_label">
-			アダルト
+			Adult
 		</text>
 	</panel>
 	<panel>

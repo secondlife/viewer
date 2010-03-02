@@ -112,7 +112,7 @@
          layout="topleft"
          left_pad="15"
          name="toggle_overlap_panel"
-         tool_tip="Toggle highlighting and display panel for overlapping elements; right click an element to select it for this feature.  The selected element is marked by a red rectangle."
+         tool_tip="Toggle highlighting and display panel for overlapping elements; right-click an element to select it for this feature.  The selected element is marked by a red rectangle."
          top_delta="0"
          width="30" />
         <text

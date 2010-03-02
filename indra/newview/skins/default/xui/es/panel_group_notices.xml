@@ -36,7 +36,7 @@ El máximo es de 200 por día y grupo.
 		<text name="string">
 			Arrastra y suelta aquí un ítem para adjuntarlo:
 		</text>
-		<button label="Quitar" label_selected="Remover lo anexado" name="remove_attachment"/>
+		<button label="Quitar" label_selected="Remover lo anexado" name="remove_attachment" tool_tip="Quitar el adjunto de tu aviso"/>
 		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Para enviar un ítem con el aviso, arrástralo desde tu inventario hasta este cajetín. Para poder adjuntarlo, debes tener permiso para copiarlo y transferirlo."/>
 	</panel>

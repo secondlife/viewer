@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
 	<menu_item_call label="Levantarse" name="Stand Up"/>
-	<context_menu label="Quitarse &gt;" name="Take Off &gt;">
-		<context_menu label="Ropa &gt;" name="Clothes &gt;">
+	<context_menu label="Quitarse  ▶" name="Take Off &gt;">
+		<context_menu label="Ropas  ▶" name="Clothes &gt;">
 			<menu_item_call label="Camisa" name="Shirt"/>
 			<menu_item_call label="Pantalón" name="Pants"/>
 			<menu_item_call label="Falda" name="Skirt"/>
@@ -16,8 +16,8 @@
 			<menu_item_call label="Alfa" name="Self Alpha"/>
 			<menu_item_call label="Toda la ropa" name="All Clothes"/>
 		</context_menu>
-		<context_menu label="HUD &gt;" name="Object Detach HUD"/>
-		<context_menu label="Quitarse &gt;" name="Object Detach"/>
+		<context_menu label="HUD  ▶" name="Object Detach HUD"/>
+		<context_menu label="Desanexar  ▶" name="Object Detach"/>
 		<menu_item_call label="Quitarse todo" name="Detach All"/>
 	</context_menu>
 	<menu_item_call label="Mi apariencia" name="Appearance..."/>

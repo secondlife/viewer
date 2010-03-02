@@ -51,12 +51,12 @@
      image_unselected="spacer35.tga"
      image_pressed="spacer35.tga"
      height="16"
-     right="-204"
+     right="-210"
      label_shadow="false"
      name="buycurrency"
      tool_tip="My Balance"
      top="3"
-     width="100" />
+     width="110" />
     <button
      auto_resize="true"
      halign="right"
@@ -66,7 +66,7 @@
      image_unselected="BuyArrow_Over"
      image_pressed="BuyArrow_Press"
      height="16"
-     label="Buy L$"
+     label="Buy"
      label_color="EmphasisColor"
      left_pad="0"
      label_shadow="false"
@@ -93,21 +93,21 @@
     </text>
     <button
      follows="right|top"
-     height="15"
+     height="16"
      image_selected="Pause_Off"
      image_unselected="Play_Off"
      image_pressed="Play_Press"
      image_pressed_selected="Pause_Press"
      is_toggle="true"
      left_pad="15"
-     top="2"
+     top="1"
      name="media_toggle_btn"
      tool_tip="Start/Stop All Media (Music, Video, Web pages)"
      width="16" >
     </button>
     <button
      follows="right|top"
-     height="15"
+     height="16"
      image_selected="AudioMute_Off"
      image_pressed="Audio_Press"
      image_unselected="Audio_Off"

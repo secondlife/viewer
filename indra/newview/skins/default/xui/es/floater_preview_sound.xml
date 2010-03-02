@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Descripción:
 	</text>
-	<button label="Tocar en el mundo" label_selected="Tocar en el mundo" name="Sound play btn" tool_tip="Ejecutar este sonido de modo que lo oigan todos"/>
+	<button label="Escuchar en el mundo" label_selected="Escuchar en el mundo" name="Sound play btn" tool_tip="Ejecutar este sonido de modo que lo oigan todos"/>
 	<button label="Oír sólo uno mismo" label_selected="Oír sólo uno mismo" name="Sound audition btn" tool_tip="Ejecutar este sonido de modo que sólo tú lo oigas"/>
 </floater>

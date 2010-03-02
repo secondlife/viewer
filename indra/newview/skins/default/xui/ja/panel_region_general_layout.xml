@@ -30,10 +30,10 @@
 	<text label="レーティング区分" name="access_text">
 		レーティング区分：
 	</text>
-	<combo_box label="控えめ" name="access_combo">
-		<combo_box.item label="アダルト" name="Adult"/>
-		<combo_box.item label="控えめ" name="Mature"/>
-		<combo_box.item label="一般" name="PG"/>
+	<combo_box label="Moderate" name="access_combo">
+		<combo_box.item label="Adult" name="Adult"/>
+		<combo_box.item label="Moderate" name="Mature"/>
+		<combo_box.item label="General" name="PG"/>
 	</combo_box>
 	<button label="適用" name="apply_btn"/>
 	<button label="ユーザー1名をホームにテレポート..." name="kick_btn"/>

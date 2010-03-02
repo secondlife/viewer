@@ -359,9 +359,7 @@ BOOL LLFloaterWorldMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if (!isMinimized() && isFrontmost())
 	{
-		LLRect area;
-		childGetRect("search_results", area);
-		if(!area.pointInRect(x, y))
+		if(mPanel->pointInView(x, y))
 		{
 			F32 slider_value = (F32)childGetValue("zoom slider").asReal();
 			slider_value += ((F32)clicks * -0.3333f);

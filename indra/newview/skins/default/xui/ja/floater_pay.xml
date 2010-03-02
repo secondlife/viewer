@@ -20,6 +20,6 @@
 	<text name="amount text">
 		金額を指定：
 	</text>
-	<button label="支払い" label_selected="支払い" name="pay btn"/>
+	<button label="支払う" label_selected="支払う" name="pay btn"/>
 	<button label="取り消し" label_selected="取り消し" name="cancel btn"/>
 </floater>

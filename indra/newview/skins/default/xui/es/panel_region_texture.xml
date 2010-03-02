@@ -48,7 +48,7 @@
 		Estos valores representan la gama de mezclas para las texturas superiores.
 	</text>
 	<text name="height_text_lbl11">
-		Midiendo en metros, el valor BAJA es la altura MÁXIMA de la textura #1, y el valor ALTA es la altura MÍNIMA de la textura #4.
+		Midiendo en metros, el valor BAJO es la altura MÁXIMA de la textura #1, y el valor ALTO es la altura MÍNIMA de la textura #4.
 	</text>
 	<text name="height_text_lbl12">
 		y el valor ALTA es la altura MÍNIMA de la textura #4.

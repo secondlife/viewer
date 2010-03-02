@@ -58,6 +58,7 @@
 #include "llviewercontrol.h"
 #include "llweb.h"
 #include "llworldmap.h"
+#include "llworldmapmessage.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 
@@ -215,16 +216,15 @@ void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		std::string desc = floater->mEventInfo.mSimName + llformat(" (%d, %d, %d)", region_x, region_y, region_z);
 		floater->mTBLocation->setText(desc);
 
-		if (floater->mEventInfo.mEventFlags & EVENT_FLAG_MATURE)
-		{
-			floater->childSetVisible("event_mature_yes", TRUE);
-			floater->childSetVisible("event_mature_no", FALSE);
-		}
-		else
-		{
-			floater->childSetVisible("event_mature_yes", FALSE);
-			floater->childSetVisible("event_mature_no", TRUE);
-		}
+		floater->childSetVisible("rating_icon_m", FALSE);
+		floater->childSetVisible("rating_icon_r", FALSE);
+		floater->childSetVisible("rating_icon_pg", FALSE);
+		floater->childSetValue("rating_value", floater->getString("unknown"));
+
+		//for some reason there's not adult flags for now, so see if region is adult and then
+		//set flags
+		LLWorldMapMessage::url_callback_t cb = boost::bind(	&regionInfoCallback, floater->mEventInfo.mID, _1);
+		LLWorldMapMessage::getInstance()->sendNamedRegionRequest(floater->mEventInfo.mSimName, cb, std::string("unused"), false);
 
 		if (floater->mEventInfo.mUnixTime < time_corrected())
 		{
@@ -249,6 +249,39 @@ void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 	}
 }
 
+//static 
+void LLFloaterEvent::regionInfoCallback(U32 event_id, U64 region_handle)
+{
+	LLSimInfo* sim_info = LLWorldMap::getInstance()->simInfoFromHandle(region_handle);
+	LLFloaterEvent* floater = LLFloaterReg::getTypedInstance<LLFloaterEvent>("event");
+
+	if (sim_info && floater && (event_id == floater->getEventID()))
+	{
+		// update the event with the maturity info
+		if (sim_info->isAdult())
+		{
+			floater->childSetVisible("rating_icon_m", FALSE);
+			floater->childSetVisible("rating_icon_r", TRUE);
+			floater->childSetVisible("rating_icon_pg", FALSE);
+			floater->childSetValue("rating_value", floater->getString("adult"));
+
+		}
+		else if (floater->mEventInfo.mEventFlags & EVENT_FLAG_MATURE)
+		{
+			floater->childSetVisible("rating_icon_m", TRUE);
+			floater->childSetVisible("rating_icon_r", FALSE);
+			floater->childSetVisible("rating_icon_pg", FALSE);
+			floater->childSetValue("rating_value", floater->getString("moderate"));
+		}
+		else
+		{
+			floater->childSetVisible("rating_icon_m", FALSE);
+			floater->childSetVisible("rating_icon_r", FALSE);
+			floater->childSetVisible("rating_icon_pg", TRUE);
+			floater->childSetValue("rating_value", floater->getString("general"));
+		}
+	}
+}
 
 void LLFloaterEvent::draw()
 {

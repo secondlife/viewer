@@ -87,8 +87,8 @@
 			Detalles de la iluminación:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Sólo el Sol y la Luna" name="SunMoon"/>
-			<radio_item label="Puntos de luz cercanos" name="LocalLights"/>
+			<radio_item label="Sólo el Sol y la Luna" name="SunMoon" value="0"/>
+			<radio_item label="Puntos de luz cercanos" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Nivel de detalle del

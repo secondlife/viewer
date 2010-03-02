@@ -479,7 +479,7 @@ BOOL LLPermissions::setNextOwnerBits(const LLUUID& agent, const LLUUID& group, B
 	return ownership;
 }
 
-BOOL LLPermissions::allowOperationBy(PermissionBit op, const LLUUID& requester, const LLUUID& group) const
+bool LLPermissions::allowOperationBy(PermissionBit op, const LLUUID& requester, const LLUUID& group) const
 {
 	if(requester.isNull())
 	{

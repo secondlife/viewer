@@ -1036,7 +1036,6 @@ Unable to write file [[FILE]]
    type="alertmodal">
 Just so you know, your computer does not meet [APP_NAME]&apos;s minimum system requirements. You may experience poor performance. Unfortunately, the [SUPPORT_SITE] can't provide technical support for unsupported system configurations.
 
-MINSPECS
 Visit [_URL] for more information?
     <url option="0" name="url">
 
@@ -5913,7 +5912,8 @@ Are you sure you want to close all IMs?
     <usetemplate
      name="okcancelignore"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="OK"
+     ignoretext="Confirm before I close all IMs"/>
   </notification>
 
   <notification icon="notifytip.tga"

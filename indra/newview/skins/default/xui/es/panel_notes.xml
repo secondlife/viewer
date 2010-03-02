@@ -13,10 +13,10 @@
 			</scroll_container>
 		</panel>
 		<panel name="notes_buttons_panel">
-			<button label="Añadir" name="add_friend" tool_tip="Ofrecer amistad al residente"/>
+			<button label="Añadir como amigo" name="add_friend" tool_tip="Ofrecer amistad a este Residente"/>
 			<button label="MI" name="im" tool_tip="Abrir un mensaje instantáneo"/>
-			<button label="Llamada" name="call" tool_tip="Llamar a este residente"/>
-			<button label="Mapa" name="show_on_map_btn" tool_tip="Ver al residente en el mapa"/>
+			<button label="Llamada" name="call" tool_tip="Llamar a este Residente"/>
+			<button label="Mapa" name="show_on_map_btn" tool_tip="Mostrar al Residente en el mapa"/>
 			<button label="Teleportar" name="teleport" tool_tip="Ofrecer teleporte"/>
 		</panel>
 	</layout_stack>

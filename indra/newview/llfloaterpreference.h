@@ -134,8 +134,9 @@ public:
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
 	void applyResolution();
+	void onChangeMaturity();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
-	void getUIColor(LLUICtrl* ctrl, const LLSD& param);	
+	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	
 	void buildPopupLists();
 	static void refreshSkin(void* data);

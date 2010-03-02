@@ -4,6 +4,6 @@
 	<panel name="chat_caption">
     	<text 
 	name="sender_name" 
-width="170">CHAT PRÈS DE VOUS</text>
+width="170">CHAT PRÈS DE MOI</text>
 	</panel>
 </panel>

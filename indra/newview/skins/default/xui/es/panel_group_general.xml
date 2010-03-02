@@ -11,21 +11,39 @@ Deja el cursor sobre las opciones para ver más ayuda.
 	<panel.string name="incomplete_member_data_str">
 		Recuperando los datos de los miembros
 	</panel.string>
+	<panel name="group_info_top">
+		<texture_picker label="" name="insignia" tool_tip="Pulsa para elegir una imagen"/>
+		<text name="prepend_founded_by">
+			Fundador:
+		</text>
+		<name_box initial_value="(obteniendo)" name="founder_name"/>
+		<text name="join_cost_text">
+			Gratis
+		</text>
+		<button label="¡ENTRA AHORA!" name="btn_join"/>
+	</panel>
 	<text_editor name="charter">
 		Carta del grupo
 	</text_editor>
 	<name_list name="visible_members">
 		<name_list.columns label="Miembro" name="name" relwidth="0.40"/>
 		<name_list.columns label="Etiqueta" name="title" relwidth="0.25"/>
+		<name_list.columns label="Estado" name="status"/>
 	</name_list>
+	<text name="my_group_settngs_label">
+		Yo
+	</text>
 	<text name="active_title_label">
-		Mi etiqueta
+		Mi etiqueta:
 	</text>
 	<combo_box name="active_title" tool_tip="Configura la etiqueta que se verá sobre el nombre de tu avatar cuando tengas activo este grupo."/>
 	<check_box label="Recibir los avisos del grupo" name="receive_notices" tool_tip="Configura si quieres recibir avisos del grupo.  Desmárcalo si este grupo te envía &apos;spam&apos;."/>
 	<check_box label="Mostrarlo en mi perfil" name="list_groups_in_profile" tool_tip="Configura si quieres que este grupo se vea en tu perfil"/>
 	<panel name="preferences_container">
-		<check_box label="Inscripción libre" name="open_enrollement" tool_tip="Configura si se permite la entrada de nuevos miembros sin ser invitados."/>
+		<text name="group_settngs_label">
+			Grupo
+		</text>
+		<check_box label="Cualquiera puede entrar" name="open_enrollement" tool_tip="Configura si se permite la entrada de nuevos miembros sin ser invitados."/>
 		<check_box label="Cuota de entrada" name="check_enrollment_fee" tool_tip="Configura si hay que pagar una cuota para entrar al grupo"/>
 		<spinner label="L$" left_delta="130" name="spin_enrollment_fee" tool_tip="Si la opción Cuota de entrada está marcada, los nuevos miembros han de pagar esta cuota para entrar al grupo." width="60"/>
 		<combo_box bottom_delta="-38" name="group_mature_check" tool_tip="Establece si la información de su grupo es &apos;mature&apos;." width="150">

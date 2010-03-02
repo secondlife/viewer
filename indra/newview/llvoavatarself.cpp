@@ -1655,8 +1655,11 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 {
 	BOOL loading = FALSE;
 
-	// do we have a shape?
-	if (visualParamWeightsAreDefault())
+	// do we have our body parts?
+	if (gAgentWearables.getWearableCount(WT_SHAPE) == 0 ||
+		gAgentWearables.getWearableCount(WT_HAIR) == 0 ||
+		gAgentWearables.getWearableCount(WT_EYES) == 0 ||
+		gAgentWearables.getWearableCount(WT_SKIN) == 0)	
 	{
 		loading = TRUE;
 	}
@@ -1761,14 +1764,8 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 				// search for full permissions version
 				for (S32 i = 0; i < items.count(); i++)
 				{
-					LLInventoryItem* itemp = items[i];
-					LLPermissions item_permissions = itemp->getPermissions();
-					if ( item_permissions.allowOperationBy(
-								PERM_MODIFY, gAgent.getID(), gAgent.getGroupID()) &&
-						 item_permissions.allowOperationBy(
-								PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
-						 item_permissions.allowOperationBy(
-								PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID()) )
+					LLViewerInventoryItem* itemp = items[i];
+                                        if (itemp->getIsFullPerm())
 					{
 						can_grab = TRUE;
 						break;

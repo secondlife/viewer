@@ -115,6 +115,9 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
+
+	// force docked state since this floater doesn't save it between recreations
+	setDocked(true);
 }
 
 LLCallFloater::~LLCallFloater()

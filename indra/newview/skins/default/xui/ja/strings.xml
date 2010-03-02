@@ -636,13 +636,13 @@
 		接続されていません
 	</string>
 	<string name="SIM_ACCESS_PG">
-		一般
+		General
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		控えめ
+		Moderate
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		アダルト
+		Adult
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		オフライン
@@ -1709,7 +1709,7 @@
 		Linden 所在地
 	</string>
 	<string name="Adult">
-		アダルト
+		Adult
 	</string>
 	<string name="Arts&amp;Culture">
 		アートとカルチャー

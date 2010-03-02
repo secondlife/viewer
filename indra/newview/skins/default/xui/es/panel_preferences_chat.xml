@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat de texto" name="chat">
 	<radio_group name="chat_font_size">
-		<radio_item label="Disminuir" name="radio"/>
-		<radio_item label="Media" name="radio2"/>
-		<radio_item label="Aumentar" name="radio3"/>
+		<radio_item label="Disminuir" name="radio" value="0"/>
+		<radio_item label="Media" name="radio2" value="1"/>
+		<radio_item label="Aumentar" name="radio3" value="2"/>
 	</radio_group>
 	<color_swatch label="Usted" name="user"/>
 	<text name="text_box1">
@@ -39,8 +39,8 @@
 	</text>
 	<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
 	<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>
-	<radio_group name="chat_window" tool_tip="Ver tus mensajes instantáneos en ventanas separadas o en una sola con varias pestañas (requiere volverse a conectar)">
-		<radio_item label="Varias ventanas" name="radio"/>
-		<radio_item label="Una ventana" name="radio2"/>
+	<radio_group name="chat_window" tool_tip="Muestra tus mensajes instantáneos en varias ventanas flotantes o en una sola con varias pestañas (requiere que reinicies)">
+		<radio_item label="Varias ventanas" name="radio" value="0"/>
+		<radio_item label="Pestañas" name="radio2" value="1"/>
 	</radio_group>
 </panel>

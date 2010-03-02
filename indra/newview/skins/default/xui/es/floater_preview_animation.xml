@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Descripción:
 	</text>
-	<button label="Ejecutarla en el mundo" label_selected="Parar" left="12" name="Anim play btn" tool_tip="Ejecutar esta animación de modo que puedan verla los demás" width="142"/>
+	<button label="Ver en el mundo" label_selected="Parar" left="12" name="Anim play btn" tool_tip="Ejecutar esta animación de modo que puedan verla los demás" width="142"/>
 	<button label="Ejecutarla para usted" label_selected="Parar" left="156" name="Anim audition btn" tool_tip="Ejecutar esta animación de modo que sólo la vea yo" width="136"/>
 </floater>

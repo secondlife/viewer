@@ -38,6 +38,18 @@
      name="fly_back_tooltip">
         Fly Backwards (press Down Arrow or S)
     </string>
+    <string
+     name="walk_title">
+        Walk
+    </string>
+    <string
+     name="run_title">
+        Run
+    </string>
+    <string
+     name="fly_title">
+        Fly
+    </string>
     <panel
      border="false"
      height="83"
@@ -179,16 +191,5 @@
          tool_tip="Flying mode"
          top="2"
          width="31" />
-        <button
-         visible="false"
-         follows="left|bottom"
-         height="20"
-         label="Stop Flying"
-         layout="topleft"
-         left="0"
-         name="stop_fly_btn"
-         tool_tip="Stop flying"
-         top="2"
-         width="115" />
     </panel>
 </floater>

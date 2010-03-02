@@ -72,6 +72,17 @@ namespace
 		return minimal_width;
 	}
 
+	S32 get_panel_max_width(LLLayoutStack* stack, LLPanel* panel)
+	{
+		S32 max_width = 0;
+		llassert(stack);
+		if ( stack && panel && panel->getVisible() )
+		{
+			stack->getPanelMaxSize(panel->getName(), &max_width, NULL);
+		}
+		return max_width;
+	}
+
 	S32 get_curr_width(LLUICtrl* ctrl)
 	{
 		S32 cur_width = 0;
@@ -672,7 +683,7 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	}
 
 	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
+	const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
 	if (still_should_be_processed && chatbar_panel_width > chatbar_panel_min_width)
 	{
 		// we have some space to decrease chatbar panel
@@ -745,11 +756,11 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	if (delta_width <= 0) return;
 
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
-	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
+	static const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
 
 	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
-	const S32 chatbar_panel_max_width = mNearbyChatBar->getMaxWidth();
+	static const S32 chatbar_panel_min_width = get_panel_min_width(mToolbarStack, mNearbyChatBar);
+	static const S32 chatbar_panel_max_width = get_panel_max_width(mToolbarStack, mNearbyChatBar);
 
 	const S32 chatbar_available_shrink_width = chatbar_panel_width - chatbar_panel_min_width;
 	const S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
@@ -1186,7 +1197,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		{
 			// Calculate the possible shrunk width as difference between current and minimal widths
 			const S32 chatbar_shrunk_width =
-				mNearbyChatBar->getRect().getWidth() - mNearbyChatBar->getMinWidth();
+				mNearbyChatBar->getRect().getWidth() - get_panel_min_width(mToolbarStack, mNearbyChatBar);
 
 			const S32 sum_of_min_widths =
 				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +

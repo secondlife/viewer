@@ -85,8 +85,8 @@
 				Leyla Linden
 			</text>
 			<button label="設定" label_selected="設定..." name="Set..."/>
-			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。そうするとグループの土地割り当てによってサポートされます。"/>
-			<button label="譲渡" label_selected="譲渡..." name="Deed..." tool_tip="選択したグループのオフィサーであるときのみ、土地を譲渡できます。"/>
+			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>
+			<button label="譲渡" label_selected="譲渡..." name="Deed..." tool_tip="選択したグループのオフィサーのみ、土地を譲渡できます。"/>
 			<check_box label="所有者が譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
 			<text name="For Sale:">
 				販売の有無：
@@ -195,7 +195,6 @@
 			</text>
 			<text name="changeable_clause">
 				このリージョン（地域）にある土地は統合または分割ができないことがあります。
-ません。
 			</text>
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
@@ -285,16 +284,16 @@
 				あなたはこの区画の設定編集ができないため、このオプションは無効です。
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				控えめコンテンツ
+				「Moderate」コンテンツ
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				アダルトコンテンツ
+				「Adult」コンテンツ
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				あなたの区画情報及びコンテンツは「控えめ」とされています。
+				あなたの区画情報及びコンテンツは「Moderate」とされています。
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				あなたの区画情報及びコンテンツは「アダルト」とされています。
+				あなたの区画情報及びコンテンツは「Adult」とされています。
 			</panel.string>
 			<panel.string name="landing_point_none">
 				（なし）
@@ -334,7 +333,7 @@
 			<combo_box name="land category with adult">
 				<combo_box.item label="全カテゴリ" name="item0"/>
 				<combo_box.item label="Linden 所在地" name="item1"/>
-				<combo_box.item label="アダルト" name="item2"/>
+				<combo_box.item label="Adult" name="item2"/>
 				<combo_box.item label="アートとカルチャー" name="item3"/>
 				<combo_box.item label="ビジネス" name="item4"/>
 				<combo_box.item label="教育的" name="item5"/>
@@ -360,7 +359,7 @@
 				<combo_box.item label="ショッピング" name="item11"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
-			<check_box label="控えめコンテンツ" name="MatureCheck" tool_tip=""/>
+			<check_box label="「Moderate」コンテンツ" name="MatureCheck" tool_tip=""/>
 			<text name="Snapshot:">
 				スナップショット：
 			</text>
@@ -422,7 +421,7 @@
 			<text name="MusicURL:">
 				音楽 URL：
 			</text>
-			<check_box label="URL を非表示にする" name="hide_music_url" tool_tip="このオプションにチェックを入れると、権限のない人が区画情報を見たときに音楽のURLが隠れます。"/>
+			<check_box label="URL を非表示にする" name="hide_music_url" tool_tip="このオプションにチェックを入れると、権限のない人が区画情報を見たときに音楽の URL が隠れます。"/>
 			<text name="Sound:">
 				サウンド：
 			</text>
@@ -451,7 +450,7 @@
 			<check_box label="支払情報登録済 [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="未確認の住人の立入を禁止します。"/>
 			<check_box label="年齢確認 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人の立入を禁止します。 詳しい情報は [SUPPORT_SITE] をご覧下さい。"/>
 			<check_box label="グループのアクセスを許可：[GROUP]" name="GroupCheck" tool_tip="「一般」タブで、グループを選択してください。"/>
-			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します"/>
+			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可します。"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="誰でも" name="Anyone"/>
 				<combo_box.item label="グループ" name="Group"/>

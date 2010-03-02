@@ -7,6 +7,7 @@
 	<menu_item_call label="Teleportarse" name="teleport"/>
 	<menu_item_call label="Invitar al grupo" name="invite_to_group"/>
 	<menu_item_call label="Ignorar" name="block"/>
+	<menu_item_call label="Designorar" name="unblock"/>
 	<menu_item_call label="Denunciar" name="report"/>
 	<menu_item_call label="Congelar" name="freeze"/>
 	<menu_item_call label="Expulsar" name="eject"/>
@@ -14,4 +15,5 @@
 	<menu_item_call label="Encontrar en el mapa" name="find_on_map"/>
 	<menu_item_call label="Acercar el zoom" name="zoom_in"/>
 	<menu_item_call label="Pagar" name="pay"/>
+	<menu_item_call label="Compartir" name="share"/>
 </menu>

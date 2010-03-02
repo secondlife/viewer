@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="chat_bar">
-	<string name="min_width">
-		192
-	</string>
-	<string name="max_width">
-		320
-	</string>
 	<line_editor label="Klik her for at chatte." name="chat_box" tool_tip="Tryk på enter for at tale, Ctrl-Enter for at råbe."/>
 	<button name="show_nearby_chat" tool_tip="Viser/skjuler log for chat nærved"/>
 </panel>

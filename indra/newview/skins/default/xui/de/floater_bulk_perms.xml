@@ -43,7 +43,7 @@
 		Jeder:
 	</text>
 	<check_box label="Kopieren" name="everyone_copy"/>
-	<text name="NextOwnerLabel" top="160" left="10">
+	<text name="NextOwnerLabel" top="160" left="10" width="200">
 		Nächster Eigentümer:
 	</text>
 	<check_box label="Bearbeiten" name="next_owner_modify"/>

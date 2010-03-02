@@ -1631,11 +1631,11 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		この広告に「控えめ」コンテンツは含まれていますか？
+		この広告に「Moderate」コンテンツは含まれていますか？
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="SetGroupMature">
-		このグループに「控えめ」コンテンツが含まれていますか？
+		このグループに「Moderate」コンテンツが含まれていますか？
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification label="再起動を確認" name="ConfirmRestart">
@@ -1655,7 +1655,7 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		このリージョン（地域）のレーティング区分がアップデートされました。
 地図に変更が反映されるまで数分かかることがあります。
 
-アダルト専用リージョンに入るには、住人のアカウントが年齢確認か支払方法のいずれかで「確認済み」でなければなりません。
+Adult 専用リージョンに入るには、住人のアカウントが年齢確認か支払方法のいずれかで「確認済み」でなければなりません。
 	</notification>
 	<notification label="ボイスバージョンの不一致" name="VoiceVersionMismatch">
 		[APP_NAME] のこのバージョンは、このリージョンにおけるボイスチャットの互換性がありません。 ボイスチャットを正常に行うためには、[APP_NAME] のアップデートが必要です。
@@ -2118,7 +2118,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		コミュニティスタンダードに明記されているコンテンツ制限により、あなたの検索語の一部が除外されました。
 	</notification>
 	<notification name="NoContentToSearch">
-		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（一般、控えめ、アダルト）
+		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（General、Moderate、Adult）
 	</notification>
 	<notification name="GroupVote">
 		[NAME] は投票の申請をしています：

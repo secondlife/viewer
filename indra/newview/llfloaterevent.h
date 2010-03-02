@@ -70,7 +70,8 @@ protected:
 	static void onClickNotify(void*);
 	void onClickDeleteEvent();
 
-//	static bool callbackCreateEventWebPage(const LLSD& notification, const LLSD& response);
+	static void regionInfoCallback(U32 event_id, U64 region_handle);
+
 
 protected:
 	U32				mEventID;

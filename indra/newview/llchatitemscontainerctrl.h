@@ -60,6 +60,7 @@ public:
 	static LLNearbyChatToastPanel* createInstance();
 
 	const LLUUID& getFromID() const { return mFromID;}
+	const std::string& getFromName() const { return mFromName; }
 	
 	//void	addText		(const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
 	//void	setMessage	(const LLChat& msg);
@@ -84,9 +85,11 @@ public:
 
 	virtual void draw();
 
+	//*TODO REMOVE, why a dup of getFromID?
 	const LLUUID&	messageID() const { return mFromID;}
 private:
 	LLUUID			mFromID;	// agent id or object id
+	std::string		mFromName;
 	EChatSourceType	mSourceType;
 	
 

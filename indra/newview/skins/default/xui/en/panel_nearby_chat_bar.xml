@@ -8,12 +8,6 @@
  name="chat_bar"
  top="21"
  width="310">
-    <string name="min_width">
-        216
-    </string>
-    <string name="max_width">
-        320
-    </string>
     <line_editor
      border_style="line"
      border_thickness="1"

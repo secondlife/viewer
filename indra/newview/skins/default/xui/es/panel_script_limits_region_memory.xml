@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MEMORIA DE LA REGIÓN" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Memoria de los scripts de la parcela
+	</text>
+	<text name="loading_text">
+		Cargando...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Tamaño (kb)" name="size"/>
+		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="Nombre del objeto" name="name"/>
+		<scroll_list.columns label="Propietario del objeto" name="owner"/>
+		<scroll_list.columns label="Parcela" name="parcel"/>
+		<scroll_list.columns label="Localización" name="location"/>
+	</scroll_list>
+	<button label="Actualizar la lista" name="refresh_list_btn"/>
+	<button label="Realzar" name="highlight_btn"/>
+	<button label="Devolver" name="return_btn"/>
+</panel>
