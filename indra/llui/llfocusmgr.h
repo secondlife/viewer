@@ -119,7 +119,7 @@ public:
 	BOOL			childIsTopCtrl( const LLView* parent ) const;
 
 	// All Three
-	void			releaseFocusIfNeeded( const LLView* top_view );
+	void			releaseFocusIfNeeded( LLView* top_view );
 	void			lockFocus();
 	void			unlockFocus();
 	BOOL			focusLocked() const { return mLockedView != NULL; }
@@ -149,12 +149,6 @@ private:
 
 	typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
 	focus_history_map_t mFocusHistory;
-
-	#ifdef _DEBUG
-		std::string		mMouseCaptorName;
-		std::string		mKeyboardFocusName;
-		std::string		mTopCtrlName;
-	#endif
 };
 
 extern LLFocusMgr gFocusMgr;

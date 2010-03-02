@@ -38,8 +38,6 @@
 
 const F32 FOCUS_FADE_TIME = 0.3f;
 
-// NOTE: the LLFocusableElement implementation has been moved here from lluictrl.cpp.
-
 LLFocusableElement::LLFocusableElement()
 :	mFocusLostCallback(NULL),
 	mFocusReceivedCallback(NULL),
@@ -124,8 +122,7 @@ boost::signals2::connection	LLFocusableElement::setTopLostCallback(const focus_s
 LLFocusMgr gFocusMgr;
 
 LLFocusMgr::LLFocusMgr()
-	:
-	mLockedView( NULL ),
+:	mLockedView( NULL ),
 	mMouseCaptor( NULL ),
 	mKeyboardFocus( NULL ),
 	mLastKeyboardFocus( NULL ),
@@ -133,16 +130,11 @@ LLFocusMgr::LLFocusMgr()
 	mKeystrokesOnly(FALSE),
 	mTopCtrl( NULL ),
 	mAppHasFocus(TRUE)   // Macs don't seem to notify us that we've gotten focus, so default to true
-	#ifdef _DEBUG
-		, mMouseCaptorName("none")
-		, mKeyboardFocusName("none")
-		, mTopCtrlName("none")
-	#endif
 {
 }
 
 
-void LLFocusMgr::releaseFocusIfNeeded( const LLView* view )
+void LLFocusMgr::releaseFocusIfNeeded( LLView* view )
 {
 	if( childHasMouseCapture( view ) )
 	{
@@ -162,10 +154,7 @@ void LLFocusMgr::releaseFocusIfNeeded( const LLView* view )
 		}
 	}
 
-	if( childIsTopCtrl( view ) )
-	{
-		setTopCtrl( NULL );
-	}
+	LLUI::removePopup(view);
 }
 
 
@@ -248,11 +237,6 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 			return;
 		}
 
-		#ifdef _DEBUG
-			LLUICtrl* focus_ctrl = dynamic_cast<LLUICtrl*>(new_focus);
-			mKeyboardFocusName = focus_ctrl ? focus_ctrl->getName() : std::string("none");
-		#endif
-
 		// If we've got a default keyboard focus, and the caller is
 		// releasing keyboard focus, move to the default.
 		if (mDefaultKeyboardFocus != NULL && mKeyboardFocus == NULL)
@@ -334,20 +318,12 @@ void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLFocusableElement* f
 	if( mKeyboardFocus == focus )
 	{
 		mKeyboardFocus = NULL;
-		#ifdef _DEBUG
-			mKeyboardFocusName = std::string("none");
-		#endif
 	}
 }
 
 
 void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 {
-	//if (mFocusLocked)
-	//{
-	//	return;
-	//}
-
 	if( new_captor != mMouseCaptor )
 	{
 		LLMouseHandler* old_captor = mMouseCaptor;
@@ -370,24 +346,14 @@ void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 			old_captor->onMouseCaptureLost();
 		}
 
-		#ifdef _DEBUG
-			mMouseCaptorName = new_captor ? new_captor->getName() : std::string("none");
-		#endif
 	}
 }
 
 void LLFocusMgr::removeMouseCaptureWithoutCallback( const LLMouseHandler* captor )
 {
-	//if (mFocusLocked)
-	//{
-	//	return;
-	//}
 	if( mMouseCaptor == captor )
 	{
 		mMouseCaptor = NULL;
-		#ifdef _DEBUG
-			mMouseCaptorName = std::string("none");
-		#endif
 	}
 }
 
@@ -416,10 +382,6 @@ void LLFocusMgr::setTopCtrl( LLUICtrl* new_top  )
 	{
 		mTopCtrl = new_top;
 
-		#ifdef _DEBUG
-			mTopCtrlName = new_top ? new_top->getName() : std::string("none");
-		#endif
-
 		if (old_top)
 		{
 			old_top->onTopLost();
@@ -432,9 +394,6 @@ void LLFocusMgr::removeTopCtrlWithoutCallback( const LLUICtrl* top_view )
 	if( mTopCtrl == top_view )
 	{
 		mTopCtrl = NULL;
-		#ifdef _DEBUG
-			mTopCtrlName = std::string("none");
-		#endif
 	}
 }
 

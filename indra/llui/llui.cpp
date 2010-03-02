@@ -86,6 +86,9 @@ std::list<std::string> gUntranslated;
 /*static*/ LLHelp*			LLUI::sHelpImpl = NULL;
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
 /*static*/ LLFrameTimer		LLUI::sMouseIdleTimer;
+/*static*/ LLUI::add_popup_t	LLUI::sAddPopupFunc;
+/*static*/ LLUI::remove_popup_t	LLUI::sRemovePopupFunc;
+/*static*/ LLUI::clear_popups_t	LLUI::sClearPopupsFunc;
 
 // register filtereditor here
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
@@ -1607,6 +1610,13 @@ void LLUI::cleanupClass()
 	sImageProvider->cleanUp();
 }
 
+void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& remove_popup,  const clear_popups_t& clear_popups)
+{
+	sAddPopupFunc = add_popup;
+	sRemovePopupFunc = remove_popup;
+	sClearPopupsFunc = clear_popups;
+}
+
 //static
 void LLUI::dirtyRect(LLRect rect)
 {
@@ -1876,6 +1886,25 @@ LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 
 	return *sSettingGroups["config"]; // default group
 }
+
+//static 
+void LLUI::addPopup(LLView* viewp)
+{
+	if (sAddPopupFunc)
+	{
+		sAddPopupFunc(viewp);
+	}
+}
+
+//static 
+void LLUI::removePopup(LLView* viewp)
+{
+	if (sRemovePopupFunc)
+	{
+		sRemovePopupFunc(viewp);
+	}
+}
+
 
 //static
 // spawn_x and spawn_y are top left corner of view in screen GL coordinates

@@ -284,10 +284,7 @@ LLFolderView::~LLFolderView( void )
 
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 
-	if(mRenamer == gFocusMgr.getTopCtrl())
-	{
-		gFocusMgr.setTopCtrl(NULL);
-	}
+	gViewerWindow->removePopup(mRenamer);
 
 	mAutoOpenItems.removeAllNodes();
 	clearSelection();
@@ -971,7 +968,7 @@ void LLFolderView::finishRenamingItem( void )
 		mRenameItem->rename( mRenamer->getText() );
 	}
 
-	gFocusMgr.setTopCtrl( NULL );	
+	gViewerWindow->removePopup(mRenamer);
 
 	if( mRenameItem )
 	{
@@ -988,7 +985,7 @@ void LLFolderView::closeRenamer( void )
 	// will commit current name (which could be same as original name)
 	mRenamer->setFocus( FALSE );
 	mRenamer->setVisible( FALSE );
-	gFocusMgr.setTopCtrl( NULL );
+	gViewerWindow->removePopup(mRenamer);
 
 	if( mRenameItem )
 	{
@@ -1420,7 +1417,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setFocus( TRUE );
 		mRenamer->setTopLostCallback(boost::bind(onRenamerLost, _1));
 		mRenamer->setFocusLostCallback(boost::bind(onRenamerLost, _1));
-		gFocusMgr.setTopCtrl( mRenamer );
+		gViewerWindow->addPopup(mRenamer);
 	}
 }
 
@@ -1901,7 +1898,7 @@ void LLFolderView::deleteAllChildren()
 {
 	if(mRenamer == gFocusMgr.getTopCtrl())
 	{
-		gFocusMgr.setTopCtrl(NULL);
+		gViewerWindow->removePopup(mRenamer);
 	}
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 	mPopupMenuHandle = LLHandle<LLView>();

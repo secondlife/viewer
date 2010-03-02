@@ -128,11 +128,14 @@ void LLProgressView::setVisible(BOOL visible)
 {
 	if (getVisible() && !visible)
 	{
+		gViewerWindow->removePopup(this);
+
 		mFadeTimer.start();
 	}
 	else if (!getVisible() && visible)
 	{
-		gFocusMgr.setTopCtrl(this);
+		gViewerWindow->addPopup(this);
+
 		setFocus(TRUE);
 		mFadeTimer.stop();
 		mProgressTimer.start();

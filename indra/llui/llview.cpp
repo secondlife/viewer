@@ -592,11 +592,6 @@ void LLView::setVisible(BOOL visible)
 {
 	if ( mVisible != visible )
 	{
-		if( !visible && (gFocusMgr.getTopCtrl() == this) )
-		{
-			gFocusMgr.setTopCtrl( NULL );
-		}
-
 		mVisible = visible;
 
 		// notify children of visibility change if root, or part of visible hierarchy

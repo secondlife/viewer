@@ -131,6 +131,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
+#include "llpopupview.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
@@ -690,30 +691,30 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	}
 
 	// Topmost view gets a chance before the hierarchy
-	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-	if (top_ctrl)
-	{
-		S32 local_x, local_y;
-		top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
-		if (down)
-		{
-			if (top_ctrl->pointInView(local_x, local_y))
-			{
-				return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
-			}
-			else
-			{
-				gFocusMgr.setTopCtrl(NULL);
-			}
-		}
-		else
-		{
-			if (top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleMouseUp(local_x, local_y, mask))
-			{
-				return TRUE;
-			}
-		}
-	}
+	//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+	//if (top_ctrl)
+	//{
+	//	S32 local_x, local_y;
+	//	top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
+	//	if (down)
+	//	{
+	//		if (top_ctrl->pointInView(local_x, local_y))
+	//		{
+	//			return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
+	//		}
+	//		else
+	//		{
+	//			gFocusMgr.setTopCtrl(NULL);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		if (top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleMouseUp(local_x, local_y, mask))
+	//		{
+	//			return TRUE;
+	//		}
+	//	}
+	//}
 
 	// Give the UI views a chance to process the click
 	if( mRootView->handleAnyMouseClick(x, y, mask, clicktype, down) )
@@ -1367,6 +1368,8 @@ LLViewerWindow::LLViewerWindow(
 	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
 	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
 
+	LLUI::setPopupFuncs(boost::bind(&LLViewerWindow::addPopup, this, _1), boost::bind(&LLViewerWindow::removePopup, this, _1), boost::bind(&LLViewerWindow::clearPopups, this));
+
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
 	LLViewerWindow::sMovieBaseName = "SLmovie";
@@ -1559,11 +1562,13 @@ void LLViewerWindow::initBase()
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
 	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
+	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
 	gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 	
+
 	// Console
 	llassert( !gConsole );
 	LLConsole::Params cp;
@@ -2431,6 +2436,30 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 		gAgent.handleScrollWheel(clicks);
 
 	return;
+}
+
+void LLViewerWindow::addPopup(LLView* popup)
+{
+	if (mPopupView)
+	{
+		mPopupView->addPopup(popup);
+	}
+}
+
+void LLViewerWindow::removePopup(LLView* popup)
+{
+	if (mPopupView)
+	{
+		mPopupView->removePopup(popup);
+	}
+}
+
+void LLViewerWindow::clearPopups()
+{
+	if (mPopupView)
+	{
+		mPopupView->clearPopups();
+	}
 }
 
 void LLViewerWindow::moveCursorToCenter()

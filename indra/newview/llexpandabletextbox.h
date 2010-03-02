@@ -140,11 +140,6 @@ public:
 	/*virtual*/ void onFocusLost();
 
 	/**
-	 * Collapses text box on top_lost event
-	 */
-	/*virtual*/ void onTopLost();
-
-	/**
 	 * Draws text box, collapses text box if its expanded and its parent's position changed
 	 */
 	/*virtual*/ void draw();

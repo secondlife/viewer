@@ -615,7 +615,7 @@ void LLComboBox::showList()
 	// register ourselves as a "top" control
 	// effectively putting us into a special draw layer
 	// and not affecting the bounding rectangle calculation
-	gFocusMgr.setTopCtrl(this);
+	LLUI::addPopup(this);
 
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
@@ -644,10 +644,7 @@ void LLComboBox::hideList()
 		mList->mouseOverHighlightNthItem(-1);
 
 		setUseBoundingRect(FALSE);
-		if( gFocusMgr.getTopCtrl() == this )
-		{
-			gFocusMgr.setTopCtrl(NULL);
-		}
+		LLUI::removePopup(this);
 	}
 }
 
