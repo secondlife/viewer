@@ -622,7 +622,7 @@ void LLInspectAvatar::onNameCache(
 		else
 		{
 			getChild<LLUICtrl>("user_name")->setValue(full_name);
-			getChild<LLUICtrl>("user_slid")->setValue(full_name);
+			getChild<LLUICtrl>("user_slid")->setValue("");
 		}
 	}
 }
