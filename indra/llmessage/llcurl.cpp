@@ -546,10 +546,10 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 
 	setopt(CURLOPT_SSL_VERIFYPEER, LLCurl::getSSLVerify());
 	//setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify()? 2 : 0);
+	
+	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
 	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
-
-	setopt(CURLOPT_FORBID_REUSE, TRUE);
 
 	setoptString(CURLOPT_URL, url);
 
