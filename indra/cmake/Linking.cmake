@@ -48,6 +48,7 @@ if (WINDOWS)
       wldap32
       gdi32
       user32
+      iphlpapi
       dbghelp
       )
 else (WINDOWS)

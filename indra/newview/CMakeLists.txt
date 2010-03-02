@@ -1189,7 +1189,6 @@ if (WINDOWS)
         comdlg32
         ${DINPUT_LIBRARY}
         ${DXGUID_LIBRARY}
-        iphlpapi
         kernel32
         odbc32
         odbccp32
