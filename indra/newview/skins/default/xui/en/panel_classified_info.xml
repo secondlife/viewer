@@ -185,26 +185,57 @@
          v_pad="0"
          value="[price]"
          width="105" />
+        <layout_stack
+         animate="false"
+         name="descr_stack"
+         layout="topleft"
+         follows="top|left"
+         orientation="vertical"
+         left="10"
+         top_pad="5"
+         width="290"
+         height="250">
+         <layout_panel
+          auto_resize="false"
+          name="price_layout_panel"
+          layout="topleft"
+          follows="top|left"
+          left="0"
+          top="0"
+          width="290"
+          height="26"
+          user_resize="false">
         <check_box
          enabled="false"
          height="16"
          label="Auto renew each week"
          layout="topleft"
-         left="10"
+         follows="top|left"
+         left="0"
          name="auto_renew"
-         top_pad="5"
+         top="0"
          v_pad="0"
          width="290" />
+         </layout_panel>
+         <layout_panel
+          name="descr_layout_panel"
+          layout="topleft"
+          follows="top|left"
+          left="0"
+          top="0"
+          width="290"
+          height="215"
+          user_resize="false">
         <text
          auto_resize="false"
          follows="left|top"
          font.style="BOLD"
          height="10"
          layout="topleft"
-         left="10"
+         left="0"
          name="classified_desc_label"
          text_color="white"
-         top_pad="10"
+         top="0"
          value="Description:"
          width="250" />
         <text_editor
@@ -215,7 +246,7 @@
          h_pad="0"
          height="200"
          layout="topleft"
-         left="10"
+         left="0"
          max_length="1023"
          name="classified_desc"
          read_only="true"
@@ -224,6 +255,8 @@
          v_pad="0"
          value="[description]"
          word_wrap="true" />
+         </layout_panel>
+        </layout_stack>
     </panel>
     </scroll_container>
     <panel
