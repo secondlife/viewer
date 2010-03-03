@@ -609,7 +609,7 @@ public:
 				addText(xpos, ypos, llformat("Mesh Upload -- price quote: %d:%d | upload: %d:%d | create: %d", 
 								thread->mPendingConfirmations, thread->mUploadQ.size()+thread->mTextureQ.size(),
 								thread->mPendingUploads, thread->mConfirmedQ.size()+thread->mConfirmedTextureQ.size(),
-								thread->mCompletedQ.size()));
+								thread->mInstanceQ.size()));
 				ypos += y_inc;
 			}
 		}
