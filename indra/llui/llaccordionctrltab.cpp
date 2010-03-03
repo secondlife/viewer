@@ -562,6 +562,12 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	if( !header->hasFocus() )
 		return LLUICtrl::handleKey(key, mask, called_from_parent);
 
+	if ( (key == KEY_RETURN )&& mask == MASK_NONE)
+	{
+		changeOpenClose(getDisplayChildren());
+		return TRUE;
+	}
+
 	if ( (key == KEY_ADD || key == KEY_RIGHT)&& mask == MASK_NONE)
 	{
 		if(getDisplayChildren() == false)
