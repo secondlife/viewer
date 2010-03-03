@@ -94,6 +94,7 @@
          layout="topleft"
          left="10"
          help_topic=""
+         name="properties_panel"
          top="45"
          width="313"
    background_visible="true"
