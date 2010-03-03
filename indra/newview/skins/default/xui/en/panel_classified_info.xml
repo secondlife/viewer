@@ -71,10 +71,10 @@
          follows="left|top|right"
          height="197"
          layout="topleft"
-         left="11"
+         left="10"
          name="classified_snapshot"
          top="10"
-         width="286" />
+         width="275" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -129,7 +129,7 @@
          text_color="white"
          top_pad="0"
          value="Content Type:"
-         width="250" />
+         width="140" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -137,11 +137,11 @@
          h_pad="0"
          height="18"
          layout="topleft"
-         left="10"
+         left_pad="0"
          name="content_type"
          read_only="true"
-         width="290"
-         top_pad="5"
+         width="150"
+         top_pad="-10"
          v_pad="0"
          value="[content type]" />
         <text
@@ -154,7 +154,7 @@
          text_color="white"
          top_pad="0"
          value="Category:"
-         width="250" />
+         width="140" />
         <text_editor
          allow_html="true"
          allow_scroll="false"
@@ -163,11 +163,11 @@
          h_pad="0"
          height="18"
          layout="topleft"
-         left="10"
+         left_pad="0"
          name="category"
          read_only="true"
-         width="290"
-         top_pad="5"
+         width="150"
+         top_pad="-10"
          v_pad="0"
          value="[category]" />
         <text
@@ -180,7 +180,7 @@
          text_color="white"
          top_pad="0"
          value="Price for listing:"
-         width="250" />
+         width="140" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -189,14 +189,14 @@
          halign="left"
          height="16"
          layout="topleft"
-         left="10"
+         left_pad="0"
          name="price_for_listing"
          read_only="true"
-         top_pad="5"
+         top_pad="-10"
          tool_tip="Price for listing."
          v_pad="0"
          value="[price]"
-         width="105" />
+         width="150" />
         <layout_stack
          animate="false"
          name="descr_stack"
@@ -252,7 +252,7 @@
          width="250" />
         <text_editor
          allow_html="true"
-         allow_scroll="false"
+         allow_scroll="true"
          bg_visible="false"
          follows="left|top|right"
          h_pad="0"
