@@ -41,6 +41,7 @@
 #include "lldir.h"
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
+#include "llhttpclient.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"
@@ -74,7 +75,6 @@
 #include "lltrans.h"
 #include "llscrollcontainer.h"
 #include "llstatusbar.h"
-#include "llsidetray.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 const S32 MATURE_UNDEFINED = -1;
@@ -84,6 +84,7 @@ const S32 DECLINE_TO_STATE = 0;
 
 //static
 std::list<LLPanelClassified*> LLPanelClassified::sAllPanels;
+std::list<LLPanelClassifiedInfo*> LLPanelClassifiedInfo::sAllPanels;
 
 // "classifiedclickthrough"
 // strings[0] = classified_id
@@ -105,11 +106,8 @@ public:
 		S32 map_clicks = atoi(strings[2].c_str());
 		S32 profile_clicks = atoi(strings[3].c_str());
 
-		static LLPanelClassifiedInfo* info_panel =
-			dynamic_cast<LLPanelClassifiedInfo*>(LLSideTray::getInstance()->getPanel("panel_classified_info"));
-
-		if (info_panel)
-			info_panel->setClickThrough(classified_id, teleport_clicks, map_clicks, profile_clicks);
+		LLPanelClassifiedInfo::setClickThrough(
+			classified_id, teleport_clicks, map_clicks, profile_clicks, false);
 
 		return true;
 	}
@@ -501,7 +499,7 @@ void LLPanelClassified::sendClassifiedInfoRequest()
 		if (!url.empty())
 		{
 			llinfos << "Classified stat request via capability" << llendl;
-			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(((LLView*)this)->getHandle(), mClassifiedID));
+			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(mClassifiedID));
 		}
 	}
 }
@@ -1162,11 +1160,19 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  , mScrollingPanelMinHeight(0)
  , mScrollingPanelWidth(0)
  , mSnapshotStreched(false)
+ , mTeleportClicksOld(0)
+ , mMapClicksOld(0)
+ , mProfileClicksOld(0)
+ , mTeleportClicksNew(0)
+ , mMapClicksNew(0)
+ , mProfileClicksNew(0)
 {
+	sAllPanels.push_back(this);
 }
 
 LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
 {
+	sAllPanels.remove(this);
 }
 
 // static
@@ -1252,6 +1258,18 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
 	gGenericDispatcher.addHandler("classifiedclickthrough", &sClassifiedClickThrough);
+
+	// While we're at it let's get the stats from the new table if that
+	// capability exists.
+	std::string url = gAgent.getRegion()->getCapability("SearchStatRequest");
+	if (!url.empty())
+	{
+		llinfos << "Classified stat request via capability" << llendl;
+		LLSD body;
+		body["classified_id"] = getClassifiedId();
+		LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(getClassifiedId()));
+	}
+
 	setInfoLoaded(false);
 }
 
@@ -1301,6 +1319,7 @@ void LLPanelClassifiedInfo::resetData()
 	mPosGlobal.clearVec();
 	childSetValue("category", LLStringUtil::null);
 	childSetValue("content_type", LLStringUtil::null);
+	childSetText("click_through_text", LLStringUtil::null);
 }
 
 void LLPanelClassifiedInfo::resetControls()
@@ -1363,19 +1382,60 @@ LLUUID LLPanelClassifiedInfo::getSnapshotId()
 	return childGetValue("classified_snapshot").asUUID();
 }
 
+// static
 void LLPanelClassifiedInfo::setClickThrough(
 	const LLUUID& classified_id,
 	S32 teleport,
 	S32 map,
-	S32 profile)
+	S32 profile,
+	bool from_new_table)
 {
-	static LLUIString ct_str = getString("click_through_text_fmt");
+	llinfos << "Click-through data for classified " << classified_id << " arrived: ["
+			<< teleport << ", " << map << ", " << profile << "] ("
+			<< (from_new_table ? "new" : "old") << ")" << llendl;
 
-	ct_str.setArg("[TELEPORT]",	llformat("%d", teleport));
-	ct_str.setArg("[MAP]",		llformat("%d", map));
-	ct_str.setArg("[PROFILE]",	llformat("%d", profile));
+	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	{
+		LLPanelClassifiedInfo* self = *iter;
+		if (self->getClassifiedId() != classified_id)
+		{
+			continue;
+		}
 
-	childSetText("click_through_text", ct_str.getString());
+		// *HACK: Skip LLPanelClassifiedEdit instances: they don't display clicks data.
+		// Those instances should not be in the list at all.
+		if (typeid(*self) != typeid(LLPanelClassifiedInfo))
+		{
+			continue;
+		}
+
+		llinfos << "Updating classified info panel" << llendl;
+
+		// We need to check to see if the data came from the new stat_table 
+		// or the old classified table. We also need to cache the data from 
+		// the two separate sources so as to display the aggregate totals.
+
+		if (from_new_table)
+		{
+			self->mTeleportClicksNew = teleport;
+			self->mMapClicksNew = map;
+			self->mProfileClicksNew = profile;
+		}
+		else
+		{
+			self->mTeleportClicksOld = teleport;
+			self->mMapClicksOld = map;
+			self->mProfileClicksOld = profile;
+		}
+
+		static LLUIString ct_str = self->getString("click_through_text_fmt");
+
+		ct_str.setArg("[TELEPORT]",	llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld));
+		ct_str.setArg("[MAP]",		llformat("%d", self->mMapClicksNew + self->mMapClicksOld));
+		ct_str.setArg("[PROFILE]",	llformat("%d", self->mProfileClicksNew + self->mProfileClicksOld));
+
+		self->childSetText("click_through_text", ct_str.getString());
+	}
 }
 
 // static

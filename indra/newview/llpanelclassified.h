@@ -250,11 +250,12 @@ public:
 
 	void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
 
-	void setClickThrough(
+	static void setClickThrough(
 		const LLUUID& classified_id,
 		S32 teleport,
 		S32 map,
-		S32 profile);
+		S32 profile,
+		bool from_new_table);
 
 	void setExitCallback(const commit_callback_t& cb);
 
@@ -299,6 +300,17 @@ private:
 
 	S32 mScrollingPanelMinHeight;
 	S32 mScrollingPanelWidth;
+
+	// Needed for stat tracking
+	S32 mTeleportClicksOld;
+	S32 mMapClicksOld;
+	S32 mProfileClicksOld;
+	S32 mTeleportClicksNew;
+	S32 mMapClicksNew;
+	S32 mProfileClicksNew;
+
+	typedef std::list<LLPanelClassifiedInfo*> panel_list_t;
+	static panel_list_t sAllPanels;
 };
 
 class LLPanelClassifiedEdit : public LLPanelClassifiedInfo
