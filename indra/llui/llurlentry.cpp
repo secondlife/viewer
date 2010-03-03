@@ -310,6 +310,7 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
+	mTooltip = LLTrans::getString("TooltipAgentUrl");
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
