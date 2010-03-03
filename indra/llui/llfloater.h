@@ -307,6 +307,8 @@ protected:
 
 	void			destroy() { die(); } // Don't call this directly.  You probably want to call closeFloater()
 
+	virtual	void	onClickCloseBtn();
+
 private:
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
@@ -346,6 +348,7 @@ protected:
 	LLResizeBar*	mResizeBar[4];
 	LLResizeHandle*	mResizeHandle[4];
 
+	LLButton*		mButtons[BUTTON_COUNT];
 private:
 	LLRect			mExpandedRect;
 	
@@ -379,7 +382,6 @@ private:
 	handle_set_t	mDependents;
 
 	bool			mButtonsEnabled[BUTTON_COUNT];
-	LLButton*		mButtons[BUTTON_COUNT];
 	F32				mButtonScale;
 	BOOL			mAutoFocus;
 	LLHandle<LLFloater> mSnappedTo;

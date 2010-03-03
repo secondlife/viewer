@@ -47,6 +47,8 @@
 
 static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
+static const S32 info_icon_size = 16;
+
 void LLNameListCtrl::NameTypeNames::declareValues()
 {
 	declare("INDIVIDUAL", LLNameListCtrl::INDIVIDUAL);
@@ -138,6 +140,29 @@ void LLNameListCtrl::showInspector(const LLUUID& avatar_id, bool is_group)
 		LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", avatar_id));
 }
 
+void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
+{
+	if (getHighlightedItemInx()!= target_index)
+	{
+		if(getHighlightedItemInx()!=-1)
+		{
+			LLScrollListItem* item = getItemList()[getHighlightedItemInx()];
+			LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(mNameColumnIndex));
+			if(cell)
+				cell->setTextWidth(cell->getTextWidth() + info_icon_size);
+		}
+		if(target_index != -1)
+		{
+			LLScrollListItem* item = getItemList()[target_index];
+			LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(mNameColumnIndex));
+			if(cell)
+				cell->setTextWidth(cell->getTextWidth() - info_icon_size);
+		}
+	}
+
+	LLScrollListCtrl::mouseOverHighlightNthItem(target_index);
+}
+
 //virtual
 BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
@@ -164,7 +189,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 
 				// Spawn at right side of cell
 				LLPointer<LLUIImage> icon = LLUI::getUIImage("Info_Small");
-				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop - (sticky_rect.getHeight() - icon->getHeight())/2 );
+				LLCoordGL pos( sticky_rect.mRight - info_icon_size, sticky_rect.mTop - (sticky_rect.getHeight() - icon->getHeight())/2 );
 
 				// Should we show a group or an avatar inspector?
 				bool is_group = hit_item->getValue()["is_group"].asBoolean();

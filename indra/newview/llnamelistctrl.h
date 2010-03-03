@@ -120,6 +120,8 @@ public:
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
 	/*virtual*/ void updateColumns();
+
+	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
 

@@ -1290,18 +1290,11 @@ void LLPanelClassifiedInfo::resetData()
 
 void LLPanelClassifiedInfo::resetControls()
 {
-	if(getAvatarId() == gAgent.getID())
-	{
-		childSetEnabled("edit_btn", TRUE);
-		childSetVisible("edit_btn", TRUE);
-		childSetVisible("auto_renew", TRUE);
-	}
-	else
-	{
-		childSetEnabled("edit_btn", FALSE);
-		childSetVisible("edit_btn", FALSE);
-		childSetVisible("auto_renew", FALSE);
-	}
+	bool is_self = getAvatarId() == gAgent.getID();
+
+	childSetEnabled("edit_btn", is_self);
+	childSetVisible("edit_btn", is_self);
+	childSetVisible("price_layout_panel", is_self);
 }
 
 void LLPanelClassifiedInfo::setClassifiedName(const std::string& name)

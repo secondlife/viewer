@@ -2061,5 +2061,12 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 				tuple->mButton->onCommit();
 			}
 		}
+		/**
+		 * EXT - 4572 (Click and hold the left mouse button doesn't let you browse tabbed IM floater)
+		 *
+		 * During hovering mouse(with left mouse button hold) over tabs, a newly just activated corresponding
+		 * to the tab(that is hovered in the given instant of time) panel may caught mouse capture.
+		 */
+		gFocusMgr.setMouseCapture(this);
 	}
 }
