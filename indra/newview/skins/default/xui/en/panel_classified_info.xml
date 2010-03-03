@@ -86,7 +86,7 @@
          font="SansSerifBig"
          font.style="BOLD"
          left="10"
-         top_pad="10"
+         top_pad="0"
          name="classified_name"
          read_only="true"
          text_color="white"
@@ -101,7 +101,7 @@
          left="10"
          name="classified_location_label"
          text_color="white"
-         top_pad="10"
+         top_pad="5"
          value="Location:"
          width="250" />
         <text_editor
@@ -127,7 +127,7 @@
          left="10"
          name="content_type_label"
          text_color="white"
-         top_pad="10"
+         top_pad="0"
          value="Content Type:"
          width="250" />
         <text_editor
@@ -152,7 +152,7 @@
          left="10"
          name="category_label"
          text_color="white"
-         top_pad="10"
+         top_pad="0"
          value="Category:"
          width="250" />
         <text_editor
@@ -178,7 +178,7 @@
          left="10"
          name="price_for_listing_label"
          text_color="white"
-         top_pad="10"
+         top_pad="0"
          value="Price for listing:"
          width="250" />
         <text_editor
@@ -204,7 +204,7 @@
          follows="top|left"
          orientation="vertical"
          left="10"
-         top_pad="5"
+         top_pad="0"
          width="290"
          height="250">
          <layout_panel
