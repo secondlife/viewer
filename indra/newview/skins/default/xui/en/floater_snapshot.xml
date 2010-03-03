@@ -105,9 +105,11 @@
      width="100">
         <flyout_button.item
          label="Save"
+         name="save_item"
          value="save" />
         <flyout_button.item
          label="Save As..."
+         name="saveas_item"
          value="save as" />
     </flyout_button>
         <button

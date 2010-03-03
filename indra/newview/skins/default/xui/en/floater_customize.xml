@@ -286,7 +286,7 @@
              height="23"
              layout="topleft"
              name="Item Action Label"
-             right="132"
+             right="90"
              width="100">
                 Shape:
             </text>
@@ -307,7 +307,7 @@
              label_selected="Save"
              layout="topleft"
              name="Save"
-             right="218"
+             right="190"
              top="477"
              width="82" />
             <button
@@ -319,7 +319,7 @@
              name="Save As"
              top="477"
              right="304"
-             width="82" />
+             width="110" />
         </panel>
         <panel
          border="false"

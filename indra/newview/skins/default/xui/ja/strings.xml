@@ -1900,7 +1900,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		後ろ髪の毛先
 	</string>
 	<string name="Baggy">
-		たるんでいる
+		たるんだ下まぶた
 	</string>
 	<string name="Bangs">
 		前髪
@@ -1990,7 +1990,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		広
 	</string>
 	<string name="Brow Size">
-		眉毛の大きさ
+		眉毛上の隆起
 	</string>
 	<string name="Bug Eyes">
 		Bug Eyes
@@ -2023,7 +2023,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		膨らみ大
 	</string>
 	<string name="Chaplin">
-		Chaplin
+		チャップリン
 	</string>
 	<string name="Cheek Bones">
 		ほお骨
@@ -2044,7 +2044,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		あごの長さ
 	</string>
 	<string name="Chin Heavy">
-		あごに重点
+		あごを強調
 	</string>
 	<string name="Chin In">
 		ひいたあご
@@ -2236,7 +2236,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ひたいの角度
 	</string>
 	<string name="Forehead Heavy">
-		ひたいに重点
+		ひたいを強調
 	</string>
 	<string name="Freckles">
 		しみ・そばかす
@@ -2386,7 +2386,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		あごの形
 	</string>
 	<string name="Join">
-		寄せた
+		寄せた胸
 	</string>
 	<string name="Jowls">
 		えら
@@ -2491,7 +2491,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		口紅の色
 	</string>
 	<string name="Long">
-		長
+		ロング
 	</string>
 	<string name="Long Head">
 		前後幅が広い頭
@@ -2887,7 +2887,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		骨張った脚
 	</string>
 	<string name="Separate">
-		離れた
+		離れた胸
 	</string>
 	<string name="Shallow">
 		なだらか
@@ -2935,7 +2935,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		靴の長さ
 	</string>
 	<string name="Short">
-		短
+		ショート
 	</string>
 	<string name="Short Arms">
 		短
@@ -3049,7 +3049,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		縦長
 	</string>
 	<string name="Sunken">
-		こけた
+		こけたほお
 	</string>
 	<string name="Sunken Chest">
 		小
@@ -3064,7 +3064,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		前へ
 	</string>
 	<string name="Tall">
-		高
+		トール
 	</string>
 	<string name="Taper Back">
 		後ろに先細
@@ -3160,7 +3160,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ウエストの高さ
 	</string>
 	<string name="Well-Fed">
-		つまった
+		つまったほお
 	</string>
 	<string name="White Hair">
 		白髪
@@ -3181,7 +3181,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ワイルド
 	</string>
 	<string name="Wrinkles">
-		しわあり
+		しわ
 	</string>
 	<string name="LocationCtrlAddLandmarkTooltip">
 		マイ ランドマークに追加

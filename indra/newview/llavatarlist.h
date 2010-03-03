@@ -73,7 +73,7 @@ public:
 	virtual void clear();
 
 	void setNameFilter(const std::string& filter);
-	void setDirty(bool val = true)						{ mDirty = val; }
+	void setDirty(bool val = true, bool force_refresh = false);
 	uuid_vector_t& getIDs() 							{ return mIDs; }
 	bool contains(const LLUUID& id);
 

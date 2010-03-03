@@ -695,22 +695,15 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	{
 		S32 local_x, local_y;
 		top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
-		if (down)
+		if (top_ctrl->pointInView(local_x, local_y))
 		{
-			if (top_ctrl->pointInView(local_x, local_y))
-			{
-				return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
-			}
-			else
-			{
-				gFocusMgr.setTopCtrl(NULL);
-			}
+			return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
 		}
 		else
 		{
-			if (top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleMouseUp(local_x, local_y, mask))
+			if (down)
 			{
-				return TRUE;
+				gFocusMgr.setTopCtrl(NULL);
 			}
 		}
 	}
