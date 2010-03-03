@@ -577,7 +577,7 @@ void LLLocationInputCtrl::reshape(S32 width, S32 height, BOOL called_from_parent
 
 	if (isHumanReadableLocationVisible)
 	{
-		positionMaturityIcon();
+		refreshMaturityIcon();
 	}
 }
 
@@ -737,32 +737,7 @@ void LLLocationInputCtrl::refreshLocation()
 	setText(location_name);
 	isHumanReadableLocationVisible = true;
 
-	// Updating maturity rating icon.
-	LLViewerRegion* region = gAgent.getRegion();
-	if (!region)
-		return;
-
-	U8 sim_access = region->getSimAccess();
-	switch(sim_access)
-	{
-	case SIM_ACCESS_PG:
-		mMaturityIcon->setValue(mIconMaturityGeneral->getName());
-		mMaturityIcon->setVisible(TRUE);
-		break;
-
-	case SIM_ACCESS_ADULT:
-		mMaturityIcon->setValue(mIconMaturityAdult->getName());
-		mMaturityIcon->setVisible(TRUE);
-		break;
-
-	default:
-		mMaturityIcon->setVisible(FALSE);
-	}
-
-	if (mMaturityIcon->getVisible())
-	{
-		positionMaturityIcon();
-	}
+	refreshMaturityIcon();
 }
 
 // returns new right edge
@@ -875,6 +850,36 @@ void LLLocationInputCtrl::refreshHealth()
 			mDamageText->setText(text);
 			last_health = health;
 		}
+	}
+}
+
+void LLLocationInputCtrl::refreshMaturityIcon()
+{
+	// Updating maturity rating icon.
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+		return;
+
+	U8 sim_access = region->getSimAccess();
+	switch(sim_access)
+	{
+	case SIM_ACCESS_PG:
+		mMaturityIcon->setValue(mIconMaturityGeneral->getName());
+		mMaturityIcon->setVisible(TRUE);
+		break;
+
+	case SIM_ACCESS_ADULT:
+		mMaturityIcon->setValue(mIconMaturityAdult->getName());
+		mMaturityIcon->setVisible(TRUE);
+		break;
+
+	default:
+		mMaturityIcon->setVisible(FALSE);
+	}
+
+	if (mMaturityIcon->getVisible())
+	{
+		positionMaturityIcon();
 	}
 }
 

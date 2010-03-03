@@ -31,6 +31,9 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+// external projects
+#include "lltransfersourceasset.h"
+
 #include "llinventorybridge.h"
 
 #include "llagent.h"
@@ -583,7 +586,16 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (show_asset_id)
 			{
 				items.push_back(std::string("Copy Asset UUID"));
-				if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
+
+				bool is_asset_knowable = false;
+
+				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
+				if (inv_item)
+				{
+					is_asset_knowable = is_asset_id_knowable(inv_item->getType());
+				}
+				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
+					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
 					 || (flags & FIRST_SELECTED_ITEM) == 0)
 				{
 					disabled_items.push_back(std::string("Copy Asset UUID"));

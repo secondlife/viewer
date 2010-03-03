@@ -16,5 +16,5 @@
 	<button label="Téléporter" name="offer_teleport_btn" tool_tip="Proposez à cet ami d&apos;être téléporté là où vous êtes"/>
 	<button label="Payer" name="pay_btn" tool_tip="Donnez des L$ à cet ami"/>
 	<button label="Supprimer" name="remove_btn" tool_tip="Supprimez ce résident de votre liste d&apos;amis"/>
-	<button label="Ajouter" name="add_btn" tool_tip="Proposer à ce résident de devenir votre ami"/>
+	<button label="Ajouter" name="add_btn" tool_tip="Proposer à un résident de devenir votre ami"/>
 </panel>

@@ -24,9 +24,9 @@
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="一般、控えめ、アダルト" name="Desired_Adult"/>
-		<combo_box.item label="一般と控えめ" name="Desired_Mature"/>
-		<combo_box.item label="一般" name="Desired_PG"/>
+		<combo_box.item label="General、Moderate、Adult" name="Desired_Adult"/>
+		<combo_box.item label="General と Moderate" name="Desired_Mature"/>
+		<combo_box.item label="General" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		ログイン位置：

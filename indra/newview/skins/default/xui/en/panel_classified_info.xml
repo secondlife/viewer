@@ -136,16 +136,6 @@
          top_pad="5"
          v_pad="0"
          value="[category]" />
-        <check_box
-         enabled="false"
-         height="16"
-         label="Auto renew each week"
-         layout="topleft"
-         left="10"
-         name="auto_renew"
-         top_pad="5"
-         v_pad="0"
-         width="290" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -161,6 +151,16 @@
          tool_tip="Price for listing."
          v_pad="0"
          width="105" />
+        <check_box
+         enabled="false"
+         height="16"
+         label="Auto renew each week"
+         layout="topleft"
+         left="10"
+         name="auto_renew"
+         top_pad="5"
+         v_pad="0"
+         width="290" />
         <text_editor
          allow_html="true"
          allow_scroll="true"
