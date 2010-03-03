@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  follows="left|top|right"
- height="570"
+ height="580"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -737,7 +737,7 @@
     </text>
     <tab_container
      follows="left|top"
-     height="400"
+     height="410"
      halign="center"
      left="0"
      name="Object Info Tabs"
@@ -1054,7 +1054,7 @@ even though the user gets a free copy.
          name="perms_build"
          left="0"
          top="241"
-         height="120"
+         height="130"
          width="278">
             <text
              type="string"
@@ -1135,7 +1135,7 @@ even though the user gets a free copy.
              left="10"
              name="B:"
              height="10"
-             width="45">
+             width="80">
                 B:
             </text>
             <text
@@ -1147,7 +1147,7 @@ even though the user gets a free copy.
              left_pad="0"
              name="O:"
              height="10"
-             width="44">
+             width="80">
                 O:
             </text>
             <text
@@ -1159,7 +1159,7 @@ even though the user gets a free copy.
              left_pad="0"
              name="G:"
              height="10"
-             width="43">
+             width="80">
                 G:
             </text>
             <text
@@ -1167,11 +1167,12 @@ even though the user gets a free copy.
              text_color="White"
              length="1"
              follows="left|top"
-             left_pad="0"
+             left="10"
+             top_pad="2"
              layout="topleft"
              name="E:"
              height="10"
-             width="43">
+             width="80">
                 E:
             </text>
             <text
@@ -1183,7 +1184,7 @@ even though the user gets a free copy.
              left_pad="0"
              name="N:"
              height="10"
-             width="48">
+             width="80">
                 N:
             </text>
             <text
@@ -1195,7 +1196,7 @@ even though the user gets a free copy.
              left_pad="0"
              name="F:"
              height="10"
-             width="50">
+             width="80">
                 F:
             </text>
         </panel>
@@ -2785,6 +2786,9 @@ even though the user gets a free copy.
              name="button permissions"
              width="130" />
             <panel_inventory_object
+             border="true"
+             border_visible="true"
+             bevel_style="in"
              follows="left|top"
              height="325"
              layout="topleft"

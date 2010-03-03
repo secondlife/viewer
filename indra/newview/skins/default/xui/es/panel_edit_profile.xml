@@ -1,45 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="edit_profile_panel">
-   <string name="CaptionTextAcctInfo">
-       [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
-   </string>
-   <string name="AcctTypeResident"
-    value="Residente" />
-   <string name="AcctTypeTrial"
-    value="Prueba" />
-   <string name="AcctTypeCharterMember"
-    value="Miembro fundador" />
-   <string name="AcctTypeEmployee"
-    value="Empleado de Linden Lab" />
-   <string name="PaymentInfoUsed"
-    value="Ha usado una forma de pago" />
-   <string name="PaymentInfoOnFile"
-    value="Hay infor. de la forma de pago" />
-   <string name="NoPaymentInfoOnFile"
-    value="Sin infor. de la forma de pago" />
-   <string name="AgeVerified"
-    value="Edad verificada" />
-   <string name="NotAgeVerified"
-    value="Edad no verificada" />
-   <string name="partner_edit_link_url">
-       http://www.secondlife.com/account/partners.php?lang=es
-   </string>
-    <panel name="scroll_content_panel">
-    <panel name="data_panel" >
-     <panel name="lifes_images_panel">
-          <panel name="second_life_image_panel">
-              <text name="second_life_photo_title_text">
-			[SECOND_LIFE]:
-              </text>
-          </panel>
-      </panel>
-        <text name="title_partner_text" value="Compañero/a:"/>
-        <panel name="partner_data_panel">
-            <text name="partner_text" value="[FIRST] [LAST]"/>
-         </panel>
-      <text name="text_box3">
-	Mensaje en el estado ocupado:
-      </text>
-    </panel>
-    </panel>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Editar el perfil" name="edit_profile_panel">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<string name="AcctTypeResident" value="Residente"/>
+	<string name="AcctTypeTrial" value="Prueba"/>
+	<string name="AcctTypeCharterMember" value="Miembro fundador"/>
+	<string name="AcctTypeEmployee" value="Empleado de Linden Lab"/>
+	<string name="PaymentInfoUsed" value="Ha usado una forma de pago"/>
+	<string name="PaymentInfoOnFile" value="Hay infor. de la forma de pago"/>
+	<string name="NoPaymentInfoOnFile" value="Sin infor. de la forma de pago"/>
+	<string name="AgeVerified" value="Edad verificada"/>
+	<string name="NotAgeVerified" value="Edad no verificada"/>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=es
+	</string>
+	<string name="no_partner_text" value="Ninguno"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="data_panel">
+				<panel name="lifes_images_panel">
+					<icon label="" name="2nd_life_edit_icon" tool_tip="Pulsa para elegir una imagen"/>
+				</panel>
+				<panel name="first_life_image_panel">
+					<text name="real_world_photo_title_text" value="Mundo real:"/>
+				</panel>
+				<icon label="" name="real_world_edit_icon" tool_tip="Pulsa para elegir una imagen"/>
+				<text name="title_homepage_text">
+					Web:
+				</text>
+				<check_box label="Mostrarme en los resultados de la búsqueda" name="show_in_search_checkbox"/>
+				<text name="title_acc_status_text" value="Mi cuenta:"/>
+				<text_editor name="acc_status_text" value="Residente. No ha aportado información de pago."/>
+				<text name="my_account_link" value="[[URL] Ir a mi Panel de Control]"/>
+				<text name="title_partner_text" value="Mi compañero/a:"/>
+				<panel name="partner_data_panel">
+					<name_box initial_value="(obteniendo)" name="partner_text"/>
+				</panel>
+				<text name="partner_edit_link" value="[[URL] Editar]"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<panel name="profile_me_buttons_panel">
+		<button label="Guardar cambios" name="save_btn"/>
+		<button label="Cancelar" name="cancel_btn"/>
+	</panel>
 </panel>

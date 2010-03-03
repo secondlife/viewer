@@ -50,6 +50,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llfloaterpay.h"
+#include "llfloaterworldmap.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
@@ -314,6 +315,20 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
 		}
 	}
+}
+
+// static
+void LLAvatarActions::showOnMap(const LLUUID& id)
+{
+	std::string name;
+	if (!gCacheName->getFullName(id, name))
+	{
+		gCacheName->get(id, FALSE, boost::bind(&LLAvatarActions::showOnMap, id));
+		return;
+	}
+
+	gFloaterWorldMap->trackAvatar(id, name);
+	LLFloaterReg::showInstance("world_map");
 }
 
 // static

@@ -148,6 +148,7 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	substitution["SESSION_ID"] = gAgent.getSessionID();
+	substitution["FIRST_LOGIN"] = gAgent.isFirstLogin();
 
 	// work out the current language
 	std::string lang = LLUI::getLanguage();

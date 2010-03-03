@@ -2,7 +2,7 @@
 <menu name="Gear Menu">
 	<menu_item_call label="Berühren" name="touch"/>
 	<menu_item_call label="Sitzen" name="sit"/>
-	<menu_item_call label="Zahlen" name="pay"/>
+	<menu_item_call label="Bezahlen" name="pay"/>
 	<menu_item_call label="Kaufen" name="buy"/>
 	<menu_item_call label="Nehmen" name="take"/>
 	<menu_item_call label="Kopie nehmen" name="take_copy"/>

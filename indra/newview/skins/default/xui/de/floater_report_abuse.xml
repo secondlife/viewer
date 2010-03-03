@@ -23,7 +23,7 @@
 		{128.1, 128.1, 15.4}
 	</text>
 	<text bottom_delta="-38" height="32" name="select_object_label">
-		Klicken Sie auf die Schaltfläche, dann auf das entsprechende 
+		Klicken Sie die Schaltfläche, dann das entsprechende 
 Objekt:
 	</text>
 	<button label="" label_selected="" name="pick_btn" tool_tip="Objektauswahl – Wählen Sie ein Objekt als Thema dieses Berichts aus"/>
@@ -94,7 +94,7 @@ Objekt:
 		Details:
 	</text>
 	<text name="bug_aviso">
-		Bitte beschreiben Sie alles so genau wie möglich.
+		Detaillierte Beschreibung:
 	</text>
 	<text_editor bottom_delta="-136" height="70" name="details_edit"/>
 	<text bottom_delta="-20" name="incomplete_title">

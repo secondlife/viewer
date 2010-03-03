@@ -88,7 +88,7 @@ bool LLScriptFloater::toggle(const LLUUID& notification_id)
 		else
 		{
 			floater->setVisible(TRUE);
-			floater->setFocus(TRUE);
+			floater->setFocus(FALSE);
 		}
 	}
 	// create and show new floater
@@ -107,6 +107,9 @@ LLScriptFloater* LLScriptFloater::show(const LLUUID& notification_id)
 	floater->setNotificationId(notification_id);
 	floater->createForm(notification_id);
 
+	//LLDialog(LLGiveInventory and LLLoadURL) should no longer steal focus (see EXT-5445)
+	floater->setAutoFocus(FALSE);
+
 	if(LLScriptFloaterManager::OBJ_SCRIPT == LLScriptFloaterManager::getObjectType(notification_id))
 	{
 		floater->setSavePosition(true);
@@ -117,7 +120,8 @@ LLScriptFloater* LLScriptFloater::show(const LLUUID& notification_id)
 		floater->dockToChiclet(true);
 	}
 
-	LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, TRUE);
+	//LLDialog(LLGiveInventory and LLLoadURL) should no longer steal focus (see EXT-5445)
+	LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, FALSE);
 
 	return floater;
 }
@@ -131,7 +135,7 @@ void LLScriptFloater::setNotificationId(const LLUUID& id)
 
 void LLScriptFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLScriptFloater::createForm(const LLUUID& notification_id)
@@ -279,7 +283,9 @@ void LLScriptFloater::dockToChiclet(bool dock)
 		setSavePosition(false);
 
 		setDockControl(new LLDockControl(chiclet, this, getDockTongue(),
-			LLDockControl::TOP,  boost::bind(&LLScriptFloater::getAllowedRect, this, _1)), dock);
+			LLDockControl::TOP,  boost::bind(&LLScriptFloater::getAllowedRect, this, _1)));
+
+		setDocked(dock);
 
 		// Restore saving
 		setSavePosition(save);

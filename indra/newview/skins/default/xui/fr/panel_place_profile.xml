@@ -6,7 +6,7 @@
 	<string name="available" value="disponible"/>
 	<string name="allocated" value="affecté"/>
 	<string name="title_place" value="Profil du lieu"/>
-	<string name="title_teleport_history" value="Emplacement de l&apos;historique des téléportations"/>
+	<string name="title_teleport_history" value="Historique des téléportations"/>
 	<string name="not_available" value="(s/o)"/>
 	<string name="unknown" value="(inconnu)"/>
 	<string name="public" value="(public)"/>
@@ -36,7 +36,7 @@
 		Aucune information sur ce lieu n&apos;est disponible actuellement, veuillez réessayer ultérieurement.
 	</string>
 	<string name="server_forbidden_text">
-		Les informations sur ce lieu ne sont pas disponibles car l&apos;accès y est restreint.  Veuillez vérifier vos permissions auprès du propriétaire de la parcelle.
+		Les informations sur ce lieu ne sont pas disponibles car l&apos;accès y est restreint.  Veuillez vérifier vos droits auprès du propriétaire de la parcelle.
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]

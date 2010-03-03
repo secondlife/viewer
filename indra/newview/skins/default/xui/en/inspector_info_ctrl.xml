@@ -1,0 +1,9 @@
+<button
+ chrome="true"
+ image_selected="Info_Small"
+ image_unselected="Info_Small"
+ image_pressed="Info_Small"
+ height="12"
+ name="inspector_info_ctrl"
+ width="12" />
+ 

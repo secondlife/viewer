@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Vestuarios" name="appearance panel">
+	<string name="No Outfit" value="No hay vestuario"/>
+	<panel name="panel_currentlook">
+		<text name="currentlook_title">
+			(sin guardar)
+		</text>
+	</panel>
+	<filter_editor label="Filtrar los vestuarios" name="Filter"/>
+</panel>

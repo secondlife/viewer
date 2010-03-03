@@ -18,7 +18,7 @@
 	<slider name="volume_slider" tool_tip="Lautstärke" value="0.5"/>
 	<button label="Freund hinzufügen" name="add_friend_btn" width="110"/>
 	<button label="IM" name="im_btn"/>
-	<button label="Mehr" name="view_profile_btn" width="44" left_delta="120"/>
+	<button label="Profil" left_delta="120" name="view_profile_btn" width="44"/>
 	<panel name="moderator_panel">
 		<button label="Voice deaktivieren" name="disable_voice"/>
 		<button label="Voice aktivieren" name="enable_voice"/>

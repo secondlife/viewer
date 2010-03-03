@@ -359,9 +359,7 @@ BOOL LLFloaterWorldMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if (!isMinimized() && isFrontmost())
 	{
-		LLRect area;
-		childGetRect("search_results", area);
-		if(!area.pointInRect(x, y))
+		if(mPanel->pointInView(x, y))
 		{
 			F32 slider_value = (F32)childGetValue("zoom slider").asReal();
 			slider_value += ((F32)clicks * -0.3333f);
@@ -788,8 +786,11 @@ void LLFloaterWorldMap::friendsChanged()
 	if(avatar_id.notNull())
 	{
 		LLCtrlSelectionInterface *iface = childGetSelectionInterface("friend combo");
-		if(!iface || !iface->setCurrentByID(avatar_id) || 
-			!t.getBuddyInfo(avatar_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION) || gAgent.isGodlike())
+		const LLRelationship* buddy_info = t.getBuddyInfo(avatar_id);
+		if(!iface ||
+		   !iface->setCurrentByID(avatar_id) || 
+		   (buddy_info && !buddy_info->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)) ||
+		   gAgent.isGodlike())
 		{
 			LLTracker::stopTracking(NULL);
 		}

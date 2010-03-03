@@ -171,6 +171,7 @@ Automatic position for:
      height="50"
      layout="topleft"
      left_pad="10"
+     top="190"
      name="background"
      tool_tip="Choose color for bubble chat"
      width="38">

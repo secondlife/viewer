@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="friends">
 	<string name="Multiple">
-		Varios amigos...
+		Varios amigos
 	</string>
 	<scroll_list name="friend_list" tool_tip="Para seleccionar a varios amigos, mantenga pulsado Ctrl o Mays. mientras les va pulsando.">
 		<column name="icon_online_status" tool_tip="Estado de conexión"/>
@@ -13,8 +13,8 @@
 	</scroll_list>
 	<button label="MI/Llamada" name="im_btn" tool_tip="Abrir sesión de mensajes instantáneos"/>
 	<button label="Perfil" name="profile_btn" tool_tip="Mostrar la imagen, los grupos, y otra información"/>
-	<button label="Teleportar..." name="offer_teleport_btn" tool_tip="Ofrecer a este amigo teleportarle hasta su posición"/>
-	<button label="Pagar..." name="pay_btn" tool_tip="Dar dólares Linden (L$) a este amigo"/>
-	<button label="Quitar..." name="remove_btn" tool_tip="Quitar a esta persona de su lista de amigos"/>
-	<button label="Añadir..." name="add_btn" tool_tip="Ofrecer ser mi amigo a un residente"/>
+	<button label="Teleporte" name="offer_teleport_btn" tool_tip="Ofrecer a este amigo teleportarle hasta su posición"/>
+	<button label="Pagar" name="pay_btn" tool_tip="Dar dólares Linden (L$) a este amigo"/>
+	<button label="Quitar" name="remove_btn" tool_tip="Quitar a esta persona de su lista de amigos"/>
+	<button label="Añadir" name="add_btn" tool_tip="Ofrece amistad a un Residente"/>
 </panel>

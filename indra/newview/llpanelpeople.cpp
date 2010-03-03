@@ -463,8 +463,10 @@ LLPanelPeople::~LLPanelPeople()
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
 
-	if(LLVoiceClient::getInstance())
+	if(LLVoiceClient::instanceExists())
+	{
 		LLVoiceClient::getInstance()->removeObserver(this);
+	}
 
 	LLView::deleteViewByHandle(mGroupPlusMenuHandle);
 	LLView::deleteViewByHandle(mNearbyViewSortMenuHandle);

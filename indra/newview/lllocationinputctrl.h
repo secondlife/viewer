@@ -36,6 +36,7 @@
 #include "llcombobox.h"
 #include "lliconctrl.h"		// Params
 #include "lltextbox.h"		// Params
+#include "lllocationhistory.h"
 
 class LLLandmark;
 
@@ -135,9 +136,10 @@ private:
 	void					refreshParcelIcons();
 	// Refresh the value in the health percentage text field
 	void					refreshHealth();
+	void					refreshMaturityIcon();
 	void					positionMaturityIcon();
 	
-	void					rebuildLocationHistory(std::string filter = "");
+	void					rebuildLocationHistory(const std::string& filter = LLStringUtil::null);
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
 	void					setText(const LLStringExplicit& text);
 	void					updateAddLandmarkButton();
@@ -147,7 +149,7 @@ private:
 	void					changeLocationPresentation();
 
 	void					onInfoButtonClicked();
-	void					onLocationHistoryLoaded();
+	void					onLocationHistoryChanged(LLLocationHistory::EChangeType event);
 	void					onLocationPrearrange(const LLSD& data);
 	void 					onTextEditorRightClicked(S32 x, S32 y, MASK mask);
 	void					onLandmarkLoaded(LLLandmark* lm);
@@ -174,6 +176,8 @@ private:
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
 	LLParcelChangeObserver*		mParcelChangeObserver;
 
+	boost::signals2::connection	mCoordinatesControlConnection;
+	boost::signals2::connection	mParcelPropertiesControlConnection;
 	boost::signals2::connection	mParcelMgrConnection;
 	boost::signals2::connection	mLocationHistoryConnection;
 	LLUIImage* mLandmarkImageOn;

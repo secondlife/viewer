@@ -218,6 +218,86 @@ void LLKeywords::addToken(LLKeywordToken::TOKEN_TYPE type,
 		llassert(0);
 	}
 }
+LLKeywords::WStringMapIndex::WStringMapIndex(const WStringMapIndex& other)
+{
+	if(other.mOwner)
+	{
+		copyData(other.mData, other.mLength);
+	}
+	else
+	{
+		mOwner = false;
+		mLength = other.mLength;
+		mData = other.mData;
+	}
+}
+
+LLKeywords::WStringMapIndex::WStringMapIndex(const LLWString& str)
+{
+	copyData(str.data(), str.size());
+}
+
+LLKeywords::WStringMapIndex::WStringMapIndex(const llwchar *start, size_t length):
+mData(start), mLength(length), mOwner(false)
+{
+}
+
+LLKeywords::WStringMapIndex::~WStringMapIndex()
+{
+	if(mOwner)
+		delete[] mData;
+}
+
+void LLKeywords::WStringMapIndex::copyData(const llwchar *start, size_t length)
+{
+	llwchar *data = new llwchar[length];
+	memcpy((void*)data, (const void*)start, length * sizeof(llwchar));
+
+	mOwner = true;
+	mLength = length;
+	mData = data;
+}
+
+bool LLKeywords::WStringMapIndex::operator<(const LLKeywords::WStringMapIndex &other) const
+{
+	// NOTE: Since this is only used to organize a std::map, it doesn't matter if it uses correct collate order or not.
+	// The comparison only needs to strictly order all possible strings, and be stable.
+	
+	bool result = false;
+	const llwchar* self_iter = mData;
+	const llwchar* self_end = mData + mLength;
+	const llwchar* other_iter = other.mData;
+	const llwchar* other_end = other.mData + other.mLength;
+	
+	while(true)
+	{
+		if(other_iter >= other_end)
+		{
+			// We've hit the end of other.
+			// This covers two cases: other being shorter than self, or the strings being equal.
+			// In either case, we want to return false.
+			result = false;
+			break;
+		}
+		else if(self_iter >= self_end)
+		{
+			// self is shorter than other.
+			result = true;
+			break; 
+		}
+		else if(*self_iter != *other_iter)
+		{
+			// The current character differs.  The strings are not equal.
+			result = *self_iter < *other_iter;
+			break;
+		}
+
+		self_iter++;
+		other_iter++;
+	}
+	
+	return result;
+}
 
 LLColor3 LLKeywords::readColor( const std::string& s )
 {
@@ -429,7 +509,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 				S32 seg_len = p - cur;
 				if( seg_len > 0 )
 				{
-					LLWString word( cur, 0, seg_len );
+					WStringMapIndex word( cur, seg_len );
 					word_token_map_t::iterator map_iter = mWordTokenMap.find(word);
 					if( map_iter != mWordTokenMap.end() )
 					{

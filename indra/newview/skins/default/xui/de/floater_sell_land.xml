@@ -21,7 +21,7 @@
 				1. Preis festlegen:
 			</text>
 			<text name="price_text" >
-				Einen angemessenen Preis auswählen.
+				Preis eingeben
 			</text>
 			<text name="price_ld">
 				L$
@@ -36,12 +36,12 @@
 				2. Land verkaufen an:
 			</text>
 			<text bottom_delta="-16" height="16" left="72" name="sell_to_text" right="-10">
-				Wählen Sie, ob der Verkauf offen oder auf eine bestimmte Person beschränkt ist.
+				Offener Verkauf oder Verkauf an bestimmte Person?
 			</text>
 			<combo_box bottom_delta="-32" height="16" left="72" name="sell_to" width="140">
 				<combo_box.item label="-- Auswählen --" name="--selectone--"/>
-				<combo_box.item label="Jeder" name="Anyone"/>
-				<combo_box.item label="Bestimmte Person:" name="Specificuser:"/>
+				<combo_box.item label="An jeden" name="Anyone"/>
+				<combo_box.item label="An bestimmte Person:" name="Specificuser:"/>
 			</combo_box>
 			<button label="Auswählen" name="sell_to_select_agent"/>
 			<text name="sell_objects_label">
@@ -58,7 +58,7 @@
 			<text name="nag_message_label">
 				ACHTUNG: Verkäufe sind endgültig.
 			</text>
-			<button label="Land zum Verkauf freigeben" name="sell_btn" width="180"/>
+			<button label="Zum Verkauf freigeben" name="sell_btn" width="180"/>
 			<button label="Abbrechen" name="cancel_btn"/>
 		</panel>
 	</scroll_container>

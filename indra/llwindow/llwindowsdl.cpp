@@ -1597,12 +1597,83 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(SDLKey keysym, BOOL gain)
 	return mGrabbyKeyFlags;
 }
 
+
+void check_vm_bloat()
+{
+#if LL_LINUX
+	// watch our own VM and RSS sizes, warn if we bloated rapidly
+	FILE *fp = fopen("/proc/self/stat", "r");
+	if (fp)
+	{
+		static long long last_vm_size = 0;
+		static long long last_rss_size = 0;
+		const long long significant_vm_difference = 250 * 1024*1024;
+		const long long significant_rss_difference = 50 * 1024*1024;
+
+		ssize_t res;
+		size_t dummy;
+		char *ptr;
+		for (int i=0; i<22; ++i) // parse past the values we don't want
+		{
+			ptr = NULL;
+			res = getdelim(&ptr, &dummy, ' ', fp);
+			free(ptr);
+		}
+		// 23rd space-delimited entry is vsize
+		ptr = NULL;
+		res = getdelim(&ptr, &dummy, ' ', fp);
+		llassert(ptr);
+		long long this_vm_size = atoll(ptr);
+		free(ptr);
+		// 24th space-delimited entry is RSS
+		ptr = NULL;
+		res = getdelim(&ptr, &dummy, ' ', fp);
+		llassert(ptr);
+		long long this_rss_size = getpagesize() * atoll(ptr);
+		free(ptr);
+
+		llinfos << "VM SIZE IS NOW " << (this_vm_size/(1024*1024)) << " MB, RSS SIZE IS NOW " << (this_rss_size/(1024*1024)) << " MB" << llendl;
+
+		if (llabs(last_vm_size - this_vm_size) >
+		    significant_vm_difference)
+		{
+			if (this_vm_size > last_vm_size)
+			{
+				llwarns << "VM size grew by " << (this_vm_size - last_vm_size)/(1024*1024) << " MB in last frame" << llendl;
+			}
+			else
+			{
+				llinfos << "VM size shrank by " << (last_vm_size - this_vm_size)/(1024*1024) << " MB in last frame" << llendl;
+			}
+		}
+
+		if (llabs(last_rss_size - this_rss_size) >
+		    significant_rss_difference)
+		{
+			if (this_rss_size > last_rss_size)
+			{
+				llwarns << "RSS size grew by " << (this_rss_size - last_rss_size)/(1024*1024) << " MB in last frame" << llendl;
+			}
+			else
+			{
+				llinfos << "RSS size shrank by " << (last_rss_size - this_rss_size)/(1024*1024) << " MB in last frame" << llendl;
+			}
+		}
+
+		last_rss_size = this_rss_size;
+		last_vm_size = this_vm_size;
+
+		fclose(fp);
+	}
+#endif // LL_LINUX
+}
+
+
 // virtual
 void LLWindowSDL::processMiscNativeEvents()
 {
 #if LL_GTK
 	// Pump GTK events to avoid starvation for:
-	// * Embedded Gecko
 	// * DBUS servicing
 	// * Anything else which quietly hooks into the default glib/GTK loop
     if (ll_try_gtk_init())
@@ -1628,6 +1699,12 @@ void LLWindowSDL::processMiscNativeEvents()
 	    setlocale(LC_ALL, saved_locale.c_str() );
     }
 #endif // LL_GTK
+
+    // hack - doesn't belong here - but this is just for debugging
+    if (getenv("LL_DEBUG_BLOAT"))
+    {
+	    check_vm_bloat();
+    }
 }
 
 void LLWindowSDL::gatherInput()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="contents" title="COMPRAR CÓPIA DO OBJETO">
 	<text name="contents_text">
-		e seus conteúdos:
+		Contém:
 	</text>
 	<text name="buy_text">
 		Comprar por L$[AMOUNT] de(a) [NAME]?

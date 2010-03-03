@@ -39,6 +39,7 @@
 
 // Linden library includes
 #include "v2math.h"
+#include "m3math.h"
 #include "v4color.h"
 #include "llrender.h"
 #include "llrect.h"
@@ -180,19 +181,19 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, const LL
 
 void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixel_offset, BOOL filled)
 {
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 	left += LLFontGL::sCurOrigin.mX;
 	right += LLFontGL::sCurOrigin.mX;
 	bottom += LLFontGL::sCurOrigin.mY;
 	top += LLFontGL::sCurOrigin.mY;
 
-	glLoadIdentity();
+	gGL.loadUIIdentity();
 	gl_rect_2d(llfloor((F32)left * LLUI::sGLScaleFactor.mV[VX]) - pixel_offset,
 				llfloor((F32)top * LLUI::sGLScaleFactor.mV[VY]) + pixel_offset,
 				llfloor((F32)right * LLUI::sGLScaleFactor.mV[VX]) + pixel_offset,
 				llfloor((F32)bottom * LLUI::sGLScaleFactor.mV[VY]) - pixel_offset,
 				filled);
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 }
 
 
@@ -508,9 +509,9 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
 	}
 
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 	{
-		gGL.translatef((F32)x, (F32)y, 0.f);
+		gGL.translateUI((F32)x, (F32)y, 0.f);
 
 		gGL.getTexUnit(0)->bind(image);
 
@@ -637,7 +638,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		}
 		gGL.end();
 	}
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 
 	if (solid_color)
 	{
@@ -660,22 +661,16 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 	LLGLSUIDefault gls_ui;
 
-	gGL.pushMatrix();
+
+	gGL.getTexUnit(0)->bind(image);
+
+	gGL.color4fv(color.mV);
+
+	if (degrees == 0.f)
 	{
-		gGL.translatef((F32)x, (F32)y, 0.f);
-		if( degrees )
-		{
-			F32 offset_x = F32(width/2);
-			F32 offset_y = F32(height/2);
-			gGL.translatef( offset_x, offset_y, 0.f);
-			glRotatef( degrees, 0.f, 0.f, 1.f );
-			gGL.translatef( -offset_x, -offset_y, 0.f );
-		}
-
-		gGL.getTexUnit(0)->bind(image);
-
-		gGL.color4fv(color.mV);
-		
+		gGL.pushUIMatrix();
+		gGL.translateUI((F32)x, (F32)y, 0.f);
+			
 		gGL.begin(LLRender::QUADS);
 		{
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
@@ -691,8 +686,47 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 			gGL.vertex2i(width, 0);
 		}
 		gGL.end();
+		gGL.popUIMatrix();
 	}
-	gGL.popMatrix();
+	else
+	{
+		gGL.pushUIMatrix();
+		gGL.translateUI((F32)x, (F32)y, 0.f);
+	
+		F32 offset_x = F32(width/2);
+		F32 offset_y = F32(height/2);
+
+		gGL.translateUI(offset_x, offset_y, 0.f);
+
+		LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
+		
+		gGL.getTexUnit(0)->bind(image);
+
+		gGL.color4fv(color.mV);
+		
+		gGL.begin(LLRender::QUADS);
+		{
+			LLVector3 v;
+
+			v = LLVector3(offset_x, offset_y, 0.f) * quat;
+			gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
+			gGL.vertex2f(v.mV[0], v.mV[1] );
+
+			v = LLVector3(-offset_x, offset_y, 0.f) * quat;
+			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mTop);
+			gGL.vertex2f(v.mV[0], v.mV[1] );
+
+			v = LLVector3(-offset_x, -offset_y, 0.f) * quat;
+			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
+			gGL.vertex2f(v.mV[0], v.mV[1] );
+
+			v = LLVector3(offset_x, -offset_y, 0.f) * quat;
+			gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
+			gGL.vertex2f(v.mV[0], v.mV[1] );
+		}
+		gGL.end();
+		gGL.popUIMatrix();
+	}
 }
 
 
@@ -747,9 +781,9 @@ void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled, F
 		end_angle += F_TWO_PI;
 	}
 
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 	{
-		gGL.translatef(center_x, center_y, 0.f);
+		gGL.translateUI(center_x, center_y, 0.f);
 
 		// Inexact, but reasonably fast.
 		F32 delta = (end_angle - start_angle) / steps;
@@ -780,15 +814,15 @@ void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled, F
 		}
 		gGL.end();
 	}
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 }
 
 void gl_circle_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled)
 {
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.translatef(center_x, center_y, 0.f);
+		gGL.translateUI(center_x, center_y, 0.f);
 
 		// Inexact, but reasonably fast.
 		F32 delta = F_TWO_PI / steps;
@@ -819,7 +853,7 @@ void gl_circle_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled
 		}
 		gGL.end();
 	}
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 }
 
 // Renders a ring with sides (tube shape)
@@ -846,9 +880,9 @@ void gl_deep_circle( F32 radius, F32 depth, S32 steps )
 
 void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor4& side_color, S32 steps, BOOL render_center )
 {
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 	{
-		gGL.translatef(0.f, 0.f, -width / 2);
+		gGL.translateUI(0.f, 0.f, -width / 2);
 		if( render_center )
 		{
 			gGL.color4fv(center_color.mV);
@@ -857,11 +891,11 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 		else
 		{
 			gl_washer_2d(radius, radius - width, steps, side_color, side_color);
-			gGL.translatef(0.f, 0.f, width);
+			gGL.translateUI(0.f, 0.f, width);
 			gl_washer_2d(radius - width, radius, steps, side_color, side_color);
 		}
 	}
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 }
 
 // Draw gray and white checkerboard with black border
@@ -1050,9 +1084,9 @@ void gl_segmented_rect_2d_tex(const S32 left,
 	S32 width = llabs(right - left);
 	S32 height = llabs(top - bottom);
 
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 
-	gGL.translatef((F32)left, (F32)bottom, 0.f);
+	gGL.translateUI((F32)left, (F32)bottom, 0.f);
 	LLVector2 border_uv_scale((F32)border_size / (F32)texture_width, (F32)border_size / (F32)texture_height);
 
 	if (border_uv_scale.mV[VX] > 0.5f)
@@ -1193,7 +1227,7 @@ void gl_segmented_rect_2d_tex(const S32 left,
 	}
 	gGL.end();
 
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 }
 
 void gl_segmented_rect_2d_fragment_tex(const S32 left, 
@@ -1210,9 +1244,9 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	S32 width = llabs(right - left);
 	S32 height = llabs(top - bottom);
 
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 
-	gGL.translatef((F32)left, (F32)bottom, 0.f);
+	gGL.translateUI((F32)left, (F32)bottom, 0.f);
 	LLVector2 border_uv_scale((F32)border_size / (F32)texture_width, (F32)border_size / (F32)texture_height);
 
 	if (border_uv_scale.mV[VX] > 0.5f)
@@ -1383,7 +1417,7 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	}
 	gGL.end();
 
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 }
 
 void gl_segmented_rect_3d_tex(const LLVector2& border_scale, const LLVector3& border_width, 
@@ -1591,7 +1625,7 @@ void LLUI::dirtyRect(LLRect rect)
 //static
 void LLUI::translate(F32 x, F32 y, F32 z)
 {
-	gGL.translatef(x,y,z);
+	gGL.translateUI(x,y,z);
 	LLFontGL::sCurOrigin.mX += (S32) x;
 	LLFontGL::sCurOrigin.mY += (S32) y;
 	LLFontGL::sCurOrigin.mZ += z;
@@ -1600,14 +1634,14 @@ void LLUI::translate(F32 x, F32 y, F32 z)
 //static
 void LLUI::pushMatrix()
 {
-	gGL.pushMatrix();
+	gGL.pushUIMatrix();
 	LLFontGL::sOriginStack.push_back(LLFontGL::sCurOrigin);
 }
 
 //static
 void LLUI::popMatrix()
 {
-	gGL.popMatrix();
+	gGL.popUIMatrix();
 	LLFontGL::sCurOrigin = *LLFontGL::sOriginStack.rbegin();
 	LLFontGL::sOriginStack.pop_back();
 }
@@ -1615,7 +1649,7 @@ void LLUI::popMatrix()
 //static 
 void LLUI::loadIdentity()
 {
-	glLoadIdentity();
+	gGL.loadUIIdentity(); 
 	LLFontGL::sCurOrigin.mX = 0;
 	LLFontGL::sCurOrigin.mY = 0;
 	LLFontGL::sCurOrigin.mZ = 0;
@@ -1894,7 +1928,9 @@ namespace LLInitParam
 		blue("blue"),
 		alpha("alpha"),
 		control("")
-	{}
+	{
+		setBlockFromValue();
+	}
 
 	void TypedParam<LLUIColor>::setValueFromBlock() const
 	{
@@ -1939,7 +1975,9 @@ namespace LLInitParam
 		size("size"),
 		style("style")
 	{
+		setBlockFromValue();
 		addSynonym(name, "");
+		setBlockFromValue();
 	}
 
 	void TypedParam<const LLFontGL*>::setValueFromBlock() const
@@ -1979,7 +2017,9 @@ namespace LLInitParam
 		bottom("bottom"),
 		width("width"),
 		height("height")
-	{}
+	{
+		setBlockFromValue();
+	}
 
 	void TypedParam<LLRect>::setValueFromBlock() const
 	{
@@ -2064,6 +2104,7 @@ namespace LLInitParam
 		x("x"),
 		y("y")
 	{
+		setBlockFromValue();
 	}
 
 	void TypedParam<LLCoordGL>::setValueFromBlock() const

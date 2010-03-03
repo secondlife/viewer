@@ -1165,6 +1165,40 @@ const LLUUID& LLViewerInventoryItem::getAssetUUID() const
 	return LLInventoryItem::getAssetUUID();
 }
 
+const LLUUID& LLViewerInventoryItem::getProtectedAssetUUID() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getProtectedAssetUUID();
+	}
+
+	// check for conditions under which we may return a visible UUID to the user
+	bool item_is_fullperm = getIsFullPerm();
+	bool agent_is_godlike = gAgent.isGodlikeWithoutAdminMenuFakery();
+	if (item_is_fullperm || agent_is_godlike)
+	{
+		return LLInventoryItem::getAssetUUID();
+	}
+
+	return LLUUID::null;
+}
+
+const bool LLViewerInventoryItem::getIsFullPerm() const
+{
+	LLPermissions item_permissions = getPermissions();
+
+	// modify-ok & copy-ok & transfer-ok
+	return ( item_permissions.allowOperationBy(PERM_MODIFY,
+						   gAgent.getID(),
+						   gAgent.getGroupID()) &&
+		 item_permissions.allowOperationBy(PERM_COPY,
+						   gAgent.getID(),
+						   gAgent.getGroupID()) &&
+		 item_permissions.allowOperationBy(PERM_TRANSFER,
+						   gAgent.getID(),
+						   gAgent.getGroupID()) );
+}
+
 const std::string& LLViewerInventoryItem::getName() const
 {
 	if (const LLViewerInventoryItem *linked_item = getLinkedItem())

@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Invitar a un miembro" name="invite_panel" width="224">
-	<text name="help_text" height="72" bottom_delta="-96" width="214">
-		Puede seleccionar a varios residentes
-para invitarles a su grupo. Para
-empezar, pulse &apos;Abrir el selector de
-residentes&apos;.
+	<panel.string name="confirm_invite_owner_str">
+		¿Está seguro de que quiere invitar a un nuevo propietario/s? ¡Esta acción es permanente!
+	</panel.string>
+	<panel.string name="loading">
+		(cargando...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Alguno de los Residentes que has elegido ya están en el grupo: no se les enviará la invitación.
+	</panel.string>
+	<text bottom_delta="-96" height="72" name="help_text" width="214">
+		Puedes elegir a varios Residentes para invitarles a tu grupo. Para empezar, pulsa &apos;Abrir el selector de residentes&apos;.
 	</text>
 	<button bottom_delta="-10" label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
-	<name_list height="156" bottom_delta="-160" name="invitee_list" tool_tip="Para seleccionar a varios residentes, mantenga pulsada la tecla Ctrl y vaya pulsando sus nombres."/>
-	<button left_delta="-7" width="214" label="Eliminar de la lista a los seleccionados" name="remove_button" tool_tip="Elimina los residentes seleccionados de la lista de invitaciones."/>
+	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Para seleccionar a varios residentes, ve pulsando sus nombres mientras mantienes apretada la tecla Ctrl"/>
+	<button label="Eliminar de la lista a los seleccionados" left_delta="-7" name="remove_button" tool_tip="Quita de la lista a los Residentes seleccionados arriba" width="214"/>
 	<text name="role_text">
 		Elegir qué rol asignarles:
 	</text>
-	<combo_box name="role_name" tool_tip="Elige de la lista de roles cuál asignar a los miembros."/>
+	<combo_box name="role_name" tool_tip="Elige el rol de entre la lista de aquellos que estás autorizado a asignar"/>
 	<button label="Enviar las invitaciones" name="ok_button"/>
 	<button label="Cancelar" name="cancel_button"/>
-	<string name="confirm_invite_owner_str">
-		¿Está seguro de que quiere invitar a un nuevo propietario/s? ¡Esta acción es permanente!
-	</string>
-	<string name="loading">
-		(cargando...)
+	<string name="GroupInvitation">
+		Invitar al grupo
 	</string>
 </panel>

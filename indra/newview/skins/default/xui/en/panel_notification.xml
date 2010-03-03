@@ -3,8 +3,8 @@
   background_opaque="false"
       border_visible="false"
   background_visible="true"
-  bg_alpha_color="0.3 0.3 0.3 0"
-  bg_opaque_color="0.3 0.3 0.3 0"
+  bg_alpha_color="1 0.3 0.3 0"
+  bg_opaque_color="1 0.3 0.3 0"
   label="notification_panel"
   layout="topleft"
   left="0"
@@ -83,12 +83,16 @@
   <panel
     background_visible="false"
     follows="left|right|bottom"
-    height="40" 
+    height="30" 
+    width="290"
     label="control_panel"
     layout="topleft"
-    left="0"
-    left_delta="-38"
+    left="10"
     name="control_panel"
-    top_pad="0">
+    top_pad="5">
+    <!-- 
+    Notes:
+    This panel holds buttons of notification. Change of its size can affect the layout of buttons. 
+     -->
   </panel>
 </panel>

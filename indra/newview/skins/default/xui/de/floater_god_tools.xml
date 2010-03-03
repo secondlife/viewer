@@ -7,7 +7,7 @@
 		</panel>
 		<panel label="Region" name="region">
 			<text name="Sim Name:" width="55">
-				Sim-Name:
+				Sim:
 			</text>
 			<check_box label="Startbereich Einleitung" name="check prelude" tool_tip="Diese Region zu einem Startbereich machen."/>
 			<check_box label="Sonne fest" name="check fixed sun" tool_tip="Fixiert den Sonnenstand (wie in „Region/Grundstück“ &gt; „Terrain“."/>
@@ -41,7 +41,7 @@
 				Abrechnungsfaktor:
 			</text>
 			<text name="land cost text">
-				L$ pro qm:
+				L$ pro m²:
 			</text>
 			<button label="Aktualisieren" label_selected="Aktualisieren" name="Refresh" tool_tip="Klicken Sie hier, um die obigen Informationen zu aktualisieren."/>
 			<button label="Übernehmen" label_selected="Übernehmen" name="Apply" tool_tip="Klicken Sie hier, um die obigen Änderungen zu übernehmen."/>

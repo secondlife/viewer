@@ -126,7 +126,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 			if(face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
 			{
 				// Zoom in on this face
-				mMediaControls.get()->resetZoomLevel();
+				mMediaControls.get()->resetZoomLevel(false);
 				mMediaControls.get()->nextZoomLevel();
 			}
 			else
@@ -557,6 +557,19 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
 			}
 		}
 	}
+}
+
+void LLViewerMediaFocus::unZoom()
+{
+	if(mMediaControls.get())
+	{
+		mMediaControls.get()->resetZoomLevel();
+	}
+}
+
+bool LLViewerMediaFocus::isZoomed() const
+{
+	return (mMediaControls.get() && mMediaControls.get()->getZoomLevel() != LLPanelPrimMediaControls::ZOOM_NONE);
 }
 
 LLUUID LLViewerMediaFocus::getControlsMediaID()

@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview notecard" title="NOTA:">
-	<button label="Guardar" label_selected="Guardar" name="Save"/>
+	<floater.string name="no_object">
+		No se ha podido encontrar el objeto que contiene esta nota.
+	</floater.string>
+	<floater.string name="not_allowed">
+		No tienes permiso para ver esta nota.
+	</floater.string>
+	<floater.string name="Title">
+		Nota: [NAME]
+	</floater.string>
+	<floater.string label="Guardar" label_selected="Guardar" name="Save">
+		Guardar
+	</floater.string>
 	<text name="desc txt">
 		Descripción:
 	</text>
 	<text_editor name="Notecard Editor">
 		Cargando...
 	</text_editor>
-	<string name="no_object">
-		No se ha podido encontrar el objeto que contiene esta nota.
-	</string>
-	<string name="not_allowed">
-		No está autorizado a ver esta nota.
-	</string>
+	<button label="Guardar" label_selected="Guardar" name="Save"/>
 </floater>

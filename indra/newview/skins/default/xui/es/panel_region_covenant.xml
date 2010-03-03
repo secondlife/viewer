@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Contrato" name="Covenant">
 	<text name="estate_section_lbl">
-		Estado:
+		Estado
 	</text>
 	<text name="estate_name_lbl">
 		Nombre:
@@ -22,7 +22,7 @@
 		Última modificación el miér. 31 de dic. de 1969, 16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
-	<text_editor name="covenant_editor" bottom="-263" height="178" >
+	<text_editor bottom="-263" height="178" name="covenant_editor">
 		No se ha aportado un contrato para este estado.
 	</text_editor>
 	<button label="Cambiar" name="reset_covenant"/>
@@ -30,11 +30,11 @@
 		Los cambios en el contrato se mostrarán en todas las parcelas
       del estado.
 	</text>
-	<text name="covenant_instructions" bottom_delta="-31" >
-		Para cambiar el contrato de este estado, arrastre y suelte una nota.
+	<text bottom_delta="-31" name="covenant_instructions">
+		Arrastra y suelta una nota para cambiar el contrato de este estado.
 	</text>
 	<text name="region_section_lbl">
-		Región:
+		Región
 	</text>
 	<text name="region_name_lbl">
 		Nombre:

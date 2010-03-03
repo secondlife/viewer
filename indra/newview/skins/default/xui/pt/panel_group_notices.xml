@@ -1,58 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notícias" name="notices_tab">
-	<text name="help_text">
+	<panel.string name="help_text">
 		As notícias são uma maneira rápida de comunicar-se através de um grupo transmitindo uma mensagem e entregando um item anexo, opcionalmente. As notícias vão apenas a membros do grupo que têm a função habilitada para receber notícias. Você pode desligar Notícias na aba Geral.
-	</text>
-	<text name="no_notices_text">
-		Não existem notícias anteriores.
-	</text>
-	<button label="?" label_selected="?" name="help_button"/>
-	<text name="lbl">
-		Arquivo de notícias do grupo
-	</text>
+	</panel.string>
+	<panel.string name="no_notices_text">
+		Não há nenhum aviso antigo
+	</panel.string>
 	<text name="lbl2">
-		As notícias são mantidas por 14 dias. 
-Listas de aviso estão limitadas a 200 por grupo, diariamente.
+		Cada aviso é armazenado por 14 dias.
+Cada grupo pode enviar no máximo 200 avisos/dia
 	</text>
 	<scroll_list name="notice_list">
-		<column label="Assunto" name="subject"/>
-		<column label="Para" name="from"/>
-		<column label="Data" name="date"/>
+		<scroll_list.columns label="Assunto" name="subject"/>
+		<scroll_list.columns label="Para" name="from"/>
+		<scroll_list.columns label="Data" name="date"/>
 	</scroll_list>
 	<text name="notice_list_none_found">
-		Nenhum encontrado.
+		Nenhum resultado foi encontrado.
 	</text>
-	<button label="Criar nova notícia" label_selected="Criar nova notícia" name="create_new_notice"/>
-	<button label="Atualizar" label_selected="Atualizar Lista" name="refresh_notices"/>
+	<button label="Criar um novo aviso" label_selected="Criar nova notícia" name="create_new_notice" tool_tip="Criar um novo aviso"/>
+	<button label="Atualizar" label_selected="Atualizar Lista" name="refresh_notices" tool_tip="Atualizar lista de avisos"/>
 	<panel label="Criar nova notícia" name="panel_create_new_notice">
 		<text name="lbl">
 			Criar uma notícia
 		</text>
-		<text name="lbl2">
-			Você pode adicionar um item simples à notícia, arrastando-o do seu Inventário para o painel. Itens anexados devem ser copiáveis e transferíveis e você não pode mandar uma pasta.
-		</text>
-		<text name="lbl3" left="20">
+		<text left="20" name="lbl3">
 			Assunto:
 		</text>
-		<line_editor name="create_subject" width="251" left_delta="61"/>
-		<text name="lbl4" left="15" width="60">
+		<line_editor left_delta="61" name="create_subject" width="251"/>
+		<text left="15" name="lbl4" width="60">
 			Mensagem:
 		</text>
-		<text_editor name="create_message" left_delta="66" width="330"/>
+		<text_editor left_delta="66" name="create_message" width="330"/>
 		<text name="lbl5" width="68">
 			Anexo:
 		</text>
-		<line_editor name="create_inventory_name" width="190" left_delta="74"/>
-		<button label="Remover o anexo" label_selected="Remover o anexo" name="remove_attachment"/>
+		<line_editor left_delta="74" name="create_inventory_name" width="190"/>
+		<text name="string">
+			Arrastar e soltar o item aqui para anexá-lo:
+		</text>
+		<button label="Tirar" label_selected="Remover o anexo" name="remove_attachment"/>
 		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
-		<panel name="drop_target" tool_tip="Arraste um item do inventário para dentro da caixa de mensagem para enviá-lo com a notícia. Você deve ter permissão para copiar e transferir o objeto, para enviá-lo com a notícia."/>
+		<group_drop_target name="drop_target" tool_tip="Arrastar um item do inventário para a caixa para enviá-lo com o aviso. É preciso ter autorização de cópia e transferência do item para anexá-lo ao aviso."/>
 	</panel>
 	<panel label="Visualizar Notícia Anterior" name="panel_view_past_notice">
 		<text name="lbl">
 			Notícia arquivada
 		</text>
 		<text name="lbl2">
-			Para enviar uma notícia nova, clique no botão &apos;Criar Nova Notícia&apos; acima.
+			Para enviar um novo aviso, clique no botão +
 		</text>
 		<text name="lbl3">
 			Asunto:
@@ -60,6 +56,6 @@ Listas de aviso estão limitadas a 200 por grupo, diariamente.
 		<text name="lbl4">
 			Mensagem:
 		</text>
-		<button label="Abrir o anexo" label_selected="Abrir o anexo" name="open_attachment"/>
+		<button label="Abrir anexo" label_selected="Abrir o anexo" name="open_attachment"/>
 	</panel>
 </panel>

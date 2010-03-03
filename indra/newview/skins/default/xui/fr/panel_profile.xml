@@ -28,21 +28,25 @@
 					</panel>
 					<text name="title_member_text" value="Résident depuis :"/>
 					<text name="title_acc_status_text" value="Statut du compte :"/>
-					<text name="acc_status_text">
+					<text_editor name="acc_status_text">
 						Résident. Aucune info de paiement enregistrée.
               Linden.
-					</text>
+					</text_editor>
 					<text name="title_partner_text" value="Partenaire :"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(récupération en cours)" name="partner_text"/>
+					</panel>
 					<text name="title_groups_text" value="Groupes :"/>
 				</panel>
 			</scroll_container>
 		</layout_panel>
 		<layout_panel name="profile_buttons_panel">
-			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à ce résident de devenir votre ami"/>
-			<button label="IM" name="im" width="30" tool_tip="Ouvrir une session IM"/>
-			<button label="Appeler" name="call" width="60" tool_tip="Appeler ce résident"/>
+			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à un résident de devenir votre ami"/>
+			<button label="IM" name="im" tool_tip="Ouvrir une session IM" width="30"/>
+			<button label="Appeler" name="call" tool_tip="Appeler ce résident" width="60"/>
 			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
 			<button label="Téléporter" name="teleport" tool_tip="Proposez une téléportation"/>
+			<button label="▼" name="overflow_btn" tool_tip="Payer ou partager l&apos;inventaire avec le résident"/>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
 			<button label="Modifier le profil" name="edit_profile_btn" tool_tip="Modifier vos informations personnelles"/>

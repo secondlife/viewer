@@ -3018,6 +3018,9 @@ void LLAgent::endAnimationUpdateUI()
 //-----------------------------------------------------------------------------
 void LLAgent::updateCamera()
 {
+	static LLFastTimer::DeclareTimer ftm("Camera");
+	LLFastTimer t(ftm);
+
 	//Ventrella - changed camera_skyward to the new global "mCameraUpVector"
 	mCameraUpVector = LLVector3::z_axis;
 	//LLVector3	camera_skyward(0.f, 0.f, 1.f);
@@ -4836,9 +4839,14 @@ void LLAgent::onAnimStop(const LLUUID& id)
 	}
 }
 
-BOOL LLAgent::isGodlike() const
+bool LLAgent::isGodlike() const
 {
 	return mAgentAccess.isGodlike();
+}
+
+bool LLAgent::isGodlikeWithoutAdminMenuFakery() const
+{
+	return mAgentAccess.isGodlikeWithoutAdminMenuFakery();
 }
 
 U8 LLAgent::getGodLevel() const

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="IGNORAR UN OBJETO SEGÚN SU NOMBRE">
-	<text name="message" bottom_delta="-40">
-		Ignorar según el nombre sólo afecta al chat y los MI del
-objeto, no a sus sonidos. 
-Debe escribir exactamente el nombre del objeto.
+<floater name="mute by name" title="IGNORAR OBJETOS SEGÚN SU NOMBRE">
+	<text bottom_delta="-40" name="message">
+		Ignorar un objeto:
 	</text>
-	<line_editor name="object_name" bottom_delta="-58">
+	<line_editor bottom_delta="-58" name="object_name">
 		Nombre del objeto
 	</line_editor>
+	<text name="note">
+		* Sólo se ignoran los textos del objeto, no sus sonidos
+	</text>
 	<button label="OK" name="OK"/>
 	<button label="Cancelar" name="Cancel"/>
 </floater>

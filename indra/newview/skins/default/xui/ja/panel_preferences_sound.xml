@@ -2,15 +2,19 @@
 <panel label="サウンド" name="Preference Media panel">
 	<slider label="全体の音量" name="System Volume"/>
 	<check_box initial_value="true" label="最小化でミュート" name="mute_when_minimized"/>
-	<slider label="風" name="Wind Volume"/>
 	<slider label="ボタン" name="UI Volume"/>
-	<slider label="メディア" name="Media Volume"/>
+	<slider label="風" name="Wind Volume"/>
 	<slider label="効果音" name="SFX Volume"/>
 	<slider label="ストリーミング音楽" name="Music Volume"/>
-	<check_box label="ボイスを有効にする" name="enable_voice_check"/>
-	<slider label="ボイス" name="Voice Volume"/>
+	<check_box label="有効" name="music_enabled"/>
+	<slider label="メディア" name="Media Volume"/>
+	<check_box label="有効" name="enable_media"/>
+	<slider label="ボイスチャット" name="Voice Volume"/>
+	<check_box label="有効" name="enable_voice_check"/>
+	<check_box label="メディアを自動再生する" name="media_auto_play_btn" tool_tip="ここにチェックを入れてメディアの自動再生を許可します" value="true"/>
+	<check_box label="他のアバターに取り付けられたメディアを再生します" name="media_show_on_others_btn" tool_tip="このチェックを外すと、近くにいる他のアバターに取り付けられたメディアを非表示にします。" value="true"/>
 	<text name="Listen from">
-		方向：
+		ボイスチャットの設定
 	</text>
 	<radio_group name="ear_location">
 		<radio_item label="カメラの位置から聞く" name="0"/>

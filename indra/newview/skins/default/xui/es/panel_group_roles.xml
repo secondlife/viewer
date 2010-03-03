@@ -1,158 +1,119 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Miembros y Roles" name="roles_tab">
-	<string name="default_needs_apply_text">
-		En esta pestaña hay cambios sin aplicar.
-	</string>
-	<string name="want_apply_text">
-		¿Quiere aplicar estos cambios?
-	</string>
-	<button label="?" name="help_button"/>
-	<panel name="members_header">
-		<text name="static">
-			Miembros y Roles
-		</text>
-		<text name="static2">
-			Los miembros del grupo tienen asignados roles con distintas capacidades.
-Estas configuraciones son fácilmente personalizables, para facilitar una 
-mayor flexibilidad y organización.
-		</text>
-	</panel>
-	<panel name="roles_header">
-		<text name="static">
-			Roles
-		</text>
-		<text name="role_properties_modifiable">
-			Elija un rol de los de abajo. Puede modificar su nombre, su
-descripción, y la etiqueta de los miembros.
-		</text>
-		<text name="role_properties_not_modifiable">
-			Elija un rol de los de abajo para ver sus propiedades, miembros, y qué
-capacidades tiene asignadas.
-		</text>
-		<text bottom_delta="-28" name="role_actions_modifiable">
-			También puede asignar capacidades al rol.
-		</text>
-		<text name="role_actions_not_modifiable">
-			Puede ver, pero no modificar, las capacidades asignadas.
-		</text>
-	</panel>
-	<panel name="actions_header">
-		<text name="static">
-			Capacidades
-		</text>
-		<text name="static2">
-			Puede ver una descripción de la capacidad, y qué miembros y roles pueden
-realizarla.
-		</text>
-	</panel>
+	<panel.string name="default_needs_apply_text">
+		Hay cambios sin guardar
+	</panel.string>
+	<panel.string name="want_apply_text">
+		¿Quieres guardar estos cambios?
+	</panel.string>
 	<tab_container height="164" name="roles_tab_container">
-		<panel height="148" label="Miembros" name="members_sub_tab" tool_tip="Miembros">
-			<line_editor bottom="127" name="search_text"/>
-			<button label="Buscar" name="search_button" width="75"/>
-			<button label="Verlos todos" name="show_all_button" left_delta="80"/>
-			<name_list name="member_list" bottom_delta="-105" height="104" >
-				<column label="Nombre del miembro" name="name"/>
-				<column label="Cuotas donadas" name="donated"/>
-				<column label="Última conexión" name="online"/>
-			</name_list>
-			<button label="Invitar a un nuevo miembro..." name="member_invite" width="175"/>
-			<button label="Expulsar del grupo" name="member_eject"/>
-			<string name="help_text">
+		<panel height="148" label="MIEMBROS" name="members_sub_tab" tool_tip="Miembros">
+			<panel.string name="help_text">
 				Puede añadir o quitar los roles asignados a los miembros.
 Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada uno de ellos.
-			</string>
+			</panel.string>
+			<filter_editor label="Filtrar los miembros" name="filter_input"/>
+			<name_list bottom_delta="-105" height="104" name="member_list">
+				<name_list.columns label="Miembro" name="name"/>
+				<name_list.columns label="Donaciones" name="donated"/>
+				<name_list.columns label="Estatus" name="online"/>
+			</name_list>
+			<button label="Invitar" name="member_invite" width="175"/>
+			<button label="Expulsar" name="member_eject"/>
 		</panel>
-		<panel height="148" label="Roles" name="roles_sub_tab">
-			<line_editor bottom="127" name="search_text"/>
-			<button label="Buscar" name="search_button" width="75"/>
-			<button label="Verlos todos" name="show_all_button" left_delta="80"/>
-			<scroll_list name="role_list" bottom_delta="-104" height="104">
-				<column label="Nombre del rol" name="name"/>
-				<column label="Etiqueta" name="title"/>
-				<column label="Miembros" name="members"/>
-			</scroll_list>
-			<button label="Crear un rol nuevo..." name="role_create"/>
-			<button label="Eliminar el rol" name="role_delete"/>
-			<string name="help_text">
-				Los roles tienen una etiqueta y una serie de capacidades permitidas que los miembros pueden desarrollar. Los miembros pueden tener más de un rol. Un grupo puede tener hasta 10 roles, incluyendo el de Todos y el de Propietarios.
-			</string>
-			<string name="cant_delete_role">
+		<panel height="148" label="ROLES" name="roles_sub_tab">
+			<panel.string name="help_text">
+				Los roles tienen una etiqueta propia y unas capacidades que se
+permiten ejercer a sus miembros. Los miembros pueden
+tener más de un rol. Un grupo puede tener hasta 10 roles,
+incluyendo el de Todos y el de Propietarios.
+			</panel.string>
+			<panel.string name="cant_delete_role">
 				Los roles de &apos;Todos&apos; y &apos;Propietarios&apos; son especiales, y no pueden eliminarse.
-			</string>
-		</panel>
-		<panel height="148" label="Capacidades" name="actions_sub_tab">
-			<line_editor bottom="127" name="search_text"/>
-			<button label="Buscar" name="search_button" width="75"/>
-			<button label="Verlos todos" name="show_all_button" left_delta="80"/>
-			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Elija una capacidad para verla más en detalle.">
-				<column label="" name="icon"/>
-				<column label="" name="action"/>
+			</panel.string>
+			<panel.string name="power_folder_icon">
+				Inv_FolderClosed
+			</panel.string>
+			<filter_editor label="Filtrar los roles" name="filter_input"/>
+			<scroll_list bottom_delta="-104" height="104" name="role_list">
+				<scroll_list.columns label="Rol" name="name"/>
+				<scroll_list.columns label="Etiqueta" name="title"/>
+				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
-			<string name="help_text">
+			<button label="Añadir un rol" name="role_create"/>
+			<button label="Eliminar el rol" name="role_delete"/>
+		</panel>
+		<panel height="148" label="CAPACIDADES" name="actions_sub_tab" tool_tip="Puedes ver una descripción de la capacidad y qué miembros y roles la tienen.">
+			<panel.string name="help_text">
 				Las capacidades permiten a los miembros que tienen ese rol el hacer tareas específicas dentro de este grupo. Hay una gran variedad de capacidades.
-			</string>
+			</panel.string>
+			<filter_editor label="Filtrar las capacidades" name="filter_input"/>
+			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Elige una capacidad para verla más en detalle">
+				<scroll_list.columns label="" name="icon"/>
+				<scroll_list.columns label="" name="action"/>
+			</scroll_list>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
 			Roles asignados
 		</text>
+		<scroll_list name="member_assigned_roles">
+			<scroll_list.columns label="" name="checkbox"/>
+			<scroll_list.columns label="" name="role"/>
+		</scroll_list>
 		<text name="static2">
 			Capacidades permitidas
 		</text>
-		<scroll_list name="member_assigned_roles">
-			<column label="" name="checkbox"/>
-			<column label="" name="role"/>
-		</scroll_list>
-		<scroll_list name="member_allowed_actions" tool_tip="Para más detalles de cada capacidad permitida, vea la pestaña Capacidades.">
-			<column label="" name="icon"/>
-			<column label="" name="action"/>
+		<scroll_list name="member_allowed_actions" tool_tip="Para más detalles de cada capacidad, ver la pestaña Capacidades">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			Nombre
-		</text>
-		<text name="static2">
-			Descripción
+			Nombre del rol
 		</text>
 		<line_editor name="role_name">
 			Empleados
 		</line_editor>
 		<text name="static3">
-			Etiqueta
+			Etiqueta del rol
 		</text>
 		<line_editor name="role_title">
 			(esperando)
 		</line_editor>
+		<text name="static2">
+			Descripción
+		</text>
 		<text_editor name="role_description">
 			(esperando)
 		</text_editor>
 		<text name="static4">
-			Miembros asignados
+			Roles asignados
 		</text>
+		<check_box label="Mostrar los miembros" name="role_visible_in_list" tool_tip="Establece si los miembros de este rol pueden ser vistos en la pestaña General por personas ajenas al grupo."/>
 		<text name="static5" tool_tip="Una lista de las capacidades que puede desarrollar el rol seleccionado actualmente.">
 			Capacidades asignadas
 		</text>
-		<check_box label="Los miembros son visibles." name="role_visible_in_list" tool_tip="Establece si los miembros de este rol pueden ser vistos en la pestaña General por personas ajenas al grupo."/>
-		<scroll_list name="role_allowed_actions" tool_tip="Para más detalles de cada capacidad permitida, vea la pestaña Capacidades.">
-			<column label="" name="icon"/>
-			<column label="" name="checkbox"/>
-			<column label="" name="action"/>
+		<scroll_list name="role_allowed_actions" tool_tip="Para más detalles de cada capacidad, ver la pestaña Capacidades">
+			<scroll_list.columns label="" name="icon"/>
+			<scroll_list.columns label="" name="checkbox"/>
+			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="actions_footer">
 		<text name="static">
-			Descripción
+			Descripción de la capacidad
 		</text>
 		<text_editor name="action_description">
 			Esta capacidad es la de &apos;Expulsar miembros de este grupo&apos;. Sólo un propietario puede expulsar a otro.
 		</text_editor>
 		<text name="static2">
-			Roles con la capacidad
+			Roles con esta capacidad
 		</text>
 		<text name="static3">
-			Miembros con la capacidad
+			Miembros con esta capacidad
 		</text>
 	</panel>
 </panel>

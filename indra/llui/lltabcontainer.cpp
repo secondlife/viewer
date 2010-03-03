@@ -172,6 +172,10 @@ public:
 		}
 	}
 
+	LLIconCtrl* getIconCtrl() const
+	{
+		return mIcon;
+	}
 
 private:
 	LLIconCtrl* mIcon;
@@ -214,7 +218,8 @@ LLTabContainer::Params::Params()
 	last_tab("last_tab"),
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
-	use_ellipses("use_ellipses")
+	use_ellipses("use_ellipses"),
+	font_halign("halign")
 {
 	name(std::string("tab_container"));
 	mouse_opaque = false;
@@ -492,15 +497,15 @@ void LLTabContainer::draw()
 		if( mIsVertical && has_scroll_arrows )
 		{
 			// Redraw the arrows so that they appears on top.
-			gGL.pushMatrix();
-			gGL.translatef((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
+			gGL.pushUIMatrix();
+			gGL.translateUI((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
 			mPrevArrowBtn->draw();
-			gGL.popMatrix();
+			gGL.popUIMatrix();
 
-			gGL.pushMatrix();
-			gGL.translatef((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
+			gGL.pushUIMatrix();
+			gGL.translateUI((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
 			mNextArrowBtn->draw();
-			gGL.popMatrix();
+			gGL.popUIMatrix();
 		}
 	}
 
@@ -950,7 +955,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	LLRect tab_panel_rect;
 	if (!getTabsHidden() && mIsVertical)
 	{
-		tab_panel_rect = LLRect(mMinTabWidth + (LLPANEL_BORDER_WIDTH * 2) + tabcntrv_pad, 
+		tab_panel_rect = LLRect(mMinTabWidth + mRightTabBtnOffset + (LLPANEL_BORDER_WIDTH * 2) + tabcntrv_pad,
 								getRect().getHeight() - LLPANEL_BORDER_WIDTH,
 								getRect().getWidth() - LLPANEL_BORDER_WIDTH,
 								LLPANEL_BORDER_WIDTH);
@@ -1628,6 +1633,7 @@ void LLTabContainer::setTabImage(LLPanel* child, LLIconCtrl* icon)
 		if(button)
 		{
 			button->setIcon(icon);
+			reshapeTuple(tuple);
 		}
 	}
 }
@@ -1638,11 +1644,21 @@ void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
 
 	if (!mIsVertical)
 	{
+		S32 image_overlay_width = 0;
+
+		if(mCustomIconCtrlUsed)
+		{
+			LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
+			LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
+			image_overlay_width = icon_ctrl ? icon_ctrl->getRect().getWidth() : 0;
+		}
+		else
+		{
+			image_overlay_width = tuple->mButton->getImageOverlay().notNull() ?
+					tuple->mButton->getImageOverlay()->getImage()->getWidth(0) : 0;
+		}
 		// remove current width from total tab strip width
 		mTotalTabWidth -= tuple->mButton->getRect().getWidth();
-
-		S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ?
-		tuple->mButton->getImageOverlay()->getImage()->getWidth(0) : 0;
 
 		tuple->mPadding = image_overlay_width;
 

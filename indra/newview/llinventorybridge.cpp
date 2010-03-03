@@ -31,6 +31,9 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+// external projects
+#include "lltransfersourceasset.h"
+
 #include "llinventorybridge.h"
 
 #include "llagent.h"
@@ -293,12 +296,27 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	LLMessageSystem* msg = gMessageSystem;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = NULL;
-	LLViewerInventoryCategory* cat = NULL;
 	std::vector<LLUUID> move_ids;
 	LLInventoryModel::update_map_t update;
 	bool start_new_message = true;
 	S32 count = batch.count();
 	S32 i;
+
+	// first, hide any 'preview' floaters that correspond to the items
+	// being deleted.
+	for(i = 0; i < count; ++i)
+	{
+		bridge = (LLInvFVBridge*)(batch.get(i));
+		if(!bridge || !bridge->isItemRemovable()) continue;
+		item = (LLViewerInventoryItem*)model->getItem(bridge->getUUID());
+		if(item)
+		{
+			LLPreview::hide(item->getUUID());
+		}
+	}
+
+	// do the inventory move to trash
+
 	for(i = 0; i < count; ++i)
 	{
 		bridge = (LLInvFVBridge*)(batch.get(i));
@@ -308,7 +326,6 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 		{
 			if(item->getParentUUID() == trash_id) continue;
 			move_ids.push_back(item->getUUID());
-			LLPreview::hide(item->getUUID());
 			--update[item->getParentUUID()];
 			++update[trash_id];
 			if(start_new_message)
@@ -340,11 +357,12 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 		gInventory.accountForUpdate(update);
 		update.clear();
 	}
+
 	for(i = 0; i < count; ++i)
 	{
 		bridge = (LLInvFVBridge*)(batch.get(i));
 		if(!bridge || !bridge->isItemRemovable()) continue;
-		cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
+		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
 		if(cat)
 		{
 			if(cat->getParentUUID() == trash_id) continue;
@@ -568,7 +586,16 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (show_asset_id)
 			{
 				items.push_back(std::string("Copy Asset UUID"));
-				if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
+
+				bool is_asset_knowable = false;
+
+				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
+				if (inv_item)
+				{
+					is_asset_knowable = is_asset_id_knowable(inv_item->getType());
+				}
+				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
+					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
 					 || (flags & FIRST_SELECTED_ITEM) == 0)
 				{
 					disabled_items.push_back(std::string("Copy Asset UUID"));
@@ -1050,9 +1077,9 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 	else if ("copy_uuid" == action)
 	{
 		// Single item only
-		LLInventoryItem* item = model->getItem(mUUID);
+		LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 		if(!item) return;
-		LLUUID asset_id = item->getAssetUUID();
+		LLUUID asset_id = item->getProtectedAssetUUID();
 		std::string buffer;
 		asset_id.toString(buffer);
 
@@ -1092,7 +1119,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 
 void LLItemBridge::selectItem()
 {
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
+	LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 	if(item && !item->isComplete())
 	{
 		item->fetchFromServer();
@@ -1101,7 +1128,7 @@ void LLItemBridge::selectItem()
 
 void LLItemBridge::restoreItem()
 {
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
+	LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 	if(item)
 	{
 		LLInventoryModel* model = getInventoryModel();
@@ -1116,7 +1143,7 @@ void LLItemBridge::restoreToWorld()
 	//Similar functionality to the drag and drop rez logic
 	bool remove_from_inventory = false;
 
-	LLViewerInventoryItem* itemp = (LLViewerInventoryItem*)getItem();
+	LLViewerInventoryItem* itemp = static_cast<LLViewerInventoryItem*>(getItem());
 	if (itemp)
 	{
 		LLMessageSystem* msg = gMessageSystem;
@@ -1409,11 +1436,7 @@ BOOL LLItemBridge::isItemPermissive() const
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		U32 mask = item->getPermissions().getMaskBase();
-		if((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-		{
-			return TRUE;
-		}
+		return item->getIsFullPerm();
 	}
 	return FALSE;
 }
@@ -1910,7 +1933,7 @@ bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
 	// - links to attachments
 	// - links to gestures
 	// - links to ensemble folders
-	LLViewerInventoryItem *linked_item = ((LLViewerInventoryItem*)item)->getLinkedItem(); // BAP - safe?
+	LLViewerInventoryItem *linked_item = ((LLViewerInventoryItem*)item)->getLinkedItem();
 	if (linked_item)
 	{
 		LLAssetType::EType type = linked_item->getType();
@@ -1921,7 +1944,7 @@ bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
 	}
 	else
 	{
-		LLViewerInventoryCategory *linked_category = ((LLViewerInventoryItem*)item)->getLinkedCategory(); // BAP - safe?
+		LLViewerInventoryCategory *linked_category = ((LLViewerInventoryItem*)item)->getLinkedCategory();
 		// BAP remove AT_NONE support after ensembles are fully working?
 		return (linked_category &&
 				((linked_category->getPreferredType() == LLFolderType::FT_NONE) ||
@@ -2947,8 +2970,6 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 	LLViewerInventoryCategory* cat = getCategory();
 	if(!cat) return;
 
-	// BAP - was:
-	// wear_inventory_category_on_avatar( cat, append );
 	LLAppearanceManager::instance().wearInventoryCategory( cat, FALSE, append );
 }
 

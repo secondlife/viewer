@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings_debug" title="CONFIGURACIÓN DEL DEPURADOR">
-	<combo_box name="boolean_combo">
-		<combo_box.item name="TRUE" label="TRUE" />
-		<combo_box.item name="FALSE" label="FALSE" />
-	</combo_box>
-	<color_swatch label="Color" name="color_swatch"/>
+<floater name="settings_debug" title="CONFIGURACIONES DEL DEPURADOR">
+	<radio_group name="boolean_combo">
+		<radio_item label="VERDADERO" name="TRUE" value="verdadero"/>
+		<radio_item label="FALSO" name="FALSE" value=""/>
+	</radio_group>
+	<color_swatch label="Color" name="val_color_swatch"/>
 	<spinner label="x" name="val_spinner_1"/>
 	<spinner label="x" name="val_spinner_2"/>
 	<spinner label="x" name="val_spinner_3"/>

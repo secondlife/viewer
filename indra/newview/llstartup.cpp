@@ -121,7 +121,6 @@
 #include "lllogininstance.h" // Host the login module.
 #include "llpanellogin.h"
 #include "llmutelist.h"
-#include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterevent.h"
 #include "llpanelclassified.h"
@@ -198,10 +197,6 @@
 #if LL_WINDOWS
 #include "llwindebug.h"
 #include "lldxhardware.h"
-#endif
-
-#if (LL_LINUX || LL_SOLARIS) && LL_GTK
-#include <glib/gspawn.h>
 #endif
 
 //
@@ -2899,7 +2894,9 @@ bool process_login_success_response()
 	text = response["agent_region_access"].asString();
 	if (!text.empty())
 	{
-		int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
+		U32 preferredMaturity =
+			llmin((U32)LLAgent::convertTextToMaturity(text[0]),
+			      gSavedSettings.getU32("PreferredMaturity"));
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 	}
 	// During the AO transition, this flag will be true. Then the flag will

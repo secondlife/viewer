@@ -1,38 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text name="ParcelNameText" tool_tip="Nombre de la parcela en la que está. Pulse Acerca del terreno.">
-		el nombre de la parcela va aquí
-	</text>
-	<text name="BalanceText" tool_tip="Saldo de su cuenta">
-		Cargando...
-	</text>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Comprar dinero"/>
-	<text name="TimeText" tool_tip="Hora actual (costa oeste EE.UU.)">
-		12:00 AM
-	</text>
-	<string name="StatBarDaysOfWeek">
+	<panel.string name="StatBarDaysOfWeek">
 		Domingo:Lunes:Martes:Miércoles:Jueves:Viernes:Sábado
-	</string>
-	<string name="StatBarMonthsOfYear">
+	</panel.string>
+	<panel.string name="StatBarMonthsOfYear">
 		Enero:Febrero:Marzo:Abril:Mayo:Junio:Julio:Agosto:Septiembre:Octubre:Noviembre:Diciembre
-	</string>
-	<button label="" label_selected="" name="scriptout" tool_tip="Errores y alertas de los scripts"/>
-	<button label="" label_selected="" name="health" tool_tip="Vida"/>
-	<text name="HealthText" tool_tip="Vida">
-		100%
-	</text>
-	<button label="" label_selected="" name="no_fly" tool_tip="Prohibido volar"/>
-	<button label="" label_selected="" name="no_build" tool_tip="No se permite Construir/Renderizar"/>
-	<button label="" label_selected="" name="no_scripts" tool_tip="No se permiten los scripts"/>
-	<button label="" label_selected="" name="restrictpush" tool_tip="Sin &apos;empujones&apos;"/>
-	<button label="" label_selected="" name="status_no_voice" tool_tip="Aquí no está disponible la voz"/>
-	<button label="" label_selected="" name="buyland" tool_tip="Comprar esta parcela"/>
-	<line_editor label="Buscar" name="search_editor" tool_tip="Buscar en [SECOND_LIFE]"/>
-	<button label="" label_selected="" name="search_btn" tool_tip="Buscar en [SECOND_LIFE]"/>
-	<string name="packet_loss_tooltip">
+	</panel.string>
+	<panel.string name="packet_loss_tooltip">
 		Pérdida de paquetes
-	</string>
-	<string name="bandwidth_tooltip">
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
 		Ancho de banda
-	</string>
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		[AMT] L$
+	</panel.string>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Mi saldo"/>
+	<button label="Comprar L$" name="buyL" tool_tip="Pulsa para comprar más L$"/>
+	<text name="TimeText" tool_tip="Hora actual (Pacífico)">
+		24:00 AM PST
+	</text>
+	<button name="media_toggle_btn" tool_tip="Inicia/Detiene todos los media (música, vídeo, páginas web)"/>
+	<button name="volume_btn" tool_tip="Control general del volumen"/>
 </panel>

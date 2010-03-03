@@ -222,7 +222,7 @@ LLFolderView::LLFolderView(const Params& p)
 	// Escape is handled by reverting the rename, not commiting it (default behavior)
 	LLLineEditor::Params params;
 	params.name("ren");
-	params.rect(getRect());
+	params.rect(rect);
 	params.font(getLabelFontForStyle(LLFontGL::NORMAL));
 	params.max_length_bytes(DB_INV_ITEM_NAME_STR_LEN);
 	params.commit_callback.function(boost::bind(&LLFolderView::commitRename, this, _2));
@@ -234,13 +234,19 @@ LLFolderView::LLFolderView(const Params& p)
 
 	// Textbox
 	LLTextBox::Params text_p;
-	LLRect new_r(5, 13-50, 300, 0-50);
-	text_p.name(std::string(p.name));
+	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+	LLRect new_r = LLRect(rect.mLeft + ICON_PAD,
+			      rect.mTop - TEXT_PAD,
+			      rect.mRight,
+			      rect.mTop - TEXT_PAD - llfloor(font->getLineHeight()));
 	text_p.rect(new_r);
-	text_p.font(getLabelFontForStyle(mLabelStyle));
+	text_p.name(std::string(p.name));
+	text_p.font(font);
 	text_p.visible(false);
 	text_p.allow_html(true);
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
+	mStatusTextBox->setFollowsLeft();
+	mStatusTextBox->setFollowsTop();
 	//addChild(mStatusTextBox);
 
 
@@ -413,6 +419,11 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	S32 total_width = LEFT_PAD;
 	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
 	S32 target_height = running_height;
+	if(!mHasVisibleChildren)// is there any filtered items ?		
+	{
+		//Nope. We need to display status textbox, let's reserve some place for it 
+		target_height += mStatusTextBox->getTextPixelHeight();
+	}
 	S32 parent_item_height = getRect().getHeight();
 
 	for (folders_t::iterator iter = mFolders.begin();
@@ -1625,7 +1636,11 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{
-				setSelection(parent_folder, FALSE, TRUE);
+				// Don't change selectin to hidden folder. See EXT-5328.
+				if (!parent_folder->getHidden())
+				{
+					setSelection(parent_folder, FALSE, TRUE);
+				}
 			}
 			else
 			{
@@ -2148,6 +2163,15 @@ void LLFolderView::doIdle()
 			LLSelectFirstFilteredItem filter;
 			applyFunctorRecursively(filter);
 		}
+
+		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
+		// Used by LLPlacesFolderView.
+		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
+		{
+			LLOpenFilteredFolders filter;
+			applyFunctorRecursively(filter);
+		}
+
 		scrollToShowSelection();
 	}
 

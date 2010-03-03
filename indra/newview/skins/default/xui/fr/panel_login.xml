@@ -19,7 +19,7 @@
 			<text name="password_text">
 				Mot de passe :
 			</text>
-			<check_box label="Rappel" name="remember_check"/>
+			<check_box label="Enregistrer" name="remember_check"/>
 			<text name="start_location_text">
 				Commencer à :
 			</text>

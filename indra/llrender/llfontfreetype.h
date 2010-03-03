@@ -128,7 +128,9 @@ public:
 	};
 
 	F32 getXAdvance(llwchar wc) const;
+	F32 getXAdvance(const LLFontGlyphInfo* glyph) const;
 	F32 getXKerning(llwchar char_left, llwchar char_right) const; // Get the kerning between the two characters
+	F32 getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const; // Get the kerning between the two characters
 
 	LLFontGlyphInfo* getGlyphInfo(llwchar wch) const;
 

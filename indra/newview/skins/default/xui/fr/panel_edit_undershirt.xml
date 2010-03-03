@@ -5,6 +5,6 @@
 		<color_swatch label="Couleur/Teinte" name="Color/Tint" width="80" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
 	</panel>
 	<accordion name="wearable_accordion">
-		<accordion_tab name="undershirt_main_tab" title="Sous-vêtements (homme)"/>
+		<accordion_tab name="undershirt_main_tab" title="Débardeur"/>
 	</accordion>
 </panel>

@@ -357,7 +357,7 @@ void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_
 	}
 }
 
-void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time)
+void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time, const bool is_history)
 {
 	LLSD message;
 	message["from"] = from;
@@ -365,6 +365,7 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 	message["message"] = utf8_text;
 	message["time"] = time; 
 	message["index"] = (LLSD::Integer)mMsgs.size(); 
+	message["is_history"] = is_history;
 
 	mMsgs.push_front(message); 
 
@@ -393,7 +394,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		std::string timestamp = msg[IM_TIME];
 		std::string text = msg[IM_TEXT];
 
-		addMessage(from, from_id, text, timestamp);
+		addMessage(from, from_id, text, timestamp, true);
 
 		it++;
 	}
@@ -407,11 +408,11 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
 
 	if (type == LLLogChat::LOG_LINE)
 	{
-		self->addMessage("", LLSD(), msg["message"].asString(), "");
+		self->addMessage("", LLSD(), msg["message"].asString(), "", true);
 	}
 	else if (type == LLLogChat::LOG_LLSD)
 	{
-		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString());
+		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true);
 	}
 }
 
@@ -951,7 +952,42 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	}
 
 	// Add the recipient to the recent people list.
-	LLRecentPeople::instance().add(other_participant_id);
+	bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(other_participant_id) == NULL;
+
+	if (is_not_group_id)
+	{
+			
+#if 0
+		//use this code to add only online members	
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+		LLSpeakerMgr::speaker_list_t speaker_list;
+		speaker_mgr->getSpeakerList(&speaker_list, true);
+		for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+		{
+			const LLPointer<LLSpeaker>& speakerp = *it;
+
+			LLRecentPeople::instance().add(speakerp->mID);
+		}
+#else
+		LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(im_session_id);
+		if( session == 0)//??? shouldn't really happen
+		{
+			LLRecentPeople::instance().add(other_participant_id);
+		}
+		else
+		{
+			for(std::vector<LLUUID>::iterator it = session->mInitialTargetIDs.begin();
+				it!=session->mInitialTargetIDs.end();++it)
+			{
+				const LLUUID id = *it;
+
+				LLRecentPeople::instance().add(id);
+			}
+		}
+#endif
+	}
+
+	
 }
 
 void session_starter_helper(
@@ -1472,6 +1508,8 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 	  mLifetime(DEFAULT_LIFETIME)
 {
 	setAutoFocus(FALSE);
+	// force docked state since this floater doesn't save it between recreations
+	setDocked(true);
 }
 
 void LLCallDialog::getAllowedRect(LLRect& rect)

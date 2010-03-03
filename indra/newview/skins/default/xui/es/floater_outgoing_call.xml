@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="outgoing call" title="LLAMANDO">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Chat de voz
+	</floater.string>
+	<floater.string name="anonymous">
+		anónimo
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		está llamando.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		ha entrado en un chat de voz en multiconferencia.
+	</floater.string>
+	<text name="connecting">
+		Conectando con [CALLEE_NAME]
+	</text>
+	<text name="calling">
+		Llamando a [CALLEE_NAME]
+	</text>
+	<text name="noanswer">
+		Sin respuesta.  Vuelve a intentarlo más tarde.
+	</text>
+	<text name="nearby">
+		Has sido desconectado de [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_other">
+		[VOICE_CHANNEL_NAME] ha finalizado la llamada. [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_agent">
+		Has finalizado la llamada. [RECONNECT_NEARBY]
+	</text>
+	<text name="leaving">
+		Saliendo de [CURRENT_CHAT].
+	</text>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+</floater>

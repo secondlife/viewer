@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="place_profile">
+	<string name="on" value="On"/>
+	<string name="off" value="Off"/>
+	<string name="anyone" value="Cualquiera"/>
+	<string name="available" value="disponible"/>
+	<string name="allocated" value="asignados"/>
+	<string name="title_place" value="Añadir el perfil"/>
+	<string name="title_teleport_history" value="Historial de teleportes"/>
+	<string name="not_available" value="(No disp.)"/>
+	<string name="unknown" value="(desconocido)"/>
+	<string name="public" value="(público)"/>
+	<string name="none_text" value="(ninguno)"/>
+	<string name="sale_pending_text" value="(venta pendiente)"/>
+	<string name="group_owned_text" value="(propiedad de un grupo)"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="m²"/>
+	<string name="all_residents_text" value="Todos los residentes"/>
+	<string name="group_text" value="Grupo"/>
+	<string name="can_resell">
+		El terreno comprado en esta región puede revenderse.
+	</string>
+	<string name="can_not_resell">
+		El terreno comprado en esta región no puede revenderse.
+	</string>
+	<string name="can_change">
+		El terreno comprado en esta región puede unirse o dividirse.
+	</string>
+	<string name="can_not_change">
+		El terreno comprado en esta región no puede unirse o dividirse.
+	</string>
+	<string name="server_update_text">
+		La información de esta parcela no está disponible sin una actualización del servidor.
+	</string>
+	<string name="server_error_text">
+		En este momento no está disponible la información de esta parcela. Por favor, inténtalo más tarde.
+	</string>
+	<string name="server_forbidden_text">
+		Por tener restringido el acceso, no está disponible la información de esta parcela.  Por favor, revisa tus permisos con el propietario de la parcela.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local][day,datetime,local] [mth,datetime,local] [year,datetime,local][hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Atrás"/>
+	<text name="title" value="Añadir el perfil"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="owner_label" value="Propietario:"/>
+			<text name="maturity_value" value="desconocido"/>
+			<accordion name="advanced_info_accordion">
+				<accordion_tab name="parcel_characteristics_tab" title="Parcela">
+					<panel>
+						<text name="rating_label" value="Calificación:"/>
+						<text name="rating_value" value="desconocida"/>
+						<text name="voice_label" value="Voz:"/>
+						<text name="voice_value" value="Sí"/>
+						<text name="fly_label" value="Volar:"/>
+						<text name="fly_value" value="Sí"/>
+						<text name="push_label" value="Empujones:"/>
+						<text name="push_value" value="No"/>
+						<text name="build_label" value="Construir:"/>
+						<text name="build_value" value="Sí"/>
+						<text name="scripts_label" value="Scripts:"/>
+						<text name="scripts_value" value="Sí"/>
+						<text name="damage_label" value="Daño:"/>
+						<text name="damage_value" value="No"/>
+						<button label="Acerca del terreno" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="Región">
+					<panel>
+						<text name="region_name_label" value="Región:"/>
+						<text name="region_type_label" value="Tipo:"/>
+						<text name="region_rating_label" value="Calificación:"/>
+						<text name="region_owner_label" value="Propietario:"/>
+						<text name="region_group_label" value="Grupo:"/>
+						<button label="Región/Estado" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="Estado">
+					<panel>
+						<text name="estate_name_label" value="Estado:"/>
+						<text name="estate_rating_label" value="Calificación:"/>
+						<text name="estate_owner_label" value="Propietario:"/>
+						<text name="covenant_label" value="Contrato:"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="En venta">
+					<panel>
+						<text name="sales_price_label" value="Precio:"/>
+						<text name="area_label" value="Área:"/>
+						<text name="traffic_label" value="Tráfico:"/>
+						<text name="primitives_label" value="Primitivas:"/>
+						<text name="parcel_scripts_label" value="Scripts:"/>
+						<text name="terraform_limits_label" value="Límites de modificación del terreno:"/>
+						<text name="subdivide_label" value="Puede dividirse/unirse:"/>
+						<text name="resale_label" value="Puede revenderse:"/>
+						<text name="sale_to_label" value="En venta a:"/>
+					</panel>
+				</accordion_tab>
+			</accordion>
+		</panel>
+	</scroll_container>
+</panel>

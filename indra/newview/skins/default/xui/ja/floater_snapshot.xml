@@ -3,9 +3,9 @@
 	<text name="type_label">
 		スナップショットの送り先
 	</text>
-	<radio_group label="スナップショット・タイプ" name="snapshot_type_radio">
+	<radio_group label="スナップショットの種類" name="snapshot_type_radio">
 		<radio_item label="メール" name="postcard"/>
-		<radio_item label="私の持ち物（L$[AMOUNT]）" name="texture"/>
+		<radio_item label="「持ち物」に保存（L$ [AMOUNT]）" name="texture"/>
 		<radio_item label="コンピューターに保存" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
@@ -29,26 +29,26 @@
 	</text>
 	<combo_box label="解像度" name="postcard_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<combo_box label="解像度" name="texture_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
-		<combo_box.item label="小（128x128）" name="Small(128x128)"/>
-		<combo_box.item label="中（256x256）" name="Medium(256x256)"/>
-		<combo_box.item label="大（512x512）" name="Large(512x512)"/>
+		<combo_box.item label="小（128 x 128）" name="Small(128x128)"/>
+		<combo_box.item label="中（256 x 256）" name="Medium(256x256)"/>
+		<combo_box.item label="大（512 x5 12）" name="Large(512x512)"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<combo_box label="解像度" name="local_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
-		<combo_box.item label="320x240" name="320x240"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="1280x1024" name="1280x1024"/>
-		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="320 x 240" name="320x240"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
+		<combo_box.item label="1280 x 1024" name="1280x1024"/>
+		<combo_box.item label="1600 x 1200" name="1600x1200"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<combo_box label="形式" name="local_format_combo">
@@ -65,8 +65,8 @@
 	</text>
 	<combo_box label="画像レイヤー" name="layer_types">
 		<combo_box.item label="色" name="Colors"/>
-		<combo_box.item label="深さ" name="Depth"/>
-		<combo_box.item label="オグジェクトのつや消し" name="ObjectMattes"/>
+		<combo_box.item label="色深度" name="Depth"/>
+		<combo_box.item label="マットオブジェクト" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="インターフェース" name="ui_check"/>
 	<check_box label="HUD" name="hud_check"/>
@@ -74,6 +74,6 @@
 	<check_box label="画面全体を静止" name="freeze_frame_check"/>
 	<check_box label="自動更新" name="auto_snapshot_check"/>
 	<string name="unknown">
-		未知
+		不明
 	</string>
 </floater>

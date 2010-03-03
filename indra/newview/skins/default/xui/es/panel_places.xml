@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Lugares" name="places panel">
+	<string name="landmarks_tab_title" value="MIS HITOS"/>
+	<string name="teleport_history_tab_title" value="HISTORIAL DE TELEPORTES"/>
+	<filter_editor label="Filtrar mis lugares" name="Filter"/>
+	<panel name="button_panel">
+		<button label="Teleporte" name="teleport_btn" tool_tip="Teleportar a la zona elegida"/>
+		<button label="Mapa" name="map_btn"/>
+		<button label="Editar" name="edit_btn" tool_tip="Editar la información del hito"/>
+		<button label="▼" name="overflow_btn" tool_tip="Ver más opciones"/>
+		<button label="Guardar" name="save_btn"/>
+		<button label="Cancelar" name="cancel_btn"/>
+		<button label="Cerrar" name="close_btn"/>
+	</panel>
+</panel>

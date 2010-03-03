@@ -56,6 +56,16 @@
 #include "lluictrlfactory.h"
 #include <boost/regex.hpp>
 
+#if LL_MSVC
+// disable boost::lexical_cast warning
+#pragma warning (disable:4702)
+#endif
+
+#include <boost/lexical_cast.hpp>
+
+#if LL_MSVC
+#pragma warning(pop)   // Restore all warnings to the previous state
+#endif
 
 const U32 MAX_CACHED_GROUPS = 10;
 
@@ -833,12 +843,13 @@ static void formatDateString(std::string &date_string)
 	const regex expression("([0-9]{1,2})/([0-9]{1,2})/([0-9]{4})");
 	if (regex_match(date_string.c_str(), result, expression))
 	{
-		std::string year = result[3];
-		std::string month = result[1];
-		std::string day = result[2];
+		// convert matches to integers so that we can pad them with zeroes on Linux
+		S32 year	= boost::lexical_cast<S32>(result[3]);
+		S32 month	= boost::lexical_cast<S32>(result[1]);
+		S32 day		= boost::lexical_cast<S32>(result[2]);
 
 		// ISO 8601 date format
-		date_string = llformat("%02s/%02s/%04s", month.c_str(), day.c_str(), year.c_str());
+		date_string = llformat("%04d/%02d/%02d", year, month, day);
 	}
 }
 
@@ -1721,13 +1732,11 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	{
 		LLUUID& ejected_member_id = (*it);
 
-		llwarns << "LLGroupMgr::sendGroupMemberEjects -- ejecting member" << ejected_member_id << llendl;
-		
 		// Can't use 'eject' to leave a group.
-		if ((*it) == gAgent.getID()) continue;
+		if (ejected_member_id == gAgent.getID()) continue;
 
 		// Make sure they are in the group, and we need the member data
-		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(*it);
+		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(ejected_member_id);
 		if (mit != group_datap->mMembers.end())
 		{
 			// Add them to the message
@@ -1751,22 +1760,23 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 				start_message = true;
 			}
 
+			LLGroupMemberData* member_data = (*mit).second;
+
 			// Clean up groupmgr
-			for (LLGroupMemberData::role_list_t::iterator rit = (*mit).second->roleBegin();
-				 rit != (*mit).second->roleEnd(); ++rit)
+			for (LLGroupMemberData::role_list_t::iterator rit = member_data->roleBegin();
+				 rit != member_data->roleEnd(); ++rit)
 			{
 				if ((*rit).first.notNull() && (*rit).second!=0)
 				{
 					(*rit).second->removeMember(ejected_member_id);
-
-					llwarns << "LLGroupMgr::sendGroupMemberEjects - removing member from role " << llendl;
 				}
 			}
 			
-			group_datap->mMembers.erase(*it);
+			group_datap->mMembers.erase(ejected_member_id);
 			
-			llwarns << "LLGroupMgr::sendGroupMemberEjects - deleting memnber data " << llendl;
-			delete (*mit).second;
+			// member_data was introduced and is used here instead of (*mit).second to avoid crash because of invalid iterator
+			// It becomes invalid after line with erase above. EXT-4778
+			delete member_data;
 		}
 	}
 
@@ -1774,8 +1784,6 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	{
 		gAgent.sendReliableMessage();
 	}
-
-	llwarns << "LLGroupMgr::sendGroupMemberEjects - done " << llendl;
 }
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)

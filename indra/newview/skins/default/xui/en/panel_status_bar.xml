@@ -3,7 +3,7 @@
  background_opaque="true"
  background_visible="true"
  bg_opaque_color="MouseGray"
- chrome="true"
+ chrome="true" 
  follows="top|right"
  height="19"
  layout="topleft"
@@ -11,7 +11,7 @@
  mouse_opaque="false"
  name="status"
  top="19"
- tab_stop="false"
+ tab_stop="false" 
  width="1000">
     <panel.string
      name="StatBarDaysOfWeek">
@@ -85,7 +85,7 @@
      height="16"
      top="5"
      layout="topleft"
-     left_pad="5"
+     left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
      width="80">
@@ -102,7 +102,7 @@
      left_pad="15"
      top="1"
      name="media_toggle_btn"
-     tool_tip="Click to toggle media"
+     tool_tip="Start/Stop All Media (Music, Video, Web pages)"
      width="16" >
     </button>
     <button

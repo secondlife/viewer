@@ -420,10 +420,8 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 
 	gInventory.startBackgroundFetch();
 
-	std::string uppercase_search_string = search_string;
-	LLStringUtil::toUpper(uppercase_search_string);
-	mFilterSubString = uppercase_search_string;
-	if (mActivePanel->getFilterSubString().empty() && uppercase_search_string.empty())
+	mFilterSubString = search_string;
+	if (mActivePanel->getFilterSubString().empty() && mFilterSubString.empty())
 	{
 			// current filter and new filter empty, do nothing
 			return;
@@ -437,7 +435,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 	}
 
 	// set new filter string
-	mActivePanel->setFilterSubString(mFilterSubString);
+	setFilterSubString(mFilterSubString);
 }
 
 
@@ -1003,7 +1001,10 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		}
 		const LLUUID item_id = current_item->getListener()->getUUID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		item->regenerateLink();
+		if (item)
+		{
+			item->regenerateLink();
+		}
 		active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 	}
 	if (command_name == "find_original")

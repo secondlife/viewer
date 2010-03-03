@@ -85,6 +85,9 @@ public:
 	
 	// Try to focus/zoom on the specified media (if it's on an object in world).
 	void focusZoomOnMedia(LLUUID media_id);
+	// Are we zoomed in?
+	bool isZoomed() const;
+	void unZoom();
 	
 	// Return the ID of the media instance the controls are currently attached to (either focus or hover).
 	LLUUID getControlsMediaID();

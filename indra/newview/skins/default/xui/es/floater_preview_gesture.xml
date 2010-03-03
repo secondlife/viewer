@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
-	<string name="stop_txt">
+	<floater.string name="step_anim">
+		Animación a ejecutar:
+	</floater.string>
+	<floater.string name="step_sound">
+		Sonido a ejecutar:
+	</floater.string>
+	<floater.string name="step_chat">
+		Decir en el chat:
+	</floater.string>
+	<floater.string name="step_wait">
+		Espera:
+	</floater.string>
+	<floater.string name="stop_txt">
 		Parar
-	</string>
-	<string name="preview_txt">
+	</floater.string>
+	<floater.string name="preview_txt">
 		Vista previa
-	</string>
-	<string name="none_text">
+	</floater.string>
+	<floater.string name="none_text">
 		-- Ninguno --
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Gesto: [NAME]
+	</floater.string>
+	<text name="name_text">
+		Nombre:
+	</text>
 	<text name="desc_label">
 		Descripción:
 	</text>
@@ -22,37 +40,31 @@
 	<text name="key_label">
 		Atajo de teclado:
 	</text>
-	<combo_box label="Ninguno" name="modifier_combo" left="116" width="76"/>
-	<combo_box label="Ninguno" name="key_combo" width="76" left_delta="80"/>
+	<combo_box label="Ninguno" left="116" name="modifier_combo" width="76"/>
+	<combo_box label="Ninguno" left_delta="80" name="key_combo" width="76"/>
 	<text name="library_label">
 		Biblioteca:
 	</text>
+	<scroll_list name="library_list"/>
+	<button label="Añadir &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Pasos:
 	</text>
-	<scroll_list name="library_list">
-		Animación
-Sonido
-Chat
-Esperar
-	</scroll_list>
-	<button label="Añadir &gt;&gt;" name="add_btn"/>
-	<button label="Hacia arriba" name="up_btn"/>
-	<button label="Hacia abajo" name="down_btn"/>
+	<button label="Arriba" name="up_btn"/>
+	<button label="Abajo" name="down_btn"/>
 	<button label="Quitar" name="delete_btn"/>
-	<text name="help_label">
-		Todos los pasos suceden a la vez, 
-a menos que añada pasos de espera.
-	</text>
-	<text left="230" name="options_text" width="200" />
+	<text left="230" name="options_text" width="200"/>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start" label="Empezar" />
-		<radio_item name="stop" label="Parar" />
+		<radio_item label="Empezar" name="start"/>
+		<radio_item label="Parar" name="stop"/>
 	</radio_group>
-	<check_box bottom_delta="34" label="hasta que las animaciones &#10;estén hechas" name="wait_anim_check"/>
+	<check_box bottom_delta="34" label="hasta que las animaciones  estén hechas" name="wait_anim_check"/>
 	<check_box bottom_delta="-30" label="tiempo en segundos" name="wait_time_check"/>
-	<line_editor left_delta="130" name="wait_time_editor" />
-	<check_box left="130" label="Disponible" name="active_check" tool_tip="Los gestos disponibles pueden realizarse escribiendo en el chat su frase clave o pulsando su tecla de acceso rápido. Generalmente, los gestos pasan a no disponibles cuando hay un conflicto de teclas."/>
+	<line_editor left_delta="130" name="wait_time_editor"/>
+	<text name="help_label">
+		Todos los pasos suceden a la vez, a menos que añadas pasos de espera.
+	</text>
+	<check_box label="Disponible" left="130" name="active_check" tool_tip="Los gestos disponibles pueden realizarse escribiendo en el chat su frase clave o pulsando su tecla de acceso rápido. Generalmente, los gestos pasan a no disponibles cuando hay un conflicto de teclas."/>
 	<button label="Vista previa" name="preview_btn" width="85"/>
 	<button label="Guardar" name="save_btn"/>
 </floater>

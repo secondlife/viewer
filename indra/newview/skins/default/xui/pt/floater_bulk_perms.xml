@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="MUDANÇA CONJUNTA DAS PERMISSÕES DE CONTEÚDO">
-	<text name="applyto">
-		Tipos de Conteúdo
-	</text>
+<floater name="floaterbulkperms" title="EDITAR AUTORIZAÇÕES DE CONTEÚDO">
+	<floater.string name="nothing_to_modify_text">
+		A seleção não contém nenhum conteúdo editável.
+	</floater.string>
+	<floater.string name="status_text">
+		Definindo permissões em [NAME]
+	</floater.string>
+	<floater.string name="start_text">
+		Iniciando solicitação de mudança de permissão...
+	</floater.string>
+	<floater.string name="done_text">
+		Solicitação de mudança de permissão concluída.
+	</floater.string>
 	<check_box label="Animação" name="check_animation"/>
+	<icon name="icon_animation" tool_tip="Animação"/>
 	<check_box label="Partes do Corpo" name="check_bodypart"/>
+	<icon name="icon_bodypart" tool_tip="Partes do corpo"/>
 	<check_box label="Roupas" name="check_clothing"/>
+	<icon name="icon_clothing" tool_tip="Vestuário"/>
 	<check_box label="Gestos" name="check_gesture"/>
-	<check_box label="Landmarks" name="check_landmark"/>
+	<icon name="icon_gesture" tool_tip="Gestos"/>
 	<check_box label="Notecards" name="check_notecard"/>
+	<icon name="icon_notecard" tool_tip="Anotações"/>
 	<check_box label="Objetos" name="check_object"/>
+	<icon name="icon_object" tool_tip="Objects"/>
 	<check_box label="Scripts" name="check_script"/>
+	<icon name="icon_script" tool_tip="Scripts"/>
 	<check_box label="Sons" name="check_sound"/>
+	<icon name="icon_sound" tool_tip="Sons"/>
 	<check_box label="Texturas" name="check_texture"/>
-	<button label="Marcar Todas" label_selected="Todas" name="check_all"/>
-	<button label="Desmarcar Todas" label_selected="Nenhuma" name="check_none"/>
+	<icon name="icon_texture" tool_tip="Texturas"/>
+	<button label="√ Tudo" label_selected="Todas" name="check_all"/>
+	<button label="Limpar" label_selected="Nenhuma" name="check_none"/>
 	<text name="newperms">
-		Novas Permissões
+		Novas autorizações de conteúdo
 	</text>
-	<check_box label="Compartilhar com o grupo" name="share_with_group"/>
-	<check_box label="Permitir que qualquer um copie" name="everyone_copy"/>
+	<text name="GroupLabel">
+		Grupo:
+	</text>
+	<check_box label="Compartilhar" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		Todos:
+	</text>
+	<check_box label="Copiar" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
-		O próximo dono pode:
+		Próximo proprietário:
 	</text>
 	<check_box label="Modificar" name="next_owner_modify"/>
 	<check_box label="Copiar" name="next_owner_copy"/>
-	<check_box label="Revender/Dar" name="next_owner_transfer"/>
-	<button label="Ajuda" name="help"/>
-	<button label="Aplicar" name="apply"/>
-	<button label="Fechar" name="close"/>
-	<string name="nothing_to_modify_text">
-		A seleção não contém nenhum conteúdo editável.
-	</string>
-	<string name="status_text">
-		Definindo permissões em [NAME]
-	</string>
-	<string name="start_text">
-		Iniciando solicitação de mudança de permissão...
-	</string>
-	<string name="done_text">
-		Solicitação de mudança de permissão concluída.
-	</string>
+	<check_box initial_value="true" label="Transferir" name="next_owner_transfer" tool_tip="O próximo dono poderá revender ou dar este objeto"/>
+	<button label="OK" name="apply"/>
+	<button label="Cancelar" name="close"/>
 </floater>

@@ -49,7 +49,7 @@
 		<combo_box.item label="商取引＞製品またはサービスの提供が行われない" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="開示＞リアルワールドの情報" name="Disclosure__Real_world_information"/>
 		<combo_box.item label="開示＞離れたところからチャットをモニターしている" name="Disclosure__Remotely_monitoring chat"/>
-		<combo_box.item label="開示＞Second Lifeの情報/チャット/IM" name="Disclosure__Second_Life_information_chat_IMs"/>
+		<combo_box.item label="開示＞Second Life の情報/チャット/IM" name="Disclosure__Second_Life_information_chat_IMs"/>
 		<combo_box.item label="平穏を乱す行為＞地域リソースの使用が不公平" name="Disturbing_the_peace__Unfair_use_of_region_resources"/>
 		<combo_box.item label="平穏を乱す行為＞スクリプト・オブジェクトの乱用" name="Disturbing_the_peace__Excessive_scripted_objects"/>
 		<combo_box.item label="平穏を乱す行為＞オブジェクトの捨て置き" name="Disturbing_the_peace__Object_littering"/>
@@ -57,7 +57,7 @@
 		<combo_box.item label="平穏を乱す行為＞不要な広告スパム" name="Disturbing_the_peace__Unwanted_advert_spam"/>
 		<combo_box.item label="詐欺＞ L$" name="Fraud__L$"/>
 		<combo_box.item label="詐欺＞土地" name="Fraud__Land"/>
-		<combo_box.item label="詐欺＞マルチ商法またはチェーン・メール" name="Fraud__Pyramid_scheme_or_chain_letter"/>
+		<combo_box.item label="詐欺＞マルチ商法またはチェーンメール" name="Fraud__Pyramid_scheme_or_chain_letter"/>
 		<combo_box.item label="詐欺＞ US$" name="Fraud__US$"/>
 		<combo_box.item label="嫌がらせ＞広告委託/視覚的なスパム" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="嫌がらせ＞個人またはグループの中傷" name="Harassment__Defaming_individuals_or_groups"/>
@@ -68,11 +68,11 @@
 		<combo_box.item label="わいせつ＞著しく不快であると見なされるコンテンツまたは行為" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="わいせつ＞不適切なアバター名" name="Indecency__Inappropriate_avatar_name"/>
 		<combo_box.item label="わいせつ＞PG地域での不適切なコンテンツまたは行為" name="Indecency__Mature_content_in_PG_region"/>
-		<combo_box.item label="わいせつ &gt; 控えめ指定の地域での不適切なコンテンツまたは行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="わいせつ &gt; 「Moderate」指定の地域での不適切なコンテンツまたは行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="知的財産の侵害＞コンテンツの撤去" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="知的財産の侵害＞コピーBot及び権限の悪用" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="不寛容" name="Intolerance"/>
-		<combo_box.item label="土地＞サンドボックス・リソースの乱用" name="Land__Abuse_of_sandbox_resources"/>
+		<combo_box.item label="土地＞サンドボックスのリソースの乱用" name="Land__Abuse_of_sandbox_resources"/>
 		<combo_box.item label="土地＞不法侵入＞オブジェクト/テクスチャー" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="土地＞不法侵入＞パーティクル" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="土地＞不法侵入＞樹木/植物" name="Land__Encroachment__Trees_plants"/>

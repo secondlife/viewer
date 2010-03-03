@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray panel -->
+<panel label="Gente" name="people_panel">
+	<string name="no_people" value="No hay nadie"/>
+	<string name="no_one_near" value="No hay nadie cerca"/>
+	<string name="no_friends_online" value="No hay amigos conectados"/>
+	<string name="no_friends" value="No hay amigos"/>
+	<string name="people_filter_label" value="Filtrar a la gente"/>
+	<string name="groups_filter_label" value="Filtrar a los grupos"/>
+	<filter_editor label="Filtrar" name="filter_input"/>
+	<tab_container name="tabs">
+		<panel label="CERCANÍA" name="nearby_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="nearby_view_sort_btn" tool_tip="Opciones"/>
+				<button name="add_friend_btn" tool_tip="Añade al Residente seleccionado a la lista de tus amigos"/>
+			</panel>
+		</panel>
+		<panel label="MIS AMIGOS" name="friends_panel">
+			<accordion name="friends_accordion">
+				<accordion_tab name="tab_online" title="Conectado"/>
+				<accordion_tab name="tab_all" title="Todas"/>
+			</accordion>
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="friends_viewsort_btn" tool_tip="Opciones"/>
+				<button name="add_btn" tool_tip="Ofrece amistad a un Residente"/>
+				<button name="del_btn" tool_tip="Quitar a la persona seleccionada de tu lista de amigos"/>
+			</panel>
+			<text name="no_friends_msg">
+				Para añadir amigos, prueba a hacer una [secondlife:///app/search/people búsqueda general] o pulsa en un usuario para añadirle como amigo.
+Si estás buscando gente para pasar el rato, [secondlife:///app/worldmap usa el mapa].
+			</text>
+		</panel>
+		<panel label="MIS GRUPOS" name="groups_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="groups_viewsort_btn" tool_tip="Opciones"/>
+				<button name="plus_btn" tool_tip="Entrar en un grupo o crear uno"/>
+				<button name="activate_btn" tool_tip="Activar el grupo seleccionado"/>
+			</panel>
+		</panel>
+		<panel label="RECIENTE" name="recent_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<button name="recent_viewsort_btn" tool_tip="Opciones"/>
+				<button name="add_friend_btn" tool_tip="Añade al Residente seleccionado a la lista de tus amigos"/>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="button_bar">
+		<button label="Perfil" name="view_profile_btn" tool_tip="Muestra imágenes, grupos y otra información del Residente"/>
+		<button label="MI" name="im_btn" tool_tip="Abrir un mensaje instantáneo"/>
+		<button label="Llamada" name="call_btn" tool_tip="Llamar a este Residente"/>
+		<button label="Compartir" name="share_btn"/>
+		<button label="Teleportarse" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
+		<button label="Perfil del grupo" name="group_info_btn" tool_tip="Ver la información del grupo"/>
+		<button label="Chat de grupo" name="chat_btn" tool_tip="Abrir el chat"/>
+		<button label="Multiconferencia" name="group_call_btn" tool_tip="Llama a este grupo"/>
+	</panel>
+</panel>

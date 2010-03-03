@@ -44,10 +44,20 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	S32 srch_btn_top = p.search_button.top_pad + p.search_button.rect.height;
 	S32 srch_btn_right = p.search_button.rect.width + p.search_button.left_pad;
 	LLRect srch_btn_rect(p.search_button.left_pad, srch_btn_top, srch_btn_right, p.search_button.top_pad);
+
+	S32 clr_btn_top = p.clear_button.rect.bottom + p.clear_button.rect.height;
+	S32 clr_btn_right = getRect().getWidth() - p.clear_button.pad_right;
+	S32 clr_btn_left = clr_btn_right - p.clear_button.rect.width;
+	LLRect clear_btn_rect(clr_btn_left, clr_btn_top, clr_btn_right, p.clear_button.rect.bottom);
+
 	S32 text_pad_left = p.text_pad_left;
+	S32 text_pad_right = p.text_pad_right;
 
 	if (p.search_button_visible)
 		text_pad_left += srch_btn_rect.getWidth();
+
+	if (p.clear_button_visible)
+		text_pad_right = getRect().getWidth() - clr_btn_left + p.clear_button.pad_left;
 
 	// Set up line editor.
 	LLLineEditor::Params line_editor_params(p);
@@ -55,6 +65,7 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	line_editor_params.rect(getLocalRect());
 	line_editor_params.follows.flags(FOLLOWS_ALL);
 	line_editor_params.text_pad_left(text_pad_left);
+	line_editor_params.text_pad_right(text_pad_right);
 	line_editor_params.revert_on_esc(false);
 	line_editor_params.commit_callback.function(boost::bind(&LLUICtrl::onCommit, this));
 	line_editor_params.keystroke_callback(boost::bind(&LLSearchEditor::handleKeystroke, this));
@@ -82,10 +93,6 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 		// Set up clear button.
 		LLButton::Params clr_btn_params(p.clear_button);
 		clr_btn_params.name(std::string("clear button"));
-		S32 clr_btn_top = clr_btn_params.rect.bottom + clr_btn_params.rect.height;
-		S32 clr_btn_right = getRect().getWidth() - clr_btn_params.pad_right;
-		S32 clr_btn_left = clr_btn_right - clr_btn_params.rect.width;
-		LLRect clear_btn_rect(clr_btn_left, clr_btn_top, clr_btn_right, p.clear_button.rect.bottom);
 		clr_btn_params.rect(clear_btn_rect) ;
 		clr_btn_params.follows.flags(FOLLOWS_RIGHT|FOLLOWS_TOP);
 		clr_btn_params.tab_stop(false);
@@ -156,7 +163,7 @@ void LLSearchEditor::setFocus( BOOL b )
 void LLSearchEditor::onClearButtonClick(const LLSD& data)
 {
 	setText(LLStringUtil::null);
-	mSearchEditor->doDelete(); // force keystroke callback
+	mSearchEditor->onCommit(); // force keystroke callback
 }
 
 void LLSearchEditor::handleKeystroke()

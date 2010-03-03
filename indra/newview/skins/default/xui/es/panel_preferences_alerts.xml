@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ventanas emergentes" name="popups" title="Ventanas emergentes">
-	<text name="dont_show_label">
-		No mostrar estas ventanas emergentes:
+	<text name="tell_me_label">
+		Avisarme:
 	</text>
-	<button width="200" label="Activar esta ventana emergente" label_selected="Activar esta popup" name="enable_popup"/>
-	<button width="255" left="225" label="Activar todas las ventanas emergentes..." label_selected="Restaurar cajas de diálogo &apos;Mostrar en la próxima vez&apos;..." name="reset_dialogs_btn" tool_tip="Activar todas las ventanas emergentes y los avisos de &apos;primera vez que se usa&apos;."/>
+	<check_box label="Cuando gaste o consiga L$" name="notify_money_change_checkbox"/>
+	<check_box label="Cuando mis amigos se conectan o desconectan" name="friends_online_notify_checkbox"/>
 	<text name="show_label" width="300">
-		Mostrar estas ventanas emergentes:
+		Mostrar siempre:
 	</text>
-	<button left="205" width="275" label="Desactivar todas estas ventanas emergentes..." name="skip_dialogs_btn" tool_tip="Desactivar todas las ventanas emergentes y los avisos de &apos;primera vez que se usa&apos;."/>
-	<text name="text_box2">
-		Oferta de notas, texturas e hitos:
+	<text name="dont_show_label">
+		No mostrar nunca:
 	</text>
-	<check_box label="Aceptar automáticamente" name="accept_new_inventory"/>
-	<check_box label="Ver automáticamente tras aceptar" name="show_new_inventory"/>
-	<check_box label="Mostrar automáticamente los objetos aceptados recientemente en el inventario" name="show_in_inventory"/>
 </panel>

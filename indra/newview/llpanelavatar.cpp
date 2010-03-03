@@ -47,8 +47,6 @@
 #include "lltooldraganddrop.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-#include "llweb.h"
-#include "llfloaterworldmap.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llvoiceclient.h"
@@ -352,8 +350,10 @@ LLPanelAvatarNotes::~LLPanelAvatarNotes()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-		if(LLVoiceClient::getInstance())
+		if(LLVoiceClient::instanceExists())
+		{
 			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
+		}
 	}
 }
 
@@ -447,26 +447,25 @@ void LLPanelProfileTab::scrollToTop()
 
 void LLPanelProfileTab::onMapButtonClick()
 {
-	std::string name;
-	gCacheName->getFullName(getAvatarId(), name);
-	gFloaterWorldMap->trackAvatar(getAvatarId(), name);
-	LLFloaterReg::showInstance("world_map");
+	LLAvatarActions::showOnMap(getAvatarId());
 }
 
 void LLPanelProfileTab::updateButtons()
 {
-	bool is_avatar_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
+	bool is_buddy_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
 	
 	if(LLAvatarActions::isFriend(getAvatarId()))
 	{
-		childSetEnabled("teleport", is_avatar_online);
+		childSetEnabled("teleport", is_buddy_online);
 	}
 	else
 	{
 		childSetEnabled("teleport", true);
 	}
 
-	bool enable_map_btn = is_avatar_online && gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+	bool enable_map_btn = (is_buddy_online &&
+			       is_agent_mappable(getAvatarId()))
+		|| gAgent.isGodlike();
 	childSetEnabled("show_on_map_btn", enable_map_btn);
 }
 
@@ -486,7 +485,6 @@ LLPanelAvatarProfile::LLPanelAvatarProfile()
 
 BOOL LLPanelAvatarProfile::postBuild()
 {
-	childSetActionTextbox("homepage_edit", boost::bind(&LLPanelAvatarProfile::onHomepageTextboxClicked, this));
 	childSetCommitCallback("add_friend",(boost::bind(&LLPanelAvatarProfile::onAddFriendButtonClick,this)),NULL);
 	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
 	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
@@ -507,8 +505,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
 	enable.add("Profile.EnableGod", boost::bind(&enable_god));
-	enable.add("Profile.CheckItem", boost::bind(&LLPanelAvatarProfile::checkOverflowMenuItem, this, _2));
-	enable.add("Profile.EnableItem", boost::bind(&LLPanelAvatarProfile::enableOverflowMenuItem, this, _2));
+	enable.add("Profile.EnableBlock", boost::bind(&LLPanelAvatarProfile::enableBlock, this));
+	enable.add("Profile.EnableUnblock", boost::bind(&LLPanelAvatarProfile::enableUnblock, this));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -685,26 +683,6 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
-bool LLPanelAvatarProfile::checkOverflowMenuItem(const LLSD& param)
-{
-    std::string item = param.asString();
-
-    if (item == "is_blocked")
-        return LLAvatarActions::isBlocked(getAvatarId());
-
-    return false;
-}
-
-bool LLPanelAvatarProfile::enableOverflowMenuItem(const LLSD& param)
-{
-    std::string item = param.asString();
-
-    if (item == "can_block")
-        return LLAvatarActions::canBlock(getAvatarId());
-
-    return false;
-}
-
 void LLPanelAvatarProfile::pay()
 {
 	LLAvatarActions::pay(getAvatarId());
@@ -718,6 +696,16 @@ void LLPanelAvatarProfile::share()
 void LLPanelAvatarProfile::toggleBlock()
 {
 	LLAvatarActions::toggleBlock(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableBlock()
+{
+	return LLAvatarActions::canBlock(getAvatarId()) && !LLAvatarActions::isBlocked(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableUnblock()
+{
+	return LLAvatarActions::isBlocked(getAvatarId());
 }
 
 void LLPanelAvatarProfile::kick()
@@ -740,20 +728,6 @@ void LLPanelAvatarProfile::csr()
 	std::string name;
 	gCacheName->getFullName(getAvatarId(), name);
 	LLAvatarActions::csr(getAvatarId(), name);
-}
-
-void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
-{
-	LLWeb::loadURL(url);
-}
-
-void LLPanelAvatarProfile::onHomepageTextboxClicked()
-{
-	std::string url = childGetValue("homepage_edit").asString();
-	if(!url.empty())
-	{
-		onUrlTextboxClicked(url);
-	}
 }
 
 void LLPanelAvatarProfile::onAddFriendButtonClick()
@@ -803,8 +777,10 @@ LLPanelAvatarProfile::~LLPanelAvatarProfile()
 	if(getAvatarId().notNull())
 	{
 		LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-		if(LLVoiceClient::getInstance())
+		if(LLVoiceClient::instanceExists())
+		{
 			LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
+		}
 	}
 }
 

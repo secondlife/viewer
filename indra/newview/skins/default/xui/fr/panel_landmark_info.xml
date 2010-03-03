@@ -13,7 +13,7 @@
 		Aucune information sur ce lieu n&apos;est disponible actuellement, veuillez réessayer ultérieurement.
 	</string>
 	<string name="server_forbidden_text">
-		Les informations sur ce lieu ne sont pas disponibles car l&apos;accès y est restreint.  Veuillez vérifier vos permissions avec le propriétaire de la parcelle.
+		Les informations sur ce lieu ne sont pas disponibles car l&apos;accès y est restreint.  Veuillez vérifier vos droits avec le propriétaire de la parcelle.
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]

@@ -41,8 +41,24 @@ Person ein:
 			<text name="meters">
 				Meter
 			</text>
-			<button font="SansSerifSmall" label="Liste aktualisieren" label_selected="Liste aktualisieren" left_delta="10" name="Refresh" width="105"/>
-			<scroll_list bottom_delta="-169" height="159" name="NearMe"/>
+            <button
+             follows="top|left"
+             layout="topleft"
+             left_pad="0"
+             height="28"
+             width="28"
+             name="Refresh"
+             image_overlay="Refresh_Off" />
+            <scroll_list
+             follows="all"
+             height="100"
+             border="false"
+             layout="topleft"
+             left="0"
+             name="NearMe"
+             sort_column="0"
+             top="50"
+             width="132" />
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

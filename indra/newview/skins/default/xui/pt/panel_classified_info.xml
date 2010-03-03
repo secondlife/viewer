@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_classified_info">
+	<text name="title" value="Dados do anúncio"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="classified_name" value="[nome]"/>
+			<text name="classified_location" value="[carregando...]"/>
+			<text name="content_type" value="[content type]"/>
+			<text name="category" value="[category]"/>
+			<check_box label="Renovar automaticamente todas as semanas" name="auto_renew"/>
+			<text name="price_for_listing" tool_tip="Preço do anúncio.">
+				L$ [PRICE]
+			</text>
+			<text name="classified_desc" value="[descrição]"/>
+		</panel>
+	</scroll_container>
+	<panel name="buttons">
+		<button label="Teletransportar" name="teleport_btn"/>
+		<button label="Mapa" name="show_on_map_btn"/>
+		<button label="Editar" name="edit_btn"/>
+	</panel>
+</panel>

@@ -46,6 +46,7 @@
      tab_group="1"
      tab_position="left"
      tab_width="115"
+     tab_padding_right="5"
      top="21"
      width="620">
         <panel
@@ -72,7 +73,7 @@
         <panel
 		 class="panel_preference"
          filename="panel_preferences_sound.xml"
-         label="Sound"
+         label="Sound &amp; Media"
          layout="topleft"
          help_topic="preferences_audio_tab"
          name="audio" />

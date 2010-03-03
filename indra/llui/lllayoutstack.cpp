@@ -49,9 +49,11 @@ static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("la
 //
 struct LLLayoutStack::LayoutPanel
 {
-	LayoutPanel(LLPanel* panelp, ELayoutOrientation orientation, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize)	:	mPanel(panelp), 
+	LayoutPanel(LLPanel* panelp, ELayoutOrientation orientation, S32 min_width, S32 min_height, S32 max_width, S32 max_height, BOOL auto_resize, BOOL user_resize)	:	mPanel(panelp), 
 		mMinWidth(min_width), 
 		mMinHeight(min_height),
+		mMaxWidth(max_width), 
+		mMaxHeight(max_height),
 		mAutoResize(auto_resize),
 		mUserResize(user_resize),
 		mOrientation(orientation),
@@ -112,6 +114,11 @@ struct LLLayoutStack::LayoutPanel
 	LLPanel* mPanel;
 	S32 mMinWidth;
 	S32 mMinHeight;
+
+	// mMaxWidth & mMaxHeight are added to make configurable max width of the nearby chat bar. EXT-5589
+	// they are not processed by LLLayoutStack but they can be if necessary
+	S32 mMaxWidth;
+	S32 mMaxHeight;
 	BOOL mAutoResize;
 	BOOL mUserResize;
 	BOOL mCollapsed;
@@ -261,10 +268,14 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	{
 		const S32 DEFAULT_MIN_WIDTH = 0;
 		const S32 DEFAULT_MIN_HEIGHT = 0;
+		const S32 DEFAULT_MAX_WIDTH = S32_MAX;
+		const S32 DEFAULT_MAX_HEIGHT = S32_MAX;
 		const BOOL DEFAULT_AUTO_RESIZE = TRUE;
 
 		S32 min_width = DEFAULT_MIN_WIDTH;
 		S32 min_height = DEFAULT_MIN_HEIGHT;
+		S32 max_width = DEFAULT_MAX_WIDTH;
+		S32 max_height = DEFAULT_MAX_HEIGHT;
 		BOOL auto_resize = DEFAULT_AUTO_RESIZE;
 
 		LLXMLNodePtr output_child;
@@ -281,6 +292,10 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 			DEFAULT_MIN_WIDTH, output_child);
 		get_attribute_s32_and_write(child_node, "min_height", &min_height,
 			DEFAULT_MIN_HEIGHT, output_child);
+		get_attribute_s32_and_write(child_node, "max_width", &max_width,
+			DEFAULT_MAX_WIDTH, output_child);
+		get_attribute_s32_and_write(child_node, "max_height", &max_height,
+			DEFAULT_MAX_HEIGHT, output_child);
 		get_attribute_bool_and_write(child_node, "auto_resize", &auto_resize,
 			DEFAULT_AUTO_RESIZE, output_child);
 
@@ -293,7 +308,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 			if (panelp)
 			{
 				panelp->setFollowsNone();
-				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize, user_resize);
+				layout_stackp->addPanel(panelp, min_width, min_height, max_width, max_height, auto_resize, user_resize);
 			}
 		}
 		else
@@ -309,7 +324,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 			if (new_child)
 			{
 				// put child in new embedded panel
-				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize, user_resize);
+				layout_stackp->addPanel(panelp, min_width, min_height, max_width, max_height, auto_resize, user_resize);
 				// resize panel to contain widget and move widget to be contained in panel
 				panelp->setRect(new_child->getRect());
 				new_child->setOrigin(0, 0);
@@ -359,14 +374,14 @@ S32 LLLayoutStack::getDefaultWidth(S32 cur_width)
 	return cur_width;
 }
 
-void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize, EAnimate animate, S32 index)
+void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, S32 max_width, S32 max_height, BOOL auto_resize, BOOL user_resize, EAnimate animate, S32 index)
 {
 	// panel starts off invisible (collapsed)
 	if (animate == ANIMATE)
 	{
 		panel->setVisible(FALSE);
 	}
-	LayoutPanel* embedded_panel = new LayoutPanel(panel, mOrientation, min_width, min_height, auto_resize, user_resize);
+	LayoutPanel* embedded_panel = new LayoutPanel(panel, mOrientation, min_width, min_height, max_width, max_height, auto_resize, user_resize);
 	
 	mPanels.insert(mPanels.begin() + llclamp(index, 0, (S32)mPanels.size()), embedded_panel);
 	
@@ -432,6 +447,19 @@ bool LLLayoutStack::getPanelMinSize(const std::string& panel_name, S32* min_widt
 	{
 		if (min_widthp) *min_widthp = panel->mMinWidth;
 		if (min_heightp) *min_heightp = panel->mMinHeight;
+	}
+
+	return NULL != panel;
+}
+
+bool LLLayoutStack::getPanelMaxSize(const std::string& panel_name, S32* max_widthp, S32* max_heightp)
+{
+	LayoutPanel* panel = findEmbeddedPanelByName(panel_name);
+
+	if (panel)
+	{
+		if (max_widthp) *max_widthp = panel->mMaxWidth;
+		if (max_heightp) *max_heightp = panel->mMaxHeight;
 	}
 
 	return NULL != panel;

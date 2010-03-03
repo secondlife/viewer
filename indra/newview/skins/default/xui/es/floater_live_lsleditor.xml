@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="SCRIPT: SCRIPT NUEVO">
-	<button label="Reiniciar" label_selected="Reiniciar" name="Reset"/>
-	<check_box label="Ejecutándose" name="running" left="4"/>
-	<check_box label="Mono" name="mono" left="106"/>
-	<string name="not_allowed">
-		No está autorizado para ver este script.
-	</string>
-	<string name="script_running">
+	<floater.string name="not_allowed">
+		No puedes ver ni editar este script. Ha sido configurado como &quot;no copiable&quot;. Necesitas todos los permisos para ver o editar un script que está dentro de un objeto.
+	</floater.string>
+	<floater.string name="script_running">
 		Ejecutándose
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		SCRIPT: [NAME]
+	</floater.string>
+	<button label="Reiniciar" label_selected="Reiniciar" name="Reset"/>
+	<check_box initial_value="true" label="Ejecutándose" left="4" name="running"/>
+	<check_box initial_value="true" label="Mono" left="106" name="mono"/>
 </floater>

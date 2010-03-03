@@ -2,7 +2,8 @@
 <panel
 	 background_visible="true"
      bevel_style="in"
-     bg_alpha_color="black"
+     bg_opaque_color="Black" 
+     bg_alpha_color="DkGray_66"
      follows="top|left|right"
      height="24"
      label="im_header"

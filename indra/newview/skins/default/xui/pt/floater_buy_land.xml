@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="COMPRAR TERRA">
+<floater name="buy land" title="COMPRAR TERRENO">
 	<text name="region_name_label">
 		Região:
 	</text>
-	<text name="region_name_text" left="560">
+	<text left="560" name="region_name_text">
 		(desconhecido)
 	</text>
 	<text name="region_type_label">
 		Tipo:
 	</text>
-	<text name="region_type_text" left="560">
+	<text left="560" name="region_type_text">
 		(desconhecido)
 	</text>
 	<text name="estate_name_label">
 		Propriedade:
 	</text>
-	<text name="estate_name_text" left="560">
+	<text left="560" name="estate_name_text">
 		(desconhecido)
 	</text>
-	<text name="estate_owner_label" width="105" right="565">
+	<text name="estate_owner_label" right="565" width="105">
 		Dono da propriedade:
 	</text>
-	<text name="estate_owner_text" left="560" >
+	<text left="560" name="estate_owner_text">
 		(desconhecido)
 	</text>
 	<text name="resellable_changeable_label">
@@ -40,7 +40,7 @@
 	<text_editor name="covenant_editor">
 		Carregando...
 	</text_editor>
-	<check_box label="Eu concordo com as definições do &#10;Corretor feitas acima." name="agree_covenant"/>
+	<check_box label="Eu concordo com as definições do  Corretor feitas acima." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Lote:
 	</text>
@@ -58,8 +58,7 @@
 	</text>
 	<text name="info_price">
 		L$ 1500
-(L$ 1.1/m²)
-vendido com os objetos
+(L$ 1,1/m²) inclui objetos
 	</text>
 	<text name="info_action">
 		Comprar este lote irá:
@@ -67,7 +66,7 @@ vendido com os objetos
 	<text name="error_message">
 		Algo ainda não está correto.
 	</text>
-	<button label="Ir para a página da web" name="error_web" width="150" />
+	<button label="Ir para a página da web" name="error_web" width="150"/>
 	<text name="account_action">
 		Evoluir sua conta para membro Premium
 	</text>
@@ -75,16 +74,16 @@ vendido com os objetos
 		Somente membros Premium podem possuir terra.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="US$9.95/mês, debitado mensalmente" />
-		<combo_box.item name="US$7.50/month,billedquarterly" label="US$7.50/mês, debitado trimestralmente" />
-		<combo_box.item name="US$6.00/month,billedannually" label="US$6.00/mês, debitado anualmente" />
+		<combo_box.item label="US$9.95/mês, pagamento mensal" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$7,50/mês, pagamento trimestral" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$6.00/mês, pagamento trimestral" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Aumente sua taxa de locação de terra para US$ 40/mês.
 	</text>
 	<text name="land_use_reason">
-		Você possui 1309 m² de terra.
-Este lote tem 512 m² de terra.
+		Você tem 1309 m².
+Este lote mede 512 m².
 	</text>
 	<text name="purchase_action">
 		Pagar ao Residente Joe L$4000 pela terra
@@ -95,16 +94,16 @@ Este lote tem 512 m² de terra.
 	<text name="currency_action" width="116">
 		Compre L$ adicionais
 	</text>
-	<line_editor name="currency_amt" left="190" width="65">
+	<line_editor left="190" name="currency_amt" width="65">
 		1000
 	</line_editor>
 	<text name="currency_est">
-		por aproxim. US$ [AMOUNT2]
+		cerca de [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Você tem L$2,100.
 	</text>
-	<check_box label="Remover [AMOUNT] m² de contribuição do grupo." name="remove_contribution"/>
+	<check_box label="Subtrair [AMOUNT] m² da minha contribuição." name="remove_contribution"/>
 	<button label="Adquirir" name="buy_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
 	<string name="can_resell">
@@ -179,26 +178,26 @@ Este lote tem 512 m² de terra.
 		Sua conta pode possuir uma terra.
 	</string>
 	<string name="land_holdings">
-		Você possui [BUYER] m² de terra.
+		Você tem [BUYER] m².
 	</string>
 	<string name="pay_to_for_land">
 		Pagar L$ [AMOUNT] para [SELLER] por esta terra
 	</string>
 	<string name="buy_for_US">
-		Comprar L$ [AMOUNT] por aprox. US$ [AMOUNT2],
+		Compre L$ [AMOUNT] por cerca de [LOCAL_AMOUNT],
 	</string>
 	<string name="parcel_meters">
-		Este lote tem [AMOUNT] m².
+		Este lote tem [AMOUNT] m²
 	</string>
 	<string name="premium_land">
-		Esta terra é premium e será taxada como [AMOUNT] m².
+		Esse é um terreno premium e custa o equivalente a [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		Esta terra tem desconto e será taxada como [AMOUNT] m².
+		Esse é um terreno com desconto, e custa o equivalente a [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT] m²
-aceita [AMOUNT2] objetos
+suporta [AMOUNT2] objetos
 	</string>
 	<string name="sold_with_objects">
 		vendido com objetos

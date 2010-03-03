@@ -449,8 +449,20 @@ void LLNavigationBar::onLocationSelection()
 	// Will not teleport to empty location.
 	if (typed_location.empty())
 		return;
-
+	//get selected item from combobox item
 	LLSD value = mCmbLocation->getSelectedValue();
+	if(value.isUndefined() && !mCmbLocation->getTextEntry()->isDirty())
+	{
+		// At this point we know that: there is no selected item in list and text field has NOT been changed
+		// So there is no sense to try to change the location
+		return;
+	}
+	/* since navbar list support autocompletion it contains several types of item: landmark, teleport hystory item,
+	 * typed by user slurl or region name. Let's find out which type of item the user has selected 
+	 * to make decision about adding this location into typed history. see mSaveToLocationHistory
+	 * Note:
+	 * Only TYPED_REGION_SLURL item will be added into LLLocationHistory 
+	 */  
 	
 	if(value.has("item_type"))
 	{
@@ -480,7 +492,7 @@ void LLNavigationBar::onLocationSelection()
 			
 		case TELEPORT_HISTORY:
 			//in case of teleport item was selected, teleport by position too.
-		case TYPED_REGION_SURL:
+		case TYPED_REGION_SLURL:
 			if(value.has("global_pos"))
 			{
 				gAgent.teleportViaLocation(LLVector3d(value["global_pos"]));
@@ -492,7 +504,7 @@ void LLNavigationBar::onLocationSelection()
 			break;		
 		}
 	}
-	//Let's parse surl or region name
+	//Let's parse slurl or region name
 	
 	std::string region_name;
 	LLVector3 local_coords(128, 128, 0);
@@ -505,7 +517,17 @@ void LLNavigationBar::onLocationSelection()
 				local_coords.set(x, y, z);
 		else
 			return;
-	}else
+	}
+	// we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too  
+	//but we need to know whether typed_location is a simple http url.
+	else if (LLUrlRegistry::instance().isUrl(typed_location)) 
+	{
+		// display http:// URLs in the media browser, or
+		// anything else is sent to the search floater
+		LLWeb::loadURL(typed_location);
+		return;
+	}
+	else
 	{
 		// assume that an user has typed the {region name} or possible {region_name, parcel}
 		region_name  = typed_location.substr(0,typed_location.find(','));
@@ -531,7 +553,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 		return;
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 
-	//TODO*: do we need convert surl into readable format?
+	//TODO*: do we need convert slurl into readable format?
 	std::string location;
 	/*NOTE:
 	 * We can't use gAgent.getPositionAgent() in case of local teleport to build location.
@@ -543,7 +565,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 	std::string tooltip (LLSLURL::buildSLURLfromPosGlobal(gAgent.getRegion()->getName(), global_agent_pos, false));
 	
 	LLLocationHistoryItem item (location,
-			global_agent_pos, tooltip,TYPED_REGION_SURL);// we can add into history only TYPED location
+			global_agent_pos, tooltip,TYPED_REGION_SLURL);// we can add into history only TYPED location
 	//Touch it, if it is at list already, add new location otherwise
 	if ( !lh->touchItem(item) ) {
 		lh->addItem(item);
@@ -621,20 +643,7 @@ void LLNavigationBar::onRegionNameResponse(
 	// Invalid location?
 	if (!region_handle)
 	{
-		// handle any secondlife:// SLapps, or
-		// display http:// URLs in the media browser, or
-		// anything else is sent to the search floater
-		if (LLUrlRegistry::instance().isUrl(typed_location))
-		{
-			if (! LLURLDispatcher::dispatchFromTextEditor(typed_location))
-			{
-				LLWeb::loadURL(typed_location);
-			}
-		}
-		else
-		{
-			invokeSearch(typed_location);
-		}
+		invokeSearch(typed_location);
 		return;
 	}
 

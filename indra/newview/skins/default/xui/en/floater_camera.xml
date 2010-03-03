@@ -12,6 +12,7 @@
  help_topic="camera_floater"
  save_rect="true"
  save_visibility="true"
+ save_dock_state="true"
  single_instance="true"
  width="150">
     <floater.string
@@ -25,6 +26,22 @@
     <floater.string
      name="move_tooltip">
         Move Camera Up and Down, Left and Right
+    </floater.string>
+    <floater.string
+     name="orbit_mode_title">
+        Orbit
+    </floater.string>
+    <floater.string
+     name="pan_mode_title">
+        Pan
+    </floater.string>
+    <floater.string
+     name="avatar_view_mode_title">
+        Presets
+    </floater.string>
+    <floater.string
+     name="free_mode_title">
+        View Object
     </floater.string>
     <panel
      border="false"
@@ -131,6 +148,7 @@
              height="40"
              image_selected="Cam_Preset_Back_On"
              image_unselected="Cam_Preset_Back_Off"
+             is_toggle="true"
              layout="topleft"
              left="0"
              name="rear_view"
@@ -145,6 +163,7 @@
              height="40"
              image_selected="Cam_Preset_Side_On"
              image_unselected="Cam_Preset_Side_Off"
+             is_toggle="true"
              layout="topleft"
              left_pad="5"
              name="group_view"
@@ -159,6 +178,7 @@
              height="40"
              image_selected="Cam_Preset_Front_On"
              image_unselected="Cam_Preset_Front_Off"
+             is_toggle="true"
              layout="topleft"
              left="0"
              name="front_view"
@@ -173,6 +193,7 @@
              height="40"
              image_selected="Cam_Preset_Eye_Off"
              image_unselected="Cam_Preset_Eye_Off"
+             is_toggle="true"
              layout="topleft"
              left_pad="5"
              name="mouselook_view"
@@ -227,7 +248,7 @@
          image_selected="PushButton_Selected_Press"
          name="avatarview_btn"
          tab_stop="false"
-         tool_tip="See as avatar"
+         tool_tip="Presets"
          width="25">
         </button>
         <button

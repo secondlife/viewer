@@ -47,8 +47,10 @@ ATI ASUS EAH26xx				.*ATI.*ASUS.*EAH26.*				3		1
 ATI ASUS EAH34xx				.*ATI.*ASUS.*EAH34.*				1		1
 ATI ASUS EAH36xx				.*ATI.*ASUS.*EAH36.*				3		1
 ATI ASUS EAH38xx				.*ATI.*ASUS.*EAH38.*				3		1
+ATI ASUS EAH45xx				.*ATI.*ASUS.*EAH45.*				1		1
 ATI ASUS EAH48xx				.*ATI.*ASUS.*EAH48.*				3		1
-ATI Radeon X1xxx				.*ATI.*ASUS.*X1.*					2		1
+ATI ASUS EAH57xx				.*ATI.*ASUS.*EAH57.*				3		1
+ATI Radeon X1xxx				.*ATI.*ASUS.*X1.*					3		1
 ATI Radeon X7xx					.*ATI.*ASUS.*X7.*					1		1
 ATI Radeon X500					.*ATI.*Diamond X5.*					1		1
 ATI Radeon X13xx				.*ATI.*Diamond X13.*				1		1
@@ -95,10 +97,16 @@ ATI Radeon HD 3300				.*ATI.*Radeon HD.*33.*				1		1
 ATI Radeon HD 3400				.*ATI.*Radeon HD.*34.*				1		1
 ATI Radeon HD 3600				.*ATI.*Radeon HD.*36.*				3		1
 ATI Radeon HD 3800				.*ATI.*Radeon HD.*38.*				3		1
+ATI Radeon HD 4200				.*ATI.*Radeon HD 42.*				1		1
 ATI Radeon HD 4300				.*ATI.*Radeon HD 43.*				1		1
-ATI Radeon HD 4500				.*ATI.*Radeon HD 45.*				2		1
-ATI Radeon HD 4600				.*ATI.*Radeon HD 46.*				3		1
+ATI Radeon HD 4500				.*ATI.*Radeon HD 45.*				3		1
+ATI Radeon HD 4600				.*ATI.*Radeon HD.*46.*				3		1
+ATI Radeon HD 4700				.*ATI.*Radeon HD 47.*				3		1
 ATI Radeon HD 4800				.*ATI.*Radeon.*HD.*48.*				3		1
+ATI Radeon HD 5600				.*ATI.*Radeon.*HD.*56.*				3		1
+ATI Radeon HD 5700				.*ATI.*Radeon.*HD.*57.*				3		1
+ATI Radeon HD 5800				.*ATI.*Radeon.*HD.*58.*				3		1
+ATI Radeon HD 5900				.*ATI.*Radeon.*HD.*59.*				3		1
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 				0		0
 ATI Radeon 2100					.*ATI.*Radeon 21.*					0		1
 ATI Radeon 3100					.*ATI.*Radeon 31.*					1		1
@@ -152,13 +160,17 @@ Intel 945G						.*Intel.*945G.*						0		1
 Intel 950						.*Intel.*950.*						0		1
 Intel 965						.*Intel.*965.*						0		1
 Intel G33						.*Intel.*G33.*						0		0
+Intel G41						.*Intel.*G41.*						0		1
 Intel G45						.*Intel.*G45.*						0		1
 Intel Bear Lake					.*Intel.*Bear Lake.*				0		0
 Intel Broadwater 				.*Intel.*Broadwater.*				0		0
 Intel Brookdale					.*Intel.*Brookdale.*				0		0
 Intel Cantiga					.*Intel.*Cantiga.*					0		0
 Intel Eaglelake					.*Intel.*Eaglelake.*				0		1
+Intel Mobile 4 Series			.*Intel.*Mobile.*4 Series.*			0		1
+Intel Media Graphics HD			.*Intel.*Media.*Graphics.*HD.*		0		1
 Intel Montara					.*Intel.*Montara.*					0		0
+Intel Pineview					.*Intel.*Pineview.*					0		1
 Intel Springdale				.*Intel.*Springdale.*				0		0
 Matrox							.*Matrox.*							0		0
 Mesa							.*Mesa.*							0		0

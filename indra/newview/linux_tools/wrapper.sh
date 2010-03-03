@@ -41,16 +41,8 @@
 ##   driver bug, try enabling this option and report whether it helps:
 #export LL_ATI_MOUSE_CURSOR_BUG=x
 
-## - If you experience crashes with streaming video and music, you can
-##   disable these by enabling this option:
-#export LL_DISABLE_GSTREAMER=x
-
-## - GStreamer is automatically disabled - for now - on 64-bit systems due
-##   to common fatal incompatibilities; remove/comment these lines if you want
-##   to try anyway.
 if [ "`uname -m`" = "x86_64" ]; then
-    export LL_DISABLE_GSTREAMER=x
-    echo '64-bit Linux detected: Disabling GStreamer (streaming video and music) by default; edit ./secondlife to re-enable.'
+    echo '64-bit Linux detected.'
 fi
 
 ## Everything below this line is just for advanced troubleshooters.

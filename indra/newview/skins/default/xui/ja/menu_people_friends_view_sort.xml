@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_group_plus">
 	<menu_item_check label="名前で並べ替え" name="sort_name"/>
-	<menu_item_check label="オンライン状況で並べ替え" name="sort_status"/>
+	<menu_item_check label="オンライン状態で並べ替え" name="sort_status"/>
 	<menu_item_check label="人のアイコン表示" name="view_icons"/>
 	<menu_item_call label="ブロックされた住人とオブジェクトを表示" name="show_blocked_list"/>
 </menu>

@@ -46,6 +46,7 @@
 #include "llnotificationsutil.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
+const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
 S32 BUTTON_WIDTH = 90;
 
 //static
@@ -127,14 +128,6 @@ mAddedDefaultBtn(false)
 	{
 		std::vector<index_button_pair_t> buttons;
 		buttons.reserve(mNumOptions);
-		for (S32 i = 0; i < mNumOptions; i++)
-		{
-			LLSD form_element = form->getElement(i);
-			if (form_element["type"].asString() != "button")
-			{
-				continue;
-			}
-		}
 		S32 buttons_width = 0;
 		// create all buttons and accumulate they total width to reshape mControlPanel
 		for (S32 i = 0; i < mNumOptions; i++)
@@ -155,22 +148,42 @@ mAddedDefaultBtn(false)
 		}
 		else
 		{
-			//try get an average left_pad to spread out buttons
-			S32 left_pad = (getRect().getWidth() - buttons_width) / (S32(buttons.size() + 1));
-			// left_pad can be < 2*HPAD if we have a lot of buttons. 
-			if(left_pad < 2*HPAD)
+			const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
+			S32 button_panel_height = mControlPanel->getRect().getHeight();
+			//try get an average h_pad to spread out buttons
+			S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
+			if(h_pad < 2*HPAD)
 			{
-				//Probably it is  a scriptdialog toast, set default left_pad
-				left_pad = 2*HPAD;
+				/*
+				 * Probably it is  a scriptdialog toast
+				 * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
+				 * In last case set default h_pad to avoid heaping of buttons 
+				 */
+				h_pad = 2*HPAD;
 			}
-			//how many rows we need to fit all buttons with current width of the panel
-			S32 button_rows = (buttons_width + left_pad * S32(buttons.size() + 1)) / getRect().getWidth() + 1;
-			//calculate required panel height 
-			S32 button_panel_height = button_rows *( BTN_HEIGHT + VPAD) + BOTTOM_PAD;
-
-			adjustPanelForScriptNotice(getRect().getWidth(), button_panel_height);
-			//we begin from lefttop angle and go to rightbottom.
-			updateButtonsLayout(buttons, left_pad, button_panel_height);
+			if (mIsScriptDialog)
+			{
+				// we are using default width for script buttons so we can determinate button_rows
+				//to get a number of rows we divide the required width of the buttons to button_panel_width
+				S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
+				//S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
+				//reserve one row for the ignore_btn
+				button_rows++;
+				//calculate required panel height for scripdialog notification.
+				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ IGNORE_BTN_TOP_DELTA + BOTTOM_PAD;
+			}
+			else
+			{
+				// in common case buttons can have different widths so we need to calculate button_rows according to buttons_width
+				//S32 button_rows = llceil(F32(buttons.size()) * (buttons_width + h_pad) / button_panel_width);
+				S32 button_rows = llceil(F32((buttons.size() - 1) * h_pad + buttons_width) / button_panel_width);
+				//calculate required panel height 
+				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ BOTTOM_PAD;
+			}
+		
+			// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
+			adjustPanelForScriptNotice(button_panel_width, button_panel_height);
+			updateButtonsLayout(buttons, h_pad);
 		}
 	}
 	// adjust panel's height to the text size
@@ -202,7 +215,8 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	mBtnCallbackData.push_back(userdata);
 
 	LLButton::Params p;
-	const LLFontGL* font = form_element["index"].asInteger() == -1 ? sFontSmall: sFont; // for ignore button in script dialog
+	bool is_ignore_btn = form_element["index"].asInteger() == -1;
+	const LLFontGL* font = is_ignore_btn ? sFontSmall: sFont; // for ignore button in script dialog
 	p.name(form_element["name"].asString());
 	p.label(form_element["text"].asString());
 	p.font(font);
@@ -216,12 +230,19 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 		p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 		p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 	}
+	// for the scriptdialog buttons we use fixed button size. This  is a limit!
 	if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > BUTTON_WIDTH)
 	{
 		p.rect.width = 1;
 		p.auto_resize = true;
 	}
-	
+	else if (mIsScriptDialog && is_ignore_btn)
+	{
+		// this is ignore button,make it smaller
+		p.rect.height = BTN_HEIGHT_SMALL;
+		p.rect.width = 1;
+		p.auto_resize = true;
+	}
 	LLButton* btn = LLUICtrlFactory::create<LLButton>(p);
 	mNumButtons++;
 	btn->autoResize();
@@ -241,38 +262,48 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 		LLNotifications::getInstance()->cancel(mNotification);
 	}
 }
-void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 left_pad, S32 top)
+
+void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 h_pad)
 {
-	S32 left = left_pad;
+	S32 left = 0;
+	//reserve place for ignore button
+	S32 bottom_offset = mIsScriptDialog ? (BTN_HEIGHT + IGNORE_BTN_TOP_DELTA + BOTTOM_PAD) : BOTTOM_PAD;
+	S32 max_width = mControlPanel->getRect().getWidth();
 	LLButton* ignore_btn = NULL;
 	for (std::vector<index_button_pair_t>::const_iterator it = buttons.begin(); it != buttons.end(); it++)
 	{
-		if(left + it->second->getRect().getWidth() + 2*HPAD > getRect().getWidth())
+		if (it->first == -1)
 		{
-			// looks like we need to add button to the next row
-			left = left_pad;
-			top-= (BTN_HEIGHT + VPAD);
-		}
-		LLRect btn_rect(it->second->getRect());
-		if(mIsScriptDialog && it->first == -1)
-		{
-			//this is ignore button ( index == -1) we need to add it into new extra row at the end
 			ignore_btn = it->second;
 			continue;
 		}
-		btn_rect.setLeftTopAndSize(left, top, btn_rect.getWidth(), btn_rect.getHeight());
-		it->second->setRect(btn_rect);					
-		left = btn_rect.mLeft + btn_rect.getWidth() + left_pad;
-		addChild(it->second, -1);
+		LLButton* btn = it->second;
+		LLRect btn_rect(btn->getRect());
+		if (left + btn_rect.getWidth() > max_width)// whether there is still some place for button+h_pad in the mControlPanel
+		{
+			// looks like we need to add button to the next row
+			left = 0;
+			bottom_offset += (BTN_HEIGHT + VPAD);
+		}
+		//we arrange buttons from bottom to top for backward support of old script
+		btn_rect.setOriginAndSize(left, bottom_offset, btn_rect.getWidth(),	btn_rect.getHeight());
+		btn->setRect(btn_rect);
+		left = btn_rect.mLeft + btn_rect.getWidth() + h_pad;
+		mControlPanel->addChild(btn, -1);
 	}
-	if(ignore_btn)
+	if (mIsScriptDialog && ignore_btn != NULL)
 	{
-		LLRect btn_rect(ignore_btn->getRect());
-		btn_rect.setOriginAndSize(getRect().getWidth() - btn_rect.getWidth() - left_pad,
-				BOTTOM_PAD,// move button at the bottom edge
-				btn_rect.getWidth(), btn_rect.getHeight());
-		ignore_btn->setRect(btn_rect);
-		addChild(ignore_btn, -1);
+		LLRect ignore_btn_rect(ignore_btn->getRect());
+		S32 buttons_per_row = max_width / BUTTON_WIDTH; //assume that h_pad far less than BUTTON_WIDTH
+		S32 ignore_btn_left = buttons_per_row * BUTTON_WIDTH + (buttons_per_row	- 1) * h_pad - ignore_btn_rect.getWidth();
+		if (ignore_btn_left + ignore_btn_rect.getWidth() > max_width)// make sure that the ignore button is in panel
+		{
+			ignore_btn_left = max_width - ignore_btn_rect.getWidth() - 2 * HPAD;
+		}
+		ignore_btn_rect.setOriginAndSize(ignore_btn_left, BOTTOM_PAD,// always move ignore button at the bottom
+				ignore_btn_rect.getWidth(), ignore_btn_rect.getHeight());
+		ignore_btn->setRect(ignore_btn_rect);
+		mControlPanel->addChild(ignore_btn, -1);
 	}
 }
 
@@ -280,18 +311,15 @@ void LLToastNotifyPanel::adjustPanelForScriptNotice(S32 button_panel_width, S32 
 {
 	//adjust layout
 	// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
-	LLRect button_rect = mControlPanel->getRect();
 	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight() + button_panel_height + VPAD);
-	button_rect.set(0, button_rect.mBottom + button_panel_height, button_rect.getWidth(), button_rect.mBottom);
-	mControlPanel->reshape(button_rect.getWidth(), button_panel_height);
-	mControlPanel->setRect(button_rect);
+	mControlPanel->reshape( button_panel_width, button_panel_height);
 }
 
 void LLToastNotifyPanel::adjustPanelForTipNotice()
 {
 	LLRect info_rect = mInfoPanel->getRect();
 	LLRect this_rect = getRect();
-
+	//we don't need display ControlPanel for tips because they doesn't contain any buttons. 
 	mControlPanel->setVisible(FALSE);
 	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight());
 
@@ -318,4 +346,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		response[button_name] = true;
 	}
 	self->mNotification->respond(response);
+
+	// disable all buttons
+	self->mControlPanel->setEnabled(FALSE);
 }

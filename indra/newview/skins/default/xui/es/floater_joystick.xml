@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="CONFIGURACIÓN DEL JOYSTICK">
-	<check_box name="enable_joystick" label="Activar el joystick:"/>
+	<check_box label="Activar el joystick:" name="enable_joystick"/>
 	<text left="140" name="joystick_type" width="360"/>
-	<spinner label="Mapping: eje X" name="JoystickAxis1" label_width="118" width="161"/>
-	<spinner label="Mapping: eje Y" name="JoystickAxis2" label_width="105" width="148"/>
-	<spinner label="Mapping: eje Z" name="JoystickAxis0" label_width="95" width="138"/>
-	<spinner label="Mapping: arriba/abajo" name="JoystickAxis4" label_width="118" width="161"/>
-	<spinner label="Mapping: izq./der." name="JoystickAxis5" label_width="105" width="148"/>
-	<spinner label="Mapping: giro" name="JoystickAxis3" label_width="95" width="138"/>
-	<spinner label="Mapping: zoom" name="JoystickAxis6" label_width="118" width="161"/>
+	<spinner label="Mapping: eje X" label_width="118" name="JoystickAxis1" width="161"/>
+	<spinner label="Mapping: eje Y" label_width="105" name="JoystickAxis2" width="148"/>
+	<spinner label="Mapping: eje Z" label_width="95" name="JoystickAxis0" width="138"/>
+	<spinner label="Mapping: arriba/abajo" label_width="118" name="JoystickAxis4" width="161"/>
+	<spinner label="Mapping: izq./der." label_width="105" name="JoystickAxis5" width="148"/>
+	<spinner label="Mapping: giro" label_width="95" name="JoystickAxis3" width="138"/>
+	<spinner label="Mapping: zoom" label_width="118" name="JoystickAxis6" width="161"/>
 	<check_box label="Zoom directo" name="ZoomDirect"/>
 	<check_box label="Cursor 3D" name="Cursor3D"/>
 	<check_box label="Nivel automático" name="AutoLeveling"/>
 	<text name="Control Modes:">
 		Modos de control:
 	</text>
-	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
-	<check_box name="JoystickBuildEnabled" left="192" label="Construir"/>
-	<check_box name="JoystickFlycamEnabled" label="Flycam"/>
+	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
+	<check_box label="Construir" left="192" name="JoystickBuildEnabled"/>
+	<check_box label="Flycam" name="JoystickFlycamEnabled"/>
 	<text name="XScale">
 		Escala: X
 	</text>
@@ -27,7 +27,7 @@
 	<text name="ZScale">
 		Escala: Z
 	</text>
-	<text name="PitchScale" left="3" width="115">
+	<text left="3" name="PitchScale" width="115">
 		Escala: arriba/abajo
 	</text>
 	<text name="YawScale">
@@ -45,10 +45,10 @@
 	<text name="ZDeadZone">
 		Zona muerta Z
 	</text>
-	<text name="PitchDeadZone" left="3" width="115">
+	<text left="3" name="PitchDeadZone" width="115">
 		Zona muerta arri./aba.
 	</text>
-	<text name="YawDeadZone" left="3" width="115">
+	<text left="3" name="YawDeadZone" width="115">
 		Zona muerta izq./der.
 	</text>
 	<text name="RollDeadZone">
@@ -63,9 +63,9 @@
 	<text name="ZoomDeadZone">
 		Zona muerta zoom
 	</text>
-	<button label="Predeterminados del SpaceNavigator" name="SpaceNavigatorDefaults" font="SansSerifSmall" left="330" width="210"/>
-	<button label="OK" label_selected="OK" name="ok_btn" left="330"/>
-	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn" left_delta="120"/>
+	<button font="SansSerifSmall" label="Predeterminados del SpaceNavigator" left="330" name="SpaceNavigatorDefaults" width="210"/>
+	<button label="OK" label_selected="OK" left="330" name="ok_btn"/>
+	<button label="Cancelar" label_selected="Cancelar" left_delta="120" name="cancel_btn"/>
 	<stat_view label="Monitor del joystick" name="axis_view">
 		<stat_bar label="Eje 0" name="axis0"/>
 		<stat_bar label="Eje 1" name="axis1"/>

@@ -36,6 +36,8 @@
 
 #include "llweb.h"
 
+#include "llurlregistry.h"
+
 const std::string LLSLURL::PREFIX_SL_HELP		= "secondlife://app.";
 const std::string LLSLURL::PREFIX_SL			= "sl://";
 const std::string LLSLURL::PREFIX_SECONDLIFE	= "secondlife://";
@@ -93,6 +95,20 @@ bool LLSLURL::isSLURL(const std::string& url)
 	if (matchPrefix(url, PREFIX_SLURL_WWW))		return true;
 	
 	return false;
+}
+
+bool LLSLURL::isValidSLURL(const std::string& url)
+{
+	std::string temp_url(url);
+	//"www." may appear in DnD- see description of PREFIX_SLURL_WWW.
+	// If it is found, we remove it because it isn't expected in regexp.
+	if (matchPrefix(url, PREFIX_SLURL_WWW))
+	{
+		size_t position = url.find("www.");
+		temp_url.erase(position,4);
+	}
+	
+	return LLUrlRegistry::getInstance()->isUrl(temp_url);
 }
 
 // static

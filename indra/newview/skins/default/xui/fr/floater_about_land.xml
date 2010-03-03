@@ -71,7 +71,7 @@
 				Catégorie :
 			</text>
 			<text name="ContentRatingText">
-				Adult
+				Adulte
 			</text>
 			<text name="Owner:">
 				Propriétaire :
@@ -99,7 +99,7 @@
 				Prix : [PRICE] L$ ([PRICE_PER_SQM] L$/m²)
 			</text>
 			<text name="SalePending"/>
-			<button label="Vendez du terrain" label_selected="Vendre le terrain..." name="Sell Land..."/>
+			<button label="Vendre le terrain" label_selected="Vendre le terrain..." name="Sell Land..."/>
 			<text name="For sale to">
 				À vendre à : [BUYER]
 			</text>
@@ -424,10 +424,11 @@ texture :
 			<check_box label="En boucle" name="media_loop" tool_tip="Jouer le média en boucle. Lorsque le média aura fini de jouer, il recommencera."/>
 		</panel>
 		<panel label="SON" name="land_audio_panel">
-			<text name="MusicURL:" bottom_delta="-28" >
+			<text bottom_delta="-28" name="MusicURL:">
 				URL de la 
 musique :
 			</text>
+			<check_box label="Masquer l&apos;URL" name="hide_music_url" tool_tip="Si vous cochez cette option, l&apos;URL de musique sera masquée et invisible pour tous les utilisateurs non autorisés des informations de cette parcelle."/>
 			<text name="Sound:">
 				Son :
 			</text>
@@ -437,7 +438,7 @@ musique :
 			</text>
 			<check_box label="Activer le chat vocal" name="parcel_enable_voice_channel"/>
 			<check_box label="Activer la voix (contrôlé par le domaine)" name="parcel_enable_voice_channel_is_estate_disabled"/>
-			<check_box label="Limiter le chat vocal à cette parcelle" name="parcel_enable_voice_channel_parcel"/>
+			<check_box label="Limiter le chat vocal à cette parcelle" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ACCÈS" name="land_access_panel">
 			<panel.string name="access_estate_defined">

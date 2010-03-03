@@ -172,6 +172,15 @@ supports [AMOUNT2] objects
      name="no_parcel_selected">
         (no parcel selected)
     </floater.string>
+    <floater.string
+     name="icon_PG"
+     value="Parcel_PG_Dark"/>
+    <floater.string
+     name="icon_M"
+     value="Parcel_M_Dark"/>
+    <floater.string
+     name="icon_R"
+     value="Parcel_R_Dark"/>
     <text
      type="string"
      length="1"
@@ -195,9 +204,17 @@ supports [AMOUNT2] objects
      left_delta="110"
      name="region_name_text"
      top_delta="0"
-     width="175">
+     use_ellipses="true"
+     width="155">
         (unknown)
     </text>
+    <icon
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     name="rating_icon"
+     top_delta="-2"
+     width="18"/>
     <text
      type="string"
      length="1"
