@@ -217,11 +217,6 @@ BOOL LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 {
-	/*if(y>getRect().getHeight()-20)
-	{
-		return LLFloater::handleMouseDown(x, y, mask);
-	}*/
-
 	mHoverTimer = NULL;
 	mHoverID = NULL;
 
