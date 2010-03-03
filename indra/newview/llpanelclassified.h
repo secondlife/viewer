@@ -256,6 +256,8 @@ public:
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
+	/*virtual*/ void draw();
+
 protected:
 
 	LLPanelClassifiedInfo();
@@ -269,6 +271,8 @@ protected:
 		const std::string& sim_name, 
 		const LLVector3d& pos_global);
 
+	void stretchSnapshot();
+
 	void onMapClick();
 	void onTeleportClick();
 	void onExit();
@@ -280,6 +284,9 @@ private:
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
 	bool mInfoLoaded;
+
+	bool mSnapshotStreched;
+	LLRect mSnapshotRect;
 
 	LLScrollContainer*		mScrollContainer;
 	LLPanel*				mScrollingPanel;

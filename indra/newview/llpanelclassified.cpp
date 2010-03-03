@@ -1157,6 +1157,7 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  , mScrollContainer(NULL)
  , mScrollingPanelMinHeight(0)
  , mScrollingPanelWidth(0)
+ , mSnapshotStreched(false)
 {
 }
 
@@ -1183,6 +1184,8 @@ BOOL LLPanelClassifiedInfo::postBuild()
 
 	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
 	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
+
+	mSnapshotRect = getChild<LLUICtrl>("classified_snapshot")->getRect();
 
 	return TRUE;
 }
@@ -1215,6 +1218,8 @@ void LLPanelClassifiedInfo::reshape(S32 width, S32 height, BOOL called_from_pare
 	{
 		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
 	}
+
+	mSnapshotRect = getChild<LLUICtrl>("classified_snapshot")->getRect();
 }
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)
@@ -1325,6 +1330,21 @@ void LLPanelClassifiedInfo::setClassifiedLocation(const std::string& location)
 void LLPanelClassifiedInfo::setSnapshotId(const LLUUID& id)
 {
 	childSetValue("classified_snapshot", id);
+	if(!mSnapshotStreched)
+	{
+		LLUICtrl* snapshot = getChild<LLUICtrl>("classified_snapshot");
+		snapshot->setRect(mSnapshotRect);
+	}
+	mSnapshotStreched = false;
+}
+
+void LLPanelClassifiedInfo::draw()
+{
+	LLPanel::draw();
+
+	// Stretch in draw because it takes some time to load a texture,
+	// going to try to stretch snapshot until texture is loaded
+	stretchSnapshot();
 }
 
 LLUUID LLPanelClassifiedInfo::getSnapshotId()
@@ -1361,6 +1381,41 @@ std::string LLPanelClassifiedInfo::createLocationText(
 	}
 
 	return location_text;
+}
+
+void LLPanelClassifiedInfo::stretchSnapshot()
+{
+	// *NOTE dzaporozhan
+	// Could be moved to LLTextureCtrl
+
+	LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("classified_snapshot");
+	LLViewerFetchedTexture* texture = texture_ctrl->getTexture();
+
+	if(!texture || mSnapshotStreched)
+	{
+		return;
+	}
+
+	if(0 == texture->getOriginalWidth() || 0 == texture->getOriginalHeight())
+	{
+		// looks like texture is not loaded yet
+		llinfos << "Missing image size" << llendl;
+		return;
+	}
+
+	LLRect rc = mSnapshotRect;
+	F32 t_width = texture->getFullWidth();
+	F32 t_height = texture->getFullHeight();
+
+	F32 ratio = llmin<F32>( (rc.getWidth() / t_width), (rc.getHeight() / t_height) );
+
+	t_width *= ratio;
+	t_height *= ratio;
+
+	rc.setCenterAndSize(rc.getCenterX(), rc.getCenterY(), t_width, t_height);
+	texture_ctrl->setRect(rc);
+
+	mSnapshotStreched = true;
 }
 
 void LLPanelClassifiedInfo::onMapClick()
