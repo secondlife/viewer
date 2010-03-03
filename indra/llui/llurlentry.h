@@ -83,7 +83,7 @@ public:
 	LLUIColor getColor() const { return mColor; }
 
 	/// Given a matched Url, return a tooltip string for the hyperlink
-	std::string getTooltip() const { return mTooltip; }
+	virtual std::string getTooltip(const std::string &string) const { return mTooltip; }
 
 	/// Return the name of a XUI file containing the context menu items
 	std::string getMenuName() const { return mMenuName; }
@@ -257,6 +257,7 @@ public:
 	LLUrlEntrySLLabel();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getUrl(const std::string &string) const;
+	/*virtual*/ std::string getTooltip(const std::string &string) const;
 };
 
 ///
