@@ -26,7 +26,7 @@
 					</panel>
 					<panel name="first_life_image_panel">
 						<icon label="" name="real_world_edit_icon" tool_tip="Cliquez sur le bouton Modifier le profil ci-dessous pour changer d&apos;image"/>
-						<text name="title_rw_descr_text" value="Monde physique :"/>
+						<text name="title_rw_descr_text" value="Vie réelle :"/>
 					</panel>
 					<text name="title_member_text" value="Résident depuis :"/>
 					<text name="title_acc_status_text" value="Statut du compte :"/>

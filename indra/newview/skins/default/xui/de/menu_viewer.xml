@@ -159,7 +159,7 @@
 			<menu_item_check label="Partikel" name="Particles"/>
 			<menu_item_check label="Unebenheiten" name="Bump"/>
 		</menu>
-		<menu label="Rederning-Eigenschaften" name="Rendering Features">
+		<menu label="Rendering-Eigenschaften" name="Rendering Features">
 			<menu_item_check label="UI" name="UI"/>
 			<menu_item_check label="Ausgewählt" name="Selected"/>
 			<menu_item_check label="Farblich hervorgehoben" name="Highlighted"/>
@@ -169,7 +169,7 @@
 			<menu_item_check label="FRInfo testen" name="Test FRInfo"/>
 			<menu_item_check label="Flexible Objekte" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Mehrer Threads ausführen" name="Run Multiple Threads"/>
+		<menu_item_check label="Mehrere Threads ausführen" name="Run Multiple Threads"/>
 		<menu_item_call label="Gruppen-Cache löschen" name="ClearGroupCache"/>
 		<menu_item_check label="Weiche Mausbewegung" name="Mouse Smoothing"/>
 		<menu label="Tastaturkürzel" name="Shortcuts">

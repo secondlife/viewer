@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="INHALTS-BERECHTIGUNGEN BEARBEITEN">
+<floater name="floaterbulkperms" title="BERECHTIGUNGEN BEARBEITEN">
 	<floater.string name="nothing_to_modify_text">
 		Auswahl enthält keinen Inhalt, der bearbeitet werden kann.
 	</floater.string>
