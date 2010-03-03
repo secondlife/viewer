@@ -16,7 +16,7 @@
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </floater.string>
     <scroll_list
-     bottom="270"
+     bottom="268"
      column_padding="0"
      draw_heading="true"
      follows="top|right|left|bottom"
@@ -47,23 +47,23 @@
     </scroll_list>
     <button
      follows="left|bottom"
-     height="20"
+     height="23"
      label="See Owner Profile..."
      layout="topleft"
-     left_delta="0"
+     left_delta="-1"
      name="button owner"
      tool_tip="See profile of the highlighted object&apos;s owner"
-     top_pad="5"
+     top_pad="4"
      width="150">
 		<button.commit_callback
 		function="Inspect.OwnerProfile" />
 	</button>
     <button
      follows="left|bottom"
-     height="20"
+     height="23"
      label="See Creator Profile..."
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="button creator"
      tool_tip="See profile of the highlighted object&apos;s original creator"
      top_delta="0"
