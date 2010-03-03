@@ -1412,7 +1412,7 @@ void LLPanelClassifiedInfo::stretchSnapshot()
 	t_width *= ratio;
 	t_height *= ratio;
 
-	rc.setCenterAndSize(rc.getCenterX(), rc.getCenterY(), t_width, t_height);
+	rc.setCenterAndSize(rc.getCenterX(), rc.getCenterY(), llfloor(t_width), llfloor(t_height));
 	texture_ctrl->setRect(rc);
 
 	mSnapshotStreched = true;
