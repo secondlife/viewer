@@ -34,6 +34,11 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 	return false;
 }
 
+void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
+{
+	return;
+}
+
 bool LLAvatarNameCache::useDisplayNames()
 {
 	return false;

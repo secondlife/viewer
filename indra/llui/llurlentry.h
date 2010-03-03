@@ -41,6 +41,8 @@
 #include <string>
 #include <map>
 
+class LLAvatarName;
+
 typedef boost::signals2::signal<void (const std::string& url,
 									  const std::string& label,
 									  const std::string& icon)> LLUrlLabelSignal;
@@ -173,6 +175,7 @@ public:
 
 private:
 	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 };
 
 ///

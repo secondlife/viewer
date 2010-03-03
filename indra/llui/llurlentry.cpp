@@ -324,21 +324,18 @@ void LLUrlEntryAgent::onNameCache(const LLUUID& id,
 								  const std::string& full_name,
 								  bool is_group)
 {
+	callObservers(id.asString(), full_name, mIcon);
+}
+
+void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
+										const LLAvatarName& av_name)
+{
 	// IDEVO demo code
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::useDisplayNames()
-		&& LLAvatarNameCache::get(id, &av_name))
-	{
-		std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
-		// use custom icon if available
-		std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
-		// received the agent name from the server - tell our observers
-		callObservers(id.asString(), label, icon);
-	}
-	else
-	{
-		callObservers(id.asString(), full_name, mIcon);
-	}
+	std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+	// use custom icon if available
+	std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
+	// received the agent name from the server - tell our observers
+	callObservers(id.asString(), label, icon);
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -357,27 +354,43 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	
 	LLUUID agent_id(agent_id_string);
-	std::string full_name;
 	if (agent_id.isNull())
 	{
 		return LLTrans::getString("AvatarNameNobody");
 	}
-	else if (gCacheName->getFullName(agent_id, full_name))
+
+	if (LLAvatarNameCache::useDisplayNames())
 	{
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::useDisplayNames()
-			&& LLAvatarNameCache::get(agent_id, &av_name))
+		if (LLAvatarNameCache::get(agent_id, &av_name))
+		{
 			return av_name.mDisplayName + " (" + av_name.mSLID + ")";
+		}
 		else
-			return full_name;
+		{
+			LLAvatarNameCache::get(agent_id,
+				boost::bind(&LLUrlEntryAgent::onAvatarNameCache,
+					this, _1, _2));
+			addObserver(agent_id_string, url, cb);
+			return LLTrans::getString("LoadingData");
+		}
 	}
 	else
 	{
-		gCacheName->get(agent_id, false,
-						boost::bind(&LLUrlEntryAgent::onNameCache,
-									this, _1, _2, _3));
-		addObserver(agent_id_string, url, cb);
-		return LLTrans::getString("LoadingData");
+		// ...no display names
+		std::string full_name;
+		if (gCacheName->getFullName(agent_id, full_name))
+		{
+			return full_name;
+		}
+		else
+		{
+			gCacheName->get(agent_id, false,
+				boost::bind(&LLUrlEntryAgent::onNameCache,
+					this, _1, _2, _3));
+			addObserver(agent_id_string, url, cb);
+			return LLTrans::getString("LoadingData");
+		}
 	}
 }
 
