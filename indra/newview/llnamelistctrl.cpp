@@ -138,6 +138,29 @@ void LLNameListCtrl::showInspector(const LLUUID& avatar_id, bool is_group)
 		LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", avatar_id));
 }
 
+void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
+{
+	if (getHighlightedItemInx()!= target_index)
+	{
+		if(getHighlightedItemInx()!=-1)
+		{
+			LLScrollListItem* item = getItemList()[getHighlightedItemInx()];
+			LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(mNameColumnIndex));
+			if(cell)
+				cell->setTextWidth(cell->getTextWidth() + 16);
+		}
+		if(target_index != -1)
+		{
+			LLScrollListItem* item = getItemList()[target_index];
+			LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(mNameColumnIndex));
+			if(cell)
+				cell->setTextWidth(cell->getTextWidth() - 16);
+		}
+	}
+
+	LLScrollListCtrl::mouseOverHighlightNthItem(target_index);
+}
+
 //virtual
 BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
