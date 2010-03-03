@@ -235,7 +235,7 @@ LLWearable* LLWearableList::createNewWearable( EWearableType type )
 	LLWearable *wearable = generateNewWearable();
 	wearable->setType( type );
 	
-	std::string name = "New ";
+	std::string name = LLTrans::getString("New") + " ";
 	name.append( wearable->getTypeLabel() );
 	wearable->setName( name );
 
