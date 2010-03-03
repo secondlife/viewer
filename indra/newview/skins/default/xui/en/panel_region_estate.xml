@@ -59,7 +59,7 @@
      left_delta="0"
      name="owner_text"
      top_pad="2"
-     width="80">
+     width="180">
         Estate owner:
     </text>
     <text

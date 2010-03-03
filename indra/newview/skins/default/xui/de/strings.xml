@@ -979,7 +979,7 @@
 		Gummi
 	</string>
 	<string name="Light">
-		Licht
+		Hell
 	</string>
 	<string name="KBShift">
 		Umschalt-Taste
@@ -2056,7 +2056,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Kinn-Hals
 	</string>
 	<string name="Clear">
-		Löschen
+		Transparent
 	</string>
 	<string name="Cleft">
 		Spalte
@@ -2359,16 +2359,16 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Farbe Innenseite
 	</string>
 	<string name="In Shdw Opacity">
-		Deckkraft: innerer Lidschatten
+		Deckkraft: innen
 	</string>
 	<string name="Inner Eye Corner">
 		Ecke: Nasenseite
 	</string>
 	<string name="Inner Eye Shadow">
-		Innerer Lidschatten
+		Innenlid
 	</string>
 	<string name="Inner Shadow">
-		Innerer Lidschatten
+		Innenlid
 	</string>
 	<string name="Jacket Length">
 		Jackenlänge
@@ -2761,10 +2761,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Aus
 	</string>
 	<string name="Out Shdw Color">
-		Farbe: Oberer Lidschatten
+		Farbe: Oben
 	</string>
 	<string name="Out Shdw Opacity">
-		Deckkraft: Oberer Lidschatten
+		Deckkraft: Oben
 	</string>
 	<string name="Outer Eye Corner">
 		Äußerer Augenwinkel
@@ -2935,7 +2935,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Schuhart
 	</string>
 	<string name="Short">
-		Sandale
+		Klein
 	</string>
 	<string name="Short Arms">
 		Kurze Arme
@@ -3064,7 +3064,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Nach vorne
 	</string>
 	<string name="Tall">
-		Stiefel
+		Groß
 	</string>
 	<string name="Taper Back">
 		Ansatzbreite hinten

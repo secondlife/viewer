@@ -2104,6 +2104,9 @@ Clears (deletes) the media and all params from the given face.
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">New Script</string>
 
+  <!-- panel preferences general -->
+  <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+
 	<!-- Mute -->
 	<string name="MuteByName">(by name)</string>
 	<string name="MuteAgent">(Resident)</string>

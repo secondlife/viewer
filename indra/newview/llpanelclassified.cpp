@@ -1294,7 +1294,7 @@ void LLPanelClassifiedInfo::resetControls()
 
 	childSetEnabled("edit_btn", is_self);
 	childSetVisible("edit_btn", is_self);
-	childSetVisible("auto_renew", is_self);
+	childSetVisible("price_layout_panel", is_self);
 }
 
 void LLPanelClassifiedInfo::setClassifiedName(const std::string& name)

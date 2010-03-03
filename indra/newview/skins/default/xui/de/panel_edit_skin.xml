@@ -8,7 +8,7 @@
 	<accordion name="wearable_accordion">
 		<accordion_tab name="skin_color_tab" title="Hautfarbe"/>
 		<accordion_tab name="skin_face_tab" title="Gesichtsdetails"/>
-		<accordion_tab name="skin_makeup_tab" title="Make-Uup"/>
+		<accordion_tab name="skin_makeup_tab" title="Make-Up"/>
 		<accordion_tab name="skin_body_tab" title="Körperdetails"/>
 	</accordion>
 </panel>
