@@ -74,6 +74,7 @@
 #include "lltrans.h"
 #include "llscrollcontainer.h"
 #include "llstatusbar.h"
+#include "llsidetray.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 const S32 MATURE_UNDEFINED = -1;
@@ -103,10 +104,13 @@ public:
 		S32 teleport_clicks = atoi(strings[1].c_str());
 		S32 map_clicks = atoi(strings[2].c_str());
 		S32 profile_clicks = atoi(strings[3].c_str());
-		LLPanelClassified::setClickThrough(classified_id, teleport_clicks,
-										   map_clicks,
-										   profile_clicks,
-										   false);
+
+		static LLPanelClassifiedInfo* info_panel =
+			dynamic_cast<LLPanelClassifiedInfo*>(LLSideTray::getInstance()->getPanel("panel_classified_info"));
+
+		if (info_panel)
+			info_panel->setClickThrough(classified_id, teleport_clicks, map_clicks, profile_clicks);
+
 		return true;
 	}
 };
@@ -1247,6 +1251,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
+	gGenericDispatcher.addHandler("classifiedclickthrough", &sClassifiedClickThrough);
 	setInfoLoaded(false);
 }
 
@@ -1268,6 +1273,7 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			static std::string mature_str = getString("type_mature");
 			static std::string pg_str = getString("type_pg");
 			static LLUIString  price_str = getString("l$_price");
+			static std::string date_fmt = getString("date_fmt");
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
@@ -1275,6 +1281,10 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
 			childSetValue("price_for_listing", LLSD(price_str));
+
+			std::string date_str = date_fmt;
+			LLStringUtil::format(date_str, LLSD().with("datetime", (S32) c_info->creation_date));
+			childSetText("creation_date", date_str);
 
 			setInfoLoaded(true);
 		}
@@ -1300,6 +1310,7 @@ void LLPanelClassifiedInfo::resetControls()
 	childSetEnabled("edit_btn", is_self);
 	childSetVisible("edit_btn", is_self);
 	childSetVisible("price_layout_panel", is_self);
+	childSetVisible("clickthrough_layout_panel", is_self);
 }
 
 void LLPanelClassifiedInfo::setClassifiedName(const std::string& name)
@@ -1350,6 +1361,21 @@ void LLPanelClassifiedInfo::draw()
 LLUUID LLPanelClassifiedInfo::getSnapshotId()
 {
 	return childGetValue("classified_snapshot").asUUID();
+}
+
+void LLPanelClassifiedInfo::setClickThrough(
+	const LLUUID& classified_id,
+	S32 teleport,
+	S32 map,
+	S32 profile)
+{
+	static LLUIString ct_str = getString("click_through_text_fmt");
+
+	ct_str.setArg("[TELEPORT]",	llformat("%d", teleport));
+	ct_str.setArg("[MAP]",		llformat("%d", map));
+	ct_str.setArg("[PROFILE]",	llformat("%d", profile));
+
+	childSetText("click_through_text", ct_str.getString());
 }
 
 // static
@@ -1436,6 +1462,7 @@ void LLPanelClassifiedInfo::onTeleportClick()
 void LLPanelClassifiedInfo::onExit()
 {
 	LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+	gGenericDispatcher.addHandler("classifiedclickthrough", NULL); // deregister our handler
 }
 
 //////////////////////////////////////////////////////////////////////////

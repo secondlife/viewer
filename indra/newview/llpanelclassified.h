@@ -250,6 +250,12 @@ public:
 
 	void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
 
+	void setClickThrough(
+		const LLUUID& classified_id,
+		S32 teleport,
+		S32 map,
+		S32 profile);
+
 	void setExitCallback(const commit_callback_t& cb);
 
 	void setEditClassifiedCallback(const commit_callback_t& cb);
