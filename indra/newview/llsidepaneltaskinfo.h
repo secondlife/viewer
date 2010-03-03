@@ -109,10 +109,12 @@ protected:
 	void 						onOpenButtonClicked();
 	void 						onPayButtonClicked();
 	void 						onBuyButtonClicked();
+	void 						onDetailsButtonClicked();
 private:
 	LLButton*					mOpenBtn;
 	LLButton*					mPayBtn;
 	LLButton*					mBuyBtn;
+	LLButton*					mDetailsBtn;
 
 protected:
 	LLViewerObject*				getObject();
