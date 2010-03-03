@@ -93,6 +93,17 @@
          v_pad="0"
          value="[name]"
          use_ellipses="true" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="classified_location_label"
+         text_color="white"
+         top_pad="10"
+         value="Location:"
+         width="250" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -103,6 +114,7 @@
          left="10"
          name="classified_location"
          read_only="true"
+         top_pad="5"
          width="290"
          word_wrap="true"
          v_pad="0"
