@@ -41,6 +41,7 @@ class LLUICtrlFactory;
 class LLUIImage;
 class LLButton;
 class LLTextBox;
+class LLScrollbar;
 
 
 
@@ -84,6 +85,8 @@ public:
 
 		Optional<bool>			header_visible;
 
+		Optional<bool>			fit_panel;
+
 		Optional<S32>			padding_left;
 		Optional<S32>			padding_right;
 		Optional<S32>			padding_top;
@@ -107,7 +110,7 @@ public:
 
 	//set LLAccordionCtrlTab panel
 	void		setAccordionView(LLView* panel);
-	LLView*		getAccordionView();
+	LLView*		getAccordionView() { return mContainerPanel; };
 
 	bool getCollapsible() {return mCollapsible;};
 
@@ -122,6 +125,8 @@ public:
 	S32	notifyParent(const LLSD& info);
 	S32 notify(const LLSD& info);
 	bool notifyChildren(const LLSD& info);
+
+	void draw();
 
 	void    storeOpenCloseState		();
 	void    restoreOpenCloseState	();
@@ -164,9 +169,26 @@ public:
 
 	void showAndFocusHeader();
 
-private:
+	void setFitPanel( bool fit ) { mFitPanel = true; }
 
-	
+protected:
+	void adjustContainerPanel	(const LLRect& child_rect);
+	void adjustContainerPanel	();
+	S32	 getChildViewHeight		();
+
+	void onScrollPosChangeCallback(S32, LLScrollbar*);
+
+	void show_hide_scrollbar	(const LLRect& child_rect);
+	void showScrollbar			(const LLRect& child_rect);
+	void hideScrollbar			(const LLRect& child_rect);
+
+	void updateLayout			( const LLRect& child_rect );
+	void ctrlSetLeftTopAndSize	(LLView* panel, S32 left, S32 top, S32 width, S32 height);
+
+	void drawChild(const LLRect& root_rect,LLView* child);
+
+	LLView* findContainerView	();
+private:
 
 	class LLAccordionCtrlTabHeader;
 	LLAccordionCtrlTabHeader* mHeader; //Header
@@ -176,6 +198,7 @@ private:
 	bool mHeaderVisible;
 
 	bool mCanOpenClose;
+	bool mFitPanel;
 
 	S32	mPaddingLeft;
 	S32	mPaddingRight;
@@ -185,6 +208,8 @@ private:
 	bool mStoredOpenCloseState;
 	bool mWasStateStored;
 
+	LLScrollbar*	mScrollbar;
+	LLView*			mContainerPanel;
 
 	LLUIColor mDropdownBGColor;
 };
