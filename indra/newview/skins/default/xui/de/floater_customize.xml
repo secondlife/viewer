@@ -40,17 +40,17 @@
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<text name="Item Action Label" right="100">
+			<text name="Item Action Label">
 				Form:
 			</text>
 			<button label="Neue Form/Gestalt" label_selected="Neue Form/Gestalt" name="Create New"/>
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
-			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." name="Save As"/>
 		</panel>
 		<panel label="Haut" name="Skin">
 			<button label="Hautfarbe" label_selected="Hautfarbe" left="2" name="Skin Color" width="92"/>
 			<button label="Gesichtsdetails" label_selected="Gesichtsdetails" left="2" name="Face Detail" width="92"/>
-			<button label="Make-Uup" label_selected="Make-Uup" left="2" name="Makeup" width="92"/>
+			<button label="Make-Up" label_selected="Make-Up" left="2" name="Makeup" width="92"/>
 			<button label="Körperdetails" label_selected="Körperdetails" left="2" name="Body Detail" width="92"/>
 			<text name="title">
 				[DESC]
