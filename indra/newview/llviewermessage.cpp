@@ -3274,9 +3274,6 @@ const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater th
 
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
-	bool is_flying = gAgent.getFlying();
-	llinfos << "agent flying = " << int(is_flying) << llendl;
-
 	if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
 	{
 		// We don't care if they want to send an agent update, they're not allowed to until the simulator
@@ -4036,43 +4033,6 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			if (animation_id == ANIM_AGENT_STANDUP && gAgent.getFlying())
 			{
 				gAgent.setFlying(FALSE);
-			}
-
-			if (animation_id == ANIM_AGENT_STANDUP)
-			{
-				llwarns << "ANIM_AGENT_STANDUP" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_SIT)
-			{
-				llwarns << "ANIM_AGENT_SIT" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_STAND)
-			{
-				llwarns << "ANIM_AGENT_STAND" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_HOVER)
-			{
-				llwarns << "ANIM_AGENT_HOVER" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_SIT_TO_STAND)
-			{
-				llwarns << "ANIM_AGENT_SIT_TO_STAND" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_SIT_FEMALE)
-			{
-				llwarns << "ANIM_AGENT_SIT_FEMALE" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_SIT_GENERIC)
-			{
-				llwarns << "ANIM_AGENT_SIT_GENERIC" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_SIT_GROUND)
-			{
-				llwarns << "ANIM_AGENT_SIT_GROUND" << llendl;
-			}
-			if (animation_id == ANIM_AGENT_SIT_GROUND_CONSTRAINED)
-			{
-				llwarns << "ANIM_AGENT_SIT_GROUND_CONSTRAINED" << llendl;
 			}
 
 			if (i < num_source_blocks)
