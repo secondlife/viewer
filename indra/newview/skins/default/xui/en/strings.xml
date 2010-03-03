@@ -1770,7 +1770,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="invalid">invalid</string>
 
   <!-- Wearable List-->
-  <string name="New">New</string>
+  <string name="NewWearable">New [WEARABLE_ITEM]</string>
   
 	<!-- LLGroupNotify -->
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
