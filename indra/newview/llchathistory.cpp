@@ -743,7 +743,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 			ctrl_list_t ctrls = notify_box->getControlPanel()->getCtrlList();
 			S32 offset = 0;
-			for (ctrl_list_t::iterator it = ctrls.begin(); it != ctrls.end(); it++)
+			// Children were added by addChild() which uses push_front to insert them into list,
+			// so to get buttons in correct order reverse iterator is used (EXT-5906) 
+			for (ctrl_list_t::reverse_iterator it = ctrls.rbegin(); it != ctrls.rend(); it++)
 			{
 				LLButton * button = dynamic_cast<LLButton*> (*it);
 				if (button != NULL)
