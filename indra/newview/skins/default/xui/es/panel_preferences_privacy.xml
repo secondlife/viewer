@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		Conéctate para que cambie
 	</panel.string>
-	<button label="Limpiar el historial" name="clear_cache" tool_tip="Limpiar la imagen de la pantalla de conexión, la última posición, el historial de teleportes, web y caché de las texturas."/>
+	<button label="Limpiar el historial" name="clear_cache" tool_tip="Limpia la imagen de la pantalla de conexión, la última posición, el historial de teleportes, web y caché de las texturas."/>
 	<text name="cache_size_label_l">
 		(Localizaciones, imágenes, web, historial de búsqueda)
 	</text>
