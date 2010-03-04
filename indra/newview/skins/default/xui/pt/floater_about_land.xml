@@ -81,6 +81,9 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			<text name="Group:">
 				Grupo:
 			</text>
+			<text name="GroupText">
+				Leyla Linden
+			</text>
 			<button label="Ajustar..." label_selected="Ajustar..." name="Set..."/>
 			<check_box label="Permitir posse para o grupo" name="check deed" tool_tip="O gerente do grupo pode acionar essa terra ao grupo, então esta será mantida pelo gestor da ilha"/>
 			<button label="Passar..." label_selected="Passar..." name="Deed..." tool_tip="Você só pode delegar esta terra se você for um gerente selecionado pelo grupo."/>
@@ -124,6 +127,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				0
 			</text>
 			<button label="Comprar Terra..." label_selected="Comprar Terra..." left="130" name="Buy Land..." width="125"/>
+			<button label="Dados do script" name="Scripts..."/>
 			<button label="Comprar para o Grupo..." label_selected="Comprar para o Grupo..." name="Buy For Group..."/>
 			<button label="Comprar Passe..." label_selected="Comprar Passe..." left="130" name="Buy Pass..." tool_tip="Um passe concede a você acesso temporário a esta terra." width="125"/>
 			<button label="Abandonar Terra.." label_selected="Abandonar Terra.." name="Abandon Land..."/>
@@ -253,7 +257,7 @@ ou sub-dividida.
 				[COUNT]
 			</text>
 			<text left="4" name="Autoreturn" width="412">
-				Auto-retornar objetos dos outros residentes (minutos, 0 para desligado):
+				Devolver objetos de outros residentes automaticamente (digite 0 para desligar)
 			</text>
 			<line_editor name="clean other time" right="-10"/>
 			<text name="Object Owners:">
@@ -301,7 +305,7 @@ Apenas lotes maiores podem ser listados na busca.
 				Sem Empurrar (Imposição na Região)
 			</panel.string>
 			<text name="allow_label">
-				Permitir outros residentes a:
+				Autorizar outros residentes a:
 			</text>
 			<check_box label="Editar Terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar a forma da sua terra. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
 			<check_box label="Voar" name="check fly" tool_tip="Se ativado, os Residentes podem voar na sua terra. Se desativado, eles podem voar apenas para dentro e por cima de sua terra."/>
@@ -384,9 +388,6 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Definir..." label_selected="Definir..." name="set_media_url"/>
-			<text name="CurrentURL:">
-				Página atual:
-			</text>
 			<check_box label="Esconder a URL da Mídia" left="97" name="hide_media_url" tool_tip="Ativando esta opção, a URL da mídia se ocultará para quaisquer visualizadores não autorizados a ver esta informação do lote. Notar que isto não está disponível para tipos HTML."/>
 			<text name="Description:">
 				Descrição:
@@ -398,9 +399,7 @@ Textura:
 			</text>
 			<texture_picker label="" left="97" name="media texture" tool_tip="Clique para escolher uma imagem"/>
 			<text name="replace_texture_help">
-				(Objetos usando esta textura, mostrarão o filme ou
-a página web depois que você clicar na seta de
-reproduzir.)
+				Objetos com esta textura vão aparecer no filme ou página da web depois de clicar em Tocar.   Selecione outras texturas clicando nas miniaturas.
 			</text>
 			<check_box label="Escala automática" left="97" name="media_auto_scale" tool_tip="Marcando esta opção o conteúdo se ajustará ao lote automaticamente. A mídia pode se tornar lenta e com baixa qualidade visual mas nenhum outro ajuste de textura ou alinhamento será necessário."/>
 			<text left="102" name="media_size" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." width="115">
@@ -418,8 +417,10 @@ Mídia:
 			<check_box label="Mídia em Repetição" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia terminar a execução, ela reiniciará do começo."/>
 		</panel>
 		<panel label="SOM" name="land_audio_panel">
+			<check_box label="Ocultar URL" name="hide_music_url" tool_tip="Selecionar esta opção oculta o URL de música a visitantes não autorizados aos dados do terreno."/>
 			<check_box label="Ativar voz" name="parcel_enable_voice_channel"/>
 			<check_box label="Ativar voz (definições do terreno)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Limitar bate-papo de voz a este lote" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ACESSO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
@@ -435,7 +436,7 @@ Mídia:
 			<text name="Only Allow">
 				Restringir acesso a contas confirmardas por:
 			</text>
-			<check_box label="Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Banir residentes não identificados."/>
+			<check_box label="Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Banir residentes sem identificação."/>
 			<check_box label="Idade confirmada: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Banir residentes que não comprovaram a idade. Consulte o [SUPPORT_SITE] para saber mais."/>
 			<check_box label="Permitir Acesso do Grupo: [GROUP]" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
 			<check_box label="Vender passes para:" name="PassCheck" tool_tip="Permite acesso temporário a este terreno"/>

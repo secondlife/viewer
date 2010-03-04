@@ -7,10 +7,13 @@
 	</panel>
 	<panel>
 		<button font="SansSerifSmall" label="Mostra minha localização" label_selected="Mostra minha localização" left_delta="91" name="Show My Location" tool_tip="Centrar o mapa na localização do meu avatar" width="135"/>
-		<text name="person_label">
+		<text name="me_label">
 			Eu
 		</text>
 		<check_box label="Residente" name="people_chk"/>
+		<text name="person_label">
+			Pessoa
+		</text>
 		<check_box label="Infohub" name="infohub_chk"/>
 		<text name="infohub_label">
 			Infohub
@@ -19,8 +22,11 @@
 		<text name="land_sale_label">
 			Venda de terreno
 		</text>
-		<text name="auction_label">
+		<text name="by_owner_label">
 			pelo dono
+		</text>
+		<text name="auction_label">
+			leilão de terrenos
 		</text>
 		<button label="Ir para Casa" label_selected="Ir para casa" name="Go Home" tool_tip="Teletransportar para minha casa"/>
 		<text name="Home_label">
@@ -30,11 +36,17 @@
 			Eventos:
 		</text>
 		<check_box label="PG" name="event_chk"/>
+		<text name="pg_label">
+			Geral
+		</text>
 		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderado
 		</text>
 		<check_box label="Adult" name="event_adult_chk"/>
+		<text name="adult_label">
+			Público adulto
+		</text>
 	</panel>
 	<panel>
 		<text name="find_on_map_label">
@@ -50,6 +62,7 @@
 		</combo_box>
 		<search_editor label="Regiões por nome" name="location" tool_tip="Digite o nome de uma Região"/>
 		<button label="Buscar" name="DoSearch" tool_tip="Procurar por região"/>
+		<button name="Clear" tool_tip="Limpara linhas e redefinir mapa"/>
 		<button font="SansSerifSmall" label="Teletransporte" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para a posição selecionada"/>
 		<button font="SansSerifSmall" label="Copiar SLurl" name="copy_slurl" tool_tip="Copia a localização atual como um SLurl para usar na web."/>
 		<button font="SansSerifSmall" label="Mostrar seleção" label_selected="Mostrar Destino" left_delta="91" name="Show Destination" tool_tip="Centralizar mapa na posição selecionada" width="135"/>

@@ -1,58 +1,59 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Principais objetos:">
+	<floater.string name="top_scripts_title">
+		Principais Scripts
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] scripts tomando um total de [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Tempo
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Hora Mono
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Principais Colidentes
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		[COUNT] objetos principais experimentando muitas potenciais colisões
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Placar
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Nenhum encontrado.
+	</floater.string>
 	<text name="title_text">
 		Carregando...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Placar" name="score"/>
-		<column label="Nome" name="name"/>
-		<column label="Proprietário" name="owner"/>
-		<column label="Local" name="location"/>
-		<column label="Tempo" name="time"/>
-		<column label="Hora Mono" name="mono_time"/>
+		<scroll_list.columns label="Placar" name="score"/>
+		<scroll_list.columns label="Nome" name="name"/>
+		<scroll_list.columns label="Proprietário" name="owner"/>
+		<scroll_list.columns label="Local" name="location"/>
+		<scroll_list.columns label="Tempo" name="time"/>
+		<scroll_list.columns label="Hora Mono" name="mono_time"/>
+		<scroll_list.columns label="URLs" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
 		ID do Objeto:
 	</text>
+	<line_editor font="SansSerifSmall" left="140" name="id_editor" width="280"/>
 	<button label="Mostrar Avisos" name="show_beacon_btn"/>
 	<text name="obj_name_text">
 		Nome do objeto:
 	</text>
+	<line_editor font="SansSerifSmall" left="140" name="object_name_editor" width="280"/>
 	<button label="Filtro" name="filter_object_btn"/>
 	<text name="owner_name_text" width="130">
 		Proprietário:
 	</text>
-	<line_editor font="SansSerifSmall" left="140" name="id_editor" width="280"/>
-	<line_editor font="SansSerifSmall" left="140" name="object_name_editor" width="280"/>
 	<line_editor font="SansSerifSmall" left="140" name="owner_name_editor" width="280"/>
 	<button label="Filtro" name="filter_owner_btn"/>
+	<button label="Atualizar" name="refresh_btn"/>
 	<button label="Retornar Selecionado" name="return_selected_btn" width="170"/>
 	<button label="Retornar Tudo" left="190" name="return_all_btn"/>
 	<button label="Desabilitar Selecionado" name="disable_selected_btn" width="170"/>
 	<button label="Desabilitar Tudo" left="190" name="disable_all_btn"/>
-	<button label="Atualizar" name="refresh_btn"/>
-	<string name="top_scripts_title">
-		Principais Scripts
-	</string>
-	<string name="top_scripts_text">
-		[COUNT] scripts tomando um total de [TIME] ms
-	</string>
-	<string name="scripts_score_label">
-		Tempo
-	</string>
-	<string name="scripts_mono_time_label">
-		Hora Mono
-	</string>
-	<string name="top_colliders_title">
-		Principais Colidentes
-	</string>
-	<string name="top_colliders_text">
-		[COUNT] objetos principais experimentando muitas potenciais colisões
-	</string>
-	<string name="colliders_score_label">
-		Placar
-	</string>
-	<string name="none_descriptor">
-		Nenhum encontrado.
-	</string>
 </floater>

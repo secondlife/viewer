@@ -6,7 +6,7 @@
 	<string name="available" value="disponível"/>
 	<string name="allocated" value="alocados"/>
 	<string name="title_place" value="Perfil da região"/>
-	<string name="title_teleport_history" value="Localização do histórico de teletransportes"/>
+	<string name="title_teleport_history" value="Histórico de teletransportes"/>
 	<string name="not_available" value="(N\A)"/>
 	<string name="unknown" value="(Desconhecido)"/>
 	<string name="public" value="(público)"/>
@@ -41,6 +41,7 @@
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
+	<button name="back_btn" tool_tip="Atrás"/>
 	<text name="title" value="Perfil da região"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
