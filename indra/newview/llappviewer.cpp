@@ -1515,7 +1515,7 @@ bool LLAppViewer::cleanup()
 	LLAvatarIconIDCache::getInstance()->save();
 
 	llinfos << "Shutting down Threads" << llendflush;
-	
+
 	// Let threads finish
 	LLTimer idleTimer;
 	idleTimer.reset();
@@ -1529,19 +1529,26 @@ bool LLAppViewer::cleanup()
 		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
 		F64 idle_time = idleTimer.getElapsedTimeF64();
-		if (!pending || idle_time >= max_idle_time)
+		if(!pending)
+		{
+			break ; //done
+		}
+		else if(idle_time >= max_idle_time)
 		{
 			llwarns << "Quitting with pending background tasks." << llendl;
 			break;
 		}
 	}
-	
+
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
 	sTextureCache->shutdown();
 	sTextureFetch->shutdown();
 	sImageDecodeThread->shutdown();
 	
+	sTextureFetch->shutDownTextureCacheThread() ;
+	sTextureFetch->shutDownImageDecodeThread() ;
+
 	delete sTextureCache;
     sTextureCache = NULL;
 	delete sTextureFetch;
