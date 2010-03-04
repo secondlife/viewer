@@ -117,8 +117,16 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 			}
 		}
 
-		popup->onTopLost();
-		mPopups.erase(popup_it++);
+		if (close_popups)
+		{
+			popup_list_t::iterator cur_popup_it = popup_it++;
+			mPopups.erase(cur_popup_it);
+			popup->onTopLost();
+		}
+		else
+		{
+			++popup_it;
+		}
 	}
 
 	return FALSE;
