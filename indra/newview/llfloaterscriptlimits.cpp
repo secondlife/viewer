@@ -636,6 +636,9 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			std::string name_buf = content["parcels"][i]["objects"][j]["name"].asString();
 			LLUUID task_id = content["parcels"][i]["objects"][j]["id"].asUUID();
 			LLUUID owner_id = content["parcels"][i]["objects"][j]["owner_id"].asUUID();
+			// This field may not be sent by all server versions, but it's OK if
+			// it uses the LLSD default of false
+			bool is_group_owned = content["parcels"][i]["objects"][j]["is_group_owned"].asBoolean();
 
 			F32 location_x = 0.0f;
 			F32 location_y = 0.0f;
@@ -661,17 +664,22 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			// ...and if not use the slightly more painful method of disovery:
 			else
 			{
-				BOOL name_is_cached = gCacheName->getFullName(owner_id, owner_buf);
+				BOOL name_is_cached;
+				if (is_group_owned)
+				{
+					name_is_cached = gCacheName->getGroupName(owner_id, owner_buf);
+				}
+				else
+				{
+					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);
+				}
 				if(!name_is_cached)
 				{
 					if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 					{
 						names_requested.push_back(owner_id);
-					    // Is this a bug?  It's trying to look up a GROUP name, not
-					    // an AVATAR name?  JC
-					    const bool is_group = true;
-						gCacheName->get(owner_id, is_group,
-						boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+						gCacheName->get(owner_id, is_group_owned,
+							boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
 							    this, _1, _2));
 					}
 				}
