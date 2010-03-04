@@ -8,7 +8,7 @@
 	<button label="Löschen" label_selected="Löschen" name="WLDeletePreset"/>
 	<button label="Tageszyklus-Editor" label_selected="Tageszyklus-Editor" name="WLDayCycleMenuButton"/>
 	<tab_container name="WindLight Tabs">
-		<panel label="Atmosphäre" name="Atmosphere">
+		<panel label="ATMOSPHÄRE" name="Atmosphere">
 			<text name="BHText">
 				Horizontfarbe
 			</text>
@@ -62,7 +62,7 @@
 			</text>
 			<button label=" ?" name="WLMaxAltitudeHelp"/>
 		</panel>
-		<panel label="Licht" name="Lighting">
+		<panel label="LICHT" name="Lighting">
 			<text name="SLCText">
 				Sonne/Mond-Farbe
 			</text>
@@ -118,7 +118,7 @@
 			</text>
 			<button label=" ?" name="WLStarBrightnessHelp"/>
 		</panel>
-		<panel label="Wolken" name="Clouds">
+		<panel label="WOLKEN" name="Clouds">
 			<text name="WLCloudColorText">
 				Wolkenfarbe
 			</text>

@@ -470,7 +470,6 @@ L$ が不足しているのでこのグループに参加することができ�
 	<notification name="UnsupportedHardware">
 		お使いのコンピューターは [APP_NAME] の必要最低限の動作環境を満たしていません。 パフォーマンスの低下を感じるかもしれません。 恐れ入りますが [SUPPORT_SITE] ではサポート対象外のシステムに関する技術的サポートは行っておりません。
 
-最低動作環境
 [_URL] に移動して確認をしますか？
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=ja
@@ -2397,6 +2396,12 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="FriendshipDeclined">
 		[NAME]は、フレンド登録を断りました。
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		フレンドの登録依頼が承認されました。
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		フレンドの登録依頼が拒否されました。
+	</notification>
 	<notification name="OfferCallingCard">
 		[FIRST] [LAST] がコーリングカードを渡そうとしています。
 あなたの「持ち物」にブックマークが追加され、この住人に素早く IM を送ることができます。
@@ -2585,7 +2590,7 @@ M キーを押して変更します。
 		[VOICE_CHANNEL_NAME] のボイスチャットに接続中に、エラーが発生しました。後でもう一度お試しください。
 	</notification>
 	<notification name="ServerVersionChanged">
-		異なるサーバーバージョンのリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
+		サーバーのバージョンが異なるリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
 	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		クリックした SLurl はサポートされていません。
@@ -2605,7 +2610,7 @@ M キーを押して変更します。
 	</notification>
 	<notification name="ConfirmCloseAll">
 		すべての IM を閉じますか？
-		<usetemplate name="okcancelignore" notext="キャンセル" yestext="OK"/>
+		<usetemplate ignoretext="すべての IM を閉じる前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		アタッチメントが保存されました。

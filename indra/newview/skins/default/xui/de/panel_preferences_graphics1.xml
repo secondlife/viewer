@@ -55,7 +55,7 @@
 		<text name="AvatarRenderingText">
 			Avatar-Darstellung:
 		</text>
-		<check_box initial_value="true" label="Scheinavatare" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Vereinfachte Avatardarstellung" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Hardware-Hautberechnung" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Avatar-Kleidung" name="AvatarCloth"/>
 		<slider label="Sichtweite:" name="DrawDistance"/>

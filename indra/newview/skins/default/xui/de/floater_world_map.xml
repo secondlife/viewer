@@ -37,7 +37,7 @@
 		</text>
 		<check_box label="PG" name="event_chk"/>
 		<text name="pg_label">
-			Allgemein
+			Generell
 		</text>
 		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">

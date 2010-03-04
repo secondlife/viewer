@@ -43,6 +43,8 @@
 			<menu_item_check label="ビーコン（標識）" name="beacons"/>
 			<menu_item_check label="プロパティ境界線" name="Property Lines"/>
 			<menu_item_check label="土地所有者" name="Land Owners"/>
+			<menu_item_check label="座標" name="Coordinates"/>
+			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -81,6 +83,7 @@
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
+			<menu_item_call label="買う" name="Menu Object Buy"/>
 			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
 			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>
