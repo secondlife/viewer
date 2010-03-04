@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Event" name="Event" title="EVENT DETALJER">
+	<floater.string name="none">
+		ingen
+	</floater.string>
+	<floater.string name="notify">
+		Meddel
+	</floater.string>
+	<floater.string name="dont_notify">
+		Meddel ikke
+	</floater.string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<text name="event_name">
+				Event uden navn.
+			</text>
+			<text name="event_category">
+				(ingen kategori)
+			</text>
+			<text name="event_runby_label">
+				Afholdt af:
+			</text>
+			<text initial_value="(henter)" name="event_runby"/>
+			<text name="event_date">
+				10/10/2010
+			</text>
+			<text name="event_duration">
+				1 time
+			</text>
+			<text name="event_cover">
+				Gratis
+			</text>
+			<text name="event_location_label">
+				Lokation:
+			</text>
+			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<text name="rating_label" value="Rating:"/>
+			<text name="rating_value" value="ukendt"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<button name="create_event_btn" tool_tip="Opret event"/>
+			<button name="god_delete_event_btn" tool_tip="Slet event"/>
+			<button label="Giv besked" name="notify_btn"/>
+			<button label="Teleport" name="teleport_btn"/>
+			<button label="Kort" name="map_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>
