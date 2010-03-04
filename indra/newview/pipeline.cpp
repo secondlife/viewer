@@ -361,6 +361,7 @@ void LLPipeline::init()
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
@@ -1725,8 +1726,12 @@ void LLPipeline::markOccluder(LLSpatialGroup* group)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_DO_OCCLUSION("Do Occlusion");
+
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
+	LLFastTimer t(FTM_DO_OCCLUSION);
+
 	LLVertexBuffer::unbind();
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
@@ -1799,7 +1804,6 @@ void LLPipeline::rebuildPriorityGroups()
 		
 void LLPipeline::rebuildGroups()
 {
-	llpushcallstacks ;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
 	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);
@@ -1944,9 +1948,13 @@ void LLPipeline::updateGeom(F32 max_dtime)
 	updateMovedList(mMovedBridge);
 }
 
+static LLFastTimer::DeclareTimer FTM_MARK_VISIBLE("Mark Visible");
+
 void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_VISIBLE);
+	LLFastTimer t(FTM_MARK_VISIBLE);
+
 	if(!drawablep || drawablep->isDead())
 	{
 		return;
@@ -4630,8 +4638,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	mLightMask = 0;
 }
 
+static LLFastTimer::DeclareTimer FTM_ENABLE_LIGHTS("Enable Lights");
+
 void LLPipeline::enableLights(U32 mask)
 {
+	LLFastTimer ftm(FTM_ENABLE_LIGHTS);
+
 	assertInitialized();
 
 	if (mLightingDetail == 0)
@@ -4737,16 +4749,16 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 	enableLights(mask);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
-	if (mLightingDetail >= 2)
+	/*if (mLightingDetail >= 2)
 	{
 		glColor4f(0.f, 0.f, 0.f, 1.f); // no local lighting by default
-	}
+	}*/
 }
 
 void LLPipeline::disableLights()
 {
 	enableLights(0); // no lighting (full bright)
-	glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
+	//glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
 }
 
 //============================================================================
@@ -5349,6 +5361,7 @@ void LLPipeline::resetVertexBuffers()
 {
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)

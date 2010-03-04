@@ -442,7 +442,6 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture)
 {
-	llpushcallstacks ;
 	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;
@@ -475,6 +474,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	{
 		if (params.mTexture.notNull())
 		{
+			params.mTexture->addTextureStats(params.mVSize);
 			gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 			if (params.mTextureMatrix)
 			{

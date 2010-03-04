@@ -534,12 +534,19 @@ private:
 	U32					mRenderMapSize[LLRenderPass::NUM_RENDER_TYPES];
 
 	sg_list_t			mVisibleGroups;
+	sg_list_t::iterator mVisibleGroupsEnd;
 	sg_list_t			mAlphaGroups;
+	sg_list_t::iterator mAlphaGroupsEnd;
 	sg_list_t			mOcclusionGroups;
+	sg_list_t::iterator	mOcclusionGroupsEnd;
 	sg_list_t			mDrawableGroups;
+	sg_list_t::iterator mDrawableGroupsEnd;
 	drawable_list_t		mVisibleList;
+	drawable_list_t::iterator mVisibleListEnd;
 	bridge_list_t		mVisibleBridge;
+	bridge_list_t::iterator mVisibleBridgeEnd;
 	drawinfo_list_t		mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
+	drawinfo_list_t::iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
 };
 
 

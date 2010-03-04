@@ -862,12 +862,14 @@ void LLFace::updateRebuildFlags()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
+
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
 								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
 								const U16 &index_offset)
 {
-	llpushcallstacks ;
+	LLFastTimer t(FTM_FACE_GET_GEOM);
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
 	S32 num_indices = LLPipeline::sUseTriStrips ? (S32)vf.mTriStrip.size() : (S32) vf.mIndices.size();
