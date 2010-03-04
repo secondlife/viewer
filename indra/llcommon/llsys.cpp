@@ -783,10 +783,9 @@ S32 LLDisplayInfo::getDisplayWidth() const
 	return 1024; //*FIXME
 #elif LL_SOLARIS
 	return 1024; //*FIXME
-else
+#else
 	return 1024; //*FIXME
 #endif
-	return 1024; // to make compiler happy
 }
 
 S32 LLDisplayInfo::getDisplayHeight() const
@@ -800,7 +799,6 @@ S32 LLDisplayInfo::getDisplayHeight() const
 #else
 	return 768; //*FIXME
 #endif
-	return 768; // to make compiler happy
 }
 
 
