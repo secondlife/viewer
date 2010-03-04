@@ -61,6 +61,7 @@ BOOL LLVertexBuffer::sVBOActive = FALSE;
 BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
+BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
@@ -380,6 +381,11 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	if (!sEnableVBOs)
 	{
 		mUsage = 0 ; 
+	}
+
+	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	{
+		mUsage = 0;
 	}
 	
 	S32 stride = calcStride(typemask, mOffsets);

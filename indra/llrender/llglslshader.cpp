@@ -343,8 +343,11 @@ BOOL LLGLSLShader::link(BOOL suppress_errors)
 	return LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 }
 
+static LLFastTimer::DeclareTimer FTM_BIND_SHADER("Bind Shader");
+
 void LLGLSLShader::bind()
 {
+	LLFastTimer ftm(FTM_BIND_SHADER);
 	if (gGLManager.mHasShaderObjects)
 	{
 		glUseProgramObjectARB(mProgramObject);
@@ -357,8 +360,11 @@ void LLGLSLShader::bind()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_UNBIND_SHADER("Unbind Shader");
+
 void LLGLSLShader::unbind()
 {
+	LLFastTimer ftm(FTM_UNBIND_SHADER);
 	if (gGLManager.mHasShaderObjects)
 	{
 		stop_glerror();
