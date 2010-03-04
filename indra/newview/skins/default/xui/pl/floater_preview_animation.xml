@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_anim">
+	<floater.string name="Title">
+		Animacja: [NAME]
+	</floater.string>
 	<text name="desc txt">
 		Opis:
 	</text>
-	<button label="Używaj w Świecie" label_selected="Stop" name="Anim play btn"
-	     tool_tip="Animacja będzie widoczna dla wszystkich."  width="131" left="20"/>
-	<button label="Używaj lokalnie" label_selected="Stop" name="Anim audition btn"
-	     tool_tip="Animacja będzie widoczna tylko dla Ciebie." width="125" left="162"/>
+	<button label="Używaj w Świecie" label_selected="Stop" left="20" name="Anim play btn" tool_tip="Uruchom tę animację by widzieli ją pozostali Rezydenci" width="131"/>
+	<button label="Używaj lokalnie" label_selected="Stop" left="162" name="Anim audition btn" tool_tip="Uruchom tę animację widoczną tylko przez Ciebie" width="125"/>
 </floater>

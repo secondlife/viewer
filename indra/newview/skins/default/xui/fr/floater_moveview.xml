@@ -18,6 +18,15 @@
 	<string name="fly_back_tooltip">
 		Voler vers l&apos;arrière (appuyer sur la flèche vers le bas ou S)
 	</string>
+	<string name="walk_title">
+		Marcher
+	</string>
+	<string name="run_title">
+		Courir
+	</string>
+	<string name="fly_title">
+		Voler
+	</string>
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Tourner à gauche (appuyer sur la flèche de gauche ou sur A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Tourner à droite (appuyer sur la flèche de droite ou sur D)"/>
@@ -30,6 +39,5 @@
 		<button label="" name="mode_walk_btn" tool_tip="Mode marche"/>
 		<button label="" name="mode_run_btn" tool_tip="Mode course"/>
 		<button label="" name="mode_fly_btn" tool_tip="Mode vol"/>
-		<button label="Atterrir" name="stop_fly_btn" tool_tip="Atterrir"/>
 	</panel>
 </floater>

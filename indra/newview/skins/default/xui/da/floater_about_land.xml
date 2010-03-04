@@ -81,6 +81,9 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<text name="Group:">
 				Gruppe:
 			</text>
+			<text name="GroupText">
+				Leyla Linden
+			</text>
 			<button label="Vælg..." label_selected="Vælg..." name="Set..."/>
 			<check_box label="Tillad dedikering til gruppe" name="check deed" tool_tip="En gruppe administrator kan dedikere denne jord til gruppen, så det vil blive støttet af gruppen&apos;s jord tildeling."/>
 			<button label="Dedikér..." label_selected="Dedikér..." name="Deed..." tool_tip="Du kan kun dedikere jord, hvis du er en administrator i den valgte gruppe."/>
@@ -124,6 +127,7 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 				0
 			</text>
 			<button label="Køb land..." label_selected="Køb land..." name="Buy Land..."/>
+			<button label="Script Info" name="Scripts..."/>
 			<button label="Køb til gruppe..." label_selected="Køb til gruppe..." name="Buy For Group..."/>
 			<button label="Køb adgang..." label_selected="Køb adgang..." name="Buy Pass..." tool_tip="Giver adgang til midlertidig adgang til dette område."/>
 			<button label="Efterlad land..." label_selected="Efterlad land..." name="Abandon Land..."/>
@@ -377,12 +381,9 @@ Kun større parceller kan vises i søgning.
 			</text>
 			<combo_box name="media type" tool_tip="Specificer om URL-adressen er til en film, hjemmeside eller et andet medie."/>
 			<text left="4" name="at URL:">
-				Medie URL:
+				Hjemmeside:
 			</text>
 			<button label="Vælg..." label_selected="Vælg..." name="set_media_url"/>
-			<text name="CurrentURL:">
-				Nuværende side:
-			</text>
 			<check_box label="Skjul medie URL" name="hide_media_url" tool_tip="Klik her for at skjule medie adressen så det kun er dig og evt. parcel gruppens ejer/administratorer der kan se den."/>
 			<text left="4" name="Description:">
 				Beskrivelse:
@@ -393,8 +394,8 @@ Kun større parceller kan vises i søgning.
 			</text>
 			<texture_picker label="" name="media texture" tool_tip="Klik for at vælge billede"/>
 			<text name="replace_texture_help">
-				(Objekter der har denne tekstur vil vise filmen eller 
-web-siden, efter du klikker på play knappen.)
+				Objekter der har denne tekstur vil vise filmen eller web-siden, efter du klikker på play knappen. Vælg 
+				Objects using this texture will show the movie or web page after you click the play arrow.  Select the thumbnail for at vælge anden tekstur.
 			</text>
 			<check_box label="Auto skalér" name="media_auto_scale" tool_tip="Vælg denne mulighed for at skalere indholdet for dette parcel automatisk. Det kan være lidt langsommere og have lavere kvalitet, men ingen anden tekstur skalering eller tilpasning vil være nødvendigt."/>
 			<text name="media_size" tool_tip="Størrelse for rendering af Web medie, benyt 0 for standard." width="105">
@@ -411,8 +412,10 @@ web-siden, efter du klikker på play knappen.)
 			<check_box label="Gentag afspil" name="media_loop" tool_tip="Gentager automatisk medie, når det er færdigt med at spille starter det automatisk forfra."/>
 		</panel>
 		<panel label="LYD" name="land_audio_panel">
+			<check_box label="Skjul URL" name="hide_music_url" tool_tip="Ved at vælge her, vil musik URL skjules for alle ikke autoriserede brugere der læser denne parcels information."/>
 			<check_box label="Tillad stemmer" name="parcel_enable_voice_channel"/>
 			<check_box label="Tillad stemmer (håndteret af estate)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Begræns stemme chat til denne parcel" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ADGANG" name="land_access_panel">
 			<panel.string name="access_estate_defined">
@@ -428,8 +431,8 @@ web-siden, efter du klikker på play knappen.)
 			<text name="Only Allow">
 				Blokér adgang for::
 			</text>
-			<check_box label="Beboere der ikke har givet betalings oplysninger til Linden Lab [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Blokér beboere der ikke har afgivet identifikationsoplysninger."/>
-			<check_box label="Alders verifikation [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Blokér beboere der ikke har verificeret deres alder. Se support.secondlife.com for mere information."/>
+			<check_box label="Beboere der ikke har givet betalings oplysninger til Linden Lab [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Blokér for uidentificerede beboere."/>
+			<check_box label="Alders verifikation [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Blokér for beboere som ikke er alders-verificerede. Se [SUPPORT_SITE] for mere information."/>
 			<check_box label="Tillad adgang til gruppen: [GROUP]" name="GroupCheck" tool_tip="Vælg gruppe under fanen &apos;generelt&apos;."/>
 			<check_box label="Sælg adgang til:" name="PassCheck" tool_tip="Tillader midlertidig adgang til denne parcel"/>
 			<combo_box name="pass_combo">

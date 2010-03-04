@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil" name="panel_profile">
+	<string name="no_partner_text" value="Brak"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="second_life_image_panel">
+				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+			</panel>
+			<panel name="first_life_image_panel">
+				<text name="title_rw_descr_text" value=":"/>
+			</panel>
+			<text name="me_homepage_text">
+				Strona Domowa:
+			</text>
+			<text name="title_member_text" value="Członek od:"/>
+			<text name="title_acc_status_text" value="Status Konta:"/>
+			<text name="acc_status_text" value="Rezydent. Brak Danych Konta"/>
+			<text name="title_partner_text" value="Partner:"/>
+			<text name="title_groups_text" value="Groupy:"/>
+		</panel>
+	</scroll_container>
+	<panel name="profile_buttons_panel">
+		<button label="Dodaj Znajomość" name="add_friend" tool_tip="Dodaj tego Rezydenta do znajomych"/>
+		<button label="IM" name="im" tool_tip="Rozpocznij rozmowę prywatną"/>
+		<button label="Zadzwoń" name="call" tool_tip="Zadzwoń do tego Rezydenta"/>
+		<button label="Mapa" name="show_on_map_btn" tool_tip="Pokaż tego Rezydenta na mapie"/>
+		<button label="Teleportuj" name="teleport" tool_tip="Zaoferuj Teleportację"/>
+		<button label="▼" name="overflow_btn" tool_tip="Zapłać lub wyślij obiekt temu Rezydentowi"/>
+	</panel>
+	<panel name="profile_me_buttons_panel">
+		<button label="Edytuj Profil" name="edit_profile_btn"/>
+		<button label="Edytuj Wygląd" name="edit_appearance_btn"/>
+	</panel>
+</panel>

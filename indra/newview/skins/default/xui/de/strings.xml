@@ -636,7 +636,7 @@
 		Nicht verbunden
 	</string>
 	<string name="SIM_ACCESS_PG">
-		Allgemein
+		Generell
 	</string>
 	<string name="SIM_ACCESS_MATURE">
 		Moderat
@@ -753,7 +753,7 @@
 		Alpha
 	</string>
 	<string name="tattoo">
-		Tätowierung
+		Taetowierung
 	</string>
 	<string name="invalid">
 		ungültig
@@ -1505,6 +1505,9 @@
 	</string>
 	<string name="NoPicksClassifiedsText">
 		Sie haben keine Auswahl oder Anzeigen erstelllt. Klicken Sie auf die „Plus&quot;-Schaltfläche, um eine Auswahl oder Anzeige zu erstellen.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		Der Einwohner hat eine Auswahl oder Anzeigen im Profil.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Wird geladen...

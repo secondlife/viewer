@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call" title="UKENDT PERSON KALDER OP">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		Stemme chat nærved
 	</floater.string>
@@ -11,6 +14,9 @@
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		har sluttet sig til stemme chat opkald med en konference chat.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		deltager nu i Stemme chat opkald med denne gruppe [GROUP].
 	</floater.string>
 	<text name="question">
 		Ønsker du at forlade [CURRENT_CHAT] og slutte dig til denne stemme chat?

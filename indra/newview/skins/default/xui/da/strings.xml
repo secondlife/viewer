@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SUPPORT_SITE">
 		Second Life Support Portal
 	</string>
@@ -131,7 +134,7 @@
 		Klik for at se information om denne lokation
 	</string>
 	<string name="TooltipAgentUrl">
-		Klik for at denne beboers profil
+		Klik for at se beboers profil
 	</string>
 	<string name="TooltipGroupUrl">
 		Klik for at se denne gruppes beskrivelse
@@ -165,7 +168,7 @@
 		Vis kort for
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Luk (&#8984;W)
+		Luk (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		Luk (Ctrl+W)
@@ -181,9 +184,6 @@
 	</string>
 	<string name="BUTTON_DOCK">
 		Fastgør
-	</string>
-	<string name="BUTTON_UNDOCK">
-		Frigør
 	</string>
 	<string name="BUTTON_HELP">
 		Vis hjælp
@@ -208,9 +208,6 @@
 	</string>
 	<string name="AvatarNameWaiting">
 		(venter)
-	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
 	</string>
 	<string name="GroupNameNone">
 		(ingen)
@@ -572,6 +569,9 @@
 	<string name="hang_up">
 		Stemme chat er afbrudt
 	</string>
+	<string name="reconnect_nearby">
+		Du vil nu blive dirigeret til lokal stemme chat
+	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[OWNERNAME]&apos;, lokaliseret i [REGIONNAME] på [REGIONPOS], har fået tilladelse til: [PERMISSIONS].
 	</string>
@@ -764,9 +764,6 @@
 	<string name="TeleportOffer">
 		Teleport tilbud
 	</string>
-	<string name="StartUpNotification">
-		%d nye besked modtaget mens du var væk...
-	</string>
 	<string name="StartUpNotifications">
 		%d nye beskeder modtaget mens du var væk......
 	</string>
@@ -804,11 +801,13 @@
 		Tryk ESC for at skift til normalt udsyn
 	</string>
 	<string name="InventoryNoMatchingItems">
-		No matching items found in inventory.
+		Ingen matchende genstande fundet i beholdning.  Prøv evt. [secondlife:///app/search/groups &quot;Search&quot;].
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Træk et landemærke hertil for at tilføje den som favorit.
 	</string>
 	<string name="InventoryNoTexture">
-		Du har ikke en kopi af denne
-tekstur i din beholdning.
+		Du har ikke en kopi af denne tekstur i din beholdning
 	</string>
 	<string name="no_transfer" value=" (ikke overdragbar)"/>
 	<string name="no_modify" value=" (ikke redigere)"/>
@@ -1266,10 +1265,163 @@ tekstur i din beholdning.
 		alle estates du administrerer for [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Godkendte beboere: ([ALLOWEDAGENTS], max. [MAXACCESS])
+		Godkendte beboere: ([ALLOWEDAGENTS], maks. [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
 		Godkendte grupper: ([ALLOWEDGROUPS], max. [MAXACCESS])
+	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		Parcel script memory
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		Parceller listet: [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		Memory brugt: [COUNT] kb ud af [MAX] kb; [AVAILABLE] kb tilgængeligt
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		Memory brugt: [COUNT] kb
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		Parcel Script URL&apos;er
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		URL&apos;er brugt: [COUNT] ud af [MAX]; [AVAILABLE] tilgængelige
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		URL&apos;er brugt: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Fejl ved anmodning om information
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Ingen parcel valgt
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Fejl: script information er kun tilgængelig i den nuværende region
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Henter information...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		Du har ikke rettigheder til at undersøge denne parcel
+	</string>
+	<string name="SITTING_ON">
+		Sidder på
+	</string>
+	<string name="ATTACH_CHEST">
+		Bryst
+	</string>
+	<string name="ATTACH_HEAD">
+		Hoved
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		Venstre skulder
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		Højre skulder
+	</string>
+	<string name="ATTACH_LHAND">
+		Venstre hånd
+	</string>
+	<string name="ATTACH_RHAND">
+		Højre hånd
+	</string>
+	<string name="ATTACH_LFOOT">
+		Venstre fod
+	</string>
+	<string name="ATTACH_RFOOT">
+		Højre fod
+	</string>
+	<string name="ATTACH_BACK">
+		Ryg
+	</string>
+	<string name="ATTACH_PELVIS">
+		Bækken
+	</string>
+	<string name="ATTACH_MOUTH">
+		Mund
+	</string>
+	<string name="ATTACH_CHIN">
+		Hage
+	</string>
+	<string name="ATTACH_LEAR">
+		Venstre øre
+	</string>
+	<string name="ATTACH_REAR">
+		Højre øre
+	</string>
+	<string name="ATTACH_LEYE">
+		Venstre øje
+	</string>
+	<string name="ATTACH_REYE">
+		Højre øje
+	</string>
+	<string name="ATTACH_NOSE">
+		Næse
+	</string>
+	<string name="ATTACH_RUARM">
+		Højre overarm
+	</string>
+	<string name="ATTACH_RLARM">
+		Højre underarm
+	</string>
+	<string name="ATTACH_LUARM">
+		Venstre overarm
+	</string>
+	<string name="ATTACH_LLARM">
+		Venstre underarm
+	</string>
+	<string name="ATTACH_RHIP">
+		Højre hofte
+	</string>
+	<string name="ATTACH_RULEG">
+		Højre lår
+	</string>
+	<string name="ATTACH_RLLEG">
+		Højre underben
+	</string>
+	<string name="ATTACH_LHIP">
+		Venstre hofte
+	</string>
+	<string name="ATTACH_LULEG">
+		Venste lår
+	</string>
+	<string name="ATTACH_LLLEG">
+		Venstre underben
+	</string>
+	<string name="ATTACH_BELLY">
+		Mave
+	</string>
+	<string name="ATTACH_RPEC">
+		Højre bryst
+	</string>
+	<string name="ATTACH_LPEC">
+		Venstre bryst
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD Center 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD Øverst til højre
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD Foroven midtpå
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD Øverst til venstre
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD Center 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD Nederst til venstre
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD For neden
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD Nederst til højre
 	</string>
 	<string name="CursorPos">
 		Linie [LINE], Kolonne [COLUMN]
@@ -1314,6 +1466,15 @@ tekstur i din beholdning.
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(vil blive opdateret efter offentliggørelse)
+	</string>
+	<string name="NoPicksClassifiedsText">
+		Du har ikke oprettet nogen favoritter eller annoncer. Klik på plus knappen nedenfor for at oprette en favorit eller en annonce.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		Bruger har ingen favoritter eller annoncer
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		Henter...
 	</string>
 	<string name="MultiPreviewTitle">
 		Vis først
@@ -1391,16 +1552,27 @@ tekstur i din beholdning.
 		Ukendt fil efternavn [.%s]
 Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
+	<string name="MuteObject2">
+		Blokér
+	</string>
 	<string name="AddLandmarkNavBarMenu">
 		Tilføj landemærke...
 	</string>
 	<string name="EditLandmarkNavBarMenu">
 		Redigér landemærke...
 	</string>
-	<string name="accel-mac-control">&#8963;</string>
-	<string name="accel-mac-command">&#8984;</string>
-	<string name="accel-mac-option">&#8997;</string>
-	<string name="accel-mac-shift">&#8679;</string>
+	<string name="accel-mac-control">
+		⌃
+	</string>
+	<string name="accel-mac-command">
+		⌘
+	</string>
+	<string name="accel-mac-option">
+		⌥
+	</string>
+	<string name="accel-mac-shift">
+		⇧
+	</string>
 	<string name="accel-win-control">
 		Ctrl+
 	</string>
@@ -1655,38 +1827,14 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Attached Earlobes">
 		Vedhæftede øreflipper
 	</string>
-	<string name="Back Bangs">
-		Nakkehår
-	</string>
-	<string name="Back Bangs Down">
-		Nakkehår langt
-	</string>
-	<string name="Back Bangs Up">
-		Nakkehår kort
-	</string>
 	<string name="Back Fringe">
 		Nakkehår
-	</string>
-	<string name="Back Hair">
-		Volumen
-	</string>
-	<string name="Back Hair Down">
-		Volumen nedad
-	</string>
-	<string name="Back Hair Up">
-		Volumen op
 	</string>
 	<string name="Baggy">
 		Posede
 	</string>
 	<string name="Bangs">
 		Pandehår
-	</string>
-	<string name="Bangs Down">
-		Pandehår ned
-	</string>
-	<string name="Bangs Up">
-		Pandehår op
 	</string>
 	<string name="Beady Eyes">
 		Stikkende øjne
@@ -1699,9 +1847,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Big Butt">
 		Stor bagdel
-	</string>
-	<string name="Big Eyeball">
-		Store øjenæbler
 	</string>
 	<string name="Big Hair Back">
 		Stort hår: Bag
@@ -1877,9 +2022,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Corner Down">
 		Nedadvendt
 	</string>
-	<string name="Corner Normal">
-		Normalt
-	</string>
 	<string name="Corner Up">
 		Opadvendt
 	</string>
@@ -1888,9 +2030,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Crooked Nose">
 		Skæv næse
-	</string>
-	<string name="Cropped Hair">
-		Kort hår
 	</string>
 	<string name="Cuff Flare">
 		Svaj
@@ -1910,14 +2049,8 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Default Heels">
 		Standard hæle
 	</string>
-	<string name="Default Toe">
-		Standard snude
-	</string>
 	<string name="Dense">
 		Tæt
-	</string>
-	<string name="Dense hair">
-		Tæt hår
 	</string>
 	<string name="Double Chin">
 		Dobbelthage
@@ -1964,9 +2097,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Eye Spacing">
 		Øjenafstand
 	</string>
-	<string name="Eyeball Size">
-		Størrelse øjenæble
-	</string>
 	<string name="Eyebrow Arc">
 		Bue på øjenbryn
 	</string>
@@ -1991,35 +2121,8 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Eyeliner Color">
 		Eyeliner farve
 	</string>
-	<string name="Eyes Back">
-		Dybtliggende øjne
-	</string>
 	<string name="Eyes Bugged">
 		Udstående øjne
-	</string>
-	<string name="Eyes Forward">
-		Øjne fremme
-	</string>
-	<string name="Eyes Long Head">
-		Eyes Long Head
-	</string>
-	<string name="Eyes Shear Left Up">
-		Eyes Shear Left Up
-	</string>
-	<string name="Eyes Shear Right Up">
-		Eyes Shear Right Up
-	</string>
-	<string name="Eyes Short Head">
-		Eyes Short Head
-	</string>
-	<string name="Eyes Spread">
-		Stor afstand
-	</string>
-	<string name="Eyes Sunken">
-		Indsunkne øjne
-	</string>
-	<string name="Eyes Together">
-		Tætsiddende
 	</string>
 	<string name="Face Shear">
 		Ansigts symmetri
@@ -2030,29 +2133,8 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Far Set Eyes">
 		Stor afstand mellem øjne
 	</string>
-	<string name="Fat">
-		Tyk
-	</string>
-	<string name="Fat Head">
-		Tykt hovede
-	</string>
 	<string name="Fat Lips">
 		Tykke læber
-	</string>
-	<string name="Fat Lower">
-		Tyk nedre
-	</string>
-	<string name="Fat Lower Lip">
-		Tyk underlæbe
-	</string>
-	<string name="Fat Torso">
-		Tyk overkrop
-	</string>
-	<string name="Fat Upper">
-		Tyk øvre
-	</string>
-	<string name="Fat Upper Lip">
-		Tyk overlæbe
 	</string>
 	<string name="Female">
 		Kvinde
@@ -2090,23 +2172,8 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Freckles">
 		Fregner
 	</string>
-	<string name="Front Bangs Down">
-		Pandehår - ned
-	</string>
-	<string name="Front Bangs Up">
-		Pandehår - op
-	</string>
 	<string name="Front Fringe">
 		Frynser foran
-	</string>
-	<string name="Front Hair">
-		Hår foran
-	</string>
-	<string name="Front Hair Down">
-		Hår foran - ned
-	</string>
-	<string name="Front Hair Up">
-		Hår foran - op
 	</string>
 	<string name="Full Back">
 		Langt ud bagtil
@@ -2381,9 +2448,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Long arms">
 		Lange arme
 	</string>
-	<string name="Longcuffs">
-		Longcuffs
-	</string>
 	<string name="Loose Pants">
 		Løse bukser
 	</string>
@@ -2546,9 +2610,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="No Eyeshadow">
 		Ingen øjenskygge
 	</string>
-	<string name="No Heels">
-		Ingen hæle
-	</string>
 	<string name="No Lipgloss">
 		Ingen lipgloss
 	</string>
@@ -2605,9 +2666,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Nostril Width">
 		Næsebor bredde
-	</string>
-	<string name="Old">
-		Gammel
 	</string>
 	<string name="Opaque">
 		Uigennemsigtig
@@ -2708,9 +2766,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Pointy Heels">
 		Spidse hæle
 	</string>
-	<string name="Pointy Toe">
-		Spids snude
-	</string>
 	<string name="Ponytail">
 		Hestehale
 	</string>
@@ -2735,14 +2790,8 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Red Hair">
 		Rødt hår
 	</string>
-	<string name="Red Skin">
-		Rød hud
-	</string>
 	<string name="Regular">
 		Almindelig
-	</string>
-	<string name="Regular Muscles">
-		Almindelige muskler
 	</string>
 	<string name="Right Part">
 		Højre skildning
@@ -2752,9 +2801,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Round">
 		Rund
-	</string>
-	<string name="Round Forehead">
-		Rund pande
 	</string>
 	<string name="Ruddiness">
 		Rødmossethed
@@ -2768,23 +2814,11 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Saddle Bags">
 		Ridebukselår
 	</string>
-	<string name="Saddlebags">
-		Ridebukselår
-	</string>
-	<string name="Scrawny">
-		Radmager
-	</string>
 	<string name="Scrawny Leg">
 		Magert ben
 	</string>
 	<string name="Separate">
 		Separat
-	</string>
-	<string name="Shading">
-		Skygger
-	</string>
-	<string name="Shadow hair">
-		Skygge hår
 	</string>
 	<string name="Shallow">
 		Lille
@@ -2798,14 +2832,8 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Shear Front">
 		&quot;Måne&quot;
 	</string>
-	<string name="Shear Left">
-		Venstre
-	</string>
 	<string name="Shear Left Up">
 		Venstre op
-	</string>
-	<string name="Shear Right">
-		Højre
 	</string>
 	<string name="Shear Right Up">
 		Højre op
@@ -2867,15 +2895,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Shoulders">
 		Skuldre
 	</string>
-	<string name="Side Bangs">
-		Sidehår
-	</string>
-	<string name="Side Bangs Down">
-		Ned
-	</string>
-	<string name="Side Bangs Up">
-		Op
-	</string>
 	<string name="Side Fringe">
 		Side frynser
 	</string>
@@ -2890,9 +2909,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Sides Hair Up">
 		Op
-	</string>
-	<string name="Skinny">
-		Tynd
 	</string>
 	<string name="Skinny Neck">
 		Tynd hals
@@ -2942,9 +2958,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Socks Length">
 		Strømper - længde
 	</string>
-	<string name="Some">
-		Nogen
-	</string>
 	<string name="Soulpatch">
 		Soulpatch
 	</string>
@@ -2962,9 +2975,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Squash Head">
 		Bredt hovede
-	</string>
-	<string name="Squash/Stretch Head">
-		Sammentryk/stræk hovede
 	</string>
 	<string name="Stretch Head">
 		Stræk hovede
@@ -2984,18 +2994,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Sweep Forward">
 		Stryge fremad
 	</string>
-	<string name="Swept Back">
-		Tilbagestrøget
-	</string>
-	<string name="Swept Back Hair">
-		Tilbagestrøget hår
-	</string>
-	<string name="Swept Forward">
-		Fremadstrøget
-	</string>
-	<string name="Swept Forward Hair">
-		Fremadstrøget hår
-	</string>
 	<string name="Tall">
 		Høj
 	</string>
@@ -3013,9 +3011,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Thick Toe">
 		Bred snude
-	</string>
-	<string name="Thickness">
-		Tykkelse
 	</string>
 	<string name="Thin">
 		Tynd
@@ -3046,12 +3041,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="Tight Sleeves">
 		Stramme ærmer
-	</string>
-	<string name="Tilt Left">
-		Hæld til venstre
-	</string>
-	<string name="Tilt Right">
-		Hæld til højre
 	</string>
 	<string name="Toe Shape">
 		Sko form
@@ -3194,6 +3183,21 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="started_call">
+		Startet et stemme opkald
+	</string>
+	<string name="joined_call">
+		Tilsluttet stemme opkaldet
+	</string>
+	<string name="ringing-im">
+		Tilslutter stemme opkald...
+	</string>
+	<string name="connected-im">
+		Forbundet, klik på Forlad for at lægge på
+	</string>
+	<string name="hang_up-im">
+		Forladt stemme opkald
+	</string>
 	<string name="only_user_message">
 		Du er den eneste deltager i denne samtale
 	</string>
@@ -3204,7 +3208,10 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
 	</string>
 	<string name="muted_message">
-		Du har blokeret denne beboer. Hvis du starter en samtale vil denne blokering automatisk blive fjernet.
+		Du har blokeret denne beboer. Sendes en besked, vil beboeren fjernes fra blokeringslisten.
+	</string>
+	<string name="generic">
+		Fejl ved anmodning, prøv venligst igen senere
 	</string>
 	<string name="generic_request_error">
 		Kunne ikke etablere forbindelse, prøv igen senere
@@ -3224,19 +3231,37 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="not_a_mod_error">
 		Du er ikke moderator for denne samtale.
 	</string>
+	<string name="muted">
+		En gruppe moderator har deaktiveret din tekst chat.
+	</string>
 	<string name="muted_error">
 		Du er blevet &quot;blokeret&quot;.
 	</string>
 	<string name="add_session_event">
 		Ikke muligt at tilføge brugere til samtale med [RECIPIENT].
 	</string>
+	<string name="message">
+		Kunne ikke sende din besked til session med [RECIPIENT].
+	</string>
 	<string name="message_session_event">
 		Ikke muligt at sende din besked til samtalen med [RECIPIENT].
+	</string>
+	<string name="mute">
+		Fejl under moderation.
+	</string>
+	<string name="removed">
+		Du er blevet fjernet fra denne gruppe.
 	</string>
 	<string name="removed_from_group">
 		Du er blevet fjernet fra gruppen.
 	</string>
 	<string name="close_on_no_ability">
 		Du har ikke længere mulighed for at deltage i samtalen
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] har sagt noget nyt
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] har sagt noget nyt
 	</string>
 </strings>

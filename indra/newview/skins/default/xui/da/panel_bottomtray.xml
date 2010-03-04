@@ -7,8 +7,13 @@
 		Skjuler/viser stemme kontrol panel
 	</string>
 	<layout_stack name="toolbar_stack">
+		<layout_panel name="speak_panel">
+			<talk_button name="talk">
+				<speak_button label="Tal" label_selected="Tal" name="speak_btn"/>
+			</talk_button>
+		</layout_panel>
 		<layout_panel name="gesture_panel">
-			<gesture_combo_box label="Bevægelse" name="Gesture" tool_tip="Skjuler/viser bevægelser"/>
+			<gesture_combo_list label="Bevægelse" name="Gesture" tool_tip="Skjuler/viser bevægelser"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
 			<button label="Flyt" name="movement_btn" tool_tip="Vis/skjul bevægelseskontroller"/>
@@ -18,6 +23,16 @@
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
 			<button label="" name="snapshots" tool_tip="Tag foto"/>
+		</layout_panel>
+		<layout_panel name="im_well_panel">
+			<chiclet_im_well name="im_well">
+				<button name="Unread IM messages" tool_tip="Konversationer"/>
+			</chiclet_im_well>
+		</layout_panel>
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="Notifikationer"/>
+			</chiclet_notification>
 		</layout_panel>
 	</layout_stack>
 </panel>

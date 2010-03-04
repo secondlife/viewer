@@ -4,11 +4,11 @@
 		Vis mig når:
 	</text>
 	<check_box label="Når jeg bruger eller får L$" name="notify_money_change_checkbox"/>
-	<check_box label="Når mine venner logger af eller på" name="friends_online_notify_checkbox"/>
+	<check_box label="Når mine venner logger på eller af" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Vis altid disse beskeder:
+		Vis altid:
 	</text>
 	<text name="dont_show_label">
-		Vis aldrig disse beskeder:
+		Vis aldrig:
 	</text>
 </panel>

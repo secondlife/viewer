@@ -1,5 +1,131 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="COMPRAR TERRENO">
+	<floater.string name="can_resell">
+		Pode ser revendida.
+	</floater.string>
+	<floater.string name="can_not_resell">
+		Não pode ser revendida.
+	</floater.string>
+	<floater.string name="can_change">
+		Pode ser unida ou subdivida.
+	</floater.string>
+	<floater.string name="can_not_change">
+		Não pode ser unida ou subdividida.
+	</floater.string>
+	<floater.string name="cant_buy_for_group">
+		Você não tem permissão para comprar terra para seu grupo ativo.
+	</floater.string>
+	<floater.string name="no_land_selected">
+		Nenhuma terra selecionada.
+	</floater.string>
+	<floater.string name="multiple_parcels_selected">
+		Múltiplos e diferentes lotes selecionados. Tente selecionar uma área menor.
+	</floater.string>
+	<floater.string name="no_permission">
+		Você não tem permissão para comprar uma terra para seu grupo ativo.
+	</floater.string>
+	<floater.string name="parcel_not_for_sale">
+		O lote selecionado não está a venda.
+	</floater.string>
+	<floater.string name="group_already_owns">
+		O grupo já possui o lote.
+	</floater.string>
+	<floater.string name="you_already_own">
+		Você já possui o lote.
+	</floater.string>
+	<floater.string name="set_to_sell_to_other">
+		O lote selecionado está configurado para ser vendido para outro grupo.
+	</floater.string>
+	<floater.string name="no_public_land">
+		A área selecionada não tem terras públicas.
+	</floater.string>
+	<floater.string name="not_owned_by_you">
+		Está selecionada uma terra pertencente a outro usuário. Tente selecionar uma área menor.
+	</floater.string>
+	<floater.string name="processing">
+		Processando sua compra...
+ 
+(Isso pode levar um minuto.)
+	</floater.string>
+	<floater.string name="fetching_error">
+		Houve um erro ao buscar informações sobre compra de terras.
+	</floater.string>
+	<floater.string name="buying_will">
+		Comprar esta terra irá:
+	</floater.string>
+	<floater.string name="buying_for_group">
+		Ao comprar terra para o grupo:
+	</floater.string>
+	<floater.string name="cannot_buy_now">
+		Não foi possível comprar agora:
+	</floater.string>
+	<floater.string name="not_for_sale">
+		Não disponível para venda:
+	</floater.string>
+	<floater.string name="none_needed">
+		nada necessário
+	</floater.string>
+	<floater.string name="must_upgrade">
+		Sua conta deve ser evoluída para adquirir um lote.
+	</floater.string>
+	<floater.string name="cant_own_land">
+		Sua conta pode possuir uma terra.
+	</floater.string>
+	<floater.string name="land_holdings">
+		Você tem [BUYER] m².
+	</floater.string>
+	<floater.string name="pay_to_for_land">
+		Pagar L$ [AMOUNT] para [SELLER] por esta terra
+	</floater.string>
+	<floater.string name="buy_for_US">
+		Compre L$ [AMOUNT] por cerca de [LOCAL_AMOUNT],
+	</floater.string>
+	<floater.string name="parcel_meters">
+		Este lote tem [AMOUNT] m²
+	</floater.string>
+	<floater.string name="premium_land">
+		Esse é um terreno premium e custa o equivalente a [AMOUNT] m².
+	</floater.string>
+	<floater.string name="discounted_land">
+		Esse é um terreno com desconto, e custa o equivalente a [AMOUNT] m².
+	</floater.string>
+	<floater.string name="meters_supports_object">
+		[AMOUNT] m²
+suporta [AMOUNT2] objetos
+	</floater.string>
+	<floater.string name="sold_with_objects">
+		vendido com objetos
+	</floater.string>
+	<floater.string name="sold_without_objects">
+		objetos não incluídos
+	</floater.string>
+	<floater.string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
+	</floater.string>
+	<floater.string name="insufficient_land_credits">
+		O grupo [GROUP] precisará de fundos suficientes de terras
+contribuídas para cobrir este lote antes da aquisição se completar.
+	</floater.string>
+	<floater.string name="have_enough_lindens">
+		Você tem L$ [AMOUNT], suficiente para comprar este lote.
+	</floater.string>
+	<floater.string name="not_enough_lindens">
+		Você tem somente L$ [AMOUNT], e precisa de mais L$ [AMOUNT2].
+	</floater.string>
+	<floater.string name="balance_left">
+		Após a compra, restará L$ [AMOUNT].
+	</floater.string>
+	<floater.string name="balance_needed">
+		Você precisa comprar pelo menos L$ [AMOUNT] para ter recursos para este lote.
+	</floater.string>
+	<floater.string name="no_parcel_selected">
+		(nenhum lote selecionado)
+	</floater.string>
+	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
+	<floater.string name="icon_M" value="Parcel_M_Dark"/>
+	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		Região:
 	</text>
@@ -106,130 +232,4 @@ Este lote mede 512 m².
 	<check_box label="Subtrair [AMOUNT] m² da minha contribuição." name="remove_contribution"/>
 	<button label="Adquirir" name="buy_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
-	<string name="can_resell">
-		Pode ser revendida.
-	</string>
-	<string name="can_not_resell">
-		Não pode ser revendida.
-	</string>
-	<string name="can_change">
-		Pode ser unida ou subdivida.
-	</string>
-	<string name="can_not_change">
-		Não pode ser unida ou subdividida.
-	</string>
-	<string name="cant_buy_for_group">
-		Você não tem permissão para comprar terra para seu grupo ativo.
-	</string>
-	<string name="no_land_selected">
-		Nenhuma terra selecionada.
-	</string>
-	<string name="multiple_parcels_selected">
-		Múltiplos e diferentes lotes selecionados. Tente selecionar uma área menor.
-	</string>
-	<string name="no_permission">
-		Você não tem permissão para comprar uma terra para seu grupo ativo.
-	</string>
-	<string name="parcel_not_for_sale">
-		O lote selecionado não está a venda.
-	</string>
-	<string name="group_already_owns">
-		O grupo já possui o lote.
-	</string>
-	<string name="you_already_own">
-		Você já possui o lote.
-	</string>
-	<string name="set_to_sell_to_other">
-		O lote selecionado está configurado para ser vendido para outro grupo.
-	</string>
-	<string name="no_public_land">
-		A área selecionada não tem terras públicas.
-	</string>
-	<string name="not_owned_by_you">
-		Está selecionada uma terra pertencente a outro usuário. Tente selecionar uma área menor.
-	</string>
-	<string name="processing">
-		Processando sua compra...
- 
-(Isso pode levar um minuto.)
-	</string>
-	<string name="fetching_error">
-		Houve um erro ao buscar informações sobre compra de terras.
-	</string>
-	<string name="buying_will">
-		Comprar esta terra irá:
-	</string>
-	<string name="buying_for_group">
-		Ao comprar terra para o grupo:
-	</string>
-	<string name="cannot_buy_now">
-		Não foi possível comprar agora:
-	</string>
-	<string name="not_for_sale">
-		Não disponível para venda:
-	</string>
-	<string name="none_needed">
-		nada necessário
-	</string>
-	<string name="must_upgrade">
-		Sua conta deve ser evoluída para adquirir um lote.
-	</string>
-	<string name="cant_own_land">
-		Sua conta pode possuir uma terra.
-	</string>
-	<string name="land_holdings">
-		Você tem [BUYER] m².
-	</string>
-	<string name="pay_to_for_land">
-		Pagar L$ [AMOUNT] para [SELLER] por esta terra
-	</string>
-	<string name="buy_for_US">
-		Compre L$ [AMOUNT] por cerca de [LOCAL_AMOUNT],
-	</string>
-	<string name="parcel_meters">
-		Este lote tem [AMOUNT] m²
-	</string>
-	<string name="premium_land">
-		Esse é um terreno premium e custa o equivalente a [AMOUNT] m².
-	</string>
-	<string name="discounted_land">
-		Esse é um terreno com desconto, e custa o equivalente a [AMOUNT] m².
-	</string>
-	<string name="meters_supports_object">
-		[AMOUNT] m²
-suporta [AMOUNT2] objetos
-	</string>
-	<string name="sold_with_objects">
-		vendido com objetos
-	</string>
-	<string name="sold_without_objects">
-		objetos não incluídos
-	</string>
-	<string name="info_price_string">
-		L$ [PRICE]
-(L$ [PRICE_PER_SQM]/m²)
-[SOLD_WITH_OBJECTS]
-	</string>
-	<string name="insufficient_land_credits">
-		O grupo [GROUP] precisará de fundos suficientes de terras
-contribuídas para cobrir este lote antes da aquisição se completar.
-	</string>
-	<string name="have_enough_lindens">
-		Você tem L$ [AMOUNT], suficiente para comprar este lote.
-	</string>
-	<string name="not_enough_lindens">
-		Você tem somente L$ [AMOUNT], e precisa de mais L$ [AMOUNT2].
-	</string>
-	<string name="balance_left">
-		Após a compra, restará L$ [AMOUNT].
-	</string>
-	<string name="balance_needed">
-		Você precisa comprar pelo menos L$ [AMOUNT] para ter recursos para este lote.
-	</string>
-	<string name="no_parcel_selected">
-		(nenhum lote selecionado)
-	</string>
-	<string name="buy_currency">
-		Comprar L$ [LINDENS] por aproxim. US$ [USD]
-	</string>
 </floater>

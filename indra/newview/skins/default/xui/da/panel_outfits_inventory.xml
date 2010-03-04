@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits">
-	<accordion name="outfits_accordion">
-		<accordion_tab name="tab_cof" title="Nuværende sæt"/>
-		<accordion_tab name="tab_outfits" title="Mine sæt"/>
-	</accordion>
+<panel label="Ting" name="Outfits">
+	<tab_container name="appearance_tabs">
+		<inventory_panel label="MINE SÆT" name="outfitslist_tab"/>
+		<inventory_panel label="HAR PÅ" name="cof_tab"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Vis flere muligheder"/>
+		<dnd_button name="trash_btn" tool_tip="Fjern valgte genstand"/>
+		<button label="Gem sæt" name="make_outfit_btn" tool_tip="Gem udseende som nyt sæt"/>
+		<button label="Tag på" name="wear_btn" tool_tip="Tag valgte sæt på"/>
+		<button label="M" name="look_edit_btn"/>
+	</panel>
 </panel>

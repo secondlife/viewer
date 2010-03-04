@@ -1,2 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="classified_preview" title="REKLAMA" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="classified_preview" title="INFO O REKLAMIE">
+	<floater.string name="Title">
+		Reklama: [NAME]
+	</floater.string>
+</floater>

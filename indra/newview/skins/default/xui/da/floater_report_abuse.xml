@@ -42,7 +42,7 @@
 		<combo_box.item label="Vælg kategori" name="Select_category"/>
 		<combo_box.item label="Alder &gt; Falsk alder" name="Age__Age_play"/>
 		<combo_box.item label="Alder &gt; Voksen beboer på Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
-		<combo_box.item label="Alder &gt; Mindreårig beboer udenfor Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="Alder &gt; Mindreårig beboer uden for Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Overfald &gt; Kamp sandkasse / Usikkert område" name="Assault__Combat_sandbox___unsafe_area"/>
 		<combo_box.item label="Overfald &gt; Sikkert område" name="Assault__Safe_area"/>
 		<combo_box.item label="Overfald &gt; Sandkasse til våbentest" name="Assault__Weapons_testing_sandbox"/>

@@ -122,9 +122,17 @@ protected:
 class LLSysHandler : public LLEventHandler
 {
 public:
+	LLSysHandler();
 	virtual ~LLSysHandler() {};
 
 	virtual bool processNotification(const LLSD& notify)=0;
+
+protected :
+	static void init();
+	void removeExclusiveNotifications(const LLNotificationPtr& notif);
+
+	typedef std::list< std::set<std::string> > exclusive_notif_sets;
+	static exclusive_notif_sets sExclusiveNotificationGroups;
 };
 
 /**
@@ -171,6 +179,7 @@ public:
 
 protected:
 	virtual void onDeleteToast(LLToast* toast);
+	virtual void onRejectToast(const LLUUID& id);
 	virtual void initChannel();
 };
 

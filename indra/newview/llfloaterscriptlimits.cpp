@@ -557,7 +557,7 @@ void LLPanelScriptLimitsRegionMemory::setParcelID(const LLUUID& parcel_id)
 // virtual
 void LLPanelScriptLimitsRegionMemory::setErrorStatus(U32 status, const std::string& reason)
 {
-	llerrs << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
+	llwarns << "Can't handle remote parcel request."<< " Http Status: "<< status << ". Reason : "<< reason<<llendl;
 }
 
 // callback from the name cache with an owner name to add to the list

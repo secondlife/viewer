@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="Profil de l&apos;objet"/>
 	<text name="where" value="(dans Second Life)"/>
-	<panel label="">
+	<panel name="properties_panel" label="">
 		<text name="Name:">
 			Nom :
 		</text>

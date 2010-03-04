@@ -700,9 +700,9 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
 
-	for(; iter != end; iter++)
+	for(; iter != end;)
 	{
-		LLViewerMediaImpl* pimpl = *iter;
+		LLViewerMediaImpl* pimpl = *iter++;
 		pimpl->update();
 		pimpl->calculateInterest();
 	}

@@ -43,6 +43,8 @@
 			<menu_item_check label="Strahlen" name="beacons"/>
 			<menu_item_check label="Grundstücksgrenzen" name="Property Lines"/>
 			<menu_item_check label="Landeigentümer" name="Land Owners"/>
+			<menu_item_check label="Koordinaten" name="Coordinates"/>
+			<menu_item_check label="Parzelleneigenschaften" name="Parcel Properties"/>
 		</menu>
 		<menu_item_call label="Teleport nach Hause" name="Teleport Home"/>
 		<menu_item_call label="Hier als Zuhause wählen" name="Set Home to Here"/>
@@ -81,7 +83,8 @@
 		<menu_item_call label="Fokus auf Auswahl" name="Focus on Selection"/>
 		<menu_item_call label="Auf Auswahl zoomen" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
-			<menu_item_call label="Kaufen" name="Menu Object Take"/>
+			<menu_item_call label="Kaufen" name="Menu Object Buy"/>
+			<menu_item_call label="Nehmen" name="Menu Object Take"/>
 			<menu_item_call label="Kopie nehmen" name="Take Copy"/>
 			<menu_item_call label="Objekt wieder in meinem Inventar speichern" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Wieder in Objektinhalt speichern" name="Save Object Back to Object Contents"/>
@@ -405,7 +408,7 @@
 			<menu_item_call label="Offizielles Linden-Blog" name="Official Linden Blog"/>
 			<menu_item_call label="Scripting-Portal" name="Scripting Portal"/>
 			<menu label="Fehlermeldungen" name="Bug Reporting">
-				<menu_item_call label="Allgemeine Probleme-Tracker" name="Public Issue Tracker"/>
+				<menu_item_call label="Allgemeiner Probleme-Tracker" name="Public Issue Tracker"/>
 				<menu_item_call label="Hilfe zum Allgemeinen Probleme-Tracker" name="Publc Issue Tracker Help"/>
 				<menu_item_call label="Fehlermeldungs-1x1" name="Bug Reporing 101"/>
 				<menu_item_call label="Sicherheitsfragen" name="Security Issues"/>
