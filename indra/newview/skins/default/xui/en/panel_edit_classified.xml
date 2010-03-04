@@ -62,24 +62,33 @@
      height="690"
      left="0"
      width="285">
+      <panel
+         name="snapshot_panel"
+         layout="topleft"
+         follows="left|top|right"
+         height="197"
+         left="10"
+         top="10"
+         width="272">
       <texture_picker
        follows="left|top|right"
        height="197"
        width="272"
        layout="topleft"
-       top="10"
-       left="11"
+       top="0"
+       left="0"
        name="classified_snapshot" />
-          <icon
+       <icon
            height="197"
            image_name="spacer24.tga"
            layout="topleft"
            name="edit_icon"
            label=""
            tool_tip="Click to select an image"
-           top="10"
-           left="11"
-           width="286" />
+           top="0"
+           left="0"
+           width="272" />
+       </panel>
         <text
          type="string"
          length="1"

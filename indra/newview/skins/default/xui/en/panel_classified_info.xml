@@ -74,15 +74,25 @@
      height="500"
      left="0"
      width="285">
+        <panel
+         name="snapshot_panel"
+         layout="topleft"
+         follows="left|top|right"
+         height="197"
+         left="10"
+         top="10"
+         width="275"
+        >
         <texture_picker
          enabled="false"
          follows="left|top|right"
          height="197"
          layout="topleft"
-         left="10"
+         left="0"
          name="classified_snapshot"
-         top="10"
+         top="0"
          width="275" />
+        </panel>
         <text_editor
          allow_scroll="false"
          bg_visible="false"

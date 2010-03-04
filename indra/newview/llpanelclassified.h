@@ -280,9 +280,15 @@ protected:
 
 	void stretchSnapshot();
 
+	LLRect getDefaultSnapshotRect();
+
 	void onMapClick();
 	void onTeleportClick();
 	void onExit();
+
+	bool mSnapshotStreched;
+	LLRect mSnapshotRect;
+	LLTextureCtrl* mSnapshotCtrl;
 
 private:
 
@@ -291,9 +297,6 @@ private:
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
 	bool mInfoLoaded;
-
-	bool mSnapshotStreched;
-	LLRect mSnapshotRect;
 
 	LLScrollContainer*		mScrollContainer;
 	LLPanel*				mScrollingPanel;
@@ -341,6 +344,10 @@ public:
 
 	bool canClose();
 
+	void draw();
+
+	void stretchSnapshot();
+
 protected:
 
 	LLPanelClassifiedEdit();
@@ -371,6 +378,8 @@ protected:
 
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
+
+	void onTextureSelected();
 
 private:
 	bool mIsNew;
