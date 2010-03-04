@@ -82,7 +82,7 @@ void LLSysHandler::removeExclusiveNotifications(const LLNotificationPtr& notif)
 		}
 		bool matches(const LLNotificationPtr notification) const
 		{
-			for (std::set<std::string>::iterator it = mExclGroup.begin(); it
+			for (std::set<std::string>::const_iterator it = mExclGroup.begin(); it
 					!= mExclGroup.end(); it++)
 			{
 				std::string from_name = LLHandlerUtil::getSubstitutionName(notification);
