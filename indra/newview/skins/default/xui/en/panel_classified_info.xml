@@ -104,7 +104,7 @@
          font="SansSerifBig"
          font.style="BOLD"
          left="10"
-         top_pad="0"
+         top_pad="5"
          name="classified_name"
          read_only="true"
          text_color="white"
