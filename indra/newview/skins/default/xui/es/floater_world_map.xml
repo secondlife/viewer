@@ -5,7 +5,8 @@
 			Leyenda
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_2">
 		<button label="Mostrar mi posición" label_selected="Mostrar mi posición" name="Show My Location" tool_tip="Centrar el mapa en la posición de mi avatar"/>
 		<text name="me_label">
 			Yo
@@ -48,12 +49,14 @@
 			Adulto
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_3">
 		<text name="find_on_map_label">
 			Encontrar en el mapa
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_4">
 		<combo_box label="Amigos conectados" name="friend combo" tool_tip="Ver a los amigos en el mapa">
 			<combo_box.item label="Mis amigos conectados" name="item1"/>
 		</combo_box>
@@ -71,12 +74,14 @@
 		<button label="Copiar la SLurl" name="copy_slurl" tool_tip="Copiar la SLurl de esta posición para usarla en una web."/>
 		<button label="Ver lo elegido" label_selected="Mostrar el destino" name="Show Destination" tool_tip="Centrar el mapa en la localización elegida"/>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_5">
 		<text name="zoom_label">
 			Zoom
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_6">
 		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

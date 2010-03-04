@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="Objektprofil"/>
 	<text name="where" value="(inworld)"/>
-	<panel label="">
+	<panel name="properties_panel" label="">
 		<text name="Name:">
 			Name:
 		</text>

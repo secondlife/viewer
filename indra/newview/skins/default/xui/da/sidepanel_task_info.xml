@@ -36,7 +36,7 @@
 	<panel.string name="Sale Mixed">
 		Blandet salg
 	</panel.string>
-	<panel label="">
+	<panel name="properties_panel" label="">
 		<text name="Name:">
 			Navn:
 		</text>
@@ -74,7 +74,7 @@
 		</combo_box>
 		<spinner label="Pris: L$" name="Edit Cost"/>
 		<check_box label="Vis i søgning" name="search_check" tool_tip="Lad personer se dette objekt i søgeresultater"/>
-		<panel name="perms_build">
+		<panel name="perms_inv">
 			<text name="perm_modify">
 				Du kan redigere dette objekt
 			</text>

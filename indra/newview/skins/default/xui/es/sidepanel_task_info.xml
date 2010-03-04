@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="Perfil del objeto"/>
 	<text name="where" value="(en el mundo)"/>
-	<panel label="">
+	<panel name="properties_panel" label="">
 		<text name="Name:">
 			Nombre:
 		</text>

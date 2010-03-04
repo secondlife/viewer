@@ -74,6 +74,11 @@ public:
 	void setNameFilter(const std::string& filter);
 	void toggleIcons();
 	bool getIconsVisible() const { return mShowIcons; }
+
+	// *WORKAROUND: two methods to overload appropriate Params due to localization issue:
+	// no_groups_msg & no_filtered_groups_msg attributes are not defined as translatable in VLT. See EXT-5931
+	void setNoGroupsMsg(const std::string& msg) { mNoGroupsMsg = msg; }
+	void setNoFilteredGroupsMsg(const std::string& msg) { mNoFilteredGroupsMsg = msg; }
 	
 private:
 	void setDirty(bool val = true)		{ mDirty = val; }

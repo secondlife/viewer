@@ -5,7 +5,8 @@
 			Forklaring
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_2">
 		<button label="Vis min position" label_selected="Vis min position" name="Show My Location" tool_tip="Centrér kort om min avatars position"/>
 		<text name="person_label">
 			Mig
@@ -36,12 +37,14 @@
 		</text>
 		<check_box label="Adult" name="event_adult_chk"/>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_3">
 		<text name="find_on_map_label">
 			Find på kort
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_4">
 		<combo_box label="Venner online" name="friend combo" tool_tip="Vis venner på kort">
 			<combo_box.item label="Mine venner online" name="item1"/>
 		</combo_box>
@@ -58,12 +61,14 @@
 		<button label="Kopiér SLurl" name="copy_slurl" tool_tip="Kopierer denne lokation som SLurl der kan bruges på web."/>
 		<button label="Vis selektion" label_selected="Vis destination" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_5">
 		<text name="zoom_label">
 			Zoom
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_6">
 		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

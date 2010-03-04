@@ -333,6 +333,7 @@
                      height="160"
                      layout="topleft"
                      left="0"
+                     name="parcel_characteristics_panel"
                      top="0"
                      width="275">
                         <icon
@@ -544,6 +545,7 @@
                      height="125"
                      layout="topleft"
                      left="0"
+                     name="region_information_panel"
                      top="0"
                      width="290">
                         <text
@@ -670,6 +672,7 @@
                      height="189"
                      layout="topleft"
                      left="0"
+                     name="estate_information_panel"
                      top="0"
                      width="290">
                         <text
@@ -758,6 +761,7 @@
                      height="300"
                      layout="topleft"
                      left="0"
+                     name="sales_panel"
                      top="0"
                      width="290">
                         <text
