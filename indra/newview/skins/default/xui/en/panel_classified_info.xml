@@ -66,15 +66,26 @@
      height="610"
      left="0"
      width="285">
+        <panel
+         name="snapshot_panel"
+         layout="topleft"
+         follows="left|top|right"
+         height="197"
+         left="10"
+         top="10"
+         width="275"
+        >
         <texture_picker
          enabled="false"
          follows="left|top|right"
          height="197"
          width="272"
          layout="topleft"
-         left="11"
+         left="0"
          name="classified_snapshot"
-         top="10" />
+         top="0"
+         width="275" />
+        </panel>
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -86,7 +97,7 @@
          font="SansSerifBig"
          font.style="BOLD"
          left="10"
-         top_pad="10"
+         top_pad="5"
          name="classified_name"
          read_only="true"
          text_color="white"
@@ -176,6 +187,33 @@
          height="10"
          layout="topleft"
          left="10"
+         name="creation_date_label"
+         text_color="white"
+         top_pad="0"
+         value="Creation date:"
+         width="140" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top"
+         h_pad="0"
+         halign="left"
+         height="16"
+         layout="topleft"
+         left_pad="0"
+         name="creation_date"
+         read_only="true"
+         top_pad="-10"
+         tool_tip="Creation date"
+         v_pad="0"
+         value="[date]"
+         width="150" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
          name="price_for_listing_label"
          text_color="white"
          top_pad="10"
@@ -207,6 +245,44 @@
          top_pad="5"
          width="290"
          height="250">
+         <layout_panel
+          auto_resize="false"
+          name="clickthrough_layout_panel"
+          layout="topleft"
+          follows="top|left"
+          left="0"
+          top="0"
+          width="290"
+          height="26"
+          user_resize="false">
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="0"
+         name="click_through_label"
+         text_color="white"
+         top_pad="0"
+         value="Clicks:"
+         width="140" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top"
+         h_pad="0"
+         halign="left"
+         height="16"
+         layout="topleft"
+         left_pad="0"
+         name="click_through_text"
+         read_only="true"
+         top_pad="-10"
+         tool_tip="Click through data"
+         v_pad="0"
+         value="[clicks]"
+         width="150" />
+         </layout_panel>
          <layout_panel
           auto_resize="false"
           name="price_layout_panel"
