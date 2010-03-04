@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="Właściwości Obiektu w Szafie">
+	<panel.string name="unknown">
+		(nieznany)
+	</panel.string>
+	<panel.string name="public">
+		(publiczny)
+	</panel.string>
+	<panel.string name="you_can">
+		Ty możesz:
+	</panel.string>
+	<panel.string name="owner_can">
+		Właściciel może:
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</panel.string>
+	<text name="title" value="Właściwości Obiektu"/>
+	<panel label="">
+		<text name="LabelItemNameTitle">
+			Nazwa:
+		</text>
+		<text name="LabelItemDescTitle">
+			Opis:
+		</text>
+		<text name="LabelCreatorTitle">
+			Twórca:
+		</text>
+		<button label="Profil..." name="BtnCreator"/>
+		<text name="LabelOwnerTitle">
+			Właściciel:
+		</text>
+		<button label="Profil..." name="BtnOwner"/>
+		<text name="LabelAcquiredTitle">
+			Nabyte:
+		</text>
+		<text name="LabelAcquiredDate">
+			Wed May 24 12:50:46 2006
+		</text>
+		<text name="OwnerLabel">
+			Ty:
+		</text>
+		<check_box label="Edytuj" name="CheckOwnerModify"/>
+		<check_box label="Kopiuj" name="CheckOwnerCopy"/>
+		<check_box label="Oddawaj" name="CheckOwnerTransfer"/>
+		<text name="AnyoneLabel">
+			Każdemu:
+		</text>
+		<check_box label="Kopiuj" name="CheckEveryoneCopy"/>
+		<text name="GroupLabel">
+			Groupa:
+		</text>
+		<check_box label="Podziel się" name="CheckShareWithGroup"/>
+		<text name="NextOwnerLabel">
+			Następny właściciel:
+		</text>
+		<check_box label="Edytuje" name="CheckNextOwnerModify"/>
+		<check_box label="Kopiuje" name="CheckNextOwnerCopy"/>
+		<check_box label="Oddaje" name="CheckNextOwnerTransfer"/>
+		<check_box label="Na Sprzedaż" name="CheckPurchase"/>
+		<combo_box name="combobox sale copy">
+			<combo_box.item label="Kopia" name="Copy"/>
+			<combo_box.item label="Originał" name="Original"/>
+		</combo_box>
+		<spinner label="Cena:" name="Edit Cost"/>
+		<text name="CurrencySymbol">
+			L$
+		</text>
+	</panel>
+</panel>
