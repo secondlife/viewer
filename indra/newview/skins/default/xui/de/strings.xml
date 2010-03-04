@@ -828,7 +828,7 @@
 		Im Inventar wurden keine passenden Objekte gefunden.  Versuchen Sie es mit [secondlife:///app/search/groups „Suche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Hier eine Landmarke hin ziehen, um diese zu Ihrem Favoriten hinzuzufügen.
+		Landmarke hier hin ziehen, um diese hinzuzufügen.
 	</string>
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
@@ -3268,7 +3268,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Für Instant Message hier klicken.
 	</string>
 	<string name="IM_to_label">
-		Bis
+		An
 	</string>
 	<string name="IM_moderator_label">
 		(Moderator)

@@ -6,9 +6,9 @@
 	<check_box label="Quando eu gasto ou recebo L$" name="notify_money_change_checkbox"/>
 	<check_box label="Quando meus amigos entram e saem" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Sempre mostrar esses alertas:
+		Mostrar sempre:
 	</text>
 	<text name="dont_show_label">
-		Nunca mostrar esses alertas:
+		Nunca mostrar:
 	</text>
 </panel>

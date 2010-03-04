@@ -31,7 +31,7 @@
       da propriedade.
 	</text>
 	<text bottom_delta="-36" name="covenant_instructions">
-		Arrastar e soltar um notecard para alterar o Covenant para esta propriedade.
+		Arrastar e soltar uma anotação para alterar o contrato em vigor nesta propriedade.
 	</text>
 	<text bottom_delta="-36" name="region_section_lbl">
 		Região

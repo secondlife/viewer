@@ -196,7 +196,7 @@
 			</combo_box>
 			<check_box label="Zum Verkauf:" name="checkbox for sale"/>
 			<combo_box name="sale type">
-				<combo_box.item label="Kopieren" name="Copy"/>
+				<combo_box.item label="Kopie" name="Copy"/>
 				<combo_box.item label="Inhalt" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>

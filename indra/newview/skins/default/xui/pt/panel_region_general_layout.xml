@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Região" name="General">
+	<text name="region_text_lbl">
+		Região:
+	</text>
+	<text name="region_text">
+		(Desconhecido)
+	</text>
+	<text name="version_channel_text_lbl">
+		Versão:
+	</text>
+	<text name="version_channel_text">
+		(Desconhecido)
+	</text>
+	<text name="region_type_lbl">
+		Tipo:
+	</text>
+	<text name="region_type">
+		(Desconhecido)
+	</text>
+	<check_box label="Bloquear terraplanagem" name="block_terraform_check"/>
+	<check_box label="Bloquear voos" name="block_fly_check"/>
+	<check_box label="Permitir danos" name="allow_damage_check"/>
+	<check_box label="Limitar empurrões" name="restrict_pushobject"/>
+	<check_box label="Permitir revenda de terrenos" name="allow_land_resell_check"/>
+	<check_box label="Permitir junção e divisão de terrenos" name="allow_parcel_changes_check"/>
+	<check_box label="Não mostrar nos resultados de pesquisa" name="block_parcel_search_check" tool_tip="Mostrar esta região e lotes nos resultados de pesquisa"/>
+	<spinner label="Limite do agente" name="agent_limit_spin"/>
+	<spinner label="Bônus do objeto" name="object_bonus_spin"/>
+	<text label="Nível de maturidade" name="access_text">
+		Classificação:
+	</text>
+	<combo_box label="Moderado" name="access_combo">
+		<combo_box.item label="Público adulto" name="Adult"/>
+		<combo_box.item label="Moderado" name="Mature"/>
+		<combo_box.item label="Geral" name="PG"/>
+	</combo_box>
+	<button label="Aplicar" name="apply_btn"/>
+	<button label="Teletransportar para início..." name="kick_btn"/>
+	<button label="Teletransportar todos para início..." name="kick_all_btn"/>
+	<button label="Enviar mensagem para região..." name="im_btn"/>
+	<button label="Gerenciar telehub..." name="manage_telehub_btn"/>
+</panel>

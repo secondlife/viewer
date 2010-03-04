@@ -39,7 +39,7 @@ Cada grupo pode enviar no máximo 200 avisos/dia
 		<text name="string">
 			Arrastar e soltar o item aqui para anexá-lo:
 		</text>
-		<button label="Tirar" label_selected="Remover o anexo" name="remove_attachment"/>
+		<button label="Tirar" label_selected="Remover o anexo" name="remove_attachment" tool_tip="Remover anexo da notificação."/>
 		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Arrastar um item do inventário para a caixa para enviá-lo com o aviso. É preciso ter autorização de cópia e transferência do item para anexá-lo ao aviso."/>
 	</panel>

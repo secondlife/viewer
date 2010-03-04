@@ -1,27 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<panel name="advanced">
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
+<panel label="Avançado" name="advanced">
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<check_box label="Balão de bate-papo" name="bubble_text_chat"/>
-	<color_swatch name="background" tool_tip="Escolha a cor do balão de bate-papo"/>
-	<slider label="Opacidade" name="bubble_chat_opacity"/>
-	<text name="AspectRatioLabel1" tool_tip="largura / altura">
-		Relação de aspecto
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="largura / altura">
-		<combo_box.item label="4:3 (CRT Padrão)" name="item1"/>
-		<combo_box.item label="5:4 (1280x1024 LCD)" name="item2"/>
-		<combo_box.item label="8:5 (tela ampla)" name="item3"/>
-		<combo_box.item label="16:9 (tela ampla)" name="item4"/>
-	</combo_box>
-	<check_box label="Auto-detectar" name="aspect_auto_detect"/>
-	<text name="heading1">
-		Câmera:
-	</text>
 	<slider label="Ângulo de visão" name="camera_fov"/>
 	<slider label="Distância" name="camera_offset_scale"/>
 	<text name="heading2">
@@ -29,20 +10,20 @@
 	</text>
 	<check_box label="Construir/Editar" name="edit_camera_movement" tool_tip="Use o posicionamento automático da câmera quando entrar e sair do modo de edição"/>
 	<check_box label="Aparência" name="appearance_camera_movement" tool_tip="Use o posicionamento automático da câmera quando em modo de edição"/>
-	<text name="heading3">
-		Avatares:
-	</text>
 	<check_box label="Mostre-me em visão de mouse" name="first_person_avatar_visible"/>
 	<check_box label="Teclas de seta sempre me movem" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Dê dois toques e pressione para correr" name="tap_tap_hold_to_run"/>
 	<check_box label="Mover os lábios do avatar quando estiver falando" name="enable_lip_sync"/>
+	<check_box label="Balão de bate-papo" name="bubble_text_chat"/>
+	<slider label="Opacidade" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Escolha a cor do balão de bate-papo"/>
 	<check_box label="Mostrar erros de script" name="show_script_errors"/>
 	<radio_group name="show_location">
-		<radio_item label="No bate papo" name="0"/>
-		<radio_item label="Em uma janela" name="1"/>
+		<radio_item label="Bate-papo local" name="0"/>
+		<radio_item label="Janelas separadas" name="1"/>
 	</radio_group>
-	<check_box label="Alternar para o modo microfone quando eu pressionar a tecla de falar:" name="push_to_talk_toggle_check" tool_tip="Quando em modo de alternância, pressione e solte o botão UMA vez para ligar e desligar o microfone. Quando em modo de alternância, o microfone só transmite sua enquanto o botão estiver pressionado."/>
+	<check_box label="Tecla liga/desliga da minha voz:" name="push_to_talk_toggle_check" tool_tip="Quando em modo de alternância, pressione e solte o botão UMA vez para ligar e desligar o microfone. Quando em modo de alternância, o microfone só transmite sua enquanto o botão estiver pressionado."/>
 	<line_editor label="Botao apertar e falar" name="modifier_combo"/>
 	<button label="Definir chave" name="set_voice_hotkey_button"/>
-	<button label="Botão do meio do mouse" name="set_voice_middlemouse_button"/>
+	<button label="Botão do meio do mouse" name="set_voice_middlemouse_button" tool_tip="Redefinir como botão do meio do mouse"/>
 </panel>
