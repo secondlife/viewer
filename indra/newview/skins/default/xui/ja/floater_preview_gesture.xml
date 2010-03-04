@@ -33,10 +33,10 @@
 	<text name="trigger_label">
 		トリガー:
 	</text>
-	<text name="replace_text" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
+	<text name="replace_text" tool_tip="トリガーワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
 		置換：
 	</text>
-	<line_editor name="replace_editor" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
+	<line_editor name="replace_editor" tool_tip="トリガーワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
 	<text name="key_label">
 		ショートカット：
 	</text>
@@ -62,7 +62,7 @@
 	<text name="help_label">
 		待機ステップを入れない限りは、すべてのステップが同時に起こります。
 	</text>
-	<check_box label="アクティブ" left="120" name="active_check" tool_tip="アクティブ・ジェスチャーは、トリガー・フレーズを使うか、またはホット・キーを押すことによってトリガーできます。  1つのショートカット・キーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
+	<check_box label="アクティブ" left="120" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。  1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>
 </floater>
