@@ -3304,7 +3304,6 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
-	llpushcallstacks ;
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -3533,9 +3532,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 }
 
 static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
+static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM_PARTIAL("Terse Rebuild");
+
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
-	llpushcallstacks ;
 	llassert(group);
 	if (group && group->isState(LLSpatialGroup::MESH_DIRTY) && !group->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
@@ -3546,6 +3546,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		
 		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 		{
+			LLFastTimer t(FTM_VOLUME_GEOM_PARTIAL);
 			LLDrawable* drawablep = *drawable_iter;
 
 			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
@@ -3627,7 +3628,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort)
 {
-	llpushcallstacks ;
 	//calculate maximum number of vertices to store in a single buffer
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcStride(group->mSpatialPartition->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
