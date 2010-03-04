@@ -57,6 +57,7 @@ public:
 	virtual ~LLToastNotifyPanel();
 	LLPanel * getControlPanel() { return mControlPanel; }
 
+	void setCloseNotificationOnDestroy(bool close) { mCloseNotificationOnDestroy = close; }
 protected:
 	LLButton* createButton(const LLSD& form_element, BOOL is_option);
 
@@ -67,6 +68,8 @@ protected:
 		std::string	mButtonName;
 	};
 	std::vector<InstanceAndS32*> mBtnCallbackData;
+
+	bool mCloseNotificationOnDestroy;
 
 private:
 

@@ -60,7 +60,8 @@ mInfoPanel(NULL),
 mControlPanel(NULL),
 mNumOptions(0),
 mNumButtons(0),
-mAddedDefaultBtn(false)
+mAddedDefaultBtn(false),
+mCloseNotificationOnDestroy(true)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notification.xml");
 	mInfoPanel = getChild<LLPanel>("info_panel");
@@ -257,7 +258,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 LLToastNotifyPanel::~LLToastNotifyPanel() 
 {
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
-	if (LLNotificationsUtil::find(mNotification->getID()) != NULL)
+	if (mCloseNotificationOnDestroy && LLNotificationsUtil::find(mNotification->getID()) != NULL)
 	{
 		LLNotifications::getInstance()->cancel(mNotification);
 	}

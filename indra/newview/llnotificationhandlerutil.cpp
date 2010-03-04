@@ -127,7 +127,9 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 						FRIENDSHIP_DECLINED_BYME("FriendshipDeclinedByMe"),
 						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline"),
 						SERVER_OBJECT_MESSAGE("ServerObjectMessage"),
-						TELEPORT_OFFERED("TeleportOffered");
+						TELEPORT_OFFERED("TeleportOffered"),
+						TELEPORT_OFFER_SENT("TeleportOfferSent");
+
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
@@ -141,7 +143,10 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 			|| FRIENDSHIP_DECLINED_BYME == notification->getName()
 			|| SERVER_OBJECT_MESSAGE == notification->getName()
 			|| INVENTORY_ACCEPTED == notification->getName()
-			|| INVENTORY_DECLINED == notification->getName();
+			|| INVENTORY_DECLINED == notification->getName()
+			|| USER_GIVE_ITEM == notification->getName()
+			|| TELEPORT_OFFERED == notification->getName()
+			|| TELEPORT_OFFER_SENT == notification->getName();
 }
 
 // static
@@ -161,21 +166,41 @@ bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 			|| FRIENDSHIP_ACCEPTED == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
 			|| INVENTORY_ACCEPTED == notification->getName()
-			|| INVENTORY_DECLINED == notification->getName();
+			|| INVENTORY_DECLINED == notification->getName()
+			|| TELEPORT_OFFERED == notification->getName();
 }
 
 // static
 bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
 {
 	return OFFER_FRIENDSHIP == notification->getName()
-					|| USER_GIVE_ITEM == notification->getName();
+					|| USER_GIVE_ITEM == notification->getName()
+					|| TELEPORT_OFFERED == notification->getName();
 }
-
 
 // static
 bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
 {
 	return canLogToIM(notification) && canSpawnIMSession(notification);
+}
+
+// static
+bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
+{
+	bool res = false;
+
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL,
+			from_id);
+
+	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+					"impanel", session_id);
+	if (im_floater != NULL)
+	{
+		res = im_floater->getVisible() == TRUE;
+	}
+
+	return res;
 }
 
 // static
@@ -348,6 +373,42 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 	offer["time"] = LLLogChat::timestamp(true);
 	offer["index"] = (LLSD::Integer)session->mMsgs.size();
 	session->mMsgs.push_front(offer);
+}
 
-	LLIMFloater::show(session_id);
+// static
+void LLHandlerUtil::updateVisibleIMFLoaterMesages(const LLNotificationPtr& notification)
+{
+	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = spawnIMSession(name, from_id);
+
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if (im_floater != NULL && im_floater->getVisible())
+	{
+		im_floater->updateMessages();
+	}
+}
+
+// static
+void LLHandlerUtil::decIMMesageCounter(const LLNotificationPtr& notification)
+{
+	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+
+	LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
+			session_id);
+
+	if (session == NULL)
+	{
+		return;
+	}
+
+	LLSD arg;
+	arg["session_id"] = session_id;
+	session->mNumUnread--;
+	arg["num_unread"] = session->mNumUnread;
+	session->mParticipantUnreadMessageCount--;
+	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
+	LLIMModel::getInstance()->mNewMsgSignal(arg);
 }

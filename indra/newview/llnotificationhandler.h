@@ -298,6 +298,11 @@ public:
 	static bool canSpawnSessionAndLogToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Determines whether IM floater is opened.
+	 */
+	static bool isIMFloaterOpened(const LLNotificationPtr& notification);
+
+	/**
 	 * Writes notification message to IM session.
 	 */
 	static void logToIM(const EInstantMessage& session_type,
@@ -343,6 +348,16 @@ public:
 	 * Adds notification panel to the IM floater.
 	 */
 	static void addNotifPanelToIM(const LLNotificationPtr& notification);
+
+	/**
+	 * Updates messages of visible IM floater.
+	 */
+	static void updateVisibleIMFLoaterMesages(const LLNotificationPtr& notification);
+
+	/**
+	 * Decrements counter of IM messages.
+	 */
+	static void decIMMesageCounter(const LLNotificationPtr& notification);
 };
 
 }

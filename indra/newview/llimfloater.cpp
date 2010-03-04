@@ -648,6 +648,15 @@ void LLIMFloater::updateMessages()
 			if (msg.has("notification_id"))
 			{
 				chat.mNotifId = msg["notification_id"].asUUID();
+				// remove embedded notification from channel
+				LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+						(LLNotificationsUI::LLChannelManager::getInstance()->
+															findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+				if (getVisible())
+				{
+					// toast will be automatically closed since it is not storable toast
+					channel->hideToast(chat.mNotifId);
+				}
 			}
 			//process text message
 			else
@@ -657,6 +666,19 @@ void LLIMFloater::updateMessages()
 			
 			mChatHistory->appendMessage(chat, chat_args);
 			mLastMessageIndex = msg["index"].asInteger();
+
+			// if it is a notification - next message is a notification history log, so skip it
+			if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
+			{
+				if (++iter == iter_end)
+				{
+					break;
+				}
+				else
+				{
+					mLastMessageIndex++;
+				}
+			}
 		}
 	}
 }

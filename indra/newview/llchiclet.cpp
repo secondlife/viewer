@@ -320,7 +320,6 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
 	connectCounterUpdatersToSignal("groupnotify");
-	connectCounterUpdatersToSignal("offer");
 
 	// ensure that notification well window exists, to synchronously
 	// handle toast add/delete events.
