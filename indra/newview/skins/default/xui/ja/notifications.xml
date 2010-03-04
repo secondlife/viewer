@@ -2423,9 +2423,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 
 [MESSAGE]
 
-読み込み元のオブジェクト：[OBJECTNAME]、所有者：[NAME]？
+読み込み元のオブジェクト：[OBJECTNAME]、所有者：[NAME]
 		<form name="form">
-			<button name="Gotopage" text="移動"/>
+			<button name="Gotopage" text="ページに移動"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>

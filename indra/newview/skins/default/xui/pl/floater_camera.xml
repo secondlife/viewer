@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="camera_floater" title="">
 	<floater.string name="rotate_tooltip">
 		Obracaj kamerę wokół obiektu
@@ -10,7 +10,22 @@
 		Poruszaj kamerą w dół/górę oraz w prawo/lewo
 	</floater.string>
 	<panel name="controls">
-		<joystick_track name="cam_track_stick" tool_tip="Poruszaj kamerą w dół/górę oraz w prawo/lewo"/>
-		<joystick_zoom name="zoom" tool_tip="Najedź kamerą w kierunku obiektu"/>
+		<joystick_track name="cam_track_stick" tool_tip="Poruszaj kamerą w górę, w dół, w lewo i w prawo"/>
+		<panel name="zoom" tool_tip="Najedź kamerą w kierunku obiektu">
+			<slider_bar name="zoom_slider" tool_tip="Przybliż kamerę do ogniskowej"/>
+		</panel>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="Obracaj kamerę wokoł osi"/>
+		<panel name="camera_presets">
+			<button name="rear_view" tool_tip="Widok z Tyłu"/>
+			<button name="group_view" tool_tip="Podgląd Grupy"/>
+			<button name="front_view" tool_tip="Widok z Przodu"/>
+			<button name="mouselook_view" tool_tip="Widok Panoramiczny"/>
+		</panel>
+	</panel>
+	<panel name="buttons">
+		<button label="" name="orbit_btn" tool_tip="Obracaj Kamerę"/>
+		<button label="" name="pan_btn" tool_tip="Kamera Horyzontalna"/>
+		<button label="" name="avatarview_btn" tool_tip="Widok Awatara"/>
+		<button label="" name="freecamera_btn" tool_tip="Podgląd Obiektu"/>
 	</panel>
 </floater>
