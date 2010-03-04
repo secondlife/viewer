@@ -1289,7 +1289,7 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("media_enabled"))
 	{
 		bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+		
 		getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
 		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
 	}
@@ -1297,7 +1297,11 @@ BOOL LLPanelPreference::postBuild()
 	{
 		getChild<LLCheckBoxCtrl>("music_enabled")->set(gSavedSettings.getBOOL("AudioStreamingMusic"));
 	}
-	
+	if (hasChild("voice_call_friends_only_check"))
+	{
+		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+	}
+
 	apply();
 	return true;
 }

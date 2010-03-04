@@ -2,6 +2,7 @@
 <floater
  legacy_header_height="18"
  background_visible="true"
+ default_tab_group="1"
  follows="all"
  height="350"
  layout="topleft"
@@ -18,12 +19,14 @@
  min_height="190">
   <layout_stack
    animate="false" 
+   default_tab_group="2"
   follows="all"
   height="320"
   width="360"
   layout="topleft"
   orientation="horizontal"
   name="im_panels"
+  tab_group="1"
   top="20"
   left="0">
     <layout_panel
@@ -35,7 +38,9 @@
       auto_resize="false"
       user_resize="true" />
     <layout_panel
+       default_tab_group="3"
        left="0"
+       tab_group="2"
        top="0"
        height="200"
 	     width="245"
@@ -75,6 +80,7 @@
          label="To"
          layout="bottomleft"
          name="chat_editor"
+         tab_group="3"
          width="240">
         </line_editor>
     </layout_panel>

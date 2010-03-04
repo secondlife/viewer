@@ -44,11 +44,16 @@ background_visible="true"
      tab_stop="false"
      top="2"
      width="23" />
-    <text
+    <text_editor
+     allow_scroll="false"
+     bg_visible="false"
+     read_only = "true"
      layout="topleft"
      name="group_name"
+     v_pad="0"
      value="(Loading...)"
       font="SansSerifHugeBold"
+     h_pad="0"
       height="26"
       left_pad="10"
      text_color="LtGray"
