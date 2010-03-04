@@ -522,11 +522,11 @@ static void onClickScriptDebug(void*)
 void LLStatusBar::onMouseEnterVolume()
 {
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
-	LLRect vol_btn_screen_rect = volbtn->calcScreenRect();
+	LLRect vol_btn_rect = volbtn->getRect();
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
-	volume_pulldown_rect.setLeftTopAndSize(vol_btn_screen_rect.mLeft -
-	     (volume_pulldown_rect.getWidth() - vol_btn_screen_rect.getWidth())/2,
-			       vol_btn_screen_rect.mBottom,
+	volume_pulldown_rect.setLeftTopAndSize(vol_btn_rect.mLeft -
+	     (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth())/2,
+			       vol_btn_rect.mBottom,
 			       volume_pulldown_rect.getWidth(),
 			       volume_pulldown_rect.getHeight());
 
@@ -545,7 +545,7 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
 	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
-	LLRect nearby_media_btn_rect = nearby_media_btn->calcScreenRect();
+	LLRect nearby_media_btn_rect = nearby_media_btn->getRect();
 	nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
 										(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
 										nearby_media_btn_rect.mBottom,

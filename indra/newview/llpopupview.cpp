@@ -54,17 +54,25 @@ void LLPopupView::draw()
 {
 	S32 screen_x, screen_y;
 
+	// remove dead popups
 	for (popup_list_t::iterator popup_it = mPopups.begin();
 		popup_it != mPopups.end();)
 	{
-		LLView* popup = popup_it->get();
-		if (!popup)
+		if (!popup_it->get())
 		{
-			popup_list_t::iterator cur_popup_it = popup_it;
-			++popup_it;
-			mPopups.erase(cur_popup_it);
-			continue;
+			mPopups.erase(popup_it++);
 		}
+		else
+		{
+			popup_it++;
+		}
+	}
+
+	// draw in reverse order (most recent is on top)
+	for (popup_list_t::reverse_iterator popup_it = mPopups.rbegin();
+		popup_it != mPopups.rend();)
+	{
+		LLView* popup = popup_it->get();
 
 		if (popup->getVisible())
 		{
@@ -85,16 +93,17 @@ void LLPopupView::draw()
 
 BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func, 
 								   boost::function<bool(LLView*)> predicate, 
-								   S32 x, S32 y)
+								   S32 x, S32 y,
+								   bool close_popups)
 {
-	for (popup_list_t::reverse_iterator popup_it = mPopups.rbegin();
-		popup_it != mPopups.rend();
-		++popup_it)
+	for (popup_list_t::iterator popup_it = mPopups.begin();
+		popup_it != mPopups.end();)
 	{
 		LLView* popup = popup_it->get();
 		if (!popup 
 			|| !predicate(popup))
 		{
+			++popup_it;
 			continue;
 		}
 
@@ -107,6 +116,9 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 				return TRUE;
 			}
 		}
+
+		popup->onTopLost();
+		mPopups.erase(popup_it++);
 	}
 
 	return FALSE;
@@ -115,9 +127,8 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 
 BOOL LLPopupView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y))
+	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true))
 	{
-		clearPopups();
 		return FALSE;
 	}
 	return TRUE;
@@ -125,14 +136,13 @@ BOOL LLPopupView::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLPopupView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
 }
 
 BOOL LLPopupView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y))
+	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true))
 	{
-		clearPopups();
 		return FALSE;
 	}
 	return TRUE;
@@ -140,14 +150,13 @@ BOOL LLPopupView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLPopupView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleMiddleMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
 }
 
 BOOL LLPopupView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y))
+	if (!handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseDown, _1, _2, _3, mask), view_visible_and_enabled, x, y, true))
 	{
-		clearPopups();
 		return FALSE;
 	}
 	return TRUE;
@@ -155,27 +164,27 @@ BOOL LLPopupView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLPopupView::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleRightMouseUp, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
 }
 
 BOOL LLPopupView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleDoubleClick, _1, _2, _3, mask), view_visible_and_enabled, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleDoubleClick, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
 }
 
 BOOL LLPopupView::handleHover(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleHover, _1, _2, _3, mask), view_visible_and_enabled, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleHover, _1, _2, _3, mask), view_visible_and_enabled, x, y, false);
 }
 
 BOOL LLPopupView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleScrollWheel, _1, _2, _3, clicks), view_visible_and_enabled, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleScrollWheel, _1, _2, _3, clicks), view_visible_and_enabled, x, y, false);
 }
 
 BOOL LLPopupView::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	return handleMouseEvent(boost::bind(&LLMouseHandler::handleToolTip, _1, _2, _3, mask), view_visible, x, y);
+	return handleMouseEvent(boost::bind(&LLMouseHandler::handleToolTip, _1, _2, _3, mask), view_visible, x, y, false);
 }
 
 void LLPopupView::addPopup(LLView* popup)
@@ -183,7 +192,7 @@ void LLPopupView::addPopup(LLView* popup)
 	if (popup)
 	{
 		mPopups.erase(std::find(mPopups.begin(), mPopups.end(), popup->getHandle()));
-		mPopups.push_back(popup->getHandle());
+		mPopups.push_front(popup->getHandle());
 	}
 }
 
@@ -206,11 +215,12 @@ void LLPopupView::clearPopups()
 		popup_it != mPopups.end();)
 	{
 		LLView* popup = popup_it->get();
+
+		popup_list_t::iterator cur_popup_it = popup_it;
 		++popup_it;
 
-		if (popup) popup->onTopLost();
+		mPopups.erase(cur_popup_it);
+		popup->onTopLost();
 	}
-
-	mPopups.clear();
 }
 
