@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Profil" name="panel_profile">
 	<string name="no_partner_text" value="Ingen"/>
+	<string name="no_group_text" value="Ingen"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
-			</panel>
-			<panel name="first_life_image_panel">
-				<text name="title_rw_descr_text" value="Real world:"/>
-			</panel>
-			<text name="me_homepage_text">
-				Hjemmeside:
-			</text>
-			<text name="title_member_text" value="Medlem siden:"/>
-			<text name="title_acc_status_text" value="Konto status:"/>
-			<text name="acc_status_text" value="Beboer. Ingen betalingsinfo"/>
-			<text name="title_partner_text" value="Partner:"/>
-			<text name="title_groups_text" value="Grupper:"/>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="Tilføj ven" name="add_friend" tool_tip="Tilbyd venskab til denne beboer"/>
-		<button label="IM" name="im" tool_tip="Skriv en personlig besked (IM)"/>
-		<button label="Opkald" name="call" tool_tip="Opkald til denne beboer"/>
-		<button label="Map" name="show_on_map_btn" tool_tip="Show the resident on the map"/>
-		<button label="Tilbyd teleport" name="teleport" tool_tip="Tilbyd en teleport til denne beboer"/>
-		<button label="▼" name="overflow_btn" tool_tip="Betal penge til eller del beholdning med denne beboer"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="Redigér profil" name="edit_profile_btn"/>
-		<button label="Redigér udseende" name="edit_appearance_btn"/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<panel name="second_life_image_panel">
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<text name="title_rw_descr_text" value="Real World:"/>
+					</panel>
+					<text name="title_member_text" value="Beboer siden:"/>
+					<text name="title_acc_status_text" value="Konto status:"/>
+					<text name="title_partner_text" value="Partner:"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(henter)" name="partner_text"/>
+					</panel>
+					<text name="title_groups_text" value="Grupper:"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_buttons_panel">
+			<button label="Tilføj ven" name="add_friend" tool_tip="Tilbyd venskab til beboeren"/>
+			<button label="IM" name="im" tool_tip="Åben session med personlige beskeder (IM)"/>
+			<button label="Opkald" name="call" tool_tip="Opkald til denne beboer"/>
+			<button label="Kort" name="show_on_map_btn" tool_tip="Vis beboeren på kortet"/>
+			<button label="Teleport" name="teleport" tool_tip="Tilbyd teleport"/>
+			<button label="▼" name="overflow_btn" tool_tip="Betal penge til eller del beholdning med beboeren"/>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="Redigér profil" name="edit_profile_btn" tool_tip="Redigér din personlige information"/>
+			<button label="Redigér udseende" name="edit_appearance_btn" tool_tip="Opret/redigér dit udseende: fysiske data, tøj m.v."/>
+		</layout_panel>
+	</layout_stack>
 </panel>

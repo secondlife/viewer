@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview notecard" title="NOTE:">
 	<floater.string name="no_object">
-		Kunne ikke finde objekt der indeholder denne note.
+		Kunne ikke finde objekt som indeholder denne note.
 	</floater.string>
 	<floater.string name="not_allowed">
 		Du har ikke rettigheder til at se denne note.

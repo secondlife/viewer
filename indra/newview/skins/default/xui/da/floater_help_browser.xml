@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_help_browser" title="HJÆLP">
+	<floater.string name="loading_text">
+		Henter...
+	</floater.string>
 	<layout_stack name="stack1">
-		<layout_panel name="external_controls">
-			<button label="Åben i min web browser" name="open_browser"/>
-		</layout_panel>
+		<layout_panel name="external_controls"/>
 	</layout_stack>
 </floater>

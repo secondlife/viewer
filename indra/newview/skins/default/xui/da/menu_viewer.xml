@@ -7,8 +7,8 @@
 		<menu_item_call label="Profil" name="Profile"/>
 		<menu_item_call label="Udseende" name="Appearance"/>
 		<menu_item_check label="Beholdning" name="Inventory"/>
-		<menu_item_call label="Vis beholdning i sidebakke" name="ShowSidetrayInventory"/>
-		<menu_item_call label="Mine bevægelser" name="Gestures"/>
+		<menu_item_check label="Min beholdning" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Mine bevægelser" name="Gestures"/>
 		<menu label="Min status" name="Status">
 			<menu_item_call label="Væk" name="Set Away"/>
 			<menu_item_call label="Optaget" name="Set Busy"/>
@@ -22,35 +22,36 @@
 		<menu_item_call label="Grupper" name="My Groups"/>
 		<menu_item_check label="Chat i nærheden" name="Nearby Chat"/>
 		<menu_item_call label="Personer tæt på" name="Active Speakers"/>
-		<menu_item_check label="Media i nærheden" name="Nearby Media"/>
 	</menu>
 	<menu label="Verden" name="World">
-		<menu_item_check label="Flyt" name="Movement Controls"/>
-		<menu_item_check label="Vis" name="Camera Controls"/>
-		<menu_item_call label="Om land" name="About Land"/>
-		<menu_item_call label="Region/Estate" name="Region/Estate"/>
-		<menu_item_call label="Køb land" name="Buy Land"/>
-		<menu_item_call label="Mit land" name="My Land"/>
-		<menu label="Vis" name="Land">
-			<menu_item_check label="Ban Lines" name="Ban Lines"/>
-			<menu_item_check label="Pejlelys" name="beacons"/>
-			<menu_item_check label="Parcel skel" name="Property Lines"/>
-			<menu_item_check label="Land-ejere" name="Land Owners"/>
-		</menu>
-		<menu label="Landemærker" name="Landmarks">
-			<menu_item_call label="Opret landemærke her" name="Create Landmark Here"/>
-			<menu_item_call label="Sæt hjem til her" name="Set Home to Here"/>
-		</menu>
-		<menu_item_call label="Hjem" name="Teleport Home"/>
 		<menu_item_check label="Mini-kort" name="Mini-Map"/>
 		<menu_item_check label="Verdenskort" name="World Map"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
+		<menu_item_call label="Opret landemærke for dette sted" name="Create Landmark Here"/>
+		<menu label="Profil for sted" name="Land">
+			<menu_item_call label="Om land" name="About Land"/>
+			<menu_item_call label="Region/Estate" name="Region/Estate"/>
+		</menu>
+		<menu_item_call label="Køb dette land" name="Buy Land"/>
+		<menu_item_call label="Mit land" name="My Land"/>
+		<menu label="Vis" name="LandShow">
+			<menu_item_check label="Bevægelses kontrol" name="Movement Controls"/>
+			<menu_item_check label="Vis kontroller" name="Camera Controls"/>
+			<menu_item_check label="&apos;Ingen adgang&apos; markering" name="Ban Lines"/>
+			<menu_item_check label="Pejlelys" name="beacons"/>
+			<menu_item_check label="Parcel skel" name="Property Lines"/>
+			<menu_item_check label="Grundejere" name="Land Owners"/>
+			<menu_item_check label="Koordinater" name="Coordinates"/>
+			<menu_item_check label="Parcel egenskaber" name="Parcel Properties"/>
+		</menu>
+		<menu_item_call label="Teleport hjem" name="Teleport Home"/>
+		<menu_item_call label="Sæt dette sted som &apos;Hjem&apos;" name="Set Home to Here"/>
 		<menu label="Sol" name="Environment Settings">
 			<menu_item_call label="Solopgang" name="Sunrise"/>
 			<menu_item_call label="Middag" name="Noon"/>
 			<menu_item_call label="Solnedgang" name="Sunset"/>
 			<menu_item_call label="Midnat" name="Midnight"/>
-			<menu_item_call label="Benyt tid fra estate" name="Revert to Region Default"/>
+			<menu_item_call label="Estate tid" name="Revert to Region Default"/>
 			<menu_item_call label="Redigering af omgivelser" name="Environment Editor"/>
 		</menu>
 	</menu>
@@ -76,10 +77,12 @@
 		</menu>
 		<menu_item_call label="Sammenkæde" name="Link"/>
 		<menu_item_call label="Adskil" name="Unlink"/>
+		<menu_item_check label="Redigér sammekædede objekter" name="Edit Linked Parts"/>
 		<menu_item_call label="Fokusér på valgte" name="Focus on Selection"/>
 		<menu_item_call label="Zoom til valgte" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
-			<menu_item_call label="Køb" name="Menu Object Take"/>
+			<menu_item_call label="Køb" name="Menu Object Buy"/>
+			<menu_item_call label="Tag" name="Menu Object Take"/>
 			<menu_item_call label="Tag kopi" name="Take Copy"/>
 			<menu_item_call label="Opdatér ændringer til beholdning" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Opdater ændringer i indhold til objekt" name="Save Object Back to Object Contents"/>
@@ -92,25 +95,18 @@
 			<menu_item_call label="Sæt scripts til &quot;Not Running&quot;" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Valg" name="Options">
-			<menu_item_check label="Redigér sammenlænkede dele" name="Edit Linked Parts"/>
 			<menu_item_call label="Sæt standard rettigheder" name="perm prefs"/>
 			<menu_item_check label="Vis avancerede rettigheder" name="DebugPermissions"/>
-			<menu label="Selektion" name="Selection">
-				<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
-				<menu_item_check label="Vælg kun flytbare objekter" name="Select Only Movable Objects"/>
-				<menu_item_check label="Vælg ved at omkrandse" name="Select By Surrounding"/>
-			</menu>
-			<menu label="Vis" name="Show">
-				<menu_item_check label="Vis skjult selektion" name="Show Hidden Selection"/>
-				<menu_item_check label="Vis lys-radius for valgte" name="Show Light Radius for Selection"/>
-				<menu_item_check label="Vis udvælgelses stråle" name="Show Selection Beam"/>
-			</menu>
-			<menu label="Gitter" name="Grid">
-				<menu_item_check label="Ret ind til gitter" name="Snap to Grid"/>
-				<menu_item_call label="Ret XY for objekt ind til gitter" name="Snap Object XY to Grid"/>
-				<menu_item_call label="Benyt valgte som grundlag for gitter" name="Use Selection for Grid"/>
-				<menu_item_call label="Gitter valg" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
+			<menu_item_check label="Vis kun flytbare objekter" name="Select Only Movable Objects"/>
+			<menu_item_check label="Vælg ved at omkrandse" name="Select By Surrounding"/>
+			<menu_item_check label="Vis skjulte objekter" name="Show Hidden Selection"/>
+			<menu_item_check label="Vis lys-radius for valgte" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Vis pejlelys for valgte" name="Show Selection Beam"/>
+			<menu_item_check label="Ret ind til gitter" name="Snap to Grid"/>
+			<menu_item_call label="Ret XY for objekt ind til gitter" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Benyt valgte som grundlag for gitter" name="Use Selection for Grid"/>
+			<menu_item_call label="Gitter indstillinger" name="Grid Options"/>
 		</menu>
 		<menu label="Vis lænkede dele" name="Select Linked Parts">
 			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
@@ -121,15 +117,14 @@
 	</menu>
 	<menu label="Hjælp" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
-		<menu_item_call label="Tutorial" name="Tutorial"/>
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
-		<menu_item_check label="Sæt til &quot;væk&quot; efter 30 minutter" name="Go Away/AFK When Idle"/>
 		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
 		<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
+		<menu_item_call label="Vælg vinduesstørrelse..." name="Set Window Size..."/>
 		<menu_item_check label="Begræns valg afstand" name="Limit Select Distance"/>
 		<menu_item_check label="Fjern kamerabegrænsninger" name="Disable Camera Distance"/>
 		<menu_item_check label="Højopløsningsfoto" name="HighResSnapshot"/>
@@ -176,8 +171,8 @@
 		<menu_item_check label="Kør flere tråde" name="Run Multiple Threads"/>
 		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
 		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
-		<menu_item_check label="Vis IM&apos;s i lokal chat" name="IMInChat"/>
 		<menu label="Shortcuts" name="Shortcuts">
+			<menu_item_call label="Billede (L$[COST])..." name="Upload Image"/>
 			<menu_item_check label="Søg" name="Search"/>
 			<menu_item_call label="Frigør taster" name="Release Keys"/>
 			<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
@@ -217,6 +212,7 @@
 			<menu_item_call label="Vis Regionsinfo i debug-konsol" name="Region Info to Debug Console"/>
 			<menu_item_check label="Kamera" name="Camera"/>
 			<menu_item_check label="Vind" name="Wind"/>
+			<menu_item_check label="Badge" name="Badge"/>
 		</menu>
 		<menu label="Vis info" name="Display Info">
 			<menu_item_check label="Vis tid" name="Show Time"/>

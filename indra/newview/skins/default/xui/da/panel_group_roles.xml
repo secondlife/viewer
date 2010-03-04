@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Medlemmer &amp; roller" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		Der er ændringer her, der ikke er gemt.
+		Der er ændringer som ikke er gemt
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Vil du gemme disse ændringer?
@@ -58,7 +58,7 @@ ting i denne gruppe. Der er en bred vifte af rettigheder.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Medlemmer
+			Tildelte roller
 		</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>
