@@ -299,6 +299,8 @@ protected:
 
 	LLRect getDefaultSnapshotRect();
 
+	void scrollToTop();
+
 	void onMapClick();
 	void onTeleportClick();
 	void onExit();

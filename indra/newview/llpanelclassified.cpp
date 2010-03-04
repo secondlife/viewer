@@ -1252,6 +1252,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 
 	resetData();
 	resetControls();
+	scrollToTop();
 
 	setClassifiedId(key["classified_id"]);
 	setClassifiedName(key["name"]);
@@ -1517,6 +1518,13 @@ LLRect LLPanelClassifiedInfo::getDefaultSnapshotRect()
 	return getChild<LLUICtrl>("snapshot_panel")->getLocalRect();
 }
 
+void LLPanelClassifiedInfo::scrollToTop()
+{
+	LLScrollContainer* scrollContainer = findChild<LLScrollContainer>("profile_scroll");
+	if (scrollContainer)
+		scrollContainer->goToTop();
+}
+
 void LLPanelClassifiedInfo::onMapClick()
 {
 	LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
@@ -1611,6 +1619,8 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 	LLUUID classified_id = key["classified_id"];
 
 	mIsNew = classified_id.isNull();
+
+	scrollToTop();
 
 	if(mIsNew)
 	{
