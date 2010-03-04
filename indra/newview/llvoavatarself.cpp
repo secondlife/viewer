@@ -1723,7 +1723,7 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 		return FALSE;
 	}
 
-	if (gAgent.isGodlike())
+	if (gAgent.isGodlikeWithoutAdminMenuFakery())
 		return TRUE;
 
 	// Check permissions of textures that show up in the

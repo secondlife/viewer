@@ -269,6 +269,7 @@ public:
 	void dumpSelectionInformation();
 
 	virtual S32	notify(const LLSD& info) ;
+	void setEnableScroll(bool enable_scroll) { mEnableScroll = enable_scroll; }
 	
 private:
 	void updateRenamerPosition();
@@ -300,6 +301,7 @@ protected:
 	LLLineEditor*					mRenamer;
 
 	BOOL							mNeedsScroll;
+	bool							mEnableScroll;
 	BOOL							mPinningSelectedItem;
 	LLRect							mScrollConstraintRect;
 	BOOL							mNeedsAutoSelect;

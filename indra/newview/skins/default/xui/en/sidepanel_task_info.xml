@@ -549,5 +549,16 @@
 		     name="buy_btn"
 		     top="0"
 		     width="100" />
+        <button
+		     follows="bottom|left"
+		     height="23"
+		     label="Details"
+		     layout="topleft"
+		     left="5"
+		     name="details_btn"
+		     top="0"
+		     width="100"
+			 visible="false" />
+
 	</panel>
 </panel>

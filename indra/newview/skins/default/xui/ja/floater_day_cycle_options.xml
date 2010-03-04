@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Day Cycle Floater" title="デイ・サイクル編集">
+<floater name="Day Cycle Floater" title="デイサイクル編集">
 	<tab_container name="Day Cycle Tabs">
-		<panel label="デイ・サイクル" name="Day Cycle">
+		<panel label="デイサイクル" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp" />
 			<text name="WL12am">
 				深夜 12時
@@ -63,7 +63,7 @@
 				キーフレームの設定：
 			</text>
 			<text name="WLCurKeyTimeText">
-				キー・タイム：
+				キータイム：
 			</text>
 			<spinner label="時間" name="WLCurKeyHour" />
 			<spinner label="分" name="WLCurKeyMin" />
@@ -88,10 +88,10 @@
 			<button label="停止!" label_selected="停止" name="WLStopAnimSky" />
 			<button label="不動産の時刻を使用"
 			     label_selected="不動産の時刻に変更" name="WLUseLindenTime" width="140"/>
-			<button label="デイ・テストを保存"
-			     label_selected="デイ・テストを保存" name="WLSaveDayCycle" />
-			<button label="デイ・テストをロード"
-			     label_selected="デイ・テストをロード" name="WLLoadDayCycle" />
+			<button label="デイテストを保存"
+			     label_selected="デイテストを保存" name="WLSaveDayCycle" />
+			<button label="デイテストをロード"
+			     label_selected="デイテストをロード" name="WLLoadDayCycle" />
 		</panel>
 	</tab_container>
 </floater>

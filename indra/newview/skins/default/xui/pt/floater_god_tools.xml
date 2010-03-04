@@ -11,7 +11,7 @@
 			</text>
 			<check_box label="Prelúdio" name="check prelude" tool_tip="Ajustar para tornar esta região um prelúdio."/>
 			<check_box label="Fixar Sol" name="check fixed sun" tool_tip="Fixa a posição do sol (como em Região/Estados) &gt; Terreno."/>
-			<check_box label="Redefinir Home no teletransporte" name="check reset home" tool_tip="Quando um residente se teletransporta, redefine sua home para a posição de destino."/>
+			<check_box label="Redefinir Home no teletransporte" name="check reset home" tool_tip="Quando um residente sair, definir o destino com sua posição inicial."/>
 			<check_box label="Visível" name="check visible" tool_tip="Ajustar para fazer essa região visível para os não-deuses"/>
 			<check_box label="Dano" name="check damage" tool_tip="Ajustar para permitir dano nesta região"/>
 			<check_box label="Bloquear ratreamento do Tráfego" name="block dwell" tool_tip="Configure isto para fazer a região não computar o tráfego."/>
@@ -73,17 +73,17 @@
 				Destino:
 			</text>
 			<combo_box name="destination">
-				<combo_box.item name="item1" label="Seleção" />
-				<combo_box.item name="item2" label="Região do Agente" />
+				<combo_box.item label="Seleção" name="item1"/>
+				<combo_box.item label="Região do Agente" name="item2"/>
 			</combo_box>
 			<text name="Request:">
 				Requisição:
 			</text>
 			<combo_box name="request">
-				<combo_box.item name="item1" label="Passos de Colisão" />
-				<combo_box.item name="item2" label="Contagem de scripts, padrão opcional" />
-				<combo_box.item name="item3" label="Padrão de Objetos" />
-				<combo_box.item name="item4" label="rez &lt;asset_id&gt;" />
+				<combo_box.item label="Passos de Colisão" name="item1"/>
+				<combo_box.item label="Contagem de scripts, padrão opcional" name="item2"/>
+				<combo_box.item label="Padrão de Objetos" name="item3"/>
+				<combo_box.item label="rez &lt;asset_id&gt;" name="item4"/>
 			</combo_box>
 			<text name="Parameter:">
 				Parametro:

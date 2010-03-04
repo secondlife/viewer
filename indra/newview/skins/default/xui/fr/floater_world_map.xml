@@ -1,57 +1,49 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="CARTE DU MONDE">
-	<panel name="objects_mapview" width="542"/>
 	<panel name="layout_panel_1">
 		<text name="events_label">
 			Légende
 		</text>
 	</panel>
 	<panel>
-		<button label="Afficher mon emplacement" label_selected="Afficher mon emplacement" name="Show My Location" tool_tip="Centrer la carte sur l&apos;emplacement de mon avatar" width="165"/>
+		<button label="Afficher mon emplacement" label_selected="Afficher mon emplacement" name="Show My Location" tool_tip="Centrer la carte sur l&apos;emplacement de mon avatar"/>
 		<text name="me_label">
 			Moi
 		</text>
 		<check_box label="Résident" name="people_chk"/>
-		<icon left="-262" name="person"/>
 		<text name="person_label">
 			Résident
 		</text>
 		<check_box label="Infohub" name="infohub_chk"/>
-		<icon left="-266" name="infohub"/>
 		<text name="infohub_label">
 			Infohub
 		</text>
 		<check_box label="Terrain à vendre" name="land_for_sale_chk"/>
-		<icon left="-266" name="landforsale"/>
 		<text name="land_sale_label">
 			Vente de terrains
 		</text>
-		<icon left="-270" name="square2"/>
 		<text name="by_owner_label">
 			par le propriétaire
 		</text>
 		<text name="auction_label">
 			enchères
 		</text>
-		<button label="Aller chez moi" label_selected="Aller chez moi" left="-120" name="Go Home" tool_tip="Me téléporter jusqu&apos;à mon domicile" width="108"/>
+		<button label="Aller chez moi" label_selected="Aller chez moi" name="Go Home" tool_tip="Me téléporter jusqu&apos;à mon domicile"/>
 		<text name="Home_label">
 			Domicile
 		</text>
-		<text left="-144" name="events_label">
+		<text name="events_label">
 			Événements :
 		</text>
 		<check_box label="PG" name="event_chk"/>
-		<icon left="-132" name="event"/>
 		<text name="pg_label">
 			Général
 		</text>
 		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
-		<icon left="-132" name="events_mature_icon"/>
 		<text name="mature_label">
 			Modéré
 		</text>
 		<check_box label="Adult" name="event_adult_chk"/>
-		<icon left="-132" name="events_adult_icon"/>
 		<text name="adult_label">
 			Adulte
 		</text>
@@ -62,23 +54,22 @@
 		</text>
 	</panel>
 	<panel>
-		<combo_box label="Amis connectés" name="friend combo" tool_tip="Afficher les amis sur la carte" width="232">
+		<combo_box label="Amis connectés" name="friend combo" tool_tip="Afficher les amis sur la carte">
 			<combo_box.item label="Mes amis connectés" name="item1"/>
 		</combo_box>
-		<icon left="-270" name="landmark_icon"/>
-		<combo_box label="Mes repères" name="landmark combo" tool_tip="Repère à afficher sur la carte" width="232">
+		<combo_box label="Mes repères" name="landmark combo" tool_tip="Repère à afficher sur la carte">
 			<combo_box.item label="Mes repères" name="item1"/>
 		</combo_box>
-		<search_editor label="Régions par nom" name="location" tool_tip="Saisissez le nom d&apos;une région" width="155"/>
-		<button label="Trouver" label_selected="&gt;" left_delta="160" name="DoSearch" tool_tip="Recherchez sur la carte" width="75"/>
+		<search_editor label="Régions par nom" name="location" tool_tip="Saisissez le nom d&apos;une région"/>
+		<button label="Trouver" label_selected="&gt;" name="DoSearch" tool_tip="Recherchez sur la carte"/>
 		<button name="Clear" tool_tip="Effacer les lignes de suivi et réinitialiser la carte"/>
-		<scroll_list left="-270" name="search_results" width="252">
+		<scroll_list name="search_results">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="sim_name"/>
 		</scroll_list>
-		<button label="Téléporter" label_selected="Téléporter" left="-270" name="Teleport" tool_tip="Téléporter à l&apos;endroit sélectionné"/>
-		<button label="Copier la SLurl" left="-270" name="copy_slurl" tool_tip="Copie l&apos;emplacement actuel sous la forme d&apos;une SLurl à utiliser sur le Web."/>
-		<button label="Afficher la sélection" label_selected="Afficher la destination" name="Show Destination" tool_tip="Centrer la carte sur l&apos;endroit sélectionné" width="165"/>
+		<button label="Téléporter" label_selected="Téléporter" name="Teleport" tool_tip="Téléporter à l&apos;endroit sélectionné"/>
+		<button label="Copier la SLurl" name="copy_slurl" tool_tip="Copie l&apos;emplacement actuel sous la forme d&apos;une SLurl à utiliser sur le Web."/>
+		<button label="Afficher la sélection" label_selected="Afficher la destination" name="Show Destination" tool_tip="Centrer la carte sur l&apos;endroit sélectionné"/>
 	</panel>
 	<panel>
 		<text name="zoom_label">
@@ -86,6 +77,6 @@
 		</text>
 	</panel>
 	<panel>
-		<slider label="Zoom" left="-270" name="zoom slider"/>
+		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

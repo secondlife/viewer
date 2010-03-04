@@ -28,10 +28,10 @@
 			<slider label="2" name="WaterNormalScaleY"/>
 			<slider label="3" name="WaterNormalScaleZ"/>
 			<text name="HDText">
-				フレネル・スケール
+				フレネルのスケール
 			</text>
 			<text name="FresnelOffsetText">
-				フレネル・オフセット
+				フレネルのオフセット
 			</text>
 			<text name="DensMultText">
 				水面の屈折スケール
@@ -63,7 +63,7 @@
 				Y
 			</text>
 			<text name="BHText3">
-				ノーマル・マップ
+				ノーマルマップ
 			</text>
 		</panel>
 	</tab_container>

@@ -24,7 +24,7 @@
      follows="left|top|bottom"
      height="20"
      left="2"
-     mouse_opaque="true"
+     mouse_opaque="false"
      name="adhoc_icon"
      width="21" />
     <chiclet_im_adhoc.unread_notifications

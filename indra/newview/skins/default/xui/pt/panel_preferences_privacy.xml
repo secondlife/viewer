@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		autentique-se para mudar
 	</panel.string>
-	<button label="Limpar histórico" name="clear_cache"/>
+	<button label="Limpar histórico" name="clear_cache" tool_tip="Apagar imagem do login, última localização, histórico de teletransporte, cache de texturas e web"/>
 	<text name="cache_size_label_l">
 		(Locações, imagens, web, histórico de busca)
 	</text>
@@ -11,17 +11,16 @@
 	<check_box label="Apenas amigos e grupos podem me chamar ou enviar MI" name="voice_call_friends_only_check"/>
 	<check_box label="Desligar o microfone quando terminar chamadas" name="auto_disengage_mic_check"/>
 	<check_box label="Aceitar  cookies" name="cookies_enabled"/>
-	<check_box label="Permitir toque automático da mídia" name="autoplay_enabled"/>
 	<text name="Logs:">
 		Logs:
 	</text>
 	<check_box label="Salvar logs de bate- papo das proximidades no meu computador" name="log_nearby_chat"/>
 	<check_box label="Salvar logs de MI no meu computador" name="log_instant_messages"/>
 	<check_box label="Adicionar timestamp" name="show_timestamps_check_im"/>
-	<line_editor left="278" name="log_path_string" right="-20"/>
 	<text name="log_path_desc">
-		Localização dos logs
+		Localização dos logs:
 	</text>
+	<line_editor left="278" name="log_path_string" right="-20"/>
 	<button label="Navegar" label_selected="Navegar" name="log_path_button" width="120"/>
 	<button label="Lista dos bloqueados" name="block_list"/>
 </panel>

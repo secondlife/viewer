@@ -15,7 +15,7 @@
 	</text>
 	<icon name="icon_object" tool_tip="Objects"/>
 	<text left="105" name="object_name_text">
-		...
+		Meu objeto maravilho, fantástico e com nome comprido e imaginativo
 	</text>
 	<button label="L$1" label_selected="L$1" left="125" name="fastpay 1" width="70"/>
 	<button label="L$5" label_selected="L$5" left="200" name="fastpay 5" width="70"/>

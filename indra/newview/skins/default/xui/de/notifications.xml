@@ -207,15 +207,15 @@ Bitte laden Sie innerhalb von 48 Stunden Mitglieder in Ihre Gruppe ein.
 Wählen Sie eine bestimmte Person aus, wenn Sie für 0 L$ verkaufen.
 	</notification>
 	<notification name="ConfirmLandSaleChange">
-		Die ausgewählten [LAND_SIZE] qm Land werden zum Verkauf freigegeben.
-Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
+		Die ausgewählten [LAND_SIZE] m² Land werden zum Verkauf freigegeben.
+Der Verkaufspreis beträgt [SALE_PRICE] L$. Der Verkauf an [NAME] wird zu diesem Preis freigegeben.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
 		ACHTUNG: Wenn Sie auf An jeden verkaufen klicken, kann jeder in [SECOND_LIFE] Ihr Land kaufen, auch Einwohner in anderen Regionen.
 
 Die ausgewählten [LAND_SIZE] m² Land werden zum Verkauf freigegeben.
-Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
+Der Verkaufspreis beträgt [SALE_PRICE] L$. Der Verkauf an [NAME] wird zu diesem Preis freigegeben.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
@@ -1741,7 +1741,7 @@ Inventarobjekt(e) verschieben?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] and [http://secondlife.com/corporate/cs.php Community-Standards] melden.
+		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] und [http://secondlife.com/corporate/cs.php Community-Standards] melden.
 
 Alle gemeldeten Verstöße werden bearbeitet.
 	</notification>
@@ -2062,9 +2062,9 @@ Wählen Sie ein einzelnes Objekt aus.
 		Ihre Visitenkarte wurde abgelehnt.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Landmarken“ auswählen.
-Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf „Teleport“ unten in der Konsole.
-(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleport“ auswählen).
+		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Meine Landmarken“ auswählen.
+Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf unten in der Registerkarte auf „Teleportieren“.
+(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleportieren“ auswählen).
 	</notification>
 	<notification name="TeleportToPerson">
 		Sie können Einwohner wie „[NAME]“ kontaktieren, wenn Sie die Tafel „Leute“ auf der rechten Seite Ihres Bildschirms öffnen.

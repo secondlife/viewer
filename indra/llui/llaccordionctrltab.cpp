@@ -33,8 +33,9 @@
 #include "linden_common.h"
 
 #include "lluictrl.h"
-
+#include "llscrollbar.h"
 #include "llaccordionctrltab.h"
+#include "lllocalcliprect.h"
 
 #include "lltextbox.h"
 
@@ -46,6 +47,8 @@ static const S32 HEADER_HEIGHT = 20;
 static const S32 HEADER_IMAGE_LEFT_OFFSET = 5;
 static const S32 HEADER_TEXT_LEFT_OFFSET = 30;
 static const F32 AUTO_OPEN_TIME = 1.f;
+static const S32 VERTICAL_MULTIPLE = 16;
+static const S32 PARENT_BORDER_MARGIN = 5;
 
 static LLDefaultChildRegistry::Register<LLAccordionCtrlTab> t1("accordion_tab");
 
@@ -277,6 +280,7 @@ LLAccordionCtrlTab::Params::Params()
 	,header_image_pressed("header_image_pressed")
 	,header_image_focused("header_image_focused")
 	,header_text_color("header_text_color")
+	,fit_panel("fit_panel",true)
 {
 	mouse_opaque(false);
 }
@@ -293,6 +297,9 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	,mPaddingTop(p.padding_top)
 	,mPaddingBottom(p.padding_bottom)
 	,mCanOpenClose(true)
+	,mFitPanel(p.fit_panel)
+	,mContainerPanel(NULL)
+	,mScrollbar(NULL)
 {
 	mStoredOpenCloseState = false;
 	mWasStateStored = false;
@@ -321,54 +328,42 @@ void LLAccordionCtrlTab::setDisplayChildren(bool display)
 		mExpandedHeight : HEADER_HEIGHT);
 	setRect(rect);
 
-	for(child_list_const_iter_t it = getChildList()->begin();
-		getChildList()->end() != it; ++it)
-	{
-		LLView* child = *it;
-		if(DD_HEADER_NAME == child->getName())
-			continue;
+	if(mContainerPanel)
+		mContainerPanel->setVisible(getDisplayChildren());
 
-		child->setVisible(getDisplayChildren());
+	if(mDisplayChildren)
+	{
+		adjustContainerPanel();
 	}
+	else
+	{
+		if(mScrollbar)
+			mScrollbar->setVisible(false);
+	}
+
 }
 
 void LLAccordionCtrlTab::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
 	LLRect headerRect;
 
-	LLUICtrl::reshape(width, height, TRUE);
-
 	headerRect.setLeftTopAndSize(
 		0,height,width,HEADER_HEIGHT);
 	mHeader->setRect(headerRect);
 	mHeader->reshape(headerRect.getWidth(), headerRect.getHeight());
 
-	for(child_list_const_iter_t it = getChildList()->begin(); 
-		getChildList()->end() != it; ++it)
-	{
-		LLView* child = *it;
-		if(DD_HEADER_NAME == child->getName())
-			continue;
-		if(!child->getVisible())
-			continue;
+	if(!mDisplayChildren)
+		return;
 
-		LLRect childRect = child->getRect();
-		S32 childWidth = width - getPaddingLeft() - getPaddingRight();
-		S32 childHeight = height - getHeaderHeight() - getPaddingTop() - getPaddingBottom();
+	LLRect childRect;
 
-		child->reshape(childWidth,childHeight);
-		
-		childRect.setLeftTopAndSize(
-			getPaddingLeft(),
-			childHeight + getPaddingBottom(),
-			childWidth, 
-			childHeight);
+	childRect.setLeftTopAndSize(
+		getPaddingLeft(),
+		height - getHeaderHeight() - getPaddingTop(),
+		width - getPaddingLeft() - getPaddingRight(), 
+		height - getHeaderHeight() - getPaddingTop() - getPaddingBottom() );
 
-		child->setRect(childRect);
-		
-		break;//suppose that there is only one panel
-	}
-
+	adjustContainerPanel(childRect);
 }
 
 void LLAccordionCtrlTab::changeOpenClose(bool is_open)
@@ -439,7 +434,7 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 }
 
 
-LLView*	LLAccordionCtrlTab::getAccordionView()
+LLView*	LLAccordionCtrlTab::findContainerView()
 {
 	for(child_list_const_iter_t it = getChildList()->begin(); 
 		getChildList()->end() != it; ++it)
@@ -474,6 +469,43 @@ void LLAccordionCtrlTab::setHeaderVisible(bool value)
 BOOL LLAccordionCtrlTab::postBuild()
 {
 	mHeader->setVisible(mHeaderVisible);
+	
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	LLRect scroll_rect;
+	scroll_rect.setOriginAndSize( 
+		getRect().getWidth() - scrollbar_size,
+		1,
+		scrollbar_size,
+		getRect().getHeight() - 1);
+
+	mContainerPanel = findContainerView();
+
+	if(!mFitPanel)
+	{
+		LLScrollbar::Params sbparams;
+		sbparams.name("scrollable vertical");
+		sbparams.rect(scroll_rect);
+		sbparams.orientation(LLScrollbar::VERTICAL);
+		sbparams.doc_size(getRect().getHeight());
+		sbparams.doc_pos(0);
+		sbparams.page_size(getRect().getHeight());
+		sbparams.step_size(VERTICAL_MULTIPLE);
+		sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+		sbparams.change_callback(boost::bind(&LLAccordionCtrlTab::onScrollPosChangeCallback, this, _1, _2));
+
+
+		mScrollbar = LLUICtrlFactory::create<LLScrollbar> (sbparams);
+		LLView::addChild( mScrollbar );
+		mScrollbar->setFollowsRight();
+		mScrollbar->setFollowsTop();
+		mScrollbar->setFollowsBottom();
+
+		mScrollbar->setVisible(false);
+	}
+
+	mContainerPanel->setVisible(mDisplayChildren);
+
 	return LLUICtrl::postBuild();
 }
 bool	LLAccordionCtrlTab::notifyChildren	(const LLSD& info)
@@ -562,6 +594,12 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	if( !header->hasFocus() )
 		return LLUICtrl::handleKey(key, mask, called_from_parent);
 
+	if ( (key == KEY_RETURN )&& mask == MASK_NONE)
+	{
+		changeOpenClose(getDisplayChildren());
+		return TRUE;
+	}
+
 	if ( (key == KEY_ADD || key == KEY_RIGHT)&& mask == MASK_NONE)
 	{
 		if(getDisplayChildren() == false)
@@ -622,6 +660,7 @@ void    LLAccordionCtrlTab::storeOpenCloseState()
 	mStoredOpenCloseState = getDisplayChildren();
 	mWasStateStored = true;
 }
+
 void   LLAccordionCtrlTab::restoreOpenCloseState()
 {
 	if(!mWasStateStored)
@@ -632,3 +671,195 @@ void   LLAccordionCtrlTab::restoreOpenCloseState()
 	}
 	mWasStateStored = false;
 }
+
+void LLAccordionCtrlTab::adjustContainerPanel	()
+{
+	S32 width = getRect().getWidth();
+	S32 height = getRect().getHeight();
+
+	LLRect child_rect;
+	child_rect.setLeftTopAndSize(
+		getPaddingLeft(),
+		height - getHeaderHeight() - getPaddingTop(),
+		width - getPaddingLeft() - getPaddingRight(), 
+		height - getHeaderHeight() - getPaddingTop() - getPaddingBottom() );
+
+	adjustContainerPanel(child_rect);
+}
+
+void LLAccordionCtrlTab::adjustContainerPanel(const LLRect& child_rect)
+{
+	if(!mContainerPanel)
+		return; 
+
+	if(!mFitPanel)
+	{
+		show_hide_scrollbar(child_rect);
+		updateLayout(child_rect);
+	}
+	else
+	{
+		mContainerPanel->reshape(child_rect.getWidth(),child_rect.getHeight());
+		mContainerPanel->setRect(child_rect);
+	}
+}
+
+S32 LLAccordionCtrlTab::getChildViewHeight()
+{
+	if(!mContainerPanel)
+		return 0;
+	return mContainerPanel->getRect().getHeight();
+}
+
+void LLAccordionCtrlTab::show_hide_scrollbar(const LLRect& child_rect)
+{
+	if(getChildViewHeight() > child_rect.getHeight() )
+		showScrollbar(child_rect);
+	else
+		hideScrollbar(child_rect);
+}
+void LLAccordionCtrlTab::showScrollbar(const LLRect& child_rect)
+{
+	if(!mContainerPanel || !mScrollbar)
+		return;
+	bool was_visible = mScrollbar->getVisible();
+	mScrollbar->setVisible(true);
+	
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	{
+		ctrlSetLeftTopAndSize(mScrollbar,child_rect.getWidth()-scrollbar_size, 
+			child_rect.getHeight()-PARENT_BORDER_MARGIN, 
+			scrollbar_size, 
+			child_rect.getHeight()-2*PARENT_BORDER_MARGIN);
+	}
+
+	LLRect orig_rect = mContainerPanel->getRect();
+
+	mScrollbar->setPageSize(child_rect.getHeight());
+	mScrollbar->setDocParams(orig_rect.getHeight(),mScrollbar->getDocPos());
+	
+	if(was_visible)
+	{
+		S32 scroll_pos = llmin(mScrollbar->getDocPos(), orig_rect.getHeight() - child_rect.getHeight() - 1);
+		mScrollbar->setDocPos(scroll_pos);
+	}
+	else//shrink child panel
+	{
+		updateLayout(child_rect);
+	}
+	
+}
+
+void	LLAccordionCtrlTab::hideScrollbar( const LLRect& child_rect )
+{
+	if(!mContainerPanel || !mScrollbar)
+		return;
+
+	if(mScrollbar->getVisible() == false)
+		return;
+	mScrollbar->setVisible(false);
+	mScrollbar->setDocPos(0);
+
+	//shrink child panel
+	updateLayout(child_rect);
+}
+
+void	LLAccordionCtrlTab::onScrollPosChangeCallback(S32, LLScrollbar*)
+{
+	LLRect child_rect;
+
+	S32 width = getRect().getWidth();
+	S32 height = getRect().getHeight();
+
+	child_rect.setLeftTopAndSize(
+		getPaddingLeft(),
+		height - getHeaderHeight() - getPaddingTop(),
+		width - getPaddingLeft() - getPaddingRight(), 
+		height - getHeaderHeight() - getPaddingTop() - getPaddingBottom() );
+
+	updateLayout(child_rect);
+}
+
+void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
+{
+	if (child && child->getVisible() && child->getRect().isValid())
+	{
+		LLRect screen_rect;
+		localRectToScreen(child->getRect(),&screen_rect);
+		
+		if ( root_rect.overlaps(screen_rect)  && LLUI::sDirtyRect.overlaps(screen_rect))
+		{
+			glMatrixMode(GL_MODELVIEW);
+			LLUI::pushMatrix();
+			{
+				LLUI::translate((F32)child->getRect().mLeft, (F32)child->getRect().mBottom, 0.f);
+				child->draw();
+
+			}
+			LLUI::popMatrix();
+		}
+	}
+}
+
+void LLAccordionCtrlTab::draw()
+{
+	if(mFitPanel)
+		LLUICtrl::draw();
+	else
+	{
+		LLRect root_rect = getRootView()->getRect();
+		drawChild(root_rect,mHeader);
+		drawChild(root_rect,mScrollbar );
+		{
+			LLRect child_rect;
+
+			S32 width = getRect().getWidth();
+			S32 height = getRect().getHeight();
+
+			child_rect.setLeftTopAndSize(
+				getPaddingLeft(),
+				height - getHeaderHeight() - getPaddingTop(),
+				width - getPaddingLeft() - getPaddingRight(), 
+				height - getHeaderHeight() - getPaddingTop() - getPaddingBottom() );
+
+			LLLocalClipRect clip(child_rect);
+			drawChild(root_rect,mContainerPanel);
+		}
+		
+
+		gGL.getTexUnit(0)->disable();
+	}
+}
+
+void	LLAccordionCtrlTab::updateLayout	( const LLRect& child_rect )
+{
+	LLView*	child = getAccordionView();
+	if(!mContainerPanel)
+		return;
+
+	S32 panel_top = child_rect.getHeight();
+	S32 panel_width = child_rect.getWidth();
+
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	if(mScrollbar->getVisible() != false)
+	{
+		panel_top+=mScrollbar->getDocPos();
+		panel_width-=scrollbar_size;
+	}
+
+	//set sizes for first panels and dragbars
+	LLRect panel_rect = child->getRect();
+	ctrlSetLeftTopAndSize(mContainerPanel,child_rect.mLeft,panel_top,panel_width,panel_rect.getHeight());
+}
+void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top, S32 width, S32 height)
+{
+	if(!panel)
+		return;
+	LLRect panel_rect = panel->getRect();
+	panel_rect.setLeftTopAndSize( left, top, width, height);
+	panel->reshape( width, height, 1);
+	panel->setRect(panel_rect);
+}
+
+
