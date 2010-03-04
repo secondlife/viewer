@@ -44,7 +44,11 @@
 #include "media_plugin_base.h"
 
 // set to 1 if you're using the version of llqtwebkit that's QPixmap-ified
-#define LL_QTWEBKIT_USES_PIXMAPS 0
+#if LL_LINUX
+# define LL_QTWEBKIT_USES_PIXMAPS 1
+#else
+# define LL_QTWEBKIT_USES_PIXMAPS 0
+#endif // LL_LINUX
 
 #if LL_LINUX
 # include "linux_volume_catcher.h"
