@@ -891,8 +891,21 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 
 		if (!isGroup)
 		{
-			std::string full_name =
-				LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+			// NOTE: Very occasionally the server sends down a full name
+			// in the first name field with an empty last name, for example,
+			// first = "Ladanie1 Resident", last = "".
+			// I cannot reproduce this, nor can I find a bug in the server code.
+			// Ensure "Resident" does not appear via cleanFullName, because
+			// buildFullName only checks last name. JC
+			std::string full_name;
+			if (entry->mLastName.empty())
+			{
+				full_name = cleanFullName(entry->mFirstName);
+			}
+			else
+			{
+				full_name = LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+			}
 			mSignal(id, full_name, false);
 			mReverseCache[full_name] = id;
 		}
