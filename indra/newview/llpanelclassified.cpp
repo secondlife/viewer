@@ -1549,6 +1549,7 @@ LLPanelClassifiedEdit::LLPanelClassifiedEdit()
  : LLPanelClassifiedInfo()
  , mIsNew(false)
  , mCanClose(false)
+ , mPublishFloater(NULL)
 {
 }
 
@@ -1656,6 +1657,9 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 		enableEditing(false);
 	}
 
+	std::string save_btn_label = isNew() ? getString("publish_label") : getString("save_label");
+	childSetLabelArg("save_changes_btn", "[LABEL]", save_btn_label);
+
 	resetDirty();
 	setInfoLoaded(false);
 }
@@ -1724,12 +1728,12 @@ void LLPanelClassifiedEdit::resetDirty()
 	getChild<LLUICtrl>("price_for_listing")->resetDirty();
 }
 
-void LLPanelClassifiedEdit::setSaveCallback(const commit_callback_t& cb)
+void LLPanelClassifiedEdit::setSaveCallback(const commit_signal_t::slot_type& cb)
 {
-	getChild<LLButton>("save_changes_btn")->setClickedCallback(cb);
+	mSaveButtonClickedSignal.connect(cb);
 }
 
-void LLPanelClassifiedEdit::setCancelCallback(const commit_callback_t& cb)
+void LLPanelClassifiedEdit::setCancelCallback(const commit_signal_t::slot_type& cb)
 {
 	getChild<LLButton>("cancel_btn")->setClickedCallback(cb);
 }
@@ -1852,6 +1856,11 @@ S32 LLPanelClassifiedEdit::getPriceForListing()
 	return childGetValue("price_for_listing").asInteger();
 }
 
+void LLPanelClassifiedEdit::setPriceForListing(S32 price)
+{
+	childSetValue("price_for_listing", price);
+}
+
 void LLPanelClassifiedEdit::onSetLocationClick()
 {
 	setPosGlobal(gAgent.getPositionGlobal());
@@ -1895,9 +1904,45 @@ void LLPanelClassifiedEdit::onSaveClick()
 		}
 	}
 
+	if(isNew())
+	{
+		mPublishFloater = LLFloaterReg::findTypedInstance<LLPublishClassifiedFloater>(
+			"publish_classified", LLSD());
+
+		if(!mPublishFloater)
+		{
+			mPublishFloater = LLFloaterReg::getTypedInstance<LLPublishClassifiedFloater>(
+				"publish_classified", LLSD());
+
+			mPublishFloater->setPublishClickedCallback(boost::bind
+				(&LLPanelClassifiedEdit::onPublishFloaterPublishClicked, this));
+		}
+
+		// set spinner value before it has focus or value wont be set
+		mPublishFloater->setPrice(getPriceForListing());
+		mPublishFloater->openFloater(mPublishFloater->getKey());
+		mPublishFloater->center();
+	}
+	else
+	{
+		doSave();
+	}
+}
+
+void LLPanelClassifiedEdit::doSave()
+{
 	mCanClose = true;
 	sendUpdate();
 	resetDirty();
+
+	mSaveButtonClickedSignal(this, LLSD());
+}
+
+void LLPanelClassifiedEdit::onPublishFloaterPublishClicked()
+{
+	setPriceForListing(mPublishFloater->getPrice());
+
+	doSave();
 }
 
 std::string LLPanelClassifiedEdit::getLocationNotice()
@@ -1947,6 +1992,49 @@ void LLPanelClassifiedEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 void LLPanelClassifiedEdit::onTextureSelected()
 {
 	setSnapshotId(mSnapshotCtrl->getValue().asUUID());
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLPublishClassifiedFloater::LLPublishClassifiedFloater(const LLSD& key)
+ : LLFloater(key)
+{
+}
+
+LLPublishClassifiedFloater::~LLPublishClassifiedFloater()
+{
+}
+
+BOOL LLPublishClassifiedFloater::postBuild()
+{
+	LLFloater::postBuild();
+
+	childSetAction("publish_btn", boost::bind(&LLFloater::closeFloater, this, false));
+	childSetAction("cancel_btn", boost::bind(&LLFloater::closeFloater, this, false));
+
+	return TRUE;
+}
+
+void LLPublishClassifiedFloater::setPrice(S32 price)
+{
+	childSetValue("price_for_listing", price);
+}
+
+S32 LLPublishClassifiedFloater::getPrice()
+{
+	return childGetValue("price_for_listing").asInteger();
+}
+
+void LLPublishClassifiedFloater::setPublishClickedCallback(const commit_signal_t::slot_type& cb)
+{
+	getChild<LLButton>("publish_btn")->setClickedCallback(cb);
+}
+
+void LLPublishClassifiedFloater::setCancelClickedCallback(const commit_signal_t::slot_type& cb)
+{
+	getChild<LLButton>("cancel_btn")->setClickedCallback(cb);
 }
 
 //EOF

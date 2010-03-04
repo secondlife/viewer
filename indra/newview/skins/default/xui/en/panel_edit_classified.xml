@@ -16,6 +16,12 @@
   name="location_notice">
     (will update after save)
  </panel.string>
+ <string name="publish_label">
+  Publish
+ </string>
+ <string name="save_label">
+  Save
+ </string>
   <button
      follows="top|right"
      height="23"
@@ -281,7 +287,7 @@
         <button
          follows="bottom|left"
          height="23"
-         label="Save"
+         label="[LABEL]"
          layout="topleft"
          name="save_changes_btn"
          left="0"

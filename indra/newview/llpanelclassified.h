@@ -202,6 +202,23 @@ private:
 	void* mUserData;
 };
 
+class LLPublishClassifiedFloater : public LLFloater
+{
+public:
+	LLPublishClassifiedFloater(const LLSD& key);
+	virtual ~LLPublishClassifiedFloater();
+
+	/*virtual*/ BOOL postBuild();
+
+	void setPrice(S32 price);
+	S32 getPrice();
+
+	void setPublishClickedCallback(const commit_signal_t::slot_type& cb);
+	void setCancelClickedCallback(const commit_signal_t::slot_type& cb);
+
+private:
+};
+
 class LLPanelClassifiedInfo : public LLPanel, public LLAvatarPropertiesObserver
 {
 public:
@@ -334,9 +351,9 @@ public:
 
 	/*virtual*/ void resetDirty();
 
-	void setSaveCallback(const commit_callback_t& cb);
+	void setSaveCallback(const commit_signal_t::slot_type& cb);
 
-	void setCancelCallback(const commit_callback_t& cb);
+	void setCancelCallback(const commit_signal_t::slot_type& cb);
 
 	/*virtual*/ void resetControls();
 
@@ -364,6 +381,8 @@ protected:
 
 	S32 getPriceForListing();
 
+	void setPriceForListing(S32 price);
+
 	U8 getFlags();
 
 	std::string getLocationNotice();
@@ -376,6 +395,10 @@ protected:
 	void onChange();
 	void onSaveClick();
 
+	void doSave();
+
+	void onPublishFloaterPublishClicked();
+
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
 
@@ -384,6 +407,10 @@ protected:
 private:
 	bool mIsNew;
 	bool mCanClose;
+
+	LLPublishClassifiedFloater* mPublishFloater;
+
+	commit_signal_t mSaveButtonClickedSignal;
 };
 
 #endif // LL_LLPANELCLASSIFIED_H
