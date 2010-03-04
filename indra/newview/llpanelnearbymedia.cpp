@@ -82,6 +82,8 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	  mParcelMediaItem(NULL),
 	  mParcelAudioItem(NULL)
 {
+	mHoverTimer.stop();
+
 	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
 							gSavedSettings.getBOOL("MediaTentativeAutoPlay");
 
@@ -186,6 +188,13 @@ void LLPanelNearByMedia::onMouseLeave(S32 x, S32 y, MASK mask)
 	mHoverTimer.start();
 	LLPanel::onMouseLeave(x,y,mask);
 }
+
+/*virtual*/ 
+void LLPanelNearByMedia::onTopLost()
+{
+	setVisible(FALSE);
+}
+
 
 /*virtual*/ 
 void LLPanelNearByMedia::handleVisibilityChange ( BOOL new_visibility )

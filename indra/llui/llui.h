@@ -212,8 +212,10 @@ public:
 	static F32 getMouseIdleTime() { return sMouseIdleTimer.getElapsedTimeF32(); }
 	static void resetMouseIdleTimer() { sMouseIdleTimer.reset(); }
 	static LLWindow* getWindow() { return sWindow; }
+
 	static void addPopup(LLView*);
 	static void removePopup(LLView*);
+	static void clearPopups();
 
 	// Ensures view does not overlap mouse cursor, but is inside
 	// the view's parent rectangle.  Used for tooltips, inspectors.

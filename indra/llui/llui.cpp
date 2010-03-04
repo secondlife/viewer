@@ -1905,6 +1905,15 @@ void LLUI::removePopup(LLView* viewp)
 	}
 }
 
+//static
+void LLUI::clearPopups()
+{
+	if (sClearPopupsFunc)
+	{
+		sClearPopupsFunc();
+	}
+}
+
 
 //static
 // spawn_x and spawn_y are top left corner of view in screen GL coordinates

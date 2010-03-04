@@ -437,9 +437,9 @@ void LLFocusMgr::setAppHasFocus(BOOL focus)
 	}
 	
 	// release focus from "top ctrl"s, which generally hides them
-	if (!focus && mTopCtrl)
+	if (!focus)
 	{
-		setTopCtrl(NULL);
+		LLUI::clearPopups();
 	}
 	mAppHasFocus = focus; 
 }

@@ -1354,7 +1354,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
 {
-	gFocusMgr.setTopCtrl(NULL);
+	LLUI::clearPopups();
 	setVisible(TRUE);
 	setFrontmost(take_focus);
 }

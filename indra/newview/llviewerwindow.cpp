@@ -2590,6 +2590,33 @@ void LLViewerWindow::updateUI()
 	}
 
 	// aggregate visible views that contain mouse cursor in display order
+	LLPopupView::popup_list_t popups = mPopupView->getCurrentPopups();
+
+	for(LLPopupView::popup_list_t::iterator popup_it = popups.begin(); popup_it != popups.end(); ++popup_it)
+	{
+		LLView* popup = popup_it->get();
+		if (popup && popup->calcScreenBoundingRect().pointInRect(x, y))
+		{
+			// iterator over contents of top_ctrl, and throw into mouse_hover_set
+			for (LLView::tree_iterator_t it = popup->beginTreeDFS();
+				it != popup->endTreeDFS();
+				++it)
+			{
+				LLView* viewp = *it;
+				if (viewp->getVisible()
+					&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+				{
+					// we have a view that contains the mouse, add it to the set
+					mouse_hover_set.insert(viewp->getHandle());
+				}
+				else
+				{
+					// skip this view and all of its children
+					it.skipDescendants();
+				}
+			}
+		}
+	}
 
 	// while the top_ctrl contains the mouse cursor, only it and its descendants will receive onMouseEnter events
 	if (top_ctrl && top_ctrl->calcScreenBoundingRect().pointInRect(x, y))

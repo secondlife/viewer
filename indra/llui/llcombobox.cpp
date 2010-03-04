@@ -160,7 +160,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
 	createLineEditor(p);
 
-	setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
+	mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
 }
 
 void LLComboBox::initFromParams(const LLComboBox::Params& p)
@@ -187,6 +187,9 @@ BOOL LLComboBox::postBuild()
 LLComboBox::~LLComboBox()
 {
 	// children automatically deleted, including mMenu, mButton
+
+	// explicitly disconect this signal, since base class destructor might fire top lost
+	mTopLostSignalConnection.disconnect();
 }
 
 
@@ -612,16 +615,14 @@ void LLComboBox::showList()
 
 	mList->setFocus(TRUE);
 
-	// register ourselves as a "top" control
-	// effectively putting us into a special draw layer
-	// and not affecting the bounding rectangle calculation
-	LLUI::addPopup(this);
-
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
 	
+	LLUI::addPopup(this);
+
 	setUseBoundingRect(TRUE);
+	updateBoundingRect();
 }
 
 void LLComboBox::hideList()
@@ -645,6 +646,7 @@ void LLComboBox::hideList()
 
 		setUseBoundingRect(FALSE);
 		LLUI::removePopup(this);
+		updateBoundingRect();
 	}
 }
 

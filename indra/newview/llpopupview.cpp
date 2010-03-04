@@ -100,7 +100,7 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 
 		S32 popup_x, popup_y;
 		if (localPointToOtherView(x, y, &popup_x, &popup_y, popup) 
-			&& popup->getRect().pointInRect(popup_x, popup_y))
+			&& popup->pointInView(popup_x, popup_y))
 		{
 			if (func(popup, popup_x, popup_y))
 			{
@@ -180,9 +180,9 @@ BOOL LLPopupView::handleToolTip(S32 x, S32 y, MASK mask)
 
 void LLPopupView::addPopup(LLView* popup)
 {
-	removePopup(popup);
 	if (popup)
 	{
+		mPopups.erase(std::find(mPopups.begin(), mPopups.end(), popup->getHandle()));
 		mPopups.push_back(popup->getHandle());
 	}
 }
@@ -191,12 +191,26 @@ void LLPopupView::removePopup(LLView* popup)
 {
 	if (popup)
 	{
+		if (gFocusMgr.childHasKeyboardFocus(popup))
+		{
+			gFocusMgr.setKeyboardFocus(NULL);
+		}
+		popup->onTopLost();
 		mPopups.erase(std::find(mPopups.begin(), mPopups.end(), popup->getHandle()));
 	}
 }
 
 void LLPopupView::clearPopups()
 {
+	for (popup_list_t::iterator popup_it = mPopups.begin();
+		popup_it != mPopups.end();)
+	{
+		LLView* popup = popup_it->get();
+		++popup_it;
+
+		if (popup) popup->onTopLost();
+	}
+
 	mPopups.clear();
 }
 

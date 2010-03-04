@@ -56,6 +56,8 @@
 // Default constructor
 LLPanelVolumePulldown::LLPanelVolumePulldown()
 {
+	mHoverTimer.stop();
+
     mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
 	mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
 	LLUICtrlFactory::instance().buildPanel(this, "panel_volume_pulldown.xml");
@@ -77,6 +79,11 @@ void LLPanelVolumePulldown::onMouseEnter(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseEnter(x,y,mask);
 }
 
+/*virtual*/
+void LLPanelVolumePulldown::onTopLost()
+{
+	setVisible(FALSE);
+}
 
 /*virtual*/
 void LLPanelVolumePulldown::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -95,13 +102,8 @@ void LLPanelVolumePulldown::handleVisibilityChange ( BOOL new_visibility )
 	else
 	{
 		mHoverTimer.stop();
-	}
-}
 
-/*virtual*/ 
-void LLPanelVolumePulldown::onTopLost()
-{
-	setVisible(FALSE);
+	}
 }
 
 void LLPanelVolumePulldown::onAdvancedButtonClick(const LLSD& user_data)

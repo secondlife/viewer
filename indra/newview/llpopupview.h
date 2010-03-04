@@ -56,9 +56,11 @@ public:
 	void removePopup(LLView* popup);
 	void clearPopups();
 
+	typedef std::list<LLHandle<LLView> > popup_list_t;
+	popup_list_t getCurrentPopups() { return mPopups; }
+
 private:
 	BOOL handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)>, boost::function<bool(LLView*)>, S32 x, S32 y);
-	typedef std::list<LLHandle<LLView> > popup_list_t;
 	popup_list_t mPopups;
 };
 #endif //LL_LLROOTVIEW_H
