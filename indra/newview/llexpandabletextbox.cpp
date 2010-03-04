@@ -412,6 +412,13 @@ void LLExpandableTextBox::onFocusLost()
 	LLUICtrl::onFocusLost();
 }
 
+void LLExpandableTextBox::onTopLost()
+{
+	collapseTextBox();
+
+	LLUICtrl::onTopLost();
+}
+
 void LLExpandableTextBox::setValue(const LLSD& value)
 {
 	collapseTextBox();
