@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MEMÓRIA DA REGIÃO" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Memória de scripts no lote
+	</text>
+	<text name="loading_text">
+		Carregando...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Tamanho (kb)" name="size"/>
+		<scroll_list.columns label="URLs" name="urls"/>
+		<scroll_list.columns label="Nome do objeto" name="name"/>
+		<scroll_list.columns label="Dono do objeto" name="owner"/>
+		<scroll_list.columns label="Lote" name="parcel"/>
+		<scroll_list.columns label="Localização" name="location"/>
+	</scroll_list>
+	<button label="Atualizar lista" name="refresh_list_btn"/>
+	<button label="Destaque" name="highlight_btn"/>
+	<button label="Devolver" name="return_btn"/>
+</panel>

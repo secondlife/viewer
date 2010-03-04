@@ -48,7 +48,7 @@
 			<text name="maturity_value" value="ukendt"/>
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="Parcel">
-					<panel>
+					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Rating:"/>
 						<text name="rating_value" value="ukendt"/>
 						<text name="voice_label" value="Stem:"/>
@@ -67,7 +67,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Region">
-					<panel>
+					<panel name="region_information_panel">
 						<text name="region_name_label" value="Region:"/>
 						<text name="region_type_label" value="Type:"/>
 						<text name="region_rating_label" value="Rating:"/>
@@ -77,7 +77,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="Estate">
-					<panel>
+					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="Estate:"/>
 						<text name="estate_rating_label" value="Rating:"/>
 						<text name="estate_owner_label" value="Ejer:"/>
@@ -85,7 +85,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="Til salg">
-					<panel>
+					<panel name="sales_panel">
 						<text name="sales_price_label" value="Pris:"/>
 						<text name="area_label" value="Areal:"/>
 						<text name="traffic_label" value="Trafik:"/>

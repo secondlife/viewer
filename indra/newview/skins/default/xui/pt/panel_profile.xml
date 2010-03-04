@@ -12,37 +12,41 @@
 	</string>
 	<string name="my_account_link_url" value="http://secondlife.com/my/account/index.php?lang=pt-BR"/>
 	<string name="no_partner_text" value="Ninguém"/>
+	<string name="no_group_text" value="Nenhum"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
-			</panel>
-			<panel name="first_life_image_panel">
-				<text name="title_rw_descr_text" value="Mundo real:"/>
-			</panel>
-			<text name="me_homepage_text">
-				Homepage:
-			</text>
-			<text name="title_member_text" value="Membro desde:"/>
-			<text name="title_acc_status_text" value="Status da conta:"/>
-			<text name="acc_status_text" value="Residente. Nenhuma info de pagamento no arquivo."/>
-			<text name="title_partner_text" value="Parceiro:"/>
-			<text name="title_groups_text" value="Grupos:"/>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="Adicionar amigo" name="add_friend" tool_tip="Oferecer amizade para o residente"/>
-		<button label="MI" name="im" tool_tip="Abrir sessão de Mensagem instantânea"/>
-		<button label="Chamada" name="call" tool_tip="Chamar este residente"/>
-		<button label="Mapa" name="show_on_map_btn" tool_tip="exibir o residente no mapa"/>
-		<button label="Teletransporte" name="teleport" tool_tip="Oferecer teletransporte"/>
-		<button label="▼" name="overflow_btn" tool_tip="Pagar dinheiro ou compartilhar inventário com o residente"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="Editar perfil" name="edit_profile_btn"/>
-		<button label="Editar aparência" name="edit_appearance_btn"/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<panel name="second_life_image_panel">
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<text name="title_rw_descr_text" value="Mundo real:"/>
+					</panel>
+					<text name="title_member_text" value="Residente desde:"/>
+					<text name="title_acc_status_text" value="Conta:"/>
+					<text name="title_partner_text" value="Parceiro(a):"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(pesquisando)" name="partner_text"/>
+					</panel>
+					<text name="title_groups_text" value="Grupos:"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_buttons_panel">
+			<button label="Adicionar amigo" name="add_friend" tool_tip="Oferecer amizade ao residente"/>
+			<button label="MI" name="im" tool_tip="Abrir sessão de mensagem instantânea"/>
+			<button label="Ligar" name="call" tool_tip="Ligar para este residente"/>
+			<button label="Mapa" name="show_on_map_btn" tool_tip="Exibir o residente no mapa"/>
+			<button label="Teletransportar" name="teleport" tool_tip="Oferecer teletransporte"/>
+			<button label="▼" name="overflow_btn" tool_tip="Pagar ou compartilhar inventário com o residente"/>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="Editar perfil" name="edit_profile_btn" tool_tip="Editar dados pessoais"/>
+			<button label="Editar aparência" name="edit_appearance_btn" tool_tip="Criar/editar aparência: físico, roupas, etc."/>
+		</layout_panel>
+	</layout_stack>
 </panel>

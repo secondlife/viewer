@@ -18,6 +18,15 @@
 	<string name="fly_back_tooltip">
 		後ろに飛ぶ（下矢印か S を押す）
 	</string>
+	<string name="walk_title">
+		歩く
+	</string>
+	<string name="run_title">
+		走る
+	</string>
+	<string name="fly_title">
+		飛ぶ
+	</string>
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="左を向く（左矢印か A を押す）"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="右を向く（右矢印か D を押す）"/>
@@ -30,6 +39,5 @@
 		<button label="" name="mode_walk_btn" tool_tip="歩行モード"/>
 		<button label="" name="mode_run_btn" tool_tip="走行モード"/>
 		<button label="" name="mode_fly_btn" tool_tip="飛行モード"/>
-		<button label="飛行停止" name="stop_fly_btn" tool_tip="飛行停止"/>
 	</panel>
 </floater>

@@ -12,6 +12,9 @@
 	<text name="dimensions">
 		[WIDTH]px x [HEIGHT]px
 	</text>
+	<text name="aspect_ratio">
+		Visualizar relação de aspecto
+	</text>
 	<combo_box name="combo_aspect_ratio" tool_tip="Visualizar com proporção de aspecto fixa">
 		<combo_item name="Unconstrained">
 			Sem limites
@@ -38,7 +41,7 @@
 			2:1
 		</combo_item>
 	</combo_box>
-	<button label="OK" name="keep"/>
-	<button label="Cancelar" name="discard"/>
+	<button label="OK" name="Keep"/>
+	<button label="Descartar" name="Discard"/>
 	<button label="Salvar como" name="save_tex_btn"/>
 </floater>

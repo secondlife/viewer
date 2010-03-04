@@ -41,8 +41,8 @@
 	<combo_box name="category_combo" tool_tip="Categoria -- Selecione a categoria que melhor descreve este report">
 		<combo_box.item label="Selecionar categoria" name="Select_category"/>
 		<combo_box.item label="Idade &gt; Idade no jogo" name="Age__Age_play"/>
-		<combo_box.item label="Idade &gt; Residente adulto no Second Life Jovem" name="Age__Adult_resident_on_Teen_Second_Life"/>
-		<combo_box.item label="Idade &gt; Residente menor de idade fora do Second Life Teen" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="Idade &gt; Residente adulto ou adolescente" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="Idade &gt; Residente menor de idade, fora do Second Life teen" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Assalto &gt; Sandbox de combate / área não segura" name="Assault__Combat_sandbox___unsafe_area"/>
 		<combo_box.item label="Assalto &gt; Área segura" name="Assault__Safe_area"/>
 		<combo_box.item label="Assalto &gt; Testando armas em sandbox" name="Assault__Weapons_testing_sandbox"/>

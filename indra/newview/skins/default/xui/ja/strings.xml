@@ -1506,6 +1506,9 @@
 	<string name="NoPicksClassifiedsText">
 		ピックやクラシファイド広告を作成していません。 作成するには、下にある「プラス」ボタンをクリックします。
 	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		ピック、またはクラシファイド広告がありません
+	</string>
 	<string name="PicksClassifiedsLoadingText">
 		ローディング...
 	</string>

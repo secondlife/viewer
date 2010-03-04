@@ -13,8 +13,11 @@
 	<check_box label="Activé" name="enable_voice_check"/>
 	<check_box label="Autoriser la lecture automatique du média" name="media_auto_play_btn" tool_tip="Cochez pour autoriser la lecture automatique du média" value="vrai"/>
 	<check_box label="Jouer le média aux autres avatars" name="media_show_on_others_btn" tool_tip="Décochez pour masquer le média aux autres avatars près de vous" value="vrai"/>
-	<text name="Listen from">
+	<text name="voice_chat_settings">
 		Paramètres du chat vocal
+	</text>
+	<text name="Listen from">
+		Écouter à partir de :
 	</text>
 	<radio_group name="ear_location">
 		<radio_item label="Position de la caméra" name="0"/>

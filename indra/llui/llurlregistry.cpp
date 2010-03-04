@@ -174,7 +174,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
 						match_entry->getLabel(url, cb),
-						match_entry->getTooltip(),
+						match_entry->getTooltip(url),
 						match_entry->getIcon(),
 						match_entry->getColor(),
 						match_entry->getMenuName(),

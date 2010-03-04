@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Kamera nach oben, unten, links und rechts bewegen
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Kreisen
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		Schwenken
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Voreinstellungen
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Objekt ansehen
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Kamera nach oben, unten, links und rechts bewegen"/>
 		<panel name="zoom" tool_tip="Kamera auf Fokus zoomen">
@@ -25,7 +37,7 @@
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Kamera kreisen"/>
 		<button label="" name="pan_btn" tool_tip="Kamera schwenken"/>
-		<button label="" name="avatarview_btn" tool_tip="Avatarsicht"/>
+		<button label="" name="avatarview_btn" tool_tip="Voreinstellungen"/>
 		<button label="" name="freecamera_btn" tool_tip="Objekt ansehen"/>
 	</panel>
 </floater>

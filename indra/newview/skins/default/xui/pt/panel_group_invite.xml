@@ -7,12 +7,10 @@
 		(carregando...)
 	</panel.string>
 	<panel.string name="already_in_group">
-		Alguns avatares já estão nesse grupo e portanto não foram convidados.
+		Alguns dos residentes selecionados já estão no grupo, portanto não receberam convite.
 	</panel.string>
 	<text name="help_text" width="214">
-		Voce pode selecionar vários residentes
-para convidar ao seu grupo. Clique
-&apos;Abrir Seletor de Residente&apos; para iniciar.
+		Selecione um ou mais residentes para convidar.  Clique em &apos;Abrir seletor de residentes&apos; para começar.
 	</text>
 	<button label="Abrir Seletor de Residente" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Pressione Ctrl enquanto clica nos nomes dos residentes"/>

@@ -59,7 +59,7 @@
      left_delta="0"
      name="owner_text"
      top_pad="2"
-     width="180">
+     width="80">
         Estate owner:
     </text>
     <text
@@ -198,7 +198,7 @@
     <button
      follows="left|top"
      height="23"
-     label="Kick User from Estate..."
+     label="Kick Resident from Estate..."
      layout="topleft"
      left="50"
      name="kick_user_from_estate_btn"

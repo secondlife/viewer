@@ -52,7 +52,7 @@
 		Geben Sie den Betrag erneut ein, um die aktuellste Umtauschrate anzuzeigen.
 	</text>
 	<text name="purchase_warning_repurchase">
-		Nach Bestätigung dieses Kaufs werden nur L$ gekauft, nicht das Objekt.
+		Achtung: Sie kaufen L$, nicht das Objekt.
 	</text>
 	<text name="purchase_warning_notenough">
 		Sie kaufen nicht genügend L$. Bitte erhöhen Sie den Betrag.

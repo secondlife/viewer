@@ -20,8 +20,8 @@ domaine.
 	<text name="Only Allow">
 		Limiter l&apos;accès aux comptes vérifiés par :
 	</text>
-	<check_box label="Informations de paiement enregistrées" name="limit_payment" tool_tip="Bannir les résidents non identifiés"/>
-	<check_box label="Vérification de mon âge" name="limit_age_verified" tool_tip="Bannir les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
+	<check_box label="Infos de paiement enregistrées" name="limit_payment" tool_tip="Bannir les résidents non identifiés"/>
+	<check_box label="Vérification de l'âge" name="limit_age_verified" tool_tip="Bannir les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
 	<check_box label="Autoriser les chats vocaux" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">

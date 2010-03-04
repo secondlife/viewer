@@ -106,6 +106,9 @@ A duração máxima de animação permitida é de [MAX_LENGTH] segundos.
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		Impossível ler nome do emote.
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		Nome da junta incorreto, use &quot;quadril&quot;.
+	</floater.string>
 	<text name="name_label">
 		Nome:
 	</text>
