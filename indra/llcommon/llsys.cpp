@@ -775,6 +775,35 @@ void LLMemoryInfo::stream(std::ostream& s) const
 #endif
 }
 
+S32 LLDisplayInfo::getDisplayWidth() const
+{
+#if LL_WINDOWS
+	return  ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
+#elif LL_DARWIN
+	return 1024; //*FIXME
+#elif LL_SOLARIS
+	return 1024; //*FIXME
+else
+	return 1024; //*FIXME
+#endif
+	return 1024; // to make compiler happy
+}
+
+S32 LLDisplayInfo::getDisplayHeight() const
+{
+#if LL_WINDOWS
+	return  ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
+#elif LL_DARWIN
+	return 768; //*FIXME
+#elif LL_SOLARIS
+	return 768; //*FIXME
+#else
+	return 768; //*FIXME
+#endif
+	return 768; // to make compiler happy
+}
+
+
 std::ostream& operator<<(std::ostream& s, const LLOSInfo& info)
 {
 	info.stream(s);

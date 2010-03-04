@@ -249,7 +249,7 @@ Save all changes to clothing/body parts?
     Non-friends won't know that you've choosen to ignore their calls and instant messages.
     <usetemplate
      name="okbutton"
-     yestext="Yes"/>
+     yestext="OK"/>
   </notification>
 
   <notification
