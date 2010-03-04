@@ -41,6 +41,7 @@
 #include "lldir.h"
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
+#include "llhttpclient.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"
@@ -83,6 +84,7 @@ const S32 DECLINE_TO_STATE = 0;
 
 //static
 std::list<LLPanelClassified*> LLPanelClassified::sAllPanels;
+std::list<LLPanelClassifiedInfo*> LLPanelClassifiedInfo::sAllPanels;
 
 // "classifiedclickthrough"
 // strings[0] = classified_id
@@ -103,10 +105,10 @@ public:
 		S32 teleport_clicks = atoi(strings[1].c_str());
 		S32 map_clicks = atoi(strings[2].c_str());
 		S32 profile_clicks = atoi(strings[3].c_str());
-		LLPanelClassified::setClickThrough(classified_id, teleport_clicks,
-										   map_clicks,
-										   profile_clicks,
-										   false);
+
+		LLPanelClassifiedInfo::setClickThrough(
+			classified_id, teleport_clicks, map_clicks, profile_clicks, false);
+
 		return true;
 	}
 };
@@ -497,7 +499,7 @@ void LLPanelClassified::sendClassifiedInfoRequest()
 		if (!url.empty())
 		{
 			llinfos << "Classified stat request via capability" << llendl;
-			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(((LLView*)this)->getHandle(), mClassifiedID));
+			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(mClassifiedID));
 		}
 	}
 }
@@ -1157,11 +1159,20 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  , mScrollContainer(NULL)
  , mScrollingPanelMinHeight(0)
  , mScrollingPanelWidth(0)
+ , mSnapshotStreched(false)
+ , mTeleportClicksOld(0)
+ , mMapClicksOld(0)
+ , mProfileClicksOld(0)
+ , mTeleportClicksNew(0)
+ , mMapClicksNew(0)
+ , mProfileClicksNew(0)
 {
+	sAllPanels.push_back(this);
 }
 
 LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
 {
+	sAllPanels.remove(this);
 }
 
 // static
@@ -1183,6 +1194,8 @@ BOOL LLPanelClassifiedInfo::postBuild()
 
 	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
 	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
+
+	mSnapshotRect = getChild<LLUICtrl>("classified_snapshot")->getRect();
 
 	return TRUE;
 }
@@ -1215,6 +1228,8 @@ void LLPanelClassifiedInfo::reshape(S32 width, S32 height, BOOL called_from_pare
 	{
 		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
 	}
+
+	mSnapshotRect = getChild<LLUICtrl>("classified_snapshot")->getRect();
 }
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)
@@ -1242,6 +1257,19 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
+	gGenericDispatcher.addHandler("classifiedclickthrough", &sClassifiedClickThrough);
+
+	// While we're at it let's get the stats from the new table if that
+	// capability exists.
+	std::string url = gAgent.getRegion()->getCapability("SearchStatRequest");
+	if (!url.empty())
+	{
+		llinfos << "Classified stat request via capability" << llendl;
+		LLSD body;
+		body["classified_id"] = getClassifiedId();
+		LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(getClassifiedId()));
+	}
+
 	setInfoLoaded(false);
 }
 
@@ -1263,6 +1291,7 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			static std::string mature_str = getString("type_mature");
 			static std::string pg_str = getString("type_pg");
 			static LLUIString  price_str = getString("l$_price");
+			static std::string date_fmt = getString("date_fmt");
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
@@ -1270,6 +1299,10 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
 			childSetValue("price_for_listing", LLSD(price_str));
+
+			std::string date_str = date_fmt;
+			LLStringUtil::format(date_str, LLSD().with("datetime", (S32) c_info->creation_date));
+			childSetText("creation_date", date_str);
 
 			setInfoLoaded(true);
 		}
@@ -1286,6 +1319,7 @@ void LLPanelClassifiedInfo::resetData()
 	mPosGlobal.clearVec();
 	childSetValue("category", LLStringUtil::null);
 	childSetValue("content_type", LLStringUtil::null);
+	childSetText("click_through_text", LLStringUtil::null);
 }
 
 void LLPanelClassifiedInfo::resetControls()
@@ -1295,6 +1329,7 @@ void LLPanelClassifiedInfo::resetControls()
 	childSetEnabled("edit_btn", is_self);
 	childSetVisible("edit_btn", is_self);
 	childSetVisible("price_layout_panel", is_self);
+	childSetVisible("clickthrough_layout_panel", is_self);
 }
 
 void LLPanelClassifiedInfo::setClassifiedName(const std::string& name)
@@ -1325,11 +1360,82 @@ void LLPanelClassifiedInfo::setClassifiedLocation(const std::string& location)
 void LLPanelClassifiedInfo::setSnapshotId(const LLUUID& id)
 {
 	childSetValue("classified_snapshot", id);
+	if(!mSnapshotStreched)
+	{
+		LLUICtrl* snapshot = getChild<LLUICtrl>("classified_snapshot");
+		snapshot->setRect(mSnapshotRect);
+	}
+	mSnapshotStreched = false;
+}
+
+void LLPanelClassifiedInfo::draw()
+{
+	LLPanel::draw();
+
+	// Stretch in draw because it takes some time to load a texture,
+	// going to try to stretch snapshot until texture is loaded
+	stretchSnapshot();
 }
 
 LLUUID LLPanelClassifiedInfo::getSnapshotId()
 {
 	return childGetValue("classified_snapshot").asUUID();
+}
+
+// static
+void LLPanelClassifiedInfo::setClickThrough(
+	const LLUUID& classified_id,
+	S32 teleport,
+	S32 map,
+	S32 profile,
+	bool from_new_table)
+{
+	llinfos << "Click-through data for classified " << classified_id << " arrived: ["
+			<< teleport << ", " << map << ", " << profile << "] ("
+			<< (from_new_table ? "new" : "old") << ")" << llendl;
+
+	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	{
+		LLPanelClassifiedInfo* self = *iter;
+		if (self->getClassifiedId() != classified_id)
+		{
+			continue;
+		}
+
+		// *HACK: Skip LLPanelClassifiedEdit instances: they don't display clicks data.
+		// Those instances should not be in the list at all.
+		if (typeid(*self) != typeid(LLPanelClassifiedInfo))
+		{
+			continue;
+		}
+
+		llinfos << "Updating classified info panel" << llendl;
+
+		// We need to check to see if the data came from the new stat_table 
+		// or the old classified table. We also need to cache the data from 
+		// the two separate sources so as to display the aggregate totals.
+
+		if (from_new_table)
+		{
+			self->mTeleportClicksNew = teleport;
+			self->mMapClicksNew = map;
+			self->mProfileClicksNew = profile;
+		}
+		else
+		{
+			self->mTeleportClicksOld = teleport;
+			self->mMapClicksOld = map;
+			self->mProfileClicksOld = profile;
+		}
+
+		static LLUIString ct_str = self->getString("click_through_text_fmt");
+
+		ct_str.setArg("[TELEPORT]",	llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld));
+		ct_str.setArg("[MAP]",		llformat("%d", self->mMapClicksNew + self->mMapClicksOld));
+		ct_str.setArg("[PROFILE]",	llformat("%d", self->mProfileClicksNew + self->mProfileClicksOld));
+
+		self->childSetText("click_through_text", ct_str.getString());
+	}
 }
 
 // static
@@ -1363,6 +1469,41 @@ std::string LLPanelClassifiedInfo::createLocationText(
 	return location_text;
 }
 
+void LLPanelClassifiedInfo::stretchSnapshot()
+{
+	// *NOTE dzaporozhan
+	// Could be moved to LLTextureCtrl
+
+	LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("classified_snapshot");
+	LLViewerFetchedTexture* texture = texture_ctrl->getTexture();
+
+	if(!texture || mSnapshotStreched)
+	{
+		return;
+	}
+
+	if(0 == texture->getOriginalWidth() || 0 == texture->getOriginalHeight())
+	{
+		// looks like texture is not loaded yet
+		llinfos << "Missing image size" << llendl;
+		return;
+	}
+
+	LLRect rc = mSnapshotRect;
+	F32 t_width = texture->getFullWidth();
+	F32 t_height = texture->getFullHeight();
+
+	F32 ratio = llmin<F32>( (rc.getWidth() / t_width), (rc.getHeight() / t_height) );
+
+	t_width *= ratio;
+	t_height *= ratio;
+
+	rc.setCenterAndSize(rc.getCenterX(), rc.getCenterY(), llfloor(t_width), llfloor(t_height));
+	texture_ctrl->setRect(rc);
+
+	mSnapshotStreched = true;
+}
+
 void LLPanelClassifiedInfo::onMapClick()
 {
 	LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
@@ -1381,6 +1522,7 @@ void LLPanelClassifiedInfo::onTeleportClick()
 void LLPanelClassifiedInfo::onExit()
 {
 	LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+	gGenericDispatcher.addHandler("classifiedclickthrough", NULL); // deregister our handler
 }
 
 //////////////////////////////////////////////////////////////////////////

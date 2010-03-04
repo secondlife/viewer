@@ -5,7 +5,8 @@
 			Legenda
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_2">
 		<button font="SansSerifSmall" label="Mostra la mia posizione" label_selected="Mostra la mia posizione" left_delta="91" name="Show My Location" tool_tip="Centra la mappa sul luogo dove si trova il mio avatar" width="135"/>
 		<text name="person_label">
 			Io
@@ -37,12 +38,14 @@
 		</text>
 		<check_box label="Adult" name="event_adult_chk"/>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_3">
 		<text name="find_on_map_label">
 			Trova sulla Mappa
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_4">
 		<combo_box label="Amici Online" name="friend combo" tool_tip="Mostra amici sulla mappa">
 			<combo_box.item label="Miei Amici Online" name="item1"/>
 		</combo_box>
@@ -59,12 +62,14 @@
 		<button font="SansSerifSmall" label="Copia SLurl" name="copy_slurl" tool_tip="Copia il luogo attuale come SLurl per essere usato nel web."/>
 		<button font="SansSerifSmall" label="Mostra Selezione" label_selected="Mostra destinazione" left_delta="91" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto" width="135"/>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_5">
 		<text name="zoom_label">
 			Zoom
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_6">
 		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

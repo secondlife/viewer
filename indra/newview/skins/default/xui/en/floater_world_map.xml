@@ -53,7 +53,8 @@
  follows="right|top"
   height="126"
   top_pad="0"
-  width="238">
+  width="238"
+  name="layout_panel_2">
 <button
      follows="right|top"
      height="22"
@@ -374,7 +375,8 @@
   top_pad="0"
   width="238"
   background_visible="true"
-  bg_alpha_color="DkGray2">
+  bg_alpha_color="DkGray2"
+  name="layout_panel_3">
     <text
      text_color="White"
      font="SansSerifLarge"
@@ -396,7 +398,8 @@
      follows="right|top|bottom"
 	 height="310"
 	 top_pad="0"
-	 width="238">
+	 width="238"
+	 name="layout_panel_4">
 	 <icon
       color="0.5 0 0 1"
       follows="top|right"
@@ -638,7 +641,8 @@
   top_pad="0"
   width="238"
   background_visible="true"
-  bg_alpha_color="DkGray2">
+  bg_alpha_color="DkGray2"
+  name="layout_panel_5">
     <text
      text_color="White"
      font="SansSerifLarge"
@@ -660,7 +664,8 @@
   height="30"
   min_height="30"
   top_pad="0"
-  width="238">
+  width="238"
+  name="layout_panel_6">
   <icon
      follows="left|bottom"
      height="16"
@@ -670,7 +675,7 @@
      mouse_opaque="true"
      name="zoom_icon"
      top_pad="7"
-     width="16" />
+     width="16" ></icon>
     <slider
      follows="left|bottom"
      height="16"

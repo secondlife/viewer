@@ -5,7 +5,8 @@
 			Legenda
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_2">
 		<button font="SansSerifSmall" label="Mostra minha localização" label_selected="Mostra minha localização" left_delta="91" name="Show My Location" tool_tip="Centrar o mapa na localização do meu avatar" width="135"/>
 		<text name="me_label">
 			Eu
@@ -48,12 +49,14 @@
 			Público adulto
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_3">
 		<text name="find_on_map_label">
 			Localizar no mapa
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_4">
 		<combo_box label="Amigos Conectados" name="friend combo" tool_tip="Mostrar amigos no mapa">
 			<combo_box.item label="Amigos conectados" name="item1"/>
 		</combo_box>
@@ -67,12 +70,14 @@
 		<button font="SansSerifSmall" label="Copiar SLurl" name="copy_slurl" tool_tip="Copia a localização atual como um SLurl para usar na web."/>
 		<button font="SansSerifSmall" label="Mostrar seleção" label_selected="Mostrar Destino" left_delta="91" name="Show Destination" tool_tip="Centralizar mapa na posição selecionada" width="135"/>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_5">
 		<text name="zoom_label">
 			Zoom
 		</text>
 	</panel>
-	<panel>
+	<panel
+	name="layout_panel_6">
 		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

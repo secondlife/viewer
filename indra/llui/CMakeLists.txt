@@ -209,6 +209,16 @@ set(llui_HEADER_FILES
 set_source_files_properties(${llui_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
+SET(llurlentry_TEST_DEPENDENCIES
+    llurlmatch.cpp
+    llurlregistry.cpp
+    )
+
+set_source_files_properties(llurlentry.cpp
+    PROPERTIES LL_TEST_ADDITIONAL_SOURCE_FILES
+    "${llurlentry_TEST_DEPENDENCIES}"
+    )
+
 list(APPEND llui_SOURCE_FILES ${llui_HEADER_FILES})
 
 add_library (llui ${llui_SOURCE_FILES})
