@@ -14,7 +14,7 @@
 	</string>
 	<layout_stack name="progress_indicator_area">
 		<panel name="media_progress_indicator">
-			<progress_bar name="media_progress_bar" tool_tip="El media se está cargando"/>
+			<progress_bar name="media_progress_bar" tool_tip="Los media se están cargando"/>
 		</panel>
 	</layout_stack>
 	<layout_stack name="media_controls">
@@ -28,7 +28,7 @@
 			<button name="home_btn" tool_tip="Página inicial"/>
 		</layout_panel>
 		<layout_panel name="media_stop">
-			<button name="media_stop_btn" tool_tip="Para los media"/>
+			<button name="media_stop_btn" tool_tip="Parar los media"/>
 		</layout_panel>
 		<layout_panel name="reload">
 			<button name="reload_btn" tool_tip="Recargar"/>
@@ -67,7 +67,7 @@
 			<slider name="volume_slider" tool_tip="Volumen de los media"/>
 		</layout_panel>
 		<layout_panel name="zoom_frame">
-			<button name="zoom_frame_btn" tool_tip="Zoom a la mitad"/>
+			<button name="zoom_frame_btn" tool_tip="Zoom hacia los media"/>
 		</layout_panel>
 		<layout_panel name="close">
 			<button name="close_btn" tool_tip="Alejar el zoom"/>

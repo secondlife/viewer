@@ -16,7 +16,7 @@
 	<search_editor label="Filtrar texturas" name="inventory search editor"/>
 	<check_box label="Applicar agora" name="apply_immediate_check"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<button label="Ok" label_selected="Ok" name="Select"/>
+	<button label="OK" label_selected="OK" name="Select"/>
 	<string name="pick title">
 		Pegar:
 	</string>

@@ -2,13 +2,20 @@
 <panel label="Sons" name="Preference Media panel">
 	<slider label="Volume principal" name="System Volume"/>
 	<check_box initial_value="true" label="Silenciar ao minimizar" name="mute_when_minimized"/>
-	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Botões" name="UI Volume"/>
-	<slider label="Mídia" name="Media Volume"/>
+	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Efeitos sonoros" name="SFX Volume"/>
 	<slider label="Streaming de música" name="Music Volume"/>
-	<check_box label="Voz" name="enable_voice_check"/>
-	<slider label="Voz" name="Voice Volume"/>
+	<check_box label="Ativado" name="music_enabled"/>
+	<slider label="Mídia" name="Media Volume"/>
+	<check_box label="Ativado" name="enable_media"/>
+	<slider label="Bate-papo de voz" name="Voice Volume"/>
+	<check_box label="Ativado" name="enable_voice_check"/>
+	<check_box label="Autorizar auto-play de mídias" name="media_auto_play_btn" tool_tip="Marque esta opção para auto-executar mídias, se elas quiserem" value="verdadeiro"/>
+	<check_box label="Tocar mídia anexada em outros avatares" name="media_show_on_others_btn" tool_tip="Desmarque esta opção para ocultar mídias anexadas em avatares por perto" value="verdadeiro"/>
+	<text name="voice_chat_settings">
+		Configuração de bate-papo de voz
+	</text>
 	<text name="Listen from">
 		Ouvir a partir de:
 	</text>

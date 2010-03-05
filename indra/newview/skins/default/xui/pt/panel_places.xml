@@ -2,13 +2,14 @@
 <panel label="Lugares" name="places panel">
 	<string name="landmarks_tab_title" value="MEUS MARCOS"/>
 	<string name="teleport_history_tab_title" value="HISTÓRICO DE TELETRANSPORTES"/>
-	<filter_editor label="Filtrar lugares" name="Filter"/>
+	<filter_editor label="Filtrar meus lugares" name="Filter"/>
 	<panel name="button_panel">
-		<button label="Teletransportar" name="teleport_btn"/>
+		<button label="Teletransportar" name="teleport_btn" tool_tip="Teletransportar para a área selecionada"/>
 		<button label="Mapa" name="map_btn"/>
-		<button label="Editar" name="edit_btn"/>
-		<button label="Fechar" name="close_btn"/>
-		<button label="Cancelar" name="cancel_btn"/>
+		<button label="Editar" name="edit_btn" tool_tip="Editar dados do marco"/>
+		<button label="▼" name="overflow_btn" tool_tip="Mostrar opções adicionais"/>
 		<button label="Salvar" name="save_btn"/>
+		<button label="Cancelar" name="cancel_btn"/>
+		<button label="Fechar" name="close_btn"/>
 	</panel>
 </panel>

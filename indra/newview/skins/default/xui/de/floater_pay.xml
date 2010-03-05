@@ -18,7 +18,7 @@
 	<button label="10 L$" label_selected="10 L$" name="fastpay 10"/>
 	<button label="20 L$" label_selected="20 L$" name="fastpay 20"/>
 	<text name="amount text">
-		Oder Betrag auswählen:
+		oder Betrag auswählen:
 	</text>
 	<button label="Bezahlen" label_selected="Bezahlen" name="pay btn"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel btn"/>

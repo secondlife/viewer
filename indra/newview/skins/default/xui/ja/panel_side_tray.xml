@@ -20,10 +20,10 @@
 	<sidetray_tab description="行きたい場所、行ったことのある場所を探してください。" label="場所" name="sidebar_places" tab_title="場所">
 		<panel label="場所" name="panel_places"/>
 	</sidetray_tab>
-	<sidetray_tab description="あなたの持ち物を眺めてください。" name="sidebar_inventory" tab_title="マイ 持ち物">
+	<sidetray_tab description="あなたの持ち物を眺めてください。" name="sidebar_inventory" tab_title="持ち物">
 		<panel label="持ち物を編集" name="sidepanel_inventory"/>
 	</sidetray_tab>
-	<sidetray_tab description="あなたの容姿や現在の見た目を変更してください。" name="sidebar_appearance" tab_title="マイ 容姿">
+	<sidetray_tab description="あなたの容姿や現在の見た目を変更してください。" name="sidebar_appearance" tab_title="容姿">
 		<panel label="容姿の編集" name="sidepanel_appearance"/>
 	</sidetray_tab>
 </side_tray>

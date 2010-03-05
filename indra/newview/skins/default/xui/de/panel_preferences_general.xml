@@ -20,13 +20,13 @@
 		(Erfordert Neustart)
 	</text>
 	<text name="maturity_desired_prompt" width="350">
-		Ich möchte auf Inhalt mit folgender Alterseinstufung zugreifen:
+		Ich möchte auf Inhalt mit folgender Einstufung zugreifen:
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="Allgemein, Moderat, Adult" name="Desired_Adult"/>
-		<combo_box.item label="Allgemein und Moderat" name="Desired_Mature"/>
-		<combo_box.item label="Allgemein" name="Desired_PG"/>
+		<combo_box.item label="Generell, Moderat, Adult" name="Desired_Adult"/>
+		<combo_box.item label="Generell und Moderat" name="Desired_Mature"/>
+		<combo_box.item label="Generell" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		Startstandort:

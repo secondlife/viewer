@@ -36,7 +36,7 @@
 	<button label="?" name="agent_limit_help"/>
 	<spinner label="Objektbonus" name="object_bonus_spin"/>
 	<button label="?" name="object_bonus_help"/>
-	<text label="Alterseinstufung" name="access_text">
+	<text label="Inhaltseinstufung" name="access_text">
 		Einstufung:
 	</text>
 	<combo_box label="Moderat" name="access_combo">

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Evento" name="Event" title="DETALHES DO EVENTO">
+	<floater.string name="none">
+		nenhum
+	</floater.string>
+	<floater.string name="notify">
+		Avisar
+	</floater.string>
+	<floater.string name="dont_notify">
+		Não avisar
+	</floater.string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<text name="event_name">
+				Evento sem nome... Terror! Terror Aterrorizante.
+			</text>
+			<text name="event_category">
+				(não categorizado)
+			</text>
+			<text name="event_runby_label">
+				Organização:
+			</text>
+			<text initial_value="(pesquisando)" name="event_runby"/>
+			<text name="event_date">
+				10/10/2010
+			</text>
+			<text name="event_duration">
+				1 hora
+			</text>
+			<text name="event_cover">
+				Grátis
+			</text>
+			<text name="event_location_label">
+				Localização:
+			</text>
+			<text name="event_location" value="LoteExemplo, Nome extenso (145, 228, 26)"/>
+			<text name="rating_label" value="Classificação:"/>
+			<text name="rating_value" value="(Desconhecido)"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<button name="create_event_btn" tool_tip="Criar evento"/>
+			<button name="god_delete_event_btn" tool_tip="Excluir evento"/>
+			<button label="Avise-me" name="notify_btn"/>
+			<button label="Teletransportar" name="teleport_btn"/>
+			<button label="Mapa" name="map_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

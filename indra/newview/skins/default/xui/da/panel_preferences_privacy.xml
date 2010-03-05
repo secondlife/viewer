@@ -3,7 +3,7 @@
 	<panel.string name="log_in_to_change">
 		log på for at ændre
 	</panel.string>
-	<button label="Nulstil historik" name="clear_cache"/>
+	<button label="Nulstil historik" name="clear_cache" tool_tip="Fjern login billede, sidste lokation, teleport historik, samt web og tekstur cache"/>
 	<text name="cache_size_label_l">
 		(Lokationer, billeder, web, søge historik)
 	</text>
@@ -11,7 +11,6 @@
 	<check_box label="Kun venner og grupper kan sende besked til mig" name="voice_call_friends_only_check"/>
 	<check_box label="Slå mikrofon fra når opkald slutter" name="auto_disengage_mic_check"/>
 	<check_box label="Acceptér cookies" name="cookies_enabled"/>
-	<check_box label="Tillad media autoplay" name="autoplay_enabled"/>
 	<text name="Logs:">
 		Logs:
 	</text>
@@ -19,7 +18,7 @@
 	<check_box label="Gem en log med private beskeder (IM) på min computer" name="log_instant_messages"/>
 	<check_box label="Tilføj tidsstempel" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
-		Placering af logfiler
+		Placering af logfiler:
 	</text>
 	<button label="Ændre sti" label_selected="Ændre sti" left="150" name="log_path_button"/>
 	<button label="Liste med blokeringer" name="block_list"/>

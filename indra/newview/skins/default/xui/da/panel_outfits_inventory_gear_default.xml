@@ -4,6 +4,6 @@
 	<menu_item_call label="Tilføj til nuværende sæt" name="add"/>
 	<menu_item_call label="Fjern fra nuværende sæt" name="remove"/>
 	<menu_item_call label="Omdøb" name="rename"/>
-	<menu_item_call label="Fjern" name="remove_link"/>
-	<menu_item_call label="Slet" name="delete"/>
+	<menu_item_call label="Fjern link" name="remove_link"/>
+	<menu_item_call label="Slet sæt" name="delete"/>
 </menu>

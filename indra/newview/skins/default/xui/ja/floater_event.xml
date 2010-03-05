@@ -9,6 +9,18 @@
 	<floater.string name="dont_notify">
 		知らせない
 	</floater.string>
+	<floater.string name="moderate">
+		Moderate
+	</floater.string>
+	<floater.string name="adult">
+		Adult
+	</floater.string>
+	<floater.string name="general">
+		General
+	</floater.string>
+	<floater.string name="unknown">
+		不明
+	</floater.string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<text name="event_name">
@@ -21,11 +33,20 @@
 				主催者：
 			</text>
 			<text initial_value="（取得中）" name="event_runby"/>
+			<text name="event_date_label">
+				日付：
+			</text>
 			<text name="event_date">
 				10/10/2010
 			</text>
+			<text name="event_duration_label">
+				期間：
+			</text>
 			<text name="event_duration">
 				1 時間
+			</text>
+			<text name="event_covercharge_label">
+				カバーチャージ：
 			</text>
 			<text name="event_cover">
 				無料

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="teleport_history_item">
+	<button name="profile_btn" tool_tip="Mostrar dados do item"/>
+</panel>

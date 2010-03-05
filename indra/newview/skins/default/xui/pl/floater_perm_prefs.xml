@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="perm prefs" title="PRAWA DOMYŚLNE">
+<floater name="perm prefs" title="USTAWIENIA DOMYŚLNE ŁADOWANIA">
 	<panel label="Prawa" name="permissions">
 		<button label="?" label_selected="?" name="help"/>
 		<check_box label="Udostępnij grupie" name="share_with_group"/>

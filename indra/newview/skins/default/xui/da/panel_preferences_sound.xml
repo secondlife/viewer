@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Lyde" name="Preference Media panel">
 	<slider label="Generel" name="System Volume"/>
-	<check_box initial_value="true" label="Sluk lyd når vinduet er minimeret" name="mute_when_minimized"/>
-	<slider label="Omgivelser" name="Wind Volume"/>
+	<check_box initial_value="true" label="Sluk lyd når minimeret" name="mute_when_minimized"/>
 	<slider label="Knapper" name="UI Volume"/>
-	<slider label="Media" name="Media Volume"/>
-	<slider label="Effekter" name="SFX Volume"/>
+	<slider label="Omgivelser" name="Wind Volume"/>
+	<slider label="Lyd effekter" name="SFX Volume"/>
 	<slider label="Musik" name="Music Volume"/>
-	<check_box label="Tale" name="enable_voice_check"/>
-	<slider label="Tale" name="Voice Volume"/>
+	<check_box label="Aktiveret" name="music_enabled"/>
+	<slider label="Media" name="Media Volume"/>
+	<check_box label="Aktiveret" name="enable_media"/>
+	<slider label="Stemme chat" name="Voice Volume"/>
+	<check_box label="Aktiveret" name="enable_voice_check"/>
+	<check_box label="Tillad media at afspilles automatisk" name="media_auto_play_btn" tool_tip="Vælg dette for at media afspille automatisk hvis det ønsker det" value="sandt"/>
+	<check_box label="Afspil media vedhæftet andre avatarer" name="media_show_on_others_btn" tool_tip="Deaktiver dette for at skjule vedhæftet media for avatarer i nærheden" value="sandt"/>
+	<text name="voice_chat_settings">
+		Stemme chat opsætning
+	</text>
 	<text name="Listen from">
 		Hør stemmer fra:
 	</text>

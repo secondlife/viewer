@@ -21,7 +21,7 @@
 				<accordion_tab name="tab_all" title="Alle"/>
 			</accordion>
 			<text name="no_friends_msg">
-				Verwenden Sie [secondlife:///app/search/people die globale Suche], um Freunde hinzuzufügen. Oder klicken Sie auf einen Einwohner und fügen Sie diesen als Freund hinzu.
+				Verwenden Sie [secondlife:///app/search/people die globale Suche], um Freunde hinzuzufügen. Oder klicken Sie mit rechts auf einen Einwohner und fügen Sie diesen als Freund hinzu.
 Wenn Sie nach Orten suchen, an denen sich Leute befinden, verwenden Sie [secondlife:///app/worldmap die Karte].
 			</text>
 			<panel label="bottom_panel" name="bottom_panel">

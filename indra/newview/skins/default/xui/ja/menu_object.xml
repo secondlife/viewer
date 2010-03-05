@@ -5,6 +5,7 @@
 	<menu_item_call label="制作" name="Build"/>
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="ここに座る" name="Object Sit"/>
+	<menu_item_call label="立ち上がる" name="Object Stand Up"/>
 	<menu_item_call label="オブジェクトのプロフィール" name="Object Inspect"/>
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<context_menu label="装着  ▶" name="Put On">
@@ -18,6 +19,7 @@
 		<menu_item_call label="返却" name="Return..."/>
 		<menu_item_call label="削除" name="Delete"/>
 	</context_menu>
+	<menu_item_call label="買う" name="Pie Object Bye"/>
 	<menu_item_call label="取る" name="Pie Object Take"/>
 	<menu_item_call label="コピーを取る" name="Take Copy"/>
 	<menu_item_call label="支払う" name="Pay..."/>

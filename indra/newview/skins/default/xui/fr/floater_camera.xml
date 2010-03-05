@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Déplacer la caméra vers le haut et le bas, la gauche et la droite
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Faire tourner
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		Faire un panoramique
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Préréglages
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Voir l&apos;objet
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Déplacer la caméra vers le haut et le bas, la gauche et la droite"/>
 		<panel name="zoom" tool_tip="Zoomer en direction du point central">
@@ -25,7 +37,7 @@
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Faire tourner la caméra"/>
 		<button label="" name="pan_btn" tool_tip="Faire un panoramique"/>
-		<button label="" name="avatarview_btn" tool_tip="Vue subjective"/>
+		<button label="" name="avatarview_btn" tool_tip="Préréglages"/>
 		<button label="" name="freecamera_btn" tool_tip="Voir l&apos;objet"/>
 	</panel>
 </floater>

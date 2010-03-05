@@ -5,23 +5,12 @@
 			Leyenda
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_2">
-		<button label="Mostrar mi posición" label_selected="Mostrar mi posición" name="Show My Location" tool_tip="Centrar el mapa en la posición de mi avatar"/>
+	<panel>
 		<text name="me_label">
 			Yo
 		</text>
-		<check_box label="Residente" name="people_chk"/>
 		<text name="person_label">
 			Persona
-		</text>
-		<check_box label="Punto de Info" name="infohub_chk"/>
-		<text name="infohub_label">
-			Punto de Info
-		</text>
-		<check_box label="Terreno en venta" name="land_for_sale_chk"/>
-		<text name="land_sale_label">
-			Venta de terreno
 		</text>
 		<text name="by_owner_label">
 			por el propietario
@@ -29,59 +18,17 @@
 		<text name="auction_label">
 			subasta de terreno
 		</text>
-		<button label="Ir a la Base" label_selected="Ir a la Base" name="Go Home" tool_tip="Teleportar a mi Base"/>
-		<text name="Home_label">
-			Base
-		</text>
-		<text name="events_label">
-			Eventos:
-		</text>
-		<check_box label="&apos;PG&apos;" name="event_chk"/>
 		<text name="pg_label">
 			General
 		</text>
-		<check_box initial_value="true" label="&apos;Mature&apos;" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderado
 		</text>
-		<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
 		<text name="adult_label">
 			Adulto
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_3">
-		<text name="find_on_map_label">
-			Encontrar en el mapa
-		</text>
-	</panel>
-	<panel
-	name="layout_panel_4">
-		<combo_box label="Amigos conectados" name="friend combo" tool_tip="Ver a los amigos en el mapa">
-			<combo_box.item label="Mis amigos conectados" name="item1"/>
-		</combo_box>
-		<combo_box label="Mis hitos" name="landmark combo" tool_tip="Hito a ver en el mapa">
-			<combo_box.item label="Mis hitos" name="item1"/>
-		</combo_box>
-		<search_editor label="Regiones alfabéticamente" name="location" tool_tip="Escriba el nombre de una región"/>
-		<button label="Encontrar" name="DoSearch" tool_tip="Buscar una región"/>
+	<panel>
 		<button name="Clear" tool_tip="Limpia las marcas y actualiza el mapa"/>
-		<scroll_list name="search_results">
-			<scroll_list.columns label="" name="icon"/>
-			<scroll_list.columns label="" name="sim_name"/>
-		</scroll_list>
-		<button label="Teleportar" label_selected="Teleportar" name="Teleport" tool_tip="Teleportarse a la localización elegida"/>
-		<button label="Copiar la SLurl" name="copy_slurl" tool_tip="Copiar la SLurl de esta posición para usarla en una web."/>
-		<button label="Ver lo elegido" label_selected="Mostrar el destino" name="Show Destination" tool_tip="Centrar el mapa en la localización elegida"/>
-	</panel>
-	<panel
-	name="layout_panel_5">
-		<text name="zoom_label">
-			Zoom
-		</text>
-	</panel>
-	<panel
-	name="layout_panel_6">
-		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>
