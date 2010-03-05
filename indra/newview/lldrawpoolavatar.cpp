@@ -2,25 +2,31 @@
  * @file lldrawpoolavatar.cpp
  * @brief LLDrawPoolAvatar class implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -151,6 +157,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	
+	sSkipTransparent = TRUE;
+
 	if (LLPipeline::sImpostorRender)
 	{
 		beginDeferredSkinned();
@@ -174,6 +182,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
+
+	sSkipTransparent = FALSE;
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -558,7 +568,6 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
-	sSkipTransparent = TRUE;
 	sShaderLevel = mVertexShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
 
@@ -573,7 +582,6 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 void LLDrawPoolAvatar::endDeferredSkinned()
 {
-	sSkipTransparent = FALSE;
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
@@ -628,7 +636,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if (!single_avatar && !avatarp->isFullyLoaded() )
 	{
-		if (pass==0 && (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) || LLViewerPartSim::getMaxPartCount() <= 0))
+		if (pass==1 && (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) || LLViewerPartSim::getMaxPartCount() <= 0))
 		{
 			// debug code to draw a sphere in place of avatar
 			gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
@@ -640,10 +648,8 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			gGL.translatef((F32)(pos.mV[VX]),	 
 						   (F32)(pos.mV[VY]),	 
 							(F32)(pos.mV[VZ]));	 
-			 gGL.scalef(0.15f, 0.15f, 0.3f);
-
-			 gSphere.renderGGL();
-				 
+			 gGL.scalef(0.15f, 0.15f, 0.3f);	 
+			 gSphere.render();	 
 			 gGL.popMatrix();
 			 gGL.setColorMask(true, false);
 		}
