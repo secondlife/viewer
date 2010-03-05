@@ -48,6 +48,14 @@ bool view_visible(LLView* viewp)
 
 LLPopupView::LLPopupView()
 {
+	// register ourself as handler of UI popups
+	LLUI::setPopupFuncs(boost::bind(&LLPopupView::addPopup, this, _1), boost::bind(&LLPopupView::removePopup, this, _1), boost::bind(&LLPopupView::clearPopups, this));
+}
+
+LLPopupView::~LLPopupView()
+{
+	// set empty callback function so we can't handle popups anymore
+	LLUI::setPopupFuncs(LLUI::add_popup_t(), LLUI::remove_popup_t(), LLUI::clear_popups_t());
 }
 
 void LLPopupView::draw()
@@ -212,8 +220,8 @@ void LLPopupView::removePopup(LLView* popup)
 		{
 			gFocusMgr.setKeyboardFocus(NULL);
 		}
-		popup->onTopLost();
 		mPopups.erase(std::find(mPopups.begin(), mPopups.end(), popup->getHandle()));
+		popup->onTopLost();
 	}
 }
 

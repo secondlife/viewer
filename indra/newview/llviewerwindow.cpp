@@ -1368,8 +1368,6 @@ LLViewerWindow::LLViewerWindow(
 	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
 	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
 
-	LLUI::setPopupFuncs(boost::bind(&LLViewerWindow::addPopup, this, _1), boost::bind(&LLViewerWindow::removePopup, this, _1), boost::bind(&LLViewerWindow::clearPopups, this));
-
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
 	LLViewerWindow::sMovieBaseName = "SLmovie";

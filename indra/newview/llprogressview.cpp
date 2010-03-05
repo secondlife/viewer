@@ -128,7 +128,6 @@ void LLProgressView::setVisible(BOOL visible)
 {
 	if (getVisible() && !visible)
 	{
-		gViewerWindow->removePopup(this);
 
 		mFadeTimer.start();
 	}
@@ -190,6 +189,8 @@ void LLProgressView::draw()
 			// Fade is complete, release focus
 			gFocusMgr.releaseFocusIfNeeded( this );
 			LLPanel::setVisible(FALSE);
+			gViewerWindow->removePopup(this);
+
 			gStartTexture = NULL;
 		}
 		return;

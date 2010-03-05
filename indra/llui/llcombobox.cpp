@@ -622,7 +622,7 @@ void LLComboBox::showList()
 	LLUI::addPopup(this);
 
 	setUseBoundingRect(TRUE);
-	updateBoundingRect();
+//	updateBoundingRect();
 }
 
 void LLComboBox::hideList()
@@ -646,7 +646,7 @@ void LLComboBox::hideList()
 
 		setUseBoundingRect(FALSE);
 		LLUI::removePopup(this);
-		updateBoundingRect();
+//		updateBoundingRect();
 	}
 }
 
