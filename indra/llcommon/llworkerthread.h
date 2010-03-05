@@ -80,6 +80,9 @@ public:
 		S32 mParam;
 	};
 
+protected:
+	void clearDeleteList() ;
+
 private:
 	typedef std::list<LLWorkerClass*> delete_list_t;
 	delete_list_t mDeleteList;

@@ -242,6 +242,12 @@ void LLFloaterMediaSettings::onBtnApply( void* userdata )
 	sInstance->commitFields();
 
 	sInstance->apply();
+
+	sInstance->mInitialValues.clear();
+	sInstance->mPanelMediaSettingsGeneral->getValues( sInstance->mInitialValues );
+	sInstance->mPanelMediaSettingsSecurity->getValues( sInstance->mInitialValues );
+	sInstance->mPanelMediaSettingsPermissions->getValues( sInstance->mInitialValues );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
