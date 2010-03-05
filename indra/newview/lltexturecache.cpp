@@ -750,6 +750,7 @@ LLTextureCache::LLTextureCache(bool threaded)
 
 LLTextureCache::~LLTextureCache()
 {
+	clearDeleteList() ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1574,6 +1575,11 @@ bool LLTextureCache::readComplete(handle_t handle, bool abort)
 	{
 		worker = iter->second;
 		complete = worker->complete();
+
+		if(!complete && abort)
+		{
+			abortRequest(handle, true) ;
+		}
 	}
 	if (worker && (complete || abort))
 	{
