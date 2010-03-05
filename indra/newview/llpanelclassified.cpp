@@ -114,6 +114,23 @@ public:
 };
 static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 
+// Just to debug errors. Can be thrown away later.
+class LLClassifiedClickMessageResponder : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLClassifiedClickMessageResponder);
+
+public:
+	// If we get back an error (not found, etc...), handle it here
+	virtual void errorWithContent(
+		U32 status,
+		const std::string& reason,
+		const LLSD& content)
+	{
+		llwarns << "Sending click message failed (" << status << "): [" << reason << "]" << llendl;
+		llwarns << "Content: [" << content << "]" << llendl;
+	}
+};
+
 
 /* Re-expose this if we need to have classified ad HTML detail
    pages.  JC
@@ -1234,7 +1251,7 @@ void LLPanelClassifiedInfo::reshape(S32 width, S32 height, BOOL called_from_pare
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 {
-	LLUUID avatar_id = key["avatar_id"];
+	LLUUID avatar_id = key["classified_creator_id"];
 	if(avatar_id.isNull())
 	{
 		return;
@@ -1251,9 +1268,12 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	resetControls();
 
 	setClassifiedId(key["classified_id"]);
-	setClassifiedName(key["name"]);
-	setDescription(key["desc"]);
-	setSnapshotId(key["snapshot_id"]);
+	setClassifiedName(key["classified_name"]);
+	setDescription(key["classified_desc"]);
+	setSnapshotId(key["classified_snapshot_id"]);
+	setFromSearch(key["from_search"]);
+
+	llinfos << "Opening classified [" << getClassifiedName() << "] (" << getClassifiedId() << ")" << llendl;
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
@@ -1270,6 +1290,10 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 		LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(getClassifiedId()));
 	}
 
+	// Update classified click stats.
+	// *TODO: Should we do this when opening not from search?
+	sendClickMessage("profile");
+
 	setInfoLoaded(false);
 }
 
@@ -1285,6 +1309,8 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			setSnapshotId(c_info->snapshot_id);
 			setParcelId(c_info->parcel_id);
 			setPosGlobal(c_info->pos_global);
+			setSimName(c_info->sim_name);
+
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
 			childSetValue("category", LLClassifiedInfo::sCategories[c_info->category]);
 
@@ -1316,7 +1342,19 @@ void LLPanelClassifiedInfo::resetData()
 	setClassifiedLocation(LLStringUtil::null);
 	setClassifiedId(LLUUID::null);
 	setSnapshotId(LLUUID::null);
-	mPosGlobal.clearVec();
+	setPosGlobal(LLVector3d::zero);
+	setParcelId(LLUUID::null);
+	setSimName(LLStringUtil::null);
+	setFromSearch(false);
+
+	// reset click stats
+	mTeleportClicksOld	= 0;
+	mMapClicksOld		= 0;
+	mProfileClicksOld	= 0;
+	mTeleportClicksNew	= 0;
+	mMapClicksNew		= 0;
+	mProfileClicksNew	= 0;
+
 	childSetValue("category", LLStringUtil::null);
 	childSetValue("content_type", LLStringUtil::null);
 	childSetText("click_through_text", LLStringUtil::null);
@@ -1433,8 +1471,14 @@ void LLPanelClassifiedInfo::setClickThrough(
 		ct_str.setArg("[TELEPORT]",	llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld));
 		ct_str.setArg("[MAP]",		llformat("%d", self->mMapClicksNew + self->mMapClicksOld));
 		ct_str.setArg("[PROFILE]",	llformat("%d", self->mProfileClicksNew + self->mProfileClicksOld));
-
 		self->childSetText("click_through_text", ct_str.getString());
+		// *HACK: remove this when there is enough room for click stats in the info panel
+		self->childSetToolTip("click_through_text", ct_str.getString());  
+
+		llinfos << "teleport: " << llformat("%d", self->mTeleportClicksNew + self->mTeleportClicksOld)
+				<< ", map: "    << llformat("%d", self->mMapClicksNew + self->mMapClicksOld)
+				<< ", profile: " << llformat("%d", self->mProfileClicksNew + self->mProfileClicksOld)
+				<< llendl;
 	}
 }
 
@@ -1504,8 +1548,27 @@ void LLPanelClassifiedInfo::stretchSnapshot()
 	mSnapshotStreched = true;
 }
 
+void LLPanelClassifiedInfo::sendClickMessage(const std::string& type)
+{
+	// You're allowed to click on your own ads to reassure yourself
+	// that the system is working.
+	LLSD body;
+	body["type"]			= type;
+	body["from_search"]		= fromSearch();
+	body["classified_id"]	= getClassifiedId();
+	body["parcel_id"]		= getParcelId();
+	body["dest_pos_global"]	= getPosGlobal().getValue();
+	body["region_name"]		= getSimName();
+
+	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
+	llinfos << "Sending click msg via capability (url=" << url << ")" << llendl;
+	llinfos << "body: [" << body << "]" << llendl;
+	LLHTTPClient::post(url, body, new LLClassifiedClickMessageResponder());
+}
+
 void LLPanelClassifiedInfo::onMapClick()
 {
+	sendClickMessage("map");
 	LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
 	LLFloaterReg::showInstance("world_map", "center");
 }
@@ -1514,6 +1577,7 @@ void LLPanelClassifiedInfo::onTeleportClick()
 {
 	if (!getPosGlobal().isExactlyZero())
 	{
+		sendClickMessage("teleport");
 		gAgent.teleportViaLocation(getPosGlobal());
 		LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
 	}

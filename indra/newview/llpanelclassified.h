@@ -204,6 +204,7 @@ private:
 
 class LLPanelClassifiedInfo : public LLPanel, public LLAvatarPropertiesObserver
 {
+	LOG_CLASS(LLPanelClassifiedInfo);
 public:
 
 	static LLPanelClassifiedInfo* create();
@@ -246,6 +247,14 @@ public:
 
 	LLUUID getParcelId() { return mParcelId; }
 
+	void setSimName(const std::string& sim_name) { mSimName = sim_name; }
+
+	std::string getSimName() { return mSimName; }
+
+	void setFromSearch(bool val) { mFromSearch = val; }
+
+	bool fromSearch() { return mFromSearch; }
+
 	bool getInfoLoaded() { return mInfoLoaded; }
 
 	void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
@@ -279,6 +288,7 @@ protected:
 		const LLVector3d& pos_global);
 
 	void stretchSnapshot();
+	void sendClickMessage(const std::string& type);
 
 	void onMapClick();
 	void onTeleportClick();
@@ -290,6 +300,8 @@ private:
 	LLUUID mClassifiedId;
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
+	std::string mSimName;
+	bool mFromSearch;
 	bool mInfoLoaded;
 
 	bool mSnapshotStreched;
@@ -315,6 +327,7 @@ private:
 
 class LLPanelClassifiedEdit : public LLPanelClassifiedInfo
 {
+	LOG_CLASS(LLPanelClassifiedEdit);
 public:
 
 	static LLPanelClassifiedEdit* create();
