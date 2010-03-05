@@ -163,7 +163,6 @@ bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
 bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 {
 	return OFFER_FRIENDSHIP == notification->getName()
-			|| FRIENDSHIP_ACCEPTED == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
 			|| INVENTORY_ACCEPTED == notification->getName()
 			|| INVENTORY_DECLINED == notification->getName()

@@ -146,8 +146,12 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				if(channel)
 					channel->addToast(p);
 
-				// send a signal to the counter manager
-				mNewNotificationSignal();
+				// if we not add notification to IM - add it to notification well
+				if (!add_notid_to_im)
+				{
+					// send a signal to the counter manager
+					mNewNotificationSignal();
+				}
 			}
 
 			if (LLHandlerUtil::canLogToIM(notification))
