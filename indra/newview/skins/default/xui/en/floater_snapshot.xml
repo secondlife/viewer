@@ -45,7 +45,7 @@
     </radio_group>
   <ui_ctrl 
     height="90"
-    width="90"
+    width="125"
     layout="topleft"
     name="thumbnail_placeholder"
     top_pad="6"
@@ -149,7 +149,7 @@
      left="10"
      name="type_label2"
      top_pad="5"
-     width="120">
+     width="127">
         Size
     </text>
     <text
@@ -199,7 +199,7 @@
      left_delta="0"
      name="texture_size_combo"
      top_delta="0"
-     width="120">
+     width="127">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
@@ -228,7 +228,7 @@
      left_delta="0"
      name="local_size_combo"
      top_delta="0"
-     width="120">
+     width="127">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
