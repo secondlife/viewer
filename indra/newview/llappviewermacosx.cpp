@@ -392,7 +392,12 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 		_exit(1);
 	}
 	
-	// TODO:palmer REMOVE THIS VERY SOON.  THIS WILL NOT BE IN VIEWER 2.0
+	// TODO from palmer: Find a better way to handle managing old crash logs
+	// when this is a separate imbedable module.  Ideally just sort crash stack
+	// logs based on date, and grab the latest one as opposed to deleting them
+	// for thoughts on what the module would look like.
+	// See: https://wiki.lindenlab.com/wiki/Viewer_Crash_Reporter_Round_4
+	
 	// Remove the crash stack log from previous executions.
 	// Since we've started logging a new instance of the app, we can assume 
 	// The old crash stack is invalid for the next crash report.
