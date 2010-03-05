@@ -275,7 +275,7 @@ void main()
 	{
 		vec3 ref = normalize(reflect(pos.xyz, norm.xyz));
 		float sa = dot(ref, vary_light.xyz);
-		col.rgb += vary_SunlitColor*scol*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
+		col.rgb += vary_SunlitColor*scol_ambocc.r*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
 	}
 	
 	col = atmosLighting(col);

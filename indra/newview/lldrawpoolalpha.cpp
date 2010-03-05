@@ -294,96 +294,98 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 				LLRenderPass::applyModelMatrix(params);
 
-				if (params.mFullbright)
 				{
-					// Turn off lighting if it hasn't already been so.
-					if (light_enabled || !initialized_lighting)
+					if (params.mFullbright)
+					{
+						// Turn off lighting if it hasn't already been so.
+						if (light_enabled || !initialized_lighting)
+						{
+							initialized_lighting = TRUE;
+							if (use_shaders) 
+							{
+								target_shader = fullbright_shader;
+							}
+							else
+							{
+								gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+							}
+							light_enabled = FALSE;
+						}
+					}
+					// Turn on lighting if it isn't already.
+					else if (!light_enabled || !initialized_lighting)
 					{
 						initialized_lighting = TRUE;
 						if (use_shaders) 
 						{
-							target_shader = fullbright_shader;
+							target_shader = simple_shader;
 						}
 						else
 						{
-							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+							gPipeline.enableLightsDynamic();
 						}
-						light_enabled = FALSE;
+						light_enabled = TRUE;
 					}
-				}
-				// Turn on lighting if it isn't already.
-				else if (!light_enabled || !initialized_lighting)
-				{
-					initialized_lighting = TRUE;
-					if (use_shaders) 
-					{
-						target_shader = simple_shader;
-					}
-					else
-					{
-						gPipeline.enableLightsDynamic();
-					}
-					light_enabled = TRUE;
-				}
 
-				// If we need shaders, and we're not ALREADY using the proper shader, then bind it
-				// (this way we won't rebind shaders unnecessarily).
-				if(use_shaders && (current_shader != target_shader))
-				{
-					llassert(target_shader != NULL);
-					if (deferred_render && current_shader != NULL)
+					// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+					// (this way we won't rebind shaders unnecessarily).
+					if(use_shaders && (current_shader != target_shader))
 					{
-						gPipeline.unbindDeferredShader(*current_shader);
-						diffuse_channel = 0;
+						llassert(target_shader != NULL);
+						if (deferred_render && current_shader != NULL)
+						{
+							gPipeline.unbindDeferredShader(*current_shader);
+							diffuse_channel = 0;
+						}
+						current_shader = target_shader;
+						if (deferred_render)
+						{
+							gPipeline.bindDeferredShader(*current_shader);
+							diffuse_channel = current_shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+						}
+						else
+						{
+							current_shader->bind();
+						}
 					}
-					current_shader = target_shader;
-					if (deferred_render)
+					else if (!use_shaders && current_shader != NULL)
 					{
-						gPipeline.bindDeferredShader(*current_shader);
-						diffuse_channel = current_shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+						if (deferred_render)
+						{
+							gPipeline.unbindDeferredShader(*current_shader);
+							diffuse_channel = 0;
+						}
+						LLGLSLShader::bindNoShader();
+						current_shader = NULL;
 					}
-					else
-					{
-						current_shader->bind();
-					}
-				}
-				else if (!use_shaders && current_shader != NULL)
-				{
-					if (deferred_render)
-					{
-						gPipeline.unbindDeferredShader(*current_shader);
-						diffuse_channel = 0;
-					}
-					LLGLSLShader::bindNoShader();
-					current_shader = NULL;
-				}
 
-				if (params.mGroup)
-				{
-					params.mGroup->rebuildMesh();
-				}
-
-				
-				if (params.mTexture.notNull())
-				{
-					gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
-					if(params.mTexture.notNull())
+					if (params.mGroup)
 					{
-						params.mTexture->addTextureStats(params.mVSize);
+						params.mGroup->rebuildMesh();
 					}
-					if (params.mTextureMatrix)
+
+					
+					if (params.mTexture.notNull())
 					{
-						gGL.getTexUnit(0)->activate();
-						glMatrixMode(GL_TEXTURE);
-						glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
-						gPipeline.mTextureMatrixOps++;
+						gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
+						if(params.mTexture.notNull())
+						{
+							params.mTexture->addTextureStats(params.mVSize);
+						}
+						if (params.mTextureMatrix)
+						{
+							gGL.getTexUnit(0)->activate();
+							glMatrixMode(GL_TEXTURE);
+							glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+							gPipeline.mTextureMatrixOps++;
+						}
 					}
 				}
 
 				params.mVertexBuffer->setBuffer(mask);
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
-
+			
 				if (params.mTextureMatrix && params.mTexture.notNull())
 				{
 					gGL.getTexUnit(0)->activate();

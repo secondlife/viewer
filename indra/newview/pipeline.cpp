@@ -362,6 +362,7 @@ void LLPipeline::init()
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
@@ -510,6 +511,7 @@ void LLPipeline::destroyGL()
 }
 
 static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
+
 void LLPipeline::resizeScreenTexture()
 {
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
@@ -1816,7 +1818,6 @@ void LLPipeline::rebuildPriorityGroups()
 		
 void LLPipeline::rebuildGroups()
 {
-	llpushcallstacks ;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
 	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);
@@ -1964,6 +1965,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
 void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_VISIBLE);
+
 	if(!drawablep || drawablep->isDead())
 	{
 		return;
@@ -4813,16 +4815,16 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 	enableLights(mask);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
-	if (mLightingDetail >= 2)
+	/*if (mLightingDetail >= 2)
 	{
 		glColor4f(0.f, 0.f, 0.f, 1.f); // no local lighting by default
-	}
+	}*/
 }
 
 void LLPipeline::disableLights()
 {
 	enableLights(0); // no lighting (full bright)
-	glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
+	//glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
 }
 
 //============================================================================
@@ -5425,6 +5427,7 @@ void LLPipeline::resetVertexBuffers()
 {
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -5560,6 +5563,7 @@ void LLPipeline::bindScreenToTexture()
 }
 
 static LLFastTimer::DeclareTimer FTM_RENDER_BLOOM("Bloom");
+
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
 	LLMemType mt_ru(LLMemType::MTYPE_PIPELINE_RENDER_BLOOM);
