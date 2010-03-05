@@ -266,6 +266,14 @@ public:
 		S32 profile,
 		bool from_new_table);
 
+	static void sendClickMessage(
+			const std::string& type,
+			bool from_search,
+			const LLUUID& classified_id,
+			const LLUUID& parcel_id,
+			const LLVector3d& global_pos,
+			const std::string& sim_name);
+
 	void setExitCallback(const commit_callback_t& cb);
 
 	void setEditClassifiedCallback(const commit_callback_t& cb);

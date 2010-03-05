@@ -1548,22 +1548,42 @@ void LLPanelClassifiedInfo::stretchSnapshot()
 	mSnapshotStreched = true;
 }
 
-void LLPanelClassifiedInfo::sendClickMessage(const std::string& type)
+// static
+// *TODO: move out of the panel
+void LLPanelClassifiedInfo::sendClickMessage(
+		const std::string& type,
+		bool from_search,
+		const LLUUID& classified_id,
+		const LLUUID& parcel_id,
+		const LLVector3d& global_pos,
+		const std::string& sim_name)
 {
 	// You're allowed to click on your own ads to reassure yourself
 	// that the system is working.
 	LLSD body;
 	body["type"]			= type;
-	body["from_search"]		= fromSearch();
-	body["classified_id"]	= getClassifiedId();
-	body["parcel_id"]		= getParcelId();
-	body["dest_pos_global"]	= getPosGlobal().getValue();
-	body["region_name"]		= getSimName();
+	body["from_search"]		= from_search;
+	body["classified_id"]	= classified_id;
+	body["parcel_id"]		= parcel_id;
+	body["dest_pos_global"]	= global_pos.getValue();
+	body["region_name"]		= sim_name;
 
 	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
 	llinfos << "Sending click msg via capability (url=" << url << ")" << llendl;
 	llinfos << "body: [" << body << "]" << llendl;
 	LLHTTPClient::post(url, body, new LLClassifiedClickMessageResponder());
+}
+
+
+void LLPanelClassifiedInfo::sendClickMessage(const std::string& type)
+{
+	sendClickMessage(
+		type,
+		fromSearch(),
+		getClassifiedId(),
+		getParcelId(),
+		getPosGlobal(),
+		getSimName());
 }
 
 void LLPanelClassifiedInfo::onMapClick()

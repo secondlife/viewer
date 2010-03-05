@@ -578,7 +578,11 @@ void LLPanelPicks::onClickTeleport()
 	if(pick_item)
 		pos = pick_item->getPosGlobal();
 	else if(c_item)
+	{
 		pos = c_item->getPosGlobal();
+		LLPanelClassifiedInfo::sendClickMessage("teleport", false,
+			c_item->getClassifiedId(), LLUUID::null, pos, LLStringUtil::null);
+	}
 
 	if (!pos.isExactlyZero())
 	{
@@ -597,7 +601,11 @@ void LLPanelPicks::onClickMap()
 	if (pick_item)
 		pos = pick_item->getPosGlobal();
 	else if(c_item)
+	{
+		LLPanelClassifiedInfo::sendClickMessage("map", false,
+			c_item->getClassifiedId(), LLUUID::null, pos, LLStringUtil::null);
 		pos = c_item->getPosGlobal();
+	}
 
 	LLFloaterWorldMap::getInstance()->trackLocation(pos);
 	LLFloaterReg::showInstance("world_map", "center");
