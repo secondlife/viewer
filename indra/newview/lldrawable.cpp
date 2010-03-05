@@ -673,11 +673,8 @@ BOOL LLDrawable::updateMoveDamped()
 	return done_moving;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_DISTANCE("Update Distance");
-
 void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 {
-	LLFastTimer t(FTM_UPDATE_DISTANCE);
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
 		llerrs << "WTF?" << llendl;
@@ -1310,12 +1307,8 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_BRIDGE_DISTANCE_UPDATE("Bridge Distance");
-
 void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 {
-	LLFastTimer t(FTM_BRIDGE_DISTANCE_UPDATE);
-
 	if (mDrawable == NULL)
 	{
 		markDead();
