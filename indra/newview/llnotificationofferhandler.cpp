@@ -156,7 +156,14 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 			if (LLHandlerUtil::canLogToIM(notification))
 			{
-				LLHandlerUtil::logToIMP2P(notification);
+				if (LLHandlerUtil::isIMFloaterOpened(notification))
+				{
+					LLHandlerUtil::logToIMP2P(notification, true);
+				}
+				else
+				{
+					LLHandlerUtil::logToIMP2P(notification);
+				}
 			}
 
 			// update IM floater messages if need
@@ -192,8 +199,11 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 void LLOfferHandler::onDeleteToast(LLToast* toast)
 {
-	// send a signal to the counter manager
-	mDelNotificationSignal();
+	if (!LLHandlerUtil::canAddNotifPanelToIM(toast->getNotification()))
+	{
+		// send a signal to the counter manager
+		mDelNotificationSignal();
+	}
 
 	// send a signal to a listener to let him perform some action
 	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list

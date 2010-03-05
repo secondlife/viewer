@@ -226,6 +226,7 @@ extern const S32 EMPTY_BINARY_BUCKET_SIZE;
 
 extern const U32 NO_TIMESTAMP;
 extern const std::string SYSTEM_FROM;
+extern const std::string INTERACTIVE_SYSTEM_FROM;
 
 // Number of retry attempts on sending the im.
 extern const S32 IM_TTL;

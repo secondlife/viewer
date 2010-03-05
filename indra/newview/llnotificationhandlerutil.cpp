@@ -139,6 +139,7 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 			|| PAYMENT_RECIVED == notification->getName()
 			|| OFFER_FRIENDSHIP == notification->getName()
 			|| FRIENDSHIP_OFFERED == notification->getName()
+			|| FRIENDSHIP_ACCEPTED == notification->getName()
 			|| FRIENDSHIP_ACCEPTED_BYME == notification->getName()
 			|| FRIENDSHIP_DECLINED_BYME == notification->getName()
 			|| SERVER_OBJECT_MESSAGE == notification->getName()
@@ -274,12 +275,12 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 
 		if(to_file_only)
 		{
-			logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
-					LLUUID(), LLUUID());
+			logToIM(IM_NOTHING_SPECIAL, session_name, "", notification->getMessage(),
+					from_id, LLUUID());
 		}
 		else
 		{
-			logToIM(IM_NOTHING_SPECIAL, session_name, "", notification->getMessage(),
+			logToIM(IM_NOTHING_SPECIAL, session_name, INTERACTIVE_SYSTEM_FROM, notification->getMessage(),
 					from_id, LLUUID());
 		}
 	}
