@@ -1299,7 +1299,10 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
-			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
+
+			std::string auto_renew_str = is_cf_auto_renew(c_info->flags) ? 
+				getString("auto_renew_on") : getString("auto_renew_off");
+			childSetValue("auto_renew", auto_renew_str);
 
 			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
 			childSetValue("price_for_listing", LLSD(price_str));
