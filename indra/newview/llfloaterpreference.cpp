@@ -537,10 +537,10 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	{
 		childSetText("maturity_desired_textbox",  maturity_combo->getSelectedItemLabel());
 		childSetVisible("maturity_desired_combobox", false);
-
-		// Display selected maturity icons.
-		onChangeMaturity();
 	}
+
+	// Display selected maturity icons.
+	onChangeMaturity();
 	
 	// Enabled/disabled popups, might have been changed by user actions
 	// while preferences floater was closed.
