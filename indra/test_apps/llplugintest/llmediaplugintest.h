@@ -89,7 +89,7 @@ class LLMediaPluginTest : public LLPluginClassMediaOwner
 
 		void bindTexture(GLuint texture, GLint row_length = 0, GLint alignment = 1);
 		bool checkGLError(const char *name = "OpenGL");
-		void drawGeometry( int panel );
+		void drawGeometry( int panel, bool selected );
 		void startPanelHighlight( float red, float green, float blue, float line_width );
 		void endPanelHighlight();
 		enum { DrawTypePickTexture, DrawTypeMediaTexture };
@@ -112,6 +112,9 @@ class LLMediaPluginTest : public LLPluginClassMediaOwner
 
 		void dumpPanelInfo();
 		void updateStatusBar();
+
+		GLfloat distanceToCamera( GLfloat point_x, GLfloat point_y, GLfloat point_z );
+		
 
 	// Inherited from LLPluginClassMediaOwner
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, LLPluginClassMediaOwner::EMediaEvent);
@@ -142,6 +145,8 @@ class LLMediaPluginTest : public LLPluginClassMediaOwner
 		float mViewPos[ 3 ];
 		float mViewRotation[ 16 ];
 
+		float mDistanceCameraToSelectedGeometry;
+
 		int mIdControlAddPanel;
 		int mIdControlRemPanel;
 
@@ -159,6 +164,8 @@ class LLMediaPluginTest : public LLPluginClassMediaOwner
 		int mRandomBookmarks;
 		int mIdDisableTimeout;
 		int mDisableTimeout;
+		int mIdLargePanelSpacing;
+		int mLargePanelSpacing;
 		int mIdControlCrashPlugin;
 		int mIdControlHangPlugin;
 		int mIdControlExitApp;

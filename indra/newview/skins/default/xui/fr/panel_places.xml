@@ -7,9 +7,9 @@
 		<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
 		<button label="Carte" name="map_btn"/>
 		<button label="Éditer" name="edit_btn" tool_tip="Modifier les informations du repère"/>
-		<button name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
-		<button label="Fermer" name="close_btn"/>
-		<button label="Annuler" name="cancel_btn"/>
+		<button label="▼" name="overflow_btn" tool_tip="Afficher d&apos;autres options"/>
 		<button label="Enregistrer" name="save_btn"/>
+		<button label="Annuler" name="cancel_btn"/>
+		<button label="Fermer" name="close_btn"/>
 	</panel>
 </panel>

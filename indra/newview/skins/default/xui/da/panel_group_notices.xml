@@ -42,7 +42,7 @@ Maksimum er 200 pr. gruppe pr. dag
 		<text name="string">
 			Træk og slip en gensand for at vedhæfte den:
 		</text>
-		<button label="Fjern" label_selected="Fjern bilag" name="remove_attachment"/>
+		<button label="Fjern" label_selected="Fjern bilag" name="remove_attachment" tool_tip="Fjern vedhæng fra din note"/>
 		<button label="Send" label_selected="Send" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Træk en genstand fra din beholdning til dette felt for at sende den med denne besked. Du skal have rettigheder til at kopiere og overdrage denne genstand for at kunne vedhæfte den."/>
 	</panel>
@@ -59,6 +59,6 @@ Maksimum er 200 pr. gruppe pr. dag
 		<text name="lbl4">
 			Besked:
 		</text>
-		<button label="Åben bilag" label_selected="åben bilag" name="open_attachment"/>
+		<button label="Åben vedhæng" label_selected="åben bilag" name="open_attachment"/>
 	</panel>
 </panel>

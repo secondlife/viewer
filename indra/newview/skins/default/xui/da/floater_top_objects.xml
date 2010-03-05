@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Top objekter">
+	<floater.string name="top_scripts_title">
+		Mest krævende scripts
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] scripts bruger ialt [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Tid
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Mono tid
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Mest kolliderende
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		Top [COUNT] genstande der potentielt har mange kollisioner
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Point
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Ingen fundet
+	</floater.string>
 	<text name="title_text">
 		Henter...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Point" name="score"/>
-		<column label="Navn" name="name"/>
-		<column label="Ejer" name="owner"/>
-		<column label="Lokation" name="location"/>
-		<column label="Tid" name="time"/>
-		<column label="Mono tid" name="mono_time"/>
+		<scroll_list.columns label="Point" name="score"/>
+		<scroll_list.columns label="Navn" name="name"/>
+		<scroll_list.columns label="Ejer" name="owner"/>
+		<scroll_list.columns label="Lokation" name="location"/>
+		<scroll_list.columns label="Tid" name="time"/>
+		<scroll_list.columns label="Mono tid" name="mono_time"/>
+		<scroll_list.columns label="URL&apos;er" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
 		Objekt ID:
@@ -23,33 +48,9 @@
 		Ejer:
 	</text>
 	<button label="Filter" name="filter_owner_btn"/>
+	<button label="Genopfrisk" name="refresh_btn"/>
 	<button label="Returnér valgte" name="return_selected_btn"/>
 	<button label="Returnér alle" name="return_all_btn"/>
 	<button label="Afbryd valgte" name="disable_selected_btn"/>
 	<button label="Afbryd alle" name="disable_all_btn"/>
-	<button label="Genopfrisk" name="refresh_btn"/>
-	<string name="top_scripts_title">
-		Mest krævende scripts
-	</string>
-	<string name="top_scripts_text">
-		[COUNT] scripts bruger ialt [TIME] ms
-	</string>
-	<string name="scripts_score_label">
-		Tid
-	</string>
-	<string name="scripts_mono_time_label">
-		Mono tid
-	</string>
-	<string name="top_colliders_title">
-		Mest kolliderende
-	</string>
-	<string name="top_colliders_text">
-		Top [COUNT] genstande der potentielt har mange kollisioner
-	</string>
-	<string name="colliders_score_label">
-		Point
-	</string>
-	<string name="none_descriptor">
-		Ingen fundet
-	</string>
 </floater>

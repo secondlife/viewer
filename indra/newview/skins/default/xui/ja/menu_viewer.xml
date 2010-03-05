@@ -6,12 +6,12 @@
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
 		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
-		<menu_item_call label="マイ プロフィール" name="Profile"/>
-		<menu_item_call label="マイ 容姿" name="Appearance"/>
-		<menu_item_check label="マイ 持ち物" name="Inventory"/>
+		<menu_item_call label="プロフィール" name="Profile"/>
+		<menu_item_call label="容姿" name="Appearance"/>
+		<menu_item_check label="持ち物" name="Inventory"/>
 		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
-		<menu_item_check label="マイ ジェスチャー" name="Gestures"/>
-		<menu label="マイ ログイン状態" name="Status">
+		<menu_item_check label="ジェスチャー" name="Gestures"/>
+		<menu label="ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
 		</menu>
@@ -43,6 +43,8 @@
 			<menu_item_check label="ビーコン（標識）" name="beacons"/>
 			<menu_item_check label="プロパティ境界線" name="Property Lines"/>
 			<menu_item_check label="土地所有者" name="Land Owners"/>
+			<menu_item_check label="座標" name="Coordinates"/>
+			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -81,6 +83,7 @@
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
+			<menu_item_call label="買う" name="Menu Object Buy"/>
 			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
 			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>

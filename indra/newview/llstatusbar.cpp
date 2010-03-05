@@ -360,12 +360,14 @@ void LLStatusBar::refresh()
 	
 	// Disable media toggle if there's no media, parcel media, and no parcel audio
 	// (or if media is disabled)
-	mMediaToggle->setEnabled(gSavedSettings.getBOOL("AudioStreamingMedia") && 
-							 (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio()));
+	bool button_enabled = (gSavedSettings.getBOOL("AudioStreamingMusic")||gSavedSettings.getBOOL("AudioStreamingMedia")) && 
+						  (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
+	mMediaToggle->setEnabled(button_enabled);
 	// Note the "sense" of the toggle is opposite whether media is playing or not
-	mMediaToggle->setValue(! (LLViewerMedia::isAnyMediaShowing() || 
+	bool any_media_playing = (LLViewerMedia::isAnyMediaShowing() || 
 							  LLViewerMedia::isParcelMediaPlaying() ||
-							  LLViewerMedia::isParcelAudioPlaying()));
+							  LLViewerMedia::isParcelAudioPlaying());
+	mMediaToggle->setValue(!any_media_playing);
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)

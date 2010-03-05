@@ -10,7 +10,7 @@
 	<button label="Speichern" label_selected="Speichern" name="WaterSavePreset"/>
 	<button label="Löschen" label_selected="Löschen" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Einstellungen" name="Settings">
+		<panel label="EINSTELLUNGEN" name="Settings">
 			<text name="BHText">
 				Wassertrübungsfarbe
 			</text>
@@ -44,7 +44,7 @@
 				Mischungsmultiplikator
 			</text>
 		</panel>
-		<panel label="Bild" name="Waves">
+		<panel label="BILD" name="Waves">
 			<text name="BHText">
 				Richtung große Welle
 			</text>

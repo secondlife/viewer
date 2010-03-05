@@ -10,7 +10,7 @@
 	<button label="Enregistrer" label_selected="Enregistrer" left_delta="75" name="WaterSavePreset" width="75"/>
 	<button label="Supprimer" label_selected="Supprimer" left_delta="80" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Paramètres" name="Settings">
+		<panel label="PARAMÈTRES" name="Settings">
 			<text name="BHText">
 				Couleur du brouillard dans l&apos;eau
 			</text>
@@ -43,7 +43,7 @@
 				Multiplicateur de flou
 			</text>
 		</panel>
-		<panel label="Image" name="Waves">
+		<panel label="IMAGE" name="Waves">
 			<text name="BHText">
 				Direction grande vague
 			</text>

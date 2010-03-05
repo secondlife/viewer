@@ -46,9 +46,10 @@
 	<menu_item_call label="Teleport" name="Landmark Open"/>
 	<menu_item_call label="åben" name="Animation Open"/>
 	<menu_item_call label="åben" name="Sound Open"/>
+	<menu_item_call label="Erstat påklædning" name="Replace Outfit"/>
+	<menu_item_call label="Tilføj til påklædning" name="Add To Outfit"/>
 	<menu_item_call label="Slet ting" name="Purge Item"/>
 	<menu_item_call label="Genskab ting" name="Restore Item"/>
-	<menu_item_call label="Gå til link" name="Goto Link"/>
 	<menu_item_call label="åben" name="Open"/>
 	<menu_item_call label="Egenskaber" name="Properties"/>
 	<menu_item_call label="Omdøb" name="Rename"/>
@@ -57,13 +58,11 @@
 	<menu_item_call label="Indsæt" name="Paste"/>
 	<menu_item_call label="Sæt ind som link" name="Paste As Link"/>
 	<menu_item_call label="Slet" name="Delete"/>
-	<menu_item_call label="Tag ting af" name="Take Off Items"/>
-	<menu_item_call label="Tilføj til påklædning" name="Add To Outfit"/>
-	<menu_item_call label="Erstat påklædning" name="Replace Outfit"/>
+	<menu_item_call label="Slet systemfolder" name="Delete System Folder"/>
 	<menu_item_call label="start konference chat" name="Conference Chat Folder"/>
 	<menu_item_call label="Afspil" name="Sound Play"/>
 	<menu_item_call label="Om landemærke" name="About Landmark"/>
-	<menu_item_call label="Afspil offentligt" name="Animation Play"/>
+	<menu_item_call label="Afspil i verden" name="Animation Play"/>
 	<menu_item_call label="Afspil lokalt" name="Animation Audition"/>
 	<menu_item_call label="Send privat besked (IM)" name="Send Instant Message"/>
 	<menu_item_call label="Tilbyd teleport..." name="Offer Teleport..."/>

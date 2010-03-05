@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory" title="BEHOLDNING">
+<floater name="Inventory" title="MIN BEHOLDNING">
 	<floater.string name="Title">
-		Beholdning
+		MIN BEHOLDNING
 	</floater.string>
 	<floater.string name="TitleFetching">
-		Beholdning (henter [ITEM_COUNT] genstande...) [FILTER]
+		MIN BEHOLDNING (Henter [ITEM_COUNT] genstande...) [FILTER]
 	</floater.string>
 	<floater.string name="TitleCompleted">
-		Beholdning ([ITEM_COUNT] genstande) [FILTER]
+		MIN BEHOLDNING ([ITEM_COUNT] genstande) [FILTER]
 	</floater.string>
 	<floater.string name="Fetched">
 		Hentet

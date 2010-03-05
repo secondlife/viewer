@@ -6,5 +6,5 @@
 	<scroll_list name="blocked" tool_tip="Lista de los residentes ignorados actualmente"/>
 	<button label="Ignorar al residente..." label_selected="Ignorar al residente..." name="Block resident..." tool_tip="Elige a un Residente para ignorarle"/>
 	<button label="Ignorar objetos según el nombre..." label_selected="Ignorar objetos según el nombre..." name="Block object by name..."/>
-	<button label="No ignorar" label_selected="No ignorar" name="Unblock" tool_tip="Quitar al Residente o al objeto de la lista de ignorados"/>
+	<button label="No ignorar" label_selected="No ignorar" name="Unblock" tool_tip="Quita al Residente o al objeto de la lista de ignorados"/>
 </panel>

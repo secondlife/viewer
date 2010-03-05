@@ -24,7 +24,7 @@
 						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
 					</panel>
 					<panel name="first_life_image_panel">
-						<text name="title_rw_descr_text" value="Monde physique :"/>
+						<text name="title_rw_descr_text" value="Vie réelle :"/>
 					</panel>
 					<text name="title_member_text" value="Résident depuis :"/>
 					<text name="title_acc_status_text" value="Statut du compte :"/>

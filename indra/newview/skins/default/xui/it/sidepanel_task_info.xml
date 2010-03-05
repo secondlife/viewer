@@ -36,7 +36,7 @@
 	<panel.string name="Sale Mixed">
 		Vendita assortita
 	</panel.string>
-	<panel label="">
+	<panel name="properties_panel" label="">
 		<text name="Name:">
 			Nome:
 		</text>
@@ -74,7 +74,7 @@
 		</combo_box>
 		<spinner label="Prezzo: L$" name="Edit Cost"/>
 		<check_box label="Mostra nella ricerca" name="search_check" tool_tip="Mostra questo oggetto nei risultati della ricerca"/>
-		<panel name="perms_build">
+		<panel name="perms_inv">
 			<text name="perm_modify">
 				Puoi modificare questo oggetto
 			</text>

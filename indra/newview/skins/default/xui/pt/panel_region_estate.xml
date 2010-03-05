@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Propriedade" name="Estate">
 	<text name="estate_help_text">
-		Mudanças nas definições nesta guia irão afetar
-todas as regiões desta propriedade.
+		Mudar as opções desta guia afeta todas as regiões desta propriedade.
 	</text>
 	<text name="estate_text">
 		Propriedade:
@@ -26,7 +25,7 @@ todas as regiões desta propriedade.
 	<text name="Only Allow">
 		Restringir acesso a contas confirmardas por:
 	</text>
-	<check_box label="Dados de pagamento fornecidos" name="limit_payment" tool_tip="Banir residentes sem identificação"/>
+	<check_box label="Dados de pagamento fornecidos" name="limit_payment" tool_tip="Banir residentes sem identificação."/>
 	<check_box label="Verificação de idade" name="limit_age_verified" tool_tip="Banir residentes que não comprovaram a idade. Consulte o [SUPPORT_SITE] para saber mais."/>
 	<check_box label="Permitir conversa de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>

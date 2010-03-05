@@ -1,5 +1,134 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="KØB LAND">
+	<floater.string name="can_resell">
+		Kan videresælges.
+	</floater.string>
+	<floater.string name="can_not_resell">
+		Kan ikke videresælges.
+	</floater.string>
+	<floater.string name="can_change">
+		Kan samles eller opdeles.
+	</floater.string>
+	<floater.string name="can_not_change">
+		Kan ikke samles eller opdeles.
+	</floater.string>
+	<floater.string name="cant_buy_for_group">
+		Du har ikke tilladelse til at købe land for din aktive gruppe.
+	</floater.string>
+	<floater.string name="no_land_selected">
+		Intet land er valgt.
+	</floater.string>
+	<floater.string name="multiple_parcels_selected">
+		Flere forskellige parceller er valgt. 
+Prøv at vælge et mindre område.
+	</floater.string>
+	<floater.string name="no_permission">
+		Du har ikke tilladelse til at købe jord for din aktive gruppe.
+	</floater.string>
+	<floater.string name="parcel_not_for_sale">
+		Det udvalgte parcel er ikke til salg.
+	</floater.string>
+	<floater.string name="group_already_owns">
+		Gruppen ejer allerede parcellet.
+	</floater.string>
+	<floater.string name="you_already_own">
+		Du ejer allerede parcellet.
+	</floater.string>
+	<floater.string name="set_to_sell_to_other">
+		Det udvalgte parcel er sat til salg til en anden.
+	</floater.string>
+	<floater.string name="no_public_land">
+		Det valgte område har ingen offentlige arealer.
+	</floater.string>
+	<floater.string name="not_owned_by_you">
+		Jord, der ejes af en anden bruger er valgt. 
+Prøv at vælge et mindre område.
+	</floater.string>
+	<floater.string name="processing">
+		Forarbejder dit køb...
+ 
+(Dette kan tage et minut eller to.)
+	</floater.string>
+	<floater.string name="fetching_error">
+		Der er sket en fejl under hentning af jord købs oplysninger.
+	</floater.string>
+	<floater.string name="buying_will">
+		Køb af dette areal vil:
+	</floater.string>
+	<floater.string name="buying_for_group">
+		Køb af dette areal vil:
+	</floater.string>
+	<floater.string name="cannot_buy_now">
+		Kan ikke købe nu:
+	</floater.string>
+	<floater.string name="not_for_sale">
+		Ikke til salg:
+	</floater.string>
+	<floater.string name="none_needed">
+		ikke nødvendigt
+	</floater.string>
+	<floater.string name="must_upgrade">
+		Din konto skal være opgraderet for at eje jord.
+	</floater.string>
+	<floater.string name="cant_own_land">
+		Din konto kan eje jord.
+	</floater.string>
+	<floater.string name="land_holdings">
+		Du ejer [BUYER] m² land.
+	</floater.string>
+	<floater.string name="pay_to_for_land">
+		Betal L$ [AMOUNT] til [SELLER] for dette stykke jord
+	</floater.string>
+	<floater.string name="buy_for_US">
+		Køb L$ [AMOUNT] for ca. [LOCAL_AMOUNT],
+	</floater.string>
+	<floater.string name="parcel_meters">
+		Denne parcel er på [AMOUNT] m²
+	</floater.string>
+	<floater.string name="premium_land">
+		Dette stykke jord er premium, og vil tælle som [AMOUNT] m².
+	</floater.string>
+	<floater.string name="discounted_land">
+		Dette stykke jord er på tilbud, og vil tælle som [AMOUNT] m².
+	</floater.string>
+	<floater.string name="meters_supports_object">
+		[AMOUNT] m²
+kan indeholde [AMOUNT2] objekter
+	</floater.string>
+	<floater.string name="sold_with_objects">
+		solgt med objekter
+	</floater.string>
+	<floater.string name="sold_without_objects">
+		objekter ikke inkluderet
+	</floater.string>
+	<floater.string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
+	</floater.string>
+	<floater.string name="insufficient_land_credits">
+		Gruppen [GROUP] skal bruge nok tildelt jord brugs 
+kredit for at dække dette parcel før købet vil blive 
+gennemført.
+	</floater.string>
+	<floater.string name="have_enough_lindens">
+		Du har L$ [AMOUNT], hvilket er nok til at købe denne jord.
+	</floater.string>
+	<floater.string name="not_enough_lindens">
+		Du har kun L$ [AMOUNT], og har brug for yderligere L$ [AMOUNT2].
+	</floater.string>
+	<floater.string name="balance_left">
+		Efter købet, vil du have L$ [AMOUNT] tilbage.
+	</floater.string>
+	<floater.string name="balance_needed">
+		Du skal købe mindst L$ [AMOUNT] for at have råd til denne jord.
+	</floater.string>
+	<floater.string name="no_parcel_selected">
+		(intet parcel er valgt)
+	</floater.string>
+	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
+	<floater.string name="icon_M" value="Parcel_M_Dark"/>
+	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		Region:
 	</text>
@@ -107,133 +236,4 @@ Denne parcel er på 512 m².
 	<check_box label="Fjern [AMOUNT] m² af bidrag fra gruppe." name="remove_contribution"/>
 	<button label="Køb" name="buy_btn"/>
 	<button label="Annullér" name="cancel_btn"/>
-	<string name="can_resell">
-		Kan videresælges.
-	</string>
-	<string name="can_not_resell">
-		Kan ikke videresælges.
-	</string>
-	<string name="can_change">
-		Kan samles eller opdeles.
-	</string>
-	<string name="can_not_change">
-		Kan ikke samles eller opdeles.
-	</string>
-	<string name="cant_buy_for_group">
-		Du har ikke tilladelse til at købe land for din aktive gruppe.
-	</string>
-	<string name="no_land_selected">
-		Intet land er valgt.
-	</string>
-	<string name="multiple_parcels_selected">
-		Flere forskellige parceller er valgt. 
-Prøv at vælge et mindre område.
-	</string>
-	<string name="no_permission">
-		Du har ikke tilladelse til at købe jord for din aktive gruppe.
-	</string>
-	<string name="parcel_not_for_sale">
-		Det udvalgte parcel er ikke til salg.
-	</string>
-	<string name="group_already_owns">
-		Gruppen ejer allerede parcellet.
-	</string>
-	<string name="you_already_own">
-		Du ejer allerede parcellet.
-	</string>
-	<string name="set_to_sell_to_other">
-		Det udvalgte parcel er sat til salg til en anden.
-	</string>
-	<string name="no_public_land">
-		Det valgte område har ingen offentlige arealer.
-	</string>
-	<string name="not_owned_by_you">
-		Jord, der ejes af en anden bruger er valgt. 
-Prøv at vælge et mindre område.
-	</string>
-	<string name="processing">
-		Forarbejder dit køb...
- 
-(Dette kan tage et minut eller to.)
-	</string>
-	<string name="fetching_error">
-		Der er sket en fejl under hentning af jord købs oplysninger.
-	</string>
-	<string name="buying_will">
-		Køb af dette areal vil:
-	</string>
-	<string name="buying_for_group">
-		Køb af dette areal vil:
-	</string>
-	<string name="cannot_buy_now">
-		Kan ikke købe nu:
-	</string>
-	<string name="not_for_sale">
-		Ikke til salg:
-	</string>
-	<string name="none_needed">
-		ikke nødvendigt
-	</string>
-	<string name="must_upgrade">
-		Din konto skal være opgraderet for at eje jord.
-	</string>
-	<string name="cant_own_land">
-		Din konto kan eje jord.
-	</string>
-	<string name="land_holdings">
-		Du ejer [BUYER] m² land.
-	</string>
-	<string name="pay_to_for_land">
-		Betal L$ [AMOUNT] til [SELLER] for dette stykke jord
-	</string>
-	<string name="buy_for_US">
-		Køb L$ [AMOUNT] for ca. [LOCAL_AMOUNT],
-	</string>
-	<string name="parcel_meters">
-		Denne parcel er på [AMOUNT] m²
-	</string>
-	<string name="premium_land">
-		Dette stykke jord er premium, og vil tælle som [AMOUNT] m².
-	</string>
-	<string name="discounted_land">
-		Dette stykke jord er på tilbud, og vil tælle som [AMOUNT] m².
-	</string>
-	<string name="meters_supports_object">
-		[AMOUNT] m²
-kan indeholde [AMOUNT2] objekter
-	</string>
-	<string name="sold_with_objects">
-		solgt med objekter
-	</string>
-	<string name="sold_without_objects">
-		objekter ikke inkluderet
-	</string>
-	<string name="info_price_string">
-		L$ [PRICE]
-(L$ [PRICE_PER_SQM]/m²)
-[SOLD_WITH_OBJECTS]
-	</string>
-	<string name="insufficient_land_credits">
-		Gruppen [GROUP] skal bruge nok tildelt jord brugs 
-kredit for at dække dette parcel før købet vil blive 
-gennemført.
-	</string>
-	<string name="have_enough_lindens">
-		Du har L$ [AMOUNT], hvilket er nok til at købe denne jord.
-	</string>
-	<string name="not_enough_lindens">
-		Du har kun L$ [AMOUNT], og har brug for yderligere L$ [AMOUNT2].
-	</string>
-	<string name="balance_left">
-		Efter købet, vil du have L$ [AMOUNT] tilbage.
-	</string>
-	<string name="balance_needed">
-		Du skal købe mindst L$ [AMOUNT] for at have råd til denne jord.
-	</string>
-	<string name="no_parcel_selected">
-		(intet parcel er valgt)
-	</string>
-	<string name="buy_currency">
-		Køb L$ [LINDENS] for omkring US$ [USD]
-	</string>
 </floater>

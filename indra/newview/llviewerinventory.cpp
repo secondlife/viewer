@@ -48,6 +48,7 @@
 #include "llsidetray.h"
 
 #include "llinventorybridge.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 
 #include "llviewerassettype.h"
@@ -525,7 +526,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		// 2 = folders by date
 		// Need to mask off anything but the first bit.
 		// This comes from LLInventoryFilter from llfolderview.h
-		U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
+		U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER) & 0x1;
 
 		// *NOTE: For bug EXT-2879, originally commented out
 		// gAgent.getRegion()->getCapability in order to use the old

@@ -339,10 +339,10 @@ L$ が不足しているのでこのグループに参加することができ�
 		まだ読み込まれていないため、そのアイテムを装着できません。後でやり直してください。
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
-		おっと! 記入漏れがありますよ。
+		おっと！記入漏れがありますよ。
 アバターのファーストネームとラストネームの両方を入力する必要があります。
 
-[SECOND_LIFE]に入るには、アカウントが必要です。 アカウントを作成しますか？
+[SECOND_LIFE] に入るには、アカウントが必要です。 アカウントを作成しますか？
 		<url name="url">
 			https://join.secondlife.com/index.php?lang=ja-JP
 		</url>
@@ -470,7 +470,6 @@ L$ が不足しているのでこのグループに参加することができ�
 	<notification name="UnsupportedHardware">
 		お使いのコンピューターは [APP_NAME] の必要最低限の動作環境を満たしていません。 パフォーマンスの低下を感じるかもしれません。 恐れ入りますが [SUPPORT_SITE] ではサポート対象外のシステムに関する技術的サポートは行っておりません。
 
-最低動作環境
 [_URL] に移動して確認をしますか？
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=ja
@@ -586,7 +585,7 @@ L$ が不足しているのでこのグループに参加することができ�
 このファイルの拡張子が正しいかどうかを確認してください。
 	</notification>
 	<notification name="InvalidFileExtension">
-		[EXTENSION]は無効です。
+		[EXTENSION] は無効です。
 正しい拡張子：[VALIDS]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -1345,7 +1344,7 @@ F1 キーを押してください。
 	</notification>
 	<notification name="ConfirmKick">
 		すべてのユーザーをグリッドの外にキックしようとしています。操作を続行しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="全てのユーザを追い出す"/>
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="全てのユーザーを追い出す"/>
 	</notification>
 	<notification name="MuteLinden">
 		リンデンをブロックすることはできません。
@@ -1447,15 +1446,15 @@ F1 キーを押してください。
 	</notification>
 	<notification name="TeleportFromLandmark">
 		このまま &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; にテレポートしますか？
-		<usetemplate ignoretext="ランドマークにテレポートしたいかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
+		<usetemplate ignoretext="ランドマークにテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
 	</notification>
 	<notification name="TeleportToPick">
 		[PICK] にテレポートしますか？
-		<usetemplate ignoretext="ピックの場所にテレポートしたいかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
+		<usetemplate ignoretext="ピックの場所にテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
 	</notification>
 	<notification name="TeleportToClassified">
 		[CLASSIFIED] にテレポートしますか？
-		<usetemplate ignoretext="クラシファイド広告の場所にテレポートしたいかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
+		<usetemplate ignoretext="クラシファイド広告の場所にテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
 	</notification>
 	<notification label="あなたの不動産内の全員にメッセージを送信" name="MessageEstate">
 		今あなたの不動産にいる人全員に送る、短いメッセージを入力してください。
@@ -1931,7 +1930,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ForceCloseChatterBoxSession">
-		[NAME]とのチャットセッションを閉じます。
+		[NAME] とのチャットセッションを閉じます。
 [REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -1944,8 +1943,8 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AutoWearNewClothing">
-		作成しようとしている衣類を自動的に装着しますか？
-		<usetemplate ignoretext="「マイ 容姿」を編集中に、作成する衣類を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
+		作成する衣類を自動的に装着しますか？
+		<usetemplate ignoretext="「容姿」を編集中に、作成する衣類を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="NotAgeVerified">
 		年齢確認を済ませていないとこの区画を訪れることができません。  [SECOND_LIFE] サイトで年齢の確認を行いますか？
@@ -2229,27 +2228,27 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		そのリージョンにいないと公共の土地を取得することはできません。
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		あなたのレーティング区分によりそのリージョン（地域）へは入ることができません。 年齢確認を行うか、最新ビューワをインストールしてください。
+		あなたのレーティング区分によりそのリージョンへは入ることができません。 年齢確認を行うか、最新ビューワをインストールしてください。
 
 現在のレーティング区分でアクセス可能なエリアに関する詳細はナレッジベースを参照してください。
 	</notification>
 	<notification name="URBannedFromRegion">
-		あなたはリージョン（地域）への立入が禁止されています。
+		あなたはリージョンへの立入が禁止されています。
 	</notification>
 	<notification name="NoTeenGridAccess">
 		あなたのアカウントではティーングリッドに接続できません。
 	</notification>
 	<notification name="ImproperPaymentStatus">
-		このリージョン（地域）に入るために適した支払いステータスがありません。
+		このリージョンに入るために適した支払いステータスがありません。
 	</notification>
 	<notification name="MustGetAgeRgion">
-		このリージョン（地域）に入るには年齢確認済みである必要があります。
+		このリージョンに入るためには、年齢確認を済ませる必要があります。
 	</notification>
 	<notification name="MustGetAgeParcel">
-		この区画に入るには年齢確認済みである必要があります。
+		この区画に入るためには、年齢確認を済ませる必要があります。
 	</notification>
 	<notification name="NoDestRegion">
-		目的地のリージョン（地域）が見つかりませんでした。
+		目的地のリージョンが見つかりませんでした。
 	</notification>
 	<notification name="NotAllowedInDest">
 		目的地に入る許可がありません。
@@ -2267,14 +2266,14 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		テレポートがキャンセルされました。
 	</notification>
 	<notification name="FullRegionTryAgain">
-		入ろうとしているリージョン（地域）は現在満員です。
+		入ろうとしているリージョンは現在満員です。
 しばらくしてから再度お試しください。
 	</notification>
 	<notification name="GeneralFailure">
 		よくある失敗
 	</notification>
 	<notification name="RoutedWrongRegion">
-		異なるリージョン（地域）に迂回されました。 もう一度お試しください。
+		異なるリージョンに迂回されました。 もう一度お試しください。
 	</notification>
 	<notification name="NoValidAgentID">
 		エージェント ID が無効です。
@@ -2295,7 +2294,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		内部エラーが発生しました。
 	</notification>
 	<notification name="NoGoodTPDestination">
-		このリージョン（地域）では適切なテレポート目的地が見つかりませんでした。
+		このリージョンでは、適切なテレポート目的地が見つかりませんでした。
 	</notification>
 	<notification name="InternalErrorRegionResolver">
 		内部エラーが発生しました。
@@ -2382,7 +2381,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[TO_NAME] にフレンド登録を申し出ました。
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
-		[NAME]は、
+		[NAME] は、
 フレンド登録を申し込んでいます。
 
 （デフォルトでお互いのオンライン状態を見ることができるようになります。）
@@ -2396,6 +2395,12 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="FriendshipDeclined">
 		[NAME]は、フレンド登録を断りました。
+	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		フレンドの登録依頼が承認されました。
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		フレンドの登録依頼が拒否されました。
 	</notification>
 	<notification name="OfferCallingCard">
 		[FIRST] [LAST] がコーリングカードを渡そうとしています。
@@ -2418,9 +2423,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 
 [MESSAGE]
 
-読み込み元のオブジェクト：[OBJECTNAME]、所有者：[NAME]？
+読み込み元のオブジェクト：[OBJECTNAME]、所有者：[NAME]
 		<form name="form">
-			<button name="Gotopage" text="移動"/>
+			<button name="Gotopage" text="ページに移動"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
@@ -2585,7 +2590,7 @@ M キーを押して変更します。
 		[VOICE_CHANNEL_NAME] のボイスチャットに接続中に、エラーが発生しました。後でもう一度お試しください。
 	</notification>
 	<notification name="ServerVersionChanged">
-		異なるサーバーバージョンのリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
+		サーバーのバージョンが異なるリージョンに来ました。パフォーマンスに影響することがあります。 [[URL] リリースノートを確認]
 	</notification>
 	<notification name="UnsupportedCommandSLURL">
 		クリックした SLurl はサポートされていません。
@@ -2605,7 +2610,7 @@ M キーを押して変更します。
 	</notification>
 	<notification name="ConfirmCloseAll">
 		すべての IM を閉じますか？
-		<usetemplate name="okcancelignore" notext="キャンセル" yestext="OK"/>
+		<usetemplate ignoretext="すべての IM を閉じる前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		アタッチメントが保存されました。

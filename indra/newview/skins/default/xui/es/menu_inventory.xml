@@ -62,7 +62,7 @@
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
 	<menu_item_call label="Escuchar" name="Sound Play"/>
 	<menu_item_call label="Acerca del hito" name="About Landmark"/>
-	<menu_item_call label="Ejecutarla en el mundo" name="Animation Play"/>
+	<menu_item_call label="Escuchar en el mundo" name="Animation Play"/>
 	<menu_item_call label="Ejecutarla para usted" name="Animation Audition"/>
 	<menu_item_call label="Enviar un mensaje instantáneo" name="Send Instant Message"/>
 	<menu_item_call label="Ofrecer teleporte..." name="Offer Teleport..."/>

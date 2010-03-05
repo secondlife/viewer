@@ -119,9 +119,9 @@ protected:
 	void importedFolderDone(void);
 	void contentsDone(void);
 	enum ELibraryOutfitFetchStep mCurrFetchStep;
-	typedef std::vector< std::pair< LLUUID, std::string > > cloth_folder_vec_t;
-	cloth_folder_vec_t mLibraryClothingFolders;
-	cloth_folder_vec_t mImportedClothingFolders;
+	typedef std::vector<LLUUID> clothing_folder_vec_t;
+	clothing_folder_vec_t mLibraryClothingFolders;
+	clothing_folder_vec_t mImportedClothingFolders;
 	bool mOutfitsPopulated;
 	LLUUID mClothingID;
 	LLUUID mLibraryClothingID;
@@ -2240,7 +2240,7 @@ void LLAgentWearables::updateServer()
 
 void LLAgentWearables::populateMyOutfitsFolder(void)
 {	
-	llinfos << "starting outfit populate" << llendl;
+	llinfos << "starting outfit population" << llendl;
 
 	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch();
 	
@@ -2312,17 +2312,28 @@ void LLLibraryOutfitsFetch::folderDone(void)
 	LLInventoryModel::item_array_t wearable_array;
 	gInventory.collectDescendents(mMyOutfitsID, cat_array, wearable_array, 
 								  LLInventoryModel::EXCLUDE_TRASH);
-	
 	// Early out if we already have items in My Outfits.
 	if (cat_array.count() > 0 || wearable_array.count() > 0)
 	{
 		mOutfitsPopulated = true;
 		return;
 	}
-	
+
 	mClothingID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
 	mLibraryClothingID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING, false, true);
-	
+
+	// If Library->Clothing->Initial Outfits exists, use that.
+	LLNameCategoryCollector matchFolderFunctor("Initial Outfits");
+	gInventory.collectDescendentsIf(mLibraryClothingID,
+									cat_array, wearable_array, 
+									LLInventoryModel::EXCLUDE_TRASH,
+									matchFolderFunctor);
+	if (cat_array.count() > 0)
+	{
+		const LLViewerInventoryCategory *cat = cat_array.get(0);
+		mLibraryClothingID = cat->getUUID();
+	}
+
 	mCompleteFolders.clear();
 	
 	// Get the complete information on the items in the inventory.
@@ -2353,31 +2364,28 @@ void LLLibraryOutfitsFetch::outfitsDone(void)
 	{
 		const LLViewerInventoryCategory *cat = iter->get();
 		
-		// Get the names and id's of every outfit in the library, except for ruth and other "misc" outfits.
-		if (cat->getName() != "More Outfits" && cat->getName() != "Ruth")
+		// Get the names and id's of every outfit in the library, skip "Ruth"
+		// because it's a low quality legacy outfit
+		if (cat->getName() != "Ruth")
 		{
 			// Get the name of every outfit in the library 
 			folders.push_back(cat->getUUID());
-			mLibraryClothingFolders.push_back(std::make_pair(cat->getUUID(), cat->getName()));
+			mLibraryClothingFolders.push_back(cat->getUUID());
 		}
 	}
-	
-	// Collect the contents of your Inventory Clothing folder
 	cat_array.clear();
 	wearable_array.clear();
-	gInventory.collectDescendents(mClothingID, cat_array, wearable_array, 
-								  LLInventoryModel::EXCLUDE_TRASH);
 
 	// Check if you already have an "Imported Library Clothing" folder
-	for (LLInventoryModel::cat_array_t::const_iterator iter = cat_array.begin();
-		 iter != cat_array.end();
-		 ++iter)
+	LLNameCategoryCollector matchFolderFunctor(mImportedClothingName);
+	gInventory.collectDescendentsIf(mClothingID, 
+									cat_array, wearable_array, 
+									LLInventoryModel::EXCLUDE_TRASH,
+									matchFolderFunctor);
+	if (cat_array.size() > 0)
 	{
-		const LLViewerInventoryCategory *cat = iter->get();
-		if (cat->getName() == mImportedClothingName)
-		{
-			mImportedClothingID = cat->getUUID();
-		}
+		const LLViewerInventoryCategory *cat = cat_array.get(0);
+		mImportedClothingID = cat->getUUID();
 	}
 	
 	mCompleteFolders.clear();
@@ -2415,31 +2423,59 @@ private:
 	LLLibraryOutfitsFetch * mLibraryOutfitsFetcher;
 };
 
+// Copy the clothing folders from the library into the imported clothing folder
 void LLLibraryOutfitsFetch::libraryDone(void)
 {
-	// Copy the clothing folders from the library into the imported clothing folder if necessary.
-	if (mImportedClothingID == LLUUID::null)
-	{
-		gInventory.removeObserver(this);
-		LLPointer<LLInventoryCallback> copy_waiter = new LLLibraryOutfitsCopyDone(this);
-		mImportedClothingID = gInventory.createNewCategory(mClothingID,
-														   LLFolderType::FT_NONE,
-														   mImportedClothingName);
-		
-		for (cloth_folder_vec_t::const_iterator iter = mLibraryClothingFolders.begin();
-			 iter != mLibraryClothingFolders.end();
-			 ++iter)
-		{
-			LLUUID folder_id = gInventory.createNewCategory(mImportedClothingID,
-															LLFolderType::FT_NONE,
-															iter->second);
-			LLAppearanceManager::getInstance()->shallowCopyCategoryContents(iter->first, folder_id, copy_waiter);
-		}
-	}
-	else
+	if (mImportedClothingID != LLUUID::null)
 	{
 		// Skip straight to fetching the contents of the imported folder
 		importedFolderFetch();
+		return;
+	}
+
+	// Remove observer; next autopopulation step will be triggered externally by LLLibraryOutfitsCopyDone.
+	gInventory.removeObserver(this);
+	
+	LLPointer<LLInventoryCallback> copy_waiter = new LLLibraryOutfitsCopyDone(this);
+	mImportedClothingID = gInventory.createNewCategory(mClothingID,
+													   LLFolderType::FT_NONE,
+													   mImportedClothingName);
+	// Copy each folder from library into clothing unless it already exists.
+	for (clothing_folder_vec_t::const_iterator iter = mLibraryClothingFolders.begin();
+		 iter != mLibraryClothingFolders.end();
+		 ++iter)
+	{
+		const LLUUID& src_folder_id = (*iter); // Library clothing folder ID
+		const LLViewerInventoryCategory *cat = gInventory.getCategory(src_folder_id);
+		if (!cat)
+		{
+			llwarns << "Library folder import for uuid:" << src_folder_id << " failed to find folder." << llendl;
+			continue;
+		}
+		
+		if (!LLAppearanceManager::getInstance()->getCanMakeFolderIntoOutfit(src_folder_id))
+		{
+			llinfos << "Skipping non-outfit folder name:" << cat->getName() << llendl;
+			continue;
+		}
+		
+		// Don't copy the category if it already exists.
+		LLNameCategoryCollector matchFolderFunctor(cat->getName());
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t wearable_array;
+		gInventory.collectDescendentsIf(mImportedClothingID, 
+										cat_array, wearable_array, 
+										LLInventoryModel::EXCLUDE_TRASH,
+										matchFolderFunctor);
+		if (cat_array.size() > 0)
+		{
+			continue;
+		}
+
+		LLUUID dst_folder_id = gInventory.createNewCategory(mImportedClothingID,
+															LLFolderType::FT_NONE,
+															cat->getName());
+		LLAppearanceManager::getInstance()->shallowCopyCategoryContents(src_folder_id, dst_folder_id, copy_waiter);
 	}
 }
 
@@ -2476,7 +2512,7 @@ void LLLibraryOutfitsFetch::importedFolderDone(void)
 		
 		// Get the name of every imported outfit
 		folders.push_back(cat->getUUID());
-		mImportedClothingFolders.push_back(std::make_pair(cat->getUUID(), cat->getName()));
+		mImportedClothingFolders.push_back(cat->getUUID());
 	}
 	
 	mCompleteFolders.clear();
@@ -2492,17 +2528,25 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
 	
-	for (cloth_folder_vec_t::const_iterator folder_iter = mImportedClothingFolders.begin();
+	for (clothing_folder_vec_t::const_iterator folder_iter = mImportedClothingFolders.begin();
 		 folder_iter != mImportedClothingFolders.end();
 		 ++folder_iter)
 	{
+		const LLUUID &folder_id = (*folder_iter);
+		const LLViewerInventoryCategory *cat = gInventory.getCategory(folder_id);
+		if (!cat)
+		{
+			llwarns << "Library folder import for uuid:" << folder_id << " failed to find folder." << llendl;
+			continue;
+		}
+		
 		// First, make a folder in the My Outfits directory.
-		LLUUID new_outfit_folder_id = gInventory.createNewCategory(mMyOutfitsID, LLFolderType::FT_OUTFIT, folder_iter->second);
+		LLUUID new_outfit_folder_id = gInventory.createNewCategory(mMyOutfitsID, LLFolderType::FT_OUTFIT, cat->getName());
 		
 		cat_array.clear();
 		wearable_array.clear();
 		// Collect the contents of each imported clothing folder, so we can create new outfit links for it
-		gInventory.collectDescendents(folder_iter->first, cat_array, wearable_array, 
+		gInventory.collectDescendents(folder_id, cat_array, wearable_array, 
 									  LLInventoryModel::EXCLUDE_TRASH);
 		
 		for (LLInventoryModel::item_array_t::const_iterator wearable_iter = wearable_array.begin();

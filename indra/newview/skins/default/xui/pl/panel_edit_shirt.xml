@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_shirt_panel">
+	<panel name="avatar_shirt_color_panel">
+		<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać grafikę"/>
+		<color_swatch label="Kolor/Odcień" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="shirt_main_tab" title="Spódnica"/>
+	</accordion>
+</panel>

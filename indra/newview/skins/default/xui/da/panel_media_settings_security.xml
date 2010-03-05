@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sikkerhed" name="Media Settings Security">
-	<check_box initial_value="false" label="Tillad kun adgang til specifikke URL&apos;er (via &quot;prefix&quot;)" name="whitelist_enable"/>
+	<check_box initial_value="false" label="Tillad kun adgang til angivne URL mønstre" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
-		Opslag som hjemmesiden fejler ved er markeret:
+		Angivelser som hjemmesiden fejler imod er markeret:
 	</text>
 	<button label="Tilføj" name="whitelist_add"/>
 	<button label="Slet" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
-		Advarsel: Hjemmesiden angive i &quot;Generelt&quot; fanen er ikke indeholdt i godkendte sider. Den er slået fra, indtil en gyldig værdi er tilføjet.
+		Advarsel: hjemmesiden specificeret i Generelt fanen opfylder ikke krav på listen med godkendte URL. Den er de-aktiveret indtil en gyldig hjemmeside er tilføjet.
 	</text>
 </panel>

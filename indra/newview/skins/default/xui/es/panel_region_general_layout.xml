@@ -4,13 +4,13 @@
 		Región:
 	</text>
 	<text name="region_text">
-		desconocido
+		desconocida
 	</text>
 	<text name="version_channel_text_lbl">
 		Versión:
 	</text>
 	<text name="version_channel_text">
-		desconocido
+		desconocida
 	</text>
 	<text name="region_type_lbl">
 		Tipo:
@@ -24,7 +24,7 @@
 	<check_box label="Impedir los &apos;empujones&apos;" name="restrict_pushobject"/>
 	<check_box label="Permitir la reventa del terreno" name="allow_land_resell_check"/>
 	<check_box label="Permitir unir/dividir el terreno" name="allow_parcel_changes_check"/>
-	<check_box label="Bloquear el mostrar el terreno en la búsqueda" name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda"/>
+	<check_box label="Bloquear el mostrar el terreno en la búsqueda" name="block_parcel_search_check" tool_tip="Permite que la gente vea esta región y sus parcelas en los resultados de la búsqueda"/>
 	<spinner label="Nº máximo de avatares" name="agent_limit_spin"/>
 	<spinner label="Plus de objetos" name="object_bonus_spin"/>
 	<text label="Calificación" name="access_text">

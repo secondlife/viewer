@@ -9,6 +9,18 @@
 	<floater.string name="dont_notify">
 		Ne pas prévenir
 	</floater.string>
+	<floater.string name="moderate">
+		Modéré
+	</floater.string>
+	<floater.string name="adult">
+		Adulte
+	</floater.string>
+	<floater.string name="general">
+		Général
+	</floater.string>
+	<floater.string name="unknown">
+		Inconnu
+	</floater.string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<text name="event_name">
@@ -21,11 +33,20 @@
 				Organisé par :
 			</text>
 			<text initial_value="(récupération en cours)" name="event_runby"/>
+			<text name="event_date_label">
+				Date :
+			</text>
 			<text name="event_date">
 				10/10/2010
 			</text>
+			<text name="event_duration_label">
+				Durée :
+			</text>
 			<text name="event_duration">
 				1 heure
+			</text>
+			<text name="event_covercharge_label">
+				Prix :
 			</text>
 			<text name="event_cover">
 				Gratuit

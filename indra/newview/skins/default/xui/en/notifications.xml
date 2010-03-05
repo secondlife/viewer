@@ -249,7 +249,7 @@ Save all changes to clothing/body parts?
     Non-friends won't know that you've choosen to ignore their calls and instant messages.
     <usetemplate
      name="okbutton"
-     yestext="Yes"/>
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -2848,11 +2848,11 @@ Leave Group?
    icon="alert.tga"
    name="ConfirmKick"
    type="alert">
-Do you REALLY want to kick all users off the grid?
+Do you REALLY want to kick all Residents off the grid?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Kick All Users"/>
+     yestext="Kick All Residents"/>
   </notification>
 
   <notification
@@ -2952,7 +2952,7 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="KickUser"
    type="alert">
-Kick this user with what message?
+Kick this Resident with what message?
     <form name="form">
       <input name="message" type="text">
 An administrator has logged you off.
@@ -2994,7 +2994,7 @@ An administrator has logged you off.
    icon="alert.tga"
    name="FreezeUser"
    type="alert">
-Freeze this user with what message?
+Freeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
 You have been frozen. You cannot move or chat. An administrator will contact you via instant message (IM).
@@ -3015,7 +3015,7 @@ You have been frozen. You cannot move or chat. An administrator will contact you
    icon="alert.tga"
    name="UnFreezeUser"
    type="alert">
-Unfreeze this user with what message?
+Unfreeze this Resident with what message?
     <form name="form">
       <input name="message" type="text">
 You are no longer frozen.
@@ -3057,7 +3057,7 @@ Join me in [REGION]
    icon="alertmodal.tga"
    name="OfferTeleportFromGod"
    type="alertmodal">
-God summon user to your location?
+God summon Resident to your location?
     <form name="form">
       <input name="message" type="text">
 Join me in [REGION]
@@ -3137,7 +3137,7 @@ Type a short announcement which will be sent to everyone currently in your estat
    type="alert">
 You are about to change a Linden owned estate (mainland, teen grid, orientation, etc.).
 
-This is EXTREMELY DANGEROUS because it can fundamentally affect the user experience.  On the mainland, it will change thousands of regions and make the spaceserver hiccup.
+This is EXTREMELY DANGEROUS because it can fundamentally affect the Resident experience.  On the mainland, it will change thousands of regions and make the spaceserver hiccup.
 
 Proceed?
     <usetemplate
@@ -5383,7 +5383,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptToast"
    type="notify">
-    [FIRST] [LAST]&apos;s &apos;[TITLE]&apos; is requesting user input.
+    [FIRST] [LAST]&apos;s &apos;[TITLE]&apos; is requesting Resident input.
     <form name="form">
       <button
        index="0"

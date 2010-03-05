@@ -2,7 +2,7 @@
 <floater name="beacons" title="PEJLELYS">
 	<panel name="beacons_panel">
 		<text name="label_show">
-			Vis:
+			Vis :
 		</text>
 		<check_box label="Pejlelys" name="beacons"/>
 		<check_box label="Fremhævninger" name="highlights"/>

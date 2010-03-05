@@ -17,10 +17,10 @@
 			<texture_picker label="Alfa de la cabeza" name="head_alpha"/>
 			<texture_picker label="Tatuaje de la cabeza" name="head_tattoo"/>
 			<texture_picker label="Ojos" name="eyes-baked"/>
-			<texture_picker label="Oho" name="eyes_iris"/>
+			<texture_picker label="Ojo" name="eyes_iris"/>
 			<texture_picker label="Alfa de los ojos" name="eyes_alpha"/>
 			<texture_picker label="Parte superior del cuerpo" name="upper-baked"/>
-			<texture_picker label="Parte superior del cuerpo: bodypaint" name="upper_bodypaint"/>
+			<texture_picker label="Pintura corporal: parte superior del cuerpo" name="upper_bodypaint"/>
 			<texture_picker label="Camiseta" name="upper_undershirt"/>
 			<texture_picker label="Guantes" name="upper_gloves"/>
 			<texture_picker label="Camisa" name="upper_shirt"/>
@@ -28,7 +28,7 @@
 			<texture_picker label="Alfa superior" name="upper_alpha"/>
 			<texture_picker label="Tatuaje superior" name="upper_tattoo"/>
 			<texture_picker label="Parte inferior del cuerpo" name="lower-baked"/>
-			<texture_picker label="Parte inferior del cuerpo: bodypaint" name="lower_bodypaint"/>
+			<texture_picker label="Pintura corporal: parte inferior del cuerpo" name="lower_bodypaint"/>
 			<texture_picker label="Ropa interior" name="lower_underpants"/>
 			<texture_picker label="Calcetines" name="lower_socks"/>
 			<texture_picker label="Zapatos" name="lower_shoes"/>
