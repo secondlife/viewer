@@ -156,6 +156,24 @@
          top_pad="10"
          value="Content Type:"
          width="140" />
+        <icon
+         follows="top|left"
+         height="16"
+         image_name="Parcel_M_Light"
+         layout="topleft"
+         left_pad="0"
+         name="content_type_moderate"
+         top_pad="-11"
+         width="18" />
+        <icon
+         follows="top|left"
+         height="16"
+         image_name="Parcel_PG_Light"
+         layout="topleft"
+         left_delta="0"
+         name="content_type_general"
+         top_delta="0"
+         width="18" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -163,11 +181,11 @@
          h_pad="0"
          height="18"
          layout="topleft"
-         left_pad="0"
+         left_pad="2"
          name="content_type"
          read_only="true"
-         width="150"
-         top_pad="-10"
+         width="130"
+         top_delta="1"
          v_pad="0"
          value="[content type]" />
         <text

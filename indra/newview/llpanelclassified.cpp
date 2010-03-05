@@ -1325,6 +1325,8 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
+			getChild<LLIconCtrl>("content_type_moderate")->setVisible(mature);
+			getChild<LLIconCtrl>("content_type_general")->setVisible(!mature);
 
 			std::string auto_renew_str = is_cf_auto_renew(c_info->flags) ? 
 				getString("auto_renew_on") : getString("auto_renew_off");
@@ -1369,6 +1371,8 @@ void LLPanelClassifiedInfo::resetData()
 	childSetText("auto_renew", LLStringUtil::null);
 	childSetText("creation_date", LLStringUtil::null);
 	childSetText("click_through_text", LLStringUtil::null);
+	getChild<LLIconCtrl>("content_type_moderate")->setVisible(FALSE);
+	getChild<LLIconCtrl>("content_type_general")->setVisible(FALSE);
 }
 
 void LLPanelClassifiedInfo::resetControls()
@@ -1787,7 +1791,7 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 			bool mature = is_cf_mature(c_info->flags);
 			bool auto_renew = is_cf_auto_renew(c_info->flags);
 
-			getChild<LLComboBox>("content_type")->setCurrentByIndex(mature ? CB_ITEM_MATURE : CB_ITEM_PG);
+			getChild<LLIconsComboBox>("content_type")->setCurrentByIndex(mature ? CB_ITEM_MATURE : CB_ITEM_PG);
 			childSetValue("auto_renew", auto_renew);
 			childSetValue("price_for_listing", c_info->price_for_listing);
 			childSetEnabled("price_for_listing", isNew());
@@ -1846,7 +1850,7 @@ void LLPanelClassifiedEdit::resetControls()
 	LLPanelClassifiedInfo::resetControls();
 
 	getChild<LLComboBox>("category")->setCurrentByIndex(0);
-	getChild<LLComboBox>("content_type")->setCurrentByIndex(0);
+	getChild<LLIconsComboBox>("content_type")->setCurrentByIndex(0);
 	childSetValue("auto_renew", false);
 	childSetValue("price_for_listing", MINIMUM_PRICE_FOR_LISTING);
 	childSetEnabled("price_for_listing", TRUE);
@@ -1910,7 +1914,7 @@ U8 LLPanelClassifiedEdit::getFlags()
 {
 	bool auto_renew = childGetValue("auto_renew").asBoolean();
 
-	LLComboBox* content_cb = getChild<LLComboBox>("content_type");
+	LLComboBox* content_cb = getChild<LLIconsComboBox>("content_type");
 	bool mature = content_cb->getCurrentIndex() == CB_ITEM_MATURE;
 	
 	return pack_classified_flags_request(auto_renew, false, mature, false);
