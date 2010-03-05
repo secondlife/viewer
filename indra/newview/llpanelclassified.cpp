@@ -1324,8 +1324,12 @@ void LLPanelClassifiedInfo::resetData()
 	setClassifiedId(LLUUID::null);
 	setSnapshotId(LLUUID::null);
 	mPosGlobal.clearVec();
-	childSetValue("category", LLStringUtil::null);
-	childSetValue("content_type", LLStringUtil::null);
+	childSetText("category", LLStringUtil::null);
+	childSetText("content_type", LLStringUtil::null);
+	childSetText("click_through_text", LLStringUtil::null);
+	childSetText("price_for_listing", LLStringUtil::null);
+	childSetText("auto_renew", LLStringUtil::null);
+	childSetText("creation_date", LLStringUtil::null);
 	childSetText("click_through_text", LLStringUtil::null);
 }
 
