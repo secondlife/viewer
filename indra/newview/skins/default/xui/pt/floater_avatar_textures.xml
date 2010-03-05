@@ -7,26 +7,37 @@
 		Texturas compostas
 	</text>
 	<button label="Tombar" label_selected="Tombar" name="Dump"/>
-	<texture_picker label="Cabelo" name="hair_grain"/>
-	<texture_picker label="Cabelo alpha" name="hair_alpha"/>
-	<texture_picker label="Maquilagem" name="head_bodypaint"/>
-	<texture_picker label="Cabeça Alpha" name="head_alpha"/>
-	<texture_picker label="Tatuagem na cabeça" name="head_tattoo"/>
-	<texture_picker label="Olho" name="eyes_iris"/>
-	<texture_picker label="Olhos Alpha" name="eyes_alpha"/>
-	<texture_picker label="Pintura corporal, cintura para cima" name="upper_bodypaint"/>
-	<texture_picker label="Camiseta" name="upper_undershirt"/>
-	<texture_picker label="Luvas" name="upper_gloves"/>
-	<texture_picker label="Camisa" name="upper_shirt"/>
-	<texture_picker label="Jaqueta (cima)" name="upper_jacket"/>
-	<texture_picker label="Alpha de cima" name="upper_alpha"/>
-	<texture_picker label="Tatuagem parte de cima" name="upper_tattoo"/>
-	<texture_picker label="Pintura corporal, cintura para baixo" name="lower_bodypaint"/>
-	<texture_picker label="Roupa de baixo" name="lower_underpants"/>
-	<texture_picker label="Meias" name="lower_socks"/>
-	<texture_picker label="Sapatos" name="lower_shoes"/>
-	<texture_picker label="Calças" name="lower_pants"/>
-	<texture_picker label="Jaqueta" name="lower_jacket"/>
-	<texture_picker label="Alpha inferior" name="lower_alpha"/>
-	<texture_picker label="Tatuagem de baixo" name="lower_tattoo"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<texture_picker label="Cabelo" name="hair-baked"/>
+			<texture_picker label="Cabelo" name="hair_grain"/>
+			<texture_picker label="Cabelo alpha" name="hair_alpha"/>
+			<texture_picker label="Cabeça" name="head-baked"/>
+			<texture_picker label="Maquilagem" name="head_bodypaint"/>
+			<texture_picker label="Cabeça Alpha" name="head_alpha"/>
+			<texture_picker label="Tatuagem na cabeça" name="head_tattoo"/>
+			<texture_picker label="Olhos" name="eyes-baked"/>
+			<texture_picker label="Olho" name="eyes_iris"/>
+			<texture_picker label="Olhos Alpha" name="eyes_alpha"/>
+			<texture_picker label="Cintura acima" name="upper-baked"/>
+			<texture_picker label="Pintura corporal, cintura para cima" name="upper_bodypaint"/>
+			<texture_picker label="Camiseta" name="upper_undershirt"/>
+			<texture_picker label="Luvas" name="upper_gloves"/>
+			<texture_picker label="Camisa" name="upper_shirt"/>
+			<texture_picker label="Jaqueta (cima)" name="upper_jacket"/>
+			<texture_picker label="Alpha de cima" name="upper_alpha"/>
+			<texture_picker label="Tatuagem parte de cima" name="upper_tattoo"/>
+			<texture_picker label="Cintura para baixo" name="lower-baked"/>
+			<texture_picker label="Pintura corporal, cintura para baixo" name="lower_bodypaint"/>
+			<texture_picker label="Roupa de baixo" name="lower_underpants"/>
+			<texture_picker label="Meias" name="lower_socks"/>
+			<texture_picker label="Sapatos" name="lower_shoes"/>
+			<texture_picker label="Calças" name="lower_pants"/>
+			<texture_picker label="Jaqueta" name="lower_jacket"/>
+			<texture_picker label="Alpha inferior" name="lower_alpha"/>
+			<texture_picker label="Tatuagem de baixo" name="lower_tattoo"/>
+			<texture_picker label="Saia" name="skirt-baked"/>
+			<texture_picker label="Saia" name="skirt"/>
+		</panel>
+	</scroll_container>
 </floater>

@@ -88,8 +88,8 @@ rápido
 			Detalhes de Iluminação:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Sol e Lua apenas" name="SunMoon"/>
-			<radio_item label="Luzes locais nas proximidades" name="LocalLights"/>
+			<radio_item label="Sol e Lua apenas" name="SunMoon" value="0"/>
+			<radio_item label="Luzes locais nas proximidades" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Detalhe do Terreno:

@@ -222,6 +222,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	void 				requestLayerSetUploads();
+	void				requestLayerSetUpload(LLVOAvatarDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLVOAvatarDefines::ETextureIndex i);
 	LLTexLayerSet*		getLayerSet(LLVOAvatarDefines::ETextureIndex index) const;
 	

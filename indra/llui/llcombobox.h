@@ -221,6 +221,7 @@ protected:
 	LLPointer<LLUIImage>	mArrowImage;
 	LLUIString			mLabel;
 	BOOL				mHasAutocompletedText;
+	S32                 mLastSelectedIndex;
 
 private:
 	BOOL				mAllowTextEntry;
@@ -230,6 +231,36 @@ private:
 	commit_callback_t	mPrearrangeCallback;
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
-	S32                 mLastSelectedIndex;
 };
+
+// A combo box with icons for the list of items.
+class LLIconsComboBox
+:	public LLComboBox
+{
+public:
+	struct Params
+	:	public LLInitParam::Block<Params, LLComboBox::Params>
+	{
+		Optional<S32>		icon_column,
+							label_column;
+		Params();
+	};
+
+	/*virtual*/ void setValue(const LLSD& value);
+
+private:
+	enum EColumnIndex
+	{
+		ICON_COLUMN = 0,
+		LABEL_COLUMN
+	};
+
+	friend class LLUICtrlFactory;
+	LLIconsComboBox(const Params&);
+	virtual ~LLIconsComboBox() {};
+
+	S32			mIconColumnIndex;
+	S32			mLabelColumnIndex;
+};
+
 #endif

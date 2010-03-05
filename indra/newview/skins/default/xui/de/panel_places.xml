@@ -7,9 +7,9 @@
 		<button label="Teleportieren" name="teleport_btn" tool_tip="Zu ausgewähltem Standort teleportieren"/>
 		<button label="Karte" name="map_btn" width="60"/>
 		<button label="Bearbeiten" name="edit_btn" tool_tip="Landmarken-Info bearbeiten"/>
-		<button name="overflow_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
-		<button label="Schließen" name="close_btn"/>
-		<button label="Abbrechen" name="cancel_btn" width="66"/>
+		<button label="▼" name="overflow_btn" tool_tip="Zusätzliche Optionen anzeigen"/>
 		<button label="Speichern" name="save_btn" width="66"/>
+		<button label="Abbrechen" name="cancel_btn" width="66"/>
+		<button label="Schließen" name="close_btn"/>
 	</panel>
 </panel>

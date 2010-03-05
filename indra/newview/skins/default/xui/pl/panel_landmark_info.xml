@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="Zapamiętaj Miejsce"/>
+	<string name="title_edit_landmark" value="Edytuj Zapamiętane Miejsce"/>
+	<string name="title_landmark" value="Zapamiętane Miejsce (LM)"/>
+	<string name="not_available" value="(N\A)"/>
+	<string name="unknown" value="(nieznane)"/>
+	<string name="public" value="(publiczne)"/>
+	<string name="server_update_text">
+		Informacje o miejscu nie są dostępne bez aktualizacji serwera.
+	</string>
+	<string name="server_error_text">
+		Informacje o miejscu nie są dostępne w tej chwili. Prosimy sprobować później.
+	</string>
+	<string name="server_forbidden_text">
+		Informacje o miejscu są niedostępne z powodu braku dostępu. Prosimy sprawdzić swoje prawa z właścicielem posiadłości.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<text name="title" value="Profil Miejsca"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="maturity_value" value="nieznany"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="Właściciel:"/>
+				<text name="creator_label" value="Twórca:"/>
+				<text name="created_label" value="Stworzone:"/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="Tytuł:"/>
+				<text name="notes_label" value="Moje notatki:"/>
+				<text name="folder_label" value="Lokalizacja zapisanego miejsca:"/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

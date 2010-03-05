@@ -4,5 +4,5 @@
 		<text name="title" value="Afsender navn / Gruppe navn"/>
 	</panel>
 	<text name="attachment" value="Bilag"/>
-	<button label="Ok" name="btn_ok"/>
+	<button label="OK" name="btn_ok"/>
 </panel>

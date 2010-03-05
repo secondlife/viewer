@@ -22,6 +22,22 @@
   name="l$_price">
     L$[PRICE]
  </panel.string>
+ <panel.string
+  name="click_through_text_fmt">
+    [TELEPORT] teleport, [MAP] map, [MAP] profile
+ </panel.string>
+ <panel.string
+  name="date_fmt">
+    [mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+ </panel.string>
+ <panel.string
+  name="auto_renew_on">
+    Enabled
+ </panel.string>
+ <panel.string
+  name="auto_renew_off">
+    Disabled
+ </panel.string>
     <button
      follows="top|right"
      height="23"
@@ -51,11 +67,11 @@
      follows="all"
      height="502"
      layout="topleft"
-     left="9"
+     left="10"
      top_pad="10"
      name="profile_scroll"
      reserve_scroll_corner="false"
-     width="310">
+     width="312">
     <panel
      name="scroll_content_panel"
      follows="left|top"
@@ -63,18 +79,28 @@
      layout="topleft"
      top="0"
      background_visible="false"
-     height="500"
+     height="610"
      left="0"
      width="285">
+        <panel
+         name="snapshot_panel"
+         layout="topleft"
+         follows="left|top|right"
+         height="197"
+         left="10"
+         top="10"
+         width="275"
+        >
         <texture_picker
          enabled="false"
          follows="left|top|right"
          height="197"
          layout="topleft"
-         left="11"
+         left="0"
          name="classified_snapshot"
-         top="10"
-         width="286" />
+         top="0"
+         width="275" />
+        </panel>
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -93,20 +119,43 @@
          v_pad="0"
          value="[name]"
          use_ellipses="true" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="classified_location_label"
+         text_color="white"
+         top_pad="5"
+         value="Location:"
+         width="250" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
          follows="left|top"
          h_pad="0"
-         height="25"
+         height="30"
          layout="topleft"
          left="10"
          name="classified_location"
          read_only="true"
+         top_pad="5"
          width="290"
          word_wrap="true"
          v_pad="0"
          value="[loading...]" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="content_type_label"
+         text_color="white"
+         top_pad="10"
+         value="Content Type:"
+         width="140" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -114,13 +163,24 @@
          h_pad="0"
          height="18"
          layout="topleft"
-         left="10"
+         left_pad="0"
          name="content_type"
          read_only="true"
-         width="290"
-         top_pad="5"
+         width="150"
+         top_pad="-10"
          v_pad="0"
          value="[content type]" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="category_label"
+         text_color="white"
+         top_pad="0"
+         value="Category:"
+         width="140" />
         <text_editor
          allow_html="true"
          allow_scroll="false"
@@ -129,13 +189,24 @@
          h_pad="0"
          height="18"
          layout="topleft"
-         left="10"
+         left_pad="0"
          name="category"
          read_only="true"
-         width="290"
-         top_pad="5"
+         width="150"
+         top_pad="-10"
          v_pad="0"
          value="[category]" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="creation_date_label"
+         text_color="white"
+         top_pad="0"
+         value="Creation date:"
+         width="140" />
         <text_editor
          allow_scroll="false"
          bg_visible="false"
@@ -144,39 +215,160 @@
          halign="left"
          height="16"
          layout="topleft"
-         left="10"
-         name="price_for_listing"
+         left_pad="0"
+         name="creation_date"
          read_only="true"
-         top_pad="5"
-         tool_tip="Price for listing."
+         top_pad="-10"
+         tool_tip="Creation date"
          v_pad="0"
-         width="105" />
-        <check_box
-         enabled="false"
-         height="16"
-         label="Auto renew each week"
+         value="[date]"
+         width="150" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
          layout="topleft"
          left="10"
-         name="auto_renew"
+         name="price_for_listing_label"
+         text_color="white"
          top_pad="5"
-         v_pad="0"
-         width="290" />
+         value="Price for listing:"
+         width="140" />
         <text_editor
-         allow_html="true"
          allow_scroll="false"
          bg_visible="false"
-         follows="left|top|right"
+         follows="left|top"
+         h_pad="0"
+         halign="left"
+         height="16"
+         layout="topleft"
+         left_pad="0"
+         name="price_for_listing"
+         read_only="true"
+         top_pad="-10"
+         tool_tip="Price for listing."
+         v_pad="0"
+         value="[price]"
+         width="105" />
+        <layout_stack
+         animate="false"
+         name="descr_stack"
+         layout="topleft"
+         follows="all"
+         orientation="vertical"
+         left="10"
+         top_pad="5"
+         width="290"
+         height="215">
+         <layout_panel
+          auto_resize="false"
+          name="clickthrough_layout_panel"
+          layout="topleft"
+          follows="all"
+          left="0"
+          top="0"
+          width="290"
+          height="16"
+          user_resize="false">
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="0"
+         name="click_through_label"
+         text_color="white"
+         top_pad="0"
+         value="Clicks:"
+         width="140" />
+        <text_editor
+         allow_scroll="false"
+         bg_visible="false"
+         follows="left|top"
+         h_pad="0"
+         halign="left"
+         height="16"
+         layout="topleft"
+         left_pad="0"
+         name="click_through_text"
+         read_only="true"
+         top_pad="-10"
+         tool_tip="Click through data"
+         v_pad="0"
+         value="[clicks]"
+         width="150" />
+         </layout_panel>
+         <layout_panel
+          auto_resize="false"
+          name="price_layout_panel"
+          layout="topleft"
+          follows="all"
+          left="0"
+          top="0"
+          width="290"
+          height="16"
+          user_resize="false">
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="0"
+         name="auto_renew_label"
+         text_color="white"
+         top="0"
+         value="Auto renew:"
+         width="140" />
+         <text
+         height="16"
+         layout="topleft"
+         follows="top|left"
+         left_pad="0"
+         name="auto_renew"
+         top_pad="-10"
+         value="Enabled" 
+         width="150" />
+         </layout_panel>
+         <layout_panel
+          name="descr_layout_panel"
+          layout="topleft"
+          follows="all"
+          left="0"
+          top="0"
+          width="290"
+          height="215"
+          user_resize="false">
+        <text
+         auto_resize="false"
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="0"
+         name="classified_desc_label"
+         text_color="white"
+         top="0"
+         value="Description:"
+         width="250" />
+        <text_editor
+         allow_html="true"
+         allow_scroll="true"
+         bg_visible="false"
+         follows="all"
          h_pad="0"
          height="200"
          layout="topleft"
-         left="10"
+         left="0"
          max_length="1023"
          name="classified_desc"
          read_only="true"
-         width="290"
+         top_pad="7"
+         width="280"
          v_pad="0"
          value="[description]"
          word_wrap="true" />
+         </layout_panel>
+        </layout_stack>
     </panel>
     </scroll_container>
     <panel

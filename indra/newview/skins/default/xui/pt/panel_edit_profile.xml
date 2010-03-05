@@ -34,9 +34,12 @@
 				</text>
 				<check_box label="Mostrar nos resultados de busca" name="show_in_search_checkbox"/>
 				<text name="title_acc_status_text" value="Minha conta:"/>
+				<text_editor name="acc_status_text" value="Residente. Dados de pagamento: não constam"/>
 				<text name="my_account_link" value="[[URL] Abrir meu painel]"/>
-				<text name="acc_status_text" value="Residente. Dados de pagamento: não constam"/>
 				<text name="title_partner_text" value="Parceiro(a):"/>
+				<panel name="partner_data_panel">
+					<name_box initial_value="(pesquisando)" name="partner_text"/>
+				</panel>
 				<text name="partner_edit_link" value="[[URL] Editar]"/>
 			</panel>
 		</panel>

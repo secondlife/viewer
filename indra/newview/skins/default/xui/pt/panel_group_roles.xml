@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Membros e Funções" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		As mudanças feitas nesta guia ainda não foram salvas
+		Algumas modificações não foram salvas
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Deseja salvar essas mudanças?
@@ -52,7 +52,7 @@ Há uma grande variedade de habilidades.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Membros atribuídos
+			Cargos desempenhados
 		</text>
 		<text name="static2">
 			Habilidades permitidas

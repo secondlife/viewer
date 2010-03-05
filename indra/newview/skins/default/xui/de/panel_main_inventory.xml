@@ -44,7 +44,7 @@
 				<menu_item_call label="Neue Handschuhe" name="New Gloves"/>
 				<menu_item_call label="Neues Unterhemd" name="New Undershirt"/>
 				<menu_item_call label="Neue Unterhose" name="New Underpants"/>
-				<menu_item_call label="Alpha: Neu" name="New Alpha"/>
+				<menu_item_call label="Neues Alpha" name="New Alpha"/>
 				<menu_item_call label="Neue Tätowierung" name="New Tattoo"/>
 			</menu>
 			<menu label="Neue Körperteile" name="New Body Parts">

@@ -122,6 +122,21 @@ public:
 	U32 getPhysicalMemoryClamped() const; ///< Memory size in clamped bytes
 };
 
+//=============================================================================
+//
+//	CLASS		LLDisplayInfo
+class LL_COMMON_API LLDisplayInfo
+
+/*!	@brief		Class to query the information about some display settings
+*/
+{
+public:
+	LLDisplayInfo(){}; ///< Default constructor
+
+	S32 getDisplayWidth() const; ///< display width
+	S32 getDisplayHeight() const; ///< display height
+	
+};
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLOSInfo& info);
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLCPUInfo& info);

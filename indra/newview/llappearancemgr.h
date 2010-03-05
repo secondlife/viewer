@@ -60,6 +60,9 @@ public:
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 							 LLPointer<LLInventoryCallback> cb);
 
+	// Return whether this folder contains minimal contents suitable for making a full outfit.
+	BOOL getCanMakeFolderIntoOutfit(const LLUUID& folder_id);
+
 	// Copy all items in a category.
 	void shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
 									 LLPointer<LLInventoryCallback> cb);

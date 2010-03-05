@@ -9,7 +9,7 @@
 		<menu_item_call label="Mi perfil" name="Profile"/>
 		<menu_item_call label="Mi apariencia" name="Appearance"/>
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
-		<menu_item_check label="Mi inventario" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
 		<menu label="Mi estatus" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
@@ -47,13 +47,13 @@
 			<menu_item_check label="Propiedades de la parcela" name="Parcel Properties"/>
 		</menu>
 		<menu_item_call label="Teleportar a la Base" name="Teleport Home"/>
-		<menu_item_call label="Fijar aquí mi Base" name="Set Home to Here"/>
+		<menu_item_call label="Fijar mi Base aquí" name="Set Home to Here"/>
 		<menu label="Sol" name="Environment Settings">
 			<menu_item_call label="Amanecer" name="Sunrise"/>
 			<menu_item_call label="Mediodía" name="Noon"/>
 			<menu_item_call label="Atardecer" name="Sunset"/>
 			<menu_item_call label="Medianoche" name="Midnight"/>
-			<menu_item_call label="Tiempo del Estado" name="Revert to Region Default"/>
+			<menu_item_call label="Hora del Estado" name="Revert to Region Default"/>
 			<menu_item_call label="Editor del entorno" name="Environment Editor"/>
 		</menu>
 	</menu>
@@ -100,7 +100,7 @@
 			<menu_item_call label="Configurar los permisos por defecto de subida" name="perm prefs"/>
 			<menu_item_check label="Mostrar los permisos avanzados" name="DebugPermissions"/>
 			<menu_item_check label="Seleccionar sólo mis objetos" name="Select Only My Objects"/>
-			<menu_item_check label="Sólo seleccionar los objetos movibles" name="Select Only Movable Objects"/>
+			<menu_item_check label="Seleccionar sólo los objetos movibles" name="Select Only Movable Objects"/>
 			<menu_item_check label="Seleccionar marcando los alrededores" name="Select By Surrounding"/>
 			<menu_item_check label="Al seleccionar, mostrar lo oculto" name="Show Hidden Selection"/>
 			<menu_item_check label="Al seleccionar, mostrar el radio de la luz" name="Show Light Radius for Selection"/>

@@ -21,7 +21,7 @@
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda (flecha ESQ ou A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita (flecha DIR ou D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Voar para o alto (tecla E)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Voar para cima (tecla E)"/>
 		<button label="" label_selected="" name="move down btn" tool_tip="Voar para baixo (tecla C)"/>
 		<joystick_turn name="forward btn" tool_tip="Andar para frente (flecha para cima ou W)"/>
 		<joystick_turn name="backward btn" tool_tip="Andar para trás (flecha para baixo ou S)"/>

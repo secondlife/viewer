@@ -630,7 +630,9 @@ void LLScrollListCtrl::calcColumnWidths()
 			LLScrollListCell* cellp = (*iter)->getColumn(column->mIndex);
 			if (!cellp) continue;
 
-			column->mMaxContentWidth = llmax(LLFontGL::getFontSansSerifSmall()->getWidth(cellp->getValue().asString()) + mColumnPadding + COLUMN_TEXT_PADDING, column->mMaxContentWidth);
+			// get text value width only for text cells
+			column->mMaxContentWidth = cellp->isText() ?
+					llmax(LLFontGL::getFontSansSerifSmall()->getWidth(cellp->getValue().asString()) + mColumnPadding + COLUMN_TEXT_PADDING, column->mMaxContentWidth) : column->mMaxContentWidth;
 		}
 
 		max_item_width += column->mMaxContentWidth;

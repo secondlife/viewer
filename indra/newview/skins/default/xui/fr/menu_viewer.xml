@@ -43,6 +43,8 @@
 			<menu_item_check label="Balises" name="beacons"/>
 			<menu_item_check label="Limites du terrain" name="Property Lines"/>
 			<menu_item_check label="Propriétaires de terrains" name="Land Owners"/>
+			<menu_item_check label="Coordonnées" name="Coordinates"/>
+			<menu_item_check label="Propriétés de la parcelle" name="Parcel Properties"/>
 		</menu>
 		<menu_item_call label="Me téléporter chez moi" name="Teleport Home"/>
 		<menu_item_call label="Définir le domicile ici" name="Set Home to Here"/>
@@ -81,7 +83,8 @@
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoomer sur la sélection" name="Zoom to Selection"/>
 		<menu label="Objet" name="Object">
-			<menu_item_call label="Acheter" name="Menu Object Take"/>
+			<menu_item_call label="Acheter" name="Menu Object Buy"/>
+			<menu_item_call label="Prendre" name="Menu Object Take"/>
 			<menu_item_call label="Prendre une copie" name="Take Copy"/>
 			<menu_item_call label="Enregistrer dans mon inventaire" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Enregistrer dans le contenu des objets" name="Save Object Back to Object Contents"/>
@@ -149,7 +152,6 @@
 			<menu_item_check label="Alpha" name="Alpha"/>
 			<menu_item_check label="Arbre" name="Tree"/>
 			<menu_item_check label="Avatars" name="Character"/>
-			<menu_item_check label="SurfacePath" name="Surface"/>
 			<menu_item_check label="Ciel" name="Sky"/>
 			<menu_item_check label="Eau" name="Water"/>
 			<menu_item_check label="Sol" name="Ground"/>

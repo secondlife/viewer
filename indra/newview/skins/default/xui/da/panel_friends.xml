@@ -16,5 +16,5 @@
 	<button label="Teleport" name="offer_teleport_btn" tool_tip="Tilbyd denne ven at blive teleporteret til din nuværende position"/>
 	<button label="Betal" name="pay_btn" tool_tip="Giv Linden dollars (L$) til denne ven"/>
 	<button label="Fjern" name="remove_btn" tool_tip="Fjern denne beboer fra din venneliste"/>
-	<button label="Tilføj" name="add_btn" tool_tip="Tilbyd venskab til denne beboer"/>
+	<button label="Tilføj" name="add_btn" tool_tip="Tilbyd venskab til en beboer"/>
 </panel>

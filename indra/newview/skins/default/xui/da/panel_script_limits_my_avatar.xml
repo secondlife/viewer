@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MIN AVATAR" name="script_limits_my_avatar_panel">
+	<text name="script_memory">
+		Avatar Script forbrug
+	</text>
+	<text name="loading_text">
+		Henter...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Størrelse (kb)" name="size"/>
+		<scroll_list.columns label="URL&apos;er" name="urls"/>
+		<scroll_list.columns label="Objekt navn" name="name"/>
+		<scroll_list.columns label="Lokation" name="location"/>
+	</scroll_list>
+	<button label="Gentegn liste" name="refresh_list_btn"/>
+</panel>

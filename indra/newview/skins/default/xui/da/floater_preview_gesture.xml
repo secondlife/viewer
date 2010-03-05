@@ -24,6 +24,9 @@
 	<floater.string name="Title">
 		Bevægelse: [NAME]
 	</floater.string>
+	<text name="name_text">
+		Navn:
+	</text>
 	<text name="desc_label">
 		Beskrivelse:
 	</text>

@@ -7,17 +7,14 @@
 		(indlæser...)
 	</panel.string>
 	<panel.string name="already_in_group">
-		Nogen af avatarerne var allerede i gruppen og blev ikke inviteret
+		Nogle af de beboere du vælger er allerede i gruppen, så de får ikke tilsendt en invitation.
 	</panel.string>
 	<text name="help_text">
-		Du kan invitere flere beboere ad 
-gangen til at blive medlem af din 
-gruppe. Klik &apos;Åben personvælger&apos; for 
-at begynde.
+		Du kan invitere flere beboere ad gangen til at blive medlem af din gruppe. Klik &apos;Åben personvælger&apos; for at begynde.
 	</text>
 	<button bottom_delta="-30" label="Åben personvælger" name="add_button"/>
-	<name_list name="invitee_list" tool_tip="Hold Ctrl knappen nede og klik på beboer navne for at vælge flere"/>
-	<button label="Fjern valgte fra listen" name="remove_button" tool_tip="Fjern beboere valgt ovenfor fra invitationslisten"/>
+	<name_list name="invitee_list" tool_tip="Hold Ctrl-tasten nede og klik på beboere for at vælge flere."/>
+	<button label="Fjern valgte fra listen" name="remove_button" tool_tip="Fjerner beboere, der er valgt på ovenstående invitationsliste."/>
 	<text name="role_text">
 		Vælg hvilken rolle, du vil tildele dem:
 	</text>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="sys_well_window" title="AVISOS">
 	<string name="title_im_well_window">
-		MIs
+		CONVERSAS
 	</string>
 	<string name="title_notification_well_window">
 		AVISOS

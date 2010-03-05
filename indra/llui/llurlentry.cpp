@@ -34,6 +34,8 @@
 #include "linden_common.h"
 #include "llurlentry.h"
 #include "lluri.h"
+#include "llurlmatch.h"
+#include "llurlregistry.h"
 
 #include "llcachename.h"
 #include "lltrans.h"
@@ -308,6 +310,7 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
+	mTooltip = LLTrans::getString("TooltipAgentUrl");
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
@@ -600,6 +603,20 @@ std::string LLUrlEntrySLLabel::getLabel(const std::string &url, const LLUrlLabel
 std::string LLUrlEntrySLLabel::getUrl(const std::string &string) const
 {
 	return getUrlFromWikiLink(string);
+}
+
+std::string LLUrlEntrySLLabel::getTooltip(const std::string &string) const
+{
+	// return a tooltip corresponding to the URL type instead of the generic one (EXT-4574)
+	std::string url = getUrl(string);
+	LLUrlMatch match;
+	if (LLUrlRegistry::instance().findUrl(url, match))
+	{
+		return match.getTooltip();
+	}
+
+	// unrecognized URL? should not happen
+	return LLUrlEntryBase::getTooltip(string);
 }
 
 //

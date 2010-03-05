@@ -1506,6 +1506,9 @@
 	<string name="NoPicksClassifiedsText">
 		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		L&apos;utilisateur n&apos;a ni favoris ni petites annonces
+	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...
 	</string>

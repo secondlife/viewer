@@ -49,7 +49,7 @@
 			<text name="maturity_value" value="desconocido"/>
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="Parcela">
-					<panel>
+					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Calificación:"/>
 						<text name="rating_value" value="desconocida"/>
 						<text name="voice_label" value="Voz:"/>
@@ -68,7 +68,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Región">
-					<panel>
+					<panel name="region_information_panel">
 						<text name="region_name_label" value="Región:"/>
 						<text name="region_type_label" value="Tipo:"/>
 						<text name="region_rating_label" value="Calificación:"/>
@@ -78,7 +78,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="Estado">
-					<panel>
+					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="Estado:"/>
 						<text name="estate_rating_label" value="Calificación:"/>
 						<text name="estate_owner_label" value="Propietario:"/>
@@ -86,7 +86,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="En venta">
-					<panel>
+					<panel name="sales_panel">
 						<text name="sales_price_label" value="Precio:"/>
 						<text name="area_label" value="Área:"/>
 						<text name="traffic_label" value="Tráfico:"/>

@@ -681,6 +681,21 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
+// virtual
+void LLInventoryPanel::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	LLPanel::onMouseEnter(x, y, mask);
+	// don't auto-scroll a list when cursor is over Inventory. See EXT-3981.
+	mFolders->setEnableScroll(false);
+}
+
+// virtual
+void LLInventoryPanel::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLPanel::onMouseLeave(x, y, mask);
+	mFolders->setEnableScroll(true);
+}
+
 void LLInventoryPanel::onFocusLost()
 {
 	// inventory no longer handles cut/copy/paste/delete

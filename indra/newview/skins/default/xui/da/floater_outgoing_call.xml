@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="outgoing call" title="KALDER">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		Stemme chat nærved
 	</floater.string>
@@ -20,6 +23,15 @@
 	</text>
 	<text name="noanswer">
 		Intet svar.  Prøv igen senere.
+	</text>
+	<text name="nearby">
+		Du er blevet koblet af fra [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_other">
+		[VOICE_CHANNEL_NAME] har afsluttet opkaldet.  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_agent">
+		Du har afsluttet opkaldet.  [RECONNECT_NEARBY]
 	</text>
 	<text name="leaving">
 		Forlader [CURRENT_CHAT].

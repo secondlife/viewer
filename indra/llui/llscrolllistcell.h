@@ -151,11 +151,16 @@ public:
 	/*virtual*/ const std::string &	getToolTip() const;
 	/*virtual*/ BOOL	needsToolTip() const;
 
+	S32				getTextWidth() const { return mTextWidth;}
+	void			setTextWidth(S32 value) { mTextWidth = value;} 
+	virtual void	setWidth(S32 width) { LLScrollListCell::setWidth(width); mTextWidth = width; }
+
 	void			setText(const LLStringExplicit& text);
 	void			setFontStyle(const U8 font_style);
 
 private:
 	LLUIString		mText;
+	S32				mTextWidth;
 	const LLFontGL*	mFont;
 	LLColor4		mColor;
 	U8				mUseColor;

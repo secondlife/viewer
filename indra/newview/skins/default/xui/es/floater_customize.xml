@@ -35,7 +35,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una anatomía nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una anatomía nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -68,7 +68,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una piel nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una piel nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -105,7 +105,7 @@
 				Situado en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte un pelo nuevo arrastrándolo desde tu inventario hasta tu avatar. O bien crea uno nuevo partiendo de cero y vístetelo.
+				Ponte un pelo nuevo arrastrándolo desde tu inventario hasta tu avatar. O bien puedes crear uno nuevo partiendo de cero.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -136,7 +136,7 @@
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte unos ojos nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
+				Ponte unos ojos nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien puedes crear unos nuevos partiendo de cero.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -177,7 +177,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una camisa nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una camisa nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -210,7 +210,7 @@
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte unos pantalones nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
+				Ponte unos pantalones nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien puedes crear unos nuevos partiendo de cero.
 			</text>
 			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
@@ -236,7 +236,7 @@
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte unos zapatos nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
+				Ponte unos zapatos nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien puedes crear unos nuevos partiendo de cero.
 			</text>
 			<button label="Crear unos zapatos nuevos" label_selected="Crear unos zapatos nuevos" name="Create New"/>
 			<text name="no modify instructions">
@@ -269,7 +269,7 @@
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte unos calcetines nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
+				Ponte unos calcetines nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien puedes crear unos nuevos partiendo de cero.
 			</text>
 			<button label="Crear unos calcetines nuevos" label_selected="Crear unos calcetines nuevos" name="Create New" width="185"/>
 			<text name="no modify instructions">
@@ -302,7 +302,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una chaqueta nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una chaqueta nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<button label="Crear una chaqueta nueva" label_selected="Crear una chaqueta nueva" name="Create New"/>
 			<text name="no modify instructions">
@@ -336,7 +336,7 @@
 				Situados en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte unos guantes nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien crea unos nuevos partiendo de cero y vístetelos.
+				Ponte unos guantes nuevos arrastrándolos desde tu inventario hasta tu avatar. O bien puedes crear unos nuevos partiendo de cero.
 			</text>
 			<button label="Crear unos guantes nuevos" label_selected="Crear unos guantes nuevos" name="Create New"/>
 			<text name="no modify instructions">
@@ -369,7 +369,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una camiseta nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una camiseta nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<button label="Crear una camiseta nueva" label_selected="Crear una camiseta nueva" name="Create New"/>
 			<text name="no modify instructions">
@@ -402,7 +402,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una ropa interior nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una ropa interior nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<button label="Crear una ropa interior nueva" label_selected="Crear una ropa interior nueva" name="Create New" width="185"/>
 			<text name="no modify instructions">
@@ -435,7 +435,7 @@
 				Situada en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una falda nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Ponte una falda nueva arrastrándola desde tu inventario hasta tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<button label="Crear una falda nueva" label_selected="Crear una falda nueva" name="Create New"/>
 			<text name="no modify instructions">
@@ -468,7 +468,7 @@
 				Situado en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte un tatuaje nuevo arrastrándolo desde tu inventario hasta tu avatar. O bien crea uno nuevo partiendo de cero y vístetelo.
+				Pon un tatuaje nuevo arrastrándolo desde tu inventario a tu avatar. O bien puedes crear uno nuevo partiendo de cero.
 			</text>
 			<button label="Crear un tatuaje nuevo" label_selected="Crear un tatuaje nuevo" name="Create New"/>
 			<text name="no modify instructions">
@@ -502,7 +502,7 @@
 				Situado en [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ponte una capa Alfa nueva arrastrándola desde tu inventario hasta tu avatar. O bien crea una nueva partiendo de cero y vístetela.
+				Pon una capa Alfa nueva arrastrándola desde tu inventario a tu avatar. O bien puedes crear una nueva partiendo de cero.
 			</text>
 			<button label="Crear una capa Alfa nueva" label_selected="Crear una capa Alfa nueva" name="Create New"/>
 			<text name="no modify instructions">

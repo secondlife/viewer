@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ height="200"
+ layout="topleft"
+ name="publish_classified"
+ help_topic="price_for_listing"
+ title="Publishing Classified"
+ width="320">
+    <text
+     top="20"
+     follows="top|left"
+     font="SansSerif"
+     height="60"
+     layout="topleft"
+     left="15"
+     word_wrap="true"
+     name="explanation_text">
+     
+Your classified ad will run for one week from the date it is published.
+        
+Remember, Classified fees are non-refundable.
+
+    </text>
+    <spinner
+     decimal_digits="0"
+     follows="left|top"
+     halign="left"
+     height="23"
+     increment="1"
+     label_width="70"
+     label="Price for Ad: "
+     v_pad="10"
+     layout="topleft"
+     left="15"
+     value="50"
+     min_val="50"
+     max_val="99999"
+     name="price_for_listing"
+     top_pad="10"
+     tool_tip="Price for listing."
+     width="150" />
+    <text
+     follows="top|left"
+     font="SansSerif"
+     height="60"
+     layout="topleft"
+     left_pad="5"
+     top_delta="0"
+     word_wrap="true"
+     value="L$"
+     name="l$_text" />
+    <text
+     follows="top|right"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="15"
+     name="more_info_text"
+     top_pad="-20"
+     width="300">
+More info (link to classified help)
+    </text>
+    <button
+     follows="top|left"
+     height="22"
+     label="Publish"
+     layout="topleft"
+     left="105"
+     name="publish_btn"
+     top="160"
+     width="100" />
+    <button
+     follows="top|left"
+     height="22"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
+     width="100" />
+</floater>
