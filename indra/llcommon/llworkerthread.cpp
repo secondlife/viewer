@@ -65,6 +65,27 @@ LLWorkerThread::~LLWorkerThread()
 	// ~LLQueuedThread() will be called here
 }
 
+//called only in destructor.
+void LLWorkerThread::clearDeleteList()
+{
+	// Delete any workers in the delete queue (should be safe - had better be!)
+	if (!mDeleteList.empty())
+	{
+		llwarns << "Worker Thread: " << mName << " destroyed with " << mDeleteList.size()
+				<< " entries in delete list." << llendl;
+
+		mDeleteMutex->lock();
+		for (delete_list_t::iterator iter = mDeleteList.begin(); iter != mDeleteList.end(); ++iter)
+		{
+			(*iter)->mRequestHandle = LLWorkerThread::nullHandle();
+			(*iter)->clearFlags(LLWorkerClass::WCF_HAVE_WORK);
+			delete *iter ;
+		}
+		mDeleteList.clear() ;
+		mDeleteMutex->unlock() ;
+	}
+}
+
 // virtual
 S32 LLWorkerThread::update(U32 max_time_ms)
 {
@@ -320,7 +341,20 @@ bool LLWorkerClass::checkWork(bool aborting)
 	if (mRequestHandle != LLWorkerThread::nullHandle())
 	{
 		LLWorkerThread::WorkRequest* workreq = (LLWorkerThread::WorkRequest*)mWorkerThread->getRequest(mRequestHandle);
-		llassert_always(workreq);
+		if(!workreq)
+		{
+			if(mWorkerThread->isQuitting() || mWorkerThread->isStopped()) //the mWorkerThread is not running
+			{
+				mRequestHandle = LLWorkerThread::nullHandle();
+				clearFlags(WCF_HAVE_WORK);
+				return true ;
+			}
+			else
+			{
+				llassert_always(workreq);
+			}
+		}
+
 		LLQueuedThread::status_t status = workreq->getStatus();
 		if (status == LLWorkerThread::STATUS_ABORTED)
 		{
