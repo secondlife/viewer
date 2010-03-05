@@ -109,7 +109,7 @@
 			<text name="Selling with no objects in parcel.">
 				Objets non inclus dans la vente
 			</text>
-			<button label="Annuler la vente du terrain" label_selected="Annuler la vente du terrain" left="275" name="Cancel Land Sale" width="165"/>
+			<button label="Annuler la vente du terrain" label_selected="Annuler la vente du terrain" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				Acquis :
 			</text>
@@ -367,11 +367,11 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Photo :
 			</text>
 			<texture_picker bottom="-319" label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
-			<text bottom="-323" name="landing_point">
+			<text name="landing_point">
 				Lieu d&apos;arrivée : [LANDING]
 			</text>
-			<button bottom="-323" label="Définir" label_selected="Définir" name="Set" tool_tip="Définit le point d&apos;arrivée des visiteurs. Définit l&apos;emplacement de votre avatar sur ce terrain."/>
-			<button bottom="-323" label="Annuler" label_selected="Annuler" name="Clear" tool_tip="Effacer le lieu d&apos;arrivée"/>
+			<button label="Définir" label_selected="Définir" name="Set" tool_tip="Définit le point d&apos;arrivée des visiteurs. Définit l&apos;emplacement de votre avatar sur ce terrain."/>
+			<button label="Annuler" label_selected="Annuler" name="Clear" tool_tip="Effacer le lieu d&apos;arrivée"/>
 			<text bottom="-343" name="Teleport Routing: ">
 				Règles de téléportation :
 			</text>
@@ -380,7 +380,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				<combo_box.item label="Lieu d&apos;arrivée fixe" name="LandingPoint"/>
 				<combo_box.item label="Lieu d&apos;arrivée libre" name="Anywhere"/>
 			</combo_box>
-		</panel>
+		</panel>	
 		<panel label="MÉDIA" name="land_media_panel">
 			<text name="with media:" width="85">
 				Type :
