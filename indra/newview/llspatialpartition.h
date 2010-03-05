@@ -346,11 +346,11 @@ public:
 	F32 mBuilt;
 	OctreeNode* mOctreeNode;
 	LLSpatialPartition* mSpatialPartition;
-	LLVector3 mBounds[2];
-	LLVector3 mExtents[2];
+	LLVector3 mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LLVector3 mExtents[2]; // extents (min, max) of this node and all its children
 	
-	LLVector3 mObjectExtents[2];
-	LLVector3 mObjectBounds[2];
+	LLVector3 mObjectExtents[2]; // extents (min, max) of objects in this node
+	LLVector3 mObjectBounds[2]; // bounding box (center, size) of objects in this node
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	F32*					mOcclusionVerts;
