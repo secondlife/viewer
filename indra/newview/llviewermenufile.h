@@ -110,4 +110,15 @@ LLSD generate_new_resource_upload_capability_body(
 	U32 group_perms,
 	U32 everyone_perms);
 
+void on_new_single_inventory_upload_complete(
+	LLAssetType::EType asset_type,
+	LLInventoryType::EType inventory_type,
+	const std::string inventory_type_string,
+	const LLUUID& item_folder_id,
+	const std::string& item_name,
+	const std::string& item_description,
+	const LLSD& server_response,
+	S32 upload_price);
+
+
 #endif

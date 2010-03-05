@@ -73,7 +73,7 @@ static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;
 
 void dialog_refresh_all();
 
-static void on_new_single_inventory_upload_complete(
+void on_new_single_inventory_upload_complete(
 	LLAssetType::EType asset_type,
 	LLInventoryType::EType inventory_type,
 	const std::string inventory_type_string,
@@ -93,11 +93,6 @@ static void on_new_single_inventory_upload_complete(
 		args["AMOUNT"] = llformat("%d", upload_price);
 		LLNotificationsUtil::add("UploadPayment", args);
 	}
-
-	// Actually add the upload to viewer inventory
-	llinfos << "Adding " << server_response["new_inventory_item"].asUUID()
-			<< " " << server_response["new_asset"].asUUID()
-			<< " to inventory." << llendl;
 
 	if( item_folder_id.notNull() )
 	{
@@ -164,15 +159,6 @@ static void on_new_single_inventory_upload_complete(
 			panel->setSelection(
 				server_response["new_inventory_item"].asUUID(),
 				TAKE_FOCUS_NO);
-
-			if(
-				(LLAssetType::AT_TEXTURE == asset_type ||
-				 LLAssetType::AT_SOUND == asset_type) &&
-				(LLFilePicker::instance().getFileCount() <=
-				 FILE_COUNT_DISPLAY_THRESHOLD) )
-			{
-				panel->openSelected();
-			}
 
 			// restore keyboard focus
 			gFocusMgr.setKeyboardFocus(focus);
