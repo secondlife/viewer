@@ -1292,19 +1292,23 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32
 }
 
 //-----------------------------------------------------------------------------
-// virtual
 // requestLayerSetUploads()
 //-----------------------------------------------------------------------------
 void LLVOAvatarSelf::requestLayerSetUploads()
 {
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		ETextureIndex tex_index = mBakedTextureDatas[i].mTextureIndex;
-		BOOL layer_baked = isTextureDefined(tex_index, gAgentWearables.getWearableCount(tex_index));
-		if (!layer_baked && mBakedTextureDatas[i].mTexLayerSet)
-		{
-			mBakedTextureDatas[i].mTexLayerSet->requestUpload();
-		}
+		requestLayerSetUpload((EBakedTextureIndex)i);
+	}
+}
+
+void LLVOAvatarSelf::requestLayerSetUpload(LLVOAvatarDefines::EBakedTextureIndex i)
+{
+	ETextureIndex tex_index = mBakedTextureDatas[i].mTextureIndex;
+	bool  layer_baked = isTextureDefined(tex_index, gAgentWearables.getWearableCount(tex_index));
+	if (!layer_baked && mBakedTextureDatas[i].mTexLayerSet)
+	{
+		mBakedTextureDatas[i].mTexLayerSet->requestUpload();
 	}
 }
 
