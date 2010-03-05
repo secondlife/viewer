@@ -6,9 +6,9 @@
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="Ver más opciones"/>
-		<dnd_button name="trash_btn" tool_tip="Quita el ítem seleccionado"/>
-		<button label="Guardar el vestuario" name="make_outfit_btn" tool_tip="Guarda la apariencia como un vestuario"/>
-		<button label="Llevar" name="wear_btn" tool_tip="Viste el vestuario seleccionado"/>
+		<dnd_button name="trash_btn" tool_tip="Quitar el ítem seleccionado"/>
+		<button label="Guardar el vestuario" name="make_outfit_btn" tool_tip="Guardar la apariencia como un vestuario"/>
+		<button label="Ponerme" name="wear_btn" tool_tip="Ponerme el vestuario seleccionado"/>
 		<button label="M" name="look_edit_btn"/>
 	</panel>
 </panel>

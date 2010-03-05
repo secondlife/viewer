@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ulubione" name="panel_picks">
+	<string name="no_picks" value="Brak Ulubionych"/>
+	<string name="no_classifieds" value="Brak Reklam"/>
+	<text name="empty_picks_panel_text">
+		Brak ulubionych/reklam w tym miejscu
+	</text>
+	<accordion name="accordion">
+		<accordion_tab name="tab_picks" title="Ulubione"/>
+		<accordion_tab name="tab_classifieds" title="Reklamy"/>
+	</accordion>
+	<panel label="bottom_panel" name="edit_panel">
+		<button name="new_btn" tool_tip="Stwórz w obecnym miejscu nową zakładkę w ulubionych lub reklamę"/>
+	</panel>
+	<panel name="buttons_cucks">
+		<button label="Info" name="info_btn" tool_tip="Pokaż info o ulubionych"/>
+		<button label="Teleportuj" name="teleport_btn" tool_tip="Teleportuj do odpowiadającego miejsca"/>
+		<button label="Mapa" name="show_on_map_btn" tool_tip="Pokaż odpowiadające miejsce w Mapie Świata"/>
+	</panel>
+</panel>

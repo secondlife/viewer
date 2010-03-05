@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_tattoo_panel">
+	<panel name="avatar_tattoo_color_panel">
+		<texture_picker label="Tatuaż Głowy" name="Head Tattoo" tool_tip="Kliknij by wybrać grafikę"/>
+		<texture_picker label="Tatuaż Górnej Części Ciała" name="Upper Tattoo" tool_tip="Kliknij by wybrać grafikę"/>
+		<texture_picker label="Tatuaż Dolnej Części Ciała" name="Lower Tattoo" tool_tip="Kliknij by wybrać grafikę"/>
+	</panel>
+</panel>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Egenskaber for beholdningsgenstand">
+<panel name="item properties" title="Objekt profil">
 	<panel.string name="unknown">
 		(ukendt)
 	</panel.string>
@@ -15,7 +15,8 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<text name="title" value="Egenskaber for genstand"/>
+	<text name="title" value="Objekt profil"/>
+	<text name="where" value="(Beholdning)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Navn:
@@ -37,34 +38,36 @@
 		<text name="LabelAcquiredDate">
 			Ons Maj 24 12:50:46 2006
 		</text>
-		<text name="OwnerLabel">
-			Dig:
-		</text>
-		<check_box label="Editér" name="CheckOwnerModify"/>
-		<check_box label="Kopiér" name="CheckOwnerCopy"/>
-		<check_box label="Sælg" name="CheckOwnerTransfer"/>
-		<text name="AnyoneLabel">
-			Enhver:
-		</text>
-		<check_box label="Kopiér" name="CheckEveryoneCopy"/>
-		<text name="GroupLabel">
-			Gruppe:
-		</text>
-		<check_box label="Del" name="CheckShareWithGroup"/>
-		<text name="NextOwnerLabel">
-			Næste ejer:
-		</text>
-		<check_box label="Editér" name="CheckNextOwnerModify"/>
-		<check_box label="Kopiér" name="CheckNextOwnerCopy"/>
-		<check_box label="Sælg" name="CheckNextOwnerTransfer"/>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Du kan:
+			</text>
+			<check_box label="Redigér" name="CheckOwnerModify"/>
+			<check_box label="Kopi" name="CheckOwnerCopy"/>
+			<check_box label="Giv væk" name="CheckOwnerTransfer"/>
+			<text name="AnyoneLabel">
+				Enhver:
+			</text>
+			<check_box label="Kopi" name="CheckEveryoneCopy"/>
+			<text name="GroupLabel">
+				Gruppe:
+			</text>
+			<check_box label="Del" name="CheckShareWithGroup" tool_tip="Tillad alle medlemmer i den aktive gruppe at dele dine &apos;redigere&apos; rettigheder for dette objekt. Du skal dedikere for at åbne for rolle begrænsninger."/>
+			<text name="NextOwnerLabel">
+				Næste ejer:
+			</text>
+			<check_box label="Redigere" name="CheckNextOwnerModify"/>
+			<check_box label="Kopi" name="CheckNextOwnerCopy"/>
+			<check_box label="Giv væk" name="CheckNextOwnerTransfer" tool_tip="Næste ejer kan give væk eller sælge dette objekt"/>
+		</panel>
 		<check_box label="Til salg" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">
 			<combo_box.item label="Kopiér" name="Copy"/>
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
-		<spinner label="Pris:" name="Edit Cost"/>
-		<text name="CurrencySymbol">
-			L$
-		</text>
+		<spinner label="Pris: L$" name="Edit Cost"/>
+	</panel>
+	<panel name="button_panel">
+		<button label="Annullér" name="cancel_btn"/>
 	</panel>
 </panel>

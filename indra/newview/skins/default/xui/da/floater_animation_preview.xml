@@ -106,6 +106,9 @@ Maksimal animations længde er [MAX_LENGTH] sekunder.
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		kan ikke læse &quot;emote&quot; navn.
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		Incorrect root joint name, use &quot;hip&quot;.
+	</floater.string>
 	<text name="name_label">
 		Navn:
 	</text>

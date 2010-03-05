@@ -45,10 +45,10 @@
 	<spinner label="Høj" name="height_range_spin_2"/>
 	<spinner label="Høj" name="height_range_spin_3"/>
 	<text name="height_text_lbl10">
-		Disse værdier repræsenterer blandingsområder for teksturer ovenfor.
+		Disse værdier repræsenterer blandingsforhold for teksturer ovenfor.
 	</text>
 	<text name="height_text_lbl11">
-		Målt i meter, angiver LAV værdien MAKSIMUM højden for tekstur 1, og HØJ værdien er minimumshøjden for tekstur 4.
+		Målt i meter, angiver LAV værdien MAKSIMUM højden for tekstur 1 og HØJ værdien er MINIMUMSshøjden for tekstur 4.
 	</text>
 	<text name="height_text_lbl12">
 		og HØJ værdien er MIMIMUM højde for texture nummer 4.

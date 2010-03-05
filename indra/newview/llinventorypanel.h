@@ -65,10 +65,6 @@ class LLInventoryPanel : public LLPanel
 	// Data
 	//--------------------------------------------------------------------
 public:
-	static const std::string DEFAULT_SORT_ORDER;
-	static const std::string RECENTITEMS_SORT_ORDER;
-	static const std::string INHERIT_SORT_ORDER;
-
 	struct Filter : public LLInitParam::Block<Filter>
 	{
 		Optional<U32>			sort_order;
@@ -142,8 +138,6 @@ public:
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }
 	void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString() { return mFolders->getFilterSubString(); }
-	void setSortOrder(U32 order);
-	U32 getSortOrder() { return mFolders->getSortOrder(); }
 	void setSinceLogoff(BOOL sl);
 	void setHoursAgo(U32 hours);
 	BOOL getSinceLogoff();
@@ -182,7 +176,6 @@ protected:
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	BOOL 						mAllowMultiSelect;
-	std::string					mSortOrderSetting;
 
 	LLFolderView*				mFolders;
 	LLScrollContainer*			mScroller;
@@ -195,6 +188,20 @@ protected:
 	 * Take into account it will not be deleted by LLInventoryPanel itself.
 	 */
 	const LLInventoryFVBridgeBuilder* mInvFVBridgeBuilder;
+
+
+	//--------------------------------------------------------------------
+	// Sorting
+	//--------------------------------------------------------------------
+public:
+	static const std::string DEFAULT_SORT_ORDER;
+	static const std::string RECENTITEMS_SORT_ORDER;
+	static const std::string INHERIT_SORT_ORDER;
+	
+	void setSortOrder(U32 order);
+	U32 getSortOrder() const { return mFolders->getSortOrder(); }
+private:
+	std::string					mSortOrderSetting;
 
 	//--------------------------------------------------------------------
 	// Hidden folders

@@ -1,65 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Land &amp; L$" name="land_money_tab">
-	<string name="help_text">
+	<panel.string name="help_text">
 		En advarsel vises indtil Total land i brug er mindre end eller lig med det totale bidrag.
-	</string>
-	<button label="?" name="help_button"/>
-	<string name="cant_view_group_land_text">
+	</panel.string>
+	<panel.string name="cant_view_group_land_text">
 		Du har ikke tilladelse til at se gruppeejet land.
-	</string>
-	<string name="cant_view_group_accounting_text">
+	</panel.string>
+	<panel.string name="cant_view_group_accounting_text">
 		Du har ikke tilladelse til at se gruppens økonomiinformationer.
-	</string>
-	<string name="loading_txt">
+	</panel.string>
+	<panel.string name="loading_txt">
 		Indlæser...
-	</string>
-	<text name="group_land_heading">
-		Gruppeejet land
-	</text>
-	<scroll_list name="group_parcel_list">
-		<column label="Parcel" name="name"/>
-		<column label="Region" name="location"/>
-		<column label="Type" name="type"/>
-		<column label="Område" name="area"/>
-		<column label="" name="hidden"/>
-	</scroll_list>
-	<button label="Kort" label_selected="Kort" name="map_button"/>
-	<text name="total_contributed_land_label">
-		Totalt bidrag:
-	</text>
-	<text name="total_contributed_land_value">
-		[AREA] m²
-	</text>
-	<text name="total_land_in_use_label">
-		Totalt land i brug:
-	</text>
-	<text name="total_land_in_use_value">
-		[AREA] m²
-	</text>
-	<text name="land_available_label">
-		Ledigt land:
-	</text>
-	<text name="land_available_value">
-		[AREA] m²
-	</text>
-	<text name="your_contribution_label">
-		Dit bidrag:
-	</text>
-	<string name="land_contrib_error">
+	</panel.string>
+	<panel.string name="land_contrib_error">
 		Ikke muligt at lave dit bidrag til landet
-	</string>
-	<text name="your_contribution_units">
-		m²
-	</text>
-	<text name="your_contribution_max_value">
-		([AMOUNT] maks.)
-	</text>
-	<text name="group_over_limit_text">
-		Gruppemedlemmer må bidrag med mere, for at understøtte med det land der bliver brugt
-	</text>
-	<text name="group_money_heading">
-		Gruppe L$
-	</text>
+	</panel.string>
+	<panel name="layout_panel_landmoney">
+		<scroll_list name="group_parcel_list">
+			<scroll_list.columns label="Parcel" name="name"/>
+			<scroll_list.columns label="Region" name="location"/>
+			<scroll_list.columns label="Type" name="type"/>
+			<scroll_list.columns label="Areal" name="area"/>
+		</scroll_list>
+		<text name="total_contributed_land_label">
+			Totalt bidrag:
+		</text>
+		<text name="total_contributed_land_value">
+			[AREA] m²
+		</text>
+		<button label="Kort" label_selected="Kort" name="map_button"/>
+		<text name="total_land_in_use_label">
+			Totalt land i brug:
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA] m²
+		</text>
+		<text name="land_available_label">
+			Land tilgængelgt:
+		</text>
+		<text name="land_available_value">
+			[AREA] m²
+		</text>
+		<text name="your_contribution_label">
+			Dit bidrag:
+		</text>
+		<text name="your_contribution_units">
+			m²
+		</text>
+		<text name="your_contribution_max_value">
+			([BELØB] maks.)
+		</text>
+		<text name="group_over_limit_text">
+			Der kræves flere penge for at supportere det land der er i brug
+		</text>
+		<text name="group_money_heading">
+			Gruppe L$
+		</text>
+	</panel>
 	<tab_container name="group_money_tab_container">
 		<panel label="PLANLÆGNING" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">

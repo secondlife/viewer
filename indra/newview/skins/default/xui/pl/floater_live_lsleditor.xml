@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="SKRYPT: NOWY SKRYPT">
-	<button label="Zresetuj" label_selected="Zresetuj" name="Reset" />
-	<check_box label="Włącz" name="running" />
-	<check_box label="Mono" name="mono" />
-	<string name="not_allowed">
-		Nie masz praw by widzieć zawartość tego skryptu.
-	</string>
-	<string name="script_running">
+	<floater.string name="not_allowed">
+		Nie posiadasz praw do zobaczenia lub edycji kodu tego skryptu ponieważ udostępnione Ci prawa to &quot;brak kopiowania&quot;. Musisz posiadać pełne prawa by móc zobaczyć lub edytować kod skryptu w zawartości obiektu.
+	</floater.string>
+	<floater.string name="script_running">
 		Włącz
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		SKRYPT: [NAME]
+	</floater.string>
+	<button label="Zresetuj" label_selected="Zresetuj" name="Reset"/>
+	<check_box initial_value="true" label="Włącz" name="running"/>
+	<check_box initial_value="true" label="Mono" name="mono"/>
 </floater>

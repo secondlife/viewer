@@ -455,7 +455,6 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 	<notification name="UnsupportedHardware">
 		Ihr Computer entspricht leider nicht den Mindestanforderungen von [APP_NAME]. Dies kann zur Folge haben, dass das Programm nicht sehr gut ausgeführt wird. Bei nicht unterstützten Systemkonfigurationen kann Ihnen unser [SUPPORT_SITE] leider nicht helfen.
 
-MINDESTANF.
 Weitere Informationen finden Sie auf [_URL].
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=de
@@ -2079,7 +2078,7 @@ Wählen Sie eine kleinere Landfläche.
 		Einige Begriffe in Ihrer Suchanfrage wurden ausgeschlossen, aufgrund von in den Community Standards definierten Inhaltsbeschränkungen.
 	</notification>
 	<notification name="NoContentToSearch">
-		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Allgemein, Moderat oder Adult).
+		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Generell, Moderat oder Adult).
 	</notification>
 	<notification name="GroupVote">
 		[NAME] hat eine Abstimmung vorgeschlagen über:
@@ -2353,6 +2352,12 @@ Versuchen Sie es in einigen Minuten erneut.
 	<notification name="FriendshipDeclined">
 		[NAME] hat Ihr Freundschaftsangebot abgelehnt.
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Ihr Freundschaftsangebot wurde angeommen.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Ihr Freundschaftsangebot wurde abgelehnt.
+	</notification>
 	<notification name="OfferCallingCard">
 		[FIRST] [LAST] bietet Ihnen ihre/seine Visitenkarte an.
 Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner einfach eine IM schicken können.
@@ -2562,7 +2567,7 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Möchten Sie wirklich alle IMs schließen?
-		<usetemplate name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+		<usetemplate ignoretext="Bestätigen, bevor ich alle IMs schließe." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		Der Anhang wurde gespeichert.

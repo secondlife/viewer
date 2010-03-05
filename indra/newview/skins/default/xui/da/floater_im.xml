@@ -10,7 +10,7 @@
 		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
 	</string>
 	<string name="muted_message">
-		Du har blokeret denne beboer. Hvis du sender besked vil denne blokering fjernes.
+		Du har blokeret denne beboer. Hvis du sender en besked til beboeren vil dette automatisk medføre fjernelse af blokeringen
 	</string>
 	<string name="generic_request_error">
 		Kunne ikke etablere forbindelse, prøv igen senere

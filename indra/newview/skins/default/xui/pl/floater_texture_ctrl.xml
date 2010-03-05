@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="WYBÓR TEKSTURY">
+<floater name="texture picker" title="ULUBIONE: TEKSTURA">
 	<string name="choose_picture">
 		Kliknij by wybrać obraz
 	</string>
 	<text name="Multiple">
-		Wiele
+		Wiele Tekstur
 	</text>
 	<text name="unknown">
-		Wymiary: [DIMENSIONS]
+		Rozmiar: [DIMENSIONS]
 	</text>
 	<button label="Domyślna" label_selected="Domyślna" name="Default"/>
 	<button label="Żadna" label_selected="Żadna" name="None"/>
 	<button label="Pusta" label_selected="Pusta" name="Blank"/>
 	<check_box label="Pokaż Foldery" name="show_folders_check"/>
-	<search_editor label="Wpisz nazwę tutaj by wyszukać" name="inventory search editor"/>
-	<check_box label="Zastosuj od razu" name="apply_immediate_check"/>
+	<search_editor label="Filtruj Tektury" name="inventory search editor"/>
+	<check_box label="Zastosuj teraz" name="apply_immediate_check"/>
 	<button label="" label_selected="" name="Pipette"/>
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
-	<button label="Wybierz" label_selected="Wybierz" name="Select"/>
+	<button label="Ok" label_selected="Ok" name="Select"/>
 	<string name="pick title">
 		Wybór:
 	</string>

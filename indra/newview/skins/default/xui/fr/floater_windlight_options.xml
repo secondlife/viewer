@@ -6,9 +6,9 @@
 	<button label="Nouveau" label_selected="Nouveau" name="WLNewPreset"/>
 	<button label="Enregistrer" label_selected="Enregistrer" left_delta="75" name="WLSavePreset" width="75"/>
 	<button label="Supprimer" label_selected="Supprimer" left_delta="80" name="WLDeletePreset"/>
-	<button label="Éditeur du cycle du jour" label_selected="Éditeur du cycle du jour" left_pad="20" left_delta="95" name="WLDayCycleMenuButton" width="150"/>
+	<button label="Éditeur du cycle du jour" label_selected="Éditeur du cycle du jour" left_delta="95" left_pad="20" name="WLDayCycleMenuButton" width="150"/>
 	<tab_container name="WindLight Tabs" width="706">
-		<panel label="Atmosphère" name="Atmosphere">
+		<panel label="ATMOSPHÈRE" name="Atmosphere">
 			<text name="BHText">
 				Bleu de l&apos;horizon
 			</text>
@@ -62,7 +62,7 @@
 			</text>
 			<button label="?" name="WLMaxAltitudeHelp"/>
 		</panel>
-		<panel label="Éclairage" name="Lighting">
+		<panel label="LUMIÈRE" name="Lighting">
 			<text name="SLCText">
 				Couleur soleil/lune
 			</text>
@@ -118,7 +118,7 @@
 			</text>
 			<button label="?" name="WLStarBrightnessHelp"/>
 		</panel>
-		<panel label="Nuages" name="Clouds">
+		<panel label="NUAGES" name="Clouds">
 			<text name="WLCloudColorText">
 				Couleur des nuages
 			</text>
