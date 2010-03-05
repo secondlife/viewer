@@ -1299,7 +1299,10 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
-			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
+
+			std::string auto_renew_str = is_cf_auto_renew(c_info->flags) ? 
+				getString("auto_renew_on") : getString("auto_renew_off");
+			childSetValue("auto_renew", auto_renew_str);
 
 			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
 			childSetValue("price_for_listing", LLSD(price_str));
@@ -1321,8 +1324,12 @@ void LLPanelClassifiedInfo::resetData()
 	setClassifiedId(LLUUID::null);
 	setSnapshotId(LLUUID::null);
 	mPosGlobal.clearVec();
-	childSetValue("category", LLStringUtil::null);
-	childSetValue("content_type", LLStringUtil::null);
+	childSetText("category", LLStringUtil::null);
+	childSetText("content_type", LLStringUtil::null);
+	childSetText("click_through_text", LLStringUtil::null);
+	childSetText("price_for_listing", LLStringUtil::null);
+	childSetText("auto_renew", LLStringUtil::null);
+	childSetText("creation_date", LLStringUtil::null);
 	childSetText("click_through_text", LLStringUtil::null);
 }
 
@@ -1689,7 +1696,8 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 			setPosGlobal(c_info->pos_global);
 
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
-			getChild<LLComboBox>("category")->setCurrentByIndex(c_info->category + 1);
+			// *HACK see LLPanelClassifiedEdit::sendUpdate()
+			getChild<LLComboBox>("category")->setCurrentByIndex(c_info->category - 1);
 			getChild<LLComboBox>("category")->resetDirty();
 
 			bool mature = is_cf_mature(c_info->flags);
@@ -1698,6 +1706,7 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 			getChild<LLComboBox>("content_type")->setCurrentByIndex(mature ? CB_ITEM_MATURE : CB_ITEM_PG);
 			childSetValue("auto_renew", auto_renew);
 			childSetValue("price_for_listing", c_info->price_for_listing);
+			childSetEnabled("price_for_listing", isNew());
 
 			resetDirty();
 			setInfoLoaded(true);
@@ -1756,6 +1765,7 @@ void LLPanelClassifiedEdit::resetControls()
 	getChild<LLComboBox>("content_type")->setCurrentByIndex(0);
 	childSetValue("auto_renew", false);
 	childSetValue("price_for_listing", MINIMUM_PRICE_FOR_LISTING);
+	childSetEnabled("price_for_listing", TRUE);
 }
 
 bool LLPanelClassifiedEdit::canClose()
@@ -1792,7 +1802,9 @@ void LLPanelClassifiedEdit::sendUpdate()
 
 	c_data.agent_id = gAgent.getID();
 	c_data.classified_id = getClassifiedId();
-	c_data.category = getCategory();
+	// *HACK 
+	// Categories on server start with 1 while combo-box index starts with 0
+	c_data.category = getCategory() + 1;
 	c_data.name = getClassifiedName();
 	c_data.description = getDescription();
 	c_data.parcel_id = getParcelId();
@@ -1807,7 +1819,7 @@ void LLPanelClassifiedEdit::sendUpdate()
 U32 LLPanelClassifiedEdit::getCategory()
 {
 	LLComboBox* cat_cb = getChild<LLComboBox>("category");
-	return cat_cb->getCurrentIndex() + 1;
+	return cat_cb->getCurrentIndex();
 }
 
 U8 LLPanelClassifiedEdit::getFlags()
