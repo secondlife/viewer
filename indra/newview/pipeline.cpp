@@ -510,6 +510,7 @@ void LLPipeline::destroyGL()
 }
 
 static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
+
 void LLPipeline::resizeScreenTexture()
 {
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
@@ -1726,12 +1727,8 @@ void LLPipeline::markOccluder(LLSpatialGroup* group)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_DO_OCCLUSION("Do Occlusion");
-
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
-	LLFastTimer t(FTM_DO_OCCLUSION);
-
 	LLVertexBuffer::unbind();
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
@@ -1948,12 +1945,9 @@ void LLPipeline::updateGeom(F32 max_dtime)
 	updateMovedList(mMovedBridge);
 }
 
-static LLFastTimer::DeclareTimer FTM_MARK_VISIBLE("Mark Visible");
-
 void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_VISIBLE);
-	LLFastTimer t(FTM_MARK_VISIBLE);
 
 	if(!drawablep || drawablep->isDead())
 	{
@@ -4638,12 +4632,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	mLightMask = 0;
 }
 
-static LLFastTimer::DeclareTimer FTM_ENABLE_LIGHTS("Enable Lights");
-
 void LLPipeline::enableLights(U32 mask)
 {
-	LLFastTimer ftm(FTM_ENABLE_LIGHTS);
-
 	assertInitialized();
 
 	if (mLightingDetail == 0)
@@ -5497,6 +5487,7 @@ void LLPipeline::bindScreenToTexture()
 }
 
 static LLFastTimer::DeclareTimer FTM_RENDER_BLOOM("Bloom");
+
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 {
 	LLMemType mt_ru(LLMemType::MTYPE_PIPELINE_RENDER_BLOOM);
