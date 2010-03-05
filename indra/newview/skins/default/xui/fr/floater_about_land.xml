@@ -312,17 +312,17 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<check_box label="Modifier le terrain" name="edit land check" tool_tip="Si cette option est cochée, n&apos;importe qui peut terraformer votre terrain. Il vaut mieux ne pas cocher cette option pour toujours pouvoir modifer votre propre terrain."/>
 			<check_box label="Voler" name="check fly" tool_tip="Si cette option est cochée, les résidents peuvent voler sur votre terrain. Si elle n&apos;est pas cochée, ils ne pourront voler que lorsqu&apos;ils arrivent et passent au dessus de votre terrain."/>
-			<text left="152" name="allow_label2">
+			<text name="allow_label2">
 				Construire :
 			</text>
 			<check_box label="Tous" left="285" name="edit objects check"/>
 			<check_box label="Groupe" left="395" name="edit group objects check"/>
-			<text left="152" name="allow_label3" width="150">
+			<text name="allow_label3">
 				Laisser entrer des objets :
 			</text>
 			<check_box label="Tous" left="285" name="all object entry check"/>
 			<check_box label="Groupe" left="395" name="group object entry check"/>
-			<text left="152" name="allow_label4">
+			<text name="allow_label4">
 				Exécuter des scripts :
 			</text>
 			<check_box label="Tous" left="285" name="check other scripts"/>
