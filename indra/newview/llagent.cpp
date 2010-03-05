@@ -5845,15 +5845,22 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		mesgsys->getUUIDFast(_PREHASH_WearableData, _PREHASH_TextureID, texture_id, texture_block);
 		mesgsys->getU8Fast(_PREHASH_WearableData, _PREHASH_TextureIndex, texture_index, texture_block);
 
-		if (texture_id.notNull() 
-			&& (S32)texture_index < BAKED_NUM_INDICES 
+		if ((S32)texture_index < BAKED_NUM_INDICES 
 			&& gAgentQueryManager.mActiveCacheQueries[texture_index] == query_id)
 		{
-			//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
-			avatarp->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
-			//avatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
-			gAgentQueryManager.mActiveCacheQueries[texture_index] = 0;
-			num_results++;
+			if (texture_id.notNull())
+			{
+				//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
+				avatarp->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
+				//avatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
+				gAgentQueryManager.mActiveCacheQueries[texture_index] = 0;
+				num_results++;
+			}
+			else
+			{
+				// no cache of this bake. request upload.
+				avatarp->requestLayerSetUpload((EBakedTextureIndex)texture_index);
+			}
 		}
 	}
 
