@@ -279,8 +279,8 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 		}
 		else
 		{
-			logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
-					from_id, from_id);
+			logToIM(IM_NOTHING_SPECIAL, session_name, "", notification->getMessage(),
+					from_id, LLUUID());
 		}
 	}
 }
@@ -348,7 +348,10 @@ std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notifica
 	if (res.empty())
 	{
 		LLUUID from_id = notification->getPayload()["FROM_ID"];
-		gCacheName->getFullName(from_id, res);
+		if(!gCacheName->getFullName(from_id, res))
+		{
+			res = "";
+		}
 	}
 	return res;
 }
