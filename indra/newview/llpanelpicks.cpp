@@ -174,31 +174,6 @@ LLClassifiedHandler gClassifiedHandler;
 
 //////////////////////////////////////////////////////////////////////////
 
-/**
- * Copy&Pasted from old LLPanelClassified. This class does nothing at the moment.
- * Subscribing to "classifiedclickthrough" removes a few warnings.
- */
-class LLClassifiedClickThrough : public LLDispatchHandler
-{
-public:
-
-	// "classifiedclickthrough"
-	// strings[0] = classified_id
-	// strings[1] = teleport_clicks
-	// strings[2] = map_clicks
-	// strings[3] = profile_clicks
-	virtual bool operator()(
-		const LLDispatcher* dispatcher,
-		const std::string& key,
-		const LLUUID& invoice,
-		const sparam_t& strings)
-	{
-		if (strings.size() != 4) 
-			return false;
-
-		return true;
-	}
-};
 
 //-----------------------------------------------------------------------------
 // LLPanelPicks
@@ -217,12 +192,9 @@ LLPanelPicks::LLPanelPicks()
 	mClassifiedsAccTab(NULL),
 	mPanelClassifiedInfo(NULL),
 	mPanelClassifiedEdit(NULL),
-	mClickThroughDisp(NULL),
 	mNoClassifieds(false),
 	mNoPicks(false)
 {
-	mClickThroughDisp = new LLClassifiedClickThrough();
-	gGenericDispatcher.addHandler("classifiedclickthrough", mClickThroughDisp);
 }
 
 LLPanelPicks::~LLPanelPicks()
@@ -231,8 +203,6 @@ LLPanelPicks::~LLPanelPicks()
 	{
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 	}
-
-	delete mClickThroughDisp;
 }
 
 void* LLPanelPicks::create(void* data /* = NULL */)

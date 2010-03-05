@@ -55,7 +55,6 @@ class LLPanelPickEdit;
 class LLToggleableMenu;
 class LLPanelClassifiedInfo;
 class LLPanelClassifiedEdit;
-class LLClassifiedClickThrough;
 
 // *TODO
 // Panel Picks has been consolidated with Classifieds (EXT-2095), give LLPanelPicks
@@ -159,8 +158,6 @@ private:
 	LLAccordionCtrlTab* mPicksAccTab;
 	LLAccordionCtrlTab* mClassifiedsAccTab;
 
-	LLClassifiedClickThrough* mClickThroughDisp;
-	
 	//true if picks list is empty after processing picks
 	bool mNoPicks;
 	//true if classifieds list is empty after processing classifieds
