@@ -24,7 +24,7 @@
  </panel.string>
 <panel.string
   name="click_through_text_fmt">
-    [TELEPORT] teleport, [MAP] map, [MAP] profile
+    [TELEPORT] teleport, [MAP] map, [PROFILE] profile
  </panel.string>
  <panel.string
   name="date_fmt">
