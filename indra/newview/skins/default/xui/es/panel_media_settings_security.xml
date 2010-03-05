@@ -2,11 +2,11 @@
 <panel label="Seguridad" name="Media Settings Security">
 	<check_box initial_value="false" label="Permitir el acceso sólo a los patrones de URL especificados" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
-		Las entradas contra las que falle la página inicial se marcan:
+		Están marcadas las entradas que la página web no admite:
 	</text>
 	<button label="Añadir" name="whitelist_add"/>
 	<button label="Borrar" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
-		Atención: la página inicial especificada en la pestaña General no supera esta lista blanca. Se ha desactivado hasta que se añada una entrada válida.
+		Atención: la página web especificada en la pestaña General no se admite en esta lista blanca. Se ha desactivado hasta que se añada una entrada correcta.
 	</text>
 </panel>

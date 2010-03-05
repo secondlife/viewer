@@ -44,11 +44,16 @@ background_visible="true"
      tab_stop="false"
      top="2"
      width="23" />
-    <text
+    <text_editor
+     allow_scroll="false"
+     bg_visible="false"
+     read_only = "true"
      layout="topleft"
      name="group_name"
+     v_pad="0"
      value="(Loading...)"
       font="SansSerifHugeBold"
+     h_pad="0"
       height="26"
       left_pad="10"
      text_color="LtGray"
@@ -100,17 +105,8 @@ background_visible="true"
             expanded="true"
             layout="topleft"
             name="group_general_tab"
-            title="General">
-               <scroll_container
-                 color="DkGray2"
-                 follows="all"
-                 layout="topleft"
-                 left="0"
-                 name="profile_scroll"
-                 opaque="true"
-                 height="604"
-                 width="304"
-                 top="0">
+            title="General"
+            fit_panel="false">
                    <panel
                       border="false"
                       class="panel_group_general"
@@ -121,24 +117,13 @@ background_visible="true"
                       help_topic="group_general_tab"
                       name="group_general_tab_panel"
                       top="0" />
-			   </scroll_container>
          </accordion_tab>
          <accordion_tab
             expanded="false"
             layout="topleft"
             name="group_roles_tab"
-            title="Roles">
-               <scroll_container
-                 color="DkGray2"
-                 follows="all"
-                 layout="topleft"
-                 left="0"
-                 name="profile_scroll"
-                 opaque="true"
-                 height="680"
-                 width="304"
-                 top="0">
-
+            title="Roles"
+            fit_panel="false">
                 <panel
                    border="false"
                    class="panel_group_roles"
@@ -148,24 +133,13 @@ background_visible="true"
                    left="0"
                    name="group_roles_tab_panel"
                    top="0" />
-                </scroll_container>
          </accordion_tab>
          <accordion_tab
             expanded="false"
             layout="topleft"
             name="group_notices_tab"
-            title="Notices">
-               <scroll_container
-                 color="DkGray2"
-                 follows="all"
-                 layout="topleft"
-                 left="0"
-                 name="profile_scroll"
-                 opaque="true"
-                 height="530"
-                 width="304"
-                 top="0">
-
+            title="Notices"
+            fit_panel="false">
                 <panel
                     border="false"
                     class="panel_group_notices"
@@ -176,24 +150,13 @@ background_visible="true"
                     help_topic="group_notices_tab"
                     name="group_notices_tab_panel"
                     top="0" />
-               </scroll_container>
          </accordion_tab>
          <accordion_tab
              expanded="false"
              layout="topleft"
              name="group_land_tab"
-             title="Land/Assets">
-               <scroll_container
-                 color="DkGray2"
-                 follows="all"
-                 layout="topleft"
-                 left="0"
-                 name="profile_scroll"
-                 opaque="true"
-                 height="500"
-                 width="304"
-                 top="0">
-
+             title="Land/Assets"
+             fit_panel="false">
                  <panel
 					 border="false"
                      class="panel_group_land_money"
@@ -203,7 +166,6 @@ background_visible="true"
                      left="0"
                      name="group_land_tab_panel"
                      top="0" />
-               </scroll_container>
          </accordion_tab>
          </accordion>
    </layout_panel>

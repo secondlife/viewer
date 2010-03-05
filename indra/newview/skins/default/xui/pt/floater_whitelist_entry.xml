@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
+<floater name="whitelist_entry" title="LISTA BRANCA">
 	<text name="media_label">
 		Digite um URL ou série de URLs para a lista de domínios permitidos
 	</text>

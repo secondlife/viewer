@@ -1554,7 +1554,12 @@ void LLFloater::onClickClose( LLFloater* self )
 {
 	if (!self)
 		return;
-	self->closeFloater(false);
+	self->onClickCloseBtn();
+}
+
+void	LLFloater::onClickCloseBtn()
+{
+	closeFloater(false);
 }
 
 

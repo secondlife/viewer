@@ -1,33 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Komunikacja" name="im">
-	<text name="text_box">
-		Mój Status Online:
+	<panel.string name="log_in_to_change">
+		Zaloguj się ponownie, aby zmienić
+	</panel.string>
+	<button label="Wyczyść Historię" name="clear_cache"/>
+	<text name="cache_size_label_l">
+		(Miejsca, obrazy, przeglądarka internetowa, wyszukiwarka historii)
 	</text>
-	<check_box label="Mój status online jest dostepny tylko dla Znajomych i Grup"
-	     name="online_visibility" />
-	<text name="text_box2">
-		Ustawienia IM:
+	<check_box label="Mój status online jest dostępny tylko dla znajomych i grup do których należę" name="online_visibility"/>
+	<check_box label="Możliwość wysyłania wiadomości prywatnej (IM) oraz rozmowy głosowej tylko dla znajomych i grup do których należę" name="voice_call_friends_only_check"/>
+	<check_box label="Wyłącz mikrofon po zakończeniu rozmowy głosowej" name="auto_disengage_mic_check"/>
+	<check_box label="Akceptuj Ciasteczka" name="cookies_enabled"/>
+	<check_box label="Zezwól na Automatyczne Uruchomianie Mediów Strumieniowych" name="autoplay_enabled"/>
+	<text name="Logs:">
+		Logi:
 	</text>
-	<string name="log_in_to_change">
-		zaloguj się żeby zmienić
-	</string>
-	<check_box label="Wysyłaj IMy na email ([EMAIL])" name="send_im_to_email" />
-	<check_box label="Dołącz IMy do Konsola Czatu" name="include_im_in_chat_console" />
-	<check_box label="Pokazuj czas w IM" name="show_timestamps_check" />
-	<check_box label="Powiadamiaj o zalogowanych znajomych"
-	     name="friends_online_notify_checkbox" />
-	<text name="text_box3">
-		Pracuś Mówi:
+	<check_box label="Zapisz logi rozmów ogólnych na moim komputerze" name="log_nearby_chat"/>
+	<check_box label="Zapisuj logi wiadomości prywatnych (IM) na moim komputerze" name="log_instant_messages"/>
+	<check_box label="Pokazuj czas" name="show_timestamps_check_im"/>
+	<text name="log_path_desc">
+		Pokazuj miejsce logu
 	</text>
-	<text name="text_box4">
-		Ustawienia Zapisu:
-	</text>
-	<check_box label="Zapisuj IMy" name="log_instant_messages" />
-	<check_box label="Pokazuj czas w zapisie IM" name="log_instant_messages_timestamp" />
-	<check_box label="Pokazuj koniec ostatniego dialogu IM" name="log_show_history" />
-	<check_box label="Zapisuj czat" name="log_chat" />
-	<check_box label="Pokazuj czas w zapisie czatu" name="log_chat_timestamp" />
-	<check_box label="Pokazuj nowe IMy w zapisie czatu" name="log_chat_IM" />
-	<check_box label="Pokazuj czas łącznie z datą" name="log_date_timestamp" />
-	<button label="Lokacja" label_selected="Lokacja" name="log_path_button" />
+	<button label="Przeglądaj" label_selected="Przeglądaj" name="log_path_button"/>
+	<button label="Lista Zablokowanych" name="block_list"/>
 </panel>

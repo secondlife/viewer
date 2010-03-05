@@ -103,13 +103,6 @@ void LLAccordionCtrl::draw()
 	LLLocalClipRect clip(local_rect);
 	
 	LLPanel::draw();
-	/*
-	S32 width = getRect().getWidth();
-	S32 height = getRect().getHeight();
-
-	gl_rect_2d(0, 0 , width - 1 ,height - 1,LLColor4::green,true);
-	gl_line_2d(0, 0 , width - 1 ,height - 1,LLColor4::black);
-	*/
 }
 
 
@@ -125,7 +118,6 @@ BOOL LLAccordionCtrl::postBuild()
 		scrollbar_size,
 		getRect().getHeight() - 1);
 	
-
 	LLScrollbar::Params sbparams;
 	sbparams.name("scrollable vertical");
 	sbparams.rect(scroll_rect);

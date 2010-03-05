@@ -14,6 +14,7 @@
    layout="topleft"
    left="30"
    height="12"
+   name="font_size"
    width="120"
    top="10">
     Font size:
@@ -60,6 +61,7 @@
       layout="topleft"
       left="30"
       height="12"
+      name="font_colors" 
       top_pad="10" 
       width="120"
       >

@@ -519,6 +519,8 @@ BOOL LLPanelPeople::postBuild()
 	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
+	mGroupList->setNoGroupsMsg(getString("no_groups_msg"));
+	mGroupList->setNoFilteredGroupsMsg(getString("no_filtered_groups_msg"));
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
@@ -683,9 +685,15 @@ void LLPanelPeople::updateFriendList()
 			online_friendsp.push_back(buddy_id);
 	}
 
-	mOnlineFriendList->setDirty();
-	mAllFriendList->setDirty();
-
+	/*
+	 * Avatarlists  will be hidden by showFriendsAccordionsIfNeeded(), if they do not have items.
+	 * But avatarlist can be updated only if it is visible @see LLAvatarList::draw();   
+	 * So we need to do force update of lists to avoid inconsistency of data and view of avatarlist. 
+	 */
+	mOnlineFriendList->setDirty(true, !mOnlineFriendList->filterHasMatches());// do force update if list do NOT have items
+	mAllFriendList->setDirty(true, !mAllFriendList->filterHasMatches());
+	//update trash and other buttons according to a selected item
+	updateButtons();
 	showFriendsAccordionsIfNeeded();
 }
 
@@ -1434,9 +1442,6 @@ void LLPanelPeople::onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param
 	{
 		showAccordion("tab_all", param.asInteger());
 	}
-
-	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
-	accordion->arrange();
 }
 
 void LLPanelPeople::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed)

@@ -22,4 +22,5 @@
 		[COUNT]anos
 	</string>
 	<text name="avatar_name" value="Desconhecido"/>
+	<button name="profile_btn" tool_tip="Ver perfil"/>
 </panel>

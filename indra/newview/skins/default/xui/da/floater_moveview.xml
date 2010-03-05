@@ -19,11 +19,10 @@
 		Flyv baglæns (Tryk på Ned piletast eller S)
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="turn left btn" tool_tip="xxx
-				Drej til venstre (Tryk på venstre piletast eller A)"/>
+		<button label="" label_selected="" name="turn left btn" tool_tip="xxx     Drej til venstre (Tryk på venstre piletast eller A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Drej til højre (Tryk på højre piletast eller D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Flyv op, Tryk på &quot;E&quot;"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Flyv ned, Tryk på &quot;C&quot;"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Flyv op, tryk E"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Flyv ned, tryk C"/>
 		<joystick_turn name="forward btn" tool_tip="Gå frem (Tryk på Op piletast eller W)"/>
 		<joystick_turn name="backward btn" tool_tip="Gå tilbage (Tryk på Ned piletast eller S)"/>
 	</panel>

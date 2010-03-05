@@ -30,7 +30,7 @@
 		約款の変更は不動産全区画に適用となります。
 	</text>
 	<text name="covenant_instructions" width="390">
-		この不動産約款の変更をする際は、ノートカードをドラッグ＆ドロップしてください。
+		この不動産約款を変更する際は、ノートカードをドラッグ＆ドロップしてください。
 	</text>
 	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl" width="200">
 		地域

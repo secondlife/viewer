@@ -397,7 +397,7 @@ la textura:
 			</text>
 			<texture_picker label="" left="97" name="media texture" tool_tip="Pulse para elegir una imagen"/>
 			<text name="replace_texture_help" width="285">
-				Cuando pulses la flecha &apos;play&apos;, los objetos que usen esta textura mostrarán la película o la página web. Selecciona la miniatura para elegir una textura distinta.
+				Cuando pulses la flecha &apos;play&apos;, los objetos que usen esta textura mostrarán la película o la página web.  Selecciona la miniatura para elegir una textura distinta.
 			</text>
 			<check_box label="Escala automática" left="97" name="media_auto_scale" tool_tip="Marcando esta opción, se ajustará el tamaño del contenido automáticamente. Puede ser ligeramente más lento y con menor calidad visual, pero no tendrá que ajustar ni alinear ninguna textura."/>
 			<text left="102" name="media_size" tool_tip="Tamaño en el que mostrar las web (marque 0 para por defecto)." width="120">
@@ -415,7 +415,7 @@ los media:
 			<check_box label="Media en bucle" name="media_loop" tool_tip="Ejecuta el media en bucle: cuando acaba su ejecución, vuelve a empezar."/>
 		</panel>
 		<panel label="SONIDO" name="land_audio_panel">
-			<check_box label="Ocultar la URL" name="hide_music_url" tool_tip="Marcando esta opción se ocultará la URL de la música a quien no esté autorizado a ver la información de esta parcela."/>
+			<check_box label="Ocultar la URL" name="hide_music_url" tool_tip="Al marcar esta opción se ocultará la URL de la música a quien no esté autorizado a ver la información de esta parcela."/>
 			<check_box label="Activar la voz" name="parcel_enable_voice_channel"/>
 			<check_box label="Autorizar la voz (establecido por el Estado)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Limitar la voz a esta parcela" name="parcel_enable_voice_channel_local"/>
@@ -435,7 +435,7 @@ los media:
 				Restringir el acceso a residentes verificados con:
 			</text>
 			<check_box label="Información de pago aportada [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Expulsa a los Residentes no identificados."/>
-			<check_box label="Verificación de edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Expulsa a los Residentes que no hayan verificado su edad. Para más información, véase [SUPPORT_SITE]."/>
+			<check_box label="Verificación de edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Expulsa a los Residentes que no hayan verificado su edad. Más información en [SUPPORT_SITE]."/>
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">

@@ -31,8 +31,8 @@
             <button
              follows="left|top"
              height="20"
-             label="Kick all users"
-             label_selected="Kick all users"
+             label="Kick all Residents"
+             label_selected="Kick all Residents"
              layout="topleft"
              left="10"
              name="Kick all users"

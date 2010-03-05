@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="UDSEENDE" width="509">
 	<tab_container name="customize tab container" width="507">
-		<placeholder label="Krops Dele" name="body_parts_placeholder"/>
+		<text label="Krops Dele" name="body_parts_placeholder">
+			Kropsdele
+		</text>
 		<panel label="Kropsbygning" name="Shape">
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
 			<button label="Krop" label_selected="Krop" name="Body"/>
@@ -14,8 +16,8 @@
 			<button label="Overkrop" label_selected="Overkrop" name="Torso"/>
 			<button label="Ben" label_selected="Ben" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item label="Kvinde" name="radio"/>
-				<radio_item label="Mand" name="radio2"/>
+				<radio_item label="Kvinde" name="radio" value="0"/>
+				<radio_item label="Mand" name="radio2" value="1"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -33,9 +35,7 @@
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Vælg en ny krop ved at trække en sådan fra din beholdning
-over på din avatar. Du kan også oprette en fra bunden 
-og bagefter &apos;tage den på&apos;.
+				Vælg en ny kropsbygning ved at trække en sådan fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
@@ -68,9 +68,7 @@ og bagefter &apos;tage den på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag en ny hud på ved at trække en sådan fra din beholdning
-over på din avatar. Du kan også oprette en hud fra bunden 
-og bagefter &apos;tage den på&apos;.
+				Vælg en ny hud ved at trække en sådan fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
@@ -107,9 +105,7 @@ og bagefter &apos;tage den på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag et ny hår på ved at trække et fra din beholdning
-over på din avatar. Du kan også oprette et nyt hår fra bunden 
-og bagefter &apos;tage det på&apos;.
+				Vælg et nyt hår ved at trække et sådant fra din beholdning over på din avatar. Du kan også oprette et fra bunden og bagefter &apos;tage det på&apos;.
 			</text>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
@@ -140,9 +136,7 @@ og bagefter &apos;tage det på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag et ny sæt øjne på ved at trække et sæt fra din beholdning
-over på din avatar. Du kan også oprette et nyt sæt øjne fra bunden 
-og bagefter &apos;tage dem på&apos;.
+				Vælg et nyt sæt øjne ved at trække et sådant par fra din beholdning over på din avatar. Du kan også oprette et par fra bunden og bagefter &apos;tage dem på&apos;.
 			</text>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
@@ -156,12 +150,14 @@ og bagefter &apos;tage dem på&apos;.
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
 		</panel>
-		<placeholder label="Tøje" name="clothes_placeholder"/>
+		<text label="Tøje" name="clothes_placeholder">
+			Tøj
+		</text>
 		<panel label="Trøje" name="Shirt">
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav ny trøje" label_selected="Lav ny trøje" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Lav ny trøje" label_selected="Lav ny trøje" name="Create New"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
@@ -181,8 +177,7 @@ og bagefter &apos;tage dem på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag en ny Tøje på ved at trække en fra din beholdning over på din avatar. 
-Du kan også oprette en ny Tøje fra bunden og bagefter &apos;tage den på&apos;.
+				Vælg en ny trøje ved at trække en fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
@@ -194,8 +189,8 @@ Du kan også oprette en ny Tøje fra bunden og bagefter &apos;tage den på&apos;
 		<panel label="Bukser" name="Pants">
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav nye bukser" label_selected="Lav nye bukser" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Lav nye bukser" label_selected="Lav nye bukser" name="Create New"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
@@ -215,9 +210,7 @@ Du kan også oprette en ny Tøje fra bunden og bagefter &apos;tage den på&apos;
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag nyr bukser på ved at trække dem fra din beholdning over på
-din avatar. Du kan også oprette ny bukser fra bunden og bagefter
-&apos;tage dem på&apos;.
+				Vælg et nyt par bukser ved at trække et par fra din beholdning over på din avatar. Du kan også oprette et par fra bunden og bagefter &apos;tage dem på&apos;.
 			</text>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
@@ -243,10 +236,9 @@ din avatar. Du kan også oprette ny bukser fra bunden og bagefter
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag et ny par sko på ved at trække dem fra din beholdning
-over på din avatar. Du kan også oprette et nyt par sko fra bunden 
-og bagefter &apos;tage dem på&apos;.
+				Vælg et nyt par sko ved at trække et par fra din beholdning over på din avatar. Du kan også oprette et par fra bunden og bagefter &apos;tage dem på&apos;.
 			</text>
+			<button label="Lav nye sko" label_selected="Lav nye sko" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -255,7 +247,6 @@ og bagefter &apos;tage dem på&apos;.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav nye sko" label_selected="Lav nye sko" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -278,10 +269,9 @@ og bagefter &apos;tage dem på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag et ny par Strømper på ved at trække dem fra din beholdning
-over på din avatar. Du kan også oprette et nyt par Strømper fra bunden 
-og bagefter &apos;tage dem på&apos;.
+				Vælg et nyt par sokker ved at trække et par fra din beholdning over på din avatar. Du kan også oprette et par fra bunden og bagefter &apos;tage dem på&apos;.
 			</text>
+			<button label="Lav nye strømper" label_selected="Lav nye strømper" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -290,7 +280,6 @@ og bagefter &apos;tage dem på&apos;.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav nye strømper" label_selected="Lav nye strømper" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -313,9 +302,9 @@ og bagefter &apos;tage dem på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag en ny jakke på ved at trække en fra din beholdning over på din avatar. 
-Du kan også oprette en ny jakke fra bunden og bagefter &apos;tage den på&apos;.
+				Vælg en ny jakke ved at trække en fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
+			<button label="Lav ny jakke" label_selected="Lav ny jakke" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -325,7 +314,6 @@ Du kan også oprette en ny jakke fra bunden og bagefter &apos;tage den på&apos;
 			<texture_picker label="Stof øverst" name="Upper Fabric" tool_tip="Klik for at vælge et billede"/>
 			<texture_picker label="Stof nederst" name="Lower Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav ny jakke" label_selected="Lav ny jakke" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -348,10 +336,9 @@ Du kan også oprette en ny jakke fra bunden og bagefter &apos;tage den på&apos;
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag nye handsker på ved at trække et par fra din beholdning over på
-din avatar. Du kan også oprette nye handsker fra bunden 
-og bagefter &apos;tage dem på&apos;.
+				Vælg et sæt nye handsker ved at trække et par fra din beholdning over på din avatar. Du kan også oprette et par fra bunden og bagefter &apos;tage dem på&apos;.
 			</text>
+			<button label="Lav nye handsker" label_selected="Lav nye handsker" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -360,7 +347,6 @@ og bagefter &apos;tage dem på&apos;.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav nye handsker" label_selected="Lav nye handsker" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -383,10 +369,9 @@ og bagefter &apos;tage dem på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag en ny undertrøje på ved at trække en fra din beholdning over på
-din avatar. Du kan også oprette en ny undertrøje fra bunden 
-og bagefter &apos;tage den på&apos;.
+				Vælg en ny undertrøje ved at trække en fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
+			<button label="Lav ny undertrøje" label_selected="Lav ny undertrøje" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -395,7 +380,6 @@ og bagefter &apos;tage den på&apos;.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav ny undertrøje" label_selected="Lav ny undertrøje" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -418,10 +402,9 @@ og bagefter &apos;tage den på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag nye underbukser på ved at trække dem fra din beholdning over på
-din avatar. Du kan også oprette en par nye underbukser fra bunden 
-og bagefter &apos;tage dem på&apos;.
+				Vælg et nyt par underbukser ved at trække et par fra din beholdning over på din avatar. Du kan også oprette et par fra bunden og bagefter &apos;tage dem på&apos;.
 			</text>
+			<button label="Lav nye underbukser" label_selected="Lav nye underbukser" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -430,7 +413,6 @@ og bagefter &apos;tage dem på&apos;.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav nye underbukser" label_selected="Lav nye underbukser" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -453,10 +435,9 @@ og bagefter &apos;tage dem på&apos;.
 				Fundet i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Tag en ny nederdel på ved at trække en fra din beholdning over på
-din avatar. Du kan også oprette en ny nederdel fra bunden 
-og bagefter &apos;tage den på&apos;.
+				Vælg en ny nederdel ved at trække en fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
+			<button label="Lav ny nederdel" label_selected="Lav ny nederdel" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at redigere denne del.
 			</text>
@@ -465,48 +446,10 @@ og bagefter &apos;tage den på&apos;.
 			</text>
 			<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 			<color_swatch label="Farve" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
-			<button label="Lav ny nederdel" label_selected="Lav ny nederdel" name="Create New"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
 			<button label="Annullér" label_selected="Annullér" name="Revert"/>
-		</panel>
-		<panel label="Alpha" name="Alpha">
-			<text name="title">
-				[DESC]
-			</text>
-			<text name="title_no_modify">
-				[DESC]: kan ikke ændre
-			</text>
-			<text name="title_loading">
-				[DESC]: indlæser...
-			</text>
-			<text name="title_not_worn">
-				[DESC]: ikke båret
-			</text>
-			<text name="path">
-				Placeret i [PATH]
-			</text>
-			<text name="not worn instructions">
-				Brug en ny &quot;alpha mask&quot; ved at trække en fra din beholding til din avatar.
-Alternativt kan du lave en fra bunden og bære denne.
-			</text>
-			<text name="no modify instructions">
-				Du har ikke rettigheder til at ændre denne.
-			</text>
-			<text name="Item Action Label">
-				Alpha:
-			</text>
-			<texture_picker label="Alpha - nedre" name="Lower Alpha" tool_tip="Klik for at vælge et billede"/>
-			<texture_picker label="Øvre alpha" name="Upper Alpha" tool_tip="Klik for at vælge et billede"/>
-			<texture_picker label="Alpha - hoved" name="Head Alpha" tool_tip="Klik for at vælge et billede"/>
-			<texture_picker label="Alpha - øjne" name="Eye Alpha" tool_tip="Klik for at vælge et billede"/>
-			<texture_picker label="Alpha - hår" name="Hair Alpha" tool_tip="Klik for at vælge et billede"/>
-			<button label="Lav ny &quot;Alpha&quot;" label_selected="Lav ny &quot;Alpha&quot;" name="Create New"/>
-			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
-			<button label="Gem" label_selected="Gem" name="Save"/>
-			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
-			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
 		</panel>
 		<panel label="Tatovering" name="Tattoo">
 			<text name="title">
@@ -525,9 +468,9 @@ Alternativt kan du lave en fra bunden og bære denne.
 				Placeret i [PATH]
 			</text>
 			<text name="not worn instructions">
-				Brug en ny tatovering ved at trække en fra din beholding til din avatar.
-Alternativt kan du lave en fra bunden og bære denne.
+				Vælg en ny tatovering ved at trække en fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
 			</text>
+			<button label="lav ny tatovering" label_selected="Lav ny tatovering" name="Create New"/>
 			<text name="no modify instructions">
 				Du har ikke rettigheder til at ændre denne.
 			</text>
@@ -537,7 +480,42 @@ Alternativt kan du lave en fra bunden og bære denne.
 			<texture_picker label="Tatovering - hovede" name="Head Tattoo" tool_tip="Klik for at vælge et billede"/>
 			<texture_picker label="Øvre tatovering" name="Upper Tattoo" tool_tip="Klik for at vælge et billede"/>
 			<texture_picker label="Nedre tatovering" name="Lower Tattoo" tool_tip="Klik for at vælge et billede"/>
-			<button label="lav ny tatovering" label_selected="Lav ny tatovering" name="Create New"/>
+			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
+			<button label="Gem" label_selected="Gem" name="Save"/>
+			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
+			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
+		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: kan ikke ændre
+			</text>
+			<text name="title_loading">
+				[DESC]: indlæser...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: ikke båret
+			</text>
+			<text name="path">
+				Placeret i [PATH]
+			</text>
+			<text name="not worn instructions">
+				Vælg en ny &apos;alpha maske&apos; ved at trække en fra din beholdning over på din avatar. Du kan også oprette en fra bunden og bagefter &apos;tage den på&apos;.
+			</text>
+			<button label="Lav ny &quot;Alpha&quot;" label_selected="Lav ny &quot;Alpha&quot;" name="Create New"/>
+			<text name="no modify instructions">
+				Du har ikke rettigheder til at ændre denne.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Alpha - nedre" name="Lower Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Øvre alpha" name="Upper Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - hoved" name="Head Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - øjne" name="Eye Alpha" tool_tip="Klik for at vælge et billede"/>
+			<texture_picker label="Alpha - hår" name="Hair Alpha" tool_tip="Klik for at vælge et billede"/>
 			<button label="Tag af" label_selected="Tag af" name="Take Off"/>
 			<button label="Gem" label_selected="Gem" name="Save"/>
 			<button label="Gem som..." label_selected="Gem som..." name="Save As"/>
@@ -545,6 +523,7 @@ Alternativt kan du lave en fra bunden og bære denne.
 		</panel>
 	</tab_container>
 	<scroll_container left="212" name="panel_container"/>
+	<button label="Script info" label_selected="Script info" name="script_info" tool_tip="Vis scripts vedhæftet på din avatar"/>
 	<button label="Lav sæt" label_selected="Lav sæt" name="make_outfit_btn"/>
 	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

@@ -16,6 +16,12 @@
   name="location_notice">
     (will update after save)
  </panel.string>
+ <string name="publish_label">
+  Publish
+ </string>
+ <string name="save_label">
+  Save
+ </string>
   <button
      follows="top|right"
      height="23"
@@ -59,27 +65,36 @@
      layout="topleft"
      top="0"
      background_visible="false"
-     height="610"
+     height="690"
      left="0"
      width="285">
+      <panel
+         name="snapshot_panel"
+         layout="topleft"
+         follows="left|top|right"
+         height="197"
+         left="10"
+         top="10"
+         width="272">
       <texture_picker
        follows="left|top|right"
        height="197"
        width="272"
        layout="topleft"
-       top="10"
-       left="11"
+       top="0"
+       left="0"
        name="classified_snapshot" />
-          <icon
+       <icon
            height="197"
            image_name="spacer24.tga"
            layout="topleft"
            name="edit_icon"
            label=""
            tool_tip="Click to select an image"
-           top="10"
-           left="11"
-           width="286" />
+           top="0"
+           left="0"
+           width="272" />
+       </panel>
         <text
          type="string"
          length="1"
@@ -153,7 +168,7 @@
          type="string"
          length="1"
          follows="left|top"
-         height="50"
+         height="30"
          layout="topleft"
          left="10"
          name="classified_location"
@@ -172,6 +187,17 @@
          top_pad="5"
          name="set_to_curr_location_btn"
          width="156" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="category_label"
+         text_color="white"
+         top_pad="15"
+         value="Category:"
+         width="250" />
         <combo_box
          follows="left|top" 
          height="23" 
@@ -180,6 +206,17 @@
          name="category" 
          top_pad="5"
          width="156" />
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="content_type_label"
+         text_color="white"
+         top_pad="15"
+         value="Content type:"
+         width="250" />
         <combo_box 
          allow_text_entry="false" 
          follows="left|top" 
@@ -199,6 +236,17 @@
            General Content
          </combo_item>
         </combo_box>
+        <text
+         follows="left|top"
+         font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="price_for_listing_label"
+         text_color="white"
+         top_pad="15"
+         value="Price for listing:"
+         width="250" />
         <spinner
          decimal_digits="0"
          follows="left|top"
@@ -223,7 +271,7 @@
          layout="topleft"
          left="10"
          name="auto_renew"
-         top_pad="5"
+         top_pad="15"
          width="250" />
      </panel>
     </scroll_container>
@@ -239,7 +287,7 @@
         <button
          follows="bottom|left"
          height="23"
-         label="Save"
+         label="[LABEL]"
          layout="topleft"
          name="save_changes_btn"
          left="0"

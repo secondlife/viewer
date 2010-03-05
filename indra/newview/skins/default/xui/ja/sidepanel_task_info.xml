@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="オブジェクトのプロフィール"/>
 	<text name="where" value="（インワールド）"/>
-	<panel label="">
+	<panel name="properties_panel" label="">
 		<text name="Name:">
 			名前：
 		</text>

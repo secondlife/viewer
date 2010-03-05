@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="ColorPicker" title="WYBÓR KOLORU">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="WYBIERZ KOLOR">
 	<text name="r_val_text">
 		Czerwony:
 	</text>
@@ -18,14 +18,14 @@
 	<text name="l_val_text">
 		Luminacja:
 	</text>
-	<check_box label="Zastosuj od razu" name="apply_immediate" />
-	<button label="" label_selected="" name="color_pipette" />
-	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
-	<button label="Wybierz" label_selected="Wybierz" name="select_btn" />
+	<check_box label="Zastosuj teraz" name="apply_immediate"/>
+	<button label="" label_selected="" name="color_pipette"/>
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
+	<button label="Ok" label_selected="Ok" name="select_btn"/>
 	<text name="Current color:">
 		Obecny Kolor:
 	</text>
 	<text name="(Drag below to save.)">
-		(Przeciągnij tutaj)
+		(Przeciągnij tutaj by zapisać)
 	</text>
 </floater>

@@ -804,7 +804,7 @@
 		Pulsa ESC para salir de la vista subjetiva
 	</string>
 	<string name="InventoryNoMatchingItems">
-		No se han encontrado ítems en el inventario. Intenta con [secondlife:///app/search/groups &quot;Buscar&quot;].
+		No se han encontrado tales ítems en el inventario.  Intenta con [secondlife:///app/search/groups &quot;Buscar&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Arrastra aquí un hito para tenerlo en tus favoritos.
@@ -1268,13 +1268,13 @@
 		todos los estados que administras para [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Resientes autorizados: ([ALLOWEDAGENTS] de un máx. de [MAXACCESS])
+		Resientes autorizados: ([ALLOWEDAGENTS], de un máx. de [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
 		Grupos autorizados: ([ALLOWEDGROUPS], de un máx. de [MAXACCESS])
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
-		Memoria de los script en la parcela
+		Memoria de los scripts de la parcela
 	</string>
 	<string name="ScriptLimitsParcelsOwned">
 		Parcelas listadas: [PARCELS]
@@ -1319,10 +1319,10 @@
 		Cabeza
 	</string>
 	<string name="ATTACH_LSHOULDER">
-		Hombro izq.
+		Hombro izquierdo
 	</string>
 	<string name="ATTACH_RSHOULDER">
-		Hombro der.
+		Hombro derecho
 	</string>
 	<string name="ATTACH_LHAND">
 		Mano izq.
@@ -1337,7 +1337,7 @@
 		Pie der.
 	</string>
 	<string name="ATTACH_BACK">
-		Espalda
+		Anterior
 	</string>
 	<string name="ATTACH_PELVIS">
 		Pelvis
@@ -1397,10 +1397,10 @@
 		Vientre
 	</string>
 	<string name="ATTACH_RPEC">
-		Pecho der.
+		Pecho derecho
 	</string>
 	<string name="ATTACH_LPEC">
-		Pecho izq.
+		Pecho izquierdo
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD: Centro 2
@@ -1471,7 +1471,7 @@
 		(se actualizará tras la publicación)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		No has creado destacados o clasificados. Pulsa el botón Más para crear uno.
+		No has creado destacados ni clasificados. Pulsa el botón Más para crear uno.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		El usuario no tiene clasificados ni destacados
@@ -3187,7 +3187,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		(Moderador)
 	</string>
 	<string name="started_call">
-		Iniciar una llamada de voz
+		Llamada de voz iniciada
 	</string>
 	<string name="joined_call">
 		Entrando a la llamada de voz
@@ -3199,7 +3199,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Conectado, pulsa Colgar para salir
 	</string>
 	<string name="hang_up-im">
-		Colgar la llamada de voz
+		Se colgó la llamada de voz
 	</string>
 	<string name="only_user_message">
 		Usted es el único usuario en esta sesión.
@@ -3211,7 +3211,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Pulse el botón [BUTTON NAME] para aceptar/conectar este chat de voz.
 	</string>
 	<string name="muted_message">
-		Has ignorado a este residente. Le designorarás automáticamente enviándole un mensaje.
+		Has ignorado a este residente. Enviándole un mensaje, automáticamente dejarás de ignorarle.
 	</string>
 	<string name="generic">
 		Error en lo solicitado, por favor, inténtalo más tarde.

@@ -12,6 +12,6 @@
 		<accordion_tab name="6_months_and_older" title="半年以上前"/>
 	</accordion>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button name="gear_btn" tool_tip="その他のオプションを表示"/>
+		<button name="gear_btn" tool_tip="オプションを表示します"/>
 	</panel>
 </panel>

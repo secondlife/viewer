@@ -183,6 +183,15 @@ void LLAvatarList::sortByName()
 	sort();
 }
 
+void LLAvatarList::setDirty(bool val /*= true*/, bool force_refresh /*= false*/)
+{
+	mDirty = val;
+	if(mDirty && force_refresh)
+	{
+		refresh();
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PROTECTED SECTION
 //////////////////////////////////////////////////////////////////////////

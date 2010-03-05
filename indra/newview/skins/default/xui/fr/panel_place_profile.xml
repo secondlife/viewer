@@ -68,7 +68,7 @@
 			<text name="maturity_value" value="(inconnu)"/>
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="Parcelle">
-					<panel>
+					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Catégorie :"/>
 						<text name="rating_value" value="(inconnu)"/>
 						<text name="voice_label" value="Voix :"/>
@@ -87,7 +87,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Région">
-					<panel>
+					<panel name="region_information_panel">
 						<text name="region_name_label" value="Région :"/>
 						<text name="region_name" value="Pays des orignaux"/>
 						<text name="region_type_label" value="Type :"/>
@@ -104,7 +104,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="Domaine">
-					<panel>
+					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="Domaine :"/>
 						<text name="estate_rating_label" value="Catégorie :"/>
 						<text name="estate_owner_label" value="Propriétaire :"/>
@@ -112,7 +112,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="À vendre">
-					<panel>
+					<panel name="sales_panel">
 						<text name="sales_price_label" value="Prix :"/>
 						<text name="area_label" value="Surface :"/>
 						<text name="traffic_label" value="Trafic :"/>

@@ -15,7 +15,7 @@
 	</text>
 	<icon name="icon_object" tool_tip="Objekter"/>
 	<text name="object_name_text">
-		...
+		Mit fantastiske objekt med et virkeligt langt navn
 	</text>
 	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
 	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
