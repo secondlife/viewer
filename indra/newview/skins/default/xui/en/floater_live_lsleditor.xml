@@ -45,9 +45,9 @@
      layout="topleft"
      name="Reset"
      left="10"
-     width="61" />
+     width="85" />
     <check_box
-    left_delta="71"
+    left_delta="90"
     top_delta="3"
      enabled="false"
      follows="left|bottom"
@@ -57,9 +57,9 @@
      label="Running"
      layout="topleft"
      name="running"
-     width="100" />
+     width="205" />
     <check_box
-    left_delta="75"
+    left_delta="140"
      enabled="true"
      follows="left|bottom"
      font="SansSerif"
