@@ -1299,7 +1299,10 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 
 			bool mature = is_cf_mature(c_info->flags);
 			childSetValue("content_type", mature ? mature_str : pg_str);
-			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
+
+			std::string auto_renew_str = is_cf_auto_renew(c_info->flags) ? 
+				getString("auto_renew_on") : getString("auto_renew_off");
+			childSetValue("auto_renew", auto_renew_str);
 
 			price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
 			childSetValue("price_for_listing", LLSD(price_str));
@@ -1321,8 +1324,12 @@ void LLPanelClassifiedInfo::resetData()
 	setClassifiedId(LLUUID::null);
 	setSnapshotId(LLUUID::null);
 	mPosGlobal.clearVec();
-	childSetValue("category", LLStringUtil::null);
-	childSetValue("content_type", LLStringUtil::null);
+	childSetText("category", LLStringUtil::null);
+	childSetText("content_type", LLStringUtil::null);
+	childSetText("click_through_text", LLStringUtil::null);
+	childSetText("price_for_listing", LLStringUtil::null);
+	childSetText("auto_renew", LLStringUtil::null);
+	childSetText("creation_date", LLStringUtil::null);
 	childSetText("click_through_text", LLStringUtil::null);
 }
 
