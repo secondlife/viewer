@@ -69,6 +69,7 @@ class LLHUDIcon;
 class LLWindow;
 class LLRootView;
 class LLViewerWindowListener;
+class LLPopupView;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -300,6 +301,11 @@ public:
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
 
+	// add and remove views from "popup" layer
+	void			addPopup(LLView* popup);
+	void			removePopup(LLView* popup);
+	void			clearPopups();
+
 	// Hide normal UI when a logon fails, re-show everything when logon is attempted again
 	void			setNormalControlsVisible( BOOL visible );
 	void			setMenuBackgroundColor(bool god_mode = false, bool dev_grid = false);
@@ -458,6 +464,7 @@ protected:
 	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
 	LLHandle<LLView> mNonSideTrayView;		// parent of world view + bottom bar, etc...everything but the side tray
 	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
+	LLPopupView*	mPopupView;			// container for transient popups
 	
 	class LLDebugText* mDebugText; // Internal class for debug text
 	
@@ -477,7 +484,7 @@ protected:
 private:
 	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
-};	
+};
 
 void toggle_flying(void*);
 void toggle_first_person();

@@ -82,6 +82,8 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	  mParcelMediaItem(NULL),
 	  mParcelAudioItem(NULL)
 {
+	mHoverTimer.stop();
+
 	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
 							gSavedSettings.getBOOL("MediaTentativeAutoPlay");
 
@@ -188,31 +190,23 @@ void LLPanelNearByMedia::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 /*virtual*/ 
+void LLPanelNearByMedia::onTopLost()
+{
+	setVisible(FALSE);
+}
+
+
+/*virtual*/ 
 void LLPanelNearByMedia::handleVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)	
 	{
 		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-		//gFocusMgr.setTopCtrl(this);
 	}
 	else
 	{
 		mHoverTimer.stop();
-		//if (gFocusMgr.getTopCtrl() == this)
-		//{
-		//	gFocusMgr.setTopCtrl(NULL);
-		//}
 	}
-}
-
-/*virtual*/ 
-void LLPanelNearByMedia::onTopLost ()
-{
-	//LLUICtrl* new_top = gFocusMgr.getTopCtrl();
-	//if (!new_top || !new_top->hasAncestor(this))
-	//{
-	//	setVisible(FALSE);
-	//}
 }
 
 /*virtual*/
@@ -234,13 +228,6 @@ const F32 AUTO_CLOSE_FADE_TIME_END = 5.0f;
 /*virtual*/
 void LLPanelNearByMedia::draw()
 {
-	//LLUICtrl* new_top = gFocusMgr.getTopCtrl();
-	//if (new_top != this)
-	//{
-	//	// reassert top ctrl
-	//	gFocusMgr.setTopCtrl(this);
-	//}
-
 	// keep bottom of panel on screen
 	LLRect screen_rect = calcScreenRect();
 	if (screen_rect.mBottom < 0)

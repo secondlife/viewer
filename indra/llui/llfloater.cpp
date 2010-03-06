@@ -527,10 +527,7 @@ void LLFloater::setVisible( BOOL visible )
 
 	if( !visible )
 	{
-		if( gFocusMgr.childIsTopCtrl( this ) )
-		{
-			gFocusMgr.setTopCtrl(NULL);
-		}
+		LLUI::removePopup(this);
 
 		if( gFocusMgr.childHasMouseCapture( this ) )
 		{
@@ -704,10 +701,7 @@ void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLFloater::releaseFocus()
 {
-	if( gFocusMgr.childIsTopCtrl( this ) )
-	{
-		gFocusMgr.setTopCtrl(NULL);
-	}
+	LLUI::removePopup(this);
 
 	setFocus(FALSE);
 
@@ -1360,7 +1354,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus)
 {
-	gFocusMgr.setTopCtrl(NULL);
+	LLUI::clearPopups();
 	setVisible(TRUE);
 	setFrontmost(take_focus);
 }
@@ -2508,10 +2502,7 @@ void LLFloaterView::syncFloaterTabOrder()
 	if (modal_dialog)
 	{
 		// If we have a visible modal dialog, make sure that it has focus
-		if( gFocusMgr.getTopCtrl() != modal_dialog )
-		{
-			gFocusMgr.setTopCtrl( modal_dialog );
-		}
+		LLUI::addPopup(modal_dialog);
 		
 		if( !gFocusMgr.childHasKeyboardFocus( modal_dialog ) )
 		{

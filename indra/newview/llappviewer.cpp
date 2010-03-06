@@ -703,9 +703,9 @@ bool LLAppViewer::init()
 	settings_map["account"] = &gSavedPerAccountSettings;
 
 	LLUI::initClass(settings_map,
-					LLUIImageList::getInstance(),
-					ui_audio_callback,
-					&LLUI::sGLScaleFactor);
+		LLUIImageList::getInstance(),
+		ui_audio_callback,
+		&LLUI::sGLScaleFactor);
 	
 	// Setup paths and LLTrans after LLUI::initClass has been called
 	LLUI::setupPaths();
