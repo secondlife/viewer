@@ -171,9 +171,9 @@ private:
 	// widgets in general are not copyable
 	LLView(const LLView& other) {};
 public:
-#if LL_DEBUG
+//#if LL_DEBUG
 	static BOOL sIsDrawing;
-#endif
+//#endif
 	enum ESoundFlags
 	{
 		SILENT = 0,
