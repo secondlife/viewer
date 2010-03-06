@@ -307,7 +307,7 @@
              label_selected="Save"
              layout="topleft"
              name="Save"
-             right="190"
+             right="186"
              top="477"
              width="82" />
             <button
@@ -319,7 +319,7 @@
              name="Save As"
              top="477"
              right="304"
-             width="110" />
+             width="115" />
         </panel>
         <panel
          border="false"
@@ -489,7 +489,7 @@
              height="23"
              layout="topleft"
              name="Item Action Label"
-             right="132"
+             right="90"
              width="100">
                 Skin:
             </text>
@@ -548,7 +548,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -561,7 +561,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -739,7 +739,7 @@
              height="23"
              layout="topleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Hair:
             </text>
@@ -771,7 +771,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -784,7 +784,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -924,7 +924,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Eyes:
             </text>
@@ -955,7 +955,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -968,7 +968,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -1069,7 +1069,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -1082,7 +1082,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -1193,7 +1193,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Shirt:
             </text>
@@ -1272,7 +1272,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -1285,7 +1285,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -1396,7 +1396,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Pants:
             </text>
@@ -1538,7 +1538,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Shoes:
             </text>
@@ -1579,7 +1579,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -1592,7 +1592,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -1741,7 +1741,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Socks:
             </text>
@@ -1782,7 +1782,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -1795,7 +1795,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -1944,7 +1944,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Jacket:
             </text>
@@ -1996,7 +1996,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -2009,7 +2009,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -2158,7 +2158,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Gloves:
             </text>
@@ -2199,7 +2199,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -2212,7 +2212,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -2361,7 +2361,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Undershirt:
             </text>
@@ -2402,7 +2402,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -2415,7 +2415,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -2564,7 +2564,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Underpants:
             </text>
@@ -2605,7 +2605,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -2618,7 +2618,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -2767,7 +2767,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Skirt:
             </text>
@@ -2808,7 +2808,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -2821,7 +2821,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -2970,7 +2970,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Tattoo:
             </text>
@@ -3024,7 +3024,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -3037,7 +3037,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"
@@ -3186,7 +3186,7 @@
              height="23"
              layout="bottomleft"
              name="Item Action Label"
-             right="132"
+             right="90" 
              width="100">
                 Alpha:
             </text>
@@ -3305,7 +3305,7 @@
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="218"
+             right="186"
              name="Save"
              top="477"
              width="82" />
@@ -3318,7 +3318,7 @@
              right="304"
              name="Save As"
              top="477"
-             width="82" />
+             width="115" />
             <button
              follows="right|bottom"
              height="23"

@@ -395,7 +395,7 @@ Leyla Linden               </text>
              name="Cancel Land Sale"
              left_pad="5"
              top_pad="-25"
-             width="145" />
+             width="155" />
             <text
              type="string"
              length="1"
@@ -1504,7 +1504,7 @@ Only large parcels can be listed in search.
              name="Clear"
              tool_tip="Clear the landing point"
              right="-10"
-             width="50" />
+             width="55" />
             <text
              type="string"
              length="1"
