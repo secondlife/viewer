@@ -2021,9 +2021,9 @@ void LLViewerWindow::drawDebugText()
 void LLViewerWindow::draw()
 {
 	
-#if LL_DEBUG
+//#if LL_DEBUG
 	LLView::sIsDrawing = TRUE;
-#endif
+//#endif
 	stop_glerror();
 	
 	LLUI::setLineWidth(1.f);
@@ -2135,9 +2135,9 @@ void LLViewerWindow::draw()
 	LLUI::popMatrix();
 	gGL.popMatrix();
 
-#if LL_DEBUG
+//#if LL_DEBUG
 	LLView::sIsDrawing = FALSE;
-#endif
+//#endif
 }
 
 // Takes a single keydown event, usually when UI is visible
