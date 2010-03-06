@@ -2,19 +2,12 @@
 //
 #include "resource.h"
 
-#ifdef IDC_STATIC
-#undef IDC_STATIC
-#endif
-#define IDC_STATIC (-1)
-#include "winresrc.h"
-
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-// Commented out because it only compiles if you have MFC installed.
-//#include "winres.h"
+#include "winres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -34,18 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -84,9 +77,8 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
+GUIDELINES DESIGNINFO 
 BEGIN
-
     "SPLASHSCREEN", DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -127,6 +119,9 @@ TOOLPIPETTE             CURSOR                  "toolpipette.cur"
 TOOLPLAY                CURSOR                  "toolplay.cur"
 TOOLPAUSE               CURSOR                  "toolpause.cur"
 TOOLMEDIAOPEN           CURSOR                  "toolmediaopen.cur"
+TOOLOPEN                CURSOR                  "toolopen.cur"
+TOOLSIT                 CURSOR                  "toolsit.cur"
+TOOLBUY                 CURSOR                  "toolbuy.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -134,8 +129,8 @@ TOOLMEDIAOPEN           CURSOR                  "toolmediaopen.cur"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,200030
- PRODUCTVERSION 2,0,0,200030
+ FILEVERSION 2,0,0,3422
+ PRODUCTVERSION 2,0,0,3422
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -165,12 +160,6 @@ BEGIN
         VALUE "Translation", 0x409, 1200
     END
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
