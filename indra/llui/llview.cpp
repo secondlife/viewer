@@ -150,7 +150,7 @@ LLView::~LLView()
 {
 	dirtyRect();
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
-	if (LLView::isDrawing)
+	if (LLView::sIsDrawing)
 	{
 		llwarns << "Deleting view " << mName << " during UI draw() phase" << llendl;
 	}
