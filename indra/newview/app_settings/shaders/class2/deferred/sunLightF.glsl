@@ -159,7 +159,9 @@ void main()
 	
 	vec4 pos = getPosition(pos_screen);
 	
-    vec3 norm = texture2DRect(normalMap, pos_screen).xyz*2.0-1.0;
+	vec4 nmap4 = texture2DRect(normalMap, pos_screen);
+	float displace = nmap4.w;
+	vec3 norm = nmap4.xyz*2.0-1.0;
 	
 	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
 	{
@@ -168,9 +170,9 @@ void main()
 	}*/
 	
 	float shadow = 1.0;
-    float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
+	float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
 
-	vec4 spos = vec4(pos.xyz + vary_light.xyz * (1.0-dp_directional_light)*shadow_offset, 1.0);
+	vec4 spos = vec4(pos.xyz + displace*norm + vary_light.xyz * (1.0-dp_directional_light)*shadow_offset, 1.0);
 	
 	if (spos.z > -shadow_clip.w)
 	{	
