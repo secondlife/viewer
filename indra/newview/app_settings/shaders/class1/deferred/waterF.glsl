@@ -131,11 +131,11 @@ void main()
 	//color.rgb = scaleSoftClip(color.rgb);
 	//color.a = spec * sunAngle2;
 
-	//wavef.z = -0.25f;
+	//wavef.z *= 0.1f;
 	wavef = normalize(wavef);
 	wavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	gl_FragData[0] = vec4(color.rgb, 0.75);
-	gl_FragData[1] = vec4(1,1,1, 0.8);
+	gl_FragData[0] = vec4(color.rgb, 0.5);
+	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95);
 	gl_FragData[2] = vec4(wavef*0.5+0.5, 0.0);
 }
