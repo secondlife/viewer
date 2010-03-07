@@ -135,7 +135,7 @@ void main()
 	//wavef = normalize(wavef);
 	wavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	gl_FragData[0] = vec4(color.rgb, 0.5);
-	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95);
-	gl_FragData[2] = vec4(wavef*0.5+0.5, 0.0);
+	gl_FragData[0] = vec4(color.rgb, 0.5); // diffuse
+	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
+	gl_FragData[2] = vec4(wavef*0.5+0.5, 0.0); // normal
 }
