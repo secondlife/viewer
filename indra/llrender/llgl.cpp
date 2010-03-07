@@ -185,6 +185,9 @@ PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT =
 // GL_EXT_framebuffer_blit
 PFNGLBLITFRAMEBUFFEREXTPROC glBlitFramebufferEXT = NULL;
 
+// GL_EXT_blend_func_separate
+PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT = NULL;
+
 // GL_ARB_draw_buffers
 PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB = NULL;
 
@@ -324,6 +327,7 @@ LLGLManager::LLGLManager() :
 	mHasCompressedTextures(FALSE),
 	mHasFramebufferObject(FALSE),
 	mHasFramebufferMultisample(FALSE),
+	mHasBlendFuncSeparate(FALSE),
 
 	mHasVertexBufferObject(FALSE),
 	mHasPBuffer(FALSE),
@@ -633,6 +637,12 @@ void LLGLManager::initExtensions()
 #else
 	mHasDrawBuffers = FALSE;
 # endif
+# if GL_EXT_blend_func_separate
+	mHasBlendFuncSeparate = TRUE;
+#else
+#error XXXXXX
+	mHasBlendFuncSeparate = FALSE;
+# endif
 	mHasMipMapGeneration = FALSE;
 	mHasSeparateSpecularColor = FALSE;
 	mHasAnisotropic = FALSE;
@@ -659,6 +669,7 @@ void LLGLManager::initExtensions()
 		&& ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 	mHasFramebufferMultisample = mHasFramebufferObject && ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts);
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
+	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
@@ -682,6 +693,7 @@ void LLGLManager::initExtensions()
 		mHasFramebufferObject = FALSE;
 		mHasFramebufferMultisample = FALSE;
 		mHasDrawBuffers = FALSE;
+		mHasBlendFuncSeparate = FALSE;
 		mHasMipMapGeneration = FALSE;
 		mHasSeparateSpecularColor = FALSE;
 		mHasAnisotropic = FALSE;
@@ -706,6 +718,7 @@ void LLGLManager::initExtensions()
 		mHasShaderObjects = FALSE;
 		mHasVertexShader = FALSE;
 		mHasFragmentShader = FALSE;
+		mHasBlendFuncSeparate = FALSE;
 		LL_WARNS("RenderInit") << "GL extension support forced to SIMPLE level via LL_GL_BASICEXT" << LL_ENDL;
 	}
 	if (getenv("LL_GL_BLACKLIST"))	/* Flawfinder: ignore */
@@ -734,7 +747,8 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'r')) mHasDrawBuffers = FALSE;//S
 		if (strchr(blacklist,'s')) mHasFramebufferMultisample = FALSE;
 		if (strchr(blacklist,'t')) mHasTextureRectangle = FALSE;
-
+		if (strchr(blacklist,'u')) mHasBlendFuncSeparate = FALSE;//S
+		
 	}
 #endif // LL_LINUX || LL_SOLARIS
 	
@@ -781,6 +795,14 @@ void LLGLManager::initExtensions()
 	if (!mHasFragmentShader)
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_fragment_shader" << LL_ENDL;
+	}
+	if (!mHasBlendFuncSeparate)
+	{
+		LL_INFOS("RenderInit") << "Couldn't initialize GL_EXT_blend_func_separate" << LL_ENDL;
+	}
+	if (!mHasDrawBuffers)
+	{
+		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_draw_buffers" << LL_ENDL;
 	}
 
 	// Disable certain things due to known bugs
@@ -851,6 +873,10 @@ void LLGLManager::initExtensions()
 	if (mHasDrawBuffers)
 	{
 		glDrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDrawBuffersARB");
+	}
+	if (mHasBlendFuncSeparate)
+	{
+		glBlendFuncSeparateEXT = (PFNGLBLENDFUNCSEPARATEEXTPROC) GLH_EXT_GET_PROC_ADDRESS("glBlendFuncSeparateEXT");
 	}
 #if (!LL_LINUX && !LL_SOLARIS) || LL_LINUX_NV_GL_HEADERS
 	// This is expected to be a static symbol on Linux GL implementations, except if we use the nvidia headers - bah
