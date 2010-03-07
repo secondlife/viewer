@@ -133,9 +133,9 @@ void main()
 
 	//wavef.z *= 0.1f;
 	//wavef = normalize(wavef);
-	wavef = (norm_mat*vec4(wavef, 1.0)).xyz;
+	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
 	gl_FragData[0] = vec4(color.rgb, 0.5); // diffuse
 	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
-	gl_FragData[2] = vec4(wavef*0.5+0.5, 0.0); // normal
+	gl_FragData[2] = vec4(screenspacewavef*0.5+0.5, screenspacewavef.z*0.5); // normal, displace
 }
