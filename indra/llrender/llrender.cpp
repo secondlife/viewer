@@ -778,8 +778,10 @@ LLRender::LLRender()
 
 	mCurrAlphaFunc = CF_DEFAULT;
 	mCurrAlphaFuncVal = 0.01f;
-	mCurrBlendSFactor = BF_UNDEF;
-	mCurrBlendDFactor = BF_UNDEF;
+	mCurrBlendColorSFactor = BF_UNDEF;
+	mCurrBlendAlphaSFactor = BF_UNDEF;
+	mCurrBlendColorDFactor = BF_UNDEF;
+	mCurrBlendAlphaDFactor = BF_UNDEF;
 }
 
 LLRender::~LLRender()
@@ -995,12 +997,41 @@ void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 {
 	llassert(sfactor < BF_UNDEF);
 	llassert(dfactor < BF_UNDEF);
-	if (mCurrBlendSFactor != sfactor || mCurrBlendDFactor != dfactor)
+	if (mCurrBlendColorSFactor != sfactor || mCurrBlendColorDFactor != dfactor ||
+	    mCurrBlendAlphaSFactor != sfactor || mCurrBlendAlphaDFactor != dfactor)
 	{
-		mCurrBlendSFactor = sfactor;
-		mCurrBlendDFactor = dfactor;
+		mCurrBlendColorSFactor = sfactor;
+		mCurrBlendAlphaSFactor = sfactor;
+		mCurrBlendColorDFactor = dfactor;
+		mCurrBlendAlphaDFactor = dfactor;
 		flush();
 		glBlendFunc(sGLBlendFactor[sfactor], sGLBlendFactor[dfactor]);
+	}
+}
+
+void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
+			 eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor)
+{
+	llassert(color_sfactor < BF_UNDEF);
+	llassert(color_dfactor < BF_UNDEF);
+	llassert(alpha_sfactor < BF_UNDEF);
+	llassert(alpha_dfactor < BF_UNDEF);
+	if (!gGLManager.mHasBlendFuncSeparate)
+	{
+		LL_WARNS_ONCE("render") << "no glBlendFuncSeparateEXT(), using color-only blend func" << llendl;
+		blendFunc(color_sfactor, color_dfactor);
+		return;
+	}
+	if (mCurrBlendColorSFactor != color_sfactor || mCurrBlendColorDFactor != color_dfactor ||
+	    mCurrBlendAlphaSFactor != alpha_sfactor || mCurrBlendAlphaDFactor != alpha_dfactor)
+	{
+		mCurrBlendColorSFactor = color_sfactor;
+		mCurrBlendAlphaSFactor = alpha_sfactor;
+		mCurrBlendColorDFactor = color_dfactor;
+		mCurrBlendAlphaDFactor = alpha_dfactor;
+		flush();
+		glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
+				       sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
 	}
 }
 
