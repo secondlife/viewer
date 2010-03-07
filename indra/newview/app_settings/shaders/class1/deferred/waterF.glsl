@@ -132,7 +132,7 @@ void main()
 	//color.a = spec * sunAngle2;
 
 	//wavef.z *= 0.1f;
-	wavef = normalize(wavef);
+	//wavef = normalize(wavef);
 	wavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
 	gl_FragData[0] = vec4(color.rgb, 0.5);
