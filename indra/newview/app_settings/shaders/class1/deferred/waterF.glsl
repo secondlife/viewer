@@ -115,7 +115,7 @@ void main()
 	vec4 fb = texture2D(screenTex, distort2);
 	
 	//mix with reflection
-	// Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
+	// Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
 	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
 	
 	float shadow = 1.0;
