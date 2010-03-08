@@ -80,8 +80,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mForceUpdate( false ),
 	mOpenLinksInExternalBrowser( false ),
 	mOpenLinksInInternalBrowser( false ),
-	mTrusted( false ),
 	mHomePageUrl( "" ),
+	mTrusted(false),
 	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
 	mMediaSource( 0 ),
@@ -183,6 +183,10 @@ void LLMediaCtrl::setOpenInInternalBrowser( bool valIn )
 ////////////////////////////////////////////////////////////////////////////////
 void LLMediaCtrl::setTrusted( bool valIn )
 {
+	if(mMediaSource)
+	{
+		mMediaSource->setTrustedBrowser(valIn);
+	}
 	mTrusted = valIn;
 }
 
@@ -632,6 +636,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
+			mMediaSource->setTrustedBrowser(mTrusted);
 			if(mClearCache)
 			{
 				mMediaSource->clearCache();
@@ -1053,15 +1058,6 @@ void LLMediaCtrl::clickLinkWithTarget(const std::string& url, const S32& target_
 		// unsupported link target - shouldn't happen
 		LL_WARNS("LinkTarget") << "Unsupported link target type" << LL_ENDL;
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// 
-void LLMediaCtrl::onClickLinkNoFollow( LLPluginClassMedia* self )
-{
-	// let the dispatcher handle blocking/throttling of SLURLs
-	std::string url = self->getClickURL();
-	LLURLDispatcher::dispatch(url, this, mTrusted);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
