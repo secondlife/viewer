@@ -459,7 +459,6 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 	}
 
 	//llinfos << "*** EXPANDED FILENAME: <" << expanded_filename << ">" << llendl;
-
 	return expanded_filename;
 }
 
@@ -609,9 +608,9 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
 		std::string userlower(username);
 		LLStringUtil::toLower(userlower);
 		LLStringUtil::replaceChar(userlower, ' ', '_');
-		mLindenUserDir = getChatLogsDir();
-		mLindenUserDir += mDirDelimiter;
-		mLindenUserDir += userlower;
+		mPerAccountChatLogsDir = getChatLogsDir();
+		mPerAccountChatLogsDir += mDirDelimiter;
+		mPerAccountChatLogsDir += userlower;
 	}
 	else
 	{

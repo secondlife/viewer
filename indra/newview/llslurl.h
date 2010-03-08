@@ -88,7 +88,7 @@ public:
 	LLSD        getAppPath() const { return mAppPath; }
 	
 	bool        isValid() const { return mType != INVALID; }
-	bool        isLocation() const { return (mType == LAST_LOCATION) || (mType == HOME_LOCATION) || (mType == LOCATION); }
+	bool        isSpatial() const { return (mType == LAST_LOCATION) || (mType == HOME_LOCATION) || (mType == LOCATION); }
 	
 	bool operator==(const LLSLURL& rhs);
 	bool operator!=(const LLSLURL&rhs);

@@ -223,19 +223,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 
-	if(!LLStartUp::getStartSLURL().isLocation())
+	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
 	{
-		LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
+		LLSLURL slurl(gSavedSettings.getString("LoginLocation"));
+		LLStartUp::setStartSLURL(slurl);
 	}
-	std::string sim_string = LLStartUp::getStartSLURL().getRegion();
-	if (!sim_string.empty())
-	{
-		// Replace "<Type region name>" with this region name
-		combo->remove(2);
-		combo->add( sim_string );
-		combo->setTextEntry(sim_string);
-		combo->setCurrentByIndex( 2 );
-	}
+	updateLocationCombo(false);
 	
 	combo->setCommitCallback(onSelectLocation, NULL);
 
@@ -698,6 +691,8 @@ void LLPanelLogin::updateLocationCombo( bool force_visible )
 	{
 		return;
 	}	
+	
+	llinfos << "updatelocationcombo " << LLStartUp::getStartSLURL().asString() << llendl;
 	LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
 	
 	switch(LLStartUp::getStartSLURL().getType())
@@ -744,11 +739,12 @@ void LLPanelLogin::onSelectLocation(LLUICtrl*, void*)
 			if((slurl.getType() == LLSLURL::LOCATION) &&
 			   (slurl.getGrid() != LLStartUp::getStartSLURL().getGrid()))
 			{
-				LLStartUp::setStartSLURL(slurl);
+				
+
 				// we've changed the grid, so update the grid selection
 				try 
 				{
-					LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
+					LLStartUp::setStartSLURL(slurl);
 				}
 				catch (LLInvalidGridName ex)
 				{
@@ -763,12 +759,12 @@ void LLPanelLogin::onSelectLocation(LLUICtrl*, void*)
 		}
 		case 1:
 		{
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
+			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
 			break;
 		}
 		default:
 		{
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
 			break;
 		}
 	}
@@ -800,7 +796,6 @@ void LLPanelLogin::getLocation(LLSLURL& slurl)
 void LLPanelLogin::setLocation(const LLSLURL& slurl)
 {
 	LLStartUp::setStartSLURL(slurl);
-	LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
 	updateServer();
 	
 }
@@ -1174,11 +1169,12 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	
 	combo = sInstance->getChild<LLComboBox>("start_location_combo");	
 	combo->setCurrentByIndex(1);
-	LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
+	LLStartUp::setStartSLURL(LLSLURL(gSavedSettings.getString("LoginLocation")));
 	LLGridManager::getInstance()->setGridChoice(combo_val.asString());
 	// This new selection will override preset uris
 	// from the command line.
 	updateServer();
+	updateLocationCombo(false);
 	updateLoginPanelLinks();
 }
 

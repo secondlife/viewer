@@ -829,13 +829,15 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					
 				if (slurl_dnd_enabled)
 				{
-				  LLSLURL dropped_slurl(data);
-				  if(dropped_slurl.isLocation())
-				    if (drop)
-				      {
-					LLURLDispatcher::dispatch( dropped_slurl.getSLURLString(), NULL, true );
-					return LLWindowCallbacks::DND_MOVE;
-				      };
+					LLSLURL dropped_slurl(data);
+					if(dropped_slurl.isSpatial())
+					{
+						if (drop)
+						{
+							LLURLDispatcher::dispatch( dropped_slurl.getSLURLString(), NULL, true );
+							return LLWindowCallbacks::DND_MOVE;
+						}
+					}
 				}
 
 				if (prim_media_dnd_enabled)

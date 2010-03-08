@@ -2098,12 +2098,8 @@ bool LLAppViewer::initConfiguration()
     }
     else if(clp.hasOption("slurl"))
     {
-      LLStartUp::setStartSLURL(LLSLURL(clp.getOption("surl")[0]));
-      if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
-	  {  
-		  LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
-		  
-	  }  
+		LLSLURL start_slurl(clp.getOption("slurl")[0]);
+		LLStartUp::setStartSLURL(start_slurl);
     }
 
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");

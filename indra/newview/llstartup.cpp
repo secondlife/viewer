@@ -824,10 +824,11 @@ bool idle_startup()
          
 		// create necessary directories
 		// *FIX: these mkdir's should error check
-		gDirUtilp->setPerAccountChatLogsDir(userid);  
+		gDirUtilp->setLindenUserDir(userid);
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		// Set PerAccountSettingsFile to the default value.
+		std::string per_account_settings_file = LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount");
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
 				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")));
@@ -857,7 +858,8 @@ bool idle_startup()
 		{
 			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		}
-
+		gDirUtilp->setPerAccountChatLogsDir(userid);  
+		
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
@@ -879,8 +881,6 @@ bool idle_startup()
 		if (show_connect_box)
 		{
 			LLSLURL slurl;
-			LLPanelLogin::getLocation(slurl);
-			LLStartUp::setStartSLURL(slurl);
 			LLPanelLogin::closePanel();
 		}
 
@@ -2660,8 +2660,22 @@ bool LLStartUp::dispatchURL()
 void LLStartUp::setStartSLURL(const LLSLURL& slurl) 
 {
   sStartSLURL = slurl;
-  gSavedSettings.setBOOL("LoginLastLocation", 
-			 !(slurl.getType() == LLSLURL::HOME_LOCATION)); 
+  switch(slurl.getType())
+    {
+    case LLSLURL::HOME_LOCATION:
+      {
+		  gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_HOME);
+	break;
+      }
+    case LLSLURL::LAST_LOCATION:
+      {
+	gSavedSettings.setString("LoginLocation", LLSLURL::SIM_LOCATION_LAST);
+	break;
+      }
+    default:
+			LLGridManager::getInstance()->setGridChoice(slurl.getGrid());
+			break;
+    }
 }
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)
