@@ -2808,58 +2808,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		clearNameTag();
 
-		if (sRenderGroupTitles
-			&& title && title->getString() && title->getString()[0] != '\0')
-		{
-			std::string title_str = title->getString();
-			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
-				LLFontGL::getFontSansSerifSmall());
-		}
-
-		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
-		static LLUICachedControl<bool> show_slids("NameTagShowSLIDs");
-
-		if (LLAvatarNameCache::useDisplayNames())
-		{
-			LLAvatarName av_name;
-			if (!LLAvatarNameCache::get(getID(), &av_name))
-			{
-				// ...call this function back when the name arrives
-				// and force a rebuild
-				LLAvatarNameCache::get(getID(),
-					boost::bind(&LLVOAvatar::clearNameTag, this));
-			}
-
-			// Might be blank if name not available yet, that's OK
-			if (show_display_names)
-			{
-				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
-					LLFontGL::getFontSansSerifBig());
-			}
-			if (show_slids)
-			{
-				addNameTagLine(av_name.mSLID, name_tag_color, LLFontGL::NORMAL,
-					LLFontGL::getFontSansSerif());
-			}
-		}
-		else
-		{
-			if (show_display_names || show_slids)
-			{
-				
-				static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
-				const LLFontGL* font =
-					(small_avatar_names ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifBig() );
-				std::string full_name =
-					LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
-				addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
-			}
-		}
-
-		static LLUICachedControl<bool> show_status("NameTagShowStatus");
-		if (show_status
-			&& (is_away || is_muted || is_busy || is_appearance) )
+		if (is_away || is_muted || is_busy || is_appearance)
 		{
 			std::string line;
 			if (is_away)
@@ -2887,6 +2836,52 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
+
+		if (sRenderGroupTitles
+			&& title && title->getString() && title->getString()[0] != '\0')
+		{
+			std::string title_str = title->getString();
+			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
+			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
+				LLFontGL::getFontSansSerifSmall());
+		}
+
+		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
+		static LLUICachedControl<bool> show_slids("NameTagShowSLIDs");
+
+		if (LLAvatarNameCache::useDisplayNames())
+		{
+			LLAvatarName av_name;
+			if (!LLAvatarNameCache::get(getID(), &av_name))
+			{
+				// ...call this function back when the name arrives
+				// and force a rebuild
+				LLAvatarNameCache::get(getID(),
+					boost::bind(&LLVOAvatar::clearNameTag, this));
+			}
+
+			// Might be blank if name not available yet, that's OK
+			if (show_slids)
+			{
+				addNameTagLine(av_name.mSLID, name_tag_color, LLFontGL::NORMAL,
+					LLFontGL::getFontSansSerif());
+			}
+			if (show_display_names)
+			{
+				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
+					LLFontGL::getFontSansSerifBig());
+			}
+		}
+		else
+		{
+			static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
+			const LLFontGL* font =
+				(small_avatar_names ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifBig() );
+			std::string full_name =
+				LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
+			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
+		}
+
 		mNameAway = is_away;
 		mNameBusy = is_busy;
 		mNameMute = is_muted;

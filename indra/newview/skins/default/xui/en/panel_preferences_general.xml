@@ -286,6 +286,7 @@
      name="show_all_title_checkbox1"
 	 tool_tip="Show group titles, like Officer or Member"
      top_pad="5" />
+  <!--
    <check_box
      control_name="NameTagShowDisplayNames"
 	 enabled_control="AvatarNameTagMode"
@@ -295,6 +296,7 @@
      name="show_display_names"
 	 tool_tip="Show display names, like José Sanchez"
      top_pad="5" />
+     -->
    <check_box
      control_name="NameTagShowSLIDs"
 	 enabled_control="AvatarNameTagMode"
@@ -303,15 +305,6 @@
      left_delta="0"
      name="show_slids"
 	 tool_tip="Show SL ID, like bobsmith123"
-     top_pad="5" />
-   <check_box
-     control_name="NameTagShowStatus"
-	 enabled_control="AvatarNameTagMode"
-     height="16"
-     label="Status"
-     left_delta="0"
-     name="show_status"
-	 tool_tip="Show status, like AFK or Busy"
      top_pad="5" />
     <text
      type="string"
