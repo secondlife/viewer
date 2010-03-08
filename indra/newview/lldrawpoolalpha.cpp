@@ -60,7 +60,9 @@ static BOOL deferred_render = FALSE;
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
-		simple_shader(NULL), fullbright_shader(NULL)
+		simple_shader(NULL), fullbright_shader(NULL),
+		mColorSFactor(LLRender::BF_UNDEF), mColorDFactor(LLRender::BF_UNDEF),
+		mAlphaSFactor(LLRender::BF_UNDEF), mAlphaDFactor(LLRender::BF_UNDEF)
 {
 
 }
@@ -178,9 +180,16 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 
+	gGL.setColorMask(true, true);
+
 	if (LLPipeline::sFastAlpha && !deferred_render)
 	{
-		LLGLDisable blend_disable(GL_BLEND);
+		mColorSFactor = LLRender::BF_ONE;  // }
+		mColorDFactor = LLRender::BF_ZERO; // } these are like disabling blend on the color channels, but we're still blending on the alpha channel so that we can suppress glow
+		mAlphaSFactor = LLRender::BF_ZERO;
+		mAlphaDFactor = LLRender::BF_ZERO; // block (zero-out) glow where the alpha test succeeds
+		gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.33f);
 		if (mVertexShaderLevel > 0)
 		{
@@ -205,10 +214,14 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy ? GL_TRUE : GL_FALSE);
 
-	gGL.setColorMask(true, true);
-	gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA,
-		      LLRender::BF_ZERO, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+	mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
+	mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
+	mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
+	mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
+	gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
 	renderAlpha(getVertexDataMask());
+
 	gGL.setColorMask(true, false);
 
 	if (deferred_render && current_shader != NULL)
@@ -417,8 +430,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 
 					// restore our alpha blend mode
-					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA,
-						      LLRender::BF_ZERO, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 				}
 			
 				if (params.mTextureMatrix && params.mTexture.notNull())
