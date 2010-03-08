@@ -407,3 +407,30 @@ BOOL LLWindowManager::isWindowValid(LLWindow *window)
 {
 	return sWindowList.find(window) != sWindowList.end();
 }
+
+S32 LLDisplayInfo::getDisplayWidth() const
+{
+#if LL_WINDOWS
+	return LLWindowWin32::getDisplayWidth();
+#elif LL_DARWIN
+	return LLWindowMacOSX::getDisplayWidth();
+#elif LL_SDL
+	return LLWindowSDL::getDisplayWidth();
+#else
+	return 1024; //*FIXME
+#endif
+}
+
+S32 LLDisplayInfo::getDisplayHeight() const
+{
+#if LL_WINDOWS
+	return LLWindowWin32::getDisplayHeight();
+#elif LL_DARWIN
+	return LLWindowMacOSX::getDisplayHeight();
+#elif LL_SDL
+	return LLWindowSDL::getDisplayHeight();
+#else
+	return 768; //*FIXME
+#endif
+}
+
