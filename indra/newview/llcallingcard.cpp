@@ -694,12 +694,11 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				setBuddyOnline(agent_id,online);
 				if(chat_notify)
 				{
-					std::string first, last;
-					if(gCacheName->getName(agent_id, first, last))
+					std::string full_name;
+					if(gCacheName->getFullName(agent_id, full_name))
 					{
 						notify = TRUE;
-						args["FIRST"] = first;
-						args["LAST"] = last;
+						args["NAME"] = full_name;
 					}
 				}
 			}
