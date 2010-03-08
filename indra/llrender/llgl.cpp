@@ -640,7 +640,6 @@ void LLGLManager::initExtensions()
 # if GL_EXT_blend_func_separate
 	mHasBlendFuncSeparate = TRUE;
 #else
-#error XXXXXX
 	mHasBlendFuncSeparate = FALSE;
 # endif
 	mHasMipMapGeneration = FALSE;
