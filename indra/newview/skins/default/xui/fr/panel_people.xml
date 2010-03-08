@@ -21,12 +21,12 @@
 				<accordion_tab name="tab_all" title="Tout"/>
 			</accordion>
 			<text name="no_friends_msg">
-				Pour ajouter des amis, essayez [secondlife:///app/search/people la recherche globale] ou cliquez sur un utilisateur pour l&apos;ajouter à vos amis.
-Si vous voulez rencontrer d&apos;autres résidents, ouvrez la [secondlife:///app/worldmap carte].
+				Pour ajouter des amis, utilisez la [secondlife:///app/search/people recherche]  ou cliquez sur un résident pour l&apos;ajouter à vos amis.
+Si vous souhaitez rencontrer d&apos;autres résidents, cliquez sur [secondlife:///app/worldmap la carte].
 			</text>
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="friends_viewsort_btn" tool_tip="Options"/>
-				<button name="add_btn" tool_tip="Proposer à ce résident de devenir votre ami"/>
+				<button name="add_btn" tool_tip="Proposer à un résident de devenir votre ami"/>
 				<button name="del_btn" tool_tip="Supprimer le résident sélectionné de votre liste d&apos;amis"/>
 			</panel>
 		</panel>

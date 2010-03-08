@@ -18,13 +18,13 @@
 	<text name="balance_amount">
 		[AMT] L$
 	</text>
-	<text name="currency_action" width="90">
+	<text name="currency_action">
 		Ich möchte kaufen
 	</text>
 	<text name="currency_label">
 		L$
 	</text>
-	<line_editor label="L$" left_delta="55" name="currency_amt">
+	<line_editor label="L$" name="currency_amt">
 		1234
 	</line_editor>
 	<text name="buying_label">
@@ -52,7 +52,7 @@
 		Geben Sie den Betrag erneut ein, um die aktuellste Umtauschrate anzuzeigen.
 	</text>
 	<text name="purchase_warning_repurchase">
-		Nach Bestätigung dieses Kaufs werden nur L$ gekauft, nicht das Objekt.
+		Achtung: Sie kaufen L$, nicht das Objekt.
 	</text>
 	<text name="purchase_warning_notenough">
 		Sie kaufen nicht genügend L$. Bitte erhöhen Sie den Betrag.

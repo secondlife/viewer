@@ -1542,7 +1542,7 @@ void LLInventoryModel::bulkFetch(std::string url)
 	U32 folder_count=0;
 	U32 max_batch_size=5;
 
-	U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
+	U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER) & 0x1;
 
 	LLSD body;
 	LLSD body_lib;

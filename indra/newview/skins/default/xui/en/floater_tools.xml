@@ -581,7 +581,7 @@
          left="0"
          name="radio select land"
          top="-1"
-         width="114" />
+         width="134" />
         <radio_item
          height="19"
          label="Flatten"
@@ -639,7 +639,7 @@
      follows="left|top"
      height="12"
      layout="topleft"
-     left="125"
+     left="150"
      name="Bulldozer:"
      top="57"
      width="100">
@@ -2816,7 +2816,7 @@ even though the user gets a free copy.
          left="20"
          name="label_parcel_info"
          top="24"
-         width="150">
+         width="240">
             Parcel Information
         </text>
         <text

@@ -12,6 +12,9 @@
 	<text name="dimensions">
 		[WIDTH]px x [HEIGHT]px
 	</text>
+	<text name="aspect_ratio">
+		Vis aspekt forhold
+	</text>
 	<combo_box name="combo_aspect_ratio" tool_tip="Forhåndsvisning med et bestemt billedformat">
 		<combo_item name="Unconstrained">
 			Ikke låst
@@ -38,7 +41,7 @@
 			2:1
 		</combo_item>
 	</combo_box>
-	<button label="OK" name="keep"/>
-	<button label="Annullér" name="discard"/>
+	<button label="OK" name="Keep"/>
+	<button label="Kassér" name="Discard"/>
 	<button label="Gem som" name="save_tex_btn"/>
 </floater>

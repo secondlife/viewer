@@ -73,9 +73,9 @@ S32		LLView::sLastBottomXML = S32_MIN;
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
 
-#if LL_DEBUG
+//#if LL_DEBUG
 BOOL LLView::sIsDrawing = FALSE;
-#endif
+//#endif
 
 // Compiler optimization, generate extern template
 template class LLView* LLView::getChild<class LLView>(
@@ -150,6 +150,10 @@ LLView::~LLView()
 {
 	dirtyRect();
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
+	if (LLView::sIsDrawing)
+	{
+		llwarns << "Deleting view " << mName << " during UI draw() phase" << llendl;
+	}
 // 	llassert(LLView::sIsDrawing == FALSE);
 	
 //	llassert_always(sDepth == 0); // avoid deleting views while drawing! It can subtly break list iterators
@@ -592,11 +596,6 @@ void LLView::setVisible(BOOL visible)
 {
 	if ( mVisible != visible )
 	{
-		if( !visible && (gFocusMgr.getTopCtrl() == this) )
-		{
-			gFocusMgr.setTopCtrl( NULL );
-		}
-
 		mVisible = visible;
 
 		// notify children of visibility change if root, or part of visible hierarchy

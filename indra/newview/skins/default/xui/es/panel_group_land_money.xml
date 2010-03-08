@@ -54,7 +54,7 @@
 			Se necesitan más créditos de terreno para mantener el terreno en uso
 		</text>
 		<text name="group_money_heading">
-			L$ del grupp
+			L$ del grupo
 		</text>
 	</panel>
 	<tab_container name="group_money_tab_container">

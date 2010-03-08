@@ -4,12 +4,12 @@
 		Hvor skal foto hen?
 	</text>
 	<radio_group label="Snapshot type" name="snapshot_type_radio">
-		<radio_item label="Send via e-mail" name="postcard"/>
-		<radio_item label="Gem i din beholdning (L$[AMOUNT])" name="texture"/>
-		<radio_item label="Gem på din computer" name="local"/>
+		<radio_item label="Email" name="postcard"/>
+		<radio_item label="Min beholdning (L$[AMOUNT])" name="texture"/>
+		<radio_item label="Gem på min computer" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
-		Fil størrelse: [SIZE] KB
+		[SIZE] KB
 	</text>
 	<button label="Tag nyt foto" name="new_snapshot_btn"/>
 	<button label="Send" name="send_btn"/>
@@ -19,8 +19,8 @@
 		<flyout_button_item label="Gem som..." name="saveas_item"/>
 	</flyout_button>
 	<button label="Annullér" name="discard_btn"/>
-	<button label="Mere &gt;&gt;" name="more_btn" tool_tip="Avancerede muligheder"/>
-	<button label="&lt;&lt; Mindre" name="less_btn" tool_tip="Avancerede muligheder"/>
+	<button label="Mere" name="more_btn" tool_tip="Avancerede muligheder"/>
+	<button label="Mindre" name="less_btn" tool_tip="Avancerede muligheder"/>
 	<text name="type_label2">
 		Størrelse
 	</text>
@@ -59,7 +59,7 @@
 	<spinner label="Bredde" label_width="41" name="snapshot_width" width="101"/>
 	<spinner label="Højde" label_width="32" left="117" name="snapshot_height" width="92"/>
 	<check_box label="Fasthold proportioner" name="keep_aspect_check"/>
-	<slider label="Billed-kvalitet" name="image_quality_slider"/>
+	<slider label="Billedkvalitet" name="image_quality_slider"/>
 	<text name="layer_type_label">
 		Benyt:
 	</text>
@@ -68,10 +68,10 @@
 		<combo_box.item label="Dybde" name="Depth"/>
 		<combo_box.item label="Materinger" name="ObjectMattes"/>
 	</combo_box>
-	<check_box label="Vis brugerflade på foto" name="ui_check"/>
-	<check_box label="Vis HUD objekter på foto" name="hud_check"/>
+	<check_box label="Snitflade" name="ui_check"/>
+	<check_box label="HUDs" name="hud_check"/>
 	<check_box label="Luk ikke vindue ved gemning" name="keep_open_check"/>
-	<check_box label="Frys billede og vis" name="freeze_frame_check"/>
+	<check_box label="Fastfrys (fuldt billede)" name="freeze_frame_check"/>
 	<check_box label="Auto-opdater" name="auto_snapshot_check"/>
 	<string name="unknown">
 		ukendt

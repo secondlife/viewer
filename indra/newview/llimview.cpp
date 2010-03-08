@@ -1565,7 +1565,7 @@ void LLCallDialog::onOpen(const LLSD& key)
 	LLDockableFloater::onOpen(key);
 
 	// it should be over the all floaters. EXT-5116
-	gFloaterView->bringToFront(this);
+	gFloaterView->bringToFront(this, FALSE);
 }
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)

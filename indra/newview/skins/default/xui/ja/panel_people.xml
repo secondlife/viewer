@@ -21,7 +21,7 @@
 				<accordion_tab name="tab_all" title="全員"/>
 			</accordion>
 			<text name="no_friends_msg">
-				お友達を追加するには、[secondlife:///app/search/people グローバル検索] をするか、ユーザーをクリックして行ってください。
+				フレンドを追加するには、[secondlife:///app/search/people グローバル検索] をするか、ユーザーを右クリックしてください。
 誰か一緒に行動をする人をお探しの時は、[secondlife:///app/worldmap 地図をお試しださい]。
 			</text>
 			<panel label="bottom_panel" name="bottom_panel">

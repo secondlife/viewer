@@ -10,7 +10,7 @@
 		Pulse el botón [BUTTON NAME] para aceptar/conectar este chat de voz.
 	</string>
 	<string name="muted_message">
-		Has ignorado a este residente. Le designorarás automáticamente enviándole un mensaje.
+		Has ignorado a este Residente. Enviándole un mensaje, automáticamente dejarás de ignorarle.
 	</string>
 	<string name="generic_request_error">
 		Error al hacer lo solicitado; por favor, inténtelo más tarde.

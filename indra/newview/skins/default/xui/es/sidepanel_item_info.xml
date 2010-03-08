@@ -52,7 +52,7 @@
 			<text name="GroupLabel">
 				Grupo:
 			</text>
-			<check_box label="Compartir" name="CheckShareWithGroup" tool_tip="Permite que todos los miembros del grupo compartan y utilicen tus permisos sobre este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+			<check_box label="Compartir" name="CheckShareWithGroup" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
 			<text name="NextOwnerLabel">
 				Próximo propietario:
 			</text>

@@ -687,7 +687,10 @@ void LLNotificationsUI::LLScreenChannel::startFadingToasts()
 	while (it != mToastList.end())
 	{
 		ToastElem& elem = *it;
-		elem.toast->startFading();
+		if (elem.toast->getVisible())
+		{
+			elem.toast->startFading();
+		}
 		++it;
 	}
 }

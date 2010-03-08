@@ -144,6 +144,7 @@ public:
 	 */
 	/*virtual*/ void onTopLost();
 
+
 	/**
 	 * Draws text box, collapses text box if its expanded and its parent's position changed
 	 */

@@ -537,10 +537,10 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	{
 		childSetText("maturity_desired_textbox",  maturity_combo->getSelectedItemLabel());
 		childSetVisible("maturity_desired_combobox", false);
-
-		// Display selected maturity icons.
-		onChangeMaturity();
 	}
+
+	// Display selected maturity icons.
+	onChangeMaturity();
 	
 	// Enabled/disabled popups, might have been changed by user actions
 	// while preferences floater was closed.
@@ -985,7 +985,8 @@ void LLFloaterPreference::cleanupBadSetting()
 	if (gSavedPerAccountSettings.getString("BusyModeResponse2") == "|TOKEN COPY BusyModeResponse|")
 	{
 		llwarns << "cleaning old BusyModeResponse" << llendl;
-		gSavedPerAccountSettings.setString("BusyModeResponse2", gSavedPerAccountSettings.getText("BusyModeResponse"));
+		//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
+		gSavedPerAccountSettings.setString("BusyModeResponse2", LLTrans::getString("BusyModeResponseDefault"));
 	}
 }
 
@@ -1288,7 +1289,7 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("media_enabled"))
 	{
 		bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+		
 		getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
 		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
 	}
@@ -1296,7 +1297,11 @@ BOOL LLPanelPreference::postBuild()
 	{
 		getChild<LLCheckBoxCtrl>("music_enabled")->set(gSavedSettings.getBOOL("AudioStreamingMusic"));
 	}
-	
+	if (hasChild("voice_call_friends_only_check"))
+	{
+		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+	}
+
 	apply();
 	return true;
 }

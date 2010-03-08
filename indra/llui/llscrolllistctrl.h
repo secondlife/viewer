@@ -219,7 +219,10 @@ public:
 	void			deselectAllItems(BOOL no_commit_on_change = FALSE);	// by default, go ahead and commit on selection change
 
 	void			clearHighlightedItems();
-	void			mouseOverHighlightNthItem( S32 index );
+	
+	virtual void	mouseOverHighlightNthItem( S32 index );
+
+	S32				getHighlightedItemInx() const { return mHighlightedItem; } 
 	
 	void			setDoubleClickCallback( callback_t cb ) { mOnDoubleClickCallback = cb; }
 	void			setMaximumSelectCallback( callback_t cb) { mOnMaximumSelectCallback = cb; }

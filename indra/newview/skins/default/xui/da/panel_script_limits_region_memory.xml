@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="REGION MEMORY" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Parcel script memory
+	</text>
+	<text name="loading_text">
+		Henter...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Størrelse (kb)" name="size"/>
+		<scroll_list.columns label="URL&apos;er" name="urls"/>
+		<scroll_list.columns label="Objekt navn" name="name"/>
+		<scroll_list.columns label="Objekt ejer" name="owner"/>
+		<scroll_list.columns label="Parcel" name="parcel"/>
+		<scroll_list.columns label="Lokation" name="location"/>
+	</scroll_list>
+	<button label="Gentegn liste" name="refresh_list_btn"/>
+	<button label="Fremhæv" name="highlight_btn"/>
+	<button label="Retur" name="return_btn"/>
+</panel>

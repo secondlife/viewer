@@ -3,7 +3,7 @@
  background_opaque="true"
  background_visible="true"
  bg_opaque_color="MouseGray"
- chrome="true" 
+ chrome="true"
  follows="top|right"
  height="19"
  layout="topleft"
@@ -11,7 +11,7 @@
  mouse_opaque="false"
  name="status"
  top="19"
- tab_stop="false" 
+ tab_stop="false"
  width="1000">
     <panel.string
      name="StatBarDaysOfWeek">
@@ -51,12 +51,12 @@
      image_unselected="spacer35.tga"
      image_pressed="spacer35.tga"
      height="16"
-     right="-210"
+     right="-230"
      label_shadow="false"
      name="buycurrency"
      tool_tip="My Balance"
      top="3"
-     width="110" />
+     width="120" />
     <button
      auto_resize="true"
      halign="right"
@@ -75,7 +75,7 @@
      pad_bottom="2"
      tool_tip="Click to buy more L$"
      top="2"
-     width="45" />
+     width="55" />
     <text
      type="string"
      font="SansSerifSmall"
@@ -88,7 +88,7 @@
      left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="80">
+     width="100">
         24:00 AM PST
     </text>
     <button

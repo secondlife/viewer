@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat" name="chat">
 	<radio_group name="chat_font_size">
-		<radio_item label="Pequeno" name="radio"/>
-		<radio_item label="Média" name="radio2"/>
-		<radio_item label="Grande" name="radio3"/>
+		<radio_item label="Pequeno" name="radio" value="0"/>
+		<radio_item label="Média" name="radio2" value="1"/>
+		<radio_item label="Grande" name="radio3" value="2"/>
 	</radio_group>
 	<color_swatch label="Você" name="user"/>
 	<text name="text_box1">
@@ -39,8 +39,8 @@
 	</text>
 	<check_box initial_value="true" label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
 	<check_box label="Envie MIs por email quando eu estiver desconectado" name="send_im_to_email"/>
-	<radio_group name="chat_window" tool_tip="Exibir cada bate-papo em uma janela ou em uma única janela com uma aba para cada pessoa (requer reinício)">
-		<radio_item label="Janelas diferentes" name="radio"/>
-		<radio_item label="Uma janela" name="radio2"/>
+	<radio_group name="chat_window" tool_tip="Exibir cada bate-papo em uma janela separada, ou exibir todos em uma única janela com uma aba para cada pessoa (requer reinício)">
+		<radio_item label="Janelas separadas" name="radio" value="0"/>
+		<radio_item label="Guias" name="radio2" value="1"/>
 	</radio_group>
 </panel>

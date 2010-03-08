@@ -22,13 +22,13 @@
 				</text>
 			</panel>
 			<panel name="sidebar_appearance">
-				<text name="tab_name" value="マイ 容姿"/>
+				<text name="tab_name" value="容姿"/>
 				<text name="tab_description">
 					あなたの容姿や現在の見た目を変更します。
 				</text>
 			</panel>
 			<panel name="sidebar_inventory">
-				<text name="tab_name" value="マイ 持ち物"/>
+				<text name="tab_name" value="持ち物"/>
 				<text name="tab_description">
 					あなたの持ち物を眺めます。
 				</text>

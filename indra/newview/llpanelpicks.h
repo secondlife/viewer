@@ -55,7 +55,6 @@ class LLPanelPickEdit;
 class LLToggleableMenu;
 class LLPanelClassifiedInfo;
 class LLPanelClassifiedEdit;
-class LLClassifiedClickThrough;
 
 // *TODO
 // Panel Picks has been consolidated with Classifieds (EXT-2095), give LLPanelPicks
@@ -120,9 +119,7 @@ private:
 
 	void openPickInfo();
 	void openClassifiedInfo();
-	void openClassifiedInfo(const LLUUID &classified_id, const LLUUID &avatar_id,
-							const LLUUID &snapshot_id, const std::string &name,
-							const std::string &desc);
+	void openClassifiedInfo(const LLSD& params);
 	friend class LLPanelProfile;
 
 	void showAccordion(const std::string& name, bool show);
@@ -159,8 +156,6 @@ private:
 	LLAccordionCtrlTab* mPicksAccTab;
 	LLAccordionCtrlTab* mClassifiedsAccTab;
 
-	LLClassifiedClickThrough* mClickThroughDisp;
-	
 	//true if picks list is empty after processing picks
 	bool mNoPicks;
 	//true if classifieds list is empty after processing classifieds

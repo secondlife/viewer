@@ -102,6 +102,10 @@ public:
 	virtual void changed() { LLFloaterLand::refreshAll(); }
 };
 
+// fills target textbox with maturity info(icon and text)
+// names_floater - pointer to floater which contains strings with maturity icons filenames
+void FillMaturityTextBox(LLTextBox* target_textbox, LLFloater* names_floater);
+
 //---------------------------------------------------------------------------
 // LLFloaterLand
 //---------------------------------------------------------------------------
@@ -554,7 +558,7 @@ void LLPanelLandGeneral::refresh()
 		
 		if (regionp)
 		{
-			mContentRating->setText(regionp->getSimAccessString());
+			FillMaturityTextBox(mContentRating, gFloaterView->getParentFloater(this));
 			mLandType->setText(regionp->getSimProductName());
 		}
 
@@ -2858,7 +2862,7 @@ void LLPanelLandCovenant::refresh()
 	LLTextBox* region_maturity = getChild<LLTextBox>("region_maturity_text");
 	if (region_maturity)
 	{
-		region_maturity->setText(region->getSimAccessString());
+		FillMaturityTextBox(region_maturity, gFloaterView->getParentFloater(this));
 	}
 	
 	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
@@ -2938,4 +2942,39 @@ void LLPanelLandCovenant::updateEstateOwnerName(const std::string& name)
 		LLTextBox* editor = self->getChild<LLTextBox>("estate_owner_text");
 		if (editor) editor->setText(name);
 	}
+}
+
+// fills target textbox with maturity info(icon and text)
+// names_floater - pointer to floater which contains strings with maturity icons filenames
+void FillMaturityTextBox(LLTextBox* target_textbox, LLFloater* names_floater)
+{
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+	if (!region)
+		return;
+
+	LLStyle::Params style;
+
+	U8 sim_access = region->getSimAccess();
+
+	switch(sim_access)
+	{
+	case SIM_ACCESS_PG:
+		style.image(LLUI::getUIImage(names_floater->getString("maturity_icon_general")));
+		break;
+
+	case SIM_ACCESS_ADULT:
+		style.image(LLUI::getUIImage(names_floater->getString("maturity_icon_adult")));
+		break;
+
+	case SIM_ACCESS_MATURE:
+		style.image(LLUI::getUIImage(names_floater->getString("maturity_icon_moderate")));
+		break;
+
+	default:
+		break;
+	}
+
+	// any text may be here instead of "icon" except ""
+	target_textbox->setText(std::string("icon"),style);
+	target_textbox->appendText(LLViewerParcelMgr::getInstance()->getSelectionRegion()->getSimAccessString(), false);
 }

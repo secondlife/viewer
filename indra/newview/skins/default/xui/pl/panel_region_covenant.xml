@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Umowa" name="Covenant">
 	<text name="estate_section_lbl">
-		Majątek:
+		Majątek
 	</text>
 	<text name="estate_name_lbl">
 		Nazwa:
@@ -26,44 +26,44 @@
 		Brak umowy dla tego majątku.
 	</text_editor>
 	<button label="Wyresetuj" name="reset_covenant"/>
-	<text name="covenant_help_text" bottom_delta="-6">
+	<text bottom_delta="-6" name="covenant_help_text">
 		Zmiany w umowie zostaną wyświetlone we
 wszystkich posiadłościach majątku.
 	</text>
-	<text name="covenant_instructions" bottom_delta="-36">
-		Przeciągnij oraz wrzuć notę by zmienić umowę dla tego majątku.
+	<text bottom_delta="-36" name="covenant_instructions">
+		Przeciągnij oraz wrzuć notkę by zmienić umowę dla tego majątku.
 	</text>
 	<text name="region_section_lbl">
-		Region:
+		Region
 	</text>
 	<text name="region_name_lbl">
 		Nazwa:
 	</text>
-	<text name="region_name_text" left="115">
+	<text left="115" name="region_name_text">
 		leyla
 	</text>
 	<text name="region_landtype_lbl">
 		Typ:
 	</text>
-	<text name="region_landtype_text" left="115">
+	<text left="115" name="region_landtype_text">
 		Region Główny / Ziemia
 	</text>
 	<text name="region_maturity_lbl">
 		Rodzaj:
 	</text>
-	<text name="region_maturity_text" left="115">
+	<text left="115" name="region_maturity_text">
 		&apos;Adult&apos;
 	</text>
 	<text name="resellable_lbl">
 		Odsprzedaj:
 	</text>
-	<text name="resellable_clause" left="115" width="350">
+	<text left="115" name="resellable_clause" width="350">
 		Posiadłość zakupiona w tym regionie nie może być odsprzedana.
 	</text>
 	<text name="changeable_lbl">
 		Podziel:
 	</text>
-	<text name="changeable_clause" left="115" width="350">
+	<text left="115" name="changeable_clause" width="350">
 		Posiadłość zakupiona w tym regionie nie może być
 łączona/dzielona.
 	</text>

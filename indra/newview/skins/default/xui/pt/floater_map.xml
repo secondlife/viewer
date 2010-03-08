@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map">
+<floater name="Map" title="Mini Mapa">
 	<floater.string name="mini_map_north">
 		N
 	</floater.string>

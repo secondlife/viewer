@@ -185,6 +185,8 @@ LLScrollListText::LLScrollListText(const LLScrollListCell::Params& p)
 {
 	sCount++;
 
+	mTextWidth = getWidth();
+
 	// initialize rounded rect image
 	if (!mRoundedRectImage)
 	{
@@ -340,7 +342,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 					0,
 					LLFontGL::NO_SHADOW,
 					string_chars, 
-					getWidth(),
+					getTextWidth(),
 					&right_x, 
 					TRUE);
 }

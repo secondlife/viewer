@@ -148,6 +148,9 @@ public:
 	static Display* get_SDL_Display(void);
 #endif // LL_X11	
 
+	static S32 getDisplayWidth();
+	static S32 getDisplayHeight();
+
 protected:
 	LLWindowSDL(LLWindowCallbacks* callbacks,
 		const std::string& title, int x, int y, int width, int height, U32 flags,

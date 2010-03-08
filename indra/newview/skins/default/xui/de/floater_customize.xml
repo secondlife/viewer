@@ -40,17 +40,17 @@
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
-			<text name="Item Action Label" right="100">
+			<text name="Item Action Label">
 				Form:
 			</text>
 			<button label="Neue Form/Gestalt" label_selected="Neue Form/Gestalt" name="Create New"/>
-			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
-			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
+			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" name="Save"/>
+			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." name="Save As"/>
 		</panel>
 		<panel label="Haut" name="Skin">
 			<button label="Hautfarbe" label_selected="Hautfarbe" left="2" name="Skin Color" width="92"/>
 			<button label="Gesichtsdetails" label_selected="Gesichtsdetails" left="2" name="Face Detail" width="92"/>
-			<button label="Make-Uup" label_selected="Make-Uup" left="2" name="Makeup" width="92"/>
+			<button label="Make-Up" label_selected="Make-Up" left="2" name="Makeup" width="92"/>
 			<button label="Körperdetails" label_selected="Körperdetails" left="2" name="Body Detail" width="92"/>
 			<text name="title">
 				[DESC]
@@ -105,7 +105,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie Haar aus dem Inventar auf Ihren Avatar, um dieses anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie Haar aus dem Inventar auf Ihren Avatar, um dieses anzulegen. Sie können aber auch neues Haar erstellen und anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -136,7 +136,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie neue Augen aus dem Inventar auf Ihren Avatar, um diese anzulegen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie neue Augen aus dem Inventar auf Ihren Avatar, um diese anzulegen. Sie können aber auch neue Augen erstellen und diese anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -177,7 +177,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie ein neues Hemd aus dem Inventar auf Ihren Avatar, um dieses anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie ein neues Hemd aus dem Inventar auf Ihren Avatar, um dieses anzuziehen. Sie können aber auch ein neues Hemd erstellen und dieses anlegen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -210,7 +210,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine neue Hose aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie eine neue Hose aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anziehen.
 			</text>
 			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
@@ -236,7 +236,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie neue Schuhe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie neue Schuhe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch neue Schuhe erstellen und diese anlegen.
 			</text>
 			<button label="Neue Schuhe" label_selected="Neue Schuhe" name="Create New"/>
 			<text name="no modify instructions">
@@ -269,7 +269,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie neue Strümpfe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie neue Socken aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch neue erstellen und diese anziehen.
 			</text>
 			<button label="Neue Socken" label_selected="Neue Socken" name="Create New"/>
 			<text name="no modify instructions">
@@ -302,7 +302,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine neue Jacke aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie eine neue Jacke aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anziehen.
 			</text>
 			<button label="Neue Jacke" label_selected="Neue Jacke" name="Create New"/>
 			<text name="no modify instructions">
@@ -311,8 +311,8 @@
 			<text name="Item Action Label" right="100">
 				Jacke:
 			</text>
-			<texture_picker label="Oberstoff" name="Upper Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
-			<texture_picker label="Unterstoff" name="Lower Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Stoff: oben" name="Upper Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Stoff: unten" name="Lower Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
 			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
 			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
@@ -336,7 +336,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie neue Handschuhe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie neue Handschuhe aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch neue erstellen und diese anziehen.
 			</text>
 			<button label="Neue Handschuhe" label_selected="Neue Handschuhe" name="Create New"/>
 			<text name="no modify instructions">
@@ -369,7 +369,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie ein neues Unterhemd aus dem Inventar auf Ihren Avatar, um dieses anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie ein neues Unterhemd aus dem Inventar auf Ihren Avatar, um dieses anzuziehen. Sie können aber auch ein neues Unterhemd erstellen und dieses anziehen.
 			</text>
 			<button label="Neues Unterhemd" label_selected="Neues Unterhemd" name="Create New"/>
 			<text name="no modify instructions">
@@ -402,7 +402,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie eine neue Unterhose aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie eine neue Unterhose aus dem Inventar auf Ihren Avatar, um diese anzuziehen. Sie können aber auch eine neue erstellen und diese anziehen.
 			</text>
 			<button label="Neue Unterhose" label_selected="Neue Unterhose" name="Create New"/>
 			<text name="no modify instructions">
@@ -435,7 +435,7 @@
 				In [PATH]
 			</text>
 			<text name="not worn instructions">
-				Ziehen Sie einen neuen Rock aus dem Inventar auf Ihren Avatar, um diesen anzuziehen. Sie können aber auch eine neue erstellen und diese anlegen.
+				Ziehen Sie einen neuen Rock aus dem Inventar auf Ihren Avatar, um diesen anzuziehen. Sie können aber auch einen neuen Rock erstellen und diesen anziehen.
 			</text>
 			<button label="Neuer Rock" label_selected="Neuer Rock" name="Create New"/>
 			<text name="no modify instructions">
@@ -453,7 +453,7 @@
 		</panel>
 		<panel label="Tätowierung" name="Tattoo">
 			<text name="title">
-				[BESCHR]
+				Tätowierung
 			</text>
 			<text name="title_no_modify">
 				[BESCHR]: bearbeiten nicht möglich
@@ -487,7 +487,7 @@
 		</panel>
 		<panel label="Alpha" name="Alpha">
 			<text name="title">
-				[BESCHR]
+				Alpha
 			</text>
 			<text name="title_no_modify">
 				[BESCHR]: bearbeiten nicht möglich

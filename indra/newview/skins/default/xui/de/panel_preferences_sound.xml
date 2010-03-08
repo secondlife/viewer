@@ -13,8 +13,11 @@
 	<check_box label="Aktiviert" name="enable_voice_check"/>
 	<check_box label="Automatische Wiedergabe zulassen" name="media_auto_play_btn" tool_tip="Hier aktivieren, um Medien automatisch wiederzugeben." value="wahr"/>
 	<check_box label="Medien, die an andere Avatare angehängt sind, wiedergeben." name="media_show_on_others_btn" tool_tip="Diese Option deaktivieren, um Medien für andere Avataren, die sich in der Nähe befinden, auszublenden." value="wahr"/>
-	<text name="Listen from">
+	<text name="voice_chat_settings">
 		Voice-Chat-Einstellungen
+	</text>
+	<text name="Listen from">
+		Zuhören von:
 	</text>
 	<radio_group name="ear_location">
 		<radio_item label="Kameraposition" name="0"/>

@@ -1,27 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<panel name="advanced">
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
+<panel label="Avanceret" name="advanced">
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<check_box label="Talebobler" name="bubble_text_chat"/>
-	<color_swatch name="background" tool_tip="Vælg farve for talebobler"/>
-	<slider label="Gennemsigtighed" name="bubble_chat_opacity"/>
-	<text name="AspectRatioLabel1" tool_tip="bredde / højde">
-		Format
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="bredde/ højde">
-		<combo_box.item label="4:3 (Standard CRT)" name="item1"/>
-		<combo_box.item label="5:4 (1280x1024 LCD)" name="item2"/>
-		<combo_box.item label="8:5 (Widescreen)" name="item3"/>
-		<combo_box.item label="16:9 (Widescreen)" name="item4"/>
-	</combo_box>
-	<check_box label="Registrér automatisk" name="aspect_auto_detect"/>
-	<text name="heading1">
-		Kamera:
-	</text>
 	<slider label="Synsvinkel" name="camera_fov"/>
 	<slider label="Distance" name="camera_offset_scale"/>
 	<text name="heading2">
@@ -29,20 +10,20 @@
 	</text>
 	<check_box label="Byg/Redigér" name="edit_camera_movement" tool_tip="Benyt automatisk kamera positionering ved start og slut af editerings modus"/>
 	<check_box label="Udseende" name="appearance_camera_movement" tool_tip="Benyt automatisk kamera positionering ved redigering"/>
-	<text name="heading3">
-		Avatarer:
-	</text>
 	<check_box label="Vis avatar i førsteperson" name="first_person_avatar_visible"/>
 	<check_box label="Piletaster bruges altid til bevægelse" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Tast-tast-hold for at løbe" name="tap_tap_hold_to_run"/>
 	<check_box label="Bevæg avatarlæber når der tales" name="enable_lip_sync"/>
-	<check_box label="Vis scriptfejl" name="show_script_errors"/>
+	<check_box label="Talebobler" name="bubble_text_chat"/>
+	<slider label="Gennemsigtighed" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Vælg farve for talebobler"/>
+	<check_box label="Vis script fejl i:" name="show_script_errors"/>
 	<radio_group name="show_location">
-		<radio_item label="I chat" name="0"/>
-		<radio_item label="I et vindue" name="1"/>
+		<radio_item label="Chat" name="0"/>
+		<radio_item label="Separat vindue" name="1"/>
 	</radio_group>
-	<check_box label="Knap til aktivering af mikrofon:" name="push_to_talk_toggle_check" tool_tip="I walkie-talkie-modus sendes stemme kun når knappen er trykket ned, ellers vil tryk på knap tænde og slukke mikrofon."/>
+	<check_box label="Knap til aktiverering af mikrofon:" name="push_to_talk_toggle_check" tool_tip="I walkie-talkie-modus sendes stemme kun når knappen er trykket ned, ellers vil tryk på knap tænde og slukke mikrofon."/>
 	<line_editor label="Brug walkie-talkie modus" name="modifier_combo"/>
 	<button label="Angiv taste" name="set_voice_hotkey_button"/>
-	<button label="Midterste museknap" name="set_voice_middlemouse_button"/>
+	<button label="Midterste museknap" name="set_voice_middlemouse_button" tool_tip="Nulstil til midterste musetaste"/>
 </panel>

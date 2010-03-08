@@ -16,5 +16,5 @@
 	<button label="Teletransportar" name="offer_teleport_btn" tool_tip="Oferecer a este amigo o teletransporte para sua localização atual" width="86"/>
 	<button label="Pagar" name="pay_btn" tool_tip="Dar Linden dólares (L$) a este amigo" width="86"/>
 	<button label="Tirar" name="remove_btn" tool_tip="Remover esta pessoa de sua lista de amigos" width="86"/>
-	<button label="Adicionar" name="add_btn" tool_tip="Oferecer amizade a um residente" width="86"/>
+	<button label="Adicionar" name="add_btn" tool_tip="Oferecer amizade para um residente" width="86"/>
 </panel>

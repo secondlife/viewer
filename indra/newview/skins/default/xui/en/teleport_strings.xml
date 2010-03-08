@@ -61,6 +61,9 @@ Try again in a moment.
 		<message name="completing">
 			Completing teleport.
 		</message>
+		<message name="completed_from">
+			Teleport completed from [T_SLURL]
+		</message>
 		<message name="resolving">
 			Resolving destination.
 		</message>
