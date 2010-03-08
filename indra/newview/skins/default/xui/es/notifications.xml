@@ -1731,7 +1731,7 @@ Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar u
 		<usetemplate ignoretext="Abrir mi navegador para ver el historial de mi cuenta" name="okcancelignore" notext="Cancelar" yestext="Ir a la página"/>
 	</notification>
 	<notification name="ConfirmQuit">
-		¿Está seguro de que quiere salir?
+		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
