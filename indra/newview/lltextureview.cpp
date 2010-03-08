@@ -665,12 +665,18 @@ void LLTextureView::draw()
 // 		LLViewerObject *objectp;
 // 		S32 te;
 
+//#if LL_DEBUG
+		BOOL drawing = LLView::sIsDrawing;
+		LLView::sIsDrawing = FALSE;
+//#endif
 		for_each(mTextureBars.begin(), mTextureBars.end(), DeletePointer());
 		mTextureBars.clear();
-	
-		delete mGLTexMemBar;
+			
+		delete mGLTexMemBar;		
 		mGLTexMemBar = 0;
-	
+//#if LL_DEBUG
+		LLView::sIsDrawing = drawing ;
+//#endif	
 		typedef std::multiset<decode_pair_t, compare_decode_pair > display_list_t;
 		display_list_t display_image_list;
 	
@@ -683,6 +689,10 @@ void LLTextureView::draw()
 			 iter != gTextureList.mImageList.end(); )
 		{
 			LLPointer<LLViewerFetchedTexture> imagep = *iter++;
+			if(!imagep->hasFetcher())
+			{
+				continue ;
+			}
 
 			S32 cur_discard = imagep->getDiscardLevel();
 			S32 desired_discard = imagep->mDesiredDiscardLevel;
