@@ -3199,11 +3199,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	S32 idx = draw_vec.size()-1;
 
-
 	BOOL fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
-					  (type == LLRenderPass::PASS_INVISIBLE) ||
-					  (type == LLRenderPass::PASS_ALPHA ? facep->isState(LLFace::FULLBRIGHT) : FALSE);
-
+		(type == LLRenderPass::PASS_INVISIBLE) ||
+		(type == LLRenderPass::PASS_ALPHA ? facep->isState(LLFace::FULLBRIGHT) : FALSE);
+	
 	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
 		llwarns << "Non fullbright face has no normals!" << llendl;
@@ -3232,12 +3231,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	LLViewerTexture* tex = facep->getTexture();
 
-	U8 glow = 0;
-		
-	if (type == LLRenderPass::PASS_GLOW)
-	{
-		glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
-	}
+	U8 glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
 
 	if (facep->mVertexBuffer.isNull())
 	{
@@ -3878,7 +3872,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 			}
 
-			if (LLPipeline::sRenderGlow && te->getGlow() > 0.f)
+			if (!is_alpha && LLPipeline::sRenderGlow && te->getGlow() > 0.f)
 			{
 				registerFace(group, facep, LLRenderPass::PASS_GLOW);
 			}
