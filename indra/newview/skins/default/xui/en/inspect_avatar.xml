@@ -9,7 +9,7 @@
  bg_opaque_image="Inspector_Background"
  can_close="false"
  can_minimize="false"
- height="148"
+ height="164"
  layout="topleft"
  name="inspect_avatar"
  single_instance="true"
@@ -47,9 +47,20 @@
      follows="top|left"
      height="16"
      left="8"
+     name="user_slid"
+     font="SansSerifSmall"
+     text_color="White"
+     value="James.pinden"
+     width="175"
+     use_ellipses="true" />
+    <text
+     follows="top|left"
+     height="16"
+     left="8"
      name="user_subtitle"
      font="SansSerifSmall"
      text_color="White"
+     top_pad="0" 
      value="11 Months, 3 days old"
      width="175"
      use_ellipses="true" />
@@ -108,7 +119,7 @@
      height="20"
      label="Add Friend"
      left="8"
-     top="119"
+     top="135"
      name="add_friend_btn"
      width="90" />
     <button

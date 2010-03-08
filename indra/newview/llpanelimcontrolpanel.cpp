@@ -184,7 +184,7 @@ void LLPanelIMControlPanel::onViewProfileButtonClicked()
 void LLPanelIMControlPanel::onAddFriendButtonClicked()
 {
 	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	std::string full_name = avatar_icon->getFirstName() + " " + avatar_icon->getLastName();
+	std::string full_name = avatar_icon->getFullName();
 	LLAvatarActions::requestFriendshipDialog(mAvatarID, full_name);
 }
 
@@ -226,6 +226,15 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 		childSetEnabled("share_btn", FALSE);
 		childSetEnabled("teleport_btn", FALSE);
 		childSetEnabled("pay_btn", FALSE);
+
+        getChild<LLTextBox>("avatar_name")->setValue(im_session->mName);
+        getChild<LLTextBox>("avatar_name")->setToolTip(im_session->mName);
+	}
+	else
+	{
+		// If the participant is an avatar, fetch the currect name
+		gCacheName->get(mAvatarID, false,
+			boost::bind(&LLPanelIMControlPanel::onNameCache, this, _1, _2, _3));
 	}
 }
 
@@ -238,6 +247,16 @@ void LLPanelIMControlPanel::changed(U32 mask)
 	if(LLAvatarActions::isFriend(mAvatarID))
 	{
 		childSetEnabled("teleport_btn", LLAvatarTracker::instance().isBuddyOnline(mAvatarID));
+	}
+}
+
+void LLPanelIMControlPanel::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
+{
+	if ( id == mAvatarID )
+	{
+		std::string avatar_name = full_name;
+		getChild<LLTextBox>("avatar_name")->setValue(avatar_name);
+		getChild<LLTextBox>("avatar_name")->setToolTip(avatar_name);
 	}
 }
 

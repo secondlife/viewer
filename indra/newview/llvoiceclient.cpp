@@ -7119,18 +7119,8 @@ void LLVoiceClient::notifyFriendObservers()
 
 void LLVoiceClient::lookupName(const LLUUID &id)
 {
-	BOOL is_group = FALSE;
-	gCacheName->get(id, is_group, &LLVoiceClient::onAvatarNameLookup);
-}
-
-//static
-void LLVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
-{
-	if(gVoiceClient)
-	{
-		std::string name = llformat("%s %s", first.c_str(), last.c_str());
-		gVoiceClient->avatarNameResolved(id, name);
-	}
+	gCacheName->get(id, false,
+		boost::bind(&LLVoiceClient::avatarNameResolved, this, _1, _2));
 }
 
 void LLVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)

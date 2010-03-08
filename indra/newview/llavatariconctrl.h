@@ -92,20 +92,17 @@ public:
 
 	void nameUpdatedCallback(
 		const LLUUID& id,
-		const std::string& first,
-		const std::string& last,
-		BOOL is_group);
+		const std::string& name,
+		bool is_group);
 
 	const LLUUID&		getAvatarId() const	{ return mAvatarId; }
-	const std::string&	getFirstName() const { return mFirstName; }
-	const std::string&	getLastName() const { return mLastName; }
+	const std::string&	getFullName() const { return mFullName; }
 
 	void setDrawTooltip(bool value) { mDrawTooltip = value;}
 
 protected:
 	LLUUID				mAvatarId;
-	std::string			mFirstName;
-	std::string			mLastName;
+	std::string			mFullName;
 	bool				mDrawTooltip;
 	std::string			mDefaultIconName;
 

@@ -1,10 +1,12 @@
 /** 
- * @file llnamebox.h
- * @brief display and refresh a name from the name cache
+ * @file llavatarname.h
+ * @brief Represents name-related data for an avatar, such as the
+ * username/SLID ("bobsmith123" or "james.linden") and the display
+ * name ("James Cook")
  *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
  * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
+ * Copyright (c) 2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,54 +31,38 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+#ifndef LLAVATARNAME_H
+#define LLAVATARNAME_H
 
-#ifndef LL_LLNAMEBOX_H
-#define LL_LLNAMEBOX_H
+#include <string>
 
-#include <set>
-
-#include "llview.h"
-#include "llstring.h"
-#include "llfontgl.h"
-#include "lltextbox.h"
-
-class LLNameBox
-:	public LLTextBox
+class LL_COMMON_API LLAvatarName
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
-	{
-		Optional<bool>		is_group;
-		Optional<bool>		link;
+	LLAvatarName();
 
-		Params()
-		:	is_group("is_group", false)
-		,	link("link", false)
-		{}
-	};
+	bool operator<(const LLAvatarName& rhs) const;
 
-	virtual ~LLNameBox();
+	// "bobsmith123" or "james.linden", US-ASCII only
+	std::string mSLID;
 
-	void setNameID(const LLUUID& name_id, BOOL is_group);
+	// "Jose' Sanchez" or "James Linden", UTF-8 encoded Unicode
+	// Contains data whether or not user has explicitly set
+	// a display name; may duplicate their SLID.
+	std::string mDisplayName;
 
-	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
+	// If true, both display name and SLID were generated from
+	// a legacy first and last name, like "James Linden (james.linden)"
+	bool mIsLegacy;
 
-	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
+	// Names can change, so need to keep track of when name was
+	// last checked.
+	// Unix time-from-epoch seconds
+	U32 mLastUpdate;
 
-protected:
-	LLNameBox (const Params&);
-
-	friend class LLUICtrlFactory;
-private:
-	void setName(const std::string& name, BOOL is_group);
-
-	static std::set<LLNameBox*> sInstances;
-
-private:
-	LLUUID mNameID;
-	BOOL mLink;
-	std::string mInitialValue;
-
+	// Can be a viewer UI image name ("Person_Check") or a server-side
+	// image UUID, or empty string.
+	std::string mBadge;
 };
 
 #endif

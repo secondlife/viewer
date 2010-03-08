@@ -66,7 +66,7 @@ public:
 	
 private:
 	void update();
-	static void nameCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data);
+	void onNameCache(const LLUUID& id, const std::string& name, bool is_group);
 	
 private:
 	LLUUID		 mObjectID;
@@ -121,7 +121,8 @@ void LLInspectRemoteObject::onOpen(const LLSD& data)
 	mOwner = "";
 	if (gCacheName)
 	{
-		gCacheName->get(mOwnerID, mGroupOwned, nameCallback, this);
+		gCacheName->get(mOwnerID, mGroupOwned,
+			boost::bind(&LLInspectRemoteObject::onNameCache, this, _1, _2, _3));
 	}
 
 	// update the inspector with the current object state
@@ -152,16 +153,10 @@ void LLInspectRemoteObject::onClickClose()
 	closeFloater();
 }
 
-//static 
-void LLInspectRemoteObject::nameCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* data)
+void LLInspectRemoteObject::onNameCache(const LLUUID& id, const std::string& name, bool is_group)
 {
-	LLInspectRemoteObject *self = (LLInspectRemoteObject*)data;
-	self->mOwner = first;
-	if (!last.empty())
-	{
-		self->mOwner += " " + last;
-	}
-	self->update();
+	mOwner = name;
+	update();
 }
 
 void LLInspectRemoteObject::update()

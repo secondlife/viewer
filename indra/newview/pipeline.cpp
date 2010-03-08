@@ -69,6 +69,7 @@
 #include "llfloaterreg.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
+#include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"

@@ -285,7 +285,6 @@ namespace tut
 		testRegex("Agent Url alternate command", url,
 				  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar",
 				  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar");
-
 	}
 
 	template<> template<>

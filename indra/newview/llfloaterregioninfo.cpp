@@ -1972,8 +1972,15 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	childSetEnabled("remove_allowed_avatar_btn",	god || owner || manager);
 	childSetEnabled("add_allowed_group_btn",		god || owner || manager);
 	childSetEnabled("remove_allowed_group_btn",		god || owner || manager);
-	childSetEnabled("add_banned_avatar_btn",		god || owner || manager);
-	childSetEnabled("remove_banned_avatar_btn",		god || owner || manager);
+
+	// Can't ban people from mainland, orientation islands, etc. because this
+	// creates much network traffic and server load.
+	// Disable their accounts in CSR tool instead.
+	bool linden_estate = (getEstateID() <= ESTATE_LAST_LINDEN);
+	bool enable_ban = (god || owner || manager) && !linden_estate;
+	childSetEnabled("add_banned_avatar_btn",		enable_ban);
+	childSetEnabled("remove_banned_avatar_btn",		enable_ban);
+
 	childSetEnabled("message_estate_btn",			god || owner || manager);
 	childSetEnabled("kick_user_from_estate_btn",	god || owner || manager);
 

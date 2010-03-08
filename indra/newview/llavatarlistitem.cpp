@@ -225,7 +225,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		LLAvatarTracker::instance().addParticularFriendObserver(mAvatarId, this);
 
 	// Set avatar name.
-	gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
+	gCacheName->get(id, false, boost::bind(&LLAvatarListItem::onNameCache, this, _2));
 }
 
 void LLAvatarListItem::showLastInteractionTime(bool show)
@@ -330,10 +330,9 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 	mAvatarName->setToolTip(name);
 }
 
-void LLAvatarListItem::onNameCache(const std::string& first_name, const std::string& last_name)
+void LLAvatarListItem::onNameCache(const std::string& fullname)
 {
-	std::string name = first_name + " " + last_name;
-	setName(name);
+	setName(fullname);
 }
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",

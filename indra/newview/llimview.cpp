@@ -34,6 +34,7 @@
 
 #include "llimview.h"
 
+#include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -1850,6 +1851,11 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		caller_name = LLTextUtil::formatPhoneNumber(caller_name);
 	}
+	else
+	{
+		// IDEVO
+		caller_name = LLCacheName::cleanFullName(caller_name);
+	}
 
 	setTitle(caller_name + " " + call_type);
 
@@ -1978,6 +1984,13 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 					{
 						if (gCacheName->getFullName(caller_id, correct_session_name))
 						{
+							// IDEVO really should be using callbacks here
+							LLAvatarName av_name;
+							if (LLAvatarNameCache::useDisplayNames()
+								&& LLAvatarNameCache::get(caller_id, &av_name))
+							{
+								correct_session_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+							}
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
 					}
@@ -2488,7 +2501,8 @@ void LLIMMgr::inviteToSession(
 	{
 		if (caller_name.empty())
 		{
-			gCacheName->get(caller_id, FALSE, boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2, _3, _4));
+			gCacheName->get(caller_id, false,
+				boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2, _3));
 		}
 		else
 		{
@@ -2498,9 +2512,9 @@ void LLIMMgr::inviteToSession(
 	}
 }
 
-void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
+void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group)
 {
-	payload["caller_name"] = first + " " + last;
+	payload["caller_name"] = name;
 	payload["session_name"] = payload["caller_name"].asString();
 
 	std::string notify_box_type = payload["notify_box_type"].asString();
@@ -2715,13 +2729,12 @@ void LLIMMgr::noteOfflineUsers(
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
-			std::string first, last;
+			std::string full_name;
 			if(info && !info->isOnline()
-			   && gCacheName->getName(ids.get(i), first, last))
+			   && gCacheName->getFullName(ids.get(i), full_name))
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
-				offline.setArg("[FIRST]", first);
-				offline.setArg("[LAST]", last);
+				offline.setArg("[NAME]", full_name);
 				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}

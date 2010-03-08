@@ -222,40 +222,30 @@
    </text>
    <radio_group
      control_name="AvatarNameTagMode"
-     height="20"
+     height="45"
      layout="topleft"
      left="50"
      name="Name_Tag_Preference">
         <radio_item
          label="Off"
-         layout="topleft"
          name="radio"
          value="0"
          width="75" />
         <radio_item
          label="On"
-         layout="topleft"
-         left_pad="12"
+         left_delta="0"
          name="radio2"
+		 top_pad="5"
          value="1"
          width="75" />
         <radio_item
          label="Show briefly"
-         layout="topleft"
-         left_pad="12"
+         left_delta="0"
          name="radio3"
+		 top_pad="5"
          value="2"
          width="160" />
     </radio_group>
-    <check_box
-	 enabled_control="AvatarNameTagMode"
-     control_name="RenderNameShowSelf"
-     height="16"
-     label="Show my name"
-     layout="topleft"
-     left="50"
-     name="show_my_name_checkbox1"
-     width="300" />
     <check_box
 	 enabled_control="AvatarNameTagMode"
      control_name="SmallAvatarNames"
@@ -263,19 +253,66 @@
      initial_value="true"
      label="Small name tags"
      layout="topleft"
-     left_delta="175"
+     left="70"
      name="small_avatar_names_checkbox"
+	 top_pad="4"
      width="200" />
-   <check_box
+    <check_box
 	 enabled_control="AvatarNameTagMode"
-     control_name="RenderShowGroupTitleAll"
+     control_name="RenderNameShowSelf"
      height="16"
-     label="Show group titles"
+     label="Show my name"
      layout="topleft"
-     left_delta="-175"
-     name="show_all_title_checkbox1"
-     top_pad="5"
+     left="70"
+     name="show_my_name_checkbox1"
+	 top_pad="4"
      width="300" />
+   <text
+    follows="left|top"
+    height="15"
+	layout="topleft"
+    left="250"
+    name="name_tags_textbox"
+    top="175"
+    width="200">
+       Tags show:
+   </text>
+   <check_box
+     control_name="NameTagShowGroupTitles"
+	 enabled_control="AvatarNameTagMode"
+     height="16"
+     label="Group titles"
+     left="265"
+     name="show_all_title_checkbox1"
+	 tool_tip="Show group titles, like Officer or Member"
+     top_pad="5" />
+   <check_box
+     control_name="NameTagShowDisplayNames"
+	 enabled_control="AvatarNameTagMode"
+     height="16"
+     label="Display names"
+     left_delta="0"
+     name="show_display_names"
+	 tool_tip="Show display names, like José Sanchez"
+     top_pad="5" />
+   <check_box
+     control_name="NameTagShowSLIDs"
+	 enabled_control="AvatarNameTagMode"
+     height="16"
+     label="Second Life IDs"
+     left_delta="0"
+     name="show_slids"
+	 tool_tip="Show SL ID, like bobsmith123"
+     top_pad="5" />
+   <check_box
+     control_name="NameTagShowStatus"
+	 enabled_control="AvatarNameTagMode"
+     height="16"
+     label="Status"
+     left_delta="0"
+     name="show_status"
+	 tool_tip="Show status, like AFK or Busy"
+     top_pad="5" />
     <text
      type="string"
      length="1"
@@ -284,7 +321,7 @@
      layout="topleft"
      left="30"
      name="effects_color_textbox"
-     top_pad="15"
+     top="290"
      width="200">
         My effects:
     </text>
@@ -366,7 +403,7 @@
       hover="false"
      commit_on_focus_lost = "true"
      follows="left|top"
-     height="60"
+     height="45"
      layout="topleft"
      left="50"
      name="busy_response"

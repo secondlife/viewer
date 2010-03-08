@@ -161,7 +161,7 @@ public:
 	bool checkPermissionsSet(PermissionMask mask) const;
 
 	// callback
-	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);
+	void onCallingCardNameLookup(const LLUUID& id, const std::string& name, bool is_group);
 
 	// If this is a broken link, try to fix it and any other identical link.
 	BOOL regenerateLink();

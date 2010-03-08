@@ -36,13 +36,17 @@
 // Viewer includes
 #include "llagent.h"
 #include "llcallingcard.h"
+#include "lldateutil.h"			// IDEVO
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
 
 // Linden libraries
+#include "llavatarnamecache.h"	// IDEVO
 #include "llbutton.h"
+#include "llcachename.h"
+#include "llhttpclient.h"		// IDEVO
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -338,23 +342,55 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 	return FALSE;
 }
 
+class LLAvatarPickerResponder : public LLHTTPClient::Responder
+{
+public:
+	LLUUID mQueryID;
+
+	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
+
+	/*virtual*/ void result(const LLSD& content)
+	{
+		LLFloaterAvatarPicker* floater =
+			LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+		if (floater)
+		{
+			floater->processResponse(mQueryID, content);
+		}
+	}
+
+	/*virtual*/ void error(U32 status, const std::string& reason)
+	{
+		llinfos << "JAMESDEBUG avatar picker failed " << status
+			<< " reason " << reason << llendl;
+	}
+};
+
 void LLFloaterAvatarPicker::find()
 {
 	std::string text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
-
-	LLMessageSystem* msg = gMessageSystem;
-
-	msg->newMessage("AvatarPickerRequest");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", gAgent.getID());
-	msg->addUUID("SessionID", gAgent.getSessionID());
-	msg->addUUID("QueryID", mQueryID);	// not used right now
-	msg->nextBlock("Data");
-	msg->addString("Name", text);
-
-	gAgent.sendReliableMessage();
+	// IDEVO
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		std::string url = "http://pdp15.lindenlab.com:8050/my-service/agent/search/";
+		url += LLURI::escape(text);
+		url += "/";
+		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
+	}
+	else
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessage("AvatarPickerRequest");
+		msg->nextBlock("AgentData");
+		msg->addUUID("AgentID", gAgent.getID());
+		msg->addUUID("SessionID", gAgent.getSessionID());
+		msg->addUUID("QueryID", mQueryID);	// not used right now
+		msg->nextBlock("Data");
+		msg->addString("Name", text);
+		gAgent.sendReliableMessage();
+	}
 
 	getChild<LLScrollListCtrl>("SearchResults")->deleteAllItems();
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("searching"));
@@ -420,12 +456,13 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		}
 		else
 		{
-			avatar_name = first_name + " " + last_name;
+			avatar_name = LLCacheName::buildFullName(first_name, last_name);
 			search_results->setEnabled(TRUE);
 			found_one = TRUE;
 		}
 		LLSD element;
 		element["id"] = avatar_id; // value
+		element["columns"][0]["column"] = "name";
 		element["columns"][0]["value"] = avatar_name;
 		search_results->addElement(element);
 	}
@@ -437,6 +474,56 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		floater->onList();
 		search_results->setFocus(TRUE);
 	}
+}
+
+void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& content)
+{
+	// Check for out-of-date query
+	if (query_id != mQueryID) return;
+
+	LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
+
+	if (content.size() == 0)
+	{
+		LLStringUtil::format_map_t map;
+		map["[TEXT]"] = childGetText("Edit");
+		LLSD item;
+		item["id"] = LLUUID::null;
+		item["columns"][0]["column"] = "name";
+		item["columns"][0]["value"] = getString("not_found", map);
+		search_results->addElement(item);
+		search_results->setEnabled(FALSE);
+		childDisable("ok_btn");
+		return;
+	}
+
+	// clear "Searching" label on first results
+	search_results->deleteAllItems();
+
+	LLSD item;
+	LLSD::array_const_iterator it = content.beginArray();
+	for ( ; it != content.endArray(); ++it)
+	{
+		const LLSD& row = *it;
+		item["id"] = row["agent_id"];
+		LLSD& columns = item["columns"];
+		columns[0]["column"] = "name";
+		columns[0]["value"] = row["display_name"];
+		columns[1]["column"] = "slid";
+		columns[1]["value"] = row["slid"];
+		std::string born_on = row["born_on"].asString();
+		columns[2]["column"] = "age";
+		columns[2]["value"] = LLDateUtil::ageFromDateISO(born_on);
+		columns[3]["column"] = "profile";
+		columns[3]["value"] = row["profile"];
+		search_results->addElement(item);
+	}
+
+	childEnable("ok_btn");
+	search_results->setEnabled(true);
+	search_results->selectFirstItem();
+	onList();
+	search_results->setFocus(TRUE);
 }
 
 //static

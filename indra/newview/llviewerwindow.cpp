@@ -1202,12 +1202,8 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		//SetBKColor(hdc, RGB(255, 255, 255));
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
-		std::string name_str;
-		LLAgentUI::buildName(name_str);
-
 		std::string temp_str;
-		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
-				name_str.c_str(),
+		temp_str = llformat( "FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				LLViewerStats::getInstance()->mFPSStat.getMeanPerSec(),
 				LLViewerStats::getInstance()->mSimPhysicsFPS.getPrev(0),
 				LLViewerStats::getInstance()->mSimTimeDilation.getPrev(0));
@@ -1744,7 +1740,7 @@ void LLViewerWindow::shutdownViews()
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	delete LLNavigationBar::getInstance();
-
+	
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();

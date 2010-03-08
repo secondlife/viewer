@@ -257,7 +257,7 @@ Save all changes to clothing/body parts?
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
-Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to grant modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -280,7 +280,7 @@ Do you want to grant modify rights for the selected Residents?
    icon="alertmodal.tga"
    name="RevokeModifyRights"
    type="alertmodal">
-Do you want to revoke modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to revoke modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -392,9 +392,9 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      yestext="Yes"/>
   </notification>
   <notification
-   icon="alertmodal.tga"
+    icon="alertmodal.tga"
    name="JoinGroupCanAfford"
-   type="alertmodal">
+    type="alertmodal">
 Joining this group costs L$[COST].
 Do you wish to proceed?
     <usetemplate
@@ -614,7 +614,7 @@ To place the media on only one face, choose Select Face and click on the desired
       notext="Cancel"
       yestext="OK"/>
   </notification>
-
+  
   <notification
    icon="alertmodal.tga"
    name="MustBeInParcel"
@@ -785,7 +785,7 @@ Save changes to classified [NAME]?
      notext="Don&apos;t Save"
      yestext="Save"/>
   </notification>
-
+  
   <notification
    icon="alertmodal.tga"
    name="ClassifiedInsufficientFunds"
@@ -836,7 +836,7 @@ Please select a proposal to view.
 Please select a history item to view.
   </notification>
 
-<!--
+<!--   
   <notification
    icon="alertmodal.tga"
    name="ResetShowNextTimeDialogs"
@@ -2027,7 +2027,7 @@ Would you be my friend?
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
-Do you want to remove [FIRST_NAME] [LAST_NAME] from your Friends List?
+Do you want to remove [NAME] from your Friends List?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2267,7 +2267,7 @@ Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
    name="DeedLandToGroupWithContribution"
    type="alertmodal">
 By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
-The deed will include a simultaneous land contribution to the group from &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
@@ -3025,6 +3025,27 @@ You are no longer frozen.
        index="0"
        name="OK"
        text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayName"
+   type="alertmodal">
+Change your display name?
+    <form name="form">
+      <input name="display_name" type="text">
+[DISPLAY_NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="Change"
+       text="Change"/>
       <button
        index="1"
        name="Cancel"
@@ -4471,13 +4492,6 @@ You cannot remove protected categories.
 
   <notification
    icon="notifytip.tga"
-   name="OfferedCard"
-   type="notifytip">
-You have offered a calling card to [FIRST] [LAST]
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
    name="UnableToBuyWhileDownloading"
    type="notifytip">
 Unable to buy while downloading object data.
@@ -4630,9 +4644,23 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="PaymentRecived"
+   name="PaymentReceived"
    type="notify">
-[MESSAGE]
+[NAME] paid you L$[AMOUNT].
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentReceivedFor"
+   type="notify">
+[NAME] paid you L$[AMOUNT] for [REASON].
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentSent"
+   type="notify">
+You paid [NAME] L$[AMOUNT][REASON].
   </notification>
 
   <notification
@@ -4719,7 +4747,7 @@ The objects you own on the selected parcel of land have been returned back to yo
    icon="notify.tga"
    name="OtherObjectsReturned"
    type="notify">
-The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
+The objects on the selected parcel of land that is owned by [NAME] have been returned to his or her inventory.
   </notification>
 
   <notification
@@ -5027,28 +5055,6 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
 
   <notification
    icon="notify.tga"
-   name="ObjectGiveItemUnknownUser"
-   type="offer">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you this [OBJECTTYPE]:
-[ITEM_SLURL]
-    <form name="form">
-      <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
-      <button
-       index="1"
-       name="Discard"
-       text="Discard"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Block"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="UserGiveItem"
    type="offer">
 [NAME_SLURL] has given you this [OBJECTTYPE]:
@@ -5164,7 +5170,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
        text="Decline"/>
     </form>
   </notification>
-
+  
   <notification
    icon="notify.tga"
    name="FriendshipOffered"
@@ -5355,7 +5361,7 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialog"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+[NAME]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -5428,8 +5434,8 @@ Your L$ balance will be updated when processing completes. If processing takes m
 
 The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
   </notification>
-
-<!--
+  
+<!-- 
   <notification
    icon="notify.tga"
    name="FirstSit"
@@ -5456,7 +5462,7 @@ You have opened the Build Tools. Every object you see around you was created usi
   </notification>
 -->
 
-<!--
+<!--  
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
@@ -5542,7 +5548,7 @@ To toggle this menu,
    type="notify">
 You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
--->
+-->  
 
   <!--
   <notification
@@ -5589,21 +5595,21 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    icon="notify.tga"
    name="AutoUnmuteByIM"
    type="notify">
-[FIRST] [LAST] was sent an instant message and has been automatically unblocked.
+[NAME] was sent an instant message and has been automatically unblocked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByMoney"
    type="notify">
-[FIRST] [LAST] was given money and has been automatically unblocked.
+[NAME] was given money and has been automatically unblocked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByInventory"
    type="notify">
-[FIRST] [LAST] was offered inventory and has been automatically unblocked.
+[NAME] was offered inventory and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5831,7 +5837,7 @@ A SLurl was received from an untrusted browser and has been blocked for your sec
    priority="high"
    type="notifytip">
 Multiple SLurls were received from an untrusted browser within a short period.
-They will be blocked for a few seconds for your security.
+They will be blocked for a few seconds for your security. 
   </notification>
 
   <notification name="IMToast" type="notifytoast">

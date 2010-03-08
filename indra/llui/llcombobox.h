@@ -49,9 +49,6 @@
 class LLFontGL;
 class LLViewBorder;
 
-extern S32 LLCOMBOBOX_HEIGHT;
-extern S32 LLCOMBOBOX_WIDTH;
-
 class LLComboBox
 :	public LLUICtrl, public LLCtrlListInterface
 {

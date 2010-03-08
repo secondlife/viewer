@@ -210,6 +210,12 @@ public:
 	void 			idleUpdateLoadingEffect();
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagText(BOOL new_name);
+	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
+	LLColor4		getNameTagColor(bool is_friend);
+	void			clearNameTag();
+	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
 	void 			idleUpdateTractorBeam();
 	void 			idleUpdateBelowWater();
@@ -820,13 +826,16 @@ protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	
 private:
-	LLWString 		mNameString;
+	std::string		mNameString;		// UTF-8 title + name + status
 	std::string  	mTitle;
-	BOOL	  		mNameAway;
-	BOOL	  		mNameBusy;
-	BOOL	  		mNameMute;
-	BOOL      		mNameAppearance;
+	bool	  		mNameAway;
+	bool	  		mNameBusy;
+	bool	  		mNameMute;
+	bool      		mNameAppearance;
+	bool			mNameFriend;
+	F32				mNameAlpha;
 	BOOL      		mRenderGroupTitles;
+	bool			mUseDisplayNames; // IDEVO HACK to force refresh
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)

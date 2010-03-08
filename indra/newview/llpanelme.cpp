@@ -32,16 +32,23 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelme.h"
+
+// Viewer includes
 #include "llpanelprofile.h"
 #include "llavatarconstants.h"
-#include "llpanelme.h"
 #include "llagent.h"
 #include "llagentwearables.h"
-#include "lliconctrl.h"
 #include "llsidetray.h"
+#include "llviewercontrol.h"
+
+// Linden libraries
+#include "llavatarnamecache.h"		// IDEVO
+#include "llchat.h"					// IDEVO HACK
+#include "lliconctrl.h"
+#include "llnotificationsutil.h"	// IDEVO
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
-#include "llviewercontrol.h"
 
 #define PICKER_SECOND_LIFE "2nd_life_pic"
 #define PICKER_FIRST_LIFE "real_world_pic"
@@ -221,13 +228,28 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 
 	childSetValue("show_in_search_checkbox", (BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
 
-	std::string first, last;
-	BOOL found = gCacheName->getName(avatar_data->avatar_id, first, last);
-	if (found)
+	// IDEVO - These fields do not seem to exist any more.
+	//std::string full_name;
+	//BOOL found = gCacheName->getFullName(avatar_data->avatar_id, full_name);
+	//if (found)
+	//{
+	//	childSetTextArg("name_text", "[NAME]", full_name);
+	//}
+	std::string full_name;
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(avatar_data->avatar_id, &av_name))
 	{
-		childSetTextArg("name_text", "[FIRST]", first);
-		childSetTextArg("name_text", "[LAST]", last);
+		getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+		getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
 	}
+	else if (gCacheName->getFullName(avatar_data->avatar_id, full_name))
+	{
+		getChild<LLUICtrl>("user_name")->setValue(full_name);
+		getChild<LLUICtrl>("user_slid")->setValue("");
+	}
+
+	getChild<LLUICtrl>("set_name")->setVisible( LLAvatarNameCache::useDisplayNames() );
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()
@@ -236,6 +258,9 @@ BOOL LLPanelMyProfileEdit::postBuild()
 
 	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
 	childSetTextArg("my_account_link", "[URL]", getString("my_account_link_url"));
+
+	getChild<LLUICtrl>("set_name")->setCommitCallback(
+		boost::bind(&LLPanelMyProfileEdit::onClickSetName, this));
 
 	return LLPanelAvatarProfile::postBuild();
 }
@@ -264,8 +289,10 @@ void LLPanelMyProfileEdit::resetData()
 {
 	LLPanelMyProfile::resetData();
 
-	childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
-	childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	getChild<LLUICtrl>("user_name")->setValue( LLSD() );
+	getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
 }
 
 void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
@@ -275,6 +302,54 @@ void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
 void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 {
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
+}
+
+// IDEVO HACK
+extern void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
+
+void LLPanelMyProfileEdit::callbackSetName(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		LLUUID agent_id = notification["payload"]["agent_id"];
+		if (agent_id.isNull()) return;
+
+		std::string display_name = response["display_name"].asString();
+		LLAvatarNameCache::setDisplayName(agent_id, display_name);
+
+		// HACK: Use chat to invalidate names
+		send_chat_from_viewer("refreshname", CHAT_TYPE_NORMAL, 0);
+
+		getChild<LLUICtrl>("user_name")->setValue( display_name );
+	}
+}
+
+void LLPanelMyProfileEdit::onClickSetName()
+{
+	// IDEVO
+	LLUUID agent_id = getAvatarId();
+	std::string display_name;
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(agent_id, &av_name))
+	{
+		display_name = av_name.mDisplayName;
+	}
+	else
+	{
+		gCacheName->getFullName(agent_id, display_name);
+	}
+
+	if (!display_name.empty())
+	{
+		LLSD args;
+		args["DISPLAY_NAME"] = display_name;
+		LLSD payload;
+		payload["agent_id"] = agent_id;
+		LLNotificationsUtil::add("SetDisplayName", args, payload, 
+			boost::bind(&LLPanelMyProfileEdit::callbackSetName, this, _1, _2));
+	}
 }
 
 void LLPanelMyProfileEdit::enableEditing(bool enable)

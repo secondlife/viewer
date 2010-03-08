@@ -115,7 +115,7 @@ void LLPanelMediaSettingsPermissions::draw()
 		if(mPermsGroupName)
 		{
 			mPermsGroupName->setNameID(LLUUID::null, TRUE);
-			mPermsGroupName->refresh(LLUUID::null, LLStringUtil::null, LLStringUtil::null, true);
+			mPermsGroupName->refresh(LLUUID::null, std::string(), true);
 			mPermsGroupName->setEnabled(false);
 		};
 	};
@@ -194,7 +194,7 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
             data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
         };
     };
-	
+
 	// *NOTE: If any of a particular flavor is tentative, we have to disable 
 	// them all because of an architectural issue: namely that we represent 
 	// these as a bit field, and we can't selectively apply only one bit to all selected
@@ -238,21 +238,21 @@ void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in, bool include_
 {
 	// moved over from the 'General settings' tab
 	if (include_tentative || !mControls->getTentative()) fill_me_in[LLMediaEntry::CONTROLS_KEY] = (LLSD::Integer)mControls->getCurrentIndex();
-	
-	// *NOTE: For some reason, gcc does not like these symbol references in the 
-	// expressions below (inside the static_casts).	 I have NO idea why :(.
-	// For some reason, assigning them to const temp vars here fixes the link
-	// error.  Bizarre.
-	const U8 none = LLMediaEntry::PERM_NONE;
-	const U8 owner = LLMediaEntry::PERM_OWNER;
-	const U8 group = LLMediaEntry::PERM_GROUP;
-	const U8 anyone = LLMediaEntry::PERM_ANYONE; 
-	const LLSD::Integer control = static_cast<LLSD::Integer>(
+
+    // *NOTE: For some reason, gcc does not like these symbol references in the 
+    // expressions below (inside the static_casts).  I have NO idea why :(.
+    // For some reason, assigning them to const temp vars here fixes the link
+    // error.  Bizarre.
+    const U8 none = LLMediaEntry::PERM_NONE;
+    const U8 owner = LLMediaEntry::PERM_OWNER;
+    const U8 group = LLMediaEntry::PERM_GROUP;
+    const U8 anyone = LLMediaEntry::PERM_ANYONE;
+    const LLSD::Integer control = static_cast<LLSD::Integer>(
 		(mPermsOwnerControl->getValue() ? owner : none ) |
 		(mPermsGroupControl->getValue() ? group: none  ) |
 		(mPermsWorldControl->getValue() ? anyone : none ));
-	const LLSD::Integer interact = static_cast<LLSD::Integer>(
-		(mPermsOwnerInteract->getValue() ? owner: none	) |
+    const LLSD::Integer interact = static_cast<LLSD::Integer>(
+		(mPermsOwnerInteract->getValue() ? owner: none  ) |
 		(mPermsGroupInteract->getValue() ? group : none ) |
 		(mPermsWorldInteract->getValue() ? anyone : none ));
 	
@@ -266,15 +266,15 @@ void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in, bool include_
 		!mPermsGroupControl->getTentative() || 
 		!mPermsWorldControl->getTentative())
 	{
-		fill_me_in[LLMediaEntry::PERMS_CONTROL_KEY] = control;
+    fill_me_in[LLMediaEntry::PERMS_CONTROL_KEY] = control;
 	}
 	if (include_tentative || 
 		!mPermsOwnerInteract->getTentative() || 
 		!mPermsGroupInteract->getTentative() || 
 		!mPermsWorldInteract->getTentative())
 	{
-		fill_me_in[LLMediaEntry::PERMS_INTERACT_KEY] = interact;
-	}
+    fill_me_in[LLMediaEntry::PERMS_INTERACT_KEY] = interact;
+}
 }
 
 

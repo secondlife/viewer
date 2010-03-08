@@ -59,12 +59,9 @@ static S32 days_from_month(S32 year, S32 month)
 	}
 }
 
-std::string LLDateUtil::ageFromDate(const std::string& date_string,
-									const LLDate& now)
+static std::string age_from_date(S32 born_year, S32 born_month, S32 born_day,
+								 const LLDate& now)
 {
-	S32 born_month, born_day, born_year;
-	S32 matched = sscanf(date_string.c_str(), "%d/%d/%d", &born_month, &born_day, &born_year);
-	if (matched != 3) return "???";
 	LLDate born_date;
 	born_date.fromYMDHMS(born_year, born_month, born_day);
 	F64 born_date_secs_since_epoch = born_date.secondsSinceEpoch();
@@ -155,7 +152,31 @@ std::string LLDateUtil::ageFromDate(const std::string& date_string,
 	return LLTrans::getString("TodayOld");
 }
 
+std::string LLDateUtil::ageFromDate(const std::string& date_string,
+									const LLDate& now)
+{
+	S32 born_month, born_day, born_year;
+	S32 matched = sscanf(date_string.c_str(), "%d/%d/%d", &born_month, &born_day, &born_year);
+	if (matched != 3) return "???";
+	return age_from_date(born_year, born_month, born_day, now);
+}
+
 std::string LLDateUtil::ageFromDate(const std::string& date_string)
 {
 	return ageFromDate(date_string, LLDate::now());
+}
+
+std::string LLDateUtil::ageFromDateISO(const std::string& date_string,
+									   const LLDate& now)
+{
+	S32 born_month, born_day, born_year;
+	S32 matched = sscanf(date_string.c_str(), "%d-%d-%d",
+			&born_year, &born_month, &born_day);
+	if (matched != 3) return "???";
+	return age_from_date(born_year, born_month, born_day, now);
+}
+
+std::string LLDateUtil::ageFromDateISO(const std::string& date_string)
+{
+	return ageFromDateISO(date_string, LLDate::now());
 }

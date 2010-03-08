@@ -281,9 +281,7 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit*
 }
 
 // static
-void LLPanelPlaceInfo::nameUpdatedCallback(LLTextBox* text,
-										   const std::string& first,
-										   const std::string& last)
+void LLPanelPlaceInfo::onNameCache(LLTextBox* text, const std::string& full_name)
 {
-	text->setText(first + " " + last);
+	text->setText(full_name);
 }

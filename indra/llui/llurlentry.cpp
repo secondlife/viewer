@@ -37,6 +37,7 @@
 #include "llurlmatch.h"
 #include "llurlregistry.h"
 
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
@@ -54,6 +55,12 @@ LLUrlEntryBase::~LLUrlEntryBase()
 std::string LLUrlEntryBase::getUrl(const std::string &string) const
 {
 	return escapeUrl(string);
+}
+
+//virtual
+std::string LLUrlEntryBase::getIcon(const std::string &url) const
+{
+	return mIcon;
 }
 
 std::string LLUrlEntryBase::getIDStringFromUrl(const std::string &url) const
@@ -134,7 +141,9 @@ void LLUrlEntryBase::addObserver(const std::string &id,
 	}
 }
  
-void LLUrlEntryBase::callObservers(const std::string &id, const std::string &label)
+void LLUrlEntryBase::callObservers(const std::string &id,
+								   const std::string &label,
+								   const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
 	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
@@ -142,7 +151,7 @@ void LLUrlEntryBase::callObservers(const std::string &id, const std::string &lab
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
-		(*observer.signal)(it->second.url, label);
+		(*observer.signal)(it->second.url, label, icon);
 		// then remove the signal - we only need to call it once
 		delete observer.signal;
 		mObservers.erase(it++);
@@ -314,13 +323,22 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
-void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
-										  const std::string& first,
-										  const std::string& last,
-										  BOOL is_group)
+void LLUrlEntryAgent::onNameCache(const LLUUID& id,
+								  const std::string& full_name,
+								  bool is_group)
 {
+	callObservers(id.asString(), full_name, mIcon);
+}
+
+void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
+										const LLAvatarName& av_name)
+{
+	// IDEVO demo code
+	std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+	// use custom icon if available
+	std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
 	// received the agent name from the server - tell our observers
-	callObservers(id.asString(), first + " " + last);
+	callObservers(id.asString(), label, icon);
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -330,32 +348,78 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 		// probably at the login screen, use short string for layout
 		return LLTrans::getString("LoadingData");
 	}
-
+	
 	std::string agent_id_string = getIDStringFromUrl(url);
 	if (agent_id_string.empty())
 	{
 		// something went wrong, just give raw url
 		return unescapeUrl(url);
 	}
-
+	
 	LLUUID agent_id(agent_id_string);
-	std::string full_name;
 	if (agent_id.isNull())
 	{
 		return LLTrans::getString("AvatarNameNobody");
 	}
-	else if (gCacheName->getFullName(agent_id, full_name))
+
+	if (LLAvatarNameCache::useDisplayNames())
 	{
-		return full_name;
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(agent_id, &av_name))
+		{
+			return av_name.mDisplayName + " (" + av_name.mSLID + ")";
+		}
+		else
+		{
+			LLAvatarNameCache::get(agent_id,
+				boost::bind(&LLUrlEntryAgent::onAvatarNameCache,
+					this, _1, _2));
+			addObserver(agent_id_string, url, cb);
+			return LLTrans::getString("LoadingData");
+		}
 	}
 	else
 	{
-		gCacheName->get(agent_id, FALSE,
-			boost::bind(&LLUrlEntryAgent::onAgentNameReceived,
-				this, _1, _2, _3, _4));
-		addObserver(agent_id_string, url, cb);
-		return LLTrans::getString("LoadingData");
+		// ...no display names
+		std::string full_name;
+		if (gCacheName->getFullName(agent_id, full_name))
+		{
+			return full_name;
+		}
+		else
+		{
+			gCacheName->get(agent_id, false,
+				boost::bind(&LLUrlEntryAgent::onNameCache,
+					this, _1, _2, _3));
+			addObserver(agent_id_string, url, cb);
+			return LLTrans::getString("LoadingData");
+		}
 	}
+}
+
+
+std::string LLUrlEntryAgent::getIcon(const std::string &url) const
+{
+	std::string agent_id_string = getIDStringFromUrl(url);
+	if (agent_id_string.empty())
+	{
+		return mIcon;
+	}
+
+	LLUUID agent_id(agent_id_string);
+	if (agent_id.isNull())
+	{
+		return mIcon;
+	}
+
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(agent_id, &av_name);
+	if (av_name.mBadge.empty())
+	{
+		return mIcon;
+	}
+
+	return av_name.mBadge;
 }
 
 //
@@ -374,12 +438,11 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 }
 
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
-										  const std::string& first,
-										  const std::string& last,
-										  BOOL is_group)
+										  const std::string& name,
+										  bool is_group)
 {
 	// received the group name from the server - tell our observers
-	callObservers(id.asString(), first);
+	callObservers(id.asString(), name, mIcon);
 }
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -409,9 +472,9 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		gCacheName->get(group_id, TRUE,
+		gCacheName->get(group_id, true,
 			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
-				this, _1, _2, _3, _4));
+				this, _1, _2, _3));
 		addObserver(group_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}

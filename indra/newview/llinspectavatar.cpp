@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llagentdata.h"
 #include "llavataractions.h"
+#include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "lldateutil.h"
@@ -142,11 +143,9 @@ private:
 	bool isNotFriend();
 	
 	// Callback for gCacheName to look up avatar name
-	void nameUpdatedCallback(
-							 const LLUUID& id,
-							 const std::string& first,
-							 const std::string& last,
-							 BOOL is_group);
+	void onNameCache(const LLUUID& id,
+							 const std::string& name,
+							 bool is_group);
 	
 private:
 	LLUUID				mAvatarID;
@@ -370,9 +369,9 @@ void LLInspectAvatar::requestUpdate()
 
 	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
-	gCacheName->get(mAvatarID, FALSE,
-		boost::bind(&LLInspectAvatar::nameUpdatedCallback,
-			this, _1, _2, _3, _4));
+	gCacheName->get(mAvatarID, false,
+		boost::bind(&LLInspectAvatar::onNameCache,
+			this, _1, _2, _3));
 }
 
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
@@ -613,16 +612,28 @@ void LLInspectAvatar::onVolumeChange(const LLSD& data)
 	gVoiceClient->setUserVolume(mAvatarID, volume);
 }
 
-void LLInspectAvatar::nameUpdatedCallback(
+void LLInspectAvatar::onNameCache(
 	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
+	const std::string& full_name,
+	bool is_group)
 {
 	if (id == mAvatarID)
 	{
-		mAvatarName = first + " " + last;
-		childSetValue("user_name", LLSD(mAvatarName) );
+		mAvatarName = full_name;
+
+		// IDEVO JAMESDEBUG - need to always display a display name
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::useDisplayNames()
+			&& LLAvatarNameCache::get(mAvatarID, &av_name))
+		{
+			getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
+			getChild<LLUICtrl>("user_slid")->setValue(av_name.mSLID);
+		}
+		else
+		{
+			getChild<LLUICtrl>("user_name")->setValue(full_name);
+			getChild<LLUICtrl>("user_slid")->setValue("");
+		}
 	}
 }
 

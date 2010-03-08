@@ -404,16 +404,18 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 	std::vector<std::string> names;
 	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
 	{
+		std::string fullname;
 		LLUUID agent_id = agent_ids[i];
 		LLViewerObject* dest = gObjectList.findObject(agent_id);
-		std::string fullname;
 		if(dest && dest->isAvatar())
 		{
 			LLNameValue* nvfirst = dest->getNVPair("FirstName");
 			LLNameValue* nvlast = dest->getNVPair("LastName");
 			if(nvfirst && nvlast)
 			{
-				fullname = std::string(nvfirst->getString()) + " " + std::string(nvlast->getString());
+				fullname = LLCacheName::buildFullName(
+					nvfirst->getString(), nvlast->getString());
+
 			}
 			if (!fullname.empty())
 			{
@@ -436,8 +438,7 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 				{
 					// actually it should happen, just in case
 					gCacheName->get(LLUUID(agent_id), false, boost::bind(
-							&LLPanelGroupInvite::addUserCallback, this, _1, _2,
-							_3));
+							&LLPanelGroupInvite::addUserCallback, this, _1, _2));
 					// for this special case!
 					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
 					// removed id will be added in callback
@@ -453,16 +454,16 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 	mImplementation->addUsers(names, agent_ids);
 }
 
-void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const std::string& first_name, const std::string& last_name)
+void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const std::string& full_name)
 {
 	std::vector<std::string> names;
 	std::vector<LLUUID> agent_ids;
-	std::string full_name = first_name + " " + last_name;
 	agent_ids.push_back(id);
-	names.push_back(first_name + " " + last_name);
+	names.push_back(full_name);
 
 	mImplementation->addUsers(names, agent_ids);
 }
+
 void LLPanelGroupInvite::draw()
 {
 	LLPanel::draw();

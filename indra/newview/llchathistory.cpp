@@ -240,7 +240,7 @@ public:
 		mAvatarID = chat.mFromID;
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
-		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
+		gCacheName->get(mAvatarID, false, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3));
 
 		//*TODO overly defensive thing, source type should be maintained out there
 		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM)
@@ -317,11 +317,11 @@ public:
 		LLPanel::draw();
 	}
 
-	void nameUpdatedCallback(const LLUUID& id,const std::string& first,const std::string& last,BOOL is_group)
+	void nameUpdatedCallback(const LLUUID& id,const std::string& full_name, bool is_group)
 	{
 		if (id != mAvatarID)
 			return;
-		mFrom = first + " " + last;
+		mFrom = full_name;
 	}
 protected:
 	static const S32 PADDING = 20;
@@ -747,7 +747,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			{
 				LLButton * button = dynamic_cast<LLButton*> (*it);
 				if (button != NULL)
-				{
+			{
 					button->setOrigin( offset,
 							button->getRect().mBottom);
 					button->setLeftHPad(2 * HPAD);
@@ -760,7 +760,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 					button->autoResize();
 					offset += 2 * HPAD + button->getRect().getWidth();
 					button->setFollowsNone();
-				}
+			}
 			}
 
 			LLTextEditor* text_editor = notify_box->getChild<LLTextEditor>("text_editor_box", TRUE);

@@ -86,7 +86,7 @@ void LLPanelAvatarTag::setAvatarId(const LLUUID& avatar_id)
 	{
 		mIcon->setValue(avatar_id);
 	}
-	setName(std::string(mIcon->getFirstName()+ " "+ mIcon->getLastName()));
+	setName(std::string(mIcon->getFullName()));
 }
 
 boost::signals2::connection LLPanelAvatarTag::setLeftButtonClickCallback(

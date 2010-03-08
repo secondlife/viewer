@@ -1,10 +1,12 @@
 /** 
- * @file llnamebox.h
- * @brief display and refresh a name from the name cache
+ * @file llavatarname.cpp
+ * @brief Represents name-related data for an avatar, such as the
+ * username/SLID ("bobsmith123" or "james.linden") and the display
+ * name ("James Cook")
  *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
  * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
+ * Copyright (c) 2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,54 +31,22 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+#include "linden_common.h"
 
-#ifndef LL_LLNAMEBOX_H
-#define LL_LLNAMEBOX_H
+#include "llavatarname.h"
 
-#include <set>
+LLAvatarName::LLAvatarName()
+:	mSLID(),
+	mDisplayName(),
+	mIsLegacy(false),
+	mLastUpdate(0),
+	mBadge()
+{ }
 
-#include "llview.h"
-#include "llstring.h"
-#include "llfontgl.h"
-#include "lltextbox.h"
-
-class LLNameBox
-:	public LLTextBox
+bool LLAvatarName::operator<(const LLAvatarName& rhs) const
 {
-public:
-	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
-	{
-		Optional<bool>		is_group;
-		Optional<bool>		link;
-
-		Params()
-		:	is_group("is_group", false)
-		,	link("link", false)
-		{}
-	};
-
-	virtual ~LLNameBox();
-
-	void setNameID(const LLUUID& name_id, BOOL is_group);
-
-	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
-
-	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
-
-protected:
-	LLNameBox (const Params&);
-
-	friend class LLUICtrlFactory;
-private:
-	void setName(const std::string& name, BOOL is_group);
-
-	static std::set<LLNameBox*> sInstances;
-
-private:
-	LLUUID mNameID;
-	BOOL mLink;
-	std::string mInitialValue;
-
-};
-
-#endif
+	if (mSLID == rhs.mSLID)
+		return mDisplayName < rhs.mDisplayName;
+	else
+		return mSLID < rhs.mSLID;
+}

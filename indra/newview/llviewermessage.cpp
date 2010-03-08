@@ -33,9 +33,11 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
 
+// Linden libraries
 #include "llanimationstates.h"
 #include "llaudioengine.h" 
 #include "llavataractions.h"
+#include "llavatarnamecache.h"		// IDEVO HACK
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
 #include "lleventtimer.h"
@@ -82,6 +84,7 @@
 #include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerfoldertype.h"
+#include "llvoavatar.h"				// IDEVO HACK
 #include "lluri.h"
 #include "llviewergenericmessage.h"
 #include "llviewermenu.h"
@@ -105,6 +108,7 @@
 #include "llpanelplaceprofile.h"
 
 #include <boost/algorithm/string/split.hpp> //
+#include <boost/regex.hpp>
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
@@ -933,7 +937,7 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 							// TODO* LLPanelPlaces dependency is going to be removed. See EXT-4347.
 							//if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
 							//{
-							//	places_panel->setItem(item);
+								//places_panel->setItem(item);
 							//}
 							//else
 							// we are opening a group notice attachment
@@ -1013,27 +1017,24 @@ bool highlight_offered_item(const LLUUID& item_id)
 }
 
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
-								   const std::string& first_name,
-								   const std::string& last_name,
-								   BOOL is_group, LLOfferInfo* offer = NULL)
+								   const std::string& full_name,
+								   bool is_group,
+								   LLOfferInfo* offer = NULL)
 {
-	std::string from_name;
+	std::string from_name = full_name;
 	LLMute::EType type;
 	if (is_group)
 	{
 		type = LLMute::GROUP;
-		from_name = first_name;
 	}
 	else if(offer && offer->mFromObject)
 	{
 		//we have to block object by name because blocked_id is an id of owner
 		type = LLMute::BY_NAME;
-		from_name = offer->mFromName;
 	}
 	else
 	{
 		type = LLMute::AGENT;
-		from_name = first_name + " " + last_name;
 	}
 
 	// id should be null for BY_NAME mute, see  LLMuteList::add for details  
@@ -1051,7 +1052,6 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
-				|| notification->getName() == "ObjectGiveItemUnknownUser"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1159,7 +1159,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * we can't build two messages at once.
 	if (2 == button) // Block
 	{
-		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
+		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,this));
 	}
 
 	std::string from_string; // Used in the pop-up.
@@ -1296,7 +1296,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	// * we can't build two messages at once.
 	if (2 == button)
 	{
-		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
+		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,this));
 	}
 	
 	LLMessageSystem* msg = gMessageSystem;
@@ -1344,12 +1344,12 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		}
 		else
 		{
-			std::string first_name, last_name;
-			if (gCacheName->getName(mFromID, first_name, last_name))
+			std::string full_name;
+			if (gCacheName->getFullName(mFromID, full_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+ LLTrans::getString("'") + mFromName 
-				+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + first_name + " " + last_name;
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + first_name + " " + last_name;
+					+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + full_name;
+				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + full_name;
 			}
 			else
 			{
@@ -1513,30 +1513,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
-	// Name cache callbacks don't store userdata, so can't save
-	// off the LLOfferInfo.  Argh.
-	BOOL name_found = FALSE;
-	if (info->mFromGroup)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(info->mFromID, group_name))
-		{
-			args["FIRST"] = group_name;
-			args["LAST"] = "";
-			name_found = TRUE;
-		}
-	}
-	else
-	{
-		std::string first_name, last_name;
-		if (gCacheName->getName(info->mFromID, first_name, last_name))
-		{
-			args["FIRST"] = first_name;
-			args["LAST"] = last_name;
-			name_found = TRUE;
-		}
-	}
-
 	// If mObjectID is null then generate the object_id based on msg to prevent
 	// multiple creation of chiclets for same object.
 	LLUUID object_id = info->mObjectID;
@@ -1551,7 +1527,14 @@ void inventory_offer_handler(LLOfferInfo* info)
 	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
-	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	if (info->mFromGroup)
+	{
+		args["NAME_SLURL"] = LLSLURL::buildCommand("group", info->mFromID, "about");
+	}
+	else
+	{
+		args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	}
 	std::string verb = "select?name=" + LLURI::escape(msg);
 	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
@@ -1564,7 +1547,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		args["ITEM_SLURL"] = msg;
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
-		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		p.name = "ObjectGiveItem";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
 		LLNotifications::instance().add(p);
 	}
@@ -1659,6 +1642,75 @@ bool inspect_remote_object_callback(const LLSD& notification, const LLSD& respon
 }
 static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("ServerObjectMessage", inspect_remote_object_callback);
 
+// Strip out "Resident" for display, but only if the message came from a user
+// (rather than a script)
+static std::string clean_name_from_im(const std::string& name, EInstantMessage type)
+{
+	switch(type)
+	{
+	case IM_NOTHING_SPECIAL:
+	case IM_MESSAGEBOX:
+	case IM_GROUP_INVITATION:
+	case IM_INVENTORY_OFFERED:
+	case IM_INVENTORY_ACCEPTED:
+	case IM_INVENTORY_DECLINED:
+	case IM_GROUP_VOTE:
+	case IM_GROUP_MESSAGE_DEPRECATED:
+	//IM_TASK_INVENTORY_OFFERED
+	//IM_TASK_INVENTORY_ACCEPTED
+	//IM_TASK_INVENTORY_DECLINED
+	case IM_NEW_USER_DEFAULT:
+	case IM_SESSION_INVITE:
+	case IM_SESSION_P2P_INVITE:
+	case IM_SESSION_GROUP_START:
+	case IM_SESSION_CONFERENCE_START:
+	case IM_SESSION_SEND:
+	case IM_SESSION_LEAVE:
+	//IM_FROM_TASK
+	case IM_BUSY_AUTO_RESPONSE:
+	case IM_CONSOLE_AND_CHAT_HISTORY:
+	case IM_LURE_USER:
+	case IM_LURE_ACCEPTED:
+	case IM_LURE_DECLINED:
+	case IM_GODLIKE_LURE_USER:
+	case IM_YET_TO_BE_USED:
+	case IM_GROUP_ELECTION_DEPRECATED:
+	//IM_GOTO_URL
+	//IM_FROM_TASK_AS_ALERT
+	case IM_GROUP_NOTICE:
+	case IM_GROUP_NOTICE_INVENTORY_ACCEPTED:
+	case IM_GROUP_NOTICE_INVENTORY_DECLINED:
+	case IM_GROUP_INVITATION_ACCEPT:
+	case IM_GROUP_INVITATION_DECLINE:
+	case IM_GROUP_NOTICE_REQUESTED:
+	case IM_FRIENDSHIP_OFFERED:
+	case IM_FRIENDSHIP_ACCEPTED:
+	case IM_FRIENDSHIP_DECLINED_DEPRECATED:
+	//IM_TYPING_START
+	//IM_TYPING_STOP
+		return LLCacheName::cleanFullName(name);
+	default:
+		return name;
+	}
+}
+
+static std::string clean_name_from_task_im(const std::string& msg)
+{
+	boost::smatch match;
+	static const boost::regex returned_exp(
+		"(.*been returned to your inventory lost and found folder by )(.+)( (from|near).*)");
+	if (boost::regex_match(msg, match, returned_exp))
+	{
+		// match objects are 1-based for groups
+		std::string final = match[1].str();
+		std::string name = match[2].str();
+		final += LLCacheName::cleanFullName(name);
+		final += match[3].str();
+		return final;
+	}
+	return msg;
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -1706,6 +1758,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	{
         name = LLTrans::getString("Unnamed");
 	}
+	// IDEVO convert new-style "Resident" names for display
+	name = clean_name_from_im(name, dialog);
 
 	BOOL is_busy = gAgent.getBusy();
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);
@@ -2015,6 +2069,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				invite_bucket = (struct invite_bucket_t*) &binary_bucket[0];
 				S32 membership_fee = ntohl(invite_bucket->membership_fee);
 
+				// IDEVO Clean up legacy name "Resident" in message constructed in
+				// lldatagroups.cpp
+				U32 pos = message.find(" has invited you to join a group.\n");
+				if (pos != std::string::npos)
+				{
+					// use cleaned-up name from above
+					message = name + message.substr(pos);
+				}
+
 				LLSD payload;
 				payload["transaction_id"] = session_id;
 				payload["group_id"] = from_id;
@@ -2199,6 +2262,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// System's UUID is NULL (fixes EXT-4766)
 				chat.mFromID = from_id = LLUUID::null;
 			}
+
+			// IDEVO Some messages have embedded resident names
+			message = clean_name_from_task_im(message);
 
 			LLSD query_string;
 			query_string["owner"] = from_id;
@@ -2491,9 +2557,8 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 		LLNameValue* nvlast  = source->getNVPair("LastName");
 		if (nvfirst && nvlast)
 		{
-			args["FIRST"] = nvfirst->getString();
-			args["LAST"] = nvlast->getString();
-			source_name = std::string(nvfirst->getString()) + " " + nvlast->getString();
+			source_name = LLCacheName::buildFullName(
+				nvfirst->getString(), nvlast->getString());
 		}
 	}
 
@@ -2526,7 +2591,6 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 	LLNotificationsUtil::add("CallingCardDeclined");
 }
 
-
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
 	LLChat	chat;
@@ -2542,7 +2606,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	LLViewerObject*	chatter;
 
 	msg->getString("ChatData", "FromName", from_name);
-	chat.mFromName = from_name;
 	
 	msg->getUUID("ChatData", "SourceID", from_id);
 	chat.mFromID = from_id;
@@ -2561,6 +2624,16 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	
 	chat.mTime = LLFrameTimer::getElapsedSeconds();
 	
+	// IDEVO Correct for new-style "Resident" names
+	if (chat.mSourceType == CHAT_SOURCE_AGENT)
+	{
+		chat.mFromName = LLCacheName::cleanFullName(from_name);
+	}
+	else
+	{
+		chat.mFromName = from_name;
+	}
+
 	BOOL is_busy = gAgent.getBusy();
 
 	BOOL is_muted = FALSE;
@@ -2623,6 +2696,20 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			ircstyle = TRUE;
 		}
 		chat.mText = mesg;
+
+		// IDEVO HACK Use chat to invalidate names
+		if (chat.mSourceType == CHAT_SOURCE_AGENT
+			&& chat.mText == "refreshname")
+		{
+			LLAvatarNameCache::erase(chat.mFromID);
+
+			// force name tag to update
+			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(chatter);
+			if (avatar)
+			{
+				avatar->clearNameTag();
+			}
+		}
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
@@ -4410,6 +4497,67 @@ void process_time_dilation(LLMessageSystem *msg, void **user_data)
 */
 
 
+static void show_money_balance_notification(const std::string& desc)
+{
+	// Intercept some messages constructed in lltransactionflags.cpp
+	// to fix avatar names and allow localization.
+	LLSD args;
+	LLSD payload;
+	std::string name;
+	boost::smatch match;
+	const char* notification_name = NULL;
+
+	// <name> paid you L$<amount> for <reason>.
+	static const boost::regex paid_you_for("(.+) paid you L\\$(\\d+) for (.*)\\.");
+	// <name> paid you L$<amount>.
+	static const boost::regex paid_you("(.+) paid you L\\$(\\d+)\\.");
+	// You paid <name> L$<amount> [for <reason>].
+	static const boost::regex you_paid("You paid (.*) L\\$(\\d+)(.*)\\.");
+
+	if (boost::regex_match(desc, match, paid_you_for))
+	{
+		name = match[1].str();
+		// IDEVO strip legacy "Resident" name
+		name = LLCacheName::cleanFullName(name);
+		args["NAME"] = name;
+		args["AMOUNT"] = match[2].str();
+		args["REASON"] = match[3].str();
+		notification_name = "PaymentReceivedFor";
+	}
+	else if (boost::regex_match(desc, match, paid_you))
+	{
+		name = match[1].str();
+		// IDEVO strip legacy "Resident" name
+		name = LLCacheName::cleanFullName(name);
+		args["NAME"] = name;
+		args["AMOUNT"] = match[2].str();
+		notification_name = "PaymentReceived";
+	}
+	else if (boost::regex_match(desc, match, you_paid))
+	{
+		name = match[1].str();
+		// IDEVO strip legacy "Resident" name
+		name = LLCacheName::cleanFullName(name);
+		args["NAME"] = name;
+		args["AMOUNT"] = match[2].str();
+		args["REASON"] = match[3].str();
+		notification_name = "PaymentSent";
+	}
+
+	// if name extracted and name cache contains avatar id send loggable notification
+	LLUUID from_id;
+	if (notification_name != NULL
+		&& gCacheName->getUUID(name, from_id))
+	{
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add(notification_name, args, payload);
+	}
+	else
+	{
+		args["MESSAGE"] = desc;
+		LLNotificationsUtil::add("SystemMessage", args);
+	}
+}
 
 void process_money_balance_reply( LLMessageSystem* msg, void** )
 {
@@ -4454,33 +4602,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	if(!desc.empty() && gSavedSettings.getBOOL("NotifyMoneyChange")
 	   && (std::find(recent.rbegin(), recent.rend(), tid) == recent.rend()))
 	{
-		// Make the user confirm the transaction, since they might
-		// have missed something during an event.
-		// *TODO: Translate
-		LLSD args;
-		args["MESSAGE"] = desc;
-
-		// this is a marker to retrieve avatar name from server message:
-		// "<avatar name> paid you L$"
-		const std::string marker = "paid you L$";
-
-		// extract avatar name from system message
-		std::string name = desc.substr(0, desc.find(marker, 0));
-		LLStringUtil::trim(name);
-
-		// if name extracted and name cache contains avatar id send loggable notification
-		LLUUID from_id;
-		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
-		{
-			args["NAME"] = name;
-			LLSD payload;
-			payload["from_id"] = from_id;
-			LLNotificationsUtil::add("PaymentRecived", args, payload);
-		}
-		else
-		{
-			LLNotificationsUtil::add("SystemMessage", args);
-		}
+		show_money_balance_notification(desc);
 
 		// Once the 'recent' container gets large enough, chop some
 		// off the beginning.
@@ -4733,7 +4855,7 @@ void handle_show_mean_events(void *)
 	//LLFloaterBump::showInstance();
 }
 
-void mean_name_callback(const LLUUID &id, const std::string& first, const std::string& last, BOOL always_false)
+void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_group)
 {
 	if (gNoRender)
 	{
@@ -4755,8 +4877,7 @@ void mean_name_callback(const LLUUID &id, const std::string& first, const std::s
 		LLMeanCollisionData *mcd = *iter;
 		if (mcd->mPerp == id)
 		{
-			mcd->mFirstName = first;
-			mcd->mLastName = last;
+			mcd->mFullName = full_name;
 		}
 	}
 }
@@ -4810,8 +4931,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 		{
 			LLMeanCollisionData *mcd = new LLMeanCollisionData(gAgentID, perp, time, type, mag);
 			gMeanCollisionList.push_front(mcd);
-			const BOOL is_group = FALSE;
-			gCacheName->get(perp, is_group, &mean_name_callback);
+			gCacheName->get(perp, false, boost::bind(&mean_name_callback, _1, _2, _3));
 		}
 	}
 }
@@ -5033,7 +5153,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	// so we'll reuse the same namespace for both throttle types.
 	std::string throttle_name = owner_name;
 	std::string self_name;
-	LLAgentUI::buildName( self_name );
+	LLAgentUI::buildFullname( self_name );
 	if( owner_name == self_name )
 	{
 		throttle_name = taskid.getString();
@@ -5069,7 +5189,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		S32 count = 0;
 		LLSD args;
 		args["OBJECTNAME"] = object_name;
-		args["NAME"] = owner_name;
+		args["NAME"] = LLCacheName::cleanFullName(owner_name);
 
 		// check the received permission flags against each permission
 		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
@@ -5676,8 +5796,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLNotificationPtr notification;
 	if (!first_name.empty())
 	{
-		args["FIRST"] = first_name;
-		args["LAST"] = last_name;
+		args["NAME"] = LLCacheName::buildFullName(first_name, last_name);
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialog").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
@@ -5710,7 +5829,7 @@ static LLNotificationFunctorRegistration callback_load_url_reg("LoadWebPage", ca
 
 // We've got the name of the person who owns the object hurling the url.
 // Display confirmation dialog.
-void callback_load_url_name(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
+void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	std::vector<LLSD>::iterator it;
 	for (it = gLoadUrlList.begin(); it != gLoadUrlList.end(); )
@@ -5723,11 +5842,11 @@ void callback_load_url_name(const LLUUID& id, const std::string& first, const st
 			std::string owner_name;
 			if (is_group)
 			{
-				owner_name = first + LLTrans::getString("Group");
+				owner_name = full_name + LLTrans::getString("Group");
 			}
 			else
 			{
-				owner_name = first + " " + last;
+				owner_name = full_name;
 			}
 
 			// For legacy name-only mutes.
@@ -5787,7 +5906,8 @@ void process_load_url(LLMessageSystem* msg, void**)
 	// Add to list of pending name lookups
 	gLoadUrlList.push_back(payload);
 
-	gCacheName->get(owner_id, owner_is_group, &callback_load_url_name);
+	gCacheName->get(owner_id, owner_is_group,
+		boost::bind(&callback_load_url_name, _1, _2, _3));
 }
 
 

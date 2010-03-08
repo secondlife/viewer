@@ -39,6 +39,7 @@
 #include "llparcel.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
@@ -854,23 +855,39 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			|| !existing_inspector->getVisible()
 			|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 		{
-			std::string avatar_name;
+			// IDEVO JAMESDEBUG try to get display name + SLID
+			std::string final_name;
+			std::string full_name;
+			if (!gCacheName->getFullName(hover_object->getID(), full_name))
+			{
 			LLNameValue* firstname = hover_object->getNVPair("FirstName");
 			LLNameValue* lastname =  hover_object->getNVPair("LastName");
 			if (firstname && lastname)
 			{
-				avatar_name = llformat("%s %s", firstname->getString(), lastname->getString());
+					full_name = LLCacheName::buildFullName(
+						firstname->getString(), lastname->getString());
+				}
+				else
+				{
+					full_name = LLTrans::getString("TooltipPerson");
+				}
+			}
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::useDisplayNames()
+				&& LLAvatarNameCache::get(hover_object->getID(), &av_name))
+			{
+				final_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
 			}
 			else
 			{
-				avatar_name = LLTrans::getString("TooltipPerson");
+				final_name = full_name;
 			}
 			
 			// *HACK: We may select this object, so pretend it was clicked
 			mPick = mHoverPick;
 			LLInspector::Params p;
 			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-			p.message(avatar_name);
+			p.message(final_name);
 			p.image.name("Inspector_I");
 			p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 			p.visible_time_near(6.f);

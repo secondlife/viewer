@@ -32,10 +32,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llavatarconstants.h"
-#include "lluserrelations.h"
-
 #include "llpanelprofileview.h"
+
+#include "llavatarconstants.h"
+#include "llavatarnamecache.h"	// IDEVO
+#include "lluserrelations.h"
 
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
@@ -107,8 +108,8 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	}
 
 	// Update the avatar name.
-	gCacheName->get(getAvatarId(), FALSE,
-		boost::bind(&LLPanelProfileView::onAvatarNameCached, this, _1, _2, _3, _4));
+	gCacheName->get(getAvatarId(), false,
+		boost::bind(&LLPanelProfileView::onNameCache, this, _1, _2, _3));
 
 	updateOnlineStatus();
 
@@ -198,10 +199,22 @@ void LLPanelProfileView::processOnlineStatus(bool online)
 	mStatusText->setValue(status);
 }
 
-void LLPanelProfileView::onAvatarNameCached(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
+void LLPanelProfileView::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	llassert(getAvatarId() == id);
-	getChild<LLUICtrl>("user_name", FALSE)->setValue(first_name + " " + last_name);
+	// IDEVO
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::useDisplayNames()
+		&& LLAvatarNameCache::get(id, &av_name))
+	{
+		getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+		getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
+	}
+	else
+	{
+		getChild<LLUICtrl>("user_name")->setValue(full_name);
+		getChild<LLUICtrl>("user_slid")->setValue("");
+	}
 }
 
 // EOF

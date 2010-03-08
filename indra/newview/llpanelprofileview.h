@@ -99,11 +99,10 @@ protected:
 private:
 	// LLCacheName will call this function when avatar name is loaded from server.
 	// This is required to display names that have not been cached yet.
-	void onAvatarNameCached(
+	void onNameCache(
 		const LLUUID& id, 
-		const std::string& first_name,
-		const std::string& last_name,
-		BOOL is_group);
+		const std::string& full_name,
+		bool is_group);
 
 	LLTextBox* mStatusText;
 	AvatarStatusObserver* mAvatarStatusObserver;
