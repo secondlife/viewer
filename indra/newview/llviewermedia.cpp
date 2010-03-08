@@ -1091,7 +1091,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mBackgroundColor(LLColor4::white),
 	mNavigateSuspended(false),
 	mNavigateSuspendedDeferred(false),
-	mIsUpdated(false)
+	mIsUpdated(false),
+	mTrustedBrowser(false)
 { 
 
 	// Set up the mute list observer if it hasn't been set up already.
@@ -2358,7 +2359,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
 			std::string url = plugin->getClickURL();
-			LLURLDispatcher::dispatch(url, NULL, false);
+			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
 
 		}
 		break;
