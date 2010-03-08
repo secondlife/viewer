@@ -658,6 +658,14 @@ struct compare_decode_pair
 	}
 };
 
+struct KillView
+{
+	void operator()(LLView* viewp) const
+	{
+		viewp->die();
+	}
+};
+
 void LLTextureView::draw()
 {
 	if (!mFreezeView)
@@ -665,18 +673,12 @@ void LLTextureView::draw()
 // 		LLViewerObject *objectp;
 // 		S32 te;
 
-//#if LL_DEBUG
-		BOOL drawing = LLView::sIsDrawing;
-		LLView::sIsDrawing = FALSE;
-//#endif
-		for_each(mTextureBars.begin(), mTextureBars.end(), DeletePointer());
+		for_each(mTextureBars.begin(), mTextureBars.end(), KillView());
 		mTextureBars.clear();
 			
 		delete mGLTexMemBar;		
 		mGLTexMemBar = 0;
-//#if LL_DEBUG
-		LLView::sIsDrawing = drawing ;
-//#endif	
+
 		typedef std::multiset<decode_pair_t, compare_decode_pair > display_list_t;
 		display_list_t display_image_list;
 	
