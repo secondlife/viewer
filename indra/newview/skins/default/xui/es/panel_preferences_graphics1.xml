@@ -7,10 +7,10 @@
 		Calidad y velocidad:
 	</text>
 	<text left="95" name="FasterText">
-		El más rápido
+		Más rápido
 	</text>
 	<text name="BetterText">
-		Mejor
+		Más calidad
 	</text>
 	<text name="ShadersPrefText">
 		Bajo
@@ -84,7 +84,7 @@
 			Bajo
 		</text>
 		<text name="LightingDetailText" width="135">
-			Detalles de la iluminación:
+			Detalles de iluminación:
 		</text>
 		<radio_group name="LightingDetailRadio">
 			<radio_item label="Sólo el Sol y la Luna" name="SunMoon" value="0"/>
