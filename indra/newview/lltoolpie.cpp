@@ -901,6 +901,16 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			 || !existing_inspector->getVisible()
 			 || existing_inspector->getKey()["object_id"].asUUID() != hover_object->getID()))
 		{
+						
+			// Add price to tooltip for items on sale
+			bool for_sale = for_sale_selection(nodep);
+			if(for_sale)
+			{
+				LLStringUtil::format_map_t args;
+				args["[PRICE]"] = llformat ("%d", nodep->mSaleInfo.getSalePrice());
+				tooltip_msg.append(LLTrans::getString("TooltipPrice", args) );
+			}
+
 			if (nodep->mName.empty())
 			{
 				tooltip_msg.append(LLTrans::getString("TooltipNoName"));
@@ -954,15 +964,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					}
 				}
 			}
-			
-			// Add price to tooltip for items on sale
-			bool for_sale = for_sale_selection(nodep);
-			if(for_sale)
-			{
-				LLStringUtil::format_map_t args;
-				args["[PRICE]"] = llformat ("%d", nodep->mSaleInfo.getSalePrice());
-				tooltip_msg.append(LLTrans::getString("TooltipPrice", args) );
-			}
+
 
 			// Avoid showing tip over media that's displaying unless it's for sale
 			// also check the primary node since sometimes it can have an action even though

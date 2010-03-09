@@ -77,7 +77,7 @@
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />	
-  <string name="TooltipPrice" value="-[PRICE]L$" />
+  <string name="TooltipPrice" value=" L$[PRICE]-" />
   
 
 	<!-- text for SLURL labels -->
