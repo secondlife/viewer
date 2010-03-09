@@ -1417,9 +1417,8 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 	if (!mForceToSaveRawImage)
 	{
 		mNeedsAux = FALSE;
-	}
 		destroyRawImage();
-	
+	}
 	return res;
 }
 
