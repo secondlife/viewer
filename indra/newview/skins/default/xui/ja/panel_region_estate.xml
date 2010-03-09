@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="不動産" name="Estate">
-	<text name="estate_help_text" width="400">
+	<text name="estate_help_text">
 		このタブ内の設定変更は、不動産内のすべての地域に影響します。
 	</text>
 	<text name="estate_text">
