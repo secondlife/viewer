@@ -25,16 +25,16 @@
 		テクスチャ標高範囲
 	</text>
 	<text name="height_text_lbl6">
-		南西
-	</text>
-	<text name="height_text_lbl7">
 		北西
 	</text>
+	<text name="height_text_lbl7">
+		北東
+	</text>
 	<text name="height_text_lbl8">
-		南東
+		南西
 	</text>
 	<text name="height_text_lbl9">
-		北東
+		南東
 	</text>
 	<spinner label="低" name="height_start_spin_0"/>
 	<spinner label="低" name="height_start_spin_1"/>

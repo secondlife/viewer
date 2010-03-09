@@ -543,6 +543,12 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		};
 		break;
 		
+		case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+		};
+		break;
+
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;

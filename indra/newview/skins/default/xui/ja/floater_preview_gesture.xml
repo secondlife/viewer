@@ -62,7 +62,7 @@
 	<text name="help_label">
 		待機ステップを入れない限りは、すべてのステップが同時に起こります。
 	</text>
-	<check_box label="アクティブ" left="120" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。  1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
+	<check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。  1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>
 </floater>
