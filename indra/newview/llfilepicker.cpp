@@ -211,7 +211,7 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 	return res;
 }
 
-BOOL LLFilePicker::getOpenFile(ELoadFilter filter, BOOL blocking)
+BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 {
 	if( mLocked )
 	{

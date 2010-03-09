@@ -107,7 +107,7 @@ std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 void LLFilePickerThread::run()
 {
 	LLFilePicker picker;
-	if (picker.getOpenFile(mFilter, FALSE))
+	if (picker.getOpenFile(mFilter, false))
 	{
 		mFile = picker.getFirstFile();
 	}
