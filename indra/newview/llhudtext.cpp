@@ -1,7 +1,6 @@
-
 /** 
  * @file llhudtext.cpp
- * @brief LLHUDText class implementation
+ * @brief Floating text above objects, set via script with llSetText()
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
@@ -69,9 +68,9 @@ const S32 NUM_OVERLAP_ITERATIONS = 10;
 const F32 NEIGHBOR_FORCE_FRACTION = 1.f;
 const F32 POSITION_DAMPING_TC = 0.2f;
 const F32 MAX_STABLE_CAMERA_VELOCITY = 0.1f;
-const F32 LOD_0_SCREEN_COVERAGE = 0.15f;
-const F32 LOD_1_SCREEN_COVERAGE = 0.30f;
-const F32 LOD_2_SCREEN_COVERAGE = 0.40f;
+//const F32 LOD_0_SCREEN_COVERAGE = 0.15f;
+//const F32 LOD_1_SCREEN_COVERAGE = 0.30f;
+//const F32 LOD_2_SCREEN_COVERAGE = 0.40f;
 
 std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;
@@ -97,7 +96,7 @@ LLHUDText::LLHUDText(const U8 type) :
 			mOffsetY(0),
 			mTextAlignment(ALIGN_TEXT_CENTER),
 			mVertAlignment(ALIGN_VERT_CENTER),
-			mLOD(0),
+//			mLOD(0),
 			mHidden(FALSE)
 {
 	mColor = LLColor4(1.f, 1.f, 1.f, 1.f);
@@ -105,7 +104,6 @@ LLHUDText::LLHUDText(const U8 type) :
 	mFadeDistance = 8.f;
 	mFadeRange = 4.f;
 	mZCompare = TRUE;
-	mDropShadow = TRUE;
 	mOffscreen = FALSE;
 	mRadius = 0.1f;
 	LLPointer<LLHUDText> ptr(this);
@@ -232,28 +230,6 @@ void LLHUDText::renderText(BOOL for_select)
 	// Render label
 	{
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-
-		for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
-			segment_iter != mLabelSegments.end(); ++segment_iter )
-		{
-			// Label segments use default font
-			const LLFontGL* fontp = (segment_iter->mStyle == LLFontGL::BOLD) ? mBoldFontp : mFontp;
-			y_offset -= fontp->getLineHeight();
-
-			F32 x_offset;
-			if (mTextAlignment == ALIGN_TEXT_CENTER)
-			{
-				x_offset = -0.5f*segment_iter->getWidth(fontp);
-			}
-			else // ALIGN_LEFT
-			{
-				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
-			}
-
-			LLColor4 label_color(0.f, 0.f, 0.f, 1.f);
-			label_color.mV[VALPHA] = alpha_factor;
-			hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, mOnHUDAttachment);
-		}
 	}
 
 	// Render text
@@ -278,11 +254,7 @@ void LLHUDText::renderText(BOOL for_select)
 			y_offset -= fontp->getLineHeight();
 
 			U8 style = segment_iter->mStyle;
-			LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW;
-			if (mDropShadow)
-			{
-				shadow = LLFontGL::DROP_SHADOW;
-			}
+			LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
 	
 			F32 x_offset;
 			if (mTextAlignment== ALIGN_TEXT_CENTER)
@@ -351,11 +323,6 @@ void LLHUDText::addLine(const std::string &text_utf8,
 			++iter;
 		}
 	}
-}
-
-void LLHUDText::setDropShadow(const BOOL do_shadow)
-{
-	mDropShadow = do_shadow;
 }
 
 void LLHUDText::setZCompare(const BOOL zcompare)
@@ -457,7 +424,7 @@ void LLHUDText::updateVisibility()
 
 	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
 
-	if (mLOD >= 3 || !mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
+	if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
 	{
 		mVisible = FALSE;
 		return;
@@ -553,14 +520,6 @@ void LLHUDText::updateSize()
 		++iter;
 	}
 
-	iter = mLabelSegments.begin();
-	while (iter != mLabelSegments.end())
-	{
-		height += mFontp->getLineHeight();
-		width = llmax(width, llmin(iter->getWidth(mFontp), HUD_TEXT_MAX_WIDTH));
-		++iter;
-	}
-	
 	if (width == 0.f)
 	{
 		return;
@@ -569,18 +528,8 @@ void LLHUDText::updateSize()
 	width += HORIZONTAL_PADDING;
 	height += VERTICAL_PADDING;
 
-	if (!mResizeTimer.getStarted() && (width != mWidth || height != mHeight))
-	{
-		mResizeTimer.start();
-	}
-
-	// *NOTE: removed logic which did a divide by zero.
-	F32 u = 1.f;//llclamp(mResizeTimer.getElapsedTimeF32() / RESIZE_TIME, 0.f, 1.f);
-	if (u == 1.f)
-	{
-		mResizeTimer.stop();
-	}
-
+	// *TODO: Could do some sort of timer-based resize logic here
+	F32 u = 1.f;
 	mWidth = llmax(width, lerp(mWidth, (F32)width, u));
 	mHeight = llmax(height, lerp(mHeight, (F32)height, u));
 }
@@ -606,28 +555,29 @@ void LLHUDText::updateAll()
 	std::sort(sVisibleHUDTextObjects.begin(), sVisibleHUDTextObjects.end(), lltextobject_further_away());
 }
 
-void LLHUDText::setLOD(S32 lod)
-{
-	mLOD = lod;
-	//RN: uncomment this to visualize LOD levels
-	//std::string label = llformat("%d", lod);
-	//setLabel(label);
-}
+//void LLHUDText::setLOD(S32 lod)
+//{
+//	mLOD = lod;
+//	//RN: uncomment this to visualize LOD levels
+//	//std::string label = llformat("%d", lod);
+//	//setLabel(label);
+//}
 
 S32 LLHUDText::getMaxLines()
 {
-	switch(mLOD)
-	{
-	case 0:
-		return mMaxLines;
-	case 1:
-		return mMaxLines > 0 ? mMaxLines / 2 : 5;
-	case 2:
-		return mMaxLines > 0 ? mMaxLines / 3 : 2;
-	default:
-		// label only
-		return 0;
-	}
+	return mMaxLines;
+	//switch(mLOD)
+	//{
+	//case 0:
+	//	return mMaxLines;
+	//case 1:
+	//	return mMaxLines > 0 ? mMaxLines / 2 : 5;
+	//case 2:
+	//	return mMaxLines > 0 ? mMaxLines / 3 : 2;
+	//default:
+	//	// label only
+	//	return 0;
+	//}
 }
 
 void LLHUDText::markDead()
@@ -692,11 +642,6 @@ void LLHUDText::reshape()
 		{
 			segment_iter->clearFontWidthMap();
 		}
-		for(segment_iter = textp->mLabelSegments.begin();
-			segment_iter != textp->mLabelSegments.end(); ++segment_iter )
-		{
-			segment_iter->clearFontWidthMap();
-		}		
 	}
 }
 

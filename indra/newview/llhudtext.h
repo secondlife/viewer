@@ -40,7 +40,6 @@
 #include "v4coloru.h"
 #include "v2math.h"
 #include "llrect.h"
-#include "llframetimer.h"
 #include "llfontgl.h"
 #include <set>
 #include <vector>
@@ -100,8 +99,6 @@ public:
 	// Add text a line at a time, allowing custom formatting
 	void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = NULL);
 
-	void setDropShadow(const BOOL do_shadow);
-
 	// Sets the default font for lines with no font specified
 	void setFont(const LLFontGL* font);
 	void setColor(const LLColor4 &color);
@@ -122,7 +119,6 @@ public:
 	/*virtual*/ void markDead();
 	friend class LLHUDObject;
 	/*virtual*/ F32 getDistance() const { return mLastDistance; }
-	S32  getLOD() { return mLOD; }
 	BOOL getVisible() { return mVisible; }
 	BOOL getHidden() const { return mHidden; }
 	void setHidden( BOOL hide ) { mHidden = hide; }
@@ -141,14 +137,11 @@ protected:
 	/*virtual*/ void renderForSelect();
 	void renderText(BOOL for_select);
 	static void updateAll();
-	void setLOD(S32 lod);
 	S32 getMaxLines();
 
 private:
 	~LLHUDText();
 	BOOL			mOnHUDAttachment;
-//	BOOL			mUseBubble;
-	BOOL			mDropShadow;
 	BOOL			mDoFade;
 	F32				mFadeRange;
 	F32				mFadeDistance;
@@ -172,11 +165,8 @@ private:
 	S32				mOffsetY;
 	F32				mRadius;
 	std::vector<LLHUDTextSegment> mTextSegments;
-	std::vector<LLHUDTextSegment> mLabelSegments;
-	LLFrameTimer	mResizeTimer;
 	ETextAlignment	mTextAlignment;
 	EVertAlignment	mVertAlignment;
-	S32				mLOD;
 	BOOL			mHidden;
 
 	static BOOL    sDisplayText ;

@@ -104,8 +104,6 @@ public:
 	void setLabel(const std::string& label_utf8);
 	void addLabel(const std::string& label_utf8);
 
-	void setDropShadow(const BOOL do_shadow);
-
 	// Sets the default font for lines with no font specified
 	void setFont(const LLFontGL* font);
 	void setColor(const LLColor4 &color);
@@ -152,8 +150,6 @@ protected:
 
 private:
 	~LLHUDNameTag();
-	//BOOL			mUseBubble;		always true
-	BOOL			mDropShadow;
 	BOOL			mDoFade;
 	F32				mFadeRange;
 	F32				mFadeDistance;

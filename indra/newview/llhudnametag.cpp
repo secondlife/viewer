@@ -104,7 +104,6 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
 	mFadeDistance = 8.f;
 	mFadeRange = 4.f;
 	mZCompare = TRUE;
-	mDropShadow = TRUE;
 	mOffscreen = FALSE;
 	mRadius = 0.1f;
 	LLPointer<LLHUDNameTag> ptr(this);
@@ -502,11 +501,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 			y_offset -= fontp->getLineHeight();
 
 			U8 style = segment_iter->mStyle;
-			LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW;
-			if (mDropShadow)
-			{
-				shadow = LLFontGL::DROP_SHADOW;
-			}
+			LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
 	
 			F32 x_offset;
 			if (mTextAlignment== ALIGN_TEXT_CENTER)
@@ -616,11 +611,6 @@ void LLHUDNameTag::addLabel(const std::string& label_utf8)
 			++iter;
 		}
 	}
-}
-
-void LLHUDNameTag::setDropShadow(const BOOL do_shadow)
-{
-	mDropShadow = do_shadow;
 }
 
 void LLHUDNameTag::setZCompare(const BOOL zcompare)

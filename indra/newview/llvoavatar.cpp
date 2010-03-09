@@ -2895,7 +2895,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	if (mVisibleChat)
 	{
-		mNameText->setDropShadow(TRUE);
 		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
