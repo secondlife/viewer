@@ -70,5 +70,5 @@
 	<button label="追加..." name="add_banned_avatar_btn"/>
 	<button label="削除..." name="remove_banned_avatar_btn"/>
 	<button label="メッセージを不動産に送信..." name="message_estate_btn"/>
-	<button label="土地からユーザーを追い出す..." name="kick_user_from_estate_btn"/>
+	<button label="不動産から住人を追い出す..." name="kick_user_from_estate_btn"/>
 </panel>

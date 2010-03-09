@@ -758,6 +758,9 @@
 	<string name="invalid">
 		無効
 	</string>
+	<string name="NewWearable">
+		新しい [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		次へ
 	</string>
@@ -1467,6 +1470,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		新規スクリプト
+	</string>
+	<string name="BusyModeResponseDefault">
+		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
 	</string>
 	<string name="MuteByName">
 		（名称別）
