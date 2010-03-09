@@ -230,6 +230,7 @@ private:
 	commit_callback_t	mPrearrangeCallback;
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
+	boost::signals2::connection mTopLostSignalConnection;
 	S32                 mLastSelectedIndex;
 };
 #endif
