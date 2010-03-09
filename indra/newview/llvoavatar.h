@@ -65,7 +65,7 @@ extern const LLUUID ANIM_AGENT_WALK_ADJUST;
 
 class LLTexLayerSet;
 class LLVoiceVisualizer;
-class LLHUDText;
+class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
 class LLVOAvatarBoneInfo;
@@ -842,7 +842,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	LLFrameTimer	mChatTimer;
-	LLPointer<LLHUDText> mNameText;
+	LLPointer<LLHUDNameTag> mNameText;
 private:
 	LLFrameTimer	mTimeVisible;
 	std::deque<LLChat> mChats;

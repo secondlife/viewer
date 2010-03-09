@@ -69,6 +69,7 @@
 #include "llfloaterreg.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
+#include "llhudnametag.h"
 #include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llresmgr.h"
@@ -2080,6 +2081,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	}
 
 	LLHUDText::shiftAll(offset);
+	LLHUDNameTag::shiftAll(offset);
 	display_update_camera();
 }
 
@@ -5269,7 +5271,8 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 		++iter)
 	{
 		LLVOAvatar* av = (LLVOAvatar*) *iter;
-		if (av->mNameText.notNull() && av->mNameText->lineSegmentIntersect(start, local_end, position))
+		if (av->mNameText.notNull()
+			&& av->mNameText->lineSegmentIntersect(start, local_end, position))
 		{
 			drawable = av->mDrawable;
 			local_end = position;

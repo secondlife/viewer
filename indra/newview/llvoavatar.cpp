@@ -63,7 +63,8 @@
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llhudtext.h"
+#include "llhudnametag.h"
+#include "llhudtext.h"				// for mText/mDebugText
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
@@ -2750,14 +2751,14 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 
 	if (!mNameText)
 	{
-		mNameText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+		mNameText = static_cast<LLHUDNameTag*>( LLHUDObject::addHUDObject(
+			LLHUDObject::LL_HUD_NAME_TAG) );
 		mNameText->setMass(10.f);
 		mNameText->setSourceObject(this);
-		mNameText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
+		mNameText->setVertAlignment(LLHUDNameTag::ALIGN_VERT_TOP);
 		mNameText->setVisibleOffScreen(TRUE);
 		mNameText->setMaxLines(11);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-		mNameText->setUseBubble(TRUE);
 		sNumVisibleChatBubbles++;
 		new_name = TRUE;
 	}
@@ -2896,7 +2897,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	{
 		mNameText->setDropShadow(TRUE);
 		mNameText->setFont(LLFontGL::getFontSansSerif());
-		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_LEFT);
+		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
 	
 		char line[MAX_STRING];		/* Flawfinder: ignore */
@@ -2967,7 +2968,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	else
 	{
 		// ...not using chat bubbles, just names
-		mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
+		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_CENTER);
 		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
 		mNameText->setVisibleOffScreen(FALSE);
 	}

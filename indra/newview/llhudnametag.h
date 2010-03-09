@@ -1,8 +1,9 @@
 /** 
- * @file llhudtext.h
- * @brief LLHUDText class definition
+ * @file llhudnametag.h
+ * @brief Name tags for avatars
+ * @author James Cook
  *
- * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
  * 
  * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
@@ -30,8 +31,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDTEXT_H
-#define LL_LLHUDTEXT_H
+#ifndef LLHUDNAMETAG_H
+#define LLHUDNAMETAG_H
 
 #include "llpointer.h"
 
@@ -45,16 +46,15 @@
 #include <set>
 #include <vector>
 
-// Renders a 2D text billboard floating at the location specified.
 class LLDrawable;
-class LLHUDText;
+class LLHUDNameTag;
 
-struct lltextobject_further_away
+struct llhudnametag_further_away
 {
-	bool operator()(const LLPointer<LLHUDText>& lhs, const LLPointer<LLHUDText>& rhs) const;
+	bool operator()(const LLPointer<LLHUDNameTag>& lhs, const LLPointer<LLHUDNameTag>& rhs) const;
 };
 
-class LLHUDText : public LLHUDObject
+class LLHUDNameTag : public LLHUDObject
 {
 protected:
 	class LLHUDTextSegment
@@ -100,6 +100,10 @@ public:
 	// Add text a line at a time, allowing custom formatting
 	void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = NULL);
 
+	// For bubble chat, set the part above the chat text
+	void setLabel(const std::string& label_utf8);
+	void addLabel(const std::string& label_utf8);
+
 	void setDropShadow(const BOOL do_shadow);
 
 	// Sets the default font for lines with no font specified
@@ -122,20 +126,22 @@ public:
 	/*virtual*/ void markDead();
 	friend class LLHUDObject;
 	/*virtual*/ F32 getDistance() const { return mLastDistance; }
+	//void setUseBubble(BOOL use_bubble) { mUseBubble = use_bubble; }
 	S32  getLOD() { return mLOD; }
 	BOOL getVisible() { return mVisible; }
 	BOOL getHidden() const { return mHidden; }
 	void setHidden( BOOL hide ) { mHidden = hide; }
-	void setOnHUDAttachment(BOOL on_hud) { mOnHUDAttachment = on_hud; }
 	void shift(const LLVector3& offset);
 
+	BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, LLVector3& intersection, BOOL debug_render = FALSE);
+
 	static void shiftAll(const LLVector3& offset);
-	static void renderAllHUD();
+	static void addPickable(std::set<LLViewerObject*> &pick_list);
 	static void reshape();
 	static void setDisplayText(BOOL flag) { sDisplayText = flag ; }
 
 protected:
-	LLHUDText(const U8 type);
+	LLHUDNameTag(const U8 type);
 
 	/*virtual*/ void render();
 	/*virtual*/ void renderForSelect();
@@ -145,9 +151,8 @@ protected:
 	S32 getMaxLines();
 
 private:
-	~LLHUDText();
-	BOOL			mOnHUDAttachment;
-//	BOOL			mUseBubble;
+	~LLHUDNameTag();
+	//BOOL			mUseBubble;		always true
 	BOOL			mDropShadow;
 	BOOL			mDoFade;
 	F32				mFadeRange;
@@ -180,11 +185,11 @@ private:
 	BOOL			mHidden;
 
 	static BOOL    sDisplayText ;
-	static std::set<LLPointer<LLHUDText> > sTextObjects;
-	static std::vector<LLPointer<LLHUDText> > sVisibleTextObjects;
-	static std::vector<LLPointer<LLHUDText> > sVisibleHUDTextObjects;
-	typedef std::set<LLPointer<LLHUDText> >::iterator TextObjectIterator;
-	typedef std::vector<LLPointer<LLHUDText> >::iterator VisibleTextObjectIterator;
+	static std::set<LLPointer<LLHUDNameTag> > sTextObjects;
+	static std::vector<LLPointer<LLHUDNameTag> > sVisibleTextObjects;
+	static std::vector<LLPointer<LLHUDNameTag> > sVisibleHUDTextObjects;
+	typedef std::set<LLPointer<LLHUDNameTag> >::iterator TextObjectIterator;
+	typedef std::vector<LLPointer<LLHUDNameTag> >::iterator VisibleTextObjectIterator;
 };
 
-#endif // LL_LLHUDTEXT_H
+#endif
