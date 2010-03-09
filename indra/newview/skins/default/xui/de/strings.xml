@@ -753,7 +753,7 @@
 		Alpha
 	</string>
 	<string name="tattoo">
-		Taetowierung
+		Tätowierung
 	</string>
 	<string name="invalid">
 		ungültig
@@ -1256,7 +1256,7 @@
 		(unbekannt)
 	</string>
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
-	<string name="NextStipendDay" value="Der nächste Stipendium-Tag ist "/>
+	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
 	<string name="Balance">
 		Kontostand

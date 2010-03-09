@@ -495,14 +495,14 @@ Souhaitez-vous vraiment donner ces objets ?
 		Vous n&apos;êtes pas autorisé à transférer le dossier sélectionné.
 	</notification>
 	<notification name="FreezeAvatar">
-		Geler cet avatar ?
+		Figer cet avatar ?
 Il ou elle ne pourra temporairement plus bouger, chatter, ou interagir dans le Monde.
-		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Dégeler" yestext="Geler"/>
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Libérer" yestext="Figer"/>
 	</notification>
 	<notification name="FreezeAvatarFullname">
-		Geler [AVATAR_NAME] ?
+		Figer [AVATAR_NAME] ?
 Il ou elle ne pourra temporairement plus bouger, chatter, ou interagir dans le Monde.
-		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Dégeler" yestext="Geler"/>
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Libérer" yestext="Figerf"/>
 	</notification>
 	<notification name="EjectAvatarFullname">
 		Expulser [AVATAR_NAME] de votre terrain ?
@@ -1356,20 +1356,20 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Geler cet utilisateur avec quel message ?
+		Figer cet utilisateur avec quel message ?
 		<form name="form">
 			<input name="message">
-				Vous avez été gelé. Vous ne pouvez ni bouger ni chatter. Un administrateur va vous envoyer un message instantané (IM).
+				Vous avez été figé. Vous ne pouvez ni bouger ni chatter. Un administrateur va vous envoyer un message instantané (IM).
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuler"/>
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Dégeler cet utilisateur avec quel message ?
+		Libérer cet utilisateur avec quel message ?
 		<form name="form">
 			<input name="message">
-				Vous n&apos;êtes plus gelé.
+				Vous n&apos;êtes plus figé.
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuler"/>

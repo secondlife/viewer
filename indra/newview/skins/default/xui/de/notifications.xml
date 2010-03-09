@@ -185,7 +185,7 @@ Fortfahren?
 	<notification name="JoinGroupNoCost">
 		Sie treten der Gruppe [NAME] bei.
 Fortfahren?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Zusammenlegen"/>
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Beitreten"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Der Beitritt zu dieser Gruppe kostet [COST] L$.
@@ -920,13 +920,13 @@ Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen
 Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 	</notification>
 	<notification label="Freund hinzufügen" name="AddFriend">
-		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu verfolgen und Online-Status Benachrichtigungen zu empfangen.
+		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu sehen und den Online-Status anzuzeigen.
 
 [NAME] Freundschaft anbieten?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification label="Freund hinzufügen" name="AddFriendWithMessage">
-		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu verfolgen und Online-Status Benachrichtigungen zu empfangen.
+		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu sehen und den Online-Status anzuzeigen.
 
 [NAME] Freundschaft anbieten?
 		<form name="form">
@@ -1405,7 +1405,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Benutzer an Ihrem Standort herbeirufen?
+		Einwohner zu Ihrem Standort einladen?
 		<form name="form">
 			<input name="message">
 				Triff mich in [REGION]
@@ -2200,10 +2200,10 @@ Bitte besuchen Sie unsere Knowledgebase, um mehr Details über Zugang zu Regione
 		Die für den Zutritt zu dieser Region erforderlichen Zahlungsinformationen liegen nicht vor.
 	</notification>
 	<notification name="MustGetAgeRgion">
-		Sie müssen alterüberprüft sein, um diese Region betreten zu können.
+		Sie müssen altersüberprüft sein, um diese Region betreten zu können.
 	</notification>
 	<notification name="MustGetAgeParcel">
-		Sie müssen alterüberprüft sein, um diese Parzelle betreten zu können.
+		Sie müssen altersüberprüft sein, um diese Parzelle betreten zu können.
 	</notification>
 	<notification name="NoDestRegion">
 		Keine Zielregion gefunden.
@@ -2367,7 +2367,7 @@ Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner einfach
 		</form>
 	</notification>
 	<notification name="RegionRestartMinutes">
-		Diese Region wird in [Minuten] neu gestartet.
+		Diese Region wird in [MINUTES] neu gestartet.
 Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
 	</notification>
 	<notification name="RegionRestartSeconds">

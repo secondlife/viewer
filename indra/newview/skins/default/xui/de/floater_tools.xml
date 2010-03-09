@@ -369,9 +369,9 @@
 			<spinner label="Ziehen" name="FlexFriction"/>
 			<spinner label="Wind" name="FlexWind"/>
 			<spinner label="Spannung" name="FlexTension"/>
-			<spinner label="Erzwingen X" name="FlexForceX"/>
-			<spinner label="Erzwingen Y" name="FlexForceY"/>
-			<spinner label="Erzwingen Z" name="FlexForceZ"/>
+			<spinner label="Kraft X" name="FlexForceX"/>
+			<spinner label="Kraft Y" name="FlexForceY"/>
+			<spinner label="Kraft Z" name="FlexForceZ"/>
 			<check_box label="Licht" name="Light Checkbox Ctrl" tool_tip="Verursacht, dass Objekt Licht emittiert"/>
 			<color_swatch label="" name="colorswatch" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
 			<texture_picker label="" name="light texture control" tool_tip="Klicken, um eine Bild auszuwählen (dieser Effekt funktioniert nur, wenn zeitversetzte Wiedergabe aktiviert ist)"/>
