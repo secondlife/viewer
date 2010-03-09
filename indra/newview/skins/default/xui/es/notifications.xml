@@ -144,7 +144,7 @@ Asegúrate de que tu conexión a internet está funcionando adecuadamente.
 		Va a añadir miembros al rol de [ROLE_NAME].
 No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mismos.
 ¿Está seguro de que quiere seguir?
-		<usetemplate ignoretext="Confirma que vas a añadir un nuevo Propietario al grupo" name="okcancelignore" notext="No" yestext="Sí"/>
+		<usetemplate ignoretext="Confirmar que vas a añadir un nuevo propietario al grupo" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="AssignDangerousActionWarning">
 		Va a añadir la capacidad &apos;[ACTION_NAME]&apos; al rol &apos;[ROLE_NAME]&apos;.
@@ -1526,7 +1526,7 @@ Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de C
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
-		<usetemplate ignoretext="No puedo reclamar este terreno, dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
+		<usetemplate ignoretext="No puedo reclamar este terreno dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
 		Por su nivel de calificación, usted no puede reclamar este terreno.
@@ -1550,7 +1550,7 @@ Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de C
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
-		<usetemplate ignoretext="No puedo comprar este terreno, dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
+		<usetemplate ignoretext="No puedo comprar este terreno dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
 		No puede comprar este terreno por su nivel de calificación.
@@ -1731,7 +1731,7 @@ Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar u
 		<usetemplate ignoretext="Abrir mi navegador para ver el historial de mi cuenta" name="okcancelignore" notext="Cancelar" yestext="Ir a la página"/>
 	</notification>
 	<notification name="ConfirmQuit">
-		¿Está seguro de que quiere salir?
+		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">

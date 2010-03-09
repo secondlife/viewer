@@ -16,7 +16,7 @@
 	<button label="保存（L$[AMOUNT]）" name="upload_btn"/>
 	<flyout_button label="保存" name="save_btn" tool_tip="画像をファイルに保存">
 		<flyout_button.item label="保存" name="save_item"/>
-		<flyout_button.item label="名前を付けて保存" name="saveas_item"/>
+		<flyout_button.item label="別名で保存..." name="saveas_item"/>
 	</flyout_button>
 	<button label="キャンセル" name="discard_btn"/>
 	<button label="全表示" name="more_btn" tool_tip="詳しい設定"/>

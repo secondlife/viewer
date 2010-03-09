@@ -24,7 +24,7 @@
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_new_account_text">
-				Registrarse
+				Registrarme
 			</text>
 			<text name="login_help">
 				¿Necesitas ayuda para conectarte?

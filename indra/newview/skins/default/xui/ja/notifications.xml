@@ -111,7 +111,7 @@
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		フレンド以外からのコールやインスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
-		<usetemplate name="okbutton" yestext="はい"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
 		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。 この権限を与える際には十分に注意してください。
@@ -1343,8 +1343,8 @@ F1 キーを押してください。
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		すべてのユーザーをグリッドの外にキックしようとしています。操作を続行しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="全てのユーザーを追い出す"/>
+		本当に住人全員をグリッドから追い出しますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="住人全員を追い出す"/>
 	</notification>
 	<notification name="MuteLinden">
 		リンデンをブロックすることはできません。
@@ -1385,7 +1385,7 @@ F1 キーを押してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		どのようなメッセージをつけてこのユーザーを追い出しますか？
+		どのようなメッセージを添えてこの住人を追い出しますか？
 		<form name="form">
 			<input name="message">
 				あなたは管理者によりログオフされました。
@@ -1405,7 +1405,7 @@ F1 キーを押してください。
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		どのようなメッセージをつけてこのユーザーをフリーズしますか？
+		どのようなメッセージを添えてこの住人をフリーズしますか？
 		<form name="form">
 			<input name="message">
 				あなたはフリーズされています。 動くこともチャットすることもできません。 管理者が IM であなたに連絡します。
@@ -1415,7 +1415,7 @@ F1 キーを押してください。
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		どのようなメッセージをつけてこのユーザーのフリーズを解除しますか？
+		どのようなメッセージを添えてこの住人のフリーズを解除しますか？
 		<form name="form">
 			<input name="message">
 				もうフリーズされていません。
@@ -1435,7 +1435,7 @@ F1 キーを押してください。
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		ユーザーをゴッドサモンで呼び寄せますか？
+		現在地に住人をゴッドサモンしますか？
 		<form name="form">
 			<input name="message">
 				[REGION] に来ませんか？
@@ -1465,11 +1465,11 @@ F1 キーを押してください。
 		</form>
 	</notification>
 	<notification label="Lindenの不動産を変更" name="ChangeLindenEstate">
-		あなたはリンデン所有の不動産（メインランド、ティーングリッド、オリエンテーションなど）を変更しようとしています。
+		リンデンが所有するエステート（メインランド、ティーングリッド、オリエンテーションなど）を変更しようとしています。
 
-これはユーザーの経験を根本から揺るがしかねない「非常に危険な行為」です。これにより、メインランドで多数のリージョン（地域）が変更され、スペースサーバーに悪影響が生じます。
+住人の体験に根本的に影響を与えるため、非常に危険な行為です。  メインランドでは、何千というリージョンが変更による影響を受け、そのためスペースサーバーに負担をかけることになります。
 
-操作を続行しますか？
+それでも続けますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification label="Lindenの不動産へのアクセスを変更" name="ChangeLindenAccess">
@@ -2477,7 +2477,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="ScriptToast">
-		[FIRST] [LAST] の「 [TITLE] 」は、ユーザーインプットをリクエストしています。
+		[FIRST] [LAST] の「 [TITLE] 」は、住人インプットをリクエストしています。
 		<form name="form">
 			<button name="Open" text="ダイアログを開く"/>
 			<button name="Ignore" text="無視"/>

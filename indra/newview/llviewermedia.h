@@ -322,6 +322,9 @@ public:
 	void setLowPrioritySizeLimit(int size);
 
 	void setTextureID(LLUUID id = LLUUID::null);
+
+	bool isTrustedBrowser() { return mTrustedBrowser; }
+	void setTrustedBrowser(bool trusted) { mTrustedBrowser = trusted; }
 	
 	typedef enum 
 	{
@@ -405,6 +408,7 @@ private:
 	LLColor4 mBackgroundColor;
 	bool mNavigateSuspended;
 	bool mNavigateSuspendedDeferred;
+	bool mTrustedBrowser;
 	
 private:
 	BOOL mIsUpdated ;

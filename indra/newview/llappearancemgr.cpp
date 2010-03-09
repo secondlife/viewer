@@ -494,11 +494,12 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 	bool completed = isFetchCompleted();
 	bool timed_out = isTimedOut();
 	bool done = completed || timed_out;
-	
-	llinfos << "polling, done status: " << completed << " timed out " << timed_out << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
 
 	if (done)
 	{
+		llinfos << "polling, done status: " << completed << " timed out " << timed_out
+				<< " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+
 		mFired = true;
 		
 		if (timed_out)
