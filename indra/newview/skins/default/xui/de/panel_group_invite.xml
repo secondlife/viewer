@@ -9,18 +9,18 @@
 	<panel.string name="already_in_group">
 		Einige der ausgewählten Einwohner sind bereits Gruppenmitglieder und haben aus diesem Grund keine Einladung erhalten.
 	</panel.string>
-	<text name="help_text" top="10">
+	<text name="help_text">
 		Sie können mehrere Einwohner Ihre Gruppe einladen. Klicken Sie hierzu auf „Einwohnerliste öffnen“.
 	</text>
-	<button label="Einwohnerliste öffnen" name="add_button" tool_tip="" top_delta="62"/>
+	<button label="Einwohnerliste öffnen" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Namen."/>
 	<button label="Auswahl aus Liste löschen" name="remove_button" tool_tip="Die oben ausgewählten Einwohner von der Einladungsliste entfernen."/>
 	<text name="role_text">
 		Wählen Sie eine Rolle aus:
 	</text>
 	<combo_box name="role_name" tool_tip="Wählen Sie aus der Liste der Rollen, die Sie an Mitglieder vergeben dürfen."/>
-	<button label="Einladungen versenden" name="ok_button" width="136"/>
-	<button label="Abbrechen" name="cancel_button" width="66"/>
+	<button label="Einladungen versenden" name="ok_button"/>
+	<button label="Abbrechen" name="cancel_button"/>
 	<string name="GroupInvitation">
 		Gruppeneinladung
 	</string>

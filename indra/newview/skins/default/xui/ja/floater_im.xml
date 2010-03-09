@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="インスタント・メッセージ">
 	<string name="only_user_message">
-		このセッションにいるユーザーはあなただけです。
+		このセッションには、あなたしかいません。
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST]はオフラインです。
@@ -32,7 +32,7 @@
 	</string>
 	<!-- ALL of the event strings should have [RECIPIENT] in them -->
 	<string name="add_session_event">
-		[RECIPIENT] とのチャット・セッションにユーザーを追加することができません
+		[RECIPIENT] とのチャットセッションに住人を追加できません。
 	</string>
 	<string name="message_session_event">
 		[RECIPIENT] とのチャット・セッションにメッセージを送ることができません

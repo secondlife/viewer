@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="土地情報">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] 分
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="一般" name="land_general_panel">
 			<panel.string name="new users only">
-				新規ユーザーのみ
+				新規住人専用
 			</panel.string>
 			<panel.string name="anyone">
 				誰でも
@@ -387,10 +396,6 @@
 				ホームページ：
 			</text>
 			<button label="設定" label_selected="設定..." name="set_media_url"/>
-			<text name="CurrentURL:">
-				現在のページ：
-			</text>
-			<button label="リセット..." label_selected="リセット..." name="reset_media_url" tool_tip="URL を更新"/>
 			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="クラシファイド広告掲載">
+	<text name="explanation_text">
+		あなたのクラシファイド広告は、掲載された日から1週間有効です。
+        
+クラシファイド広告は返金できませんのでご了承ください。
+	</text>
+	<spinner label="広告費：" name="price_for_listing" tool_tip="掲載価格" value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		詳しい情報（クラシファイドヘルプへのリンク）
+	</text>
+	<button label="掲載" name="publish_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
+</floater>

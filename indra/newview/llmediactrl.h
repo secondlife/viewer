@@ -164,7 +164,6 @@ public:
 
 		// handlers for individual events (could be done inside the switch in handleMediaEvent, they're just individual functions for clarity)
 		void onClickLinkHref( LLPluginClassMedia* self );
-		void onClickLinkNoFollow( LLPluginClassMedia* self );
 		
 	protected:
 		void convertInputCoords(S32& x, S32& y);
