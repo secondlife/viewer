@@ -525,13 +525,15 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
 		if (!gAgent.isAdult() && !gAgent.isGodlike())
 		{
-			// we're going to remove the adult entry from the combo. This obviously depends
-			// on the order of items in the XML file, but there doesn't seem to be a reasonable
-			// way to depend on the field in XML called 'name'.
-			maturity_combo->remove(0);
+			// we're going to remove the adult entry from the combo
+			LLScrollListCtrl* maturity_list = maturity_combo->findChild<LLScrollListCtrl>("ComboBox");
+			if (maturity_list)
+			{
+				maturity_list->deleteItems(LLSD(SIM_ACCESS_ADULT));
+			}
 		}
 		childSetVisible("maturity_desired_combobox", true);
-		childSetVisible("maturity_desired_textbox", false);		
+		childSetVisible("maturity_desired_textbox", false);
 	}
 	else
 	{
