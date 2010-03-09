@@ -83,7 +83,7 @@
 						<text name="scripts_value" value="Ein"/>
 						<text name="damage_label" value="Schaden:"/>
 						<text name="damage_value" value="Aus"/>
-						<button label="Über Land" name="about_land_btn"/>
+						<button label="Land-Info" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Region">

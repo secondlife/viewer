@@ -70,5 +70,5 @@
 	<button label="Hinzufügen..." name="add_banned_avatar_btn"/>
 	<button label="Entfernen..." name="remove_banned_avatar_btn"/>
 	<button label="Nachricht an Grundstück" name="message_estate_btn"/>
-	<button label="Einwohner hinauswerfen" name="kick_user_from_estate_btn"/>
+	<button label="Einwohner hinauswerfen..." name="kick_user_from_estate_btn"/>
 </panel>
