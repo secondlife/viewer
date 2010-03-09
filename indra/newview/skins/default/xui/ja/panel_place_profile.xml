@@ -88,7 +88,7 @@
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="リージョン（地域）     ">
 					<panel name="region_information_panel">
-						<text name="region_name_label" value="地域:"/>
+						<text name="region_name_label" value="リージョン（地域）:"/>
 						<text name="region_name" value="Mooseland"/>
 						<text name="region_type_label" value="種類："/>
 						<text name="region_type" value="Moose"/>
@@ -105,7 +105,7 @@
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="エステート（不動産）">
 					<panel name="estate_information_panel">
-						<text name="estate_name_label" value="不動産："/>
+						<text name="estate_name_label" value="エステート（不動産）："/>
 						<text name="estate_rating_label" value="レーティング区分："/>
 						<text name="estate_owner_label" value="所有者："/>
 						<text name="covenant_label" value="約款："/>

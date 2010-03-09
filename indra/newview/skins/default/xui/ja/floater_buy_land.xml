@@ -41,8 +41,8 @@
 		選択された地域に、公共の土地はありません
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		他の使用者に所有された土地が選択されています。 
-これより小さな範囲を選択してください。
+		他の住人が所有する土地を選択しています。 
+もっと狭い範囲を選択してみてください。
 	</floater.string>
 	<floater.string name="processing">
 		購入処理中...
