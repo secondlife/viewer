@@ -212,8 +212,8 @@
 					Næste ejer:
 				</text>
 				<check_box label="Redigére" name="checkbox next owner can modify"/>
-				<check_box label="Kopiére" left_delta="80" name="checkbox next owner can copy"/>
-				<check_box label="Sælge/give væk" left_delta="67" name="checkbox next owner can transfer" tool_tip="Næste ejer kan give væk eller sælge dette objekt"/>
+				<check_box label="Kopiére" name="checkbox next owner can copy"/>
+				<check_box label="Sælge/give væk" name="checkbox next owner can transfer" tool_tip="Næste ejer kan give væk eller sælge dette objekt"/>
 				<text name="B:">
 					B:
 				</text>
