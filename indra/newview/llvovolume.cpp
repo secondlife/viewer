@@ -3201,7 +3201,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	BOOL fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
 		(type == LLRenderPass::PASS_INVISIBLE) ||
-		(type == LLRenderPass::PASS_ALPHA ? facep->isState(LLFace::FULLBRIGHT) : FALSE);
+		(type == LLRenderPass::PASS_ALPHA && facep->isState(LLFace::FULLBRIGHT));
 	
 	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
@@ -3295,6 +3295,16 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+
+bool LLVolumeGeometryManager::canRenderAsMask(LLFace* facep)
+{
+	const LLTextureEntry* te = facep->getTextureEntry();
+	return (LLPipeline::sFastAlpha &&
+		(te->getColor().mV[3] == 1.0f) &&
+		(!te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible, need to figure out why - for now, avoid
+		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
+		facep->getTexture()->getIsAlphaMask());
+}
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
@@ -3421,10 +3431,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 				if (type == LLDrawPool::POOL_ALPHA)
 				{
-					if (LLPipeline::sFastAlpha &&
-					    (te->getColor().mV[VW] == 1.0f) &&
-					    (!te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible, need to figure out why - for now, avoid
-					    facep->getTexture()->getIsAlphaMask())
+					if (canRenderAsMask(facep))
 					{ //can be treated as alpha mask
 						simple_faces.push_back(facep);
 					}
@@ -3768,15 +3775,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 			const LLTextureEntry* te = facep->getTextureEntry();
 
-			BOOL is_alpha = facep->getPoolType() == LLDrawPool::POOL_ALPHA ? TRUE : FALSE;
+			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
 			if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (LLPipeline::sFastAlpha &&
-				    (te->getColor().mV[VW] == 1.0f) &&
-				    (!te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible, need to figure out why - for now, avoid
-				    facep->getTexture()->getIsAlphaMask())
+				if (canRenderAsMask(facep))
 				{
 					if (te->getFullbright())
 					{

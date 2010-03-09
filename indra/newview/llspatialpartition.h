@@ -613,14 +613,15 @@ public:
 //class for wrangling geometry out of volumes (implemented in LLVOVolume.cpp)
 class LLVolumeGeometryManager: public LLGeometryManager
 {
-public:
+ public:
 	virtual ~LLVolumeGeometryManager() { }
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
-
+ private:
+	bool canRenderAsMask(LLFace* facep); // logic helper
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)
