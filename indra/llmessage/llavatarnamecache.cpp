@@ -105,10 +105,10 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 	av_name.mLastUpdate = now;
 
 	// HACK for pretty stars
-	if (row["last_name"].asString() == "Linden")
-	{
-		av_name.mBadge = "Person_Star";
-	}
+	//if (row["last_name"].asString() == "Linden")
+	//{
+	//	av_name.mBadge = "Person_Star";
+	//}
 
 	// Some avatars don't have explicit display names set
 	if (av_name.mDisplayName.empty())
