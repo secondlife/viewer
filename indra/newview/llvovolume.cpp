@@ -3299,11 +3299,15 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 bool LLVolumeGeometryManager::canRenderAsMask(LLFace* facep)
 {
 	const LLTextureEntry* te = facep->getTextureEntry();
-	return (LLPipeline::sFastAlpha &&
-		(te->getColor().mV[3] == 1.0f) &&
-		(!te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible, need to figure out why - for now, avoid
+	return (
+		LLPipeline::sFastAlpha && // do we want masks at all?
+
+		(te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
+		!(LLPipeline::sRenderDeferred && te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible in deferred rendering mode, need to figure out why - for now, avoid
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
-		facep->getTexture()->getIsAlphaMask());
+
+		facep->getTexture()->getIsAlphaMask() // texture actually qualifies for masking (lazily calculated but expensive)
+		);
 }
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
