@@ -51,7 +51,7 @@
      image_unselected="spacer35.tga"
      image_pressed="spacer35.tga"
      height="16"
-     right="-220"
+     right="-230"
      label_shadow="false"
      name="buycurrency"
      tool_tip="My Balance"

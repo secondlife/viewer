@@ -65,10 +65,10 @@ public:
 	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 
+	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
 protected:	
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
-	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
 	focus_signal_t*  mFocusLostCallback;
 	focus_signal_t*  mFocusReceivedCallback;
 	focus_signal_t*  mFocusChangedCallback;
@@ -119,7 +119,7 @@ public:
 	BOOL			childIsTopCtrl( const LLView* parent ) const;
 
 	// All Three
-	void			releaseFocusIfNeeded( const LLView* top_view );
+	void			releaseFocusIfNeeded( LLView* top_view );
 	void			lockFocus();
 	void			unlockFocus();
 	BOOL			focusLocked() const { return mLockedView != NULL; }
@@ -149,12 +149,6 @@ private:
 
 	typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
 	focus_history_map_t mFocusHistory;
-
-	#ifdef _DEBUG
-		std::string		mMouseCaptorName;
-		std::string		mKeyboardFocusName;
-		std::string		mTopCtrlName;
-	#endif
 };
 
 extern LLFocusMgr gFocusMgr;

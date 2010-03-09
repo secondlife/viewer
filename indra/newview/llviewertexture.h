@@ -455,6 +455,7 @@ public:
 	F32         getElapsedLastReferencedSavedRawImageTime() const ;
 	BOOL		isFullyLoaded() const;
 
+	BOOL        hasFetcher() const { return mHasFetcher;}
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;

@@ -241,7 +241,7 @@
 		<menu label="レンダーテスト" name="Render Tests">
 			<menu_item_check label="カメラオフセット" name="Camera Offset"/>
 			<menu_item_check label="フレームレートをランダム化" name="Randomize Framerate"/>
-			<menu_item_check label="Periodic Slow Frame" name="Periodic Slow Frame"/>
+			<menu_item_check label="定期的に遅いフレームを挿入する" name="Periodic Slow Frame"/>
 			<menu_item_check label="フレームテスト" name="Frame Test"/>
 		</menu>
 		<menu label="メタデータのレンダー" name="Render Metadata">
@@ -344,7 +344,7 @@
 				<menu_item_call label="PG のトグル" name="Toggle PG"/>
 				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
 			</menu>
-			<menu_item_call label="Params をデフォルトで実行する" name="Force Params to Default"/>
+			<menu_item_call label="パラメータを強制的にデフォルトにする" name="Force Params to Default"/>
 			<menu_item_check label="アニメーション情報" name="Animation Info"/>
 			<menu_item_check label="スローモーションのアニメーション" name="Slow Motion Animations"/>
 			<menu_item_check label="見ているものを表示する" name="Show Look At"/>
@@ -361,7 +361,7 @@
 		</menu>
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
-		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
+		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
 		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>

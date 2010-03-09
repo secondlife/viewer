@@ -150,7 +150,7 @@ public:
 	// Get name of current item. Returns an empty string if not found.
 	const std::string	getSimple() const;
 	// Get contents of column x of selected row
-	const std::string getSelectedItemLabel(S32 column = 0) const;
+	virtual const std::string getSelectedItemLabel(S32 column = 0) const;
 
 	// Sets the label, which doesn't have to exist in the label.
 	// This is probably a UI abuse.
@@ -231,6 +231,7 @@ private:
 	commit_callback_t	mPrearrangeCallback;
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
+        boost::signals2::connection mTopLostSignalConnection;
 };
 
 // A combo box with icons for the list of items.
@@ -247,6 +248,7 @@ public:
 	};
 
 	/*virtual*/ void setValue(const LLSD& value);
+	/*virtual*/ const std::string getSelectedItemLabel(S32 column = 0) const;
 
 private:
 	enum EColumnIndex

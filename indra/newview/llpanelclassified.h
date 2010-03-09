@@ -221,6 +221,7 @@ private:
 
 class LLPanelClassifiedInfo : public LLPanel, public LLAvatarPropertiesObserver
 {
+	LOG_CLASS(LLPanelClassifiedInfo);
 public:
 
 	static LLPanelClassifiedInfo* create();
@@ -263,6 +264,14 @@ public:
 
 	LLUUID getParcelId() { return mParcelId; }
 
+	void setSimName(const std::string& sim_name) { mSimName = sim_name; }
+
+	std::string getSimName() { return mSimName; }
+
+	void setFromSearch(bool val) { mFromSearch = val; }
+
+	bool fromSearch() { return mFromSearch; }
+
 	bool getInfoLoaded() { return mInfoLoaded; }
 
 	void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
@@ -273,6 +282,14 @@ public:
 		S32 map,
 		S32 profile,
 		bool from_new_table);
+
+	static void sendClickMessage(
+			const std::string& type,
+			bool from_search,
+			const LLUUID& classified_id,
+			const LLUUID& parcel_id,
+			const LLVector3d& global_pos,
+			const std::string& sim_name);
 
 	void setExitCallback(const commit_callback_t& cb);
 
@@ -296,6 +313,7 @@ protected:
 		const LLVector3d& pos_global);
 
 	void stretchSnapshot();
+	void sendClickMessage(const std::string& type);
 
 	LLRect getDefaultSnapshotRect();
 
@@ -315,6 +333,8 @@ private:
 	LLUUID mClassifiedId;
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
+	std::string mSimName;
+	bool mFromSearch;
 	bool mInfoLoaded;
 
 	LLScrollContainer*		mScrollContainer;
@@ -337,6 +357,7 @@ private:
 
 class LLPanelClassifiedEdit : public LLPanelClassifiedInfo
 {
+	LOG_CLASS(LLPanelClassifiedEdit);
 public:
 
 	static LLPanelClassifiedEdit* create();

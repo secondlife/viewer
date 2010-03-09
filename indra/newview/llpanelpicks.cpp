@@ -140,10 +140,11 @@ public:
 		params["open_tab_name"] = "panel_picks";
 		params["show_tab_panel"] = "classified_details";
 		params["classified_id"] = c_info->classified_id;
-		params["classified_avatar_id"] = c_info->creator_id;
+		params["classified_creator_id"] = c_info->creator_id;
 		params["classified_snapshot_id"] = c_info->snapshot_id;
 		params["classified_name"] = c_info->name;
 		params["classified_desc"] = c_info->description;
+		params["from_search"] = true;
 		LLSideTray::getInstance()->showPanel("panel_profile_view", params);
 	}
 
@@ -174,31 +175,6 @@ LLClassifiedHandler gClassifiedHandler;
 
 //////////////////////////////////////////////////////////////////////////
 
-/**
- * Copy&Pasted from old LLPanelClassified. This class does nothing at the moment.
- * Subscribing to "classifiedclickthrough" removes a few warnings.
- */
-class LLClassifiedClickThrough : public LLDispatchHandler
-{
-public:
-
-	// "classifiedclickthrough"
-	// strings[0] = classified_id
-	// strings[1] = teleport_clicks
-	// strings[2] = map_clicks
-	// strings[3] = profile_clicks
-	virtual bool operator()(
-		const LLDispatcher* dispatcher,
-		const std::string& key,
-		const LLUUID& invoice,
-		const sparam_t& strings)
-	{
-		if (strings.size() != 4) 
-			return false;
-
-		return true;
-	}
-};
 
 //-----------------------------------------------------------------------------
 // LLPanelPicks
@@ -217,12 +193,9 @@ LLPanelPicks::LLPanelPicks()
 	mClassifiedsAccTab(NULL),
 	mPanelClassifiedInfo(NULL),
 	mPanelClassifiedEdit(NULL),
-	mClickThroughDisp(NULL),
 	mNoClassifieds(false),
 	mNoPicks(false)
 {
-	mClickThroughDisp = new LLClassifiedClickThrough();
-	gGenericDispatcher.addHandler("classifiedclickthrough", mClickThroughDisp);
 }
 
 LLPanelPicks::~LLPanelPicks()
@@ -231,8 +204,6 @@ LLPanelPicks::~LLPanelPicks()
 	{
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 	}
-
-	delete mClickThroughDisp;
 }
 
 void* LLPanelPicks::create(void* data /* = NULL */)
@@ -607,7 +578,11 @@ void LLPanelPicks::onClickTeleport()
 	if(pick_item)
 		pos = pick_item->getPosGlobal();
 	else if(c_item)
+	{
 		pos = c_item->getPosGlobal();
+		LLPanelClassifiedInfo::sendClickMessage("teleport", false,
+			c_item->getClassifiedId(), LLUUID::null, pos, LLStringUtil::null);
+	}
 
 	if (!pos.isExactlyZero())
 	{
@@ -626,7 +601,11 @@ void LLPanelPicks::onClickMap()
 	if (pick_item)
 		pos = pick_item->getPosGlobal();
 	else if(c_item)
+	{
+		LLPanelClassifiedInfo::sendClickMessage("map", false,
+			c_item->getClassifiedId(), LLUUID::null, pos, LLStringUtil::null);
 		pos = c_item->getPosGlobal();
+	}
 
 	LLFloaterWorldMap::getInstance()->trackLocation(pos);
 	LLFloaterReg::showInstance("world_map", "center");
@@ -756,26 +735,20 @@ void LLPanelPicks::openClassifiedInfo()
 	if (selected_value.isUndefined()) return;
 
 	LLClassifiedItem* c_item = getSelectedClassifiedItem();
+	LLSD params;
+	params["classified_id"] = c_item->getClassifiedId();
+	params["classified_creator_id"] = c_item->getAvatarId();
+	params["classified_snapshot_id"] = c_item->getSnapshotId();
+	params["classified_name"] = c_item->getClassifiedName();
+	params["classified_desc"] = c_item->getDescription();
+	params["from_search"] = false;
 
-	openClassifiedInfo(c_item->getClassifiedId(), c_item->getAvatarId(),
-					   c_item->getSnapshotId(), c_item->getClassifiedName(),
-					   c_item->getDescription());
+	openClassifiedInfo(params);
 }
 
-void LLPanelPicks::openClassifiedInfo(const LLUUID &classified_id, 
-									  const LLUUID &avatar_id,
-									  const LLUUID &snapshot_id,
-									  const std::string &name, const std::string &desc)
+void LLPanelPicks::openClassifiedInfo(const LLSD &params)
 {
 	createClassifiedInfoPanel();
-
-	LLSD params;
-	params["classified_id"] = classified_id;
-	params["avatar_id"] = avatar_id;
-	params["snapshot_id"] = snapshot_id;
-	params["name"] = name;
-	params["desc"] = desc;
-
 	getProfilePanel()->openPanel(mPanelClassifiedInfo, params);
 }
 

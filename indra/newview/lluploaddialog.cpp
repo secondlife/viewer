@@ -91,7 +91,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 	setMessage(msg);
 
 	// The dialog view is a root view
-	gFocusMgr.setTopCtrl( this );
+	gViewerWindow->addPopup(this);
 }
 
 void LLUploadDialog::setMessage( const std::string& msg)

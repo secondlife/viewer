@@ -18,13 +18,13 @@
 	<text name="balance_amount">
 		[AMT] L$
 	</text>
-	<text name="currency_action" width="90">
+	<text name="currency_action">
 		Ich möchte kaufen
 	</text>
 	<text name="currency_label">
 		L$
 	</text>
-	<line_editor label="L$" left_delta="55" name="currency_amt">
+	<line_editor label="L$" name="currency_amt">
 		1234
 	</line_editor>
 	<text name="buying_label">
