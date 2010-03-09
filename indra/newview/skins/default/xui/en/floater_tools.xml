@@ -1104,7 +1104,7 @@ even though the user gets a free copy.
              follows="left|top|right"
              label="Modify"
              layout="topleft"
-             left="15"
+             left="5"
              name="checkbox next owner can modify"
              width="85" />
             <check_box
