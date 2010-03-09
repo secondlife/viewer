@@ -945,7 +945,7 @@ void LLPanelPicks::onPanelClassifiedEdit()
 
 	LLSD params;
 	params["classified_id"] = c_item->getClassifiedId();
-	params["avatar_id"] = c_item->getAvatarId();
+	params["classified_creator_id"] = c_item->getAvatarId();
 	params["snapshot_id"] = c_item->getSnapshotId();
 	params["name"] = c_item->getClassifiedName();
 	params["desc"] = c_item->getDescription();
