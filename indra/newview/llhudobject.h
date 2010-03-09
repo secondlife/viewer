@@ -42,7 +42,7 @@
 #include "v4color.h"
 #include "v3math.h"
 #include "v3dmath.h"
-#include "lldrawpool.h"
+#include "lldrawpool.h"		// TODO: eliminate, unused below
 #include <list>
 
 class LLViewerCamera;
