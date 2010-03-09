@@ -43,7 +43,9 @@
 
 namespace LLAvatarNameCache
 {
-	bool sUseDisplayNames = false;
+	// *TODO: Defaulted to true for demo, probably want false for initial
+	// release and turn it on based on data from login.cgi
+	bool sUseDisplayNames = true;
 
 	// *TODO: configure the base URL for this in viewer with data
 	// from login.cgi
