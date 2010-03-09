@@ -1918,7 +1918,7 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 	
 	std::string nm[] = 
 	{
-		"impostor",
+		"lowest_lod",
 		"low_lod",
 		"medium_lod",
 		"high_lod"
