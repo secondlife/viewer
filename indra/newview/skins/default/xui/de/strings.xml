@@ -758,6 +758,9 @@
 	<string name="invalid">
 		ungültig
 	</string>
+	<string name="NewWearable">
+		Neue/r/s [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Weiter
 	</string>
@@ -1467,6 +1470,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		Neues Skript
+	</string>
+	<string name="BusyModeResponseDefault">
+		Der Einwohner/Die Einwohnerin ist „beschäftigt&quot;, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
 	</string>
 	<string name="MuteByName">
 		(nach Namen)

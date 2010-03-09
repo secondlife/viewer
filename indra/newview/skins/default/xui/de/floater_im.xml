@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Instant Message">
 	<string name="only_user_message">
-		Sie sind der einzige Benutzer in dieser Sitzung.
+		Sie sind der einzige Einwohner in dieser Sitzung.
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST] ist offline.
@@ -32,7 +32,7 @@
 	</string>
 	<!-- ALL of the event strings should have [RECIPIENT] in them -->
 	<string name="add_session_event">
-		Es konnten keine Benutzer zur Chat-Sitzung mit [RECIPIENT] hinzugefügt werden.
+		Es konnten keine Einwohner zur Chat-Sitzung mit [RECIPIENT] hinzugefügt werden.
 	</string>
 	<string name="message_session_event">
 		Ihre Nachricht konnte nicht an die Chat-Sitzung mit [RECIPIENT] gesendet werden.

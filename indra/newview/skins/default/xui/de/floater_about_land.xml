@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="LAND-INFO">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] Minuten
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab" tab_min_width="40" width="489">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
-				Nur neue Benutzer
+				Nur neue Einwohner
 			</panel.string>
 			<panel.string name="anyone">
 				Jeder
@@ -388,10 +397,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Homepage:
 			</text>
 			<button label="Festlegen" label_selected="Einstellen..." name="set_media_url"/>
-			<text name="CurrentURL:">
-				Aktuelle Seite:
-			</text>
-			<button label="Zurücksetzen..." label_selected="Zurücksetzen..." name="reset_media_url" tool_tip="URL aktualisieren"/>
 			<check_box label="URL ausblenden" name="hide_media_url" tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Medien-URL sehen können. Diese Option ist für HTML-Medien nicht verfügbar."/>
 			<text name="Description:">
 				Inhalt:

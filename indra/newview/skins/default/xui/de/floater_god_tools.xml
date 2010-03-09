@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="GOTT-WERKZEUGE">
 	<tab_container name="GodTools Tabs">
 		<panel label="Raster" name="grid">
-			<button label="Alle Benutzer hinauswerfen" label_selected="Alle Benutzer hinauswerfen" name="Kick all users" width="175"/>
+			<button label="Alle Einwohner hinauswerfen" label_selected="Alle Einwohner hinauswerfen" name="Kick all users" width="175"/>
 			<button label="Sichtbarkeits-Cache dieser Regionskarte leeren" label_selected="Sichtbarkeits-Cache dieser Regionskarte leeren" name="Flush This Region&apos;s Map Visibility Caches" width="285"/>
 		</panel>
 		<panel label="Region" name="region">
@@ -35,8 +35,8 @@
 			<text name="Redirect to Grid: " width="110">
 				Auf Raster umleiten:
 			</text>
-			<line_editor left_delta="110" name="redirectx" width="35" left_pad="0"/>
-			<line_editor left_delta="45" name="redirecty" width="35" />
+			<line_editor left_delta="110" left_pad="0" name="redirectx" width="35"/>
+			<line_editor left_delta="45" name="redirecty" width="35"/>
 			<text font="SansSerifSmall" name="billable factor text">
 				Abrechnungsfaktor:
 			</text>
