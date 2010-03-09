@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Anzeige wird veröffentlicht">
+	<text name="explanation_text">
+		Ihr Anzeige wird für eine Woche veröffentlicht.
+        
+Anzeigengebühren werden nicht zurückerstattet.
+	</text>
+	<spinner label="Anzeigenpreis:" name="price_for_listing" tool_tip="Preis für Anzeige." value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		Weitere Infos (Link zur Hilfe)
+	</text>
+	<button label="Veröffentlichen" name="publish_btn"/>
+	<button label="Abbrechen" name="cancel_btn"/>
+</floater>
