@@ -834,7 +834,7 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 	return error;
 }
 
-BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
+BOOL LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 {
 	if( mLocked )
 		return FALSE;
@@ -853,20 +853,29 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 		mNavOptions.optionFlags |= kNavSupportPackages;
 	}
 	
-	// Modal, so pause agent
-	send_agent_pause();
+	if (blocking)
+	{
+		// Modal, so pause agent
+		send_agent_pause();
+	}
+
 	{
 		error = doNavChooseDialog(filter);
 	}
-	send_agent_resume();
+	
 	if (error == noErr)
 	{
 		if (getFileCount())
 			success = true;
 	}
 
-	// Account for the fact that the app has been stalled.
-	LLFrameTimer::updateFrameTime();
+	if (blocking)
+	{
+		send_agent_resume();
+		// Account for the fact that the app has been stalled.
+		LLFrameTimer::updateFrameTime();
+	}
+
 	return success;
 }
 
@@ -1223,7 +1232,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 	return rtn;
 }
 
-BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
+BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 {
 	BOOL rtn = FALSE;
 
