@@ -2807,6 +2807,9 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_TOOLPAUSE:		return "UI_CURSOR_TOOLPAUSE";
 		case UI_CURSOR_TOOLMEDIAOPEN:	return "UI_CURSOR_TOOLMEDIAOPEN";
 		case UI_CURSOR_PIPETTE:			return "UI_CURSOR_PIPETTE";		
+		case UI_CURSOR_TOOLSIT:			return "UI_CURSOR_TOOLSIT";
+		case UI_CURSOR_TOOLBUY:			return "UI_CURSOR_TOOLBUY";
+		case UI_CURSOR_TOOLOPEN:		return "UI_CURSOR_TOOLOPEN";
 	}
 
 	llerrs << "cursorIDToName: unknown cursor id" << id << llendl;
@@ -2909,6 +2912,9 @@ void LLWindowMacOSX::setCursor(ECursorType cursor)
 	case UI_CURSOR_TOOLPLAY:
 	case UI_CURSOR_TOOLPAUSE:
 	case UI_CURSOR_TOOLMEDIAOPEN:
+	case UI_CURSOR_TOOLSIT:
+	case UI_CURSOR_TOOLBUY:
+	case UI_CURSOR_TOOLOPEN:
 		result = setImageCursor(gCursors[cursor]);
 		break;
 
@@ -2950,6 +2956,9 @@ void LLWindowMacOSX::initCursors()
 	initPixmapCursor(UI_CURSOR_TOOLPLAY, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLPAUSE, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLMEDIAOPEN, 1, 1);
+	initPixmapCursor(UI_CURSOR_TOOLSIT, 5, 1);
+	initPixmapCursor(UI_CURSOR_TOOLBUY, 5, 1);
+	initPixmapCursor(UI_CURSOR_TOOLOPEN, 5, 1);
 
 	initPixmapCursor(UI_CURSOR_SIZENWSE, 10, 10);
 	initPixmapCursor(UI_CURSOR_SIZENESW, 10, 10);
