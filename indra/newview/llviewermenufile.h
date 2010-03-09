@@ -36,6 +36,7 @@
 #include "llfoldertype.h"
 #include "llassetstorage.h"
 #include "llinventorytype.h"
+#include "llfilepicker.h"
 
 class LLTransactionID;
 
@@ -119,6 +120,31 @@ void on_new_single_inventory_upload_complete(
 	const std::string& item_description,
 	const LLSD& server_response,
 	S32 upload_price);
+
+class LLFilePickerThread : public LLThread
+{ //multi-threaded file picker (runs system specific file picker in background and calls "notify" from main thread)
+public:
+
+	static std::queue<LLFilePickerThread*> sDeadQ;
+	static LLMutex* sMutex;
+
+	static void initClass();
+	static void cleanupClass();
+	static void clearDead();
+
+	std::string mFile; 
+
+	LLFilePicker::ELoadFilter mFilter;
+
+	LLFilePickerThread(LLFilePicker::ELoadFilter filter)
+		: LLThread("file picker"), mFilter(filter)
+	{
+
+	}
+	virtual void run();
+
+	virtual void notify(const std::string& filename) = 0;
+};
 
 
 #endif

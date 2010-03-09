@@ -100,6 +100,57 @@ class LLFileEnableUploadModel : public view_listener_t
 	}
 };
 
+LLMutex* LLFilePickerThread::sMutex = NULL;
+std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
+
+//virtual 
+void LLFilePickerThread::run()
+{
+	LLFilePicker picker;
+	if (picker.getOpenFile(mFilter, FALSE))
+	{
+		mFile = picker.getFirstFile();
+	}
+	
+	{
+		LLMutexLock lock(sMutex);
+		sDeadQ.push(this);
+	}
+
+}
+
+//static
+void LLFilePickerThread::initClass()
+{
+	sMutex = new LLMutex(NULL);
+}
+
+//static
+void LLFilePickerThread::cleanupClass()
+{
+	clearDead();
+	
+	delete sMutex;
+	sMutex = NULL;
+}
+
+//static
+void LLFilePickerThread::clearDead()
+{
+	if (!sDeadQ.empty())
+	{
+		LLMutexLock lock(sMutex);
+		while (!sDeadQ.empty())
+		{
+			LLFilePickerThread* thread = sDeadQ.front();
+			thread->notify(thread->mFile);
+			delete thread;
+			sDeadQ.pop();
+		}
+	}
+}
+
+
 //============================================================================
 
 #if LL_WINDOWS
@@ -290,7 +341,7 @@ class LLFileUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::showInstance("upload_model");
+		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
 		if (fmp)
 		{
 			fmp->loadModel(3);

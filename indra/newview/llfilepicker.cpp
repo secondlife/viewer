@@ -211,7 +211,7 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 	return res;
 }
 
-BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
+BOOL LLFilePicker::getOpenFile(ELoadFilter filter, BOOL blocking)
 {
 	if( mLocked )
 	{
@@ -230,8 +230,11 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 
 	setupFilter(filter);
 	
-	// Modal, so pause agent
-	send_agent_pause();
+	if (blocking)
+	{
+		// Modal, so pause agent
+		send_agent_pause();
+	}
 
 	reset();
 	
@@ -242,10 +245,14 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 		std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
 		mFiles.push_back(filename);
 	}
-	send_agent_resume();
 
-	// Account for the fact that the app has been stalled.
-	LLFrameTimer::updateFrameTime();
+	if (blocking)
+	{
+		send_agent_resume();
+		// Account for the fact that the app has been stalled.
+		LLFrameTimer::updateFrameTime();
+	}
+	
 	return success;
 }
 
