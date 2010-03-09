@@ -91,7 +91,7 @@
 			<radio_item label="Puntos de luz cercanos" name="LocalLights"/>
 		</radio_group>
 		<text name="TerrainDetailText">
-			Nivel de detalle del terreno:
+			Detalle del terreno:
 		</text>
 		<radio_group name="TerrainDetailRadio">
 			<radio_item label="Bajo" name="0"/>
