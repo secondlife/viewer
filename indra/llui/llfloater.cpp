@@ -2820,3 +2820,15 @@ bool LLFloater::isShown(const LLFloater* floater)
 {
     return floater && floater->isShown();
 }
+
+/* static */
+bool LLFloater::isMinimized(const LLFloater* floater)
+{
+    return floater && floater->isMinimized();
+}
+
+/* static */
+bool LLFloater::isVisible(const LLFloater* floater)
+{
+    return floater && floater->getVisible();
+}

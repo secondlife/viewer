@@ -194,6 +194,8 @@ public:
 	/// The static isShown() can accept a NULL pointer (which of course
 	/// returns false). When non-NULL, it calls the non-static isShown().
 	static bool		isShown(const LLFloater* floater);
+	static bool     isVisible(const LLFloater* floater);
+	static bool     isMinimized(const LLFloater* floater);
 	BOOL			isFirstLook() { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
 	BOOL			isFrontmost();
 	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
