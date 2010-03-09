@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="OUTILS DIVINS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grille" name="grid">
-			<button label="Éjecter tous" label_selected="Éjecter tous" name="Kick all users" width="175"/>
+			<button label="Éjecter tous les résidents" label_selected="Éjecter tous les résidents" name="Kick all users" width="175"/>
 			<button label="Vider le cache cartographique de la région" label_selected="Vider le cache cartographique de la région" name="Flush This Region&apos;s Map Visibility Caches" width="285"/>
 		</panel>
 		<panel label="Région" name="region">

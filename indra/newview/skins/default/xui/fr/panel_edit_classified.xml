@@ -3,12 +3,20 @@
 	<panel.string name="location_notice">
 		(mise à jour après l&apos;enregistrement)
 	</panel.string>
+	<string name="publish_label">
+		Publier
+	</string>
+	<string name="save_label">
+		Enregistrer
+	</string>
 	<text name="title">
 		Modifier la petite annonce
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="Cliquez pour sélectionner une image"/>
+			<panel name="snapshot_panel">
+				<icon label="" name="edit_icon" tool_tip="Cliquer pour sélectionner une image"/>
+			</panel>
 			<text name="Name:">
 				Titre :
 			</text>
@@ -22,20 +30,19 @@
 				en cours de chargement...
 			</text>
 			<button label="Définir sur l&apos;emplacement actuel" name="set_to_curr_location_btn"/>
-			<combo_box name="content_type">
-				<combo_item name="mature_ci">
-					Contenu Modéré
-				</combo_item>
-				<combo_item name="pg_ci">
-					Contenu Général
-				</combo_item>
-			</combo_box>
+			<text name="category_label" value="Catégorie :"/>
+			<text name="content_type_label" value="Type de contenu :"/>
+			<icons_combo_box label="Contenu Général" name="content_type">
+				<icons_combo_box.item label="Contenu Modéré" name="mature_ci" value="Mature"/>
+				<icons_combo_box.item label="Contenu Général" name="pg_ci" value="PG"/>
+			</icons_combo_box>
+			<text name="price_for_listing_label" value="Coût de l&apos;annonce :"/>
 			<spinner label="L$" name="price_for_listing" tool_tip="Coût de l&apos;annonce." value="50"/>
 			<check_box label="Renouvellement automatique toutes les semaines" name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Enregistrer" name="save_changes_btn"/>
+		<button label="[LABEL]" name="save_changes_btn"/>
 		<button label="Annuler" name="cancel_btn"/>
 	</panel>
 </panel>
