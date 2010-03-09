@@ -42,7 +42,6 @@
 #include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "message.h"
-#include "lluserauth.h"
 
 #include "llagent.h"
 #include "llbutton.h"
@@ -791,7 +790,7 @@ void LLPanelLandGeneral::refreshNames()
 	else
 	{
 		// Figure out the owner's name
-		owner = LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
+		owner = LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -803,7 +802,7 @@ void LLPanelLandGeneral::refreshNames()
 	std::string group;
 	if (!parcel->getGroupID().isNull())
 	{
-		group = LLSLURL::buildCommand("group", parcel->getGroupID(), "inspect");
+		group = LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
 	}
 	mTextGroup->setText(group);
 
@@ -811,7 +810,7 @@ void LLPanelLandGeneral::refreshNames()
 	if(auth_buyer_id.notNull())
 	{
 		std::string name;
-		name = LLSLURL::buildCommand("agent", auth_buyer_id, "inspect");
+		name = LLSLURL("agent", auth_buyer_id, "inspect").getSLURLString();
 		mSaleInfoForSale2->setTextArg("[BUYER]", name);
 	}
 	else

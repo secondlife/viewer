@@ -193,7 +193,7 @@ void LLFloaterEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		floater->mTBCategory->setText(floater->mEventInfo.mCategoryStr);
 		floater->mTBDate->setText(floater->mEventInfo.mTimeStr);
 		floater->mTBDesc->setText(floater->mEventInfo.mDesc);
-		floater->mTBRunBy->setText(LLSLURL::buildCommand("agent", floater->mEventInfo.mRunByID, "inspect"));
+		floater->mTBRunBy->setText(LLSLURL("agent", floater->mEventInfo.mRunByID, "inspect").getSLURLString());
 
 		floater->mTBDuration->setText(llformat("%d:%.2d", floater->mEventInfo.mDuration / 60, floater->mEventInfo.mDuration % 60));
 
