@@ -423,6 +423,22 @@ bool LLPanelPicks::isActionEnabled(const LLSD& userdata) const
 	return true;
 }
 
+bool LLPanelPicks::isClassifiedPublished(LLClassifiedItem* c_item)
+{
+	if(c_item)
+	{
+		LLPanelClassifiedEdit* panel = mEditClassifiedPanels[c_item->getClassifiedId()];
+		if(panel)
+		{
+			 return !panel->isNewWithErrors();
+		}
+
+		// we've got this classified from server - it's published
+		return true;
+	}
+	return false;
+}
+
 void LLPanelPicks::onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab)
 {
 	if(!mPicksAccTab->getDisplayChildren())
@@ -659,6 +675,12 @@ void LLPanelPicks::updateButtons()
 	childSetEnabled(XML_BTN_INFO, has_selected);
 	childSetEnabled(XML_BTN_TELEPORT, has_selected);
 	childSetEnabled(XML_BTN_SHOW_ON_MAP, has_selected);
+
+	LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
+	if(c_item)
+	{
+		childSetEnabled(XML_BTN_INFO, isClassifiedPublished(c_item));
+	}
 }
 
 void LLPanelPicks::setProfilePanel(LLPanelProfile* profile_panel)
@@ -988,15 +1010,10 @@ bool LLPanelPicks::onEnableMenuItem(const LLSD& user_data)
 	std::string param = user_data.asString();
 
 	LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
-	if(c_item)
+	if(c_item && "info" == param)
 	{
-		LLPanelClassifiedEdit* panel = mEditClassifiedPanels[c_item->getClassifiedId()];
-
-		if(panel && "info" == param)
-		{
-			// dont show Info panel if classified was not created
-			return ! panel->isNewWithErrors();
-		}
+		// dont show Info panel if classified was not created
+		return isClassifiedPublished(c_item);
 	}
 
 	return true;
