@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Publication de l&apos;annonce">
+	<text name="explanation_text">
+		Votre petite annonce sera visible pendant une semaine à partir de sa date de publication.
+        
+Rappel : les frais liés aux annonces passées ne sont pas remboursables.
+	</text>
+	<spinner label="Coût de l&apos;annonce :" name="price_for_listing" tool_tip="Coût de l’annonce." value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		En savoir plus (lien vers l&apos;aide sur les annonces)
+	</text>
+	<button label="Publier" name="publish_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
+</floater>

@@ -9,7 +9,7 @@
 	<menu_item_call label="Ignorer" name="block"/>
 	<menu_item_call label="Ne plus ignorer" name="unblock"/>
 	<menu_item_call label="Signaler" name="report"/>
-	<menu_item_call label="Geler" name="freeze"/>
+	<menu_item_call label="Figer" name="freeze"/>
 	<menu_item_call label="Expulser" name="eject"/>
 	<menu_item_call label="Débogage" name="debug"/>
 	<menu_item_call label="Situer sur la carte" name="find_on_map"/>

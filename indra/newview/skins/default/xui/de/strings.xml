@@ -753,10 +753,13 @@
 		Alpha
 	</string>
 	<string name="tattoo">
-		Taetowierung
+		Tätowierung
 	</string>
 	<string name="invalid">
 		ungültig
+	</string>
+	<string name="NewWearable">
+		Neue/r/s [WEARABLE_ITEM]
 	</string>
 	<string name="next">
 		Weiter
@@ -1256,7 +1259,7 @@
 		(unbekannt)
 	</string>
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
-	<string name="NextStipendDay" value="Der nächste Stipendium-Tag ist "/>
+	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
 	<string name="Balance">
 		Kontostand
@@ -1467,6 +1470,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		Neues Skript
+	</string>
+	<string name="BusyModeResponseDefault">
+		Der Einwohner/Die Einwohnerin ist „beschäftigt&quot;, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
 	</string>
 	<string name="MuteByName">
 		(nach Namen)

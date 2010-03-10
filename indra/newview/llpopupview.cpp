@@ -220,10 +220,6 @@ void LLPopupView::removePopup(LLView* popup)
 {
 	if (popup)
 	{
-		if (gFocusMgr.childHasKeyboardFocus(popup))
-		{
-			gFocusMgr.setKeyboardFocus(NULL);
-		}
 		popup_list_t::iterator iter = std::find(mPopups.begin(), mPopups.end(), popup->getHandle());
 		if(iter != mPopups.end())
 		{

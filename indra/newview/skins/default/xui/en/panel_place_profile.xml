@@ -325,6 +325,7 @@
              top_pad="10"
              width="313">
                 <accordion_tab
+                 height="170"
                  layout="topleft"
                  name="parcel_characteristics_tab"
                  title="Parcel">
@@ -537,6 +538,7 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
+                 height="150"
                  layout="topleft"
                  name="region_information_tab"
                  title="Region">
@@ -664,6 +666,7 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
+                 height="190"
                  layout="topleft"
                  name="estate_information_tab"
                  title="Estate">
@@ -753,6 +756,7 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
+                 height="320"
                  layout="topleft"
                  name="sales_tab"
                  title="For Sale">

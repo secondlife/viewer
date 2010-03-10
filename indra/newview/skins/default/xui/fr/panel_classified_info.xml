@@ -9,16 +9,46 @@
 	<panel.string name="l$_price">
 		[PRICE] L$
 	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] téléporter, [MAP] carte, [PROFILE] profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Activé
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Désactivé
+	</panel.string>
 	<text name="title" value="Infos sur la petite annonce"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text_editor name="classified_name" value="[name]"/>
+			<text name="classified_location_label" value="Emplacement :"/>
 			<text_editor name="classified_location" value="[loading...]"/>
+			<text name="content_type_label" value="Type de contenu :"/>
 			<text_editor name="content_type" value="[content type]"/>
+			<text name="category_label" value="Catégorie :"/>
 			<text_editor name="category" value="[category]"/>
-			<check_box label="Renouvellement automatique toutes les semaines" name="auto_renew"/>
-			<text_editor name="price_for_listing" tool_tip="Coût de l&apos;annonce."/>
-			<text_editor name="classified_desc" value="[description]"/>
+			<text name="creation_date_label" value="Date de création :"/>
+			<text_editor name="creation_date" tool_tip="Date de création" value="[date]"/>
+			<text name="price_for_listing_label" value="Coût de l&apos;annonce :"/>
+			<text_editor name="price_for_listing" tool_tip="Coût de l&apos;annonce." value="[prix]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Clics :"/>
+					<text_editor name="click_through_text" tool_tip="Parcourir les données en cliquant" value="[clics]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Renouvellement automatique :"/>
+					<text name="auto_renew" value="Activé"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Description :"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">
