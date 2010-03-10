@@ -35,6 +35,7 @@
 #include "llloginhandler.h"
 
 // viewer includes
+#include "lllogininstance.h"        // to check if logged in yet
 #include "llpanellogin.h"			// save_password_to_disk()
 #include "llstartup.h"				// getStartupState()
 #include "llurlsimstring.h"
@@ -169,6 +170,13 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 							const LLSD& query_map,
 							LLMediaCtrl* web)
 {
+	// do nothing if we are already logged in
+	if (LLLoginInstance::getInstance()->authSuccess())
+	{
+		LL_WARNS_ONCE("SLURL") << "Already logged in! Ignoring login SLapp." << LL_ENDL;
+		return true;
+	}
+
 	if (tokens.size() == 1
 		&& tokens[0].asString() == "show")
 	{
