@@ -216,6 +216,12 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 		const std::string& message, const LLUUID& session_owner_id,
 		const LLUUID& from_id)
 {
+	std::string from = from_name;
+	if (from_name.empty())
+	{
+		from = SYSTEM_FROM;
+	}
+
 	LLUUID session_id = LLIMMgr::computeSessionID(session_type,
 			session_owner_id);
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
@@ -223,7 +229,6 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 	if (session == NULL)
 	{
 		// replace interactive system message marker with correct from string value
-		std::string from = from_name;
 		if (INTERACTIVE_SYSTEM_FROM == from_name)
 		{
 			from = SYSTEM_FROM;
@@ -239,7 +244,7 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 		// set searched session as active to avoid IM toast popup
 		LLIMModel::instance().setActiveSessionID(session_id);
 
-		LLIMModel::instance().addMessage(session_id, from_name, from_id,
+		LLIMModel::instance().addMessage(session_id, from, from_id,
 				message);
 
 		// restore active session id
@@ -386,7 +391,7 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 	offer["notification_id"] = notification->getID();
 	offer["from_id"] = notification->getPayload()["from_id"];
 	offer["from"] = name;
-	offer["time"] = LLLogChat::timestamp(true);
+	offer["time"] = LLLogChat::timestamp(false);
 	offer["index"] = (LLSD::Integer)session->mMsgs.size();
 	session->mMsgs.push_front(offer);
 }
