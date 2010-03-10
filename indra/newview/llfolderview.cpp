@@ -837,11 +837,14 @@ void LLFolderView::sanitizeSelection()
 
 void LLFolderView::clearSelection()
 {
-	if (mSelectedItems.size() > 0)
+	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
+		 item_it != mSelectedItems.end(); 
+		 ++item_it)
 	{
-		recursiveDeselect(FALSE);
-		mSelectedItems.clear();
+		(*item_it)->setUnselected();
 	}
+
+	mSelectedItems.clear();
 	mSelectThisID.setNull();
 }
 
