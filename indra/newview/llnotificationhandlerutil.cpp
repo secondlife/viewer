@@ -165,7 +165,6 @@ bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 {
 	return OFFER_FRIENDSHIP == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
-			|| INVENTORY_DECLINED == notification->getName()
 			|| TELEPORT_OFFERED == notification->getName();
 }
 
@@ -181,6 +180,15 @@ bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
 bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
 {
 	return canLogToIM(notification) && canSpawnIMSession(notification);
+}
+
+// static
+bool LLHandlerUtil::canSpawnToast(const LLNotificationPtr& notification)
+{
+	bool cannot_spawn = isIMFloaterOpened(notification) && (INVENTORY_DECLINED == notification->getName()
+			|| INVENTORY_ACCEPTED == notification->getName());
+	
+	return !cannot_spawn;
 }
 
 // static

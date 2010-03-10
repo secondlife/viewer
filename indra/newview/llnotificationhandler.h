@@ -298,6 +298,13 @@ public:
 	static bool canSpawnSessionAndLogToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks if passed notification can create toast.
+	 *
+	 * It returns false only for inventory accepted/declined notifications if respective IM window is open (EXT-5909)
+	 */
+	static bool canSpawnToast(const LLNotificationPtr& notification);
+
+	/**
 	 * Determines whether IM floater is opened.
 	 */
 	static bool isIMFloaterOpened(const LLNotificationPtr& notification);
