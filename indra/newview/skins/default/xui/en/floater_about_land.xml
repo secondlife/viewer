@@ -1119,7 +1119,7 @@ Leyla Linden               </text>
                  label="Type"
                  name="type"
                  sort_column="online_status"
-                 width="24" />
+                 width="50" />
                 <name_list.columns
                  name="online_status"
                  width="-1" />
