@@ -192,7 +192,6 @@ LLPanelPicks::LLPanelPicks()
 	mPicksAccTab(NULL),
 	mClassifiedsAccTab(NULL),
 	mPanelClassifiedInfo(NULL),
-	mPanelClassifiedEdit(NULL),
 	mNoClassifieds(false),
 	mNoPicks(false)
 {
@@ -385,6 +384,9 @@ BOOL LLPanelPicks::postBuild()
 	registar.add("Pick.Teleport", boost::bind(&LLPanelPicks::onClickTeleport, this));
 	registar.add("Pick.Map", boost::bind(&LLPanelPicks::onClickMap, this));
 	registar.add("Pick.Delete", boost::bind(&LLPanelPicks::onClickDelete, this));
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registar;
+	enable_registar.add("Pick.Enable", boost::bind(&LLPanelPicks::onEnableMenuItem, this, _2));
+
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_picks.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar plus_registar;
@@ -693,9 +695,10 @@ void LLPanelPicks::createNewPick()
 
 void LLPanelPicks::createNewClassified()
 {
-	createClassifiedEditPanel();
+	LLPanelClassifiedEdit* panel = NULL;
+	createClassifiedEditPanel(&panel);
 
-	getProfilePanel()->openPanel(mPanelClassifiedEdit, LLSD());
+	getProfilePanel()->openPanel(panel, LLSD());
 }
 
 void LLPanelPicks::onClickInfo()
@@ -780,11 +783,10 @@ void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 
 	if(panel->isNew())
 	{
+		mEditClassifiedPanels[panel->getClassifiedId()] = panel;
+
 		LLClassifiedItem* c_item = new LLClassifiedItem(getAvatarId(), panel->getClassifiedId());
-		
-		c_item->setClassifiedName(panel->getClassifiedName());
-		c_item->setDescription(panel->getDescription());
-		c_item->setSnapshotId(panel->getSnapshotId());
+		c_item->fillIn(panel);
 
 		LLSD c_value;
 		c_value.insert(CLASSIFIED_ID, c_item->getClassifiedId());
@@ -799,6 +801,11 @@ void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 		// order does matter, showAccordion will invoke arrange for accordions.
 		mClassifiedsAccTab->changeOpenClose(false);
 		showAccordion("tab_classifieds", true);
+	}
+	else if(panel->isNewWithErrors())
+	{
+		LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
+		c_item->fillIn(panel);
 	}
 	else 
 	{
@@ -860,15 +867,16 @@ void LLPanelPicks::createClassifiedInfoPanel()
 	}
 }
 
-void LLPanelPicks::createClassifiedEditPanel()
+void LLPanelPicks::createClassifiedEditPanel(LLPanelClassifiedEdit** panel)
 {
-	if(!mPanelClassifiedEdit)
+	if(panel)
 	{
-		mPanelClassifiedEdit = LLPanelClassifiedEdit::create();
-		mPanelClassifiedEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedEdit));
-		mPanelClassifiedEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelClassifiedSave, this, mPanelClassifiedEdit));
-		mPanelClassifiedEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedEdit));
-		mPanelClassifiedEdit->setVisible(FALSE);
+		LLPanelClassifiedEdit* new_panel = LLPanelClassifiedEdit::create();
+		new_panel->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, new_panel));
+		new_panel->setSaveCallback(boost::bind(&LLPanelPicks::onPanelClassifiedSave, this, new_panel));
+		new_panel->setCancelCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, new_panel));
+		new_panel->setVisible(FALSE);
+		*panel = new_panel;
 	}
 }
 
@@ -941,16 +949,26 @@ void LLPanelPicks::onPanelClassifiedEdit()
 
 	LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
 
-	createClassifiedEditPanel();
-
 	LLSD params;
 	params["classified_id"] = c_item->getClassifiedId();
 	params["classified_creator_id"] = c_item->getAvatarId();
 	params["snapshot_id"] = c_item->getSnapshotId();
 	params["name"] = c_item->getClassifiedName();
 	params["desc"] = c_item->getDescription();
+	params["category"] = (S32)c_item->getCategory();
+	params["content_type"] = (S32)c_item->getContentType();
+	params["auto_renew"] = c_item->getAutoRenew();
+	params["price_for_listing"] = c_item->getPriceForListing();
+	params["location_text"] = c_item->getLocationText();
 
-	getProfilePanel()->openPanel(mPanelClassifiedEdit, params);
+	LLPanelClassifiedEdit* panel = mEditClassifiedPanels[c_item->getClassifiedId()];
+	if(!panel)
+	{
+		createClassifiedEditPanel(&panel);
+		mEditClassifiedPanels[c_item->getClassifiedId()] = panel;
+	}
+	getProfilePanel()->openPanel(panel, params);
+	panel->setPosGlobal(c_item->getPosGlobal());
 }
 
 void LLPanelPicks::onClickMenuEdit()
@@ -963,6 +981,25 @@ void LLPanelPicks::onClickMenuEdit()
 	{
 		onPanelClassifiedEdit();
 	}
+}
+
+bool LLPanelPicks::onEnableMenuItem(const LLSD& user_data)
+{
+	std::string param = user_data.asString();
+
+	LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
+	if(c_item)
+	{
+		LLPanelClassifiedEdit* panel = mEditClassifiedPanels[c_item->getClassifiedId()];
+
+		if(panel && "info" == param)
+		{
+			// dont show Info panel if classified was not created
+			return ! panel->isNewWithErrors();
+		}
+	}
+
+	return true;
 }
 
 inline LLPanelProfile* LLPanelPicks::getProfilePanel()
@@ -1151,6 +1188,24 @@ void LLClassifiedItem::setValue(const LLSD& value)
 	if (!value.isMap()) return;;
 	if (!value.has("selected")) return;
 	childSetVisible("selected_icon", value["selected"]);
+}
+
+void LLClassifiedItem::fillIn(LLPanelClassifiedEdit* panel)
+{
+	if(!panel)
+	{
+		return;
+	}
+
+	setClassifiedName(panel->getClassifiedName());
+	setDescription(panel->getDescription());
+	setSnapshotId(panel->getSnapshotId());
+	setCategory(panel->getCategory());
+	setContentType(panel->getContentType());
+	setAutoRenew(panel->getAutoRenew());
+	setPriceForListing(panel->getPriceForListing());
+	setPosGlobal(panel->getPosGlobal());
+	setLocationText(panel->getClassifiedLocation());
 }
 
 void LLClassifiedItem::setClassifiedName(const std::string& name)
