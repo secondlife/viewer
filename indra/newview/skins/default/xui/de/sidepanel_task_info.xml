@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="Objektprofil"/>
 	<text name="where" value="(inworld)"/>
-	<panel name="properties_panel" label="">
+	<panel label="" name="properties_panel">
 		<text name="Name:">
 			Name:
 		</text>
@@ -85,7 +85,7 @@
 			<text name="GroupLabel">
 				Gruppe:
 			</text>
-			<check_box label="Teilen" name="checkbox share with group" tool_tip="Mit allen Mitgliedern der zugeordneten Gruppe, Ihre Berechtigungen dieses Objekt zu ändern teilen. Sie müssen Übereignen, um Rollenbeschränkungen zu aktivieren."/>
+			<check_box label="Teilen" name="checkbox share with group" tool_tip="Mit allen Mitgliedern der zugeordneten Gruppe, Ihre Berechtigungen dieses Objekt zu ändern, teilen. Sie müssen Übereignen, um Rollenbeschränkungen zu aktivieren."/>
 			<text name="NextOwnerLabel">
 				Nächster Eigentümer:
 			</text>
@@ -96,7 +96,7 @@
 		<check_box label="Zum Verkauf" name="checkbox for sale"/>
 		<combo_box name="sale type">
 			<combo_box.item label="Kopieren" name="Copy"/>
-			<combo_box.item label="Inhalte" name="Contents"/>
+			<combo_box.item label="Inhalt" name="Contents"/>
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
 		<spinner label="Preis: L$" name="Edit Cost"/>
@@ -124,5 +124,6 @@
 		<button label="Öffnen" name="open_btn"/>
 		<button label="Bezahlen" name="pay_btn"/>
 		<button label="Kaufen" name="buy_btn"/>
+		<button label="Details" name="details_btn"/>
 	</panel>
 </panel>

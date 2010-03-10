@@ -40,11 +40,11 @@
 		<action description="Toujours autoriser à créer des repères" longdescription="Vous pouvez créer un repère sur une parcelle du groupe, même si l&apos;option est désactivée à partir du menu À propos du terrain &gt; Options." name="land allow landmark" value="26"/>
 		<action description="Autoriser à définir un domicile sur le terrain du groupe" longdescription="Un membre dans un rôle avec ce pouvoir peut utiliser le menu Monde &gt; Repères &gt; Définir le domicile ici sur une parcelle cédée à ce groupe." name="land allow set home" value="28"/>
 	</action_set>
-	<action_set description="Ces pouvoirs permettent d&apos;autoriser ou d&apos;interdire l&apos;accès à des parcelles du groupe et de geler ou d&apos;expulser des résidents." name="Parcel Access">
+	<action_set description="Ces pouvoirs permettent d&apos;autoriser ou d&apos;interdire l&apos;accès à des parcelles du groupe et de figer ou d&apos;expulser des résidents." name="Parcel Access">
 		<action description="Gérer la liste d&apos;accès à la parcelle" longdescription="Gérez la liste des résidents autorisés sur la parcelle à partir du menu À propos du terrain &gt; Accès." name="land manage allowed" value="29"/>
 		<action description="Gérer la liste noire de cette parcelle" longdescription="Gérez les listes des résidents bannis des parcelles dans l&apos;onglet À propos des terrains &gt; Accès." name="land manage banned" value="30"/>
 		<action description="Modifiez les paramètres Vendre des pass à" longdescription="Modifiez les paramètres Vendre des pass à dans l&apos;onglet À propos des terrains &gt; Accès." name="land manage passes" value="31"/>
-		<action description="Expulser et geler des résidents" longdescription="Les membres dans un rôle avec ce pouvoir peuvent se charger des résidents indésirables sur une parcelle appartenant au groupe en cliquant dessus, puis en sélectionnant Expulser ou Geler." name="land admin" value="32"/>
+		<action description="Expulser et figer des résidents" longdescription="Les membres dans un rôle avec ce pouvoir peuvent se charger des résidents indésirables sur une parcelle appartenant au groupe en cliquant dessus, puis en sélectionnant Expulser ou Figer." name="land admin" value="32"/>
 	</action_set>
 	<action_set description="Ces pouvoirs permettent de renvoyer des objets du groupe et de placer ou déplacer des plantes Linden pour aménager le paysage. Utilisez ce pouvoir avec précaution car les objets renvoyés le sont définitivement." name="Parcel Content">
 		<action description="Renvoyer les objets transférés au groupe" longdescription="Vous pouvez renvoyer des objets appartenant au groupe à partir du menu À propos du terrain &gt; Objets." name="land return group owned" value="48"/>

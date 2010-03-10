@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="À PROPOS DES TERRAINS">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minutes
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab" tab_min_width="60">
 		<panel label="GÉNÉRAL" name="land_general_panel">
 			<panel.string name="new users only">
-				Nouveaux utilisateurs uniquement
+				Nouveaux résidents uniquement
 			</panel.string>
 			<panel.string name="anyone">
 				Tout le monde
@@ -380,7 +389,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				<combo_box.item label="Lieu d&apos;arrivée fixe" name="LandingPoint"/>
 				<combo_box.item label="Lieu d&apos;arrivée libre" name="Anywhere"/>
 			</combo_box>
-		</panel>	
+		</panel>
 		<panel label="MÉDIA" name="land_media_panel">
 			<text name="with media:" width="85">
 				Type :
@@ -392,10 +401,6 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Choisir" label_selected="Définir..." name="set_media_url"/>
-			<text name="CurrentURL:">
-				Page actuelle :
-			</text>
-			<button label="Réinitialiser..." label_selected="Réinitialiser..." name="reset_media_url" tool_tip="Actualiser l&apos;URL"/>
 			<check_box label="Masquer l&apos;URL" left="97" name="hide_media_url" tool_tip="Si vous cochez cette option, les personnes non autorisées à accéder aux infos de cette parcelle ne verront pas l&apos;URL du média. Cette option n&apos;est pas disponible pour les fichiers HTML."/>
 			<text name="Description:">
 				Description :

@@ -20,7 +20,7 @@
      name="estate_help_text"
      top="14"
      word_wrap="true"
-     width="275">
+     width="250">
         Changes to settings on this tab will affect all regions in the estate.
     </text>
     <text

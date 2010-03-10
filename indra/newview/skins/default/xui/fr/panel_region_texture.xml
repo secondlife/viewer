@@ -28,16 +28,16 @@
 		Limites d&apos;élévation de texture
 	</text>
 	<text name="height_text_lbl6">
-		Sud-ouest
-	</text>
-	<text name="height_text_lbl7">
 		Nord-ouest
 	</text>
+	<text name="height_text_lbl7">
+		Nord-est
+	</text>
 	<text name="height_text_lbl8">
-		Sud-est
+		Sud-ouest
 	</text>
 	<text name="height_text_lbl9">
-		Nord-est
+		Sud-est
 	</text>
 	<text name="height_text_lbl10" width="460">
 		Ces valeurs représentent les limites de mélange pour les textures ci-dessus.

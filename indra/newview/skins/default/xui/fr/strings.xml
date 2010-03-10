@@ -758,6 +758,9 @@
 	<string name="invalid">
 		non valide
 	</string>
+	<string name="NewWearable">
+		Nouv. [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Suivant
 	</string>
@@ -1467,6 +1470,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		Nouveau script
+	</string>
+	<string name="BusyModeResponseDefault">
+		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
 	</string>
 	<string name="MuteByName">
 		(par nom)

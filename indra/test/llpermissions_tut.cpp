@@ -61,7 +61,7 @@ namespace tut
 			uuid2 == LLUUID::null && uuid3 == LLUUID::null));
 		ensure("LLPermission Get Functions failed", (permissions.getMaskBase() == PERM_ALL && permissions.getMaskOwner() == PERM_ALL && 
 			permissions.getMaskGroup() == PERM_ALL && permissions.getMaskEveryone() == PERM_ALL && permissions.getMaskNextOwner() == PERM_ALL));
-		ensure("Ownership functions failed", (permissions.isGroupOwned() == FALSE && permissions.isOwned() == FALSE));
+		ensure("Ownership functions failed", ((! permissions.isGroupOwned()) && (! permissions.isOwned())));
 	}
 
 	template<> template<>
@@ -204,7 +204,7 @@ namespace tut
 		LLPermissions perm1;
 		LLUUID uuid;
 		BOOL is_group_owned = FALSE;
-		ensure("1:getOwnership:failed ", (FALSE == perm1.getOwnership(uuid,is_group_owned)));
+		ensure("1:getOwnership:failed ", ! perm1.getOwnership(uuid,is_group_owned));
 		
 		LLPermissions perm;
 		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
@@ -213,11 +213,11 @@ namespace tut
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		perm.init(creator,owner,lastOwner,group);
 		perm.getOwnership(uuid,is_group_owned);
-		ensure("2:getOwnership:failed ", ((uuid == owner) && (FALSE == is_group_owned))); 
+		ensure("2:getOwnership:failed ", ((uuid == owner) && (! is_group_owned))); 
 
 		perm.init(creator,LLUUID::null,lastOwner,group);
 		perm.getOwnership(uuid,is_group_owned);
-		ensure("3:getOwnership:failed ", ((uuid == group) && (TRUE == is_group_owned))); 
+		ensure("3:getOwnership:failed ", ((uuid == group) && is_group_owned));
 	}
 
 	template<> template<>
@@ -240,17 +240,17 @@ namespace tut
 		LLUUID agent("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
 		LLUUID owner("68edcf47-ccd7-45b8-9f90-1649d7f12806"); 
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");
-		bool is_atomic = TRUE;
-		ensure("setOwnerAndGroup():failed ", (TRUE == perm.setOwnerAndGroup(agent,owner,group,is_atomic)));
+		bool is_atomic = true;
+		ensure("setOwnerAndGroup():failed ", perm.setOwnerAndGroup(agent,owner,group,is_atomic));
 		
 		LLUUID owner2("68edcf47-ccd7-45b8-9f90-1649d7f12807"); 
 		LLUUID group2("9c8eca51-53d5-42a7-bb58-cef070395db9");
 		
 		// cant change - agent need to be current owner
-		ensure("setOwnerAndGroup():failed ", (FALSE == perm.setOwnerAndGroup(agent,owner2,group2,is_atomic)));
+		ensure("setOwnerAndGroup():failed ", ! perm.setOwnerAndGroup(agent,owner2,group2,is_atomic));
 		
 		// should be able to change - agent and owner same as current owner
-		ensure("setOwnerAndGroup():failed ", (TRUE == perm.setOwnerAndGroup(owner,owner,group2,is_atomic)));
+		ensure("setOwnerAndGroup():failed ", perm.setOwnerAndGroup(owner,owner,group2,is_atomic));
 	}
 
 	template<> template<>
@@ -259,7 +259,7 @@ namespace tut
 		LLPermissions perm;
 		LLUUID agent;
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");
-		ensure("deedToGroup():failed ", (TRUE == perm.deedToGroup(agent,group)));
+		ensure("deedToGroup():failed ", perm.deedToGroup(agent,group));
 	}
 	template<> template<>
 	void permission_object_t::test<11>()
@@ -268,12 +268,12 @@ namespace tut
 		LLUUID agent;
 		BOOL set = 1;
 		U32 bits = PERM_TRANSFER | PERM_MODIFY;
-		ensure("setBaseBits():failed ", (TRUE == perm.setBaseBits(agent, set, bits)));
-		ensure("setOwnerBits():failed ", (TRUE == perm.setOwnerBits(agent, set, bits)));
+		ensure("setBaseBits():failed ", perm.setBaseBits(agent, set, bits));
+		ensure("setOwnerBits():failed ", perm.setOwnerBits(agent, set, bits));
 
 		LLUUID agent1("9c8eca51-53d5-42a7-bb58-cef070395db8");
-		ensure("setBaseBits():failed ", (FALSE == perm.setBaseBits(agent1, set, bits)));
-		ensure("setOwnerBits():failed ", (FALSE == perm.setOwnerBits(agent1, set, bits)));
+		ensure("setBaseBits():failed ", ! perm.setBaseBits(agent1, set, bits));
+		ensure("setOwnerBits():failed ", ! perm.setOwnerBits(agent1, set, bits));
 	}
 
 	template<> template<>
@@ -284,14 +284,14 @@ namespace tut
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		BOOL set = 1;
 		U32 bits = 10;
-		ensure("setGroupBits():failed ", (TRUE == perm.setGroupBits(agent,group, set, bits)));
-		ensure("setEveryoneBits():failed ", (TRUE == perm.setEveryoneBits(agent,group, set, bits)));
-		ensure("setNextOwnerBits():failed ", (TRUE == perm.setNextOwnerBits(agent,group, set, bits)));
+		ensure("setGroupBits():failed ", perm.setGroupBits(agent,group, set, bits));
+		ensure("setEveryoneBits():failed ", perm.setEveryoneBits(agent,group, set, bits));
+		ensure("setNextOwnerBits():failed ", perm.setNextOwnerBits(agent,group, set, bits));
 
-		LLUUID agent1("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
-		ensure("setGroupBits():failed ", (FALSE == perm.setGroupBits(agent1,group, set, bits)));
-		ensure("setEveryoneBits():failed ", (FALSE == perm.setEveryoneBits(agent1,group, set, bits)));
-		ensure("setNextOwnerBits():failed ", (FALSE == perm.setNextOwnerBits(agent1,group, set, bits)));
+		LLUUID agent1("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");
+		ensure("setGroupBits():failed ", ! perm.setGroupBits(agent1,group, set, bits));
+		ensure("setEveryoneBits():failed ", ! perm.setEveryoneBits(agent1,group, set, bits));
+		ensure("setNextOwnerBits():failed ", ! perm.setNextOwnerBits(agent1,group, set, bits));
 	}
 
 	template<> template<>
@@ -301,14 +301,14 @@ namespace tut
 		LLUUID agent;
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		U32 bits = 10;
-		ensure("allowOperationBy():failed ", (TRUE == perm.allowOperationBy(bits,agent,group)));
+		ensure("allowOperationBy():failed ", perm.allowOperationBy(bits,agent,group));
 
 		LLUUID agent1("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");
 		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
 		LLUUID owner("68edcf47-ccd7-45b8-9f90-1649d7f12806"); 
 		LLUUID lastOwner("5e47a0dc-97bf-44e0-8b40-de06718cee9d"); 
 		perm.init(creator,owner,lastOwner,group);
-		ensure("allowOperationBy():failed ", (TRUE == perm.allowOperationBy(bits,agent1,group)));
+		ensure("allowOperationBy():failed ", perm.allowOperationBy(bits,agent1,group));
 	}
 
 	template<> template<>
@@ -321,15 +321,12 @@ namespace tut
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		perm.init(creator,owner,lastOwner,group);
 		LLUUID agent;
-		ensure("1:allowModifyBy():failed ", (TRUE == perm.allowModifyBy(agent)));
-		ensure("2:allowModifyBy():failed ", (TRUE == perm.allowModifyBy(agent,group)));
+		ensure("1:allowModifyBy():failed ", perm.allowModifyBy(agent));
+		ensure("2:allowModifyBy():failed ", perm.allowModifyBy(agent,group));
 				
-		U32 val1 = 0x7FFFFFFF;
-		S32 sVal = 1 << 14;
-		sVal = val1 & sVal;
 		LLUUID agent1("9c8eca51-53d5-42a7-bb58-cef070395db8"); 
-		ensure("3:allowModifyBy():failed ", (sVal == perm.allowModifyBy(agent1)));
-		ensure("4:allowModifyBy():failed ", (sVal == perm.allowModifyBy(agent1,group)));
+		ensure("3:allowModifyBy():failed ", perm.allowModifyBy(agent1));
+		ensure("4:allowModifyBy():failed ", perm.allowModifyBy(agent1,group));
 	}
 	
 	template<> template<>
@@ -342,15 +339,12 @@ namespace tut
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		perm.init(creator,owner,lastOwner,group);
 		LLUUID agent;
-		ensure("1:allowCopyBy():failed ", (TRUE == perm.allowModifyBy(agent)));
-		ensure("2:allowCopyBy():failed ", (TRUE == perm.allowModifyBy(agent,group)));
+		ensure("1:allowCopyBy():failed ", perm.allowModifyBy(agent));
+		ensure("2:allowCopyBy():failed ", perm.allowModifyBy(agent,group));
 				
-		U32 val1 = 0x7FFFFFFF;
-		S32 sVal = 1 << 15;
-		sVal = val1 & sVal;
 		LLUUID agent1("9c8eca51-53d5-42a7-bb58-cef070395db8"); 
-		ensure("3:allowCopyBy():failed ", (sVal == perm.allowCopyBy(agent1)));
-		ensure("4:allowCopyBy():failed ", (sVal == perm.allowCopyBy(agent1,group)));
+		ensure("3:allowCopyBy():failed ", perm.allowCopyBy(agent1));
+		ensure("4:allowCopyBy():failed ", perm.allowCopyBy(agent1,group));
 	}
 
 	template<> template<>
@@ -363,15 +357,12 @@ namespace tut
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		perm.init(creator,owner,lastOwner,group);
 		LLUUID agent;
-		ensure("1:allowMoveBy():failed ", (TRUE == perm.allowMoveBy(agent)));
-		ensure("2:allowMoveBy():failed ", (TRUE == perm.allowMoveBy(agent,group)));
+		ensure("1:allowMoveBy():failed ", perm.allowMoveBy(agent));
+		ensure("2:allowMoveBy():failed ", perm.allowMoveBy(agent,group));
 
-		U32 val1 = 0x7FFFFFFF;
-		S32 sVal = 1 << 19;
-		sVal = val1 & sVal;
 		LLUUID agent1("9c8eca51-53d5-42a7-bb58-cef070395db8"); 
-		ensure("3:allowMoveBy():failed ", (sVal == perm.allowMoveBy(agent1)));
-		ensure("4:allowMoveBy():failed ", (sVal == perm.allowMoveBy(agent1,group)));
+		ensure("3:allowMoveBy():failed ", perm.allowMoveBy(agent1));
+		ensure("4:allowMoveBy():failed ", perm.allowMoveBy(agent1,group));
 	}
 
 	template<> template<>
@@ -383,20 +374,17 @@ namespace tut
 		LLUUID lastOwner("5e47a0dc-97bf-44e0-8b40-de06718cee9d"); 
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		LLUUID agent;
-		ensure("1:allowMoveBy():failed ", (TRUE == perm.allowTransferTo(agent)));
+		ensure("1:allowMoveBy():failed ", perm.allowTransferTo(agent));
 		
 		perm.init(creator,owner,lastOwner,group);
-		U32 val1 = 0x7FFFFFFF;
-		S32 sVal = 1 << 13;
-		sVal = val1 & sVal;
-		ensure("2:allowMoveBy():failed ", (sVal == perm.allowTransferTo(agent)));
+		ensure("2:allowMoveBy():failed ", perm.allowTransferTo(agent));
 	}
 
 	template<> template<>
 	void permission_object_t::test<18>()
 	{
 		LLPermissions perm,perm1;
-		ensure("1:Operator==:failed ", perm == perm1);
+		ensure_equals("1:Operator==:failed ", perm, perm1);
 		
 		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
 		LLUUID owner("68edcf47-ccd7-45b8-9f90-1649d7f12806"); 
@@ -404,7 +392,7 @@ namespace tut
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		perm.init(creator,owner,lastOwner,group);
 		perm = perm1;
-		ensure("2:Operator==:failed ", perm == perm1);
+		ensure_equals("2:Operator==:failed ", perm, perm1);
 	}
 
 	template<> template<>
@@ -416,7 +404,7 @@ namespace tut
 		LLUUID lastOwner("5e47a0dc-97bf-44e0-8b40-de06718cee9d"); 
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
 		perm.init(creator,owner,lastOwner,group);
-		ensure("2:Operator==:failed ", perm != perm1);
+		ensure_not_equals("2:Operator==:failed ", perm, perm1);
 	}
 
 	template<> template<>
@@ -453,7 +441,7 @@ namespace tut
 		}
 		perm1.importFile(fp);
 		fclose(fp);
-		ensure("exportFile()/importFile():failed to export and import the data ", perm1 == perm);	
+		ensure_equals("exportFile()/importFile():failed to export and import the data ", perm1, perm);	
 }
 
 	template<> template<>
@@ -479,7 +467,7 @@ namespace tut
 		std::istringstream istream(ostream.str());
 		perm1.importLegacyStream(istream);
 
-		ensure("exportLegacyStream()/importLegacyStream():failed to export and import the data ", perm1 == perm);	
+		ensure_equals("exportLegacyStream()/importLegacyStream():failed to export and import the data ", perm1, perm);
 	}
 
 	template<> template<>
@@ -502,7 +490,7 @@ namespace tut
 		stream1 << perm;
 		perm1.init(creator,owner,lastOwner,group);
 		stream2 << perm1;
-		ensure("1:operator << failed",(stream1.str() == stream2.str()));	
+		ensure_equals("1:operator << failed", stream1.str(), stream2.str());
 	}
 
 	template<> template<>
@@ -533,19 +521,19 @@ namespace tut
 	{
 		LLAggregatePermissions AggrPermission;	
 		LLAggregatePermissions AggrPermission1;	
-		ensure("getU8() function failed", (AggrPermission.getU8() == 0));
-		ensure("isEmpty() function failed", (AggrPermission.isEmpty() == TRUE));
+		ensure_equals("getU8() function failed", AggrPermission.getU8(), 0);
+		ensure("isEmpty() function failed", AggrPermission.isEmpty());
 		AggrPermission.getValue(PERM_TRANSFER);
 		ensure_equals("getValue() function failed", AggrPermission.getValue(PERM_TRANSFER), 0x00);
 
 		AggrPermission.aggregate(PERM_ITEM_UNRESTRICTED);
-		ensure("aggregate() function failed", (AggrPermission.isEmpty() == FALSE));
+		ensure("aggregate() function failed", ! AggrPermission.isEmpty());
 
 		AggrPermission1.aggregate(AggrPermission);
-		ensure("aggregate() function failed", (AggrPermission1.isEmpty() == FALSE));
+		ensure("aggregate() function failed", ! AggrPermission1.isEmpty());
 
 		std::ostringstream stream1;
 		stream1 << AggrPermission;
-		ensure("operator<< failed", (stream1.str() == "{PI_COPY=All, PI_MODIFY=All, PI_TRANSFER=All}"));
+		ensure_equals("operator<< failed", stream1.str(), "{PI_COPY=All, PI_MODIFY=All, PI_TRANSFER=All}");
 	}
 }

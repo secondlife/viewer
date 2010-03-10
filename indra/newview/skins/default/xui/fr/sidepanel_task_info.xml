@@ -38,33 +38,33 @@
 	</panel.string>
 	<text name="title" value="Profil de l&apos;objet"/>
 	<text name="where" value="(dans Second Life)"/>
-	<panel name="properties_panel" label="">
+	<panel label="" name="properties_panel">
 		<text name="Name:">
-			Nom :
+			Nom :
 		</text>
 		<text name="Description:">
 			Description :
 		</text>
 		<text name="CreatorNameLabel">
-			Créateur :
+			Créateur :
 		</text>
 		<text name="Creator Name">
 			Erica Linden
 		</text>
 		<text name="Owner:">
-			Propriétaire :
+			Propriétaire :
 		</text>
 		<text name="Owner Name">
 			Erica Linden
 		</text>
 		<text name="Group_label">
-			Groupe :
+			Groupe :
 		</text>
-		<button name="button set group" tool_tip="Choisissez un groupe pour partager les droits de cet objet"/>
-		<name_box initial_value="Chargement..." name="Group Name Proxy"/>
-		<button label="Céder" label_selected="Céder" name="button deed" tool_tip="En cédant un objet, vous donnez aussi les droits au prochain propriétaire. Seul un officier peut céder les objets d&apos;un groupe."/>
+		<button name="button set group" tool_tip="Choisir un groupe pour partager les droits relatifs à cet objet"/>
+		<name_box initial_value="Chargement…" name="Group Name Proxy"/>
+		<button label="Céder" label_selected="Céder" name="button deed" tool_tip="En cédant un objet, vous donnez aussi les droits au prochain propriétaire. Seul un officier peut céder les objets partagés d&apos;un groupe."/>
 		<text name="label click action">
-			Cliquer pour :
+			Cliquer pour :
 		</text>
 		<combo_box name="clickaction">
 			<combo_box.item label="Toucher (défaut)" name="Touch/grab(default)"/>
@@ -78,16 +78,16 @@
 				Vous pouvez modifier cet objet
 			</text>
 			<text name="Anyone can:">
-				N&apos;importe qui :
+				N&apos;importe qui :
 			</text>
 			<check_box label="Copier" name="checkbox allow everyone copy"/>
 			<check_box label="Bouger" name="checkbox allow everyone move"/>
 			<text name="GroupLabel">
-				Groupe :
+				Groupe :
 			</text>
-			<check_box label="Partager" name="checkbox share with group" tool_tip="Autorisez tous les membres du groupe choisi à utiliser et à partager vos droits pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Transférer."/>
+			<check_box label="Partager" name="checkbox share with group" tool_tip="Autoriser tous les membres du groupe choisi à partager vos droits de modification pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Céder."/>
 			<text name="NextOwnerLabel">
-				Le prochain propriétaire :
+				Le prochain propriétaire :
 			</text>
 			<check_box label="Modifier" name="checkbox next owner can modify"/>
 			<check_box label="Copier" name="checkbox next owner can copy"/>
@@ -99,30 +99,31 @@
 			<combo_box.item label="Contenus" name="Contents"/>
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
-		<spinner label="Prix : L$" name="Edit Cost"/>
+		<spinner label="Prix : L$" name="Edit Cost"/>
 		<check_box label="Afficher dans les résultats de recherche" name="search_check" tool_tip="Permettre aux autres résidents de voir cet objet dans les résultats de recherche"/>
 		<text name="B:">
-			B :
+			B :
 		</text>
 		<text name="O:">
-			O :
+			O :
 		</text>
 		<text name="G:">
 			G :
 		</text>
 		<text name="E:">
-			E :
+			E :
 		</text>
 		<text name="N:">
-			N :
+			N :
 		</text>
 		<text name="F:">
-			F :
+			F :
 		</text>
 	</panel>
 	<panel name="button_panel">
 		<button label="Ouvrir" name="open_btn"/>
 		<button label="Payer" name="pay_btn"/>
 		<button label="Acheter" name="buy_btn"/>
+		<button label="Détails" name="details_btn"/>
 	</panel>
 </panel>

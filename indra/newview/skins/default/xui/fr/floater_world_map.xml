@@ -5,20 +5,17 @@
 			Légende
 		</text>
 	</panel>
-	<panel>
-		<button label="Afficher mon emplacement" label_selected="Afficher mon emplacement" name="Show My Location" tool_tip="Centrer la carte sur l&apos;emplacement de mon avatar"/>
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Centrer la carte sur l’emplacement de mon avatar"/>
 		<text name="me_label">
 			Moi
 		</text>
-		<check_box label="Résident" name="people_chk"/>
 		<text name="person_label">
 			Résident
 		</text>
-		<check_box label="Infohub" name="infohub_chk"/>
 		<text name="infohub_label">
 			Infohub
 		</text>
-		<check_box label="Terrain à vendre" name="land_for_sale_chk"/>
 		<text name="land_sale_label">
 			Vente de terrains
 		</text>
@@ -28,55 +25,46 @@
 		<text name="auction_label">
 			enchères
 		</text>
-		<button label="Aller chez moi" label_selected="Aller chez moi" name="Go Home" tool_tip="Me téléporter jusqu&apos;à mon domicile"/>
+		<button name="Go Home" tool_tip="Me téléporter jusqu’à mon domicile"/>
 		<text name="Home_label">
 			Domicile
 		</text>
 		<text name="events_label">
 			Événements :
 		</text>
-		<check_box label="PG" name="event_chk"/>
 		<text name="pg_label">
 			Général
 		</text>
-		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
+		<check_box initial_value="true" name="event_mature_chk"/>
 		<text name="mature_label">
 			Modéré
 		</text>
-		<check_box label="Adult" name="event_adult_chk"/>
 		<text name="adult_label">
 			Adulte
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_3">
 		<text name="find_on_map_label">
 			Situer sur la carte
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_4">
 		<combo_box label="Amis connectés" name="friend combo" tool_tip="Afficher les amis sur la carte">
 			<combo_box.item label="Mes amis connectés" name="item1"/>
 		</combo_box>
 		<combo_box label="Mes repères" name="landmark combo" tool_tip="Repère à afficher sur la carte">
 			<combo_box.item label="Mes repères" name="item1"/>
 		</combo_box>
-		<search_editor label="Régions par nom" name="location" tool_tip="Saisissez le nom d&apos;une région"/>
-		<button label="Trouver" label_selected="&gt;" name="DoSearch" tool_tip="Recherchez sur la carte"/>
+		<search_editor label="Régions par nom" name="location" tool_tip="Tapez le nom d&apos;une région"/>
+		<button label="Trouver" name="DoSearch" tool_tip="Rechercher une région"/>
 		<button name="Clear" tool_tip="Effacer les lignes de suivi et réinitialiser la carte"/>
-		<scroll_list name="search_results">
-			<scroll_list.columns label="" name="icon"/>
-			<scroll_list.columns label="" name="sim_name"/>
-		</scroll_list>
-		<button label="Téléporter" label_selected="Téléporter" name="Teleport" tool_tip="Téléporter à l&apos;endroit sélectionné"/>
-		<button label="Copier la SLurl" name="copy_slurl" tool_tip="Copie l&apos;emplacement actuel sous la forme d&apos;une SLurl à utiliser sur le Web."/>
-		<button label="Afficher la sélection" label_selected="Afficher la destination" name="Show Destination" tool_tip="Centrer la carte sur l&apos;endroit sélectionné"/>
+		<button label="Téléporter" name="Teleport" tool_tip="Me téléporter à l&apos;emplacement sélectionné"/>
+		<button label="Copier la SLurl" name="copy_slurl" tool_tip="Copie l’emplacement actuel sous la forme d’une SLurl à utiliser sur le Web."/>
+		<button label="Afficher la sélection" name="Show Destination" tool_tip="Centrer la carte sur l&apos;emplacement sélectionné"/>
 	</panel>
-	<panel>
+	<panel name="layout_panel_5">
 		<text name="zoom_label">
 			Zoomer
 		</text>
-	</panel>
-	<panel>
-		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

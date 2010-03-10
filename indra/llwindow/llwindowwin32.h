@@ -120,6 +120,9 @@ public:
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
+	static S32 getDisplayWidth();
+	static S32 getDisplayHeight();
+
 protected:
 	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 

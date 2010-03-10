@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
 	<text name="font_size">
-		Font size:
+		文字の大きさ：
 	</text>
 	<radio_group name="chat_font_size">
 		<radio_item label="小" name="radio" value="0"/>
@@ -9,7 +9,7 @@
 		<radio_item label="大" name="radio3" value="2"/>
 	</radio_group>
 	<text name="font_colors">
-		Font colors:
+		文字の色：
 	</text>
 	<color_swatch label="自分" name="user"/>
 	<text name="text_box1">
