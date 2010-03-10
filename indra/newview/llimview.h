@@ -34,6 +34,7 @@
 #define LL_LLIMVIEW_H
 
 #include "lldockablefloater.h"
+#include "lleventtimer.h"
 #include "llinstantmessage.h"
 
 #include "lllogchat.h"
@@ -45,7 +46,24 @@ class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
 
+/**
+ * Timeout Timer for outgoing Ad-Hoc/Group IM sessions which being initialized by the server
+ */
+class LLSessionTimeoutTimer : public LLEventTimer
+{
+public:
+	LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
+	virtual ~LLSessionTimeoutTimer() {};
+	/* virtual */ BOOL tick();
 
+private:
+	LLUUID mSessionId;
+};
+
+
+/**
+ * Model (MVC) for IM Sessions
+ */
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
 public:

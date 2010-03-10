@@ -3009,4 +3009,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>"
+	<string name="session_initialization_timed_out_error">
+		The session initialization is timed out
+	</string>
 </strings>
