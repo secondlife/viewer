@@ -1919,7 +1919,7 @@ void LLUI::clearPopups()
 // spawn_x and spawn_y are top left corner of view in screen GL coordinates
 void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 {
-	const S32 CURSOR_HEIGHT = 32;		// Approximate "normal" cursor size
+	const S32 CURSOR_HEIGHT = 16;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 8;
 
 	LLView* parent = view->getParent();
