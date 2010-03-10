@@ -214,7 +214,13 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 			session_id);
 	if (session == NULL)
 	{
-		LLIMModel::instance().logToFile(session_name, from_name, from_id, message);
+		// replace interactive system message marker with correct from string value
+		std::string from = from_name;
+		if (INTERACTIVE_SYSTEM_FROM == from_name)
+		{
+			from = SYSTEM_FROM;
+		}
+		LLIMModel::instance().logToFile(session_name, from, from_id, message);
 	}
 	else
 	{
