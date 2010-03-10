@@ -676,13 +676,13 @@ const LLWearable* LLAgentWearables::getWearableFromItemID(const LLUUID& item_id)
 	return NULL;
 }
 
-const LLWearable*	LLAgentWearables::getWearableFromAssetID(const LLUUID& asset_id) const
+LLWearable*	LLAgentWearables::getWearableFromAssetID(const LLUUID& asset_id) 
 {
 	for (S32 i=0; i < WT_COUNT; i++)
 	{
 		for (U32 j=0; j < getWearableCount((EWearableType)i); j++)
 		{
-			const LLWearable * curr_wearable = getWearable((EWearableType)i, j);
+			LLWearable * curr_wearable = getWearable((EWearableType)i, j);
 			if (curr_wearable && (curr_wearable->getAssetID() == asset_id))
 			{
 				return curr_wearable;

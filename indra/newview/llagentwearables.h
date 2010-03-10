@@ -89,7 +89,7 @@ public:
 	const LLUUID		getWearableItemID(EWearableType type, U32 index /*= 0*/) const;
 	const LLUUID		getWearableAssetID(EWearableType type, U32 index /*= 0*/) const;
 	const LLWearable*	getWearableFromItemID(const LLUUID& item_id) const;
-	const LLWearable*	getWearableFromAssetID(const LLUUID& asset_id) const;
+	LLWearable*	getWearableFromAssetID(const LLUUID& asset_id);
 	LLInventoryItem*	getWearableInventoryItem(EWearableType type, U32 index /*= 0*/);
 	// MULTI-WEARABLE: assuming one per type.
 	static BOOL			selfHasWearable(EWearableType type);
