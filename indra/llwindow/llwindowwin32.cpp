@@ -1545,6 +1545,9 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_PIPETTE ] = LoadCursor(module, TEXT("TOOLPIPETTE"));
 
 	// Color cursors
+	mCursor[UI_CURSOR_TOOLSIT] = loadColorCursor(TEXT("TOOLSIT"));
+	mCursor[UI_CURSOR_TOOLBUY] = loadColorCursor(TEXT("TOOLBUY"));
+	mCursor[UI_CURSOR_TOOLOPEN] = loadColorCursor(TEXT("TOOLOPEN"));
 	mCursor[UI_CURSOR_TOOLPLAY] = loadColorCursor(TEXT("TOOLPLAY"));
 	mCursor[UI_CURSOR_TOOLPAUSE] = loadColorCursor(TEXT("TOOLPAUSE"));
 	mCursor[UI_CURSOR_TOOLMEDIAOPEN] = loadColorCursor(TEXT("TOOLMEDIAOPEN"));
