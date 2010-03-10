@@ -492,6 +492,12 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 {
 	if (!item_pair) return;
 
+	if (!item_pair->first) 
+	{
+		llwarning("Attempt to selet an item pair containing null panel item", 0);
+		return;
+	}
+
 	setFocus(TRUE);
 	
 	bool select_item = !isSelected(item_pair);

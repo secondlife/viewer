@@ -150,7 +150,6 @@ protected:
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mItemHeight;
-	S32							mNumDescendantsSelected;
 	BOOL						mPassedFilter;
 	S32							mLastFilterGeneration;
 	std::string::size_type		mStringMatchOffset;
@@ -231,9 +230,6 @@ public:
 	// this method is used to group select items
 	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items){ return FALSE; }
 
-	// this method is used to group select items
-	virtual void recursiveDeselect(BOOL deselect_self);
-
 	// gets multiple-element selection
 	virtual BOOL getSelectionList(std::set<LLUUID> &selection) const {return TRUE;}
 
@@ -246,9 +242,9 @@ public:
 	// destroys this item recursively
 	virtual void destroyView();
 
-	S32 getNumSelectedDescendants() { return mNumDescendantsSelected; }
-
 	BOOL isSelected() { return mIsSelected; }
+
+	void setUnselected() { mIsSelected = FALSE; }
 
 	void setIsCurSelection(BOOL select) { mIsCurSelection = select; }
 
@@ -440,8 +436,6 @@ public:
 
 	// this method is used to group select items
 	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
-
-	virtual void recursiveDeselect(BOOL deselect_self);
 
 	// Returns true is this object and all of its children can be removed.
 	virtual BOOL isRemovable();

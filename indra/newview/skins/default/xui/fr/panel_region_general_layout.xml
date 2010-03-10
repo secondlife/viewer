@@ -3,19 +3,19 @@
 	<text name="region_text_lbl">
 		Région :
 	</text>
-	<text name="region_text" left_delta="56">
+	<text left_delta="56" name="region_text">
 		inconnu
 	</text>
 	<text name="version_channel_text_lbl">
 		Version :
 	</text>
-	<text name="version_channel_text" left_delta="56">
+	<text left_delta="56" name="version_channel_text">
 		inconnu
 	</text>
 	<text name="region_type_lbl">
 		Type :
 	</text>
-	<text name="region_type" left_delta="56">
+	<text left_delta="56" name="region_type">
 		inconnu
 	</text>
 	<check_box label="Interdire le terraformage" name="block_terraform_check"/>
@@ -25,8 +25,8 @@
 	<check_box label="Autoriser la revente de terrains" name="allow_land_resell_check"/>
 	<check_box label="Autoriser la fusion/division de terrains" name="allow_parcel_changes_check"/>
 	<check_box label="Interdire l&apos;affichage du terrain dans les recherches" name="block_parcel_search_check" tool_tip="Permettre aux autres résidents de voir cette région et ses parcelles dans les résultats de recherche"/>
-	<spinner label="Nombre maximum d&apos;avatars" name="agent_limit_spin" label_width="160" width="240"/>
-	<spinner label="Bonus objet" name="object_bonus_spin" label_width="160" width="240"/>
+	<spinner label="Nombre maximum d&apos;avatars" label_width="160" name="agent_limit_spin" width="240"/>
+	<spinner label="Bonus objet" label_width="160" name="object_bonus_spin" width="240"/>
 	<text label="Accès" name="access_text">
 		Catégorie :
 	</text>
@@ -36,8 +36,8 @@
 		<combo_box.item label="Général" name="PG"/>
 	</combo_box>
 	<button label="Appliquer" name="apply_btn"/>
-	<button label="Téléporter un résident chez lui..." name="kick_btn"/>
-	<button label="Téléporter tous les résidents chez eux..." name="kick_all_btn"/>
+	<button label="Téléporter un résident chez lui…" name="kick_btn"/>
+	<button label="Téléporter tous les résidents chez eux…" name="kick_all_btn"/>
 	<button label="Envoyer un message à la région..." name="im_btn"/>
 	<button label="Gérer le téléhub..." name="manage_telehub_btn"/>
 </panel>
