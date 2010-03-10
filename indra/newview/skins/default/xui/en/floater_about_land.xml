@@ -1886,6 +1886,10 @@ Only large parcels can be listed in search.
 			 name="access_estate_defined">
 				(Defined by the Estate)
 			</panel.string>
+      <panel.string
+       name="allow_public_access">
+        Allow Public Access ([MATURITY])
+      </panel.string>
             <panel.string
              name="estate_override">
                 One or more of these options is set at the estate level
@@ -1906,7 +1910,6 @@ Only large parcels can be listed in search.
             <check_box
              follows="top|left"
              height="16"
-             label="Allow Public Access [MATURITY]"
              layout="topleft"
              left_delta="0"
              name="public_access"
