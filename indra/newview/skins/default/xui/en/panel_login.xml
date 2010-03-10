@@ -48,8 +48,8 @@ auto_resize="false"
 follows="left|bottom"
 name="login"
 layout="topleft"
-width="775"
-min_width="775"
+width="850"
+min_width="850"
 user_resize="false"
 height="80">
 <text
@@ -81,7 +81,7 @@ height="15"
 left_pad="8"
 name="password_text"
 top="20"
-    width="150">
+    width="135">
        Password:
 </text>
 <line_editor
@@ -106,10 +106,10 @@ label="Remember password"
   follows="left|bottom"
   font="SansSerifSmall"
   height="15"
-  left_pad="18"
+  left_pad="10"
   name="start_location_text"
 top="20"
-  width="130">
+  width="250">
        Start at:
  </text>
 <combo_box
@@ -120,7 +120,7 @@ control_name="LoginLocation"
 max_chars="128"
 top_pad="0"
 name="start_location_combo"
-     width="135">
+     width="250">
 <combo_box.item
 label="My last location"
 name="MyLastLocation"
@@ -140,18 +140,28 @@ name="Typeregionname"   value="" />
   label="Log In"
   label_color="White"
   layout="topleft"
-  left_pad="15"
+  left_pad="10"
   name="connect_btn"
   top="35"
   width="90" />
+  <text
+  follows="left|bottom"
+  font="SansSerifSmall"
+  height="15"
+  left_pad="10"
+  name="start_location_text"
+top="20"
+  width="150">
+       Grid Name:
+ </text>
 <combo_box
 follows="left|bottom"
 allow_text_entry="true"
 font="SansSerifSmall"
 height="23"
 name="server_combo"
-left_pad="15"
-width="200"
+top_pad="0"
+width="150"
 max_chars="255"
 visible="false" />
 </layout_panel>
