@@ -458,6 +458,7 @@ with the same filename but different name
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
+  <texture name="Rounded_Rect"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="24" scale.right="58" scale.bottom="6" />
   <texture name="Rounded_Square"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
   <texture name="Row_Selection" file_name="navbar/Row_Selection.png" preload="false" />
 

@@ -58,8 +58,9 @@
 
 const F32 SPRING_STRENGTH = 0.7f;
 const F32 RESTORATION_SPRING_TIME_CONSTANT = 0.1f;
-const F32 HORIZONTAL_PADDING = 15.f;
+const F32 HORIZONTAL_PADDING = 16.f;
 const F32 VERTICAL_PADDING = 12.f;
+const F32 LINE_PADDING = 1;			// aka "leading"
 const F32 BUFFER_SIZE = 2.f;
 const F32 MIN_EDGE_OVERLAP = 3.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
@@ -279,14 +280,17 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
 	// *TODO: cache this image
-	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
+	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Rect");
 
 	// *TODO: make this a per-text setting
-	LLColor4 bg_color = LLUIColorTable::instance().getColor("BackgroundChatColor");
+	LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
-	const S32 border_height = 16;
-	const S32 border_width = 16;
+	// JAMESDEBUG - maybe a no-op
+	//const S32 border_height = 16;
+	//const S32 border_width = 16;
+	const S32 border_height = 8;
+	const S32 border_width = 8;
 
 	// *TODO move this into helper function
 	F32 border_scale = 1.f;
@@ -456,7 +460,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		LLUI::popMatrix();
 	}
 
-	F32 y_offset = (F32)mOffsetY;
+	F32 y_offset = (F32)mOffsetY - 2;  // JAMESDEBUG
 		
 	// Render label
 	{
@@ -505,6 +509,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		{
 			const LLFontGL* fontp = segment_iter->mFont;
 			y_offset -= fontp->getLineHeight();
+			y_offset -= LINE_PADDING;
 
 			U8 style = segment_iter->mStyle;
 			LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
@@ -517,6 +522,9 @@ void LLHUDNameTag::renderText(BOOL for_select)
 			else // ALIGN_LEFT
 			{
 				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
+
+				// JAMESDEBUG HACK
+				x_offset += 1;
 			}
 
 			text_color = segment_iter->mColor;
@@ -794,6 +802,7 @@ void LLHUDNameTag::updateSize()
 	{
 		const LLFontGL* fontp = iter->mFont;
 		height += fontp->getLineHeight();
+		height += LINE_PADDING;
 		width = llmax(width, llmin(iter->getWidth(fontp), HUD_TEXT_MAX_WIDTH));
 		++iter;
 	}

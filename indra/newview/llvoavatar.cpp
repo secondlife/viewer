@@ -2834,16 +2834,20 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
+			LLColor4 status_color =
+				LLUIColorTable::getInstance()->getColor("NameTagStatus");
+			addNameTagLine(line, status_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
 		if (sRenderGroupTitles
 			&& title && title->getString() && title->getString()[0] != '\0')
 		{
+			LLColor4 group_color =
+				LLUIColorTable::getInstance()->getColor("NameTagGroup");
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
+			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
@@ -2864,13 +2868,15 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			// Might be blank if name not available yet, that's OK
 			if (show_slids)
 			{
-				addNameTagLine(av_name.mSLID, name_tag_color, LLFontGL::NORMAL,
-					LLFontGL::getFontSansSerif());
+				// JAMESDEBUG HACK
+				LLColor4 slid_color = name_tag_color * 0.8f;
+				addNameTagLine(av_name.mSLID, slid_color, LLFontGL::NORMAL,
+					LLFontGL::getFontSansSerifSmall());
 			}
 			if (show_display_names)
 			{
 				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
-					LLFontGL::getFontSansSerifBig());
+					LLFontGL::getFontSansSerif());
 			}
 		}
 		else
@@ -2904,7 +2910,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		std::deque<LLChat>::iterator chat_iter = mChats.begin();
 		mNameText->clearString();
 
-		LLColor4 new_chat = LLUIColorTable::instance().getColor( "AvatarNameColor" );
+		LLColor4 new_chat = LLUIColorTable::instance().getColor( "NameTagChat" );
 		LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
 		LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
 		if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
@@ -3036,10 +3042,10 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 
 LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
-	const char* color_name = "AvatarNameColor";
+	const char* color_name = "NameTagText";
 	if (is_friend)
 	{
-		color_name = "AvatarNameFriendColor";
+		color_name = "NameTagFriend";
 	}
 	else
 	{
@@ -3049,7 +3055,7 @@ LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 			&& LLAvatarNameCache::get(getID(), &av_name)
 			&& av_name.mIsLegacy)
 		{
-			color_name = "AvatarNameLegacyColor";
+			color_name = "NameTagLegacy";
 		}
 	}
 	return LLUIColorTable::getInstance()->getColor( color_name );
