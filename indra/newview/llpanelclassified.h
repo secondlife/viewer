@@ -256,6 +256,8 @@ public:
 
 	void setClassifiedLocation(const std::string& location);
 
+	std::string getClassifiedLocation();
+
 	void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
 
 	LLVector3d& getPosGlobal() { return mPosGlobal; }
@@ -366,6 +368,8 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
+	void fillIn(const LLSD& key);
+
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
@@ -382,11 +386,25 @@ public:
 
 	bool isNew() { return mIsNew; }
 
+	bool isNewWithErrors() { return mIsNewWithErrors; }
+
 	bool canClose();
 
 	void draw();
 
 	void stretchSnapshot();
+
+	U32 getCategory();
+
+	void setCategory(U32 category);
+
+	U32 getContentType();
+
+	void setContentType(U32 content_type);
+
+	bool getAutoRenew();
+
+	S32 getPriceForListing();
 
 protected:
 
@@ -394,15 +412,11 @@ protected:
 
 	void sendUpdate();
 
-	U32 getCategory();
-
 	void enableVerbs(bool enable);
 
 	void enableEditing(bool enable);
 
 	std::string makeClassifiedName();
-
-	S32 getPriceForListing();
 
 	void setPriceForListing(S32 price);
 
@@ -429,6 +443,7 @@ protected:
 
 private:
 	bool mIsNew;
+	bool mIsNewWithErrors;
 	bool mCanClose;
 
 	LLPublishClassifiedFloater* mPublishFloater;
