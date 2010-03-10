@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<teleport_messages name="">
+<teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
 			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir vous téléporter.
@@ -60,6 +60,9 @@ Veuillez réessayer dans un moment.
 		</message>
 		<message name="completing">
 			Téléportation sur le point d&apos;aboutir.
+		</message>
+		<message name="completed_from">
+			Téléportation depuis [T_SLURL] terminée
 		</message>
 		<message name="resolving">
 			Destination en cours de résolution.

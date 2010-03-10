@@ -20,7 +20,7 @@
 		(requiere reiniciar)
 	</text>
 	<text name="maturity_desired_prompt">
-		Quiero acceder a contenido calificado:
+		Quiero acceder a contenido:
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
@@ -62,6 +62,6 @@
 		<combo_box.item label="nunca" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		Respuesta cuando estoy en el modo ocupado:
+		Respuesta cuando estoy en modo ocupado:
 	</text>
 </panel>

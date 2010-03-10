@@ -7,6 +7,8 @@
 	<string name="no_friends" value="フレンドはいません"/>
 	<string name="people_filter_label" value="人をフィルター"/>
 	<string name="groups_filter_label" value="グループをフィルター"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups 検索でグループを探してみますか？]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups 入会するグループを探します。]"/>
 	<filter_editor label="フィルター" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="近く" name="nearby_panel">
@@ -20,15 +22,15 @@
 				<accordion_tab name="tab_online" title="オンライン"/>
 				<accordion_tab name="tab_all" title="全員"/>
 			</accordion>
-			<text name="no_friends_msg">
-				フレンドを追加するには、[secondlife:///app/search/people グローバル検索] をするか、ユーザーを右クリックしてください。
-誰か一緒に行動をする人をお探しの時は、[secondlife:///app/worldmap 地図をお試しださい]。
-			</text>
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="friends_viewsort_btn" tool_tip="オプション"/>
 				<button name="add_btn" tool_tip="フレンド登録を申し出ます"/>
 				<button name="del_btn" tool_tip="選択した人をフレンドリストから削除します"/>
 			</panel>
+			<text name="no_friends_msg">
+				フレンドを登録するには、[secondlife:///app/search/people グローバル検索] をするか、住人を右クリックしてください。
+誰か一緒に行動をする人をお探しの時は、[secondlife:///app/worldmap 地図をお試しださい]。
+			</text>
 		</panel>
 		<panel label="マイ グループ" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">

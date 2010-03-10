@@ -202,6 +202,11 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 
 void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 {
+	// FIXME: Drawing degenerate rectangles (specifically, zero-width rectangles) was causing 
+	// https://jira.secondlife.com/browse/EXT-6276 on the Mac (presumably it was doing something bad to the GL state).
+	// That was fixed by checking for this case in LLTextBase::drawSelectionBackground().
+	// It's possible we should check for degenerate rectangles here and not draw, but I wanted to do the minimal change for the moment.
+	
 	stop_glerror();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 

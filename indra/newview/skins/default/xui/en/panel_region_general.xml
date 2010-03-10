@@ -171,48 +171,27 @@
      width="100">
         Rating:
     </text>
-    <icons_combo_box
-     follows="left|top"
+    <combo_box
      height="20"
      label="Moderate"
      layout="topleft"
      left_delta="100"
      name="access_combo"
      top_delta="0"
-     width="105">
-        <icons_combo_box.drop_down_button
-         image_overlay="Parcel_M_Light"
-         image_overlay_alignment="left"
-         imgoverlay_label_space="3"
-         pad_left="3"/>
-        <icons_combo_box.item
+     width="85">
+        <combo_box.item
          label="Adult"
-         value="42">
-            <item.columns
-             halign="center"
-             type="icon"
-             value="Parcel_R_Light"
-             width="20"/>
-          </icons_combo_box.item>
-        <icons_combo_box.item
+         name="Adult"
+         value="42" />
+        <combo_box.item
          label="Moderate"
-         value="21">
-            <item.columns
-             halign="center"
-             type="icon"
-             value="Parcel_M_Light"
-             width="20"/>
-        </icons_combo_box.item>
-        <icons_combo_box.item
+         name="Mature"
+         value="21" />
+        <combo_box.item
          label="General"
-         value="13">
-            <item.columns
-             halign="center"
-             type="icon"
-             value="Parcel_PG_Light"
-             width="20"/>
-        </icons_combo_box.item>
-    </icons_combo_box>
+         name="PG"
+         value="13" />
+    </combo_box>
     <button
      enabled="false"
      follows="left|top"

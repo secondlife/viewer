@@ -36,8 +36,8 @@
 		<combo_box.item label="Allgemein" name="PG"/>
 	</combo_box>
 	<button label="Übernehmen" name="apply_btn"/>
-	<button label="Einen Benutzer nach Hause teleportieren..." name="kick_btn"/>
-	<button label="Alle Benutzer nach Hause teleportieren..." name="kick_all_btn"/>
+	<button label="Einen Einwohner nach Hause teleportieren..." name="kick_btn"/>
+	<button label="Alle Einwohner nach Hause teleportieren..." name="kick_all_btn"/>
 	<button label="Nachricht an Region senden..." name="im_btn"/>
 	<button label="Telehub verwalten..." name="manage_telehub_btn"/>
 </panel>

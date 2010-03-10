@@ -311,8 +311,8 @@
 			<text name="Item Action Label" right="100">
 				Jacke:
 			</text>
-			<texture_picker label="Oberstoff" name="Upper Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
-			<texture_picker label="Unterstoff" name="Lower Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Stoff: oben" name="Upper Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
+			<texture_picker label="Stoff: unten" name="Lower Fabric" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
 			<button font="SansSerifSmall" label="Ausziehen" label_selected="Ausziehen" name="Take Off"/>
 			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>

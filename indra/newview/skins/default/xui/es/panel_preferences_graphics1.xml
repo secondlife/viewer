@@ -6,11 +6,11 @@
 	<text name="QualitySpeed">
 		Calidad y velocidad:
 	</text>
-	<text left="95" name="FasterText">
-		El más rápido
+	<text name="FasterText">
+		Más rápido
 	</text>
 	<text name="BetterText">
-		Mejor
+		Más calidad
 	</text>
 	<text name="ShadersPrefText">
 		Bajo
@@ -83,24 +83,23 @@
 		<text name="SkyMeshDetailText">
 			Bajo
 		</text>
-		<text name="LightingDetailText" width="135">
-			Detalles de la iluminación:
+		<text name="LightingDetailText">
+			Detalles de iluminación:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Sólo el Sol y la Luna" name="SunMoon" value="0"/>
-			<radio_item label="Puntos de luz cercanos" name="LocalLights" value="1"/>
+			<radio_item label="Sólo el Sol y la Luna" name="SunMoon"/>
+			<radio_item label="Puntos de luz cercanos" name="LocalLights"/>
 		</radio_group>
 		<text name="TerrainDetailText">
-			Nivel de detalle del
- terreno:
+			Detalle del terreno:
 		</text>
-		<radio_group left_delta="60" name="TerrainDetailRadio">
+		<radio_group name="TerrainDetailRadio">
 			<radio_item label="Bajo" name="0"/>
 			<radio_item label="Alto" name="2"/>
 		</radio_group>
 	</panel>
 	<button label="Aplicar" label_selected="Aplicar" name="Apply"/>
-	<button label="Por defecto" left="110" name="Defaults" width="195"/>
+	<button label="Por defecto" name="Defaults"/>
 	<button label="Avanzado" name="Advanced"/>
 	<button label="Hardware" label_selected="Hardware" left="315" name="GraphicsHardwareButton"/>
 </panel>

@@ -7,6 +7,8 @@
 	<string name="no_friends" value="Keine Freunde"/>
 	<string name="people_filter_label" value="Nach Leuten filtern"/>
 	<string name="groups_filter_label" value="Nach Gruppen filtern"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Suche verwenden, um die Gruppe zu finden?]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups Suche verwenden, um Gruppen zu finden?]"/>
 	<filter_editor label="Filter" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="IN DER NÄHE" name="nearby_panel">
@@ -20,15 +22,15 @@
 				<accordion_tab name="tab_online" title="Online"/>
 				<accordion_tab name="tab_all" title="Alle"/>
 			</accordion>
-			<text name="no_friends_msg">
-				Verwenden Sie [secondlife:///app/search/people die globale Suche], um Freunde hinzuzufügen. Oder klicken Sie mit rechts auf einen Einwohner und fügen Sie diesen als Freund hinzu.
-Wenn Sie nach Orten suchen, an denen sich Leute befinden, verwenden Sie [secondlife:///app/worldmap die Karte].
-			</text>
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="friends_viewsort_btn" tool_tip="Optionen"/>
 				<button name="add_btn" tool_tip="Bieten Sie einem Einwohner die Freundschaft an"/>
 				<button name="del_btn" tool_tip="Ausgewählte Person von Ihrer Freundesliste entfernen"/>
 			</panel>
+			<text name="no_friends_msg">
+				Verwenden Sie [secondlife:///app/search/people die globale Suche], um Freunde hinzuzufügen. Oder klicken Sie mit rechts auf einen Einwohner und fügen Sie diesen als Freund hinzu.
+Wenn Sie nach Orten suchen, an denen sich Leute befinden, verwenden Sie [secondlife:///app/worldmap die Karte].
+			</text>
 		</panel>
 		<panel label="MEINE GRUPPEN" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
