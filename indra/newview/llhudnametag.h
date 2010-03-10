@@ -38,10 +38,10 @@
 
 #include "llhudobject.h"
 #include "v4color.h"
-#include "v4coloru.h"
+//#include "v4coloru.h"
 #include "v2math.h"
 #include "llrect.h"
-#include "llframetimer.h"
+//#include "llframetimer.h"
 #include "llfontgl.h"
 #include <set>
 #include <vector>
@@ -118,7 +118,7 @@ public:
 	void updateVisibility();
 	LLVector2 updateScreenPos(LLVector2 &offset_target);
 	void updateSize();
-	void setMass(F32 mass) { mMass = llmax(0.1f, mass); }
+//	void setMass(F32 mass) { mMass = llmax(0.1f, mass); }
 	void setTextAlignment(ETextAlignment alignment) { mTextAlignment = alignment; }
 	void setVertAlignment(EVertAlignment alignment) { mVertAlignment = alignment; }
 	/*virtual*/ void markDead();
@@ -158,10 +158,10 @@ private:
 	BOOL			mVisibleOffScreen;
 	BOOL			mOffscreen;
 	LLColor4		mColor;
-	LLVector3		mScale;
+//	LLVector3		mScale;
 	F32				mWidth;
 	F32				mHeight;
-	LLColor4U		mPickColor;
+//	LLColor4U		mPickColor;
 	const LLFontGL*	mFontp;
 	const LLFontGL*	mBoldFontp;
 	LLRectf			mSoftScreenRect;
@@ -174,7 +174,7 @@ private:
 	F32				mRadius;
 	std::vector<LLHUDTextSegment> mTextSegments;
 	std::vector<LLHUDTextSegment> mLabelSegments;
-	LLFrameTimer	mResizeTimer;
+//	LLFrameTimer	mResizeTimer;
 	ETextAlignment	mTextAlignment;
 	EVertAlignment	mVertAlignment;
 	S32				mLOD;
@@ -183,7 +183,7 @@ private:
 	static BOOL    sDisplayText ;
 	static std::set<LLPointer<LLHUDNameTag> > sTextObjects;
 	static std::vector<LLPointer<LLHUDNameTag> > sVisibleTextObjects;
-	static std::vector<LLPointer<LLHUDNameTag> > sVisibleHUDTextObjects;
+//	static std::vector<LLPointer<LLHUDNameTag> > sVisibleHUDTextObjects;
 	typedef std::set<LLPointer<LLHUDNameTag> >::iterator TextObjectIterator;
 	typedef std::vector<LLPointer<LLHUDNameTag> >::iterator VisibleTextObjectIterator;
 };

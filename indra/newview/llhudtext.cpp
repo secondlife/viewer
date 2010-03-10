@@ -86,7 +86,7 @@ bool lltextobject_further_away::operator()(const LLPointer<LLHUDText>& lhs, cons
 LLHUDText::LLHUDText(const U8 type) :
 			LLHUDObject(type),
 			mOnHUDAttachment(FALSE),
-			mVisibleOffScreen(FALSE),
+//			mVisibleOffScreen(FALSE),
 			mWidth(0.f),
 			mHeight(0.f),
 			mFontp(LLFontGL::getFontSansSerifSmall()),
@@ -442,15 +442,15 @@ void LLHUDText::updateVisibility()
 	mOffscreen = FALSE;
 	if (!LLViewerCamera::getInstance()->sphereInFrustum(render_position, mRadius))
 	{
-		if (!mVisibleOffScreen)
-		{
+//		if (!mVisibleOffScreen)
+//		{
 			mVisible = FALSE;
 			return;
-		}
-		else
-		{
-			mOffscreen = TRUE;
-		}
+//		}
+//		else
+//		{
+//			mOffscreen = TRUE;
+//		}
 	}
 
 	mVisible = TRUE;
@@ -465,11 +465,11 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 	LLVector3 y_pixel_vec;
 	LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 	LLVector3 world_pos = mPositionAgent + (offset.mV[VX] * x_pixel_vec) + (offset.mV[VY] * y_pixel_vec);
-	if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, FALSE) && mVisibleOffScreen)
-	{
-		// bubble off-screen, so find a spot for it along screen edge
-		LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
-	}
+//	if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, FALSE) && mVisibleOffScreen)
+//	{
+//		// bubble off-screen, so find a spot for it along screen edge
+//		LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
+//	}
 
 	screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
 

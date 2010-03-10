@@ -2753,7 +2753,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	{
 		mNameText = static_cast<LLHUDNameTag*>( LLHUDObject::addHUDObject(
 			LLHUDObject::LL_HUD_NAME_TAG) );
-		mNameText->setMass(10.f);
+		//mNameText->setMass(10.f);
 		mNameText->setSourceObject(this);
 		mNameText->setVertAlignment(LLHUDNameTag::ALIGN_VERT_TOP);
 		mNameText->setVisibleOffScreen(TRUE);

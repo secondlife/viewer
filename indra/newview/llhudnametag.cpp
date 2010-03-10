@@ -85,27 +85,33 @@ bool llhudnametag_further_away::operator()(const LLPointer<LLHUDNameTag>& lhs, c
 
 LLHUDNameTag::LLHUDNameTag(const U8 type)
 :	LLHUDObject(type),
-//	mUseBubble(FALSE),
+	mDoFade(TRUE),
+	mFadeDistance(8.f),
+	mFadeRange(4.f),
+	mLastDistance(0.f),
+	mZCompare(TRUE),
 	mVisibleOffScreen(FALSE),
+	mOffscreen(FALSE),
+	mColor(1.f, 1.f, 1.f, 1.f),
+//	mScale(),
 	mWidth(0.f),
 	mHeight(0.f),
 	mFontp(LLFontGL::getFontSansSerifSmall()),
 	mBoldFontp(LLFontGL::getFontSansSerifBold()),
-	mMass(1.f),
+	mSoftScreenRect(),
+	mPositionAgent(),
+	mPositionOffset(),
+	mMass(10.f),
 	mMaxLines(10),
 	mOffsetY(0),
+	mRadius(0.1f),
+	mTextSegments(),
+	mLabelSegments(),
 	mTextAlignment(ALIGN_TEXT_CENTER),
 	mVertAlignment(ALIGN_VERT_CENTER),
 	mLOD(0),
 	mHidden(FALSE)
 {
-	mColor = LLColor4(1.f, 1.f, 1.f, 1.f);
-	mDoFade = TRUE;
-	mFadeDistance = 8.f;
-	mFadeRange = 4.f;
-	mZCompare = TRUE;
-	mOffscreen = FALSE;
-	mRadius = 0.1f;
 	LLPointer<LLHUDNameTag> ptr(this);
 	sTextObjects.insert(ptr);
 }
@@ -808,20 +814,11 @@ void LLHUDNameTag::updateSize()
 	width += HORIZONTAL_PADDING;
 	height += VERTICAL_PADDING;
 
-	if (!mResizeTimer.getStarted() && (width != mWidth || height != mHeight))
-	{
-		mResizeTimer.start();
-	}
-
-	// *NOTE: removed logic which did a divide by zero.
-	F32 u = 1.f;//llclamp(mResizeTimer.getElapsedTimeF32() / RESIZE_TIME, 0.f, 1.f);
-	if (u == 1.f)
-	{
-		mResizeTimer.stop();
-	}
-
-	mWidth = llmax(width, lerp(mWidth, (F32)width, u));
-	mHeight = llmax(height, lerp(mHeight, (F32)height, u));
+	// *TODO: Could do a timer-based resize here
+	//mWidth = llmax(width, lerp(mWidth, (F32)width, u));
+	//mHeight = llmax(height, lerp(mHeight, (F32)height, u));
+	mWidth = width;
+	mHeight = height;
 }
 
 void LLHUDNameTag::updateAll()

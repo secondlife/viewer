@@ -105,7 +105,7 @@ public:
 	void setAlpha(F32 alpha);
 	void setZCompare(const BOOL zcompare);
 	void setDoFade(const BOOL do_fade);
-	void setVisibleOffScreen(BOOL visible) { mVisibleOffScreen = visible; }
+//	void setVisibleOffScreen(BOOL visible) { mVisibleOffScreen = visible; }
 	
 	// mMaxLines of -1 means unlimited lines.
 	void setMaxLines(S32 max_lines) { mMaxLines = max_lines; }
@@ -147,7 +147,7 @@ private:
 	F32				mFadeDistance;
 	F32				mLastDistance;
 	BOOL			mZCompare;
-	BOOL			mVisibleOffScreen;
+//	BOOL			mVisibleOffScreen;
 	BOOL			mOffscreen;
 	LLColor4		mColor;
 	LLVector3		mScale;
