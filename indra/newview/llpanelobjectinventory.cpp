@@ -1642,7 +1642,7 @@ void LLPanelObjectInventory::updateInventory()
 	// We're still interested in this task's inventory.
 	std::set<LLUUID> selected_items;
 	BOOL inventory_has_focus = FALSE;
-	if (mHaveInventory && mFolders->getNumSelectedDescendants())
+	if (mHaveInventory)
 	{
 		mFolders->getSelectionList(selected_items);
 		inventory_has_focus = gFocusMgr.childHasKeyboardFocus(mFolders);
