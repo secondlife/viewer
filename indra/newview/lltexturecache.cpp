@@ -1140,6 +1140,10 @@ void LLTextureCache::writeEntryAndClose(S32 idx, Entry& entry)
 			{
 				mTexturesSizeMap[entry.mID] = entry.mBodySize;
 			}
+			else if(mTexturesSizeMap.find(entry.mID) != mTexturesSizeMap.end() && mTexturesSizeMap[entry.mID] > 0)
+			{
+				llerrs << "mTexturesSizeMap / mHeaderIDMap corrupted." << llendl ;
+			}
 // 			llinfos << "Updating TE: " << idx << ": " << id << " Size: " << entry.mBodySize << " Time: " << entry.mTime << llendl;
 			mHeaderEntriesMaxWriteIdx = llmax(mHeaderEntriesMaxWriteIdx, idx);
 			mUpdatedEntryMap[idx] = entry ;
@@ -1449,6 +1453,10 @@ void LLTextureCache::purgeTextures(bool validate)
 				S32 idx = iter2->second;
 				time_idx_set.insert(std::make_pair(entries[idx].mTime, idx));
 // 				llinfos << "TIME: " << entries[idx].mTime << " TEX: " << entries[idx].mID << " IDX: " << idx << " Size: " << entries[idx].mImageSize << llendl;
+			}
+			else
+			{
+				llerrs << "mTexturesSizeMap / mHeaderIDMap corrupted." << llendl ;
 			}
 		}
 	}
