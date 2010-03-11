@@ -1348,7 +1348,8 @@ LLViewerWindow::LLViewerWindow(
 	mStatesDirty(false),
 	mIsFullscreenChecked(false),
 	mCurrResolutionIndex(0),
-    mViewerWindowListener(new LLViewerWindowListener(this))
+    mViewerWindowListener(new LLViewerWindowListener(this)),
+	mProgressView(NULL)
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
@@ -1585,8 +1586,7 @@ void LLViewerWindow::initBase()
 	gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = new LLProgressView(full_window);
-	getRootView()->addChild(mProgressView);
+	mProgressView = getRootView()->getChild<LLProgressView>("progress_view");
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 
