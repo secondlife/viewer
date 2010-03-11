@@ -1883,6 +1883,11 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 
 /*virtual*/ BOOL LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height)
 {
+	if(!mInfo)
+	{
+		return FALSE ;
+	}
+
 	BOOL success = TRUE;
 	updateWearableCache();
 	for (wearable_cache_t::const_iterator iter = mWearableCache.begin(); iter!= mWearableCache.end(); iter++)
