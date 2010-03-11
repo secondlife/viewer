@@ -15,10 +15,10 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			<filter_editor label="Filtrer les membres" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Membre" name="name"/>
-				<name_list.columns label="Donation" name="donated" width="116"/>
-				<name_list.columns label="Statut" name="online" width="136"/>
+				<name_list.columns label="Donation" name="donated"/>
+				<name_list.columns label="Statut" name="online"/>
 			</name_list>
-			<button label="Inviter" name="member_invite" width="165"/>
+			<button label="Inviter" name="member_invite"/>
 			<button label="Expulser" name="member_eject"/>
 		</panel>
 		<panel label="RÔLES" name="roles_sub_tab">
@@ -47,7 +47,7 @@ notamment les rôles Tous et Propriétaire.
 				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="Nouveau rôle" name="role_create"/>
-			<button label="Supprimer le rôle" name="role_delete" width="120"/>
+			<button label="Supprimer le rôle" name="role_delete"/>
 		</panel>
 		<panel height="148" label="POUVOIRS" name="actions_sub_tab" tool_tip="Vous pouvez afficher une description du pouvoir et voir quels membres et rôles peuvent s&apos;en servir.">
 			<panel.string name="help_text">

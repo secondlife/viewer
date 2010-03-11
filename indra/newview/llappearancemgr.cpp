@@ -494,11 +494,12 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 	bool completed = isFetchCompleted();
 	bool timed_out = isTimedOut();
 	bool done = completed || timed_out;
-	
-	llinfos << "polling, done status: " << completed << " timed out " << timed_out << " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
 
 	if (done)
 	{
+		llinfos << "polling, done status: " << completed << " timed out " << timed_out
+				<< " elapsed " << mWaitTime.getElapsedTimeF32() << llendl;
+
 		mFired = true;
 		
 		if (timed_out)
@@ -528,22 +529,29 @@ public:
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
 
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
-			
-		if (item && linked_item)
+		if (linked_item)
 		{
-			LLFoundData found(linked_item->getUUID(),
-							  linked_item->getAssetUUID(),
-							  linked_item->getName(),
-							  linked_item->getType(),
-							  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
-				);
-			found.mWearable = mWearable;
-			mHolder->mFoundList.push_front(found);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
+			
+			if (item)
+			{
+				LLFoundData found(linked_item->getUUID(),
+						  linked_item->getAssetUUID(),
+						  linked_item->getName(),
+						  linked_item->getType(),
+						  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
+						  );
+				found.mWearable = mWearable;
+				mHolder->mFoundList.push_front(found);
+			}
+			else
+			{
+				llwarns << "inventory item not found for recovered wearable" << llendl;
+			}
 		}
 		else
 		{
-			llwarns << "inventory item or link not found for recovered wearable" << llendl;
+			llwarns << "inventory link not found for recovered wearable" << llendl;
 		}
 	}
 private:
@@ -568,12 +576,16 @@ public:
 		mWearable->setItemID(item_id);
 		LLPointer<LLInventoryCallback> cb = new RecoveredItemLinkCB(mType,mWearable,mHolder);
 		mHolder->mTypesToRecover.erase(mType);
-		link_inventory_item( gAgent.getID(),
-							 item_id,
-							 LLAppearanceManager::instance().getCOF(),
-							 itemp->getName(),
-							 LLAssetType::AT_LINK,
-							 cb);
+		llassert(itemp);
+		if (itemp)
+		{
+			link_inventory_item( gAgent.getID(),
+					     item_id,
+					     LLAppearanceManager::instance().getCOF(),
+					     itemp->getName(),
+					     LLAssetType::AT_LINK,
+					     cb);
+		}
 	}
 private:
 	LLWearableHoldingPattern* mHolder;
@@ -796,46 +808,90 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 void LLAppearanceManager::shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
 													  LLPointer<LLInventoryCallback> cb)
 {
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(src_id, cats, items,
-								  LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i = 0; i < items.count(); ++i)
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(src_id, cats, items);
+	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
+		 iter != items->end();
+		 ++iter)
 	{
-		const LLViewerInventoryItem* item = items.get(i).get();
-		if (item->getActualType() == LLAssetType::AT_LINK)
+		const LLViewerInventoryItem* item = (*iter);
+		switch (item->getActualType())
 		{
-			link_inventory_item(gAgent.getID(),
-								item->getLinkedUUID(),
-								dst_id,
-								item->getName(),
-								LLAssetType::AT_LINK, cb);
-		}
-		else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
-		{
-			LLViewerInventoryCategory *catp = item->getLinkedCategory();
-			// Skip copying outfit links.
-			if (catp && catp->getPreferredType() != LLFolderType::FT_OUTFIT)
+			case LLAssetType::AT_LINK:
 			{
 				link_inventory_item(gAgent.getID(),
 									item->getLinkedUUID(),
 									dst_id,
 									item->getName(),
-									LLAssetType::AT_LINK_FOLDER, cb);
+									LLAssetType::AT_LINK, cb);
+				break;
 			}
-		}
-		else
-		{
-			copy_inventory_item(
-				gAgent.getID(),
-				item->getPermissions().getOwner(),
-				item->getUUID(),
-				dst_id,
-				item->getName(),
-				cb);
+			case LLAssetType::AT_LINK_FOLDER:
+			{
+				LLViewerInventoryCategory *catp = item->getLinkedCategory();
+				// Skip copying outfit links.
+				if (catp && catp->getPreferredType() != LLFolderType::FT_OUTFIT)
+				{
+					link_inventory_item(gAgent.getID(),
+										item->getLinkedUUID(),
+										dst_id,
+										item->getName(),
+										LLAssetType::AT_LINK_FOLDER, cb);
+				}
+				break;
+			}
+			case LLAssetType::AT_CLOTHING:
+			case LLAssetType::AT_OBJECT:
+			case LLAssetType::AT_BODYPART:
+			case LLAssetType::AT_GESTURE:
+			{
+				copy_inventory_item(gAgent.getID(),
+									item->getPermissions().getOwner(),
+									item->getUUID(),
+									dst_id,
+									item->getName(),
+									cb);
+				break;
+			}
+			default:
+				// Ignore non-outfit asset types
+				break;
 		}
 	}
 }
+
+BOOL LLAppearanceManager::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
+{
+	// These are the wearable items that are required for considering this
+	// folder as containing a complete outfit.
+	U32 required_wearables = 0;
+	required_wearables |= 1LL << WT_SHAPE;
+	required_wearables |= 1LL << WT_SKIN;
+	required_wearables |= 1LL << WT_HAIR;
+	required_wearables |= 1LL << WT_EYES;
+
+	// These are the wearables that the folder actually contains.
+	U32 folder_wearables = 0;
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(folder_id, cats, items);
+	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
+		 iter != items->end();
+		 ++iter)
+	{
+		const LLViewerInventoryItem* item = (*iter);
+		if (item->isWearableType())
+		{
+			const EWearableType wearable_type = item->getWearableType();
+			folder_wearables |= 1LL << wearable_type;
+		}
+	}
+
+	// If the folder contains the required wearables, return TRUE.
+	return ((required_wearables & folder_wearables) == required_wearables);
+}
+
 
 void LLAppearanceManager::purgeBaseOutfitLink(const LLUUID& category)
 {

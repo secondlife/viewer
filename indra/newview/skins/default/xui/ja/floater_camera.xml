@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		カメラを上下左右に移動
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		旋回
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		水平・垂直移動
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		固定
+	</floater.string>
+	<floater.string name="free_mode_title">
+		オブジェクトを見る
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に動かします"/>
 		<panel name="zoom" tool_tip="向いている方法にカメラをズーム">
@@ -25,7 +37,7 @@
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="カメラを回す"/>
 		<button label="" name="pan_btn" tool_tip="カメラを水平・垂直移動"/>
-		<button label="" name="avatarview_btn" tool_tip="アバター視点"/>
+		<button label="" name="avatarview_btn" tool_tip="固定"/>
 		<button label="" name="freecamera_btn" tool_tip="オブジェクトを見る"/>
 	</panel>
 </floater>

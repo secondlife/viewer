@@ -11,18 +11,29 @@
 	</global>
 	<template name="okbutton">
 		<form>
-			<button name="OK" text="$yestext"/>
+			<button name="OK_okbutton" text="$yestext"/>
 		</form>
 	</template>
-	<template name="okignore"/>
+	<template name="okignore">
+		<form>
+			<button name="OK_okignore" text="$yestext"/>
+		</form>
+	</template>
 	<template name="okcancelbuttons">
 		<form>
-			<button name="Cancel" text="$notext"/>
+			<button name="OK_okcancelbuttons" text="$yestext"/>
+			<button name="Cancel_okcancelbuttons" text="$notext"/>
 		</form>
 	</template>
-	<template name="okcancelignore"/>
+	<template name="okcancelignore">
+		<form>
+			<button name="OK_okcancelignore" text="$yestext"/>
+			<button name="Cancel_okcancelignore" text="$notext"/>
+		</form>
+	</template>
 	<template name="okhelpbuttons">
 		<form>
+			<button name="OK_okhelpbuttons" text="$yestext"/>
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
@@ -30,6 +41,7 @@
 		<form>
 			<button name="Yes" text="$yestext"/>
 			<button name="No" text="$notext"/>
+			<button name="Cancel_yesnocancelbuttons" text="$canceltext"/>
 		</form>
 	</template>
 	<notification functor="GenericAcknowledge" label="Ukendt notificeringsbesked" name="MissingAlert">
@@ -93,13 +105,17 @@ Vælg kun en genstand, og prøv igen.
 		Gem alle ændringer til tøj/krops dele?
 		<usetemplate canceltext="Annullér" name="yesnocancelbuttons" notext="Gem Ikke" yestext="Gem Alt"/>
 	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		&apos;Ikke-venner&apos; vil ikke vide, at du har valgt at ignorere deres opkald og personlige beskeder (IM)
+		<usetemplate name="okbutton" yestext="Ja"/>
+	</notification>
 	<notification name="GrantModifyRights">
-		At give redigerings rettigheder til en anden beboer, giver dem mulighed for at ændre, slette eller tage alle genstande, du måtte have i verden. Vær meget forsigtig når uddeler denne tilladelse.
+		At give redigerings rettigheder til en anden beboer, giver dem mulighed for at ændre, slette eller tage ALLE genstande, du måtte have i verden. Vær MEGET forsigtig når uddeler denne tilladelse.
 Ønsker du at ændre rettigheder for [FIRST_NAME] [LAST_NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
-		At give redigerings rettigheder til en anden beboer, giver dem mulighed for at ændre, slette eller tage alle genstande, du måtte have i verden. Vær meget forsigtig når uddeler denne tilladelse.
+		At give redigerings rettigheder til en anden beboer, giver dem mulighed for at ændre, slette eller tage ALLE genstande, du måtte have i verden. Vær MEGET forsigtig når uddeler denne tilladelse.
 Ønsker du at ændre rettigheder for de valgte beboere?
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
@@ -142,8 +158,15 @@ Ethvert medlem i en rolle med denne evne kan tildele sig selv -- og et andet med
 Add this Ability to &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
-	<notification name="ClickUnimplemented">
-		Beklager, ikke implementeret endnu.
+	<notification name="AttachmentDrop">
+		Du er ved at smide et vedhæng.
+    Er du sikker på at du vil fortsætte?
+		<usetemplate ignoretext="Bekræft før vedhæng smides" name="okcancelignore" notext="Nej" yestext="Ja"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		Du melder dig ind i gruppen [NAME].
+Ønsker du at fortsætte?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Bliv medlem"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Tilmelding til denne gruppe koster L$[COST].
@@ -197,13 +220,9 @@ Jo mere du betaler, jo højere oppe på listen vises annoncen, og den vil også 
 Er du sikker på at du vil fortsætte?
 		<usetemplate ignoretext="Bekræft før jeg slette media i et objekt" name="okcancelignore" notext="Nej" yestext="Ja"/>
 	</notification>
-	<notification name="ResetShowNextTimeDialogs">
-		Vil du gerne genaktivere alle disse popups, som du tidligere har bedt om ikke at få vist?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
-	</notification>
-	<notification name="SkipShowNextTimeDialogs">
-		Vil du deaktivere alle popups som kan undværes?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
+	<notification name="ClassifiedInsufficientFunds">
+		Ikke nok penge til at oprette annonce.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
 		Cache vil blive tømt ved næste genstart af [APP_NAME].
@@ -224,11 +243,14 @@ Indtast venligst navn på region i Start lokation feltet eller vælg &quot;Min s
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UnsupportedHardware">
+		Bare så du ved det, din computer opfylder ikke minimumskravene til [APP_NAME]. Du kan opleve dårlig hastighed. Desværre kan [SUPPORT_SITE] ikke give teknisk support til ikke-supporterede konfigurationer.
+MINSPECS
+Besøg [_URL] for mere information?
 		<usetemplate ignoretext="Din computer hardware understøttes ikke" name="okcancelignore" notext="No" yestext="Yes"/>
 	</notification>
 	<notification name="UnknownGPU">
-		Dit system har et grafikkort som er ukendt for [APP_NAME] lige nu.
-Dette er tilfældet med nyt hardware som endnu ikke er blevet testet med [APP_NAME].  [APP_NAME] vil sandsynligvis kunne køre normalt, men det kan være nødvendigt at justere opsætningen af grafik.
+		Dit system indeholder et grafikkort som [APP_NAME] ikke kan genkende.
+Dette skyldes ofte nyt hardware som endnu ikke er blevet testet med [APP_NAME].  Kortet vil sandsynligvis virke fint, med det kan være nødvendigt at justere grafik opsætningen.
 (Mig &gt; Indstillinger &gt; Grafik).
 		<form name="form">
 			<ignore name="ignore" text="Dit grafikkort kunne ikke identificeres"/>
@@ -260,8 +282,16 @@ Gå til [_URL] for information om køb af L$?
 	<notification name="LandmarkCreated">
 		Du har tilføjet &quot;[LANDMARK_NAME]&quot; til din [FOLDER_NAME] mappe.
 	</notification>
+	<notification name="LandmarkAlreadyExists">
+		Du har allerede et landemærke for denne lokation.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="CannotOpenScriptObjectNoMod">
 		Ikke muligt at åbne script i objekt uden &apos;Redigére&apos; rettigheder.
+	</notification>
+	<notification name="CouldNotTeleportReason">
+		Teleport fejlede.
+[REASON]
 	</notification>
 	<notification name="invalid_tport">
 		Der opstod et problem ved din teleport. Det kan være nødvendigt at logge ind igen, før du kan teleporte.
@@ -305,6 +335,10 @@ Prøv evt. igen om lidt.
 	<notification name="no_inventory_host">
 		Beholdningssystemet er ikke tilgængelig lige nu.
 	</notification>
+	<notification name="ForceOwnerAuctionWarning">
+		Denne parcel er sat på auktion. Gennemtving ejerskab vil annullere denne auktion og måske irritere nogen beboere hvis bud allerede er afgivet.
+Gennemtving ejerskab?
+	</notification>
 	<notification name="CannotBuyLandNoRegion">
 		Ikke i stand til at købe land:
 Kan ikke finde region som dette land er i.
@@ -315,13 +349,6 @@ Kan ikke finde region som dette land er i.
 	<notification name="CannotDeedLandNoRegion">
 		Land kunne ikke dedikeres:
 Kunne ikke finde den region land ligger i.
-	</notification>
-	<notification name="ParcelCanPlayMedia">
-		Dette sted kan afspille &apos;streaming media&apos;.
-&apos;Streaming media&apos; kræver en hurtig internet opkobling.
-
-Afspil altid &apos;streaming media&apos; når det er tilgængeligt?
-(Du kan ændre dette valg senere under Indstillinger &gt; Privatliv.)
 	</notification>
 	<notification name="CannotReleaseLandRegionNotFound">
 		Kunne ikke efterlade land:
@@ -340,9 +367,8 @@ Kan ikke finde den region landet ligger i.
 Dette er typisk en midlertidig fejl. Venligst rediger og gem igen om et par minutter.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Du er blevet logget af [SECOND_LIFE]:
+		Du er blevet logget af [SECOND_LIFE]
             [MESSAGE]
-Du kan stadig se igangværende samtaler (IM) og chat ved at klikke på &apos;Se IM &amp; chat. Ellers klik på &apos;Afslut&apos; for at lukke [APP_NAME] med det samme.
 		<usetemplate name="okcancelbuttons" notext="Afslut" yestext="Se PB &amp; Chat"/>
 	</notification>
 	<notification label="Tilføj ven" name="AddFriend">
@@ -364,6 +390,9 @@ Tilbyd venskab til [NAME]?
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
+	</notification>
+	<notification name="ErrorMessage">
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarMovedDesired">
 		Den ønskede lokation er ikke tilgængelig lige nu.
@@ -511,9 +540,12 @@ Chat og personlige beskeder vil blive skjult. Personlige beskeder vil få din &a
 		<usetemplate ignoretext="Jeg skrifter min status til &apos;optaget" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
-		Du har nået det maksimale antal grupper. Du skal forlade en anden gruppe for at kunne være med i denne - eller afvis tilbudet.
-[NAME] har inviteret dig til at være medlem af en gruppe.
-[INVITE]
+		Du er oppe på det maksimale antal grupper. Forlad venligst en anden gruppe inden du melder dig ind i denne, eller afvis tilbuddet.
+[NAME] har inviteret dig til en gruppe.
+	</notification>
+	<notification name="JoinedTooManyGroups">
+		Du er oppe på det maksimale antal grupper. Forlad venligst en gruppe inden du melder dig ind i enndnu en gruppe eller opretter en ny.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OfferTeleport">
 		<form name="form">
@@ -525,6 +557,7 @@ Chat og personlige beskeder vil blive skjult. Personlige beskeder vil få din &a
 		</form>
 	</notification>
 	<notification name="TeleportFromLandmark">
+		Er du sikker på at du vil teleportere til &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
 		<usetemplate ignoretext="Bekræft at jeg vil teleportere til et landemærke" name="okcancelignore" notext="Cancel" yestext="Teleport"/>
 	</notification>
 	<notification name="TeleportToPick">
@@ -626,6 +659,12 @@ Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsratin
 		Indeholder denne gruppe &apos;Mature&apos; indhold?
 		<usetemplate canceltext="Annullér" name="yesnocancelbuttons" notext="Nej" yestext="Ja"/>
 	</notification>
+	<notification label="Changed Region Maturity" name="RegionMaturityChange">
+		Ratingen for denne region er ændret.
+Det kan tage noget tid inden ændringen slår igennem på kortet.
+
+For at få adgang til voksen regioner, skal beboere være alders-checket, enten via aldersverifikation eller  betalingsverifikation.
+	</notification>
 	<notification label="Voice Version Mismatch" name="VoiceVersionMismatch">
 		Denne version af [APP_NAME] er ikke kompatibel med stemme chat funktionen i denne region. For at kunne få stemme chat til at fungere skal du opdatere [APP_NAME].
 	</notification>
@@ -649,9 +688,9 @@ Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsratin
 		<usetemplate ignoretext="Bekræft før jeg afslutter" name="okcancelignore" notext="Afslut ikke" yestext="Quit"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Benyt dette værktøj til at rapportere Use this tool to report krænkelser af [http://secondlife.com/corporate/tos.php Terms of Service] og [http://secondlife.com/corporate/cs.php Community Standards].
+		Benyt dette værktøj til at rapportere krænkninger af [http://secondlife.com/corporate/tos.php Terms of Service] og [http://secondlife.com/corporate/cs.php Community Standards].
 
-Alle indrapporterede krænkelser er undersøgt og and afgjort. Du kan se løsning ved at læse [http://secondlife.com/support/incidentreport.php Incident Report].
+Alle rapporter om krænkninger vil blive undersøgt og behandlet.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		Kære beboer,
@@ -792,8 +831,7 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 		Bevægelsen [NAME] mangler i databasen.
 	</notification>
 	<notification name="UnableToLoadGesture">
-		Ikke muligt at indlæse gestus [NAME].
-Prøv venligst igen.
+		Kunne ikke indlæse læse bevægelse [NAME].
 	</notification>
 	<notification name="LandmarkMissing">
 		Landmærke mangler i databasen.
@@ -885,10 +923,9 @@ Click on any landmark to select it, then click &apos;Teleport&apos; at the botto
 (You can also double-click on the landmark, or right-click it and choose &apos;Teleport&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Du kan kontakte beboere som f.eks. &apos;[NAME]&apos; ved at åbne &apos;Personer&apos; panelet til højre på skærmen.
-Vælg beboeren fra listen og klik så på &apos;IM&apos; i bunden af panelet.
-(Du kan også dobbelt-klikke på navnet i listen eller højreklikke og vælge &apos;IM&apos;)
-(You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
+		Du kan kontakte beboere som &apos;[NAME]&apos; ved at åbne Personer panelet til højre på skærmen.
+Vælg beboeren fra listen og klik så &apos;IM&apos; i bundet af panelet.
+(Du kan også dobbelt-klikke på navnet i listen, eller højre-klikke og vælge &apos;IM&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Kan ikke vælge land på tværs af grænser.
@@ -959,7 +996,7 @@ Prøv venligst at geninstallere plugin eller kontakt leverandøren hvis probleme
 		Genstandene på det valgte stykke land der er ejet af [FIRST] [LAST] er blevet returneret til hans eller hendes beholdning.
 	</notification>
 	<notification name="OtherObjectsReturned2">
-		Genstandene på det valgte stykke land der er ejet af beboeren &apos;[NAME]&apos; er blevet returneret til deres ejere.
+		Objekterne i den valgte parcel, ejet af beboeren &apos;[NAME]&apos;, er blevet returneret til deres ejer.
 	</notification>
 	<notification name="GroupObjectsReturned">
 		Genstandene på det valgte stykke land, delt med gruppen [GROUPNAME], er blevet returneret til deres ejeres beholdninger.
@@ -971,7 +1008,7 @@ Genstande, der ikke kan overføres og som er dedikeret til gruppen, er blevet sl
 	</notification>
 	<notification name="ServerObjectMessage">
 		Besked fra [NAME]:
-[MSG]
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
 	</notification>
 	<notification name="NotSafe">
 		Dette land er åbnet for &apos;skade&apos;.
@@ -1080,7 +1117,7 @@ Prøv igen om lidt.
 		No valid parcel could be found.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Et objekt med navnet [OBJECTFROMNAME], ejet af [NAME_SLURL], har givet dig [OBJECTTYPE]:
+		Et objekt med navnet [OBJECTFROMNAME] ejet af [NAME_SLURL] har givet dig denne/dette [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behold"/>
@@ -1089,7 +1126,7 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		Et objekt med navnet [OBJECTFROMNAME], ejet af en ukendt beboer, har givet dig [OBJECTTYPE]:
+		Et objekt med navnet [OBJECTFROMNAME] ejet af (en ukendt beboer) har givet dig denne/dette [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Behold"/>
@@ -1098,12 +1135,12 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME_SLURL] har givet dig [OBJECTTYPE]:
+		[NAME_SLURL] har givet dig denne/dette [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
-			<button name="Keep" text="Behold"/>
 			<button name="Show" text="Vis"/>
 			<button name="Discard" text="Smid væk"/>
+			<button name="Mute" text="Blokér"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
@@ -1127,6 +1164,9 @@ Prøv igen om lidt.
 			<button name="Teleport" text="Teleportér"/>
 			<button name="Cancel" text="Annullér"/>
 		</form>
+	</notification>
+	<notification name="TeleportOfferSent">
+		Tilbud om teleport sendt til [TO_NAME]
 	</notification>
 	<notification name="GotoURL">
 		[MESSAGE]
@@ -1154,9 +1194,15 @@ Som standard vil du kunne se andres onlinestatus.
 	<notification name="FriendshipDeclined">
 		[NAME] afviste dit tilbud om venskab.
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Tilbud om venskab accepteret.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Tilbud om venskab afvist.
+	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] tilbyder vedkommendes visitkort.
-Dette vil tilføje et bogmærke i din beholdning, så du hurtigt kan sende en personlig besked (IM) til denne beboer.
+		[FIRST] [LAST] tilbyder dig et visitkort.
+Dette vil lave et bogmørke i din beholding, så du hurtigt kan sende en IM til denne beboer.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
@@ -1235,14 +1281,6 @@ Tillad denne anmodning?
 			<button name="Block" text="Blokér"/>
 		</form>
 	</notification>
-	<notification name="FirstBalanceIncrease">
-		Du har netop modtaget [AMOUNT] L$.
-Din balance vises øverst til højre.
-	</notification>
-	<notification name="FirstBalanceDecrease">
-		Du har netop betalt [AMOUNT] L$.
-Din balance vises øverst til højre.
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Tak for din betaling!
 
@@ -1250,57 +1288,16 @@ Din L$ balance vil blive opdateret når transaktionen er gennemført. Ved transa
 
 Status for din betaling kan ses i din &apos;Transaction History&apos; side på din [http://secondlife.com/account/ Dashboard]
 	</notification>
-	<notification name="FirstSit">
-		Du sidder ned.
-Benyt piletasterne (eller AWSD) til at se rundt.				
-Klik på &apos;Stå op&apos; tasten for at rejse dig.
-	</notification>
-	<notification name="FirstMap">
-		Klik og træk på kortet for at se rundt.
-Dobbelt-klik for at teleportere.
-Benyt kontrollerne til højre for at finde ting og se forskellige baggrunde.
-	</notification>
-	<notification name="FirstBuild">
-		Du har åbnet bygge værktøjer. Alle objekter du ser omkring dig er lavet via disse værktøjer.
-	</notification>
-	<notification name="FirstTeleport">
-		Du kan kun teleportere til bestemte områder i denne region. Pilen peger på din specifikke destination. Klik på pilen for at fjerne den.
-	</notification>
 	<notification name="FirstOverrideKeys">
 		Dine bevælgelsestaster bliver nu håndteret af et objekt.
 Brug piletasterne eller AWSD for at se, hvad de gør.
 Nogle genstande (som skydevåben) kræver at du går ind i musevisning for at bruge dem.
 Tryk på &apos;M&apos; for at gåre det.
 	</notification>
-	<notification name="FirstAppearance">
-		Du redigerer dit udseende.
-Benyt piletasterne til at se rundt.
-Når du er færdig, tryk på &apos;Gem alt&apos;.
-	</notification>
-	<notification name="FirstInventory">
-		Dette er din beholdning, som indeholder de genstande du ejer.
-
-* For at tage noget på, træk det over på dig selv.
-* For at &apos;rezze&apos; noget, træk det over på jorden.
-* For at læse en note, dobbelt-klik på den.
-	</notification>
 	<notification name="FirstSandbox">
 		Dette er et sandkasse område. Her kan beboere lære ast bygge.
 
 De ting du bygger vil blive slettet senere, så glem ikke at højre-klikke og vælge &quot;Tag&quot; for at tage en kopi af din kreation til din beholdning.
-	</notification>
-	<notification name="FirstFlexible">
-		Dette objekt er fleksibelt/blødt. Sådanne objekter skal være &apos;uden masse&apos; og ikke fysiske.
-	</notification>
-	<notification name="FirstDebugMenus">
-		Du har åbnet menuen &apos;Avanceret&apos;.
-
-For at slå denne menu fra og til,
-  Windows: Ctrl+Alt+D
-  Mac: &#8997;&#8984;D
-	</notification>
-	<notification name="FirstSculptedPrim">
-		Du redigerer en &apos;Sculpted prim&apos;. Sådanne objekter kræver en speciel tekstur for at definere faconen.
 	</notification>
 	<notification name="MaxListSelectMessage">
 		Du må kun vælge op til [MAX_SELECT] genstande på denne liste.
@@ -1407,6 +1404,10 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 		<form name="form">
 			<button name="respondbutton" text="Svar"/>
 		</form>
+	</notification>
+	<notification name="ConfirmCloseAll">
+		Er du sikker på at du vil lukke alle personlige samtaler (IM)?
+		<usetemplate name="okcancelignore" notext="Annullér" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		Vedhæng er blevet gemt.

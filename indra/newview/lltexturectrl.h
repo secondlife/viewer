@@ -183,6 +183,8 @@ public:
 
 	void setShowLoadingPlaceholder(BOOL showLoadingPlaceholder);
 
+	LLViewerFetchedTexture* getTexture() { return mTexturep; }
+
 private:
 	BOOL allowDrop(LLInventoryItem* item);
 	BOOL doDrop(LLInventoryItem* item);

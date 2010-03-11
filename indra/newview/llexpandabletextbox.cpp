@@ -35,6 +35,7 @@
 
 #include "llscrollcontainer.h"
 #include "llwindow.h"
+#include "llviewerwindow.h"
 
 static LLDefaultChildRegistry::Register<LLExpandableTextBox> t1("expandable_text");
 
@@ -382,7 +383,7 @@ void LLExpandableTextBox::expandTextBox()
 	setFocus(TRUE);
 	// this lets us receive top_lost event(needed to collapse text box)
 	// it also draws text box above all other ui elements
-	gFocusMgr.setTopCtrl(this);
+	gViewerWindow->addPopup(this);
 
 	mExpanded = true;
 }
@@ -401,10 +402,7 @@ void LLExpandableTextBox::collapseTextBox()
 
 	updateTextBoxRect();
 
-	if(gFocusMgr.getTopCtrl() == this)
-	{
-		gFocusMgr.setTopCtrl(NULL);
-	}
+	gViewerWindow->removePopup(this);
 }
 
 void LLExpandableTextBox::onFocusLost()

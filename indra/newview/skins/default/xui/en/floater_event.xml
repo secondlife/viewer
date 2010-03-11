@@ -48,7 +48,7 @@
     border_size="0">
     <layout_panel
        name="profile_stack"
-       follows="all"
+       follows="top|left"
        layout="topleft"
        top="0"
        left="0"
@@ -88,7 +88,7 @@
        left="10"
        top_pad="7"
        name="event_runby_label"
-       width="310">
+       width="90">
         Run by:
       </text>
       <text
@@ -96,48 +96,79 @@
         height="20"
         initial_value="(retrieving)"
         layout="topleft"
-        left="10"
+        left_pad="0"
         link="true"
         name="event_runby"
-        top_pad="2"
+        top_delta="0"
         use_ellipses="true"
-        width="310" />
+        width="240" />
+      <text
+       type="string"
+       length="1"
+       follows="top|left"
+       layout="topleft"
+       left="10"
+       top_pad="5"
+       name="event_date_label"
+       width="90">
+        Date:
+      </text>
       <text
      type="string"
      length="1"
-     left="10"
+     left_pad="0"
      height="17"
-     font="SansSerifMedium"
-    text_color="EmphasisColor"
-     top_pad="5"
+     top_delta="0"
      follows="top|left"
      layout="topleft"
      name="event_date"
-     width="310">
+     width="240">
         10/10/2010
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="top|left"
+       layout="topleft"
+       left="10"
+       top_pad="5"
+       name="event_duration_label"
+       width="90">
+        Duration:
       </text>
       <text
        type="string"
        height="14"
        length="1"
-       left="10"
+       left_pad="0"
        follows="top|left"
        layout="topleft"
        name="event_duration"
-       width="310">
+       top_delta="0"
+       width="240">
         1 hour
       </text>
       <text
-       font="SansSerifMedium"
-       text_color="EmphasisColor"
+       type="string"
+       length="1"
+       follows="top|left"
+       layout="topleft"
+       left="10"
+       top_pad="5"
+       name="event_covercharge_label"
+       width="90">
+        Cover charge:
+      </text>
+      <text
         type="string"
         follows="left|top"
         height="16"
         layout="topleft"
-       left="10"
+       left_pad="0"
        name="event_cover"
         visible="true"
-        width="310">
+        width="240"
+        top_delta="0">
         Free
       </text>
       <text
@@ -147,20 +178,22 @@
        layout="topleft"
        left="10"
        top_pad="5"
-       name="event_location_label">
+       name="event_location_label"
+       width="90">
         Location:
       </text>
       <text
        type="string"
        length="1"
        height="20"
-       left="10"
+       left_pad="0"
        follows="top|left"
        layout="topleft"
        name="event_location"
        use_ellipses="true"
+       top_delta="0"
        value="SampleParcel, Name Long (145, 228, 26)"
-       width="310" />
+       width="240" />
       <icon
        follows="top|left"
        height="16"
@@ -195,33 +228,34 @@
        name="rating_label"
        top_delta="3"
        value="Rating:"
-       width="60" />
+       width="90" />
       <text
        follows="left|right|top"
        height="16"
        layout="topleft"
-       left_pad="0"
+       left_pad="2"
        name="rating_value"
        top_delta="0"
        value="unknown"
-       width="200" />
+       width="240" />
       <expandable_text
-               follows="left|top|right"
-               height="106"
-               layout="topleft"
-               left="6"
-               name="event_desc"
-               width="313" />
+       follows="left|top|right"
+       height="65"
+       layout="topleft"
+       left="6"
+       name="event_desc"
+       width="322">
+       Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</expandable_text>
     </layout_panel>
     <layout_panel
-               follows="left|right"
-               height="24"
-               layout="topleft"
-               mouse_opaque="false"
-               name="button_panel"
-               top="0"
-               left="0"
-               user_resize="false">
+       follows="left|right"
+       height="24"
+       layout="topleft"
+       mouse_opaque="false"
+       name="button_panel"
+       top="0"
+       left="0"
+       user_resize="false">
       <button
        follows="left|top"
            height="18"

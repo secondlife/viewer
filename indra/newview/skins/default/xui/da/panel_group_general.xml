@@ -9,20 +9,38 @@
 	<panel.string name="incomplete_member_data_str">
 		Henter medlemsinformationer
 	</panel.string>
+	<panel name="group_info_top">
+		<texture_picker label="" name="insignia" tool_tip="Klik for at vælge et billede"/>
+		<text name="prepend_founded_by">
+			Grundlagt af:
+		</text>
+		<name_box initial_value="(henter)" name="founder_name"/>
+		<text name="join_cost_text">
+			Gratis
+		</text>
+		<button label="TILMELD NU!" name="btn_join"/>
+	</panel>
 	<text_editor name="charter">
 		Gruppens formål
 	</text_editor>
 	<name_list name="visible_members">
 		<name_list.columns label="Medlem" name="name"/>
 		<name_list.columns label="Titel" name="title"/>
+		<name_list.columns label="Status" name="status"/>
 	</name_list>
+	<text name="my_group_settngs_label">
+		MeMig
+	</text>
 	<text name="active_title_label">
-		Min titel
+		Min titel:
 	</text>
 	<combo_box name="active_title" tool_tip="Angiver den titel der vises i din avatars navnefelt, når denne gruppe er aktiv"/>
 	<check_box label="Modtag gruppeinformationer" name="receive_notices" tool_tip="Angiver om du vil modtage informationer fra denne gruppe. Fjern markeringen i boksen hvis gruppen spammer dig."/>
 	<check_box label="Vis gruppen i min profil" name="list_groups_in_profile" tool_tip="Angiver om du vil vise denne gruppe i dine profilinformationer"/>
 	<panel name="preferences_container">
+		<text name="group_settngs_label">
+			Gruppe
+		</text>
 		<check_box label="Åben tilmelding" name="open_enrollement" tool_tip="Angiver om denne gruppe tillader nye medlemmer at tilmelde sig, uden de er inviteret."/>
 		<check_box label="Tilmeldingsgebyr" name="check_enrollment_fee" tool_tip="Angiver om der kræves et gebyr, for at tilmelde sig gruppen"/>
 		<spinner label="L$" left_delta="130" name="spin_enrollment_fee" tool_tip="Nye medlemmer skal betale dette gebyr for at tilmelde sig gruppen, når &quot;Tilmeldingsgebyr&quot; er valgt." width="60"/>

@@ -4334,7 +4334,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>home</string>
+      <string>last</string>
     </map>
     <key>LoginPage</key>
     <map>
@@ -5492,7 +5492,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>0.9</real>
     </map>
     
    <key>PlainTextChatHistory</key>

@@ -58,6 +58,8 @@ public:
 	~LLTextureFetch();
 
 	/*virtual*/ S32 update(U32 max_time_ms);	
+	void shutDownTextureCacheThread() ; //called in the main thread after the TextureCacheThread shuts down.
+	void shutDownImageDecodeThread() ;  //called in the main thread after the ImageDecodeThread shuts down.
 
 	bool createRequest(const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
 					   S32 w, S32 h, S32 c, S32 discard, bool needs_aux);

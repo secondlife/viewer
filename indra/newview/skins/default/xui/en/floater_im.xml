@@ -14,7 +14,7 @@
  width="419">
     <multi_floater.string
      name="only_user_message">
-        You are the only user in this session.
+        You are the only Resident in this session.
     </multi_floater.string>
     <multi_floater.string
      name="offline_message">
@@ -54,7 +54,7 @@
     </multi_floater.string>
     <multi_floater.string
      name="add_session_event">
-        Unable to add users to chat session with [RECIPIENT].
+        Unable to add Residents to chat session with [RECIPIENT].
     </multi_floater.string>
     <multi_floater.string
      name="message_session_event">

@@ -952,7 +952,42 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	}
 
 	// Add the recipient to the recent people list.
-	LLRecentPeople::instance().add(other_participant_id);
+	bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(other_participant_id) == NULL;
+
+	if (is_not_group_id)
+	{
+			
+#if 0
+		//use this code to add only online members	
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+		LLSpeakerMgr::speaker_list_t speaker_list;
+		speaker_mgr->getSpeakerList(&speaker_list, true);
+		for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+		{
+			const LLPointer<LLSpeaker>& speakerp = *it;
+
+			LLRecentPeople::instance().add(speakerp->mID);
+		}
+#else
+		LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(im_session_id);
+		if( session == 0)//??? shouldn't really happen
+		{
+			LLRecentPeople::instance().add(other_participant_id);
+		}
+		else
+		{
+			for(std::vector<LLUUID>::iterator it = session->mInitialTargetIDs.begin();
+				it!=session->mInitialTargetIDs.end();++it)
+			{
+				const LLUUID id = *it;
+
+				LLRecentPeople::instance().add(id);
+			}
+		}
+#endif
+	}
+
+	
 }
 
 void session_starter_helper(
@@ -1530,7 +1565,7 @@ void LLCallDialog::onOpen(const LLSD& key)
 	LLDockableFloater::onOpen(key);
 
 	// it should be over the all floaters. EXT-5116
-	gFloaterView->bringToFront(this);
+	gFloaterView->bringToFront(this, FALSE);
 }
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)

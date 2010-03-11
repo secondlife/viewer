@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SUPPORT_SITE">
 		Portal de Apoio do Second Life
 	</string>
@@ -185,9 +188,6 @@
 	<string name="BUTTON_DOCK">
 		conectar-se à barra
 	</string>
-	<string name="BUTTON_UNDOCK">
-		desconectar-se da barra
-	</string>
 	<string name="BUTTON_HELP">
 		Mostrar ajuda
 	</string>
@@ -211,9 +211,6 @@
 	</string>
 	<string name="AvatarNameWaiting">
 		(aguardando)
-	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
 	</string>
 	<string name="GroupNameNone">
 		(nenhum)
@@ -575,6 +572,9 @@
 	<string name="hang_up">
 		Desconectado da conversa de Voz no mundo
 	</string>
+	<string name="reconnect_nearby">
+		Agora você será reconectado ao bate-papo local.
+	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		&apos;[OBJECTNAME]&apos;, um objeto de  &apos;[OWNERNAME]&apos;, localizado em [REGIONNAME] a [REGIONPOS], obteve permissão para: [PERMISSIONS].
 	</string>
@@ -767,9 +767,6 @@
 	<string name="TeleportOffer">
 		Oferta de teletransporte
 	</string>
-	<string name="StartUpNotification">
-		[%d] nova notificação chegou enquanto você estava fora...
-	</string>
 	<string name="StartUpNotifications">
 		[%d] Novas notificações chegaram enquanto você estava fora...
 	</string>
@@ -807,7 +804,10 @@
 		Pressione ESC para retornar para visão do mundo
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Nenhum item correspondente encontrado no inventário.
+		Nenhum item correspondente foi encontrado no inventário.  Tente fazer uma [secondlife:///app/search/groups &quot;Busca&quot;].
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Arraste um marco para adicioná-lo aos seus favoritos.
 	</string>
 	<string name="InventoryNoTexture">
 		Você não possui uma cópia desta textura no seu inventário
@@ -1268,10 +1268,163 @@
 		todas as propriedades que você gerencia para [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Residentes permitidos : ([ALLOWEDAGENTS], max [MAXACCESS])
+		Residentes autorizados: ([ALLOWEDAGENTS], max [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
 		Grupos permitidos: ([ALLOWEDGROUPS], max [MAXACCESS])
+	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		Memória de scripts no lote
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		Lotes listados: [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		Memória usada: [COUNT] kb de [MAX] kb; [AVAILABLE] kb disponíveis
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		Memória usada: [COUNT] kb
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		URL dos scripts do lote
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		URLs usados: [COUNT] de [MAX]; [AVAILABLE] disponíveis
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		URLs usados: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Erro ao solicitar dados
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Nenhum lote foi selecionado
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Erro: dados de script só disponíveis na região da posição atual
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Obtendo dados...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		Você não está autorizado a examinar este lote.
+	</string>
+	<string name="SITTING_ON">
+		Sentado em
+	</string>
+	<string name="ATTACH_CHEST">
+		Peito
+	</string>
+	<string name="ATTACH_HEAD">
+		Cabeça
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		Ombro esquerdo
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		Ombro direito
+	</string>
+	<string name="ATTACH_LHAND">
+		Mão esquerda
+	</string>
+	<string name="ATTACH_RHAND">
+		Mão direita
+	</string>
+	<string name="ATTACH_LFOOT">
+		Pé esquerdo
+	</string>
+	<string name="ATTACH_RFOOT">
+		Pé direito
+	</string>
+	<string name="ATTACH_BACK">
+		Atrás
+	</string>
+	<string name="ATTACH_PELVIS">
+		Pélvis
+	</string>
+	<string name="ATTACH_MOUTH">
+		Boca
+	</string>
+	<string name="ATTACH_CHIN">
+		Queixo
+	</string>
+	<string name="ATTACH_LEAR">
+		Orelha esquerda
+	</string>
+	<string name="ATTACH_REAR">
+		Orelha direita
+	</string>
+	<string name="ATTACH_LEYE">
+		Olho esquerdo
+	</string>
+	<string name="ATTACH_REYE">
+		Olho direito
+	</string>
+	<string name="ATTACH_NOSE">
+		Nariz
+	</string>
+	<string name="ATTACH_RUARM">
+		Braço direito
+	</string>
+	<string name="ATTACH_RLARM">
+		Antebraço direito
+	</string>
+	<string name="ATTACH_LUARM">
+		Braço esquerdo
+	</string>
+	<string name="ATTACH_LLARM">
+		Antebraço esquerdo
+	</string>
+	<string name="ATTACH_RHIP">
+		Quadril direito
+	</string>
+	<string name="ATTACH_RULEG">
+		Coxa direita
+	</string>
+	<string name="ATTACH_RLLEG">
+		Perna direita
+	</string>
+	<string name="ATTACH_LHIP">
+		Quadril esquerdo
+	</string>
+	<string name="ATTACH_LULEG">
+		Coxa esquerda
+	</string>
+	<string name="ATTACH_LLLEG">
+		Perna esquerda
+	</string>
+	<string name="ATTACH_BELLY">
+		Barriga
+	</string>
+	<string name="ATTACH_RPEC">
+		Peitorais D
+	</string>
+	<string name="ATTACH_LPEC">
+		Peitorais E
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD Central 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD	superior direito
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD centro superior
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD superior esquerdo
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD Central 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD esquerda inferior
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD inferior
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD direito inferior
 	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
@@ -1316,6 +1469,15 @@
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(vai atualizar depois de publicado)
+	</string>
+	<string name="NoPicksClassifiedsText">
+		Você não criou nenhum Destaque ou Anúncio.  Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		O usuário não tem nenhum destaque ou anúncio
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		Carregando...
 	</string>
 	<string name="MultiPreviewTitle">
 		Preview
@@ -1392,6 +1554,9 @@
 	<string name="UnknownFileExtension">
 		Extensão de arquivo desconhecida [.%s]
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+	</string>
+	<string name="MuteObject2">
+		Bloquear
 	</string>
 	<string name="AddLandmarkNavBarMenu">
 		Adicionar Landmark...
@@ -1664,38 +1829,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Attached Earlobes">
 		Lóbulos da orelha anexados
 	</string>
-	<string name="Back Bangs">
-		Franja traseira
-	</string>
-	<string name="Back Bangs Down">
-		franja traseira longa
-	</string>
-	<string name="Back Bangs Up">
-		franja traseira arrepiada
-	</string>
 	<string name="Back Fringe">
 		corte traseiro
-	</string>
-	<string name="Back Hair">
-		cabelo traseiro
-	</string>
-	<string name="Back Hair Down">
-		cabelo de trás longo
-	</string>
-	<string name="Back Hair Up">
-		cabelo de trás arrepiado
 	</string>
 	<string name="Baggy">
 		folgado
 	</string>
 	<string name="Bangs">
 		Franja
-	</string>
-	<string name="Bangs Down">
-		franja longa
-	</string>
-	<string name="Bangs Up">
-		franja arrepiada
 	</string>
 	<string name="Beady Eyes">
 		Olhos malévolos
@@ -1708,9 +1849,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Big Butt">
 		Traseiro Grande
-	</string>
-	<string name="Big Eyeball">
-		Globo ocular grande
 	</string>
 	<string name="Big Hair Back">
 		Cabelo volumoso: Trás
@@ -1886,9 +2024,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Corner Down">
 		Canto para baixo
 	</string>
-	<string name="Corner Normal">
-		Canto normal
-	</string>
 	<string name="Corner Up">
 		Canto para cima
 	</string>
@@ -1897,9 +2032,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Crooked Nose">
 		Nariz torto
-	</string>
-	<string name="Cropped Hair">
-		Cabelo curto rente
 	</string>
 	<string name="Cuff Flare">
 		bainha larga
@@ -1919,14 +2051,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Default Heels">
 		Salto Padrão
 	</string>
-	<string name="Default Toe">
-		Dedo do pé padrão
-	</string>
 	<string name="Dense">
 		Densidade
-	</string>
-	<string name="Dense hair">
-		Cabelo Denso
 	</string>
 	<string name="Double Chin">
 		Queixo duplo
@@ -1973,9 +2099,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Eye Spacing">
 		Espaçamento dos olhos
 	</string>
-	<string name="Eyeball Size">
-		Tamanho do globo ocular
-	</string>
 	<string name="Eyebrow Arc">
 		Arco da sobrancelha
 	</string>
@@ -2000,35 +2123,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Eyeliner Color">
 		Cor do delineador
 	</string>
-	<string name="Eyes Back">
-		Eyes Back
-	</string>
 	<string name="Eyes Bugged">
 		Olhos esbugalhados
-	</string>
-	<string name="Eyes Forward">
-		Eyes Forward
-	</string>
-	<string name="Eyes Long Head">
-		Eyes Long Head
-	</string>
-	<string name="Eyes Shear Left Up">
-		Ponta esquerda dos olhos para cima
-	</string>
-	<string name="Eyes Shear Right Up">
-		Ponta direita dos olhos para cima
-	</string>
-	<string name="Eyes Short Head">
-		Eyes Short Head
-	</string>
-	<string name="Eyes Spread">
-		Extensão dos Olhos
-	</string>
-	<string name="Eyes Sunken">
-		Olhos afundados
-	</string>
-	<string name="Eyes Together">
-		Olhos juntos
 	</string>
 	<string name="Face Shear">
 		Face raspada
@@ -2039,29 +2135,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Far Set Eyes">
 		Distância entre os olhos
 	</string>
-	<string name="Fat">
-		Gordo
-	</string>
-	<string name="Fat Head">
-		Cabeça gorda
-	</string>
 	<string name="Fat Lips">
 		Lábios carnudos
-	</string>
-	<string name="Fat Lower">
-		Inferior carnudo
-	</string>
-	<string name="Fat Lower Lip">
-		Lábio superior carnudo
-	</string>
-	<string name="Fat Torso">
-		Tronco corpulento
-	</string>
-	<string name="Fat Upper">
-		Superior carnudo
-	</string>
-	<string name="Fat Upper Lip">
-		lábio superior carnudo
 	</string>
 	<string name="Female">
 		Feminino
@@ -2099,23 +2174,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Freckles">
 		Sardas
 	</string>
-	<string name="Front Bangs Down">
-		Franja da frente longa
-	</string>
-	<string name="Front Bangs Up">
-		Franja da frene arrepiada
-	</string>
 	<string name="Front Fringe">
 		Franja
-	</string>
-	<string name="Front Hair">
-		Cabelo da frente
-	</string>
-	<string name="Front Hair Down">
-		Cabelo da frente baixo
-	</string>
-	<string name="Front Hair Up">
-		cabelo da frente arrepiado
 	</string>
 	<string name="Full Back">
 		Trás cheia
@@ -2390,9 +2450,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Long arms">
 		Braços longos
 	</string>
-	<string name="Longcuffs">
-		Punho longo
-	</string>
 	<string name="Loose Pants">
 		Pantalonas
 	</string>
@@ -2555,9 +2612,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="No Eyeshadow">
 		Sem Sombra dos olhos
 	</string>
-	<string name="No Heels">
-		Sem salto
-	</string>
 	<string name="No Lipgloss">
 		Sem brilho labial
 	</string>
@@ -2614,9 +2668,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Nostril Width">
 		Largura das narinas
-	</string>
-	<string name="Old">
-		Velho
 	</string>
 	<string name="Opaque">
 		Opaco
@@ -2717,9 +2768,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Pointy Heels">
 		Salto agulha
 	</string>
-	<string name="Pointy Toe">
-		Dedo dos pés pontudo
-	</string>
 	<string name="Ponytail">
 		Rabo de cavalo
 	</string>
@@ -2744,14 +2792,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Red Hair">
 		Cabelo ruivo
 	</string>
-	<string name="Red Skin">
-		Pele vermelha
-	</string>
 	<string name="Regular">
 		Normal
-	</string>
-	<string name="Regular Muscles">
-		Músculos normais
 	</string>
 	<string name="Right Part">
 		Parte direita
@@ -2761,9 +2803,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Round">
 		Arredondado
-	</string>
-	<string name="Round Forehead">
-		Testa arredonda
 	</string>
 	<string name="Ruddiness">
 		Rubor
@@ -2777,23 +2816,11 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Saddle Bags">
 		Saddle Bags
 	</string>
-	<string name="Saddlebags">
-		Saddlebags
-	</string>
-	<string name="Scrawny">
-		Magricela
-	</string>
 	<string name="Scrawny Leg">
 		Pernas magricelas
 	</string>
 	<string name="Separate">
 		Separar
-	</string>
-	<string name="Shading">
-		Sombreamento
-	</string>
-	<string name="Shadow hair">
-		Sombra do cabelo
 	</string>
 	<string name="Shallow">
 		raso
@@ -2807,14 +2834,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Shear Front">
 		Frente rente
 	</string>
-	<string name="Shear Left">
-		Rente esquerda
-	</string>
 	<string name="Shear Left Up">
 		Esquerda rente para cima
-	</string>
-	<string name="Shear Right">
-		Direita rente
 	</string>
 	<string name="Shear Right Up">
 		Trás rente para cima
@@ -2876,15 +2897,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Shoulders">
 		Ombros
 	</string>
-	<string name="Side Bangs">
-		Franja lateral
-	</string>
-	<string name="Side Bangs Down">
-		Franja lateral longa
-	</string>
-	<string name="Side Bangs Up">
-		Franja lateral arrepiada
-	</string>
 	<string name="Side Fringe">
 		pontas laterais
 	</string>
@@ -2899,9 +2911,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Sides Hair Up">
 		Cabelo lateral superior
-	</string>
-	<string name="Skinny">
-		Magro
 	</string>
 	<string name="Skinny Neck">
 		Pescoço fino
@@ -2951,9 +2960,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Socks Length">
 		Comprimento das meias
 	</string>
-	<string name="Some">
-		Alguns
-	</string>
 	<string name="Soulpatch">
 		Cavanhaque
 	</string>
@@ -2971,9 +2977,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Squash Head">
 		Cabeça de Pera
-	</string>
-	<string name="Squash/Stretch Head">
-		Cabeça esticada/forma de pera
 	</string>
 	<string name="Stretch Head">
 		Cabeça  esticada
@@ -2993,18 +2996,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Sweep Forward">
 		Pentear para frente
 	</string>
-	<string name="Swept Back">
-		Pentear para trás
-	</string>
-	<string name="Swept Back Hair">
-		Cabelo penteado para trás
-	</string>
-	<string name="Swept Forward">
-		Penteado para frente
-	</string>
-	<string name="Swept Forward Hair">
-		Cabelo penteado para frente
-	</string>
 	<string name="Tall">
 		Alto
 	</string>
@@ -3022,9 +3013,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Thick Toe">
 		Dedo grosso
-	</string>
-	<string name="Thickness">
-		Espessura
 	</string>
 	<string name="Thin">
 		Fino
@@ -3055,12 +3043,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Tight Sleeves">
 		Tight Sleeves
-	</string>
-	<string name="Tilt Left">
-		Inclinado à esquerda
-	</string>
-	<string name="Tilt Right">
-		Inclinado à direita
 	</string>
 	<string name="Toe Shape">
 		Formato dos dedos
@@ -3203,6 +3185,21 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderador)
 	</string>
+	<string name="started_call">
+		Iniciou uma ligação de voz
+	</string>
+	<string name="joined_call">
+		Entrou na ligação
+	</string>
+	<string name="ringing-im">
+		Entrando em ligação de voz...
+	</string>
+	<string name="connected-im">
+		Conectado. Para sair, clique em Desligar
+	</string>
+	<string name="hang_up-im">
+		Saiu da ligação de voz
+	</string>
 	<string name="only_user_message">
 		Você é o único usuário desta sessão.
 	</string>
@@ -3211,6 +3208,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="invite_message">
 		Clique no botão [BUTTON NAME] para aceitar/ conectar a este bate-papo em voz.
+	</string>
+	<string name="muted_message">
+		Você bloqueou este residente.  Se quiser retirar o bloqueio, basta enviar uma mensagem.
+	</string>
+	<string name="generic">
+		Erro de solicitação, tente novamente mais tarde.
 	</string>
 	<string name="generic_request_error">
 		Erro na requisição, por favor, tente novamente.
@@ -3230,19 +3233,37 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="not_a_mod_error">
 		Você não é um moderador de sessão.
 	</string>
+	<string name="muted">
+		Bate-papo de texto desativado por um moderador.
+	</string>
 	<string name="muted_error">
 		Um moderador do grupo desabilitou seu bate-papo em texto.
 	</string>
 	<string name="add_session_event">
 		Não foi possível adicionar usuários na sessão de bate-papo com [RECIPIENT].
 	</string>
+	<string name="message">
+		Não foi possível enviar sua mensagem para o bate-papo com [RECIPIENT].
+	</string>
 	<string name="message_session_event">
 		Não foi possível enviar sua mensagem na sessão de bate- papo com [RECIPIENT].
+	</string>
+	<string name="mute">
+		Erro durante a moderação.
+	</string>
+	<string name="removed">
+		Você foi tirado do grupo.
 	</string>
 	<string name="removed_from_group">
 		Você foi removido do grupo.
 	</string>
 	<string name="close_on_no_ability">
 		Você não possui mais a habilidade de estar na sessão de bate-papo.
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] disse alguma coisa
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] disseram alguma coisa
 	</string>
 </strings>

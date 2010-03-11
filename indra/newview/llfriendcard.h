@@ -120,7 +120,7 @@ private:
 		return (mBuddyIDSet.end() != mBuddyIDSet.find(avatarID));
 	}
 
-	const LLUUID& findChildFolderUUID(const LLUUID& parentFolderUUID, const std::string& localizedName) const;
+	const LLUUID& findChildFolderUUID(const LLUUID& parentFolderUUID, const std::string& nonLocalizedName) const;
 	const LLUUID& findFriendFolderUUIDImpl() const;
 	const LLUUID& findFriendAllSubfolderUUIDImpl() const;
 	const LLUUID& findFriendCardInventoryUUIDImpl(const LLUUID& avatarID);

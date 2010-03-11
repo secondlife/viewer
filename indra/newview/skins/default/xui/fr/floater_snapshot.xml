@@ -62,8 +62,8 @@
 	<check_box label="Interface" name="ui_check"/>
 	<check_box label="HUD" name="hud_check"/>
 	<check_box label="Garder ouvert après enregistrement" name="keep_open_check"/>
-	<check_box label="Contraindre les proportions" name="keep_aspect_check"/>
-	<check_box label="Arrêt sur image (plein écran)" name="freeze_frame_check"/>
+	<check_box label="Conserver les proportions" name="keep_aspect_check"/>
+	<check_box label="Figer l&apos;image (plein écran)" name="freeze_frame_check"/>
 	<button label="Rafraîchir" name="new_snapshot_btn"/>
 	<check_box label="Rafraîchissement automatique" name="auto_snapshot_check"/>
 	<button label="Enregistrer ([AMOUNT] L$)" name="upload_btn" width="118"/>

@@ -3,19 +3,19 @@
 	<text name="region_text_lbl">
 		地域:
 	</text>
-	<text name="region_text" left_delta="70">
+	<text left_delta="70" name="region_text">
 		不明
 	</text>
 	<text name="version_channel_text_lbl">
 		バージョン：
 	</text>
-	<text name="version_channel_text" left_delta="70">
+	<text left_delta="70" name="version_channel_text">
 		不明
 	</text>
 	<text name="region_type_lbl">
 		種類：
 	</text>
-	<text name="region_type" left_delta="70">
+	<text left_delta="70" name="region_type">
 		不明
 	</text>
 	<check_box label="地形編集をブロック" name="block_terraform_check"/>
@@ -25,19 +25,19 @@
 	<check_box label="土地の再販を許可" name="allow_land_resell_check"/>
 	<check_box label="土地の統合・分割を許可" name="allow_parcel_changes_check"/>
 	<check_box label="土地の検索表示をブロック" name="block_parcel_search_check" tool_tip="検索結果で、この地域と区画を表示するかどうかの設定です"/>
-	<spinner label="アバター数上限" name="agent_limit_spin" label_width="110" width="190"/>
-	<spinner label="物体ボーナス" name="object_bonus_spin" label_width="110" width="190"/>
+	<spinner label="アバター数上限" label_width="110" name="agent_limit_spin" width="190"/>
+	<spinner label="物体ボーナス" label_width="110" name="object_bonus_spin" width="190"/>
 	<text label="レーティング区分" name="access_text">
 		レーティング区分：
 	</text>
-	<combo_box label="控えめ" name="access_combo">
-		<combo_box.item label="アダルト" name="Adult"/>
-		<combo_box.item label="控えめ" name="Mature"/>
-		<combo_box.item label="一般" name="PG"/>
+	<combo_box label="Moderate" name="access_combo">
+		<combo_box.item label="Adult" name="Adult"/>
+		<combo_box.item label="Moderate" name="Mature"/>
+		<combo_box.item label="General" name="PG"/>
 	</combo_box>
 	<button label="適用" name="apply_btn"/>
-	<button label="ユーザー1名をホームにテレポート..." name="kick_btn"/>
-	<button label="ユーザー全員をホームにテレポート..." name="kick_all_btn"/>
+	<button label="住人 1 名をホームにテレポート..." name="kick_btn"/>
+	<button label="住人全員をホームにテレポート..." name="kick_all_btn"/>
 	<button label="メッセージを地域に送信..." name="im_btn"/>
 	<button label="テレハブの管理..." name="manage_telehub_btn"/>
 </panel>

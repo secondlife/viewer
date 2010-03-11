@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Looks" name="appearance panel">
 	<string name="No Outfit" value="Nenhum"/>
-	<filter_editor label="Filtrar looks" name="Filter"/>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
-		<button name="newlook_btn" tool_tip="Novo look"/>
-		<dnd_button name="trash_btn" tool_tip="Remover item selecionado"/>
-		<button label="Vestir" name="wear_btn"/>
+	<panel name="panel_currentlook">
+		<text name="currentlook_title">
+			(não salvo)
+		</text>
 	</panel>
+	<filter_editor label="Filtrar looks" name="Filter"/>
 </panel>

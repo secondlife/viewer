@@ -415,6 +415,7 @@ halign="center"
          layout="topleft"
          left="0"
          name="All Items"
+         sort_order_setting="InventorySortOrder"
          top="16"
          width="290" />
         <inventory_panel

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
+<floater name="whitelist_entry" title="GODKENDTE SIDER">
 	<text name="media_label">
 		Indtast en URL eller et URL mønster for at tilføje til listen med godkendte domæner
 	</text>

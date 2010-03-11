@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_auction" title="ROZPOCZNIJ SPRZEDAŻ POSIADŁOŚCI">
-	<check_box label="Zawierając żółte ogrodzenie" name="fence_check" />
-	<button label="Zdjęce" label_selected="Zdjęce" name="snapshot_btn" />
-	<button label="OK" label_selected="OK" name="ok_btn" />
-	<string name="already for sale">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="ROZPOCZNIJ SPRZEDAŻ POSIADŁOŚCI LINDENÓW">
+	<floater.string name="already for sale">
 		Nie możesz umieścić posiadłości na aukcji, jeżeli już została wystawiona na sprzedaż.
-	</string>
+	</floater.string>
+	<check_box initial_value="true" label="Zawierając żółte ogrodzenie" name="fence_check"/>
+	<button label="Zdjęce" label_selected="Zdjęce" name="snapshot_btn"/>
+	<button label="Sprzedaj Każdemu" label_selected="Sprzedaj Każdemu" name="sell_to_anyone_btn"/>
+	<button label="Wyczyść Ustawienia" label_selected="Wyczyść Ustawienia" name="reset_parcel_btn"/>
+	<button label="Rozpocznij Aukcję" label_selected="Rozpocznij Aukcję" name="start_auction_btn"/>
 </floater>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_group_plus">
+	<menu_item_call label="Se info" name="View Info"/>
+	<menu_item_call label="Chat" name="Chat"/>
+	<menu_item_call label="Opkald" name="Call"/>
+	<menu_item_call label="Aktivér" name="Activate"/>
+	<menu_item_call label="Forlad" name="Leave"/>
+</menu>

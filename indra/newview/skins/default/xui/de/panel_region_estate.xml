@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grundstück" name="Estate">
 	<text name="estate_help_text">
-		Änderungen auf dieser Registerkarte wirken sich auf alle Regionen auf dem Grundstück aus.
+		Änderungen wirken sich auf alle Regionen des Grundstücks aus.
 	</text>
 	<text name="estate_text">
 		Grundstück:
@@ -16,7 +16,7 @@
 		(unbekannt)
 	</text>
 	<text name="Only Allow">
-		Zugang auf Einwohner beschränken, die überprüft wurden von:
+		Zugang nur dann, wenn überprüft mit:
 	</text>
 	<check_box label="Zahlungsinformation gespeichert" name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen"/>
 	<check_box label="Altersüberprüfung" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung verbannen. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
@@ -69,6 +69,6 @@
 	<button label="?" name="ban_resident_help"/>
 	<button label="Hinzufügen..." name="add_banned_avatar_btn"/>
 	<button label="Entfernen..." name="remove_banned_avatar_btn"/>
-	<button label="Nachricht an Grundstück senden..." name="message_estate_btn"/>
-	<button label="Benutzer von Grundstück werfen..." name="kick_user_from_estate_btn"/>
+	<button label="Nachricht an Grundstück" name="message_estate_btn"/>
+	<button label="Einwohner hinauswerfen..." name="kick_user_from_estate_btn"/>
 </panel>

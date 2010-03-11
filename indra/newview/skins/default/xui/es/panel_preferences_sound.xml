@@ -7,12 +7,12 @@
 	<slider label="Efectos de sonido" name="SFX Volume"/>
 	<slider label="Música en streaming" name="Music Volume"/>
 	<check_box label="Activada" name="music_enabled"/>
-	<slider label="Medios de comunicación" name="Media Volume"/>
-	<check_box label="Activados" name="enable_media"/>
+	<slider label="Multimedia" name="Media Volume"/>
+	<check_box label="Activada" name="enable_media"/>
 	<slider label="Chat de voz" name="Voice Volume"/>
-	<check_box label="Activada" name="enable_voice_check"/>
-	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marca esto para permitir la ejecución automática de los media" value="Sí"/>
-	<check_box label="Ejecutar para otros avatares los media anexados" name="media_show_on_others_btn" tool_tip="Desmarcar esto esconderá los media anexados a otros avatares cercanos" value="Sí"/>
+	<check_box label="Activado" name="enable_voice_check"/>
+	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marcar esto para permitir la ejecución automática de los media" value="Sí"/>
+	<check_box label="Ejecutar para otros avatares los media anexados" name="media_show_on_others_btn" tool_tip="Al desmarcar esto se esconderán los media anexados a otros avatares cercanos" value="Sí"/>
 	<text name="voice_chat_settings">
 		Configuración del chat de voz
 	</text>

@@ -40,7 +40,7 @@
 class LLClassifiedStatsResponder : public LLHTTPClient::Responder
 {
 public:
-	LLClassifiedStatsResponder(LLHandle<LLView> classified_panel_handle, LLUUID classified_id);
+	LLClassifiedStatsResponder(LLUUID classified_id);
 	//If we get back a normal response, handle it here
 	virtual void result(const LLSD& content);
 	//If we get back an error (not found, etc...), handle it here
@@ -48,7 +48,6 @@ public:
 	virtual void error(U32 status, const std::string& reason);
 
 protected:
-	LLHandle<LLView> mClassifiedPanelHandle;
 	LLUUID mClassifiedID;
 };
 

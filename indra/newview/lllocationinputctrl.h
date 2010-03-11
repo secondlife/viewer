@@ -136,6 +136,7 @@ private:
 	void					refreshParcelIcons();
 	// Refresh the value in the health percentage text field
 	void					refreshHealth();
+	void					refreshMaturityIcon();
 	void					positionMaturityIcon();
 	
 	void					rebuildLocationHistory(const std::string& filter = LLStringUtil::null);

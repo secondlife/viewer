@@ -68,7 +68,7 @@
 			<text name="maturity_value" value="unbekannt"/>
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="Parzelle">
-					<panel>
+					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Einstufung:"/>
 						<text name="rating_value" value="unbekannt"/>
 						<text name="voice_label" value="Voice:"/>
@@ -83,11 +83,11 @@
 						<text name="scripts_value" value="Ein"/>
 						<text name="damage_label" value="Schaden:"/>
 						<text name="damage_value" value="Aus"/>
-						<button label="Über Land" name="about_land_btn"/>
+						<button label="Land-Info" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Region">
-					<panel>
+					<panel name="region_information_panel">
 						<text name="region_name_label" value="Region:"/>
 						<text name="region_name" value="Mooseland"/>
 						<text name="region_type_label" value="Typ:"/>
@@ -104,7 +104,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="Grundstück">
-					<panel>
+					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="Grundstück:"/>
 						<text name="estate_rating_label" value="Einstufung:"/>
 						<text name="estate_owner_label" value="Eigentümer:"/>
@@ -112,7 +112,7 @@
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="Zum Verkauf">
-					<panel>
+					<panel name="sales_panel">
 						<text name="sales_price_label" value="Preis:"/>
 						<text name="area_label" value="Gebiet:"/>
 						<text name="traffic_label" value="Traffic:"/>

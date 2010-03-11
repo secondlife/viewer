@@ -6,12 +6,12 @@
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
 		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
-		<menu_item_call label="マイ プロフィール" name="Profile"/>
-		<menu_item_call label="マイ 容姿" name="Appearance"/>
-		<menu_item_check label="マイ 持ち物" name="Inventory"/>
+		<menu_item_call label="プロフィール" name="Profile"/>
+		<menu_item_call label="容姿" name="Appearance"/>
+		<menu_item_check label="持ち物" name="Inventory"/>
 		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
-		<menu_item_check label="マイ ジェスチャー" name="Gestures"/>
-		<menu label="マイ ログイン状態" name="Status">
+		<menu_item_check label="ジェスチャー" name="Gestures"/>
+		<menu label="ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
 		</menu>
@@ -43,6 +43,8 @@
 			<menu_item_check label="ビーコン（標識）" name="beacons"/>
 			<menu_item_check label="プロパティ境界線" name="Property Lines"/>
 			<menu_item_check label="土地所有者" name="Land Owners"/>
+			<menu_item_check label="座標" name="Coordinates"/>
+			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
 		</menu>
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
@@ -81,6 +83,7 @@
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
+			<menu_item_call label="買う" name="Menu Object Buy"/>
 			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
 			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>
@@ -238,7 +241,7 @@
 		<menu label="レンダーテスト" name="Render Tests">
 			<menu_item_check label="カメラオフセット" name="Camera Offset"/>
 			<menu_item_check label="フレームレートをランダム化" name="Randomize Framerate"/>
-			<menu_item_check label="Periodic Slow Frame" name="Periodic Slow Frame"/>
+			<menu_item_check label="定期的に遅いフレームを挿入する" name="Periodic Slow Frame"/>
 			<menu_item_check label="フレームテスト" name="Frame Test"/>
 		</menu>
 		<menu label="メタデータのレンダー" name="Render Metadata">
@@ -341,7 +344,7 @@
 				<menu_item_call label="PG のトグル" name="Toggle PG"/>
 				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
 			</menu>
-			<menu_item_call label="Params をデフォルトで実行する" name="Force Params to Default"/>
+			<menu_item_call label="パラメータを強制的にデフォルトにする" name="Force Params to Default"/>
 			<menu_item_check label="アニメーション情報" name="Animation Info"/>
 			<menu_item_check label="スローモーションのアニメーション" name="Slow Motion Animations"/>
 			<menu_item_check label="見ているものを表示する" name="Show Look At"/>
@@ -358,7 +361,7 @@
 		</menu>
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
-		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
+		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
 		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>

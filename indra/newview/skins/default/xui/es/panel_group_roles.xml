@@ -6,22 +6,22 @@
 	<panel.string name="want_apply_text">
 		¿Quieres guardar estos cambios?
 	</panel.string>
-	<tab_container height="164" name="roles_tab_container">
-		<panel height="148" label="MIEMBROS" name="members_sub_tab" tool_tip="Miembros">
+	<tab_container name="roles_tab_container">
+		<panel label="MIEMBROS" name="members_sub_tab" tool_tip="Miembros">
 			<panel.string name="help_text">
 				Puede añadir o quitar los roles asignados a los miembros.
 Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada uno de ellos.
 			</panel.string>
 			<filter_editor label="Filtrar los miembros" name="filter_input"/>
-			<name_list bottom_delta="-105" height="104" name="member_list">
+			<name_list name="member_list">
 				<name_list.columns label="Miembro" name="name"/>
 				<name_list.columns label="Donaciones" name="donated"/>
 				<name_list.columns label="Estatus" name="online"/>
 			</name_list>
-			<button label="Invitar" name="member_invite" width="175"/>
+			<button label="Invitar" name="member_invite"/>
 			<button label="Expulsar" name="member_eject"/>
 		</panel>
-		<panel height="148" label="ROLES" name="roles_sub_tab">
+		<panel label="ROLES" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Los roles tienen una etiqueta propia y unas capacidades que se
 permiten ejercer a sus miembros. Los miembros pueden
@@ -35,7 +35,7 @@ incluyendo el de Todos y el de Propietarios.
 				Inv_FolderClosed
 			</panel.string>
 			<filter_editor label="Filtrar los roles" name="filter_input"/>
-			<scroll_list bottom_delta="-104" height="104" name="role_list">
+			<scroll_list name="role_list">
 				<scroll_list.columns label="Rol" name="name"/>
 				<scroll_list.columns label="Etiqueta" name="title"/>
 				<scroll_list.columns label="#" name="members"/>

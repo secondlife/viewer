@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Event" name="Event" title="DETALLES DEL EVENTO">
+<floater label="Evento" name="Event" title="DETALLES DEL EVENTO">
 	<floater.string name="none">
-		Ninguno
+		ninguno
 	</floater.string>
 	<floater.string name="notify">
 		Notificar

@@ -14,7 +14,7 @@
 	</text>
 	<button bottom_delta="-10" label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
 	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Para seleccionar a varios residentes, ve pulsando sus nombres mientras mantienes apretada la tecla Ctrl"/>
-	<button label="Eliminar de la lista a los seleccionados" left_delta="-7" name="remove_button" tool_tip="Quita de la lista a los Residentes seleccionados arriba" width="214"/>
+	<button label="Eliminar de la lista a los seleccionados" left_delta="-7" name="remove_button" tool_tip="Quitar de la lista a los Residentes seleccionados arriba" width="214"/>
 	<text name="role_text">
 		Elegir qué rol asignarles:
 	</text>

@@ -5,7 +5,7 @@
 			Legende
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_2">
 		<button label="Meine Position" label_selected="Wo bin ich?" name="Show My Location" tool_tip="Karte auf Position meines Avatars zentrieren"/>
 		<text name="me_label">
 			Ich
@@ -37,9 +37,9 @@
 		</text>
 		<check_box label="PG" name="event_chk"/>
 		<text name="pg_label">
-			Allgemein
+			Generell
 		</text>
-		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
+		<check_box initial_value="wahr" label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderat
 		</text>
@@ -48,12 +48,12 @@
 			Adult
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_3">
 		<text name="find_on_map_label">
 			Auf Karte anzeigen
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_4">
 		<combo_box label="Online-Freunde" name="friend combo" tool_tip="Freunde auf Karte anzeigen">
 			<combo_box.item label="Meine Freunde: Online" name="item1"/>
 		</combo_box>
@@ -71,12 +71,12 @@
 		<button font="SansSerifSmall" label="SLurl kopieren" name="copy_slurl" tool_tip="Kopiert die aktuelle Position als SLurl zur Verwendung im Web."/>
 		<button label="Auswahl anzeigen" label_selected="Ziel anzeigen" name="Show Destination" tool_tip="Karte auf ausgewählte Position zentrieren"/>
 	</panel>
-	<panel>
+	<panel name="layout_panel_5">
 		<text name="zoom_label">
 			Zoom
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_6">
 		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

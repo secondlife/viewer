@@ -4,21 +4,51 @@
 		Moderat
 	</panel.string>
 	<panel.string name="type_pg">
-		Allgemeiner Inhalt
+		Genereller Inhalt
 	</panel.string>
 	<panel.string name="l$_price">
 		[PRICE] L$
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] teleportieren, [MAP] Karte, [PROFILE] Profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Aktiviert
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Deaktiviert
 	</panel.string>
 	<text name="title" value="Anzeigen-Info"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text_editor name="classified_name" value="[name]"/>
+			<text name="classified_location_label" value="Standort:"/>
 			<text_editor name="classified_location" value="[wird geladen...]"/>
+			<text name="content_type_label" value="Inhaltsart:"/>
 			<text_editor name="content_type" value="[Inhalts-Art]"/>
+			<text name="category_label" value="Kategorie:"/>
 			<text_editor name="category" value="[Kategorie]"/>
-			<check_box label="Jede Woche automatisch erneuern" name="auto_renew"/>
-			<text_editor name="price_for_listing" tool_tip="Preis für Anzeige."/>
-			<text_editor name="classified_desc" value="[description]"/>
+			<text name="creation_date_label" value="Erstellungsdatum:"/>
+			<text_editor name="creation_date" tool_tip="Erstellungsdatum" value="[date]"/>
+			<text name="price_for_listing_label" value="Preis für Anzeige:"/>
+			<text_editor name="price_for_listing" tool_tip="Preis für Anzeige." value="[price]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Klicks:"/>
+					<text_editor name="click_through_text" tool_tip="Click-Through-Daten" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Autom. erneuern:"/>
+					<text name="auto_renew" value="Aktiviert"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Beschreibung:"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

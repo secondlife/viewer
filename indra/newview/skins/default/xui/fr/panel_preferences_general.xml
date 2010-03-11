@@ -44,7 +44,7 @@
 		<radio_item label="Activé" name="radio2" value="1"/>
 		<radio_item label="Afficher brièvement" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Afficher mon nom" name="show_my_name_checkbox1"/>
+	<check_box label="Montrer mon nom" name="show_my_name_checkbox1"/>
 	<check_box initial_value="true" label="Affichage en petit" name="small_avatar_names_checkbox"/>
 	<check_box label="Afficher les titres de groupe" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">

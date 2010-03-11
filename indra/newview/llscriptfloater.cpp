@@ -135,7 +135,7 @@ void LLScriptFloater::setNotificationId(const LLUUID& id)
 
 void LLScriptFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLScriptFloater::createForm(const LLUUID& notification_id)
@@ -154,14 +154,17 @@ void LLScriptFloater::createForm(const LLUUID& notification_id)
 	}
 
 	// create new form
-	mScriptForm = new LLToastNotifyPanel(notification);
+	LLRect toast_rect = getRect();
+	// LLToastNotifyPanel will fit own content in vertical direction,
+	// but it needs an initial rect to properly calculate  its width
+ 	// Use an initial rect of the script floater to make the floater window more configurable.
+	mScriptForm = new LLToastNotifyPanel(notification, toast_rect); 
 	addChild(mScriptForm);
 
 	// position form on floater
 	mScriptForm->setOrigin(0, 0);
 
 	// make floater size fit form size
-	LLRect toast_rect = getRect();
 	LLRect panel_rect = mScriptForm->getRect();
 	toast_rect.setLeftTopAndSize(toast_rect.mLeft, toast_rect.mTop, panel_rect.getWidth(), panel_rect.getHeight() + getHeaderHeight());
 	setShape(toast_rect);

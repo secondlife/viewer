@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_media">
+	<string name="empty_item_text">
+		&lt;tom&gt;
+	</string>
+	<string name="parcel_media_name">
+		Streaming Media dette sted
+	</string>
+	<string name="parcel_audio_name">
+		Streaming Audio dette sted
+	</string>
+	<string name="playing_suffix">
+		(afspilles)
+	</string>
+	<panel name="minimized_controls">
+		<button label="Stop alt" name="all_nearby_media_disable_btn" tool_tip="Stop al media tæt på"/>
+		<button label="Start alt" name="all_nearby_media_enable_btn" tool_tip="Tænd al media tæt på"/>
+		<button name="open_prefs_btn" tool_tip="Vis media preferencer"/>
+		<button label="Mere &gt;&gt;" label_selected="Mindre &lt;&lt;" name="more_less_btn" tool_tip="Avanceret opsætning"/>
+	</panel>
+	<panel name="nearby_media_panel">
+		<combo_box name="show_combo">
+			<combo_box.item label="Overalt" name="All"/>
+			<combo_box.item label="På dette sted" name="WithinParcel"/>
+			<combo_box.item label="Udenfor dette sted" name="OutsideParcel"/>
+		</combo_box>
+		<scroll_list name="media_list">
+			<scroll_list.columns label="I nærheden" name="media_proximity"/>
+			<scroll_list.columns label="Synligt" name="media_visibility"/>
+			<scroll_list.columns label="Klasse" name="media_class"/>
+			<scroll_list.columns label="Navn" name="media_name"/>
+			<scroll_list.columns label="Debug" name="media_debug"/>
+		</scroll_list>
+		<panel>
+			<layout_stack name="media_controls">
+				<layout_panel name="stop">
+					<button name="stop_btn" tool_tip="Stop valgte medie"/>
+				</layout_panel>
+				<layout_panel name="play">
+					<button name="play_btn" tool_tip="Afspil valgte medie"/>
+				</layout_panel>
+				<layout_panel name="pause">
+					<button name="pause_btn" tool_tip="Pause valgte medie"/>
+				</layout_panel>
+				<layout_panel name="volume_slider_ctrl">
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volumen for valgte medie"/>
+				</layout_panel>
+				<layout_panel name="mute">
+					<button name="mute_btn" tool_tip="Sluk for lyd for valgte medie"/>
+				</layout_panel>
+				<layout_panel name="zoom">
+					<button name="zoom_btn" tool_tip="Zoom ind til valgte medie"/>
+				</layout_panel>
+				<layout_panel name="unzoom">
+					<button name="unzoom_btn" tool_tip="Zoom tilbage fra valgte medie"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>

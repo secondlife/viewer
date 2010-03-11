@@ -88,8 +88,8 @@
 			Lys detaljer:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Kun sol og måne" name="SunMoon"/>
-			<radio_item label="Lys i nærheden" name="LocalLights"/>
+			<radio_item label="Kun sol og måne" name="SunMoon" value="0"/>
+			<radio_item label="Lys i nærheden" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Terræn detaljer:

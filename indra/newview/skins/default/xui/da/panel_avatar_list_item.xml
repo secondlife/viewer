@@ -22,4 +22,5 @@
 		[COUNT]å
 	</string>
 	<text name="avatar_name" value="Ukendt"/>
+	<button name="profile_btn" tool_tip="Vis profil"/>
 </panel>

@@ -1130,7 +1130,8 @@ LLTexLayerInterface::LLTexLayerInterface(LLTexLayerSet* const layer_set):
 }
 
 LLTexLayerInterface::LLTexLayerInterface(const LLTexLayerInterface &layer, LLWearable *wearable):
-	mTexLayerSet( layer.mTexLayerSet )
+	mTexLayerSet( layer.mTexLayerSet ),
+	mInfo(NULL)
 {
 	// don't add visual params for cloned layers
 	setInfo(layer.getInfo(), wearable);
@@ -1140,11 +1141,12 @@ LLTexLayerInterface::LLTexLayerInterface(const LLTexLayerInterface &layer, LLWea
 
 BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearable  ) // This sets mInfo and calls initialization functions
 {
-	//llassert(mInfo == NULL); // nyx says this is probably bogus but needs investigating
-        if (mInfo != NULL) // above llassert(), but softened into a warning
-        {
-                llwarns << "BAD STUFF!  mInfo != NULL" << llendl;
-        }
+	// setInfo should only be called once. Code is not robust enough to handle redefinition of a texlayer.
+	// Not a critical warning, but could be useful for debugging later issues. -Nyx
+	if (mInfo != NULL) 
+	{
+			llwarns << "mInfo != NULL" << llendl;
+	}
 	mInfo = info;
 	//mID = info->mID; // No ID
 
@@ -1881,6 +1883,11 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 
 /*virtual*/ BOOL LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height)
 {
+	if(!mInfo)
+	{
+		return FALSE ;
+	}
+
 	BOOL success = TRUE;
 	updateWearableCache();
 	for (wearable_cache_t::const_iterator iter = mWearableCache.begin(); iter!= mWearableCache.end(); iter++)

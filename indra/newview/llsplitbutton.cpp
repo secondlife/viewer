@@ -165,7 +165,7 @@ void LLSplitButton::showButtons()
 
 	// register ourselves as a "top" control
 	// effectively putting us into a special draw layer
-	gFocusMgr.setTopCtrl(this);
+	gViewerWindow->addPopup(this);
 
 	mItemsPanel->setFocus(TRUE);
 
@@ -182,10 +182,7 @@ void LLSplitButton::hideButtons()
 	mArrowBtn->setToggleState(FALSE);
 
 	setUseBoundingRect(FALSE);
-	if(gFocusMgr.getTopCtrl() == this)
-	{
-		gFocusMgr.setTopCtrl(NULL);
-	}
+	gViewerWindow->removePopup(this);
 }
 
 

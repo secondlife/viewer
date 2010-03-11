@@ -636,7 +636,7 @@
 		Nicht verbunden
 	</string>
 	<string name="SIM_ACCESS_PG">
-		Allgemein
+		Generell
 	</string>
 	<string name="SIM_ACCESS_MATURE">
 		Moderat
@@ -758,6 +758,9 @@
 	<string name="invalid">
 		ungültig
 	</string>
+	<string name="NewWearable">
+		Neue/r/s [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Weiter
 	</string>
@@ -828,7 +831,7 @@
 		Im Inventar wurden keine passenden Objekte gefunden.  Versuchen Sie es mit [secondlife:///app/search/groups „Suche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Hier eine Landmarke hin ziehen, um diese zu Ihrem Favoriten hinzuzufügen.
+		Landmarke hier hin ziehen, um diese hinzuzufügen.
 	</string>
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
@@ -979,7 +982,7 @@
 		Gummi
 	</string>
 	<string name="Light">
-		Licht
+		Hell
 	</string>
 	<string name="KBShift">
 		Umschalt-Taste
@@ -1256,7 +1259,7 @@
 		(unbekannt)
 	</string>
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
-	<string name="NextStipendDay" value="Der nächste Stipendium-Tag ist "/>
+	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
 	<string name="Balance">
 		Kontostand
@@ -1468,6 +1471,9 @@
 	<string name="PanelContentsNewScript">
 		Neues Skript
 	</string>
+	<string name="BusyModeResponseDefault">
+		Der Einwohner/Die Einwohnerin ist „beschäftigt&quot;, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
+	</string>
 	<string name="MuteByName">
 		(nach Namen)
 	</string>
@@ -1505,6 +1511,9 @@
 	</string>
 	<string name="NoPicksClassifiedsText">
 		Sie haben keine Auswahl oder Anzeigen erstelllt. Klicken Sie auf die „Plus&quot;-Schaltfläche, um eine Auswahl oder Anzeige zu erstellen.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		Der Einwohner hat eine Auswahl oder Anzeigen im Profil.
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Wird geladen...
@@ -2056,7 +2065,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Kinn-Hals
 	</string>
 	<string name="Clear">
-		Löschen
+		Transparent
 	</string>
 	<string name="Cleft">
 		Spalte
@@ -2359,16 +2368,16 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Farbe Innenseite
 	</string>
 	<string name="In Shdw Opacity">
-		Deckkraft: innerer Lidschatten
+		Deckkraft: innen
 	</string>
 	<string name="Inner Eye Corner">
 		Ecke: Nasenseite
 	</string>
 	<string name="Inner Eye Shadow">
-		Innerer Lidschatten
+		Innenlid
 	</string>
 	<string name="Inner Shadow">
-		Innerer Lidschatten
+		Innenlid
 	</string>
 	<string name="Jacket Length">
 		Jackenlänge
@@ -2761,10 +2770,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Aus
 	</string>
 	<string name="Out Shdw Color">
-		Farbe: Oberer Lidschatten
+		Farbe: Oben
 	</string>
 	<string name="Out Shdw Opacity">
-		Deckkraft: Oberer Lidschatten
+		Deckkraft: Oben
 	</string>
 	<string name="Outer Eye Corner">
 		Äußerer Augenwinkel
@@ -2935,7 +2944,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Schuhart
 	</string>
 	<string name="Short">
-		Sandale
+		Klein
 	</string>
 	<string name="Short Arms">
 		Kurze Arme
@@ -3064,7 +3073,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Nach vorne
 	</string>
 	<string name="Tall">
-		Stiefel
+		Groß
 	</string>
 	<string name="Taper Back">
 		Ansatzbreite hinten
@@ -3268,7 +3277,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 		Für Instant Message hier klicken.
 	</string>
 	<string name="IM_to_label">
-		Bis
+		An
 	</string>
 	<string name="IM_moderator_label">
 		(Moderator)

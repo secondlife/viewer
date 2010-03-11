@@ -171,15 +171,13 @@ void LLPanelProfile::onOpen(const LLSD& key)
 		}
 		else if (panel == "classified_details")
 		{
-			LLUUID classified_id = key["classified_id"].asUUID();
-			LLUUID avatar_id     = key["classified_avatar_id"].asUUID();
-			LLUUID snapshot_id   = key["classified_snapshot_id"].asUUID();
-			std::string name     = key["classified_name"].asString();
-			std::string desc     = key["classified_desc"].asString();
 			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
 			if (picks)
 			{
-				picks->openClassifiedInfo(classified_id, avatar_id, snapshot_id, name, desc);
+				LLSD params = key;
+				params.erase("show_tab_panel");
+				params.erase("open_tab_name");
+				picks->openClassifiedInfo(params);
 			}
 		}
 	}

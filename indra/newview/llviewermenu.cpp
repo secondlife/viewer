@@ -5501,6 +5501,37 @@ bool enable_pay_object()
 	return false;
 }
 
+bool visible_object_stand_up()
+{
+	// 'Object Stand Up' menu item is visible when agent is sitting on selection
+	return sitting_on_selection();
+}
+
+bool visible_object_sit()
+{
+	// 'Object Sit' menu item is visible when agent is not sitting on selection
+	bool is_sit_visible = !sitting_on_selection();
+	if (is_sit_visible)
+	{
+		LLMenuItemGL* sit_menu_item = gMenuHolder->getChild<LLMenuItemGL>("Object Sit");
+		// Init default 'Object Sit' menu item label
+		static const LLStringExplicit sit_text(sit_menu_item->getLabel());
+		// Update label
+		std::string label;
+		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+		if (node && node->mValid && !node->mSitName.empty())
+		{
+			label.assign(node->mSitName);
+		}
+		else
+		{
+			label = sit_text;
+		}
+		sit_menu_item->setLabel(label);
+	}
+	return is_sit_visible;
+}
+
 class LLObjectEnableSitOrStand : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5515,34 +5546,6 @@ class LLObjectEnableSitOrStand : public view_listener_t
 				new_value = true;
 			}
 		}
-		// Update label
-		std::string label;
-		std::string sit_text;
-		std::string stand_text;
-		std::string param = userdata.asString();
-		std::string::size_type offset = param.find(",");
-		if (offset != param.npos)
-		{
-			sit_text = param.substr(0, offset);
-			stand_text = param.substr(offset+1);
-		}
-		if (sitting_on_selection())
-		{
-			label = stand_text;
-		}
-		else
-		{
-			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
-			if (node && node->mValid && !node->mSitName.empty())
-			{
-				label.assign(node->mSitName);
-			}
-			else
-			{
-				label = sit_text;
-			}
-		}
-		gMenuHolder->childSetText("Object Sit", label);
 
 		return new_value;
 	}
@@ -8015,6 +8018,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
 	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
+
+	enable.add("Object.StandUpVisible", boost::bind(&visible_object_stand_up));
+	enable.add("Object.SitVisible", boost::bind(&visible_object_sit));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");

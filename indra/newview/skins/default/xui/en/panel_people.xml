@@ -28,6 +28,16 @@
     <string
      name="groups_filter_label"
      value="Filter Groups" />
+     <!--
+     *WORKAROUND: for group_list.no_groups_msg & group_list.no_filtered_groups_msg attributes.
+     They are not defined as translatable in VLT. See EXT-5931
+     -->
+    <string
+     name="no_filtered_groups_msg"
+     value="[secondlife:///app/search/groups Try finding the group in search?]" />
+    <string
+     name="no_groups_msg"
+     value="[secondlife:///app/search/groups Try searching for some groups to join.]" />
     <filter_editor
      text_pad_left="10"
      follows="left|top|right"
@@ -222,7 +232,7 @@
              top="10"
              width="293"
              wrap="true">
-                To add friends try [secondlife:///app/search/people global search] or use right-click on a user to add them as a friend.
+                To add friends try [secondlife:///app/search/people global search] or use right-click on a Resident to add them as a friend.
 If you're looking for people to hang out with, [secondlife:///app/worldmap try the Map].
              </text>
         </panel>
@@ -240,13 +250,17 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
          name="groups_panel"
          top="0"
          width="313">
+    <!--
+     *NOTE: no_groups_msg & group_list attributes are not defined as translatable in VLT. See EXT-5931
+     Values are set from appropriate strings at the top of file via LLPeoplePanel::postBuild()
+    -->
             <group_list
              follows="all"
              height="345"
              layout="topleft"
              left="0"
              name="group_list"
-             no_filtered_groups_msg="[secondlife:///app/search/groups Try fine the group in search?]"
+             no_filtered_groups_msg="[secondlife:///app/search/groups Try finding the group in search?]"
              no_groups_msg="[secondlife:///app/search/groups Try searching for some groups to join.]"
              top="0"
              width="313" />
@@ -373,7 +387,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
          layout="topleft"
          name="view_profile_btn"
          tool_tip="Show picture, groups, and other Residents information"
-         width="64" />
+         width="70" />
         <button
          follows="bottom|left"
          left_pad="3"

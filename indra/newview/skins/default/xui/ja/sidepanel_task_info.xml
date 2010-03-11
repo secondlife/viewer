@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="オブジェクトのプロフィール"/>
 	<text name="where" value="（インワールド）"/>
-	<panel label="">
+	<panel label="" name="properties_panel">
 		<text name="Name:">
 			名前：
 		</text>
@@ -60,7 +60,7 @@
 		<text name="Group_label">
 			グループ：
 		</text>
-		<button name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択"/>
+		<button name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します"/>
 		<name_box initial_value="ローディング..." name="Group Name Proxy"/>
 		<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
 		<text name="label click action">
@@ -91,7 +91,7 @@
 			</text>
 			<check_box label="修正" name="checkbox next owner can modify"/>
 			<check_box label="コピー" name="checkbox next owner can copy"/>
-			<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+			<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
 		</panel>
 		<check_box label="販売中" name="checkbox for sale"/>
 		<combo_box name="sale type">
@@ -124,5 +124,6 @@
 		<button label="開く" name="open_btn"/>
 		<button label="支払う" name="pay_btn"/>
 		<button label="買う" name="buy_btn"/>
+		<button label="詳細" name="details_btn"/>
 	</panel>
 </panel>

@@ -21,7 +21,7 @@
 	<check_box label="Benyt nu" name="apply_immediate"/>
 	<button label="" label_selected="" name="color_pipette"/>
 	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
-	<button label="Ok" label_selected="Ok" name="select_btn"/>
+	<button label="OK" label_selected="OK" name="select_btn"/>
 	<text name="Current color:">
 		Nuværende Farve:
 	</text>

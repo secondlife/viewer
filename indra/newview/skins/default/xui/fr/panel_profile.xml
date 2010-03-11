@@ -24,7 +24,7 @@
 						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
 					</panel>
 					<panel name="first_life_image_panel">
-						<text name="title_rw_descr_text" value="Monde physique :"/>
+						<text name="title_rw_descr_text" value="Vie réelle :"/>
 					</panel>
 					<text name="title_member_text" value="Résident depuis :"/>
 					<text name="title_acc_status_text" value="Statut du compte :"/>
@@ -41,7 +41,7 @@
 			</scroll_container>
 		</layout_panel>
 		<layout_panel name="profile_buttons_panel">
-			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à ce résident de devenir votre ami"/>
+			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à un résident de devenir votre ami"/>
 			<button label="IM" name="im" tool_tip="Ouvrir une session IM" width="30"/>
 			<button label="Appeler" name="call" tool_tip="Appeler ce résident" width="60"/>
 			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
