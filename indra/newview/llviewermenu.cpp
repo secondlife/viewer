@@ -434,7 +434,8 @@ void init_menus()
 	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
 	gMenuBarView->setBackgroundColor( color );
 
-	gMenuHolder->addChild(gMenuBarView);
+	LLView* menu_bar_holder = gViewerWindow->getRootView()->getChildView("menu_bar_holder");
+	menu_bar_holder->addChild(gMenuBarView);
   
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());
@@ -469,9 +470,10 @@ void init_menus()
 	gLoginMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_login.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gLoginMenuBarView->arrangeAndClear();
 	LLRect menuBarRect = gLoginMenuBarView->getRect();
-	gLoginMenuBarView->setRect(LLRect(menuBarRect.mLeft, menuBarRect.mTop, gViewerWindow->getRootView()->getRect().getWidth() - menuBarRect.mLeft,  menuBarRect.mBottom));
+	menuBarRect.setLeftTopAndSize(0, menu_bar_holder->getRect().getHeight(), menuBarRect.getWidth(), menuBarRect.getHeight());
+	gLoginMenuBarView->setRect(menuBarRect);
 	gLoginMenuBarView->setBackgroundColor( color );
-	gMenuHolder->addChild(gLoginMenuBarView);
+	menu_bar_holder->addChild(gLoginMenuBarView);
 	
 	// tooltips are on top of EVERYTHING, including menus
 	gViewerWindow->getRootView()->sendChildToFront(gToolTipView);

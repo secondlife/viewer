@@ -246,7 +246,7 @@ LLTextBase::~LLTextBase()
 {
 	// Menu, like any other LLUICtrl, is deleted by its parent - gMenuHolder
 
-	clearSegments();
+	mSegments.clear();
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
