@@ -1882,9 +1882,15 @@ bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs
 	bool retval = false;
 	if (rhs.mPosition == mPosition && rhs.mTexCoord == mTexCoord)
 	{
-		F32 cur_angle = rhs.mNormal*mNormal;
-		
-		retval = cur_angle > angle_cutoff;
+		if (angle_cutoff > 1.f)
+		{
+			retval = (mNormal == rhs.mNormal);
+		}
+		else
+		{
+			F32 cur_angle = rhs.mNormal*mNormal;
+			retval = cur_angle > angle_cutoff;
+		}
 	}
 
 	return retval;
@@ -4951,6 +4957,61 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 		llerrs << "Unknown/uninitialized face type!" << llendl;
 		return FALSE;
 	}
+}
+
+void LLVolumeFace::optimize(F32 angle_cutoff)
+{
+	LLVolumeFace new_face;
+
+	VertexMapData::PointMap point_map;
+
+	//remove redundant vertices
+	for (U32 i = 0; i < mIndices.size(); ++i)
+	{
+		U16 index = mIndices[i];
+
+		LLVolumeFace::VertexData cv = mVertices[index];
+
+		BOOL found = FALSE;
+		VertexMapData::PointMap::iterator point_iter = point_map.find(cv.mPosition);
+		if (point_iter != point_map.end())
+		{ //duplicate point might exist
+			for (U32 j = 0; j < point_iter->second.size(); ++j)
+			{
+				LLVolumeFace::VertexData& tv = (point_iter->second)[j];
+				if (tv.compareNormal(cv, angle_cutoff))
+				{
+					found = TRUE;
+					new_face.mIndices.push_back((point_iter->second)[j].mIndex);
+					break;
+				}
+			}
+		}
+
+		if (!found)
+		{
+			new_face.mVertices.push_back(cv);
+			U16 index = (U16) new_face.mVertices.size()-1;
+			new_face.mIndices.push_back(index);
+
+			VertexMapData d;
+			d.mPosition = cv.mPosition;
+			d.mTexCoord = cv.mTexCoord;
+			d.mNormal = cv.mNormal;
+			d.mIndex = index;
+			if (point_iter != point_map.end())
+			{
+				point_iter->second.push_back(d);
+			}
+			else
+			{
+				point_map[d.mPosition].push_back(d);
+			}
+		}
+	}
+
+	mVertices = new_face.mVertices;
+	mIndices = new_face.mIndices;
 }
 
 void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,

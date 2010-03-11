@@ -820,6 +820,39 @@ public:
 		bool compareNormal(const VertexData& rhs, F32 angle_cutoff) const;
 	};
 
+	class VertexMapData : public LLVolumeFace::VertexData
+	{
+	public:
+		U16 mIndex;
+
+		bool operator==(const LLVolumeFace::VertexData& rhs) const
+		{
+			return mPosition == rhs.mPosition &&
+				mTexCoord == rhs.mTexCoord &&
+				mNormal == rhs.mNormal;
+		}
+
+		struct ComparePosition
+		{
+			bool operator()(const LLVector3& a, const LLVector3& b) const
+			{
+				if (a.mV[0] != b.mV[0])
+				{
+					return a.mV[0] < b.mV[0];
+				}
+				if (a.mV[1] != b.mV[1])
+				{
+					return a.mV[1] < b.mV[1];
+				}
+				return a.mV[2] < b.mV[2];
+			}
+		};
+
+		typedef std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
+	};
+
+	void optimize(F32 angle_cutoff = 2.f);
+	
 	enum
 	{
 		SINGLE_MASK =	0x0001,
