@@ -120,7 +120,7 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 		std::string last_name = row["last_name"].asString();
 		av_name.mDisplayName =
 			LLCacheName::buildFullName(first_name, last_name);
-		av_name.mIsLegacy = true;
+		av_name.mIsLegacy = (last_name != "Resident");
 	}
 
 	// add to cache
