@@ -2,7 +2,7 @@
 <panel label="Lieux" name="places panel">
 	<string name="landmarks_tab_title" value="MES REPÈRES"/>
 	<string name="teleport_history_tab_title" value="HISTORIQUE DES TÉLÉPORTATIONS"/>
-	<filter_editor label="Filtrer Mes lieux" name="Filter"/>
+	<filter_editor label="Filtrer les endroits" name="Filter"/>
 	<panel name="button_panel">
 		<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
 		<button label="Carte" name="map_btn"/>
