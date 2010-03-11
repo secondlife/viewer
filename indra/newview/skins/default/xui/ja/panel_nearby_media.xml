@@ -49,7 +49,7 @@
 					<button name="mute_btn" tool_tip="選択したメディアの音をミュート"/>
 				</layout_panel>
 				<layout_panel name="zoom">
-					<button name="zoom_btn" tool_tip="選択したメディアに近づく"/>
+					<button name="zoom_btn" tool_tip="選択したメディアにズーム"/>
 				</layout_panel>
 				<layout_panel name="unzoom">
 					<button name="unzoom_btn" tool_tip="選択したメディアから遠ざかる"/>
