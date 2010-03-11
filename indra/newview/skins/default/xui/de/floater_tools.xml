@@ -477,7 +477,7 @@
 		<text name="label_area">
 			Gebiet: [AREA] m².
 		</text>
-		<button label="Über Land" label_selected="Über Land" name="button about land"/>
+		<button label="Land-Info" label_selected="Land-Info" name="button about land"/>
 		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Die Parzellen farblich nach Eigentümtertyp anzeigen   Grün = Ihr Land  Blau = Das Land Ihrer Gruppe  Rot = Im Eigentum anderer  Geld = Zum Verkauf  Lila = Zur Auktion  Grau = Öffentlich"/>
 		<text name="label_parcel_modify">
 			Parzelle ändern
