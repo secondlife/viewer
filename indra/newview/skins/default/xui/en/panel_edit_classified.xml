@@ -186,7 +186,7 @@
          left="10"
          top_pad="5"
          name="set_to_curr_location_btn"
-         width="156" />
+         width="200" />
         <text
          follows="left|top"
          font.style="BOLD"

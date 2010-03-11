@@ -228,7 +228,7 @@
        name="rating_label"
        top_delta="3"
        value="Rating:"
-       width="58" />
+       width="90" />
       <text
        follows="left|right|top"
        height="16"

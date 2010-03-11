@@ -8,6 +8,9 @@
      name="pick_info">
         <menu_item_call.on_click
          function="Pick.Info" />
+        <menu_item_call.on_enable
+         function="Pick.Enable" 
+         parameter="info" />
     </menu_item_call>
     <menu_item_call
      label="Edit"
@@ -16,6 +19,9 @@
      visible="false">
         <menu_item_call.on_click
          function="Pick.Edit" />
+        <menu_item_call.on_enable
+         function="Pick.Enable" 
+         parameter="edit" />
     </menu_item_call>
     <menu_item_call
      label="Teleport"
@@ -23,6 +29,9 @@
      name="pick_teleport">
         <menu_item_call.on_click
          function="Pick.Teleport" />
+        <menu_item_call.on_enable
+         function="Pick.Enable" 
+         parameter="teleport" />
     </menu_item_call>
     <menu_item_call
      label="Map"
@@ -30,6 +39,9 @@
      name="pick_map">
         <menu_item_call.on_click
          function="Pick.Map" />
+        <menu_item_call.on_enable
+         function="Pick.Enable" 
+         parameter="map" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft"
@@ -42,5 +54,8 @@
      visible="false">
         <menu_item_call.on_click
          function="Pick.Delete" />
+        <menu_item_call.on_enable
+         function="Pick.Enable" 
+         parameter="delete" />
     </menu_item_call>
 </context_menu>
