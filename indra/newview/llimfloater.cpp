@@ -648,14 +648,23 @@ void LLIMFloater::updateMessages()
 			if (msg.has("notification_id"))
 			{
 				chat.mNotifId = msg["notification_id"].asUUID();
-				// remove embedded notification from channel
-				LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
-						(LLNotificationsUI::LLChannelManager::getInstance()->
-															findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-				if (getVisible())
+				// if notification exists - embed it
+				if (LLNotificationsUtil::find(chat.mNotifId) != NULL)
 				{
-					// toast will be automatically closed since it is not storable toast
-					channel->hideToast(chat.mNotifId);
+					// remove embedded notification from channel
+					LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+							(LLNotificationsUI::LLChannelManager::getInstance()->
+																findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+					if (getVisible())
+					{
+						// toast will be automatically closed since it is not storable toast
+						channel->hideToast(chat.mNotifId);
+					}
+				}
+				// if notification doesn't exist - try to use next message which should be log entry
+				else
+				{
+					continue;
 				}
 			}
 			//process text message

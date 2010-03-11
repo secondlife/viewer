@@ -156,7 +156,8 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 			if (LLHandlerUtil::canLogToIM(notification))
 			{
-				if (LLHandlerUtil::isIMFloaterOpened(notification))
+				// log only to file if notif panel can be embedded to IM and IM is opened
+				if (add_notid_to_im && LLHandlerUtil::isIMFloaterOpened(notification))
 				{
 					LLHandlerUtil::logToIMP2P(notification, true);
 				}
@@ -164,12 +165,6 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				{
 					LLHandlerUtil::logToIMP2P(notification);
 				}
-			}
-
-			// update IM floater messages if need
-			if (add_notid_to_im)
-			{
-				LLHandlerUtil::updateVisibleIMFLoaterMesages(notification);
 			}
 		}
 	}

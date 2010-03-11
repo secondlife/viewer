@@ -294,7 +294,7 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 		if(to_file_only)
 		{
 			logToIM(IM_NOTHING_SPECIAL, session_name, "", notification->getMessage(),
-					from_id, LLUUID());
+					LLUUID(), LLUUID());
 		}
 		else
 		{
@@ -389,11 +389,18 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 
 	LLSD offer;
 	offer["notification_id"] = notification->getID();
-	offer["from_id"] = notification->getPayload()["from_id"];
-	offer["from"] = name;
+	offer["from"] = SYSTEM_FROM;
 	offer["time"] = LLLogChat::timestamp(false);
 	offer["index"] = (LLSD::Integer)session->mMsgs.size();
 	session->mMsgs.push_front(offer);
+
+
+	// update IM floater and counters
+	LLSD arg;
+	arg["session_id"] = session_id;
+	arg["num_unread"] = ++(session->mNumUnread);
+	arg["participant_unread"] = ++(session->mParticipantUnreadMessageCount);
+	LLIMModel::getInstance()->mNewMsgSignal(arg);
 }
 
 // static
