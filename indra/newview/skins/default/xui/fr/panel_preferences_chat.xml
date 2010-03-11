@@ -4,9 +4,9 @@
 		Taille de la police :
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item label="Moins" name="radio" value="0"/>
+		<radio_item label="Petite" name="radio" value="0"/>
 		<radio_item label="Moyenne" name="radio2" value="1"/>
-		<radio_item label="Plus" name="radio3" value="2"/>
+		<radio_item label="Grande" name="radio3" value="2"/>
 	</radio_group>
 	<text name="font_colors">
 		Couleurs de police :

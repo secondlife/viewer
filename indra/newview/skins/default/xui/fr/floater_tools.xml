@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="OUTILS DE CONSTRUCTION" title="">
+<floater name="toolbox floater" short_title="OUTILS POUR LA CONSTRUCTION" title="">
 	<floater.string name="status_rotate">
 		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
 	</floater.string>
@@ -474,7 +474,7 @@
 		<text name="label_area">
 			Surface : [AREA] m²
 		</text>
-		<button label="À propos des terrains" label_selected="À propos des terrains" name="button about land" width="142"/>
+		<button label="À propos du terrain" label_selected="À propos du terrain" name="button about land" width="142"/>
 		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorier les parcelles en fonction du type de leur propriétaire :   Vert = votre terrain  Turquoise = le terrain de votre groupe  Rouge = appartenant à d&apos;autres  Jaune = en vente  Mauve = aux enchères  Gris = public"/>
 		<text name="label_parcel_modify">
 			Modifier la parcelle
