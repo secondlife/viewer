@@ -298,25 +298,6 @@
           </map>
         </map>
       </map>
-      <key>pulseaudio</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 2004-2006 Lennart Poettering, Copyright 2006 Pierre Ossman (ossman@cendio.se) for Cendio AB</string>
-        <key>description</key>
-        <string>pulseaudio: headers only</string>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>packages</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>30cb00069fe2a545fbf7be1070386236</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/linux-pulse-headers-0.9.14.tar.bz2</uri>
-          </map>
-        </map>
-      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
@@ -967,9 +948,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>95f44f0023dddc80be4398fc4f213861</string>
+            <string>8321cbd098e6e791a02cb00ed3bcff6c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100208.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100312.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -1282,6 +1263,25 @@ anguage Infrstructure (CLI) international standard</string>
             <string>c5c2f73847c126e679d925beab48c7d4</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-windows-20090427.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>pulseaudio</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2004-2006 Lennart Poettering, Copyright 2006 Pierre Ossman (ossman@cendio.se) for Cendio AB</string>
+        <key>description</key>
+        <string>pulseaudio: headers only</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>30cb00069fe2a545fbf7be1070386236</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/linux-pulse-headers-0.9.14.tar.bz2</uri>
           </map>
         </map>
       </map>
