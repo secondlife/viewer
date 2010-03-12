@@ -866,7 +866,15 @@ void LLRender::scaleUI(F32 x, F32 y, F32 z)
 
 void LLRender::pushUIMatrix()
 {
-	mUIOffset.push_front(mUIOffset.front());
+	if (mUIOffset.empty())
+	{
+		mUIOffset.push_front(LLVector3(0,0,0));
+	}
+	else
+	{
+		mUIOffset.push_front(mUIOffset.front());
+	}
+	
 	if (mUIScale.empty())
 	{
 		mUIScale.push_front(LLVector3(1,1,1));

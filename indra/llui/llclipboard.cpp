@@ -103,11 +103,9 @@ BOOL LLClipboard::canPasteString() const
 
 void LLClipboard::copyFromPrimarySubstring(const LLWString &src, S32 pos, S32 len, const LLUUID& source_id )
 {
-#if !LL_DARWIN
 	mSourceID = source_id;
 	mString = src.substr(pos, len);
 	LLView::getWindow()->copyTextToPrimary( mString );
-#endif
 }
 
 
