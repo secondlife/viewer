@@ -212,7 +212,7 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 
 	// Counterclockwise quad will face the viewer
 	if( filled )
-	{
+	{ 
 		gGL.begin( LLRender::QUADS );
 			gGL.vertex2i(left, top);
 			gGL.vertex2i(left, bottom);
@@ -513,8 +513,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 	
 	if (solid_color)
 	{
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
+		//gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+		//gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
 	}
 
 	gGL.pushUIMatrix();
@@ -650,7 +650,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
 	if (solid_color)
 	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 }
 

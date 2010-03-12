@@ -121,6 +121,8 @@ void LLTexUnit::refreshState(void)
 	// We set dirty to true so that the tex unit knows to ignore caching
 	// and we reset the cached tex unit state
 
+	gGL.flush();
+	
 	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 	if (mCurrTexType != TT_NONE)
 	{
@@ -182,6 +184,7 @@ void LLTexUnit::disable(void)
 	{
 		activate();
 		unbind(mCurrTexType);
+		gGL.flush();
 		glDisable(sGLTextureType[mCurrTexType]);
 		mCurrTexType = TT_NONE;
 	}
@@ -717,6 +720,7 @@ void LLTexUnit::setColorScale(S32 scale)
 	if (mCurrColorScale != scale || gGL.mDirty)
 	{
 		mCurrColorScale = scale;
+		gGL.flush();
 		glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE, scale );
 	}
 }
@@ -726,6 +730,7 @@ void LLTexUnit::setAlphaScale(S32 scale)
 	if (mCurrAlphaScale != scale || gGL.mDirty)
 	{
 		mCurrAlphaScale = scale;
+		gGL.flush();
 		glTexEnvi( GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale );
 	}
 }
@@ -1112,6 +1117,33 @@ void LLRender::flush()
 		{
 			sUICalls++;
 			sUIVerts += mCount;
+		}
+		
+		if (gDebugGL)
+		{
+			if (mMode == LLRender::QUADS)
+			{
+				if (mCount%4 != 0)
+				{
+					llerrs << "Incomplete quad rendered." << llendl;
+				}
+			}
+			
+			if (mMode == LLRender::TRIANGLES)
+			{
+				if (mCount%3 != 0)
+				{
+					llerrs << "Incomplete triangle rendered." << llendl;
+				}
+			}
+			
+			if (mMode == LLRender::LINES)
+			{
+				if (mCount%2 != 0)
+				{
+					llerrs << "Incomplete line rendered." << llendl;
+				}
+			}
 		}
 
 		mBuffer->setBuffer(immediate_mask);
