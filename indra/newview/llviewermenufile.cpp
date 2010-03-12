@@ -103,15 +103,31 @@ class LLFileEnableUploadModel : public view_listener_t
 LLMutex* LLFilePickerThread::sMutex = NULL;
 std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 
+void LLFilePickerThread::getFile()
+{
+#if LL_WINDOWS
+	start();
+#else
+	run();
+#endif
+}
+
 //virtual 
 void LLFilePickerThread::run()
 {
 	LLFilePicker picker;
+#if LL_WINDOWS
 	if (picker.getOpenFile(mFilter, false))
 	{
 		mFile = picker.getFirstFile();
 	}
-	
+#else
+	if (picker.getOpenFile(mFilter, true))
+	{
+		mFile = picker.getFirstFile();
+	}
+#endif
+
 	{
 		LLMutexLock lock(sMutex);
 		sDeadQ.push(this);

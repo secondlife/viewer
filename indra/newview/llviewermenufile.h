@@ -141,6 +141,9 @@ public:
 	{
 
 	}
+
+	void getFile();
+
 	virtual void run();
 
 	virtual void notify(const std::string& filename) = 0;
