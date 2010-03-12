@@ -4,7 +4,7 @@
  layout="topleft"
  left="100"
  mouse_opaque="false"
- name="Popup"
+ name="popup"
  top="724"
  visible="false"
  width="128">
