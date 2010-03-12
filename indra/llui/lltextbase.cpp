@@ -246,7 +246,7 @@ LLTextBase::~LLTextBase()
 {
 	// Menu, like any other LLUICtrl, is deleted by its parent - gMenuHolder
 
-	clearSegments();
+	mSegments.clear();
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
@@ -396,8 +396,13 @@ void LLTextBase::drawSelectionBackground()
 			++rect_it)
 		{
 			LLRect selection_rect = *rect_it;
-			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
-			gl_rect_2d(selection_rect, selection_color);
+			// Don't send empty rects to gl_rect_2d.
+			// Drawing degenerate rectangles seems to cause https://jira.secondlife.com/browse/EXT-6276 .
+			if(selection_rect.notEmpty())
+			{
+				selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+				gl_rect_2d(selection_rect, selection_color);
+			}
 		}
 	}
 }

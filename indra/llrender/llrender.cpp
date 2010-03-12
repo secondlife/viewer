@@ -150,6 +150,7 @@ void LLTexUnit::activate(void)
 
 	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
 	{
+		gGL.flush();
 		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 		gGL.mCurrTextureUnitIndex = mIndex;
 	}
@@ -386,6 +387,8 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 {
 	if (mIndex < 0 || mCurrTexture == 0) return;
 
+	gGL.flush();
+
 	activate();
 
 	glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
@@ -399,6 +402,8 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
 	if (mIndex < 0 || mCurrTexture == 0) return;
+
+	gGL.flush();
 
 	if (option == TFO_POINT)
 	{
@@ -567,6 +572,7 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 	if (mCurrBlendType != TB_COMBINE || gGL.mDirty)
 	{
 		mCurrBlendType = TB_COMBINE;
+		gGL.flush();
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 	}
 
@@ -576,6 +582,8 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 	{
 		return;
 	}
+
+	gGL.flush();
 
 	// Get the gl source enums according to the eTextureBlendSrc sources passed in
 	GLint source1 = getTextureSource(src1);
