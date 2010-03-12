@@ -30,7 +30,7 @@
 		</text>
 		<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
 		<text name="Home_label">
-			Startseite
+			Zuhause
 		</text>
 		<text name="events_label">
 			Events:
