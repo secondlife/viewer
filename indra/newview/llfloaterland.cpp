@@ -820,16 +820,19 @@ void LLPanelLandGeneral::refreshNames()
 	}
 	mTextGroup->setText(group);
 
-	const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
-	if(auth_buyer_id.notNull())
+	if (parcel->getForSale())
 	{
-		std::string name;
-		name = LLSLURL::buildCommand("agent", auth_buyer_id, "inspect");
-		mSaleInfoForSale2->setTextArg("[BUYER]", name);
-	}
-	else
-	{
-		mSaleInfoForSale2->setTextArg("[BUYER]", getString("anyone"));
+		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
+		if(auth_buyer_id.notNull())
+		{
+			std::string name;
+			name = LLSLURL::buildCommand("agent", auth_buyer_id, "inspect");
+			mSaleInfoForSale2->setTextArg("[BUYER]", name);
+		}
+		else
+		{
+			mSaleInfoForSale2->setTextArg("[BUYER]", getString("anyone"));
+		}
 	}
 }
 
