@@ -460,7 +460,7 @@ void LLIMFloater::getAllowedRect(LLRect& rect)
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 {
 	// update notification channel state
-	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 	
@@ -479,7 +479,7 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 
 void LLIMFloater::setVisible(BOOL visible)
 {
-	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 	LLTransientDockableFloater::setVisible(visible);
@@ -652,7 +652,7 @@ void LLIMFloater::updateMessages()
 				if (LLNotificationsUtil::find(chat.mNotifId) != NULL)
 				{
 					// remove embedded notification from channel
-					LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+					LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 							(LLNotificationsUI::LLChannelManager::getInstance()->
 																findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 					if (getVisible())
