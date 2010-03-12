@@ -99,6 +99,7 @@ private:
 	std::string mPluginFile;
 
 	std::string mUserDataPath;
+	std::string mLanguageCode;
 	
 	LLPluginInstance *mInstance;
 
