@@ -1962,7 +1962,7 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 	return unpackVolumeFaces(is, header[nm[lod]]["size"].asInteger());
 }
 
-BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
+bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
 	U8* result = NULL;
 	U32 cur_size = 0;
@@ -2002,7 +2002,7 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				inflateEnd(&strm);
 				free(result);
 				delete [] in;
-				return FALSE;
+				return false;
 			}
 			
 			switch (ret)
@@ -2014,7 +2014,7 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				inflateEnd(&strm);
 				free(result);
 				delete [] in;
-				return FALSE;
+				return false;
 				break;
 			}
 
@@ -2032,7 +2032,7 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 		if (ret != Z_STREAM_END)
 		{
 			free(result);
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -2047,7 +2047,7 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 		if (!LLSDSerialize::deserialize(mdl, istr, cur_size))
 		{
 			llwarns << "not a valid mesh asset!" << llendl;
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -2074,7 +2074,7 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			LLVolumeFace& face = mVolumeFaces[i];
 
-			face.mHasBinormals = FALSE;
+			face.mHasBinormals = false;
 
 			//copy out indices
 			face.mIndices.resize(idx.size()/2);
@@ -2146,24 +2146,24 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			
 			// modifier flags?
-			BOOL do_mirror = (mParams.getSculptType() & LL_SCULPT_FLAG_MIRROR);
-			BOOL do_invert = (mParams.getSculptType() &LL_SCULPT_FLAG_INVERT);
+			bool do_mirror = (mParams.getSculptType() & LL_SCULPT_FLAG_MIRROR);
+			bool do_invert = (mParams.getSculptType() &LL_SCULPT_FLAG_INVERT);
 			
 			
 			// translate to actions:
-			BOOL do_reflect_x = FALSE;
-			BOOL do_reverse_triangles = FALSE;
-			BOOL do_invert_normals = FALSE;
+			bool do_reflect_x = false;
+			bool do_reverse_triangles = false;
+			bool do_invert_normals = false;
 			
 			if (do_mirror)
 			{
-				do_reflect_x = TRUE;
+				do_reflect_x = true;
 				do_reverse_triangles = !do_reverse_triangles;
 			}
 			
 			if (do_invert)
 			{
-				do_invert_normals = TRUE;
+				do_invert_normals = true;
 				do_reverse_triangles = !do_reverse_triangles;
 			}
 			
@@ -2201,7 +2201,7 @@ BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 	}
 
 	mSculptLevel = 0;  // success!
-	return TRUE;
+	return true;
 }
 
 void tetrahedron_set_normal(LLVolumeFace::VertexData* cv)
