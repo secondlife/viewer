@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_pick_info">
-	<text name="title" value="Scegli Info ????"/>
+	<text name="title" value="Scegli Info"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="pick_name" value="[nome]"/>
-			<text name="pick_location" value="[Caricando...]"/>
+			<text name="pick_location" value="[caricamento...]"/>
 			<text name="pick_desc" value="[descrizione]"/>
 		</panel>
 	</scroll_container>

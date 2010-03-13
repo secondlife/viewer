@@ -4,27 +4,27 @@
 		Home Page:
 	</text>
 	<text name="home_fails_whitelist_label">
-		(Questa pagina non passa la lista bianca specifica)
+		(Questa pagina non supera la revisione o lista bianca specifica)
 	</text>
-	<line_editor name="home_url" tool_tip="La home page per questa fonte media"/>
+	<line_editor name="home_url" tool_tip="La home page per questa fonte multimediale"/>
 	<text name="preview_label">
 		Anteprima
 	</text>
 	<text name="current_url_label">
 		Pagina attuale:
 	</text>
-	<text name="current_url" tool_tip="La pagina attuale per questa fonte media" value=""/>
-	<button label="Resetta" name="current_url_reset_btn"/>
-	<check_box initial_value="false" label="Auto Loop" name="auto_loop"/>
-	<check_box initial_value="false" label="Primo Click Interagisce" name="first_click_interact"/>
-	<check_box initial_value="false" label="Auto Zoom" name="auto_zoom"/>
-	<check_box initial_value="false" label="Auto Play Media" name="auto_play"/>
+	<text name="current_url" tool_tip="La pagina attuale per questa fonte multimediale" value=""/>
+	<button label="Reimposta" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="Ripetizione automatica" name="auto_loop"/>
+	<check_box initial_value="false" label="Interazione col primo clic" name="first_click_interact"/>
+	<check_box initial_value="false" label="Zoom automatico" name="auto_zoom"/>
+	<check_box initial_value="false" label="Riproduzione multimediale automatica" name="auto_play"/>
 	<text name="media_setting_note">
-		Nota: I Residenti possono annullare questa impostazione
+		Nota: I residenti possono annullare questa impostazione
 	</text>
-	<check_box initial_value="false" label="Auto Scale Media on Face of Object" name="auto_scale"/>
+	<check_box initial_value="false" label="Messa in scala automatica dell&apos;elemento multimediale sulla faccia dell&apos;oggetto" name="auto_scale"/>
 	<text name="size_label">
-		Misura:
+		Dimensioni:
 	</text>
 	<text name="X_label">
 		X

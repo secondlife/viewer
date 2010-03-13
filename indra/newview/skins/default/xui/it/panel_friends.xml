@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="friends">
 	<string name="Multiple">
-		Amici multipli
+		Più amici
 	</string>
 	<scroll_list name="friend_list" tool_tip="Tieni premuto shift o control mentre clicchi per selezionare più di un amico">
 		<column name="icon_online_status" tool_tip="Stato Online"/>
