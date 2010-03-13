@@ -45,7 +45,7 @@
 
 // set to 1 if you're using the version of llqtwebkit that's QPixmap-ified
 #if LL_LINUX
-# define LL_QTWEBKIT_USES_PIXMAPS 1
+# define LL_QTWEBKIT_USES_PIXMAPS 0
 #else
 # define LL_QTWEBKIT_USES_PIXMAPS 0
 #endif // LL_LINUX
