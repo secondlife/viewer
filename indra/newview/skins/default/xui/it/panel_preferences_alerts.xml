@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Pop-up" name="popups" title="Pop-up">
 	<text name="tell_me_label">
-		Dimmi:
+		Avvisami:
 	</text>
 	<check_box label="Quando spendo o ottengo L$" name="notify_money_change_checkbox"/>
 	<check_box label="Quando i miei amici entrano o escono da SL" name="friends_online_notify_checkbox"/>

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="sell land" title="VENDI LA TERRA">
+<floater name="sell land" title="VENDI TERRENO">
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="info_parcel_label">
-				Parcel:
+				Lotto:
 			</text>
 			<text left="82" name="info_parcel">
-				NOME DEL PARCEL
+				NOME DEL LOTTO
 			</text>
 			<text name="info_size_label">
-				Misura:
+				Dimensioni:
 			</text>
 			<text left="82" name="info_size">
 				[AREA] m²
 			</text>
 			<text bottom_delta="-57" height="28" name="info_action">
-				Vendere questo parcel:
+				Per vendere questo lotto:
 			</text>
 			<text name="price_label">
 				1. Imposta un prezzo:
@@ -30,36 +30,36 @@
 				0
 			</line_editor>
 			<text name="price_per_m">
-				(L$[PER_METER] per m²)
+				([PER_METER] L$ per m²)
 			</text>
 			<text name="sell_to_label">
-				2. Vendi la terra a:
+				2. Vendi il terreno a:
 			</text>
 			<text name="sell_to_text">
-				Scegli se vendere a chiunque o ad un specifico compratore.
+				Scegli se vendere a chiunque o ad un determinato acquirente.
 			</text>
 			<combo_box name="sell_to">
 				<combo_box.item label="- Seleziona uno -" name="--selectone--"/>
 				<combo_box.item label="Chiunque" name="Anyone"/>
-				<combo_box.item label="Persona Specifica:" name="Specificuser:"/>
+				<combo_box.item label="Persona specifica:" name="Specificuser:"/>
 			</combo_box>
 			<button label="Seleziona" name="sell_to_select_agent"/>
 			<text name="sell_objects_label">
 				3. Vendi gli oggetti con la terra?
 			</text>
 			<text name="sell_objects_text">
-				Gli oggetti trasferibili del proprietaio della Terra cambieranno proprietà.
+				Gli oggetti trasferibili del proprietario presenti sul lotto cambieranno di proprietà.
 			</text>
 			<radio_group bottom_delta="-58" name="sell_objects">
-				<radio_item label="No, mantieni la proprietà sugli oggetti" name="no"/>
+				<radio_item label="No, mantieni la proprietà degli oggetti" name="no"/>
 				<radio_item label="Si, vendi gli oggetti con la terra" name="yes"/>
 			</radio_group>
-			<button label="Mostra Oggetti" name="show_objects"/>
+			<button label="Mostra oggetti" name="show_objects"/>
 			<text name="nag_message_label">
 				RICORDA: Tutte le vendite sono definitive.
 			</text>
-			<button label="Imposta Terra in Vendita" name="sell_btn"/>
-			<button label="Cancella" name="cancel_btn"/>
+			<button label="Imposta terreno come in vendita" name="sell_btn"/>
+			<button label="Annulla" name="cancel_btn"/>
 		</panel>
 	</scroll_container>
 </floater>

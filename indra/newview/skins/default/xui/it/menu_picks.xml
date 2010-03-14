@@ -4,5 +4,5 @@
 	<menu_item_call label="Modifica" name="pick_edit"/>
 	<menu_item_call label="Teleport" name="pick_teleport"/>
 	<menu_item_call label="Mappa" name="pick_map"/>
-	<menu_item_call label="Cancella" name="pick_delete"/>
+	<menu_item_call label="Elimina" name="pick_delete"/>
 </context_menu>

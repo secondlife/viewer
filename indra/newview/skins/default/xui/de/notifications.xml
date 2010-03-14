@@ -110,7 +110,7 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		Wenn Sie einem anderen Einwohner, das die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
+		Wenn Sie einem anderen Einwohner, die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
 Möchten Sie [FIRST_NAME] [LAST_NAME] die Erlaubnis zum Bearbeiten gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>

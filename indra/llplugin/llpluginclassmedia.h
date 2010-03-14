@@ -49,7 +49,11 @@ public:
 	virtual ~LLPluginClassMedia();
 
 	// local initialization, called by the media manager when creating a source
-	virtual bool init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug, const std::string &user_data_path);
+	virtual bool init(const std::string &launcher_filename, 
+					  const std::string &plugin_filename, 
+					  bool debug, 
+					  const std::string &user_data_path,
+					  const std::string &language_code);
 
 	// undoes everything init() didm called by the media manager when destroying a source
 	virtual void reset();

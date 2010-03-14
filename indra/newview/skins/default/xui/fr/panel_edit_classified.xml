@@ -38,7 +38,7 @@
 			</icons_combo_box>
 			<text name="price_for_listing_label" value="Coût de l&apos;annonce :"/>
 			<spinner label="L$" name="price_for_listing" tool_tip="Coût de l&apos;annonce." value="50"/>
-			<check_box label="Renouvellement automatique toutes les semaines" name="auto_renew"/>
+			<check_box label="Renouvellement auto toutes les semaines" name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
