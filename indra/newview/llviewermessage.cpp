@@ -2627,7 +2627,18 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	// IDEVO Correct for new-style "Resident" names
 	if (chat.mSourceType == CHAT_SOURCE_AGENT)
 	{
-		chat.mFromName = LLCacheName::cleanFullName(from_name);
+		// JAMESDEBUG - I don't know if it's OK to change this here, if 
+		// anything downstream does lookups by name, for instance
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::useDisplayNames()
+			&& LLAvatarNameCache::get(from_id, &av_name))
+		{
+			chat.mFromName = av_name.mDisplayName;
+		}
+		else
+		{
+			chat.mFromName = LLCacheName::cleanFullName(from_name);
+		}
 	}
 	else
 	{
