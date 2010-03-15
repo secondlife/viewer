@@ -683,13 +683,14 @@ void LLInvFVBridge::addTrashContextMenuOptions(menuentry_vec_t &items,
 void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 												menuentry_vec_t &disabled_items)
 {
+
+	const LLInventoryObject *obj = getInventoryObject();
+
 	// Don't allow delete as a direct option from COF folder.
-	if (isCOFFolder())
+	if (obj && obj->getIsLinkType() && isCOFFolder())
 	{
 		return;
 	}
-
-	const LLInventoryObject *obj = getInventoryObject();
 
 	// "Remove link" and "Delete" are the same operation.
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
@@ -2689,8 +2690,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLViewerInventoryCategory *cat =  getCategory();
 		// BAP removed protected check to re-enable standard ops in untyped folders.
 		// Not sure what the right thing is to do here.
-		if (!isCOFFolder() && cat && cat->getPreferredType()!=LLFolderType::FT_OUTFIT /*&&
-			LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType())*/)
+		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
 			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 			if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
@@ -4276,7 +4276,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
+			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4702,7 +4702,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
 		// Don't allow items to be worn if their baseobj is in the trash.
-		if (isLinkedObjectInTrash() || isLinkedObjectMissing())
+		if (isLinkedObjectInTrash() || isLinkedObjectMissing() || isCOFFolder())
 		{
 			disabled_items.push_back(std::string("Wearable Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
