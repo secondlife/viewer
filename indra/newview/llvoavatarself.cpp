@@ -765,6 +765,7 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	{
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 		{
+			mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled(TRUE);
 			invalidateComposite(mBakedTextureDatas[i].mTexLayerSet, FALSE);
 		}
 		updateMeshTextures();
@@ -952,6 +953,7 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type, BOOL upload_result )
 				{
 					if (mBakedTextureDatas[index].mTexLayerSet)
 					{
+						mBakedTextureDatas[index].mTexLayerSet->setUpdatesEnabled(true);
 						invalidateComposite(mBakedTextureDatas[index].mTexLayerSet, upload_result);
 					}
 					break;
@@ -1364,15 +1366,29 @@ void LLVOAvatarSelf::invalidateAll()
 //-----------------------------------------------------------------------------
 // setCompositeUpdatesEnabled()
 //-----------------------------------------------------------------------------
-void LLVOAvatarSelf::setCompositeUpdatesEnabled( BOOL b )
+void LLVOAvatarSelf::setCompositeUpdatesEnabled( bool b )
 {
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		if (mBakedTextureDatas[i].mTexLayerSet )
-		{
-			mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled( b );
-		}
+		setCompositeUpdatesEnabled(i, b);
 	}
+}
+
+void LLVOAvatarSelf::setCompositeUpdatesEnabled(U32 index, bool b)
+{
+	if (mBakedTextureDatas[index].mTexLayerSet )
+	{
+		mBakedTextureDatas[index].mTexLayerSet->setUpdatesEnabled( b );
+	}
+}
+
+bool LLVOAvatarSelf::isCompositeUpdateEnabled(U32 index)
+{
+	if (mBakedTextureDatas[index].mTexLayerSet)
+	{
+		return mBakedTextureDatas[index].mTexLayerSet->getUpdatesEnabled();
+	}
+	return false;
 }
 
 void LLVOAvatarSelf::setupComposites()

@@ -56,6 +56,37 @@ using namespace LLVOAvatarDefines;
 // static
 S32 LLWearable::sCurrentDefinitionVersion = 1;
 
+// support class - remove for 2.1 (hackity hack hack)
+class LLOverrideBakedTextureUpdate
+{
+public:
+	LLOverrideBakedTextureUpdate(bool temp_state)
+	{
+		mAvatar = gAgent.getAvatarObject();
+		U32 num_bakes = (U32) LLVOAvatarDefines::BAKED_NUM_INDICES;
+		for( U32 index = 0; index < num_bakes; ++index )
+		{
+			composite_enabled[index] = mAvatar->isCompositeUpdateEnabled(index);
+		}
+		mAvatar->setCompositeUpdatesEnabled(temp_state);
+		llinfos << "suprress baked texture update initialized to " << temp_state << llendl;
+	}
+
+	~LLOverrideBakedTextureUpdate()
+	{
+		U32 num_bakes = (U32)LLVOAvatarDefines::BAKED_NUM_INDICES;		
+		for( U32 index = 0; index < num_bakes; ++index )
+		{
+			mAvatar->setCompositeUpdatesEnabled(index, composite_enabled[index]);
+		}		
+		llinfos << "suppress baked texture update reverted " << llendl;
+	}
+
+private:
+	bool composite_enabled[LLVOAvatarDefines::BAKED_NUM_INDICES];
+	LLVOAvatarSelf *mAvatar;
+};
+
 // Private local functions
 static std::string terse_F32_to_string(F32 f);
 static std::string asset_id_to_filename(const LLUUID &asset_id);
@@ -215,6 +246,10 @@ BOOL LLWearable::importFile( LLFILE* file )
 	// rewriting this to use streams and not require an open FILE.
 	char text_buffer[2048];		/* Flawfinder: ignore */
 	S32 fields_read = 0;
+
+	// suppress texlayerset updates while wearables are being imported. Layersets will be updated
+	// when the wearables are "worn", not loaded. Note state will be restored when this object is destroyed.
+	LLOverrideBakedTextureUpdate stop_bakes(false);
 
 	// read header and version 
 	fields_read = fscanf( file, "LLWearable version %d\n", &mDefinitionVersion );
