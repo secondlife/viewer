@@ -69,7 +69,6 @@ public:
 			composite_enabled[index] = mAvatar->isCompositeUpdateEnabled(index);
 		}
 		mAvatar->setCompositeUpdatesEnabled(temp_state);
-		llinfos << "suprress baked texture update initialized to " << temp_state << llendl;
 	}
 
 	~LLOverrideBakedTextureUpdate()
@@ -79,7 +78,6 @@ public:
 		{
 			mAvatar->setCompositeUpdatesEnabled(index, composite_enabled[index]);
 		}		
-		llinfos << "suppress baked texture update reverted " << llendl;
 	}
 
 private:
