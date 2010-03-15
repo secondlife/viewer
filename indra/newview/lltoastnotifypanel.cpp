@@ -44,6 +44,7 @@
 #include "llrect.h"
 #include "lltrans.h"
 #include "llnotificationsutil.h"
+#include "llviewermessage.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
@@ -185,6 +186,8 @@ mCloseNotificationOnDestroy(true)
 			// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
 			adjustPanelForScriptNotice(button_panel_width, button_panel_height);
 			updateButtonsLayout(buttons, h_pad);
+			// save buttons for later use in disableButtons()
+			mButtons.assign(buttons.begin(), buttons.end());
 		}
 	}
 	// adjust panel's height to the text size
@@ -334,6 +337,63 @@ void LLToastNotifyPanel::adjustPanelForTipNotice()
 	}
 }
 
+typedef std::set<std::string> button_name_set_t;
+typedef std::map<std::string, button_name_set_t> disable_button_map_t;
+
+disable_button_map_t initUserGiveItemDisableButtonMap()
+{
+	// see EXT-5905 for disable rules
+
+	disable_button_map_t disable_map;
+	button_name_set_t buttons;
+
+	buttons.insert("Show");
+	disable_map.insert(std::make_pair("Show", buttons));
+
+	buttons.insert("Discard");
+	disable_map.insert(std::make_pair("Discard", buttons));
+
+	buttons.insert("Mute");
+	disable_map.insert(std::make_pair("Mute", buttons));
+
+	return disable_map;
+}
+
+button_name_set_t getButtonDisableList(const std::string& notification_name, const std::string& button_name)
+{
+	static disable_button_map_t user_give_item_disable_map = initUserGiveItemDisableButtonMap();
+
+	disable_button_map_t::const_iterator it;
+	disable_button_map_t::const_iterator it_end;
+
+	if("UserGiveItem" == notification_name)
+	{
+		it = user_give_item_disable_map.find(button_name);
+		it_end = user_give_item_disable_map.end();
+	}
+
+	if(it_end != it)
+	{
+		return it->second;
+	}
+	return button_name_set_t();
+}
+
+void LLToastNotifyPanel::disableButtons(const std::string& notification_name, const std::string& selected_button)
+{
+	button_name_set_t buttons = getButtonDisableList(notification_name, selected_button);
+
+	std::vector<index_button_pair_t>::const_iterator it = mButtons.begin();
+	for ( ; it != mButtons.end(); it++)
+	{
+		LLButton* btn = it->second;
+		if(buttons.find(btn->getName()) != buttons.end())
+		{
+			btn->setEnabled(FALSE);
+		}
+	}
+}
+
 // static
 void LLToastNotifyPanel::onClickButton(void* data)
 {
@@ -346,8 +406,33 @@ void LLToastNotifyPanel::onClickButton(void* data)
 	{
 		response[button_name] = true;
 	}
+	
+	bool is_reusable = self->mNotification->getPayload()["reusable"].asBoolean();
+	// When we call respond(), LLOfferInfo will delete itself in inventory_offer_callback(), 
+	// lets copy it while it's still valid.
+	LLOfferInfo* old_info = static_cast<LLOfferInfo*>(self->mNotification->getResponder());
+	LLOfferInfo* new_info = NULL;
+	if(is_reusable && old_info)
+	{
+		new_info = new LLOfferInfo(*old_info);
+		self->mNotification->setResponder(new_info);
+	}
+
 	self->mNotification->respond(response);
 
-	// disable all buttons
-	self->mControlPanel->setEnabled(FALSE);
+	if(is_reusable)
+	{
+		self->disableButtons(self->mNotification->getName(), button_name);
+
+		if(new_info)
+		{
+			self->mNotification->setResponseFunctor(
+				boost::bind(&LLOfferInfo::inventory_offer_callback, new_info, _1, _2));
+		}
+	}
+	else
+	{
+		// disable all buttons
+		self->mControlPanel->setEnabled(FALSE);
+	}
 }

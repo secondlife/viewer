@@ -85,6 +85,13 @@ private:
 	 */
 	void updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 h_pad);
 
+	/**
+	 * Disable specific button(s) based on notification name and clicked button
+	 */
+	void disableButtons(const std::string& notification_name, const std::string& selected_button);
+
+	std::vector<index_button_pair_t> mButtons;
+
 	// panel elements
 	LLTextBase*		mTextBox;
 	LLPanel*		mInfoPanel;		// a panel, that contains an information

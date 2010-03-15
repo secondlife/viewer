@@ -1081,6 +1081,21 @@ LLOfferInfo::LLOfferInfo(const LLSD& sd)
 	mHost = LLHost(sd["sender"].asString());
 }
 
+LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
+{
+	mIM = info.mIM;
+	mFromID = info.mFromID;
+	mFromGroup = info.mFromGroup;
+	mFromObject = info.mFromObject;
+	mTransactionID = info.mTransactionID;
+	mFolderID = info.mFolderID;
+	mObjectID = info.mObjectID;
+	mType = info.mType;
+	mFromName = info.mFromName;
+	mDesc = info.mDesc;
+	mHost = info.mHost;
+}
+
 LLSD LLOfferInfo::asLLSD()
 {
 	LLSD sd;
@@ -1570,7 +1585,12 @@ void inventory_offer_handler(LLOfferInfo* info)
 	}
 	else // Agent -> Agent Inventory Offer
 	{
+		payload["reusable"] = true;
+		p.responder = info;
 		// Note: sets inventory_offer_callback as the callback
+		// *TODO fix memory leak
+		// inventory_offer_callback() is not invoked if user received notification and 
+		// closes viewer(without responding the notification)
 		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));
 		p.name = "UserGiveItem";
 		

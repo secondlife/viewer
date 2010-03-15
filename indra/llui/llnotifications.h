@@ -296,6 +296,7 @@ public:
 		Optional<LLSD>							form_elements;
 		Optional<LLDate>						time_stamp;
 		Optional<LLNotificationContext*>		context;
+		Optional<void*>							responder;
 
 		struct Functor : public LLInitParam::Choice<Functor>
 		{
@@ -317,6 +318,7 @@ public:
 			form_elements("form_elements")
 		{
 			time_stamp = LLDate::now();
+			responder = NULL;
 		}
 
 		Params(const std::string& _name) 
@@ -329,6 +331,7 @@ public:
 			functor.name = _name;
 			name = _name;
 			time_stamp = LLDate::now();
+			responder = NULL;
 		}
 	};
 
@@ -344,6 +347,7 @@ private:
 	bool mIgnored;
 	ENotificationPriority mPriority;
 	LLNotificationFormPtr mForm;
+	void* mResponderObj;
 	
 	// a reference to the template
 	LLNotificationTemplatePtr mTemplatep;
@@ -384,6 +388,8 @@ public:
 
 	void setResponseFunctor(std::string const &responseFunctorName);
 
+	void setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb);
+
 	typedef enum e_response_template_type
 	{
 		WITHOUT_DEFAULT_BUTTON,
@@ -422,6 +428,10 @@ public:
 	LLSD asLLSD();
 
 	void respond(const LLSD& sd);
+
+	void* getResponder() { return mResponderObj; }
+
+	void setResponder(void* responder) { mResponderObj = responder; }
 
 	void setIgnored(bool ignore);
 

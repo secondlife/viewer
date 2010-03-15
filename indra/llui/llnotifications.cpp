@@ -402,7 +402,8 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 	mRespondedTo(false),
 	mPriority(p.priority),
 	mCancelled(false),
-	mIgnored(false)
+	mIgnored(false),
+	mResponderObj(NULL)
 {
 	if (p.functor.name.isChosen())
 	{
@@ -416,6 +417,11 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 		mTemporaryResponder = true;
 	}
 
+	if(p.responder.isProvided())
+	{
+		mResponderObj = p.responder;
+	}
+
 	mId.generate();
 	init(p.name, p.form_elements);
 }
@@ -425,7 +431,8 @@ LLNotification::LLNotification(const LLSD& sd) :
 	mTemporaryResponder(false),
 	mRespondedTo(false),
 	mCancelled(false),
-	mIgnored(false)
+	mIgnored(false),
+	mResponderObj(NULL)
 { 
 	mId.generate();
 	mSubstitutions = sd["substitutions"];
@@ -563,7 +570,9 @@ void LLNotification::respond(const LLSD& response)
 	// and then call it
 	functor(asLLSD(), response);
 	
-	if (mTemporaryResponder)
+	bool is_resusable = getPayload()["reusable"].asBoolean();
+
+	if (mTemporaryResponder && !is_resusable)
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
 		mResponseFunctorName = "";
@@ -595,6 +604,16 @@ void LLNotification::setResponseFunctor(std::string const &responseFunctorName)
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
 	mResponseFunctorName = responseFunctorName;
 	mTemporaryResponder = false;
+}
+
+void LLNotification::setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb)
+{
+	if(mTemporaryResponder)
+	{
+		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
+	}
+
+	LLNotificationFunctorRegistry::instance().registerFunctor(mResponseFunctorName, cb);
 }
 
 bool LLNotification::payloadContainsAll(const std::vector<std::string>& required_fields) const
