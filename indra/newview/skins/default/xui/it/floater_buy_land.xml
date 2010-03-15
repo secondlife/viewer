@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="COMPRA LA TERRA">
+<floater name="buy land" title="ACQUISTA TERRENO">
 	<text name="region_name_label">
 		Regione:
 	</text>
@@ -58,8 +58,8 @@
 	</text>
 	<text name="info_price">
 		L$ 1500
-(L$ 1.1/m²)
-sold with objects
+( 1.1 L$/m²)
+venduto con oggetti
 	</text>
 	<text name="info_action">
 		Comprando questa terra:
@@ -75,16 +75,16 @@ sold with objects
 		Solo i membri premium possono possedere terra.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item label="US$9.95/mese, addebitato mensilmente" name="US$9.95/month,billedmonthly"/>
-		<combo_box.item label="US$7.50/mese, addebitato trimestralmente" name="US$7.50/month,billedquarterly"/>
-		<combo_box.item label="US$6.00/mese, addebitato annualmente" name="US$6.00/month,billedannually"/>
+		<combo_box.item label="US$ 9.95 al mese, addebitato mensilmente" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$ 7.50 al mese, addebitato trimestralmente" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$ 6.00 al mese, addebitato annualmente" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Aumenta il tasso di pagamento mensile delle tasse d&apos;uso della terra a 40 US$/mese.
 	</text>
 	<text name="land_use_reason">
 		Tu occupi 1309 m² di terreno.
-This parcel is 512 m² di terreno.
+Questo lotto consiste in 512 m² di terreno.
 	</text>
 	<text name="purchase_action">
 		Paga il residente Joe 4000 L$ per la terra
@@ -99,7 +99,7 @@ This parcel is 512 m² di terreno.
 		1000
 	</line_editor>
 	<text name="currency_est">
-		per circa. [LOCAL_AMOUNT]
+		per circa [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Possiedi 2.100 L$.
@@ -181,26 +181,26 @@ Prova a selezionare un&apos;area più piccola.
 		Il tuo account può possedere terra.
 	</string>
 	<string name="land_holdings">
-		Tu occupi [BUYER] m² di terreno.
+		Sei proprietario di [BUYER] m² di terreno.
 	</string>
 	<string name="pay_to_for_land">
 		Paga [AMOUNT] L$ a [SELLER] per questa terra
 	</string>
 	<string name="buy_for_US">
-		Compra L$ [AMOUNT] per circa. [LOCAL_AMOUNT],
+		Acquista  L$ [AMOUNT] per circa [LOCAL_AMOUNT],
 	</string>
 	<string name="parcel_meters">
-		Questo parcel è [AMOUNT] m²
+		Questo lotto è di [AMOUNT] m²
 	</string>
 	<string name="premium_land">
-		Questo terreno è premium, e costerà [AMOUNT] m².
+		Questo terreno è premium, e costerà come [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		Questo terreno è scontato, e costerà [AMOUNT] m².
+		Questo terreno è scontato, e costerà come [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT] m²
-mantiene [AMOUNT2] oggetti
+consente [AMOUNT2] oggetti
 	</string>
 	<string name="sold_with_objects">
 		venduta con oggetti
@@ -210,7 +210,7 @@ mantiene [AMOUNT2] oggetti
 	</string>
 	<string name="info_price_string">
 		L$ [PRICE]
-(L$ [PREZZO_PER_QM]/m²)
+([PREZZO_PER_MQ] L$/m²)
 [VENDUTO_CON_OGGETTI]
 	</string>
 	<string name="insufficient_land_credits">

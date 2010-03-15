@@ -59,7 +59,12 @@ public:
 	LLPluginProcessParent(LLPluginProcessParentOwner *owner);
 	~LLPluginProcessParent();
 		
-	void init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug, const std::string &user_data_path);
+	void init(const std::string &launcher_filename, 
+			  const std::string &plugin_filename, 
+			  bool debug, 
+			  const std::string &user_data_path,
+			  const std::string &language_code);
+
 	void idle(void);
 	
 	// returns true if the plugin is on its way to steady state
@@ -144,6 +149,7 @@ private:
 	std::string mPluginFile;
 
 	std::string mUserDataPath;
+	std::string mLanguageCode;
 
 	LLPluginProcessParentOwner *mOwner;
 	

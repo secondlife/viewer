@@ -156,6 +156,7 @@ void LLPluginProcessChild::idle(void)
 					setState(STATE_PLUGIN_INITIALIZING);
 					LLPluginMessage message("base", "init");
 					message.setValue("user_data_path", mUserDataPath);
+					message.setValue("language_code", mLanguageCode);
 					sendMessageToPlugin(message);
 				}
 			break;
@@ -329,6 +330,7 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 			{
 				mPluginFile = parsed.getValue("file");
 				mUserDataPath = parsed.getValue("user_data_path");
+				mLanguageCode = parsed.getValue("language_code");
 			}
 			else if(message_name == "shm_add")
 			{

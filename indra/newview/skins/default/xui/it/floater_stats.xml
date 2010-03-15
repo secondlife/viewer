@@ -2,68 +2,68 @@
 <floater name="Statistics" title="STATISTICHE">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
-			<stat_view label="Base" name="basic">
+			<stat_view label="Di base" name="basic">
 				<stat_bar label="FPS" name="fps"/>
-				<stat_bar label="Larghezza Banda" name="bandwidth"/>
-				<stat_bar label="Perdita Pacchetti" name="packet_loss"/>
+				<stat_bar label="Larghezza banda" name="bandwidth"/>
+				<stat_bar label="Perdita pacchetti" name="packet_loss"/>
 				<stat_bar label="Tempo Ping Sim" name="ping"/>
 			</stat_view>
-			<stat_view label="Avanzato" name="advanced">
+			<stat_view label="Avanzata" name="advanced">
 				<stat_view label="Render" name="render">
-					<stat_bar label="KTris Disegnate" name="ktrisframe"/>
-					<stat_bar label="KTris Disegnate" name="ktrissec"/>
-					<stat_bar label="Totale Oggetti" name="objs"/>
-					<stat_bar label="Nuovi Oggetti" name="newobjs"/>
+					<stat_bar label="KTris disegnate" name="ktrisframe"/>
+					<stat_bar label="KTris disegnate" name="ktrissec"/>
+					<stat_bar label="Totale oggetti" name="objs"/>
+					<stat_bar label="Nuovi oggetti" name="newobjs"/>
 				</stat_view>
 				<stat_view label="Texture" name="texture">
 					<stat_bar label="Conteggio" name="numimagesstat"/>
-					<stat_bar label="Conteggio Grezzo" name="numrawimagesstat"/>
+					<stat_bar label="Conteggio grezzo" name="numrawimagesstat"/>
 					<stat_bar label="Memoria GL" name="gltexmemstat"/>
-					<stat_bar label="Memoria Formattata" name="formattedmemstat"/>
-					<stat_bar label="Memoria Complessiva" name="rawmemstat"/>
-					<stat_bar label="Memoria Impegnata" name="glboundmemstat"/>
+					<stat_bar label="Memoria formattata" name="formattedmemstat"/>
+					<stat_bar label="Memoria complessiva" name="rawmemstat"/>
+					<stat_bar label="Memoria impegnata" name="glboundmemstat"/>
 				</stat_view>
 				<stat_view label="Rete" name="network">
-					<stat_bar label="Pacchetti In Ingresso" name="packetsinstat"/>
-					<stat_bar label="Pacchetti In Uscita" name="packetsoutstat"/>
+					<stat_bar label="Pacchetti in ingresso" name="packetsinstat"/>
+					<stat_bar label="Pacchetti in uscita" name="packetsoutstat"/>
 					<stat_bar label="Oggetti" name="objectkbitstat"/>
 					<stat_bar label="Texture" name="texturekbitstat"/>
-					<stat_bar label="Risorse Server" name="assetkbitstat"/>
+					<stat_bar label="Risorse server" name="assetkbitstat"/>
 					<stat_bar label="Layer" name="layerskbitstat"/>
-					<stat_bar label="Effettivi In Ingresso" name="actualinkbitstat"/>
-					<stat_bar label="Effettivi in Uscita" name="actualoutkbitstat"/>
+					<stat_bar label="Effettivi in ingresso" name="actualinkbitstat"/>
+					<stat_bar label="Effettivi in uscita" name="actualoutkbitstat"/>
 					<stat_bar label="Operazioni pendenti VFS" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulatore" name="sim">
 				<stat_bar label="Dilatazione temporale" name="simtimedilation"/>
 				<stat_bar label="FPS Sim" name="simfps"/>
-				<stat_bar label="FPS Motore Fisico" name="simphysicsfps"/>
-				<stat_view label="Dettagli Motore Fisico" name="physicsdetail">
-					<stat_bar label="Oggetti Pinzati" name="physicspinnedtasks"/>
+				<stat_bar label="FPS motore fisico" name="simphysicsfps"/>
+				<stat_view label="Dettagli motore fisico" name="physicsdetail">
+					<stat_bar label="Oggetti pinzati" name="physicspinnedtasks"/>
 					<stat_bar label="Oggetti a basso LOD" name="physicslodtasks"/>
-					<stat_bar label="Memoria Allocata" name="physicsmemoryallocated"/>
-					<stat_bar label="Agenti Aggiornamenti al Sec" name="simagentups"/>
-					<stat_bar label="Agenti Principali" name="simmainagents"/>
-					<stat_bar label="Agenti Figli" name="simchildagents"/>
+					<stat_bar label="Memoria allocata" name="physicsmemoryallocated"/>
+					<stat_bar label="Aggiornamenti agenti al sec" name="simagentups"/>
+					<stat_bar label="Avatar principali" name="simmainagents"/>
+					<stat_bar label="Avatar secondari" name="simchildagents"/>
 					<stat_bar label="Oggetti" name="simobjects"/>
-					<stat_bar label="Oggetti Attivi" name="simactiveobjects"/>
-					<stat_bar label="Script Attivi" name="simactivescripts"/>
-					<stat_bar label="Eventi Script" name="simscripteps"/>
-					<stat_bar label="Pacchetti In Ingresso" name="siminpps"/>
-					<stat_bar label="Pacchetti In Uscita" name="simoutpps"/>
-					<stat_bar label="Download Pendenti" name="simpendingdownloads"/>
-					<stat_bar label="Upload Pendenti" name="simpendinguploads"/>
-					<stat_bar label="Numero totale byte non risposti" name="simtotalunackedbytes"/>
+					<stat_bar label="Oggetti attivi" name="simactiveobjects"/>
+					<stat_bar label="Script attivi" name="simactivescripts"/>
+					<stat_bar label="Eventi di script" name="simscripteps"/>
+					<stat_bar label="Pacchetti in ingresso" name="siminpps"/>
+					<stat_bar label="Pacchetti in uscita" name="simoutpps"/>
+					<stat_bar label="Download in attesa" name="simpendingdownloads"/>
+					<stat_bar label="Caricamenti in attesa" name="simpendinguploads"/>
+					<stat_bar label="Numero totale byte non confermati (Unacked)" name="simtotalunackedbytes"/>
 				</stat_view>
 				<stat_view label="Tempo (ms)" name="simperf">
-					<stat_bar label="Tempo Totale Frame" name="simframemsec"/>
-					<stat_bar label="Tempo Netto" name="simnetmsec"/>
-					<stat_bar label="Tempo Motore Fisico" name="simsimphysicsmsec"/>
-					<stat_bar label="Tempo Simulazione" name="simsimothermsec"/>
-					<stat_bar label="Tempo Agenti" name="simagentmsec"/>
-					<stat_bar label="Tempo Immagini" name="simimagesmsec"/>
-					<stat_bar label="Tempo Script" name="simscriptmsec"/>
+					<stat_bar label="Tempo totale Frame" name="simframemsec"/>
+					<stat_bar label="Tempo netto" name="simnetmsec"/>
+					<stat_bar label="Tempo motore fisico" name="simsimphysicsmsec"/>
+					<stat_bar label="Tempo simulazione" name="simsimothermsec"/>
+					<stat_bar label="Tempo avatar" name="simagentmsec"/>
+					<stat_bar label="Tempo immagini" name="simimagesmsec"/>
+					<stat_bar label="Tempo script" name="simscriptmsec"/>
 				</stat_view>
 			</stat_view>
 		</container_view>

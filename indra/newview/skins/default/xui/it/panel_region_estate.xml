@@ -24,10 +24,10 @@ avranno effetto su tutte le regioni della proprietà.
 	<check_box label="Permetti accesso pubblico" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Accesso ristretto ai Residenti verificati con:
+		Consenti l&apos;accesso soltanto ai residenti verificati tramite:
 	</text>
-	<check_box label="Informazioni di pagamento on File" name="limit_payment" tool_tip="Espelli residenti non identificati"/>
-	<check_box label="Verifica dell&apos;età" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno verificato l&apos;età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+	<check_box label="Informazioni di pagamento in archivio" name="limit_payment" tool_tip="Espelli residenti non identificati"/>
+	<check_box label="Verifica età" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno verificato l&apos;età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 	<check_box label="Permetti la chat voice" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permetti teleport diretto" name="allow_direct_teleport"/>
