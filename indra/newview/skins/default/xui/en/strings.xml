@@ -3015,4 +3015,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>"
+  
+  <string name="paid_you_ldollars">"paid you L$"</string>"
+
 </strings>
