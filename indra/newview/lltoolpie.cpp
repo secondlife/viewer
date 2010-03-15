@@ -412,24 +412,24 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	case CLICK_ACTION_SIT:
 		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLSIT;
 		}
 		break;
 	case CLICK_ACTION_BUY:
-		cursor = UI_CURSOR_HAND;
+		cursor = UI_CURSOR_TOOLBUY;
 		break;
 	case CLICK_ACTION_OPEN:
 		// Open always opens the parent.
 		if (parent && parent->allowOpen())
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLOPEN;
 		}
 		break;
 	case CLICK_ACTION_PAY:	
 		if ((object && object->flagTakesMoney())
 			|| (parent && parent->flagTakesMoney()))
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLBUY;
 		}
 		break;
 	case CLICK_ACTION_ZOOM:
