@@ -4458,20 +4458,37 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// have missed something during an event.
 		// *TODO: Translate
 		LLSD args;
-		args["MESSAGE"] = desc;
+		
 
 		// this is a marker to retrieve avatar name from server message:
 		// "<avatar name> paid you L$"
 		const std::string marker = "paid you L$";
 
+		args["MESSAGE"] = desc;
+
 		// extract avatar name from system message
-		std::string name = desc.substr(0, desc.find(marker, 0));
+		S32 marker_pos = desc.find(marker, 0);
+
+		std::string base_name = desc.substr(0, marker_pos);
+		
+		std::string name = base_name;
 		LLStringUtil::trim(name);
 
 		// if name extracted and name cache contains avatar id send loggable notification
 		LLUUID from_id;
 		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
 		{
+			//description always comes not localized. lets fix this
+
+			//ammount paid
+			std::string ammount = desc.substr(marker_pos + marker.length(),desc.length() - marker.length() - marker_pos);
+	
+			//reform description
+			std::string paid_you = LLTrans::getString("paid_you_ldollars");
+			std::string new_description = base_name + paid_you + ammount;
+
+			args["MESSAGE"] = new_description;
+			
 			args["NAME"] = name;
 			LLSD payload;
 			payload["from_id"] = from_id;

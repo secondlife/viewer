@@ -248,6 +248,8 @@ protected:
 	 */
 	void onClickSave();
 
+	std::string getLocationNotice();
+
 protected:
 
 	bool mLocationChanged;
