@@ -47,6 +47,7 @@
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
 	<string name="LoginFailedNoNetwork">Network Error: Could not establish connection, please check your network connection.</string>
+	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
 	<string name="create_account_url">http://join.secondlife.com/</string>
 
