@@ -3029,7 +3029,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     [SOURCES] have said something new
   </string>"
   
+  <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="giving">Giving</string>
+  <string name="uploading_costs">Uploading costs</string>
+  <string name="this_costs">This costs</string>
+  <string name="buying_selected_land">Buying selected land</string>
+  <string name="this_object_costs">This object costs"</string>
+  
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
   <string name="group_role_owners">Owners</string>

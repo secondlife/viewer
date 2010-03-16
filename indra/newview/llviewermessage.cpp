@@ -272,7 +272,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	}
 	else
 	{
-		LLFloaterBuyCurrency::buyCurrency("Giving", amount);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving"), amount);
 	}
 }
 
