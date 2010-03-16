@@ -1124,7 +1124,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 				{
 					// if we're in world, show a progress bar to hide reloading of textures
 					llinfos << "Restoring GL during activate" << llendl;
-					restoreGL("Restoring...");
+					restoreGL(LLTrans::getString("ProgressRestoring"));
 				}
 				else
 				{
@@ -1384,7 +1384,7 @@ LLViewerWindow::LLViewerWindow(
 
 	if (NULL == mWindow)
 	{
-		LLSplashScreen::update("Shutting down...");
+		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
 #if LL_LINUX || LL_SOLARIS
 		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
 				<< llendl;
@@ -4758,7 +4758,7 @@ void LLViewerWindow::restartDisplay(BOOL show_progress_bar)
 	stopGL();
 	if (show_progress_bar)
 	{
-		restoreGL("Changing Resolution...");
+		restoreGL(LLTrans::getString("ProgressChangingResolution"));
 	}
 	else
 	{
@@ -4845,7 +4845,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	llinfos << "Restoring GL during resolution change" << llendl;
 	if (show_progress_bar)
 	{
-		restoreGL("Changing Resolution...");
+		restoreGL(LLTrans::getString("ProgressChangingResolution"));
 	}
 	else
 	{
