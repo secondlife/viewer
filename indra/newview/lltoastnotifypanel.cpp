@@ -55,8 +55,8 @@ const LLFontGL* LLToastNotifyPanel::sFont = NULL;
 const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
-LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect) : 
 
+LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect) : 
 LLToastPanel(notification),
 mTextBox(NULL),
 mInfoPanel(NULL),
