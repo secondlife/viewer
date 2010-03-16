@@ -436,9 +436,9 @@ void LLWearableHoldingPattern::checkMissingWearables()
 		}
 	}
 
+	mWaitTime.reset();
 	if (!pollMissingWearables())
 	{
-		mWaitTime.reset();
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
 	}
 }

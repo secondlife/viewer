@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Modifica scelta ????" name="panel_edit_pick">
+<panel label="Modifica scelta" name="panel_edit_pick">
 	<text name="title">
-		Modifica scelta ????
+		Modifica scelta
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
@@ -16,13 +16,13 @@
 				Luogo:
 			</text>
 			<text name="pick_location">
-				caricando...
+				caricamento...
 			</text>
 			<button label="Imposta come luogo attuale" name="set_to_curr_location_btn"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
 		<button label="Salva [WHAT]" name="save_changes_btn"/>
-		<button label="Cancella" name="cancel_btn"/>
+		<button label="Annulla" name="cancel_btn"/>
 	</panel>
 </panel>

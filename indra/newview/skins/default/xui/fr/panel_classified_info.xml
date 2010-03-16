@@ -41,7 +41,7 @@
 					<text_editor name="click_through_text" tool_tip="Parcourir les données en cliquant" value="[clics]"/>
 				</layout_panel>
 				<layout_panel name="price_layout_panel">
-					<text name="auto_renew_label" value="Renouvellement automatique :"/>
+					<text name="auto_renew_label" value="Renouv. auto :"/>
 					<text name="auto_renew" value="Activé"/>
 				</layout_panel>
 				<layout_panel name="descr_layout_panel">
