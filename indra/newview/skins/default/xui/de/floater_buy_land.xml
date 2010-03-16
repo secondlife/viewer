@@ -41,8 +41,8 @@ Verkleinern Sie Ihre Auswahl.
 		Das ausgewählte Land beinhaltet kein öffentliches Land.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Sie haben Land ausgewählt, das einer anderen Person gehört. 
-Verkleinern Sie Ihre Auswahl.
+		Sie haben Land ausgewählt, das einem anderen Einwohner gehört. 
+Wählen Sie ein kleineres Gebiet aus.
 	</floater.string>
 	<floater.string name="processing">
 		Kauf wird abgewickelt...

@@ -2,27 +2,27 @@
 <panel name="MediaControls">
 	<layout_stack name="media_controls">
 		<layout_panel name="media_address">
-			<line_editor name="media_address_url" tool_tip="Media URL"/>
+			<line_editor name="media_address_url" tool_tip="URL multimedia"/>
 			<layout_stack name="media_address_url_icons">
 				<layout_panel>
-					<icon name="media_whitelist_flag" tool_tip="Lista Bianca attivata"/>
+					<icon name="media_whitelist_flag" tool_tip="Lista bianca attivata"/>
 				</layout_panel>
 				<layout_panel>
-					<icon name="media_secure_lock_flag" tool_tip="Secured Browsing"/>
+					<icon name="media_secure_lock_flag" tool_tip="Navigazione sicura"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="media_play_position">
-			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Avanzamento riproduzione Movie"/>
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Avanzamento riproduzione filmato"/>
 		</layout_panel>
 		<layout_panel name="media_volume">
-			<button name="media_mute_button" tool_tip="Silenzia questo Media ????"/>
-			<slider name="volume_slider" tool_tip="Volume Media"/>
+			<button name="media_mute_button" tool_tip="Silenzia questo elemento multimediale"/>
+			<slider name="volume_slider" tool_tip="Volume multimedia"/>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack>
 		<panel name="media_progress_indicator">
-			<progress_bar name="media_progress_bar" tool_tip="Media stà caricando"/>
+			<progress_bar name="media_progress_bar" tool_tip="L&apos;elemento multimediale è in caricamento"/>
 		</panel>
 	</layout_stack>
 </panel>

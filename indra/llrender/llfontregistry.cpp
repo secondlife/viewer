@@ -469,6 +469,8 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 			else
 			{
 				fontlist.push_back(fontp->mFontFreetype);
+				delete fontp;
+				fontp = NULL;
 			}
 		}
 	}

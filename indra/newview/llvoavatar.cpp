@@ -5785,11 +5785,6 @@ void LLVOAvatar::invalidateAll()
 {
 }
 
-// virtual
-void LLVOAvatar::setCompositeUpdatesEnabled( BOOL b )
-{
-}
-
 void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake )
 {
 	if (global_color == mTexSkinColor)

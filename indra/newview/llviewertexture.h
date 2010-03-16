@@ -300,7 +300,7 @@ public:
 	static S32 sImageCount;
 	static S32 sRawCount;
 	static S32 sAuxCount;
-	static LLTimer sEvaluationTimer;
+	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
 	static S32 sBoundTextureMemoryInBytes;

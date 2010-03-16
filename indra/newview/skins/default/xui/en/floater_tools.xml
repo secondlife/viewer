@@ -290,11 +290,11 @@
      width="134" />
    <check_box
      control_name="SnapEnabled"
-     height="20"
+     height="18"
      initial_value="true"
      label="Snap to grid"
      layout="topleft"
-     top_pad="0"
+     top_pad="7"
      name="checkbox snap to grid"
      width="134" />
     <combo_box

@@ -4,7 +4,7 @@
 		Ci sono modifiche non salvate nella scheda attuale
 	</panel.string>
 	<panel.string name="want_apply_text">
-		Vuoi salvare queste modifiche?
+		Vuoi salvare le modifiche?
 	</panel.string>
 	<tab_container height="164" name="roles_tab_container">
 		<panel height="148" label="MEMBRI" name="members_sub_tab" tool_tip="Membri">
@@ -15,24 +15,25 @@ cliccando sui loro nomi.
 			</panel.string>
 			<filter_editor label="Filtra Membri" name="filter_input"/>
 			<name_list bottom_delta="-105" height="104" name="member_list">
-				<name_list.columns label="Nome del Membro" name="name"/>
+				<name_list.columns label="Socio" name="name"/>
 				<name_list.columns label="Donazioni" name="donated"/>
-				<name_list.columns label="Status" name="online"/>
+				<name_list.columns label="Online" name="online"/>
 			</name_list>
 			<button label="Invita" name="member_invite" width="165"/>
 			<button label="Espelli" name="member_eject"/>
 		</panel>
 		<panel height="148" label="RUOLI" name="roles_sub_tab">
 			<panel.string name="help_text">
-				I ruoli hanno un titolo con un elenco di abilità permesse che i membri possono eseguire.
-				I membri possono avere uno o più ruoli. Un gruppo può avere fino a 10 ruoli, inclusi il ruolo base o &quot;Membro&quot; e
-				il ruolo del Capogruppo.
+				I ruoli hanno un titolo con un elenco di abilità permesse
+che i membri possono eseguire. I membri possono avere
+uno o più ruoli. Un gruppo può avere fino a 10 ruoli,
+fra cui il ruolo base o &quot;Tutti&quot; e il ruolo del Proprietario, ovvero il capogruppo.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				I Ruoli &apos;Everyone&apos; e &apos;Owners&apos; sono speciali e non possono essere cancellati.
 			</panel.string>
 			<panel.string name="power_folder_icon">
-				Cartella Inventario chiusa
+				Inv_FolderClosed
 			</panel.string>
 			<filter_editor label="Filtra i ruoli" name="filter_input"/>
 			<scroll_list bottom_delta="-104" height="104" name="role_list">
@@ -43,7 +44,7 @@ cliccando sui loro nomi.
 			<button label="Crea nuovo ruolo" name="role_create"/>
 			<button label="Elimina ruolo" name="role_delete"/>
 		</panel>
-		<panel height="148" label="ABILITA&apos;" name="actions_sub_tab" tool_tip="Puoi vedere la descrizione dell&apos;abilità e quali Ruoli o Membri possono eseguirla.">
+		<panel height="148" label="ABILITÀ" name="actions_sub_tab" tool_tip="Puoi vedere la descrizione dell&apos;abilità e quali ruoli o membri possono eseguirla.">
 			<panel.string name="help_text">
 				Le abilità permettono ai membri nei ruoli di fare cose specifiche
 in questo gruppo. C&apos;è una vasta gamma di abilità.
@@ -59,7 +60,7 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 		<text name="static2">
 			Abilità permesse
 		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi il pannello abilità."/>
+		<scroll_list name="member_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi la scheda abilità."/>
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
@@ -83,11 +84,11 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 		<text name="static4">
 			Ruoli assegnati
 		</text>
-		<check_box label="Mostrare i membri" name="role_visible_in_list" tool_tip="Imposta nella tabella Generale per i membri con questo ruolo di poter essere visti dalle persone esterne a questo gruppo."/>
+		<check_box label="Visualizza membri" name="role_visible_in_list" tool_tip="Imposta nella scheda Generale per i membri di questo ruolo la visibilità da parte dei residenti esterni al gruppo."/>
 		<text name="static5" tool_tip="Una lista delle abilità che il ruolo ora selezionato può eseguire.">
 			Abilità permesse
 		</text>
-		<scroll_list name="role_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi il pannello abilità."/>
+		<scroll_list name="role_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi la scheda abilità."/>
 	</panel>
 	<panel name="actions_footer">
 		<text name="static">

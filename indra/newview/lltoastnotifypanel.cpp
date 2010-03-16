@@ -53,7 +53,7 @@ S32 BUTTON_WIDTH = 90;
 const LLFontGL* LLToastNotifyPanel::sFont = NULL;
 const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
-LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : 
+LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect) : 
 LLToastPanel(notification),
 mTextBox(NULL),
 mInfoPanel(NULL),
@@ -63,6 +63,10 @@ mNumButtons(0),
 mAddedDefaultBtn(false)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notification.xml");
+	if(rect != LLRect::null)
+	{
+		this->setShape(rect);
+	}		 
 	mInfoPanel = getChild<LLPanel>("info_panel");
 	mControlPanel = getChild<LLPanel>("control_panel");
 	BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
@@ -159,7 +163,12 @@ mAddedDefaultBtn(false)
 				 * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
 				 * In last case set default h_pad to avoid heaping of buttons 
 				 */
-				h_pad = 2*HPAD;
+				S32 button_per_row = button_panel_width / BUTTON_WIDTH;
+				h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
+				if(h_pad < 2*HPAD) // still not enough space between buttons ?
+				{
+					h_pad = 2*HPAD;
+				}
 			}
 			if (mIsScriptDialog)
 			{
@@ -224,7 +233,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	p.click_callback.function(boost::bind(&LLToastNotifyPanel::onClickButton, userdata));
 	p.rect.width = BUTTON_WIDTH;
 	p.auto_resize = false;
-	p.follows.flags(FOLLOWS_RIGHT | FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+	p.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 	if (mIsCaution)
 	{
 		p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));

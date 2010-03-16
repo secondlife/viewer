@@ -85,7 +85,9 @@ or.</string>
 	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
-	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />	
+  <string name="TooltipPrice" value=" L$[PRICE]-" />
+  
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>
@@ -3022,4 +3024,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>"
+  
+  <string name="paid_you_ldollars">"paid you L$"</string>"
+
 </strings>

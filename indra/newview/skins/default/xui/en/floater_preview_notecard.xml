@@ -25,10 +25,6 @@
      name="Title">
         Notecard: [NAME]
     </floater.string>
-    <floater.string
-     name="Save">
-        Save
-    </floater.string>
     <icon
      follows="top|right"
      height="18"

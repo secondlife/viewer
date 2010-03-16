@@ -4,7 +4,7 @@
 		Lingua:
 	</text>
 	<combo_box name="language_combobox">
-		<combo_box.item label="System default" name="System Default Language"/>
+		<combo_box.item label="Default di sistema" name="System Default Language"/>
 		<combo_box.item label="English" name="English"/>
 		<combo_box.item label="Dansk (Danese) - Beta" name="Danish"/>
 		<combo_box.item label="Deutsch (Tedesco) - Beta" name="Deutsch(German)"/>
@@ -17,7 +17,7 @@
 		<combo_box.item label="日本語 (Giapponese) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
-		(Richiede restart)
+		(Richiede il riavvio)
 	</text>
 	<text name="maturity_desired_prompt">
 		Voglio accedere al contenuto di tipo:
@@ -29,15 +29,15 @@
 		<combo_box.item label="PG" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
-		Luogo d&apos;inizio:
+		Luogo di partenza:
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_box.item label="Ultimo posto visitato" name="MyLastLocation" tool_tip="Vai nell&apos;ultimo posto visitato di default quando fai login."/>
 		<combo_box.item label="Casa mia" name="MyHome" tool_tip="Vai a casa di default quando fai login"/>
 	</combo_box>
-	<check_box initial_value="true" label="Mostra su login" name="show_location_checkbox"/>
+	<check_box initial_value="true" label="Mostra con il login" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
-		Nome sulle tags:
+		Nome:
 	</text>
 	<radio_group name="Name_Tag_Preference">
 		<radio_item label="Off" name="radio"/>
@@ -45,14 +45,14 @@
 		<radio_item label="Mostra brevemente" name="radio3"/>
 	</radio_group>
 	<check_box label="Mostra il mio nome" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Nome piccolo sulle tags" name="small_avatar_names_checkbox"/>
+	<check_box initial_value="true" label="Nome in piccolo" name="small_avatar_names_checkbox"/>
 	<check_box label="Mostra titoli del gruppo" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
-		Miei effetti:
+		I miei effetti:
 	</text>
 	<color_swatch label="" name="effect_color_swatch" tool_tip="Clicca per aprire la tavolozza dei colori"/>
 	<text name="title_afk_text">
-		Pausa di Away:
+		Pausa assenza:
 	</text>
 	<spinner label="Assente dopo:" name="afk_timeout_spinner"/>
 	<text name="seconds_textbox">

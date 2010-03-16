@@ -5442,27 +5442,6 @@ Grant this request?
     </form>
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="ScriptToast"
-   type="notify">
-    [FIRST] [LAST]&apos;s &apos;[TITLE]&apos; is requesting Resident input.
-    <form name="form">
-      <button
-       index="0"
-       name="Open"
-       text="Open Dialog"/>
-      <button
-       index="1"
-       name="Ignore"
-       text="Ignore"/>
-      <button
-       index="2"
-       name="Block"
-       text="Block"/>
-    </form>
-  </notification>
-
 <!--
   <notification
    icon="notify.tga"

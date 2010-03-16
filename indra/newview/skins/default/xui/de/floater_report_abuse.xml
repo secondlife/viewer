@@ -41,11 +41,11 @@ Objekt:
 	</text>
 	<combo_box name="category_combo" tool_tip="Kategorie -- wählen Sie die Kategorie aus, die am besten auf diesen Bericht zutrifft">
 		<combo_box.item label="Kategorie auswählen" name="Select_category"/>
-		<combo_box.item label="Alter&gt; Age-Play" name="Age__Age_play"/>
+		<combo_box.item label="Alter &gt; Age-Play" name="Age__Age_play"/>
 		<combo_box.item label="Alter &gt; Erwachsener Einwohner in Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Alter &gt; Minderjähriger Einwohner außerhalb Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
-		<combo_box.item label="Angriff&gt; Kampf-Sandbox / unsichere Region" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="Angriff&gt; Sichere Region" name="Assault__Safe_area"/>
+		<combo_box.item label="Angriff &gt; Kampf-Sandbox / unsichere Region" name="Assault__Combat_sandbox___unsafe_area"/>
+		<combo_box.item label="Angriff &gt; Sichere Region" name="Assault__Safe_area"/>
 		<combo_box.item label="Angriff &gt; Sandbox für Waffentest" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="Handel &gt; Produkt nicht geliefert oder Dienstleistung nicht erbracht" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="Offenlegung &gt; Informationen aus realer Welt" name="Disclosure__Real_world_information"/>
@@ -57,7 +57,7 @@ Objekt:
 		<combo_box.item label="Ruhestörung &gt; Ständige Spam-Wiederholung" name="Disturbing_the_peace__Repetitive_spam"/>
 		<combo_box.item label="Ruhestörung &gt; Unerwünschte Spam-Werbung" name="Disturbing_the_peace__Unwanted_advert_spam"/>
 		<combo_box.item label="Betrug &gt; L$" name="Fraud__L$"/>
-		<combo_box.item label="Betrug&gt; Land" name="Fraud__Land"/>
+		<combo_box.item label="Betrug &gt; Land" name="Fraud__Land"/>
 		<combo_box.item label="Betrug &gt; Schneeballsystem oder Kettenbrief" name="Fraud__Pyramid_scheme_or_chain_letter"/>
 		<combo_box.item label="Betrug &gt; US$" name="Fraud__US$"/>
 		<combo_box.item label="Belästigung &gt; Werbefarmen / visueller Spam" name="Harassment__Advert_farms___visual_spam"/>

@@ -69,7 +69,7 @@
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="区画">
 					<panel name="parcel_characteristics_panel">
-						<text name="rating_label" value="レーティング区分："/>
+						<text name="rating_label" value="レーティング："/>
 						<text name="rating_value" value="不明"/>
 						<text name="voice_label" value="ボイス："/>
 						<text name="voice_value" value="オン"/>
@@ -88,11 +88,11 @@
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="リージョン（地域）     ">
 					<panel name="region_information_panel">
-						<text name="region_name_label" value="リージョン（地域）:"/>
+						<text name="region_name_label" value="リージョン:"/>
 						<text name="region_name" value="Mooseland"/>
 						<text name="region_type_label" value="種類："/>
 						<text name="region_type" value="Moose"/>
-						<text name="region_rating_label" value="レーティング区分："/>
+						<text name="region_rating_label" value="レーティング："/>
 						<text name="region_rating" value="Adult"/>
 						<text name="region_owner_label" value="所有者："/>
 						<text name="region_owner" value="moose Van Moose"/>
@@ -105,8 +105,8 @@
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="エステート（不動産）">
 					<panel name="estate_information_panel">
-						<text name="estate_name_label" value="エステート（不動産）："/>
-						<text name="estate_rating_label" value="レーティング区分："/>
+						<text name="estate_name_label" value="エステート："/>
+						<text name="estate_rating_label" value="レーティング："/>
 						<text name="estate_owner_label" value="所有者："/>
 						<text name="covenant_label" value="約款："/>
 					</panel>
