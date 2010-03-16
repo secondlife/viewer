@@ -5,6 +5,7 @@
 	<menu_item_call label="Construir" name="Build"/>
 	<menu_item_call label="Abrir" name="Open"/>
 	<menu_item_call label="Sentar aqui" name="Object Sit"/>
+	<menu_item_call label="Ficar de pé" name="Object Stand Up"/>
 	<menu_item_call label="Perfil do objeto" name="Object Inspect"/>
 	<menu_item_call label="Mais zoom" name="Zoom In"/>
 	<context_menu label="Colocar no(a)" name="Put On">

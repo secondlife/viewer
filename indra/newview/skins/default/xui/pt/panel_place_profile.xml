@@ -51,12 +51,12 @@
 				<accordion_tab name="parcel_characteristics_tab" title="Lote">
 					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Classificação:"/>
-						<text name="rating_value" value="(Desconhecido)"/>
+						<text name="rating_value" value="desconhecido"/>
 						<text name="voice_label" value="Voz:"/>
 						<text name="voice_value" value="Ligar"/>
 						<text name="fly_label" value="Voar:"/>
 						<text name="fly_value" value="Ligar"/>
-						<text name="push_label" value="Push:"/>
+						<text name="push_label" value="Empurrar:"/>
 						<text name="push_value" value="Desligar"/>
 						<text name="build_label" value="Construir:"/>
 						<text name="build_value" value="Ligar"/>
@@ -70,10 +70,17 @@
 				<accordion_tab name="region_information_tab" title="Região">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="Região:"/>
+						<text name="region_name" value="Alcelândia"/>
 						<text name="region_type_label" value="Tipo:"/>
+						<text name="region_type" value="Alce"/>
 						<text name="region_rating_label" value="Classificação:"/>
+						<text name="region_rating" value="Adulto"/>
 						<text name="region_owner_label" value="Proprietário:"/>
+						<text name="region_owner" value="moose Van Moose"/>
 						<text name="region_group_label" value="Grupo:"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
 						<button label="Região/Propriedade" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
@@ -93,7 +100,7 @@
 						<text name="primitives_label" value="Prims:"/>
 						<text name="parcel_scripts_label" value="Scripts:"/>
 						<text name="terraform_limits_label" value="Limite de terraplenagem:"/>
-						<text name="subdivide_label" value="Juntar/subdividir:"/>
+						<text name="subdivide_label" value="Capacidade de juntar/subdividir:"/>
 						<text name="resale_label" value="Revenda:"/>
 						<text name="sale_to_label" value="À venda para:"/>
 					</panel>

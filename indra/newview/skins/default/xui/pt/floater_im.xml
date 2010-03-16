@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Mensagem Instantânea">
 	<string name="only_user_message">
-		Você é o único usuário desta sessão.
+		Você é o único residente nesta sessão
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST] está offline.
@@ -31,7 +31,7 @@
 		Um moderador do grupo desabilitou seu bate-papo em texto.
 	</string>
 	<string name="add_session_event">
-		Não foi possível adicionar usuários na sessão de bate-papo com [RECIPIENT].
+		Não foi possível adicionar residentes ao bate-papo com [RECIPIENT].
 	</string>
 	<string name="message_session_event">
 		Não foi possível enviar sua mensagem na sessão de bate- papo com [RECIPIENT].
