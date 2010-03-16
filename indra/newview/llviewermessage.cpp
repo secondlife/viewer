@@ -2923,6 +2923,9 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
 		return;
 	}
+	
+	// Teleport is finished; it can't be cancelled now.
+	gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
 	// Do teleport effect for where you're leaving
 	// VEFFECT: TeleportStart
