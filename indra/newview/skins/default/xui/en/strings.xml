@@ -14,7 +14,14 @@
 
 	<!-- starting up -->
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
-	<string name="StartupLoading">Loading</string>
+	<string name="StartupLoading">Loading [APP_NAME]...</string>
+	<string name="StartupClearingCache">Clearing cache...</string>
+	<string name="StartupInitializingTextureCache">Initializing Texture Cache...</string>
+	<string name="StartupInitializingVFS">Initializing VFS...</string>
+
+	<!--  progress -->
+	<string name="ProgressRestoring">Restoring...</string>
+	<string name="ProgressChangingResolution">Changing Resolution...</string>
 
 	<!-- Legacy strings, almost never used -->
 	<string name="Fullbright">Fullbright (Legacy)</string>	<!-- used in the Build > materials dropdown-->
@@ -45,6 +52,9 @@
 
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
+	<string name="SavingSettings">Saving your settings...</string>
+	<string name="LoggingOut">Logging out...</string>
+	<string name="ShuttingDown">Shutting down...</string>
 
 
 	<!-- Tooltip, lltooltipview.cpp -->
