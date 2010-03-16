@@ -1759,6 +1759,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 
 	if (mAvatarObject)
 	{
+		mAvatarObject->setCompositeUpdatesEnabled(TRUE);
 		mAvatarObject->updateVisualParams();
 		mAvatarObject->invalidateAll();
 	}

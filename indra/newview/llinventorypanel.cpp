@@ -118,6 +118,7 @@ BOOL LLInventoryPanel::postBuild()
 						   0);
 		LLFolderView::Params p;
 		p.name = getName();
+		p.title = getLabel();
 		p.rect = folder_rect;
 		p.parent_panel = this;
 		p.tool_tip = p.name;

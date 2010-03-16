@@ -95,6 +95,7 @@
 		follows="top|left"
 		font="SansSerif"
 		left="10"
+		name="nearby_media"
 		width="100">
 	  Nearby Media
 	</text>
@@ -105,6 +106,7 @@
 		font="SansSerif"
 		top_pad="15"
 		left="10"
+		name="show"
 		width="40">
 	  Show:
 	</text>
@@ -130,7 +132,7 @@
 	  <combo_box.item
 		  label="On other Avatars"
 		  value="4"
-		  ame="OnOthers" />
+		  name="OnOthers" />
 	</combo_box>
 	<scroll_list
 		name="media_list"
@@ -179,6 +181,7 @@
 		top_pad="5"
 		height="30"
 		left="10"
+		name="media_controls_panel"
 		right="-10">
 	  <layout_stack
 		  name="media_controls"

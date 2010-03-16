@@ -59,9 +59,9 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="100"
+         width="105"
          top_delta="0"
-         min_width="100"
+         min_width="54"
          name="speak_panel"
          user_resize="false">
           <talk_button
@@ -73,11 +73,13 @@
            left="0"
            name="talk"
            top="5"
-          width="100">
+          width="105">
   <speak_button
+    halign="left"
     name="speak_btn"
     label="Speak"
     label_selected="Speak"
+    pad_left="12"
     />
               <show_button>
                   <show_button.init_callback

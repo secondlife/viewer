@@ -121,7 +121,6 @@ private:
 	void updateListCommands();
 	void onActionsButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
-	void onAddButtonHeldDown();
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
 	void onClipboardAction(const LLSD& command_name) const;

@@ -54,6 +54,7 @@
 #include "llgroupactions.h"
 #include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
+#include "lltrans.h"
 #include <boost/regex.hpp>
 
 #if LL_MSVC
@@ -1061,6 +1062,24 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 		msg->getString("RoleData","Description",desc,i);
 		msg->getU64("RoleData","Powers",powers,i);
 		msg->getU32("RoleData","Members",member_count,i);
+
+		//there are 3 predifined roles - Owners, Officers, Everyone
+		//there names are defined in lldatagroups.cpp
+		//lets change names from server to localized strings
+		if(name == "Everyone")
+		{
+			name = LLTrans::getString("group_role_everyone");
+		}
+		else if(name == "Officers")
+		{
+			name = LLTrans::getString("group_role_officers");
+		}
+		else if(name == "Owners")
+		{
+			name = LLTrans::getString("group_role_owners");
+		}
+
+
 
 		lldebugs << "Adding role data: " << name << " {" << role_id << "}" << llendl;
 		LLGroupRoleData* rd = new LLGroupRoleData(role_id,name,title,desc,powers,member_count);

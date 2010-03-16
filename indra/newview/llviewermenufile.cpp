@@ -1001,7 +1001,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 			if (balance < expected_upload_cost)
 			{
 				// insufficient funds, bail on this upload
-				LLFloaterBuyCurrency::buyCurrency("Uploading costs", expected_upload_cost);
+				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs"), expected_upload_cost);
 				return;
 			}
 		}
