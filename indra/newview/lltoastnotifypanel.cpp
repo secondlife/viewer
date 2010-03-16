@@ -384,18 +384,59 @@ disable_button_map_t initUserGiveItemDisableButtonMap()
 	return disable_map;
 }
 
+disable_button_map_t initTeleportOfferedDisableButtonMap()
+{
+	disable_button_map_t disable_map;
+	button_name_set_t buttons;
+
+	buttons.insert("Teleport");
+	buttons.insert("Cancel");
+
+	disable_map.insert(std::make_pair("Teleport", buttons));
+	disable_map.insert(std::make_pair("Cancel", buttons));
+
+	return disable_map;
+}
+
+disable_button_map_t initFriendshipOfferedDisableButtonMap()
+{
+	disable_button_map_t disable_map;
+	button_name_set_t buttons;
+
+	buttons.insert("Accept");
+	buttons.insert("Decline");
+
+	disable_map.insert(std::make_pair("Accept", buttons));
+	disable_map.insert(std::make_pair("Decline", buttons));
+
+	return disable_map;
+}
+
 button_name_set_t getButtonDisableList(const std::string& notification_name, const std::string& button_name)
 {
 	static disable_button_map_t user_give_item_disable_map = initUserGiveItemDisableButtonMap();
+	static disable_button_map_t teleport_offered_disable_map = initTeleportOfferedDisableButtonMap();
+	static disable_button_map_t friendship_offered_disable_map = initFriendshipOfferedDisableButtonMap();
 
 	disable_button_map_t::const_iterator it;
 	disable_button_map_t::const_iterator it_end;
+	disable_button_map_t search_map;
 
 	if("UserGiveItem" == notification_name)
 	{
-		it = user_give_item_disable_map.find(button_name);
-		it_end = user_give_item_disable_map.end();
+		search_map = user_give_item_disable_map;
 	}
+	else if("TeleportOffered" == notification_name)
+	{
+		search_map = teleport_offered_disable_map;
+	}
+	else if("FriendshipOffered" == notification_name)
+	{
+		search_map = friendship_offered_disable_map;
+	}
+
+	it = search_map.find(button_name);
+	it_end = search_map.end();
 
 	if(it_end != it)
 	{
