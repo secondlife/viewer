@@ -260,6 +260,7 @@ void LLFolderViewItem::refreshFromListener()
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);
 		};
 
+		setToolTip(mLabel);
 		setIcon(mListener->getIcon());
 		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)
