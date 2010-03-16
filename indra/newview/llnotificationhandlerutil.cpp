@@ -244,8 +244,13 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 		// set searched session as active to avoid IM toast popup
 		LLIMModel::instance().setActiveSessionID(session_id);
 
+		S32 unread = session->mNumUnread;
+		S32 participant_unread = session->mParticipantUnreadMessageCount;
 		LLIMModel::instance().addMessageSilently(session_id, from, from_id,
 				message);
+		// we shouldn't increment counters when logging, so restore them
+		session->mNumUnread = unread;
+		session->mParticipantUnreadMessageCount = participant_unread;
 
 		// restore active session id
 		if (active_session_id.isNull())
