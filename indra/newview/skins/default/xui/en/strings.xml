@@ -145,6 +145,7 @@
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
 
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
+	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>
 	<string name="sound">sound</string>
 	<string name="calling card">calling card</string>
@@ -169,6 +170,7 @@
 	<string name="simstate">simstate</string>
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
+	<string name="symbolic folder link">folder link</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>

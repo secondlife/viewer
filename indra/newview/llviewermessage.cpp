@@ -1500,7 +1500,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 	std::string typestr = ll_safe_string(LLAssetType::lookupHumanReadable(info->mType));
 	if (!typestr.empty())
 	{
-		args["OBJECTTYPE"] = typestr;
+		// human readable matches string name from strings.xml
+		// lets get asset type localized name
+		args["OBJECTTYPE"] = LLTrans::getString(typestr);
 	}
 	else
 	{
