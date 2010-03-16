@@ -244,7 +244,7 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 		// set searched session as active to avoid IM toast popup
 		LLIMModel::instance().setActiveSessionID(session_id);
 
-		LLIMModel::instance().addMessage(session_id, from, from_id,
+		LLIMModel::instance().addMessageSilently(session_id, from, from_id,
 				message);
 
 		// restore active session id
@@ -367,6 +367,10 @@ std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notifica
 	if (res.empty())
 	{
 		LLUUID from_id = notification->getPayload()["FROM_ID"];
+		if (from_id.isNull())
+		{
+			from_id = notification->getPayload()["from_id"];
+		}
 		if(!gCacheName->getFullName(from_id, res))
 		{
 			res = "";
