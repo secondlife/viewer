@@ -3028,5 +3028,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>"
   
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="group_role_everyone">Everyone</string>
+  <string name="group_role_officers">Officers</string>
+  <string name="group_role_owners">Owners</string>
 
 </strings>
