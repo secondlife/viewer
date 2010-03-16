@@ -54,7 +54,9 @@ S32 BUTTON_WIDTH = 90;
 const LLFontGL* LLToastNotifyPanel::sFont = NULL;
 const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
+LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification, const LLRect& rect) : 
+
 LLToastPanel(notification),
 mTextBox(NULL),
 mInfoPanel(NULL),
@@ -202,6 +204,18 @@ mCloseNotificationOnDestroy(true)
 	// adjust panel's height to the text size
 	mInfoPanel->setFollowsAll();
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
+
+	if(notification->getPayload()["reusable"].asBoolean())
+	{
+		mButtonClickConnection = sButtonClickSignal.connect(
+			boost::bind(&LLToastNotifyPanel::onToastPanelButtonClicked, this, _1, _2));
+
+		if(notification->isRespondedTo())
+		{
+			// User selected an option in toast, now disable required buttons in IM window
+			disableRespondedOptions(notification);
+		}
+	}
 }
 void LLToastNotifyPanel::addDefaultButton()
 {
@@ -269,6 +283,8 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 
 LLToastNotifyPanel::~LLToastNotifyPanel() 
 {
+	mButtonClickConnection.disconnect();
+
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
 	if (mCloseNotificationOnDestroy && LLNotificationsUtil::find(mNotification->getID()) != NULL)
 	{
@@ -431,7 +447,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 
 	if(is_reusable)
 	{
-		self->disableButtons(self->mNotification->getName(), button_name);
+		sButtonClickSignal(self->mNotification->getID(), button_name);
 
 		if(new_info)
 		{
@@ -445,3 +461,28 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		self->mControlPanel->setEnabled(FALSE);
 	}
 }
+
+void LLToastNotifyPanel::onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name)
+{
+	if(mNotification->getID() == notification_id)
+	{
+		disableButtons(mNotification->getName(), btn_name);
+	}
+}
+
+void LLToastNotifyPanel::disableRespondedOptions(LLNotificationPtr& notification)
+{
+	LLSD response = notification->getResponse();
+	for (LLSD::map_const_iterator response_it = response.beginMap(); 
+		response_it != response.endMap(); ++response_it)
+	{
+		if (response_it->second.isBoolean() && response_it->second.asBoolean())
+		{
+			// that after multiple responses there can be many pressed buttons
+			// need to process them all
+			disableButtons(notification->getName(), response_it->first);
+		}
+	}
+}
+
+// EOF

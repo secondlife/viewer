@@ -108,6 +108,21 @@ private:
 	// internal handler for button being clicked
 	static void onClickButton(void* data);
 
+	typedef boost::signals2::signal <void (const LLUUID& notification_id, const std::string btn_name)>
+		button_click_signal_t;
+	static button_click_signal_t sButtonClickSignal;
+	boost::signals2::connection mButtonClickConnection;
+
+	/**
+	 * handle sButtonClickSignal (to disable buttons) across all panels with given notification_id
+	 */
+	void onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name);
+
+	/**
+	 * Process response data. Will disable selected options
+	 */
+	void disableRespondedOptions(LLNotificationPtr& notification);
+
 	bool mIsTip;
 	bool mAddedDefaultBtn;
 	bool mIsScriptDialog;

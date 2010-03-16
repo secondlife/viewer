@@ -344,6 +344,7 @@ private:
 	LLDate mExpiresAt;
 	bool mCancelled;
 	bool mRespondedTo; 	// once the notification has been responded to, this becomes true
+	LLSD mResponse;
 	bool mIgnored;
 	ENotificationPriority mPriority;
 	LLNotificationFormPtr mForm;
@@ -444,6 +445,8 @@ public:
 	{
 		return mRespondedTo;
 	}
+
+	const LLSD& getResponse() { return mResponse; }
 
 	bool isIgnored() const
 	{

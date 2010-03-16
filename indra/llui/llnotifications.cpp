@@ -486,6 +486,7 @@ void LLNotification::updateFrom(LLNotificationPtr other)
 	mForm = other->mForm;
 	mResponseFunctorName = other->mResponseFunctorName;
 	mRespondedTo = other->mRespondedTo;
+	mResponse = other->mResponse;
 	mTemporaryResponder = other->mTemporaryResponder;
 
 	update();
@@ -563,7 +564,9 @@ std::string LLNotification::getSelectedOptionName(const LLSD& response)
 
 void LLNotification::respond(const LLSD& response)
 {
+	// *TODO may remove mRespondedTo and use mResponce.isDefined() in isRespondedTo()
 	mRespondedTo = true;
+	mResponse = response;
 	// look up the functor
 	LLNotificationFunctorRegistry::ResponseFunctor functor = 
 		LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
@@ -875,7 +878,11 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		if (wasFound)
 		{
 			abortProcessing = mChanged(payload);
-			mItems.erase(pNotification);
+			// do not delete the notification to make LLChatHistory::appendMessage add notification panel to IM window
+			if( ! pNotification->getPayload()["reusable"].asBoolean() )
+			{
+				mItems.erase(pNotification);
+			}
 			onDelete(pNotification);
 		}
 	}
