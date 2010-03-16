@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="DENUNCIA DI ABUSO">
 	<floater.string name="Screenshot">
-		Fotografia
+		Immagine
 	</floater.string>
-	<check_box label="Utilizza questa fotografia" name="screen_check"/>
+	<check_box label="Utilizza questa immagine" name="screen_check"/>
 	<text name="reporter_title">
 		Segnalato da:
 	</text>
@@ -82,7 +82,7 @@
 	<text name="abuser_name_title">
 		Nome di chi ha commesso l&apos;abuso:
 	</text>
-	<button label="Scegli un residente" label_selected="" name="select_abuser" tool_tip="Scegli il nome di chi ha commesso l&apos;abuso dalla lista"/>
+	<button label="Scegli" label_selected="" name="select_abuser" tool_tip="Scegli il nome di chi ha commesso l&apos;abuso dalla lista"/>
 	<text name="abuser_name_title2">
 		Luogo dell&apos;abuso:
 	</text>
@@ -93,10 +93,10 @@
 		Dettagli:
 	</text>
 	<text name="bug_aviso">
-		Specifica data, luogo, natura dell&apos;abuso, testo rilevante di chat/IM, e se possibile indica l&apos;oggetto.
+		Fornisci informazioni specifiche il più possibile
 	</text>
 	<text name="incomplete_title">
-		* Nota: segnalazioni incomplete non saranno esaminate
+		* le segnalazioni incomplete non saranno esaminate
 	</text>
 	<button label="Segnala abuso" label_selected="Segnala abuso" name="send_btn"/>
 	<button label="Annulla" label_selected="Annulla" name="cancel_btn"/>

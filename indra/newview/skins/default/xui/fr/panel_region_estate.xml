@@ -5,7 +5,7 @@
 onglet affecteront toutes les régions du 
 domaine.
 	</text>
-	<text top_pad="8" bottom_delta="-34" name="estate_text">
+	<text bottom_delta="-34" name="estate_text" top_pad="8">
 		Domaine :
 	</text>
 	<text name="estate_name">
@@ -20,8 +20,8 @@ domaine.
 	<text name="Only Allow">
 		Limiter l&apos;accès aux comptes vérifiés par :
 	</text>
-	<check_box label="Informations de paiement enregistrées" name="limit_payment" tool_tip="Bannir les résidents non identifiés"/>
-	<check_box label="Vérification de mon âge" name="limit_age_verified" tool_tip="Bannir les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
+	<check_box label="Infos de paiement enregistrées" name="limit_payment" tool_tip="Bannir les résidents non identifiés"/>
+	<check_box label="Vérification de l&apos;âge" name="limit_age_verified" tool_tip="Bannir les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
 	<check_box label="Autoriser les chats vocaux" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text">
@@ -74,5 +74,5 @@ domaine.
 	<button label="Ajouter..." name="add_banned_avatar_btn"/>
 	<button label="Supprimer..." name="remove_banned_avatar_btn"/>
 	<button label="Envoyer un message au domaine..." name="message_estate_btn"/>
-	<button label="Éjecter le résident du domaine..." name="kick_user_from_estate_btn"/>
+	<button label="Éjecter un résident du domaine..." name="kick_user_from_estate_btn"/>
 </panel>

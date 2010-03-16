@@ -19,7 +19,7 @@
 		<combo_item name="Unconstrained">
 			Sans contraintes
 		</combo_item>
-		<combo_item name="1:1" tool_tip="Logo du groupe ou profil dans le monde physique">
+		<combo_item name="1:1" tool_tip="Logo du groupe ou profil dans la vie réelle">
 			1:1
 		</combo_item>
 		<combo_item name="4:3" tool_tip="Profil [SECOND_LIFE]">
@@ -28,7 +28,7 @@
 		<combo_item name="10:7" tool_tip="Petites annonces, repères">
 			10:7
 		</combo_item>
-		<combo_item name="3:2" tool_tip="À propos des terrains">
+		<combo_item name="3:2" tool_tip="À propos du terrain">
 			3:2
 		</combo_item>
 		<combo_item name="16:10">

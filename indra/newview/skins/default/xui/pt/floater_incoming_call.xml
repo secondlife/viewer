@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call" title="LIGAÇÃO DE DESCONHECIDO">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		Bate-papo local
 	</floater.string>
@@ -11,6 +14,9 @@
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		entrou numa ligação de voz via conferência.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		entrou numa ligação de bate-papo de voz com o grupo [GROUP].
 	</floater.string>
 	<text name="question">
 		Sair do [CURRENT_CHAT] e entrar neste bate-papo?

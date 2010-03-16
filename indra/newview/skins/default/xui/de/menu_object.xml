@@ -5,6 +5,7 @@
 	<menu_item_call label="Bauen" name="Build"/>
 	<menu_item_call label="Öffnen" name="Open"/>
 	<menu_item_call label="Hier sitzen" name="Object Sit"/>
+	<menu_item_call label="Aufstehen" name="Object Stand Up"/>
 	<menu_item_call label="Objektprofil" name="Object Inspect"/>
 	<menu_item_call label="Hineinzoomen" name="Zoom In"/>
 	<context_menu label="Anziehen ▶" name="Put On">
@@ -18,6 +19,7 @@
 		<menu_item_call label="Zurückgeben" name="Return..."/>
 		<menu_item_call label="Löschen" name="Delete"/>
 	</context_menu>
+	<menu_item_call label="Kaufen" name="Pie Object Bye"/>
 	<menu_item_call label="Nehmen" name="Pie Object Take"/>
 	<menu_item_call label="Kopie nehmen" name="Take Copy"/>
 	<menu_item_call label="Bezahlen" name="Pay..."/>

@@ -26,6 +26,6 @@
 	<text name="TimeText" tool_tip="Hora actual (Pacífico)">
 		24:00 AM PST
 	</text>
-	<button name="media_toggle_btn" tool_tip="Inicia/Detiene todos los media (música, vídeo, páginas web)"/>
+	<button name="media_toggle_btn" tool_tip="Iniciar/Parar todos los media (música, vídeo, páginas web)"/>
 	<button name="volume_btn" tool_tip="Control general del volumen"/>
 </panel>

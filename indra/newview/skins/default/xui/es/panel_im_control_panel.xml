@@ -8,12 +8,12 @@
 			<button label="Añadir como amigo" name="add_friend_btn"/>
 		</layout_panel>
 		<layout_panel name="teleport_btn_panel">
-			<button label="Teleportar" name="teleport_btn" tool_tip="Ofrecer teleporte a esta persona"/>
+			<button label="Teleportarme" name="teleport_btn" tool_tip="Ofrecer teleporte a esta persona"/>
 		</layout_panel>
 		<layout_panel name="share_btn_panel">
 			<button label="Compartir" name="share_btn"/>
 		</layout_panel>
-		<layout_panel name="pay_btn_panel">
+		<layout_panel name="share_btn_panel">
 			<button label="Pagar" name="pay_btn"/>
 		</layout_panel>
 		<layout_panel name="call_btn_panel">

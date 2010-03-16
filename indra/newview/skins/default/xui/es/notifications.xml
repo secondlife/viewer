@@ -109,12 +109,12 @@ Asegúrate de que tu conexión a internet está funcionando adecuadamente.
 		<usetemplate name="okbutton" yestext="Sí"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		Conceder a otro Residente permisos de modificación le permitirá cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso manejando este permiso.
+		Al conceder permisos de modificación a otro Residente, le estás permitiendo cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso al conceder este permiso.
 ¿Quieres conceder permisos de modificación a [FIRST_NAME] [LAST_NAME]?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
-		Conceder a otro Residente permisos de modificación le permitirá cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso manejando este permiso.
+		Al conceder permisos de modificación a otro Residente, le estás permitiendo cambiar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso al conceder este permiso.
 ¿Quieres conceder permisos de modificación a los Residentes elegidos?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
@@ -144,7 +144,7 @@ Asegúrate de que tu conexión a internet está funcionando adecuadamente.
 		Va a añadir miembros al rol de [ROLE_NAME].
 No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mismos.
 ¿Está seguro de que quiere seguir?
-		<usetemplate ignoretext="Confirma que vas a añadir un nuevo Propietario al grupo" name="okcancelignore" notext="No" yestext="Sí"/>
+		<usetemplate ignoretext="Confirmar que vas a añadir un nuevo propietario al grupo" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="AssignDangerousActionWarning">
 		Va a añadir la capacidad &apos;[ACTION_NAME]&apos; al rol &apos;[ROLE_NAME]&apos;.
@@ -164,7 +164,7 @@ No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mi
 	</notification>
 	<notification name="AttachmentDrop">
 		Vas a soltar tu anexado.
-    ¿Quieres seguir?
+    ¿Estás seguro de que quieres continuar?
 		<usetemplate ignoretext="Confirmar antes de soltar anexados" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
@@ -441,7 +441,7 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 		No se ha podido escribir el archivo [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Debes saber que tu ordenador no cumple los requirimientos mínimos para [APP_NAME]. Puede que experimentes un rendimiento muy bajo. Desafortunadamente, [SUPPORT_SITE] no puede dar asistencia técnica a sistemas con una configuración no admitida.
+		Debes saber que tu ordenador no cumple los requisitos mínimos para la utilización de [APP_NAME]. Puede que experimentes un rendimiento muy bajo. Desafortunadamente, [SUPPORT_SITE] no puede dar asistencia técnica a sistemas con una configuración no admitida.
 
 MINSPECS
 ¿Ir a [_URL] para más información?
@@ -452,7 +452,7 @@ MINSPECS
 	</notification>
 	<notification name="UnknownGPU">
 		Tu sistema usa una tarjeta gráfica que [APP_NAME] no reconoce.
-Esto suele suceder con hardware nuevo que aun no ha sido probado con [APP_NAME]. Probablemente todo irá bien, pero deberás ajustar tus configuraciones gráficas.
+Suele suceder con hardware nuevo que todavía no ha sido probado con [APP_NAME].  Probablemente todo irá bien, pero deberás ajustar tus configuraciones gráficas.
 (Yo &gt; Preferencias &gt; Gráficos).
 		<form name="form">
 			<ignore name="ignore" text="No se ha podido identificar mi tarjeta gráfica"/>
@@ -734,7 +734,7 @@ no se ha seleccionado una parcela.
 		No se ha podido obtener la propiedad del terreno porque la selección se extiende por varias regiones. Por favor, seleccione un área más pequeña y reinténtelo.
 	</notification>
 	<notification name="ForceOwnerAuctionWarning">
-		Esta parcela está subastándose. Forzar su propiedad cancelará la subasta y, potencialmente, puede disgustar a algunos residentes si la puja ha empezado.
+		Esta parcela está subastándose. Forzar su propiedad cancelará la subasta y, potencialmente, puede disgustar a algunos residentes si la puja ya ha empezado.
 ¿Forzar la propiedad?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
@@ -904,7 +904,7 @@ Deberá reconfigurar el nombre y las opciones de la nueva parcela.
 Generalmente, esto es un fallo pasajero. Por favor, personaliza y guarda el ítem de aquí a unos minutos.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Vaya, has sido desconectado de [SECOND_LIFE]
+		Vaya,   se te ha cerrado la sesión en [SECOND_LIFE]
             [MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Salir" yestext="Ver MI y Chat"/>
 	</notification>
@@ -1347,7 +1347,7 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		<usetemplate name="okcancelbuttons" notext="Rehusar" yestext="Entrar"/>
 	</notification>
 	<notification name="JoinedTooManyGroups">
-		Has superado tu número máximo de grupos. Por favor, sal de al menos uno antes de crear uno nuevo o entrar en alguno.
+		Has superado tu número máximo de grupos. Por favor, sal de al menos uno de ellos antes de crear uno nuevo o entrar en alguno.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
@@ -1526,7 +1526,7 @@ Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de C
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
-		<usetemplate ignoretext="No puedo reclamar este terreno, dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
+		<usetemplate ignoretext="No puedo reclamar este terreno dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
 		Por su nivel de calificación, usted no puede reclamar este terreno.
@@ -1550,7 +1550,7 @@ Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de C
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
-		<usetemplate ignoretext="No puedo comprar este terreno, dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
+		<usetemplate ignoretext="No puedo comprar este terreno dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
 		No puede comprar este terreno por su nivel de calificación.
@@ -1615,7 +1615,7 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 	</notification>
 	<notification label="Cambiada la calificación de la región" name="RegionMaturityChange">
 		Se ha actualizado el nivel de calificación de esta región.
-Llevará algún tiempo que el cambio se refleje en el mapa.
+Puede que lleve algún tiempo hasta que el cambio se vea reflejado en el mapa.
 
 Para entrar a regiones Adultas, los Residentes deben haber verificado su cuenta, bien verificando la edad o bien verificando una forma de pago.
 	</notification>
@@ -1731,11 +1731,11 @@ Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar u
 		<usetemplate ignoretext="Abrir mi navegador para ver el historial de mi cuenta" name="okcancelignore" notext="Cancelar" yestext="Ir a la página"/>
 	</notification>
 	<notification name="ConfirmQuit">
-		¿Está seguro de que quiere salir?
+		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Usa esta herramienta para denunciar violaciones de las  [http://secondlife.com/corporate/tos.php Condiciones del Servicio] y las  [http://secondlife.com/corporate/cs.php Normas de la Comunidad].
+		Usa esta herramienta para denunciar violaciones de las [http://secondlife.com/corporate/tos.php Condiciones de Servicio] o las [http://secondlife.com/corporate/cs.php Normas de la Comunidad].
 
 Se investigan y resuelven todas las infracciones denunciadas.
 	</notification>
@@ -2062,7 +2062,7 @@ Pulsa en un hito para seleccionarlo, y, luego, pulsa &apos;Teleportar&apos; en l
 	</notification>
 	<notification name="TeleportToPerson">
 		Puedes contactar con un Residente como &apos;[NAME]&apos; abriendo el panel Gente en el lado derecho de tu pantalla.
-Elige al Residente de la lista y pulsa &apos;MI&apos; en la parte superior del panel.
+Elige al Residente de la lista y pulsa &apos;MI&apos; en la parte inferior del panel.
 (También puedes pulsar dos veces en su nombre o pulsarlo con el botón derecho y elegir &apos;MI&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">

@@ -18,7 +18,7 @@
 		kbps
 	</text>
 	<check_box label="Personalizar el puerto" name="connection_port_enabled"/>
-	<spinner label="Número del puerto:" name="connection_port"/>
+	<spinner label="Nº del puerto:" name="connection_port"/>
 	<text name="cache_size_label_l">
 		Tamaño de la caché
 	</text>
@@ -42,5 +42,5 @@
 		Localización del proxy:
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Nombre o dirección IP del proxy que quieres usar"/>
-	<spinner label="Número de puerto:" name="web_proxy_port"/>
+	<spinner label="Nº del puerto:" name="web_proxy_port"/>
 </panel>

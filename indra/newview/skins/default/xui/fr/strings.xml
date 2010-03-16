@@ -758,6 +758,9 @@
 	<string name="invalid">
 		non valide
 	</string>
+	<string name="NewWearable">
+		Nouv. [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Suivant
 	</string>
@@ -825,7 +828,7 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aucun objet correspondant dans l&apos;inventaire.  Essayer la [secondlife:///app/search/groups &quot;Recherche&quot;].
+		Objet inexistant dans l&apos;inventaire. Voir [secondlife:///app/search/groups &quot;Rechercher&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1468,6 +1471,9 @@
 	<string name="PanelContentsNewScript">
 		Nouveau script
 	</string>
+	<string name="BusyModeResponseDefault">
+		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
+	</string>
 	<string name="MuteByName">
 		(par nom)
 	</string>
@@ -1505,6 +1511,9 @@
 	</string>
 	<string name="NoPicksClassifiedsText">
 		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		L&apos;utilisateur n&apos;a ni favoris ni petites annonces
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...

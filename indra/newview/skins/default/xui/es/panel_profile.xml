@@ -42,11 +42,11 @@
 			<button label="Llamar" name="call" tool_tip="Llamar a este Residente"/>
 			<button label="Mapa" name="show_on_map_btn" tool_tip="Mostrar al Residente en el mapa"/>
 			<button label="Teleportar" name="teleport" tool_tip="Ofrecer teleporte"/>
-			<button label="▼" name="overflow_btn" tool_tip="Pagar dinero o dar algo del inventario con el Residente"/>
+			<button label="▼" name="overflow_btn" tool_tip="Pagar dinero al Residente o compartir algo del inventario con él"/>
 		</layout_panel>
 		<layout_panel name="profile_me_buttons_panel">
-			<button label="Editar el perfil" name="edit_profile_btn" tool_tip="Modifica tu información personal"/>
-			<button label="Modificar la apariencia" name="edit_appearance_btn" tool_tip="Crea o modifica tu apariencia: tu físico, ropas, etc."/>
+			<button label="Editar el perfil" name="edit_profile_btn" tool_tip="Modificar tu información personal"/>
+			<button label="Modificar la apariencia" name="edit_appearance_btn" tool_tip="Crear o modificar tu apariencia: tu físico, ropas, etc."/>
 		</layout_panel>
 	</layout_stack>
 </panel>

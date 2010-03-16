@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="outgoing call" title="CHIAMANDO">
+<floater name="outgoing call" title="CHIAMATA IN CORSO">
 	<floater.string name="localchat">
-		Voice Chat nei dintorni
+		Chat vocale nei dintorni
 	</floater.string>
 	<floater.string name="anonymous">
 		anonimo
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		stà chiamando.
+		sta chiamando.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		ha aderito ad una chiamata Voice Chat con una chat in conferenza.
+		ha aderito ad una chiamata in chat vocale in conferenza.
 	</floater.string>
 	<text name="connecting">
-		Connettendo a [CALLEE_NAME]
+		Collegamento in corso a [CALLEE_NAME]
 	</text>
 	<text name="calling">
-		Chiamando [CALLEE_NAME]
+		Chiamata a [CALLEE_NAME]
 	</text>
 	<text name="noanswer">
-		Nessuna risposta.  Per favore riprova più tardi.
+		Nessuna risposta.  Riprova più tardi.
 	</text>
 	<text name="leaving">
-		Abbandonando [CURRENT_CHAT].
+		Chiusura chat [CURRENT_CHAT].
 	</text>
-	<button label="Cancella" label_selected="Cancella" name="Cancel"/>
+	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 </floater>

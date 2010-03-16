@@ -337,6 +337,7 @@
      top_pad="5"
      width="400" />
     <text
+     name="show_ims_in_label"
      follows="left|top"
      layout="topleft"
      left="30"
@@ -346,6 +347,7 @@
      Show IMs in:
     </text>
     <text
+     name="requires_restart_label"
      follows="left|top"
      layout="topleft"
      top_delta="0" 

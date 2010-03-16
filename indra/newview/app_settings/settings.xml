@@ -5492,7 +5492,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>0.9</real>
     </map>
     
    <key>PlainTextChatHistory</key>

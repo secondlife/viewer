@@ -10,7 +10,7 @@
 		Inventario ([ITEM_COUNT] Items) [FILTER]
 	</floater.string>
 	<floater.string name="Fetched">
-		Raggiunto ??????????
+		Completato
 	</floater.string>
 	<panel label="Pannello dell&apos;Inventario" name="Inventory Panel"/>
 </floater>

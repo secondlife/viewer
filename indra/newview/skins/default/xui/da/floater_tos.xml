@@ -4,7 +4,7 @@
 	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
 	<check_box label="Jeg accepterer vilkårene for brug af tjenesten" name="agree_chk"/>
 	<text name="tos_heading">
-		Læs venligst de almindelige bestemmelser og vilkår igennem, for at fortsætte til [SECOND LIFE] skal du acceptere vilkårene.
+		Læs venligst følgende servicebetingelser grundigt. For at kunne logge på [SECOND_LIFE], skal du acceptere aftalen.
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

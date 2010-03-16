@@ -16,7 +16,7 @@ Możesz wybrać wielu Członków naciskając Ctrl i klikając na ich imionach.
 			<name_list name="member_list">
 				<name_list.columns label="Członek" name="name"/>
 				<name_list.columns label="Dotacje" name="donated"/>
-				<name_list.columns label="Ostatnio w SL" name="online"/>
+				<name_list.columns label="Status" name="online"/>
 			</name_list>
 			<button label="Zaproś do Grupy" name="member_invite"/>
 			<button label="Usuń z Grupy" name="member_eject"/>
@@ -29,7 +29,7 @@ jedną lub wiele funkcji. Każda grupa może posiadać maksymalnie 10 funkcji,
 łącznie z funkcją Każdy i Właściciel.
 			</panel.string>
 			<panel.string name="cant_delete_role">
-				Specjalne Funkcje Każdy i Właściciel nie mogą zostać usunięte.
+				Funkcje &quot;Wszyscy&quot; oraz &quot;Właściciele&quot; są domyślnie oraz nie mogą zostać usunięte.
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -38,7 +38,7 @@ jedną lub wiele funkcji. Każda grupa może posiadać maksymalnie 10 funkcji,
 			<scroll_list name="role_list">
 				<scroll_list.columns label="Funkcja" name="name"/>
 				<scroll_list.columns label="Tytuł" name="title"/>
-				<scroll_list.columns label="Liczba" name="members"/>
+				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="Stwórz Nową Funkcję" name="role_create"/>
 			<button label="Usuń Funkcję" name="role_delete"/>
@@ -57,7 +57,7 @@ Istnieje wiele Przywilei.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Funkcje
+			Przypisani Członkowie
 		</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>
@@ -73,13 +73,13 @@ Istnieje wiele Przywilei.
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			Nazwa
+			Nazwa Funkcji
 		</text>
 		<line_editor name="role_name">
 			Liczba
 		</line_editor>
 		<text name="static3">
-			Tytuł
+			Nazwa Funkcji
 		</text>
 		<line_editor name="role_title">
 			(proszę czekać)

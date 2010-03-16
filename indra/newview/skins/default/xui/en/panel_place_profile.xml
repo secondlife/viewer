@@ -325,6 +325,7 @@
              top_pad="10"
              width="313">
                 <accordion_tab
+                 height="170"
                  layout="topleft"
                  name="parcel_characteristics_tab"
                  title="Parcel">
@@ -352,7 +353,7 @@
                          left_pad="12"
                          name="rating_label"
                          value="Rating:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="16"
@@ -379,7 +380,7 @@
                          name="voice_label"
                          top_delta="0"
                          value="Voice:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="18"
@@ -405,7 +406,7 @@
                          left_pad="8"
                          name="fly_label"
                          value="Fly:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="16"
@@ -431,7 +432,7 @@
                          left_pad="8"
                          name="push_label"
                          value="Push:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="14"
@@ -457,7 +458,7 @@
                          left_pad="8"
                          name="build_label"
                          value="Build:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="15"
@@ -483,7 +484,7 @@
                          left_pad="8"
                          name="scripts_label"
                          value="Scripts:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="14"
@@ -509,7 +510,7 @@
                          left_pad="8"
                          name="damage_label"
                          value="Damage:"
-                         width="60" />
+                         width="90" />
                         <text
                          follows="left|right|top"
                          height="14"
@@ -537,6 +538,7 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
+                 height="150"
                  layout="topleft"
                  name="region_information_tab"
                  title="Region">
@@ -664,6 +666,7 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
+                 height="190"
                  layout="topleft"
                  name="estate_information_tab"
                  title="Estate">
@@ -753,6 +756,7 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
+                 height="320"
                  layout="topleft"
                  name="sales_tab"
                  title="For Sale">

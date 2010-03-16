@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Participant List Context Menu">
-	<menu_item_check label="Ordenar según el nombre" name="SortByName"/>
-	<menu_item_check label="Ordenar según los intervinientes recientes" name="SortByRecentSpeakers"/>
+	<menu_item_check label="Ordenar alfabéticamente" name="SortByName"/>
+	<menu_item_check label="Ordenar según las intervenciones recientes" name="SortByRecentSpeakers"/>
 	<menu_item_call label="Ver el perfil" name="View Profile"/>
 	<menu_item_call label="Añadir como amigo" name="Add Friend"/>
 	<menu_item_call label="MI" name="IM"/>
@@ -11,10 +11,10 @@
 	<menu_item_check label="Ignorar la voz" name="Block/Unblock"/>
 	<menu_item_check label="Ignorar el texto" name="MuteText"/>
 	<context_menu label="Opciones del moderador &gt;" name="Moderator Options">
-		<menu_item_check label="Autorizar el chat de texto" name="AllowTextChat"/>
-		<menu_item_call label="Silenciar a este participante" name="ModerateVoiceMuteSelected"/>
+		<menu_item_check label="Permitir el chat de texto" name="AllowTextChat"/>
+		<menu_item_call label="Ignorar a este participante" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Silenciar a todos los demás" name="ModerateVoiceMuteOthers"/>
-		<menu_item_call label="Designorar a este participante" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Designorar a todos los demás" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="Quitar el silencio a este participante" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Quitar el silencio a todos los demás" name="ModerateVoiceUnMuteOthers"/>
 	</context_menu>
 </context_menu>

@@ -18,6 +18,15 @@
 	<string name="fly_back_tooltip">
 		Rückwärts fliegen (Nach-Unten-Pfeil oder S drücken)
 	</string>
+	<string name="walk_title">
+		Gehen
+	</string>
+	<string name="run_title">
+		Rennen
+	</string>
+	<string name="fly_title">
+		Fliegen
+	</string>
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Nach links (Links-Pfeil oder A drücken)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Nach rechts (Rechts-Pfeil oder D drücken)"/>
@@ -30,6 +39,5 @@
 		<button label="" name="mode_walk_btn" tool_tip="Gehen"/>
 		<button label="" name="mode_run_btn" tool_tip="Rennen"/>
 		<button label="" name="mode_fly_btn" tool_tip="Fliegen"/>
-		<button label="Landen" name="stop_fly_btn" tool_tip="Landen"/>
 	</panel>
 </floater>

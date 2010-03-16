@@ -160,7 +160,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
 	createLineEditor(p);
 
-	setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
+	mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
 }
 
 void LLComboBox::initFromParams(const LLComboBox::Params& p)
@@ -187,6 +187,9 @@ BOOL LLComboBox::postBuild()
 LLComboBox::~LLComboBox()
 {
 	// children automatically deleted, including mMenu, mButton
+
+	// explicitly disconect this signal, since base class destructor might fire top lost
+	mTopLostSignalConnection.disconnect();
 }
 
 
@@ -320,15 +323,19 @@ void LLComboBox::setValue(const LLSD& value)
 		LLScrollListItem* item = mList->getFirstSelected();
 		if (item)
 		{
-			setLabel( mList->getSelectedItemLabel() );
+			setLabel(getSelectedItemLabel());
 		}
 		mLastSelectedIndex = mList->getFirstSelectedIndex();
+	}
+	else
+	{
+		mLastSelectedIndex = -1;
 	}
 }
 
 const std::string LLComboBox::getSimple() const
 {
-	const std::string res = mList->getSelectedItemLabel();
+	const std::string res = getSelectedItemLabel();
 	if (res.empty() && mAllowTextEntry)
 	{
 		return mTextEntry->getText();
@@ -407,7 +414,7 @@ BOOL LLComboBox::remove(S32 index)
 	if (index < mList->getItemCount())
 	{
 		mList->deleteSingleItem(index);
-		setLabel(mList->getSelectedItemLabel());
+		setLabel(getSelectedItemLabel());
 		return TRUE;
 	}
 	return FALSE;
@@ -448,7 +455,7 @@ BOOL LLComboBox::setCurrentByIndex( S32 index )
 	BOOL found = mList->selectNthItem( index );
 	if (found)
 	{
-		setLabel(mList->getSelectedItemLabel());
+		setLabel(getSelectedItemLabel());
 		mLastSelectedIndex = index;
 	}
 	return found;
@@ -612,16 +619,14 @@ void LLComboBox::showList()
 
 	mList->setFocus(TRUE);
 
-	// register ourselves as a "top" control
-	// effectively putting us into a special draw layer
-	// and not affecting the bounding rectangle calculation
-	gFocusMgr.setTopCtrl(this);
-
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
 	
+	LLUI::addPopup(this);
+
 	setUseBoundingRect(TRUE);
+//	updateBoundingRect();
 }
 
 void LLComboBox::hideList()
@@ -644,10 +649,8 @@ void LLComboBox::hideList()
 		mList->mouseOverHighlightNthItem(-1);
 
 		setUseBoundingRect(FALSE);
-		if( gFocusMgr.getTopCtrl() == this )
-		{
-			gFocusMgr.setTopCtrl(NULL);
-		}
+		LLUI::removePopup(this);
+//		updateBoundingRect();
 	}
 }
 
@@ -703,19 +706,12 @@ void LLComboBox::onListMouseUp()
 
 void LLComboBox::onItemSelected(const LLSD& data)
 {
-	const std::string name = mList->getSelectedItemLabel();
+	setValue(data);
 
-	S32 cur_id = getCurrentIndex();
-	mLastSelectedIndex = cur_id;
-	if (cur_id != -1)
+	if (mAllowTextEntry && mLastSelectedIndex != -1)
 	{
-		setLabel(name);
-
-		if (mAllowTextEntry)
-		{
-			gFocusMgr.setKeyboardFocus(mTextEntry);
-			mTextEntry->selectAll();
-		}
+		gFocusMgr.setKeyboardFocus(mTextEntry);
+		mTextEntry->selectAll();
 	}
 
 	// hiding the list reasserts the old value stored in the text editor/dropdown button
@@ -912,7 +908,7 @@ void LLComboBox::updateSelection()
 	}
 	else if (mList->selectItemByPrefix(left_wstring, FALSE))
 	{
-		LLWString selected_item = utf8str_to_wstring(mList->getSelectedItemLabel());
+		LLWString selected_item = utf8str_to_wstring(getSelectedItemLabel());
 		LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
 		mTextEntry->setText(wstring_to_utf8str(wtext));
 		mTextEntry->setSelection(left_wstring.size(), mTextEntry->getWText().size());
@@ -1014,7 +1010,7 @@ BOOL LLComboBox::setCurrentByID(const LLUUID& id)
 
 	if (found)
 	{
-		setLabel(mList->getSelectedItemLabel());
+		setLabel(getSelectedItemLabel());
 		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 
@@ -1030,7 +1026,7 @@ BOOL LLComboBox::setSelectedByValue(const LLSD& value, BOOL selected)
 	BOOL found = mList->setSelectedByValue(value, selected);
 	if (found)
 	{
-		setLabel(mList->getSelectedItemLabel());
+		setLabel(getSelectedItemLabel());
 	}
 	return found;
 }
@@ -1068,4 +1064,43 @@ BOOL LLComboBox::operateOnAll(EOperation op)
 BOOL LLComboBox::selectItemRange( S32 first, S32 last )
 {
 	return mList->selectItemRange(first, last);
+}
+
+
+static LLDefaultChildRegistry::Register<LLIconsComboBox> register_icons_combo_box("icons_combo_box");
+
+LLIconsComboBox::Params::Params()
+:	icon_column("icon_column", ICON_COLUMN),
+	label_column("label_column", LABEL_COLUMN)
+{}
+
+LLIconsComboBox::LLIconsComboBox(const LLIconsComboBox::Params& p)
+:	LLComboBox(p),
+	mIconColumnIndex(p.icon_column),
+	mLabelColumnIndex(p.label_column)
+{}
+
+void LLIconsComboBox::setValue(const LLSD& value)
+{
+	BOOL found = mList->selectByValue(value);
+	if (found)
+	{
+		LLScrollListItem* item = mList->getFirstSelected();
+		if (item)
+		{
+			setLabel(getSelectedItemLabel());
+		}
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
+	}
+	else
+	{
+		mLastSelectedIndex = -1;
+	}
+}
+
+const std::string LLIconsComboBox::getSelectedItemLabel(S32 column) const
+{
+	mButton->setImageOverlay(LLComboBox::getSelectedItemLabel(mIconColumnIndex), mButton->getImageOverlayHAlign());
+
+	return LLComboBox::getSelectedItemLabel(mLabelColumnIndex);
 }

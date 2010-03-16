@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="不動産" name="Estate">
-	<text name="estate_help_text" width="400">
+	<text name="estate_help_text">
 		このタブ内の設定変更は、不動産内のすべての地域に影響します。
 	</text>
 	<text name="estate_text">
@@ -70,5 +70,5 @@
 	<button label="追加..." name="add_banned_avatar_btn"/>
 	<button label="削除..." name="remove_banned_avatar_btn"/>
 	<button label="メッセージを不動産に送信..." name="message_estate_btn"/>
-	<button label="土地からユーザーを追い出す..." name="kick_user_from_estate_btn"/>
+	<button label="不動産から住人を追い出す..." name="kick_user_from_estate_btn"/>
 </panel>

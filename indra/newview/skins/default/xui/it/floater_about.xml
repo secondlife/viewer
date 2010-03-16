@@ -5,7 +5,7 @@
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</floater.string>
 	<floater.string name="AboutCompiler">
-		Fatto con [COMPILER] versione [COMPILER_VERSION]
+		Generato con [COMPILER] versione [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
 		Tu sei in [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] a [REGION] ospitata da [HOSTNAME] ([HOSTIP])
@@ -15,12 +15,12 @@
 	<floater.string name="AboutSystem">
 		CPU: [CPU]
 Memoria: [MEMORY_MB] MB
-Versione Sistema Operativo: [OS_VERSION]
-Venditore Scheda Grafica: [GRAPHICS_CARD_VENDOR]
-Scheda Grafica: [GRAPHICS_CARD]
+Versione sistema operativo: [OS_VERSION]
+Venditore scheda grafica: [GRAPHICS_CARD_VENDOR]
+Scheda grafica: [GRAPHICS_CARD]
 	</floater.string>
 	<floater.string name="AboutDriver">
-		Versione Driver Scheda Grafica: [GRAPHICS_DRIVER_VERSION]
+		Versione driver Windows per grafica: [GRAPHICS_DRIVER_VERSION]
 	</floater.string>
 	<floater.string name="AboutLibs">
 		Versione OpenGL: [OPENGL_VERSION]
@@ -35,7 +35,7 @@ Versione Vivox: [VIVOX_VERSION]
 		(nessuno)
 	</floater.string>
 	<floater.string name="AboutTraffic">
-		Pacchetti Perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%) Informazioni
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Informazioni" name="support_panel">

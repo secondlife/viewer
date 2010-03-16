@@ -2,25 +2,28 @@
 <!-- Side tray cannot show background because it is always
 	partially on screen to hold tab buttons. -->
 <side_tray name="sidebar">
-	<sidetray_tab description="Hjem." name="sidebar_home">
+	<sidetray_tab description="Åbn/luk sidebar" name="sidebar_openclose" tab_title="Åbn/luk sidebar"/>
+	<sidetray_tab description="Hjem." name="sidebar_home" tab_title="Home">
 		<panel label="hjem" name="panel_home"/>
 	</sidetray_tab>
-	<sidetray_tab description="Find venner, kontakter og personer tæt på." name="sidebar_people">
+	<sidetray_tab description="Redigér din profile og favoritter." name="sidebar_me" tab_title="My Profile">
 		<panel_container name="panel_container">
-			<panel label="Gruppe info" name="panel_group_info_sidetray"/>
+			<panel label="Mig" name="panel_me"/>
+		</panel_container>
+	</sidetray_tab>
+	<sidetray_tab description="Find venner, kontakter og personer tæt på." name="sidebar_people" tab_title="People">
+		<panel_container name="panel_container">
+			<panel label="Gruppe profil" name="panel_group_info_sidetray"/>
 			<panel label="Blokerede beboere og objekter" name="panel_block_list_sidetray"/>
 		</panel_container>
 	</sidetray_tab>
-	<sidetray_tab description="Find steder du vil hen og steder du har været før." label="Steder" name="sidebar_places">
+	<sidetray_tab description="Find steder du vil hen og steder du har været før." label="Steder" name="sidebar_places" tab_title="Places">
 		<panel label="Steder" name="panel_places"/>
 	</sidetray_tab>
-	<sidetray_tab description="Redigér din profile og favoritter." name="sidebar_me">
-		<panel label="Mig" name="panel_me"/>
-	</sidetray_tab>
-	<sidetray_tab description="Ændre dit nuværende udseende" name="sidebar_appearance">
-		<panel label="Redigér fremtoning" name="sidepanel_appearance"/>
-	</sidetray_tab>
-	<sidetray_tab description="Browse din beholdning." name="sidebar_inventory">
+	<sidetray_tab description="Browse din beholdning." name="sidebar_inventory" tab_title="My Inventory">
 		<panel label="Redigér beholdning" name="sidepanel_inventory"/>
+	</sidetray_tab>
+	<sidetray_tab description="Ændre dit nuværende udseende" name="sidebar_appearance" tab_title="My Appearance">
+		<panel label="Redigér fremtoning" name="sidepanel_appearance"/>
 	</sidetray_tab>
 </side_tray>

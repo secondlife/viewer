@@ -107,10 +107,10 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Leute, die nicht auf Ihrer Freundesliste stehen, werden nicht wissen, dass Sie deren Anrufe oder Sofortnachrichten ignoriert haben.
-		<usetemplate name="okbutton" yestext="Ja"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		Wenn Sie einem anderen Einwohner, das die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
+		Wenn Sie einem anderen Einwohner, die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
 Möchten Sie [FIRST_NAME] [LAST_NAME] die Erlaubnis zum Bearbeiten gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
@@ -185,7 +185,7 @@ Fortfahren?
 	<notification name="JoinGroupNoCost">
 		Sie treten der Gruppe [NAME] bei.
 Fortfahren?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Zusammenlegen"/>
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Beitreten"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Der Beitritt zu dieser Gruppe kostet [COST] L$.
@@ -207,15 +207,15 @@ Bitte laden Sie innerhalb von 48 Stunden Mitglieder in Ihre Gruppe ein.
 Wählen Sie eine bestimmte Person aus, wenn Sie für 0 L$ verkaufen.
 	</notification>
 	<notification name="ConfirmLandSaleChange">
-		Die ausgewählten [LAND_SIZE] qm Land werden zum Verkauf freigegeben.
-Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
+		Die ausgewählten [LAND_SIZE] m² Land werden zum Verkauf freigegeben.
+Der Verkaufspreis beträgt [SALE_PRICE] L$. Der Verkauf an [NAME] wird zu diesem Preis freigegeben.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
 		ACHTUNG: Wenn Sie auf An jeden verkaufen klicken, kann jeder in [SECOND_LIFE] Ihr Land kaufen, auch Einwohner in anderen Regionen.
 
 Die ausgewählten [LAND_SIZE] m² Land werden zum Verkauf freigegeben.
-Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
+Der Verkaufspreis beträgt [SALE_PRICE] L$. Der Verkauf an [NAME] wird zu diesem Preis freigegeben.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
@@ -455,7 +455,6 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 	<notification name="UnsupportedHardware">
 		Ihr Computer entspricht leider nicht den Mindestanforderungen von [APP_NAME]. Dies kann zur Folge haben, dass das Programm nicht sehr gut ausgeführt wird. Bei nicht unterstützten Systemkonfigurationen kann Ihnen unser [SUPPORT_SITE] leider nicht helfen.
 
-MINDESTANF.
 Weitere Informationen finden Sie auf [_URL].
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=de
@@ -921,13 +920,13 @@ Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen
 Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 	</notification>
 	<notification label="Freund hinzufügen" name="AddFriend">
-		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu verfolgen und Online-Status Benachrichtigungen zu empfangen.
+		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu sehen und den Online-Status anzuzeigen.
 
 [NAME] Freundschaft anbieten?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification label="Freund hinzufügen" name="AddFriendWithMessage">
-		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu verfolgen und Online-Status Benachrichtigungen zu empfangen.
+		Freunde können sich gegenseitig die Berechtigung erteilen, sich auf der Karte zu sehen und den Online-Status anzuzeigen.
 
 [NAME] Freundschaft anbieten?
 		<form name="form">
@@ -1315,8 +1314,8 @@ Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Möchten Sie WIRKLICH alle Benutzer aus dem Grid werfen?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Benutzer hinauswerfen"/>
+		Möchten Sie WIRKLICH alle Einwohner aus dem Grid werfen?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Einwohner hinauswerfen"/>
 	</notification>
 	<notification name="MuteLinden">
 		Lindens können nicht ignoriert werden.
@@ -1356,7 +1355,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		Beim Hinauswerfen dieses Benutzers welche Meldung anzeigen?
+		Beim Hinauswerfen dieses Einwohners welche Meldung anzeigen?
 		<form name="form">
 			<input name="message">
 				Sie wurden von einem Administrator abgemeldet.
@@ -1376,7 +1375,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Beim Einfrieren dieses Benutzers welche Meldung anzeigen?
+		Beim Einfrieren dieses Einwohners welche Meldung anzeigen?
 		<form name="form">
 			<input name="message">
 				Sie wurden eingefroren. Bewegen oder Chatten ist nicht mehr möglich. Ein Administrator wird sich über IM an Sie wenden
@@ -1386,7 +1385,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Beim Auftauen dieses Benutzers welche Meldung anzeigen?
+		Beim Auftauen dieses Einwohners welche Meldung anzeigen?
 		<form name="form">
 			<input name="message">
 				Sie sind nicht mehr eingefroren.
@@ -1406,7 +1405,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Benutzer an Ihrem Standort herbeirufen?
+		Einwohner an Ihrem Standort herbeirufen?
 		<form name="form">
 			<input name="message">
 				Triff mich in [REGION]
@@ -1436,9 +1435,9 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification label="Linden-Grundstück ändern" name="ChangeLindenEstate">
-		Sie sind im Begriff, ein Grundstück in Linden-Besitz (Mainland, Teen-Raster, Orientierung usw.) zu verändern.
+		Sie sind im Begriff, ein Grundstück in Linden-Besitz (Mainland, Teen-Grid, Orientation, usw.) zu verändern.
 
-Dies ist ÄUSSERST GEFÄHRLICH, da es grundlegende Auswirkungen auf das Benutzererlebnis hat.  Auf dem Mainland werden tausende Regionen geändert, was den Spaceserver stark belastet.
+Dies hat EXTREME KONSEQUENZEN und wirkt sich auf die Einwohner aus!  Auf dem Mainland kann dies zu Veränderungen in Tausenden von Regionen und zu Problemen mit dem Spaceserver führen!
 
 Fortfahren?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -1741,7 +1740,7 @@ Inventarobjekt(e) verschieben?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] and [http://secondlife.com/corporate/cs.php Community-Standards] melden.
+		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] und [http://secondlife.com/corporate/cs.php Community-Standards] melden.
 
 Alle gemeldeten Verstöße werden bearbeitet.
 	</notification>
@@ -2062,9 +2061,9 @@ Wählen Sie ein einzelnes Objekt aus.
 		Ihre Visitenkarte wurde abgelehnt.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Landmarken“ auswählen.
-Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf „Teleport“ unten in der Konsole.
-(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleport“ auswählen).
+		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Meine Landmarken“ auswählen.
+Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf unten in der Registerkarte auf „Teleportieren“.
+(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleportieren“ auswählen).
 	</notification>
 	<notification name="TeleportToPerson">
 		Sie können Einwohner wie „[NAME]“ kontaktieren, wenn Sie die Tafel „Leute“ auf der rechten Seite Ihres Bildschirms öffnen.
@@ -2079,7 +2078,7 @@ Wählen Sie eine kleinere Landfläche.
 		Einige Begriffe in Ihrer Suchanfrage wurden ausgeschlossen, aufgrund von in den Community Standards definierten Inhaltsbeschränkungen.
 	</notification>
 	<notification name="NoContentToSearch">
-		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Allgemein, Moderat oder Adult).
+		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Generell, Moderat oder Adult).
 	</notification>
 	<notification name="GroupVote">
 		[NAME] hat eine Abstimmung vorgeschlagen über:
@@ -2201,10 +2200,10 @@ Bitte besuchen Sie unsere Knowledgebase, um mehr Details über Zugang zu Regione
 		Die für den Zutritt zu dieser Region erforderlichen Zahlungsinformationen liegen nicht vor.
 	</notification>
 	<notification name="MustGetAgeRgion">
-		Sie müssen alterüberprüft sein, um diese Region betreten zu können.
+		Sie müssen altersüberprüft sein, um diese Region betreten zu können.
 	</notification>
 	<notification name="MustGetAgeParcel">
-		Sie müssen alterüberprüft sein, um diese Parzelle betreten zu können.
+		Sie müssen altersüberprüft sein, um diese Parzelle betreten zu können.
 	</notification>
 	<notification name="NoDestRegion">
 		Keine Zielregion gefunden.
@@ -2353,6 +2352,12 @@ Versuchen Sie es in einigen Minuten erneut.
 	<notification name="FriendshipDeclined">
 		[NAME] hat Ihr Freundschaftsangebot abgelehnt.
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Ihr Freundschaftsangebot wurde angeommen.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Ihr Freundschaftsangebot wurde abgelehnt.
+	</notification>
 	<notification name="OfferCallingCard">
 		[FIRST] [LAST] bietet Ihnen ihre/seine Visitenkarte an.
 Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner einfach eine IM schicken können.
@@ -2362,7 +2367,7 @@ Ihrem Inventar wird ein Lesezeichen erstellt, damit Sie diesem Einwohner einfach
 		</form>
 	</notification>
 	<notification name="RegionRestartMinutes">
-		Diese Region wird in [Minuten] neu gestartet.
+		Diese Region wird in [MINUTES] neu gestartet.
 Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
 	</notification>
 	<notification name="RegionRestartSeconds">
@@ -2428,7 +2433,7 @@ Anfrage gestatten?
 		</form>
 	</notification>
 	<notification name="ScriptToast">
-		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Benutzer an.
+		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Einwohner an.
 		<form name="form">
 			<button name="Open" text="Dialog öffnen"/>
 			<button name="Ignore" text="Ignorieren"/>
@@ -2562,7 +2567,7 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Möchten Sie wirklich alle IMs schließen?
-		<usetemplate name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+		<usetemplate ignoretext="Bestätigen, bevor ich alle IMs schließe." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		Der Anhang wurde gespeichert.

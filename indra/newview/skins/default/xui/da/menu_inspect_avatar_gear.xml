@@ -7,6 +7,7 @@
 	<menu_item_call label="Teleportér" name="teleport"/>
 	<menu_item_call label="Invitér til gruppe" name="invite_to_group"/>
 	<menu_item_call label="Blokér" name="block"/>
+	<menu_item_call label="Fjern blokering" name="unblock"/>
 	<menu_item_call label="Rapportér" name="report"/>
 	<menu_item_call label="Frys" name="freeze"/>
 	<menu_item_call label="Smid ud" name="eject"/>
@@ -14,4 +15,5 @@
 	<menu_item_call label="Find på kort" name="find_on_map"/>
 	<menu_item_call label="Zoom ind" name="zoom_in"/>
 	<menu_item_call label="Betal" name="pay"/>
+	<menu_item_call label="Del" name="share"/>
 </menu>

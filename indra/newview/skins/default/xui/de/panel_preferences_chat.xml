@@ -9,7 +9,7 @@
 		<radio_item label="Groß" name="radio3" value="2"/>
 	</radio_group>
 	<text name="font_colors">
-		Schriftfarbe:
+		Schriftfarben:
 	</text>
 	<color_swatch label="Sie" name="user"/>
 	<text name="text_box1">
@@ -45,7 +45,7 @@
 	</text>
 	<check_box initial_value="true" label="Beim Chatten Tippanimation abspielen" name="play_typing_animation"/>
 	<check_box label="IMs per Email zuschicken, wenn ich offline bin" name="send_im_to_email"/>
-	<check_box label="Text-Chatverlauf aktivieren" name="plain_text_chat_history"/>
+	<check_box label="Kompakten Text-Chatverlauf aktivieren" name="plain_text_chat_history"/>
 	<radio_group name="chat_window" tool_tip="Zeigen Sie Ihre Sofortnachrichten (Instant Messages) in einem anderen Fenster oder in einem einzigen Fenster mit viele Registerkarten an (Neustart erforderlich).">
 		<radio_item label="Getrennte Fenster" name="radio" value="0"/>
 		<radio_item label="Registerkarten" name="radio2" value="1"/>

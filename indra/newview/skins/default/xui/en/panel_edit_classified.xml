@@ -16,6 +16,12 @@
   name="location_notice">
     (will update after save)
  </panel.string>
+ <string name="publish_label">
+  Publish
+ </string>
+ <string name="save_label">
+  Save
+ </string>
   <button
      follows="top|right"
      height="23"
@@ -62,24 +68,33 @@
      height="690"
      left="0"
      width="285">
+      <panel
+         name="snapshot_panel"
+         layout="topleft"
+         follows="left|top|right"
+         height="197"
+         left="10"
+         top="10"
+         width="272">
       <texture_picker
        follows="left|top|right"
        height="197"
        width="272"
        layout="topleft"
-       top="10"
-       left="11"
+       top="0"
+       left="0"
        name="classified_snapshot" />
-          <icon
+       <icon
            height="197"
            image_name="spacer24.tga"
            layout="topleft"
            name="edit_icon"
            label=""
            tool_tip="Click to select an image"
-           top="10"
-           left="11"
-           width="286" />
+           top="0"
+           left="0"
+           width="272" />
+       </panel>
         <text
          type="string"
          length="1"
@@ -171,7 +186,7 @@
          left="10"
          top_pad="5"
          name="set_to_curr_location_btn"
-         width="156" />
+         width="200" />
         <text
          follows="left|top"
          font.style="BOLD"
@@ -202,25 +217,41 @@
          top_pad="15"
          value="Content type:"
          width="250" />
-        <combo_box 
-         allow_text_entry="false" 
-         follows="left|top" 
-         height="23" 
+        <icons_combo_box
+         follows="left|top"
+         height="23"
+         label="General Content"
+         layout="topleft"
          left="10"
-         name="content_type" 
+         name="content_type"
          top_pad="5"
          width="156">
-         <combo_item 
-          name="mature_ci" 
-          value="Mature">
-           Moderate Content
-         </combo_item>
-         <combo_item 
-          name="pg_ci" 
-          value="PG">
-           General Content
-         </combo_item>
-        </combo_box>
+            <icons_combo_box.drop_down_button
+             image_overlay="Parcel_PG_Light"
+             image_overlay_alignment="left"
+             imgoverlay_label_space="3"
+             pad_left="3"/>
+            <icons_combo_box.item
+             label="Moderate Content"
+             name="mature_ci"
+             value="Mature">
+                <item.columns
+                 halign="center"
+                 type="icon"
+                 value="Parcel_M_Light"
+                 width="20"/>
+            </icons_combo_box.item>
+            <icons_combo_box.item
+             label="General Content"
+             name="pg_ci"
+             value="PG">
+                <item.columns
+                 halign="center"
+                 type="icon"
+                 value="Parcel_PG_Light"
+                 width="20"/>
+            </icons_combo_box.item>
+        </icons_combo_box>
         <text
          follows="left|top"
          font.style="BOLD"
@@ -272,7 +303,7 @@
         <button
          follows="bottom|left"
          height="23"
-         label="Save"
+         label="[LABEL]"
          layout="topleft"
          name="save_changes_btn"
          left="0"

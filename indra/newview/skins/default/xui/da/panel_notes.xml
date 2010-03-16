@@ -13,10 +13,10 @@
 			</scroll_container>
 		</panel>
 		<panel name="notes_buttons_panel">
-			<button label="Tilføj" name="add_friend" tool_tip="Tilbyd venskab til beboeren"/>
+			<button label="Tilføj ven" name="add_friend" tool_tip="Tilbyd venskab til beboer"/>
 			<button label="IM" name="im" tool_tip="Åben session med personlig besked (IM)"/>
 			<button label="Kald" name="call" tool_tip="Opkald til denne beboer"/>
-			<button label="Kort" name="show_on_map_btn" tool_tip="Vis beboeren på kortet"/>
+			<button label="Kort" name="show_on_map_btn" tool_tip="Vis beboer på kort"/>
 			<button label="Teleport" name="teleport" tool_tip="Tilbyd teleport"/>
 		</panel>
 	</layout_stack>

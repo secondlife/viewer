@@ -20,7 +20,7 @@
 		(requiere reiniciar)
 	</text>
 	<text name="maturity_desired_prompt">
-		Quiero acceder a contenido calificado:
+		Quiero acceder a contenido:
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
@@ -44,7 +44,7 @@
 		<radio_item label="On" name="radio2" value="1"/>
 		<radio_item label="Mostrar brevemente" name="radio3" value="2"/>
 	</radio_group>
-	<check_box label="Mostrar mi nombre" name="show_my_name_checkbox1"/>
+	<check_box label="Ver yo mi nombre" name="show_my_name_checkbox1"/>
 	<check_box initial_value="true" label="Etiquetas de los avatares en pequeño" name="small_avatar_names_checkbox"/>
 	<check_box label="Mostrar las etiquetas de grupo" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
@@ -62,6 +62,6 @@
 		<combo_box.item label="nunca" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-		Respuesta cuando estoy en el modo ocupado:
+		Respuesta cuando estoy en modo ocupado:
 	</text>
 </panel>

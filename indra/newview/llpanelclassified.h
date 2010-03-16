@@ -202,8 +202,26 @@ private:
 	void* mUserData;
 };
 
+class LLPublishClassifiedFloater : public LLFloater
+{
+public:
+	LLPublishClassifiedFloater(const LLSD& key);
+	virtual ~LLPublishClassifiedFloater();
+
+	/*virtual*/ BOOL postBuild();
+
+	void setPrice(S32 price);
+	S32 getPrice();
+
+	void setPublishClickedCallback(const commit_signal_t::slot_type& cb);
+	void setCancelClickedCallback(const commit_signal_t::slot_type& cb);
+
+private:
+};
+
 class LLPanelClassifiedInfo : public LLPanel, public LLAvatarPropertiesObserver
 {
+	LOG_CLASS(LLPanelClassifiedInfo);
 public:
 
 	static LLPanelClassifiedInfo* create();
@@ -238,6 +256,8 @@ public:
 
 	void setClassifiedLocation(const std::string& location);
 
+	std::string getClassifiedLocation();
+
 	void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
 
 	LLVector3d& getPosGlobal() { return mPosGlobal; }
@@ -245,6 +265,14 @@ public:
 	void setParcelId(const LLUUID& id) { mParcelId = id; }
 
 	LLUUID getParcelId() { return mParcelId; }
+
+	void setSimName(const std::string& sim_name) { mSimName = sim_name; }
+
+	std::string getSimName() { return mSimName; }
+
+	void setFromSearch(bool val) { mFromSearch = val; }
+
+	bool fromSearch() { return mFromSearch; }
 
 	bool getInfoLoaded() { return mInfoLoaded; }
 
@@ -256,6 +284,14 @@ public:
 		S32 map,
 		S32 profile,
 		bool from_new_table);
+
+	static void sendClickMessage(
+			const std::string& type,
+			bool from_search,
+			const LLUUID& classified_id,
+			const LLUUID& parcel_id,
+			const LLVector3d& global_pos,
+			const std::string& sim_name);
 
 	void setExitCallback(const commit_callback_t& cb);
 
@@ -279,10 +315,19 @@ protected:
 		const LLVector3d& pos_global);
 
 	void stretchSnapshot();
+	void sendClickMessage(const std::string& type);
+
+	LLRect getDefaultSnapshotRect();
+
+	void scrollToTop();
 
 	void onMapClick();
 	void onTeleportClick();
 	void onExit();
+
+	bool mSnapshotStreched;
+	LLRect mSnapshotRect;
+	LLTextureCtrl* mSnapshotCtrl;
 
 private:
 
@@ -290,10 +335,9 @@ private:
 	LLUUID mClassifiedId;
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
+	std::string mSimName;
+	bool mFromSearch;
 	bool mInfoLoaded;
-
-	bool mSnapshotStreched;
-	LLRect mSnapshotRect;
 
 	LLScrollContainer*		mScrollContainer;
 	LLPanel*				mScrollingPanel;
@@ -315,6 +359,7 @@ private:
 
 class LLPanelClassifiedEdit : public LLPanelClassifiedInfo
 {
+	LOG_CLASS(LLPanelClassifiedEdit);
 public:
 
 	static LLPanelClassifiedEdit* create();
@@ -322,6 +367,8 @@ public:
 	virtual ~LLPanelClassifiedEdit();
 
 	/*virtual*/ BOOL postBuild();
+
+	void fillIn(const LLSD& key);
 
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -331,15 +378,33 @@ public:
 
 	/*virtual*/ void resetDirty();
 
-	void setSaveCallback(const commit_callback_t& cb);
+	void setSaveCallback(const commit_signal_t::slot_type& cb);
 
-	void setCancelCallback(const commit_callback_t& cb);
+	void setCancelCallback(const commit_signal_t::slot_type& cb);
 
 	/*virtual*/ void resetControls();
 
 	bool isNew() { return mIsNew; }
 
+	bool isNewWithErrors() { return mIsNewWithErrors; }
+
 	bool canClose();
+
+	void draw();
+
+	void stretchSnapshot();
+
+	U32 getCategory();
+
+	void setCategory(U32 category);
+
+	U32 getContentType();
+
+	void setContentType(U32 content_type);
+
+	bool getAutoRenew();
+
+	S32 getPriceForListing();
 
 protected:
 
@@ -347,15 +412,13 @@ protected:
 
 	void sendUpdate();
 
-	U32 getCategory();
-
 	void enableVerbs(bool enable);
 
 	void enableEditing(bool enable);
 
 	std::string makeClassifiedName();
 
-	S32 getPriceForListing();
+	void setPriceForListing(S32 price);
 
 	U8 getFlags();
 
@@ -369,12 +432,23 @@ protected:
 	void onChange();
 	void onSaveClick();
 
+	void doSave();
+
+	void onPublishFloaterPublishClicked();
+
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
 
+	void onTextureSelected();
+
 private:
 	bool mIsNew;
+	bool mIsNewWithErrors;
 	bool mCanClose;
+
+	LLPublishClassifiedFloater* mPublishFloater;
+
+	commit_signal_t mSaveButtonClickedSignal;
 };
 
 #endif // LL_LLPANELCLASSIFIED_H

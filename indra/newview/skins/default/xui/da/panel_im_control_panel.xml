@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_im_control_panel">
-	<text name="avatar_name" value="Ukendt"/>
-	<button label="Profil" name="view_profile_btn"/>
-	<button label="Tilføj ven" name="add_friend_btn"/>
-	<button label="Teleportér" name="teleport_btn"/>
-	<button label="Del" name="share_btn"/>
-	<panel name="panel_call_buttons">
-		<button label="Opkald" name="call_btn"/>
-		<button label="Læg på" name="end_call_btn"/>
-		<button label="Stemme opsætning" name="voice_ctrls_btn"/>
-	</panel>
+	<layout_stack name="button_stack">
+		<layout_panel name="view_profile_btn_panel">
+			<button label="Profil" name="view_profile_btn"/>
+		</layout_panel>
+		<layout_panel name="add_friend_btn_panel">
+			<button label="Tilføj ven" name="add_friend_btn"/>
+		</layout_panel>
+		<layout_panel name="teleport_btn_panel">
+			<button label="Teleport" name="teleport_btn" tool_tip="Tilbyd teleport til denne person"/>
+		</layout_panel>
+		<layout_panel name="share_btn_panel">
+			<button label="Del" name="share_btn"/>
+		</layout_panel>
+		<layout_panel name="share_btn_panel">
+			<button label="Betal" name="pay_btn"/>
+		</layout_panel>
+		<layout_panel name="call_btn_panel">
+			<button label="Opkald" name="call_btn"/>
+		</layout_panel>
+		<layout_panel name="end_call_btn_panel">
+			<button label="Forlad opkald" name="end_call_btn"/>
+		</layout_panel>
+		<layout_panel name="voice_ctrls_btn_panel">
+			<button label="Stemme kontroller" name="voice_ctrls_btn"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

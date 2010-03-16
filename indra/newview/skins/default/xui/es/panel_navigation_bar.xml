@@ -9,7 +9,7 @@
 			<combo_editor label="Buscar en [SECOND_LIFE]" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
-	<favorites_bar name="favorite" tool_tip="Accede rápidamente a tus lugares favoritos de Second Life arrastrando hitos hasta aquí">
+	<favorites_bar name="favorite" tool_tip="¡Accede rápidamente a tus lugares favoritos de Second Life arrastrando hitos hasta aquí!">
 		<label name="favorites_bar_label" tool_tip="¡Accede rápidamente a tus lugares favoritos de Second Life arrastrando hitos hasta aquí!">
 			Barra de Favoritos
 		</label>

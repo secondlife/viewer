@@ -196,7 +196,7 @@
 			</combo_box>
 			<check_box label="Zum Verkauf:" name="checkbox for sale"/>
 			<combo_box name="sale type">
-				<combo_box.item label="Kopieren" name="Copy"/>
+				<combo_box.item label="Kopie" name="Copy"/>
 				<combo_box.item label="Inhalt" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
@@ -364,14 +364,14 @@
 				Objekteigenschaften bearbeiten:
 			</text>
 			<check_box label="Flexibler Pfad" name="Flexible1D Checkbox Ctrl" tool_tip="Bewirkt, dass sich das Objekt um die Z-Achse biegen kann. (Nur Client-Seite)"/>
-			<spinner label="Weichheit" name="FlexNumSections" width="140"/>
-			<spinner label="Schwerkraft" name="FlexGravity" width="140"/>
-			<spinner label="Ziehen" name="FlexFriction" width="140"/>
-			<spinner label="Wind" name="FlexWind" width="140"/>
-			<spinner label="Spannung" name="FlexTension" width="140"/>
-			<spinner label="Erzwingen X" name="FlexForceX" width="140"/>
-			<spinner label="Erzwingen Y" name="FlexForceY" width="140"/>
-			<spinner label="Erzwingen Z" name="FlexForceZ" width="140"/>
+			<spinner label="Weichheit" name="FlexNumSections"/>
+			<spinner label="Schwerkraft" name="FlexGravity"/>
+			<spinner label="Ziehen" name="FlexFriction"/>
+			<spinner label="Wind" name="FlexWind"/>
+			<spinner label="Spannung" name="FlexTension"/>
+			<spinner label="Kraft X" name="FlexForceX"/>
+			<spinner label="Kraft Y" name="FlexForceY"/>
+			<spinner label="Kraft Z" name="FlexForceZ"/>
 			<check_box label="Licht" name="Light Checkbox Ctrl" tool_tip="Verursacht, dass Objekt Licht emittiert"/>
 			<color_swatch label="" name="colorswatch" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
 			<texture_picker label="" name="light texture control" tool_tip="Klicken, um eine Bild auszuwählen (dieser Effekt funktioniert nur, wenn zeitversetzte Wiedergabe aktiviert ist)"/>
@@ -477,7 +477,7 @@
 		<text name="label_area">
 			Gebiet: [AREA] m².
 		</text>
-		<button label="Über Land" label_selected="Über Land" name="button about land"/>
+		<button label="Land-Info" label_selected="Land-Info" name="button about land"/>
 		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Die Parzellen farblich nach Eigentümtertyp anzeigen   Grün = Ihr Land  Blau = Das Land Ihrer Gruppe  Rot = Im Eigentum anderer  Geld = Zum Verkauf  Lila = Zur Auktion  Grau = Öffentlich"/>
 		<text name="label_parcel_modify">
 			Parzelle ändern

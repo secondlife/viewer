@@ -160,12 +160,17 @@ public:
 	// Methods
 	//
 	typedef std::map<std::string, LLControlGroup*> settings_map_t;
+	typedef boost::function<void(LLView*)> add_popup_t;
+	typedef boost::function<void(LLView*)> remove_popup_t;
+	typedef boost::function<void(void)> clear_popups_t;
+
 	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
 						  const std::string& language = LLStringUtil::null);
 	static void cleanupClass();
+	static void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 
 	static void pushMatrix();
 	static void popMatrix();
@@ -208,6 +213,10 @@ public:
 	static void resetMouseIdleTimer() { sMouseIdleTimer.reset(); }
 	static LLWindow* getWindow() { return sWindow; }
 
+	static void addPopup(LLView*);
+	static void removePopup(LLView*);
+	static void clearPopups();
+
 	// Ensures view does not overlap mouse cursor, but is inside
 	// the view's parent rectangle.  Used for tooltips, inspectors.
 	// Optionally override the view's default X/Y, which are relative to the
@@ -227,6 +236,9 @@ private:
 	static LLImageProviderInterface* sImageProvider;
 	static std::vector<std::string> sXUIPaths;
 	static LLFrameTimer		sMouseIdleTimer;
+	static add_popup_t		sAddPopupFunc;
+	static remove_popup_t	sRemovePopupFunc;
+	static clear_popups_t	sClearPopupsFunc;
 };
 
 

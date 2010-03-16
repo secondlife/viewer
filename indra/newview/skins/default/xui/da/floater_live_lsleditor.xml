@@ -7,7 +7,7 @@
 		Kører
 	</floater.string>
 	<floater.string name="Title">
-		Script: [NAME]
+		SCRIPT: [NAME]
 	</floater.string>
 	<button label="Nulstil" label_selected="Reset" name="Reset"/>
 	<check_box initial_value="true" label="Kører" name="running"/>

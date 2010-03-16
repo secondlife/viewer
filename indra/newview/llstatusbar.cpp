@@ -239,19 +239,15 @@ BOOL LLStatusBar::postBuild()
 
 	childSetActionTextbox("stat_btn", onClickStatGraph);
 
-	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
-	popup_holder->addChild(mPanelVolumePulldown);
-
-	mPanelNearByMedia = new LLPanelNearByMedia();
-	popup_holder->addChild(mPanelNearByMedia);
-	gViewerWindow->getRootView()->addMouseDownCallback(boost::bind(&LLStatusBar::onClickScreen, this, _1, _2));
-	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	mPanelNearByMedia->setVisible(FALSE);
-
+	addChild(mPanelVolumePulldown);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
+
+	mPanelNearByMedia = new LLPanelNearByMedia();
+	addChild(mPanelNearByMedia);
+	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelNearByMedia->setVisible(FALSE);
 
 	return TRUE;
 }
@@ -528,11 +524,11 @@ static void onClickScriptDebug(void*)
 void LLStatusBar::onMouseEnterVolume()
 {
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
-	LLRect vol_btn_screen_rect = volbtn->calcScreenRect();
+	LLRect vol_btn_rect = volbtn->getRect();
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
-	volume_pulldown_rect.setLeftTopAndSize(vol_btn_screen_rect.mLeft -
-	     (volume_pulldown_rect.getWidth() - vol_btn_screen_rect.getWidth())/2,
-			       vol_btn_screen_rect.mBottom,
+	volume_pulldown_rect.setLeftTopAndSize(vol_btn_rect.mLeft -
+	     (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth())/2,
+			       vol_btn_rect.mBottom,
 			       volume_pulldown_rect.getWidth(),
 			       volume_pulldown_rect.getHeight());
 
@@ -540,8 +536,10 @@ void LLStatusBar::onMouseEnterVolume()
 
 
 	// show the master volume pull-down
-	mPanelVolumePulldown->setVisible(TRUE);
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelVolumePulldown);
 	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(TRUE);
 }
 
 void LLStatusBar::onMouseEnterNearbyMedia()
@@ -549,7 +547,7 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
 	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
-	LLRect nearby_media_btn_rect = nearby_media_btn->calcScreenRect();
+	LLRect nearby_media_btn_rect = nearby_media_btn->getRect();
 	nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
 										(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
 										nearby_media_btn_rect.mBottom,
@@ -560,8 +558,11 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	
 	// show the master volume pull-down
 	mPanelNearByMedia->setShape(nearby_media_rect);
-	mPanelNearByMedia->setVisible(TRUE);
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelNearByMedia);
+
 	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelNearByMedia->setVisible(TRUE);
 }
 
 
@@ -648,18 +649,6 @@ void LLStatusBar::setupDate()
 void LLStatusBar::onClickStatGraph(void* data)
 {
 	LLFloaterReg::showInstance("lagmeter");
-}
-
-void LLStatusBar::onClickScreen(S32 x, S32 y)
-{
-	if (mPanelNearByMedia->getVisible())
-	{
-		LLRect screen_rect = mPanelNearByMedia->calcScreenRect();
-		if (!screen_rect.pointInRect(x, y))
-		{
-			mPanelNearByMedia->setVisible(FALSE);
-		}
-	}
 }
 
 BOOL can_afford_transaction(S32 cost)

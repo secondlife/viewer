@@ -33,7 +33,7 @@
 					<icon label="" name="2nd_life_edit_icon" tool_tip="Cliquez pour sélectionner une image"/>
 				</panel>
 				<panel name="first_life_image_panel">
-					<text name="real_world_photo_title_text" value="Monde physique :"/>
+					<text name="real_world_photo_title_text" value="Vie réelle :"/>
 				</panel>
 				<icon label="" name="real_world_edit_icon" tool_tip="Cliquez pour sélectionner une image"/>
 				<text name="title_homepage_text">

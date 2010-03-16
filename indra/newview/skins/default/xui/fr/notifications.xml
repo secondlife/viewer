@@ -107,7 +107,7 @@ Veuillez ne sélectionner qu&apos;un seul objet.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Les résidents qui ne sont pas vos amis ne sauront pas que vous avez choisi d&apos;ignorer leurs appels et leurs messages instantanés.
-		<usetemplate name="okbutton" yestext="Oui"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
 		Lorsque vous accordez des droits d&apos;édition à un autre résident, vous lui permettez de changer, supprimer ou prendre n&apos;importe lequel de vos objets dans le Monde. Réfléchissez bien avant d&apos;accorder ces droits.
@@ -445,9 +445,8 @@ L&apos;objet est peut-être inaccessible ou a peut-être été supprimé.
 		Impossible d&apos;écrire le fichier [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Votre ordinateur ne satisfait pas la configuration système requise pour [APP_NAME]. Les performances risquent d&apos;être médiocres. Malheureusement, la page [SUPPORT_SITE] n’offre aucune assistance pour les problèmes de configuration système.
+		Votre ordinateur ne satisfait pas la configuration système requise pour [APP_NAME]. Les performances risquent d&apos;être médiocres. Malheureusement, la section [SUPPORT_SITE] n&apos;offre aucune aide pour les problèmes de configuration système.
 
-MINSPECS
 Consulter [_URL] pour en savoir plus ?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=fr
@@ -496,14 +495,14 @@ Souhaitez-vous vraiment donner ces objets ?
 		Vous n&apos;êtes pas autorisé à transférer le dossier sélectionné.
 	</notification>
 	<notification name="FreezeAvatar">
-		Geler cet avatar ?
+		Figer cet avatar ?
 Il ou elle ne pourra temporairement plus bouger, chatter, ou interagir dans le Monde.
-		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Dégeler" yestext="Geler"/>
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Libérer" yestext="Figer"/>
 	</notification>
 	<notification name="FreezeAvatarFullname">
-		Geler [AVATAR_NAME] ?
+		Figer [AVATAR_NAME] ?
 Il ou elle ne pourra temporairement plus bouger, chatter, ou interagir dans le Monde.
-		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Dégeler" yestext="Geler"/>
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Libérer" yestext="Figerf"/>
 	</notification>
 	<notification name="EjectAvatarFullname">
 		Expulser [AVATAR_NAME] de votre terrain ?
@@ -1296,8 +1295,8 @@ Quitter le groupe ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Souhaitez-vous vraiment éjecter tous les utilisateurs de la grille ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Éjecter tous"/>
+		Souhaitez-vous vraiment éjecter tous les résidents de la grille ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Éjecter tous les résidents"/>
 	</notification>
 	<notification name="MuteLinden">
 		Désolé, vous ne pouvez pas ignorer un Linden.
@@ -1337,7 +1336,7 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		Éjecter cet utilisateur avec quel message ?
+		Éjecter ce résident avec quel message ?
 		<form name="form">
 			<input name="message">
 				Un administrateur vous a déconnecté.
@@ -1357,20 +1356,20 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Geler cet utilisateur avec quel message ?
+		Figer ce résident avec quel message ?
 		<form name="form">
 			<input name="message">
-				Vous avez été gelé. Vous ne pouvez ni bouger ni chatter. Un administrateur va vous envoyer un message instantané (IM).
+				Vous avez été figé. Vous ne pouvez ni bouger ni chatter. Un administrateur va vous envoyer un message instantané (IM).
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuler"/>
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Dégeler cet utilisateur avec quel message ?
+		Libérer ce résident avec quel message ?
 		<form name="form">
 			<input name="message">
-				Vous n&apos;êtes plus gelé.
+				Vous n&apos;êtes plus figé.
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuler"/>
@@ -1387,7 +1386,7 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Demander au résident de venir vous rejoindre ?
+		Exiger du résident qu&apos;il vienne vous rejoindre ?
 		<form name="form">
 			<input name="message">
 				On se rejoint à [REGION] ?
@@ -1419,7 +1418,7 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 	<notification label="Modifier un domaine Linden" name="ChangeLindenEstate">
 		Vous vous apprêtez à modifier un domaine appartenant aux Lindens (continent, zone réservée aux ados, orientation etc.).
 
-Cela est extrêmement délicat car l&apos;expérience des résidents est en jeu. Sur le continent, cela modifiera des milliers de régions et sera difficile à digérer pour le serveur.
+Cela est extrêmement délicat car l&apos;expérience des résidents est en jeu.  Sur le continent, cette action modifiera des milliers de régions et sera difficile à digérer pour le serveur.
 
 Continuer ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -2335,6 +2334,12 @@ Veuillez réessayer dans quelques minutes.
 	<notification name="FriendshipDeclined">
 		[NAME] a refusé votre amitié.
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Amitié acceptée.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Amitié refusée.
+	</notification>
 	<notification name="OfferCallingCard">
 		[FIRST] [LAST] vous offre sa carte de visite.
 Cela ajoute un marque-page dans votre inventaire, ce qui vous permet d&apos;envoyer rapidement un IM à ce résident.
@@ -2410,7 +2415,7 @@ Accepter cette requête ?
 		</form>
 	</notification>
 	<notification name="ScriptToast">
-		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos; demande la participation de l&apos;utilisateur.
+		Le/La [TITLE] de [FIRST] [LAST] demande la participation du résident.
 		<form name="form">
 			<button name="Open" text="Ouvrir la boîte de dialogue"/>
 			<button name="Ignore" text="Ignorer"/>
@@ -2543,7 +2548,7 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Êtes-vous certain de vouloir fermer tous les IM ?
-		<usetemplate name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Confirmer avant de fermer tous les IM." name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.

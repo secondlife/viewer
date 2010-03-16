@@ -13,7 +13,7 @@
 			</scroll_container>
 		</panel>
 		<panel name="notes_buttons_panel">
-			<button label="Adicionar" name="add_friend" tool_tip="Oferecer amizade ao residente"/>
+			<button label="Adicionar amigo" name="add_friend" tool_tip="Oferecer amizade ao residente"/>
 			<button label="MI" name="im" tool_tip="Abrir sessão de mensagem instantânea"/>
 			<button label="Ligar" name="call" tool_tip="Ligar para este residente"/>
 			<button label="Mapa" name="show_on_map_btn" tool_tip="Exibir o residente no mapa"/>

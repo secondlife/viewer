@@ -290,11 +290,11 @@
      width="134" />
    <check_box
      control_name="SnapEnabled"
-     height="20"
+     height="18"
      initial_value="true"
      label="Snap to grid"
      layout="topleft"
-     top_pad="0"
+     top_pad="7"
      name="checkbox snap to grid"
      width="134" />
     <combo_box
@@ -581,7 +581,7 @@
          left="0"
          name="radio select land"
          top="-1"
-         width="114" />
+         width="134" />
         <radio_item
          height="19"
          label="Flatten"
@@ -639,7 +639,7 @@
      follows="left|top"
      height="12"
      layout="topleft"
-     left="125"
+     left="150"
      name="Bulldozer:"
      top="57"
      width="100">
@@ -990,11 +990,11 @@
              label="For Sale:"
              layout="topleft"
              name="checkbox for sale"
-             left="10"
-             width="90" />
+             left="7"
+             width="93" />
 <!-- NEW SALE TYPE COMBO BOX -->
       <combo_box
-            left_pad="0"
+            left_pad="3"
             layout="topleft"
             follows="left|top"
             allow_text_entry="false"
@@ -1104,9 +1104,9 @@ even though the user gets a free copy.
              follows="left|top|right"
              label="Modify"
              layout="topleft"
-             left="15"
+             left="5"
              name="checkbox next owner can modify"
-             width="85" />
+             width="80" />
             <check_box
              follows="left|top|right"
              height="19"
@@ -1114,7 +1114,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="0"
              name="checkbox next owner can copy"
-             width="90" />
+             width="80" />
             <check_box
              follows="left|top|right"
              height="19"
@@ -1124,7 +1124,7 @@ even though the user gets a free copy.
              left_pad="0"
              top_delta="0"
              tool_tip="Next owner can give away or resell this object"
-             width="90" />
+             width="100" />
             <text
              type="string"
              text_color="EmphasisColor"
@@ -2051,7 +2051,7 @@ even though the user gets a free copy.
              increment="1"
              initial_value="2"
              label="Softness"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="3"
@@ -2064,7 +2064,7 @@ even though the user gets a free copy.
              increment="0.5"
              initial_value="0.3"
              label="Gravity"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2078,7 +2078,7 @@ even though the user gets a free copy.
              increment="0.5"
              initial_value="2"
              label="Drag"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2091,7 +2091,7 @@ even though the user gets a free copy.
              increment="0.5"
              initial_value="0"
              label="Wind"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2104,7 +2104,7 @@ even though the user gets a free copy.
              increment="0.5"
              initial_value="1"
              label="Tension"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2117,7 +2117,7 @@ even though the user gets a free copy.
              increment="0.01"
              initial_value="0"
              label="Force X"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2131,7 +2131,7 @@ even though the user gets a free copy.
              increment="0.01"
              initial_value="0"
              label="Force Y"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2145,7 +2145,7 @@ even though the user gets a free copy.
              increment="0.01"
              initial_value="0"
              label="Force Z"
-             label_width="65"
+             label_width="70"
              layout="topleft"
              left_delta="0"
              max_val="10"
@@ -2816,7 +2816,7 @@ even though the user gets a free copy.
          left="20"
          name="label_parcel_info"
          top="24"
-         width="150">
+         width="240">
             Parcel Information
         </text>
         <text

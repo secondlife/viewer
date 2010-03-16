@@ -32,7 +32,7 @@
 		<menu label="Crie" name="Create">
 			<menu_item_call label="Nova pasta" name="New Folder"/>
 			<menu_item_call label="Novo script" name="New Script"/>
-			<menu_item_call label="Nova nota" name="New Note"/>
+			<menu_item_call label="Nova anotação" name="New Note"/>
 			<menu_item_call label="Novo gesto" name="New Gesture"/>
 			<menu label="Novas roupas" name="New Clothes">
 				<menu_item_call label="Nova camisa" name="New Shirt"/>

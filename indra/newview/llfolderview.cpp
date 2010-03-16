@@ -285,10 +285,7 @@ LLFolderView::~LLFolderView( void )
 
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 
-	if(mRenamer == gFocusMgr.getTopCtrl())
-	{
-		gFocusMgr.setTopCtrl(NULL);
-	}
+	gViewerWindow->removePopup(mRenamer);
 
 	mAutoOpenItems.removeAllNodes();
 	clearSelection();
@@ -420,11 +417,6 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	S32 total_width = LEFT_PAD;
 	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
 	S32 target_height = running_height;
-	if(!mHasVisibleChildren)// is there any filtered items ?		
-	{
-		//Nope. We need to display status textbox, let's reserve some place for it 
-		target_height += mStatusTextBox->getTextPixelHeight();
-	}
 	S32 parent_item_height = getRect().getHeight();
 
 	for (folders_t::iterator iter = mFolders.begin();
@@ -482,6 +474,13 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 			running_height += child_height;
 			itemp->setOrigin( ICON_PAD, child_top - itemp->getRect().getHeight() );
 		}
+	}
+
+	if(!mHasVisibleChildren)// is there any filtered items ?
+	{
+		//Nope. We need to display status textbox, let's reserve some place for it
+		running_height = mStatusTextBox->getTextPixelHeight();
+		target_height = running_height;
 	}
 
 	LLRect scroll_rect = mScrollContainer->getContentWindowRect();
@@ -840,11 +839,14 @@ void LLFolderView::sanitizeSelection()
 
 void LLFolderView::clearSelection()
 {
-	if (mSelectedItems.size() > 0)
+	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
+		 item_it != mSelectedItems.end(); 
+		 ++item_it)
 	{
-		recursiveDeselect(FALSE);
-		mSelectedItems.clear();
+		(*item_it)->setUnselected();
 	}
+
+	mSelectedItems.clear();
 	mSelectThisID.setNull();
 }
 
@@ -972,7 +974,7 @@ void LLFolderView::finishRenamingItem( void )
 		mRenameItem->rename( mRenamer->getText() );
 	}
 
-	gFocusMgr.setTopCtrl( NULL );	
+	gViewerWindow->removePopup(mRenamer);
 
 	if( mRenameItem )
 	{
@@ -989,7 +991,7 @@ void LLFolderView::closeRenamer( void )
 	// will commit current name (which could be same as original name)
 	mRenamer->setFocus( FALSE );
 	mRenamer->setVisible( FALSE );
-	gFocusMgr.setTopCtrl( NULL );
+	gViewerWindow->removePopup(mRenamer);
 
 	if( mRenameItem )
 	{
@@ -1421,7 +1423,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setFocus( TRUE );
 		mRenamer->setTopLostCallback(boost::bind(onRenamerLost, _1));
 		mRenamer->setFocusLostCallback(boost::bind(onRenamerLost, _1));
-		gFocusMgr.setTopCtrl( mRenamer );
+		gViewerWindow->addPopup(mRenamer);
 	}
 }
 
@@ -1829,7 +1831,9 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
 	S32 count = mSelectedItems.size();
 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-	if(handled && (count > 0) && menu)
+	if (   handled
+		&& ( count > 0 && (hasVisibleChildren() || mFilter->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS) ) // show menu only if selected items are visible
+		&& menu )
 	{
 		if (mCallbackRegistrar)
 			mCallbackRegistrar->pushScope();
@@ -1902,7 +1906,7 @@ void LLFolderView::deleteAllChildren()
 {
 	if(mRenamer == gFocusMgr.getTopCtrl())
 	{
-		gFocusMgr.setTopCtrl(NULL);
+		gViewerWindow->removePopup(mRenamer);
 	}
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 	mPopupMenuHandle = LLHandle<LLView>();
