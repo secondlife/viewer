@@ -183,7 +183,7 @@ void MediaPluginExample::receiveMessage( const char* message_string )
 			if ( message_name == "init" )
 			{
 				// Plugin gets to decide the texture parameters to use.
-				message.setMessage( LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params" );
+				LLPluginMessage message( LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params" );
 				message.setValueS32( "default_width", mWidth );
 				message.setValueS32( "default_height", mHeight );
 				message.setValueS32( "depth", mDepth );
