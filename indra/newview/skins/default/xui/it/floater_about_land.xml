@@ -82,9 +82,9 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				Gruppo:
 			</text>
 			<text left="119" name="GroupText" width="227"/>
-			<button label="Imposta..." label_selected="Imposta..." name="Set..."/>
+			<button label="Imposta" name="Set..."/>
 			<check_box label="Permetti cessione al gruppo" left="119" name="check deed" tool_tip="Un funzionario del gruppo può cedere questa terra al gruppo stesso cosicchè essa sarà  supportata  dalle terre del gruppo."/>
-			<button label="Cedi..." label_selected="Cedi..." name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
+			<button label="Cedi" name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
 			<check_box label="Il proprietario fa un contributo con la cessione" left="119" name="check contrib" tool_tip="Quando la terra è ceduta al gruppo, il proprietario precedente contribuisce con abbastanza allocazione di terra per supportarlo."/>
 			<text name="For Sale:">
 				In vendita:
@@ -126,11 +126,11 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				0
 			</text>
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>
-			<button label="Acquista per il gruppo..." label_selected="Acquista per il gruppo..." name="Buy For Group..."/>
+			<button label="Acquista per il gruppo" name="Buy For Group..."/>
 			<button label="Compra pass..." label_selected="Compra pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
-			<button label="Abbandona la terra..." label_selected="Abbandona la terra..." name="Abandon Land..."/>
-			<button label="Reclama la terra..." label_selected="Reclama la terra..." name="Reclaim Land..."/>
-			<button label="Vendita Linden..." label_selected="Vendita Linden..." name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
+			<button label="Abbandona la terra" name="Abandon Land..."/>
+			<button label="Reclama la terra" name="Reclaim Land..."/>
+			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
 		</panel>
 		<panel label="COVENANT" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -231,7 +231,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<button label="Mostra" label_selected="Mostra" name="ShowOwner" right="-135" width="60"/>
-			<button label="Restituisci..." label_selected="Restituisci..." name="ReturnOwner..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
+			<button label="Restituisci" name="ReturnOwner..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
 			<text left="14" name="Set to group:" width="180">
 				Imposta al gruppo:
 			</text>
@@ -239,7 +239,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<button label="Mostra" label_selected="Mostra" name="ShowGroup" right="-135" width="60"/>
-			<button label="Restituisci..." label_selected="Restituisci..." name="ReturnGroup..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
+			<button label="Restituisci" name="ReturnGroup..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
 			<text left="14" name="Owned by others:" width="180">
 				Posseduti da altri:
 			</text>
@@ -247,7 +247,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<button label="Mostra" label_selected="Mostra" name="ShowOther" right="-135" width="60"/>
-			<button label="Restituisci..." label_selected="Restituisci..." name="ReturnOther..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
+			<button label="Restituisci" name="ReturnOther..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
 			<text left="14" name="Selected / sat upon:" width="193">
 				Selezionati / sui quali sei sopra:
 			</text>

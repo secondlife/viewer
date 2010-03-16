@@ -26,13 +26,13 @@
 			<text name="OwnerText">
 				Leyla Linden
 			</text>
-			<button label="Profile..." label_selected="Profile..." name="Profile..."/>
+			<button label="Profile" name="Profile..."/>
 			<text name="Group:">
 				Grupa:
 			</text>
-			<button label="Ustaw..." label_selected="Ustaw..." name="Set..."/>
+			<button label="Ustaw" name="Set..."/>
 			<check_box label="Udostępnij przypisywanie na grupę" name="check deed" tool_tip="Oficer grupy ma prawo przepisać prawo własności posiadłości na grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków grupy."/>
-			<button label="Przypisz..." label_selected="Przypisz..." name="Deed..." tool_tip="Prawo przypisania posiadłości na grupę może dokonać jedynie oficer grupy."/>
+			<button label="Przypisz" name="Deed..." tool_tip="Prawo przypisania posiadłości na grupę może dokonać jedynie oficer grupy."/>
 			<check_box label="Właścicel dokonuje wpłat związanych z posiadłością" name="check contrib" tool_tip="Kiedy posiadłość zostaje przypisana na grupę, poprzedni właściciel realizuje wpłaty z nią związane w celu jej utrzymania."/>
 			<text name="For Sale:">
 				Na Sprzedaż:
@@ -43,7 +43,7 @@
 			<text name="For Sale: Price L$[PRICE].">
 				Cena: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
 			</text>
-			<button label="Sprzedaj Posiadłość..." label_selected="Sprzedaj Posiadłość..." name="Sell Land..."/>
+			<button label="Sprzedaj Posiadłość" name="Sell Land..."/>
 			<text name="For sale to">
 				Na sprzedaż dla: [BUYER]
 			</text>
@@ -73,11 +73,11 @@
 				0
 			</text>
 			<button label="Kup Posiadłość..." label_selected="Kup Posiadłość..." left="130" name="Buy Land..." width="125"/>
-			<button label="Kup dla Grupy..." label_selected="Kup dla Grupy..." name="Buy For Group..."/>
+			<button label="Kup dla Grupy" name="Buy For Group..."/>
 			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." left="130" name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość." width="125"/>
-			<button label="Porzuć z Posiadłości..." label_selected="Porzuć z Posiadłości..." name="Abandon Land..."/>
-			<button label="Odzyskaj Posiadłość..." label_selected="Odzyskaj Posiadłość..." name="Reclaim Land..."/>
-			<button label="Sprzedaż przez Lindenów..." label_selected="Sprzedaż przez Lindenów..." name="Linden Sale..." tool_tip="Posiadłość musi mieć właściciela, zawartość oraz nie może być wystawiona na aukcę."/>
+			<button label="Porzuć z Posiadłości" name="Abandon Land..."/>
+			<button label="Odzyskaj Posiadłość" name="Reclaim Land..."/>
+			<button label="Sprzedaż przez Lindenów" name="Linden Sale..." tool_tip="Posiadłość musi mieć właściciela, zawartość oraz nie może być wystawiona na aukcę."/>
 			<panel.string name="new users only">
 				Tylko nowi użytkownicy
 			</panel.string>
@@ -224,7 +224,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT]
 			</text>
 			<button label="Pokaż" label_selected="Pokaż" name="ShowOwner"/>
-			<button label="Zwróć..." label_selected="Zwróć..." name="ReturnOwner..." tool_tip="Zwróć obiekty do ich właścicieli."/>
+			<button label="Zwróć" name="ReturnOwner..." tool_tip="Zwróć obiekty do ich właścicieli."/>
 			<text name="Set to group:">
 				Grupy:
 			</text>
@@ -232,7 +232,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT]
 			</text>
 			<button label="Pokaż" label_selected="Pokaż" name="ShowGroup"/>
-			<button label="Zwróć..." label_selected="Zwróć..." name="ReturnGroup..." tool_tip="Zwróć obiekty do ich właścicieli.."/>
+			<button label="Zwróć" name="ReturnGroup..." tool_tip="Zwróć obiekty do ich właścicieli.."/>
 			<text name="Owned by others:">
 				Innych Rezydentów:
 			</text>
@@ -240,7 +240,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT]
 			</text>
 			<button label="Pokaż" label_selected="Pokaż" name="ShowOther"/>
-			<button label="Zwróć..." label_selected="Zwróć..." name="ReturnOther..." tool_tip="Zwróć obiekty do ich właścicieli."/>
+			<button label="Zwróć" name="ReturnOther..." tool_tip="Zwróć obiekty do ich właścicieli."/>
 			<text name="Selected / sat upon:">
 				Wybranych:
 			</text>
