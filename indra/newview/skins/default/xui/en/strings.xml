@@ -3016,6 +3016,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     [SOURCES] have said something new
   </string>"
   
-  <string name="paid_you_ldollars">"paid you L$"</string>"
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
 
 </strings>
