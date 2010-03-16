@@ -6,9 +6,9 @@
 	<button label="Nuevo" label_selected="Nuevo" name="WLNewPreset"/>
 	<button label="Guardar" label_selected="Guardar" name="WLSavePreset"/>
 	<button label="Borrar" label_selected="Borrar" name="WLDeletePreset"/>
-	<button font="SansSerifSmall" width="150" left_delta="90" label="Editor del ciclo de un día" label_selected="Editor del ciclo de un día" name="WLDayCycleMenuButton"/>
+	<button font="SansSerifSmall" label="Editor del ciclo de un día" label_selected="Editor del ciclo de un día" left_delta="90" name="WLDayCycleMenuButton" width="150"/>
 	<tab_container name="WindLight Tabs">
-		<panel label="Atmósfera" name="Atmosphere">
+		<panel label="ATMÓSFERA" name="Atmosphere">
 			<text name="BHText">
 				Coloración
 			</text>
@@ -62,7 +62,7 @@
 			</text>
 			<button label="?" name="WLMaxAltitudeHelp"/>
 		</panel>
-		<panel label="Iluminación" name="Lighting">
+		<panel label="LUZ" name="Lighting">
 			<text name="SLCText">
 				Color del Sol y de la Luna
 			</text>
@@ -118,11 +118,11 @@
 			</text>
 			<button label="?" name="WLStarBrightnessHelp"/>
 		</panel>
-		<panel label="Nubes" name="Clouds">
+		<panel label="NUBES" name="Clouds">
 			<text name="WLCloudColorText">
 				Color de las nubes
 			</text>
-			<button label="?" name="WLCloudColorHelp" left="190" />
+			<button label="?" left="190" name="WLCloudColorHelp"/>
 			<text name="BHText">
 				R
 			</text>
@@ -138,7 +138,7 @@
 			<text name="WLCloudColorText2">
 				Posición/Densidad de las nubes
 			</text>
-			<button label="?" name="WLCloudDensityHelp" left="190"/>
+			<button label="?" left="190" name="WLCloudDensityHelp"/>
 			<text name="BHText5">
 				X
 			</text>
@@ -156,12 +156,12 @@
 				Altitud de las nubes
 			</text>
 			<button label="?" name="WLCloudScaleHelp"/>
-			<text name="WLCloudDetailText" font="SansSerifSmall">
+			<text font="SansSerifSmall" name="WLCloudDetailText">
 				Detalle de las nubes
 (Posición/Densidad)
 			</text>
 			<button label="?" name="WLCloudDetailHelp"/>
-			<text name="BHText8" bottom="-113">
+			<text bottom="-113" name="BHText8">
 				X
 			</text>
 			<text name="BHText9">
@@ -182,7 +182,7 @@
 			<button label="?" name="WLCloudScrollYHelp"/>
 			<check_box label="Bloquear" name="WLCloudLockY"/>
 			<check_box label="Incluir nubes clásicas" name="DrawClassicClouds"/>
-			<button label="?" name="WLClassicCloudsHelp" left="618"/>
+			<button label="?" left="618" name="WLClassicCloudsHelp"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultSkyNames">

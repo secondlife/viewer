@@ -164,6 +164,7 @@
 		Pulsa para ejecutar el comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL actual: [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$"/>
 	<string name="SLurlLabelTeleport">
 		Teleportarse a
 	</string>
@@ -736,6 +737,9 @@
 	</string>
 	<string name="invalid">
 		inválido/a
+	</string>
+	<string name="NewWearable">
+		Nuevo [WEARABLE_ITEM]
 	</string>
 	<string name="next">
 		Siguiente
@@ -1434,6 +1438,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		Script nuevo
+	</string>
+	<string name="BusyModeResponseDefault">
+		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado.    Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
 	</string>
 	<string name="MuteByName">
 		(por el nombre)

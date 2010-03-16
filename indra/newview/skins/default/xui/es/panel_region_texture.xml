@@ -25,16 +25,16 @@
 		Rangos de la elevación de la textura
 	</text>
 	<text name="height_text_lbl6">
-		Suroeste
-	</text>
-	<text name="height_text_lbl7">
 		Noroeste
 	</text>
+	<text name="height_text_lbl7">
+		Noreste
+	</text>
 	<text name="height_text_lbl8">
-		Sureste
+		Suroeste
 	</text>
 	<text name="height_text_lbl9">
-		Noreste
+		Sureste
 	</text>
 	<spinner label="Baja" name="height_start_spin_0"/>
 	<spinner label="Baja" name="height_start_spin_1"/>

@@ -24,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="GENERAL" name="land_general_panel">
 			<panel.string name="new users only">
-				Sólo usuarios nuevos
+				Sólo nuevos Residentes
 			</panel.string>
 			<panel.string name="anyone">
 				Cualquiera
@@ -432,6 +432,9 @@ los media:
 		<panel label="ACCESO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Definido por el Estado)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Permitir el acceso público ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado
