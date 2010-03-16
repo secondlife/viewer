@@ -34,9 +34,10 @@
 #define LL_LLFLOATERSNAPSHOT_H
 
 #include "llfloater.h"
+#include "lltransientdockablefloater.h"
 
 
-class LLFloaterSnapshot : public LLFloater
+class LLFloaterSnapshot : public LLTransientDockableFloater
 {
 public:
 	typedef enum e_snapshot_format
@@ -45,6 +46,13 @@ public:
 		SNAPSHOT_FORMAT_JPEG,
 		SNAPSHOT_FORMAT_BMP
 	} ESnapshotFormat;
+
+	enum ESnapshotMode
+	{
+		SNAPSHOT_SHARE,
+		SNAPSHOT_SAVE,
+		SNAPSHOT_MAIN
+	};
 
 	LLFloaterSnapshot(const LLSD& key);
 	virtual ~LLFloaterSnapshot();
@@ -55,6 +63,8 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 	
 	static void update();
+	
+	bool updateButtons(ESnapshotMode mode);
 	
 	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}
 	static S32  getUIWinHeightShort() {return sUIWinHeightShort ;}
@@ -67,6 +77,8 @@ private:
 	static S32    sUIWinHeightLong ;
 	static S32    sUIWinHeightShort ;
 	static S32    sUIWinWidth ;
+
+	LLRect mRefreshBtnRect;
 };
 
 class LLSnapshotFloaterView : public LLFloaterView
