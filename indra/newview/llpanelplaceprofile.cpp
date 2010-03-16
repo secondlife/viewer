@@ -569,7 +569,7 @@ void LLPanelPlaceProfile::onForSaleBannerClick()
 		{
 			if(parcel->getSalePrice() - gStatusBar->getBalance() > 0)
 			{
-				LLFloaterBuyCurrency::buyCurrency("Buying selected land ", parcel->getSalePrice());
+				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("buying_selected_land"), parcel->getSalePrice());
 			}
 			else
 			{

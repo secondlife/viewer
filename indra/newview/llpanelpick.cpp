@@ -72,10 +72,6 @@
 #define XML_BTN_ON_TXTR "edit_icon"
 #define XML_BTN_SAVE "save_changes_btn"
 
-#define SAVE_BTN_LABEL "[WHAT]"
-#define LABEL_PICK = "Pick"
-#define LABEL_CHANGES = "Changes"
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -147,8 +143,6 @@ void LLPanelPickInfo::onOpen(const LLSD& key)
 BOOL LLPanelPickInfo::postBuild()
 {
 	mSnapshotCtrl = getChild<LLTextureCtrl>(XML_SNAPSHOT);
-
-	childSetLabelArg(XML_BTN_SAVE, SAVE_BTN_LABEL, std::string("Pick"));
 
 	childSetAction("teleport_btn", boost::bind(&LLPanelPickInfo::onClickTeleport, this));
 	childSetAction("show_on_map_btn", boost::bind(&LLPanelPickInfo::onClickMap, this));

@@ -609,7 +609,7 @@ void LLTaskInvFVBridge::performAction(LLFolderView* folder, LLInventoryModel* mo
 		{
 			if (price > 0 && price > gStatusBar->getBalance())
 			{
-				LLFloaterBuyCurrency::buyCurrency("This costs", price);
+				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_costs"), price);
 			}
 			else
 			{
@@ -1575,6 +1575,7 @@ void LLPanelObjectInventory::reset()
 	LLRect dummy_rect(0, 1, 1, 0);
 	LLFolderView::Params p;
 	p.name = "task inventory";
+	p.title = "task inventory";
 	p.task_id = getTaskUUID();
 	p.parent_panel = this;
 	p.tool_tip= p.name;

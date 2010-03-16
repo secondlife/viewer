@@ -14,7 +14,14 @@
 
 	<!-- starting up -->
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
-	<string name="StartupLoading">Loading</string>
+	<string name="StartupLoading">Loading [APP_NAME]...</string>
+	<string name="StartupClearingCache">Clearing cache...</string>
+	<string name="StartupInitializingTextureCache">Initializing Texture Cache...</string>
+	<string name="StartupInitializingVFS">Initializing VFS...</string>
+
+	<!--  progress -->
+	<string name="ProgressRestoring">Restoring...</string>
+	<string name="ProgressChangingResolution">Changing Resolution...</string>
 
 	<!-- Legacy strings, almost never used -->
 	<string name="Fullbright">Fullbright (Legacy)</string>	<!-- used in the Build > materials dropdown-->
@@ -40,11 +47,15 @@
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
 	<string name="LoginFailedNoNetwork">Network Error: Could not establish connection, please check your network connection.</string>
+	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
 	<string name="create_account_url">http://join.secondlife.com/</string>
 
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
+	<string name="SavingSettings">Saving your settings...</string>
+	<string name="LoggingOut">Logging out...</string>
+	<string name="ShuttingDown">Shutting down...</string>
 
 
 	<!-- Tooltip, lltooltipview.cpp -->
@@ -134,6 +145,7 @@
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
 
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
+	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>
 	<string name="sound">sound</string>
 	<string name="calling card">calling card</string>
@@ -158,6 +170,7 @@
 	<string name="simstate">simstate</string>
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
+	<string name="symbolic folder link">folder link</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
@@ -3016,6 +3029,16 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     [SOURCES] have said something new
   </string>"
   
-  <string name="paid_you_ldollars">"paid you L$"</string>"
+  <!-- Financial operations strings -->
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="giving">Giving</string>
+  <string name="uploading_costs">Uploading costs</string>
+  <string name="this_costs">This costs</string>
+  <string name="buying_selected_land">Buying selected land</string>
+  <string name="this_object_costs">This object costs"</string>
+  
+  <string name="group_role_everyone">Everyone</string>
+  <string name="group_role_officers">Officers</string>
+  <string name="group_role_owners">Owners</string>
 
 </strings>

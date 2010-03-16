@@ -103,6 +103,7 @@
 #include "llfloatercamera.h"
 #include "lluilistener.h"
 #include "llappearancemgr.h"
+#include "lltrans.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -3272,7 +3273,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	
 	if (price > 0 && price > gStatusBar->getBalance())
 	{
-		LLFloaterBuyCurrency::buyCurrency("This object costs", price);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_object_costs"), price);
 		return;
 	}
 

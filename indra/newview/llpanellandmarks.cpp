@@ -656,9 +656,6 @@ void LLLandmarksPanel::initListCommandsHandlers()
 
 	mListCommands->childSetAction(OPTIONS_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
 	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
-	mListCommands->getChild<LLButton>(ADD_BUTTON_NAME)->setHeldDownCallback(boost::bind(&LLLandmarksPanel::onAddButtonHeldDown, this));
-	static const LLSD add_landmark_command("add_landmark");
-	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onAddAction, this, add_landmark_command));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
 	trash_btn->setDragAndDropHandler(boost::bind(&LLLandmarksPanel::handleDragAndDropToTrash, this
@@ -676,6 +673,8 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::showActionMenu, this, mMenuAdd, ADD_BUTTON_NAME));
 }
 
 
@@ -711,11 +710,6 @@ void LLLandmarksPanel::onActionsButtonClick()
 	}
 
 	showActionMenu(menu,OPTIONS_BUTTON_NAME);
-}
-
-void LLLandmarksPanel::onAddButtonHeldDown()
-{
-	showActionMenu(mMenuAdd,ADD_BUTTON_NAME);
 }
 
 void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -776,6 +770,12 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
 							"category"), gInventory.findCategoryUUIDForType(
 							LLFolderType::FT_LANDMARK));
+		}
+		else
+		{
+			//in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
+			menu_create_inventory_item(mLandmarksInventoryPanel->getRootFolder(), NULL, LLSD("category"), 
+				gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
 		}
 	}
 }
@@ -917,7 +917,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			return false;
 		}
 	}
-	else if (!root_folder_view)
+	else if (!root_folder_view && "category" != command_name)
 	{
 		return false;
 	}
@@ -953,7 +953,8 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			// ... but except Received folder
 			return !isReceivedFolderSelected();
 		}
-		else return false;
+		//"Add a folder" is enabled by default (case when My Landmarks is empty)
+		else return true;
 	}
 	else if("create_pick" == command_name)
 	{

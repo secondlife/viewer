@@ -1130,6 +1130,22 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 //	dec_busy_count();
 }
 
+static void remove_non_link_items(LLInventoryModel::item_array_t &items)
+{
+	LLInventoryModel::item_array_t pruned_items;
+	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
+		 iter != items.end();
+		 ++iter)
+	{
+ 		const LLViewerInventoryItem *item = (*iter);
+		if (item && item->getIsLinkType())
+		{
+			pruned_items.push_back((*iter));
+		}
+	}
+	items = pruned_items;
+}
+
 void LLAppearanceManager::updateAppearanceFromCOF()
 {
 	// update dirty flag to see if the state of the COF matches
@@ -1143,13 +1159,17 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	bool follow_folder_links = true;
 	LLUUID current_outfit_id = getCOF();
 
-	// Find all the wearables that are in the COF's subtree.	
+	// Find all the wearables that are in the COF's subtree.
 	lldebugs << "LLAppearanceManager::updateFromCOF()" << llendl;
 	LLInventoryModel::item_array_t wear_items;
 	LLInventoryModel::item_array_t obj_items;
 	LLInventoryModel::item_array_t gest_items;
 	getUserDescendents(current_outfit_id, wear_items, obj_items, gest_items, follow_folder_links);
-	
+	// Get rid of non-links in case somehow the COF was corrupted.
+	remove_non_link_items(wear_items);
+	remove_non_link_items(obj_items);
+	remove_non_link_items(gest_items);
+
 	if(!wear_items.count())
 	{
 		LLNotificationsUtil::add("CouldNotPutOnOutfit");
@@ -1173,7 +1193,7 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	{
 		LLViewerInventoryItem *item = wear_items.get(i);
 		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
-		if (item && linked_item)
+		if (item && item->getIsLinkType() && linked_item)
 		{
 			LLFoundData found(linked_item->getUUID(),
 							  linked_item->getAssetUUID(),
@@ -1200,11 +1220,11 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 		{
 			if (!item)
 			{
-				llwarns << "attempt to wear a null item " << llendl;
+				llwarns << "Attempt to wear a null item " << llendl;
 			}
 			else if (!linked_item)
 			{
-				llwarns << "attempt to wear a broken link " << item->getName() << llendl;
+				llwarns << "Attempt to wear a broken link [ name:" << item->getName() << " ] " << llendl;
 			}
 		}
 	}
@@ -1733,6 +1753,13 @@ BOOL LLAppearanceManager::getIsInCOF(const LLUUID& obj_id) const
 BOOL LLAppearanceManager::getIsProtectedCOFItem(const LLUUID& obj_id) const
 {
 	if (!getIsInCOF(obj_id)) return FALSE;
+
+	// If a non-link somehow ended up in COF, allow deletion.
+	const LLInventoryObject *obj = gInventory.getObject(obj_id);
+	if (obj && !obj->getIsLinkType())
+	{
+		return FALSE;
+	}
 
 	// For now, don't allow direct deletion from the COF.  Instead, force users
 	// to choose "Detach" or "Take Off".
