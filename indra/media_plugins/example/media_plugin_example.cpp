@@ -119,17 +119,6 @@ void MediaPluginExample::receiveMessage( const char* message_string )
 				std::string plugin_version = "Example media plugin, Example Version 1.0.0.0";
 				message.setValue( "plugin_version", plugin_version );
 				sendMessage( message );
-
-				// Plugin gets to decide the texture parameters to use.
-				message.setMessage( LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params" );
-				message.setValueS32( "default_width", mWidth );
-				message.setValueS32( "default_height", mHeight );
-				message.setValueS32( "depth", mDepth );
-				message.setValueU32( "internalformat", GL_RGBA );
-				message.setValueU32( "format", GL_RGBA );
-				message.setValueU32( "type", GL_UNSIGNED_BYTE );
-				message.setValueBoolean( "coords_opengl", false );
-				sendMessage( message );
 			}
 			else
 			if ( message_name == "idle" )
@@ -191,7 +180,20 @@ void MediaPluginExample::receiveMessage( const char* message_string )
 		else
 		if ( message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA )
 		{
-			if ( message_name == "size_change" )
+			if ( message_name == "init" )
+			{
+				// Plugin gets to decide the texture parameters to use.
+				message.setMessage( LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params" );
+				message.setValueS32( "default_width", mWidth );
+				message.setValueS32( "default_height", mHeight );
+				message.setValueS32( "depth", mDepth );
+				message.setValueU32( "internalformat", GL_RGBA );
+				message.setValueU32( "format", GL_RGBA );
+				message.setValueU32( "type", GL_UNSIGNED_BYTE );
+				message.setValueBoolean( "coords_opengl", false );
+				sendMessage( message );
+			}
+			else if ( message_name == "size_change" )
 			{
 				std::string name = message_in.getValue( "name" );
 				S32 width = message_in.getValueS32( "width" );
