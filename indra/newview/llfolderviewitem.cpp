@@ -258,8 +258,10 @@ void LLFolderViewItem::refreshFromListener()
 		if (LLFolderType::lookupIsProtectedType(preferred_type))
 		{
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);
+			setToolTip(mLabel);
 		};
 
+		setToolTip(mLabel);
 		setIcon(mListener->getIcon());
 		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)

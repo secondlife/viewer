@@ -56,7 +56,9 @@
 	<string name="SavingSettings">Saving your settings...</string>
 	<string name="LoggingOut">Logging out...</string>
 	<string name="ShuttingDown">Shutting down...</string>
-
+	<string name="YouHaveBeenDisconnected">You have been disconnected from the region you were in.</string>
+	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
+	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
 	<!-- Tooltip, lltooltipview.cpp -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
@@ -2121,6 +2123,7 @@ Clears (deletes) the media and all params from the given face.
 
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">New Script</string>
+	<string name="PanelContentsTooltip">Content of object</string>
 
   <!-- panel preferences general -->
   <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
