@@ -272,7 +272,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	}
 	else
 	{
-		LLFloaterBuyCurrency::buyCurrency("Giving", amount);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving"), amount);
 	}
 }
 
@@ -1500,7 +1500,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 	std::string typestr = ll_safe_string(LLAssetType::lookupHumanReadable(info->mType));
 	if (!typestr.empty())
 	{
-		args["OBJECTTYPE"] = typestr;
+		// human readable matches string name from strings.xml
+		// lets get asset type localized name
+		args["OBJECTTYPE"] = LLTrans::getString(typestr);
 	}
 	else
 	{
@@ -4484,11 +4486,13 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 			std::string ammount = desc.substr(marker_pos + marker.length(),desc.length() - marker.length() - marker_pos);
 	
 			//reform description
-			std::string paid_you = LLTrans::getString("paid_you_ldollars");
-			std::string new_description = base_name + paid_you + ammount;
+			LLStringUtil::format_map_t str_args;
+			str_args["NAME"] = base_name;
+			str_args["AMOUNT"] = ammount;
+			std::string new_description = LLTrans::getString("paid_you_ldollars", str_args);
+
 
 			args["MESSAGE"] = new_description;
-			
 			args["NAME"] = name;
 			LLSD payload;
 			payload["from_id"] = from_id;

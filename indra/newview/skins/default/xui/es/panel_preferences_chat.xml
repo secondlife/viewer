@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat de texto" name="chat">
 	<text name="font_size">
-		Font size:
+		Tamaño de la fuente:
 	</text>
 	<radio_group name="chat_font_size">
 		<radio_item label="Disminuir" name="radio" value="0"/>
@@ -9,7 +9,7 @@
 		<radio_item label="Aumentar" name="radio3" value="2"/>
 	</radio_group>
 	<text name="font_colors">
-		Font colors:
+		Colores de la fuente:
 	</text>
 	<color_swatch label="Usted" name="user"/>
 	<text name="text_box1">

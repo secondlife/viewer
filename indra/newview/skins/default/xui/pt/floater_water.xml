@@ -8,7 +8,7 @@
 	<button label="Salvar" label_selected="Salvar" name="WaterSavePreset"/>
 	<button label="Deletar" label_selected="Deletar" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Configurações" name="Settings">
+		<panel label="DEFINIÇÕES" name="Settings">
 			<text name="BHText">
 				Cor da névoa da Água
 			</text>
@@ -56,7 +56,7 @@
 			</text>
 			<button label="?" left="640" name="WaterBlurMultiplierHelp"/>
 		</panel>
-		<panel label="Imagem" name="Waves">
+		<panel label="IMAGEM" name="Waves">
 			<text name="BHText">
 				Direção da Onda Maior
 			</text>

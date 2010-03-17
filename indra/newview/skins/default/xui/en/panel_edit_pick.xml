@@ -183,7 +183,7 @@
         <button
          follows="bottom|left"
          height="23"
-         label="Save [WHAT]"
+         label="Save Pick"
          layout="topleft"
          name="save_changes_btn"
          left="0"

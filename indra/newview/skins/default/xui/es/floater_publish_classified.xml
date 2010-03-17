@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Publicación de clasificados">
+	<text name="explanation_text">
+		Tu anuncio clasificado se mostrará durante una semana a partir del día en que se publicó.
+        
+Recuerda, no se reembolsarán las cantidades abonadas por clasificados.
+	</text>
+	<spinner label="Precio por el anuncio:" name="price_for_listing" tool_tip="Precio por publicarlo." value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		Más información (enlace a ayuda de clasificados)
+	</text>
+	<button label="Publicar" name="publish_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>
