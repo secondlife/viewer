@@ -3808,7 +3808,9 @@ std::string LLGestureBridge::getLabelSuffix() const
 {
 	if( LLGestureManager::instance().isGestureActive(mUUID) )
 	{
-		return LLItemBridge::getLabelSuffix() + " (active)";
+		LLStringUtil::format_map_t args;
+		args["[GESLABEL]"] =  LLItemBridge::getLabelSuffix();
+		return  LLTrans::getString("ActiveGesture", args);
 	}
 	else
 	{
@@ -4157,7 +4159,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
-		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
+		args["[ATTACHMENT_POINT]"] =  LLTrans::getString(attachment_point_name);
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
 	}
 	else
