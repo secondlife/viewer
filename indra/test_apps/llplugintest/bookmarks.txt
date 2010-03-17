@@ -18,20 +18,20 @@
 (Flash) Scribd,http://www.scribd.com/doc/14427744/Second-Life-Quickstart-Guide
 (Flash) MAME,http://yvern.com/fMAME/fMAME.html
 (QT) Local sample,file:///C|/Program Files/QuickTime/Sample.mov
-(QT) Movie - Watchmen Trailer,http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov
-(QT) Movie - Transformers - Revenge of the Fallen,http://movies.apple.com/movies/paramount/transformers2/transformersrevengeofthefallen-tlr1_h.320.mov
-(QT) Movie - Terminator Salvation,http://movies.apple.com/movies/wb/terminatorsalvation/terminatorsalvation-tlr3_h.320.mov
-(QT) Movie - Angels and Demons,http://movies.apple.com/movies/sony_pictures/angelsanddemons/angelsanddemons-video_h.320.mov
-(QT) Movie - Sin City Trailer,http://movies.apple.com/movies/miramax/sin_city/sin_city_480.mov
-(QT) Movie - The Incredibles Trailer,http://movies.apple.com/movies/disney/the_incredibles/the_incredibles-tlr_a480.mov
+(QT) Movie - Watchmen Trailer,http://trailers.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov
+(QT) Movie - Transformers - Revenge of the Fallen,http://trailers.apple.com/movies/paramount/transformers2/transformersrevengeofthefallen-tlr1_h.320.mov
+(QT) Movie - Terminator Salvation,http://trailers.apple.com/movies/wb/terminatorsalvation/terminatorsalvation-tlr3_h.320.mov
+(QT) Movie - Angels and Demons,http://trailers.apple.com/movies/sony_pictures/angelsanddemons/angelsanddemons-video_h.320.mov
+(QT) Movie - Sin City Trailer,http://trailers.apple.com/movies/miramax/sin_city/sin_city_480.mov
+(QT) Movie - The Incredibles Trailer,http://trailers.apple.com/movies/disney/the_incredibles/the_incredibles-tlr_a480.mov
 (QT) Movie - Streaming Apple Event,http://stream.qtv.apple.com/events/mar/0903lajkszg/m_090374535329zdwg_650_ref.mov
 (QT) Movie - MPEG-4 from Amazon S3,http://s3.amazonaws.com/callum-linden/flashdemo/interactive_flash_demo.mp4
-(QT) Movie - Star Trek,http://movies.apple.com/movies/paramount/star_trek/startrek-tlr3_h.320.mov
-(QT) Movie - Ice Age 3,http://movies.apple.com/movies/fox/ice_age_iii/iceage3-tlrd_h.320.mov
-(QT) Movie - AstroBoy,http://movies.apple.com/movies/summit/astroboy/astroboy-tsr_h.320.mov
-(QT) Movie - Ante Up,http://movies.apple.com/movies/independent/anteup/anteup_h.320.mov
-(QT) Movie - Every Little Step,http://movies.apple.com/movies/sony/everylittlestep/everylittlestep-clip_h.320.mov
-(QT) Movie - The Informers,http://movies.apple.com/movies/independent/theinformers/theinformers_h.320.mov
+(QT) Movie - Star Trek,http://trailers.apple.com/movies/paramount/star_trek/startrek-tlr3_h.320.mov
+(QT) Movie - Ice Age 3,http://trailers.apple.com/movies/fox/ice_age_iii/iceage3-tlrd_h.320.mov
+(QT) Movie - AstroBoy,http://trailers.apple.com/movies/summit/astroboy/astroboy-tsr_h.320.mov
+(QT) Movie - Ante Up,http://trailers.apple.com/movies/independent/anteup/anteup_h.320.mov
+(QT) Movie - Every Little Step,http://trailers.apple.com/movies/sony/everylittlestep/everylittlestep-clip_h.320.mov
+(QT) Movie - The Informers,http://trailers.apple.com/movies/independent/theinformers/theinformers_h.320.mov
 (QT) Animated GIF,http://upload.wikimedia.org/wikipedia/commons/4/44/Optical.greysquares.arp-animated.gif
 (QT) Apple Text Descriptors,http://ubrowser.com/tmp/apple_text.txt
 (EX) Example Plugin,example://blah

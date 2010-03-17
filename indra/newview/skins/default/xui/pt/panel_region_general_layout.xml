@@ -36,7 +36,7 @@
 		<combo_box.item label="Geral" name="PG"/>
 	</combo_box>
 	<button label="Aplicar" name="apply_btn"/>
-	<button label="Teletransportar para início..." name="kick_btn"/>
+	<button label="Teletransportar um residente para início..." name="kick_btn"/>
 	<button label="Teletransportar todos para início..." name="kick_all_btn"/>
 	<button label="Enviar mensagem para região..." name="im_btn"/>
 	<button label="Gerenciar telehub..." name="manage_telehub_btn"/>

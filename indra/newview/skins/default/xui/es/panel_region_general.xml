@@ -19,35 +19,26 @@
 		desconocido
 	</text>
 	<check_box label="No permitir modificar el terreno" name="block_terraform_check"/>
-	<button label="?" name="terraform_help"/>
 	<check_box label="Prohibir volar" name="block_fly_check"/>
-	<button label="?" name="fly_help"/>
 	<check_box label="Permitir el daño" name="allow_damage_check"/>
-	<button label="?" name="damage_help"/>
 	<check_box label="Impedir los &apos;empujones&apos;" name="restrict_pushobject"/>
-	<button label="?" name="restrict_pushobject_help"/>
 	<check_box label="Permitir la reventa del terreno" name="allow_land_resell_check"/>
-	<button label="?" name="land_resell_help"/>
 	<check_box label="Permitir unir/dividir el terreno" name="allow_parcel_changes_check"/>
-	<button label="?" name="parcel_changes_help"/>
-	<check_box label="Bloquear el mostrar el terreno en &#10;la búsqueda." name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
-	<button label="?" name="parcel_search_help"/>
-	<spinner label="Nº máximo de avatares" name="agent_limit_spin" label_width="120" width="180"/>
-	<button label="?" name="agent_limit_help"/>
-	<spinner label="Plus de objetos" name="object_bonus_spin" label_width="120" width="180"/>
-	<button label="?" name="object_bonus_help"/>
+	<check_box label="Bloquear el mostrar el terreno en 
+la búsqueda." name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
+	<spinner label="Nº máximo de avatares" label_width="120" name="agent_limit_spin" width="180"/>
+	<spinner label="Plus de objetos" label_width="120" name="object_bonus_spin" width="180"/>
 	<text label="Calificación" name="access_text">
 		Calificación:
 	</text>
-	<combo_box label="&apos;Mature&apos;" name="access_combo">
-		<combo_box.item label="&apos;Adult&apos;" name="Adult"/>
-		<combo_box.item label="&apos;Mature&apos;" name="Mature"/>
-		<combo_box.item label="&apos;PG&apos;" name="PG"/>
-	</combo_box>
-	<button label="?" name="access_help"/>
+	<icons_combo_box label="&apos;Mature&apos;" name="access_combo">
+		<icons_combo_box.item label="&apos;Adult&apos;" name="Adult" value="42"/>
+		<icons_combo_box.item label="&apos;Mature&apos;" name="Mature" value="21"/>
+		<icons_combo_box.item label="&apos;PG&apos;" name="PG" value="13"/>
+	</icons_combo_box>
 	<button label="Aplicar" name="apply_btn"/>
-	<button label="Teleportar a su Base a un usuario..." name="kick_btn"/>
-	<button label="Teleportar a su Base a todos los usuarios..." name="kick_all_btn"/>
-	<button label="Enviar un mensaje a toda la región..." name="im_btn" width="250" />
+	<button label="Teleportar a su Base a un Residente..." name="kick_btn"/>
+	<button label="Teleportar a sus Bases a todos los Residentes..." name="kick_all_btn"/>
+	<button label="Enviar un mensaje a toda la región..." name="im_btn" width="250"/>
 	<button label="Administrar el Punto de Teleporte..." name="manage_telehub_btn" width="210"/>
 </panel>

@@ -5,12 +5,19 @@
 			Leyenda
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Centrar el mapa en la posición de mi avatar"/>
 		<text name="me_label">
 			Yo
 		</text>
 		<text name="person_label">
 			Persona
+		</text>
+		<text name="infohub_label">
+			Punto de Info
+		</text>
+		<text name="land_sale_label">
+			Venta de terreno
 		</text>
 		<text name="by_owner_label">
 			por el propietario
@@ -18,9 +25,17 @@
 		<text name="auction_label">
 			subasta de terreno
 		</text>
+		<button name="Go Home" tool_tip="Teleportar a mi Base"/>
+		<text name="Home_label">
+			Base
+		</text>
+		<text name="events_label">
+			Eventos:
+		</text>
 		<text name="pg_label">
 			General
 		</text>
+		<check_box initial_value="verdadero" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderado
 		</text>
@@ -28,7 +43,28 @@
 			Adulto
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_3">
+		<text name="find_on_map_label">
+			Encontrar en el mapa
+		</text>
+	</panel>
+	<panel name="layout_panel_4">
+		<combo_box label="Amigos online" name="friend combo" tool_tip="Ver a los amigos en el mapa">
+			<combo_box.item label="Mis amigos conectados" name="item1"/>
+		</combo_box>
+		<combo_box label="Mis hitos" name="landmark combo" tool_tip="Hito a ver en el mapa">
+			<combo_box.item label="Mis hitos" name="item1"/>
+		</combo_box>
+		<search_editor label="Regiones alfabéticamente" name="location" tool_tip="Escribe el nombre de una región"/>
+		<button label="Encontrar" name="DoSearch" tool_tip="Buscar una región"/>
 		<button name="Clear" tool_tip="Limpia las marcas y actualiza el mapa"/>
+		<button label="Teleportar" name="Teleport" tool_tip="Teleportar a la localización seleccionada"/>
+		<button label="Copiar la SLurl" name="copy_slurl" tool_tip="Copiar la SLurl de esta posición para usarla en una web."/>
+		<button label="Ver lo elegido" name="Show Destination" tool_tip="Centrar el mapa en la localización seleccionada"/>
+	</panel>
+	<panel name="layout_panel_5">
+		<text name="zoom_label">
+			Zoom
+		</text>
 	</panel>
 </floater>

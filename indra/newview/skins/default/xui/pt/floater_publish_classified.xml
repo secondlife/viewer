@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Publicando anúncio">
+	<text name="explanation_text">
+		Seu anúncio será publicado por uma semana a partir da data de publicação.
+        
+Lembre-se, o pagamento do anúncio não é reembolsável
+	</text>
+	<spinner label="Preço do anúncio:" name="price_for_listing" tool_tip="Preço do anúncio." value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		Mais informações (link para ajuda com anúncios)
+	</text>
+	<button label="Publicar" name="publish_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

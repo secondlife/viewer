@@ -828,7 +828,7 @@
 		ESC キーを押してワールドビューに戻ります
 	</string>
 	<string name="InventoryNoMatchingItems">
-		一致するアイテムが持ち物にありませんでした。  [secondlife:///app/search/groups 「検索」] をお試しください。
+		一致するアイテムがありませんでした。[secondlife:///app/search/groups 「検索」]をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		ここにランドマークをドラッグして、お気に入りに追加します。
@@ -1301,7 +1301,7 @@
 		許可された住人： （[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] グループ）
+		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] ）
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		区画スクリプトメモリ
