@@ -79,8 +79,6 @@ protected:
 
 	bool mCloseNotificationOnDestroy;
 
-private:
-
 	typedef std::pair<int,LLButton*> index_button_pair_t; 
 	void adjustPanelForScriptNotice(S32 max_width, S32 max_height);
 	void adjustPanelForTipNotice();
@@ -134,6 +132,15 @@ private:
 
 	static const LLFontGL* sFont;
 	static const LLFontGL* sFontSmall;
+};
+
+class LLIMToastNotifyPanel : public LLToastNotifyPanel
+{
+public:
+
+	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null);
+
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 };
 
 #endif /* LLTOASTNOTIFYPANEL_H_ */
