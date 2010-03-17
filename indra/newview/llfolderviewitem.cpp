@@ -258,7 +258,6 @@ void LLFolderViewItem::refreshFromListener()
 		if (LLFolderType::lookupIsProtectedType(preferred_type))
 		{
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);
-			setToolTip(mLabel);
 		};
 
 		setToolTip(mLabel);
