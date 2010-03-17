@@ -365,12 +365,12 @@
       use_ellipses="false"
       hover="false"
      commit_on_focus_lost = "true"
-     follows="left|top"
+     follows="left|top|right"
      height="60"
      layout="topleft"
      left="50"
      name="busy_response"
-     width="440"
+     width="450"
      word_wrap="true">
        log_in_to_change
     </text_editor>
