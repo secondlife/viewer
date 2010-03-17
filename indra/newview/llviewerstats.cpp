@@ -829,7 +829,7 @@ void send_stats()
 	misc["string_1"] = llformat("%d", window_size);
 	if (gDebugTimers.find(0) != gDebugTimers.end() && gFrameTimeSeconds > 0)
 	{
-		misc["string_2"] = llformat("Texture Time: %.2f Total Time: %.2f", gDebugTimers[0].getElapsedTimeF32(), gFrameTimeSeconds);
+		misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gDebugTimers[0].getElapsedTimeF32(), gFrameTimeSeconds);
 	}
 
 // 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
