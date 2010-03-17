@@ -2262,11 +2262,14 @@ void LLViewerFetchedTexture::destroyRawImage()
 	{
 		sRawCount--;		
 
-		if(mForceToSaveRawImage)
+		if(mIsRawImageValid)
 		{
-			saveRawImage() ;
-		}		
-		setCachedRawImage() ;
+			if(mForceToSaveRawImage)
+			{
+				saveRawImage() ;
+			}		
+			setCachedRawImage() ;
+		}
 	}
 
 	mRawImage = NULL;
