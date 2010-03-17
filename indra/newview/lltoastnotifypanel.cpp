@@ -430,7 +430,7 @@ button_name_set_t getButtonDisableList(const std::string& notification_name, con
 	{
 		search_map = teleport_offered_disable_map;
 	}
-	else if("FriendshipOffered" == notification_name)
+	else if("OfferFriendship" == notification_name)
 	{
 		search_map = friendship_offered_disable_map;
 	}
