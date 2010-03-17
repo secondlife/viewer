@@ -255,10 +255,27 @@ void LLFolderViewItem::refreshFromListener()
 		// temporary attempt to display the inventory folder in the user locale.
 		// mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
 		//		it uses the same way to find localized string
-		if (LLFolderType::lookupIsProtectedType(preferred_type))
+
+		// HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
+		// Translation of Accessories folder in Library inventory folder
+		bool accessories = false;
+		if(mLabel == std::string("Accessories"))
+		{
+			//To ensure that Accessories folder is in Library we have to check its parent folder.
+			//Due to parent LLFolderViewFloder is not set to this item yet we have to check its parent via Inventory Model
+			LLInventoryCategory* cat = gInventory.getCategory(mListener->getUUID());
+			if(cat)
+			{
+				const LLUUID& parent_folder_id = cat->getParentUUID();
+				accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+			}
+		}
+
+		//"Accessories" inventory category has folder type FT_NONE. So, this folder
+		//can not be detected as protected with LLFolderType::lookupIsProtectedType
+		if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
 		{
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);
-			setToolTip(mLabel);
 		};
 
 		setToolTip(mLabel);
