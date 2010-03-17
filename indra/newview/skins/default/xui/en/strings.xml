@@ -1894,6 +1894,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="InvFolder favorite">Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
+	<string name="InvFolder Accessories">Accessories</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>
