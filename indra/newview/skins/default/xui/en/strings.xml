@@ -3041,7 +3041,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
   <string name="for a parcel of land">for a parcel of land</string>
   <string name="for a land access pass">for a land access pass</string>
-  <string name="for deeding land">for deeding land</strin1g>
+  <string name="for deeding land">for deeding land</string>
   <string name="to create a group">to create a group</string>
   <string name="to join a group">to join a group</string>
   <string name="to upload">to upload</string>
