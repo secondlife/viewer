@@ -1838,6 +1838,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="LoadingContents">Loading contents...</string>
 	<string name="NoContents">No contents</string>
 	<string name="WornOnAttachmentPoint" value=" (worn on [ATTACHMENT_POINT])" />
+	<string name="ActiveGesture" value="[GESLABEL] (active)"/>
 	<!-- Inventory permissions -->
 	<string name="PermYes">Yes</string>
 	<string name="PermNo">No</string>
