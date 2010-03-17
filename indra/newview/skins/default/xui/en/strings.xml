@@ -79,6 +79,12 @@
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
 	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
+	<string name="TooltipAgentMute">Click to mute this Resident</string>
+	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
+	<string name="TooltipAgentIM">Click to IM this Resident</string>
+	<string name="TooltipAgentPay">Click to Pay this Resident</string>
+	<string name="TooltipAgentOfferTeleport">Click to offer a teleport request to this Resident</string>
+	<string name="TooltipAgentRequestFriend">Click to send a friend request to this Resident</string>
 	<string name="TooltipGroupUrl">Click to view this group's description</string>
 	<string name="TooltipEventUrl">Click to view this event's description</string>
 	<string name="TooltipClassifiedUrl">Click to view this classified</string>
@@ -94,6 +100,14 @@
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>
 	<string name="SLurlLabelShowOnMap">Show Map for</string>
+
+	<!-- label strings for secondlife:///app/agent SLapps -->
+	<string name="SLappAgentMute">Mute</string>
+	<string name="SLappAgentUnmute">Unmute</string>
+	<string name="SLappAgentIM">IM</string>
+	<string name="SLappAgentPay">Pay</string>
+	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
+	<string name="SLappAgentRequestFriend">Friend Request </string>
 
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
