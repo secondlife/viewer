@@ -529,7 +529,6 @@ void LLToastNotifyPanel::disableRespondedOptions(LLNotificationPtr& notification
 
 //////////////////////////////////////////////////////////////////////////
 
-#include "llscrollcontainer.h"
 LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect /* = LLRect::null */)
  : LLToastNotifyPanel(pNotification, rect)
 {
