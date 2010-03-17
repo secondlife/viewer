@@ -1020,6 +1020,12 @@ void LLTextureCache::readEntriesHeader()
 		LLAPRFile::readEx(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
 						  getLocalAPRFilePool());
 	}
+	else //create an empty entries header.
+	{
+		mHeaderEntriesInfo.mVersion = sHeaderCacheVersion ;
+		mHeaderEntriesInfo.mEntries = 0 ;
+		writeEntriesHeader() ;
+	}
 }
 
 void LLTextureCache::writeEntriesHeader()
@@ -1438,6 +1444,7 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 		}
 		if (purge_directories)
 		{
+			gDirUtilp->deleteFilesInDir(mTexturesDirName,mask);
 			LLFile::rmdir(mTexturesDirName);
 		}
 	}
