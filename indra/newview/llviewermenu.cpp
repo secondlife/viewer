@@ -86,6 +86,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
+#include "lltrans.h"
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -7047,7 +7048,7 @@ LLVOAvatar* find_avatar_from_object( const LLUUID& object_id )
 
 void handle_disconnect_viewer(void *)
 {
-	LLAppViewer::instance()->forceDisconnect("Testing viewer disconnect");
+	LLAppViewer::instance()->forceDisconnect(LLTrans::getString("TestingDisconnect"));
 }
 
 void force_error_breakpoint(void *)

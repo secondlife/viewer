@@ -3080,7 +3080,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			<< x << ":" << y 
 			<< " current pos " << gAgent.getPositionGlobal()
 			<< LL_ENDL;
-		LLAppViewer::instance()->forceDisconnect("You were sent to an invalid region.");
+		LLAppViewer::instance()->forceDisconnect(LLTrans::getString("SentToInvalidRegion"));
 		return;
 
 	}

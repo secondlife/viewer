@@ -65,15 +65,19 @@ LLPluginClassMedia::~LLPluginClassMedia()
 	reset();
 }
 
-bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug, const std::string &user_data_path, const std::string &language_code)
+bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
 {	
 	LL_DEBUGS("Plugin") << "launcher: " << launcher_filename << LL_ENDL;
 	LL_DEBUGS("Plugin") << "plugin: " << plugin_filename << LL_ENDL;
-	LL_DEBUGS("Plugin") << "user_data_path: " << user_data_path << LL_ENDL;
 	
 	mPlugin = new LLPluginProcessParent(this);
 	mPlugin->setSleepTime(mSleepTime);
-	mPlugin->init(launcher_filename, plugin_filename, debug, user_data_path,language_code);
+	
+	// Queue up the media init message -- it will be sent after all the currently queued messages.
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "init");
+	sendMessage(message);
+	
+	mPlugin->init(launcher_filename, plugin_filename, debug);
 
 	return true;
 }
@@ -675,6 +679,20 @@ void LLPluginClassMedia::copy()
 void LLPluginClassMedia::paste()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "edit_paste");
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_user_data_path");
+	message.setValue("path", user_data_path);
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::setLanguageCode(const std::string &language_code)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_language_code");
+	message.setValue("language", language_code);
 	sendMessage(message);
 }
 

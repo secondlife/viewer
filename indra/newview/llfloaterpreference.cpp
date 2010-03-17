@@ -110,6 +110,9 @@
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
+//control value for middle mouse as talk2push button
+const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
+
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
 public:
@@ -1008,9 +1011,17 @@ void LLFloaterPreference::setKey(KEY key)
 
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
-	childSetValue("modifier_combo", "MiddleMouse");
+	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
+
 	// update the control right away since we no longer wait for apply
-	getChild<LLUICtrl>("modifier_combo")->onCommit();
+	p2t_line_editor->setControlValue(MIDDLE_MOUSE_CV);
+
+	//push2talk button "middle mouse" control value is in English, need to localize it for presentation
+	LLPanel* advanced_preferences = dynamic_cast<LLPanel*>(p2t_line_editor->getParent());
+	if (advanced_preferences)
+	{
+		p2t_line_editor->setValue(advanced_preferences->getString("middle_mouse"));
+	}
 }
 /*
 void LLFloaterPreference::onClickSkipDialogs()
@@ -1300,6 +1311,16 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("voice_call_friends_only_check"))
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+	}
+
+	// Panel Advanced
+	if (hasChild("modifier_combo"))
+	{
+		//localizing if push2talk button is set to middle mouse
+		if (MIDDLE_MOUSE_CV == childGetValue("modifier_combo").asString())
+		{
+			childSetValue("modifier_combo", getString("middle_mouse"));
+		}
 	}
 
 	apply();

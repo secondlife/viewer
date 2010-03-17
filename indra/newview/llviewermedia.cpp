@@ -1258,8 +1258,9 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			LLPluginClassMedia* media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			std::string language_code = LLUI::getLanguage();
-			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"), user_data_path, language_code))
+			media_source->setUserDataPath(user_data_path);
+			media_source->setLanguageCode(LLUI::getLanguage());
+			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
 			}

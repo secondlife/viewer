@@ -859,36 +859,6 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 				plugin_version += codec.str();
 				message.setValue("plugin_version", plugin_version);
 				sendMessage(message);
-
-				// Plugin gets to decide the texture parameters to use.
-				message.setMessage(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
-				#if defined(LL_WINDOWS)
-					// Values for Windows
-					mDepth = 3;
-					message.setValueU32("format", GL_RGB);
-					message.setValueU32("type", GL_UNSIGNED_BYTE);
-
-					// We really want to pad the texture width to a multiple of 32 bytes, but since we're using 3-byte pixels, it doesn't come out even.
-					// Padding to a multiple of 3*32 guarantees it'll divide out properly.
-					message.setValueU32("padding", 32 * 3);
-				#else
-					// Values for Mac
-					mDepth = 4;
-					message.setValueU32("format", GL_BGRA_EXT);
-					#ifdef __BIG_ENDIAN__
-						message.setValueU32("type", GL_UNSIGNED_INT_8_8_8_8_REV );
-					#else
-						message.setValueU32("type", GL_UNSIGNED_INT_8_8_8_8);
-					#endif
-
-					// Pad texture width to a multiple of 32 bytes, to line up with cache lines.
-					message.setValueU32("padding", 32);
-				#endif
-				message.setValueS32("depth", mDepth);
-				message.setValueU32("internalformat", GL_RGB);
-				message.setValueBoolean("coords_opengl", true);	// true == use OpenGL-style coordinates, false == (0,0) is upper left.
-				message.setValueBoolean("allow_downsample", true);
-				sendMessage(message);
 			}
 			else if(message_name == "idle")
 			{
@@ -953,7 +923,41 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 		}
 		else if(message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
 		{
-			if(message_name == "size_change")
+			if(message_name == "init")
+			{
+				// This is the media init message -- all necessary data for initialization should have been received.
+
+				// Plugin gets to decide the texture parameters to use.
+				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
+				#if defined(LL_WINDOWS)
+					// Values for Windows
+					mDepth = 3;
+					message.setValueU32("format", GL_RGB);
+					message.setValueU32("type", GL_UNSIGNED_BYTE);
+
+					// We really want to pad the texture width to a multiple of 32 bytes, but since we're using 3-byte pixels, it doesn't come out even.
+					// Padding to a multiple of 3*32 guarantees it'll divide out properly.
+					message.setValueU32("padding", 32 * 3);
+				#else
+					// Values for Mac
+					mDepth = 4;
+					message.setValueU32("format", GL_BGRA_EXT);
+					#ifdef __BIG_ENDIAN__
+						message.setValueU32("type", GL_UNSIGNED_INT_8_8_8_8_REV );
+					#else
+						message.setValueU32("type", GL_UNSIGNED_INT_8_8_8_8);
+					#endif
+
+					// Pad texture width to a multiple of 32 bytes, to line up with cache lines.
+					message.setValueU32("padding", 32);
+				#endif
+				message.setValueS32("depth", mDepth);
+				message.setValueU32("internalformat", GL_RGB);
+				message.setValueBoolean("coords_opengl", true);	// true == use OpenGL-style coordinates, false == (0,0) is upper left.
+				message.setValueBoolean("allow_downsample", true);
+				sendMessage(message);
+			}
+			else if(message_name == "size_change")
 			{
 				std::string name = message_in.getValue("name");
 				S32 width = message_in.getValueS32("width");
