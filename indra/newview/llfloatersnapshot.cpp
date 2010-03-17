@@ -1045,9 +1045,24 @@ class LLSendWebResponder : public LLHTTPClient::Responder
 {
 public:
 	
-	void result(const LLSD& content)
+	virtual void error(U32 status, const std::string& reason)
 	{
-		LLWeb::loadURLExternal(content["response_url"]);
+		llwarns << status << ": " << reason << llendl;
+		LLNotificationsUtil::add("ShareToWebFailed");
+	}
+	
+	virtual void result(const LLSD& content)
+	{
+		std::string response_url = content["response_url"].asString();
+
+		if (!response_url.empty())
+		{
+			LLWeb::loadURLExternal(response_url);
+		}
+		else
+		{
+			LLNotificationsUtil::add("ShareToWebFailed");
+		}
 	}
 
 };

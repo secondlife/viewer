@@ -5294,6 +5294,13 @@ Failed to find [TYPE] named [DESC] in database.
 
   <notification
    icon="notify.tga"
+   name="ShareToWebFailed"
+   type="notify">
+    Failed to upload image to web.
+  </notification>
+  
+  <notification
+   icon="notify.tga"
    name="InvalidWearable"
    type="notify">
 The item you are trying to wear uses a feature that your Viewer can&apos;t read. Please upgrade your version of [APP_NAME] to wear this item.
