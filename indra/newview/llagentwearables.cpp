@@ -1702,6 +1702,16 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			LLWearable* old_wearable = getWearable(type, 0);
 			if (old_wearable)
 			{
+				// Special case where you're putting on a wearable that has the same assetID
+				// as the previous (e.g. wear a shirt then wear a copy of that shirt) since in this
+				// case old_wearable == new_wearable.
+				if (old_wearable == new_wearable)
+				{
+					old_wearable->setLabelUpdated();
+					new_wearable->setName(new_item->getName());
+					new_wearable->setItemID(new_item->getUUID());
+				}
+
 				const LLUUID& old_item_id = getWearableItemID(type, 0);
 				if ((old_wearable->getAssetID() == new_wearable->getAssetID()) &&
 				    (old_item_id == new_item->getUUID()))
@@ -1717,7 +1727,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 					continue;
 				}
 			}
-
+			
 			new_wearable->setItemID(new_item->getUUID());
 			setWearable(type,0,new_wearable);
 		}
