@@ -142,14 +142,14 @@
    increment="1"
    initial_value="13000"
    label="Port number:"
-   label_width="75"
+   label_width="105"
    layout="topleft"
    left_delta="160"
    max_val="13050"
    min_val="13000"
    name="connection_port"
-   top_delta="-2"
-   width="140" />
+   top_delta="3"
+   width="170" />
   <text
    type="string"
    length="1"
