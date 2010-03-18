@@ -304,8 +304,7 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
-static const S32 FIRST_RUN_WINDOW_WIDTH = 1024;
-static const S32 FIRST_RUN_WINDOW_HRIGHT = 768;
+
 //----------------------------------------------------------------------------
 
 // List of entries from strings.xml to always replace
@@ -2363,35 +2362,12 @@ bool LLAppViewer::initWindow()
 	// store setting in a global for easy access and modification
 	gNoRender = gSavedSettings.getBOOL("DisableRendering");
 
-	S32 window_x = gSavedSettings.getS32("WindowX");
-	S32 window_y = gSavedSettings.getS32("WindowY");
-	S32 window_width = gSavedSettings.getS32("WindowWidth");
-	S32 window_height = gSavedSettings.getS32("WindowHeight");
-
-	bool show_maximized = gSavedSettings.getBOOL("WindowMaximized");
-
-	bool first_run = gSavedSettings.getBOOL("FirstLoginThisInstall");
-
-	if (first_run)//for first login 
-	{
-		window_width = FIRST_RUN_WINDOW_WIDTH;//yep hardcoded
-		window_height = FIRST_RUN_WINDOW_HRIGHT;
-		
-		//if screen resolution is lower then 1024*768 then show maximized
-		LLDisplayInfo display_info;
-		if(display_info.getDisplayWidth() <= FIRST_RUN_WINDOW_WIDTH
-			|| display_info.getDisplayHeight()<=FIRST_RUN_WINDOW_HRIGHT)
-		{
-			show_maximized = true;
-		}
-	}
-
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 	gViewerWindow = new LLViewerWindow(gWindowTitle, 
 		VIEWER_WINDOW_CLASSNAME,
-		window_x, window_y,
-		window_width, window_height,
+		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
+		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
@@ -2402,7 +2378,7 @@ bool LLAppViewer::initWindow()
 		gViewerWindow->toggleFullscreen(FALSE);
 	}
 	
-	if (show_maximized)
+	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
 		gViewerWindow->mWindow->maximize();
 		gViewerWindow->getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
