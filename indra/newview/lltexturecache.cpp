@@ -550,7 +550,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		S32 cur_imagesize = 0;
 		// Checks if this image is already in the entry list
 		idx = mCache->getHeaderCacheEntry(mID, cur_imagesize);
-		if (idx >= 0 && (cur_imagesize >= 0))
+		if (idx >= 0 && (cur_imagesize > 0))
 		{
 			alreadyCached = true;	// already there and non empty
 		}
@@ -846,9 +846,8 @@ bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
 			S32 idx = openAndReadEntry(id, entry, false);
 			if (idx < 0)
 			{
-				llwarns << "Failed to open entry: " << id << llendl;	
-				removeHeaderCacheEntry(id);
-				LLAPRFile::remove(getTextureFileName(id), getLocalAPRFilePool());
+				llwarns << "Failed to open entry: " << id << llendl;
+				removeCachedTexture(id) ;
 				return false;
 			}			
 			else if (oldbodysize != entry.mBodySize)
@@ -857,11 +856,7 @@ bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
 				llerrs << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
 					   << " idx=" << idx << " oldsize=" << oldbodysize << " entrysize=" << entry.mBodySize << llendl;
 			}
-			entry.mBodySize = bodysize;
-			writeEntryAndClose(idx, entry);
-			
-			mTexturesSizeTotal -= oldbodysize;
-			mTexturesSizeTotal += bodysize;
+			updateEntry(idx, entry, entry.mImageSize, bodysize);			
 			
 			if (mTexturesSizeTotal > sCacheMaxTexturesSize)
 			{
@@ -1002,7 +997,10 @@ LLAPRFile* LLTextureCache::openHeaderEntriesFile(bool readonly, S32 offset)
 	llassert_always(mHeaderAPRFile == NULL);
 	apr_int32_t flags = readonly ? APR_READ|APR_BINARY : APR_READ|APR_WRITE|APR_BINARY;
 	mHeaderAPRFile = new LLAPRFile(mHeaderEntriesFileName, flags, getLocalAPRFilePool());
-	mHeaderAPRFile->seek(APR_SET, offset);
+	if(offset > 0)
+	{
+		mHeaderAPRFile->seek(APR_SET, offset);
+	}
 	return mHeaderAPRFile;
 }
 
@@ -1022,6 +1020,12 @@ void LLTextureCache::readEntriesHeader()
 		LLAPRFile::readEx(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
 						  getLocalAPRFilePool());
 	}
+	else //create an empty entries header.
+	{
+		mHeaderEntriesInfo.mVersion = sHeaderCacheVersion ;
+		mHeaderEntriesInfo.mEntries = 0 ;
+		writeEntriesHeader() ;
+	}
 }
 
 void LLTextureCache::writeEntriesHeader()
@@ -1034,8 +1038,7 @@ void LLTextureCache::writeEntriesHeader()
 	}
 }
 
-static S32 mHeaderEntriesMaxWriteIdx = 0;
-
+//mHeaderMutex is locked before calling this.
 S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create)
 {
 	S32 idx = -1;
@@ -1075,8 +1078,7 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
 					if (iter3 != mHeaderIDMap.end() && iter3->second >= 0)
 					{
 						idx = iter3->second;
-						mHeaderIDMap.erase(oldid);
-						mTexturesSizeMap.erase(oldid);
+						removeCachedTexture(oldid) ;//remove the existing cached texture to release the entry index.
 						break;
 					}
 				}
@@ -1086,22 +1088,9 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
 			}
 			if (idx >= 0)
 			{
-				// Set the header index
-				mHeaderIDMap[id] = idx;
-				llassert_always(mTexturesSizeMap.erase(id) == 0);
-				// Initialize the entry (will get written later)
-				entry.init(id, time(NULL));
-				// Update Header
-				writeEntriesHeader();
-				
-				//the new entry, write immediately.
-				// Write Entry
-				S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
-				LLAPRFile* aprfile = openHeaderEntriesFile(false, offset);
-				S32 bytes_written = aprfile->write((void*)&entry, (S32)sizeof(Entry));
-				llassert_always(bytes_written == sizeof(Entry));
-				mHeaderEntriesMaxWriteIdx = llmax(mHeaderEntriesMaxWriteIdx, idx);
-				closeHeaderEntriesFile();
+				entry.mID = id ;
+				entry.mImageSize = -1 ; //mark it is a brand-new entry.					
+				entry.mBodySize = 0 ;
 			}
 		}
 	}
@@ -1117,36 +1106,108 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
 		}
 		else
 		{
-			S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
-			LLAPRFile* aprfile = openHeaderEntriesFile(true, offset);
-			S32 bytes_read = aprfile->read((void*)&entry, (S32)sizeof(Entry));
-			llassert_always(bytes_read == sizeof(Entry));			
-			closeHeaderEntriesFile();
+			readEntryFromHeaderImmediately(idx, entry) ;
 		}
-		llassert_always(entry.mImageSize == 0 || entry.mImageSize == -1 || entry.mImageSize > entry.mBodySize);
+		llassert_always(entry.mImageSize > entry.mBodySize);
 	}
 	return idx;
 }
 
-void LLTextureCache::writeEntryAndClose(S32 idx, Entry& entry)
+//mHeaderMutex is locked before calling this.
+void LLTextureCache::writeEntryToHeaderImmediately(S32 idx, Entry& entry, bool write_header)
+{	
+	LLAPRFile* aprfile ;
+	S32 bytes_written ;
+	S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
+	if(write_header)
+	{
+		aprfile = openHeaderEntriesFile(false, 0);		
+		bytes_written = aprfile->write((U8*)&mHeaderEntriesInfo, sizeof(EntriesInfo)) ;
+		llassert_always(bytes_written == sizeof(EntriesInfo));
+		mHeaderAPRFile->seek(APR_SET, offset);
+	}
+	else
+	{
+		aprfile = openHeaderEntriesFile(false, offset);
+	}
+	bytes_written = aprfile->write((void*)&entry, (S32)sizeof(Entry));
+	llassert_always(bytes_written == sizeof(Entry));
+	closeHeaderEntriesFile();
+	mUpdatedEntryMap.erase(idx) ;
+}
+
+//mHeaderMutex is locked before calling this.
+void LLTextureCache::readEntryFromHeaderImmediately(S32 idx, Entry& entry)
 {
+	S32 offset = sizeof(EntriesInfo) + idx * sizeof(Entry);
+	LLAPRFile* aprfile = openHeaderEntriesFile(true, offset);
+	S32 bytes_read = aprfile->read((void*)&entry, (S32)sizeof(Entry));
+	llassert_always(bytes_read == sizeof(Entry));			
+	closeHeaderEntriesFile();
+}
+
+//mHeaderMutex is locked before calling this.
+//update an existing entry time stamp, delay writing.
+void LLTextureCache::updateEntryTimeStamp(S32 idx, Entry& entry)
+{
+	static const U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)LLTextureCache::sCacheMaxEntries * 0.75f ;
+
+	if(mHeaderEntriesInfo.mEntries < MAX_ENTRIES_WITHOUT_TIME_STAMP)
+	{
+		return ; //there are enough empty entry index space, no need to stamp time.
+	}
+
 	if (idx >= 0)
 	{
 		if (!mReadOnly)
 		{
-			entry.mTime = time(NULL);
-			llassert_always(entry.mImageSize == 0 || entry.mImageSize == -1 || entry.mImageSize > entry.mBodySize);
-			if (entry.mBodySize > 0)
-			{
-				mTexturesSizeMap[entry.mID] = entry.mBodySize;
-			}
-			else if(mTexturesSizeMap.find(entry.mID) != mTexturesSizeMap.end() && mTexturesSizeMap[entry.mID] > 0)
-			{
-				llerrs << "mTexturesSizeMap / mHeaderIDMap corrupted." << llendl ;
-			}
-// 			llinfos << "Updating TE: " << idx << ": " << id << " Size: " << entry.mBodySize << " Time: " << entry.mTime << llendl;
-			mHeaderEntriesMaxWriteIdx = llmax(mHeaderEntriesMaxWriteIdx, idx);
+			llassert_always(entry.mImageSize > entry.mBodySize);
+
+			entry.mTime = time(NULL);			
 			mUpdatedEntryMap[idx] = entry ;
+		}
+	}
+}
+
+//mHeaderMutex is locked before calling this.
+//update an existing entry, write to header file immediately.
+void LLTextureCache::updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_body_size)
+{
+	llassert_always(new_image_size > -1) ;
+
+	if(new_image_size == entry.mImageSize && new_body_size == entry.mBodySize)
+	{
+		updateEntryTimeStamp(idx, entry) ; //nothing changed.
+	}
+	else if (idx >= 0)
+	{
+		if (!mReadOnly)
+		{
+			llassert_always(new_image_size > new_body_size) ;
+
+			bool update_header = false ;
+			if(entry.mImageSize < 0) //is a brand-new entry
+			{
+				mHeaderIDMap[entry.mID] = idx;
+				mTexturesSizeMap[entry.mID] = new_body_size ;
+				mTexturesSizeTotal += new_body_size ;
+				
+				// Update Header
+				update_header = true ;
+			}				
+			else if (entry.mBodySize != new_body_size)
+			{
+				//already in mHeaderIDMap.
+				mTexturesSizeMap[entry.mID] = new_body_size ;
+				mTexturesSizeTotal -= entry.mBodySize ;
+				mTexturesSizeTotal += new_body_size ;
+			}
+			entry.mTime = time(NULL);
+			entry.mImageSize = new_image_size ; 
+			entry.mBodySize = new_body_size ;
+			
+// 			llinfos << "Updating TE: " << idx << ": " << id << " Size: " << entry.mBodySize << " Time: " << entry.mTime << llendl;			
+			writeEntryToHeaderImmediately(idx, entry, update_header) ;
 		}
 	}
 }
@@ -1160,8 +1221,9 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
 	mFreeList.clear();
 	mTexturesSizeTotal = 0;
 
-	LLAPRFile* aprfile = openHeaderEntriesFile(false, (S32)sizeof(EntriesInfo));
+	LLAPRFile* aprfile = openHeaderEntriesFile(true, 0);
 	updatedHeaderEntriesFile() ;
+	aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
 	for (U32 idx=0; idx<num_entries; idx++)
 	{
 		Entry entry;
@@ -1175,19 +1237,15 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
 		}
 		entries.push_back(entry);
 // 		llinfos << "ENTRY: " << entry.mTime << " TEX: " << entry.mID << " IDX: " << idx << " Size: " << entry.mImageSize << llendl;
-		if (entry.mImageSize < 0)
+		if(entry.mImageSize > entry.mBodySize)
 		{
-			mFreeList.insert(idx);
+			mHeaderIDMap[entry.mID] = idx;
+			mTexturesSizeMap[entry.mID] = entry.mBodySize;
+			mTexturesSizeTotal += entry.mBodySize;
 		}
 		else
 		{
-			mHeaderIDMap[entry.mID] = idx;
-			if (entry.mBodySize > 0)
-			{
-				mTexturesSizeMap[entry.mID] = entry.mBodySize;
-				mTexturesSizeTotal += entry.mBodySize;
-			}
-			llassert_always(entry.mImageSize == 0 || entry.mImageSize > entry.mBodySize);
+			mFreeList.insert(idx);
 		}
 	}
 	closeHeaderEntriesFile();
@@ -1207,7 +1265,6 @@ void LLTextureCache::writeEntriesAndClose(const std::vector<Entry>& entries)
 			S32 bytes_written = aprfile->write((void*)(&entries[idx]), (S32)sizeof(Entry));
 			llassert_always(bytes_written == sizeof(Entry));
 		}
-		mHeaderEntriesMaxWriteIdx = llmax(mHeaderEntriesMaxWriteIdx, num_entries-1);
 		closeHeaderEntriesFile();
 	}
 }
@@ -1280,12 +1337,11 @@ void LLTextureCache::readHeaderCache()
 			U32 empty_entries = 0;
 			typedef std::pair<U32, S32> lru_data_t;
 			std::set<lru_data_t> lru;
-			std::set<LLUUID> purge_list;
+			std::set<U32> purge_list;
 			for (U32 i=0; i<num_entries; i++)
 			{
 				Entry& entry = entries[i];
-				const LLUUID& id = entry.mID;
-				if (entry.mImageSize < 0)
+				if (entry.mImageSize <= 0)
 				{
 					// This will be in the Free List, don't put it in the LRU
 					++empty_entries;
@@ -1298,9 +1354,8 @@ void LLTextureCache::readHeaderCache()
 						if (entry.mBodySize > entry.mImageSize)
 						{
 							// Shouldn't happen, failsafe only
-							llwarns << "Bad entry: " << i << ": " << id << ": BodySize: " << entry.mBodySize << llendl;
-							purge_list.insert(entry.mID);
-							entry.mImageSize = -1; // empty/available
+							llwarns << "Bad entry: " << i << ": " << entry.mID << ": BodySize: " << entry.mBodySize << llendl;
+							purge_list.insert(i);
 						}
 					}
 				}
@@ -1315,14 +1370,9 @@ void LLTextureCache::readHeaderCache()
 				{
 					for (std::set<lru_data_t>::iterator iter = lru.begin(); iter != lru.end(); ++iter)
 					{
-						S32 idx = iter->second;
-						if (entries[idx].mImageSize >= 0)
-						{
-							purge_list.insert(entries[idx].mID);
-							entries[idx].mImageSize = -1;
-							if (purge_list.size() >= entries_to_purge)
-								break;
-						}
+						purge_list.insert(iter->second);
+						if (purge_list.size() >= entries_to_purge)
+							break;
 					}
 				}
 				llassert_always(purge_list.size() >= entries_to_purge);
@@ -1332,9 +1382,7 @@ void LLTextureCache::readHeaderCache()
 				S32 lru_entries = (S32)((F32)sCacheMaxEntries * TEXTURE_CACHE_LRU_SIZE);
 				for (std::set<lru_data_t>::iterator iter = lru.begin(); iter != lru.end(); ++iter)
 				{
-					S32 idx = iter->second;
-					const LLUUID& id = entries[idx].mID;
-					mLRU.insert(id);
+					mLRU.insert(entries[iter->second].mID);
 // 					llinfos << "LRU: " << iter->first << " : " << iter->second << llendl;
 					if (--lru_entries <= 0)
 						break;
@@ -1343,12 +1391,9 @@ void LLTextureCache::readHeaderCache()
 			
 			if (purge_list.size() > 0)
 			{
-				for (std::set<LLUUID>::iterator iter = purge_list.begin(); iter != purge_list.end(); ++iter)
+				for (std::set<U32>::iterator iter = purge_list.begin(); iter != purge_list.end(); ++iter)
 				{
-					const LLUUID& id = *iter;
-					bool res = removeHeaderCacheEntry(id); // sets entry size on disk to -1
-					llassert_always(res);
-					LLAPRFile::remove(getTextureFileName(id), getLocalAPRFilePool());
+					removeEntry(*iter, entries[*iter], getTextureFileName(entries[*iter].mID));
 				}
 				// If we removed any entries, we need to rebuild the entries list,
 				// write the header, and call this again
@@ -1356,13 +1401,14 @@ void LLTextureCache::readHeaderCache()
 				for (U32 i=0; i<num_entries; i++)
 				{
 					const Entry& entry = entries[i];
-					if (entry.mImageSize >=0)
+					if (entry.mImageSize > 0)
 					{
 						new_entries.push_back(entry);
 					}
 				}
 				llassert_always(new_entries.size() <= sCacheMaxEntries);
 				mHeaderEntriesInfo.mEntries = new_entries.size();
+				writeEntriesHeader();
 				writeEntriesAndClose(new_entries);
 				mHeaderMutex.unlock(); // unlock the mutex before calling again
 				readHeaderCache(); // repeat with new entries file
@@ -1370,7 +1416,7 @@ void LLTextureCache::readHeaderCache()
 			}
 			else
 			{
-				writeEntriesAndClose(entries);
+				//entries are not changed, nothing here.
 			}
 		}
 	}
@@ -1398,6 +1444,7 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 		}
 		if (purge_directories)
 		{
+			gDirUtilp->deleteFilesInDir(mTexturesDirName,mask);
 			LLFile::rmdir(mTexturesDirName);
 		}
 	}
@@ -1435,7 +1482,6 @@ void LLTextureCache::purgeTextures(bool validate)
 	U32 num_entries = openAndReadEntries(entries);
 	if (!num_entries)
 	{
-		writeEntriesAndClose(entries);
 		return; // nothing to purge
 	}
 	
@@ -1509,11 +1555,8 @@ void LLTextureCache::purgeTextures(bool validate)
 		{
 			purge_count++;
 	 		LL_DEBUGS("TextureCache") << "PURGING: " << filename << LL_ENDL;
-			LLAPRFile::remove(filename, getLocalAPRFilePool());
+			removeEntry(idx, entries[idx], filename) ;
 			cache_size -= entries[idx].mBodySize;
-			mTexturesSizeTotal -= entries[idx].mBodySize;
-			entries[idx].mBodySize = 0;
-			mTexturesSizeMap.erase(entries[idx].mID);
 		}
 	}
 
@@ -1568,7 +1611,7 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, S32& imagesize)
 	if (idx >= 0)
 	{
 		imagesize = entry.mImageSize;
-		writeEntryAndClose(idx, entry); // updates time
+		updateEntryTimeStamp(idx, entry); // updates time
 	}
 	return idx;
 }
@@ -1582,8 +1625,7 @@ S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, S32 imagesize)
 	S32 idx = openAndReadEntry(id, entry, true);
 	if (idx >= 0)
 	{
-		entry.mImageSize = imagesize;
-		writeEntryAndClose(idx, entry);
+		updateEntry(idx, entry, imagesize, entry.mBodySize);
 		mHeaderMutex.unlock();
 	}
 	else // retry
@@ -1722,34 +1764,55 @@ void LLTextureCache::addCompleted(Responder* responder, bool success)
 
 //////////////////////////////////////////////////////////////////////////////
 
-// Called from MAIN thread (endWork())
-// Ensure that mHeaderMutex is locked first!
-bool LLTextureCache::removeHeaderCacheEntry(const LLUUID& id)
+//called after mHeaderMutex is locked.
+void LLTextureCache::removeCachedTexture(const LLUUID& id)
 {
-	Entry entry;
-	S32 idx = openAndReadEntry(id, entry, false);
-	if (idx >= 0)
+	if(mTexturesSizeMap.find(id) != mTexturesSizeMap.end())
+	{
+		mTexturesSizeTotal -= mTexturesSizeMap[id] ;
+		mTexturesSizeMap.erase(id);
+	}
+	mHeaderIDMap.erase(id);
+	LLAPRFile::remove(getTextureFileName(id), getLocalAPRFilePool());		
+}
+
+//called after mHeaderMutex is locked.
+void LLTextureCache::removeEntry(S32 idx, Entry& entry, std::string& filename)
+{
+	if(idx >= 0) //valid entry
 	{
 		entry.mImageSize = -1;
 		entry.mBodySize = 0;
-		writeEntryAndClose(idx, entry);
-		mFreeList.insert(idx);
-		mHeaderIDMap.erase(id);
-		mTexturesSizeMap.erase(id);
-		return true;
+		mHeaderIDMap.erase(entry.mID);
+		mTexturesSizeMap.erase(entry.mID);
+
+		mTexturesSizeTotal -= entry.mBodySize;
+		mFreeList.insert(idx);	
 	}
-	return false;
+
+	LLAPRFile::remove(filename, getLocalAPRFilePool());		
 }
 
-void LLTextureCache::removeFromCache(const LLUUID& id)
+bool LLTextureCache::removeFromCache(const LLUUID& id)
 {
 	//llwarns << "Removing texture from cache: " << id << llendl;
+	bool ret = false ;
 	if (!mReadOnly)
 	{
-		LLMutexLock lock(&mHeaderMutex);
-		removeHeaderCacheEntry(id);
-		LLAPRFile::remove(getTextureFileName(id), getLocalAPRFilePool());
+		lockHeaders() ;
+
+		Entry entry;
+		S32 idx = openAndReadEntry(id, entry, false);
+		removeEntry(idx, entry, getTextureFileName(id)) ;
+		if (idx >= 0)
+		{			
+			writeEntryToHeaderImmediately(idx, entry);					
+			ret = true;
+		}
+
+		unlockHeaders() ;
 	}
+	return ret ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
