@@ -6679,6 +6679,18 @@
     <integer>1</integer>
   </map>
 
+  <key>RenderDeferredSSAO</key>
+  <map>
+    <key>Comment</key>
+    <string>Execute screen space ambient occlusion shader in deferred renderer.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+
   <key>RenderDeferredBlurLight</key>
   <map>
     <key>Comment</key>
@@ -7311,7 +7323,19 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>RenderReflectionRes</key>
+    <key>RenderShadowDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Detail of shadows.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+
+  <key>RenderReflectionRes</key>
     <map>
       <key>Comment</key>
       <string>Reflection map resolution.</string>

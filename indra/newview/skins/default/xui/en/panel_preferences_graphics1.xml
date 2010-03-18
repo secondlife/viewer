@@ -155,12 +155,12 @@
 	 visiblity_control="ShowAdvancedGraphicsSettings"
      border="false"
 	 follows="top|left"
-     height="260"
+     height="283"
      label="CustomGraphics"
      layout="topleft"
      left="5"
      name="CustomGraphics Panel"
-     top="124"
+     top="101"
      width="485">
 		<text
 		type="string"
@@ -211,119 +211,105 @@
 			<check_box.commit_callback
 			function="Pref.VertexShaderEnable" />
 		</check_box>
-		<check_box
-		control_name="RenderWaterReflections"
+    <check_box
+		control_name="RenderDeferred"
 		height="16"
 		initial_value="true"
-		label="Water reflections"
+		label="Lighting Shaders"
 		layout="topleft"
 		left_delta="0"
-		name="Reflections"
+		name="UseLightShaders"
 		top_pad="1"
-		width="256">
-			<check_box.commit_callback
-			function="Pref.VertexShaderEnable" />
-		</check_box>
-		<text
-		type="string"
-		length="1"
-		follows="left|top"
-		height="12"
-		layout="topleft"
-		left_delta="0"
-		name="ReflectionDetailText"
-		top_pad="7"
-		width="128">
-			Reflection detail:
-		</text>
-		<radio_group
-		control_name="RenderReflectionDetail"
-		draw_border="false"
-		height="70"
-		layout="topleft"
-		left_delta="-2"
-		name="ReflectionDetailRadio"
-		top_pad="3"
-		width="321">
-			<radio_item
-			height="16"
-			label="Terrain and trees"
-			layout="topleft"
-			left="3"
-			name="0"
-			top="3"
-			width="315" />
-			<radio_item
-			height="16"
-			label="All static objects"
-			layout="topleft"
-			left_delta="0"
-			name="1"
-			top_delta="16"
-			width="315" />
-			<radio_item
-			height="16"
-			label="All avatars and objects"
-			layout="topleft"
-			left_delta="0"
-			name="2"
-			top_delta="16"
-			width="315" />
-			<radio_item
-			height="16"
-			label="Everything"
-			layout="topleft"
-			left_delta="0"
-			name="3"
-			top_delta="16"
-			width="315" />
-		</radio_group>
-		<text
-		type="string"
-		length="1"
-		follows="left|top"
-		height="12"
-		layout="topleft"
-		left_delta="2"
-		name="AvatarRenderingText"
-		top_pad="5"
-		width="128">
-			Avatar rendering:
-		</text>
-		<check_box
-		control_name="RenderUseImpostors"
+		width="256"/>
+    <check_box
+		control_name="RenderDeferredSSAO"
 		height="16"
 		initial_value="true"
-		label="Avatar impostors"
+		label="Ambient Occlusion"
 		layout="topleft"
 		left_delta="0"
-		name="AvatarImpostors"
-		top_pad="7"
-		width="256" />
-		<check_box
-		control_name="RenderAvatarVP"
-		height="16"
-		initial_value="true"
-		label="Hardware skinning"
-		layout="topleft"
-		left_delta="0"
-		name="AvatarVertexProgram"
+		name="UseSSAO"
 		top_pad="1"
-		width="256">
-			<check_box.commit_callback
-			function="Pref.VertexShaderEnable" />
-		</check_box>
-		<check_box
-		control_name="RenderAvatarCloth"
-		height="16"
-		initial_value="true"
-		label="Avatar cloth"
-		layout="topleft"
-		left_delta="0"
-		name="AvatarCloth"
-		top_pad="1"
-		width="256" />
+		width="256"/>
 
+      <text
+    type="string"
+    length="1"
+    top_pad="8"
+    follows="top|left"
+    height="23"
+    width="110"
+    word_wrap="true"
+    layout="topleft"
+    left="10"
+    name="reflection_label">
+        Water Reflections:
+      </text>
+      <combo_box
+      control_name="RenderReflectionDetail"
+      height="23"
+      layout="topleft"
+      left_="10"
+      top_pad ="0" 
+      name="ReflectionDetailRadio"
+      width="150">
+        <combo_box.item
+        label="None"
+        name="0"
+        value="0"/>
+        <combo_box.item
+        label="Terrain and trees"
+        name="1"
+        value="1"/>
+        <combo_box.item
+        label="All static objects"
+        name="2"
+        value="2"/>
+        <combo_box.item
+        label="All avatars and objects"
+        name="3"
+        value="3"/>
+        <combo_box.item
+        label="Everything"
+        name="4"
+        value="4"/>
+      </combo_box>
+
+      <text
+    type="string"
+    length="1"
+    top_pad="8"
+    follows="top|left"
+    height="23"
+    width="110"
+    word_wrap="true"
+    layout="topleft"
+    left="10"
+    name="shadows_label">
+        Shadows:
+      </text>
+      <combo_box
+      control_name="RenderShadowDetail"
+      height="23"
+      layout="topleft"
+      left="10"
+      top_pad="0" 
+      name="ShadowDetailRadio"
+      width="150">
+        <combo_box.item
+        label="None"
+        name="0"
+        value="0"/>
+        <combo_box.item
+        label="Sun/Moon"
+        name="1"
+        value="1"/>
+        <combo_box.item
+        label="Sun/Moon + Projectors"
+        name="2"
+        value="2"/>
+      </combo_box>
+    
 		<slider
 		control_name="RenderFarClip"
 		decimal_digits="0"
@@ -522,7 +508,7 @@
         layout="topleft"
         left="444"
         name="PostProcessText"
-        top="305"
+        top="328"
         width="128">
            Low
         </text>
@@ -599,46 +585,51 @@
         width="128">
            Low
         </text>
-        <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="12"
-        layout="topleft"
-        left_delta="-230"
-        name="LightingDetailText"
-        top_pad="8"
-        width="140">
-           Lighting detail:
-        </text>
-        <radio_group
-        control_name="RenderLightingDetail"
-        draw_border="false"
-        height="38"
-        layout="topleft"
-        left_delta="0"
-        name="LightingDetailRadio"
-        top_pad="5"
-        width="321">
-           <radio_item
-            height="16"
-            label="Sun and moon only"
-            layout="topleft"
-            left="3"
-            name="SunMoon"
-            value="0"
-            top="3"
-            width="156" />
-           <radio_item
-            height="16"
-            label="Nearby local lights"
-            layout="topleft"
-            left_delta="0"
-            name="LocalLights"
-            value="1"
-            top_delta="16"
-            width="156" />
-        </radio_group>
+      <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="12"
+      layout="topleft"
+      left_delta="-230"
+      name="AvatarRenderingText"
+      top_pad="8"
+      width="128">
+        Avatar rendering:
+      </text>
+      <check_box
+      control_name="RenderUseImpostors"
+      height="16"
+      initial_value="true"
+      label="Avatar impostors"
+      layout="topleft"
+      left_delta="0"
+      name="AvatarImpostors"
+      top_pad="7"
+      width="256" />
+      <check_box
+      control_name="RenderAvatarVP"
+      height="16"
+      initial_value="true"
+      label="Hardware skinning"
+      layout="topleft"
+      left_delta="0"
+      name="AvatarVertexProgram"
+      top_pad="1"
+      width="256">
+        <check_box.commit_callback
+        function="Pref.VertexShaderEnable" />
+      </check_box>
+      <check_box
+      control_name="RenderAvatarCloth"
+      height="16"
+      initial_value="true"
+      label="Avatar cloth"
+      layout="topleft"
+      left_delta="0"
+      name="AvatarCloth"
+      top_pad="1"
+      width="256" />
         <text
         type="string"
         length="1"
@@ -647,7 +638,7 @@
         layout="topleft"
         left="358"
         name="TerrainDetailText"
-        top="465"
+        top="488"
         width="155">
            Terrain detail:
         </text>
@@ -676,7 +667,7 @@
             name="2"
             top_delta="16"
             width="315" />
-        </radio_group>
+        </radio_group> -->
 	</panel>
 	
         <button
