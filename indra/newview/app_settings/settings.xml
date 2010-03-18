@@ -10655,7 +10655,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>700</integer>
+      <integer>738</integer>
     </map>
     <key>WindowMaximized</key>
     <map>
@@ -10677,7 +10677,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1000</integer>
+      <integer>1024</integer>
     </map>
     <key>WindowX</key>
     <map>
