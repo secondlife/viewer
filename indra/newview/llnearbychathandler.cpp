@@ -268,24 +268,23 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 			}
 			break;
 		}
-		else
-		{
-			toast_rect = toast->getRect();
-			toast_rect.setLeftTopAndSize(getRect().mLeft , toast_top, toast_rect.getWidth() ,toast_rect.getHeight());
-		
-			toast->setRect(toast_rect);
-			toast->setIsHidden(false);
-			toast->setVisible(TRUE);
+		bottom = toast_top - toast->getTopPad();
+	}
 
-			if(!toast->hasFocus())
-			{
-				// Fixing Z-order of toasts (EXT-4862)
-				// Next toast will be positioned under this one.
-				gFloaterView->sendChildToBack(toast);
-			}
-			
-			bottom = toast->getRect().mTop - toast->getTopPad();
-		}		
+	// use reverse order to provide correct z-order and avoid toast blinking
+	for(std::vector<LLToast*>::reverse_iterator it = m_active_toasts.rbegin(); it != m_active_toasts.rend(); ++it)
+	{
+		LLToast* toast = (*it);
+		S32 toast_top = bottom + toast->getTopPad();
+
+		toast_rect = toast->getRect();
+		toast_rect.setLeftTopAndSize(getRect().mLeft , toast_top, toast_rect.getWidth() ,toast_rect.getHeight());
+
+		toast->setRect(toast_rect);
+		toast->setIsHidden(false);
+		toast->setVisible(TRUE);
+
+		bottom = toast->getRect().mBottom - margin;
 	}
 }
 
