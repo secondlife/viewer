@@ -396,8 +396,8 @@
 			<menu_item_call label="Chaussettes" name="Socks"/>
 			<menu_item_call label="Veste" name="Jacket"/>
 			<menu_item_call label="Gants" name="Gloves"/>
-			<menu_item_call label="Sous-vêtements (homme)" name="Menu Undershirt"/>
-			<menu_item_call label="Sous-vêtements (femme)" name="Menu Underpants"/>
+			<menu_item_call label="Débardeur" name="Menu Undershirt"/>
+			<menu_item_call label="Caleçon" name="Menu Underpants"/>
 			<menu_item_call label="Jupe" name="Skirt"/>
 			<menu_item_call label="Alpha" name="Alpha"/>
 			<menu_item_call label="Tatouage" name="Tattoo"/>
