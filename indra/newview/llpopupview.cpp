@@ -207,7 +207,7 @@ void LLPopupView::addPopup(LLView* popup)
 {
 	if (popup)
 	{
-		mPopups.remove(popuip->getHandle());
+		mPopups.remove(popup->getHandle());
 		mPopups.push_front(popup->getHandle());
 	}
 }
