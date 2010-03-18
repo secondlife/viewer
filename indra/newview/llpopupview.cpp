@@ -207,11 +207,7 @@ void LLPopupView::addPopup(LLView* popup)
 {
 	if (popup)
 	{
-		popup_list_t::iterator iter = std::find(mPopups.begin(), mPopups.end(), popup->getHandle());
-		if(iter != mPopups.end())
-		{
-			mPopups.erase(iter);
-		}
+		mPopups.remove(popuip->getHandle());
 		mPopups.push_front(popup->getHandle());
 	}
 }
@@ -220,11 +216,7 @@ void LLPopupView::removePopup(LLView* popup)
 {
 	if (popup)
 	{
-		popup_list_t::iterator iter = std::find(mPopups.begin(), mPopups.end(), popup->getHandle());
-		if(iter != mPopups.end())
-		{
-			mPopups.erase(iter);
-		}
+		mPopups.remove(popup->getHandle());
 		popup->onTopLost();
 	}
 }
