@@ -3073,4 +3073,25 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="uploading_abuse_report">Uploading...
   
 Abuse Report</string>
+
+  <!-- names for new inventory items-->
+  <string name="New Shape">New Shape</string>
+  <string name="New Skin">New Skin</string>
+  <string name="New Hair">New Hair</string>
+  <string name="New Eyes">New Eyes</string>
+  <string name="New Shirt">New Shirt</string>
+  <string name="New Pants">New Pants</string>
+  <string name="New Shoes">New Shoes</string>
+  <string name="New Socks">New Socks</string>
+  <string name="New Jacket">New Jacket</string>
+  <string name="New Gloves">New Gloves</string>
+  <string name="New Undershirt">New Undershirt</string>
+  <string name="New Underpants">New Underpants</string>
+  <string name="New Skirt">New Skirt</string>
+  <string name="New Alpha">New Alpha</string>
+  <string name="New Tattoo">New Tattoo</string>
+  <string name="Invalid Wearable">Invalid Wearable</string>
+  <string name="New Script">New Script</string>
+  <string name="New Folder">New Folder</string>
+  <string name="Contents">Contents</string>
 </strings>
