@@ -705,7 +705,7 @@
      left="135"
      name="button apply to selection"
      tool_tip="Modify selected land"
-     width="78">
+     width="82">
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
     </button>
@@ -741,7 +741,7 @@
      halign="center"
      left="0"
      name="Object Info Tabs"
-     tab_max_width="54"
+     tab_max_width="100"
      tab_min_width="40"
      tab_position="top"
      tab_height="25"
