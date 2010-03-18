@@ -305,7 +305,7 @@ static std::string gLaunchFileOnQuit;
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
 static const S32 FIRST_RUN_WINDOW_WIDTH = 1024;
-static const S32 FIRST_RUN_WINDOW_HIGHT = 768;
+static const S32 FIRST_RUN_WINDOW_HRIGHT = 768;
 //----------------------------------------------------------------------------
 
 // List of entries from strings.xml to always replace
@@ -2384,12 +2384,12 @@ bool LLAppViewer::initWindow()
 	if (first_run)//for first login 
 	{
 		window_width = FIRST_RUN_WINDOW_WIDTH;//yep hardcoded
-		window_height = FIRST_RUN_WINDOW_HIGHT;
+		window_height = FIRST_RUN_WINDOW_HRIGHT;
 		
 		//if screen resolution is lower then 1024*768 then show maximized
 		LLDisplayInfo display_info;
 		if(display_info.getDisplayWidth() <= FIRST_RUN_WINDOW_WIDTH
-			|| display_info.getDisplayHeight()<=FIRST_RUN_WINDOW_HIGHT)
+			|| display_info.getDisplayHeight()<=FIRST_RUN_WINDOW_HRIGHT)
 		{
 			show_maximized = true;
 		}

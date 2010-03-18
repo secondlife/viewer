@@ -3473,26 +3473,6 @@ MASK LLWindowMacOSX::modifiersToMask(SInt16 modifiers)
 	return mask;
 }	
 
-// static
-S32 LLWindowMacOSX::getDisplayWidth()
-{
-	S32 width = 1024;
-	// Need to invoke cocoa before use getScreenSize()
-	setupCocoa();
-	getScreenSize(&width, NULL);
-	return width;
-}
-
-// static
-S32 LLWindowMacOSX::getDisplayHeight()
-{
-	S32 height = 768;
-	// Need to invoke cocoa before use getScreenSize()
-	setupCocoa();
-	getScreenSize(NULL, &height);
-	return height;
-}
-
 #if LL_OS_DRAGDROP_ENABLED
 
 OSErr LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,

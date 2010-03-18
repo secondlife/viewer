@@ -187,47 +187,6 @@ Display* LLWindowSDL::get_SDL_Display(void)
 }
 #endif // LL_X11
 
-// static
-S32 LLWindowSDL::getDisplayWidth()
-{
-#if LL_GTK
-	if (LLWindowSDL::ll_try_gtk_init())
-	{
-		return gdk_screen_width();
-	}
-#endif // LL_GTK
-
-#if LL_X11
-	Display *display = XOpenDisplay(NULL);
-	int screen_num = DefaultScreen(display);
-	S32 width = DisplayWidth(display, screen_num);
-	XCloseDisplay(display);
-	return width;
-#endif //LL_X11
-
-	return 1024;
-}
-
-// static
-S32 LLWindowSDL::getDisplayHeight()
-{
-#if LL_GTK
-	if (LLWindowSDL::ll_try_gtk_init())
-	{
-		return gdk_screen_height();
-	}
-#endif // LL_GTK
-
-#if LL_X11
-	Display *display = XOpenDisplay(NULL);
-	int screen_num = DefaultScreen(display);
-	S32 height = DisplayHeight(display, screen_num);
-	XCloseDisplay(display);
-	return height;
-#endif //LL_X11
-
-	return 768;
-}
 
 LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 			 const std::string& title, S32 x, S32 y, S32 width,
