@@ -63,14 +63,8 @@ public:
 	
 	LLMute(const LLUUID& id, const std::string& name = std::string(), EType type = BY_NAME, U32 flags = 0);
 
-	// Returns name + suffix based on type
-	// For example:  "James Tester (resident)"
-	std::string getDisplayName() const;
-	
-	// Converts a UI name into just the agent or object name
-	// For example: "James Tester (resident)" sets the name to "James Tester"
-	// and the type to AGENT.
-	void setFromDisplayName(const std::string& display_name);
+	// Returns localized type name of muted item
+	std::string getDisplayType() const;
 	
 public:
 	LLUUID		mID;	// agent or object id
