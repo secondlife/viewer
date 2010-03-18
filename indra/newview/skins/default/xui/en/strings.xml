@@ -3070,4 +3070,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="group_role_officers">Officers</string>
   <string name="group_role_owners">Owners</string>
 
+  <string name="uploading_abuse_report">Uploading...
+  
+Abuse Report</string>
 </strings>
