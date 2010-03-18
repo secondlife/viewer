@@ -705,7 +705,7 @@
      left="135"
      name="button apply to selection"
      tool_tip="Modify selected land"
-     width="78">
+     width="82">
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
     </button>
