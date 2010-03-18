@@ -283,7 +283,7 @@
       layout="topleft"
       left_delta="0"
       name="external"
-      value="true"
+      value="1"
       tool_tip="Use the default system web browser for help, web links, etc. Not recommended if running full screen."
       top_delta="20"
       width="480" />
