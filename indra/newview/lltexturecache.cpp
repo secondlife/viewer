@@ -1150,7 +1150,7 @@ void LLTextureCache::readEntryFromHeaderImmediately(S32 idx, Entry& entry)
 //update an existing entry time stamp, delay writing.
 void LLTextureCache::updateEntryTimeStamp(S32 idx, Entry& entry)
 {
-	static const U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)LLTextureCache::sCacheMaxEntries * 0.75f ;
+	static const U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)(LLTextureCache::sCacheMaxEntries * 0.75f) ;
 
 	if(mHeaderEntriesInfo.mEntries < MAX_ENTRIES_WITHOUT_TIME_STAMP)
 	{
@@ -1393,7 +1393,8 @@ void LLTextureCache::readHeaderCache()
 			{
 				for (std::set<U32>::iterator iter = purge_list.begin(); iter != purge_list.end(); ++iter)
 				{
-					removeEntry(*iter, entries[*iter], getTextureFileName(entries[*iter].mID));
+					std::string tex_filename = getTextureFileName(entries[*iter].mID);
+					removeEntry((S32)*iter, entries[*iter], tex_filename);
 				}
 				// If we removed any entries, we need to rebuild the entries list,
 				// write the header, and call this again
@@ -1803,7 +1804,8 @@ bool LLTextureCache::removeFromCache(const LLUUID& id)
 
 		Entry entry;
 		S32 idx = openAndReadEntry(id, entry, false);
-		removeEntry(idx, entry, getTextureFileName(id)) ;
+		std::string tex_filename = getTextureFileName(id);
+		removeEntry(idx, entry, tex_filename) ;
 		if (idx >= 0)
 		{			
 			writeEntryToHeaderImmediately(idx, entry);					
