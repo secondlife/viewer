@@ -125,13 +125,3 @@ void getScreenSize(int* width, int* height)
 	[pool release];
 }
 
-void getVisibleScreen(int *x, int *y, int* width, int* height)
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	NSRect visible_rect = [[NSScreen mainScreen] visibleFrame];
-	if (width)  *width = (int)(visible_rect.size.width);
-	if (height) *height = (int)(visible_rect.size.height);
-	if (x) *x = (int)(visible_rect.origin.x);
-	if (y) *y = (int)(visible_rect.origin.y);
-	[pool release];
-}

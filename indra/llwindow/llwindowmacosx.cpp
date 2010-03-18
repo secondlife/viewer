@@ -1122,33 +1122,7 @@ BOOL LLWindowMacOSX::getMaximized()
 
 BOOL LLWindowMacOSX::maximize()
 {
-	if (mWindow)
-	{
-		// *HACK: Because Mac OSX doesn't have a concept of a "maximized" window, we just
-		// stretch it out to the visible screen size.
-		Rect win_rect;
-
-		int visible_x;
-		int visible_y;
-		int visible_width;
-		int visible_height;
-		int screen_width;
-		int screen_height;
-
-		getScreenSize(&screen_width, &screen_height);
-		getVisibleScreen(&visible_x, &visible_y, &visible_width, &visible_height);
-
-		int mac_os_menu_bar_height = screen_height - (visible_height + visible_y);
-		::SetRect(&win_rect,
-				  visible_x,
-				  mac_os_menu_bar_height,
-				  visible_width + visible_x,
-				  visible_height + mac_os_menu_bar_height);
-
-		::SetWindowBounds(mWindow, kWindowStructureRgn, &win_rect);
-
-		return TRUE;
-	}
+	// TODO
 	return FALSE;
 }
 
