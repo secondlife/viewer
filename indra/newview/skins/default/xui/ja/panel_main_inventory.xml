@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="main inventory panel">
-	<panel.string name="Title">
-		もの
+	<panel.string name="ItemcountFetching">
+		[ITEM_COUNT] 個のアイテムを取得中です... [FILTER]
 	</panel.string>
-	<filter_editor label="持ち物をフィルター" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="持ち物" name="All Items"/>
-		<inventory_panel label="最新" name="Recent Items"/>
-	</tab_container>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="その他のオプションを表示します"/>
-		<button name="add_btn" tool_tip="新しいアイテムを追加します"/>
-		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除します"/>
-	</panel>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] 個のアイテム　[FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		アイテム：
+	</text>
 	<menu_bar name="Inventory Menu">
 		<menu label="ファイル" name="File">
 			<menu_item_call label="開く" name="Open"/>
@@ -61,4 +57,14 @@
 			<menu_item_check label="システムフォルダを上に並べる" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
+	<filter_editor label="持ち物をフィルター" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="持ち物" name="All Items"/>
+		<inventory_panel label="最新" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="その他のオプションを表示します"/>
+		<button name="add_btn" tool_tip="新しいアイテムを追加します"/>
+		<dnd_button name="trash_btn" tool_tip="選択したアイテムを削除します"/>
+	</panel>
 </panel>

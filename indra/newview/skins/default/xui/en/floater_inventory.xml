@@ -14,22 +14,6 @@
  single_instance="false"
  title="MY INVENTORY"
  width="467">
-    <floater.string
-     name="Title">
-        MY INVENTORY
-    </floater.string>
-    <floater.string
-     name="TitleFetching">
-        MY INVENTORY (Fetching [ITEM_COUNT] Items...) [FILTER]
-    </floater.string>
-    <floater.string
-     name="TitleCompleted">
-        MY INVENTORY ([ITEM_COUNT] Items) [FILTER]
-    </floater.string>
-    <floater.string
-     name="Fetched">
-        Fetched
-    </floater.string>
     <panel
      bottom="560"
 	 class="panel_main_inventory"
