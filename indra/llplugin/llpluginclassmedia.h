@@ -179,6 +179,8 @@ public:
 	// These can be called before init(), and they will be queued and sent before the media init message.
 	void	setUserDataPath(const std::string &user_data_path);
 	void	setLanguageCode(const std::string &language_code);
+	void	setPluginsEnabled(const bool enabled);
+	void	setJavascriptEnabled(const bool enabled);
 		
 	///////////////////////////////////
 	// media browser class functions

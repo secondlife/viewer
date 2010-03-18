@@ -89,6 +89,9 @@ private:
 
 	std::string mProfileDir;
 	std::string mHostLanguage;
+	bool mCookiesEnabled;
+	bool mJavascriptEnabled;
+	bool mPluginsEnabled;
 
 	enum
 	{
@@ -277,21 +280,18 @@ private:
 		{
 			LLQtWebKit::getInstance()->setHostLanguage(mHostLanguage);
 		}
+
+		// turn on/off cookies based on what host app tells us
+		LLQtWebKit::getInstance()->enableCookies( mCookiesEnabled );
+
+		// turn on/off plugins based on what host app tells us
+		LLQtWebKit::getInstance()->enablePlugins( mPluginsEnabled );
+
+		// turn on/off Javascript based on what host app tells us
+		LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
 		
 		// create single browser window
 		mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight );
-#if LL_WINDOWS
-		// Enable plugins
-		LLQtWebKit::getInstance()->enablePlugins(true);
-#elif LL_DARWIN
-		// Enable plugins
-		LLQtWebKit::getInstance()->enablePlugins(true);
-#elif LL_LINUX
-		// Enable plugins
-		LLQtWebKit::getInstance()->enablePlugins(true);
-#endif
-		// Enable cookies
-		LLQtWebKit::getInstance()->enableCookies( true );
 
 		// tell LLQtWebKit about the size of the browser window
 		LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
@@ -671,6 +671,10 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mBackgroundR = 0.0f;
 	mBackgroundG = 0.0f;
 	mBackgroundB = 0.0f;
+
+	mHostLanguage = "en";		// default to english
+	mJavascriptEnabled = true;	// default to on
+	mPluginsEnabled = true;		// default to on
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -824,6 +828,14 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				mHostLanguage = message_in.getValue("language");
 
 				// FIXME: Should we do anything with this if it comes in after the browser has been initialized?
+			}
+			else if(message_name == "plugins_enabled")
+			{
+				mPluginsEnabled = message_in.getValueBoolean("enable");
+			}
+			else if(message_name == "javascript_enabled")
+			{
+				mJavascriptEnabled = message_in.getValueBoolean("enable");
 			}
 			else if(message_name == "size_change")
 			{
@@ -1026,8 +1038,18 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			else if(message_name == "enable_cookies")
 			{
-				bool val = message_in.getValueBoolean("enable");
-				LLQtWebKit::getInstance()->enableCookies( val );
+				mCookiesEnabled = message_in.getValueBoolean("enable");
+				LLQtWebKit::getInstance()->enableCookies( mCookiesEnabled );
+			}
+			else if(message_name == "enable_plugins")
+			{
+				mPluginsEnabled = message_in.getValueBoolean("enable");
+				LLQtWebKit::getInstance()->enablePlugins( mPluginsEnabled );
+			}
+			else if(message_name == "enable_javascript")
+			{
+				mJavascriptEnabled = message_in.getValueBoolean("enable");
+				//LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
 			}
 			else if(message_name == "proxy_setup")
 			{

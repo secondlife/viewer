@@ -1260,6 +1260,19 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			media_source->setSize(default_width, default_height);
 			media_source->setUserDataPath(user_data_path);
 			media_source->setLanguageCode(LLUI::getLanguage());
+
+			// collect 'cookies enabled' setting from prefs and send to embedded browser
+			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
+			media_source->enable_cookies( cookies_enabled );
+
+			// collect 'plugins enabled' setting from prefs and send to embedded browser
+			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
+			media_source->setPluginsEnabled( plugins_enabled );
+
+			// collect 'javascript enabled' setting from prefs and send to embedded browser
+			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
+			media_source->setJavascriptEnabled( javascript_enabled );
+
 			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
