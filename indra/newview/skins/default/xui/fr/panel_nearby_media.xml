@@ -19,10 +19,17 @@
 		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="more_less_btn" tool_tip="Options avancées"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media">
+			Média près de vous
+		</text>
+		<text name="show">
+			Afficher :
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tout" name="All"/>
 			<combo_box.item label="Dans cette parcelle" name="WithinParcel"/>
 			<combo_box.item label="En dehors de la parcelle" name="OutsideParcel"/>
+			<combo_box.item label="Sur les autres avatars" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
 			<scroll_list.columns label="Proximité" name="media_proximity"/>
@@ -31,19 +38,19 @@
 			<scroll_list.columns label="Nom" name="media_name"/>
 			<scroll_list.columns label="Débogage" name="media_debug"/>
 		</scroll_list>
-		<panel>
+		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Arrêter le média sélectionné"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Jouer le média sélectionné"/>
+					<button name="play_btn" tool_tip="Lire le média sélectionné"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pauser le média sélectionné"/>
+					<button name="pause_btn" tool_tip="Suspendre la lecture du média sélectionné"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
-					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volume audio pour le média sélectionné"/>
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volume audio du média sélectionné"/>
 				</layout_panel>
 				<layout_panel name="mute">
 					<button name="mute_btn" tool_tip="Couper l&apos;audio sur le média sélectionné"/>
