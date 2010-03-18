@@ -182,7 +182,7 @@
      width="180"
      layout="topleft"
      name="buy_action">
-        [NAME] L$ [PRICE]
+        [ACTION]
     </text>
     <text
      type="string"
