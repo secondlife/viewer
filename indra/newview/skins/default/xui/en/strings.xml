@@ -2915,7 +2915,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_default_text_label">Click here to instant message.</string>
 	<string name="IM_to_label">To</string>
 	<string name="IM_moderator_label">(Moderator)</string>
-  <string name="inventory_item_offered">Inventory item offered</string>
 
 	<!-- voice calls -->
 	<string name="started_call">Started a voice call</string>

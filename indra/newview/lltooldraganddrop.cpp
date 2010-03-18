@@ -1532,7 +1532,7 @@ void LLToolDragAndDrop::logInventoryOffer(const LLUUID& to_agent, const LLUUID &
 		std::string full_name;
 		if (gCacheName->getFullName(to_agent, full_name))
 		{
-			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, LLTrans::getString("inventory_item_offered"));
+			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, LLTrans::getString("inventory_item_offered-im"));
 		}
 	}
 }
