@@ -3714,16 +3714,5 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 	return std::vector<std::string>();
 }
 
-// static
-S32 LLWindowWin32::getDisplayWidth()
-{
-	return ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
-}
-
-// static
-S32 LLWindowWin32::getDisplayHeight()
-{
-	return ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
-}
 
 #endif // LL_WINDOWS

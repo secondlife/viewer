@@ -116,12 +116,3 @@ OSErr setImageCursor(CursorRef ref)
 	return noErr;
 }
 
-void getScreenSize(int* width, int* height)
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	NSRect screen_rect = [[NSScreen mainScreen] frame];
-	if (width)  *width  = (int)(screen_rect.size.width);
-	if (height) *height = (int)(screen_rect.size.height);
-	[pool release];
-}
-
