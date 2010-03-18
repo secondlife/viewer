@@ -6173,7 +6173,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 
 	shader.uniform2f("screen_res", mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
 	shader.uniform1f("near_clip", LLViewerCamera::getInstance()->getNear()*2.f);
-	shader.uniform1f("alpha_soften", gSavedSettings.getF32("RenderDeferredAlphaSoften"));
 	shader.uniform1f ("shadow_offset", gSavedSettings.getF32("RenderShadowOffset"));
 	shader.uniform1f("shadow_bias", gSavedSettings.getF32("RenderShadowBias"));
 	shader.uniform1f("lum_scale", gSavedSettings.getF32("RenderLuminanceScale"));
