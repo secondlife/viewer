@@ -776,7 +776,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 							button->getRect().mBottom));
 					button->setAutoResize(true);
 					button->autoResize();
-					offset += 2 * HPAD + button->getRect().getWidth();
+					offset += HPAD + button->getRect().getWidth();
 					button->setFollowsNone();
 				}
 			}
