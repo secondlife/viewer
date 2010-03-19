@@ -443,6 +443,11 @@ void LLAgentWearables::saveWearable(const EWearableType type, const U32 index, B
 		new_wearable->setItemID(old_item_id); // should this be in LLWearable::copyDataFrom()?
 		setWearable(type,index,new_wearable);
 
+		// old_wearable may still be referred to by other inventory items. Revert
+		// unsaved changes so other inventory items aren't affected by the changes
+		// that were just saved.
+		old_wearable->revertValues();
+
 		LLInventoryItem* item = gInventory.getItem(old_item_id);
 		if (item)
 		{
@@ -545,6 +550,11 @@ void LLAgentWearables::saveWearableAs(const EWearableType type,
 		category_id,
 		new_name,
 		cb);
+
+	// old_wearable may still be referred to by other inventory items. Revert
+	// unsaved changes so other inventory items aren't affected by the changes
+	// that were just saved.
+	old_wearable->revertValues();
 }
 
 void LLAgentWearables::revertWearable(const EWearableType type, const U32 index)
