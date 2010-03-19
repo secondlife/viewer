@@ -23,7 +23,22 @@
 		Hardware wird erfasst...
 	</string>
 	<string name="StartupLoading">
-		Wird geladen
+		[APP_NAME] wird geladen...
+	</string>
+	<string name="StartupClearingCache">
+		Cache wird gelöscht...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Textur-Cache wird initialisiert...
+	</string>
+	<string name="StartupInitializingVFS">
+		VFS wird initialisiert...
+	</string>
+	<string name="ProgressRestoring">
+		Wird wiederhergestellt...
+	</string>
+	<string name="ProgressChangingResolution">
+		Auflösung wird geändert...
 	</string>
 	<string name="Fullbright">
 		Fullbright (Legacy)
@@ -88,6 +103,9 @@
 	<string name="LoginFailedNoNetwork">
 		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
+	<string name="LoginFailed">
+		Anmeldung fehlgeschlagen
+	</string>
 	<string name="Quit">
 		Beenden
 	</string>
@@ -96,6 +114,24 @@
 	</string>
 	<string name="AgentLostConnection">
 		In dieser Region kann es zu Problemen kommen.  Bitte überprüfen Sie Ihre Internetverbindung.
+	</string>
+	<string name="SavingSettings">
+		Ihr Einstellungen werden gespeichert...
+	</string>
+	<string name="LoggingOut">
+		Abmeldung erfolgt...
+	</string>
+	<string name="ShuttingDown">
+		Programm wird beendet...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Die Verbindung zu der Region ist abgebrochen.
+	</string>
+	<string name="SentToInvalidRegion">
+		Sie wurden in eine ungültige Region geschickt.
+	</string>
+	<string name="TestingDisconnect">
+		Verbindungsabbruch wird getestet
 	</string>
 	<string name="TooltipPerson">
 		Person
@@ -151,6 +187,24 @@
 	<string name="TooltipAgentUrl">
 		Anklicken, um das Profil dieses Einwohners anzuzeigen
 	</string>
+	<string name="TooltipAgentMute">
+		Klicken, um diesen Einwohner stummzuschalten
+	</string>
+	<string name="TooltipAgentUnmute">
+		Klicken, um diesen Einwohner freizuschalten
+	</string>
+	<string name="TooltipAgentIM">
+		Klicken, um diesem Einwohner eine IM zu schicken.
+	</string>
+	<string name="TooltipAgentPay">
+		Klicken, um diesen Einwohner zu bezahlen
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Klicken, um diesem Einwohner einen Teleport anzubieten.
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Klicken, um diesem Einwohner ein Freundschaftsangebot zu schicken.
+	</string>
 	<string name="TooltipGroupUrl">
 		Anklicken, um Beschreibung der Gruppe anzuzeigen
 	</string>
@@ -176,11 +230,30 @@
 		Anklicken, um Befehl secondlife:// auszuführen
 	</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$"/>
 	<string name="SLurlLabelTeleport">
 		Teleportieren nach
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Karte anzeigen für
+	</string>
+	<string name="SLappAgentMute">
+		Stummschalten
+	</string>
+	<string name="SLappAgentUnmute">
+		Stummschaltung aufheben
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Bezahlen
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Teleportangebot an
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Freundschaftsangebot
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Schließen (⌘W)
@@ -334,6 +407,9 @@
 	</string>
 	<string name="symbolic link">
 		Link
+	</string>
+	<string name="symbolic folder link">
+		Link zu Ordner
 	</string>
 	<string name="AvatarEditingAppearance">
 		(Aussehen wird bearbeitet)
@@ -849,6 +925,7 @@
 		Keine Inhalte
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (getragen am [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (aktiviert)"/>
 	<string name="PermYes">
 		Ja
 	</string>
@@ -947,6 +1024,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Meine Outfits
+	</string>
+	<string name="InvFolder Accessories">
+		Zubehör
 	</string>
 	<string name="InvFolder Friends">
 		Freunde
@@ -1470,6 +1550,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		Neues Skript
+	</string>
+	<string name="PanelContentsTooltip">
+		Objektinhalt
 	</string>
 	<string name="BusyModeResponseDefault">
 		Der Einwohner/Die Einwohnerin ist „beschäftigt&quot;, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
@@ -3374,5 +3457,32 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] haben etwas Neues gesagt
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="giving">
+		Giving
+	</string>
+	<string name="uploading_costs">
+		Kosten für Hochladen
+	</string>
+	<string name="this_costs">
+		Kosten:
+	</string>
+	<string name="buying_selected_land">
+		Ausgewähltes Land wird gekauft
+	</string>
+	<string name="this_object_costs">
+		Dieses Objekt kostet
+	</string>
+	<string name="group_role_everyone">
+		Jeder
+	</string>
+	<string name="group_role_officers">
+		Offiziere
+	</string>
+	<string name="group_role_owners">
+		Eigentümer
 	</string>
 </strings>

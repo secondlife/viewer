@@ -2202,7 +2202,8 @@ Clears (deletes) the media and all params from the given face.
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
 	<string name="Cancel">Cancel</string>
-	<string name="UploadingCosts">Uploading %s costs</string>
+	<string name="UploadingCosts">Uploading [NAME] costs L$ [AMOUNT]</string>
+	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
@@ -3050,14 +3051,48 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
-  <string name="giving">Giving</string>
-  <string name="uploading_costs">Uploading costs</string>
-  <string name="this_costs">This costs</string>
-  <string name="buying_selected_land">Buying selected land</string>
-  <string name="this_object_costs">This object costs"</string>
+  <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
+  <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
+  <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
+  <string name="for a parcel of land">for a parcel of land</string>
+  <string name="for a land access pass">for a land access pass</string>
+  <string name="for deeding land">for deeding land</string>
+  <string name="to create a group">to create a group</string>
+  <string name="to join a group">to join a group</string>
+  <string name="to upload">to upload</string>
+  
+  <string name="giving">Giving L$ [AMOUNT]</string>
+  <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
+  <string name="this_costs">This costs L$ [AMOUNT]</string>
+  <string name="buying_selected_land">Buying selected land L$ [AMOUNT]</string>
+  <string name="this_object_costs">This object costs L$ [AMOUNT]</string>
   
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
   <string name="group_role_owners">Owners</string>
 
+  <string name="uploading_abuse_report">Uploading...
+  
+Abuse Report</string>
+
+  <!-- names for new inventory items-->
+  <string name="New Shape">New Shape</string>
+  <string name="New Skin">New Skin</string>
+  <string name="New Hair">New Hair</string>
+  <string name="New Eyes">New Eyes</string>
+  <string name="New Shirt">New Shirt</string>
+  <string name="New Pants">New Pants</string>
+  <string name="New Shoes">New Shoes</string>
+  <string name="New Socks">New Socks</string>
+  <string name="New Jacket">New Jacket</string>
+  <string name="New Gloves">New Gloves</string>
+  <string name="New Undershirt">New Undershirt</string>
+  <string name="New Underpants">New Underpants</string>
+  <string name="New Skirt">New Skirt</string>
+  <string name="New Alpha">New Alpha</string>
+  <string name="New Tattoo">New Tattoo</string>
+  <string name="Invalid Wearable">Invalid Wearable</string>
+  <string name="New Script">New Script</string>
+  <string name="New Folder">New Folder</string>
+  <string name="Contents">Contents</string>
 </strings>

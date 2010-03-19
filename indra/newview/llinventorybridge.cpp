@@ -103,7 +103,7 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"Inv_Script",
 	"Inv_Clothing",
 	"Inv_Object",
-	"Inv_Object",
+	"Inv_Object_Multi",
 	"Inv_Notecard",
 	"Inv_Skin",
 	"Inv_Snapshot",
@@ -5358,7 +5358,10 @@ LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
 	if (LLViewerInventoryItem *item = getItem())
 	{
-		return get_item_icon(item->getActualType(), item->getInventoryType(), 0, FALSE);
+		U32 attachment_point = (item->getFlags() & 0xff); // low byte of inventory flags
+		bool is_multi =  LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
+
+		return get_item_icon(item->getActualType(), item->getInventoryType(), attachment_point, is_multi);
 	}
 	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
 }

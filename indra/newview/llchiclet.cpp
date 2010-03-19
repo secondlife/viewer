@@ -1137,7 +1137,7 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	S32 unread = data["participant_unread"].asInteger();
 
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
-	if (im_floater && im_floater->getVisible())
+	if (im_floater && im_floater->getVisible() && im_floater->hasFocus())
 	{
 		unread = 0;
 	}

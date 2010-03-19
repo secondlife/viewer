@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="OM LAND">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minutter
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="GENERELT" name="land_general_panel">
 			<panel.string name="new users only">
-				Kun nye brugere
+				Kun nye beboere
 			</panel.string>
 			<panel.string name="anyone">
 				Alle
@@ -420,6 +429,9 @@ Kun større parceller kan vises i søgning.
 		<panel label="ADGANG" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Defineret via estate)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Tillad adgang for alle ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				En eller flere af disse valg er indstillet på estate niveau

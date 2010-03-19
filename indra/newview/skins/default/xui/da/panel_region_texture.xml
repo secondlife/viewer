@@ -25,16 +25,16 @@
 		Texture højde intervaller
 	</text>
 	<text name="height_text_lbl6">
-		Sydvest
-	</text>
-	<text name="height_text_lbl7">
 		Nordvest
 	</text>
+	<text name="height_text_lbl7">
+		Nordøst
+	</text>
 	<text name="height_text_lbl8">
-		Sydøst
+		Sydvest
 	</text>
 	<text name="height_text_lbl9">
-		Nordøst
+		Sydøst
 	</text>
 	<spinner label="Lav" name="height_start_spin_0"/>
 	<spinner label="Lav" name="height_start_spin_1"/>
