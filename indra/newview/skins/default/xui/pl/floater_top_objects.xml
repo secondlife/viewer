@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="ŁADOWANIE...">
+<floater name="top_objects" title="Główne Obiekty">
 	<text name="title_text">
 		Ładowanie...
 	</text>
@@ -20,7 +20,7 @@
 	</text>
 	<button label="Filtr" name="filter_object_btn"/>
 	<text name="owner_name_text">
-		Owner Name:
+		Właściciel:
 	</text>
 	<button label="Filter" name="filter_owner_btn"/>
 	<button label="Zwróć Wybrane" name="return_selected_btn"/>

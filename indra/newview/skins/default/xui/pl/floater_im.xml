@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Wiadomość (IM)">
 	<string name="only_user_message">
 		Jesteś jedyną osobą w tej konferencji.
@@ -10,7 +10,7 @@
 		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
 	</string>
 	<string name="muted_message">
-		Ten Rezydent jest przez Ciebie wyciszony. Wysyłanie wiadomości automatycznie wyłączy tryb wyciszenia.
+		Ten Rezydent został przez Ciebie zablokowany. Wysłanie wiadomości automatycznie odblokuje go.
 	</string>
 	<string name="generic_request_error">
 		Błąd. Spróbuj ponownie za kilka minut.
