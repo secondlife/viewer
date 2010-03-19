@@ -39,6 +39,7 @@
     </button>
     <tab_container
      follows="all"
+     halign="left"
      height="410"
      layout="topleft"
      left="0"
