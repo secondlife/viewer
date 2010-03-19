@@ -87,8 +87,8 @@
 			Dettagli illuminazione:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Solo il sole e la luna" name="SunMoon"/>
-			<radio_item label="Luci locali" name="LocalLights"/>
+			<radio_item label="Solo il sole e la luna" name="SunMoon" value="0"/>
+			<radio_item label="Luci locali" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Dettagli terreno:

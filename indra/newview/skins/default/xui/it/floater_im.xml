@@ -10,7 +10,7 @@
 		Clicca il tasto [BUTTON NAME] per accettare/connetterti a questa voice chat.
 	</string>
 	<string name="muted_message">
-		Hai bloccato questo residente. Spedendo un messaggio sarà automaticamente sbloccati.
+		Hai bloccato questo residente. Quando gli invii un messaggio, verrà automaticamente sbloccato.
 	</string>
 	<string name="generic_request_error">
 		Errore durante la richiesta, riprova più tardi.
