@@ -11,6 +11,7 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect positionMap;
 uniform sampler2DRect normalMap;
+uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
 uniform sampler2D	  noiseMap;
 uniform samplerCube environmentMap;
@@ -40,7 +41,7 @@ uniform float scene_light_strength;
 uniform vec3 env_mat[3];
 //uniform mat4 shadow_matrix[3];
 //uniform vec4 shadow_clip;
-//uniform mat3 ssao_effect_mat;
+uniform mat3 ssao_effect_mat;
 
 varying vec4 vary_light;
 varying vec2 vary_fragcoord;
@@ -178,7 +179,17 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	temp2.x += .25;
 	
 	//increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow.x * 0.5;	
+	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow.x * 0.5;
+	
+	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
+	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
+	 * // The following line of code performs the equivalent of:
+	 * float ambAlpha = tmpAmbient.a;
+	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
+	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
+	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
+	 */
+	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
 
 	//haze color
 	setAdditiveColor(
@@ -250,10 +261,14 @@ void main()
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	
-	calcAtmospherics(pos.xyz, 0.0);
+	vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+	float scol = max(scol_ambocc.r, diffuse.a); 
+	float ambocc = scol_ambocc.g;
+	
+	calcAtmospherics(pos.xyz, ambocc);
 	
 	vec3 col = atmosAmbient(vec3(0));
-	col += atmosAffectDirectionalLight(clamp(da, diffuse.a, 1.0));
+	col += atmosAffectDirectionalLight(max(min(da, scol), diffuse.a));
 	
 	col *= diffuse.rgb;
 	
@@ -261,12 +276,12 @@ void main()
 	{
 		vec3 ref = normalize(reflect(pos.xyz, norm.xyz));
 		float sa = dot(ref, vary_light.xyz);
-		col.rgb += vary_SunlitColor*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
+		col.rgb += vary_SunlitColor*scol_ambocc.r*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
 	}
 	
 	col = atmosLighting(col);
 	col = scaleSoftClip(col);
-	
+		
 	gl_FragColor.rgb = col;
 	gl_FragColor.a = 0.0;
 }

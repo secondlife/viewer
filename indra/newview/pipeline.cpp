@@ -6268,16 +6268,16 @@ void LLPipeline::renderDeferredLighting()
 			glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], 0);
 		}
 
-		if (gSavedSettings.getS32("RenderShadowDetail") > 0)
-		{
-			glPushMatrix();
-			glLoadIdentity();
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
+		glPushMatrix();
+		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
 
-			mDeferredLight[0].bindTarget();
-			if (gSavedSettings.getBOOL("RenderDeferredSun"))
+		mDeferredLight[0].bindTarget();
+
+		if (gSavedSettings.getBOOL("RenderDeferredSSAO") || gSavedSettings.getS32("RenderShadowDetail") > 0)
+		{
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
 				LLFastTimer ftm(FTM_SUN_SHADOW);
 				bindDeferredShader(gDeferredSunProgram, 0);
@@ -6318,18 +6318,22 @@ void LLPipeline::renderDeferredLighting()
 				
 				unbindDeferredShader(gDeferredSunProgram);
 			}
-			else
-			{
-				mDeferredLight[0].clear(GL_COLOR_BUFFER_BIT);
-			}
+		}
+		else
+		{
+			glClearColor(1,1,1,1);
+			mDeferredLight[0].clear(GL_COLOR_BUFFER_BIT);
+			glClearColor(0,0,0,0);
+		}
 
-			mDeferredLight[0].flush();
+		mDeferredLight[0].flush();
 
+		{ //global illumination specific block (still experimental)
 			if (gSavedSettings.getBOOL("RenderDeferredBlurLight") &&
-			    gSavedSettings.getBOOL("RenderDeferredGI"))
-			{
+				gSavedSettings.getBOOL("RenderDeferredGI"))
+			{ 
 				LLFastTimer ftm(FTM_EDGE_DETECTION);
-				//get edge map
+				//generate edge map
 				LLGLDisable blend(GL_BLEND);
 				LLGLDisable test(GL_ALPHA_TEST);
 				LLGLDepthTest depth(GL_FALSE);
@@ -6426,78 +6430,78 @@ void LLPipeline::renderDeferredLighting()
 					unbindDeferredShader(gDeferredPostGIProgram);
 				}
 			}
+		}
 
-			if (gSavedSettings.getBOOL("RenderDeferredBlurLight"))
-			{ //soften direct lighting lightmap
-				LLFastTimer ftm(FTM_SOFTEN_SHADOW);
-				//blur lightmap
-				mDeferredLight[1].bindTarget();
+		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
+		{ //soften direct lighting lightmap
+			LLFastTimer ftm(FTM_SOFTEN_SHADOW);
+			//blur lightmap
+			mDeferredLight[1].bindTarget();
 
-				glClearColor(1,1,1,1);
-				mDeferredLight[1].clear(GL_COLOR_BUFFER_BIT);
-				glClearColor(0,0,0,0);
-				
-				bindDeferredShader(gDeferredBlurLightProgram);
-
-				LLVector3 go = gSavedSettings.getVector3("RenderShadowGaussian");
-				const U32 kern_length = 4;
-				F32 blur_size = gSavedSettings.getF32("RenderShadowBlurSize");
-				F32 dist_factor = gSavedSettings.getF32("RenderShadowBlurDistFactor");
-
-				// sample symmetrically with the middle sample falling exactly on 0.0
-				F32 x = 0.f;
-
-				LLVector3 gauss[32]; // xweight, yweight, offset
-
-				for (U32 i = 0; i < kern_length; i++)
-				{
-					gauss[i].mV[0] = llgaussian(x, go.mV[0]);
-					gauss[i].mV[1] = llgaussian(x, go.mV[1]);
-					gauss[i].mV[2] = x;
-					x += 1.f;
-				}
-
-				gDeferredBlurLightProgram.uniform2f("delta", 1.f, 0.f);
-				gDeferredBlurLightProgram.uniform1f("dist_factor", dist_factor);
-				gDeferredBlurLightProgram.uniform3fv("kern[0]", kern_length, gauss[0].mV);
-				gDeferredBlurLightProgram.uniform3fv("kern", kern_length, gauss[0].mV);
-				gDeferredBlurLightProgram.uniform1f("kern_scale", blur_size * (kern_length/2.f - 0.5f));
+			glClearColor(1,1,1,1);
+			mDeferredLight[1].clear(GL_COLOR_BUFFER_BIT);
+			glClearColor(0,0,0,0);
 			
-				{
-					LLGLDisable blend(GL_BLEND);
-					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-					stop_glerror();
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-					stop_glerror();
-				}
-				
-				mDeferredLight[1].flush();
-				unbindDeferredShader(gDeferredBlurLightProgram);
+			bindDeferredShader(gDeferredBlurLightProgram);
 
-				bindDeferredShader(gDeferredBlurLightProgram, 1);
-				mDeferredLight[0].bindTarget();
+			LLVector3 go = gSavedSettings.getVector3("RenderShadowGaussian");
+			const U32 kern_length = 4;
+			F32 blur_size = gSavedSettings.getF32("RenderShadowBlurSize");
+			F32 dist_factor = gSavedSettings.getF32("RenderShadowBlurDistFactor");
 
-				gDeferredBlurLightProgram.uniform2f("delta", 0.f, 1.f);
+			// sample symmetrically with the middle sample falling exactly on 0.0
+			F32 x = 0.f;
 
-				{
-					LLGLDisable blend(GL_BLEND);
-					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-					stop_glerror();
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-					stop_glerror();
-				}
-				mDeferredLight[0].flush();
-				unbindDeferredShader(gDeferredBlurLightProgram);
+			LLVector3 gauss[32]; // xweight, yweight, offset
+
+			for (U32 i = 0; i < kern_length; i++)
+			{
+				gauss[i].mV[0] = llgaussian(x, go.mV[0]);
+				gauss[i].mV[1] = llgaussian(x, go.mV[1]);
+				gauss[i].mV[2] = x;
+				x += 1.f;
 			}
 
-			stop_glerror();
-			glPopMatrix();
-			stop_glerror();
-			glMatrixMode(GL_MODELVIEW);
-			stop_glerror();
-			glPopMatrix();
-			stop_glerror();
+			gDeferredBlurLightProgram.uniform2f("delta", 1.f, 0.f);
+			gDeferredBlurLightProgram.uniform1f("dist_factor", dist_factor);
+			gDeferredBlurLightProgram.uniform3fv("kern[0]", kern_length, gauss[0].mV);
+			gDeferredBlurLightProgram.uniform3fv("kern", kern_length, gauss[0].mV);
+			gDeferredBlurLightProgram.uniform1f("kern_scale", blur_size * (kern_length/2.f - 0.5f));
+		
+			{
+				LLGLDisable blend(GL_BLEND);
+				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
+				stop_glerror();
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+				stop_glerror();
+			}
+			
+			mDeferredLight[1].flush();
+			unbindDeferredShader(gDeferredBlurLightProgram);
+
+			bindDeferredShader(gDeferredBlurLightProgram, 1);
+			mDeferredLight[0].bindTarget();
+
+			gDeferredBlurLightProgram.uniform2f("delta", 0.f, 1.f);
+
+			{
+				LLGLDisable blend(GL_BLEND);
+				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
+				stop_glerror();
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+				stop_glerror();
+			}
+			mDeferredLight[0].flush();
+			unbindDeferredShader(gDeferredBlurLightProgram);
 		}
+
+		stop_glerror();
+		glPopMatrix();
+		stop_glerror();
+		glMatrixMode(GL_MODELVIEW);
+		stop_glerror();
+		glPopMatrix();
+		stop_glerror();
 
 		//copy depth and stencil from deferred screen
 		//mScreen.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),

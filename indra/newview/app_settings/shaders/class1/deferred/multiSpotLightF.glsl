@@ -7,6 +7,8 @@
 
 #version 120
 
+//class 1 -- no shadows
+
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2DRect diffuseRect;
@@ -14,7 +16,6 @@ uniform sampler2DRect specularRect;
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
-uniform sampler2DRect lightMap;
 uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
 uniform sampler2D projectionMap;
