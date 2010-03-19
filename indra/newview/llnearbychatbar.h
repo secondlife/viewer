@@ -70,7 +70,7 @@ public:
 	LLCtrlListInterface* getListInterface()		{ return (LLCtrlListInterface*)mList; };
 	virtual void	showList();
 	virtual void	hideList();
-	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
 	S32				getCurrentIndex() const;
 	void			onItemSelected(const LLSD& data);
