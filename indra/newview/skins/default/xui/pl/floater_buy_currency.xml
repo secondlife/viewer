@@ -1,38 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="buy currency" title="KUP $L">
-	<text name="info_buying">
-		Kup L$:
-	</text>
-	<text name="info_cannot_buy">
-		Brak możliwości zakupu L$ teraz:
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="KUP L$">
+	<floater.string name="buy_currency">
+		Kup L$ [LINDENS] za [LOCALAMOUNT]
+	</floater.string>
 	<text name="info_need_more">
-		Potrzebujesz wiecęj L$:
+		Potrzebujesz więcej L$
 	</text>
-	<text name="error_message">
-		Pojawienie się błędu.
-	</text>
-	<button label="Idź do strony internetowej" name="error_web" width="168"/>
 	<text name="contacting">
 		Kontaktowanie z LindeX...
 	</text>
-	<text name="buy_action_unknown">
-		Kup L$ w systemie walutowej wymiany LindeX
-	</text>
-	<text name="buy_action">
-		[NAME] [PRICE]L$
-	</text>
-	<text name="currency_action">
-		Kup
-	</text>
-	<line_editor name="currency_amt" left_delta="32">
-		1234
-	</line_editor>
-	<text name="currency_est">
-		za [LOCALAMOUNT]
-	</text>
-	<text name="getting_data">
-		Otrzymywanie danych...
+	<text name="info_buying">
+		kup L$
 	</text>
 	<text name="balance_label">
 		Obecnie posiadasz
@@ -40,11 +18,26 @@
 	<text name="balance_amount">
 		[AMT]L$
 	</text>
-	<text name="buying_label">
-		Kupujesz
+	<text name="currency_action">
+		Kup
 	</text>
-	<text name="buying_amount">
-		[AMT]L$
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" left_delta="32" name="currency_amt">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		Cena
+	</text>
+	<text name="currency_est">
+		za [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Kalkulowanie...
+	</text>
+	<text name="buy_action">
+		[NAME] [PRICE]L$
 	</text>
 	<text name="total_label">
 		Twój nowy stan konta
@@ -52,18 +45,22 @@
 	<text name="total_amount">
 		[AMT]L$
 	</text>
-	<text name="purchase_warning_repurchase" height="48" bottom_delta="-64" right="-10">
-		Dokonując potwierdzenia na podaną transakcję,
-wyrażasz zgodę jedynie na zakup waluty.
-Sprobuj wykonać operację ponownie.
+	<text name="currency_links">
+		[http://www.secondlife.com/ sposób płatności] | [http://www.secondlife.com/ waluta] | [http://www.secondlife.com/my/account/exchange_rates.php kurs wymiany]
 	</text>
-	<text name="purchase_warning_notenough" bottom_delta="16">
-		Nie zakupujesz wystarczającej ilości waluty.
-Proszę zwiększyć ilość.
+	<text name="exchange_rate_note">
+		Wpisz ponownie kwotę aby zobaczyć ostatni kurs wymiany.
 	</text>
-	<button label="Anuluj" name="cancel_btn" />
-	<button label="Kup" name="buy_btn" />
-	<string name="buy_currency">
-		Kup [LINDENS]L$ za [LOCALAMOUNT]
-	</string>
+	<text bottom_delta="-64" height="48" name="purchase_warning_repurchase" right="-10">
+		Potwierdzasz zakup L$, nie obiektu.
+	</text>
+	<text bottom_delta="16" name="purchase_warning_notenough">
+		Nie zakupiono wystarczającej ilości L$. Proszę zwiększyć kwotę.
+	</text>
+	<button label="Kup teraz" name="buy_btn"/>
+	<button label="Anuluj" name="cancel_btn"/>
+	<text name="info_cannot_buy">
+		Nie można kupić
+	</text>
+	<button label="Przejdź na stronę WWW" name="error_web" width="168"/>
 </floater>
