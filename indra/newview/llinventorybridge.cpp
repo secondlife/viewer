@@ -4992,20 +4992,7 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 			continue;
 
 		// Find and remove this item from the COF.
-		LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(
-			item_id, LLAppearanceManager::instance().getCOF());
-		if (items.size() != 1)
-		{
-			llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
-		}
-		for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
-			 iter != items.end();
-			 ++iter)
-		{
-			const LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &item_id = linked_item->getUUID();
-			gInventory.purgeObject(item_id);
-		}
+		LLAppearanceManager::instance().removeCOFItemLinks(item_id,false);
 	}
 	gInventory.notifyObservers();
 
