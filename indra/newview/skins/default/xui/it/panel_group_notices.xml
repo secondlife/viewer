@@ -40,7 +40,7 @@ Massimo 200 per gruppo al giorno
 		<text name="string">
 			Trascina e rilascia qui l&apos;oggetto da allegare:
 		</text>
-		<button label="Rimuovi" label_selected="Rimuovi allegato" name="remove_attachment"/>
+		<button label="Rimuovi" label_selected="Rimuovi allegato" name="remove_attachment" tool_tip="Rimuovi allegato dal tuo avviso"/>
 		<button label="Spedisci" label_selected="Spedisci" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario nello spazio ALLEGA per spedirlo con la notice. Devi avere i permessi copy e transfer relativi all&apos;oggetto da allegare."/>
 	</panel>
@@ -57,6 +57,6 @@ Massimo 200 per gruppo al giorno
 		<text name="lbl4">
 			Messaggio:
 		</text>
-		<button label="Apri allegato" label_selected="Apri l&apos;allegato" name="open_attachment"/>
+		<button label="Apri l&apos;allegato" label_selected="Apri l&apos;allegato" name="open_attachment"/>
 	</panel>
 </panel>

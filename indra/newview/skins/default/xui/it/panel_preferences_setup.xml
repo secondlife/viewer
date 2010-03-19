@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Input &amp; Camera" name="Input panel">
+<panel label="Impostazione" name="Input panel">
 	<button bottom_delta="-40" label="Altri Dispositivi" name="joystick_setup_button" width="165"/>
 	<text name="Mouselook:">
 		Mouselook:
@@ -18,29 +18,29 @@
 		kbps
 	</text>
 	<check_box label="Custom port" name="connection_port_enabled"/>
-	<spinner label="Port number:" name="web_proxy_port"/>
+	<spinner label="Numero porta:" name="connection_port"/>
 	<text name="cache_size_label_l">
 		Cache size
 	</text>
 	<text name="text_box5">
 		MB
 	</text>
-	<button label="Browse" label_selected="Browse" name="set_cache"/>
-	<button label="Resetta" label_selected="Imposta" name="reset_cache"/>
 	<text name="Cache location">
-		Cache location
+		Ubicazione della cache:
 	</text>
+	<button label="Browse" label_selected="Browse" name="set_cache"/>
+	<button label="Resetta" label_selected="Reimposta" name="reset_cache"/>
 	<text name="Web:">
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usa il built-in browser" name="internal" tool_tip="Usa il built-in web browser per aiuto, web links, etc. Questo browser apre come una nuova finestra all&apos;interno [APP_NAME]."/>
-		<radio_item label="Usa il mio browser (IE, Firefox)" name="external" tool_tip="Usa il default system web browser per aiuto, web links, etc. Non raccomandato se utilizzi lo schermo pieno(full screen)."/>
+		<radio_item label="Usa il built-in browser" name="internal" tool_tip="Usa il built-in web browser per aiuto, web links, etc. Questo browser apre come una nuova finestra all&apos;interno [APP_NAME]." value="0"/>
+		<radio_item label="Usa il mio browser (IE, Firefox, Safari)" name="external" tool_tip="Usa il default system web browser per aiuto, web links, etc. Non raccomandato se utilizzi lo schermo pieno(full screen)." value="1"/>
 	</radio_group>
-	<check_box initial_value="false" label="Web proxy" name="web_proxy_enabled"/>
-	<line_editor name="web_proxy_editor" tool_tip="Nome o indirizzo IP del proxy che vorresti usare"/>
-	<button label="Browse" label_selected="Browse" name="set_proxy"/>
+	<check_box initial_value="false" label="Abilita proxy Web" name="web_proxy_enabled"/>
 	<text name="Proxy location">
-		Proxy location
+		Ubicazione proxy:
 	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Nome o indirizzo IP del proxy che vorresti usare"/>
+	<spinner label="Port number:" name="web_proxy_port"/>
 </panel>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="whitelist_entry">
+<floater name="whitelist_entry" title="VOCE DELLA LISTA BIANCA">
 	<text name="media_label">
 		Inserisci un URL o una configurazione URL da aggiungere alla lista dei domini permessi
 	</text>

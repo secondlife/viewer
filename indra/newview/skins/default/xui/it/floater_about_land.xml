@@ -81,7 +81,9 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<text name="Group:">
 				Gruppo:
 			</text>
-			<text left="119" name="GroupText" width="227"/>
+			<text left="119" name="GroupText" width="227">
+				Leyla Linden
+			</text>
 			<button label="Imposta" name="Set..."/>
 			<check_box label="Permetti cessione al gruppo" left="119" name="check deed" tool_tip="Un funzionario del gruppo può cedere questa terra al gruppo stesso cosicchè essa sarà  supportata  dalle terre del gruppo."/>
 			<button label="Cedi" name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
@@ -126,6 +128,7 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				0
 			</text>
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>
+			<button label="Informazioni script" name="Scripts..."/>
 			<button label="Acquista per il gruppo" name="Buy For Group..."/>
 			<button label="Compra pass..." label_selected="Compra pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
 			<button label="Abbandona la terra" name="Abandon Land..."/>
@@ -255,7 +258,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<text left="4" name="Autoreturn" width="412">
-				Autorestituisci gli oggetti degli altri residenti (minuti, 0 per disabilitata):
+				Restituzione automatica degli oggetti di altri residenti (minuti, 0 per disattivarla):
 			</text>
 			<line_editor name="clean other time" right="-20"/>
 			<text name="Object Owners:" width="150">
@@ -303,7 +306,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Nessuna spinta (Impostazione regionale)
 			</panel.string>
 			<text name="allow_label">
-				Permetti agli altri residenti di:
+				Permetti ad altri residenti di:
 			</text>
 			<check_box label="Modificare il terreno" name="edit land check" tool_tip="Se spuntato, chiunque può terraformare il tuo terreno. E&apos; preferibile lasciare questo quadrato non spuntato, dato che sarai sempre in grado di modificare il tuo terreno."/>
 			<check_box label="Permetti il volo" name="check fly" tool_tip="Se spuntato, gli altri residenti potranno volare sul tuo terreno. Se non spuntato, potranno solamente arrivare in volo o sorvolare il terreno."/>
@@ -386,9 +389,6 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<line_editor left="97" name="media_url"/>
 			<button label="Imposta..." label_selected="Imposta..." name="set_media_url" width="63"/>
-			<text name="CurrentURL:">
-				Pagina attuale:
-			</text>
 			<check_box label="Nascondi indirizzo URL Media" left="94" name="hide_media_url" tool_tip="Abilitando questa opzione nasconderai l&apos;indirizzo url dei media a tutte le persone non autorizzate a vedere le informazioni del terreno. Nota che questo non è disponibile per contenuto di tipo HTML."/>
 			<text name="Description:">
 				Descrizione:
@@ -400,9 +400,7 @@ Texture:
 			</text>
 			<texture_picker label="" left="97" name="media texture" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<text name="replace_texture_help" width="285">
-				(Gli oggetti che hanno questa texture applicata
-mostreranno il video o la pagina web dopo che avrai
-cliccato sulla freccia play.)
+				Gli oggetti che utilizzano questa texture mostreranno il video o la pagina web dopo aver cliccato sulla freccia di riproduzione.  Seleziona la miniatura per scegliere una texture diversa.
 			</text>
 			<check_box label="Auto ridimensiona" left="94" name="media_auto_scale" tool_tip="Spuntando questa opzione, nell&apos;appezzamento il contenuto media si ridimensionerà automaticamente. Potrebbe darsi che appaia un po&apos; più lento e che diminuisca la qualità visiva ma nessun altro riadattamento o allineamento della texture sarà necessario."/>
 			<text left="99" name="media_size" tool_tip="Aumenta grandezza per far vedere meglio i media web, lascia a 0 per impostare il default." width="120">
@@ -420,8 +418,10 @@ Media:
 			<check_box label="Fai ripetere il video" left="265" name="media_loop" tool_tip="Fai ripetere il video continuamente. Quando il video è finito, reinizierà dal principio."/>
 		</panel>
 		<panel label="SUONO" name="land_audio_panel">
+			<check_box label="Nascondi URL" name="hide_music_url" tool_tip="Questa opzione consente di nascondere l&apos;url della musica a chi non è autorizzato a visionare le informazioni di questo parcel."/>
 			<check_box label="Attiva Voice" name="parcel_enable_voice_channel"/>
 			<check_box label="Attiva Voice (stabilito dalla Proprietà)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Limita il chat vocale a questo lotto" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ACCESSO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
@@ -437,8 +437,8 @@ Media:
 			<text name="Only Allow">
 				Accesso ristretto ai Residenti verificati con:
 			</text>
-			<check_box label="Informazioni di pagamento on File [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Manda via residenti non identificati."/>
-			<check_box label="Verifica dell&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Espelli residenti che non hanno verificato l&apos;età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="Informazioni di pagamento on File [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Espelli i residenti non identificati."/>
+			<check_box label="Verifica dell&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno la loro età verificata. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">

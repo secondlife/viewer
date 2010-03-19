@@ -6,33 +6,9 @@
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=it
 	</panel.string>
-	<panel name="login_widgets">
-		<text name="first_name_text">
-			Nome:
-		</text>
-		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] Nome"/>
-		<text name="last_name_text">
-			Cognome:
-		</text>
-		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] Cognome"/>
-		<text name="password_text">
-			Password:
-		</text>
-		<button label="Accedi" label_selected="Accedi" name="connect_btn"/>
-		<text name="start_location_text">
-			Luogo di partenza:
-		</text>
-		<combo_box name="start_location_combo">
-			<combo_box.item label="La mia ultima ubicazione" name="MyLastLocation"/>
-			<combo_box.item label="La mia casa" name="MyHome"/>
-			<combo_box.item label="&lt;Scrivi nome regione&gt;" name="Typeregionname"/>
-		</combo_box>
-		<check_box label="Ricorda password" name="remember_check"/>
-		<text name="create_new_account_text">
-			Crea nuovo account
-		</text>
-		<text name="forgot_password_text">
-			Hai dimenticato il nome o la password?
-		</text>
-	</panel>
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<check_box label="Ricorda password" name="remember_check"/>
+		</layout_panel>
+	</layout_stack>
 </panel>
