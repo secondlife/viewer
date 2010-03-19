@@ -177,6 +177,14 @@ bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
 }
 
 // static
+bool LLHandlerUtil::isNotificationReusable(const LLNotificationPtr& notification)
+{
+	return OFFER_FRIENDSHIP == notification->getName()
+		|| USER_GIVE_ITEM == notification->getName()
+		|| TELEPORT_OFFERED == notification->getName();
+}
+
+// static
 bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
 {
 	return canLogToIM(notification) && canSpawnIMSession(notification);

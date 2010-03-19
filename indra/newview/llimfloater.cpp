@@ -128,6 +128,11 @@ void LLIMFloater::onFocusReceived()
 	LLIMModel::getInstance()->setActiveSessionID(mSessionID);
 
 	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
+
+	if (getVisible())
+	{
+		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
+	}
 }
 
 // virtual
@@ -609,7 +614,16 @@ void LLIMFloater::updateMessages()
 	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
 
 	std::list<LLSD> messages;
-	LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
+
+	// we shouldn't reset unread message counters if IM floater doesn't have focus
+	if (hasFocus())
+	{
+		LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
+	}
+	else
+	{
+		LLIMModel::instance().getMessagesSilently(mSessionID, messages, mLastMessageIndex+1);
+	}
 
 	if (messages.size())
 	{

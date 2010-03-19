@@ -1590,7 +1590,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 	}
 	else // Agent -> Agent Inventory Offer
 	{
-		payload["reusable"] = true;
 		p.responder = info;
 		// Note: sets inventory_offer_callback as the callback
 		// *TODO fix memory leak
@@ -2323,7 +2322,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
 				payload["godlike"] = FALSE;
-				payload["reusable"] = true;
 				LLNotificationsUtil::add("TeleportOffered", args, payload);
 			}
 		}
@@ -2392,7 +2390,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				}
 				else
 				{
-					payload["reusable"] = true;
 					args["[MESSAGE]"] = message;
 				        LLNotificationsUtil::add("OfferFriendship", args, payload);
 				}

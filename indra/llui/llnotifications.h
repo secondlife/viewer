@@ -349,6 +349,7 @@ private:
 	ENotificationPriority mPriority;
 	LLNotificationFormPtr mForm;
 	void* mResponderObj;
+	bool mIsReusable;
 	
 	// a reference to the template
 	LLNotificationTemplatePtr mTemplatep;
@@ -517,6 +518,10 @@ public:
 	{
 		return mId;
 	}
+
+	bool isReusable() { return mIsReusable; }
+
+	void setReusable(bool reusable) { mIsReusable = reusable; }
 	
 	// comparing two notifications normally means comparing them by UUID (so we can look them
 	// up quickly this way)

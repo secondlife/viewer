@@ -403,7 +403,8 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 	mPriority(p.priority),
 	mCancelled(false),
 	mIgnored(false),
-	mResponderObj(NULL)
+	mResponderObj(NULL),
+	mIsReusable(false)
 {
 	if (p.functor.name.isChosen())
 	{
@@ -432,7 +433,8 @@ LLNotification::LLNotification(const LLSD& sd) :
 	mRespondedTo(false),
 	mCancelled(false),
 	mIgnored(false),
-	mResponderObj(NULL)
+	mResponderObj(NULL),
+	mIsReusable(false)
 { 
 	mId.generate();
 	mSubstitutions = sd["substitutions"];
@@ -459,6 +461,7 @@ LLSD LLNotification::asLLSD()
 	output["expiry"] = mExpiresAt;
 	output["priority"] = (S32)mPriority;
 	output["responseFunctor"] = mResponseFunctorName;
+	output["reusable"] = mIsReusable;
 	return output;
 }
 
@@ -488,6 +491,7 @@ void LLNotification::updateFrom(LLNotificationPtr other)
 	mRespondedTo = other->mRespondedTo;
 	mResponse = other->mResponse;
 	mTemporaryResponder = other->mTemporaryResponder;
+	mIsReusable = other->isReusable();
 
 	update();
 }
@@ -573,9 +577,7 @@ void LLNotification::respond(const LLSD& response)
 	// and then call it
 	functor(asLLSD(), response);
 	
-	bool is_resusable = getPayload()["reusable"].asBoolean();
-
-	if (mTemporaryResponder && !is_resusable)
+	if (mTemporaryResponder && !isReusable())
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
 		mResponseFunctorName = "";
@@ -879,11 +881,11 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		{
 			abortProcessing = mChanged(payload);
 			// do not delete the notification to make LLChatHistory::appendMessage add notification panel to IM window
-			if( ! pNotification->getPayload()["reusable"].asBoolean() )
+			if( ! pNotification->isReusable() )
 			{
 				mItems.erase(pNotification);
+				onDelete(pNotification);
 			}
-			onDelete(pNotification);
 		}
 	}
 	return abortProcessing;
