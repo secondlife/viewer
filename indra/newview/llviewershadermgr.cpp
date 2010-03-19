@@ -378,7 +378,7 @@ void LLViewerShaderMgr::setShaders()
 
 		if (LLPipeline::sRenderDeferred)
 		{
-			if (gSavedSettings.getBOOL("RenderDeferredShadow"))
+			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 			{
 				if (gSavedSettings.getBOOL("RenderDeferredGI"))
 				{ //shadows + gi
