@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="IL MIO AVATAR" name="script_limits_my_avatar_panel">
+	<text name="script_memory">
+		Uso degli script avatar
+	</text>
+	<text name="loading_text">
+		Caricamento in corso...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Dimensione (kb)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
+		<scroll_list.columns label="Nome dell&apos;oggetto" name="name"/>
+		<scroll_list.columns label="Posizione" name="location"/>
+	</scroll_list>
+	<button label="Aggiorna lista" name="refresh_list_btn"/>
+</panel>

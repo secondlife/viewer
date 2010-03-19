@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
 	<string name="SECOND_LIFE">
@@ -9,6 +9,9 @@
 	</string>
 	<string name="APP_NAME">
 		Second Life
+	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
 	</string>
 	<string name="SUPPORT_SITE">
 		Portale di supporto di Second Life
@@ -140,7 +143,7 @@
 		Clicca per avere maggiori informazioni sul luogo
 	</string>
 	<string name="TooltipAgentUrl">
-		Clicca per vedere il profilo del residente
+		Clicca per vedere il profilo di questo residente
 	</string>
 	<string name="TooltipGroupUrl">
 		Clicca per vedere la descrizione del gruppo
@@ -191,9 +194,6 @@
 	<string name="BUTTON_DOCK">
 		Àncora
 	</string>
-	<string name="BUTTON_UNDOCK">
-		Disàncora
-	</string>
 	<string name="BUTTON_HELP">
 		Mostra Aiuto
 	</string>
@@ -217,9 +217,6 @@
 	</string>
 	<string name="AvatarNameWaiting">
 		(in attesa)
-	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
 	</string>
 	<string name="GroupNameNone">
 		(nessuno)
@@ -581,6 +578,9 @@
 	<string name="hang_up">
 		Disconnesso dalla Voice Chat in-world
 	</string>
+	<string name="reconnect_nearby">
+		Sarai riconnesso alla chat vocale nei dintorni
+	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		A &apos;[OBJECTNAME]&apos;, un oggetto di proprietà di &apos;[OWNERNAME]&apos;, situato in [REGIONNAME] [REGIONPOS], è stato concesso il permesso di: [PERMISSIONS].
 	</string>
@@ -773,9 +773,6 @@
 	<string name="TeleportOffer">
 		Offerta di Teleport
 	</string>
-	<string name="StartUpNotification">
-		[%d]  una nuova notifica è arrivata mentre eri assente...
-	</string>
 	<string name="StartUpNotifications">
 		[%d]  nuove notifice sono arrivate mentre eri assente...
 	</string>
@@ -813,11 +810,13 @@
 		Premi ESC per tornare in visulizzazione normale
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Nessun oggetto corrispondente trovato in inventario.
+		Nessun oggetto corrispondente trovato in inventario.  Prova [secondlife:///app/search/groups &quot;Cerca&quot;].
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Trascina qui un punto di riferimento per aggiungerlo ai tuoi preferiti.
 	</string>
 	<string name="InventoryNoTexture">
-		Non hai una copia
-di questa texture in inventario.
+		Non hai una copia di questa texture nel tuo inventario
 	</string>
 	<string name="no_transfer" value="(nessun trasferimento)"/>
 	<string name="no_modify" value="(nessuna modifica)"/>
@@ -1275,10 +1274,163 @@ di questa texture in inventario.
 		tutte le proprietà immobiliari che gestisci per conto di [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Residenti ammessi: ([ALLOWEDAGENTS], massimo [MAXACCESS])
+		Residenti consentiti: ([ALLOWEDAGENTS], massimo [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
 		Gruppi ammessi: ([ALLOWEDGROUPS], massimo [MAXACCESS])
+	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		Memoria dello script del lotto
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		Lotti in elenco: [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		Memoria utilizzata: [COUNT] kb di [MAX] kb; [AVAILABLE] kb disponibili
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		Memoria utilizzata: [COUNT] kb
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		URL degli script lotti
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		URL utilizzati: [COUNT] di [MAX]; [AVAILABLE] disponibili
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		URL utilizzati: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Errore nella richiesta di informazioni
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Nessun lotto selezionato
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Errore: le informazioni sullo script sono disponibili solo nella tua regione attuale
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Recupero informazioni in corso...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		Non hai il permesso di visionare questo lotto
+	</string>
+	<string name="SITTING_ON">
+		Seduto su
+	</string>
+	<string name="ATTACH_CHEST">
+		Petto
+	</string>
+	<string name="ATTACH_HEAD">
+		Testa
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		Spalla sinistra
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		Spalla destra
+	</string>
+	<string name="ATTACH_LHAND">
+		Mano sinistra
+	</string>
+	<string name="ATTACH_RHAND">
+		Mano destra
+	</string>
+	<string name="ATTACH_LFOOT">
+		Piede sinisto
+	</string>
+	<string name="ATTACH_RFOOT">
+		Piede destro
+	</string>
+	<string name="ATTACH_BACK">
+		Indietro
+	</string>
+	<string name="ATTACH_PELVIS">
+		Pelvi
+	</string>
+	<string name="ATTACH_MOUTH">
+		Bocca
+	</string>
+	<string name="ATTACH_CHIN">
+		Mento
+	</string>
+	<string name="ATTACH_LEAR">
+		Orecchio sinistro
+	</string>
+	<string name="ATTACH_REAR">
+		Orecchio destro
+	</string>
+	<string name="ATTACH_LEYE">
+		Occhio sinistro
+	</string>
+	<string name="ATTACH_REYE">
+		Occhio destro
+	</string>
+	<string name="ATTACH_NOSE">
+		Naso
+	</string>
+	<string name="ATTACH_RUARM">
+		Braccio destro
+	</string>
+	<string name="ATTACH_RLARM">
+		Avambraccio destro
+	</string>
+	<string name="ATTACH_LUARM">
+		Braccio sinistro
+	</string>
+	<string name="ATTACH_LLARM">
+		Avambraccio sinistro
+	</string>
+	<string name="ATTACH_RHIP">
+		Anca destra
+	</string>
+	<string name="ATTACH_RULEG">
+		Coscia destra
+	</string>
+	<string name="ATTACH_RLLEG">
+		Coscia destra
+	</string>
+	<string name="ATTACH_LHIP">
+		Anca sinista
+	</string>
+	<string name="ATTACH_LULEG">
+		Coscia sinistra
+	</string>
+	<string name="ATTACH_LLLEG">
+		Polpaccio sinistro
+	</string>
+	<string name="ATTACH_BELLY">
+		Addome
+	</string>
+	<string name="ATTACH_RPEC">
+		Petto destro
+	</string>
+	<string name="ATTACH_LPEC">
+		Petto sinistro
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD in centro 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD alto a destra
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD alto in centro
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD alto a sinistra
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD in centro 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD basso a sinistra
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD basso
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD basso a destra
 	</string>
 	<string name="CursorPos">
 		Riga [LINE], Colonna [COLUMN]
@@ -1293,7 +1445,7 @@ di questa texture in inventario.
 		(in base al nome)
 	</string>
 	<string name="MuteAgent">
-		(residente)
+		(Residente)
 	</string>
 	<string name="MuteObject">
 		(oggetto)
@@ -1323,6 +1475,15 @@ di questa texture in inventario.
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(si aggiornerà dopo la pubblicazione)
+	</string>
+	<string name="NoPicksClassifiedsText">
+		Non hai creato luoghi preferiti né inserzioni. Clicca il pulsante più qui sotto per creare un luogo preferito o un&apos;inserzione.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		L&apos;utente non ha luoghi preferiti né inserzioni
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		Caricamento in corso...
 	</string>
 	<string name="MultiPreviewTitle">
 		Anteprima
@@ -1399,6 +1560,9 @@ di questa texture in inventario.
 	<string name="UnknownFileExtension">
 		Estensione del file sconosciuta [.%s]
 Tipi conosciuti .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+	</string>
+	<string name="MuteObject2">
+		Blocca
 	</string>
 	<string name="AddLandmarkNavBarMenu">
 		Aggiungi punto di riferimento...
@@ -1672,38 +1836,14 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Attached Earlobes">
 		Lobi attaccati
 	</string>
-	<string name="Back Bangs">
-		Frangetta da dietro
-	</string>
-	<string name="Back Bangs Down">
-		Frangetta da dietro giù
-	</string>
-	<string name="Back Bangs Up">
-		Frangetta da dietro su
-	</string>
 	<string name="Back Fringe">
 		Frangetta all&apos;indietro
-	</string>
-	<string name="Back Hair">
-		Capelli da dietro
-	</string>
-	<string name="Back Hair Down">
-		Capelli da dietro giù
-	</string>
-	<string name="Back Hair Up">
-		Capelli da dietro su
 	</string>
 	<string name="Baggy">
 		Larghi
 	</string>
 	<string name="Bangs">
 		Frange
-	</string>
-	<string name="Bangs Down">
-		Frangetta giù
-	</string>
-	<string name="Bangs Up">
-		Frangetta su
 	</string>
 	<string name="Beady Eyes">
 		Occhi piccoli
@@ -1716,9 +1856,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Big Butt">
 		Sedere grande
-	</string>
-	<string name="Big Eyeball">
-		Bulbo oculare grande
 	</string>
 	<string name="Big Hair Back">
 		Capigliatura grande: Indietro
@@ -1894,9 +2031,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Corner Down">
 		Angolo all&apos;ingiù
 	</string>
-	<string name="Corner Normal">
-		Angolo normale
-	</string>
 	<string name="Corner Up">
 		Angolo all&apos;insù
 	</string>
@@ -1905,9 +2039,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Crooked Nose">
 		Naso storto
-	</string>
-	<string name="Cropped Hair">
-		Capelli corti
 	</string>
 	<string name="Cuff Flare">
 		Svasato con risvolto
@@ -1927,14 +2058,8 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Default Heels">
 		Tacchi standard
 	</string>
-	<string name="Default Toe">
-		Punta del piede standard
-	</string>
 	<string name="Dense">
 		Folti
-	</string>
-	<string name="Dense hair">
-		Capelli folti
 	</string>
 	<string name="Double Chin">
 		Doppio mento
@@ -1981,9 +2106,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Eye Spacing">
 		Distanza occhi
 	</string>
-	<string name="Eyeball Size">
-		Grandezza bulbo oculare
-	</string>
 	<string name="Eyebrow Arc">
 		Arco delle sopracciglia
 	</string>
@@ -2008,35 +2130,8 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Eyeliner Color">
 		Colore dell&apos;eyeliner
 	</string>
-	<string name="Eyes Back">
-		Occhi indietro
-	</string>
 	<string name="Eyes Bugged">
 		Occhi sporgenti
-	</string>
-	<string name="Eyes Forward">
-		Occhi in avanti
-	</string>
-	<string name="Eyes Long Head">
-		Occhi testa lunga
-	</string>
-	<string name="Eyes Shear Left Up">
-		Occhio a sinistra verso l&apos;alto
-	</string>
-	<string name="Eyes Shear Right Up">
-		Occhio a destra verso il basso
-	</string>
-	<string name="Eyes Short Head">
-		Occhi testa corta
-	</string>
-	<string name="Eyes Spread">
-		Spaziatura occhi
-	</string>
-	<string name="Eyes Sunken">
-		Occhi infossati
-	</string>
-	<string name="Eyes Together">
-		Occhi ravvicinati
 	</string>
 	<string name="Face Shear">
 		Taglio del viso
@@ -2047,29 +2142,8 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Far Set Eyes">
 		Occhi distanti
 	</string>
-	<string name="Fat">
-		Grasso
-	</string>
-	<string name="Fat Head">
-		Testa grossa
-	</string>
 	<string name="Fat Lips">
 		Labbra carnose
-	</string>
-	<string name="Fat Lower">
-		Inferiore carnoso
-	</string>
-	<string name="Fat Lower Lip">
-		Labbro inferiore sporgente
-	</string>
-	<string name="Fat Torso">
-		Torace grosso
-	</string>
-	<string name="Fat Upper">
-		Torace grosso
-	</string>
-	<string name="Fat Upper Lip">
-		Labbro superiore sporgente
 	</string>
 	<string name="Female">
 		Femmina
@@ -2107,23 +2181,8 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Freckles">
 		Lentiggini
 	</string>
-	<string name="Front Bangs Down">
-		Frangette in giù
-	</string>
-	<string name="Front Bangs Up">
-		Frangette in su
-	</string>
 	<string name="Front Fringe">
 		Frangetta
-	</string>
-	<string name="Front Hair">
-		Capelli davanti
-	</string>
-	<string name="Front Hair Down">
-		Capelli davanti sciolti
-	</string>
-	<string name="Front Hair Up">
-		Capelli davanti raccolti
 	</string>
 	<string name="Full Back">
 		Dietro gonfi
@@ -2398,9 +2457,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Long arms">
 		Braccia lunghe
 	</string>
-	<string name="Longcuffs">
-		Maniche lunghe
-	</string>
 	<string name="Loose Pants">
 		Pantaloni ampi
 	</string>
@@ -2563,9 +2619,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="No Eyeshadow">
 		Senza ombretto
 	</string>
-	<string name="No Heels">
-		No Heels
-	</string>
 	<string name="No Lipgloss">
 		Senza lipgloss
 	</string>
@@ -2622,9 +2675,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Nostril Width">
 		Larghezza narici
-	</string>
-	<string name="Old">
-		Vecchio
 	</string>
 	<string name="Opaque">
 		Opaco
@@ -2725,9 +2775,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Pointy Heels">
 		Tacchi a spillo
 	</string>
-	<string name="Pointy Toe">
-		Punta appuntita
-	</string>
 	<string name="Ponytail">
 		Codino
 	</string>
@@ -2752,14 +2799,8 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Red Hair">
 		Presenza di rosso nei capelli
 	</string>
-	<string name="Red Skin">
-		Red Skin
-	</string>
 	<string name="Regular">
 		Normale
-	</string>
-	<string name="Regular Muscles">
-		Muscolatura normale
 	</string>
 	<string name="Right Part">
 		Riga a destra
@@ -2769,9 +2810,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Round">
 		Rotondo
-	</string>
-	<string name="Round Forehead">
-		Round Forehead
 	</string>
 	<string name="Ruddiness">
 		Rossore
@@ -2785,23 +2823,11 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Saddle Bags">
 		Rotondità fianchi
 	</string>
-	<string name="Saddlebags">
-		Rotondità fianchi
-	</string>
-	<string name="Scrawny">
-		Scrawny
-	</string>
 	<string name="Scrawny Leg">
 		Gambe magre
 	</string>
 	<string name="Separate">
 		Separati
-	</string>
-	<string name="Shading">
-		Shading
-	</string>
-	<string name="Shadow hair">
-		Shadow hair
 	</string>
 	<string name="Shallow">
 		Meno pronunciato
@@ -2815,14 +2841,8 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Shear Front">
 		Taglio anteriore
 	</string>
-	<string name="Shear Left">
-		Taglio a sinistra
-	</string>
 	<string name="Shear Left Up">
 		Distorto a sinistra
-	</string>
-	<string name="Shear Right">
-		A destra
 	</string>
 	<string name="Shear Right Up">
 		Distorto a destra
@@ -2884,15 +2904,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Shoulders">
 		Spalle
 	</string>
-	<string name="Side Bangs">
-		Side Bangs
-	</string>
-	<string name="Side Bangs Down">
-		Side Bangs Down
-	</string>
-	<string name="Side Bangs Up">
-		Side Bangs Up
-	</string>
 	<string name="Side Fringe">
 		Ciuffi laterali
 	</string>
@@ -2907,9 +2918,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Sides Hair Up">
 		Capigliatura di lato raccolta
-	</string>
-	<string name="Skinny">
-		Skinny
 	</string>
 	<string name="Skinny Neck">
 		Collo fino
@@ -2959,9 +2967,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Socks Length">
 		Lunghezza calze
 	</string>
-	<string name="Some">
-		Some
-	</string>
 	<string name="Soulpatch">
 		Pizzetto labbro inferiore
 	</string>
@@ -2979,9 +2984,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Squash Head">
 		Testa schiacciata
-	</string>
-	<string name="Squash/Stretch Head">
-		Testa Schiacciata/Allungata
 	</string>
 	<string name="Stretch Head">
 		Testa allungata
@@ -3001,18 +3003,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Sweep Forward">
 		Avanti
 	</string>
-	<string name="Swept Back">
-		Swept Back
-	</string>
-	<string name="Swept Back Hair">
-		Swept Back Hair
-	</string>
-	<string name="Swept Forward">
-		Swept Forward
-	</string>
-	<string name="Swept Forward Hair">
-		Swept Forward Hair
-	</string>
 	<string name="Tall">
 		Alto
 	</string>
@@ -3030,9 +3020,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Thick Toe">
 		Punta spessa
-	</string>
-	<string name="Thickness">
-		Spessore
 	</string>
 	<string name="Thin">
 		Sottili
@@ -3063,12 +3050,6 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Tight Sleeves">
 		Maniche strette
-	</string>
-	<string name="Tilt Left">
-		Tilt Left
-	</string>
-	<string name="Tilt Right">
-		Tilt Right
 	</string>
 	<string name="Toe Shape">
 		Forma della punta
@@ -3211,6 +3192,21 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderatore)
 	</string>
+	<string name="started_call">
+		Chiamata vocale iniziata
+	</string>
+	<string name="joined_call">
+		Si è collegato alla chiamata in voce
+	</string>
+	<string name="ringing-im">
+		Collegamento alla chiamata vocale...
+	</string>
+	<string name="connected-im">
+		Collegato, clicca Chiudi chiamata per agganciare
+	</string>
+	<string name="hang_up-im">
+		Chiusa la chiamata
+	</string>
 	<string name="only_user_message">
 		Sei l&apos;unico utente di questa sessione.
 	</string>
@@ -3219,6 +3215,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="invite_message">
 		Clicca il tasto [BUTTON NAME] per accettare/connetterti a questa voice chat.
+	</string>
+	<string name="muted_message">
+		Hai bloccato questo residente. Quando gli invii un messaggio, verrà automaticamente sbloccato.
+	</string>
+	<string name="generic">
+		Errore nella richiesta, riprova più tardi.
 	</string>
 	<string name="generic_request_error">
 		Errore durante la richiesta, riprova più tardi.
@@ -3238,19 +3240,37 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="not_a_mod_error">
 		Non sei un moderatore.
 	</string>
+	<string name="muted">
+		Il moderatore del gruppo ha disattivato la tua chat di testo.
+	</string>
 	<string name="muted_error">
 		Un moderatore di gruppo ti ha disabilitato dalla chat di testo.
 	</string>
 	<string name="add_session_event">
 		Impossibile aggiungere utenti alla chat con [RECIPIENT].
 	</string>
+	<string name="message">
+		Impossibile spedire il tuo messaggio nella sessione chat con [RECIPIENT].
+	</string>
 	<string name="message_session_event">
 		Impossibile inviare il messaggio nella chat con [RECIPIENT].
+	</string>
+	<string name="mute">
+		Errore durante la moderazione.
+	</string>
+	<string name="removed">
+		Sei stato rimosso dal gruppo.
 	</string>
 	<string name="removed_from_group">
 		Sei stato espulso dal gruppo.
 	</string>
 	<string name="close_on_no_ability">
 		Non hai più le abilitazioni per rimanere nella sessione chat.
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] ha detto qualcosa di nuovo
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] ha detto qualcosa di nuovo
 	</string>
 </strings>

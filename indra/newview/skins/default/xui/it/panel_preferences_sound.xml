@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Suoni" name="Preference Media panel">
 	<slider label="Comando volume centrale" name="System Volume"/>
-	<check_box initial_value="true" label="Spegni suono se minimizzato" name="mute_when_minimized"/>
-	<slider label="Ambiente" name="Wind Volume"/>
+	<check_box initial_value="true" label="Disattiva audio quando minimizzato" name="mute_when_minimized"/>
 	<slider label="Pulsanti" name="UI Volume"/>
-	<slider label="Multimediale" name="Media Volume"/>
+	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Effetti sonori" name="SFX Volume"/>
 	<slider label="Musica in streaming" name="Music Volume"/>
-	<check_box label="Voce" name="enable_voice_check"/>
-	<slider label="Voice" name="Voice Volume"/>
+	<check_box label="Abilitato" name="music_enabled"/>
+	<slider label="Multimediale" name="Media Volume"/>
+	<check_box label="Abilitato" name="enable_media"/>
+	<slider label="Chat vocale" name="Voice Volume"/>
+	<check_box label="Abilitato" name="enable_voice_check"/>
+	<check_box label="Consenti riproduzione multimediale automatica" name="media_auto_play_btn" tool_tip="Seleziona qui per consentire la riproduzione multimediale automatica" value="vero"/>
+	<check_box label="Riproduci media in uso da altri avatar" name="media_show_on_others_btn" tool_tip="Deseleziona qui per nascondere i media in uso dagli altri avatar nei dintorni" value="vero"/>
+	<text name="voice_chat_settings">
+		Impostazioni Chat vocale
+	</text>
 	<text name="Listen from">
 		Ascolta da:
 	</text>
