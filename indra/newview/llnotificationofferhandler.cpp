@@ -113,35 +113,58 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				session_id = LLHandlerUtil::spawnIMSession(name, from_id);
 			}
 
-			if (LLHandlerUtil::canAddNotifPanelToIM(notification))
+			bool show_toast = true;
+			bool add_notid_to_im = LLHandlerUtil::canAddNotifPanelToIM(notification);
+			if (add_notid_to_im)
 			{
 				LLHandlerUtil::addNotifPanelToIM(notification);
-				LLHandlerUtil::logToIMP2P(notification, true);
+				if (LLHandlerUtil::isIMFloaterOpened(notification))
+				{
+					show_toast = false;
+				}
 			}
-			else if (notification->getPayload().has("SUPPRESS_TOAST")
+
+			if (notification->getPayload().has("SUPPRESS_TOAST")
 						&& notification->getPayload()["SUPPRESS_TOAST"])
 			{
-				LLHandlerUtil::logToIMP2P(notification);
 				LLNotificationsUtil::cancel(notification);
 			}
-			else
+			else if(show_toast)
 			{
 				LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
-
+				// don't close notification on panel destroy since it will be used by IM floater
+				notify_box->setCloseNotificationOnDestroy(!add_notid_to_im);
 				LLToast::Params p;
 				p.notif_id = notification->getID();
 				p.notification = notification;
 				p.panel = notify_box;
 				p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
+				// we not save offer notifications to the syswell floater that should be added to the IM floater
+				p.can_be_stored = !add_notid_to_im;
 
 				LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 				if(channel)
 					channel->addToast(p);
 
-				LLHandlerUtil::logToIMP2P(notification);
+				// if we not add notification to IM - add it to notification well
+				if (!add_notid_to_im)
+				{
+					// send a signal to the counter manager
+					mNewNotificationSignal();
+				}
+			}
 
-				// send a signal to the counter manager
-				mNewNotificationSignal();
+			if (LLHandlerUtil::canLogToIM(notification))
+			{
+				// log only to file if notif panel can be embedded to IM and IM is opened
+				if (add_notid_to_im && LLHandlerUtil::isIMFloaterOpened(notification))
+				{
+					LLHandlerUtil::logToIMP2P(notification, true);
+				}
+				else
+				{
+					LLHandlerUtil::logToIMP2P(notification);
+				}
 			}
 		}
 	}
@@ -155,6 +178,11 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
+			if (LLHandlerUtil::canAddNotifPanelToIM(notification)
+					&& !LLHandlerUtil::isIMFloaterOpened(notification))
+			{
+				LLHandlerUtil::decIMMesageCounter(notification);
+			}
 			mChannel->killToastByNotificationID(notification->getID());
 		}
 	}
@@ -166,8 +194,11 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 void LLOfferHandler::onDeleteToast(LLToast* toast)
 {
-	// send a signal to the counter manager
-	mDelNotificationSignal();
+	if (!LLHandlerUtil::canAddNotifPanelToIM(toast->getNotification()))
+	{
+		// send a signal to the counter manager
+		mDelNotificationSignal();
+	}
 
 	// send a signal to a listener to let him perform some action
 	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
@@ -181,7 +212,9 @@ void LLOfferHandler::onRejectToast(LLUUID& id)
 
 	if (notification
 			&& LLNotificationManager::getInstance()->getHandlerForNotification(
-					notification->getType()) == this)
+					notification->getType()) == this
+					// don't delete notification since it may be used by IM floater
+					&& !LLHandlerUtil::canAddNotifPanelToIM(notification))
 	{
 		LLNotifications::instance().cancel(notification);
 	}
