@@ -7621,17 +7621,6 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
-    <key>RenderWaterReflections</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflect the environment in the water.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RotateRight</key>
     <map>
       <key>Comment</key>

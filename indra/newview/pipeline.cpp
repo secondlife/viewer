@@ -7238,17 +7238,16 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 									  (1<<LLPipeline::RENDER_TYPE_SKY) |
 									  (1<<LLPipeline::RENDER_TYPE_CLOUDS));	
 
-				if (gSavedSettings.getBOOL("RenderWaterReflections"))
+				S32 detail = gSavedSettings.getS32("RenderReflectionDetail");
+				if (detail > 0)
 				{ //mask out selected geometry based on reflection detail
-
-					S32 detail = gSavedSettings.getS32("RenderReflectionDetail");
-					if (detail < 3)
+					if (detail < 4)
 					{
 						mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_PARTICLES);
-						if (detail < 2)
+						if (detail < 3)
 						{
 							mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_AVATAR);
-							if (detail < 1)
+							if (detail < 2)
 							{
 								mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_VOLUME);
 							}
@@ -7268,7 +7267,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
 				mRenderTypeMask = ref_mask;
-				if (gSavedSettings.getBOOL("RenderWaterReflections"))
+				if (gSavedSettings.getS32("RenderReflectionDetail") > 0)
 				{
 					gPipeline.grabReferences(ref_result);
 					LLGLUserClipPlane clip_plane(plane, mat, projection);
