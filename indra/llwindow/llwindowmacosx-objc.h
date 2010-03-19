@@ -40,5 +40,4 @@ void setupCocoa();
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY);
 OSErr releaseImageCursor(CursorRef ref);
 OSErr setImageCursor(CursorRef ref);
-void getScreenSize(int* width, int* height);
-void getVisibleScreen(int *x, int *y, int* width, int* height);
+

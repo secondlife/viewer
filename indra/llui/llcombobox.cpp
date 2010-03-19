@@ -706,14 +706,17 @@ void LLComboBox::onListMouseUp()
 
 void LLComboBox::onItemSelected(const LLSD& data)
 {
-	setValue(data);
-
-	if (mAllowTextEntry && mLastSelectedIndex != -1)
+	mLastSelectedIndex = getCurrentIndex();
+	if (mLastSelectedIndex != -1)
 	{
-		gFocusMgr.setKeyboardFocus(mTextEntry);
-		mTextEntry->selectAll();
-	}
+		setLabel(getSelectedItemLabel());
 
+		if (mAllowTextEntry)
+		{
+			gFocusMgr.setKeyboardFocus(mTextEntry);
+			mTextEntry->selectAll();
+		}
+	}
 	// hiding the list reasserts the old value stored in the text editor/dropdown button
 	hideList();
 
@@ -1079,24 +1082,6 @@ LLIconsComboBox::LLIconsComboBox(const LLIconsComboBox::Params& p)
 	mIconColumnIndex(p.icon_column),
 	mLabelColumnIndex(p.label_column)
 {}
-
-void LLIconsComboBox::setValue(const LLSD& value)
-{
-	BOOL found = mList->selectByValue(value);
-	if (found)
-	{
-		LLScrollListItem* item = mList->getFirstSelected();
-		if (item)
-		{
-			setLabel(getSelectedItemLabel());
-		}
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
-	else
-	{
-		mLastSelectedIndex = -1;
-	}
-}
 
 const std::string LLIconsComboBox::getSelectedItemLabel(S32 column) const
 {
