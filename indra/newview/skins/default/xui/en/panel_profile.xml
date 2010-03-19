@@ -311,7 +311,7 @@
          height="23"
          label="Add Friend"
          layout="topleft"
-         left="1"
+         left="2"
          mouse_opaque="false"
          name="add_friend"
          pad_left="1" 
@@ -319,7 +319,7 @@
          tool_tip="Offer friendship to the Resident"
          top="5"
          use_ellipses="true"
-         width="105" />
+         width="117" />
         <button
          follows="bottom|left"
          height="23"
@@ -328,8 +328,8 @@
          name="im"
          tool_tip="Open instant message session"
          top="5"
-         left_pad="0"
-         width="19" />
+         left_pad="1"
+         width="21" />
         <button
          follows="bottom|left"
          height="23"
@@ -337,26 +337,12 @@
          layout="topleft"
          name="call"
          tool_tip="Call this Resident"
-         left_pad="0"
+         left_pad="1"
          pad_left="1" 
          pad_right="1"
          top="5"
          use_ellipses="true"
-         width="48" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Map"
-         layout="topleft"
-         name="show_on_map_btn"
-         pad_left="1" 
-         pad_right="1"
-         tool_tip="Show the Resident on the map"
-         top="5"
-         left_pad="0"
-         use_ellipses="true"
-         width="33" />
+         width="51" />
         <button
          follows="bottom|left"
          height="23"
@@ -364,12 +350,12 @@
          layout="topleft"
          name="teleport"
          tool_tip="Offer teleport"
-         left_pad="0"
+         left_pad="1"
          pad_left="1" 
          pad_right="1"
          top="5"
          use_ellipses="true"
-         width="81" />
+         width="92" />
         <button
          follows="bottom|right"
          height="23"
