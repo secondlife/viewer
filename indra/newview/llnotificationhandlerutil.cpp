@@ -252,6 +252,9 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 		session->mNumUnread = unread;
 		session->mParticipantUnreadMessageCount = participant_unread;
 
+		// update IM floater messages
+		updateIMFLoaterMesages(session_id);
+
 		// restore active session id
 		if (active_session_id.isNull())
 		{
@@ -415,17 +418,23 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 }
 
 // static
+void LLHandlerUtil::updateIMFLoaterMesages(const LLUUID& session_id)
+{
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if (im_floater != NULL && im_floater->getVisible())
+	{
+		im_floater->updateMessages();
+	}
+}
+
+// static
 void LLHandlerUtil::updateVisibleIMFLoaterMesages(const LLNotificationPtr& notification)
 {
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 	LLUUID from_id = notification->getPayload()["from_id"];
 	LLUUID session_id = spawnIMSession(name, from_id);
 
-	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
-	if (im_floater != NULL && im_floater->getVisible())
-	{
-		im_floater->updateMessages();
-	}
+	updateIMFLoaterMesages(session_id);
 }
 
 // static

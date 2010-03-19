@@ -357,6 +357,11 @@ public:
 	static void addNotifPanelToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Updates messages of IM floater.
+	 */
+	static void updateIMFLoaterMesages(const LLUUID& session_id);
+
+	/**
 	 * Updates messages of visible IM floater.
 	 */
 	static void updateVisibleIMFLoaterMesages(const LLNotificationPtr& notification);
