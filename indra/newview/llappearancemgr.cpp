@@ -368,6 +368,7 @@ public:
 	void recoverMissingWearable(EWearableType type);
 	void clearCOFLinksForMissingWearables();
 	
+	void onWearableAssetFetch(LLWearable *wearable);
 	void onAllComplete();
 	
 	typedef std::list<LLFoundData> found_list_t;
@@ -657,11 +658,10 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 	return done;
 }
 
-static void onWearableAssetFetch(LLWearable* wearable, void* data)
+void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 {
-	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
-	holder->mResolved += 1;  // just counting callbacks, not successes.
-	llinfos << "onWearableAssetFetch, resolved count " << holder->mResolved << " of requested " << holder->mFoundList.size() << llendl;
+	mResolved += 1;  // just counting callbacks, not successes.
+	llinfos << "onWearableAssetFetch, resolved count " << mResolved << " of requested " << mFoundList.size() << llendl;
 	if (wearable)
 	{
 		llinfos << "wearable found, type " << wearable->getType() << " asset " << wearable->getAssetID() << llendl;
@@ -671,7 +671,7 @@ static void onWearableAssetFetch(LLWearable* wearable, void* data)
 		llwarns << "no wearable found" << llendl;
 	}
 
-	if (holder->mFired)
+	if (mFired)
 	{
 		llwarns << "called after holder fired" << llendl;
 		return;
@@ -682,8 +682,8 @@ static void onWearableAssetFetch(LLWearable* wearable, void* data)
 		return;
 	}
 
-	for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
-		 iter != holder->mFoundList.end(); ++iter)
+	for (LLWearableHoldingPattern::found_list_t::iterator iter = mFoundList.begin();
+		 iter != mFoundList.end(); ++iter)
 	{
 		LLFoundData& data = *iter;
 		if(wearable->getAssetID() == data.mAssetID)
@@ -694,6 +694,12 @@ static void onWearableAssetFetch(LLWearable* wearable, void* data)
 			break;
 		}
 	}
+}
+
+static void onWearableAssetFetch(LLWearable* wearable, void* data)
+{
+	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
+	holder->onWearableAssetFetch(wearable);
 }
 
 
@@ -1186,9 +1192,6 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	// callback will be called (and this object deleted)
 	// before the final getNextData().
 
-	// BAP 2.1 cleanup - no point having found_container when
-	// mFoundList already has all the info.
-	LLDynamicArray<LLFoundData> found_container;
 	for(S32 i = 0; i  < wear_items.count(); ++i)
 	{
 		LLViewerInventoryItem *item = wear_items.get(i);
@@ -1214,7 +1217,6 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 #endif
 
 			holder->mFoundList.push_front(found);
-			found_container.put(found);
 		}
 		else
 		{
@@ -1229,9 +1231,10 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 		}
 	}
 
-	for(S32 i = 0; i < found_container.count(); ++i)
+	for (LLWearableHoldingPattern::found_list_t::iterator it = holder->mFoundList.begin();
+		 it != holder->mFoundList.end(); ++it)
 	{
-		LLFoundData& found = found_container.get(i);
+		LLFoundData& found = *it;
 
 		llinfos << "waiting for onWearableAssetFetch callback, asset " << found.mAssetID.asString() << llendl;
 
@@ -1248,7 +1251,6 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollFetchCompletion,holder));
 	}
-
 }
 
 void LLAppearanceManager::getDescendentsOfAssetType(const LLUUID& category,
