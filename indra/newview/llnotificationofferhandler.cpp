@@ -103,6 +103,8 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
+			notification->setReusable(LLHandlerUtil::isNotificationReusable(notification));
+
 			LLUUID session_id;
 			if (LLHandlerUtil::canSpawnIMSession(notification))
 			{

@@ -291,6 +291,11 @@ public:
 	static bool canAddNotifPanelToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks whether notification can be used multiple times or not.
+	 */
+	static bool isNotificationReusable(const LLNotificationPtr& notification);
+
+	/**
 	 * Checks if passed notification can create IM session and be written into it.
 	 *
 	 * This method uses canLogToIM() & canSpawnIMSession().

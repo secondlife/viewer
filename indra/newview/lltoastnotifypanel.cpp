@@ -205,7 +205,7 @@ mCloseNotificationOnDestroy(true)
 	mInfoPanel->setFollowsAll();
 	snapToMessageHeight(mTextBox, MAX_LENGTH);
 
-	if(notification->getPayload()["reusable"].asBoolean())
+	if(notification->isReusable())
 	{
 		mButtonClickConnection = sButtonClickSignal.connect(
 			boost::bind(&LLToastNotifyPanel::onToastPanelButtonClicked, this, _1, _2));
@@ -288,6 +288,8 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
 	if (mCloseNotificationOnDestroy && LLNotificationsUtil::find(mNotification->getID()) != NULL)
 	{
+		// let reusable notification be deleted
+		mNotification->setReusable(false);
 		LLNotifications::getInstance()->cancel(mNotification);
 	}
 }
@@ -473,7 +475,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		response[button_name] = true;
 	}
 	
-	bool is_reusable = self->mNotification->getPayload()["reusable"].asBoolean();
+	bool is_reusable = self->mNotification->isReusable();
 	// When we call respond(), LLOfferInfo will delete itself in inventory_offer_callback(), 
 	// lets copy it while it's still valid.
 	LLOfferInfo* old_info = static_cast<LLOfferInfo*>(self->mNotification->getResponder());
