@@ -372,7 +372,9 @@ std::string LLHandlerUtil::getSubstitutionName(const LLNotificationPtr& notifica
 	if (res.empty())
 	{
 		LLUUID from_id = notification->getPayload()["FROM_ID"];
-		if (from_id.isNull())
+
+		//*TODO all keys everywhere should be made of the same case, there is a mix of keys in lower and upper cases
+		if (from_id.isNull()) 
 		{
 			from_id = notification->getPayload()["from_id"];
 		}

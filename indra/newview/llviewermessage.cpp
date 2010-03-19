@@ -5567,6 +5567,8 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				args["TO_NAME"] = target_name;
 	
 				LLSD payload;
+				
+				//*TODO please rewrite all keys to the same case, lower or upper
 				payload["from_id"] = target_id;
 				payload["SESSION_NAME"] = target_name;
 				payload["SUPPRESS_TOAST"] = true;
