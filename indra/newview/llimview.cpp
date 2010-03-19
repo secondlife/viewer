@@ -608,10 +608,10 @@ bool LLIMModel::clearSession(const LLUUID& session_id)
 	return true;
 }
 
-void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
+void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
 {
 	LLIMSession* session = findIMSession(session_id);
-	if (!session) 
+	if (!session)
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
 		return;
@@ -619,7 +619,7 @@ void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages,
 
 	int i = session->mMsgs.size() - start_index;
 
-	for (std::list<LLSD>::iterator iter = session->mMsgs.begin(); 
+	for (std::list<LLSD>::iterator iter = session->mMsgs.begin();
 		iter != session->mMsgs.end() && i > 0;
 		iter++)
 	{
@@ -627,6 +627,16 @@ void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages,
 		msg = *iter;
 		messages.push_back(*iter);
 		i--;
+	}
+}
+
+void LLIMModel::sendNoUnreadMessages(const LLUUID& session_id)
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return;
 	}
 
 	session->mNumUnread = 0;
@@ -637,6 +647,13 @@ void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages,
 	arg["num_unread"] = 0;
 	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
 	mNoUnreadMsgsSignal(arg);
+}
+
+void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
+{
+	getMessagesSilently(session_id, messages, start_index);
+
+	sendNoUnreadMessages(session_id);
 }
 
 bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text) {
