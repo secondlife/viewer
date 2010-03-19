@@ -115,7 +115,6 @@
        left="170"
        name="set_name"
        top_delta="-4"
-       visible="false" 
        width="110" />
      <panel
        name="lifes_images_panel"

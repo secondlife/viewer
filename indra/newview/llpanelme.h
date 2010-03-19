@@ -36,6 +36,7 @@
 #include "llpanel.h"
 #include "llpanelprofile.h"
 
+class LLAvatarName;
 class LLPanelMyProfileEdit;
 class LLPanelProfile;
 class LLIconCtrl;
@@ -90,13 +91,15 @@ protected:
 	/*virtual*/void resetData();
 
 	void processProfileProperties(const LLAvatarData* avatar_data);
+	void onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 private:
 	void initTexturePickerMouseEvents();
 	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
 	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
 	void onClickSetName();
-	void callbackSetName(const LLSD& notification, const LLSD& response);
+	void onDialogSetName(const LLSD& notification, const LLSD& response);
+	void onCacheSetName(bool success, const std::string& reason, const LLSD& content);
 
 	/**
 	 * Enabled/disables controls to prevent overwriting edited data upon receiving

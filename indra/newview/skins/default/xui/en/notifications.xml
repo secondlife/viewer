@@ -3055,6 +3055,27 @@ Change your display name?
 
   <notification
    icon="alertmodal.tga"
+   name="SetDisplayNameFailedGeneric"
+   type="alertmodal">
+    Sorry, we could not set your display name.  Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedThrottle"
+   type="alertmodal">
+    Sorry, you can only change your display name once every [FREQUENCY] hour(s). 
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedUnavailable"
+   type="alertmodal">
+    Sorry, we could not set that display name.  Please try a different name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OfferTeleport"
    type="alertmodal">
 Offer a teleport to your location with the following message?

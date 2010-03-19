@@ -37,6 +37,7 @@
 #include "llcachename.h"	// *TODO: remove
 #include "llframetimer.h"
 #include "llhttpclient.h"
+#include "llsd.h"
 
 #include <map>
 #include <set>
@@ -266,23 +267,36 @@ class LLSetNameResponder : public LLHTTPClient::Responder
 {
 public:
 	LLUUID mAgentID;
+	LLAvatarNameCache::set_name_signal_t mSignal;
 
-	LLSetNameResponder(const LLUUID& agent_id) : mAgentID(agent_id) { }
+	LLSetNameResponder(const LLUUID& agent_id,
+					   const LLAvatarNameCache::set_name_slot_t& slot)
+	:	mAgentID(agent_id),
+		mSignal()
+	{
+		mSignal.connect(slot);
+	}
 
 	/*virtual*/ void result(const LLSD& content)
 	{
 		// force re-fetch
 		LLAvatarNameCache::sCache.erase(mAgentID);
+
+		mSignal(true, "", content);
 	}
 
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
 		llinfos << "JAMESDEBUG set names failed " << status
 			<< " reason " << reason << llendl;
+
+		mSignal(false, reason, LLSD());
 	}
 };
 
-void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, const std::string& display_name)
+void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, 
+									   const std::string& display_name,
+									   const set_name_slot_t& slot)
 {
 	LLSD body;
 	body["display_name"] = display_name;
@@ -291,7 +305,7 @@ void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, const std::string
 	std::string url = sNameServiceBaseURL + "agent/";
 	url += agent_id.asString();
 	url += "/set-display-name/";
-	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id));
+	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id, slot));
 }
 
 void LLAvatarNameCache::toggleDisplayNames()

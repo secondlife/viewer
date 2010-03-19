@@ -235,21 +235,14 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 	//{
 	//	childSetTextArg("name_text", "[NAME]", full_name);
 	//}
-	std::string full_name;
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::useDisplayNames()
-		&& LLAvatarNameCache::get(avatar_data->avatar_id, &av_name))
-	{
-		getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
-		getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
-	}
-	else if (gCacheName->getFullName(avatar_data->avatar_id, full_name))
-	{
-		getChild<LLUICtrl>("user_name")->setValue(full_name);
-		getChild<LLUICtrl>("user_slid")->setValue("");
-	}
+	LLAvatarNameCache::get(avatar_data->avatar_id,
+		boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+}
 
-	getChild<LLUICtrl>("set_name")->setVisible( LLAvatarNameCache::useDisplayNames() );
+void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()
@@ -307,7 +300,30 @@ void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 // IDEVO HACK
 extern void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
-void LLPanelMyProfileEdit::callbackSetName(const LLSD& notification, const LLSD& response)
+void LLPanelMyProfileEdit::onCacheSetName(bool success,
+										  const std::string& reason,
+										  const LLSD& content)
+{
+	if (success)
+	{
+		// HACK: Use chat to invalidate names
+		send_chat_from_viewer("refreshname", CHAT_TYPE_NORMAL, 0);
+
+		// Re-fetch my name, as it may have been sanitized by the service
+		LLAvatarNameCache::get(getAvatarId(),
+			boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+	}
+	else
+	{
+		// JAMESDEBUG TODO: localize strings for reasons we couldn't
+		// change the name
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+		// TODO: SetDisplayNameFailedThrottle with [FREQUENCY]
+		// TODO: SetDisplayNameFailedUnavailable
+	}
+}
+
+void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
@@ -316,12 +332,9 @@ void LLPanelMyProfileEdit::callbackSetName(const LLSD& notification, const LLSD&
 		if (agent_id.isNull()) return;
 
 		std::string display_name = response["display_name"].asString();
-		LLAvatarNameCache::setDisplayName(agent_id, display_name);
-
-		// HACK: Use chat to invalidate names
-		send_chat_from_viewer("refreshname", CHAT_TYPE_NORMAL, 0);
-
-		getChild<LLUICtrl>("user_name")->setValue( display_name );
+		LLAvatarNameCache::setDisplayName(agent_id, display_name,
+			boost::bind(&LLPanelMyProfileEdit::onCacheSetName, this,
+				_1, _2, _3));
 	}
 }
 
@@ -348,7 +361,7 @@ void LLPanelMyProfileEdit::onClickSetName()
 		LLSD payload;
 		payload["agent_id"] = agent_id;
 		LLNotificationsUtil::add("SetDisplayName", args, payload, 
-			boost::bind(&LLPanelMyProfileEdit::callbackSetName, this, _1, _2));
+			boost::bind(&LLPanelMyProfileEdit::onDialogSetName, this, _1, _2));
 	}
 }
 

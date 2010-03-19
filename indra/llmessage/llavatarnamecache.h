@@ -37,6 +37,9 @@
 
 #include <boost/signals2.hpp>
 
+class LLSD;
+class LLUUID;
+
 namespace LLAvatarNameCache
 {
 	void initClass();
@@ -53,6 +56,7 @@ namespace LLAvatarNameCache
 	// otherwise returns false
 	bool get(const LLUUID& agent_id, LLAvatarName *av_name);
 
+	// Callback types for get() below
 	typedef boost::signals2::signal<
 		void (const LLUUID& agent_id, const LLAvatarName& av_name)>
 			callback_signal_t;
@@ -61,9 +65,17 @@ namespace LLAvatarNameCache
 	// Fetches name information and calls callback.
 	// If name information is in cache, callback will be called immediately.
 	void get(const LLUUID& agent_id, callback_slot_t slot);
-	
-	// Sends an update to the server
-	void setDisplayName(const LLUUID& agent_id, const std::string& display_name);
+
+	// Callback types for setDisplayName() below
+	typedef boost::signals2::signal<
+		void (bool success, const std::string& reason, const LLSD& content)>
+			set_name_signal_t;
+	typedef set_name_signal_t::slot_type set_name_slot_t;
+
+	// Sends an update to the server to change a display name
+	// and calls back the application layer when done
+	void setDisplayName(const LLUUID& agent_id, const std::string& display_name,
+			const set_name_slot_t& slot);
 
 	// HACK: turn display names on and off
 	void toggleDisplayNames();
