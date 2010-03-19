@@ -19,7 +19,7 @@
 	<!--bump okay-->
 	<RenderObjectBump value="TRUE"/>
 	<!--NO SHADERS-->
-	<RenderReflectionDetail value="3"/>
+	<RenderReflectionDetail value="4"/>
 	<!--Simple-->
 	<RenderTerrainDetail value="1"/>
 	<!--Default for now-->
@@ -30,8 +30,6 @@
 	<RenderUseImpostors value="TRUE"/>
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="2.0"/>
-	<!--NO SHADERS-->
-	<RenderWaterReflections value="TRUE"/>
 	<!--NO SHADERS-->
 	<VertexShaderEnable value="TRUE"/>
 	<!--NO SHADERS-->

@@ -4,8 +4,6 @@
 	<RenderAvatarCloth value="FALSE"/>
 	<!--Default for now-->
 	<RenderAvatarLODFactor value="0.5"/>
-  <!--Default for now-->
-  <RenderAvatarMaxVisible value="3"/>
 	<!--NO SHADERS-->
 	<RenderAvatarVP value="FALSE"/>
 	<!--Short Range-->
@@ -33,8 +31,8 @@
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
 	<!--NO SHADERS-->
-	<RenderWaterReflections value="FALSE"/>
-	<!--NO SHADERS-->
+  <RenderReflectionDetail value="0"/>
+  <!--NO SHADERS-->
 	<VertexShaderEnable value="FALSE"/>
 	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="FALSE"/>

@@ -251,7 +251,7 @@
       layout="topleft"
       left_="10"
       top_pad ="0" 
-      name="ReflectionDetailRadio"
+      name="Reflections"
       width="150">
         <combo_box.item
         label="None"
