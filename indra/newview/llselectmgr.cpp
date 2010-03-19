@@ -4937,7 +4937,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	{
 		LLUUID inspect_item_id= LLUUID::null;
 		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
-		if(inspect_instance)
+		if(inspect_instance && inspect_instance->getVisible())
 		{
 			inspect_item_id = inspect_instance->getSelectedUUID();
 		}
