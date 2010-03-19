@@ -717,13 +717,22 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 		return NULL;
 	}
 
-	addToHistory(session_id, from, from_id, utf8_text);
-	if (log2file) logToFile(session_id, from, from_id, utf8_text);
+	// replace interactive system message marker with correct from string value
+	std::string from_name = from;
+	if (INTERACTIVE_SYSTEM_FROM == from)
+	{
+		from_name = SYSTEM_FROM;
+	}
+
+	addToHistory(session_id, from_name, from_id, utf8_text);
+	if (log2file) logToFile(session_id, from_name, from_id, utf8_text);
 
 	session->mNumUnread++;
 
 	//update count of unread messages from real participant
-	if (!(from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from))
+	if (!(from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from)
+			// we should increment counter for interactive system messages()
+			|| INTERACTIVE_SYSTEM_FROM == from)
 	{
 		++(session->mParticipantUnreadMessageCount);
 	}
