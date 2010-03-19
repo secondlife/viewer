@@ -696,6 +696,20 @@ void LLPluginClassMedia::setLanguageCode(const std::string &language_code)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::setPluginsEnabled(const bool enabled)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "plugins_enabled");
+	message.setValueBoolean("enable", enabled);
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "javascript_enabled");
+	message.setValueBoolean("enable", enabled);
+	sendMessage(message);
+}
+
 LLPluginClassMedia::ETargetType getTargetTypeFromLLQtWebkit(int target_type)
 {
 	// convert a LinkTargetType value from llqtwebkit to an ETargetType
@@ -1065,6 +1079,7 @@ void LLPluginClassMedia::clear_cookies()
 void LLPluginClassMedia::enable_cookies(bool enable)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "enable_cookies");
+	message.setValueBoolean("enable", enable);
 	sendMessage(message);
 }
 

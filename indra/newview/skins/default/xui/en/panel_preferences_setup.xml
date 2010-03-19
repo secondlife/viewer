@@ -265,8 +265,18 @@
    layout="topleft"
    left_delta="50"
    name="use_external_browser"
-   top_pad="4"
+   top_pad="-2"
    width="480">
+    <radio_item
+      height="20"
+      label="Use my browser (IE, Firefox, Safari)"
+      layout="topleft"
+      left_delta="0"
+      name="external"
+      value="1"
+      top="0"
+      tool_tip="Use the default system web browser for help, web links, etc. Not recommended if running full screen."
+      width="480" />
     <radio_item
       height="20"
       label="Use built-in browser"
@@ -275,25 +285,60 @@
       name="internal"
       value=""
       tool_tip="Use the built-in web browser for help, web links, etc. This browser opens as a new window inside [APP_NAME]."
-      top="0"
-      width="480" />
-    <radio_item
-      height="20"
-      label="Use my browser (IE, Firefox, Safari)"
-      layout="topleft"
-      left_delta="0"
-      name="external"
-      value="1"
-      tool_tip="Use the default system web browser for help, web links, etc. Not recommended if running full screen."
       top_delta="20"
       width="480" />
   </radio_group>
 
   <check_box
+    top_delta="2"
+    enabled="true"
+    follows="left|top"
+    height="18"
+    initial_value="true"
+    control_name="BrowserPluginsEnabled"
+    label="Enable plugins"
+    left_delta="20"
+    mouse_opaque="true"
+    name="browser_plugins_enabled"
+    radio_style="false"
+    width="400"
+    top_pad="5"/>
+
+  <check_box
+   top_delta="4"
+   enabled="true"
+   follows="left|top"
+   height="14"
+   initial_value="true"
+   control_name="CookiesEnabled"
+   label="Accept cookies"
+   left_delta="0"
+   mouse_opaque="true" 
+   name="cookies_enabled"
+   radio_style="false"
+   width="400"
+   top_pad="5"/>
+  
+  <check_box
     top_delta="4"
     enabled="true"
     follows="left|top"
-    height="16"
+    height="14"
+    initial_value="true"
+    control_name="BrowserJavascriptEnabled"
+    label="Enable Javascript"
+    left_delta="0"
+    mouse_opaque="true"
+    name="browser_javascript_enabled"
+    radio_style="false"
+    width="400"
+    top_pad="5"/>
+
+  <check_box
+    top_delta="4"
+    enabled="true"
+    follows="left|top"
+    height="14"
     initial_value="false"
     control_name="BrowserProxyEnabled"
     label="Enable Web Proxy"
@@ -308,9 +353,9 @@
    follows="left|top"
    height="10"
    layout="topleft"
-   left_delta="1"
+   left_delta="20"
    name="Proxy location"
-   top_delta="20"
+   top_delta="16"
    width="300">
     Proxy location:
   </text>
@@ -335,7 +380,7 @@
    increment="1"
    initial_value="80"
    label="Port number:"
-   label_width="75"
+   label_width="70"
    layout="topleft"
    left_delta="230"
    max_val="12000"
