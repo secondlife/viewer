@@ -14,8 +14,8 @@
 			<button label="Tułów" label_selected="Tułów" name="Torso"/>
 			<button label="Nogi" label_selected="Nogi" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item name="radio" label="Kobieta"/>
-				<radio_item name="radio2" label="Mężczyzna"/>
+				<radio_item label="Kobieta" name="radio"/>
+				<radio_item label="Mężczyzna" name="radio2"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -35,7 +35,7 @@
 			<text name="not worn instructions">
 				Załóż nowy kształt poprzez przeciągnięcie go ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własny kształt 
-z plików roboczych. 
+z plików roboczych.
 			</text>
 			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tego kształtu.
@@ -156,10 +156,10 @@ z plików roboczych.
 			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
-		<panel label="Ubrania" name="clothes_placeholder"/>
+		<placeholder label="Ubrania" name="clothes_placeholder"/>
 		<panel label="Koszula" name="Shirt">
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowa Koszula" label_selected="Nowa Koszula" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -194,7 +194,7 @@ z plików roboczych.
 		</panel>
 		<panel label="Spodnie" name="Pants">
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij tutaj by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowe Spodnie" label_selected="Nowe Spodnie" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -255,7 +255,7 @@ z plików roboczych.
 				Buty:
 			</text>
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowe Buty" label_selected="Nowe Buty" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -290,7 +290,7 @@ z plików roboczych.
 				Skarpetki:
 			</text>
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowe Skarpety" label_selected="Nowe Skarpety" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -316,7 +316,7 @@ z plików roboczych.
 			<text name="not worn instructions">
 				Załóż nową kurtkę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną kurtkę 
-z plików roboczych. 
+z plików roboczych.
 			</text>
 			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej kurtki.
@@ -326,7 +326,7 @@ z plików roboczych.
 			</text>
 			<texture_picker label="Górny Materiał" name="Upper Fabric" tool_tip="Kliknij by wybrać teksturę" width="76"/>
 			<texture_picker label="Dolny Materiał" name="Lower Fabric" tool_tip="Kliknij by wybrać kolor" width="76"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor" width="76"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor" width="76"/>
 			<button label="Nowa Kurtka" label_selected="Nowa Kurtka" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -361,7 +361,7 @@ z plików roboczych.
 				Rękawiczki:
 			</text>
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowe Rękawiczki" label_selected="Nowe Rękawiczki" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -396,7 +396,7 @@ z plików roboczych.
 				Podkoszulka:
 			</text>
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowy Podkoszulek" label_selected="Nowy Podkoszulek" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -422,7 +422,7 @@ z plików roboczych.
 			<text name="not worn instructions">
 				Załóż nową bieliznę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną bieliznę 
-z plików roboczych. 
+z plików roboczych.
 			</text>
 			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej bielizny.
@@ -431,7 +431,7 @@ z plików roboczych.
 				Bielizna:
 			</text>
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowa Bielizna" label_selected="Nowa Bielizna" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
@@ -457,7 +457,7 @@ z plików roboczych.
 			<text name="not worn instructions">
 				Załóż nową spódnicę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną spódnicę 
-z plików roboczych. 
+z plików roboczych.
 			</text>
 			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej spódnicy.
@@ -466,15 +466,87 @@ z plików roboczych.
 				Spódnica:
 			</text>
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
-			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij by wybrać kolor"/>
+			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Nowa Spódnica" label_selected="Nowa Spódnica" name="Create New"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: nie można modyfikować
+			</text>
+			<text name="title_loading">
+				[DESC]: ładowanie...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: nienałożone
+			</text>
+			<text name="path">
+				Zapisane w [PATH]
+			</text>
+			<text name="not worn instructions">
+				Załóż nową maskę alpha przeciągając ją ze swojej Szafy na awatara.
+Alternatywnie, możesz także stworzyć własną z plików roboczych.
+			</text>
+			<text name="no modify instructions">
+				Nie posiadasz uprawnień do modyfikowania tych ubrań/części ciała.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Dolna Alpha" name="Lower Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha Górnej Części Ciała" name="Upper Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha Głowy" name="Head Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha Oka" name="Eye Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha Włosów" name="Hair Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<button label="Stwórz nową Alpha" label_selected="Utwórz Nową Alpha" name="Create New"/>
+			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
+			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
+			<button label="Wróć" label_selected="Wróć" name="Revert"/>
+		</panel>
+		<panel label="Tatuaż" name="Tattoo">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: nie można modyfikować
+			</text>
+			<text name="title_loading">
+				[DESC]: ładowanie...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: nienałożone
+			</text>
+			<text name="path">
+				Zapisane w [PATH]
+			</text>
+			<text name="not worn instructions">
+				Załóż nowy tatuaż poprzez przeciągnięcie go ze swojej szafy na awatara.
+Alternatywnie, możesz także stworzyć własny tatuaż z plików roboczych.
+			</text>
+			<text name="no modify instructions">
+				Nie posiadasz uprawnień do modyfikowania tych ubrań/części ciała.
+			</text>
+			<text name="Item Action Label">
+				Tatuaż:
+			</text>
+			<texture_picker label="Tatuaż Głowy" name="Head Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Górny Tatuaż" name="Upper Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Tatuaż Dolnej Części Ciała" name="Lower Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
+			<button label="Utwórz Nowy Tatuaż" label_selected="Stwórz Nowy Tatuaż" name="Create New"/>
+			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
+			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
+			<button label="Wróć" label_selected="Wróć" name="Revert"/>
+		</panel>
 	</tab_container>
+	<button label="Stwórz Ubranie" label_selected="Stwórz Ubranie" name="make_outfit_btn"/>
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
-	<button label="Stwórz Ubranie..." label_selected="Stwórz Ubranie..." name="Make Outfit" width="115"/>
 </floater>

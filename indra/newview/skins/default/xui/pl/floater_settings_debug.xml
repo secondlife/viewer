@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings_debug" title="USTAWIENIA USUWANIA BŁĘDÓW">
+<floater name="settings_debug" title="USTAWIENIA DEBUGOWANIA">
 	<combo_box name="boolean_combo">
-		<combo_box.item name="TRUE" label="PRAWDA" />
-		<combo_box.item name="FALSE" label="NIEPRAWDA" />
+		<combo_box.item label="PRAWDA" name="TRUE"/>
+		<combo_box.item label="NIEPRAWDA" name="FALSE"/>
 	</combo_box>
-	<color_swatch label="Kolor" name="color_swatch"/>
+	<color_swatch label="Kolor" name="val_color_swatch"/>
 	<spinner label="x" name="val_spinner_1"/>
 	<spinner label="x" name="val_spinner_2"/>
 	<spinner label="x" name="val_spinner_3"/>

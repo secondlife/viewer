@@ -16,5 +16,5 @@
 	<button label="Teleport" name="offer_teleport_btn" tool_tip="Offri a questo amico un teleport per dove sei tu ora"/>
 	<button label="Paga" name="pay_btn" tool_tip="Dai Linden dollar (L$) a questo amico"/>
 	<button label="Rimuovi" name="remove_btn" tool_tip="Rimuovi questa persona dalla tua lista amici"/>
-	<button label="Aggiungi" name="add_btn" tool_tip="Offri amicizia ad un residente"/>
+	<button label="Aggiungi" name="add_btn" tool_tip="Offri amicizia a un residente"/>
 </panel>
