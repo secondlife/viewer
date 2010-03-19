@@ -55,8 +55,6 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#define USE_CURRENT_OUTFIT_FOLDER
-
 //--------------------------------------------------------------------
 // Classes for fetching initial wearables data
 //--------------------------------------------------------------------
@@ -1033,64 +1031,6 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 			gInventory.addObserver(outfit);
 		}
 		
-	}
-}
-
-// A single wearable that the avatar was wearing on start-up has arrived from the database.
-// static
-void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void* userdata)
-{
-	boost::scoped_ptr<LLInitialWearablesFetch::InitialWearableData> wear_data((LLInitialWearablesFetch::InitialWearableData*)userdata); 
-	const EWearableType type = wear_data->mType;
-	U32 index = 0;
-
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (!avatar)
-	{
-		return;
-	}
-		
-	if (wearable)
-	{
-		llassert(type == wearable->getType());
-		wearable->setItemID(wear_data->mItemID);
-		index = gAgentWearables.pushWearable(type, wearable);
-		gAgentWearables.mItemsAwaitingWearableUpdate.erase(wear_data->mItemID);
-
-		// disable composites if initial textures are baked
-		avatar->setupComposites();
-
-		avatar->setCompositeUpdatesEnabled(TRUE);
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, wearable->getItemID());
-	}
-	else
-	{
-		// Somehow the asset doesn't exist in the database.
-		gAgentWearables.recoverMissingWearable(type,index);
-	}
-	
-
-	gInventory.notifyObservers();
-
-	// Have all the wearables that the avatar was wearing at log-in arrived?
-	// MULTI-WEARABLE: update when multiple wearables can arrive per type.
-
-	gAgentWearables.updateWearablesLoaded();
-	if (gAgentWearables.areWearablesLoaded())
-	{
-
-		// Can't query cache until all wearables have arrived, so calling this earlier is a no-op.
-		gAgentWearables.queryWearableCache();
-
-		// Make sure that the server's idea of the avatar's wearables actually match the wearables.
-		gAgent.sendAgentSetAppearance();
-
-		// Check to see if there are any baked textures that we hadn't uploaded before we logged off last time.
-		// If there are any, schedule them to be uploaded as soon as the layer textures they depend on arrive.
-		if (gAgent.cameraCustomizeAvatar())
-		{
-			avatar->requestLayerSetUploads();
-		}
 	}
 }
 
@@ -2666,16 +2606,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 			
 			if (wearable_data->mAssetID.notNull())
 			{
-#ifdef USE_CURRENT_OUTFIT_FOLDER
 				ids.push_back(wearable_data->mItemID);
-#endif
-#if 0
-// 				// Fetch the wearables
-// 				LLWearableList::instance().getAsset(wearable_data->mAssetID,
-// 													LLStringUtil::null,
-// 													LLWearableDictionary::getAssetType(wearable_data->mType),
-// 													LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));
-#endif
 			}
 			else
 			{

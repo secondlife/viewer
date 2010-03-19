@@ -1186,7 +1186,7 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	// callback will be called (and this object deleted)
 	// before the final getNextData().
 
-	// BAP future cleanup - no point having found_container when
+	// BAP 2.1 cleanup - no point having found_container when
 	// mFoundList already has all the info.
 	LLDynamicArray<LLFoundData> found_container;
 	for(S32 i = 0; i  < wear_items.count(); ++i)
@@ -1507,6 +1507,7 @@ void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_up
 	return;
 }
 
+// BAP remove ensemble code for 2.1?
 void LLAppearanceManager::addEnsembleLink( LLInventoryCategory* cat, bool do_update )
 {
 #if SUPPORT_ENSEMBLES
