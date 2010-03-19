@@ -718,7 +718,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 		view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
 
-		std::string widget_associated_text = "\n[" + chat.mTimeStr + "] ";
+		std::string widget_associated_text = "[" + chat.mTimeStr + "] ";
 		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
 			widget_associated_text += chat.mFromName + delimiter;
 
@@ -816,6 +816,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		{
 			message = chat.mFromName + message;
 		}
+
+		message += "\n";
 		
 
 		mEditor->appendText(message, FALSE, style_params);
