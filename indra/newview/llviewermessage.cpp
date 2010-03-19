@@ -4513,7 +4513,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 				// Each set of parenthesis will later be used to find arguments of message we generate
 				// in the end of this if- (.*) gives us name of money receiver, (\\d+)-amount of money we pay
 				// and ([^$]*)- reason of payment
-				boost::regex expr("You paid (.*)L\\$(\\d+)\\s?([^$]*).");
+				boost::regex expr("You paid (?:.{0}|(.*) )L\\$(\\d+)\\s?([^$]*)\\.");
 				boost::match_results <std::string::const_iterator> matches;
 				if(boost::regex_match(desc, matches, expr))
 				{
