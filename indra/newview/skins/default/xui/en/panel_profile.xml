@@ -314,9 +314,12 @@
          left="2"
          mouse_opaque="false"
          name="add_friend"
+         pad_left="1" 
+         pad_right="1"
          tool_tip="Offer friendship to the Resident"
          top="5"
-         width="80" />
+         use_ellipses="true"
+         width="117" />
         <button
          follows="bottom|left"
          height="23"
@@ -325,8 +328,8 @@
          name="im"
          tool_tip="Open instant message session"
          top="5"
-         left_pad="3"
-         width="39" />
+         left_pad="1"
+         width="21" />
         <button
          follows="bottom|left"
          height="23"
@@ -334,20 +337,12 @@
          layout="topleft"
          name="call"
          tool_tip="Call this Resident"
-         left_pad="3"
+         left_pad="1"
+         pad_left="1" 
+         pad_right="1"
          top="5"
-         width="43" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         height="23"
-         label="Map"
-         layout="topleft"
-         name="show_on_map_btn"
-         tool_tip="Show the Resident on the map"
-         top="5"
-         left_pad="3"
-         width="41" />
+         use_ellipses="true"
+         width="51" />
         <button
          follows="bottom|left"
          height="23"
@@ -355,9 +350,12 @@
          layout="topleft"
          name="teleport"
          tool_tip="Offer teleport"
-         left_pad="3"
+         left_pad="1"
+         pad_left="1" 
+         pad_right="1"
          top="5"
-         width="69" />
+         use_ellipses="true"
+         width="92" />
         <button
          follows="bottom|right"
          height="23"
@@ -367,7 +365,6 @@
          tool_tip="Pay money to or share inventory with the Resident"
          right="-1"
          top="5"
-	 	 left_pad="3"
          width="23" />
         </layout_panel>
       <layout_panel
