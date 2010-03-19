@@ -6268,7 +6268,7 @@ void LLPipeline::renderDeferredLighting()
 			glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], 0);
 		}
 
-		if (gSavedSettings.getBOOL("RenderDeferredShadow"))
+		if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 		{
 			glPushMatrix();
 			glLoadIdentity();
@@ -7905,29 +7905,10 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 
 void LLPipeline::generateSunShadow(LLCamera& camera)
 {
-	if (!sRenderDeferred || !gSavedSettings.getBOOL("RenderDeferredShadow"))
+	if (!sRenderDeferred || gSavedSettings.getS32("RenderShadowDetail") <= 0)
 	{
 		return;
 	}
-
-	//temporary hack to disable shadows but keep local lights
-	static BOOL clear = TRUE;
-	BOOL gen_shadow = gSavedSettings.getBOOL("RenderDeferredSunShadow");
-	if (!gen_shadow)
-	{
-		if (clear)
-		{
-			clear = FALSE;
-			for (U32 i = 0; i < 6; i++)
-			{
-				mShadow[i].bindTarget();
-				mShadow[i].clear();
-				mShadow[i].flush();
-			}
-		}
-		return;
-	}
-	clear = TRUE;
 
 	F64 last_modelview[16];
 	F64 last_projection[16];
@@ -8444,135 +8425,155 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		}
 	}
 
+
+	//hack to disable projector shadows 
+	static bool clear = true;
+	bool gen_shadow = gSavedSettings.getS32("RenderShadowDetail") > 1;
 	
+	if (gen_shadow)
+	{
+		clear = true;
+		F32 fade_amt = gFrameIntervalSeconds * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
 
-	F32 fade_amt = gFrameIntervalSeconds * llmax(LLViewerCamera::getInstance()->getVelocityStat()->getCurrentPerSec(), 1.f);
+		//update shadow targets
+		for (U32 i = 0; i < 2; i++)
+		{ //for each current shadow
+			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW4+i;
 
-	//update shadow targets
-	for (U32 i = 0; i < 2; i++)
-	{ //for each current shadow
-		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW4+i;
-
-		if (mShadowSpotLight[i].notNull() && 
-			(mShadowSpotLight[i] == mTargetShadowSpotLight[0] ||
-			mShadowSpotLight[i] == mTargetShadowSpotLight[1]))
-		{ //keep this spotlight
-			mSpotLightFade[i] = llmin(mSpotLightFade[i]+fade_amt, 1.f);
-		}
-		else
-		{ //fade out this light
-			mSpotLightFade[i] = llmax(mSpotLightFade[i]-fade_amt, 0.f);
-			
-			if (mSpotLightFade[i] == 0.f || mShadowSpotLight[i].isNull())
-			{ //faded out, grab one of the pending spots (whichever one isn't already taken)
-				if (mTargetShadowSpotLight[0] != mShadowSpotLight[(i+1)%2])
-				{
-					mShadowSpotLight[i] = mTargetShadowSpotLight[0];
-				}
-				else
-				{
-					mShadowSpotLight[i] = mTargetShadowSpotLight[1];
+			if (mShadowSpotLight[i].notNull() && 
+				(mShadowSpotLight[i] == mTargetShadowSpotLight[0] ||
+				mShadowSpotLight[i] == mTargetShadowSpotLight[1]))
+			{ //keep this spotlight
+				mSpotLightFade[i] = llmin(mSpotLightFade[i]+fade_amt, 1.f);
+			}
+			else
+			{ //fade out this light
+				mSpotLightFade[i] = llmax(mSpotLightFade[i]-fade_amt, 0.f);
+				
+				if (mSpotLightFade[i] == 0.f || mShadowSpotLight[i].isNull())
+				{ //faded out, grab one of the pending spots (whichever one isn't already taken)
+					if (mTargetShadowSpotLight[0] != mShadowSpotLight[(i+1)%2])
+					{
+						mShadowSpotLight[i] = mTargetShadowSpotLight[0];
+					}
+					else
+					{
+						mShadowSpotLight[i] = mTargetShadowSpotLight[1];
+					}
 				}
 			}
 		}
+		
+		for (S32 i = 0; i < 2; i++)
+		{
+			glh_set_current_modelview(saved_view);
+			glh_set_current_projection(saved_proj);
+
+			if (mShadowSpotLight[i].isNull())
+			{
+				continue;
+			}
+
+			LLVOVolume* volume = mShadowSpotLight[i]->getVOVolume();
+
+			if (!volume)
+			{
+				mShadowSpotLight[i] = NULL;
+				continue;
+			}
+
+			LLDrawable* drawable = mShadowSpotLight[i];
+
+			LLVector3 params = volume->getSpotLightParams();
+			F32 fov = params.mV[0];
+
+			//get agent->light space matrix (modelview)
+			LLVector3 center = drawable->getPositionAgent();
+			LLQuaternion quat = volume->getRenderRotation();
+
+			//get near clip plane
+			LLVector3 scale = volume->getScale();
+			LLVector3 at_axis(0,0,-scale.mV[2]*0.5f);
+			at_axis *= quat;
+
+			LLVector3 np = center+at_axis;
+			at_axis.normVec();
+
+			//get origin that has given fov for plane np, at_axis, and given scale
+			F32 dist = (scale.mV[1]*0.5f)/tanf(fov*0.5f);
+
+			LLVector3 origin = np - at_axis*dist;
+
+			LLMatrix4 mat(quat, LLVector4(origin, 1.f));
+
+			view[i+4] = glh::matrix4f((F32*) mat.mMatrix);
+
+			view[i+4] = view[i+4].inverse();
+
+			//get perspective matrix
+			F32 near_clip = dist+0.01f;
+			F32 width = scale.mV[VX];
+			F32 height = scale.mV[VY];
+			F32 far_clip = dist+volume->getLightRadius()*1.5f;
+
+			F32 fovy = fov * RAD_TO_DEG;
+			F32 aspect = width/height;
+			
+			proj[i+4] = gl_perspective(fovy, aspect, near_clip, far_clip);
+
+			//translate and scale to from [-1, 1] to [0, 1]
+			glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
+							0.f, 0.5f, 0.f, 0.5f,
+							0.f, 0.f, 0.5f, 0.5f,
+							0.f, 0.f, 0.f, 1.f);
+
+			glh_set_current_modelview(view[i+4]);
+			glh_set_current_projection(proj[i+4]);
+
+			mSunShadowMatrix[i+4] = trans*proj[i+4]*view[i+4]*inv_view;
+			
+			for (U32 j = 0; j < 16; j++)
+			{
+				gGLLastModelView[j] = mShadowModelview[i+4].m[j];
+				gGLLastProjection[j] = mShadowProjection[i+4].m[j];
+			}
+
+			mShadowModelview[i+4] = view[i+4];
+			mShadowProjection[i+4] = proj[i+4];
+
+			LLCamera shadow_cam = camera;
+			shadow_cam.setFar(far_clip);
+			shadow_cam.setOrigin(origin);
+
+			LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
+
+			stop_glerror();
+
+			mShadow[i+4].bindTarget();
+			mShadow[i+4].getViewport(gGLViewport);
+
+			static LLCullResult result[2];
+
+			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+i+4;
+
+			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE);
+
+			mShadow[i+4].flush();
+ 		}
 	}
-
-	for (S32 i = 0; i < 2; i++)
+	else
 	{
-		glh_set_current_modelview(saved_view);
-		glh_set_current_projection(saved_proj);
-
-		if (mShadowSpotLight[i].isNull())
+		if (clear)
 		{
-			continue;
+			clear = false;
+			for (U32 i = 4; i < 6; i++)
+			{
+				mShadow[i].bindTarget();
+				mShadow[i].clear();
+				mShadow[i].flush();
+			}
 		}
-
-		LLVOVolume* volume = mShadowSpotLight[i]->getVOVolume();
-
-		if (!volume)
-		{
-			mShadowSpotLight[i] = NULL;
-			continue;
-		}
-
-		LLDrawable* drawable = mShadowSpotLight[i];
-
-		LLVector3 params = volume->getSpotLightParams();
-		F32 fov = params.mV[0];
-
-		//get agent->light space matrix (modelview)
-		LLVector3 center = drawable->getPositionAgent();
-		LLQuaternion quat = volume->getRenderRotation();
-
-		//get near clip plane
-		LLVector3 scale = volume->getScale();
-		LLVector3 at_axis(0,0,-scale.mV[2]*0.5f);
-		at_axis *= quat;
-
-		LLVector3 np = center+at_axis;
-		at_axis.normVec();
-
-		//get origin that has given fov for plane np, at_axis, and given scale
-		F32 dist = (scale.mV[1]*0.5f)/tanf(fov*0.5f);
-
-		LLVector3 origin = np - at_axis*dist;
-
-		LLMatrix4 mat(quat, LLVector4(origin, 1.f));
-
-		view[i+4] = glh::matrix4f((F32*) mat.mMatrix);
-
-		view[i+4] = view[i+4].inverse();
-
-		//get perspective matrix
-		F32 near_clip = dist+0.01f;
-		F32 width = scale.mV[VX];
-		F32 height = scale.mV[VY];
-		F32 far_clip = dist+volume->getLightRadius()*1.5f;
-
-		F32 fovy = fov * RAD_TO_DEG;
-		F32 aspect = width/height;
-		
-		proj[i+4] = gl_perspective(fovy, aspect, near_clip, far_clip);
-
-		//translate and scale to from [-1, 1] to [0, 1]
-		glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
-						0.f, 0.5f, 0.f, 0.5f,
-						0.f, 0.f, 0.5f, 0.5f,
-						0.f, 0.f, 0.f, 1.f);
-
-		glh_set_current_modelview(view[i+4]);
-		glh_set_current_projection(proj[i+4]);
-
-		mSunShadowMatrix[i+4] = trans*proj[i+4]*view[i+4]*inv_view;
-		
-		for (U32 j = 0; j < 16; j++)
-		{
-			gGLLastModelView[j] = mShadowModelview[i+4].m[j];
-			gGLLastProjection[j] = mShadowProjection[i+4].m[j];
-		}
-
-		mShadowModelview[i+4] = view[i+4];
-		mShadowProjection[i+4] = proj[i+4];
-
-		LLCamera shadow_cam = camera;
-		shadow_cam.setFar(far_clip);
-		shadow_cam.setOrigin(origin);
-
-		LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
-
-		stop_glerror();
-
-		mShadow[i+4].bindTarget();
-		mShadow[i+4].getViewport(gGLViewport);
-
-		static LLCullResult result[2];
-
-		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+i+4;
-
-		renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE);
-
-		mShadow[i+4].flush();
- 	}
+	}
 
 	if (!gSavedSettings.getBOOL("CameraOffset"))
 	{
