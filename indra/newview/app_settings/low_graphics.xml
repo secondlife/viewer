@@ -31,8 +31,8 @@
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
 	<!--NO SHADERS-->
-	<RenderWaterReflections value="FALSE"/>
-	<!--NO SHADERS-->
+  <RenderReflectionDetail value="0"/>
+  <!--NO SHADERS-->
 	<VertexShaderEnable value="FALSE"/>
 	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="FALSE"/>
