@@ -957,7 +957,7 @@ anguage Infrstructure (CLI) international standard</string>
             <key>md5sum</key>
             <string>de865bdf827eb398f5867dd66cf90981</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100319.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100319a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
