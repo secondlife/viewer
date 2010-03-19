@@ -571,7 +571,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if ((mFetcher->isQuitting() || mImagePriority < 1.0f || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
 	{
-		if (mState < WRITE_TO_CACHE)
+		if (mState < DECODE_IMAGE)
 		{
 			return true; // abort
 		}
