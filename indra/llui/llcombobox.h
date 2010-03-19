@@ -221,7 +221,6 @@ protected:
 	LLPointer<LLUIImage>	mArrowImage;
 	LLUIString			mLabel;
 	BOOL				mHasAutocompletedText;
-	S32                 mLastSelectedIndex;
 
 private:
 	BOOL				mAllowTextEntry;
@@ -232,6 +231,7 @@ private:
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
         boost::signals2::connection mTopLostSignalConnection;
+    S32					mLastSelectedIndex;
 };
 
 // A combo box with icons for the list of items.
@@ -247,7 +247,6 @@ public:
 		Params();
 	};
 
-	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ const std::string getSelectedItemLabel(S32 column = 0) const;
 
 private:

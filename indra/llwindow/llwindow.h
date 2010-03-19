@@ -281,19 +281,4 @@ extern const std::string gURLProtocolWhitelistHandler[];
 
 void simpleEscapeString ( std::string& stringIn  );
 
-//=============================================================================
-//
-//	CLASS		LLDisplayInfo
-class LLDisplayInfo
-
-/*!	@brief		Class to query the information about some display settings
-*/
-{
-public:
-	LLDisplayInfo(){}; ///< Default constructor
-
-	S32 getDisplayWidth() const; ///< display width
-	S32 getDisplayHeight() const; ///< display height
-};
-
 #endif // _LL_window_h_

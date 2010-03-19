@@ -1503,15 +1503,38 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 
 	LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
+	logInventoryOffer(to_agent, im_session_id);	
+
+	// add buddy to recent people list
+	LLRecentPeople::instance().add(to_agent);
+}
+
+//static
+void LLToolDragAndDrop::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im_session_id)
+{
+	// compute id of possible IM session with agent that has "to_agent" id
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, to_agent);
 	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
-	if (im_session_id != LLUUID::null)
+	if (im_session_id.notNull())
 	{
 		LLSD args;
 		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
 	}
-
-	// add buddy to recent people list
-	LLRecentPeople::instance().add(to_agent);
+	// If this item was given by drag-and-drop on avatar while IM panel was open, log this action in the IM panel chat.
+	else if (LLIMModel::getInstance()->findIMSession(session_id))
+	{
+		LLSD args;
+		gIMMgr->addSystemMessage(session_id, "inventory_item_offered", args);
+	}
+	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
+	else
+	{
+		std::string full_name;
+		if (gCacheName->getFullName(to_agent, full_name))
+		{
+			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, LLTrans::getString("inventory_item_offered-im"));
+		}
+	}
 }
 
 void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
@@ -1723,12 +1746,7 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 
 		LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-		// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
-		if (im_session_id != LLUUID::null)
-		{
-			LLSD args;
-			gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
-		}
+		logInventoryOffer(to_agent, im_session_id);
 	}
 }
 
