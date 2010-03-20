@@ -229,6 +229,7 @@ public:
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
+	virtual BOOL isMesh() const						{ return FALSE; }
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by

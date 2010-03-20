@@ -114,6 +114,7 @@ class LLColor4
 	
 	    const LLColor4& operator=(const LLColor3 &a);	// Assigns vec3 to vec4 and returns vec4
 		
+		bool operator<(const LLColor4& rhs) const;
 		friend std::ostream&	 operator<<(std::ostream& s, const LLColor4 &a);		// Print a
 		friend LLColor4 operator+(const LLColor4 &a, const LLColor4 &b);	// Return vector a + b
 		friend LLColor4 operator-(const LLColor4 &a, const LLColor4 &b);	// Return vector a minus b
@@ -595,6 +596,23 @@ inline LLColor4 lerp(const LLColor4 &a, const LLColor4 &b, F32 u)
 		a.mV[VW] + (b.mV[VW] - a.mV[VW]) * u);
 }
 
+inline bool LLColor4::operator<(const LLColor4& rhs) const
+{
+	if (mV[0] != rhs.mV[0])
+	{
+		return mV[0] < rhs.mV[0];
+	}
+	if (mV[1] != rhs.mV[1])
+	{
+		return mV[1] < rhs.mV[1];
+	}
+	if (mV[2] != rhs.mV[2])
+	{
+		return mV[2] < rhs.mV[2];
+	}
+
+	return mV[3] < rhs.mV[3];
+}
 
 void LLColor4::clamp()
 {

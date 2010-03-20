@@ -11,6 +11,7 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
+uniform sampler2DRect depthMap;
 uniform sampler2D	  noiseMap;
 uniform samplerCube environmentMap;
 uniform sampler2D	  lightFunc;
@@ -41,7 +42,6 @@ uniform vec3 env_mat[3];
 uniform vec4 shadow_clip;
 uniform mat3 ssao_effect_mat;
 
-uniform sampler2DRect depthMap;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
@@ -275,20 +275,12 @@ void main()
 	{
 		vec3 ref = normalize(reflect(pos.xyz, norm.xyz));
 		float sa = dot(ref, vary_light.xyz);
-		col.rgb += vary_SunlitColor*scol*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
+		col.rgb += vary_SunlitColor*scol_ambocc.r*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
 	}
 	
 	col = atmosLighting(col);
 	col = scaleSoftClip(col);
 		
 	gl_FragColor.rgb = col;
-	
-	//gl_FragColor.rgb = gi_col.rgb;
 	gl_FragColor.a = 0.0;
-	
-	//gl_FragColor.rg = scol_ambocc.rg;
-	//gl_FragColor.rgb = texture2DRect(lightMap, vary_fragcoord.xy).rgb;
-	//gl_FragColor.rgb = norm.rgb*0.5+0.5;
-	//gl_FragColor.rgb = vec3(ambocc);
-	//gl_FragColor.rgb = vec3(scol);
 }

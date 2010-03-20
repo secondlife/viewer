@@ -185,22 +185,33 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mHasMedia = FALSE ;
 }
 
+static LLFastTimer::DeclareTimer FTM_DESTROY_FACE("Destroy Face");
+static LLFastTimer::DeclareTimer FTM_DESTROY_TEXTURE("Texture");
+static LLFastTimer::DeclareTimer FTM_DESTROY_DRAWPOOL("Drawpool");
+static LLFastTimer::DeclareTimer FTM_DESTROY_TEXTURE_MATRIX("Texture Matrix");
+static LLFastTimer::DeclareTimer FTM_DESTROY_DRAW_INFO("Draw Info");
+static LLFastTimer::DeclareTimer FTM_DESTROY_ATLAS("Atlas");
+static LLFastTimer::DeclareTimer FTM_FACE_DEREF("Deref");
 
 void LLFace::destroy()
 {
+	LLFastTimer t(FTM_DESTROY_FACE);
 	if(mTexture.notNull())
 	{
+		LLFastTimer t(FTM_DESTROY_TEXTURE);
 		mTexture->removeFace(this) ;
 	}
 	
 	if (mDrawPoolp)
 	{
+		LLFastTimer t(FTM_DESTROY_DRAWPOOL);
 		mDrawPoolp->removeFace(this);
 		mDrawPoolp = NULL;
 	}
 
 	if (mTextureMatrix)
 	{
+		LLFastTimer t(FTM_DESTROY_TEXTURE_MATRIX);
 		delete mTextureMatrix;
 		mTextureMatrix = NULL;
 
@@ -215,11 +226,21 @@ void LLFace::destroy()
 		}
 	}
 	
-	setDrawInfo(NULL);
+	{
+		LLFastTimer t(FTM_DESTROY_DRAW_INFO);
+		setDrawInfo(NULL);
+	}
 	
-	removeAtlas();
-	mDrawablep = NULL;
-	mVObjp = NULL;
+	{
+		LLFastTimer t(FTM_DESTROY_ATLAS);
+		removeAtlas();
+	}
+	
+	{
+		LLFastTimer t(FTM_FACE_DEREF);
+		mDrawablep = NULL;
+		mVObjp = NULL;
+	}
 }
 
 
@@ -862,12 +883,14 @@ void LLFace::updateRebuildFlags()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
+
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
 								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
 								const U16 &index_offset)
 {
-	llpushcallstacks ;
+	LLFastTimer t(FTM_FACE_GET_GEOM);
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
 	S32 num_indices = LLPipeline::sUseTriStrips ? (S32)vf.mTriStrip.size() : (S32) vf.mIndices.size();

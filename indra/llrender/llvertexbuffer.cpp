@@ -61,6 +61,7 @@ BOOL LLVertexBuffer::sVBOActive = FALSE;
 BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
+BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
@@ -381,6 +382,11 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	{
 		mUsage = 0 ; 
 	}
+
+	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	{
+		mUsage = 0;
+	}
 	
 	S32 stride = calcStride(typemask, mOffsets);
 
@@ -579,7 +585,7 @@ void LLVertexBuffer::destroyGLBuffer()
 	}
 	
 	mGLBuffer = 0;
-	unbind();
+	//unbind();
 }
 
 void LLVertexBuffer::destroyGLIndices()
@@ -606,7 +612,7 @@ void LLVertexBuffer::destroyGLIndices()
 	}
 
 	mGLIndices = 0;
-	unbind();
+	//unbind();
 }
 
 void LLVertexBuffer::updateNumVerts(S32 nverts)
@@ -668,6 +674,12 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_ALLOCATE_BUFFER);
 		
+	if (nverts < 0 || nindices < 0 ||
+		nverts > 65536)
+	{
+		llerrs << "Bad vertex buffer allocation: " << nverts << " : " << nindices << llendl;
+	}
+
 	updateNumVerts(nverts);
 	updateNumIndices(nindices);
 	
