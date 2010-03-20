@@ -215,12 +215,15 @@
 		control_name="RenderDeferred"
 		height="16"
 		initial_value="true"
-		label="Lighting Shaders"
+		label="Lighting and Shadows"
 		layout="topleft"
 		left_delta="0"
 		name="UseLightShaders"
 		top_pad="1"
-		width="256"/>
+		width="256">
+      <check_box.commit_callback
+			function="Pref.VertexShaderEnable" />
+    </check_box>
     <check_box
 		control_name="RenderDeferredSSAO"
 		height="16"
@@ -230,9 +233,12 @@
 		left_delta="0"
 		name="UseSSAO"
 		top_pad="1"
-		width="256"/>
+		width="256">
+      <check_box.commit_callback
+			function="Pref.VertexShaderEnable" />
+    </check_box>
 
-      <text
+     <text
     type="string"
     length="1"
     top_pad="8"
@@ -242,7 +248,42 @@
     word_wrap="true"
     layout="topleft"
     left="10"
-    name="reflection_label">
+    name="shadows_label">
+        Shadows:
+      </text>
+      <combo_box
+      control_name="RenderShadowDetail"
+      height="23"
+      layout="topleft"
+      left="10"
+      top_pad="0" 
+      name="ShadowDetail"
+      width="150">
+        <combo_box.item
+        label="None"
+        name="0"
+        value="0"/>
+        <combo_box.item
+        label="Sun/Moon"
+        name="1"
+        value="1"/>
+        <combo_box.item
+        label="Sun/Moon + Projectors"
+        name="2"
+        value="2"/>
+      </combo_box>
+
+      <text
+  type="string"
+  length="1"
+  top_pad="8"
+  follows="top|left"
+  height="23"
+  width="110"
+  word_wrap="true"
+  layout="topleft"
+  left="10"
+  name="reflection_label">
         Water Reflections:
       </text>
       <combo_box
@@ -250,7 +291,7 @@
       height="23"
       layout="topleft"
       left_="10"
-      top_pad ="0" 
+      top_pad ="0"
       name="Reflections"
       width="150">
         <combo_box.item
@@ -273,41 +314,6 @@
         label="Everything"
         name="4"
         value="4"/>
-      </combo_box>
-
-      <text
-    type="string"
-    length="1"
-    top_pad="8"
-    follows="top|left"
-    height="23"
-    width="110"
-    word_wrap="true"
-    layout="topleft"
-    left="10"
-    name="shadows_label">
-        Shadows:
-      </text>
-      <combo_box
-      control_name="RenderShadowDetail"
-      height="23"
-      layout="topleft"
-      left="10"
-      top_pad="0" 
-      name="ShadowDetailRadio"
-      width="150">
-        <combo_box.item
-        label="None"
-        name="0"
-        value="0"/>
-        <combo_box.item
-        label="Sun/Moon"
-        name="1"
-        value="1"/>
-        <combo_box.item
-        label="Sun/Moon + Projectors"
-        name="2"
-        value="2"/>
       </combo_box>
     
 		<slider

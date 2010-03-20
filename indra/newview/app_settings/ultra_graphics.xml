@@ -12,8 +12,6 @@
 	<RenderFlexTimeFactor value="1"/>
 	<!--256... but they don't use this-->
 	<RenderGlowResolutionPow value="9"/>
-	<!--Sun/Moon only-->
-	<RenderLightingDetail value="1"/>
 	<!--Low number-->
 	<RenderMaxPartCount value="4096"/>
 	<!--bump okay-->
@@ -34,4 +32,11 @@
 	<VertexShaderEnable value="TRUE"/>
 	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="TRUE"/>
+  <!--Deferred Shading-->
+  <RenderDeferred value="TRUE"/>
+  <!--SSAO Enabled-->
+  <RenderDeferredSSAO value="TRUE"/>
+  <!--Full Shadows-->
+  <RenderShadowDetail value="2"/>
+
 </settings>
