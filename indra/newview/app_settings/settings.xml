@@ -7189,17 +7189,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderLightingDetail</key>
-    <map>
-      <key>Comment</key>
-      <string>Amount of detail for lighting objects/avatars/terrain (0=sun/moon only, 1=enable local lights)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>RenderMaxPartCount</key>
     <map>
       <key>Comment</key>

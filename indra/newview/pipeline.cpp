@@ -408,6 +408,8 @@ void LLPipeline::init()
 	{
 		mSpotLightFade[i] = 1.f;
 	}
+
+	setLightingDetail(-1);
 }
 
 LLPipeline::~LLPipeline()
@@ -904,13 +906,18 @@ S32 LLPipeline::setLightingDetail(S32 level)
 
 	if (level < 0)
 	{
-		level = gSavedSettings.getS32("RenderLightingDetail");
+		if (gSavedSettings.getBOOL("VertexShaderEnable"))
+		{
+			level = 1;
+		}
+		else
+		{
+			level = 0;
+		}
 	}
 	level = llclamp(level, 0, getMaxLightingDetail());
 	if (level != mLightingDetail)
 	{
-		gSavedSettings.setS32("RenderLightingDetail", level);
-		
 		mLightingDetail = level;
 
 		if (mVertexShadersLoaded == 1)
