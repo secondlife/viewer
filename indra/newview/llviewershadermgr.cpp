@@ -317,10 +317,16 @@ S32 LLViewerShaderMgr::getVertexShaderLevel(S32 type)
 
 void LLViewerShaderMgr::setShaders()
 {
-	if (!gPipeline.mInitialized || !sInitialized)
+	//setShaders might be called redundantly by gSavedSettings, so return on reentrance
+	static bool reentrance = false;
+	
+	if (!gPipeline.mInitialized || !sInitialized || reentrance)
 	{
 		return;
 	}
+
+	reentrance = true;
+
 	// Make sure the compiled shader map is cleared before we recompile shaders.
 	mShaderObjects.clear();
 	
@@ -368,15 +374,8 @@ void LLViewerShaderMgr::setShaders()
 		S32 wl_class = 2;
 		S32 water_class = 2;
 		S32 deferred_class = 0;
-		if (!(LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders")
-			  && gSavedSettings.getBOOL("WindLightUseAtmosShaders")))
-		{
-			// user has disabled WindLight in their settings, downgrade
-			// windlight shaders to stub versions.
-			wl_class = 1;
-		}
-
-		if (LLPipeline::sRenderDeferred)
+		
+		if (gSavedSettings.getBOOL("RenderDeferred"))
 		{
 			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 			{
@@ -393,6 +392,24 @@ void LLViewerShaderMgr::setShaders()
 			{ //no shadows
 				deferred_class = 1;
 			}
+
+			//make sure framebuffer objects are enabled
+			gSavedSettings.setBOOL("RenderUseFBO", TRUE);
+
+			//make sure hardware skinning is enabled
+			gSavedSettings.setBOOL("RenderAvatarVP", TRUE);
+			
+			//make sure atmospheric shaders are enabled
+			gSavedSettings.setBOOL("WindLightUseAtmosShaders", TRUE);
+		}
+
+
+		if (!(LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders")
+			  && gSavedSettings.getBOOL("WindLightUseAtmosShaders")))
+		{
+			// user has disabled WindLight in their settings, downgrade
+			// windlight shaders to stub versions.
+			wl_class = 1;
 		}
 
 		if(!gSavedSettings.getBOOL("EnableRippleWater"))
@@ -517,6 +534,8 @@ void LLViewerShaderMgr::setShaders()
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	}
 	gPipeline.createGLBuffers();
+
+	reentrance = false;
 }
 
 void LLViewerShaderMgr::unloadShaders()
