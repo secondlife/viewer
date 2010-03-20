@@ -973,7 +973,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		S32 level = 0;
 		std::string fragment;
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
