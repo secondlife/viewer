@@ -13,7 +13,7 @@
 	<slider name="volume_slider" tool_tip="Posiom Głośności" value="0.5"/>
 	<button label="Dodaj Znajomość" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
-	<button label="Więcej" name="view_profile_btn"/>
+	<button label="Profil" name="view_profile_btn"/>
 	<panel name="moderator_panel">
 		<button label="Wyłącz Komunikację Głosową" name="disable_voice"/>
 		<button label="Włącz Komunikację Głosową" name="enable_voice"/>

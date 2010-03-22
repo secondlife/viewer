@@ -9,70 +9,41 @@
 	<global name="implicitclosebutton">
 		Zamknij
 	</global>
-  <template name="okbutton">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-    </form>
-  </template>
-
-  <template name="okignore">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <ignore text="$ignoretext"/>
-    </form>
-  </template>
-
-  <template name="okcancelbuttons">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <button
-       name="Cancel"
-       text="$notext"/>
-    </form>
-  </template>
-
-  <template name="okcancelignore">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <button
-       name="Cancel"
-       text="$notext"/>
-      <ignore text="$ignoretext"/>
-    </form>
-  </template>
-
-  <template name="okhelpbuttons">
-    <form>
-      <button
-       name="OK"
-       text="$yestext"/>
-      <button
-       name="Help"
-       text="$helptext"/>
-    </form>
-  </template>
-
-  <template name="yesnocancelbuttons">
-    <form>
-      <button
-       name="Yes"
-       text="$yestext"/>
-      <button
-       name="No"
-       text="$notext"/>
-      <button
-       name="Cancel"
-       text="$canceltext"/>
-    </form>
-  </template>
+	<template name="okbutton">
+		<form>
+			<button name="OK_okbutton" text="$yestext"/>
+		</form>
+	</template>
+	<template name="okignore">
+		<form>
+			<button name="OK_okignore" text="$yestext"/>
+		</form>
+	</template>
+	<template name="okcancelbuttons">
+		<form>
+			<button name="OK_okcancelbuttons" text="$yestext"/>
+			<button name="Cancel_okcancelbuttons" text="$notext"/>
+		</form>
+	</template>
+	<template name="okcancelignore">
+		<form>
+			<button name="OK_okcancelignore" text="$yestext"/>
+			<button name="Cancel_okcancelignore" text="$canceltext"/>
+		</form>
+	</template>
+	<template name="okhelpbuttons">
+		<form>
+			<button name="OK_okhelpbuttons" text="$yestext"/>
+			<button name="Help" text="$helptext"/>
+		</form>
+	</template>
+	<template name="yesnocancelbuttons">
+		<form>
+			<button name="Yes" text="$yestext"/>
+			<button name="No" text="$notext"/>
+			<button name="Cancel_yesnocancelbuttons" text="$canceltext"/>
+		</form>
+	</template>
 	<notification functor="GenericAcknowledge" label="Nieznany rodzaj komunikatu" name="MissingAlert">
 		Twoja wersja klienta [APP_NAME] nie może wyświetlić odebranej wiadomości.
 
@@ -98,23 +69,17 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 	</notification>
 	<notification name="BadInstallation">
 		Podczas aktualizacji klienta [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę secondlife.com by ściągnąć najnowszą wersje klienta.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		Błąd sieci: Brak połączenia.
 &apos;[DIAGNOSTIC]&apos;
 Sprawdź stan swojego połączenia sieciowego.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
 		Wzór komunikatu dla [PATH] nie odnaleziony.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="WearableSave">
 		Zapisać zmiany dotyczące ubrania/części ciała?
@@ -140,15 +105,17 @@ Wybierz pojedynczy obiekt i spróbuj jeszcze raz.
 		Zapisać wszystkie zmiany dotyczące ubrania/cześci ciała?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
 	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		Osoby spoza listy znajomych, których rozmowy głosowe i IM są ignorowane, nie wiedzą o tym.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
-		Udzielenie praw modyfikacji innemu Rezydentowi umożliwia modyfikację, usuwanie lub wzięcie JAKIEGOKOLWIEK z Twoich obiektów.
-Używaj tej opcji z rozwagą!
+		Udzielenie praw modyfikacji innemu Rezydentowi umożliwia modyfikację, usuwanie lub wzięcie JAKIEGOKOLWIEK z Twoich obiektów. Używaj tej opcji z rozwagą!
 Czy chcesz dać prawa modyfikacji osobie [FIRST_NAME] [LAST_NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
-		Udzielenie praw modyfikacji innym Rezydentom umożliwia im modyfikację, usuwanie lub wzięcie JAKIEGOKOLWIEK z Twoich obiektów.
-Używaj tej opcji z rozwagą!
+		Udzielenie praw modyfikacji innym Rezydentom umożliwia im modyfikację, usuwanie lub wzięcie JAKIEGOKOLWIEK z Twoich obiektów. Używaj tej opcji z rozwagą!
 Czy chcesz dać prawa modyfikacji wybranym osobom?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
@@ -201,62 +168,20 @@ Udzielaj tego przywileju z rozwagą.
 Dodać ten przywilej do funkcji [ROLE_NAME]?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
-	<notification name="ClickPublishHelpLand">
-		Wybranie opcji Publikuj w Wyszukiwarce Wybranie tej opcji umożliwi pokazywanie:
-- tej posiadłości w wynikach wyszukiwarki
-- publicznych obiektów na tej posiadłości
-- tej posiadłości w przeglądarce internetowej
-	</notification>
-	<notification name="ClickSoundHelpLand">
-		Media oraz muzyka są aktywne według ustawień posiadłości dla mediów. Dźwięk oraz komunikacja głosowa mogą być ograniczone w danej posiadłości, w zależności od ustawień rodzaju treści jaką zawiera. Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=5046
-		</url>
-    <usetemplate
-     name="okcancelbuttons"
-     yestext="[SECOND_LIFE]:Pomoc"
-	 notext="Zamknij" />
-	</notification>
-	<notification name="ClickSearchHelpAll">
-		Wyniki wyszukiwania wyświetlają się na podstawie rodzaju zakładki wyszukiwarki, z której korzystasz, rodzaju statusu Twojego wieku, wybranej kategorii, oraz innych czynników. By uzyskać wiecej szczegółów skorzystaj z [SECOND_LIFE]:Pomoc.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=4722
-		</url>
-    <usetemplate
-     name="okcancelbuttons"
-     yestext="[SECOND_LIFE]:Pomoc"
-	 notext="Zamknij" />
-	</notification>
-	<notification name="ClickPublishHelpLandDisabled">
-		Ta posiadłość nie może być pokazywana w wynikach wyszukiwania ponieważ region w którym się znajduje zabrania tego.
-	</notification>
-	<notification name="ClickPublishHelpAvatar">
-		Wybranie opcji Publikuj w Wyszukiwarce umożliwi pokazywanie:
-- Twojego profilu w wynikach wyszukiwarki
-- linku do Twojego profilu na publicznych stronach
-	</notification>
-	<notification name="ClickPartnerHelpAvatar">
-		Możesz zaproponować związek innemu Rezydentowi lub rozwiązać istniejący związek na stronie internetowej [SECOND_LIFE].
-
-Chcesz dowiedzieć się więcej na temat związków w [SECOND_LIFE]?
-		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Idź na stronę"/>
-	</notification>
-	<notification name="ClickUploadHelpPermissions">
-		Twoje domyślne ustawienia praw dla Twoich obiektów mogą nie działać poprawnie w starszych regionach.
-	</notification>
-	<notification name="ClickWebProfileHelpAvatar">
-		Jeżeli ten Rezydent posiada link URL w profilu możesz:
- * Kliknąć &apos;Załaduj&apos; żeby zobaczyć stronę w tej zakładce WWW.
- * Kliknąć &apos;Załaduj&apos; &gt; &apos;Użyj zewnętrznej przeglądarki&apos; żeby zobaczyć stronę używając domyślnej zewnętrznej przeglądarki.
- * Kliknąć &apos;Załaduj&apos; &gt; &apos;Otwórz URL strony profilu&apos; żeby wrócić do strony tego Rezydenta po jej opuszczeniu.
-
-Oglądając swój profil możesz wpisać dowolny link URL i kliknąć OK żeby go zapisać.
-Rezydenci mogą odwiedzać podany adres, kiedy przeglądają Twój profil.
+	<notification name="AttachmentDrop">
+		Wybrałeś opcję opuszczenia swojego załącznika.
+    Czy chcesz kontynuować?
+		<usetemplate ignoretext="Potwierdź przed zdjęciem załącznika." name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Dołączenie do tej grupy kosztuje [COST]L$.
 Chcesz kontynuować?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Dołącz"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		Dołączasz do grupy [NAME].
+Czy chcesz kontynuować?
+		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Zaakceptuj"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Członkostwo w tej grupie kosztuje [COST]L$
@@ -397,6 +322,10 @@ Pamiętaj! Nie ma rekompensaty za poniesione koszta.
 		Zapisać zmiany w reklamie [NAME]?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
 	</notification>
+	<notification name="ClassifiedInsufficientFunds">
+		Nie posiadasz wystarczających środków aby dodać Reklamę.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeleteAvatarPick">
 		Usunąć wybór [PICK] z kategorii Lubię?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
@@ -410,14 +339,6 @@ Pamiętaj! Nie ma rekompensaty za poniesione koszta.
 	</notification>
 	<notification name="SelectHistoryItemToView">
 		Wybierz obiekt z historii, który chcesz zobaczyć.
-	</notification>
-	<notification name="ResetShowNextTimeDialogs">
-		Zresetować &apos;Pokaż następnym razem&apos; opcję we wszystkich dialogach?
-		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
-	</notification>
-	<notification name="SkipShowNextTimeDialogs">
-		Wyłączyć &apos;Pokaż następnym razem&apos; opcję we wszystkich dialogach?
-		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
 		Bufor danych na dysku zostanie zresetowany po relogu do [APP_NAME].
@@ -489,20 +410,18 @@ Obiekt może znajdować się zbyt daleko albo został usuniety.
 		Nie można zapisać pliku [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Uwaga: Twój system nie spełnia minimalnych wymagań sprzętowych [APP_NAME]. Jakość i prędkość [APP_NAME] mogą być pogorszone. Niestety, nie będziemy w stanie udzielić Ci technicznej pomocy, ponieważ konfiguracja Twojego systemu nie spełnia wymagań sprzętowych.
+		Niestety Twój komputer nie spełnia minimalnych wymogów sprzętowych dla poprawnego działania [APP_NAME]. Możesz odczuwać bardzo niską wydajność operacyjną. Niestety portal pomocy, [SUPPORT_SITE] nie posiada informacji na temat poprawnej konfiguracji technicznej Twojego systemu.
 
-MINSPECS
-Czy chcesz odwiedzić stronę [_URL] po dodatkowe informacje?
+Po więcej info, odwiedź stronę [_URL] .
 		<url name="url" option="0">
 			http://www.secondlife.com/corporate/sysreqs.php
 		</url>
 		<usetemplate ignoretext="Zignoruj ostrzeżenie" name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="UnknownGPU">
-		Twój system jest wyposażony w kartę graficzną której jeszcze nie znamy.
-To się często zdarza z nowym sprzętem, którego jeszcze nie testowaliśmy.
-[APP_NAME] najprawdopodobniej będzie działało poprawnie. Możliwe, że będziesz musiał wyregulować ustawienia grafiki.
-(Edycja &gt; Ustawienia &gt; Grafika).
+		Twój system jest wyposażony w kartę graficzną, która nie jest rozpoznana przez [APP_NAME].
+Zdarza się to częstow w przypadku nowego sprzętu, który nie był testowany z [APP_NAME].  Prawdopodobnie wystarczy dostosowanie ustawień grafiki aby działanie było poprawne.
+(Ja &gt; Właściwości &gt; Grafika).
 		<form name="form">
 			<ignore name="ignore" text="Zignoruj ostrzeżenie"/>
 		</form>
@@ -649,6 +568,10 @@ Oczekiwana - [VALIDS]
 		Ładowanie pliku [FILE] nie powiodło się z powodu: [REASON]
 Spróbuj jeszcze raz póżniej.
 	</notification>
+	<notification name="LandmarkAlreadyExists">
+		Posiadasz już landmark dla tej lokalizacji.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="CannotCreateLandmarkNotOwner">
 		Nie możesz zapamiętać tego miejsca (LM) ponieważ właściciel posiadłości nie pozwala na to.
 	</notification>
@@ -697,52 +620,49 @@ Nowe zapytanie: [FINALQUERY]
 		Teleportacja nie powiodła się.
 [REASON]
 	</notification>
-
-  <notification name="invalid_tport">
-Wystąpił problem z teleportacją. Wyloguj się i zaloguj ponownie.
+	<notification name="invalid_tport">
+		Wystąpił problem z teleportacją. Wyloguj się i zaloguj ponownie.
 Jeśli nadal otrzymujesz ten komunikat sprawdź Pomoc Techniczną na stronie:
 www.secondlife.com/support.
-  </notification>
-  <notification name="invalid_region_handoff">
-Wystąpił problem ze zmianą regionu. Wyloguj się i zaloguj ponownie.
+	</notification>
+	<notification name="invalid_region_handoff">
+		Wystąpił problem ze zmianą regionu. Wyloguj się i zaloguj ponownie.
 Jeśli nadal otrzymujesz ten komunikat sprawdź Pomoc Techniczną na stronie:
 www.secondlife.com/support.
-  </notification>
-  <notification name="blocked_tport">
-Przepraszamy, teleportacja jest chwilowo niedostępna. Spróbuj jeszcze raz.
+	</notification>
+	<notification name="blocked_tport">
+		Przepraszamy, teleportacja jest chwilowo niedostępna. Spróbuj jeszcze raz.
 Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
-  </notification>
-  <notification name="nolandmark_tport">
-Przepraszamy, ale nie możemy znaleźć miejsca docelowego.
-  </notification>
-  <notification name="timeout_tport">
-Przepraszamy, ale nie udało się przeprowadzić teleportacji. Spróbuj jeszcze raz.
-  </notification>
-  <notification name="noaccess_tport">
-Przepraszamy, ale nie masz dostępu do miejsca docelowego.
-  </notification>
-  <notification name="missing_attach_tport">
-Czekamy na Twoje akcesoria. Możesz poczekać kilka minut lub zrobić relog przed następną próbą teleportacji.
-  </notification>
-  <notification name="too_many_uploads_tport">
-Obecnie ten region ma problemy z ładowaniem obiektów w związku z czym teleportacja bardzo sie opóznia.
+	</notification>
+	<notification name="nolandmark_tport">
+		Przepraszamy, ale nie możemy znaleźć miejsca docelowego.
+	</notification>
+	<notification name="timeout_tport">
+		Przepraszamy, ale nie udało się przeprowadzić teleportacji. Spróbuj jeszcze raz.
+	</notification>
+	<notification name="noaccess_tport">
+		Przepraszamy, ale nie masz dostępu do miejsca docelowego.
+	</notification>
+	<notification name="missing_attach_tport">
+		Czekamy na Twoje akcesoria. Możesz poczekać kilka minut lub zrobić relog przed następną próbą teleportacji.
+	</notification>
+	<notification name="too_many_uploads_tport">
+		Obecnie ten region ma problemy z ładowaniem obiektów w związku z czym teleportacja bardzo sie opóznia.
 Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego miejsca.
-  </notification>
-  <notification name="expired_tport">
-Przepraszamy, ale nie udało się przeprowadzić teleportacji wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
-  </notification>
-  <notification name="expired_region_handoff">
-Przepraszamy, ale nie udało się przeprowadzić zmiany regionu wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
-  </notification>
-  <notification name="no_host">
-Nie możemy znaleść miejsca docelowego. To miejsce może być chwilowo nieosiągalne albo przestało istnieć.
+	</notification>
+	<notification name="expired_tport">
+		Przepraszamy, ale nie udało się przeprowadzić teleportacji wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
+	</notification>
+	<notification name="expired_region_handoff">
+		Przepraszamy, ale nie udało się przeprowadzić zmiany regionu wystarczająco szybko. Spróbuj jeszcze raz za kilka minut.
+	</notification>
+	<notification name="no_host">
+		Nie możemy znaleść miejsca docelowego. To miejsce może być chwilowo nieosiągalne albo przestało istnieć.
 Spróbuj jeszcze raz za kilka minut.
-  </notification>
-  <notification name="no_inventory_host">
-Szafa chwilowo nie działa.
-  </notification>
-
-
+	</notification>
+	<notification name="no_inventory_host">
+		Szafa chwilowo nie działa.
+	</notification>
 	<notification name="CannotSetLandOwnerNothingSelected">
 		Nie można wybrać właściciela posiadłości.
 Posiadłość nie została wybrana.
@@ -751,7 +671,8 @@ Posiadłość nie została wybrana.
 		Nie można wybrać właściciela posiadłości ponieważ wybrany obszar przekracza granicę regionów. Wybierz mniejszy obszar i spróbuj jeszcze raz.
 	</notification>
 	<notification name="ForceOwnerAuctionWarning">
-		Ta posiadłość jest wystawiona na aukcję. Wymuszenie własności anulue aukcję i potencjalnie może zdenerwować zainteresowanych Rezydentów, jeżeli licytacja już się rozpoczęła. Wymusić własność?
+		Ta posiadłość jest wystawiona na aukcję. Wymuszenie własności anuluje aukcję i potencjalnie może zdenerwować zainteresowanych Rezydentów, jeżeli licytacja już się rozpoczęła.
+Wymusić własność?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="CannotContentifyNothingSelected">
@@ -798,14 +719,6 @@ Region nie znaleziony.
 Wiele posiadłości jest wybranych.
 
 Spróbuj wybrać pojedynczą posiadłość.
-	</notification>
-	<notification name="ParcelCanPlayMedia">
-		To miejsce może odtwarzać strumienie mediów.
-Odtwarzanie strumieni wymaga szybkiego połączenia do Internetu.
-
-Odtwarzać dostępne strumienie mediów?
-(Selekcja może zostać zmieniona póżniej pod Ustawienia &gt; Audio i Video.)
-		<usetemplate name="okcancelbuttons" notext="Wyłącz" yestext="Odtwarzaj"/>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
 		Nie można przekazać posiadłości:
@@ -904,17 +817,6 @@ Wybierz obaszar usytuowany na obu posiadłościach.
 Połączyć posiadłości?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
-	<notification name="ShowOwnersHelp">
-		Pokaż właścicieli:
-Pokoloruj posiadłości zgodnie z przynależnością do właściciela
-
-Zielony = Twoja Posiadłość
-Morski = Posiadłość Twojej Grupy
-Czerwony = Posiadłości Innych
-Żółty = Na Sprzedaż
-Fioletowy = Na Aukcję
-Szary = Publiczna
-	</notification>
 	<notification name="ConfirmNotecardSave">
 		Ta notka musi być zapisana żeby mogła być skopiowana lub zobaczona. Zapisać notkę?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
@@ -940,11 +842,8 @@ Szary = Publiczna
 Zazwyczaj jest to tymczasowy problem. Możesz kontynuować modyfikacje i zapisać strój ponownie za kilka minut.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Twoja sesja [SECOND_LIFE] została zakończona:
-[MESSAGE]
-
-Kliknij Kontynuuj żeby zobaczyć IMy i czat.
-Żadne inne operacje nie będą dozwolone. Kliknij Wyłącz w celu natychmiastowego opuszczenia [APP_NAME].
+		Nastąpiło wylogowanie z [SECOND_LIFE]
+            [MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Wyłącz" yestext="Kontynuuj"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1097,10 +996,7 @@ Przekazać tą posiadłość o powierzchni [AREA] m² grupie &apos;[GROUP_NAME]&
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
-	</notification>
-	<notification name="AvatarMoved">
-		Twoje miejsce [TYPE] jest obecnie niedostępne. [HELP]
-Przeniesiono Cię do pobliskiego regionu.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ClothingLoading">
 		Twoje ubranie wciąż się ładuje.
@@ -1285,10 +1181,6 @@ Załadować do foldera Aplikacji?
 		Odwiedź [SECOND_LIFE] katalog publicznych problemów, gdzie możesz zgłaszać błędy i inne problemy.
 		<usetemplate ignoretext="Otwierając przeglądarkę żeby zobaczyć katalog publicznych problemów" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
-	<notification name="WebLaunchPublicIssueHelp">
-		Odwiedź [SECOND_LIFE] Wiki i sprawdź jak używać katalogu publicznych problemów.
-		<usetemplate ignoretext="Otwierając przeglądarkę żeby zobaczyć Wiki katalogu publicznych problemów" name="okcancelignore" notext="Anuluj" yestext="OK"/>
-	</notification>
 	<notification name="WebLaunchSupportWiki">
 		Otwórz oficjalny blog Lindenów żeby zobaczyć nowe wiadomości i informacje.
 		<usetemplate ignoretext="Otwierając przeglądarkę żeby zobaczyć blog" name="okcancelignore" notext="Anuluj" yestext="OK"/>
@@ -1313,8 +1205,8 @@ Chcesz opuścić grupę?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		NA PEWNO chcesz wyrzucić wszystkich użytkowników z sieci?
-		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Wyrzuć Wszystkich Użytkowników"/>
+		Napewno chcesz wyrzucić wszystkich Rezydentów z gridu?
+		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Wyrzuć wszystkich Rezydentów"/>
 	</notification>
 	<notification name="MuteLinden">
 		Przepraszamy, ale nie możesz wyciszyć Lindena.
@@ -1342,18 +1234,20 @@ Chcesz opuścić grupę?
 	<notification name="BusyModeSet">
 		Tryb Pracy jest włączony.
 Czat i IMy bedą ukryte. Wysłane IMy będą otrzymywały Twoją odpowiedź Trybu Pracy. Propozycje teleportacji będą odrzucone.
-Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywane w folderze "Kosz" w Twojej szafie.
+Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywane w folderze &quot;Kosz&quot; w Twojej szafie.
 		<usetemplate ignoretext="Włączając Tryb Pracy" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
-		Należysz już do maksymalnej ilości grup.
-Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej grupie, albo musisz odmówić. W celu opuszczenia grupy wybierz opcję &apos;Grupy...&apos; z menu &apos;Edycja&apos;.
+		Należysz już do maksymalnej ilości grup. Opuść proszę przynajmniej jedną grupę żeby przyjąć członkostwo w tej grupie, albo odmów.
 [NAME] oferuje Ci członkostwo w grupie.
-[INVITE]
 		<usetemplate name="okcancelbuttons" notext="Odmów" yestext="Przyjmij"/>
 	</notification>
+	<notification name="JoinedTooManyGroups">
+		Należysz już do maksymalnej ilości grup. Opuść proszę przynajmiej jedną grupę żeby przyjąć członkostwo w tej grupie, albo odmów.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="KickUser">
-		Z jakim komunikatem wyrzucić tego użytkownia?
+		Wyrzuć tego Rezydenta, wysyłając następujący komunikat.
 		<form name="form">
 			<input name="message">
 				Administrator wylogował Cię.
@@ -1373,7 +1267,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Z jakim komunikatem unieruchomić tego użytkownia?
+		Unieruchom tego Rezydenta, wysyłając następujący komunikat.
 		<form name="form">
 			<input name="message">
 				Unieruchomiono Cię. Nie możesz się ruszać ani rozmawiać. Administrator skontaktuje się z Tobą poprzez IM.
@@ -1383,7 +1277,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Z jakim komunikatem odblokować tego użytkownia?
+		Cofnij unieruchomienie tego Rezydenta, wysyłając następujący komunikat.
 		<form name="form">
 			<input name="message">
 				Odblokowano Cię.
@@ -1403,7 +1297,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Wymusić przeniesienie użytkownika do miejsca Twojego pobytu?
+		Wysłać propozycję teleportacji do Twojego miejsca?
 		<form name="form">
 			<input name="message">
 				Zapraszam do siebie. Region: [REGION]
@@ -1413,7 +1307,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 		</form>
 	</notification>
 	<notification name="TeleportFromLandmark">
-		Na pewno chcesz się teleportować?
+		Na pewno chcesz się teleportować do &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
 		<usetemplate ignoretext="Teleportując z miejsca (LM) z Twojej szafy" name="okcancelignore" notext="Anuluj" yestext="Teleportuj"/>
 	</notification>
 	<notification label="Wiadomość do Wszystkich w Twoim Majątku" name="MessageEstate">
@@ -1425,9 +1319,9 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 		</form>
 	</notification>
 	<notification label="Zmiana Majątku Lindenów" name="ChangeLindenEstate">
-		Dokonujesz zmiany w Regionie Głównym należącym do Lindenów (Regiony Główne, Teen Grid, Orientacja).
-		
-Żądana operacja jest wyjątkowo niebezpieczna dla wszystkich Rezydentów przebywających w regionie. Dodatkowo, zmiany dokonane w Regionie Głównym mogą spowodować problemy przestrzeni serwerowej innych regionów.
+		Czy napewno chcesz zmienić ustawienia majątku Linden (mainland, teen grid, orientacja, itp).
+
+Jest to wyjątkowo niebezpieczna decyzja, odczuwalna przez wszystkich Rezydentów. Dla mainland, spowoduje to zmianę tysięcy regionów oraz ich przestrzeń serwerową.
 
 Kontynuować?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
@@ -1485,9 +1379,7 @@ Kontynuować?
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. Może być to wynikiem braku informacji na temat weryfikacji Twojego wieku.
 
 Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_KB">
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. 
@@ -1496,11 +1388,7 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
-    <usetemplate
-     name="okcancelignore"
-     yestext="[SECOND_LIFE]:Pomoc"
-	 notext="Zamknij"
-	 ignoretext="Dostęp do posiadłości jest zablokowany ze względu na rodzaj treści jaką zawiera"/>
+		<usetemplate ignoretext="Dostęp do posiadłości jest zablokowany ze względu na rodzaj treści jaką zawiera" name="okcancelignore" notext="Zamknij" yestext="[SECOND_LIFE]:Pomoc"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie.
@@ -1509,24 +1397,17 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		W związku ze statusem ustawień Twojego wieku, nie jesteś uprawniony do przebywania w tym regionie.
 
 Możeszy wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach Twojego wieku by uzyskać dostęp do regionu. Wówczas będziesz w stanie znaleźć oraz mieć dostęp do [REGIONMATURITY] treści. Jeżeli zdecydujesz się na powrót do poprzednich ustawień, wybierz Edycja &gt; Ustawienia... &gt; Główne.
-	 <form name="form">
-      <button
-       name="OK"
-       text="Zmień Ustawienia"/>
-      <button
-       default="true"
-       name="Cancel"
-       text="Zamknij"/>
-       <ignore name="ignore" text="Dostęp do posiadłości jest zablokowany ze względu na ustawienia rodzaju treści jaką zawiera"/>
-    </form>
+		<form name="form">
+			<button name="OK" text="Zmień Ustawienia"/>
+			<button default="true" name="Cancel" text="Zamknij"/>
+			<ignore name="ignore" text="Dostęp do posiadłości jest zablokowany ze względu na ustawienia rodzaju treści jaką zawiera"/>
+		</form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		W związku ze statusem ustawień Twojego wieku, nie możesz odzyskać tej posiadłości. Możesz potrzebować weryfikacji wieku bądź instalacji najnowszej wersji klienta.
 
 Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_KB">
 		Ze względu na Twój wiek, nie możesz odzyskać tej posiadłości. 
@@ -1535,11 +1416,7 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
-    <usetemplate
-     name="okcancelignore"
-     yestext="[SECOND_LIFE]:Pomoc"
-	 notext="Zamknij"
-	 ignoretext="Odzyskanie posiadłości jest zablokowane ze względu na rodzaj treści jaką zwiera"/>
+		<usetemplate ignoretext="Odzyskanie posiadłości jest zablokowane ze względu na rodzaj treści jaką zwiera" name="okcancelignore" notext="Zamknij" yestext="[SECOND_LIFE]:Pomoc"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
 		Ze względu na Twój wiek, nie możesz odzyskać tej posiadłości.
@@ -1548,19 +1425,13 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		W związku ze statusem ustawień Twojego wieku, nie możesz odzyskać tej posiadłości.
 
 Możeszy wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach Twojego wieku by uzyskać dostęp do posiadłości. Wówczas będziesz w stanie znaleźć, oraz mieć dostęp do [REGIONMATURITY] treści. Jeżeli zdecydujesz się na powrót do poprzednich ustawień, wybierz Edycja &gt; Ustawienia... &gt; Główne.
-    <usetemplate
-     name="okcancelignore"
-     yestext="Zmień Ustawienia"
-	 notext="Zamknij"
-	 ignoretext="Odzyskanie posiadłości jest zablokowane ze względu na ustawienia rodzaju treści jaką zawiera"/>
+		<usetemplate ignoretext="Odzyskanie posiadłości jest zablokowane ze względu na ustawienia rodzaju treści jaką zawiera" name="okcancelignore" notext="Zamknij" yestext="Zmień Ustawienia"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości. Może być to wynikiem braku informacji na temat weryfikacji Twojego wieku.
 
 Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_KB">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości. 
@@ -1569,11 +1440,7 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
-    <usetemplate
-     name="okcancelignore"
-     yestext="[SECOND_LIFE]:Pomoc"
-	 notext="Zamknij"
-	 ignoretext="Zakup posiadłości jest zablokowany ze względu na rodzaj treści jaką zawiera"/>
+		<usetemplate ignoretext="Zakup posiadłości jest zablokowany ze względu na rodzaj treści jaką zawiera" name="okcancelignore" notext="Zamknij" yestext="[SECOND_LIFE]:Pomoc"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości.
@@ -1582,11 +1449,7 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		W związku ze statusem ustawień Twojego wieku, nie możesz kupić tej posiadłości.
 
 Możesz wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach Twojego wieku by uzyskać dostęp do posiadłości. Wówczas będziesz w stanie znaleźć oraz mieć dostęp do [REGIONMATURITY] treści. Jeżeli zdecydujesz się na powrót do poprzednich ustawień, wybierz Edycja &gt; Ustawienia... &gt; Główne.
-    <usetemplate
-     name="okcancelignore"
-     yestext="Zmień Ustawienia"
-	 notext="Zamknij"
-	 ignoretext="Zakup posiadłości jest zablokowany ze względu na ustawienia rodzaju treści jaką zawiera"/>
+		<usetemplate ignoretext="Zakup posiadłości jest zablokowany ze względu na ustawienia rodzaju treści jaką zawiera" name="okcancelignore" notext="Zamknij" yestext="Zmień Ustawienia"/>
 	</notification>
 	<notification name="ProblemImportingEstateCovenant">
 		Problem z importem umowy majątku.
@@ -1600,9 +1463,7 @@ Możesz wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach T
 	</notification>
 	<notification name="UnableToLoadNotecardAsset">
 		Brak możliwości załadowania noty w tej chwili.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NotAllowedToViewNotecard">
 		Niewystarczające prawa do zobaczenia notki przypisanej do wybranego ID.
@@ -1620,19 +1481,11 @@ Zamieścić tą reklamę za [AMOUNT]L$?
 	</notification>
 	<notification name="SetClassifiedMature">
 		Czy ta reklama zawiera treść &apos;Mature&apos;?
-    <usetemplate
-     canceltext="Anuluj"
-     name="yesnocancelbuttons"
-     notext="Nie"
-     yestext="Tak"/>
+		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="SetGroupMature">
 		Czy ta grupa zawiera treść &apos;Mature&apos;?
-    <usetemplate
-     canceltext="Anuluj"
-     name="yesnocancelbuttons"
-     notext="Nie"
-     yestext="Tak"/>
+		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification label="Potwierdź Restart" name="ConfirmRestart">
 		Na pewno chcesz zrobić restart tego regionu za 2 minuty?
@@ -1646,201 +1499,14 @@ Zamieścić tą reklamę za [AMOUNT]L$?
 			<button name="Cancel" text="Anuluj"/>
 		</form>
 	</notification>
-	<notification label="Blokowanie Kształtowania Terenu" name="HelpRegionBlockTerraform">
-		Jeżeli ta opcja jest wybrana właściciele posiadłości nie będą mogli kształtować terenu niezależnie od ustawienia opcji &apos;Edycja Terenu&apos; dla posiadłości.
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Blokowanie Latania" name="HelpRegionBlockFly">
-		Jeżeli ta opcja jest wybrana ludzie nie będą mogli latać w tym regionie niezależnie od ustawienia opcji &apos;Latanie&apos; dla posiadłości.
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Zezwalanie na Uszkodzenia" name="HelpRegionAllowDamage">
-		Jeżeli ta opcja jest wybrana system zdrowia będzie aktywny we wszystkich posiadłościach niezależnie od ustawień dla indywidualnych posiadłości. Jeżeli ta opcja nie jest wybrana właściciele indywidualych posiadłości będą mogli kontrolować system zdrowia w swoich posiadłościach.
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Limit Liczby Awatarów" name="HelpRegionAgentLimit">
-		Wybierz maksymalną liczbę awatarów dozwoloną w tym regionie.
-Wydajność systemu może się zmieniać w zależności od liczby obecnych awatarów.
-
-Domyślnie: 40
-	</notification>
-	<notification label="Ekstra Obiekty" name="HelpRegionObjectBonus">
-		Ekstra Obiekty jest to mnożnik dla dozwolonych elementów (obiektów prostych). Dozwolony zakres to 1 do 10. Ustawienie &apos;1&apos; pozwala na 117 elementów na każdej posiadłości o powierzchni 512m. Ustawienie &apos;2&apos; pozwala na 234 elementy, czyli dwa razy tyle, itd.
-Maksymalna liczba elementów w regionie to 15000 niezależnie od ustawienia Ekstra Obiektów. Pamiętaj - zmniejszenie Ekstra Obiektów po fakcie może spowodować odsyłanie lub usuwanie istniejących obiektów.
-
-Domyślnie: 1,0
-	</notification>
-	<notification label="Treść" name="HelpRegionMaturity">
-		Aktywuj opcję klasyfikacji regionu ze względu na treść jaką zawiera, która zostaje wyświetlana w górnym pasku widoku w nazwie regionu oraz w podpowiedziach Mapy Świata. Dodatkowo, opcja ta wpływa na dostęp do wyników w czasie wyszukiwania danego regionu. By móc odwiedzić dany region lub mieć dostęp do jego wyników w czasie wyszukiwania, Rezydent musi mieć takie same ustawienia dla treści jak dany region. 
-
-By dokonana zmiana została zsynchronizowana z Mapą Świata, poczekaj kilka minut.
-	</notification>
-	<notification label="Blokowanie Popychania" name="HelpRegionRestrictPushObject">
-		Ta opcja powoduje, że popychanie będzie ograniczone w całym regionie. Jeżeli ta opcja jest wybrana Rezydenci mogą być popchnięci tylko przez samych siebie lub przez właściciela posiadłości.
-(Popychanie odnosi sie do funkcji llPushObject() w LSL.)
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Dzielenie / Łączenie Posiadłości" name="HelpParcelChanges">
-		Ta opcja kontroluje czy posiadłości nie należące do właściciela tego majątku mogą być łączone / dzielone.
-Jeżeli opcja nie jest wybrana:
-* Tylko właściciele majątku i zarządcy mogą łączyć / dzielić posiadłości.
-* Tylko posiadłości należące do właściciela albo do grupy mogą być
-       łączone / dzielone przez członków z wystarczającymi prawami.
-Jeżeli ta opcja jest wybrana:
-* Wszyscy właściciele mogą łączyć / dzielić swoje posiadłości.
-* Posiadłości należące do grupy mogą być łączone / dzielone
-       przez członków z wystarczającymi prawami.
-
-Domyślnie: wybrana
-	</notification>
-	<notification label="Nie Pokazuj w Wyszukiwaniu" name="HelpRegionSearch">
-		Wybranie tej opcji uniemożliwi właścicielom posiadłość wyświetlanie ich posiadłości w wyszukiwaniu
-Domyślinie: nie wybrana
-	</notification>
 	<notification label="Zmienione Restrykcje Wieku dla Regionu" name="RegionMaturityChange">
 		Ustawienie restrykcji wieku dla regionu zostało zmienione.
 Zazwyczaj musi upłynąć nieco czasu zanim ta zmiana zostanie odzwierciedlona na mapie.
-	</notification>
-	<notification label="Odsprzedaż Posiadłości" name="HelpRegionLandResell">
-		Właściciele majątku i zarządcy mogą sprzedawać posiadłości należące do właściciela majątku.
-Jeżeli ta opcja nie jest wybrana kupujący nie będą mogli odsprzedać posiadłości w tym regionie.
-Jeżeli ta opcja jest wybrana kupujący będą mogli odsprzedać posiadłości w tym regionie.
 
-Domyślinie: nie pozwalaj
-	</notification>
-	<notification label="Wyłącz Skrypty" name="HelpRegionDisableScripts">
-		Słaba wydajność / prędkość symulatora może być spowodowana przez skrypt. Otwórz panel Statystyki (Ctrl+Shift+1). Sprawdź ilość klatek na sekundę (FPS) w Fizyce Symulatora. Jeżeli jest mniej niż 45 wybierz panel Czas znajdujący się na dole panelu Statystyki. Jeżeli Czas Skryptów wynosi 25 ms lub więcej kliknij na Główne Skrypty. Zobaczysz listę nazw i lokacji skryptów które mogą być odpowiedzialne za pogorszenie wydajności.
-
-Wybranie opcji Wyłącz Skrypty i naciśnięcie Zastosuj tymczasowo wyłączy wszystkie skrypty w tym regionie. Wybranie tej opcji może być niezbędne w celu umożliwienia podróży do lokacji wymienionego Głównego Skryptu.
-Po przebyciu na miejsce zobacz skrypt i sprawdź czy jest on źródłem problemu. W razie potrzeby skontaktuj się z właścicielem skryptu albo usuń lub zwróć obiekt.
-Wyłączenie opcji Wyłącz Skrypty i naciśnięcie Zastosuj ponownie włączy skrypty w tym regionie.
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Wyłącz Kolizje" name="HelpRegionDisableCollisions">
-		Słaba wydajność / prędkość symulatora może być spowodowana przez fizyczne obiekty. Otwórz panel Statystyki (Ctrl+Shift+1). Sprawdź ilość klatek na sekundę (FPS) w Fizyce Symulatora. Jeżeli jest mniej niż 45 wybierz panel Czas znajdujący się na dole panelu Statystyki. Jeżeli Czas Symulatora (Fizyka) wynosi 20 ms lub więcej kliknij na Główne Kolizje. Zobaczysz listę nazw i lokacji fizycznych obiektów które mogą być odpowiedzialne za pogorszenie wydajności.
-
-Wybranie opcji Wyłącz Kolizje i naciśnięcie Zastosuj tymczasowo wyłączy kolizje obiektów. Wybranie tej opcji może być niezbędne w celu umożliwienia podróży do lokacji wymienionych Główneych Kolizji.
-Po przebyciu na miejsce zobacz obiekt i sprawdź czy jest on źródłem kolizji z innymi obiektami. W razie potrzeby skontaktuj się z właścicielem obiektu albo usuń lub zwróć obiekt.
-Wyłączenie opcji Wyłącz Kolizje i naciśnięcie Zastosuj ponownie włączy kolizje w tym regionie.
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Wyłącz Fizykę" name="HelpRegionDisablePhysics">
-		Opcja Wyłącz Fizykę jest podobna do opcji Wyłącz Kolizje i spowoduje wyłączenie symulacji fizyki. Oznacza to, że nie tylko obiekty przestaną się zderzać, ale również awatary nie będą się mogły poruszać.
-
-Ta opcja powinna być używana wyłącznie w przypadku kiedy użycie opcji Wyłącz Kolizje nie zwiększa wystarczająco wydajności symulatora w celu sprawdzenia problemów związanych z fizyką i z kolizjami.
-
-Po zakończeniu badań musisz ponownie włączyć fizykę żeby awatary mogły się poruszać.
-
-Domyślnie: nie wybrana
-	</notification>
-	<notification label="Główne Kolizje" name="HelpRegionTopColliders">
-		Pokaż listę obiektów potencjalnie doświadczających największej ilości kolizji między obiektami. Te obiekty mogą być odpowiedzialne za zmniejszenie wydajności. Wybierz Widok &gt; Statystyki i zobacz Symulator &gt; Czas &gt; Czas Symulatora (Fizyka) i sprawdź czy więcej niż 20 ms jest spędzane w fizyce.
-	</notification>
-	<notification label="Główne Skrypty" name="HelpRegionTopScripts">
-		Pokaż listę obiektów spędzających najwęcej czasu wykonując skrypty LSL. Te obiekty mogą być odpowiedzialne za zmniejszenie wydajności. Wybierz Widok &gt; Statystyki i zobacz Symulator &gt; Czas &gt; Czas Skryptów i sprawdź czy więcej niż 25 ms jest spędzane w skryptach.
-	</notification>
-	<notification label="Restart Regionu" name="HelpRegionRestart">
-		Restart procesu na serwerze obsługującym ten region za dwie minuty. Wszyscy Rezydenci w tym regionie zostaną wylogowani. Region zapisze swoje dane i powinien wystartować w przeciągu 90 sekund.
-
-Restart regionu nie naprawi większości problemów związanych z wydajnością / prędkością i generalnie powinnien być używany na polecenie.
-	</notification>
-	<notification label="Poziom Wody" name="HelpRegionWaterHeight">
-		Jest to poziom w metrach gdzie pojawia się woda. Jeżeli jest wybrana inna wartość niż 20 i Twoja woda sąsiaduje z krawędzią świata lub pustym miejscem to będzie widoczny uskok.
-
-Domyślnie: 20
-	</notification>
-	<notification label="Wznoszenie Terenu" name="HelpRegionTerrainRaise">
-		Jest to dystans w metrach o który właściciele posiadłości mogą podnieść teren powyżej ustalonego poziomu odniesienia.
-
-Domyślnie: 4
-	</notification>
-	<notification label="Obniżanie Terenu" name="HelpRegionTerrainLower">
-		Jest to dystans w metrach o który właściciele posiadłości mogą obniżyć teren poniżej ustalonego poziomu odniesienia.
-
-Domyślnie: -4
-	</notification>
-	<notification label="Ładowanie RAW Terenu" name="HelpRegionUploadRaw">
-		Ten przycisk ładuje plik .RAW dla tego regionu.
-Plik musi mieć poprawne wymiary (RGB, 256x256) i 13 kanałów.
-Najprostszy sposób na stworzenie pliku terenu to zapisanie istniejącego pliku RAW. Zalecany pierwszy krok to modyfikacje kanału czerwieni (wysokość terenu) i ładowanie nowego pliku.
-
-Ładowanie pliku może zająć 45 sekund. Załadowanie terenu nie przemieści obiektów znajdujących się na tym terenie, tylko teren i prawa przypisane do posiadłości ulegną zmianie. Może to spowodować, że niektóre obiekty znikną pod ziemią.
-
-Aby uzyskać więcej informacji o edycji map wysokości sprawdź F1 Pomoc.
-	</notification>
-	<notification label="Zapisywanie RAW Terenu" name="HelpRegionDownloadRaw">
-		Ten przycisk zapisuje plik zawierający mapę wysokości, wymiary posiadłości, dane o posiadłościach na sprzedaż i niektóre prawa przypisane do posiadłości w tym regionie. Jeżeli otwierasz ten plik w programie takim jak Photoshop musisz zdefniować wymiary dokumentu jako: RGB, 256x256, 13 kanałów. Ten plik terenu nie może zostać otwarty w żaden inny sposób.
-
-Aby uzyskać więcej informacji o edycji map wysokości sprawdź F1 Pomoc.
-	</notification>
-	<notification label="Używaj Słońca Majątku" name="HelpRegionUseEstateSun">
-		Ta opcja ustala pozycję słońca w tym regionie żeby była taka sama jak pozycja słońca w reszcie majątku.
-
-Domyślnie: włączona
-	</notification>
-	<notification label="Stałe Słońce" name="HelpRegionFixedSun">
-		Ta opcja ustala pozycję słońca do pozycji w suwaku faz i unieruchamia słońce w wybranej pozycji.
-
-Domyślnie: nie włączona
-	</notification>
-	<notification label="Ustalanie Terenu" name="HelpRegionBakeTerrain">
-		Ten przycisk zapisuje obecne ukształtowanie terenu jako nowy punkt odniesienia dla regionu. Po ustaleniu punktu odniesienia teren może zostać odtworzony do zapisanego kształtu wybierając opcję Odtwórz w Edycji Terenu. Zapisany, ustalony teren jest również punktem odniesienia dla górnego i dolnego limitu zmian wysokości.
-	</notification>
-	<notification label="Zarządcy Majątku" name="HelpEstateEstateManager">
-		Zarządca majątku jest Rezydentem oddelegowanym przez Ciebie do kontroli ustawień regionu i majątku. Zarządca majątku może zmieniać wszystkie ustawienia dostępne na tym panelu, za wyjątkiem ładowania, zapisywania i ustalania terenu. W szczgólności może kontrolować dostęp innych Rezydentów (bany) do Twojego majątku.
-
-Zarządcy majątku mogą być dodawani i usuwani wyłącznie przez właściciela majątku. Wybieraj na zarządców tylko tych Rezydentów którym ufasz ponieważ ponosisz odpowiedzialność za ich działania.
-	</notification>
-	<notification label="Używaj Globalnego Czasu" name="HelpEstateUseGlobalTime">
-		Ta opcja ustala pozycję słońca w Twoim majątku żeby była taka sama jak pozycja słońca w regionach głównych należących do Lindenów.
-	</notification>
-	<notification label="Stałe Słońce" name="HelpEstateFixedSun">
-		Ta opcja ustala pozycję słońca do pozycji w suwaku faz i unieruchamia słońce w wybranej pozycji.
-	</notification>
-	<notification label="Dostęp Publiczny" name="HelpEstateExternallyVisible">
-		Ta opcja kontroluje czy Rezydenci znajdujący się w innych majątkach mogą przenosić się do tego majątku jeżeli nie są umieszczeni na liście dostępu.
-
-Domyślnie: włączona
-	</notification>
-	<notification label="Pozwalaj na Bezpośrednią Teleportację" name="HelpEstateAllowDirectTeleport">
-		Włączenie tej opcji pozwala Rezydentom na bezpośrednią teleportację do dowolnego miejsca a Twoim majątku. Jeżeli ta opcja nie jest wyłączona Rezydenci mogą się teleportować do najbliższego teleportera.
-
-Domyślnie: nie włączona
-	</notification>
-	<notification label="Dostęp do Majątku" name="HelpEstateAllowResident">
-		Dostęp do tego majątku będzie ograniczony do wymienionych Rezydentów i poniższych grup. Ta opcja jest dostępna tylko wtedy kiedy opcja Dostępu Publicznego jest wyłączona.
-	</notification>
-	<notification label="Dostęp Grup do Majątku" name="HelpEstateAllowGroup">
-		Dostęp do tego majątku będzie ograniczony do wymienionych grup i powyższych Rezydentów. Ta opcja jest dostępna tylko wtedy kiedy opcja Dostępu Publicznego jest wyłączona.
-	</notification>
-	<notification label="Email o Nadużyciach" name="HelpEstateAbuseEmailAddress">
-		Wpisanie ważnego email adresu spowoduje, że raporty o nadużyciach w obrębie tego majątku będą wysyłane na ten adres. Zostawienie pustego miejsca spowoduje, że raporty o nadużyciach będą wysyłane wyłącznie do Linden Lab.
-	</notification>
-	<notification label="Wstęp Wzbroniony (bany)" name="HelpEstateBanResident">
-		Rezydenci umieszczeni na tej liście nie mają dostępu do Twojego majątku, niezależnie od jakichkolwiek innych ustawień.
-	</notification>
-	<notification label="Pozwalaj na Rozmowy" name="HelpEstateVoiceChat">
-		Posiadłości w tym majątku mogą mieć własne kanały głosu pozwalające Rezydentom na rozmowy z osobami w pobliżu.
-
-Domyślnie: nie włączone
+Aby wejść do regionu Adult, Rezydenci muszą posiadać zweryfikowane konto, albo w wyniku weryfikacji wieku albo płatości.
 	</notification>
 	<notification label="Wersja Niezgodna z Systemem Rozmów" name="VoiceVersionMismatch">
 		Ta wersja [APP_NAME] nie jest kompatybilna z systemem Rozmów w tym regionie. Musisz zainstalować aktualną wersję [APP_NAME] żeby Rozmowy działały porawnie.
-	</notification>
-	<notification label="Umowa Majątku" name="HelpEstateCovenant">
-		Włączenie opcji umowy majątku jest wymagane w celu umożliwienia sprzedaży posiadłości w obrębie majątku.
-Jeżeli opcja umowy nie jest wybrana sprzedaż posiadłości nie jest dozwolona. Notka określająca Twoją umowę może być pusta jeżeli nie chcesz ustalić zasad specyficznych dla Twojego majątku i jeżeli nie chcesz uprzedzać nabywców o faktach odnoszących się do posiadłości przed zakupem.
-
-Umowa może być używana w celu określenia zasad, zaleceń, przekazywania informacji o kulturze lub, po prostu, Twoich własnych oczekiwań w odniesieniu do potencjalnego nabywacy.
-Możesz zdefiniować zasady podziału posidłości, prawa budowlane, zasady opłat i wszystkie dodatkowe informacje z którymi nowy właściciel powinien zapoznać się i zaakceptować przed zakupem.
-
-Nabywca musi wybrać opcję akceptacji umowy żeby trasakcja mogła zostać sfinalizowana. Umowa majątku jest zawsze dostępna w dialogu O Posiadłości dla każedej posiadłości ze zdefinowaną umową.
 	</notification>
 	<notification label="Nie Można Kupić Obiektów" name="BuyObjectOneOwner">
 		Jednorazowo możesz kupować tylko od jednego właściciela.
@@ -1948,32 +1614,14 @@ Przenieść obiekty szafy?
 		Przejść na stronę [SECOND_LIFE] żeby zobaczyć historię konta?
 		<usetemplate ignoretext="Ładując stronę historii konta." name="okcancelignore" notext="Anuluj" yestext="Idź na stronę"/>
 	</notification>
-	<notification name="ClickOpenF1Help">
-		Przejść na stronę [SECOND_LIFE]?
-		<usetemplate ignoretext="Odwiedzając stronę [SECOND_LIFE]." name="okcancelignore" notext="Anuluj" yestext="Idź"/>
-	</notification>
 	<notification name="ConfirmQuit">
 		Na pewno chcesz skończyć?
 		<usetemplate ignoretext="Wyłączając [APP_NAME]." name="okcancelignore" notext="Kontynuuj" yestext="Wyłącz"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Używaj tej opcji do zgłaszania nadużyć Warunków Umowy (Terms of Service) i Standardów Społeczeństwa (Community Standards). Zobacz:
+		Używaj tej opcji do zgłaszania nadużyć [http://secondlife.com/corporate/tos.php Warunków Umowy (Terms of Service)] i [http://secondlife.com/corporate/cs.php Standardów Społeczeństwa (Community Standards)].
 
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
-
-Wszystkie zgłoszone nadużycia Warunków Umowy (Terms of Service) i Standardów Społeczeństwa (Community Standards) są badane i rozwiązywane. Możesz zobaczyć konkluzję zgłoszenia w Raporcie Zgłoszeń pod:
-
-http://secondlife.com/support/incidentreport.php
-	</notification>
-	<notification name="HelpReportAbuseEmailEO">
-		UWAGA: Ten raport zostanie wysłany do właściciela regionu w którym się znajdujesz i nie będzie wysłany do Linden Lab.
-
-W ramach serwisu dla Rezydentów i gości właściciel tego regionu postanowił odbierać i rozwiązywać wszystkie reporty wysłane z tego regionu. Linden Lab nie będzie analizował żadnych reportów zgłoszonych z tego miejsca.
-
-Właściciel regionu będzie rozpatrywał raporty w oparciu o lokalne prawa tego regionu zdefiniowane w umowie majątku. (Możesz zobaczyć umowę wybierając opcję O Posiadłości z menu Świat.)
-
-Rozwiązanie tego raportu odnosi się wyłącznie do tego regionu; konkluzja tego raportu nie będzie miała wpływu na dostęp Rezydentów do innych regionów w [SECOND_LIFE]. Wyłącznie Linden Lab może całkowicie odebrać dostęp do [SECOND_LIFE].
+Wszystkie zgłoszone nadużycia są badane i rozwiązywane.
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Wybierz kategorię dla tego raportu o nadużyciu.
@@ -2063,27 +1711,6 @@ Zamieść go na stronie Internetowej żeby umożliwić innym łatwy dostęp do t
 			<ignore name="ignore" text="Kopiując SLurl do pamięci podręcznej"/>
 		</form>
 	</notification>
-	<notification name="GraphicsPreferencesHelp">
-		Ten panel kontroluje wymiary i rozdzielczość okna oraz jakość grafiki klienta. Panel Ustawienia &gt; Grafika pozwala na wybór jednego z czterech poziomów jakości grafiki: Niska, Średnia, Wysoka i Super. Możesz również dostosować grafikę do własnych potrzeb wybierając opcję Zaawansowane i zmieniając następujące ustawienia:
-
-Shadery: Opcja ta pozwala włączyć i wyłączyć różne rodzaje shaderów pikseli.
-
-Ustawienia Odbić: Określa rodzaje obiektów które mogą odbijać się w wodzie.
-
-Prezentacja Awatarów: Określa opcje mające wpływ na rysowanie awatarów przez klienta.
-
-Głębia Rysowania: Określa od jakiej odległości od pozycji kamery obiekty będą rysowane w tle.
-
-Liczba Cząsteczek: Określa maksymalną liczbę cząsteczek widocznych jednocześnie na ekranie.
-
-Jakość Post-Procesu: Określa rozdzielczość z jaką jest wyświetlana poświata.
-
-Szczegóły Meszu: Określa ilość szczegółów albo liczbę trójkątów używaną przy rysowaniu pewnych obiektów. Większa wartość zwalnia prędkość rysowania ale powoduje, że obiekty wyglądają bardziej szczgółowo.
-
-Ustawienia Światła: Określa jaki rodzaj światła jest używany do rysowania.
-
-Szczegóły Terenu: Określa ilość szczgółów widoczną w teksturach terenu.
-	</notification>
 	<notification name="WLSavePresetAlert">
 		Chcesz zmienić zapisane ustawienia?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
@@ -2101,152 +1728,6 @@ Szczegóły Terenu: Określa ilość szczgółów widoczną w teksturach terenu.
 	<notification name="PPSaveEffectAlert">
 		Efekt Post-Procesu już istnieje. Chcesz zapisać nowy na jego miejsce?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
-	</notification>
-	<notification name="HelpEditSky">
-		Ustaw suwaki żeby stworzyć i zapisać zbiór nieb.
-	</notification>
-	<notification name="HelpEditDayCycle">
-		Wybierz których nieb używać w przeciągu dnia.
-	</notification>
-	<notification name="EnvSettingsHelpButton">
-		Te ustawienia zmieniają wygląd środowiska na Twoim komputerze. Twoja karta graficzna musi posiadać opcję shaderów atmosfery aby umożliwić dostęp do wszystkich ustawień.
-
-Ustaw suwak &quot;Pora Dnia&quot; żeby zmienić lokalną porę dnia w kliencie.
-
-Ustaw suwak &quot;Chmury&quot; żeby zmienić ilość chmur widoczną na niebie.
-
-Wybierz kolor w selekcji &quot;Kolor Wody&quot; żeby zmienić kolor wody.
-
-Ustaw suwak &quot;Zamglenie&quot; żeby zmienić gęstość zamglenia pod wodą.
-
-Kliknij &quot;Używaj Czasu Regionu&quot; żeby dostosowywać porę dnia do pory dnia w regionie.
-
-Kliknij &quot;Zaawansowane Niebo&quot; żeby wybrać bardziej szczegółowy edytor ustawień nieba.
-
-Kliknij &quot;Zaawansowana Woda&quot; żeby wybrać bardziej szczegółowy edytor ustawień wody.
-	</notification>
-	<notification name="HelpDayCycle">
-		Edytor Cyklu Dnia pozwala na kontrolę nieba podczas cyklu dnia/nocy w [SECOND_LIFE]. Ten cykl jest używany przez suwak Pora Dnia w podstawowym Edytorze Środowiska.
-
-Edytor Cyklu Dnia ustala klatki odniesienia. Są to punkty (widoczne jako szare plamki na wykresie czasu) które mają przypisane Ustawienia Nieba. W miarę upływu czasu niebo jest animowane używając średnich pomiędzy klatkami odniesienia.
-
-Żółta strzałka powyżej linii czasu odpowiada biżącemu widokowi opartemu na Porze Dnia. Kliknij i przeciągnij strzałkę żeby zobaczyć animację w przeciągu dnia. Możesz dodawać i usuwać klatki odniesienia używająć przycisków Dodaj i Usuń po prawej stronie linii czasu.
-
-Długość Cyklu dyktuje całkowitą długość &quot;dnia&quot;. Wybranie małej wartości (na przykład 2 min) oznacza, że Twoja 24-o godzinna linia czasu będzie animowana w całości w przeciągu dwóch minut czasu rzeczywistego! Po wybraniu odpowiednich ustawień linii czasu i klatek odniesienia użyj przycisków Start i Stop żeby zobaczyć rezultaty. Pamiętaj - zawsze możesz używać żółtej strzałki wskażnika czasu powyżej linii czasu żeby zmieniać animację dynamicznie. Użycie przycisku Używaj Czasu Regionu zsynchronizuje Twoją długość dnia i czas z cyklem Regionu.
-
-Po zdefiniowaniu Cyklu Dnia możesz zapisać i załadować ustawienia używając przycisków Zapisz Test Dnia i Załaduj Test Dnia. Uwaga, obecnie tylko jeden Cykl Dnia jest dozwolony.
-	</notification>
-	<notification name="HelpBlueHorizon">
-		Ustaw suwaki Czerwony/Zielony/Niebieski (RGB) żeby zmienić kolor nieba. Możesz używać suwaka Intensywność (I) żeby zmieniać ustawienia suwaków wszystkich kolorów (RGB) jednocześnie.
-	</notification>
-	<notification name="HelpHazeHorizon">
-		Horyzont Zamglenia jest jednym z ważniejszych parametrów kontrolujących oświetlenie sceny. Jest efektywnym do symulacji wielu ustawień oświetlenia takich jak rozbyski słońca i ciemniejsze ustawienia zamkniętej przesłony.
-	</notification>
-	<notification name="HelpBlueDensity">
-		Gęstość Błękitu ma wpływ na nasycenie koloru nieba i mgły. Jeżeli przesuniesz suwak Intensywności (I) w prawo kolory będą jaśniejsze i żywsze. Jeżeli przesuniesz całkowicie w lewo kolory będą rozmywać się aż do przejścia w biel i czerń. Jeżeli chcesz precyzyjnie kontrolować balans koloru nieba możesz używać suwaków kolorów Czerwony/Zielony/Niebieski (RGB) w celu zmiany nasycenia indywidualnych składników.
-	</notification>
-	<notification name="HelpHazeDensity">
-		Gęstość Zamglenia kontroluje zawartość mętnego, szarego zamglenia w atmosferze. Jest to przydatne do symulacji scen z dużą ilością dymu i zanieczyszczeń.
-Oraz do symulacji mgły i zamgleń.
-	</notification>
-	<notification name="HelpDensityMult">
-		Mnożnik Gęstości wpływa na gęstość atmosfery w całości. Niskie ustawienie sprawia wrażenie lekkiego powietrza, wyższe ustawienia tworzą bardzo ciężki, zamglony efekt.
-	</notification>
-	<notification name="HelpDistanceMult">
-		Mnożnik Dystansu wpływa na postrzeganie dystansu. Wartość zero niweluje wpływ dystansu na wygląd terenu i obiektów.
-Wartości większe od 1 symulują większy dystans tworząc silniejszy efekt atmosferyczny.
-	</notification>
-	<notification name="HelpMaxAltitude">
-		Max Wysokość wpływa na obliczanie światła atmosferycznego.
-O póżniejszych porach dnia ta wartość jest przydatna do regulacji percepcji dystansu zachodącego słońca.
-	</notification>
-	<notification name="HelpSunlightColor">
-		Reguluje kolor i intensywność bezpośredniego światła w scenie.
-	</notification>
-	<notification name="HelpSunAmbient">
-		Reguluje kolor i intensywność rozproszonego światła atmosferycznego w scenie.
-	</notification>
-	<notification name="HelpSunGlow">
-		Suwak Rozmiar kontroluje wielkość słońca.
-Suwak Ostrość kontroluje ostrość słońca na niebie.
-	</notification>
-	<notification name="HelpSceneGamma">
-		Reguluje dystrybucję światła i cienia na ekranie.
-	</notification>
-	<notification name="HelpStarBrightness">
-		Reguluje blask gwiazd na niebie.
-	</notification>
-	<notification name="HelpTimeOfDay">
-		Kontroluje pozycję słońca na niebie.
-Zbliżone do wysokości.
-	</notification>
-	<notification name="HelpEastAngle">
-		Kontroluje pozycję słońca na niebie.
-Zbliżone do azymutu.
-	</notification>
-	<notification name="HelpCloudColor">
-		Kontroluje kolor chmur. Generalnie powinny być białawe, ale hej, pobaw się jeżeli masz ochotę.
-	</notification>
-	<notification name="HelpCloudDetail">
-		Kontroluje szczegółowy obraz nałożony na górę głównego obrazu chmur. X i Y kontrolują jego pozycję. G (Gęstość) kontroluje jak puchate lub postrzępione są chmury.
-	</notification>
-	<notification name="HelpCloudDensity">
-		Suwaki X i Y kontrolują pozycję chmur.
-Suwak G (Gęstość) kontroluje gęstość chmur.
-	</notification>
-	<notification name="HelpCloudCoverage">
-		Kontroluje ilość chmur pokrywających niebo.
-	</notification>
-	<notification name="HelpCloudScale">
-		Kontroluje skalę obrazu chmur na kopule nieba.
-	</notification>
-	<notification name="HelpCloudScrollX">
-		Kontroluje prędkość przemieszczania chmur wzdłuż osi X.
-	</notification>
-	<notification name="HelpCloudScrollY">
-		Kontroluje prędkość przemieszczania chmur wzdłuż osi Y.
-	</notification>
-	<notification name="HelpClassicClouds">
-		Wybierz tą opcję w celu używania dodatkowo starszej, klasycznej wersji chmur [SECOND_LIFE].
-	</notification>
-	<notification name="HelpWaterFogColor">
-		Kontroluje kolor podwodnej mgły.
-	</notification>
-	<notification name="HelpWaterFogDensity">
-		Kontroluje gęstość mgły i głębie wizji pod wodą.
-	</notification>
-	<notification name="HelpUnderWaterFogMod">
-		Modyfikuje wpływ wykładnika gęstości mgły na głębie wizji awatara pod wodą.
-	</notification>
-	<notification name="HelpWaterGlow">
-		Kontroluje emisję światła z powierzchni wody.
-	</notification>
-	<notification name="HelpWaterNormalScale">
-		Kontroluje skalę trzech zmarszczeń które tworzą wodę.
-	</notification>
-	<notification name="HelpWaterFresnelScale">
-		Kontroluje jak dużo światła jest odbijane pod różnymi kątami.
-	</notification>
-	<notification name="HelpWaterFresnelOffset">
-		Kontroluje jak dużo intensywności światła jest odbijane.
-	</notification>
-	<notification name="HelpWaterScaleAbove">
-		Kontroluje jak dużo światła odbija się od górnej powierzchni wody.
-	</notification>
-	<notification name="HelpWaterScaleBelow">
-		Kontroluje jak dużo światła odbija się od dolnej powierzchni wody.
-	</notification>
-	<notification name="HelpWaterBlurMultiplier">
-		Kontroluje jak fale i odbicia są mieszane.
-	</notification>
-	<notification name="HelpWaterNormalMap">
-		Kontroluje która mapa normalnych jest używana w wodzie do określania odbić/załamań.
-	</notification>
-	<notification name="HelpWaterWave1">
-		Kontroluje gdzie i jak szybko duża wersja mapy normalnych przemieszcza się wzdłuż osi X i Y.
-	</notification>
-	<notification name="HelpWaterWave2">
-		Kontroluje gdzie i jak szybko mała wersja mapy normalnych przemieszcza się wzdłuż osi X i Y.
 	</notification>
 	<notification name="NewSkyPreset">
 		Nazwij nowe niebo.
@@ -2375,7 +1856,6 @@ Czy chcesz odwiedzić stronę [SECOND_LIFE] żeby to zmienić?
 	</notification>
 	<notification name="UnableToLoadGesture">
 		Ładowanie gestu [NAME] nie powiodło się.
-Spróbuj jeszcze raz.
 	</notification>
 	<notification name="LandmarkMissing">
 		Miejsce (LM) nie znalezione w bazie danych.
@@ -2466,8 +1946,9 @@ Wybierz jeden obiekt.
 Kliknij dwa razy na miejsce (LM) i wybierz Teleportuj żeby tam się przenieść.
 	</notification>
 	<notification name="TeleportToPerson">
-		Jesteś w Głównym Regionie i możesz komunikować się z innymi Rezydentami jak &apos;[NAME]&apos; wybierając Moja Szafa w prawym dolnym rogu ekranu i wybierając folder Wizytówki.
-Kliknij dwa razy na wizytówce, wybierz Wyślij IM i napisz wiadomość.
+		Możesz skontaktować się z Rezydentem &apos;[NAME]&apos; poprzez otworzenie panelu Ludzie po prawej stronei ekranu.
+Wybierz Rezydenta z listy, następnie kliknij &apos;IM&apos; na dole panelu.
+(Możesz także kliknąć podwójnie na ich imię na liście, lub prawym przyciskiem i wybrać &apos;IM&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Nie możesz przekraczać granic serwera wybierając obszar.
@@ -2524,7 +2005,7 @@ Jeżeli chcesz odtwarzać media na tej posiadłości które używają QuickTime 
 		Obiekty należące do [FIRST] [LAST] na wybranej posiadłości zostały zwrócone do szafy tej osoby.
 	</notification>
 	<notification name="OtherObjectsReturned2">
-		Obiekty z wybranej posiadłości należącej do Rezydenta &apos;[NAME]&apos; zostały zwrócone do ich właściciela.
+		Obiekty z posiadłości należącej do Rezydenta&apos;[NAME]&apos; zostały zwrócone do właściciela.
 	</notification>
 	<notification name="GroupObjectsReturned">
 		Obiekty z wybranej posiadłości przypisane do grupy [GROUPNAME] zostały zwrócone do szafy ich właścicieli.
@@ -2533,6 +2014,10 @@ Nieprzekazywalne obiekty przekazane grupie zostały usunięte.
 	</notification>
 	<notification name="UnOwnedObjectsReturned">
 		Obiekty z wybranej posiadłości które nie należą do Ciebie zostały zwrócone do ich właścicieli.
+	</notification>
+	<notification name="ServerObjectMessage">
+		Wiadomość od [NAME]:
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
 	</notification>
 	<notification name="NotSafe">
 		Ta posiadłość pozwala na uszkodzenia.
@@ -2577,15 +2062,8 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 	<notification name="NoTeenGridAccess">
 		Twoje konto nie może zostać połączone z podanym regionem Teen Grid.
 	</notification>
-	<notification name="NoHelpIslandTP">
-		Brak możliwości ponownej teleportacji do Help Island.
-Odwiedź &apos;Help Island Public&apos; by powtórzyć szkolenie.
-	</notification>
 	<notification name="ImproperPaymentStatus">
 		Nie posiadasz odpowiedniego statusu płatniczego by uzyskać dostęp do regionu.
-	</notification>
-	<notification name="MustGetAgeRegion">
-		By odwiedzić ten region, Twoje konto musi zostać poddane weryfikacji wieku.
 	</notification>
 	<notification name="MustGetAgeParcel">
 		By móc przebywać na tej posiadłości wymagana jest weryfikacja Twojego wieku.
@@ -2649,7 +2127,8 @@ Spróbuj ponowanie za kilka minut.
 		Nieważana posiadłość.
 	</notification>
 	<notification name="ObjectGiveItem">
-		Obiekt [OBJECTFROMNAME] należący do [FIRST] [LAST] dał Ci [OBJECTTYPE] [OBJECTNAME].
+		Obiekt [OBJECTFROMNAME] należący do [NAME_SLURL] dał Ci [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Zachowaj"/>
 			<button name="Discard" text="Wyrzuć"/>
@@ -2657,7 +2136,8 @@ Spróbuj ponowanie za kilka minut.
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		Obiekt [OBJECTFROMNAME] należący do (właściciel nieznany) dał Ci [OBJECTTYPE] [OBJECTNAME].
+		Obiekt [OBJECTFROMNAME] należący (właściciel nieznany) dał Ci [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Zachowaj"/>
 			<button name="Discard" text="Wyrzuć"/>
@@ -2665,11 +2145,11 @@ Spróbuj ponowanie za kilka minut.
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME] dał Ci [OBJECTTYPE] &apos;[OBJECTNAME]&apos;.
+		[NAME_SLURL] dał Ci [OBJECTTYPE]:
+[ITEM_SLURL]
 		<form name="form">
-			<button name="Keep" text="Zachowaj"/>
 			<button name="Discard" text="Wyrzuć"/>
-			<button name="Mute" text="Wycisz"/>
+			<button name="Mute" text="Zablokuj"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
@@ -2692,6 +2172,9 @@ Spróbuj ponowanie za kilka minut.
 			<button name="Teleport" text="Teleportuj"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
+	</notification>
+	<notification name="TeleportOfferSent">
+		Oferta teleportacji wysłana do [TO_NAME]
 	</notification>
 	<notification name="GotoURL">
 		[MESSAGE]
@@ -2727,9 +2210,15 @@ Spróbuj ponowanie za kilka minut.
 	<notification name="FriendshipDeclined">
 		Twoja propozycja znajomości została odrzucona przez [NAME].
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Propozycja znajomości została zaakceptowana.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Propozycja znajomości została odrzucona.
+	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] daje Ci swoją wizytówkę.
-Wizytówka w Twojej Szafie może być używana do komunikowania się (IM) z tym Rezydentem.
+		[FIRST] [LAST] daje Tobie swoją wizytówkę.
+Wizytówka będzie znajdowała się w Szafie i umożliwi szybkie wysłanie IM do tego Rezydenta.
 		<form name="form">
 			<button name="Accept" text="Zaakceptuj"/>
 			<button name="Decline" text="Odmów"/>
@@ -2801,81 +2290,17 @@ Zgadzasz się?
 			<button name="Ignore" text="Zignoruj"/>
 		</form>
 	</notification>
-	<notification name="FirstBalanceIncrease">
-		Przekazano Ci [AMOUNT]L$.
-Obiekty i inni użytkownicy mogą Ci dawać L$.
-Twój balans jest wyświetlony w prawym górnym rogu ekranu.
-	</notification>
-	<notification name="FirstBalanceDecrease">
-		Pobrano od Ciebie [AMOUNT]L$.
-Twój balans jest wyświetlony w prawym górnym rogu ekranu.
-	</notification>
-	<notification name="FirstSit">
-		Siedzisz.
-Używaj strzałek (albo AWSD) żeby zmieniać widok.
-Naciśnij przycisk Wstań żeby sie podnieść.
-	</notification>
-	<notification name="FirstMap">
-		Kliknij i przeciągnij by przsuwać mapę.
-Kliknij dwa razy żeby się teleportować.
-Używaj narzędzi po prawej stronie żeby znajdować i wyświetlać różne obiekty.
-	</notification>
-	<notification name="FirstBuild">
-		Możesz budować nowe obiekty w niektórych miejscach.
-Używaj narzędzi w lewym górnym rogu żeby budować, przyciskaj Ctrl lub Alt żeby szybko zmieniać narzędzia.
-Naciśnij Esc żeby skończyć budować.
-	</notification>
-	<notification name="FirstLeftClickNoHit">
-		Lewy klik żeby używać specjalnych obiektów.
-Jeżeli strzałka zmieni się na rączkę możesz używać tego obiektu.
-Prawy klik zawsze pokazuje menu dostępnych operacji.
-	</notification>
-	<notification name="FirstTeleport">
-		Nastąpiła teleportacja.
-Jesteś przy Infohub najbliższej Twojego celu.
-Twój cel jest zaznaczony wysokim czerwonym wskaźnikiem.
-	</notification>
 	<notification name="FirstOverrideKeys">
 		Twoje sterujące klawisze zostały przejęte przez obiekt.
 Użyj strzałek lub AWSD żeby sprawdzić ich działanie.
 Niektóre obiekty (np broń) wymagają trybu panoramicznego.
 Nacisnij &apos;M&apos; żeby go wybrać.
 	</notification>
-	<notification name="FirstAppearance">
-		Edytujesz swój wygląd.
-Używaj strzałek do obracania i zbliżenia.
-Po skończeniu wybierz &apos;Zapisz Zmiany&apos;
-żeby zapisać Twój wygląd i wyjść.
-Możesz edytować wygląd jak często chcesz.
-	</notification>
-	<notification name="FirstInventory">
-		To jest Twoja Szafa, który zawiera obikty, notki, ubrania i inne Twoje rzeczy.
-* Żeby założyć obiekt lub strój (folder) przeciągnij go na siebie.
-* Żeby przenieść obiekt do świata przeciągnij go na grunt.
-* Żeby przeczytać notkę kliknij na niej dwa razy.
-	</notification>
 	<notification name="FirstSandbox">
 		Ten region to piaskownica.
 Obiekty które tu zbudujesz mogą zostać usunięte jak opuścisz ten obszar - piaskownice są regularnie czyszczone, sprawdź informacje na górze ekranu obok nazwy regionu.
 
 Piaskownice spotyka się rzadko i są zawsze oznakowane.
-	</notification>
-	<notification name="FirstFlexible">
-		To jest elastyczny obiekt.
-Obiekty elastyczne nie mogą być fizyczne i muszą być typu fantom.
-	</notification>
-	<notification name="FirstDebugMenus">
-		Zaawansowane menu zostało włączone.
-To menu zawiera funkcje użyteczne dla programistów analizujących [SECOND_LIFE].
-To menu jest aktywowane dzięki kombinacji klawiszy Ctrl+Alt+D (Windows) lub &#8997;&#8984;D (Mac).
-	</notification>
-	<notification name="FirstSculptedPrim">
-		Edytujesz sculpt.
-Skulpty wymagają specjalnych tekstur które definiują ich kształt.
-Przykłady tekstur znajdują się w bibliotece szafy.
-	</notification>
-	<notification name="FirstMedia">
-		Odtwarzasz media. Możesz wybrać automatyczne odtwarzanie w Ustawieniach pod Audio i Video. Odtwarzanie mediów w miejscach którym nie ufasz może być niebezpieczne.
 	</notification>
 	<notification name="MaxListSelectMessage">
 		Maksymalnie możesz wybrać [MAX_SELECT] rzeczy
@@ -2972,8 +2397,9 @@ Wybierz Wycisz żeby wyciszyć tą osobę.
 	<notification name="ServerVersionChanged">
 		Ten region używa innej wersji symulatora. Kliknij na tą wiadomość żeby uzyskać więcej informacji.
 	</notification>
-	<notification name="UnableToOpenCommandURL">
-		Wybrany link nie daje się otworzyć z tej przeglądarki.
+	<notification name="ConfirmCloseAll">
+		Czy chcesz zamknąć wszystkie wiadomości IM?
+		<usetemplate ignoretext="Potwierdź, przed zamknięciem wszystkich wiadomości prywatnych (IM)." name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Prędkość Twojego CPU nie spełnia minimalnych wymagań.
@@ -2994,11 +2420,5 @@ Jeżeli wciąż masz problemy sprawdź: http://www.secondlife.com/support
 	</global>
 	<global name="UnsupportedRAM">
 		- Pamięć Twojego systemu nie spełnia minimalnych wymagań.
-	</global>
-	<global name="PermYes">
-		Tak
-	</global>
-	<global name="PermNo">
-		Nie
 	</global>
 </notifications>

@@ -88,8 +88,8 @@
 			Ustawienia Światła:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Tylko Słońce i Księżyc" name="SunMoon"/>
-			<radio_item label="Tylko Bliskie Światła" name="LocalLights"/>
+			<radio_item label="Tylko Słońce i Księżyc" name="SunMoon" value="0"/>
+			<radio_item label="Tylko Bliskie Światła" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Szczgóły Terenu:

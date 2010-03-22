@@ -1671,7 +1671,10 @@
 		キャンセル
 	</string>
 	<string name="UploadingCosts">
-		%s のアップロード代金：
+		[NAME] のアップロード料金は L$[AMOUNT] です
+	</string>
+	<string name="BuyingCosts">
+		これを L$[AMOUNT] で購入します
 	</string>
 	<string name="UnknownFileExtension">
 		不明の拡張子： %s
@@ -3461,20 +3464,47 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="paid_you_ldollars">
 		[NAME] は L$[AMOUNT] 支払いました
 	</string>
+	<string name="you_paid_ldollars">
+		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		[NAME] に L$ [AMOUNT] を支払いました。
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		L$ [AMOUNT] を支払いました：[REASON]
+	</string>
+	<string name="for a parcel of land">
+		土地区画のため
+	</string>
+	<string name="for a land access pass">
+		土地の入場許可を得るため
+	</string>
+	<string name="for deeding land">
+		土地を譲渡するため
+	</string>
+	<string name="to create a group">
+		グループを作成するため
+	</string>
+	<string name="to join a group">
+		グループに参加するため
+	</string>
+	<string name="to upload">
+		アップロードするため
+	</string>
 	<string name="giving">
-		Giving
+		L$[AMOUNT] を渡します
 	</string>
 	<string name="uploading_costs">
-		アップロード代金
+		アップロード料金は L$[AMOUNT] です
 	</string>
 	<string name="this_costs">
-		This costs
+		料金は L$[AMOUNT] です
 	</string>
 	<string name="buying_selected_land">
-		選択した土地を購入
+		選択した土地を L$ [AMOUNT] で購入します
 	</string>
 	<string name="this_object_costs">
-		This object costs&quot;
+		このオブジェクトは L$[AMOUNT] です
 	</string>
 	<string name="group_role_everyone">
 		全員
@@ -3484,5 +3514,67 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="group_role_owners">
 		オーナー
+	</string>
+	<string name="uploading_abuse_report">
+		アップロード中...
+  
+嫌がらせの報告
+	</string>
+	<string name="New Shape">
+		新しいシェイプ
+	</string>
+	<string name="New Skin">
+		新しいスキン
+	</string>
+	<string name="New Hair">
+		新しい髪
+	</string>
+	<string name="New Eyes">
+		新しい目
+	</string>
+	<string name="New Shirt">
+		新しいシャツ
+	</string>
+	<string name="New Pants">
+		新しいパンツ
+	</string>
+	<string name="New Shoes">
+		新しい靴
+	</string>
+	<string name="New Socks">
+		新しい靴下
+	</string>
+	<string name="New Jacket">
+		新しいジャケット
+	</string>
+	<string name="New Gloves">
+		新しい手袋
+	</string>
+	<string name="New Undershirt">
+		新しい下着（上）
+	</string>
+	<string name="New Underpants">
+		新しい下着（下）
+	</string>
+	<string name="New Skirt">
+		新しいスカート
+	</string>
+	<string name="New Alpha">
+		新しいアルファ
+	</string>
+	<string name="New Tattoo">
+		新しいタトゥ
+	</string>
+	<string name="Invalid Wearable">
+		無効な着用物
+	</string>
+	<string name="New Script">
+		新規スクリプト
+	</string>
+	<string name="New Folder">
+		新規フォルダ
+	</string>
+	<string name="Contents">
+		コンテンツ
 	</string>
 </strings>
