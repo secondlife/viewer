@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Notes &amp; Privacy" name="panel_notes">
+	<layout_stack name="layout">
+		<layout_panel name="notes_buttons_panel">
+			<button label="Dodaj do znajomych" name="add_friend" tool_tip="Zaoferuj znajomość Rezydentowi"/>
+			<button label="Call" name="call" tool_tip="Zadzwoń do Rezydenta"/>
+			<button label="Map" name="show_on_map_btn" tool_tip="Pokaż Rezydenta na mapie"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

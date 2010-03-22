@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Publikowanie Reklam">
+	<text name="explanation_text">
+		Twoja reklama zostanie wyświetlana przez okres jednego tygodnia od daty jej publikacji.
+        
+Pamiętaj, opłaty za reklamy nie podlegają prawu zwrotu.
+	</text>
+	<spinner label="Cena za Reklamę:" name="price_for_listing" tool_tip="Cena za umieszczenie reklamy w wyszukiwarce." value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		Więcej info (link do pomocy)
+	</text>
+	<button label="Publikuj" name="publish_btn"/>
+	<button label="Anuluj" name="cancel_btn"/>
+</floater>
