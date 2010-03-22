@@ -33,7 +33,7 @@
     <check_box
      follows="top|right"
      height="16"
-     label="I Agree to the Terms of Service"
+     label="I Agree to the Terms of Service and Privacy Policy"
      layout="topleft"
      left_delta="0"
      name="agree_chk"
@@ -51,7 +51,7 @@
      top_delta="-399"
      word_wrap="true"
      width="552">
-        Please read the following Terms of Service carefully. To continue logging in to [SECOND_LIFE], you must accept the agreement.
+        Please read the following Terms of Service and Privacy Policy carefully. To continue logging in to [SECOND_LIFE], you must accept the agreement.
     </text>
     <web_browser
      follows="left|top"
