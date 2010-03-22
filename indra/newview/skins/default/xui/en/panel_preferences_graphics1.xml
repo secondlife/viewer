@@ -295,7 +295,7 @@
       name="Reflections"
       width="150">
         <combo_box.item
-        label="None"
+        label="Minimal"
         name="0"
         value="0"/>
         <combo_box.item
