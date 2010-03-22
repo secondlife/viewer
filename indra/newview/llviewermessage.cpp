@@ -5511,6 +5511,10 @@ void handle_lure(const LLUUID& invitee)
 // Prompt for a message to the invited user.
 void handle_lure(const std::vector<LLUUID>& ids)
 {
+	if (ids.empty()) return;
+
+	if (!gAgent.getRegion()) return;
+
 	LLSD edit_args;
 	edit_args["REGION"] = gAgent.getRegion()->getName();
 
