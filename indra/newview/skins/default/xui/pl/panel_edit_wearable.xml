@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ubranie/części ciała" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		Edycja kształtu
+	</string>
+	<string name="edit_skin_title">
+		Edycja Skórki
+	</string>
+	<string name="edit_hair_title">
+		Edycja Włosów
+	</string>
+	<string name="edit_eyes_title">
+		Edycja Oczu
+	</string>
+	<string name="edit_shirt_title">
+		Edycja Spódnicy
+	</string>
+	<string name="edit_pants_title">
+		Edycja Spodni
+	</string>
+	<string name="edit_shoes_title">
+		Edycja Butów
+	</string>
+	<string name="edit_socks_title">
+		Edycja Skarpetek
+	</string>
+	<string name="edit_jacket_title">
+		Edycja Kurtki
+	</string>
+	<string name="edit_skirt_title">
+		Edycja Spódnicy
+	</string>
+	<string name="edit_gloves_title">
+		Edycja Rękawiczek
+	</string>
+	<string name="edit_undershirt_title">
+		Edycja Podkoszulki
+	</string>
+	<string name="edit_underpants_title">
+		Edycja Bielizny
+	</string>
+	<string name="edit_alpha_title">
+		Edycja Maski Alpha
+	</string>
+	<string name="edit_tattoo_title">
+		Edycja Tatuażu
+	</string>
+	<string name="shape_desc_text">
+		Kształt:
+	</string>
+	<string name="skin_desc_text">
+		Skórka:
+	</string>
+	<string name="hair_desc_text">
+		Włosy:
+	</string>
+	<string name="eyes_desc_text">
+		Oczy:
+	</string>
+	<string name="shirt_desc_text">
+		Koszula:
+	</string>
+	<string name="pants_desc_text">
+		Spodnie:
+	</string>
+	<string name="shoes_desc_text">
+		Buty:
+	</string>
+	<string name="socks_desc_text">
+		Skarpetki:
+	</string>
+	<string name="jacket_desc_text">
+		Kurtka:
+	</string>
+	<string name="skirt_skirt_desc_text">
+		Spódnica:
+	</string>
+	<string name="gloves_desc_text">
+		Rękawiczki:
+	</string>
+	<string name="undershirt_desc_text">
+		Podkoszulek:
+	</string>
+	<string name="underpants_desc_text">
+		Bielizna:
+	</string>
+	<string name="alpha_desc_text">
+		Maska Alpha:
+	</string>
+	<string name="tattoo_desc_text">
+		Tatuaż:
+	</string>
+	<text name="edit_wearable_title" value="Edycja Kształtu"/>
+	<panel label="Koszula" name="wearable_type_panel">
+		<text name="description_text" value="Kształt:"/>
+	</panel>
+	<panel name="button_panel">
+		<button label="Zapisz" name="save_as_button"/>
+		<button label="Wróć" name="revert_button"/>
+	</panel>
+</panel>

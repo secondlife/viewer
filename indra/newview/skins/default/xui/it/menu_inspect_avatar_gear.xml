@@ -7,6 +7,7 @@
 	<menu_item_call label="Teleport" name="teleport"/>
 	<menu_item_call label="Invita nel gruppo" name="invite_to_group"/>
 	<menu_item_call label="Blocca" name="block"/>
+	<menu_item_call label="Sblocca" name="unblock"/>
 	<menu_item_call label="Denuncia" name="report"/>
 	<menu_item_call label="Congela" name="freeze"/>
 	<menu_item_call label="Espelli" name="eject"/>
@@ -14,4 +15,5 @@
 	<menu_item_call label="Trova sulla mappa" name="find_on_map"/>
 	<menu_item_call label="Avvicinati" name="zoom_in"/>
 	<menu_item_call label="Paga" name="pay"/>
+	<menu_item_call label="Condividi" name="share"/>
 </menu>
