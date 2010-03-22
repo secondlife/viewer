@@ -161,6 +161,14 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 	if (invitee.isNull())
 		return;
 
+	//waiting until Name Cache gets updated with corresponding avatar name
+	std::string just_to_request_name;
+	if (!gCacheName->getFullName(invitee, just_to_request_name))
+	{
+		gCacheName->get(invitee, FALSE, boost::bind((void (*)(const LLUUID&)) &LLAvatarActions::offerTeleport, invitee));
+		return;
+	}
+
 	LLDynamicArray<LLUUID> ids;
 	ids.push_back(invitee);
 	offerTeleport(ids);
