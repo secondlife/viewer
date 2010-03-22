@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Cose" name="Outfits">
 	<tab_container name="appearance_tabs">
-		<inventory_panel label="I MIEI ABITI" name="outfitslist_tab"/>
+		<inventory_panel label="I MIEI VESTITI" name="outfitslist_tab"/>
 		<inventory_panel label="INDOSSA" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
