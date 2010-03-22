@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="ピック編集" name="panel_edit_pick">
+	<panel.string name="location_notice">
+		（掲載後更新）
+	</panel.string>
 	<text name="title">
 		ピック編集
 	</text>
@@ -22,7 +25,7 @@
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="[WHAT] を保存" name="save_changes_btn"/>
+		<button label="ピックを保存" name="save_changes_btn"/>
 		<button label="キャンセル" name="cancel_btn"/>
 	</panel>
 </panel>

@@ -127,6 +127,11 @@ void LLIMFloater::onFocusReceived()
 	LLIMModel::getInstance()->setActiveSessionID(mSessionID);
 
 	LLBottomTray::getInstance()->getChicletPanel()->setChicletToggleState(mSessionID, true);
+
+	if (getVisible())
+	{
+		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
+	}
 }
 
 // virtual
@@ -453,7 +458,7 @@ void LLIMFloater::getAllowedRect(LLRect& rect)
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 {
 	// update notification channel state
-	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 	
@@ -472,7 +477,7 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 
 void LLIMFloater::setVisible(BOOL visible)
 {
-	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 	LLTransientDockableFloater::setVisible(visible);
@@ -608,7 +613,16 @@ void LLIMFloater::updateMessages()
 	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
 
 	std::list<LLSD> messages;
-	LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
+
+	// we shouldn't reset unread message counters if IM floater doesn't have focus
+	if (hasFocus())
+	{
+		LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
+	}
+	else
+	{
+		LLIMModel::instance().getMessagesSilently(mSessionID, messages, mLastMessageIndex+1);
+	}
 
 	if (messages.size())
 	{
@@ -641,6 +655,24 @@ void LLIMFloater::updateMessages()
 			if (msg.has("notification_id"))
 			{
 				chat.mNotifId = msg["notification_id"].asUUID();
+				// if notification exists - embed it
+				if (LLNotificationsUtil::find(chat.mNotifId) != NULL)
+				{
+					// remove embedded notification from channel
+					LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
+							(LLNotificationsUI::LLChannelManager::getInstance()->
+																findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+					if (getVisible())
+					{
+						// toast will be automatically closed since it is not storable toast
+						channel->hideToast(chat.mNotifId);
+					}
+				}
+				// if notification doesn't exist - try to use next message which should be log entry
+				else
+				{
+					continue;
+				}
 			}
 			//process text message
 			else
@@ -650,6 +682,19 @@ void LLIMFloater::updateMessages()
 			
 			mChatHistory->appendMessage(chat, chat_args);
 			mLastMessageIndex = msg["index"].asInteger();
+
+			// if it is a notification - next message is a notification history log, so skip it
+			if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
+			{
+				if (++iter == iter_end)
+				{
+					break;
+				}
+				else
+				{
+					mLastMessageIndex++;
+				}
+			}
 		}
 	}
 }

@@ -449,6 +449,9 @@ musique :
 			<panel.string name="access_estate_defined">
 				(défini par le domaine
 			</panel.string>
+			<panel.string name="allow_public_access">
+				Autoriser l&apos;accès public ([MATURITY])
+			</panel.string>
 			<panel.string name="estate_override">
 				Au moins une de ces options est définie au niveau du domaine.
 			</panel.string>

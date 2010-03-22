@@ -442,6 +442,9 @@
 			<panel.string name="access_estate_defined">
 				（エステートに限定）
 			</panel.string>
+			<panel.string name="allow_public_access">
+				パブリックアクセスを許可 （[MATURITY]）
+			</panel.string>
 			<panel.string name="estate_override">
 				1 つ以上のオプションが、不動産レベルで設定されています。
 			</panel.string>

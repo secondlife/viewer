@@ -1122,33 +1122,7 @@ BOOL LLWindowMacOSX::getMaximized()
 
 BOOL LLWindowMacOSX::maximize()
 {
-	if (mWindow)
-	{
-		// *HACK: Because Mac OSX doesn't have a concept of a "maximized" window, we just
-		// stretch it out to the visible screen size.
-		Rect win_rect;
-
-		int visible_x;
-		int visible_y;
-		int visible_width;
-		int visible_height;
-		int screen_width;
-		int screen_height;
-
-		getScreenSize(&screen_width, &screen_height);
-		getVisibleScreen(&visible_x, &visible_y, &visible_width, &visible_height);
-
-		int mac_os_menu_bar_height = screen_height - (visible_height + visible_y);
-		::SetRect(&win_rect,
-				  visible_x,
-				  mac_os_menu_bar_height,
-				  visible_width + visible_x,
-				  visible_height + mac_os_menu_bar_height);
-
-		::SetWindowBounds(mWindow, kWindowStructureRgn, &win_rect);
-
-		return TRUE;
-	}
+	// TODO
 	return FALSE;
 }
 
@@ -2807,6 +2781,9 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_TOOLPAUSE:		return "UI_CURSOR_TOOLPAUSE";
 		case UI_CURSOR_TOOLMEDIAOPEN:	return "UI_CURSOR_TOOLMEDIAOPEN";
 		case UI_CURSOR_PIPETTE:			return "UI_CURSOR_PIPETTE";		
+		case UI_CURSOR_TOOLSIT:			return "UI_CURSOR_TOOLSIT";
+		case UI_CURSOR_TOOLBUY:			return "UI_CURSOR_TOOLBUY";
+		case UI_CURSOR_TOOLOPEN:		return "UI_CURSOR_TOOLOPEN";
 	}
 
 	llerrs << "cursorIDToName: unknown cursor id" << id << llendl;
@@ -2909,6 +2886,9 @@ void LLWindowMacOSX::setCursor(ECursorType cursor)
 	case UI_CURSOR_TOOLPLAY:
 	case UI_CURSOR_TOOLPAUSE:
 	case UI_CURSOR_TOOLMEDIAOPEN:
+	case UI_CURSOR_TOOLSIT:
+	case UI_CURSOR_TOOLBUY:
+	case UI_CURSOR_TOOLOPEN:
 		result = setImageCursor(gCursors[cursor]);
 		break;
 
@@ -2950,6 +2930,9 @@ void LLWindowMacOSX::initCursors()
 	initPixmapCursor(UI_CURSOR_TOOLPLAY, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLPAUSE, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLMEDIAOPEN, 1, 1);
+	initPixmapCursor(UI_CURSOR_TOOLSIT, 20, 15);
+	initPixmapCursor(UI_CURSOR_TOOLBUY, 20, 15);
+	initPixmapCursor(UI_CURSOR_TOOLOPEN, 20, 15);
 
 	initPixmapCursor(UI_CURSOR_SIZENWSE, 10, 10);
 	initPixmapCursor(UI_CURSOR_SIZENESW, 10, 10);
@@ -3489,26 +3472,6 @@ MASK LLWindowMacOSX::modifiersToMask(SInt16 modifiers)
 	if(modifiers & optionKey) { mask |= MASK_ALT; }
 	return mask;
 }	
-
-// static
-S32 LLWindowMacOSX::getDisplayWidth()
-{
-	S32 width = 1024;
-	// Need to invoke cocoa before use getScreenSize()
-	setupCocoa();
-	getScreenSize(&width, NULL);
-	return width;
-}
-
-// static
-S32 LLWindowMacOSX::getDisplayHeight()
-{
-	S32 height = 768;
-	// Need to invoke cocoa before use getScreenSize()
-	setupCocoa();
-	getScreenSize(NULL, &height);
-	return height;
-}
 
 #if LL_OS_DRAGDROP_ENABLED
 

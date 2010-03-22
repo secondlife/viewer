@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Informazioni sul gruppo" name="GroupInfo">
+<panel label="Profilo del gruppo" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
-		Ci sono modifiche non salvate nella scheda attuale
+		Ci sono modifiche non salvate
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Vuoi salvare le modifiche?
@@ -12,25 +12,24 @@
 	<panel.string name="group_join_free">
 		Gratis
 	</panel.string>
-	<text name="group_name" value="(Caricamento in corso...)"/>
-	<line_editor label="Scrivi qui il nome del gruppo" name="group_name_editor"/>
-	<texture_picker label="" name="insignia" tool_tip="Clicca per scegliere una fotografia"/>
-	<text name="prepend_founded_by">
-		Fondatore:
-	</text>
-	<name_box initial_value="(recupero)" name="founder_name"/>
-	<text name="join_cost_text">
-		Gratis
-	</text>
-	<button label="ADERISCI ADESSO!" name="btn_join"/>
-	<accordion name="groups_accordion">
-		<accordion_tab name="group_general_tab" title="Generale"/>
-		<accordion_tab name="group_roles_tab" title="Ruoli"/>
-		<accordion_tab name="group_notices_tab" title="Avvisi"/>
-		<accordion_tab name="group_land_tab" title="Terra/Beni"/>
-	</accordion>
-	<panel name="button_row">
-		<button label="Crea" label_selected="Nuovo gruppo" name="btn_create"/>
-		<button label="Salva" label_selected="Salva" name="btn_apply"/>
+	<panel name="group_info_top">
+		<text name="group_name" value="(Caricamento in corso...)"/>
+		<line_editor label="Scrivi qui il nome del gruppo" name="group_name_editor"/>
 	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="Generale"/>
+				<accordion_tab name="group_roles_tab" title="Ruoli"/>
+				<accordion_tab name="group_notices_tab" title="Avvisi"/>
+				<accordion_tab name="group_land_tab" title="Terra/Beni"/>
+			</accordion>
+		</layout_panel>
+		<layout_panel name="button_row">
+			<button label="Chat" name="btn_chat"/>
+			<button label="Chiamata al gruppo" name="btn_call" tool_tip="Chiama questo gruppo"/>
+			<button label="Salva" label_selected="Salva" name="btn_apply"/>
+			<button label="Crea un gruppo" name="btn_create" tool_tip="Crea un nuovo gruppo"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

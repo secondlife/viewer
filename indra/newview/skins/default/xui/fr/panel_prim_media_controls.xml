@@ -31,7 +31,7 @@
 			<button name="stop_btn" tool_tip="Arrêter le chargement"/>
 		</layout_panel>
 		<layout_panel name="play">
-			<button name="play_btn" tool_tip="Jouer le média"/>
+			<button name="play_btn" tool_tip="Lire le média"/>
 		</layout_panel>
 		<layout_panel name="pause">
 			<button name="pause_btn" tool_tip="Pauser le média"/>

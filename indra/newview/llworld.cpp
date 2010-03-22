@@ -45,6 +45,7 @@
 #include "llhttpnode.h"
 #include "llregionhandle.h"
 #include "llsurface.h"
+#include "lltrans.h"
 #include "llviewercamera.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
@@ -259,7 +260,7 @@ void LLWorld::removeRegion(const LLHost &host)
 		llwarns << "gFrameTimeSeconds " << gFrameTimeSeconds << llendl;
 
 		llwarns << "Disabling region " << regionp->getName() << " that agent is in!" << llendl;
-		LLAppViewer::instance()->forceDisconnect("You have been disconnected from the region you were in.");
+		LLAppViewer::instance()->forceDisconnect(LLTrans::getString("YouHaveBeenDisconnected"));
 		return;
 	}
 

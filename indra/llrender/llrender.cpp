@@ -121,6 +121,8 @@ void LLTexUnit::refreshState(void)
 	// We set dirty to true so that the tex unit knows to ignore caching
 	// and we reset the cached tex unit state
 
+	gGL.flush();
+	
 	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 	if (mCurrTexType != TT_NONE)
 	{
@@ -150,6 +152,7 @@ void LLTexUnit::activate(void)
 
 	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
 	{
+		gGL.flush();
 		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
 		gGL.mCurrTextureUnitIndex = mIndex;
 	}
@@ -181,6 +184,7 @@ void LLTexUnit::disable(void)
 	{
 		activate();
 		unbind(mCurrTexType);
+		gGL.flush();
 		glDisable(sGLTextureType[mCurrTexType]);
 		mCurrTexType = TT_NONE;
 	}
@@ -386,6 +390,8 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 {
 	if (mIndex < 0 || mCurrTexture == 0) return;
 
+	gGL.flush();
+
 	activate();
 
 	glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
@@ -399,6 +405,8 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
 	if (mIndex < 0 || mCurrTexture == 0) return;
+
+	gGL.flush();
 
 	if (option == TFO_POINT)
 	{
@@ -567,6 +575,7 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 	if (mCurrBlendType != TB_COMBINE || gGL.mDirty)
 	{
 		mCurrBlendType = TB_COMBINE;
+		gGL.flush();
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 	}
 
@@ -576,6 +585,8 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 	{
 		return;
 	}
+
+	gGL.flush();
 
 	// Get the gl source enums according to the eTextureBlendSrc sources passed in
 	GLint source1 = getTextureSource(src1);
@@ -709,6 +720,7 @@ void LLTexUnit::setColorScale(S32 scale)
 	if (mCurrColorScale != scale || gGL.mDirty)
 	{
 		mCurrColorScale = scale;
+		gGL.flush();
 		glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE, scale );
 	}
 }
@@ -718,6 +730,7 @@ void LLTexUnit::setAlphaScale(S32 scale)
 	if (mCurrAlphaScale != scale || gGL.mDirty)
 	{
 		mCurrAlphaScale = scale;
+		gGL.flush();
 		glTexEnvi( GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale );
 	}
 }
@@ -853,7 +866,15 @@ void LLRender::scaleUI(F32 x, F32 y, F32 z)
 
 void LLRender::pushUIMatrix()
 {
-	mUIOffset.push_front(mUIOffset.front());
+	if (mUIOffset.empty())
+	{
+		mUIOffset.push_front(LLVector3(0,0,0));
+	}
+	else
+	{
+		mUIOffset.push_front(mUIOffset.front());
+	}
+	
 	if (mUIScale.empty())
 	{
 		mUIScale.push_front(LLVector3(1,1,1));
@@ -1104,6 +1125,33 @@ void LLRender::flush()
 		{
 			sUICalls++;
 			sUIVerts += mCount;
+		}
+		
+		if (gDebugGL)
+		{
+			if (mMode == LLRender::QUADS)
+			{
+				if (mCount%4 != 0)
+				{
+					llerrs << "Incomplete quad rendered." << llendl;
+				}
+			}
+			
+			if (mMode == LLRender::TRIANGLES)
+			{
+				if (mCount%3 != 0)
+				{
+					llerrs << "Incomplete triangle rendered." << llendl;
+				}
+			}
+			
+			if (mMode == LLRender::LINES)
+			{
+				if (mCount%2 != 0)
+				{
+					llerrs << "Incomplete line rendered." << llendl;
+				}
+			}
 		}
 
 		mBuffer->setBuffer(immediate_mask);

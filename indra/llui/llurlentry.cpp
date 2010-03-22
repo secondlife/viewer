@@ -314,7 +314,6 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
-	mTooltip = LLTrans::getString("TooltipAgentUrl");
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
@@ -325,6 +324,38 @@ void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
 {
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), first + " " + last);
+}
+
+std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
+{
+	// return a tooltip corresponding to the URL type instead of the generic one
+	std::string url = getUrl(string);
+
+	if (LLStringUtil::endsWith(url, "/mute"))
+	{
+		return LLTrans::getString("TooltipAgentMute");
+	}
+	if (LLStringUtil::endsWith(url, "/unmute"))
+	{
+		return LLTrans::getString("TooltipAgentUnmute");
+	}
+	if (LLStringUtil::endsWith(url, "/im"))
+	{
+		return LLTrans::getString("TooltipAgentIM");
+	}
+	if (LLStringUtil::endsWith(url, "/pay"))
+	{
+		return LLTrans::getString("TooltipAgentPay");
+	}
+	if (LLStringUtil::endsWith(url, "/offerteleport"))
+	{
+		return LLTrans::getString("TooltipAgentOfferTeleport");
+	}
+	if (LLStringUtil::endsWith(url, "/requestfriend"))
+	{
+		return LLTrans::getString("TooltipAgentRequestFriend");
+	}
+	return LLTrans::getString("TooltipAgentUrl");
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -350,6 +381,31 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else if (gCacheName->getFullName(agent_id, full_name))
 	{
+		// customize label string based on agent SLapp suffix
+		if (LLStringUtil::endsWith(url, "/mute"))
+		{
+			return LLTrans::getString("SLappAgentMute") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/unmute"))
+		{
+			return LLTrans::getString("SLappAgentUnmute") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/im"))
+		{
+			return LLTrans::getString("SLappAgentIM") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/pay"))
+		{
+			return LLTrans::getString("SLappAgentPay") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/offerteleport"))
+		{
+			return LLTrans::getString("SLappAgentOfferTeleport") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/requestfriend"))
+		{
+			return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
+		}
 		return full_name;
 	}
 	else

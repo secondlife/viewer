@@ -982,6 +982,119 @@ bool LLViewerMedia::isParcelAudioPlaying()
 	return (LLViewerMedia::hasParcelAudio() && gAudiop && LLAudioEngine::AUDIO_PLAYING == gAudiop->isInternetStreamPlaying());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::clearAllCookies()
+{
+	// Clear all cookies for all plugins
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if(pimpl->mMediaSource)
+		{
+			pimpl->mMediaSource->clear_cookies();
+		}
+	}
+	
+	// FIXME: this may not be sufficient, since the on-disk cookie file won't get written until some browser instance exits cleanly.
+	// It also won't clear cookies for other accounts, or for any account if we're not logged in, and won't do anything at all if there are no webkit plugins loaded.
+	// Until such time as we can centralize cookie storage, the following hack should cover these cases:
+	
+	// HACK: Look for cookie files in all possible places and delete them.
+	// NOTE: this assumes knowledge of what happens inside the webkit plugin (it's what adds 'browser_profile' to the path and names the cookie file)
+	
+	// Places that cookie files can be:
+	// <getOSUserAppDir>/browser_profile/cookies
+	// <getOSUserAppDir>/first_last/browser_profile/cookies  (note that there may be any number of these!)
+	
+	std::string base_dir = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter();
+	std::string target;
+	std::string filename;
+	
+	lldebugs << "base dir = " << base_dir << llendl;
+
+	// The non-logged-in version is easy
+	target = base_dir;
+	target += "browser_profile";
+	target += gDirUtilp->getDirDelimiter();
+	target += "cookies";
+	lldebugs << "target = " << target << llendl;
+	if(LLFile::isfile(target))
+	{
+		LLFile::remove(target);
+	}
+	
+	// the hard part: iterate over all user directories and delete the cookie file from each one
+	while(gDirUtilp->getNextFileInDir(base_dir, "*_*", filename, false))
+	{
+		target = base_dir;
+		target += filename;
+		target += gDirUtilp->getDirDelimiter();
+		target += "browser_profile";
+		target += gDirUtilp->getDirDelimiter();
+		target += "cookies";
+		lldebugs << "target = " << target << llendl;
+		if(LLFile::isfile(target))
+		{	
+			LLFile::remove(target);
+		}
+	}
+	
+	
+}
+	
+/////////////////////////////////////////////////////////////////////////////////////////
+// static 
+void LLViewerMedia::clearAllCaches()
+{
+	// Clear all plugins' caches
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		pimpl->clearCache();
+	}
+}
+	
+/////////////////////////////////////////////////////////////////////////////////////////
+// static 
+void LLViewerMedia::setCookiesEnabled(bool enabled)
+{
+	// Set the "cookies enabled" flag for all loaded plugins
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if(pimpl->mMediaSource)
+		{
+			pimpl->mMediaSource->enable_cookies(enabled);
+		}
+	}
+}
+	
+/////////////////////////////////////////////////////////////////////////////////////////
+// static 
+void LLViewerMedia::setProxyConfig(bool enable, const std::string &host, int port)
+{
+	// Set the proxy config for all loaded plugins
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if(pimpl->mMediaSource)
+		{
+			pimpl->mMediaSource->proxy_setup(enable, host, port);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static 
 bool LLViewerMedia::hasInWorldMedia()
 {
 	if (sInWorldMediaDisabled) return false;
@@ -1258,8 +1371,22 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			LLPluginClassMedia* media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			std::string language_code = LLUI::getLanguage();
-			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"), user_data_path, language_code))
+			media_source->setUserDataPath(user_data_path);
+			media_source->setLanguageCode(LLUI::getLanguage());
+
+			// collect 'cookies enabled' setting from prefs and send to embedded browser
+			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
+			media_source->enable_cookies( cookies_enabled );
+
+			// collect 'plugins enabled' setting from prefs and send to embedded browser
+			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
+			media_source->setPluginsEnabled( plugins_enabled );
+
+			// collect 'javascript enabled' setting from prefs and send to embedded browser
+			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
+			media_source->setJavascriptEnabled( javascript_enabled );
+
+			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
 			}
@@ -1319,6 +1446,8 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
 		media_source->setBackgroundColor(mBackgroundColor);
+		
+		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 		
 		if(mClearCache)
 		{

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits">
-	<accordion name="outfits_accordion">
-		<accordion_tab name="tab_cof" title="Vestiario attuale"/>
-		<accordion_tab name="tab_outfits" title="Mio Vestiario"/>
-	</accordion>
+<panel label="Cose" name="Outfits">
+	<tab_container name="appearance_tabs">
+		<inventory_panel label="I MIEI VESTITI" name="outfitslist_tab"/>
+		<inventory_panel label="INDOSSA" name="cof_tab"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Mostra opzioni addizionali"/>
+		<dnd_button name="trash_btn" tool_tip="Rimuovi l&apos;articolo selezionato"/>
+		<button label="Salva vestiario" name="make_outfit_btn" tool_tip="Salva questo aspetto fisico come un vestito"/>
+		<button label="Indossa" name="wear_btn" tool_tip="Indossa il vestiario selezionato"/>
+		<button label="M" name="look_edit_btn"/>
+	</panel>
 </panel>

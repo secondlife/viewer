@@ -4936,17 +4936,18 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	if (mSelectedObjects->getNumNodes())
 	{
 		LLUUID inspect_item_id= LLUUID::null;
-#if 0		
 		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
-		if(inspect_instance)
+		if(inspect_instance && inspect_instance->getVisible())
 		{
 			inspect_item_id = inspect_instance->getSelectedUUID();
 		}
-#endif
-		LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
-		if (panel_task_info)
+		else
 		{
-			inspect_item_id = panel_task_info->getSelectedUUID();
+			LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
+			if (panel_task_info)
+			{
+				inspect_item_id = panel_task_info->getSelectedUUID();
+			}
 		}
 
 		LLUUID focus_item_id = LLViewerMediaFocus::getInstance()->getFocusedObjectID();
@@ -5534,13 +5535,12 @@ void dialog_refresh_all()
 
 	LLFloaterProperties::dirtyAll();
 
-#if 0	
 	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 	if(inspect_instance)
 	{
 		inspect_instance->dirty();
 	}
-#endif
+
 	LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
 	if (panel_task_info)
 	{

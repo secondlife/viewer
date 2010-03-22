@@ -123,8 +123,6 @@ public:
 	// Provide native key event data
 	/*virtual*/ LLSD getNativeKeyData();
 
-	static S32 getDisplayWidth();
-	static S32 getDisplayHeight();
 
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,

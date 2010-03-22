@@ -23,7 +23,22 @@
 		ハードウェアの検出中です...
 	</string>
 	<string name="StartupLoading">
-		ローディング
+		[APP_NAME] をインストール中です...
+	</string>
+	<string name="StartupClearingCache">
+		キャッシュをクリア中です...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		テクスチャキャッシュを初期化中です...
+	</string>
+	<string name="StartupInitializingVFS">
+		VFS を初期化中です...
+	</string>
+	<string name="ProgressRestoring">
+		復元中です...
+	</string>
+	<string name="ProgressChangingResolution">
+		解像度を変更中です...
 	</string>
 	<string name="Fullbright">
 		明るさ全開（レガシー）
@@ -88,6 +103,9 @@
 	<string name="LoginFailedNoNetwork">
 		ネットワークエラー： 接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
+	<string name="LoginFailed">
+		ログインに失敗しました。
+	</string>
 	<string name="Quit">
 		終了
 	</string>
@@ -96,6 +114,24 @@
 	</string>
 	<string name="AgentLostConnection">
 		このリージョンに不都合が発生している可能性があります。  ご使用のインターネット接続をご確認ください。
+	</string>
+	<string name="SavingSettings">
+		設定を保存中です...
+	</string>
+	<string name="LoggingOut">
+		ログアウト中です...
+	</string>
+	<string name="ShuttingDown">
+		シャットダウン中です...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		あなたがいたリージョンへの接続が切れました。
+	</string>
+	<string name="SentToInvalidRegion">
+		無効なリージョンにテレポートされました。
+	</string>
+	<string name="TestingDisconnect">
+		ビューワの接続を切るテスト中
 	</string>
 	<string name="TooltipPerson">
 		人
@@ -151,6 +187,24 @@
 	<string name="TooltipAgentUrl">
 		クリックしてこの住人のプロフィールを見ます
 	</string>
+	<string name="TooltipAgentMute">
+		クリックしてこの住人に対して無視設定をします
+	</string>
+	<string name="TooltipAgentUnmute">
+		クリックしてこの住人に対する無視設定を解除します
+	</string>
+	<string name="TooltipAgentIM">
+		クリックしてこの住人に IM を送ります
+	</string>
+	<string name="TooltipAgentPay">
+		クリックしてこの住人に支払います
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		クリックしてこの住人にテレポートのリクエストを送ります
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		クリックしてこの住人にフレンド登録リクエストを送ります
+	</string>
 	<string name="TooltipGroupUrl">
 		クリックしてこのグループの説明文を見ます
 	</string>
@@ -176,11 +230,30 @@
 		クリックして secondlife:// コマンドを出します
 	</string>
 	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]"/>
+	<string name="TooltipPrice" value="L$[PRICE]-"/>
 	<string name="SLurlLabelTeleport">
 		テレポート
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		地図に表示
+	</string>
+	<string name="SLappAgentMute">
+		無視
+	</string>
+	<string name="SLappAgentUnmute">
+		ミュート解除
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		支払う
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		次の場所にテレポートを送ります：
+	</string>
+	<string name="SLappAgentRequestFriend">
+		フレンド登録リクエスト
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		閉じる （⌘W）
@@ -334,6 +407,9 @@
 	</string>
 	<string name="symbolic link">
 		リンク
+	</string>
+	<string name="symbolic folder link">
+		フォルダのリンク
 	</string>
 	<string name="AvatarEditingAppearance">
 		（容姿の編集中）
@@ -828,7 +904,7 @@
 		ESC キーを押してワールドビューに戻ります
 	</string>
 	<string name="InventoryNoMatchingItems">
-		一致するアイテムが持ち物にありませんでした。  [secondlife:///app/search/groups 「検索」] をお試しください。
+		一致するアイテムがありませんでした。[secondlife:///app/search/groups 「検索」]をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		ここにランドマークをドラッグして、お気に入りに追加します。
@@ -849,6 +925,7 @@
 		コンテンツなし
 	</string>
 	<string name="WornOnAttachmentPoint" value=" （[ATTACHMENT_POINT] に装着中）"/>
+	<string name="ActiveGesture" value="[GESLABEL] （アクティブ）"/>
 	<string name="PermYes">
 		はい
 	</string>
@@ -947,6 +1024,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		マイ アウトフィット
+	</string>
+	<string name="InvFolder Accessories">
+		アクセサリ
 	</string>
 	<string name="InvFolder Friends">
 		フレンド
@@ -1301,7 +1381,7 @@
 		許可された住人： （[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] グループ）
+		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] ）
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		区画スクリプトメモリ
@@ -1470,6 +1550,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		新規スクリプト
+	</string>
+	<string name="PanelContentsTooltip">
+		オブジェクトの中身
 	</string>
 	<string name="BusyModeResponseDefault">
 		メッセージを送った住人は、誰にも邪魔をされたくないため現在「取り込み中」モードです。  あなたのメッセージは、あとで確認できるように IM パネルに表示されます。
@@ -3374,5 +3457,32 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] は何か新しいことを言いました。
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] は L$[AMOUNT] 支払いました
+	</string>
+	<string name="giving">
+		Giving
+	</string>
+	<string name="uploading_costs">
+		アップロード代金
+	</string>
+	<string name="this_costs">
+		This costs
+	</string>
+	<string name="buying_selected_land">
+		選択した土地を購入
+	</string>
+	<string name="this_object_costs">
+		This object costs&quot;
+	</string>
+	<string name="group_role_everyone">
+		全員
+	</string>
+	<string name="group_role_officers">
+		オフィサー
+	</string>
+	<string name="group_role_owners">
+		オーナー
 	</string>
 </strings>

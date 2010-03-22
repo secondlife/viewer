@@ -13,11 +13,11 @@
 			<menu_item_call label="Tryb Oddalenia" name="Set Away"/>
 			<menu_item_call label="Tryb Pracy" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Zarządaj Statusu Administratora" name="Request Admin Options"/>
+		<menu_item_call label="Zażądaj Statusu Administratora" name="Request Admin Options"/>
 		<menu_item_call label="Wyłącz Status Administratora" name="Leave Admin Options"/>
 		<menu_item_call label="Wyłącz [APP_NAME]" name="Quit"/>
 	</menu>
-	<menu label="Kommunikacja" name="Communicate">
+	<menu label="Komunikacja" name="Communicate">
 		<menu_item_call label="Znajomi" name="My Friends"/>
 		<menu_item_call label="Grupy" name="My Groups"/>
 		<menu_item_check label="Czat Lokalny" name="Nearby Chat"/>
@@ -32,7 +32,7 @@
 		<menu_item_call label="Kup Posiadłość" name="Buy Land"/>
 		<menu_item_call label="Moje Posiadłości" name="My Land"/>
 		<menu label="Pokaż" name="Land">
-			<menu_item_check label="Linie Banu" name="Ban Lines"/>
+			<menu_item_check label="Linie Bana" name="Ban Lines"/>
 			<menu_item_check label="Emitery" name="beacons"/>
 			<menu_item_check label="Granice Posiadłości" name="Property Lines"/>
 			<menu_item_check label="Właściciele Posiadłości" name="Land Owners"/>
@@ -189,7 +189,7 @@
 			<menu_item_call label="Widok Panoramiczny" name="Mouselook"/>
 			<menu_item_check label="Wolna Kamera" name="Joystick Flycam"/>
 			<menu_item_call label="Reset Widoku" name="Reset View"/>
-			<menu_item_call label="Zobacz Ostatniego Rozmówce" name="Look at Last Chatter"/>
+			<menu_item_call label="Zobacz Ostatniego Rozmówcę" name="Look at Last Chatter"/>
 			<menu label="Wybierz Narzędzie Budowania" name="Select Tool">
 				<menu_item_call label="Narzędzie Ogniskowej" name="Focus"/>
 				<menu_item_call label="Narzędzie Ruchu" name="Move"/>
@@ -205,7 +205,7 @@
 		<menu_item_call label="Pokaż Ustawienia Debugowania" name="Debug Settings"/>
 		<menu_item_check label="Pokaż Menu Progresu" name="Debug Mode"/>
 	</menu>
-	<menu label="Postęp" name="Develop">
+	<menu label="Postęp..." name="Develop">
 		<menu label="Konsola" name="Consoles">
 			<menu_item_check label="Konsola Tekstur" name="Texture Console"/>
 			<menu_item_check label="Debugowanie Zdarzeń Konsoli" name="Debug Console"/>

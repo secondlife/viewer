@@ -399,7 +399,7 @@ bool LLWearableHoldingPattern::isFetchCompleted()
 
 bool LLWearableHoldingPattern::isTimedOut()
 {
-	static F32 max_wait_time = 20.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
+	static F32 max_wait_time = 60.0;  // give up if wearable fetches haven't completed in max_wait_time seconds.
 	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
 }
 

@@ -307,8 +307,7 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
-static const S32 FIRST_RUN_WINDOW_WIDTH = 1024;
-static const S32 FIRST_RUN_WINDOW_HIGHT = 768;
+
 //----------------------------------------------------------------------------
 
 // List of entries from strings.xml to always replace
@@ -2157,10 +2156,12 @@ bool LLAppViewer::initConfiguration()
 
 	// Display splash screen.  Must be after above check for previous
 	// crash as this dialog is always frontmost.
-	std::ostringstream splash_msg;
-	splash_msg << "Loading " << LLTrans::getString("SECOND_LIFE") << "...";
+	std::string splash_msg;
+	LLStringUtil::format_map_t args;
+	args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
+	splash_msg = LLTrans::getString("StartupLoading", args);
 	LLSplashScreen::show();
-	LLSplashScreen::update(splash_msg.str());
+	LLSplashScreen::update(splash_msg);
 
 	//LLVolumeMgr::initClass();
 	LLVolumeMgr* volume_manager = new LLVolumeMgr();
@@ -2320,35 +2321,12 @@ bool LLAppViewer::initWindow()
 	// store setting in a global for easy access and modification
 	gNoRender = gSavedSettings.getBOOL("DisableRendering");
 
-	S32 window_x = gSavedSettings.getS32("WindowX");
-	S32 window_y = gSavedSettings.getS32("WindowY");
-	S32 window_width = gSavedSettings.getS32("WindowWidth");
-	S32 window_height = gSavedSettings.getS32("WindowHeight");
-
-	bool show_maximized = gSavedSettings.getBOOL("WindowMaximized");
-
-	bool first_run = gSavedSettings.getBOOL("FirstLoginThisInstall");
-
-	if (first_run)//for first login 
-	{
-		window_width = FIRST_RUN_WINDOW_WIDTH;//yep hardcoded
-		window_height = FIRST_RUN_WINDOW_HIGHT;
-		
-		//if screen resolution is lower then 1024*768 then show maximized
-		LLDisplayInfo display_info;
-		if(display_info.getDisplayWidth() <= FIRST_RUN_WINDOW_WIDTH
-			|| display_info.getDisplayHeight()<=FIRST_RUN_WINDOW_HIGHT)
-		{
-			show_maximized = true;
-		}
-	}
-
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 	gViewerWindow = new LLViewerWindow(gWindowTitle, 
 		VIEWER_WINDOW_CLASSNAME,
-		window_x, window_y,
-		window_width, window_height,
+		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
+		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
@@ -2359,7 +2337,7 @@ bool LLAppViewer::initWindow()
 		gViewerWindow->toggleFullscreen(FALSE);
 	}
 	
-	if (show_maximized)
+	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
 		gViewerWindow->mWindow->maximize();
 		gViewerWindow->getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
@@ -3016,11 +2994,11 @@ bool LLAppViewer::initCache()
 	
 	if (mPurgeCache)
 	{
-		LLSplashScreen::update("Clearing cache...");
+		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 		purgeCache();
 	}
 
-	LLSplashScreen::update("Initializing Texture Cache...");
+	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
 	
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures
@@ -3033,7 +3011,7 @@ bool LLAppViewer::initCache()
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, read_only);
 	texture_cache_size -= extra;
 
-	LLSplashScreen::update("Initializing VFS...");
+	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 	
 	// Init the VFS
 	S64 vfs_size = cache_size - texture_cache_size;
@@ -3802,7 +3780,7 @@ void LLAppViewer::idleShutdown()
 		S32 finished_uploads = total_uploads - pending_uploads;
 		F32 percent = 100.f * finished_uploads / total_uploads;
 		gViewerWindow->setProgressPercent(percent);
-		gViewerWindow->setProgressString("Saving your settings...");
+		gViewerWindow->setProgressString(LLTrans::getString("SavingSettings"));
 		return;
 	}
 
@@ -3814,7 +3792,7 @@ void LLAppViewer::idleShutdown()
 		// Wait for a LogoutReply message
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressPercent(100.f);
-		gViewerWindow->setProgressString("Logging out...");
+		gViewerWindow->setProgressString(LLTrans::getString("LoggingOut"));
 		return;
 	}
 

@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Flyt kamera op og ned, til venstre og højre
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Kredsløb
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		Panorér
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Forvalg
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Se objekt
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Flyt kamera op og ned, til venstre og højre"/>
 		<panel name="zoom" tool_tip="Zoom kamera mod fokus">
@@ -25,7 +37,7 @@
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Rotér kamera"/>
 		<button label="" name="pan_btn" tool_tip="Panorér kamera"/>
-		<button label="" name="avatarview_btn" tool_tip="Se som avatar"/>
+		<button label="" name="avatarview_btn" tool_tip="Forvalg"/>
 		<button label="" name="freecamera_btn" tool_tip="Se objekt"/>
 	</panel>
 </floater>

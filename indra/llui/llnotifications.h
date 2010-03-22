@@ -296,6 +296,7 @@ public:
 		Optional<LLSD>							form_elements;
 		Optional<LLDate>						time_stamp;
 		Optional<LLNotificationContext*>		context;
+		Optional<void*>							responder;
 
 		struct Functor : public LLInitParam::Choice<Functor>
 		{
@@ -317,6 +318,7 @@ public:
 			form_elements("form_elements")
 		{
 			time_stamp = LLDate::now();
+			responder = NULL;
 		}
 
 		Params(const std::string& _name) 
@@ -329,6 +331,7 @@ public:
 			functor.name = _name;
 			name = _name;
 			time_stamp = LLDate::now();
+			responder = NULL;
 		}
 	};
 
@@ -341,9 +344,12 @@ private:
 	LLDate mExpiresAt;
 	bool mCancelled;
 	bool mRespondedTo; 	// once the notification has been responded to, this becomes true
+	LLSD mResponse;
 	bool mIgnored;
 	ENotificationPriority mPriority;
 	LLNotificationFormPtr mForm;
+	void* mResponderObj;
+	bool mIsReusable;
 	
 	// a reference to the template
 	LLNotificationTemplatePtr mTemplatep;
@@ -384,6 +390,8 @@ public:
 
 	void setResponseFunctor(std::string const &responseFunctorName);
 
+	void setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb);
+
 	typedef enum e_response_template_type
 	{
 		WITHOUT_DEFAULT_BUTTON,
@@ -423,6 +431,10 @@ public:
 
 	void respond(const LLSD& sd);
 
+	void* getResponder() { return mResponderObj; }
+
+	void setResponder(void* responder) { mResponderObj = responder; }
+
 	void setIgnored(bool ignore);
 
 	bool isCancelled() const
@@ -434,6 +446,8 @@ public:
 	{
 		return mRespondedTo;
 	}
+
+	const LLSD& getResponse() { return mResponse; }
 
 	bool isIgnored() const
 	{
@@ -504,6 +518,10 @@ public:
 	{
 		return mId;
 	}
+
+	bool isReusable() { return mIsReusable; }
+
+	void setReusable(bool reusable) { mIsReusable = reusable; }
 	
 	// comparing two notifications normally means comparing them by UUID (so we can look them
 	// up quickly this way)

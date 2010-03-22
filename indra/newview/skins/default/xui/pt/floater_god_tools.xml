@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="FERRAMENTAS DE DEUS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grade" name="grid">
-			<button label="Desconectar todos os usuários" label_selected="Desconectar todos os usuários" name="Kick all users"/>
+			<button label="Chutar todos" label_selected="Chutar todos" name="Kick all users"/>
 			<button label="Limpar os cachês de visibilidade do mapa da região." label_selected="Limpar os cachês de visibilidade do mapa da região." name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Região" name="region">

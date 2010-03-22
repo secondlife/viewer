@@ -22,4 +22,5 @@
 		[COUNT]y
 	</string>
 	<text name="avatar_name" value="Sconosciuto"/>
+	<button name="profile_btn" tool_tip="Vedi profilo"/>
 </panel>

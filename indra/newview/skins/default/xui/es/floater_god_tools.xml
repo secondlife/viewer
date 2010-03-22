@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="HERRAMIENTAS DE DIOS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Red" name="grid">
-			<button label="Expulsar a todos los usuarios" label_selected="Expulsar a todos los usuarios" name="Kick all users"/>
+			<button label="Expulsar a todos los Residentes" label_selected="Expulsar a todos los Residentes" name="Kick all users"/>
 			<button label="Vaciar los caches de visibilidad del mapa de la región" label_selected="Vaciar los caches de visibilidad del mapa de la región" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Región" name="region">
