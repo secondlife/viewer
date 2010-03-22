@@ -99,7 +99,7 @@
      image_pressed="Pause_Press"
      image_pressed_selected="Play_Press"
      is_toggle="true"
-     left_pad="15"
+     left_pad="20"
      top="1"
      name="media_toggle_btn"
      tool_tip="Start/Stop All Media (Music, Video, Web pages)"
@@ -112,12 +112,12 @@
      image_pressed="Audio_Press"
      image_unselected="Audio_Off"
      is_toggle="true"
-     left_pad="5"
+     left_pad="10"
      top="2"
      name="volume_btn"
      tool_tip="Global Volume Control"
      width="16" />
-    <text
+  <!--  <text
      follows="right|top"
      halign="center"
      height="12"
@@ -125,5 +125,5 @@
      left_delta="0"
      name="stat_btn"
      top_delta="0"
-     width="20"/>
+     width="20"/>-->
 </panel>
