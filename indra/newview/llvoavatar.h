@@ -215,6 +215,7 @@ public:
 	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
 	LLColor4		getNameTagColor(bool is_friend);
 	void			clearNameTag();
+	static void		invalidateNameTag(const LLUUID& agent_id);
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderCost();
 	void 			idleUpdateTractorBeam();

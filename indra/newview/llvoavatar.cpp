@@ -3004,6 +3004,18 @@ void LLVOAvatar::clearNameTag()
 	}
 }
 
+//static
+void LLVOAvatar::invalidateNameTag(const LLUUID& agent_id)
+{
+	LLViewerObject* obj = gObjectList.findObject(agent_id);
+	if (!obj) return;
+
+	LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(obj);
+	if (!avatar) return;
+
+	avatar->clearNameTag();
+}
+
 // Compute name tag position during idle update
 LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 {

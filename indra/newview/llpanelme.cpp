@@ -41,6 +41,7 @@
 #include "llagentwearables.h"
 #include "llsidetray.h"
 #include "llviewercontrol.h"
+#include "llviewerdisplayname.h"
 
 // Linden libraries
 #include "llavatarnamecache.h"		// IDEVO
@@ -332,7 +333,7 @@ void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD&
 		if (agent_id.isNull()) return;
 
 		std::string display_name = response["display_name"].asString();
-		LLAvatarNameCache::setDisplayName(agent_id, display_name,
+		LLViewerDisplayName::set(display_name,
 			boost::bind(&LLPanelMyProfileEdit::onCacheSetName, this,
 				_1, _2, _3));
 	}

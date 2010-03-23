@@ -1,7 +1,6 @@
 /** 
- * @file llavatarnamecache.h
- * @brief Provides lookup of avatar SLIDs ("bobsmith123") and display names
- * ("James Cook") from avatar UUIDs.
+ * @file llviewerdisplayname.h
+ * @brief Wrapper for display name functionality
  *
  * $LicenseInfo:firstyear=2010&license=viewergpl$
  * 
@@ -30,60 +29,25 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
-#ifndef LLAVATARNAMECACHE_H
-#define LLAVATARNAMECACHE_H
-
-#include "llavatarname.h"	// for convenience
+#ifndef LLVIEWERDISPLAYNAME_H
+#define LLVIEWERDISPLAYNAME_H
 
 #include <boost/signals2.hpp>
 
 class LLSD;
 class LLUUID;
 
-namespace LLAvatarNameCache
+namespace LLViewerDisplayName
 {
-	void initClass();
-	void cleanupClass();
-
-	void importFile(std::istream& istr);
-	void exportFile(std::ostream& ostr);
-
-	// Periodically makes a batch request for display names not already in
-	// cache.  Call once per frame.
-	void idle();
-
-	// If name is in cache, returns true and fills in provided LLAvatarName
-	// otherwise returns false
-	bool get(const LLUUID& agent_id, LLAvatarName *av_name);
-
-	// Callback types for get() below
-	typedef boost::signals2::signal<
-		void (const LLUUID& agent_id, const LLAvatarName& av_name)>
-			callback_signal_t;
-	typedef callback_signal_t::slot_type callback_slot_t;
-
-	// Fetches name information and calls callback.
-	// If name information is in cache, callback will be called immediately.
-	void get(const LLUUID& agent_id, callback_slot_t slot);
-
-	// JAMESDEBUG TODO: remove code to set display name, handle in 
-	// application layer because it's different for client and server
-
-	// Callback types for setDisplayName() below
 	typedef boost::signals2::signal<
 		void (bool success, const std::string& reason, const LLSD& content)>
 			set_name_signal_t;
 	typedef set_name_signal_t::slot_type set_name_slot_t;
 
 	// Sends an update to the server to change a display name
-	// and calls back the application layer when done
-	void setDisplayName(const LLUUID& agent_id, const std::string& display_name,
-			const set_name_slot_t& slot);
-
-	// HACK: turn display names on and off
-	void toggleDisplayNames();
-	bool useDisplayNames();
-	void erase(const LLUUID& agent_id);
+	// and call back when done.  May not succeed due to service
+	// unavailable or name not available.
+	void set(const std::string& display_name, const set_name_slot_t& slot);
 }
 
-#endif
+#endif // LLVIEWERDISPLAYNAME_H
