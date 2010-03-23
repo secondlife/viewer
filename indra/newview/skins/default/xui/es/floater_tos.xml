@@ -4,7 +4,7 @@
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 	<check_box label="Acepto las Condiciones del servicio y la Política de privacidad" name="agree_chk"/>
 	<text name="tos_heading">
-		Por favor, lee detenidamente las siguientes Condiciones del Servicio y Política de privacidad. Debes aceptar el acuerdo para poder iniciar sesión en [SECOND_LIFE].
+		Por favor, lee detenidamente las siguientes Condiciones del servicio y Política de privacidad. Debes aceptar el acuerdo para poder iniciar sesión en [SECOND_LIFE].
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT
