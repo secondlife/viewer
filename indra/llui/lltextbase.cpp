@@ -363,7 +363,10 @@ void LLTextBase::drawSelectionBackground()
 						selection_rect.mLeft += segment_width;
 					}
 
-					// if selection spans end of current segment...
+					// if selection_right == segment_line_end then that means we are the first character of the next segment
+					// or first character of the next line, in either case we want to add the length of the current segment
+					// to the selection rectangle and continue.
+					// if selection right > segment_line_end then selection spans end of current segment...
 					if (selection_right >= segment_line_end)
 					{
 						// extend selection slightly beyond end of line
@@ -1852,7 +1855,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		}
 		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)	
 		{
-			// segment wraps to next line, so just set doc pos to start of next line
+			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
 			pos = llmin(getLength(), line_iter->mDocIndexEnd);
 			break;
 		}
