@@ -946,7 +946,8 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
-		if (root_folder_view->getSelectedCount() > 1)
+		if (root_folder_view &&
+		    root_folder_view->getSelectedCount() > 1)
 		{
 			return false;
 		}
