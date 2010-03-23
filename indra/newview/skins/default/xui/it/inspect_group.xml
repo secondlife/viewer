@@ -5,18 +5,18 @@
 -->
 <floater name="inspect_group">
 	<string name="PrivateGroup">
-		Gruppo Privato
+		Gruppo privato
 	</string>
 	<string name="FreeToJoin">
 		Adesione libera
 	</string>
 	<string name="CostToJoin">
-		L$[AMOUNT] per aderire
+		L$ [AMOUNT] per aderire
 	</string>
 	<string name="YouAreMember">
-		Tu sei un Membro
+		Tu sei un iscritto
 	</string>
-	<button label="Aderire" name="join_btn"/>
-	<button label="Abbandona" name="leave_btn"/>
-	<button label="Vedi Profilo" name="view_profile_btn"/>
+	<button label="Iscriviti" name="join_btn"/>
+	<button label="Chiudi" name="leave_btn"/>
+	<button label="Vedi profilo" name="view_profile_btn"/>
 </floater>

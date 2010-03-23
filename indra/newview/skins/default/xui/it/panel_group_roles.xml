@@ -17,7 +17,7 @@ cliccando sui loro nomi.
 			<name_list bottom_delta="-105" height="104" name="member_list">
 				<name_list.columns label="Socio" name="name"/>
 				<name_list.columns label="Donazioni" name="donated"/>
-				<name_list.columns label="Online" name="online"/>
+				<name_list.columns label="Stato" name="online"/>
 			</name_list>
 			<button label="Invita" name="member_invite" width="165"/>
 			<button label="Espelli" name="member_eject"/>
@@ -30,7 +30,7 @@ uno o più ruoli. Un gruppo può avere fino a 10 ruoli,
 fra cui il ruolo base o &quot;Tutti&quot; e il ruolo del Proprietario, ovvero il capogruppo.
 			</panel.string>
 			<panel.string name="cant_delete_role">
-				I Ruoli &apos;Everyone&apos; e &apos;Owners&apos; sono speciali e non possono essere cancellati.
+				I ruoli &apos;Tutti&apos; e &apos;Proprietari&apos; sono speciali e non possono essere eliminati.
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -55,7 +55,7 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Ruoli assegnati
+			Membri assegnati
 		</text>
 		<text name="static2">
 			Abilità permesse
@@ -64,13 +64,13 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			Nome del Ruolo
+			Nome del ruolo
 		</text>
 		<line_editor name="role_name">
 			Addetti
 		</line_editor>
 		<text name="static3">
-			Titolo del Ruolo
+			Titolo del ruolo
 		</text>
 		<line_editor name="role_title">
 			(attendi)
@@ -84,7 +84,7 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 		<text name="static4">
 			Ruoli assegnati
 		</text>
-		<check_box label="Visualizza membri" name="role_visible_in_list" tool_tip="Imposta nella scheda Generale per i membri di questo ruolo la visibilità da parte dei residenti esterni al gruppo."/>
+		<check_box label="Visualizza membri" name="role_visible_in_list" tool_tip="Imposta nella scheda Generale se i membri con questo ruolo possono essere visti dai residenti esterni a questo gruppo."/>
 		<text name="static5" tool_tip="Una lista delle abilità che il ruolo ora selezionato può eseguire.">
 			Abilità permesse
 		</text>
