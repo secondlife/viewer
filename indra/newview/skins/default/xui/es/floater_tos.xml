@@ -2,9 +2,9 @@
 <floater name="modal container" title=" ">
 	<button label="Continuar" label_selected="Continuar" name="Continue"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<check_box label="Estoy de acuerdo con las Condiciones del Servicio" name="agree_chk"/>
+	<check_box label="Acepto las Condiciones del servicio y la Política de privacidad" name="agree_chk"/>
 	<text name="tos_heading">
-		Por favor, lee detenidamente las siguientes Condiciones del Servicio. Para conectarte a [SECOND_LIFE], debes aceptar este acuerdo.
+		Por favor, lee detenidamente las siguientes Condiciones del Servicio y Política de privacidad. Debes aceptar el acuerdo para poder iniciar sesión en [SECOND_LIFE].
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

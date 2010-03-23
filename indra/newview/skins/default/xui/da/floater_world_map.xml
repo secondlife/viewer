@@ -5,12 +5,19 @@
 			Forklaring
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Centrer kortet på din avatars lokation"/>
 		<text name="me_label">
 			Mig
 		</text>
 		<text name="person_label">
 			Person
+		</text>
+		<text name="infohub_label">
+			Infohub
+		</text>
+		<text name="land_sale_label">
+			Land til salg
 		</text>
 		<text name="by_owner_label">
 			efter ejer
@@ -18,17 +25,46 @@
 		<text name="auction_label">
 			land auktion
 		</text>
+		<button name="Go Home" tool_tip="Teleportér til min hjemmelokation"/>
+		<text name="Home_label">
+			Hjem
+		</text>
+		<text name="events_label">
+			Events:
+		</text>
 		<text name="pg_label">
 			Generelt
 		</text>
+		<check_box initial_value="sandt" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderat
 		</text>
 		<text name="adult_label">
-			Voksen
+			Voksent
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_3">
+		<text name="find_on_map_label">
+			Find på kort
+		</text>
+	</panel>
+	<panel name="layout_panel_4">
+		<combo_box label="Venner online" name="friend combo" tool_tip="Vis venner på kortet">
+			<combo_box.item label="Mine venner som er online" name="item1"/>
+		</combo_box>
+		<combo_box label="Mine landemærker" name="landmark combo" tool_tip="Landemærke der skal vises på kort">
+			<combo_box.item label="Mine landemærker" name="item1"/>
+		</combo_box>
+		<search_editor label="Regioner efter navn" name="location" tool_tip="Indtast navn på en region"/>
+		<button label="Find" name="DoSearch" tool_tip="Led efter region"/>
 		<button name="Clear" tool_tip="Fjern søgelinier og nulstil kort"/>
+		<button label="Teleport" name="Teleport" tool_tip="Teleportér til valgte sted"/>
+		<button label="Kopiér SLurl" name="copy_slurl" tool_tip="Kopierer nuværende lokation som SLurl der kan sendes på web."/>
+		<button label="Vis valgte" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>
+	</panel>
+	<panel name="layout_panel_5">
+		<text name="zoom_label">
+			Zoom
+		</text>
 	</panel>
 </floater>

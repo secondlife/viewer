@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Membri &amp; Ruoli" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		Ci sono modifiche non salvate nella scheda attuale
+		Ci sono modifiche non salvate
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Vuoi salvare le modifiche?
@@ -55,7 +55,7 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			Membri assegnati
+			Ruoli assegnati
 		</text>
 		<text name="static2">
 			Abilità permesse

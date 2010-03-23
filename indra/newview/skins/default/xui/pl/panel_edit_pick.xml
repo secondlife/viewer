@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Edytuj Ulubione" name="panel_edit_pick">
+	<text name="title">
+		Edytuj Ulubione
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+			<text name="Name:">
+				Tytuł:
+			</text>
+			<text name="description_label">
+				Opis:
+			</text>
+			<text name="location_label">
+				Lokalizacja:
+			</text>
+			<text name="pick_location">
+				ładowanie...
+			</text>
+			<button label="Ustaw na Bieżąca Lokalizacje" name="set_to_curr_location_btn"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<button label="Zapisz [WHAT]" name="save_changes_btn"/>
+		<button label="Anuluj" name="cancel_btn"/>
+	</panel>
+</panel>

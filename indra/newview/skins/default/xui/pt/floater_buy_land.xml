@@ -40,7 +40,8 @@
 		A área selecionada não tem terras públicas.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Está selecionada uma terra pertencente a outro usuário. Tente selecionar uma área menor.
+		Terrenos de outros residentes foram selecionados. 
+Tente selecionar uma área menor.
 	</floater.string>
 	<floater.string name="processing">
 		Processando sua compra...

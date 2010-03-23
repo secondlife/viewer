@@ -10,7 +10,7 @@
 			MyOutfit With a really Long Name like MOOSE
 		</text>
 	</panel>
-	<filter_editor label="アウトフィットのフィルター" name="Filter"/>
+	<filter_editor label="アウトフィットをフィルター" name="Filter"/>
 	<button label="装着" name="wear_btn"/>
 	<button label="新しいアウトフィット" name="newlook_btn"/>
 </panel>

@@ -32,7 +32,7 @@
 		<menu label="Stwórz" name="Create">
 			<menu_item_call label="Nowy Folder" name="New Folder"/>
 			<menu_item_call label="Nowy Skrypt" name="New Script"/>
-			<menu_item_call label="Nową Notę" name="New Note"/>
+			<menu_item_call label="Nowa Nota" name="New Note"/>
 			<menu_item_call label="Nową Gesturkę" name="New Gesture"/>
 			<menu label="Nowe Ubranie" name="New Clothes">
 				<menu_item_call label="Nową Koszulkę" name="New Shirt"/>

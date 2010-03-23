@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits">
-	<accordion name="outfits_accordion">
-		<accordion_tab name="tab_cof" title="Aktualne Ubranie"/>
-		<accordion_tab name="tab_outfits" title="Moje Ubrania"/>
-	</accordion>
+<panel label="Rzeczy" name="Outfits">
+	<tab_container name="appearance_tabs">
+		<inventory_panel label="MOJE UBRANIA" name="outfitslist_tab"/>
+		<inventory_panel label="ZAŁOŻONE" name="cof_tab"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Pokaż opcje dodatkowe"/>
+		<dnd_button name="trash_btn" tool_tip="Usuń zaznaczony obiekt"/>
+		<button label="Zapisz Ubranie" name="make_outfit_btn" tool_tip="Zapisz wygląd jako ubranie"/>
+		<button label="Ubierz" name="wear_btn" tool_tip="Ubierz wybrany obiekt"/>
+		<button label="M" name="look_edit_btn"/>
+	</panel>
 </panel>

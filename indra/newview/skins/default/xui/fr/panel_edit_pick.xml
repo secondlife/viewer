@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Modifier la préférence" name="panel_edit_pick">
+	<panel.string name="location_notice">
+		(mise à jour après enregistrement)
+	</panel.string>
 	<text name="title">
 		Modifier la préférence
 	</text>
@@ -22,7 +25,7 @@
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Enregistrer [WHAT]" name="save_changes_btn"/>
+		<button label="Enregistrer" name="save_changes_btn"/>
 		<button label="Annuler" name="cancel_btn"/>
 	</panel>
 </panel>

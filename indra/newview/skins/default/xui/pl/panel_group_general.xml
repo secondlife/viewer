@@ -1,70 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ogólne" name="general_tab">
-	<string name="help_text">
-		Zakładka Ogólne zawiera informacje na temat tej grupy, listę właścicieli, widocznych członków, ustawienia grupy oraz opcje członkostwa.
-	</string>
-	<string name="group_info_unchanged">
+	<panel.string name="help_text">
+		Zakładka Główne zawiera ogólne informacje na temat tej grupy, ustawień dla całej grupy oraz danego członka.
+
+By otrzymać pomoc i dodatkowe wskazówki przesuń kursor na przyciski.
+	</panel.string>
+	<panel.string name="group_info_unchanged">
 		Ogólne informacje na temat grupy uległy zmianie.
-	</string>
-	<button label="?" label_selected="?" name="help_button"/>
-	<line_editor label="Wpisz nazwę grupy tutaj" name="group_name_editor"/>
-	<text name="group_name">
-		Wpisz nazwę grupy tutaj
-	</text>
-	<text name="prepend_founded_by">
-		Założyciel:
-	</text>
-	<text name="founder_name">
-		(proszę czekać)
-	</text>
-	<text name="group_charter_label">
-		Status Grupy
-	</text>
-	<texture_picker label="Insygnia Grupy" name="insignia" tool_tip="Kliknij by wybrać zdjęcie"/>
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		Wyszukiwanie informacji o członku
+	</panel.string>
 	<text_editor name="charter">
 		Status Grupy
 	</text_editor>
-	<button label="Dołącz (L$0)" label_selected="Dołącz (L$0)" name="join_button"/>
-	<button label="Szczegóły" label_selected="Szczegóły" name="info_button"/>
-	<text name="text_owners_and_visible_members">
-		Właściciele i widoczni członkowie
-	</text>
-	<text name="text_owners_are_shown_in_bold">
-		(Właściciele wyświetlają się pogrubioną czcionką)
-	</text>
 	<name_list name="visible_members">
-		<name_list.columns label="Imię" name="name"/>
+		<name_list.columns label="Członek" name="name"/>
 		<name_list.columns label="Tytuł" name="title"/>
-		<name_list.columns label="Ostatnio w SL" name="online"/>
 	</name_list>
-	<text name="text_group_preferences">
-		Ustawienia Grupy
+	<text name="active_title_label">
+		Mój aktywny tytuł
 	</text>
+	<combo_box name="active_title" tool_tip="Ustaw tytuł który wyświetla się kiedy grupa jest aktywna."/>
+	<check_box label="Otrzymuj grupowe ogłoszenia" name="receive_notices" tool_tip="Zaznacz jeżeli chcesz otrzymywać ogłoszenia z tej grupy.   Anuluj z zaznaczenia, jeżeli nie chcesz otrzymywać żadnych ogłoszeń z tej grupy."/>
+	<check_box label="Wyświetl grupę w profilu" name="list_groups_in_profile" tool_tip="Zaznacz jeżeli chcesz by grupa wyświetlała się w Twoim profilu"/>
 	<panel name="preferences_container">
-		<check_box label="Wyświetlaj w wyszukiwarce" name="show_in_group_list" tool_tip="Udostępnij info o grupie w wyszukiwarce"/>
 		<check_box label="Wolny Wstęp" name="open_enrollement" tool_tip="Sprawdź czy grupa oferuje wolny wstęp i nie wymaga zaproszenia."/>
-		<check_box label="Opłata Wstępu:" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
-		<spinner name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
+		<check_box label="Opłata za Wstęp" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
+		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
 		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
-			<combo_box.item name="select_mature" label="- Wybierz Treść -"/>
-			<combo_box.item name="mature" label="Treść &apos;Mature&apos;"/>
-			<combo_box.item name="pg" label="Treść &apos;PG&apos;"/>
+			<combo_box.item label="Treść &apos;PG&apos;" name="pg"/>
+			<combo_box.item label="Treść &apos;Mature&apos;" name="mature"/>
 		</combo_box>
-		<panel name="title_container">
-			<text name="active_title_label">
-				Mój Aktywny Tytuł
-			</text>
-			<combo_box name="active_title" tool_tip="Ustaw tytuł który wyświetla się kiedy grupa jest aktywna."/>
-		</panel>
-		<check_box label="Otrzymuj grupowe ogłoszenia" name="receive_notices" tool_tip="Zaznacz jeżeli chcesz otrzymywać ogłoszenia z tej grupy.   Anuluj z zaznaczenia, jeżeli nie chcesz otrzymywać żadnych ogłoszeń z tej grupy."/>
-		<check_box label="Wyświetl grupę w profilu" name="list_groups_in_profile" tool_tip="Zaznacz jeżeli chcesz by grupa wyświetlała się w Twoim profilu"/>
+		<check_box initial_value="true" label="Wyświetlaj w wyszukiwarce" name="show_in_group_list" tool_tip="Udostępnij info o grupie w wyszukiwarce"/>
 	</panel>
-	<string name="incomplete_member_data_str">
-		Wyszukiwanie informacji o członku
-	</string>
-	<string name="confirm_group_create_str">
-		Koszt utworzenia tej grupy wynosi L$100. 
-Czy napewno jesteś PEWNY,że chcesz zapłacić L$100 by utworzyć grupę?
-Pamiętaj, jeżeli w ciągu 48h od utworzenia grupy nikt do niej nie dołączy, informacje o grupie zostaną usunięte z bazy, a nazwa grupy zablokowana do użycia w przyszłości.
-	</string>
 </panel>

@@ -1,47 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory" title="MOJA SZAFA">
-	<search_editor label="Wyszukiwarka" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Wszystkie Obiekty" name="All Items"/>
-		<inventory_panel label="Nowe Obiekty" name="Recent Items"/>
-	</tab_container>
-	<menu_bar name="Inventory Menu">
-		<menu label="Plik" name="File">
-			<menu_item_call label="Otwórz" name="Open"/>
-			<menu_item_call label="Nowe Okno" name="New Window"/>
-			<menu_item_call label="Pokaż Filtr" name="Show Filters"/>
-			<menu_item_call label="Zresetuj Filtr" name="Reset Current"/>
-			<menu_item_call label="Zamknij Wszystkie Foldery" name="Close All Folders"/>
-			<menu_item_call label="Opróżnij Kosz" name="Empty Trash"/>
-		</menu>
-		<menu label="Stwórz" name="Create">
-			<menu_item_call label="Nowy Folder" name="New Folder"/>
-			<menu_item_call label="Nowy Skrypt" name="New Script"/>
-			<menu_item_call label="Nową Notę" name="New Note"/>
-			<menu_item_call label="Nowy Gest" name="New Gesture"/>
-			<menu name="New Clothes">
-				<menu_item_call label="Nowa Koszula" name="New Shirt"/>
-				<menu_item_call label="Nowe Spodnie" name="New Pants"/>
-				<menu_item_call label="Nowe Buty" name="New Shoes"/>
-				<menu_item_call label="Nowe Skarpety" name="New Socks"/>
-				<menu_item_call label="Nowa Kurtka" name="New Jacket"/>
-				<menu_item_call label="Nowa Spódnica" name="New Skirt"/>
-				<menu_item_call label="Nowe Rękawiczki" name="New Gloves"/>
-				<menu_item_call label="Nowy Podkoszulek" name="New Undershirt"/>
-				<menu_item_call label="Nowa Bielizna" name="New Underpants"/>
-			</menu>
-			<menu name="New Body Parts">
-				<menu_item_call label="Nowy Kształt" name="New Shape"/>
-				<menu_item_call label="Nową Skórkę" name="New Skin"/>
-				<menu_item_call label="Nowe Włosy" name="New Hair"/>
-				<menu_item_call label="Nowe Oczy" name="New Eyes"/>
-			</menu>
-		</menu>
-		<menu label="Porządkuj" name="Sort">
-			<menu_item_check label="Według Nazwy" name="By Name"/>
-			<menu_item_check label="Według Daty" name="By Date"/>
-			<menu_item_check label="Foldery Zawsze Według Nazwy" name="Folders Always By Name"/>
-			<menu_item_check label="Ułożenie Folderów od Góry" name="System Folders To Top"/>
-		</menu>
-	</menu_bar>
+	<floater.string name="Title">
+		Moja Szafa
+	</floater.string>
+	<floater.string name="TitleFetching">
+		Moja Szafa (Dostarcza [ITEM_COUNT] Pozycji...) [FILTER]
+	</floater.string>
+	<floater.string name="TitleCompleted">
+		Moja Szafa ([ITEM_COUNT] Pozycje) [FILTER]
+	</floater.string>
+	<floater.string name="Fetched">
+		Dostarczono
+	</floater.string>
+	<panel label="Panel Moja Szafa" name="Inventory Panel"/>
 </floater>

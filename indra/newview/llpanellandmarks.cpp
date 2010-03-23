@@ -534,7 +534,7 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
 	// subscribe to have auto-rename functionality while creating New Folder
 	mLandmarksInventoryPanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mLandmarksInventoryPanel, _1, _2));
 
-	initAccordion("tab_landmarks", mLandmarksInventoryPanel, true);
+	mMyLandmarksAccordionTab = initAccordion("tab_landmarks", mLandmarksInventoryPanel, true);
 }
 
 void LLLandmarksPanel::initMyInventoryPanel()
@@ -588,7 +588,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 	inventory_list->saveFolderState();
 }
 
-void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list,	bool expand_tab)
+LLAccordionCtrlTab* LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list,	bool expand_tab)
 {
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>(accordion_tab_name);
 
@@ -596,6 +596,7 @@ void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLPl
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLLandmarksPanel::onAccordionExpandedCollapsed, this, _2, inventory_list));
 	accordion_tab->setDisplayChildren(expand_tab);
+	return accordion_tab;
 }
 
 void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list)
@@ -776,6 +777,11 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 			//in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
 			menu_create_inventory_item(mLandmarksInventoryPanel->getRootFolder(), NULL, LLSD("category"), 
 				gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
+
+			if (mMyLandmarksAccordionTab)
+			{
+				mMyLandmarksAccordionTab->changeOpenClose(false);
+			}
 		}
 	}
 }
@@ -940,7 +946,8 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
-		if (root_folder_view->getSelectedCount() > 1)
+		if (root_folder_view &&
+		    root_folder_view->getSelectedCount() > 1)
 		{
 			return false;
 		}

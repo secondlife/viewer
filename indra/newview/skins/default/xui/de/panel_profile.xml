@@ -41,10 +41,10 @@
 			</scroll_container>
 		</layout_panel>
 		<layout_panel name="profile_buttons_panel">
-			<button label="Freund hinzufügen" name="add_friend" tool_tip="Bieten Sie dem Einwohner die Freundschaft an" width="109"/>
-			<button label="IM" name="im" tool_tip="Instant Messenger öffnen" width="24"/>
+			<button label="Freund hinzufügen" name="add_friend" tool_tip="Bieten Sie dem Einwohner die Freundschaft an"/>
+			<button label="IM" name="im" tool_tip="Instant Messenger öffnen"/>
 			<button label="Anrufen" name="call" tool_tip="Diesen Einwohner anrufen"/>
-			<button label="Karte" name="show_on_map_btn" tool_tip="Einwohner auf Karte anzeigen" width="36"/>
+			<button label="Karte" name="show_on_map_btn" tool_tip="Einwohner auf Karte anzeigen"/>
 			<button label="Teleportieren" name="teleport" tool_tip="Teleport anbieten"/>
 			<button label="▼" name="overflow_btn" tool_tip="Dem Einwohner Geld geben oder Inventar an den Einwohner schicken"/>
 		</layout_panel>

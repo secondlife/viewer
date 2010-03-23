@@ -72,6 +72,9 @@ ECursorType getCursorFromString(const std::string& cursor_string)
 		cursor_string_table["UI_CURSOR_TOOLPAUSE"] = UI_CURSOR_TOOLPAUSE;
 		cursor_string_table["UI_CURSOR_TOOLMEDIAOPEN"] = UI_CURSOR_TOOLMEDIAOPEN;
 		cursor_string_table["UI_CURSOR_PIPETTE"] = UI_CURSOR_PIPETTE;
+		cursor_string_table["UI_CURSOR_TOOLSIT"] = UI_CURSOR_TOOLSIT;
+		cursor_string_table["UI_CURSOR_TOOLBUY"] = UI_CURSOR_TOOLBUY;
+		cursor_string_table["UI_CURSOR_TOOLOPEN"] = UI_CURSOR_TOOLOPEN;
 	}
 
 	std::map<std::string,U32>::const_iterator iter = cursor_string_table.find(cursor_string);

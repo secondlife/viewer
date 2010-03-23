@@ -10,9 +10,34 @@
  name="main inventory panel"
  width="330">
     <panel.string
-     name="Title">
-        Things
+     name="Itemcount">
     </panel.string>
+    <panel.string
+     name="ItemcountFetching">
+        Fetching [ITEM_COUNT] Items... [FILTER]
+    </panel.string>
+    <panel.string
+     name="ItemcountCompleted">
+        [ITEM_COUNT] Items [FILTER]
+    </panel.string>
+    <panel.string
+     name="ItemcountUnknown">
+
+    </panel.string>
+	<text
+		     type="string"
+		     length="1"
+		     follows="left|top"
+		     height="13"
+		     layout="topleft"
+    		 left="12"
+		     name="ItemcountText"
+		     font="SansSerifMedium"
+		     text_color="EmphasisColor"
+		     top_pad="0"
+		     width="300">
+	        Items:
+    </text>
     <menu_bar
      bg_visible="false"
      follows="left|top|right"
@@ -21,8 +46,8 @@
      left="10"
      mouse_opaque="false"
      name="Inventory Menu"
-     top="0"
-	   visible="true"
+     top="+10"
+	 visible="true"
      width="290">
         <menu
          height="101"
@@ -377,30 +402,30 @@
     <filter_editor
      text_pad_left="10"
      follows="left|top|right"
-	height="23"
+	 height="23"
      label="Filter Inventory"
      layout="topleft"
      left="10"
-max_length="300"
+     max_length="300"
      name="inventory search editor"
-     top="26"
+     top="+31"
      width="303" />
     <tab_container
-            bg_opaque_color="DkGray2"
+       bg_opaque_color="DkGray2"
        bg_alpha_color="DkGray2"
        background_visible="true"
        background_opaque="true"
-follows="all"
-halign="center"
-     height="305"
-     layout="topleft"
-     left="6"
-     name="inventory filter tabs"
-     tab_height="30"
-     tab_position="top"
-     tab_min_width="100"
-     top_pad="10"
-     width="315">
+       follows="all"
+       halign="center"
+       height="300"
+       layout="topleft"
+       left="6"
+       name="inventory filter tabs"
+       tab_height="30"
+       tab_position="top"
+       tab_min_width="100"
+       top_pad="10"
+       width="315">
         <inventory_panel
             bg_opaque_color="DkGray2"
        bg_alpha_color="DkGray2"

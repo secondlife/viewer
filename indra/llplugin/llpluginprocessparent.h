@@ -61,9 +61,7 @@ public:
 		
 	void init(const std::string &launcher_filename, 
 			  const std::string &plugin_filename, 
-			  bool debug, 
-			  const std::string &user_data_path,
-			  const std::string &language_code);
+			  bool debug);
 
 	void idle(void);
 	
@@ -147,9 +145,6 @@ private:
 	LLProcessLauncher mProcess;
 	
 	std::string mPluginFile;
-
-	std::string mUserDataPath;
-	std::string mLanguageCode;
 
 	LLPluginProcessParentOwner *mOwner;
 	

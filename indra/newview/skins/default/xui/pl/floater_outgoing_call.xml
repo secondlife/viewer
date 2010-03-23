@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="outgoing call" title="ROZMOWA GŁOSOWA">
+	<floater.string name="localchat">
+		Rozmowy Głosowe w Pobliżu
+	</floater.string>
+	<floater.string name="anonymous">
+		anonimowy
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		dzwoni.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		uczestniczy w Konferencyjnej Rozmowie Głosowej
+	</floater.string>
+	<text name="connecting">
+		Łączy z [CALLEE_NAME]
+	</text>
+	<text name="calling">
+		Dzwoni [CALEE_NAME]
+	</text>
+	<text name="noanswer">
+		Brak odpowiedzi. Proszę spróbować ponownie później.
+	</text>
+	<text name="leaving">
+		Opuszcza [CURRENT_CHAT]
+	</text>
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
+</floater>

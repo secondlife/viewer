@@ -1,84 +1,73 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Posiadłości i L$" name="land_money_tab">
-	<string name="help_text">
-		Posiadłości, które są własnością grupy zawierają dane poszczególnych kontrybucji ich członków. W przypadku kiedy całkowita ilość metrów przypisanej danej posiadłości przez grupę jest mniejsza lub równa całkowitej liczbie kontrybucji dla przypisanej ilości metrów pojawia się ostrzeżenie. Zakładki: Planowanie, Szczegóły oraz Sprzedaże udostępniają informacje na temat statusu finansowego grupy.
-	</string>
-	<button label="?" name="help_button"/>
-	<string name="cant_view_group_land_text">
+	<panel.string name="help_text">
+		Ostrzeżenie pojawia się kiedy Łączna Powierzchnia Posiadłości jest mniejsza lub = Kontrybucjom
+	</panel.string>
+	<panel.string name="cant_view_group_land_text">
 		Nie masz pozwolenia na oglądanie Posiadłości Grupy.
-	</string>
-	<string name="cant_view_group_accounting_text">
+	</panel.string>
+	<panel.string name="cant_view_group_accounting_text">
 		Nie masz dostępu do konta, finansów Grupy.
-	</string>
-	<string name="loading_txt">
+	</panel.string>
+	<panel.string name="loading_txt">
 		Ładowanie...
-	</string>
-	<text name="group_land_heading">
-		Posiadłości Grupy
-	</text>
+	</panel.string>
+	<panel.string name="land_contrib_error">
+		Nie można ustalić Twoich kontrybucji.
+	</panel.string>
 	<scroll_list name="group_parcel_list">
-		<column label="Posiadłości" name="name"/>
-		<column label="Region" name="location"/>
-		<column label="Typ" name="type"/>
-		<column label="Obszar" name="area"/>
-		<column label="" name="hidden"/>
+		<scroll_list.columns label="Parcela" name="name"/>
 	</scroll_list>
-	<button label="Pokaż na Mapie" label_selected="Pokaż na Mapie" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Kontrybucje:
 	</text>
 	<text name="total_contributed_land_value">
-		[AREA] metrów
+		[AREA] m²
 	</text>
+	<button label="Mapa" label_selected="Mapa" name="map_button"/>
 	<text name="total_land_in_use_label">
 		Używane Posiadłości:
 	</text>
 	<text name="total_land_in_use_value">
-		[AREA] metrów
+		[AREA] m²
 	</text>
 	<text name="land_available_label">
-		Dostępne Posiadłości:
+		Dostępne Posiadłości
 	</text>
 	<text name="land_available_value">
-		[AREA] metrów
+		[AREA] m²
 	</text>
 	<text name="your_contribution_label">
-		Twoje Kontrybucje:
+		Twoja Kontrybucja:
 	</text>
-	<string name="land_contrib_error">
-		Nie można ustalić Twoich kontrybucji.
-	</string>
 	<text name="your_contribution_units">
-		( m )
+		m²
 	</text>
 	<text name="your_contribution_max_value">
-		([AMOUNT] maksimum)
+		([AMOUNT] max)
 	</text>
 	<text name="group_over_limit_text">
 		Członkowie Grupy muszą zwiększyć kredyt na używanie Posiadłości.
 	</text>
-	<text name="group_money_heading">
-		L$ Grupy
-	</text>
 	<tab_container name="group_money_tab_container">
-		<panel label="Planowanie" name="group_money_planning_tab">
+		<panel label="PLANOWANIE" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">
-				Obliczanie...
+				Ładowanie...
 			</text_editor>
 		</panel>
-		<panel label="Szczegóły" name="group_money_details_tab">
+		<panel label="SZCZEGÓŁY" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
-				Obliczanie...
+				Ładowanie...
 			</text_editor>
-			<button label="&lt; Wcześniej" label_selected="&lt; Wcześniej" name="earlier_details_button" tool_tip="Do tyłu w czasie"/>
-			<button label="Później &gt;" label_selected="Później &gt;" name="later_details_button" tool_tip="Do przodu w czasie"/>
+			<button label="&lt; Wcześniej" label_selected="&lt; Wcześniej" name="earlier_details_button" tool_tip="Wcześniej"/>
+			<button label="Później &gt;" label_selected="Później &gt;" name="later_details_button" tool_tip="Później"/>
 		</panel>
-		<panel label="Sprzedaż" name="group_money_sales_tab">
+		<panel label="SPRZEDAŻ" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
-				Obliczanie...
+				Ładowanie...
 			</text_editor>
-			<button label="&lt; Wcześniej" label_selected="&lt; Wcześniej" name="earlier_sales_button" tool_tip="Do tyłu w czasie"/>
-			<button label="Później &gt;" label_selected="Później &gt;" name="later_sales_button" tool_tip="Do przodu w czasie"/>
+			<button label="&lt; Wcześniej" label_selected="&lt; Wcześniej" name="earlier_sales_button" tool_tip="Wcześniej"/>
+			<button label="Później &gt;" label_selected="Później &gt;" name="later_sales_button" tool_tip="Później"/>
 		</panel>
 	</tab_container>
 </panel>

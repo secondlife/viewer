@@ -7,6 +7,8 @@
 	<string name="no_friends" value="Nenhum amigo"/>
 	<string name="people_filter_label" value="Filtro de pessoas"/>
 	<string name="groups_filter_label" value="Filtro de grupos"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Tente encontrar o grupo na Busca]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups Tente procurar grupos que lhe interessam]"/>
 	<filter_editor label="Filtro" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="PROXIMIDADE" name="nearby_panel">
@@ -26,7 +28,7 @@
 				<button name="del_btn" tool_tip="Remover a pessoa selecionada da sua lista de amigos"/>
 			</panel>
 			<text name="no_friends_msg">
-				Para adicionar amigos, use a [secondlife:///app/search/people busca de pessoas] ou clique em um usuário para adicioná-lo.
+				Para adicionar amigos, use a [secondlife:///app/search/people busca de pessoas] ou clique em um residente para adicioná-lo.
 Para conhecer mais gente, use [secondlife:///app/worldmap o Mapa].
 			</text>
 		</panel>

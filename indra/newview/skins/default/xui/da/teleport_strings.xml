@@ -63,6 +63,9 @@ Prøv evt. igen om lidt.
 		<message name="completing">
 			Fuldfører teleport.
 		</message>
+		<message name="completed_from">
+			Teleport fuldført fra [T_SLURL]
+		</message>
 		<message name="resolving">
 			Finder destination.
 		</message>

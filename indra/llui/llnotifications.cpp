@@ -402,7 +402,9 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 	mRespondedTo(false),
 	mPriority(p.priority),
 	mCancelled(false),
-	mIgnored(false)
+	mIgnored(false),
+	mResponderObj(NULL),
+	mIsReusable(false)
 {
 	if (p.functor.name.isChosen())
 	{
@@ -416,6 +418,11 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 		mTemporaryResponder = true;
 	}
 
+	if(p.responder.isProvided())
+	{
+		mResponderObj = p.responder;
+	}
+
 	mId.generate();
 	init(p.name, p.form_elements);
 }
@@ -425,7 +432,9 @@ LLNotification::LLNotification(const LLSD& sd) :
 	mTemporaryResponder(false),
 	mRespondedTo(false),
 	mCancelled(false),
-	mIgnored(false)
+	mIgnored(false),
+	mResponderObj(NULL),
+	mIsReusable(false)
 { 
 	mId.generate();
 	mSubstitutions = sd["substitutions"];
@@ -452,6 +461,7 @@ LLSD LLNotification::asLLSD()
 	output["expiry"] = mExpiresAt;
 	output["priority"] = (S32)mPriority;
 	output["responseFunctor"] = mResponseFunctorName;
+	output["reusable"] = mIsReusable;
 	return output;
 }
 
@@ -479,7 +489,9 @@ void LLNotification::updateFrom(LLNotificationPtr other)
 	mForm = other->mForm;
 	mResponseFunctorName = other->mResponseFunctorName;
 	mRespondedTo = other->mRespondedTo;
+	mResponse = other->mResponse;
 	mTemporaryResponder = other->mTemporaryResponder;
+	mIsReusable = other->isReusable();
 
 	update();
 }
@@ -556,14 +568,16 @@ std::string LLNotification::getSelectedOptionName(const LLSD& response)
 
 void LLNotification::respond(const LLSD& response)
 {
+	// *TODO may remove mRespondedTo and use mResponce.isDefined() in isRespondedTo()
 	mRespondedTo = true;
+	mResponse = response;
 	// look up the functor
 	LLNotificationFunctorRegistry::ResponseFunctor functor = 
 		LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
 	// and then call it
 	functor(asLLSD(), response);
 	
-	if (mTemporaryResponder)
+	if (mTemporaryResponder && !isReusable())
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
 		mResponseFunctorName = "";
@@ -595,6 +609,16 @@ void LLNotification::setResponseFunctor(std::string const &responseFunctorName)
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
 	mResponseFunctorName = responseFunctorName;
 	mTemporaryResponder = false;
+}
+
+void LLNotification::setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb)
+{
+	if(mTemporaryResponder)
+	{
+		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
+	}
+
+	LLNotificationFunctorRegistry::instance().registerFunctor(mResponseFunctorName, cb);
 }
 
 bool LLNotification::payloadContainsAll(const std::vector<std::string>& required_fields) const
@@ -856,8 +880,12 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		if (wasFound)
 		{
 			abortProcessing = mChanged(payload);
-			mItems.erase(pNotification);
-			onDelete(pNotification);
+			// do not delete the notification to make LLChatHistory::appendMessage add notification panel to IM window
+			if( ! pNotification->isReusable() )
+			{
+				mItems.erase(pNotification);
+				onDelete(pNotification);
+			}
 		}
 	}
 	return abortProcessing;

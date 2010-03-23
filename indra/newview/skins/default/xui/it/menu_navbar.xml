@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Navbar Menu">
 	<menu_item_check label="Mostra le coordinate" name="Show Coordinates"/>
-	<menu_item_check label="Mostra proprietà parcel" name="Show Parcel Properties"/>
-	<menu_item_call label="Landmark" name="Landmark"/>
+	<menu_item_check label="Mostra proprietà lotto" name="Show Parcel Properties"/>
+	<menu_item_call label="Punto di riferimento" name="Landmark"/>
 	<menu_item_call label="Taglia" name="Cut"/>
 	<menu_item_call label="Copia" name="Copy"/>
 	<menu_item_call label="Incolla" name="Paste"/>
-	<menu_item_call label="Cancella" name="Delete"/>
+	<menu_item_call label="Elimina" name="Delete"/>
 	<menu_item_call label="Seleziona tutto" name="Select All"/>
 </menu>
