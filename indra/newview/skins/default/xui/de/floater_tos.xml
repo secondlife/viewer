@@ -9,9 +9,9 @@
 	<text name="tos_title">
 		Nutzungsvereinbarung
 	</text>
-	<check_box label="Ich stimme den Nutzungsbedingungen zu" name="agree_chk"/>
+	<check_box label="Ich stimme den Servicebedingungen und Datenschutzbestimmungen zu." name="agree_chk"/>
 	<text name="tos_heading">
-		Lesen Sie die folgenden Servicebedingungen sorgfältig durch. Sie müssen den Servicebedinungen zustimmen, um [SECOND_LIFE] weiterhin verwenden zu können.
+		Lesen Sie die folgenden Servicebedingungen und Datenbestimmungen sorgfältig durch. Sie müssen den Servicebedinungen zustimmen, um sich bei [SECOND_LIFE] anmelden zu können.
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT
