@@ -1072,7 +1072,7 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 		}
 		else if ("delete" == command_name)
 		{
-			can_be_modified = listenerp ? listenerp->isItemRemovable() : false;
+			can_be_modified = listenerp ? listenerp->isItemRemovable() && !listenerp->isItemInTrash() : false;
 		}
 		else if("paste" == command_name)
 		{
