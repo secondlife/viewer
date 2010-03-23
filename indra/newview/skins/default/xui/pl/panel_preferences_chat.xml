@@ -45,8 +45,8 @@
 	</text>
 	<check_box initial_value="true" label="Używaj animacji podczas pisania" name="play_typing_animation"/>
 	<check_box label="Wysyłaj wszystkie wiadomości (IM) na moją skrzynkę pocztową kiedy jestem niedostępny" name="send_im_to_email"/>
-	<radio_group name="chat_window" tool_tip="Pokaż Twoje Rozmowy IM w oddzielnych oknach lub w jednym oknie. (restart wymagany)">
-		<radio_item label="Wiele okien" name="radio" value="0"/>
-		<radio_item label="Jedno Okno" name="radio2" value="1"/>
+	<radio_group name="chat_window" tool_tip="Pokaż wiadomości IM osobno lub razem (restart wymagany)">
+		<radio_item label="Osobne okna" name="radio" value="0"/>
+		<radio_item label="Etykiety" name="radio2" value="1"/>
 	</radio_group>
 </panel>

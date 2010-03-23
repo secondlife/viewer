@@ -12,6 +12,9 @@
 	<text name="dimensions">
 		[WIDTH]px x [HEIGHT]px
 	</text>
+	<text name="aspect_ratio">
+		Zobacz Proporcje
+	</text>
 	<combo_box name="combo_aspect_ratio" tool_tip="Wyświetl w domyślnych proporcjach">
 		<combo_item name="Unconstrained">
 			Swobodny
@@ -38,7 +41,7 @@
 			2:1
 		</combo_item>
 	</combo_box>
-	<button label="OK" name="keep"/>
-	<button label="Anuluj" name="discard"/>
+	<button label="OK" name="Keep"/>
+	<button label="Wyrzuć" name="Discard"/>
 	<button label="Zapisz jako" name="save_tex_btn"/>
 </floater>

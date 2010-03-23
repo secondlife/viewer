@@ -3,12 +3,20 @@
 	<panel.string name="location_notice">
 		(zostanie zaktualizowane po zapisaniu)
 	</panel.string>
+	<string name="publish_label">
+		Publikuj
+	</string>
+	<string name="save_label">
+		Zapisz
+	</string>
 	<text name="title">
 		Edytuj Reklamę
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+			<panel name="snapshot_panel">
+				<icon label="" name="edit_icon" tool_tip="Kliknij by wybrać teksturę"/>
+			</panel>
 			<text name="Name:">
 				Tytuł:
 			</text>
@@ -22,16 +30,19 @@
 				ładowanie...
 			</text>
 			<button label="Ustaw na bieżącą lokalizację" name="set_to_curr_location_btn"/>
-			<combo_box label="Treść Ogólna" name="content_type">
-				<combo_item label="Moderuj Treść" name="mature_ci" value="Mature"/>
-				<combo_item label="Treść Ogólna" name="pg_ci" value="PG"/>
-			</combo_box>
+			<text name="category_label" value="Kategoria:"/>
+			<text name="content_type_label" value="Typ Zawartości:"/>
+			<icons_combo_box label="Treść Ogólna" name="content_type">
+				<icons_combo_box.item label="Moderuj Treść" name="mature_ci" value="Mature"/>
+				<icons_combo_box.item label="Treść Ogólna" name="pg_ci" value="PG"/>
+			</icons_combo_box>
+			<text name="price_for_listing_label" value="Cena za wyświetlenie:"/>
 			<spinner label="L$" name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="50"/>
 			<check_box label="Ponawiaj automatycznie co tydzień." name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Zapisz" name="save_changes_btn"/>
+		<button label="[LABEL]" name="save_changes_btn"/>
 		<button label="Anuluj" name="cancel_btn"/>
 	</panel>
 </panel>

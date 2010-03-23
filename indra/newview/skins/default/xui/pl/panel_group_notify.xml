@@ -4,5 +4,5 @@
 		<text name="title" value="Imię Nadawcy / Nazwa Grupy"/>
 	</panel>
 	<text name="attachment" value="Załącznik"/>
-	<button label="Ok" name="btn_ok"/>
+	<button label="OK" name="btn_ok"/>
 </panel>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ochrona" name="Media Settings Security">
-	<check_box initial_value="false" label="Zezwól na dostęp tylko wybranym URL (z prefiksem)" name="whitelist_enable"/>
+	<check_box initial_value="false" label="Dostęp dozwolony tylko dla wybranych URL" name="whitelist_enable"/>
 	<text name="home_url_fails_some_items_in_whitelist">
-		Próby, które nie zostały wyświetlone przez stronę domową zachowane.
+		Wejścia na stronę WWW, które się nie powiodły są zaznaczone:
 	</text>
 	<button label="Dodaj" name="whitelist_add"/>
 	<button label="Usuń" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
-		Ostrzeżenie: strona domowa ustawiona w zakładce Ogólne została odrzucona przez biała listę. Próba połączenia została wyłączona do momentu wpisania poprawnego adresu strony.
+		UWAGA: WWW  wyszczególnione w Ogólne nie przeszły białej listy. Została ona wyłączona dopóki poprawny zapis nie zostanie dodany.
 	</text>
 </panel>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call" title="DZWONI NIEZNANA OSOBA">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
 		Rozmowy Głosowe w Pobliżu
 	</floater.string>
@@ -11,6 +14,9 @@
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
 		rozpoczął rozmowę głosową w czacie konferencji.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		zaczyna rozmowę z grupą [GROUP].
 	</floater.string>
 	<text name="question">
 		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do tej rozmowy głosowej?

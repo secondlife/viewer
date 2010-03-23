@@ -106,6 +106,9 @@ Maksymalna długość pliku animacji wynosi [MAX_LENGTH] sekund.
 	<floater.string name="E_ST_NO_XLT_EMOTE">
 		Niemożliwość przeczytania nazwy emocji.
 	</floater.string>
+	<floater.string name="E_ST_BAD_ROOT">
+		Nieprawidłowa nazwa, użyj &quot;hip&quot;.
+	</floater.string>
 	<text name="name_label">
 		Nazwa:
 	</text>

@@ -11,22 +11,40 @@ By otrzymać pomoc i dodatkowe wskazówki przesuń kursor na przyciski.
 	<panel.string name="incomplete_member_data_str">
 		Wyszukiwanie informacji o członku
 	</panel.string>
+	<panel name="group_info_top">
+		<texture_picker label="" name="insignia" tool_tip="Kliknij by wybrać obraz"/>
+		<text name="prepend_founded_by">
+			Założyciel:
+		</text>
+		<name_box initial_value="(przetwarzanie)" name="founder_name"/>
+		<text name="join_cost_text">
+			Wstęp Wolny
+		</text>
+		<button label="DOŁĄCZ TERAZ!" name="btn_join"/>
+	</panel>
 	<text_editor name="charter">
 		Status Grupy
 	</text_editor>
 	<name_list name="visible_members">
 		<name_list.columns label="Członek" name="name"/>
 		<name_list.columns label="Tytuł" name="title"/>
+		<name_list.columns label="Status" name="status"/>
 	</name_list>
+	<text name="my_group_settngs_label">
+		ja
+	</text>
 	<text name="active_title_label">
-		Mój aktywny tytuł
+		Mój Aktywny Tytuł:
 	</text>
 	<combo_box name="active_title" tool_tip="Ustaw tytuł który wyświetla się kiedy grupa jest aktywna."/>
 	<check_box label="Otrzymuj grupowe ogłoszenia" name="receive_notices" tool_tip="Zaznacz jeżeli chcesz otrzymywać ogłoszenia z tej grupy.   Anuluj z zaznaczenia, jeżeli nie chcesz otrzymywać żadnych ogłoszeń z tej grupy."/>
 	<check_box label="Wyświetl grupę w profilu" name="list_groups_in_profile" tool_tip="Zaznacz jeżeli chcesz by grupa wyświetlała się w Twoim profilu"/>
 	<panel name="preferences_container">
+		<text name="group_settngs_label">
+			Grupa
+		</text>
 		<check_box label="Wolny Wstęp" name="open_enrollement" tool_tip="Sprawdź czy grupa oferuje wolny wstęp i nie wymaga zaproszenia."/>
-		<check_box label="Opłata za Wstęp" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
+		<check_box label="Opłata Wstępu" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
 		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
 			<combo_box.item label="Treść &apos;PG&apos;" name="pg"/>

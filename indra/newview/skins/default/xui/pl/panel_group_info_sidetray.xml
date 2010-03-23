@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="O Grupie" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
-		Istnieją niezapisane zmiany.
+		Nie zapisałeś zmian
 	</panel.string>
 	<panel.string name="want_apply_text">
 		Czy chcesz zachować te zmiany?
@@ -12,25 +12,24 @@
 	<panel.string name="group_join_free">
 		Darmowe
 	</panel.string>
-	<text name="group_name" value="(Ładowanie...)"/>
-	<line_editor label="Wpisz nazwę Twojej nowej grupy tutaj" name="group_name_editor"/>
-	<texture_picker label="" name="insignia" tool_tip="Kliknij aby wybrać teksturę"/>
-	<text name="prepend_founded_by">
-		Założyciel:
-	</text>
-	<name_box initial_value="(przetwarzanie)" name="founder_name"/>
-	<text name="join_cost_text">
-		Darmowe
-	</text>
-	<button label="DOŁĄCZ TERAZ!" name="btn_join"/>
-	<accordion name="groups_accordion">
-		<accordion_tab name="group_general_tab" title="Ogólne"/>
-		<accordion_tab name="group_roles_tab" title="Funkcje"/>
-		<accordion_tab name="group_notices_tab" title="Noty"/>
-		<accordion_tab name="group_land_tab" title="Posiadłość/Majątek"/>
-	</accordion>
-	<panel name="button_row">
-		<button label="Stwórz" label_selected="Nowa grupa" name="btn_create"/>
-		<button label="Zapisz" label_selected="Zapisz" name="btn_apply"/>
+	<panel name="group_info_top">
+		<text name="group_name" value="(Ładowanie...)"/>
+		<line_editor label="Wpisz nazwę swojej nowej grupy tutaj" name="group_name_editor"/>
 	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="Ogólne"/>
+				<accordion_tab name="group_roles_tab" title="Funkcja"/>
+				<accordion_tab name="group_notices_tab" title="Notki"/>
+				<accordion_tab name="group_land_tab" title="Posiadlość/Majątek"/>
+			</accordion>
+		</layout_panel>
+		<layout_panel name="button_row">
+			<button label="Czat" name="btn_chat"/>
+			<button label="Konferencja Głosowa" name="btn_call" tool_tip="Konferencja Głosowa"/>
+			<button label="Zapisz" label_selected="Zapisz" name="btn_apply"/>
+			<button label="Stwórz nową grupę" name="btn_create" tool_tip="Stwórz nową grupę"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

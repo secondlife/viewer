@@ -15,40 +15,48 @@
 	<panel.string name="land_contrib_error">
 		Nie można ustalić Twoich kontrybucji.
 	</panel.string>
-	<scroll_list name="group_parcel_list">
-		<scroll_list.columns label="Parcela" name="name"/>
-	</scroll_list>
-	<text name="total_contributed_land_label">
-		Kontrybucje:
-	</text>
-	<text name="total_contributed_land_value">
-		[AREA] m²
-	</text>
-	<button label="Mapa" label_selected="Mapa" name="map_button"/>
-	<text name="total_land_in_use_label">
-		Używane Posiadłości:
-	</text>
-	<text name="total_land_in_use_value">
-		[AREA] m²
-	</text>
-	<text name="land_available_label">
-		Dostępne Posiadłości
-	</text>
-	<text name="land_available_value">
-		[AREA] m²
-	</text>
-	<text name="your_contribution_label">
-		Twoja Kontrybucja:
-	</text>
-	<text name="your_contribution_units">
-		m²
-	</text>
-	<text name="your_contribution_max_value">
-		([AMOUNT] max)
-	</text>
-	<text name="group_over_limit_text">
-		Członkowie Grupy muszą zwiększyć kredyt na używanie Posiadłości.
-	</text>
+	<panel name="layout_panel_landmoney">
+		<scroll_list name="group_parcel_list">
+			<scroll_list.columns label="Posiadłość" name="name"/>
+			<scroll_list.columns label="Region" name="location"/>
+			<scroll_list.columns label="Typ" name="type"/>
+			<scroll_list.columns label="Obszar" name="area"/>
+		</scroll_list>
+		<text name="total_contributed_land_label">
+			Kontrybucje:
+		</text>
+		<text name="total_contributed_land_value">
+			[AREA] m²
+		</text>
+		<button label="Mapa" label_selected="Mapa" name="map_button"/>
+		<text name="total_land_in_use_label">
+			Używane Posiadłości:
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA] m²
+		</text>
+		<text name="land_available_label">
+			Dostępne Posiadłości:
+		</text>
+		<text name="land_available_value">
+			[AREA] m²
+		</text>
+		<text name="your_contribution_label">
+			Twoje Kontrybucje:
+		</text>
+		<text name="your_contribution_units">
+			m²
+		</text>
+		<text name="your_contribution_max_value">
+			([AMOUNT] max)
+		</text>
+		<text name="group_over_limit_text">
+			Należy zwięszyć kredyt na używanie Posiadłości.
+		</text>
+		<text name="group_money_heading">
+			L$ Grupy
+		</text>
+	</panel>
 	<tab_container name="group_money_tab_container">
 		<panel label="PLANOWANIE" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">

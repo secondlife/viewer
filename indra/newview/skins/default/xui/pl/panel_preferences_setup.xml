@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Joystick &amp; Kamera" name="Input panel">
+<panel label="Ustawienia" name="Input panel">
 	<button label="Ustawienia Joysticka" name="joystick_setup_button"/>
 	<text name="Mouselook:">
 		Widok panoramiczny:
@@ -19,29 +19,29 @@
 		kbps
 	</text>
 	<check_box label="Port dedykowany dla aplikacji" name="connection_port_enabled"/>
-	<spinner label="Numer portu:" name="web_proxy_port"/>
+	<spinner label="Numer Portu:" name="connection_port"/>
 	<text name="cache_size_label_l">
 		Rozmiar bufora danych
 	</text>
 	<text name="text_box5">
 		MB
 	</text>
-	<button label="Ustaw" label_selected="Ustaw" name="set_cache"/>
-	<button label="Zresetuj" label_selected="Ustaw" name="reset_cache"/>
 	<text name="Cache location">
-		Lokalizacja bufora danych na dysku
+		Lokalizacja bufora danych:
 	</text>
+	<button label="Ustaw" label_selected="Ustaw" name="set_cache"/>
+	<button label="Zresetuj" label_selected="Zresetuj" name="reset_cache"/>
 	<text name="Web:">
 		Internet:
 	</text>
 	<radio_group name="use_external_browser">
 		<radio_item label="Używaj wbudowanej przeglądarki." name="internal" tool_tip="Używaj wbudowanej przeglądarki. Ta przeglądarka otworzy nowe okno w [APP_NAME]." value="0"/>
-		<radio_item label="Używaj zewnętrznej przeglądarki (IE, Firefox)" name="external" tool_tip="Używaj zewnętrznej przeglądarki. Nie jest to rekomendowane w trybie pełnoekranowym." value="1"/>
+		<radio_item label="Użyj zewnętrznej przeglądarki (IE, Firefox, Safari)" name="external" tool_tip="Używaj zewnętrznej przeglądarki. Nie jest to rekomendowane w trybie pełnoekranowym." value="1"/>
 	</radio_group>
-	<check_box initial_value="false" label="Serwer proxy" name="web_proxy_enabled"/>
-	<line_editor name="web_proxy_editor" tool_tip="Nazwa lub IP proxy, którego chcesz użyć"/>
-	<button label="Ustaw" label_selected="Ustaw" name="set_proxy"/>
+	<check_box initial_value="false" label="Używaj Serwera Proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
-		Lokalizacja proxy
+		Lokalizacja Proxy:
 	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Nazwa lub IP proxy, którego chcesz użyć"/>
+	<spinner label="Numer portu:" name="web_proxy_port"/>
 </panel>

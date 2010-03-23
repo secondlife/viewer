@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
 	<panel name="navigation_panel">
-		<button name="back_btn" tool_tip="Wróć do poprzedniej lokalizacji"/>
-		<button name="forward_btn" tool_tip="Idź do następnej lokalizacji"/>
+		<pull_button name="back_btn" tool_tip="Wróć do poprzedniej lokalizacji"/>
+		<pull_button name="forward_btn" tool_tip="Idź do następnej lokalizacji"/>
 		<button name="home_btn" tool_tip="Teleportuj do miejsca startu"/>
 		<location_input label="Lokalizacja" name="location_combo"/>
 		<search_combo_box label="Szukaj" name="search_combo_box" tool_tip="Szukaj">
@@ -10,6 +10,9 @@
 		</search_combo_box>
 	</panel>
 	<favorites_bar name="favorite" tool_tip="Przeciągnij swoje zapisane miejsca tutaj by szybko dostać się do swoich ulubionych miejsc w Second Life!">
+		<label name="favorites_bar_label" tool_tip="Przeciągnij swoje zapisane miejsca tutaj by szybko dostać się do swoich ulubionych miejsc w Second Life!">
+			Pasek Ulubionych
+		</label>
 		<chevron_button name="&gt;&gt;" tool_tip="Pokaż więcej Moich Ulubionych"/>
 	</favorites_bar>
 </panel>
