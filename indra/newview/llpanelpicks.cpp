@@ -974,6 +974,11 @@ void LLPanelPicks::onPanelClassifiedEdit()
 	}
 
 	LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
+	llassert(c_item);
+	if (!c_item)
+	{
+		return;
+	}
 
 	LLSD params;
 	params["classified_id"] = c_item->getClassifiedId();
