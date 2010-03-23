@@ -34,9 +34,12 @@
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usa il built-in browser" name="internal" tool_tip="Usa il built-in web browser per aiuto, web links, etc. Questo browser apre come una nuova finestra all&apos;interno [APP_NAME]." value="0"/>
 		<radio_item label="Usa il mio browser (IE, Firefox, Safari)" name="external" tool_tip="Usa il default system web browser per aiuto, web links, etc. Non raccomandato se utilizzi lo schermo pieno(full screen)." value="1"/>
+		<radio_item label="Usa il built-in browser" name="internal" tool_tip="Usa il built-in web browser per aiuto, web links, etc. Questo browser apre come una nuova finestra all&apos;interno [APP_NAME]." value=""/>
 	</radio_group>
+	<check_box initial_value="vero" label="Abilita plugin" name="browser_plugins_enabled"/>
+	<check_box initial_value="vero" label="Accetta cookie" name="cookies_enabled"/>
+	<check_box initial_value="vero" label="Abilita Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="Abilita proxy Web" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Ubicazione proxy:

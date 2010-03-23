@@ -1,5 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="item properties" title="WŁAŚCIWOŚCI OBIEKTÓW W SZAFIE">
+	<floater.string name="unknown">
+		(nieznany)
+	</floater.string>
+	<floater.string name="public">
+		(publiczny)
+	</floater.string>
+	<floater.string name="you_can">
+		Opcje:
+	</floater.string>
+	<floater.string name="owner_can">
+		Właściciel może:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
 	<text name="LabelItemNameTitle">
 		Nazwa:
 	</text>
@@ -12,14 +27,14 @@
 	<text name="LabelCreatorName">
 		Nicole Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnCreator" />
+	<button label="Profil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Właściciel:
 	</text>
 	<text name="LabelOwnerName">
 		Thrax Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnOwner" />
+	<button label="Profil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		Nabyte:
 	</text>
@@ -27,55 +42,32 @@
 		Wed May 24 12:50:46 2006
 	</text>
 	<text name="OwnerLabel">
-		Opcje:
+		Ty:
 	</text>
-	<check_box label="Modyfikuj" name="CheckOwnerModify" />
-	<check_box label="Kopiuj" name="CheckOwnerCopy" />
-	<check_box label="Sprzedaj/Oddaj" name="CheckOwnerTransfer" />
-	<text name="BaseMaskDebug">
-		P:
+	<check_box label="Edytuj" name="CheckOwnerModify"/>
+	<check_box label="Kopiuj" name="CheckOwnerCopy"/>
+	<check_box label="Odsprzedaż" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Każdy:
 	</text>
-	<text name="OwnerMaskDebug">
-		W:
+	<check_box label="Kopiuj" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Grupa:
 	</text>
-	<text name="GroupMaskDebug">
-		G:
-	</text>
-	<text name="EveryoneMaskDebug">
-		W:
-	</text>
-	<text name="NextMaskDebug">
-		N:
-	</text>
-	<check_box label="Udostępnij grupie" name="CheckShareWithGroup" />
-	<check_box label="Udostępnij kopiowanie każdemu" name="CheckEveryoneCopy" />
+	<check_box label="Udostępnij" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel">
-		Następna Osoba:
+		Następny właściciel:
 	</text>
-	<check_box label="Modyfikuje" name="CheckNextOwnerModify" />
-	<check_box label="Kopiuje" name="CheckNextOwnerCopy" />
-	<check_box label="Sprzedaje/Oddaje" name="CheckNextOwnerTransfer" />
-	<text name="SaleLabel">
-		Zaznacz Artykuł:
+	<check_box label="Edytuj" name="CheckNextOwnerModify"/>
+	<check_box label="Kopiuje" name="CheckNextOwnerCopy"/>
+	<check_box label="Odsprzedaż" name="CheckNextOwnerTransfer"/>
+	<check_box label="Sprzedaż" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Kopiuj" name="Copy"/>
+		<combo_box.item label="Oryginalny" name="Original"/>
+	</combo_box>
+	<spinner label="Cena:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
 	</text>
-	<check_box label="Sprzedaż" name="CheckPurchase" />
-	<radio_group name="RadioSaleType">
-		<radio_item name="radio" label="Oryginał" />
-		<radio_item name="radio2" label="Kopia" />
-	</radio_group>
-	<text name="TextPrice">
-		Cena:  L$
-	</text>
-	<string name="unknown">
-		(nieznany)
-	</string>
-	<string name="public">
-		(publiczny)
-	</string>
-	<string name="you_can">
-		Opcje:
-	</string>
-	<string name="owner_can">
-		Właściciel może:
-	</string>
 </floater>

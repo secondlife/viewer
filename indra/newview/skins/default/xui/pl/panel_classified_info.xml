@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_classified_info">
+	<text name="title" value="Reklama"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="classified_name" value="[nazwa]"/>
+			<text name="classified_location" value="[ładowanie...]"/>
+			<text name="content_type" value="[treść]"/>
+			<text name="category" value="[kategoria]"/>
+			<check_box label="Ponawiaj automatycznie co tydzień" name="auto_renew"/>
+			<text name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="[price]">
+				L$[PRICE]
+			</text>
+			<text name="classified_desc" value="[opis]"/>
+		</panel>
+	</scroll_container>
+	<panel name="buttons">
+		<button label="Teleportuj" name="teleport_btn"/>
+		<button label="Mapa" name="show_on_map_btn"/>
+		<button label="Edytuj" name="edit_btn"/>
+	</panel>
+</panel>

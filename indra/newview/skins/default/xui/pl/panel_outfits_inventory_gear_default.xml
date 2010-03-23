@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_gear_default">
+	<menu_item_call label="Zastąp Aktualny Stroju" name="wear"/>
+	<menu_item_call label="Dodaj do Aktualnego Stroju" name="add"/>
+	<menu_item_call label="Usuń z Aktualnego Stroju" name="remove"/>
+	<menu_item_call label="Zmień nazwę" name="rename"/>
+	<menu_item_call label="Usuń" name="remove_link"/>
+	<menu_item_call label="Skasuj" name="delete"/>
+</menu>

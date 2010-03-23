@@ -1671,7 +1671,10 @@
 		Abbrechen
 	</string>
 	<string name="UploadingCosts">
-		Hochladen von %s kostet
+		Das Hochladen von [NAME] kostet [AMOUNT] L$
+	</string>
+	<string name="BuyingCosts">
+		Die Kosten betragen: [AMOUNT] L$
 	</string>
 	<string name="UnknownFileExtension">
 		Unbekanntes Dateiformat .%s
@@ -3461,20 +3464,47 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
+	<string name="you_paid_ldollars">
+		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Sie haben [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Sie haben [REASON] [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="for a parcel of land">
+		für eine Landparzelle
+	</string>
+	<string name="for a land access pass">
+		für einen Pass
+	</string>
+	<string name="for deeding land">
+		für die Landübertragung
+	</string>
+	<string name="to create a group">
+		für die Gründung einer Gruppe
+	</string>
+	<string name="to join a group">
+		für den Beitritt zur Gruppe
+	</string>
+	<string name="to upload">
+		fürs Hochladen
+	</string>
 	<string name="giving">
-		Giving
+		[AMOUNT] L$ werden bezahlt
 	</string>
 	<string name="uploading_costs">
-		Kosten für Hochladen
+		Kosten für Hochladen [AMOUNT] L$
 	</string>
 	<string name="this_costs">
-		Kosten:
+		Kosten: [AMOUNT] L$
 	</string>
 	<string name="buying_selected_land">
-		Ausgewähltes Land wird gekauft
+		Ausgewähltes Land wird für [AMOUNT] L$ gekauft.
 	</string>
 	<string name="this_object_costs">
-		Dieses Objekt kostet
+		Dieses Objekt kostet  [AMOUNT] L$
 	</string>
 	<string name="group_role_everyone">
 		Jeder
@@ -3484,5 +3514,67 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="group_role_owners">
 		Eigentümer
+	</string>
+	<string name="uploading_abuse_report">
+		Bericht wird hochgeladen...
+  
+Missbrauchsbericht
+	</string>
+	<string name="New Shape">
+		Neue Form/Gestalt
+	</string>
+	<string name="New Skin">
+		Neue Haut
+	</string>
+	<string name="New Hair">
+		Neues Haar
+	</string>
+	<string name="New Eyes">
+		Neue Augen
+	</string>
+	<string name="New Shirt">
+		Neues Hemd
+	</string>
+	<string name="New Pants">
+		Neue Hose
+	</string>
+	<string name="New Shoes">
+		Neue Schuhe
+	</string>
+	<string name="New Socks">
+		Neue Socken
+	</string>
+	<string name="New Jacket">
+		Neue Jacke
+	</string>
+	<string name="New Gloves">
+		Neue Handschuhe
+	</string>
+	<string name="New Undershirt">
+		Neues Unterhemd
+	</string>
+	<string name="New Underpants">
+		Neue Unterhose
+	</string>
+	<string name="New Skirt">
+		Neuer Rock
+	</string>
+	<string name="New Alpha">
+		Neues Alpha
+	</string>
+	<string name="New Tattoo">
+		Neue Tätowierung
+	</string>
+	<string name="Invalid Wearable">
+		Ungültiges Objekt
+	</string>
+	<string name="New Script">
+		Neues Skript
+	</string>
+	<string name="New Folder">
+		Neuer Ordner
+	</string>
+	<string name="Contents">
+		Inhalt
 	</string>
 </strings>

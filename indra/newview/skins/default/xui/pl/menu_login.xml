@@ -21,8 +21,8 @@
 		</menu>
 		<menu_item_call label="Ustawienia Debugowania" name="Debug Settings"/>
 		<menu_item_call label="Ustawienia UI/Kolor" name="UI/Color Settings"/>
-		<menu_item_call label="Pokaż schowek" name="Show Side Tray"/>
 		<menu label="UI Testy" name="UI Tests"/>
+		<menu_item_call label="Ustaw Rozmiar Interfejsu..." name="Set Window Size..."/>
 		<menu_item_call label="Wyświetl TOS" name="TOS"/>
 		<menu_item_call label="Wyświetl Wiadomość Krytyczną" name="Critical"/>
 		<menu_item_call label="Test Przeglądarki Internetowej" name="Web Browser Test"/>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Edytuj Reklamę" name="panel_edit_classified">
+	<panel.string name="location_notice">
+		(zostanie zaktualizowane po zapisaniu)
+	</panel.string>
+	<text name="title">
+		Edytuj Reklamę
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+			<text name="Name:">
+				Tytuł:
+			</text>
+			<text name="description_label">
+				Opis:
+			</text>
+			<text name="location_label">
+				Lokalizacja:
+			</text>
+			<text name="classified_location">
+				ładowanie...
+			</text>
+			<button label="Ustaw na bieżącą lokalizację" name="set_to_curr_location_btn"/>
+			<combo_box label="Treść Ogólna" name="content_type">
+				<combo_item label="Moderuj Treść" name="mature_ci" value="Mature"/>
+				<combo_item label="Treść Ogólna" name="pg_ci" value="PG"/>
+			</combo_box>
+			<spinner label="L$" name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="50"/>
+			<check_box label="Ponawiaj automatycznie co tydzień." name="auto_renew"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<button label="Zapisz" name="save_changes_btn"/>
+		<button label="Anuluj" name="cancel_btn"/>
+	</panel>
+</panel>

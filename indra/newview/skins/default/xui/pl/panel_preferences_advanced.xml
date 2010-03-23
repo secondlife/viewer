@@ -1,48 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<panel name="advanced">
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
+<panel label="Zaawansowane" name="advanced">
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<check_box label="Czat Chmurkowy" name="bubble_text_chat"/>
-	<color_swatch name="background" tool_tip="Wybierz kolor czatu w chmurce"/>
-	<slider label="Intensywność" name="bubble_chat_opacity"/>
-	<text name="AspectRatioLabel1" tool_tip="width / height">
-		Proporcje
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="width / height">
-		<combo_box.item label="4:3 (Standardowy CRT)" name="item1"/>
-		<combo_box.item label="5:4 (1280x1024 LCD)" name="item2"/>
-		<combo_box.item label="8:5 (Panoramiczny)" name="item3"/>
-		<combo_box.item label="16:9 (Panoramiczny)" name="item4"/>
-	</combo_box>
-	<check_box label="Automatyczne Wykrywanie" name="aspect_auto_detect"/>
-	<text name="heading1">
-		Kamery:
-	</text>
-	<slider label="Kąt Widoku" name="camera_fov"/>
+	<slider label="Kąt widoku" name="camera_fov"/>
 	<slider label="Odległość" name="camera_offset_scale"/>
 	<text name="heading2">
-		Automatyczne pozycjonowanie dla:
+		Automatyczna pozycja dla:
 	</text>
 	<check_box label="Buduj/Edytuj" name="edit_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery aktywując i deaktywując tryb edycji"/>
 	<check_box label="Wygląd" name="appearance_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas trybu edycji"/>
-	<text name="heading3">
-		Awatary:
-	</text>
 	<check_box label="Pokaż w trybie widoku panoramicznego" name="first_person_avatar_visible"/>
 	<check_box label="Aktywacja klawiszy strzałek do poruszania awatarem" name="arrow_keys_move_avatar_check"/>
 	<check_box label="kliknij-kliknij-przytrzymaj, aby uruchomić" name="tap_tap_hold_to_run"/>
 	<check_box label="Poruszaj ustami awatara kiedy używana jest komunikacja głosowa" name="enable_lip_sync"/>
-	<check_box label="Pokaż błędy skryptów" name="show_script_errors"/>
+	<check_box label="Czat Chmurkowy" name="bubble_text_chat"/>
+	<slider label="Intensywność" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Wybierz kolor czatu w chmurce"/>
+	<check_box label="Pokaż błędy skryptu w:" name="show_script_errors"/>
 	<radio_group name="show_location">
-		<radio_item label="W czacie" name="0"/>
-		<radio_item label="W oknie" name="1"/>
+		<radio_item label="Czat Lokalny" name="0"/>
+		<radio_item label="Osobne okno:" name="1"/>
 	</radio_group>
-	<check_box label="Uruchom tryb mówienia przez mikrofon podczas nasiśnięcia przycisku Mów:" name="push_to_talk_toggle_check" tool_tip="Jeżeli jesteś w trybie mówienia, w celu aktywacji lub deaktywacji swojego mikrofonu wybierz i wyłącz przycisk Mów tylko raz. Jeżeli nie jesteś w trybie mówienia, mikrofon przesyła Twój głos tylko w momencie aktywacji pełnej przycisku Mów."/>
+	<check_box label="Włącz/Wyłącz głos:" name="push_to_talk_toggle_check" tool_tip="Jeżeli jesteś w trybie mówienia, w celu aktywacji lub deaktywacji swojego mikrofonu wybierz i wyłącz przycisk Mów tylko raz. Jeżeli nie jesteś w trybie mówienia, mikrofon przesyła Twój głos tylko w momencie aktywacji pełnej przycisku Mów."/>
 	<line_editor label="Naciśnij Mów by rozpocząć komunikację głosową" name="modifier_combo"/>
 	<button label="wybierz Klawisz" name="set_voice_hotkey_button"/>
-	<button label="Środkowy Przycisk Myszki" name="set_voice_middlemouse_button"/>
+	<button label="Środkowy Przycisk Myszki" name="set_voice_middlemouse_button" tool_tip="Zresetuj do środkowego przycisku myszy"/>
 </panel>

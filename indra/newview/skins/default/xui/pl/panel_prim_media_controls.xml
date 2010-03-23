@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="MediaControlsPanel">
+	<string name="min_width">
+		300
+	</string>
+	<string name="min_height">
+		75
+	</string>
+	<string name="zoom_medium_padding">
+		1.1
+	</string>
+	<layout_stack name="media_controls">
+		<layout_panel name="back"/>
+		<layout_panel name="fwd"/>
+		<layout_panel name="home"/>
+		<layout_panel name="media_stop"/>
+		<layout_panel name="reload"/>
+		<layout_panel name="stop"/>
+		<layout_panel name="play"/>
+		<layout_panel name="pause"/>
+		<layout_panel name="media_address">
+			<line_editor name="media_address_url" tool_tip="URL Mediów"/>
+			<layout_stack name="media_address_url_icons">
+				<layout_panel>
+					<icon name="media_whitelist_flag" tool_tip="Biała Lista aktywna"/>
+				</layout_panel>
+				<layout_panel>
+					<icon name="media_secure_lock_flag" tool_tip="Zabezpiecz przeglądanie"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="media_play_position">
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Postęp odtwarzania filmu"/>
+		</layout_panel>
+		<layout_panel name="skip_back"/>
+		<layout_panel name="skip_forward"/>
+		<layout_panel name="media_volume">
+			<button name="media_mute_button" tool_tip="Wycisz Media"/>
+			<slider name="volume_slider" tool_tip="Głośność Mediów"/>
+		</layout_panel>
+		<layout_panel name="zoom_frame"/>
+		<layout_panel name="close"/>
+		<layout_panel name="new_window"/>
+	</layout_stack>
+	<layout_stack>
+		<panel name="media_progress_indicator">
+			<progress_bar name="media_progress_bar" tool_tip="Media się wczytują"/>
+		</panel>
+	</layout_stack>
+</panel>

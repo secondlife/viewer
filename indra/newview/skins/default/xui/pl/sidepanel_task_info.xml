@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Właściwości Obiektu">
+	<panel.string name="text deed continued">
+		Przypisz
+	</panel.string>
+	<panel.string name="text deed">
+		Przypisz
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Możesz modyfikować ten obiekt
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Możesz modyfikować te obiekty
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Nie możesz modyfikować tego obiektu
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Nie możesz modyfikować tych obiektów
+	</panel.string>
+	<panel.string name="text modify warning">
+		Ten obiekt ma części zgrupowane
+	</panel.string>
+	<panel.string name="Cost Default">
+		Cena: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Cena całkowita: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Cena za jednostkę: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Cena mieszana
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Sprzedaż mieszana
+	</panel.string>
+	<panel label="">
+		<text name="Name:">
+			Nazwa:
+		</text>
+		<text name="Description:">
+			Opis:
+		</text>
+		<text name="Creator:">
+			Twórca:
+		</text>
+		<text name="Owner:">
+			Właściciel:
+		</text>
+		<text name="Group:">
+			Grupa:
+		</text>
+		<button name="button set group" tool_tip="Wybierz grupę, której chcesz udostępnić prawa do obiektu."/>
+		<name_box initial_value="Ładowanie..." name="Group Name Proxy"/>
+		<button label="Przypisz" label_selected="Przypisz" name="button deed" tool_tip="Przypisanie oddaje prawa następnemu właścicielowi.Obiekty posiadane przez grupę mogą zostać przypisane przez oficera grupy."/>
+		<check_box label="Udostępnij" name="checkbox share with group" tool_tip="Pozwól członkom grupy na dzielenie praw do modyfikacji tego obiektu. Musisz przypisac obiekt aby uaktywnić ograniczenia dla ról."/>
+		<text name="label click action">
+			Kliknij:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Dotknij  (domyślne)" name="Touch/grab(default)"/>
+			<combo_box.item label="Usiądź na obiekcie" name="Sitonobject"/>
+			<combo_box.item label="Kup obiekt" name="Buyobject"/>
+			<combo_box.item label="Zapłać obiektowi" name="Payobject"/>
+			<combo_box.item label="Otwórz" name="Open"/>
+		</combo_box>
+		<check_box label="Na sprzedaż:" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Kopiuj" name="Copy"/>
+			<combo_box.item label="Treść" name="Contents"/>
+			<combo_box.item label="Oryginał" name="Original"/>
+		</combo_box>
+		<spinner label="Cena: L$" name="Edit Cost"/>
+		<check_box label="Pokaż w wyszukiwarce" name="search_check" tool_tip="Udostępnij wyświetlanie się tego przedmiotu w wynikach wyszukiwania"/>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Możesz modyfikować ten obiekt
+			</text>
+			<text name="Anyone can:">
+				Każdy:
+			</text>
+			<check_box label="Przesuń" name="checkbox allow everyone move"/>
+			<check_box label="Kopiuj" name="checkbox allow everyone copy"/>
+			<text name="Next owner can:">
+				Następny właściciel:
+			</text>
+			<check_box label="Zmienia" name="checkbox next owner can modify"/>
+			<check_box label="Kopiuje" name="checkbox next owner can copy"/>
+			<check_box label="Sprzedaje/Oddaje" name="checkbox next owner can transfer" tool_tip="Następny właściciel może oddać lub sprzedać ten obiekt"/>
+			<text name="B:">
+				B:
+			</text>
+			<text name="O:">
+				O:
+			</text>
+			<text name="G:">
+				G:
+			</text>
+			<text name="E:">
+				E:
+			</text>
+			<text name="N:">
+				N:
+			</text>
+			<text name="F:">
+				F:
+			</text>
+		</panel>
+	</panel>
+	<panel name="button_panel">
+		<button label="Otwórz" name="open_btn"/>
+		<button label="Zapłać" name="pay_btn"/>
+		<button label="Kup" name="buy_btn"/>
+		<button label="Anuluj" name="cancel_btn"/>
+		<button label="Zapisz" name="save_btn"/>
+	</panel>
+</panel>

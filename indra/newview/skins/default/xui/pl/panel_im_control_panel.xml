@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<text name="avatar_name" value="Nieznany"/>
+	<button label="Profil" name="view_profile_btn"/>
+	<button label="Dodaj do Znajomych" name="add_friend_btn"/>
+	<button label="Teleportuj" name="teleport_btn"/>
+	<button label="Udostępnij" name="share_btn"/>
+	<panel name="panel_call_buttons">
+		<button label="Dzwoń" name="call_btn"/>
+		<button label="Zakończ Rozmowę" name="end_call_btn"/>
+		<button label="Przełączniki Głosu" name="voice_ctrls_btn"/>
+	</panel>
+</panel>

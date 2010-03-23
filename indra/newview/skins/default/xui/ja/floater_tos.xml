@@ -9,9 +9,9 @@
 	<text name="tos_title">
 		利用規約
 	</text>
-	<check_box label="利用規約に同意します" name="agree_chk"/>
+	<check_box label="利用規約とプライバシーポリシーに同意します" name="agree_chk"/>
 	<text name="tos_heading">
-		次の利用規約をよくお読みください。 [SECOND_LIFE] へのログインを続けるには、規約に同意する必要があります。
+		次の利用規約とプライバシーポリシーをよくお読みください。 [SECOND_LIFE] へのログインを続けるには、規約に同意する必要があります。
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

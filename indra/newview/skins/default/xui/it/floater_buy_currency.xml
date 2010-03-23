@@ -37,7 +37,7 @@
 		Calcolando...
 	</text>
 	<text name="buy_action">
-		[NAME] [PRICE]L$
+		[ACTION]
 	</text>
 	<text name="total_label">
 		Il mio saldo sarà
