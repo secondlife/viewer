@@ -827,7 +827,11 @@ void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 	else if(panel->isNewWithErrors())
 	{
 		LLClassifiedItem* c_item = dynamic_cast<LLClassifiedItem*>(mClassifiedsList->getSelectedItem());
-		c_item->fillIn(panel);
+		llassert(c_item);
+		if (c_item)
+		{
+			c_item->fillIn(panel);
+		}
 	}
 	else 
 	{
