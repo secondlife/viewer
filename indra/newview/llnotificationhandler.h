@@ -42,6 +42,8 @@
 #include "llinstantmessage.h"
 #include "llnotificationptr.h"
 
+class LLIMFloater;
+
 namespace LLNotificationsUI
 {
 // ENotificationType enumerates all possible types of notifications that could be met
@@ -304,8 +306,6 @@ public:
 
 	/**
 	 * Checks if passed notification can create toast.
-	 *
-	 * It returns false only for inventory accepted/declined notifications if respective IM window is open (EXT-5909)
 	 */
 	static bool canSpawnToast(const LLNotificationPtr& notification);
 
@@ -313,6 +313,11 @@ public:
 	 * Determines whether IM floater is opened.
 	 */
 	static bool isIMFloaterOpened(const LLNotificationPtr& notification);
+
+	/**
+	* Determines whether IM floater is focused.
+	*/
+	static bool isIMFloaterFocused(const LLNotificationPtr& notification);
 
 	/**
 	 * Writes notification message to IM session.
@@ -375,6 +380,14 @@ public:
 	 * Decrements counter of IM messages.
 	 */
 	static void decIMMesageCounter(const LLNotificationPtr& notification);
+
+private:
+
+	/**
+	 * Find IM floater based on "from_id"
+	 */
+	static LLIMFloater* findIMFloater(const LLNotificationPtr& notification);
+
 };
 
 }

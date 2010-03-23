@@ -193,10 +193,36 @@ bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notificat
 // static
 bool LLHandlerUtil::canSpawnToast(const LLNotificationPtr& notification)
 {
-	bool cannot_spawn = isIMFloaterOpened(notification) && (INVENTORY_DECLINED == notification->getName()
-			|| INVENTORY_ACCEPTED == notification->getName());
-	
-	return !cannot_spawn;
+	if(INVENTORY_DECLINED == notification->getName() 
+		|| INVENTORY_ACCEPTED == notification->getName())
+	{
+		// return false for inventory accepted/declined notifications if respective IM window is open (EXT-5909)
+		return ! isIMFloaterOpened(notification);
+	}
+
+	if(FRIENDSHIP_ACCEPTED == notification->getName())
+	{
+		// don't show FRIENDSHIP_ACCEPTED if IM window is opened and focused - EXT-6441
+		return ! isIMFloaterFocused(notification);
+	}
+
+	if(OFFER_FRIENDSHIP == notification->getName()
+		|| USER_GIVE_ITEM == notification->getName()
+		|| TELEPORT_OFFERED == notification->getName())
+	{
+		// When ANY offer arrives, show toast, unless IM window is already open - EXT-5904
+		return ! isIMFloaterOpened(notification);
+	}
+
+	return true;
+}
+
+// static
+LLIMFloater* LLHandlerUtil::findIMFloater(const LLNotificationPtr& notification)
+{
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+	return LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
 }
 
 // static
@@ -204,15 +230,23 @@ bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 {
 	bool res = false;
 
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL,
-			from_id);
-
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
-					"impanel", session_id);
+	LLIMFloater* im_floater = findIMFloater(notification);
 	if (im_floater != NULL)
 	{
 		res = im_floater->getVisible() == TRUE;
+	}
+
+	return res;
+}
+
+bool LLHandlerUtil::isIMFloaterFocused(const LLNotificationPtr& notification)
+{
+	bool res = false;
+
+	LLIMFloater* im_floater = findIMFloater(notification);
+	if (im_floater != NULL)
+	{
+		res = im_floater->hasFocus() == TRUE;
 	}
 
 	return res;
