@@ -835,6 +835,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			message = chat.mFromName + message;
 		}
 		
+		message += "\n";
+		
 
 		mEditor->appendText(message, FALSE, style_params);
 	}
