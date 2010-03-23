@@ -44,6 +44,7 @@
 #include "lltooltip.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llviewercontrol.h"
 #include "llfloatermap.h"
@@ -310,7 +311,7 @@ void LLWorldMapView::draw()
 	const S32 height = getRect().getHeight();
 	const F32 half_width = F32(width) / 2.0f;
 	const F32 half_height = F32(height) / 2.0f;
-	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
+	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 
 	S32 level = LLWorldMipmap::scaleToLevel(sMapScale);
 
@@ -912,7 +913,7 @@ void LLWorldMapView::drawFrustum()
 
 LLVector3 LLWorldMapView::globalPosToView( const LLVector3d& global_pos )
 {
-	LLVector3d relative_pos_global = global_pos - gAgent.getCameraPositionGlobal();
+	LLVector3d relative_pos_global = global_pos - gAgentCamera.getCameraPositionGlobal();
 	LLVector3 pos_local;
 	pos_local.setVec(relative_pos_global);  // convert to floats from doubles
 
@@ -1005,7 +1006,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 	
 	LLVector3d pos_global;
 	pos_global.setVec( pos_local );
-	pos_global += gAgent.getCameraPositionGlobal();
+	pos_global += gAgentCamera.getCameraPositionGlobal();
 	if(gAgent.isGodlike())
 	{
 		pos_global.mdV[VZ] = GODLY_TELEPORT_HEIGHT; // Godly height should always be 200.
@@ -1637,7 +1638,7 @@ void LLWorldMapView::updateVisibleBlocks()
 	// Load the blocks visible in the current World Map view
 
 	// Get the World Map view coordinates and boundaries
-	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
+	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
 	const F32 half_width = F32(width) / 2.0f;

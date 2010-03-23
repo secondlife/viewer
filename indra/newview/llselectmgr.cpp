@@ -56,6 +56,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewerwindow.h"
 #include "lldrawable.h"
 #include "llfloaterinspect.h"
@@ -2872,7 +2873,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 				effectp->setDuration(duration);
 			}
 
-			gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
+			gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 
 			// Keep track of how many objects have been deleted.
 			F64 obj_delete_count = LLViewerStats::getInstance()->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
@@ -4626,8 +4627,8 @@ void LLSelectMgr::updateSilhouettes()
 {
 	S32 num_sils_genned = 0;
 
-	LLVector3d	cameraPos = gAgent.getCameraPositionGlobal();
-	F32 currentCameraZoom = gAgent.getCurrentCameraBuildOffset();
+	LLVector3d	cameraPos = gAgentCamera.getCameraPositionGlobal();
+	F32 currentCameraZoom = gAgentCamera.getCurrentCameraBuildOffset();
 
 	if (!mSilhouetteImagep)
 	{
@@ -4648,7 +4649,7 @@ void LLSelectMgr::updateSilhouettes()
 		} func;
 		getSelection()->applyToObjects(&func);	
 		
-		mLastCameraPos = gAgent.getCameraPositionGlobal();
+		mLastCameraPos = gAgentCamera.getCameraPositionGlobal();
 	}
 	
 	std::vector<LLViewerObject*> changed_objects;
@@ -4915,7 +4916,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	{
 		LLBBox hud_bbox = avatar->getHUDBBox();
 
-		F32 cur_zoom = gAgent.mHUDCurZoom;
+		F32 cur_zoom = gAgentCamera.mHUDCurZoom;
 
 		// set up transform to encompass bounding box of HUD
 		glMatrixMode(GL_PROJECTION);
@@ -5399,7 +5400,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		F32 silhouette_thickness;
 		if (is_hud_object && gAgent.getAvatarObject())
 		{
-			silhouette_thickness = LLSelectMgr::sHighlightThickness / gAgent.mHUDCurZoom;
+			silhouette_thickness = LLSelectMgr::sHighlightThickness / gAgentCamera.mHUDCurZoom;
 		}
 		else
 		{
@@ -5419,7 +5420,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			LLGLEnable fog(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_LINEAR);
 			float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
-			LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgent.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+			LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
 			glFogf(GL_FOG_START, d);
 			glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
 			glFogfv(GL_FOG_COLOR, fogCol.mV);
@@ -5620,8 +5621,8 @@ void LLSelectMgr::updateSelectionCenter()
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && gAgent.getAvatarObject())
 		{
 			// reset hud ZOOM
-			gAgent.mHUDTargetZoom = 1.f;
-			gAgent.mHUDCurZoom = 1.f;
+			gAgentCamera.mHUDTargetZoom = 1.f;
+			gAgentCamera.mHUDCurZoom = 1.f;
 		}
 
 		mShowSelection = FALSE;
@@ -5713,26 +5714,26 @@ void LLSelectMgr::updatePointAt()
 				select_offset.setVec(pick.mObjectOffset);
 				select_offset.rotVec(~click_object->getRenderRotation());
 		
-				gAgent.setPointAt(POINTAT_TARGET_SELECT, click_object, select_offset);
-				gAgent.setLookAt(LOOKAT_TARGET_SELECT, click_object, select_offset);
+				gAgentCamera.setPointAt(POINTAT_TARGET_SELECT, click_object, select_offset);
+				gAgentCamera.setLookAt(LOOKAT_TARGET_SELECT, click_object, select_offset);
 			}
 			else
 			{
 				// didn't click on an object this time, revert to pointing at center of first object
-				gAgent.setPointAt(POINTAT_TARGET_SELECT, mSelectedObjects->getFirstObject());
-				gAgent.setLookAt(LOOKAT_TARGET_SELECT, mSelectedObjects->getFirstObject());
+				gAgentCamera.setPointAt(POINTAT_TARGET_SELECT, mSelectedObjects->getFirstObject());
+				gAgentCamera.setLookAt(LOOKAT_TARGET_SELECT, mSelectedObjects->getFirstObject());
 			}
 		}
 		else
 		{
-			gAgent.setPointAt(POINTAT_TARGET_CLEAR);
-			gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
+			gAgentCamera.setPointAt(POINTAT_TARGET_CLEAR);
+			gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 		}
 	}
 	else
 	{
-		gAgent.setPointAt(POINTAT_TARGET_CLEAR);
-		gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
+		gAgentCamera.setPointAt(POINTAT_TARGET_CLEAR);
+		gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 	}
 }
 
@@ -5922,20 +5923,20 @@ BOOL LLSelectMgr::setForceSelection(BOOL force)
 
 void LLSelectMgr::resetAgentHUDZoom()
 {
-	gAgent.mHUDTargetZoom = 1.f;
-	gAgent.mHUDCurZoom = 1.f;
+	gAgentCamera.mHUDTargetZoom = 1.f;
+	gAgentCamera.mHUDCurZoom = 1.f;
 }
 
 void LLSelectMgr::getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const
 {
-	target_zoom = gAgent.mHUDTargetZoom;
-	current_zoom = gAgent.mHUDCurZoom;
+	target_zoom = gAgentCamera.mHUDTargetZoom;
+	current_zoom = gAgentCamera.mHUDCurZoom;
 }
 
 void LLSelectMgr::setAgentHUDZoom(F32 target_zoom, F32 current_zoom)
 {
-	gAgent.mHUDTargetZoom = target_zoom;
-	gAgent.mHUDCurZoom = current_zoom;
+	gAgentCamera.mHUDTargetZoom = target_zoom;
+	gAgentCamera.mHUDCurZoom = current_zoom;
 }
 
 /////////////////////////////////////////////////////////////////////////////

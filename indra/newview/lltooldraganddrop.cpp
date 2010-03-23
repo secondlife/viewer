@@ -37,6 +37,7 @@
 #include "llnotificationsutil.h"
 // project headers
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -959,7 +960,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 	gViewerWindow->getWindow()->setCursor( cursor );
 
 	mLastHitPos = pick_info.mPosGlobal;
-	mLastCameraPos = gAgent.getCameraPositionGlobal();
+	mLastCameraPos = gAgentCamera.getCameraPositionGlobal();
 }
 
 // static

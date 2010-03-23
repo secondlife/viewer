@@ -37,6 +37,7 @@
 #include "llinventorybridge.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llavataractions.h"
@@ -4904,10 +4905,10 @@ void LLWearableBridge::editOnAvatar()
 		if (gFloaterCustomize)
 			gFloaterCustomize->setCurrentWearableType( wearable->getType() );
 
-		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode() )
+		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() )
 		{
 			// Start Avatar Customization
-			gAgent.changeCameraToCustomizeAvatar();
+			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 	}
 }

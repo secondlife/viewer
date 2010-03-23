@@ -54,6 +54,7 @@
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llfloatertools.h"
 #include "llviewercontrol.h"
 
@@ -784,7 +785,7 @@ BOOL LLToolCompGun::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if (clicks > 0)
 	{
-		gAgent.changeCameraToDefault();
+		gAgentCamera.changeCameraToDefault();
 
 	}
 	return TRUE;

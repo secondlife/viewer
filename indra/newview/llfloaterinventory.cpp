@@ -34,7 +34,7 @@
 
 #include "llfloaterinventory.h"
 
-#include "llagent.h"
+#include "llagentcamera.h"
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llinventorymodel.h"
@@ -115,7 +115,7 @@ LLFloaterInventory* LLFloaterInventory::showAgentInventory()
 	instance_num = (instance_num + 1) % S32_MAX;
 
 	LLFloaterInventory* iv = NULL;
-	if (!gAgent.cameraMouselook())
+	if (!gAgentCamera.cameraMouselook())
 	{
 		iv = LLFloaterReg::showTypedInstance<LLFloaterInventory>("inventory", LLSD(instance_num));
 	}

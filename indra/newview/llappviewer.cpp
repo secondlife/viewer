@@ -44,6 +44,7 @@
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -3345,10 +3346,10 @@ void LLAppViewer::saveFinalSnapshot()
 {
 	if (!mSavedFinalSnapshot && !gNoRender)
 	{
-		gSavedSettings.setVector3d("FocusPosOnLogout", gAgent.calcFocusPositionTargetGlobal());
-		gSavedSettings.setVector3d("CameraPosOnLogout", gAgent.calcCameraPositionTargetGlobal());
+		gSavedSettings.setVector3d("FocusPosOnLogout", gAgentCamera.calcFocusPositionTargetGlobal());
+		gSavedSettings.setVector3d("CameraPosOnLogout", gAgentCamera.calcCameraPositionTargetGlobal());
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
-		gAgent.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
+		gAgentCamera.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
 		gSavedSettings.setBOOL("ShowParcelOwners", FALSE);
 		idle();
 
@@ -3758,7 +3759,7 @@ void LLAppViewer::idle()
 			LLViewerJoystick::getInstance()->moveObjects();
 		}
 
-		gAgent.updateCamera();
+		gAgentCamera.updateCamera();
 	}
 
 	// update media focus

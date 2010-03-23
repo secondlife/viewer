@@ -56,6 +56,7 @@
 
 // newview includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
@@ -4361,7 +4362,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		// mNearbyLight (and all light_set_t's) are sorted such that
 		// begin() == the closest light and rbegin() == the farthest light
 		const S32 MAX_LOCAL_LIGHTS = 6;
-// 		LLVector3 cam_pos = gAgent.getCameraPositionAgent();
+// 		LLVector3 cam_pos = gAgentCamera.getCameraPositionAgent();
 		LLVector3 cam_pos = LLViewerJoystick::getInstance()->getOverrideCamera() ?
 						camera.getOrigin() : 
 						gAgent.getPositionAgent();
@@ -7101,7 +7102,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
 		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if (gAgent.getCameraAnimating() || gAgent.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		if (gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
 			avatar = NULL;
 		}
@@ -7334,7 +7335,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		if (avatar)
 		{
-			avatar->updateAttachmentVisibility(gAgent.getCameraMode());
+			avatar->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 		}
 	}
 }

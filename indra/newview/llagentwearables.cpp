@@ -32,7 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llagent.h" 
+#include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 
 #include "llcallbacklist.h"
@@ -1087,7 +1088,7 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 
 		// Check to see if there are any baked textures that we hadn't uploaded before we logged off last time.
 		// If there are any, schedule them to be uploaded as soon as the layer textures they depend on arrive.
-		if (gAgent.cameraCustomizeAvatar())
+		if (gAgentCamera.cameraCustomizeAvatar())
 		{
 			avatar->requestLayerSetUploads();
 		}

@@ -66,6 +66,11 @@ class LLAgentDropGroupViewerNode;
 //--------------------------------------------------------------------
 // Types
 //--------------------------------------------------------------------
+//--------------------------------------------------------------------
+// Types
+//--------------------------------------------------------------------
+
+/*
 enum ECameraMode
 {
 	CAMERA_MODE_THIRD_PERSON,
@@ -74,18 +79,19 @@ enum ECameraMode
 	CAMERA_MODE_FOLLOW
 };
 
-/** Camera Presets for CAMERA_MODE_THIRD_PERSON */
+// Camera Presets for CAMERA_MODE_THIRD_PERSON
 enum ECameraPreset 
 {
-	/** Default preset, what the Third Person Mode actually was */
+	// Default preset, what the Third Person Mode actually was
 	CAMERA_PRESET_REAR_VIEW,
 	
-	/** "Looking at the Avatar from the front" */
+	// "Looking at the Avatar from the front"
 	CAMERA_PRESET_FRONT_VIEW, 
 
-	/** "Above and to the left, over the shoulder, pulled back a little on the zoom" */
+	// "Above and to the left, over the shoulder, pulled back a little on the zoom"
 	CAMERA_PRESET_GROUP_VIEW
 };
+*/
 
 enum EAnimRequest
 {
@@ -115,6 +121,7 @@ class LLAgent : public LLOldEvents::LLObservable
 
 public:
 	friend class LLAgentDropGroupViewerNode;
+	friend class LLAgentCamera;
 
 /********************************************************************************
  **                                                                            **
@@ -448,8 +455,8 @@ public:
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
 	void			endAnimationUpdateUI();
 private:
-	LLFrameTimer	mAnimationTimer; 	// Seconds that transition animation has been active
-	F32				mAnimationDuration;	// In seconds
+	LLFrameTimer	mAnimationTimer; 	// Seconds that transition animation has been active // SERAPH REMOVE
+	F32				mAnimationDuration;	// In seconds // SERAPH REMOVE
 	BOOL            mCustomAnim; 		// Current animation is ANIM_AGENT_CUSTOMIZE ?
 	LLAnimPauseRequest mPauseRequest;
 	BOOL			mViewsPushed; 		// Keep track of whether or not we have pushed views
@@ -491,6 +498,7 @@ public:
 	void			moveYaw(F32 mag, bool reset_view = true);
 	void			movePitch(F32 mag);
 
+	// SERAPH Remove this whole section
 	//--------------------------------------------------------------------
 	// Orbit
 	//--------------------------------------------------------------------
@@ -509,6 +517,7 @@ private:
 	F32				mOrbitInKey;
 	F32				mOrbitOutKey;
 	
+	// SERAPH Remove this whole section
 	//--------------------------------------------------------------------
 	// Pan
 	//--------------------------------------------------------------------
@@ -643,6 +652,7 @@ private:
  **                    CAMERA
  **/
 
+/*
 	//--------------------------------------------------------------------
 	// Mode
 	//--------------------------------------------------------------------
@@ -654,7 +664,7 @@ public:
 	void			changeCameraToFollow(BOOL animate = TRUE); 	// Ventrella
 	BOOL			cameraThirdPerson() const		{ return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
 	BOOL			cameraMouselook() const			{ return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
-	BOOL			cameraCustomizeAvatar() const	{ return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
+	BOOL			cameraCustomizeAvatar() const	{ return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR); }
 	BOOL			cameraFollow() const			{ return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
 	ECameraMode		getCameraMode() const 			{ return mCameraMode; }
 	void			updateCamera();					// Call once per frame to update camera location/orientation
@@ -671,18 +681,17 @@ public:
 
 private:
 	
-	/** Determines default camera offset depending on the current camera preset */
+	// Determines default camera offset depending on the current camera preset
 	LLVector3 getCameraOffsetInitial();
 
-	/** Camera preset in Third Person Mode */
+	// Camera preset in Third Person Mode
 	ECameraPreset mCameraPreset; 
 
-	/** Initial camera offsets */
+	// Initial camera offsets
 	std::map<ECameraPreset, LLVector3> mCameraOffsetInitial;
 
-	/** Initial focus offsets */
+	// Initial focus offsets
 	std::map<ECameraPreset, LLVector3d> mFocusOffsetInitial;
-
 
 	//--------------------------------------------------------------------
 	// Position
@@ -733,6 +742,7 @@ private:
 	BOOL			mSitCameraEnabled;		// Use provided camera information when sitting?
 	LLVector3		mSitCameraPos;			// Root relative camera pos when sitting
 	LLVector3		mSitCameraFocus;		// Root relative camera target when sitting
+#endif
 
 	//--------------------------------------------------------------------
 	// Animation
@@ -781,20 +791,6 @@ private:
 	BOOL			mTrackFocusObject;
 	F32				mUIOffset;	
 	
-	//--------------------------------------------------------------------
-	// Lookat / Pointat
-	//--------------------------------------------------------------------
-public:
-	void			updateLookAt(const S32 mouse_x, const S32 mouse_y);
-	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
-	ELookAtType		getLookAtType();
-	void 			slamLookAt(const LLVector3 &look_at); // Set the physics data
-	BOOL			setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
-	EPointAtType	getPointAtType();
-public:
-	LLPointer<LLHUDEffectLookAt> mLookAt;
-	LLPointer<LLHUDEffectPointAt> mPointAt;
-
 	//--------------------------------------------------------------------
 	// Third person
 	//--------------------------------------------------------------------
@@ -848,21 +844,22 @@ public:
 private:
 	BOOL			mForceMouselook;
 	
+*/
+
 	//--------------------------------------------------------------------
 	// HUD
 	//--------------------------------------------------------------------
 public:
 	const LLColor4	&getEffectColor();
 	void			setEffectColor(const LLColor4 &color);
-public:
-	F32				mHUDTargetZoom;	// Target zoom level for HUD objects (used when editing)
-	F32				mHUDCurZoom; 	// Current animated zoom level for HUD objects
 private:
 	LLUIColor 		mEffectColor;
 
 /**                    Camera
  **                                                                            **
  *******************************************************************************/
+
+
 
 /********************************************************************************
  **                                                                            **
@@ -939,7 +936,7 @@ public:
 	BOOL			needsRenderAvatar(); // TRUE when camera mode is such that your own avatar should draw
 	BOOL			needsRenderHead();
 public:
-	F32				mDrawDistance;
+	F32				mDrawDistance; // SERAPH REMOVE
 private:
 	BOOL			mShowAvatar; 		// Should we render the avatar?
 	U32				mAppearanceSerialNum;

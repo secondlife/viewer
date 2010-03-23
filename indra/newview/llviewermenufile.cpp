@@ -36,6 +36,7 @@
 
 // project includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llfloaterbuycurrency.h"
@@ -140,9 +141,9 @@ std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 **/
 const std::string upload_pick(void* data)
 {
- 	if( gAgent.cameraMouselook() )
+ 	if( gAgentCamera.cameraMouselook() )
 	{
-		gAgent.changeCameraToDefault();
+		gAgentCamera.changeCameraToDefault();
 		// This doesn't seem necessary. JC
 		// display();
 	}
@@ -289,9 +290,9 @@ class LLFileUploadBulk : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		if( gAgent.cameraMouselook() )
+		if( gAgentCamera.cameraMouselook() )
 		{
-			gAgent.changeCameraToDefault();
+			gAgentCamera.changeCameraToDefault();
 		}
 
 		// TODO:

@@ -60,6 +60,7 @@
 
 #include "llaudiosourcevo.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llbbox.h"
 #include "llbox.h"
 #include "llcylinder.h"
@@ -2757,7 +2758,7 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 		return;
 	}
 	
-	LLVector3 viewer_pos_agent = agent.getCameraPositionAgent();
+	LLVector3 viewer_pos_agent = gAgentCamera.getCameraPositionAgent();
 	LLVector3 pos_agent = getRenderPosition();
 
 	F32 dx = viewer_pos_agent.mV[VX] - pos_agent.mV[VX];

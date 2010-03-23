@@ -41,6 +41,7 @@
 // Viewer includes
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llvoavatarself.h" // to check gAgent.getAvatarObject()->isSitting()
 #include "llbottomtray.h"
 #include "llbutton.h"
@@ -593,7 +594,7 @@ BOOL LLPanelStandStopFlying::postBuild()
 void LLPanelStandStopFlying::setVisible(BOOL visible)
 {
 	//we dont need to show the panel if these buttons are not activated
-	if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
 
 	if (visible)
 	{

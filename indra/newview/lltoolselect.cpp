@@ -35,6 +35,7 @@
 #include "lltoolselect.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llmanip.h"
@@ -167,7 +168,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			LLSelectMgr::getInstance()->setAgentHUDZoom(target_zoom, current_zoom);
 		}
 
-		if (!gAgent.getFocusOnAvatar() &&										// if camera not glued to avatar
+		if (!gAgentCamera.getFocusOnAvatar() &&										// if camera not glued to avatar
 			LLVOAvatar::findAvatarFromAttachment(object) != gAgent.getAvatarObject() &&	// and it's not one of your attachments
 			object != gAgent.getAvatarObject())									// and it's not you
 		{

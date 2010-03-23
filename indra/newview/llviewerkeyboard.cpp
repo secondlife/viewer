@@ -36,6 +36,7 @@
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llnearbychatbar.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
@@ -279,7 +280,7 @@ F32 get_orbit_rate()
 void camera_spin_around_ccw( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitLeftKey( get_orbit_rate() );
 }
 
@@ -287,14 +288,14 @@ void camera_spin_around_ccw( EKeystate s )
 void camera_spin_around_cw( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitRightKey( get_orbit_rate() );
 }
 
 void camera_spin_around_ccw_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s ) return;
-	if (gAgent.rotateGrabbed() || gAgent.sitCameraEnabled())
+	if (gAgent.rotateGrabbed() || gAgentCamera.sitCameraEnabled())
 	{
 		//send keystrokes, but do not change camera
 		agent_turn_right(s);
@@ -310,7 +311,7 @@ void camera_spin_around_ccw_sitting( EKeystate s )
 void camera_spin_around_cw_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	if (gAgent.rotateGrabbed() || gAgent.sitCameraEnabled())
+	if (gAgent.rotateGrabbed() || gAgentCamera.sitCameraEnabled())
 	{
 		//send keystrokes, but do not change camera
 		agent_turn_left(s);
@@ -326,7 +327,7 @@ void camera_spin_around_cw_sitting( EKeystate s )
 void camera_spin_over( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitUpKey( get_orbit_rate() );
 }
 
@@ -334,14 +335,14 @@ void camera_spin_over( EKeystate s )
 void camera_spin_under( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitDownKey( get_orbit_rate() );
 }
 
 void camera_spin_over_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	if (gAgent.upGrabbed() || gAgent.sitCameraEnabled())
+	if (gAgent.upGrabbed() || gAgentCamera.sitCameraEnabled())
 	{
 		//send keystrokes, but do not change camera
 		agent_jump(s);
@@ -357,7 +358,7 @@ void camera_spin_over_sitting( EKeystate s )
 void camera_spin_under_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	if (gAgent.downGrabbed() || gAgent.sitCameraEnabled())
+	if (gAgent.downGrabbed() || gAgentCamera.sitCameraEnabled())
 	{
 		//send keystrokes, but do not change camera
 		agent_push_down(s);
@@ -372,7 +373,7 @@ void camera_spin_under_sitting( EKeystate s )
 void camera_move_forward( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitInKey( get_orbit_rate() );
 }
 
@@ -380,14 +381,14 @@ void camera_move_forward( EKeystate s )
 void camera_move_backward( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitOutKey( get_orbit_rate() );
 }
 
 void camera_move_forward_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	if (gAgent.forwardGrabbed() || gAgent.sitCameraEnabled())
+	if (gAgent.forwardGrabbed() || gAgentCamera.sitCameraEnabled())
 	{
 		agent_push_forward(s);
 	}
@@ -402,7 +403,7 @@ void camera_move_backward_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 
-	if (gAgent.backwardGrabbed() || gAgent.sitCameraEnabled())
+	if (gAgent.backwardGrabbed() || gAgentCamera.sitCameraEnabled())
 	{
 		agent_push_backward(s);
 	}
@@ -415,56 +416,56 @@ void camera_move_backward_sitting( EKeystate s )
 void camera_pan_up( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setPanUpKey( get_orbit_rate() );
 }
 
 void camera_pan_down( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setPanDownKey( get_orbit_rate() );
 }
 
 void camera_pan_left( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setPanLeftKey( get_orbit_rate() );
 }
 
 void camera_pan_right( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setPanRightKey( get_orbit_rate() );
 }
 
 void camera_pan_in( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setPanInKey( get_orbit_rate() );
 }
 
 void camera_pan_out( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setPanOutKey( get_orbit_rate() );
 }
 
 void camera_move_forward_fast( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitInKey(2.5f);
 }
 
 void camera_move_backward_fast( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	gAgent.unlockView();
+	gAgentCamera.unlockView();
 	gAgent.setOrbitOutKey(2.5f);
 }
 
@@ -868,7 +869,7 @@ S32 LLViewerKeyboard::loadBindings(const std::string& filename)
 
 EKeyboardMode LLViewerKeyboard::getMode()
 {
-	if ( gAgent.cameraMouselook() )
+	if ( gAgentCamera.cameraMouselook() )
 	{
 		return MODE_FIRST_PERSON;
 	}

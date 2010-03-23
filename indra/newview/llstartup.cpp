@@ -88,6 +88,7 @@
 #include "v3math.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentpicksinfo.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
@@ -1134,6 +1135,7 @@ bool idle_startup()
 
 		// Finish agent initialization.  (Requires gSavedSettings, builds camera)
 		gAgent.init();
+		gAgentCamera.init();
 		set_underclothes_menu_options();
 
 		// Since we connected, save off the settings so the user doesn't have to
@@ -1336,8 +1338,8 @@ bool idle_startup()
 
 		gAgent.setPositionAgent(agent_start_position_region);
 		gAgent.resetAxes(gAgentStartLookAt);
-		gAgent.stopCameraAnimation();
-		gAgent.resetCamera();
+		gAgentCamera.stopCameraAnimation();
+		gAgentCamera.resetCamera();
 
 		// Initialize global class data needed for surfaces (i.e. textures)
 		if (!gNoRender)
@@ -1810,15 +1812,15 @@ bool idle_startup()
 				if (samename)
 				{
 					// restore old camera pos
-					gAgent.setFocusOnAvatar(FALSE, FALSE);
-					gAgent.setCameraPosAndFocusGlobal(gSavedSettings.getVector3d("CameraPosOnLogout"), gSavedSettings.getVector3d("FocusPosOnLogout"), LLUUID::null);
+					gAgentCamera.setFocusOnAvatar(FALSE, FALSE);
+					gAgentCamera.setCameraPosAndFocusGlobal(gSavedSettings.getVector3d("CameraPosOnLogout"), gSavedSettings.getVector3d("FocusPosOnLogout"), LLUUID::null);
 					BOOL limit_hit = FALSE;
-					gAgent.calcCameraPositionTargetGlobal(&limit_hit);
+					gAgentCamera.calcCameraPositionTargetGlobal(&limit_hit);
 					if (limit_hit)
 					{
-						gAgent.setFocusOnAvatar(TRUE, FALSE);
+						gAgentCamera.setFocusOnAvatar(TRUE, FALSE);
 					}
-					gAgent.stopCameraAnimation();
+					gAgentCamera.stopCameraAnimation();
 				}
 			}
 			else
