@@ -371,6 +371,8 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mTextTime->setVisible(visible);
 	getChild<LLUICtrl>("buycurrency")->setVisible(visible);
 	getChild<LLUICtrl>("buyL")->setVisible(visible);
+	mBtnVolume->setVisible(visible);
+	mMediaToggle->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
