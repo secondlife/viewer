@@ -322,8 +322,14 @@ private:
 	// up by index.
 	static LLUIImage*	getButtonImage(const Params& p, EFloaterButton e);
 	static LLUIImage*	getButtonPressedImage(const Params& p, EFloaterButton e);
-	static std::string	getButtonTooltip(const Params& p, EFloaterButton e);
 	
+	/**
+	 * @params is_chrome - if floater is Chrome it means that floater will never get focus.
+	 * Therefore it can't be closed with 'Ctrl+W'. So the tooltip text of close button( X )
+	 * should be 'Close' not 'Close(Ctrl+W)' as for usual floaters.
+	 */
+	static std::string	getButtonTooltip(const Params& p, EFloaterButton e, bool is_chrome);
+
 	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index);
 	void			addResizeCtrls();
 	void			layoutResizeCtrls();

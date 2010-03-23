@@ -1121,6 +1121,7 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 		setFocus(FALSE);
 		// can't Ctrl-Tab to "chrome" floaters
 		setFocusRoot(FALSE);
+		mButtons[BUTTON_CLOSE]->setToolTip(LLStringExplicit(getButtonTooltip(Params(), BUTTON_CLOSE, is_chrome)));
 	}
 	
 	// no titles displayed on "chrome" floaters
@@ -1845,7 +1846,7 @@ void LLFloater::buildButtons(const Params& floater_params)
 		p.click_callback.function(boost::bind(sButtonCallbacks[i], this));
 		p.tab_stop(false);
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
-		p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i);
+		p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i, getIsChrome());
 		p.scale_image(true);
 		p.chrome(true);
 
@@ -1900,8 +1901,15 @@ LLUIImage* LLFloater::getButtonPressedImage(const Params& p, EFloaterButton e)
 }
 
 // static
-std::string LLFloater::getButtonTooltip(const Params& p, EFloaterButton e)
+std::string LLFloater::getButtonTooltip(const Params& p, EFloaterButton e, bool is_chrome)
 {
+	// EXT-4081 (Lag Meter: Ctrl+W does not close floater)
+	// If floater is chrome set 'Close' text for close button's tooltip
+	if(is_chrome && BUTTON_CLOSE == e)
+	{
+		static std::string close_tooltip_chrome = LLTrans::getString("BUTTON_CLOSE_CHROME");
+		return close_tooltip_chrome;
+	}
 	// TODO: per-floater localizable tooltips set in XML
 	return sButtonToolTips[e];
 }
