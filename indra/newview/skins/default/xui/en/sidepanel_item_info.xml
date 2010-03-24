@@ -399,6 +399,7 @@ top_pad="10"
 			    top_pad="10"/>
    </panel>
     <panel
+		 follows="bottom|left"
 		 height="30"
 		 layout="topleft"
 		 name="button_panel"

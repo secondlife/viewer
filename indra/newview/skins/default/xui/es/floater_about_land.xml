@@ -207,10 +207,10 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 		</panel>
 		<panel label="OBJETOS" name="land_objects_panel">
 			<panel.string name="objects_available_text">
-				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
+				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</panel.string>
 			<panel.string name="objects_deleted_text">
-				[COUNT] de un máximo de [MAX] ([DELETED] se borrarán)
+				[COUNT] de un máx. de [MAX] ([DELETED] se borrarán)
 			</panel.string>
 			<text name="parcel_object_bonus">
 				Plus de objetos en la región: [BONUS]
@@ -219,7 +219,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Uso de primitivas:
 			</text>
 			<text left="204" name="objects_available" width="250">
-				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
+				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:" width="200">
 				Prims que admite la parcela:

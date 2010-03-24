@@ -46,8 +46,8 @@
 	<menu_item_call label="Teletrasportati" name="Landmark Open"/>
 	<menu_item_call label="Apri" name="Animation Open"/>
 	<menu_item_call label="Apri" name="Sound Open"/>
-	<menu_item_call label="Sostituisci outfit" name="Replace Outfit"/>
-	<menu_item_call label="Aggiungi all&apos;outfit" name="Add To Outfit"/>
+	<menu_item_call label="Sostituisci vestiti" name="Replace Outfit"/>
+	<menu_item_call label="Aggiungi al vestiario" name="Add To Outfit"/>
 	<menu_item_call label="Elimina oggetto" name="Purge Item"/>
 	<menu_item_call label="Ripristina oggetto" name="Restore Item"/>
 	<menu_item_call label="Apri" name="Open"/>

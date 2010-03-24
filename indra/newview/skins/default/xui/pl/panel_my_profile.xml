@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Profil" name="panel_profile">
 	<string name="no_partner_text" value="Żadne"/>
+	<string name="no_group_text" value="Żadne"/>
 	<string name="RegisterDateFormat">
 		[REG_DATE] ([AGE])
 	</string>
-	<scroll_container name="profile_scroll">
-		<panel name="scroll_content_panel">
-			<panel name="second_life_image_panel">
-				<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij poniższy przycisk Edycji Profilu aby zmienić obrazek"/>
-			</panel>
-			<panel name="first_life_image_panel">
-				<icon label="" name="real_world_edit_icon" tool_tip="Kliknij poniższy przycisk Edycji Profilu aby zmienić obrazek"/>
-				<text name="title_rw_descr_text" value="Życie#1:"/>
-			</panel>
-			<text name="me_homepage_text">
-				WWW:
-			</text>
-			<text name="title_member_text" value="Urodziny:"/>
-			<text name="title_acc_status_text" value="Konto:"/>
-			<text name="acc_status_text" value="Rezydent. Brak Danych Konta"/>
-			<text name="title_partner_text" value="Partner:"/>
-			<text name="title_groups_text" value="Grupy:"/>
-		</panel>
-	</scroll_container>
-	<panel name="profile_buttons_panel">
-		<button label="Poznaj" name="add_friend"/>
-		<button label="IM" name="im"/>
-		<button label="Dzwoń" name="call"/>
-		<button label="Mapa" name="show_on_map_btn"/>
-		<button label="Teleportuj" name="teleport"/>
-	</panel>
-	<panel name="profile_me_buttons_panel">
-		<button label="Edytuj Profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane osobowe"/>
-		<button label="Wygląd" name="edit_appearance_btn" tool_tip="Stwórz/Edytuj swój wygląd: dane fizyczne, ubrania, etc."/>
-	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="scroll_content_panel">
+					<panel name="second_life_image_panel">
+						<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij przycisk Edytuj Profil by zmienić zdjecie"/>
+						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<panel name="first_life_image_panel">
+						<icon label="" name="real_world_edit_icon" tool_tip="Kliknij przycisk Edytuj Profil by zmienić zdjecie"/>
+						<text name="title_rw_descr_text" value="Życie#1:"/>
+					</panel>
+					<text name="title_member_text" value="Urodziny:"/>
+					<text name="title_acc_status_text" value="Konto:"/>
+					<text name="title_partner_text" value="Partner:"/>
+					<panel name="partner_data_panel">
+						<name_box initial_value="(przetwarzanie)" name="partner_text"/>
+					</panel>
+					<text name="title_groups_text" value="Grupy:"/>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="profile_me_buttons_panel">
+			<button label="Edytuj Profil" name="edit_profile_btn" tool_tip="Edytuj swoje dane"/>
+			<button label="Edytuj Wygląd" name="edit_appearance_btn" tool_tip="Stwórz/edytuj swój wygląd: dane fizyczne, ubrania itp."/>
+		</layout_panel>
+	</layout_stack>
 </panel>

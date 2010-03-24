@@ -835,7 +835,6 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			message = chat.mFromName + message;
 		}
 		
-
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();

@@ -326,7 +326,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 			       << "(" << size << ").  Clamping size and truncating data." << llendl;
 			size = 255;
 			char *truncate = (char *)data;
-			truncate[255] = 0;
+			truncate[254] = 0; // array size is 255 but the last element index is 254
 		}
 
 		// no correct size for MVT_VARIABLE, instead we need to tell how many bytes the size will be encoded as

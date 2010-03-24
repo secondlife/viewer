@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Wiadomość (IM)">
 	<string name="only_user_message">
-		Jesteś jedyną osobą w tej konferencji.
+		Jesteś jedynym uczestnikiem tej konferencji.
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST] - ta osoba jest obecnie niedostępna.
@@ -10,7 +10,7 @@
 		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
 	</string>
 	<string name="muted_message">
-		Ten Rezydent został przez Ciebie zablokowany. Wysłanie wiadomości automatycznie odblokuje go.
+		Zablokowałeś tego Rezydenta. Wysłanie wiadomości automatycznie odblokuje go.
 	</string>
 	<string name="generic_request_error">
 		Błąd. Spróbuj ponownie za kilka minut.
@@ -31,7 +31,7 @@
 		Moderator wyciszył Cię.
 	</string>
 	<string name="add_session_event">
-		Nie można dodać nikogo do czatu z [RECIPIENT].
+		Niemożliwość dodania Rezydentów do tej konferencji z [RECIPIENT].
 	</string>
 	<string name="message_session_event">
 		Nie można wysłać Twojej wiadomości do sesji czatu z [RECIPIENT].
