@@ -99,10 +99,6 @@ public:
  **                    INITIALIZATION
  **/
 
-	// SERAPH UNFILED
-public:
-	F32				mDrawDistance;
-
 	//--------------------------------------------------------------------
 	// Constructors / Destructors
 	//--------------------------------------------------------------------
@@ -139,9 +135,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void switchCameraPreset(ECameraPreset preset);
-
 private:
-	
 	/** Determines default camera offset depending on the current camera preset */
 	LLVector3 getCameraOffsetInitial();
 
@@ -251,7 +245,7 @@ public:
 	void			startCameraAnimation();
 	void			stopCameraAnimation();
 private:
-	LLFrameTimer	mAnimationTimer; 	// Seconds that transition animation has been active // SERAPH agentCamera
+	LLFrameTimer	mAnimationTimer; 	// Seconds that transition animation has been active
 	F32				mAnimationDuration;	// In seconds
 	BOOL			mCameraAnimating;					// Camera is transitioning from one mode to another
 	LLVector3d		mAnimationCameraStartGlobal;		// Camera start position, global coords
@@ -347,6 +341,8 @@ public:
 	void			resetView(BOOL reset_camera = TRUE, BOOL change_camera = FALSE);
 	// Called on camera movement.  Unlocks camera from the default position behind the avatar.
 	void			unlockView();
+public:
+	F32				mDrawDistance;
 
 	//--------------------------------------------------------------------
 	// Mouselook

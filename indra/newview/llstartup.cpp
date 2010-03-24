@@ -1174,7 +1174,7 @@ bool idle_startup()
 		// World initialization must be done after above window init
 
 		// User might have overridden far clip
-		LLWorld::getInstance()->setLandFarClip( gAgent.mDrawDistance );
+		LLWorld::getInstance()->setLandFarClip(gAgentCamera.mDrawDistance);
 
 		// Before we create the first region, we need to set the agent's mOriginGlobal
 		// This is necessary because creating objects before this is set will result in a

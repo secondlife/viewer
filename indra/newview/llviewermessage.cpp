@@ -3458,7 +3458,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		msg->addVector3Fast(_PREHASH_CameraAtAxis, LLViewerCamera::getInstance()->getAtAxis());
 		msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
 		msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
-		msg->addF32Fast(_PREHASH_Far, gAgent.mDrawDistance);
+		msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
 		
 		msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
 

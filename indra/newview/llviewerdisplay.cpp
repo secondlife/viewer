@@ -175,7 +175,7 @@ void display_update_camera()
 
 	// Cut draw distance in half when customizing avatar,
 	// but on the viewer only.
-	F32 final_far = gAgent.mDrawDistance;
+	F32 final_far = gAgentCamera.mDrawDistance;
 	if (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode())
 	{
 		final_far *= 0.5f;

@@ -2509,9 +2509,9 @@ void LLAppViewer::cleanupSavedSettings()
 	gSavedSettings.setF32("MapScale", LLWorldMapView::sMapScale );
 
 	// Some things are cached in LLAgent.
-	if (gAgent.mInitialized)
+	if (gAgent.isInitialized())
 	{
-		gSavedSettings.setF32("RenderFarClip", gAgent.mDrawDistance);
+		gSavedSettings.setF32("RenderFarClip", gAgentCamera.mDrawDistance);
 	}
 }
 

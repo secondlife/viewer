@@ -281,7 +281,7 @@ void camera_spin_around_ccw( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitLeftKey( get_orbit_rate() );
+	gAgentCamera.setOrbitLeftKey( get_orbit_rate() );
 }
 
 
@@ -289,7 +289,7 @@ void camera_spin_around_cw( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitRightKey( get_orbit_rate() );
+	gAgentCamera.setOrbitRightKey( get_orbit_rate() );
 }
 
 void camera_spin_around_ccw_sitting( EKeystate s )
@@ -303,7 +303,7 @@ void camera_spin_around_ccw_sitting( EKeystate s )
 	else
 	{
 		//change camera but do not send keystrokes
-		gAgent.setOrbitLeftKey( get_orbit_rate() );
+		gAgentCamera.setOrbitLeftKey( get_orbit_rate() );
 	}
 }
 
@@ -319,7 +319,7 @@ void camera_spin_around_cw_sitting( EKeystate s )
 	else
 	{
 		//change camera but do not send keystrokes
-		gAgent.setOrbitRightKey( get_orbit_rate() );
+		gAgentCamera.setOrbitRightKey( get_orbit_rate() );
 	}
 }
 
@@ -328,7 +328,7 @@ void camera_spin_over( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitUpKey( get_orbit_rate() );
+	gAgentCamera.setOrbitUpKey( get_orbit_rate() );
 }
 
 
@@ -336,7 +336,7 @@ void camera_spin_under( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitDownKey( get_orbit_rate() );
+	gAgentCamera.setOrbitDownKey( get_orbit_rate() );
 }
 
 void camera_spin_over_sitting( EKeystate s )
@@ -350,7 +350,7 @@ void camera_spin_over_sitting( EKeystate s )
 	else
 	{
 		//change camera but do not send keystrokes
-		gAgent.setOrbitUpKey( get_orbit_rate() );
+		gAgentCamera.setOrbitUpKey( get_orbit_rate() );
 	}
 }
 
@@ -366,7 +366,7 @@ void camera_spin_under_sitting( EKeystate s )
 	else
 	{
 		//change camera but do not send keystrokes
-		gAgent.setOrbitDownKey( get_orbit_rate() );
+		gAgentCamera.setOrbitDownKey( get_orbit_rate() );
 	}
 }
 
@@ -374,7 +374,7 @@ void camera_move_forward( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitInKey( get_orbit_rate() );
+	gAgentCamera.setOrbitInKey( get_orbit_rate() );
 }
 
 
@@ -382,7 +382,7 @@ void camera_move_backward( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitOutKey( get_orbit_rate() );
+	gAgentCamera.setOrbitOutKey( get_orbit_rate() );
 }
 
 void camera_move_forward_sitting( EKeystate s )
@@ -394,7 +394,7 @@ void camera_move_forward_sitting( EKeystate s )
 	}
 	else
 	{
-		gAgent.setOrbitInKey( get_orbit_rate() );
+		gAgentCamera.setOrbitInKey( get_orbit_rate() );
 	}
 }
 
@@ -409,7 +409,7 @@ void camera_move_backward_sitting( EKeystate s )
 	}
 	else
 	{
-		gAgent.setOrbitOutKey( get_orbit_rate() );
+		gAgentCamera.setOrbitOutKey( get_orbit_rate() );
 	}
 }
 
@@ -417,56 +417,56 @@ void camera_pan_up( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setPanUpKey( get_orbit_rate() );
+	gAgentCamera.setPanUpKey( get_orbit_rate() );
 }
 
 void camera_pan_down( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setPanDownKey( get_orbit_rate() );
+	gAgentCamera.setPanDownKey( get_orbit_rate() );
 }
 
 void camera_pan_left( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setPanLeftKey( get_orbit_rate() );
+	gAgentCamera.setPanLeftKey( get_orbit_rate() );
 }
 
 void camera_pan_right( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setPanRightKey( get_orbit_rate() );
+	gAgentCamera.setPanRightKey( get_orbit_rate() );
 }
 
 void camera_pan_in( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setPanInKey( get_orbit_rate() );
+	gAgentCamera.setPanInKey( get_orbit_rate() );
 }
 
 void camera_pan_out( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setPanOutKey( get_orbit_rate() );
+	gAgentCamera.setPanOutKey( get_orbit_rate() );
 }
 
 void camera_move_forward_fast( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitInKey(2.5f);
+	gAgentCamera.setOrbitInKey(2.5f);
 }
 
 void camera_move_backward_fast( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gAgentCamera.unlockView();
-	gAgent.setOrbitOutKey(2.5f);
+	gAgentCamera.setOrbitOutKey(2.5f);
 }
 
 
@@ -474,7 +474,7 @@ void edit_avatar_spin_ccw( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gMorphView->setCameraDrivenByKeys( TRUE );
-	gAgent.setOrbitLeftKey( get_orbit_rate() );
+	gAgentCamera.setOrbitLeftKey( get_orbit_rate() );
 	//gMorphView->orbitLeft( get_orbit_rate() );
 }
 
@@ -483,7 +483,7 @@ void edit_avatar_spin_cw( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gMorphView->setCameraDrivenByKeys( TRUE );
-	gAgent.setOrbitRightKey( get_orbit_rate() );
+	gAgentCamera.setOrbitRightKey( get_orbit_rate() );
 	//gMorphView->orbitRight( get_orbit_rate() );
 }
 
@@ -491,7 +491,7 @@ void edit_avatar_spin_over( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gMorphView->setCameraDrivenByKeys( TRUE );
-	gAgent.setOrbitUpKey( get_orbit_rate() );
+	gAgentCamera.setOrbitUpKey( get_orbit_rate() );
 	//gMorphView->orbitUp( get_orbit_rate() );
 }
 
@@ -500,7 +500,7 @@ void edit_avatar_spin_under( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gMorphView->setCameraDrivenByKeys( TRUE );
-	gAgent.setOrbitDownKey( get_orbit_rate() );
+	gAgentCamera.setOrbitDownKey( get_orbit_rate() );
 	//gMorphView->orbitDown( get_orbit_rate() );
 }
 
@@ -508,7 +508,7 @@ void edit_avatar_move_forward( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gMorphView->setCameraDrivenByKeys( TRUE );
-	gAgent.setOrbitInKey( get_orbit_rate() );
+	gAgentCamera.setOrbitInKey( get_orbit_rate() );
 	//gMorphView->orbitIn();
 }
 
@@ -517,7 +517,7 @@ void edit_avatar_move_backward( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
 	gMorphView->setCameraDrivenByKeys( TRUE );
-	gAgent.setOrbitOutKey( get_orbit_rate() );
+	gAgentCamera.setOrbitOutKey( get_orbit_rate() );
 	//gMorphView->orbitOut();
 }
 

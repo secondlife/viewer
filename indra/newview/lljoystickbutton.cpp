@@ -627,24 +627,24 @@ void LLJoystickCameraTrack::onHeldDown()
 	if (dx > mVertSlopNear)
 	{
 		gAgentCamera.unlockView();
-		gAgent.setPanRightKey(getOrbitRate());
+		gAgentCamera.setPanRightKey(getOrbitRate());
 	}
 	else if (dx < -mVertSlopNear)
 	{
 		gAgentCamera.unlockView();
-		gAgent.setPanLeftKey(getOrbitRate());
+		gAgentCamera.setPanLeftKey(getOrbitRate());
 	}
 
 	// over/under rotation
 	if (dy > mVertSlopNear)
 	{
 		gAgentCamera.unlockView();
-		gAgent.setPanUpKey(getOrbitRate());
+		gAgentCamera.setPanUpKey(getOrbitRate());
 	}
 	else if (dy < -mVertSlopNear)
 	{
 		gAgentCamera.unlockView();
-		gAgent.setPanDownKey(getOrbitRate());
+		gAgentCamera.setPanDownKey(getOrbitRate());
 	}
 }
 
@@ -694,25 +694,25 @@ void LLJoystickCameraZoom::onHeldDown()
 	{
 		// Zoom in fast
 		gAgentCamera.unlockView();
-		gAgent.setOrbitInKey(FAST_RATE);
+		gAgentCamera.setOrbitInKey(FAST_RATE);
 	}
 	else if (dy > mVertSlopNear)
 	{
 		// Zoom in slow
 		gAgentCamera.unlockView();
-		gAgent.setOrbitInKey(getOrbitRate());
+		gAgentCamera.setOrbitInKey(getOrbitRate());
 	}
 	else if (dy < -mVertSlopFar)
 	{
 		// Zoom out fast
 		gAgentCamera.unlockView();
-		gAgent.setOrbitOutKey(FAST_RATE);
+		gAgentCamera.setOrbitOutKey(FAST_RATE);
 	}
 	else if (dy < -mVertSlopNear)
 	{
 		// Zoom out slow
 		gAgentCamera.unlockView();
-		gAgent.setOrbitOutKey(getOrbitRate());
+		gAgentCamera.setOrbitOutKey(getOrbitRate());
 	}
 }
 
