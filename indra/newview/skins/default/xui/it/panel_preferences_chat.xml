@@ -45,6 +45,12 @@
 	</text>
 	<check_box initial_value="true" label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
 	<check_box label="Quando sono OFF-LINE, spediscimi gli IM in una e-mail" name="send_im_to_email"/>
+	<text name="show_ims_in_label">
+		Mostra gli IM in:
+	</text>
+	<text name="requires_restart_label">
+		(richiede il riavvio)
+	</text>
 	<radio_group name="chat_window" tool_tip="Mostra i tuoi messaggi istantanei in diverse finestre, o in una finestra con più schede (richiede il riavvio)">
 		<radio_item label="Finestre separate" name="radio" value="0"/>
 		<radio_item label="Schede" name="radio2" value="1"/>
