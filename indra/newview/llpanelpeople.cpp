@@ -178,8 +178,8 @@ public:
 protected:
 	virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
 	{
-		LLPointer<LLSpeaker> lhs = LLLocalSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
-		LLPointer<LLSpeaker> rhs = LLLocalSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
+		LLPointer<LLSpeaker> lhs = LLActiveSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
+		LLPointer<LLSpeaker> rhs = LLActiveSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
 		if ( lhs.notNull() && rhs.notNull() )
 		{
 			// Compare by last speaking time
@@ -708,7 +708,7 @@ void LLPanelPeople::updateNearbyList()
 	mNearbyList->setDirty();
 
 	DISTANCE_COMPARATOR.updateAvatarsPositions(positions, mNearbyList->getIDs());
-	LLLocalSpeakerMgr::instance().update(TRUE);
+	LLActiveSpeakerMgr::instance().update(TRUE);
 }
 
 void LLPanelPeople::updateRecentList()
