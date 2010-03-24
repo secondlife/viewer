@@ -182,7 +182,10 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs"), LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+		S32 price = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", price);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs", args), price);
 	}
 	else
 	{

@@ -489,7 +489,7 @@ BOOL LLVOAvatarSelf::buildMenus()
 			{
 				LLMenuItemCallGL::Params item_params;
 				item_params.name = attachment->getName();
-				item_params.label = attachment->getName();
+				item_params.label = LLTrans::getString(attachment->getName());
 				item_params.on_click.function_name = "Object.AttachToAvatar";
 				item_params.on_click.parameter = attach_index;
 				item_params.on_enable.function_name = "Object.EnableWear";

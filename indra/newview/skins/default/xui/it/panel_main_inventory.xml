@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Cose" name="main inventory panel">
-	<panel.string name="Title">
-		Cose
+	<panel.string name="ItemcountFetching">
+		Recupero di [ITEM_COUNT] oggetti... [FILTER]
 	</panel.string>
-	<filter_editor label="Filtro" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Tutti gli elementi" name="All Items"/>
-		<inventory_panel label="Elementi recenti" name="Recent Items"/>
-	</tab_container>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Mostra opzioni addizionali"/>
-		<button name="add_btn" tool_tip="Aggiungi nuovo elemento"/>
-		<dnd_button name="trash_btn" tool_tip="Rimuovi l&apos;articolo selezionato"/>
-	</panel>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] oggetti [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Oggetti:
+	</text>
 	<menu_bar name="Inventory Menu">
 		<menu label="File" name="File">
 			<menu_item_call label="Apri" name="Open"/>
@@ -32,7 +28,7 @@
 		<menu label="Crea" name="Create">
 			<menu_item_call label="Nuova cartella" name="New Folder"/>
 			<menu_item_call label="Nuovo script" name="New Script"/>
-			<menu_item_call label="Nuovo appunto" name="New Note"/>
+			<menu_item_call label="Nuovo biglietto" name="New Note"/>
 			<menu_item_call label="Nuova gesture" name="New Gesture"/>
 			<menu label="Maglietta intima" name="New Clothes">
 				<menu_item_call label="Nuova camicia" name="New Shirt"/>
@@ -61,4 +57,14 @@
 			<menu_item_check label="Cartelle di sistema all&apos;inizio" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
+	<filter_editor label="Filtro" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Tutti gli elementi" name="All Items"/>
+		<inventory_panel label="Elementi recenti" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Mostra opzioni addizionali"/>
+		<button name="add_btn" tool_tip="Aggiungi nuovo elemento"/>
+		<dnd_button name="trash_btn" tool_tip="Rimuovi l&apos;articolo selezionato"/>
+	</panel>
 </panel>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_gear_default">
-	<menu_item_call label="Nuova Finestra di Inventory" name="new_window"/>
-	<menu_item_call label="Ordina per nome" name="sort_by_name"/>
-	<menu_item_call label="Ordina per data (più recenti)" name="sort_by_recent"/>
-	<menu_item_call label="Mostra i Filtri" name="show_filters"/>
-	<menu_item_call label="Cancella i Filtri" name="reset_filters"/>
-	<menu_item_call label="Chiudi le cartelle" name="close_folders"/>
+	<menu_item_call label="Nuova finestra inventario" name="new_window"/>
+	<menu_item_call label="Ordina in base al nome" name="sort_by_name"/>
+	<menu_item_call label="Mostra prima i più recenti" name="sort_by_recent"/>
+	<menu_item_call label="Mostra filtri" name="show_filters"/>
+	<menu_item_call label="Ripristina filtri" name="reset_filters"/>
+	<menu_item_call label="Chiudi tutte le cartelle" name="close_folders"/>
 	<menu_item_call label="Svuota cestino" name="empty_trash"/>
-	<menu_item_call label="Svuota Persi e Ritrovati" name="empty_lostnfound"/>
+	<menu_item_call label="Svuota oggetti smarriti" name="empty_lostnfound"/>
 	<menu_item_call label="Salva texture come" name="Save Texture As"/>
 	<menu_item_call label="Trova originale" name="Find Original"/>
 	<menu_item_call label="Trova tutti i link" name="Find All Links"/>

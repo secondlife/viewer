@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Opis:
 	</text>
-	<button label="Używaj w Świecie" label_selected="Stop" left="20" name="Anim play btn" tool_tip="Uruchom tę animację by widzieli ją pozostali Rezydenci" width="131"/>
+	<button label="Uruchom in-world" label_selected="Stop" left="20" name="Anim play btn" tool_tip="Uruchom tę animację by widzieli ją pozostali Rezydenci" width="131"/>
 	<button label="Używaj lokalnie" label_selected="Stop" left="162" name="Anim audition btn" tool_tip="Uruchom tę animację widoczną tylko przez Ciebie" width="125"/>
 </floater>

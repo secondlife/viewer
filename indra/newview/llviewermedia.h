@@ -133,6 +133,18 @@ public:
 	static bool isParcelMediaPlaying();
 	static bool isParcelAudioPlaying();
 	
+	// Clear all cookies for all plugins
+	static void clearAllCookies();
+	
+	// Clear all plugins' caches
+	static void clearAllCaches();
+	
+	// Set the "cookies enabled" flag for all loaded plugins
+	static void setCookiesEnabled(bool enabled);
+	
+	// Set the proxy config for all loaded plugins
+	static void setProxyConfig(bool enable, const std::string &host, int port);
+	
 private:
 	static void onTeleportFinished();
 };

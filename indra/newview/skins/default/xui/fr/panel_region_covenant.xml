@@ -70,13 +70,12 @@ toutes les parcelles du domaine.
 		Le terrain acheté dans cette région peut être revendu.
 	</string>
 	<string name="can_not_resell">
-		Le terrain acheté dans cette région ne peut pas être revendu.
+		Le terrain acheté dans la région ne peut pas être revendu.
 	</string>
 	<string name="can_change">
-		Le terrain acheté dans cette région peut être fusionné ou divisé.
+		Le terrain acheté dans la région peut être fusionné ou divisé.
 	</string>
 	<string name="can_not_change">
-		Le terrain acheté dans cette région ne peut pas être fusionné ou
-divisé.
+		Le terrain acheté dans la région ne peut être fusionné ou divisé.
 	</string>
 </panel>

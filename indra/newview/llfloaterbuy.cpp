@@ -246,7 +246,8 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 
 		// Compute icon for this item
 		BOOL item_is_multi = FALSE;
-		if ( inv_item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED )
+		if ( inv_item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED 
+			|| inv_item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
 		{
 			item_is_multi = TRUE;
 		}

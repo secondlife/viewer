@@ -1,26 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Environment Editor Floater" title="EDYTOR ŚRODOWISKA">
+	<floater.string name="timeStr">
+		[hour12,datetime,utc]:[min,datetime,utc] [ampm,datetime,utc]
+	</floater.string>
 	<text name="EnvTimeText">
 		Czas
 	</text>
 	<text name="EnvTimeText2">
 		12:00 PM
 	</text>
-	<slider label="" name="EnvTimeSlider" />
+	<slider label="" name="EnvTimeSlider"/>
 	<text name="EnvCloudText">
 		Chmury:
 	</text>
-	<slider label="" name="EnvCloudSlider" />
+	<slider label="" name="EnvCloudSlider"/>
 	<text name="EnvWaterColorText">
 		Kolor Wody
 	</text>
-	<color_swatch label="" name="EnvWaterColor" tool_tip="Kliknij by wybrać kolor" />
+	<color_swatch label="" name="EnvWaterColor" tool_tip="Kliknij aby wybrać kolor"/>
 	<text name="EnvWaterFogText">
 		Zamglenie:
 	</text>
-	<slider label="" name="EnvWaterFogSlider" />
-	<button label="Używaj Czasu Regionu" name="EnvUseEstateTimeButton" />
-	<button label="Zaawansowane Niebo" name="EnvAdvancedSkyButton" />
-	<button label="Zaawansowana Woda" name="EnvAdvancedWaterButton" />
-	<button label="?" name="EnvSettingsHelpButton" />
+	<slider label="" name="EnvWaterFogSlider"/>
+	<button label="Używaj Czasu Regionu" name="EnvUseEstateTimeButton"/>
+	<button label="Zaawansowane Niebo" name="EnvAdvancedSkyButton"/>
+	<button label="Zaawansowana Woda" name="EnvAdvancedWaterButton"/>
 </floater>

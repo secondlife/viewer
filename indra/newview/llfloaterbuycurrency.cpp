@@ -234,8 +234,7 @@ void LLFloaterBuyCurrencyUI::updateUI()
 			if (mHasTarget)
 			{
 				childSetVisible("buy_action", true);
-				childSetTextArg("buy_action", "[NAME]", mTargetName);
-				childSetTextArg("buy_action", "[PRICE]", llformat("%d",mTargetPrice));
+				childSetTextArg("buy_action", "[ACTION]", mTargetName);
 			}
 		}
 		

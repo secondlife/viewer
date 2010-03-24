@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
 	follows="left|right|top|bottom"
-	name="MediaControlsPanel"
+	name="MediaControls"
 	background_visible="false"
 	height="200"
 	layout="topleft"

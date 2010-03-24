@@ -8,6 +8,6 @@
 		Proprietario:
 	</text>
 	<button label="Mappa" name="map_btn"/>
-	<button label="Bloccare" name="block_btn"/>
+	<button label="Blocca" name="block_btn"/>
 	<button label="Chiudi" name="close_btn"/>
 </floater>

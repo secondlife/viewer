@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ogólne" name="Media Settings General">
+	<text name="home_label">
+		Strona Domowa:
+	</text>
+	<text name="home_fails_whitelist_label">
+		(ta strona nie została zaakceptowana przez filtr listy dostępowej)
+	</text>
+	<line_editor name="home_url" tool_tip="Strona domowa dla źródla mediów"/>
+	<text name="preview_label">
+		Pokaż
+	</text>
+	<text name="current_url_label">
+		Obecna Strona:
+	</text>
+	<text name="current_url" tool_tip="The current page for this media source" value=""/>
+	<button label="Zresetuj" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="Pętla" name="auto_loop"/>
+	<check_box initial_value="false" label="Interakcja Kliknięcia" name="first_click_interact"/>
+	<check_box initial_value="false" label="Autopowiększenie" name="auto_zoom"/>
+	<check_box initial_value="false" label="Automatyczne Odtwarzanie Mediów" name="auto_play"/>
+	<text name="media_setting_note">
+		Pamiętaj: Rezydenci mogą zmienić to ustawienie
+	</text>
+	<check_box initial_value="false" label="Automatyczne dopasowanie mediów na twarzy lub obiekcie" name="auto_scale"/>
+	<text name="size_label">
+		Rozmiar:
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

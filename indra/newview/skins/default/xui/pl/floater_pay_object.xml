@@ -1,31 +1,30 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<text name="payee_group" width="100" halign="left">
-		Zapłać Grupie:
-	</text>
-	<text name="payee_resident" width="120" halign="left" >
-		Zapłać Rezydentowi:
-	</text>
-	<text name="payee_name" left="125">
+	<string halign="left" name="payee_group" width="100">
+		Zapłać Grupie
+	</string>
+	<string halign="left" name="payee_resident" width="120">
+		Zapłać Rezydentowi
+	</string>
+	<icon name="icon_person" tool_tip="Osoba"/>
+	<text left="125" name="payee_name">
 		[FIRST] [LAST]
 	</text>
-	<text name="object_name_label" left="5"  width="95" halign="left">
+	<text halign="left" left="5" name="object_name_label" width="95">
 		Poprzez Obiekt:
 	</text>
-	<text name="object_name_text" left="105" >
-		...
+	<icon name="icon_object" tool_tip="Obiekt"/>
+	<text left="105" name="object_name_text">
+		Poprzez obiekt
 	</text>
-	<text name="fastpay text" width="95" halign="left">
-		Szybka Zapłata:
+	<button label="L$1" label_selected="L$1" left="105" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" left="190" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" left="105" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" left="190" name="fastpay 20"/>
+	<text halign="left" left="5" name="amount text">
+		lub wybierz kwotę:
 	</text>
-	<text name="amount text" left="5" halign="left">
-		Suma:
-	</text>
-	<button label="L$1" label_selected="L$1" name="fastpay 1" left="105"/>
-	<button label="L$5" label_selected="L$5" name="fastpay 5" left="190"/>
-	<button label="L$10" label_selected="L$10" name="fastpay 10" left="105"/>
-	<button label="L$20" label_selected="L$20" name="fastpay 20" left="190"/>
-	<button label="Zapłać" label_selected="Zapłać" name="pay btn" />
-	<button label="Anuluj" label_selected="Anuluj" name="cancel btn" />
-	<line_editor left="50" name="amount" width="50" />
+	<line_editor left="50" name="amount" width="50"/>
+	<button label="Zapłać" label_selected="Zapłać" name="pay btn"/>
+	<button label="Anuluj" label_selected="Anuluj" name="cancel btn"/>
 </floater>

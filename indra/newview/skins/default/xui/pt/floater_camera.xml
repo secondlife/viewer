@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Mover a Câmera para Cima e para Baixo, para a Esquerda e para a Direita
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Órbita
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		Pan
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Predefinições
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Visualizar objeto
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Move a câmera para cima e para baixo, direita e esquerda"/>
 		<panel name="zoom" tool_tip="Aproximar a Câmera in direção ao Foco">
@@ -25,7 +37,7 @@
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Câmera orbital"/>
 		<button label="" name="pan_btn" tool_tip="Câmera Pan"/>
-		<button label="" name="avatarview_btn" tool_tip="ver como o avatar"/>
+		<button label="" name="avatarview_btn" tool_tip="Predefinições"/>
 		<button label="" name="freecamera_btn" tool_tip="Visualizar objeto"/>
 	</panel>
 </floater>

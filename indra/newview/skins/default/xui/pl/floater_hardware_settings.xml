@@ -1,28 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Hardware Settings Floater" title="USTAWIENIA SPRZĘTOWE">
 	<text name="Filtering:">
 		Filtrowanie:
 	</text>
-	<check_box label="Filtrowanie Anizotropowe" name="ani" />
+	<check_box label="Filtrowanie Anizotropowe" name="ani"/>
 	<text name="Antialiasing:">
 		Antialiasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa" width="84">
-		<combo_box.item name="FSAADisabled" label="Wyłączone" />
-		<combo_box.item name="2x" label="2x" />
-		<combo_box.item name="4x" label="4x" />
-		<combo_box.item name="8x" label="8x" />
-		<combo_box.item name="16x" label="16x" />
+		<combo_box.item label="Wyłączone" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
-	<spinner label="Gamma:" name="gamma" />
+	<spinner label="Gamma:" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
-		(jaskrawość, mniej jest jaśniej, 0=domyślny)
+		(0=domyślna jaskrawość, niższa wartość=jaśniej)
 	</text>
 	<text name="Enable VBO:">
 		Włącz VBO:
 	</text>
-	<check_box label="Włącz Bufor Vertexów OpenGL" name="vbo" tool_tip="" />
-	<slider label="Pamięć Tekstur (MB):" name="GrapicsCardTextureMemory" tool_tip="" />
-	<spinner label="Stosunek Dystansu Mgły:" name="fog" />
-	<button label="OK" label_selected="OK" name="OK" />
+	<check_box initial_value="true" label="Włącz Bufor Vertexów OpenGL" name="vbo" tool_tip=""/>
+	<slider label="Pamięć Tekstur (MB):" name="GraphicsCardTextureMemory" tool_tip="Ilość alokacji pamięci dla tekstur. Domyślne dla karty pamięci video. Obniżenie poziomu tych funkcji może polepszyć wydajność systemową jednak spowoduje zmniejszenie jakości i wyrazistości tekstur."/>
+	<spinner label="Stosunek Dystansu Mgły:" name="fog"/>
+	<button label="OK" label_selected="OK" name="OK"/>
 </floater>
