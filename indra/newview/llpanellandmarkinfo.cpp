@@ -396,17 +396,20 @@ std::string LLPanelLandmarkInfo::getFullFolderName(const LLViewerInventoryCatego
 				if (is_under_root_category || cat->getParentUUID() == gInventory.getRootFolderID())
 				{
 					std::string localized_name;
+
+					// Looking for translation only for protected type categories
+					// to avoid warnings about non existent string in strings.xml.
+					bool is_protected_type = LLFolderType::lookupIsProtectedType(cat->getPreferredType());
+
 					if (is_under_root_category)
 					{
 						// translate category name, if it's right below the root
-						// FIXME: it can throw notification about non existent string in strings.xml
-						bool is_found = LLTrans::findString(localized_name, "InvFolder " + name);
+						bool is_found = is_protected_type && LLTrans::findString(localized_name, "InvFolder " + name);
 						name = is_found ? localized_name : name;
 					}
 					else
 					{
-						// FIXME: it can throw notification about non existent string in strings.xml
-						bool is_found = LLTrans::findString(localized_name, "InvFolder " + cat->getName());
+						bool is_found = is_protected_type && LLTrans::findString(localized_name, "InvFolder " + cat->getName());
 
 						// add translated category name to folder's full name
 						name = (is_found ? localized_name : cat->getName()) + "/" + name;
