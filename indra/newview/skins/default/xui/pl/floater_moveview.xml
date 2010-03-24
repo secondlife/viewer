@@ -18,11 +18,20 @@
 	<string name="fly_back_tooltip">
 		Leć do tyłu (naciśnij Strzałkę na Dół lub S)
 	</string>
+	<string name="walk_title">
+		Idź
+	</string>
+	<string name="run_title">
+		Biegnij
+	</string>
+	<string name="fly_title">
+		Lataj
+	</string>
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Obróć w Lewo (naciśnij Lewą Strzałkę lub A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Obróć w Prawo (naciśnij Prawą Strzałkę lub D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Leć w górę, naciśnij &quot;E&quot;"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Leć w dół, naciśnij &quot;C&quot;"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Leć do góry, naciśnij E"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Leć w dół, naciśnij C"/>
 		<joystick_turn name="forward btn" tool_tip="Idź (naciśnij Strzałkę w Górę lub W)"/>
 		<joystick_turn name="backward btn" tool_tip="Cofaj się (naciśnij Strzałkę w Dół lub S)"/>
 	</panel>
@@ -30,6 +39,5 @@
 		<button label="" name="mode_walk_btn" tool_tip="Tryb chodzenia"/>
 		<button label="" name="mode_run_btn" tool_tip="Tryb biegu"/>
 		<button label="" name="mode_fly_btn" tool_tip="Tryb Latania"/>
-		<button label="Przestań Latać" name="stop_fly_btn" tool_tip="Przestań latać"/>
 	</panel>
 </floater>

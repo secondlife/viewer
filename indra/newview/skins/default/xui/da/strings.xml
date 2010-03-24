@@ -769,7 +769,7 @@
 		Teleport tilbud
 	</string>
 	<string name="StartUpNotifications">
-		%d nye beskeder modtaget mens du var væk......
+		Nye beskeder modtaget mens du var væk......
 	</string>
 	<string name="OverflowInfoChannelString">
 		Du har %d mere besked(er)

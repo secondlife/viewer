@@ -5,48 +5,66 @@
 			Legenda
 		</text>
 	</panel>
-	<panel>
-		<button name="Show My Location" tool_tip="Wycentruj mapę na lokalizacji mojego awatara"/>
-		<text name="person_label">
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Wyśrodkuj mapę w miejscu, gdzie znajduje się mój awatar"/>
+		<text name="me_label">
 			Ja
+		</text>
+		<text name="person_label">
+			Osoba
 		</text>
 		<text name="infohub_label">
 			Infohub
 		</text>
 		<text name="land_sale_label">
-			Posiadłość na sprzedaż
+			Sprzedaż Posiadłości
 		</text>
-		<text name="auction_label">
+		<text name="by_owner_label">
 			przez właściciela
 		</text>
-		<button name="Go Home" tool_tip="Teleportuj do mojego miejsca startu"/>
-		<text name="Home_label">
-			WWW
+		<text name="auction_label">
+			aukcja posiadłości
 		</text>
+		<button name="Go Home" tool_tip="Teleportuj do mojego Miejsca Startowego"/>
+		<text name="Home_label">
+			Miejsce Startu
+		</text>
+		<text name="events_label">
+			Wydarzenia:
+		</text>
+		<text name="pg_label">
+			Ogólne
+		</text>
+		<check_box initial_value="prawda" name="event_mature_chk"/>
 		<text name="mature_label">
-			Mature
+			Moderuj
+		</text>
+		<text name="adult_label">
+			Adult
 		</text>
 	</panel>
-	<panel>
+	<panel name="layout_panel_3">
 		<text name="find_on_map_label">
 			Znajdź na mapie
 		</text>
 	</panel>
-	<panel>
-		<combo_box label="Online Friends" name="friend combo" tool_tip="Pokaż Znajomych na Mapie">
-			<combo_box.item label="Znajomi obecni w SL" name="item1"/>
+	<panel name="layout_panel_4">
+		<combo_box label="Dostępni Znajomi" name="friend combo" tool_tip="Pokaż znajomych na mapie">
+			<combo_box.item label="Moi Dostępni Znajomi" name="item1"/>
 		</combo_box>
-		<combo_box label="Moje Landmarki (zapisane miejsca)" name="landmark combo" tool_tip="Zapisane miejsca na mapie">
-			<combo_box.item label="Moje landmarki (zapisane miejsca)" name="item1"/>
+		<combo_box label="Zapisane Miejsca" name="landmark combo" tool_tip="Pokaż zapisane miejsce na mapie">
+			<combo_box.item label="Zapisane Miejsca" name="item1"/>
 		</combo_box>
-		<search_editor label="Regiony według Nazwy" name="location" tool_tip="Type the name of a region"/>
-		<button label="Wyszukaj" name="DoSearch" tool_tip="Search for region"/>
-		<button label="Kopiuj SLurl" name="copy_slurl" tool_tip="Kopiuje bieżącą lokalizacje jako SLurl, który można stosować w przeglądarce."/>
-		<button label="Pokaż wybrane" name="Show Destination" tool_tip="Center map on selected location"/>
+		<search_editor label="Regiony Według Nazwy" name="location" tool_tip="Wpisz nazwę regionu"/>
+		<button label="Znajdź" name="DoSearch" tool_tip="Szukaj regionu"/>
+		<button name="Clear" tool_tip="Wyczyść zapamiętane linie oraz zresetuj mapę"/>
+		<button label="Teleportuj" name="Teleport" tool_tip="Teleportuj do wybranego miejsca"/>
+		<button label="Kopiuj SLurl" name="copy_slurl" tool_tip="Kopie obecnego miejsca jako SLurl mogą zostać użyte na stronie internetowej."/>
+		<button label="Pokaż wybrane" name="Show Destination" tool_tip="Wyśrodkuj mapę w wybranym miejscu"/>
 	</panel>
-	<panel>
+	<panel name="layout_panel_5">
 		<text name="zoom_label">
-			Powiększ
+			Przybliż
 		</text>
 	</panel>
 </floater>

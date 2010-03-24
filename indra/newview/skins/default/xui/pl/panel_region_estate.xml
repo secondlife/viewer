@@ -23,10 +23,10 @@
 	<check_box label="Dostęp Publiczny" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Ogranicz dostęp dla:
+		Ogranicz Dostęp dla kont zweryfikowanych przez:
 	</text>
-	<check_box label="Rezydenci z danymi o koncie" name="limit_payment" tool_tip="Zbanuj Niezidentyfikowanych Rezydentów"/>
-	<check_box label="Rezydenci, którzy dokonali weryfikacji wieku" name="limit_age_verified" tool_tip="Zbanuj Rezydentów którzy nie zweryfikowali swojego wieku. Dodatkowe informacje pod support.secondlife.com."/>
+	<check_box label="Rezydenci z danymi o koncie" name="limit_payment" tool_tip="Zbanuj niezidentyfikowanych Rezydentów"/>
+	<check_box label="Rezydenci, którzy dokonali weryfikacji wieku" name="limit_age_verified" tool_tip="Zbanuj Rezydentów, którzy nie zweryfikowali swojego wieku. Odwiedź stronę [SUPPORT_SITE] po więcej informacji."/>
 	<check_box label="Rozmowy Dozwolone" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Teleportacja Dozwolona" name="allow_direct_teleport"/>

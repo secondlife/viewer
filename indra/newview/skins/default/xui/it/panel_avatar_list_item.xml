@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="avatar_list_item">
 	<string name="FormatSeconds">
-		[COUNT]s
+		[COUNT] s
 	</string>
 	<string name="FormatMinutes">
-		[COUNT]m
+		[COUNT] m
 	</string>
 	<string name="FormatHours">
-		[COUNT]h
+		[COUNT] h
 	</string>
 	<string name="FormatDays">
-		[COUNT]d
+		[COUNT] g
 	</string>
 	<string name="FormatWeeks">
-		[COUNT]w
+		[COUNT] sett
 	</string>
 	<string name="FormatMonths">
-		[COUNT]mon
+		[COUNT] mes
 	</string>
 	<string name="FormatYears">
-		[COUNT]y
+		[COUNT] a
 	</string>
 	<text name="avatar_name" value="Sconosciuto"/>
 	<button name="profile_btn" tool_tip="Vedi profilo"/>

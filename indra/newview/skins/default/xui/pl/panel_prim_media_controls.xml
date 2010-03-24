@@ -9,15 +9,39 @@
 	<string name="zoom_medium_padding">
 		1.1
 	</string>
+	<string name="top_world_view_avoid_zone">
+		50
+	</string>
+	<layout_stack name="progress_indicator_area">
+		<panel name="media_progress_indicator">
+			<progress_bar name="media_progress_bar" tool_tip="Wczytywanie mediów"/>
+		</panel>
+	</layout_stack>
 	<layout_stack name="media_controls">
-		<layout_panel name="back"/>
-		<layout_panel name="fwd"/>
-		<layout_panel name="home"/>
-		<layout_panel name="media_stop"/>
-		<layout_panel name="reload"/>
-		<layout_panel name="stop"/>
-		<layout_panel name="play"/>
-		<layout_panel name="pause"/>
+		<layout_panel name="back">
+			<button name="back_btn" tool_tip="Przejdź do poprzedniego"/>
+		</layout_panel>
+		<layout_panel name="fwd">
+			<button name="fwd_btn" tool_tip="Przejdź do następnego"/>
+		</layout_panel>
+		<layout_panel name="home">
+			<button name="home_btn" tool_tip="Strona Domowa"/>
+		</layout_panel>
+		<layout_panel name="media_stop">
+			<button name="media_stop_btn" tool_tip="Zatrzymaj media"/>
+		</layout_panel>
+		<layout_panel name="reload">
+			<button name="reload_btn" tool_tip="Odśwież"/>
+		</layout_panel>
+		<layout_panel name="stop">
+			<button name="stop_btn" tool_tip="Zatrzymaj wczytywanie"/>
+		</layout_panel>
+		<layout_panel name="play">
+			<button name="play_btn" tool_tip="Odtwarzaj Media"/>
+		</layout_panel>
+		<layout_panel name="pause">
+			<button name="pause_btn" tool_tip="Wstrzymaj media"/>
+		</layout_panel>
 		<layout_panel name="media_address">
 			<line_editor name="media_address_url" tool_tip="URL Mediów"/>
 			<layout_stack name="media_address_url_icons">
@@ -32,19 +56,24 @@
 		<layout_panel name="media_play_position">
 			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Postęp odtwarzania filmu"/>
 		</layout_panel>
-		<layout_panel name="skip_back"/>
-		<layout_panel name="skip_forward"/>
+		<layout_panel name="skip_back">
+			<button name="skip_back_btn" tool_tip="Przewiń do tyłu"/>
+		</layout_panel>
+		<layout_panel name="skip_forward">
+			<button name="skip_forward_btn" tool_tip="Przewiń do przodu"/>
+		</layout_panel>
 		<layout_panel name="media_volume">
 			<button name="media_mute_button" tool_tip="Wycisz Media"/>
 			<slider name="volume_slider" tool_tip="Głośność Mediów"/>
 		</layout_panel>
-		<layout_panel name="zoom_frame"/>
-		<layout_panel name="close"/>
-		<layout_panel name="new_window"/>
-	</layout_stack>
-	<layout_stack>
-		<panel name="media_progress_indicator">
-			<progress_bar name="media_progress_bar" tool_tip="Media się wczytują"/>
-		</panel>
+		<layout_panel name="zoom_frame">
+			<button name="zoom_frame_btn" tool_tip="Przybliż do mediów"/>
+		</layout_panel>
+		<layout_panel name="close">
+			<button name="close_btn" tool_tip="Oddal"/>
+		</layout_panel>
+		<layout_panel name="new_window">
+			<button name="new_window_btn" tool_tip="Otwórz URL w przeglądarce"/>
+		</layout_panel>
 	</layout_stack>
 </panel>

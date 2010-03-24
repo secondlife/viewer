@@ -54,6 +54,6 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 		<text name="lbl4">
 			Treść:
 		</text>
-		<button label="Otwórz załącznik" label_selected="Otwórz Załącznik" name="open_attachment"/>
+		<button label="Otwórz Załącznik" label_selected="Otwórz Załącznik" name="open_attachment"/>
 	</panel>
 </panel>

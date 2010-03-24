@@ -1608,8 +1608,8 @@ void LLViewerWindow::initWorldUI()
 
 	gIMMgr = LLIMMgr::getInstance();
 
-	getRootView()->sendChildToFront(gFloaterView);
-	getRootView()->sendChildToFront(gSnapshotFloaterView);
+	//getRootView()->sendChildToFront(gFloaterView);
+	//getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
 	LLPanel* bottom_tray_container = getRootView()->getChild<LLPanel>("bottom_tray_container");

@@ -1,17 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_classified_info">
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] teleport, [MAP] map, [PROFILE] profile
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Aktywne
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Wyłączone
+	</panel.string>
 	<text name="title" value="Reklama"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="classified_name" value="[nazwa]"/>
-			<text name="classified_location" value="[ładowanie...]"/>
-			<text name="content_type" value="[treść]"/>
-			<text name="category" value="[kategoria]"/>
-			<check_box label="Ponawiaj automatycznie co tydzień" name="auto_renew"/>
-			<text name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="[price]">
-				L$[PRICE]
-			</text>
-			<text name="classified_desc" value="[opis]"/>
+			<text_editor name="classified_name" value="[nazwa]"/>
+			<text name="classified_location_label" value="Miejsce:"/>
+			<text_editor name="classified_location" value="[ładowanie...]"/>
+			<text name="content_type_label" value="Rodzaj Zawartości:"/>
+			<text_editor name="content_type" value="[treść]"/>
+			<text name="category_label" value="Kategoria:"/>
+			<text_editor name="category" value="[kategoria]"/>
+			<text name="creation_date_label" value="Data stworzenia:"/>
+			<text_editor name="creation_date" tool_tip="Data stworzenia" value="[date]"/>
+			<text name="price_for_listing_label" value="Cena za wyświetlenie:"/>
+			<text_editor name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="[price]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Kliknięcia:"/>
+					<text_editor name="click_through_text" tool_tip="Kliknij według daty" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Automatyczne przedłużenie:"/>
+					<text name="auto_renew" value="Aktywne"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Opis:"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

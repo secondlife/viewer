@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Voice Controls">
+<floater name="floater_voice_controls" title="Przełączniki Głosu">
+	<string name="title_nearby">
+		ROZMOWY GŁOSOWE W POBLIŻU
+	</string>
+	<string name="title_group">
+		Rozmowa głosowa z grupą [GROUP]
+	</string>
+	<string name="title_adhoc">
+		Konferencja
+	</string>
+	<string name="title_peer_2_peer">
+		Rozmowa głosowa z [NAME]
+	</string>
 	<string name="no_one_near">
 		Nikt w pobliżu nie ma aktywnych rozmów głosowych
 	</string>

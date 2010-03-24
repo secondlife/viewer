@@ -8,10 +8,12 @@
 	</string>
 	<layout_stack name="toolbar_stack">
 		<layout_panel name="speak_panel">
-			<talk_button name="talk"/>
+			<talk_button name="talk">
+				<speak_button label="Mów" label_selected="Mów" name="speak_btn"/>
+			</talk_button>
 		</layout_panel>
 		<layout_panel name="gesture_panel">
-			<gesture_combo_box label="Gestury" name="Gesture" tool_tip="Pokazuje/Ukrywa gestury"/>
+			<gesture_combo_list label="Gestury" name="Gesture" tool_tip="Pokazuje/Ukrywa gestury"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
 			<button label="Move" name="movement_btn" tool_tip="Pokaż/Ukryj Ustawienia Ruchu"/>

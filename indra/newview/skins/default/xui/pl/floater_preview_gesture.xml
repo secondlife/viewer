@@ -24,6 +24,9 @@
 	<floater.string name="Title">
 		Gestura: [NAME]
 	</floater.string>
+	<text name="name_text">
+		Nazwa:
+	</text>
 	<text name="desc_label">
 		Opis:
 	</text>

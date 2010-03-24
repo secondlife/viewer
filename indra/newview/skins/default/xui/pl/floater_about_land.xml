@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="O POSIADŁOŚCI">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minuty
 	</floater.string>
@@ -81,7 +90,9 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="Group:">
 				Grupa:
 			</text>
-			<text name="GroupText"/>
+			<text name="GroupText">
+				Leyla Linden
+			</text>
 			<button label="Ustaw" name="Set..."/>
 			<check_box label="Udostępnij przypisywanie na grupę" name="check deed" tool_tip="Oficer grupy ma prawo przepisać prawo własności posiadłości na grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków grupy."/>
 			<button label="Przypisz" name="Deed..." tool_tip="Prawo przypisania posiadłości na grupę może dokonać jedynie oficer grupy."/>
@@ -125,6 +136,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				0
 			</text>
 			<button label="Kup Posiadłość..." label_selected="Kup Posiadłość..." left="130" name="Buy Land..." width="125"/>
+			<button label="Skrypt" name="Scripts..."/>
 			<button label="Kup dla Grupy" name="Buy For Group..."/>
 			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." left="130" name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość." width="125"/>
 			<button label="Porzuć z Posiadłości" name="Abandon Land..."/>
@@ -381,12 +393,9 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			</text>
 			<combo_box name="media type" tool_tip=""/>
 			<text name="at URL:">
-				Strona Domowa:
+				URL Mediów:
 			</text>
 			<button label="Ustaw..." label_selected="Ustaw..." name="set_media_url"/>
-			<text name="CurrentURL:">
-				Obecna Strona:
-			</text>
 			<check_box label="Ukryj URL Mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym użytkownikom. Nie dotyczy to jednak typów HTML."/>
 			<text name="Description:">
 				Opis:
@@ -416,12 +425,17 @@ Mediów:
 			<check_box label="Powtórka Odtwarzania" name="media_loop" tool_tip="Odtwarzaj media z powtórką. Po wyświetleniu materialu, rozpocznie się odtwarzanie od początku."/>
 		</panel>
 		<panel label="DŹWIĘK" name="land_audio_panel">
+			<check_box label="Ukryj URL Muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym użytkownikom"/>
 			<check_box label="Rozmowy Dozwolone" name="parcel_enable_voice_channel"/>
 			<check_box label="Rozmowy Dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Ogranicz komunikację głosową w tej posiadłości." name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="DOSTĘP" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Zdefiniowane przez Majątek)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Udostępnij dostęp publiczny ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Jedna lub więcej z tych opcji ustawiona jest z poziomu posiadłości
@@ -434,7 +448,7 @@ Mediów:
 				Zablokuj dostęp dla:
 			</text>
 			<check_box label="Rezydentów zarejestrowanych w systemie płatniczym Linden Lab [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Zbanuj Rezydentów niezarejestrowanych w systemie płatniczym z Linden Lab."/>
-			<check_box label="Weryfikacja Wieku: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Zbanuj Rezydentów bez weryfikacji wieku. Odwiedź [SUPPORT_SITE] po więcej informacji."/>
+			<check_box label="Weryfikacja Wieku: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Zbanuj Rezydetów bez weryfikacji wieku. Odwiedź support.secondlife.com po więcej informacji."/>
 			<check_box label="Udostępnij wejście grupie: [GROUP]" name="GroupCheck" tool_tip="Ustaw grupę w głównej zakładce"/>
 			<check_box label="Sprzedaj wejściówki:" name="PassCheck" tool_tip="Otwórz tymczasowy dostęp do tej posiadłości"/>
 			<combo_box name="pass_combo">

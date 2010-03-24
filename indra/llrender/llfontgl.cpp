@@ -673,7 +673,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 	target_x *= sScaleX;
 
 	// max_chars is S32_MAX by default, so make sure we don't get overflow
-	const S32 max_index = begin_offset + llmin(S32_MAX - begin_offset, max_chars);
+	const S32 max_index = begin_offset + llmin(S32_MAX - begin_offset, max_chars - 1);
 
 	F32 scaled_max_pixels =	max_pixels * sScaleX;
 	
