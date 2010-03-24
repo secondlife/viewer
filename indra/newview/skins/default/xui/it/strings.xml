@@ -22,21 +22,6 @@
 	<string name="StartupLoading">
 		Caricamento di [APP_NAME]...
 	</string>
-	<string name="StartupClearingCache">
-		Pulizia della cache...
-	</string>
-	<string name="StartupInitializingTextureCache">
-		Inizializzazione della cache texture...
-	</string>
-	<string name="StartupInitializingVFS">
-		Inizializzazione VFS...
-	</string>
-	<string name="ProgressRestoring">
-		Ripristino in corso...
-	</string>
-	<string name="ProgressChangingResolution">
-		Modifica della risoluzione...
-	</string>
 	<string name="LoginInProgress">
 		In connessione. [APP_NAME] può sembrare rallentata.  Attendi.
 	</string>
@@ -97,9 +82,6 @@
 	<string name="LoginFailedNoNetwork">
 		Errore di rete: Non è stato possibile stabilire un collegamento, controlla la tua connessione.
 	</string>
-	<string name="LoginFailed">
-		Accesso non riuscito.
-	</string>
 	<string name="Quit">
 		Esci
 	</string>
@@ -108,24 +90,6 @@
 	</string>
 	<string name="AgentLostConnection">
 		Questa regione sta avendo problemi.  Verifica la tua connessione a Internet.
-	</string>
-	<string name="SavingSettings">
-		Salvataggio delle impostazioni...
-	</string>
-	<string name="LoggingOut">
-		Uscita...
-	</string>
-	<string name="ShuttingDown">
-		Chiusura...
-	</string>
-	<string name="YouHaveBeenDisconnected">
-		Sei scollegato dalla regione in cui ti trovavi.
-	</string>
-	<string name="SentToInvalidRegion">
-		Sei stato indirizzato in una regione non valida.
-	</string>
-	<string name="TestingDisconnect">
-		Verifica scollegamento viewer
 	</string>
 	<string name="TooltipPerson">
 		Persona
@@ -181,24 +145,6 @@
 	<string name="TooltipAgentUrl">
 		Clicca per vedere il profilo di questo residente
 	</string>
-	<string name="TooltipAgentMute">
-		Clicca per disattivare l&apos;audio di questo residente
-	</string>
-	<string name="TooltipAgentUnmute">
-		Clicca per attivare l&apos;audio del residente
-	</string>
-	<string name="TooltipAgentIM">
-		Clicca per inviare un IM a questo residente
-	</string>
-	<string name="TooltipAgentPay">
-		Clicca per pagare il residente
-	</string>
-	<string name="TooltipAgentOfferTeleport">
-		Fai clic per inviare un&apos;offerta di teleport al residente
-	</string>
-	<string name="TooltipAgentRequestFriend">
-		Fai clic per inviare una richiesta di amicizia al residente
-	</string>
 	<string name="TooltipGroupUrl">
 		Clicca per vedere la descrizione del gruppo
 	</string>
@@ -224,29 +170,12 @@
 		Clicca per avviare il comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL attuale: [CurrentURL]"/>
+	<string name="TooltipPrice" value="L$ [PRICE]-"/>
 	<string name="SLurlLabelTeleport">
 		Teleportati a
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Mostra la mappa per
-	</string>
-	<string name="SLappAgentMute">
-		Disattiva audio
-	</string>
-	<string name="SLappAgentUnmute">
-		Riattiva audio
-	</string>
-	<string name="SLappAgentIM">
-		IM
-	</string>
-	<string name="SLappAgentPay">
-		Paga
-	</string>
-	<string name="SLappAgentOfferTeleport">
-		Offri teleport a
-	</string>
-	<string name="SLappAgentRequestFriend">
-		Richiesta di amicizia
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Chiudi (⌘W)
@@ -397,9 +326,6 @@
 	</string>
 	<string name="symbolic link">
 		link
-	</string>
-	<string name="symbolic folder link">
-		link alla cartella
 	</string>
 	<string name="AvatarAway">
 		Assente
@@ -818,6 +744,9 @@
 	<string name="invalid">
 		non valido
 	</string>
+	<string name="NewWearable">
+		Nuovo [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Avanti
 	</string>
@@ -906,7 +835,6 @@
 		Nessun contenuto
 	</string>
 	<string name="WornOnAttachmentPoint" value="(indossato su [ATTACHMENT_POINT])"/>
-	<string name="ActiveGesture" value="[GESLABEL] (attivo)"/>
 	<string name="Chat" value="Chat :"/>
 	<string name="Sound" value="Suono :"/>
 	<string name="Wait" value="--- Attendi :"/>
@@ -999,9 +927,6 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Il mio vestiario
-	</string>
-	<string name="InvFolder Accessories">
-		Accessori
 	</string>
 	<string name="InvFolder Friends">
 		Amici
@@ -1520,8 +1445,8 @@
 	<string name="PanelContentsNewScript">
 		Nuovo script
 	</string>
-	<string name="PanelContentsTooltip">
-		Contenuto dell&apos;oggetto
+	<string name="BusyModeResponseDefault">
+		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
 	</string>
 	<string name="MuteByName">
 		(in base al nome)
@@ -1638,9 +1563,6 @@
 	</string>
 	<string name="UploadingCosts">
 		Il caricamento di [NAME] costa L$ [AMOUNT]
-	</string>
-	<string name="BuyingCosts">
-		L&apos;acquisto di [NAME] costa L$ [AMOUNT]
 	</string>
 	<string name="UnknownFileExtension">
 		Estensione del file sconosciuta [.%s]
@@ -3357,121 +3279,5 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] ha detto qualcosa di nuovo
-	</string>
-	<string name="paid_you_ldollars">
-		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
-	</string>
-	<string name="you_paid_ldollars">
-		Hai inviato un pagamento di L$[AMOUNT] a [NAME] [REASON].
-	</string>
-	<string name="you_paid_ldollars_no_reason">
-		Hai inviato un pagamento di L$[AMOUNT] a [NAME].
-	</string>
-	<string name="you_paid_ldollars_no_name">
-		Hai pagato L$ [AMOUNT] [REASON].
-	</string>
-	<string name="for a parcel of land">
-		per un lotto di terreno
-	</string>
-	<string name="for a land access pass">
-		per un permesso di accesso al terreno
-	</string>
-	<string name="for deeding land">
-		per la cessione di terreno
-	</string>
-	<string name="to create a group">
-		per creare un gruppo
-	</string>
-	<string name="to join a group">
-		per aderire a un gruppo
-	</string>
-	<string name="to upload">
-		per caricare
-	</string>
-	<string name="giving">
-		Contributo di L$ [AMOUNT]
-	</string>
-	<string name="uploading_costs">
-		Il costo per il caricamento è di L$ [AMOUNT]
-	</string>
-	<string name="this_costs">
-		Il costo è L$ [AMOUNT]
-	</string>
-	<string name="buying_selected_land">
-		L&apos;acquisto del terreno prescelto costa L$ [AMOUNT]
-	</string>
-	<string name="this_object_costs">
-		Il costo dell&apos;oggetto è L$ [AMOUNT]
-	</string>
-	<string name="group_role_everyone">
-		Tutti
-	</string>
-	<string name="group_role_officers">
-		Funzionari
-	</string>
-	<string name="group_role_owners">
-		Proprietari
-	</string>
-	<string name="uploading_abuse_report">
-		Caricamento in corso...
-  
-Segnala abuso
-	</string>
-	<string name="New Shape">
-		Nuova figura corporea
-	</string>
-	<string name="New Skin">
-		Nuova pelle
-	</string>
-	<string name="New Hair">
-		Nuovi capelli
-	</string>
-	<string name="New Eyes">
-		Nuovi occhi
-	</string>
-	<string name="New Shirt">
-		Nuova camicia
-	</string>
-	<string name="New Pants">
-		Nuovi pantaloni
-	</string>
-	<string name="New Shoes">
-		Nuove scarpe
-	</string>
-	<string name="New Socks">
-		Nuove calze
-	</string>
-	<string name="New Jacket">
-		Nuova giacca
-	</string>
-	<string name="New Gloves">
-		Nuovi guanti
-	</string>
-	<string name="New Undershirt">
-		Nuova maglietta intima
-	</string>
-	<string name="New Underpants">
-		Nuovi slip
-	</string>
-	<string name="New Skirt">
-		Nuova gonna
-	</string>
-	<string name="New Alpha">
-		Nuovo Alpha (trasparenza)
-	</string>
-	<string name="New Tattoo">
-		Nuovo tatuaggio
-	</string>
-	<string name="Invalid Wearable">
-		Capo da indossare non valido
-	</string>
-	<string name="New Script">
-		Nuovo script
-	</string>
-	<string name="New Folder">
-		Nuova cartella
-	</string>
-	<string name="Contents">
-		Contenuto
 	</string>
 </strings>
