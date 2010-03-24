@@ -66,6 +66,8 @@ public:
 		}
 	};
 
+	void setCommitOnFocusLost(BOOL b)	{ if (mSearchEditor) mSearchEditor->setCommitOnFocusLost(b); }
+
 protected:
 	LLSearchEditor(const Params&);
 	friend class LLUICtrlFactory;

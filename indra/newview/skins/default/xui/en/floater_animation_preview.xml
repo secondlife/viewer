@@ -218,14 +218,14 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="In(%)"
-     label_width="49"
+     label_width="70"
      layout="topleft"
      top_pad="5"
-     left="30"
+     left="15"
      max_val="100"
      name="loop_in_point"
      tool_tip="Sets point in animation that looping returns to"
-     width="115" />
+     width="130" />
     <spinner
      bottom_delta="0"
      follows="left|top"
@@ -238,8 +238,8 @@ Maximum animation length is [MAX_LENGTH] seconds.
      max_val="100"
      name="loop_out_point"
      tool_tip="Sets point in animation that ends a loop"
-     label_width="49"
-     width="115" />
+     label_width="60"
+     width="120" />
     <text
      type="string"
      length="1"
@@ -256,10 +256,10 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <combo_box
      height="23"
      layout="topleft"
-     left_pad="0"
+     left_pad="20"
      name="hand_pose_combo"
      tool_tip="Controls what hands do during animation"
-     width="150">
+     width="130">
         <combo_box.item
          label="Spread"
          name="Spread"
@@ -328,9 +328,9 @@ Maximum animation length is [MAX_LENGTH] seconds.
     </text>
     <combo_box
      height="23"
-     width="150"
+     width="130"
      layout="topleft"
-     left_pad="0"
+     left_pad="20"
      name="emote_combo"
      tool_tip="Controls what face does during animation">
         <combo_box.item
@@ -409,9 +409,9 @@ Maximum animation length is [MAX_LENGTH] seconds.
     </text>
     <combo_box
      height="23"
-     width="150"
+     width="130"
      layout="topleft"
-     left_pad="0"
+     left_pad="20"
      name="preview_base_anim"
      tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
         <combo_box.item
@@ -433,27 +433,27 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="0.01"
      initial_value="0"
      label="Ease In (sec)"
-     label_width="110"
+     label_width="140"
      layout="topleft"
      left="10"
      max_val="10"
      name="ease_in_time"
      tool_tip="Amount of time (in seconds) over which animations blends in"
      top_pad="10"
-     width="200" />
+     width="210" />
     <spinner
      follows="left|top"
      height="23"
      increment="0.01"
      initial_value="0"
      label="Ease Out (sec)"
-     label_width="110"
+     label_width="140"
      layout="topleft"
      top_pad="0"
      max_val="10"
      name="ease_out_time"
      tool_tip="Amount of time (in seconds) over which animations blends out"
-     width="200" />
+     width="210" />
     <button
      follows="top|right"
      height="23"

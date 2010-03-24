@@ -1,31 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Joystick i Kamera" name="Input panel">
-	<text name=" Mouselook Options:">
-		Widok Panoramiczny:
-	</text>
-	<text name=" Mouse Sensitivity:">
-		Czułość Myszki:
-	</text>
-	<slider_bar name="mouse_sensitivity"/>
-	<check_box label="Zamień klawisze myszy" name="invert_mouse"/>
-	<text name=" Auto Fly Options:">
-		Automatczne Latanie:
-	</text>
-	<check_box label="Lataj/Ląduj Używając Klawiszy PgUp/PgDn" name="automatic_fly"/>
-	<text name=" Camera Options:">
-		Ustawienia Kamery:
-	</text>
-	<text name="camera_fov_label">
-		Kąt Widoku Kamery:
-	</text>
-	<text name="Camera Follow Distance:">
-		Dystans Kamery:
-	</text>
-	<check_box label="Edycja - Automatyczny Ruch Kamery" name="edit_camera_movement" tool_tip="Używaj automatycznego ustawienia kamery podczas włączania i wyłączania trybu edycji"/>
-	<check_box label="Wygląd - Automatyczny Ruch Kamery" name="appearance_camera_movement" tool_tip="Używaj automatycznego ustawienia kamery w trybu edycji"/>
-	<text name="text2">
-		Wyświetlanie Awatara:
-	</text>
-	<check_box label="Awatar Widoczny w Trybie Panoramicznym" name="first_person_avatar_visible"/>
+<panel label="Ustawienia" name="Input panel">
 	<button label="Ustawienia Joysticka" name="joystick_setup_button"/>
+	<text name="Mouselook:">
+		Widok panoramiczny:
+	</text>
+	<text name=" Mouse Sensitivity">
+		Czułość Myszki
+	</text>
+	<slider name="mouse_sensitivity"/>
+	<check_box label="Zmień klawisze myszki" name="invert_mouse"/>
+	<text name="Network:">
+		Sieć:
+	</text>
+	<text name="Maximum bandwidth">
+		Maksymalna przepustowość
+	</text>
+	<text name="text_box2">
+		kbps
+	</text>
+	<check_box label="Port dedykowany dla aplikacji" name="connection_port_enabled"/>
+	<spinner label="Numer Portu:" name="connection_port"/>
+	<text name="cache_size_label_l">
+		Rozmiar bufora danych
+	</text>
+	<text name="text_box5">
+		MB
+	</text>
+	<text name="Cache location">
+		Lokalizacja bufora danych:
+	</text>
+	<button label="Ustaw" label_selected="Ustaw" name="set_cache"/>
+	<button label="Zresetuj" label_selected="Zresetuj" name="reset_cache"/>
+	<text name="Web:">
+		Internet:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Używaj wbudowanej przeglądarki." name="internal" tool_tip="Używaj wbudowanej przeglądarki. Ta przeglądarka otworzy nowe okno w [APP_NAME]." value="0"/>
+		<radio_item label="Użyj zewnętrznej przeglądarki (IE, Firefox, Safari)" name="external" tool_tip="Używaj zewnętrznej przeglądarki. Nie jest to rekomendowane w trybie pełnoekranowym." value="1"/>
+	</radio_group>
+	<check_box initial_value="false" label="Używaj Serwera Proxy" name="web_proxy_enabled"/>
+	<text name="Proxy location">
+		Lokalizacja Proxy:
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Nazwa lub IP proxy, którego chcesz użyć"/>
+	<spinner label="Numer portu:" name="web_proxy_port"/>
 </panel>

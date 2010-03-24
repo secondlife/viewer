@@ -24,7 +24,7 @@
 				Empezar en:
 			</text>
 			<combo_box name="start_location_combo">
-				<combo_box.item label="Mi última localización" name="MyLastLocation"/>
+				<combo_box.item label="Mi última posición" name="MyLastLocation"/>
 				<combo_box.item label="Mi Base" name="MyHome"/>
 			</combo_box>
 			<button label="Iniciar sesión" name="connect_btn"/>

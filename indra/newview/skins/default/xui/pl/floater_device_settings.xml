@@ -1,3 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_device_settings"
-     title="USTAWIENIA URZĄDZEŃ KOMUNIKACJI GŁOSOWEJ" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_device_settings" title="USTAWIENIA URZĄDZEŃ KOMUNIKACJI GŁOSOWEJ"/>

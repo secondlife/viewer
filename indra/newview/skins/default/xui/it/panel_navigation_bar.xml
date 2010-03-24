@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="navigation_bar">
 	<panel name="navigation_panel">
-		<button name="back_btn" tool_tip="Ritorna al luogo precedente"/>
-		<button name="forward_btn" tool_tip="Vai ad un luogo"/>
+		<pull_button name="back_btn" tool_tip="Ritorna al luogo precedente"/>
+		<pull_button name="forward_btn" tool_tip="Vai ad un luogo"/>
 		<button name="home_btn" tool_tip="Teleport a casa mia"/>
 		<location_input label="Luogo" name="location_combo"/>
 		<search_combo_box label="Cerca" name="search_combo_box" tool_tip="Cerca">
 			<combo_editor label="Cerca [SECOND_LIFE]" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
-	<favorites_bar name="favorite">
+	<favorites_bar name="favorite" tool_tip="Trascina qui i punti di riferimento per un accesso rapido ai tuoi posti preferiti in Second Life.">
+		<label name="favorites_bar_label" tool_tip="Trascina qui i punti di riferimento per un accesso rapido ai tuoi posti preferiti in Second Life.">
+			Barra dei Preferiti
+		</label>
 		<chevron_button name="&gt;&gt;" tool_tip="Mostra più dei miei Preferiti"/>
 	</favorites_bar>
 </panel>

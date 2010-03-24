@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Url Popup">
-	<menu_item_call label="Lancia questo comando" name="run_slapp"/>
-	<menu_item_call label="Copia SLurl negli appunti" name="url_copy"/>
+	<menu_item_call label="Esegui questo comando" name="run_slapp"/>
+	<menu_item_call label="Copia SLurl negli Appunti" name="url_copy"/>
 </context_menu>

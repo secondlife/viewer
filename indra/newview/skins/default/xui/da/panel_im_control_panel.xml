@@ -13,7 +13,7 @@
 		<layout_panel name="share_btn_panel">
 			<button label="Del" name="share_btn"/>
 		</layout_panel>
-		<layout_panel name="share_btn_panel">
+		<layout_panel name="pay_btn_panel">
 			<button label="Betal" name="pay_btn"/>
 		</layout_panel>
 		<layout_panel name="call_btn_panel">

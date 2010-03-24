@@ -7,44 +7,45 @@
 		<menu_item_call label="Mój Profil" name="Profile"/>
 		<menu_item_call label="Mój Wygląd" name="Appearance"/>
 		<menu_item_check label="Moja Szafa" name="Inventory"/>
-		<menu_item_call label="Pokaż Szafę w Schowku" name="ShowSidetrayInventory"/>
-		<menu_item_call label="Moje Gesturki" name="Gestures"/>
+		<menu_item_check label="Moja Szafa" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Moje Gesturki" name="Gestures"/>
 		<menu label="Mój Status" name="Status">
 			<menu_item_call label="Tryb Oddalenia" name="Set Away"/>
 			<menu_item_call label="Tryb Pracy" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Zarządaj Statusu Administratora" name="Request Admin Options"/>
+		<menu_item_call label="Zażądaj Statusu Administratora" name="Request Admin Options"/>
 		<menu_item_call label="Wyłącz Status Administratora" name="Leave Admin Options"/>
 		<menu_item_call label="Wyłącz [APP_NAME]" name="Quit"/>
 	</menu>
-	<menu label="Kommunikacja" name="Communicate">
+	<menu label="Komunikacja" name="Communicate">
 		<menu_item_call label="Znajomi" name="My Friends"/>
 		<menu_item_call label="Grupy" name="My Groups"/>
 		<menu_item_check label="Czat Lokalny" name="Nearby Chat"/>
 		<menu_item_call label="Osoby w Pobliżu" name="Active Speakers"/>
-		<menu_item_check label="Media w Pobliżu" name="Nearby Media"/>
 	</menu>
 	<menu label="Świat" name="World">
-		<menu_item_check label="Ustawienia Ruchu" name="Movement Controls"/>
-		<menu_item_check label="Widok" name="Camera Controls"/>
-		<menu_item_call label="O Posiadłości" name="About Land"/>
-		<menu_item_call label="Region/Majątek" name="Region/Estate"/>
-		<menu_item_call label="Kup Posiadłość" name="Buy Land"/>
-		<menu_item_call label="Moje Posiadłości" name="My Land"/>
-		<menu label="Pokaż" name="Land">
-			<menu_item_check label="Linie Banu" name="Ban Lines"/>
-			<menu_item_check label="Emitery" name="beacons"/>
-			<menu_item_check label="Granice Posiadłości" name="Property Lines"/>
-			<menu_item_check label="Właściciele Posiadłości" name="Land Owners"/>
-		</menu>
-		<menu label="Ulubione Miejsca" name="Landmarks">
-			<menu_item_call label="Zapisz Ulubione Miejsce" name="Create Landmark Here"/>
-			<menu_item_call label="Ustaw Miejsce Startu" name="Set Home to Here"/>
-		</menu>
-		<menu_item_call label="Miejsce Startu" name="Teleport Home"/>
 		<menu_item_check label="Mini-Mapa" name="Mini-Map"/>
 		<menu_item_check label="Mapa Świata" name="World Map"/>
 		<menu_item_call label="Zrób Zdjęcie" name="Take Snapshot"/>
+		<menu_item_call label="Zapamiętaj to Miejsce" name="Create Landmark Here"/>
+		<menu label="Miejsce" name="Land">
+			<menu_item_call label="O Posiadłości" name="About Land"/>
+			<menu_item_call label="Region/Majątek" name="Region/Estate"/>
+		</menu>
+		<menu_item_call label="Kup Posiadłość" name="Buy Land"/>
+		<menu_item_call label="Moje Posiadłości" name="My Land"/>
+		<menu label="Pokaż" name="LandShow">
+			<menu_item_check label="Ustawienia Ruchu" name="Movement Controls"/>
+			<menu_item_check label="Zobacz Ustawienia" name="Camera Controls"/>
+			<menu_item_check label="Linie Bana" name="Ban Lines"/>
+			<menu_item_check label="Emitery" name="beacons"/>
+			<menu_item_check label="Granice Posiadłości" name="Property Lines"/>
+			<menu_item_check label="Właściciele Posiadłości" name="Land Owners"/>
+			<menu_item_check label="Współrzędne" name="Coordinates"/>
+			<menu_item_check label="Właściwości Posiadłości" name="Parcel Properties"/>
+		</menu>
+		<menu_item_call label="Teleportuj do Miejsca Startu" name="Teleport Home"/>
+		<menu_item_call label="Ustaw Miejsce Startu" name="Set Home to Here"/>
 		<menu label="Słońce" name="Environment Settings">
 			<menu_item_call label="Wschód Słońca" name="Sunrise"/>
 			<menu_item_call label="Południe" name="Noon"/>
@@ -76,10 +77,12 @@
 		</menu>
 		<menu_item_call label="Grupuj" name="Link"/>
 		<menu_item_call label="Rozlinkuj" name="Unlink"/>
+		<menu_item_check label="Edytuj Zgrupowane Obiekty" name="Edit Linked Parts"/>
 		<menu_item_call label="Ogniskowa Selekcji" name="Focus on Selection"/>
 		<menu_item_call label="Przybliż do Selekcji" name="Zoom to Selection"/>
 		<menu label="Obiekt" name="Object">
-			<menu_item_call label="Kup" name="Menu Object Take"/>
+			<menu_item_call label="Kup" name="Menu Object Buy"/>
+			<menu_item_call label="Weź" name="Menu Object Take"/>
 			<menu_item_call label="Weź Kopię" name="Take Copy"/>
 			<menu_item_call label="Zapisz Obiekt do Szafy" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Zapisz do Treści Obiektu" name="Save Object Back to Object Contents"/>
@@ -92,25 +95,18 @@
 			<menu_item_call label="Wstrzymaj Działanie Skryptów w Selekcji" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opcje" name="Options">
-			<menu_item_check label="Edytuj Części Zlinkowane" name="Edit Linked Parts"/>
 			<menu_item_call label="Ustaw Domyślne Pozwolenia Ładowania" name="perm prefs"/>
 			<menu_item_check label="Pokaż Zaawansowane Pozwolenia" name="DebugPermissions"/>
-			<menu label="Selekcja" name="Selection">
-				<menu_item_check label="Wybierz Tylko Moje Obiekty" name="Select Only My Objects"/>
-				<menu_item_check label="Zaznacz Tylko Poruszające się Obiekty" name="Select Only Movable Objects"/>
-				<menu_item_check label="Wybierz Przez Zaznaczenie" name="Select By Surrounding"/>
-			</menu>
-			<menu label="Pokaż" name="Show">
-				<menu_item_check label="Pokaż Ukrytą Selekcję" name="Show Hidden Selection"/>
-				<menu_item_check label="Pokaż Promień Światła dla Selekcji" name="Show Light Radius for Selection"/>
-				<menu_item_check label="Pokaż Emitery Selekcji" name="Show Selection Beam"/>
-			</menu>
-			<menu label="Siatka" name="Grid">
-				<menu_item_check label="Przeciągnij Obiekt" name="Snap to Grid"/>
-				<menu_item_call label="Przeciągnij Obiekt XY do Siatki" name="Snap Object XY to Grid"/>
-				<menu_item_call label="Zastosuj Zaznaczenie dla Siatki" name="Use Selection for Grid"/>
-				<menu_item_call label="Ustawienia Siatki" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="Wybierz Tylko Moje Obiekty" name="Select Only My Objects"/>
+			<menu_item_check label="Wybierz Tylko Obiekty Przesuwalne" name="Select Only Movable Objects"/>
+			<menu_item_check label="Wybierz przez Otoczenie" name="Select By Surrounding"/>
+			<menu_item_check label="Zobacz Ukrytą Selekcję" name="Show Hidden Selection"/>
+			<menu_item_check label="Pokaż Promień Emitera dla Selekcji" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Pokaż Emiter Selekcji" name="Show Selection Beam"/>
+			<menu_item_check label="Uruchom Siatkę" name="Snap to Grid"/>
+			<menu_item_call label="Przeciągnij Obiekt do Siatki" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Wybierz Zaznaczenie Siatki" name="Use Selection for Grid"/>
+			<menu_item_call label="Opcje Siatki" name="Grid Options"/>
 		</menu>
 		<menu label="Wybierz Zlinkowane Części" name="Select Linked Parts">
 			<menu_item_call label="Wybierz Następną Część" name="Select Next Part"/>
@@ -121,15 +117,14 @@
 	</menu>
 	<menu label="Pomoc" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Portal Pomocy" name="Second Life Help"/>
-		<menu_item_call label="Samouczek" name="Tutorial"/>
 		<menu_item_call label="Złóż Raport o Nadużyciu" name="Report Abuse"/>
 		<menu_item_call label="Zgłoś Błędy Klienta" name="Report Bug"/>
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
-		<menu_item_check label="Uruchom Tryb Oddalenia po 30 Minutach" name="Go Away/AFK When Idle"/>
 		<menu_item_call label="Zatrzymaj Wszystkie Animacje" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Odswież Wyświetlanie Tekstur" name="Rebake Texture"/>
 		<menu_item_call label="Domyślne Ustawienia Rozmiaru Interfejsu" name="Set UI Size to Default"/>
+		<menu_item_call label="Ustaw Rozmiar Interfejsu..." name="Set Window Size..."/>
 		<menu_item_check label="Ogranicz Dystans Selekcji" name="Limit Select Distance"/>
 		<menu_item_check label="Wyłącz Ograniczenia Zasięgu Kamery" name="Disable Camera Distance"/>
 		<menu_item_check label="Wysoka Rozdzielczość Zdjęć" name="HighResSnapshot"/>
@@ -176,8 +171,8 @@
 		<menu_item_check label="Uruchom Wiele Wątków" name="Run Multiple Threads"/>
 		<menu_item_call label="Wyczyść Bufor Danych Grupy" name="ClearGroupCache"/>
 		<menu_item_check label="Wygładzanie Ruchu Myszki" name="Mouse Smoothing"/>
-		<menu_item_check label="Pokaż Wiadomości w Pobliżu" name="IMInChat"/>
 		<menu label="Skróty" name="Shortcuts">
+			<menu_item_call label="Obraz (L$[COST])..." name="Upload Image"/>
 			<menu_item_check label="Szukaj" name="Search"/>
 			<menu_item_call label="Zwolnij Klawisze" name="Release Keys"/>
 			<menu_item_call label="Domyślne Ustawienia Rozmiaru Interfejsu" name="Set UI Size to Default"/>
@@ -189,7 +184,7 @@
 			<menu_item_call label="Widok Panoramiczny" name="Mouselook"/>
 			<menu_item_check label="Wolna Kamera" name="Joystick Flycam"/>
 			<menu_item_call label="Reset Widoku" name="Reset View"/>
-			<menu_item_call label="Zobacz Ostatniego Rozmówce" name="Look at Last Chatter"/>
+			<menu_item_call label="Zobacz Ostatniego Rozmówcę" name="Look at Last Chatter"/>
 			<menu label="Wybierz Narzędzie Budowania" name="Select Tool">
 				<menu_item_call label="Narzędzie Ogniskowej" name="Focus"/>
 				<menu_item_call label="Narzędzie Ruchu" name="Move"/>
@@ -205,7 +200,7 @@
 		<menu_item_call label="Pokaż Ustawienia Debugowania" name="Debug Settings"/>
 		<menu_item_check label="Pokaż Menu Progresu" name="Debug Mode"/>
 	</menu>
-	<menu label="Postęp" name="Develop">
+	<menu label="Postęp..." name="Develop">
 		<menu label="Konsola" name="Consoles">
 			<menu_item_check label="Konsola Tekstur" name="Texture Console"/>
 			<menu_item_check label="Debugowanie Zdarzeń Konsoli" name="Debug Console"/>
@@ -217,6 +212,7 @@
 			<menu_item_call label="Info Regionu do Debugowania Konsoli" name="Region Info to Debug Console"/>
 			<menu_item_check label="Kamera" name="Camera"/>
 			<menu_item_check label="Wiatr" name="Wind"/>
+			<menu_item_check label="Znak" name="Badge"/>
 		</menu>
 		<menu label="Pokaż Informacje" name="Display Info">
 			<menu_item_check label="Pokaż Czas" name="Show Time"/>

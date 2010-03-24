@@ -443,6 +443,9 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="access_estate_defined">
 				(Durch Grundstück festgelegt)
 			</panel.string>
+			<panel.string name="allow_public_access">
+				Öffentlichen Zugang erlauben ([MATURITY])
+			</panel.string>
 			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundstücksebene
 			</panel.string>

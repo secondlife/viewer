@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Landmarks">
+	<accordion name="landmarks_accordion">
+		<accordion_tab name="tab_favorites" title="Ulubione"/>
+		<accordion_tab name="tab_landmarks" title="Miejsca Zapisane"/>
+		<accordion_tab name="tab_inventory" title="Moja Szafa"/>
+		<accordion_tab name="tab_library" title="Biblioteka"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Pokaż dodatkowe opcje"/>
+		<button name="add_btn" tool_tip="Dodaj nowy landmark"/>
+		<dnd_button name="trash_btn" tool_tip="Usuń zaznaczony landmark"/>
+	</panel>
+</panel>

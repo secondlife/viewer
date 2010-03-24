@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits">
+<panel label="Cose" name="Outfits">
 	<accordion name="outfits_accordion">
 		<accordion_tab name="tab_cof" title="Vestiario attuale"/>
-		<accordion_tab name="tab_outfits" title="Mio Vestiario"/>
+		<accordion_tab name="tab_outfits" title="Il mio vestiario"/>
 	</accordion>
 </panel>

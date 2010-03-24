@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Coisas" name="main inventory panel">
-	<panel.string name="Title">
-		Coisas
+	<panel.string name="ItemcountFetching">
+		Reunindo [ITEM_COUNT] itens ... [FILTER]
 	</panel.string>
-	<filter_editor label="Filtro" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Todos os itens" name="All Items"/>
-		<inventory_panel label="Itens recentes" name="Recent Items"/>
-	</tab_container>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
-		<button name="add_btn" tool_tip="Adicionar novo item"/>
-		<dnd_button name="trash_btn" tool_tip="Remover item selecionado"/>
-	</panel>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] itens [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Itens:
+	</text>
 	<menu_bar name="Inventory Menu">
 		<menu label="Arquivo" name="File">
 			<menu_item_call label="Abrir" name="Open"/>
@@ -61,4 +57,14 @@
 			<menu_item_check label="Pastas do sistema no topo" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
+	<filter_editor label="Filtro" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Todos os itens" name="All Items"/>
+		<inventory_panel label="Itens recentes" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
+		<button name="add_btn" tool_tip="Adicionar novo item"/>
+		<dnd_button name="trash_btn" tool_tip="Remover item selecionado"/>
+	</panel>
 </panel>
