@@ -96,7 +96,7 @@
 	<check_box initial_value="true" label="Copia centrada" name="checkbox copy centers"/>
 	<check_box label="Copia girada" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
-		<radio_item label="Seleccionar el terreno" name="radio select land"/>
+		<radio_item label="Seleccionar terreno" name="radio select land"/>
 		<radio_item label="Nivelar" name="radio flatten"/>
 		<radio_item label="Elevar" name="radio raise"/>
 		<radio_item label="Bajar" name="radio lower"/>
